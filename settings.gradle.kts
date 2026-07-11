@@ -1,0 +1,168 @@
+pluginManagement {
+    includeBuild("build-logic")
+
+    repositories {
+        google {
+            content {
+                includeGroupByRegex("com.android.*")
+                includeGroupByRegex("com.google.*")
+                includeGroupByRegex("androidx.*")
+            }
+        }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositories {
+        google {
+            content {
+                includeGroupByRegex("com.android.*")
+                includeGroupByRegex("com.google.*")
+                includeGroupByRegex("androidx.*")
+            }
+        }
+        mavenCentral()
+        maven("https://repository.map.naver.com/archive/maven") {
+            content {
+                includeGroup("com.naver.maps")
+            }
+        }
+    }
+
+    versionCatalogs {
+        create("ktorLibs") {
+            from("io.ktor:ktor-version-catalog:3.5.1") // https://github.com/ktorio/ktor/releases
+        }
+    }
+}
+
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+}
+
+rootProject.name = "DiaryKmp"
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+enableFeaturePreview("NO_IMPLICIT_LOOKUP_IN_PARENT_PROJECTS")
+enableFeaturePreview("ENHANCED_GRAPH_ORDERING")
+
+include(":app:android")
+include(":app:ios")
+include(":app:jvm")
+include(":app:wasm")
+include(":app:shared")
+include(":compose:calendar")
+include(":compose:core")
+include(":compose:map")
+include(":compose:memo")
+include(":compose:place")
+include(":compose:tag")
+include(":compose:web")
+include(":core:database:api")
+include(":core:database:impl")
+include(":core:datastore:api")
+include(":core:datastore:impl")
+include(":core:file:api")
+include(":core:file:impl")
+include(":core:gemini-network:api")
+include(":core:gemini-network:impl")
+include(":core:google-network:api")
+include(":core:google-network:impl")
+include(":core:holiday-database:api")
+include(":core:holiday-database:impl")
+include(":core:holiday-network:api")
+include(":core:holiday-network:impl")
+include(":core:ip-network:api")
+include(":core:ip-network:impl")
+include(":core:location:api")
+include(":core:location:impl")
+include(":core:mapper")
+include(":core:model")
+include(":core:naver-network:api")
+include(":core:naver-network:impl")
+include(":core:network:api")
+include(":core:network:impl")
+include(":core:notification:api")
+include(":core:notification:impl")
+include(":core:supabase:api")
+include(":core:supabase:impl")
+include(":core:weather-network:api")
+include(":core:weather-network:impl")
+include(":core:web-network:api")
+include(":core:web-network:impl")
+include(":core:work:api")
+include(":core:work:impl")
+include(":data:account")
+include(":data:authentication")
+include(":data:contact")
+include(":data:holiday")
+include(":data:location")
+include(":data:memo")
+include(":data:place")
+include(":data:search")
+include(":data:setting")
+include(":data:sync")
+include(":data:tag")
+include(":data:weather")
+include(":data:web")
+include(":domain:account")
+include(":domain:authentication")
+include(":domain:contact")
+include(":domain:core")
+include(":domain:holiday")
+include(":domain:location")
+include(":domain:memo")
+include(":domain:place")
+include(":domain:search")
+include(":domain:setting")
+include(":domain:sync")
+include(":domain:tag")
+include(":domain:weather")
+include(":domain:web")
+include(":feature:memo:api")
+include(":feature:memo:ui")
+include(":feature:login:api")
+include(":feature:login:ui")
+include(":feature:holiday:api")
+include(":feature:holiday:ui")
+include(":feature:more:api")
+include(":feature:more:ui")
+include(":feature:place:api")
+include(":feature:place:ui")
+include(":feature:tag:api")
+include(":feature:tag:ui")
+include(":feature:calendar:api")
+include(":feature:calendar:ui")
+include(":feature:contact:api")
+include(":feature:contact:ui")
+include(":feature:routine:api")
+include(":feature:routine:ui")
+include(":feature:search:api")
+include(":feature:search:ui")
+include(":feature:setting:api")
+include(":feature:setting:ui")
+include(":feature:web:api")
+include(":feature:web:ui")
+include(":feature:checklist:api")
+include(":feature:checklist:ui")
+include(":feature:dday:api")
+include(":feature:dday:ui")
+include(":feature:file:api")
+include(":feature:file:ui")
+include(":feature:playlist:api")
+include(":feature:playlist:ui")
+include(":feature:qr:api")
+include(":feature:qr:ui")
+include(":library:compose-ui")
+include(":library:coroutines")
+include(":library:fixture-monkey")
+include(":library:kotlin")
+include(":library:kotlinx-datetime")
+include(":library:room3")
+include(":library:webkit")
+include(":logger:console:api")
+include(":logger:console:impl")
+include(":logger:core")
+include(":logger:crashlytics:api")
+include(":logger:crashlytics:impl")

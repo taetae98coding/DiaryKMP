@@ -1,0 +1,12 @@
+.DS_Store
+.gradle
+.idea
+.kotlin
+build
+*.jks
+google-services.json
+GoogleService-Info.plist
+local.properties
+xcuserdata
+DevLocal.xcconfig
+RealLocal.xcconfig
