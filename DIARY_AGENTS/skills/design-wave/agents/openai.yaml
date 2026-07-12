@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design Wave"
+  short_description: "스펙을 기준으로 화면과 컴포넌트 디자인 문서를 작성"
+  default_prompt: "Use $design-wave to review the baseline spec and related design documents, then draft a concrete design document without redefining product behavior."

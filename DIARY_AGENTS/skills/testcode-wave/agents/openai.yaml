@@ -1,0 +1,4 @@
+interface:
+  display_name: "Testcode Wave"
+  short_description: "테스트 케이스 문서를 jvmTest·androidHostTest 코드로 자동화"
+  default_prompt: "Use $testcode-wave to automate the testcase document into jvmTest and androidHostTest code with TC ID traceability."

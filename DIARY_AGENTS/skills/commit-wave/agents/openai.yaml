@@ -1,0 +1,4 @@
+interface:
+  display_name: "Commit Wave"
+  short_description: "Diary KMP 커밋 전 검증과 메시지 기준"
+  default_prompt: "Use $commit-wave to run Diary KMP commit checks and create a commit title and optional description."

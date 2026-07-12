@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spec Wave"
+  short_description: "사용자 행위와 제품 정책 중심의 스펙 충돌 검토 및 작성"
+  default_prompt: "Use $spec-wave to review related product specifications for conflicts and write a specification focused on user actions, observable outcomes, and product policy."

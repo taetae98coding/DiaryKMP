@@ -1,0 +1,4 @@
+interface:
+  display_name: "Merge Wave"
+  short_description: "리베이스된 브랜치를 --ff-only로 머지하는 게이트"
+  default_prompt: "Use $merge-wave to fast-forward merge the current branch into the target branch it was rebased onto."

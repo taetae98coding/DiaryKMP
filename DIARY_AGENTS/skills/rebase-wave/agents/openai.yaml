@@ -1,0 +1,4 @@
+interface:
+  display_name: "Rebase Wave"
+  short_description: "대상 브랜치 위로 리베이스해 컨플릭을 확인하는 게이트"
+  default_prompt: "Use $rebase-wave to rebase the current branch onto the merge target with autostash, resolve conflicts, and verify the result."

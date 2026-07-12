@@ -1,0 +1,4 @@
+interface:
+  display_name: "Supabase Push"
+  short_description: "Push Supabase config with flavor-scoped credentials."
+  default_prompt: "Use $supabase-push to safely push the Supabase config."
