@@ -1,0 +1,190 @@
+[versions]
+kotlin = "2.4.10" # https://github.com/JetBrains/kotlin/releases
+
+kotlinxBrowser = "0.5.0" # https://github.com/Kotlin/kotlinx-browser
+kotlinxCoroutines = "1.11.0" # https://github.com/Kotlin/kotlinx.coroutines/releases
+kotlinxDatetime = "0.8.0" # https://github.com/Kotlin/kotlinx-datetime/releases
+kotlinxIo = "0.9.1" # https://github.com/Kotlin/kotlinx-io/releases
+kotlinxSerialization = "1.11.0" # https://github.com/Kotlin/kotlinx.serialization/releases
+
+jetbrainsCompose = "1.12.0" # https://github.com/JetBrains/compose-multiplatform/releases
+jetbrainsComposeMaterialIcons = "1.7.3"
+jetbrainsComposeMaterial3 = "1.12.0-alpha03"
+jetbrainsComposeMaterial3Adaptive = "1.3.0-beta02"
+jetbrainsLifecycle = "2.11.0"
+jetbrainsNavigation3 = "1.2.0-alpha02"
+
+androidGradlePlugin = "9.3.1" # https://developer.android.com/build/releases/gradle-plugin?hl=en
+
+androidxActivity = "1.13.0" # https://developer.android.com/jetpack/androidx/releases/activity?hl=en
+androidxComposeUi = "1.12.0" # https://developer.android.com/jetpack/androidx/releases/compose-ui?hl=en
+androidxCredentials = "1.6.0" # https://developer.android.com/jetpack/androidx/releases/credentials?hl=en
+androidxDatastore = "1.3.0-alpha10" # https://developer.android.com/jetpack/androidx/releases/datastore?hl=en
+androidxLifecycle = "2.11.0" # https://developer.android.com/jetpack/androidx/releases/lifecycle?hl=en
+androidxNavigation3 = "1.2.0-alpha04" # https://developer.android.com/jetpack/androidx/releases/navigation3?hl=en
+androidxPaging = "3.5.1" # https://developer.android.com/jetpack/androidx/releases/paging?hl=en
+androidxRoom3 = "3.0.2" # https://developer.android.com/jetpack/androidx/releases/room3?hl=en
+androidxSqlite = "2.7.0" # https://developer.android.com/jetpack/androidx/releases/sqlite?hl=en
+androidxStartup = "1.2.0" # https://developer.android.com/jetpack/androidx/releases/startup?hl=en
+androidxWork = "2.11.2" # https://developer.android.com/jetpack/androidx/releases/work?hl=en
+
+buildKonfig = "0.22.0" # https://github.com/yshrsmz/BuildKonfig/releases
+coil = "3.6.2" # https://github.com/coil-kt/coil/releases
+detekt = "2.0.0-alpha.6" # https://github.com/detekt/detekt/releases
+firebase = "34.18.0" # https://firebase.google.com/support/release-notes/android
+firebaseCrashlyticsGradlePlugin = "3.0.7"
+firebasePerformanceGradlePlugin = "2.0.2"
+fixtureMonkey = "1.2.3" # https://github.com/naver/fixture-monkey/releases
+googleId = "1.2.0" # https://developers.google.com/identity/android-credential-manager/releases?hl=en
+googleLocation = "21.4.0" # https://developers.google.com/android/guides/releases?hl=en
+googleMap = "8.5.0" # https://github.com/googlemaps/android-maps-compose/releases
+googleMaterial = "1.14.0" # https://github.com/material-components/material-components-android/releases
+googleOauthClient = "1.39.0" # https://github.com/googleapis/google-oauth-java-client/releases
+googleServicesGradlePlugin = "4.5.0" # https://developers.google.com/android/guides/google-services-plugin?hl=en
+koin = "4.2.2" # https://github.com/InsertKoinIO/koin/releases
+koinCompiler = "1.1.0" # https://github.com/InsertKoinIO/koin-compiler-plugin/releases
+kotest = "6.2.4" # https://github.com/kotest/kotest/releases
+kotlinCryptoHash = "0.8.0" # https://github.com/KotlinCrypto/hash/releases
+ksp = "2.3.11" # https://github.com/google/ksp/releases
+markdownRenderer = "0.45.0" # https://github.com/mikepenz/multiplatform-markdown-renderer/releases
+mockk = "1.14.11" # https://github.com/mockk/mockk/releases
+naverMap = "3.23.3" # https://github.com/navermaps/android-map-sdk
+robolectric = "4.16.1" # https://github.com/robolectric/robolectric/releases
+spotless = "8.10.2" # https://github.com/diffplug/spotless/releases
+supabaseKt = "3.8.0" # https://github.com/supabase-community/supabase-kt/releases
+turbine = "1.2.1" # https://github.com/cashapp/turbine/releases
+
+[libraries]
+kotlinx-browser = { group = "org.jetbrains.kotlinx", name = "kotlinx-browser", version.ref = "kotlinxBrowser" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
+kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "kotlinxCoroutines" }
+kotlinx-coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-swing", version.ref = "kotlinxCoroutines" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
+kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
+kotlinx-io-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-io-core", version.ref = "kotlinxIo" }
+kotlinx-serialization-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "kotlinxSerialization" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+
+jetbrains-compose-components-resources = { group = "org.jetbrains.compose.components", name = "components-resources", version.ref = "jetbrainsCompose" }
+jetbrains-compose-material-icons-extended = { group = "org.jetbrains.compose.material", name = "material-icons-extended", version.ref = "jetbrainsComposeMaterialIcons" }
+jetbrains-compose-material3 = { group = "org.jetbrains.compose.material3", name = "material3", version.ref = "jetbrainsComposeMaterial3" }
+jetbrains-compose-material3-adaptive-navigation-suite = { group = "org.jetbrains.compose.material3", name = "material3-adaptive-navigation-suite", version.ref = "jetbrainsComposeMaterial3" }
+jetbrains-compose-material3-adaptive = { group = "org.jetbrains.compose.material3.adaptive", name = "adaptive", version.ref = "jetbrainsComposeMaterial3Adaptive" }
+jetbrains-compose-material3-adaptive-navigation3 = { group = "org.jetbrains.compose.material3.adaptive", name = "adaptive-navigation3", version.ref = "jetbrainsComposeMaterial3Adaptive" }
+jetbrains-compose-ui = { group = "org.jetbrains.compose.ui", name = "ui", version.ref = "jetbrainsCompose" }
+jetbrains-compose-ui-test-junit4 = { group = "org.jetbrains.compose.ui", name = "ui-test-junit4", version.ref = "jetbrainsCompose" }
+jetbrains-compose-ui-tooling = { group = "org.jetbrains.compose.ui", name = "ui-tooling", version.ref = "jetbrainsCompose" }
+jetbrains-compose-ui-tooling-preview = { group = "org.jetbrains.compose.ui", name = "ui-tooling-preview", version.ref = "jetbrainsCompose" }
+jetbrains-lifecycle-runtime-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "jetbrainsLifecycle" }
+jetbrains-lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "jetbrainsLifecycle" }
+jetbrains-lifecycle-viewmodel-navigation3 = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "jetbrainsLifecycle" }
+jetbrains-navigation3-ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "jetbrainsNavigation3" }
+
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
+androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest", version.ref = "androidxComposeUi" }
+androidx-credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "androidxCredentials" }
+androidx-datastore-core-okio = { group = "androidx.datastore", name = "datastore-core-okio", version.ref = "androidxDatastore" }
+androidx-lifecycle-runtime-testing = { module = "androidx.lifecycle:lifecycle-runtime-testing", version.ref = "androidxLifecycle" }
+androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "androidxNavigation3" }
+androidx-paging-common = { module = "androidx.paging:paging-common", version.ref = "androidxPaging" }
+androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "androidxPaging" }
+androidx-paging-testing = { module = "androidx.paging:paging-testing", version.ref = "androidxPaging" }
+androidx-room3-common = { group = "androidx.room3", name = "room3-common", version.ref = "androidxRoom3" }
+androidx-room3-compiler = { group = "androidx.room3", name = "room3-compiler", version.ref = "androidxRoom3" }
+androidx-room3-paging = { group = "androidx.room3", name = "room3-paging", version.ref = "androidxRoom3" }
+androidx-room3-runtime = { group = "androidx.room3", name = "room3-runtime", version.ref = "androidxRoom3" }
+androidx-room3-testing = { group = "androidx.room3", name = "room3-testing", version.ref = "androidxRoom3" }
+androidx-sqlite-bundled = { group = "androidx.sqlite", name = "sqlite-bundled", version.ref = "androidxSqlite" }
+androidx-sqlite-web = { group = "androidx.sqlite", name = "sqlite-web", version.ref = "androidxSqlite" }
+androidx-startup-runtime = { group = "androidx.startup", name = "startup-runtime", version.ref = "androidxStartup" }
+androidx-work-runtime = { group = "androidx.work", name = "work-runtime", version.ref = "androidxWork" }
+androidx-work-testing = { group = "androidx.work", name = "work-testing", version.ref = "androidxWork" }
+
+gradle-plugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+gradle-plugin-kotlin-compose-compiler = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
+gradle-plugin-kotlin-serialization = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin" }
+gradle-plugin-jetbrains-compose = { module = "org.jetbrains.compose:org.jetbrains.compose.gradle.plugin", version.ref = "jetbrainsCompose" }
+gradle-plugin-android = { module = "com.android.tools.build:gradle", version.ref = "androidGradlePlugin" }
+gradle-plugin-detekt = { module = "dev.detekt:detekt-gradle-plugin", version.ref = "detekt" }
+gradle-plugin-koin-compiler = { module = "io.insert-koin:koin-compiler-gradle-plugin", version.ref = "koinCompiler" }
+
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
+
+
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
+firebase-performance = { group = "com.google.firebase", name = "firebase-perf" }
+
+fixture-monkey-kotlin = { module = "com.navercorp.fixturemonkey:fixture-monkey-kotlin", version.ref = "fixtureMonkey" }
+
+google-identity-googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleId" }
+google-maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "googleMap" }
+google-material = { module = "com.google.android.material:material", version.ref = "googleMaterial" }
+google-oauth-client-jetty = { group = "com.google.oauth-client", name = "google-oauth-client-jetty", version.ref = "googleOauthClient" }
+google-play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "googleLocation" }
+
+koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
+koin-androidx-workmanager = { group = "io.insert-koin", name = "koin-androidx-workmanager", version.ref = "koin" }
+koin-annotations = { group = "io.insert-koin", name = "koin-annotations", version.ref = "koin" }
+koin-compose-viewmodel = { group = "io.insert-koin", name = "koin-compose-viewmodel", version.ref = "koin" }
+koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
+
+kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
+
+kotlincrypto-hash-sha2 = { module = "org.kotlincrypto.hash:sha2", version.ref = "kotlinCryptoHash" }
+
+markdown-renderer-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "markdownRenderer" }
+
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+
+naver-map = { module = "com.naver.maps:map-sdk", version.ref = "naverMap" }
+
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+
+supabase-functions = { module = "io.github.jan-tennert.supabase:functions-kt", version.ref = "supabaseKt" }
+
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+
+[plugins]
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
+jetbrains-compose = { id = "org.jetbrains.compose", version.ref = "jetbrainsCompose" }
+
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "androidGradlePlugin" }
+
+androidx-room3 = { id = "androidx.room3", version.ref = "androidxRoom3" }
+
+build-konfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildKonfig" }
+detekt = { id = "dev.detekt", version.ref = "detekt" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsGradlePlugin" }
+firebase-performance = { id = "com.google.firebase.firebase-perf", version.ref = "firebasePerformanceGradlePlugin" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServicesGradlePlugin" }
+koin-compiler = { id = "io.insert-koin.compiler.plugin", version.ref = "koinCompiler" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+
+primitive-android-application = { id = "io.github.taetae98coding.diary.primitive.android.application" }
+primitive-android-host-test = { id = "io.github.taetae98coding.diary.primitive.android.host.test" }
+primitive-android-library = { id = "io.github.taetae98coding.diary.primitive.android.library" }
+primitive-compose = { id = "io.github.taetae98coding.diary.primitive.compose" }
+primitive-compose-test = { id = "io.github.taetae98coding.diary.primitive.compose.test" }
+primitive-compose-resources = { id = "io.github.taetae98coding.diary.primitive.compose.resources" }
+primitive-compose-preview = { id = "io.github.taetae98coding.diary.primitive.compose.preview" }
+primitive-ios = { id = "io.github.taetae98coding.diary.primitive.ios" }
+primitive-jvm = { id = "io.github.taetae98coding.diary.primitive.jvm" }
+primitive-koin = { id = "io.github.taetae98coding.diary.primitive.koin" }
+primitive-kotest = { id = "io.github.taetae98coding.diary.primitive.kotest" }
+primitive-multiplatform = { id = "io.github.taetae98coding.diary.primitive.multiplatform" }
+primitive-multiplatform-android-library = { id = "io.github.taetae98coding.diary.primitive.multiplatform.android.library" }
+primitive-wasm = { id = "io.github.taetae98coding.diary.primitive.wasm" }
+
+convention-data = { id = "io.github.taetae98coding.diary.convention.data" }
+convention-domain = { id = "io.github.taetae98coding.diary.convention.domain" }
+convention-feature-api = { id = "io.github.taetae98coding.diary.convention.feature.api" }
+convention-feature-ui = { id = "io.github.taetae98coding.diary.convention.feature.ui" }
