@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DiaryMap 구조 · State 관리와 naver-map / google-map 연동</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --panel: #ffffff;
+    --ink: #16181d;
+    --muted: #666d7a;
+    --line: #e2e5ea;
+    --accent: #3a7bd5;
+    --accent-soft: #e8f0fb;
+    --naver: #2f9e78;
+    --naver-soft: #e6f5ef;
+    --google: #d5567a;
+    --google-soft: #fbeaf0;
+    --common: #7a5fd0;
+    --common-soft: #efeafb;
+    --warn-bg: #fff5e0;
+    --warn-ink: #8a5a00;
+    --warn-line: #f0d9a8;
+    --code-bg: #1e222a;
+    --radius: 12px;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a;
+      --panel: #1c1f25;
+      --ink: #e8eaee;
+      --muted: #99a1ae;
+      --line: #2c313a;
+      --accent: #6fa8f5;
+      --accent-soft: #23303f;
+      --naver: #5fcfa6;
+      --naver-soft: #1b2f28;
+      --google: #f08aa8;
+      --google-soft: #33212a;
+      --common: #a996ec;
+      --common-soft: #262138;
+      --warn-bg: #2f2716;
+      --warn-ink: #f0c674;
+      --warn-line: #4d4224;
+      --code-bg: #11131a;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px 20px 96px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Segoe UI", sans-serif;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+
+  h1 { font-size: 1.65rem; margin: 0 0 6px; letter-spacing: -0.02em; }
+  h2 { font-size: 1.2rem; margin: 0 0 14px; letter-spacing: -0.01em; }
+  h3 { font-size: 1rem; margin: 24px 0 8px; }
+  h4 { font-size: 0.9rem; margin: 18px 0 6px; color: var(--muted); text-transform: none; }
+  .sub { color: var(--muted); margin: 0 0 12px; font-size: 0.95rem; }
+  p { margin: 0 0 12px; }
+  ul, ol { margin: 0 0 12px; padding-left: 22px; }
+  li { margin: 3px 0; }
+  code {
+    font-family: var(--mono);
+    font-size: 0.86em;
+    background: var(--accent-soft);
+    color: var(--ink);
+    padding: 1px 5px;
+    border-radius: 5px;
+  }
+  a { color: var(--accent); }
+  section {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-bottom: 18px;
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin: 0 0 26px;
+  }
+  .meta b { color: var(--ink); font-weight: 600; }
+
+  nav.toc { font-size: 0.88rem; }
+  nav.toc ol { padding-left: 20px; margin: 0; }
+  nav.toc li { margin: 2px 0; }
+
+  .tblwrap { overflow-x: auto; margin: 0 0 14px; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.86rem; }
+  th, td { border: 1px solid var(--line); padding: 7px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--accent-soft); font-weight: 600; white-space: nowrap; }
+  td code, th code { background: transparent; padding: 0; }
+
+  .tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 1px 7px;
+    border-radius: 999px;
+    vertical-align: 1px;
+  }
+  .tag.naver { background: var(--naver-soft); color: var(--naver); }
+  .tag.google { background: var(--google-soft); color: var(--google); }
+  .tag.common { background: var(--common-soft); color: var(--common); }
+
+  .flow { display: flex; flex-direction: column; gap: 8px; margin: 0 0 16px; }
+  .flow .row {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 12px;
+    align-items: start;
+    font-size: 0.86rem;
+  }
+  .flow .row .k {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--muted);
+    padding-top: 5px;
+  }
+  .flow .row .v {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 7px 11px;
+  }
+  .flow .row.up .v { border-left-color: var(--naver); }
+  .flow .row.down .v { border-left-color: var(--google); }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 820px) { .cols { grid-template-columns: 1fr; } .flow .row { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .card h4 { margin-top: 0; color: var(--ink); font-size: 0.92rem; }
+  .card.naver { border-top: 3px solid var(--naver); }
+  .card.google { border-top: 3px solid var(--google); }
+
+  pre {
+    background: var(--code-bg);
+    color: #e6e9ef;
+    border-radius: 10px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 0.79rem;
+    line-height: 1.6;
+    margin: 0 0 14px;
+  }
+  pre .c { color: #7f8899; }
+  pre .f { color: #7fd4a0; }
+  pre .v { color: #f0b46f; }
+  pre .s { color: #9fc7f5; }
+
+  .gotcha {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-line);
+    border-left: 4px solid var(--warn-ink);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 0 0 14px;
+  }
+  .gotcha h4 { margin: 0 0 6px; color: var(--warn-ink); font-size: 0.9rem; }
+  .gotcha p:last-child { margin-bottom: 0; }
+
+  .tabs { display: flex; flex-wrap: wrap; gap: 7px; margin: 0 0 16px; }
+  .tabs button {
+    font: inherit;
+    font-size: 0.83rem;
+    padding: 5px 12px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--muted);
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .tabs button:hover { border-color: var(--accent); color: var(--accent); }
+  .tabs button[aria-selected="true"] {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .panel[hidden] { display: none; }
+
+  .sep { border: none; border-top: 1px solid var(--line); margin: 22px 0; }
+  .note { font-size: 0.83rem; color: var(--muted); }
+  .path { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>DiaryMap 구조 · State 관리와 naver-map / google-map 연동</h1>
+  <p class="sub">
+    하나의 <code>DiaryMapState</code>가 네 플랫폼 × 두 제공자에 어떻게 이어지는지, 그리고 각 SDK가 어디서 어떻게 붙는지를 코드에서 역산해 적는다.
+  </p>
+  <div class="meta">
+    <span><b>기준</b> 저장소 <code>compose:map</code> · 커밋 <code>2796dc33</code></span>
+    <span><b>최종 확인</b> 2026-08-24</span>
+    <span>기준과 최종 확인을 적는 이유는 <code>docs/reference/README.md</code>가 소유합니다.</span>
+  </div>
+
+  <section>
+    <h2>이 문서의 범위</h2>
+    <p>
+      제품 관점의 동작과 정책은 <code>docs/spec/diary-map.md</code>가, 화면 표현은 <code>docs/design/diary-map.md</code>가 소유한다.
+      이 문서는 그 스펙을 만족시키는 <b>구현 구조</b>만 다룬다. 스펙과 이 문서가 어긋나면 스펙이 기준이고, 이 문서를 고친다.
+    </p>
+    <nav class="toc">
+      <ol>
+        <li><a href="#overview">한눈에 보기 — 3층 구조</a></li>
+        <li><a href="#files">파일 지도</a></li>
+        <li><a href="#state">State 관리 — <code>DiaryMapState</code></a></li>
+        <li><a href="#identity">지도 인스턴스를 지키는 두 장치 — <code>movableContentOf</code>와 콜백 신원</a></li>
+        <li><a href="#layout">제공자 전환 컨트롤과 배치</a></li>
+        <li><a href="#platform">플랫폼별 연동 (Android / iOS / JVM / wasmJs)</a></li>
+        <li><a href="#contrast">같은 동작을 두 SDK에서 얻는 방법 대조</a></li>
+        <li><a href="#pin">핀 마커 — 한 모양을 네 방식으로 그린다</a></li>
+        <li><a href="#auth">인증 키 배선</a></li>
+        <li><a href="#consumer">소비자 — 누가 어떻게 쓰는가</a></li>
+        <li><a href="#test">무엇이 테스트로 고정되어 있는가</a></li>
+      </ol>
+    </nav>
+  </section>
+
+  <section id="overview">
+    <h2>한눈에 보기 — 3층 구조</h2>
+    <p>
+      지도 연동은 세 층으로 나뉜다. 위 두 층은 <code>commonMain</code>에 있고 플랫폼 SDK를 전혀 모른다.
+      SDK를 아는 코드는 맨 아래 층뿐이며, 그 층은 <code>expect</code> 두 개(<code>NaverMap</code>, <code>GoogleMap</code>)로만 위층과 만난다.
+    </p>
+    <div class="flow">
+      <div class="row">
+        <div class="k">① 배치·전환 층</div>
+        <div class="v">
+          <code>DiaryMap</code> → <code>DiaryMapOverlayLayout</code> / <code>DiaryMapCardLayout</code> + <code>DiaryMapProviderSelector</code> / <code>DiaryMapProviderTabRow</code><br>
+          <span class="note">전환 컨트롤을 어디에 둘지만 정한다. 지도 내용은 <code>map: @Composable () -> Unit</code> 슬롯으로 받는다.</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="k">② 상태·계약 층</div>
+        <div class="v">
+          <code>DiaryMapState</code> + <code>DiaryMapCamera</code> · <code>DiaryMapCoordinate</code> · <code>DiaryMapBounds</code> · <code>DiaryMapPin</code> · <code>DiaryMapProvider</code><br>
+          <span class="note">지도가 알려오는 사실과 화면이 내리는 명령이 모두 이 한 객체를 지난다. <code>DiaryMapContent</code>가 <code>state.provider</code>로 ③을 고른다.</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="k">③ SDK 연동 층</div>
+        <div class="v">
+          <span class="tag naver">naver</span> <span class="tag google">google</span>
+          <code>internal expect fun NaverMap(...)</code> · <code>internal expect fun GoogleMap(...)</code><br>
+          <span class="note">androidMain · iosMain · jvmMain · wasmJsMain이 각각 <code>actual</code>을 낸다. 시그니처는 넷 모두 같다 — <code>modifier</code>, <code>state</code>, <code>onSpotClick</code>, <code>onPinClick</code>.</span>
+        </div>
+      </div>
+    </div>
+    <p>
+      두 제공자의 구현이 <b>같은 계층에 나란히</b> 있다는 점이 핵심이다. 제공자 전환은 상태 한 칸(<code>state.provider</code>)이 바뀌면
+      <code>DiaryMapContent</code>의 <code>when</code>이 다른 컴포저블을 부르는 것으로 끝나고, 카메라·지점·핀은 <code>DiaryMapState</code>에 그대로 남아 새 지도가 이어받는다.
+    </p>
+    <pre><span class="c">// DiaryMapContent.kt — 전환의 전부</span>
+<span class="f">when</span> (state.provider) {
+    DiaryMapProvider.<span class="v">NAVER</span>  -&gt; <span class="f">NaverMap</span>(state = state, modifier = modifier, onSpotClick = onSpotClick, onPinClick = onPinClick)
+    DiaryMapProvider.<span class="v">GOOGLE</span> -&gt; <span class="f">GoogleMap</span>(state = state, modifier = modifier, onSpotClick = onSpotClick, onPinClick = onPinClick)
+}</pre>
+  </section>
+
+  <section id="files">
+    <h2>파일 지도</h2>
+    <p class="note">소스셋별 역할. <span class="path">compose/map/src/&lt;소스셋&gt;/kotlin/io/github/taetae98coding/diary/compose/map/</span></p>
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th>소스셋</th><th>제공자 공통</th><th><span class="tag naver">naver</span></th><th><span class="tag google">google</span></th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>commonMain</code></td>
+            <td><code>DiaryMap</code>, <code>DiaryMapContent</code>, <code>DiaryMapState</code>, <code>DiaryMapCamera</code>, <code>DiaryMapCoordinate</code>, <code>DiaryMapBounds</code>, <code>DiaryMapPin</code>, <code>DiaryMapPinMarker</code>, <code>DiaryMapProvider</code>, <code>DiaryMapProviderList</code>, <code>DiaryMapProviderLabel</code>, <code>DiaryMapProviderSelector</code>, <code>DiaryMapProviderTabRow</code>, <code>DiaryMapOverlayLayout</code>, <code>DiaryMapCardLayout</code>, <code>DiaryMapLayout</code></td>
+            <td><code>NaverMap.kt</code> <span class="note">(expect)</span></td>
+            <td><code>GoogleMap.kt</code> <span class="note">(expect)</span></td>
+          </tr>
+          <tr>
+            <td><code>androidMain</code></td>
+            <td><code>DiaryMapLayout.android.kt</code> → <code>OVERLAY</code></td>
+            <td><code>NaverMap.android</code>, <code>NaverMapView</code>, <code>NaverMapShareCameraEffect</code>, <code>NaverMapSelectSpotEffect</code>, <code>NaverMapSpotMarkerEffect</code>, <code>NaverMapPinMarkersEffect</code>, <code>NaverMapMoveCameraEffect</code></td>
+            <td><code>GoogleMap.android</code>, <code>GoogleMapShareCameraEffect</code>, <code>GoogleMapMoveCameraEffect</code>, <code>GoogleMapSpotMarker</code>, <code>GoogleMapPinMarker</code></td>
+          </tr>
+          <tr>
+            <td><code>iosMain</code></td>
+            <td><code>DiaryMapLayout.ios.kt</code> → <code>OVERLAY</code>, <code>DiaryMapPinMarker.ios</code>, <code>DiaryMapPinColor.ios</code></td>
+            <td><code>NaverMap.ios</code>, <code>NaverMapDelegate</code>, <code>NaverMapSpotMarkerEffect</code>, <code>NaverMapPinMarkersEffect</code>, <code>NaverMapMoveCameraEffect</code></td>
+            <td><code>GoogleMap.ios</code>, <code>GoogleMapDelegate</code>, <code>GoogleMapSpotMarkerEffect</code>, <code>GoogleMapPinMarkersEffect</code>, <code>GoogleMapMoveCameraEffect</code></td>
+          </tr>
+          <tr>
+            <td><code>jvmMain</code></td>
+            <td><code>DiaryMapLayout.jvm.kt</code> → <code>CARD</code>, <code>MapWebView</code>, <code>MapHttpServer</code>, <code>MapMessage</code>, <code>MapScript</code>, <code>MapWebViewDrainMessageEffect</code>, <code>MapWebViewSpotMarkerEffect</code>, <code>MapWebViewPinMarkersEffect</code>, <code>MapWebViewMoveCameraEffect</code></td>
+            <td><code>NaverMap.jvm</code>, <code>NaverMapHttpServer</code>, <span class="path">resources/naver-map.html</span></td>
+            <td><code>GoogleMap.jvm</code>, <code>GoogleMapHttpServer</code>, <span class="path">resources/google-map.html</span></td>
+          </tr>
+          <tr>
+            <td><code>wasmJsMain</code></td>
+            <td><code>DiaryMapLayout.wasmJs.kt</code> → <code>CARD</code>, <code>MapOptions</code></td>
+            <td><code>NaverMap.wasmJs</code>, <code>NaverMapState</code></td>
+            <td><code>GoogleMap.wasmJs</code>, <code>GoogleMapState</code></td>
+          </tr>
+          <tr>
+            <td><code>jvmWasmMain</code></td>
+            <td><code>DiaryMapPinScript</code> <span class="note">— 핀과 마커 모양을 JSON 문자열로 만드는 코드. JVM 웹뷰와 wasm이 같은 직렬화를 쓰기 위해 만든 중간 소스셋이다.</span></td>
+            <td colspan="2" class="note">제공자 구분 없음</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">
+      의존성도 소스셋을 따라 갈린다 — <code>androidMain</code>은 <code>maps-compose 8.4.0</code> + <code>naver map-sdk 3.23.3</code>,
+      <code>iosMain</code>은 <code>swiftPMDependencies</code>로 <code>SPM-NMapsMap 3.23.3</code>과 <code>ios-maps-sdk 11.0.0</code>,
+      <code>jvmMain</code>은 <code>library:webkit</code> + <code>ktor server-cio</code> + <code>kotlinx-serialization-json</code>.
+      <code>commonMain</code>의 의존성은 <code>compose:core</code>뿐으로, 어떤 지도 SDK도 들어오지 않는다.
+    </p>
+  </section>
+
+  <section id="state">
+    <h2>State 관리 — <code>DiaryMapState</code></h2>
+    <p>
+      <code>@Stable public class DiaryMapState</code> 하나가 지도의 모든 상태를 소유한다. 모든 프로퍼티는 <code>mutableStateOf</code>이고
+      <b>setter가 전부 <code>private set</code></b>이다. 바꾸는 길은 의도가 이름에 드러난 함수뿐이다.
+    </p>
+
+    <h3>상태와 공개 범위</h3>
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th>이름</th><th>공개</th><th>누가 쓰는가</th><th>바뀌는 계기</th></tr></thead>
+        <tbody>
+          <tr><td><code>provider</code></td><td>public</td><td>전환 컨트롤, <code>DiaryMapContent</code></td><td><code>select(provider)</code></td></tr>
+          <tr><td><code>spot</code></td><td>public</td><td>지점 마커 효과</td><td><code>selectSpot(coordinate?)</code></td></tr>
+          <tr><td><code>pins</code></td><td>public</td><td>핀 마커 효과</td><td><code>updatePins(pins)</code></td></tr>
+          <tr><td><code>bounds</code></td><td>public</td><td>화면 (보이는 영역 기준 조회)</td><td><code>moveCamera</code> — 지도가 알려올 때만</td></tr>
+          <tr><td><code>coordinate</code></td><td>public (파생)</td><td>화면 (보고 있는 위치)</td><td><code>camera</code>에서 계산</td></tr>
+          <tr><td><code>camera</code></td><td><b>internal</b></td><td>SDK 연동 층만</td><td><code>moveCamera</code>(지도→앱), <code>moveTo</code>(앱→지도)</td></tr>
+          <tr><td><code>moveCommand</code></td><td><b>internal</b></td><td>SDK 연동 층만</td><td><code>moveTo</code>가 채널에 넣는다</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      <code>camera</code>가 <code>internal</code>인 것이 이 설계의 중심이다. 확대 수준까지 포함한 카메라는 지도 표시 계층의 관심사이고,
+      화면에는 필요한 만큼만(<code>coordinate</code>, <code>bounds</code>) 공개한다.
+    </p>
+
+    <h3>두 방향의 흐름</h3>
+    <p>지도와 앱은 서로 반대 방향으로 딱 두 갈래로만 대화한다. 이 두 갈래를 구분하는 것이 <code>DiaryMapState</code>를 읽는 열쇠다.</p>
+    <div class="flow">
+      <div class="row up">
+        <div class="k">↑ 지도 → 앱<br>(사실 보고)</div>
+        <div class="v">
+          사용자가 지도를 움직임 → SDK의 <b>카메라 정지 알림</b> → <code>state.moveCamera(camera)</code> →
+          <code>camera</code>와 <code>bounds</code>가 갱신 → 화면이 <code>snapshotFlow { state.bounds }</code>로 읽어 조회를 다시 함.<br>
+          <span class="note">지점·핀 누르기는 상태를 거치지 않고 <code>onSpotClick</code> / <code>onPinClick</code> 콜백으로 바로 나간다. 무엇을 할지는 배치한 화면이 정하기 때문이다.</span>
+        </div>
+      </div>
+      <div class="row down">
+        <div class="k">↓ 앱 → 지도<br>(명령)</div>
+        <div class="v">
+          화면이 <code>state.moveTo(coordinate)</code> → <code>camera</code>를 먼저 갱신하고 <code>moveCommandChannel.trySend(moved)</code> →
+          플랫폼의 <code>...MoveCameraEffect</code>가 <code>moveCommand</code>를 <code>collect</code>해 SDK 카메라를 옮김.<br>
+          <span class="note">지점과 핀은 상태(<code>spot</code>, <code>pins</code>)를 갱신하고, 각 플랫폼 효과가 <code>snapshotFlow</code>로 따라간다.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="gotcha">
+      <h4>왜 위치 이동만 상태가 아니라 채널인가</h4>
+      <p>
+        <code>moveTo</code>는 <b>같은 좌표로 두 번 부르면 두 번 움직여야 하는</b> 명령이다. 상태로 두면 값이 같아 두 번째가 사라진다.
+        그래서 <code>Channel(Channel.CONFLATED)</code> + <code>receiveAsFlow()</code>를 쓴다. 같은 값을 반복해도 매번 전달되고,
+        아직 소비되지 않은 명령이 쌓여 있으면 마지막 하나만 남는다 — 화면 이동은 최신 목적지만 의미가 있으므로 이 합치기가 맞다.
+      </p>
+      <p>
+        대신 <code>moveTo</code>는 <code>camera</code>도 즉시 갱신한다. 명령을 받을 지도가 아직 붙지 않았을 수 있고, 그때는
+        새로 만들어지는 지도가 <code>camera</code>를 초기 위치로 읽어 같은 결과에 도달한다. 확대 수준은 보고 있던 값을 유지하고,
+        보고 있던 카메라가 없으면 <code>NEIGHBORHOOD_ZOOM = 15.0</code>을 쓴다.
+      </p>
+      <p>
+        <code>moveTo</code>는 <code>bounds</code>를 건드리지 않는다. 보이는 영역은 지도가 실제로 그려 본 뒤에만 알 수 있는 값이므로,
+        <code>moveCamera</code>로 지도가 알려올 때만 바뀐다.
+      </p>
+    </div>
+
+    <h3>보이는 영역의 수명</h3>
+    <p>
+      <code>moveCamera</code>는 <code>bounds = camera.bounds</code>로 <b>덮어쓴다</b>. 즉 보이는 영역이 없는 카메라가 오면 영역은 <code>null</code>로 돌아간다.
+      SDK가 최초 로드에서 보이는 영역을 주지 못하는 경우가 실제로 있어(아래 <a href="#contrast">대조표</a>), 이 정책을 명시적으로 테스트로 고정해 두었다
+      (<code>TC-DIARY-MAP-DOMAIN-034</code>, <code>035</code>).
+    </p>
+
+    <h3>저장과 복원</h3>
+    <p>
+      <code>rememberDiaryMapState(initialProvider = NAVER, initialCoordinate = null)</code>은 <code>rememberSaveable(saver = DiaryMapState.Saver)</code>이다.
+      <code>mapSaver</code>로 다음 값을 저장한다.
+    </p>
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th>저장하는 것</th><th>키</th><th>복원 방법</th></tr></thead>
+        <tbody>
+          <tr><td>선택한 제공자</td><td><code>provider</code></td><td><code>DiaryMapProvider.valueOf(name)</code> — 이름으로 저장하므로 enum 선언 순서에 의존하지 않는다</td></tr>
+          <tr><td>보고 있던 카메라</td><td><code>latitude</code>, <code>longitude</code>, <code>zoom</code></td><td>세 값이 모두 있을 때만 <code>moveCamera</code>로 되돌린다</td></tr>
+          <tr><td>보이는 영역</td><td><code>boundsSouth</code>, <code>boundsNorth</code>, <code>boundsWest</code>, <code>boundsEast</code></td><td>넷 중 하나라도 없으면 영역 없음으로 복원</td></tr>
+          <tr><td>고른 지점</td><td><code>spotLatitude</code>, <code>spotLongitude</code></td><td><code>initialSpot</code>으로 생성자에 전달</td></tr>
+          <tr><td colspan="3"><b><code>pins</code>는 저장하지 않는다.</b> 핀은 화면이 자기 데이터에서 파생시켜 <code>updatePins</code>로 다시 밀어 넣는 값이므로, 복원해 두면 오히려 낡은 핀이 한 프레임 남는다.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">
+      복원 경로는 <code>initialCoordinate</code>를 쓰지 않는다. 복원할 카메라가 있으면 그것이 초기 위치보다 항상 우선이고,
+      초기 위치는 <b>지도가 처음 만들어질 때 한 번만</b> 쓰이는 값이다.
+    </p>
+
+    <h3>제공자를 바꿔도 이어지는 것</h3>
+    <p>
+      <code>select</code>는 <code>provider</code> 한 칸만 바꾼다. <code>camera</code>·<code>spot</code>·<code>pins</code>·<code>bounds</code>는 같은 객체에 남아 있으므로,
+      새 제공자의 지도는 <code>state.camera</code>를 초기 카메라로 읽어 <b>보고 있던 자리에서</b> 시작한다.
+      네이버 → Google → 네이버로 돌아와도 마지막으로 본 카메라가 이어진다(테스트로 고정).
+    </p>
+  </section>
+
+  <section id="identity">
+    <h2>지도 인스턴스를 지키는 두 장치</h2>
+    <p>
+      지도는 만들 때마다 SDK 초기화·타일 로드가 다시 일어나는 무거운 객체다. <code>DiaryMap</code>은 그것이 헛되게 다시 만들어지지 않도록 두 장치를 쓴다.
+    </p>
+
+    <h3><code>movableContentOf</code> — 배치가 바뀌어도 같은 지도</h3>
+    <pre><span class="c">// DiaryMap.kt</span>
+<span class="f">val</span> map = <span class="f">remember</span>(state, dispatchSpotClick, dispatchPinClick) {
+    <span class="f">movableContentOf</span> {
+        <span class="f">DiaryMapContent</span>(state = state, modifier = Modifier.<span class="f">fillMaxSize</span>(), onSpotClick = …, onPinClick = …)
+    }
+}
+
+<span class="f">when</span> (layout) {
+    DiaryMapLayout.<span class="v">OVERLAY</span> -&gt; <span class="f">DiaryMapOverlayLayout</span>(state = state, modifier = modifier, map = map)
+    DiaryMapLayout.<span class="v">CARD</span>    -&gt; <span class="f">DiaryMapCardLayout</span>(state = state, modifier = modifier, map = map)
+}</pre>
+    <p>
+      <code>movableContentOf</code>로 감싸면 지도가 composition 트리의 다른 자리로 옮겨져도 상태와 노드가 살아서 이동한다.
+      배치가 <code>OVERLAY</code>↔<code>CARD</code>로 바뀌거나 상위 트리가 재구성돼도 지도는 그대로다.
+    </p>
+
+    <h3><code>rememberDispatch</code> — 콜백 신원 고정</h3>
+    <p>
+      위 <code>remember</code>의 키에 콜백이 들어간다. 호출자가 <code>onPinClick = { … }</code>처럼 매번 새 람다를 넘기면
+      키가 매번 달라져 <code>movableContentOf</code>가 다시 만들어지고, 지도도 다시 만들어진다. 그래서 콜백을 신원이 고정된 래퍼로 감싼다.
+    </p>
+    <pre><span class="c">// DiaryMap.kt — 신원은 고정, 내용은 최신</span>
+<span class="f">private</span> <span class="f">fun</span> &lt;T&gt; <span class="f">rememberDispatch</span>(callback: ((T) -&gt; Unit)?): ((T) -&gt; Unit)? {
+    <span class="f">val</span> latestCallback <span class="f">by</span> <span class="f">rememberUpdatedState</span>(callback)
+    <span class="f">val</span> stableCallback: (T) -&gt; Unit = <span class="f">remember</span> { { value -&gt; latestCallback?.<span class="f">invoke</span>(value) } }
+
+    <span class="f">return</span> stableCallback.<span class="f">takeIf</span> { callback != <span class="v">null</span> }
+}</pre>
+    <p>
+      <code>takeIf</code>가 중요하다. <b>콜백을 쓰는지 여부</b>는 SDK 연동에 실제로 영향을 준다 —
+      지점 선택을 쓰지 않는 화면에서는 지도 클릭 리스너 자체를 달지 않고, 핀 선택을 쓰지 않으면 마커를 <code>clickable = false</code>로 만든다.
+      그래서 <code>null</code>은 <code>null</code>로 유지되어야 하고, 그 판정만 매 재구성마다 다시 계산한다.
+    </p>
+  </section>
+
+  <section id="layout">
+    <h2>제공자 전환 컨트롤과 배치</h2>
+    <div class="cols">
+      <div class="card">
+        <h4><code>DiaryMapLayout.OVERLAY</code> — Android · iOS</h4>
+        <p class="note">
+          <code>Box</code> 안에서 지도가 전체를 채우고, <code>SingleChoiceSegmentedButtonRow</code>가
+          <code>Alignment.TopCenter</code>에 <code>componentSpacing</code> 여백을 두고 떠 있다.
+        </p>
+      </div>
+      <div class="card">
+        <h4><code>DiaryMapLayout.CARD</code> — JVM · wasmJs</h4>
+        <p class="note">
+          <code>Card</code> 안에서 <code>PrimaryTabRow</code>가 위쪽에 붙고, 지도가 <code>weight(1F)</code>로 남은 영역을 채운다.
+          겹치지 않는다.
+        </p>
+      </div>
+    </div>
+    <p>
+      기본값은 <code>public expect val defaultDiaryMapLayout</code>으로 플랫폼이 정한다. Android·iOS는 <code>OVERLAY</code>,
+      JVM·wasmJs는 <code>CARD</code>다. <b>JVM과 웹의 지도는 Compose가 아닌 별도 표시 계층</b>(네이티브 웹뷰, DOM 요소)에 그려져
+      Compose 컴포저블을 그 위에 겹칠 수 없기 때문이다. 배치한 화면이 <code>layout</code> 파라미터로 덮어쓸 수도 있다.
+    </p>
+    <p class="note">
+      전환 항목의 순서는 enum 선언 순서가 아니라 <code>diaryMapProviderList</code>가 소유한다(네이버, Google).
+      두 컨트롤은 문구·접근성 이름을 <code>DiaryMapProviderLabel</code>에서 공유하고, 컨트롤 전체에 <code>contentDescription</code>을 단다.
+    </p>
+  </section>
+
+  <section id="platform">
+    <h2>플랫폼별 연동</h2>
+    <p class="sub">탭을 눌러 플랫폼을 고르면 그 플랫폼의 두 제공자 구현이 나란히 나온다.</p>
+    <div class="tabs" role="tablist">
+      <button role="tab" data-panel="android" aria-selected="true">Android</button>
+      <button role="tab" data-panel="ios" aria-selected="false">iOS</button>
+      <button role="tab" data-panel="jvm" aria-selected="false">JVM 데스크톱</button>
+      <button role="tab" data-panel="wasm" aria-selected="false">wasmJs</button>
+    </div>
+
+    <div class="panel" id="panel-android">
+      <p>
+        두 제공자의 성격이 가장 크게 갈리는 플랫폼이다. Google 지도는 <code>maps-compose</code>라는 <b>선언형 래퍼</b>가 있어 마커까지 컴포저블로 쓰고,
+        네이버 지도는 <b>명령형 <code>View</code></b>라 <code>AndroidView</code>로 감싸고 모든 반영을 효과로 직접 쓴다.
+      </p>
+      <div class="cols">
+        <div class="card naver">
+          <h4><span class="tag naver">naver</span> <code>MapView</code> + <code>AndroidView</code></h4>
+          <ul>
+            <li><b>뷰 생성</b> — <code>rememberNaverMapViewWithLifecycle(camera)</code>가 <code>MapView(context, naverMapOptions(camera))</code>를 <code>remember</code>. 초기 카메라와 컨트롤·제스처 옵션을 <code>NaverMapOptions</code>에 한 번에 넣는다.</li>
+            <li><b>수명 주기</b> — <code>LifecycleEventObserver</code>로 <code>onCreate/onStart/onResume/onPause/onStop</code>을 중계하고, <code>onDispose</code>에서 <code>onDestroy</code>. 인스턴스 상태는 <code>rememberSaveable</code>이 들고 있는 <code>Bundle</code>에 <code>onSaveInstanceState</code>로 담는다.</li>
+            <li><b>클라이언트 획득</b> — <code>getMapAsync</code>는 비동기다. <code>rememberNaverMapClient</code>가 결과를 <code>mutableStateOf&lt;NaverMap?&gt;</code>에 담고, 모든 효과는 <code>client == null</code>이면 아무 것도 하지 않고 빠진다. 클라이언트가 붙는 순간 효과가 다시 실행돼 밀린 상태가 한 번에 반영된다.</li>
+            <li><b>효과 5개</b> — <code>ShareCamera</code>(<code>addOnCameraIdleListener</code> → <code>moveCamera</code>, 영역은 <code>client.contentBounds</code>), <code>SelectSpot</code>(<code>setOnMapClickListener</code>), <code>SpotMarker</code>(<code>Marker</code> 하나를 재사용), <code>PinMarkers</code>(<code>Marker</code> 목록 전체 교체), <code>MoveCamera</code>(<code>CameraUpdate.scrollTo</code>).</li>
+          </ul>
+        </div>
+        <div class="card google">
+          <h4><span class="tag google">google</span> <code>maps-compose</code></h4>
+          <ul>
+            <li><b>지도</b> — <code>com.google.maps.android.compose.GoogleMap</code>을 그대로 쓴다. <code>MapProperties</code>·<code>MapUiSettings</code>는 <code>remember</code>로 고정.</li>
+            <li><b>카메라</b> — <code>rememberCameraPositionState { state.camera?.let { position = … } }</code>로 초기값을 넣는다. 위로 올리는 쪽은 <code>GoogleMapShareCameraEffect</code>가 <code>snapshotFlow { cameraPositionState.position }</code>을 <code>collect</code>하고, 영역은 <code>projection?.visibleRegion?.latLngBounds</code>에서 얻는다(<code>projection</code>이 아직 없으면 <code>null</code>).</li>
+            <li><b>이동</b> — <code>cameraPositionState.move(CameraUpdateFactory.newLatLng(...))</code>.</li>
+            <li><b>클릭</b> — 컴포저블 파라미터 <code>onMapClick</code>, <code>onPOIClick</code>. 둘 다 같은 <code>onSpotClick</code>으로 접히므로 관심 지점을 눌러도 지점 선택이 된다.</li>
+            <li><b>마커</b> — 지도 content 람다 안에서 <code>state.spot</code>과 <code>state.pins</code>를 직접 읽어 <code>Marker</code>·<code>MarkerComposable</code>을 그린다. 효과가 아니라 선언이므로 목록 교체 코드가 없다.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="note">
+        두 구현 모두 <code>isFinite</code> 확장으로 좌표를 걸러 낸다(<code>filter { pin -&gt; pin.isFinite }</code>). NaN·무한대가 SDK에 들어가면
+        제공자마다 다르게 깨지므로 경계에서 막는다.
+      </p>
+      <div class="gotcha">
+        <h4>호스트 테스트 제약</h4>
+        <p>
+          실제 지도 SDK는 Robolectric에서 <code>VerifyError</code>로 죽는다. 그래서 지도는 <code>map</code> 슬롯으로 분리돼 있고,
+          <code>androidHostTest</code>는 슬롯에 가짜를 넣어 <b>배치와 전환 컨트롤만</b> 검증한다.
+        </p>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-ios" hidden>
+      <p>
+        두 SDK 모두 <code>swiftPMDependencies</code>로 가져와 <code>swiftPMImport.DiaryKmp.compose.compose.map</code> 패키지로 보인다.
+        구조는 대칭이다 — <code>UIKitView</code>로 뷰를 만들고, <code>update</code>에서 뷰 참조를 Compose 상태에 담고, 효과들이 그 참조를 기다린다.
+      </p>
+      <pre><span class="c">// 두 제공자가 공유하는 골격</span>
+<span class="f">var</span> mapView <span class="f">by</span> <span class="f">remember</span>(state) { <span class="f">mutableStateOf</span>&lt;GMSMapView?&gt;(<span class="v">null</span>) }   <span class="c">// 네이버는 NMFMapView?</span>
+
+<span class="f">SpotMarkerEffect</span>(mapView = mapView, state = state)
+<span class="f">PinMarkersEffect</span>(mapView = mapView, state = state, …)
+<span class="f">MoveCameraEffect</span>(mapView = mapView, moveCommand = state.moveCommand)
+
+<span class="f">UIKitView</span>(
+    factory = { … 초기 카메라·옵션·delegate 설정 … },
+    modifier = modifier,
+    update = { view -&gt; mapView = view },              <span class="c">// 붙는 순간 효과들이 다시 실행된다</span>
+    onRelease = { view -&gt; … delegate 해제 …; mapView = <span class="v">null</span> },
+)</pre>
+      <div class="cols">
+        <div class="card naver">
+          <h4><span class="tag naver">naver</span> <code>NMFNaverMapView</code></h4>
+          <ul>
+            <li><b>뷰</b> — <code>NMFNaverMapView</code>가 컨트롤 표시(<code>showCompass</code>, <code>showScaleBar</code>, <code>showZoomControls</code>, <code>showIndoorLevelPicker</code>, <code>showLocationButton</code>)를, 내부 <code>mapView</code>가 제스처·초기 카메라를 담당한다.</li>
+            <li><b>delegate 2개</b> — <code>NaverMapCameraDelegate</code>(<code>NMFMapViewCameraDelegateProtocol.mapViewCameraIdle</code> → <code>state.moveCamera</code>, 영역은 <code>mapView.contentBounds</code>)와 <code>NaverMapTouchDelegate</code>(<code>NMFMapViewTouchDelegateProtocol</code>의 <code>didTapMap</code> → <code>onSpotClick</code>). 지점 선택을 쓰지 않으면 touch delegate를 아예 만들지 않는다.</li>
+            <li><b>카메라 델리게이트 등록</b> — <code>addCameraDelegate</code> / <code>removeCameraDelegate</code>로 짝을 맞춘다.</li>
+            <li><b>마커</b> — <code>NMFMarker</code> + <code>NMF_MARKER_IMAGE_BLACK</code>에 <code>iconTintColor</code>로 색을 입히고 <code>captionText</code>로 라벨. 즉 제공자 기본 핀에 색을 얹는 방식이다.</li>
+            <li><b>핀 누르기</b> — <code>touchHandler = { true }</code>로 소비해 제공자 정보 창이 열리지 않게 한다.</li>
+          </ul>
+        </div>
+        <div class="card google">
+          <h4><span class="tag google">google</span> <code>GMSMapView</code></h4>
+          <ul>
+            <li><b>delegate 1개</b> — <code>GoogleMapDelegate</code>가 <code>GMSMapViewDelegateProtocol</code>의 네 콜백을 모두 구현한다: <code>idleAtCameraPosition</code>(→ <code>moveCamera</code>), <code>didTapAtCoordinate</code>, <code>didTapPOIWithPlaceID</code>, <code>didTapMarker</code>.</li>
+            <li><b>보이는 영역</b> — <code>projection.visibleRegion()</code>의 네 꼭짓점에서 <code>minOf</code>/<code>maxOf</code>로 계산한다. 회전·기울임 때문에 사각형이 축에 정렬되지 않으므로 네 점을 다 봐야 한다.</li>
+            <li><b>핀 식별</b> — <code>GMSMarker.userData</code>에 <code>Uuid.toString()</code>을 넣고, 탭 콜백에서 <code>Uuid.parseOrNull</code>로 되돌린다. <code>userData</code>가 문자열만 실을 수 있어 이 경계에서만 문자열로 바꾼다.</li>
+            <li><b>핀 모양</b> — 공용 벡터 경로를 <code>createPinMarkerImage</code>로 Skia 비트맵 → PNG → <code>UIImage</code>로 만들어 <code>iconView</code>에 넣는다. 라벨이 있으면 <code>UIImageView</code> + <code>UILabel</code>을 <code>UIView</code> 컨테이너에 쌓고 <code>groundAnchor</code>를 이미지 높이 비율로 맞춘다.</li>
+            <li><code>didTapMarker</code>는 항상 <code>true</code>를 반환해 기본 정보 창을 막는다.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-jvm" hidden>
+      <p>
+        JVM에는 두 제공자의 네이티브 SDK가 없다. 그래서 <b>로컬 HTTP 서버가 웹 지도 문서를 내려 주고, 네이티브 웹뷰가 그것을 띄우는</b> 구조를 쓴다.
+        제공자별로 다른 것은 문서와 서버 라우팅뿐이고, 웹뷰 임베드·명령·메시지 수신은 <code>MapWebView</code>가 공유한다.
+      </p>
+      <div class="flow">
+        <div class="row">
+          <div class="k">① 서버 기동</div>
+          <div class="v">
+            <code>produceState</code>가 <code>withContext(NonCancellable + Dispatchers.IO)</code>에서 <code>MapHttpServer.start</code>를 부른다.
+            Ktor CIO, <code>127.0.0.1</code>, 포트 <code>0</code>(임의) → <code>resolvedConnectors()</code>로 실제 포트를 읽어 <code>http://localhost:포트/</code>를 만든다.
+            <span class="note">기동·종료가 호출 스레드를 블로킹하므로 AWT EDT에서 돌리지 않는다. 기동 중 취소되면 닫을 수 없는 서버가 생기므로 기동은 <code>NonCancellable</code>이다.</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="k">② 문서 생성</div>
+          <div class="v">
+            리소스의 <code>naver-map.html</code> / <code>google-map.html</code> 템플릿에서 플레이스홀더를 치환한다 —
+            <code>{{DIARY_MAP_CAMERA}}</code>, <code>{{DIARY_MAP_SPOT}}</code>, <code>{{DIARY_MAP_SPOT_SELECTABLE}}</code>,
+            <code>{{DIARY_MAP_PINS}}</code>, <code>{{DIARY_MAP_PIN_SELECTABLE}}</code>, <code>{{DIARY_MAP_PIN_MARKER}}</code>, 그리고 인증 키.
+            <span class="note">키가 <code>[A-Za-z0-9_-]+</code>에 맞지 않으면 문서를 만들지 않고 <code>null</code>을 반환해 서버를 아예 띄우지 않는다.</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="k">③ 웹뷰 임베드</div>
+          <div class="v">
+            <code>WebKitWebViewPanel</code>(<code>library:webkit</code>, WKWebView를 FFM으로 다룬다)에 <code>loadUrl</code>하고 <code>SwingPanel</code>로 배치한다.
+          </div>
+        </div>
+        <div class="row down">
+          <div class="k">④ 앱 → 문서</div>
+          <div class="v">
+            <code>evaluateJavaScript</code>로 문서의 전역 함수를 부른다: <code>window.diaryShowSpot(lat, lng)</code>,
+            <code>window.diaryClearSpot()</code>, <code>window.diarySetPins([...])</code>, <code>window.diaryMoveTo(lat, lng)</code>.
+            모든 호출은 <code>evaluateWhenReady</code>가 <code>isDocumentReady</code>를 <code>first { it }</code>로 기다린 뒤에 나간다.
+          </div>
+        </div>
+        <div class="row up">
+          <div class="k">⑤ 문서 → 앱</div>
+          <div class="v">
+            문서가 <code>window.ipc.postMessage(JSON.stringify(...))</code>로 보내고, <code>MapWebViewDrainMessageEffect</code>가
+            <b>200ms마다</b> <code>drainIpcMessages()</code>로 모아 <code>toMapMessageOrNull()</code>로 파싱한다.
+            <code>ready</code> → 준비 완료, <code>camera</code> → <code>state.moveCamera</code>, <code>click</code> → <code>onSpotClick</code>, <code>pinClick</code> → <code>onPinClick</code>.
+            <span class="note">파싱은 전부 관용적이다. 알 수 없는 <code>type</code>, 빠진 필드, 유한하지 않은 수는 <code>null</code>로 떨어져 무시된다.</span>
+          </div>
+        </div>
+      </div>
+      <p class="note">
+        <code>ready</code>는 문서에서 <b>두 번</b> 보낸다 — 스크립트 실행 직후 한 번, 지도 초기화가 끝난 뒤 한 번.
+        웹뷰의 IPC 브리지가 언제 붙는지가 문서 로드 시점과 맞지 않을 수 있어 양쪽에서 알린다.
+      </p>
+      <div class="cols">
+        <div class="card naver">
+          <h4><span class="tag naver">naver</span> SDK를 서버가 가공해서 내려준다</h4>
+          <p class="note">
+            네이버 지도 JS SDK는 <code>http://localhost</code> 문서에서 그대로 동작하지 않는다. 그래서 <code>NaverMapResourceLoader</code>가
+            SDK를 서버 쪽에서 내려받아 두 곳을 바꿔 <code>/naver-maps.js</code>로 다시 제공한다.
+          </p>
+          <ul>
+            <li><b>JSONP → 같은 출처 프록시</b>: <code>o.src=e</code>(스크립트 태그 주입)를 <code>fetch("/naver-proxy?url=…")</code> 후 <code>eval</code>로 바꾼다.</li>
+            <li><b>보안 컨텍스트 강제</b>: <code>et=tt||0===t.location.protocol.indexOf("https")</code>를 <code>et=true</code>로 바꾼다.</li>
+            <li>두 치환은 <code>replaceRequired</code>로 <b>대상 문자열이 없으면 예외</b>다. SDK가 바뀌어 패치가 먹지 않는데 조용히 넘어가지 않게 한다(<code>"Unsupported Naver Maps SDK"</code>).</li>
+            <li><code>/naver-proxy</code>는 <code>oapi.map.naver.com</code>, <code>map.pstatic.net</code>, <code>nrbe.pstatic.net</code>만 허용하고, 자격 정보·프래그먼트가 붙은 URL을 거부하며 항상 HTTPS 기본 포트로 정규화해 중계한다. 실패는 <code>502</code>.</li>
+            <li>문서의 원본 SDK <code>&lt;script&gt;</code>는 <code>type="application/naver-map-config"</code>로 두어 브라우저가 실행하지 않고, 실제 코드는 <code>/naver-maps.js</code>가 내려준다.</li>
+          </ul>
+        </div>
+        <div class="card google">
+          <h4><span class="tag google">google</span> 문서 하나로 끝난다</h4>
+          <p class="note">
+            Google Maps JS는 <code>http://localhost</code>에서 그대로 동작하므로 프록시가 없다.
+            <code>GoogleMapHttpServer</code>는 <code>/</code> 하나만 라우팅하고, 문서가 <code>maps.googleapis.com</code>을
+            <code>loading=async&amp;callback=initGoogleMap</code>으로 직접 불러온다.
+          </p>
+          <p class="note">
+            초기 카메라가 없을 때의 확대 수준을 <code>Math.ceil(Math.log2(viewportSize / 256))</code>으로 계산해 세계 지도가 영역을 채우게 한다.
+            wasm 구현도 같은 식을 쓴다.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-wasm" hidden>
+      <p>
+        웹에서는 SDK가 이미 페이지에 있다. <code>app/wasm</code>의 <code>index.html</code>이 두 SDK를 <code>async</code>로 불러오고,
+        준비 시점을 프라미스로 노출한다.
+      </p>
+      <pre><span class="c">// app/wasm/src/commonMain/resources/index.html</span>
+window.diaryNaverMapReady = <span class="f">new</span> <span class="v">Promise</span>((resolve) =&gt; { window.diaryNaverMapLoaded = resolve; });
+window.diaryGoogleMapReady = <span class="f">new</span> <span class="v">Promise</span>((resolve) =&gt; { window.diaryGoogleMapLoaded = resolve; });
+<span class="c">// …maps.js?ncpKeyId=${naverMapNcpKeyId}&amp;callback=diaryNaverMapLoaded</span>
+<span class="c">// …maps/api/js?key=${googleMapApiKey}&amp;loading=async&amp;callback=diaryGoogleMapLoaded</span></pre>
+      <p>
+        Kotlin 쪽은 지도 조작 객체를 <code>js("(() => { … })()")</code>로 만들고, 그것을 <code>external interface</code>로 타입만 붙여 다룬다.
+        JS 클로저가 지도·마커·옵저버를 들고 있고, Kotlin은 인터페이스의 여섯 함수만 부른다.
+      </p>
+      <pre><span class="c">// NaverMapState.kt / GoogleMapState.kt — 두 파일이 같은 모양이다</span>
+<span class="f">internal external interface</span> NaverMapState : JsAny {
+    <span class="f">fun</span> <span class="f">attach</span>(element: HTMLElement)
+    <span class="f">fun</span> <span class="f">release</span>(element: HTMLElement)
+    <span class="f">fun</span> <span class="f">showSpot</span>(latitude: Double, longitude: Double)
+    <span class="f">fun</span> <span class="f">clearSpot</span>()
+    <span class="f">fun</span> <span class="f">setPins</span>(pinsJson: String)
+    <span class="f">fun</span> <span class="f">moveTo</span>(latitude: Double, longitude: Double)
+}</pre>
+      <ul>
+        <li><b>DOM 부착</b> — <code>HtmlElementView</code>로 <code>div</code>(100% × 100%)를 만들고 <code>attach(element)</code>. <code>onRelease</code>에서 <code>release(element)</code>.</li>
+        <li><b>준비 대기</b> — <code>attach</code>는 <code>await window.diaryNaverMapReady</code>로 SDK를 기다린 뒤, <code>currentElement !== newElement</code>면 그동안 요소가 바뀐 것이므로 중단한다.</li>
+        <li><b>크기 0 회피</b> — <code>ResizeObserver</code>로 <code>clientWidth/Height</code>가 0이 아닐 때 지도를 만든다. 네이버는 이후 리사이즈마다 <code>map.autoResize()</code>를 부르고, Google은 지도가 이미 있으면 즉시 반환한다.</li>
+        <li><b>대기 상태</b> — 지도가 아직 없을 때 들어온 지점·핀·이동은 <code>pendingSpot</code>·<code>pendingPins</code>·<code>pendingCenter</code>에 쌓아 두고, 지도가 만들어지면 <code>applySpot</code>·<code>applyPins</code>·<code>applyCenter</code>로 한 번에 반영한다.</li>
+        <li><b>콜백</b> — Kotlin 람다(<code>onCamera</code>, <code>onSpot</code>, <code>onPin</code>)를 <code>js()</code> 인자로 넘겨 JS에서 직접 부른다. <code>@Suppress("UnusedParameter")</code>가 붙은 것은 컴파일러가 <code>js()</code> 본문의 참조를 보지 못하기 때문이다.</li>
+        <li><b>정리</b> — <code>dispose()</code>가 옵저버 해제, 마커 <code>setMap(null)</code>, 지도 정리를 한다. 네이버는 <code>map.destroy()</code>를 부르고 Google은 참조만 버린다(JS SDK에 파괴 API가 없다).</li>
+      </ul>
+      <div class="gotcha">
+        <h4><code>js()</code> 제약이 구조를 정했다</h4>
+        <p>
+          Kotlin/Wasm의 <code>js()</code>는 <b>톱레벨 함수의 본문 전체</b>여야 하고 문자열 보간을 쓸 수 없다.
+          그래서 지도 객체 전체를 하나의 IIFE 표현식으로 만들고, 값은 인자(<code>options: JsAny</code>, <code>pinsJson: String</code>)로만 건넨다.
+          옵션에 카메라를 합치는 것도 보간 대신 <code>MapOptions.kt</code>의 <code>Object.assign</code> 헬퍼로 한다.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="contrast">
+    <h2>같은 동작을 두 SDK에서 얻는 방법 대조</h2>
+    <p class="sub">행은 <code>DiaryMapState</code>가 요구하는 동작, 열은 그것을 실제로 제공하는 API다.</p>
+    <div class="tblwrap">
+      <table>
+        <thead>
+          <tr><th>동작</th><th>플랫폼</th><th><span class="tag naver">naver</span></th><th><span class="tag google">google</span></th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td rowspan="4">카메라 정지 보고<br><span class="note">→ <code>moveCamera</code></span></td>
+            <td>Android</td><td><code>addOnCameraIdleListener</code> + <code>contentBounds</code></td><td><code>snapshotFlow { position }</code> + <code>projection?.visibleRegion</code></td>
+          </tr>
+          <tr><td>iOS</td><td><code>mapViewCameraIdle</code> + <code>contentBounds</code></td><td><code>idleAtCameraPosition</code> + <code>projection.visibleRegion()</code> 4점</td></tr>
+          <tr><td>JVM</td><td><code>Event "idle"</code> + <code>Event.once "init"</code> → <code>ipc</code></td><td><code>addListener("idle")</code> → <code>ipc</code></td></tr>
+          <tr><td>wasmJs</td><td><code>Event "idle"</code> + <code>Event.once "init"</code></td><td><code>addListener("idle")</code></td></tr>
+          <tr>
+            <td rowspan="4">지점 선택<br><span class="note">→ <code>onSpotClick</code></span></td>
+            <td>Android</td><td><code>setOnMapClickListener</code></td><td><code>onMapClick</code> + <code>onPOIClick</code></td>
+          </tr>
+          <tr><td>iOS</td><td><code>NMFMapViewTouchDelegateProtocol.didTapMap</code></td><td><code>didTapAtCoordinate</code> + <code>didTapPOIWithPlaceID</code></td></tr>
+          <tr><td>JVM · wasmJs</td><td><code>Event "click"</code> → <code>event.coord</code></td><td><code>"click"</code> → <code>event.latLng</code></td></tr>
+          <tr><td colspan="3" class="note">네 플랫폼 모두 <code>onSpotClick == null</code>이면 리스너를 아예 달지 않는다. 웹 지도는 문서 생성 시점의 <code>{{DIARY_MAP_SPOT_SELECTABLE}}</code>로 결정된다.</td></tr>
+          <tr>
+            <td rowspan="4">핀 누르기<br><span class="note">→ <code>onPinClick(Uuid)</code></span></td>
+            <td>Android</td><td><code>Overlay.OnClickListener</code> → <code>true</code></td><td><code>MarkerComposable(onClick)</code> → <code>true</code></td>
+          </tr>
+          <tr><td>iOS</td><td><code>NMFMarker.touchHandler</code> → <code>true</code></td><td><code>didTapMarker</code> + <code>userData</code> 문자열</td></tr>
+          <tr><td>JVM · wasmJs</td><td colspan="2"><code>"click"</code> 리스너 → <code>pinClick</code> 메시지 / <code>onPin(id)</code>. 식별 값은 문자열로 건네고 Kotlin이 <code>Uuid.parseOrNull</code>로 되돌린다.</td></tr>
+          <tr><td colspan="3" class="note">모두 <code>true</code>를 돌려주거나 이벤트를 소비해 제공자 기본 정보 창을 막는다. 정보 창 대신 배치한 화면의 동작이 일어나야 하기 때문이다.</td></tr>
+          <tr>
+            <td rowspan="3">카메라 이동<br><span class="note">← <code>moveCommand</code></span></td>
+            <td>Android</td><td><code>CameraUpdate.scrollTo</code></td><td><code>CameraUpdateFactory.newLatLng</code></td>
+          </tr>
+          <tr><td>iOS</td><td><code>NMFCameraUpdate.cameraUpdateWithScrollTo</code></td><td><code>setCamera</code> + <b>현재</b> <code>mapView.camera.zoom</code> 유지</td></tr>
+          <tr><td>JVM · wasmJs</td><td colspan="2"><code>map.setCenter(...)</code> — 확대 수준을 건드리지 않는다</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="gotcha">
+      <h4>네이버 웹 지도의 <code>idle</code>은 최초 로드에서 오지 않는다</h4>
+      <p>
+        네이버 지도의 <code>idle</code>은 이동·확대·축소가 <b>끝났을 때만</b> 발생한다. 그래서 지도를 처음 그린 직후에는 보이는 영역이 앱으로 오지 않는다.
+        JVM·wasm 두 구현 모두 <code>Event.once(map, "init", postCamera)</code>로 초기화 직후 한 번 직접 알리고,
+        JVM 문서는 <code>autoResize()</code> 뒤에도 <code>autoResize</code>가 <code>idle</code>을 발생시키지 않으므로 다시 한 번 알린다.
+        이것은 <code>bounds</code>로 목록을 조회하는 PlaceHome에서 <b>첫 화면이 비는</b> 문제로 드러났던 부분이다.
+      </p>
+    </div>
+  </section>
+
+  <section id="pin">
+    <h2>핀 마커 — 한 모양을 네 방식으로 그린다</h2>
+    <p>
+      핀의 모양·크기는 <code>commonMain</code>의 <code>DiaryMapPinMarker.kt</code>가 단독으로 소유한다.
+      <code>PIN_MARKER_PATH_DATA</code>(물방울 + 가운데 구멍), <code>PIN_MARKER_VIEWPORT_SIZE = 24</code>,
+      <code>PIN_MARKER_SIZE_DP = 32</code>, <code>PIN_MARKER_LABEL_HEIGHT_DP = 16</code>.
+    </p>
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th>환경</th><th>같은 경로 데이터를 쓰는 방법</th></tr></thead>
+        <tbody>
+          <tr><td>Android <span class="tag google">google</span></td><td><code>PinMarkerImageVector</code>(<code>ImageVector.Builder</code> + <code>addPathNodes</code>)를 <code>Icon(tint = pin.color)</code>으로. 라벨은 <code>Text</code>. <code>MarkerComposable</code>이 이 컴포저블을 마커 비트맵으로 굽는다.</td></tr>
+          <tr><td>iOS <span class="tag google">google</span></td><td><code>createPinMarkerImage</code>가 <code>CanvasDrawScope</code>로 <code>ImageBitmap</code>에 그리고 Skia로 PNG 인코딩 → <code>UIImage</code>. 라벨은 <code>UILabel</code>, 둘을 <code>UIView</code>에 쌓아 <code>iconView</code>로.</td></tr>
+          <tr><td>JVM · wasmJs (양쪽 제공자)</td><td><code>pinMarkerToScriptValue()</code>가 경로·뷰포트·크기·라벨 높이를 JSON으로 넘긴다. 네이버는 <code>&lt;svg&gt;</code> DOM을 만들어 마커 <code>icon.content</code>로, Google은 <code>google.maps.Symbol</code>의 <code>path</code>·<code>scale</code>·<code>labelOrigin</code>으로 쓴다.</td></tr>
+          <tr><td>Android · iOS <span class="tag naver">naver</span></td><td><b>예외.</b> 공용 모양을 쓰지 않고 제공자 기본 마커(<code>MarkerIcons.BLACK</code> / <code>NMF_MARKER_IMAGE_BLACK</code>)에 <code>iconTintColor</code>로 색을 입힌다. 네이버 SDK의 마커 표현을 그대로 유지한 결정이다.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>문자열 경계의 이스케이프</h3>
+    <p>
+      JVM과 wasm은 핀을 <b>JSON 문자열</b>로 건넨다(<code>jvmWasmMain/DiaryMapPinScript.kt</code>). 라벨은 사용자 입력이므로
+      <code>\</code>, <code>"</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&amp;</code>, <code>U+2028</code>, <code>U+2029</code>,
+      ISO 제어 문자를 모두 <code>\uXXXX</code>로 바꾼다. 색은 <code>#RRGGBB</code>로, 식별 값은 <code>Uuid</code> 문자열로 나간다.
+    </p>
+    <p class="note">
+      <code>&lt;</code>·<code>&gt;</code>·<code>&amp;</code>까지 막는 이유는 이 JSON이 <b>HTML 문서 안의 <code>&lt;script&gt;</code> 본문에 직접 삽입</b>되기 때문이다.
+      JSON 문법만 지켜도 <code>&lt;/script&gt;</code>가 들어가면 문서가 깨진다.
+    </p>
+  </section>
+
+  <section id="auth">
+    <h2>인증 키 배선</h2>
+    <p>
+      키는 어느 환경에서도 저장소에 들어가지 않는다. 모두 <code>local.properties</code>(iOS는 <code>*Local.xcconfig</code>)에서 읽어 빌드 시점에 주입한다.
+      두 제공자 모두 <b>선언형</b>으로 SDK에 전달되고, 앱 코드가 키를 직접 들고 있는 곳은 iOS Google 하나뿐이다.
+    </p>
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th>환경</th><th><span class="tag naver">naver</span></th><th><span class="tag google">google</span></th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Android</td>
+            <td>Manifest <code>meta-data</code> <code>com.naver.maps.map.NCP_KEY_ID</code> ← <code>manifestPlaceholders["naverMapNcpKeyId"]</code></td>
+            <td>Manifest <code>meta-data</code> <code>com.google.android.geo.API_KEY</code> ← <code>manifestPlaceholders["googleMapApiKey"]</code></td>
+          </tr>
+          <tr>
+            <td>iOS</td>
+            <td><code>Info.plist</code>의 <code>NMFNcpKeyId</code> ← <code>$(NAVER_MAP_NCP_KEY_ID)</code> — SDK가 스스로 읽는다</td>
+            <td><code>Info.plist</code>의 <code>GMSApiKey</code> ← <code>$(GOOGLE_MAP_API_KEY)</code>를 <code>DiaryApp.swift</code>가 읽어 <code>GMSServices.provideAPIKey</code>에 넣는다</td>
+          </tr>
+          <tr>
+            <td>JVM</td>
+            <td colspan="2">
+              실행 인자 <code>-Dio.github.taetae98coding.diary.naverMapNcpKeyId=…</code> / <code>…googleMapApiKey=…</code> →
+              각 <code>HttpServer</code>가 <code>System.getProperty</code>로 읽어 문서에 넣는다.
+              <span class="note">키 형식이 맞지 않으면 문서도 서버도 만들지 않는다 → 지도 영역이 빈 <code>Box</code>로 남는다.</span>
+            </td>
+          </tr>
+          <tr>
+            <td>wasmJs</td>
+            <td colspan="2">
+              <code>index.html</code> 템플릿의 <code>${naverMapNcpKeyId}</code> / <code>${googleMapApiKey}</code>를 Gradle이 치환한다.
+              <span class="note"><code>local.properties</code>에 값이 없으면 <code>requireNotNull</code>로 <b>빌드가 실패</b>한다.</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="consumer">
+    <h2>소비자 — 누가 어떻게 쓰는가</h2>
+    <p>
+      <code>compose:map</code>은 도메인 모델을 모른다. <code>Place</code>·<code>Coordinate</code>·<code>MapProvider</code>와의 변환은
+      <code>compose:place</code>가 소유한다(<code>DiaryMapCoordinateMapper</code>, <code>DiaryMapPinMapper</code>, <code>DiaryMapProviderMapper</code>).
+    </p>
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th>쓰는 곳</th><th>쓰는 기능</th><th>상태를 만드는 방법</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>PlaceHome</td>
+            <td>핀 표시 + 핀 선택 + 보이는 영역 조회</td>
+            <td><code>rememberPlaceHomeMapState(uiState)</code>가 <code>key(defaultProvider, initialCoordinate)</code>로 감싸 두 값이 확정된 뒤의 상태를 만든다. <code>PlaceHomeMoveMapEffect</code>가 <code>snapshotFlow { mapState.bounds }</code>를 화면 이벤트로 올린다.</td>
+          </tr>
+          <tr>
+            <td>PlaceAdd · PlaceDetail</td>
+            <td>지점 선택</td>
+            <td><code>PlaceFormState.mapState</code>. <code>onSpotClick</code>에서 화면 상태를 먼저 갱신하고 <code>mapState.selectSpot</code>으로 되돌려 준다.</td>
+          </tr>
+          <tr>
+            <td>MemoAdd · MemoDetail 장소 카드</td>
+            <td>핀 표시 + 핀 선택</td>
+            <td><code>rememberMemoPlaceMapState(uiState)</code>가 로딩이 끝나기 전에는 <code>null</code>을 반환하고, <code>MemoPlaceMapBox</code>는 <code>null</code>이면 지도를 아예 부르지 않는다.</td>
+          </tr>
+          <tr>
+            <td>장소 검색 다이얼로그</td>
+            <td>핀 표시 + 핀 선택</td>
+            <td><code>PlaceSearchDialogState.mapState</code>. 검색 결과를 테마의 <code>primary</code> 색 핀으로 바꿔 <code>updatePins</code>한다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">
+      핀을 밀어 넣는 쪽은 모두 같은 모양이다 — <code>LaunchedEffect(mapState) { snapshotFlow { provider() }.collect { mapState.updatePins(...) } }</code>.
+      <code>rememberUpdatedState</code>로 provider의 최신 값을 읽으므로 효과를 다시 시작하지 않는다.
+      기본 제공자는 설정(<code>GetDefaultMapProviderUseCase</code>, 설정 화면은 <code>SettingMap</code>)에서 오고 초기 위치는 화면이 정한다 —
+      PlaceHome은 현재 위치를, 메모 장소 카드는 선택된 장소의 좌표를 쓴다. 두 값이 확정되기 전에는 상태를 만들지 않고,
+      확정된 뒤에는 <code>key(...)</code>로 감싸 값이 바뀔 때만 새로 만든다. 초기 위치는 지도가 만들어질 때 한 번만 적용되는 값이기 때문이다.
+    </p>
+  </section>
+
+  <section id="test">
+    <h2>무엇이 테스트로 고정되어 있는가</h2>
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th>소스셋</th><th>테스트</th><th>고정하는 것</th></tr></thead>
+        <tbody>
+          <tr><td><code>jvmTest</code></td><td><code>DiaryMapStateTest</code></td><td>제공자 전환·카메라 계승, 초기 위치와 <code>NEIGHBORHOOD_ZOOM</code>, <code>bounds</code>의 갱신·소멸, <code>moveTo</code>의 확대 유지·명령 전달·합치기, <code>Saver</code>의 저장·복원 전 항목</td></tr>
+          <tr><td><code>jvmTest</code></td><td><code>NaverMapHtmlTest</code>, <code>GoogleMapHtmlTest</code></td><td>문서 생성(컨트롤 전부 켜짐, 초기 위치 유무, 잘못된 좌표 배제), 잘못된 키에서 문서·서버를 만들지 않음, <code>localhost</code> 제공, SDK 패치와 프록시 허용 목록, 실패 시 <code>502</code></td></tr>
+          <tr><td><code>jvmTest</code></td><td><code>MapPinHtmlTest</code>, <code>MapSpotHtmlTest</code>, <code>MapMessageTest</code></td><td>핀·지점 직렬화와 이스케이프, 문서 메시지 파싱의 관용성</td></tr>
+          <tr><td><code>jvmTest</code></td><td><code>DiaryMapProviderListTest</code></td><td>전환 항목 순서를 enum 선언 순서에서 분리</td></tr>
+          <tr><td><code>androidHostTest</code></td><td><code>DiaryMapOverlayLayoutTest</code>, <code>DiaryMapCardLayoutTest</code>, <code>DiaryMapProviderSelectorTest</code>, <code>DiaryMapProviderTabRowTest</code> (+ Localization)</td><td>두 배치의 겹침 여부와 영역 분할, 전환 컨트롤의 선택 이동·유지, 한국어/기본 문구</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="gotcha">
+      <h4>검증되지 않는 영역</h4>
+      <p>
+        SDK 연동 층(<code>androidMain</code>·<code>iosMain</code>·<code>wasmJsMain</code>의 <code>actual</code>과 효과들)에는 자동 테스트가 없다.
+        실제 지도는 Robolectric에서 <code>VerifyError</code>로 죽고, iOS·wasm은 이 저장소의 테스트 소스셋(<code>jvmTest</code>, <code>androidHostTest</code>) 대상이 아니다.
+        그래서 <b>공유 가능한 판단은 최대한 <code>commonMain</code>과 JVM 문서 생성 쪽으로 끌어내려</b> 테스트로 덮고,
+        연동 층에는 SDK 호출만 남기는 방향으로 코드가 나뉘어 있다. 이 문서의 대조표가 그 남은 부분의 대조 검토용이다.
+      </p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const tabs = Array.from(document.querySelectorAll('[data-panel]'));
+tabs.forEach((tab) => {
+  tab.addEventListener('click', () => {
+    tabs.forEach((other) => {
+      const selected = other === tab;
+      other.setAttribute('aria-selected', selected ? 'true' : 'false');
+      document.getElementById('panel-' + other.dataset.panel).hidden = !selected;
+    });
+  });
+});
+</script>
+</body>
+</html>

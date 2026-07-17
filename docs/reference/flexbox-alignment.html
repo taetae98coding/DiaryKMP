@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compose FlexBox 정렬 3형제 · justifyContent / alignItems / alignContent</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --panel: #ffffff;
+    --ink: #16181d;
+    --muted: #666d7a;
+    --line: #e2e5ea;
+    --accent: #3a7bd5;
+    --accent-soft: #e8f0fb;
+    --main-axis: #d5567a;
+    --cross-axis: #2f9e78;
+    --warn-bg: #fff5e0;
+    --warn-ink: #8a5a00;
+    --warn-line: #f0d9a8;
+    --code-bg: #1e222a;
+    --radius: 12px;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a;
+      --panel: #1c1f25;
+      --ink: #e8eaee;
+      --muted: #99a1ae;
+      --line: #2c313a;
+      --accent: #6fa8f5;
+      --accent-soft: #23303f;
+      --main-axis: #f08aa8;
+      --cross-axis: #5fcfa6;
+      --warn-bg: #2f2716;
+      --warn-ink: #f0c674;
+      --warn-line: #4d4224;
+      --code-bg: #11131a;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px 20px 72px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Segoe UI", sans-serif;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+
+  h1 { font-size: 1.6rem; margin: 0 0 6px; letter-spacing: -0.02em; }
+  h2 { font-size: 1.15rem; margin: 0 0 14px; letter-spacing: -0.01em; }
+  h3 { font-size: 0.95rem; margin: 0 0 8px; }
+  .sub { color: var(--muted); margin: 0 0 28px; font-size: 0.95rem; }
+  p { margin: 0 0 12px; }
+  code {
+    font-family: var(--mono);
+    font-size: 0.86em;
+    background: var(--accent-soft);
+    color: var(--ink);
+    padding: 1px 5px;
+    border-radius: 5px;
+  }
+  section {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-bottom: 22px;
+  }
+
+  /* ---------- 멘탈 모델 ---------- */
+  .model { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 16px; }
+  @media (max-width: 800px) { .model { grid-template-columns: 1fr; } }
+  .card {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px;
+    background: var(--bg);
+  }
+  .card .tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    padding: 2px 7px;
+    border-radius: 999px;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .tag.j { background: var(--main-axis); color: #fff; }
+  .tag.ai { background: var(--cross-axis); color: #fff; }
+  .tag.ac { background: #7a5cc4; color: #fff; }
+  .card p { font-size: 0.87rem; margin: 0 0 6px; color: var(--muted); }
+  .card .what { color: var(--ink); font-weight: 600; font-size: 0.92rem; }
+
+  /* ---------- 레이아웃 ---------- */
+  .lab { display: grid; grid-template-columns: 300px 1fr; gap: 22px; align-items: start; }
+  @media (max-width: 900px) { .lab { grid-template-columns: 1fr; } }
+
+  /* ---------- 컨트롤 ---------- */
+  .ctrl { display: flex; flex-direction: column; gap: 15px; }
+  .field label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 5px;
+  }
+  .field label .axis {
+    font-family: var(--mono);
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 500;
+    margin-left: 5px;
+    padding: 0 5px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+  }
+  .axis.main { background: var(--main-axis); color: #fff; }
+  .axis.cross { background: var(--cross-axis); color: #fff; }
+  select, input[type="range"] { width: 100%; }
+  select {
+    padding: 7px 9px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 0.84rem;
+  }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .val { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); float: right; text-transform: none; letter-spacing: 0; }
+  .check { display: flex; align-items: flex-start; gap: 8px; font-size: 0.86rem; }
+  .check input { margin-top: 5px; flex-shrink: 0; }
+  .presets { display: flex; flex-wrap: wrap; gap: 7px; }
+  .presets button {
+    font-size: 0.78rem;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--ink);
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .presets button:hover { border-color: var(--accent); color: var(--accent); }
+  hr.sep { border: 0; border-top: 1px solid var(--line); margin: 3px 0; }
+
+  /* ---------- 프리뷰 ---------- */
+  .stage-outer { position: relative; padding: 30px 0 0 34px; }
+  .axis-label {
+    position: absolute;
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+  }
+  #mainLabel { top: 4px; left: 34px; color: var(--main-axis); }
+  #crossLabel {
+    top: 30px; left: 0;
+    color: var(--cross-axis);
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    transform-origin: center;
+  }
+  .resizer {
+    resize: both;
+    overflow: auto;
+    border: 2px dashed var(--line);
+    border-radius: 10px;
+    padding: 6px;
+    background: repeating-linear-gradient(45deg, transparent, transparent 9px, rgba(128,128,128,.05) 9px, rgba(128,128,128,.05) 18px);
+    min-width: 190px;
+    max-width: 100%;
+    width: 100%;
+  }
+  .stage {
+    position: relative;
+    display: flex;
+    border: 2px solid var(--accent);
+    border-radius: 8px;
+    background: var(--panel);
+    min-height: 40px;
+    height: 100%;
+  }
+  .chip {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 13px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    color: var(--ink);
+    font-size: 0.82rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .lineband {
+    position: absolute;
+    z-index: 1;
+    background: rgba(122, 92, 196, 0.13);
+    border: 1px dashed rgba(122, 92, 196, 0.55);
+    border-radius: 5px;
+    pointer-events: none;
+  }
+  .lineband span {
+    position: absolute;
+    top: 1px; right: 3px;
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    color: #7a5cc4;
+    font-weight: 700;
+  }
+  .hint { font-size: 0.8rem; color: var(--muted); margin: 10px 0 0; }
+
+  /* ---------- 진단 ---------- */
+  .diag { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .badge {
+    font-size: 0.83rem;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    display: flex;
+    gap: 9px;
+    align-items: flex-start;
+  }
+  .badge.warn { background: var(--warn-bg); color: var(--warn-ink); border-color: var(--warn-line); }
+  .badge b { flex-shrink: 0; font-family: var(--mono); font-size: 0.8rem; }
+  .badge .ico { flex-shrink: 0; }
+
+  /* ---------- 코드 ---------- */
+  pre {
+    background: var(--code-bg);
+    color: #e6e6e6;
+    padding: 15px 17px;
+    border-radius: 10px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+  .k { color: #c792ea; }
+  .f { color: #82aaff; }
+  .v { color: #f78c6c; }
+  .c { color: #6b7a8f; font-style: italic; }
+
+  /* ---------- 표 ---------- */
+  .tblwrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.88rem; min-width: 620px; }
+  th, td { text-align: left; padding: 10px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+  td code { font-size: 0.82em; }
+  .gotcha { border-left: 3px solid var(--main-axis); padding-left: 14px; margin: 18px 0 0; }
+  .gotcha h3 { color: var(--main-axis); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>왜 정렬 속성이 3개인가</h1>
+  <p class="sub">
+    <code>justifyContent</code> · <code>alignItems</code> · <code>alignContent</code> —
+    가로/세로로 나눈 게 아니라 <b>축(main/cross)</b>과 <b>대상(아이템/줄)</b>의 조합입니다.
+  </p>
+  <p class="sub" style="margin-top:-20px">
+    기준 Compose Multiplatform <code>1.12.0</code> · 최종 확인 2026-08-27 ·
+    기준과 최종 확인을 적는 이유는 <code>docs/reference/README.md</code>가 소유합니다.
+  </p>
+
+  <section>
+    <h2>핵심: 2 × 2에서 실제로 필요한 3칸</h2>
+    <p>
+      FlexBox는 아이템을 <b>main axis</b> 방향으로 흘리고, 공간이 부족하면 <b>cross axis</b> 방향으로 줄을 쌓습니다.
+      <code>direction(Row)</code>이면 main = 가로, cross = 세로이고, <code>direction(Column)</code>이면 <b>둘이 서로 바뀝니다.</b>
+      그래서 "가로 정렬 / 세로 정렬"이라고 이름 붙일 수 없습니다.
+    </p>
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th></th><th>아이템을 줄 안에서</th><th>줄 묶음을 컨테이너 안에서</th></tr></thead>
+        <tbody>
+          <tr>
+            <th>main axis</th>
+            <td><code>justifyContent</code></td>
+            <td style="color:var(--muted)">필요 없음 — 줄은 main 방향으로 꽉 차 있음</td>
+          </tr>
+          <tr>
+            <th>cross axis</th>
+            <td><code>alignItems</code> <span style="color:var(--muted)">(개별 override: <code>alignSelf</code>)</span></td>
+            <td><code>alignContent</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="model">
+      <div class="card">
+        <span class="tag j">justifyContent</span>
+        <p class="what">한 줄 안에서 아이템을 main 방향으로 배치</p>
+        <p>줄에 남는 main 여유 공간을 어떻게 쓸지 결정. 여유가 없으면(줄이 꽉 찼으면) 효과 없음.</p>
+      </div>
+      <div class="card">
+        <span class="tag ai">alignItems</span>
+        <p class="what">아이템을 <b>자기 줄 안에서</b> cross 방향으로 배치</p>
+        <p>같은 줄 아이템들의 cross 크기가 다를 때만 눈에 보임. 모두 같은 높이면 변화 없음.</p>
+      </div>
+      <div class="card">
+        <span class="tag ac">alignContent</span>
+        <p class="what"><b>줄 전체를</b> 컨테이너 안에서 cross 방향으로 배치</p>
+        <p>줄이 2개 이상이고 컨테이너에 cross 여유 공간이 있을 때만 효과. 둘 중 하나라도 없으면 무효.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>플레이그라운드</h2>
+    <p class="sub" style="margin-bottom:18px">
+      값을 바꿔 보세요. 보라색 점선 밴드가 <b>줄(line)</b>입니다 — <code>alignItems</code>는 밴드 <i>안에서</i>,
+      <code>alignContent</code>는 밴드 <i>자체를</i> 움직입니다. 컨테이너 우하단을 드래그해 크기를 바꿀 수도 있습니다.
+    </p>
+
+    <div class="lab">
+      <div class="ctrl">
+        <div class="field">
+          <label>Preset</label>
+          <div class="presets">
+            <button data-preset="flowrow">FlowRow 기본</button>
+            <button data-preset="diaryflexbox">DiaryFlexBox(현재)</button>
+            <button data-preset="centerbug">alignContent Center 버그</button>
+            <button data-preset="column">Column 방향</button>
+          </div>
+        </div>
+
+        <hr class="sep">
+
+        <div class="field">
+          <label>direction</label>
+          <select id="direction">
+            <option value="row">FlexDirection.Row</option>
+            <option value="row-reverse">FlexDirection.RowReverse</option>
+            <option value="column">FlexDirection.Column</option>
+            <option value="column-reverse">FlexDirection.ColumnReverse</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>wrap</label>
+          <select id="wrap">
+            <option value="nowrap">FlexWrap.NoWrap <!-- 기본값 --></option>
+            <option value="wrap" selected>FlexWrap.Wrap</option>
+            <option value="wrap-reverse">FlexWrap.WrapReverse</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>justifyContent <span class="axis main">main</span></label>
+          <select id="justifyContent">
+            <option value="flex-start">Start</option>
+            <option value="flex-end">End</option>
+            <option value="center">Center</option>
+            <option value="space-between">SpaceBetween</option>
+            <option value="space-around">SpaceAround</option>
+            <option value="space-evenly">SpaceEvenly</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>alignItems <span class="axis cross">cross</span></label>
+          <select id="alignItems">
+            <option value="flex-start">Start</option>
+            <option value="flex-end">End</option>
+            <option value="center">Center</option>
+            <option value="stretch">Stretch</option>
+            <option value="baseline">Baseline</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>alignContent <span class="axis cross">cross</span></label>
+          <select id="alignContent">
+            <option value="flex-start">Start</option>
+            <option value="flex-end">End</option>
+            <option value="center">Center</option>
+            <option value="stretch">Stretch</option>
+            <option value="space-between">SpaceBetween</option>
+            <option value="space-around">SpaceAround</option>
+          </select>
+          <p class="hint" style="margin-top:4px">Compose에는 <code>SpaceEvenly</code>가 없습니다(justifyContent에만 있음).</p>
+        </div>
+
+        <hr class="sep">
+
+        <div class="field">
+          <label>gap <span class="val" id="gapVal">8dp</span></label>
+          <input type="range" id="gap" min="0" max="32" step="2" value="8">
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label>main 크기 <span class="val" id="mainVal">300</span></label>
+            <input type="range" id="mainSize" min="120" max="700" step="10" value="300">
+          </div>
+          <div class="field">
+            <label>cross 크기 <span class="val" id="crossVal">220</span></label>
+            <input type="range" id="crossSize" min="60" max="420" step="10" value="220">
+          </div>
+        </div>
+
+        <label class="check">
+          <input type="checkbox" id="crossAuto">
+          <span><b>cross 크기를 콘텐츠에 맞춤</b><br>
+          <span style="color:var(--muted);font-size:0.8rem"><code>verticalScroll</code> 안처럼 cross 축 min 제약이 없는 상태. cross 여유 공간이 사라집니다.</span></span>
+        </label>
+
+        <label class="check">
+          <input type="checkbox" id="varyHeight">
+          <span><b>아이템 cross 크기를 다르게</b><br>
+          <span style="color:var(--muted);font-size:0.8rem">alignItems의 효과를 보려면 필요합니다.</span></span>
+        </label>
+
+        <div class="field">
+          <label>아이템 수 <span class="val" id="countVal">7</span></label>
+          <input type="range" id="count" min="1" max="14" step="1" value="7">
+        </div>
+      </div>
+
+      <div>
+        <div class="stage-outer">
+          <div class="axis-label" id="mainLabel">main axis →</div>
+          <div class="axis-label" id="crossLabel">cross axis →</div>
+          <div class="resizer" id="resizer">
+            <div class="stage" id="stage"></div>
+          </div>
+        </div>
+
+        <div class="diag" id="diag"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>지금 설정에 해당하는 Compose 코드</h2>
+    <pre id="code"></pre>
+  </section>
+
+  <section>
+    <h2>각 속성이 "먹는" 조건</h2>
+    <p>3개가 따로 있는 이유는 각각 <b>효과를 내는 조건이 다르기</b> 때문입니다. 그래서 하나로 합칠 수 없습니다.</p>
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th>속성</th><th>움직이는 대상</th><th>효과가 나타나는 조건</th><th>무효인 경우</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>justifyContent</code></td>
+            <td>줄 안의 아이템들 (main)</td>
+            <td>줄에 main 여유 공간이 있을 때</td>
+            <td>아이템이 줄을 꽉 채웠거나 <code>grow</code>로 다 늘어났을 때</td>
+          </tr>
+          <tr>
+            <td><code>alignItems</code></td>
+            <td>아이템 하나하나 (cross)</td>
+            <td>같은 줄 아이템의 cross 크기가 서로 다를 때</td>
+            <td>모든 아이템 높이가 같을 때 (칩 목록이 대표적)</td>
+          </tr>
+          <tr>
+            <td><code>alignContent</code></td>
+            <td>줄 묶음 전체 (cross)</td>
+            <td>줄이 2개 이상 <b>그리고</b> 컨테이너에 cross 여유 공간이 있을 때</td>
+            <td>줄이 1개이거나, cross 크기가 콘텐츠에 맞춰질 때</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="gotcha">
+      <h3>FlowRow에서 넘어올 때 헷갈리는 지점</h3>
+      <p>
+        <code>FlowRow</code>는 <code>Arrangement</code> 하나에 <b>간격과 정렬</b>을 같이 담았고, cross 축은
+        <code>verticalArrangement</code>(= 줄 묶음)와 <code>itemVerticalAlignment</code>(= 아이템)로 이미 둘로 나뉘어 있었습니다.
+        FlexBox는 그걸 이름으로 드러낸 것뿐이고, 개수가 늘어난 게 아닙니다.
+      </p>
+      <div class="tblwrap">
+        <table>
+          <thead><tr><th>FlowRow</th><th>FlexBox</th></tr></thead>
+          <tbody>
+            <tr><td><code>horizontalArrangement = spacedBy(8.dp, CenterHorizontally)</code></td><td><code>gap(8.dp)</code> + <code>justifyContent(Center)</code></td></tr>
+            <tr><td><code>verticalArrangement = spacedBy(8.dp, CenterVertically)</code></td><td><code>gap(8.dp)</code> + <code>alignContent(Center)</code></td></tr>
+            <tr><td><code>itemVerticalAlignment = Alignment.CenterVertically</code></td><td><code>alignItems(Center)</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="gotcha" style="border-left-color:var(--warn-ink)">
+      <h3 style="color:var(--warn-ink)">1.12.0 실측 버그</h3>
+      <p>
+        cross 축에 min 제약이 없는 상태(<code>Modifier.fillMaxWidth()</code>만 걸렸거나
+        <code>verticalScroll</code> 안에 있는 경우)에서 <code>alignContent(Center)</code>를 주면
+        첫 줄이 <b>줄 간격 합의 절반만큼 위로 밀려 잘립니다.</b> 밀리는 양은
+        <code>(줄 수 - 1) × gap ÷ 2</code>이고, gap 8dp / 2줄 기준으로 첫 줄 top이 <code>-4dp</code>로 측정됐습니다.
+      </p>
+      <p>
+        내부 계산이 <code>totalCrossAxisSpace = max(totalLinesCrossSize, crossAxisMin)</code>인데
+        <code>freeSpace = totalCrossAxisSpace - totalLinesCrossSize - totalGap</code>으로 gap을 한 번 더 빼기 때문입니다.
+        <code>crossAxisMin</code>이 0이면 <code>freeSpace</code>가 <code>-totalGap</code>이 되고
+        Center는 그 절반을 첫 줄의 시작 위치로 씁니다. 위 체크박스에서
+        <b>"cross 크기를 콘텐츠에 맞춤"</b>을 켜고 <code>alignContent</code>를 Center로 바꾸면 같은 조건이 재현됩니다.
+        (이 HTML은 CSS flexbox로 그리므로 실제 음수 오프셋까지 재현하지는 않고, 경고만 표시합니다.)
+      </p>
+      <p style="margin-bottom:0">
+        <code>1.12.0-beta03</code>에서 실측한 동작이고, <code>1.12.0</code> 소스의 <code>FlexBox.kt</code>가
+        <code>1.12.0-rc01</code>과 동일해 계산이 그대로여서 2026-08-27에 기준 버전을 올렸습니다. 그래서 이 저장소의 <code>DiaryFlexBox</code>는
+        <code>alignContent(Start)</code>로 고정합니다. 스크롤 영역 안에서는 밀린 만큼이 스크롤 위치 0보다 위에 남아 닿을 수 없습니다.
+      </p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const stage = $('stage'), resizer = $('resizer'), diag = $('diag'), code = $('code');
+
+const LABELS = {
+  justifyContent: { 'flex-start':'Start','flex-end':'End','center':'Center','space-between':'SpaceBetween','space-around':'SpaceAround','space-evenly':'SpaceEvenly' },
+  alignItems:     { 'flex-start':'Start','flex-end':'End','center':'Center','stretch':'Stretch','baseline':'Baseline' },
+  alignContent:   { 'flex-start':'Start','flex-end':'End','center':'Center','stretch':'Stretch','space-between':'SpaceBetween','space-around':'SpaceAround' },
+  direction:      { 'row':'Row','row-reverse':'RowReverse','column':'Column','column-reverse':'ColumnReverse' },
+  wrap:           { 'nowrap':'NoWrap','wrap':'Wrap','wrap-reverse':'WrapReverse' },
+};
+const WORDS = ['업무','운동','공부','여행 준비','독서','회의록','장보기','아이디어','건강','취미','정리','회고','예산','일정'];
+const TALL = [0, 1, 4, 5, 9];   // 높이를 키울 인덱스
+
+const state = () => ({
+  direction: $('direction').value,
+  wrap: $('wrap').value,
+  justifyContent: $('justifyContent').value,
+  alignItems: $('alignItems').value,
+  alignContent: $('alignContent').value,
+  gap: +$('gap').value,
+  mainSize: +$('mainSize').value,
+  crossSize: +$('crossSize').value,
+  crossAuto: $('crossAuto').checked,
+  varyHeight: $('varyHeight').checked,
+  count: +$('count').value,
+});
+
+const isHorizontal = (d) => d === 'row' || d === 'row-reverse';
+
+function render() {
+  const s = state();
+  const horiz = isHorizontal(s.direction);
+
+  // ---- 컨테이너 크기: main/cross → width/height 매핑
+  resizer.style.width  = (horiz ? s.mainSize : s.crossSize) + 'px';
+  if (horiz) {
+    resizer.style.height = s.crossAuto ? 'auto' : (s.crossSize + 14) + 'px';
+  } else {
+    resizer.style.height = (s.mainSize + 14) + 'px';
+  }
+  stage.style.minHeight = (horiz && s.crossAuto) ? '40px' : '';
+
+  // ---- flex 속성 반영
+  Object.assign(stage.style, {
+    flexDirection: s.direction,
+    flexWrap: s.wrap,
+    justifyContent: s.justifyContent,
+    alignItems: s.alignItems,
+    alignContent: s.alignContent,
+    gap: s.gap + 'px',
+  });
+
+  // ---- 아이템 렌더
+  stage.querySelectorAll('.chip, .lineband').forEach(n => n.remove());
+  for (let i = 0; i < s.count; i++) {
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = WORDS[i % WORDS.length];
+    const big = s.varyHeight && TALL.includes(i);
+    if (s.alignItems === 'stretch') {
+      // stretch일 때는 cross 크기를 지정하지 않아야 늘어나는 게 보인다.
+      if (horiz) chip.style.minHeight = big ? '52px' : '30px';
+      else chip.style.minWidth = big ? '120px' : '74px';
+    } else if (horiz) {
+      chip.style.height = big ? '52px' : '30px';
+      if (s.alignItems === 'baseline' && big) chip.style.fontSize = '1.3rem';
+    } else {
+      chip.style.height = '30px';
+      chip.style.width = big ? '120px' : '74px';
+    }
+    stage.appendChild(chip);
+  }
+
+  requestAnimationFrame(() => { drawLines(s, horiz); diagnose(s, horiz); });
+  writeCode(s);
+}
+
+// 실제 배치 결과에서 줄을 역산해 밴드로 표시한다.
+function measureLines(horiz) {
+  const chips = [...stage.querySelectorAll('.chip')];
+  if (!chips.length) return [];
+  const box = stage.getBoundingClientRect();
+  const lines = [];
+  chips.forEach(chip => {
+    const r = chip.getBoundingClientRect();
+    const crossStart = horiz ? r.top - box.top : r.left - box.left;
+    const crossEnd   = horiz ? r.bottom - box.top : r.right - box.left;
+    const mainStart  = horiz ? r.left - box.left : r.top - box.top;
+    const mainEnd    = horiz ? r.right - box.left : r.bottom - box.top;
+    // 같은 줄 판정: cross 구간이 겹치면 동일 줄로 본다.
+    const hit = lines.find(l => crossStart < l.crossEnd - 1 && crossEnd > l.crossStart + 1);
+    if (hit) {
+      hit.crossStart = Math.min(hit.crossStart, crossStart);
+      hit.crossEnd   = Math.max(hit.crossEnd, crossEnd);
+      hit.mainStart  = Math.min(hit.mainStart, mainStart);
+      hit.mainEnd    = Math.max(hit.mainEnd, mainEnd);
+      hit.sizes.push(crossEnd - crossStart);
+    } else {
+      lines.push({ crossStart, crossEnd, mainStart, mainEnd, sizes: [crossEnd - crossStart] });
+    }
+  });
+  return lines.sort((a, b) => a.crossStart - b.crossStart);
+}
+
+function drawLines(s, horiz) {
+  const lines = measureLines(horiz);
+  lines.forEach((l, i) => {
+    const band = document.createElement('div');
+    band.className = 'lineband';
+    const pad = 3;
+    if (horiz) {
+      Object.assign(band.style, {
+        left: '0px', width: '100%',
+        top: (l.crossStart - pad) + 'px',
+        height: (l.crossEnd - l.crossStart + pad * 2) + 'px',
+      });
+    } else {
+      Object.assign(band.style, {
+        top: '0px', height: '100%',
+        left: (l.crossStart - pad) + 'px',
+        width: (l.crossEnd - l.crossStart + pad * 2) + 'px',
+      });
+    }
+    band.innerHTML = `<span>line ${i + 1}</span>`;
+    stage.appendChild(band);
+  });
+  return lines;
+}
+
+function diagnose(s, horiz) {
+  const lines = measureLines(horiz);
+  const box = stage.getBoundingClientRect();
+  const containerCross = horiz ? box.height : box.width;
+  const linesCross = lines.reduce((a, l) => a + (l.crossEnd - l.crossStart), 0);
+  const totalGap = Math.max(0, lines.length - 1) * s.gap;
+  const crossFree = Math.round(containerCross - linesCross - totalGap);
+
+  // 줄마다 main 여유 공간이 남는지
+  const mainFree = lines.length
+    ? Math.round(Math.max(...lines.map(l => (horiz ? box.width : box.height) - (l.mainEnd - l.mainStart))))
+    : 0;
+  const sameSize = lines.every(l => l.sizes.every(v => Math.abs(v - l.sizes[0]) < 1.5));
+
+  const out = [];
+  const push = (warn, name, msg) =>
+    out.push(`<div class="badge ${warn ? 'warn' : ''}"><span class="ico">${warn ? '⚠️' : '✅'}</span><b>${name}</b><span>${msg}</span></div>`);
+
+  // justifyContent
+  if (s.wrap !== 'nowrap' && mainFree <= 2 && lines.length > 0)
+    push(true, 'justifyContent', `줄이 main 방향으로 거의 꽉 차서 효과가 보이지 않습니다. (여유 ${mainFree}px) 아이템 수를 줄이거나 main 크기를 키워 보세요.`);
+  else
+    push(false, 'justifyContent', `줄 안 main 여유 ${mainFree}px를 <code>${LABELS.justifyContent[s.justifyContent]}</code> 규칙으로 배분합니다.`);
+
+  // alignItems
+  if (s.alignItems === 'stretch')
+    push(false, 'alignItems', 'Stretch — 아이템이 줄의 cross 크기를 채우도록 늘어납니다.');
+  else if (sameSize && !s.varyHeight)
+    push(true, 'alignItems', '모든 아이템의 cross 크기가 같아 어떤 값을 줘도 결과가 동일합니다. <b>"아이템 cross 크기를 다르게"</b>를 켜 보세요.');
+  else
+    push(false, 'alignItems', `크기가 다른 아이템을 자기 줄 안에서 <code>${LABELS.alignItems[s.alignItems]}</code>로 맞춥니다.`);
+
+  // alignContent
+  if (lines.length <= 1)
+    push(true, 'alignContent', `줄이 ${lines.length}개라 무효입니다. 줄 묶음을 옮기려면 2줄 이상이어야 합니다.`);
+  else if (s.crossAuto && horiz)
+    push(true, 'alignContent', 'cross 크기가 콘텐츠에 맞춰져 여유 공간이 0입니다 → 무효. <b>태그 필터 시트와 태그 입력이 이 상태이고, 이때 Center를 주면 rc01에서 첫 줄이 줄 간격 합의 절반만큼 위로 잘립니다.</b>');
+  else if (crossFree <= 2)
+    push(true, 'alignContent', `cross 여유 공간이 ${crossFree}px뿐이라 효과가 거의 없습니다. cross 크기를 키워 보세요.`);
+  else
+    push(false, 'alignContent', `${lines.length}개 줄을 cross 여유 ${crossFree}px 안에서 <code>${LABELS.alignContent[s.alignContent]}</code>로 배치합니다.`);
+
+  diag.innerHTML = out.join('');
+  $('mainLabel').textContent = 'main axis ' + (s.direction.includes('reverse') ? '←' : '→');
+  $('crossLabel').textContent = 'cross axis ' + (s.wrap === 'wrap-reverse' ? '←' : '→');
+}
+
+function writeCode(s) {
+  const L = [];
+  L.push(`<span class="f">FlexBox</span>(`);
+  L.push(`    modifier = modifier,`);
+  L.push(`    config = {`);
+  if (s.direction !== 'row') L.push(`        <span class="f">direction</span>(<span class="v">FlexDirection.${LABELS.direction[s.direction]}</span>)`);
+  L.push(`        <span class="f">wrap</span>(<span class="v">FlexWrap.${LABELS.wrap[s.wrap]}</span>)`);
+  if (s.gap > 0) L.push(`        <span class="f">gap</span>(<span class="v">${s.gap}.dp</span>)`);
+  if (s.justifyContent !== 'flex-start') L.push(`        <span class="f">justifyContent</span>(<span class="v">FlexJustifyContent.${LABELS.justifyContent[s.justifyContent]}</span>)`);
+  if (s.alignItems !== 'flex-start') L.push(`        <span class="f">alignItems</span>(<span class="v">FlexAlignItems.${LABELS.alignItems[s.alignItems]}</span>)`);
+  if (s.alignContent !== 'flex-start') L.push(`        <span class="f">alignContent</span>(<span class="v">FlexAlignContent.${LABELS.alignContent[s.alignContent]}</span>)`);
+  L.push(`    },`);
+  L.push(`) {`);
+  L.push(`    tagList.<span class="f">forEach</span> { tag -&gt; <span class="f">TagChip</span>(tag = tag) }`);
+  L.push(`}`);
+  const skipped = ['justifyContent','alignItems','alignContent'].filter(k => s[k] === 'flex-start');
+  if (skipped.length) L.push(`\n<span class="c">// ${skipped.join(', ')}는 기본값 Start라 생략했습니다.</span>`);
+  code.innerHTML = L.join('\n');
+}
+
+const PRESETS = {
+  flowrow:  { direction:'row', wrap:'wrap', justifyContent:'flex-start', alignItems:'flex-start', alignContent:'flex-start', crossAuto:true,  varyHeight:false, crossSize:220 },
+  // 태그 필터 시트와 태그 입력은 둘 다 DiaryFlexBox를 verticalScroll 안에 두므로 설정이 같습니다.
+  diaryflexbox: { direction:'row', wrap:'wrap', justifyContent:'center', alignItems:'center', alignContent:'flex-start', crossAuto:true, varyHeight:false, crossSize:220 },
+  centerbug:    { direction:'row', wrap:'wrap', justifyContent:'center', alignItems:'center', alignContent:'center',     crossAuto:true, varyHeight:false, crossSize:220 },
+  column:   { direction:'column', wrap:'wrap', justifyContent:'center', alignItems:'center', alignContent:'center', crossAuto:false, varyHeight:true, crossSize:300 },
+};
+
+document.querySelectorAll('[data-preset]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const p = PRESETS[btn.dataset.preset];
+    Object.entries(p).forEach(([k, v]) => {
+      const el = $(k);
+      if (!el) return;
+      if (el.type === 'checkbox') el.checked = v; else el.value = v;
+    });
+    syncVals(); render();
+  });
+});
+
+function syncVals() {
+  $('gapVal').textContent = $('gap').value + 'dp';
+  $('mainVal').textContent = $('mainSize').value;
+  $('crossVal').textContent = $('crossAuto').checked ? 'auto' : $('crossSize').value;
+  $('countVal').textContent = $('count').value;
+}
+
+['direction','wrap','justifyContent','alignItems','alignContent','gap','mainSize','crossSize','crossAuto','varyHeight','count']
+  .forEach(id => $(id).addEventListener('input', () => { syncVals(); render(); }));
+
+new ResizeObserver(() => {
+  const s = state();
+  requestAnimationFrame(() => {
+    stage.querySelectorAll('.lineband').forEach(n => n.remove());
+    drawLines(s, isHorizontal(s.direction));
+    diagnose(s, isHorizontal(s.direction));
+  });
+}).observe(resizer);
+
+syncVals();
+render();
+</script>
+</body>
+</html>
