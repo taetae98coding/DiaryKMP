@@ -1,0 +1,102 @@
+# DiaryColorInput 테스트 케이스
+
+기준 스펙: [DiaryColorInput 컴포넌트 스펙](../spec/diary-color-input.md)
+
+## feature
+
+### TC-DIARY-COLOR-INPUT-FEATURE-001: 초기 컬러의 Hex 코드를 확인한다
+
+- 근거: `feature > 선택 컬러 확인`, `domain > 초기 컬러`
+- Given: 초기 컬러가 `#102030`으로 지정되어 DiaryColorInput이 표시되어 있다.
+- When: 사용자가 선택 컬러를 확인한다.
+- Then: 초기 컬러의 Hex 코드가 `#102030`으로 표시된다.
+
+### TC-DIARY-COLOR-INPUT-FEATURE-009: 초기 컬러의 RGB 채널 값을 확인한다
+
+- 근거: `feature > 선택 컬러 확인`, `domain > 컬러 표현`
+- Given: 초기 컬러가 `#102030`으로 지정되어 DiaryColorInput이 표시되어 있다.
+- When: 사용자가 선택 컬러를 확인한다.
+- Then: 초기 컬러의 채널 값이 R은 `16`, G는 `32`, B는 `48`로 표시된다.
+
+### TC-DIARY-COLOR-INPUT-FEATURE-002: 현재 선택 컬러를 기준으로 편집을 시작한다
+
+- 근거: `feature > 컬러 편집`
+- Given: 현재 컬러가 선택된 DiaryColorInput이 표시되어 있다.
+- When: 사용자가 컬러 편집을 시작한다.
+- Then: 편집 컬러의 Hex 코드와 R, G, B 각 채널 값이 현재 선택 컬러와 같은 값으로 시작한다.
+
+### TC-DIARY-COLOR-INPUT-FEATURE-004: 채널 값을 조절하면 다른 편집 값도 함께 갱신된다
+
+- 근거: `feature > 컬러 편집`
+- Given: 컬러를 편집하고 있다.
+- When: 사용자가 R, G, B 중 한 채널 값을 바꾼다.
+- Then: 편집 컬러의 미리보기와 Hex 코드가 바뀐 채널 값에 맞게 갱신된다.
+
+### TC-DIARY-COLOR-INPUT-FEATURE-008: 무작위 컬러를 생성하면 편집 값이 함께 갱신된다
+
+- 근거: `feature > 컬러 편집`
+- Given: 컬러를 편집하고 있다.
+- When: 사용자가 무작위 컬러 생성을 선택한다.
+- Then: 편집 컬러의 Hex 코드와 R, G, B 각 채널 값이 새로 생성된 같은 컬러를 나타낸다.
+
+### TC-DIARY-COLOR-INPUT-FEATURE-005: 편집을 확인하면 선택 컬러가 바뀐다
+
+- 근거: `feature > 확인과 취소`, `domain > 컬러 확정 기준`
+- Given: 편집 컬러를 기존 선택 컬러와 다른 컬러로 바꿨다.
+- When: 사용자가 편집을 확인한다.
+- Then: 편집 상태가 닫히고 선택 컬러의 Hex 코드와 R, G, B 값이 마지막 유효 편집 컬러의 값으로 바뀐다.
+
+### TC-DIARY-COLOR-INPUT-FEATURE-006: 편집을 취소하면 기존 선택 컬러를 유지한다
+
+- 근거: `feature > 확인과 취소`, `domain > 컬러 확정 기준`
+- Given: 편집 컬러를 기존 선택 컬러와 다른 컬러로 바꿨다.
+- When: 사용자가 편집을 취소한다.
+- Then: 편집 상태가 닫히고 선택 컬러의 Hex 코드와 R, G, B 값은 편집 전 값을 유지한다.
+
+### TC-DIARY-COLOR-INPUT-FEATURE-007: 초기 컬러를 지정하지 않으면 무작위 컬러를 선택한다
+
+- 근거: `feature > 선택 컬러 확인`, `domain > 초기 컬러`
+- Given: 초기 컬러 지정 없이 DiaryColorInput이 표시되어 있다.
+- When: 사용자가 선택 컬러를 확인한다.
+- Then: 무작위로 정해진 선택 컬러의 Hex 코드가 `#RRGGBB` 형식의 대문자로 표시된다.
+
+## domain
+
+### TC-DIARY-COLOR-INPUT-DOMAIN-001: 유효한 Hex 입력만 편집 컬러에 반영한다
+
+- 근거: `feature > 컬러 편집`, `domain > 유효한 Hex 입력 기준`
+- Given: 컬러를 편집하고 있고 편집 컬러가 `#102030`이다.
+- When: 사용자가 Hex 내용을 테스트 데이터의 입력으로 바꾼다.
+- Then: 테스트 데이터의 기대 결과대로 편집 컬러가 입력한 컬러로 갱신되거나 마지막 유효 컬러를 유지한다.
+- 테스트 데이터:
+
+| 입력 | 기대 결과 |
+| --- | --- |
+| `#3A7BD5` | `#3A7BD5`로 반영 |
+| `3A7BD5` | `#3A7BD5`로 반영 |
+| `#3a7bd5` | `#3A7BD5`로 반영 |
+| `#3A7BD` | 반영되지 않고 마지막 유효 컬러 `#102030` 유지 |
+| `#3A7BD5F` | 반영되지 않고 마지막 유효 컬러 `#102030` 유지 |
+| `#GGGGGG` | 반영되지 않고 마지막 유효 컬러 `#102030` 유지 |
+| 빈 문자열 | 반영되지 않고 마지막 유효 컬러 `#102030` 유지 |
+
+### TC-DIARY-COLOR-INPUT-DOMAIN-002: 유효하지 않은 Hex 입력이 남아 있어도 확인 시 마지막 유효 컬러가 적용된다
+
+- 근거: `domain > 컬러 확정 기준`
+- Given: 유효한 Hex 코드로 편집 컬러를 바꾼 뒤 유효하지 않은 Hex 내용이 입력되어 있다.
+- When: 사용자가 편집을 확인한다.
+- Then: 편집 상태가 닫히고 선택 컬러의 Hex 코드가 마지막으로 유효했던 편집 컬러로 표시된다.
+
+### TC-DIARY-COLOR-INPUT-DOMAIN-003: 화면이 재생성되어도 선택된 컬러가 유지된다
+
+- 근거: `domain > 진행 상태 유지`
+- Given: 사용자가 편집 컬러를 바꿔 확인해 새 컬러가 선택되어 있다.
+- When: 시스템에 의해 화면이 재생성된다.
+- Then: 선택했던 컬러의 Hex 코드가 그대로 표시된다.
+
+### TC-DIARY-COLOR-INPUT-DOMAIN-004: 화면이 재생성되어도 편집 상태와 편집 컬러가 유지된다
+
+- 근거: `domain > 진행 상태 유지`
+- Given: 컬러를 편집하고 있고 편집 컬러를 기존 선택 컬러와 다른 컬러로 바꿨다.
+- When: 시스템에 의해 화면이 재생성된다.
+- Then: 컬러 편집 상태가 유지되고 편집 중이던 컬러의 Hex 코드가 그대로 표시된다.
