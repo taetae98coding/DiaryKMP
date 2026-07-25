@@ -1,0 +1,115 @@
+project_id = "ljsscxmqzsoulswmwsia"
+
+[auth.external.google]
+enabled = true
+# SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID: 콤마 구분 Google client id 목록.
+# 형식 "<number>-<hash>.apps.googleusercontent.com". id_token의 aud 검증에 쓰이므로
+# 앱이 만드는 모든 aud를 포함한다(Android=웹, WASM=웹, iOS=iOS client, JVM=JVM client). 웹을 맨 앞에.
+client_id = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID)"
+# SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_SECRET: 위 목록 첫 번째(웹) client의 OAuth secret.
+# 형식 "GOCSPX-...". 네이티브/코드교환 흐름에선 미사용이나 provider 설정상 채워둔다.
+secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_SECRET)"
+
+[auth.external.apple]
+enabled = true
+# SUPABASE_AUTH_EXTERNAL_APPLE_CLIENT_ID: 콤마 구분 Apple client id 목록.
+# 네이티브 Sign in with Apple은 id_token의 aud가 앱 bundle id이므로 flavor별 bundle id를 넣는다
+# (dev="io.github.taetae98coding.diary.dev", real="io.github.taetae98coding.diary").
+# 웹(Services ID)을 추가하면 그 식별자도 목록에 함께 넣는다.
+client_id = "env(SUPABASE_AUTH_EXTERNAL_APPLE_CLIENT_ID)"
+# secret은 웹 OAuth 흐름 전용(.p8 키로 서명한 client secret JWT)이라 선언하지 않는다.
+# CLI 설정 검증도 apple·google provider는 secret 필수 검사에서 제외한다.
+# 웹 Sign in with Apple을 붙일 때 Services ID와 함께 추가한다.
+
+# S3 Vector Buckets는 Pro 플랜 전용 기능인데 CLI가 기본값을 enabled로 두어,
+# 무료 티어에서는 config push가 402로 실패한다. 그래서 명시적으로 꺼둔다.
+[storage.vector]
+enabled = false
+
+[functions.v1-session-google-id-token]
+verify_jwt = false
+
+# authorization-code 교환은 secrets set으로 주입한 GOOGLE_CLIENT_SECRETS를 쓴다.
+# 형식(JSON): {"<jvm client id>":"GOCSPX-...","<wasm/web client id>":"GOCSPX-..."}
+# 요청의 clientId를 키로 secret을 조회한다(clientId 형식은 위 client_id와 동일).
+[functions.v1-session-google-authorization-code]
+verify_jwt = false
+
+[functions.v1-session-apple-id-token]
+verify_jwt = false
+
+[functions.v1-sync-push-tag]
+verify_jwt = true
+
+[functions.v1-sync-push-memo]
+verify_jwt = true
+
+[functions.v1-sync-pull-tag]
+verify_jwt = true
+
+[functions.v1-sync-pull-memo]
+verify_jwt = true
+
+[functions.v1-sync-push-memo-tag]
+verify_jwt = true
+
+[functions.v1-sync-pull-memo-tag]
+verify_jwt = true
+
+[functions.v1-sync-push-place]
+verify_jwt = true
+
+[functions.v1-sync-pull-place]
+verify_jwt = true
+
+[functions.v1-sync-push-web]
+verify_jwt = true
+
+[functions.v1-sync-pull-web]
+verify_jwt = true
+
+[functions.v1-sync-push-memo-place]
+verify_jwt = true
+
+[functions.v1-sync-pull-memo-place]
+verify_jwt = true
+
+[functions.v1-sync-push-memo-web]
+verify_jwt = true
+
+[functions.v1-sync-pull-memo-web]
+verify_jwt = true
+
+[functions.v1-sync-push-tag-link]
+verify_jwt = true
+
+[functions.v1-sync-pull-tag-link]
+verify_jwt = true
+
+[functions.v1-sync-push-web-tag]
+verify_jwt = true
+
+[functions.v1-sync-pull-web-tag]
+verify_jwt = true
+
+[functions.v1-sync-push-place-tag]
+verify_jwt = true
+
+[functions.v1-sync-pull-place-tag]
+verify_jwt = true
+
+[functions.v1-sync-push-contact]
+verify_jwt = true
+
+[functions.v1-sync-pull-contact]
+verify_jwt = true
+
+[functions.v1-profile-upload]
+verify_jwt = true
+
+# 위 설정은 dev(project_id) 기준이며, client_id/secret은 push 시점 env로 주입된다.
+# dev/real 간 설정 차이가 없어 real은 project_id만 지정해 base 설정을 상속한다.
+# dev  배포: supabase config push --project-ref ljsscxmqzsoulswmwsia
+# real 배포: supabase config push --project-ref zsippzmbsjvkskkfxijl
+[remotes.real]
+project_id = "zsippzmbsjvkskkfxijl"
