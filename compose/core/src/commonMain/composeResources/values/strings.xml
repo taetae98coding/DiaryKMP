@@ -1,0 +1,46 @@
+<resources>
+    <string name="diary_date_time_input_all_day">All day</string>
+    <string name="diary_date_time_input_end">End</string>
+    <string name="diary_date_time_input_label">Date &amp; time</string>
+    <string name="diary_date_time_input_start">Start</string>
+    <string name="diary_description_input_label">Description</string>
+    <string name="diary_description_input_tab_input_content_description">Input</string>
+    <string name="diary_description_input_tab_preview_content_description">Preview</string>
+    <string name="diary_emoji_input_dialog_cancel">Cancel</string>
+    <string name="diary_emoji_input_dialog_confirm">Confirm</string>
+    <string name="diary_emoji_input_label">Emoji</string>
+    <string name="diary_title_input_label">Title</string>
+    <string name="list_sort_bottom_sheet_title">Sort</string>
+    <string name="list_sort_content_description">List sort</string>
+    <string name="list_sort_default_label">Default</string>
+    <string name="list_sort_name_label">Name</string>
+    <string name="list_sort_recently_updated_label">Recently updated</string>
+    <string name="list_sort_title_label">Title</string>
+    <string name="date_display_format">%2$s %3$s, %1$s</string>
+    <string name="time_display_format">%1$s:%2$s %3$s</string>
+    <string name="time_display_am">AM</string>
+    <string name="time_display_pm">PM</string>
+    <string-array name="date_display_month_names">
+        <item>Jan</item>
+        <item>Feb</item>
+        <item>Mar</item>
+        <item>Apr</item>
+        <item>May</item>
+        <item>Jun</item>
+        <item>Jul</item>
+        <item>Aug</item>
+        <item>Sep</item>
+        <item>Oct</item>
+        <item>Nov</item>
+        <item>Dec</item>
+    </string-array>
+    <string name="clear_text_field_button_content_description">Clear text</string>
+    <string name="date_picker_dialog_cancel">Cancel</string>
+    <string name="date_picker_dialog_confirm">OK</string>
+    <string name="time_picker_dialog_cancel">Cancel</string>
+    <string name="time_picker_dialog_confirm">OK</string>
+    <string name="color_picker_dialog_cancel">Cancel</string>
+    <string name="color_picker_dialog_confirm">Confirm</string>
+    <string name="color_picker_dialog_random_button_content_description">Random color</string>
+    <string name="pull_to_refresh_refreshing_content_description">Refreshing</string>
+</resources>
