@@ -1,0 +1,7 @@
+<resources>
+    <string name="login_home_title">로그인</string>
+    <string name="login_navigate_up_button_content_description">뒤로가기</string>
+    <string name="login_google_sign_in_button_content_description">Google로 로그인</string>
+    <string name="login_apple_sign_in_button_content_description">Apple로 로그인</string>
+    <string name="login_sign_in_failed_message">로그인에 실패했습니다.</string>
+</resources>

@@ -1,0 +1,7 @@
+<resources>
+    <string name="login_home_title">Login</string>
+    <string name="login_navigate_up_button_content_description">Navigate up</string>
+    <string name="login_google_sign_in_button_content_description">Sign in with Google</string>
+    <string name="login_apple_sign_in_button_content_description">Sign in with Apple</string>
+    <string name="login_sign_in_failed_message">Sign-in failed.</string>
+</resources>

@@ -1,0 +1,42 @@
+@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
+
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+
+plugins {
+    alias(libs.plugins.convention.feature.ui)
+}
+
+kotlin {
+    swiftPMDependencies {
+        iosMinimumDeploymentTarget.set("26.5")
+
+        swiftPackage(
+            url = url("https://github.com/google/GoogleSignIn-iOS.git"),
+            version = exact("9.2.0"),
+            products = listOf(product("GoogleSignIn")),
+        )
+    }
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(projects.domain.authentication)
+                implementation(projects.feature.login.api)
+                implementation(libs.kotlincrypto.hash.sha2)
+            }
+        }
+
+        androidMain {
+            dependencies {
+                implementation(libs.androidx.credentials.play.services.auth)
+                implementation(libs.google.identity.googleid)
+            }
+        }
+
+        jvmMain {
+            dependencies {
+                implementation(libs.google.oauth.client.jetty)
+            }
+        }
+    }
+}
