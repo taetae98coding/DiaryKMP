@@ -1,0 +1,70 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
+package io.github.taetae98coding.diary.feature.memo.ui.web
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import io.github.taetae98coding.diary.core.model.web.Web
+import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoWebUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoWebUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoSelectableWebUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.RemoveMemoWebUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.debounceSearchQuery
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import org.koin.core.annotation.InjectedParam
+import org.koin.core.annotation.KoinViewModel
+import kotlin.uuid.Uuid
+
+@KoinViewModel
+internal class MemoWebViewModel(
+    @InjectedParam private val id: Uuid,
+    pageMemoSelectableWebUseCase: PageMemoSelectableWebUseCase,
+    getMemoWebUseCase: GetMemoWebUseCase,
+    private val addMemoWebUseCase: AddMemoWebUseCase,
+    private val removeMemoWebUseCase: RemoveMemoWebUseCase,
+) : ViewModel() {
+    private val query = MutableStateFlow("")
+
+    val webPagingData: Flow<PagingData<Web>> =
+        query
+            .debounceSearchQuery()
+            .flatMapLatest { value -> pageMemoSelectableWebUseCase(parameter = value) }
+            .mapNotNull { result -> result.getOrNull() }
+            .cachedIn(viewModelScope)
+
+    val uiState: StateFlow<MemoWebInputUiState> =
+        getMemoWebUseCase(parameter = id)
+            .map { result -> MemoWebInputUiState(selectedWebList = result.getOrNull().orEmpty()) }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+                initialValue = MemoWebInputUiState(),
+            )
+
+    fun updateQuery(query: String) {
+        this.query.value = query
+    }
+
+    fun selectWeb(webId: Uuid) {
+        viewModelScope.launch {
+            addMemoWebUseCase(parameter = AddMemoWebUseCase.Parameter(memoId = id, webId = webId))
+        }
+    }
+
+    fun unselectWeb(webId: Uuid) {
+        viewModelScope.launch {
+            removeMemoWebUseCase(parameter = RemoveMemoWebUseCase.Parameter(memoId = id, webId = webId))
+        }
+    }
+}
