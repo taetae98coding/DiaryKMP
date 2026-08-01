@@ -1,0 +1,9 @@
+<resources>
+    <string name="memo_list_today_header">Today</string>
+    <string name="memo_list_swipe_finish_content_description">Finish memo</string>
+    <string name="memo_list_swipe_restart_content_description">Restart memo</string>
+    <string name="memo_list_swipe_delete_content_description">Delete memo</string>
+    <string name="memo_list_finished_message">Memo finished.</string>
+    <string name="memo_list_deleted_message">Memo deleted.</string>
+    <string name="memo_list_undo_action">Undo</string>
+</resources>
