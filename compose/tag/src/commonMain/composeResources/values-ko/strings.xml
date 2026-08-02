@@ -1,0 +1,13 @@
+<resources>
+    <string name="entity_tag_label">태그 선택</string>
+    <string name="entity_tag_action">태그 선택</string>
+    <string name="entity_tag_detail_action">태그 상세 보기</string>
+    <string name="entity_tag_picker_title">태그 선택</string>
+    <string name="entity_tag_picker_add_label">태그 추가</string>
+    <string name="entity_tag_add_action">태그 추가</string>
+    <string name="entity_tag_picker_search_placeholder">태그 검색</string>
+    <string name="entity_tag_picker_search_empty_title">검색 결과가 없습니다</string>
+    <string name="entity_tag_picker_search_empty_description">다른 검색어로 찾아보세요</string>
+    <string name="tag_filter_unselect_all_label">지우기</string>
+    <string name="tag_filter_unselect_all_content_description">태그 필터 지우기</string>
+</resources>
