@@ -1,0 +1,25 @@
+<resources>
+    <string name="calendar_home_drop_down_content_description">날짜 선택 열기</string>
+    <string name="calendar_home_drop_up_content_description">날짜 선택 닫기</string>
+    <string name="calendar_home_year_month_title">%1$s년 %2$s</string>
+    <string name="calendar_home_today_button_content_description">오늘로 이동</string>
+    <string name="calendar_home_filter_action_content_description">태그 필터</string>
+    <string name="calendar_home_filter_applied_state_description">태그 필터 적용됨</string>
+    <string name="calendar_home_filter_title">태그 필터</string>
+    <string name="calendar_home_birthday_text">🎂 %1$s</string>
+    <string name="calendar_home_birthday_content_description">%1$s 생일</string>
+    <string-array name="calendar_home_month_titles">
+        <item>1월</item>
+        <item>2월</item>
+        <item>3월</item>
+        <item>4월</item>
+        <item>5월</item>
+        <item>6월</item>
+        <item>7월</item>
+        <item>8월</item>
+        <item>9월</item>
+        <item>10월</item>
+        <item>11월</item>
+        <item>12월</item>
+    </string-array>
+</resources>

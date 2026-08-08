@@ -1,0 +1,25 @@
+<resources>
+    <string name="calendar_home_drop_down_content_description">Show date picker</string>
+    <string name="calendar_home_drop_up_content_description">Hide date picker</string>
+    <string name="calendar_home_year_month_title">%2$s %1$s</string>
+    <string name="calendar_home_today_button_content_description">Go to today</string>
+    <string name="calendar_home_filter_action_content_description">Filter by tag</string>
+    <string name="calendar_home_filter_applied_state_description">Tag filter applied</string>
+    <string name="calendar_home_filter_title">Tag Filter</string>
+    <string name="calendar_home_birthday_text">🎂 %1$s</string>
+    <string name="calendar_home_birthday_content_description">%1$s's birthday</string>
+    <string-array name="calendar_home_month_titles">
+        <item>January</item>
+        <item>February</item>
+        <item>March</item>
+        <item>April</item>
+        <item>May</item>
+        <item>June</item>
+        <item>July</item>
+        <item>August</item>
+        <item>September</item>
+        <item>October</item>
+        <item>November</item>
+        <item>December</item>
+    </string-array>
+</resources>
