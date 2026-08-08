@@ -1,0 +1,11 @@
+<resources>
+    <string-array name="calendar_day_of_week_titles">
+        <item>일</item>
+        <item>월</item>
+        <item>화</item>
+        <item>수</item>
+        <item>목</item>
+        <item>금</item>
+        <item>토</item>
+    </string-array>
+</resources>
