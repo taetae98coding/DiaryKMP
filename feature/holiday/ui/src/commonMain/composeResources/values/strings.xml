@@ -1,0 +1,32 @@
+<resources>
+    <string name="holiday_home_year_title">%1$s</string>
+    <string name="holiday_navigate_up_button_content_description">Navigate up</string>
+    <string name="holiday_annual_leave_label">Annual leave</string>
+    <string name="holiday_annual_leave_decrease_content_description">Decrease annual leave</string>
+    <string name="holiday_annual_leave_increase_content_description">Increase annual leave</string>
+    <string name="holiday_golden_holiday_period">%1$s %2$s ~ %3$s %4$s</string>
+    <string name="holiday_golden_holiday_day_count">%1$s days</string>
+    <string name="holiday_golden_holiday_annual_leave_count">%1$s leave</string>
+    <string name="holiday_golden_holiday_previous_option_content_description">Previous option</string>
+    <string name="holiday_golden_holiday_next_option_content_description">Next option</string>
+    <string name="holiday_golden_holiday_option_position">%1$s / %2$s</string>
+    <string name="holiday_annual_leave_item_label">Leave</string>
+    <string name="holiday_loading_content_description">Loading holidays</string>
+    <string name="holiday_error_description">Holidays could not be loaded</string>
+    <string name="holiday_not_provided_description">Holidays are not provided for this year</string>
+    <string name="holiday_retry">Retry</string>
+    <string-array name="holiday_month_titles">
+        <item>Jan</item>
+        <item>Feb</item>
+        <item>Mar</item>
+        <item>Apr</item>
+        <item>May</item>
+        <item>Jun</item>
+        <item>Jul</item>
+        <item>Aug</item>
+        <item>Sep</item>
+        <item>Oct</item>
+        <item>Nov</item>
+        <item>Dec</item>
+    </string-array>
+</resources>

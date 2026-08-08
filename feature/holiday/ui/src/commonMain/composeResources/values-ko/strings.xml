@@ -1,0 +1,32 @@
+<resources>
+    <string name="holiday_home_year_title">%1$s년</string>
+    <string name="holiday_navigate_up_button_content_description">뒤로가기</string>
+    <string name="holiday_annual_leave_label">연차</string>
+    <string name="holiday_annual_leave_decrease_content_description">연차 줄이기</string>
+    <string name="holiday_annual_leave_increase_content_description">연차 늘리기</string>
+    <string name="holiday_golden_holiday_period">%1$s %2$s일 ~ %3$s %4$s일</string>
+    <string name="holiday_golden_holiday_day_count">%1$s일</string>
+    <string name="holiday_golden_holiday_annual_leave_count">연차 %1$s일</string>
+    <string name="holiday_golden_holiday_previous_option_content_description">이전 연휴 안</string>
+    <string name="holiday_golden_holiday_next_option_content_description">다음 연휴 안</string>
+    <string name="holiday_golden_holiday_option_position">%1$s / %2$s</string>
+    <string name="holiday_annual_leave_item_label">연차</string>
+    <string name="holiday_loading_content_description">공휴일 확인 중</string>
+    <string name="holiday_error_description">공휴일을 불러오지 못했어요</string>
+    <string name="holiday_not_provided_description">이 년도의 공휴일은 제공하지 않아요</string>
+    <string name="holiday_retry">다시 시도</string>
+    <string-array name="holiday_month_titles">
+        <item>1월</item>
+        <item>2월</item>
+        <item>3월</item>
+        <item>4월</item>
+        <item>5월</item>
+        <item>6월</item>
+        <item>7월</item>
+        <item>8월</item>
+        <item>9월</item>
+        <item>10월</item>
+        <item>11월</item>
+        <item>12월</item>
+    </string-array>
+</resources>
