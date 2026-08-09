@@ -1,0 +1,34 @@
+<resources>
+    <string name="place_home_title">장소</string>
+    <string name="place_navigate_up_button_content_description">뒤로가기</string>
+    <string name="place_home_add_button_content_description">장소 추가</string>
+    <string name="place_home_list_view_mode_button_content_description">목록으로 보기</string>
+    <string name="place_home_map_view_mode_button_content_description">지도로 보기</string>
+    <string name="place_home_list_empty_title">아직 장소가 없습니다</string>
+    <string name="place_home_list_empty_description">추가 버튼으로 새 장소를 만들 수 있습니다</string>
+    <string name="place_home_map_empty_title">이 지역에 장소가 없습니다</string>
+    <string name="place_home_map_empty_description">지도를 옮기면 다른 장소를 볼 수 있습니다</string>
+    <string name="place_home_search_action_content_description">검색</string>
+    <string name="place_add_title">장소 추가</string>
+    <string name="place_add_add_button_content_description">장소 추가</string>
+    <string name="place_address_input_label">주소</string>
+    <string name="place_latitude_input_label">위도</string>
+    <string name="place_longitude_input_label">경도</string>
+    <string name="place_map_content_description">장소 위치 지도</string>
+    <string name="place_add_succeeded_message">장소가 추가되었습니다.</string>
+    <string name="place_add_title_blank_message">제목을 입력해 주세요.</string>
+    <string name="place_coordinate_invalid_message">지도에서 위치를 선택하거나, 위도는 -90에서 90, 경도는 -180에서 180 사이의 숫자로 입력해 주세요.</string>
+    <string name="place_detail_delete_button_content_description">장소 삭제</string>
+    <string name="place_detail_open_naver_map_button_content_description">네이버 지도에서 열기</string>
+    <string name="place_detail_open_google_map_button_content_description">Google 지도에서 열기</string>
+    <string name="place_detail_update_button_content_description">장소 수정</string>
+    <string name="place_detail_update_succeeded_message">장소가 수정되었습니다.</string>
+    <string name="place_search_button_content_description">장소 검색</string>
+    <string name="place_search_title">장소 검색</string>
+    <string name="place_search_query_input_placeholder">장소를 검색하세요</string>
+    <string name="place_search_query_input_content_description">검색어</string>
+    <string name="place_search_clear_button_content_description">검색어 지우기</string>
+    <string name="place_search_map_content_description">장소 검색 지도</string>
+    <string name="place_search_empty_message">검색 결과가 없습니다</string>
+    <string name="place_search_failed_message">장소를 검색하지 못했습니다</string>
+</resources>

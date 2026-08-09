@@ -1,0 +1,31 @@
+plugins {
+    alias(libs.plugins.convention.feature.ui)
+}
+
+kotlin {
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(projects.compose.place)
+                implementation(projects.compose.tag)
+                implementation(projects.domain.location)
+                implementation(projects.domain.place)
+                implementation(projects.domain.setting)
+                implementation(projects.domain.sync)
+                implementation(projects.domain.tag)
+                implementation(projects.feature.place.api)
+                implementation(projects.feature.search.api)
+                implementation(projects.feature.tag.api)
+                implementation(projects.library.composeUi)
+                implementation(projects.library.coroutines)
+                implementation(projects.library.kotlin)
+            }
+        }
+
+        jvmTest {
+            dependencies {
+                implementation(libs.androidx.paging.testing)
+            }
+        }
+    }
+}
