@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Google Map</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
+    <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        var diaryMapCamera = {{DIARY_MAP_CAMERA}};
+        var diaryMapSpot = {{DIARY_MAP_SPOT}};
+        var diaryMapSpotSelectable = {{DIARY_MAP_SPOT_SELECTABLE}};
+        var diaryMapPins = {{DIARY_MAP_PINS}};
+        var diaryMapPinSelectable = {{DIARY_MAP_PIN_SELECTABLE}};
+        var diaryMapPinMarker = {{DIARY_MAP_PIN_MARKER}};
+        var diaryMapPinScale = diaryMapPinMarker.size / diaryMapPinMarker.viewport;
+        var diaryMapMarker;
+        var diaryMapPinMarkers = [];
+        var diaryMapPendingCenter = null;
+
+        function diaryApplySpot() {
+            if (window.diaryGoogleMap === undefined) {
+                return;
+            }
+            if (diaryMapSpot === null) {
+                if (diaryMapMarker !== undefined) {
+                    diaryMapMarker.setMap(null);
+                    diaryMapMarker = undefined;
+                }
+                return;
+            }
+            var position = { lat: diaryMapSpot.latitude, lng: diaryMapSpot.longitude };
+            if (diaryMapMarker === undefined) {
+                diaryMapMarker = new google.maps.Marker({ position: position, map: window.diaryGoogleMap });
+            } else {
+                diaryMapMarker.setPosition(position);
+                diaryMapMarker.setMap(window.diaryGoogleMap);
+            }
+        }
+
+        function diaryPinIcon(pin) {
+            return {
+                path: diaryMapPinMarker.path,
+                fillColor: pin.color,
+                fillOpacity: 1,
+                strokeWeight: 0,
+                scale: diaryMapPinScale,
+                anchor: new google.maps.Point(diaryMapPinMarker.viewport / 2, diaryMapPinMarker.viewport),
+                labelOrigin: new google.maps.Point(
+                    diaryMapPinMarker.viewport / 2,
+                    diaryMapPinMarker.viewport + diaryMapPinMarker.labelHeight / (2 * diaryMapPinScale)
+                )
+            };
+        }
+
+        function diaryApplyPins() {
+            if (window.diaryGoogleMap === undefined) {
+                return;
+            }
+            diaryMapPinMarkers.forEach(function(marker) {
+                marker.setMap(null);
+            });
+            diaryMapPinMarkers = diaryMapPins.map(function(pin) {
+                var marker = new google.maps.Marker({
+                    position: { lat: pin.latitude, lng: pin.longitude },
+                    map: window.diaryGoogleMap,
+                    clickable: diaryMapPinSelectable,
+                    icon: diaryPinIcon(pin),
+                    label: pin.label === "" ? null : { text: pin.label, fontSize: "12px" }
+                });
+                if (diaryMapPinSelectable) {
+                    marker.addListener("click", function() {
+                        diaryPostPinClick(pin.id);
+                    });
+                }
+                return marker;
+            });
+        }
+
+        window.diarySetPins = function(pins) {
+            diaryMapPins = pins;
+            diaryApplyPins();
+        };
+
+        function diaryApplyCenter() {
+            if (window.diaryGoogleMap === undefined || diaryMapPendingCenter === null) {
+                return;
+            }
+            window.diaryGoogleMap.setCenter({
+                lat: diaryMapPendingCenter.latitude,
+                lng: diaryMapPendingCenter.longitude
+            });
+            diaryMapPendingCenter = null;
+        }
+
+        window.diaryShowSpot = function(latitude, longitude) {
+            diaryMapSpot = { latitude: latitude, longitude: longitude };
+            diaryApplySpot();
+        };
+
+        window.diaryClearSpot = function() {
+            diaryMapSpot = null;
+            diaryApplySpot();
+        };
+
+        window.diaryMoveTo = function(latitude, longitude) {
+            diaryMapPendingCenter = { latitude: latitude, longitude: longitude };
+            diaryApplyCenter();
+        };
+
+        function diaryPostReady() {
+            if (window.ipc === undefined) {
+                return;
+            }
+            window.ipc.postMessage(JSON.stringify({ type: "ready" }));
+        }
+
+        function diaryPostPinClick(id) {
+            if (window.ipc === undefined) {
+                return;
+            }
+            window.ipc.postMessage(JSON.stringify({ type: "pinClick", id: id }));
+        }
+
+        diaryPostReady();
+
+        function initGoogleMap() {
+            var element = document.getElementById("map");
+            var worldSize = 256;
+            var viewportSize = Math.max(element.clientWidth, element.clientHeight, worldSize);
+            var center = { lat: 0, lng: 0 };
+            var zoom = Math.ceil(Math.log2(viewportSize / worldSize));
+
+            if (diaryMapCamera !== null) {
+                center = { lat: diaryMapCamera.latitude, lng: diaryMapCamera.longitude };
+                zoom = diaryMapCamera.zoom;
+            }
+
+            window.diaryGoogleMap = new google.maps.Map(element, {
+                center: center,
+                zoom: zoom,
+                gestureHandling: "greedy",
+                zoomControl: true,
+                mapTypeControl: true,
+                scaleControl: true,
+                streetViewControl: true,
+                rotateControl: true,
+                fullscreenControl: true,
+                cameraControl: true,
+                keyboardShortcuts: true,
+                clickableIcons: true
+            });
+            window.diaryGoogleMap.addListener("idle", function() {
+                if (window.ipc === undefined) {
+                    return;
+                }
+                var center = window.diaryGoogleMap.getCenter();
+                var bounds = window.diaryGoogleMap.getBounds();
+                var message = {
+                    type: "camera",
+                    latitude: center.lat(),
+                    longitude: center.lng(),
+                    zoom: window.diaryGoogleMap.getZoom()
+                };
+                if (bounds) {
+                    var boundsJson = bounds.toJSON();
+                    message.south = boundsJson.south;
+                    message.north = boundsJson.north;
+                    message.west = boundsJson.west;
+                    message.east = boundsJson.east;
+                }
+                window.ipc.postMessage(JSON.stringify(message));
+            });
+            if (diaryMapSpotSelectable) {
+                window.diaryGoogleMap.addListener("click", function(event) {
+                    if (window.ipc === undefined) {
+                        return;
+                    }
+                    window.ipc.postMessage(JSON.stringify({
+                        type: "click",
+                        latitude: event.latLng.lat(),
+                        longitude: event.latLng.lng()
+                    }));
+                });
+            }
+            diaryApplySpot();
+            diaryApplyPins();
+            diaryApplyCenter();
+            diaryPostReady();
+        }
+    </script>
+    <script
+        async
+        src="https://maps.googleapis.com/maps/api/js?key={{GOOGLE_MAP_API_KEY}}&loading=async&callback=initGoogleMap"
+    ></script>
+</body>
+</html>

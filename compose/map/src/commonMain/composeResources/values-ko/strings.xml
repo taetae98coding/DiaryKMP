@@ -1,0 +1,5 @@
+<resources>
+    <string name="diary_map_provider_content_description">지도 제공자</string>
+    <string name="diary_map_naver_provider_label">네이버</string>
+    <string name="diary_map_google_provider_label">Google</string>
+</resources>

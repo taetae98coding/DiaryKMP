@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Naver Map</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
+    <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        var diaryMapCamera = {{DIARY_MAP_CAMERA}};
+        var diaryMapSpot = {{DIARY_MAP_SPOT}};
+        var diaryMapSpotSelectable = {{DIARY_MAP_SPOT_SELECTABLE}};
+        var diaryMapPins = {{DIARY_MAP_PINS}};
+        var diaryMapPinSelectable = {{DIARY_MAP_PIN_SELECTABLE}};
+        var diaryMapPinMarker = {{DIARY_MAP_PIN_MARKER}};
+        var diaryMapMarker;
+        var diaryMapPinMarkers = [];
+        var diaryMapPendingCenter = null;
+
+        function diaryApplySpot() {
+            if (window.diaryNaverMap === undefined) {
+                return;
+            }
+            if (diaryMapSpot === null) {
+                if (diaryMapMarker !== undefined) {
+                    diaryMapMarker.setMap(null);
+                    diaryMapMarker = undefined;
+                }
+                return;
+            }
+            var position = new naver.maps.LatLng(diaryMapSpot.latitude, diaryMapSpot.longitude);
+            if (diaryMapMarker === undefined) {
+                diaryMapMarker = new naver.maps.Marker({ position: position, map: window.diaryNaverMap });
+            } else {
+                diaryMapMarker.setPosition(position);
+                diaryMapMarker.setMap(window.diaryNaverMap);
+            }
+        }
+
+        function diaryPinContent(pin) {
+            var root = document.createElement("div");
+            root.style.cssText = "position:relative;width:0;height:0;";
+            var content = document.createElement("div");
+            content.style.cssText = "position:absolute;left:0;top:-" + diaryMapPinMarker.size + "px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;";
+            content.innerHTML =
+                '<svg width="' + diaryMapPinMarker.size + '" height="' + diaryMapPinMarker.size + '" viewBox="0 0 ' + diaryMapPinMarker.viewport + ' ' + diaryMapPinMarker.viewport + '">' +
+                '<path d="' + diaryMapPinMarker.path + '"/>' +
+                '</svg>';
+            content.querySelector("path").setAttribute("fill", pin.color);
+            var label = document.createElement("span");
+            label.style.cssText = "font-size:12px;line-height:" + diaryMapPinMarker.labelHeight + "px;white-space:nowrap;color:#000000;background:rgba(255,255,255,0.8);padding:0 2px;border-radius:2px;";
+            label.textContent = pin.label;
+            content.appendChild(label);
+            root.appendChild(content);
+            return root;
+        }
+
+        function diaryApplyPins() {
+            if (window.diaryNaverMap === undefined) {
+                return;
+            }
+            diaryMapPinMarkers.forEach(function(marker) {
+                marker.setMap(null);
+            });
+            diaryMapPinMarkers = diaryMapPins.map(function(pin) {
+                var marker = new naver.maps.Marker({
+                    position: new naver.maps.LatLng(pin.latitude, pin.longitude),
+                    map: window.diaryNaverMap,
+                    clickable: diaryMapPinSelectable,
+                    icon: {
+                        content: diaryPinContent(pin),
+                        anchor: new naver.maps.Point(0, 0)
+                    }
+                });
+                if (diaryMapPinSelectable) {
+                    naver.maps.Event.addListener(marker, "click", function() {
+                        diaryPostPinClick(pin.id);
+                    });
+                }
+                return marker;
+            });
+        }
+
+        window.diarySetPins = function(pins) {
+            diaryMapPins = pins;
+            diaryApplyPins();
+        };
+
+        function diaryApplyCenter() {
+            if (window.diaryNaverMap === undefined || diaryMapPendingCenter === null) {
+                return;
+            }
+            window.diaryNaverMap.setCenter(
+                new naver.maps.LatLng(diaryMapPendingCenter.latitude, diaryMapPendingCenter.longitude)
+            );
+            diaryMapPendingCenter = null;
+        }
+
+        window.diaryShowSpot = function(latitude, longitude) {
+            diaryMapSpot = { latitude: latitude, longitude: longitude };
+            diaryApplySpot();
+        };
+
+        window.diaryClearSpot = function() {
+            diaryMapSpot = null;
+            diaryApplySpot();
+        };
+
+        window.diaryMoveTo = function(latitude, longitude) {
+            diaryMapPendingCenter = { latitude: latitude, longitude: longitude };
+            diaryApplyCenter();
+        };
+
+        function diaryPostReady() {
+            if (window.ipc === undefined) {
+                return;
+            }
+            window.ipc.postMessage(JSON.stringify({ type: "ready" }));
+        }
+
+        function diaryPostPinClick(id) {
+            if (window.ipc === undefined) {
+                return;
+            }
+            window.ipc.postMessage(JSON.stringify({ type: "pinClick", id: id }));
+        }
+
+        diaryPostReady();
+
+        function diaryPostCamera() {
+            if (window.ipc === undefined || window.diaryNaverMap === undefined) {
+                return;
+            }
+            var center = window.diaryNaverMap.getCenter();
+            var bounds = window.diaryNaverMap.getBounds();
+            var message = {
+                type: "camera",
+                latitude: center.lat(),
+                longitude: center.lng(),
+                zoom: window.diaryNaverMap.getZoom()
+            };
+            if (bounds) {
+                message.south = bounds.south();
+                message.north = bounds.north();
+                message.west = bounds.west();
+                message.east = bounds.east();
+            }
+            window.ipc.postMessage(JSON.stringify(message));
+        }
+
+        function initNaverMap() {
+            var options = {
+                zoomControl: true,
+                scaleControl: true,
+                mapTypeControl: true,
+                mapDataControl: true,
+                logoControl: true,
+                draggable: true,
+                pinchZoom: true,
+                scrollWheel: true,
+                keyboardShortcuts: true,
+                tileTransition: true,
+                disableDoubleClickZoom: false,
+                disableDoubleTapZoom: false,
+                disableTwoFingerTapZoom: false,
+                disableKineticPan: false
+            };
+
+            if (diaryMapCamera !== null) {
+                options.center = { lat: diaryMapCamera.latitude, lng: diaryMapCamera.longitude };
+                options.zoom = diaryMapCamera.zoom;
+            }
+
+            window.diaryNaverMap = new naver.maps.Map(document.getElementById("map"), options);
+            naver.maps.Event.addListener(window.diaryNaverMap, "idle", diaryPostCamera);
+            // 네이버 지도의 idle은 이동·확대·축소가 끝났을 때만 발생해 최초 로드에서는
+            // 보이는 영역이 전달되지 않으므로, 초기화가 끝나면 한 번 직접 알린다.
+            naver.maps.Event.once(window.diaryNaverMap, "init", diaryPostCamera);
+            if (diaryMapSpotSelectable) {
+                naver.maps.Event.addListener(window.diaryNaverMap, "click", function(event) {
+                    if (window.ipc === undefined) {
+                        return;
+                    }
+                    window.ipc.postMessage(JSON.stringify({
+                        type: "click",
+                        latitude: event.coord.lat(),
+                        longitude: event.coord.lng()
+                    }));
+                });
+            }
+            diaryApplySpot();
+            diaryApplyPins();
+            diaryApplyCenter();
+            diaryPostReady();
+            window.setTimeout(function() {
+                window.diaryNaverMap.autoResize();
+                // autoResize는 idle을 발생시키지 않으므로 크기가 확정된 뒤의 보이는 영역을 직접 알린다.
+                diaryPostCamera();
+            }, 100);
+        }
+    </script>
+    <script
+        type="application/naver-map-config"
+        src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId={{NAVER_MAP_NCP_KEY_ID}}"
+    ></script>
+    <script
+        src="/naver-maps.js"
+        onload="initNaverMap()"
+    ></script>
+</body>
+</html>
