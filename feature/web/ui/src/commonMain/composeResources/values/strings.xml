@@ -1,0 +1,37 @@
+<resources>
+    <string name="web_home_title">Web</string>
+    <string name="web_navigate_up_button_content_description">Navigate up</string>
+    <string name="web_home_search_action_content_description">Search</string>
+    <string name="web_home_add_button_content_description">Add web</string>
+    <string name="web_home_empty_title">No webs yet</string>
+    <string name="web_home_empty_description">Use the add button to create a web.</string>
+    <string name="web_add_title">Add Web</string>
+    <string name="web_add_add_button_content_description">Add web</string>
+    <string name="web_url_input_label">URL</string>
+    <string name="web_header_input_label">Request headers</string>
+    <string name="web_header_name_input_label">Name</string>
+    <string name="web_header_value_input_label">Value</string>
+    <string name="web_header_name_input_content_description">Header %1$s name</string>
+    <string name="web_header_value_input_content_description">Header %1$s value</string>
+    <string name="web_header_add_button_content_description">Add header</string>
+    <string name="web_header_remove_button_content_description">Remove header</string>
+    <string name="web_add_succeeded_message">Web added.</string>
+    <string name="web_add_title_blank_message">Please enter a title.</string>
+    <string name="web_add_url_blank_message">Please enter a URL.</string>
+    <string name="web_header_name_blank_message">Please enter a header name.</string>
+    <string name="web_detail_update_button_content_description">Update web</string>
+    <string name="web_detail_update_succeeded_message">Web updated.</string>
+    <string name="web_detail_form_tab_content_description">Edit web information</string>
+    <string name="web_detail_page_tab_content_description">View web page</string>
+    <string name="web_detail_page_content_description">Web page</string>
+    <string name="web_detail_page_failure_title">Unable to load the web page</string>
+    <string name="web_detail_page_failure_description">Check your network and try again.</string>
+    <string name="web_detail_page_retry_button">Retry</string>
+    <string name="web_detail_view_mode_content_description">Web page view mode</string>
+    <string name="web_detail_view_mode_title">Web page view mode</string>
+    <string name="web_detail_view_mode_url_label">URL mode</string>
+    <string name="web_detail_view_mode_url_description">Saved request headers are not applied.</string>
+    <string name="web_detail_view_mode_response_label">Response body mode</string>
+    <string name="web_detail_open_in_new_button_content_description">Open externally</string>
+    <string name="web_detail_delete_button_content_description">Delete web</string>
+</resources>

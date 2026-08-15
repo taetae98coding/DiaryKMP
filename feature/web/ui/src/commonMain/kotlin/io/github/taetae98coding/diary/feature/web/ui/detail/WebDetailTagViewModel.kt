@@ -1,0 +1,72 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
+package io.github.taetae98coding.diary.feature.web.ui.detail
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import io.github.taetae98coding.diary.compose.tag.EntityTagInputUiState
+import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.domain.web.usecase.AddWebTagUseCase
+import io.github.taetae98coding.diary.domain.web.usecase.GetWebTagUseCase
+import io.github.taetae98coding.diary.domain.web.usecase.PageWebSelectableTagUseCase
+import io.github.taetae98coding.diary.domain.web.usecase.RemoveWebTagUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.debounceSearchQuery
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import org.koin.core.annotation.InjectedParam
+import org.koin.core.annotation.KoinViewModel
+import kotlin.uuid.Uuid
+
+@KoinViewModel
+internal class WebDetailTagViewModel(
+    @InjectedParam private val id: Uuid,
+    pageWebSelectableTagUseCase: PageWebSelectableTagUseCase,
+    getWebTagUseCase: GetWebTagUseCase,
+    private val addWebTagUseCase: AddWebTagUseCase,
+    private val removeWebTagUseCase: RemoveWebTagUseCase,
+) : ViewModel() {
+    private val query = MutableStateFlow("")
+
+    val tagPagingData: Flow<PagingData<Tag>> =
+        query
+            .debounceSearchQuery()
+            .flatMapLatest { value ->
+                pageWebSelectableTagUseCase(parameter = PageWebSelectableTagUseCase.Parameter(webId = id, query = value))
+            }.mapNotNull { result -> result.getOrNull() }
+            .cachedIn(viewModelScope)
+
+    val uiState: StateFlow<EntityTagInputUiState> =
+        getWebTagUseCase(parameter = id)
+            .map { result -> EntityTagInputUiState(tagList = result.getOrNull().orEmpty()) }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+                initialValue = EntityTagInputUiState(),
+            )
+
+    fun updateQuery(query: String) {
+        this.query.value = query
+    }
+
+    fun add(tagId: Uuid) {
+        viewModelScope.launch {
+            addWebTagUseCase(parameter = AddWebTagUseCase.Parameter(webId = id, tagId = tagId))
+        }
+    }
+
+    fun remove(tagId: Uuid) {
+        viewModelScope.launch {
+            removeWebTagUseCase(parameter = RemoveWebTagUseCase.Parameter(webId = id, tagId = tagId))
+        }
+    }
+}
