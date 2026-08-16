@@ -1,0 +1,29 @@
+<resources>
+    <string name="contact_navigate_up_button_content_description">Navigate up</string>
+    <string name="contact_home_title">Contacts</string>
+    <string name="contact_home_add_button_content_description">Add contact</string>
+    <string name="contact_home_empty_title">No contacts yet</string>
+    <string name="contact_home_empty_description">Use the add button to create a contact.</string>
+    <string name="contact_add_title">Add Contact</string>
+    <string name="contact_add_add_button_content_description">Add contact</string>
+    <string name="contact_name_input_label">Name</string>
+    <string name="contact_height_input_label">Height (cm)</string>
+    <string name="contact_foot_size_input_label">Shoe size (mm)</string>
+    <string name="contact_birthday_input_label">Birthday</string>
+    <string name="contact_birthday_not_set">Not set</string>
+    <string name="contact_birthday_clear_button_content_description">Clear birthday</string>
+    <string name="contact_birthday_calendar_content_description">Birthday calendar</string>
+    <string name="contact_birthday_calendar_solar">Solar</string>
+    <string name="contact_birthday_calendar_lunar">Lunar</string>
+    <string name="contact_phone_number_input_label">Phone numbers</string>
+    <string name="contact_phone_number_number_input_label">Number</string>
+    <string name="contact_phone_number_number_input_content_description">Number %1$s</string>
+    <string name="contact_phone_number_add_button_content_description">Add phone number</string>
+    <string name="contact_phone_number_remove_button_content_description">Remove phone number</string>
+    <string name="contact_add_succeeded_message">Contact added.</string>
+    <string name="contact_add_name_blank_message">Please enter a name.</string>
+    <string name="contact_add_phone_number_blank_message">Please enter a phone number.</string>
+    <string name="contact_detail_delete_button_content_description">Delete contact</string>
+    <string name="contact_detail_update_button_content_description">Update contact</string>
+    <string name="contact_detail_update_succeeded_message">Contact updated.</string>
+</resources>
