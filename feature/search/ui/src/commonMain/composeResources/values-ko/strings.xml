@@ -1,0 +1,11 @@
+<resources>
+    <string name="search_navigate_up_button_content_description">뒤로가기</string>
+    <string name="search_home_query_input_placeholder">검색어를 입력하세요</string>
+    <string name="search_home_tab_row_content_description">검색 결과 유형</string>
+    <string name="search_home_memo_tab_label">메모</string>
+    <string name="search_home_tag_tab_label">태그</string>
+    <string name="search_home_place_tab_label">장소</string>
+    <string name="search_home_web_tab_label">웹</string>
+    <string name="search_home_empty_title">검색 결과가 없습니다</string>
+    <string name="search_home_empty_description">다른 검색어로 찾아보세요</string>
+</resources>

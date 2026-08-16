@@ -1,0 +1,11 @@
+<resources>
+    <string name="search_navigate_up_button_content_description">Navigate up</string>
+    <string name="search_home_query_input_placeholder">Enter a search query</string>
+    <string name="search_home_tab_row_content_description">Search result type</string>
+    <string name="search_home_memo_tab_label">Memo</string>
+    <string name="search_home_tag_tab_label">Tag</string>
+    <string name="search_home_place_tab_label">Place</string>
+    <string name="search_home_web_tab_label">Web</string>
+    <string name="search_home_empty_title">No search results</string>
+    <string name="search_home_empty_description">Try a different search query.</string>
+</resources>
