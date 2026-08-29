@@ -1,0 +1,4 @@
+<resources>
+    <string name="checklist_home_title">체크리스트</string>
+    <string name="checklist_navigate_up_button_content_description">뒤로가기</string>
+</resources>
