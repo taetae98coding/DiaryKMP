@@ -1,0 +1,9 @@
+<resources>
+    <string name="routine_home_title">루틴</string>
+    <string name="routine_home_add_button_content_description">루틴 추가</string>
+    <string name="routine_home_empty_title">아직 루틴이 없습니다</string>
+    <string name="routine_home_empty_description">추가 버튼으로 새 루틴을 만들 수 있습니다</string>
+    <string name="routine_add_title">루틴 추가</string>
+    <string name="routine_add_navigate_up_button_content_description">뒤로가기</string>
+    <string name="routine_add_add_button_content_description">루틴 추가</string>
+</resources>
