@@ -1,0 +1,4 @@
+<resources>
+    <string name="file_home_title">Files</string>
+    <string name="file_navigate_up_button_content_description">Navigate up</string>
+</resources>
