@@ -1,0 +1,4 @@
+<resources>
+    <string name="qr_home_title">QR</string>
+    <string name="qr_navigate_up_button_content_description">Navigate up</string>
+</resources>
