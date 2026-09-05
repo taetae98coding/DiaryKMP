@@ -1,0 +1,4 @@
+<resources>
+    <string name="playlist_home_title">플레이리스트</string>
+    <string name="playlist_navigate_up_button_content_description">뒤로가기</string>
+</resources>
