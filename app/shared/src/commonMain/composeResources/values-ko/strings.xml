@@ -1,0 +1,7 @@
+<resources>
+    <string name="top_level_navigation_memo_label">메모</string>
+    <string name="top_level_navigation_tag_label">태그</string>
+    <string name="top_level_navigation_calendar_label">캘린더</string>
+    <string name="top_level_navigation_routine_label">루틴</string>
+    <string name="top_level_navigation_more_label">더보기</string>
+</resources>

@@ -1,0 +1,7 @@
+<resources>
+    <string name="top_level_navigation_memo_label">Memo</string>
+    <string name="top_level_navigation_tag_label">Tag</string>
+    <string name="top_level_navigation_calendar_label">Calendar</string>
+    <string name="top_level_navigation_routine_label">Routine</string>
+    <string name="top_level_navigation_more_label">More</string>
+</resources>
