@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diary</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        window.diaryNaverMapReady = new Promise((resolve) => {
+            window.diaryNaverMapLoaded = resolve;
+        });
+        window.diaryGoogleMapReady = new Promise((resolve) => {
+            window.diaryGoogleMapLoaded = resolve;
+        });
+    </script>
+    <script
+        src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${naverMapNcpKeyId}&callback=diaryNaverMapLoaded"
+        async
+    ></script>
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=${googleMapApiKey}&loading=async&callback=diaryGoogleMapLoaded"
+        async
+    ></script>
+    <script src="https://accounts.google.com/gsi/client" async></script>
+    <script src="diary.js"></script>
+</body>
+</html>
