@@ -1,0 +1,24 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "daily_memo_notification_title" : {
+      "comment" : "Title of the daily memo reminder notification",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check today's memos"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오늘의 메모를 확인하세요"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
