@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.4.10" # https://github.com/JetBrains/kotlin/releases
+kotlin = "2.4.20" # https://github.com/JetBrains/kotlin/releases
 
 kotlinxBrowser = "0.5.0" # https://github.com/Kotlin/kotlinx-browser
 kotlinxCoroutines = "1.11.0" # https://github.com/Kotlin/kotlinx.coroutines/releases
@@ -14,12 +14,12 @@ jetbrainsComposeMaterial3Adaptive = "1.3.0-beta02"
 jetbrainsLifecycle = "2.11.0"
 jetbrainsNavigation3 = "1.2.0-alpha02"
 
-androidGradlePlugin = "9.3.1" # https://developer.android.com/build/releases/gradle-plugin?hl=en
+androidGradlePlugin = "9.4.0" # https://developer.android.com/build/releases/gradle-plugin?hl=en
 
 androidxActivity = "1.13.0" # https://developer.android.com/jetpack/androidx/releases/activity?hl=en
 androidxComposeUi = "1.12.0" # https://developer.android.com/jetpack/androidx/releases/compose-ui?hl=en
 androidxCredentials = "1.6.0" # https://developer.android.com/jetpack/androidx/releases/credentials?hl=en
-androidxDatastore = "1.3.0-alpha10" # https://developer.android.com/jetpack/androidx/releases/datastore?hl=en
+androidxDatastore = "1.3.0-alpha11" # https://developer.android.com/jetpack/androidx/releases/datastore?hl=en
 androidxLifecycle = "2.11.0" # https://developer.android.com/jetpack/androidx/releases/lifecycle?hl=en
 androidxNavigation3 = "1.2.0-alpha04" # https://developer.android.com/jetpack/androidx/releases/navigation3?hl=en
 androidxPaging = "3.5.1" # https://developer.android.com/jetpack/androidx/releases/paging?hl=en
@@ -31,8 +31,8 @@ androidxWork = "2.11.2" # https://developer.android.com/jetpack/androidx/release
 buildKonfig = "0.22.0" # https://github.com/yshrsmz/BuildKonfig/releases
 coil = "3.6.2" # https://github.com/coil-kt/coil/releases
 detekt = "2.0.0-alpha.6" # https://github.com/detekt/detekt/releases
-firebase = "34.18.0" # https://firebase.google.com/support/release-notes/android
-firebaseCrashlyticsGradlePlugin = "3.0.7"
+firebase = "34.19.0" # https://firebase.google.com/support/release-notes/android
+firebaseCrashlyticsGradlePlugin = "3.0.8"
 firebasePerformanceGradlePlugin = "2.0.2"
 fixtureMonkey = "1.2.3" # https://github.com/naver/fixture-monkey/releases
 googleId = "1.2.0" # https://developers.google.com/identity/android-credential-manager/releases?hl=en
@@ -42,14 +42,14 @@ googleMaterial = "1.14.0" # https://github.com/material-components/material-comp
 googleOauthClient = "1.39.0" # https://github.com/googleapis/google-oauth-java-client/releases
 googleServicesGradlePlugin = "4.5.0" # https://developers.google.com/android/guides/google-services-plugin?hl=en
 koin = "4.2.2" # https://github.com/InsertKoinIO/koin/releases
-koinCompiler = "1.1.0" # https://github.com/InsertKoinIO/koin-compiler-plugin/releases
-kotest = "6.2.4" # https://github.com/kotest/kotest/releases
+koinCompiler = "1.2.1" # https://github.com/InsertKoinIO/koin-compiler-plugin/releases
+kotest = "6.2.5" # https://github.com/kotest/kotest/releases
 kotlinCryptoHash = "0.8.0" # https://github.com/KotlinCrypto/hash/releases
-ksp = "2.3.11" # https://github.com/google/ksp/releases
+ksp = "2.3.12" # https://github.com/google/ksp/releases
 markdownRenderer = "0.45.0" # https://github.com/mikepenz/multiplatform-markdown-renderer/releases
 mockk = "1.14.11" # https://github.com/mockk/mockk/releases
-naverMap = "3.23.3" # https://github.com/navermaps/android-map-sdk
-robolectric = "4.16.1" # https://github.com/robolectric/robolectric/releases
+naverMap = "3.24.0" # https://github.com/navermaps/android-map-sdk
+robolectric = "4.17" # https://github.com/robolectric/robolectric/releases
 spotless = "8.10.2" # https://github.com/diffplug/spotless/releases
 supabaseKt = "3.8.0" # https://github.com/supabase-community/supabase-kt/releases
 turbine = "1.2.1" # https://github.com/cashapp/turbine/releases

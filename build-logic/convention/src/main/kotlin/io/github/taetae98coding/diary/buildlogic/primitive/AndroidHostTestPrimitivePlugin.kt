@@ -20,6 +20,7 @@ internal class AndroidHostTestPrimitivePlugin : Plugin<Project> {
             configureAndroidLibrary()
             configureDependencies()
             configureTestHeap()
+            configureTestJvmArgs()
         }
     }
 
@@ -47,6 +48,14 @@ internal class AndroidHostTestPrimitivePlugin : Plugin<Project> {
         }
     }
 
+    // Robolectric 4.17이 지원하기 시작한 SDK 37은 ApplicationSharedMemory가 FileDescriptor의 내부 필드를 직접 바꾸고,
+    // Robolectric은 이를 jdk.internal.access의 SharedSecrets로 흉내 내므로 JDK 17 이상에서는 이 패키지를 열어 줘야 한다.
+    private fun Project.configureTestJvmArgs() {
+        tasks.withType<Test>().matching { it.name == HOST_TEST_TASK_NAME }.configureEach {
+            jvmArgs(HOST_TEST_JVM_ARG)
+        }
+    }
+
     private fun Project.configureDependencies() {
         withPlugins(
             listOf(
@@ -69,3 +78,6 @@ internal class AndroidHostTestPrimitivePlugin : Plugin<Project> {
 }
 
 private const val HOST_TEST_MAX_HEAP_SIZE = "2g"
+private const val HOST_TEST_TASK_NAME = "testAndroidHostTest"
+
+private const val HOST_TEST_JVM_ARG = "--add-opens=java.base/jdk.internal.access=ALL-UNNAMED"
