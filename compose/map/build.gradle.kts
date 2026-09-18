@@ -17,13 +17,13 @@ kotlin {
 
         swiftPackage(
             url = url("https://github.com/navermaps/SPM-NMapsMap.git"),
-            version = exact("3.23.3"),
+            version = exact("3.24.0"),
             products = listOf(product("NMapsMap")),
         )
 
         swiftPackage(
             url = url("https://github.com/googlemaps/ios-maps-sdk.git"),
-            version = exact("11.0.0"),
+            version = exact("11.1.0"),
             products = listOf(product("GoogleMaps")),
         )
     }

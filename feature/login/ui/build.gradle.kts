@@ -12,7 +12,7 @@ kotlin {
 
         swiftPackage(
             url = url("https://github.com/google/GoogleSignIn-iOS.git"),
-            version = exact("9.2.0"),
+            version = exact("10.0.0"),
             products = listOf(product("GoogleSignIn")),
         )
     }

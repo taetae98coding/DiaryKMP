@@ -15,11 +15,11 @@ let package = Package(
   dependencies: [
     .package(
       url: "https://github.com/navermaps/SPM-NMapsMap.git",
-      exact: "3.23.3"
+      exact: "3.24.0"
     ),
     .package(
       url: "https://github.com/googlemaps/ios-maps-sdk.git",
-      exact: "11.0.0"
+      exact: "11.1.0"
     )
   ],
   targets: [

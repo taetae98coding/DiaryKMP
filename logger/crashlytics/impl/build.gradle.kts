@@ -13,7 +13,7 @@ kotlin {
 
         swiftPackage(
             url = url("https://github.com/firebase/firebase-ios-sdk.git"),
-            version = exact("12.18.0"),
+            version = exact("12.19.1"),
             products = listOf(product("FirebaseCrashlytics")),
         )
     }
