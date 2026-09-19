@@ -2,8 +2,10 @@ package io.github.taetae98coding.diary.feature.tag.ui.home.filter
 
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.kotest.matchers.shouldBe
@@ -61,6 +63,17 @@ class TagHomeFilterBottomSheetContentTest {
         composeRule.onNodeWithText(DEFAULT_TOP_LEVEL_ONLY_LABEL).performClick()
 
         eventList shouldBe listOf(TagHomeFilterBottomSheetEvent.SetTopLevelOnly(isTopLevelOnly = false))
+    }
+
+    @Test
+    fun `최상위 태그만 행에서 누를 수 있는 자리는 좌우 끝까지 채운다`() {
+        setContent()
+
+        val rootBounds = composeRule.onRoot().getBoundsInRoot()
+        val rowBounds = composeRule.onNodeWithText(DEFAULT_TOP_LEVEL_ONLY_LABEL).getBoundsInRoot()
+
+        rowBounds.left shouldBe rootBounds.left
+        rowBounds.right shouldBe rootBounds.right
     }
 
     private fun setContent(

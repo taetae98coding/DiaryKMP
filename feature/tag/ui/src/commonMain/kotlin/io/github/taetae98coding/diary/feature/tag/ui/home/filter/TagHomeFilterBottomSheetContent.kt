@@ -53,10 +53,7 @@ internal fun TagHomeFilterBottomSheetContent(
         ) {
             TopLevelOnlyRow(
                 onCheckedChange = { isTopLevelOnly -> onEvent(TagHomeFilterBottomSheetEvent.SetTopLevelOnly(isTopLevelOnly = isTopLevelOnly)) },
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = CONTENT_HORIZONTAL_PADDING),
+                modifier = Modifier.fillMaxWidth(),
                 isTopLevelOnlyProvider = { uiStateProvider().isTopLevelOnly },
             )
         }
@@ -72,6 +69,7 @@ private fun TopLevelOnlyRow(
     val isTopLevelOnly = isTopLevelOnlyProvider()
 
     Row(
+        // 누름 배경이 좌우 여백까지 채우도록 여백을 toggleable 안쪽에 둔다.
         modifier =
             modifier
                 .heightIn(min = ROW_MIN_HEIGHT)
@@ -79,7 +77,7 @@ private fun TopLevelOnlyRow(
                     value = isTopLevelOnly,
                     onValueChange = onCheckedChange,
                     role = Role.Switch,
-                ),
+                ).padding(horizontal = CONTENT_HORIZONTAL_PADDING),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
