@@ -19,14 +19,12 @@
 	</array>
 	<key>GIDClientID</key>
 	<string>$(GID_CLIENT_ID)</string>
-	<key>GMSApiKey</key>
-	<string>$(GOOGLE_MAP_API_KEY)</string>
 	<key>GIDServerClientID</key>
 	<string>$(GID_SERVER_CLIENT_ID)</string>
+	<key>GMSApiKey</key>
+	<string>$(GOOGLE_MAP_API_KEY)</string>
 	<key>NMFNcpKeyId</key>
 	<string>$(NAVER_MAP_NCP_KEY_ID)</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Your location is used to show the weather for your current location and your position on the map.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>processing</string>
