@@ -147,6 +147,48 @@ class FetchSearchedPlaceUseCaseTest :
             }
         }
 
+        Given("앞뒤에 공백이 붙은 검색어로 검색한다") {
+            val trimmed = query()
+            val placeList = List(PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
+            val naverPlaceSearchRepository = mockk<NaverPlaceSearchRepository>()
+            val googlePlaceSearchRepository = mockk<GooglePlaceSearchRepository>()
+            val useCase =
+                FetchSearchedPlaceUseCase(
+                    naverPlaceSearchRepository = naverPlaceSearchRepository,
+                    googlePlaceSearchRepository = googlePlaceSearchRepository,
+                )
+            coEvery { naverPlaceSearchRepository.fetch(query = any()) } returns placeList
+            coEvery { googlePlaceSearchRepository.fetch(query = any(), bias = any()) } returns placeList
+
+            When("네이버로 검색한다") {
+                Then("TC-NAVER-PLACE-SEARCH-DOMAIN-002 앞뒤 공백을 뺀 검색어로 조회한다") {
+                    useCase(
+                        parameter =
+                            FetchSearchedPlaceUseCase.Parameter(
+                                query = "  $trimmed\t\n ",
+                                provider = MapProvider.NAVER,
+                            ),
+                    ).shouldBeSuccess() shouldBe placeList
+
+                    coVerify(exactly = 1) { naverPlaceSearchRepository.fetch(query = trimmed) }
+                }
+            }
+
+            When("Google로 검색한다") {
+                Then("TC-GOOGLE-PLACE-SEARCH-DOMAIN-006 앞뒤 공백을 뺀 검색어로 조회한다") {
+                    useCase(
+                        parameter =
+                            FetchSearchedPlaceUseCase.Parameter(
+                                query = "  $trimmed\t\n ",
+                                provider = MapProvider.GOOGLE,
+                            ),
+                    ).shouldBeSuccess() shouldBe placeList
+
+                    coVerify(exactly = 1) { googlePlaceSearchRepository.fetch(query = trimmed, bias = any()) }
+                }
+            }
+        }
+
         Given("검색 저장소가 실패한다") {
             val query = query()
             val throwable = IllegalStateException("검색에 실패함")
