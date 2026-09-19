@@ -1,9 +1,12 @@
--- 곡은 제목과 가수만 가지며 두 값 모두 비어 있을 수 없다.
--- 비어 있지 않은지는 앱과 Edge Function이 판정하므로 서버 스키마에서는 형식만 고정한다.
+-- 곡은 들을 수 있는 YouTube 영상 링크, 제목, 가수, 썸네일 주소를 가진다.
+-- 제목과 가수는 비어 있을 수 없고, 링크가 YouTube 영상 주소인지는 앱이 판정하므로 서버 스키마에서는 형식만 고정한다.
+-- 썸네일은 불러오기로만 채워지는 선택 값이라 없으면 빈 문자열로 둔다.
 create table public.music (
     id         uuid        primary key,
+    link       text        not null,
     title      text        not null,
     artist     text        not null,
+    thumbnail  text        not null,
     is_deleted boolean     not null,
     updated_at timestamptz not null,
     created_at timestamptz not null
@@ -80,8 +83,10 @@ begin
         ) then
             update public.music
             set
+                link = item -> 'detail' ->> 'link',
                 title = item -> 'detail' ->> 'title',
                 artist = item -> 'detail' ->> 'artist',
+                thumbnail = item -> 'detail' ->> 'thumbnail',
                 is_deleted = (item ->> 'isDeleted')::boolean,
                 updated_at = (item ->> 'updatedAt')::timestamptz
             where id = item_id
@@ -107,16 +112,20 @@ begin
 
             insert into public.music (
                 id,
+                link,
                 title,
                 artist,
+                thumbnail,
                 is_deleted,
                 updated_at,
                 created_at
             )
             values (
                 item_id,
+                item -> 'detail' ->> 'link',
                 item -> 'detail' ->> 'title',
                 item -> 'detail' ->> 'artist',
+                item -> 'detail' ->> 'thumbnail',
                 (item ->> 'isDeleted')::boolean,
                 (item ->> 'updatedAt')::timestamptz,
                 (item ->> 'createdAt')::timestamptz
@@ -167,8 +176,10 @@ begin
                 'music', jsonb_build_object(
                     'id', music.id,
                     'detail', jsonb_build_object(
+                        'link', music.link,
                         'title', music.title,
-                        'artist', music.artist
+                        'artist', music.artist,
+                        'thumbnail', music.thumbnail
                     ),
                     'isDeleted', music.is_deleted,
                     'updatedAt', music.updated_at,
