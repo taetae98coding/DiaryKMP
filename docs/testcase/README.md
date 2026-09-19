@@ -97,6 +97,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [RoutineHome](./routine-home.md) | [RoutineHome 화면](../spec/routine-home.md) |
 | [Routine 목록·상세 배치](./routine-list-detail.md) | [Routine 목록·상세 배치](../spec/routine-list-detail.md) |
 | [SearchHome](./search-home.md) | [SearchHome 화면](../spec/search-home.md) |
+| [화면 조회 로깅](./screen-view-logging.md) | [화면 조회 로깅](../spec/screen-view-logging.md) |
 | [SettingGemini](./setting-gemini.md) | [SettingGemini 화면](../spec/setting-gemini.md) |
 | [SettingHoliday](./setting-holiday.md) | [SettingHoliday 화면](../spec/setting-holiday.md) |
 | [SettingHome](./setting-home.md) | [SettingHome 화면](../spec/setting-home.md) |
