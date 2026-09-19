@@ -3,7 +3,6 @@ package io.github.taetae98coding.diary.app
 import androidx.compose.material3.adaptive.layout.PaneScaffoldDirective
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldState
 import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import io.github.taetae98coding.diary.app.navigation.TopLevelNavigation
 import io.github.taetae98coding.diary.app.navigation.topLevelNavigationList
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNavKey
@@ -15,6 +14,7 @@ import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
@@ -324,7 +324,7 @@ class AppStateTest :
             )
 
         private fun createAppState(
-            vararg keys: NavKey,
+            vararg keys: ScreenNavKey,
             isListDetailTwoPane: Boolean = false,
         ): AppState =
             AppState(
@@ -339,7 +339,7 @@ class AppStateTest :
                 },
             )
 
-        private fun expectedBackStack(destination: TopLevelNavigation): List<NavKey> =
+        private fun expectedBackStack(destination: TopLevelNavigation): List<ScreenNavKey> =
             listOf(TopLevelNavigation.DEFAULT, destination)
                 .distinct()
                 .map(TopLevelNavigation::key)
@@ -348,5 +348,5 @@ class AppStateTest :
 
 private data class DetailDestinationCase(
     val topLevelNavigation: TopLevelNavigation,
-    val backStack: List<NavKey>,
+    val backStack: List<ScreenNavKey>,
 )

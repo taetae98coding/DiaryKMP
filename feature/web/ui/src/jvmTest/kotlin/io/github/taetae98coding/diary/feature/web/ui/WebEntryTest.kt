@@ -5,11 +5,11 @@ package io.github.taetae98coding.diary.feature.web.ui
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebHomeNavKey
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.shouldBe
@@ -56,10 +56,10 @@ class WebEntryTest :
             (ListDetailSceneStrategy.listPane(detailPlaceholder = {}) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f)).keys
 
         private fun metadataOf(
-            backStack: List<NavKey>,
-            key: NavKey,
+            backStack: List<ScreenNavKey>,
+            key: ScreenNavKey,
         ): Map<String, Any> {
-            val provider = entryProvider<NavKey> { webEntry(backStack = NavBackStack(*backStack.toTypedArray())) }
+            val provider = entryProvider<ScreenNavKey> { webEntry(backStack = NavBackStack(*backStack.toTypedArray())) }
 
             return provider(key).metadata
         }
@@ -67,4 +67,7 @@ class WebEntryTest :
 }
 
 // 웹 목록이 아닌 진입 화면을 대신한다. `더보기` 기능 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
-private data object OtherNavKey : NavKey
+private data object OtherNavKey : ScreenNavKey {
+    override val screenName: String
+        get() = "Other"
+}

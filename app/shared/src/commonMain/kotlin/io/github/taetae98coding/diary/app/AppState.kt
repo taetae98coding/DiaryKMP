@@ -15,10 +15,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
-import androidx.navigation3.runtime.rememberNavBackStack
 import io.github.taetae98coding.diary.app.navigation.AppNavKeySavedStateConfiguration
 import io.github.taetae98coding.diary.app.navigation.TopLevelNavigation
+import io.github.taetae98coding.diary.app.navigation.rememberScreenNavBackStack
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.isMemoListDetailPane
@@ -29,7 +28,7 @@ import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 
 @Stable
 internal class AppState(
-    val backStack: NavBackStack<NavKey>,
+    val backStack: NavBackStack<ScreenNavKey>,
     val scaffoldState: NavigationSuiteScaffoldState,
     private val paneScaffoldDirectiveProvider: () -> PaneScaffoldDirective,
 ) {
@@ -43,7 +42,7 @@ internal class AppState(
     }
 
     val currentScreenNavKey: ScreenNavKey? by derivedStateOf {
-        backStack.lastOrNull() as? ScreenNavKey
+        backStack.lastOrNull()
     }
 
     val isNavigationVisible: Boolean by derivedStateOf {
@@ -81,10 +80,10 @@ internal class AppState(
             )
     }
 
-    private fun currentContentKey(): NavKey? = backStack.lastOrNull { key -> key !in OverlayNavKeySet }
+    private fun currentContentKey(): ScreenNavKey? = backStack.lastOrNull { key -> key !in OverlayNavKeySet }
 }
 
-private val OverlayNavKeySet: Set<NavKey> =
+private val OverlayNavKeySet: Set<ScreenNavKey> =
     setOf(
         MemoHomeFilterNavKey,
         CalendarHomeFilterNavKey,
@@ -94,7 +93,7 @@ private val OverlayNavKeySet: Set<NavKey> =
 @Composable
 internal fun rememberAppState(): AppState {
     val backStack =
-        rememberNavBackStack(
+        rememberScreenNavBackStack(
             configuration = AppNavKeySavedStateConfiguration,
             elements = arrayOf(TopLevelNavigation.DEFAULT.key),
         )

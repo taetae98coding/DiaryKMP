@@ -7,7 +7,6 @@ import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
@@ -19,16 +18,17 @@ import io.github.taetae98coding.diary.feature.contact.ui.detail.ContactDetailSca
 import io.github.taetae98coding.diary.feature.contact.ui.detail.ContactDetailScreen
 import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeScreen
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-public fun EntryProviderScope<NavKey>.contactEntry(backStack: NavBackStack<NavKey>) {
+public fun EntryProviderScope<ScreenNavKey>.contactEntry(backStack: NavBackStack<ScreenNavKey>) {
     contactHomeEntry(backStack = backStack)
     contactAddEntry(backStack = backStack)
     contactDetailEntry(backStack = backStack)
 }
 
-private fun EntryProviderScope<NavKey>.contactHomeEntry(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.contactHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<ContactHomeNavKey>(
         metadata =
             ListDetailSceneStrategy.listPane(
@@ -55,7 +55,7 @@ private fun EntryProviderScope<NavKey>.contactHomeEntry(backStack: NavBackStack<
     }
 }
 
-private fun EntryProviderScope<NavKey>.contactAddEntry(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.contactAddEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<ContactAddNavKey>(
         metadata = { key -> backStack.contactListDetailPaneMetadata(key) },
     ) {
@@ -69,7 +69,7 @@ private fun EntryProviderScope<NavKey>.contactAddEntry(backStack: NavBackStack<N
     }
 }
 
-private fun EntryProviderScope<NavKey>.contactDetailEntry(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.contactDetailEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<ContactDetailNavKey>(
         metadata = { key -> backStack.contactListDetailPaneMetadata(key) },
     ) { key ->
@@ -83,7 +83,7 @@ private fun EntryProviderScope<NavKey>.contactDetailEntry(backStack: NavBackStac
     }
 }
 
-private fun NavBackStack<NavKey>.contactListDetailPaneMetadata(key: NavKey): Map<String, Any> =
+private fun NavBackStack<ScreenNavKey>.contactListDetailPaneMetadata(key: ScreenNavKey): Map<String, Any> =
     if (isContactListDetailPane(key)) {
         ListDetailSceneStrategy.detailPane(sceneKey = ContactHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f)
     } else {

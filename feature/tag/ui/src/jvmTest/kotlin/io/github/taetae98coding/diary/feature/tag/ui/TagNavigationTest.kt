@@ -1,7 +1,6 @@
 package io.github.taetae98coding.diary.feature.tag.ui
 
 import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.location.Coordinate
@@ -12,6 +11,7 @@ import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldBeNull
@@ -41,7 +41,7 @@ class TagNavigationTest :
 
         test("TC-TAG-DETAIL-WEB-FEATURE-007 웹 탭에서 시작한 웹 추가는 대상 태그를 초기 태그로 넘긴다") {
             val tagId = Uuid.random()
-            val backStack = NavBackStack<NavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
+            val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
 
             backStack.navigateToWebAddFromTagDetail(tagId = tagId)
 
@@ -55,7 +55,7 @@ class TagNavigationTest :
 
         test("TC-TAG-DETAIL-PLACE-FEATURE-019 목록 모드에서 시작한 장소 추가는 지도 위치를 넘기지 않는다") {
             val tagId = Uuid.random()
-            val backStack = NavBackStack<NavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
+            val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
 
             backStack.navigateToPlaceAddFromTagDetail(tagId = tagId, coordinate = null)
 
@@ -68,7 +68,7 @@ class TagNavigationTest :
         test("TC-TAG-DETAIL-PLACE-FEATURE-031 지도 모드에서 시작한 장소 추가는 보고 있던 지도 위치를 넘긴다") {
             val tagId = Uuid.random()
             val coordinate = Coordinate(latitude = fixtureMonkey.giveMeOne<Double>(), longitude = fixtureMonkey.giveMeOne<Double>())
-            val backStack = NavBackStack<NavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
+            val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
 
             backStack.navigateToPlaceAddFromTagDetail(tagId = tagId, coordinate = coordinate)
 
@@ -81,7 +81,7 @@ class TagNavigationTest :
         test("완료된 메모 목록이 없는 전환 이력에서는 완료된 메모 목록 뒤로가기 동작이 전환 이력을 바꾸지 않는다") {
             val tagId = Uuid.random()
             val backStack =
-                NavBackStack<NavKey>(
+                NavBackStack<ScreenNavKey>(
                     TagHomeNavKey,
                     TagDetailNavKey(id = tagId),
                 )
@@ -98,8 +98,8 @@ private val fixtureMonkey: FixtureMonkey =
 
 private fun tagMemoFinishedListBackStack(
     tagId: Uuid,
-    finishedDetailKeyList: List<NavKey>,
-): NavBackStack<NavKey> =
+    finishedDetailKeyList: List<ScreenNavKey>,
+): NavBackStack<ScreenNavKey> =
     NavBackStack(
         TagHomeNavKey,
         TagDetailNavKey(id = tagId),

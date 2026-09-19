@@ -9,7 +9,6 @@ import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.compose.runtime.Composable
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
@@ -37,10 +36,11 @@ import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-public fun EntryProviderScope<NavKey>.memoEntry(backStack: NavBackStack<NavKey>) {
+public fun EntryProviderScope<ScreenNavKey>.memoEntry(backStack: NavBackStack<ScreenNavKey>) {
     memoHomeEntry(backStack = backStack)
     memoHomeFilterEntry()
     memoFinishedListEntry(backStack = backStack)
@@ -48,7 +48,7 @@ public fun EntryProviderScope<NavKey>.memoEntry(backStack: NavBackStack<NavKey>)
     memoDetailEntry(backStack = backStack)
 }
 
-private fun EntryProviderScope<NavKey>.memoHomeEntry(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.memoHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<MemoHomeNavKey>(
         metadata =
             ListDetailSceneStrategy.listPane(
@@ -90,7 +90,7 @@ private fun EntryProviderScope<NavKey>.memoHomeEntry(backStack: NavBackStack<Nav
     }
 }
 
-private fun EntryProviderScope<NavKey>.memoHomeFilterEntry() {
+private fun EntryProviderScope<ScreenNavKey>.memoHomeFilterEntry() {
     entry<MemoHomeFilterNavKey>(
         metadata = BottomSheetSceneStrategy.bottomSheet(),
     ) {
@@ -98,7 +98,7 @@ private fun EntryProviderScope<NavKey>.memoHomeFilterEntry() {
     }
 }
 
-private fun EntryProviderScope<NavKey>.memoFinishedListEntry(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.memoFinishedListEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<MemoFinishedListNavKey> {
         MemoFinishedListScreen(
             navigateUp = { backStack.removeLastOrNull() },
@@ -109,7 +109,7 @@ private fun EntryProviderScope<NavKey>.memoFinishedListEntry(backStack: NavBackS
     }
 }
 
-private fun EntryProviderScope<NavKey>.memoAddEntry(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.memoAddEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<MemoAddNavKey>(
         metadata = { key -> backStack.memoListDetailPaneMetadata(key) },
     ) { key ->
@@ -144,7 +144,7 @@ private fun EntryProviderScope<NavKey>.memoAddEntry(backStack: NavBackStack<NavK
     }
 }
 
-private fun EntryProviderScope<NavKey>.memoDetailEntry(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.memoDetailEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<MemoDetailNavKey>(
         metadata = { key -> backStack.memoListDetailPaneMetadata(key) },
     ) { key ->
@@ -182,19 +182,19 @@ private fun EntryProviderScope<NavKey>.memoDetailEntry(backStack: NavBackStack<N
     }
 }
 
-private fun NavBackStack<NavKey>.memoListDetailPaneMetadata(key: NavKey): Map<String, Any> {
+private fun NavBackStack<ScreenNavKey>.memoListDetailPaneMetadata(key: ScreenNavKey): Map<String, Any> {
     val sceneKey = memoDetailPaneSceneKey(key) ?: return emptyMap()
 
     return ListDetailSceneStrategy.detailPane(sceneKey = sceneKey) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f)
 }
 
-internal fun List<NavKey>.memoDetailPaneSceneKey(key: NavKey): NavKey? =
+internal fun List<ScreenNavKey>.memoDetailPaneSceneKey(key: ScreenNavKey): ScreenNavKey? =
     findMemoDetailPaneListKey(key) { belowKey ->
         belowKey == MemoHomeNavKey || belowKey is TagMemoFinishedListNavKey
     }
 
 @Composable
-private fun MemoAddDetailPlaceholder(backStack: NavBackStack<NavKey>) {
+private fun MemoAddDetailPlaceholder(backStack: NavBackStack<ScreenNavKey>) {
     val tagAddRequestKey = rememberResultRequestKey()
 
     MemoAddScreen(

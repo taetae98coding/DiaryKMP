@@ -8,7 +8,6 @@ import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
@@ -35,10 +34,11 @@ import io.github.taetae98coding.diary.feature.tag.ui.home.filter.TagHomeFilterCo
 import io.github.taetae98coding.diary.feature.tag.ui.memo.finished.TagMemoFinishedListDetailPlaceholder
 import io.github.taetae98coding.diary.feature.tag.ui.memo.finished.TagMemoFinishedListScreen
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-public fun EntryProviderScope<NavKey>.tagEntry(backStack: NavBackStack<NavKey>) {
+public fun EntryProviderScope<ScreenNavKey>.tagEntry(backStack: NavBackStack<ScreenNavKey>) {
     tagHomeEntry(backStack = backStack)
     tagHomeFilterEntry()
     tagFinishedListEntry(backStack = backStack)
@@ -47,7 +47,7 @@ public fun EntryProviderScope<NavKey>.tagEntry(backStack: NavBackStack<NavKey>) 
     tagMemoFinishedListEntry(backStack = backStack)
 }
 
-private fun EntryProviderScope<NavKey>.tagHomeEntry(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.tagHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<TagHomeNavKey>(
         metadata =
             ListDetailSceneStrategy.listPane(
@@ -96,7 +96,7 @@ private fun EntryProviderScope<NavKey>.tagHomeEntry(backStack: NavBackStack<NavK
     }
 }
 
-private fun EntryProviderScope<NavKey>.tagHomeFilterEntry() {
+private fun EntryProviderScope<ScreenNavKey>.tagHomeFilterEntry() {
     entry<TagHomeFilterNavKey>(
         metadata = BottomSheetSceneStrategy.bottomSheet(),
     ) {
@@ -104,7 +104,7 @@ private fun EntryProviderScope<NavKey>.tagHomeFilterEntry() {
     }
 }
 
-private fun EntryProviderScope<NavKey>.tagFinishedListEntry(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.tagFinishedListEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<TagFinishedListNavKey> {
         TagFinishedListScreen(
             navigateUp = { backStack.removeLastOrNull() },
@@ -115,7 +115,7 @@ private fun EntryProviderScope<NavKey>.tagFinishedListEntry(backStack: NavBackSt
     }
 }
 
-private fun EntryProviderScope<NavKey>.tagAddEntry(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.tagAddEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<TagAddNavKey>(
         metadata = { key -> backStack.tagListDetailPaneMetadata(key) },
     ) { key ->
@@ -135,7 +135,7 @@ private fun EntryProviderScope<NavKey>.tagAddEntry(backStack: NavBackStack<NavKe
     }
 }
 
-private fun EntryProviderScope<NavKey>.tagDetailEntry(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.tagDetailEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<TagDetailNavKey>(
         metadata = { key -> backStack.tagListDetailPaneMetadata(key) },
     ) { key ->
@@ -161,7 +161,7 @@ private fun EntryProviderScope<NavKey>.tagDetailEntry(backStack: NavBackStack<Na
     }
 }
 
-private fun EntryProviderScope<NavKey>.tagMemoFinishedListEntry(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.tagMemoFinishedListEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<TagMemoFinishedListNavKey>(
         metadata = { key ->
             ListDetailSceneStrategy.listPane(
@@ -185,7 +185,7 @@ private fun EntryProviderScope<NavKey>.tagMemoFinishedListEntry(backStack: NavBa
     }
 }
 
-private fun NavBackStack<NavKey>.tagListDetailPaneMetadata(key: NavKey): Map<String, Any> =
+private fun NavBackStack<ScreenNavKey>.tagListDetailPaneMetadata(key: ScreenNavKey): Map<String, Any> =
     if (isTagListDetailPane(key)) {
         ListDetailSceneStrategy.detailPane(sceneKey = TagHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f)
     } else {

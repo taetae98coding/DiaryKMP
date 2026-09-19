@@ -13,10 +13,10 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import io.github.taetae98coding.diary.app.AppState
 import io.github.taetae98coding.diary.app.navigation.TopLevelNavigation
 import io.github.taetae98coding.diary.feature.login.api.LoginHomeNavKey
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import org.junit.Rule
@@ -98,7 +98,7 @@ class NavigationShortcutExtTest {
                 ShortcutCase(key = Key.Five, destination = TopLevelNavigation.More),
             )
 
-        private fun createShortcutAppState(vararg keys: NavKey): AppState =
+        private fun createShortcutAppState(vararg keys: ScreenNavKey): AppState =
             AppState(
                 backStack = NavBackStack(*keys),
                 scaffoldState = mockk<NavigationSuiteScaffoldState>(relaxed = true),

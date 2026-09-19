@@ -1,13 +1,13 @@
 package io.github.taetae98coding.diary.feature.memo.api
 
-import androidx.navigation3.runtime.NavKey
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 
-public fun List<NavKey>.isMemoListDetailPane(key: NavKey): Boolean = findMemoDetailPaneListKey(key) { belowKey -> belowKey == MemoHomeNavKey } != null
+public fun List<ScreenNavKey>.isMemoListDetailPane(key: ScreenNavKey): Boolean = findMemoDetailPaneListKey(key) { belowKey -> belowKey == MemoHomeNavKey } != null
 
-public fun List<NavKey>.findMemoDetailPaneListKey(
-    key: NavKey,
-    isListKey: (NavKey) -> Boolean,
-): NavKey? {
+public fun List<ScreenNavKey>.findMemoDetailPaneListKey(
+    key: ScreenNavKey,
+    isListKey: (ScreenNavKey) -> Boolean,
+): ScreenNavKey? {
     val index = lastIndexOf(key)
     if (index < 0 || !key.isMemoDetailPaneKey()) return null
 
@@ -16,4 +16,4 @@ public fun List<NavKey>.findMemoDetailPaneListKey(
         ?.takeIf(isListKey)
 }
 
-private fun NavKey.isMemoDetailPaneKey(): Boolean = this is MemoAddNavKey || this is MemoDetailNavKey
+private fun ScreenNavKey.isMemoDetailPaneKey(): Boolean = this is MemoAddNavKey || this is MemoDetailNavKey

@@ -7,7 +7,6 @@ import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHolidayNavKey
@@ -20,16 +19,17 @@ import io.github.taetae98coding.diary.feature.setting.ui.holiday.SettingHolidayS
 import io.github.taetae98coding.diary.feature.setting.ui.home.SettingHomeScreen
 import io.github.taetae98coding.diary.feature.setting.ui.map.SettingMapScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.setting.ui.map.SettingMapScreen
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import org.koin.compose.viewmodel.koinViewModel
 
-public fun EntryProviderScope<NavKey>.settingEntry(backStack: NavBackStack<NavKey>) {
+public fun EntryProviderScope<ScreenNavKey>.settingEntry(backStack: NavBackStack<ScreenNavKey>) {
     settingHomeEntry(backStack = backStack)
     settingHolidayEntry(backStack = backStack)
     settingMapEntry(backStack = backStack)
     settingGeminiEntry(backStack = backStack)
 }
 
-private fun EntryProviderScope<NavKey>.settingHomeEntry(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.settingHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<SettingHomeNavKey>(
         metadata =
             ListDetailSceneStrategy.listPane(
@@ -46,7 +46,7 @@ private fun EntryProviderScope<NavKey>.settingHomeEntry(backStack: NavBackStack<
     }
 }
 
-private fun EntryProviderScope<NavKey>.settingHolidayEntry(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.settingHolidayEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<SettingHolidayNavKey>(
         metadata = ListDetailSceneStrategy.detailPane(sceneKey = SettingHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f),
     ) {
@@ -62,7 +62,7 @@ private fun EntryProviderScope<NavKey>.settingHolidayEntry(backStack: NavBackSta
     }
 }
 
-private fun EntryProviderScope<NavKey>.settingMapEntry(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.settingMapEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<SettingMapNavKey>(
         metadata = ListDetailSceneStrategy.detailPane(sceneKey = SettingHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f),
     ) {
@@ -78,7 +78,7 @@ private fun EntryProviderScope<NavKey>.settingMapEntry(backStack: NavBackStack<N
     }
 }
 
-private fun EntryProviderScope<NavKey>.settingGeminiEntry(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.settingGeminiEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<SettingGeminiNavKey>(
         metadata = ListDetailSceneStrategy.detailPane(sceneKey = SettingHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f),
     ) {
@@ -95,7 +95,7 @@ private fun EntryProviderScope<NavKey>.settingGeminiEntry(backStack: NavBackStac
     }
 }
 
-internal fun NavBackStack<NavKey>.navigateToSettingDetail(destination: NavKey) {
+internal fun NavBackStack<ScreenNavKey>.navigateToSettingDetail(destination: ScreenNavKey) {
     require(destination == SettingHolidayNavKey || destination == SettingMapNavKey || destination == SettingGeminiNavKey)
     if (lastOrNull() == destination) return
 
@@ -106,7 +106,7 @@ internal fun NavBackStack<NavKey>.navigateToSettingDetail(destination: NavKey) {
     add(destination)
 }
 
-internal fun NavBackStack<NavKey>.navigateUpFromSettingHome() {
+internal fun NavBackStack<ScreenNavKey>.navigateUpFromSettingHome() {
     val settingHomeIndex = indexOfLast { key -> key == SettingHomeNavKey }
     if (settingHomeIndex < 0) return
 

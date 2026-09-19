@@ -1,12 +1,12 @@
 package io.github.taetae98coding.diary.feature.setting.ui
 
 import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import io.github.taetae98coding.diary.feature.more.api.MoreHomeNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHolidayNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingMapNavKey
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 
@@ -48,7 +48,7 @@ class SettingNavigationTest :
 
         test("TC-SETTING-HOME-FEATURE-003 뒤로가기 동작을 선택하면 상세 표시 여부와 관계없이 더보기로 돌아간다") {
             val detailCases =
-                listOf<NavKey?>(
+                listOf<ScreenNavKey?>(
                     null,
                     SettingHolidayNavKey,
                     SettingMapNavKey,
@@ -65,7 +65,7 @@ class SettingNavigationTest :
         }
 
         test("설정 목록이 없는 전환 이력에서는 뒤로가기 동작이 전환 이력을 바꾸지 않는다") {
-            val backStack = NavBackStack<NavKey>(MoreHomeNavKey)
+            val backStack = NavBackStack<ScreenNavKey>(MoreHomeNavKey)
 
             backStack.navigateUpFromSettingHome()
 
@@ -73,7 +73,7 @@ class SettingNavigationTest :
         }
     })
 
-private fun settingBackStack(vararg detail: NavKey): NavBackStack<NavKey> =
+private fun settingBackStack(vararg detail: ScreenNavKey): NavBackStack<ScreenNavKey> =
     NavBackStack(
         MoreHomeNavKey,
         SettingHomeNavKey,

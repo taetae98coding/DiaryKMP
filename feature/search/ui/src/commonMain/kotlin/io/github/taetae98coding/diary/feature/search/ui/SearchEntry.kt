@@ -2,19 +2,19 @@ package io.github.taetae98coding.diary.feature.search.ui
 
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
 import io.github.taetae98coding.diary.feature.search.ui.home.SearchHomeScreen
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 
-public fun EntryProviderScope<NavKey>.searchEntry(backStack: NavBackStack<NavKey>) {
+public fun EntryProviderScope<ScreenNavKey>.searchEntry(backStack: NavBackStack<ScreenNavKey>) {
     searchHomeEntry(backStack = backStack)
 }
 
-private fun EntryProviderScope<NavKey>.searchHomeEntry(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.searchHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<SearchHomeNavKey> { key ->
         SearchHomeScreen(
             navigateUp = backStack::removeLastOrNull,

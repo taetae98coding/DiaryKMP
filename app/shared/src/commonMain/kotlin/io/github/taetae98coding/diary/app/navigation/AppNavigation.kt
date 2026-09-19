@@ -15,7 +15,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
-import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.result.LocalResultEventBus
@@ -42,6 +41,7 @@ import io.github.taetae98coding.diary.feature.search.ui.searchEntry
 import io.github.taetae98coding.diary.feature.setting.ui.settingEntry
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntry
 import io.github.taetae98coding.diary.feature.web.ui.webEntry
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 
 @Composable
 internal fun AppNavigation(
@@ -61,7 +61,7 @@ internal fun AppNavigation(
             modifier = modifier,
             sceneStrategies =
                 listOf(
-                    remember { BottomSheetSceneStrategy<NavKey>() },
+                    remember { BottomSheetSceneStrategy<ScreenNavKey>() },
                     rememberListDetailSceneStrategy(
                         directive = appState.paneScaffoldDirective,
                         paneExpansionDragHandle = { state ->

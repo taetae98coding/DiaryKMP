@@ -7,7 +7,6 @@ import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
@@ -23,16 +22,17 @@ import io.github.taetae98coding.diary.feature.web.ui.add.WebAddScreen
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScreen
 import io.github.taetae98coding.diary.feature.web.ui.home.WebHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.web.ui.home.WebHomeScreen
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-public fun EntryProviderScope<NavKey>.webEntry(backStack: NavBackStack<NavKey>) {
+public fun EntryProviderScope<ScreenNavKey>.webEntry(backStack: NavBackStack<ScreenNavKey>) {
     webHomeEntry(backStack = backStack)
     webAddEntry(backStack = backStack)
     webDetailEntry(backStack = backStack)
 }
 
-private fun EntryProviderScope<NavKey>.webHomeEntry(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.webHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<WebHomeNavKey>(
         metadata =
             ListDetailSceneStrategy.listPane(
@@ -66,7 +66,7 @@ private fun EntryProviderScope<NavKey>.webHomeEntry(backStack: NavBackStack<NavK
     }
 }
 
-private fun EntryProviderScope<NavKey>.webAddEntry(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.webAddEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<WebAddNavKey>(
         metadata = { key -> backStack.webListDetailPaneMetadata(key) },
     ) { key ->
@@ -85,7 +85,7 @@ private fun EntryProviderScope<NavKey>.webAddEntry(backStack: NavBackStack<NavKe
     }
 }
 
-private fun EntryProviderScope<NavKey>.webDetailEntry(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.webDetailEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<WebDetailNavKey> { key ->
         val tagAddRequestKey = rememberResultRequestKey()
 
@@ -101,7 +101,7 @@ private fun EntryProviderScope<NavKey>.webDetailEntry(backStack: NavBackStack<Na
     }
 }
 
-private fun NavBackStack<NavKey>.webListDetailPaneMetadata(key: NavKey): Map<String, Any> =
+private fun NavBackStack<ScreenNavKey>.webListDetailPaneMetadata(key: ScreenNavKey): Map<String, Any> =
     if (isWebListDetailPane(key)) {
         ListDetailSceneStrategy.detailPane(sceneKey = WebHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f)
     } else {

@@ -5,7 +5,6 @@ package io.github.taetae98coding.diary.feature.calendar.ui
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNavKey
@@ -16,14 +15,15 @@ import io.github.taetae98coding.diary.feature.calendar.ui.home.rememberCalendarH
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import org.koin.compose.viewmodel.koinViewModel
 
-public fun EntryProviderScope<NavKey>.calendarEntry(backStack: NavBackStack<NavKey>) {
+public fun EntryProviderScope<ScreenNavKey>.calendarEntry(backStack: NavBackStack<ScreenNavKey>) {
     calendarHomeEntry(backStack = backStack)
     calendarHomeFilterEntry()
 }
 
-private fun EntryProviderScope<NavKey>.calendarHomeEntry(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.calendarHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<CalendarHomeNavKey> {
         CalendarHomeScreen(
             navigateToMemoDetail = { id -> backStack.add(MemoDetailNavKey(id)) },
@@ -51,7 +51,7 @@ private fun EntryProviderScope<NavKey>.calendarHomeEntry(backStack: NavBackStack
     }
 }
 
-private fun EntryProviderScope<NavKey>.calendarHomeFilterEntry() {
+private fun EntryProviderScope<ScreenNavKey>.calendarHomeFilterEntry() {
     entry<CalendarHomeFilterNavKey>(
         metadata = BottomSheetSceneStrategy.bottomSheet(),
     ) {

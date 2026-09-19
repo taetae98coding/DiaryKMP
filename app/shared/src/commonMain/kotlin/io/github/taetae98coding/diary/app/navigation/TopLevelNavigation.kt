@@ -1,14 +1,14 @@
 package io.github.taetae98coding.diary.app.navigation
 
-import androidx.navigation3.runtime.NavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
 import io.github.taetae98coding.diary.feature.more.api.MoreHomeNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 
 internal enum class TopLevelNavigation(
-    val key: NavKey,
+    val key: ScreenNavKey,
 ) {
     Memo(key = MemoHomeNavKey),
     Tag(key = TagHomeNavKey),

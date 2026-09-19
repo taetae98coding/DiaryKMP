@@ -2,7 +2,6 @@ package io.github.taetae98coding.diary.feature.place.ui
 
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.feature.place.api.PlaceAddNavKey
@@ -15,16 +14,17 @@ import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-public fun EntryProviderScope<NavKey>.placeEntry(backStack: NavBackStack<NavKey>) {
+public fun EntryProviderScope<ScreenNavKey>.placeEntry(backStack: NavBackStack<ScreenNavKey>) {
     placeHomeEntry(backStack = backStack)
     placeAddEntry(backStack = backStack)
     placeDetailEntry(backStack = backStack)
 }
 
-private fun EntryProviderScope<NavKey>.placeHomeEntry(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.placeHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<PlaceHomeNavKey> {
         PlaceHomeScreen(
             navigateUp = backStack::removeLastOrNull,
@@ -45,7 +45,7 @@ private fun EntryProviderScope<NavKey>.placeHomeEntry(backStack: NavBackStack<Na
     }
 }
 
-private fun EntryProviderScope<NavKey>.placeDetailEntry(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.placeDetailEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<PlaceDetailNavKey> { key ->
         val tagAddRequestKey = rememberResultRequestKey()
 
@@ -61,7 +61,7 @@ private fun EntryProviderScope<NavKey>.placeDetailEntry(backStack: NavBackStack<
     }
 }
 
-private fun EntryProviderScope<NavKey>.placeAddEntry(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.placeAddEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<PlaceAddNavKey> { key ->
         val tagAddRequestKey = rememberResultRequestKey()
 

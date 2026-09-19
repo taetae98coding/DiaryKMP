@@ -6,7 +6,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
@@ -17,6 +16,7 @@ import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.shouldBe
@@ -89,10 +89,10 @@ class TagEntryTest :
             (ListDetailSceneStrategy.listPane(detailPlaceholder = {}) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f)).keys
 
         private fun metadataOf(
-            backStack: List<NavKey>,
-            key: NavKey,
+            backStack: List<ScreenNavKey>,
+            key: ScreenNavKey,
         ): Map<String, Any> {
-            val provider = entryProvider<NavKey> { tagEntry(backStack = NavBackStack(*backStack.toTypedArray())) }
+            val provider = entryProvider<ScreenNavKey> { tagEntry(backStack = NavBackStack(*backStack.toTypedArray())) }
 
             return provider(key).metadata
         }
@@ -100,4 +100,7 @@ class TagEntryTest :
 }
 
 // 캘린더 홈처럼 태그 목록이 아닌 진입 화면을 대신한다. 캘린더 기능 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
-private data object OtherTopLevelNavKey : NavKey
+private data object OtherTopLevelNavKey : ScreenNavKey {
+    override val screenName: String
+        get() = "OtherTopLevel"
+}

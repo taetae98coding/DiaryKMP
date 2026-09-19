@@ -3,7 +3,6 @@ package io.github.taetae98coding.diary.app
 import androidx.compose.material3.adaptive.layout.PaneScaffoldDirective
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldState
 import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import androidx.savedstate.serialization.decodeFromSavedState
 import androidx.savedstate.serialization.encodeToSavedState
 import com.navercorp.fixturemonkey.FixtureMonkey
@@ -15,6 +14,7 @@ import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.shouldBe
@@ -27,8 +27,8 @@ private val fixtureMonkey: FixtureMonkey =
 
 class TagMemoNavigationTest :
     FunSpec({
-        test("TagMemoFinishedList NavKey를 저장하고 복원하면 tagId가 유지된다") {
-            val key: NavKey = TagMemoFinishedListNavKey(tagId = fixtureMonkey.giveMeOne<Uuid>())
+        test("TagMemoFinishedList ScreenNavKey를 저장하고 복원하면 tagId가 유지된다") {
+            val key: ScreenNavKey = TagMemoFinishedListNavKey(tagId = fixtureMonkey.giveMeOne<Uuid>())
 
             val savedState =
                 encodeToSavedState(
@@ -36,14 +36,14 @@ class TagMemoNavigationTest :
                     configuration = AppNavKeySavedStateConfiguration,
                 )
 
-            decodeFromSavedState<NavKey>(
+            decodeFromSavedState<ScreenNavKey>(
                 savedState = savedState,
                 configuration = AppNavKeySavedStateConfiguration,
             ) shouldBe key
         }
 
-        test("MemoAdd NavKey를 저장하고 복원하면 최초 대표 태그 ID가 유지된다") {
-            val key: NavKey = MemoAddNavKey(primaryTagId = fixtureMonkey.giveMeOne<Uuid>())
+        test("MemoAdd ScreenNavKey를 저장하고 복원하면 최초 대표 태그 ID가 유지된다") {
+            val key: ScreenNavKey = MemoAddNavKey(primaryTagId = fixtureMonkey.giveMeOne<Uuid>())
 
             val savedState =
                 encodeToSavedState(
@@ -51,15 +51,15 @@ class TagMemoNavigationTest :
                     configuration = AppNavKeySavedStateConfiguration,
                 )
 
-            decodeFromSavedState<NavKey>(
+            decodeFromSavedState<ScreenNavKey>(
                 savedState = savedState,
                 configuration = AppNavKeySavedStateConfiguration,
             ) shouldBe key
         }
 
-        test("MemoAdd NavKey를 저장하고 복원하면 초기 기간이 유지된다") {
+        test("MemoAdd ScreenNavKey를 저장하고 복원하면 초기 기간이 유지된다") {
             val dayList = List(2) { fixtureMonkey.giveMeOne<Int>().mod(1_000_000) }.sorted()
-            val key: NavKey =
+            val key: ScreenNavKey =
                 MemoAddNavKey(
                     initialDateRange =
                         MemoAddNavKey.InitialDateRange(
@@ -74,7 +74,7 @@ class TagMemoNavigationTest :
                     configuration = AppNavKeySavedStateConfiguration,
                 )
 
-            decodeFromSavedState<NavKey>(
+            decodeFromSavedState<ScreenNavKey>(
                 savedState = savedState,
                 configuration = AppNavKeySavedStateConfiguration,
             ) shouldBe key
@@ -106,7 +106,7 @@ class TagMemoNavigationTest :
         }
     })
 
-private fun createAppState(keys: List<NavKey>): AppState =
+private fun createAppState(keys: List<ScreenNavKey>): AppState =
     AppState(
         backStack = NavBackStack(*keys.toTypedArray()),
         scaffoldState = mockk<NavigationSuiteScaffoldState>(relaxed = true),

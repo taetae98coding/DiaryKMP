@@ -7,7 +7,6 @@ import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.feature.routine.api.RoutineAddNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineHomeNavKey
@@ -16,14 +15,15 @@ import io.github.taetae98coding.diary.feature.routine.ui.add.RoutineAddScaffoldC
 import io.github.taetae98coding.diary.feature.routine.ui.add.RoutineAddScreen
 import io.github.taetae98coding.diary.feature.routine.ui.home.RoutineHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.routine.ui.home.RoutineHomeScreen
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import org.koin.compose.viewmodel.koinViewModel
 
-public fun EntryProviderScope<NavKey>.routineEntry(backStack: NavBackStack<NavKey>) {
+public fun EntryProviderScope<ScreenNavKey>.routineEntry(backStack: NavBackStack<ScreenNavKey>) {
     routineHomeEntry(backStack = backStack)
     routineAddEntry(backStack = backStack)
 }
 
-private fun EntryProviderScope<NavKey>.routineHomeEntry(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.routineHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<RoutineHomeNavKey>(
         metadata =
             ListDetailSceneStrategy.listPane(
@@ -46,7 +46,7 @@ private fun EntryProviderScope<NavKey>.routineHomeEntry(backStack: NavBackStack<
     }
 }
 
-private fun EntryProviderScope<NavKey>.routineAddEntry(backStack: NavBackStack<NavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.routineAddEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<RoutineAddNavKey>(
         metadata = { key -> backStack.routineListDetailPaneMetadata(key) },
     ) {
@@ -59,7 +59,7 @@ private fun EntryProviderScope<NavKey>.routineAddEntry(backStack: NavBackStack<N
     }
 }
 
-private fun NavBackStack<NavKey>.routineListDetailPaneMetadata(key: NavKey): Map<String, Any> =
+private fun NavBackStack<ScreenNavKey>.routineListDetailPaneMetadata(key: ScreenNavKey): Map<String, Any> =
     if (isRoutineListDetailPane(key)) {
         ListDetailSceneStrategy.detailPane(sceneKey = RoutineHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f)
     } else {

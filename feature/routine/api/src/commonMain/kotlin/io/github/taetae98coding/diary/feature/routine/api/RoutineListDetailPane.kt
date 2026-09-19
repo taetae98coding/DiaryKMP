@@ -1,8 +1,8 @@
 package io.github.taetae98coding.diary.feature.routine.api
 
-import androidx.navigation3.runtime.NavKey
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 
-public fun List<NavKey>.isRoutineListDetailPane(key: NavKey): Boolean {
+public fun List<ScreenNavKey>.isRoutineListDetailPane(key: ScreenNavKey): Boolean {
     val index = lastIndexOf(key)
     if (index < 0 || key != RoutineAddNavKey) return false
 

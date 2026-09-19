@@ -1,6 +1,5 @@
 package io.github.taetae98coding.diary.app.navigation
 
-import androidx.navigation3.runtime.NavKey
 import androidx.savedstate.serialization.SavedStateConfiguration
 import io.github.taetae98coding.diary.feature.calendar.api.calendarNavKeys
 import io.github.taetae98coding.diary.feature.checklist.api.checklistNavKeys
@@ -19,6 +18,7 @@ import io.github.taetae98coding.diary.feature.search.api.searchNavKeys
 import io.github.taetae98coding.diary.feature.setting.api.settingNavKeys
 import io.github.taetae98coding.diary.feature.tag.api.tagNavKeys
 import io.github.taetae98coding.diary.feature.web.api.webNavKeys
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 
@@ -26,7 +26,7 @@ internal val AppNavKeySavedStateConfiguration: SavedStateConfiguration =
     SavedStateConfiguration {
         serializersModule =
             SerializersModule {
-                polymorphic(NavKey::class) {
+                polymorphic(ScreenNavKey::class) {
                     calendarNavKeys()
                     checklistNavKeys()
                     contactNavKeys()
