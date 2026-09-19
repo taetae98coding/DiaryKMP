@@ -314,6 +314,21 @@ class AddMemoUseCaseTest :
                     result.shouldBeSuccess()
                     webIdSetSlot.captured.shouldBeEmpty()
                 }
+
+                Then("TC-MEMO-ADD-DOMAIN-012 웹 항목을 선택하지 않아도 메모 추가가 성립한다") {
+                    val result = useCase(parameter = AddMemoUseCase.Parameter(detail = titledDetail()))
+
+                    result.shouldBeSuccess()
+                    coVerify {
+                        accountMemoRepository.upsert(
+                            account = account,
+                            memo = any(),
+                            tagIdSet = any(),
+                            placeIdSet = any(),
+                            webIdSet = any(),
+                        )
+                    }
+                }
             }
         }
 
