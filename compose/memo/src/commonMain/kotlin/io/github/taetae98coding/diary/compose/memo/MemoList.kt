@@ -20,11 +20,11 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
 import io.github.taetae98coding.diary.compose.core.icon.MemoIcon
+import io.github.taetae98coding.diary.compose.core.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
-import io.github.taetae98coding.diary.compose.core.sort.ListSortScrollEffect
 import io.github.taetae98coding.diary.compose.core.swipe.SwipeFinishAction
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.list.ListSort
@@ -41,13 +41,15 @@ public fun MemoList(
     memoPagingItems: LazyPagingItems<MemoListItem> = remember { flowOf(PagingData.empty<MemoListItem>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> MemoListUiState = { MemoListUiState() },
     sortProvider: () -> ListSort = { ListSort.DEFAULT },
+    filterProvider: () -> Any? = { Unit },
     listTestTag: String = MEMO_LIST_TEST_TAG,
     finishAction: SwipeFinishAction = SwipeFinishAction.FINISH,
     empty: @Composable () -> Unit,
 ) {
-    ListSortScrollEffect(
+    ListQueryScrollEffect(
         listState = listState,
         sortProvider = sortProvider,
+        filterProvider = filterProvider,
         itemListProvider = { memoPagingItems.itemSnapshotList.items },
     )
 

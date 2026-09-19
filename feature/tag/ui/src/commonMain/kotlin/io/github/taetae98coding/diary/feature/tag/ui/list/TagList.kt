@@ -20,11 +20,11 @@ import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
 import io.github.taetae98coding.diary.compose.core.icon.TagIcon
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableGrid
+import io.github.taetae98coding.diary.compose.core.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
-import io.github.taetae98coding.diary.compose.core.sort.ListSortScrollEffect
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.TagCard
 import io.github.taetae98coding.diary.core.model.list.ListSort
@@ -44,12 +44,14 @@ internal fun TagList(
     tagPagingItems: LazyPagingItems<Tag> = remember { flowOf(PagingData.empty<Tag>()) }.collectAsLazyPagingItems(),
     isRefreshingProvider: () -> Boolean = { false },
     sortProvider: () -> ListSort = { ListSort.TITLE },
+    filterProvider: () -> Any? = { Unit },
     listTestTag: String = TAG_LIST_TEST_TAG,
     empty: @Composable () -> Unit,
 ) {
-    ListSortScrollEffect(
+    ListQueryScrollEffect(
         gridState = gridState,
         sortProvider = sortProvider,
+        filterProvider = filterProvider,
         itemListProvider = { tagPagingItems.itemSnapshotList.items },
     )
 

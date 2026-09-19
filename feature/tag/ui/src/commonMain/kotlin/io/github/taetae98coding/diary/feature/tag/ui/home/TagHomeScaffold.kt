@@ -95,6 +95,7 @@ internal fun TagHomeScaffold(
                 modifier = Modifier.fillMaxSize(),
                 isRefreshingProvider = { uiStateProvider().isRefreshing },
                 sortProvider = sortProvider,
+                filterProvider = filterUiStateProvider,
                 listTestTag = TAG_HOME_LIST_TEST_TAG,
                 empty = { Empty(isFilterAppliedProvider = { filterUiStateProvider().isApplied }) },
             )

@@ -1,4 +1,4 @@
-package io.github.taetae98coding.diary.compose.core.sort
+package io.github.taetae98coding.diary.compose.core.list
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -39,7 +39,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
-class ListSortScrollEffectTest {
+class ListQueryScrollEffectTest {
     @get:Rule
     val composeRule = createComposeRule()
 
@@ -81,6 +81,48 @@ class ListSortScrollEffectTest {
 
         selectSort(sort = sort, value = ListSort.TITLE)
         reorder(itemList = itemList)
+
+        listState.firstVisibleItemIndex shouldBeGreaterThan 0
+    }
+
+    @Test
+    fun `필터를 바꾸고 좁힌 목록이 도착하면 맨 위에서 다시 시작한다`() {
+        val itemList = mutableStateOf(defaultItemList())
+        val filter = mutableStateOf(false)
+        val listState = setList(sort = mutableStateOf(ListSort.TITLE), itemList = itemList, filter = filter)
+
+        scrollToLast { listState.firstVisibleItemIndex }
+
+        switchFilter(filter = filter, value = true)
+        narrow(itemList = itemList)
+
+        listState.firstVisibleItemIndex shouldBe 0
+    }
+
+    @Test
+    fun `필터를 바꿔도 좁힌 목록이 도착하기 전에는 자리를 유지한다`() {
+        val itemList = mutableStateOf(defaultItemList())
+        val filter = mutableStateOf(false)
+        val listState = setList(sort = mutableStateOf(ListSort.TITLE), itemList = itemList, filter = filter)
+
+        scrollToLast { listState.firstVisibleItemIndex }
+        val scrolledIndex = listState.firstVisibleItemIndex
+
+        switchFilter(filter = filter, value = true)
+
+        listState.firstVisibleItemIndex shouldBe scrolledIndex
+    }
+
+    @Test
+    fun `필터가 그대로면 목록이 바뀌어도 자리를 유지한다`() {
+        val itemList = mutableStateOf(defaultItemList())
+        val filter = mutableStateOf(true)
+        val listState = setList(sort = mutableStateOf(ListSort.TITLE), itemList = itemList, filter = filter)
+
+        scrollToLast { listState.firstVisibleItemIndex }
+
+        switchFilter(filter = filter, value = true)
+        narrow(itemList = itemList)
 
         listState.firstVisibleItemIndex shouldBeGreaterThan 0
     }
@@ -135,22 +177,39 @@ class ListSortScrollEffectTest {
         composeRule.waitForIdle()
     }
 
+    private fun switchFilter(
+        filter: MutableState<Boolean>,
+        value: Boolean,
+    ) {
+        composeRule.runOnIdle { filter.value = value }
+        composeRule.waitForIdle()
+    }
+
+    // 필터를 바꾼 뒤 한 박자 늦게 도착하는 좁힌 목록을 만든다.
+    private fun narrow(itemList: MutableState<List<Int>>) {
+        composeRule.runOnIdle { itemList.value = itemList.value.dropLast(1) }
+        composeRule.waitForIdle()
+    }
+
     private fun setList(
         sort: MutableState<ListSort>,
         itemList: MutableState<List<Int>>,
+        filter: MutableState<Boolean> = mutableStateOf(false),
     ): LazyListState {
         lateinit var listState: LazyListState
 
         composeRule.setContent {
             DiaryTheme {
                 val currentSort by sort
+                val currentFilter by filter
                 val currentItemList by itemList
 
                 listState = rememberLazyListState()
 
-                ListSortScrollEffect(
+                ListQueryScrollEffect(
                     listState = listState,
                     sortProvider = { currentSort },
+                    filterProvider = { currentFilter },
                     itemListProvider = { currentItemList },
                 )
                 LazyColumn(
@@ -185,7 +244,7 @@ class ListSortScrollEffectTest {
 
                 gridState = rememberLazyGridState()
 
-                ListSortScrollEffect(
+                ListQueryScrollEffect(
                     gridState = gridState,
                     sortProvider = { currentSort },
                     itemListProvider = { currentItemList },
@@ -223,7 +282,7 @@ class ListSortScrollEffectTest {
 
                 staggeredGridState = rememberLazyStaggeredGridState()
 
-                ListSortScrollEffect(
+                ListQueryScrollEffect(
                     staggeredGridState = staggeredGridState,
                     sortProvider = { currentSort },
                     itemListProvider = { currentItemList },
@@ -257,7 +316,7 @@ class ListSortScrollEffectTest {
     }
 
     private companion object {
-        private const val LIST_TEST_TAG = "ListSortScrollEffectList"
+        private const val LIST_TEST_TAG = "ListQueryScrollEffectList"
         private const val ITEM_COUNT = 30
         private const val COLUMN_COUNT = 2
         private val ITEM_HEIGHT = 100.dp

@@ -48,10 +48,13 @@ internal class MemoHomeViewModel(
             getMemoFilterUseCase(parameter = Unit),
             getMemoExistenceFilterUseCase(parameter = Unit),
         ) { tagListResult, existenceResult ->
-            val existence = existenceResult.getOrDefault(MemoExistenceFilter())
-
             MemoHomeScaffoldFilterUiState(
-                isApplied = tagListResult.getOrDefault(emptyList()).isNotEmpty() || existence != MemoExistenceFilter(),
+                selectedTagIdSet =
+                    tagListResult
+                        .getOrDefault(emptyList())
+                        .map { tag -> tag.id }
+                        .toSet(),
+                existence = existenceResult.getOrDefault(MemoExistenceFilter()),
             )
         }.stateIn(
             scope = viewModelScope,

@@ -27,6 +27,8 @@ import io.github.taetae98coding.diary.compose.memo.MemoListItem
 import io.github.taetae98coding.diary.compose.memo.rememberMemoListState
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
+import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
+import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.floats.shouldBeLessThan
 import io.kotest.matchers.shouldBe
@@ -68,7 +70,7 @@ class MemoHomeEmptyTest {
     fun `TC-MEMO-HOME-FEATURE-042 필터를 적용한 채로 표시할 메모가 없으면 조건에 맞는 메모가 없음을 알린다`() {
         setMemoHomeScaffold(
             memoPagingDataFlow = MutableStateFlow(memoPagingDataOf(emptyList())),
-            filterUiState = MemoHomeScaffoldFilterUiState(isApplied = true),
+            filterUiState = MemoHomeScaffoldFilterUiState(existence = MemoExistenceFilter(date = MemoFilterExistence.EXIST)),
         )
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -82,7 +84,7 @@ class MemoHomeEmptyTest {
     fun `TC-MEMO-HOME-FEATURE-042 한국어 환경에서 필터 빈 상태 안내는 조건에 맞는 메모가 없습니다이다`() {
         setMemoHomeScaffold(
             memoPagingDataFlow = MutableStateFlow(memoPagingDataOf(emptyList())),
-            filterUiState = MemoHomeScaffoldFilterUiState(isApplied = true),
+            filterUiState = MemoHomeScaffoldFilterUiState(existence = MemoExistenceFilter(date = MemoFilterExistence.EXIST)),
         )
 
         composeRule.onNodeWithText(KOREAN_FILTERED_EMPTY_TITLE).assertExists()
@@ -118,7 +120,7 @@ class MemoHomeEmptyTest {
     fun `TC-MEMO-HOME-FEATURE-048 필터를 적용해 두어도 검색을 실행할 수 있다`() {
         setMemoHomeScaffold(
             memoPagingDataFlow = MutableStateFlow(memoPagingDataOf(emptyList())),
-            filterUiState = MemoHomeScaffoldFilterUiState(isApplied = true),
+            filterUiState = MemoHomeScaffoldFilterUiState(existence = MemoExistenceFilter(date = MemoFilterExistence.EXIST)),
         )
 
         composeRule.onNodeWithContentDescription(DEFAULT_SEARCH_BUTTON_DESCRIPTION).assert(hasClickAction())
@@ -137,7 +139,7 @@ class MemoHomeEmptyTest {
     fun `필터를 적용한 빈 상태 안내도 목록 영역의 세로 가운데에 놓인다`() {
         setMemoHomeScaffold(
             memoPagingDataFlow = MutableStateFlow(memoPagingDataOf(emptyList())),
-            filterUiState = MemoHomeScaffoldFilterUiState(isApplied = true),
+            filterUiState = MemoHomeScaffoldFilterUiState(existence = MemoExistenceFilter(date = MemoFilterExistence.EXIST)),
         )
 
         assertEmptyBoxIsVerticallyCentered()

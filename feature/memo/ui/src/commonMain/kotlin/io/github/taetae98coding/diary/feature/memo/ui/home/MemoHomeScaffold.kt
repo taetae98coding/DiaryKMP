@@ -37,6 +37,8 @@ import io.github.taetae98coding.diary.compose.memo.MemoListState
 import io.github.taetae98coding.diary.compose.memo.MemoListUiState
 import io.github.taetae98coding.diary.compose.memo.rememberMemoListState
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
+import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
 import io.github.taetae98coding.diary.feature.memo.ui.Res
 import io.github.taetae98coding.diary.feature.memo.ui.memo_home_add_button_content_description
 import io.github.taetae98coding.diary.feature.memo.ui.memo_home_empty_description
@@ -106,6 +108,7 @@ internal fun MemoHomeScaffold(
                 modifier = Modifier.fillMaxSize(),
                 uiStateProvider = memoListUiStateProvider,
                 sortProvider = sortProvider,
+                filterProvider = filterUiStateProvider,
                 listTestTag = MEMO_HOME_LIST_TEST_TAG,
                 empty = { Empty(isFilterAppliedProvider = { filterUiStateProvider().isApplied }) },
             )
@@ -150,11 +153,18 @@ private fun Empty(
 private fun MemoHomeScaffoldPreview(
     @PreviewParameter(BooleanPreviewParameter::class) isFilterApplied: Boolean,
 ) {
+    val filterUiState =
+        if (isFilterApplied) {
+            MemoHomeScaffoldFilterUiState(existence = MemoExistenceFilter(date = MemoFilterExistence.EXIST))
+        } else {
+            MemoHomeScaffoldFilterUiState()
+        }
+
     DiaryTheme {
         MemoHomeScaffold(
             onEvent = {},
             onMemoListEvent = {},
-            filterUiStateProvider = { MemoHomeScaffoldFilterUiState(isApplied = isFilterApplied) },
+            filterUiStateProvider = { filterUiState },
         )
     }
 }

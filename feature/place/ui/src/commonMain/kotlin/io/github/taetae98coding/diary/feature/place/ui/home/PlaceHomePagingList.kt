@@ -20,12 +20,12 @@ import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
 import io.github.taetae98coding.diary.compose.core.icon.PlaceIcon
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableStaggeredGrid
+import io.github.taetae98coding.diary.compose.core.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
 import io.github.taetae98coding.diary.compose.core.sort.DiaryListSortBar
-import io.github.taetae98coding.diary.compose.core.sort.ListSortScrollEffect
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.place.PlaceCard
 import io.github.taetae98coding.diary.core.model.list.ListSort
@@ -48,7 +48,7 @@ internal fun PlaceHomePagingList(
     isRefreshingProvider: () -> Boolean = { false },
     sortProvider: () -> ListSort = { ListSort.TITLE },
 ) {
-    ListSortScrollEffect(
+    ListQueryScrollEffect(
         staggeredGridState = gridState,
         sortProvider = sortProvider,
         itemListProvider = { placePagingItems.itemSnapshotList.items },

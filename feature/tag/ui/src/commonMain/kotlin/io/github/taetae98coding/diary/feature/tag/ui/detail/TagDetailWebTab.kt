@@ -23,13 +23,13 @@ import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
 import io.github.taetae98coding.diary.compose.core.icon.WebIcon
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableGrid
+import io.github.taetae98coding.diary.compose.core.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
 import io.github.taetae98coding.diary.compose.core.sort.DiaryListSortBar
 import io.github.taetae98coding.diary.compose.core.sort.DiaryListSortBottomSheetHost
-import io.github.taetae98coding.diary.compose.core.sort.ListSortScrollEffect
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.web.WebCard
 import io.github.taetae98coding.diary.core.model.list.ListSort
@@ -52,7 +52,7 @@ internal fun TagDetailWebTab(
     isRefreshingProvider: () -> Boolean = { false },
     sortProvider: () -> ListSort = { ListSort.TITLE },
 ) {
-    ListSortScrollEffect(
+    ListQueryScrollEffect(
         gridState = gridState,
         sortProvider = sortProvider,
         itemListProvider = { webPagingItems.itemSnapshotList.items },

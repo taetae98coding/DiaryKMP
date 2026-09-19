@@ -197,7 +197,7 @@ class MemoHomeViewModelTest : FunSpec() {
                 viewModel.filterUiState.test {
                     awaitItem() shouldBe MemoHomeScaffoldFilterUiState()
                     advanceUntilIdle()
-                    awaitItem() shouldBe MemoHomeScaffoldFilterUiState(isApplied = true)
+                    awaitItem() shouldBe MemoHomeScaffoldFilterUiState(selectedTagIdSet = selectedTagList.map { tag -> tag.id }.toSet())
                     cancelAndIgnoreRemainingEvents()
                 }
             }
@@ -238,7 +238,7 @@ class MemoHomeViewModelTest : FunSpec() {
                 viewModel.filterUiState.test {
                     awaitItem() shouldBe MemoHomeScaffoldFilterUiState()
                     advanceUntilIdle()
-                    awaitItem() shouldBe MemoHomeScaffoldFilterUiState(isApplied = true)
+                    awaitItem() shouldBe MemoHomeScaffoldFilterUiState(existence = MemoExistenceFilter(date = MemoFilterExistence.EXIST))
                     cancelAndIgnoreRemainingEvents()
                 }
             }

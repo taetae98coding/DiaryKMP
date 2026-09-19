@@ -13,6 +13,8 @@ import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
+import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
@@ -72,7 +74,7 @@ class MemoHomeSortTest {
     @Test
     fun `TC-MEMO-HOME-FEATURE-052 필터가 적용되어 있어도 정렬을 고를 수 있다`() {
         val eventList = mutableListOf<MemoHomeScaffoldEvent>()
-        setMemoHomeScaffold(filterUiState = MemoHomeScaffoldFilterUiState(isApplied = true), onEvent = eventList::add)
+        setMemoHomeScaffold(filterUiState = MemoHomeScaffoldFilterUiState(existence = MemoExistenceFilter(date = MemoFilterExistence.EXIST)), onEvent = eventList::add)
 
         composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).performClick()
 

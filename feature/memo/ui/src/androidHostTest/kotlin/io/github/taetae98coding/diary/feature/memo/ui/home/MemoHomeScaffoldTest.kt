@@ -30,6 +30,8 @@ import io.github.taetae98coding.diary.compose.memo.rememberMemoListState
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
+import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
+import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -129,7 +131,7 @@ class MemoHomeScaffoldTest {
     fun `필터가 적용되면 상태를 알리고 버튼을 누르면 필터 열기 Event를 전달한다`() {
         val eventList = mutableListOf<MemoHomeScaffoldEvent>()
         setMemoHomeScaffold(
-            filterUiState = MemoHomeScaffoldFilterUiState(isApplied = true),
+            filterUiState = MemoHomeScaffoldFilterUiState(existence = MemoExistenceFilter(date = MemoFilterExistence.EXIST)),
             onEvent = eventList::add,
         )
 
