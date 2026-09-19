@@ -22,6 +22,7 @@ let package = Package(
     .package(path: "subpackages/_feature_place_ui"),
     .package(path: "subpackages/_feature_search_ui"),
     .package(path: "subpackages/_feature_tag_ui"),
+    .package(path: "subpackages/_logger_analytics_impl"),
     .package(path: "subpackages/_logger_crashlytics_impl")
   ],
   targets: [
@@ -37,6 +38,7 @@ let package = Package(
         .product(name: "_feature_place_ui", package: "_feature_place_ui"),
         .product(name: "_feature_search_ui", package: "_feature_search_ui"),
         .product(name: "_feature_tag_ui", package: "_feature_tag_ui"),
+        .product(name: "_logger_analytics_impl", package: "_logger_analytics_impl"),
         .product(name: "_logger_crashlytics_impl", package: "_logger_crashlytics_impl")
       ]
     )

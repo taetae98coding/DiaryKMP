@@ -17,6 +17,8 @@
 			</array>
 		</dict>
 	</array>
+	<key>FirebaseAutomaticScreenReportingEnabled</key>
+	<false/>
 	<key>GIDClientID</key>
 	<string>$(GID_CLIENT_ID)</string>
 	<key>GIDServerClientID</key>

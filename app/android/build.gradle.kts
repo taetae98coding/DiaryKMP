@@ -79,7 +79,6 @@ dependencies {
     implementation(projects.app.shared)
     implementation(platform(libs.firebase.bom))
     implementation(libs.androidx.activity.compose)
-    implementation(libs.firebase.analytics)
     implementation(libs.firebase.performance)
     implementation(libs.google.material)
 }

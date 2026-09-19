@@ -25,6 +25,7 @@ import io.github.taetae98coding.diary.feature.memo.api.isMemoListDetailPane
 import io.github.taetae98coding.diary.feature.routine.api.isRoutineListDetailPane
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.tag.api.isTagListDetailPane
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 
 @Stable
 internal class AppState(
@@ -39,6 +40,10 @@ internal class AppState(
         backStack
             .asReversed()
             .firstNotNullOfOrNull { key -> TopLevelNavigation.entries.firstOrNull { it.key == key } }
+    }
+
+    val currentScreenNavKey: ScreenNavKey? by derivedStateOf {
+        backStack.lastOrNull() as? ScreenNavKey
     }
 
     val isNavigationVisible: Boolean by derivedStateOf {

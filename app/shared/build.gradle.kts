@@ -96,6 +96,7 @@ kotlin {
                 implementation(projects.feature.tag.ui)
                 implementation(projects.feature.web.api)
                 implementation(projects.feature.web.ui)
+                implementation(projects.logger.analytics.impl)
                 implementation(projects.logger.console.impl)
                 implementation(projects.logger.crashlytics.impl)
 
