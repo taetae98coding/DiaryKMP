@@ -89,6 +89,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail, ContactAdd 화면 문서는 태그 입
 - [페이지 조회 목록의 자리 표시](./paged-list-placeholder.md)
 - [MoreHome 화면](./more-home.md)
 - [더보기 준비 중 화면 공통](./more-menu-placeholder.md)
+- [MusicAdd 화면](./music-add.md)
 - [PlaceAdd 화면](./place-add.md)
 - [PlaceDetail 화면](./place-detail.md)
 - [PlaceHome 화면](./place-home.md)

@@ -19,6 +19,7 @@
 | [PlaceHome 화면](./place-home.md) | 지도 모드의 장소 목록, 목록 모드의 장소 목록 | 제목순, 최근 수정순 |
 | [WebHome 화면](./web-home.md) | 웹 목록 | 제목순, 최근 수정순 |
 | [ContactHome 화면](./contact-home.md) | 연락처 목록 | 이름순, 최근 수정순 |
+| [PlaylistHome 화면](./playlist-home.md) | 곡 목록 | 제목순, 최근 수정순 |
 | [SearchHome 화면](./search-home.md) | 메모·태그·장소·웹 검색 결과 목록 | 제목순, 최근 수정순 |
 
 항목을 고르기 위해 화면 안에서 여는 선택 목록에는 적용하지 않는다. [메모 태그 입력 컴포넌트 스펙](./memo-tag-input.md)의 태그 선택 목록, [메모 장소 카드 컴포넌트 스펙](./memo-place-card.md)의 장소 선택 목록, [태그 연결 입력 컴포넌트 스펙](./tag-link-input.md)의 태그 선택 목록, [항목 태그 입력 컴포넌트 스펙](./entity-tag-input.md)의 태그 선택 목록과 [태그 필터 스펙](./tag-filter.md)의 태그 목록은 각 문서가 정한 순서를 그대로 쓴다. 선택 목록은 사용자가 고르려고 잠시 여는 목록이므로 정렬을 바꿀 자리가 없다.

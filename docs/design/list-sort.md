@@ -22,6 +22,7 @@
 - [PlaceHome 화면 디자인](./place-home.md)
 - [WebHome 화면 디자인](./web-home.md)
 - [ContactHome 화면 디자인](./contact-home.md)
+- [PlaylistHome 화면 디자인](./playlist-home.md)
 - [SearchHome 화면 디자인](./search-home.md)
 
 ## 정렬 줄
@@ -48,7 +49,7 @@
 
 | 화면 | 자리 |
 | --- | --- |
-| MemoFinishedList, TagFinishedList, TagMemoFinishedList, WebHome, ContactHome | 상단 바 바로 아래, 목록 위 |
+| MemoFinishedList, TagFinishedList, TagMemoFinishedList, WebHome, ContactHome, PlaylistHome | 상단 바 바로 아래, 목록 위 |
 | MemoHome, TagHome | 상단 바 바로 아래 완료된 목록 진입 버튼과 같은 줄, 목록 위 |
 | TagDetail 웹 탭 | 탭 줄 바로 아래, 그 탭의 목록 위 |
 | TagDetail 장소 탭 | 탭 줄 바로 아래 보기 모드 전환 버튼과 같은 줄, 장소 보기 모드 영역 위 |

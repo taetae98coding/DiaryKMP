@@ -75,6 +75,7 @@
 | [페이지 조회 목록의 자리 표시](./paged-list-placeholder.md) | [페이지 조회 목록의 자리 표시 디자인](../design/paged-list-placeholder.md) |
 | [MoreHome 화면](./more-home.md) | [MoreHome 디자인](../design/more-home.md) |
 | [더보기 준비 중 화면 공통](./more-menu-placeholder.md) | [더보기 준비 중 화면 공통 디자인](../design/more-menu-placeholder.md) |
+| [MusicAdd 화면](./music-add.md) | [MusicAdd 디자인](../design/music-add.md) |
 | [네이버 장소 검색](./naver-place-search.md) | — |
 | [알림 권한 요청](./notification-permission.md) | — |
 | [PlaceAdd 화면](./place-add.md) | [PlaceAdd 디자인](../design/place-add.md) |

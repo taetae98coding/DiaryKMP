@@ -2,7 +2,7 @@
 
 이 문서는 사용자가 목록이나 캘린더를 아래로 당겨 최신 내용을 다시 가져오는 새로고침 행동과, 동기화가 진행되는 동안 사용자에게 진행을 알리는 기준을 다룬다. 계정과 연결된 메모, 태그, 장소, 웹 항목, 연락처와 그 연결들을 서버와 맞추는 규칙은 [데이터 동기화 스펙](./data-sync.md)을, 공휴일을 원격에서 받아 저장하는 규칙은 [공휴일 동기화 스펙](./holiday-fetch.md)을, 현재 위치의 날씨를 받아 저장하는 규칙은 [현재 날씨 동기화 스펙](./weather-fetch.md)을 따른다. 이 문서는 그 동기화를 언제 사용자의 조작으로 시작하고 언제 진행을 보여 줄지만 정한다.
 
-[데이터 동기화 스펙](./data-sync.md)이 정의하는 동기화는 열한 종류를 한 번에 처리하는 하나의 동작이므로, 이 문서에서는 이를 `계정 데이터의 서버 동기화`로 부른다. 어느 화면에서 새로고침하더라도 그 한 번의 동기화가 열한 종류를 모두 처리한다.
+[데이터 동기화 스펙](./data-sync.md)이 정의하는 동기화는 열두 종류를 한 번에 처리하는 하나의 동작이므로, 이 문서에서는 이를 `계정 데이터의 서버 동기화`로 부른다. 어느 화면에서 새로고침하더라도 그 한 번의 동기화가 열두 종류를 모두 처리한다.
 
 새로고침은 이미 정의된 동기화를 다시 요청할 뿐 저장, 조회, 충돌 판정 흐름을 새로 만들지 않으므로 `data` 영역은 생략한다.
 
@@ -25,6 +25,7 @@
 - PlaceHome
 - WebHome
 - ContactHome
+- PlaylistHome
 
 RoutineHome은 아직 노출할 루틴이 없어 목록이 비어 있는 화면이지만, 다른 목록 화면과 같은 조작을 제공한다. 빈 상태에서 당기는 조작은 [RoutineHome 화면 스펙](./routine-home.md)의 `새로고침`을 따른다.
 
@@ -63,9 +64,9 @@ CalendarHome에서는 공휴일과 날씨가 사용자 계정과 무관하므로
 | 화면 | 새로고침 대상 |
 | --- | --- |
 | CalendarHome | 계정 데이터의 서버 동기화, 표시 중인 달의 공휴일 동기화, 현재 위치의 날씨 동기화 |
-| MemoHome, MemoFinishedList, TagHome, TagFinishedList, TagDetail 메모·웹·장소 탭, TagMemoFinishedList, RoutineHome, PlaceHome, WebHome | 계정 데이터의 서버 동기화 |
+| MemoHome, MemoFinishedList, TagHome, TagFinishedList, TagDetail 메모·웹·장소 탭, TagMemoFinishedList, RoutineHome, PlaceHome, WebHome, ContactHome, PlaylistHome | 계정 데이터의 서버 동기화 |
 
-계정 데이터의 서버 동기화는 열한 종류를 한 번에 처리하므로, 화면이 보여 주는 종류만 골라 동기화하지 않는다. PlaceHome에서 당겨도 메모와 태그가 함께 동기화되고, MemoHome에서 당겨도 장소와 웹 항목과 연락처가 함께 동기화된다. TagDetail의 어느 탭에서 당겨도 같은 한 번의 동기화가 실행되므로 탭마다 동기화 대상이 다르지 않다.
+계정 데이터의 서버 동기화는 열두 종류를 한 번에 처리하므로, 화면이 보여 주는 종류만 골라 동기화하지 않는다. PlaceHome에서 당겨도 메모와 태그가 함께 동기화되고, MemoHome에서 당겨도 장소와 웹 항목과 연락처가 함께 동기화된다. TagDetail의 어느 탭에서 당겨도 같은 한 번의 동기화가 실행되므로 탭마다 동기화 대상이 다르지 않다.
 
 공휴일 동기화의 대상 연도는 [CalendarHome 스펙](./calendar-home.md)의 `공휴일 동기화 대상`을 따른다.
 

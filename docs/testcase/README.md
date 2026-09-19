@@ -81,6 +81,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [메모 웹](./memo-web.md) | [메모 웹](../spec/memo-web.md) |
 | [항목 태그 입력 컴포넌트](./entity-tag-input.md) | [항목 태그 입력 컴포넌트](../spec/entity-tag-input.md) |
 | [MoreHome](./more-home.md) | [MoreHome 화면](../spec/more-home.md) |
+| [MusicAdd](./music-add.md) | [MusicAdd 화면](../spec/music-add.md) |
 | [네이버 장소 검색](./naver-place-search.md) | [네이버 장소 검색](../spec/naver-place-search.md) |
 | [알림 권한 요청](./notification-permission.md) | [알림 권한 요청](../spec/notification-permission.md) |
 | [PlaceAdd](./place-add.md) | [PlaceAdd 화면](../spec/place-add.md) |
@@ -125,13 +126,13 @@ TC-<SPEC>-<AREA>-<NNN>
 
 다음 공통 스펙은 전용 테스트 케이스 문서를 두지 않고, 그 스펙을 사용하는 화면의 문서에 케이스를 둔다.
 
-- [더보기 준비 중 화면 공통 스펙](../spec/more-menu-placeholder.md) → [QrHome](./qr-home.md), [DDayHome](./dday-home.md), [ChecklistHome](./checklist-home.md), [FileHome](./file-home.md), [PlaylistHome](./playlist-home.md)
-  - 다섯 화면이 같은 공통 규칙의 케이스를 각자의 제목 문구와 진입 항목에 맞춰 각각 갖는다.
+- [더보기 준비 중 화면 공통 스펙](../spec/more-menu-placeholder.md) → [QrHome](./qr-home.md), [DDayHome](./dday-home.md), [ChecklistHome](./checklist-home.md), [FileHome](./file-home.md)
+  - 네 화면이 같은 공통 규칙의 케이스를 각자의 제목 문구와 진입 항목에 맞춰 각각 갖는다.
 - [태그 필터 스펙](../spec/tag-filter.md) → [MemoHome 목록](./memo-home.md), [CalendarHome](./calendar-home.md)
 - [태그 선택 입력 공통 스펙](../spec/tag-select-input.md) → [메모 태그 입력 컴포넌트](./memo-tag-input.md), [항목 태그 입력 컴포넌트](./entity-tag-input.md), [태그 연결 입력 컴포넌트](./tag-link-input.md)
   - 세 입력 문서가 공통 스펙의 같은 절을 각자의 대상과 문구에 맞춰 갖는다.
-- [페이지 조회 목록의 자리 표시 스펙](../spec/paged-list-placeholder.md) → [ContactHome](./contact-home.md), [TagHome 목록](./tag-home.md), [TagFinishedList](./tag-finished-list.md), [TagDetail 메모 탭](./tag-detail-memo.md), [TagDetail 웹 탭](./tag-detail-web.md), [TagDetail 장소 탭](./tag-detail-place.md), [TagMemoFinishedList](./tag-memo-finished-list.md), [MemoHome 목록](./memo-home.md), [MemoFinishedList](./memo-finished-list.md), [PlaceHome](./place-home.md), [SearchHome](./search-home.md), [메모 장소 카드](./memo-place-card.md), [메모 태그 입력 컴포넌트](./memo-tag-input.md), [메모 웹 입력 컴포넌트](./memo-web-input.md), [태그 연결 입력 컴포넌트](./tag-link-input.md), [항목 태그 입력 컴포넌트](./entity-tag-input.md), [WebHome](./web-home.md)
-- [목록 빈 상태 스펙](../spec/list-empty-state.md) → [ContactHome](./contact-home.md), [TagHome 목록](./tag-home.md), [TagFinishedList](./tag-finished-list.md), [TagDetail 메모 탭](./tag-detail-memo.md), [TagDetail 웹 탭](./tag-detail-web.md), [TagDetail 장소 탭](./tag-detail-place.md), [TagMemoFinishedList](./tag-memo-finished-list.md), [MemoHome 목록](./memo-home.md), [MemoFinishedList](./memo-finished-list.md), [RoutineHome](./routine-home.md), [PlaceHome](./place-home.md), [WebHome](./web-home.md)
+- [페이지 조회 목록의 자리 표시 스펙](../spec/paged-list-placeholder.md) → [ContactHome](./contact-home.md), [TagHome 목록](./tag-home.md), [TagFinishedList](./tag-finished-list.md), [TagDetail 메모 탭](./tag-detail-memo.md), [TagDetail 웹 탭](./tag-detail-web.md), [TagDetail 장소 탭](./tag-detail-place.md), [TagMemoFinishedList](./tag-memo-finished-list.md), [MemoHome 목록](./memo-home.md), [MemoFinishedList](./memo-finished-list.md), [PlaceHome](./place-home.md), [SearchHome](./search-home.md), [메모 장소 카드](./memo-place-card.md), [메모 태그 입력 컴포넌트](./memo-tag-input.md), [메모 웹 입력 컴포넌트](./memo-web-input.md), [태그 연결 입력 컴포넌트](./tag-link-input.md), [항목 태그 입력 컴포넌트](./entity-tag-input.md), [WebHome](./web-home.md), [PlaylistHome](./playlist-home.md)
+- [목록 빈 상태 스펙](../spec/list-empty-state.md) → [ContactHome](./contact-home.md), [TagHome 목록](./tag-home.md), [TagFinishedList](./tag-finished-list.md), [TagDetail 메모 탭](./tag-detail-memo.md), [TagDetail 웹 탭](./tag-detail-web.md), [TagDetail 장소 탭](./tag-detail-place.md), [TagMemoFinishedList](./tag-memo-finished-list.md), [MemoHome 목록](./memo-home.md), [MemoFinishedList](./memo-finished-list.md), [RoutineHome](./routine-home.md), [PlaceHome](./place-home.md), [WebHome](./web-home.md), [PlaylistHome](./playlist-home.md)
 - [목록 필터 반영 스펙](../spec/list-filter.md) → [TagHome 목록](./tag-home.md), [MemoHome 목록](./memo-home.md)
   - 두 문서가 각자의 필터와 목록 항목에 맞춰 같은 공통 규칙의 케이스를 각각 갖는다.
 - [목록 정렬 스펙](../spec/list-sort.md) → [MemoHome 목록](./memo-home.md), [WebHome](./web-home.md), [ContactHome](./contact-home.md)
