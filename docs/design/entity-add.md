@@ -7,6 +7,7 @@
 이 문서를 따르는 디자인 문서는 다음과 같다.
 
 - [ContactAdd 화면 디자인](./contact-add.md)
+- [MusicAdd 화면 디자인](./music-add.md)
 - [PlaceAdd 화면 디자인](./place-add.md)
 - [RoutineAdd 화면 디자인](./routine-add.md)
 - [TagAdd 화면 디자인](./tag-add.md)
