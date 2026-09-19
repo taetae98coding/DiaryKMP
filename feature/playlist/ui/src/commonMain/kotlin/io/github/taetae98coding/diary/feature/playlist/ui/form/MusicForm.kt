@@ -11,10 +11,19 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 
 @Composable
 internal fun MusicForm(
+    onFetchLinkClick: () -> Unit,
     modifier: Modifier = Modifier,
     state: MusicFormState = rememberMusicAddFormState(),
+    isFetchInProgressProvider: () -> Boolean = { false },
 ) {
     DiaryInputColumn(modifier = modifier) {
+        MusicLinkInput(
+            onFetchClick = onFetchLinkClick,
+            modifier = Modifier.fillMaxWidth(),
+            state = state.linkState,
+            isFetchInProgressProvider = isFetchInProgressProvider,
+            thumbnailProvider = { state.thumbnail },
+        )
         DiaryTitleInput(
             state = state.titleState,
             modifier = Modifier.fillMaxWidth(),
@@ -31,7 +40,7 @@ internal fun MusicForm(
 private fun MusicFormPreview() {
     DiaryTheme {
         Surface {
-            MusicForm()
+            MusicForm(onFetchLinkClick = {})
         }
     }
 }

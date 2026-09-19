@@ -18,6 +18,7 @@ kotlin {
                 implementation(projects.core.network.api)
                 implementation(projects.core.weatherNetwork.api)
                 implementation(projects.core.webNetwork.api)
+                implementation(projects.core.youtubeNetwork.api)
             }
         }
 

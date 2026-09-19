@@ -23,23 +23,43 @@ class MusicAddScreenFocusTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-003 화면에 처음 진입하면 제목 입력에 초점이 있다`() {
+    fun `TC-MUSIC-ADD-FEATURE-003 화면에 처음 진입하면 링크 입력에 초점이 있다`() {
         setMusicAddScreen(viewModel = screenTestViewModel())
 
         composeRule.waitForIdle()
 
-        composeRule.titleInput().assertIsFocused()
+        composeRule.linkInput().assertIsFocused()
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-006 추가에 성공하면 제목 입력으로 초점을 옮긴다`() {
+    fun `TC-MUSIC-ADD-FEATURE-006 추가에 성공하면 링크 입력으로 초점을 옮긴다`() {
         setMusicAddScreen(viewModel = effectViewModel(effect = MusicAddEffect.AddSucceeded))
         composeRule.titleInput().performTextInput(fixtureMonkey.giveMeOne<String>())
         composeRule.artistInput().performTextInput(fixtureMonkey.giveMeOne<String>())
 
         composeRule.clickAdd()
 
-        composeRule.titleInput().assertIsFocused()
+        composeRule.linkInput().assertIsFocused()
+    }
+
+    @Test
+    fun `TC-MUSIC-ADD-FEATURE-010 링크가 공백이면 링크 입력으로 초점을 옮긴다`() {
+        setMusicAddScreen(viewModel = effectViewModel(effect = MusicAddEffect.LinkBlank))
+        composeRule.artistInput().performTextInput(fixtureMonkey.giveMeOne<String>())
+
+        composeRule.clickAdd()
+
+        composeRule.linkInput().assertIsFocused()
+    }
+
+    @Test
+    fun `TC-MUSIC-ADD-FEATURE-010 링크가 YouTube 주소가 아니면 링크 입력으로 초점을 옮긴다`() {
+        setMusicAddScreen(viewModel = effectViewModel(effect = MusicAddEffect.LinkNotYoutube))
+        composeRule.artistInput().performTextInput(fixtureMonkey.giveMeOne<String>())
+
+        composeRule.clickAdd()
+
+        composeRule.linkInput().assertIsFocused()
     }
 
     @Test
@@ -60,6 +80,26 @@ class MusicAddScreenFocusTest {
         composeRule.clickAdd()
 
         composeRule.artistInput().assertIsFocused()
+    }
+
+    @Test
+    fun `TC-MUSIC-ADD-FEATURE-019 링크가 공백이면 불러오기 뒤 링크 입력으로 초점을 옮긴다`() {
+        setMusicAddScreen(viewModel = fetchEffectViewModel(MusicAddEffect.LinkBlank))
+        composeRule.artistInput().performTextInput(fixtureMonkey.giveMeOne<String>())
+
+        composeRule.clickFetch()
+
+        composeRule.linkInput().assertIsFocused()
+    }
+
+    @Test
+    fun `TC-MUSIC-ADD-FEATURE-019 링크가 YouTube 주소가 아니면 불러오기 뒤 링크 입력으로 초점을 옮긴다`() {
+        setMusicAddScreen(viewModel = fetchEffectViewModel(MusicAddEffect.LinkNotYoutube))
+        composeRule.artistInput().performTextInput(fixtureMonkey.giveMeOne<String>())
+
+        composeRule.clickFetch()
+
+        composeRule.linkInput().assertIsFocused()
     }
 
     private fun setMusicAddScreen(viewModel: MusicAddViewModel) {

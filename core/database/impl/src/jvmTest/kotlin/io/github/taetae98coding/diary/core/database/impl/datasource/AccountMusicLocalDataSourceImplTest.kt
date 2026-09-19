@@ -174,13 +174,17 @@ class AccountMusicLocalDataSourceImplTest :
             diaryFixtureMonkey()
 
         private fun music(
+            link: String = "https://youtu.be/${fixtureMonkey.giveMeOne<String>()}",
             title: String = "title-${fixtureMonkey.giveMeOne<String>()}",
             artist: String = "artist-${fixtureMonkey.giveMeOne<String>()}",
+            thumbnail: String = "https://i.ytimg.com/vi/${fixtureMonkey.giveMeOne<String>()}/hqdefault.jpg",
         ): MusicLocalEntity =
             fixtureMonkey
                 .giveMeKotlinBuilder<MusicLocalEntity>()
-                .setExp(MusicLocalEntity::detail, MusicDetailLocalEntity(title = title, artist = artist))
-                .setExp(MusicLocalEntity::isDeleted, false)
+                .setExp(
+                    MusicLocalEntity::detail,
+                    MusicDetailLocalEntity(link = link, title = title, artist = artist, thumbnail = thumbnail),
+                ).setExp(MusicLocalEntity::isDeleted, false)
                 .setExp(MusicLocalEntity::updatedAt, instant())
                 .setExp(MusicLocalEntity::createdAt, instant())
                 .sample()

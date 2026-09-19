@@ -8,6 +8,9 @@ import io.github.taetae98coding.diary.feature.playlist.ui.Res
 import io.github.taetae98coding.diary.feature.playlist.ui.form.MusicFormState
 import io.github.taetae98coding.diary.feature.playlist.ui.form.rememberMusicAddFormState
 import io.github.taetae98coding.diary.feature.playlist.ui.music_add_artist_blank_message
+import io.github.taetae98coding.diary.feature.playlist.ui.music_add_link_blank_message
+import io.github.taetae98coding.diary.feature.playlist.ui.music_add_link_fetch_failed_message
+import io.github.taetae98coding.diary.feature.playlist.ui.music_add_link_not_youtube_message
 import io.github.taetae98coding.diary.feature.playlist.ui.music_add_succeeded_message
 import io.github.taetae98coding.diary.feature.playlist.ui.music_add_title_blank_message
 import kotlinx.coroutines.flow.Flow
@@ -22,16 +25,28 @@ internal fun MusicAddScreenEffect(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val addSucceededMessage = stringResource(Res.string.music_add_succeeded_message)
+    val linkBlankMessage = stringResource(Res.string.music_add_link_blank_message)
+    val linkNotYoutubeMessage = stringResource(Res.string.music_add_link_not_youtube_message)
     val titleBlankMessage = stringResource(Res.string.music_add_title_blank_message)
     val artistBlankMessage = stringResource(Res.string.music_add_artist_blank_message)
+    val linkFetchFailedMessage = stringResource(Res.string.music_add_link_fetch_failed_message)
 
     CollectEffect(effect) { value ->
         when (value) {
             is MusicAddEffect.AddSucceeded -> {
-                state.titleState.clearText()
-                state.artistState.clearText()
-                state.titleState.requestFocus()
+                state.clearText()
+                state.linkState.requestFocus()
                 coroutineScope.launch { state.hostState.showImmediate(message = addSucceededMessage) }
+            }
+
+            is MusicAddEffect.LinkBlank -> {
+                state.linkState.requestFocus()
+                coroutineScope.launch { state.hostState.showImmediate(message = linkBlankMessage) }
+            }
+
+            is MusicAddEffect.LinkNotYoutube -> {
+                state.linkState.requestFocus()
+                coroutineScope.launch { state.hostState.showImmediate(message = linkNotYoutubeMessage) }
             }
 
             is MusicAddEffect.TitleBlank -> {
@@ -42,6 +57,18 @@ internal fun MusicAddScreenEffect(
             is MusicAddEffect.ArtistBlank -> {
                 state.artistState.requestFocus()
                 coroutineScope.launch { state.hostState.showImmediate(message = artistBlankMessage) }
+            }
+
+            is MusicAddEffect.LinkFetched -> {
+                state.fillBlank(
+                    title = value.title,
+                    artist = value.artist,
+                    thumbnail = value.thumbnail,
+                )
+            }
+
+            is MusicAddEffect.LinkFetchFailed -> {
+                coroutineScope.launch { state.hostState.showImmediate(message = linkFetchFailedMessage) }
             }
         }
     }

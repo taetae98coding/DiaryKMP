@@ -54,10 +54,12 @@ internal fun failedMusicPagingData(): PagingData<Music> =
 internal fun testMusic(
     title: String,
     artist: String = "가수-${fixtureMonkey.giveMeOne<Int>()}",
+    link: String = "https://youtu.be/${fixtureMonkey.giveMeOne<Int>()}",
+    thumbnail: String = "https://i.ytimg.com/vi/${fixtureMonkey.giveMeOne<Int>()}/hqdefault.jpg",
 ): Music =
     Music(
         id = Uuid.random(),
-        detail = MusicDetail(title = title, artist = artist),
+        detail = MusicDetail(link = link, title = title, artist = artist, thumbnail = thumbnail),
         isDeleted = false,
         updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
         createdAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),

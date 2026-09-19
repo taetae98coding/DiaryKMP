@@ -46,11 +46,13 @@ internal fun MusicAddScaffold(
         contentWindowInsets = DiaryScaffoldDefaults.contentWindowInsets,
     ) { paddingValues ->
         MusicForm(
+            onFetchLinkClick = { onEvent(MusicAddScaffoldEvent.ClickFetchLink) },
             modifier =
                 Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
             state = state,
+            isFetchInProgressProvider = { uiStateProvider().isLinkFetchInProgress },
         )
     }
 }

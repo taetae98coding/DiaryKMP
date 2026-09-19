@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.playlist.exception.MusicArtistBlankException
 import io.github.taetae98coding.diary.domain.playlist.exception.MusicTitleBlankException
+import io.github.taetae98coding.diary.domain.playlist.link.toYoutubeVideoLinkOrThrow
 import io.github.taetae98coding.diary.domain.playlist.repository.AccountMusicRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
@@ -22,14 +23,14 @@ public class AddMusicUseCase internal constructor(
     private val clock: Clock,
 ) : UseCase<MusicDetail, Uuid>() {
     override suspend fun execute(parameter: MusicDetail): Uuid {
-        parameter.blankException()?.let { exception -> throw exception }
+        val detail = parameter.validated()
 
         val account = getAccountUseCase(parameter = Unit).first().getOrThrow()
         val now = clock.now()
         val music =
             Music(
                 id = Uuid.random(),
-                detail = parameter,
+                detail = detail,
                 isDeleted = false,
                 updatedAt = now,
                 createdAt = now,
@@ -45,10 +46,12 @@ public class AddMusicUseCase internal constructor(
         return music.id
     }
 
-    private fun MusicDetail.blankException(): Exception? =
-        when {
-            title.isBlank() -> MusicTitleBlankException()
-            artist.isBlank() -> MusicArtistBlankException()
-            else -> null
-        }
+    private fun MusicDetail.validated(): MusicDetail {
+        val validatedLink = link.toYoutubeVideoLinkOrThrow()
+
+        if (title.isBlank()) throw MusicTitleBlankException()
+        if (artist.isBlank()) throw MusicArtistBlankException()
+
+        return copy(link = validatedLink)
+    }
 }

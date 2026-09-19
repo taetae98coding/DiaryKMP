@@ -9,6 +9,8 @@ kotlin {
                 implementation(projects.domain.playlist)
                 implementation(projects.domain.sync)
                 implementation(projects.feature.playlist.api)
+
+                implementation(libs.coil.compose)
             }
         }
 

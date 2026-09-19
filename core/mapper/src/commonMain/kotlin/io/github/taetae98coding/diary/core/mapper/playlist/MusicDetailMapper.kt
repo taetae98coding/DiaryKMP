@@ -6,24 +6,32 @@ import io.github.taetae98coding.diary.core.network.api.music.entity.MusicDetailR
 
 public fun MusicDetail.toLocal(): MusicDetailLocalEntity =
     MusicDetailLocalEntity(
+        link = link,
         title = title,
         artist = artist,
+        thumbnail = thumbnail,
     )
 
 public fun MusicDetailLocalEntity.toDomain(): MusicDetail =
     MusicDetail(
+        link = link,
         title = title,
         artist = artist,
+        thumbnail = thumbnail,
     )
 
 public fun MusicDetailLocalEntity.toRemote(): MusicDetailRemoteEntity =
     MusicDetailRemoteEntity(
+        link = link,
         title = title,
         artist = artist,
+        thumbnail = thumbnail,
     )
 
 public fun MusicDetailRemoteEntity.toLocal(): MusicDetailLocalEntity =
     MusicDetailLocalEntity(
+        link = link,
         title = title,
         artist = artist,
+        thumbnail = thumbnail,
     )

@@ -106,8 +106,10 @@ export const musicPushRequestSchema = z.object({
       updatedAt: z.string().datetime({ offset: true }),
       createdAt: z.string().datetime({ offset: true }),
       detail: z.object({
+        link: z.string(),
         title: z.string(),
         artist: z.string(),
+        thumbnail: z.string(),
       }),
     }),
   ),

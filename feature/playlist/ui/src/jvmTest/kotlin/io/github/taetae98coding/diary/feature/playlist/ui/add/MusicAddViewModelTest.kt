@@ -6,9 +6,13 @@ import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
+import io.github.taetae98coding.diary.core.model.playlist.YoutubeVideo
 import io.github.taetae98coding.diary.domain.playlist.exception.MusicArtistBlankException
+import io.github.taetae98coding.diary.domain.playlist.exception.MusicLinkBlankException
+import io.github.taetae98coding.diary.domain.playlist.exception.MusicLinkNotYoutubeException
 import io.github.taetae98coding.diary.domain.playlist.exception.MusicTitleBlankException
 import io.github.taetae98coding.diary.domain.playlist.usecase.AddMusicUseCase
+import io.github.taetae98coding.diary.domain.playlist.usecase.FetchYoutubeVideoUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
@@ -30,6 +34,8 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.uuid.Uuid
 
+private const val YOUTUBE_LINK: String = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+
 class MusicAddViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
 
@@ -50,7 +56,7 @@ class MusicAddViewModelTest : FunSpec() {
                 val completion = CompletableDeferred<Result<Uuid>>()
                 val useCase = mockk<AddMusicUseCase>()
                 coEvery { useCase(any()) } coAnswers { completion.await() }
-                val viewModel = MusicAddViewModel(addMusicUseCase = useCase)
+                val viewModel = viewModel(addMusicUseCase = useCase)
 
                 viewModel.add(firstDetail)
                 runCurrent()
@@ -74,7 +80,7 @@ class MusicAddViewModelTest : FunSpec() {
                 val detail = fixtureMonkey.giveMeOne<MusicDetail>()
                 val useCase = mockk<AddMusicUseCase>()
                 coEvery { useCase(any()) } returns Result.success(fixtureMonkey.giveMeOne<Uuid>())
-                val viewModel = MusicAddViewModel(addMusicUseCase = useCase)
+                val viewModel = viewModel(addMusicUseCase = useCase)
 
                 viewModel.effect.test {
                     viewModel.add(detail)
@@ -89,43 +95,30 @@ class MusicAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-ADD-FEATURE-008 제목이 공백이면 제목 미입력 Effect를 보내고 진행 상태를 해제한다") {
-            runTest(mainDispatcher) {
-                val detail = fixtureMonkey.giveMeOne<MusicDetail>().copy(title = "  ")
-                val useCase = mockk<AddMusicUseCase>()
-                coEvery { useCase(any()) } returns Result.failure(MusicTitleBlankException())
-                val viewModel = MusicAddViewModel(addMusicUseCase = useCase)
+        listOf(
+            MusicLinkBlankException() to MusicAddEffect.LinkBlank,
+            MusicLinkNotYoutubeException() to MusicAddEffect.LinkNotYoutube,
+            MusicTitleBlankException() to MusicAddEffect.TitleBlank,
+            MusicArtistBlankException() to MusicAddEffect.ArtistBlank,
+        ).forEach { (throwable, expected) ->
+            test("TC-MUSIC-ADD-FEATURE-008 성립하지 않는 입력으로 추가하면 ${expected::class.simpleName} Effect를 보내고 진행 상태를 해제한다") {
+                runTest(mainDispatcher) {
+                    val detail = fixtureMonkey.giveMeOne<MusicDetail>()
+                    val useCase = mockk<AddMusicUseCase>()
+                    coEvery { useCase(any()) } returns Result.failure(throwable)
+                    val viewModel = viewModel(addMusicUseCase = useCase)
 
-                viewModel.effect.test {
-                    viewModel.add(detail)
-                    advanceUntilIdle()
+                    viewModel.effect.test {
+                        viewModel.add(detail)
+                        advanceUntilIdle()
 
-                    awaitItem() shouldBe MusicAddEffect.TitleBlank
-                    expectNoEvents()
+                        awaitItem() shouldBe expected
+                        expectNoEvents()
+                    }
+
+                    viewModel.uiState.value.isInProgress
+                        .shouldBeFalse()
                 }
-
-                viewModel.uiState.value.isInProgress
-                    .shouldBeFalse()
-            }
-        }
-
-        test("TC-MUSIC-ADD-FEATURE-008 가수가 공백이면 가수 미입력 Effect를 보내고 진행 상태를 해제한다") {
-            runTest(mainDispatcher) {
-                val detail = fixtureMonkey.giveMeOne<MusicDetail>().copy(artist = "  ")
-                val useCase = mockk<AddMusicUseCase>()
-                coEvery { useCase(any()) } returns Result.failure(MusicArtistBlankException())
-                val viewModel = MusicAddViewModel(addMusicUseCase = useCase)
-
-                viewModel.effect.test {
-                    viewModel.add(detail)
-                    advanceUntilIdle()
-
-                    awaitItem() shouldBe MusicAddEffect.ArtistBlank
-                    expectNoEvents()
-                }
-
-                viewModel.uiState.value.isInProgress
-                    .shouldBeFalse()
             }
         }
 
@@ -135,7 +128,7 @@ class MusicAddViewModelTest : FunSpec() {
                 val completion = CompletableDeferred<Result<Uuid>>()
                 val useCase = mockk<AddMusicUseCase>()
                 coEvery { useCase(any()) } coAnswers { completion.await() }
-                val viewModel = MusicAddViewModel(addMusicUseCase = useCase)
+                val viewModel = viewModel(addMusicUseCase = useCase)
 
                 viewModel.add(detail)
                 runCurrent()
@@ -159,7 +152,7 @@ class MusicAddViewModelTest : FunSpec() {
                 coEvery { useCase(firstDetail) } throws CancellationException()
                 coEvery { useCase(secondDetail) } returns
                     Result.success(fixtureMonkey.giveMeOne<Uuid>())
-                val viewModel = MusicAddViewModel(addMusicUseCase = useCase)
+                val viewModel = viewModel(addMusicUseCase = useCase)
 
                 viewModel.add(firstDetail)
                 advanceUntilIdle()
@@ -174,10 +167,160 @@ class MusicAddViewModelTest : FunSpec() {
                 coVerify(exactly = 1) { useCase(secondDetail) }
             }
         }
+
+        test("TC-MUSIC-ADD-DATA-008 불러오기에 성공하면 영상 제목과 채널 이름과 썸네일을 담은 Effect를 보낸다") {
+            runTest(mainDispatcher) {
+                val video = fixtureMonkey.giveMeOne<YoutubeVideo>()
+                val useCase = mockk<FetchYoutubeVideoUseCase>()
+                coEvery { useCase(YOUTUBE_LINK) } returns Result.success(video)
+                val viewModel = viewModel(fetchYoutubeVideoUseCase = useCase)
+
+                viewModel.effect.test {
+                    viewModel.fetchLink(YOUTUBE_LINK)
+                    advanceUntilIdle()
+
+                    awaitItem() shouldBe
+                        MusicAddEffect.LinkFetched(
+                            title = video.title,
+                            artist = video.channelName,
+                            thumbnail = video.thumbnail,
+                        )
+                    expectNoEvents()
+                }
+
+                viewModel.uiState.value.isLinkFetchInProgress
+                    .shouldBeFalse()
+            }
+        }
+
+        listOf(
+            MusicLinkBlankException() to MusicAddEffect.LinkBlank,
+            MusicLinkNotYoutubeException() to MusicAddEffect.LinkNotYoutube,
+        ).forEach { (throwable, expected) ->
+            test("TC-MUSIC-ADD-FEATURE-019 링크가 성립하지 않으면 ${expected::class.simpleName} Effect를 보낸다") {
+                runTest(mainDispatcher) {
+                    val useCase = mockk<FetchYoutubeVideoUseCase>()
+                    coEvery { useCase(any()) } returns Result.failure(throwable)
+                    val viewModel = viewModel(fetchYoutubeVideoUseCase = useCase)
+
+                    viewModel.effect.test {
+                        viewModel.fetchLink(YOUTUBE_LINK)
+                        advanceUntilIdle()
+
+                        awaitItem() shouldBe expected
+                        expectNoEvents()
+                    }
+                }
+            }
+        }
+
+        test("TC-MUSIC-ADD-FEATURE-020 TC-MUSIC-ADD-DATA-009 영상 정보를 가져오지 못하면 불러오기 실패 Effect를 보낸다") {
+            runTest(mainDispatcher) {
+                val useCase = mockk<FetchYoutubeVideoUseCase>()
+                coEvery { useCase(any()) } returns Result.failure(IllegalStateException("fetch failed"))
+                val viewModel = viewModel(fetchYoutubeVideoUseCase = useCase)
+
+                viewModel.effect.test {
+                    viewModel.fetchLink(YOUTUBE_LINK)
+                    advanceUntilIdle()
+
+                    awaitItem() shouldBe MusicAddEffect.LinkFetchFailed
+                    expectNoEvents()
+                }
+
+                viewModel.uiState.value.isLinkFetchInProgress
+                    .shouldBeFalse()
+            }
+        }
+
+        test("TC-MUSIC-ADD-FEATURE-018 불러오기를 처리하는 동안 진행 상태를 유지하고 완료 후 해제한다") {
+            runTest(mainDispatcher) {
+                val completion = CompletableDeferred<Result<YoutubeVideo>>()
+                val useCase = mockk<FetchYoutubeVideoUseCase>()
+                coEvery { useCase(any()) } coAnswers { completion.await() }
+                val viewModel = viewModel(fetchYoutubeVideoUseCase = useCase)
+
+                viewModel.fetchLink(YOUTUBE_LINK)
+                runCurrent()
+
+                viewModel.uiState.value.isLinkFetchInProgress
+                    .shouldBeTrue()
+
+                completion.complete(Result.success(fixtureMonkey.giveMeOne<YoutubeVideo>()))
+                advanceUntilIdle()
+
+                viewModel.uiState.value.isLinkFetchInProgress
+                    .shouldBeFalse()
+            }
+        }
+
+        test("TC-MUSIC-ADD-DOMAIN-012 불러오기 처리 중 전달된 불러오기 요청은 처리하지 않는다") {
+            runTest(mainDispatcher) {
+                val completion = CompletableDeferred<Result<YoutubeVideo>>()
+                val useCase = mockk<FetchYoutubeVideoUseCase>()
+                coEvery { useCase(any()) } coAnswers { completion.await() }
+                val viewModel = viewModel(fetchYoutubeVideoUseCase = useCase)
+
+                viewModel.fetchLink(YOUTUBE_LINK)
+                runCurrent()
+
+                viewModel.fetchLink(YOUTUBE_LINK)
+                runCurrent()
+
+                coVerify(exactly = 1) { useCase(YOUTUBE_LINK) }
+
+                completion.complete(Result.success(fixtureMonkey.giveMeOne<YoutubeVideo>()))
+                advanceUntilIdle()
+
+                viewModel.fetchLink(YOUTUBE_LINK)
+                advanceUntilIdle()
+
+                coVerify(exactly = 2) { useCase(YOUTUBE_LINK) }
+            }
+        }
+
+        test("TC-MUSIC-ADD-FEATURE-021 곡 추가에 성공하면 앞선 불러오기의 결과를 전달하지 않는다") {
+            runTest(mainDispatcher) {
+                val fetchCompletion = CompletableDeferred<Result<YoutubeVideo>>()
+                val fetchUseCase = mockk<FetchYoutubeVideoUseCase>()
+                coEvery { fetchUseCase(any()) } coAnswers { fetchCompletion.await() }
+                val addUseCase = mockk<AddMusicUseCase>()
+                coEvery { addUseCase(any()) } returns Result.success(fixtureMonkey.giveMeOne<Uuid>())
+                val viewModel =
+                    viewModel(
+                        addMusicUseCase = addUseCase,
+                        fetchYoutubeVideoUseCase = fetchUseCase,
+                    )
+
+                viewModel.effect.test {
+                    viewModel.fetchLink(YOUTUBE_LINK)
+                    runCurrent()
+
+                    viewModel.add(fixtureMonkey.giveMeOne<MusicDetail>())
+                    advanceUntilIdle()
+
+                    awaitItem() shouldBe MusicAddEffect.AddSucceeded
+
+                    fetchCompletion.complete(Result.success(fixtureMonkey.giveMeOne<YoutubeVideo>()))
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                }
+            }
+        }
     }
 
     private companion object {
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
+
+        private fun viewModel(
+            addMusicUseCase: AddMusicUseCase = mockk(relaxed = true),
+            fetchYoutubeVideoUseCase: FetchYoutubeVideoUseCase = mockk(relaxed = true),
+        ): MusicAddViewModel =
+            MusicAddViewModel(
+                addMusicUseCase = addMusicUseCase,
+                fetchYoutubeVideoUseCase = fetchYoutubeVideoUseCase,
+            )
     }
 }

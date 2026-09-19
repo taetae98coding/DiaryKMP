@@ -24,19 +24,23 @@ class MusicAddScreenTest {
     fun `TC-MUSIC-ADD-FEATURE-001 화면에 처음 진입하면 입력이 모두 비어 있다`() {
         setMusicAddScreen(viewModel = screenTestViewModel())
 
+        composeRule.linkInput().assert(hasText(""))
         composeRule.titleInput().assert(hasText(""))
         composeRule.artistInput().assert(hasText(""))
         composeRule.inputCount() shouldBe INPUT_COUNT
+        composeRule.thumbnailPreviewCount() shouldBe 0
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-002 제목과 가수를 입력할 수 있다`() {
+    fun `TC-MUSIC-ADD-FEATURE-002 링크, 제목과 가수를 입력할 수 있다`() {
         setMusicAddScreen(viewModel = screenTestViewModel())
 
+        composeRule.linkInput().performTextInput(TYPED_LINK)
         composeRule.titleInput().performTextInput(TYPED_TITLE)
         composeRule.artistInput().performTextInput(TYPED_ARTIST)
         composeRule.waitForIdle()
 
+        composeRule.linkInput().assert(hasText(TYPED_LINK))
         composeRule.titleInput().assert(hasText(TYPED_TITLE))
         composeRule.artistInput().assert(hasText(TYPED_ARTIST))
     }
@@ -48,9 +52,21 @@ class MusicAddScreenTest {
 
         composeRule.clickAdd()
 
+        composeRule.linkInput().assert(hasText(""))
         composeRule.titleInput().assert(hasText(""))
         composeRule.artistInput().assert(hasText(""))
         composeRule.inputCount() shouldBe INPUT_COUNT
+        composeRule.thumbnailPreviewCount() shouldBe 0
+    }
+
+    @Test
+    fun `TC-MUSIC-ADD-FEATURE-009 링크가 공백이면 작성 내용은 유지된다`() {
+        assertInvalidInputRetainsInput(effect = MusicAddEffect.LinkBlank)
+    }
+
+    @Test
+    fun `TC-MUSIC-ADD-FEATURE-009 링크가 YouTube 주소가 아니면 작성 내용은 유지된다`() {
+        assertInvalidInputRetainsInput(effect = MusicAddEffect.LinkNotYoutube)
     }
 
     @Test
@@ -84,6 +100,7 @@ class MusicAddScreenTest {
         composeRule.clickAdd()
 
         composeRule.inputCount() shouldBe INPUT_COUNT
+        composeRule.linkInput().assert(hasText(TYPED_LINK))
         composeRule.titleInput().assert(hasText(TYPED_TITLE))
         composeRule.artistInput().assert(hasText(TYPED_ARTIST))
     }

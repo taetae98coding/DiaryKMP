@@ -39,7 +39,7 @@ class AccountMusicTransactionImplTest :
             database.useReaderConnection { transactor ->
                 transactor.usePrepared(
                     """
-                    SELECT id, title, artist, is_deleted, updated_at, created_at
+                    SELECT id, link, title, artist, thumbnail, is_deleted, updated_at, created_at
                     FROM music
                     ORDER BY id ASC
                     """,
@@ -74,15 +74,17 @@ class AccountMusicTransactionImplTest :
                 )
         }
 
-        test("TC-MUSIC-ADD-DOMAIN-005 TC-MUSIC-ADD-DOMAIN-006 제목, 가수와 미삭제 상태, 추가 시각을 그대로 저장한다") {
+        test("TC-MUSIC-ADD-DOMAIN-005 TC-MUSIC-ADD-DOMAIN-006 TC-MUSIC-ADD-DATA-007 링크, 제목, 가수, 썸네일과 미삭제 상태, 추가 시각을 그대로 저장하고 함께 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val now = instant()
             val music =
                 music().copy(
                     detail =
                         MusicDetailLocalEntity(
+                            link = "https://youtu.be/${fixtureMonkey.giveMeOne<String>()}",
                             title = "  title-${fixtureMonkey.giveMeOne<String>()}  ",
                             artist = "  artist-${fixtureMonkey.giveMeOne<String>()}  ",
+                            thumbnail = "https://i.ytimg.com/vi/${fixtureMonkey.giveMeOne<String>()}/hqdefault.jpg",
                         ),
                     isDeleted = false,
                     updatedAt = now,
@@ -131,12 +133,14 @@ class AccountMusicTransactionImplTest :
                 id = Uuid.parse(getText(0)),
                 detail =
                     MusicDetailLocalEntity(
-                        title = getText(1),
-                        artist = getText(2),
+                        link = getText(1),
+                        title = getText(2),
+                        artist = getText(3),
+                        thumbnail = getText(4),
                     ),
-                isDeleted = getBoolean(3),
-                updatedAt = Instant.fromEpochMilliseconds(getLong(4)),
-                createdAt = Instant.fromEpochMilliseconds(getLong(5)),
+                isDeleted = getBoolean(5),
+                updatedAt = Instant.fromEpochMilliseconds(getLong(6)),
+                createdAt = Instant.fromEpochMilliseconds(getLong(7)),
             )
 
         private fun SQLiteStatement.toAccountMusic(): AccountMusicLocalEntity =

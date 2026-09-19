@@ -35,6 +35,7 @@ kotlin {
                 implementation(projects.core.weatherNetwork.impl)
                 implementation(projects.core.webNetwork.impl)
                 implementation(projects.core.work.impl)
+                implementation(projects.core.youtubeNetwork.impl)
                 implementation(projects.data.account)
                 implementation(projects.data.authentication)
                 implementation(projects.data.contact)

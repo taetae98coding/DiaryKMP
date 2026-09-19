@@ -25,17 +25,21 @@ class MusicAddScreenRetentionTest {
             DiaryTheme {
                 MusicAddScreen(
                     navigateUp = {},
-                    viewModel = screenTestViewModel(),
+                    viewModel = fetchEffectViewModel(fetchedEffect()),
                 )
             }
         }
         composeRule.fillAllInput()
+        // 제목과 가수를 이미 채워 두었으므로 불러오기는 썸네일만 채운다.
+        composeRule.clickFetch()
 
         restorationTester.emulateSavedInstanceStateRestore()
         composeRule.waitForIdle()
 
         composeRule.inputCount() shouldBe INPUT_COUNT
+        composeRule.linkInput().assert(hasText(TYPED_LINK))
         composeRule.titleInput().assert(hasText(TYPED_TITLE))
         composeRule.artistInput().assert(hasText(TYPED_ARTIST))
+        composeRule.thumbnailPreviewCount() shouldBe 1
     }
 }

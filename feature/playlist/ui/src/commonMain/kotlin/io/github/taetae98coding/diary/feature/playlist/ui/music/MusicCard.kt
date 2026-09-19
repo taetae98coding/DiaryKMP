@@ -26,6 +26,7 @@ internal fun MusicCard(
     music: Music? = null,
 ) {
     Card(modifier = modifier.testTag(MUSIC_CARD_TEST_TAG)) {
+        MusicThumbnail(thumbnailProvider = { music?.detail?.thumbnail.orEmpty() })
         Column(
             modifier =
                 Modifier
@@ -53,6 +54,7 @@ private class MusicCardPreviewParameter : PreviewParameterProvider<Music?> {
     override val values: Sequence<Music?> =
         sequenceOf(
             previewMusic(title = "곡 제목", artist = "가수"),
+            previewMusic(title = "썸네일 없는 곡", artist = "가수", thumbnail = ""),
             null,
         )
 }

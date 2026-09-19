@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "2e03fb4f3fb9386430d5ae622d3dfa26",
+    "identityHash": "d36349a5599d3376e2ca7bfff48e9f57",
     "entities": [
       {
         "tableName": "memo",
@@ -1312,7 +1312,7 @@
       },
       {
         "tableName": "music",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000', `is_deleted` INTEGER NOT NULL DEFAULT 0, `updated_at` INTEGER NOT NULL DEFAULT 0, `created_at` INTEGER NOT NULL DEFAULT 0, `title` TEXT NOT NULL DEFAULT '', `artist` TEXT NOT NULL DEFAULT '', PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000', `is_deleted` INTEGER NOT NULL DEFAULT 0, `updated_at` INTEGER NOT NULL DEFAULT 0, `created_at` INTEGER NOT NULL DEFAULT 0, `link` TEXT NOT NULL DEFAULT '', `title` TEXT NOT NULL DEFAULT '', `artist` TEXT NOT NULL DEFAULT '', `thumbnail` TEXT NOT NULL DEFAULT '', PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -1343,6 +1343,13 @@
             "defaultValue": "0"
           },
           {
+            "fieldPath": "detail.link",
+            "columnName": "link",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          },
+          {
             "fieldPath": "detail.title",
             "columnName": "title",
             "affinity": "TEXT",
@@ -1352,6 +1359,13 @@
           {
             "fieldPath": "detail.artist",
             "columnName": "artist",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "detail.thumbnail",
+            "columnName": "thumbnail",
             "affinity": "TEXT",
             "notNull": true,
             "defaultValue": "''"
@@ -1435,7 +1449,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2e03fb4f3fb9386430d5ae622d3dfa26')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd36349a5599d3376e2ca7bfff48e9f57')"
     ]
   }
 }

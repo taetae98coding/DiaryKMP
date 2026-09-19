@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.playlist.ui.form
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
@@ -18,6 +19,10 @@ internal class MusicArtistInputState(
 
     fun clearText() {
         textFieldState.clearText()
+    }
+
+    fun setText(text: CharSequence) {
+        textFieldState.setTextAndPlaceCursorAtEnd(text.toString())
     }
 
     fun requestFocus() {
