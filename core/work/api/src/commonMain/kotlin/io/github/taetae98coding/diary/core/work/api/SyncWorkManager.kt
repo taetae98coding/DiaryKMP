@@ -7,4 +7,8 @@ public interface SyncWorkManager {
     public val state: Flow<SyncWorkState>
 
     public fun sync(accountId: Uuid)
+
+    public fun schedulePeriodicSync(accountId: Uuid)
+
+    public fun cancelPeriodicSync()
 }

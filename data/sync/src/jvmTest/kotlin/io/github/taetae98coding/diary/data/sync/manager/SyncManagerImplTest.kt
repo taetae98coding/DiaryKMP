@@ -201,6 +201,46 @@ class SyncManagerImplTest :
                 syncManager.isProgressReported.value shouldBe true
             }
         }
+
+        test("TC-DATA-SYNC-DOMAIN-056 주기 동기화 예약의 계정 식별자를 백그라운드 작업에 전달한다") {
+            runTest {
+                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val workState = MutableStateFlow(SyncWorkState.NONE)
+                val syncWorkManager = syncWorkManager(workState = workState)
+                val syncManager = syncManager(syncWorkManager = syncWorkManager, scope = backgroundScope)
+
+                syncManager.schedulePeriodicSync(accountId = accountId)
+
+                verify(exactly = 1) { syncWorkManager.schedulePeriodicSync(accountId = accountId) }
+            }
+        }
+
+        test("TC-DATA-SYNC-DOMAIN-059 주기 동기화 예약 해제를 백그라운드 작업에 전달한다") {
+            runTest {
+                val workState = MutableStateFlow(SyncWorkState.NONE)
+                val syncWorkManager = syncWorkManager(workState = workState)
+                val syncManager = syncManager(syncWorkManager = syncWorkManager, scope = backgroundScope)
+
+                syncManager.cancelPeriodicSync()
+
+                verify(exactly = 1) { syncWorkManager.cancelPeriodicSync() }
+            }
+        }
+
+        test("TC-SYNC-REFRESH-FEATURE-011 주기 동기화만 예약되어 실행되면 진행 표시 대상이 되지 않는다") {
+            runTest {
+                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val workState = MutableStateFlow(SyncWorkState.NONE)
+                val syncManager = syncManager(syncWorkManager = syncWorkManager(workState = workState), scope = backgroundScope)
+                runCurrent()
+
+                syncManager.schedulePeriodicSync(accountId = accountId)
+                workState.value = SyncWorkState.RUNNING
+                runCurrent()
+
+                syncManager.isProgressReported.value shouldBe false
+            }
+        }
     }) {
     public companion object {
         private val fixtureMonkey: FixtureMonkey =
@@ -210,6 +250,8 @@ class SyncManagerImplTest :
             mockk<SyncWorkManager>().also { manager ->
                 every { manager.state } returns workState
                 justRun { manager.sync(accountId = any()) }
+                justRun { manager.schedulePeriodicSync(accountId = any()) }
+                justRun { manager.cancelPeriodicSync() }
             }
 
         private fun syncManager(

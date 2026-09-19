@@ -10,4 +10,8 @@ public interface SyncManager {
         accountId: Uuid,
         reportsProgress: Boolean,
     )
+
+    public fun schedulePeriodicSync(accountId: Uuid)
+
+    public fun cancelPeriodicSync()
 }

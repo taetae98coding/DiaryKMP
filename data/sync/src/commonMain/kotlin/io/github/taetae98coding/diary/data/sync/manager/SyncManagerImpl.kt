@@ -51,6 +51,14 @@ internal class SyncManagerImpl(
 
         syncWorkManager.sync(accountId = accountId)
     }
+
+    override fun schedulePeriodicSync(accountId: Uuid) {
+        syncWorkManager.schedulePeriodicSync(accountId = accountId)
+    }
+
+    override fun cancelPeriodicSync() {
+        syncWorkManager.cancelPeriodicSync()
+    }
 }
 
 private sealed interface SyncProgressEvent {

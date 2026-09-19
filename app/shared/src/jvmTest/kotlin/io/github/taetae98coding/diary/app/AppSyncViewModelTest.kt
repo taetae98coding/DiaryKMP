@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
+import io.github.taetae98coding.diary.domain.sync.usecase.SchedulePeriodicSyncUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -186,6 +187,19 @@ class AppSyncViewModelTest : FunSpec() {
                 coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.ACCOUNT_CONFIRMED) }
             }
         }
+
+        test("TC-DATA-SYNC-DOMAIN-056 동기화 계기가 발생하면 주기 동기화를 예약한다") {
+            runTest(mainDispatcher) {
+                val schedulePeriodicSyncUseCase = mockk<SchedulePeriodicSyncUseCase>()
+                coEvery { schedulePeriodicSyncUseCase(parameter = Unit) } returns Result.success(Unit)
+                val viewModel = viewModel(schedulePeriodicSyncUseCase = schedulePeriodicSyncUseCase)
+
+                viewModel.schedulePeriodicSync()
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { schedulePeriodicSyncUseCase(parameter = Unit) }
+            }
+        }
     }
 
     public companion object {
@@ -197,6 +211,7 @@ class AppSyncViewModelTest : FunSpec() {
         private fun viewModel(
             accountFlow: Flow<Result<Account>> = flowOf(Result.success(Account.Guest)),
             requestSyncUseCase: RequestSyncUseCase = mockk(relaxed = true),
+            schedulePeriodicSyncUseCase: SchedulePeriodicSyncUseCase = mockk(relaxed = true),
         ): AppSyncViewModel {
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns accountFlow
@@ -204,6 +219,7 @@ class AppSyncViewModelTest : FunSpec() {
             return AppSyncViewModel(
                 getAccountUseCase = getAccountUseCase,
                 requestSyncUseCase = requestSyncUseCase,
+                schedulePeriodicSyncUseCase = schedulePeriodicSyncUseCase,
             )
         }
 

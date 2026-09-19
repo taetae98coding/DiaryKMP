@@ -74,10 +74,37 @@ class SyncEffectTest {
         }
     }
 
+    @Test
+    fun `TC-DATA-SYNC-DOMAIN-056 앱이 인증된 사용자 계정을 확인하면 주기 동기화를 예약한다`() {
+        val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+        val accountFlow = MutableStateFlow<Account>(account)
+        val schedulePeriodicSync = mockk<() -> Unit>(relaxed = true)
+        setSyncEffect(accountFlow, mockk(relaxed = true), schedulePeriodicSync = schedulePeriodicSync)
+
+        composeRule.runOnIdle {
+            verify(exactly = 1) { schedulePeriodicSync() }
+        }
+    }
+
+    @Test
+    fun `TC-DATA-SYNC-DOMAIN-059 로그아웃되어 계정이 바뀌면 주기 동기화 예약을 다시 정한다`() {
+        val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+        val accountFlow = MutableStateFlow<Account>(account)
+        val schedulePeriodicSync = mockk<() -> Unit>(relaxed = true)
+        setSyncEffect(accountFlow, mockk(relaxed = true), schedulePeriodicSync = schedulePeriodicSync)
+
+        composeRule.runOnIdle { accountFlow.value = Account.Guest }
+
+        composeRule.runOnIdle {
+            verify(exactly = 2) { schedulePeriodicSync() }
+        }
+    }
+
     private fun setSyncEffect(
         accountFlow: MutableStateFlow<Account>,
         requestSync: () -> Unit,
         initialState: Lifecycle.State = Lifecycle.State.STARTED,
+        schedulePeriodicSync: () -> Unit = mockk(relaxed = true),
     ): TestLifecycleOwner {
         val lifecycleOwner = TestLifecycleOwner(initialState)
 
@@ -86,6 +113,7 @@ class SyncEffectTest {
                 SyncEffect(
                     account = accountFlow,
                     requestSync = requestSync,
+                    schedulePeriodicSync = schedulePeriodicSync,
                 )
             }
         }

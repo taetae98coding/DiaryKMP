@@ -2,10 +2,12 @@ package io.github.taetae98coding.diary.core.work.impl
 
 import android.content.Context
 import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.workDataOf
@@ -14,6 +16,7 @@ import io.github.taetae98coding.diary.core.work.api.SyncWorkState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Factory
+import java.util.concurrent.TimeUnit
 import kotlin.uuid.Uuid
 
 @Factory
@@ -41,6 +44,26 @@ internal class AndroidSyncWorkManager(
             )
     }
 
+    override fun schedulePeriodicSync(accountId: Uuid) {
+        WorkManager
+            .getInstance(context)
+            .enqueueUniquePeriodicWork(
+                PERIODIC_SYNC_WORK_NAME,
+                ExistingPeriodicWorkPolicy.UPDATE,
+                PeriodicWorkRequestBuilder<SyncWorker>(SYNC_PERIOD.inWholeSeconds, TimeUnit.SECONDS)
+                    .setConstraints(SYNC_CONSTRAINTS)
+                    .setInitialDelay(SYNC_PERIOD.inWholeSeconds, TimeUnit.SECONDS)
+                    .setInputData(workDataOf(SYNC_WORK_ACCOUNT_ID_KEY to accountId.toString()))
+                    .build(),
+            )
+    }
+
+    override fun cancelPeriodicSync() {
+        WorkManager
+            .getInstance(context)
+            .cancelUniqueWork(PERIODIC_SYNC_WORK_NAME)
+    }
+
     private fun List<WorkInfo>.toSyncWorkState(): SyncWorkState =
         when {
             any { workInfo -> workInfo.state == WorkInfo.State.RUNNING } -> SyncWorkState.RUNNING
@@ -50,6 +73,7 @@ internal class AndroidSyncWorkManager(
 
     companion object {
         const val SYNC_WORK_NAME: String = "sync"
+        const val PERIODIC_SYNC_WORK_NAME: String = "periodicSync"
 
         val SYNC_CONSTRAINTS: Constraints =
             Constraints

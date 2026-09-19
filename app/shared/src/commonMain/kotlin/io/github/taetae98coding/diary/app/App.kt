@@ -18,6 +18,7 @@ public fun App(modifier: Modifier = Modifier) {
     SyncEffect(
         account = syncViewModel.account,
         requestSync = syncViewModel::requestSync,
+        schedulePeriodicSync = syncViewModel::schedulePeriodicSync,
     )
 
     DiaryTheme {

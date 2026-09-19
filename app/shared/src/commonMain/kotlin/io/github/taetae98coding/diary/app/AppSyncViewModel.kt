@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
+import io.github.taetae98coding.diary.domain.sync.usecase.SchedulePeriodicSyncUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -18,6 +19,7 @@ import org.koin.core.annotation.KoinViewModel
 internal class AppSyncViewModel(
     getAccountUseCase: GetAccountUseCase,
     private val requestSyncUseCase: RequestSyncUseCase,
+    private val schedulePeriodicSyncUseCase: SchedulePeriodicSyncUseCase,
 ) : ViewModel() {
     val account: Flow<Account> =
         getAccountUseCase(parameter = Unit)
@@ -36,6 +38,12 @@ internal class AppSyncViewModel(
     fun requestSync() {
         viewModelScope.launch {
             requestSyncUseCase(parameter = SyncTrigger.ACCOUNT_CONFIRMED)
+        }
+    }
+
+    fun schedulePeriodicSync() {
+        viewModelScope.launch {
+            schedulePeriodicSyncUseCase(parameter = Unit)
         }
     }
 }

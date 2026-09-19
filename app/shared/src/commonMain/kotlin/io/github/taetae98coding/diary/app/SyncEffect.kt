@@ -9,7 +9,11 @@ import kotlinx.coroutines.flow.emptyFlow
 @Composable
 internal fun SyncEffect(
     requestSync: () -> Unit,
+    schedulePeriodicSync: () -> Unit,
     account: Flow<Account> = emptyFlow(),
 ) {
-    CollectEffect(account) { requestSync() }
+    CollectEffect(account) {
+        requestSync()
+        schedulePeriodicSync()
+    }
 }
