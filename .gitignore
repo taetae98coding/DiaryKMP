@@ -10,3 +10,4 @@ local.properties
 xcuserdata
 DevLocal.xcconfig
 RealLocal.xcconfig
+!DIARY_AGENTS/android-skills/**/build/

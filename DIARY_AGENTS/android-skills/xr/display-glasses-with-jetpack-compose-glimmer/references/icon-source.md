@@ -1,6 +1,6 @@
-When creating a Glimmer Icon component, refer to the following source code in `Icon.kt`:
+When creating a Glimmer Icon component, refer to the following source code in
+`Icon.kt`:
 
-<br />
 
 ```kotlin
 /*
@@ -351,7 +351,6 @@ private class IconColorFilterNode(
                 val layer = obtainGraphicsLayer()
                 layer.apply { record { drawContent() } }
                 var cachedTintColor = Color.Unspecified
-                var cachedColorFilter: ColorFilter? = null
                 onDrawWithContent {
                     val tintColor =
                         if (useContentColor) {
@@ -361,7 +360,7 @@ private class IconColorFilterNode(
                         }
                     if (cachedTintColor != tintColor) {
                         cachedTintColor = tintColor
-                        cachedColorFilter =
+                        val cachedColorFilter =
                             if (tintColor.isSpecified) ColorFilter.tint(tintColor) else null
                         layer.colorFilter = cachedColorFilter
                     }
@@ -384,8 +383,6 @@ private class IconColorFilterNode(
         }
     }
 }
-
-   
 ```
 
 <br />
