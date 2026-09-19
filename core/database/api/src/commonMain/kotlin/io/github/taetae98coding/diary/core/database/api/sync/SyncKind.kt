@@ -6,6 +6,7 @@ public enum class SyncKind {
     PLACE,
     WEB,
     CONTACT,
+    MUSIC,
     MEMO_TAG,
     MEMO_PLACE,
     MEMO_WEB,

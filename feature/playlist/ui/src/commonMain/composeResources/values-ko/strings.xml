@@ -1,4 +1,13 @@
 <resources>
     <string name="playlist_home_title">플레이리스트</string>
     <string name="playlist_navigate_up_button_content_description">뒤로가기</string>
+    <string name="playlist_home_add_button_content_description">곡 추가</string>
+    <string name="playlist_home_empty_title">아직 곡이 없습니다</string>
+    <string name="playlist_home_empty_description">추가 버튼으로 새 곡을 담을 수 있습니다</string>
+    <string name="music_add_title">곡 추가</string>
+    <string name="music_add_add_button_content_description">곡 추가</string>
+    <string name="music_artist_input_label">가수</string>
+    <string name="music_add_succeeded_message">곡이 추가되었습니다.</string>
+    <string name="music_add_title_blank_message">제목을 입력해 주세요.</string>
+    <string name="music_add_artist_blank_message">가수를 입력해 주세요.</string>
 </resources>

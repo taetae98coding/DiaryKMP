@@ -98,6 +98,21 @@ export const webPushRequestSchema = z.object({
   ),
 });
 
+export const musicPushRequestSchema = z.object({
+  musicList: z.array(
+    z.object({
+      id: z.string().uuid(),
+      isDeleted: z.boolean(),
+      updatedAt: z.string().datetime({ offset: true }),
+      createdAt: z.string().datetime({ offset: true }),
+      detail: z.object({
+        title: z.string(),
+        artist: z.string(),
+      }),
+    }),
+  ),
+});
+
 export const contactPushRequestSchema = z.object({
   contactList: z.array(
     z.object({

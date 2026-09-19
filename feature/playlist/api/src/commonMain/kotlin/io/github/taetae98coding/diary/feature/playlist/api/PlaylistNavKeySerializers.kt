@@ -5,4 +5,5 @@ import kotlinx.serialization.modules.PolymorphicModuleBuilder
 
 public fun PolymorphicModuleBuilder<NavKey>.playlistNavKeys() {
     subclass(PlaylistHomeNavKey::class, PlaylistHomeNavKey.serializer())
+    subclass(MusicAddNavKey::class, MusicAddNavKey.serializer())
 }

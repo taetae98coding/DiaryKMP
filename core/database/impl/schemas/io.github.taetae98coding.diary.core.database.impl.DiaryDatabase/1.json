@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "b2e9ee1b94737fb4be139300bbd793b6",
+    "identityHash": "2e03fb4f3fb9386430d5ae622d3dfa26",
     "entities": [
       {
         "tableName": "memo",
@@ -1311,6 +1311,94 @@
         }
       },
       {
+        "tableName": "music",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000', `is_deleted` INTEGER NOT NULL DEFAULT 0, `updated_at` INTEGER NOT NULL DEFAULT 0, `created_at` INTEGER NOT NULL DEFAULT 0, `title` TEXT NOT NULL DEFAULT '', `artist` TEXT NOT NULL DEFAULT '', PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'00000000-0000-0000-0000-000000000000'"
+          },
+          {
+            "fieldPath": "isDeleted",
+            "columnName": "is_deleted",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "detail.title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "detail.artist",
+            "columnName": "artist",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "account_music",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`account_id` TEXT NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000', `music_id` TEXT NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000', `is_dirty` INTEGER NOT NULL DEFAULT 1, PRIMARY KEY(`account_id`, `music_id`))",
+        "fields": [
+          {
+            "fieldPath": "accountId",
+            "columnName": "account_id",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'00000000-0000-0000-0000-000000000000'"
+          },
+          {
+            "fieldPath": "musicId",
+            "columnName": "music_id",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'00000000-0000-0000-0000-000000000000'"
+          },
+          {
+            "fieldPath": "isDirty",
+            "columnName": "is_dirty",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "account_id",
+            "music_id"
+          ]
+        }
+      },
+      {
         "tableName": "sync_cursor",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`account_id` TEXT NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000', `kind` TEXT NOT NULL DEFAULT '', `usn` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`account_id`, `kind`))",
         "fields": [
@@ -1347,7 +1435,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b2e9ee1b94737fb4be139300bbd793b6')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2e03fb4f3fb9386430d5ae622d3dfa26')"
     ]
   }
 }

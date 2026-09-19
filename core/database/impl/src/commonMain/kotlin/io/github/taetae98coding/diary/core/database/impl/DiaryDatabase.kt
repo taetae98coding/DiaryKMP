@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.core.database.api.memofilter.entity.MemoEx
 import io.github.taetae98coding.diary.core.database.api.memoplace.entity.MemoPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memoweb.entity.MemoWebLocalEntity
+import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.placetag.entity.PlaceTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
@@ -32,6 +33,8 @@ import io.github.taetae98coding.diary.core.database.impl.dao.AccountMemoTagDao
 import io.github.taetae98coding.diary.core.database.impl.dao.AccountMemoTagSyncDao
 import io.github.taetae98coding.diary.core.database.impl.dao.AccountMemoWebDao
 import io.github.taetae98coding.diary.core.database.impl.dao.AccountMemoWebSyncDao
+import io.github.taetae98coding.diary.core.database.impl.dao.AccountMusicDao
+import io.github.taetae98coding.diary.core.database.impl.dao.AccountMusicSyncDao
 import io.github.taetae98coding.diary.core.database.impl.dao.AccountPlaceDao
 import io.github.taetae98coding.diary.core.database.impl.dao.AccountPlaceSyncDao
 import io.github.taetae98coding.diary.core.database.impl.dao.AccountPlaceTagDao
@@ -56,6 +59,7 @@ import io.github.taetae98coding.diary.core.database.impl.dao.MemoFilterTagDao
 import io.github.taetae98coding.diary.core.database.impl.dao.MemoPlaceDao
 import io.github.taetae98coding.diary.core.database.impl.dao.MemoTagDao
 import io.github.taetae98coding.diary.core.database.impl.dao.MemoWebDao
+import io.github.taetae98coding.diary.core.database.impl.dao.MusicDao
 import io.github.taetae98coding.diary.core.database.impl.dao.PlaceDao
 import io.github.taetae98coding.diary.core.database.impl.dao.PlaceTagDao
 import io.github.taetae98coding.diary.core.database.impl.dao.SearchMemoDao
@@ -72,6 +76,7 @@ import io.github.taetae98coding.diary.core.database.impl.entity.AccountMemoLocal
 import io.github.taetae98coding.diary.core.database.impl.entity.AccountMemoPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.entity.AccountMemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.entity.AccountMemoWebLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.entity.AccountMusicLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.entity.AccountPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.entity.AccountPlaceTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.entity.AccountTagLinkLocalEntity
@@ -114,6 +119,8 @@ import io.github.taetae98coding.diary.library.room3.converter.UuidColumnTypeConv
         AccountWebTagLocalEntity::class,
         ContactLocalEntity::class,
         AccountContactLocalEntity::class,
+        MusicLocalEntity::class,
+        AccountMusicLocalEntity::class,
         SyncCursorLocalEntity::class,
     ],
     version = 1,
@@ -221,6 +228,12 @@ internal abstract class DiaryDatabase : RoomDatabase() {
     abstract fun accountContactSyncDao(): AccountContactSyncDao
 
     abstract fun accountCalendarContactBirthdayDao(): AccountCalendarContactBirthdayDao
+
+    abstract fun musicDao(): MusicDao
+
+    abstract fun accountMusicDao(): AccountMusicDao
+
+    abstract fun accountMusicSyncDao(): AccountMusicSyncDao
 
     abstract fun syncCursorDao(): SyncCursorDao
 

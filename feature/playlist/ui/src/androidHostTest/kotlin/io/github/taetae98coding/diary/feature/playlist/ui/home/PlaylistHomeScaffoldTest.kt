@@ -1,12 +1,20 @@
 package io.github.taetae98coding.diary.feature.playlist.ui.home
 
-import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.paging.PagingData
+import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.core.model.playlist.Music
+import io.github.taetae98coding.diary.feature.playlist.ui.music.MUSIC_CARD_TEST_TAG
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,14 +43,6 @@ class PlaylistHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-002 제목과 뒤로가기 외에 선택할 수 있는 동작을 두지 않는다`() {
-        setPlaylistHomeScaffold()
-
-        composeRule.onAllNodes(hasClickAction()).fetchSemanticsNodes().size shouldBe 1
-        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).assertExists()
-    }
-
-    @Test
     @Config(qualifiers = "ko")
     fun `한국어 환경에서 뒤로가기 접근성 이름을 제공한다`() {
         setPlaylistHomeScaffold()
@@ -51,34 +51,106 @@ class PlaylistHomeScaffoldTest {
     }
 
     @Test
-    fun `뒤로가기를 누르면 뒤로가기 이벤트를 한 번 내보낸다`() {
-        var clickNavigateUpCount = 0
+    fun `TC-PLAYLIST-HOME-FEATURE-004 목록에 곡의 제목과 가수를 카드로 표시한다`() {
+        val first = testMusic(title = FIRST_TITLE, artist = FIRST_ARTIST)
+        val second = testMusic(title = SECOND_TITLE, artist = SECOND_ARTIST)
+
+        setPlaylistHomeScaffold(musicList = listOf(first, second))
+
+        composeRule.onNodeWithText(FIRST_TITLE).assertExists()
+        composeRule.onNodeWithText(FIRST_ARTIST).assertExists()
+        composeRule.onNodeWithText(SECOND_TITLE).assertExists()
+        composeRule.onNodeWithText(SECOND_ARTIST).assertExists()
+        composeRule.onAllNodesWithTag(MUSIC_CARD_TEST_TAG).assertCountEquals(2)
+    }
+
+    // 컴포지션 이후의 목록 갱신은 실행 순서에 따라 전달되지 않아 자동화하지 않는다. 저장 전후의 목록을 각각 구성해 확인한다.
+    @Test
+    fun `TC-PLAYLIST-HOME-FEATURE-011 저장 전 목록에는 새 곡이 없다`() {
+        setPlaylistHomeScaffold(musicList = listOf(testMusic(title = FIRST_TITLE)))
+
+        composeRule.onNodeWithText(FIRST_TITLE).assertExists()
+        composeRule.onNodeWithText(SECOND_TITLE).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-PLAYLIST-HOME-FEATURE-011 저장 뒤 목록에는 새 곡이 있다`() {
         setPlaylistHomeScaffold(
-            onEvent = { event ->
-                when (event) {
-                    is PlaylistHomeScaffoldEvent.ClickNavigateUp -> clickNavigateUpCount += 1
-                }
-            },
+            musicList =
+                listOf(
+                    testMusic(title = FIRST_TITLE),
+                    testMusic(title = SECOND_TITLE),
+                ),
         )
+
+        composeRule.onNodeWithText(FIRST_TITLE).assertExists()
+        composeRule.onNodeWithText(SECOND_TITLE).assertExists()
+    }
+
+    @Test
+    fun `TC-PLAYLIST-HOME-FEATURE-010 곡 카드에는 선택할 수 있는 동작을 두지 않는다`() {
+        setPlaylistHomeScaffold(musicList = listOf(testMusic(title = FIRST_TITLE)))
+
+        composeRule.onAllNodesWithTag(MUSIC_CARD_TEST_TAG).assertCountEquals(1)
+        composeRule.onAllNodesWithTag(MUSIC_CARD_TEST_TAG).onFirst().assertHasNoClickAction()
+    }
+
+    @Test
+    fun `TC-PLAYLIST-HOME-FEATURE-006 목록에 곡이 있어도 곡 추가를 선택할 수 있다`() {
+        val eventList = mutableListOf<PlaylistHomeScaffoldEvent>()
+        setPlaylistHomeScaffold(musicList = listOf(testMusic(title = FIRST_TITLE)), onEvent = eventList::add)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
+
+        eventList shouldBe listOf(PlaylistHomeScaffoldEvent.ClickAdd)
+    }
+
+    @Test
+    fun `TC-PLAYLIST-HOME-FEATURE-006 목록이 비어 있어도 곡 추가를 선택할 수 있다`() {
+        val eventList = mutableListOf<PlaylistHomeScaffoldEvent>()
+        setPlaylistHomeScaffold(onEvent = eventList::add)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
+
+        eventList shouldBe listOf(PlaylistHomeScaffoldEvent.ClickAdd)
+    }
+
+    @Test
+    fun `뒤로가기를 누르면 뒤로가기 이벤트를 한 번 내보낸다`() {
+        val eventList = mutableListOf<PlaylistHomeScaffoldEvent>()
+        setPlaylistHomeScaffold(onEvent = eventList::add)
 
         composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
-        clickNavigateUpCount shouldBe 1
+        eventList shouldBe listOf(PlaylistHomeScaffoldEvent.ClickNavigateUp)
     }
 
-    private fun setPlaylistHomeScaffold(onEvent: (PlaylistHomeScaffoldEvent) -> Unit = {}) {
+    private fun setPlaylistHomeScaffold(
+        musicList: List<Music> = emptyList(),
+        onEvent: (PlaylistHomeScaffoldEvent) -> Unit = {},
+    ) {
+        val musicPagingDataFlow: MutableStateFlow<PagingData<Music>> = MutableStateFlow(musicPagingDataOf(musicList))
+
         composeRule.setContent {
             DiaryTheme {
-                PlaylistHomeScaffold(onEvent = onEvent)
+                PlaylistHomeScaffold(
+                    onEvent = onEvent,
+                    musicPagingItems = musicPagingDataFlow.collectAsLazyPagingItems(),
+                )
             }
         }
     }
 
-    public companion object {
+    private companion object {
         private const val KOREAN_TITLE = "플레이리스트"
         private const val DEFAULT_TITLE = "Playlist"
         private const val KOREAN_NAVIGATE_UP_DESCRIPTION = "뒤로가기"
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
+        private const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add music"
+        private const val FIRST_TITLE = "AlphaMusic"
+        private const val FIRST_ARTIST = "AlphaArtist"
+        private const val SECOND_TITLE = "BravoMusic"
+        private const val SECOND_ARTIST = "BravoArtist"
     }
 }
