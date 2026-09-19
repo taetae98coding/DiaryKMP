@@ -7,7 +7,6 @@ import io.github.taetae98coding.diary.core.weather.network.api.entity.CurrentWea
 import io.github.taetae98coding.diary.core.weather.network.api.entity.ForecastRemoteEntity
 import io.github.taetae98coding.diary.core.weather.network.api.entity.ForecastWeatherRemoteEntity
 import io.github.taetae98coding.diary.core.weather.network.api.entity.LocationNameRemoteEntity
-import io.github.taetae98coding.diary.core.weather.network.api.entity.WeatherLanguage
 import io.github.taetae98coding.diary.core.weather.network.impl.WeatherNetworkTestKoinApplication
 import io.github.taetae98coding.diary.core.weather.network.impl.WeatherNetworkTestKoinModule
 import io.github.taetae98coding.diary.core.weather.network.impl.di.WeatherHttpClientEngine
@@ -38,8 +37,8 @@ class WeatherRemoteDataSourceImplTest :
             val engine = createEngine()
             val dataSource = createDataSource(engine)
 
-            dataSource.getCurrentWeather(latitude = randomLatitude(), longitude = randomLongitude(), language = fixtureMonkey.giveMeOne<WeatherLanguage>())
-            dataSource.getForecast(latitude = randomLatitude(), longitude = randomLongitude(), language = fixtureMonkey.giveMeOne<WeatherLanguage>())
+            dataSource.getCurrentWeather(latitude = randomLatitude(), longitude = randomLongitude())
+            dataSource.getForecast(latitude = randomLatitude(), longitude = randomLongitude())
 
             engine.requestHistory.forEach { request ->
                 request.url.parameters["units"] shouldBe "metric"
@@ -47,15 +46,15 @@ class WeatherRemoteDataSourceImplTest :
             engine.requestHistory.size shouldBe 2
         }
 
-        test("TC-WEATHER-FETCH-DOMAIN-007: 날씨 설명을 한국어로 요청한다") {
+        test("TC-WEATHER-FETCH-DOMAIN-007: 날씨 설명을 영어로 요청한다") {
             val engine = createEngine()
             val dataSource = createDataSource(engine)
 
-            dataSource.getCurrentWeather(latitude = randomLatitude(), longitude = randomLongitude(), language = WeatherLanguage.KOREAN)
-            dataSource.getForecast(latitude = randomLatitude(), longitude = randomLongitude(), language = WeatherLanguage.KOREAN)
+            dataSource.getCurrentWeather(latitude = randomLatitude(), longitude = randomLongitude())
+            dataSource.getForecast(latitude = randomLatitude(), longitude = randomLongitude())
 
             engine.requestHistory.forEach { request ->
-                request.url.parameters["lang"] shouldBe "kr"
+                request.url.parameters["lang"] shouldBe "en"
             }
             engine.requestHistory.size shouldBe 2
         }
@@ -67,7 +66,7 @@ class WeatherRemoteDataSourceImplTest :
             val engine = createEngine()
             val dataSource = createDataSource(engine)
 
-            dataSource.getCurrentWeather(latitude = latitude, longitude = longitude, language = fixtureMonkey.giveMeOne<WeatherLanguage>())
+            dataSource.getCurrentWeather(latitude = latitude, longitude = longitude)
 
             val request = engine.requestHistory.single()
             request.url.parameters["lat"] shouldBe latitude.toString()
@@ -80,7 +79,7 @@ class WeatherRemoteDataSourceImplTest :
             val engine = createEngine(currentWeatherContent = Json.encodeToString(currentWeather))
             val dataSource = createDataSource(engine)
 
-            val actual = dataSource.getCurrentWeather(latitude = randomLatitude(), longitude = randomLongitude(), language = fixtureMonkey.giveMeOne<WeatherLanguage>())
+            val actual = dataSource.getCurrentWeather(latitude = randomLatitude(), longitude = randomLongitude())
 
             actual shouldBe currentWeather
         }
@@ -92,7 +91,7 @@ class WeatherRemoteDataSourceImplTest :
             val engine = createEngine()
             val dataSource = createDataSource(engine)
 
-            dataSource.getForecast(latitude = latitude, longitude = longitude, language = fixtureMonkey.giveMeOne<WeatherLanguage>())
+            dataSource.getForecast(latitude = latitude, longitude = longitude)
 
             val request = engine.requestHistory.single()
             request.url.parameters["lat"] shouldBe latitude.toString()
@@ -108,7 +107,7 @@ class WeatherRemoteDataSourceImplTest :
             val engine = createEngine(forecastContent = Json.encodeToString(forecast))
             val dataSource = createDataSource(engine)
 
-            val actual = dataSource.getForecast(latitude = randomLatitude(), longitude = randomLongitude(), language = fixtureMonkey.giveMeOne<WeatherLanguage>())
+            val actual = dataSource.getForecast(latitude = randomLatitude(), longitude = randomLongitude())
 
             actual shouldBe forecast
         }
@@ -123,10 +122,10 @@ class WeatherRemoteDataSourceImplTest :
                 val dataSource = createDataSource(engine)
 
                 shouldThrow<ResponseException> {
-                    dataSource.getCurrentWeather(latitude = randomLatitude(), longitude = randomLongitude(), language = fixtureMonkey.giveMeOne<WeatherLanguage>())
+                    dataSource.getCurrentWeather(latitude = randomLatitude(), longitude = randomLongitude())
                 }
                 shouldThrow<ResponseException> {
-                    dataSource.getForecast(latitude = randomLatitude(), longitude = randomLongitude(), language = fixtureMonkey.giveMeOne<WeatherLanguage>())
+                    dataSource.getForecast(latitude = randomLatitude(), longitude = randomLongitude())
                 }
             }
         }
@@ -187,7 +186,7 @@ class WeatherRemoteDataSourceImplTest :
             val engine = createEngine()
             val dataSource = createDataSource(engine)
 
-            dataSource.getCurrentWeather(latitude = randomLatitude(), longitude = randomLongitude(), language = fixtureMonkey.giveMeOne<WeatherLanguage>())
+            dataSource.getCurrentWeather(latitude = randomLatitude(), longitude = randomLongitude())
 
             engine.requestHistory
                 .single()
@@ -199,7 +198,7 @@ class WeatherRemoteDataSourceImplTest :
             val engine = createEngine()
             val dataSource = createDataSource(engine)
 
-            dataSource.getForecast(latitude = randomLatitude(), longitude = randomLongitude(), language = fixtureMonkey.giveMeOne<WeatherLanguage>())
+            dataSource.getForecast(latitude = randomLatitude(), longitude = randomLongitude())
 
             engine.requestHistory
                 .single()

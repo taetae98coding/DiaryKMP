@@ -15,7 +15,6 @@ import io.github.taetae98coding.diary.core.weather.network.api.entity.ForecastRe
 import io.github.taetae98coding.diary.core.weather.network.api.entity.ForecastWeatherRemoteEntity
 import io.github.taetae98coding.diary.core.weather.network.api.entity.LocationNameRemoteEntity
 import io.github.taetae98coding.diary.core.weather.network.api.entity.WeatherConditionRemoteEntity
-import io.github.taetae98coding.diary.core.weather.network.api.entity.WeatherLanguage
 import io.github.taetae98coding.diary.data.weather.datasource.WeatherLocalDataSource
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrowExactly
@@ -52,8 +51,8 @@ class WeatherRepositoryImplTest :
             val weatherRemoteDataSource = mockk<WeatherRemoteDataSource>()
             coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } returns emptyList()
             every { weatherRemoteDataSource.forecastInterval } returns 3.hours
-            coEvery { weatherRemoteDataSource.getCurrentWeather(any(), any(), any()) } returns fixtureMonkey.giveMeOne()
-            coEvery { weatherRemoteDataSource.getForecast(any(), any(), any()) } returns fixtureMonkey.giveMeOne()
+            coEvery { weatherRemoteDataSource.getCurrentWeather(any(), any()) } returns fixtureMonkey.giveMeOne()
+            coEvery { weatherRemoteDataSource.getForecast(any(), any()) } returns fixtureMonkey.giveMeOne()
             val repository =
                 repository(
                     locationProvider = locationProvider(location = deviceLocation),
@@ -67,14 +66,12 @@ class WeatherRepositoryImplTest :
                 weatherRemoteDataSource.getCurrentWeather(
                     latitude = deviceLocation.latitude,
                     longitude = deviceLocation.longitude,
-                    language = WeatherLanguage.KOREAN,
                 )
             }
             coVerify(exactly = 1) {
                 weatherRemoteDataSource.getForecast(
                     latitude = deviceLocation.latitude,
                     longitude = deviceLocation.longitude,
-                    language = WeatherLanguage.KOREAN,
                 )
             }
             coVerify(exactly = 0) { ipRemoteDataSource.get() }
@@ -87,8 +84,8 @@ class WeatherRepositoryImplTest :
             val weatherRemoteDataSource = mockk<WeatherRemoteDataSource>()
             coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } returns emptyList()
             every { weatherRemoteDataSource.forecastInterval } returns 3.hours
-            coEvery { weatherRemoteDataSource.getCurrentWeather(any(), any(), any()) } returns fixtureMonkey.giveMeOne()
-            coEvery { weatherRemoteDataSource.getForecast(any(), any(), any()) } returns fixtureMonkey.giveMeOne()
+            coEvery { weatherRemoteDataSource.getCurrentWeather(any(), any()) } returns fixtureMonkey.giveMeOne()
+            coEvery { weatherRemoteDataSource.getForecast(any(), any()) } returns fixtureMonkey.giveMeOne()
             val repository =
                 repository(
                     locationProvider = locationProvider(location = null),
@@ -102,14 +99,12 @@ class WeatherRepositoryImplTest :
                 weatherRemoteDataSource.getCurrentWeather(
                     latitude = ipLocation.latitude,
                     longitude = ipLocation.longitude,
-                    language = WeatherLanguage.KOREAN,
                 )
             }
             coVerify(exactly = 1) {
                 weatherRemoteDataSource.getForecast(
                     latitude = ipLocation.latitude,
                     longitude = ipLocation.longitude,
-                    language = WeatherLanguage.KOREAN,
                 )
             }
         }
@@ -133,14 +128,12 @@ class WeatherRepositoryImplTest :
                 weatherRemoteDataSource.getCurrentWeather(
                     latitude = location.latitude,
                     longitude = location.longitude,
-                    language = WeatherLanguage.KOREAN,
                 )
             } returns currentWeather
             coEvery {
                 weatherRemoteDataSource.getForecast(
                     latitude = location.latitude,
                     longitude = location.longitude,
-                    language = WeatherLanguage.KOREAN,
                 )
             } returns forecast
 
@@ -150,14 +143,12 @@ class WeatherRepositoryImplTest :
                 weatherRemoteDataSource.getCurrentWeather(
                     latitude = location.latitude,
                     longitude = location.longitude,
-                    language = WeatherLanguage.KOREAN,
                 )
             }
             coVerify(exactly = 1) {
                 weatherRemoteDataSource.getForecast(
                     latitude = location.latitude,
                     longitude = location.longitude,
-                    language = WeatherLanguage.KOREAN,
                 )
             }
             coVerify(exactly = 1) {
@@ -180,11 +171,11 @@ class WeatherRepositoryImplTest :
             coEvery { ipRemoteDataSource.get() } returns location
             val weatherRemoteDataSource = mockk<WeatherRemoteDataSource>()
             every { weatherRemoteDataSource.forecastInterval } returns 3.hours
-            coEvery { weatherRemoteDataSource.getCurrentWeather(any(), any(), any()) } coAnswers {
+            coEvery { weatherRemoteDataSource.getCurrentWeather(any(), any()) } coAnswers {
                 currentStarted.complete(Unit)
                 currentResponse.await()
             }
-            coEvery { weatherRemoteDataSource.getForecast(any(), any(), any()) } coAnswers {
+            coEvery { weatherRemoteDataSource.getForecast(any(), any()) } coAnswers {
                 forecastStarted.complete(Unit)
                 forecastResponse.await()
             }
@@ -259,10 +250,10 @@ class WeatherRepositoryImplTest :
             coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } returns emptyList()
             every { weatherRemoteDataSource.forecastInterval } returns 3.hours
             coEvery {
-                weatherRemoteDataSource.getCurrentWeather(any(), any(), any())
+                weatherRemoteDataSource.getCurrentWeather(any(), any())
             } returns oldCurrentWeather andThen newCurrentWeather
             coEvery {
-                weatherRemoteDataSource.getForecast(any(), any(), any())
+                weatherRemoteDataSource.getForecast(any(), any())
             } returns oldForecast andThen newForecast
             var now = fixtureMonkey.giveMeOne<Instant>()
             val repository =
@@ -298,8 +289,8 @@ class WeatherRepositoryImplTest :
                 val weatherRemoteDataSource = mockk<WeatherRemoteDataSource>()
                 coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } returns emptyList()
                 every { weatherRemoteDataSource.forecastInterval } returns 3.hours
-                coEvery { weatherRemoteDataSource.getCurrentWeather(any(), any(), any()) } returns currentWeather
-                coEvery { weatherRemoteDataSource.getForecast(any(), any(), any()) } returns forecast
+                coEvery { weatherRemoteDataSource.getCurrentWeather(any(), any()) } returns currentWeather
+                coEvery { weatherRemoteDataSource.getForecast(any(), any()) } returns forecast
                 var now = fixtureMonkey.giveMeOne<Instant>()
                 val repository =
                     repository(
@@ -316,12 +307,12 @@ class WeatherRepositoryImplTest :
                 }
                 if (failurePoint == FailurePoint.CURRENT_WEATHER) {
                     coEvery {
-                        weatherRemoteDataSource.getCurrentWeather(any(), any(), any())
+                        weatherRemoteDataSource.getCurrentWeather(any(), any())
                     } throws failure
                 }
                 if (failurePoint == FailurePoint.FORECAST) {
                     coEvery {
-                        weatherRemoteDataSource.getForecast(any(), any(), any())
+                        weatherRemoteDataSource.getForecast(any(), any())
                     } throws failure
                 }
 
@@ -497,12 +488,12 @@ class WeatherRepositoryImplTest :
                 }
                 if (failurePoint == FailurePoint.CURRENT_WEATHER) {
                     coEvery {
-                        weatherRemoteDataSource.getCurrentWeather(any(), any(), any())
+                        weatherRemoteDataSource.getCurrentWeather(any(), any())
                     } throws failure andThen fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
                 }
                 if (failurePoint == FailurePoint.FORECAST) {
                     coEvery {
-                        weatherRemoteDataSource.getForecast(any(), any(), any())
+                        weatherRemoteDataSource.getForecast(any(), any())
                     } throws failure andThen fixtureMonkey.giveMeOne<ForecastRemoteEntity>()
                 }
                 var now = fixtureMonkey.giveMeOne<Instant>()
@@ -553,10 +544,10 @@ class WeatherRepositoryImplTest :
             coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } returns emptyList()
             every { weatherRemoteDataSource.forecastInterval } returns 3.hours
             coEvery {
-                weatherRemoteDataSource.getCurrentWeather(any(), any(), any())
+                weatherRemoteDataSource.getCurrentWeather(any(), any())
             } returns fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>() andThen fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
             coEvery {
-                weatherRemoteDataSource.getForecast(any(), any(), any())
+                weatherRemoteDataSource.getForecast(any(), any())
             } returns fixtureMonkey.giveMeOne<ForecastRemoteEntity>() andThen fixtureMonkey.giveMeOne<ForecastRemoteEntity>()
             var now = fixtureMonkey.giveMeOne<Instant>()
             val repository =
@@ -695,7 +686,7 @@ class WeatherRepositoryImplTest :
         test("TC-WEATHER-FETCH-DATA-024 지역명만 실패해도 동기화는 성공하고 날씨를 저장한다") {
             val currentWeather = fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
             val weatherRemoteDataSource = weatherRemoteDataSource()
-            coEvery { weatherRemoteDataSource.getCurrentWeather(any(), any(), any()) } returns currentWeather
+            coEvery { weatherRemoteDataSource.getCurrentWeather(any(), any()) } returns currentWeather
             coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } throws WeatherRepositoryTestException(fixtureMonkey.giveMeOne())
             val repository =
                 repository(
@@ -762,8 +753,8 @@ class WeatherRepositoryImplTest :
 
             val failWeatherRequestList =
                 listOf<(WeatherRemoteDataSource, Throwable) -> Unit>(
-                    { dataSource, failure -> coEvery { dataSource.getCurrentWeather(any(), any(), any()) } throws failure },
-                    { dataSource, failure -> coEvery { dataSource.getForecast(any(), any(), any()) } throws failure },
+                    { dataSource, failure -> coEvery { dataSource.getCurrentWeather(any(), any()) } throws failure },
+                    { dataSource, failure -> coEvery { dataSource.getForecast(any(), any()) } throws failure },
                 )
 
             failWeatherRequestList.forEach { failWeatherRequest ->
@@ -853,13 +844,13 @@ private fun weatherRemoteDataSource(): WeatherRemoteDataSource =
     mockk<WeatherRemoteDataSource>().also { dataSource ->
         coEvery { dataSource.getLocationName(any(), any()) } returns emptyList()
         every { dataSource.forecastInterval } returns 3.hours
-        coEvery { dataSource.getCurrentWeather(any(), any(), any()) } returns fixtureMonkey.giveMeOne()
-        coEvery { dataSource.getForecast(any(), any(), any()) } returns fixtureMonkey.giveMeOne()
+        coEvery { dataSource.getCurrentWeather(any(), any()) } returns fixtureMonkey.giveMeOne()
+        coEvery { dataSource.getForecast(any(), any()) } returns fixtureMonkey.giveMeOne()
     }
 
 private fun WeatherRemoteDataSource.verifyFetchCount(count: Int) {
-    coVerify(exactly = count) { getCurrentWeather(any(), any(), any()) }
-    coVerify(exactly = count) { getForecast(any(), any(), any()) }
+    coVerify(exactly = count) { getCurrentWeather(any(), any()) }
+    coVerify(exactly = count) { getForecast(any(), any()) }
 }
 
 private fun clock(now: () -> Instant): Clock =
@@ -894,8 +885,8 @@ private fun successfulRepository(
     val weatherRemoteDataSource = mockk<WeatherRemoteDataSource>()
     coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } returns emptyList()
     every { weatherRemoteDataSource.forecastInterval } returns 3.hours
-    coEvery { weatherRemoteDataSource.getCurrentWeather(any(), any(), any()) } returns currentWeather
-    coEvery { weatherRemoteDataSource.getForecast(any(), any(), any()) } returns forecast
+    coEvery { weatherRemoteDataSource.getCurrentWeather(any(), any()) } returns currentWeather
+    coEvery { weatherRemoteDataSource.getForecast(any(), any()) } returns forecast
 
     return repository(
         ipRemoteDataSource = ipRemoteDataSource,

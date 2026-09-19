@@ -36,12 +36,12 @@
 - When: 캘린더 날짜별 날씨를 관찰한다.
 - Then: 빈 목록이 제공된다.
 
-### TC-WEATHER-FETCH-DOMAIN-007: 날씨 설명을 한국어로 요청한다
+### TC-WEATHER-FETCH-DOMAIN-007: 날씨 설명을 영어로 요청한다
 
 - 근거: `domain > 단위와 언어`
 - Given: OpenWeatherMap 인증 정보가 준비되어 있다.
 - When: 현재 위치의 날씨 동기화를 요청한다.
-- Then: 현재 날씨와 시간대별 예보 요청에 한국어 문구 지정이 포함된다.
+- Then: 현재 날씨와 시간대별 예보 요청에 영어 문구 지정이 포함된다.
 
 ### TC-WEATHER-FETCH-DOMAIN-008: 디바이스 위치를 우선 사용해 날씨를 조회한다
 

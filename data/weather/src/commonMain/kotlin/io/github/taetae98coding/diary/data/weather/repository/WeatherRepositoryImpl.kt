@@ -6,7 +6,6 @@ import io.github.taetae98coding.diary.core.mapper.weather.toDomain
 import io.github.taetae98coding.diary.core.mapper.weather.toLocationName
 import io.github.taetae98coding.diary.core.model.weather.WeatherReport
 import io.github.taetae98coding.diary.core.weather.network.api.datasource.WeatherRemoteDataSource
-import io.github.taetae98coding.diary.core.weather.network.api.entity.WeatherLanguage
 import io.github.taetae98coding.diary.data.weather.datasource.WeatherLocalDataSource
 import io.github.taetae98coding.diary.domain.weather.repository.WeatherRepository
 import kotlinx.coroutines.CancellationException
@@ -44,7 +43,6 @@ internal class WeatherRepositoryImpl(
                     weatherRemoteDataSource.getCurrentWeather(
                         latitude = location.latitude,
                         longitude = location.longitude,
-                        language = WeatherLanguage.KOREAN,
                     )
                 }
             val forecast =
@@ -52,7 +50,6 @@ internal class WeatherRepositoryImpl(
                     weatherRemoteDataSource.getForecast(
                         latitude = location.latitude,
                         longitude = location.longitude,
-                        language = WeatherLanguage.KOREAN,
                     )
                 }
             val locationName =
