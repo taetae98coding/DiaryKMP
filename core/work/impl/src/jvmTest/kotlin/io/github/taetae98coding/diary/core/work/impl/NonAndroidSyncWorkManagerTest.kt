@@ -26,6 +26,8 @@ import kotlinx.coroutines.test.runTest
 import kotlin.time.Duration.Companion.hours
 import kotlin.uuid.Uuid
 
+private val PERIOD = 4.hours
+
 class NonAndroidSyncWorkManagerTest :
     BehaviorSpec({
         Given("실행할 동기화 작업이 준비되어 있다") {
@@ -174,7 +176,7 @@ class NonAndroidSyncWorkManagerTest :
 
         Given("주기 동기화가 예약되어 있지 않다") {
             When("인증된 사용자 계정으로 주기 동기화가 예약된다") {
-                Then("TC-DATA-SYNC-DOMAIN-056 TC-DATA-SYNC-DOMAIN-060 예약 직후에는 실행되지 않고 4시간이 지나면 그 계정으로 한 번 실행된다") {
+                Then("TC-DATA-SYNC-DOMAIN-056 TC-DATA-SYNC-DOMAIN-060 예약 직후에는 실행되지 않고 주기가 지나면 그 계정으로 한 번 실행된다") {
                     runTest {
                         val accountId = fixtureMonkey.giveMeOne<Uuid>()
                         val executionAccountIdList = mutableListOf<Uuid>()
@@ -186,12 +188,12 @@ class NonAndroidSyncWorkManagerTest :
                                 scope = backgroundScope,
                             )
 
-                        manager.schedulePeriodicSync(accountId = accountId)
+                        manager.schedulePeriodicSync(accountId = accountId, period = PERIOD)
 
                         runCurrent()
                         executionAccountIdList shouldBe emptyList()
 
-                        advanceTimeBy(SYNC_PERIOD)
+                        advanceTimeBy(PERIOD)
                         runCurrent()
                         executionAccountIdList shouldBe listOf(accountId)
                     }
@@ -210,8 +212,8 @@ class NonAndroidSyncWorkManagerTest :
                                 scope = backgroundScope,
                             )
 
-                        manager.schedulePeriodicSync(accountId = accountId)
-                        advanceTimeBy(SYNC_PERIOD)
+                        manager.schedulePeriodicSync(accountId = accountId, period = PERIOD)
+                        advanceTimeBy(PERIOD)
                         runCurrent()
 
                         manager.state.first() shouldBe SyncWorkState.NONE
@@ -221,8 +223,8 @@ class NonAndroidSyncWorkManagerTest :
         }
 
         Given("인증된 사용자 계정으로 주기 동기화가 예약되어 있다") {
-            When("다음 실행까지 4시간이 남지 않은 시점에 같은 계정이 다시 확인된다") {
-                Then("TC-DATA-SYNC-DOMAIN-057 다음 실행 시각이 뒤로 미뤄지지 않고 예약한 시점으로부터 4시간 뒤에 한 번 실행된다") {
+            When("다음 실행까지 주기가 남지 않은 시점에 같은 계정이 다시 확인된다") {
+                Then("TC-DATA-SYNC-DOMAIN-057 다음 실행 시각이 뒤로 미뤄지지 않고 예약한 시점으로부터 한 주기 뒤에 한 번 실행된다") {
                     runTest {
                         val accountId = fixtureMonkey.giveMeOne<Uuid>()
                         val executionAccountIdList = mutableListOf<Uuid>()
@@ -233,10 +235,10 @@ class NonAndroidSyncWorkManagerTest :
                                 syncWork = syncWork,
                                 scope = backgroundScope,
                             )
-                        manager.schedulePeriodicSync(accountId = accountId)
+                        manager.schedulePeriodicSync(accountId = accountId, period = PERIOD)
 
                         advanceTimeBy(2.hours)
-                        manager.schedulePeriodicSync(accountId = accountId)
+                        manager.schedulePeriodicSync(accountId = accountId, period = PERIOD)
 
                         advanceTimeBy(2.hours)
                         runCurrent()
@@ -245,7 +247,7 @@ class NonAndroidSyncWorkManagerTest :
                 }
             }
 
-            When("다음 실행까지 4시간이 남지 않은 시점에 다른 인증된 계정이 확인된다") {
+            When("다음 실행까지 주기가 남지 않은 시점에 다른 인증된 계정이 확인된다") {
                 Then("TC-DATA-SYNC-DOMAIN-058 다음 실행 시각은 유지되고 바뀐 계정으로 실행된다") {
                     runTest {
                         val firstAccountId = fixtureMonkey.giveMeOne<Uuid>()
@@ -258,10 +260,10 @@ class NonAndroidSyncWorkManagerTest :
                                 syncWork = syncWork,
                                 scope = backgroundScope,
                             )
-                        manager.schedulePeriodicSync(accountId = firstAccountId)
+                        manager.schedulePeriodicSync(accountId = firstAccountId, period = PERIOD)
 
                         advanceTimeBy(2.hours)
-                        manager.schedulePeriodicSync(accountId = secondAccountId)
+                        manager.schedulePeriodicSync(accountId = secondAccountId, period = PERIOD)
 
                         advanceTimeBy(2.hours)
                         runCurrent()
@@ -271,7 +273,7 @@ class NonAndroidSyncWorkManagerTest :
             }
 
             When("로그아웃되어 주기 동기화 예약이 해제된다") {
-                Then("TC-DATA-SYNC-DOMAIN-059 4시간이 지나도 동기화가 실행되지 않는다") {
+                Then("TC-DATA-SYNC-DOMAIN-059 주기가 지나도 동기화가 실행되지 않는다") {
                     runTest {
                         val accountId = fixtureMonkey.giveMeOne<Uuid>()
                         val executionAccountIdList = mutableListOf<Uuid>()
@@ -282,11 +284,11 @@ class NonAndroidSyncWorkManagerTest :
                                 syncWork = syncWork,
                                 scope = backgroundScope,
                             )
-                        manager.schedulePeriodicSync(accountId = accountId)
+                        manager.schedulePeriodicSync(accountId = accountId, period = PERIOD)
 
                         manager.cancelPeriodicSync()
 
-                        advanceTimeBy(SYNC_PERIOD)
+                        advanceTimeBy(PERIOD)
                         runCurrent()
                         executionAccountIdList shouldBe emptyList()
                     }
@@ -308,13 +310,13 @@ class NonAndroidSyncWorkManagerTest :
                                 syncWork = syncWork,
                                 scope = backgroundScope,
                             )
-                        manager.schedulePeriodicSync(accountId = accountId)
+                        manager.schedulePeriodicSync(accountId = accountId, period = PERIOD)
 
-                        advanceTimeBy(SYNC_PERIOD)
+                        advanceTimeBy(PERIOD)
                         runCurrent()
                         executionAccountIdList shouldBe listOf(accountId)
 
-                        advanceTimeBy(SYNC_PERIOD)
+                        advanceTimeBy(PERIOD)
                         runCurrent()
                         executionAccountIdList shouldBe listOf(accountId, accountId)
                     }
@@ -345,11 +347,11 @@ class NonAndroidSyncWorkManagerTest :
                                 scope = backgroundScope,
                             )
                         manager.sync(accountId = accountId)
-                        manager.schedulePeriodicSync(accountId = accountId)
+                        manager.schedulePeriodicSync(accountId = accountId, period = PERIOD)
                         runCurrent()
                         startCount shouldBe 1
 
-                        advanceTimeBy(SYNC_PERIOD)
+                        advanceTimeBy(PERIOD)
                         runCurrent()
 
                         startCount shouldBe 2
@@ -381,8 +383,8 @@ class NonAndroidSyncWorkManagerTest :
                                 syncWork = syncWork,
                                 scope = backgroundScope,
                             )
-                        manager.schedulePeriodicSync(accountId = accountId)
-                        advanceTimeBy(SYNC_PERIOD)
+                        manager.schedulePeriodicSync(accountId = accountId, period = PERIOD)
+                        advanceTimeBy(PERIOD)
                         runCurrent()
                         startCount shouldBe 1
 

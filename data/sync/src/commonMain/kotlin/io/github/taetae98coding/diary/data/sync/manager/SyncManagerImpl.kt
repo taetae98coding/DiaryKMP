@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
 import org.koin.core.annotation.Single
+import kotlin.time.Duration
 import kotlin.uuid.Uuid
 
 @Single
@@ -52,8 +53,11 @@ internal class SyncManagerImpl(
         syncWorkManager.sync(accountId = accountId)
     }
 
-    override fun schedulePeriodicSync(accountId: Uuid) {
-        syncWorkManager.schedulePeriodicSync(accountId = accountId)
+    override fun schedulePeriodicSync(
+        accountId: Uuid,
+        period: Duration,
+    ) {
+        syncWorkManager.schedulePeriodicSync(accountId = accountId, period = period)
     }
 
     override fun cancelPeriodicSync() {

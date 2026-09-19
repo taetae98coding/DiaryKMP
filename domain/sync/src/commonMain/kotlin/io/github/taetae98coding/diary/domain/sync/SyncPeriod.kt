@@ -1,4 +1,4 @@
-package io.github.taetae98coding.diary.core.work.impl
+package io.github.taetae98coding.diary.domain.sync
 
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours

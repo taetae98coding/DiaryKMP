@@ -28,6 +28,7 @@ import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowSystemClock
 import java.time.Duration
+import kotlin.time.Duration.Companion.hours
 import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
@@ -139,22 +140,22 @@ class AndroidSyncWorkManagerTest {
     }
 
     @Test
-    fun `TC-DATA-SYNC-DOMAIN-056 인증된 사용자 계정이 확인되면 4시간 간격의 주기 동기화를 예약한다`() {
+    fun `TC-DATA-SYNC-DOMAIN-056 인증된 사용자 계정이 확인되면 주어진 주기의 동기화를 예약한다`() {
         val accountId = fixtureMonkey.giveMeOne<Uuid>()
 
-        AndroidSyncWorkManager(context = context).schedulePeriodicSync(accountId = accountId)
+        AndroidSyncWorkManager(context = context).schedulePeriodicSync(accountId = accountId, period = PERIOD)
 
         val workInfo = periodicWorkInfo()
         workInfo.state shouldBe WorkInfo.State.ENQUEUED
-        workInfo.periodicityInfo?.repeatIntervalMillis shouldBe SYNC_PERIOD.inWholeMilliseconds
-        workInfo.initialDelayMillis shouldBe SYNC_PERIOD.inWholeMilliseconds
+        workInfo.periodicityInfo?.repeatIntervalMillis shouldBe PERIOD.inWholeMilliseconds
+        workInfo.initialDelayMillis shouldBe PERIOD.inWholeMilliseconds
         executionAccountIdList shouldBe emptyList()
     }
 
     @Test
-    fun `TC-DATA-SYNC-DOMAIN-060 4시간이 지나면 지정된 계정의 동기화가 실행된다`() {
+    fun `TC-DATA-SYNC-DOMAIN-060 주기가 지나면 지정된 계정의 동기화가 실행된다`() {
         val accountId = fixtureMonkey.giveMeOne<Uuid>()
-        AndroidSyncWorkManager(context = context).schedulePeriodicSync(accountId = accountId)
+        AndroidSyncWorkManager(context = context).schedulePeriodicSync(accountId = accountId, period = PERIOD)
 
         connectPeriodicNetwork()
         elapsePeriod()
@@ -165,7 +166,7 @@ class AndroidSyncWorkManagerTest {
     @Test
     fun `TC-DATA-SYNC-DOMAIN-062 주기 동기화는 네트워크에 연결되어 있지 않으면 실행하지 않는다`() {
         val accountId = fixtureMonkey.giveMeOne<Uuid>()
-        AndroidSyncWorkManager(context = context).schedulePeriodicSync(accountId = accountId)
+        AndroidSyncWorkManager(context = context).schedulePeriodicSync(accountId = accountId, period = PERIOD)
 
         periodicWorkInfo().constraints.requiredNetworkType shouldBe NetworkType.CONNECTED
 
@@ -180,11 +181,11 @@ class AndroidSyncWorkManagerTest {
     fun `TC-DATA-SYNC-DOMAIN-057 같은 계정이 다시 확인되어도 다음 주기까지 남은 시간이 유지된다`() {
         val accountId = fixtureMonkey.giveMeOne<Uuid>()
         val manager = AndroidSyncWorkManager(context = context)
-        manager.schedulePeriodicSync(accountId = accountId)
+        manager.schedulePeriodicSync(accountId = accountId, period = PERIOD)
         val scheduled = periodicWorkInfo()
 
         ShadowSystemClock.advanceBy(Duration.ofHours(2))
-        manager.schedulePeriodicSync(accountId = accountId)
+        manager.schedulePeriodicSync(accountId = accountId, period = PERIOD)
 
         val rescheduled = periodicWorkInfo()
         rescheduled.id shouldBe scheduled.id
@@ -196,11 +197,11 @@ class AndroidSyncWorkManagerTest {
         val firstAccountId = fixtureMonkey.giveMeOne<Uuid>()
         val secondAccountId = fixtureMonkey.giveMeOne<Uuid>()
         val manager = AndroidSyncWorkManager(context = context)
-        manager.schedulePeriodicSync(accountId = firstAccountId)
+        manager.schedulePeriodicSync(accountId = firstAccountId, period = PERIOD)
         val scheduled = periodicWorkInfo()
 
         ShadowSystemClock.advanceBy(Duration.ofHours(2))
-        manager.schedulePeriodicSync(accountId = secondAccountId)
+        manager.schedulePeriodicSync(accountId = secondAccountId, period = PERIOD)
 
         val rescheduled = periodicWorkInfo()
         rescheduled.id shouldBe scheduled.id
@@ -215,7 +216,7 @@ class AndroidSyncWorkManagerTest {
     fun `TC-DATA-SYNC-DOMAIN-059 인증된 계정이 없어지면 주기 동기화 예약을 해제한다`() {
         val accountId = fixtureMonkey.giveMeOne<Uuid>()
         val manager = AndroidSyncWorkManager(context = context)
-        manager.schedulePeriodicSync(accountId = accountId)
+        manager.schedulePeriodicSync(accountId = accountId, period = PERIOD)
 
         manager.cancelPeriodicSync()
 
@@ -230,7 +231,7 @@ class AndroidSyncWorkManagerTest {
             executionAccountIdList += firstArg<Uuid>()
             throw IllegalStateException("sync failure")
         }
-        AndroidSyncWorkManager(context = context).schedulePeriodicSync(accountId = accountId)
+        AndroidSyncWorkManager(context = context).schedulePeriodicSync(accountId = accountId, period = PERIOD)
 
         connectPeriodicNetwork()
         elapsePeriod()
@@ -248,7 +249,7 @@ class AndroidSyncWorkManagerTest {
         val accountId = fixtureMonkey.giveMeOne<Uuid>()
         val manager = AndroidSyncWorkManager(context = context)
 
-        manager.schedulePeriodicSync(accountId = accountId)
+        manager.schedulePeriodicSync(accountId = accountId, period = PERIOD)
         manager.sync(accountId = accountId)
 
         periodicWorkInfo().state shouldBe WorkInfo.State.ENQUEUED
@@ -303,6 +304,8 @@ class AndroidSyncWorkManagerTest {
     companion object {
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
+
+        private val PERIOD = 4.hours
     }
 }
 

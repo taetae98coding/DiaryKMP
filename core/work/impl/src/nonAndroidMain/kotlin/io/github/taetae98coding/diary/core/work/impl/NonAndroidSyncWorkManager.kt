@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.Single
+import kotlin.time.Duration
 import kotlin.uuid.Uuid
 
 @Single
@@ -48,12 +49,15 @@ internal class NonAndroidSyncWorkManager(
             }
     }
 
-    override fun schedulePeriodicSync(accountId: Uuid) {
+    override fun schedulePeriodicSync(
+        accountId: Uuid,
+        period: Duration,
+    ) {
         periodicAccountId = accountId
 
         if (periodicJob?.isActive == true) return
 
-        periodicJob = scope.launch { syncEveryPeriod() }
+        periodicJob = scope.launch { syncEveryPeriod(period = period) }
     }
 
     override fun cancelPeriodicSync() {
@@ -62,9 +66,9 @@ internal class NonAndroidSyncWorkManager(
         periodicJob = null
     }
 
-    private suspend fun syncEveryPeriod() {
+    private suspend fun syncEveryPeriod(period: Duration) {
         while (currentCoroutineContext().isActive) {
-            delay(SYNC_PERIOD)
+            delay(period)
 
             val accountId = periodicAccountId ?: break
 

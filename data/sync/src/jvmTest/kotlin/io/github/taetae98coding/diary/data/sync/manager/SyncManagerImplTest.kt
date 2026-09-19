@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlin.time.Duration.Companion.hours
 import kotlin.uuid.Uuid
 
 class SyncManagerImplTest :
@@ -202,16 +203,16 @@ class SyncManagerImplTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-056 주기 동기화 예약의 계정 식별자를 백그라운드 작업에 전달한다") {
+        test("TC-DATA-SYNC-DOMAIN-056 주기 동기화 예약의 계정 식별자와 주기를 백그라운드 작업에 전달한다") {
             runTest {
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
                 val workState = MutableStateFlow(SyncWorkState.NONE)
                 val syncWorkManager = syncWorkManager(workState = workState)
                 val syncManager = syncManager(syncWorkManager = syncWorkManager, scope = backgroundScope)
 
-                syncManager.schedulePeriodicSync(accountId = accountId)
+                syncManager.schedulePeriodicSync(accountId = accountId, period = 4.hours)
 
-                verify(exactly = 1) { syncWorkManager.schedulePeriodicSync(accountId = accountId) }
+                verify(exactly = 1) { syncWorkManager.schedulePeriodicSync(accountId = accountId, period = 4.hours) }
             }
         }
 
@@ -234,7 +235,7 @@ class SyncManagerImplTest :
                 val syncManager = syncManager(syncWorkManager = syncWorkManager(workState = workState), scope = backgroundScope)
                 runCurrent()
 
-                syncManager.schedulePeriodicSync(accountId = accountId)
+                syncManager.schedulePeriodicSync(accountId = accountId, period = 4.hours)
                 workState.value = SyncWorkState.RUNNING
                 runCurrent()
 
@@ -250,7 +251,7 @@ class SyncManagerImplTest :
             mockk<SyncWorkManager>().also { manager ->
                 every { manager.state } returns workState
                 justRun { manager.sync(accountId = any()) }
-                justRun { manager.schedulePeriodicSync(accountId = any()) }
+                justRun { manager.schedulePeriodicSync(accountId = any(), period = any()) }
                 justRun { manager.cancelPeriodicSync() }
             }
 
