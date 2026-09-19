@@ -30,6 +30,8 @@ public data object DiaryTheme {
         @Composable
         @ReadOnlyComposable
         get() = MaterialTheme.typography
+
+    public val styles: DiaryStyles = DiaryStyles
 }
 
 @Composable
@@ -45,6 +47,10 @@ public fun DiaryTheme(
             componentSpacing = 12.dp,
             chipAreaHeight = 150.dp,
             pickerListHeight = 288.dp,
+            bottomSheetHorizontalPadding = 24.dp,
+            bottomSheetTitleVerticalPadding = 12.dp,
+            bottomSheetBottomPadding = 16.dp,
+            cardContentPadding = 16.dp,
         )
 
     CompositionLocalProvider(LocalDiaryDimens provides dimens) {

@@ -1,6 +1,9 @@
+@file:OptIn(ExperimentalFoundationStyleApi::class)
+
 package io.github.taetae98coding.diary.compose.tag
 
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.style.ExperimentalFoundationStyleApi
+import androidx.compose.foundation.style.styleable
 import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -8,7 +11,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.color.DIARY_COLOR_TITLE_INDICATOR_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.color.DiaryColorTitleRow
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
@@ -32,7 +34,7 @@ public fun TagCard(
     ) {
         DiaryColorTitleRow(
             title = tag?.detail?.emojiWithTitle.orEmpty(),
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.styleable(style = DiaryTheme.styles.cardContent),
             color = tag?.detail?.color?.toColor() ?: Color.Transparent,
         )
     }

@@ -1,15 +1,17 @@
+@file:OptIn(ExperimentalFoundationStyleApi::class)
+
 package io.github.taetae98coding.diary.feature.calendar.ui.home
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.style.ExperimentalFoundationStyleApi
+import androidx.compose.foundation.style.styleable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.Role
 import io.github.taetae98coding.diary.compose.calendar.grid.CalendarWeekOfMonthGridGroupScope
 import io.github.taetae98coding.diary.compose.calendar.move.CalendarItemMoveState
 import io.github.taetae98coding.diary.compose.calendar.move.calendarMoveItem
+import io.github.taetae98coding.diary.compose.core.theme.dimmed
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
-
-private const val MOVING_MEMO_ALPHA = 0.38F
 
 internal fun CalendarWeekOfMonthGridGroupScope.memoItem(
     moveState: CalendarItemMoveState,
@@ -26,8 +28,9 @@ internal fun CalendarWeekOfMonthGridGroupScope.memoItem(
                 modifier =
                     Modifier
                         .animateItem()
-                        .graphicsLayer { alpha = if (moveState.moving?.key == memo.id) MOVING_MEMO_ALPHA else 1F }
-                        .calendarMoveItem(
+                        .styleable {
+                            if (moveState.moving?.key == memo.id) dimmed()
+                        }.calendarMoveItem(
                             state = moveState,
                             key = memo.id,
                             dateRange = memo.dateTime.toDateRange(),

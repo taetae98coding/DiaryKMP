@@ -1,9 +1,13 @@
+@file:OptIn(ExperimentalFoundationStyleApi::class)
+
 package io.github.taetae98coding.diary.compose.core.dialog
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.style.ExperimentalFoundationStyleApi
+import androidx.compose.foundation.style.styleable
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -18,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -47,7 +50,7 @@ internal fun ColorPickerPreview(
             modifier
                 .fillMaxWidth()
                 .height(140.dp)
-                .drawBehind { drawRect(color = state.color) },
+                .styleable { background(state.color) },
     ) {
         IconButton(
             onClick = {

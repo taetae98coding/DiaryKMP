@@ -1,10 +1,12 @@
+@file:OptIn(ExperimentalFoundationStyleApi::class)
+
 package io.github.taetae98coding.diary.feature.contact.ui.home
 
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.style.ExperimentalFoundationStyleApi
+import androidx.compose.foundation.style.styleable
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,10 +34,7 @@ internal fun ContactCard(
         enabled = contact != null,
     ) {
         Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+            modifier = Modifier.styleable(style = DiaryTheme.styles.cardContent),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Text(

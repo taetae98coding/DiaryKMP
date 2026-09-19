@@ -1,21 +1,22 @@
+@file:OptIn(ExperimentalFoundationStyleApi::class)
+
 package io.github.taetae98coding.diary.compose.calendar.text
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.style.ExperimentalFoundationStyleApi
+import androidx.compose.foundation.style.fillHeight
+import androidx.compose.foundation.style.styleable
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
@@ -42,10 +43,12 @@ public fun CalendarBarText(
             modifier =
                 Modifier
                     .testTag(CALENDAR_BAR_TEXT_BAR_TEST_TAG)
-                    .width(3.dp)
-                    .fillMaxHeight()
-                    .clip(CircleShape)
-                    .background(color = color),
+                    .styleable {
+                        width(3.dp)
+                        fillHeight()
+                        shape(CircleShape)
+                        background(color)
+                    },
         )
         Text(
             text = text,

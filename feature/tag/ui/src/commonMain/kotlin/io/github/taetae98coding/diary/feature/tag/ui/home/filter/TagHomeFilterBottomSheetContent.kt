@@ -1,12 +1,15 @@
+@file:OptIn(ExperimentalFoundationStyleApi::class)
+
 package io.github.taetae98coding.diary.feature.tag.ui.home.filter
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.style.ExperimentalFoundationStyleApi
+import androidx.compose.foundation.style.styleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -24,8 +27,6 @@ import io.github.taetae98coding.diary.feature.tag.ui.tag_home_filter_title
 import io.github.taetae98coding.diary.feature.tag.ui.tag_home_filter_top_level_only_label
 import org.jetbrains.compose.resources.stringResource
 
-private val CONTENT_HORIZONTAL_PADDING = 24.dp
-private val CONTENT_BOTTOM_PADDING = 16.dp
 private val ROW_MIN_HEIGHT = 48.dp
 
 @Composable
@@ -37,19 +38,15 @@ internal fun TagHomeFilterBottomSheetContent(
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = stringResource(Res.string.tag_home_filter_title),
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = CONTENT_HORIZONTAL_PADDING, vertical = 12.dp),
+            modifier = Modifier.styleable(style = DiaryTheme.styles.bottomSheetTitle),
             style = DiaryTheme.typography.titleLargeEmphasized,
         )
 
         Column(
             modifier =
                 Modifier
-                    .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
-                    .padding(bottom = CONTENT_BOTTOM_PADDING),
+                    .styleable(style = DiaryTheme.styles.bottomSheetContent),
         ) {
             TopLevelOnlyRow(
                 onCheckedChange = { isTopLevelOnly -> onEvent(TagHomeFilterBottomSheetEvent.SetTopLevelOnly(isTopLevelOnly = isTopLevelOnly)) },
@@ -77,7 +74,7 @@ private fun TopLevelOnlyRow(
                     value = isTopLevelOnly,
                     onValueChange = onCheckedChange,
                     role = Role.Switch,
-                ).padding(horizontal = CONTENT_HORIZONTAL_PADDING),
+                ).styleable(style = DiaryTheme.styles.bottomSheetSection),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(

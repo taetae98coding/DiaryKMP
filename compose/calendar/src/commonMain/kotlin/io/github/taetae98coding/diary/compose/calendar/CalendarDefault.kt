@@ -1,8 +1,11 @@
 package io.github.taetae98coding.diary.compose.calendar
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 
 // 밝은 화면에서는 작은 글자의 대비를 유지하고, 어두운 화면에서는 채도를 살린 밝은 Material 계열 강조색.
@@ -15,6 +18,9 @@ private val DarkSaturdayColor = Color(color = 0xFFBBDEFB)
 private const val SELECT_BACKGROUND_ALPHA = 0.24F
 
 public object CalendarDefault {
+    // docs/design/styles.md의 `캘린더 아이템 모양`
+    public val itemShape: Shape = RoundedCornerShape(4.dp)
+
     @Composable
     public fun colors(darkTheme: Boolean = isSystemInDarkTheme()): CalendarColor =
         if (darkTheme) {

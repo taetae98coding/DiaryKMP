@@ -1,9 +1,13 @@
+@file:OptIn(ExperimentalFoundationStyleApi::class)
+
 package io.github.taetae98coding.diary.compose.core.input
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.style.ExperimentalFoundationStyleApi
+import androidx.compose.foundation.style.styleable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -14,8 +18,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.dialog.ColorPickerHost
@@ -35,14 +37,17 @@ public fun DiaryColorInput(
     val coroutineScope = rememberCoroutineScope()
     val dialogState = rememberDialogState()
     val contentColor by remember(state) { derivedStateOf { state.color.contentColor() } }
+    val shape = MaterialTheme.shapes.medium
 
     Column(
         modifier =
             modifier
                 .fillMaxWidth()
-                .clip(MaterialTheme.shapes.medium)
-                .drawBehind { drawRect(color = state.color) }
-                .clickable(onClick = dialogState::show)
+                .styleable {
+                    shape(shape)
+                    clip()
+                    background(state.color)
+                }.clickable(onClick = dialogState::show)
                 .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {

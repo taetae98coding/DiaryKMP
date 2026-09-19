@@ -1,11 +1,13 @@
+@file:OptIn(ExperimentalFoundationStyleApi::class)
+
 package io.github.taetae98coding.diary.feature.setting.ui.gemini
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.style.ExperimentalFoundationStyleApi
+import androidx.compose.foundation.style.styleable
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -44,9 +46,8 @@ internal fun SettingGeminiModelRow(
         Row(
             modifier =
                 Modifier
-                    .fillMaxWidth()
                     .clickable(onClick = onClick)
-                    .padding(16.dp)
+                    .styleable(style = DiaryTheme.styles.cardContent)
                     .clearAndSetSemantics {
                         contentDescription = if (isMissingFromLoadedList) "$label, $value, $missingMessage" else "$label, $value"
                     },

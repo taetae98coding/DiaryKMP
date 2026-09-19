@@ -1,8 +1,11 @@
+@file:OptIn(ExperimentalFoundationStyleApi::class)
+
 package io.github.taetae98coding.diary.compose.calendar.dayofmonth
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.style.ExperimentalFoundationStyleApi
+import androidx.compose.foundation.style.styleable
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,7 +34,13 @@ internal fun CalendarDayOfMonthText(
 ) {
     Layout(
         content = {
-            Spacer(modifier = Modifier.background(color = containerColor, shape = CircleShape))
+            Spacer(
+                modifier =
+                    Modifier.styleable {
+                        shape(CircleShape)
+                        background(containerColor)
+                    },
+            )
             Text(
                 text = day.toString(),
                 color = contentColor,

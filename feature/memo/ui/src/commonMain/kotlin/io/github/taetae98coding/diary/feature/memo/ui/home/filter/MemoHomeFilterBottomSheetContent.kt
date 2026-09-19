@@ -1,9 +1,13 @@
+@file:OptIn(ExperimentalFoundationStyleApi::class)
+
 package io.github.taetae98coding.diary.feature.memo.ui.home.filter
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.style.ExperimentalFoundationStyleApi
+import androidx.compose.foundation.style.styleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
@@ -12,7 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -32,9 +35,6 @@ import io.github.taetae98coding.diary.feature.memo.ui.previewTag
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
 
-private val CONTENT_HORIZONTAL_PADDING = 24.dp
-private val CONTENT_BOTTOM_PADDING = 16.dp
-
 @Composable
 internal fun MemoHomeFilterBottomSheetContent(
     onEvent: (MemoHomeFilterBottomSheetEvent) -> Unit,
@@ -46,34 +46,27 @@ internal fun MemoHomeFilterBottomSheetContent(
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = stringResource(Res.string.memo_home_filter_title),
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = CONTENT_HORIZONTAL_PADDING, vertical = 12.dp),
+            modifier = Modifier.styleable(style = DiaryTheme.styles.bottomSheetTitle),
             style = DiaryTheme.typography.titleLargeEmphasized,
         )
 
         Column(
             modifier =
                 Modifier
-                    .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
-                    .padding(bottom = CONTENT_BOTTOM_PADDING),
+                    .styleable(style = DiaryTheme.styles.bottomSheetContent),
         ) {
             MemoHomeExistenceFilterSection(
                 onEvent = onEvent,
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = CONTENT_HORIZONTAL_PADDING),
+                modifier = Modifier.styleable(style = DiaryTheme.styles.bottomSheetSection),
                 uiStateProvider = uiStateProvider,
             )
 
             HorizontalDivider(
                 modifier =
                     Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = CONTENT_HORIZONTAL_PADDING, vertical = DiaryTheme.dimens.componentSpacing),
+                        .styleable(style = DiaryTheme.styles.bottomSheetSection)
+                        .padding(vertical = DiaryTheme.dimens.componentSpacing),
             )
 
             MemoHomeTagFilterSection(
@@ -97,20 +90,14 @@ private fun MemoHomeTagFilterSection(
         TagFilterTitleRow(
             title = stringResource(Res.string.memo_home_filter_tag_title),
             onEvent = onEvent,
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = CONTENT_HORIZONTAL_PADDING),
+            modifier = Modifier.styleable(style = DiaryTheme.styles.bottomSheetSection),
             titleStyle = DiaryTheme.typography.titleMedium,
             selectedTagIdSetProvider = { uiStateProvider().selectedTagIdSet },
             isEnabledProvider = { uiStateProvider().isTagFilterEnabled() },
         )
 
         MemoHomeTagFilterInactiveDescription(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = CONTENT_HORIZONTAL_PADDING),
+            modifier = Modifier.styleable(style = DiaryTheme.styles.bottomSheetSection),
             uiStateProvider = uiStateProvider,
         )
 
@@ -118,8 +105,7 @@ private fun MemoHomeTagFilterSection(
             onEvent = onEvent,
             modifier =
                 Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = CONTENT_HORIZONTAL_PADDING)
+                    .styleable(style = DiaryTheme.styles.bottomSheetSection)
                     .padding(top = DiaryTheme.dimens.itemSpacing),
             tagPagingItems = tagPagingItems,
             selectedTagIdSetProvider = { uiStateProvider().selectedTagIdSet },

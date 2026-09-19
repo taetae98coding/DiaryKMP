@@ -10,6 +10,7 @@ Markdown 외 형식도 둘 수 있다. 파일을 추가하면 아래 목록에 �
 | --- | --- | --- | --- | --- |
 | [FlexBox 정렬 3형제](flexbox-alignment.html) | HTML | Compose Multiplatform `1.12.0` | 2026-08-27 | `justifyContent`, `alignItems`, `alignContent`의 차이를 값을 바꿔 가며 확인하는 인터랙티브 문서 |
 | [M3 Expressive 컴포넌트 조사](m3-expressive-component.md) | Markdown | `org.jetbrains.compose.material3:material3` `1.12.0-alpha03` | 2026-08-24 | 저장소가 쓰는 Material 3 버전에서 호출할 수 있는 컴포넌트 목록과 채택·미채택 이유 |
+| [Compose Styles API 조사](compose-styles.md) | Markdown | `org.jetbrains.compose.foundation:foundation` `1.12.0` · `material3` `1.12.0-alpha03` | 2026-09-19 | Styles API로 할 수 있는 것과 이 버전에서 되지 않는 것, 저장소의 채택·미채택 이유 |
 | [DiaryMap 구조](diary-map-architecture.html) | HTML | `compose:map` 모듈 · 커밋 `2796dc33` | 2026-08-24 | `DiaryMapState`의 상태 관리와 네이버·Google 지도가 Android·iOS·JVM·wasmJs에 붙는 방식 |
 
 ## 최신 상태 유지

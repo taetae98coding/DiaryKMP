@@ -1,10 +1,13 @@
+@file:OptIn(ExperimentalFoundationStyleApi::class)
+
 package io.github.taetae98coding.diary.feature.setting.ui.holiday
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.style.ExperimentalFoundationStyleApi
+import androidx.compose.foundation.style.styleable
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Surface
@@ -33,13 +36,12 @@ internal fun SettingHolidayItemRow(
         Row(
             modifier =
                 Modifier
-                    .fillMaxWidth()
                     .toggleable(
                         value = holidaySetting.isVisible,
                         role = Role.Checkbox,
                         onValueChange = { onClick() },
                     ).semantics(mergeDescendants = true) {}
-                    .padding(16.dp),
+                    .styleable(style = DiaryTheme.styles.cardContent),
             horizontalArrangement = Arrangement.spacedBy(DiaryTheme.dimens.itemSpacing),
             verticalAlignment = Alignment.CenterVertically,
         ) {

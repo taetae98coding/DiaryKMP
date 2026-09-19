@@ -703,3 +703,117 @@ trailingIcon = {
     }
 }
 ```
+
+## 시각 속성은 Style, 동작과 배치는 Modifier
+
+**자체 컴포넌트의 한 노드에 시각 속성이 둘 이상 모이거나 시각 속성이 상태에 따라 달라지면 `Modifier.background`, `clip`, `padding`, `graphicsLayer`, `drawBehind`를 이어 붙이지 않고 `Modifier.styleable { }` 한 블록으로 선언한다.** Style은 속성 단위로 마지막 값이 이기는 한 겹의 선언이라 무엇이 어떻게 보이는지가 블록 하나에 모이고, 블록 안에서 읽은 state는 composition이 아니라 그 속성이 속한 단계만 다시 실행시킨다. 실험적 API이므로 `kotlin.md`의 `실험적 API Opt-in`을 따라 파일 상단에 `@file:OptIn(ExperimentalFoundationStyleApi::class)`를 둔다.
+
+- 판단 기준: https://developer.android.com/develop/ui/compose/styles/styles-vs-modifiers
+- 이 버전에서 쓸 수 있는 속성과 되지 않는 것은 [Compose Styles API 조사](../../docs/reference/compose-styles.md)가 소유한다.
+
+Style로 옮기는 것은 모양, 배경, 테두리, 안쪽·바깥 여백, 크기, 투명도, 변형처럼 그 노드 자신의 보이는 속성이다. 다음은 Modifier로 남긴다.
+
+| 남기는 것 | 이유 |
+| --- | --- |
+| `clickable`, `toggleable`, `semantics`, `testTag`, 제스처, 스크롤 | 동작과 의미는 Style이 표현하지 않는다 |
+| `weight`, `align`, `animateItem`, `animatePlacement`, custom `Layout` | 부모 배치 규칙과 배치 전환은 Style 속성이 아니다 |
+| 속성이 하나뿐인 노드의 `clip`, `padding`, `size` | Modifier 한 줄이 Style 블록보다 짧다 |
+| Material 3 컴포넌트의 `colors`, `shape`, `border` 파라미터 | 이 버전의 Material 3는 `style` 파라미터를 받지 않는다 |
+| `Modifier.shadow(elevation)` | Style의 `dropShadow`는 elevation 그림자와 모양이 다르다 |
+
+**글자색과 글자 스타일은 Style로 내려보내지 않는다.** `contentColor`, `textStyle`의 상속은 이 버전에서 기본으로 꺼져 있고 켜도 Material 3 `Text`에 닿지 않는다. 지금처럼 `LocalContentColor`, `LocalTextStyle`, `Text`의 파라미터로 다룬다.
+
+**`DiaryTheme.colorScheme`처럼 `@Composable` getter로만 읽는 값은 composition에서 지역 변수로 읽어 블록에 캡처한다.** Material 3의 색·모양·타이포그래피 CompositionLocal은 `internal`이라 `StyleScope`에서 `currentValue`로 읽을 수 없다. 반대로 state 홀더의 값은 블록 밖에서 읽어 넘기지 않고 블록 안에서 읽는다. 밖에서 읽으면 `state 읽기 지연`이 막는 composition 읽기가 다시 생긴다.
+
+**상태에 따라 달라지는 시각 속성은 `MutableStyleState`와 상태 블록으로 선언한다.** 활성 여부는 `rememberUpdatedStyleState(interactionSource) { it.isEnabled = enabled }`로 넘기고 `disabled { }` 안에 비활성 표현을 둔다. 누름·호버·초점 표현이 필요한 자체 컴포넌트가 생기면 같은 `InteractionSource`를 `clickable`과 `rememberUpdatedStyleState`에 함께 넘긴다. 상태 사이의 전환은 디자인 문서가 정한 경우에만 `animate { }`로 감싼다.
+
+**[공통 스타일](../../docs/design/styles.md)이 이름 붙인 묶음은 `compose:core`의 `DiaryStyles`에 같은 이름의 `Style` 값으로 두고, 호출부는 숫자를 다시 적지 않고 `DiaryTheme.styles`로 그 값을 쓴다.** 문서의 이름과 코드의 식별자가 일대일이어야 디자인이 바뀌었을 때 고칠 자리가 하나로 좁혀진다. 묶음이 [공통 여백과 간격](../../docs/design/dimens.md)의 값을 쓰면 `DiaryDimens`에 같은 이름의 값을 두고 `Style { }` 안에서 `LocalDiaryDimens.currentValue`로 읽는다. 여러 상태 블록 안에서 되풀이되는 묶음(`흐림`)은 `Style` 값 대신 `StyleScope` 확장 함수로 두고, `Shape`처럼 Style로 담을 수 없는 값은 그 값을 쓰는 컴포넌트 계열의 `XxxDefaults`에 둔다. 코드가 먼저 두 곳 이상에서 같은 시각 속성을 반복하게 되면 코드에 상수를 늘리지 않고 `design-wave`로 문서에 이름을 붙인 뒤 여기로 옮긴다.
+
+**컴포넌트에 `style: Style` 파라미터는 다른 모양을 요구하는 두 번째 호출자가 생길 때 연다.** 그때 기본값은 `Style`로 두고, 컴포넌트 안에서 `Modifier.styleable(styleState, 기본 Style, style)`처럼 기본 Style 뒤에 붙여 호출자가 속성 단위로 덮어쓰게 한다. 호출자가 없는 파라미터를 미리 열지 않는 이유는 `테스트를 위한 슬롯·파라미터 금지`와 같다.
+
+⚠️ 비권장 예시:
+
+```kotlin
+Text(
+    text = text,
+    modifier =
+        modifier
+            .clip(RoundedCornerShape(4.dp))
+            .background(color = color)
+            .basicMarquee(iterations = Int.MAX_VALUE)
+            .padding(1.dp),
+)
+
+DiaryFlexBox(
+    modifier = modifier.graphicsLayer { alpha = if (isEnabled) 1F else DISABLED_ALPHA },
+)
+```
+
+✅ 권장 예시:
+
+```kotlin
+@file:OptIn(ExperimentalFoundationStyleApi::class)
+
+Text(
+    text = text,
+    modifier =
+        modifier
+            .styleable {
+                shape(RoundedCornerShape(4.dp))
+                clip()
+                background(color)
+                contentPadding(1.dp)
+            }.basicMarquee(iterations = Int.MAX_VALUE),
+)
+
+val styleState = rememberUpdatedStyleState(interactionSource = null) { it.isEnabled = isEnabled }
+
+DiaryFlexBox(
+    modifier =
+        modifier.styleable(styleState) {
+            disabled { alpha(DISABLED_ALPHA) }
+        },
+)
+```
+
+✅ 공통 스타일 문서의 이름을 그대로 쓰는 예시:
+
+```kotlin
+// docs/design/styles.md의 `Bottom Sheet 제목`, `Bottom Sheet 내용`, `Bottom Sheet 선택 줄`
+Text(
+    text = title,
+    modifier = Modifier.styleable(style = DiaryTheme.styles.bottomSheetTitle),
+    style = DiaryTheme.typography.titleLargeEmphasized,
+)
+
+Column(
+    modifier =
+        Modifier
+            .selectableGroup()
+            .styleable(style = DiaryTheme.styles.bottomSheetContent),
+)
+
+Row(
+    modifier =
+        modifier
+            .selectable(selected = isSelected, onClick = onClick, role = Role.RadioButton)
+            .styleable(style = DiaryTheme.styles.bottomSheetRow),
+)
+```
+
+✅ state 홀더의 값을 블록 안에서 읽는 예시:
+
+```kotlin
+val shape = MaterialTheme.shapes.medium
+
+Column(
+    modifier =
+        modifier
+            .styleable {
+                shape(shape)
+                clip()
+                // 색이 바뀌면 다시 그리기만 하고 Column은 다시 구성되지 않는다.
+                background(state.color)
+            }.clickable(onClick = dialogState::show),
+)
+```

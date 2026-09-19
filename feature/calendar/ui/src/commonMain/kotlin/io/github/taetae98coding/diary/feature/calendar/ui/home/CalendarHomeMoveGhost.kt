@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -16,6 +15,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
+import io.github.taetae98coding.diary.compose.calendar.CalendarDefault
 import io.github.taetae98coding.diary.compose.calendar.move.CalendarItemMoveState
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -52,7 +52,7 @@ internal fun CalendarHomeMoveGhost(
 
                             coordinates.windowToLocal(pieceBounds.topLeft + dragDelta).round()
                         }.size(with(density) { pieceBounds.size.toDpSize() })
-                        .shadow(elevation = MOVE_GHOST_ELEVATION, shape = RoundedCornerShape(4.dp)),
+                        .shadow(elevation = MOVE_GHOST_ELEVATION, shape = CalendarDefault.itemShape),
             )
         }
     }
