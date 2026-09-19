@@ -8,7 +8,7 @@ kotlin {
             dependencies {
                 api(projects.core.file.api)
 
-                implementation(projects.domain.authentication)
+                implementation(projects.logger.crashlytics.api)
             }
         }
     }

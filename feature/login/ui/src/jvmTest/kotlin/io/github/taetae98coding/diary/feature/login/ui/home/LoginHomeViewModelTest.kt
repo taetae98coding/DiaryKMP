@@ -7,8 +7,8 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.authentication.AppleCredential
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
-import io.github.taetae98coding.diary.domain.authentication.usecase.SignInWithAppleUseCase
-import io.github.taetae98coding.diary.domain.authentication.usecase.SignInWithGoogleUseCase
+import io.github.taetae98coding.diary.domain.account.usecase.SignInWithAppleUseCase
+import io.github.taetae98coding.diary.domain.account.usecase.SignInWithGoogleUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse

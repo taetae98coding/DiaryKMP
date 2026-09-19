@@ -3,8 +3,8 @@ package io.github.taetae98coding.diary.domain.account.usecase
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.account.UserData
 import io.github.taetae98coding.diary.core.model.authentication.Session
+import io.github.taetae98coding.diary.domain.account.repository.SessionRepository
 import io.github.taetae98coding.diary.domain.account.repository.UserDataRepository
-import io.github.taetae98coding.diary.domain.authentication.repository.SessionRepository
 import io.github.taetae98coding.diary.domain.core.FlowUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine

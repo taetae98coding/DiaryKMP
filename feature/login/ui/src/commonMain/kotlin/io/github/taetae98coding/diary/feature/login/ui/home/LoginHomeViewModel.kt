@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.authentication.AppleCredential
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
-import io.github.taetae98coding.diary.domain.authentication.usecase.SignInWithAppleUseCase
-import io.github.taetae98coding.diary.domain.authentication.usecase.SignInWithGoogleUseCase
+import io.github.taetae98coding.diary.domain.account.usecase.SignInWithAppleUseCase
+import io.github.taetae98coding.diary.domain.account.usecase.SignInWithGoogleUseCase
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

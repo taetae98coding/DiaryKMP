@@ -1,4 +1,4 @@
-package io.github.taetae98coding.diary.domain.authentication.repository
+package io.github.taetae98coding.diary.domain.account.repository
 
 import io.github.taetae98coding.diary.core.model.authentication.AppleCredential
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential

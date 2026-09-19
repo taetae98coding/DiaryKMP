@@ -1,4 +1,4 @@
-package io.github.taetae98coding.diary.data.authentication.repository
+package io.github.taetae98coding.diary.data.account.repository
 
 import io.github.taetae98coding.diary.core.model.authentication.AppleCredential
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
@@ -6,7 +6,7 @@ import io.github.taetae98coding.diary.core.model.authentication.Session
 import io.github.taetae98coding.diary.core.network.api.authentication.datasource.SessionRemoteDataSource
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseAuth
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseSessionStatus
-import io.github.taetae98coding.diary.domain.authentication.repository.SessionRepository
+import io.github.taetae98coding.diary.domain.account.repository.SessionRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Factory

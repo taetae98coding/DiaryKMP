@@ -1,4 +1,4 @@
-package io.github.taetae98coding.diary.domain.authentication.usecase
+package io.github.taetae98coding.diary.domain.account.usecase
 
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger

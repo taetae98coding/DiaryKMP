@@ -20,7 +20,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(projects.domain.authentication)
+                implementation(projects.domain.account)
                 implementation(projects.feature.login.api)
                 implementation(libs.kotlincrypto.hash.sha2)
             }

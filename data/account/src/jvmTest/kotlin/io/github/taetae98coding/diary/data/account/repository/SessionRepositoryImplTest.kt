@@ -1,4 +1,4 @@
-package io.github.taetae98coding.diary.data.authentication.repository
+package io.github.taetae98coding.diary.data.account.repository
 
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
