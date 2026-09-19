@@ -54,6 +54,7 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg)
             packageName = "Diary"
             packageVersion = BuildLogic.VERSION_NAME
+            includeAllModules = true
 
             macOS {
                 iconFile.set(layout.projectDirectory.file("icons/diary.icns"))
