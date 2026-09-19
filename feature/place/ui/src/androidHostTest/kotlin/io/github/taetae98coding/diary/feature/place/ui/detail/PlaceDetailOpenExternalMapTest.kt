@@ -19,11 +19,13 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import io.mockk.verifyOrder
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
 
@@ -54,7 +56,7 @@ class PlaceDetailOpenExternalMapTest {
         composeRule.onNodeWithContentDescription(DEFAULT_OPEN_NAVER_MAP_BUTTON_DESCRIPTION).performClick()
 
         composeRule.runOnIdle {
-            verify(exactly = 1) { uriHandler.openUri(savedUri(detail = detail)) }
+            verify(exactly = 1) { uriHandler.openUri(savedAppUri(detail = detail)) }
         }
     }
 
@@ -105,7 +107,7 @@ class PlaceDetailOpenExternalMapTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-035 앱 밖에서 열지 못해도 화면을 유지하고 알리지 않는다`() {
+    fun `TC-PLACE-DETAIL-FEATURE-035 지도 앱과 웹 지도를 모두 열지 못해도 화면을 유지하고 알리지 않는다`() {
         val uriHandler =
             mockk<UriHandler> {
                 every { openUri(any()) } throws IllegalArgumentException("외부 지도를 열 수 없습니다.")
@@ -129,6 +131,36 @@ class PlaceDetailOpenExternalMapTest {
     }
 
     @Test
+    fun `TC-PLACE-DETAIL-FEATURE-042 지도 앱을 열지 못하면 같은 위치를 웹 지도로 연다`() {
+        val detail = placeDetail(coordinate = SAVED_COORDINATE)
+        val appUri = savedAppUri(detail = detail)
+        val webUri = savedWebUri(detail = detail)
+        val uriHandler =
+            mockk<UriHandler> {
+                every { openUri(appUri) } throws IllegalArgumentException("네이버 지도 앱을 열 수 없습니다.")
+                every { openUri(webUri) } returns Unit
+            }
+
+        composeRule.setPlaceDetailScreen(viewModel = savedViewModel(detail = detail), uriHandler = uriHandler)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_OPEN_NAVER_MAP_BUTTON_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_DELETE_BUTTON_DESCRIPTION).assertIsDisplayed()
+        composeRule
+            .onAllNodes(hasText(DEFAULT_COORDINATE_INVALID_MESSAGE))
+            .fetchSemanticsNodes()
+            .size shouldBe 0
+        composeRule.runOnIdle {
+            verifyOrder {
+                uriHandler.openUri(appUri)
+                uriHandler.openUri(webUri)
+            }
+        }
+    }
+
+    @Test
     fun `TC-PLACE-DETAIL-FEATURE-036 지도가 표시되지 않아도 외부 지도로 열기를 제공한다`() {
         val uriHandler = mockk<UriHandler>(relaxed = true)
 
@@ -144,7 +176,7 @@ class PlaceDetailOpenExternalMapTest {
         composeRule.onNodeWithContentDescription(DEFAULT_OPEN_NAVER_MAP_BUTTON_DESCRIPTION).performClick()
 
         composeRule.runOnIdle {
-            verify(exactly = 1) { uriHandler.openUri(savedUri(detail = detail)) }
+            verify(exactly = 1) { uriHandler.openUri(savedAppUri(detail = detail)) }
         }
     }
 
@@ -162,7 +194,7 @@ class PlaceDetailOpenExternalMapTest {
         composeRule.onNodeWithContentDescription(DEFAULT_OPEN_NAVER_MAP_BUTTON_DESCRIPTION).performClick()
 
         val changedUri =
-            savedUri(
+            savedAppUri(
                 detail = detail,
                 coordinate =
                     Coordinate(
@@ -173,7 +205,7 @@ class PlaceDetailOpenExternalMapTest {
 
         composeRule.runOnIdle {
             verify(exactly = 1) { uriHandler.openUri(changedUri) }
-            verify(exactly = 0) { uriHandler.openUri(savedUri(detail = detail)) }
+            verify(exactly = 0) { uriHandler.openUri(savedAppUri(detail = detail)) }
         }
     }
 
@@ -192,7 +224,7 @@ class PlaceDetailOpenExternalMapTest {
         composeRule.onNodeWithContentDescription(DEFAULT_OPEN_NAVER_MAP_BUTTON_DESCRIPTION).performClick()
 
         composeRule.runOnIdle {
-            verify(exactly = 1) { uriHandler.openUri(savedUri(detail = detail)) }
+            verify(exactly = 1) { uriHandler.openUri(savedAppUri(detail = detail)) }
         }
     }
 
@@ -211,7 +243,7 @@ class PlaceDetailOpenExternalMapTest {
         composeRule.onNodeWithContentDescription(DEFAULT_OPEN_NAVER_MAP_BUTTON_DESCRIPTION).performClick()
 
         composeRule.runOnIdle {
-            verify(exactly = 1) { uriHandler.openUri(savedUri(detail = detail)) }
+            verify(exactly = 1) { uriHandler.openUri(savedAppUri(detail = detail)) }
         }
     }
 
@@ -251,13 +283,21 @@ class PlaceDetailOpenExternalMapTest {
                 ),
         )
 
-    private fun savedUri(
+    // Android는 네이버 지도 앱 주소를 먼저 열므로, 열기에 성공하는 환경에서 관찰되는 주소는 앱 주소다.
+    private fun savedAppUri(
         detail: PlaceDetail,
         coordinate: Coordinate = SAVED_COORDINATE,
     ): String =
-        externalMapUri(
-            provider = DiaryMapProvider.NAVER,
+        naverMapAppUri(
             coordinate = coordinate.toDiaryMapCoordinate(),
+            title = detail.title,
+            appName = RuntimeEnvironment.getApplication().packageName,
+        )
+
+    private fun savedWebUri(detail: PlaceDetail): String =
+        externalMapWebUri(
+            provider = DiaryMapProvider.NAVER,
+            coordinate = SAVED_COORDINATE.toDiaryMapCoordinate(),
             title = detail.title,
             address = detail.address,
         )

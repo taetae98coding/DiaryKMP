@@ -5,8 +5,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.UriHandler
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
@@ -45,7 +43,7 @@ internal fun PlaceDetailScreen(
     val tagUiState by tagViewModel.uiState.collectAsStateWithLifecycle()
     val tagPagingItems = tagViewModel.tagPagingData.collectAsLazyPagingItems()
     val content = uiState as? PlaceDetailUiState.Content
-    val uriHandler = LocalUriHandler.current
+    val externalMapOpener = rememberExternalMapOpener()
     val coroutineScope = rememberCoroutineScope()
     val coordinateInvalidMessage = stringResource(Res.string.place_coordinate_invalid_message)
 
@@ -78,7 +76,7 @@ internal fun PlaceDetailScreen(
                     event = event,
                     detailViewModel = detailViewModel,
                     scaffoldState = scaffoldState,
-                    uriHandler = uriHandler,
+                    externalMapOpener = externalMapOpener,
                     coroutineScope = coroutineScope,
                     savedTitle = content?.detail?.title.orEmpty(),
                     coordinateInvalidMessage = coordinateInvalidMessage,
@@ -106,7 +104,7 @@ private fun handlePlaceDetailScaffoldEvent(
     event: PlaceDetailScaffoldEvent,
     detailViewModel: PlaceDetailViewModel,
     scaffoldState: PlaceFormState,
-    uriHandler: UriHandler,
+    externalMapOpener: ExternalMapOpener,
     coroutineScope: CoroutineScope,
     savedTitle: String,
     coordinateInvalidMessage: String,
@@ -124,7 +122,7 @@ private fun handlePlaceDetailScaffoldEvent(
         is PlaceDetailScaffoldEvent.ClickOpenExternalMap ->
             openExternalMapOrNotify(
                 scaffoldState = scaffoldState,
-                uriHandler = uriHandler,
+                externalMapOpener = externalMapOpener,
                 coroutineScope = coroutineScope,
                 savedTitle = savedTitle,
                 coordinateInvalidMessage = coordinateInvalidMessage,
@@ -157,7 +155,7 @@ private fun PlaceDetailTagViewModel.handleTagPickerEvent(
 
 private fun openExternalMapOrNotify(
     scaffoldState: PlaceFormState,
-    uriHandler: UriHandler,
+    externalMapOpener: ExternalMapOpener,
     coroutineScope: CoroutineScope,
     savedTitle: String,
     coordinateInvalidMessage: String,
@@ -169,7 +167,7 @@ private fun openExternalMapOrNotify(
         return
     }
 
-    uriHandler.openExternalMap(
+    externalMapOpener.open(
         provider = scaffoldState.mapState.provider,
         coordinate = coordinate,
         title = externalMapTitle(inputTitle = scaffoldState.detail.title, savedTitle = savedTitle),
