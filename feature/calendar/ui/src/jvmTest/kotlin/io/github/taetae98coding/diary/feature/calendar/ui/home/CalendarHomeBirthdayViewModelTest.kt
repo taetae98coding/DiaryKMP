@@ -3,7 +3,6 @@ package io.github.taetae98coding.diary.feature.calendar.ui.home
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.compose.calendar.calendarDateRange
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.domain.contact.usecase.GetCalendarContactBirthdayUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -44,15 +43,15 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-CALENDAR-HOME-DATA-032 화면이 표시되면 캘린더가 보여 주는 여섯 주 기간의 생일을 조회한다") {
+        test("TC-CALENDAR-HOME-DATA-032 화면이 표시되면 두 달 전 1일부터 두 달 후 마지막 날까지의 생일을 조회한다") {
             runTest(mainDispatcher) {
                 val expectedDateRange =
-                    LocalDate(year = 2026, month = Month.JUNE, day = 28)..LocalDate(year = 2026, month = Month.AUGUST, day = 8)
+                    LocalDate(year = 2026, month = Month.MAY, day = 1)..LocalDate(year = 2026, month = Month.SEPTEMBER, day = 30)
                 val birthdayList = listOf(birthday(), birthday())
                 val useCase = getCalendarContactBirthdayUseCase(expectedDateRange to Result.success(birthdayList))
                 val viewModel = CalendarHomeBirthdayViewModel(getCalendarContactBirthdayUseCase = useCase)
 
-                viewModel.fetch(dateRange = YearMonth(year = 2026, month = Month.JULY).calendarDateRange())
+                viewModel.fetch(YearMonth(year = 2026, month = Month.JULY))
 
                 viewModel.birthdayList.test {
                     awaitItem() shouldBe emptyList()
@@ -63,30 +62,56 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
             }
         }
 
+        test("연도 경계를 넘는 달도 두 달 전 1일부터 두 달 후 마지막 날까지 조회한다") {
+            runTest(mainDispatcher) {
+                val januaryDateRange = LocalDate(year = 2025, month = Month.NOVEMBER, day = 1)..LocalDate(year = 2026, month = Month.MARCH, day = 31)
+                val decemberDateRange = LocalDate(year = 2026, month = Month.OCTOBER, day = 1)..LocalDate(year = 2027, month = Month.FEBRUARY, day = 28)
+                val expectedRangeByYearMonth =
+                    listOf(
+                        YearMonth(year = 2026, month = Month.JANUARY) to januaryDateRange,
+                        YearMonth(year = 2026, month = Month.DECEMBER) to decemberDateRange,
+                    )
+
+                expectedRangeByYearMonth.forEach { (yearMonth, expectedDateRange) ->
+                    val useCase = getCalendarContactBirthdayUseCase(expectedDateRange to Result.success(emptyList()))
+                    val viewModel = CalendarHomeBirthdayViewModel(getCalendarContactBirthdayUseCase = useCase)
+
+                    viewModel.fetch(yearMonth)
+
+                    viewModel.birthdayList.test {
+                        awaitItem() shouldBe emptyList()
+                        advanceUntilIdle()
+                    }
+
+                    verify(exactly = 1) { useCase(parameter = expectedDateRange) }
+                }
+            }
+        }
+
         test("TC-CALENDAR-HOME-DATA-033 표시 중인 달이 바뀌면 이동한 달 기준의 조회 기간으로 다시 조회한다") {
             runTest(mainDispatcher) {
                 val julyDateRange =
-                    LocalDate(year = 2026, month = Month.JUNE, day = 28)..LocalDate(year = 2026, month = Month.AUGUST, day = 8)
+                    LocalDate(year = 2026, month = Month.MAY, day = 1)..LocalDate(year = 2026, month = Month.SEPTEMBER, day = 30)
                 val septemberDateRange =
-                    LocalDate(year = 2026, month = Month.AUGUST, day = 30)..LocalDate(year = 2026, month = Month.OCTOBER, day = 10)
-                val julyBirthday = birthday()
-                val septemberBirthday = birthday()
+                    LocalDate(year = 2026, month = Month.JULY, day = 1)..LocalDate(year = 2026, month = Month.NOVEMBER, day = 30)
+                val mayBirthday = birthday()
+                val novemberBirthday = birthday()
                 val useCase =
                     getCalendarContactBirthdayUseCase(
-                        julyDateRange to Result.success(listOf(julyBirthday)),
-                        septemberDateRange to Result.success(listOf(septemberBirthday)),
+                        julyDateRange to Result.success(listOf(mayBirthday)),
+                        septemberDateRange to Result.success(listOf(novemberBirthday)),
                     )
                 val viewModel = CalendarHomeBirthdayViewModel(getCalendarContactBirthdayUseCase = useCase)
 
-                viewModel.fetch(dateRange = YearMonth(year = 2026, month = Month.JULY).calendarDateRange())
+                viewModel.fetch(YearMonth(year = 2026, month = Month.JULY))
 
                 viewModel.birthdayList.test {
                     awaitItem() shouldBe emptyList()
-                    awaitItem() shouldBe listOf(julyBirthday)
+                    awaitItem() shouldBe listOf(mayBirthday)
 
-                    viewModel.fetch(dateRange = YearMonth(year = 2026, month = Month.SEPTEMBER).calendarDateRange())
+                    viewModel.fetch(YearMonth(year = 2026, month = Month.SEPTEMBER))
 
-                    awaitItem() shouldBe listOf(septemberBirthday)
+                    awaitItem() shouldBe listOf(novemberBirthday)
                 }
             }
         }
@@ -98,7 +123,7 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
                     flowOf(Result.failure(IllegalStateException("birthday get failed")))
                 val viewModel = CalendarHomeBirthdayViewModel(getCalendarContactBirthdayUseCase = useCase)
 
-                viewModel.fetch(dateRange = YearMonth(year = 2026, month = Month.JULY).calendarDateRange())
+                viewModel.fetch(YearMonth(year = 2026, month = Month.JULY))
 
                 viewModel.birthdayList.test {
                     awaitItem() shouldBe emptyList()
@@ -108,19 +133,19 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
             }
         }
 
-        test("같은 기간을 다시 지정해도 생일을 다시 조회하지 않는다") {
+        test("같은 달을 다시 지정해도 생일을 다시 조회하지 않는다") {
             runTest(mainDispatcher) {
-                val dateRange = YearMonth(year = 2026, month = Month.JULY).calendarDateRange()
+                val yearMonth = YearMonth(year = 2026, month = Month.JULY)
                 val useCase = getCalendarContactBirthdayUseCase()
                 val viewModel = CalendarHomeBirthdayViewModel(getCalendarContactBirthdayUseCase = useCase)
 
-                viewModel.fetch(dateRange = dateRange)
+                viewModel.fetch(yearMonth)
 
                 viewModel.birthdayList.test {
                     awaitItem() shouldBe emptyList()
                     advanceUntilIdle()
 
-                    viewModel.fetch(dateRange = dateRange)
+                    viewModel.fetch(yearMonth)
                     advanceUntilIdle()
 
                     expectNoEvents()
@@ -139,7 +164,7 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
                 every { useCase(parameter = any()) } returns birthdayFlow.map { list -> Result.success(list) }
                 val viewModel = CalendarHomeBirthdayViewModel(getCalendarContactBirthdayUseCase = useCase)
 
-                viewModel.fetch(dateRange = YearMonth(year = 2026, month = Month.JULY).calendarDateRange())
+                viewModel.fetch(YearMonth(year = 2026, month = Month.JULY))
 
                 viewModel.birthdayList.test {
                     awaitItem() shouldBe emptyList()

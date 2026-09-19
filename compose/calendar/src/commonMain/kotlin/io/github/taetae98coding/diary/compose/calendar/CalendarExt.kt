@@ -23,12 +23,6 @@ internal fun YearMonth.dateAt(
     return firstDay.plus(dayOffset, DateTimeUnit.DAY)
 }
 
-public fun YearMonth.calendarDateRange(): LocalDateRange =
-    LocalDateRange(
-        start = dateRangeAt(weekOfMonth = 0).start,
-        endInclusive = dateRangeAt(weekOfMonth = WEEKS_PER_MONTH - 1).endInclusive,
-    )
-
 internal fun YearMonth.dateRangeAt(weekOfMonth: Int): LocalDateRange =
     LocalDateRange(
         start = dateAt(weekOfMonth = weekOfMonth, dayOfWeek = DayOfWeek.SUNDAY),

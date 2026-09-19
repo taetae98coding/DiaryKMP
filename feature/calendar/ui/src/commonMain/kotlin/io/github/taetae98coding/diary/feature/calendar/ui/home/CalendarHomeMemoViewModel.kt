@@ -19,11 +19,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.YearMonth
-import kotlinx.datetime.minus
-import kotlinx.datetime.plus
 import org.koin.core.annotation.KoinViewModel
 import kotlin.uuid.Uuid
 
@@ -49,7 +46,7 @@ internal class CalendarHomeMemoViewModel(
 
     val memoList: StateFlow<List<CalendarMemo>> =
         yearMonth
-            .map { yearMonth -> yearMonth?.memoDateRange() }
+            .map { yearMonth -> yearMonth?.calendarHomeFetchDateRange() }
             .distinctUntilChanged()
             .flatMapLatest { dateRange ->
                 if (dateRange == null) {
@@ -85,5 +82,3 @@ internal class CalendarHomeMemoViewModel(
         }
     }
 }
-
-private fun YearMonth.memoDateRange(): LocalDateRange = minus(2, DateTimeUnit.MONTH).firstDay..plus(2, DateTimeUnit.MONTH).lastDay

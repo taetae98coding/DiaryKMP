@@ -8,7 +8,6 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.taetae98coding.diary.compose.calendar.calendarDateRange
 import io.github.taetae98coding.diary.feature.calendar.ui.permission.LocationPermissionRequestResult
 import io.github.taetae98coding.diary.feature.calendar.ui.permission.LocationPermissionRequester
 import io.github.taetae98coding.diary.feature.calendar.ui.permission.rememberLocationPermissionRequester
@@ -174,7 +173,7 @@ private fun FetchBirthdayEffect(
     LaunchedEffect(state, birthdayViewModel) {
         snapshotFlow { state.calendarState.currentYearMonth }
             .collect { yearMonth ->
-                birthdayViewModel.fetch(dateRange = yearMonth.calendarDateRange())
+                birthdayViewModel.fetch(yearMonth = yearMonth)
             }
     }
 }

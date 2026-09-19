@@ -10,26 +10,29 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.datetime.LocalDateRange
+import kotlinx.datetime.YearMonth
 import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
 internal class CalendarHomeBirthdayViewModel(
     private val getCalendarContactBirthdayUseCase: GetCalendarContactBirthdayUseCase,
 ) : ViewModel() {
-    private val dateRange = MutableStateFlow<LocalDateRange?>(null)
+    private val yearMonth = MutableStateFlow<YearMonth?>(null)
 
     val birthdayList: StateFlow<List<CalendarContactBirthday>> =
-        dateRange
-            .flatMapLatest { range ->
-                if (range == null) {
+        yearMonth
+            .map { yearMonth -> yearMonth?.calendarHomeFetchDateRange() }
+            .distinctUntilChanged()
+            .flatMapLatest { dateRange ->
+                if (dateRange == null) {
                     flowOf(emptyList())
                 } else {
-                    getCalendarContactBirthdayUseCase(parameter = range)
+                    getCalendarContactBirthdayUseCase(parameter = dateRange)
                         .map { result -> result.getOrDefault(emptyList()) }
                 }
             }.stateIn(
@@ -38,7 +41,7 @@ internal class CalendarHomeBirthdayViewModel(
                 initialValue = emptyList(),
             )
 
-    fun fetch(dateRange: LocalDateRange) {
-        this.dateRange.value = dateRange
+    fun fetch(yearMonth: YearMonth) {
+        this.yearMonth.value = yearMonth
     }
 }
