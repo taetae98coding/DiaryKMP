@@ -529,6 +529,43 @@ private fun MemoDetailScaffoldPreview(
 }
 ```
 
+## 권한 관리자 공유
+
+**한 Screen에서 `rememberPermissionManager()`는 한 번만 호출하고, 그 인스턴스를 권한 요청과 허용 여부 조회에 함께 넘긴다.** `rememberPermissionManager()`는 호출한 자리마다 새 인스턴스를 만들므로, 요청과 조회가 서로 다른 인스턴스를 쓰면 요청으로 바뀐 권한 상태가 조회 쪽 `isGranted`에 반영되지 않는다. 조회가 생명주기 복귀 때 다시 확인하면서 늦게 따라오는 것처럼 보이지만, 시스템 권한 요청이 화면 전환을 만들지 않는 플랫폼에서는 그마저 오지 않는다.
+
+Android에서는 인스턴스마다 별도의 launcher가 등록되어 어느 쪽이 결과를 받는지도 갈린다.
+
+Screen이 만든 인스턴스는 파라미터로 내려보낸다. 요청과 조회를 함께 쓰는 컴포저블은 `PermissionManager`를 파라미터로 받고, 기본값에만 `rememberPermissionManager()`를 둔다.
+
+⚠️ 비권장 예시:
+
+```kotlin
+@Composable
+internal fun PlaceHomeScreen() {
+    // 조회가 자기 인스턴스를 만든다.
+    val isGranted = rememberIsPermissionGranted(Permission.LOCATION)
+    // 요청이 또 다른 인스턴스를 만든다. 허용을 받아도 위의 isGranted는 그대로다.
+    val permissionManager = rememberPermissionManager()
+    val scope = rememberCoroutineScope()
+
+    DiaryMap(isMyLocationEnabled = isGranted)
+    Button(onClick = { scope.launch { permissionManager.request(Permission.LOCATION) } })
+}
+```
+
+✅ 권장 예시:
+
+```kotlin
+@Composable
+internal fun PlaceHomeScreen(permissionManager: PermissionManager) {
+    val isGranted = rememberIsPermissionGranted(Permission.LOCATION, permissionManager)
+    val scope = rememberCoroutineScope()
+
+    DiaryMap(isMyLocationEnabled = isGranted)
+    Button(onClick = { scope.launch { permissionManager.request(Permission.LOCATION) } })
+}
+```
+
 ## 테스트를 위한 슬롯·파라미터 금지
 
 운영 코드가 쓰지 않는 슬롯이나 파라미터를 테스트를 위해 컴포저블에 열지 않는다. 호출자가 하나뿐이고 항상 같은 내용을 넘기는 슬롯은 그 컴포저블의 구조가 아니라 테스트의 우회로이며, 읽는 사람에게 존재하지 않는 확장점을 있는 것처럼 보이게 한다.
