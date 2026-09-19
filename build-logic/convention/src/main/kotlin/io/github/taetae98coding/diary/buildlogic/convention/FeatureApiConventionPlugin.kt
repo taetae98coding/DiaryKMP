@@ -1,6 +1,5 @@
 package io.github.taetae98coding.diary.buildlogic.convention
 
-import io.github.taetae98coding.diary.buildlogic.library
 import io.github.taetae98coding.diary.buildlogic.primitive.MultiplatformPrimitivePlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -26,7 +25,7 @@ internal class FeatureApiConventionPlugin : Plugin<Project> {
             sourceSets {
                 commonMain {
                     dependencies {
-                        api(library("androidx.navigation3.runtime"))
+                        api(project(":library:navigation3"))
                     }
                 }
             }

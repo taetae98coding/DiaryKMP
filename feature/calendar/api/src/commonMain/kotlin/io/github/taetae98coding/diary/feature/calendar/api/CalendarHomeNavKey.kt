@@ -1,7 +1,9 @@
 package io.github.taetae98coding.diary.feature.calendar.api
 
-import androidx.navigation3.runtime.NavKey
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data object CalendarHomeNavKey : NavKey
+public data object CalendarHomeNavKey : ScreenNavKey {
+    override val screenName: String get() = "CalendarHome"
+}

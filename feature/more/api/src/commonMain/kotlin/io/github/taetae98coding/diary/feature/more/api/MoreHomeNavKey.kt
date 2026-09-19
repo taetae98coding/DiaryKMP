@@ -1,7 +1,9 @@
 package io.github.taetae98coding.diary.feature.more.api
 
-import androidx.navigation3.runtime.NavKey
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data object MoreHomeNavKey : NavKey
+public data object MoreHomeNavKey : ScreenNavKey {
+    override val screenName: String get() = "MoreHome"
+}

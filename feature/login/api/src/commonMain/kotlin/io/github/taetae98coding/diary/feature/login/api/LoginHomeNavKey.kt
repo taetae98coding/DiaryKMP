@@ -1,7 +1,9 @@
 package io.github.taetae98coding.diary.feature.login.api
 
-import androidx.navigation3.runtime.NavKey
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data object LoginHomeNavKey : NavKey
+public data object LoginHomeNavKey : ScreenNavKey {
+    override val screenName: String get() = "LoginHome"
+}

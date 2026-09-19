@@ -1,8 +1,8 @@
 package io.github.taetae98coding.diary.feature.more.api
 
-import androidx.navigation3.runtime.NavKey
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import kotlinx.serialization.modules.PolymorphicModuleBuilder
 
-public fun PolymorphicModuleBuilder<NavKey>.moreNavKeys() {
+public fun PolymorphicModuleBuilder<ScreenNavKey>.moreNavKeys() {
     subclass(MoreHomeNavKey::class, MoreHomeNavKey.serializer())
 }

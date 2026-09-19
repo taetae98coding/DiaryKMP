@@ -1,6 +1,6 @@
 package io.github.taetae98coding.diary.feature.memo.api
 
-import androidx.navigation3.runtime.NavKey
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
 import kotlin.uuid.Uuid
@@ -9,7 +9,9 @@ import kotlin.uuid.Uuid
 public data class MemoAddNavKey(
     val primaryTagId: Uuid? = null,
     val initialDateRange: InitialDateRange? = null,
-) : NavKey {
+) : ScreenNavKey {
+    override val screenName: String get() = "MemoAdd"
+
     @Serializable
     public data class InitialDateRange(
         val start: LocalDate,

@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.feature.memo.api
 
-import androidx.navigation3.runtime.NavKey
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import kotlinx.serialization.modules.PolymorphicModuleBuilder
 
-public fun PolymorphicModuleBuilder<NavKey>.memoNavKeys() {
+public fun PolymorphicModuleBuilder<ScreenNavKey>.memoNavKeys() {
     subclass(MemoHomeNavKey::class, MemoHomeNavKey.serializer())
     subclass(MemoHomeFilterNavKey::class, MemoHomeFilterNavKey.serializer())
     subclass(MemoFinishedListNavKey::class, MemoFinishedListNavKey.serializer())

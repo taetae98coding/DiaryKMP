@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.feature.place.api
 
-import androidx.navigation3.runtime.NavKey
+import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import kotlinx.serialization.modules.PolymorphicModuleBuilder
 
-public fun PolymorphicModuleBuilder<NavKey>.placeNavKeys() {
+public fun PolymorphicModuleBuilder<ScreenNavKey>.placeNavKeys() {
     subclass(PlaceHomeNavKey::class, PlaceHomeNavKey.serializer())
     subclass(PlaceAddNavKey::class, PlaceAddNavKey.serializer())
     subclass(PlaceDetailNavKey::class, PlaceDetailNavKey.serializer())
