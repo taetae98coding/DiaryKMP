@@ -59,6 +59,7 @@
 | [목록 빈 상태](./list-empty-state.md) | [목록 빈 상태 디자인](../design/list-empty-state.md) |
 | [목록 정렬](./list-sort.md) | [목록 정렬 디자인](../design/list-sort.md) |
 | [목록 필터 반영](./list-filter.md) | [필터 Bottom Sheet 디자인](../design/filter-bottom-sheet.md) |
+| [위치 권한 요청](./location-permission.md) | — |
 | [Login 화면](./login.md) | [Login 디자인](../design/login.md) |
 | [MemoAdd 화면](./memo-add.md) | [MemoAdd 디자인](../design/memo-add.md) |
 | [MemoDetail 화면](./memo-detail.md) | [MemoDetail 디자인](../design/memo-detail.md) |
@@ -78,6 +79,7 @@
 | [MusicAdd 화면](./music-add.md) | [MusicAdd 디자인](../design/music-add.md) |
 | [네이버 장소 검색](./naver-place-search.md) | — |
 | [알림 권한 요청](./notification-permission.md) | — |
+| [권한 요청 공통](./permission.md) | — |
 | [PlaceAdd 화면](./place-add.md) | [PlaceAdd 디자인](../design/place-add.md) |
 | [PlaceDetail 화면](./place-detail.md) | [PlaceDetail 디자인](../design/place-detail.md) |
 | [PlaceHome 화면](./place-home.md) | [PlaceHome 디자인](../design/place-home.md) |

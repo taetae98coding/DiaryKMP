@@ -66,6 +66,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [HolidayHome](./holiday-home.md) | [HolidayHome 화면](../spec/holiday-home.md) |
 | [공휴일 노출 설정](./holiday-visibility.md) | [공휴일 노출 설정](../spec/holiday-visibility.md) |
 | [JVM 데이터베이스 저장](./jvm-database-storage.md) | [JVM 데이터베이스 저장](../spec/jvm-database-storage.md) |
+| [위치 권한 요청](./location-permission.md) | [위치 권한 요청](../spec/location-permission.md) |
 | [Login](./login.md) | [Login 화면](../spec/login.md) |
 | [MemoAdd](./memo-add.md) | [MemoAdd 화면](../spec/memo-add.md) |
 | [MemoDetail](./memo-detail.md) | [MemoDetail 화면](../spec/memo-detail.md) |
@@ -141,5 +142,7 @@ TC-<SPEC>-<AREA>-<NNN>
 - [검색어 일치 판정 스펙](../spec/search-match.md) → [SearchHome](./search-home.md), [메모 태그 입력 컴포넌트](./memo-tag-input.md), [메모 장소 카드](./memo-place-card.md), [메모 웹 입력 컴포넌트](./memo-web-input.md), [태그 연결 입력 컴포넌트](./tag-link-input.md), [항목 태그 입력 컴포넌트](./entity-tag-input.md)
   - `검색어 반영 시점`의 케이스는 [메모 태그 입력 컴포넌트](./memo-tag-input.md)와 [SearchHome](./search-home.md)이 대표로 갖는다. 같은 정책을 쓰는 나머지 목록은 각자의 검색 케이스만 둔다.
 - [장소 보기 모드 스펙](../spec/place-view-mode.md) → [PlaceHome](./place-home.md), [TagDetail 장소 탭](./tag-detail-place.md)
+- [권한 요청 공통 스펙](../spec/permission.md) → [알림 권한 요청](./notification-permission.md), [위치 권한 요청](./location-permission.md)
+  - 두 권한 문서가 공통 스펙의 요청 시점, 요청 기준, 요청 결과 케이스를 각자의 권한과 요청 지점에 맞춰 각각 갖는다.
   - 두 문서가 각자의 기본 보기 모드와 노출 대상 장소, 현재 위치 확인 시점에 맞춰 같은 공통 규칙의 케이스를 각각 갖는다.
 - [목록·상세 배치 공통 스펙](../spec/list-detail-pane.md) → [Contact](./contact-list-detail.md), [Memo](./memo-list-detail.md), [Routine](./routine-list-detail.md), [Setting](./setting-list-detail.md), [Tag](./tag-list-detail.md), [TagMemoFinishedList](./tag-memo-finished-list-detail.md), [Web](./web-list-detail.md) 목록·상세 배치
