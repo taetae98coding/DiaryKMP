@@ -95,6 +95,7 @@
 | [Routine 목록·상세 배치](./routine-list-detail.md) | [Routine 목록·상세 배치 디자인](../design/routine-list-detail.md) |
 | [SearchHome 화면](./search-home.md) | [SearchHome 디자인](../design/search-home.md) |
 | [검색어 일치 판정](./search-match.md) | — |
+| [화면 조회 로깅](./screen-view-logging.md) | — |
 | [SettingGemini 화면](./setting-gemini.md) | [SettingGemini 디자인](../design/setting-gemini.md) |
 | [SettingHoliday 화면](./setting-holiday.md) | [SettingHoliday 디자인](../design/setting-holiday.md) |
 | [SettingHome 화면](./setting-home.md) | [SettingHome 디자인](../design/setting-home.md) |
