@@ -12,6 +12,8 @@
 
 여러 문서가 함께 쓰는 여백과 간격 값은 [공통 여백과 간격](./dimens.md)이 소유한다. 다른 문서는 같은 값을 숫자로 다시 적지 않는다.
 
+여러 문서가 함께 쓰는 시각 속성 묶음과 모양·불투명도 값은 [공통 스타일](./styles.md)이 이름을 붙여 소유한다. 다른 문서는 그 이름으로 참조하고, 코드는 같은 이름의 Style로 관리한다.
+
 페이지 단위로 조회하는 목록에서 아직 준비되지 않은 자리의 표현은 [페이지 조회 목록의 자리 표시](./paged-list-placeholder.md)가 소유한다. 각 문서는 그 목록에서만 다른 비움 형태만 남긴다.
 
 화면 본문을 차지하는 목록이 비어 있을 때의 표시 형태와 전환은 [목록 빈 상태](./list-empty-state.md)가 소유한다. 각 문서는 그 목록에서만 다른 아이콘과 문구만 남긴다.
@@ -66,6 +68,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail, ContactAdd 화면 문서는 태그 입
 - [DiaryDateTimeInput 컴포넌트](./diary-date-time-input.md)
 - [DiaryMap 컴포넌트](./diary-map.md)
 - [공통 여백과 간격](./dimens.md)
+- [공통 스타일](./styles.md)
 - [필터 Bottom Sheet](./filter-bottom-sheet.md)
 - [FileHome 화면](./file-home.md)
 - [완료 목록 공통](./finished-list.md)
