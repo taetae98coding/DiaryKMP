@@ -4,5 +4,6 @@ public object StartupInitializer {
     public fun initialize(isDebug: Boolean) {
         KoinInitializer.initialize()
         LoggerInitializer.initialize(isDebug = isDebug)
+        initializeSyncWork()
     }
 }

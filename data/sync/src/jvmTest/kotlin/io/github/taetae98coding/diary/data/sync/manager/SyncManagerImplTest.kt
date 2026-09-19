@@ -4,6 +4,7 @@ package io.github.taetae98coding.diary.data.sync.manager
 
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.core.work.api.PeriodicSyncWorkScheduler
 import io.github.taetae98coding.diary.core.work.api.SyncWorkManager
 import io.github.taetae98coding.diary.core.work.api.SyncWorkState
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -206,25 +207,24 @@ class SyncManagerImplTest :
         test("TC-DATA-SYNC-DOMAIN-056 주기 동기화 예약의 계정 식별자와 주기를 백그라운드 작업에 전달한다") {
             runTest {
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
-                val workState = MutableStateFlow(SyncWorkState.NONE)
-                val syncWorkManager = syncWorkManager(workState = workState)
-                val syncManager = syncManager(syncWorkManager = syncWorkManager, scope = backgroundScope)
+                val period = 4.hours
+                val periodicSyncWorkScheduler = periodicSyncWorkScheduler()
+                val syncManager = syncManager(periodicSyncWorkScheduler = periodicSyncWorkScheduler, scope = backgroundScope)
 
-                syncManager.schedulePeriodicSync(accountId = accountId, period = 4.hours)
+                syncManager.schedulePeriodicSync(accountId = accountId, period = period)
 
-                verify(exactly = 1) { syncWorkManager.schedulePeriodicSync(accountId = accountId, period = 4.hours) }
+                verify(exactly = 1) { periodicSyncWorkScheduler.schedule(accountId = accountId, period = period) }
             }
         }
 
         test("TC-DATA-SYNC-DOMAIN-059 주기 동기화 예약 해제를 백그라운드 작업에 전달한다") {
             runTest {
-                val workState = MutableStateFlow(SyncWorkState.NONE)
-                val syncWorkManager = syncWorkManager(workState = workState)
-                val syncManager = syncManager(syncWorkManager = syncWorkManager, scope = backgroundScope)
+                val periodicSyncWorkScheduler = periodicSyncWorkScheduler()
+                val syncManager = syncManager(periodicSyncWorkScheduler = periodicSyncWorkScheduler, scope = backgroundScope)
 
                 syncManager.cancelPeriodicSync()
 
-                verify(exactly = 1) { syncWorkManager.cancelPeriodicSync() }
+                verify(exactly = 1) { periodicSyncWorkScheduler.cancel() }
             }
         }
 
@@ -251,16 +251,22 @@ class SyncManagerImplTest :
             mockk<SyncWorkManager>().also { manager ->
                 every { manager.state } returns workState
                 justRun { manager.sync(accountId = any()) }
-                justRun { manager.schedulePeriodicSync(accountId = any(), period = any()) }
-                justRun { manager.cancelPeriodicSync() }
+            }
+
+        private fun periodicSyncWorkScheduler(): PeriodicSyncWorkScheduler =
+            mockk<PeriodicSyncWorkScheduler>().also { scheduler ->
+                justRun { scheduler.schedule(accountId = any(), period = any()) }
+                justRun { scheduler.cancel() }
             }
 
         private fun syncManager(
-            syncWorkManager: SyncWorkManager,
+            syncWorkManager: SyncWorkManager = syncWorkManager(workState = MutableStateFlow(SyncWorkState.NONE)),
+            periodicSyncWorkScheduler: PeriodicSyncWorkScheduler = periodicSyncWorkScheduler(),
             scope: CoroutineScope,
         ): SyncManagerImpl =
             SyncManagerImpl(
                 syncWorkManager = syncWorkManager,
+                periodicSyncWorkScheduler = periodicSyncWorkScheduler,
                 scope = scope,
             )
     }

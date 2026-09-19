@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.data.sync.manager
 
+import io.github.taetae98coding.diary.core.work.api.PeriodicSyncWorkScheduler
 import io.github.taetae98coding.diary.core.work.api.SyncWorkManager
 import io.github.taetae98coding.diary.core.work.api.SyncWorkState
 import io.github.taetae98coding.diary.data.sync.di.SyncManagerScope
@@ -21,6 +22,7 @@ import kotlin.uuid.Uuid
 @Single
 internal class SyncManagerImpl(
     private val syncWorkManager: SyncWorkManager,
+    private val periodicSyncWorkScheduler: PeriodicSyncWorkScheduler,
     @SyncManagerScope scope: CoroutineScope,
 ) : SyncManager {
     private val reportRequest =
@@ -57,11 +59,11 @@ internal class SyncManagerImpl(
         accountId: Uuid,
         period: Duration,
     ) {
-        syncWorkManager.schedulePeriodicSync(accountId = accountId, period = period)
+        periodicSyncWorkScheduler.schedule(accountId = accountId, period = period)
     }
 
     override fun cancelPeriodicSync() {
-        syncWorkManager.cancelPeriodicSync()
+        periodicSyncWorkScheduler.cancel()
     }
 }
 
