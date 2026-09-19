@@ -8,9 +8,11 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.taetae98coding.diary.feature.calendar.ui.permission.LocationPermissionRequestResult
-import io.github.taetae98coding.diary.feature.calendar.ui.permission.LocationPermissionRequester
-import io.github.taetae98coding.diary.feature.calendar.ui.permission.rememberLocationPermissionRequester
+import io.github.taetae98coding.diary.compose.permission.RequestPermissionEffect
+import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.core.permission.Permission
+import io.github.taetae98coding.diary.core.permission.PermissionManager
+import io.github.taetae98coding.diary.core.permission.PermissionResult
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -25,7 +27,7 @@ internal fun CalendarHomeScreen(
     navigateToContactDetail: (Uuid) -> Unit,
     navigateToFilter: () -> Unit,
     state: CalendarHomeScaffoldState,
-    locationPermissionRequester: LocationPermissionRequester,
+    permissionManager: PermissionManager,
     holidayViewModel: CalendarHomeHolidayViewModel,
     memoViewModel: CalendarHomeMemoViewModel,
     birthdayViewModel: CalendarHomeBirthdayViewModel,
@@ -61,7 +63,7 @@ internal fun CalendarHomeScreen(
         weatherViewModel = weatherViewModel,
     )
     RequestLocationPermissionEffect(
-        locationPermissionRequester = locationPermissionRequester,
+        permissionManager = permissionManager,
         weatherViewModel = weatherViewModel,
     )
     CalendarHomeScaffold(
@@ -143,13 +145,17 @@ private fun ScrollItemToTopOnFirstWeatherEffect(
 @Composable
 private fun RequestLocationPermissionEffect(
     weatherViewModel: CalendarHomeWeatherViewModel,
-    locationPermissionRequester: LocationPermissionRequester = rememberLocationPermissionRequester(),
+    permissionManager: PermissionManager = rememberPermissionManager(),
 ) {
-    LaunchedEffect(locationPermissionRequester, weatherViewModel) {
-        if (locationPermissionRequester.request() == LocationPermissionRequestResult.GRANTED) {
-            weatherViewModel.refreshOnLocationPermissionGranted()
-        }
-    }
+    RequestPermissionEffect(
+        permission = Permission.LOCATION,
+        onResult = { result ->
+            if (result == PermissionResult.GRANTED) {
+                weatherViewModel.refreshOnLocationPermissionGranted()
+            }
+        },
+        permissionManager = permissionManager,
+    )
 }
 
 @Composable

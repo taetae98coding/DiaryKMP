@@ -6,7 +6,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.feature.calendar.ui.permission.rememberLocationPermissionRequester
+import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -79,7 +79,7 @@ class CalendarHomeScreenHolidayTest {
                     memoViewModel = memoViewModel(),
                     weatherViewModel = weatherViewModel(),
                     syncViewModel = syncViewModel(),
-                    locationPermissionRequester = rememberLocationPermissionRequester(),
+                    permissionManager = rememberPermissionManager(),
                 )
             }
         }

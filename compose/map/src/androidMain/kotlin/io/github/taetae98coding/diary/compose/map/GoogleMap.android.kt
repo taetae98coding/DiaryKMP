@@ -9,6 +9,8 @@ import com.google.android.gms.maps.model.PointOfInterest
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
+import io.github.taetae98coding.diary.compose.permission.rememberIsPermissionGranted
+import io.github.taetae98coding.diary.core.permission.Permission
 import kotlin.uuid.Uuid
 import com.google.maps.android.compose.GoogleMap as AndroidGoogleMap
 
@@ -19,7 +21,7 @@ internal actual fun GoogleMap(
     onSpotClick: ((DiaryMapCoordinate) -> Unit)?,
     onPinClick: ((Uuid) -> Unit)?,
 ) {
-    val isLocationPermissionGranted = rememberIsLocationPermissionGranted()
+    val isLocationPermissionGranted = rememberIsPermissionGranted(Permission.LOCATION)
     val properties = remember(isLocationPermissionGranted) { googleMapProperties(isLocationPermissionGranted) }
     val uiSettings = remember(isLocationPermissionGranted) { googleMapUiSettings(isLocationPermissionGranted) }
     val cameraPositionState =

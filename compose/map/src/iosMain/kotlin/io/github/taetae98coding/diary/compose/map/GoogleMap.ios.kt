@@ -10,6 +10,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.viewinterop.UIKitView
+import io.github.taetae98coding.diary.compose.permission.rememberIsPermissionGranted
+import io.github.taetae98coding.diary.core.permission.Permission
 import kotlinx.cinterop.ExperimentalForeignApi
 import swiftPMImport.DiaryKmp.compose.compose.map.GMSMapView
 import swiftPMImport.DiaryKmp.compose.compose.map.GMSMapViewDelegateProtocol
@@ -31,7 +33,7 @@ internal actual fun GoogleMap(
             )
         }
     var mapView by remember(state) { mutableStateOf<GMSMapView?>(null) }
-    val isLocationPermissionGranted = rememberIsLocationPermissionGranted()
+    val isLocationPermissionGranted = rememberIsPermissionGranted(Permission.LOCATION)
 
     GoogleMapSpotMarkerEffect(
         mapView = mapView,

@@ -32,6 +32,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.compose.core)
+                implementation(projects.compose.permission)
             }
         }
 

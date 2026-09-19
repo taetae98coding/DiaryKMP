@@ -9,6 +9,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.UIKitView
+import io.github.taetae98coding.diary.compose.permission.rememberIsPermissionGranted
+import io.github.taetae98coding.diary.core.permission.Permission
 import kotlinx.cinterop.ExperimentalForeignApi
 import swiftPMImport.DiaryKmp.compose.compose.map.NMFNaverMapView
 import kotlin.uuid.Uuid
@@ -27,7 +29,7 @@ internal actual fun NaverMap(
         }
     var attachedView by remember(state) { mutableStateOf<NMFNaverMapView?>(null) }
     val attachedMapView = attachedView?.mapView
-    val isLocationPermissionGranted = rememberIsLocationPermissionGranted()
+    val isLocationPermissionGranted = rememberIsPermissionGranted(Permission.LOCATION)
 
     NaverMapSpotMarkerEffect(
         mapView = attachedMapView,

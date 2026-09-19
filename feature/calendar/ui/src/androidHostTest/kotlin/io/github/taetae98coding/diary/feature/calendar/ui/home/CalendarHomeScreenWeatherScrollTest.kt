@@ -15,11 +15,11 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
-import io.github.taetae98coding.diary.feature.calendar.ui.permission.rememberLocationPermissionRequester
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -200,7 +200,7 @@ class CalendarHomeScreenWeatherScrollTest {
                     memoViewModel = memoViewModel,
                     weatherViewModel = weatherViewModel(weatherReportFlow = weatherReportFlow),
                     syncViewModel = syncViewModel(),
-                    locationPermissionRequester = rememberLocationPermissionRequester(),
+                    permissionManager = rememberPermissionManager(),
                 )
             }
         }

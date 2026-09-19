@@ -7,6 +7,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.compose.calendar)
+                implementation(projects.compose.permission)
                 implementation(projects.compose.tag)
                 implementation(projects.domain.contact)
                 implementation(projects.domain.holiday)
@@ -20,12 +21,6 @@ kotlin {
                 implementation(projects.library.kotlin)
                 implementation(projects.library.kotlinxDatetime)
                 implementation(libs.coil.compose)
-            }
-        }
-
-        androidMain {
-            dependencies {
-                implementation(libs.androidx.activity.compose)
             }
         }
 

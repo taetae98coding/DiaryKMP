@@ -6,7 +6,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.feature.calendar.ui.permission.rememberLocationPermissionRequester
+import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -76,7 +76,7 @@ class CalendarHomeScreenFilterTest {
                     weatherViewModel = weatherViewModel(),
                     syncViewModel = syncViewModel(),
                     state = rememberCalendarHomeScaffoldState(),
-                    locationPermissionRequester = rememberLocationPermissionRequester(),
+                    permissionManager = rememberPermissionManager(),
                 )
             }
         }

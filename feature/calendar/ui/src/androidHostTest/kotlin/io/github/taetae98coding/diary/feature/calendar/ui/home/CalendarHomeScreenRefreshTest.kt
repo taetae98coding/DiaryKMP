@@ -8,7 +8,7 @@ import androidx.compose.ui.test.swipeDown
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.feature.calendar.ui.permission.rememberLocationPermissionRequester
+import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -140,7 +140,7 @@ class CalendarHomeScreenRefreshTest {
                     memoViewModel = memoViewModel,
                     weatherViewModel = weatherViewModel,
                     syncViewModel = syncViewModel,
-                    locationPermissionRequester = rememberLocationPermissionRequester(),
+                    permissionManager = rememberPermissionManager(),
                 )
             }
         }

@@ -13,10 +13,10 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
-import io.github.taetae98coding.diary.feature.calendar.ui.permission.rememberLocationPermissionRequester
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -193,7 +193,7 @@ class CalendarHomeScreenWeatherSearchTest {
                         memoViewModel = memoViewModel,
                         weatherViewModel = weatherViewModel(weatherReportFlow = weatherReportFlow),
                         syncViewModel = syncViewModel(),
-                        locationPermissionRequester = rememberLocationPermissionRequester(),
+                        permissionManager = rememberPermissionManager(),
                     )
                 }
             }

@@ -3,6 +3,8 @@ package io.github.taetae98coding.diary.compose.map
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import io.github.taetae98coding.diary.compose.permission.rememberIsPermissionGranted
+import io.github.taetae98coding.diary.core.permission.Permission
 import kotlin.uuid.Uuid
 
 @Composable
@@ -14,7 +16,7 @@ internal actual fun NaverMap(
 ) {
     val mapView = rememberNaverMapViewWithLifecycle(camera = state.camera)
     val client = rememberNaverMapClient(mapView = mapView)
-    val isLocationPermissionGranted = rememberIsLocationPermissionGranted()
+    val isLocationPermissionGranted = rememberIsPermissionGranted(Permission.LOCATION)
 
     NaverMapShareCameraEffect(
         client = client,

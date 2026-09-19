@@ -18,6 +18,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.compose.core)
+                implementation(projects.compose.permission)
                 implementation(projects.core.database.impl)
                 implementation(projects.core.datastore.impl)
                 implementation(projects.core.file.impl)

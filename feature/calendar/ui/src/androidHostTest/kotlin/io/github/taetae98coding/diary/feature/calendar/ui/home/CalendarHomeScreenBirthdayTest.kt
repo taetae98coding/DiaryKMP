@@ -14,12 +14,12 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.domain.contact.usecase.GetCalendarContactBirthdayUseCase
-import io.github.taetae98coding.diary.feature.calendar.ui.permission.rememberLocationPermissionRequester
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -237,7 +237,7 @@ class CalendarHomeScreenBirthdayTest {
                     birthdayViewModel = birthdayViewModel,
                     weatherViewModel = weatherViewModel(),
                     syncViewModel = syncViewModel(),
-                    locationPermissionRequester = rememberLocationPermissionRequester(),
+                    permissionManager = rememberPermissionManager(),
                 )
             }
         }
