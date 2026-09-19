@@ -32,8 +32,12 @@ internal class CalendarWeekOfMonthGridGroupScopeVerticalGridImpl(
         val grid = mutableListOf<List<CalendarWeekOfMonthGridItem>>()
 
         itemList
-            .sortedWith(compareBy<CalendarWeekOfMonthGridItem> { it.dateRange.start }.thenByDescending { it.dateRange.endInclusive })
-            .map { it.copy(dateRange = it.dateRange.start.coerceIn(dateRange)..it.dateRange.endInclusive.coerceIn(dateRange)) }
+            .sortedWith(
+                compareBy<CalendarWeekOfMonthGridItem> { it.dateRange.clipToWeek().start }
+                    .thenByDescending { it.dateRange.clipToWeek().endInclusive }
+                    .thenBy { it.dateRange.start }
+                    .thenByDescending { it.dateRange.endInclusive },
+            ).map { it.copy(dateRange = it.dateRange.clipToWeek()) }
             .forEach { item ->
                 val rowIndex = grid.indexOfFirst { list -> list.none { it.dateRange.overlaps(item.dateRange) } }
                 if (rowIndex == -1) {
@@ -49,4 +53,6 @@ internal class CalendarWeekOfMonthGridGroupScopeVerticalGridImpl(
 
         return grid.toList()
     }
+
+    private fun LocalDateRange.clipToWeek(): LocalDateRange = start.coerceIn(dateRange)..endInclusive.coerceIn(dateRange)
 }
