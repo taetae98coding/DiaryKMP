@@ -242,12 +242,19 @@
 - When: 사용자가 질의 `여행`으로 메모 결과를 확인한다.
 - Then: 그 메모가 결과에 표시된다.
 
-### TC-SEARCH-HOME-DOMAIN-004: 대소문자를 구분하지 않는다
+### TC-SEARCH-HOME-DOMAIN-004: ASCII 영문자는 대소문자를 구분하지 않는다
 
 - 근거: `domain > 일치 판정`
 - Given: 제목이 `Travel`인 메모가 저장되어 있다.
 - When: 사용자가 질의 `travel`로 메모 결과를 확인한다.
 - Then: 그 메모가 결과에 표시된다.
+
+### TC-SEARCH-HOME-DOMAIN-014: ASCII 밖의 글자는 대소문자를 맞추지 않는다
+
+- 근거: `domain > 일치 판정`
+- Given: 제목이 `Café`인 메모가 저장되어 있다.
+- When: 사용자가 질의 `CAFÉ`로 메모 결과를 확인한다.
+- Then: 그 메모가 결과에 표시되지 않는다.
 
 ### TC-SEARCH-HOME-DOMAIN-005: 판정에 쓰지 않는 값만 질의를 포함하면 결과가 되지 않는다
 

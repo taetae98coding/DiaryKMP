@@ -256,12 +256,20 @@ class SearchPagingDaoTest :
             memoIdList(accountId) shouldBe listOf(memo.id)
         }
 
-        test("TC-SEARCH-HOME-DOMAIN-004 대소문자를 구분하지 않는다") {
+        test("TC-SEARCH-HOME-DOMAIN-004 ASCII 영문자는 대소문자를 구분하지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo(title = "Travel")
             insertMemo(accountId, memo)
 
             memoIdList(accountId = accountId, query = "travel") shouldBe listOf(memo.id)
+        }
+
+        test("TC-SEARCH-HOME-DOMAIN-014 ASCII 밖의 글자는 대소문자를 맞추지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = memo(title = "Café")
+            insertMemo(accountId, memo)
+
+            memoIdList(accountId = accountId, query = "CAFÉ").shouldBeEmpty()
         }
 
         test("TC-SEARCH-HOME-DOMAIN-005 연결된 태그의 제목만 질의를 포함하면 메모는 결과가 되지 않는다") {
