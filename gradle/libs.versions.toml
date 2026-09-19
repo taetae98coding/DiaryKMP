@@ -23,8 +23,8 @@ androidxDatastore = "1.3.0-alpha11" # https://developer.android.com/jetpack/andr
 androidxLifecycle = "2.11.0" # https://developer.android.com/jetpack/androidx/releases/lifecycle?hl=en
 androidxNavigation3 = "1.2.0-alpha04" # https://developer.android.com/jetpack/androidx/releases/navigation3?hl=en
 androidxPaging = "3.5.1" # https://developer.android.com/jetpack/androidx/releases/paging?hl=en
-androidxRoom3 = "3.0.2" # https://developer.android.com/jetpack/androidx/releases/room3?hl=en
-androidxSqlite = "2.7.0" # https://developer.android.com/jetpack/androidx/releases/sqlite?hl=en
+androidxRoom3 = "3.0.3" # https://developer.android.com/jetpack/androidx/releases/room3?hl=en
+androidxSqlite = "2.7.1" # https://developer.android.com/jetpack/androidx/releases/sqlite?hl=en
 androidxStartup = "1.2.0" # https://developer.android.com/jetpack/androidx/releases/startup?hl=en
 androidxWork = "2.11.2" # https://developer.android.com/jetpack/androidx/releases/work?hl=en
 
@@ -35,7 +35,7 @@ firebase = "34.19.0" # https://firebase.google.com/support/release-notes/android
 firebaseCrashlyticsGradlePlugin = "3.0.8"
 firebasePerformanceGradlePlugin = "2.0.2"
 fixtureMonkey = "1.2.3" # https://github.com/naver/fixture-monkey/releases
-googleId = "1.2.0" # https://developers.google.com/identity/android-credential-manager/releases?hl=en
+googleId = "1.2.1" # https://developers.google.com/identity/android-credential-manager/releases?hl=en
 googleLocation = "21.4.0" # https://developers.google.com/android/guides/releases?hl=en
 googleMap = "8.5.0" # https://github.com/googlemaps/android-maps-compose/releases
 googleMaterial = "1.14.0" # https://github.com/material-components/material-components-android/releases
