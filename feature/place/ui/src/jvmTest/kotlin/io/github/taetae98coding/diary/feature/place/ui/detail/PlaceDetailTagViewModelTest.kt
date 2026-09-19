@@ -49,7 +49,7 @@ class PlaceDetailTagViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-034 저장된 연결의 태그를 연결 대상으로 표시한다") {
+        test("저장된 연결의 태그를 연결 대상으로 표시한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val tagList = List(2) { tag() }
@@ -117,7 +117,7 @@ class PlaceDetailTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-038 TC-PLACE-DETAIL-DOMAIN-031 연결과 해제는 이어서 실행해도 모두 반영된다") {
+        test("TC-PLACE-DETAIL-DOMAIN-031 연결과 해제는 이어서 실행해도 모두 반영된다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val firstTagId = fixtureMonkey.giveMeOne<Uuid>()

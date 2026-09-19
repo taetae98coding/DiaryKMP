@@ -145,7 +145,7 @@ class MemoAddScreenPlaceAddTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-DOMAIN-021 지도가 표시되지 않으면 지도 위치를 넘기지 않는다`() {
+    fun `TC-MEMO-PLACE-CARD-DOMAIN-025 지도가 표시되지 않으면 지도 위치를 넘기지 않는다`() {
         var placeAddCount = 0
         var passedCoordinate: Coordinate? = null
         setMemoAddScreen(

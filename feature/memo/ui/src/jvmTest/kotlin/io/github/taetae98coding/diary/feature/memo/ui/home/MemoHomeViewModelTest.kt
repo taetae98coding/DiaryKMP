@@ -263,7 +263,7 @@ class MemoHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-HOME-FEATURE-047 처음 정렬은 기본순이다") {
+        test("TC-MEMO-HOME-FEATURE-061 처음 정렬은 기본순이다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel()
 

@@ -30,7 +30,7 @@ class MemoHomeSortTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-047 목록 위에 현재 정렬을 표시한다`() {
+    fun `TC-MEMO-HOME-FEATURE-061 목록 위에 현재 정렬을 표시한다`() {
         setMemoHomeScaffold()
 
         composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).assert(hasClickAction())
@@ -38,7 +38,7 @@ class MemoHomeSortTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-048 정렬 컨트롤을 누르면 세 정렬을 고를 수 있다`() {
+    fun `TC-MEMO-HOME-FEATURE-062 정렬 컨트롤을 누르면 세 정렬을 고를 수 있다`() {
         setMemoHomeScaffold(sortSheetState = DialogState(isVisible = true))
 
         composeRule.onNodeWithText(DEFAULT_SORT_SHEET_TITLE).assertExists()

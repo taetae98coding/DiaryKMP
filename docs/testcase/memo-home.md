@@ -372,14 +372,14 @@ flowchart TD
 - When: 사용자가 화면에서 실행할 수 있는 동작을 확인한다.
 - Then: 메모 추가 동작, 필터 열기 동작, 완료된 메모 확인 동작이 모두 제공된다.
 
-### TC-MEMO-HOME-FEATURE-047: 목록 위에 현재 정렬을 표시한다
+### TC-MEMO-HOME-FEATURE-061: 목록 위에 현재 정렬을 표시한다
 
 - 근거: `feature > 정렬 선택`
 - Given: 현재 계정에 메모가 있고 사용자가 정렬을 고르지 않았다.
 - When: MemoHome 화면이 표시된다.
 - Then: 목록 위에 현재 정렬이 기본순임을 알리는 컨트롤이 표시된다.
 
-### TC-MEMO-HOME-FEATURE-048: 정렬 컨트롤을 누르면 세 정렬을 고를 수 있다
+### TC-MEMO-HOME-FEATURE-062: 정렬 컨트롤을 누르면 세 정렬을 고를 수 있다
 
 - 근거: `feature > 정렬 선택`
 - Given: MemoHome 화면에 정렬 컨트롤이 표시되어 있다.
