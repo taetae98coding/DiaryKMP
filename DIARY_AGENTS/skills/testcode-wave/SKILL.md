@@ -67,6 +67,8 @@ mock 라이브러리는 MockK를 쓴다. 외부 경계와 협력 객체는 MockK
 
 생성한 문자열은 약 3%가 빈 문자열이다. 빈 값이면 결과가 달라지는 테스트는 생성 값을 그대로 쓰지 말고 값을 직접 정하거나 앞에 고정 문자열을 붙인다.
 
+엔티티와 모델의 고정 값을 만드는 헬퍼(`localTag(isFinished, isDeleted)`, `contactDetailCaseList()` 등)는 테스트 파일마다 다시 쓰지 않고 `:core:testing`에 `FixtureMonkey` 확장 함수로 둔다. 두 모듈 이상의 테스트가 같은 엔티티를 만들면 그 헬퍼는 이 모듈로 옮긴다. `:core:testing`은 `core:database:api`, `core:network:api`, `core:model`에 의존하므로 `:library:*`가 아니라 `:core:*`에 있고, 쓰는 모듈의 `jvmTest`가 의존성을 직접 선언한다.
+
 `FixtureMonkey` 인스턴스는 파일 최상위에 한 번 만들어 공유하고, fixture는 최상위 프로퍼티가 아니라 각 테스트 본문 안에서 생성한다. 테스트마다 다른 값이 생성되어 테스트 간 상관관계가 없고, 실패한 테스트에 쓰인 값을 그 테스트 안에서 바로 확인할 수 있다. `FixtureMonkey` 프로퍼티는 명시적 타입을 선언해야 한다(타입 추론에 checkerframework 어노테이션이 섞여 컴파일 에러가 발생한다).
 
 빈 값 확인처럼 특정 값 자체가 검증 대상인 경우에만 고정 값을 쓴다. 예를 들어 언어별 UI 문구 검증은 실제 리소스 문자열을 고정 값으로 쓴다.
