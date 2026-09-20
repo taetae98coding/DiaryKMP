@@ -1,4 +1,4 @@
-package io.github.taetae98coding.diary.compose.core.sort
+package io.github.taetae98coding.diary.compose.list.sort
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

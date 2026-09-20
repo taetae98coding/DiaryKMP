@@ -6,6 +6,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(projects.compose.list)
                 implementation(projects.compose.place)
                 implementation(projects.compose.tag)
                 implementation(projects.domain.location)

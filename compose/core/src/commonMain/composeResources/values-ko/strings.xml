@@ -10,12 +10,6 @@
     <string name="diary_emoji_input_dialog_confirm">확인</string>
     <string name="diary_emoji_input_label">이모지</string>
     <string name="diary_title_input_label">제목</string>
-    <string name="list_sort_bottom_sheet_title">정렬</string>
-    <string name="list_sort_content_description">목록 정렬</string>
-    <string name="list_sort_default_label">기본순</string>
-    <string name="list_sort_name_label">이름순</string>
-    <string name="list_sort_recently_updated_label">최근 수정순</string>
-    <string name="list_sort_title_label">제목순</string>
     <string name="date_display_format">%1$s. %2$s. %3$s.</string>
     <string name="time_display_format">%3$s %1$s:%2$s</string>
     <string name="time_display_am">오전</string>

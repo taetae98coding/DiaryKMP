@@ -1,4 +1,4 @@
-package io.github.taetae98coding.diary.compose.core.list
+package io.github.taetae98coding.diary.compose.list
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height

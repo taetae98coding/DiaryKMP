@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalFoundationStyleApi::class)
 
-package io.github.taetae98coding.diary.compose.core.sort
+package io.github.taetae98coding.diary.compose.list.sort
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,10 +21,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import io.github.taetae98coding.diary.compose.core.Res
-import io.github.taetae98coding.diary.compose.core.list_sort_bottom_sheet_title
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.list.Res
+import io.github.taetae98coding.diary.compose.list.list_sort_bottom_sheet_title
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import org.jetbrains.compose.resources.stringResource
 

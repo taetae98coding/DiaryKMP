@@ -1,0 +1,8 @@
+<resources>
+    <string name="list_sort_bottom_sheet_title">정렬</string>
+    <string name="list_sort_content_description">목록 정렬</string>
+    <string name="list_sort_default_label">기본순</string>
+    <string name="list_sort_name_label">이름순</string>
+    <string name="list_sort_recently_updated_label">최근 수정순</string>
+    <string name="list_sort_title_label">제목순</string>
+</resources>

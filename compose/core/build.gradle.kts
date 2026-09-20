@@ -11,7 +11,6 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                api(projects.core.model)
                 implementation(projects.library.composeUi)
                 implementation(libs.coil.compose)
                 implementation(libs.jetbrains.compose.material.icons.extended)

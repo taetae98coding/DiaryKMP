@@ -1,10 +1,10 @@
-package io.github.taetae98coding.diary.compose.core.sort
+package io.github.taetae98coding.diary.compose.list.sort
 
-import io.github.taetae98coding.diary.compose.core.Res
-import io.github.taetae98coding.diary.compose.core.list_sort_default_label
-import io.github.taetae98coding.diary.compose.core.list_sort_name_label
-import io.github.taetae98coding.diary.compose.core.list_sort_recently_updated_label
-import io.github.taetae98coding.diary.compose.core.list_sort_title_label
+import io.github.taetae98coding.diary.compose.list.Res
+import io.github.taetae98coding.diary.compose.list.list_sort_default_label
+import io.github.taetae98coding.diary.compose.list.list_sort_name_label
+import io.github.taetae98coding.diary.compose.list.list_sort_recently_updated_label
+import io.github.taetae98coding.diary.compose.list.list_sort_title_label
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import org.jetbrains.compose.resources.StringResource
 

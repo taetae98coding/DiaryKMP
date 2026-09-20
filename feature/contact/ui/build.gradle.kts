@@ -6,6 +6,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(projects.compose.list)
                 implementation(projects.domain.contact)
                 implementation(projects.domain.sync)
                 implementation(projects.feature.contact.api)

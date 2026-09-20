@@ -16,11 +16,11 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableGrid
-import io.github.taetae98coding.diary.compose.core.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.feature.contact.ui.previewContact

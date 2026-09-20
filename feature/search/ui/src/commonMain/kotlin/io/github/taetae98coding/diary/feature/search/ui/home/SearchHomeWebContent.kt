@@ -13,7 +13,7 @@ import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.effect.DiarySearchQueryEffect
-import io.github.taetae98coding.diary.compose.core.list.ListQueryScrollEffect
+import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.uuid.Uuid

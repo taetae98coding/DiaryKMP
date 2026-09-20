@@ -6,6 +6,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(projects.compose.list)
                 implementation(libs.jetbrains.lifecycle.viewmodel.compose)
                 implementation(projects.compose.memo)
                 implementation(projects.compose.place)

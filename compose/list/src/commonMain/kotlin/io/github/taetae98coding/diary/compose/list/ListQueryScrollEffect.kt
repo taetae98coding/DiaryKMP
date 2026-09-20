@@ -1,4 +1,4 @@
-package io.github.taetae98coding.diary.compose.core.list
+package io.github.taetae98coding.diary.compose.list
 
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.lazy.LazyListState

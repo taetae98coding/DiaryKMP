@@ -1,4 +1,4 @@
-package io.github.taetae98coding.diary.compose.core.sort
+package io.github.taetae98coding.diary.compose.list.sort
 
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.kotest.core.spec.style.FunSpec

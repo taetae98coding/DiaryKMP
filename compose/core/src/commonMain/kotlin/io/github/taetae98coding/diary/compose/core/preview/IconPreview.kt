@@ -5,4 +5,4 @@ import androidx.compose.ui.tooling.preview.Preview
 @Preview(showBackground = true)
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.BINARY)
-internal annotation class IconPreview
+public annotation class IconPreview

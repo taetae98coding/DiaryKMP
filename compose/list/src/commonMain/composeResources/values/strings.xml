@@ -1,0 +1,8 @@
+<resources>
+    <string name="list_sort_bottom_sheet_title">Sort</string>
+    <string name="list_sort_content_description">List sort</string>
+    <string name="list_sort_default_label">Default</string>
+    <string name="list_sort_name_label">Name</string>
+    <string name="list_sort_recently_updated_label">Recently updated</string>
+    <string name="list_sort_title_label">Title</string>
+</resources>
