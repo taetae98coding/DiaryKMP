@@ -1,8 +1,8 @@
 package io.github.taetae98coding.diary.data.account.repository
 
 import io.github.taetae98coding.diary.core.file.api.FileReader
-import io.github.taetae98coding.diary.core.file.api.FileUri
 import io.github.taetae98coding.diary.core.model.account.UserData
+import io.github.taetae98coding.diary.core.model.file.FileUri
 import io.github.taetae98coding.diary.core.network.api.profile.datasource.ProfileImageRemoteDataSource
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseAuth
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseUser

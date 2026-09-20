@@ -2,7 +2,7 @@ package io.github.taetae98coding.diary.feature.more.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.taetae98coding.diary.core.file.api.FileUri
+import io.github.taetae98coding.diary.core.model.file.FileUri
 import io.github.taetae98coding.diary.domain.account.usecase.ChangeProfileImageUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.SignOutUseCase

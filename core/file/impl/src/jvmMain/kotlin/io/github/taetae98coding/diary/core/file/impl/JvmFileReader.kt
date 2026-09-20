@@ -2,7 +2,7 @@ package io.github.taetae98coding.diary.core.file.impl
 
 import io.github.taetae98coding.diary.core.file.api.FileReader
 import io.github.taetae98coding.diary.core.file.api.FileSource
-import io.github.taetae98coding.diary.core.file.api.FileUri
+import io.github.taetae98coding.diary.core.model.file.FileUri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.io.RawSource

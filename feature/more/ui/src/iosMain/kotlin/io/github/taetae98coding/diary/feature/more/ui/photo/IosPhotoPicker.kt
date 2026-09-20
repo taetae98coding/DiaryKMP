@@ -3,7 +3,7 @@ package io.github.taetae98coding.diary.feature.more.ui.photo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.uikit.LocalUIViewController
-import io.github.taetae98coding.diary.core.file.api.FileUri
+import io.github.taetae98coding.diary.core.model.file.FileUri
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
 import platform.Foundation.NSData

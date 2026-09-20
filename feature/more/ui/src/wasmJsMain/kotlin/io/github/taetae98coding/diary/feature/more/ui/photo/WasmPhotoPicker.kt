@@ -4,7 +4,7 @@ package io.github.taetae98coding.diary.feature.more.ui.photo
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import io.github.taetae98coding.diary.core.file.api.FileUri
+import io.github.taetae98coding.diary.core.model.file.FileUri
 import kotlinx.browser.document
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.w3c.dom.HTMLInputElement

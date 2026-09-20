@@ -1,4 +1,4 @@
-package io.github.taetae98coding.diary.core.file.api
+package io.github.taetae98coding.diary.core.model.file
 
 import kotlin.jvm.JvmInline
 

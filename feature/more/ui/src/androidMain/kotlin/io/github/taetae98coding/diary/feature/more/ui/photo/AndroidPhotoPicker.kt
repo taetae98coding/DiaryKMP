@@ -8,7 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
-import io.github.taetae98coding.diary.core.file.api.FileUri
+import io.github.taetae98coding.diary.core.model.file.FileUri
 import kotlinx.coroutines.CompletableDeferred
 
 @Composable

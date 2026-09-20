@@ -5,8 +5,8 @@ package io.github.taetae98coding.diary.feature.more.ui.home
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.core.file.api.FileUri
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.core.model.file.FileUri
 import io.github.taetae98coding.diary.domain.account.usecase.ChangeProfileImageUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.SignOutUseCase
