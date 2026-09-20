@@ -3,16 +3,18 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application>
+        <!-- 초기화 순서는 각 Initializer의 dependencies()가 소유한다. 의존성으로 이어진 Initializer도 함께 등록해,
+             그 선언이 사라져도 초기화 자체가 조용히 빠지지 않게 한다. 이미 초기화한 Initializer는 다시 실행되지 않는다. -->
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
             android:exported="false"
             tools:node="merge">
             <meta-data
-                android:name="io.github.taetae98coding.diary.app.startup.KoinInitializer"
+                android:name="io.github.taetae98coding.diary.app.startup.LoggerStartupInitializer"
                 android:value="androidx.startup" />
             <meta-data
-                android:name="io.github.taetae98coding.diary.app.startup.LoggerInitializer"
+                android:name="io.github.taetae98coding.diary.app.startup.KoinStartupInitializer"
                 android:value="androidx.startup" />
         </provider>
     </application>

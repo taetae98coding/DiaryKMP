@@ -31,10 +31,14 @@ internal class MultiplatformAndroidLibraryPrimitivePlugin : Plugin<Project> {
                         withJvm()
                     }
 
+                    // iOS는 기본 템플릿의 ios 그룹을 다시 두어 iosMain이 이 그룹의 자식이 되게 한다.
+                    // withIos()만 두면 타깃 소스셋만 자식이 되어 iosMain의 actual이 이 그룹의 expect를 보지 못한다.
                     group("nonWasm") {
                         withCompilations { it.target.platformType == KotlinPlatformType.androidJvm }
                         withJvm()
-                        withIos()
+                        group("ios") {
+                            withIos()
+                        }
                     }
 
                     group("jvmWasm") {
@@ -44,8 +48,10 @@ internal class MultiplatformAndroidLibraryPrimitivePlugin : Plugin<Project> {
 
                     group("nonAndroid") {
                         withJvm()
-                        withIos()
                         withWasmJs()
+                        group("ios") {
+                            withIos()
+                        }
                     }
                 }
             }

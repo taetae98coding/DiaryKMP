@@ -1,9 +1,12 @@
 package io.github.taetae98coding.diary.app.initializer
 
-import io.github.taetae98coding.diary.app.di.startKoin
+import io.github.taetae98coding.diary.app.di.DiaryKoinApplication
+import org.koin.core.KoinApplication
+import org.koin.plugin.module.dsl.startKoin
 
-public object KoinInitializer {
-    public fun initialize() {
-        startKoin(configuration = {})
-    }
+internal object KoinInitializer {
+    fun initialize(configuration: KoinApplication.() -> Unit = {}): KoinApplication =
+        startKoin<DiaryKoinApplication> {
+            configuration()
+        }
 }

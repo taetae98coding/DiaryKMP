@@ -18,7 +18,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="${googleMapApiKey}" />
 
-        <!-- WorkManager 기본 초기화를 제거한다. 초기화는 :app:shared의 KoinInitializer가 WorkerFactory와 함께 수행한다.
+        <!-- WorkManager 기본 초기화를 제거한다. 초기화는 :app:shared의 KoinStartupInitializer가 WorkerFactory와 함께 수행한다.
              이 제거 마커는 :app:shared가 소유해야 맞지만, 라이브러리 매니페스트 병합에는 제거할 대상(work-runtime의 선언)이 없어
              병합 경고가 나므로 대상이 함께 병합되는 application 모듈에서 선언한다. -->
         <provider

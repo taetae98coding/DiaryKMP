@@ -5,13 +5,15 @@ import io.github.taetae98coding.diary.logger.console.impl.ConsoleDiaryLoggerDele
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.github.taetae98coding.diary.logger.crashlytics.impl.CrashlyticsDiaryLoggerDelegate
 
-public object LoggerInitializer {
-    public fun initialize(isDebug: Boolean) {
+internal object LoggerInitializer {
+    fun initialize(isDebug: Boolean): DiaryLogger {
         if (isDebug) {
             DiaryLogger.add(ConsoleDiaryLoggerDelegate())
         }
 
         DiaryLogger.add(CrashlyticsDiaryLoggerDelegate())
         DiaryLogger.add(AnalyticsDiaryLoggerDelegate())
+
+        return DiaryLogger
     }
 }

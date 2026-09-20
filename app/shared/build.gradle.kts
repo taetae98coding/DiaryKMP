@@ -139,6 +139,7 @@ kotlin {
     }
 
     compilerOptions {
+        // BuildKonfig가 타깃별 값을 expect/actual object로 생성하므로 Beta 경고를 끈다.
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 }
