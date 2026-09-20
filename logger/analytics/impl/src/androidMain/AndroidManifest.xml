@@ -1,0 +1,9 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <!-- 화면 조회는 앱이 화면 단위로 직접 남기므로, Activity 하나만 기록하는 자동 수집을 끈다. -->
+        <meta-data
+            android:name="google_analytics_automatic_screen_reporting_enabled"
+            android:value="false" />
+    </application>
+</manifest>
