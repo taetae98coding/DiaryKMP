@@ -21,7 +21,11 @@ public fun App(modifier: Modifier = Modifier) {
         permission = Permission.NOTIFICATION,
         onResult = {},
     )
-    ScheduleDailyMemoNotificationEffect(schedule = notificationViewModel::schedule)
+    ScheduleDailyMemoNotificationEffect(
+        schedule = notificationViewModel::schedule,
+        submitUpcoming = notificationViewModel::submitUpcoming,
+        upcoming = notificationViewModel.upcoming,
+    )
     SyncEffect(
         requestSync = syncViewModel::requestSync,
         schedulePeriodicSync = syncViewModel::schedulePeriodicSync,

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import io.github.taetae98coding.diary.core.model.memo.UpcomingDailyMemoNotification
 import io.github.taetae98coding.diary.domain.memo.DailyMemoNotificationManager
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
@@ -31,4 +32,10 @@ internal class AndroidDailyMemoNotificationManager(
                     .build(),
             )
     }
+
+    // Android는 발생 시점에 Worker가 오늘의 메모를 정하므로 미리 정한 내용을 쓰지 않는다.
+    override suspend fun submitUpcoming(
+        time: LocalTime,
+        upcomingList: List<UpcomingDailyMemoNotification>,
+    ) = Unit
 }

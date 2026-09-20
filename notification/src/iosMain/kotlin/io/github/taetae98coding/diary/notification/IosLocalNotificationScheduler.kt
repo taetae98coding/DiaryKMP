@@ -1,42 +1,53 @@
 package io.github.taetae98coding.diary.notification
 
-import kotlinx.datetime.LocalTime
 import platform.Foundation.NSDateComponents
-import platform.Foundation.NSString
 import platform.UserNotifications.UNCalendarNotificationTrigger
 import platform.UserNotifications.UNMutableNotificationContent
 import platform.UserNotifications.UNNotificationRequest
 import platform.UserNotifications.UNUserNotificationCenter
-import platform.UserNotifications.localizedUserNotificationStringForKey
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 internal class IosLocalNotificationScheduler : LocalNotificationScheduler {
-    // 같은 식별자로 다시 등록하면 시스템이 기존 예약을 대신하므로 예약은 언제나 하나로 남는다.
-    override fun scheduleDaily(
-        identifier: String,
-        titleLocalizationKey: String,
-        time: LocalTime,
+    override suspend fun submit(
+        identifierPrefix: String,
+        requestList: List<LocalNotificationRequest>,
     ) {
-        val content =
-            UNMutableNotificationContent().apply {
-                // 예약 시점이 아니라 알림이 전달되는 시점에 문구를 고르므로, 예약 뒤에 기기 언어를 바꿔도 알림이 그 언어로 온다.
-                setTitle(NSString.localizedUserNotificationStringForKey(titleLocalizationKey, null))
-            }
+        val center = UNUserNotificationCenter.currentNotificationCenter()
 
-        val dateComponents =
-            NSDateComponents().apply {
-                hour = time.hour.toLong()
-                minute = time.minute.toLong()
-            }
+        // 이전에 제출한 날짜가 이번 목록에 없으면 대기 예약이 남아 그대로 발생하므로, 같은 접두어의 대기 예약을 먼저 지운다.
+        val staleIdentifierList = center.pendingIdentifierList().filter { identifier -> identifier.startsWith(identifierPrefix) }
+        center.removePendingNotificationRequestsWithIdentifiers(staleIdentifierList)
 
-        val request =
-            UNNotificationRequest.requestWithIdentifier(
-                identifier,
-                content,
-                UNCalendarNotificationTrigger.triggerWithDateMatchingComponents(dateComponents, true),
-            )
-
-        UNUserNotificationCenter
-            .currentNotificationCenter()
-            .addNotificationRequest(request, null)
+        requestList.forEach { request -> center.addNotificationRequest(request.toNotificationRequest(), null) }
     }
+}
+
+private suspend fun UNUserNotificationCenter.pendingIdentifierList(): List<String> =
+    suspendCoroutine { continuation ->
+        getPendingNotificationRequestsWithCompletionHandler { requestList ->
+            continuation.resume(requestList.orEmpty().mapNotNull { request -> (request as? UNNotificationRequest)?.identifier })
+        }
+    }
+
+private fun LocalNotificationRequest.toNotificationRequest(): UNNotificationRequest {
+    val content =
+        UNMutableNotificationContent().apply {
+            setTitle(notification.title)
+            if (notification.body.isNotEmpty()) setBody(notification.body)
+        }
+    val dateComponents =
+        NSDateComponents().apply {
+            year = dateTime.year.toLong()
+            month = dateTime.monthNumber.toLong()
+            day = dateTime.day.toLong()
+            hour = dateTime.hour.toLong()
+            minute = dateTime.minute.toLong()
+        }
+
+    return UNNotificationRequest.requestWithIdentifier(
+        notification.id,
+        content,
+        UNCalendarNotificationTrigger.triggerWithDateMatchingComponents(dateComponents, false),
+    )
 }

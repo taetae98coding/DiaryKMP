@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.work.daily.memo
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.memo.DailyMemo
+import io.github.taetae98coding.diary.core.model.memo.DailyMemoNotificationContent
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

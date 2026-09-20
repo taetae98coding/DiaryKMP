@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.work.daily.memo
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import io.github.taetae98coding.diary.core.model.memo.DailyMemoNotificationContent
 import io.github.taetae98coding.diary.notification.Notification
 import io.github.taetae98coding.diary.notification.NotificationChannel
 import org.koin.android.annotation.KoinWorker

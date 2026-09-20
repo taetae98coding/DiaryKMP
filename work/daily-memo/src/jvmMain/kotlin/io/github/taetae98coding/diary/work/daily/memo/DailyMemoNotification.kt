@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.daily.memo
 
+import io.github.taetae98coding.diary.core.model.memo.DailyMemoNotificationContent
 import io.github.taetae98coding.diary.notification.Notification
 import io.github.taetae98coding.diary.notification.NotificationChannel
 import java.util.Locale

@@ -1,24 +1,78 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "daily_memo_notification_title" : {
-      "comment" : "Title of the daily memo reminder notification",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Check today's memos"
+  "sourceLanguage": "en",
+  "strings": {
+    "daily_memo_notification_title": {
+      "comment": "Title of the daily memo reminder when today's memos could not be determined",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check today's memos"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "오늘의 메모를 확인하세요"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "오늘의 메모를 확인하세요"
+          }
+        }
+      }
+    },
+    "daily_memo_notification_title_empty": {
+      "comment": "Title of the daily memo reminder when there is no memo today",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No memos to check today"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "오늘 확인할 메모가 없어요"
+          }
+        }
+      }
+    },
+    "daily_memo_notification_title_one": {
+      "comment": "Title of the daily memo reminder for one memo. %d is the count",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You have %d memo to check today"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "오늘 확인할 메모가 %d개 있어요"
+          }
+        }
+      }
+    },
+    "daily_memo_notification_title_other": {
+      "comment": "Title of the daily memo reminder for several memos. %d is the count",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You have %d memos to check today"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "오늘 확인할 메모가 %d개 있어요"
           }
         }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }

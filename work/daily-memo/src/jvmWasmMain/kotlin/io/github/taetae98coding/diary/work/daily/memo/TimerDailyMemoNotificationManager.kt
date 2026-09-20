@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.daily.memo
 
+import io.github.taetae98coding.diary.core.model.memo.UpcomingDailyMemoNotification
 import io.github.taetae98coding.diary.domain.memo.DailyMemoNotificationManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -27,6 +28,12 @@ internal class TimerDailyMemoNotificationManager(
 
         job = scope.launch { notifyEveryDay(time = time) }
     }
+
+    // JVM 데스크톱과 웹은 발생 시점에 타이머가 오늘의 메모를 정하므로 미리 정한 내용을 쓰지 않는다.
+    override suspend fun submitUpcoming(
+        time: LocalTime,
+        upcomingList: List<UpcomingDailyMemoNotification>,
+    ) = Unit
 
     private suspend fun notifyEveryDay(time: LocalTime) {
         var from: Instant = clock.now()
