@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.data.setting.repository
 
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.GeminiSettingLocalDataSource
-import io.github.taetae98coding.diary.core.mapper.gemini.toDomain
-import io.github.taetae98coding.diary.core.mapper.gemini.toLocal
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
+import io.github.taetae98coding.diary.data.setting.mapper.toDomain
+import io.github.taetae98coding.diary.data.setting.mapper.toLocal
 import io.github.taetae98coding.diary.domain.setting.repository.GeminiSettingRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

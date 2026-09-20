@@ -7,7 +7,11 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.core.database.api)
-                implementation(projects.core.mapper)
+                implementation(projects.data.core)
+                implementation(projects.data.memo)
+                implementation(projects.data.place)
+                implementation(projects.data.tag)
+                implementation(projects.data.web)
                 implementation(projects.domain.search)
             }
         }

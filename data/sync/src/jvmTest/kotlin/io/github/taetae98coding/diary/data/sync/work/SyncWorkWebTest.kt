@@ -3,9 +3,9 @@ package io.github.taetae98coding.diary.data.sync.work
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebHeaderLocalEntity
-import io.github.taetae98coding.diary.core.mapper.web.toLocal
-import io.github.taetae98coding.diary.core.mapper.web.toRemote
 import io.github.taetae98coding.diary.core.network.api.web.entity.WebRemoteEntity
+import io.github.taetae98coding.diary.data.sync.mapper.toLocal
+import io.github.taetae98coding.diary.data.sync.mapper.toRemote
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly

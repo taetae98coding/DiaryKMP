@@ -8,9 +8,9 @@ import io.github.taetae98coding.diary.core.holiday.database.api.datasource.Holid
 import io.github.taetae98coding.diary.core.holiday.database.api.entity.HolidayLocalEntity
 import io.github.taetae98coding.diary.core.holiday.database.api.transaction.HolidayTransaction
 import io.github.taetae98coding.diary.core.holiday.network.api.datasource.HolidayRemoteDataSource
-import io.github.taetae98coding.diary.core.mapper.holiday.toDomain
 import io.github.taetae98coding.diary.data.holiday.HolidayDataTestKoinApplication
 import io.github.taetae98coding.diary.data.holiday.datasource.HolidayDirtyDataSource
+import io.github.taetae98coding.diary.data.holiday.mapper.toDomain
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
 import io.github.taetae98coding.diary.domain.holiday.usecase.GetCalendarHolidayUseCase

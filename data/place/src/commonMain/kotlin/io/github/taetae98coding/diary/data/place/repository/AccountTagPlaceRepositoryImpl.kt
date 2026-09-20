@@ -5,14 +5,14 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import io.github.taetae98coding.diary.core.database.api.place.datasource.AccountTagPlaceLocalDataSource
-import io.github.taetae98coding.diary.core.mapper.list.toLocal
-import io.github.taetae98coding.diary.core.mapper.place.toDomain
-import io.github.taetae98coding.diary.core.mapper.tag.toLocal
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.location.CoordinateBounds
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.TagScope
+import io.github.taetae98coding.diary.data.core.mapper.toLocal
+import io.github.taetae98coding.diary.data.place.mapper.toDomain
+import io.github.taetae98coding.diary.data.tag.mapper.toLocal
 import io.github.taetae98coding.diary.domain.place.repository.AccountTagPlaceRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

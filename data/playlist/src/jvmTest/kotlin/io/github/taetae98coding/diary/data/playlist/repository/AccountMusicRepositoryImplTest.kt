@@ -12,11 +12,11 @@ import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLoca
 import io.github.taetae98coding.diary.core.database.api.music.datasource.AccountMusicLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalEntity
 import io.github.taetae98coding.diary.core.database.api.music.transaction.AccountMusicTransaction
-import io.github.taetae98coding.diary.core.mapper.playlist.toDomain
-import io.github.taetae98coding.diary.core.mapper.playlist.toLocal
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
+import io.github.taetae98coding.diary.data.playlist.mapper.toDomain
+import io.github.taetae98coding.diary.data.playlist.mapper.toLocal
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec

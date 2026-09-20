@@ -2,10 +2,10 @@ package io.github.taetae98coding.diary.data.sync.work
 
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
-import io.github.taetae98coding.diary.core.mapper.memo.toLocal
-import io.github.taetae98coding.diary.core.mapper.memo.toRemote
 import io.github.taetae98coding.diary.core.network.api.memo.entity.MemoPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.memo.entity.MemoRemoteEntity
+import io.github.taetae98coding.diary.data.sync.mapper.toLocal
+import io.github.taetae98coding.diary.data.sync.mapper.toRemote
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.mockk.coEvery

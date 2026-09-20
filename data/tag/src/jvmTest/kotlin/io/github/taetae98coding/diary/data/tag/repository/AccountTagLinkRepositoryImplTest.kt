@@ -11,8 +11,8 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.taglink.datasource.AccountTagLinkLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.taglink.transaction.AccountTagLinkTransaction
-import io.github.taetae98coding.diary.core.mapper.tag.toDomain
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.data.tag.mapper.toDomain
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

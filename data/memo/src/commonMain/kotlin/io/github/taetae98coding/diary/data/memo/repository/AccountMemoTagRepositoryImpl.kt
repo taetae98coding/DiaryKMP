@@ -6,9 +6,9 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import io.github.taetae98coding.diary.core.database.api.memotag.datasource.AccountMemoTagLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.memotag.transaction.AccountMemoTagTransaction
-import io.github.taetae98coding.diary.core.mapper.tag.toDomain
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.data.tag.mapper.toDomain
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoTagRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

@@ -4,9 +4,9 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.memofilter.datasource.MemoExistenceFilterLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.memofilter.entity.MemoExistenceFilterLocalEntity
-import io.github.taetae98coding.diary.core.mapper.memofilter.toDomain
 import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
+import io.github.taetae98coding.diary.data.memo.mapper.toDomain
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec

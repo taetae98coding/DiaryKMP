@@ -2,11 +2,11 @@ package io.github.taetae98coding.diary.data.weather.repository
 
 import io.github.taetae98coding.diary.core.ipnetwork.api.datasource.IpRemoteDataSource
 import io.github.taetae98coding.diary.core.location.api.LocationProvider
-import io.github.taetae98coding.diary.core.mapper.weather.toDomain
-import io.github.taetae98coding.diary.core.mapper.weather.toLocationName
 import io.github.taetae98coding.diary.core.model.weather.WeatherReport
 import io.github.taetae98coding.diary.core.weather.network.api.datasource.WeatherRemoteDataSource
 import io.github.taetae98coding.diary.data.weather.datasource.WeatherLocalDataSource
+import io.github.taetae98coding.diary.data.weather.mapper.toDomain
+import io.github.taetae98coding.diary.data.weather.mapper.toLocationName
 import io.github.taetae98coding.diary.domain.weather.repository.WeatherRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async

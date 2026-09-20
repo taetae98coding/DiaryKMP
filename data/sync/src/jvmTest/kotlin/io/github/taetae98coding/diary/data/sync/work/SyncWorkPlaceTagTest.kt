@@ -4,11 +4,9 @@ import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.placetag.entity.PlaceTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
-import io.github.taetae98coding.diary.core.mapper.memo.toLocal
-import io.github.taetae98coding.diary.core.mapper.placetag.toLocal
-import io.github.taetae98coding.diary.core.mapper.placetag.toRemote
-import io.github.taetae98coding.diary.core.mapper.tag.toLocal
 import io.github.taetae98coding.diary.core.network.api.placetag.entity.PlaceTagRemoteEntity
+import io.github.taetae98coding.diary.data.sync.mapper.toLocal
+import io.github.taetae98coding.diary.data.sync.mapper.toRemote
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly

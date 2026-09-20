@@ -5,11 +5,11 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import io.github.taetae98coding.diary.core.database.api.search.datasource.SearchMemoLocalDataSource
-import io.github.taetae98coding.diary.core.mapper.list.toLocal
-import io.github.taetae98coding.diary.core.mapper.memo.toDomain
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
+import io.github.taetae98coding.diary.data.core.mapper.toLocal
+import io.github.taetae98coding.diary.data.memo.mapper.toDomain
 import io.github.taetae98coding.diary.domain.search.repository.SearchMemoRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

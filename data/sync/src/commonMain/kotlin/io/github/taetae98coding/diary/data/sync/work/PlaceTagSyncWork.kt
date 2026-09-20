@@ -4,9 +4,9 @@ import io.github.taetae98coding.diary.core.database.api.placetag.datasource.Acco
 import io.github.taetae98coding.diary.core.database.api.placetag.transaction.AccountPlaceTagSyncTransaction
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
 import io.github.taetae98coding.diary.core.database.api.sync.datasource.SyncCursorLocalDataSource
-import io.github.taetae98coding.diary.core.mapper.placetag.toLocal
-import io.github.taetae98coding.diary.core.mapper.placetag.toRemote
 import io.github.taetae98coding.diary.core.network.api.placetag.datasource.PlaceTagRemoteDataSource
+import io.github.taetae98coding.diary.data.sync.mapper.toLocal
+import io.github.taetae98coding.diary.data.sync.mapper.toRemote
 import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 

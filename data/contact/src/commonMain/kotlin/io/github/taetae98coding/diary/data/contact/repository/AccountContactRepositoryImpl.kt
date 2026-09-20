@@ -6,13 +6,13 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import io.github.taetae98coding.diary.core.database.api.contact.datasource.AccountContactLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.contact.transaction.AccountContactTransaction
-import io.github.taetae98coding.diary.core.mapper.contact.toDomain
-import io.github.taetae98coding.diary.core.mapper.contact.toLocal
-import io.github.taetae98coding.diary.core.mapper.list.toLocal
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.data.contact.mapper.toDomain
+import io.github.taetae98coding.diary.data.contact.mapper.toLocal
+import io.github.taetae98coding.diary.data.core.mapper.toLocal
 import io.github.taetae98coding.diary.domain.contact.repository.AccountContactRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

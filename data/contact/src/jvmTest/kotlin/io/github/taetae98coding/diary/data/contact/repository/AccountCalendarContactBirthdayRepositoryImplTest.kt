@@ -5,8 +5,8 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.contact.datasource.AccountCalendarContactBirthdayLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.contact.entity.CalendarContactBirthdayLocalEntity
-import io.github.taetae98coding.diary.core.mapper.contact.toDomain
 import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.data.contact.mapper.toDomain
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

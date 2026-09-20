@@ -40,18 +40,6 @@ import io.github.taetae98coding.diary.core.database.api.web.transaction.AccountW
 import io.github.taetae98coding.diary.core.database.api.webtag.datasource.AccountWebTagSyncLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.webtag.transaction.AccountWebTagSyncTransaction
-import io.github.taetae98coding.diary.core.mapper.contact.toRemote
-import io.github.taetae98coding.diary.core.mapper.memo.toRemote
-import io.github.taetae98coding.diary.core.mapper.memoplace.toRemote
-import io.github.taetae98coding.diary.core.mapper.memotag.toRemote
-import io.github.taetae98coding.diary.core.mapper.memoweb.toRemote
-import io.github.taetae98coding.diary.core.mapper.place.toRemote
-import io.github.taetae98coding.diary.core.mapper.placetag.toRemote
-import io.github.taetae98coding.diary.core.mapper.playlist.toRemote
-import io.github.taetae98coding.diary.core.mapper.tag.toRemote
-import io.github.taetae98coding.diary.core.mapper.taglink.toRemote
-import io.github.taetae98coding.diary.core.mapper.web.toRemote
-import io.github.taetae98coding.diary.core.mapper.webtag.toRemote
 import io.github.taetae98coding.diary.core.network.api.contact.datasource.ContactRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.contact.entity.ContactPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.memo.datasource.MemoRemoteDataSource
@@ -76,6 +64,7 @@ import io.github.taetae98coding.diary.core.network.api.web.datasource.WebRemoteD
 import io.github.taetae98coding.diary.core.network.api.web.entity.WebPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.webtag.datasource.WebTagRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.webtag.entity.WebTagPullRemoteEntity
+import io.github.taetae98coding.diary.data.sync.mapper.toRemote
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger

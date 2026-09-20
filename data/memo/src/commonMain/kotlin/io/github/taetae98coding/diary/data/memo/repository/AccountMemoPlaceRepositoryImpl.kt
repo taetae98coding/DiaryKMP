@@ -2,9 +2,9 @@ package io.github.taetae98coding.diary.data.memo.repository
 
 import io.github.taetae98coding.diary.core.database.api.memoplace.datasource.AccountMemoPlaceLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.memoplace.transaction.AccountMemoPlaceTransaction
-import io.github.taetae98coding.diary.core.mapper.place.toDomain
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.place.Place
+import io.github.taetae98coding.diary.data.place.mapper.toDomain
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoPlaceRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

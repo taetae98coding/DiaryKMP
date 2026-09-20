@@ -15,12 +15,12 @@ import io.github.taetae98coding.diary.core.database.api.tag.entity.TagDetailLoca
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.transaction.AccountTagTransaction
 import io.github.taetae98coding.diary.core.database.api.taglink.entity.TagLinkLocalEntity
-import io.github.taetae98coding.diary.core.mapper.tag.toDomain
-import io.github.taetae98coding.diary.core.mapper.tag.toLocal
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.data.tag.mapper.toDomain
+import io.github.taetae98coding.diary.data.tag.mapper.toLocal
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder

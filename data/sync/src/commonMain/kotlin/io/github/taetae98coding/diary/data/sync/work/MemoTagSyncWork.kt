@@ -4,9 +4,9 @@ import io.github.taetae98coding.diary.core.database.api.memotag.datasource.Accou
 import io.github.taetae98coding.diary.core.database.api.memotag.transaction.AccountMemoTagSyncTransaction
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
 import io.github.taetae98coding.diary.core.database.api.sync.datasource.SyncCursorLocalDataSource
-import io.github.taetae98coding.diary.core.mapper.memotag.toLocal
-import io.github.taetae98coding.diary.core.mapper.memotag.toRemote
 import io.github.taetae98coding.diary.core.network.api.memotag.datasource.MemoTagRemoteDataSource
+import io.github.taetae98coding.diary.data.sync.mapper.toLocal
+import io.github.taetae98coding.diary.data.sync.mapper.toRemote
 import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 

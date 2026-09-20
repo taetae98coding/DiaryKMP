@@ -7,9 +7,16 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.core.database.api)
-                implementation(projects.core.mapper)
                 implementation(projects.core.webNetwork.api)
+                implementation(projects.data.core)
+                implementation(projects.data.tag)
                 implementation(projects.domain.web)
+            }
+        }
+
+        jvmTest {
+            dependencies {
+                implementation(projects.core.testing)
             }
         }
     }

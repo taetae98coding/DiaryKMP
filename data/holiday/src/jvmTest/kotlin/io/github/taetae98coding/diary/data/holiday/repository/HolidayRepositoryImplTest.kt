@@ -8,9 +8,9 @@ import io.github.taetae98coding.diary.core.holiday.database.api.entity.HolidayLo
 import io.github.taetae98coding.diary.core.holiday.database.api.transaction.HolidayTransaction
 import io.github.taetae98coding.diary.core.holiday.network.api.datasource.HolidayRemoteDataSource
 import io.github.taetae98coding.diary.core.holiday.network.api.entity.HolidayRemoteEntity
-import io.github.taetae98coding.diary.core.mapper.holiday.toDomain
-import io.github.taetae98coding.diary.core.mapper.holiday.toLocal
 import io.github.taetae98coding.diary.data.holiday.datasource.HolidayDirtyDataSource
+import io.github.taetae98coding.diary.data.holiday.mapper.toDomain
+import io.github.taetae98coding.diary.data.holiday.mapper.toLocal
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec

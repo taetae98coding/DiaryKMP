@@ -8,12 +8,6 @@ import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEnt
 import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
-import io.github.taetae98coding.diary.core.mapper.memo.toLocal
-import io.github.taetae98coding.diary.core.mapper.memo.toRemote
-import io.github.taetae98coding.diary.core.mapper.memotag.toLocal
-import io.github.taetae98coding.diary.core.mapper.memotag.toRemote
-import io.github.taetae98coding.diary.core.mapper.tag.toLocal
-import io.github.taetae98coding.diary.core.mapper.tag.toRemote
 import io.github.taetae98coding.diary.core.network.api.memo.datasource.MemoRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.memo.entity.MemoPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.memo.entity.MemoRemoteEntity
@@ -23,6 +17,8 @@ import io.github.taetae98coding.diary.core.network.api.memotag.entity.MemoTagRem
 import io.github.taetae98coding.diary.core.network.api.tag.datasource.TagRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.tag.entity.TagPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.tag.entity.TagRemoteEntity
+import io.github.taetae98coding.diary.data.sync.mapper.toLocal
+import io.github.taetae98coding.diary.data.sync.mapper.toRemote
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty

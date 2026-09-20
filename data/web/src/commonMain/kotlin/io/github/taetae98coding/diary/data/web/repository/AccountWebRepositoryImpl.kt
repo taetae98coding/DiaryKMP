@@ -7,13 +7,13 @@ import androidx.paging.map
 import io.github.taetae98coding.diary.core.database.api.web.datasource.AccountWebLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.web.transaction.AccountWebTransaction
 import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLocalEntity
-import io.github.taetae98coding.diary.core.mapper.list.toLocal
-import io.github.taetae98coding.diary.core.mapper.web.toDomain
-import io.github.taetae98coding.diary.core.mapper.web.toLocal
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
+import io.github.taetae98coding.diary.data.core.mapper.toLocal
+import io.github.taetae98coding.diary.data.web.mapper.toDomain
+import io.github.taetae98coding.diary.data.web.mapper.toLocal
 import io.github.taetae98coding.diary.domain.web.repository.AccountWebRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

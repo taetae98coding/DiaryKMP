@@ -13,10 +13,10 @@ import io.github.taetae98coding.diary.core.database.api.memo.datasource.AccountM
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.transaction.AccountMemoTransaction
-import io.github.taetae98coding.diary.core.mapper.memo.toDomain
-import io.github.taetae98coding.diary.core.mapper.memo.toLocal
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
+import io.github.taetae98coding.diary.data.memo.mapper.toDomain
+import io.github.taetae98coding.diary.data.memo.mapper.toLocal
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

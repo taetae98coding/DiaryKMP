@@ -7,7 +7,6 @@ import io.github.taetae98coding.diary.core.ipnetwork.api.datasource.IpRemoteData
 import io.github.taetae98coding.diary.core.ipnetwork.api.entity.IpRemoteEntity
 import io.github.taetae98coding.diary.core.location.api.Location
 import io.github.taetae98coding.diary.core.location.api.LocationProvider
-import io.github.taetae98coding.diary.core.mapper.weather.toDomain
 import io.github.taetae98coding.diary.core.model.weather.Weather
 import io.github.taetae98coding.diary.core.weather.network.api.datasource.WeatherRemoteDataSource
 import io.github.taetae98coding.diary.core.weather.network.api.entity.CurrentWeatherRemoteEntity
@@ -16,6 +15,7 @@ import io.github.taetae98coding.diary.core.weather.network.api.entity.ForecastWe
 import io.github.taetae98coding.diary.core.weather.network.api.entity.LocationNameRemoteEntity
 import io.github.taetae98coding.diary.core.weather.network.api.entity.WeatherConditionRemoteEntity
 import io.github.taetae98coding.diary.data.weather.datasource.WeatherLocalDataSource
+import io.github.taetae98coding.diary.data.weather.mapper.toDomain
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec

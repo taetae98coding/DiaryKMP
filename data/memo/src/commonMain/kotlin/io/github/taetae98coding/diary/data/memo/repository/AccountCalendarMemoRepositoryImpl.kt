@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.data.memo.repository
 
 import io.github.taetae98coding.diary.core.database.api.memo.datasource.AccountCalendarMemoLocalDataSource
-import io.github.taetae98coding.diary.core.mapper.memo.toDomain
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
+import io.github.taetae98coding.diary.data.memo.mapper.toDomain
 import io.github.taetae98coding.diary.domain.memo.repository.AccountCalendarMemoRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

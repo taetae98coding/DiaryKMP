@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.data.contact.repository
 
 import io.github.taetae98coding.diary.core.database.api.contact.datasource.AccountCalendarContactBirthdayLocalDataSource
-import io.github.taetae98coding.diary.core.mapper.contact.toDomain
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
+import io.github.taetae98coding.diary.data.contact.mapper.toDomain
 import io.github.taetae98coding.diary.domain.contact.repository.AccountCalendarContactBirthdayRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
