@@ -1,17 +1,18 @@
+@file:OptIn(ExperimentalForeignApi::class)
+
 package io.github.taetae98coding.diary.feature.more.ui.photo
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.uikit.LocalUIViewController
 import io.github.taetae98coding.diary.core.model.file.FileUri
+import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
-import platform.Foundation.NSData
+import platform.Foundation.NSFileManager
 import platform.Foundation.NSTemporaryDirectory
 import platform.Foundation.NSURL
 import platform.Foundation.NSUUID
-import platform.Foundation.dataWithContentsOfURL
-import platform.Foundation.writeToURL
 import platform.PhotosUI.PHPickerConfiguration
 import platform.PhotosUI.PHPickerFilter
 import platform.PhotosUI.PHPickerResult
@@ -84,13 +85,13 @@ private class IosPhotoPicker(
     }
 }
 
+// 사진 내용은 뒤에서 변환기가 위치로 직접 읽으므로, 여기서는 메모리에 올리지 않고 파일 시스템에 복사만 맡긴다.
 private fun NSURL.copyToTemporary(): FileUri? {
-    val data = NSData.dataWithContentsOfURL(url = this) ?: return null
     val extension = pathExtension.orEmpty()
     val name = if (extension.isEmpty()) NSUUID().UUIDString else "${NSUUID().UUIDString}.$extension"
     val destination = NSURL.fileURLWithPath(NSTemporaryDirectory() + name)
 
-    return if (data.writeToURL(destination, atomically = true)) {
+    return if (NSFileManager.defaultManager.copyItemAtURL(this, destination, null)) {
         destination.absoluteString?.let { absoluteString -> FileUri(absoluteString) }
     } else {
         null
