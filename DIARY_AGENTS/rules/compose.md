@@ -711,13 +711,14 @@ trailingIcon = {
 - 판단 기준: https://developer.android.com/develop/ui/compose/styles/styles-vs-modifiers
 - 이 버전에서 쓸 수 있는 속성과 되지 않는 것은 [Compose Styles API 조사](../../docs/reference/compose-styles.md)가 소유한다.
 
-Style로 옮기는 것은 모양, 배경, 테두리, 안쪽·바깥 여백, 크기, 투명도, 변형처럼 그 노드 자신의 보이는 속성이다. 다음은 Modifier로 남긴다.
+Style로 옮기는 것은 모양, 배경, 테두리, 안쪽·바깥 여백, 투명도, 변형처럼 그 노드 자신의 보이는 속성이다. 다음은 Modifier로 남긴다.
 
 | 남기는 것 | 이유 |
 | --- | --- |
 | `clickable`, `toggleable`, `semantics`, `testTag`, 제스처, 스크롤 | 동작과 의미는 Style이 표현하지 않는다 |
 | `weight`, `align`, `animateItem`, `animatePlacement`, custom `Layout` | 부모 배치 규칙과 배치 전환은 Style 속성이 아니다 |
-| 속성이 하나뿐인 노드의 `clip`, `padding`, `size` | Modifier 한 줄이 Style 블록보다 짧다 |
+| 속성이 하나뿐인 노드의 `clip`, `padding` | Modifier 한 줄이 Style 블록보다 짧다 |
+| `size`, `width`, `height`, `fillMaxWidth`, `fillMaxHeight` 같은 크기 | 이 버전의 Style은 크기 속성을 intrinsic 측정에 보고하지 않는다. intrinsic 폭·높이를 재는 부모 안에서 크기가 빠지면 형제가 그만큼 좁게 측정되어 글자가 줄바꿈되거나 생략된다. Styles API가 의도한 경계가 아니라 구현의 공백이므로 버전을 올릴 때 [Compose Styles API 조사](../../docs/reference/compose-styles.md)의 `다시 볼 것`을 따른다 |
 | Material 3 컴포넌트의 `colors`, `shape`, `border` 파라미터 | 이 버전의 Material 3는 `style` 파라미터를 받지 않는다 |
 | `Modifier.shadow(elevation)` | Style의 `dropShadow`는 elevation 그림자와 모양이 다르다 |
 

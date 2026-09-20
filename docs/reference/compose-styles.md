@@ -36,7 +36,7 @@ Styles API는 `@ExperimentalFoundationStyleApi`가 붙은 실험적 API다. 별�
 | --- | --- | --- |
 | 안쪽 여백 | `contentPadding(...)`, `contentPaddingStart/Top/End/Bottom` | 아니오 |
 | 바깥 여백 | `externalPadding(...)`, `externalPaddingStart/Top/End/Bottom` | 아니오 |
-| 크기 | `width`, `height`, `size`(Dp, DpSize, 비율), `fillWidth()`, `fillHeight()`, `fillSize()`, `minWidth`, `maxWidth` 등 | 아니오 |
+| 크기 | `width`, `height`, `size`(Dp, DpSize, 비율), `fillWidth()`, `fillHeight()`, `fillSize()`, `minWidth`, `maxWidth` 등 | 아니오. intrinsic 측정에는 보고되지 않는다 |
 | 위치 | `left`, `top`, `right`, `bottom` | 아니오 |
 | 채움 | `background(Color 또는 Brush)`, `foreground(Color 또는 Brush)` | 아니오 |
 | 테두리 | `border(width, color 또는 brush)`, `borderWidth`, `borderColor`, `borderBrush` | 아니오 |
@@ -60,6 +60,7 @@ Styles API는 `@ExperimentalFoundationStyleApi`가 붙은 실험적 API다. 별�
 | Material 3 컴포넌트가 `style: Style` 파라미터를 받지 않는다 | material3 `1.12.0-alpha03` 공개 선언에 `androidx.compose.foundation.style` 참조가 없다 | `Button`, `Card`, `Chip`, `TextField` 같은 Material 컴포넌트의 모양은 계속 `colors`, `shape`, `border` 파라미터로 바꾼다 |
 | Material 3 테마 토큰을 `StyleScope`에서 읽을 수 없다 | `LocalColorScheme`, `LocalShapes`, `LocalTypography`가 `internal`이다. `LocalContentColor`만 공개다 | `DiaryTheme.colorScheme`처럼 `@Composable` getter로만 닿는 값은 composition에서 지역 변수로 읽어 `Style { }`에 캡처한다. 테마 전역 Style 객체를 만들어도 색은 캡처로만 들어간다 |
 | `dropShadow`는 `Shadow(radius, spread, offset, color)`를 받는다 | `ShadowScope` | `Modifier.shadow(elevation)`의 Material elevation 그림자와 같은 모양이 아니다. elevation 기반 그림자는 Modifier로 남긴다 |
+| 크기 속성이 intrinsic 측정에 보고되지 않는다 | `StyleOuterNode`가 `LayoutModifierNode`의 기본 intrinsic 구현을 그대로 쓴다. 기본 구현은 자식을 실제로 재지 않고 자식의 intrinsic 크기로 대신하므로, 자식에게 constraints를 씌워 크기를 정하는 `width`·`height`·`size`는 결과에 반영되지 않는다. 같은 이유로 자식 크기에 값을 더하는 `contentPadding`은 정상 보고된다. `Modifier.size`는 `SizeNode`가 intrinsic을 직접 재정의해 문제가 없다 | 크기는 Style에 두지 않고 Modifier로 남긴다. intrinsic 폭·높이를 재는 부모 안에서 크기가 빠지면 형제가 그만큼 좁게 측정되어 글자가 줄바꿈되거나 생략된다 |
 
 ## 채택 현황
 
@@ -79,9 +80,9 @@ Styles API는 `@ExperimentalFoundationStyleApi`가 붙은 실험적 API다. 별�
 | 컴포넌트 | 옮긴 표현 | 이유 |
 | --- | --- | --- |
 | `CalendarText` | 모양, 클립, 배경, 안쪽 여백 | 시각 속성 세 개가 한 노드에 모여 있어 Style 한 블록으로 읽힌다 |
-| `CalendarBarText`의 색상 바 | 너비, 높이 채움, 모양, 배경 | 같은 이유 |
+| `CalendarBarText`의 색상 바 | 모양, 배경 | 같은 이유. 너비와 높이 채움은 intrinsic 측정에 보고되도록 Modifier로 남긴다 |
 | `CalendarDayOfMonthText`의 원형 배경 | 모양, 배경 | 같은 이유 |
-| `DiaryColorIndicator` | 크기, 모양, 배경 | 같은 이유 |
+| `DiaryColorIndicator` | 모양, 배경 | 같은 이유. 크기는 intrinsic 측정에 보고되도록 Modifier로 남긴다 |
 | `DiaryColorInput`, `ColorPickerPreview` | 상태가 움직이는 배경색 | `drawBehind { drawRect(state.color) }`가 하던 그리기 단계 읽기를 `background(state.color)` 선언으로 대신한다 |
 | `TagFilterFlexBox` | 비활성일 때 흐림 | `MutableStyleState.isEnabled`와 `disabled { dimmed() }`로 상태 기반 표현을 선언한다 |
 | CalendarHome의 이동 중 메모 조각 | 이동 중 흐림 | `Style { }` 안에서 이동 상태를 읽어 그리기 단계만 갱신한다 |
@@ -93,9 +94,16 @@ Styles API는 `@ExperimentalFoundationStyleApi`가 붙은 실험적 API다. 별�
 | `DiaryPlaceholder`, `DiaryPickerEmptyBox`, `WebDetailPage`의 `CompositionLocalProvider(LocalContentColor provides ...)` | 글자색 상속이 Material 3 `Text`에 닿지 않는다 |
 | `DiaryPlaceholder`의 아이콘 배경 | 색과 도형이 모두 Material 3 토큰이라 캡처로만 들어가고, 옮겨서 줄어드는 recomposition이 없다 |
 | 누름 영역만 둥글게 자르는 `Modifier.clip(CircleShape)` 한 줄 | 속성이 하나인 노드는 Modifier 한 줄이 Style 블록보다 짧다 |
+| `DiaryColorIndicator`의 크기, `CalendarBarText` 색상 바의 너비와 높이 채움 | 크기 속성이 intrinsic 측정에 보고되지 않는다. Styles API가 의도한 범위에는 크기가 들어가지만 이 버전의 구현이 따라오지 못해 Modifier로 되돌렸다. 아래 `다시 볼 것`을 따른다 |
 | `CalendarHomeMoveGhost`의 `Modifier.shadow(elevation)` | Material elevation 그림자를 `dropShadow(Shadow)`로 같은 모양으로 옮길 수 없다 |
 | `GoogleMapPinMarker`의 라벨 배경 | Android 전용 지도 마커 비트맵 안에서 그려지는 표현이라 공용 규칙의 대상이 아니다 |
 | `pressed { }`, `hovered { }` 같은 상호작용 상태 표현 | 눌림과 호버 표현은 전부 Material 컴포넌트가 맡고 있다. 자체 컴포넌트에 상호작용 표현이 생기면 그때 `InteractionSource`를 연결해 쓴다 |
+
+## 다시 볼 것
+
+크기 속성의 intrinsic 미보고는 이 버전 구현의 공백이지 Styles API가 의도한 경계가 아니다. 공식 가이드는 Style의 목적에 `individual item sizing`을 넣고 있고, `StyleOuterNode`가 `SizeNode`처럼 intrinsic을 재정의하면 해결되는 문제다.
+
+Styles API 버전을 올릴 때 `Modifier.styleable { size(...) }`를 준 노드를 `Modifier.width(IntrinsicSize.Max)`로 감싸 폭이 그대로 보고되는지 확인한다. 보고되면 Modifier로 남긴 크기를 다시 Style로 옮기고, `이 버전에서 되지 않는 것`의 해당 줄과 [Compose UI 규칙](../../DIARY_AGENTS/rules/compose.md)의 `Modifier로 남긴다` 표를 함께 지운다.
 
 ## 참고
 

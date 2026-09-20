@@ -7,11 +7,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.style.ExperimentalFoundationStyleApi
-import androidx.compose.foundation.style.fillHeight
 import androidx.compose.foundation.style.styleable
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
@@ -43,9 +44,10 @@ public fun CalendarBarText(
             modifier =
                 Modifier
                     .testTag(CALENDAR_BAR_TEXT_BAR_TEST_TAG)
+                    // 크기를 Style에 두면 intrinsic 측정에 보고되지 않아, 이 줄의 폭을 재는 자리에서 막대 폭이 빠진다.
+                    .width(3.dp)
+                    .fillMaxHeight()
                     .styleable {
-                        width(3.dp)
-                        fillHeight()
                         shape(CircleShape)
                         background(color)
                     },
