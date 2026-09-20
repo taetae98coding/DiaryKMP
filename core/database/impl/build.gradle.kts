@@ -40,6 +40,12 @@ kotlin {
             }
         }
 
+        jvmMain {
+            dependencies {
+                implementation(projects.library.applicationSupport)
+            }
+        }
+
         nonWasmMain {
             dependencies {
                 implementation(libs.androidx.sqlite.bundled)

@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.core.datastore.impl
 
 import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDirectory
+import io.github.taetae98coding.diary.library.applicationsupport.applicationSupportDirectory
 import org.koin.core.annotation.Configuration
 import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Module
@@ -35,7 +36,4 @@ public class JvmDataStoreModule {
 internal fun resolveSettingDirectory(
     userHome: Path,
     settingDirectory: String,
-): Path =
-    userHome
-        .resolve("Library/Application Support")
-        .resolve(settingDirectory)
+): Path = applicationSupportDirectory(directoryName = settingDirectory, userHome = userHome)

@@ -14,5 +14,11 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json)
             }
         }
+
+        jvmMain {
+            dependencies {
+                implementation(projects.library.applicationSupport)
+            }
+        }
     }
 }
