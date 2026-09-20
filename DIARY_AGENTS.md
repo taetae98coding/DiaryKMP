@@ -45,7 +45,7 @@
 | Composable, UI Event·Effect, 레이아웃 | [compose.md](DIARY_AGENTS/rules/compose.md) |
 | ViewModel | [viewmodel.md](DIARY_AGENTS/rules/viewmodel.md) |
 | `:domain:*`의 UseCase와 Repository 인터페이스 | [domain.md](DIARY_AGENTS/rules/domain.md) |
-| `:data:*`와 DataSource | [data.md](DIARY_AGENTS/rules/data.md) |
+| `:data:*`, `:work:*`, `:notification`과 DataSource | [data.md](DIARY_AGENTS/rules/data.md) |
 | Room Entity, DAO, `@Query` | [room.md](DIARY_AGENTS/rules/room.md) |
 | `build.gradle.kts`와 버전 카탈로그 | [gradle.md](DIARY_AGENTS/rules/gradle.md) |
 

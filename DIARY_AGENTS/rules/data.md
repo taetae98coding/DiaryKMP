@@ -1,24 +1,29 @@
 # Data 계층 규칙
 
-## core와 data의 책임 경계
+## core와 data, work의 책임 경계
 
-`core:*`는 메커니즘을 감싸는 계층이고, `data:*`는 그 메커니즘으로 무엇을 어떤 순서로 주고받을지 정하는 계층이다.
+`core:*`와 `notification`은 메커니즘을 감싸는 계층이고, `data:*`와 `work:*`는 그 메커니즘으로 무엇을 어떤 순서로 주고받을지 정하는 계층이다.
 
-- `core:*`는 저장소·네트워크·플랫폼 기능을 호출할 수 있는 상태로 만들어 주기까지만 한다. DAO, HttpClient, 위치 제공자, 백그라운드 실행 스케줄러가 여기 속한다.
+- `core:*`는 저장소·네트워크·플랫폼 기능을 호출할 수 있는 상태로 만들어 주기까지만 한다. DAO, HttpClient, 위치 제공자가 여기 속한다. `notification`은 알림을 게시하는 수단만 갖는 같은 성격의 모듈이다.
 - `data:*`는 그 DataSource들을 조합해 domain이 선언한 Repository·Manager 계약을 구현한다. 어떤 종류를 어떤 순서로 올려보내고 내려받는지, 몇 개씩 나눠 보내는지, 커서를 언제 전진시키는지는 data가 소유한다.
+- `work:*`는 백그라운드에서 실행되는 작업 하나를 기능 단위로 소유한다. domain 계약 구현, 작업 내용, 그 작업을 플랫폼이 깨우는 수단을 한 모듈에 둔다. `work:sync`는 동기화, `work:daily-memo`는 일일 메모 알림이다.
 
-플랫폼 실행 수단(`WorkManager`, 코루틴 스코프)과 그 수단이 실행할 작업 내용은 같은 모듈에 두지 않는다. `core`는 실행 수단만 갖고, 실행할 작업은 `core:*:api`가 선언한 포트를 `data:*`가 구현해 주입한다. 예: `core:work:api`의 `SyncWork`를 `data:sync`의 `SyncWorkImpl`이 구현하고, `core:work:impl`의 `AndroidSyncWorkManager`·`NonAndroidSyncWorkManager`는 그 포트만 실행한다.
+`work:*` 안에서는 플랫폼 실행 수단(`WorkManager`, `BGTaskScheduler`, 코루틴 타이머)을 플랫폼 소스셋에, 작업 내용과 domain 계약 구현을 `commonMain`에 둔다. `androidMain`은 `commonMain`을 볼 수 있지만 반대는 컴파일되지 않으므로, 실행 수단이 작업 내용에 의존하고 작업 내용은 실행 수단을 모르는 방향을 소스셋이 강제한다. 예: `work:sync`의 `SyncWorkImpl`은 `commonMain`에 있고, `androidMain`의 `SyncWorker`·`AndroidSyncWorkScheduler`는 그 작업을 실행하고 예약만 한다.
 
-`core:*`가 `core:database:api`와 `core:network:api`를 함께 참조하고 있으면 그 모듈은 data 책임을 들고 있는 것이므로 `data:*`로 옮긴다.
+`WorkManager`를 감싸는 범용 실행 모듈은 두지 않는다. 작업마다 예약 정책, 제약, 상태 관찰 요구가 달라 공통 계약이 `WorkManager`의 표면을 다시 쓰는 것이 되고, 실제로 공유되는 코드는 `CoroutineWorker` 상속 정도다. 세 번째 작업이 같은 보일러플레이트를 반복하게 되면 그때 Android 전용 위임 Worker를 분리한다.
+
+iOS는 정해진 시각에 앱 코드를 깨우는 대신 알림 자체를 미리 등록하므로, 전달 시각 예약은 `notification`이 소유하고 `work:*`의 `iosMain`은 그 수단을 쓴다.
+
+`core:*`가 `core:database:api`와 `core:network:api`를 함께 참조하고 있으면 그 모듈은 data 책임을 들고 있는 것이므로 `data:*`나 `work:*`로 옮긴다.
 
 ### 매퍼의 소유
 
-엔티티와 모델 사이의 변환은 그 엔티티를 읽고 쓰는 `data:*`가 소유한다. 매퍼를 별도 `core:*` 모듈에 모으면 그 모듈이 모든 저장소·네트워크 API를 참조하는 허브가 되어 위 경계를 어기고, 엔티티 하나를 바꿀 때 무관한 data 모듈까지 다시 컴파일된다.
+엔티티와 모델 사이의 변환은 그 엔티티를 읽고 쓰는 `data:*` 또는 `work:*`가 소유한다. 매퍼를 별도 `core:*` 모듈에 모으면 그 모듈이 모든 저장소·네트워크 API를 참조하는 허브가 되어 위 경계를 어기고, 엔티티 하나를 바꿀 때 무관한 data 모듈까지 다시 컴파일된다.
 
 | 변환 | 소유 모듈 | 예 |
 | --- | --- | --- |
 | 로컬 엔티티 ↔ 모델 | 그 Repository를 구현하는 `data:*` | `data:tag`의 `TagLocalEntity.toDomain()` |
-| 로컬 엔티티 ↔ 원격 엔티티 | 그 교환을 수행하는 `data:sync` | `data:sync`의 `TagLocalEntity.toRemote()` |
+| 로컬 엔티티 ↔ 원격 엔티티 | 그 교환을 수행하는 `work:sync` | `work:sync`의 `TagLocalEntity.toRemote()` |
 | 외부 API 응답 → 모델 | 그 API를 호출하는 `data:*` | `data:place`의 `NaverPlaceRemoteEntity.toDomain()` |
 | 여러 `data:*`가 함께 쓰는 변환 | `data:core` | `ListSort.toLocal()` |
 
@@ -26,7 +31,7 @@
 
 ## 계층 의존 방향
 
-Repository·Manager 계약은 `domain:*`이 선언하고 `data:*`가 구현한다. 의존은 `data:* → domain:*` 방향이고, `domain:*`은 어떤 `data:*`도 참조하지 않는다.
+Repository·Manager 계약은 `domain:*`이 선언하고 `data:*`와 `work:*`가 구현한다. 의존은 `data:* → domain:*`, `work:* → domain:*` 방향이고, `domain:*`은 어떤 `data:*`나 `work:*`도 참조하지 않는다.
 
 Android 공식 아키텍처 가이드와 Now in Android는 반대 방향(`domain → data`, Repository 인터페이스를 data 계층에 둠)을 권장한다. 이 저장소는 domain을 구현 세부에서 독립시키고 data를 교체 가능한 플러그인으로 두기 위해 Clean Architecture의 의존성 역전을 택했으므로, 이 항목에서는 `참고 우선순위`보다 이 문서를 우선한다.
 
