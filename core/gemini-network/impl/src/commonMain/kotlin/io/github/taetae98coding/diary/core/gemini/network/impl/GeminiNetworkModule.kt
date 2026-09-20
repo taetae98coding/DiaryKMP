@@ -9,6 +9,8 @@ import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.url
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import org.koin.core.annotation.ComponentScan
@@ -29,6 +31,7 @@ public class GeminiNetworkModule {
     internal fun providesGeminiJson(): Json =
         Json {
             ignoreUnknownKeys = true
+            explicitNulls = false
         }
 
     @Single
@@ -48,6 +51,7 @@ public class GeminiNetworkModule {
 
             install(DefaultRequest) {
                 url(BASE_URL)
+                contentType(ContentType.Application.Json)
             }
         }
 

@@ -114,6 +114,8 @@ class MemoAddScaffoldTest {
                     onTagPickerEvent = {},
                     onWebPickerEvent = {},
                     onPlacePickerEvent = {},
+                    onGeminiEvent = {},
+                    onGeminiDismissRequest = {},
                     componentVisibleProvider = componentVisibleProvider,
                 )
             }

@@ -5,6 +5,8 @@ internal sealed interface MemoDetailScaffoldEvent {
 
     data object ClickUpdate : MemoDetailScaffoldEvent
 
+    data object ClickGemini : MemoDetailScaffoldEvent
+
     data object ClickFinish : MemoDetailScaffoldEvent
 
     data object ClickRestart : MemoDetailScaffoldEvent

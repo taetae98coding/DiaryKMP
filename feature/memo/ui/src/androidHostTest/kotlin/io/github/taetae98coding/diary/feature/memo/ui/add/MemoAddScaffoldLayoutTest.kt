@@ -30,6 +30,8 @@ class MemoAddScaffoldLayoutTest {
                     onTagPickerEvent = {},
                     onWebPickerEvent = {},
                     onPlacePickerEvent = {},
+                    onGeminiEvent = {},
+                    onGeminiDismissRequest = {},
                 )
             }
         }

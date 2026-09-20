@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.feature.memo.ui.Res
+import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiUiState
 import io.github.taetae98coding.diary.feature.memo.ui.memo_detail_navigate_up_button_content_description
 import org.jetbrains.compose.resources.stringResource
 import kotlin.uuid.Uuid
@@ -20,6 +21,7 @@ internal fun MemoDetailTopBar(
     modifier: Modifier = Modifier,
     uiStateProvider: () -> MemoDetailUiState = { MemoDetailUiState.Loading },
     componentVisibleProvider: () -> MemoDetailScaffoldComponentVisible = { MemoDetailScaffoldComponentVisible() },
+    geminiUiStateProvider: () -> MemoGeminiUiState = { MemoGeminiUiState() },
 ) {
     val uiState = uiStateProvider()
 
@@ -47,6 +49,7 @@ internal fun MemoDetailTopBar(
                 MemoDetailTopBarActions(
                     contentProvider = { uiState },
                     onEvent = onEvent,
+                    geminiUiStateProvider = geminiUiStateProvider,
                 )
             }
         },

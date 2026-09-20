@@ -10,6 +10,8 @@ import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.feature.memo.ui.Res
+import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiButton
+import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiUiState
 import io.github.taetae98coding.diary.feature.memo.ui.memo_detail_copy_button_content_description
 import io.github.taetae98coding.diary.feature.memo.ui.memo_detail_delete_button_content_description
 import io.github.taetae98coding.diary.feature.memo.ui.memo_detail_finish_button_content_description
@@ -21,7 +23,12 @@ import kotlin.uuid.Uuid
 internal fun MemoDetailTopBarActions(
     contentProvider: () -> MemoDetailUiState.Content,
     onEvent: (MemoDetailScaffoldEvent) -> Unit,
+    geminiUiStateProvider: () -> MemoGeminiUiState = { MemoGeminiUiState() },
 ) {
+    MemoGeminiButton(
+        onClick = { onEvent(MemoDetailScaffoldEvent.ClickGemini) },
+        isVisibleProvider = { geminiUiStateProvider().isButtonVisible },
+    )
     FinishButton(
         isFinishedProvider = { contentProvider().isFinished },
         onClick = {

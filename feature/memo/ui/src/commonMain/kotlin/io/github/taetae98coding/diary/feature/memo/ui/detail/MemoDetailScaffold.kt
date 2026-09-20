@@ -19,6 +19,7 @@ import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefault
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.place.toCoordinate
+import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.Tag
@@ -26,6 +27,9 @@ import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.feature.memo.ui.form.MemoFormEvent
 import io.github.taetae98coding.diary.feature.memo.ui.form.MemoFormState
 import io.github.taetae98coding.diary.feature.memo.ui.form.rememberMemoDetailFormState
+import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiDialogEvent
+import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiDialogHost
+import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceCardUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlacePickerDialogHost
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlacePickerEvent
@@ -46,6 +50,8 @@ internal fun MemoDetailScaffold(
     onTagPickerEvent: (MemoTagPickerEvent) -> Unit,
     onWebPickerEvent: (MemoWebPickerEvent) -> Unit,
     onPlacePickerEvent: (MemoPlacePickerEvent) -> Unit,
+    onGeminiEvent: (MemoGeminiDialogEvent) -> Unit,
+    onGeminiDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     uiStateProvider: () -> MemoDetailUiState = { MemoDetailUiState.Loading },
     state: MemoFormState = rememberMemoDetailFormState(initialDetail = MemoDetail.EMPTY),
@@ -55,6 +61,7 @@ internal fun MemoDetailScaffold(
     webPagingItems: LazyPagingItems<Web> = remember { flowOf(PagingData.empty<Web>()) }.collectAsLazyPagingItems(),
     placeCardUiStateProvider: () -> MemoPlaceCardUiState = { MemoPlaceCardUiState() },
     placePagingItems: LazyPagingItems<Place> = remember { flowOf(PagingData.empty<Place>()) }.collectAsLazyPagingItems(),
+    geminiUiStateProvider: () -> MemoGeminiUiState = { MemoGeminiUiState() },
     componentVisibleProvider: () -> MemoDetailScaffoldComponentVisible = { MemoDetailScaffoldComponentVisible() },
     isStandalone: Boolean = true,
 ) {
@@ -73,6 +80,7 @@ internal fun MemoDetailScaffold(
                 uiStateProvider = uiStateProvider,
                 onEvent = onEvent,
                 componentVisibleProvider = componentVisibleProvider,
+                geminiUiStateProvider = geminiUiStateProvider,
             )
         },
         snackbarHost = { SnackbarHost(hostState = state.hostState) },
@@ -101,6 +109,41 @@ internal fun MemoDetailScaffold(
         )
     }
 
+    MemoDetailDialogHost(
+        onTagPickerEvent = onTagPickerEvent,
+        onWebPickerEvent = onWebPickerEvent,
+        onPlacePickerEvent = onPlacePickerEvent,
+        onGeminiEvent = onGeminiEvent,
+        onGeminiDismissRequest = onGeminiDismissRequest,
+        state = state,
+        tagPagingItems = tagPagingItems,
+        tagUiStateProvider = tagUiStateProvider,
+        webPagingItems = webPagingItems,
+        webUiStateProvider = webUiStateProvider,
+        placePagingItems = placePagingItems,
+        placeCardUiStateProvider = placeCardUiStateProvider,
+        placeCoordinateProvider = { placeMapState?.coordinate?.toCoordinate() },
+        geminiUiStateProvider = geminiUiStateProvider,
+    )
+}
+
+@Composable
+private fun MemoDetailDialogHost(
+    onTagPickerEvent: (MemoTagPickerEvent) -> Unit,
+    onWebPickerEvent: (MemoWebPickerEvent) -> Unit,
+    onPlacePickerEvent: (MemoPlacePickerEvent) -> Unit,
+    onGeminiEvent: (MemoGeminiDialogEvent) -> Unit,
+    onGeminiDismissRequest: () -> Unit,
+    state: MemoFormState,
+    tagPagingItems: LazyPagingItems<Tag>,
+    tagUiStateProvider: () -> MemoTagInputUiState,
+    webPagingItems: LazyPagingItems<Web>,
+    webUiStateProvider: () -> MemoWebInputUiState,
+    placePagingItems: LazyPagingItems<Place>,
+    placeCardUiStateProvider: () -> MemoPlaceCardUiState,
+    placeCoordinateProvider: () -> Coordinate?,
+    geminiUiStateProvider: () -> MemoGeminiUiState,
+) {
     MemoTagPickerDialogHost(
         dialogState = state.tagPickerDialogState,
         onEvent = onTagPickerEvent,
@@ -113,7 +156,12 @@ internal fun MemoDetailScaffold(
         onEvent = onPlacePickerEvent,
         uiStateProvider = { placeCardUiStateProvider().placeUiState },
         placePagingItems = placePagingItems,
-        coordinateProvider = { placeMapState?.coordinate?.toCoordinate() },
+        coordinateProvider = placeCoordinateProvider,
+    )
+    MemoGeminiDialogHost(
+        onEvent = onGeminiEvent,
+        onDismissRequest = onGeminiDismissRequest,
+        uiStateProvider = geminiUiStateProvider,
     )
 }
 
@@ -143,6 +191,8 @@ private fun MemoDetailScaffoldPreview(
             onTagPickerEvent = {},
             onWebPickerEvent = {},
             onPlacePickerEvent = {},
+            onGeminiEvent = {},
+            onGeminiDismissRequest = {},
             uiStateProvider = { uiState },
             state = rememberMemoDetailFormState(initialDetail = detail),
         )

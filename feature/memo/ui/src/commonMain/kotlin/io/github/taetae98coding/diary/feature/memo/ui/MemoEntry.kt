@@ -140,6 +140,7 @@ private fun EntryProviderScope<ScreenNavKey>.memoAddEntry(backStack: NavBackStac
             webViewModel = koinViewModel(),
             placeViewModel = koinViewModel(),
             placeMapViewModel = koinViewModel(),
+            geminiViewModel = koinViewModel(),
         )
     }
 }
@@ -178,6 +179,7 @@ private fun EntryProviderScope<ScreenNavKey>.memoDetailEntry(backStack: NavBackS
             webViewModel = koinViewModel { parametersOf(key.id) },
             placeViewModel = koinViewModel { parametersOf(key.id) },
             placeMapViewModel = koinViewModel(),
+            geminiViewModel = koinViewModel(),
         )
     }
 }
@@ -221,5 +223,6 @@ private fun MemoAddDetailPlaceholder(backStack: NavBackStack<ScreenNavKey>) {
         webViewModel = koinViewModel(),
         placeViewModel = koinViewModel(),
         placeMapViewModel = koinViewModel(),
+        geminiViewModel = koinViewModel(),
     )
 }

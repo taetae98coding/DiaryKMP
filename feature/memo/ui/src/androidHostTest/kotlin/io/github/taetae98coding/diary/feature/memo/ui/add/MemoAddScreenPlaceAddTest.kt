@@ -12,6 +12,7 @@ import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.closeDialogByBack
+import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.DEFAULT_PLACE_PICKER_PLACE_ADD
 import io.github.taetae98coding.diary.feature.memo.ui.place.DEFAULT_PLACE_PICKER_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.place.DEFAULT_PLACE_SELECT_LABEL
@@ -191,6 +192,7 @@ class MemoAddScreenPlaceAddTest {
                     webViewModel = viewModels.webViewModel,
                     placeViewModel = viewModels.placeViewModel,
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = {},
                     navigateToTagAdd = {},
                     navigateToTagDetail = {},

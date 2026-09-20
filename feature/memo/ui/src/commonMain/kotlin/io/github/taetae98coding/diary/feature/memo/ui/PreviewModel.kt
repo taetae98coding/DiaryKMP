@@ -2,12 +2,15 @@ package io.github.taetae98coding.diary.feature.memo.ui
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.github.taetae98coding.diary.core.model.location.Coordinate
+import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
+import io.github.taetae98coding.diary.core.model.memo.MemoDraft
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
+import kotlinx.datetime.LocalDate
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -62,6 +65,13 @@ internal fun previewWeb(
         isDeleted = false,
         updatedAt = Instant.DISTANT_PAST,
         createdAt = Instant.DISTANT_PAST,
+    )
+
+internal fun previewMemoDraft(): MemoDraft =
+    MemoDraft(
+        title = "주간 회고 정리",
+        description = "## 이번 주\n- 한 일\n- 배운 것",
+        dateTime = MemoDateTime.AllDay(dateRange = LocalDate(year = 2026, month = 9, day = 21)..LocalDate(year = 2026, month = 9, day = 22)),
     )
 
 internal class TagListPreviewParameter : PreviewParameterProvider<List<Tag>> {

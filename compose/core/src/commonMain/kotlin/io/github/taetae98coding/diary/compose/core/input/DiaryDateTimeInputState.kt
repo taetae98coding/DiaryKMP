@@ -48,6 +48,26 @@ public class DiaryDateTimeInputState internal constructor(
                 else -> DiaryDateTimeInputValue.DateTime(start = start, endInclusive = endInclusive)
             }
 
+    public fun select(value: DiaryDateTimeInputValue) {
+        when (value) {
+            is DiaryDateTimeInputValue.AllDay -> {
+                selectAllDay(true)
+                selectStartDate(value.dateRange.start)
+                selectEndDate(value.dateRange.endInclusive)
+            }
+
+            is DiaryDateTimeInputValue.DateTime -> {
+                selectAllDay(false)
+                selectStartDate(value.start.date)
+                selectStartTime(value.start.time)
+                selectEndDate(value.endInclusive.date)
+                selectEndTime(value.endInclusive.time)
+            }
+        }
+
+        hasDateTime = true
+    }
+
     public fun selectAllDay(isAllDay: Boolean) {
         if (this.isAllDay == isAllDay) return
 

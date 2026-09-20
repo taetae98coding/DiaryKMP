@@ -27,6 +27,7 @@ import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.web.screenTestWebViewModel
@@ -122,6 +123,7 @@ class MemoDetailScreenTest {
                     webViewModel = screenTestWebViewModel(),
                     placeViewModel = screenTestPlaceViewModel(),
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = {},
                     navigateToCopiedMemo = {},
                     navigateToTagAdd = {},
@@ -234,6 +236,7 @@ class MemoDetailScreenTest {
                     webViewModel = screenTestWebViewModel(),
                     placeViewModel = screenTestPlaceViewModel(),
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = navigateUp,
                     navigateToCopiedMemo = {},
                     navigateToTagAdd = {},
@@ -359,6 +362,7 @@ class MemoDetailScreenDateTimeTest {
                     webViewModel = screenTestWebViewModel(),
                     placeViewModel = screenTestPlaceViewModel(),
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = {},
                     navigateToCopiedMemo = {},
                     navigateToTagAdd = {},
@@ -509,6 +513,7 @@ class MemoDetailScreenActionTest {
                     webViewModel = screenTestWebViewModel(),
                     placeViewModel = screenTestPlaceViewModel(),
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = {},
                     navigateToCopiedMemo = {},
                     navigateToTagAdd = {},
@@ -584,6 +589,7 @@ class MemoDetailScreenActionTest {
                     webViewModel = screenTestWebViewModel(),
                     placeViewModel = screenTestPlaceViewModel(),
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = navigateUp,
                     navigateToCopiedMemo = navigateToCopiedMemo,
                     navigateToTagAdd = {},
@@ -658,6 +664,7 @@ class MemoDetailScreenCopiedResultTest {
                     webViewModel = screenTestWebViewModel(),
                     placeViewModel = screenTestPlaceViewModel(),
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = {},
                     navigateToCopiedMemo = {},
                     navigateToTagAdd = {},
@@ -745,6 +752,7 @@ class MemoDetailScreenMessageTest {
                     webViewModel = screenTestWebViewModel(),
                     placeViewModel = screenTestPlaceViewModel(),
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = {},
                     navigateToCopiedMemo = {},
                     navigateToTagAdd = {},
@@ -780,6 +788,7 @@ class MemoDetailScreenMessageTest {
                     webViewModel = screenTestWebViewModel(),
                     placeViewModel = screenTestPlaceViewModel(),
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = {},
                     navigateToCopiedMemo = {},
                     navigateToTagAdd = {},

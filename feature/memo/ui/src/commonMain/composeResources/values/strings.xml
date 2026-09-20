@@ -69,4 +69,24 @@
     <string name="memo_detail_delete_button_content_description">Delete memo</string>
     <string name="memo_detail_update_succeeded_message">Memo updated.</string>
     <string name="memo_detail_copy_succeeded_message">Memo copied.</string>
+    <string name="memo_gemini_button_content_description">Writing assistant</string>
+    <string name="memo_gemini_title">Writing Assistant</string>
+    <string name="memo_gemini_setting_required_message">Please finish Gemini settings first.</string>
+    <string name="memo_gemini_prompt_label">Prompt</string>
+    <string name="memo_gemini_prompt_placeholder">What memo should I write?</string>
+    <string name="memo_gemini_generate_action">Generate</string>
+    <string name="memo_gemini_cancel_action">Cancel</string>
+    <string name="memo_gemini_close_action">Close</string>
+    <string name="memo_gemini_generating_message">Generating</string>
+    <string name="memo_gemini_invalid_api_key_message">Check your API key</string>
+    <string name="memo_gemini_failed_message">Couldn't generate</string>
+    <string name="memo_gemini_empty_message">Nothing was generated</string>
+    <string name="memo_gemini_title_label">Title</string>
+    <string name="memo_gemini_description_label">Description</string>
+    <string name="memo_gemini_date_time_label">Date &amp; time</string>
+    <string name="memo_gemini_period_format">%1$s – %2$s</string>
+    <string name="memo_gemini_all_day_period_format">All day %1$s – %2$s</string>
+    <string name="memo_gemini_apply_action">Apply</string>
+    <string name="memo_gemini_apply_button_content_description">Apply %1$s</string>
+    <string name="memo_gemini_applied_content_description">Applied</string>
 </resources>

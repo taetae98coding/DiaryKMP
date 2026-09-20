@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.feature.memo.ui.add
 
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.feature.memo.ui.form.MemoFormState
+import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlacePickerEvent
 import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagPickerEvent
 import io.github.taetae98coding.diary.feature.memo.ui.web.MemoWebPickerEvent
@@ -12,6 +13,7 @@ internal fun handleMemoAddEvent(
     tagViewModel: MemoAddTagViewModel,
     webViewModel: MemoAddWebViewModel,
     placeViewModel: MemoAddPlaceViewModel,
+    geminiViewModel: MemoGeminiViewModel,
     scaffoldState: MemoFormState,
     navigateUp: () -> Unit,
 ) {
@@ -25,6 +27,8 @@ internal fun handleMemoAddEvent(
                 webIdSet = webViewModel.webIdSet.value,
                 placeIdSet = placeViewModel.placeIdSet.value,
             )
+
+        is MemoAddScaffoldEvent.ClickGemini -> geminiViewModel.open()
     }
 }
 

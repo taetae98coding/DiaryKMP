@@ -10,8 +10,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
+import io.github.taetae98coding.diary.feature.memo.ui.form.MemoFormState
 import io.github.taetae98coding.diary.feature.memo.ui.form.handleMemoFormEvent
 import io.github.taetae98coding.diary.feature.memo.ui.form.rememberMemoDetailFormState
+import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiCloseEffect
+import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiSettingRequiredEffect
+import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.gemini.handleMemoGeminiEvent
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceAddedResultEffect
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceCardUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceMapViewModel
@@ -40,6 +45,7 @@ internal fun MemoDetailScreen(
     webViewModel: MemoWebViewModel,
     placeViewModel: MemoPlaceViewModel,
     placeMapViewModel: MemoPlaceMapViewModel,
+    geminiViewModel: MemoGeminiViewModel,
     modifier: Modifier = Modifier,
 ) {
     val uiState by detailViewModel.uiState.collectAsStateWithLifecycle()
@@ -47,6 +53,7 @@ internal fun MemoDetailScreen(
     val webUiState by webViewModel.uiState.collectAsStateWithLifecycle()
     val placeUiState by placeViewModel.uiState.collectAsStateWithLifecycle()
     val placeMapUiState by placeMapViewModel.uiState.collectAsStateWithLifecycle()
+    val geminiUiState by geminiViewModel.uiState.collectAsStateWithLifecycle()
     val tagPagingItems = tagViewModel.tagPagingData.collectAsLazyPagingItems()
     val webPagingItems = webViewModel.webPagingData.collectAsLazyPagingItems()
     val placePagingItems = placeViewModel.placePagingData.collectAsLazyPagingItems()
@@ -57,17 +64,13 @@ internal fun MemoDetailScreen(
     key(content?.id) {
         val scaffoldState = rememberMemoDetailFormState(initialDetail = content?.detail ?: MemoDetail.EMPTY)
 
-        MemoDetailScreenEffect(effect = detailViewModel.effect, scaffoldState = scaffoldState, navigateUp = navigateUp, navigateToCopiedMemo = navigateToCopiedMemo)
-
-        if (content != null) {
-            MemoCopiedResultEffect(id = content.id, scaffoldState = scaffoldState)
-        }
+        MemoDetailTargetEffect(id = content?.id, scaffoldState = scaffoldState, detailViewModel = detailViewModel, geminiViewModel = geminiViewModel, navigateUp = navigateUp, navigateToCopiedMemo = navigateToCopiedMemo)
 
         MemoDetailScaffold(
             state = scaffoldState,
             tagPagingItems = tagPagingItems,
             uiStateProvider = { uiState },
-            onEvent = { event -> handleMemoDetailEvent(event = event, detailViewModel = detailViewModel, scaffoldState = scaffoldState, navigateUp = navigateUp) },
+            onEvent = { event -> handleMemoDetailEvent(event = event, detailViewModel = detailViewModel, geminiViewModel = geminiViewModel, scaffoldState = scaffoldState, navigateUp = navigateUp) },
             onFormEvent = { event ->
                 handleMemoFormEvent(
                     event = event,
@@ -86,15 +89,36 @@ internal fun MemoDetailScreen(
             onTagPickerEvent = { event -> handleMemoDetailTagPickerEvent(event = event, tagViewModel = tagViewModel, navigateToTagAdd = navigateToTagAdd) },
             onWebPickerEvent = { event -> handleMemoDetailWebPickerEvent(event = event, webViewModel = webViewModel, navigateToWebAdd = navigateToWebAdd) },
             onPlacePickerEvent = { event -> handleMemoDetailPlacePickerEvent(event = event, placeViewModel = placeViewModel, navigateToPlaceAdd = navigateToPlaceAdd) },
+            onGeminiEvent = { event -> handleMemoGeminiEvent(event = event, geminiViewModel = geminiViewModel, state = scaffoldState) },
+            onGeminiDismissRequest = geminiViewModel::close,
             modifier = modifier,
             tagUiStateProvider = { tagUiState },
             webUiStateProvider = { webUiState },
             webPagingItems = webPagingItems,
             placeCardUiStateProvider = { MemoPlaceCardUiState(mapUiState = placeMapUiState, placeUiState = placeUiState) },
             placePagingItems = placePagingItems,
+            geminiUiStateProvider = { geminiUiState },
             componentVisibleProvider = componentVisibleProvider,
             isStandalone = isStandalone,
         )
+    }
+}
+
+@Composable
+private fun MemoDetailTargetEffect(
+    id: Uuid?,
+    scaffoldState: MemoFormState,
+    detailViewModel: MemoDetailViewModel,
+    geminiViewModel: MemoGeminiViewModel,
+    navigateUp: () -> Unit,
+    navigateToCopiedMemo: (Uuid) -> Unit,
+) {
+    MemoDetailScreenEffect(effect = detailViewModel.effect, scaffoldState = scaffoldState, navigateUp = navigateUp, navigateToCopiedMemo = navigateToCopiedMemo)
+    MemoGeminiCloseEffect(geminiViewModel = geminiViewModel)
+    MemoGeminiSettingRequiredEffect(hostState = scaffoldState.hostState, effect = geminiViewModel.effect)
+
+    if (id != null) {
+        MemoCopiedResultEffect(id = id, scaffoldState = scaffoldState)
     }
 }
 

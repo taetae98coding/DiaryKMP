@@ -7,4 +7,8 @@ public sealed class GeminiException(
     public class InvalidApiKey(
         cause: Throwable?,
     ) : GeminiException("Gemini API key is invalid", cause)
+
+    public class InvalidContent(
+        cause: Throwable?,
+    ) : GeminiException("Gemini did not return content in the requested structure", cause)
 }

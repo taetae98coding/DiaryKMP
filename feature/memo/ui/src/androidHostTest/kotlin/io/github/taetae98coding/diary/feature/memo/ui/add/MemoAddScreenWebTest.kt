@@ -15,6 +15,7 @@ import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.closeDialogByBack
+import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.web.DEFAULT_WEB_PICKER_ADD_LABEL
 import io.github.taetae98coding.diary.feature.memo.ui.web.DEFAULT_WEB_PICKER_TITLE
@@ -69,6 +70,7 @@ private fun ComposeContentTestRule.setMemoAddScreenForWeb(
                 webViewModel = viewModels.webViewModel,
                 placeViewModel = viewModels.placeViewModel,
                 placeMapViewModel = screenTestPlaceMapViewModel(),
+                geminiViewModel = screenTestGeminiViewModel(),
                 navigateUp = {},
                 navigateToTagAdd = {},
                 navigateToTagDetail = {},

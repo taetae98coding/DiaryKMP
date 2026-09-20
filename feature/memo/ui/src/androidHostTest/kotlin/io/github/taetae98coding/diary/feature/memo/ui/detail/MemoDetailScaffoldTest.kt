@@ -104,6 +104,8 @@ class MemoDetailScaffoldTest {
                     onTagPickerEvent = {},
                     onWebPickerEvent = {},
                     onPlacePickerEvent = {},
+                    onGeminiEvent = {},
+                    onGeminiDismissRequest = {},
                     componentVisibleProvider = componentVisibleProvider,
                 )
             }
@@ -186,6 +188,8 @@ class MemoDetailScaffoldActionTest {
                     onTagPickerEvent = {},
                     onWebPickerEvent = {},
                     onPlacePickerEvent = {},
+                    onGeminiEvent = {},
+                    onGeminiDismissRequest = {},
                 )
             }
         }
@@ -236,6 +240,8 @@ class MemoDetailScaffoldInProgressTest {
                     onTagPickerEvent = {},
                     onWebPickerEvent = {},
                     onPlacePickerEvent = {},
+                    onGeminiEvent = {},
+                    onGeminiDismissRequest = {},
                 )
             }
         }

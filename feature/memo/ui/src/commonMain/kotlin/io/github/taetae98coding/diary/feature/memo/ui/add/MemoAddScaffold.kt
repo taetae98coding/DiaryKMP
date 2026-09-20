@@ -26,6 +26,9 @@ import io.github.taetae98coding.diary.feature.memo.ui.form.MemoForm
 import io.github.taetae98coding.diary.feature.memo.ui.form.MemoFormEvent
 import io.github.taetae98coding.diary.feature.memo.ui.form.MemoFormState
 import io.github.taetae98coding.diary.feature.memo.ui.form.rememberMemoAddFormState
+import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiDialogEvent
+import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiDialogHost
+import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiUiState
 import io.github.taetae98coding.diary.feature.memo.ui.memo_add_add_button_content_description
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceCardUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlacePickerDialogHost
@@ -47,6 +50,8 @@ internal fun MemoAddScaffold(
     onTagPickerEvent: (MemoTagPickerEvent) -> Unit,
     onWebPickerEvent: (MemoWebPickerEvent) -> Unit,
     onPlacePickerEvent: (MemoPlacePickerEvent) -> Unit,
+    onGeminiEvent: (MemoGeminiDialogEvent) -> Unit,
+    onGeminiDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     state: MemoFormState = rememberMemoAddFormState(),
     tagPagingItems: LazyPagingItems<Tag> = remember { flowOf(PagingData.empty<Tag>()) }.collectAsLazyPagingItems(),
@@ -56,6 +61,7 @@ internal fun MemoAddScaffold(
     webPagingItems: LazyPagingItems<Web> = remember { flowOf(PagingData.empty<Web>()) }.collectAsLazyPagingItems(),
     placeCardUiStateProvider: () -> MemoPlaceCardUiState = { MemoPlaceCardUiState() },
     placePagingItems: LazyPagingItems<Place> = remember { flowOf(PagingData.empty<Place>()) }.collectAsLazyPagingItems(),
+    geminiUiStateProvider: () -> MemoGeminiUiState = { MemoGeminiUiState() },
     componentVisibleProvider: () -> MemoAddScaffoldComponentVisible = { MemoAddScaffoldComponentVisible() },
     isStandalone: Boolean = true,
 ) {
@@ -67,6 +73,7 @@ internal fun MemoAddScaffold(
             MemoAddTopBar(
                 onEvent = onEvent,
                 componentVisibleProvider = componentVisibleProvider,
+                geminiUiStateProvider = geminiUiStateProvider,
             )
         },
         snackbarHost = { SnackbarHost(hostState = state.hostState) },
@@ -113,6 +120,11 @@ internal fun MemoAddScaffold(
         placePagingItems = placePagingItems,
         coordinateProvider = { placeMapState?.coordinate?.toCoordinate() },
     )
+    MemoGeminiDialogHost(
+        onEvent = onGeminiEvent,
+        onDismissRequest = onGeminiDismissRequest,
+        uiStateProvider = geminiUiStateProvider,
+    )
 }
 
 @ScreenPreview
@@ -127,6 +139,8 @@ private fun MemoAddScaffoldPreview(
             onTagPickerEvent = {},
             onWebPickerEvent = {},
             onPlacePickerEvent = {},
+            onGeminiEvent = {},
+            onGeminiDismissRequest = {},
             uiStateProvider = { MemoAddUiState(isInProgress = isInProgress) },
         )
     }

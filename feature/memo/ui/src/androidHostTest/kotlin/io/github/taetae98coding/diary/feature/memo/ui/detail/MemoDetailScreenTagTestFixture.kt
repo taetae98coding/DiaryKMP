@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.placePagingData
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
@@ -52,6 +53,7 @@ internal fun ComposeContentTestRule.setMemoDetailScreenWithTag(
                 webViewModel = screenTestWebViewModel(),
                 placeViewModel = screenTestPlaceViewModel(uiState = placeUiState, placePagingData = placePagingData),
                 placeMapViewModel = screenTestPlaceMapViewModel(),
+                geminiViewModel = screenTestGeminiViewModel(),
                 navigateUp = {},
                 navigateToCopiedMemo = {},
                 navigateToTagAdd = navigateToTagAdd,

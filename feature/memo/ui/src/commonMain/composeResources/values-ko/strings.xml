@@ -69,4 +69,24 @@
     <string name="memo_detail_delete_button_content_description">메모 삭제</string>
     <string name="memo_detail_update_succeeded_message">메모가 수정되었습니다.</string>
     <string name="memo_detail_copy_succeeded_message">메모가 복사되었습니다.</string>
+    <string name="memo_gemini_button_content_description">작성 도우미</string>
+    <string name="memo_gemini_title">작성 도우미</string>
+    <string name="memo_gemini_setting_required_message">Gemini 설정을 먼저 완료해 주세요.</string>
+    <string name="memo_gemini_prompt_label">프롬프트</string>
+    <string name="memo_gemini_prompt_placeholder">어떤 메모를 만들까요?</string>
+    <string name="memo_gemini_generate_action">생성</string>
+    <string name="memo_gemini_cancel_action">취소</string>
+    <string name="memo_gemini_close_action">닫기</string>
+    <string name="memo_gemini_generating_message">생성하고 있습니다</string>
+    <string name="memo_gemini_invalid_api_key_message">API 키를 확인해 주세요</string>
+    <string name="memo_gemini_failed_message">생성하지 못했습니다</string>
+    <string name="memo_gemini_empty_message">생성된 내용이 없습니다</string>
+    <string name="memo_gemini_title_label">제목</string>
+    <string name="memo_gemini_description_label">설명</string>
+    <string name="memo_gemini_date_time_label">날짜·시간</string>
+    <string name="memo_gemini_period_format">%1$s ~ %2$s</string>
+    <string name="memo_gemini_all_day_period_format">종일 %1$s ~ %2$s</string>
+    <string name="memo_gemini_apply_action">반영</string>
+    <string name="memo_gemini_apply_button_content_description">%1$s 반영</string>
+    <string name="memo_gemini_applied_content_description">반영됨</string>
 </resources>

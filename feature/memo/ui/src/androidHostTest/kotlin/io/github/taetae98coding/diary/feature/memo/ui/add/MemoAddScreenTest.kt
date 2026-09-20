@@ -25,6 +25,7 @@ import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -230,6 +231,7 @@ class MemoAddScreenTest {
                     webViewModel = viewModels.webViewModel,
                     placeViewModel = viewModels.placeViewModel,
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = navigateUp,
                     navigateToTagAdd = {},
                     navigateToTagDetail = {},
@@ -279,6 +281,7 @@ class MemoAddScreenInitialDateTimeTest {
                     webViewModel = viewModels.webViewModel,
                     placeViewModel = viewModels.placeViewModel,
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = {},
                     navigateToTagAdd = {},
                     navigateToTagDetail = {},
@@ -350,6 +353,7 @@ class MemoAddScreenMessageTest {
                     webViewModel = viewModels.webViewModel,
                     placeViewModel = viewModels.placeViewModel,
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = {},
                     navigateToTagAdd = {},
                     navigateToTagDetail = {},
