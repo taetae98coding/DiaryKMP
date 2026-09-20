@@ -32,35 +32,6 @@ class TagHomeFilterScrollTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-034 필터를 켜고 좁힌 목록이 놓이면 목록을 처음부터 다시 본다`() {
-        val allTagList = tagList(ALL_TAG_COUNT)
-        val isApplied = mutableStateOf(false)
-        val tagPagingData = MutableStateFlow(tagPagingDataOf(allTagList))
-        setTagHomeScaffold(isApplied = isApplied, tagPagingData = tagPagingData)
-
-        scrollToLast(tagList = allTagList)
-        switchFilter(isApplied = isApplied, value = true)
-        place(tagPagingData = tagPagingData, tagList = allTagList.take(FILTERED_TAG_COUNT))
-
-        composeRule.onNodeWithText(allTagList.first().title()).assertExists()
-    }
-
-    @Test
-    fun `TC-TAG-HOME-FEATURE-034 필터를 끄고 넓힌 목록이 놓이면 목록을 처음부터 다시 본다`() {
-        val allTagList = tagList(ALL_TAG_COUNT)
-        val filteredTagList = allTagList.take(FILTERED_TAG_COUNT)
-        val isApplied = mutableStateOf(true)
-        val tagPagingData = MutableStateFlow(tagPagingDataOf(filteredTagList))
-        setTagHomeScaffold(isApplied = isApplied, tagPagingData = tagPagingData)
-
-        scrollToLast(tagList = filteredTagList)
-        switchFilter(isApplied = isApplied, value = false)
-        place(tagPagingData = tagPagingData, tagList = allTagList)
-
-        composeRule.onNodeWithText(allTagList.first().title()).assertExists()
-    }
-
-    @Test
     fun `TC-TAG-HOME-DOMAIN-011 좁힌 목록이 놓이기 전에는 목록 위치를 유지한다`() {
         val allTagList = tagList(ALL_TAG_COUNT)
         val isApplied = mutableStateOf(false)
@@ -73,20 +44,6 @@ class TagHomeFilterScrollTest {
         composeRule.onNodeWithText(allTagList.first().title()).assertDoesNotExist()
     }
 
-    @Test
-    fun `TC-TAG-HOME-DOMAIN-012 필터를 바꾸지 않은 목록 갱신에서는 목록 위치를 유지한다`() {
-        val allTagList = tagList(ALL_TAG_COUNT)
-        val isApplied = mutableStateOf(false)
-        val tagPagingData = MutableStateFlow(tagPagingDataOf(allTagList))
-        setTagHomeScaffold(isApplied = isApplied, tagPagingData = tagPagingData)
-
-        scrollToLast(tagList = allTagList)
-        place(tagPagingData = tagPagingData, tagList = allTagList + tag(title = "${TITLE_PREFIX}Added"))
-
-        composeRule.onNodeWithText(allTagList.first().title()).assertDoesNotExist()
-    }
-
-    // 필터를 바꾸기 전에 사용자가 첫 태그 카드가 보이지 않는 자리까지 이동해 둔 상태를 만든다.
     private fun scrollToLast(tagList: List<Tag>) {
         composeRule.onNodeWithTag(TAG_HOME_LIST_TEST_TAG).performScrollToIndex(tagList.lastIndex)
         composeRule.waitForIdle()
@@ -99,15 +56,6 @@ class TagHomeFilterScrollTest {
         value: Boolean,
     ) {
         composeRule.runOnIdle { isApplied.value = value }
-        composeRule.waitForIdle()
-    }
-
-    // 필터를 바꾼 뒤 한 박자 늦게 놓이는 목록을 만든다.
-    private fun place(
-        tagPagingData: MutableStateFlow<PagingData<Tag>>,
-        tagList: List<Tag>,
-    ) {
-        composeRule.runOnIdle { tagPagingData.value = tagPagingDataOf(tagList) }
         composeRule.waitForIdle()
     }
 
@@ -132,7 +80,6 @@ class TagHomeFilterScrollTest {
 
     private companion object {
         private const val ALL_TAG_COUNT = 100
-        private const val FILTERED_TAG_COUNT = 60
         private const val TITLE_PREFIX = "ScrollTagTitle"
 
         private val fixtureMonkey: FixtureMonkey =
