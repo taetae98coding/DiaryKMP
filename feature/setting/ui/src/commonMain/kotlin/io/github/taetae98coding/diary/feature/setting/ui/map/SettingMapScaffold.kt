@@ -6,11 +6,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import io.github.taetae98coding.diary.compose.core.button.NavigateUpButton
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.map.MapProvider
@@ -31,9 +29,11 @@ internal fun SettingMapScaffold(
     Scaffold(
         modifier = modifier,
         topBar = {
-            TopBar(
-                onEvent = onEvent,
-                componentVisibleProvider = componentVisibleProvider,
+            DiaryNavigateUpTopBar(
+                title = stringResource(Res.string.setting_map_title),
+                onNavigateUp = { onEvent(SettingMapScaffoldEvent.ClickNavigateUp) },
+                navigateUpContentDescription = stringResource(Res.string.setting_navigate_up_button_content_description),
+                isNavigateUpVisibleProvider = { componentVisibleProvider().isNavigateUpButtonVisible },
             )
         },
     ) { paddingValues ->
@@ -63,26 +63,6 @@ internal fun SettingMapScaffold(
             }
         }
     }
-}
-
-@Composable
-private fun TopBar(
-    onEvent: (SettingMapScaffoldEvent) -> Unit,
-    modifier: Modifier = Modifier,
-    componentVisibleProvider: () -> SettingMapScaffoldComponentVisible = { SettingMapScaffoldComponentVisible() },
-) {
-    TopAppBar(
-        title = { Text(text = stringResource(Res.string.setting_map_title)) },
-        modifier = modifier,
-        navigationIcon = {
-            if (componentVisibleProvider().isNavigateUpButtonVisible) {
-                NavigateUpButton(
-                    onClick = { onEvent(SettingMapScaffoldEvent.ClickNavigateUp) },
-                    contentDescription = stringResource(Res.string.setting_navigate_up_button_content_description),
-                )
-            }
-        },
-    )
 }
 
 @ScreenPreview

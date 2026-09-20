@@ -4,13 +4,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
-import io.github.taetae98coding.diary.compose.core.button.NavigateUpButton
 import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
@@ -36,9 +34,11 @@ internal fun ContactAddScaffold(
     Scaffold(
         modifier = modifier.submitShortcut { onEvent(ContactAddScaffoldEvent.ClickAdd) },
         topBar = {
-            TopBar(
-                onEvent = onEvent,
-                componentVisibleProvider = componentVisibleProvider,
+            DiaryNavigateUpTopBar(
+                title = stringResource(Res.string.contact_add_title),
+                onNavigateUp = { onEvent(ContactAddScaffoldEvent.ClickNavigateUp) },
+                navigateUpContentDescription = stringResource(Res.string.contact_navigate_up_button_content_description),
+                isNavigateUpVisibleProvider = { componentVisibleProvider().isNavigateUpButtonVisible },
             )
         },
         snackbarHost = { SnackbarHost(hostState = state.hostState) },
@@ -59,26 +59,6 @@ internal fun ContactAddScaffold(
             state = state,
         )
     }
-}
-
-@Composable
-private fun TopBar(
-    onEvent: (ContactAddScaffoldEvent) -> Unit,
-    modifier: Modifier = Modifier,
-    componentVisibleProvider: () -> ContactAddScaffoldComponentVisible = { ContactAddScaffoldComponentVisible() },
-) {
-    TopAppBar(
-        title = { Text(text = stringResource(Res.string.contact_add_title)) },
-        modifier = modifier,
-        navigationIcon = {
-            if (componentVisibleProvider().isNavigateUpButtonVisible) {
-                NavigateUpButton(
-                    onClick = { onEvent(ContactAddScaffoldEvent.ClickNavigateUp) },
-                    contentDescription = stringResource(Res.string.contact_navigate_up_button_content_description),
-                )
-            }
-        },
-    )
 }
 
 @ScreenPreview

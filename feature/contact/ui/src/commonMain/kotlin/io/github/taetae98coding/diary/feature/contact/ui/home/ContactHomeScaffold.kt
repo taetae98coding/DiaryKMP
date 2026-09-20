@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
@@ -23,6 +24,8 @@ import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.feature.contact.ui.Res
 import io.github.taetae98coding.diary.feature.contact.ui.contact_home_add_button_content_description
+import io.github.taetae98coding.diary.feature.contact.ui.contact_home_title
+import io.github.taetae98coding.diary.feature.contact.ui.contact_navigate_up_button_content_description
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
 
@@ -38,7 +41,13 @@ internal fun ContactHomeScaffold(
 ) {
     Scaffold(
         modifier = modifier,
-        topBar = { ContactHomeTopBar(onEvent = onEvent) },
+        topBar = {
+            DiaryNavigateUpTopBar(
+                title = stringResource(Res.string.contact_home_title),
+                onNavigateUp = { onEvent(ContactHomeScaffoldEvent.ClickNavigateUp) },
+                navigateUpContentDescription = stringResource(Res.string.contact_navigate_up_button_content_description),
+            )
+        },
         floatingActionButton = {
             if (componentVisibleProvider().isAddButtonVisible) {
                 FloatingAddButton(

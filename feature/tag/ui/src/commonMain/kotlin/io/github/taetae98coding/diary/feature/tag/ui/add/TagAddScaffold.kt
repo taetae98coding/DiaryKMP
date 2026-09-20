@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -14,8 +12,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
-import io.github.taetae98coding.diary.compose.core.button.NavigateUpButton
 import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
@@ -50,9 +48,11 @@ internal fun TagAddScaffold(
     Scaffold(
         modifier = modifier.submitShortcut { onEvent(TagAddScaffoldEvent.ClickAdd) },
         topBar = {
-            TopBar(
-                onEvent = onEvent,
-                componentVisibleProvider = componentVisibleProvider,
+            DiaryNavigateUpTopBar(
+                title = stringResource(Res.string.tag_add_title),
+                onNavigateUp = { onEvent(TagAddScaffoldEvent.ClickNavigateUp) },
+                navigateUpContentDescription = stringResource(Res.string.tag_add_navigate_up_button_content_description),
+                isNavigateUpVisibleProvider = { componentVisibleProvider().isNavigateUpButtonVisible },
             )
         },
         snackbarHost = { SnackbarHost(hostState = state.hostState) },
@@ -86,26 +86,6 @@ internal fun TagAddScaffold(
         onEvent = onLinkPickerEvent,
         tagPagingItems = tagPagingItems,
         uiStateProvider = linkUiStateProvider,
-    )
-}
-
-@Composable
-private fun TopBar(
-    onEvent: (TagAddScaffoldEvent) -> Unit,
-    modifier: Modifier = Modifier,
-    componentVisibleProvider: () -> TagAddScaffoldComponentVisible = { TagAddScaffoldComponentVisible() },
-) {
-    TopAppBar(
-        title = { Text(text = stringResource(Res.string.tag_add_title)) },
-        modifier = modifier,
-        navigationIcon = {
-            if (componentVisibleProvider().isNavigateUpButtonVisible) {
-                NavigateUpButton(
-                    onClick = { onEvent(TagAddScaffoldEvent.ClickNavigateUp) },
-                    contentDescription = stringResource(Res.string.tag_add_navigate_up_button_content_description),
-                )
-            }
-        },
     )
 }
 

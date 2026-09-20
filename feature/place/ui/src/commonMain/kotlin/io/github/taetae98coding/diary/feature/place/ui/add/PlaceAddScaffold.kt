@@ -4,8 +4,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -13,8 +11,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
-import io.github.taetae98coding.diary.compose.core.button.NavigateUpButton
 import io.github.taetae98coding.diary.compose.core.button.SearchButton
 import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
@@ -66,9 +64,18 @@ internal fun PlaceAddScaffold(
     Scaffold(
         modifier = modifier.submitShortcut { onEvent(PlaceAddScaffoldEvent.ClickAdd) },
         topBar = {
-            TopBar(
-                onEvent = onEvent,
-                uiStateProvider = uiStateProvider,
+            DiaryNavigateUpTopBar(
+                title = stringResource(Res.string.place_add_title),
+                onNavigateUp = { onEvent(PlaceAddScaffoldEvent.ClickNavigateUp) },
+                navigateUpContentDescription = stringResource(Res.string.place_navigate_up_button_content_description),
+                actions = {
+                    if (uiStateProvider().defaultProvider != null) {
+                        SearchButton(
+                            onClick = { onEvent(PlaceAddScaffoldEvent.ClickSearch) },
+                            contentDescription = stringResource(Res.string.place_search_button_content_description),
+                        )
+                    }
+                },
             )
         },
         snackbarHost = { SnackbarHost(hostState = state.hostState) },
@@ -98,32 +105,6 @@ internal fun PlaceAddScaffold(
         onEvent = onTagPickerEvent,
         tagPagingItems = tagPagingItems,
         uiStateProvider = tagUiStateProvider,
-    )
-}
-
-@Composable
-private fun TopBar(
-    onEvent: (PlaceAddScaffoldEvent) -> Unit,
-    modifier: Modifier = Modifier,
-    uiStateProvider: () -> PlaceAddUiState = { PlaceAddUiState() },
-) {
-    TopAppBar(
-        title = { Text(text = stringResource(Res.string.place_add_title)) },
-        modifier = modifier,
-        navigationIcon = {
-            NavigateUpButton(
-                onClick = { onEvent(PlaceAddScaffoldEvent.ClickNavigateUp) },
-                contentDescription = stringResource(Res.string.place_navigate_up_button_content_description),
-            )
-        },
-        actions = {
-            if (uiStateProvider().defaultProvider != null) {
-                SearchButton(
-                    onClick = { onEvent(PlaceAddScaffoldEvent.ClickSearch) },
-                    contentDescription = stringResource(Res.string.place_search_button_content_description),
-                )
-            }
-        },
     )
 }
 

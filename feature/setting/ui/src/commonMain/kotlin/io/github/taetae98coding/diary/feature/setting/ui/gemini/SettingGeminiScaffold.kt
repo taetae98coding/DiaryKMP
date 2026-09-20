@@ -4,8 +4,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -14,8 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleVisibility
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
 import io.github.taetae98coding.diary.compose.core.button.FloatingCheckButton
-import io.github.taetae98coding.diary.compose.core.button.NavigateUpButton
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -47,9 +45,11 @@ internal fun SettingGeminiScaffold(
     Scaffold(
         modifier = modifier,
         topBar = {
-            TopBar(
-                onEvent = onEvent,
-                componentVisibleProvider = componentVisibleProvider,
+            DiaryNavigateUpTopBar(
+                title = stringResource(Res.string.setting_gemini_title),
+                onNavigateUp = { onEvent(SettingGeminiScaffoldEvent.ClickNavigateUp) },
+                navigateUpContentDescription = stringResource(Res.string.setting_navigate_up_button_content_description),
+                isNavigateUpVisibleProvider = { componentVisibleProvider().isNavigateUpButtonVisible },
             )
         },
         snackbarHost = { SnackbarHost(hostState = state.hostState) },
@@ -85,26 +85,6 @@ internal fun SettingGeminiScaffold(
         onEvent = onModelDialogEvent,
         selectedModelProvider = { state.model },
         uiStateProvider = modelUiStateProvider,
-    )
-}
-
-@Composable
-private fun TopBar(
-    onEvent: (SettingGeminiScaffoldEvent) -> Unit,
-    modifier: Modifier = Modifier,
-    componentVisibleProvider: () -> SettingGeminiScaffoldComponentVisible = { SettingGeminiScaffoldComponentVisible() },
-) {
-    TopAppBar(
-        title = { Text(text = stringResource(Res.string.setting_gemini_title)) },
-        modifier = modifier,
-        navigationIcon = {
-            if (componentVisibleProvider().isNavigateUpButtonVisible) {
-                NavigateUpButton(
-                    onClick = { onEvent(SettingGeminiScaffoldEvent.ClickNavigateUp) },
-                    contentDescription = stringResource(Res.string.setting_navigate_up_button_content_description),
-                )
-            }
-        },
     )
 }
 

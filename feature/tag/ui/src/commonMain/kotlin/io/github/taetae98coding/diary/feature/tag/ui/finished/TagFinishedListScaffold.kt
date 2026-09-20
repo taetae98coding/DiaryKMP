@@ -6,15 +6,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import io.github.taetae98coding.diary.compose.core.button.NavigateUpButton
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
@@ -47,7 +45,13 @@ internal fun TagFinishedListScaffold(
 ) {
     Scaffold(
         modifier = modifier,
-        topBar = { TopBar(onEvent = onEvent) },
+        topBar = {
+            DiaryNavigateUpTopBar(
+                title = stringResource(Res.string.tag_finished_list_title),
+                onNavigateUp = { onEvent(TagFinishedListScaffoldEvent.ClickNavigateUp) },
+                navigateUpContentDescription = stringResource(Res.string.tag_finished_list_navigate_up_button_content_description),
+            )
+        },
     ) { paddingValues ->
         Column(
             modifier =
@@ -83,23 +87,6 @@ internal fun TagFinishedListScaffold(
         onSelect = { sort -> onEvent(TagFinishedListScaffoldEvent.SelectSort(sort = sort)) },
         state = sortSheetState,
         sortProvider = sortProvider,
-    )
-}
-
-@Composable
-private fun TopBar(
-    onEvent: (TagFinishedListScaffoldEvent) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    TopAppBar(
-        title = { Text(text = stringResource(Res.string.tag_finished_list_title)) },
-        modifier = modifier,
-        navigationIcon = {
-            NavigateUpButton(
-                onClick = { onEvent(TagFinishedListScaffoldEvent.ClickNavigateUp) },
-                contentDescription = stringResource(Res.string.tag_finished_list_navigate_up_button_content_description),
-            )
-        },
     )
 }
 

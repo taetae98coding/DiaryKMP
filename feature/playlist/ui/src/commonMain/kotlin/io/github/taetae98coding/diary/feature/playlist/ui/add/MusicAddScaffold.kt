@@ -4,13 +4,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
-import io.github.taetae98coding.diary.compose.core.button.NavigateUpButton
 import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
@@ -34,7 +32,13 @@ internal fun MusicAddScaffold(
 ) {
     Scaffold(
         modifier = modifier.submitShortcut { onEvent(MusicAddScaffoldEvent.ClickAdd) },
-        topBar = { TopBar(onEvent = onEvent) },
+        topBar = {
+            DiaryNavigateUpTopBar(
+                title = stringResource(Res.string.music_add_title),
+                onNavigateUp = { onEvent(MusicAddScaffoldEvent.ClickNavigateUp) },
+                navigateUpContentDescription = stringResource(Res.string.playlist_navigate_up_button_content_description),
+            )
+        },
         snackbarHost = { SnackbarHost(hostState = state.hostState) },
         floatingActionButton = {
             FloatingAddButton(
@@ -55,23 +59,6 @@ internal fun MusicAddScaffold(
             isFetchInProgressProvider = { uiStateProvider().isLinkFetchInProgress },
         )
     }
-}
-
-@Composable
-private fun TopBar(
-    onEvent: (MusicAddScaffoldEvent) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    TopAppBar(
-        title = { Text(text = stringResource(Res.string.music_add_title)) },
-        modifier = modifier,
-        navigationIcon = {
-            NavigateUpButton(
-                onClick = { onEvent(MusicAddScaffoldEvent.ClickNavigateUp) },
-                contentDescription = stringResource(Res.string.playlist_navigate_up_button_content_description),
-            )
-        },
-    )
 }
 
 @ScreenPreview

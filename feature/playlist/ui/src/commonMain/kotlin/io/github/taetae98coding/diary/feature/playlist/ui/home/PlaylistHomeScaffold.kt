@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
@@ -22,6 +23,8 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.feature.playlist.ui.Res
 import io.github.taetae98coding.diary.feature.playlist.ui.playlist_home_add_button_content_description
+import io.github.taetae98coding.diary.feature.playlist.ui.playlist_home_title
+import io.github.taetae98coding.diary.feature.playlist.ui.playlist_navigate_up_button_content_description
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
 
@@ -36,7 +39,13 @@ internal fun PlaylistHomeScaffold(
 ) {
     Scaffold(
         modifier = modifier,
-        topBar = { PlaylistHomeTopBar(onEvent = onEvent) },
+        topBar = {
+            DiaryNavigateUpTopBar(
+                title = stringResource(Res.string.playlist_home_title),
+                onNavigateUp = { onEvent(PlaylistHomeScaffoldEvent.ClickNavigateUp) },
+                navigateUpContentDescription = stringResource(Res.string.playlist_navigate_up_button_content_description),
+            )
+        },
         floatingActionButton = {
             FloatingAddButton(
                 onClick = { onEvent(PlaylistHomeScaffoldEvent.ClickAdd) },

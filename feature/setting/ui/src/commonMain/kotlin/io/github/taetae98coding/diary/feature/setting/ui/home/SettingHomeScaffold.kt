@@ -7,10 +7,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import io.github.taetae98coding.diary.compose.core.button.NavigateUpButton
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
 import io.github.taetae98coding.diary.compose.core.listitem.DiarySegmentedListItem
 import io.github.taetae98coding.diary.compose.core.listitem.DiarySegmentedListItemDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
@@ -27,7 +26,13 @@ internal fun SettingHomeScaffold(
 ) {
     Scaffold(
         modifier = modifier,
-        topBar = { TopBar(onEvent = onEvent) },
+        topBar = {
+            DiaryNavigateUpTopBar(
+                title = stringResource(Res.string.setting_home_title),
+                onNavigateUp = { onEvent(SettingHomeScaffoldEvent.ClickNavigateUp) },
+                navigateUpContentDescription = stringResource(Res.string.setting_navigate_up_button_content_description),
+            )
+        },
     ) { paddingValues ->
         LazyColumn(
             modifier =
@@ -52,23 +57,6 @@ internal fun SettingHomeScaffold(
             }
         }
     }
-}
-
-@Composable
-private fun TopBar(
-    onEvent: (SettingHomeScaffoldEvent) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    TopAppBar(
-        title = { Text(text = stringResource(Res.string.setting_home_title)) },
-        modifier = modifier,
-        navigationIcon = {
-            NavigateUpButton(
-                onClick = { onEvent(SettingHomeScaffoldEvent.ClickNavigateUp) },
-                contentDescription = stringResource(Res.string.setting_navigate_up_button_content_description),
-            )
-        },
-    )
 }
 
 @ScreenPreview
