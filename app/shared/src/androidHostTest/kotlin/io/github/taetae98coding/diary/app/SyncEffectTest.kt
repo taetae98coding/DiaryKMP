@@ -9,6 +9,7 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +26,12 @@ class SyncEffectTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-DATA-SYNC-DOMAIN-032 앱이 다시 화면에 보이게 되면 동기화를 다시 요청한다`() {
+    fun `Android는 앱이 화면에 보이는 동안을 활성 상태로 본다`() {
+        syncMinActiveState shouldBe Lifecycle.State.STARTED
+    }
+
+    @Test
+    fun `TC-DATA-SYNC-DOMAIN-032 Android와 iOS에서 앱이 다시 화면에 보이게 되면 동기화를 다시 요청한다`() {
         val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
         val accountFlow = MutableStateFlow<Account>(account)
         val requestSync = mockk<() -> Unit>(relaxed = true)
@@ -44,12 +50,12 @@ class SyncEffectTest {
     }
 
     @Test
-    fun `TC-DATA-SYNC-DOMAIN-035 앱이 화면에서 보이지 않는 동안에는 동기화를 요청하지 않는다`() {
+    fun `TC-DATA-SYNC-DOMAIN-035 Android와 iOS에서 앱이 화면에서 보이지 않는 동안에는 동기화를 요청하지 않는다`() {
         val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
         val otherAccount = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
         val accountFlow = MutableStateFlow<Account>(Account.Guest)
         val requestSync = mockk<() -> Unit>(relaxed = true)
-        setSyncEffect(accountFlow, requestSync, Lifecycle.State.CREATED)
+        setSyncEffect(accountFlow, requestSync, initialState = Lifecycle.State.CREATED)
 
         composeRule.runOnIdle { accountFlow.value = account }
         composeRule.runOnIdle { accountFlow.value = otherAccount }
@@ -64,10 +70,25 @@ class SyncEffectTest {
         val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
         val accountFlow = MutableStateFlow<Account>(Account.Guest)
         val requestSync = mockk<() -> Unit>(relaxed = true)
-        val lifecycleOwner = setSyncEffect(accountFlow, requestSync, Lifecycle.State.CREATED)
+        val lifecycleOwner = setSyncEffect(accountFlow, requestSync, initialState = Lifecycle.State.CREATED)
 
         composeRule.runOnIdle { accountFlow.value = account }
         composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.STARTED }
+
+        composeRule.runOnIdle {
+            verify(exactly = 1) { requestSync() }
+        }
+    }
+
+    @Test
+    fun `Android와 iOS에서는 포커스를 잃고 다시 얻는 것은 계기가 아니다`() {
+        val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+        val accountFlow = MutableStateFlow<Account>(account)
+        val requestSync = mockk<() -> Unit>(relaxed = true)
+        val lifecycleOwner = setSyncEffect(accountFlow, requestSync, initialState = Lifecycle.State.RESUMED)
+
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.STARTED }
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
 
         composeRule.runOnIdle {
             verify(exactly = 1) { requestSync() }
@@ -111,9 +132,9 @@ class SyncEffectTest {
         composeRule.setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 SyncEffect(
-                    account = accountFlow,
                     requestSync = requestSync,
                     schedulePeriodicSync = schedulePeriodicSync,
+                    account = accountFlow,
                 )
             }
         }

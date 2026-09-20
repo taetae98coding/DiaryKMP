@@ -12,7 +12,10 @@ internal fun SyncEffect(
     schedulePeriodicSync: () -> Unit,
     account: Flow<Account> = emptyFlow(),
 ) {
-    CollectEffect(account) {
+    CollectEffect(
+        effect = account,
+        minActiveState = syncMinActiveState,
+    ) {
         requestSync()
         schedulePeriodicSync()
     }

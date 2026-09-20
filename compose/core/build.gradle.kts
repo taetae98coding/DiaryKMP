@@ -22,5 +22,11 @@ kotlin {
                 api(libs.kotlinx.datetime)
             }
         }
+
+        androidHostTest {
+            dependencies {
+                implementation(libs.androidx.lifecycle.runtime.testing)
+            }
+        }
     }
 }

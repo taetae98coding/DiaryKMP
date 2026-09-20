@@ -23,9 +23,9 @@ public fun App(modifier: Modifier = Modifier) {
     )
     ScheduleDailyMemoNotificationEffect(schedule = notificationViewModel::schedule)
     SyncEffect(
-        account = syncViewModel.account,
         requestSync = syncViewModel::requestSync,
         schedulePeriodicSync = syncViewModel::schedulePeriodicSync,
+        account = syncViewModel.account,
     )
     ScreenViewEffect(
         log = DiaryLogger::log,
