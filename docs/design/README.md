@@ -32,6 +32,8 @@
 
 MemoAdd 화면과 MemoDetail 화면이 함께 쓰는 본문의 구성과 적응형 배치, 떠 있는 동작 버튼의 자리는 [메모 본문 배치](./memo-form.md)가 소유한다. 두 화면 문서는 화면마다 다른 진입별 표시와 버튼의 표시 조건, 문구만 남긴다.
 
+두 화면이 함께 쓰는 작성 도우미의 여는 버튼과 다이얼로그 구조, 상태별 표시와 문구는 [메모 Gemini 작성 도우미](./memo-gemini.md)가 소유한다. 두 화면 문서는 그 버튼을 상단 바 어느 자리에 두는지만 남긴다.
+
 태그를 고르는 입력들이 함께 쓰는 칩 영역과 추가 칩, 태그 선택 목록과 그 안의 검색·빈 상태·준비 상태 표현은 [태그 선택 입력 공통](./tag-select-input.md)이 소유한다. [항목 태그 입력 컴포넌트](./entity-tag-input.md), [메모 태그 입력 컴포넌트](./memo-tag-input.md), [태그 연결 입력 컴포넌트](./tag-link-input.md) 문서는 그 입력에서만 다른 칩 구성과 목록 항목의 추가 요소, 라벨과 문구만 남긴다.
 
 WebAdd, WebDetail, PlaceAdd, PlaceDetail, ContactAdd 화면 문서는 태그 입력을 폼의 어느 자리에 두는지와 화면마다 다른 반영 시점의 표현만 남긴다.
@@ -87,6 +89,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail, ContactAdd 화면 문서는 태그 입
 - [MemoDetail 화면](./memo-detail.md)
 - [MemoFinishedList 화면](./memo-finished-list.md)
 - [메모 본문 배치](./memo-form.md)
+- [메모 Gemini 작성 도우미](./memo-gemini.md)
 - [MemoHome 목록](./memo-home.md)
 - [Memo 목록·상세 배치](./memo-list-detail.md)
 - [메모 장소 카드 컴포넌트](./memo-place-card.md)

@@ -71,6 +71,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [MemoAdd](./memo-add.md) | [MemoAdd 화면](../spec/memo-add.md) |
 | [MemoDetail](./memo-detail.md) | [MemoDetail 화면](../spec/memo-detail.md) |
 | [MemoFinishedList](./memo-finished-list.md) | [MemoFinishedList 화면](../spec/memo-finished-list.md) |
+| [메모 Gemini 작성 도우미](./memo-gemini.md) | [메모 Gemini 작성 도우미](../spec/memo-gemini.md) |
 | [MemoHome 목록](./memo-home.md) | [MemoHome 목록](../spec/memo-home.md) |
 | [Memo 목록·상세 배치](./memo-list-detail.md) | [Memo 목록·상세 배치](../spec/memo-list-detail.md) |
 | [메모 장소 카드](./memo-place-card.md) | [메모 장소 카드 컴포넌트](../spec/memo-place-card.md) |

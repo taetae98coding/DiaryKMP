@@ -64,6 +64,7 @@
 | [MemoAdd 화면](./memo-add.md) | [MemoAdd 디자인](../design/memo-add.md) |
 | [MemoDetail 화면](./memo-detail.md) | [MemoDetail 디자인](../design/memo-detail.md) |
 | [MemoFinishedList 화면](./memo-finished-list.md) | [MemoFinishedList 디자인](../design/memo-finished-list.md) |
+| [메모 Gemini 작성 도우미](./memo-gemini.md) | [메모 Gemini 작성 도우미 디자인](../design/memo-gemini.md) |
 | [MemoHome 목록](./memo-home.md) | [MemoHome 디자인](../design/memo-home.md) |
 | [Memo 목록·상세 배치](./memo-list-detail.md) | [Memo 목록·상세 배치 디자인](../design/memo-list-detail.md) |
 | [메모 장소](./memo-place.md) | — |
