@@ -46,7 +46,7 @@ class SyncWorkPlaceTest :
                 coEvery { context.memoTagRemoteDataSource.push(any()) } coAnswers { requestOrder += "memoTag" }
                 coEvery { context.memoPlaceRemoteDataSource.push(any()) } coAnswers { requestOrder += "memoPlace" }
 
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
 
                 requestOrder shouldContainExactly expectedOrder
             }
@@ -69,7 +69,7 @@ class SyncWorkPlaceTest :
                         callOrder += "placePushEnd"
                     }
 
-                    context.subject.doWork(accountId = context.accountId)
+                    context.subject.doWork()
 
                     val delayedEnd = if (delayed == "태그") "tagPushEnd" else "placePushEnd"
                     callOrder.last() shouldBe delayedEnd
@@ -80,7 +80,7 @@ class SyncWorkPlaceTest :
         test("TC-DATA-SYNC-DOMAIN-020 장소만 대기하면 장소 요청만 발생한다") {
             val context = context(placeList = places(size = 1))
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) { context.placeRemoteDataSource.push(any()) }
             coVerify(exactly = 0) { context.tagRemoteDataSource.push(any()) }
@@ -93,7 +93,7 @@ class SyncWorkPlaceTest :
         test("TC-DATA-SYNC-DOMAIN-020 메모·장소 연결만 대기하면 그 연결 요청만 발생한다") {
             val context = context(memoPlaceList = memoPlaces(size = 1))
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) { context.memoPlaceRemoteDataSource.push(any()) }
             coVerify(exactly = 0) { context.tagRemoteDataSource.push(any()) }
@@ -105,7 +105,7 @@ class SyncWorkPlaceTest :
         test("TC-DATA-SYNC-DOMAIN-020 대기 항목이 없으면 일곱 종류 요청이 모두 없다") {
             val context = context()
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 0) { context.tagRemoteDataSource.push(any()) }
             coVerify(exactly = 0) { context.placeRemoteDataSource.push(any()) }
@@ -134,7 +134,7 @@ class SyncWorkPlaceTest :
 
             val actual =
                 shouldThrowExactly<TestException> {
-                    context.subject.doWork(accountId = context.accountId)
+                    context.subject.doWork()
                 }
 
             actual.message shouldBe failure.message
@@ -165,7 +165,7 @@ class SyncWorkPlaceTest :
 
             val actual =
                 shouldThrowExactly<TestException> {
-                    context.subject.doWork(accountId = context.accountId)
+                    context.subject.doWork()
                 }
 
             actual.message shouldBe failure.message
@@ -188,7 +188,7 @@ class SyncWorkPlaceTest :
 
             val actual =
                 shouldThrowExactly<TestException> {
-                    context.subject.doWork(accountId = context.accountId)
+                    context.subject.doWork()
                 }
 
             actual.message shouldBe failure.message
@@ -209,7 +209,7 @@ class SyncWorkPlaceTest :
             coEvery { context.tagRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             coVerify(exactly = 0) { context.memoRemoteDataSource.push(any()) }
@@ -231,7 +231,7 @@ class SyncWorkPlaceTest :
             coEvery { context.memoRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             coVerify(exactly = 0) { context.memoTagRemoteDataSource.push(any()) }
@@ -274,7 +274,7 @@ class SyncWorkPlaceTest :
                     emptyList()
                 }
 
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
 
                 callOrder.last() shouldBe "placePullEnd"
                 callOrder.dropLast(1) shouldContainExactlyInAnyOrder
@@ -293,7 +293,7 @@ class SyncWorkPlaceTest :
             coEvery { context.memoPlaceRemoteDataSource.pull(usn = 5L) } returns emptyList()
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             coVerify(exactly = 1) {
@@ -328,7 +328,7 @@ class SyncWorkPlaceTest :
 
                 val actual =
                     shouldThrowExactly<TestException> {
-                        context.subject.doWork(accountId = context.accountId)
+                        context.subject.doWork()
                     }
 
                 actual.message shouldBe failure.message
@@ -344,7 +344,7 @@ class SyncWorkPlaceTest :
                 context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.MEMO_PLACE)
             } returns 14L
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) { context.placeRemoteDataSource.pull(usn = 9L) }
             coVerify(exactly = 1) { context.memoPlaceRemoteDataSource.pull(usn = 14L) }
@@ -363,7 +363,7 @@ class SyncWorkPlaceTest :
             coEvery { context.memoPlaceRemoteDataSource.pull(usn = 4L) } returns memoPlacePullList
             coEvery { context.memoPlaceRemoteDataSource.pull(usn = 11L) } returns emptyList()
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.accountPlaceSyncTransaction.save(
@@ -397,7 +397,7 @@ class SyncWorkPlaceTest :
                     requests += firstArg<List<PlaceRemoteEntity>>()
                 }
 
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
 
                 requests.map { request -> request.size } shouldContainExactly expectedRequestSizes
                 requests.flatten() shouldContainExactly placeList.map { place -> place.toRemote() }
@@ -412,7 +412,7 @@ class SyncWorkPlaceTest :
                 requests += firstArg<List<PlaceRemoteEntity>>()
             }
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             requests.flatten().map { request -> request.isDeleted } shouldContainExactly listOf(true)
         }
@@ -440,7 +440,7 @@ class SyncWorkPlaceTest :
                 memoRequests += firstArg<List<MemoRemoteEntity>>()
             }
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             memoPlaceRequests.flatten() shouldContainExactly memoPlaceList.map { memoPlace -> memoPlace.toRemote() }
             placeRequests.flatten() shouldContainExactly placeList.map { place -> place.toRemote() }
@@ -455,7 +455,7 @@ class SyncWorkPlaceTest :
                 requests += firstArg<List<MemoPlaceRemoteEntity>>()
             }
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             requests.flatten() shouldContainExactly memoPlaceList.map { memoPlace -> memoPlace.toRemote() }
         }
@@ -464,7 +464,7 @@ class SyncWorkPlaceTest :
             val placeList = places(size = 101)
             val context = context(placeList = placeList)
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.accountPlaceSyncTransaction.clearPending(

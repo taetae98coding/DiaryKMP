@@ -35,7 +35,7 @@ class SyncWorkWebTest :
                         callOrder += "webPushEnd"
                     }
 
-                    context.subject.doWork(accountId = context.accountId)
+                    context.subject.doWork()
 
                     val delayedEnd = if (delayed == "태그") "tagPushEnd" else "webPushEnd"
                     callOrder.last() shouldBe delayedEnd
@@ -46,7 +46,7 @@ class SyncWorkWebTest :
         test("TC-DATA-SYNC-DOMAIN-020 웹 항목만 대기하면 웹 항목 요청만 발생한다") {
             val context = context(webList = webs(size = 1))
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) { context.webRemoteDataSource.push(any()) }
             coVerify(exactly = 0) { context.tagRemoteDataSource.push(any()) }
@@ -77,7 +77,7 @@ class SyncWorkWebTest :
 
             val actual =
                 shouldThrowExactly<TestException> {
-                    context.subject.doWork(accountId = context.accountId)
+                    context.subject.doWork()
                 }
 
             actual.message shouldBe failure.message
@@ -101,7 +101,7 @@ class SyncWorkWebTest :
 
             val actual =
                 shouldThrowExactly<TestException> {
-                    context.subject.doWork(accountId = context.accountId)
+                    context.subject.doWork()
                 }
 
             actual.message shouldBe failure.message
@@ -127,7 +127,7 @@ class SyncWorkWebTest :
                 }
 
                 shouldThrowExactly<TestException> {
-                    context.subject.doWork(accountId = context.accountId)
+                    context.subject.doWork()
                 }
 
                 coVerify(exactly = 1) { context.webRemoteDataSource.push(any()) }
@@ -168,7 +168,7 @@ class SyncWorkWebTest :
                     emptyList()
                 }
 
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
 
                 callOrder.last() shouldBe "webPullEnd"
                 callOrder.dropLast(1) shouldContainExactlyInAnyOrder
@@ -187,7 +187,7 @@ class SyncWorkWebTest :
             coEvery { context.tagRemoteDataSource.pull(usn = 5L) } returns emptyList()
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             coVerify(exactly = 1) { context.tagRemoteDataSource.pull(usn = 5L) }
@@ -200,7 +200,7 @@ class SyncWorkWebTest :
 
             val actual =
                 shouldThrowExactly<TestException> {
-                    context.subject.doWork(accountId = context.accountId)
+                    context.subject.doWork()
                 }
 
             actual.message shouldBe failure.message
@@ -222,7 +222,7 @@ class SyncWorkWebTest :
                     requests += firstArg<List<WebRemoteEntity>>()
                 }
 
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
 
                 requests.map { request -> request.size } shouldContainExactly expectedRequestSizes
                 requests.flatten() shouldContainExactly webList.map { web -> web.toRemote() }
@@ -243,7 +243,7 @@ class SyncWorkWebTest :
                 requests += firstArg<List<WebRemoteEntity>>()
             }
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             requests
                 .flatten()
@@ -256,7 +256,7 @@ class SyncWorkWebTest :
             val context = context()
             coEvery { context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.WEB) } returns 9L
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) { context.webRemoteDataSource.pull(usn = 9L) }
         }
@@ -272,7 +272,7 @@ class SyncWorkWebTest :
             coEvery { context.tagRemoteDataSource.pull(usn = 4L) } returns tagPullList
             coEvery { context.tagRemoteDataSource.pull(usn = 11L) } returns emptyList()
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.accountWebSyncTransaction.save(
@@ -290,7 +290,7 @@ class SyncWorkWebTest :
             coEvery { context.webRemoteDataSource.pull(usn = 0L) } returns firstPullList
             coEvery { context.webRemoteDataSource.pull(usn = 2L) } returns emptyList()
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) { context.webRemoteDataSource.pull(usn = 0L) }
             coVerify(exactly = 1) { context.webRemoteDataSource.pull(usn = 2L) }
@@ -307,7 +307,7 @@ class SyncWorkWebTest :
             val webList = webs(size = 101)
             val context = context(webList = webList)
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.accountWebSyncTransaction.clearPending(context.accountId, webList.take(100))

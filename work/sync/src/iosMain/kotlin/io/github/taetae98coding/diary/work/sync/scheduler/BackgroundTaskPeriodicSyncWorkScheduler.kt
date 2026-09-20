@@ -7,18 +7,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import platform.BackgroundTasks.BGTask
 import kotlin.time.Duration
-import kotlin.uuid.Uuid
 
 internal class BackgroundTaskPeriodicSyncWorkScheduler(
     private val syncWork: SyncWork,
     private val scope: CoroutineScope,
 ) : PeriodicSyncWorkScheduler {
-    override fun schedule(
-        accountId: Uuid,
-        period: Duration,
-    ) {
-        // 시스템이 앱을 깨워 실행할 때는 앱이 종료된 뒤일 수 있으므로 대상 계정과 주기를 기기에 남긴다.
-        savePeriodicSyncTarget(accountId = accountId, period = period)
+    override fun schedule(period: Duration) {
+        // 시스템이 앱을 깨워 실행할 때는 앱이 종료된 뒤일 수 있으므로 다음 주기를 다시 예약할 간격을 기기에 남긴다.
+        savePeriodicSyncPeriod(period = period)
 
         scope.launch {
             // 이미 남아 있는 예약을 다시 제출하면 다음 실행 시각이 뒤로 밀리므로 없을 때만 제출한다.
@@ -29,17 +25,16 @@ internal class BackgroundTaskPeriodicSyncWorkScheduler(
     }
 
     override fun cancel() {
-        clearPeriodicSyncTarget()
+        clearPeriodicSyncPeriod()
         cancelPeriodicSyncRequest()
     }
 
     fun runTask(task: BGTask?) {
         if (task == null) return
 
-        val accountId = periodicSyncAccountId()
         val period = periodicSyncPeriod()
 
-        if (accountId == null || period == null) {
+        if (period == null) {
             task.setTaskCompletedWithSuccess(false)
             return
         }
@@ -51,7 +46,7 @@ internal class BackgroundTaskPeriodicSyncWorkScheduler(
             scope.launch {
                 val isSuccess =
                     try {
-                        syncWork.doWork(accountId = accountId)
+                        syncWork.doWork()
                         true
                     } catch (exception: CancellationException) {
                         throw exception

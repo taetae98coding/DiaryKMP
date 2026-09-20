@@ -40,6 +40,7 @@ import io.github.taetae98coding.diary.core.database.api.web.transaction.AccountW
 import io.github.taetae98coding.diary.core.database.api.webtag.datasource.AccountWebTagSyncLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.webtag.transaction.AccountWebTagSyncTransaction
+import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.network.api.contact.datasource.ContactRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.contact.entity.ContactPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.memo.datasource.MemoRemoteDataSource
@@ -64,6 +65,7 @@ import io.github.taetae98coding.diary.core.network.api.web.datasource.WebRemoteD
 import io.github.taetae98coding.diary.core.network.api.web.entity.WebPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.webtag.datasource.WebTagRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.webtag.entity.WebTagPullRemoteEntity
+import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
@@ -73,6 +75,8 @@ import io.github.taetae98coding.diary.work.sync.mapper.toRemote
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -85,6 +89,7 @@ internal val fixtureMonkey: FixtureMonkey =
 
 internal data class TestContext(
     val accountId: Uuid,
+    val getAccountUseCase: GetAccountUseCase,
     val tagSyncLocalDataSource: AccountTagSyncLocalDataSource,
     val placeSyncLocalDataSource: AccountPlaceSyncLocalDataSource,
     val webSyncLocalDataSource: AccountWebSyncLocalDataSource,
@@ -125,6 +130,7 @@ internal data class TestContext(
 ) {
     val subject: SyncWorkImpl =
         SyncWorkImpl(
+            getAccountUseCase = getAccountUseCase,
             tagSyncWork =
                 TagSyncWork(
                     accountTagSyncLocalDataSource = tagSyncLocalDataSource,
@@ -212,12 +218,27 @@ internal data class TestContext(
         )
 }
 
+internal fun sessionValidUser(accountId: Uuid): Account.User =
+    fixtureMonkey
+        .giveMeKotlinBuilder<Account.User>()
+        .setExp(Account.User::id, accountId)
+        .setExp(Account.User::isSessionValid, true)
+        .sample()
+
+internal fun sessionInvalidUser(accountId: Uuid): Account.User =
+    fixtureMonkey
+        .giveMeKotlinBuilder<Account.User>()
+        .setExp(Account.User::id, accountId)
+        .setExp(Account.User::isSessionValid, false)
+        .sample()
+
 internal class TestException(
     message: String,
 ) : RuntimeException(message)
 
 internal fun context(
     accountId: Uuid = fixtureMonkey.giveMeOne(),
+    accountFlow: Flow<Result<Account>> = flowOf(Result.success(sessionValidUser(accountId = accountId))),
     tagList: List<TagLocalEntity> = emptyList(),
     placeList: List<PlaceLocalEntity> = emptyList(),
     webList: List<WebLocalEntity> = emptyList(),
@@ -231,7 +252,7 @@ internal fun context(
     placeTagList: List<PlaceTagLocalEntity> = emptyList(),
     musicList: List<MusicLocalEntity> = emptyList(),
 ): TestContext {
-    val context = mockedTestContext(accountId = accountId)
+    val context = mockedTestContext(accountId = accountId, accountFlow = accountFlow)
 
     context.stubPending(
         tagList = tagList,
@@ -253,9 +274,13 @@ internal fun context(
     return context
 }
 
-private fun mockedTestContext(accountId: Uuid): TestContext =
+private fun mockedTestContext(
+    accountId: Uuid,
+    accountFlow: Flow<Result<Account>>,
+): TestContext =
     TestContext(
         accountId = accountId,
+        getAccountUseCase = mockk<GetAccountUseCase>().apply { every { this@apply(parameter = Unit) } returns accountFlow },
         tagSyncLocalDataSource = mockk(),
         placeSyncLocalDataSource = mockk(),
         webSyncLocalDataSource = mockk(),

@@ -22,7 +22,7 @@ class SyncWorkContactTest :
         test("TC-DATA-SYNC-DOMAIN-020 연락처만 대기하면 연락처 요청만 발생한다") {
             val context = context(contactList = contacts(size = 1))
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) { context.contactRemoteDataSource.push(any()) }
             coVerify(exactly = 0) { context.tagRemoteDataSource.push(any()) }
@@ -48,7 +48,7 @@ class SyncWorkContactTest :
                         callOrder += "contactPushEnd"
                     }
 
-                    context.subject.doWork(accountId = context.accountId)
+                    context.subject.doWork()
 
                     val delayedEnd = if (delayed == "태그") "tagPushEnd" else "contactPushEnd"
                     callOrder.last() shouldBe delayedEnd
@@ -65,7 +65,7 @@ class SyncWorkContactTest :
                 contactRequests += firstArg<List<ContactRemoteEntity>>().size
             }
 
-            shouldThrowExactly<TestException> { context.subject.doWork(accountId = context.accountId) }
+            shouldThrowExactly<TestException> { context.subject.doWork() }
 
             contactRequests shouldContainExactly listOf(100, 100, 1)
         }
@@ -84,7 +84,7 @@ class SyncWorkContactTest :
             coEvery { context.tagRemoteDataSource.push(any()) } answers { tagRequests += firstArg<List<Any>>().size }
             coEvery { context.placeRemoteDataSource.push(any()) } answers { placeRequests += firstArg<List<Any>>().size }
 
-            shouldThrowExactly<TestException> { context.subject.doWork(accountId = context.accountId) }
+            shouldThrowExactly<TestException> { context.subject.doWork() }
 
             tagRequests shouldContainExactly listOf(100, 100, 1)
             placeRequests shouldContainExactly listOf(100, 100, 1)
@@ -97,7 +97,7 @@ class SyncWorkContactTest :
                 requestSizeList += firstArg<List<ContactRemoteEntity>>().size
             }
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             requestSizeList shouldContainExactly listOf(100, 100, 50)
         }
@@ -114,7 +114,7 @@ class SyncWorkContactTest :
             val requestList = mutableListOf<List<ContactRemoteEntity>>()
             coEvery { context.contactRemoteDataSource.push(any()) } answers { requestList += firstArg<List<ContactRemoteEntity>>() }
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             requestList.single().single() shouldBe stored.toRemote()
             requestList
@@ -140,7 +140,7 @@ class SyncWorkContactTest :
                 val requestList = mutableListOf<List<ContactRemoteEntity>>()
                 coEvery { context.contactRemoteDataSource.push(any()) } answers { requestList += firstArg<List<ContactRemoteEntity>>() }
 
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
 
                 val detail = requestList.single().single().detail
                 detail.birthday shouldBe birthday
@@ -158,7 +158,7 @@ class SyncWorkContactTest :
                 savedList += secondArg<List<Any>>()
             }
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             savedList.single() shouldContainExactly pullList.map { pull -> pull.contact.toLocal() }
         }
@@ -169,7 +169,7 @@ class SyncWorkContactTest :
             coEvery { context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.CONTACT) } returns cursor
             coEvery { context.contactRemoteDataSource.pull(usn = cursor) } returns emptyList()
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) { context.contactRemoteDataSource.pull(usn = cursor) }
         }
@@ -180,7 +180,7 @@ class SyncWorkContactTest :
             coEvery { context.contactRemoteDataSource.pull(usn = 2L) } returns contactPulls(usnList = listOf(3L))
             coEvery { context.contactRemoteDataSource.pull(usn = 3L) } returns emptyList()
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) { context.contactRemoteDataSource.pull(usn = 0L) }
             coVerify(exactly = 1) { context.contactRemoteDataSource.pull(usn = 2L) }
@@ -194,7 +194,7 @@ class SyncWorkContactTest :
             val failure = TestException(fixtureMonkey.giveMeOne())
             coEvery { context.contactRemoteDataSource.pull(any()) } throws failure
 
-            shouldThrowExactly<TestException> { context.subject.doWork(accountId = context.accountId) }
+            shouldThrowExactly<TestException> { context.subject.doWork() }
 
             coVerify(exactly = 1) { context.webRemoteDataSource.pull(any()) }
             coVerify(exactly = 1) { context.tagRemoteDataSource.pull(any()) }
@@ -204,7 +204,7 @@ class SyncWorkContactTest :
             val contactList = contacts(size = 150)
             val context = context(contactList = contactList)
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.accountContactSyncTransaction.clearPending(context.accountId, contactList.take(100))

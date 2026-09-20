@@ -31,7 +31,7 @@ class SyncWorkTagLinkTest :
             coEvery { context.tagRemoteDataSource.push(any()) } coAnswers { requestOrder += "tag" }
             coEvery { context.tagLinkRemoteDataSource.push(any()) } coAnswers { requestOrder += "tagLink" }
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             requestOrder shouldContainExactly listOf("tag", "tag", "tagLink", "tagLink")
         }
@@ -39,7 +39,7 @@ class SyncWorkTagLinkTest :
         test("TC-DATA-SYNC-DOMAIN-020 태그 연결만 대기하면 태그 연결 요청만 발생한다") {
             val context = context(tagLinkList = tagLinks(size = 1))
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) { context.tagLinkRemoteDataSource.push(any()) }
             coVerify(exactly = 0) { context.tagRemoteDataSource.push(any()) }
@@ -63,7 +63,7 @@ class SyncWorkTagLinkTest :
                     requests += firstArg<List<TagLinkRemoteEntity>>()
                 }
 
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
 
                 requests.map { request -> request.size } shouldContainExactly expectedRequestSizes
                 requests.flatten() shouldContainExactly tagLinkList.map { tagLink -> tagLink.toRemote() }
@@ -78,7 +78,7 @@ class SyncWorkTagLinkTest :
                 requests += firstArg<List<TagLinkRemoteEntity>>()
             }
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             requests.flatten() shouldContainExactly tagLinkList.map { tagLink -> tagLink.toRemote() }
             requests.flatten().map { request -> request.isDeleted } shouldContainExactly listOf(true, false)
@@ -88,7 +88,7 @@ class SyncWorkTagLinkTest :
             val tagLinkList = tagLinks(size = 101)
             val context = context(tagLinkList = tagLinkList)
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.accountTagLinkSyncTransaction.clearPending(
@@ -110,7 +110,7 @@ class SyncWorkTagLinkTest :
             coEvery { context.tagLinkRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             coVerify(exactly = 0) { context.accountTagLinkSyncTransaction.clearPending(any(), any()) }
@@ -128,7 +128,7 @@ class SyncWorkTagLinkTest :
             coEvery { context.tagRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             coVerify(exactly = 0) { context.tagLinkSyncLocalDataSource.findPending(any()) }
@@ -150,7 +150,7 @@ class SyncWorkTagLinkTest :
             }
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             coVerify(exactly = 3) { context.tagLinkRemoteDataSource.push(any()) }
@@ -172,7 +172,7 @@ class SyncWorkTagLinkTest :
             }
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             tagLinkRequestCount.size shouldBe 2
@@ -189,7 +189,7 @@ class SyncWorkTagLinkTest :
             coEvery { context.tagLinkRemoteDataSource.pull(usn = 6L) } returns secondPullList
             coEvery { context.tagLinkRemoteDataSource.pull(usn = 9L) } returns emptyList()
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.accountTagLinkSyncTransaction.save(
@@ -242,7 +242,7 @@ class SyncWorkTagLinkTest :
                     emptyList()
                 }
 
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
 
                 callOrder.last() shouldBe "tagLinkPullEnd"
                 callOrder.dropLast(1) shouldContainExactlyInAnyOrder
@@ -263,7 +263,7 @@ class SyncWorkTagLinkTest :
 
             val actual =
                 shouldThrowExactly<TestException> {
-                    context.subject.doWork(accountId = context.accountId)
+                    context.subject.doWork()
                 }
 
             actual.message shouldBe failure.message
@@ -292,7 +292,7 @@ class SyncWorkTagLinkTest :
                 context.tagLinkSyncLocalDataSource.findPending(accountId = otherAccountId)
             } returns tagLinks(size = 1)
 
-            context.subject.doWork(accountId = accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.tagLinkSyncLocalDataSource.findPending(accountId = accountId)

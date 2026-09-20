@@ -31,7 +31,7 @@ class SyncWorkMemoWebTest :
             coEvery { context.memoRemoteDataSource.push(any()) } coAnswers { requestOrder += "memo" }
             coEvery { context.memoWebRemoteDataSource.push(any()) } coAnswers { requestOrder += "memoWeb" }
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             requestOrder.takeLast(2) shouldContainExactly listOf("memoWeb", "memoWeb")
             requestOrder.dropLast(2) shouldContainExactlyInAnyOrder listOf("web", "web", "memo", "memo")
@@ -40,7 +40,7 @@ class SyncWorkMemoWebTest :
         test("TC-DATA-SYNC-DOMAIN-020 메모·웹 연결만 대기하면 메모·웹 연결 요청만 발생한다") {
             val context = context(memoWebList = memoWebs(size = 1))
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) { context.memoWebRemoteDataSource.push(any()) }
             coVerify(exactly = 0) { context.tagRemoteDataSource.push(any()) }
@@ -65,7 +65,7 @@ class SyncWorkMemoWebTest :
                     requests += firstArg<List<MemoWebRemoteEntity>>()
                 }
 
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
 
                 requests.map { request -> request.size } shouldContainExactly expectedRequestSizes
                 requests.flatten() shouldContainExactly memoWebList.map { memoWeb -> memoWeb.toRemote() }
@@ -80,7 +80,7 @@ class SyncWorkMemoWebTest :
                 requests += firstArg<List<MemoWebRemoteEntity>>()
             }
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             requests.flatten() shouldContainExactly memoWebList.map { memoWeb -> memoWeb.toRemote() }
             requests.flatten().map { request -> request.isDeleted } shouldContainExactly listOf(true, false)
@@ -90,7 +90,7 @@ class SyncWorkMemoWebTest :
             val memoWebList = memoWebs(size = 101)
             val context = context(memoWebList = memoWebList)
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.accountMemoWebSyncTransaction.clearPending(
@@ -112,7 +112,7 @@ class SyncWorkMemoWebTest :
             coEvery { context.memoWebRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             coVerify(exactly = 0) { context.accountMemoWebSyncTransaction.clearPending(any(), any()) }
@@ -130,7 +130,7 @@ class SyncWorkMemoWebTest :
             coEvery { context.webRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             coVerify(exactly = 0) { context.memoWebSyncLocalDataSource.findPending(any()) }
@@ -148,7 +148,7 @@ class SyncWorkMemoWebTest :
             coEvery { context.tagRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             coVerify(exactly = 0) { context.memoWebSyncLocalDataSource.findPending(any()) }
@@ -172,7 +172,7 @@ class SyncWorkMemoWebTest :
             }
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             memoWebRequestCount.size shouldBe 2
@@ -189,7 +189,7 @@ class SyncWorkMemoWebTest :
             coEvery { context.memoWebRemoteDataSource.pull(usn = 6L) } returns secondPullList
             coEvery { context.memoWebRemoteDataSource.pull(usn = 9L) } returns emptyList()
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.accountMemoWebSyncTransaction.save(
@@ -230,7 +230,7 @@ class SyncWorkMemoWebTest :
                     emptyList()
                 }
 
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
 
                 callOrder.last() shouldBe "memoWebPullEnd"
                 callOrder shouldContainExactlyInAnyOrder
@@ -251,7 +251,7 @@ class SyncWorkMemoWebTest :
 
             val actual =
                 shouldThrowExactly<TestException> {
-                    context.subject.doWork(accountId = context.accountId)
+                    context.subject.doWork()
                 }
 
             actual.message shouldBe failure.message
@@ -280,7 +280,7 @@ class SyncWorkMemoWebTest :
                 context.memoWebSyncLocalDataSource.findPending(accountId = otherAccountId)
             } returns memoWebs(size = 1)
 
-            context.subject.doWork(accountId = accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.memoWebSyncLocalDataSource.findPending(accountId = accountId)

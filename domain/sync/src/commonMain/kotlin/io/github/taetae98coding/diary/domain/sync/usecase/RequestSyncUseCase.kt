@@ -19,10 +19,7 @@ public class RequestSyncUseCase internal constructor(
         if (account !is Account.User) return
         if (!account.isSessionValid) return
 
-        syncManager.requestSync(
-            accountId = account.id,
-            reportsProgress = parameter.reportsProgress(),
-        )
+        syncManager.requestSync(reportsProgress = parameter.reportsProgress())
     }
 
     private fun SyncTrigger.reportsProgress(): Boolean =

@@ -14,11 +14,9 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import kotlin.uuid.Uuid
 
 internal const val PERIODIC_SYNC_TASK_IDENTIFIER: String = "io.github.taetae98coding.diary.sync.periodic"
 
-private const val PERIODIC_SYNC_ACCOUNT_ID_KEY: String = "periodicSyncAccountId"
 private const val PERIODIC_SYNC_PERIOD_SECONDS_KEY: String = "periodicSyncPeriodSeconds"
 
 // 시스템은 앱이 실행을 마치기 전에 등록된 식별자만 깨울 수 있으므로, 앱 시작 시점에 한 번 호출한다.
@@ -32,27 +30,13 @@ public fun registerPeriodicSyncBackgroundTask() {
     }
 }
 
-internal fun savePeriodicSyncTarget(
-    accountId: Uuid,
-    period: Duration,
-) {
-    NSUserDefaults.standardUserDefaults.apply {
-        setObject(accountId.toString(), PERIODIC_SYNC_ACCOUNT_ID_KEY)
-        setDouble(period.inWholeSeconds.toDouble(), PERIODIC_SYNC_PERIOD_SECONDS_KEY)
-    }
+internal fun savePeriodicSyncPeriod(period: Duration) {
+    NSUserDefaults.standardUserDefaults.setDouble(period.inWholeSeconds.toDouble(), PERIODIC_SYNC_PERIOD_SECONDS_KEY)
 }
 
-internal fun clearPeriodicSyncTarget() {
-    NSUserDefaults.standardUserDefaults.apply {
-        removeObjectForKey(PERIODIC_SYNC_ACCOUNT_ID_KEY)
-        removeObjectForKey(PERIODIC_SYNC_PERIOD_SECONDS_KEY)
-    }
+internal fun clearPeriodicSyncPeriod() {
+    NSUserDefaults.standardUserDefaults.removeObjectForKey(PERIODIC_SYNC_PERIOD_SECONDS_KEY)
 }
-
-internal fun periodicSyncAccountId(): Uuid? =
-    NSUserDefaults.standardUserDefaults
-        .stringForKey(PERIODIC_SYNC_ACCOUNT_ID_KEY)
-        ?.let { value -> runCatching { Uuid.parse(value) }.getOrNull() }
 
 internal fun periodicSyncPeriod(): Duration? =
     NSUserDefaults.standardUserDefaults

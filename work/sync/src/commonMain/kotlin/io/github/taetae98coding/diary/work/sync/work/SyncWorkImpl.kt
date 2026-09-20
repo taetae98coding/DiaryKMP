@@ -1,17 +1,22 @@
 package io.github.taetae98coding.diary.work.sync.work
 
+import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.github.taetae98coding.diary.logger.crashlytics.api.CrashlyticsLog
 import io.github.taetae98coding.diary.work.sync.work.SyncWork
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.supervisorScope
 import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
 @Factory
 internal class SyncWorkImpl(
+    private val getAccountUseCase: GetAccountUseCase,
     private val tagSyncWork: TagSyncWork,
     private val placeSyncWork: PlaceSyncWork,
     private val webSyncWork: WebSyncWork,
@@ -25,8 +30,14 @@ internal class SyncWorkImpl(
     private val webTagSyncWork: WebTagSyncWork,
     private val placeTagSyncWork: PlaceTagSyncWork,
 ) : SyncWork {
-    override suspend fun doWork(accountId: Uuid) {
+    override suspend fun doWork() {
         try {
+            val accountId =
+                when (val account = awaitConfirmedAccount()) {
+                    is Account.Guest -> return
+                    is Account.User -> account.id
+                }
+
             push(accountId = accountId)
             pull(accountId = accountId)
         } catch (exception: CancellationException) {
@@ -36,6 +47,18 @@ internal class SyncWorkImpl(
             throw throwable
         }
     }
+
+    // 저장된 사용자 정보가 로그인 세션보다 먼저 확인되므로, 세션이 갱신되지 않은 사용자는 아직 확정되지 않은 것으로 보고 기다린다.
+    // 기다리지 않으면 시스템이 앱을 깨워 실행한 작업이 매번 아무것도 동기화하지 못하고 끝난다.
+    private suspend fun awaitConfirmedAccount(): Account =
+        getAccountUseCase(parameter = Unit)
+            .map { result -> result.getOrThrow() }
+            .first { account ->
+                when (account) {
+                    is Account.Guest -> true
+                    is Account.User -> account.isSessionValid
+                }
+            }
 
     private suspend fun push(accountId: Uuid) {
         supervisorScope {

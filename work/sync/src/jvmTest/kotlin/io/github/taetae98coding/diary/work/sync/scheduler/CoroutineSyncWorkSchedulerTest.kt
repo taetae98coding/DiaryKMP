@@ -2,9 +2,6 @@
 
 package io.github.taetae98coding.diary.work.sync.scheduler
 
-import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.github.taetae98coding.diary.work.sync.scheduler.SyncWorkState
 import io.github.taetae98coding.diary.work.sync.work.SyncWork
 import io.kotest.core.spec.style.BehaviorSpec
@@ -22,7 +19,6 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import kotlin.uuid.Uuid
 
 class CoroutineSyncWorkSchedulerTest :
     BehaviorSpec({
@@ -30,17 +26,16 @@ class CoroutineSyncWorkSchedulerTest :
             When("동기화가 요청된다") {
                 Then("TC-DATA-SYNC-DOMAIN-016 TC-DATA-SYNC-DOMAIN-044 요청은 곧바로 끝나고 네트워크 연결 확인 없이 동기화 작업이 백그라운드에서 한 번 실행된다") {
                     runTest {
-                        val accountId = fixtureMonkey.giveMeOne<Uuid>()
                         var executeCount = 0
                         val syncWork = mockk<SyncWork>()
-                        coEvery { syncWork.doWork(accountId = accountId) } coAnswers { executeCount++ }
+                        coEvery { syncWork.doWork() } coAnswers { executeCount++ }
                         val manager =
                             CoroutineSyncWorkScheduler(
                                 syncWork = syncWork,
                                 scope = backgroundScope,
                             )
 
-                        manager.sync(accountId = accountId)
+                        manager.sync()
 
                         executeCount shouldBe 0
                         runCurrent()
@@ -54,14 +49,10 @@ class CoroutineSyncWorkSchedulerTest :
             When("동기화가 다시 요청된다") {
                 Then("TC-DATA-SYNC-DOMAIN-018 TC-PLACE-HOME-DOMAIN-018 진행 중이던 동기화 작업은 취소되고 새 동기화 작업이 한 번 새로 시작된다") {
                     runTest {
-                        val firstAccountId = fixtureMonkey.giveMeOne<Uuid>()
-                        val secondAccountId = fixtureMonkey.giveMeOne<Uuid>()
                         var startCount = 0
                         var cancelCount = 0
-                        val executionAccountIdList = mutableListOf<Uuid>()
                         val syncWork = mockk<SyncWork>()
-                        coEvery { syncWork.doWork(accountId = any()) } coAnswers {
-                            executionAccountIdList += firstArg<Uuid>()
+                        coEvery { syncWork.doWork() } coAnswers {
                             startCount++
                             try {
                                 awaitCancellation()
@@ -76,16 +67,15 @@ class CoroutineSyncWorkSchedulerTest :
                                 scope = backgroundScope,
                             )
 
-                        manager.sync(accountId = firstAccountId)
+                        manager.sync()
                         runCurrent()
                         startCount shouldBe 1
                         cancelCount shouldBe 0
 
-                        manager.sync(accountId = secondAccountId)
+                        manager.sync()
                         runCurrent()
                         cancelCount shouldBe 1
                         startCount shouldBe 2
-                        executionAccountIdList shouldBe listOf(firstAccountId, secondAccountId)
                     }
                 }
             }
@@ -95,9 +85,8 @@ class CoroutineSyncWorkSchedulerTest :
             When("동기화가 요청되어 실행되고 끝난다") {
                 Then("TC-SYNC-REFRESH-DOMAIN-002 실행되는 동안 실행 중 상태가 되고 끝나면 남은 작업이 없는 상태가 된다") {
                     runTest {
-                        val accountId = fixtureMonkey.giveMeOne<Uuid>()
                         val syncWork = mockk<SyncWork>()
-                        coEvery { syncWork.doWork(accountId = accountId) } coAnswers { }
+                        coEvery { syncWork.doWork() } coAnswers { }
                         val manager =
                             CoroutineSyncWorkScheduler(
                                 syncWork = syncWork,
@@ -105,7 +94,7 @@ class CoroutineSyncWorkSchedulerTest :
                             )
                         manager.state.first() shouldBe SyncWorkState.NONE
 
-                        manager.sync(accountId = accountId)
+                        manager.sync()
                         manager.state.first() shouldBe SyncWorkState.RUNNING
 
                         runCurrent()
@@ -119,20 +108,19 @@ class CoroutineSyncWorkSchedulerTest :
             When("동기화가 다시 요청된다") {
                 Then("TC-SYNC-REFRESH-DOMAIN-009 TC-PLACE-HOME-DOMAIN-018 이어진 작업이 실행되는 동안 실행 중 상태가 유지된다") {
                     runTest {
-                        val accountId = fixtureMonkey.giveMeOne<Uuid>()
                         val syncWork = mockk<SyncWork>()
-                        coEvery { syncWork.doWork(accountId = any()) } coAnswers { awaitCancellation() }
+                        coEvery { syncWork.doWork() } coAnswers { awaitCancellation() }
                         val manager =
                             CoroutineSyncWorkScheduler(
                                 syncWork = syncWork,
                                 scope = backgroundScope,
                             )
 
-                        manager.sync(accountId = accountId)
+                        manager.sync()
                         runCurrent()
                         manager.state.first() shouldBe SyncWorkState.RUNNING
 
-                        manager.sync(accountId = accountId)
+                        manager.sync()
                         runCurrent()
 
                         manager.state.first() shouldBe SyncWorkState.RUNNING
@@ -144,10 +132,9 @@ class CoroutineSyncWorkSchedulerTest :
         Given("동기화 작업이 실패하도록 준비되어 있다") {
             When("실패한 뒤 동기화가 다시 요청된다") {
                 Then("동기화 작업이 다시 실행된다") {
-                    val accountId = fixtureMonkey.giveMeOne<Uuid>()
                     var executeCount = 0
                     val syncWork = mockk<SyncWork>()
-                    coEvery { syncWork.doWork(accountId = accountId) } coAnswers {
+                    coEvery { syncWork.doWork() } coAnswers {
                         executeCount++
                         throw IllegalStateException("sync failure")
                     }
@@ -159,19 +146,14 @@ class CoroutineSyncWorkSchedulerTest :
                             scope = scope,
                         )
 
-                    manager.sync(accountId = accountId)
+                    manager.sync()
                     scheduler.runCurrent()
                     executeCount shouldBe 1
 
-                    manager.sync(accountId = accountId)
+                    manager.sync()
                     scheduler.runCurrent()
                     executeCount shouldBe 2
                 }
             }
         }
-    }) {
-    public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-    }
-}
+    })

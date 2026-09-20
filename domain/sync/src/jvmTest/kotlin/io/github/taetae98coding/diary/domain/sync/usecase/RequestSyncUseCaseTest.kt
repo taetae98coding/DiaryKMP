@@ -35,7 +35,7 @@ class RequestSyncUseCaseTest :
                     val result = useCase(parameter = SyncTrigger.DATA_CHANGED)
 
                     result.shouldBeSuccess(Unit)
-                    verify(exactly = 1) { syncManager.requestSync(accountId = account.id, reportsProgress = false) }
+                    verify(exactly = 1) { syncManager.requestSync(reportsProgress = false) }
                 }
             }
 
@@ -51,7 +51,7 @@ class RequestSyncUseCaseTest :
                     val result = useCase(parameter = SyncTrigger.USER_REQUESTED)
 
                     result.shouldBeSuccess(Unit)
-                    verify(exactly = 1) { syncManager.requestSync(accountId = account.id, reportsProgress = true) }
+                    verify(exactly = 1) { syncManager.requestSync(reportsProgress = true) }
                 }
             }
 
@@ -67,7 +67,7 @@ class RequestSyncUseCaseTest :
                     val result = useCase(parameter = SyncTrigger.ACCOUNT_CONFIRMED)
 
                     result.shouldBeSuccess(Unit)
-                    verify(exactly = 1) { syncManager.requestSync(accountId = account.id, reportsProgress = true) }
+                    verify(exactly = 1) { syncManager.requestSync(reportsProgress = true) }
                 }
             }
         }
@@ -88,7 +88,7 @@ class RequestSyncUseCaseTest :
                     val result = useCase(parameter = SyncTrigger.DATA_CHANGED)
 
                     result.shouldBeSuccess(Unit)
-                    verify(exactly = 0) { syncManager.requestSync(accountId = any(), reportsProgress = any()) }
+                    verify(exactly = 0) { syncManager.requestSync(reportsProgress = any()) }
                 }
             }
 
@@ -97,7 +97,7 @@ class RequestSyncUseCaseTest :
                     val result = useCase(parameter = SyncTrigger.USER_REQUESTED)
 
                     result.shouldBeSuccess(Unit)
-                    verify(exactly = 0) { syncManager.requestSync(accountId = any(), reportsProgress = any()) }
+                    verify(exactly = 0) { syncManager.requestSync(reportsProgress = any()) }
                 }
             }
         }
@@ -117,7 +117,7 @@ class RequestSyncUseCaseTest :
                     val result = useCase(parameter = SyncTrigger.DATA_CHANGED)
 
                     result.shouldBeSuccess(Unit)
-                    verify(exactly = 0) { syncManager.requestSync(accountId = any(), reportsProgress = any()) }
+                    verify(exactly = 0) { syncManager.requestSync(reportsProgress = any()) }
                 }
             }
 
@@ -126,7 +126,7 @@ class RequestSyncUseCaseTest :
                     val result = useCase(parameter = SyncTrigger.USER_REQUESTED)
 
                     result.shouldBeSuccess(Unit)
-                    verify(exactly = 0) { syncManager.requestSync(accountId = any(), reportsProgress = any()) }
+                    verify(exactly = 0) { syncManager.requestSync(reportsProgress = any()) }
                 }
             }
         }
@@ -146,7 +146,7 @@ class RequestSyncUseCaseTest :
                     val result = useCase(parameter = SyncTrigger.ACCOUNT_CONFIRMED)
 
                     result.shouldBeSuccess(Unit)
-                    verify(exactly = 0) { syncManager.requestSync(accountId = any(), reportsProgress = any()) }
+                    verify(exactly = 0) { syncManager.requestSync(reportsProgress = any()) }
                 }
             }
         }
@@ -167,7 +167,7 @@ class RequestSyncUseCaseTest :
                     val result = useCase(parameter = SyncTrigger.DATA_CHANGED)
 
                     result.shouldBeFailure() shouldBeSameInstanceAs throwable
-                    verify(exactly = 0) { syncManager.requestSync(accountId = any(), reportsProgress = any()) }
+                    verify(exactly = 0) { syncManager.requestSync(reportsProgress = any()) }
                 }
             }
         }

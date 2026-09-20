@@ -17,10 +17,7 @@ public class SchedulePeriodicSyncUseCase internal constructor(
         val account = getAccountUseCase(parameter = Unit).first().getOrThrow()
 
         if (account is Account.User && account.isSessionValid) {
-            syncManager.schedulePeriodicSync(
-                accountId = account.id,
-                period = SYNC_PERIOD,
-            )
+            syncManager.schedulePeriodicSync(period = SYNC_PERIOD)
         } else {
             syncManager.cancelPeriodicSync()
         }

@@ -12,7 +12,6 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.Single
 import kotlin.time.Duration
-import kotlin.uuid.Uuid
 
 @Single
 internal class CoroutinePeriodicSyncWorkScheduler(
@@ -20,21 +19,14 @@ internal class CoroutinePeriodicSyncWorkScheduler(
     @param:SyncScope private val scope: CoroutineScope,
 ) : PeriodicSyncWorkScheduler {
     private var job: Job? = null
-    private var accountId: Uuid? = null
 
-    override fun schedule(
-        accountId: Uuid,
-        period: Duration,
-    ) {
-        this.accountId = accountId
-
+    override fun schedule(period: Duration) {
         if (job?.isActive == true) return
 
         job = scope.launch { syncEveryPeriod(period = period) }
     }
 
     override fun cancel() {
-        accountId = null
         job?.cancel()
         job = null
     }
@@ -43,10 +35,8 @@ internal class CoroutinePeriodicSyncWorkScheduler(
         while (currentCoroutineContext().isActive) {
             delay(period)
 
-            val accountId = accountId ?: break
-
             try {
-                syncWork.doWork(accountId = accountId)
+                syncWork.doWork()
             } catch (exception: CancellationException) {
                 throw exception
             } catch (_: Throwable) {

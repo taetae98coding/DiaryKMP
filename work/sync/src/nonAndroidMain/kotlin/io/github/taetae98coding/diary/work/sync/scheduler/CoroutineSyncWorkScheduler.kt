@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.Single
-import kotlin.uuid.Uuid
 
 @Single
 internal class CoroutineSyncWorkScheduler(
@@ -23,7 +22,7 @@ internal class CoroutineSyncWorkScheduler(
     private var job: Job? = null
     private var generation: Int = 0
 
-    override fun sync(accountId: Uuid) {
+    override fun sync() {
         job?.cancel()
 
         val currentGeneration = ++generation
@@ -32,7 +31,7 @@ internal class CoroutineSyncWorkScheduler(
         job =
             scope.launch {
                 try {
-                    syncWork.doWork(accountId = accountId)
+                    syncWork.doWork()
                 } finally {
                     if (currentGeneration == generation) {
                         state.value = SyncWorkState.NONE

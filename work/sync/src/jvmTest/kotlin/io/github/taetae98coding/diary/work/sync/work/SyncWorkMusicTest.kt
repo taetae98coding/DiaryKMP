@@ -20,7 +20,7 @@ class SyncWorkMusicTest :
         test("TC-DATA-SYNC-DOMAIN-020 곡만 대기하면 곡 요청만 발생한다") {
             val context = context(musicList = musics(size = 1))
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) { context.musicRemoteDataSource.push(any()) }
             coVerify(exactly = 0) { context.tagRemoteDataSource.push(any()) }
@@ -41,7 +41,7 @@ class SyncWorkMusicTest :
                     requests += firstArg<List<MusicRemoteEntity>>()
                 }
 
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
 
                 requests.map { request -> request.size } shouldContainExactly expectedRequestSizes
                 requests.flatten() shouldContainExactly musicList.map { music -> music.toRemote() }
@@ -56,7 +56,7 @@ class SyncWorkMusicTest :
                 requests += firstArg<List<MusicRemoteEntity>>()
             }
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             requests.flatten() shouldContainExactly musicList.map { music -> music.toRemote() }
             requests.flatten().map { request -> request.isDeleted } shouldContainExactly listOf(true, false)
@@ -66,7 +66,7 @@ class SyncWorkMusicTest :
             val musicList = musics(size = 101)
             val context = context(musicList = musicList)
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.accountMusicSyncTransaction.clearPending(
@@ -88,7 +88,7 @@ class SyncWorkMusicTest :
             coEvery { context.musicRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             coVerify(exactly = 0) { context.accountMusicSyncTransaction.clearPending(any(), any()) }
@@ -106,7 +106,7 @@ class SyncWorkMusicTest :
             coEvery { context.tagRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             coVerify(exactly = 3) { context.musicRemoteDataSource.push(any()) }
@@ -121,7 +121,7 @@ class SyncWorkMusicTest :
             coEvery { context.musicRemoteDataSource.pull(usn = 6L) } returns secondPullList
             coEvery { context.musicRemoteDataSource.pull(usn = 9L) } returns emptyList()
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.accountMusicSyncTransaction.save(
@@ -148,7 +148,7 @@ class SyncWorkMusicTest :
                 context.musicSyncLocalDataSource.findPending(accountId = otherAccountId)
             } returns musics(size = 1)
 
-            context.subject.doWork(accountId = accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.musicSyncLocalDataSource.findPending(accountId = accountId)

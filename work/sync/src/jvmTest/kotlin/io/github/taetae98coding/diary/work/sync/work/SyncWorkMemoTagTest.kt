@@ -29,7 +29,7 @@ class SyncWorkMemoTagTest :
             coEvery { context.memoRemoteDataSource.push(any()) } coAnswers { requestOrder += "memo" }
             coEvery { context.memoTagRemoteDataSource.push(any()) } coAnswers { requestOrder += "memoTag" }
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             requestOrder shouldContainExactly listOf("tag", "memo", "memoTag", "memoTag")
         }
@@ -47,7 +47,7 @@ class SyncWorkMemoTagTest :
                     requests += firstArg<List<MemoTagRemoteEntity>>()
                 }
 
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
 
                 requests.map { request -> request.size } shouldContainExactly expectedRequestSizes
                 requests.flatten() shouldContainExactly memoTagList.map { memoTag -> memoTag.toRemote() }
@@ -58,7 +58,7 @@ class SyncWorkMemoTagTest :
             val memoTagList = memoTags(size = 101)
             val context = context(memoTagList = memoTagList)
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.accountMemoTagSyncTransaction.clearPending(
@@ -80,7 +80,7 @@ class SyncWorkMemoTagTest :
             coEvery { context.memoTagRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             coVerify(exactly = 0) { context.accountMemoTagSyncTransaction.clearPending(any(), any()) }
@@ -98,7 +98,7 @@ class SyncWorkMemoTagTest :
             coEvery { context.memoTagRemoteDataSource.pull(usn = 6L) } returns secondPullList
             coEvery { context.memoTagRemoteDataSource.pull(usn = 9L) } returns emptyList()
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.accountMemoTagSyncTransaction.save(
@@ -135,7 +135,7 @@ class SyncWorkMemoTagTest :
                     emptyList()
                 }
 
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
 
                 callOrder shouldContainExactly listOf("tagPullEnd", "memoPullEnd", "memoTagPullEnd")
             }
@@ -154,7 +154,7 @@ class SyncWorkMemoTagTest :
 
             val actual =
                 shouldThrowExactly<TestException> {
-                    context.subject.doWork(accountId = context.accountId)
+                    context.subject.doWork()
                 }
 
             actual.message shouldBe failure.message
@@ -183,7 +183,7 @@ class SyncWorkMemoTagTest :
                 context.memoTagSyncLocalDataSource.findPending(accountId = otherAccountId)
             } returns memoTags(size = 1)
 
-            context.subject.doWork(accountId = accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.memoTagSyncLocalDataSource.findPending(accountId = accountId)

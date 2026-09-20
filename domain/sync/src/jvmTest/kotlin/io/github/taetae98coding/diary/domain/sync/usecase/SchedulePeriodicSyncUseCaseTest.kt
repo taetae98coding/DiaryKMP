@@ -35,7 +35,7 @@ class SchedulePeriodicSyncUseCaseTest :
                     val result = useCase(parameter = Unit)
 
                     result.shouldBeSuccess(Unit)
-                    verify(exactly = 1) { syncManager.schedulePeriodicSync(accountId = account.id, period = 4.hours) }
+                    verify(exactly = 1) { syncManager.schedulePeriodicSync(period = 4.hours) }
                     verify(exactly = 0) { syncManager.cancelPeriodicSync() }
                 }
             }
@@ -58,7 +58,7 @@ class SchedulePeriodicSyncUseCaseTest :
                     val result = useCase(parameter = Unit)
 
                     result.shouldBeSuccess(Unit)
-                    verify(exactly = 1) { syncManager.schedulePeriodicSync(accountId = account.id, period = 4.hours) }
+                    verify(exactly = 1) { syncManager.schedulePeriodicSync(period = 4.hours) }
                 }
             }
         }
@@ -80,7 +80,7 @@ class SchedulePeriodicSyncUseCaseTest :
 
                     result.shouldBeSuccess(Unit)
                     verify(exactly = 1) { syncManager.cancelPeriodicSync() }
-                    verify(exactly = 0) { syncManager.schedulePeriodicSync(accountId = any(), period = any()) }
+                    verify(exactly = 0) { syncManager.schedulePeriodicSync(period = any()) }
                 }
             }
         }
@@ -103,7 +103,7 @@ class SchedulePeriodicSyncUseCaseTest :
 
                     result.shouldBeSuccess(Unit)
                     verify(exactly = 1) { syncManager.cancelPeriodicSync() }
-                    verify(exactly = 0) { syncManager.schedulePeriodicSync(accountId = any(), period = any()) }
+                    verify(exactly = 0) { syncManager.schedulePeriodicSync(period = any()) }
                 }
             }
         }
@@ -125,7 +125,7 @@ class SchedulePeriodicSyncUseCaseTest :
                     val result = useCase(parameter = Unit)
 
                     result.shouldBeFailure() shouldBeSameInstanceAs throwable
-                    verify(exactly = 0) { syncManager.schedulePeriodicSync(accountId = any(), period = any()) }
+                    verify(exactly = 0) { syncManager.schedulePeriodicSync(period = any()) }
                     verify(exactly = 0) { syncManager.cancelPeriodicSync() }
                 }
             }

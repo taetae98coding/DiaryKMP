@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEnt
 import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
+import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.network.api.memo.datasource.MemoRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.memo.entity.MemoPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.memo.entity.MemoRemoteEntity
@@ -32,6 +33,11 @@ import io.mockk.confirmVerified
 import io.mockk.mockk
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import java.net.UnknownHostException
 import kotlin.time.Instant
@@ -51,7 +57,7 @@ class SyncWorkTest :
                 requestOrder += "memo"
             }
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             requestOrder shouldContainExactly listOf("tag", "tag", "tag", "memo", "memo")
         }
@@ -64,7 +70,7 @@ class SyncWorkTest :
             test("TC-DATA-SYNC-DOMAIN-020 태그 $tagCount 개, 메모 $memoCount 개면 빈 종류 요청을 생략한다") {
                 val context = context(tagList = tags(tagCount), memoList = memos(memoCount))
 
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
 
                 coVerify(exactly = expectedRequestCounts.first) { context.tagRemoteDataSource.push(any()) }
                 coVerify(exactly = expectedRequestCounts.second) { context.memoRemoteDataSource.push(any()) }
@@ -84,7 +90,7 @@ class SyncWorkTest :
 
             val actual =
                 shouldThrowExactly<TestException> {
-                    context.subject.doWork(accountId = context.accountId)
+                    context.subject.doWork()
                 }
 
             actual.message shouldBe failure.message
@@ -106,14 +112,14 @@ class SyncWorkTest :
 
             val actual =
                 shouldThrowExactly<TestException> {
-                    context.subject.doWork(accountId = context.accountId)
+                    context.subject.doWork()
                 }
 
             actual.message shouldBe failure.message
             memoRequests.map { request -> request.size } shouldContainExactly listOf(100, 100)
         }
 
-        test("TC-DATA-SYNC-DOMAIN-024 요청에 전달된 계정의 대상만 조회한다") {
+        test("TC-DATA-SYNC-DOMAIN-024 실행 시점에 확인된 계정의 대상만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val context = context(accountId = accountId)
@@ -124,7 +130,7 @@ class SyncWorkTest :
                 context.memoSyncLocalDataSource.findPending(accountId = otherAccountId)
             } returns memos(size = 1)
 
-            context.subject.doWork(accountId = accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.tagSyncLocalDataSource.findPending(accountId = accountId)
@@ -140,6 +146,66 @@ class SyncWorkTest :
             }
             coVerify(exactly = 0) { context.tagRemoteDataSource.push(any()) }
             coVerify(exactly = 0) { context.memoRemoteDataSource.push(any()) }
+        }
+
+        test("TC-DATA-SYNC-DOMAIN-070 요청과 실행 사이에 계정이 바뀌면 바뀐 계정을 동기화한다") {
+            val firstAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val secondAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val context =
+                context(
+                    accountId = secondAccountId,
+                    accountFlow =
+                        flowOf(
+                            Result.success(sessionValidUser(accountId = firstAccountId)),
+                            Result.success(sessionValidUser(accountId = secondAccountId)),
+                        ).drop(1),
+                )
+            coEvery {
+                context.tagSyncLocalDataSource.findPending(accountId = firstAccountId)
+            } returns tags(size = 1)
+
+            context.subject.doWork()
+
+            coVerify(exactly = 1) { context.tagSyncLocalDataSource.findPending(accountId = secondAccountId) }
+            coVerify(exactly = 0) { context.tagSyncLocalDataSource.findPending(accountId = firstAccountId) }
+            coVerify(exactly = 0) { context.tagRemoteDataSource.push(any()) }
+        }
+
+        test("TC-DATA-SYNC-DOMAIN-071 실행 시점에 계정이 게스트면 아무것도 동기화하지 않고 정상적으로 끝낸다") {
+            val reportList = recordCrashlyticsLog()
+            val context =
+                context(
+                    accountFlow = flowOf(Result.success(Account.Guest)),
+                    tagList = tags(size = 1),
+                    memoList = memos(size = 1),
+                )
+
+            context.subject.doWork()
+
+            coVerify(exactly = 0) { context.tagSyncLocalDataSource.findPending(accountId = any()) }
+            coVerify(exactly = 0) { context.tagRemoteDataSource.push(any()) }
+            coVerify(exactly = 0) { context.tagRemoteDataSource.pull(any()) }
+            reportList.shouldBeEmpty()
+        }
+
+        test("TC-DATA-SYNC-DOMAIN-072 세션이 아직 갱신되지 않았으면 갱신될 때까지 기다린 뒤 동기화한다") {
+            runTest {
+                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val accountFlow = MutableSharedFlow<Result<Account>>(replay = 1)
+                accountFlow.emit(Result.success(sessionInvalidUser(accountId = accountId)))
+                val context = context(accountId = accountId, accountFlow = accountFlow, tagList = tags(size = 1))
+
+                val job = launch { context.subject.doWork() }
+                runCurrent()
+
+                coVerify(exactly = 0) { context.tagRemoteDataSource.push(any()) }
+
+                accountFlow.emit(Result.success(sessionValidUser(accountId = accountId)))
+                job.join()
+
+                coVerify(exactly = 1) { context.tagSyncLocalDataSource.findPending(accountId = accountId) }
+                coVerify(exactly = 1) { context.tagRemoteDataSource.push(any()) }
+            }
         }
 
         test("TC-DATA-SYNC-DOMAIN-038 태그 내려받기가 지연되어도 메모 내려받기를 먼저 시작한다") {
@@ -158,7 +224,7 @@ class SyncWorkTest :
                     emptyList()
                 }
 
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
 
                 callOrder shouldContainExactly
                     listOf("tagPush", "memoPush", "memoPullEnd", "tagPullEnd")
@@ -181,7 +247,7 @@ class SyncWorkTest :
                     emptyList()
                 }
 
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
 
                 callOrder shouldContainExactly
                     listOf("tagPush", "memoPush", "tagPullEnd", "memoPullEnd")
@@ -199,7 +265,7 @@ class SyncWorkTest :
             coEvery { context.memoRemoteDataSource.pull(usn = 5L) } returns emptyList()
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             coVerify(exactly = 1) {
@@ -230,7 +296,7 @@ class SyncWorkTest :
             coEvery { context.tagRemoteDataSource.pull(usn = 6L) } returns emptyList()
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             coVerify(exactly = 1) {
@@ -267,7 +333,7 @@ class SyncWorkTest :
 
                 val actual =
                     shouldThrowExactly<TestException> {
-                        context.subject.doWork(accountId = context.accountId)
+                        context.subject.doWork()
                     }
 
                 actual.message shouldBe failure.message
@@ -281,7 +347,7 @@ class SyncWorkTest :
             val memoList = memos(size = 1)
             val context = context(tagList = tagList, memoList = memoList)
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.accountTagSyncTransaction.clearPending(
@@ -314,7 +380,7 @@ class SyncWorkTest :
             }
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             coVerify(exactly = 1) {
@@ -337,7 +403,7 @@ class SyncWorkTest :
             coEvery { context.memoRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             coVerify(exactly = 0) { context.tagRemoteDataSource.pull(any()) }
@@ -350,7 +416,7 @@ class SyncWorkTest :
             coEvery { context.tagRemoteDataSource.pull(usn = 0L) } returns tagPullList
             coEvery { context.tagRemoteDataSource.pull(usn = 9L) } returns emptyList()
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.accountTagSyncTransaction.save(
@@ -367,7 +433,7 @@ class SyncWorkTest :
             coEvery { context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.TAG) } returns 0L
             coEvery { context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.MEMO) } returns 12L
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) { context.tagRemoteDataSource.pull(usn = 0L) }
             coVerify(exactly = 1) { context.memoRemoteDataSource.pull(usn = 12L) }
@@ -379,7 +445,7 @@ class SyncWorkTest :
             coEvery { context.tagRemoteDataSource.pull(usn = 0L) } returns tagPullList
             coEvery { context.tagRemoteDataSource.pull(usn = 5L) } returns emptyList()
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) { context.tagRemoteDataSource.pull(usn = 0L) }
             coVerify(exactly = 1) { context.tagRemoteDataSource.pull(usn = 5L) }
@@ -400,7 +466,7 @@ class SyncWorkTest :
             coEvery { context.tagRemoteDataSource.pull(usn = 8L) } throws failure
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             coVerify(exactly = 0) {
@@ -408,7 +474,7 @@ class SyncWorkTest :
             }
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             coVerify(exactly = 2) { context.tagRemoteDataSource.pull(usn = 8L) }
@@ -420,7 +486,7 @@ class SyncWorkTest :
             coEvery { context.memoRemoteDataSource.pull(usn = 0L) } returns memoPullList
             coEvery { context.memoRemoteDataSource.pull(usn = 2L) } returns emptyList()
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.accountMemoSyncTransaction.save(
@@ -440,7 +506,7 @@ class SyncWorkTest :
 
             val actual =
                 shouldThrowExactly<TestException> {
-                    context.subject.doWork(accountId = context.accountId)
+                    context.subject.doWork()
                 }
 
             actual.message shouldBe failure.message
@@ -474,7 +540,7 @@ class SyncWorkTest :
                 memoRequests += firstArg<List<MemoRemoteEntity>>()
             }
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.tagSyncLocalDataSource.findPending(accountId = context.accountId)
@@ -501,7 +567,7 @@ class SyncWorkTest :
                     requests += firstArg<List<TagRemoteEntity>>()
                 }
 
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
 
                 requests.map { request -> request.size } shouldContainExactly expectedRequestSizes
                 requests.flatten() shouldContainExactly tagList.map { tag -> tag.toRemote() }
@@ -516,7 +582,7 @@ class SyncWorkTest :
                 requests += firstArg<List<TagRemoteEntity>>()
             }
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             requests.flatten() shouldContainExactly pendingTagList.map { tag -> tag.toRemote() }
         }
@@ -527,7 +593,7 @@ class SyncWorkTest :
             coEvery { context.tagRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             coVerify(exactly = 1) { context.tagRemoteDataSource.push(any()) }
@@ -540,7 +606,7 @@ class SyncWorkTest :
 
             val actual =
                 shouldThrowExactly<CancellationException> {
-                    context.subject.doWork(accountId = context.accountId)
+                    context.subject.doWork()
                 }
 
             actual.message shouldBe cancellationException.message
@@ -557,7 +623,7 @@ class SyncWorkTest :
             coEvery { context.memoRemoteDataSource.pull(usn = 4L) } returns memoPullList
             coEvery { context.memoRemoteDataSource.pull(usn = 11L) } returns emptyList()
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.accountTagSyncTransaction.save(
@@ -584,7 +650,7 @@ class SyncWorkTest :
 
             val actual =
                 shouldThrowExactly<CancellationException> {
-                    context.subject.doWork(accountId = context.accountId)
+                    context.subject.doWork()
                 }
 
             actual.message shouldBe cancellationException.message
@@ -595,7 +661,7 @@ class SyncWorkTest :
             coEvery { context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.TAG) } returns 5L
             coEvery { context.tagRemoteDataSource.pull(usn = 5L) } returns tagPulls(usnList = listOf(5L))
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) { context.tagRemoteDataSource.pull(any()) }
         }
@@ -620,7 +686,7 @@ class SyncWorkTest :
                 val reportList = recordCrashlyticsLog()
 
                 shouldThrowExactly<TestException> {
-                    context.subject.doWork(accountId = context.accountId)
+                    context.subject.doWork()
                 }
 
                 val report = reportList.single()
@@ -639,7 +705,7 @@ class SyncWorkTest :
             val reportList = recordCrashlyticsLog()
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             reportList.shouldHaveSize(1)
@@ -654,7 +720,7 @@ class SyncWorkTest :
                 )
             val reportList = recordCrashlyticsLog()
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             reportList.shouldBeEmpty()
         }
@@ -666,7 +732,7 @@ class SyncWorkTest :
             val reportList = recordCrashlyticsLog()
 
             shouldThrowExactly<CancellationException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             reportList.shouldBeEmpty()
@@ -679,7 +745,7 @@ class SyncWorkTest :
             val reportList = recordCrashlyticsLog()
 
             shouldThrowExactly<UnknownHostException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             val report = reportList.single()

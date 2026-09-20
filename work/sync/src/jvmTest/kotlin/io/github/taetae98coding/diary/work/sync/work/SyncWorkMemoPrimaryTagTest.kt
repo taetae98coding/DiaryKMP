@@ -26,7 +26,7 @@ class SyncWorkMemoPrimaryTagTest :
                     requests += firstArg<List<MemoRemoteEntity>>()
                 }
 
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
 
                 requests.flatten().map { memo -> memo.primaryTagId } shouldContainExactly listOf(primaryTagId)
             }
@@ -40,7 +40,7 @@ class SyncWorkMemoPrimaryTagTest :
                 listOf(MemoPullRemoteEntity(memo = pulledMemo.toRemote(), usn = 1L))
             coEvery { context.memoRemoteDataSource.pull(1L) } returns emptyList()
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.memoRemoteDataSource.push(listOf(pendingMemo.toRemote()))

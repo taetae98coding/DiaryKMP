@@ -31,7 +31,7 @@ class SyncWorkWebTagTest :
             coEvery { context.tagRemoteDataSource.push(any()) } coAnswers { requestOrder += "tag" }
             coEvery { context.webTagRemoteDataSource.push(any()) } coAnswers { requestOrder += "webTag" }
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             requestOrder shouldContainExactly listOf("tag", "tag", "webTag", "webTag")
         }
@@ -39,7 +39,7 @@ class SyncWorkWebTagTest :
         test("TC-DATA-SYNC-DOMAIN-020 웹·태그 연결만 대기하면 웹·태그 연결 요청만 발생한다") {
             val context = context(webTagList = webTags(size = 1))
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) { context.webTagRemoteDataSource.push(any()) }
             coVerify(exactly = 0) { context.tagRemoteDataSource.push(any()) }
@@ -63,7 +63,7 @@ class SyncWorkWebTagTest :
                     requests += firstArg<List<WebTagRemoteEntity>>()
                 }
 
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
 
                 requests.map { request -> request.size } shouldContainExactly expectedRequestSizes
                 requests.flatten() shouldContainExactly webTagList.map { webTag -> webTag.toRemote() }
@@ -78,7 +78,7 @@ class SyncWorkWebTagTest :
                 requests += firstArg<List<WebTagRemoteEntity>>()
             }
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             requests.flatten() shouldContainExactly webTagList.map { webTag -> webTag.toRemote() }
             requests.flatten().map { request -> request.isDeleted } shouldContainExactly listOf(true, false)
@@ -88,7 +88,7 @@ class SyncWorkWebTagTest :
             val webTagList = webTags(size = 101)
             val context = context(webTagList = webTagList)
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.accountWebTagSyncTransaction.clearPending(
@@ -110,7 +110,7 @@ class SyncWorkWebTagTest :
             coEvery { context.webTagRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             coVerify(exactly = 0) { context.accountWebTagSyncTransaction.clearPending(any(), any()) }
@@ -128,7 +128,7 @@ class SyncWorkWebTagTest :
             coEvery { context.tagRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             coVerify(exactly = 0) { context.webTagSyncLocalDataSource.findPending(any()) }
@@ -150,7 +150,7 @@ class SyncWorkWebTagTest :
             }
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             coVerify(exactly = 3) { context.webTagRemoteDataSource.push(any()) }
@@ -172,7 +172,7 @@ class SyncWorkWebTagTest :
             }
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             webTagRequestCount.size shouldBe 2
@@ -189,7 +189,7 @@ class SyncWorkWebTagTest :
             coEvery { context.webTagRemoteDataSource.pull(usn = 6L) } returns secondPullList
             coEvery { context.webTagRemoteDataSource.pull(usn = 9L) } returns emptyList()
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.accountWebTagSyncTransaction.save(
@@ -242,7 +242,7 @@ class SyncWorkWebTagTest :
                     emptyList()
                 }
 
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
 
                 callOrder.last() shouldBe "webTagPullEnd"
                 callOrder.dropLast(1) shouldContainExactlyInAnyOrder
@@ -263,7 +263,7 @@ class SyncWorkWebTagTest :
 
             val actual =
                 shouldThrowExactly<TestException> {
-                    context.subject.doWork(accountId = context.accountId)
+                    context.subject.doWork()
                 }
 
             actual.message shouldBe failure.message
@@ -292,7 +292,7 @@ class SyncWorkWebTagTest :
                 context.webTagSyncLocalDataSource.findPending(accountId = otherAccountId)
             } returns webTags(size = 1)
 
-            context.subject.doWork(accountId = accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.webTagSyncLocalDataSource.findPending(accountId = accountId)

@@ -4,30 +4,24 @@ import android.content.Context
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import androidx.work.workDataOf
 import io.github.taetae98coding.diary.work.sync.scheduler.PeriodicSyncWorkScheduler
 import org.koin.core.annotation.Factory
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
-import kotlin.uuid.Uuid
 
 @Factory
 internal class AndroidPeriodicSyncWorkScheduler(
     private val context: Context,
 ) : PeriodicSyncWorkScheduler {
-    override fun schedule(
-        accountId: Uuid,
-        period: Duration,
-    ) {
+    override fun schedule(period: Duration) {
         WorkManager
             .getInstance(context)
             .enqueueUniquePeriodicWork(
                 PERIODIC_SYNC_WORK_NAME,
-                ExistingPeriodicWorkPolicy.UPDATE,
+                ExistingPeriodicWorkPolicy.KEEP,
                 PeriodicWorkRequestBuilder<SyncWorker>(period.inWholeSeconds, TimeUnit.SECONDS)
                     .setConstraints(SYNC_CONSTRAINTS)
                     .setInitialDelay(period.inWholeSeconds, TimeUnit.SECONDS)
-                    .setInputData(workDataOf(SYNC_WORK_ACCOUNT_ID_KEY to accountId.toString()))
                     .build(),
             )
     }

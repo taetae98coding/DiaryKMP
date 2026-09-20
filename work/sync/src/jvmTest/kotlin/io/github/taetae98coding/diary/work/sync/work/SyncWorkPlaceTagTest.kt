@@ -31,7 +31,7 @@ class SyncWorkPlaceTagTest :
             coEvery { context.tagRemoteDataSource.push(any()) } coAnswers { requestOrder += "tag" }
             coEvery { context.placeTagRemoteDataSource.push(any()) } coAnswers { requestOrder += "placeTag" }
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             requestOrder shouldContainExactly listOf("tag", "tag", "placeTag", "placeTag")
         }
@@ -39,7 +39,7 @@ class SyncWorkPlaceTagTest :
         test("TC-DATA-SYNC-DOMAIN-020 장소·태그 연결만 대기하면 장소·태그 연결 요청만 발생한다") {
             val context = context(placeTagList = placeTags(size = 1))
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) { context.placeTagRemoteDataSource.push(any()) }
             coVerify(exactly = 0) { context.tagRemoteDataSource.push(any()) }
@@ -63,7 +63,7 @@ class SyncWorkPlaceTagTest :
                     requests += firstArg<List<PlaceTagRemoteEntity>>()
                 }
 
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
 
                 requests.map { request -> request.size } shouldContainExactly expectedRequestSizes
                 requests.flatten() shouldContainExactly placeTagList.map { placeTag -> placeTag.toRemote() }
@@ -78,7 +78,7 @@ class SyncWorkPlaceTagTest :
                 requests += firstArg<List<PlaceTagRemoteEntity>>()
             }
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             requests.flatten() shouldContainExactly placeTagList.map { placeTag -> placeTag.toRemote() }
             requests.flatten().map { request -> request.isDeleted } shouldContainExactly listOf(true, false)
@@ -88,7 +88,7 @@ class SyncWorkPlaceTagTest :
             val placeTagList = placeTags(size = 101)
             val context = context(placeTagList = placeTagList)
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.accountPlaceTagSyncTransaction.clearPending(
@@ -110,7 +110,7 @@ class SyncWorkPlaceTagTest :
             coEvery { context.placeTagRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             coVerify(exactly = 0) { context.accountPlaceTagSyncTransaction.clearPending(any(), any()) }
@@ -128,7 +128,7 @@ class SyncWorkPlaceTagTest :
             coEvery { context.tagRemoteDataSource.push(any()) } throws failure
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             coVerify(exactly = 0) { context.placeTagSyncLocalDataSource.findPending(any()) }
@@ -150,7 +150,7 @@ class SyncWorkPlaceTagTest :
             }
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             coVerify(exactly = 3) { context.placeTagRemoteDataSource.push(any()) }
@@ -172,7 +172,7 @@ class SyncWorkPlaceTagTest :
             }
 
             shouldThrowExactly<TestException> {
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
             }
 
             placeTagRequestCount.size shouldBe 2
@@ -189,7 +189,7 @@ class SyncWorkPlaceTagTest :
             coEvery { context.placeTagRemoteDataSource.pull(usn = 6L) } returns secondPullList
             coEvery { context.placeTagRemoteDataSource.pull(usn = 9L) } returns emptyList()
 
-            context.subject.doWork(accountId = context.accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.accountPlaceTagSyncTransaction.save(
@@ -242,7 +242,7 @@ class SyncWorkPlaceTagTest :
                     emptyList()
                 }
 
-                context.subject.doWork(accountId = context.accountId)
+                context.subject.doWork()
 
                 callOrder.last() shouldBe "placeTagPullEnd"
                 callOrder.dropLast(1) shouldContainExactlyInAnyOrder
@@ -263,7 +263,7 @@ class SyncWorkPlaceTagTest :
 
             val actual =
                 shouldThrowExactly<TestException> {
-                    context.subject.doWork(accountId = context.accountId)
+                    context.subject.doWork()
                 }
 
             actual.message shouldBe failure.message
@@ -292,7 +292,7 @@ class SyncWorkPlaceTagTest :
                 context.placeTagSyncLocalDataSource.findPending(accountId = otherAccountId)
             } returns placeTags(size = 1)
 
-            context.subject.doWork(accountId = accountId)
+            context.subject.doWork()
 
             coVerify(exactly = 1) {
                 context.placeTagSyncLocalDataSource.findPending(accountId = accountId)
