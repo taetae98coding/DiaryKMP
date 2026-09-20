@@ -23,19 +23,22 @@ internal fun MoreHomeScreen(
     navigateToSetting: () -> Unit,
     navigateToWeb: () -> Unit,
     photoPicker: PhotoPicker,
-    viewModel: MoreHomeAccountViewModel,
+    accountViewModel: MoreHomeAccountViewModel,
+    signOutViewModel: MoreHomeSignOutViewModel,
     modifier: Modifier = Modifier,
 ) {
-    val accountUiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val accountUiState by accountViewModel.uiState.collectAsStateWithLifecycle()
+    val signOutUiState by signOutViewModel.uiState.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
 
     MoreHomeScaffold(
         accountUiStateProvider = { accountUiState },
+        signOutUiStateProvider = { signOutUiState },
         onEvent = { event ->
             when (event) {
                 is MoreHomeScaffoldEvent.ClickProfile -> {
                     coroutineScope.launch {
-                        photoPicker.open()?.let { uri -> viewModel.changeProfileImage(uri = uri) }
+                        photoPicker.open()?.let { uri -> accountViewModel.changeProfileImage(uri = uri) }
                     }
                 }
 
@@ -48,7 +51,15 @@ internal fun MoreHomeScreen(
                 }
 
                 is MoreHomeScaffoldEvent.ClickSignOut -> {
-                    viewModel.signOut()
+                    signOutViewModel.signOut()
+                }
+
+                is MoreHomeScaffoldEvent.ConfirmSignOut -> {
+                    signOutViewModel.confirmSignOut()
+                }
+
+                is MoreHomeScaffoldEvent.CancelSignOut -> {
+                    signOutViewModel.cancelSignOut()
                 }
 
                 is MoreHomeScaffoldEvent.ClickMenu -> {

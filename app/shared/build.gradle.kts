@@ -43,6 +43,7 @@ kotlin {
                 implementation(projects.data.playlist)
                 implementation(projects.data.search)
                 implementation(projects.data.setting)
+                implementation(projects.data.sync)
                 implementation(projects.data.tag)
                 implementation(projects.data.weather)
                 implementation(projects.data.web)

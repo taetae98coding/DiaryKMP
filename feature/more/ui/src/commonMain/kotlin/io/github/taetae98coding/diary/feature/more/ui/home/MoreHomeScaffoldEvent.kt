@@ -9,6 +9,10 @@ internal sealed interface MoreHomeScaffoldEvent {
 
     data object ClickSignOut : MoreHomeScaffoldEvent
 
+    data object ConfirmSignOut : MoreHomeScaffoldEvent
+
+    data object CancelSignOut : MoreHomeScaffoldEvent
+
     data class ClickMenu(
         val menu: MoreHomeMenu,
     ) : MoreHomeScaffoldEvent

@@ -1,6 +1,10 @@
 package io.github.taetae98coding.diary.feature.more.ui.home
 
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -137,23 +141,80 @@ class MoreHomeScreenTest {
     }
 
     @Test
-    fun `TC-MORE-HOME-FEATURE-007 로그아웃 동작을 선택하면 로그아웃이 시작된다`() {
-        var navigateToLoginCount = 0
-        val viewModel =
-            screenTestViewModel(
-                MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL),
-            )
-        every { viewModel.signOut() } returns Unit
+    fun `TC-MORE-HOME-FEATURE-007 업로드 대기 항목이 없으면 확인 다이얼로그 없이 로그아웃한다`() {
+        val signOutViewModel = screenTestSignOutViewModel()
         setMoreHomeScreen(
-            viewModel = viewModel,
-            navigateToLogin = { navigateToLoginCount += 1 },
+            viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)),
+            signOutViewModel = signOutViewModel,
         )
 
         composeRule.onNodeWithText(DEFAULT_SIGN_OUT_LABEL).performClick()
         composeRule.waitForIdle()
 
-        verify(exactly = 1) { viewModel.signOut() }
-        navigateToLoginCount shouldBe 0
+        verify(exactly = 1) { signOutViewModel.signOut() }
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_TITLE).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-MORE-HOME-FEATURE-026 업로드 대기 항목이 있으면 확인 다이얼로그를 표시한다`() {
+        setMoreHomeScreen(
+            viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)),
+            signOutViewModel = screenTestSignOutViewModel(MoreHomeSignOutUiState(isConfirmVisible = true)),
+        )
+
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_TITLE).assertIsDisplayed()
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_MESSAGE).assertIsDisplayed()
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CANCEL_LABEL).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-MORE-HOME-FEATURE-027 확인 다이얼로그에서 로그아웃을 고르면 로그아웃을 요청한다`() {
+        val signOutViewModel = screenTestSignOutViewModel(MoreHomeSignOutUiState(isConfirmVisible = true))
+        setMoreHomeScreen(
+            viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)),
+            signOutViewModel = signOutViewModel,
+        )
+
+        composeRule.onAllNodesWithText(DEFAULT_SIGN_OUT_LABEL).onLast().performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { signOutViewModel.confirmSignOut() }
+        verify(exactly = 0) { signOutViewModel.cancelSignOut() }
+    }
+
+    @Test
+    fun `TC-MORE-HOME-FEATURE-028 확인 다이얼로그에서 취소를 고르면 로그아웃을 요청하지 않는다`() {
+        val signOutViewModel = screenTestSignOutViewModel(MoreHomeSignOutUiState(isConfirmVisible = true))
+        setMoreHomeScreen(
+            viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)),
+            signOutViewModel = signOutViewModel,
+        )
+
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CANCEL_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { signOutViewModel.cancelSignOut() }
+        verify(exactly = 0) { signOutViewModel.confirmSignOut() }
+    }
+
+    @Test
+    fun `TC-MORE-HOME-DOMAIN-009 화면이 재생성되어도 확인 다이얼로그가 열린 상태를 유지한다`() {
+        val restorationTester = StateRestorationTester(composeRule)
+        val signOutViewModel = screenTestSignOutViewModel(MoreHomeSignOutUiState(isConfirmVisible = true))
+        restorationTester.setContent {
+            DiaryTheme {
+                MoreHomeScaffold(
+                    onEvent = {},
+                    accountUiStateProvider = { MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL) },
+                    signOutUiStateProvider = { signOutViewModel.uiState.value },
+                )
+            }
+        }
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_TITLE).assertIsDisplayed()
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_TITLE).assertIsDisplayed()
     }
 
     @Test
@@ -315,6 +376,7 @@ class MoreHomeScreenTest {
 
     private fun setMoreHomeScreen(
         viewModel: MoreHomeAccountViewModel,
+        signOutViewModel: MoreHomeSignOutViewModel = screenTestSignOutViewModel(),
         navigateToChecklist: () -> Unit = {},
         navigateToContact: () -> Unit = {},
         navigateToDDay: () -> Unit = {},
@@ -345,7 +407,8 @@ class MoreHomeScreenTest {
                     navigateToSetting = navigateToSetting,
                     navigateToWeb = navigateToWeb,
                     photoPicker = photoPicker,
-                    viewModel = viewModel,
+                    accountViewModel = viewModel,
+                    signOutViewModel = signOutViewModel,
                 )
             }
         }
@@ -357,6 +420,11 @@ class MoreHomeScreenTest {
 
         private const val DEFAULT_SIGN_IN_LABEL = "Sign in"
         private const val DEFAULT_SIGN_OUT_LABEL = "Sign out"
+        private const val DEFAULT_SIGN_OUT_CONFIRM_TITLE = "Sign out?"
+        private const val DEFAULT_SIGN_OUT_CONFIRM_MESSAGE =
+            "Some changes haven't been sent to the server yet. " +
+                "If you sign out, they won't be sent until you sign in again on this device."
+        private const val DEFAULT_SIGN_OUT_CANCEL_LABEL = "Cancel"
         private const val DEFAULT_HOLIDAY_LABEL = "Golden Holiday"
         private const val DEFAULT_PLACE_LABEL = "Place"
         private const val DEFAULT_SEARCH_LABEL = "Search"
@@ -381,6 +449,15 @@ class MoreHomeScreenTest {
             val viewModel = mockk<MoreHomeAccountViewModel>()
             every { viewModel.uiState } returns MutableStateFlow(uiState)
             every { viewModel.changeProfileImage(uri = any()) } returns Unit
+            return viewModel
+        }
+
+        private fun screenTestSignOutViewModel(uiState: MoreHomeSignOutUiState = MoreHomeSignOutUiState()): MoreHomeSignOutViewModel {
+            val viewModel = mockk<MoreHomeSignOutViewModel>()
+            every { viewModel.uiState } returns MutableStateFlow(uiState)
+            every { viewModel.signOut() } returns Unit
+            every { viewModel.confirmSignOut() } returns Unit
+            every { viewModel.cancelSignOut() } returns Unit
             return viewModel
         }
 

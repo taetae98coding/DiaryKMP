@@ -67,6 +67,7 @@ import io.github.taetae98coding.diary.core.database.impl.dao.SearchPlaceDao
 import io.github.taetae98coding.diary.core.database.impl.dao.SearchTagDao
 import io.github.taetae98coding.diary.core.database.impl.dao.SearchWebDao
 import io.github.taetae98coding.diary.core.database.impl.dao.SyncCursorDao
+import io.github.taetae98coding.diary.core.database.impl.dao.SyncPendingDao
 import io.github.taetae98coding.diary.core.database.impl.dao.TagDao
 import io.github.taetae98coding.diary.core.database.impl.dao.TagLinkDao
 import io.github.taetae98coding.diary.core.database.impl.dao.WebDao
@@ -236,6 +237,8 @@ internal abstract class DiaryDatabase : RoomDatabase() {
     abstract fun accountMusicSyncDao(): AccountMusicSyncDao
 
     abstract fun syncCursorDao(): SyncCursorDao
+
+    abstract fun syncPendingDao(): SyncPendingDao
 
     companion object {
         const val NAME: String = "diary.db"

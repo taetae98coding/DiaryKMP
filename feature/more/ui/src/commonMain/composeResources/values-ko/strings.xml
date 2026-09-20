@@ -4,6 +4,10 @@
     <string name="more_guest_label">게스트</string>
     <string name="more_sign_in_chip_label">로그인</string>
     <string name="more_sign_out_chip_label">로그아웃</string>
+    <string name="more_sign_out_confirm_title">로그아웃할까요?</string>
+    <string name="more_sign_out_confirm_message">아직 서버에 반영되지 않은 변경이 있습니다. 로그아웃하면 이 기기에서 다시 로그인하기 전까지 반영되지 않습니다.</string>
+    <string name="more_sign_out_confirm_button">로그아웃</string>
+    <string name="more_sign_out_cancel_button">취소</string>
     <string name="more_profile_image_content_description">프로필 이미지</string>
     <string name="more_profile_photo_picker_click_label">프로필 사진 선택</string>
     <string name="more_menu_search_label">검색</string>

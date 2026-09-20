@@ -9,7 +9,6 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.FileUri
 import io.github.taetae98coding.diary.domain.account.usecase.ChangeProfileImageUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
-import io.github.taetae98coding.diary.domain.account.usecase.SignOutUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -46,7 +45,7 @@ class MoreHomeAccountViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val getAccountUseCase = mockk<GetAccountUseCase>()
                 every { getAccountUseCase(Unit) } returns flowOf(Result.success<Account>(Account.Guest))
-                val viewModel = MoreHomeAccountViewModel(getAccountUseCase = getAccountUseCase, changeProfileImageUseCase = mockk(), signOutUseCase = mockk())
+                val viewModel = MoreHomeAccountViewModel(getAccountUseCase = getAccountUseCase, changeProfileImageUseCase = mockk())
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe MoreHomeAccountUiState.Loading
@@ -68,7 +67,7 @@ class MoreHomeAccountViewModelTest : FunSpec() {
                     )
                 val getAccountUseCase = mockk<GetAccountUseCase>()
                 every { getAccountUseCase(Unit) } returns flowOf(Result.success<Account>(account))
-                val viewModel = MoreHomeAccountViewModel(getAccountUseCase = getAccountUseCase, changeProfileImageUseCase = mockk(), signOutUseCase = mockk())
+                val viewModel = MoreHomeAccountViewModel(getAccountUseCase = getAccountUseCase, changeProfileImageUseCase = mockk())
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe MoreHomeAccountUiState.Loading
@@ -88,7 +87,7 @@ class MoreHomeAccountViewModelTest : FunSpec() {
                 accountFlows.forEach { accountFlow ->
                     val getAccountUseCase = mockk<GetAccountUseCase>()
                     every { getAccountUseCase(Unit) } returns accountFlow
-                    val viewModel = MoreHomeAccountViewModel(getAccountUseCase = getAccountUseCase, changeProfileImageUseCase = mockk(), signOutUseCase = mockk())
+                    val viewModel = MoreHomeAccountViewModel(getAccountUseCase = getAccountUseCase, changeProfileImageUseCase = mockk())
 
                     viewModel.uiState.test {
                         awaitItem() shouldBe MoreHomeAccountUiState.Loading
@@ -118,7 +117,6 @@ class MoreHomeAccountViewModelTest : FunSpec() {
                     MoreHomeAccountViewModel(
                         getAccountUseCase = getAccountUseCase,
                         changeProfileImageUseCase = changeProfileImageUseCase,
-                        signOutUseCase = mockk(),
                     )
 
                 viewModel.uiState.test {
@@ -133,21 +131,6 @@ class MoreHomeAccountViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MORE-HOME-DATA-001 로그아웃하면 저장된 로그인 세션이 제거된다") {
-            runTest(mainDispatcher) {
-                val getAccountUseCase = mockk<GetAccountUseCase>()
-                every { getAccountUseCase(Unit) } returns emptyFlow()
-                val signOutUseCase = mockk<SignOutUseCase>()
-                coEvery { signOutUseCase(Unit) } returns Result.success(Unit)
-                val viewModel = MoreHomeAccountViewModel(getAccountUseCase = getAccountUseCase, changeProfileImageUseCase = mockk(), signOutUseCase = signOutUseCase)
-
-                viewModel.signOut()
-                advanceUntilIdle()
-
-                coVerify(exactly = 1) { signOutUseCase(Unit) }
-            }
-        }
-
         test("TC-MORE-HOME-DATA-002 고른 사진으로 저장된 프로필 이미지를 바꾸도록 요청한다") {
             runTest(mainDispatcher) {
                 val uri = FileUri(fixtureMonkey.giveMeOne<String>())
@@ -159,7 +142,6 @@ class MoreHomeAccountViewModelTest : FunSpec() {
                     MoreHomeAccountViewModel(
                         getAccountUseCase = getAccountUseCase,
                         changeProfileImageUseCase = changeProfileImageUseCase,
-                        signOutUseCase = mockk(),
                     )
 
                 viewModel.changeProfileImage(uri)

@@ -27,6 +27,7 @@ internal fun MoreHomeScaffold(
     onEvent: (MoreHomeScaffoldEvent) -> Unit,
     modifier: Modifier = Modifier,
     accountUiStateProvider: () -> MoreHomeAccountUiState = { MoreHomeAccountUiState.Loading },
+    signOutUiStateProvider: () -> MoreHomeSignOutUiState = { MoreHomeSignOutUiState() },
 ) {
     Scaffold(
         modifier = modifier,
@@ -78,6 +79,11 @@ internal fun MoreHomeScaffold(
             }
         }
     }
+
+    MoreHomeSignOutDialogHost(
+        onEvent = onEvent,
+        uiStateProvider = signOutUiStateProvider,
+    )
 }
 
 @ScreenPreview

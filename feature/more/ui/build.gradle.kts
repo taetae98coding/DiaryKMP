@@ -7,6 +7,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.domain.account)
+                implementation(projects.domain.sync)
                 implementation(projects.feature.checklist.api)
                 implementation(projects.feature.contact.api)
                 implementation(projects.feature.dday.api)

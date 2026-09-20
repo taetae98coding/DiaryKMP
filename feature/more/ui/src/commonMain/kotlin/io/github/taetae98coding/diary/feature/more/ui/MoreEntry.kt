@@ -64,7 +64,8 @@ private fun EntryProviderScope<ScreenNavKey>.moreHomeEntry(backStack: NavBackSta
                 backStack.add(WebHomeNavKey)
             },
             photoPicker = rememberPhotoPicker(),
-            viewModel = koinViewModel(),
+            accountViewModel = koinViewModel(),
+            signOutViewModel = koinViewModel(),
         )
     }
 }
