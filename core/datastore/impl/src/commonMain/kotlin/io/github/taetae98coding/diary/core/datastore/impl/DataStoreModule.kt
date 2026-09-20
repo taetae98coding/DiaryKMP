@@ -11,6 +11,8 @@ import io.github.taetae98coding.diary.core.datastore.impl.di.HolidaySettingDataS
 import io.github.taetae98coding.diary.core.datastore.impl.di.HolidaySettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.MapSettingDataStore
 import io.github.taetae98coding.diary.core.datastore.impl.di.MapSettingStorage
+import io.github.taetae98coding.diary.core.datastore.impl.di.SyncTimeDataStore
+import io.github.taetae98coding.diary.core.datastore.impl.di.SyncTimeStorage
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.SupervisorJob
 import org.koin.core.annotation.ComponentScan
@@ -49,10 +51,20 @@ public class DataStoreModule {
         dispatcher: CoroutineDispatcher,
     ): DataStore<GeminiSettingLocalEntity> = createSettingDataStore(storage = storage, dispatcher = dispatcher, serializer = GeminiSettingSerializer)
 
+    @Single
+    @SyncTimeDataStore
+    internal fun providesSyncTimeDataStore(
+        @SyncTimeStorage
+        storage: Storage<SyncTimeData>,
+        @DiarySettingDispatcher
+        dispatcher: CoroutineDispatcher,
+    ): DataStore<SyncTimeData> = createSettingDataStore(storage = storage, dispatcher = dispatcher, serializer = SyncTimeSerializer)
+
     internal companion object {
         const val MAP_SETTING_NAME: String = "map-setting.json"
         const val HOLIDAY_SETTING_NAME: String = "holiday-setting.json"
         const val GEMINI_SETTING_NAME: String = "gemini-setting.json"
+        const val SYNC_TIME_NAME: String = "sync-time.json"
     }
 }
 

@@ -1,12 +1,17 @@
 package io.github.taetae98coding.diary.core.datastore.impl
 
 import androidx.datastore.core.CorruptionException
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.GeminiSettingLocalEntity
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.MapProviderLocalEntity
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import okio.Buffer
+import kotlin.time.Instant
+import kotlin.uuid.Uuid
 
 class SettingSerializerTest :
     FunSpec({
@@ -70,6 +75,23 @@ class SettingSerializerTest :
             GeminiSettingSerializer.readText(mixed) shouldBe GeminiSettingLocalEntity(apiKey = "key")
         }
 
+        test("계정별 마지막 동기화 시각을 왕복 변환한다") {
+            val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
+            val settings =
+                listOf(
+                    SyncTimeData(),
+                    SyncTimeData(syncedAtMap = mapOf(fixtureMonkey.giveMeOne<Uuid>() to fixtureMonkey.giveMeOne<Instant>())),
+                    SyncTimeData(
+                        syncedAtMap =
+                            List(3) { fixtureMonkey.giveMeOne<Uuid>() to fixtureMonkey.giveMeOne<Instant>() }.toMap(),
+                    ),
+                )
+
+            settings.forEach { setting ->
+                SyncTimeSerializer.roundTrip(setting) shouldBe setting
+            }
+        }
+
         test("설정을 해석할 수 없으면 손상으로 알린다") {
             val corruptedTexts = listOf("", "  ", "not a setting")
 
@@ -82,6 +104,7 @@ class SettingSerializerTest :
             shouldThrowExactly<CorruptionException> { MapSettingSerializer.readText("""{"defaultProvider":1}""") }
             shouldThrowExactly<CorruptionException> { HolidaySettingSerializer.readText("""{"hiddenKeySet":1}""") }
             shouldThrowExactly<CorruptionException> { GeminiSettingSerializer.readText("""{"apiKey":1}""") }
+            shouldThrowExactly<CorruptionException> { SyncTimeSerializer.readText("""{"syncedAtMap":1}""") }
         }
     })
 

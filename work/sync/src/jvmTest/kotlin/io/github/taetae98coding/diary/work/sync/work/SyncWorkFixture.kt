@@ -40,6 +40,7 @@ import io.github.taetae98coding.diary.core.database.api.web.transaction.AccountW
 import io.github.taetae98coding.diary.core.database.api.webtag.datasource.AccountWebTagSyncLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.webtag.transaction.AccountWebTagSyncTransaction
+import io.github.taetae98coding.diary.core.datastore.api.sync.datasource.AccountSyncTimeLocalDataSource
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.network.api.contact.datasource.ContactRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.contact.entity.ContactPullRemoteEntity
@@ -77,6 +78,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -127,6 +129,9 @@ internal data class TestContext(
     val webTagRemoteDataSource: WebTagRemoteDataSource,
     val placeTagRemoteDataSource: PlaceTagRemoteDataSource,
     val musicRemoteDataSource: MusicRemoteDataSource,
+    val accountSyncTimeLocalDataSource: AccountSyncTimeLocalDataSource,
+    val clock: Clock,
+    val syncedAt: Instant,
 ) {
     val subject: SyncWorkImpl =
         SyncWorkImpl(
@@ -215,6 +220,8 @@ internal data class TestContext(
                     accountPlaceTagSyncTransaction = accountPlaceTagSyncTransaction,
                     placeTagRemoteDataSource = placeTagRemoteDataSource,
                 ),
+            accountSyncTimeLocalDataSource = accountSyncTimeLocalDataSource,
+            clock = clock,
         )
 }
 
@@ -277,8 +284,12 @@ internal fun context(
 private fun mockedTestContext(
     accountId: Uuid,
     accountFlow: Flow<Result<Account>>,
-): TestContext =
-    TestContext(
+): TestContext {
+    val syncedAt = fixtureMonkey.giveMeOne<Instant>()
+    val clock = mockk<Clock>()
+    every { clock.now() } returns syncedAt
+
+    return TestContext(
         accountId = accountId,
         getAccountUseCase = mockk<GetAccountUseCase>().apply { every { this@apply(parameter = Unit) } returns accountFlow },
         tagSyncLocalDataSource = mockk(),
@@ -318,7 +329,11 @@ private fun mockedTestContext(
         webTagRemoteDataSource = mockk(),
         placeTagRemoteDataSource = mockk(),
         musicRemoteDataSource = mockk(),
+        accountSyncTimeLocalDataSource = mockk(relaxed = true),
+        clock = clock,
+        syncedAt = syncedAt,
     )
+}
 
 private fun TestContext.stubPending(
     tagList: List<TagLocalEntity>,

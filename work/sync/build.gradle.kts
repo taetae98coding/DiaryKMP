@@ -10,6 +10,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.core.database.api)
+                implementation(projects.core.datastore.api)
                 implementation(projects.core.network.api)
                 implementation(projects.domain.account)
                 implementation(projects.domain.sync)

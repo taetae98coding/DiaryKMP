@@ -44,6 +44,12 @@ internal val HolidaySettingSerializer: SettingSerializer<HolidaySettingData> =
         defaultValue = HolidaySettingData(),
     )
 
+internal val SyncTimeSerializer: SettingSerializer<SyncTimeData> =
+    SettingSerializer(
+        serializer = SyncTimeData.serializer(),
+        defaultValue = SyncTimeData(),
+    )
+
 internal val GeminiSettingSerializer: SettingSerializer<GeminiSettingLocalEntity> =
     SettingSerializer(
         serializer = GeminiSettingLocalEntity.serializer(),

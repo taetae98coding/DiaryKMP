@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDispatc
 import io.github.taetae98coding.diary.core.datastore.impl.di.GeminiSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.HolidaySettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.MapSettingStorage
+import io.github.taetae98coding.diary.core.datastore.impl.di.SyncTimeStorage
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.annotation.Configuration
@@ -43,5 +44,13 @@ public class WasmDataStoreModule {
         WebLocalStorage(
             serializer = GeminiSettingSerializer,
             name = DataStoreModule.GEMINI_SETTING_NAME,
+        )
+
+    @Single
+    @SyncTimeStorage
+    internal fun providesSyncTimeStorage(): Storage<SyncTimeData> =
+        WebLocalStorage(
+            serializer = SyncTimeSerializer,
+            name = DataStoreModule.SYNC_TIME_NAME,
         )
 }

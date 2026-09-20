@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.work.sync.work
 
+import io.github.taetae98coding.diary.core.datastore.api.sync.datasource.AccountSyncTimeLocalDataSource
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.supervisorScope
 import org.koin.core.annotation.Factory
+import kotlin.time.Clock
 import kotlin.uuid.Uuid
 
 @Factory
@@ -29,6 +31,8 @@ internal class SyncWorkImpl(
     private val tagLinkSyncWork: TagLinkSyncWork,
     private val webTagSyncWork: WebTagSyncWork,
     private val placeTagSyncWork: PlaceTagSyncWork,
+    private val accountSyncTimeLocalDataSource: AccountSyncTimeLocalDataSource,
+    private val clock: Clock,
 ) : SyncWork {
     override suspend fun doWork() {
         try {
@@ -40,6 +44,7 @@ internal class SyncWorkImpl(
 
             push(accountId = accountId)
             pull(accountId = accountId)
+            accountSyncTimeLocalDataSource.upsert(accountId = accountId, syncedAt = clock.now())
         } catch (exception: CancellationException) {
             throw exception
         } catch (throwable: Throwable) {
