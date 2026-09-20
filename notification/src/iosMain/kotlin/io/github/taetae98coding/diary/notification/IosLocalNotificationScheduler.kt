@@ -39,7 +39,7 @@ private fun LocalNotificationRequest.toNotificationRequest(): UNNotificationRequ
     val dateComponents =
         NSDateComponents().apply {
             year = dateTime.year.toLong()
-            month = dateTime.monthNumber.toLong()
+            month = dateTime.month.number.toLong()
             day = dateTime.day.toLong()
             hour = dateTime.hour.toLong()
             minute = dateTime.minute.toLong()
