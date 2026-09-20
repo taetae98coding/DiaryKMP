@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.compose.tag
 
+import androidx.activity.ComponentDialog
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -243,11 +244,10 @@ private fun ComposeContentTestRule.awaitEntityTagPicker(
 /**
  * 선택 목록에는 확인 버튼이 없으므로 목록을 닫는 조작인 뒤로가기를 다이얼로그 창에 전달한다.
  */
-@Suppress("DEPRECATION")
 internal fun ComposeContentTestRule.closeDialogByBack() {
-    val dialog = ShadowDialog.getLatestDialog()
+    val dialog = ShadowDialog.getLatestDialog() as ComponentDialog
 
-    runOnUiThread { dialog.onBackPressed() }
+    runOnUiThread { dialog.onBackPressedDispatcher.onBackPressed() }
     waitForIdle()
 }
 

@@ -14,12 +14,6 @@
             <meta-data
                 android:name="io.github.taetae98coding.diary.app.startup.LoggerInitializer"
                 android:value="androidx.startup" />
-
-            <!-- WorkManager 초기화를 Koin WorkerFactory가 준비된 뒤로 미루기 위해 기본 초기화를 제거한다. -->
-            <meta-data
-                android:name="androidx.work.WorkManagerInitializer"
-                android:value="androidx.startup"
-                tools:node="remove" />
         </provider>
     </application>
 </manifest>

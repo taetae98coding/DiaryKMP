@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.place.ui.add
 
+import androidx.activity.ComponentDialog
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasText
@@ -180,9 +181,9 @@ class PlaceAddTagAddTest {
     private fun dialogNodeWithText(text: String): SemanticsNodeInteraction = composeRule.onNode(hasText(text) and hasAnyAncestor(isDialog()))
 
     private fun closeDialogByBack() {
-        val dialog = ShadowDialog.getLatestDialog()
+        val dialog = ShadowDialog.getLatestDialog() as ComponentDialog
 
-        composeRule.runOnUiThread { dialog.onBackPressed() }
+        composeRule.runOnUiThread { dialog.onBackPressedDispatcher.onBackPressed() }
         composeRule.waitForIdle()
     }
 
