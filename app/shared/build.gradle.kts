@@ -21,7 +21,6 @@ kotlin {
                 implementation(projects.compose.permission)
                 implementation(projects.core.database.impl)
                 implementation(projects.core.datastore.impl)
-                implementation(projects.core.file.impl)
                 implementation(projects.core.geminiNetwork.impl)
                 implementation(projects.core.googleNetwork.impl)
                 implementation(projects.core.holidayDatabase.impl)
