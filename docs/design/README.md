@@ -22,6 +22,8 @@
 
 아이콘만 표시하는 공통 버튼에 이름을 알려 주는 설명 표시는 [아이콘 버튼 설명](./icon-button-tooltip.md)이 소유한다. 각 문서는 그 버튼의 자리와 접근성 이름만 남긴다.
 
+칩 하나가 이름을 표시하는 방식과 칩 하나가 차지할 수 있는 최대 폭은 [칩 이름 표시](./chip.md)가 소유한다. 각 문서는 그 칩에 무엇을 표시하는지와 색, 조작, 접근성 이름 문구만 남긴다.
+
 목록 위 정렬 줄의 끝 쪽에서 짝이 되는 다른 목록으로 이동하는 진입 버튼의 해부구조와 조작, 접근성은 [목록 진입 버튼](./list-entry-button.md)이 소유한다. 각 문서는 그 버튼이 어느 목록으로 이동하는지와 라벨 문구만 남긴다.
 
 조건에 따라 나타났다 사라지는 버튼이 나타나고 사라지는 표현은 [나타나고 사라지는 버튼](./button-visibility.md)이 소유한다. 각 문서는 그 버튼을 두는 조건과 자리만 남긴다.
@@ -56,6 +58,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail, ContactAdd 화면 문서는 태그 입
 - [Calendar 컴포넌트](./calendar.md)
 - [캘린더 메모 이동](./calendar-memo-move.md)
 - [ChecklistHome 화면](./checklist-home.md)
+- [칩 이름 표시](./chip.md)
 - [ContactAdd 화면](./contact-add.md)
 - [ContactDetail 화면](./contact-detail.md)
 - [ContactHome 화면](./contact-home.md)
