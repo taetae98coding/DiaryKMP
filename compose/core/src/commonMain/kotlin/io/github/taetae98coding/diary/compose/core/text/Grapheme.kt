@@ -60,7 +60,6 @@ private fun CharSequence.regionalIndicatorEndIndex(startIndex: Int): Int {
     return if (hasSecondIndicator) nextCodePointIndex(index = index) else index
 }
 
-/** [index]의 코드가 앞 문자에 이어 붙으면 이어 붙인 다음 위치를, 문자 경계면 null을 돌려준다. */
 private fun CharSequence.extendedEndIndexOrNull(index: Int): Int? {
     if (index >= length) return null
 

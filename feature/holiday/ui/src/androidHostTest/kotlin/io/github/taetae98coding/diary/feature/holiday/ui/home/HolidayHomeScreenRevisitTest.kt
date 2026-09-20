@@ -24,7 +24,6 @@ import org.koin.core.context.stopKoin
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-// 년도 사이를 이동했다가 돌아오는 흐름을 검증한다.
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
 class HolidayHomeScreenRevisitTest {

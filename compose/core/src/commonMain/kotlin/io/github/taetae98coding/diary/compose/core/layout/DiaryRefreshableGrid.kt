@@ -23,7 +23,6 @@ public const val DIARY_REFRESHABLE_GRID_TEST_TAG: String = "DiaryRefreshableGrid
 
 private const val COLUMN_COUNT = 2
 
-// 당겨서 새로고침이 붙은 2열 카드 목록의 간격과 여백을 한곳에서 정한다.
 @Composable
 public fun DiaryRefreshableGrid(
     onRefresh: () -> Unit,

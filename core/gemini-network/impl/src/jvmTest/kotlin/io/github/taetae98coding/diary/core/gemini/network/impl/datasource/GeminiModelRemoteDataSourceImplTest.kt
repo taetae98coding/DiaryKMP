@@ -143,7 +143,6 @@ class GeminiModelRemoteDataSourceImplTest :
 
                 val actual = shouldThrow<GeminiException.InvalidApiKey> { dataSource.getAvailableModel(apiKey = API_KEY) }
 
-                // 원인을 잃지 않고 그대로 담아 전달한다.
                 actual.cause.shouldBeInstanceOf<ResponseException>()
             }
         }

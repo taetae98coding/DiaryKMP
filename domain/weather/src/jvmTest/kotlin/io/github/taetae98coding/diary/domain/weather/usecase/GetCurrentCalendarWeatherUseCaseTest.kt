@@ -441,7 +441,6 @@ private fun forecastWeather(
                     ),
         )
 
-/** [firstHour]부터 [lastHour]까지 예보 간격으로 이어지는 한 날짜의 예보 목록을 만든다. */
 private fun dayForecastList(
     day: Int,
     firstHour: Int,

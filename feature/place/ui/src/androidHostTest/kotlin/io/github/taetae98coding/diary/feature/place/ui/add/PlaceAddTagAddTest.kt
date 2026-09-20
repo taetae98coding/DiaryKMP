@@ -219,9 +219,6 @@ class PlaceAddTagAddTest {
         const val DEFAULT_PICKER_TAG_ADD: String = "Add tag"
         val OTHER_REQUEST_KEY: Uuid = Uuid.parse("20000000-0000-0000-0000-000000000002")
 
-        /**
-         * 전달한 태그가 모두 준비된 상태의 선택 목록을 만든다.
-         */
         fun loadedTagPagingDataOf(tagList: List<Tag>): PagingData<Tag> =
             PagingData.from(
                 data = tagList,
@@ -233,9 +230,6 @@ class PlaceAddTagAddTest {
                     ),
             )
 
-        /**
-         * 아직 아무 태그도 준비되지 않고 목록을 처음 불러오는 중인 선택 목록을 만든다.
-         */
         fun refreshingTagPagingData(): PagingData<Tag> =
             PagingData.from(
                 data = emptyList(),

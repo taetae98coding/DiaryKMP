@@ -167,7 +167,6 @@ private fun holidayRepository(vararg holidayListByYear: Pair<Int, List<Holiday>>
     }
 }
 
-// 저장된 공휴일을 시작일의 연도별로 나누어 돌려주는 저장소다.
 private fun holidayRepositoryByStartYear(holidayList: List<Holiday>): HolidayRepository =
     mockk<HolidayRepository>().also { repository ->
         every { repository.get(year = any()) } answers {

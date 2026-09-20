@@ -15,9 +15,6 @@ import kotlin.uuid.Uuid
 private val fixtureMonkey: FixtureMonkey =
     diaryFixtureMonkey()
 
-/**
- * 전달한 연락처가 모두 준비된 상태의 연락처 목록을 만든다.
- */
 internal fun contactPagingDataOf(contactList: List<Contact>): PagingData<Contact> =
     PagingData.from(
         data = contactList,

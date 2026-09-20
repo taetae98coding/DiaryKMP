@@ -394,7 +394,6 @@ private fun getGoldenHolidayUseCase(holidayRepository: HolidayRepository): GetGo
         getHolidayUseCase = GetHolidayUseCase(holidayRepository = holidayRepository),
     )
 
-// 저장된 공휴일을 시작일의 년도별로 나누어 돌려주는 저장소다.
 private fun holidayRepository(holidayList: List<Holiday>): HolidayRepository =
     mockk<HolidayRepository>().also { repository ->
         every { repository.get(year = any()) } answers {

@@ -17,7 +17,6 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 
 public const val DIARY_COLOR_TITLE_INDICATOR_TEST_TAG: String = "DiaryColorTitleIndicator"
 
-// 카드 머리글로 쓰는 색 표시와 제목 한 줄이다.
 @Composable
 public fun DiaryColorTitleRow(
     title: String,

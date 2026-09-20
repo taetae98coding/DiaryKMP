@@ -5,9 +5,6 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.memo.MemoListItem
 
-/**
- * 화면에 전달할 메모 항목을 변환 없이 PagingData로 감싼다.
- */
 internal fun memoPagingDataOf(itemList: List<MemoListItem>): PagingData<MemoListItem> =
     PagingData.from(
         data = itemList,

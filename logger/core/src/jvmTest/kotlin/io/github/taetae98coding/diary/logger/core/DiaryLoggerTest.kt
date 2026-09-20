@@ -169,7 +169,6 @@ class DiaryLoggerTest :
             every { delegate.log(log = any()) } answers {
                 val log = firstArg<DiaryLog>()
 
-                // 담당하는 종류의 로그만 남기는 기록 수단의 동작을 흉내 낸다.
                 if (isTarget(log)) {
                     logList += log
                 }

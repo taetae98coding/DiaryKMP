@@ -20,7 +20,6 @@ import org.koin.core.context.stopKoin
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-// 원격이 공휴일을 제공하지 않는 년도의 표시를 검증한다.
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
 class HolidayHomeScreenNotProvidedTest {

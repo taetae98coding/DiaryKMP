@@ -15,9 +15,6 @@ import kotlin.uuid.Uuid
 private val fixtureMonkey: FixtureMonkey =
     diaryFixtureMonkey()
 
-/**
- * 전달한 웹 항목이 모두 준비된 상태의 웹 목록을 만든다.
- */
 internal fun webPagingDataOf(webList: List<Web>): PagingData<Web> =
     PagingData.from(
         data = webList,

@@ -14,9 +14,6 @@ import kotlin.uuid.Uuid
 private val fixtureMonkey: FixtureMonkey =
     diaryFixtureMonkey()
 
-/**
- * 전달한 곡이 모두 준비된 상태의 곡 목록을 만든다.
- */
 internal fun musicPagingDataOf(musicList: List<Music>): PagingData<Music> =
     PagingData.from(
         data = musicList,
