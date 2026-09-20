@@ -3,8 +3,8 @@ package io.github.taetae98coding.diary.data.account.repository
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.core.file.api.FileReader
-import io.github.taetae98coding.diary.core.file.api.FileSource
+import io.github.taetae98coding.diary.core.image.api.ImageConverter
+import io.github.taetae98coding.diary.core.image.api.JpegSource
 import io.github.taetae98coding.diary.core.model.account.UserData
 import io.github.taetae98coding.diary.core.model.file.FileUri
 import io.github.taetae98coding.diary.core.network.api.profile.datasource.ProfileImageRemoteDataSource
@@ -19,8 +19,11 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
 import io.mockk.slot
+import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.io.Buffer
@@ -58,10 +61,22 @@ class UserDataRepositoryImplTest :
             }
         }
 
-        test("TC-PROFILE-IMAGE-DATA-001 고른 사진에서 읽은 이미지 내용과 형식을 반영 요청에 담는다") {
+        test("TC-PROFILE-IMAGE-DATA-006 고른 사진을 JPEG로 바꾸지 못하면 반영을 요청하지 않고 실패한다") {
             val uri = fileUri()
-            val bytes = "profile-image-${fixtureMonkey.giveMeOne<String>()}".encodeToByteArray()
-            val fileReader = fileReader(uri = uri, mimeType = "image/webp", bytes = bytes)
+            val imageConverter = mockk<ImageConverter>()
+            coEvery { imageConverter.toJpeg(uri = uri) } throws IllegalStateException("Image cannot be converted.")
+            val profileImageRemoteDataSource = profileImageRemoteDataSource()
+            val repository =
+                repository(imageConverter = imageConverter, profileImageRemoteDataSource = profileImageRemoteDataSource)
+
+            shouldThrowAny { repository.updateProfileImage(uri = uri) }
+
+            coVerify(exactly = 0) { profileImageRemoteDataSource.upload(mimeType = any(), contentLength = any(), openContent = any()) }
+        }
+
+        test("TC-PROFILE-IMAGE-DATA-005 JPEG로 바꾼 이미지를 반영 요청에 담는다") {
+            val uri = fileUri()
+            val jpegBytes = imageBytes()
             val mimeTypeSlot = slot<String>()
             val contentLengthSlot = slot<Long>()
             val openContentSlot = slot<() -> RawSource>()
@@ -74,26 +89,16 @@ class UserDataRepositoryImplTest :
                 )
             } returns fixtureMonkey.giveMeOne<ProfileImageRemoteEntity>()
             val repository =
-                repository(fileReader = fileReader, profileImageRemoteDataSource = profileImageRemoteDataSource)
+                repository(
+                    imageConverter = imageConverter(uri = uri, jpegBytes = jpegBytes),
+                    profileImageRemoteDataSource = profileImageRemoteDataSource,
+                )
 
             repository.updateProfileImage(uri = uri)
 
-            mimeTypeSlot.captured shouldBe "image/webp"
-            contentLengthSlot.captured shouldBe bytes.size.toLong()
-            openContentSlot.captured().readBytes() shouldBe bytes
-        }
-
-        test("TC-PROFILE-IMAGE-DATA-002 고른 사진을 읽지 못하면 반영을 요청하지 않고 실패한다") {
-            val uri = fileUri()
-            val fileReader = mockk<FileReader>()
-            coEvery { fileReader.open(uri = uri) } throws IllegalStateException("File cannot be read.")
-            val profileImageRemoteDataSource = profileImageRemoteDataSource()
-            val repository =
-                repository(fileReader = fileReader, profileImageRemoteDataSource = profileImageRemoteDataSource)
-
-            shouldThrowAny { repository.updateProfileImage(uri = uri) }
-
-            coVerify(exactly = 0) { profileImageRemoteDataSource.upload(mimeType = any(), contentLength = any(), openContent = any()) }
+            mimeTypeSlot.captured shouldBe "image/jpeg"
+            contentLengthSlot.captured shouldBe jpegBytes.size.toLong()
+            openContentSlot.captured().readBytes() shouldBe jpegBytes
         }
 
         test("TC-PROFILE-IMAGE-DATA-004 반영에 실패하면 프로필 이미지가 직전 주소를 유지한다") {
@@ -106,15 +111,11 @@ class UserDataRepositoryImplTest :
                 )
             val supabaseAuth = mockk<SupabaseAuth>()
             every { supabaseAuth.getUserFlow() } returns MutableStateFlow(previousUser)
-            val profileImageRemoteDataSource = mockk<ProfileImageRemoteDataSource>()
-            coEvery {
-                profileImageRemoteDataSource.upload(mimeType = any(), contentLength = any(), openContent = any())
-            } throws IllegalStateException("Profile image upload failed.")
             val repository =
                 repository(
                     supabaseAuth = supabaseAuth,
-                    fileReader = fileReader(uri = uri, mimeType = "image/png", bytes = fixtureMonkey.giveMeOne<ByteArray>()),
-                    profileImageRemoteDataSource = profileImageRemoteDataSource,
+                    imageConverter = imageConverter(uri = uri),
+                    profileImageRemoteDataSource = failingProfileImageRemoteDataSource(),
                 )
 
             repository.get().test {
@@ -125,6 +126,23 @@ class UserDataRepositoryImplTest :
                 expectNoEvents()
             }
         }
+
+        listOf("반영에 성공", "반영에 실패").forEach { uploadCase ->
+            test("$uploadCase 해도 바꾼 이미지를 정리한다") {
+                val uri = fileUri()
+                val jpegSource = jpegSource(bytes = imageBytes())
+                val imageConverter = mockk<ImageConverter>()
+                coEvery { imageConverter.toJpeg(uri = uri) } returns jpegSource
+                val profileImageRemoteDataSource =
+                    if (uploadCase == "반영에 성공") profileImageRemoteDataSource() else failingProfileImageRemoteDataSource()
+                val repository =
+                    repository(imageConverter = imageConverter, profileImageRemoteDataSource = profileImageRemoteDataSource)
+
+                runCatching { repository.updateProfileImage(uri = uri) }
+
+                verify(exactly = 1) { jpegSource.close() }
+            }
+        }
     }) {
     public companion object {
         private val fixtureMonkey: FixtureMonkey =
@@ -132,28 +150,26 @@ class UserDataRepositoryImplTest :
 
         private fun fileUri(): FileUri = FileUri("file://${fixtureMonkey.giveMeOne<String>()}")
 
+        private fun imageBytes(): ByteArray = "image-${fixtureMonkey.giveMeOne<String>()}".encodeToByteArray()
+
         private fun supabaseAuth(): SupabaseAuth =
             mockk<SupabaseAuth>().also { auth ->
                 every { auth.getUserFlow() } returns flowOf(fixtureMonkey.giveMeOne<SupabaseUser>())
             }
 
-        private fun fileReader(
-            uri: FileUri,
-            mimeType: String,
-            bytes: ByteArray,
-        ): FileReader =
-            mockk<FileReader>().also { reader ->
-                coEvery { reader.open(uri = uri) } returns fileSource(mimeType = mimeType, bytes = bytes)
-            }
-
-        private fun fileSource(
-            mimeType: String,
-            bytes: ByteArray,
-        ): FileSource =
-            mockk<FileSource>().also { source ->
-                every { source.mimeType } returns mimeType
+        private fun jpegSource(bytes: ByteArray): JpegSource =
+            mockk<JpegSource>().also { source ->
                 every { source.size } returns bytes.size.toLong()
                 every { source.openSource() } answers { Buffer().apply { write(bytes) } }
+                every { source.close() } just runs
+            }
+
+        private fun imageConverter(
+            uri: FileUri = fileUri(),
+            jpegBytes: ByteArray = imageBytes(),
+        ): ImageConverter =
+            mockk<ImageConverter>().also { converter ->
+                coEvery { converter.toJpeg(uri = uri) } returns jpegSource(bytes = jpegBytes)
             }
 
         private fun profileImageRemoteDataSource(): ProfileImageRemoteDataSource =
@@ -163,6 +179,13 @@ class UserDataRepositoryImplTest :
                 } returns fixtureMonkey.giveMeOne<ProfileImageRemoteEntity>()
             }
 
+        private fun failingProfileImageRemoteDataSource(): ProfileImageRemoteDataSource =
+            mockk<ProfileImageRemoteDataSource>().also { dataSource ->
+                coEvery {
+                    dataSource.upload(mimeType = any(), contentLength = any(), openContent = any())
+                } throws IllegalStateException("Profile image upload failed.")
+            }
+
         private fun RawSource.readBytes(): ByteArray =
             use { source ->
                 Buffer().apply { source.readAtMostTo(this, Long.MAX_VALUE) }.readByteArray()
@@ -170,12 +193,12 @@ class UserDataRepositoryImplTest :
 
         private fun repository(
             supabaseAuth: SupabaseAuth = supabaseAuth(),
-            fileReader: FileReader = mockk(),
+            imageConverter: ImageConverter = mockk(),
             profileImageRemoteDataSource: ProfileImageRemoteDataSource = profileImageRemoteDataSource(),
         ): UserDataRepositoryImpl =
             UserDataRepositoryImpl(
                 supabaseAuth = supabaseAuth,
-                fileReader = fileReader,
+                imageConverter = imageConverter,
                 profileImageRemoteDataSource = profileImageRemoteDataSource,
             )
     }
