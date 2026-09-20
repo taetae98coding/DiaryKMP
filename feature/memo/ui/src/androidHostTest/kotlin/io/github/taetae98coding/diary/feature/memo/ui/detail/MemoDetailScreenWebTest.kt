@@ -1,7 +1,9 @@
 package io.github.taetae98coding.diary.feature.memo.ui.detail
 
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -190,6 +192,92 @@ class MemoDetailScreenWebTest {
         composeRule.onNodeWithText(DEFAULT_WEB_PICKER_TITLE).assertDoesNotExist()
     }
 
+    @Test
+    fun `TC-MEMO-DETAIL-FEATURE-063 웹 항목을 선택해도 수정 버튼이 나타나지 않는다`() {
+        val web = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
+        composeRule.setMemoDetailScreenWithWeb(webViewModel = memoDetailWebViewModel(webList = listOf(web)))
+
+        composeRule.openMemoDetailWebPicker()
+        composeRule.awaitWebPickerRows()
+        composeRule.webDialogNodeWithText(WIKI_WEB_TITLE).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-MEMO-DETAIL-FEATURE-063 웹 선택을 해제해도 수정 버튼이 나타나지 않는다`() {
+        val web = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
+        composeRule.setMemoDetailScreenWithWeb(webViewModel = memoDetailWebViewModel(webList = listOf(web), selectedWebList = listOf(web)))
+
+        composeRule.openMemoDetailWebPicker()
+        composeRule.awaitWebPickerRows()
+        composeRule.webDialogNodeWithText(WIKI_WEB_URL).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-MEMO-DETAIL-FEATURE-064 다른 메모를 선택하면 웹 입력이 새 메모의 웹 연결로 바뀐다`() {
+        val wikiWeb = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
+        val docsWeb = testWeb(title = DOCS_WEB_TITLE, url = DOCS_WEB_URL)
+        val detailUiState = MutableStateFlow<MemoDetailUiState>(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE)))
+        val webUiState = MutableStateFlow(MemoWebInputUiState(selectedWebList = listOf(wikiWeb)))
+        composeRule.setMemoDetailScreenWithWeb(
+            webViewModel = screenTestWebViewModel(uiState = webUiState, webPagingDataFlow = MutableStateFlow(webPagingDataOf(listOf(wikiWeb, docsWeb)))),
+            detailUiState = detailUiState,
+        )
+        composeRule.onNodeWithText(DEFAULT_WEB_SELECT_LABEL).performScrollTo()
+        composeRule.onNodeWithText(WIKI_WEB_TITLE).assertExists()
+
+        composeRule.runOnIdle {
+            detailUiState.value = memoDetailUiState(id = SECOND_WEB_MEMO_ID, detail = memoDetail(MEMO_TITLE))
+            webUiState.value = MemoWebInputUiState(selectedWebList = listOf(docsWeb))
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_WEB_SELECT_LABEL).performScrollTo()
+
+        composeRule.onNodeWithText(DOCS_WEB_TITLE).assertExists()
+        composeRule.onNodeWithText(WIKI_WEB_TITLE).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-MEMO-DETAIL-FEATURE-065 화면이 재생성되면 웹 입력은 저장된 웹 연결을 다시 표시한다`() {
+        val web = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
+        val webViewModel = memoDetailWebViewModel(webList = listOf(web), selectedWebList = listOf(web))
+        val restorationTester = StateRestorationTester(composeRule)
+        restorationTester.setContent {
+            MemoDetailScreenTestTheme {
+                MemoDetailScreen(
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    detailViewModel = screenTestViewModel(uiState = MutableStateFlow(memoDetailUiState(detail = memoDetail(MEMO_TITLE)))),
+                    tagViewModel = screenTestTagViewModel(),
+                    webViewModel = webViewModel,
+                    placeViewModel = screenTestPlaceViewModel(uiState = MutableStateFlow(MemoPlaceInputUiState(isSelectedPlaceLoaded = true))),
+                    placeMapViewModel = screenTestPlaceMapViewModel(),
+                    navigateUp = {},
+                    navigateToCopiedMemo = {},
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    navigateToWebAdd = {},
+                    navigateToWebDetail = {},
+                    navigateToPlaceAdd = {},
+                    navigateToPlaceDetail = {},
+                    componentVisibleProvider = { MemoDetailScaffoldComponentVisible() },
+                    isStandalone = true,
+                )
+            }
+        }
+        composeRule.onNodeWithText(DEFAULT_WEB_SELECT_LABEL).performScrollTo()
+        composeRule.onNodeWithText(WIKI_WEB_TITLE).assertExists()
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.onNodeWithText(DEFAULT_WEB_SELECT_LABEL).performScrollTo()
+
+        composeRule.onNodeWithText(WIKI_WEB_TITLE).assertExists()
+    }
+
     private fun ComposeContentTestRule.setMemoDetailScreenWithWeb(
         webViewModel: MemoWebViewModel,
         navigateToWebAdd: () -> Unit = {},
@@ -233,4 +321,8 @@ class MemoDetailScreenWebTest {
             uiState = MutableStateFlow(MemoWebInputUiState(selectedWebList = selectedWebList)),
             webPagingDataFlow = MutableStateFlow<PagingData<Web>>(webPagingDataOf(webList)),
         )
+
+    private companion object {
+        val SECOND_WEB_MEMO_ID: Uuid = Uuid.parse("00000000-0000-0000-0000-000000000031")
+    }
 }

@@ -102,6 +102,41 @@ class TagDetailMemoViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-TAG-DETAIL-DATA-004 표시 범위를 바꿔도 저장소에 기록하지 않는다") {
+            runTest(mainDispatcher) {
+                val finishMemoUseCase = mockk<FinishMemoUseCase>()
+                val restartMemoUseCase = mockk<RestartMemoUseCase>()
+                val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
+                val restoreMemoUseCase = mockk<RestoreMemoUseCase>()
+                val pageTagMemoUseCase = mockk<PageTagMemoUseCase>()
+                every { pageTagMemoUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(emptyList<Memo>())))
+                val viewModel =
+                    viewModel(
+                        pageTagMemoUseCase = pageTagMemoUseCase,
+                        finishMemoUseCase = finishMemoUseCase,
+                        restartMemoUseCase = restartMemoUseCase,
+                        deleteMemoUseCase = deleteMemoUseCase,
+                        restoreMemoUseCase = restoreMemoUseCase,
+                    )
+
+                viewModel.memoPagingData.test {
+                    awaitItem()
+                    viewModel.select(scope = TagScope.DESCENDANT)
+                    advanceUntilIdle()
+                    awaitItem()
+                    cancelAndIgnoreRemainingEvents()
+                }
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+
+                // 표시 범위는 조회 기준만 바꾸므로 저장을 맡는 UseCase는 하나도 호출되지 않는다.
+                coVerify(exactly = 0) { finishMemoUseCase(parameter = any()) }
+                coVerify(exactly = 0) { restartMemoUseCase(parameter = any()) }
+                coVerify(exactly = 0) { deleteMemoUseCase(parameter = any()) }
+                coVerify(exactly = 0) { restoreMemoUseCase(parameter = any()) }
+            }
+        }
+
         test("태그별 메모 최초 조회가 실패하면 PagingData를 내보내지 않아 초기 빈 목록을 유지한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()

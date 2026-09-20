@@ -1,5 +1,10 @@
 package io.github.taetae98coding.diary.feature.web.ui.detail
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
@@ -396,6 +401,45 @@ class WebDetailScaffoldTest {
     }
 
     @Test
+    fun `TC-WEB-DETAIL-FEATURE-043 선택 목록을 닫으면 표시 방식이 바뀌지 않는다`() {
+        setWebDetailScaffold()
+        composeRule.openViewModeSheet()
+        composeRule.onNodeWithText(DEFAULT_VIEW_MODE_TITLE).assertExists()
+
+        composeRule.closeDialogByBack()
+
+        composeRule.onNodeWithText(DEFAULT_VIEW_MODE_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_URL_VIEW_MODE_LABEL).assertExists()
+    }
+
+    @Test
+    fun `TC-WEB-DETAIL-DOMAIN-042 화면을 떠났다 다시 들어오면 기본 표시 방식으로 시작한다`() {
+        val uiState = testContentUiState()
+        var screenKey by mutableStateOf(0)
+        composeRule.setContent {
+            // 화면을 떠나 다시 들어오면 이전 화면의 상태는 사라지고 새 화면이 만들어지므로 key로 그 경계를 재현한다.
+            key(screenKey) {
+                WebDetailScaffoldUnderTest(
+                    uiState = uiState,
+                    pageUiState = WebDetailPageUiState.Failure,
+                    detail = uiState.detail,
+                    initialTab = WebDetailTab.PAGE,
+                    initialViewMode = WebDetailViewMode.URL,
+                    onEvent = {},
+                )
+            }
+        }
+        composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
+        composeRule.onNodeWithTag(WEB_DETAIL_PAGE_FAILURE_TEST_TAG).assertExists()
+
+        composeRule.runOnIdle { screenKey += 1 }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_URL_VIEW_MODE_LABEL).assertExists()
+        composeRule.onNodeWithTag(WEB_DETAIL_PAGE_FAILURE_TEST_TAG).assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-WEB-DETAIL-FEATURE-046 불러오기에 실패해도 표시 방식을 바꿀 수 있다`() {
         setWebDetailScaffold(pageUiState = WebDetailPageUiState.Failure, initialViewMode = WebDetailViewMode.RESPONSE)
 
@@ -470,28 +514,47 @@ class WebDetailScaffoldTest {
         onEvent: (WebDetailScaffoldEvent) -> Unit = {},
     ) {
         composeRule.setContent {
-            DiaryTheme {
-                // Scaffold는 탭과 표시 방식 선택을 이벤트로 올리기만 하므로, 화면이 하는 반영을 테스트가 대신한다.
-                val state = rememberWebDetailScaffoldState(initialTab = initialTab, initialViewMode = initialViewMode)
+            WebDetailScaffoldUnderTest(
+                uiState = uiState,
+                pageUiState = pageUiState,
+                detail = detail,
+                initialTab = initialTab,
+                initialViewMode = initialViewMode,
+                onEvent = onEvent,
+            )
+        }
+    }
 
-                WebDetailScaffold(
-                    onEvent = { event ->
-                        when (event) {
-                            is WebDetailScaffoldEvent.SelectTab -> state.select(tab = event.tab)
-                            is WebDetailScaffoldEvent.SelectViewMode -> state.select(viewMode = event.viewMode)
-                            is WebDetailScaffoldEvent.ClickViewMode -> state.viewModeSheetState.show()
-                            else -> Unit
-                        }
-                        onEvent(event)
-                    },
-                    state = state,
-                    formState = rememberWebDetailFormState(initialDetail = detail),
-                    uiStateProvider = { uiState },
-                    pageUiStateProvider = { pageUiState },
-                    onFormEvent = {},
-                    onTagPickerEvent = {},
-                )
-            }
+    @Composable
+    private fun WebDetailScaffoldUnderTest(
+        uiState: WebDetailUiState,
+        pageUiState: WebDetailPageUiState,
+        detail: WebDetail,
+        initialTab: WebDetailTab,
+        initialViewMode: WebDetailViewMode,
+        onEvent: (WebDetailScaffoldEvent) -> Unit,
+    ) {
+        DiaryTheme {
+            // Scaffold는 탭과 표시 방식 선택을 이벤트로 올리기만 하므로, 화면이 하는 반영을 테스트가 대신한다.
+            val state = rememberWebDetailScaffoldState(initialTab = initialTab, initialViewMode = initialViewMode)
+
+            WebDetailScaffold(
+                onEvent = { event ->
+                    when (event) {
+                        is WebDetailScaffoldEvent.SelectTab -> state.select(tab = event.tab)
+                        is WebDetailScaffoldEvent.SelectViewMode -> state.select(viewMode = event.viewMode)
+                        is WebDetailScaffoldEvent.ClickViewMode -> state.viewModeSheetState.show()
+                        else -> Unit
+                    }
+                    onEvent(event)
+                },
+                state = state,
+                formState = rememberWebDetailFormState(initialDetail = detail),
+                uiStateProvider = { uiState },
+                pageUiStateProvider = { pageUiState },
+                onFormEvent = {},
+                onTagPickerEvent = {},
+            )
         }
     }
 

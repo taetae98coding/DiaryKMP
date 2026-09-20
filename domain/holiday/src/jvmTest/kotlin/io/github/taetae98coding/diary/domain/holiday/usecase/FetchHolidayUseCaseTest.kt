@@ -37,7 +37,7 @@ class FetchHolidayUseCaseTest :
             When("특정 연도의 공휴일 동기화를 요청한다") {
                 val result = useCase(parameter = year)
 
-                Then("동기화한 공휴일을 성공 결과로 반환하고 요청한 연도를 전달한다") {
+                Then("TC-HOLIDAY-FETCH-DOMAIN-005 동기화한 공휴일을 성공 결과로 반환하고 요청한 연도를 전달한다") {
                     result.shouldBeSuccess() shouldBe holidayList
                     coVerify(exactly = 1) { repository.fetch(year = year) }
                 }

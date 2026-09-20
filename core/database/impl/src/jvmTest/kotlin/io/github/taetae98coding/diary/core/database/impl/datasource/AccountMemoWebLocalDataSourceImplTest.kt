@@ -98,7 +98,7 @@ class AccountMemoWebLocalDataSourceImplTest :
             loadSelectableWeb(accountId = accountId).shouldBeEmpty()
         }
 
-        test("TC-MEMO-WEB-DOMAIN-011 조회한 웹 항목은 제목 오름차순으로 정렬된다") {
+        test("TC-MEMO-DETAIL-DATA-030 TC-MEMO-WEB-DOMAIN-011 조회한 웹 항목은 제목 오름차순으로 정렬된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val lastWeb = web(title = LAST_WEB_TITLE)
@@ -284,7 +284,7 @@ class AccountMemoWebLocalDataSourceImplTest :
             loadSelectableWeb(accountId = accountId) shouldBe listOf(firstWeb, addedWeb)
         }
 
-        test("TC-MEMO-WEB-INPUT-DATA-005 저장된 웹 항목의 제목이 바뀌면 연결된 웹 조회와 선택 목록에 함께 반영된다") {
+        test("TC-MEMO-DETAIL-DATA-031 TC-MEMO-WEB-INPUT-DATA-005 저장된 웹 항목의 제목이 바뀌면 연결된 웹 조회와 선택 목록에 함께 반영된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val web = web(title = FIRST_WEB_TITLE)

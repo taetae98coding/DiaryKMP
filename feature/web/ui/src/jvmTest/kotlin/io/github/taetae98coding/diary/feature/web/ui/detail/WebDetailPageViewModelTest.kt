@@ -223,6 +223,21 @@ class WebDetailPageViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-WEB-DETAIL-DATA-022 URL 방식에서는 웹 페이지를 원격에 요청하지 않는다") {
+            runTest(mainDispatcher) {
+                val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
+                val viewModel = viewModel(fetchWebPageUseCase = fetchWebPageUseCase)
+
+                // URL 방식은 불러오기를 시작하지 않으므로 화면이 유지되고 새로고침이 와도 요청이 나가지 않는다.
+                advanceUntilIdle()
+                viewModel.refresh()
+                advanceUntilIdle()
+
+                coVerify(exactly = 0) { fetchWebPageUseCase(parameter = any()) }
+                viewModel.uiState.value shouldBe WebDetailPageUiState.Loading
+            }
+        }
+
         test("TC-WEB-DETAIL-FEATURE-013 TC-WEB-DETAIL-DOMAIN-007 TC-WEB-DETAIL-DOMAIN-012 TC-WEB-DETAIL-DOMAIN-039 다시 불러오기는 응답 본문 방식이 처음 될 때 한 번만 일어난다") {
             runTest(mainDispatcher) {
                 val webPage = webPage()

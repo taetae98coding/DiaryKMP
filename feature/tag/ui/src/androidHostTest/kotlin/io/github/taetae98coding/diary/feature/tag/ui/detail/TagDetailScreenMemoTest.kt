@@ -31,6 +31,7 @@ import io.github.taetae98coding.diary.compose.memo.MemoListItem
 import io.github.taetae98coding.diary.compose.memo.MemoListState
 import io.github.taetae98coding.diary.compose.memo.UpdateMemoListTodayEffect
 import io.github.taetae98coding.diary.core.model.memo.Memo
+import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.feature.tag.ui.allDayMemoDateTime
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemoPagingData
@@ -330,6 +331,29 @@ class TagDetailScreenMemoTest {
 
     private fun memoViewModel(): TagDetailMemoViewModel = requireNotNull(memoViewModelRef)
 
+    @Test
+    fun `TC-TAG-DETAIL-MEMO-DATA-006 대상 태그를 조회하지 못해도 메모 목록은 노출 기준대로 표시된다`() {
+        composeRule.setTagDetailScreen(
+            viewModel = screenTestViewModel(MutableStateFlow(TagDetailUiState.Loading)),
+            memoPagingData = tagMemoPagingData(itemList = listOf(MemoListItem.Content(memo = tagMemo(title = INDEPENDENT_MEMO_TITLE)))),
+        )
+        composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithText(INDEPENDENT_MEMO_TITLE).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-TAG-DETAIL-DOMAIN-015 대상 태그를 조회하지 못해도 표시 범위가 메모 목록 조회에 적용된다`() {
+        composeRule.setTagDetailScreen(viewModel = screenTestViewModel(MutableStateFlow(TagDetailUiState.Loading)))
+        composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_SCOPE_BUTTON_DESCRIPTION).performClick()
+        composeRule.onNodeWithText(DEFAULT_CHILD_SCOPE_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { checkNotNull(memoViewModelRef).select(scope = TagScope.CHILD) }
+    }
+
     private fun setTagDetailScreenOnMemoTab(
         memoPagingData: PagingData<MemoListItem> = tagMemoPagingData(itemList = emptyList()),
         memoTabDescription: String = DEFAULT_MEMO_TAB_DESCRIPTION,
@@ -387,6 +411,9 @@ class TagDetailScreenMemoTest {
         const val DEFAULT_UNDO_ACTION = "Undo"
         const val KOREAN_UNDO_ACTION = "실행 취소"
         const val DEFAULT_ADD_DESCRIPTION = "Add memo"
+        const val DEFAULT_SCOPE_BUTTON_DESCRIPTION = "Display scope"
+        const val DEFAULT_CHILD_SCOPE_LABEL = "Direct children"
+        const val INDEPENDENT_MEMO_TITLE = "TagDetailIndependentMemo"
         const val DEFAULT_FINISHED_LIST_LABEL = "Finished memos"
         const val DEFAULT_TODAY_HEADER = "Today"
         const val SCREEN_MEMO_TITLE = "TagDetailScreenMemo"

@@ -149,6 +149,25 @@ class TagDetailPlaceScreenTest {
         composeRule.onNodeWithContentDescription(DEFAULT_SHOW_LIST_DESCRIPTION).assert(hasClickAction())
     }
 
+    @Test
+    fun `TC-TAG-DETAIL-PLACE-DOMAIN-008 상세 대상이 다른 태그로 바뀌어도 보기 모드를 유지한다`() {
+        val uiStateFlow = MutableStateFlow<TagDetailUiState>(tagDetailUiState(detail = tagDetail(TAG_TITLE)))
+        composeRule.setTagDetailScreen(
+            viewModel = screenTestViewModel(uiStateFlow),
+            placePagingData = tagEntityPagingData(itemList = listOf(tagPlace(title = PLACE_TITLE))),
+        )
+        composeRule.selectTagDetailTab(DEFAULT_PLACE_TAB_DESCRIPTION)
+        composeRule.onNodeWithContentDescription(DEFAULT_SHOW_MAP_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { uiStateFlow.value = tagDetailUiState(id = SECOND_TAG_ID, detail = tagDetail(OTHER_TAG_TITLE)) }
+        composeRule.waitForIdle()
+
+        // 보기 모드를 들고 있는 상태가 그대로이면 지도 위치도 같은 상태에 남아 있다.
+        composeRule.onNodeWithText(PLACE_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_SHOW_LIST_DESCRIPTION).assert(hasClickAction())
+    }
+
     private fun setScreenOnPlaceTab(
         uiState: TagDetailUiState = tagDetailUiState(detail = tagDetail(TAG_TITLE)),
         placePagingData: PagingData<Place> = tagEntityPagingData(itemList = emptyList()),
@@ -181,6 +200,8 @@ class TagDetailPlaceScreenTest {
 
     private companion object {
         const val PLACE_TITLE = "TagDetailScreenPlace"
+        const val OTHER_TAG_TITLE = "TagDetailOtherTag"
+        val SECOND_TAG_ID: Uuid = Uuid.parse("00000000-0000-0000-0000-000000000002")
         const val DEFAULT_EMPTY_TITLE = "No places linked to this tag"
         const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add place"
         const val KOREAN_ADD_BUTTON_DESCRIPTION = "장소 추가"

@@ -256,6 +256,47 @@ class MemoHomeFilterViewModelTest : FunSpec() {
                 }
             }
         }
+        test("TC-MEMO-HOME-FEATURE-058 선택 전체 해제는 유무 필터의 축 상태를 바꾸지 않는다") {
+            runTest(mainDispatcher) {
+                val existence =
+                    MemoExistenceFilter(
+                        date = MemoFilterExistence.EXIST,
+                        tag = MemoFilterExistence.ALL,
+                        place = MemoFilterExistence.ALL,
+                    )
+                val unselectAllMemoFilterTagUseCase = mockk<UnselectAllMemoFilterTagUseCase>()
+                coEvery { unselectAllMemoFilterTagUseCase(parameter = Unit) } returns Result.success(Unit)
+                val setMemoDateExistenceFilterUseCase = mockk<SetMemoDateExistenceFilterUseCase>()
+                val setMemoTagExistenceFilterUseCase = mockk<SetMemoTagExistenceFilterUseCase>()
+                val setMemoPlaceExistenceFilterUseCase = mockk<SetMemoPlaceExistenceFilterUseCase>()
+                val viewModel =
+                    viewModel(
+                        getMemoFilterUseCase = filterUseCase(flow = flowOf(Result.success(emptyList()))),
+                        getMemoExistenceFilterUseCase = existenceFilterUseCase(flow = flowOf(Result.success(existence))),
+                        unselectAllMemoFilterTagUseCase = unselectAllMemoFilterTagUseCase,
+                        setMemoDateExistenceFilterUseCase = setMemoDateExistenceFilterUseCase,
+                        setMemoTagExistenceFilterUseCase = setMemoTagExistenceFilterUseCase,
+                        setMemoPlaceExistenceFilterUseCase = setMemoPlaceExistenceFilterUseCase,
+                    )
+
+                viewModel.uiState.test {
+                    awaitItem()
+                    advanceUntilIdle()
+                    awaitItem() shouldBe MemoHomeFilterUiState(existence = existence)
+
+                    viewModel.unselectAllTag()
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                    cancelAndIgnoreRemainingEvents()
+                }
+
+                coVerify(exactly = 1) { unselectAllMemoFilterTagUseCase(parameter = Unit) }
+                coVerify(exactly = 0) { setMemoDateExistenceFilterUseCase(parameter = any()) }
+                coVerify(exactly = 0) { setMemoTagExistenceFilterUseCase(parameter = any()) }
+                coVerify(exactly = 0) { setMemoPlaceExistenceFilterUseCase(parameter = any()) }
+            }
+        }
     }
 
     companion object {

@@ -61,7 +61,7 @@ class MemoWebUseCaseTest :
                     }
                 }
 
-                Then("TC-MEMO-WEB-DATA-005 연결 변경을 서버와 맞추기 위한 동기화를 요청한다") {
+                Then("TC-MEMO-DETAIL-DATA-026 TC-MEMO-WEB-DATA-005 연결 변경을 서버와 맞추기 위한 동기화를 요청한다") {
                     val useCase =
                         AddMemoWebUseCase(
                             getAccountUseCase = getAccountUseCase,
@@ -107,6 +107,66 @@ class MemoWebUseCaseTest :
                             isDeleted = true,
                             updatedAt = now,
                         )
+                    }
+                }
+            }
+        }
+
+        Given("동기화 요청이 실패하도록 준비되어 있다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val getAccountUseCase = accountUseCase(account = account)
+            val requestSyncUseCase = mockk<RequestSyncUseCase>()
+            coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.failure(throwable)
+            val accountMemoWebRepository = mockk<AccountMemoWebRepository>(relaxed = true)
+            val clock = mockk<Clock>()
+            every { clock.now() } returns now
+
+            When("웹 항목를 추가한다") {
+                Then("TC-MEMO-DETAIL-DATA-027 저장한 웹 연결을 되돌리지 않는다") {
+                    val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                    val webId = fixtureMonkey.giveMeOne<Uuid>()
+                    val useCase =
+                        AddMemoWebUseCase(
+                            getAccountUseCase = getAccountUseCase,
+                            requestSyncUseCase = requestSyncUseCase,
+                            accountMemoWebRepository = accountMemoWebRepository,
+                            clock = clock,
+                        )
+
+                    val result = useCase(parameter = AddMemoWebUseCase.Parameter(memoId = memoId, webId = webId))
+
+                    result.shouldBeSuccess()
+                    coVerify(exactly = 1) {
+                        accountMemoWebRepository.upsert(account = account, memoId = memoId, webId = webId, isDeleted = false, updatedAt = now)
+                    }
+                    coVerify(exactly = 0) {
+                        accountMemoWebRepository.upsert(account = account, memoId = memoId, webId = webId, isDeleted = true, updatedAt = any())
+                    }
+                }
+            }
+
+            When("웹 항목를 해제한다") {
+                Then("TC-MEMO-DETAIL-DATA-027 저장한 웹 연결 해제를 되돌리지 않는다") {
+                    val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                    val webId = fixtureMonkey.giveMeOne<Uuid>()
+                    val useCase =
+                        RemoveMemoWebUseCase(
+                            getAccountUseCase = getAccountUseCase,
+                            requestSyncUseCase = requestSyncUseCase,
+                            accountMemoWebRepository = accountMemoWebRepository,
+                            clock = clock,
+                        )
+
+                    val result = useCase(parameter = RemoveMemoWebUseCase.Parameter(memoId = memoId, webId = webId))
+
+                    result.shouldBeSuccess()
+                    coVerify(exactly = 1) {
+                        accountMemoWebRepository.upsert(account = account, memoId = memoId, webId = webId, isDeleted = true, updatedAt = now)
+                    }
+                    coVerify(exactly = 0) {
+                        accountMemoWebRepository.upsert(account = account, memoId = memoId, webId = webId, isDeleted = false, updatedAt = any())
                     }
                 }
             }

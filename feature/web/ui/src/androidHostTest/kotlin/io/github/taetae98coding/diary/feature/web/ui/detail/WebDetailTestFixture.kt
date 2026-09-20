@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.web.ui.detail
 
+import androidx.activity.ComponentDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -18,6 +19,7 @@ import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.core.model.web.WebPage
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import org.robolectric.shadows.ShadowDialog
 import kotlin.uuid.Uuid
 
 private val fixtureMonkey: FixtureMonkey =
@@ -78,6 +80,14 @@ internal fun ComposeContentTestRule.openViewModeSheet() {
 internal fun ComposeContentTestRule.selectViewMode(label: String) {
     openViewModeSheet()
     onAllNodesWithText(label).onLast().performClick()
+    waitForIdle()
+}
+
+// Bottom Sheet에는 닫기 버튼이 없으므로 아무 방식도 고르지 않고 닫는 조작인 뒤로가기를 다이얼로그 창에 전달한다.
+internal fun ComposeContentTestRule.closeDialogByBack() {
+    val dialog = ShadowDialog.getLatestDialog() as ComponentDialog
+
+    runOnUiThread { dialog.onBackPressedDispatcher.onBackPressed() }
     waitForIdle()
 }
 

@@ -3,12 +3,17 @@
 package io.github.taetae98coding.diary.feature.memo.ui.home
 
 import androidx.paging.PagingData
+import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.memo.MemoListEffect
+import io.github.taetae98coding.diary.compose.memo.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.core.model.memo.Memo
+import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
+import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
 import io.github.taetae98coding.diary.core.model.tag.Tag
@@ -21,6 +26,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.RestartMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -39,6 +45,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.datetime.LocalDate
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -292,6 +299,27 @@ class MemoHomeViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-MEMO-HOME-FEATURE-051 기본순이 아닌 정렬에서는 날짜 헤더를 표시하지 않는다") {
+            runTest(mainDispatcher) {
+                val memo = datedMemo()
+                val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
+                every { pageMemoHomeUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(listOf(memo))))
+                val viewModel = viewModel(pageMemoHomeUseCase = pageMemoHomeUseCase)
+
+                viewModel.memoPagingData.test {
+                    val defaultItemList = flowOf(awaitItem()).asSnapshot()
+                    defaultItemList.filterIsInstance<MemoListItem.DateHeader>().size shouldBe 1
+
+                    viewModel.select(sort = ListSort.TITLE)
+
+                    val titleItemList = flowOf(awaitItem()).asSnapshot()
+                    titleItemList.filterIsInstance<MemoListItem.DateHeader>().shouldBeEmpty()
+                    titleItemList.filterIsInstance<MemoListItem.Content>().map { item -> item.memo } shouldBe listOf(memo)
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
         test("MemoHome 목록 조회에 실패하면 빈 PagingData를 노출한다") {
             runTest(mainDispatcher) {
                 val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
@@ -349,6 +377,16 @@ class MemoHomeViewModelTest : FunSpec() {
                 .giveMeKotlinBuilder<Tag>()
                 .setExp(Tag::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
                 .setExp(Tag::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .sample()
+
+        private fun datedMemo(): Memo =
+            fixtureMonkey
+                .giveMeKotlinBuilder<Memo>()
+                .setExp(
+                    Memo::detail,
+                    fixtureMonkey.giveMeOne<MemoDetail>().copy(dateTime = MemoDateTime.AllDay(dateRange = LocalDate(2026, 1, 1)..LocalDate(2026, 1, 1))),
+                ).setExp(Memo::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Memo::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
                 .sample()
 
         private fun memoUseCase(): PageMemoHomeUseCase {
