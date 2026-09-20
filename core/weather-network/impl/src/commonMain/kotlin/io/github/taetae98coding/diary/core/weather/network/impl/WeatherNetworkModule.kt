@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.core.weather.network.impl
 
 import io.github.taetae98coding.diary.core.weather.network.impl.di.WeatherHttpClient
 import io.github.taetae98coding.diary.core.weather.network.impl.di.WeatherHttpClientEngine
+import io.github.taetae98coding.diary.library.ktor.createPlatformHttpClientEngine
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.DefaultRequest
@@ -18,6 +19,10 @@ import org.koin.core.annotation.Single
 @ComponentScan
 @Configuration
 public class WeatherNetworkModule {
+    @Single
+    @WeatherHttpClientEngine
+    internal fun providesWeatherHttpClientEngine(): HttpClientEngine = createPlatformHttpClientEngine()
+
     @Single
     @WeatherHttpClient
     internal fun providesWeatherHttpClient(

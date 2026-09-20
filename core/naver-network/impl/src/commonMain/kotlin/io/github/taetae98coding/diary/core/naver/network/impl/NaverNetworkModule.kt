@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.core.naver.network.impl
 
 import io.github.taetae98coding.diary.core.naver.network.impl.di.NaverHttpClient
 import io.github.taetae98coding.diary.core.naver.network.impl.di.NaverHttpClientEngine
+import io.github.taetae98coding.diary.library.ktor.createPlatformHttpClientEngine
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.DefaultRequest
@@ -19,6 +20,10 @@ import org.koin.core.annotation.Single
 @ComponentScan
 @Configuration
 public class NaverNetworkModule {
+    @Single
+    @NaverHttpClientEngine
+    internal fun providesNaverHttpClientEngine(): HttpClientEngine = createPlatformHttpClientEngine()
+
     @Single
     @NaverHttpClient
     internal fun providesNaverHttpClient(

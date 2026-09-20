@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.core.google.network.impl
 
 import io.github.taetae98coding.diary.core.google.network.impl.di.GoogleHttpClient
 import io.github.taetae98coding.diary.core.google.network.impl.di.GoogleHttpClientEngine
+import io.github.taetae98coding.diary.library.ktor.createPlatformHttpClientEngine
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.DefaultRequest
@@ -21,6 +22,10 @@ import org.koin.core.annotation.Single
 @ComponentScan
 @Configuration
 public class GoogleNetworkModule {
+    @Single
+    @GoogleHttpClientEngine
+    internal fun providesGoogleHttpClientEngine(): HttpClientEngine = createPlatformHttpClientEngine()
+
     @Single
     @GoogleHttpClient
     internal fun providesGoogleHttpClient(

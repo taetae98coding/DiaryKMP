@@ -9,6 +9,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.core.webNetwork.api)
+                implementation(projects.library.ktor)
 
                 implementation(ktorLibs.client.core)
             }
@@ -17,24 +18,6 @@ kotlin {
         jvmTest {
             dependencies {
                 implementation(ktorLibs.client.mock)
-            }
-        }
-
-        iosMain {
-            dependencies {
-                implementation(ktorLibs.client.darwin)
-            }
-        }
-
-        wasmJsMain {
-            dependencies {
-                implementation(ktorLibs.client.js)
-            }
-        }
-
-        jvmMain {
-            dependencies {
-                implementation(ktorLibs.client.okhttp)
             }
         }
     }

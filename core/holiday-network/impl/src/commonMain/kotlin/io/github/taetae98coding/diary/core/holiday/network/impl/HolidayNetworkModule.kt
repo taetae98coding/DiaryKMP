@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.core.holiday.network.impl
 
 import io.github.taetae98coding.diary.core.holiday.network.impl.di.HolidayHttpClient
 import io.github.taetae98coding.diary.core.holiday.network.impl.di.HolidayHttpClientEngine
+import io.github.taetae98coding.diary.library.ktor.createPlatformHttpClientEngine
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.DefaultRequest
@@ -18,6 +19,10 @@ import org.koin.core.annotation.Single
 @Configuration
 @ComponentScan
 public class HolidayNetworkModule {
+    @Single
+    @HolidayHttpClientEngine
+    internal fun providesHolidayHttpClientEngine(): HttpClientEngine = createPlatformHttpClientEngine()
+
     @Single
     @HolidayHttpClient
     internal fun providesHolidayHttpClient(

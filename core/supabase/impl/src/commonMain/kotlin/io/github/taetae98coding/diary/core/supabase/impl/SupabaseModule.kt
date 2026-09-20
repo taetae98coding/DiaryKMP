@@ -5,6 +5,7 @@ import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.functions.Functions
 import io.github.taetae98coding.diary.core.supabase.impl.di.SupabaseHttpClientEngine
+import io.github.taetae98coding.diary.library.ktor.createPlatformHttpClientEngine
 import io.ktor.client.engine.HttpClientEngine
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Configuration
@@ -15,6 +16,10 @@ import org.koin.core.annotation.Single
 @ComponentScan
 @Configuration
 public class SupabaseModule {
+    @Single
+    @SupabaseHttpClientEngine
+    internal fun providesSupabaseHttpClientEngine(): HttpClientEngine = createPlatformHttpClientEngine()
+
     @Single
     internal fun providesSupabaseClient(
         config: SupabaseConfig,

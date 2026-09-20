@@ -9,25 +9,8 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.core.supabase.api)
+                implementation(projects.library.ktor)
                 implementation(libs.supabase.functions)
-            }
-        }
-
-        androidJvmMain {
-            dependencies {
-                implementation(ktorLibs.client.okhttp)
-            }
-        }
-
-        iosMain {
-            dependencies {
-                implementation(ktorLibs.client.darwin)
-            }
-        }
-
-        wasmJsMain {
-            dependencies {
-                implementation(ktorLibs.client.js)
             }
         }
 
