@@ -5,25 +5,19 @@ import { createAdminClient, createUserClient, requireUserId } from "../_shared/s
 
 const BUCKET = "profile-image";
 
-// 버킷의 allowed_mime_types와 같은 목록이며, 저장 파일명을 만들 확장자를 함께 둔다.
-const EXTENSION_BY_MIME_TYPE: Record<string, string> = {
-  "image/png": "png",
-  "image/jpeg": "jpg",
-  "image/webp": "webp",
-  "image/gif": "gif",
-};
+// 앱이 고른 사진을 JPEG로 바꿔 올리므로 버킷의 allowed_mime_types와 같이 JPEG만 받는다.
+const JPEG_MIME_TYPE = "image/jpeg";
+const JPEG_EXTENSION = "jpg";
 
 // 버킷의 file_size_limit과 같은 값이라 초과분은 업로드 전에 걸러낸다.
 const MAX_CONTENT_BYTES = 5 * 1024 * 1024;
 
-function requireMimeType(request: Request): string {
+function requireJpeg(request: Request): void {
   const mimeType = request.headers.get("Content-Type")?.split(";")[0].trim() ?? "";
 
-  if (!(mimeType in EXTENSION_BY_MIME_TYPE)) {
-    throw new HttpError(400, "invalid_parameters", { mimeType: ["mimeType is not supported."] });
+  if (mimeType !== JPEG_MIME_TYPE) {
+    throw new HttpError(400, "invalid_parameters", { mimeType: [`mimeType must be ${JPEG_MIME_TYPE}.`] });
   }
-
-  return mimeType;
 }
 
 // 본문을 흘려받기 전에 Content-Length로 먼저 거른다. 길이를 믿을 수 없는 요청은
@@ -51,13 +45,13 @@ async function readContent(request: Request): Promise<Uint8Array> {
 serve(async (request) => {
   const client = createUserClient(request);
   const accountId = await requireUserId(client, request);
-  const mimeType = requireMimeType(request);
+  requireJpeg(request);
   const content = await readContent(request);
-  const path = `${accountId}/${crypto.randomUUID()}.${EXTENSION_BY_MIME_TYPE[mimeType]}`;
+  const path = `${accountId}/${crypto.randomUUID()}.${JPEG_EXTENSION}`;
 
   const { error: uploadError } = await client.storage
     .from(BUCKET)
-    .upload(path, content, { contentType: mimeType, upsert: false });
+    .upload(path, content, { contentType: JPEG_MIME_TYPE, upsert: false });
 
   if (uploadError) {
     console.error("profile image upload failed", uploadError);
