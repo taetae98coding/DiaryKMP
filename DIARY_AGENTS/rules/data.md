@@ -11,6 +11,25 @@
 
 `core:*`가 `core:database:api`와 `core:network:api`를 함께 참조하고 있으면 그 모듈은 data 책임을 들고 있는 것이므로 `data:*`로 옮긴다.
 
+### 매퍼의 소유
+
+엔티티와 모델 사이의 변환은 그 엔티티를 읽고 쓰는 `data:*`가 소유한다. 매퍼를 별도 `core:*` 모듈에 모으면 그 모듈이 모든 저장소·네트워크 API를 참조하는 허브가 되어 위 경계를 어기고, 엔티티 하나를 바꿀 때 무관한 data 모듈까지 다시 컴파일된다.
+
+| 변환 | 소유 모듈 | 예 |
+| --- | --- | --- |
+| 로컬 엔티티 ↔ 모델 | 그 Repository를 구현하는 `data:*` | `data:tag`의 `TagLocalEntity.toDomain()` |
+| 로컬 엔티티 ↔ 원격 엔티티 | 그 교환을 수행하는 `data:sync` | `data:sync`의 `TagLocalEntity.toRemote()` |
+| 외부 API 응답 → 모델 | 그 API를 호출하는 `data:*` | `data:place`의 `NaverPlaceRemoteEntity.toDomain()` |
+| 여러 `data:*`가 함께 쓰는 변환 | `data:core` | `ListSort.toLocal()` |
+
+다른 `data:*`가 쓰는 매퍼만 `public`으로 두고, 그 모듈 안에서만 쓰는 매퍼는 `internal`로 둔다.
+
+## 계층 의존 방향
+
+Repository·Manager 계약은 `domain:*`이 선언하고 `data:*`가 구현한다. 의존은 `data:* → domain:*` 방향이고, `domain:*`은 어떤 `data:*`도 참조하지 않는다.
+
+Android 공식 아키텍처 가이드와 Now in Android는 반대 방향(`domain → data`, Repository 인터페이스를 data 계층에 둠)을 권장한다. 이 저장소는 domain을 구현 세부에서 독립시키고 data를 교체 가능한 플러그인으로 두기 위해 Clean Architecture의 의존성 역전을 택했으므로, 이 항목에서는 `참고 우선순위`보다 이 문서를 우선한다.
+
 ## data 계층 에러 처리
 
 data 계층은 발생한 에러를 삼키지 않고 호출자에게 그대로 전파한다. 에러를 어떻게 다룰지는 제품 정책이므로 UseCase에서 판단한다.
