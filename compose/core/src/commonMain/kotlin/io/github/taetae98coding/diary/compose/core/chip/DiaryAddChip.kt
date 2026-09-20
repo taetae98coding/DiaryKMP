@@ -1,7 +1,6 @@
 package io.github.taetae98coding.diary.compose.core.chip
 
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.onClick
@@ -19,7 +18,7 @@ public fun DiaryAddChip(
 ) {
     DiaryAssistChip(
         onClick = onClick,
-        label = { Text(text = label) },
+        label = label,
         modifier =
             modifier.semantics {
                 // 칩의 클릭 동작은 유지하고 이름만 덧붙이도록 action을 비워 둔다.

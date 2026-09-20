@@ -2,7 +2,6 @@ package io.github.taetae98coding.diary.feature.memo.ui.tag
 
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -41,7 +40,7 @@ internal fun MemoTagChip(
 
     DiaryAssistChip(
         onClick = onClick,
-        label = { Text(text = tag.detail.emojiWithTitle) },
+        label = tag.detail.emojiWithTitle,
         modifier =
             modifier.semantics {
                 // 칩의 클릭 동작은 유지하고 이름만 덧붙이도록 action을 비워 둔다.

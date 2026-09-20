@@ -3,7 +3,6 @@ package io.github.taetae98coding.diary.feature.more.ui.home
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -29,7 +28,7 @@ internal fun MoreHomeAccountChipRow(
             is MoreHomeAccountUiState.Loading -> {
                 DiaryAssistChip(
                     onClick = {},
-                    label = {},
+                    label = "",
                     modifier = Modifier.width(80.dp),
                 )
             }
@@ -37,7 +36,7 @@ internal fun MoreHomeAccountChipRow(
             is MoreHomeAccountUiState.Guest -> {
                 DiaryAssistChip(
                     onClick = { onEvent(MoreHomeScaffoldEvent.ClickSignIn) },
-                    label = { Text(text = stringResource(Res.string.more_sign_in_chip_label)) },
+                    label = stringResource(Res.string.more_sign_in_chip_label),
                     leadingIcon = { SignInIcon() },
                 )
             }
@@ -45,7 +44,7 @@ internal fun MoreHomeAccountChipRow(
             is MoreHomeAccountUiState.User -> {
                 DiaryAssistChip(
                     onClick = { onEvent(MoreHomeScaffoldEvent.ClickSignOut) },
-                    label = { Text(text = stringResource(Res.string.more_sign_out_chip_label)) },
+                    label = stringResource(Res.string.more_sign_out_chip_label),
                     leadingIcon = { SignOutIcon() },
                 )
             }

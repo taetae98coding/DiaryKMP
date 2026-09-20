@@ -2,7 +2,6 @@ package io.github.taetae98coding.diary.compose.tag
 
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -35,7 +34,7 @@ public fun TagFilterChip(
                 onEvent(TagFilterEvent.Select(id = tag.id))
             }
         },
-        label = { Text(text = tag.detail.emojiWithTitle) },
+        label = tag.detail.emojiWithTitle,
         modifier = modifier,
         enabled = isEnabled,
         leadingIcon = {

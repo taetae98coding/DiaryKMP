@@ -1,7 +1,6 @@
 package io.github.taetae98coding.diary.feature.memo.ui.place
 
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -28,7 +27,7 @@ internal fun MemoPlaceChip(
 
     DiaryAssistChip(
         onClick = onClick,
-        label = { Text(text = place.detail.title) },
+        label = place.detail.title,
         modifier =
             modifier.semantics {
                 onClick(label = showOnMapActionLabel, action = null)

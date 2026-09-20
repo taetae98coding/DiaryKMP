@@ -7,7 +7,6 @@ import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.ChipColors
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -17,7 +16,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 
 @Composable
 public fun DiaryAssistChip(
-    label: @Composable () -> Unit,
+    label: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -29,8 +28,8 @@ public fun DiaryAssistChip(
     ) {
         AssistChip(
             onClick = onClick,
-            label = label,
-            modifier = modifier,
+            label = { DiaryChipLabel(label = label) },
+            modifier = modifier.shrinkToAvailableWidth(),
             leadingIcon = leadingIcon,
             shape = CircleShape,
             colors = colors,
@@ -45,7 +44,7 @@ private fun DiaryAssistChipPreview() {
     DiaryTheme {
         Surface {
             DiaryAssistChip(
-                label = { Text(text = "Tag") },
+                label = "Tag",
                 onClick = {},
             )
         }
