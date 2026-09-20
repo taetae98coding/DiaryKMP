@@ -5,23 +5,22 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import io.github.taetae98coding.diary.notification.Notification
 import io.github.taetae98coding.diary.notification.NotificationChannel
-import io.github.taetae98coding.diary.notification.Notifier
 import org.koin.android.annotation.KoinWorker
 
 @KoinWorker
 internal class DailyMemoNotificationWorker(
     context: Context,
     parameters: WorkerParameters,
-    private val notifier: Notifier,
+    private val work: DailyMemoNotificationWork,
 ) : CoroutineWorker(context, parameters) {
     override suspend fun doWork(): Result {
-        notifier.notify(notification = applicationContext.dailyMemoNotification())
+        work.doWork()
 
         return Result.success()
     }
 }
 
-internal fun Context.dailyMemoNotification(): Notification =
+internal fun Context.dailyMemoNotification(content: DailyMemoNotificationContent): Notification =
     Notification(
         id = DAILY_MEMO_NOTIFICATION_ID,
         channel =
@@ -31,5 +30,21 @@ internal fun Context.dailyMemoNotification(): Notification =
                 description = getString(R.string.daily_memo_notification_channel_description),
                 isSilent = true,
             ),
-        title = getString(R.string.daily_memo_notification_title),
+        title = dailyMemoNotificationTitle(content = content),
+        body = dailyMemoNotificationBody(content = content),
     )
+
+private fun Context.dailyMemoNotificationTitle(content: DailyMemoNotificationContent): String =
+    when (content) {
+        is DailyMemoNotificationContent.Loaded -> {
+            val count = content.memoList.size
+
+            if (count == 0) {
+                getString(R.string.daily_memo_notification_title_empty)
+            } else {
+                resources.getQuantityString(R.plurals.daily_memo_notification_title_count, count, count)
+            }
+        }
+
+        DailyMemoNotificationContent.Unavailable -> getString(R.string.daily_memo_notification_title)
+    }

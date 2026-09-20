@@ -1,7 +1,6 @@
 package io.github.taetae98coding.diary.work.daily.memo
 
 import io.github.taetae98coding.diary.domain.memo.DailyMemoNotificationManager
-import io.github.taetae98coding.diary.notification.Notifier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
@@ -16,7 +15,7 @@ import kotlin.time.Instant
 
 internal class TimerDailyMemoNotificationManager(
     private val clock: Clock,
-    private val notifier: Notifier,
+    private val work: DailyMemoNotificationWork,
     private val scope: CoroutineScope,
     private val currentTimeZone: () -> TimeZone = { TimeZone.currentSystemDefault() },
 ) : DailyMemoNotificationManager {
@@ -36,7 +35,7 @@ internal class TimerDailyMemoNotificationManager(
             val next = nextDailyMemoNotificationInstant(from = from, time = time, timeZone = currentTimeZone())
 
             delay(next - clock.now())
-            notifier.notify(notification = dailyMemoNotification())
+            work.doWork()
 
             // 방금 알린 시각이 다음 후보로 다시 뽑히지 않도록 그 시각 바로 뒤에서 다음 시각을 찾는다.
             from = next + 1.milliseconds

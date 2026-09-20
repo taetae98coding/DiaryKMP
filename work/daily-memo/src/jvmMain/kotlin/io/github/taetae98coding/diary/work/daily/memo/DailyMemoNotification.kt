@@ -7,10 +7,13 @@ import java.util.ResourceBundle
 
 private const val DAILY_MEMO_NOTIFICATION_BUNDLE_NAME = "io/github/taetae98coding/diary/work/daily/memo/DailyMemoNotification"
 private const val DAILY_MEMO_NOTIFICATION_TITLE_KEY = "daily_memo_notification_title"
+private const val DAILY_MEMO_NOTIFICATION_TITLE_EMPTY_KEY = "daily_memo_notification_title_empty"
+private const val DAILY_MEMO_NOTIFICATION_TITLE_ONE_KEY = "daily_memo_notification_title_one"
+private const val DAILY_MEMO_NOTIFICATION_TITLE_OTHER_KEY = "daily_memo_notification_title_other"
 private const val DAILY_MEMO_NOTIFICATION_CHANNEL_NAME_KEY = "daily_memo_notification_channel_name"
 private const val DAILY_MEMO_NOTIFICATION_CHANNEL_DESCRIPTION_KEY = "daily_memo_notification_channel_description"
 
-internal actual fun dailyMemoNotification(): Notification {
+internal actual fun dailyMemoNotification(content: DailyMemoNotificationContent): Notification {
     val bundle = dailyMemoNotificationBundle(locale = Locale.getDefault())
 
     return Notification(
@@ -22,11 +25,28 @@ internal actual fun dailyMemoNotification(): Notification {
                 description = bundle.getString(DAILY_MEMO_NOTIFICATION_CHANNEL_DESCRIPTION_KEY),
                 isSilent = true,
             ),
-        title = bundle.getString(DAILY_MEMO_NOTIFICATION_TITLE_KEY),
+        title = bundle.dailyMemoNotificationTitle(content = content),
+        body = dailyMemoNotificationBody(content = content),
     )
 }
 
-internal fun dailyMemoNotificationTitle(locale: Locale = Locale.getDefault()): String = dailyMemoNotificationBundle(locale = locale).getString(DAILY_MEMO_NOTIFICATION_TITLE_KEY)
+internal fun dailyMemoNotificationTitle(
+    content: DailyMemoNotificationContent,
+    locale: Locale = Locale.getDefault(),
+): String = dailyMemoNotificationBundle(locale = locale).dailyMemoNotificationTitle(content = content)
+
+private fun ResourceBundle.dailyMemoNotificationTitle(content: DailyMemoNotificationContent): String =
+    when (content) {
+        is DailyMemoNotificationContent.Loaded -> {
+            when (val count = content.memoList.size) {
+                0 -> getString(DAILY_MEMO_NOTIFICATION_TITLE_EMPTY_KEY)
+                1 -> getString(DAILY_MEMO_NOTIFICATION_TITLE_ONE_KEY).format(count)
+                else -> getString(DAILY_MEMO_NOTIFICATION_TITLE_OTHER_KEY).format(count)
+            }
+        }
+
+        DailyMemoNotificationContent.Unavailable -> getString(DAILY_MEMO_NOTIFICATION_TITLE_KEY)
+    }
 
 private fun dailyMemoNotificationBundle(locale: Locale): ResourceBundle =
     ResourceBundle.getBundle(

@@ -49,14 +49,25 @@ class AndroidNotifierTest {
     }
 
     @Test
-    fun `알림에는 본문 문구를 두지 않는다`() {
-        notify(fixtureMonkey.giveMeOne<Notification>())
+    fun `본문이 비어 있으면 알림에 본문 문구를 두지 않는다`() {
+        notify(fixtureMonkey.giveMeOne<Notification>().copy(body = ""))
 
-        shadowOf(notificationManager())
-            .allNotifications
-            .single()
-            .extras
-            .getString(AndroidNotification.EXTRA_TEXT) shouldBe null
+        val extras = shadowOf(notificationManager()).allNotifications.single().extras
+
+        extras.getString(AndroidNotification.EXTRA_TEXT) shouldBe null
+        extras.getString(AndroidNotification.EXTRA_BIG_TEXT) shouldBe null
+    }
+
+    @Test
+    fun `본문이 있으면 알림 본문에 그대로 담고 펼치면 전체가 보이는 긴 글 스타일을 쓴다`() {
+        val body = "- first\n- second\n- third"
+
+        notify(fixtureMonkey.giveMeOne<Notification>().copy(body = body))
+
+        val extras = shadowOf(notificationManager()).allNotifications.single().extras
+
+        extras.getString(AndroidNotification.EXTRA_TEXT) shouldBe body
+        extras.getString(AndroidNotification.EXTRA_BIG_TEXT) shouldBe body
     }
 
     @Test

@@ -16,7 +16,7 @@ internal class JvmNotifier : Notifier {
             // 데스크톱은 알림을 띄울 창구가 트레이 아이콘뿐이라, 알림을 표시하는 동안에는 아이콘이 트레이에 남아 있어야 한다.
             val icon = trayIcon ?: addTrayIcon()?.also { added -> trayIcon = added } ?: return@withContext
 
-            icon.displayMessage(notification.title, null, TrayIcon.MessageType.NONE)
+            icon.displayMessage(notification.title, notification.body.takeIf { body -> body.isNotEmpty() }, TrayIcon.MessageType.NONE)
         }
     }
 

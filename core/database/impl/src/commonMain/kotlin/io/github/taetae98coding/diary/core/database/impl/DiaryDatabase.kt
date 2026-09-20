@@ -25,6 +25,7 @@ import io.github.taetae98coding.diary.core.database.impl.dao.AccountCalendarCont
 import io.github.taetae98coding.diary.core.database.impl.dao.AccountCalendarMemoDao
 import io.github.taetae98coding.diary.core.database.impl.dao.AccountContactDao
 import io.github.taetae98coding.diary.core.database.impl.dao.AccountContactSyncDao
+import io.github.taetae98coding.diary.core.database.impl.dao.AccountDailyMemoDao
 import io.github.taetae98coding.diary.core.database.impl.dao.AccountDataDao
 import io.github.taetae98coding.diary.core.database.impl.dao.AccountMemoDao
 import io.github.taetae98coding.diary.core.database.impl.dao.AccountMemoPlaceDao
@@ -146,6 +147,8 @@ internal abstract class DiaryDatabase : RoomDatabase() {
     abstract fun accountTagMemoDao(): AccountTagMemoDao
 
     abstract fun accountCalendarMemoDao(): AccountCalendarMemoDao
+
+    abstract fun accountDailyMemoDao(): AccountDailyMemoDao
 
     abstract fun accountMemoSyncDao(): AccountMemoSyncDao
 

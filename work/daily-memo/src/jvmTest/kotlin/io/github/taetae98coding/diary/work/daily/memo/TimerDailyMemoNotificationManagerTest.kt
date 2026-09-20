@@ -2,15 +2,27 @@
 
 package io.github.taetae98coding.diary.work.daily.memo
 
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.core.model.memo.DailyMemo
+import io.github.taetae98coding.diary.domain.memo.usecase.GetDailyMemoUseCase
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.notification.Notification
+import io.github.taetae98coding.diary.notification.Notifier
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.mockk.coEvery
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
@@ -23,6 +35,8 @@ import kotlin.time.Instant
 
 private val SEOUL = TimeZone.of("Asia/Seoul")
 private val EIGHT_AM = LocalTime(hour = 8, minute = 0)
+
+private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class TimerDailyMemoNotificationManagerTest :
     FunSpec({
@@ -132,22 +146,60 @@ class TimerDailyMemoNotificationManagerTest :
                     )
             }
         }
+
+        test("TC-DAILY-MEMO-NOTIFICATION-DOMAIN-014 알림 내용은 알림이 발생하는 시점의 메모로 정한다") {
+            runTest {
+                val today = LocalDate(2026, 9, 8)
+                val firstMemo = fixtureMonkey.giveMeOne<DailyMemo>()
+                val secondMemo = fixtureMonkey.giveMeOne<DailyMemo>()
+                val memoListFlow = MutableStateFlow(Result.success(listOf(firstMemo)))
+                val getDailyMemoUseCase = mockk<GetDailyMemoUseCase>()
+                every { getDailyMemoUseCase(parameter = today) } returns memoListFlow
+                val notifiedList = mutableListOf<Notification>()
+                val notifier = mockk<Notifier>()
+                coEvery { notifier.notify(notification = any()) } coAnswers { notifiedList += firstArg<Notification>() }
+                val clock = testClock(start = LocalDateTime(date = today, time = LocalTime(hour = 6, minute = 0)).toInstant(SEOUL))
+                val work =
+                    DailyMemoNotificationWork(
+                        getDailyMemoUseCase = getDailyMemoUseCase,
+                        notifier = notifier,
+                        clock = clock,
+                        createNotification = { content -> fixtureMonkey.giveMeOne<Notification>().copy(body = dailyMemoNotificationBody(content = content)) },
+                        currentTimeZone = { SEOUL },
+                    )
+
+                TimerDailyMemoNotificationManager(clock = clock, work = work, scope = backgroundScope, currentTimeZone = { SEOUL }).schedule(time = EIGHT_AM)
+
+                advanceTimeBy(1.hours)
+                memoListFlow.value = Result.success(listOf(firstMemo, secondMemo))
+                advanceTimeBy(1.hours)
+                runCurrent()
+
+                notifiedList.single().body shouldBe listOf(firstMemo, secondMemo).joinToString(separator = "\n") { memo -> "- ${memo.title}" }
+            }
+        }
     })
 
-private fun TestScope.testClock(start: Instant): Clock =
-    object : Clock {
-        override fun now(): Instant = start + testScheduler.currentTime.milliseconds
-    }
+private fun TestScope.testClock(start: Instant): Clock {
+    val clock = mockk<Clock>()
+    every { clock.now() } answers { start + testScheduler.currentTime.milliseconds }
+
+    return clock
+}
 
 private fun scheduler(
     clock: Clock,
     notifiedInstantList: MutableList<Instant>,
     scope: CoroutineScope,
     currentTimeZone: () -> TimeZone = { SEOUL },
-): TimerDailyMemoNotificationManager =
-    TimerDailyMemoNotificationManager(
+): TimerDailyMemoNotificationManager {
+    val work = mockk<DailyMemoNotificationWork>()
+    coEvery { work.doWork() } coAnswers { notifiedInstantList += clock.now() }
+
+    return TimerDailyMemoNotificationManager(
         clock = clock,
-        notifier = { _ -> notifiedInstantList += clock.now() },
+        work = work,
         scope = scope,
         currentTimeZone = currentTimeZone,
     )
+}

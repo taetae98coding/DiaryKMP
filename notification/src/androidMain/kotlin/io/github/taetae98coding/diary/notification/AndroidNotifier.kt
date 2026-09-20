@@ -19,12 +19,20 @@ internal class AndroidNotifier(
                 .Builder(context, notification.channel.id)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(notification.title)
+                .setBody(notification.body)
                 .setContentIntent(context.launchAppPendingIntent())
                 .setAutoCancel(true)
                 .build()
 
         // 같은 알림 ID를 쓰면 시스템이 앞서 표시한 알림을 새 알림으로 대신하므로 같은 알림은 하나만 남는다.
         manager.notify(notification.id.hashCode(), androidNotification)
+    }
+
+    // 접힌 알림은 본문을 한 줄만 보여 주므로, 펼쳤을 때 여러 줄이 보이도록 긴 글 스타일을 함께 둔다.
+    private fun AndroidNotification.Builder.setBody(body: String): AndroidNotification.Builder {
+        if (body.isEmpty()) return this
+
+        return setContentText(body).setStyle(AndroidNotification.BigTextStyle().bigText(body))
     }
 
     private fun NotificationChannel.toAndroidChannel(): AndroidNotificationChannel =

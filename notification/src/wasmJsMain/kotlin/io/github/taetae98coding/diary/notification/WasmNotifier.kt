@@ -6,6 +6,7 @@ internal class WasmNotifier : Notifier {
     override suspend fun notify(notification: Notification) {
         showNotification(
             title = notification.title,
+            body = notification.body,
             tag = notification.id,
             isSilent = notification.channel.isSilent,
         )
@@ -16,6 +17,7 @@ internal class WasmNotifier : Notifier {
 @Suppress("UnusedParameter")
 private fun showNotification(
     title: String,
+    body: String,
     tag: String,
     isSilent: Boolean,
 ): Unit =
@@ -25,7 +27,7 @@ private fun showNotification(
             if (typeof Notification === 'undefined' || Notification.permission !== 'granted') {
                 return;
             }
-            const notification = new Notification(title, { tag: tag, silent: isSilent });
+            const notification = new Notification(title, { body: body, tag: tag, silent: isSilent });
             notification.onclick = function () {
                 window.focus();
                 notification.close();
