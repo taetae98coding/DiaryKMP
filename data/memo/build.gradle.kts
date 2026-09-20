@@ -7,7 +7,6 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.core.database.api)
-                implementation(projects.core.notification.api)
                 implementation(projects.data.core)
                 implementation(projects.data.place)
                 implementation(projects.data.tag)
