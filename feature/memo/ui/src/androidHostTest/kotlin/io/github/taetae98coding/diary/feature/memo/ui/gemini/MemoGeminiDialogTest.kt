@@ -6,6 +6,7 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -70,6 +71,7 @@ class MemoGeminiDialogTest {
     @Test
     fun `TC-MEMO-GEMINI-FEATURE-007 생성된 제목, 설명, 날짜·시간을 각각 반영할 수 있다`() {
         setDialog(uiState = MemoGeminiUiState(step = MemoGeminiStep.RESULT, draft = DRAFT))
+        awaitText(DRAFT.description)
 
         composeRule.onNodeWithText(DRAFT.title).assertExists()
         composeRule.onNodeWithText(DRAFT.description).assertExists()
@@ -217,6 +219,13 @@ class MemoGeminiDialogTest {
         composeRule.onNodeWithText("Sep 21, 2026 9:30 AM – Sep 21, 2026 10:30 AM").assertExists()
     }
 
+    // 설명은 마크다운 해석을 거쳐 표시되고 그 해석은 Compose가 대기하지 않는 별도 디스패처에서 끝나므로 표시될 때까지 기다린다.
+    private fun awaitText(text: String) {
+        composeRule.waitUntil(timeoutMillis = WAIT_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty()
+        }
+    }
+
     private fun setDialog(
         uiState: MemoGeminiUiState,
         onEvent: (MemoGeminiDialogEvent) -> Unit = {},
@@ -234,6 +243,7 @@ class MemoGeminiDialogTest {
     }
 
     private companion object {
+        private const val WAIT_TIMEOUT_MILLIS = 5_000L
         private const val DEFAULT_PROMPT_LABEL = "Prompt"
         private const val DEFAULT_GENERATE_ACTION = "Generate"
         private const val DEFAULT_CANCEL_ACTION = "Cancel"
