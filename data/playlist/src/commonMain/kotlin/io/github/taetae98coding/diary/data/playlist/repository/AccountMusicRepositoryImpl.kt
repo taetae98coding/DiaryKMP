@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.core.database.api.music.transaction.Accoun
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
+import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
 import io.github.taetae98coding.diary.data.playlist.mapper.toDomain
 import io.github.taetae98coding.diary.data.playlist.mapper.toLocal
@@ -16,6 +17,8 @@ import io.github.taetae98coding.diary.domain.playlist.repository.AccountMusicRep
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Factory
+import kotlin.time.Instant
+import kotlin.uuid.Uuid
 
 @Factory
 internal class AccountMusicRepositoryImpl(
@@ -38,6 +41,16 @@ internal class AccountMusicRepositoryImpl(
             pagingData.map { local -> local.toDomain() }
         }
 
+    override fun find(
+        account: Account,
+        musicId: Uuid,
+    ): Flow<Music?> =
+        accountMusicLocalDataSource
+            .find(
+                accountId = account.id,
+                musicId = musicId,
+            ).map { local -> local?.toDomain() }
+
     override suspend fun upsert(
         account: Account,
         music: Music,
@@ -47,6 +60,32 @@ internal class AccountMusicRepositoryImpl(
             musicList = listOf(music.toLocal()),
         )
     }
+
+    override suspend fun updateDetail(
+        account: Account,
+        musicId: Uuid,
+        detail: MusicDetail,
+        updatedAt: Instant,
+    ): Int =
+        accountMusicTransaction.updateDetail(
+            accountId = account.id,
+            musicId = musicId,
+            detail = detail.toLocal(),
+            updatedAt = updatedAt,
+        )
+
+    override suspend fun updateDeleted(
+        account: Account,
+        musicId: Uuid,
+        isDeleted: Boolean,
+        updatedAt: Instant,
+    ): Int =
+        accountMusicTransaction.updateDeleted(
+            accountId = account.id,
+            musicId = musicId,
+            isDeleted = isDeleted,
+            updatedAt = updatedAt,
+        )
 
     private companion object {
         const val PAGE_SIZE: Int = 20

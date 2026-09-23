@@ -6,11 +6,13 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
+import kotlin.uuid.Uuid
 
 @Composable
 internal fun PlaylistHomeScreen(
     navigateUp: () -> Unit,
     navigateToAdd: () -> Unit,
+    navigateToDetail: (Uuid) -> Unit,
     componentVisibleProvider: () -> PlaylistHomeScaffoldComponentVisible,
     musicViewModel: PlaylistHomeViewModel,
     syncViewModel: PlaylistHomeSyncViewModel,
@@ -29,6 +31,7 @@ internal fun PlaylistHomeScreen(
                 is PlaylistHomeScaffoldEvent.ClickSort -> sortSheetState.show()
                 is PlaylistHomeScaffoldEvent.SelectSort -> musicViewModel.select(sort = event.sort)
                 is PlaylistHomeScaffoldEvent.Refresh -> syncViewModel.refresh()
+                is PlaylistHomeScaffoldEvent.ClickMusic -> navigateToDetail(event.id)
             }
         },
         modifier = modifier,

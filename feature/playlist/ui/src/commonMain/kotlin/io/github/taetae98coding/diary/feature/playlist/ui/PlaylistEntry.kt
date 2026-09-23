@@ -10,17 +10,22 @@ import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicAddNavKey
+import io.github.taetae98coding.diary.feature.playlist.api.MusicDetailNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.PlaylistHomeNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.isPlaylistListDetailPane
 import io.github.taetae98coding.diary.feature.playlist.ui.add.MusicAddScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.playlist.ui.add.MusicAddScreen
+import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailScaffoldComponentVisible
+import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailScreen
 import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeScreen
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 public fun EntryProviderScope<ScreenNavKey>.playlistEntry(backStack: NavBackStack<ScreenNavKey>) {
     playlistHomeEntry(backStack = backStack)
     musicAddEntry(backStack = backStack)
+    musicDetailEntry(backStack = backStack)
 }
 
 private fun EntryProviderScope<ScreenNavKey>.playlistHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
@@ -42,6 +47,7 @@ private fun EntryProviderScope<ScreenNavKey>.playlistHomeEntry(backStack: NavBac
         PlaylistHomeScreen(
             navigateUp = backStack::navigateUpFromPlaylistHome,
             navigateToAdd = { backStack.add(MusicAddNavKey) },
+            navigateToDetail = { id -> backStack.add(MusicDetailNavKey(id = id)) },
             componentVisibleProvider = { PlaylistHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible) },
             musicViewModel = koinViewModel(),
             syncViewModel = koinViewModel(),
@@ -59,6 +65,20 @@ private fun EntryProviderScope<ScreenNavKey>.musicAddEntry(backStack: NavBackSta
             navigateUp = backStack::removeLastOrNull,
             componentVisibleProvider = { MusicAddScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
             viewModel = koinViewModel(),
+        )
+    }
+}
+
+private fun EntryProviderScope<ScreenNavKey>.musicDetailEntry(backStack: NavBackStack<ScreenNavKey>) {
+    entry<MusicDetailNavKey>(
+        metadata = { key -> backStack.playlistListDetailPaneMetadata(key) },
+    ) { key ->
+        val isListPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.List)
+
+        MusicDetailScreen(
+            navigateUp = backStack::removeLastOrNull,
+            componentVisibleProvider = { MusicDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
+            viewModel = koinViewModel { parametersOf(key.id) },
         )
     }
 }

@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLoca
 import io.github.taetae98coding.diary.core.database.api.music.datasource.AccountMusicLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
+import kotlinx.coroutines.flow.Flow
 import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
@@ -19,5 +20,14 @@ internal class AccountMusicLocalDataSourceImpl(
         database.accountMusicDao().page(
             accountId = accountId,
             sort = sort.queryValue,
+        )
+
+    override fun find(
+        accountId: Uuid,
+        musicId: Uuid,
+    ): Flow<MusicLocalEntity?> =
+        database.accountMusicDao().find(
+            accountId = accountId,
+            musicId = musicId,
         )
 }

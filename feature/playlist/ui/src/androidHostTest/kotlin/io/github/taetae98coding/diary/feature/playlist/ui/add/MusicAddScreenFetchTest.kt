@@ -21,7 +21,7 @@ class MusicAddScreenFetchTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-016 불러오기에 성공하면 비어 있는 제목과 가수와 썸네일을 채운다`() {
+    fun `TC-MUSIC-ADD-FEATURE-016 불러오기에 성공하면 제목과 가수와 썸네일을 채운다`() {
         setMusicAddScreen(viewModel = fetchEffectViewModel(fetchedEffect()))
         composeRule.linkInput().performTextInput(TYPED_LINK)
         composeRule.waitForIdle()
@@ -37,7 +37,7 @@ class MusicAddScreenFetchTest {
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-017 불러오기에 성공해도 이미 채워진 제목은 바꾸지 않는다`() {
+    fun `TC-MUSIC-ADD-FEATURE-024 불러오기에 성공하면 이미 채워진 제목도 덮어쓴다`() {
         setMusicAddScreen(viewModel = fetchEffectViewModel(fetchedEffect()))
         composeRule.linkInput().performTextInput(TYPED_LINK)
         composeRule.titleInput().performTextInput(TYPED_TITLE)
@@ -45,12 +45,12 @@ class MusicAddScreenFetchTest {
 
         composeRule.clickFetch()
 
-        composeRule.titleInput().assert(hasText(TYPED_TITLE))
+        composeRule.titleInput().assert(hasText(FETCHED_TITLE))
         composeRule.artistInput().assert(hasText(FETCHED_ARTIST))
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-017 불러오기에 성공해도 이미 채워진 가수는 바꾸지 않는다`() {
+    fun `TC-MUSIC-ADD-FEATURE-024 불러오기에 성공하면 이미 채워진 가수도 덮어쓴다`() {
         setMusicAddScreen(viewModel = fetchEffectViewModel(fetchedEffect()))
         composeRule.linkInput().performTextInput(TYPED_LINK)
         composeRule.artistInput().performTextInput(TYPED_ARTIST)
@@ -59,22 +59,22 @@ class MusicAddScreenFetchTest {
         composeRule.clickFetch()
 
         composeRule.titleInput().assert(hasText(FETCHED_TITLE))
-        composeRule.artistInput().assert(hasText(TYPED_ARTIST))
+        composeRule.artistInput().assert(hasText(FETCHED_ARTIST))
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-017 제목과 가수가 모두 채워져 있으면 불러오기가 값을 바꾸지 않는다`() {
+    fun `TC-MUSIC-ADD-FEATURE-024 제목과 가수가 모두 채워져 있어도 불러온 값으로 바꾼다`() {
         setMusicAddScreen(viewModel = fetchEffectViewModel(fetchedEffect()))
         composeRule.fillAllInput()
 
         composeRule.clickFetch()
 
-        composeRule.titleInput().assert(hasText(TYPED_TITLE))
-        composeRule.artistInput().assert(hasText(TYPED_ARTIST))
+        composeRule.titleInput().assert(hasText(FETCHED_TITLE))
+        composeRule.artistInput().assert(hasText(FETCHED_ARTIST))
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-017 공백 문자뿐인 제목과 가수는 불러온 값으로 채운다`() {
+    fun `TC-MUSIC-ADD-FEATURE-024 공백 문자뿐인 제목과 가수는 불러온 값으로 채운다`() {
         setMusicAddScreen(viewModel = fetchEffectViewModel(fetchedEffect()))
         composeRule.linkInput().performTextInput(TYPED_LINK)
         composeRule.titleInput().performTextInput("   ")

@@ -8,10 +8,12 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicAddNavKey
+import io.github.taetae98coding.diary.feature.playlist.api.MusicDetailNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.PlaylistHomeNavKey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import kotlin.uuid.Uuid
 
 class PlaylistEntryTest :
     FunSpec({
@@ -31,6 +33,13 @@ class PlaylistEntryTest :
             backStackCases.forEach { backStack ->
                 metadataOf(backStack = backStack, key = MusicAddNavKey).shouldBeEmpty()
             }
+        }
+
+        test("TC-PLAYLIST-LIST-DETAIL-DOMAIN-003 곡 목록에서 이어 진입한 곡 상세는 목록·상세 배치의 상세 pane이다") {
+            val key = MusicDetailNavKey(id = Uuid.random())
+            val backStack = listOf(OtherNavKey, PlaylistHomeNavKey, MusicAddNavKey, key)
+
+            metadataOf(backStack = backStack, key = key).keys shouldBe detailPaneMetadataKeys
         }
 
         test("PlaylistHome 화면은 목록·상세 배치의 목록 pane이다") {

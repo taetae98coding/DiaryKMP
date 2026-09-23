@@ -7,6 +7,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
+import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.list.ListSort
@@ -22,6 +23,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
@@ -62,6 +64,18 @@ class PlaylistHomeScreenTest {
     }
 
     @Test
+    fun `TC-PLAYLIST-HOME-FEATURE-015 목록의 곡을 선택하면 그 곡의 상세 화면으로 이동한다`() {
+        val music = testMusic(title = MUSIC_TITLE, artist = MUSIC_ARTIST)
+        val navigatedIdList = mutableListOf<Uuid>()
+
+        setPlaylistHomeScreen(musicList = listOf(music), navigateToDetail = { id -> navigatedIdList += id })
+        composeRule.onNodeWithText(MUSIC_TITLE).performClick()
+        composeRule.waitForIdle()
+
+        navigatedIdList shouldBe listOf(music.id)
+    }
+
+    @Test
     fun `TC-PLAYLIST-HOME-FEATURE-008 목록을 당기면 새로고침을 요청한다`() {
         val syncViewModel = syncViewModel()
 
@@ -76,11 +90,30 @@ class PlaylistHomeScreenTest {
         musicList: List<Music> = emptyList(),
         navigateUp: () -> Unit = {},
         navigateToAdd: () -> Unit = {},
+        navigateToDetail: (Uuid) -> Unit = {},
+        componentVisible: PlaylistHomeScaffoldComponentVisible = PlaylistHomeScaffoldComponentVisible(),
+        syncViewModel: PlaylistHomeSyncViewModel = syncViewModel(),
+    ) {
+        setPlaylistHomeScreen(
+            musicPagingData = musicPagingDataOf(musicList),
+            navigateUp = navigateUp,
+            navigateToAdd = navigateToAdd,
+            navigateToDetail = navigateToDetail,
+            componentVisible = componentVisible,
+            syncViewModel = syncViewModel,
+        )
+    }
+
+    private fun setPlaylistHomeScreen(
+        musicPagingData: PagingData<Music>,
+        navigateUp: () -> Unit = {},
+        navigateToAdd: () -> Unit = {},
+        navigateToDetail: (Uuid) -> Unit = {},
         componentVisible: PlaylistHomeScaffoldComponentVisible = PlaylistHomeScaffoldComponentVisible(),
         syncViewModel: PlaylistHomeSyncViewModel = syncViewModel(),
     ) {
         val musicViewModel = mockk<PlaylistHomeViewModel>(relaxed = true)
-        every { musicViewModel.musicPagingData } returns MutableStateFlow(musicPagingDataOf(musicList))
+        every { musicViewModel.musicPagingData } returns MutableStateFlow(musicPagingData)
         every { musicViewModel.sort } returns MutableStateFlow(ListSort.TITLE)
 
         composeRule.setContent {
@@ -88,6 +121,7 @@ class PlaylistHomeScreenTest {
                 PlaylistHomeScreen(
                     navigateUp = navigateUp,
                     navigateToAdd = navigateToAdd,
+                    navigateToDetail = navigateToDetail,
                     componentVisibleProvider = { componentVisible },
                     musicViewModel = musicViewModel,
                     syncViewModel = syncViewModel,

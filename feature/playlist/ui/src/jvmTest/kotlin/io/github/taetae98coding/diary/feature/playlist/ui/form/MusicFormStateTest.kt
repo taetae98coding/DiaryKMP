@@ -20,10 +20,10 @@ private val fixtureMonkey: FixtureMonkey =
 
 class MusicFormStateTest :
     FunSpec({
-        test("TC-MUSIC-ADD-FEATURE-016 불러오기에 성공하면 비어 있는 제목과 가수와 썸네일을 채운다") {
+        test("TC-MUSIC-ADD-FEATURE-016 불러오기에 성공하면 제목과 가수와 썸네일을 채운다") {
             val state = formState()
 
-            state.fillBlank(title = FETCHED_TITLE, artist = FETCHED_ARTIST, thumbnail = FETCHED_THUMBNAIL)
+            state.fill(title = FETCHED_TITLE, artist = FETCHED_ARTIST, thumbnail = FETCHED_THUMBNAIL)
 
             state.detail.title shouldBe FETCHED_TITLE
             state.detail.artist shouldBe FETCHED_ARTIST
@@ -34,34 +34,35 @@ class MusicFormStateTest :
             "" to "빈 값",
             "   " to "공백 문자로만 이루어진 값",
         ).forEach { (blank, label) ->
-            test("TC-MUSIC-ADD-FEATURE-017 제목과 가수가 $label 이면 불러온 값으로 채운다") {
+            test("TC-MUSIC-ADD-FEATURE-024 제목과 가수가 $label 이면 불러온 값으로 채운다") {
                 val state = formState(title = blank, artist = blank)
 
-                state.fillBlank(title = FETCHED_TITLE, artist = FETCHED_ARTIST, thumbnail = FETCHED_THUMBNAIL)
+                state.fill(title = FETCHED_TITLE, artist = FETCHED_ARTIST, thumbnail = FETCHED_THUMBNAIL)
 
                 state.detail.title shouldBe FETCHED_TITLE
                 state.detail.artist shouldBe FETCHED_ARTIST
             }
         }
 
-        test("TC-MUSIC-ADD-FEATURE-017 이미 채워진 제목과 가수는 바꾸지 않는다") {
-            val title = "title-${fixtureMonkey.giveMeOne<String>()}"
-            val artist = "artist-${fixtureMonkey.giveMeOne<String>()}"
-            val state = formState(title = title, artist = artist)
+        test("TC-MUSIC-ADD-FEATURE-024 이미 채워진 제목과 가수도 불러온 값으로 덮어쓴다") {
+            val state =
+                formState(
+                    title = "title-${fixtureMonkey.giveMeOne<String>()}",
+                    artist = "artist-${fixtureMonkey.giveMeOne<String>()}",
+                )
 
-            state.fillBlank(title = FETCHED_TITLE, artist = FETCHED_ARTIST, thumbnail = FETCHED_THUMBNAIL)
+            state.fill(title = FETCHED_TITLE, artist = FETCHED_ARTIST, thumbnail = FETCHED_THUMBNAIL)
 
-            state.detail.title shouldBe title
-            state.detail.artist shouldBe artist
+            state.detail.title shouldBe FETCHED_TITLE
+            state.detail.artist shouldBe FETCHED_ARTIST
         }
 
-        test("TC-MUSIC-ADD-FEATURE-022 이미 불러온 썸네일은 바꾸지 않는다") {
-            val thumbnail = "https://i.ytimg.com/vi/${fixtureMonkey.giveMeOne<String>()}/hqdefault.jpg"
-            val state = formState(thumbnail = thumbnail)
+        test("TC-MUSIC-ADD-FEATURE-025 이미 불러온 썸네일도 새로 불러온 주소로 덮어쓴다") {
+            val state = formState(thumbnail = "https://i.ytimg.com/vi/${fixtureMonkey.giveMeOne<String>()}/hqdefault.jpg")
 
-            state.fillBlank(title = FETCHED_TITLE, artist = FETCHED_ARTIST, thumbnail = FETCHED_THUMBNAIL)
+            state.fill(title = FETCHED_TITLE, artist = FETCHED_ARTIST, thumbnail = FETCHED_THUMBNAIL)
 
-            state.detail.thumbnail shouldBe thumbnail
+            state.detail.thumbnail shouldBe FETCHED_THUMBNAIL
         }
 
         test("TC-MUSIC-ADD-FEATURE-004 작성 내용을 비우면 썸네일도 함께 비워진다") {

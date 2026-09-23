@@ -41,24 +41,30 @@ internal class MusicFormState(
         thumbnailState.value = ""
     }
 
-    fun fillBlank(
+    fun fill(
         title: String,
         artist: String,
         thumbnail: String,
     ) {
-        if (titleState.text.isBlank()) titleState.setText(title)
-        if (artistState.text.isBlank()) artistState.setText(artist)
-        if (thumbnailState.value.isBlank()) thumbnailState.value = thumbnail
+        titleState.setText(title)
+        artistState.setText(artist)
+        thumbnailState.value = thumbnail
     }
 }
 
 @Composable
-internal fun rememberMusicAddFormState(): MusicFormState {
-    val linkState = rememberMusicLinkInputState(initialText = MusicDetail.EMPTY.link)
-    val titleState = rememberDiaryTitleInputState(initialText = MusicDetail.EMPTY.title)
-    val artistState = rememberMusicArtistInputState(initialText = MusicDetail.EMPTY.artist)
+internal fun rememberMusicAddFormState(): MusicFormState = rememberMusicFormState(initialDetail = MusicDetail.EMPTY)
+
+@Composable
+internal fun rememberMusicDetailFormState(initialDetail: MusicDetail = MusicDetail.EMPTY): MusicFormState = rememberMusicFormState(initialDetail = initialDetail)
+
+@Composable
+private fun rememberMusicFormState(initialDetail: MusicDetail): MusicFormState {
+    val linkState = rememberMusicLinkInputState(initialText = initialDetail.link)
+    val titleState = rememberDiaryTitleInputState(initialText = initialDetail.title)
+    val artistState = rememberMusicArtistInputState(initialText = initialDetail.artist)
     val hostState = remember { SnackbarHostState() }
-    val thumbnailState = rememberSaveable { mutableStateOf(MusicDetail.EMPTY.thumbnail) }
+    val thumbnailState = rememberSaveable { mutableStateOf(initialDetail.thumbnail) }
 
     return remember(linkState, titleState, artistState, hostState, thumbnailState) {
         MusicFormState(

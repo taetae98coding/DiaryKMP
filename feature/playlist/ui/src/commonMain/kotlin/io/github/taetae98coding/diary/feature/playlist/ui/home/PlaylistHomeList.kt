@@ -84,12 +84,15 @@ internal fun PlaylistHomeList(
                     count = musicPagingItems.itemCount,
                     key = musicPagingItems.itemKey { music -> music.id },
                 ) { index ->
+                    val music = musicPagingItems[index]
+
                     MusicCard(
+                        onClick = { music?.let { value -> onEvent(PlaylistHomeScaffoldEvent.ClickMusic(id = value.id)) } },
                         modifier =
                             Modifier
                                 .animateItem()
                                 .fillMaxWidth(),
-                        music = musicPagingItems[index],
+                        music = music,
                     )
                 }
             }

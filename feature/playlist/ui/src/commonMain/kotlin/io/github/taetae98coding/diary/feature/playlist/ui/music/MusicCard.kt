@@ -24,10 +24,15 @@ internal const val MUSIC_CARD_TEST_TAG: String = "MusicCard"
 
 @Composable
 internal fun MusicCard(
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
     music: Music? = null,
 ) {
-    Card(modifier = modifier.testTag(MUSIC_CARD_TEST_TAG)) {
+    Card(
+        onClick = onClick,
+        modifier = modifier.testTag(MUSIC_CARD_TEST_TAG),
+        enabled = music != null,
+    ) {
         MusicThumbnail(thumbnailProvider = { music?.detail?.thumbnail.orEmpty() })
         Column(
             modifier = Modifier.styleable(style = DiaryTheme.styles.cardContent),
@@ -64,6 +69,9 @@ private fun MusicCardPreview(
     @PreviewParameter(MusicCardPreviewParameter::class) music: Music?,
 ) {
     DiaryTheme {
-        MusicCard(music = music)
+        MusicCard(
+            onClick = {},
+            music = music,
+        )
     }
 }

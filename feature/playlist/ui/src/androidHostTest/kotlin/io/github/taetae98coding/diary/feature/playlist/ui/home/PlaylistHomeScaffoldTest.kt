@@ -2,7 +2,6 @@ package io.github.taetae98coding.diary.feature.playlist.ui.home
 
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
-import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
@@ -104,11 +103,15 @@ class PlaylistHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-010 곡 카드에는 선택할 수 있는 동작을 두지 않는다`() {
-        setPlaylistHomeScaffold(musicList = listOf(testMusic(title = FIRST_TITLE)))
+    fun `TC-PLAYLIST-HOME-FEATURE-015 곡 카드를 누르면 그 곡의 선택 이벤트를 내보낸다`() {
+        val music = testMusic(title = FIRST_TITLE)
+        val eventList = mutableListOf<PlaylistHomeScaffoldEvent>()
+        setPlaylistHomeScaffold(musicList = listOf(music), onEvent = eventList::add)
 
         composeRule.onAllNodesWithTag(MUSIC_CARD_TEST_TAG).assertCountEquals(1)
-        composeRule.onAllNodesWithTag(MUSIC_CARD_TEST_TAG).onFirst().assertHasNoClickAction()
+        composeRule.onAllNodesWithTag(MUSIC_CARD_TEST_TAG).onFirst().performClick()
+
+        eventList shouldBe listOf(PlaylistHomeScaffoldEvent.ClickMusic(id = music.id))
     }
 
     @Test

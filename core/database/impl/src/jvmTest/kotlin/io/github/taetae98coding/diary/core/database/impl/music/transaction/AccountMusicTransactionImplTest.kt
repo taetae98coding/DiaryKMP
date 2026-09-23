@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.core.database.impl.music.transaction
 
 import androidx.room3.Room
 import androidx.room3.useReaderConnection
+import androidx.room3.useWriterConnection
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.navercorp.fixturemonkey.FixtureMonkey
@@ -96,6 +97,50 @@ class AccountMusicTransactionImplTest :
             findMusicList() shouldBe listOf(music)
         }
 
+        test("TC-MUSIC-DETAIL-DATA-003 TC-MUSIC-DETAIL-DATA-007 수정은 내용과 수정 시각만 바꾸고 업로드 대기로 기록한다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val music = music()
+            transaction.upsert(accountId = accountId, musicList = listOf(music))
+            markUploaded(database = database, accountId = accountId, musicId = music.id)
+            val detail = fixtureMonkey.giveMeOne<MusicDetailLocalEntity>()
+            val updatedAt = instant()
+
+            transaction.updateDetail(accountId = accountId, musicId = music.id, detail = detail, updatedAt = updatedAt) shouldBe 1
+
+            findMusicList() shouldBe listOf(music.copy(detail = detail, updatedAt = updatedAt))
+            findAccountMusicList() shouldBe listOf(AccountMusicLocalEntity(accountId = accountId, musicId = music.id, isDirty = true))
+        }
+
+        test("TC-MUSIC-DETAIL-DOMAIN-007 TC-MUSIC-DETAIL-DATA-005 삭제는 삭제 여부와 수정 시각만 바꾸고 곡과 계정 연결을 남긴다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val music = music().copy(isDeleted = false)
+            transaction.upsert(accountId = accountId, musicList = listOf(music))
+            markUploaded(database = database, accountId = accountId, musicId = music.id)
+            val updatedAt = instant()
+
+            transaction.updateDeleted(accountId = accountId, musicId = music.id, isDeleted = true, updatedAt = updatedAt) shouldBe 1
+
+            findMusicList() shouldBe listOf(music.copy(isDeleted = true, updatedAt = updatedAt))
+            findAccountMusicList() shouldBe listOf(AccountMusicLocalEntity(accountId = accountId, musicId = music.id, isDirty = true))
+        }
+
+        test("TC-MUSIC-DETAIL-DATA-004 현재 계정과 대상 식별자를 만족하는 곡이 없으면 아무것도 바꾸지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val music = music()
+            transaction.upsert(accountId = accountId, musicList = listOf(music))
+
+            transaction.updateDetail(
+                accountId = otherAccountId,
+                musicId = music.id,
+                detail = fixtureMonkey.giveMeOne<MusicDetailLocalEntity>(),
+                updatedAt = instant(),
+            ) shouldBe 0
+            transaction.updateDeleted(accountId = otherAccountId, musicId = music.id, isDeleted = true, updatedAt = instant()) shouldBe 0
+
+            findMusicList() shouldBe listOf(music)
+        }
+
         test("TC-MUSIC-ADD-DATA-003 같은 식별자의 곡이 있으면 덮어쓴다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val music = music()
@@ -120,6 +165,21 @@ class AccountMusicTransactionImplTest :
                 .sample()
 
         private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+
+        // 수정과 삭제가 업로드 대기를 다시 세우는지 보려면 저장 직후의 대기 상태를 먼저 지워야 한다.
+        private suspend fun markUploaded(
+            database: DiaryDatabase,
+            accountId: Uuid,
+            musicId: Uuid,
+        ) {
+            database.useWriterConnection { transactor ->
+                transactor.usePrepared("UPDATE account_music SET is_dirty = 0 WHERE account_id = ? AND music_id = ?") { statement ->
+                    statement.bindText(1, accountId.toString())
+                    statement.bindText(2, musicId.toString())
+                    statement.step()
+                }
+            }
+        }
 
         private fun <T> SQLiteStatement.readAll(read: (SQLiteStatement) -> T): List<T> =
             buildList {

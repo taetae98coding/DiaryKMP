@@ -18,6 +18,7 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeout
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -137,6 +138,41 @@ class AccountMusicLocalDataSourceImplTest :
             assertPageInvalidated(expected = emptyList()) {
                 musicTransaction.upsert(accountId = accountId, musicList = listOf(renamedMusic.copy(isDeleted = true)))
             }
+        }
+
+        test("TC-MUSIC-DETAIL-DOMAIN-001 삭제 여부와 관계없이 계정의 곡을 대상 식별자로 조회한다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val music = music()
+            val deletedMusic = music().copy(isDeleted = true)
+            musicTransaction.upsert(accountId = accountId, musicList = listOf(music, deletedMusic))
+
+            dataSource.find(accountId = accountId, musicId = music.id).first() shouldBe music
+            dataSource.find(accountId = accountId, musicId = deletedMusic.id).first() shouldBe deletedMusic
+        }
+
+        test("TC-MUSIC-DETAIL-DATA-001 다른 계정의 곡은 대상 식별자로도 조회되지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val music = music()
+            musicTransaction.upsert(accountId = otherAccountId, musicList = listOf(music))
+
+            dataSource.find(accountId = accountId, musicId = music.id).first() shouldBe null
+        }
+
+        test("TC-MUSIC-DETAIL-DOMAIN-008 TC-MUSIC-DETAIL-DATA-008 수정한 곡은 목록에 반영되고 삭제한 곡은 목록에서 사라진다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val music = music()
+            musicTransaction.upsert(accountId = accountId, musicList = listOf(music))
+            val detail = MusicDetailLocalEntity(link = music.detail.link, title = LAST_MUSIC_TITLE, artist = FIRST_MUSIC_TITLE, thumbnail = "")
+            val updatedAt = instant()
+
+            musicTransaction.updateDetail(accountId = accountId, musicId = music.id, detail = detail, updatedAt = updatedAt)
+
+            pagedMusics(accountId) shouldBe listOf(music.copy(detail = detail, updatedAt = updatedAt))
+
+            musicTransaction.updateDeleted(accountId = accountId, musicId = music.id, isDeleted = true, updatedAt = instant())
+
+            pagedMusics(accountId).shouldBeEmpty()
         }
 
         test("최근 수정순은 수정 시각 내림차순으로 조회하고 같으면 제목 오름차순으로 조회한다") {

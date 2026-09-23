@@ -24,6 +24,7 @@ import io.github.taetae98coding.diary.feature.place.api.PlaceAddNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceHomeNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicAddNavKey
+import io.github.taetae98coding.diary.feature.playlist.api.MusicDetailNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.PlaylistHomeNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrHomeNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineAddNavKey
@@ -130,6 +131,7 @@ class ScreenNameTest :
                 MemoHomeFilterNavKey to "MemoHomeFilter",
                 MoreHomeNavKey to "MoreHome",
                 MusicAddNavKey to "MusicAdd",
+                MusicDetailNavKey(id = Uuid.random()) to "MusicDetail",
                 PlaceAddNavKey() to "PlaceAdd",
                 PlaceDetailNavKey(id = Uuid.random()) to "PlaceDetail",
                 PlaceHomeNavKey to "PlaceHome",
@@ -158,6 +160,7 @@ class ScreenNameTest :
                 ContactDetailNavKey(id = Uuid.random()) to ContactDetailNavKey(id = Uuid.random()),
                 MemoDetailNavKey(id = Uuid.random()) to MemoDetailNavKey(id = Uuid.random()),
                 MemoAddNavKey(primaryTagId = Uuid.random()) to MemoAddNavKey(),
+                MusicDetailNavKey(id = Uuid.random()) to MusicDetailNavKey(id = Uuid.random()),
                 PlaceDetailNavKey(id = Uuid.random()) to PlaceDetailNavKey(id = Uuid.random()),
                 PlaceAddNavKey(initialTagId = Uuid.random()) to PlaceAddNavKey(),
                 TagAddNavKey(requestKey = Uuid.random()) to TagAddNavKey(),

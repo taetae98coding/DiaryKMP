@@ -17,4 +17,8 @@
     <string name="music_add_title_blank_message">Please enter a title.</string>
     <string name="music_add_artist_blank_message">Please enter an artist.</string>
     <string name="music_add_link_fetch_failed_message">Could not fetch music info from the link.</string>
+    <string name="music_detail_open_in_new_button_content_description">Open externally</string>
+    <string name="music_detail_delete_button_content_description">Delete music</string>
+    <string name="music_detail_update_button_content_description">Update music</string>
+    <string name="music_detail_update_succeeded_message">Music updated.</string>
 </resources>
