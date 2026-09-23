@@ -120,6 +120,13 @@ class DailyMemoNotificationWorkerTest {
         channel.description shouldBe "매일 아침 오늘의 메모를 확인하도록 안내합니다."
     }
 
+    @Test
+    fun `알림 게시가 실패하면 예외를 밖으로 던지지 않고 실패 결과로 끝낸다`() {
+        coEvery { notifier.notify(notification = any()) } throws IllegalStateException("notify error")
+
+        doWork(memoList(count = 1)) shouldBe ListenableWorker.Result.failure()
+    }
+
     private fun memoList(count: Int): Result<List<DailyMemo>> = Result.success(List(size = count) { fixtureMonkey.giveMeOne<DailyMemo>() })
 
     private fun doWork(result: Result<List<DailyMemo>>): ListenableWorker.Result {

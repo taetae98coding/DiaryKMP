@@ -6,6 +6,7 @@ import androidx.work.WorkerParameters
 import io.github.taetae98coding.diary.core.model.memo.DailyMemoNotificationContent
 import io.github.taetae98coding.diary.notification.Notification
 import io.github.taetae98coding.diary.notification.NotificationChannel
+import kotlinx.coroutines.CancellationException
 import org.koin.android.annotation.KoinWorker
 
 @KoinWorker
@@ -14,11 +15,15 @@ internal class DailyMemoNotificationWorker(
     parameters: WorkerParameters,
     private val work: DailyMemoNotificationWork,
 ) : CoroutineWorker(context, parameters) {
-    override suspend fun doWork(): Result {
-        work.doWork()
-
-        return Result.success()
-    }
+    override suspend fun doWork(): Result =
+        try {
+            work.doWork()
+            Result.success()
+        } catch (exception: CancellationException) {
+            throw exception
+        } catch (_: Throwable) {
+            Result.failure()
+        }
 }
 
 internal fun Context.dailyMemoNotification(content: DailyMemoNotificationContent): Notification =
