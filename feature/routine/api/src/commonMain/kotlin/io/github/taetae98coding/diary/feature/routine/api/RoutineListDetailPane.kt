@@ -1,6 +1,6 @@
 package io.github.taetae98coding.diary.feature.routine.api
 
-import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
+import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 
 public fun List<ScreenNavKey>.isRoutineListDetailPane(key: ScreenNavKey): Boolean {
     val index = lastIndexOf(key)

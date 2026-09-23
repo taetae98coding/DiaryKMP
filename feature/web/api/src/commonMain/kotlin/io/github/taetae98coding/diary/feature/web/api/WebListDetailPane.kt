@@ -1,6 +1,6 @@
 package io.github.taetae98coding.diary.feature.web.api
 
-import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
+import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 
 public fun List<ScreenNavKey>.isWebListDetailPane(key: ScreenNavKey): Boolean {
     val index = lastIndexOf(key)

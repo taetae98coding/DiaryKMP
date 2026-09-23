@@ -8,6 +8,7 @@ import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
+import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineAddNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineHomeNavKey
 import io.github.taetae98coding.diary.feature.routine.api.isRoutineListDetailPane
@@ -15,7 +16,6 @@ import io.github.taetae98coding.diary.feature.routine.ui.add.RoutineAddScaffoldC
 import io.github.taetae98coding.diary.feature.routine.ui.add.RoutineAddScreen
 import io.github.taetae98coding.diary.feature.routine.ui.home.RoutineHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.routine.ui.home.RoutineHomeScreen
-import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import org.koin.compose.viewmodel.koinViewModel
 
 public fun EntryProviderScope<ScreenNavKey>.routineEntry(backStack: NavBackStack<ScreenNavKey>) {

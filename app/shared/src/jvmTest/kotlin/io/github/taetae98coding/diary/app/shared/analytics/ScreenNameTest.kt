@@ -3,7 +3,7 @@
 package io.github.taetae98coding.diary.app.shared.analytics
 
 import io.github.taetae98coding.diary.app.shared.navigation.AppNavKeySavedStateConfiguration
-import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
+import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistHomeNavKey

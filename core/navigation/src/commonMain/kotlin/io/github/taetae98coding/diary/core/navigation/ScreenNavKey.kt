@@ -1,4 +1,4 @@
-package io.github.taetae98coding.diary.library.navigation3
+package io.github.taetae98coding.diary.core.navigation
 
 import androidx.navigation3.runtime.NavKey
 

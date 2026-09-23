@@ -18,7 +18,7 @@ import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.app.shared.navigation.AppNavKeySavedStateConfiguration
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
 import io.github.taetae98coding.diary.app.shared.navigation.rememberScreenNavBackStack
-import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
+import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.isMemoListDetailPane

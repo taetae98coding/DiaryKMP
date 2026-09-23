@@ -24,7 +24,7 @@ import io.github.taetae98coding.diary.app.shared.AppState
 import io.github.taetae98coding.diary.app.shared.rememberAppState
 import io.github.taetae98coding.diary.compose.core.animation.DiaryFadeContentTransform
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
-import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
+import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.calendar.ui.calendarEntry
 import io.github.taetae98coding.diary.feature.checklist.ui.checklistEntry
 import io.github.taetae98coding.diary.feature.contact.ui.contactEntry

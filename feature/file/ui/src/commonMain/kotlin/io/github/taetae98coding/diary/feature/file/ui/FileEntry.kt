@@ -2,9 +2,9 @@ package io.github.taetae98coding.diary.feature.file.ui
 
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileHomeNavKey
 import io.github.taetae98coding.diary.feature.file.ui.home.FileHomeScreen
-import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 
 public fun EntryProviderScope<ScreenNavKey>.fileEntry(backStack: NavBackStack<ScreenNavKey>) {
     fileHomeEntry(backStack = backStack)

@@ -1,7 +1,7 @@
 package io.github.taetae98coding.diary.app.shared.navigation
 
 import androidx.savedstate.serialization.SavedStateConfiguration
-import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
+import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.calendarNavKeys
 import io.github.taetae98coding.diary.feature.checklist.api.checklistNavKeys
 import io.github.taetae98coding.diary.feature.contact.api.contactNavKeys

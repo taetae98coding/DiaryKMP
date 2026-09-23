@@ -1,6 +1,6 @@
 package io.github.taetae98coding.diary.app.shared.navigation
 
-import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
+import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
 import io.github.taetae98coding.diary.feature.more.api.MoreHomeNavKey

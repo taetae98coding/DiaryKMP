@@ -5,7 +5,7 @@ import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.serialization.NavBackStackSerializer
 import androidx.savedstate.serialization.SavedStateConfiguration
-import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
+import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import kotlinx.serialization.PolymorphicSerializer
 
 // navigation3의 rememberNavBackStack은 반환 타입이 NavBackStack<NavKey>로 고정되어 있어

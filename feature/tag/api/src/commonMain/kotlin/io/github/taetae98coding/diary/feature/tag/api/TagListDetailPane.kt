@@ -1,6 +1,6 @@
 package io.github.taetae98coding.diary.feature.tag.api
 
-import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
+import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 
 public fun List<ScreenNavKey>.isTagListDetailPane(key: ScreenNavKey): Boolean {
     val index = lastIndexOf(key)

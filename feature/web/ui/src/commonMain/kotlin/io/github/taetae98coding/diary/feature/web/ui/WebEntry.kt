@@ -9,6 +9,7 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
+import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
@@ -22,7 +23,6 @@ import io.github.taetae98coding.diary.feature.web.ui.add.WebAddScreen
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScreen
 import io.github.taetae98coding.diary.feature.web.ui.home.WebHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.web.ui.home.WebHomeScreen
-import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 

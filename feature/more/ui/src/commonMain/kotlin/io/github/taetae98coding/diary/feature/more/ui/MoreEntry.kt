@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.feature.more.ui
 
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistHomeNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
 import io.github.taetae98coding.diary.feature.dday.api.DDayHomeNavKey
@@ -17,7 +18,6 @@ import io.github.taetae98coding.diary.feature.qr.api.QrHomeNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebHomeNavKey
-import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import org.koin.compose.viewmodel.koinViewModel
 
 public fun EntryProviderScope<ScreenNavKey>.moreEntry(backStack: NavBackStack<ScreenNavKey>) {

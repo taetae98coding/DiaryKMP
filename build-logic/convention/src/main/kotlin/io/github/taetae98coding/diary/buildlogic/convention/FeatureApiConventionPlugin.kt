@@ -25,7 +25,7 @@ internal class FeatureApiConventionPlugin : Plugin<Project> {
             sourceSets {
                 commonMain {
                     dependencies {
-                        api(project(":library:navigation3"))
+                        api(project(":core:navigation"))
                     }
                 }
             }

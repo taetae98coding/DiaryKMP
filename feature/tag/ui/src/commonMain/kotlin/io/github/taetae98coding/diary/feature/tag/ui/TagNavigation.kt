@@ -2,11 +2,11 @@ package io.github.taetae98coding.diary.feature.tag.ui
 
 import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.core.model.location.Coordinate
+import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
-import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import kotlin.uuid.Uuid
 
 internal fun NavBackStack<ScreenNavKey>.navigateToTagDetail(id: Uuid) {

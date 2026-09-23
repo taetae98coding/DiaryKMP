@@ -1,6 +1,6 @@
 package io.github.taetae98coding.diary.feature.calendar.api
 
-import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
+import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import kotlinx.serialization.Serializable
 
 @Serializable

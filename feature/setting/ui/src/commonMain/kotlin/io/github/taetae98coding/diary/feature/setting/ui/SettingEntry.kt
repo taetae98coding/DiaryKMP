@@ -8,6 +8,7 @@ import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
+import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHolidayNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
@@ -19,7 +20,6 @@ import io.github.taetae98coding.diary.feature.setting.ui.holiday.SettingHolidayS
 import io.github.taetae98coding.diary.feature.setting.ui.home.SettingHomeScreen
 import io.github.taetae98coding.diary.feature.setting.ui.map.SettingMapScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.setting.ui.map.SettingMapScreen
-import io.github.taetae98coding.diary.library.navigation3.ScreenNavKey
 import org.koin.compose.viewmodel.koinViewModel
 
 public fun EntryProviderScope<ScreenNavKey>.settingEntry(backStack: NavBackStack<ScreenNavKey>) {
