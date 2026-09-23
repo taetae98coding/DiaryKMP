@@ -24,6 +24,8 @@
 
 칩 하나가 이름을 표시하는 방식과 칩 하나가 차지할 수 있는 최대 폭은 [칩 이름 표시](./chip.md)가 소유한다. 각 문서는 그 칩에 무엇을 표시하는지와 색, 조작, 접근성 이름 문구만 남긴다.
 
+대화상자로 여는 선택 목록에서 항목 하나의 해부구조, 글자와 간격, 조작, 접근성은 [선택 목록 항목](./picker-row.md)이 소유한다. 각 문서는 그 목록의 항목에 컬러 원형 표시, 보조 줄, 끝 쪽 버튼을 두는지와 그 내용만 남긴다.
+
 목록 위 정렬 줄의 끝 쪽에서 짝이 되는 다른 목록으로 이동하는 진입 버튼의 해부구조와 조작, 접근성은 [목록 진입 버튼](./list-entry-button.md)이 소유한다. 각 문서는 그 버튼이 어느 목록으로 이동하는지와 라벨 문구만 남긴다.
 
 조건에 따라 나타났다 사라지는 버튼이 나타나고 사라지는 표현은 [나타나고 사라지는 버튼](./button-visibility.md)이 소유한다. 각 문서는 그 버튼을 두는 조건과 자리만 남긴다.
@@ -97,6 +99,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail, ContactAdd 화면 문서는 태그 입
 - [메모 태그 입력 컴포넌트](./memo-tag-input.md)
 - [메모 웹 입력 컴포넌트](./memo-web-input.md)
 - [페이지 조회 목록의 자리 표시](./paged-list-placeholder.md)
+- [선택 목록 항목](./picker-row.md)
 - [MoreHome 화면](./more-home.md)
 - [더보기 준비 중 화면 공통](./more-menu-placeholder.md)
 - [MusicAdd 화면](./music-add.md)
