@@ -2,14 +2,14 @@ package io.github.taetae98coding.diary.feature.more.ui.home
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountViewModel
 import io.github.taetae98coding.diary.feature.more.ui.home.menu.MoreHomeMenu
+import io.github.taetae98coding.diary.feature.more.ui.home.refresh.MoreHomeRefreshViewModel
 import io.github.taetae98coding.diary.feature.more.ui.home.signout.MoreHomeSignOutViewModel
-import io.github.taetae98coding.diary.feature.more.ui.photo.PhotoPicker
-import kotlinx.coroutines.launch
 
 @Composable
 internal fun MoreHomeScreen(
@@ -21,18 +21,20 @@ internal fun MoreHomeScreen(
     navigateToLogin: () -> Unit,
     navigateToPlace: () -> Unit,
     navigateToPlaylist: () -> Unit,
+    navigateToProfileImageEdit: () -> Unit,
     navigateToQr: () -> Unit,
     navigateToSearch: () -> Unit,
     navigateToSetting: () -> Unit,
     navigateToWeb: () -> Unit,
-    photoPicker: PhotoPicker,
     accountViewModel: MoreHomeAccountViewModel,
     signOutViewModel: MoreHomeSignOutViewModel,
+    refreshViewModel: MoreHomeRefreshViewModel,
     modifier: Modifier = Modifier,
 ) {
     val accountUiState by accountViewModel.uiState.collectAsStateWithLifecycle()
     val signOutUiState by signOutViewModel.uiState.collectAsStateWithLifecycle()
-    val coroutineScope = rememberCoroutineScope()
+
+    RefreshUserDataEffect(refreshViewModel = refreshViewModel)
 
     MoreHomeScaffold(
         accountUiStateProvider = { accountUiState },
@@ -40,9 +42,7 @@ internal fun MoreHomeScreen(
         onEvent = { event ->
             when (event) {
                 is MoreHomeScaffoldEvent.ClickProfile -> {
-                    coroutineScope.launch {
-                        photoPicker.open()?.let { uri -> accountViewModel.changeProfileImage(uri = uri) }
-                    }
+                    navigateToProfileImageEdit()
                 }
 
                 is MoreHomeScaffoldEvent.ClickSetting -> {
@@ -84,6 +84,14 @@ internal fun MoreHomeScreen(
         },
         modifier = modifier,
     )
+}
+
+// 화면이 표시될 때마다 다시 확인하므로 진입뿐 아니라 다른 화면에서 돌아올 때도 요청한다.
+@Composable
+private fun RefreshUserDataEffect(refreshViewModel: MoreHomeRefreshViewModel) {
+    LifecycleEventEffect(Lifecycle.Event.ON_START) {
+        refreshViewModel.refresh()
+    }
 }
 
 private fun navigateToMenu(

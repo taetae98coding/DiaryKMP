@@ -36,6 +36,10 @@ internal class SupabaseAuthImpl(
         client.auth.sessionStatus
             .map { loadStoredUser() }
 
+    override suspend fun retrieveUserForCurrentSession() {
+        client.auth.retrieveUserForCurrentSession(updateSession = true)
+    }
+
     override suspend fun signOut() {
         client.auth.signOut(scope = SignOutScope.LOCAL)
     }

@@ -21,6 +21,15 @@ kotlin {
                 implementation(projects.feature.search.api)
                 implementation(projects.feature.setting.api)
                 implementation(projects.feature.web.api)
+
+                implementation(libs.coil.compose)
+            }
+        }
+
+        androidHostTest {
+            dependencies {
+                implementation(libs.androidx.lifecycle.runtime.testing)
+                implementation(libs.coil.test)
             }
         }
 

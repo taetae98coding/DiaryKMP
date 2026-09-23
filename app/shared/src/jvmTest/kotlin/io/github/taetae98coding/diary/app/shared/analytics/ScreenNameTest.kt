@@ -20,6 +20,7 @@ import io.github.taetae98coding.diary.feature.memo.api.MemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
 import io.github.taetae98coding.diary.feature.more.api.MoreHomeNavKey
+import io.github.taetae98coding.diary.feature.more.api.ProfileImageEditNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceAddNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceHomeNavKey
@@ -136,6 +137,7 @@ class ScreenNameTest :
                 PlaceDetailNavKey(id = Uuid.random()) to "PlaceDetail",
                 PlaceHomeNavKey to "PlaceHome",
                 PlaylistHomeNavKey to "PlaylistHome",
+                ProfileImageEditNavKey to "ProfileImageEdit",
                 QrHomeNavKey to "QrHome",
                 RoutineAddNavKey to "RoutineAdd",
                 RoutineHomeNavKey to "RoutineHome",

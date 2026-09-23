@@ -118,17 +118,17 @@ class MoreHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `한국어 환경에서 프로필 사진 선택 동작 접근성 이름을 제공한다`() {
+    fun `한국어 환경에서 프로필 이미지 편집 동작 접근성 이름을 제공한다`() {
         setMoreHomeScaffold(accountUiStateProvider = { userAccountUiState() })
 
-        profileClickLabel(profileImageDescription = "프로필 이미지") shouldBe "프로필 사진 선택"
+        profileClickLabel(profileImageDescription = "프로필 이미지") shouldBe "프로필 이미지 편집"
     }
 
     @Test
-    fun `기본 환경에서 프로필 사진 선택 동작 접근성 이름을 제공한다`() {
+    fun `기본 환경에서 프로필 이미지 편집 동작 접근성 이름을 제공한다`() {
         setMoreHomeScaffold(accountUiStateProvider = { userAccountUiState() })
 
-        profileClickLabel(profileImageDescription = DEFAULT_PROFILE_IMAGE_DESCRIPTION) shouldBe DEFAULT_PROFILE_PHOTO_PICKER_LABEL
+        profileClickLabel(profileImageDescription = DEFAULT_PROFILE_IMAGE_DESCRIPTION) shouldBe DEFAULT_PROFILE_IMAGE_EDIT_LABEL
     }
 
     @Test
@@ -179,7 +179,7 @@ class MoreHomeScaffoldTest {
         private const val DEFAULT_SIGN_IN_LABEL = "Sign in"
         private const val DEFAULT_SIGN_OUT_LABEL = "Sign out"
         private const val DEFAULT_PROFILE_IMAGE_DESCRIPTION = "Profile image"
-        private const val DEFAULT_PROFILE_PHOTO_PICKER_LABEL = "Choose profile photo"
+        private const val DEFAULT_PROFILE_IMAGE_EDIT_LABEL = "Edit profile photo"
         private const val USER_EMAIL = "diary@example.com"
         private val NON_USER_ACCOUNT_UI_STATES =
             listOf(

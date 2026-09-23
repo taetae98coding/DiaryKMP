@@ -5,4 +5,5 @@ import kotlinx.serialization.modules.PolymorphicModuleBuilder
 
 public fun PolymorphicModuleBuilder<ScreenNavKey>.moreNavKeys() {
     subclass(MoreHomeNavKey::class, MoreHomeNavKey.serializer())
+    subclass(ProfileImageEditNavKey::class, ProfileImageEditNavKey.serializer())
 }

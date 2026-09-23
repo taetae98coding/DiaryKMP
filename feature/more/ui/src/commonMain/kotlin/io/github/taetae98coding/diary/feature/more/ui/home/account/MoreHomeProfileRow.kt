@@ -19,7 +19,7 @@ import io.github.taetae98coding.diary.feature.more.ui.Res
 import io.github.taetae98coding.diary.feature.more.ui.home.MoreHomeScaffoldEvent
 import io.github.taetae98coding.diary.feature.more.ui.more_guest_label
 import io.github.taetae98coding.diary.feature.more.ui.more_profile_image_content_description
-import io.github.taetae98coding.diary.feature.more.ui.more_profile_photo_picker_click_label
+import io.github.taetae98coding.diary.feature.more.ui.more_profile_image_edit_click_label
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -42,10 +42,10 @@ internal fun MoreHomeProfileRow(
             is MoreHomeAccountUiState.User -> uiState.email
         }
 
-    val photoPickerClickLabel = stringResource(Res.string.more_profile_photo_picker_click_label)
+    val editClickLabel = stringResource(Res.string.more_profile_image_edit_click_label)
     val profileClickableModifier =
         if (uiState is MoreHomeAccountUiState.User) {
-            Modifier.clickable(onClickLabel = photoPickerClickLabel) { onEvent(MoreHomeScaffoldEvent.ClickProfile) }
+            Modifier.clickable(onClickLabel = editClickLabel) { onEvent(MoreHomeScaffoldEvent.ClickProfile) }
         } else {
             Modifier
         }

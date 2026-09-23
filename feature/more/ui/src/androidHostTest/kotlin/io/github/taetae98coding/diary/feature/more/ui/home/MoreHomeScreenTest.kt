@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.more.ui.home
 
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -8,16 +9,17 @@ import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.testing.TestLifecycleOwner
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.file.FileUri
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountUiState
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountViewModel
+import io.github.taetae98coding.diary.feature.more.ui.home.refresh.MoreHomeRefreshViewModel
 import io.github.taetae98coding.diary.feature.more.ui.home.signout.MoreHomeSignOutUiState
 import io.github.taetae98coding.diary.feature.more.ui.home.signout.MoreHomeSignOutViewModel
-import io.github.taetae98coding.diary.feature.more.ui.photo.PhotoPicker
 import io.kotest.matchers.shouldBe
-import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -222,70 +224,78 @@ class MoreHomeScreenTest {
     }
 
     @Test
-    fun `TC-MORE-HOME-FEATURE-017 사용자 상태에서 프로필을 선택하면 사진 선택 도구를 연다`() {
-        val photoPicker = screenTestPhotoPicker()
-        val viewModel =
-            screenTestViewModel(
-                MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL),
-            )
+    fun `TC-MORE-HOME-FEATURE-030 사용자 상태에서 프로필을 선택하면 ProfileImageEdit 화면으로 이동한다`() {
+        var navigateCount = 0
         setMoreHomeScreen(
-            viewModel = viewModel,
-            photoPicker = photoPicker,
+            viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)),
+            navigateToProfileImageEdit = { navigateCount += 1 },
         )
 
         composeRule.onNodeWithContentDescription(DEFAULT_PROFILE_IMAGE_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
-        coVerify(exactly = 1) { photoPicker.open() }
+        navigateCount shouldBe 1
     }
 
     @Test
-    fun `TC-MORE-HOME-FEATURE-018 사진을 고르면 고른 사진을 프로필 이미지로 반영하도록 요청한다`() {
-        val pickedUri = FileUri(PICKED_PHOTO_URI)
-        val photoPicker = screenTestPhotoPicker(pickedUri = pickedUri)
-        val viewModel =
-            screenTestViewModel(
-                MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL),
-            )
+    fun `TC-MORE-HOME-FEATURE-032 사용자 상태에서 화면이 표시되면 사용자 정보를 다시 확인한다`() {
+        val refreshViewModel = screenTestRefreshViewModel()
         setMoreHomeScreen(
-            viewModel = viewModel,
-            photoPicker = photoPicker,
+            viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)),
+            refreshViewModel = refreshViewModel,
         )
 
-        composeRule.onNodeWithContentDescription(DEFAULT_PROFILE_IMAGE_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
-        verify(exactly = 1) { viewModel.changeProfileImage(uri = pickedUri) }
+        verify(exactly = 1) { refreshViewModel.refresh() }
+        composeRule.onNodeWithText(USER_EMAIL).assertIsDisplayed()
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_LABEL).assertIsDisplayed()
     }
 
     @Test
-    fun `TC-MORE-HOME-FEATURE-020 사진 선택을 취소하면 프로필 이미지 반영을 요청하지 않는다`() {
-        val photoPicker = screenTestPhotoPicker(pickedUri = null)
-        val viewModel =
-            screenTestViewModel(
-                MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL),
-            )
+    fun `TC-MORE-HOME-FEATURE-033 화면이 다시 표시될 때마다 사용자 정보를 다시 확인한다`() {
+        val refreshViewModel = screenTestRefreshViewModel()
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         setMoreHomeScreen(
-            viewModel = viewModel,
-            photoPicker = photoPicker,
+            viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)),
+            refreshViewModel = refreshViewModel,
+            lifecycleOwner = lifecycleOwner,
+        )
+        composeRule.waitForIdle()
+        verify(exactly = 1) { refreshViewModel.refresh() }
+
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
+        composeRule.waitForIdle()
+
+        verify(exactly = 2) { refreshViewModel.refresh() }
+    }
+
+    @Test
+    fun `TC-MORE-HOME-DOMAIN-013 사용자 정보 다시 확인에 실패해도 계정 표시가 바뀌지 않는다`() {
+        val refreshViewModel = screenTestRefreshViewModel()
+        setMoreHomeScreen(
+            viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)),
+            refreshViewModel = refreshViewModel,
         )
 
-        composeRule.onNodeWithContentDescription(DEFAULT_PROFILE_IMAGE_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
-        coVerify(exactly = 1) { photoPicker.open() }
-        verify(exactly = 0) { viewModel.changeProfileImage(uri = any()) }
+        verify(exactly = 1) { refreshViewModel.refresh() }
+        composeRule.onNodeWithText(USER_EMAIL).assertIsDisplayed()
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_LABEL).assertIsDisplayed()
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_TITLE).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-MORE-HOME-DOMAIN-004 확인 중과 게스트 상태에서는 프로필을 선택해도 사진 선택 도구를 열지 않는다`() {
-        val photoPicker = screenTestPhotoPicker()
+    fun `TC-MORE-HOME-DOMAIN-011 확인 중과 게스트 상태에서는 프로필을 선택해도 ProfileImageEdit 화면으로 이동하지 않는다`() {
+        var navigateCount = 0
         val accountUiState = MutableStateFlow<MoreHomeAccountUiState>(MoreHomeAccountUiState.Loading)
         val viewModel = mockk<MoreHomeAccountViewModel>()
         every { viewModel.uiState } returns accountUiState
         setMoreHomeScreen(
             viewModel = viewModel,
-            photoPicker = photoPicker,
+            navigateToProfileImageEdit = { navigateCount += 1 },
         )
 
         NON_USER_ACCOUNT_UI_STATES.forEach { uiState ->
@@ -295,7 +305,7 @@ class MoreHomeScreenTest {
             composeRule.waitForIdle()
         }
 
-        coVerify(exactly = 0) { photoPicker.open() }
+        navigateCount shouldBe 0
     }
 
     @Test
@@ -381,6 +391,8 @@ class MoreHomeScreenTest {
     private fun setMoreHomeScreen(
         viewModel: MoreHomeAccountViewModel,
         signOutViewModel: MoreHomeSignOutViewModel = screenTestSignOutViewModel(),
+        refreshViewModel: MoreHomeRefreshViewModel = screenTestRefreshViewModel(),
+        lifecycleOwner: LifecycleOwner? = null,
         navigateToChecklist: () -> Unit = {},
         navigateToContact: () -> Unit = {},
         navigateToDDay: () -> Unit = {},
@@ -389,31 +401,34 @@ class MoreHomeScreenTest {
         navigateToLogin: () -> Unit = {},
         navigateToPlace: () -> Unit = {},
         navigateToPlaylist: () -> Unit = {},
+        navigateToProfileImageEdit: () -> Unit = {},
         navigateToQr: () -> Unit = {},
         navigateToSearch: () -> Unit = {},
         navigateToSetting: () -> Unit = {},
         navigateToWeb: () -> Unit = {},
-        photoPicker: PhotoPicker = screenTestPhotoPicker(),
     ) {
         composeRule.setContent {
-            DiaryTheme {
-                MoreHomeScreen(
-                    navigateToChecklist = navigateToChecklist,
-                    navigateToContact = navigateToContact,
-                    navigateToDDay = navigateToDDay,
-                    navigateToFile = navigateToFile,
-                    navigateToHoliday = navigateToHoliday,
-                    navigateToLogin = navigateToLogin,
-                    navigateToPlace = navigateToPlace,
-                    navigateToPlaylist = navigateToPlaylist,
-                    navigateToQr = navigateToQr,
-                    navigateToSearch = navigateToSearch,
-                    navigateToSetting = navigateToSetting,
-                    navigateToWeb = navigateToWeb,
-                    photoPicker = photoPicker,
-                    accountViewModel = viewModel,
-                    signOutViewModel = signOutViewModel,
-                )
+            CompositionLocalProvider(LocalLifecycleOwner provides (lifecycleOwner ?: LocalLifecycleOwner.current)) {
+                DiaryTheme {
+                    MoreHomeScreen(
+                        navigateToChecklist = navigateToChecklist,
+                        navigateToContact = navigateToContact,
+                        navigateToDDay = navigateToDDay,
+                        navigateToFile = navigateToFile,
+                        navigateToHoliday = navigateToHoliday,
+                        navigateToLogin = navigateToLogin,
+                        navigateToPlace = navigateToPlace,
+                        navigateToPlaylist = navigateToPlaylist,
+                        navigateToProfileImageEdit = navigateToProfileImageEdit,
+                        navigateToQr = navigateToQr,
+                        navigateToSearch = navigateToSearch,
+                        navigateToSetting = navigateToSetting,
+                        navigateToWeb = navigateToWeb,
+                        accountViewModel = viewModel,
+                        signOutViewModel = signOutViewModel,
+                        refreshViewModel = refreshViewModel,
+                    )
+                }
             }
         }
     }
@@ -442,7 +457,6 @@ class MoreHomeScreenTest {
         private const val DEFAULT_FILE_LABEL = "Files"
         private const val DEFAULT_PLAYLIST_LABEL = "Playlist"
         private const val USER_EMAIL = "diary@example.com"
-        private const val PICKED_PHOTO_URI = "content://media/external/images/media/1"
         private val NON_USER_ACCOUNT_UI_STATES =
             listOf(
                 MoreHomeAccountUiState.Loading,
@@ -452,7 +466,12 @@ class MoreHomeScreenTest {
         private fun screenTestViewModel(uiState: MoreHomeAccountUiState): MoreHomeAccountViewModel {
             val viewModel = mockk<MoreHomeAccountViewModel>()
             every { viewModel.uiState } returns MutableStateFlow(uiState)
-            every { viewModel.changeProfileImage(uri = any()) } returns Unit
+            return viewModel
+        }
+
+        private fun screenTestRefreshViewModel(): MoreHomeRefreshViewModel {
+            val viewModel = mockk<MoreHomeRefreshViewModel>()
+            every { viewModel.refresh() } returns Unit
             return viewModel
         }
 
@@ -463,12 +482,6 @@ class MoreHomeScreenTest {
             every { viewModel.confirmSignOut() } returns Unit
             every { viewModel.cancelSignOut() } returns Unit
             return viewModel
-        }
-
-        private fun screenTestPhotoPicker(pickedUri: FileUri? = null): PhotoPicker {
-            val photoPicker = mockk<PhotoPicker>()
-            coEvery { photoPicker.open() } returns pickedUri
-            return photoPicker
         }
     }
 }

@@ -3,9 +3,11 @@ package io.github.taetae98coding.diary.core.image.impl
 import io.github.taetae98coding.diary.core.image.api.ImageConverter
 import io.github.taetae98coding.diary.core.image.api.JpegSource
 import io.github.taetae98coding.diary.core.model.file.FileUri
+import io.github.taetae98coding.diary.core.model.image.ImageCropRegion
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.io.files.Path
+import java.awt.RenderingHints
 import java.awt.image.BufferedImage
 import java.io.File
 import java.net.URI
@@ -22,7 +24,11 @@ private const val PERCENT = 100f
 private const val EXIF_SCAN_BYTES = 64 * 1024
 
 internal class JvmImageConverter : ImageConverter {
-    override suspend fun toJpeg(uri: FileUri): JpegSource =
+    override suspend fun toJpeg(
+        uri: FileUri,
+        cropRegion: ImageCropRegion,
+        maxSideLength: Int,
+    ): JpegSource =
         withContext(Dispatchers.IO) {
             val sourceFile = Paths.get(URI(uri.value)).toFile()
             val image = checkNotNull(ImageIO.read(sourceFile)) { "Image cannot be read. uri=$uri" }
@@ -31,7 +37,7 @@ internal class JvmImageConverter : ImageConverter {
             runCatching {
                 image
                     .applyExifOrientation(sourceFile.readExifOrientation())
-                    .toOpaque()
+                    .cropScaled(cropRegion = cropRegion, maxSideLength = maxSideLength)
                     .writeJpeg(file)
             }.onFailure { file.delete() }
                 .getOrThrow()
@@ -41,18 +47,33 @@ internal class JvmImageConverter : ImageConverter {
 
     private fun File.readExifOrientation(): Int = inputStream().use { stream -> stream.readNBytes(EXIF_SCAN_BYTES) }.readExifOrientation()
 
-    // JPEG는 투명도를 담지 못해, 투명한 부분이 있는 이미지는 불투명한 이미지에 옮겨 그린다.
-    private fun BufferedImage.toOpaque(): BufferedImage {
-        if (type == BufferedImage.TYPE_INT_RGB) return this
+    // JPEG는 투명도를 담지 못해, 남길 영역을 불투명한 이미지에 옮겨 그리면서 함께 줄인다.
+    private fun BufferedImage.cropScaled(
+        cropRegion: ImageCropRegion,
+        maxSideLength: Int,
+    ): BufferedImage {
+        val crop = cropRegion.toPixelRect(imageWidth = width, imageHeight = height)
+        val targetSize = crop.scaled(crop.scaleToFit(maxSideLength))
+        val target = BufferedImage(targetSize.width, targetSize.height, BufferedImage.TYPE_INT_RGB)
 
-        val opaque = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
-
-        opaque.createGraphics().apply {
-            drawImage(this@toOpaque, 0, 0, null)
+        target.createGraphics().apply {
+            setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR)
+            drawImage(
+                this@cropScaled,
+                0,
+                0,
+                targetSize.width,
+                targetSize.height,
+                crop.left,
+                crop.top,
+                crop.right,
+                crop.bottom,
+                null,
+            )
             dispose()
         }
 
-        return opaque
+        return target
     }
 
     private fun BufferedImage.writeJpeg(file: File) {

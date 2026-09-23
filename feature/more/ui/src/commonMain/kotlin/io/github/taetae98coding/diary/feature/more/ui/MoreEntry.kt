@@ -10,8 +10,10 @@ import io.github.taetae98coding.diary.feature.file.api.FileHomeNavKey
 import io.github.taetae98coding.diary.feature.holiday.api.HolidayHomeNavKey
 import io.github.taetae98coding.diary.feature.login.api.LoginHomeNavKey
 import io.github.taetae98coding.diary.feature.more.api.MoreHomeNavKey
+import io.github.taetae98coding.diary.feature.more.api.ProfileImageEditNavKey
 import io.github.taetae98coding.diary.feature.more.ui.home.MoreHomeScreen
 import io.github.taetae98coding.diary.feature.more.ui.photo.rememberPhotoPicker
+import io.github.taetae98coding.diary.feature.more.ui.profile.ProfileImageEditScreen
 import io.github.taetae98coding.diary.feature.place.api.PlaceHomeNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.PlaylistHomeNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrHomeNavKey
@@ -22,6 +24,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 public fun EntryProviderScope<ScreenNavKey>.moreEntry(backStack: NavBackStack<ScreenNavKey>) {
     moreHomeEntry(backStack = backStack)
+    profileImageEditEntry(backStack = backStack)
 }
 
 private fun EntryProviderScope<ScreenNavKey>.moreHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
@@ -51,6 +54,9 @@ private fun EntryProviderScope<ScreenNavKey>.moreHomeEntry(backStack: NavBackSta
             navigateToPlaylist = {
                 backStack.add(PlaylistHomeNavKey)
             },
+            navigateToProfileImageEdit = {
+                backStack.add(ProfileImageEditNavKey)
+            },
             navigateToQr = {
                 backStack.add(QrHomeNavKey)
             },
@@ -63,9 +69,19 @@ private fun EntryProviderScope<ScreenNavKey>.moreHomeEntry(backStack: NavBackSta
             navigateToWeb = {
                 backStack.add(WebHomeNavKey)
             },
-            photoPicker = rememberPhotoPicker(),
             accountViewModel = koinViewModel(),
             signOutViewModel = koinViewModel(),
+            refreshViewModel = koinViewModel(),
+        )
+    }
+}
+
+private fun EntryProviderScope<ScreenNavKey>.profileImageEditEntry(backStack: NavBackStack<ScreenNavKey>) {
+    entry<ProfileImageEditNavKey> {
+        ProfileImageEditScreen(
+            navigateUp = backStack::removeLastOrNull,
+            photoPicker = rememberPhotoPicker(),
+            viewModel = koinViewModel(),
         )
     }
 }

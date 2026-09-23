@@ -12,5 +12,7 @@ public interface SupabaseAuth {
 
     public fun getUserFlow(): Flow<SupabaseUser?>
 
+    public suspend fun retrieveUserForCurrentSession()
+
     public suspend fun signOut()
 }
