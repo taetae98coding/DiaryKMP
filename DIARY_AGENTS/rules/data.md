@@ -12,6 +12,8 @@
 
 `WorkManager`를 감싸는 범용 실행 모듈은 두지 않는다. 작업마다 예약 정책, 제약, 상태 관찰 요구가 달라 공통 계약이 `WorkManager`의 표면을 다시 쓰는 것이 되고, 실제로 공유되는 코드는 `CoroutineWorker` 상속 정도다. 세 번째 작업이 같은 보일러플레이트를 반복하게 되면 그때 Android 전용 위임 Worker를 분리한다.
 
+실행 수단을 어떻게 쓰는지(실패 처리, 고유 작업 정책, 제약, `BGTask` 등록)는 [work.md](work.md)가 소유한다.
+
 iOS는 정해진 시각에 앱 코드를 깨우는 대신 알림 자체를 미리 등록하므로, 전달 시각 예약은 `notification`이 소유하고 `work:*`의 `iosMain`은 그 수단을 쓴다.
 
 `core:*`가 `core:database:api`와 `core:network:api`를 함께 참조하고 있으면 그 모듈은 data 책임을 들고 있는 것이므로 `data:*`나 `work:*`로 옮긴다.
