@@ -2,6 +2,7 @@
 
 package io.github.taetae98coding.diary.feature.routine.ui
 
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
@@ -16,14 +17,25 @@ import io.github.taetae98coding.diary.feature.routine.ui.add.RoutineAddScaffoldC
 import io.github.taetae98coding.diary.feature.routine.ui.add.RoutineAddScreen
 import io.github.taetae98coding.diary.feature.routine.ui.home.RoutineHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.routine.ui.home.RoutineHomeScreen
+import io.github.taetae98coding.diary.feature.routine.ui.home.ScrollToTopOnReselectEffect
+import kotlinx.coroutines.flow.Flow
 import org.koin.compose.viewmodel.koinViewModel
 
-public fun EntryProviderScope<ScreenNavKey>.routineEntry(backStack: NavBackStack<ScreenNavKey>) {
-    routineHomeEntry(backStack = backStack)
+public fun EntryProviderScope<ScreenNavKey>.routineEntry(
+    backStack: NavBackStack<ScreenNavKey>,
+    homeReselectEvent: Flow<Unit>,
+) {
+    routineHomeEntry(
+        backStack = backStack,
+        homeReselectEvent = homeReselectEvent,
+    )
     routineAddEntry(backStack = backStack)
 }
 
-private fun EntryProviderScope<ScreenNavKey>.routineHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.routineHomeEntry(
+    backStack: NavBackStack<ScreenNavKey>,
+    homeReselectEvent: Flow<Unit>,
+) {
     entry<RoutineHomeNavKey>(
         metadata =
             ListDetailSceneStrategy.listPane(
@@ -37,10 +49,16 @@ private fun EntryProviderScope<ScreenNavKey>.routineHomeEntry(backStack: NavBack
             ) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f),
     ) {
         val isDetailPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.Detail)
+        val scrollState = rememberScrollState()
 
+        ScrollToTopOnReselectEffect(
+            reselectEvent = homeReselectEvent,
+            scrollState = scrollState,
+        )
         RoutineHomeScreen(
             navigateToAdd = { backStack.add(RoutineAddNavKey) },
             componentVisibleProvider = { RoutineHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible) },
+            scrollState = scrollState,
             viewModel = koinViewModel(),
         )
     }

@@ -17,6 +17,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.app.shared.navigation.AppNavKeySavedStateConfiguration
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
+import io.github.taetae98coding.diary.app.shared.navigation.TopLevelReselectEvent
 import io.github.taetae98coding.diary.app.shared.navigation.rememberScreenNavBackStack
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNavKey
@@ -30,6 +31,7 @@ import io.github.taetae98coding.diary.feature.tag.api.isTagListDetailPane
 internal class AppState(
     val backStack: NavBackStack<ScreenNavKey>,
     val scaffoldState: NavigationSuiteScaffoldState,
+    val reselectEvent: TopLevelReselectEvent,
     private val paneScaffoldDirectiveProvider: () -> PaneScaffoldDirective,
 ) {
     val paneScaffoldDirective: PaneScaffoldDirective
@@ -50,7 +52,11 @@ internal class AppState(
     }
 
     fun navigateTo(topLevelNavigation: TopLevelNavigation) {
-        if (backStack.lastOrNull() == topLevelNavigation.key) return
+        if (backStack.lastOrNull() == topLevelNavigation.key) {
+            reselectEvent.send(topLevelNavigation)
+
+            return
+        }
 
         val navKeyList =
             listOf(TopLevelNavigation.DEFAULT, topLevelNavigation)
@@ -106,6 +112,7 @@ internal fun rememberAppState(): AppState {
         AppState(
             backStack = backStack,
             scaffoldState = scaffoldState,
+            reselectEvent = TopLevelReselectEvent(),
             paneScaffoldDirectiveProvider = { paneScaffoldDirective },
         )
     }

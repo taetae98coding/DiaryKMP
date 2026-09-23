@@ -3,7 +3,9 @@ package io.github.taetae98coding.diary.app.shared
 import androidx.compose.material3.adaptive.layout.PaneScaffoldDirective
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldState
 import androidx.navigation3.runtime.NavBackStack
+import app.cash.turbine.test
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
+import io.github.taetae98coding.diary.app.shared.navigation.TopLevelReselectEvent
 import io.github.taetae98coding.diary.app.shared.navigation.topLevelNavigationList
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNavKey
@@ -65,6 +67,78 @@ class AppStateTest :
 
                 appState.backStack.toList() shouldBe initialBackStack
                 appState.currentTopLevelNavigation shouldBe destination
+            }
+        }
+
+        test("TC-TOP-LEVEL-NAVIGATION-DOMAIN-011 상세 자리에 기본으로 놓인 화면은 이어진 화면으로 보지 않는다") {
+            val appState =
+                createAppState(
+                    TopLevelNavigation.DEFAULT.key,
+                    TopLevelNavigation.Memo.key,
+                    isListDetailTwoPane = true,
+                )
+            val initialBackStack = appState.backStack.toList()
+
+            appState.reselectEvent.flowOf(TopLevelNavigation.Memo).test {
+                appState.navigateTo(TopLevelNavigation.Memo)
+
+                awaitItem()
+                expectNoEvents()
+            }
+
+            appState.backStack.toList() shouldBe initialBackStack
+        }
+
+        test("TC-TOP-LEVEL-NAVIGATION-FEATURE-012 이어진 화면이 열려 있으면 닫고 돌아오기만 한다") {
+            openedScreenCases.forEach { case ->
+                val appState = createAppState(*case.backStack.toTypedArray())
+
+                appState.reselectEvent.flowOf(case.topLevelNavigation).test {
+                    appState.navigateTo(case.topLevelNavigation)
+
+                    expectNoEvents()
+                }
+
+                appState.backStack.toList() shouldBe expectedBackStack(case.topLevelNavigation)
+            }
+        }
+
+        test("TC-TOP-LEVEL-NAVIGATION-FEATURE-013 이어진 화면을 닫은 뒤 다시 선택하면 돌아갈 자리를 알린다") {
+            openedScreenCases.forEach { case ->
+                val appState = createAppState(*case.backStack.toTypedArray())
+
+                appState.navigateTo(case.topLevelNavigation)
+
+                appState.reselectEvent.flowOf(case.topLevelNavigation).test {
+                    appState.navigateTo(case.topLevelNavigation)
+
+                    awaitItem()
+                    expectNoEvents()
+                }
+            }
+        }
+
+        test("TC-TOP-LEVEL-NAVIGATION-DOMAIN-012 이어진 화면을 닫은 뒤 뒤로가면 기본 목적지로 돌아간다") {
+            val appState =
+                createAppState(
+                    TopLevelNavigation.DEFAULT.key,
+                    TopLevelNavigation.Memo.key,
+                    MemoDetailNavKey(Uuid.random()),
+                )
+
+            appState.navigateTo(TopLevelNavigation.Memo)
+            appState.backStack.removeLast()
+
+            appState.currentTopLevelNavigation shouldBe TopLevelNavigation.DEFAULT
+        }
+
+        test("다시 선택은 그 목적지에만 돌아갈 자리를 알린다") {
+            val appState = createAppState(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.Memo.key)
+
+            appState.reselectEvent.flowOf(TopLevelNavigation.Tag).test {
+                appState.navigateTo(TopLevelNavigation.Memo)
+
+                expectNoEvents()
             }
         }
 
@@ -209,6 +283,37 @@ class AppStateTest :
         }
     }) {
     public companion object {
+        private val openedScreenCases =
+            listOf(
+                DetailDestinationCase(
+                    topLevelNavigation = TopLevelNavigation.Memo,
+                    backStack =
+                        listOf(
+                            TopLevelNavigation.DEFAULT.key,
+                            TopLevelNavigation.Memo.key,
+                            MemoDetailNavKey(Uuid.random()),
+                        ),
+                ),
+                DetailDestinationCase(
+                    topLevelNavigation = TopLevelNavigation.Memo,
+                    backStack =
+                        listOf(
+                            TopLevelNavigation.DEFAULT.key,
+                            TopLevelNavigation.Memo.key,
+                            MemoHomeFilterNavKey,
+                        ),
+                ),
+                DetailDestinationCase(
+                    topLevelNavigation = TopLevelNavigation.Tag,
+                    backStack =
+                        listOf(
+                            TopLevelNavigation.DEFAULT.key,
+                            TopLevelNavigation.Tag.key,
+                            TagAddNavKey(),
+                        ),
+                ),
+            )
+
         private val detailDestinationCases =
             listOf(
                 DetailDestinationCase(
@@ -330,6 +435,7 @@ class AppStateTest :
             AppState(
                 backStack = NavBackStack(*keys),
                 scaffoldState = mockk<NavigationSuiteScaffoldState>(relaxed = true),
+                reselectEvent = TopLevelReselectEvent(),
                 paneScaffoldDirectiveProvider = {
                     if (isListDetailTwoPane) {
                         PaneScaffoldDirective.Default.copy(maxHorizontalPartitions = 2)

@@ -20,6 +20,7 @@ import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.flow.emptyFlow
 import kotlin.uuid.Uuid
 
 class TagEntryTest :
@@ -92,7 +93,13 @@ class TagEntryTest :
             backStack: List<ScreenNavKey>,
             key: ScreenNavKey,
         ): Map<String, Any> {
-            val provider = entryProvider<ScreenNavKey> { tagEntry(backStack = NavBackStack(*backStack.toTypedArray())) }
+            val provider =
+                entryProvider<ScreenNavKey> {
+                    tagEntry(
+                        backStack = NavBackStack(*backStack.toTypedArray()),
+                        homeReselectEvent = emptyFlow(),
+                    )
+                }
 
             return provider(key).metadata
         }

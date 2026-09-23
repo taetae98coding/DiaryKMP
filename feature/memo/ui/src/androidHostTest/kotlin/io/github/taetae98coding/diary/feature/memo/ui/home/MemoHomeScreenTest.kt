@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.memo.ui.home
 
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -174,6 +175,7 @@ class MemoHomeScreenTest {
                     navigateToFilter = navigateToFilter,
                     navigateToFinishedList = navigateToFinishedList,
                     navigateToSearch = navigateToSearch,
+                    listState = rememberLazyListState(),
                     memoViewModel = viewModel,
                     syncViewModel = screenTestSyncViewModel(),
                     componentVisibleProvider = { MemoHomeScaffoldComponentVisible() },

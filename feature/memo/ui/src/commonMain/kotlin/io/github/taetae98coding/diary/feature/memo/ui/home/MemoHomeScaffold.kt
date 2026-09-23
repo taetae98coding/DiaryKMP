@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -57,6 +59,7 @@ internal fun MemoHomeScaffold(
     onMemoListEvent: (MemoListEvent) -> Unit,
     modifier: Modifier = Modifier,
     memoListState: MemoListState = rememberMemoListState(),
+    listState: LazyListState = rememberLazyListState(),
     sortSheetState: DialogState = rememberDialogState(),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     memoPagingItems: LazyPagingItems<MemoListItem> = remember { flowOf(PagingData.empty<MemoListItem>()) }.collectAsLazyPagingItems(),
@@ -104,6 +107,7 @@ internal fun MemoHomeScaffold(
             MemoList(
                 onEvent = onMemoListEvent,
                 state = memoListState,
+                listState = listState,
                 memoPagingItems = memoPagingItems,
                 modifier = Modifier.fillMaxSize(),
                 uiStateProvider = memoListUiStateProvider,

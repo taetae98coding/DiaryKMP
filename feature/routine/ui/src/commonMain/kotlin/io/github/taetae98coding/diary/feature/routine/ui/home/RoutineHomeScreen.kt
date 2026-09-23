@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.routine.ui.home
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -11,12 +12,14 @@ import io.github.taetae98coding.diary.compose.core.shortcut.keyShortcut
 internal fun RoutineHomeScreen(
     navigateToAdd: () -> Unit,
     componentVisibleProvider: () -> RoutineHomeScaffoldComponentVisible,
+    scrollState: ScrollState,
     viewModel: RoutineHomeViewModel,
     modifier: Modifier = Modifier,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     RoutineHomeScaffold(
+        scrollState = scrollState,
         onEvent = { event ->
             when (event) {
                 is RoutineHomeScaffoldEvent.ClickAdd -> navigateToAdd()

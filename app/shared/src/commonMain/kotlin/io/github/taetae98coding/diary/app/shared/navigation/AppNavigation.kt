@@ -80,10 +80,22 @@ internal fun AppNavigation(
             predictivePopTransitionSpec = { DiaryFadeContentTransform },
             entryProvider =
                 entryProvider {
-                    memoEntry(backStack = appState.backStack)
-                    tagEntry(backStack = appState.backStack)
-                    calendarEntry(backStack = appState.backStack)
-                    routineEntry(backStack = appState.backStack)
+                    memoEntry(
+                        backStack = appState.backStack,
+                        homeReselectEvent = appState.reselectEvent.flowOf(TopLevelNavigation.Memo),
+                    )
+                    tagEntry(
+                        backStack = appState.backStack,
+                        homeReselectEvent = appState.reselectEvent.flowOf(TopLevelNavigation.Tag),
+                    )
+                    calendarEntry(
+                        backStack = appState.backStack,
+                        homeReselectEvent = appState.reselectEvent.flowOf(TopLevelNavigation.Calendar),
+                    )
+                    routineEntry(
+                        backStack = appState.backStack,
+                        homeReselectEvent = appState.reselectEvent.flowOf(TopLevelNavigation.Routine),
+                    )
                     moreEntry(backStack = appState.backStack)
 
                     checklistEntry(backStack = appState.backStack)

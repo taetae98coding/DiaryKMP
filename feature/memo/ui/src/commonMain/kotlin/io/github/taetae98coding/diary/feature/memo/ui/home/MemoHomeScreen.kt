@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.memo.ui.home
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -14,7 +15,6 @@ import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.compose.memo.list.MemoListUndoSnackbarEffect
 import io.github.taetae98coding.diary.compose.memo.list.UpdateMemoListTodayEffect
 import io.github.taetae98coding.diary.compose.memo.list.rememberMemoListState
-import org.koin.compose.viewmodel.koinViewModel
 import kotlin.uuid.Uuid
 
 @Composable
@@ -25,6 +25,7 @@ internal fun MemoHomeScreen(
     navigateToFinishedList: () -> Unit,
     navigateToSearch: () -> Unit,
     componentVisibleProvider: () -> MemoHomeScaffoldComponentVisible,
+    listState: LazyListState,
     memoViewModel: MemoHomeViewModel,
     syncViewModel: MemoHomeSyncViewModel,
     modifier: Modifier = Modifier,
@@ -47,6 +48,7 @@ internal fun MemoHomeScreen(
 
     MemoHomeScaffold(
         memoListState = memoListState,
+        listState = listState,
         sortSheetState = sortSheetState,
         snackbarHostState = snackbarHostState,
         memoPagingItems = memoPagingItems,

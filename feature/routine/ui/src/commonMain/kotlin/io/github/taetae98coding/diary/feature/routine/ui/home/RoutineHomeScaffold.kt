@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.routine.ui.home
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -28,6 +29,7 @@ import org.jetbrains.compose.resources.stringResource
 internal fun RoutineHomeScaffold(
     onEvent: (RoutineHomeScaffoldEvent) -> Unit,
     modifier: Modifier = Modifier,
+    scrollState: ScrollState = rememberScrollState(),
     uiStateProvider: () -> RoutineHomeUiState = { RoutineHomeUiState() },
     componentVisibleProvider: () -> RoutineHomeScaffoldComponentVisible = { RoutineHomeScaffoldComponentVisible() },
 ) {
@@ -57,7 +59,7 @@ internal fun RoutineHomeScaffold(
                 modifier =
                     Modifier
                         .fillMaxSize()
-                        .verticalScroll(rememberScrollState()),
+                        .verticalScroll(scrollState),
                 description = stringResource(Res.string.routine_home_empty_description),
                 icon = { RoutineIcon(modifier = Modifier.size(DiaryPlaceholderDefaults.IconSize)) },
             )

@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.memo.ui.home
 
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
@@ -110,6 +111,7 @@ class MemoHomeScreenTodayHeaderTest {
                     navigateToFilter = {},
                     navigateToFinishedList = {},
                     navigateToSearch = {},
+                    listState = rememberLazyListState(),
                     memoViewModel = viewModel,
                     syncViewModel = screenTestSyncViewModel(),
                     componentVisibleProvider = { MemoHomeScaffoldComponentVisible() },

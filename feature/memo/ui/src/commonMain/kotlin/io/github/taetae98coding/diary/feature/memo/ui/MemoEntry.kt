@@ -2,6 +2,7 @@
 
 package io.github.taetae98coding.diary.feature.memo.ui
 
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
@@ -26,6 +27,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.detail.MemoDetailScreen
 import io.github.taetae98coding.diary.feature.memo.ui.finished.MemoFinishedListScreen
 import io.github.taetae98coding.diary.feature.memo.ui.home.MemoHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.memo.ui.home.MemoHomeScreen
+import io.github.taetae98coding.diary.feature.memo.ui.home.ScrollToFirstMemoOnReselectEffect
 import io.github.taetae98coding.diary.feature.memo.ui.home.filter.MemoHomeFilterContent
 import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagViewModel
 import io.github.taetae98coding.diary.feature.place.api.PlaceAddNavKey
@@ -37,18 +39,28 @@ import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
+import kotlinx.coroutines.flow.Flow
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-public fun EntryProviderScope<ScreenNavKey>.memoEntry(backStack: NavBackStack<ScreenNavKey>) {
-    memoHomeEntry(backStack = backStack)
+public fun EntryProviderScope<ScreenNavKey>.memoEntry(
+    backStack: NavBackStack<ScreenNavKey>,
+    homeReselectEvent: Flow<Unit>,
+) {
+    memoHomeEntry(
+        backStack = backStack,
+        homeReselectEvent = homeReselectEvent,
+    )
     memoHomeFilterEntry()
     memoFinishedListEntry(backStack = backStack)
     memoAddEntry(backStack = backStack)
     memoDetailEntry(backStack = backStack)
 }
 
-private fun EntryProviderScope<ScreenNavKey>.memoHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.memoHomeEntry(
+    backStack: NavBackStack<ScreenNavKey>,
+    homeReselectEvent: Flow<Unit>,
+) {
     entry<MemoHomeNavKey>(
         metadata =
             ListDetailSceneStrategy.listPane(
@@ -57,7 +69,12 @@ private fun EntryProviderScope<ScreenNavKey>.memoHomeEntry(backStack: NavBackSta
             ) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f),
     ) {
         val isDetailPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.Detail)
+        val listState = rememberLazyListState()
 
+        ScrollToFirstMemoOnReselectEffect(
+            reselectEvent = homeReselectEvent,
+            listState = listState,
+        )
         MemoHomeScreen(
             navigateToAdd = {
                 backStack.add(MemoAddNavKey())
@@ -84,6 +101,7 @@ private fun EntryProviderScope<ScreenNavKey>.memoHomeEntry(backStack: NavBackSta
 
                 MemoHomeScaffoldComponentVisible(isAddButtonVisible = !isAddPaneVisible)
             },
+            listState = listState,
             memoViewModel = koinViewModel(),
             syncViewModel = koinViewModel(),
         )

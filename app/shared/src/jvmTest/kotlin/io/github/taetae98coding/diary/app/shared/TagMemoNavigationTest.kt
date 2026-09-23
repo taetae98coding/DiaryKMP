@@ -9,6 +9,7 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.app.shared.navigation.AppNavKeySavedStateConfiguration
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
+import io.github.taetae98coding.diary.app.shared.navigation.TopLevelReselectEvent
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
@@ -110,6 +111,7 @@ private fun createAppState(keys: List<ScreenNavKey>): AppState =
     AppState(
         backStack = NavBackStack(*keys.toTypedArray()),
         scaffoldState = mockk<NavigationSuiteScaffoldState>(relaxed = true),
+        reselectEvent = TopLevelReselectEvent(),
         paneScaffoldDirectiveProvider = {
             PaneScaffoldDirective.Default.copy(maxHorizontalPartitions = 2)
         },

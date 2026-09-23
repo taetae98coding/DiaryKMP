@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.routine.ui.home
 
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -78,6 +79,7 @@ class RoutineHomeScreenTest {
                 RoutineHomeScreen(
                     navigateToAdd = navigateToAdd,
                     componentVisibleProvider = { componentVisible },
+                    scrollState = rememberScrollState(),
                     viewModel = viewModel,
                 )
             }

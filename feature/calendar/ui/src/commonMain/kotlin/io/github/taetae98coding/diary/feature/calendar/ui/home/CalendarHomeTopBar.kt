@@ -7,7 +7,6 @@ import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import kotlinx.coroutines.launch
-import kotlinx.datetime.yearMonth
 
 @Composable
 internal fun CalendarHomeTopBar(
@@ -30,7 +29,7 @@ internal fun CalendarHomeTopBar(
             state.today?.let { today ->
                 CalendarHomeTodayButton(
                     today = today,
-                    onClick = { coroutineScope.launch { state.calendarState.animateScrollTo(today.yearMonth) } },
+                    onClick = { coroutineScope.launch { state.animateScrollToToday() } },
                 )
             }
             CalendarHomeFilterButton(

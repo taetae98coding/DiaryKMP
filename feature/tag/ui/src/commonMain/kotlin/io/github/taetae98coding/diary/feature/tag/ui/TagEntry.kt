@@ -2,6 +2,7 @@
 
 package io.github.taetae98coding.diary.feature.tag.ui
 
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
@@ -29,17 +30,25 @@ import io.github.taetae98coding.diary.feature.tag.ui.add.TagAddScreen
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailScreen
 import io.github.taetae98coding.diary.feature.tag.ui.finished.TagFinishedListScreen
+import io.github.taetae98coding.diary.feature.tag.ui.home.ScrollToFirstTagOnReselectEffect
 import io.github.taetae98coding.diary.feature.tag.ui.home.TagHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.tag.ui.home.TagHomeScreen
 import io.github.taetae98coding.diary.feature.tag.ui.home.filter.TagHomeFilterContent
 import io.github.taetae98coding.diary.feature.tag.ui.memo.finished.TagMemoFinishedListDetailPlaceholder
 import io.github.taetae98coding.diary.feature.tag.ui.memo.finished.TagMemoFinishedListScreen
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
+import kotlinx.coroutines.flow.Flow
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-public fun EntryProviderScope<ScreenNavKey>.tagEntry(backStack: NavBackStack<ScreenNavKey>) {
-    tagHomeEntry(backStack = backStack)
+public fun EntryProviderScope<ScreenNavKey>.tagEntry(
+    backStack: NavBackStack<ScreenNavKey>,
+    homeReselectEvent: Flow<Unit>,
+) {
+    tagHomeEntry(
+        backStack = backStack,
+        homeReselectEvent = homeReselectEvent,
+    )
     tagHomeFilterEntry()
     tagFinishedListEntry(backStack = backStack)
     tagAddEntry(backStack = backStack)
@@ -47,7 +56,10 @@ public fun EntryProviderScope<ScreenNavKey>.tagEntry(backStack: NavBackStack<Scr
     tagMemoFinishedListEntry(backStack = backStack)
 }
 
-private fun EntryProviderScope<ScreenNavKey>.tagHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.tagHomeEntry(
+    backStack: NavBackStack<ScreenNavKey>,
+    homeReselectEvent: Flow<Unit>,
+) {
     entry<TagHomeNavKey>(
         metadata =
             ListDetailSceneStrategy.listPane(
@@ -69,7 +81,12 @@ private fun EntryProviderScope<ScreenNavKey>.tagHomeEntry(backStack: NavBackStac
             ) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f),
     ) {
         val isDetailPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.Detail)
+        val gridState = rememberLazyGridState()
 
+        ScrollToFirstTagOnReselectEffect(
+            reselectEvent = homeReselectEvent,
+            gridState = gridState,
+        )
         TagHomeScreen(
             navigateToAdd = {
                 backStack.add(TagAddNavKey())
@@ -90,6 +107,7 @@ private fun EntryProviderScope<ScreenNavKey>.tagHomeEntry(backStack: NavBackStac
 
                 TagHomeScaffoldComponentVisible(isAddButtonVisible = !isAddPaneVisible)
             },
+            gridState = gridState,
             tagViewModel = koinViewModel(),
             syncViewModel = koinViewModel(),
         )

@@ -12,6 +12,7 @@ import io.github.taetae98coding.diary.feature.routine.api.RoutineHomeNavKey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.flow.emptyFlow
 
 class RoutineEntryTest :
     FunSpec({
@@ -50,7 +51,13 @@ class RoutineEntryTest :
             backStack: List<ScreenNavKey>,
             key: ScreenNavKey,
         ): Map<String, Any> {
-            val provider = entryProvider<ScreenNavKey> { routineEntry(backStack = NavBackStack(*backStack.toTypedArray())) }
+            val provider =
+                entryProvider<ScreenNavKey> {
+                    routineEntry(
+                        backStack = NavBackStack(*backStack.toTypedArray()),
+                        homeReselectEvent = emptyFlow(),
+                    )
+                }
 
             return provider(key).metadata
         }

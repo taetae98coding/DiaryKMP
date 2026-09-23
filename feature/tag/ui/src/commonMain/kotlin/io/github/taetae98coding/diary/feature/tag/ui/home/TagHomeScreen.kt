@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.tag.ui.home
 
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -18,6 +19,7 @@ internal fun TagHomeScreen(
     navigateToFinishedList: () -> Unit,
     navigateToSearch: () -> Unit,
     componentVisibleProvider: () -> TagHomeScaffoldComponentVisible,
+    gridState: LazyGridState,
     tagViewModel: TagHomeViewModel,
     syncViewModel: TagHomeSyncViewModel,
     modifier: Modifier = Modifier,
@@ -30,6 +32,7 @@ internal fun TagHomeScreen(
 
     TagHomeScaffold(
         sortSheetState = sortSheetState,
+        gridState = gridState,
         tagPagingItems = tagPagingItems,
         onEvent = { event ->
             when (event) {

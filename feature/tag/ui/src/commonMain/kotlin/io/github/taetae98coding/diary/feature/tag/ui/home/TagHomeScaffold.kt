@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -47,6 +49,7 @@ internal fun TagHomeScaffold(
     onEvent: (TagHomeScaffoldEvent) -> Unit,
     modifier: Modifier = Modifier,
     sortSheetState: DialogState = rememberDialogState(),
+    gridState: LazyGridState = rememberLazyGridState(),
     tagPagingItems: LazyPagingItems<Tag> = remember { flowOf(PagingData.empty<Tag>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> TagHomeUiState = { TagHomeUiState() },
     filterUiStateProvider: () -> TagHomeScaffoldFilterUiState = { TagHomeScaffoldFilterUiState() },
@@ -90,6 +93,7 @@ internal fun TagHomeScaffold(
 
             TagList(
                 tagPagingItems = tagPagingItems,
+                gridState = gridState,
                 onTagClick = { id -> onEvent(TagHomeScaffoldEvent.ClickTag(id)) },
                 onRefresh = { onEvent(TagHomeScaffoldEvent.Refresh) },
                 modifier = Modifier.fillMaxSize(),

@@ -11,20 +11,37 @@ import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeNavKey
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeScreen
+import io.github.taetae98coding.diary.feature.calendar.ui.home.ScrollToTodayOnReselectEffect
 import io.github.taetae98coding.diary.feature.calendar.ui.home.filter.CalendarHomeFilterContent
 import io.github.taetae98coding.diary.feature.calendar.ui.home.rememberCalendarHomeScaffoldState
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
+import kotlinx.coroutines.flow.Flow
 import org.koin.compose.viewmodel.koinViewModel
 
-public fun EntryProviderScope<ScreenNavKey>.calendarEntry(backStack: NavBackStack<ScreenNavKey>) {
-    calendarHomeEntry(backStack = backStack)
+public fun EntryProviderScope<ScreenNavKey>.calendarEntry(
+    backStack: NavBackStack<ScreenNavKey>,
+    homeReselectEvent: Flow<Unit>,
+) {
+    calendarHomeEntry(
+        backStack = backStack,
+        homeReselectEvent = homeReselectEvent,
+    )
     calendarHomeFilterEntry()
 }
 
-private fun EntryProviderScope<ScreenNavKey>.calendarHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
+private fun EntryProviderScope<ScreenNavKey>.calendarHomeEntry(
+    backStack: NavBackStack<ScreenNavKey>,
+    homeReselectEvent: Flow<Unit>,
+) {
     entry<CalendarHomeNavKey> {
+        val state = rememberCalendarHomeScaffoldState()
+
+        ScrollToTodayOnReselectEffect(
+            reselectEvent = homeReselectEvent,
+            state = state,
+        )
         CalendarHomeScreen(
             navigateToMemoDetail = { id -> backStack.add(MemoDetailNavKey(id)) },
             navigateToMemoAdd = { dateRange ->
@@ -40,7 +57,7 @@ private fun EntryProviderScope<ScreenNavKey>.calendarHomeEntry(backStack: NavBac
             },
             navigateToContactDetail = { contactId -> backStack.add(ContactDetailNavKey(contactId)) },
             navigateToFilter = { backStack.add(CalendarHomeFilterNavKey) },
-            state = rememberCalendarHomeScaffoldState(),
+            state = state,
             permissionManager = rememberPermissionManager(),
             holidayViewModel = koinViewModel(),
             memoViewModel = koinViewModel(),

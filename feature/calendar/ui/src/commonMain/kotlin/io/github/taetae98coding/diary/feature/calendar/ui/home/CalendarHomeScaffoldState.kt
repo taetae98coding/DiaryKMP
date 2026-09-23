@@ -14,6 +14,7 @@ import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
+import kotlinx.datetime.yearMonth
 import kotlin.time.Clock
 
 @Stable
@@ -35,6 +36,12 @@ internal class CalendarHomeScaffoldState(
 
     fun updateToday() {
         today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+    }
+
+    suspend fun animateScrollToToday() {
+        val today = today ?: return
+
+        calendarState.animateScrollTo(today.yearMonth)
     }
 
     fun showDatePicker() {

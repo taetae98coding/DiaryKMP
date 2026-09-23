@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.tag.ui.home
 
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -118,6 +119,7 @@ class TagHomeScreenTest {
                     navigateToFilter = navigateToFilter,
                     navigateToFinishedList = navigateToFinishedList,
                     navigateToSearch = navigateToSearch,
+                    gridState = rememberLazyGridState(),
                     tagViewModel = viewModel,
                     syncViewModel = screenTestSyncViewModel(),
                     componentVisibleProvider = { TagHomeScaffoldComponentVisible() },

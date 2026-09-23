@@ -19,6 +19,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.datetime.LocalDate
 import kotlin.uuid.Uuid
 
@@ -128,7 +129,13 @@ class MemoEntryTest :
             backStack: List<ScreenNavKey>,
             key: ScreenNavKey,
         ): Map<String, Any> {
-            val provider = entryProvider<ScreenNavKey> { memoEntry(backStack = NavBackStack(*backStack.toTypedArray())) }
+            val provider =
+                entryProvider<ScreenNavKey> {
+                    memoEntry(
+                        backStack = NavBackStack(*backStack.toTypedArray()),
+                        homeReselectEvent = emptyFlow(),
+                    )
+                }
 
             return provider(key).metadata
         }
