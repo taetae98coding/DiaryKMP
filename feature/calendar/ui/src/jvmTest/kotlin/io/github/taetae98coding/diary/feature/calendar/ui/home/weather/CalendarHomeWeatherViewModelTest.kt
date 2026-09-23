@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.domain.weather.usecase.FetchCurrentWeather
 import io.github.taetae98coding.diary.domain.weather.usecase.GetCurrentCalendarWeatherUseCase
 import io.github.taetae98coding.diary.domain.weather.usecase.RefreshCurrentWeatherUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
@@ -197,7 +198,7 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
 
         test("지역명이 조회되면 날씨 검색에 사용할 지역명으로 제공한다") {
             runTest(mainDispatcher) {
-                val locationName = fixtureMonkey.giveMeOne<String>()
+                val locationName = fixtureMonkey.nonBlankString()
                 val viewModel =
                     weatherViewModel(
                         getCurrentCalendarWeatherUseCase =

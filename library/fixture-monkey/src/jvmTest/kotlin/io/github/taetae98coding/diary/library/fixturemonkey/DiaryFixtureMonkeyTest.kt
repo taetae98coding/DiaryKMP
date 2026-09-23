@@ -65,6 +65,16 @@ class DiaryFixtureMonkeyTest :
             }
         }
 
+        test("nonBlankString은 비어 있지도 공백만 있지도 않은 문자열을 만든다") {
+            repeat(SAMPLE_COUNT) {
+                fixtureMonkey.nonBlankString().isNotBlank() shouldBe true
+            }
+        }
+
+        test("nonBlankString은 매번 다른 값을 만든다") {
+            List(SAMPLE_COUNT) { fixtureMonkey.nonBlankString() }.distinct() shouldHaveAtLeastSize MIN_DISTINCT_COUNT
+        }
+
         test("LocalDateRange를 시작일이 종료일보다 뒤이지 않게 만든다") {
             repeat(SAMPLE_COUNT) {
                 val dateRange = fixtureMonkey.giveMeOne<LocalDateRange>()
