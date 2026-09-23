@@ -18,6 +18,7 @@
 | --- | --- |
 | [계정 조회](./account.md) | — |
 | [앱 로깅](./app-logging.md) | — |
+| [앱 이름](./app-name.md) | — |
 | [CalendarBarText 컴포넌트](./calendar-bar-text.md) | [CalendarBarText 디자인](../design/calendar-bar-text.md) |
 | [CalendarHome](./calendar-home.md) | [CalendarHome 디자인](../design/calendar-home.md) |
 | [Calendar 날짜 선택](./calendar-select.md) | [Calendar 날짜 선택 디자인](../design/calendar-select.md) |
