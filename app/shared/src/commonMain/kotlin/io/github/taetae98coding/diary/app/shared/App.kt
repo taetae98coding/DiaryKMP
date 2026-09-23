@@ -5,6 +5,7 @@ import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.app.shared.analytics.ScreenViewEffect
 import io.github.taetae98coding.diary.app.shared.notification.ScheduleDailyMemoNotificationEffect
 import io.github.taetae98coding.diary.app.shared.scaffold.AppScaffold
+import io.github.taetae98coding.diary.compose.core.image.DiaryImageLoaderEffect
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.RequestPermissionEffect
 import io.github.taetae98coding.diary.core.permission.Permission
@@ -17,6 +18,7 @@ public fun App(modifier: Modifier = Modifier) {
     val notificationViewModel = koinViewModel<AppDailyMemoNotificationViewModel>()
     val appState = rememberAppState()
 
+    DiaryImageLoaderEffect()
     RequestPermissionEffect(
         permission = Permission.NOTIFICATION,
         onResult = {},
