@@ -94,6 +94,7 @@
 | [PlaylistHome 화면](./playlist-home.md) | [PlaylistHome 디자인](../design/playlist-home.md) |
 | [Playlist 목록·상세 배치](./playlist-list-detail.md) | [Playlist 목록·상세 배치 디자인](../design/playlist-list-detail.md) |
 | [프로필 이미지 변경](./profile-image.md) | — |
+| [ProfileImageEdit 화면](./profile-image-edit.md) | [ProfileImageEdit 디자인](../design/profile-image-edit.md) |
 | [QrHome 화면](./qr-home.md) | [QrHome 디자인](../design/qr-home.md) |
 | [RoutineAdd 화면](./routine-add.md) | [RoutineAdd 디자인](../design/routine-add.md) |
 | [RoutineHome 화면](./routine-home.md) | [RoutineHome 디자인](../design/routine-home.md) |

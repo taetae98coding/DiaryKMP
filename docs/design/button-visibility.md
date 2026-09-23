@@ -52,4 +52,4 @@
 ## 이 문서를 따르는 디자인
 
 - [검색 입력](./search-input.md), [PlaceSearch 다이얼로그](./place-search-dialog.md), [메모 태그 입력 컴포넌트](./memo-tag-input.md), [설명 입력 컴포넌트](./description-input.md), [MusicAdd 화면](./music-add.md), [PlaceAdd 화면](./place-add.md), [WebAdd 화면](./web-add.md)의 지우기 버튼
-- [MemoDetail 화면](./memo-detail.md), [PlaceDetail 화면](./place-detail.md), [TagDetail 화면](./tag-detail.md), [WebDetail 화면](./web-detail.md)의 수정 버튼과 탭에 따라 바뀌는 떠 있는 버튼, [SettingGemini 화면](./setting-gemini.md)의 저장 버튼
+- [MemoDetail 화면](./memo-detail.md), [PlaceDetail 화면](./place-detail.md), [TagDetail 화면](./tag-detail.md), [WebDetail 화면](./web-detail.md)의 수정 버튼과 탭에 따라 바뀌는 떠 있는 버튼, [SettingGemini 화면](./setting-gemini.md)의 저장 버튼, [ProfileImageEdit 화면](./profile-image-edit.md)의 완료 버튼

@@ -97,6 +97,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [PlaylistHome](./playlist-home.md) | [PlaylistHome 화면](../spec/playlist-home.md) |
 | [Playlist 목록·상세 배치](./playlist-list-detail.md) | [Playlist 목록·상세 배치](../spec/playlist-list-detail.md) |
 | [프로필 이미지 변경](./profile-image.md) | [프로필 이미지 변경](../spec/profile-image.md) |
+| [ProfileImageEdit](./profile-image-edit.md) | [ProfileImageEdit 화면](../spec/profile-image-edit.md) |
 | [QrHome](./qr-home.md) | [QrHome 화면](../spec/qr-home.md) |
 | [RoutineAdd](./routine-add.md) | [RoutineAdd 화면](../spec/routine-add.md) |
 | [RoutineHome](./routine-home.md) | [RoutineHome 화면](../spec/routine-home.md) |

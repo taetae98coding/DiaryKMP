@@ -79,6 +79,7 @@ stateDiagram-v2
 | `PlaceDetail` | [PlaceDetail 화면](./place-detail.md) |
 | `PlaceHome` | [PlaceHome 화면](./place-home.md) |
 | `PlaylistHome` | [PlaylistHome 화면](./playlist-home.md) |
+| `ProfileImageEdit` | [ProfileImageEdit 화면](./profile-image-edit.md) |
 | `QrHome` | [QrHome 화면](./qr-home.md) |
 | `RoutineAdd` | [RoutineAdd 화면](./routine-add.md) |
 | `RoutineHome` | [RoutineHome 화면](./routine-home.md) |
