@@ -718,6 +718,7 @@ Style로 옮기는 것은 모양, 배경, 테두리, 안쪽·바깥 여백, 투�
 | `clickable`, `toggleable`, `semantics`, `testTag`, 제스처, 스크롤 | 동작과 의미는 Style이 표현하지 않는다 |
 | `weight`, `align`, `animateItem`, `animatePlacement`, custom `Layout` | 부모 배치 규칙과 배치 전환은 Style 속성이 아니다 |
 | 속성이 하나뿐인 노드의 `clip`, `padding` | Modifier 한 줄이 Style 블록보다 짧다 |
+| `clickable` 앞의 `clip`과 뒤의 `padding` | 누름 표시를 모양대로 자르고 안쪽 여백까지 누를 수 있게 하려면 `clickable`을 둘 사이에 두어야 한다. Style의 `contentPadding`은 뒤에 붙는 Modifier보다 바깥에 적용되어, Style로 옮기면 클릭 영역에서 여백이 빠진다 |
 | `size`, `width`, `height`, `fillMaxWidth`, `fillMaxHeight` 같은 크기 | 이 버전의 Style은 크기 속성을 intrinsic 측정에 보고하지 않는다. intrinsic 폭·높이를 재는 부모 안에서 크기가 빠지면 형제가 그만큼 좁게 측정되어 글자가 줄바꿈되거나 생략된다. Styles API가 의도한 경계가 아니라 구현의 공백이므로 버전을 올릴 때 [Compose Styles API 조사](../../docs/reference/compose-styles.md)의 `다시 볼 것`을 따른다 |
 | Material 3 컴포넌트의 `colors`, `shape`, `border` 파라미터 | 이 버전의 Material 3는 `style` 파라미터를 받지 않는다 |
 | `Modifier.shadow(elevation)` | Style의 `dropShadow`는 elevation 그림자와 모양이 다르다 |
@@ -728,7 +729,7 @@ Style로 옮기는 것은 모양, 배경, 테두리, 안쪽·바깥 여백, 투�
 
 **상태에 따라 달라지는 시각 속성은 `MutableStyleState`와 상태 블록으로 선언한다.** 활성 여부는 `rememberUpdatedStyleState(interactionSource) { it.isEnabled = enabled }`로 넘기고 `disabled { }` 안에 비활성 표현을 둔다. 누름·호버·초점 표현이 필요한 자체 컴포넌트가 생기면 같은 `InteractionSource`를 `clickable`과 `rememberUpdatedStyleState`에 함께 넘긴다. 상태 사이의 전환은 디자인 문서가 정한 경우에만 `animate { }`로 감싼다.
 
-**[공통 스타일](../../docs/design/styles.md)이 이름 붙인 묶음은 `compose:core`의 `DiaryStyles`에 같은 이름의 `Style` 값으로 두고, 호출부는 숫자를 다시 적지 않고 `DiaryTheme.styles`로 그 값을 쓴다.** 문서의 이름과 코드의 식별자가 일대일이어야 디자인이 바뀌었을 때 고칠 자리가 하나로 좁혀진다. 묶음이 [공통 여백과 간격](../../docs/design/dimens.md)의 값을 쓰면 `DiaryDimens`에 같은 이름의 값을 두고 `Style { }` 안에서 `LocalDiaryDimens.currentValue`로 읽는다. 여러 상태 블록 안에서 되풀이되는 묶음(`흐림`)은 `Style` 값 대신 `StyleScope` 확장 함수로 두고, `Shape`처럼 Style로 담을 수 없는 값은 그 값을 쓰는 컴포넌트 계열의 `XxxDefaults`에 둔다. 코드가 먼저 두 곳 이상에서 같은 시각 속성을 반복하게 되면 코드에 상수를 늘리지 않고 `design-wave`로 문서에 이름을 붙인 뒤 여기로 옮긴다.
+**[공통 스타일](../../docs/design/styles.md)이 이름 붙인 묶음은 `compose:core`의 `DiaryStyles`에 같은 이름의 `Style` 값으로 두고, 호출부는 숫자를 다시 적지 않고 `DiaryTheme.styles`로 그 값을 쓴다.** 문서의 이름과 코드의 식별자가 일대일이어야 디자인이 바뀌었을 때 고칠 자리가 하나로 좁혀진다. 묶음이 [공통 여백과 간격](../../docs/design/dimens.md)의 값을 쓰면 `DiaryDimens`에 같은 이름의 값을 두고 `Style { }` 안에서 `LocalDiaryDimens.currentValue`로 읽는다. 여러 상태 블록 안에서 되풀이되는 묶음(`흐림`)은 `Style` 값 대신 `StyleScope` 확장 함수로 두고, `Shape`처럼 Style로 담을 수 없는 값은 아래 `컴포넌트 디자인 값은 XxxDefaults` 절을 따른다. 코드가 먼저 두 곳 이상에서 같은 시각 속성을 반복하게 되면 코드에 상수를 늘리지 않고 `design-wave`로 문서에 이름을 붙인 뒤 여기로 옮긴다.
 
 **컴포넌트에 `style: Style` 파라미터는 다른 모양을 요구하는 두 번째 호출자가 생길 때 연다.** 그때 기본값은 `Style`로 두고, 컴포넌트 안에서 `Modifier.styleable(styleState, 기본 Style, style)`처럼 기본 Style 뒤에 붙여 호출자가 속성 단위로 덮어쓰게 한다. 호출자가 없는 파라미터를 미리 열지 않는 이유는 `테스트를 위한 슬롯·파라미터 금지`와 같다.
 
@@ -780,7 +781,6 @@ DiaryFlexBox(
 ✅ 공통 스타일 문서의 이름을 그대로 쓰는 예시:
 
 ```kotlin
-// docs/design/styles.md의 `Bottom Sheet 제목`, `Bottom Sheet 내용`, `Bottom Sheet 선택 줄`
 Text(
     text = title,
     modifier = Modifier.styleable(style = DiaryTheme.styles.bottomSheetTitle),
@@ -817,4 +817,34 @@ Column(
                 background(state.color)
             }.clickable(onClick = dialogState::show),
 )
+```
+
+## 컴포넌트 디자인 값은 XxxDefaults
+
+**디자인 문서에 자기 절이 있는 컴포넌트는 그 절이 정한 크기, 간격, 모양, 불투명도, 줄 수 같은 값을 `XxxDefaults` 객체 하나에 모은다.** 이름은 컴포넌트 이름에 `Defaults`를 붙이고, 프로퍼티 이름은 디자인 문서의 표현과 맞춘다. 값을 파일마다 `private val`로 흩어 두면 한 컴포넌트의 디자인이 바뀔 때 고칠 자리가 흩어지고, 같은 값이 다른 이름으로 다시 생긴다. Material 3의 `ButtonDefaults`, Now in Android의 `NiaButtonDefaults`와 같은 관례다.
+
+- 여러 모듈이 쓰는 `compose:*` 컴포넌트는 `public object`, 한 feature 안에서만 쓰는 컴포넌트는 `internal object`로 두고, 컴포넌트와 같은 패키지의 `XxxDefaults.kt`에 둔다.
+- `Dp`, `TextUnit`, `Shape`처럼 객체인 값은 PascalCase 프로퍼티(`CornerSize`)로, 줄 수·투명도·비율처럼 `Int`, `Float`인 값은 `const val`과 SCREAMING_SNAKE_CASE(`MAX_HEIGHT_IN_LINES`)로 둔다. ktlint와 detekt가 원시 값에 이 형식을 요구한다.
+- 컴포지션에서만 얻을 수 있는 값(`MaterialShapes`의 `toShape()`, 테마 색)은 `@Composable` getter로 둔다. 속성이 둘 이상 모인 컴포넌트 전용 묶음은 `Style` 값으로 둘 수 있다.
+- [공통 여백과 간격](../../docs/design/dimens.md)과 [공통 스타일](../../docs/design/styles.md)이 이름 붙인 값과 뜻이 같으면 Defaults에 숫자를 다시 두지 않고 `DiaryTheme.dimens`, `DiaryTheme.styles`를 그대로 쓴다. Defaults에는 그 컴포넌트만의 값만 둔다.
+- 디자인 문서에 없는 값을 Defaults에 먼저 넣지 않는다. `design-wave`로 그 컴포넌트 절에 적은 뒤 옮긴다.
+- 테스트는 Defaults를 기대값으로 쓰지 않고 디자인 문서의 숫자를 그대로 적는다. Defaults를 기대값으로 쓰면 값이 문서와 달라져도 테스트가 통과한다.
+- Preview의 예시 크기와 벡터 아이콘 경로의 숫자는 대상이 아니다.
+
+⚠️ 비권장 예시:
+
+```kotlin
+private val TitleCornerSize = 12.dp
+private val TitleHorizontalPadding = 8.dp
+private val TitleVerticalPadding = 4.dp
+```
+
+✅ 권장 예시:
+
+```kotlin
+internal object CalendarHomeYearMonthTitleDefaults {
+    val CornerSize: Dp = 12.dp
+    val HorizontalPadding: Dp = 8.dp
+    val VerticalPadding: Dp = 4.dp
+}
 ```
