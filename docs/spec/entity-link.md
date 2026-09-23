@@ -7,6 +7,7 @@
 - [메모 태그 스펙](./memo-tag.md)
 - [메모 장소 스펙](./memo-place.md)
 - [메모 웹 스펙](./memo-web.md)
+- [메모 연락처 스펙](./memo-contact.md)
 - [웹 태그 스펙](./web-tag.md)
 - [장소 태그 스펙](./place-tag.md)
 - [태그 연결 스펙](./tag-link.md)

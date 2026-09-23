@@ -92,6 +92,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail, ContactAdd 화면 문서는 태그 입
 - [메모 Gemini 작성 도우미](./memo-gemini.md)
 - [MemoHome 목록](./memo-home.md)
 - [Memo 목록·상세 배치](./memo-list-detail.md)
+- [메모 연락처 입력 컴포넌트](./memo-contact-input.md)
 - [메모 장소 카드 컴포넌트](./memo-place-card.md)
 - [메모 태그 입력 컴포넌트](./memo-tag-input.md)
 - [메모 웹 입력 컴포넌트](./memo-web-input.md)

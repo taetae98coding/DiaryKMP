@@ -74,6 +74,8 @@ TC-<SPEC>-<AREA>-<NNN>
 | [메모 Gemini 작성 도우미](./memo-gemini.md) | [메모 Gemini 작성 도우미](../spec/memo-gemini.md) |
 | [MemoHome 목록](./memo-home.md) | [MemoHome 목록](../spec/memo-home.md) |
 | [Memo 목록·상세 배치](./memo-list-detail.md) | [Memo 목록·상세 배치](../spec/memo-list-detail.md) |
+| [메모 연락처](./memo-contact.md) | [메모 연락처](../spec/memo-contact.md) |
+| [메모 연락처 입력 컴포넌트](./memo-contact-input.md) | [메모 연락처 입력 컴포넌트](../spec/memo-contact-input.md) |
 | [메모 장소 카드](./memo-place-card.md) | [메모 장소 카드 컴포넌트](../spec/memo-place-card.md) |
 | [메모 장소](./memo-place.md) | [메모 장소](../spec/memo-place.md) |
 | [메모 대표 태그](./memo-primary-tag.md) | [메모 대표 태그](../spec/memo-primary-tag.md) |
@@ -134,14 +136,14 @@ TC-<SPEC>-<AREA>-<NNN>
 - [태그 필터 스펙](../spec/tag-filter.md) → [MemoHome 목록](./memo-home.md), [CalendarHome](./calendar-home.md)
 - [태그 선택 입력 공통 스펙](../spec/tag-select-input.md) → [메모 태그 입력 컴포넌트](./memo-tag-input.md), [항목 태그 입력 컴포넌트](./entity-tag-input.md), [태그 연결 입력 컴포넌트](./tag-link-input.md)
   - 세 입력 문서가 공통 스펙의 같은 절을 각자의 대상과 문구에 맞춰 갖는다.
-- [페이지 조회 목록의 자리 표시 스펙](../spec/paged-list-placeholder.md) → [ContactHome](./contact-home.md), [TagHome 목록](./tag-home.md), [TagFinishedList](./tag-finished-list.md), [TagDetail 메모 탭](./tag-detail-memo.md), [TagDetail 웹 탭](./tag-detail-web.md), [TagDetail 장소 탭](./tag-detail-place.md), [TagMemoFinishedList](./tag-memo-finished-list.md), [MemoHome 목록](./memo-home.md), [MemoFinishedList](./memo-finished-list.md), [PlaceHome](./place-home.md), [SearchHome](./search-home.md), [메모 장소 카드](./memo-place-card.md), [메모 태그 입력 컴포넌트](./memo-tag-input.md), [메모 웹 입력 컴포넌트](./memo-web-input.md), [태그 연결 입력 컴포넌트](./tag-link-input.md), [항목 태그 입력 컴포넌트](./entity-tag-input.md), [WebHome](./web-home.md), [PlaylistHome](./playlist-home.md)
+- [페이지 조회 목록의 자리 표시 스펙](../spec/paged-list-placeholder.md) → [ContactHome](./contact-home.md), [TagHome 목록](./tag-home.md), [TagFinishedList](./tag-finished-list.md), [TagDetail 메모 탭](./tag-detail-memo.md), [TagDetail 웹 탭](./tag-detail-web.md), [TagDetail 장소 탭](./tag-detail-place.md), [TagMemoFinishedList](./tag-memo-finished-list.md), [MemoHome 목록](./memo-home.md), [MemoFinishedList](./memo-finished-list.md), [PlaceHome](./place-home.md), [SearchHome](./search-home.md), [메모 장소 카드](./memo-place-card.md), [메모 태그 입력 컴포넌트](./memo-tag-input.md), [메모 웹 입력 컴포넌트](./memo-web-input.md), [메모 연락처 입력 컴포넌트](./memo-contact-input.md), [태그 연결 입력 컴포넌트](./tag-link-input.md), [항목 태그 입력 컴포넌트](./entity-tag-input.md), [WebHome](./web-home.md), [PlaylistHome](./playlist-home.md)
 - [목록 빈 상태 스펙](../spec/list-empty-state.md) → [ContactHome](./contact-home.md), [TagHome 목록](./tag-home.md), [TagFinishedList](./tag-finished-list.md), [TagDetail 메모 탭](./tag-detail-memo.md), [TagDetail 웹 탭](./tag-detail-web.md), [TagDetail 장소 탭](./tag-detail-place.md), [TagMemoFinishedList](./tag-memo-finished-list.md), [MemoHome 목록](./memo-home.md), [MemoFinishedList](./memo-finished-list.md), [RoutineHome](./routine-home.md), [PlaceHome](./place-home.md), [WebHome](./web-home.md), [PlaylistHome](./playlist-home.md)
 - [목록 필터 반영 스펙](../spec/list-filter.md) → [TagHome 목록](./tag-home.md), [MemoHome 목록](./memo-home.md)
   - 두 문서가 각자의 필터와 목록 항목에 맞춰 같은 공통 규칙의 케이스를 각각 갖는다.
 - [목록 정렬 스펙](../spec/list-sort.md) → [MemoHome 목록](./memo-home.md), [WebHome](./web-home.md), [ContactHome](./contact-home.md)
   - 메모 목록의 세 정렬은 [MemoHome 목록](./memo-home.md)이, 그 밖의 목록이 함께 쓰는 두 정렬은 [WebHome](./web-home.md)이 대표로 갖는다. 제목순 대신 이름순을 쓰는 연락처 목록은 [ContactHome](./contact-home.md)이 갖는다. 나머지 목록은 각자의 정렬 케이스를 두지 않는다.
 - [입력 정지 대기 시간 스펙](../spec/input-idle-delay.md) → [메모 태그 입력 컴포넌트](./memo-tag-input.md), [PlaceAdd](./place-add.md), [장소 검색 다이얼로그 컴포넌트](./place-search-dialog.md)
-- [검색어 일치 판정 스펙](../spec/search-match.md) → [SearchHome](./search-home.md), [메모 태그 입력 컴포넌트](./memo-tag-input.md), [메모 장소 카드](./memo-place-card.md), [메모 웹 입력 컴포넌트](./memo-web-input.md), [태그 연결 입력 컴포넌트](./tag-link-input.md), [항목 태그 입력 컴포넌트](./entity-tag-input.md)
+- [검색어 일치 판정 스펙](../spec/search-match.md) → [SearchHome](./search-home.md), [메모 태그 입력 컴포넌트](./memo-tag-input.md), [메모 장소 카드](./memo-place-card.md), [메모 웹 입력 컴포넌트](./memo-web-input.md), [메모 연락처 입력 컴포넌트](./memo-contact-input.md), [태그 연결 입력 컴포넌트](./tag-link-input.md), [항목 태그 입력 컴포넌트](./entity-tag-input.md)
   - `검색어 반영 시점`의 케이스는 [메모 태그 입력 컴포넌트](./memo-tag-input.md)와 [SearchHome](./search-home.md)이 대표로 갖는다. 같은 정책을 쓰는 나머지 목록은 각자의 검색 케이스만 둔다.
 - [장소 보기 모드 스펙](../spec/place-view-mode.md) → [PlaceHome](./place-home.md), [TagDetail 장소 탭](./tag-detail-place.md)
 - [권한 요청 공통 스펙](../spec/permission.md) → [알림 권한 요청](./notification-permission.md), [위치 권한 요청](./location-permission.md)

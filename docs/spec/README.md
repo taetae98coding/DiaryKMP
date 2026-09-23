@@ -67,6 +67,8 @@
 | [메모 Gemini 작성 도우미](./memo-gemini.md) | [메모 Gemini 작성 도우미 디자인](../design/memo-gemini.md) |
 | [MemoHome 목록](./memo-home.md) | [MemoHome 디자인](../design/memo-home.md) |
 | [Memo 목록·상세 배치](./memo-list-detail.md) | [Memo 목록·상세 배치 디자인](../design/memo-list-detail.md) |
+| [메모 연락처](./memo-contact.md) | — |
+| [메모 연락처 입력 컴포넌트](./memo-contact-input.md) | [메모 연락처 입력 디자인](../design/memo-contact-input.md) |
 | [메모 장소](./memo-place.md) | — |
 | [메모 장소 카드 컴포넌트](./memo-place-card.md) | [메모 장소 카드 디자인](../design/memo-place-card.md) |
 | [메모 대표 태그](./memo-primary-tag.md) | — |

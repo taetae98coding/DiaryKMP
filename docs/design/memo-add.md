@@ -54,4 +54,4 @@ TagDetail 메모 탭에서 진입하면 상세 대상 태그를 대표 태그 �
 | 추가 성공 안내 | `메모가 추가되었습니다.` | `Memo added.` |
 | 제목 미입력 안내 | `제목을 입력해 주세요.` | `Please enter a title.` |
 
-태그 입력의 문구는 [메모 태그 입력 컴포넌트 디자인](./memo-tag-input.md)을, 웹 입력의 문구는 [메모 웹 입력 컴포넌트 디자인](./memo-web-input.md)을, 작성 도우미의 문구는 [메모 Gemini 작성 도우미 디자인](./memo-gemini.md)을 따른다.
+태그 입력의 문구는 [메모 태그 입력 컴포넌트 디자인](./memo-tag-input.md)을, 웹 입력의 문구는 [메모 웹 입력 컴포넌트 디자인](./memo-web-input.md)을, 연락처 입력의 문구는 [메모 연락처 입력 컴포넌트 디자인](./memo-contact-input.md)을, 작성 도우미의 문구는 [메모 Gemini 작성 도우미 디자인](./memo-gemini.md)을 따른다.

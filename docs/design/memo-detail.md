@@ -81,4 +81,4 @@ TagDetail 메모 탭에서 진입하면 창 너비와 관계없이 MemoDetail �
 | 수정 성공 안내 | `메모가 수정되었습니다.` | `Memo updated.` |
 | 복사 성공 안내 | `메모가 복사되었습니다.` | `Memo copied.` |
 
-태그 입력의 문구는 [메모 태그 입력 컴포넌트 디자인](./memo-tag-input.md)을, 웹 입력의 문구는 [메모 웹 입력 컴포넌트 디자인](./memo-web-input.md)을, 작성 도우미의 문구는 [메모 Gemini 작성 도우미 디자인](./memo-gemini.md)을 따른다.
+태그 입력의 문구는 [메모 태그 입력 컴포넌트 디자인](./memo-tag-input.md)을, 웹 입력의 문구는 [메모 웹 입력 컴포넌트 디자인](./memo-web-input.md)을, 연락처 입력의 문구는 [메모 연락처 입력 컴포넌트 디자인](./memo-contact-input.md)을, 작성 도우미의 문구는 [메모 Gemini 작성 도우미 디자인](./memo-gemini.md)을 따른다.
