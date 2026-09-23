@@ -74,6 +74,7 @@ stateDiagram-v2
 | `MemoHomeFilter` | [MemoHome 목록](./memo-home.md) |
 | `MoreHome` | [MoreHome 화면](./more-home.md) |
 | `MusicAdd` | [MusicAdd 화면](./music-add.md) |
+| `MusicDetail` | [MusicDetail 화면](./music-detail.md) |
 | `PlaceAdd` | [PlaceAdd 화면](./place-add.md) |
 | `PlaceDetail` | [PlaceDetail 화면](./place-detail.md) |
 | `PlaceHome` | [PlaceHome 화면](./place-home.md) |

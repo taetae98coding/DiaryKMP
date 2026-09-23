@@ -1,6 +1,6 @@
 # PlaylistHome 화면 디자인
 
-기준 스펙: [PlaylistHome 화면 스펙](../spec/playlist-home.md), [MusicAdd 화면 스펙](../spec/music-add.md), [Playlist 목록·상세 배치 스펙](../spec/playlist-list-detail.md), [새로고침 스펙](../spec/sync-refresh.md), [페이지 조회 목록의 자리 표시 스펙](../spec/paged-list-placeholder.md), [목록 빈 상태 스펙](../spec/list-empty-state.md)
+기준 스펙: [PlaylistHome 화면 스펙](../spec/playlist-home.md), [MusicAdd 화면 스펙](../spec/music-add.md), [MusicDetail 화면 스펙](../spec/music-detail.md), [Playlist 목록·상세 배치 스펙](../spec/playlist-list-detail.md), [새로고침 스펙](../spec/sync-refresh.md), [페이지 조회 목록의 자리 표시 스펙](../spec/paged-list-placeholder.md), [목록 빈 상태 스펙](../spec/list-empty-state.md)
 
 ## 화면 구조
 
@@ -24,7 +24,9 @@ PlaylistHome 화면은 `더보기`에서 이어지는 세부 화면이며, 공�
 
 카드는 화면 너비와 관계없이 한 행에 두 개씩 표시되는 2열 고정 그리드로 배치하고, 카드 사이에는 가로와 세로로 각각 [공통 항목 간격](./dimens.md)을 둔다. 격자 바깥 여백은 [공통 화면 가로 여백과 세로 여백](./dimens.md)을 따른다. 썸네일 영역의 높이가 카드 폭으로 정해지고 제목과 가수가 모두 한 줄이어서 카드 높이가 서로 같으므로 지그재그 격자를 쓰지 않는다.
 
-이번 범위에는 곡을 선택해 이동할 화면이 없으므로 카드를 누를 수 있는 자리로 두지 않는다. 카드에 눌림 표현과 선택 표현을 두지 않고, 카드를 옆으로 미는 조작에도 반응하지 않는다.
+카드 전체를 누를 수 있는 자리로 두고, 누르면 그 곡의 [MusicDetail 화면](./music-detail.md)으로 이동한다. 카드에는 기본 눌림 표현을 쓰고, 목록에서 지금 보고 있는 곡을 따로 강조하는 선택 표현은 두지 않는다. 곡을 지우는 수단은 상세의 삭제 버튼 하나이므로 카드를 옆으로 미는 조작에는 반응하지 않는다.
+
+아직 준비되지 않은 자리 표시 카드는 가리키는 곡이 없으므로 누를 수 있는 자리로 두지 않는다.
 
 목록이 갱신될 때 카드가 자리를 옮기면 기본 항목 이동 애니메이션으로 옮긴다.
 
@@ -88,6 +90,6 @@ PlaylistHome 화면은 `더보기`에서 이어지는 세부 화면이며, 공�
 | 빈 상태 제목 문구 | `아직 곡이 없습니다` | `No music yet` |
 | 빈 상태 보조 문구 | `추가 버튼으로 새 곡을 담을 수 있습니다` | `Use the add button to add music.` |
 
-곡 카드에는 카드가 누를 수 없는 요소임을 알리는 별도의 접근성 안내를 두지 않고, 카드에 표시한 제목과 가수를 접근성 이름으로 그대로 쓴다.
+곡 카드에는 카드에 표시한 제목과 가수를 접근성 이름으로 그대로 쓰고, 누르면 무엇이 일어나는지는 낭독 도구가 알리는 기본 동작 설명에 맡긴다.
 
 썸네일은 영상의 내용을 글로 옮길 수 없고 같은 카드의 제목과 가수가 이미 그 곡을 가리키므로, 낭독 도구에 이름을 따로 두지 않고 장식으로 다룬다. 자리 표시 카드의 접근성 처리는 [페이지 조회 목록의 자리 표시 디자인](./paged-list-placeholder.md)을 따른다.

@@ -86,6 +86,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [항목 태그 입력 컴포넌트](./entity-tag-input.md) | [항목 태그 입력 컴포넌트](../spec/entity-tag-input.md) |
 | [MoreHome](./more-home.md) | [MoreHome 화면](../spec/more-home.md) |
 | [MusicAdd](./music-add.md) | [MusicAdd 화면](../spec/music-add.md) |
+| [MusicDetail](./music-detail.md) | [MusicDetail 화면](../spec/music-detail.md) |
 | [네이버 장소 검색](./naver-place-search.md) | [네이버 장소 검색](../spec/naver-place-search.md) |
 | [알림 권한 요청](./notification-permission.md) | [알림 권한 요청](../spec/notification-permission.md) |
 | [PlaceAdd](./place-add.md) | [PlaceAdd 화면](../spec/place-add.md) |
@@ -150,4 +151,6 @@ TC-<SPEC>-<AREA>-<NNN>
 - [권한 요청 공통 스펙](../spec/permission.md) → [알림 권한 요청](./notification-permission.md), [위치 권한 요청](./location-permission.md)
   - 두 권한 문서가 공통 스펙의 요청 시점, 요청 기준, 요청 결과 케이스를 각자의 권한과 요청 지점에 맞춰 각각 갖는다.
   - 두 문서가 각자의 기본 보기 모드와 노출 대상 장소, 현재 위치 확인 시점에 맞춰 같은 공통 규칙의 케이스를 각각 갖는다.
+- [항목 상세 화면 공통 스펙](../spec/entity-detail.md) → [ContactDetail](./contact-detail.md), [MemoDetail](./memo-detail.md), [MusicDetail](./music-detail.md), [PlaceDetail](./place-detail.md), [TagDetail](./tag-detail.md), [WebDetail](./web-detail.md)
+  - 각 상세 화면 문서가 공통 스펙의 절을 자기 화면의 입력과 동작에 맞춰 각각 갖는다.
 - [목록·상세 배치 공통 스펙](../spec/list-detail-pane.md) → [Contact](./contact-list-detail.md), [Memo](./memo-list-detail.md), [Playlist](./playlist-list-detail.md), [Routine](./routine-list-detail.md), [Setting](./setting-list-detail.md), [Tag](./tag-list-detail.md), [TagMemoFinishedList](./tag-memo-finished-list-detail.md), [Web](./web-list-detail.md) 목록·상세 배치

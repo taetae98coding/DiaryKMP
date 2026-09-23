@@ -2,7 +2,7 @@
 
 기준 스펙: [PlaylistHome 화면 스펙](../spec/playlist-home.md)
 
-목록이 나타나는 순서와 아직 준비되지 않은 자리를 다루는 규칙은 [페이지 조회 목록의 자리 표시 스펙](../spec/paged-list-placeholder.md)에, 빈 상태의 판정과 행동은 [목록 빈 상태 스펙](../spec/list-empty-state.md)에, 당김으로 시작하는 동기화와 진행 표시는 [새로고침 스펙](../spec/sync-refresh.md)에, 정렬 선택과 반영은 [목록 정렬 스펙](../spec/list-sort.md)에 위임되어 있으며, 이 문서의 케이스는 PlaylistHome에서 관찰하는 결과를 기준으로 한다. `더보기`에서 PlaylistHome으로 이동하는 케이스는 [MoreHome 테스트 케이스](./more-home.md)에서, 곡을 작성해 추가하는 케이스는 [MusicAdd 테스트 케이스](./music-add.md)에서, 곡 목록과 곡 추가를 함께 표시할 때의 케이스는 [Playlist 목록·상세 배치 테스트 케이스](./playlist-list-detail.md)에서, 곡을 서버와 맞추는 케이스는 [데이터 동기화 테스트 케이스](./data-sync.md)에서, 화면과 무관한 새로고침 공통 규칙의 케이스는 [새로고침 테스트 케이스](./sync-refresh.md)에서 다룬다.
+목록이 나타나는 순서와 아직 준비되지 않은 자리를 다루는 규칙은 [페이지 조회 목록의 자리 표시 스펙](../spec/paged-list-placeholder.md)에, 빈 상태의 판정과 행동은 [목록 빈 상태 스펙](../spec/list-empty-state.md)에, 당김으로 시작하는 동기화와 진행 표시는 [새로고침 스펙](../spec/sync-refresh.md)에, 정렬 선택과 반영은 [목록 정렬 스펙](../spec/list-sort.md)에 위임되어 있으며, 이 문서의 케이스는 PlaylistHome에서 관찰하는 결과를 기준으로 한다. `더보기`에서 PlaylistHome으로 이동하는 케이스는 [MoreHome 테스트 케이스](./more-home.md)에서, 곡을 작성해 추가하는 케이스는 [MusicAdd 테스트 케이스](./music-add.md)에서, 선택한 곡을 확인하고 수정하고 삭제하는 케이스는 [MusicDetail 테스트 케이스](./music-detail.md)에서, 곡 목록과 상세 영역을 함께 표시할 때의 케이스는 [Playlist 목록·상세 배치 테스트 케이스](./playlist-list-detail.md)에서, 곡을 서버와 맞추는 케이스는 [데이터 동기화 테스트 케이스](./data-sync.md)에서, 화면과 무관한 새로고침 공통 규칙의 케이스는 [새로고침 테스트 케이스](./sync-refresh.md)에서 다룬다.
 
 ## feature
 
@@ -25,6 +25,7 @@
 | --- |
 | PlaylistHome이 단독으로 표시됨 |
 | PlaylistHome과 곡 추가가 함께 표시됨 |
+| PlaylistHome과 곡 상세가 함께 표시됨 |
 
 ### TC-PLAYLIST-HOME-FEATURE-004: 계정에 저장된 곡을 목록으로 표시한다
 
@@ -74,12 +75,19 @@
 - When: PlaylistHome 화면을 확인한다.
 - Then: 새로고침 진행 표시가 나타난다.
 
-### TC-PLAYLIST-HOME-FEATURE-010: 목록의 곡을 선택하는 동작을 두지 않는다
+### TC-PLAYLIST-HOME-FEATURE-015: 목록의 곡을 선택하면 MusicDetail로 이동한다
 
-- 근거: `feature > 곡 목록`
-- Given: 현재 계정에 곡이 여러 개 있는 PlaylistHome 화면이 표시되어 있다.
-- When: 사용자가 목록의 곡 항목을 확인한다.
-- Then: 곡 항목에 선택할 수 있는 동작이 없다.
+- 근거: `feature > 곡 상세로 이동`
+- Given: 현재 계정에 곡이 여러 개 있는 PlaylistHome 화면이 단독으로 표시되어 있다.
+- When: 사용자가 목록에서 곡 하나를 선택한다.
+- Then: 그 곡의 MusicDetail 화면으로 이동하는 동작이 한 번 실행된다.
+
+### TC-PLAYLIST-HOME-FEATURE-016: 아직 준비되지 않은 자리는 선택할 수 없다
+
+- 근거: `feature > 곡 상세로 이동`
+- Given: 아직 준비되지 않은 자리가 포함된 곡 목록이 PlaylistHome 화면에 표시되어 있다.
+- When: 사용자가 그 자리를 확인한다.
+- Then: 그 자리에 선택할 수 있는 동작이 없고 상세로 이동하지 않는다.
 
 ### TC-PLAYLIST-HOME-FEATURE-011: 곡을 추가하면 목록에 나타난다
 
