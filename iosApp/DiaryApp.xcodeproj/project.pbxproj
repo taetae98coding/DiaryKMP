@@ -278,7 +278,7 @@
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DiaryApp/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Diary;
+				INFOPLIST_KEY_CFBundleDisplayName = DiaryDev;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used to show the weather for your current location and your position on the map.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -324,7 +324,7 @@
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DiaryApp/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Diary;
+				INFOPLIST_KEY_CFBundleDisplayName = DiaryDev;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used to show the weather for your current location and your position on the map.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -370,7 +370,7 @@
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DiaryApp/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Diary;
+				INFOPLIST_KEY_CFBundleDisplayName = DiaryRealDebug;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used to show the weather for your current location and your position on the map.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

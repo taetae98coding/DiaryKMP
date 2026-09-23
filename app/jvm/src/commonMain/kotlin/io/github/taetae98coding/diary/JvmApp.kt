@@ -16,6 +16,9 @@ private const val HEIGHT = 920
 private const val MIN_WIDTH = 360
 private const val MIN_HEIGHT = 784
 
+// 앱 이름은 flavor에 따라 Gradle이 실행 인자로 전달한다.
+private const val APP_NAME_PROPERTY = "io.github.taetae98coding.diary.appName"
+
 internal fun main() {
     // SwingPanel은 기본적으로 Compose 위에 그려져 지도 자리의 패널이 다이얼로그를 가린다.
     // 블렌딩을 켜야 지도 웹뷰를 감춘 동안 그 자리 위에 Compose 레이어가 보인다.
@@ -24,7 +27,7 @@ internal fun main() {
 
     singleWindowApplication(
         state = WindowState(size = DpSize(width = WIDTH.dp, height = HEIGHT.dp)),
-        title = "Diary",
+        title = requireNotNull(System.getProperty(APP_NAME_PROPERTY)) { "$APP_NAME_PROPERTY is missing" },
     ) {
         window.minimumSize = Dimension(MIN_WIDTH, MIN_HEIGHT)
 

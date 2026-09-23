@@ -33,6 +33,8 @@ kotlin {
 
 tasks.named<ProcessResources>("wasmJsProcessResources") {
     val buildKonfigFlavor = providers.gradleProperty("buildkonfig.flavor").orElse("dev").get()
+    // 웹은 buildType을 나누지 않으므로 앱 이름을 flavor로만 정한다.
+    val appName = if (buildKonfigFlavor == "dev") "DiaryDev" else "Diary"
     val naverMapNcpKeyIdProperty = "$buildKonfigFlavor.naverMapNcpKeyId"
     val googleMapApiKeyProperty = "$buildKonfigFlavor.web.googleMapApiKey"
     val naverMapNcpKeyId =
@@ -44,11 +46,13 @@ tasks.named<ProcessResources>("wasmJsProcessResources") {
             "$googleMapApiKeyProperty is missing from local.properties"
         }
 
+    inputs.property("appName", appName)
     inputs.property("naverMapNcpKeyId", naverMapNcpKeyId)
     inputs.property("googleMapApiKey", googleMapApiKey)
 
     filesMatching("index.html") {
         expand(
+            "appName" to appName,
             "naverMapNcpKeyId" to naverMapNcpKeyId,
             "googleMapApiKey" to googleMapApiKey,
         )
