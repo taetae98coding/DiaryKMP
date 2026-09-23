@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.notification
 
+import kotlinx.datetime.number
 import platform.Foundation.NSDateComponents
 import platform.UserNotifications.UNCalendarNotificationTrigger
 import platform.UserNotifications.UNMutableNotificationContent
