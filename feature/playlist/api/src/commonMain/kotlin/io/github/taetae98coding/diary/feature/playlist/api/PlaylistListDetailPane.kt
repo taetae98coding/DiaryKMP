@@ -9,4 +9,10 @@ public fun List<ScreenNavKey>.isPlaylistListDetailPane(key: ScreenNavKey): Boole
     return subList(0, index).lastOrNull { belowKey -> !belowKey.isPlaylistDetailPaneKey() } == PlaylistHomeNavKey
 }
 
+public fun List<ScreenNavKey>.isPlaylistAddOnDetailPane(): Boolean {
+    val key = lastOrNull() ?: return false
+
+    return key == PlaylistHomeNavKey || (key == MusicAddNavKey && isPlaylistListDetailPane(key))
+}
+
 private fun ScreenNavKey.isPlaylistDetailPaneKey(): Boolean = this is MusicAddNavKey || this is MusicDetailNavKey

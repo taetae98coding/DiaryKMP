@@ -12,6 +12,7 @@ import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicAddNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicDetailNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.PlaylistHomeNavKey
+import io.github.taetae98coding.diary.feature.playlist.api.isPlaylistAddOnDetailPane
 import io.github.taetae98coding.diary.feature.playlist.api.isPlaylistListDetailPane
 import io.github.taetae98coding.diary.feature.playlist.ui.add.MusicAddScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.playlist.ui.add.MusicAddScreen
@@ -48,7 +49,7 @@ private fun EntryProviderScope<ScreenNavKey>.playlistHomeEntry(backStack: NavBac
             navigateUp = backStack::navigateUpFromPlaylistHome,
             navigateToAdd = { backStack.add(MusicAddNavKey) },
             navigateToDetail = { id -> backStack.add(MusicDetailNavKey(id = id)) },
-            componentVisibleProvider = { PlaylistHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible) },
+            componentVisibleProvider = { PlaylistHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible || !backStack.isPlaylistAddOnDetailPane()) },
             musicViewModel = koinViewModel(),
             syncViewModel = koinViewModel(),
         )
