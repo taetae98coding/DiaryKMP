@@ -121,3 +121,36 @@ public class RequestSyncUseCase internal constructor(
 ```
 
 정책의 결론은 Repository나 Manager 같은 port로 넘긴다. port는 정책을 판단하지 않는 메커니즘 경계이므로 `reportsProgress`처럼 결론을 파라미터로 받아도 된다.
+
+## 다른 domain 모듈 의존
+
+UseCase가 다른 domain 모듈에서 무엇을 주입받을지는 [data.md](data.md)의 `work의 UseCase 주입` 절과 같은 기준으로 가른다. 필요한 것이 **정책 판단이면 그 모듈의 UseCase**, **저장소에 값을 읽고 쓰기만 하면 그 모듈의 Repository**를 주입한다. 같은 모듈 안에서도 같은 기준을 쓴다.
+
+- 정책 판단이 필요하면 UseCase를 주입한다. 예: 계정은 세션과 사용자 정보를 합쳐 `Account`로 판정하는 정책이므로 `SessionRepository`·`UserDataRepository`가 아니라 `GetAccountUseCase`를 쓴다. 변경 뒤 동기화는 계기별 진행 보고 여부와 오래된 데이터 초기화를 정하는 정책이므로 `SyncManager`가 아니라 `RequestSyncUseCase`를 쓴다.
+- 값을 읽고 쓰기만 하면 Repository를 주입한다. 예: `FetchMemoDraftUseCase`는 Gemini 설정을 그대로 읽기만 하므로 `domain:setting`의 `GeminiSettingRepository`를 직접 쓴다. `GetGeminiSettingUseCase`가 있어도 그 UseCase가 Repository 값을 그대로 돌려줄 뿐이면 감쌀 이유가 없다.
+
+정책이 있는 UseCase를 두고 그 아래 Repository를 직접 주입하면 정책이 호출부마다 복제되고, 정책이 바뀔 때 UseCase만 고쳐서는 다른 모듈의 동작이 따라오지 않는다. 반대로 단순 조회를 UseCase로 감싸면 `Result`와 `Flow` 포장을 벗기는 코드만 늘고 의존이 한 겹 깊어진다.
+
+⚠️ 비권장 예시:
+
+```kotlin
+// GetAccountUseCase가 가진 Account 판정 정책을 memo에서 다시 조합한다.
+public class GetDailyMemoUseCase internal constructor(
+    private val sessionRepository: SessionRepository,
+    private val userDataRepository: UserDataRepository,
+    private val accountDailyMemoRepository: AccountDailyMemoRepository,
+)
+```
+
+✅ 권장 예시:
+
+```kotlin
+public class GetDailyMemoUseCase internal constructor(
+    private val getAccountUseCase: GetAccountUseCase,
+    private val accountDailyMemoRepository: AccountDailyMemoRepository,
+)
+```
+
+Repository를 직접 쓰던 조회에 나중에 정책이 붙어 UseCase가 정책을 갖게 되면, 그 Repository를 주입받던 다른 모듈의 UseCase를 새 UseCase로 바꾼다. 정책이 생긴 시점에 호출부를 옮기지 않으면 같은 데이터가 두 규칙으로 읽힌다.
+
+domain 모듈 사이 의존에는 순환이 없어야 한다. 두 모듈이 서로의 UseCase나 Repository를 주입해야 한다면 한 컨텍스트라는 뜻이므로 모듈을 합치거나, 공유하는 정책을 둘이 함께 의존하는 아래쪽 모듈로 내린다.
