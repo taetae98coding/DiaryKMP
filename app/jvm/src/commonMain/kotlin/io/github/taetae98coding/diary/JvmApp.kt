@@ -4,8 +4,8 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.singleWindowApplication
-import io.github.taetae98coding.diary.app.App
-import io.github.taetae98coding.diary.app.initializer.StartupInitializer
+import io.github.taetae98coding.diary.app.shared.App
+import io.github.taetae98coding.diary.app.shared.initializer.StartupInitializer
 import java.awt.Dimension
 
 // 목록과 상세를 좌우로 함께 표시하는 창 너비로 연다. compact 너비로 열면 목록·상세 배치가 한 영역만 표시한다.

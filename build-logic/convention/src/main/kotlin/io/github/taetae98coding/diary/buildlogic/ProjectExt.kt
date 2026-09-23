@@ -28,11 +28,7 @@ internal fun Project.withPlugins(
     }
 }
 
-public fun Project.namespace(): String =
-    when (path) {
-        ":app:shared" -> "${BuildLogic.NAMESPACE}.app"
-        else -> "${BuildLogic.NAMESPACE}.${path.removePrefix(":").replace(':', '.').replace('-', '.')}"
-    }
+public fun Project.namespace(): String = "${BuildLogic.NAMESPACE}.${path.removePrefix(":").replace(':', '.').replace('-', '.')}"
 
 public fun Project.localProperties(): Properties =
     Properties().apply {

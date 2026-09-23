@@ -11,10 +11,10 @@
             android:exported="false"
             tools:node="merge">
             <meta-data
-                android:name="io.github.taetae98coding.diary.app.startup.LoggerStartupInitializer"
+                android:name="io.github.taetae98coding.diary.app.shared.startup.LoggerStartupInitializer"
                 android:value="androidx.startup" />
             <meta-data
-                android:name="io.github.taetae98coding.diary.app.startup.KoinStartupInitializer"
+                android:name="io.github.taetae98coding.diary.app.shared.startup.KoinStartupInitializer"
                 android:value="androidx.startup" />
         </provider>
     </application>
