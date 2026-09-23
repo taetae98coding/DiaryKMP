@@ -12,6 +12,7 @@ import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
+import io.github.taetae98coding.diary.feature.contact.api.isContactAddOnDetailPane
 import io.github.taetae98coding.diary.feature.contact.api.isContactListDetailPane
 import io.github.taetae98coding.diary.feature.contact.ui.add.ContactAddScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.contact.ui.add.ContactAddScreen
@@ -48,7 +49,7 @@ private fun EntryProviderScope<ScreenNavKey>.contactHomeEntry(backStack: NavBack
             navigateUp = backStack::navigateUpFromContactHome,
             navigateToAdd = { backStack.add(ContactAddNavKey) },
             navigateToDetail = { id -> backStack.add(ContactDetailNavKey(id = id)) },
-            componentVisibleProvider = { ContactHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible) },
+            componentVisibleProvider = { ContactHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible || !backStack.isContactAddOnDetailPane()) },
             contactViewModel = koinViewModel(),
             syncViewModel = koinViewModel(),
         )
