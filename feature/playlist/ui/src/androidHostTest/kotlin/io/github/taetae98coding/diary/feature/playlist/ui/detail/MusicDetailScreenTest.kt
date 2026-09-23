@@ -41,10 +41,9 @@ class MusicDetailScreenTest {
     fun `TC-MUSIC-DETAIL-FEATURE-001 조회에 성공하면 저장된 내용을 채운다`() {
         setMusicDetailScreen(uiState = contentUiState())
 
-        composeRule.linkInput().assert(hasText(STORED_LINK))
         composeRule.titleInput().assert(hasText(STORED_TITLE))
         composeRule.artistInput().assert(hasText(STORED_ARTIST))
-        composeRule.nodeCount(DEFAULT_THUMBNAIL_PREVIEW_DESCRIPTION) shouldBe 1
+        composeRule.linkInput().assert(hasText(STORED_LINK))
         composeRule
             .onNode(hasText(STORED_TITLE) and SemanticsMatcher.keyNotDefined(SemanticsProperties.EditableText))
             .assertExists()
@@ -64,9 +63,9 @@ class MusicDetailScreenTest {
     fun `TC-MUSIC-DETAIL-FEATURE-004 화면에 처음 진입하면 어느 입력에도 초점이 없다`() {
         setMusicDetailScreen(uiState = contentUiState())
 
-        composeRule.linkInput().assertIsNotFocused()
         composeRule.titleInput().assertIsNotFocused()
         composeRule.artistInput().assertIsNotFocused()
+        composeRule.linkInput().assertIsNotFocused()
     }
 
     @Test
@@ -102,25 +101,27 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-006 다시 불러오기로 썸네일이 바뀌면 수정 동작을 제공한다`() {
-        val effect = MutableStateFlow<MusicDetailEffect?>(null)
-        setMusicDetailScreen(uiState = contentUiState(), effect = effect.filterNotNull())
+    fun `TC-MUSIC-DETAIL-FEATURE-006 제목을 비워도 수정 동작을 제공한다`() {
+        setMusicDetailScreen(uiState = contentUiState())
 
-        composeRule.runOnIdle {
-            effect.value =
-                MusicDetailEffect.LinkFetched(
-                    title = STORED_TITLE,
-                    artist = STORED_ARTIST,
-                    thumbnail = FETCHED_THUMBNAIL,
-                )
-        }
+        composeRule.titleInput().performTextReplacement("")
         composeRule.waitForIdle()
 
         composeRule.nodeCount(DEFAULT_UPDATE_BUTTON_DESCRIPTION) shouldBe 1
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-012 다시 불러오기에 성공하면 제목과 가수를 덮어쓴다`() {
+    fun `TC-MUSIC-DETAIL-FEATURE-006 가수를 비워도 수정 동작을 제공한다`() {
+        setMusicDetailScreen(uiState = contentUiState())
+
+        composeRule.artistInput().performTextReplacement("")
+        composeRule.waitForIdle()
+
+        composeRule.nodeCount(DEFAULT_UPDATE_BUTTON_DESCRIPTION) shouldBe 1
+    }
+
+    @Test
+    fun `TC-MUSIC-DETAIL-FEATURE-012 다시 불러오기에 성공하면 제목과 가수를 덮어쓰고 링크와 썸네일은 그대로 둔다`() {
         val effect = MutableStateFlow<MusicDetailEffect?>(null)
         val viewModel = setMusicDetailScreen(uiState = contentUiState(), effect = effect.filterNotNull())
 
@@ -133,21 +134,56 @@ class MusicDetailScreenTest {
                 MusicDetailEffect.LinkFetched(
                     title = FETCHED_TITLE,
                     artist = FETCHED_ARTIST,
-                    thumbnail = FETCHED_THUMBNAIL,
                 )
         }
         composeRule.waitForIdle()
 
-        composeRule.linkInput().assert(hasText(STORED_LINK))
         composeRule.titleInput().assert(hasText(FETCHED_TITLE))
         composeRule.artistInput().assert(hasText(FETCHED_ARTIST))
+        composeRule.linkInput().assert(hasText(STORED_LINK))
+        composeRule.nodeCount(DEFAULT_THUMBNAIL_PREVIEW_DESCRIPTION) shouldBe 1
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-014 저장된 썸네일이 비어 있으면 미리보기를 표시하지 않는다`() {
-        setMusicDetailScreen(uiState = contentUiState(detail = testMusicDetail(thumbnail = "")))
+    fun `TC-MUSIC-DETAIL-FEATURE-028 저장된 영상 링크의 썸네일 미리보기를 표시한다`() {
+        setMusicDetailScreen(uiState = contentUiState())
+
+        composeRule.nodeCount(DEFAULT_THUMBNAIL_PREVIEW_DESCRIPTION) shouldBe 1
+    }
+
+    @Test
+    fun `TC-MUSIC-DETAIL-FEATURE-028 저장된 링크가 비어 있으면 미리보기를 표시하지 않는다`() {
+        setMusicDetailScreen(uiState = contentUiState(detail = testMusicDetail(link = "")))
 
         composeRule.nodeCount(DEFAULT_THUMBNAIL_PREVIEW_DESCRIPTION) shouldBe 0
+    }
+
+    @Test
+    fun `TC-MUSIC-DETAIL-FEATURE-028 저장된 링크가 영상을 가리키지 않으면 미리보기를 표시하지 않는다`() {
+        setMusicDetailScreen(uiState = contentUiState(detail = testMusicDetail(link = YOUTUBE_CHANNEL_LINK)))
+
+        composeRule.nodeCount(DEFAULT_THUMBNAIL_PREVIEW_DESCRIPTION) shouldBe 0
+    }
+
+    @Test
+    fun `TC-MUSIC-DETAIL-FEATURE-029 링크를 지우면 수정을 반영하지 않아도 미리보기가 사라진다`() {
+        val viewModel = setMusicDetailScreen(uiState = contentUiState())
+
+        composeRule.linkInput().performTextReplacement("")
+        composeRule.waitForIdle()
+
+        composeRule.nodeCount(DEFAULT_THUMBNAIL_PREVIEW_DESCRIPTION) shouldBe 0
+        verify(exactly = 0) { viewModel.update(detail = any()) }
+    }
+
+    @Test
+    fun `TC-MUSIC-DETAIL-FEATURE-029 링크가 비어 있던 곡에 영상 링크를 입력하면 미리보기가 나타난다`() {
+        setMusicDetailScreen(uiState = contentUiState(detail = testMusicDetail(link = "")))
+
+        composeRule.linkInput().performTextReplacement(CHANGED_LINK)
+        composeRule.waitForIdle()
+
+        composeRule.nodeCount(DEFAULT_THUMBNAIL_PREVIEW_DESCRIPTION) shouldBe 1
     }
 
     @Test
@@ -199,7 +235,7 @@ class MusicDetailScreenTest {
         composeRule.waitForIdle()
 
         verify(exactly = 1) { viewModel.delete() }
-        composeRule.linkInput().assert(hasText(STORED_LINK))
+        composeRule.titleInput().assert(hasText(STORED_TITLE))
     }
 
     @Test

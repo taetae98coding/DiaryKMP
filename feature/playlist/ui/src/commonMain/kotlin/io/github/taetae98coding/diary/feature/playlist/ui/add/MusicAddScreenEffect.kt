@@ -7,7 +7,6 @@ import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.feature.playlist.ui.Res
 import io.github.taetae98coding.diary.feature.playlist.ui.form.MusicFormState
 import io.github.taetae98coding.diary.feature.playlist.ui.form.rememberMusicAddFormState
-import io.github.taetae98coding.diary.feature.playlist.ui.music_add_artist_blank_message
 import io.github.taetae98coding.diary.feature.playlist.ui.music_add_link_blank_message
 import io.github.taetae98coding.diary.feature.playlist.ui.music_add_link_fetch_failed_message
 import io.github.taetae98coding.diary.feature.playlist.ui.music_add_link_not_youtube_message
@@ -28,14 +27,13 @@ internal fun MusicAddScreenEffect(
     val linkBlankMessage = stringResource(Res.string.music_add_link_blank_message)
     val linkNotYoutubeMessage = stringResource(Res.string.music_add_link_not_youtube_message)
     val titleBlankMessage = stringResource(Res.string.music_add_title_blank_message)
-    val artistBlankMessage = stringResource(Res.string.music_add_artist_blank_message)
     val linkFetchFailedMessage = stringResource(Res.string.music_add_link_fetch_failed_message)
 
     CollectEffect(effect) { value ->
         when (value) {
             is MusicAddEffect.AddSucceeded -> {
                 state.clearText()
-                state.linkState.requestFocus()
+                state.titleState.requestFocus()
                 coroutineScope.launch { state.hostState.showImmediate(message = addSucceededMessage) }
             }
 
@@ -54,16 +52,10 @@ internal fun MusicAddScreenEffect(
                 coroutineScope.launch { state.hostState.showImmediate(message = titleBlankMessage) }
             }
 
-            is MusicAddEffect.ArtistBlank -> {
-                state.artistState.requestFocus()
-                coroutineScope.launch { state.hostState.showImmediate(message = artistBlankMessage) }
-            }
-
             is MusicAddEffect.LinkFetched -> {
                 state.fill(
                     title = value.title,
                     artist = value.artist,
-                    thumbnail = value.thumbnail,
                 )
             }
 

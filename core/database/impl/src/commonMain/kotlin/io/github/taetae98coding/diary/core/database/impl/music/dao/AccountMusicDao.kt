@@ -49,8 +49,7 @@ internal interface AccountMusicDao : RoomDao<AccountMusicLocalEntity> {
     @Query(
         """
         UPDATE music
-        SET link = :link, title = :title, artist = :artist,
-            thumbnail = :thumbnail, updated_at = :updatedAt
+        SET link = :link, title = :title, artist = :artist, updated_at = :updatedAt
         WHERE id = :musicId
             AND EXISTS(
                 SELECT 1
@@ -65,7 +64,6 @@ internal interface AccountMusicDao : RoomDao<AccountMusicLocalEntity> {
         link: String,
         title: String,
         artist: String,
-        thumbnail: String,
         updatedAt: Instant,
     ): Int
 

@@ -55,7 +55,7 @@ class UpdateMusicUseCaseTest :
                     now = now,
                 )
 
-            When("공백이 아닌 링크와 제목과 가수로 수정한다") {
+            When("공백이 아닌 제목과 가수와 링크로 수정한다") {
                 Then("TC-MUSIC-DETAIL-DATA-003 입력한 내용과 수정 시점을 반영한다") {
                     val detail = detail(title = "new-title", artist = "new-artist")
 
@@ -91,22 +91,41 @@ class UpdateMusicUseCaseTest :
                 }
             }
 
-            When("링크나 제목이나 가수를 비운 채 수정한다") {
+            When("제목을 비운 채 수정한다") {
                 listOf(
-                    detail(link = "") to "빈 링크",
-                    detail(link = "   ") to "공백 문자로만 이루어진 링크",
-                    detail(title = "") to "빈 제목",
-                    detail(title = "   ") to "공백 문자로만 이루어진 제목",
-                    detail(artist = "") to "빈 가수",
-                    detail(artist = "   ") to "공백 문자로만 이루어진 가수",
-                    detail(link = "   ", title = "   ", artist = "   ") to "모두 공백",
-                ).forEach { (detail, label) ->
-                    Then("TC-MUSIC-DETAIL-DOMAIN-002 비운 값만 저장된 기존 값으로 채워 반영한다: $label") {
+                    "" to "빈 제목",
+                    "   " to "공백 문자로만 이루어진 제목",
+                ).forEach { (title, label) ->
+                    Then("TC-MUSIC-DETAIL-DOMAIN-012 제목은 저장된 값으로 유지하고 가수와 링크는 입력한 대로 반영한다: $label") {
+                        val detail = detail(title = title, artist = "new-artist", link = OTHER_YOUTUBE_LINK)
+
                         useCase(parameter = UpdateMusicUseCase.Parameter(id = stored.id, detail = detail)).shouldBeSuccess(1)
 
-                        detailSlot.captured.link shouldBe detail.link.trim().ifEmpty { stored.detail.link }
-                        detailSlot.captured.title shouldBe detail.title.ifBlank { stored.detail.title }
-                        detailSlot.captured.artist shouldBe detail.artist.ifBlank { stored.detail.artist }
+                        detailSlot.captured.title shouldBe stored.detail.title
+                        detailSlot.captured.artist shouldBe "new-artist"
+                        detailSlot.captured.link shouldBe OTHER_YOUTUBE_LINK
+                    }
+                }
+            }
+
+            When("가수나 링크를 비운 채 수정한다") {
+                listOf(
+                    Triple("", stored.detail.link, "빈 가수") to ("" to stored.detail.link),
+                    Triple(stored.detail.artist, "", "빈 링크") to (stored.detail.artist to ""),
+                    Triple(stored.detail.artist, "   ", "공백 문자로만 이루어진 링크") to (stored.detail.artist to ""),
+                    Triple("", "", "빈 가수와 빈 링크") to ("" to ""),
+                ).forEach { (input, expected) ->
+                    val (artist, link, label) = input
+                    val (expectedArtist, expectedLink) = expected
+
+                    Then("TC-MUSIC-DETAIL-DOMAIN-013 비운 값은 비워진 채로 반영한다: $label") {
+                        val detail = detail(title = "new-title", artist = artist, link = link)
+
+                        useCase(parameter = UpdateMusicUseCase.Parameter(id = stored.id, detail = detail)).shouldBeSuccess(1)
+
+                        detailSlot.captured.title shouldBe "new-title"
+                        detailSlot.captured.artist shouldBe expectedArtist
+                        detailSlot.captured.link shouldBe expectedLink
                     }
                 }
             }
@@ -260,6 +279,7 @@ class UpdateMusicUseCaseTest :
     }) {
     public companion object {
         private const val YOUTUBE_LINK: String = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        private const val OTHER_YOUTUBE_LINK: String = "https://www.youtube.com/watch?v=ArmDp-zijuc"
 
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
@@ -313,23 +333,20 @@ class UpdateMusicUseCaseTest :
 
         private fun storedDetail(link: String): MusicDetail =
             MusicDetail(
-                link = link,
                 title = "stored-title-${fixtureMonkey.giveMeOne<String>()}",
                 artist = "stored-artist-${fixtureMonkey.giveMeOne<String>()}",
-                thumbnail = "https://i.ytimg.com/vi/${fixtureMonkey.giveMeOne<String>()}/hqdefault.jpg",
+                link = link,
             )
 
         private fun detail(
-            link: String = YOUTUBE_LINK,
             title: String = "title-${fixtureMonkey.giveMeOne<String>()}",
             artist: String = "artist-${fixtureMonkey.giveMeOne<String>()}",
-            thumbnail: String = "",
+            link: String = YOUTUBE_LINK,
         ): MusicDetail =
             MusicDetail(
-                link = link,
                 title = title,
                 artist = artist,
-                thumbnail = thumbnail,
+                link = link,
             )
 
         private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())

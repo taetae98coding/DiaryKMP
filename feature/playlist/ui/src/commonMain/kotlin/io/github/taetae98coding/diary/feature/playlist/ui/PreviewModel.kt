@@ -8,16 +8,15 @@ import kotlin.uuid.Uuid
 internal fun previewMusic(
     title: String,
     artist: String,
-    thumbnail: String = "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+    link: String = "https://youtu.be/dQw4w9WgXcQ",
 ): Music =
     Music(
         id = Uuid.random(),
         detail =
             MusicDetail(
-                link = "https://youtu.be/dQw4w9WgXcQ",
                 title = title,
                 artist = artist,
-                thumbnail = thumbnail,
+                link = link,
             ),
         isDeleted = false,
         updatedAt = Instant.DISTANT_PAST,

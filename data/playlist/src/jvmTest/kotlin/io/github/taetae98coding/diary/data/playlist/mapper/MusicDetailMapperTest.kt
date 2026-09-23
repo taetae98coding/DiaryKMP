@@ -10,7 +10,7 @@ import io.kotest.matchers.shouldBe
 
 class MusicDetailMapperTest :
     FunSpec({
-        test("domain to local") {
+        test("TC-MUSIC-ADD-DATA-007 domain to local") {
             val domain = fixtureMonkey.giveMeOne<MusicDetail>()
 
             domain.toLocal() shouldBe
@@ -18,19 +18,18 @@ class MusicDetailMapperTest :
                     link = domain.link,
                     title = domain.title,
                     artist = domain.artist,
-                    thumbnail = domain.thumbnail,
+                    thumbnail = "",
                 )
         }
 
-        test("local to domain") {
-            val local = fixtureMonkey.giveMeOne<MusicDetailLocalEntity>()
+        test("TC-MUSIC-ADD-DATA-011 local to domain 은 저장소에 남은 썸네일 주소를 곡의 내용에 넣지 않는다") {
+            val local = fixtureMonkey.giveMeOne<MusicDetailLocalEntity>().copy(thumbnail = "https://i.ytimg.com/vi/${fixtureMonkey.giveMeOne<String>()}/hqdefault.jpg")
 
             local.toDomain() shouldBe
                 MusicDetail(
-                    link = local.link,
                     title = local.title,
                     artist = local.artist,
-                    thumbnail = local.thumbnail,
+                    link = local.link,
                 )
         }
 

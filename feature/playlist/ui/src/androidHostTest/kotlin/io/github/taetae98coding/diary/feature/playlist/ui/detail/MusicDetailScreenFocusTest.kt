@@ -37,15 +37,20 @@ class MusicDetailScreenFocusTest {
             }
         }
         composeRule.titleInput().performTextReplacement(EDITING_TITLE)
+        composeRule.linkInput().performTextReplacement(NOT_YOUTUBE_LINK)
         composeRule.waitForIdle()
 
         composeRule.runOnIdle { effect.value = MusicDetailEffect.LinkNotYoutube }
         composeRule.waitForIdle()
 
         composeRule.linkInput().assertIsFocused()
-        composeRule.linkInput().assert(hasText(STORED_LINK))
         composeRule.titleInput().assert(hasText(EDITING_TITLE))
         composeRule.artistInput().assert(hasText(STORED_ARTIST))
-        composeRule.nodeCount(DEFAULT_THUMBNAIL_PREVIEW_DESCRIPTION) shouldBe 1
+        composeRule.linkInput().assert(hasText(NOT_YOUTUBE_LINK))
+        composeRule.nodeCount(DEFAULT_THUMBNAIL_PREVIEW_DESCRIPTION) shouldBe 0
+    }
+
+    private companion object {
+        private const val NOT_YOUTUBE_LINK = "https://vimeo.com/76979871"
     }
 }

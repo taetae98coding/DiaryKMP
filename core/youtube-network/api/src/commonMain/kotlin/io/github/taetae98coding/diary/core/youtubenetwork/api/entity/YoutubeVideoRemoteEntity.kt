@@ -7,5 +7,4 @@ import kotlinx.serialization.Serializable
 public data class YoutubeVideoRemoteEntity(
     @SerialName("title") val title: String,
     @SerialName("author_name") val authorName: String,
-    @SerialName("thumbnail_url") val thumbnailUrl: String,
 )

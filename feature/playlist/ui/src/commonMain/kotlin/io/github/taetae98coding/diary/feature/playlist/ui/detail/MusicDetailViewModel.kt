@@ -90,7 +90,6 @@ internal class MusicDetailViewModel(
                             MusicDetailEffect.LinkFetched(
                                 title = video.title,
                                 artist = video.channelName,
-                                thumbnail = video.thumbnail,
                             ),
                         )
                     }.onFailure { throwable -> sendFetchFailureEffect(throwable = throwable) }

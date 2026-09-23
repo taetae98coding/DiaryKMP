@@ -48,7 +48,6 @@ internal class AccountMusicTransactionImpl(
                 link = detail.link,
                 title = detail.title,
                 artist = detail.artist,
-                thumbnail = detail.thumbnail,
                 updatedAt = updatedAt,
             )
         }

@@ -4,9 +4,8 @@ import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.core.UseCase
-import io.github.taetae98coding.diary.domain.playlist.exception.MusicArtistBlankException
 import io.github.taetae98coding.diary.domain.playlist.exception.MusicTitleBlankException
-import io.github.taetae98coding.diary.domain.playlist.link.toYoutubeVideoLinkOrThrow
+import io.github.taetae98coding.diary.domain.playlist.link.toOptionalYoutubeVideoLinkOrThrow
 import io.github.taetae98coding.diary.domain.playlist.repository.AccountMusicRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
@@ -46,12 +45,10 @@ public class AddMusicUseCase internal constructor(
         return music.id
     }
 
+    // 조건을 판단하는 순서는 사용자가 화면에서 입력을 만나는 순서와 같다.
     private fun MusicDetail.validated(): MusicDetail {
-        val validatedLink = link.toYoutubeVideoLinkOrThrow()
-
         if (title.isBlank()) throw MusicTitleBlankException()
-        if (artist.isBlank()) throw MusicArtistBlankException()
 
-        return copy(link = validatedLink)
+        return copy(link = link.toOptionalYoutubeVideoLinkOrThrow())
     }
 }

@@ -2,53 +2,48 @@ package io.github.taetae98coding.diary.feature.playlist.ui.form
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInputState
 import io.github.taetae98coding.diary.compose.core.input.rememberDiaryTitleInputState
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
+import io.github.taetae98coding.diary.domain.playlist.link.toYoutubeVideoThumbnailOrNull
 
 @Stable
 internal class MusicFormState(
-    val linkState: MusicLinkInputState,
     val titleState: DiaryTitleInputState,
     val artistState: MusicArtistInputState,
+    val linkState: MusicLinkInputState,
     val hostState: SnackbarHostState,
-    private val thumbnailState: MutableState<String>,
 ) {
-    val thumbnail: String
-        get() = thumbnailState.value
+    // 링크는 글자마다 바뀌지만 썸네일은 영상 ID가 바뀔 때만 바뀌므로 파생 값으로 줄인다.
+    val thumbnail: String by derivedStateOf { link.toYoutubeVideoThumbnailOrNull().orEmpty() }
 
     val detail: MusicDetail
         get() =
             MusicDetail(
-                link = linkState.text.toString(),
                 title = titleState.text.toString(),
                 artist = artistState.text.toString(),
-                thumbnail = thumbnail,
+                link = link,
             )
 
     val link: String
         get() = linkState.text.toString()
 
     fun clearText() {
-        linkState.clearText()
         titleState.clearText()
         artistState.clearText()
-        thumbnailState.value = ""
+        linkState.clearText()
     }
 
     fun fill(
         title: String,
         artist: String,
-        thumbnail: String,
     ) {
         titleState.setText(title)
         artistState.setText(artist)
-        thumbnailState.value = thumbnail
     }
 }
 
@@ -60,19 +55,17 @@ internal fun rememberMusicDetailFormState(initialDetail: MusicDetail = MusicDeta
 
 @Composable
 private fun rememberMusicFormState(initialDetail: MusicDetail): MusicFormState {
-    val linkState = rememberMusicLinkInputState(initialText = initialDetail.link)
     val titleState = rememberDiaryTitleInputState(initialText = initialDetail.title)
     val artistState = rememberMusicArtistInputState(initialText = initialDetail.artist)
+    val linkState = rememberMusicLinkInputState(initialText = initialDetail.link)
     val hostState = remember { SnackbarHostState() }
-    val thumbnailState = rememberSaveable { mutableStateOf(initialDetail.thumbnail) }
 
-    return remember(linkState, titleState, artistState, hostState, thumbnailState) {
+    return remember(titleState, artistState, linkState, hostState) {
         MusicFormState(
-            linkState = linkState,
             titleState = titleState,
             artistState = artistState,
+            linkState = linkState,
             hostState = hostState,
-            thumbnailState = thumbnailState,
         )
     }
 }

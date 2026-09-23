@@ -40,7 +40,12 @@ internal fun MusicDetailScreen(
                     is MusicDetailScaffoldEvent.ClickFetchLink -> viewModel.fetchLink(link = state.link)
 
                     // 앱 밖에서 여는 주소는 입력 중인 값이 아니라 저장된 링크다.
-                    is MusicDetailScaffoldEvent.ClickOpenInNew -> content?.detail?.link?.let(uriHandler::openUri)
+                    is MusicDetailScaffoldEvent.ClickOpenInNew ->
+                        content
+                            ?.detail
+                            ?.link
+                            ?.takeIf(String::isNotBlank)
+                            ?.let(uriHandler::openUri)
 
                     is MusicDetailScaffoldEvent.ClickDelete -> viewModel.delete()
                 }

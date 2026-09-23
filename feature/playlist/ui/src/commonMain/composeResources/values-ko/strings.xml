@@ -6,7 +6,7 @@
     <string name="playlist_home_empty_description">추가 버튼으로 새 곡을 담을 수 있습니다</string>
     <string name="music_add_title">곡 추가</string>
     <string name="music_add_add_button_content_description">곡 추가</string>
-    <string name="music_link_input_label">링크</string>
+    <string name="music_link_input_label">YouTube 링크</string>
     <string name="music_link_fetch_button_label">불러오기</string>
     <string name="music_link_fetch_button_content_description">링크로 곡 정보 불러오기</string>
     <string name="music_thumbnail_preview_content_description">썸네일 미리보기</string>
@@ -15,7 +15,6 @@
     <string name="music_add_link_blank_message">링크를 입력해 주세요.</string>
     <string name="music_add_link_not_youtube_message">YouTube 영상 링크를 입력해 주세요.</string>
     <string name="music_add_title_blank_message">제목을 입력해 주세요.</string>
-    <string name="music_add_artist_blank_message">가수를 입력해 주세요.</string>
     <string name="music_add_link_fetch_failed_message">링크에서 곡 정보를 불러오지 못했습니다.</string>
     <string name="music_detail_open_in_new_button_content_description">외부로 열기</string>
     <string name="music_detail_delete_button_content_description">곡 삭제</string>

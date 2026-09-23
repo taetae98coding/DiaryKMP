@@ -48,7 +48,6 @@ internal fun MusicDetailScreenEffect(
                 state.fill(
                     title = value.title,
                     artist = value.artist,
-                    thumbnail = value.thumbnail,
                 )
             }
 

@@ -66,17 +66,25 @@ class PlaylistHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-012 썸네일이 없는 곡도 목록에 그대로 나타난다`() {
-        val withThumbnail = testMusic(title = FIRST_TITLE, artist = FIRST_ARTIST)
-        val withoutThumbnail = testMusic(title = SECOND_TITLE, artist = SECOND_ARTIST, thumbnail = "")
+    fun `TC-PLAYLIST-HOME-FEATURE-012 링크가 없는 곡도 목록에 그대로 나타난다`() {
+        val withLink = testMusic(title = FIRST_TITLE, artist = FIRST_ARTIST)
+        val withoutLink = testMusic(title = SECOND_TITLE, artist = SECOND_ARTIST, link = "")
 
-        setPlaylistHomeScaffold(musicList = listOf(withThumbnail, withoutThumbnail))
+        setPlaylistHomeScaffold(musicList = listOf(withLink, withoutLink))
 
         composeRule.onNodeWithText(FIRST_TITLE).assertExists()
         composeRule.onNodeWithText(FIRST_ARTIST).assertExists()
         composeRule.onNodeWithText(SECOND_TITLE).assertExists()
         composeRule.onNodeWithText(SECOND_ARTIST).assertExists()
         composeRule.onAllNodesWithTag(MUSIC_CARD_TEST_TAG).assertCountEquals(2)
+    }
+
+    @Test
+    fun `TC-PLAYLIST-HOME-FEATURE-017 가수가 없는 곡은 제목만 표시한다`() {
+        setPlaylistHomeScaffold(musicList = listOf(testMusic(title = FIRST_TITLE, artist = "")))
+
+        composeRule.onNodeWithText(FIRST_TITLE).assertExists()
+        composeRule.onAllNodesWithTag(MUSIC_CARD_TEST_TAG).assertCountEquals(1)
     }
 
     // 컴포지션 이후의 목록 갱신은 실행 순서에 따라 전달되지 않아 자동화하지 않는다. 저장 전후의 목록을 각각 구성해 확인한다.

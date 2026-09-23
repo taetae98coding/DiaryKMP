@@ -15,19 +15,20 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 
-internal const val LINK_INPUT_INDEX = 0
-internal const val TITLE_INPUT_INDEX = 1
-internal const val ARTIST_INPUT_INDEX = 2
+internal const val TITLE_INPUT_INDEX = 0
+internal const val ARTIST_INPUT_INDEX = 1
+internal const val LINK_INPUT_INDEX = 2
 internal const val INPUT_COUNT = 3
 
 internal const val TYPED_LINK = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+internal const val OTHER_TYPED_LINK = "https://youtu.be/ArmDp-zijuc"
+internal const val YOUTUBE_CHANNEL_LINK = "https://www.youtube.com/@channel"
+internal const val NOT_YOUTUBE_LINK = "https://vimeo.com/76979871"
 internal const val TYPED_TITLE = "MusicTitleInput"
 internal const val TYPED_ARTIST = "MusicArtistInput"
 
 internal const val FETCHED_TITLE = "FetchedMusicTitle"
 internal const val FETCHED_ARTIST = "FetchedMusicArtist"
-internal const val FETCHED_THUMBNAIL = "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg"
-internal const val OTHER_FETCHED_THUMBNAIL = "https://i.ytimg.com/vi/ArmDp-zijuc/hqdefault.jpg"
 
 internal const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add music"
 internal const val DEFAULT_FETCH_BUTTON_DESCRIPTION = "Fetch music info from link"
@@ -65,19 +66,17 @@ internal fun fetchEffectViewModel(vararg effect: MusicAddEffect): MusicAddViewMo
 internal fun fetchedEffect(
     title: String = FETCHED_TITLE,
     artist: String = FETCHED_ARTIST,
-    thumbnail: String = FETCHED_THUMBNAIL,
 ): MusicAddEffect =
     MusicAddEffect.LinkFetched(
         title = title,
         artist = artist,
-        thumbnail = thumbnail,
     )
-
-internal fun ComposeContentTestRule.linkInput(): SemanticsNodeInteraction = onAllNodes(hasSetTextAction())[LINK_INPUT_INDEX]
 
 internal fun ComposeContentTestRule.titleInput(): SemanticsNodeInteraction = onAllNodes(hasSetTextAction())[TITLE_INPUT_INDEX]
 
 internal fun ComposeContentTestRule.artistInput(): SemanticsNodeInteraction = onAllNodes(hasSetTextAction())[ARTIST_INPUT_INDEX]
+
+internal fun ComposeContentTestRule.linkInput(): SemanticsNodeInteraction = onAllNodes(hasSetTextAction())[LINK_INPUT_INDEX]
 
 internal fun ComposeContentTestRule.clickAdd() {
     onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
@@ -96,8 +95,8 @@ internal fun ComposeContentTestRule.thumbnailPreviewCount(): Int = onAllNodesWit
 internal fun ComposeContentTestRule.thumbnailPreview(): SemanticsNodeInteraction = onNodeWithContentDescription(DEFAULT_THUMBNAIL_PREVIEW_DESCRIPTION)
 
 internal fun ComposeContentTestRule.fillAllInput() {
-    linkInput().performTextInput(TYPED_LINK)
     titleInput().performTextInput(TYPED_TITLE)
     artistInput().performTextInput(TYPED_ARTIST)
+    linkInput().performTextInput(TYPED_LINK)
     waitForIdle()
 }

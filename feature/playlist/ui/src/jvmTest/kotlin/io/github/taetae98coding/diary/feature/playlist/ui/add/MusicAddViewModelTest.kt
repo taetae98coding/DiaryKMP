@@ -7,7 +7,6 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
 import io.github.taetae98coding.diary.core.model.playlist.YoutubeVideo
-import io.github.taetae98coding.diary.domain.playlist.exception.MusicArtistBlankException
 import io.github.taetae98coding.diary.domain.playlist.exception.MusicLinkBlankException
 import io.github.taetae98coding.diary.domain.playlist.exception.MusicLinkNotYoutubeException
 import io.github.taetae98coding.diary.domain.playlist.exception.MusicTitleBlankException
@@ -96,10 +95,8 @@ class MusicAddViewModelTest : FunSpec() {
         }
 
         listOf(
-            MusicLinkBlankException() to MusicAddEffect.LinkBlank,
-            MusicLinkNotYoutubeException() to MusicAddEffect.LinkNotYoutube,
             MusicTitleBlankException() to MusicAddEffect.TitleBlank,
-            MusicArtistBlankException() to MusicAddEffect.ArtistBlank,
+            MusicLinkNotYoutubeException() to MusicAddEffect.LinkNotYoutube,
         ).forEach { (throwable, expected) ->
             test("TC-MUSIC-ADD-FEATURE-008 성립하지 않는 입력으로 추가하면 ${expected::class.simpleName} Effect를 보내고 진행 상태를 해제한다") {
                 runTest(mainDispatcher) {
@@ -168,7 +165,7 @@ class MusicAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-ADD-DATA-008 불러오기에 성공하면 영상 제목과 채널 이름과 썸네일을 담은 Effect를 보낸다") {
+        test("TC-MUSIC-ADD-DATA-008 불러오기에 성공하면 영상 제목과 채널 이름을 담은 Effect를 보낸다") {
             runTest(mainDispatcher) {
                 val video = fixtureMonkey.giveMeOne<YoutubeVideo>()
                 val useCase = mockk<FetchYoutubeVideoUseCase>()
@@ -183,7 +180,6 @@ class MusicAddViewModelTest : FunSpec() {
                         MusicAddEffect.LinkFetched(
                             title = video.title,
                             artist = video.channelName,
-                            thumbnail = video.thumbnail,
                         )
                     expectNoEvents()
                 }

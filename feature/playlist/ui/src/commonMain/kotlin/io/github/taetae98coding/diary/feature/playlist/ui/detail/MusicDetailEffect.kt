@@ -10,7 +10,6 @@ internal sealed interface MusicDetailEffect {
     data class LinkFetched(
         val title: String,
         val artist: String,
-        val thumbnail: String,
     ) : MusicDetailEffect
 
     data object LinkFetchFailed : MusicDetailEffect

@@ -75,7 +75,7 @@ class AccountMusicTransactionImplTest :
                 )
         }
 
-        test("TC-MUSIC-ADD-DOMAIN-005 TC-MUSIC-ADD-DOMAIN-006 TC-MUSIC-ADD-DATA-007 링크, 제목, 가수, 썸네일과 미삭제 상태, 추가 시각을 그대로 저장하고 함께 조회한다") {
+        test("TC-MUSIC-ADD-DOMAIN-005 TC-MUSIC-ADD-DOMAIN-006 TC-MUSIC-ADD-DATA-007 제목, 가수, 링크와 미삭제 상태, 추가 시각을 그대로 저장하고 함께 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val now = instant()
             val music =
@@ -97,7 +97,7 @@ class AccountMusicTransactionImplTest :
             findMusicList() shouldBe listOf(music)
         }
 
-        test("TC-MUSIC-DETAIL-DATA-003 TC-MUSIC-DETAIL-DATA-007 수정은 내용과 수정 시각만 바꾸고 업로드 대기로 기록한다") {
+        test("TC-MUSIC-DETAIL-DATA-003 TC-MUSIC-DETAIL-DATA-007 TC-MUSIC-ADD-DATA-011 수정은 제목, 가수, 링크와 수정 시각만 바꾸고 남은 썸네일 주소는 지우지 않으며 업로드 대기로 기록한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val music = music()
             transaction.upsert(accountId = accountId, musicList = listOf(music))
@@ -107,7 +107,7 @@ class AccountMusicTransactionImplTest :
 
             transaction.updateDetail(accountId = accountId, musicId = music.id, detail = detail, updatedAt = updatedAt) shouldBe 1
 
-            findMusicList() shouldBe listOf(music.copy(detail = detail, updatedAt = updatedAt))
+            findMusicList() shouldBe listOf(music.copy(detail = detail.copy(thumbnail = music.detail.thumbnail), updatedAt = updatedAt))
             findAccountMusicList() shouldBe listOf(AccountMusicLocalEntity(accountId = accountId, musicId = music.id, isDirty = true))
         }
 

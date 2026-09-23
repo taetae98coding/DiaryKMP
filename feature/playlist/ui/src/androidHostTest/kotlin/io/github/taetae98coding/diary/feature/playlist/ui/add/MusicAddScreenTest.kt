@@ -6,6 +6,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
@@ -24,49 +25,98 @@ class MusicAddScreenTest {
     fun `TC-MUSIC-ADD-FEATURE-001 화면에 처음 진입하면 입력이 모두 비어 있다`() {
         setMusicAddScreen(viewModel = screenTestViewModel())
 
-        composeRule.linkInput().assert(hasText(""))
         composeRule.titleInput().assert(hasText(""))
         composeRule.artistInput().assert(hasText(""))
+        composeRule.linkInput().assert(hasText(""))
         composeRule.inputCount() shouldBe INPUT_COUNT
         composeRule.thumbnailPreviewCount() shouldBe 0
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-002 링크, 제목과 가수를 입력할 수 있다`() {
+    fun `TC-MUSIC-ADD-FEATURE-002 제목, 가수와 링크를 입력할 수 있다`() {
+        setMusicAddScreen(viewModel = screenTestViewModel())
+
+        composeRule.titleInput().performTextInput(TYPED_TITLE)
+        composeRule.artistInput().performTextInput(TYPED_ARTIST)
+        composeRule.linkInput().performTextInput(TYPED_LINK)
+        composeRule.waitForIdle()
+
+        composeRule.titleInput().assert(hasText(TYPED_TITLE))
+        composeRule.artistInput().assert(hasText(TYPED_ARTIST))
+        composeRule.linkInput().assert(hasText(TYPED_LINK))
+    }
+
+    @Test
+    fun `TC-MUSIC-ADD-FEATURE-028 영상 링크를 입력하면 불러오기 없이 썸네일 미리보기가 표시된다`() {
         setMusicAddScreen(viewModel = screenTestViewModel())
 
         composeRule.linkInput().performTextInput(TYPED_LINK)
-        composeRule.titleInput().performTextInput(TYPED_TITLE)
-        composeRule.artistInput().performTextInput(TYPED_ARTIST)
         composeRule.waitForIdle()
 
-        composeRule.linkInput().assert(hasText(TYPED_LINK))
-        composeRule.titleInput().assert(hasText(TYPED_TITLE))
-        composeRule.artistInput().assert(hasText(TYPED_ARTIST))
+        composeRule.thumbnailPreviewCount() shouldBe 1
+    }
+
+    @Test
+    fun `TC-MUSIC-ADD-FEATURE-028 영상을 가리키지 않는 링크는 썸네일 미리보기를 표시하지 않는다`() {
+        setMusicAddScreen(viewModel = screenTestViewModel())
+
+        listOf(YOUTUBE_CHANNEL_LINK, NOT_YOUTUBE_LINK).forEach { link ->
+            composeRule.linkInput().performTextReplacement(link)
+            composeRule.waitForIdle()
+
+            composeRule.thumbnailPreviewCount() shouldBe 0
+        }
+    }
+
+    @Test
+    fun `TC-MUSIC-ADD-FEATURE-030 링크를 지우면 썸네일 미리보기가 사라진다`() {
+        setMusicAddScreen(viewModel = screenTestViewModel())
+        composeRule.linkInput().performTextInput(TYPED_LINK)
+        composeRule.waitForIdle()
+
+        composeRule.linkInput().performTextReplacement("")
+        composeRule.waitForIdle()
+
+        composeRule.thumbnailPreviewCount() shouldBe 0
+    }
+
+    @Test
+    fun `TC-MUSIC-ADD-FEATURE-030 링크를 채널 주소로 바꾸면 썸네일 미리보기가 사라진다`() {
+        setMusicAddScreen(viewModel = screenTestViewModel())
+        composeRule.linkInput().performTextInput(TYPED_LINK)
+        composeRule.waitForIdle()
+
+        composeRule.linkInput().performTextReplacement(YOUTUBE_CHANNEL_LINK)
+        composeRule.waitForIdle()
+
+        composeRule.thumbnailPreviewCount() shouldBe 0
+    }
+
+    @Test
+    fun `TC-MUSIC-ADD-FEATURE-030 링크를 다른 영상으로 바꾸어도 썸네일 미리보기가 유지된다`() {
+        setMusicAddScreen(viewModel = screenTestViewModel())
+        composeRule.linkInput().performTextInput(TYPED_LINK)
+        composeRule.waitForIdle()
+
+        composeRule.linkInput().performTextReplacement(OTHER_TYPED_LINK)
+        composeRule.waitForIdle()
+
+        composeRule.thumbnailPreviewCount() shouldBe 1
     }
 
     @Test
     fun `TC-MUSIC-ADD-FEATURE-004 추가에 성공하면 다음 곡을 작성할 수 있는 상태로 초기화한다`() {
         setMusicAddScreen(viewModel = effectViewModel(effect = MusicAddEffect.AddSucceeded))
         composeRule.fillAllInput()
+        composeRule.thumbnailPreviewCount() shouldBe 1
 
         composeRule.clickAdd()
 
-        composeRule.linkInput().assert(hasText(""))
         composeRule.titleInput().assert(hasText(""))
         composeRule.artistInput().assert(hasText(""))
+        composeRule.linkInput().assert(hasText(""))
         composeRule.inputCount() shouldBe INPUT_COUNT
         composeRule.thumbnailPreviewCount() shouldBe 0
-    }
-
-    @Test
-    fun `TC-MUSIC-ADD-FEATURE-009 링크가 공백이면 작성 내용은 유지된다`() {
-        assertInvalidInputRetainsInput(effect = MusicAddEffect.LinkBlank)
-    }
-
-    @Test
-    fun `TC-MUSIC-ADD-FEATURE-009 링크가 YouTube 주소가 아니면 작성 내용은 유지된다`() {
-        assertInvalidInputRetainsInput(effect = MusicAddEffect.LinkNotYoutube)
     }
 
     @Test
@@ -75,8 +125,8 @@ class MusicAddScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-009 가수가 공백이면 작성 내용은 유지된다`() {
-        assertInvalidInputRetainsInput(effect = MusicAddEffect.ArtistBlank)
+    fun `TC-MUSIC-ADD-FEATURE-009 링크가 YouTube 주소가 아니면 작성 내용은 유지된다`() {
+        assertInvalidInputRetainsInput(effect = MusicAddEffect.LinkNotYoutube)
     }
 
     @Test
@@ -110,9 +160,9 @@ class MusicAddScreenTest {
         composeRule.clickAdd()
 
         composeRule.inputCount() shouldBe INPUT_COUNT
-        composeRule.linkInput().assert(hasText(TYPED_LINK))
         composeRule.titleInput().assert(hasText(TYPED_TITLE))
         composeRule.artistInput().assert(hasText(TYPED_ARTIST))
+        composeRule.linkInput().assert(hasText(TYPED_LINK))
     }
 
     private fun setMusicAddScreen(

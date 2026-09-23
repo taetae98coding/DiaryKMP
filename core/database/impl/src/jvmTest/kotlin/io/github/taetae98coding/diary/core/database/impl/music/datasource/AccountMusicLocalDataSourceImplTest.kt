@@ -163,7 +163,7 @@ class AccountMusicLocalDataSourceImplTest :
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val music = music()
             musicTransaction.upsert(accountId = accountId, musicList = listOf(music))
-            val detail = MusicDetailLocalEntity(link = music.detail.link, title = LAST_MUSIC_TITLE, artist = FIRST_MUSIC_TITLE, thumbnail = "")
+            val detail = music.detail.copy(title = LAST_MUSIC_TITLE, artist = FIRST_MUSIC_TITLE)
             val updatedAt = instant()
 
             musicTransaction.updateDetail(accountId = accountId, musicId = music.id, detail = detail, updatedAt = updatedAt)

@@ -6,8 +6,6 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
-import io.github.taetae98coding.diary.domain.playlist.exception.MusicArtistBlankException
-import io.github.taetae98coding.diary.domain.playlist.exception.MusicLinkBlankException
 import io.github.taetae98coding.diary.domain.playlist.exception.MusicLinkNotYoutubeException
 import io.github.taetae98coding.diary.domain.playlist.exception.MusicTitleBlankException
 import io.github.taetae98coding.diary.domain.playlist.repository.AccountMusicRepository
@@ -38,78 +36,6 @@ import kotlin.uuid.Uuid
 class AddMusicUseCaseTest :
     BehaviorSpec({
         listOf(
-            "" to "빈 링크",
-            "   " to "공백 문자로만 이루어진 링크",
-        ).forEach { (blankLink, label) ->
-            Given("$label 이 입력되어 있다") {
-                val getAccountUseCase = mockk<GetAccountUseCase>()
-                val accountMusicRepository = mockk<AccountMusicRepository>(relaxed = true)
-                val useCase =
-                    AddMusicUseCase(
-                        getAccountUseCase = getAccountUseCase,
-                        requestSyncUseCase = requestSyncUseCase(),
-                        accountMusicRepository = accountMusicRepository,
-                        clock = Clock.System,
-                    )
-
-                When("곡을 추가한다") {
-                    Then("TC-MUSIC-ADD-DOMAIN-001 링크 공백 예외로 실패하고 곡을 저장하지 않는다") {
-                        val result = useCase(parameter = detail(link = blankLink))
-
-                        result.shouldBeFailure().shouldBeInstanceOf<MusicLinkBlankException>()
-                        verify(exactly = 0) { getAccountUseCase(parameter = Unit) }
-                        coVerify(exactly = 0) { accountMusicRepository.upsert(account = any(), music = any()) }
-                    }
-
-                    Then("TC-MUSIC-ADD-DOMAIN-002 제목과 가수도 성립하지 않으면 링크 공백 예외를 먼저 알린다") {
-                        val result = useCase(parameter = detail(link = blankLink, title = "  ", artist = "  "))
-
-                        result.shouldBeFailure().shouldBeInstanceOf<MusicLinkBlankException>()
-                        coVerify(exactly = 0) { accountMusicRepository.upsert(account = any(), music = any()) }
-                    }
-                }
-            }
-        }
-
-        Given("YouTube 주소가 아닌 링크가 입력되어 있다") {
-            val getAccountUseCase = mockk<GetAccountUseCase>()
-            val accountMusicRepository = mockk<AccountMusicRepository>(relaxed = true)
-            val useCase =
-                AddMusicUseCase(
-                    getAccountUseCase = getAccountUseCase,
-                    requestSyncUseCase = requestSyncUseCase(),
-                    accountMusicRepository = accountMusicRepository,
-                    clock = Clock.System,
-                )
-
-            When("곡을 추가한다") {
-                listOf(
-                    "https://vimeo.com/76979871",
-                    "https://notyoutube.com/watch?v=dQw4w9WgXcQ",
-                    "https://youtube.com.attacker.example/watch?v=dQw4w9WgXcQ",
-                    "www.youtube.com/watch?v=dQw4w9WgXcQ",
-                    "ftp://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                    "곡 링크",
-                ).forEach { link ->
-                    Then("TC-MUSIC-ADD-DOMAIN-001 링크 형식 예외로 실패하고 곡을 저장하지 않는다: $link") {
-                        val result = useCase(parameter = detail(link = link))
-
-                        result.shouldBeFailure().shouldBeInstanceOf<MusicLinkNotYoutubeException>()
-                        verify(exactly = 0) { getAccountUseCase(parameter = Unit) }
-                        coVerify(exactly = 0) { accountMusicRepository.upsert(account = any(), music = any()) }
-                    }
-                }
-
-                Then("TC-MUSIC-ADD-DOMAIN-002 제목과 가수도 성립하지 않으면 링크 형식 예외를 먼저 알린다") {
-                    val result = useCase(parameter = detail(link = "https://vimeo.com/76979871", title = "  ", artist = "  "))
-
-                    result.shouldBeFailure().shouldBeInstanceOf<MusicLinkNotYoutubeException>()
-                    coVerify(exactly = 0) { accountMusicRepository.upsert(account = any(), music = any()) }
-                }
-            }
-        }
-
-        listOf(
             "" to "빈 제목",
             "   " to "공백 문자로만 이루어진 제목",
         ).forEach { (blankTitle, label) ->
@@ -133,8 +59,8 @@ class AddMusicUseCaseTest :
                         coVerify(exactly = 0) { accountMusicRepository.upsert(account = any(), music = any()) }
                     }
 
-                    Then("TC-MUSIC-ADD-DOMAIN-002 가수도 성립하지 않으면 제목 공백 예외를 먼저 알린다") {
-                        val result = useCase(parameter = detail(title = blankTitle, artist = "  "))
+                    Then("TC-MUSIC-ADD-DOMAIN-002 링크 형식도 성립하지 않으면 제목 공백 예외를 먼저 알린다") {
+                        val result = useCase(parameter = detail(title = blankTitle, link = "https://vimeo.com/76979871"))
 
                         result.shouldBeFailure().shouldBeInstanceOf<MusicTitleBlankException>()
                         coVerify(exactly = 0) { accountMusicRepository.upsert(account = any(), music = any()) }
@@ -143,26 +69,30 @@ class AddMusicUseCaseTest :
             }
         }
 
-        listOf(
-            "" to "빈 가수",
-            "   " to "공백 문자로만 이루어진 가수",
-        ).forEach { (blankArtist, label) ->
-            Given("$label 이 입력되어 있다") {
-                val getAccountUseCase = mockk<GetAccountUseCase>()
-                val accountMusicRepository = mockk<AccountMusicRepository>(relaxed = true)
-                val useCase =
-                    AddMusicUseCase(
-                        getAccountUseCase = getAccountUseCase,
-                        requestSyncUseCase = requestSyncUseCase(),
-                        accountMusicRepository = accountMusicRepository,
-                        clock = Clock.System,
-                    )
+        Given("YouTube 주소가 아닌 링크가 입력되어 있다") {
+            val getAccountUseCase = mockk<GetAccountUseCase>()
+            val accountMusicRepository = mockk<AccountMusicRepository>(relaxed = true)
+            val useCase =
+                AddMusicUseCase(
+                    getAccountUseCase = getAccountUseCase,
+                    requestSyncUseCase = requestSyncUseCase(),
+                    accountMusicRepository = accountMusicRepository,
+                    clock = Clock.System,
+                )
 
-                When("공백이 아닌 제목으로 곡을 추가한다") {
-                    Then("TC-MUSIC-ADD-DOMAIN-001 가수 공백 예외로 실패하고 곡을 저장하지 않는다") {
-                        val result = useCase(parameter = detail(artist = blankArtist))
+            When("공백이 아닌 제목으로 곡을 추가한다") {
+                listOf(
+                    "https://vimeo.com/76979871",
+                    "https://notyoutube.com/watch?v=dQw4w9WgXcQ",
+                    "https://youtube.com.attacker.example/watch?v=dQw4w9WgXcQ",
+                    "www.youtube.com/watch?v=dQw4w9WgXcQ",
+                    "ftp://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                    "곡 링크",
+                ).forEach { link ->
+                    Then("TC-MUSIC-ADD-DOMAIN-001 링크 형식 예외로 실패하고 곡을 저장하지 않는다: $link") {
+                        val result = useCase(parameter = detail(link = link))
 
-                        result.shouldBeFailure().shouldBeInstanceOf<MusicArtistBlankException>()
+                        result.shouldBeFailure().shouldBeInstanceOf<MusicLinkNotYoutubeException>()
                         verify(exactly = 0) { getAccountUseCase(parameter = Unit) }
                         coVerify(exactly = 0) { accountMusicRepository.upsert(account = any(), music = any()) }
                     }
@@ -188,7 +118,7 @@ class AddMusicUseCaseTest :
                     clock = clock,
                 )
 
-            When("공백이 아닌 제목과 가수로 곡을 추가한다") {
+            When("공백이 아닌 제목으로 곡을 추가한다") {
                 Then("TC-MUSIC-ADD-DOMAIN-004 TC-MUSIC-ADD-DOMAIN-007 현재 계정과 연결된 고유한 곡으로 저장한다") {
                     val firstId = useCase(parameter = detail()).shouldBeSuccess()
                     val secondId = useCase(parameter = detail()).shouldBeSuccess()
@@ -199,7 +129,7 @@ class AddMusicUseCaseTest :
                     coVerify(exactly = 2) { accountMusicRepository.upsert(account = account, music = any()) }
                 }
 
-                Then("TC-MUSIC-ADD-DOMAIN-003 제목과 가수가 같아도 서로 다른 곡으로 저장한다") {
+                Then("TC-MUSIC-ADD-DOMAIN-003 제목, 가수와 링크가 같아도 서로 다른 곡으로 저장한다") {
                     val sameDetail = detail()
 
                     val firstId = useCase(parameter = sameDetail).shouldBeSuccess()
@@ -217,18 +147,33 @@ class AddMusicUseCaseTest :
                     musicSlot.captured.detail shouldBe expected
                 }
 
-                Then("TC-MUSIC-ADD-DOMAIN-013 썸네일이 비어 있어도 곡을 저장한다") {
-                    useCase(parameter = detail(thumbnail = "")).shouldBeSuccess()
+                listOf(
+                    "" to "빈 가수",
+                    "   " to "공백 문자로만 이루어진 가수",
+                ).forEach { (artist, label) ->
+                    Then("TC-MUSIC-ADD-DOMAIN-015 TC-MUSIC-ADD-FEATURE-029 $label 로도 곡을 저장하고 입력한 값을 그대로 기록한다") {
+                        useCase(parameter = detail(artist = artist)).shouldBeSuccess()
 
-                    musicSlot.captured.detail.thumbnail shouldBe ""
+                        musicSlot.captured.detail.artist shouldBe artist
+                    }
                 }
 
-                Then("TC-MUSIC-ADD-DOMAIN-014 불러온 썸네일 주소를 그대로 저장한다") {
-                    val thumbnail = "https://i.ytimg.com/vi/${fixtureMonkey.giveMeOne<String>()}/hqdefault.jpg"
+                listOf(
+                    "" to "빈 링크",
+                    "   " to "공백 문자로만 이루어진 링크",
+                ).forEach { (link, label) ->
+                    Then("TC-MUSIC-ADD-DOMAIN-016 TC-MUSIC-ADD-FEATURE-029 $label 로도 곡을 저장하고 링크를 빈 값으로 기록한다") {
+                        useCase(parameter = detail(link = link)).shouldBeSuccess()
 
-                    useCase(parameter = detail(thumbnail = thumbnail)).shouldBeSuccess()
+                        musicSlot.captured.detail.link shouldBe ""
+                    }
+                }
 
-                    musicSlot.captured.detail.thumbnail shouldBe thumbnail
+                Then("TC-MUSIC-ADD-FEATURE-029 가수와 링크가 모두 비어 있어도 곡을 저장한다") {
+                    useCase(parameter = detail(artist = "", link = "")).shouldBeSuccess()
+
+                    musicSlot.captured.detail.artist shouldBe ""
+                    musicSlot.captured.detail.link shouldBe ""
                 }
 
                 Then("TC-MUSIC-ADD-DOMAIN-010 링크의 앞뒤 공백을 없앤 값을 저장한다") {
@@ -246,6 +191,7 @@ class AddMusicUseCaseTest :
                     "https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=PLabc&t=42s",
                     "https://www.youtube.com/shorts/dQw4w9WgXcQ",
                     "http://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                    "https://www.youtube.com/@channel",
                 ).forEach { link ->
                     Then("TC-MUSIC-ADD-DOMAIN-011 YouTube 주소를 곡의 링크로 저장한다: $link") {
                         useCase(parameter = detail(link = link)).shouldBeSuccess()
@@ -303,7 +249,7 @@ class AddMusicUseCaseTest :
                     clock = Clock.System,
                 )
 
-            When("공백이 아닌 제목과 가수로 곡을 추가한다") {
+            When("공백이 아닌 제목으로 곡을 추가한다") {
                 Then("TC-MUSIC-ADD-DATA-006 추가는 성공으로 전달되고 저장한 곡을 되돌리지 않는다") {
                     val musicSlot = slot<Music>()
                     coEvery { accountMusicRepository.upsert(account = account, music = capture(musicSlot)) } just Runs
@@ -329,7 +275,7 @@ class AddMusicUseCaseTest :
                     clock = Clock.System,
                 )
 
-            When("공백이 아닌 제목과 가수로 곡을 추가한다") {
+            When("공백이 아닌 제목으로 곡을 추가한다") {
                 Then("TC-MUSIC-ADD-DOMAIN-008 계정 조회 실패를 전달하고 곡을 저장하지 않는다") {
                     val result = useCase(parameter = detail())
 
@@ -354,7 +300,7 @@ class AddMusicUseCaseTest :
                     clock = Clock.System,
                 )
 
-            When("공백이 아닌 제목과 가수로 곡을 추가한다") {
+            When("공백이 아닌 제목으로 곡을 추가한다") {
                 Then("TC-MUSIC-ADD-DATA-004 저장 실패를 그대로 전달한다") {
                     val result = useCase(parameter = detail())
 
@@ -372,16 +318,14 @@ class AddMusicUseCaseTest :
         private fun requestSyncUseCase(): RequestSyncUseCase = mockk(relaxed = true)
 
         private fun detail(
-            link: String = YOUTUBE_LINK,
             title: String = "title-${fixtureMonkey.giveMeOne<String>()}",
             artist: String = "artist-${fixtureMonkey.giveMeOne<String>()}",
-            thumbnail: String = "",
+            link: String = YOUTUBE_LINK,
         ): MusicDetail =
             MusicDetail(
-                link = link,
                 title = title,
                 artist = artist,
-                thumbnail = thumbnail,
+                link = link,
             )
     }
 }

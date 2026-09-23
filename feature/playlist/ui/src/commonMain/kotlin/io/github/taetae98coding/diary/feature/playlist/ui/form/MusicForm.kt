@@ -17,13 +17,6 @@ internal fun MusicForm(
     isFetchInProgressProvider: () -> Boolean = { false },
 ) {
     DiaryInputColumn(modifier = modifier) {
-        MusicLinkInput(
-            onFetchClick = onFetchLinkClick,
-            modifier = Modifier.fillMaxWidth(),
-            state = state.linkState,
-            isFetchInProgressProvider = isFetchInProgressProvider,
-            thumbnailProvider = { state.thumbnail },
-        )
         DiaryTitleInput(
             state = state.titleState,
             modifier = Modifier.fillMaxWidth(),
@@ -31,6 +24,13 @@ internal fun MusicForm(
         MusicArtistInput(
             state = state.artistState,
             modifier = Modifier.fillMaxWidth(),
+        )
+        MusicLinkInput(
+            onFetchClick = onFetchLinkClick,
+            modifier = Modifier.fillMaxWidth(),
+            state = state.linkState,
+            isFetchInProgressProvider = isFetchInProgressProvider,
+            thumbnailProvider = { state.thumbnail },
         )
     }
 }

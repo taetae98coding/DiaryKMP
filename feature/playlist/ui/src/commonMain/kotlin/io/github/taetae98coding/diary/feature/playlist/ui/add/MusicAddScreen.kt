@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.taetae98coding.diary.compose.core.effect.RequestFocusEffect
+import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInputFocusEffect
 import io.github.taetae98coding.diary.feature.playlist.ui.form.rememberMusicAddFormState
 
 @Composable
@@ -17,7 +17,7 @@ internal fun MusicAddScreen(
     val state = rememberMusicAddFormState()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    RequestFocusEffect(focusRequester = state.linkState.focusRequester)
+    DiaryTitleInputFocusEffect(state = state.titleState)
     MusicAddScreenEffect(
         effect = viewModel.effect,
         state = state,

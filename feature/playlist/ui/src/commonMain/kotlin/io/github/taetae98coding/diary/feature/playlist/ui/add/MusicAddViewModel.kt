@@ -3,7 +3,6 @@ package io.github.taetae98coding.diary.feature.playlist.ui.add
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
-import io.github.taetae98coding.diary.domain.playlist.exception.MusicArtistBlankException
 import io.github.taetae98coding.diary.domain.playlist.exception.MusicLinkBlankException
 import io.github.taetae98coding.diary.domain.playlist.exception.MusicLinkNotYoutubeException
 import io.github.taetae98coding.diary.domain.playlist.exception.MusicTitleBlankException
@@ -63,7 +62,6 @@ internal class MusicAddViewModel(
                                 MusicAddEffect.LinkFetched(
                                     title = video.title,
                                     artist = video.channelName,
-                                    thumbnail = video.thumbnail,
                                 ),
                             )
                         }.onFailure { throwable -> sendFetchFailureEffect(throwable = throwable) }
@@ -75,10 +73,8 @@ internal class MusicAddViewModel(
 
     private suspend fun sendAddFailureEffect(throwable: Throwable) {
         when (throwable) {
-            is MusicLinkBlankException -> _effect.send(MusicAddEffect.LinkBlank)
-            is MusicLinkNotYoutubeException -> _effect.send(MusicAddEffect.LinkNotYoutube)
             is MusicTitleBlankException -> _effect.send(MusicAddEffect.TitleBlank)
-            is MusicArtistBlankException -> _effect.send(MusicAddEffect.ArtistBlank)
+            is MusicLinkNotYoutubeException -> _effect.send(MusicAddEffect.LinkNotYoutube)
         }
     }
 

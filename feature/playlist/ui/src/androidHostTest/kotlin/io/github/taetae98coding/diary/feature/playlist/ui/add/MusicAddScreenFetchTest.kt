@@ -21,12 +21,12 @@ class MusicAddScreenFetchTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-016 불러오기에 성공하면 제목과 가수와 썸네일을 채운다`() {
+    fun `TC-MUSIC-ADD-FEATURE-016 불러오기에 성공하면 제목과 가수를 채우고 링크와 썸네일은 그대로 둔다`() {
         setMusicAddScreen(viewModel = fetchEffectViewModel(fetchedEffect()))
         composeRule.linkInput().performTextInput(TYPED_LINK)
         composeRule.waitForIdle()
 
-        composeRule.thumbnailPreviewCount() shouldBe 0
+        composeRule.thumbnailPreviewCount() shouldBe 1
 
         composeRule.clickFetch()
 
@@ -89,10 +89,9 @@ class MusicAddScreenFetchTest {
 
     @Test
     fun `TC-MUSIC-ADD-FEATURE-023 썸네일만 바꾸거나 지우는 조작을 두지 않는다`() {
-        setMusicAddScreen(viewModel = fetchEffectViewModel(fetchedEffect()))
+        setMusicAddScreen(viewModel = screenTestViewModel())
         composeRule.linkInput().performTextInput(TYPED_LINK)
         composeRule.waitForIdle()
-        composeRule.clickFetch()
 
         composeRule.thumbnailPreview().assertHasNoClickAction()
     }
@@ -105,10 +104,10 @@ class MusicAddScreenFetchTest {
         composeRule.clickFetch()
 
         composeRule.inputCount() shouldBe INPUT_COUNT
-        composeRule.linkInput().assert(hasText(TYPED_LINK))
         composeRule.titleInput().assert(hasText(TYPED_TITLE))
         composeRule.artistInput().assert(hasText(TYPED_ARTIST))
-        composeRule.thumbnailPreviewCount() shouldBe 0
+        composeRule.linkInput().assert(hasText(TYPED_LINK))
+        composeRule.thumbnailPreviewCount() shouldBe 1
     }
 
     @Test

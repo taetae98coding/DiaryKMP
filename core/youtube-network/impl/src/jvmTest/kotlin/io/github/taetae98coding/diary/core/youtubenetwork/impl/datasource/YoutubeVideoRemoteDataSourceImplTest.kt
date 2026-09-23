@@ -23,7 +23,7 @@ private const val YOUTUBE_LINK: String = "https://www.youtube.com/watch?v=dQw4w9
 
 class YoutubeVideoRemoteDataSourceImplTest :
     FunSpec({
-        test("TC-MUSIC-ADD-DATA-008 oEmbed 응답의 영상 제목과 채널 이름과 썸네일 주소를 그대로 제공한다") {
+        test("TC-MUSIC-ADD-DATA-008 oEmbed 응답의 영상 제목과 채널 이름을 그대로 제공한다") {
             val dataSource = createDataSource(createSuccessEngine())
 
             val actual = dataSource.fetch(link = YOUTUBE_LINK)
@@ -32,7 +32,6 @@ class YoutubeVideoRemoteDataSourceImplTest :
                 YoutubeVideoRemoteEntity(
                     title = "NewJeans (뉴진스) 'Super Shy' Official MV",
                     authorName = "HYBE LABELS",
-                    thumbnailUrl = "https://i.ytimg.com/vi/ArmDp-zijuc/hqdefault.jpg",
                 )
         }
 

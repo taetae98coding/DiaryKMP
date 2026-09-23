@@ -17,7 +17,6 @@ class YoutubeVideoMapperTest :
                 YoutubeVideo(
                     title = remote.title,
                     channelName = remote.authorName,
-                    thumbnail = remote.thumbnailUrl,
                 )
         }
     })

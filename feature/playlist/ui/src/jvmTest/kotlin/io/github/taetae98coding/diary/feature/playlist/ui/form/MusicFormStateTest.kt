@@ -1,8 +1,8 @@
 package io.github.taetae98coding.diary.feature.playlist.ui.form
 
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.focus.FocusRequester
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
@@ -13,21 +13,26 @@ import io.kotest.matchers.shouldBe
 
 private const val FETCHED_TITLE: String = "FetchedMusicTitle"
 private const val FETCHED_ARTIST: String = "FetchedMusicArtist"
-private const val FETCHED_THUMBNAIL: String = "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg"
+private const val YOUTUBE_LINK: String = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+private const val YOUTUBE_THUMBNAIL: String = "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg"
+private const val OTHER_YOUTUBE_LINK: String = "https://youtu.be/ArmDp-zijuc"
+private const val OTHER_YOUTUBE_THUMBNAIL: String = "https://i.ytimg.com/vi/ArmDp-zijuc/hqdefault.jpg"
+private const val YOUTUBE_CHANNEL_LINK: String = "https://www.youtube.com/@channel"
 
 private val fixtureMonkey: FixtureMonkey =
     diaryFixtureMonkey()
 
 class MusicFormStateTest :
     FunSpec({
-        test("TC-MUSIC-ADD-FEATURE-016 불러오기에 성공하면 제목과 가수와 썸네일을 채운다") {
-            val state = formState()
+        test("TC-MUSIC-ADD-FEATURE-016 불러오기에 성공하면 제목과 가수를 채우고 링크와 썸네일은 그대로 둔다") {
+            val state = formState(link = YOUTUBE_LINK)
 
-            state.fill(title = FETCHED_TITLE, artist = FETCHED_ARTIST, thumbnail = FETCHED_THUMBNAIL)
+            state.fill(title = FETCHED_TITLE, artist = FETCHED_ARTIST)
 
             state.detail.title shouldBe FETCHED_TITLE
             state.detail.artist shouldBe FETCHED_ARTIST
-            state.detail.thumbnail shouldBe FETCHED_THUMBNAIL
+            state.detail.link shouldBe YOUTUBE_LINK
+            state.thumbnail shouldBe YOUTUBE_THUMBNAIL
         }
 
         listOf(
@@ -37,7 +42,7 @@ class MusicFormStateTest :
             test("TC-MUSIC-ADD-FEATURE-024 제목과 가수가 $label 이면 불러온 값으로 채운다") {
                 val state = formState(title = blank, artist = blank)
 
-                state.fill(title = FETCHED_TITLE, artist = FETCHED_ARTIST, thumbnail = FETCHED_THUMBNAIL)
+                state.fill(title = FETCHED_TITLE, artist = FETCHED_ARTIST)
 
                 state.detail.title shouldBe FETCHED_TITLE
                 state.detail.artist shouldBe FETCHED_ARTIST
@@ -51,50 +56,65 @@ class MusicFormStateTest :
                     artist = "artist-${fixtureMonkey.giveMeOne<String>()}",
                 )
 
-            state.fill(title = FETCHED_TITLE, artist = FETCHED_ARTIST, thumbnail = FETCHED_THUMBNAIL)
+            state.fill(title = FETCHED_TITLE, artist = FETCHED_ARTIST)
 
             state.detail.title shouldBe FETCHED_TITLE
             state.detail.artist shouldBe FETCHED_ARTIST
         }
 
-        test("TC-MUSIC-ADD-FEATURE-025 이미 불러온 썸네일도 새로 불러온 주소로 덮어쓴다") {
-            val state = formState(thumbnail = "https://i.ytimg.com/vi/${fixtureMonkey.giveMeOne<String>()}/hqdefault.jpg")
-
-            state.fill(title = FETCHED_TITLE, artist = FETCHED_ARTIST, thumbnail = FETCHED_THUMBNAIL)
-
-            state.detail.thumbnail shouldBe FETCHED_THUMBNAIL
+        listOf(
+            YOUTUBE_LINK to YOUTUBE_THUMBNAIL,
+            OTHER_YOUTUBE_LINK to OTHER_YOUTUBE_THUMBNAIL,
+            "" to "",
+            YOUTUBE_CHANNEL_LINK to "",
+            "https://example.com/watch?v=dQw4w9WgXcQ" to "",
+        ).forEach { (link, thumbnail) ->
+            test("TC-MUSIC-ADD-FEATURE-028 TC-MUSIC-DETAIL-FEATURE-028 링크에서 썸네일이 정해진다: '$link'") {
+                formState(link = link).thumbnail shouldBe thumbnail
+            }
         }
 
-        test("TC-MUSIC-ADD-FEATURE-004 작성 내용을 비우면 썸네일도 함께 비워진다") {
+        test("TC-MUSIC-ADD-FEATURE-030 TC-MUSIC-DETAIL-FEATURE-029 링크를 다른 영상으로 바꾸면 썸네일도 그 영상으로 바뀐다") {
+            val state = formState(link = YOUTUBE_LINK)
+
+            state.linkState.textFieldState.setTextAndPlaceCursorAtEnd(OTHER_YOUTUBE_LINK)
+
+            state.thumbnail shouldBe OTHER_YOUTUBE_THUMBNAIL
+        }
+
+        test("TC-MUSIC-ADD-FEATURE-030 TC-MUSIC-DETAIL-FEATURE-029 링크를 지우거나 영상이 아닌 주소로 바꾸면 썸네일이 사라진다") {
+            val state = formState(link = YOUTUBE_LINK)
+
+            state.linkState.clearText()
+            state.thumbnail shouldBe ""
+
+            state.linkState.textFieldState.setTextAndPlaceCursorAtEnd(YOUTUBE_CHANNEL_LINK)
+            state.thumbnail shouldBe ""
+        }
+
+        test("TC-MUSIC-ADD-FEATURE-004 작성 내용을 비우면 썸네일도 함께 사라진다") {
             val state =
                 formState(
-                    link = "https://youtu.be/${fixtureMonkey.giveMeOne<String>()}",
                     title = "title-${fixtureMonkey.giveMeOne<String>()}",
                     artist = "artist-${fixtureMonkey.giveMeOne<String>()}",
-                    thumbnail = FETCHED_THUMBNAIL,
+                    link = YOUTUBE_LINK,
                 )
 
             state.clearText()
 
-            state.detail.link shouldBe ""
             state.detail.title shouldBe ""
             state.detail.artist shouldBe ""
-            state.detail.thumbnail shouldBe ""
+            state.detail.link shouldBe ""
+            state.thumbnail shouldBe ""
         }
     }) {
     public companion object {
         private fun formState(
-            link: String = "",
             title: String = "",
             artist: String = "",
-            thumbnail: String = "",
+            link: String = "",
         ): MusicFormState =
             MusicFormState(
-                linkState =
-                    MusicLinkInputState(
-                        textFieldState = TextFieldState(initialText = link),
-                        focusRequester = FocusRequester(),
-                    ),
                 titleState =
                     DiaryTitleInputState(
                         textFieldState = TextFieldState(initialText = title),
@@ -105,8 +125,12 @@ class MusicFormStateTest :
                         textFieldState = TextFieldState(initialText = artist),
                         focusRequester = FocusRequester(),
                     ),
+                linkState =
+                    MusicLinkInputState(
+                        textFieldState = TextFieldState(initialText = link),
+                        focusRequester = FocusRequester(),
+                    ),
                 hostState = SnackbarHostState(),
-                thumbnailState = mutableStateOf(thumbnail),
             )
     }
 }

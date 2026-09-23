@@ -3,7 +3,7 @@ package io.github.taetae98coding.diary.domain.playlist.usecase
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.core.UseCase
-import io.github.taetae98coding.diary.domain.playlist.link.toYoutubeVideoLinkOrThrow
+import io.github.taetae98coding.diary.domain.playlist.link.toOptionalYoutubeVideoLinkOrThrow
 import io.github.taetae98coding.diary.domain.playlist.repository.AccountMusicRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
@@ -37,27 +37,23 @@ public class UpdateMusicUseCase internal constructor(
         return updatedCount
     }
 
-    // 링크, 제목, 가수는 곡이 반드시 가져야 하는 정보이므로 비우는 수정을 저장된 값으로 되돌린다.
-    // 링크를 비운 것은 저장된 링크를 그대로 쓰겠다는 뜻이므로 YouTube 링크 판정 대상이 아니다.
+    // 제목은 곡이 반드시 가져야 하는 정보이므로 비우는 수정을 저장된 값으로 되돌린다. 가수와 링크는 비울 수 있으므로 입력한 대로 반영한다.
     private suspend fun MusicDetail.validated(id: Uuid): MusicDetail {
-        val enteredLink =
-            link
-                .trim()
-                .takeIf { value -> value.isNotEmpty() }
-                ?.toYoutubeVideoLinkOrThrow()
+        val validatedLink = link.toOptionalYoutubeVideoLinkOrThrow()
 
-        if (enteredLink != null && title.isNotBlank() && artist.isNotBlank()) return copy(link = enteredLink)
+        if (title.isNotBlank()) return copy(link = validatedLink)
 
-        val stored =
+        val storedTitle =
             findMusicUseCase(parameter = id)
                 .first()
                 .getOrThrow()
                 ?.detail
+                ?.title
+                .orEmpty()
 
         return copy(
-            link = enteredLink ?: stored?.link.orEmpty(),
-            title = title.ifBlank { stored?.title.orEmpty() },
-            artist = artist.ifBlank { stored?.artist.orEmpty() },
+            title = storedTitle,
+            link = validatedLink,
         )
     }
 

@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.playlist.Music
+import io.github.taetae98coding.diary.domain.playlist.link.toYoutubeVideoThumbnailOrNull
 import io.github.taetae98coding.diary.feature.playlist.ui.previewMusic
 
 internal const val MUSIC_CARD_TEST_TAG: String = "MusicCard"
@@ -33,7 +34,13 @@ internal fun MusicCard(
         modifier = modifier.testTag(MUSIC_CARD_TEST_TAG),
         enabled = music != null,
     ) {
-        MusicThumbnail(thumbnailProvider = { music?.detail?.thumbnail.orEmpty() })
+        MusicThumbnail(thumbnailProvider = {
+            music
+                ?.detail
+                ?.link
+                ?.toYoutubeVideoThumbnailOrNull()
+                .orEmpty()
+        })
         Column(
             modifier = Modifier.styleable(style = DiaryTheme.styles.cardContent),
             verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -58,7 +65,8 @@ private class MusicCardPreviewParameter : PreviewParameterProvider<Music?> {
     override val values: Sequence<Music?> =
         sequenceOf(
             previewMusic(title = "곡 제목", artist = "가수"),
-            previewMusic(title = "썸네일 없는 곡", artist = "가수", thumbnail = ""),
+            previewMusic(title = "링크 없는 곡", artist = "가수", link = ""),
+            previewMusic(title = "가수 없는 곡", artist = ""),
             null,
         )
 }

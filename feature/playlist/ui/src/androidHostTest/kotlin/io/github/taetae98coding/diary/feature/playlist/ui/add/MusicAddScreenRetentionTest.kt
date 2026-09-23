@@ -37,9 +37,9 @@ class MusicAddScreenRetentionTest {
         composeRule.waitForIdle()
 
         composeRule.inputCount() shouldBe INPUT_COUNT
-        composeRule.linkInput().assert(hasText(TYPED_LINK))
         composeRule.titleInput().assert(hasText(FETCHED_TITLE))
         composeRule.artistInput().assert(hasText(FETCHED_ARTIST))
+        composeRule.linkInput().assert(hasText(TYPED_LINK))
         composeRule.thumbnailPreviewCount() shouldBe 1
     }
 }

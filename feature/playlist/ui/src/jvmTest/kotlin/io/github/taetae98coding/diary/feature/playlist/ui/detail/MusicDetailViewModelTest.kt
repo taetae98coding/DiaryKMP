@@ -257,7 +257,6 @@ class MusicDetailViewModelTest : FunSpec() {
                         MusicDetailEffect.LinkFetched(
                             title = video.title,
                             artist = video.channelName,
-                            thumbnail = video.thumbnail,
                         )
                     expectNoEvents()
                 }

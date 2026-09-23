@@ -21,7 +21,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class YoutubeVideoRepositoryImplTest :
     FunSpec({
-        test("TC-MUSIC-ADD-DATA-008 입력한 링크로 영상 정보를 조회해 제목과 채널 이름과 썸네일을 전달한다") {
+        test("TC-MUSIC-ADD-DATA-008 입력한 링크로 영상 정보를 조회해 제목과 채널 이름을 전달한다") {
             val remote = fixtureMonkey.giveMeOne<YoutubeVideoRemoteEntity>()
             val remoteDataSource = mockk<YoutubeVideoRemoteDataSource>()
             coEvery { remoteDataSource.fetch(link = YOUTUBE_LINK) } returns remote
@@ -33,7 +33,6 @@ class YoutubeVideoRepositoryImplTest :
                 YoutubeVideo(
                     title = remote.title,
                     channelName = remote.authorName,
-                    thumbnail = remote.thumbnailUrl,
                 )
             coVerify(exactly = 1) { remoteDataSource.fetch(link = YOUTUBE_LINK) }
         }

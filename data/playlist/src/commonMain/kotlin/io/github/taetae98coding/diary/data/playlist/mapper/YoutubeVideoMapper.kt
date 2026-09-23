@@ -7,5 +7,4 @@ internal fun YoutubeVideoRemoteEntity.toDomain(): YoutubeVideo =
     YoutubeVideo(
         title = title,
         channelName = authorName,
-        thumbnail = thumbnailUrl,
     )
