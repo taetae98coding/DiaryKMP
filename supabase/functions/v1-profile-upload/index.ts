@@ -1,9 +1,8 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
 import { HttpError, serve } from "../_shared/http.ts";
+import { PROFILE_IMAGE_BUCKET } from "../_shared/profile-image.ts";
 import { createAdminClient, createUserClient, requireUserId } from "../_shared/supabase.ts";
-
-const BUCKET = "profile-image";
 
 // 앱이 고른 사진을 JPEG로 바꿔 올리므로 버킷의 allowed_mime_types와 같이 JPEG만 받는다.
 const JPEG_MIME_TYPE = "image/jpeg";
@@ -50,7 +49,7 @@ serve(async (request) => {
   const path = `${accountId}/${crypto.randomUUID()}.${JPEG_EXTENSION}`;
 
   const { error: uploadError } = await client.storage
-    .from(BUCKET)
+    .from(PROFILE_IMAGE_BUCKET)
     .upload(path, content, { contentType: JPEG_MIME_TYPE, upsert: false });
 
   if (uploadError) {
@@ -58,27 +57,89 @@ serve(async (request) => {
     throw new HttpError(500, "profile_image_upload_failed");
   }
 
-  const { data: { publicUrl } } = client.storage.from(BUCKET).getPublicUrl(path);
+  const { data: { publicUrl } } = client.storage.from(PROFILE_IMAGE_BUCKET).getPublicUrl(path);
   const admin = createAdminClient();
-  const previousMetadata = await readUserMetadata(admin, accountId);
+  let previousImageUrl: string | null = null;
+  let isAccountUpdated = false;
 
-  await writeUserMetadata(admin, accountId, { ...previousMetadata, avatar_url: publicUrl });
+  try {
+    previousImageUrl = await readAccountProfileImage(admin, accountId);
 
-  const { error: updateError } = await client.rpc("update_profile_image", { image_url: publicUrl });
+    const { error: updateError } = await client.rpc("update_profile_image", { image_url: publicUrl });
 
-  // 계정과 사용자 메타데이터가 다른 이미지를 가리키면 앱과 서버가 보는 프로필이 갈라지므로,
-  // 계정을 갱신하지 못하면 앞서 바꾼 메타데이터와 올린 파일을 모두 되돌린다.
-  if (updateError) {
-    console.error("update_profile_image failed", updateError);
-    await writeUserMetadata(admin, accountId, previousMetadata);
-    await client.storage.from(BUCKET).remove([path]);
-    throw new HttpError(500, "profile_image_update_failed");
+    if (updateError) {
+      console.error("update_profile_image failed", updateError);
+      throw new HttpError(500, "profile_image_update_failed");
+    }
+
+    isAccountUpdated = true;
+
+    // 앱은 사용자 메타데이터의 프로필 이미지를 읽으므로 그 쓰기를 마지막에 둔다.
+    // 앞 단계에서 실패하면 앱이 보는 주소는 한 번도 바뀌지 않은 채 끝난다.
+    const previousMetadata = await readUserMetadata(admin, accountId);
+
+    await writeUserMetadata(admin, accountId, { ...previousMetadata, avatar_url: publicUrl });
+  } catch (error) {
+    // 계정과 사용자 메타데이터가 다른 이미지를 가리키면 앱과 서버가 보는 프로필이 갈라지고,
+    // 아무도 참조하지 않는 이미지가 원격 저장소에 남는다. 반영을 마치지 못하면 여기까지의 변경을 모두 되돌린다.
+    if (isAccountUpdated) await restoreAccountProfileImage(admin, accountId, previousImageUrl);
+    await discardUploadedFile(client, path);
+
+    throw error;
   }
 
   await removeStaleFiles(client, accountId, path);
 
   return { profileImage: publicUrl };
 });
+
+// account 테이블은 authenticated에 권한이 없어 되돌릴 값도 service role로 읽는다.
+async function readAccountProfileImage(
+  admin: SupabaseClient,
+  accountId: string,
+): Promise<string | null> {
+  const { data, error } = await admin
+    .from("account")
+    .select("profile_image")
+    .eq("id", accountId)
+    .maybeSingle();
+
+  if (error || !data) {
+    console.error("account profile image read failed", error);
+    throw new HttpError(500, "profile_image_update_failed");
+  }
+
+  return data.profile_image;
+}
+
+// 되돌리기는 이미 실패한 요청을 정리하는 단계다. 여기서 다시 실패를 던지면 뒤따르는
+// 되돌리기가 실행되지 않아 계정과 올린 파일이 서로 다른 상태로 남으므로 기록만 남기고 넘어간다.
+async function restoreAccountProfileImage(
+  admin: SupabaseClient,
+  accountId: string,
+  imageUrl: string | null,
+): Promise<void> {
+  // update_profile_image는 빈 주소를 받지 않아 되돌리기에는 쓸 수 없다.
+  const { error } = await admin
+    .from("account")
+    .update({ profile_image: imageUrl, updated_at: new Date().toISOString() })
+    .eq("id", accountId);
+
+  if (error) {
+    console.error("account profile image restore failed", error);
+  }
+}
+
+async function discardUploadedFile(
+  client: SupabaseClient,
+  path: string,
+): Promise<void> {
+  const { error } = await client.storage.from(PROFILE_IMAGE_BUCKET).remove([path]);
+
+  if (error) {
+    console.error("profile image discard failed", error);
+  }
+}
 
 async function readUserMetadata(
   admin: SupabaseClient,
@@ -114,7 +175,7 @@ async function removeStaleFiles(
   accountId: string,
   currentPath: string,
 ): Promise<void> {
-  const { data, error } = await client.storage.from(BUCKET).list(accountId);
+  const { data, error } = await client.storage.from(PROFILE_IMAGE_BUCKET).list(accountId);
 
   if (error) {
     console.error("profile image list failed", error);
@@ -127,7 +188,7 @@ async function removeStaleFiles(
 
   if (stalePaths.length === 0) return;
 
-  const { error: removeError } = await client.storage.from(BUCKET).remove(stalePaths);
+  const { error: removeError } = await client.storage.from(PROFILE_IMAGE_BUCKET).remove(stalePaths);
 
   if (removeError) {
     console.error("profile image cleanup failed", removeError);
