@@ -7,6 +7,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.SwingPanel
+import androidx.compose.ui.semantics.semantics
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.rememberDiaryMapState
@@ -20,11 +21,11 @@ import kotlin.uuid.Uuid
 
 @Composable
 internal fun MapWebView(
+    startHttpServer: () -> MapHttpServer?,
     modifier: Modifier = Modifier,
     state: DiaryMapState = rememberDiaryMapState(),
     onSpotClick: ((DiaryMapCoordinate) -> Unit)? = null,
     onPinClick: ((Uuid) -> Unit)? = null,
-    startHttpServer: () -> MapHttpServer?,
 ) {
     // 서버 기동은 소켓 바인딩까지, 종료는 graceful shutdown까지 호출 스레드를 블로킹하므로
     // composition 스레드(AWT EDT)에서 실행하지 않고 IO 스레드에서 실행한다.
@@ -78,8 +79,15 @@ internal fun MapWebView(
         moveCommand = state.moveCommand,
     )
 
+    val overlayId = remember(webViewPanel) { Uuid.random() }
+
+    MapWebViewOverlayEffect(
+        webViewPanel = webViewPanel,
+        overlayId = overlayId,
+    )
+
     SwingPanel(
         factory = { webViewPanel },
-        modifier = modifier,
+        modifier = modifier.semantics { mapWebViewOverlayId = overlayId },
     )
 }

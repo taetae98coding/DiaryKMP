@@ -15,17 +15,18 @@ internal actual fun NaverMap(
     onPinClick: ((Uuid) -> Unit)?,
 ) {
     MapWebView(
+        startHttpServer = {
+            NaverMapHttpServer.start(
+                camera = state.camera,
+                spot = state.spot,
+                isSpotSelectable = onSpotClick != null,
+                pins = state.pins,
+                isPinSelectable = onPinClick != null,
+            )
+        },
+        modifier = modifier,
         state = state,
         onSpotClick = onSpotClick,
         onPinClick = onPinClick,
-        modifier = modifier,
-    ) {
-        NaverMapHttpServer.start(
-            camera = state.camera,
-            spot = state.spot,
-            isSpotSelectable = onSpotClick != null,
-            pins = state.pins,
-            isPinSelectable = onPinClick != null,
-        )
-    }
+    )
 }

@@ -15,17 +15,18 @@ internal actual fun GoogleMap(
     onPinClick: ((Uuid) -> Unit)?,
 ) {
     MapWebView(
+        startHttpServer = {
+            GoogleMapHttpServer.start(
+                camera = state.camera,
+                spot = state.spot,
+                isSpotSelectable = onSpotClick != null,
+                pins = state.pins,
+                isPinSelectable = onPinClick != null,
+            )
+        },
+        modifier = modifier,
         state = state,
         onSpotClick = onSpotClick,
         onPinClick = onPinClick,
-        modifier = modifier,
-    ) {
-        GoogleMapHttpServer.start(
-            camera = state.camera,
-            spot = state.spot,
-            isSpotSelectable = onSpotClick != null,
-            pins = state.pins,
-            isPinSelectable = onPinClick != null,
-        )
-    }
+    )
 }

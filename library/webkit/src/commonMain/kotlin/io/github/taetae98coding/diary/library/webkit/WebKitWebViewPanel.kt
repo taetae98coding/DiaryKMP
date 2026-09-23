@@ -20,6 +20,22 @@ public class WebKitWebViewPanel : JPanel() {
     private val ipcMessages = ConcurrentLinkedQueue<String>()
     private val bridge = WebKitWebViewBridge(onIpcMessage = ipcMessages::add)
 
+    private var isComponentHidden: Boolean = false
+        set(value) {
+            field = value
+            updateWebViewHidden()
+        }
+
+    /**
+     * 웹뷰는 창에 직접 붙은 네이티브 뷰라 Compose가 그리는 다이얼로그·팝업 위에 항상 떠 있다.
+     * 웹뷰보다 위에 Compose 레이어가 열려 있는 동안 호출자가 `true`로 두면 웹뷰를 감춰 그 레이어가 보이게 한다.
+     */
+    public var isCoveredByOverlay: Boolean = false
+        set(value) {
+            field = value
+            updateWebViewHidden()
+        }
+
     init {
         addComponentListener(
             object : ComponentAdapter() {
@@ -32,11 +48,11 @@ public class WebKitWebViewPanel : JPanel() {
                 }
 
                 override fun componentShown(event: ComponentEvent?) {
-                    updateWebViewHidden(isHidden = false)
+                    isComponentHidden = false
                 }
 
                 override fun componentHidden(event: ComponentEvent?) {
-                    updateWebViewHidden(isHidden = true)
+                    isComponentHidden = true
                 }
             },
         )
@@ -133,7 +149,9 @@ public class WebKitWebViewPanel : JPanel() {
         bridge.perform { target -> target.sendVoid(ObjCRuntime.selector("setFrame:"), frame) }
     }
 
-    private fun updateWebViewHidden(isHidden: Boolean) {
+    private fun updateWebViewHidden() {
+        val isHidden = isComponentHidden || isCoveredByOverlay
+
         bridge.perform { target -> target.sendVoid(ObjCRuntime.selector("setHidden:"), isHidden) }
     }
 }

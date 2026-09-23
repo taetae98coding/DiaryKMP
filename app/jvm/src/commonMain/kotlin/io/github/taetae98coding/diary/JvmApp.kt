@@ -17,6 +17,9 @@ private const val MIN_WIDTH = 360
 private const val MIN_HEIGHT = 784
 
 internal fun main() {
+    // SwingPanel은 기본적으로 Compose 위에 그려져 지도 자리의 패널이 다이얼로그를 가린다.
+    // 블렌딩을 켜야 지도 웹뷰를 감춘 동안 그 자리 위에 Compose 레이어가 보인다.
+    System.setProperty("compose.interop.blending", "true")
     StartupInitializer.initialize(isDebug = true)
 
     singleWindowApplication(
