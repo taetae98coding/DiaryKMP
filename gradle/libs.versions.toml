@@ -28,8 +28,8 @@ androidxSqlite = "2.7.1" # https://developer.android.com/jetpack/androidx/releas
 androidxStartup = "1.2.0" # https://developer.android.com/jetpack/androidx/releases/startup?hl=en
 androidxWork = "2.11.2" # https://developer.android.com/jetpack/androidx/releases/work?hl=en
 
-buildKonfig = "0.22.0" # https://github.com/yshrsmz/BuildKonfig/releases
-coil = "3.6.2" # https://github.com/coil-kt/coil/releases
+buildKonfig = "0.23.0" # https://github.com/yshrsmz/BuildKonfig/releases
+coil = "3.6.3" # https://github.com/coil-kt/coil/releases
 detekt = "2.0.0-alpha.6" # https://github.com/detekt/detekt/releases
 firebase = "34.19.0" # https://firebase.google.com/support/release-notes/android
 firebaseCrashlyticsGradlePlugin = "3.0.8"
