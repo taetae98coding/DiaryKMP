@@ -116,7 +116,6 @@ class AccountContactLocalDataSourceImplTest :
             val other = contact(name = FIRST_NAME, isFavorite = false)
             transaction.upsert(accountId = accountId, contactList = listOf(other, favorite))
 
-            // 조회한 결과를 다시 정렬하지 않아도 즐겨찾기가 앞에 놓인 순서 그대로 나온다.
             page(accountId = accountId, sort = ListSortLocalEntity.NAME) shouldBe listOf(favorite, other)
         }
 

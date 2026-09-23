@@ -12,6 +12,7 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
+import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
@@ -68,7 +69,7 @@ private fun EntryProviderScope<ScreenNavKey>.memoHomeEntry(
             ListDetailSceneStrategy.listPane(
                 sceneKey = MemoHomeNavKey,
                 detailPlaceholder = { MemoAddDetailPlaceholder(backStack = backStack) },
-            ) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f),
+            ) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION),
     ) {
         val isDetailPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.Detail)
         val listState = rememberLazyListState()
@@ -213,7 +214,7 @@ private fun EntryProviderScope<ScreenNavKey>.memoDetailEntry(backStack: NavBackS
 private fun NavBackStack<ScreenNavKey>.memoListDetailPaneMetadata(key: ScreenNavKey): Map<String, Any> {
     val sceneKey = memoDetailPaneSceneKey(key) ?: return emptyMap()
 
-    return ListDetailSceneStrategy.detailPane(sceneKey = sceneKey) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f)
+    return ListDetailSceneStrategy.detailPane(sceneKey = sceneKey) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION)
 }
 
 internal fun List<ScreenNavKey>.memoDetailPaneSceneKey(key: ScreenNavKey): ScreenNavKey? =

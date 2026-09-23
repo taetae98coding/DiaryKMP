@@ -45,7 +45,6 @@ public class AddMusicUseCase internal constructor(
         return music.id
     }
 
-    // 조건을 판단하는 순서는 사용자가 화면에서 입력을 만나는 순서와 같다.
     private fun MusicDetail.validated(): MusicDetail {
         if (title.isBlank()) throw MusicTitleBlankException()
 

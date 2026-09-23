@@ -18,7 +18,6 @@ kotlin {
                 implementation(projects.feature.search.api)
                 implementation(projects.feature.tag.api)
                 implementation(projects.library.composeUi)
-                implementation(projects.library.coroutines)
                 implementation(projects.library.kotlin)
             }
         }

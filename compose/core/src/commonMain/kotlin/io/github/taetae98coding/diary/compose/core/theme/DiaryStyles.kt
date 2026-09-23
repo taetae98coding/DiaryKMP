@@ -13,7 +13,6 @@ import androidx.compose.ui.unit.dp
 private const val DIMMED_ALPHA = 0.38F
 private val BottomSheetRowMinHeight = 56.dp
 
-// 이름과 속성은 docs/design/styles.md가 소유한다. 문서의 이름과 이 객체의 프로퍼티 이름을 일대일로 맞춘다.
 public object DiaryStyles {
     public val bottomSheetTitle: Style =
         Style {

@@ -13,18 +13,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LookaheadScope
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-
-private val Gap: Dp = 8.dp
 
 @Composable
 public fun DiaryFlexBox(
     modifier: Modifier = Modifier,
     content: @Composable LookaheadScope.() -> Unit,
 ) {
+    val itemSpacing = DiaryTheme.dimens.itemSpacing
+
     LookaheadScope {
         val lookaheadScope = this
 
@@ -32,7 +30,7 @@ public fun DiaryFlexBox(
             modifier = modifier,
             config = {
                 wrap(FlexWrap.Wrap)
-                gap(Gap)
+                gap(itemSpacing)
                 justifyContent(FlexJustifyContent.Center)
                 alignItems(FlexAlignItems.Center)
                 // FlexBox가 줄 간격을 두 번 빼는 탓에 Center면 첫 줄이 줄 간격 합의 절반만큼 위로 밀리고 보고 높이도 그만큼 짧아진다.

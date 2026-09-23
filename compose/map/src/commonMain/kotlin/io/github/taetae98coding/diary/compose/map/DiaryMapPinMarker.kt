@@ -22,14 +22,12 @@ internal const val PIN_MARKER_PATH_DATA: String =
         "Z"
 
 internal const val PIN_MARKER_VIEWPORT_SIZE: Float = 24F
-internal const val PIN_MARKER_SIZE_DP: Float = 32F
-internal const val PIN_MARKER_LABEL_HEIGHT_DP: Float = 16F
 
 internal val PinMarkerImageVector: ImageVector by lazy {
     ImageVector
         .Builder(
-            defaultWidth = PIN_MARKER_SIZE_DP.dp,
-            defaultHeight = PIN_MARKER_SIZE_DP.dp,
+            defaultWidth = DiaryMapPinMarkerDefaults.SIZE_DP.dp,
+            defaultHeight = DiaryMapPinMarkerDefaults.SIZE_DP.dp,
             viewportWidth = PIN_MARKER_VIEWPORT_SIZE,
             viewportHeight = PIN_MARKER_VIEWPORT_SIZE,
         ).addPath(

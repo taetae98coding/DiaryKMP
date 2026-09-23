@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleFadeVisibility
 import io.github.taetae98coding.diary.compose.core.format.toDisplayText
 import io.github.taetae98coding.diary.compose.core.icon.StarIcon
@@ -48,7 +47,7 @@ internal fun ContactCard(
     ) {
         Column(
             modifier = Modifier.styleable(style = DiaryTheme.styles.cardContent),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(DiaryTheme.dimens.cardLineSpacing),
         ) {
             ContactCardNameRow(contact = contact)
 
@@ -89,13 +88,13 @@ private fun ContactCardNameRow(
 ) {
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(ContactCardFavoriteDefaults.IconToNameSpacing),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         // 카드가 자식의 접근성 이름을 하나로 합치므로, 아이콘의 이름이 별도 요소가 아니라 카드 이름 맨 앞에 붙는다.
         DiaryScaleFadeVisibility(visible = contact?.isFavorite == true) {
             StarIcon(
-                modifier = Modifier.size(FAVORITE_ICON_SIZE),
+                modifier = Modifier.size(ContactCardFavoriteDefaults.IconSize),
                 contentDescription = stringResource(Res.string.contact_home_favorite_content_description),
             )
         }
@@ -118,8 +117,6 @@ private fun ContactBirthday.toDisplayText(): String =
 
 // 빈 문구는 한 줄 높이를 차지하지 않아 자리 표시 카드가 준비된 카드보다 낮아지므로, 보이지 않는 문자로 한 줄을 남긴다.
 private const val LINE_RESERVATION_TEXT: String = "​"
-
-private val FAVORITE_ICON_SIZE = 18.dp
 
 private class ContactCardPreviewParameter : PreviewParameterProvider<Contact?> {
     override val values: Sequence<Contact?> =

@@ -137,7 +137,6 @@ class MemoAddTagViewModelTest : FunSpec() {
                 val secondaryTag = tag()
                 val viewModel = viewModel(tagListFlow = flowOf(Result.success(listOf(primaryTag, secondaryTag))))
 
-                // 화면 구성 변경 전 화면의 구독에서 태그 두 개를 고르고 하나를 대표로 지정한다.
                 viewModel.uiState.test {
                     advanceUntilIdle()
                     viewModel.selectTag(id = secondaryTag.id)

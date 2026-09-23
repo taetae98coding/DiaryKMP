@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoPlaceUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoPlaceUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RemoveMemoPlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import io.github.taetae98coding.diary.library.coroutines.flow.debounceSearchQuery
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -42,7 +43,7 @@ internal class MemoPlaceViewModel(
                 )
             }.stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+                started = SharingStarted.WhileUiSubscribed,
                 initialValue = MemoPlaceInputUiState(),
             )
 

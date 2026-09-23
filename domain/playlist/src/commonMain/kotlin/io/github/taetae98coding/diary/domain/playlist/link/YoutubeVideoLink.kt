@@ -20,7 +20,6 @@ internal fun String.toYoutubeVideoLinkOrThrow(): String {
     return link
 }
 
-// 곡의 링크는 비워 둘 수 있으므로 값이 있을 때만 YouTube 링크인지 판정한다.
 internal fun String.toOptionalYoutubeVideoLinkOrThrow(): String {
     val link = trim()
 

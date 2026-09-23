@@ -158,7 +158,6 @@ class AccountDataTransactionImplTest :
             return FilledEntity(memoId = memo.id, tagId = tag.id, otherTagId = otherTag.id, placeId = place.id, webId = web.id)
         }
 
-        /** 여섯 연결 종류를 [entity]가 만든 항목 사이에 걸어 둔다. */
         suspend fun fillRelation(
             accountId: Uuid,
             isDirty: Boolean,
@@ -212,7 +211,6 @@ class AccountDataTransactionImplTest :
             )
         }
 
-        /** 계정별로 유지하는 필터 선택과 열두 종류의 내려받기 위치를 채운다. */
         suspend fun fillAccountState(
             accountId: Uuid,
             entity: FilledEntity,
@@ -232,10 +230,7 @@ class AccountDataTransactionImplTest :
             }
         }
 
-        /**
-         * 열두 종류의 항목과 계정 연결, 계정별 필터 선택과 내려받기 위치를 한 계정 몫으로 채운다.
-         * 업로드 대기 항목을 함께 두기 위해 계정 연결은 모두 [isDirty]로 기록한다.
-         */
+        /** 업로드 대기 항목을 함께 두기 위해 계정 연결은 모두 [isDirty]로 기록한다. */
         suspend fun fill(
             accountId: Uuid,
             isDirty: Boolean = true,

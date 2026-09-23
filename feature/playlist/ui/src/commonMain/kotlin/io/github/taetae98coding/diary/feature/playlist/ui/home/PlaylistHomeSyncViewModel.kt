@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.GetProgressReportedUseCase
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -22,7 +23,7 @@ internal class PlaylistHomeSyncViewModel(
             .map { result -> PlaylistHomeUiState(isRefreshing = result.getOrDefault(false)) }
             .stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+                started = SharingStarted.WhileUiSubscribed,
                 initialValue = PlaylistHomeUiState(),
             )
 

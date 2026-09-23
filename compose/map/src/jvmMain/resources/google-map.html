@@ -79,7 +79,7 @@
                     map: window.diaryGoogleMap,
                     clickable: diaryMapPinSelectable,
                     icon: diaryPinIcon(pin),
-                    label: pin.label === "" ? null : { text: pin.label, fontSize: "12px" }
+                    label: pin.label === "" ? null : { text: pin.label, fontSize: diaryMapPinMarker.labelFontSize + "px" }
                 });
                 if (diaryMapPinSelectable) {
                     marker.addListener("click", function() {

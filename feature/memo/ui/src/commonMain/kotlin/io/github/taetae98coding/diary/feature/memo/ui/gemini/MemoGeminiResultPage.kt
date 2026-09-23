@@ -39,8 +39,6 @@ import io.github.taetae98coding.diary.feature.memo.ui.previewMemoDraft
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.resources.stringResource
 
-private const val TITLE_MAX_LINES = 2
-
 @Composable
 internal fun MemoGeminiResultPage(
     onEvent: (MemoGeminiDialogEvent) -> Unit,
@@ -133,7 +131,7 @@ private fun MemoGeminiResultValue(
             Text(
                 text = draft.title,
                 modifier = modifier.fillMaxWidth(),
-                maxLines = TITLE_MAX_LINES,
+                maxLines = MemoGeminiResultPageDefaults.TITLE_MAX_LINES,
                 overflow = TextOverflow.Ellipsis,
             )
 

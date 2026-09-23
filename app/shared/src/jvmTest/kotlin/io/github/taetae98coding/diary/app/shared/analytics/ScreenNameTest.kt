@@ -112,7 +112,6 @@ class ScreenNameTest :
     }) {
     public companion object {
         // 화면 이름은 Google Analytics 4로 나가는 계약이므로 스펙이 정한 값을 그대로 적는다.
-        // 기준: docs/spec/screen-view-logging.md의 `화면 이름 목록`
         private val screenNameByNavKey: Map<ScreenNavKey, String> =
             mapOf(
                 CalendarHomeNavKey to "CalendarHome",

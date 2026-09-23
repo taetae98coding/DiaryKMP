@@ -11,7 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.icon.DropDownIcon
 import io.github.taetae98coding.diary.compose.core.icon.DropUpIcon
@@ -35,9 +34,12 @@ internal fun CalendarHomeYearMonthTitle(
     Row(
         modifier =
             modifier
-                .clip(RoundedCornerShape(12.dp))
+                .clip(RoundedCornerShape(CalendarHomeYearMonthTitleDefaults.CornerSize))
                 .clickable(role = Role.Button, onClick = onClick)
-                .padding(horizontal = 8.dp, vertical = 4.dp),
+                .padding(
+                    horizontal = CalendarHomeYearMonthTitleDefaults.HorizontalPadding,
+                    vertical = CalendarHomeYearMonthTitleDefaults.VerticalPadding,
+                ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val yearMonth = state.calendarState.currentYearMonth

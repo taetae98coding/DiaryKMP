@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.core.model.location.CoordinateBounds
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
+import io.github.taetae98coding.diary.data.core.paging.PAGE_SIZE
 import io.github.taetae98coding.diary.data.place.mapper.toDomain
 import io.github.taetae98coding.diary.data.tag.mapper.toLocal
 import io.github.taetae98coding.diary.domain.place.repository.AccountTagPlaceRepository
@@ -61,8 +62,4 @@ internal class AccountTagPlaceRepositoryImpl(
                 east = bounds.east,
                 sort = sort.toLocal(),
             ).map { localList -> localList.map { local -> local.toDomain() } }
-
-    private companion object {
-        const val PAGE_SIZE: Int = 20
-    }
 }

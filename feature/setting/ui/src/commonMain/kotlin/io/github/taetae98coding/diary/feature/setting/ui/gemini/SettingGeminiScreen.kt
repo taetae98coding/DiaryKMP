@@ -99,7 +99,6 @@ private fun FetchModelEffect(
     modelViewModel: SettingGeminiModelViewModel,
     modelUiStateProvider: () -> SettingGeminiModelUiState,
 ) {
-    // 다이얼로그를 열 때만 불러오고, 이미 받아 둔 목록이 있으면 다시 불러오지 않는다.
     LaunchedEffect(state, modelViewModel) {
         snapshotFlow { state.modelDialogState.isVisible }
             .filter { isDialogVisible -> isDialogVisible }

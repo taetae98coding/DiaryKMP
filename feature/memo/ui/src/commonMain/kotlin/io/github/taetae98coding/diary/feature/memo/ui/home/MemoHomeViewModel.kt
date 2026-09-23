@@ -18,6 +18,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoHomeUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestartMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -58,7 +59,7 @@ internal class MemoHomeViewModel(
             )
         }.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+            started = SharingStarted.WhileUiSubscribed,
             initialValue = MemoHomeScaffoldFilterUiState(),
         )
 

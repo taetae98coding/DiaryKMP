@@ -8,6 +8,8 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import org.koin.core.annotation.Factory
 import kotlin.coroutines.resume
 
+private const val DEVICE_LOCATION_TIMEOUT_MILLIS = 5_000
+
 @Factory
 internal class WasmLocationProvider : LocationProvider {
     override suspend fun getCurrentLocation(): Location? {
@@ -15,6 +17,7 @@ internal class WasmLocationProvider : LocationProvider {
 
         return suspendCancellableCoroutine { continuation ->
             requestCurrentPosition(
+                timeoutMillis = DEVICE_LOCATION_TIMEOUT_MILLIS,
                 onSuccess = { latitude, longitude -> continuation.resume(Location(latitude = latitude, longitude = longitude)) },
                 onFailure = { continuation.resume(null) },
             )
@@ -56,6 +59,7 @@ private fun queryPermissionState(
 
 @Suppress("UnusedParameter")
 private fun requestCurrentPosition(
+    timeoutMillis: Int,
     onSuccess: (Double, Double) -> Unit,
     onFailure: () -> Unit,
 ): Unit =
@@ -65,7 +69,7 @@ private fun requestCurrentPosition(
             navigator.geolocation.getCurrentPosition(
                 function (position) { onSuccess(position.coords.latitude, position.coords.longitude); },
                 function () { onFailure(); },
-                { enableHighAccuracy: false, maximumAge: Infinity, timeout: 5000 }
+                { enableHighAccuracy: false, maximumAge: Infinity, timeout: timeoutMillis }
             );
         })()
         """,

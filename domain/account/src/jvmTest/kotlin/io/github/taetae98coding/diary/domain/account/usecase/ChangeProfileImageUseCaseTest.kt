@@ -16,13 +16,14 @@ import io.mockk.mockk
 import io.mockk.runs
 
 private const val MAX_SIDE_LENGTH_PX = 1024
+private const val JPEG_QUALITY_PERCENT = 90
 
 class ChangeProfileImageUseCaseTest :
     BehaviorSpec({
         Given("프로필 이미지 반영 요청이 성공한다") {
             val parameter = parameter()
             val repository = mockk<UserDataRepository>()
-            coEvery { repository.updateProfileImage(uri = any(), cropRegion = any(), maxSideLength = any()) } just runs
+            coEvery { repository.updateProfileImage(uri = any(), cropRegion = any(), maxSideLength = any(), jpegQuality = any()) } just runs
             val useCase = ChangeProfileImageUseCase(userDataRepository = repository)
 
             When("고른 사진의 위치와 남길 영역으로 프로필 이미지 반영을 시작한다") {
@@ -33,9 +34,9 @@ class ChangeProfileImageUseCaseTest :
                     coVerify(exactly = 0) { repository.refresh() }
                 }
 
-                Then("남긴 이미지의 최대 변 길이는 1024px이다") {
+                Then("남긴 이미지의 최대 변 길이는 1024px이고 JPEG 화질은 90이다") {
                     coVerify(exactly = 1) {
-                        repository.updateProfileImage(uri = parameter.uri, cropRegion = parameter.cropRegion, maxSideLength = MAX_SIDE_LENGTH_PX)
+                        repository.updateProfileImage(uri = parameter.uri, cropRegion = parameter.cropRegion, maxSideLength = MAX_SIDE_LENGTH_PX, jpegQuality = JPEG_QUALITY_PERCENT)
                     }
                 }
             }
@@ -44,7 +45,7 @@ class ChangeProfileImageUseCaseTest :
         Given("프로필 이미지 반영 요청이 실패한다") {
             val parameter = parameter()
             val repository = mockk<UserDataRepository>()
-            coEvery { repository.updateProfileImage(uri = any(), cropRegion = any(), maxSideLength = any()) } throws IllegalStateException("upload failed")
+            coEvery { repository.updateProfileImage(uri = any(), cropRegion = any(), maxSideLength = any(), jpegQuality = any()) } throws IllegalStateException("upload failed")
             val useCase = ChangeProfileImageUseCase(userDataRepository = repository)
 
             When("고른 사진의 위치와 남길 영역으로 프로필 이미지 반영을 시작한다") {

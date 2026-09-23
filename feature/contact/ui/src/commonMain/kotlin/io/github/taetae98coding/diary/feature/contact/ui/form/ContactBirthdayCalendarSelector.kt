@@ -18,7 +18,6 @@ import io.github.taetae98coding.diary.feature.contact.ui.contact_birthday_calend
 import io.github.taetae98coding.diary.feature.contact.ui.contact_birthday_calendar_solar
 import org.jetbrains.compose.resources.stringResource
 
-// 두 칸이 놓이는 순서는 디자인이 정하므로 enum 선언 순서에 기대지 않고 이 목록이 소유한다.
 internal val contactBirthdayCalendarList: List<ContactBirthdayCalendar> =
     listOf(
         ContactBirthdayCalendar.SOLAR,

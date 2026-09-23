@@ -47,10 +47,17 @@ public fun DiaryTheme(
             componentSpacing = 12.dp,
             chipAreaHeight = 150.dp,
             pickerListHeight = 288.dp,
+            pickerDialogEdgePadding = 24.dp,
+            pickerDialogTitleBottomPadding = 16.dp,
+            pickerDialogContentBottomPadding = 24.dp,
             bottomSheetHorizontalPadding = 24.dp,
             bottomSheetTitleVerticalPadding = 12.dp,
             bottomSheetBottomPadding = 16.dp,
             cardContentPadding = 16.dp,
+            cardLineSpacing = 4.dp,
+            colorIndicatorSize = 8.dp,
+            colorIndicatorSpacing = 12.dp,
+            inProgressIndicatorSize = 24.dp,
         )
 
     CompositionLocalProvider(LocalDiaryDimens provides dimens) {

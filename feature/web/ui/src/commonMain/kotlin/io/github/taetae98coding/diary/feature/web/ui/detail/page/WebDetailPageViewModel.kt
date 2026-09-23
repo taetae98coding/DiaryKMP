@@ -41,8 +41,6 @@ internal class WebDetailPageViewModel(
         startLoad()
     }
 
-    // 사용자가 실행한 수정으로 저장된 URL이나 요청 헤더가 바뀌었을 때만 다시 불러온다.
-    // 아직 한 번도 불러온 적이 없으면 응답 본문 방식이 될 때 불러오므로 여기에서 요청하지 않는다.
     fun refresh() {
         if (!isStarted) return
 
@@ -57,7 +55,6 @@ internal class WebDetailPageViewModel(
     }
 
     private fun startLoad(detail: WebDetail? = null) {
-        // 불러오는 동안 수정으로 대상이 바뀌면 앞선 요청의 결과를 화면에 반영하지 않는다.
         job?.cancel()
         uiState.value = WebDetailPageUiState.Loading
 

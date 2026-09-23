@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.domain.weather.usecase.FetchCurrentWeatherUseCase
 import io.github.taetae98coding.diary.domain.weather.usecase.GetCurrentCalendarWeatherUseCase
 import io.github.taetae98coding.diary.domain.weather.usecase.RefreshCurrentWeatherUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -28,7 +29,7 @@ internal class CalendarHomeWeatherViewModel(
             .map { result -> result.getOrDefault(CalendarWeatherReport()) }
             .stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+                started = SharingStarted.WhileUiSubscribed,
                 initialValue = CalendarWeatherReport(),
             )
 

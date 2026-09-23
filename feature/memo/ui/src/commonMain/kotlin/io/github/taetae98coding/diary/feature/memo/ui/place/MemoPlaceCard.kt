@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -16,8 +15,6 @@ import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.feature.memo.ui.previewPlace
 import kotlin.uuid.Uuid
-
-private val MapHeight = 240.dp
 
 @Composable
 internal fun MemoPlaceCard(
@@ -30,7 +27,7 @@ internal fun MemoPlaceCard(
     Card(modifier = modifier) {
         MemoPlaceMapBox(
             onPinClick = onPlaceClick,
-            modifier = Modifier.height(MapHeight),
+            modifier = Modifier.height(MemoPlaceCardDefaults.MapHeight),
             mapState = mapState,
             placeListProvider = { uiStateProvider().placeUiState.selectedPlaceList },
         )

@@ -7,6 +7,7 @@ import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
@@ -35,7 +36,7 @@ private fun EntryProviderScope<ScreenNavKey>.settingHomeEntry(backStack: NavBack
             ListDetailSceneStrategy.listPane(
                 sceneKey = SettingHomeNavKey,
                 detailPlaceholder = { SettingDetailPlaceholder() },
-            ) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f),
+            ) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION),
     ) {
         SettingHomeScreen(
             navigateUp = backStack::navigateUpFromSettingHome,
@@ -48,7 +49,7 @@ private fun EntryProviderScope<ScreenNavKey>.settingHomeEntry(backStack: NavBack
 
 private fun EntryProviderScope<ScreenNavKey>.settingHolidayEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<SettingHolidayNavKey>(
-        metadata = ListDetailSceneStrategy.detailPane(sceneKey = SettingHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f),
+        metadata = ListDetailSceneStrategy.detailPane(sceneKey = SettingHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION),
     ) {
         val isListPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.List)
 
@@ -64,7 +65,7 @@ private fun EntryProviderScope<ScreenNavKey>.settingHolidayEntry(backStack: NavB
 
 private fun EntryProviderScope<ScreenNavKey>.settingMapEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<SettingMapNavKey>(
-        metadata = ListDetailSceneStrategy.detailPane(sceneKey = SettingHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f),
+        metadata = ListDetailSceneStrategy.detailPane(sceneKey = SettingHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION),
     ) {
         val isListPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.List)
 
@@ -80,7 +81,7 @@ private fun EntryProviderScope<ScreenNavKey>.settingMapEntry(backStack: NavBackS
 
 private fun EntryProviderScope<ScreenNavKey>.settingGeminiEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<SettingGeminiNavKey>(
-        metadata = ListDetailSceneStrategy.detailPane(sceneKey = SettingHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f),
+        metadata = ListDetailSceneStrategy.detailPane(sceneKey = SettingHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION),
     ) {
         val isListPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.List)
 

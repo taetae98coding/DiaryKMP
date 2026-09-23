@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.domain.contact.usecase.FavoriteContactUseC
 import io.github.taetae98coding.diary.domain.contact.usecase.FindContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.UnfavoriteContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.UpdateContactUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -54,7 +55,7 @@ internal class ContactDetailViewModel(
             } ?: ContactDetailUiState.Loading
         }.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+            started = SharingStarted.WhileUiSubscribed,
             initialValue = ContactDetailUiState.Loading,
         )
 
@@ -83,7 +84,6 @@ internal class ContactDetailViewModel(
     fun toggleFavorite() {
         if (isFavoriteInProgress.value) return
 
-        // 사용자가 지금 보고 있는 즐겨찾기 표시의 반대로 바꾼다.
         val content = uiState.value as? ContactDetailUiState.Content ?: return
 
         viewModelScope.launch {

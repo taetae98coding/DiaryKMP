@@ -19,6 +19,7 @@ import io.github.taetae98coding.diary.compose.calendar.grid.CalendarWeekOfMonthG
 import io.github.taetae98coding.diary.compose.calendar.scroll.CalendarItemScrollState
 import io.github.taetae98coding.diary.compose.calendar.scroll.rememberCalendarItemScrollState
 import io.github.taetae98coding.diary.compose.calendar.text.CalendarBarText
+import io.github.taetae98coding.diary.compose.calendar.week.CalendarWeekOfMonthDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.library.kotlinx.datetime.DAYS_PER_WEEK
@@ -50,9 +51,9 @@ internal fun CalendarWeekOfMonthLazyVerticalGrid(
         columns = GridCells.Fixed(DAYS_PER_WEEK),
         modifier = modifier,
         state = gridState,
-        contentPadding = PaddingValues(2.dp),
-        verticalArrangement = Arrangement.spacedBy(2.dp),
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        contentPadding = PaddingValues(CalendarWeekOfMonthDefaults.ItemAreaPadding),
+        verticalArrangement = Arrangement.spacedBy(CalendarWeekOfMonthDefaults.ItemSpacing),
+        horizontalArrangement = Arrangement.spacedBy(CalendarWeekOfMonthDefaults.ItemSpacing),
     ) {
         CalendarWeekOfMonthGridScopeVerticalGridImpl(dateRange)
             .apply(content)

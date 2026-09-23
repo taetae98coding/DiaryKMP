@@ -14,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.Res
 import io.github.taetae98coding.diary.compose.core.diary_date_time_input_all_day
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
@@ -41,8 +40,8 @@ internal fun DiaryDateTimeInputAllDayRow(
                     role = Role.Checkbox,
                     onValueChange = onCheckedChange,
                 ).minimumInteractiveComponentSize()
-                .padding(horizontal = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                .padding(horizontal = DiaryDateTimeInputDefaults.AllDayRowHorizontalPadding),
+        horizontalArrangement = Arrangement.spacedBy(DiaryDateTimeInputDefaults.AllDayRowSpacing),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Checkbox(

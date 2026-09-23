@@ -48,7 +48,6 @@ internal class GooglePlaceRemoteDataSourceImpl(
                             latitude = latitude,
                             longitude = longitude,
                         ),
-                    // Google은 상한을 넘는 반경의 요청을 거절하므로 상한까지만 보낸다.
                     radius = radiusMeters.coerceAtMost(MAX_RADIUS_METERS),
                 ),
         )
@@ -59,8 +58,6 @@ internal class GooglePlaceRemoteDataSourceImpl(
         private const val MAX_RADIUS_METERS = 50_000.0
         private const val LANGUAGE_CODE = "ko"
         private const val FIELD_MASK_HEADER = "X-Goog-FieldMask"
-
-        // 과금 등급이 Pro를 넘지 않는 항목만 요청한다.
         private const val FIELD_MASK =
             "places.id,places.displayName,places.location,places.types,places.formattedAddress,places.shortFormattedAddress,places.googleMapsUri"
     }

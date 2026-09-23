@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDraft
 import io.github.taetae98coding.diary.domain.memo.usecase.FetchMemoDraftUseCase
 import io.github.taetae98coding.diary.domain.setting.exception.GeminiApiKeyInvalidException
 import io.github.taetae98coding.diary.domain.setting.usecase.GetGeminiSettingUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -34,7 +35,7 @@ internal class MemoGeminiViewModel(
             .map { result -> result.getOrNull() }
             .stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(SUBSCRIPTION_TIMEOUT),
+                started = SharingStarted.WhileUiSubscribed,
                 initialValue = null,
             )
 
@@ -52,7 +53,7 @@ internal class MemoGeminiViewModel(
             )
         }.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(SUBSCRIPTION_TIMEOUT),
+            started = SharingStarted.WhileUiSubscribed,
             initialValue = MemoGeminiUiState(),
         )
 
@@ -120,8 +121,4 @@ internal class MemoGeminiViewModel(
         val appliedFieldSet: Set<MemoGeminiField> = emptySet(),
         val failure: MemoGeminiFailure? = null,
     )
-
-    private companion object {
-        private const val SUBSCRIPTION_TIMEOUT = 5_000L
-    }
 }

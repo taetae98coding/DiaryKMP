@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoSelectableWebUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.GetSelectedWebUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.web.MemoWebInputUiState
+import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import io.github.taetae98coding.diary.library.coroutines.flow.debounceSearchQuery
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -38,7 +39,7 @@ internal class MemoAddWebViewModel(
             .map { result -> MemoWebInputUiState(selectedWebList = result.getOrNull().orEmpty()) }
             .stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+                started = SharingStarted.WhileUiSubscribed,
                 initialValue = MemoWebInputUiState(),
             )
 

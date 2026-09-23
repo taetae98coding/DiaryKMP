@@ -23,7 +23,6 @@ internal class DailyMemoNotificationWork(
                 .first()
                 .fold(
                     onSuccess = { memoList -> DailyMemoNotificationContent.Loaded(memoList = memoList) },
-                    // 메모를 가져오지 못해도 알림은 보내야 하므로, 내용을 정할 수 없는 환경과 같은 안내로 대신한다.
                     onFailure = { DailyMemoNotificationContent.Unavailable },
                 )
 

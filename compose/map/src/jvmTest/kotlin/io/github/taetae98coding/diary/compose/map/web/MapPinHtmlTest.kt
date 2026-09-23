@@ -3,9 +3,7 @@ package io.github.taetae98coding.diary.compose.map.web
 import androidx.compose.ui.graphics.Color
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.DiaryMapPin
-import io.github.taetae98coding.diary.compose.map.PIN_MARKER_LABEL_HEIGHT_DP
 import io.github.taetae98coding.diary.compose.map.PIN_MARKER_PATH_DATA
-import io.github.taetae98coding.diary.compose.map.PIN_MARKER_SIZE_DP
 import io.github.taetae98coding.diary.compose.map.PIN_MARKER_VIEWPORT_SIZE
 import io.github.taetae98coding.diary.compose.map.google.createGoogleMapHtml
 import io.github.taetae98coding.diary.compose.map.naver.createNaverMapHtml
@@ -55,8 +53,8 @@ class MapPinHtmlTest :
             listOf(naverHtml, googleHtml).forEach { html ->
                 html shouldContain expected
                 html shouldContain """"viewport": $PIN_MARKER_VIEWPORT_SIZE"""
-                html shouldContain """"size": $PIN_MARKER_SIZE_DP"""
-                html shouldContain """"labelHeight": $PIN_MARKER_LABEL_HEIGHT_DP"""
+                html shouldContain """"size": 32.0"""
+                html shouldContain """"labelHeight": 16.0"""
                 html shouldNotContain PIN_MARKER_PLACEHOLDER
             }
         }
@@ -73,11 +71,8 @@ class MapPinHtmlTest :
             val backslash = '\\'
             val labelList =
                 listOf(
-                    // 따옴표가 포함된 문구
                     """quote-"quoted"-label""" to """quote-$backslash"quoted$backslash"-label""",
-                    // 태그 형태의 문자가 포함된 문구
                     "tag-</script><b>-label" to "tag-${backslash}u003c/script${backslash}u003e${backslash}u003cb${backslash}u003e-label",
-                    // 줄바꿈이 포함된 문구
                     "line\nbreak-label" to "line${backslash}u000abreak-label",
                 )
 

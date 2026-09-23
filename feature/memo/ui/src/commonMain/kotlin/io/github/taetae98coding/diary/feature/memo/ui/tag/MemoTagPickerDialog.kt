@@ -65,7 +65,6 @@ internal fun MemoTagPickerDialog(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        // 목록 자리를 고정해 항목 수나 검색 결과 수가 바뀌어도 대화상자 크기가 바뀌지 않게 한다.
                         .weight(weight = 1F, fill = false)
                         .height(DiaryTheme.dimens.pickerListHeight),
             ) { isEmpty ->

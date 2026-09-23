@@ -27,7 +27,6 @@ internal fun Modifier.tagDetailTabShortcut(
                 }
             }
 
-            // 세 목록 탭은 같은 추가 단축키를 쓰고 선택한 탭이 무엇을 추가할지 정한다.
             TagDetailTab.MEMO -> keyEvent.handleAddShortcut(onAdd = onMemoAdd)
 
             TagDetailTab.WEB -> keyEvent.handleAddShortcut(onAdd = onWebAdd)

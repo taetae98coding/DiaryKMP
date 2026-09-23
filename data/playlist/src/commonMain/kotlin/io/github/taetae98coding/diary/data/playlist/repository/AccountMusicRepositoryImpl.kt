@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
+import io.github.taetae98coding.diary.data.core.paging.PAGE_SIZE
 import io.github.taetae98coding.diary.data.playlist.mapper.toDomain
 import io.github.taetae98coding.diary.data.playlist.mapper.toLocal
 import io.github.taetae98coding.diary.domain.playlist.repository.AccountMusicRepository
@@ -86,8 +87,4 @@ internal class AccountMusicRepositoryImpl(
             isDeleted = isDeleted,
             updatedAt = updatedAt,
         )
-
-    private companion object {
-        const val PAGE_SIZE: Int = 20
-    }
 }

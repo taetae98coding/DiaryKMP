@@ -8,6 +8,7 @@ import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineAddNavKey
@@ -46,7 +47,7 @@ private fun EntryProviderScope<ScreenNavKey>.routineHomeEntry(
                         componentVisibleProvider = { RoutineAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
                     )
                 },
-            ) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f),
+            ) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION),
     ) {
         val isDetailPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.Detail)
         val scrollState = rememberScrollState()
@@ -79,7 +80,7 @@ private fun EntryProviderScope<ScreenNavKey>.routineAddEntry(backStack: NavBackS
 
 private fun NavBackStack<ScreenNavKey>.routineListDetailPaneMetadata(key: ScreenNavKey): Map<String, Any> =
     if (isRoutineListDetailPane(key)) {
-        ListDetailSceneStrategy.detailPane(sceneKey = RoutineHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f)
+        ListDetailSceneStrategy.detailPane(sceneKey = RoutineHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION)
     } else {
         emptyMap()
     }

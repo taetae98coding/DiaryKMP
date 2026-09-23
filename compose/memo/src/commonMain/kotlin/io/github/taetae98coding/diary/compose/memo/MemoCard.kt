@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.color.DiaryColorIndicator
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -42,7 +41,7 @@ public fun MemoCard(
     ) {
         Row(
             modifier = Modifier.styleable(style = DiaryTheme.styles.cardContent),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(DiaryTheme.dimens.colorIndicatorSpacing),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             memo?.let {

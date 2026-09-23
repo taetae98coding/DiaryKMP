@@ -55,7 +55,7 @@ internal fun RoutineHomeScaffold(
         ) {
             DiaryEmptyBox(
                 title = stringResource(Res.string.routine_home_empty_title),
-                // 빈 상태에서도 당겨서 새로고침할 수 있도록 중첩 스크롤을 전달한다.
+                // 당겨서 새로고침은 스크롤 가능한 자식의 중첩 스크롤로만 감지하므로 빈 상태에도 스크롤을 둔다.
                 modifier =
                     Modifier
                         .fillMaxSize()

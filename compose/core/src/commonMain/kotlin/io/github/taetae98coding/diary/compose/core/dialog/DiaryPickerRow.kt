@@ -17,7 +17,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.color.DiaryColorIndicator
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -43,8 +42,8 @@ public fun DiaryPickerRow(
                     role = Role.Checkbox,
                     onValueChange = onSelectedChange,
                 ).minimumInteractiveComponentSize()
-                .padding(start = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                .padding(start = DiaryPickerRowDefaults.StartPadding),
+        horizontalArrangement = Arrangement.spacedBy(DiaryPickerRowDefaults.ContentSpacing),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Checkbox(

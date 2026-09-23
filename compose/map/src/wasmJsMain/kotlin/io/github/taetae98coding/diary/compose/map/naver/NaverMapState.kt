@@ -107,7 +107,7 @@ internal fun NaverMapState(
                     '</svg>';
                 content.querySelector("path").setAttribute("fill", pin.color);
                 const label = document.createElement("span");
-                label.style.cssText = "font-size:12px;line-height:" + pinMarker.labelHeight + "px;white-space:nowrap;color:#000000;background:rgba(255,255,255,0.8);padding:0 2px;border-radius:2px;";
+                label.style.cssText = "font-size:" + pinMarker.labelFontSize + "px;line-height:" + pinMarker.labelHeight + "px;white-space:nowrap;color:#000000;background:rgba(255,255,255," + pinMarker.labelBackgroundAlpha + ");padding:0 " + pinMarker.labelHorizontalPadding + "px;border-radius:" + pinMarker.labelCornerRadius + "px;";
                 label.textContent = pin.label;
                 content.appendChild(label);
                 root.appendChild(content);

@@ -14,7 +14,6 @@ private const val GOOGLE_MAP_APP_URI = "comgooglemaps://"
 // Google Maps URLs는 좌표를 구분하는 쉼표를 인코딩해 넘기도록 정하고 있다.
 private const val ENCODED_COMMA = "%2C"
 
-// 네이버 지도가 좌표만 넘긴 주소에 붙이는 확대 수준과 같게 둔다.
 private const val EXTERNAL_MAP_ZOOM = 15
 
 internal fun externalMapTitle(
@@ -90,7 +89,6 @@ private fun googleMapWebUri(
     }
 }
 
-// Google 지도는 검색어로 장소를 특정하므로, 같은 이름의 다른 장소가 잡히지 않도록 제목과 주소를 함께 넘긴다.
 private fun googleMapQuery(
     title: String,
     address: String,

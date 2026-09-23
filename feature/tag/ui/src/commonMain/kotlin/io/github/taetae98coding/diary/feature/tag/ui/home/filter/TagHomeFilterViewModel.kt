@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.domain.tag.usecase.DisableTopLevelTagFilterUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.EnableTopLevelTagFilterUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetTopLevelTagFilterUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -23,7 +24,7 @@ internal class TagHomeFilterViewModel(
             .map { result -> TagHomeFilterUiState(isTopLevelOnly = result.getOrDefault(false)) }
             .stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+                started = SharingStarted.WhileUiSubscribed,
                 initialValue = TagHomeFilterUiState(),
             )
 

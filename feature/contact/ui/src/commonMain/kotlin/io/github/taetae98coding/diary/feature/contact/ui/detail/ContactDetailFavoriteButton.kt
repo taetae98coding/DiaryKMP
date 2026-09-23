@@ -7,7 +7,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.icon.StarBorderIcon
 import io.github.taetae98coding.diary.compose.core.icon.StarIcon
@@ -31,7 +30,7 @@ internal fun ContactDetailFavoriteButton(
         ) {
             DiaryCrossfade(targetState = FavoriteButtonContent(isInProgress = isInProgressProvider(), isFavorite = isFavoriteProvider())) { content ->
                 when {
-                    content.isInProgress -> CircularWavyProgressIndicator(modifier = Modifier.size(InProgressIndicatorSize))
+                    content.isInProgress -> CircularWavyProgressIndicator(modifier = Modifier.size(DiaryTheme.dimens.inProgressIndicatorSize))
                     content.isFavorite -> StarIcon(contentDescription = contentDescription)
                     else -> StarBorderIcon(contentDescription = contentDescription)
                 }
@@ -45,8 +44,6 @@ private data class FavoriteButtonContent(
     val isInProgress: Boolean,
     val isFavorite: Boolean,
 )
-
-private val InProgressIndicatorSize = 24.dp
 
 @ComponentPreview
 @Composable

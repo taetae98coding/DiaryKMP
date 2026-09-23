@@ -76,6 +76,7 @@ internal fun GoogleMapState(
 
             const pinMarker = JSON.parse(pinMarkerJson);
             const pinScale = pinMarker.size / pinMarker.viewport;
+            const pinLabelFontSize = pinMarker.labelFontSize + "px";
 
             const pinIcon = (pin) => {
                 return {
@@ -105,7 +106,7 @@ internal fun GoogleMapState(
                         map: map,
                         clickable: isPinSelectable,
                         icon: pinIcon(pin),
-                        label: pin.label === "" ? null : { text: pin.label, fontSize: "12px" }
+                        label: pin.label === "" ? null : { text: pin.label, fontSize: pinLabelFontSize }
                     });
                     if (isPinSelectable) {
                         pinMarker.addListener('click', () => {

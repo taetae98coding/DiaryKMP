@@ -8,6 +8,7 @@ import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
+import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
@@ -50,7 +51,7 @@ private fun EntryProviderScope<ScreenNavKey>.webHomeEntry(backStack: NavBackStac
                         tagViewModel = koinViewModel { parametersOf(null) },
                     )
                 },
-            ) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f),
+            ) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION),
     ) {
         val isDetailPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.Detail)
 
@@ -103,7 +104,7 @@ private fun EntryProviderScope<ScreenNavKey>.webDetailEntry(backStack: NavBackSt
 
 private fun NavBackStack<ScreenNavKey>.webListDetailPaneMetadata(key: ScreenNavKey): Map<String, Any> =
     if (isWebListDetailPane(key)) {
-        ListDetailSceneStrategy.detailPane(sceneKey = WebHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f)
+        ListDetailSceneStrategy.detailPane(sceneKey = WebHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION)
     } else {
         emptyMap()
     }

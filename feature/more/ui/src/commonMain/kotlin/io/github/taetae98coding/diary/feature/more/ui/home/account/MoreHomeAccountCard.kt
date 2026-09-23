@@ -8,7 +8,6 @@ import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.more.ui.home.MoreHomeScaffoldEvent
@@ -24,8 +23,8 @@ internal fun MoreHomeAccountCard(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+                    .padding(MoreHomeAccountCardDefaults.ContentPadding),
+            verticalArrangement = Arrangement.spacedBy(MoreHomeAccountCardDefaults.ProfileToActionSpacing),
         ) {
             MoreHomeProfileRow(
                 onEvent = onEvent,

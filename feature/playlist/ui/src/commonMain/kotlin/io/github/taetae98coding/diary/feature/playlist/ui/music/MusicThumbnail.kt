@@ -44,7 +44,6 @@ internal fun MusicThumbnail(
                 painter = painter,
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
-                // YouTube 썸네일은 4:3이고 위아래에 검은 띠가 있을 수 있어 맞춰 넣지 않고 잘라 넣는다.
                 contentScale = ContentScale.Crop,
             )
         }

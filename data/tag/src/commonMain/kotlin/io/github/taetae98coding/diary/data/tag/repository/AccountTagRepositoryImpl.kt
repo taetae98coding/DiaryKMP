@@ -12,6 +12,7 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
+import io.github.taetae98coding.diary.data.core.paging.PAGE_SIZE
 import io.github.taetae98coding.diary.data.tag.mapper.toDomain
 import io.github.taetae98coding.diary.data.tag.mapper.toLocal
 import io.github.taetae98coding.diary.domain.tag.repository.AccountTagRepository
@@ -155,8 +156,4 @@ internal class AccountTagRepositoryImpl(
             detail = detail.toLocal(),
             updatedAt = updatedAt,
         )
-
-    private companion object {
-        const val PAGE_SIZE: Int = 20
-    }
 }

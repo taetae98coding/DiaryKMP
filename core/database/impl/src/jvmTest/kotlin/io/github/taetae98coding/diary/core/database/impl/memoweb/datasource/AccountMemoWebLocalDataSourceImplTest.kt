@@ -245,7 +245,6 @@ class AccountMemoWebLocalDataSourceImplTest :
             val selectedWeb = web(title = FIRST_WEB_TITLE)
             insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(matchedWeb, selectedWeb))
 
-            // 선택한 웹 항목이어도 검색어를 만족하지 않으면 선택 목록에서 빠지고, 연결된 웹 항목 조회에는 그대로 남는다.
             loadSelectableWeb(accountId = accountId, query = SEARCH_QUERY) shouldBe listOf(matchedWeb)
             dataSource.getWebList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(selectedWeb, matchedWeb)
         }

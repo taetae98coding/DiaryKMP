@@ -39,7 +39,6 @@ internal fun MemoContactPickerDialogHost(
     MemoContactPickerDialog(
         onDismissRequest = hide,
         onEvent = { event ->
-            // 추가로 이동하기 전에 대화상자를 닫아 돌아왔을 때 다시 열려 있지 않게 한다.
             if (event is MemoContactPickerEvent.ClickAdd) hide()
             onEvent(event)
         },

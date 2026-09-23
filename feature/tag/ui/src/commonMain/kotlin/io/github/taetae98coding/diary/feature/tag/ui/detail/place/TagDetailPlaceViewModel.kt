@@ -12,6 +12,7 @@ import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.domain.place.usecase.GetTagPlaceListUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PageTagPlaceUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -58,7 +59,7 @@ internal class TagDetailPlaceViewModel(
                 }
             }.stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
+                started = SharingStarted.WhileUiSubscribed,
                 initialValue = TagDetailPlaceListUiState(),
             )
 

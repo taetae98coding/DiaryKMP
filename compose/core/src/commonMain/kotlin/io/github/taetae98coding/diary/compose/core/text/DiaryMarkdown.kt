@@ -3,7 +3,6 @@ package io.github.taetae98coding.diary.compose.core.text
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.sp
 import com.mikepenz.markdown.m3.Markdown
 import com.mikepenz.markdown.m3.markdownTypography
 import com.mikepenz.markdown.model.MarkdownTypography
@@ -23,16 +22,15 @@ public fun DiaryMarkdown(
     )
 }
 
-// Material 기본 제목은 카드와 대화상자 안에서 지나치게 커서 글자 크기와 줄 높이만 줄인다.
 @Composable
 private fun diaryMarkdownTypography(): MarkdownTypography =
     markdownTypography(
-        h1 = DiaryTheme.typography.displayLarge.copy(fontSize = 28.sp, lineHeight = 36.sp),
-        h2 = DiaryTheme.typography.displayMedium.copy(fontSize = 24.sp, lineHeight = 32.sp),
-        h3 = DiaryTheme.typography.displaySmall.copy(fontSize = 22.sp, lineHeight = 30.sp),
-        h4 = DiaryTheme.typography.headlineMedium.copy(fontSize = 20.sp, lineHeight = 28.sp),
-        h5 = DiaryTheme.typography.headlineSmall.copy(fontSize = 18.sp, lineHeight = 26.sp),
-        h6 = DiaryTheme.typography.titleLarge.copy(fontSize = 16.sp, lineHeight = 24.sp),
+        h1 = DiaryTheme.typography.displayLarge.copy(fontSize = DiaryMarkdownDefaults.H1FontSize, lineHeight = DiaryMarkdownDefaults.H1LineHeight),
+        h2 = DiaryTheme.typography.displayMedium.copy(fontSize = DiaryMarkdownDefaults.H2FontSize, lineHeight = DiaryMarkdownDefaults.H2LineHeight),
+        h3 = DiaryTheme.typography.displaySmall.copy(fontSize = DiaryMarkdownDefaults.H3FontSize, lineHeight = DiaryMarkdownDefaults.H3LineHeight),
+        h4 = DiaryTheme.typography.headlineMedium.copy(fontSize = DiaryMarkdownDefaults.H4FontSize, lineHeight = DiaryMarkdownDefaults.H4LineHeight),
+        h5 = DiaryTheme.typography.headlineSmall.copy(fontSize = DiaryMarkdownDefaults.H5FontSize, lineHeight = DiaryMarkdownDefaults.H5LineHeight),
+        h6 = DiaryTheme.typography.titleLarge.copy(fontSize = DiaryMarkdownDefaults.H6FontSize, lineHeight = DiaryMarkdownDefaults.H6LineHeight),
     )
 
 @ComponentPreview

@@ -8,9 +8,6 @@ import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 
-private const val MAP_HEIGHT_WEIGHT = 0.4F
-private const val INPUT_HEIGHT_WEIGHT = 0.6F
-
 @Composable
 internal fun PlaceForm(
     onEvent: (PlaceFormEvent) -> Unit,
@@ -39,8 +36,8 @@ internal fun PlaceForm(
             )
         },
         modifier = modifier,
-        compactPrimaryWeight = MAP_HEIGHT_WEIGHT,
-        compactSecondaryWeight = INPUT_HEIGHT_WEIGHT,
+        compactPrimaryWeight = PlaceFormDefaults.MAP_HEIGHT_WEIGHT,
+        compactSecondaryWeight = PlaceFormDefaults.INPUT_HEIGHT_WEIGHT,
     )
 }
 

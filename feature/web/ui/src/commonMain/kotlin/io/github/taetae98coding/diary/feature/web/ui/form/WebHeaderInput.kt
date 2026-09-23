@@ -17,7 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.icon.AddIcon
 import io.github.taetae98coding.diary.compose.core.icon.RemoveIcon
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
@@ -49,7 +48,7 @@ internal fun WebHeaderInput(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .padding(start = 16.dp),
+                        .padding(start = DiaryTheme.dimens.cardContentPadding),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {

@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.core.model.memo.UpcomingDailyMemoNotificat
 import io.github.taetae98coding.diary.domain.memo.usecase.GetUpcomingDailyMemoNotificationUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.ScheduleDailyMemoNotificationUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.SubmitUpcomingDailyMemoNotificationUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -28,7 +29,7 @@ internal class AppDailyMemoNotificationViewModel(
                 scope = viewModelScope,
                 started =
                     SharingStarted.WhileSubscribed(
-                        stopTimeoutMillis = 5_000,
+                        stopTimeoutMillis = UI_STOP_TIMEOUT_MILLIS,
                         replayExpirationMillis = 0,
                     ),
                 replay = 1,

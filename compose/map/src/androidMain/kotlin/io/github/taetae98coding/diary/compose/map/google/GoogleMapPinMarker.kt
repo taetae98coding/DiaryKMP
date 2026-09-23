@@ -21,8 +21,7 @@ import com.google.maps.android.compose.GoogleMapComposable
 import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.rememberUpdatedMarkerState
 import io.github.taetae98coding.diary.compose.map.DiaryMapPin
-import io.github.taetae98coding.diary.compose.map.PIN_MARKER_LABEL_HEIGHT_DP
-import io.github.taetae98coding.diary.compose.map.PIN_MARKER_SIZE_DP
+import io.github.taetae98coding.diary.compose.map.DiaryMapPinMarkerDefaults
 import io.github.taetae98coding.diary.compose.map.PinMarkerImageVector
 import io.github.taetae98coding.diary.compose.map.provider.label
 import kotlin.uuid.Uuid
@@ -46,7 +45,7 @@ internal fun GoogleMapPinMarker(
             if (pin.label.isEmpty()) {
                 Offset(PIN_ANCHOR_X, PIN_ICON_ONLY_ANCHOR_Y)
             } else {
-                Offset(PIN_ANCHOR_X, PIN_MARKER_SIZE_DP / (PIN_MARKER_SIZE_DP + PIN_MARKER_LABEL_HEIGHT_DP))
+                Offset(PIN_ANCHOR_X, DiaryMapPinMarkerDefaults.SIZE_DP / (DiaryMapPinMarkerDefaults.SIZE_DP + DiaryMapPinMarkerDefaults.LABEL_HEIGHT_DP))
             },
         onClick =
             remember(pin.id, onPinClick) {
@@ -60,7 +59,7 @@ internal fun GoogleMapPinMarker(
             Icon(
                 imageVector = PinMarkerImageVector,
                 contentDescription = pin.label,
-                modifier = Modifier.size(PIN_MARKER_SIZE_DP.dp),
+                modifier = Modifier.size(DiaryMapPinMarkerDefaults.SIZE_DP.dp),
                 tint = pin.color,
             )
             if (pin.label.isNotEmpty()) {
@@ -68,14 +67,14 @@ internal fun GoogleMapPinMarker(
                     text = pin.label,
                     modifier =
                         Modifier
-                            .height(PIN_MARKER_LABEL_HEIGHT_DP.dp)
+                            .height(DiaryMapPinMarkerDefaults.LABEL_HEIGHT_DP.dp)
                             .background(
-                                color = Color.White.copy(alpha = 0.8F),
-                                shape = RoundedCornerShape(2.dp),
-                            ).padding(horizontal = 2.dp),
+                                color = Color.White.copy(alpha = DiaryMapPinMarkerDefaults.LABEL_BACKGROUND_ALPHA),
+                                shape = RoundedCornerShape(DiaryMapPinMarkerDefaults.LABEL_CORNER_RADIUS_DP.dp),
+                            ).padding(horizontal = DiaryMapPinMarkerDefaults.LABEL_HORIZONTAL_PADDING_DP.dp),
                     color = Color.Black,
-                    fontSize = 12.sp,
-                    lineHeight = 16.sp,
+                    fontSize = DiaryMapPinMarkerDefaults.LABEL_FONT_SIZE_SP.sp,
+                    lineHeight = DiaryMapPinMarkerDefaults.LABEL_LINE_HEIGHT_SP.sp,
                     maxLines = 1,
                 )
             }

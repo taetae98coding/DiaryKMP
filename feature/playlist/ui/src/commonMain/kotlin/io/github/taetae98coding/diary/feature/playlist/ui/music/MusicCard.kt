@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.playlist.Music
@@ -43,7 +42,7 @@ internal fun MusicCard(
         })
         Column(
             modifier = Modifier.styleable(style = DiaryTheme.styles.cardContent),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(DiaryTheme.dimens.cardLineSpacing),
         ) {
             Text(
                 text = music?.detail?.title.orEmpty(),

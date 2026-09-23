@@ -23,6 +23,7 @@ internal class AndroidImageConverter(
         uri: FileUri,
         cropRegion: ImageCropRegion,
         maxSideLength: Int,
+        jpegQuality: Int,
     ): JpegSource =
         withContext(Dispatchers.IO) {
             val source = ImageDecoder.createSource(context.contentResolver, Uri.parse(uri.value))
@@ -40,7 +41,7 @@ internal class AndroidImageConverter(
 
             runCatching {
                 FileOutputStream(file).use { stream ->
-                    check(bitmap.compress(Bitmap.CompressFormat.JPEG, JPEG_QUALITY_PERCENT, stream)) {
+                    check(bitmap.compress(Bitmap.CompressFormat.JPEG, jpegQuality, stream)) {
                         "Image cannot be converted to jpeg. uri=$uri"
                     }
                 }

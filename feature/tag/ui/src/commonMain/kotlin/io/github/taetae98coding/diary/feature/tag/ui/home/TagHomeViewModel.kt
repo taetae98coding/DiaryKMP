@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.tag.usecase.GetTopLevelTagFilterUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagHomeUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +31,7 @@ internal class TagHomeViewModel(
             .map { result -> TagHomeScaffoldFilterUiState(isApplied = result.getOrDefault(false)) }
             .stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+                started = SharingStarted.WhileUiSubscribed,
                 initialValue = TagHomeScaffoldFilterUiState(),
             )
 

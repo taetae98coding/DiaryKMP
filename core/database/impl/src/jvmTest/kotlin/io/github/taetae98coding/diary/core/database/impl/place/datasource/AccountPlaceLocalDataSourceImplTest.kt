@@ -353,7 +353,6 @@ class AccountPlaceLocalDataSourceImplTest :
                         updatedAt = instant(),
                     )
 
-                    // 좌표가 보이는 영역을 벗어나면 목록과 핀에서 사라진다.
                     awaitItem().shouldBeEmpty()
 
                     cancelAndIgnoreRemainingEvents()

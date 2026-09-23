@@ -20,7 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.web.ui.Res
@@ -30,8 +29,6 @@ import io.github.taetae98coding.diary.feature.web.ui.detail.rememberWebDetailSca
 import io.github.taetae98coding.diary.feature.web.ui.web_detail_view_mode_title
 import io.github.taetae98coding.diary.feature.web.ui.web_detail_view_mode_url_description
 import org.jetbrains.compose.resources.stringResource
-
-private val ROW_SPACING = 16.dp
 
 @Composable
 internal fun WebDetailViewModeBottomSheetContent(
@@ -87,7 +84,7 @@ private fun ViewModeRow(
             viewMode = viewMode,
             modifier = Modifier.size(ButtonDefaults.IconSize),
         )
-        Spacer(modifier = Modifier.width(ROW_SPACING))
+        Spacer(modifier = Modifier.width(WebDetailViewModeBottomSheetContentDefaults.IconToLabelSpacing))
 
         Column(modifier = Modifier.weight(1F)) {
             Text(

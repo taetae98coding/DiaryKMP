@@ -21,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerDialog
 import io.github.taetae98coding.diary.compose.core.icon.RefreshIcon
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
@@ -36,9 +35,6 @@ import io.github.taetae98coding.diary.feature.setting.ui.setting_gemini_model_pi
 import io.github.taetae98coding.diary.feature.setting.ui.setting_gemini_model_reload_button_content_description
 import io.github.taetae98coding.diary.feature.setting.ui.setting_gemini_model_retry_action
 import org.jetbrains.compose.resources.stringResource
-
-private val MessageBoxMinHeight = 120.dp
-private val ReloadProgressIndicatorSize = 24.dp
 
 @Composable
 internal fun SettingGeminiModelDialog(
@@ -89,8 +85,8 @@ private fun ReloadRow(
             CircularWavyProgressIndicator(
                 modifier =
                     Modifier
-                        .padding(12.dp)
-                        .size(ReloadProgressIndicatorSize)
+                        .padding(SettingGeminiModelDialogDefaults.ReloadProgressPadding)
+                        .size(DiaryTheme.dimens.inProgressIndicatorSize)
                         .semantics { contentDescription = loadingDescription },
             )
         } else {
@@ -142,7 +138,7 @@ private fun LoadingBox(modifier: Modifier = Modifier) {
     val loadingDescription = stringResource(Res.string.setting_gemini_model_loading_content_description)
 
     Box(
-        modifier = modifier.heightIn(min = MessageBoxMinHeight),
+        modifier = modifier.heightIn(min = SettingGeminiModelDialogDefaults.MessageBoxMinHeight),
         contentAlignment = Alignment.Center,
     ) {
         CircularWavyProgressIndicator(
@@ -164,7 +160,7 @@ private fun FailureBox(
         }
 
     Box(
-        modifier = modifier.heightIn(min = MessageBoxMinHeight),
+        modifier = modifier.heightIn(min = SettingGeminiModelDialogDefaults.MessageBoxMinHeight),
         contentAlignment = Alignment.Center,
     ) {
         Column(
@@ -189,7 +185,7 @@ private fun MessageBox(
     modifier: Modifier = Modifier,
 ) {
     Box(
-        modifier = modifier.heightIn(min = MessageBoxMinHeight),
+        modifier = modifier.heightIn(min = SettingGeminiModelDialogDefaults.MessageBoxMinHeight),
         contentAlignment = Alignment.Center,
     ) {
         Text(

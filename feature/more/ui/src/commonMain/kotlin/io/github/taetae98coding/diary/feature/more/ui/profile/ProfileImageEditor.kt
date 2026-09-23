@@ -27,7 +27,6 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import coil3.compose.AsyncImagePainter
@@ -50,13 +49,6 @@ import kotlin.math.exp
 
 // 틀은 최대 400dp이고 5배까지 키우므로, 미리보기는 이 크기까지만 읽어도 흐려지지 않는다.
 private const val PREVIEW_MAX_PIXEL_SIZE = 2048
-
-// docs/design/profile-image-edit.md `편집 영역`이 정한 가림막 불투명도와 테두리 두께.
-private const val SCRIM_ALPHA = 0.6F
-private val FrameBorderWidth: Dp = 1.dp
-
-// 휠 한 칸(스크롤 델타 1)에 약 10%씩 키우거나 줄인다.
-private const val SCROLL_ZOOM_SENSITIVITY = 0.1F
 
 @Composable
 internal fun ProfileImageEditor(
@@ -153,7 +145,7 @@ private fun ProfileImageEditFrame(
     isEnabledProvider: () -> Boolean = { true },
 ) {
     val latestIsEnabledProvider by rememberUpdatedState(isEnabledProvider)
-    val scrimColor = DiaryTheme.colorScheme.scrim.copy(alpha = SCRIM_ALPHA)
+    val scrimColor = DiaryTheme.colorScheme.scrim.copy(alpha = ProfileImageEditorDefaults.SCRIM_ALPHA)
     val outlineColor = DiaryTheme.colorScheme.outline
     val contentDescription = stringResource(Res.string.more_profile_image_edit_photo_content_description)
 
@@ -174,12 +166,11 @@ private fun ProfileImageEditFrame(
                         if (event.type == PointerEventType.Scroll && latestIsEnabledProvider()) {
                             val change = event.changes.first()
 
-                            state.zoomBy(factor = exp(-change.scrollDelta.y * SCROLL_ZOOM_SENSITIVITY), focal = change.position, frameSize = size.toSize())
+                            state.zoomBy(factor = exp(-change.scrollDelta.y * ProfileImageEditorDefaults.SCROLL_ZOOM_SENSITIVITY), focal = change.position, frameSize = size.toSize())
                             change.consume()
                         }
                     }
                 }.drawBehind {
-                    // 확대 배율과 중심은 그리기 단계에서 읽어, 조작 중에 다시 구성하지 않고 다시 그리기만 한다.
                     val region = state.cropRegion(ready = photo)
                     val scale = size.width / photo.shortSide * state.zoom
                     val imageSize = Size(width = photo.width * scale, height = photo.height * scale)
@@ -189,14 +180,13 @@ private fun ProfileImageEditFrame(
                         with(painter) { draw(size = imageSize) }
                     }
                     drawScrim(color = scrimColor, imageTopLeft = topLeft, imageSize = imageSize)
-                    inset(inset = FrameBorderWidth.toPx() / 2) {
-                        drawRect(color = outlineColor, style = Stroke(width = FrameBorderWidth.toPx()))
+                    inset(inset = ProfileImageEditorDefaults.FrameBorderWidth.toPx() / 2) {
+                        drawRect(color = outlineColor, style = Stroke(width = ProfileImageEditorDefaults.FrameBorderWidth.toPx()))
                     }
                 },
     )
 }
 
-// 틀 안은 원래 색으로 두고 틀 밖으로 나간 사진만 가림막으로 덮는다.
 private fun DrawScope.drawScrim(
     color: Color,
     imageTopLeft: Offset,

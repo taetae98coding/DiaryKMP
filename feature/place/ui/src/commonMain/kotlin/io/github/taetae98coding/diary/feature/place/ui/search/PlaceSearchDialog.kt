@@ -56,7 +56,7 @@ internal fun PlaceSearchDialog(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .fillMaxHeight(MAP_HEIGHT_RATIO),
+                            .fillMaxHeight(PlaceSearchDialogDefaults.MAP_HEIGHT_RATIO),
                 ) {
                     PlaceSearchMap(
                         state = state,
@@ -84,8 +84,6 @@ internal fun PlaceSearchDialog(
         }
     }
 }
-
-private const val MAP_HEIGHT_RATIO = 0.5F
 
 @ScreenPreview
 @Composable

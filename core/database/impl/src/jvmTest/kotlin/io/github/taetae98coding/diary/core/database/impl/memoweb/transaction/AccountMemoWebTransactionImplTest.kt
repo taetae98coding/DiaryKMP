@@ -339,7 +339,6 @@ class AccountMemoWebTransactionImplTest :
             val memo = memo().visible().copy(primaryTagId = null)
             val web = web()
             val tag = tag()
-            // 태그와 연결된 웹 항목을 메모에 연결해도 메모와 태그의 연결은 생기지 않는다.
             tagTransaction.upsert(accountId = accountId, tagList = listOf(tag), tagLinkList = emptyList())
             insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(web))
             webTransaction.upsert(

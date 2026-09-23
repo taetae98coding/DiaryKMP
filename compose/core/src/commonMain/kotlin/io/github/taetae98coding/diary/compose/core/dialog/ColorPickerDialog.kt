@@ -16,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.Res
 import io.github.taetae98coding.diary.compose.core.color_picker_dialog_cancel
 import io.github.taetae98coding.diary.compose.core.color_picker_dialog_confirm
@@ -46,8 +45,8 @@ public fun ColorPickerDialog(
             Column {
                 ColorPickerPreview(state = state)
                 Column(
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(horizontal = ColorPickerDialogDefaults.SliderHorizontalPadding, vertical = ColorPickerDialogDefaults.SliderVerticalPadding),
+                    verticalArrangement = Arrangement.spacedBy(ColorPickerDialogDefaults.SliderSpacing),
                 ) {
                     ColorPickerChannelSlider(
                         label = "R",
@@ -69,8 +68,12 @@ public fun ColorPickerDialog(
                     modifier =
                         Modifier
                             .align(Alignment.End)
-                            .padding(start = 24.dp, end = 24.dp, bottom = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            .padding(
+                                start = ColorPickerDialogDefaults.ButtonHorizontalPadding,
+                                end = ColorPickerDialogDefaults.ButtonHorizontalPadding,
+                                bottom = ColorPickerDialogDefaults.ButtonBottomPadding,
+                            ),
+                    horizontalArrangement = Arrangement.spacedBy(ColorPickerDialogDefaults.ButtonSpacing),
                 ) {
                     TextButton(onClick = onDismissRequest) {
                         Text(text = stringResource(Res.string.color_picker_dialog_cancel))

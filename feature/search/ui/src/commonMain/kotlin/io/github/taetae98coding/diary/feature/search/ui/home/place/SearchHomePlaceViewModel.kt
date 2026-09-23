@@ -9,6 +9,7 @@ import androidx.paging.cachedIn
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.domain.search.usecase.SearchPlaceUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import io.github.taetae98coding.diary.library.coroutines.flow.debounceSearchQuery
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -32,7 +33,7 @@ internal class SearchHomePlaceViewModel(
             .debounceSearchQuery()
             .stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+                started = SharingStarted.WhileUiSubscribed,
                 initialValue = "",
             )
 

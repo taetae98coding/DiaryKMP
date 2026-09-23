@@ -19,7 +19,6 @@ internal fun SettingGeminiModelDialogHost(
     SettingGeminiModelDialog(
         onDismissRequest = { dialogState.hide() },
         onEvent = { event ->
-            // 모델을 고르는 것이 곧 확인이므로 고르면 대화상자를 닫는다.
             if (event is SettingGeminiModelDialogEvent.SelectModel) dialogState.hide()
             onEvent(event)
         },

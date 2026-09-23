@@ -163,7 +163,6 @@ class MemoAddWebViewModelTest : FunSpec() {
                 val web = web()
                 val viewModel = viewModel(savedWebListFlow = flowOf(Result.success(listOf(web))))
 
-                // 화면 구성 변경 전 화면의 구독에서 웹 항목을 선택한다.
                 viewModel.uiState.test {
                     advanceUntilIdle()
                     viewModel.selectWeb(id = web.id)
@@ -219,7 +218,6 @@ class MemoAddWebViewModelTest : FunSpec() {
                     viewModel.selectWeb(id = deletedWeb.id)
                     advanceUntilIdle()
 
-                    // 선택 이후 웹 항목이 삭제되어 입력의 선택 표시에서 빠진다.
                     savedWebListFlow.value = Result.success(listOf(remainingWeb))
                     advanceUntilIdle()
                     cancelAndIgnoreRemainingEvents()

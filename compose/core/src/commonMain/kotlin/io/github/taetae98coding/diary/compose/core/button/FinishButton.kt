@@ -8,14 +8,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.icon.FinishIcon
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.core.tooltip.DiaryTooltipBox
-
-private val InProgressIndicatorSize = 24.dp
 
 @Composable
 public fun FinishButton(
@@ -33,7 +30,7 @@ public fun FinishButton(
         ) {
             DiaryCrossfade(targetState = isInProgressProvider()) { isInProgress ->
                 if (isInProgress) {
-                    CircularWavyProgressIndicator(modifier = Modifier.size(InProgressIndicatorSize))
+                    CircularWavyProgressIndicator(modifier = Modifier.size(DiaryTheme.dimens.inProgressIndicatorSize))
                 } else {
                     FinishIcon(contentDescription = contentDescription)
                 }

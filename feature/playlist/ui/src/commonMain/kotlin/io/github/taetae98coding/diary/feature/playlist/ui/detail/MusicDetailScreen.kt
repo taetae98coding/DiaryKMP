@@ -20,7 +20,6 @@ internal fun MusicDetailScreen(
     val content = uiState as? MusicDetailUiState.Content
     val uriHandler = LocalUriHandler.current
 
-    // 조회한 곡이 정해지면 그 값으로 입력을 한 번만 채운다.
     key(content?.id) {
         val state = rememberMusicDetailFormState(initialDetail = content?.detail ?: MusicDetail.EMPTY)
 
@@ -39,7 +38,6 @@ internal fun MusicDetailScreen(
 
                     is MusicDetailScaffoldEvent.ClickFetchLink -> viewModel.fetchLink(link = state.link)
 
-                    // 앱 밖에서 여는 주소는 입력 중인 값이 아니라 저장된 링크다.
                     is MusicDetailScaffoldEvent.ClickOpenInNew ->
                         content
                             ?.detail

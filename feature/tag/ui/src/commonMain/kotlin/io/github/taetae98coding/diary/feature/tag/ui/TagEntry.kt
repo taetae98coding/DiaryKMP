@@ -11,6 +11,7 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
+import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
@@ -78,7 +79,7 @@ private fun EntryProviderScope<ScreenNavKey>.tagHomeEntry(
                         linkViewModel = koinViewModel(),
                     )
                 },
-            ) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f),
+            ) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION),
     ) {
         val isDetailPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.Detail)
         val gridState = rememberLazyGridState()
@@ -185,7 +186,7 @@ private fun EntryProviderScope<ScreenNavKey>.tagMemoFinishedListEntry(backStack:
             ListDetailSceneStrategy.listPane(
                 sceneKey = key,
                 detailPlaceholder = { TagMemoFinishedListDetailPlaceholder() },
-            ) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f)
+            ) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION)
         },
     ) { key ->
         TagMemoFinishedListScreen(
@@ -205,7 +206,7 @@ private fun EntryProviderScope<ScreenNavKey>.tagMemoFinishedListEntry(backStack:
 
 private fun NavBackStack<ScreenNavKey>.tagListDetailPaneMetadata(key: ScreenNavKey): Map<String, Any> =
     if (isTagListDetailPane(key)) {
-        ListDetailSceneStrategy.detailPane(sceneKey = TagHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f)
+        ListDetailSceneStrategy.detailPane(sceneKey = TagHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION)
     } else {
         emptyMap()
     }

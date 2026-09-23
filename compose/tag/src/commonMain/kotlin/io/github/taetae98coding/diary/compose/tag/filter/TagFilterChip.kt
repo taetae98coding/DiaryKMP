@@ -43,7 +43,7 @@ public fun TagFilterChip(
                 DiaryColorIndicator(color = color)
             }
         },
-        // 비활성 상태에서도 태그에 저장된 컬러로 선택 여부를 읽을 수 있어야 하므로 흐리게 하는 표현은 태그 영역이 맡고 색은 그대로 둔다.
+        // Material 기본 비활성 색을 덮어 태그 컬러를 유지한다. 흐림은 칩이 아니라 태그 필터 영역이 맡는다.
         colors =
             FilterChipDefaults.filterChipColors(
                 selectedContainerColor = color,

@@ -7,7 +7,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.calendar.CalendarColor
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefault
 import io.github.taetae98coding.diary.compose.calendar.select.calendarWeekSelectDrag
@@ -22,8 +21,6 @@ import io.github.taetae98coding.diary.feature.holiday.ui.previewGoldenHoliday
 import io.github.taetae98coding.diary.library.kotlinx.datetime.sundayOfWeek
 import kotlinx.datetime.LocalDateRange
 import org.jetbrains.compose.resources.stringResource
-
-private val WeekHeight = 96.dp
 
 @Composable
 internal fun GoldenHolidayWeekList(
@@ -56,7 +53,7 @@ internal fun GoldenHolidayWeekList(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .height(WeekHeight),
+                        .height(GoldenHolidayWeekListDefaults.WeekHeight),
                 selectState = selectState,
                 holidayProvider = { goldenHoliday.holidayDateRangeList() },
                 colors = colors,

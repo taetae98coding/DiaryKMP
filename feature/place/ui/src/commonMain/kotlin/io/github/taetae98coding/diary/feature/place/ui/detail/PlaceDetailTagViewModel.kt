@@ -12,6 +12,7 @@ import io.github.taetae98coding.diary.domain.place.usecase.AddPlaceTagUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.GetPlaceTagUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceSelectableTagUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.RemovePlaceTagUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import io.github.taetae98coding.diary.library.coroutines.flow.debounceSearchQuery
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -50,7 +51,7 @@ internal class PlaceDetailTagViewModel(
             .map { result -> EntityTagInputUiState(tagList = result.getOrNull().orEmpty()) }
             .stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+                started = SharingStarted.WhileUiSubscribed,
                 initialValue = EntityTagInputUiState(),
             )
 

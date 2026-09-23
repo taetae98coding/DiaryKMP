@@ -9,16 +9,12 @@ import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefault
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.holiday.GoldenHolidayGroup
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeYearContentEvent
 import io.github.taetae98coding.diary.feature.holiday.ui.previewGoldenHolidayGroup
-
-// 카드 안 주별 날짜가 일곱 칸을 나눠 쓰므로 열을 더 좁히면 날짜와 이름을 읽기 어렵다.
-private val MinColumnWidth = 360.dp
 
 @Composable
 internal fun GoldenHolidayList(
@@ -29,7 +25,7 @@ internal fun GoldenHolidayList(
     val colors = CalendarDefault.colors()
 
     LazyVerticalStaggeredGrid(
-        columns = StaggeredGridCells.Adaptive(MinColumnWidth),
+        columns = StaggeredGridCells.Adaptive(GoldenHolidayListDefaults.MinColumnWidth),
         modifier = modifier,
         contentPadding = DiaryTheme.dimens.screenPaddingValues,
         verticalItemSpacing = DiaryTheme.dimens.itemSpacing,

@@ -6,7 +6,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.chip.DiaryAssistChip
 import io.github.taetae98coding.diary.compose.core.icon.SignInIcon
 import io.github.taetae98coding.diary.compose.core.icon.SignOutIcon
@@ -30,7 +29,7 @@ internal fun MoreHomeAccountChipRow(
                 DiaryAssistChip(
                     onClick = {},
                     label = "",
-                    modifier = Modifier.width(80.dp),
+                    modifier = Modifier.width(MoreHomeAccountCardDefaults.PlaceholderChipWidth),
                 )
             }
 

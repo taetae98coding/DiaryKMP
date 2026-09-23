@@ -28,7 +28,6 @@ internal class AndroidNotifier(
         manager.notify(notification.id.hashCode(), androidNotification)
     }
 
-    // 접힌 알림은 본문을 한 줄만 보여 주므로, 펼쳤을 때 여러 줄이 보이도록 긴 글 스타일을 함께 둔다.
     private fun AndroidNotification.Builder.setBody(body: String): AndroidNotification.Builder {
         if (body.isEmpty()) return this
 
@@ -39,7 +38,6 @@ internal class AndroidNotifier(
         AndroidNotificationChannel(
             id,
             name,
-            // 낮은 중요도는 소리와 화면 위 떠오름 없이 알림 목록과 상태 표시줄에만 남긴다.
             if (isSilent) NotificationManager.IMPORTANCE_LOW else NotificationManager.IMPORTANCE_DEFAULT,
         ).also { channel -> channel.description = description }
 }

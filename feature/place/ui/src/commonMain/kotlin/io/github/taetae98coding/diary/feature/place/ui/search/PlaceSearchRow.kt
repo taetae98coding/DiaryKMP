@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.place.SearchedPlace
@@ -30,10 +29,10 @@ internal fun PlaceSearchRow(
     Column(
         modifier =
             modifier
-                .clip(RoundedCornerShape(RowCornerSize))
+                .clip(RoundedCornerShape(PlaceSearchRowDefaults.CornerSize))
                 .clickable(role = Role.Button, onClick = onClick)
                 .minimumInteractiveComponentSize()
-                .padding(RowPadding),
+                .padding(PlaceSearchRowDefaults.Padding),
     ) {
         Text(
             text = place.name,
@@ -54,9 +53,6 @@ internal fun PlaceSearchRow(
         }
     }
 }
-
-private val RowCornerSize = 12.dp
-private val RowPadding = 8.dp
 
 @ComponentPreview
 @Composable

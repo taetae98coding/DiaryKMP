@@ -37,7 +37,6 @@ public class UpdateMusicUseCase internal constructor(
         return updatedCount
     }
 
-    // 제목은 곡이 반드시 가져야 하는 정보이므로 비우는 수정을 저장된 값으로 되돌린다. 가수와 링크는 비울 수 있으므로 입력한 대로 반영한다.
     private suspend fun MusicDetail.validated(id: Uuid): MusicDetail {
         val validatedLink = link.toOptionalYoutubeVideoLinkOrThrow()
 

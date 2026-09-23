@@ -274,7 +274,6 @@ class AccountMemoContactLocalDataSourceImplTest :
             val selectedContact = contact(name = FIRST_CONTACT_NAME)
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(matchedContact, selectedContact))
 
-            // 선택한 연락처가어도 검색어를 만족하지 않으면 선택 목록에서 빠지고, 연결된 연락처 조회에는 그대로 남는다.
             loadSelectableContact(accountId = accountId, query = SEARCH_QUERY) shouldBe listOf(matchedContact)
             dataSource.getContactList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(selectedContact, matchedContact)
         }

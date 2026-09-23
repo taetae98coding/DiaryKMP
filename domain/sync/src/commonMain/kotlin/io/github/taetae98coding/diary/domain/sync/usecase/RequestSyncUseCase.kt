@@ -39,7 +39,6 @@ public class RequestSyncUseCase internal constructor(
         if (now - syncedAt < SYNC_RESET_THRESHOLD) return
 
         accountSyncDataRepository.delete(accountId = accountId)
-        // 지운 직후를 새 기준으로 삼는다. 이어지는 동기화가 실패해도 계기마다 다시 지우지 않는다.
         accountSyncTimeRepository.upsert(accountId = accountId, syncedAt = now)
     }
 

@@ -16,6 +16,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.SetMemoTagExistenceFil
 import io.github.taetae98coding.diary.domain.memo.usecase.UnselectAllMemoFilterTagUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.UnselectMemoFilterTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -58,7 +59,7 @@ internal class MemoHomeFilterViewModel(
             )
         }.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+            started = SharingStarted.WhileUiSubscribed,
             initialValue = MemoHomeFilterUiState(),
         )
 

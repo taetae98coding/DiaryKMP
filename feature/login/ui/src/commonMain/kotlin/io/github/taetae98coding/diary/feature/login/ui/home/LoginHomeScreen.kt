@@ -89,7 +89,6 @@ private suspend fun requestGoogleSignIn(
     try {
         viewModel.signInWithGoogle(credential = credentialsManager.signIn())
     } catch (_: GoogleCredentialsUserCancelException) {
-        // 취소는 오류로 안내하지 않는다
     } catch (_: GoogleCredentialsException) {
         hostState.showImmediate(message = signInFailedMessage)
     }
@@ -104,7 +103,6 @@ private suspend fun requestAppleSignIn(
     try {
         viewModel.signInWithApple(credential = credentialsManager.signIn())
     } catch (_: AppleCredentialsUserCancelException) {
-        // 취소는 오류로 안내하지 않는다
     } catch (_: AppleCredentialsException) {
         hostState.showImmediate(message = signInFailedMessage)
     }

@@ -13,7 +13,6 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefault
 import io.github.taetae98coding.diary.compose.calendar.move.CalendarItemMoveState
@@ -21,8 +20,6 @@ import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarMemo
-
-private val MOVE_GHOST_ELEVATION = 8.dp
 
 @Composable
 internal fun CalendarHomeMoveGhost(
@@ -52,7 +49,7 @@ internal fun CalendarHomeMoveGhost(
 
                             coordinates.windowToLocal(pieceBounds.topLeft + dragDelta).round()
                         }.size(with(density) { pieceBounds.size.toDpSize() })
-                        .shadow(elevation = MOVE_GHOST_ELEVATION, shape = CalendarDefault.itemShape),
+                        .shadow(elevation = CalendarHomeMoveGhostDefaults.Elevation, shape = CalendarDefault.itemShape),
             )
         }
     }

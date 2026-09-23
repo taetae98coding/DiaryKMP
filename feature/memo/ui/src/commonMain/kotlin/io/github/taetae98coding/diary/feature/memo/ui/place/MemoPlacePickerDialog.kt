@@ -51,7 +51,6 @@ internal fun MemoPlacePickerDialog(
         onDismissRequest = onDismissRequest,
         modifier = modifier,
     ) {
-        // 검색어를 파생 상태로 읽어, 글자를 입력해도 결과 없음 여부가 바뀔 때만 목록 자리를 다시 그린다.
         val isSearchEmpty by remember(queryState, placePagingItems) {
             derivedStateOf { queryState.text.isNotBlank() && placePagingItems.isLoadedEmpty() }
         }
@@ -68,7 +67,6 @@ internal fun MemoPlacePickerDialog(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        // 목록 자리를 고정해 항목 수나 검색 결과 수가 바뀌어도 대화상자 크기가 바뀌지 않게 한다.
                         .weight(weight = 1F, fill = false)
                         .height(DiaryTheme.dimens.pickerListHeight),
             ) { isEmpty ->

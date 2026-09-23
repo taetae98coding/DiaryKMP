@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.Res
 import io.github.taetae98coding.diary.compose.core.diary_date_time_input_label
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
@@ -37,7 +36,7 @@ internal fun DiaryDateTimeInputSwitchRow(
                     role = Role.Switch,
                     onValueChange = onCheckedChange,
                 ).minimumInteractiveComponentSize()
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = DiaryTheme.dimens.cardContentPadding),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(

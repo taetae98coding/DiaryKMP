@@ -71,7 +71,6 @@ class ScreenViewEffectTest {
 
         composeRule.runOnIdle {
             verify(exactly = 1) { log(ScreenViewLog(screenName = MEMO_DETAIL)) }
-            // 목록은 상세와 함께 계속 표시되지만 진입할 때 남은 한 번 외에 다시 남지 않는다.
             verify(exactly = 1) { log(ScreenViewLog(screenName = MEMO_HOME)) }
         }
     }

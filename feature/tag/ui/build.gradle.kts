@@ -25,7 +25,6 @@ kotlin {
                 implementation(projects.feature.tag.api)
                 implementation(projects.feature.web.api)
                 implementation(projects.library.composeUi)
-                implementation(projects.library.coroutines)
             }
         }
 

@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
 import io.github.taetae98coding.diary.domain.sync.usecase.SchedulePeriodicSyncUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -29,7 +30,7 @@ internal class AppSyncViewModel(
                 scope = viewModelScope,
                 started =
                     SharingStarted.WhileSubscribed(
-                        stopTimeoutMillis = 5_000,
+                        stopTimeoutMillis = UI_STOP_TIMEOUT_MILLIS,
                         replayExpirationMillis = 0,
                     ),
                 replay = 1,

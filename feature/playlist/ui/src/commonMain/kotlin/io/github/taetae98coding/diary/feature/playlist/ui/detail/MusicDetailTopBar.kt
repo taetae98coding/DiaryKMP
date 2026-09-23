@@ -51,7 +51,6 @@ internal fun MusicDetailTopBar(
             val uiState = uiStateProvider()
 
             if (uiState is MusicDetailUiState.Content) {
-                // 저장된 링크가 없으면 열 주소가 없으므로 비활성 버튼을 남기지 않고 버튼 자체를 두지 않는다.
                 if (uiState.detail.link.isNotBlank()) {
                     OpenInNewButton(
                         onClick = { onEvent(MusicDetailScaffoldEvent.ClickOpenInNew) },

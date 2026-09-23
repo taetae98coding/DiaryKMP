@@ -22,7 +22,6 @@ private const val HALF = 0.5F
 
 /**
  * 남길 영역을 틀 크기와 무관하게 확대 배율과 사진 기준 비율 중심으로 들고 있어, 창이 회전하거나 크기가 바뀌어도 같은 부분이 남는다.
- * 사진을 고르기 전에는 [uri]가 없고 [photo]는 [ProfileImageEditPhoto.Empty]다.
  */
 @Stable
 internal class ProfileImageEditState(
@@ -150,8 +149,6 @@ internal class ProfileImageEditState(
 
     companion object {
         const val MIN_ZOOM: Float = 1F
-
-        // docs/spec/profile-image-edit.md `domain > 남길 영역`이 정한 확대 한도.
         const val MAX_ZOOM: Float = 5F
 
         // 저장 목록의 요소는 null일 수 없어 사진이 없으면 빈 문자열로 저장한다.

@@ -18,7 +18,6 @@ public class GetUpcomingDailyMemoNotificationUseCase internal constructor(
         val dateList = upcomingDailyMemoNotificationDateList(now = clock.now(), timeZone = TimeZone.currentSystemDefault())
 
         return combine(dateList.map { date -> getDailyMemoUseCase(parameter = date) }) { resultArray ->
-            // 한 날짜라도 가져오지 못하면 스펙에 따라 모든 날짜를 확인 안내로 정한다.
             val isUnavailable = resultArray.any { result -> result.isFailure }
             val upcomingList =
                 dateList.mapIndexed { index, date ->

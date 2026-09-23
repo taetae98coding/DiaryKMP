@@ -29,8 +29,6 @@ import io.github.taetae98coding.diary.feature.setting.ui.setting_holiday_select_
 import io.github.taetae98coding.diary.feature.setting.ui.setting_holiday_select_days_off
 import org.jetbrains.compose.resources.stringResource
 
-private const val CLOSE_ICON_PROGRESS = 0.5F
-
 @Composable
 internal fun SettingHolidayBulkActionMenu(
     onEvent: (SettingHolidayScaffoldEvent) -> Unit,
@@ -44,7 +42,7 @@ internal fun SettingHolidayBulkActionMenu(
                 checked = state.isBulkActionExpanded,
                 onCheckedChange = { isChecked -> if (isChecked) state.expandBulkAction() else state.collapseBulkAction() },
             ) {
-                val isClosing by remember { derivedStateOf { checkedProgress > CLOSE_ICON_PROGRESS } }
+                val isClosing by remember { derivedStateOf { checkedProgress > SettingHolidayBulkActionMenuDefaults.CLOSE_ICON_PROGRESS } }
                 val iconModifier =
                     with(ToggleFloatingActionButtonDefaults) {
                         Modifier.animateIcon(checkedProgress = { checkedProgress })

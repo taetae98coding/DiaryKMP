@@ -61,7 +61,7 @@
                 '</svg>';
             content.querySelector("path").setAttribute("fill", pin.color);
             var label = document.createElement("span");
-            label.style.cssText = "font-size:12px;line-height:" + diaryMapPinMarker.labelHeight + "px;white-space:nowrap;color:#000000;background:rgba(255,255,255,0.8);padding:0 2px;border-radius:2px;";
+            label.style.cssText = "font-size:" + diaryMapPinMarker.labelFontSize + "px;line-height:" + diaryMapPinMarker.labelHeight + "px;white-space:nowrap;color:#000000;background:rgba(255,255,255," + diaryMapPinMarker.labelBackgroundAlpha + ");padding:0 " + diaryMapPinMarker.labelHorizontalPadding + "px;border-radius:" + diaryMapPinMarker.labelCornerRadius + "px;";
             label.textContent = pin.label;
             content.appendChild(label);
             root.appendChild(content);

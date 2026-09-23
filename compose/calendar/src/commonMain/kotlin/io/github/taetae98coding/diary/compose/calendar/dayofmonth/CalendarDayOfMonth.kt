@@ -13,6 +13,7 @@ import io.github.taetae98coding.diary.compose.calendar.CalendarColor
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefault
 import io.github.taetae98coding.diary.compose.calendar.dateAt
 import io.github.taetae98coding.diary.compose.calendar.dayOfWeekColor
+import io.github.taetae98coding.diary.compose.calendar.week.CalendarWeekOfMonthDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import kotlinx.datetime.DayOfWeek
@@ -20,8 +21,6 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.yearMonth
-
-private const val ADJACENT_MONTH_DAY_ALPHA = 0.38F
 
 @Composable
 internal fun CalendarDayOfMonth(
@@ -79,7 +78,7 @@ internal fun CalendarDayOfMonth(
 
 private fun Color.adjust(isAdjacentMonth: Boolean): Color =
     if (isAdjacentMonth) {
-        copy(alpha = alpha * ADJACENT_MONTH_DAY_ALPHA)
+        copy(alpha = alpha * CalendarWeekOfMonthDefaults.ADJACENT_MONTH_DAY_ALPHA)
     } else {
         this
     }

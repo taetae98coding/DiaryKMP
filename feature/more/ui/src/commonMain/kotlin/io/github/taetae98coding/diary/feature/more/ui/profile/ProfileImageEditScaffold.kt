@@ -20,7 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleVisibility
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
@@ -38,9 +37,6 @@ import io.github.taetae98coding.diary.feature.more.ui.more_profile_image_edit_ch
 import io.github.taetae98coding.diary.feature.more.ui.more_profile_image_edit_navigate_up_button_content_description
 import io.github.taetae98coding.diary.feature.more.ui.more_profile_image_edit_title
 import org.jetbrains.compose.resources.stringResource
-
-// docs/design/profile-image-edit.md `편집 영역`이 정한 편집 영역의 최대 한 변.
-private val EditorMaxSize: Dp = 400.dp
 
 @Composable
 internal fun ProfileImageEditScaffold(
@@ -103,9 +99,8 @@ private fun ProfileImageEditContent(
         modifier = modifier.padding(dimens.screenPaddingValues),
         contentAlignment = Alignment.Center,
     ) {
-        // 편집 영역은 폭과, 사진 선택 버튼을 뺀 높이 중 짧은 쪽을 한 변으로 하고 최대 한 변을 넘지 않는다.
         val editorSize =
-            minOf(maxWidth, maxHeight - ButtonDefaults.MinHeight - dimens.componentSpacing, EditorMaxSize)
+            minOf(maxWidth, maxHeight - ButtonDefaults.MinHeight - dimens.componentSpacing, ProfileImageEditorDefaults.MaxSize)
                 .coerceAtLeast(0.dp)
 
         Column(

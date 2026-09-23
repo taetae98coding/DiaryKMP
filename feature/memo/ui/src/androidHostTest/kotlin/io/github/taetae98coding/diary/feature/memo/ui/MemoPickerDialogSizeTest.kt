@@ -23,10 +23,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-/**
- * 선택 목록의 자리 높이는 [공통 선택 목록 높이](docs/design/dimens.md)로 고정한다.
- * 그 높이를 다 쓸 수 있는 표시 영역에서만 고정 여부를 확인할 수 있으므로 큰 창으로 실행한다.
- */
+/** 선택 목록의 고정 높이를 다 쓸 수 있는 표시 영역에서만 고정 여부를 확인할 수 있으므로 큰 창으로 실행한다. */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w480dp-h1200dp")
 class MemoPickerDialogSizeTest {

@@ -11,7 +11,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 
@@ -24,7 +23,7 @@ public fun DiaryColorIndicator(
         // 크기를 Style에 두면 intrinsic 측정에 보고되지 않아, 이 표시를 앞에 두는 칩이 이름에 줄 폭을 그만큼 덜 잡는다.
         modifier =
             modifier
-                .size(8.dp)
+                .size(DiaryTheme.dimens.colorIndicatorSize)
                 .styleable {
                     shape(CircleShape)
                     background(color)

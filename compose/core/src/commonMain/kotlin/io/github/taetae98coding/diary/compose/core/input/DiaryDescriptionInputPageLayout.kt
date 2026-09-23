@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.Res
 import io.github.taetae98coding.diary.compose.core.diary_description_input_label
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
@@ -33,13 +32,13 @@ internal fun DiaryDescriptionInputPageLayout(
             ClearTextField(
                 state = state.textFieldState,
                 label = { Text(text = stringResource(Res.string.diary_description_input_label)) },
-                lineLimits = TextFieldLineLimits.MultiLine(minHeightInLines = 10, maxHeightInLines = 20),
+                lineLimits = TextFieldLineLimits.MultiLine(minHeightInLines = DiaryDescriptionInputDefaults.MIN_HEIGHT_IN_LINES, maxHeightInLines = DiaryDescriptionInputDefaults.MAX_HEIGHT_IN_LINES),
             )
             DiaryDescriptionInputPreviewPage(
                 modifier =
                     Modifier
                         .verticalScroll(rememberScrollState())
-                        .padding(16.dp),
+                        .padding(DiaryTheme.dimens.cardContentPadding),
                 state = state,
             )
         },

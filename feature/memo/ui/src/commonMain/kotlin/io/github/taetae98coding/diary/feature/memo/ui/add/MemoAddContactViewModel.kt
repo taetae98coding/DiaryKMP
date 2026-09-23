@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.domain.contact.usecase.GetSelectedContactUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoSelectableContactUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactInputUiState
+import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import io.github.taetae98coding.diary.library.coroutines.flow.debounceSearchQuery
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -38,7 +39,7 @@ internal class MemoAddContactViewModel(
             .map { result -> MemoContactInputUiState(selectedContactList = result.getOrNull().orEmpty()) }
             .stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+                started = SharingStarted.WhileUiSubscribed,
                 initialValue = MemoContactInputUiState(),
             )
 

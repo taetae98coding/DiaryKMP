@@ -10,12 +10,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.icon.NextIcon
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-
-private val LABEL_SPACING = 4.dp
 
 @Composable
 public fun ListEntryButton(
@@ -29,7 +26,7 @@ public fun ListEntryButton(
         shape = CircleShape,
     ) {
         Text(text = label)
-        Spacer(modifier = Modifier.width(LABEL_SPACING))
+        Spacer(modifier = Modifier.width(ListEntryButtonDefaults.LabelSpacing))
         NextIcon(modifier = Modifier.size(ButtonDefaults.IconSize))
     }
 }

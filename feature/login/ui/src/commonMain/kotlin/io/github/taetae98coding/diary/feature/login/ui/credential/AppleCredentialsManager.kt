@@ -12,9 +12,6 @@ internal interface AppleCredentialsManager {
 @Composable
 internal expect fun rememberAppleCredentialsManager(): AppleCredentialsManager
 
-/**
- * 버튼은 모든 플랫폼에서 같은 자리에 표시하고, 선택하면 인증 결과를 받지 못한 실패로 안내한다.
- */
 internal class UnsupportedAppleCredentialsManager : AppleCredentialsManager {
     override suspend fun signIn(): AppleCredential = throw AppleCredentialsException(message = "Apple sign-in is not supported on this platform")
 }

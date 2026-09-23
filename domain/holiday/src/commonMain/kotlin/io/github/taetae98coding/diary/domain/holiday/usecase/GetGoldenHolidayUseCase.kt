@@ -29,7 +29,6 @@ public class GetGoldenHolidayUseCase internal constructor(
                 )
             }
 
-    // 한 년도의 조회 실패는 다른 대상 년도의 공휴일 사용을 막지 않는다.
     private fun holidayListFlow(year: Int): Flow<List<Holiday>> =
         combine(
             year.goldenHolidaySourceYearList().map { targetYear ->
@@ -58,7 +57,6 @@ private fun goldenHolidayGroupList(
         annualLeaveCount = annualLeaveCount,
     ).groupByOverlap()
         .flatMap { candidateGroup -> candidateGroup.toGoldenHolidayGroupList(holidayList = holidayList) }
-        // 안 하나라도 표시 중인 년도에 걸치면 그 항목을 담고, 항목 안의 안은 모두 유지한다.
         .filter { group -> group.overlaps(year = year) }
         .sortedBy { group ->
             group.optionList
@@ -69,11 +67,14 @@ private fun goldenHolidayGroupList(
 
 private fun GoldenHolidayGroup.overlaps(year: Int): Boolean = optionList.any { option -> year in option.dateRange.start.year..option.dateRange.endInclusive.year }
 
-private fun searchRange(year: Int): LocalDateRange =
-    LocalDateRange(
-        start = LocalDate(year = year - 1, month = 1, day = 1),
-        endInclusive = LocalDate(year = year + 1, month = 12, day = 31),
+private fun searchRange(year: Int): LocalDateRange {
+    val sourceYearList = year.goldenHolidaySourceYearList()
+
+    return LocalDateRange(
+        start = LocalDate(year = sourceYearList.first(), month = 1, day = 1),
+        endInclusive = LocalDate(year = sourceYearList.last(), month = 12, day = 31),
     )
+}
 
 private fun holidayDateSet(holidayList: List<Holiday>): Set<LocalDate> =
     holidayList

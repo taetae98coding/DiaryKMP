@@ -13,7 +13,6 @@ internal class MoreHomeRefreshViewModel(
 ) : ViewModel() {
     private var refreshJob: Job? = null
 
-    // 화면이 표시될 때마다 원격을 다시 부르되, 앞선 요청이 아직 진행 중이면 그 결과를 기다리고 새 요청을 겹치지 않는다.
     fun refresh() {
         if (refreshJob?.isActive == true) return
 

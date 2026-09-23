@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.domain.place.usecase.DeletePlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.FindPlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.UpdatePlaceUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -50,7 +51,7 @@ internal class PlaceDetailViewModel(
             } ?: PlaceDetailUiState.Loading
         }.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+            started = SharingStarted.WhileUiSubscribed,
             initialValue = PlaceDetailUiState.Loading,
         )
 

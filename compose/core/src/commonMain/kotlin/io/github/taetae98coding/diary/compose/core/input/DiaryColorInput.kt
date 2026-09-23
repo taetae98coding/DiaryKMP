@@ -19,7 +19,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.dialog.ColorPickerHost
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
@@ -48,7 +47,7 @@ public fun DiaryColorInput(
                     clip()
                     background(state.color)
                 }.clickable(onClick = dialogState::show)
-                .padding(16.dp),
+                .padding(DiaryTheme.dimens.cardContentPadding),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(

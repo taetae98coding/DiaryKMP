@@ -97,7 +97,6 @@ class DiaryChipLabelTest {
 
         val BOX_WIDTH = 360.dp
 
-        // 공통 여백과 간격 디자인(docs/design/dimens.md)이 정한 값이다.
         val SCREEN_HORIZONTAL_PADDING = 16.dp
 
         val CHIP_AREA_WIDTH = BOX_WIDTH - SCREEN_HORIZONTAL_PADDING * 2

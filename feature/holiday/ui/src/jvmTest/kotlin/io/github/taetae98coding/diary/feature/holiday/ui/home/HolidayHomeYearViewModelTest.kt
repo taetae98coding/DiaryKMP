@@ -341,7 +341,6 @@ class HolidayHomeYearViewModelTest : FunSpec() {
                     awaitItem() shouldBe HolidayHomeYearUiState.Loading
                     awaitItem() shouldBe HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = listOf(goldenHolidayGroup))
 
-                    // 다시 동기화가 끝나지 않아도 로딩 상태로 돌아가지 않는다.
                     coEvery { fetchHolidayUseCase(parameter = any()) } coAnswers { completion.await() }
                     viewModel.fetch()
                     advanceUntilIdle()

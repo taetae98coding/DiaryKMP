@@ -7,6 +7,7 @@ import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
+import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicAddNavKey
@@ -41,7 +42,7 @@ private fun EntryProviderScope<ScreenNavKey>.playlistHomeEntry(backStack: NavBac
                         viewModel = koinViewModel(),
                     )
                 },
-            ) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f),
+            ) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION),
     ) {
         val isDetailPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.Detail)
 
@@ -86,7 +87,7 @@ private fun EntryProviderScope<ScreenNavKey>.musicDetailEntry(backStack: NavBack
 
 private fun NavBackStack<ScreenNavKey>.playlistListDetailPaneMetadata(key: ScreenNavKey): Map<String, Any> =
     if (isPlaylistListDetailPane(key)) {
-        ListDetailSceneStrategy.detailPane(sceneKey = PlaylistHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f)
+        ListDetailSceneStrategy.detailPane(sceneKey = PlaylistHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION)
     } else {
         emptyMap()
     }

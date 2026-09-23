@@ -18,7 +18,6 @@ internal fun ContactDetailScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val content = uiState as? ContactDetailUiState.Content
 
-    // 조회한 연락처가 정해지면 그 값으로 입력을 한 번만 채운다.
     key(content?.id) {
         val state = rememberContactDetailFormState(initialDetail = content?.detail ?: ContactDetail.EMPTY)
 

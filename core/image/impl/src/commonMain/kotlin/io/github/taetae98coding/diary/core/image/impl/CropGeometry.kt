@@ -36,7 +36,6 @@ internal fun ImageCropRegion.toPixelRect(
     return PixelRect(left = left, top = top, width = right - left, height = bottom - top)
 }
 
-// 긴 변이 최대 변 길이를 넘을 때만 줄이고, 넘지 않으면 늘리지 않고 그대로 둔다.
 internal fun PixelRect.scaleToFit(maxSideLength: Int): Double = minOf(1.0, maxSideLength.toDouble() / longestSide)
 
 internal fun PixelRect.scaled(scale: Double): PixelSize =

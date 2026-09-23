@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.domain.playlist.usecase.DeleteMusicUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.FetchYoutubeVideoUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.FindMusicUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.UpdateMusicUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,7 +53,7 @@ internal class MusicDetailViewModel(
             } ?: MusicDetailUiState.Loading
         }.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+            started = SharingStarted.WhileUiSubscribed,
             initialValue = MusicDetailUiState.Loading,
         )
 

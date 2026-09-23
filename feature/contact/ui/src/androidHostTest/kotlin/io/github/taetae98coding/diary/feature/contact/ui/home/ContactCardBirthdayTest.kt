@@ -54,7 +54,6 @@ class ContactCardBirthdayTest {
     fun `TC-CONTACT-HOME-FEATURE-022 음력 생일도 저장된 연·월·일을 그대로 표시한다`() {
         setContactCard(contact = birthdayContact(calendar = ContactBirthdayCalendar.LUNAR))
 
-        // 음력을 양력으로 환산하지 않으므로 저장된 1990-03-04이 그대로 읽힌다.
         composeRule.onNodeWithText(LUNAR_BIRTHDAY_TEXT).assertExists()
         composeRule.onNodeWithText(LUNAR_CONVERTED_BIRTHDAY_TEXT).assertDoesNotExist()
     }

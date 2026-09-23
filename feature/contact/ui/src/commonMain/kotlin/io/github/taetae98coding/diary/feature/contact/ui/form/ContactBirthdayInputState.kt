@@ -17,7 +17,6 @@ import kotlinx.datetime.LocalDate
 internal class ContactBirthdayInputState(
     birthday: ContactBirthday?,
 ) {
-    // 고르기가 열려 있는 상태는 스펙이 유지를 요구하지 않으므로 저장하지 않는다.
     val pickerDialogState: DialogState = DialogState()
 
     var birthday: ContactBirthday? by mutableStateOf(birthday)

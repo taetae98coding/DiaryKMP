@@ -8,7 +8,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.format.toDisplayText
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -32,7 +31,7 @@ public fun MemoDateHeader(
             text = if (date == today) stringResource(Res.string.memo_list_today_header) else date.toDisplayText(),
             modifier =
                 Modifier
-                    .padding(vertical = 4.dp)
+                    .padding(vertical = MemoDateHeaderDefaults.VerticalPadding)
                     .testTag(MEMO_DATE_HEADER_TEST_TAG),
             color = DiaryTheme.colorScheme.primary,
             style = DiaryTheme.typography.titleSmallEmphasized,

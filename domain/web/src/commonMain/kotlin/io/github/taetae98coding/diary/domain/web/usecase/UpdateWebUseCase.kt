@@ -39,7 +39,6 @@ public class UpdateWebUseCase internal constructor(
         return updatedCount
     }
 
-    // 제목과 URL은 웹 항목이 반드시 가져야 하는 정보이므로 비우는 수정을 저장된 값으로 되돌린다.
     private suspend fun WebDetail.withStoredValueForBlank(id: Uuid): WebDetail {
         if (title.isNotBlank() && url.isNotBlank()) return this
 

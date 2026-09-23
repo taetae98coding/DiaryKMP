@@ -45,7 +45,7 @@ private fun externalMapUriList(
     }
 }
 
-// 여는 방법이 없는 주소는 예외로 알려지므로, 열지 못한 주소는 건너뛰고 모두 열지 못해도 실패를 전파하지 않는다.
+// Android는 여는 방법이 없는 주소를 예외로 알린다.
 private fun UriHandler.openFirstAvailable(uriList: List<String>) {
     for (uri in uriList) {
         if (runCatching { openUri(uri) }.isSuccess) return

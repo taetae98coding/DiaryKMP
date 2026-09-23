@@ -18,7 +18,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.icon.DropDownIcon
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -26,8 +25,6 @@ import io.github.taetae98coding.diary.compose.list.Res
 import io.github.taetae98coding.diary.compose.list.list_sort_content_description
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import org.jetbrains.compose.resources.stringResource
-
-private val LABEL_SPACING = 4.dp
 
 @Composable
 public fun DiaryListSortBar(
@@ -57,14 +54,14 @@ public fun DiaryListSortBar(
                 sort = sort,
                 modifier = Modifier.size(ButtonDefaults.IconSize),
             )
-            Spacer(modifier = Modifier.width(LABEL_SPACING))
+            Spacer(modifier = Modifier.width(DiaryListSortBarDefaults.ContentSpacing))
             Text(
                 text = stringResource(listSortLabel(sort = sort)),
                 modifier = Modifier.weight(weight = 1F, fill = false),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            Spacer(modifier = Modifier.width(LABEL_SPACING))
+            Spacer(modifier = Modifier.width(DiaryListSortBarDefaults.ContentSpacing))
             DropDownIcon(modifier = Modifier.size(ButtonDefaults.IconSize))
         }
 

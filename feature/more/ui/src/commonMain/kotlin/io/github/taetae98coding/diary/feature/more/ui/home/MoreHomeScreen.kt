@@ -86,7 +86,6 @@ internal fun MoreHomeScreen(
     )
 }
 
-// 화면이 표시될 때마다 다시 확인하므로 진입뿐 아니라 다른 화면에서 돌아올 때도 요청한다.
 @Composable
 private fun RefreshUserDataEffect(refreshViewModel: MoreHomeRefreshViewModel) {
     LifecycleEventEffect(Lifecycle.Event.ON_START) {

@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.database.api.placetag.datasource.Acco
 import io.github.taetae98coding.diary.core.database.api.placetag.transaction.AccountPlaceTagTransaction
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.data.core.paging.PAGE_SIZE
 import io.github.taetae98coding.diary.data.tag.mapper.toDomain
 import io.github.taetae98coding.diary.domain.place.repository.AccountPlaceTagRepository
 import kotlinx.coroutines.flow.Flow
@@ -63,9 +64,5 @@ internal class AccountPlaceTagRepositoryImpl(
             isDeleted = isDeleted,
             updatedAt = updatedAt,
         )
-    }
-
-    private companion object {
-        const val PAGE_SIZE: Int = 20
     }
 }

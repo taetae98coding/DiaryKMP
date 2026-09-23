@@ -7,7 +7,6 @@ import io.github.taetae98coding.diary.compose.map.isFinite
 import kotlin.js.ExperimentalWasmJsInterop
 import kotlin.js.JsAny
 
-// 시작 위치를 지정하지 않았거나 지도가 쓸 수 없는 값이면 제공자의 기본 위치와 기본 확대 수준을 그대로 쓴다.
 internal fun JsAny.withCamera(camera: DiaryMapCamera?): JsAny {
     if (camera == null || !camera.isFinite) return this
 

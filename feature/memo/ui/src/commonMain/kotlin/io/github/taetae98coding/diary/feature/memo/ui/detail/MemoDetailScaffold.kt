@@ -134,7 +134,6 @@ internal fun MemoDetailScaffold(
     )
 }
 
-// 수정 동작의 노출 여부는 입력과 저장 내용을 비교해 정하므로, 두 값이 바뀔 때만 다시 계산한다.
 @Composable
 private fun rememberMemoDetailChanged(
     state: MemoFormState,

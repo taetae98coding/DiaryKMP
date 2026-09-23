@@ -40,12 +40,12 @@ public class IpNetworkModule {
 
             install(DefaultRequest) {
                 url("http://ip-api.com/")
-                url.parameters.append("fields", LATITUDE_LONGITUDE_FIELDS)
+                url.parameters.append("fields", (LATITUDE_FIELD or LONGITUDE_FIELD).toString())
             }
         }
 
     public companion object {
-        // lat(64) + lon(128)
-        private const val LATITUDE_LONGITUDE_FIELDS = "192"
+        private const val LATITUDE_FIELD = 64
+        private const val LONGITUDE_FIELD = 128
     }
 }

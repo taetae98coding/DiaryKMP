@@ -28,7 +28,6 @@ internal fun MemoContactPickerRow(
         },
         label = contact?.detail?.name.orEmpty(),
         modifier = modifier,
-        // 같은 이름의 연락처를 가릴 수 있도록 첫 번째 전화번호를 함께 둔다. 전화번호가 없어도 줄은 비워 둔 채 자리를 지킨다.
         description =
             contact
                 ?.detail

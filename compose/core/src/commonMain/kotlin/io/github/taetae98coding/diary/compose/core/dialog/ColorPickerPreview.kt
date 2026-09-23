@@ -24,7 +24,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.Res
 import io.github.taetae98coding.diary.compose.core.color_picker_dialog_random_button_content_description
 import io.github.taetae98coding.diary.compose.core.icon.RefreshIcon
@@ -49,7 +48,7 @@ internal fun ColorPickerPreview(
         modifier =
             modifier
                 .fillMaxWidth()
-                .height(140.dp)
+                .height(ColorPickerDialogDefaults.PreviewHeight)
                 .styleable { background(state.color) },
     ) {
         IconButton(
@@ -59,7 +58,7 @@ internal fun ColorPickerPreview(
             modifier =
                 Modifier
                     .align(Alignment.TopEnd)
-                    .padding(8.dp),
+                    .padding(ColorPickerDialogDefaults.RandomButtonPadding),
             colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor),
         ) {
             RefreshIcon(contentDescription = stringResource(Res.string.color_picker_dialog_random_button_content_description))

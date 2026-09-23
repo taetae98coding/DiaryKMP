@@ -20,8 +20,6 @@ private val CombiningCategorySet =
     )
 
 /**
- * 사용자에게 문자 하나로 보이는 마지막 단위만 남긴다.
- *
  * 이모지는 이어붙인 코드가 모여 하나로 보이므로 코드 단위나 코드 포인트로 자르면 조각난 문자가 남는다.
  */
 public fun CharSequence.takeLastGrapheme(): CharSequence {

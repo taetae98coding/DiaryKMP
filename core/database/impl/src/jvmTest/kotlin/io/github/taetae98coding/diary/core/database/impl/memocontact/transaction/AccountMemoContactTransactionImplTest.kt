@@ -357,7 +357,6 @@ class AccountMemoContactTransactionImplTest :
             val memo = memo().visible().copy(primaryTagId = null)
             val contact = contact()
             val tag = tag()
-            // 연락처에는 태그를 연결하지 않으므로, 연락처를 메모에 연결해도 메모가 그 태그로 조회되지 않는다.
             tagTransaction.upsert(accountId = accountId, tagList = listOf(tag), tagLinkList = emptyList())
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact))
 
@@ -597,7 +596,6 @@ class AccountMemoContactTransactionImplTest :
                     },
             )
 
-            // 삭제된 연락처는 화면 조회에서 빠지지만 연결 자체는 복사본에도 남는다.
             sourceContactIdSet shouldBe setOf(deletedContact.id)
             findMemoContactList(memoId = copy.id).map { memoContact -> memoContact.contactId } shouldBe listOf(deletedContact.id)
         }

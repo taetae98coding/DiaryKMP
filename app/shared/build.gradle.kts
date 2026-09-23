@@ -93,6 +93,7 @@ kotlin {
                 implementation(projects.feature.tag.ui)
                 implementation(projects.feature.web.api)
                 implementation(projects.feature.web.ui)
+                implementation(projects.library.coroutines)
                 implementation(projects.notification)
                 implementation(projects.work.dailyMemo)
                 implementation(projects.work.sync)

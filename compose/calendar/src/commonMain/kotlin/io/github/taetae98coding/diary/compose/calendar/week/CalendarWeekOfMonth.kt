@@ -48,7 +48,7 @@ public fun CalendarWeekOfMonth(
             ),
     ) {
         HorizontalDivider()
-        Spacer(modifier = Modifier.height(2.dp))
+        Spacer(modifier = Modifier.height(CalendarWeekOfMonthDefaults.DividerSpacing))
         CalendarDayOfMonthRow(
             yearMonth = yearMonth,
             weekOfMonth = weekOfMonth,

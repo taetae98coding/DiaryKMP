@@ -68,7 +68,6 @@ internal fun rememberHolidayHomeScaffoldState(
 
 internal fun Int.toYear(): Int = this + FIRST_PAGE_YEAR
 
-// 페이지는 0보다 작을 수 없으므로 첫 페이지의 1년이 이동할 수 있는 가장 이전 년도가 된다.
 private fun Int.toPage(): Int = (this - FIRST_PAGE_YEAR).coerceAtLeast(0)
 
 internal const val MIN_ANNUAL_LEAVE_COUNT: Int = 0

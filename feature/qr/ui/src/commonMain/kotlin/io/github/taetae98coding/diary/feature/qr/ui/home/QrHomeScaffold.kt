@@ -16,7 +16,6 @@ internal fun QrHomeScaffold(
     onEvent: (QrHomeScaffoldEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // 본문에 둘 내용은 아직 정하지 않았다. 상단 바만 두고 본문은 비워 둔다.
     Scaffold(
         modifier = modifier,
         topBar = {

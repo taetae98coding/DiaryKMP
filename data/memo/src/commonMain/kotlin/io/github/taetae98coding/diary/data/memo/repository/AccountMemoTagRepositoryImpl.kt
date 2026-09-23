@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.database.api.memotag.datasource.Accou
 import io.github.taetae98coding.diary.core.database.api.memotag.transaction.AccountMemoTagTransaction
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.data.core.paging.PAGE_SIZE
 import io.github.taetae98coding.diary.data.tag.mapper.toDomain
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoTagRepository
 import kotlinx.coroutines.flow.Flow
@@ -87,9 +88,5 @@ internal class AccountMemoTagRepositoryImpl(
             primaryTagId = primaryTagId,
             updatedAt = updatedAt,
         )
-    }
-
-    private companion object {
-        const val PAGE_SIZE: Int = 20
     }
 }

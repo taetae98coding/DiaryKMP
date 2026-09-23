@@ -9,7 +9,6 @@ import io.github.taetae98coding.diary.compose.core.preview.IconPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.list.ListSort
 
-// 이름이 현재 정렬을 알리므로 아이콘에는 접근성 이름을 두지 않는다.
 @Composable
 public fun ListSortIcon(
     sort: ListSort,

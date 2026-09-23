@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.image.ProfileImage
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -52,14 +51,14 @@ internal fun MoreHomeProfileRow(
 
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(MoreHomeAccountCardDefaults.ProfileImageToLabelSpacing),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         ProfileImage(
             model = profileImage,
             modifier =
                 Modifier
-                    .size(48.dp)
+                    .size(MoreHomeAccountCardDefaults.ProfileImageSize)
                     .clip(CircleShape)
                     .then(profileClickableModifier),
             contentDescription = stringResource(Res.string.more_profile_image_content_description),

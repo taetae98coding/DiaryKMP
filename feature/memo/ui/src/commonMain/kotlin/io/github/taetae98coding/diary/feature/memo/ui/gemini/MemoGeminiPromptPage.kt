@@ -26,9 +26,6 @@ import io.github.taetae98coding.diary.feature.memo.ui.memo_gemini_prompt_label
 import io.github.taetae98coding.diary.feature.memo.ui.memo_gemini_prompt_placeholder
 import org.jetbrains.compose.resources.stringResource
 
-private const val MIN_HEIGHT_IN_LINES = 3
-private const val MAX_HEIGHT_IN_LINES = 5
-
 @Composable
 internal fun MemoGeminiPromptPage(
     modifier: Modifier = Modifier,
@@ -53,7 +50,7 @@ internal fun MemoGeminiPromptPage(
             state = promptState,
             label = { Text(text = stringResource(Res.string.memo_gemini_prompt_label)) },
             placeholder = { Text(text = stringResource(Res.string.memo_gemini_prompt_placeholder)) },
-            lineLimits = TextFieldLineLimits.MultiLine(minHeightInLines = MIN_HEIGHT_IN_LINES, maxHeightInLines = MAX_HEIGHT_IN_LINES),
+            lineLimits = TextFieldLineLimits.MultiLine(minHeightInLines = MemoGeminiPromptPageDefaults.MIN_HEIGHT_IN_LINES, maxHeightInLines = MemoGeminiPromptPageDefaults.MAX_HEIGHT_IN_LINES),
         )
 
         val failure = failureProvider()

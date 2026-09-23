@@ -15,6 +15,7 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
+import io.github.taetae98coding.diary.data.core.paging.PAGE_SIZE
 import io.github.taetae98coding.diary.data.memo.mapper.toDomain
 import io.github.taetae98coding.diary.data.memo.mapper.toLocal
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoRepository
@@ -163,8 +164,4 @@ internal class AccountMemoRepositoryImpl(
             detail = detail.toLocal(),
             updatedAt = updatedAt,
         )
-
-    private companion object {
-        const val PAGE_SIZE: Int = 20
-    }
 }

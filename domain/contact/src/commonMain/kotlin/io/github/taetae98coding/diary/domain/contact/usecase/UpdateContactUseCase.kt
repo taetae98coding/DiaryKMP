@@ -41,7 +41,6 @@ public class UpdateContactUseCase internal constructor(
         return updatedCount
     }
 
-    // 이름은 연락처가 반드시 가져야 하는 정보이므로 비우는 수정을 저장된 값으로 되돌린다.
     private suspend fun ContactDetail.withStoredNameForBlank(id: Uuid): ContactDetail {
         if (name.isNotBlank()) return this
 

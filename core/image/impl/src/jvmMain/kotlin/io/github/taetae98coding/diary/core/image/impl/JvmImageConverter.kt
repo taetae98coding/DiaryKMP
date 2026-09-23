@@ -28,6 +28,7 @@ internal class JvmImageConverter : ImageConverter {
         uri: FileUri,
         cropRegion: ImageCropRegion,
         maxSideLength: Int,
+        jpegQuality: Int,
     ): JpegSource =
         withContext(Dispatchers.IO) {
             val sourceFile = Paths.get(URI(uri.value)).toFile()
@@ -38,7 +39,7 @@ internal class JvmImageConverter : ImageConverter {
                 image
                     .applyExifOrientation(sourceFile.readExifOrientation())
                     .cropScaled(cropRegion = cropRegion, maxSideLength = maxSideLength)
-                    .writeJpeg(file)
+                    .writeJpeg(file = file, jpegQuality = jpegQuality)
             }.onFailure { file.delete() }
                 .getOrThrow()
 
@@ -76,7 +77,10 @@ internal class JvmImageConverter : ImageConverter {
         return target
     }
 
-    private fun BufferedImage.writeJpeg(file: File) {
+    private fun BufferedImage.writeJpeg(
+        file: File,
+        jpegQuality: Int,
+    ) {
         val writers = ImageIO.getImageWritersByFormatName(JPEG_FORMAT_NAME)
 
         check(writers.hasNext()) { "Jpeg writer is not available." }
@@ -85,7 +89,7 @@ internal class JvmImageConverter : ImageConverter {
         val writeParam =
             writer.defaultWriteParam.apply {
                 compressionMode = ImageWriteParam.MODE_EXPLICIT
-                compressionQuality = JPEG_QUALITY_PERCENT / PERCENT
+                compressionQuality = jpegQuality / PERCENT
             }
 
         ImageIO.createImageOutputStream(file).use { output ->

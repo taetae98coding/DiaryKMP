@@ -14,8 +14,6 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 
 private const val LOCATION_NAME_LIMIT = 1
-
-// 날씨 상태의 설명 문구는 사용자 언어와 관계없이 언제나 영어로 받는다.
 private const val LANGUAGE = "en"
 
 @Factory
@@ -23,7 +21,6 @@ internal class WeatherRemoteDataSourceImpl(
     @WeatherHttpClient
     private val httpClient: HttpClient,
 ) : WeatherRemoteDataSource {
-    // data/2.5/forecast는 예보를 3시간 간격 구간으로 반환한다.
     override val forecastInterval: Duration = 3.hours
 
     override suspend fun getCurrentWeather(

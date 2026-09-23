@@ -43,7 +43,6 @@ internal fun TagDetailPlaceTab(
     )
 
     Column(modifier = modifier) {
-        // 전환 버튼이 이 줄에 있어 지도와 목록 영역이 표시되지 않는 동안에도 남아 있어야 하므로 보기 모드 영역 위에 둔다.
         DiaryListSortBar(
             onClick = { onEvent(TagDetailPlaceContentEvent.ClickSort) },
             modifier = Modifier.fillMaxWidth(),

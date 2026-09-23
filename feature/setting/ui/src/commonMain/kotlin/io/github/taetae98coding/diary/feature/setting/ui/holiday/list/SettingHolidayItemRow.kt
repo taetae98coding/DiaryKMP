@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.domain.holiday.model.HolidaySetting
@@ -74,7 +73,7 @@ private fun DayOffBadge(
     ) {
         Text(
             text = stringResource(Res.string.setting_holiday_day_off_label),
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            modifier = Modifier.padding(horizontal = SettingHolidayItemRowDefaults.DayOffBadgeHorizontalPadding, vertical = SettingHolidayItemRowDefaults.DayOffBadgeVerticalPadding),
             style = DiaryTheme.typography.labelMedium,
         )
     }

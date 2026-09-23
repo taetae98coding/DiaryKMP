@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.more.ui.home.account
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -22,7 +23,7 @@ internal class MoreHomeAccountViewModel(
                 )
             }.stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
+                started = SharingStarted.WhileUiSubscribed,
                 initialValue = MoreHomeAccountUiState.Loading,
             )
 }

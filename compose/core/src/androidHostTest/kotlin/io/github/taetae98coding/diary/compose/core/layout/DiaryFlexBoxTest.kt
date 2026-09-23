@@ -16,6 +16,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
@@ -64,9 +65,11 @@ class DiaryFlexBoxTest {
 
     @Composable
     private fun Items(modifier: Modifier = Modifier) {
-        DiaryFlexBox(modifier = modifier) {
-            repeat(ITEM_COUNT) { index ->
-                Box(modifier = Modifier.size(width = ITEM_WIDTH, height = ITEM_HEIGHT).testTag(itemTag(index = index)))
+        DiaryTheme {
+            DiaryFlexBox(modifier = modifier) {
+                repeat(ITEM_COUNT) { index ->
+                    Box(modifier = Modifier.size(width = ITEM_WIDTH, height = ITEM_HEIGHT).testTag(itemTag(index = index)))
+                }
             }
         }
     }

@@ -12,6 +12,7 @@ public interface UserDataRepository {
         uri: FileUri,
         cropRegion: ImageCropRegion,
         maxSideLength: Int,
+        jpegQuality: Int,
     )
 
     public suspend fun refresh()

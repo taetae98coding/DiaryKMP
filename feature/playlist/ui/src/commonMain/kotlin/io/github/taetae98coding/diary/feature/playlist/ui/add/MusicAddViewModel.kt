@@ -39,7 +39,6 @@ internal class MusicAddViewModel(
             try {
                 addMusicUseCase(parameter = detail)
                     .onSuccess {
-                        // 비워진 입력이 방금 추가한 곡의 값으로 다시 채워지지 않도록 진행 중이던 불러오기를 멈춘다.
                         fetchJob?.cancel()
                         _effect.send(MusicAddEffect.AddSucceeded)
                     }.onFailure { throwable -> sendAddFailureEffect(throwable = throwable) }

@@ -22,6 +22,7 @@ internal class WasmImageConverter : ImageConverter {
         uri: FileUri,
         cropRegion: ImageCropRegion,
         maxSideLength: Int,
+        jpegQuality: Int,
     ): JpegSource {
         val jpegDataUrl =
             suspendCancellableCoroutine { continuation ->
@@ -32,7 +33,7 @@ internal class WasmImageConverter : ImageConverter {
                     right = cropRegion.right.toDouble(),
                     bottom = cropRegion.bottom.toDouble(),
                     maxSideLength = maxSideLength,
-                    quality = JPEG_QUALITY_PERCENT / PERCENT,
+                    quality = jpegQuality / PERCENT,
                     onLoad = { dataUrl -> continuation.resume(dataUrl) },
                     onError = { continuation.resumeWithException(IllegalStateException("Image cannot be converted to jpeg. uri=$uri")) },
                 )

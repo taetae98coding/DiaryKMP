@@ -14,7 +14,6 @@ public expect fun DiaryWebView(
     modifier: Modifier = Modifier,
 )
 
-// 저장된 주소를 웹 표시 수단이 직접 열게 하므로 요청 헤더는 넘기지 않는다.
 @Composable
 public expect fun DiaryWebView(
     url: String,

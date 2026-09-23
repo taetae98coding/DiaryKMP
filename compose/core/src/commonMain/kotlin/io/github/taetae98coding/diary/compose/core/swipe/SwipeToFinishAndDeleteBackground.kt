@@ -11,7 +11,6 @@ import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.icon.DeleteIcon
 import io.github.taetae98coding.diary.compose.core.icon.FinishIcon
 import io.github.taetae98coding.diary.compose.core.icon.RestartIcon
@@ -30,7 +29,7 @@ internal fun SwipeToFinishAndDeleteBackground(
         modifier =
             modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = SwipeToFinishAndDeleteBoxDefaults.StatusIconHorizontalPadding),
     ) {
         when (state.dismissDirection) {
             SwipeToDismissBoxValue.StartToEnd ->
@@ -41,13 +40,13 @@ internal fun SwipeToFinishAndDeleteBackground(
                     when (finishAction) {
                         SwipeFinishAction.FINISH ->
                             FinishIcon(
-                                modifier = Modifier.size(SWIPE_ACTION_ICON_SIZE),
+                                modifier = Modifier.size(SwipeToFinishAndDeleteBoxDefaults.StatusIconSize),
                                 contentDescription = finishContentDescription,
                             )
 
                         SwipeFinishAction.RESTART ->
                             RestartIcon(
-                                modifier = Modifier.size(SWIPE_ACTION_ICON_SIZE),
+                                modifier = Modifier.size(SwipeToFinishAndDeleteBoxDefaults.StatusIconSize),
                                 contentDescription = finishContentDescription,
                             )
                     }
@@ -59,7 +58,7 @@ internal fun SwipeToFinishAndDeleteBackground(
                     modifier = Modifier.align(Alignment.CenterEnd),
                 ) {
                     DeleteIcon(
-                        modifier = Modifier.size(SWIPE_ACTION_ICON_SIZE),
+                        modifier = Modifier.size(SwipeToFinishAndDeleteBoxDefaults.StatusIconSize),
                         contentDescription = deleteContentDescription,
                     )
                 }

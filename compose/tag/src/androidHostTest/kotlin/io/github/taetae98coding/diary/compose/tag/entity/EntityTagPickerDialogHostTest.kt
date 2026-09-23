@@ -179,7 +179,6 @@ class EntityTagPickerDialogHostTest {
         composeRule.setEntityTagPickerDialog(tagList = tagList)
         composeRule.awaitEntityTagPickerRows()
 
-        // 항목마다 연결을 바꾸는 조작 하나만 있고 그 밖의 동작은 두지 않는다.
         composeRule
             .onAllNodes(hasClickAction() and hasAnyAncestor(hasTestTag(ENTITY_TAG_PICKER_LIST_TEST_TAG)))
             .assertCountEquals(tagList.size)

@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
+import io.github.taetae98coding.diary.data.core.paging.PAGE_SIZE
 import io.github.taetae98coding.diary.data.tag.mapper.toDomain
 import io.github.taetae98coding.diary.domain.search.repository.SearchTagRepository
 import kotlinx.coroutines.flow.Flow
@@ -36,8 +37,4 @@ internal class SearchTagRepositoryImpl(
         ).flow.map { pagingData ->
             pagingData.map { local -> local.toDomain() }
         }
-
-    private companion object {
-        const val PAGE_SIZE: Int = 20
-    }
 }

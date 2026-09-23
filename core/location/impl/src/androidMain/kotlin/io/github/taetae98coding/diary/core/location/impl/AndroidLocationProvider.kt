@@ -30,10 +30,10 @@ internal class AndroidLocationProvider(
                         .await(cancellationTokenSource)
                 }
             } catch (_: ApiException) {
-                // Google Play 서비스가 위치를 제공하지 못하는 환경은 계약상 위치 확인 불가로 null을 반환한다.
+                // Google Play 서비스가 위치를 제공하지 못하는 환경이면 FusedLocationProviderClient가 ApiException을 던진다.
                 null
             } catch (_: SecurityException) {
-                // 위치 권한이 없거나 확인 중 권한이 회수된 경우는 계약상 위치 확인 불가로 null을 반환한다.
+                // 위치 권한이 없거나 확인 중 권한이 회수되면 FusedLocationProviderClient가 SecurityException을 던진다.
                 null
             }
 

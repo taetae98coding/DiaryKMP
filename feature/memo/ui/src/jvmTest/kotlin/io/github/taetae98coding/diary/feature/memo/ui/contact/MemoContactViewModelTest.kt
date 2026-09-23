@@ -127,7 +127,6 @@ class MemoContactViewModelTest : FunSpec() {
                     viewModel.unselectContact(contactId = connectedContact.id)
                     advanceUntilIdle()
 
-                    // 변경 실패는 오류 상태로 노출하지 않고 저장된 연결 표시를 그대로 둔다.
                     expectNoEvents()
                     viewModel.uiState.value shouldBe savedUiState
                     cancelAndIgnoreRemainingEvents()
@@ -147,7 +146,6 @@ class MemoContactViewModelTest : FunSpec() {
 
                     expectMostRecentItem() shouldBe MemoContactInputUiState(selectedContactList = listOf(deletedContact))
 
-                    // 연락처가 삭제되면 조회 결과에서 함께 빠진다.
                     memoContactFlow.value = Result.success(emptyList())
                     advanceUntilIdle()
 

@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.domain.holiday.usecase.GetSettingHolidayUs
 import io.github.taetae98coding.diary.domain.holiday.usecase.SelectAllHolidayUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.SelectDaysOffHolidayUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.ToggleHolidayVisibilityUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -33,7 +34,7 @@ internal class SettingHolidayViewModel(
                 )
             }.stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
+                started = SharingStarted.WhileUiSubscribed,
                 initialValue = SettingHolidayUiState.Loading,
             )
 

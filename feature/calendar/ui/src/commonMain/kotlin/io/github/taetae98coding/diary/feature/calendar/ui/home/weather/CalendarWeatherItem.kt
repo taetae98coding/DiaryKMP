@@ -16,8 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import io.github.taetae98coding.diary.compose.calendar.grid.CalendarWeekOfMonthGridGroupScope
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -67,7 +65,7 @@ internal fun CalendarWeatherItem(
                     .horizontalScroll(state = rememberScrollState()),
             horizontalArrangement =
                 Arrangement.spacedBy(
-                    space = 2.dp,
+                    space = CalendarWeatherItemDefaults.IconSpacing,
                     alignment = Alignment.CenterHorizontally,
                 ),
         ) {
@@ -82,7 +80,7 @@ internal fun CalendarWeatherItem(
                 text = temperature,
                 modifier = Modifier.fillMaxWidth(),
                 maxLines = 1,
-                style = DiaryTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                style = DiaryTheme.typography.labelSmall.copy(fontSize = CalendarWeatherItemDefaults.TemperatureFontSize),
                 textAlign = TextAlign.Center,
             )
         }

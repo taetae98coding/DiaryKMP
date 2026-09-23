@@ -29,7 +29,7 @@ internal fun createPinMarkerImage(
     color: Color,
     density: Float,
 ): UIImage? {
-    val sizePx = (PIN_MARKER_SIZE_DP * density).roundToInt()
+    val sizePx = (DiaryMapPinMarkerDefaults.SIZE_DP * density).roundToInt()
     if (sizePx <= 0) return null
 
     val bitmap = ImageBitmap(width = sizePx, height = sizePx)

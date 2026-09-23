@@ -21,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 
@@ -36,16 +35,16 @@ public fun CalendarBarText(
     Row(
         modifier =
             modifier
-                .padding(1.dp)
+                .padding(CalendarBarTextDefaults.Padding)
                 .height(IntrinsicSize.Min),
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        horizontalArrangement = Arrangement.spacedBy(CalendarBarTextDefaults.BarSpacing),
     ) {
         Spacer(
             modifier =
                 Modifier
                     .testTag(CALENDAR_BAR_TEXT_BAR_TEST_TAG)
                     // 크기를 Style에 두면 intrinsic 측정에 보고되지 않아, 이 줄의 폭을 재는 자리에서 막대 폭이 빠진다.
-                    .width(3.dp)
+                    .width(CalendarBarTextDefaults.BarWidth)
                     .fillMaxHeight()
                     .styleable {
                         shape(CircleShape)

@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.database.api.memoweb.datasource.Accou
 import io.github.taetae98coding.diary.core.database.api.memoweb.transaction.AccountMemoWebTransaction
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.web.Web
+import io.github.taetae98coding.diary.data.core.paging.PAGE_SIZE
 import io.github.taetae98coding.diary.data.web.mapper.toDomain
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoWebRepository
 import kotlinx.coroutines.flow.Flow
@@ -71,9 +72,5 @@ internal class AccountMemoWebRepositoryImpl(
             isDeleted = isDeleted,
             updatedAt = updatedAt,
         )
-    }
-
-    private companion object {
-        const val PAGE_SIZE: Int = 20
     }
 }

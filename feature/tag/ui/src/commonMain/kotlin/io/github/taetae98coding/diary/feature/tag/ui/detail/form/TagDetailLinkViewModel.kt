@@ -12,6 +12,7 @@ import io.github.taetae98coding.diary.domain.tag.usecase.GetLinkedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagLinkSelectableTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.RemoveTagLinkUseCase
 import io.github.taetae98coding.diary.feature.tag.ui.link.TagLinkInputUiState
+import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import io.github.taetae98coding.diary.library.coroutines.flow.debounceSearchQuery
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -50,7 +51,7 @@ internal class TagDetailLinkViewModel(
             .map { result -> TagLinkInputUiState(linkedTagList = result.getOrNull().orEmpty()) }
             .stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+                started = SharingStarted.WhileUiSubscribed,
                 initialValue = TagLinkInputUiState(),
             )
 

@@ -65,12 +65,12 @@ class UserDataRepositoryImplTest :
         test("TC-PROFILE-IMAGE-DATA-006 고른 사진을 JPEG로 바꾸지 못하면 반영을 요청하지 않고 실패한다") {
             val uri = fileUri()
             val imageConverter = mockk<ImageConverter>()
-            coEvery { imageConverter.toJpeg(uri = uri, cropRegion = any(), maxSideLength = any()) } throws IllegalStateException("Image cannot be converted.")
+            coEvery { imageConverter.toJpeg(uri = uri, cropRegion = any(), maxSideLength = any(), jpegQuality = any()) } throws IllegalStateException("Image cannot be converted.")
             val profileImageRemoteDataSource = profileImageRemoteDataSource()
             val repository =
                 repository(imageConverter = imageConverter, profileImageRemoteDataSource = profileImageRemoteDataSource)
 
-            shouldThrowAny { repository.updateProfileImage(uri = uri, cropRegion = cropRegion(), maxSideLength = MAX_SIDE_LENGTH) }
+            shouldThrowAny { repository.updateProfileImage(uri = uri, cropRegion = cropRegion(), maxSideLength = MAX_SIDE_LENGTH, jpegQuality = JPEG_QUALITY) }
 
             coVerify(exactly = 0) { profileImageRemoteDataSource.upload(mimeType = any(), contentLength = any(), openContent = any()) }
         }
@@ -95,7 +95,7 @@ class UserDataRepositoryImplTest :
                     profileImageRemoteDataSource = profileImageRemoteDataSource,
                 )
 
-            repository.updateProfileImage(uri = uri, cropRegion = cropRegion(), maxSideLength = MAX_SIDE_LENGTH)
+            repository.updateProfileImage(uri = uri, cropRegion = cropRegion(), maxSideLength = MAX_SIDE_LENGTH, jpegQuality = JPEG_QUALITY)
 
             mimeTypeSlot.captured shouldBe "image/jpeg"
             contentLengthSlot.captured shouldBe jpegBytes.size.toLong()
@@ -122,7 +122,7 @@ class UserDataRepositoryImplTest :
             repository.get().test {
                 awaitItem()?.profileImage shouldBe previousUser.profileImage
 
-                shouldThrowAny { repository.updateProfileImage(uri = uri, cropRegion = cropRegion(), maxSideLength = MAX_SIDE_LENGTH) }
+                shouldThrowAny { repository.updateProfileImage(uri = uri, cropRegion = cropRegion(), maxSideLength = MAX_SIDE_LENGTH, jpegQuality = JPEG_QUALITY) }
 
                 expectNoEvents()
             }
@@ -133,13 +133,13 @@ class UserDataRepositoryImplTest :
                 val uri = fileUri()
                 val jpegSource = jpegSource(bytes = imageBytes())
                 val imageConverter = mockk<ImageConverter>()
-                coEvery { imageConverter.toJpeg(uri = uri, cropRegion = any(), maxSideLength = any()) } returns jpegSource
+                coEvery { imageConverter.toJpeg(uri = uri, cropRegion = any(), maxSideLength = any(), jpegQuality = any()) } returns jpegSource
                 val profileImageRemoteDataSource =
                     if (uploadCase == "반영에 성공") profileImageRemoteDataSource() else failingProfileImageRemoteDataSource()
                 val repository =
                     repository(imageConverter = imageConverter, profileImageRemoteDataSource = profileImageRemoteDataSource)
 
-                runCatching { repository.updateProfileImage(uri = uri, cropRegion = cropRegion(), maxSideLength = MAX_SIDE_LENGTH) }
+                runCatching { repository.updateProfileImage(uri = uri, cropRegion = cropRegion(), maxSideLength = MAX_SIDE_LENGTH, jpegQuality = JPEG_QUALITY) }
 
                 verify(exactly = 1) { jpegSource.close() }
             }
@@ -149,12 +149,12 @@ class UserDataRepositoryImplTest :
             val uri = fileUri()
             val cropRegion = cropRegion()
             val imageConverter = mockk<ImageConverter>()
-            coEvery { imageConverter.toJpeg(uri = any(), cropRegion = any(), maxSideLength = any()) } returns jpegSource(bytes = imageBytes())
+            coEvery { imageConverter.toJpeg(uri = any(), cropRegion = any(), maxSideLength = any(), jpegQuality = any()) } returns jpegSource(bytes = imageBytes())
             val repository = repository(imageConverter = imageConverter)
 
-            repository.updateProfileImage(uri = uri, cropRegion = cropRegion, maxSideLength = MAX_SIDE_LENGTH)
+            repository.updateProfileImage(uri = uri, cropRegion = cropRegion, maxSideLength = MAX_SIDE_LENGTH, jpegQuality = JPEG_QUALITY)
 
-            coVerify(exactly = 1) { imageConverter.toJpeg(uri = uri, cropRegion = cropRegion, maxSideLength = MAX_SIDE_LENGTH) }
+            coVerify(exactly = 1) { imageConverter.toJpeg(uri = uri, cropRegion = cropRegion, maxSideLength = MAX_SIDE_LENGTH, jpegQuality = JPEG_QUALITY) }
         }
 
         test("TC-MORE-HOME-DATA-005 사용자 정보 다시 확인은 인증 제공자에 현재 세션의 사용자 정보를 다시 요청한다") {
@@ -188,6 +188,7 @@ class UserDataRepositoryImplTest :
             diaryFixtureMonkey()
 
         private const val MAX_SIDE_LENGTH = 1024
+        private const val JPEG_QUALITY = 90
 
         private fun fileUri(): FileUri = FileUri("file://${fixtureMonkey.giveMeOne<String>()}")
 
@@ -212,7 +213,7 @@ class UserDataRepositoryImplTest :
             jpegBytes: ByteArray = imageBytes(),
         ): ImageConverter =
             mockk<ImageConverter>().also { converter ->
-                coEvery { converter.toJpeg(uri = uri, cropRegion = any(), maxSideLength = any()) } returns jpegSource(bytes = jpegBytes)
+                coEvery { converter.toJpeg(uri = uri, cropRegion = any(), maxSideLength = any(), jpegQuality = any()) } returns jpegSource(bytes = jpegBytes)
             }
 
         private fun profileImageRemoteDataSource(): ProfileImageRemoteDataSource =

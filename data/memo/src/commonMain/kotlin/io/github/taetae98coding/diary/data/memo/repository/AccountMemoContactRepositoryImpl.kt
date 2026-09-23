@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.core.database.api.memocontact.transaction.
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.data.contact.mapper.toDomain
+import io.github.taetae98coding.diary.data.core.paging.PAGE_SIZE
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoContactRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -71,9 +72,5 @@ internal class AccountMemoContactRepositoryImpl(
             isDeleted = isDeleted,
             updatedAt = updatedAt,
         )
-    }
-
-    private companion object {
-        const val PAGE_SIZE: Int = 20
     }
 }

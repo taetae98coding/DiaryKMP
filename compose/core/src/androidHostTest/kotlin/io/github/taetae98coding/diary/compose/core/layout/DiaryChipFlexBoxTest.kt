@@ -223,7 +223,6 @@ class DiaryChipFlexBoxTest {
         // 터치 슬롭을 넘겨 부모가 실제로 스크롤하는 거리다.
         const val DRAG_DISTANCE = 100F
 
-        // 공통 여백과 간격 디자인(docs/design/dimens.md)이 정한 값이다.
         val CHIP_AREA_HEIGHT = 150.dp
         val SCREEN_VERTICAL_PADDING = 16.dp
 

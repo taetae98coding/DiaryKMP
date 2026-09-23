@@ -330,7 +330,6 @@ class WebDetailViewModelTest : FunSpec() {
                     viewModel.delete()
                     advanceUntilIdle()
 
-                    // 진행 상태가 해제되어 실패 전과 같은 내용 표시 상태로 돌아온다.
                     expectNoEvents()
                     effectList.shouldBeEmpty()
 

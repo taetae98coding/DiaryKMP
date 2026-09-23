@@ -25,7 +25,6 @@ internal class AndroidDailyMemoNotificationManager(
             .getInstance(context)
             .enqueueUniquePeriodicWork(
                 DAILY_MEMO_NOTIFICATION_WORK_NAME,
-                // 이미 예약이 있으면 그대로 두어야 앱을 다시 시작해도 예약이 하나로 유지되고 발생 시각이 앞당겨지지 않는다.
                 ExistingPeriodicWorkPolicy.KEEP,
                 PeriodicWorkRequestBuilder<DailyMemoNotificationWorker>(1, TimeUnit.DAYS)
                     .setInitialDelay(delay.inWholeSeconds, TimeUnit.SECONDS)
@@ -33,7 +32,6 @@ internal class AndroidDailyMemoNotificationManager(
             )
     }
 
-    // Android는 발생 시점에 Worker가 오늘의 메모를 정하므로 미리 정한 내용을 쓰지 않는다.
     override suspend fun submitUpcoming(
         time: LocalTime,
         upcomingList: List<UpcomingDailyMemoNotification>,

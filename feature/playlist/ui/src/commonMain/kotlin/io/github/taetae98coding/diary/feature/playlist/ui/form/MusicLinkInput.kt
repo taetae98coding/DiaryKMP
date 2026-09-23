@@ -22,7 +22,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
@@ -35,8 +34,6 @@ import io.github.taetae98coding.diary.feature.playlist.ui.music_link_fetch_butto
 import io.github.taetae98coding.diary.feature.playlist.ui.music_link_input_label
 import io.github.taetae98coding.diary.feature.playlist.ui.music_thumbnail_preview_content_description
 import org.jetbrains.compose.resources.stringResource
-
-private val FetchInProgressIndicatorSize = 20.dp
 
 @Composable
 internal fun MusicLinkInput(
@@ -63,7 +60,7 @@ internal fun MusicLinkInput(
             )
             FetchButton(
                 onClick = onFetchClick,
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                modifier = Modifier.padding(horizontal = MusicLinkInputDefaults.FetchButtonHorizontalPadding, vertical = MusicLinkInputDefaults.FetchButtonVerticalPadding),
                 isFetchInProgressProvider = isFetchInProgressProvider,
             )
             ThumbnailPreview(thumbnailProvider = thumbnailProvider)
@@ -85,7 +82,7 @@ private fun FetchButton(
     ) {
         DiaryCrossfade(targetState = isFetchInProgressProvider()) { isFetchInProgress ->
             if (isFetchInProgress) {
-                CircularWavyProgressIndicator(modifier = Modifier.size(FetchInProgressIndicatorSize))
+                CircularWavyProgressIndicator(modifier = Modifier.size(MusicLinkInputDefaults.FetchInProgressIndicatorSize))
             } else {
                 Text(text = stringResource(Res.string.music_link_fetch_button_label))
             }

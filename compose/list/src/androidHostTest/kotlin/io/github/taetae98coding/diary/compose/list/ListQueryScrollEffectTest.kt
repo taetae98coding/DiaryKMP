@@ -155,7 +155,6 @@ class ListQueryScrollEffectTest {
         staggeredGridState.firstVisibleItemIndex shouldBe 0
     }
 
-    // 정렬을 바꾸기 전에 사용자가 첫 항목이 보이지 않는 자리까지 스크롤해 둔 상태를 만든다.
     private fun scrollToLast(firstVisibleItemIndexProvider: () -> Int) {
         composeRule.onNodeWithTag(LIST_TEST_TAG).performScrollToIndex(ITEM_COUNT - 1)
         composeRule.waitForIdle()

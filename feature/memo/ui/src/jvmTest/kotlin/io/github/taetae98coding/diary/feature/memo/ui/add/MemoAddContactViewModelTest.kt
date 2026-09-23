@@ -163,7 +163,6 @@ class MemoAddContactViewModelTest : FunSpec() {
                 val contact = contact()
                 val viewModel = viewModel(savedContactListFlow = flowOf(Result.success(listOf(contact))))
 
-                // 화면 구성 변경 전 화면의 구독에서 연락처를 선택한다.
                 viewModel.uiState.test {
                     advanceUntilIdle()
                     viewModel.selectContact(id = contact.id)
@@ -219,7 +218,6 @@ class MemoAddContactViewModelTest : FunSpec() {
                     viewModel.selectContact(id = deletedContact.id)
                     advanceUntilIdle()
 
-                    // 선택 이후 연락처가 삭제되어 입력의 선택 표시에서 빠진다.
                     savedContactListFlow.value = Result.success(listOf(remainingContact))
                     advanceUntilIdle()
                     cancelAndIgnoreRemainingEvents()

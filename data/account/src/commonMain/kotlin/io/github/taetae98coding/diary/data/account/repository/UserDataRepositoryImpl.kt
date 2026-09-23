@@ -26,8 +26,9 @@ internal class UserDataRepositoryImpl(
         uri: FileUri,
         cropRegion: ImageCropRegion,
         maxSideLength: Int,
+        jpegQuality: Int,
     ) {
-        imageConverter.toJpeg(uri = uri, cropRegion = cropRegion, maxSideLength = maxSideLength).use { jpeg ->
+        imageConverter.toJpeg(uri = uri, cropRegion = cropRegion, maxSideLength = maxSideLength, jpegQuality = jpegQuality).use { jpeg ->
             profileImageRemoteDataSource.upload(
                 mimeType = JPEG_MIME_TYPE,
                 contentLength = jpeg.size,

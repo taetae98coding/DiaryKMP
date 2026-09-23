@@ -110,7 +110,6 @@ private fun AddEffect(
     CollectEffect(effect) { value ->
         when (value) {
             is TagAddEffect.AddSucceeded -> {
-                // 이 화면을 연 태그 입력에만 결과를 돌려주므로, 요청 키가 없으면 아무 곳에도 보내지 않는다.
                 addedResultRequestKey?.let { requestKey ->
                     resultEventBus.sendResult(resultKey = tagAddedResultKey(requestKey = requestKey), result = TagAddedResult(id = value.id))
                 }

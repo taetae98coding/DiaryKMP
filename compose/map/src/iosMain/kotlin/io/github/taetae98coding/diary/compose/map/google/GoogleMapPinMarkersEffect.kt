@@ -8,6 +8,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import io.github.taetae98coding.diary.compose.map.DiaryMapPin
+import io.github.taetae98coding.diary.compose.map.DiaryMapPinMarkerDefaults
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.createPinMarkerImage
 import io.github.taetae98coding.diary.compose.map.isFinite
@@ -27,8 +28,6 @@ import platform.UIKit.UIView
 import swiftPMImport.DiaryKmp.compose.compose.map.GMSMapView
 import swiftPMImport.DiaryKmp.compose.compose.map.GMSMarker
 
-private const val PIN_LABEL_FONT_SIZE = 12.0
-private const val PIN_LABEL_BACKGROUND_ALPHA = 0.8
 private const val PIN_ANCHOR_X = 0.5
 
 @Composable
@@ -91,9 +90,9 @@ private fun GMSMarker.applyPinAppearance(
     val label =
         UILabel().apply {
             text = pin.label
-            font = UIFont.systemFontOfSize(PIN_LABEL_FONT_SIZE)
+            font = UIFont.systemFontOfSize(DiaryMapPinMarkerDefaults.LABEL_FONT_SIZE_SP.toDouble())
             textColor = UIColor.blackColor
-            backgroundColor = UIColor.whiteColor.colorWithAlphaComponent(PIN_LABEL_BACKGROUND_ALPHA)
+            backgroundColor = UIColor.whiteColor.colorWithAlphaComponent(DiaryMapPinMarkerDefaults.LABEL_BACKGROUND_ALPHA.toDouble())
             textAlignment = NSTextAlignmentCenter
             sizeToFit()
         }

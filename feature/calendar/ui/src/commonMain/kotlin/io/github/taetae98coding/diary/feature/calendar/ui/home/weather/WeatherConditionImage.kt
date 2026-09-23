@@ -12,7 +12,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
 import io.github.taetae98coding.diary.compose.core.icon.WeatherIcon
@@ -32,7 +31,7 @@ internal fun WeatherConditionImage(
     Box(
         modifier =
             modifier
-                .size(24.dp)
+                .size(CalendarWeatherItemDefaults.IconSize)
                 .semantics { contentDescription = condition.description },
     ) {
         if (state is AsyncImagePainter.State.Success) {

@@ -71,7 +71,6 @@ internal fun ComposeContentTestRule.descriptionInput(): SemanticsNodeInteraction
 
 internal fun ComposeContentTestRule.emojiDialogInput(): SemanticsNodeInteraction = onNode(hasSetTextAction() and hasAnyAncestor(isDialog()))
 
-/** 이모지 칸을 눌러 다이얼로그에서 [emoji]를 입력하고 확인한다. */
 internal fun ComposeContentTestRule.inputEmoji(emoji: String) {
     emojiInput().performScrollTo().performClick()
     waitForIdle()

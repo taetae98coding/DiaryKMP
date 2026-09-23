@@ -13,10 +13,17 @@ public data class DiaryDimens(
     val componentSpacing: Dp,
     val chipAreaHeight: Dp,
     val pickerListHeight: Dp,
+    val pickerDialogEdgePadding: Dp,
+    val pickerDialogTitleBottomPadding: Dp,
+    val pickerDialogContentBottomPadding: Dp,
     val bottomSheetHorizontalPadding: Dp,
     val bottomSheetTitleVerticalPadding: Dp,
     val bottomSheetBottomPadding: Dp,
     val cardContentPadding: Dp,
+    val cardLineSpacing: Dp,
+    val colorIndicatorSize: Dp,
+    val colorIndicatorSpacing: Dp,
+    val inProgressIndicatorSize: Dp,
 ) {
     public val screenPaddingValues: PaddingValues =
         PaddingValues(

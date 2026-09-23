@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.domain.holiday.usecase.FetchHolidayUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.GetCalendarHolidayUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,7 +42,7 @@ internal class CalendarHomeHolidayViewModel(
             .flatMapLatest { yearList -> getHolidayList(yearList = yearList) }
             .stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+                started = SharingStarted.WhileUiSubscribed,
                 initialValue = emptyList(),
             )
 

@@ -10,7 +10,6 @@ plugins {
 }
 
 private val buildKonfigFlavor = providers.gradleProperty("buildkonfig.flavor").orElse("dev")
-// JVM은 buildType을 나누지 않으므로 앱 이름을 flavor로만 정한다.
 private val appName = buildKonfigFlavor.map { if (it == "dev") "DiaryDev" else "Diary" }
 private val naverMapNcpKeyIdProperty = buildKonfigFlavor.map { "$it.naverMapNcpKeyId" }
 private val googleMapApiKeyProperty = buildKonfigFlavor.map { "$it.web.googleMapApiKey" }

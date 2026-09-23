@@ -154,7 +154,6 @@ class MemoAddPlaceViewModelTest : FunSpec() {
                 val place = place()
                 val viewModel = viewModel(savedPlaceListFlow = flowOf(Result.success(listOf(place))))
 
-                // 화면 구성 변경 전 화면의 구독에서 장소를 선택한다.
                 viewModel.uiState.test {
                     advanceUntilIdle()
                     viewModel.selectPlace(id = place.id)
@@ -210,7 +209,6 @@ class MemoAddPlaceViewModelTest : FunSpec() {
                     viewModel.selectPlace(id = deletedPlace.id)
                     advanceUntilIdle()
 
-                    // 선택 이후 장소가 삭제되어 카드의 선택 표시에서 빠진다.
                     savedPlaceListFlow.value = Result.success(listOf(remainingPlace))
                     advanceUntilIdle()
                     cancelAndIgnoreRemainingEvents()

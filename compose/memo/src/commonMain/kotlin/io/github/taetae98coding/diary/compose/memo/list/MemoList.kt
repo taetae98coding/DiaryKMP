@@ -64,7 +64,7 @@ public fun MemoList(
             modifier = Modifier.fillMaxSize(),
         ) { isEmpty ->
             if (isEmpty) {
-                // 빈 상태에서도 당겨서 새로고침할 수 있도록 중첩 스크롤을 전달한다.
+                // 당김 새로고침은 중첩 스크롤로만 시작되므로 스크롤할 내용이 없어도 verticalScroll을 둔다.
                 Box(
                     modifier =
                         Modifier

@@ -54,8 +54,6 @@ internal class SyncWorkImpl(
         }
     }
 
-    // 저장된 사용자 정보가 로그인 세션보다 먼저 확인되므로, 세션이 갱신되지 않은 사용자는 아직 확정되지 않은 것으로 보고 기다린다.
-    // 기다리지 않으면 시스템이 앱을 깨워 실행한 작업이 매번 아무것도 동기화하지 못하고 끝난다.
     private suspend fun awaitConfirmedAccount(): Account =
         getAccountUseCase(parameter = Unit)
             .map { result -> result.getOrThrow() }

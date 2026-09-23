@@ -15,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountCard
@@ -42,7 +41,7 @@ internal fun MoreHomeScaffold(
         topBar = { MoreHomeTopBar(onEvent = onEvent) },
     ) { paddingValues ->
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 64.dp),
+            columns = GridCells.Adaptive(minSize = MoreHomeScaffoldDefaults.MenuMinSize),
             modifier =
                 Modifier
                     .fillMaxSize()

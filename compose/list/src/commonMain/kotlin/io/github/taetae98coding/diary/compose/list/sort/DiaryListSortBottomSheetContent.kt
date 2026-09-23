@@ -20,15 +20,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.Res
 import io.github.taetae98coding.diary.compose.list.list_sort_bottom_sheet_title
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import org.jetbrains.compose.resources.stringResource
-
-private val ROW_SPACING = 16.dp
 
 @Composable
 public fun DiaryListSortBottomSheetContent(
@@ -85,7 +82,7 @@ private fun SortRow(
             sort = sort,
             modifier = Modifier.size(ButtonDefaults.IconSize),
         )
-        Spacer(modifier = Modifier.width(ROW_SPACING))
+        Spacer(modifier = Modifier.width(DiaryListSortBottomSheetContentDefaults.IconLabelSpacing))
 
         Text(
             text = stringResource(listSortLabel(sort = sort)),

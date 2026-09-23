@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.icon.DropDownIcon
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -25,8 +24,6 @@ import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScaffoldSta
 import io.github.taetae98coding.diary.feature.web.ui.detail.rememberWebDetailScaffoldState
 import io.github.taetae98coding.diary.feature.web.ui.web_detail_view_mode_content_description
 import org.jetbrains.compose.resources.stringResource
-
-private val LABEL_SPACING = 4.dp
 
 @Composable
 internal fun WebDetailViewModeBar(
@@ -51,9 +48,9 @@ internal fun WebDetailViewModeBar(
                 viewMode = viewMode,
                 modifier = Modifier.size(ButtonDefaults.IconSize),
             )
-            Spacer(modifier = Modifier.width(LABEL_SPACING))
+            Spacer(modifier = Modifier.width(WebDetailViewModeBarDefaults.LabelSpacing))
             Text(text = stringResource(webDetailViewModeLabel(viewMode = viewMode)))
-            Spacer(modifier = Modifier.width(LABEL_SPACING))
+            Spacer(modifier = Modifier.width(WebDetailViewModeBarDefaults.LabelSpacing))
             DropDownIcon(modifier = Modifier.size(ButtonDefaults.IconSize))
         }
     }

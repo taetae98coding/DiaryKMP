@@ -119,20 +119,12 @@ private fun handleWebDetailScaffoldEvent(
 ) {
     when (event) {
         is WebDetailScaffoldEvent.ClickNavigateUp -> navigateUp()
-
         is WebDetailScaffoldEvent.ClickRetry -> pageViewModel.retry()
-
         is WebDetailScaffoldEvent.ClickUpdate -> webViewModel.update(detail = formState.detail)
-
-        // 앱 밖에서 열지 못해도 화면을 그대로 유지하고 사용자에게 알리지 않는다.
         is WebDetailScaffoldEvent.ClickOpenInNew -> url?.let { value -> runCatching { uriHandler.openUri(value) } }
-
         is WebDetailScaffoldEvent.ClickDelete -> webViewModel.delete()
-
         is WebDetailScaffoldEvent.ClickViewMode -> scaffoldState.viewModeSheetState.show()
-
         is WebDetailScaffoldEvent.SelectTab -> scaffoldState.select(tab = event.tab)
-
         is WebDetailScaffoldEvent.SelectViewMode -> scaffoldState.select(viewMode = event.viewMode)
     }
 }
@@ -150,7 +142,6 @@ private fun handleWebDetailTagPickerEvent(
     }
 }
 
-// URL 방식에서는 앱이 웹 페이지를 요청하지 않으므로 응답 본문 방식이 될 때만 불러온다.
 @Composable
 private fun LoadWebPageEffect(
     pageViewModel: WebDetailPageViewModel,

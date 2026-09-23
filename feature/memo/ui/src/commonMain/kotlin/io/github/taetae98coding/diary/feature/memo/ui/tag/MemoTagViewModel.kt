@@ -14,6 +14,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoSelectableTagU
 import io.github.taetae98coding.diary.domain.memo.usecase.RemoveMemoTagUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.SetMemoPrimaryTagUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.UnsetMemoPrimaryTagUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import io.github.taetae98coding.diary.library.coroutines.flow.debounceSearchQuery
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -64,7 +65,7 @@ internal class MemoTagViewModel(
             )
         }.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+            started = SharingStarted.WhileUiSubscribed,
             initialValue = MemoTagInputUiState(),
         )
 

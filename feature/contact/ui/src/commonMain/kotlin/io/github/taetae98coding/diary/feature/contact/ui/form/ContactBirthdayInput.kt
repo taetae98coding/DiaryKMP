@@ -13,7 +13,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleFadeVisibility
 import io.github.taetae98coding.diary.compose.core.animation.DiaryValueSlide
 import io.github.taetae98coding.diary.compose.core.button.ClearButton
@@ -44,7 +43,7 @@ internal fun ContactBirthdayInput(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .padding(start = 16.dp),
+                        .padding(start = DiaryTheme.dimens.cardContentPadding),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
@@ -67,7 +66,11 @@ internal fun ContactBirthdayInput(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                            .padding(
+                                start = DiaryTheme.dimens.cardContentPadding,
+                                end = DiaryTheme.dimens.cardContentPadding,
+                                bottom = DiaryTheme.dimens.cardContentPadding,
+                            ),
                     horizontalArrangement = Arrangement.End,
                 ) {
                     ContactBirthdayCalendarSelector(

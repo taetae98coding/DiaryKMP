@@ -8,5 +8,6 @@ public interface ImageConverter {
         uri: FileUri,
         cropRegion: ImageCropRegion,
         maxSideLength: Int,
+        jpegQuality: Int,
     ): JpegSource
 }

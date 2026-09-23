@@ -18,7 +18,7 @@ public actual fun DiaryWebView(
     AndroidView(
         factory = { context ->
             WebView(context).apply {
-                // 응답 본문 안의 스크립트를 실행해야 문서가 의도한 결과를 그대로 표시할 수 있다.
+                // Android WebView는 기본으로 스크립트를 실행하지 않는다.
                 settings.javaScriptEnabled = true
             }
         },
@@ -37,7 +37,7 @@ public actual fun DiaryWebView(
     AndroidView(
         factory = { context ->
             WebView(context).apply {
-                // 응답 본문 안의 스크립트를 실행해야 문서가 의도한 결과를 그대로 표시할 수 있다.
+                // Android WebView는 기본으로 스크립트를 실행하지 않는다.
                 settings.javaScriptEnabled = true
             }
         },

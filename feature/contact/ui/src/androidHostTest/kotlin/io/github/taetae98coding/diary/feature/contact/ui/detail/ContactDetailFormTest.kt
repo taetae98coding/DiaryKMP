@@ -164,7 +164,6 @@ class ContactDetailFormTest {
 
         composeRule.onNodeWithText(DEFAULT_BIRTHDAY_NOT_SET).assertExists()
         composeRule.onAllNodesWithContentDescription(FIRST_NUMBER_DESCRIPTION).assertCountEquals(expectedSize = 0)
-        // 비어 있는 고향 입력은 값 없이 이름표만 읽힌다.
         composeRule.onNode(hasText(HOMETOWN_LABEL) and hasSetTextAction()).assertExists()
     }
 

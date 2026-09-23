@@ -13,7 +13,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 
@@ -36,7 +35,13 @@ public fun DiaryPickerDialog(
             Column {
                 Text(
                     text = title,
-                    modifier = Modifier.padding(start = 24.dp, top = 24.dp, end = 24.dp, bottom = 16.dp),
+                    modifier =
+                        Modifier.padding(
+                            start = DiaryTheme.dimens.pickerDialogEdgePadding,
+                            top = DiaryTheme.dimens.pickerDialogEdgePadding,
+                            end = DiaryTheme.dimens.pickerDialogEdgePadding,
+                            bottom = DiaryTheme.dimens.pickerDialogTitleBottomPadding,
+                        ),
                     color = AlertDialogDefaults.titleContentColor,
                     style = MaterialTheme.typography.headlineSmall,
                 )
@@ -44,7 +49,11 @@ public fun DiaryPickerDialog(
                     modifier =
                         Modifier
                             .weight(weight = 1F, fill = false)
-                            .padding(start = 24.dp, end = 24.dp, bottom = 24.dp),
+                            .padding(
+                                start = DiaryTheme.dimens.pickerDialogEdgePadding,
+                                end = DiaryTheme.dimens.pickerDialogEdgePadding,
+                                bottom = DiaryTheme.dimens.pickerDialogContentBottomPadding,
+                            ),
                 ) {
                     content()
                 }

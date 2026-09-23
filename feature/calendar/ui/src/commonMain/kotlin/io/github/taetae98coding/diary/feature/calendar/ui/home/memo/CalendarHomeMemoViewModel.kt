@@ -12,6 +12,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.MoveMemoUseCase
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeScaffoldFilterUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.toDateRange
 import io.github.taetae98coding.diary.feature.calendar.ui.home.calendarHomeFetchDateRange
+import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -43,7 +44,7 @@ internal class CalendarHomeMemoViewModel(
                 )
             }.stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+                started = SharingStarted.WhileUiSubscribed,
                 initialValue = CalendarHomeScaffoldFilterUiState(),
             )
 
@@ -60,7 +61,7 @@ internal class CalendarHomeMemoViewModel(
                 }
             }.stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+                started = SharingStarted.WhileUiSubscribed,
                 initialValue = emptyList(),
             )
 

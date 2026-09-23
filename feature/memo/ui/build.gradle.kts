@@ -19,7 +19,6 @@ kotlin {
                 implementation(projects.domain.tag)
                 implementation(projects.domain.web)
                 implementation(projects.library.composeUi)
-                implementation(projects.library.coroutines)
                 implementation(projects.feature.contact.api)
                 implementation(projects.feature.memo.api)
                 implementation(projects.feature.place.api)

@@ -15,7 +15,6 @@ kotlin {
                 implementation(projects.feature.search.api)
                 implementation(projects.feature.tag.api)
                 implementation(projects.feature.web.api)
-                implementation(projects.library.coroutines)
             }
         }
 

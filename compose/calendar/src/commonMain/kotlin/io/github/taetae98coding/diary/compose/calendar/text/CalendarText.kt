@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefault
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -32,7 +31,7 @@ public fun CalendarText(
                     shape(CalendarDefault.itemShape)
                     clip()
                     background(color)
-                    contentPadding(1.dp)
+                    contentPadding(CalendarTextDefaults.ContentPadding)
                 }.basicMarquee(iterations = Int.MAX_VALUE),
         color = color.contentColor(),
         maxLines = 1,

@@ -22,7 +22,7 @@ class JvmImageConverterTest :
             val converter = JvmImageConverter()
 
             val decoded =
-                converter.toJpeg(uri = imageFileUri(bytes = transparentPng()), cropRegion = ImageCropRegion.FULL, maxSideLength = MAX_SIDE_LENGTH).use { jpeg ->
+                converter.toJpeg(uri = imageFileUri(bytes = transparentPng()), cropRegion = ImageCropRegion.FULL, maxSideLength = MAX_SIDE_LENGTH, jpegQuality = JPEG_QUALITY).use { jpeg ->
                     ImageIO.read(ByteArrayInputStream(jpeg.readBytes()))
                 }
 
@@ -35,7 +35,7 @@ class JvmImageConverterTest :
         test("바꾼 이미지의 크기를 알린다") {
             val converter = JvmImageConverter()
 
-            converter.toJpeg(uri = imageFileUri(bytes = transparentPng()), cropRegion = ImageCropRegion.FULL, maxSideLength = MAX_SIDE_LENGTH).use { jpeg ->
+            converter.toJpeg(uri = imageFileUri(bytes = transparentPng()), cropRegion = ImageCropRegion.FULL, maxSideLength = MAX_SIDE_LENGTH, jpegQuality = JPEG_QUALITY).use { jpeg ->
                 jpeg.size shouldBe jpeg.readBytes().size.toLong()
             }
         }
@@ -43,7 +43,7 @@ class JvmImageConverterTest :
         test("다 쓰고 닫으면 바꾼 이미지를 더 읽을 수 없다") {
             val converter = JvmImageConverter()
 
-            val jpeg = converter.toJpeg(uri = imageFileUri(bytes = transparentPng()), cropRegion = ImageCropRegion.FULL, maxSideLength = MAX_SIDE_LENGTH)
+            val jpeg = converter.toJpeg(uri = imageFileUri(bytes = transparentPng()), cropRegion = ImageCropRegion.FULL, maxSideLength = MAX_SIDE_LENGTH, jpegQuality = JPEG_QUALITY)
             jpeg.close()
 
             shouldThrowAny { jpeg.openSource() }
@@ -53,7 +53,7 @@ class JvmImageConverterTest :
             val converter = JvmImageConverter()
 
             shouldThrowAny {
-                converter.toJpeg(uri = imageFileUri(bytes = "not an image".encodeToByteArray()), cropRegion = ImageCropRegion.FULL, maxSideLength = MAX_SIDE_LENGTH)
+                converter.toJpeg(uri = imageFileUri(bytes = "not an image".encodeToByteArray()), cropRegion = ImageCropRegion.FULL, maxSideLength = MAX_SIDE_LENGTH, jpegQuality = JPEG_QUALITY)
             }
         }
 
@@ -85,7 +85,7 @@ class JvmImageConverterTest :
             val region = ImageCropRegion(left = 0.25F, top = 0F, right = 0.75F, bottom = 1F)
 
             val decoded =
-                converter.toJpeg(uri = imageFileUri(bytes = opaqueJpeg(width = 8, height = 4)), cropRegion = region, maxSideLength = MAX_SIDE_LENGTH).use { jpeg ->
+                converter.toJpeg(uri = imageFileUri(bytes = opaqueJpeg(width = 8, height = 4)), cropRegion = region, maxSideLength = MAX_SIDE_LENGTH, jpegQuality = JPEG_QUALITY).use { jpeg ->
                     ImageIO.read(ByteArrayInputStream(jpeg.readBytes()))
                 }
 
@@ -97,7 +97,7 @@ class JvmImageConverterTest :
             val converter = JvmImageConverter()
 
             val decoded =
-                converter.toJpeg(uri = imageFileUri(bytes = opaqueJpeg(width = 8, height = 8)), cropRegion = ImageCropRegion.FULL, maxSideLength = 4).use { jpeg ->
+                converter.toJpeg(uri = imageFileUri(bytes = opaqueJpeg(width = 8, height = 8)), cropRegion = ImageCropRegion.FULL, maxSideLength = 4, jpegQuality = JPEG_QUALITY).use { jpeg ->
                     ImageIO.read(ByteArrayInputStream(jpeg.readBytes()))
                 }
 
@@ -109,7 +109,7 @@ class JvmImageConverterTest :
             val converter = JvmImageConverter()
 
             val decoded =
-                converter.toJpeg(uri = imageFileUri(bytes = opaqueJpeg(width = 4, height = 4)), cropRegion = ImageCropRegion.FULL, maxSideLength = MAX_SIDE_LENGTH).use { jpeg ->
+                converter.toJpeg(uri = imageFileUri(bytes = opaqueJpeg(width = 4, height = 4)), cropRegion = ImageCropRegion.FULL, maxSideLength = MAX_SIDE_LENGTH, jpegQuality = JPEG_QUALITY).use { jpeg ->
                     ImageIO.read(ByteArrayInputStream(jpeg.readBytes()))
                 }
 
@@ -124,7 +124,7 @@ class JvmImageConverterTest :
 
             val decoded =
                 converter
-                    .toJpeg(uri = imageFileUri(bytes = jpegWithExifOrientation(orientation = 6, width = 8, height = 4)), cropRegion = region, maxSideLength = MAX_SIDE_LENGTH)
+                    .toJpeg(uri = imageFileUri(bytes = jpegWithExifOrientation(orientation = 6, width = 8, height = 4)), cropRegion = region, maxSideLength = MAX_SIDE_LENGTH, jpegQuality = JPEG_QUALITY)
                     .use { jpeg -> ImageIO.read(ByteArrayInputStream(jpeg.readBytes())) }
 
             decoded.width shouldBe 4
@@ -134,6 +134,7 @@ class JvmImageConverterTest :
     public companion object {
         private const val IMAGE_SIZE = 4
         private const val MAX_SIDE_LENGTH = 1024
+        private const val JPEG_QUALITY = 90
 
         private fun JpegSource.readBytes(): ByteArray = openSource().buffered().use { source -> source.readByteArray() }
 

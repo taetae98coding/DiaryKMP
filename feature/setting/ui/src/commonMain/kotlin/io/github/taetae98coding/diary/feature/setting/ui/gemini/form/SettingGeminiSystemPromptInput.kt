@@ -19,8 +19,6 @@ import io.github.taetae98coding.diary.feature.setting.ui.Res
 import io.github.taetae98coding.diary.feature.setting.ui.setting_gemini_system_prompt_label
 import org.jetbrains.compose.resources.stringResource
 
-private const val SYSTEM_PROMPT_MIN_LINES = 5
-
 @Composable
 internal fun SettingGeminiSystemPromptInput(
     modifier: Modifier = Modifier,
@@ -35,7 +33,7 @@ internal fun SettingGeminiSystemPromptInput(
                     .focusRequester(state.systemPromptFocusRequester),
             label = { Text(text = stringResource(Res.string.setting_gemini_system_prompt_label)) },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.None),
-            lineLimits = TextFieldLineLimits.MultiLine(minHeightInLines = SYSTEM_PROMPT_MIN_LINES),
+            lineLimits = TextFieldLineLimits.MultiLine(minHeightInLines = SettingGeminiSystemPromptInputDefaults.MIN_HEIGHT_IN_LINES),
             colors = TextFieldDefaults.colors().transparentIndicator(),
         )
     }

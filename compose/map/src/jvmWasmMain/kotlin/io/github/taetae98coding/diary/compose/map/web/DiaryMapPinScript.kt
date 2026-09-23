@@ -3,9 +3,8 @@ package io.github.taetae98coding.diary.compose.map.web
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import io.github.taetae98coding.diary.compose.map.DiaryMapPin
-import io.github.taetae98coding.diary.compose.map.PIN_MARKER_LABEL_HEIGHT_DP
+import io.github.taetae98coding.diary.compose.map.DiaryMapPinMarkerDefaults
 import io.github.taetae98coding.diary.compose.map.PIN_MARKER_PATH_DATA
-import io.github.taetae98coding.diary.compose.map.PIN_MARKER_SIZE_DP
 import io.github.taetae98coding.diary.compose.map.PIN_MARKER_VIEWPORT_SIZE
 import io.github.taetae98coding.diary.compose.map.isFinite
 import io.github.taetae98coding.diary.compose.map.provider.label
@@ -14,8 +13,12 @@ internal fun pinMarkerToScriptValue(): String =
     buildString {
         append("""{ "path": "$PIN_MARKER_PATH_DATA",""")
         append(""" "viewport": $PIN_MARKER_VIEWPORT_SIZE,""")
-        append(""" "size": $PIN_MARKER_SIZE_DP,""")
-        append(""" "labelHeight": $PIN_MARKER_LABEL_HEIGHT_DP }""")
+        append(""" "size": ${DiaryMapPinMarkerDefaults.SIZE_DP},""")
+        append(""" "labelHeight": ${DiaryMapPinMarkerDefaults.LABEL_HEIGHT_DP},""")
+        append(""" "labelFontSize": ${DiaryMapPinMarkerDefaults.LABEL_FONT_SIZE_SP},""")
+        append(""" "labelHorizontalPadding": ${DiaryMapPinMarkerDefaults.LABEL_HORIZONTAL_PADDING_DP},""")
+        append(""" "labelCornerRadius": ${DiaryMapPinMarkerDefaults.LABEL_CORNER_RADIUS_DP},""")
+        append(""" "labelBackgroundAlpha": ${DiaryMapPinMarkerDefaults.LABEL_BACKGROUND_ALPHA} }""")
     }
 
 internal fun List<DiaryMapPin>.toScriptValue(): String =

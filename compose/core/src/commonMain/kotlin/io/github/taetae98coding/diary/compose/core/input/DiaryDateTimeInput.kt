@@ -14,7 +14,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.Res
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.diary_date_time_input_end
@@ -50,7 +49,11 @@ public fun DiaryDateTimeInput(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
+                        .padding(
+                            start = DiaryTheme.dimens.cardContentPadding,
+                            end = DiaryTheme.dimens.cardContentPadding,
+                            bottom = DiaryDateTimeInputDefaults.PeriodBottomPadding,
+                        ),
             ) {
                 DiaryDateTimeInputAllDayRow(
                     onCheckedChange = state::selectAllDay,

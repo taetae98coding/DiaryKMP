@@ -12,6 +12,7 @@ import io.github.taetae98coding.diary.domain.web.usecase.AddWebTagUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.GetWebTagUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.PageWebSelectableTagUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.RemoveWebTagUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import io.github.taetae98coding.diary.library.coroutines.flow.debounceSearchQuery
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -50,7 +51,7 @@ internal class WebDetailTagViewModel(
             .map { result -> EntityTagInputUiState(tagList = result.getOrNull().orEmpty()) }
             .stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+                started = SharingStarted.WhileUiSubscribed,
                 initialValue = EntityTagInputUiState(),
             )
 

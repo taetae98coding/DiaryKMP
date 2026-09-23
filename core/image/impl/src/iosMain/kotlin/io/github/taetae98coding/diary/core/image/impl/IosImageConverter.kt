@@ -72,6 +72,7 @@ internal class IosImageConverter : ImageConverter {
         uri: FileUri,
         cropRegion: ImageCropRegion,
         maxSideLength: Int,
+        jpegQuality: Int,
     ): JpegSource {
         val sourceUrl = checkNotNull(NSURL.URLWithString(uri.value)) { "File uri is not a url. uri=$uri" }
         val path = NSTemporaryDirectory() + "profile-image-${NSUUID().UUIDString}.jpg"
@@ -86,7 +87,7 @@ internal class IosImageConverter : ImageConverter {
                         source = source,
                         cropRegion = cropRegion,
                         maxSideLength = maxSideLength,
-                        destinationUrl = destinationUrl,
+                        destination = JpegDestination(url = destinationUrl, quality = jpegQuality),
                         uri = uri,
                     )
                 }
@@ -101,7 +102,7 @@ internal class IosImageConverter : ImageConverter {
         source: CGImageSourceRef,
         cropRegion: ImageCropRegion,
         maxSideLength: Int,
-        destinationUrl: NSURL,
+        destination: JpegDestination,
         uri: FileUri,
     ) {
         val orientedSize = readOrientedSize(source = source, uri = uri)
@@ -113,7 +114,7 @@ internal class IosImageConverter : ImageConverter {
             val rect = CGRectMake(crop.left.toDouble(), crop.top.toDouble(), crop.width.toDouble(), crop.height.toDouble())
             val cropped = checkNotNull(CGImageCreateWithImageInRect(oriented, rect)) { "Image cannot be cropped. uri=$uri" }
 
-            useCF(cropped) { writeJpeg(image = cropped, destinationUrl = destinationUrl, uri = uri) }
+            useCF(cropped) { writeJpeg(image = cropped, destination = destination, uri = uri) }
         }
     }
 
@@ -159,17 +160,17 @@ internal class IosImageConverter : ImageConverter {
 
     private fun writeJpeg(
         image: CGImageRef,
-        destinationUrl: NSURL,
+        destination: JpegDestination,
         uri: FileUri,
     ) {
-        useCFRetained(destinationUrl) { destinationRef ->
+        useCFRetained(destination.url) { destinationRef ->
             useCFRetained(UTTypeJPEG.identifier) { typeRef ->
-                val destination =
+                val imageDestination =
                     checkNotNull(
                         CGImageDestinationCreateWithURL(destinationRef.reinterpret<__CFURL>(), typeRef.reinterpret<__CFString>(), IMAGE_COUNT, null),
                     ) { "Image cannot be written. uri=$uri" }
 
-                useCF(destination) { addImage(destination = destination, image = image, uri = uri) }
+                useCF(imageDestination) { addImage(destination = imageDestination, image = image, quality = destination.quality, uri = uri) }
             }
         }
     }
@@ -177,9 +178,10 @@ internal class IosImageConverter : ImageConverter {
     private fun addImage(
         destination: CGImageDestinationRef,
         image: CGImageRef,
+        quality: Int,
         uri: FileUri,
     ) {
-        useCFRetained(NSNumber(double = JPEG_QUALITY_PERCENT / PERCENT)) { qualityRef ->
+        useCFRetained(NSNumber(double = quality / PERCENT)) { qualityRef ->
             val options =
                 checkNotNull(
                     CFDictionaryCreateMutable(null, DESTINATION_OPTION_COUNT, kCFTypeDictionaryKeyCallBacks.ptr, kCFTypeDictionaryValueCallBacks.ptr),
@@ -194,6 +196,11 @@ internal class IosImageConverter : ImageConverter {
         }
     }
 }
+
+private class JpegDestination(
+    val url: NSURL,
+    val quality: Int,
+)
 
 private fun readFailureMessage(uri: FileUri): String = "Image cannot be read. uri=$uri"
 
