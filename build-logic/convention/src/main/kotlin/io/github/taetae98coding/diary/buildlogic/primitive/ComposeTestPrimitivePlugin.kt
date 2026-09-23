@@ -3,7 +3,6 @@
 package io.github.taetae98coding.diary.buildlogic.primitive
 
 import io.github.taetae98coding.diary.buildlogic.library
-import io.github.taetae98coding.diary.buildlogic.withPlugins
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
@@ -24,19 +23,12 @@ internal class ComposeTestPrimitivePlugin : Plugin<Project> {
     }
 
     private fun Project.configureDependencies() {
-        withPlugins(
-            listOf(
-                "org.jetbrains.kotlin.multiplatform",
-                "com.android.kotlin.multiplatform.library",
-            ),
-        ) {
-            extensions.configure<KotlinMultiplatformExtension> {
-                sourceSets {
-                    getByName("androidHostTest") {
-                        dependencies {
-                            implementation(library("jetbrains.compose.ui.test.junit4"))
-                            implementation(library("androidx.compose.ui.test.manifest"))
-                        }
+        extensions.configure<KotlinMultiplatformExtension> {
+            sourceSets {
+                getByName("androidHostTest") {
+                    dependencies {
+                        implementation(library("jetbrains.compose.ui.test.junit4"))
+                        implementation(library("androidx.compose.ui.test.manifest"))
                     }
                 }
             }

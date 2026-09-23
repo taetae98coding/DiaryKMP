@@ -105,8 +105,10 @@ gradle-plugin-kotlin-compose-compiler = { module = "org.jetbrains.kotlin:compose
 gradle-plugin-kotlin-serialization = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin" }
 gradle-plugin-jetbrains-compose = { module = "org.jetbrains.compose:org.jetbrains.compose.gradle.plugin", version.ref = "jetbrainsCompose" }
 gradle-plugin-android = { module = "com.android.tools.build:gradle", version.ref = "androidGradlePlugin" }
+gradle-plugin-androidx-room3 = { module = "androidx.room3:room3-gradle-plugin", version.ref = "androidxRoom3" }
 gradle-plugin-detekt = { module = "dev.detekt:detekt-gradle-plugin", version.ref = "detekt" }
 gradle-plugin-koin-compiler = { module = "io.insert-koin:koin-compiler-gradle-plugin", version.ref = "koinCompiler" }
+gradle-plugin-ksp = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "ksp" }
 
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
@@ -125,7 +127,6 @@ google-material = { module = "com.google.android.material:material", version.ref
 google-oauth-client-jetty = { group = "com.google.oauth-client", name = "google-oauth-client-jetty", version.ref = "googleOauthClient" }
 google-play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "googleLocation" }
 
-koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
 koin-androidx-workmanager = { group = "io.insert-koin", name = "koin-androidx-workmanager", version.ref = "koin" }
 koin-annotations = { group = "io.insert-koin", name = "koin-annotations", version.ref = "koin" }
 koin-compose-viewmodel = { group = "io.insert-koin", name = "koin-compose-viewmodel", version.ref = "koin" }
@@ -174,16 +175,13 @@ primitive-android-host-test = { id = "io.github.taetae98coding.diary.primitive.a
 primitive-android-library = { id = "io.github.taetae98coding.diary.primitive.android.library" }
 primitive-compose = { id = "io.github.taetae98coding.diary.primitive.compose" }
 primitive-compose-test = { id = "io.github.taetae98coding.diary.primitive.compose.test" }
-primitive-compose-resources = { id = "io.github.taetae98coding.diary.primitive.compose.resources" }
-primitive-compose-preview = { id = "io.github.taetae98coding.diary.primitive.compose.preview" }
-primitive-ios = { id = "io.github.taetae98coding.diary.primitive.ios" }
-primitive-jvm = { id = "io.github.taetae98coding.diary.primitive.jvm" }
+primitive-kmp = { id = "io.github.taetae98coding.diary.primitive.kmp" }
 primitive-koin = { id = "io.github.taetae98coding.diary.primitive.koin" }
 primitive-kotest = { id = "io.github.taetae98coding.diary.primitive.kotest" }
-primitive-multiplatform = { id = "io.github.taetae98coding.diary.primitive.multiplatform" }
-primitive-multiplatform-android-library = { id = "io.github.taetae98coding.diary.primitive.multiplatform.android.library" }
-primitive-wasm = { id = "io.github.taetae98coding.diary.primitive.wasm" }
+primitive-kotlin = { id = "io.github.taetae98coding.diary.primitive.kotlin" }
+primitive-room = { id = "io.github.taetae98coding.diary.primitive.room" }
 
+convention-compose = { id = "io.github.taetae98coding.diary.convention.compose" }
 convention-data = { id = "io.github.taetae98coding.diary.convention.data" }
 convention-domain = { id = "io.github.taetae98coding.diary.convention.domain" }
 convention-feature-api = { id = "io.github.taetae98coding.diary.convention.feature.api" }

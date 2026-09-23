@@ -4,7 +4,8 @@ import org.gradle.api.tasks.JavaExec
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
-    alias(libs.plugins.primitive.jvm)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.primitive.kotlin)
     alias(libs.plugins.primitive.compose)
 }
 
@@ -24,17 +25,15 @@ private val googleMapApiKey =
         }
     }
 
-// :library:webkit이 FFM으로 objc·WebKit 심볼을 직접 붙이면서 JDK가 제한한 메서드를 호출한다.
-// 플래그가 없으면 호출마다 경고가 나오고, 이후 JDK에서는 호출 자체가 막힌다.
-private val webkitJvmArgs = listOf("--enable-native-access=ALL-UNNAMED")
-private val mapJvmArgs =
+private val runJvmArgs =
     listOf(
         "-Dio.github.taetae98coding.diary.naverMapNcpKeyId=${naverMapNcpKeyId.get()}",
         "-Dio.github.taetae98coding.diary.googleMapApiKey=${googleMapApiKey.get()}",
     )
-private val runJvmArgs = webkitJvmArgs + mapJvmArgs
 
 kotlin {
+    jvm()
+
     sourceSets {
         commonMain {
             dependencies {

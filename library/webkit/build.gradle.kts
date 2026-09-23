@@ -1,9 +1,12 @@
 plugins {
-    alias(libs.plugins.primitive.jvm)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.primitive.kotlin)
     alias(libs.plugins.primitive.kotest)
 }
 
 kotlin {
+    jvm()
+
     sourceSets {
         commonMain {
             dependencies {

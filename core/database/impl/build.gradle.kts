@@ -3,11 +3,11 @@
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
-    alias(libs.plugins.primitive.multiplatform.android.library)
+    alias(libs.plugins.primitive.kmp)
+    alias(libs.plugins.primitive.android.library)
     alias(libs.plugins.primitive.koin)
     alias(libs.plugins.primitive.kotest)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.androidx.room3)
+    alias(libs.plugins.primitive.room)
 }
 
 kotlin {
@@ -52,20 +52,4 @@ kotlin {
             }
         }
     }
-
-    compilerOptions {
-        freeCompilerArgs.add("-Xexpect-actual-classes")
-    }
-}
-
-room3 {
-    schemaDirectory("$projectDir/schemas")
-}
-
-dependencies {
-    add("kspAndroid", libs.androidx.room3.compiler)
-    add("kspJvm", libs.androidx.room3.compiler)
-    add("kspIosArm64", libs.androidx.room3.compiler)
-    add("kspIosSimulatorArm64", libs.androidx.room3.compiler)
-    add("kspWasmJs", libs.androidx.room3.compiler)
 }

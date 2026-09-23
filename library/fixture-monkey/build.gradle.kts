@@ -1,10 +1,10 @@
 plugins {
-    alias(libs.plugins.primitive.jvm)
     alias(libs.plugins.primitive.android.library)
-    alias(libs.plugins.primitive.kotest)
 }
 
 kotlin {
+    jvm()
+
     sourceSets {
         commonMain {
             dependencies {
@@ -12,5 +12,15 @@ kotlin {
                 api(libs.kotlinx.datetime)
             }
         }
+
+        jvmTest {
+            dependencies {
+                implementation(libs.kotest.runner.junit5)
+            }
+        }
     }
+}
+
+tasks.withType<Test>().matching { it.name == "jvmTest" }.configureEach {
+    useJUnitPlatform()
 }

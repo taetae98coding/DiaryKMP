@@ -1,8 +1,8 @@
 package io.github.taetae98coding.diary.buildlogic.convention
 
+import io.github.taetae98coding.diary.buildlogic.primitive.KmpPrimitivePlugin
 import io.github.taetae98coding.diary.buildlogic.primitive.KoinPrimitivePlugin
 import io.github.taetae98coding.diary.buildlogic.primitive.KotestPrimitivePlugin
-import io.github.taetae98coding.diary.buildlogic.primitive.MultiplatformPrimitivePlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
@@ -18,7 +18,7 @@ internal class DomainConventionPlugin : Plugin<Project> {
     }
 
     private fun Project.configurePlugin() {
-        pluginManager.apply(MultiplatformPrimitivePlugin::class.java)
+        pluginManager.apply(KmpPrimitivePlugin::class.java)
         pluginManager.apply(KoinPrimitivePlugin::class.java)
         pluginManager.apply(KotestPrimitivePlugin::class.java)
     }

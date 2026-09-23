@@ -3,7 +3,8 @@
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 plugins {
-    alias(libs.plugins.primitive.multiplatform.android.library)
+    alias(libs.plugins.primitive.kmp)
+    alias(libs.plugins.primitive.android.library)
     alias(libs.plugins.primitive.kotest)
 }
 

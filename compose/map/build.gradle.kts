@@ -3,12 +3,7 @@
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 plugins {
-    alias(libs.plugins.primitive.multiplatform.android.library)
-    alias(libs.plugins.primitive.compose)
-    alias(libs.plugins.primitive.compose.resources)
-    alias(libs.plugins.primitive.compose.preview)
-    alias(libs.plugins.primitive.compose.test)
-    alias(libs.plugins.primitive.kotest)
+    alias(libs.plugins.convention.compose)
 }
 
 kotlin {

@@ -14,20 +14,6 @@ internal fun Project.library(alias: String): Provider<MinimalExternalModuleDepen
         .findLibrary(alias)
         .orElseThrow { IllegalArgumentException("Version catalog library not found: $alias") }
 
-internal fun Project.withPlugins(
-    ids: List<String>,
-    action: () -> Unit,
-) {
-    if (ids.isEmpty()) {
-        action()
-        return
-    }
-
-    pluginManager.withPlugin(ids.first()) {
-        withPlugins(ids.takeLast(ids.size - 1), action)
-    }
-}
-
 public fun Project.namespace(): String = "${BuildLogic.NAMESPACE}.${path.removePrefix(":").replace(':', '.').replace('-', '.')}"
 
 public fun Project.localProperties(): Properties =

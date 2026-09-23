@@ -16,7 +16,7 @@ internal class AndroidApplicationPrimitivePlugin : Plugin<Project> {
 
     private fun Project.configurePlugin() {
         pluginManager.apply("com.android.application")
-        pluginManager.apply(KotlinProjectPrimitivePlugin::class.java)
+        pluginManager.apply(KotlinPrimitivePlugin::class.java)
     }
 
     private fun Project.configureApplication() {

@@ -3,10 +3,9 @@ import io.github.taetae98coding.diary.buildlogic.localProperties
 import io.github.taetae98coding.diary.buildlogic.namespace
 
 plugins {
-    alias(libs.plugins.primitive.multiplatform.android.library)
+    alias(libs.plugins.primitive.kmp)
+    alias(libs.plugins.primitive.android.library)
     alias(libs.plugins.primitive.compose)
-    alias(libs.plugins.primitive.compose.resources)
-    alias(libs.plugins.primitive.compose.preview)
     alias(libs.plugins.primitive.compose.test)
     alias(libs.plugins.primitive.koin)
     alias(libs.plugins.primitive.kotest)

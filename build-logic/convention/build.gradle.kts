@@ -12,8 +12,10 @@ dependencies {
     compileOnly(libs.gradle.plugin.kotlin.serialization)
     compileOnly(libs.gradle.plugin.jetbrains.compose)
     compileOnly(libs.gradle.plugin.android)
+    compileOnly(libs.gradle.plugin.androidx.room3)
     compileOnly(libs.gradle.plugin.detekt)
     compileOnly(libs.gradle.plugin.koin.compiler)
+    compileOnly(libs.gradle.plugin.ksp)
 }
 
 gradlePlugin {
@@ -38,21 +40,9 @@ gradlePlugin {
             id = "io.github.taetae98coding.diary.primitive.compose.test"
             implementationClass = "io.github.taetae98coding.diary.buildlogic.primitive.ComposeTestPrimitivePlugin"
         }
-        register("primitiveComposeResources") {
-            id = "io.github.taetae98coding.diary.primitive.compose.resources"
-            implementationClass = "io.github.taetae98coding.diary.buildlogic.primitive.ComposeResourcesPrimitivePlugin"
-        }
-        register("primitiveComposePreview") {
-            id = "io.github.taetae98coding.diary.primitive.compose.preview"
-            implementationClass = "io.github.taetae98coding.diary.buildlogic.primitive.ComposePreviewPrimitivePlugin"
-        }
-        register("primitiveIos") {
-            id = "io.github.taetae98coding.diary.primitive.ios"
-            implementationClass = "io.github.taetae98coding.diary.buildlogic.primitive.IosPrimitivePlugin"
-        }
-        register("primitiveJvm") {
-            id = "io.github.taetae98coding.diary.primitive.jvm"
-            implementationClass = "io.github.taetae98coding.diary.buildlogic.primitive.JvmPrimitivePlugin"
+        register("primitiveKmp") {
+            id = "io.github.taetae98coding.diary.primitive.kmp"
+            implementationClass = "io.github.taetae98coding.diary.buildlogic.primitive.KmpPrimitivePlugin"
         }
         register("primitiveKoin") {
             id = "io.github.taetae98coding.diary.primitive.koin"
@@ -62,29 +52,25 @@ gradlePlugin {
             id = "io.github.taetae98coding.diary.primitive.kotest"
             implementationClass = "io.github.taetae98coding.diary.buildlogic.primitive.KotestPrimitivePlugin"
         }
-        register("primitiveKotlinProject") {
-            id = "io.github.taetae98coding.diary.primitive.kotlin.project"
-            implementationClass = "io.github.taetae98coding.diary.buildlogic.primitive.KotlinProjectPrimitivePlugin"
+        register("primitiveKotlin") {
+            id = "io.github.taetae98coding.diary.primitive.kotlin"
+            implementationClass = "io.github.taetae98coding.diary.buildlogic.primitive.KotlinPrimitivePlugin"
         }
-        register("primitiveMultiplatform") {
-            id = "io.github.taetae98coding.diary.primitive.multiplatform"
-            implementationClass = "io.github.taetae98coding.diary.buildlogic.primitive.MultiplatformPrimitivePlugin"
+        register("primitiveRoom") {
+            id = "io.github.taetae98coding.diary.primitive.room"
+            implementationClass = "io.github.taetae98coding.diary.buildlogic.primitive.RoomPrimitivePlugin"
         }
-        register("primitiveMultiplatformAndroidLibrary") {
-            id = "io.github.taetae98coding.diary.primitive.multiplatform.android.library"
-            implementationClass = "io.github.taetae98coding.diary.buildlogic.primitive.MultiplatformAndroidLibraryPrimitivePlugin"
-        }
-        register("primitiveWasm") {
-            id = "io.github.taetae98coding.diary.primitive.wasm"
-            implementationClass = "io.github.taetae98coding.diary.buildlogic.primitive.WasmPrimitivePlugin"
-        }
-        register("conventionDomain") {
-            id = "io.github.taetae98coding.diary.convention.domain"
-            implementationClass = "io.github.taetae98coding.diary.buildlogic.convention.DomainConventionPlugin"
+        register("conventionCompose") {
+            id = "io.github.taetae98coding.diary.convention.compose"
+            implementationClass = "io.github.taetae98coding.diary.buildlogic.convention.ComposeConventionPlugin"
         }
         register("conventionData") {
             id = "io.github.taetae98coding.diary.convention.data"
             implementationClass = "io.github.taetae98coding.diary.buildlogic.convention.DataConventionPlugin"
+        }
+        register("conventionDomain") {
+            id = "io.github.taetae98coding.diary.convention.domain"
+            implementationClass = "io.github.taetae98coding.diary.buildlogic.convention.DomainConventionPlugin"
         }
         register("conventionFeatureApi") {
             id = "io.github.taetae98coding.diary.convention.feature.api"

@@ -5,9 +5,9 @@ import org.gradle.language.jvm.tasks.ProcessResources
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
-    alias(libs.plugins.primitive.wasm)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.primitive.kotlin)
     alias(libs.plugins.primitive.compose)
-    alias(libs.plugins.primitive.compose.resources)
 }
 
 kotlin {

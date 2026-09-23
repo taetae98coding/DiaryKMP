@@ -1,9 +1,10 @@
 plugins {
-    alias(libs.plugins.primitive.jvm)
     alias(libs.plugins.primitive.android.library)
 }
 
 kotlin {
+    jvm()
+
     sourceSets {
         commonMain {
             dependencies {

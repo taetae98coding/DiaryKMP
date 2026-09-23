@@ -1,6 +1,6 @@
 package io.github.taetae98coding.diary.buildlogic.convention
 
-import io.github.taetae98coding.diary.buildlogic.primitive.MultiplatformPrimitivePlugin
+import io.github.taetae98coding.diary.buildlogic.primitive.KmpPrimitivePlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
@@ -16,7 +16,7 @@ internal class FeatureApiConventionPlugin : Plugin<Project> {
     }
 
     private fun Project.configurePlugin() {
-        pluginManager.apply(MultiplatformPrimitivePlugin::class.java)
+        pluginManager.apply(KmpPrimitivePlugin::class.java)
         pluginManager.apply("org.jetbrains.kotlin.plugin.serialization")
     }
 
