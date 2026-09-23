@@ -6,16 +6,21 @@ import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.web.Web
+import io.github.taetae98coding.diary.domain.contact.usecase.GetSelectedContactUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoSelectableContactUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoSelectableWebUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.GetSelectedPlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.GetSelectedWebUseCase
+import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactInputUiState
+import io.github.taetae98coding.diary.feature.memo.ui.contact.contactPagingDataOf
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.placePagingDataOf
 import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagInputUiState
@@ -45,12 +50,13 @@ internal fun MemoAddScreenTestTheme(
 }
 
 /**
- * MemoAdd 화면은 메모 추가와 태그 선택, 웹 선택, 장소 선택을 각각의 ViewModel에서 읽으므로, 화면을 배치하는 테스트는 넷을 함께 넘긴다.
+ * MemoAdd 화면은 메모 추가와 태그 선택, 웹 선택, 연락처 선택, 장소 선택을 각각의 ViewModel에서 읽으므로, 화면을 배치하는 테스트는 다섯을 함께 넘긴다.
  */
 internal data class MemoAddScreenViewModels(
     val viewModel: MemoAddViewModel,
     val tagViewModel: MemoAddTagViewModel,
     val webViewModel: MemoAddWebViewModel,
+    val contactViewModel: MemoAddContactViewModel,
     val placeViewModel: MemoAddPlaceViewModel,
 )
 
@@ -59,9 +65,11 @@ internal fun screenTestViewModel(
     uiState: MemoAddUiState = MemoAddUiState(),
     tagList: List<Tag> = emptyList(),
     webList: List<Web> = emptyList(),
+    contactList: List<Contact> = emptyList(),
     placeList: List<Place> = emptyList(),
     tagPagingData: Flow<PagingData<Tag>> = MutableStateFlow(tagPagingDataOf(tagList)),
     webPagingData: Flow<PagingData<Web>> = MutableStateFlow(webPagingDataOf(webList)),
+    contactPagingData: Flow<PagingData<Contact>> = MutableStateFlow(contactPagingDataOf(contactList)),
     placePagingData: Flow<PagingData<Place>> = MutableStateFlow(placePagingDataOf(placeList)),
 ): MemoAddScreenViewModels {
     val viewModel = mockk<MemoAddViewModel>()
@@ -78,6 +86,11 @@ internal fun screenTestViewModel(
     every { webViewModel.webIdSet } returns MutableStateFlow(emptySet())
     every { webViewModel.webPagingData } returns webPagingData
 
+    val contactViewModel = mockk<MemoAddContactViewModel>(relaxed = true)
+    every { contactViewModel.uiState } returns MutableStateFlow(MemoContactInputUiState())
+    every { contactViewModel.contactIdSet } returns MutableStateFlow(emptySet())
+    every { contactViewModel.contactPagingData } returns contactPagingData
+
     val placeViewModel = mockk<MemoAddPlaceViewModel>(relaxed = true)
     every { placeViewModel.uiState } returns MutableStateFlow(MemoPlaceInputUiState())
     every { placeViewModel.placeIdSet } returns MutableStateFlow(emptySet())
@@ -87,6 +100,7 @@ internal fun screenTestViewModel(
         viewModel = viewModel,
         tagViewModel = tagViewModel,
         webViewModel = webViewModel,
+        contactViewModel = contactViewModel,
         placeViewModel = placeViewModel,
     )
 }
@@ -99,9 +113,11 @@ internal fun screenTestRealViewModel(
     initialPrimaryTagId: Uuid? = null,
     tagList: List<Tag> = emptyList(),
     webList: List<Web> = emptyList(),
+    contactList: List<Contact> = emptyList(),
     placeList: List<Place> = emptyList(),
     tagPagingDataFlow: Flow<PagingData<Tag>> = MutableStateFlow(tagPagingDataOf(tagList)),
     webPagingDataFlow: Flow<PagingData<Web>> = MutableStateFlow(webPagingDataOf(webList)),
+    contactPagingDataFlow: Flow<PagingData<Contact>> = MutableStateFlow(contactPagingDataOf(contactList)),
     placePagingDataFlow: Flow<PagingData<Place>> = MutableStateFlow(placePagingDataOf(placeList)),
     addMemoUseCase: AddMemoUseCase = mockk(),
 ): MemoAddScreenViewModels {
@@ -126,6 +142,17 @@ internal fun screenTestRealViewModel(
         MutableStateFlow(Result.success(webList.filter { web -> web.id in webIdSet }))
     }
 
+    val pageMemoSelectableContactUseCase = mockk<PageMemoSelectableContactUseCase>()
+    every { pageMemoSelectableContactUseCase(parameter = any()) } returns MutableStateFlow(Result.success(contactPagingDataOf(contactList)))
+
+    // 선택한 식별자로 저장소를 조회하는 동작을 저장된 연락처 목록에서 골라내는 방식으로 대신한다.
+    val getSelectedContactUseCase = mockk<GetSelectedContactUseCase>()
+    every { getSelectedContactUseCase(parameter = any()) } answers {
+        val contactIdSet = firstArg<Set<Uuid>>()
+
+        MutableStateFlow(Result.success(contactList.filter { contact -> contact.id in contactIdSet }))
+    }
+
     val pagePlaceUseCase = mockk<PagePlaceUseCase>()
     every { pagePlaceUseCase(parameter = any()) } returns MutableStateFlow(Result.success(placePagingDataOf(placeList)))
 
@@ -148,6 +175,11 @@ internal fun screenTestRealViewModel(
             pageMemoSelectableWebUseCase = pageMemoSelectableWebUseCase,
             getSelectedWebUseCase = getSelectedWebUseCase,
         )
+    val contactViewModel =
+        MemoAddContactViewModel(
+            pageMemoSelectableContactUseCase = pageMemoSelectableContactUseCase,
+            getSelectedContactUseCase = getSelectedContactUseCase,
+        )
     val placeViewModel =
         MemoAddPlaceViewModel(
             pagePlaceUseCase = pagePlaceUseCase,
@@ -159,6 +191,7 @@ internal fun screenTestRealViewModel(
         // 선택 목록의 페이지 조회 자체는 이 화면 검증의 대상이 아니므로 준비된 목록으로 고정한다.
         tagViewModel = spyk(tagViewModel) { every { tagPagingData } returns tagPagingDataFlow },
         webViewModel = spyk(webViewModel) { every { webPagingData } returns webPagingDataFlow },
+        contactViewModel = spyk(contactViewModel) { every { contactPagingData } returns contactPagingDataFlow },
         placeViewModel = spyk(placeViewModel) { every { placePagingData } returns placePagingDataFlow },
     )
 }

@@ -94,7 +94,7 @@ class ContactHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `한국어 환경에서 상단 바 제목은 연락처이고 추가 버튼 이름은 연락처 추가이다`() {
+    fun `한국어 환경에서 상단 바 제목은 연락처가고 추가 버튼 이름은 연락처 추가이다`() {
         setContactHomeScaffold()
 
         composeRule.onNodeWithText(KOREAN_TITLE).assertExists()

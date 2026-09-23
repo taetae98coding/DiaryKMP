@@ -6,6 +6,7 @@ import androidx.room3.Database
 import androidx.room3.RoomDatabase
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
+import io.github.taetae98coding.diary.core.database.api.memocontact.entity.MemoContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memofilter.entity.MemoExistenceFilterLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memoplace.entity.MemoPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
@@ -35,6 +36,10 @@ import io.github.taetae98coding.diary.core.database.impl.memo.dao.AccountMemoSyn
 import io.github.taetae98coding.diary.core.database.impl.memo.dao.AccountTagMemoDao
 import io.github.taetae98coding.diary.core.database.impl.memo.dao.MemoDao
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.memocontact.dao.AccountMemoContactDao
+import io.github.taetae98coding.diary.core.database.impl.memocontact.dao.AccountMemoContactSyncDao
+import io.github.taetae98coding.diary.core.database.impl.memocontact.dao.MemoContactDao
+import io.github.taetae98coding.diary.core.database.impl.memocontact.entity.AccountMemoContactLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memofilter.dao.MemoExistenceFilterDao
 import io.github.taetae98coding.diary.core.database.impl.memofilter.dao.MemoFilterTagDao
 import io.github.taetae98coding.diary.core.database.impl.memofilter.entity.MemoFilterTagLocalEntity
@@ -116,6 +121,8 @@ import io.github.taetae98coding.diary.library.room3.converter.UuidColumnTypeConv
         AccountMemoPlaceLocalEntity::class,
         MemoWebLocalEntity::class,
         AccountMemoWebLocalEntity::class,
+        MemoContactLocalEntity::class,
+        AccountMemoContactLocalEntity::class,
         WebLocalEntity::class,
         AccountWebLocalEntity::class,
         WebTagLocalEntity::class,
@@ -203,6 +210,12 @@ internal abstract class DiaryDatabase : RoomDatabase() {
     abstract fun accountMemoWebDao(): AccountMemoWebDao
 
     abstract fun accountMemoWebSyncDao(): AccountMemoWebSyncDao
+
+    abstract fun memoContactDao(): MemoContactDao
+
+    abstract fun accountMemoContactDao(): AccountMemoContactDao
+
+    abstract fun accountMemoContactSyncDao(): AccountMemoContactSyncDao
 
     abstract fun searchMemoDao(): SearchMemoDao
 

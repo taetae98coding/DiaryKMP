@@ -30,6 +30,7 @@ public class AddContactUseCase internal constructor(
             Contact(
                 id = Uuid.random(),
                 detail = parameter.detail,
+                isFavorite = false,
                 isDeleted = false,
                 updatedAt = now,
                 createdAt = now,

@@ -132,7 +132,7 @@ class MemoAddScreenTest {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault()).toDefaultDisplayText()
         val effect = Channel<MemoAddEffect>(capacity = Channel.BUFFERED)
         val viewModels = screenTestViewModel(effect = effect.receiveAsFlow())
-        every { viewModels.viewModel.add(detail = any(), tagSelection = any(), webIdSet = any(), placeIdSet = any()) } answers { effect.trySend(MemoAddEffect.AddSucceeded).getOrThrow() }
+        every { viewModels.viewModel.add(detail = any(), tagSelection = any(), webIdSet = any(), contactIdSet = any(), placeIdSet = any()) } answers { effect.trySend(MemoAddEffect.AddSucceeded).getOrThrow() }
         setMemoAddScreen(viewModels)
 
         composeRule.onAllNodes(hasSetTextAction()).onFirst().performTextInput(TYPED_TITLE)
@@ -150,7 +150,7 @@ class MemoAddScreenTest {
     private fun assertFocusMovesToTitle(effect: MemoAddEffect) {
         val effectChannel = Channel<MemoAddEffect>(capacity = Channel.BUFFERED)
         val viewModels = screenTestViewModel(effect = effectChannel.receiveAsFlow())
-        every { viewModels.viewModel.add(detail = any(), tagSelection = any(), webIdSet = any(), placeIdSet = any()) } answers { effectChannel.trySend(effect).getOrThrow() }
+        every { viewModels.viewModel.add(detail = any(), tagSelection = any(), webIdSet = any(), contactIdSet = any(), placeIdSet = any()) } answers { effectChannel.trySend(effect).getOrThrow() }
         setMemoAddScreen(viewModels)
 
         composeRule.onAllNodes(hasSetTextAction())[1].performTextInput(TYPED_DESCRIPTION)
@@ -167,7 +167,7 @@ class MemoAddScreenTest {
         var navigateUpCount = 0
         val effect = Channel<MemoAddEffect>(capacity = Channel.BUFFERED)
         val viewModels = screenTestViewModel(effect = effect.receiveAsFlow())
-        every { viewModels.viewModel.add(detail = any(), tagSelection = any(), webIdSet = any(), placeIdSet = any()) } answers { effect.trySend(MemoAddEffect.AddSucceeded).getOrThrow() }
+        every { viewModels.viewModel.add(detail = any(), tagSelection = any(), webIdSet = any(), contactIdSet = any(), placeIdSet = any()) } answers { effect.trySend(MemoAddEffect.AddSucceeded).getOrThrow() }
         setMemoAddScreen(
             viewModels = viewModels,
             navigateUp = { navigateUpCount += 1 },
@@ -181,7 +181,7 @@ class MemoAddScreenTest {
         triggerAdd()
         composeRule.waitForIdle()
 
-        verify(exactly = 1) { viewModels.viewModel.add(detail = any(), tagSelection = any(), webIdSet = any(), placeIdSet = any()) }
+        verify(exactly = 1) { viewModels.viewModel.add(detail = any(), tagSelection = any(), webIdSet = any(), contactIdSet = any(), placeIdSet = any()) }
         composeRule.onNodeWithText(TYPED_TITLE).assertDoesNotExist()
         composeRule.onAllNodes(hasSetTextAction())[1].assert(hasText(""))
         composeRule.onAllNodes(hasSetTextAction()).onFirst().assertIsFocused()
@@ -192,7 +192,7 @@ class MemoAddScreenTest {
         var navigateUpCount = 0
         val effect = Channel<MemoAddEffect>(capacity = Channel.BUFFERED)
         val viewModels = screenTestViewModel(effect = effect.receiveAsFlow())
-        every { viewModels.viewModel.add(detail = any(), tagSelection = any(), webIdSet = any(), placeIdSet = any()) } answers { effect.trySend(MemoAddEffect.TitleBlank).getOrThrow() }
+        every { viewModels.viewModel.add(detail = any(), tagSelection = any(), webIdSet = any(), contactIdSet = any(), placeIdSet = any()) } answers { effect.trySend(MemoAddEffect.TitleBlank).getOrThrow() }
         setMemoAddScreen(
             viewModels = viewModels,
             navigateUp = { navigateUpCount += 1 },
@@ -210,7 +210,7 @@ class MemoAddScreenTest {
         }
         composeRule.waitForIdle()
 
-        verify(exactly = 1) { viewModels.viewModel.add(detail = any(), tagSelection = any(), webIdSet = any(), placeIdSet = any()) }
+        verify(exactly = 1) { viewModels.viewModel.add(detail = any(), tagSelection = any(), webIdSet = any(), contactIdSet = any(), placeIdSet = any()) }
         composeRule.onAllNodes(hasSetTextAction()).onFirst().assertIsFocused()
         if (initialInput.isNotEmpty()) {
             composeRule.onAllNodes(hasSetTextAction()).onFirst().assert(hasText(initialInput))
@@ -229,6 +229,7 @@ class MemoAddScreenTest {
                     addViewModel = viewModels.viewModel,
                     tagViewModel = viewModels.tagViewModel,
                     webViewModel = viewModels.webViewModel,
+                    contactViewModel = viewModels.contactViewModel,
                     placeViewModel = viewModels.placeViewModel,
                     placeMapViewModel = screenTestPlaceMapViewModel(),
                     geminiViewModel = screenTestGeminiViewModel(),
@@ -237,6 +238,8 @@ class MemoAddScreenTest {
                     navigateToTagDetail = {},
                     navigateToWebAdd = {},
                     navigateToWebDetail = {},
+                    navigateToContactAdd = {},
+                    navigateToContactDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
                     initialDateRange = null,
@@ -279,6 +282,7 @@ class MemoAddScreenInitialDateTimeTest {
                     addViewModel = viewModels.viewModel,
                     tagViewModel = viewModels.tagViewModel,
                     webViewModel = viewModels.webViewModel,
+                    contactViewModel = viewModels.contactViewModel,
                     placeViewModel = viewModels.placeViewModel,
                     placeMapViewModel = screenTestPlaceMapViewModel(),
                     geminiViewModel = screenTestGeminiViewModel(),
@@ -287,6 +291,8 @@ class MemoAddScreenInitialDateTimeTest {
                     navigateToTagDetail = {},
                     navigateToWebAdd = {},
                     navigateToWebDetail = {},
+                    navigateToContactAdd = {},
+                    navigateToContactDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
                     initialDateRange = MemoAddNavKey.InitialDateRange(start = start, endInclusive = endInclusive),
@@ -343,7 +349,7 @@ class MemoAddScreenMessageTest {
     ) {
         val effectChannel = Channel<MemoAddEffect>(capacity = Channel.BUFFERED)
         val viewModels = screenTestViewModel(effect = effectChannel.receiveAsFlow())
-        every { viewModels.viewModel.add(detail = any(), tagSelection = any(), webIdSet = any(), placeIdSet = any()) } answers { effectChannel.trySend(effect).getOrThrow() }
+        every { viewModels.viewModel.add(detail = any(), tagSelection = any(), webIdSet = any(), contactIdSet = any(), placeIdSet = any()) } answers { effectChannel.trySend(effect).getOrThrow() }
         composeRule.setContent {
             MemoAddScreenTestTheme {
                 MemoAddScreen(
@@ -351,6 +357,7 @@ class MemoAddScreenMessageTest {
                     addViewModel = viewModels.viewModel,
                     tagViewModel = viewModels.tagViewModel,
                     webViewModel = viewModels.webViewModel,
+                    contactViewModel = viewModels.contactViewModel,
                     placeViewModel = viewModels.placeViewModel,
                     placeMapViewModel = screenTestPlaceMapViewModel(),
                     geminiViewModel = screenTestGeminiViewModel(),
@@ -359,6 +366,8 @@ class MemoAddScreenMessageTest {
                     navigateToTagDetail = {},
                     navigateToWebAdd = {},
                     navigateToWebDetail = {},
+                    navigateToContactAdd = {},
+                    navigateToContactDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
                     initialDateRange = null,

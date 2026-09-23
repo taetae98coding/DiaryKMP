@@ -7,6 +7,7 @@ internal fun ContactLocalEntity.toRemote(): ContactRemoteEntity =
     ContactRemoteEntity(
         id = id,
         detail = detail.toRemote(),
+        isFavorite = isFavorite,
         isDeleted = isDeleted,
         updatedAt = updatedAt,
         createdAt = createdAt,
@@ -16,6 +17,7 @@ internal fun ContactRemoteEntity.toLocal(): ContactLocalEntity =
     ContactLocalEntity(
         id = id,
         detail = detail.toLocal(),
+        isFavorite = isFavorite,
         isDeleted = isDeleted,
         updatedAt = updatedAt,
         createdAt = createdAt,

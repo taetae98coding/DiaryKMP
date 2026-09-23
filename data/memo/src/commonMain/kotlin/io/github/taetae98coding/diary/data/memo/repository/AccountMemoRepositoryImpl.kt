@@ -6,6 +6,7 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import io.github.taetae98coding.diary.core.database.api.memo.datasource.AccountMemoLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.memo.transaction.AccountMemoTransaction
+import io.github.taetae98coding.diary.core.database.api.memocontact.entity.MemoContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memoplace.entity.MemoPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memoweb.entity.MemoWebLocalEntity
@@ -76,6 +77,7 @@ internal class AccountMemoRepositoryImpl(
         tagIdSet: Set<Uuid>,
         placeIdSet: Set<Uuid>,
         webIdSet: Set<Uuid>,
+        contactIdSet: Set<Uuid>,
     ) {
         accountMemoTransaction.upsert(
             accountId = account.id,
@@ -105,6 +107,16 @@ internal class AccountMemoRepositoryImpl(
                     MemoWebLocalEntity(
                         memoId = memo.id,
                         webId = webId,
+                        isDeleted = false,
+                        updatedAt = memo.updatedAt,
+                        createdAt = memo.createdAt,
+                    )
+                },
+            memoContactList =
+                contactIdSet.map { contactId ->
+                    MemoContactLocalEntity(
+                        memoId = memo.id,
+                        contactId = contactId,
                         isDeleted = false,
                         updatedAt = memo.updatedAt,
                         createdAt = memo.createdAt,

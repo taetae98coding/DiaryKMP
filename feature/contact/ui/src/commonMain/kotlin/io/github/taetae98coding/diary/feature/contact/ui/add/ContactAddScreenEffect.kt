@@ -3,8 +3,11 @@ package io.github.taetae98coding.diary.feature.contact.ui.add
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.navigation3.runtime.result.LocalResultEventBus
+import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
+import io.github.taetae98coding.diary.feature.contact.api.ContactAddedResult
 import io.github.taetae98coding.diary.feature.contact.ui.Res
 import io.github.taetae98coding.diary.feature.contact.ui.contact_add_name_blank_message
 import io.github.taetae98coding.diary.feature.contact.ui.contact_add_phone_number_blank_message
@@ -20,6 +23,7 @@ import org.jetbrains.compose.resources.stringResource
 internal fun ContactAddScreenEffect(
     effect: Flow<ContactAddEffect> = emptyFlow(),
     state: ContactFormState = rememberContactAddFormState(),
+    resultEventBus: ResultEventBus = LocalResultEventBus.current,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val addSucceededMessage = stringResource(Res.string.contact_add_succeeded_message)
@@ -29,11 +33,13 @@ internal fun ContactAddScreenEffect(
     CollectEffect(effect) { value ->
         when (value) {
             is ContactAddEffect.AddSucceeded -> {
+                resultEventBus.sendResult<ContactAddedResult>(result = ContactAddedResult(id = value.id))
                 state.nameState.clearText()
                 state.descriptionState.clearText()
                 state.heightState.clearText()
                 state.footSizeState.clearText()
                 state.birthdayState.clear()
+                state.hometownState.clearText()
                 state.phoneNumberState.clear()
                 state.nameState.requestFocus()
                 coroutineScope.launch { state.hostState.showImmediate(message = addSucceededMessage) }

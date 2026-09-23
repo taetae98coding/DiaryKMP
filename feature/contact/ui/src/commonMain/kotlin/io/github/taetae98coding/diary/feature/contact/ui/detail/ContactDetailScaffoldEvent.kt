@@ -5,5 +5,7 @@ internal sealed interface ContactDetailScaffoldEvent {
 
     data object ClickUpdate : ContactDetailScaffoldEvent
 
+    data object ClickFavorite : ContactDetailScaffoldEvent
+
     data object ClickDelete : ContactDetailScaffoldEvent
 }

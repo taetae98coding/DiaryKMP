@@ -6,6 +6,7 @@ import androidx.paging.PagingData
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.contact.ContactPhoneNumber
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -53,6 +54,9 @@ internal fun testContact(
     name: String,
     phoneNumberList: List<String> = emptyList(),
     description: String = "설명-${fixtureMonkey.giveMeOne<String>()}",
+    birthday: ContactBirthday? = null,
+    hometown: String = "",
+    isFavorite: Boolean = false,
 ): Contact =
     Contact(
         id = Uuid.random(),
@@ -62,9 +66,11 @@ internal fun testContact(
                 description = description,
                 height = null,
                 footSize = null,
-                birthday = null,
+                birthday = birthday,
+                hometown = hometown,
                 phoneNumberList = phoneNumberList.map { number -> ContactPhoneNumber(number = number) },
             ),
+        isFavorite = isFavorite,
         isDeleted = false,
         updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
         createdAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),

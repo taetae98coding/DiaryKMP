@@ -23,6 +23,9 @@ internal class AccountDataTransactionImpl(
             dao.deleteMemoWeb(accountId = accountId)
             dao.deleteAccountMemoWeb(accountId = accountId)
 
+            dao.deleteMemoContact(accountId = accountId)
+            dao.deleteAccountMemoContact(accountId = accountId)
+
             dao.deleteTagLink(accountId = accountId)
             dao.deleteAccountTagLink(accountId = accountId)
 

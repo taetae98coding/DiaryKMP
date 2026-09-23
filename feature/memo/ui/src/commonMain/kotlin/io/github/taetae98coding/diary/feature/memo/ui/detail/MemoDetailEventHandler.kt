@@ -1,6 +1,8 @@
 package io.github.taetae98coding.diary.feature.memo.ui.detail
 
 import io.github.taetae98coding.diary.core.model.location.Coordinate
+import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactPickerEvent
+import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.form.MemoFormState
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlacePickerEvent
@@ -40,6 +42,19 @@ internal fun handleMemoDetailTagPickerEvent(
         is MemoTagPickerEvent.SelectPrimary -> tagViewModel.selectPrimaryTag(tagId = event.id)
         is MemoTagPickerEvent.UnselectPrimary -> tagViewModel.unselectPrimaryTag()
         is MemoTagPickerEvent.ChangeQuery -> tagViewModel.updateQuery(query = event.query)
+    }
+}
+
+internal fun handleMemoDetailContactPickerEvent(
+    event: MemoContactPickerEvent,
+    contactViewModel: MemoContactViewModel,
+    navigateToContactAdd: () -> Unit,
+) {
+    when (event) {
+        is MemoContactPickerEvent.ClickAdd -> navigateToContactAdd()
+        is MemoContactPickerEvent.Select -> contactViewModel.selectContact(contactId = event.id)
+        is MemoContactPickerEvent.Unselect -> contactViewModel.unselectContact(contactId = event.id)
+        is MemoContactPickerEvent.ChangeQuery -> contactViewModel.updateQuery(query = event.query)
     }
 }
 

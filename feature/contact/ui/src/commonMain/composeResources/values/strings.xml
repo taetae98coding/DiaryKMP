@@ -15,6 +15,7 @@
     <string name="contact_birthday_calendar_content_description">Birthday calendar</string>
     <string name="contact_birthday_calendar_solar">Solar</string>
     <string name="contact_birthday_calendar_lunar">Lunar</string>
+    <string name="contact_hometown_input_label">Hometown</string>
     <string name="contact_phone_number_input_label">Phone numbers</string>
     <string name="contact_phone_number_number_input_label">Number</string>
     <string name="contact_phone_number_number_input_content_description">Number %1$s</string>
@@ -23,6 +24,10 @@
     <string name="contact_add_succeeded_message">Contact added.</string>
     <string name="contact_add_name_blank_message">Please enter a name.</string>
     <string name="contact_add_phone_number_blank_message">Please enter a phone number.</string>
+    <string name="contact_home_birthday_lunar">Lunar %1$s</string>
+    <string name="contact_home_favorite_content_description">Favorite</string>
+    <string name="contact_detail_favorite_button_content_description">Add to favorites</string>
+    <string name="contact_detail_unfavorite_button_content_description">Remove from favorites</string>
     <string name="contact_detail_delete_button_content_description">Delete contact</string>
     <string name="contact_detail_update_button_content_description">Update contact</string>
     <string name="contact_detail_update_succeeded_message">Contact updated.</string>

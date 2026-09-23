@@ -7,15 +7,17 @@ internal fun Contact.toLocal(): ContactLocalEntity =
     ContactLocalEntity(
         id = id,
         detail = detail.toLocal(),
+        isFavorite = isFavorite,
         isDeleted = isDeleted,
         updatedAt = updatedAt,
         createdAt = createdAt,
     )
 
-internal fun ContactLocalEntity.toDomain(): Contact =
+public fun ContactLocalEntity.toDomain(): Contact =
     Contact(
         id = id,
         detail = detail.toDomain(),
+        isFavorite = isFavorite,
         isDeleted = isDeleted,
         updatedAt = updatedAt,
         createdAt = createdAt,

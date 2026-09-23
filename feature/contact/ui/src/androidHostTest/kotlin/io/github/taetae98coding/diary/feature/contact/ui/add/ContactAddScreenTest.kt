@@ -11,7 +11,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.contact.ContactPhoneNumber
 import io.github.taetae98coding.diary.core.model.measure.Length.Companion.centimeter
@@ -164,7 +163,7 @@ class ContactAddScreenTest {
         val viewModel = screenTestViewModel()
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
-            DiaryTheme {
+            ContactAddScreenTestTheme {
                 ContactAddScreen(
                     navigateUp = {},
                     componentVisibleProvider = { ContactAddScaffoldComponentVisible() },
@@ -221,6 +220,7 @@ class ContactAddScreenTest {
         composeRule.descriptionInput().performTextInput(TYPED_DESCRIPTION)
         composeRule.heightInput().performTextInput(TYPED_HEIGHT)
         composeRule.footSizeInput().performTextInput(TYPED_FOOT_SIZE)
+        composeRule.hometownInput().performTextInput(TYPED_HOMETOWN)
         composeRule.addPhoneNumberRow()
         composeRule.phoneNumberInput().performTextInput(TYPED_FIRST_PHONE_NUMBER)
         composeRule.addPhoneNumberRow()
@@ -235,6 +235,7 @@ class ContactAddScreenTest {
                         description = TYPED_DESCRIPTION,
                         height = TYPED_HEIGHT.toDouble().centimeter,
                         footSize = TYPED_FOOT_SIZE.toInt().millimeter,
+                        hometown = TYPED_HOMETOWN,
                         phoneNumberList =
                             listOf(
                                 ContactPhoneNumber(number = TYPED_FIRST_PHONE_NUMBER),
@@ -254,6 +255,7 @@ class ContactAddScreenTest {
         composeRule.onNodeWithText(DEFAULT_HEIGHT_LABEL).assertExists()
         composeRule.onNodeWithText(DEFAULT_FOOT_SIZE_LABEL).assertExists()
         composeRule.onNodeWithText(DEFAULT_BIRTHDAY_LABEL).assertExists()
+        composeRule.onNodeWithText(DEFAULT_HOMETOWN_LABEL).assertExists()
         composeRule.onNodeWithText(DEFAULT_BIRTHDAY_NOT_SET).assertExists()
         composeRule.selectBirthday()
         composeRule.onNodeWithContentDescription(DEFAULT_BIRTHDAY_CALENDAR_DESCRIPTION).assertExists()
@@ -273,6 +275,7 @@ class ContactAddScreenTest {
         composeRule.onNodeWithText(KOREAN_HEIGHT_LABEL).assertExists()
         composeRule.onNodeWithText(KOREAN_FOOT_SIZE_LABEL).assertExists()
         composeRule.onNodeWithText(KOREAN_BIRTHDAY_LABEL).assertExists()
+        composeRule.onNodeWithText(KOREAN_HOMETOWN_LABEL).assertExists()
         composeRule.onNodeWithText(KOREAN_BIRTHDAY_NOT_SET).assertExists()
         composeRule.onNodeWithText(KOREAN_PHONE_NUMBER_LABEL).assertExists()
         composeRule.onNodeWithContentDescription(KOREAN_ADD_BUTTON_DESCRIPTION).assert(hasClickAction())

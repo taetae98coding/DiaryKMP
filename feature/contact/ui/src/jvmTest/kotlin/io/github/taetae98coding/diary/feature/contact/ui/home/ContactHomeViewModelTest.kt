@@ -140,6 +140,7 @@ class ContactHomeViewModelTest : FunSpec() {
             return Contact(
                 id = Uuid.random(),
                 detail = detail,
+                isFavorite = false,
                 isDeleted = false,
                 updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
                 createdAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),

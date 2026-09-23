@@ -10,7 +10,9 @@ import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.domain.contact.exception.ContactPhoneNumberBlankException
 import io.github.taetae98coding.diary.domain.contact.usecase.DeleteContactUseCase
+import io.github.taetae98coding.diary.domain.contact.usecase.FavoriteContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.FindContactUseCase
+import io.github.taetae98coding.diary.domain.contact.usecase.UnfavoriteContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.UpdateContactUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
@@ -23,7 +25,9 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -303,6 +307,247 @@ class ContactDetailViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-CONTACT-DETAIL-FEATURE-025 저장된 즐겨찾기 여부를 그대로 노출한다") {
+            runTest(mainDispatcher) {
+                listOf(true, false).forEach { isFavorite ->
+                    val contact = contact().copy(isFavorite = isFavorite)
+                    val viewModel = viewModel(id = contact.id, contactFlow = flowOf(Result.success(contact)))
+
+                    viewModel.uiState.test {
+                        awaitItem() shouldBe ContactDetailUiState.Loading
+                        awaitItem() shouldBe ContactDetailUiState.Content(id = contact.id, detail = contact.detail, isFavorite = isFavorite)
+                        cancelAndIgnoreRemainingEvents()
+                    }
+                }
+            }
+        }
+
+        test("TC-CONTACT-DETAIL-FEATURE-026 즐겨찾기가 아닌 연락처의 즐겨찾기를 바꾸면 즐겨찾기로 저장되고 즐겨찾기 상태가 된다") {
+            runTest(mainDispatcher) {
+                val contact = contact().copy(isFavorite = false)
+                val contactFlow = MutableStateFlow<Result<Contact?>>(Result.success(contact))
+                val favoriteContactUseCase = mockk<FavoriteContactUseCase>()
+                coEvery { favoriteContactUseCase(parameter = contact.id) } coAnswers {
+                    contactFlow.value = Result.success(contact.copy(isFavorite = true))
+                    Result.success(1)
+                }
+                val viewModel = viewModel(id = contact.id, contactFlow = contactFlow, favoriteContactUseCase = favoriteContactUseCase)
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe ContactDetailUiState.Loading
+                    awaitItem() shouldBe ContactDetailUiState.Content(id = contact.id, detail = contact.detail, isFavorite = false)
+
+                    viewModel.toggleFavorite()
+                    advanceUntilIdle()
+
+                    expectMostRecentItem() shouldBe ContactDetailUiState.Content(id = contact.id, detail = contact.detail, isFavorite = true)
+                    cancelAndIgnoreRemainingEvents()
+                }
+
+                coVerify(exactly = 1) { favoriteContactUseCase(parameter = contact.id) }
+            }
+        }
+
+        test("TC-CONTACT-DETAIL-FEATURE-026 즐겨찾기인 연락처의 즐겨찾기를 바꾸면 즐겨찾기가 해제된다") {
+            runTest(mainDispatcher) {
+                val contact = contact().copy(isFavorite = true)
+                val contactFlow = MutableStateFlow<Result<Contact?>>(Result.success(contact))
+                val unfavoriteContactUseCase = mockk<UnfavoriteContactUseCase>()
+                coEvery { unfavoriteContactUseCase(parameter = contact.id) } coAnswers {
+                    contactFlow.value = Result.success(contact.copy(isFavorite = false))
+                    Result.success(1)
+                }
+                val viewModel = viewModel(id = contact.id, contactFlow = contactFlow, unfavoriteContactUseCase = unfavoriteContactUseCase)
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe ContactDetailUiState.Loading
+                    awaitItem() shouldBe ContactDetailUiState.Content(id = contact.id, detail = contact.detail, isFavorite = true)
+
+                    viewModel.toggleFavorite()
+                    advanceUntilIdle()
+
+                    expectMostRecentItem() shouldBe ContactDetailUiState.Content(id = contact.id, detail = contact.detail, isFavorite = false)
+                    cancelAndIgnoreRemainingEvents()
+                }
+
+                coVerify(exactly = 1) { unfavoriteContactUseCase(parameter = contact.id) }
+            }
+        }
+
+        test("TC-CONTACT-DETAIL-FEATURE-028 즐겨찾기 변경을 처리하는 동안 진행 상태를 노출한다") {
+            runTest(mainDispatcher) {
+                val contact = contact().copy(isFavorite = false)
+                val deferred = CompletableDeferred<Result<Int>>()
+                val favoriteContactUseCase = mockk<FavoriteContactUseCase>()
+                coEvery { favoriteContactUseCase(parameter = contact.id) } coAnswers { deferred.await() }
+                val viewModel = viewModel(id = contact.id, contactFlow = flowOf(Result.success(contact)), favoriteContactUseCase = favoriteContactUseCase)
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe ContactDetailUiState.Loading
+                    awaitItem() shouldBe ContactDetailUiState.Content(id = contact.id, detail = contact.detail)
+
+                    viewModel.toggleFavorite()
+                    advanceUntilIdle()
+
+                    awaitItem() shouldBe
+                        ContactDetailUiState.Content(id = contact.id, detail = contact.detail, isFavoriteInProgress = true)
+
+                    deferred.complete(Result.success(1))
+                    advanceUntilIdle()
+
+                    awaitItem() shouldBe ContactDetailUiState.Content(id = contact.id, detail = contact.detail)
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("TC-CONTACT-DETAIL-FEATURE-029 즐겨찾기 변경에 성공해도 알리는 결과를 내보내지 않는다") {
+            runTest(mainDispatcher) {
+                val contact = contact().copy(isFavorite = false)
+                val favoriteContactUseCase = mockk<FavoriteContactUseCase>()
+                coEvery { favoriteContactUseCase(parameter = contact.id) } returns Result.success(1)
+                val viewModel = viewModel(id = contact.id, contactFlow = flowOf(Result.success(contact)), favoriteContactUseCase = favoriteContactUseCase)
+
+                backgroundScope.launch { viewModel.uiState.collect { } }
+                advanceUntilIdle()
+
+                viewModel.effect.test {
+                    viewModel.toggleFavorite()
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                }
+            }
+        }
+
+        test("TC-CONTACT-DETAIL-FEATURE-030 즐겨찾기 변경에 실패하면 진행 상태만 해제하고 저장된 값을 유지한다") {
+            runTest(mainDispatcher) {
+                val contact = contact().copy(isFavorite = false)
+                val favoriteContactUseCase = mockk<FavoriteContactUseCase>()
+                coEvery { favoriteContactUseCase(parameter = contact.id) } returns Result.failure(IllegalStateException())
+                val viewModel = viewModel(id = contact.id, contactFlow = flowOf(Result.success(contact)), favoriteContactUseCase = favoriteContactUseCase)
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe ContactDetailUiState.Loading
+                    awaitItem() shouldBe ContactDetailUiState.Content(id = contact.id, detail = contact.detail, isFavorite = false)
+
+                    viewModel.toggleFavorite()
+                    advanceUntilIdle()
+
+                    viewModel.uiState.value shouldBe ContactDetailUiState.Content(id = contact.id, detail = contact.detail, isFavorite = false)
+                    cancelAndIgnoreRemainingEvents()
+                }
+
+                viewModel.effect.test {
+                    expectNoEvents()
+                }
+            }
+        }
+
+        test("TC-CONTACT-DETAIL-FEATURE-031 저장된 즐겨찾기가 다른 경로로 바뀌면 상태도 갱신된다") {
+            runTest(mainDispatcher) {
+                val contact = contact().copy(isFavorite = false)
+                val contactFlow = MutableStateFlow<Result<Contact?>>(Result.success(contact))
+                val viewModel = viewModel(id = contact.id, contactFlow = contactFlow)
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe ContactDetailUiState.Loading
+                    awaitItem() shouldBe ContactDetailUiState.Content(id = contact.id, detail = contact.detail, isFavorite = false)
+
+                    contactFlow.value = Result.success(contact.copy(isFavorite = true))
+                    advanceUntilIdle()
+
+                    awaitItem() shouldBe ContactDetailUiState.Content(id = contact.id, detail = contact.detail, isFavorite = true)
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("TC-CONTACT-DETAIL-DOMAIN-011 즐겨찾기 변경을 처리하는 동안 같은 즐겨찾기 변경 요청은 처리하지 않는다") {
+            runTest(mainDispatcher) {
+                val contact = contact().copy(isFavorite = false)
+                val deferred = CompletableDeferred<Result<Int>>()
+                val favoriteContactUseCase = mockk<FavoriteContactUseCase>()
+                coEvery { favoriteContactUseCase(parameter = contact.id) } coAnswers { deferred.await() }
+                val viewModel = viewModel(id = contact.id, contactFlow = flowOf(Result.success(contact)), favoriteContactUseCase = favoriteContactUseCase)
+
+                backgroundScope.launch { viewModel.uiState.collect { } }
+                advanceUntilIdle()
+
+                viewModel.toggleFavorite()
+                advanceUntilIdle()
+                viewModel.toggleFavorite()
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { favoriteContactUseCase(parameter = contact.id) }
+                deferred.complete(Result.success(1))
+            }
+        }
+
+        test("TC-CONTACT-DETAIL-DOMAIN-011 즐겨찾기 변경을 처리하는 동안에도 수정과 삭제는 처리한다") {
+            runTest(mainDispatcher) {
+                val contact = contact().copy(isFavorite = false)
+                val favoriteDeferred = CompletableDeferred<Result<Int>>()
+                val favoriteContactUseCase = mockk<FavoriteContactUseCase>()
+                coEvery { favoriteContactUseCase(parameter = contact.id) } coAnswers { favoriteDeferred.await() }
+                val updateContactUseCase = mockk<UpdateContactUseCase>()
+                coEvery { updateContactUseCase(parameter = any()) } returns Result.success(1)
+                val deleteContactUseCase = mockk<DeleteContactUseCase>()
+                coEvery { deleteContactUseCase(parameter = contact.id) } returns Result.success(1)
+                val viewModel =
+                    viewModel(
+                        id = contact.id,
+                        contactFlow = flowOf(Result.success(contact)),
+                        updateContactUseCase = updateContactUseCase,
+                        favoriteContactUseCase = favoriteContactUseCase,
+                        deleteContactUseCase = deleteContactUseCase,
+                    )
+
+                backgroundScope.launch { viewModel.uiState.collect { } }
+                advanceUntilIdle()
+
+                viewModel.toggleFavorite()
+                advanceUntilIdle()
+                viewModel.update(detail = contact.detail)
+                advanceUntilIdle()
+                viewModel.delete()
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { updateContactUseCase(parameter = any()) }
+                coVerify(exactly = 1) { deleteContactUseCase(parameter = contact.id) }
+                favoriteDeferred.complete(Result.success(1))
+            }
+        }
+
+        test("TC-CONTACT-DETAIL-DOMAIN-011 수정을 처리하는 동안에도 즐겨찾기 변경은 처리한다") {
+            runTest(mainDispatcher) {
+                val contact = contact().copy(isFavorite = false)
+                val updateDeferred = CompletableDeferred<Result<Int>>()
+                val updateContactUseCase = mockk<UpdateContactUseCase>()
+                coEvery { updateContactUseCase(parameter = any()) } coAnswers { updateDeferred.await() }
+                val favoriteContactUseCase = mockk<FavoriteContactUseCase>()
+                coEvery { favoriteContactUseCase(parameter = contact.id) } returns Result.success(1)
+                val viewModel =
+                    viewModel(
+                        id = contact.id,
+                        contactFlow = flowOf(Result.success(contact)),
+                        updateContactUseCase = updateContactUseCase,
+                        favoriteContactUseCase = favoriteContactUseCase,
+                    )
+
+                backgroundScope.launch { viewModel.uiState.collect { } }
+                advanceUntilIdle()
+
+                viewModel.update(detail = contact.detail)
+                advanceUntilIdle()
+                viewModel.toggleFavorite()
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { favoriteContactUseCase(parameter = contact.id) }
+                updateDeferred.complete(Result.success(1))
+            }
+        }
+
         test("TC-CONTACT-DETAIL-FEATURE-018 대상 연락처가 삭제 상태가 되어도 내용 표시 상태를 유지한다") {
             runTest(mainDispatcher) {
                 val contact = contact().copy(isDeleted = true)
@@ -325,6 +570,8 @@ class ContactDetailViewModelTest : FunSpec() {
             id: Uuid,
             contactFlow: Flow<Result<Contact?>>,
             updateContactUseCase: UpdateContactUseCase = mockk(),
+            favoriteContactUseCase: FavoriteContactUseCase = mockk(),
+            unfavoriteContactUseCase: UnfavoriteContactUseCase = mockk(),
             deleteContactUseCase: DeleteContactUseCase = mockk(),
         ): ContactDetailViewModel {
             val findContactUseCase = mockk<FindContactUseCase>()
@@ -333,6 +580,8 @@ class ContactDetailViewModelTest : FunSpec() {
             return ContactDetailViewModel(
                 id = id,
                 updateContactUseCase = updateContactUseCase,
+                favoriteContactUseCase = favoriteContactUseCase,
+                unfavoriteContactUseCase = unfavoriteContactUseCase,
                 deleteContactUseCase = deleteContactUseCase,
                 findContactUseCase = findContactUseCase,
             )
@@ -343,6 +592,7 @@ class ContactDetailViewModelTest : FunSpec() {
             Contact(
                 id = fixtureMonkey.giveMeOne<Uuid>(),
                 detail = fixtureMonkey.giveMeKotlinBuilder<ContactDetail>().sample(),
+                isFavorite = false,
                 isDeleted = false,
                 updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
                 createdAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),

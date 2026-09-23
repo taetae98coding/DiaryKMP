@@ -69,12 +69,19 @@ class ContactHomeListTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-004 연락처의 설명은 목록에 표시하지 않는다`() {
-        val contact = testContact(name = CONTACT_NAME, phoneNumberList = listOf(CONTACT_PHONE_NUMBER), description = CONTACT_DESCRIPTION)
+    fun `TC-CONTACT-HOME-FEATURE-004 연락처의 설명과 고향은 목록에 표시하지 않는다`() {
+        val contact =
+            testContact(
+                name = CONTACT_NAME,
+                phoneNumberList = listOf(CONTACT_PHONE_NUMBER),
+                description = CONTACT_DESCRIPTION,
+                hometown = CONTACT_HOMETOWN,
+            )
 
         setContactHomeList(contactList = listOf(contact))
 
         composeRule.onNodeWithText(CONTACT_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithText(CONTACT_HOMETOWN).assertDoesNotExist()
     }
 
     @Test
@@ -133,5 +140,6 @@ class ContactHomeListTest {
         private const val OTHER_PHONE_NUMBER = "02-333-4444"
         private const val OTHER_CONTACT_PHONE_NUMBER = "010-3333-4444"
         private const val CONTACT_DESCRIPTION = "ContactHomeListDescription"
+        private const val CONTACT_HOMETOWN = "ContactHomeListHometown"
     }
 }

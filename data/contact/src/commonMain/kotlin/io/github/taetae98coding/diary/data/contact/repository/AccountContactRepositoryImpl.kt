@@ -41,6 +41,16 @@ internal class AccountContactRepositoryImpl(
             pagingData.map { local -> local.toDomain() }
         }
 
+    override fun get(
+        account: Account,
+        contactIdSet: Set<Uuid>,
+    ): Flow<List<Contact>> =
+        accountContactLocalDataSource
+            .get(
+                accountId = account.id,
+                contactIdSet = contactIdSet,
+            ).map { localList -> localList.map { local -> local.toDomain() } }
+
     override fun find(
         account: Account,
         contactId: Uuid,
@@ -71,6 +81,19 @@ internal class AccountContactRepositoryImpl(
             accountId = account.id,
             contactId = contactId,
             detail = detail.toLocal(),
+            updatedAt = updatedAt,
+        )
+
+    override suspend fun updateFavorite(
+        account: Account,
+        contactId: Uuid,
+        isFavorite: Boolean,
+        updatedAt: Instant,
+    ): Int =
+        accountContactTransaction.updateFavorite(
+            accountId = account.id,
+            contactId = contactId,
+            isFavorite = isFavorite,
             updatedAt = updatedAt,
         )
 

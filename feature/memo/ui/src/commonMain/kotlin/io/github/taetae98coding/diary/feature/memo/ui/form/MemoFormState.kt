@@ -32,6 +32,7 @@ internal class MemoFormState(
     val hostState: SnackbarHostState,
     val tagPickerDialogState: DialogState,
     val webPickerDialogState: DialogState,
+    val contactPickerDialogState: DialogState,
     val placePickerDialogState: DialogState,
 ) {
     val detail: MemoDetail
@@ -76,9 +77,20 @@ private fun rememberMemoFormState(
     val hostState = remember { SnackbarHostState() }
     val tagPickerDialogState = rememberDialogState()
     val webPickerDialogState = rememberDialogState()
+    val contactPickerDialogState = rememberDialogState()
     val placePickerDialogState = rememberDialogState()
 
-    return remember(titleState, descriptionState, colorState, dateTimeState, hostState, tagPickerDialogState, webPickerDialogState, placePickerDialogState) {
+    return remember(
+        titleState,
+        descriptionState,
+        colorState,
+        dateTimeState,
+        hostState,
+        tagPickerDialogState,
+        webPickerDialogState,
+        contactPickerDialogState,
+        placePickerDialogState,
+    ) {
         MemoFormState(
             titleState = titleState,
             descriptionState = descriptionState,
@@ -87,6 +99,7 @@ private fun rememberMemoFormState(
             hostState = hostState,
             tagPickerDialogState = tagPickerDialogState,
             webPickerDialogState = webPickerDialogState,
+            contactPickerDialogState = contactPickerDialogState,
             placePickerDialogState = placePickerDialogState,
         )
     }

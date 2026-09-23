@@ -29,6 +29,7 @@ internal data class SyncCursorLocalEntity(
                 SyncKind.MEMO_TAG -> "memo_tag"
                 SyncKind.MEMO_PLACE -> "memo_place"
                 SyncKind.MEMO_WEB -> "memo_web"
+                SyncKind.MEMO_CONTACT -> "memo_contact"
                 SyncKind.TAG_LINK -> "tag_link"
                 SyncKind.WEB_TAG -> "web_tag"
                 SyncKind.PLACE_TAG -> "place_tag"

@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.feature.memo.ui.add
 
 import io.github.taetae98coding.diary.core.model.location.Coordinate
+import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactPickerEvent
 import io.github.taetae98coding.diary.feature.memo.ui.form.MemoFormState
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlacePickerEvent
@@ -12,6 +13,7 @@ internal fun handleMemoAddEvent(
     addViewModel: MemoAddViewModel,
     tagViewModel: MemoAddTagViewModel,
     webViewModel: MemoAddWebViewModel,
+    contactViewModel: MemoAddContactViewModel,
     placeViewModel: MemoAddPlaceViewModel,
     geminiViewModel: MemoGeminiViewModel,
     scaffoldState: MemoFormState,
@@ -25,6 +27,7 @@ internal fun handleMemoAddEvent(
                 detail = scaffoldState.detail,
                 tagSelection = tagViewModel.selection.value,
                 webIdSet = webViewModel.webIdSet.value,
+                contactIdSet = contactViewModel.contactIdSet.value,
                 placeIdSet = placeViewModel.placeIdSet.value,
             )
 
@@ -57,6 +60,19 @@ internal fun handleMemoAddWebPickerEvent(
         is MemoWebPickerEvent.Select -> webViewModel.selectWeb(id = event.id)
         is MemoWebPickerEvent.Unselect -> webViewModel.unselectWeb(id = event.id)
         is MemoWebPickerEvent.ChangeQuery -> webViewModel.updateQuery(query = event.query)
+    }
+}
+
+internal fun handleMemoAddContactPickerEvent(
+    event: MemoContactPickerEvent,
+    contactViewModel: MemoAddContactViewModel,
+    navigateToContactAdd: () -> Unit,
+) {
+    when (event) {
+        is MemoContactPickerEvent.ClickAdd -> navigateToContactAdd()
+        is MemoContactPickerEvent.Select -> contactViewModel.selectContact(id = event.id)
+        is MemoContactPickerEvent.Unselect -> contactViewModel.unselectContact(id = event.id)
+        is MemoContactPickerEvent.ChangeQuery -> contactViewModel.updateQuery(query = event.query)
     }
 }
 

@@ -72,15 +72,16 @@ class ContactAddViewModelTest : FunSpec() {
 
         test("TC-CONTACT-ADD-FEATURE-007 추가에 성공하면 성공 Effect를 한 번 보내고 진행 상태를 해제한다") {
             runTest(mainDispatcher) {
+                val addedId = fixtureMonkey.giveMeOne<Uuid>()
                 val useCase = mockk<AddContactUseCase>()
-                coEvery { useCase(any()) } returns Result.success(fixtureMonkey.giveMeOne<Uuid>())
+                coEvery { useCase(any()) } returns Result.success(addedId)
                 val viewModel = ContactAddViewModel(addContactUseCase = useCase)
 
                 viewModel.effect.test {
                     viewModel.add(detail = detail())
                     advanceUntilIdle()
 
-                    awaitItem() shouldBe ContactAddEffect.AddSucceeded
+                    awaitItem() shouldBe ContactAddEffect.AddSucceeded(id = addedId)
                     expectNoEvents()
                 }
 

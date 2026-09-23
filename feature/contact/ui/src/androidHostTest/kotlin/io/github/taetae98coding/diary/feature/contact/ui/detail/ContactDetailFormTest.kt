@@ -38,7 +38,7 @@ class ContactDetailFormTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-001 저장된 이름과 설명, 키, 신발 사이즈, 생일을 입력에 채운다`() {
+    fun `TC-CONTACT-DETAIL-FEATURE-001 저장된 이름과 설명, 키, 신발 사이즈, 생일, 고향을 입력에 채운다`() {
         val detail =
             testContactDetail(
                 name = CONTACT_NAME,
@@ -46,6 +46,7 @@ class ContactDetailFormTest {
                 height = 180.5.centimeter,
                 footSize = 270.millimeter,
                 birthday = ContactBirthday(date = LocalDate(1994, 3, 21), calendar = ContactBirthdayCalendar.LUNAR),
+                hometown = CONTACT_HOMETOWN,
             )
 
         setContactDetailScaffold(detail = detail)
@@ -55,6 +56,30 @@ class ContactDetailFormTest {
         composeRule.onNodeWithText(HEIGHT_TEXT).assertExists()
         composeRule.onNodeWithText(FOOT_SIZE_TEXT).assertExists()
         composeRule.onNodeWithText(BIRTHDAY_TEXT).assertExists()
+        composeRule.onNode(hasText(CONTACT_HOMETOWN) and hasSetTextAction()).assertExists()
+    }
+
+    @Test
+    fun `TC-CONTACT-DETAIL-FEATURE-024 채워진 고향을 다른 값으로 바꿀 수 있다`() {
+        val detail = testContactDetail(name = CONTACT_NAME, hometown = CONTACT_HOMETOWN)
+
+        setContactDetailScaffold(detail = detail)
+        composeRule.onNode(hasText(CONTACT_HOMETOWN) and hasSetTextAction()).performTextReplacement(OTHER_CONTACT_HOMETOWN)
+        composeRule.waitForIdle()
+
+        composeRule.onNode(hasText(OTHER_CONTACT_HOMETOWN) and hasSetTextAction()).assertExists()
+        composeRule.onNode(hasText(CONTACT_HOMETOWN) and hasSetTextAction()).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-CONTACT-DETAIL-FEATURE-024 고향이 없던 연락처에도 고향을 입력할 수 있다`() {
+        val detail = testContactDetail(name = CONTACT_NAME, hometown = "")
+
+        setContactDetailScaffold(detail = detail)
+        composeRule.onNode(hasText(HOMETOWN_LABEL) and hasSetTextAction()).performTextReplacement(CONTACT_HOMETOWN)
+        composeRule.waitForIdle()
+
+        composeRule.onNode(hasText(CONTACT_HOMETOWN) and hasSetTextAction()).assertExists()
     }
 
     @Test
@@ -133,12 +158,14 @@ class ContactDetailFormTest {
 
     @Test
     fun `TC-CONTACT-DETAIL-FEATURE-002 값이 없는 정보는 비어 있는 상태로 채운다`() {
-        val detail = testContactDetail(name = CONTACT_NAME, description = "")
+        val detail = testContactDetail(name = CONTACT_NAME, description = "", hometown = "")
 
         setContactDetailScaffold(detail = detail)
 
         composeRule.onNodeWithText(DEFAULT_BIRTHDAY_NOT_SET).assertExists()
         composeRule.onAllNodesWithContentDescription(FIRST_NUMBER_DESCRIPTION).assertCountEquals(expectedSize = 0)
+        // 비어 있는 고향 입력은 값 없이 이름표만 읽힌다.
+        composeRule.onNode(hasText(HOMETOWN_LABEL) and hasSetTextAction()).assertExists()
     }
 
     @Test
@@ -210,6 +237,9 @@ class ContactDetailFormTest {
     private companion object {
         private const val CONTACT_NAME = "ContactDetailFormName"
         private const val CONTACT_DESCRIPTION = "ContactDetailFormDescription"
+        private const val CONTACT_HOMETOWN = "ContactDetailFormHometown"
+        private const val OTHER_CONTACT_HOMETOWN = "ContactDetailFormOtherHometown"
+        private const val HOMETOWN_LABEL = "Hometown"
         private const val HEIGHT_TEXT = "180.5"
         private const val FOOT_SIZE_TEXT = "270"
         private const val BIRTHDAY_TEXT = "Mar 21, 1994"

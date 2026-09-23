@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
+import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.form.MemoForm
 import io.github.taetae98coding.diary.feature.memo.ui.form.MemoFormEvent
 import io.github.taetae98coding.diary.feature.memo.ui.form.MemoFormState
@@ -29,6 +30,7 @@ internal fun MemoDetailScaffoldContent(
     isStandalone: Boolean = true,
     tagUiStateProvider: () -> MemoTagInputUiState = { MemoTagInputUiState() },
     webUiStateProvider: () -> MemoWebInputUiState = { MemoWebInputUiState() },
+    contactUiStateProvider: () -> MemoContactInputUiState = { MemoContactInputUiState() },
     placeCardUiStateProvider: () -> MemoPlaceCardUiState = { MemoPlaceCardUiState() },
 ) {
     DiaryCrossfade(
@@ -43,6 +45,7 @@ internal fun MemoDetailScaffoldContent(
                 isStandalone = isStandalone,
                 tagUiStateProvider = tagUiStateProvider,
                 webUiStateProvider = webUiStateProvider,
+                contactUiStateProvider = contactUiStateProvider,
                 placeCardUiStateProvider = placeCardUiStateProvider,
                 modifier = Modifier.fillMaxSize(),
             )

@@ -113,6 +113,7 @@ class MemoAddScaffoldTest {
                     onFormEvent = {},
                     onTagPickerEvent = {},
                     onWebPickerEvent = {},
+                    onContactPickerEvent = {},
                     onPlacePickerEvent = {},
                     onGeminiEvent = {},
                     onGeminiDismissRequest = {},

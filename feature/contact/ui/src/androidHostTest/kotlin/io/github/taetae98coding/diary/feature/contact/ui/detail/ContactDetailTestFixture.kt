@@ -18,6 +18,7 @@ internal fun testContactDetail(
     height: Length? = null,
     footSize: Length? = null,
     birthday: ContactBirthday? = null,
+    hometown: String = "",
     phoneNumberList: List<String> = emptyList(),
 ): ContactDetail =
     ContactDetail(
@@ -26,5 +27,6 @@ internal fun testContactDetail(
         height = height,
         footSize = footSize,
         birthday = birthday,
+        hometown = hometown,
         phoneNumberList = phoneNumberList.map { number -> ContactPhoneNumber(number = number) },
     )

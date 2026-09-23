@@ -6,6 +6,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoContactRepository
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoRepository
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoTagRepository
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoWebRepository
@@ -52,6 +53,8 @@ class CopyMemoUseCaseTest :
             coEvery { accountMemoRepository.upsert(account = account, memo = capture(memoSlot), tagIdSet = capture(tagIdSetSlot)) } just Runs
             val accountMemoTagRepository = mockk<AccountMemoTagRepository>()
             val accountMemoWebRepository = mockk<AccountMemoWebRepository>()
+            val accountMemoContactRepository = mockk<AccountMemoContactRepository>()
+            coEvery { accountMemoContactRepository.findContactIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoWebRepository.findWebIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoTagRepository.findTagIdSet(account = account, memoId = source.id) } returns emptySet()
             val clock = mockk<Clock>()
@@ -64,6 +67,7 @@ class CopyMemoUseCaseTest :
                     accountMemoRepository = accountMemoRepository,
                     accountMemoTagRepository = accountMemoTagRepository,
                     accountMemoWebRepository = accountMemoWebRepository,
+                    accountMemoContactRepository = accountMemoContactRepository,
                     clock = clock,
                 )
 
@@ -109,6 +113,8 @@ class CopyMemoUseCaseTest :
             coEvery { accountMemoRepository.upsert(account = account, memo = any(), tagIdSet = any()) } just Runs
             val accountMemoTagRepository = mockk<AccountMemoTagRepository>()
             val accountMemoWebRepository = mockk<AccountMemoWebRepository>()
+            val accountMemoContactRepository = mockk<AccountMemoContactRepository>()
+            coEvery { accountMemoContactRepository.findContactIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoWebRepository.findWebIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoTagRepository.findTagIdSet(account = account, memoId = source.id) } returns emptySet()
             val clock = mockk<Clock>()
@@ -121,6 +127,7 @@ class CopyMemoUseCaseTest :
                     accountMemoRepository = accountMemoRepository,
                     accountMemoTagRepository = accountMemoTagRepository,
                     accountMemoWebRepository = accountMemoWebRepository,
+                    accountMemoContactRepository = accountMemoContactRepository,
                     clock = clock,
                 )
 
@@ -156,6 +163,8 @@ class CopyMemoUseCaseTest :
                 coEvery { accountMemoRepository.upsert(account = account, memo = capture(memoSlot), tagIdSet = any()) } just Runs
                 val accountMemoTagRepository = mockk<AccountMemoTagRepository>()
                 val accountMemoWebRepository = mockk<AccountMemoWebRepository>()
+                val accountMemoContactRepository = mockk<AccountMemoContactRepository>()
+                coEvery { accountMemoContactRepository.findContactIdSet(account = account, memoId = source.id) } returns emptySet()
                 coEvery { accountMemoWebRepository.findWebIdSet(account = account, memoId = source.id) } returns emptySet()
                 coEvery { accountMemoTagRepository.findTagIdSet(account = account, memoId = source.id) } returns emptySet()
                 val clock = mockk<Clock>()
@@ -168,6 +177,7 @@ class CopyMemoUseCaseTest :
                         accountMemoRepository = accountMemoRepository,
                         accountMemoTagRepository = accountMemoTagRepository,
                         accountMemoWebRepository = accountMemoWebRepository,
+                        accountMemoContactRepository = accountMemoContactRepository,
                         clock = clock,
                     )
 
@@ -200,6 +210,8 @@ class CopyMemoUseCaseTest :
             coEvery { accountMemoRepository.upsert(account = account, memo = capture(memoSlot), tagIdSet = capture(tagIdSetSlot)) } just Runs
             val accountMemoTagRepository = mockk<AccountMemoTagRepository>()
             val accountMemoWebRepository = mockk<AccountMemoWebRepository>()
+            val accountMemoContactRepository = mockk<AccountMemoContactRepository>()
+            coEvery { accountMemoContactRepository.findContactIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoWebRepository.findWebIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoTagRepository.findTagIdSet(account = account, memoId = source.id) } returns setOf(primaryTagId, otherTagId)
             val clock = mockk<Clock>()
@@ -212,6 +224,7 @@ class CopyMemoUseCaseTest :
                     accountMemoRepository = accountMemoRepository,
                     accountMemoTagRepository = accountMemoTagRepository,
                     accountMemoWebRepository = accountMemoWebRepository,
+                    accountMemoContactRepository = accountMemoContactRepository,
                     clock = clock,
                 )
 
@@ -245,6 +258,8 @@ class CopyMemoUseCaseTest :
             val accountMemoTagRepository = mockk<AccountMemoTagRepository>()
             coEvery { accountMemoTagRepository.findTagIdSet(account = account, memoId = source.id) } returns emptySet()
             val accountMemoWebRepository = mockk<AccountMemoWebRepository>()
+            val accountMemoContactRepository = mockk<AccountMemoContactRepository>()
+            coEvery { accountMemoContactRepository.findContactIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoWebRepository.findWebIdSet(account = account, memoId = source.id) } returns setOf(firstWebId, secondWebId)
             val clock = mockk<Clock>()
             every { clock.now() } returns Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
@@ -256,6 +271,7 @@ class CopyMemoUseCaseTest :
                     accountMemoRepository = accountMemoRepository,
                     accountMemoTagRepository = accountMemoTagRepository,
                     accountMemoWebRepository = accountMemoWebRepository,
+                    accountMemoContactRepository = accountMemoContactRepository,
                     clock = clock,
                 )
 
@@ -298,6 +314,8 @@ class CopyMemoUseCaseTest :
             coEvery { accountMemoRepository.upsert(account = account, memo = any(), tagIdSet = capture(tagIdSetSlot)) } just Runs
             val accountMemoTagRepository = mockk<AccountMemoTagRepository>()
             val accountMemoWebRepository = mockk<AccountMemoWebRepository>()
+            val accountMemoContactRepository = mockk<AccountMemoContactRepository>()
+            coEvery { accountMemoContactRepository.findContactIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoWebRepository.findWebIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoTagRepository.findTagIdSet(account = account, memoId = source.id) } returns emptySet()
             val clock = mockk<Clock>()
@@ -310,6 +328,7 @@ class CopyMemoUseCaseTest :
                     accountMemoRepository = accountMemoRepository,
                     accountMemoTagRepository = accountMemoTagRepository,
                     accountMemoWebRepository = accountMemoWebRepository,
+                    accountMemoContactRepository = accountMemoContactRepository,
                     clock = clock,
                 )
 
@@ -337,6 +356,8 @@ class CopyMemoUseCaseTest :
             coEvery { accountMemoRepository.upsert(account = account, memo = any(), tagIdSet = any(), placeIdSet = capture(placeIdSetSlot)) } just Runs
             val accountMemoTagRepository = mockk<AccountMemoTagRepository>()
             val accountMemoWebRepository = mockk<AccountMemoWebRepository>()
+            val accountMemoContactRepository = mockk<AccountMemoContactRepository>()
+            coEvery { accountMemoContactRepository.findContactIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoWebRepository.findWebIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoTagRepository.findTagIdSet(account = account, memoId = source.id) } returns emptySet()
             val clock = mockk<Clock>()
@@ -349,6 +370,7 @@ class CopyMemoUseCaseTest :
                     accountMemoRepository = accountMemoRepository,
                     accountMemoTagRepository = accountMemoTagRepository,
                     accountMemoWebRepository = accountMemoWebRepository,
+                    accountMemoContactRepository = accountMemoContactRepository,
                     clock = clock,
                 )
 
@@ -377,6 +399,8 @@ class CopyMemoUseCaseTest :
             coEvery { accountMemoRepository.upsert(account = account, memo = capture(memoSlot), tagIdSet = capture(tagIdSetSlot)) } just Runs
             val accountMemoTagRepository = mockk<AccountMemoTagRepository>()
             val accountMemoWebRepository = mockk<AccountMemoWebRepository>()
+            val accountMemoContactRepository = mockk<AccountMemoContactRepository>()
+            coEvery { accountMemoContactRepository.findContactIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoWebRepository.findWebIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoTagRepository.findTagIdSet(account = account, memoId = source.id) } returns emptySet()
             val clock = mockk<Clock>()
@@ -389,6 +413,7 @@ class CopyMemoUseCaseTest :
                     accountMemoRepository = accountMemoRepository,
                     accountMemoTagRepository = accountMemoTagRepository,
                     accountMemoWebRepository = accountMemoWebRepository,
+                    accountMemoContactRepository = accountMemoContactRepository,
                     clock = clock,
                 )
 
@@ -414,6 +439,7 @@ class CopyMemoUseCaseTest :
             val accountMemoRepository = mockk<AccountMemoRepository>(relaxed = true)
             val accountMemoTagRepository = mockk<AccountMemoTagRepository>(relaxed = true)
             val accountMemoWebRepository = mockk<AccountMemoWebRepository>(relaxed = true)
+            val accountMemoContactRepository = mockk<AccountMemoContactRepository>(relaxed = true)
             val clock = mockk<Clock>(relaxed = true)
             val useCase =
                 CopyMemoUseCase(
@@ -423,6 +449,7 @@ class CopyMemoUseCaseTest :
                     accountMemoRepository = accountMemoRepository,
                     accountMemoTagRepository = accountMemoTagRepository,
                     accountMemoWebRepository = accountMemoWebRepository,
+                    accountMemoContactRepository = accountMemoContactRepository,
                     clock = clock,
                 )
 
@@ -449,6 +476,7 @@ class CopyMemoUseCaseTest :
             val accountMemoRepository = mockk<AccountMemoRepository>(relaxed = true)
             val accountMemoTagRepository = mockk<AccountMemoTagRepository>(relaxed = true)
             val accountMemoWebRepository = mockk<AccountMemoWebRepository>(relaxed = true)
+            val accountMemoContactRepository = mockk<AccountMemoContactRepository>(relaxed = true)
             val clock = mockk<Clock>(relaxed = true)
             val useCase =
                 CopyMemoUseCase(
@@ -458,6 +486,7 @@ class CopyMemoUseCaseTest :
                     accountMemoRepository = accountMemoRepository,
                     accountMemoTagRepository = accountMemoTagRepository,
                     accountMemoWebRepository = accountMemoWebRepository,
+                    accountMemoContactRepository = accountMemoContactRepository,
                     clock = clock,
                 )
 
@@ -482,6 +511,7 @@ class CopyMemoUseCaseTest :
             val accountMemoRepository = mockk<AccountMemoRepository>(relaxed = true)
             val accountMemoTagRepository = mockk<AccountMemoTagRepository>(relaxed = true)
             val accountMemoWebRepository = mockk<AccountMemoWebRepository>(relaxed = true)
+            val accountMemoContactRepository = mockk<AccountMemoContactRepository>(relaxed = true)
             val clock = mockk<Clock>(relaxed = true)
             val useCase =
                 CopyMemoUseCase(
@@ -491,6 +521,7 @@ class CopyMemoUseCaseTest :
                     accountMemoRepository = accountMemoRepository,
                     accountMemoTagRepository = accountMemoTagRepository,
                     accountMemoWebRepository = accountMemoWebRepository,
+                    accountMemoContactRepository = accountMemoContactRepository,
                     clock = clock,
                 )
 
@@ -519,6 +550,8 @@ class CopyMemoUseCaseTest :
             coEvery { accountMemoRepository.upsert(account = account, memo = capture(capturedMemoList), tagIdSet = any()) } just Runs
             val accountMemoTagRepository = mockk<AccountMemoTagRepository>()
             val accountMemoWebRepository = mockk<AccountMemoWebRepository>()
+            val accountMemoContactRepository = mockk<AccountMemoContactRepository>()
+            coEvery { accountMemoContactRepository.findContactIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoWebRepository.findWebIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoTagRepository.findTagIdSet(account = account, memoId = source.id) } returns emptySet()
             val clock = mockk<Clock>()
@@ -531,6 +564,7 @@ class CopyMemoUseCaseTest :
                     accountMemoRepository = accountMemoRepository,
                     accountMemoTagRepository = accountMemoTagRepository,
                     accountMemoWebRepository = accountMemoWebRepository,
+                    accountMemoContactRepository = accountMemoContactRepository,
                     clock = clock,
                 )
 

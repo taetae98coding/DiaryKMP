@@ -26,6 +26,7 @@ internal interface AccountContactDao : RoomDao<AccountContactLocalEntity> {
             ON account_contact.contact_id = contact.id AND account_contact.account_id = :accountId
         WHERE contact.is_deleted = 0
         ORDER BY
+            contact.is_favorite DESC,
             CASE WHEN :sort = 'recently_updated' THEN contact.updated_at END DESC,
             contact.name ASC
         """,
@@ -34,6 +35,21 @@ internal interface AccountContactDao : RoomDao<AccountContactLocalEntity> {
         accountId: Uuid,
         sort: String,
     ): PagingSource<Int, ContactLocalEntity>
+
+    @Query(
+        """
+        SELECT contact.*
+        FROM contact
+        INNER JOIN account_contact
+            ON account_contact.contact_id = contact.id AND account_contact.account_id = :accountId
+        WHERE contact.is_deleted = 0 AND contact.id IN (:contactIdSet)
+        ORDER BY contact.name ASC
+        """,
+    )
+    fun get(
+        accountId: Uuid,
+        contactIdSet: Set<Uuid>,
+    ): Flow<List<ContactLocalEntity>>
 
     @Query(
         """
@@ -55,8 +71,8 @@ internal interface AccountContactDao : RoomDao<AccountContactLocalEntity> {
         UPDATE contact
         SET name = :name, description = :description, height_centimeter = :heightCentimeter,
             foot_size_millimeter = :footSizeMillimeter, birthday = :birthday,
-            birthday_calendar = :birthdayCalendar, phone_number_list = :phoneNumberList,
-            updated_at = :updatedAt
+            birthday_calendar = :birthdayCalendar, hometown = :hometown,
+            phone_number_list = :phoneNumberList, updated_at = :updatedAt
         WHERE id = :contactId
             AND EXISTS(
                 SELECT 1
@@ -74,7 +90,27 @@ internal interface AccountContactDao : RoomDao<AccountContactLocalEntity> {
         footSizeMillimeter: Int?,
         birthday: LocalDate?,
         birthdayCalendar: ContactBirthdayCalendarLocalEntity?,
+        hometown: String?,
         phoneNumberList: List<ContactPhoneNumberLocalEntity>,
+        updatedAt: Instant,
+    ): Int
+
+    @Query(
+        """
+        UPDATE contact
+        SET is_favorite = :isFavorite, updated_at = :updatedAt
+        WHERE id = :contactId
+            AND EXISTS(
+                SELECT 1
+                FROM account_contact
+                WHERE account_contact.contact_id = contact.id AND account_contact.account_id = :accountId
+            )
+        """,
+    )
+    suspend fun updateFavorite(
+        accountId: Uuid,
+        contactId: Uuid,
+        isFavorite: Boolean,
         updatedAt: Instant,
     ): Int
 

@@ -16,6 +16,12 @@ internal sealed interface MemoFormEvent {
         val id: Uuid,
     ) : MemoFormEvent
 
+    data object ClickContactAdd : MemoFormEvent
+
+    data class ClickContact(
+        val id: Uuid,
+    ) : MemoFormEvent
+
     data class ClickPlace(
         val id: Uuid,
     ) : MemoFormEvent

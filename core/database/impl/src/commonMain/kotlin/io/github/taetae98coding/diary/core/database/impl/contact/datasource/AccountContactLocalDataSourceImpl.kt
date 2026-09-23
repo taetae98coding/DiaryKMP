@@ -22,6 +22,15 @@ internal class AccountContactLocalDataSourceImpl(
             sort = sort.queryValue,
         )
 
+    override fun get(
+        accountId: Uuid,
+        contactIdSet: Set<Uuid>,
+    ): Flow<List<ContactLocalEntity>> =
+        database.accountContactDao().get(
+            accountId = accountId,
+            contactIdSet = contactIdSet,
+        )
+
     override fun find(
         accountId: Uuid,
         contactId: Uuid,

@@ -208,7 +208,7 @@ class AddContactUseCaseTest :
                     contactSlot.captured.detail.phoneNumberList shouldBe phoneNumberList
                 }
 
-                Then("TC-CONTACT-ADD-DOMAIN-012 키, 신발 사이즈, 생일을 비워도 없는 값으로 저장한다") {
+                Then("TC-CONTACT-ADD-DOMAIN-012 키, 신발 사이즈, 생일은 없는 값으로, 고향은 비어 있는 값으로 저장한다") {
                     useCase(parameter = AddContactUseCase.Parameter(detail = detail())).shouldBeSuccess()
 
                     contactSlot.captured.detail.height
@@ -217,6 +217,21 @@ class AddContactUseCaseTest :
                         .shouldBeNull()
                     contactSlot.captured.detail.birthday
                         .shouldBeNull()
+                    contactSlot.captured.detail.hometown shouldBe ""
+                }
+
+                Then("TC-CONTACT-ADD-DOMAIN-017 고향은 형식을 검사하지 않고 입력한 글자 그대로 저장한다") {
+                    listOf("서울", "강원도 춘천시", "Seoul, Korea", "123-!@#").forEach { hometown ->
+                        useCase(parameter = AddContactUseCase.Parameter(detail = detail(hometown = hometown))).shouldBeSuccess()
+
+                        contactSlot.captured.detail.hometown shouldBe hometown
+                    }
+                }
+
+                Then("TC-CONTACT-ADD-DOMAIN-018 새 연락처는 즐겨찾기가 아닌 상태로 저장된다") {
+                    useCase(parameter = AddContactUseCase.Parameter(detail = detail())).shouldBeSuccess()
+
+                    contactSlot.captured.isFavorite shouldBe false
                 }
 
                 Then("TC-CONTACT-ADD-DOMAIN-013 고른 달력 구분을 함께 저장한다") {
@@ -333,6 +348,7 @@ class AddContactUseCaseTest :
             height: Length? = null,
             footSize: Length? = null,
             birthday: ContactBirthday? = null,
+            hometown: String = "",
             phoneNumberList: List<ContactPhoneNumber> = emptyList(),
         ): ContactDetail =
             ContactDetail(
@@ -341,6 +357,7 @@ class AddContactUseCaseTest :
                 height = height,
                 footSize = footSize,
                 birthday = birthday,
+                hometown = hometown,
                 phoneNumberList = phoneNumberList,
             )
     }

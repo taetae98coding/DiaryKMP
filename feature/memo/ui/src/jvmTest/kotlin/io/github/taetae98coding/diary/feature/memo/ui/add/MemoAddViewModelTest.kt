@@ -258,12 +258,13 @@ class MemoAddViewModelTest : FunSpec() {
 
         private fun viewModel(addMemoUseCase: AddMemoUseCase = mockk()): MemoAddViewModel = MemoAddViewModel(addMemoUseCase = addMemoUseCase)
 
-        // 태그와 웹, 장소 선택은 각 ViewModel이 보관하므로, 추가 요청 자체를 검증할 때는 선택 없이 호출한다.
+        // 태그와 웹, 연락처, 장소 선택은 각 ViewModel이 보관하므로, 추가 요청 자체를 검증할 때는 선택 없이 호출한다.
         private fun MemoAddViewModel.add(
             detail: MemoDetail,
             tagSelection: MemoTagSelection = MemoTagSelection(),
             webIdSet: Set<Uuid> = emptySet(),
+            contactIdSet: Set<Uuid> = emptySet(),
             placeIdSet: Set<Uuid> = emptySet(),
-        ) = add(detail = detail, tagSelection = tagSelection, webIdSet = webIdSet, placeIdSet = placeIdSet)
+        ) = add(detail = detail, tagSelection = tagSelection, webIdSet = webIdSet, contactIdSet = contactIdSet, placeIdSet = placeIdSet)
     }
 }

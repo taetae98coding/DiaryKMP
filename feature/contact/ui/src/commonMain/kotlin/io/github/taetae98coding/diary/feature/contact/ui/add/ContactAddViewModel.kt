@@ -32,7 +32,7 @@ internal class ContactAddViewModel(
             uiState.update { value -> value.copy(isInProgress = true) }
             try {
                 addContactUseCase(parameter = AddContactUseCase.Parameter(detail = detail))
-                    .onSuccess { _effect.send(ContactAddEffect.AddSucceeded) }
+                    .onSuccess { id -> _effect.send(ContactAddEffect.AddSucceeded(id = id)) }
                     .onFailure { throwable ->
                         when (throwable) {
                             is ContactNameBlankException -> _effect.send(ContactAddEffect.NameBlank)

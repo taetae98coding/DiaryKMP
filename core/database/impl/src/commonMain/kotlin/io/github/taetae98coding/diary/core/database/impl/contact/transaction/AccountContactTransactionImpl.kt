@@ -51,7 +51,26 @@ internal class AccountContactTransactionImpl(
                 footSizeMillimeter = detail.footSizeMillimeter,
                 birthday = detail.birthday,
                 birthdayCalendar = detail.birthdayCalendar,
+                hometown = detail.hometown,
                 phoneNumberList = detail.phoneNumberList,
+                updatedAt = updatedAt,
+            )
+        }
+
+    override suspend fun updateFavorite(
+        accountId: Uuid,
+        contactId: Uuid,
+        isFavorite: Boolean,
+        updatedAt: Instant,
+    ): Int =
+        updateAndMarkPending(
+            accountId = accountId,
+            contactId = contactId,
+        ) {
+            database.accountContactDao().updateFavorite(
+                accountId = accountId,
+                contactId = contactId,
+                isFavorite = isFavorite,
                 updatedAt = updatedAt,
             )
         }

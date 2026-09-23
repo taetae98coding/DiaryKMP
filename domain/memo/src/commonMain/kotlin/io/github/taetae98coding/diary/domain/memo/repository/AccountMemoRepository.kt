@@ -31,6 +31,7 @@ public interface AccountMemoRepository {
         tagIdSet: Set<Uuid>,
         placeIdSet: Set<Uuid> = emptySet(),
         webIdSet: Set<Uuid> = emptySet(),
+        contactIdSet: Set<Uuid> = emptySet(),
     )
 
     public suspend fun updateFinished(

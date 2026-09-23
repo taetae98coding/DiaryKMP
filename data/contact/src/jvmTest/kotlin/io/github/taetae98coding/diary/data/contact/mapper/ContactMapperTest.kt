@@ -19,6 +19,7 @@ class ContactMapperTest :
                     ContactLocalEntity(
                         id = domain.id,
                         detail = domain.detail.toLocal(),
+                        isFavorite = domain.isFavorite,
                         isDeleted = domain.isDeleted,
                         updatedAt = domain.updatedAt,
                         createdAt = domain.createdAt,
@@ -34,6 +35,7 @@ class ContactMapperTest :
                     Contact(
                         id = local.id,
                         detail = local.detail.toDomain(),
+                        isFavorite = local.isFavorite,
                         isDeleted = local.isDeleted,
                         updatedAt = local.updatedAt,
                         createdAt = local.createdAt,

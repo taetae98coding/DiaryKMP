@@ -10,6 +10,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
+import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactAddedResultEffect
+import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.form.MemoFormState
 import io.github.taetae98coding.diary.feature.memo.ui.form.handleMemoFormEvent
 import io.github.taetae98coding.diary.feature.memo.ui.form.rememberMemoDetailFormState
@@ -35,6 +37,8 @@ internal fun MemoDetailScreen(
     navigateToTagDetail: (Uuid) -> Unit,
     navigateToWebAdd: () -> Unit,
     navigateToWebDetail: (Uuid) -> Unit,
+    navigateToContactAdd: () -> Unit,
+    navigateToContactDetail: (Uuid) -> Unit,
     navigateToPlaceAdd: (Coordinate?) -> Unit,
     navigateToPlaceDetail: (Uuid) -> Unit,
     tagAddRequestKey: Uuid,
@@ -43,6 +47,7 @@ internal fun MemoDetailScreen(
     detailViewModel: MemoDetailViewModel,
     tagViewModel: MemoTagViewModel,
     webViewModel: MemoWebViewModel,
+    contactViewModel: MemoContactViewModel,
     placeViewModel: MemoPlaceViewModel,
     placeMapViewModel: MemoPlaceMapViewModel,
     geminiViewModel: MemoGeminiViewModel,
@@ -51,15 +56,17 @@ internal fun MemoDetailScreen(
     val uiState by detailViewModel.uiState.collectAsStateWithLifecycle()
     val tagUiState by tagViewModel.uiState.collectAsStateWithLifecycle()
     val webUiState by webViewModel.uiState.collectAsStateWithLifecycle()
+    val contactUiState by contactViewModel.uiState.collectAsStateWithLifecycle()
     val placeUiState by placeViewModel.uiState.collectAsStateWithLifecycle()
     val placeMapUiState by placeMapViewModel.uiState.collectAsStateWithLifecycle()
     val geminiUiState by geminiViewModel.uiState.collectAsStateWithLifecycle()
     val tagPagingItems = tagViewModel.tagPagingData.collectAsLazyPagingItems()
     val webPagingItems = webViewModel.webPagingData.collectAsLazyPagingItems()
+    val contactPagingItems = contactViewModel.contactPagingData.collectAsLazyPagingItems()
     val placePagingItems = placeViewModel.placePagingData.collectAsLazyPagingItems()
     val content = uiState as? MemoDetailUiState.Content
 
-    MemoDetailEnterEffect(tagAddRequestKey = tagAddRequestKey, tagViewModel = tagViewModel, webViewModel = webViewModel, placeViewModel = placeViewModel, placeMapViewModel = placeMapViewModel)
+    MemoDetailEnterEffect(tagAddRequestKey = tagAddRequestKey, tagViewModel = tagViewModel, webViewModel = webViewModel, contactViewModel = contactViewModel, placeViewModel = placeViewModel, placeMapViewModel = placeMapViewModel)
 
     key(content?.id) {
         val scaffoldState = rememberMemoDetailFormState(initialDetail = content?.detail ?: MemoDetail.EMPTY)
@@ -77,17 +84,21 @@ internal fun MemoDetailScreen(
                     state = scaffoldState,
                     tagPagingItems = tagPagingItems,
                     webPagingItems = webPagingItems,
+                    contactPagingItems = contactPagingItems,
                     placePagingItems = placePagingItems,
                     navigateToTagAdd = navigateToTagAdd,
                     navigateToTagDetail = navigateToTagDetail,
                     navigateToWebAdd = navigateToWebAdd,
                     navigateToWebDetail = navigateToWebDetail,
+                    navigateToContactAdd = navigateToContactAdd,
+                    navigateToContactDetail = navigateToContactDetail,
                     navigateToPlaceAdd = navigateToPlaceAdd,
                     navigateToPlaceDetail = navigateToPlaceDetail,
                 )
             },
             onTagPickerEvent = { event -> handleMemoDetailTagPickerEvent(event = event, tagViewModel = tagViewModel, navigateToTagAdd = navigateToTagAdd) },
             onWebPickerEvent = { event -> handleMemoDetailWebPickerEvent(event = event, webViewModel = webViewModel, navigateToWebAdd = navigateToWebAdd) },
+            onContactPickerEvent = { event -> handleMemoDetailContactPickerEvent(event = event, contactViewModel = contactViewModel, navigateToContactAdd = navigateToContactAdd) },
             onPlacePickerEvent = { event -> handleMemoDetailPlacePickerEvent(event = event, placeViewModel = placeViewModel, navigateToPlaceAdd = navigateToPlaceAdd) },
             onGeminiEvent = { event -> handleMemoGeminiEvent(event = event, geminiViewModel = geminiViewModel, state = scaffoldState) },
             onGeminiDismissRequest = geminiViewModel::close,
@@ -95,6 +106,8 @@ internal fun MemoDetailScreen(
             tagUiStateProvider = { tagUiState },
             webUiStateProvider = { webUiState },
             webPagingItems = webPagingItems,
+            contactUiStateProvider = { contactUiState },
+            contactPagingItems = contactPagingItems,
             placeCardUiStateProvider = { MemoPlaceCardUiState(mapUiState = placeMapUiState, placeUiState = placeUiState) },
             placePagingItems = placePagingItems,
             geminiUiStateProvider = { geminiUiState },
@@ -127,6 +140,7 @@ private fun MemoDetailEnterEffect(
     tagAddRequestKey: Uuid,
     tagViewModel: MemoTagViewModel,
     webViewModel: MemoWebViewModel,
+    contactViewModel: MemoContactViewModel,
     placeViewModel: MemoPlaceViewModel,
     placeMapViewModel: MemoPlaceMapViewModel,
 ) {
@@ -139,5 +153,6 @@ private fun MemoDetailEnterEffect(
         onTagAdded = tagViewModel::selectTag,
     )
     MemoWebAddedResultEffect(onWebAdded = webViewModel::selectWeb)
+    MemoContactAddedResultEffect(onContactAdded = contactViewModel::selectContact)
     MemoPlaceAddedResultEffect(onPlaceAdded = placeViewModel::selectPlace)
 }

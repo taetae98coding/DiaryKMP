@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.core.database.api.memo.transaction
 
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
+import io.github.taetae98coding.diary.core.database.api.memocontact.entity.MemoContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memoplace.entity.MemoPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memoweb.entity.MemoWebLocalEntity
@@ -15,6 +16,7 @@ public interface AccountMemoTransaction {
         memoTagList: List<MemoTagLocalEntity>,
         memoPlaceList: List<MemoPlaceLocalEntity> = emptyList(),
         memoWebList: List<MemoWebLocalEntity> = emptyList(),
+        memoContactList: List<MemoContactLocalEntity> = emptyList(),
     )
 
     public suspend fun updateFinished(

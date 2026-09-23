@@ -51,6 +51,15 @@
     <string name="memo_web_picker_search_empty_title">검색 결과가 없습니다</string>
     <string name="memo_web_picker_search_empty_description">다른 검색어로 찾아보세요</string>
     <string name="memo_web_add_action">웹 추가</string>
+    <string name="memo_contact_select_label">연락처 선택</string>
+    <string name="memo_contact_select_action">연락처 선택</string>
+    <string name="memo_contact_detail_action">연락처 상세 보기</string>
+    <string name="memo_contact_picker_title">연락처 선택</string>
+    <string name="memo_contact_picker_add_label">연락처 추가</string>
+    <string name="memo_contact_picker_search_placeholder">연락처 검색</string>
+    <string name="memo_contact_picker_search_empty_title">검색 결과가 없습니다</string>
+    <string name="memo_contact_picker_search_empty_description">다른 검색어로 찾아보세요</string>
+    <string name="memo_contact_add_action">연락처 추가</string>
     <string name="memo_place_map_content_description">메모 장소 지도</string>
     <string name="memo_place_show_on_map_action">지도에서 위치 보기</string>
     <string name="memo_place_select_label">장소 선택</string>

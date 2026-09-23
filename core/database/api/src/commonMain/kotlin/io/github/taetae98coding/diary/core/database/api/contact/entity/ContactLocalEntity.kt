@@ -14,6 +14,8 @@ public data class ContactLocalEntity(
     val id: Uuid,
     @Embedded
     val detail: ContactDetailLocalEntity,
+    @ColumnInfo(name = "is_favorite", defaultValue = "0")
+    val isFavorite: Boolean,
     @ColumnInfo(name = "is_deleted", defaultValue = "0")
     val isDeleted: Boolean,
     @ColumnInfo(name = "updated_at", defaultValue = "0")

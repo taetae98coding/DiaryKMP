@@ -19,6 +19,7 @@ class ContactRemoteMapperTest :
                     ContactRemoteEntity(
                         id = local.id,
                         detail = local.detail.toRemote(),
+                        isFavorite = local.isFavorite,
                         isDeleted = local.isDeleted,
                         updatedAt = local.updatedAt,
                         createdAt = local.createdAt,
@@ -34,6 +35,7 @@ class ContactRemoteMapperTest :
                     ContactLocalEntity(
                         id = remote.id,
                         detail = remote.detail.toLocal(),
+                        isFavorite = remote.isFavorite,
                         isDeleted = remote.isDeleted,
                         updatedAt = remote.updatedAt,
                         createdAt = remote.createdAt,

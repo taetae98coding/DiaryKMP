@@ -119,6 +119,7 @@ export const contactPushRequestSchema = z.object({
   contactList: z.array(
     z.object({
       id: z.string().uuid(),
+      isFavorite: z.boolean(),
       isDeleted: z.boolean(),
       updatedAt: z.string().datetime({ offset: true }),
       createdAt: z.string().datetime({ offset: true }),
@@ -130,6 +131,7 @@ export const contactPushRequestSchema = z.object({
           footSizeMillimeter: z.number().int().nullable(),
           birthday: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
           birthdayCalendar: z.enum(["solar", "lunar"]).nullable(),
+          hometown: z.string(),
           phoneNumberList: z.array(
             z.object({
               number: z.string(),
@@ -215,6 +217,18 @@ export const memoWebPushRequestSchema = z.object({
     z.object({
       memoId: z.string().uuid(),
       webId: z.string().uuid(),
+      isDeleted: z.boolean(),
+      updatedAt: z.string().datetime({ offset: true }),
+      createdAt: z.string().datetime({ offset: true }),
+    }),
+  ),
+});
+
+export const memoContactPushRequestSchema = z.object({
+  memoContactList: z.array(
+    z.object({
+      memoId: z.string().uuid(),
+      contactId: z.string().uuid(),
       isDeleted: z.boolean(),
       updatedAt: z.string().datetime({ offset: true }),
       createdAt: z.string().datetime({ offset: true }),

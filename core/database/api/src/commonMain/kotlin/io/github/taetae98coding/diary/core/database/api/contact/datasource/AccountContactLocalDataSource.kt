@@ -12,6 +12,11 @@ public interface AccountContactLocalDataSource {
         sort: ListSortLocalEntity,
     ): PagingSource<Int, ContactLocalEntity>
 
+    public fun get(
+        accountId: Uuid,
+        contactIdSet: Set<Uuid>,
+    ): Flow<List<ContactLocalEntity>>
+
     public fun find(
         accountId: Uuid,
         contactId: Uuid,

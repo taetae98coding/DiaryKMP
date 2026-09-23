@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.domain.contact.exception.ContactPhoneNumberBlankException
 import io.github.taetae98coding.diary.domain.contact.usecase.DeleteContactUseCase
+import io.github.taetae98coding.diary.domain.contact.usecase.FavoriteContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.FindContactUseCase
+import io.github.taetae98coding.diary.domain.contact.usecase.UnfavoriteContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.UpdateContactUseCase
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -24,23 +26,29 @@ import kotlin.uuid.Uuid
 internal class ContactDetailViewModel(
     @InjectedParam private val id: Uuid,
     private val updateContactUseCase: UpdateContactUseCase,
+    private val favoriteContactUseCase: FavoriteContactUseCase,
+    private val unfavoriteContactUseCase: UnfavoriteContactUseCase,
     private val deleteContactUseCase: DeleteContactUseCase,
     findContactUseCase: FindContactUseCase,
 ) : ViewModel() {
     private val isUpdateInProgress = MutableStateFlow(false)
+    private val isFavoriteInProgress = MutableStateFlow(false)
     private val isDeleteInProgress = MutableStateFlow(false)
 
     val uiState: StateFlow<ContactDetailUiState> =
         combine(
             findContactUseCase(parameter = id),
             isUpdateInProgress,
+            isFavoriteInProgress,
             isDeleteInProgress,
-        ) { result, isUpdateInProgress, isDeleteInProgress ->
+        ) { result, isUpdateInProgress, isFavoriteInProgress, isDeleteInProgress ->
             result.getOrNull()?.let { contact ->
                 ContactDetailUiState.Content(
                     id = contact.id,
                     detail = contact.detail,
+                    isFavorite = contact.isFavorite,
                     isUpdateInProgress = isUpdateInProgress,
+                    isFavoriteInProgress = isFavoriteInProgress,
                     isDeleteInProgress = isDeleteInProgress,
                 )
             } ?: ContactDetailUiState.Loading
@@ -68,6 +76,26 @@ internal class ContactDetailViewModel(
                     }
             } finally {
                 isUpdateInProgress.value = false
+            }
+        }
+    }
+
+    fun toggleFavorite() {
+        if (isFavoriteInProgress.value) return
+
+        // 사용자가 지금 보고 있는 즐겨찾기 표시의 반대로 바꾼다.
+        val content = uiState.value as? ContactDetailUiState.Content ?: return
+
+        viewModelScope.launch {
+            isFavoriteInProgress.value = true
+            try {
+                if (content.isFavorite) {
+                    unfavoriteContactUseCase(parameter = id)
+                } else {
+                    favoriteContactUseCase(parameter = id)
+                }
+            } finally {
+                isFavoriteInProgress.value = false
             }
         }
     }

@@ -30,6 +30,7 @@ internal class MemoAddViewModel(
         detail: MemoDetail,
         tagSelection: MemoTagSelection,
         webIdSet: Set<Uuid>,
+        contactIdSet: Set<Uuid>,
         placeIdSet: Set<Uuid>,
     ) {
         if (uiState.value.isInProgress) return
@@ -44,6 +45,7 @@ internal class MemoAddViewModel(
                             primaryTagId = tagSelection.primaryTagId,
                             tagIdSet = tagSelection.tagIdSet,
                             webIdSet = webIdSet,
+                            contactIdSet = contactIdSet,
                             placeIdSet = placeIdSet,
                         ),
                 ).onSuccess { _effect.send(MemoAddEffect.AddSucceeded) }

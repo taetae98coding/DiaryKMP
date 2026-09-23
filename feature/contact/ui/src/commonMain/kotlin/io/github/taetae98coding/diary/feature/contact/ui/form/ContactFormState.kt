@@ -18,6 +18,7 @@ internal class ContactFormState(
     val heightState: TextFieldState,
     val footSizeState: TextFieldState,
     val birthdayState: ContactBirthdayInputState,
+    val hometownState: TextFieldState,
     val phoneNumberState: ContactPhoneNumberInputState,
     val hostState: SnackbarHostState,
 ) {
@@ -29,6 +30,7 @@ internal class ContactFormState(
                 height = heightState.heightOrNull(),
                 footSize = footSizeState.footSizeOrNull(),
                 birthday = birthdayState.birthday,
+                hometown = hometownState.text.toString(),
                 phoneNumberList = phoneNumberState.rowList.map { row -> ContactPhoneNumber(number = row.number) },
             )
 }
@@ -60,19 +62,21 @@ private fun rememberContactFormState(initialDetail: ContactDetail): ContactFormS
                     .orEmpty(),
         )
     val birthdayState = rememberContactBirthdayInputState(initialBirthday = initialDetail.birthday)
+    val hometownState = rememberTextFieldState(initialText = initialDetail.hometown)
     val phoneNumberState =
         rememberContactPhoneNumberInputState(
             initialRowList = initialDetail.phoneNumberList.map { phoneNumber -> ContactPhoneNumberRowState(initialNumber = phoneNumber.number) },
         )
     val hostState = remember { SnackbarHostState() }
 
-    return remember(nameState, descriptionState, heightState, footSizeState, birthdayState, phoneNumberState, hostState) {
+    return remember(nameState, descriptionState, heightState, footSizeState, birthdayState, hometownState, phoneNumberState, hostState) {
         ContactFormState(
             nameState = nameState,
             descriptionState = descriptionState,
             heightState = heightState,
             footSizeState = footSizeState,
             birthdayState = birthdayState,
+            hometownState = hometownState,
             phoneNumberState = phoneNumberState,
             hostState = hostState,
         )

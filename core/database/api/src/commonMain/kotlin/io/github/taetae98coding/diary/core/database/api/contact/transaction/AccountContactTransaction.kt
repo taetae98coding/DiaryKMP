@@ -18,6 +18,13 @@ public interface AccountContactTransaction {
         updatedAt: Instant,
     ): Int
 
+    public suspend fun updateFavorite(
+        accountId: Uuid,
+        contactId: Uuid,
+        isFavorite: Boolean,
+        updatedAt: Instant,
+    ): Int
+
     public suspend fun updateDeleted(
         accountId: Uuid,
         contactId: Uuid,

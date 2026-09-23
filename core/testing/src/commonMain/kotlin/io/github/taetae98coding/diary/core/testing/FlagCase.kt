@@ -9,4 +9,12 @@ public val finishedAndDeletedCaseList: List<Pair<Boolean, Boolean>> =
         false to false,
     )
 
+public val favoriteAndDeletedCaseList: List<Pair<Boolean, Boolean>> =
+    listOf(
+        true to true,
+        true to false,
+        false to true,
+        false to false,
+    )
+
 public val isDeletedCaseList: List<Boolean> = listOf(true, false)

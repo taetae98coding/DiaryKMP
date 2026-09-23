@@ -4,11 +4,13 @@ import androidx.room3.withWriteTransaction
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.transaction.AccountMemoTransaction
+import io.github.taetae98coding.diary.core.database.api.memocontact.entity.MemoContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memoplace.entity.MemoPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memoweb.entity.MemoWebLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.memocontact.entity.AccountMemoContactLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memoplace.entity.AccountMemoPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memotag.entity.AccountMemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memoweb.entity.AccountMemoWebLocalEntity
@@ -26,6 +28,7 @@ internal class AccountMemoTransactionImpl(
         memoTagList: List<MemoTagLocalEntity>,
         memoPlaceList: List<MemoPlaceLocalEntity>,
         memoWebList: List<MemoWebLocalEntity>,
+        memoContactList: List<MemoContactLocalEntity>,
     ) {
         database.withWriteTransaction {
             database.memoDao().upsert(memoList)
@@ -67,6 +70,17 @@ internal class AccountMemoTransactionImpl(
                         accountId = accountId,
                         memoId = memoWeb.memoId,
                         webId = memoWeb.webId,
+                        isDirty = true,
+                    )
+                },
+            )
+            database.memoContactDao().upsert(memoContactList)
+            database.accountMemoContactDao().upsert(
+                memoContactList.map { memoContact ->
+                    AccountMemoContactLocalEntity(
+                        accountId = accountId,
+                        memoId = memoContact.memoId,
+                        contactId = memoContact.contactId,
                         isDirty = true,
                     )
                 },

@@ -9,6 +9,7 @@ import kotlin.uuid.Uuid
 public data class ContactRemoteEntity(
     @SerialName("id") val id: Uuid,
     @SerialName("detail") val detail: ContactDetailRemoteEntity,
+    @SerialName("isFavorite") val isFavorite: Boolean,
     @SerialName("isDeleted") val isDeleted: Boolean,
     @SerialName("updatedAt") val updatedAt: Instant,
     @SerialName("createdAt") val createdAt: Instant,

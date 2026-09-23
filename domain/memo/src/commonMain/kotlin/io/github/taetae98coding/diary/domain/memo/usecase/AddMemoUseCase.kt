@@ -43,6 +43,7 @@ public class AddMemoUseCase internal constructor(
             tagIdSet = tagIdSet,
             placeIdSet = parameter.placeIdSet,
             webIdSet = parameter.webIdSet,
+            contactIdSet = parameter.contactIdSet,
         )
 
         requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED)
@@ -56,5 +57,6 @@ public class AddMemoUseCase internal constructor(
         val tagIdSet: Set<Uuid> = emptySet(),
         val placeIdSet: Set<Uuid> = emptySet(),
         val webIdSet: Set<Uuid> = emptySet(),
+        val contactIdSet: Set<Uuid> = emptySet(),
     )
 }

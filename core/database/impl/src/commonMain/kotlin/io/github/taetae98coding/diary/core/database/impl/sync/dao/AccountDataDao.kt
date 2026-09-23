@@ -174,6 +174,27 @@ internal interface AccountDataDao {
 
     @Query(
         """
+        DELETE FROM memo_contact
+        WHERE EXISTS (
+            SELECT 1 FROM account_memo_contact
+            WHERE account_memo_contact.memo_id = memo_contact.memo_id
+                AND account_memo_contact.contact_id = memo_contact.contact_id
+                AND account_memo_contact.account_id = :accountId
+        ) AND NOT EXISTS (
+            SELECT 1 FROM account_memo_contact
+            WHERE account_memo_contact.memo_id = memo_contact.memo_id
+                AND account_memo_contact.contact_id = memo_contact.contact_id
+                AND account_memo_contact.account_id != :accountId
+        )
+        """,
+    )
+    suspend fun deleteMemoContact(accountId: Uuid)
+
+    @Query("DELETE FROM account_memo_contact WHERE account_id = :accountId")
+    suspend fun deleteAccountMemoContact(accountId: Uuid)
+
+    @Query(
+        """
         DELETE FROM tag_link
         WHERE EXISTS (
             SELECT 1 FROM account_tag_link

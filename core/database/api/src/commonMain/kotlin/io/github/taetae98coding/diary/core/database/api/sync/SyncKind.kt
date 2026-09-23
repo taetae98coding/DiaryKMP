@@ -10,6 +10,7 @@ public enum class SyncKind {
     MEMO_TAG,
     MEMO_PLACE,
     MEMO_WEB,
+    MEMO_CONTACT,
     TAG_LINK,
     WEB_TAG,
     PLACE_TAG,

@@ -1,5 +1,7 @@
 package io.github.taetae98coding.diary.feature.contact.ui.add
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -8,6 +10,8 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.navigation3.runtime.result.LocalResultEventBus
+import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.mockk.every
 import io.mockk.mockk
@@ -29,13 +33,15 @@ internal const val NAME_INPUT_INDEX = 0
 internal const val DESCRIPTION_INPUT_INDEX = 1
 internal const val HEIGHT_INPUT_INDEX = 2
 internal const val FOOT_SIZE_INPUT_INDEX = 3
-internal const val PHONE_NUMBER_INPUT_INDEX = 4
-internal const val INPUT_COUNT_WITHOUT_PHONE_NUMBER = 4
+internal const val HOMETOWN_INPUT_INDEX = 4
+internal const val PHONE_NUMBER_INPUT_INDEX = 5
+internal const val INPUT_COUNT_WITHOUT_PHONE_NUMBER = 5
 
 internal const val TYPED_NAME = "ContactName"
 internal const val TYPED_DESCRIPTION = "ContactDescription"
 internal const val TYPED_HEIGHT = "175.5"
 internal const val TYPED_FOOT_SIZE = "250"
+internal const val TYPED_HOMETOWN = "강원도 춘천시"
 internal const val TYPED_FIRST_PHONE_NUMBER = "010-1234-5678"
 internal const val TYPED_SECOND_PHONE_NUMBER = "02-987-6543"
 
@@ -49,6 +55,7 @@ internal const val DEFAULT_BIRTHDAY_CLEAR_DESCRIPTION = "Clear birthday"
 internal const val DEFAULT_BIRTHDAY_CALENDAR_DESCRIPTION = "Birthday calendar"
 internal const val DEFAULT_BIRTHDAY_CALENDAR_SOLAR = "Solar"
 internal const val DEFAULT_BIRTHDAY_CALENDAR_LUNAR = "Lunar"
+internal const val DEFAULT_HOMETOWN_LABEL = "Hometown"
 internal const val DEFAULT_PHONE_NUMBER_LABEL = "Phone numbers"
 internal const val DEFAULT_PHONE_NUMBER_ADD_BUTTON_DESCRIPTION = "Add phone number"
 internal const val DEFAULT_PHONE_NUMBER_REMOVE_BUTTON_DESCRIPTION = "Remove phone number"
@@ -66,6 +73,7 @@ internal const val KOREAN_HEIGHT_LABEL = "키 (cm)"
 internal const val KOREAN_FOOT_SIZE_LABEL = "신발 사이즈 (mm)"
 internal const val KOREAN_BIRTHDAY_LABEL = "생일"
 internal const val KOREAN_BIRTHDAY_NOT_SET = "선택 안 함"
+internal const val KOREAN_HOMETOWN_LABEL = "고향"
 internal const val KOREAN_PHONE_NUMBER_LABEL = "전화번호"
 internal const val KOREAN_PHONE_NUMBER_ADD_BUTTON_DESCRIPTION = "전화번호 추가"
 internal const val KOREAN_ADD_BUTTON_DESCRIPTION = "연락처 추가"
@@ -94,15 +102,29 @@ internal fun ComposeContentTestRule.setContactAddScreen(
     viewModel: ContactAddViewModel = screenTestViewModel(),
     navigateUp: () -> Unit = {},
     componentVisible: ContactAddScaffoldComponentVisible = ContactAddScaffoldComponentVisible(),
+    resultEventBus: ResultEventBus = ResultEventBus(),
 ) {
     setContent {
-        DiaryTheme {
+        ContactAddScreenTestTheme(resultEventBus = resultEventBus) {
             ContactAddScreen(
                 navigateUp = navigateUp,
                 componentVisibleProvider = { componentVisible },
                 viewModel = viewModel,
             )
         }
+    }
+}
+
+/**
+ * ContactAdd 화면은 추가 결과를 [LocalResultEventBus]로 알리므로, 화면을 배치하는 테스트는 이 테마로 감싼다.
+ */
+@Composable
+internal fun ContactAddScreenTestTheme(
+    resultEventBus: ResultEventBus = ResultEventBus(),
+    content: @Composable () -> Unit,
+) {
+    CompositionLocalProvider(LocalResultEventBus provides resultEventBus) {
+        DiaryTheme(content = content)
     }
 }
 
@@ -113,6 +135,8 @@ internal fun ComposeContentTestRule.descriptionInput(): SemanticsNodeInteraction
 internal fun ComposeContentTestRule.heightInput(): SemanticsNodeInteraction = onAllNodes(hasSetTextAction())[HEIGHT_INPUT_INDEX]
 
 internal fun ComposeContentTestRule.footSizeInput(): SemanticsNodeInteraction = onAllNodes(hasSetTextAction())[FOOT_SIZE_INPUT_INDEX]
+
+internal fun ComposeContentTestRule.hometownInput(): SemanticsNodeInteraction = onAllNodes(hasSetTextAction())[HOMETOWN_INPUT_INDEX]
 
 internal fun ComposeContentTestRule.phoneNumberInput(row: Int = 0): SemanticsNodeInteraction = onAllNodes(hasSetTextAction())[PHONE_NUMBER_INPUT_INDEX + row]
 
@@ -139,6 +163,7 @@ internal fun ComposeContentTestRule.fillAllInput() {
     nameInput().performTextInput(TYPED_NAME)
     descriptionInput().performTextInput(TYPED_DESCRIPTION)
     footSizeInput().performTextInput(TYPED_FOOT_SIZE)
+    hometownInput().performTextInput(TYPED_HOMETOWN)
     selectBirthday()
     addPhoneNumberRow()
     phoneNumberInput().performTextInput(TYPED_FIRST_PHONE_NUMBER)

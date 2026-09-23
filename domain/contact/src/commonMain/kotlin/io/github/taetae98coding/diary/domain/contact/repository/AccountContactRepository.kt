@@ -15,6 +15,11 @@ public interface AccountContactRepository {
         sort: ListSort,
     ): Flow<PagingData<Contact>>
 
+    public fun get(
+        account: Account,
+        contactIdSet: Set<Uuid>,
+    ): Flow<List<Contact>>
+
     public fun find(
         account: Account,
         contactId: Uuid,
@@ -29,6 +34,13 @@ public interface AccountContactRepository {
         account: Account,
         contactId: Uuid,
         detail: ContactDetail,
+        updatedAt: Instant,
+    ): Int
+
+    public suspend fun updateFavorite(
+        account: Account,
+        contactId: Uuid,
+        isFavorite: Boolean,
         updatedAt: Instant,
     ): Int
 

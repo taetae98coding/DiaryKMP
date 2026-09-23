@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -19,11 +20,15 @@ import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefault
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.place.toCoordinate
+import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.web.Web
+import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactInputUiState
+import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactPickerDialogHost
+import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactPickerEvent
 import io.github.taetae98coding.diary.feature.memo.ui.form.MemoFormEvent
 import io.github.taetae98coding.diary.feature.memo.ui.form.MemoFormState
 import io.github.taetae98coding.diary.feature.memo.ui.form.rememberMemoDetailFormState
@@ -49,6 +54,7 @@ internal fun MemoDetailScaffold(
     onFormEvent: (MemoFormEvent) -> Unit,
     onTagPickerEvent: (MemoTagPickerEvent) -> Unit,
     onWebPickerEvent: (MemoWebPickerEvent) -> Unit,
+    onContactPickerEvent: (MemoContactPickerEvent) -> Unit,
     onPlacePickerEvent: (MemoPlacePickerEvent) -> Unit,
     onGeminiEvent: (MemoGeminiDialogEvent) -> Unit,
     onGeminiDismissRequest: () -> Unit,
@@ -59,6 +65,8 @@ internal fun MemoDetailScaffold(
     tagUiStateProvider: () -> MemoTagInputUiState = { MemoTagInputUiState() },
     webUiStateProvider: () -> MemoWebInputUiState = { MemoWebInputUiState() },
     webPagingItems: LazyPagingItems<Web> = remember { flowOf(PagingData.empty<Web>()) }.collectAsLazyPagingItems(),
+    contactUiStateProvider: () -> MemoContactInputUiState = { MemoContactInputUiState() },
+    contactPagingItems: LazyPagingItems<Contact> = remember { flowOf(PagingData.empty<Contact>()) }.collectAsLazyPagingItems(),
     placeCardUiStateProvider: () -> MemoPlaceCardUiState = { MemoPlaceCardUiState() },
     placePagingItems: LazyPagingItems<Place> = remember { flowOf(PagingData.empty<Place>()) }.collectAsLazyPagingItems(),
     geminiUiStateProvider: () -> MemoGeminiUiState = { MemoGeminiUiState() },
@@ -66,12 +74,7 @@ internal fun MemoDetailScaffold(
     isStandalone: Boolean = true,
 ) {
     val placeMapState = rememberMemoPlaceMapState(uiState = placeCardUiStateProvider())
-    val isChanged by remember(state) {
-        derivedStateOf {
-            val content = uiStateProvider() as? MemoDetailUiState.Content
-            content != null && state.detail != content.detail
-        }
-    }
+    val isChanged by rememberMemoDetailChanged(state = state, uiStateProvider = uiStateProvider)
 
     Scaffold(
         modifier = modifier.submitShortcut(isEnabledProvider = { isChanged }) { onEvent(MemoDetailScaffoldEvent.ClickUpdate) },
@@ -101,6 +104,7 @@ internal fun MemoDetailScaffold(
             uiStateProvider = uiStateProvider,
             tagUiStateProvider = tagUiStateProvider,
             webUiStateProvider = webUiStateProvider,
+            contactUiStateProvider = contactUiStateProvider,
             placeCardUiStateProvider = placeCardUiStateProvider,
             modifier =
                 Modifier
@@ -112,6 +116,7 @@ internal fun MemoDetailScaffold(
     MemoDetailDialogHost(
         onTagPickerEvent = onTagPickerEvent,
         onWebPickerEvent = onWebPickerEvent,
+        onContactPickerEvent = onContactPickerEvent,
         onPlacePickerEvent = onPlacePickerEvent,
         onGeminiEvent = onGeminiEvent,
         onGeminiDismissRequest = onGeminiDismissRequest,
@@ -120,6 +125,8 @@ internal fun MemoDetailScaffold(
         tagUiStateProvider = tagUiStateProvider,
         webPagingItems = webPagingItems,
         webUiStateProvider = webUiStateProvider,
+        contactPagingItems = contactPagingItems,
+        contactUiStateProvider = contactUiStateProvider,
         placePagingItems = placePagingItems,
         placeCardUiStateProvider = placeCardUiStateProvider,
         placeCoordinateProvider = { placeMapState?.coordinate?.toCoordinate() },
@@ -127,10 +134,24 @@ internal fun MemoDetailScaffold(
     )
 }
 
+// 수정 동작의 노출 여부는 입력과 저장 내용을 비교해 정하므로, 두 값이 바뀔 때만 다시 계산한다.
+@Composable
+private fun rememberMemoDetailChanged(
+    state: MemoFormState,
+    uiStateProvider: () -> MemoDetailUiState,
+): State<Boolean> =
+    remember(state) {
+        derivedStateOf {
+            val content = uiStateProvider() as? MemoDetailUiState.Content
+            content != null && state.detail != content.detail
+        }
+    }
+
 @Composable
 private fun MemoDetailDialogHost(
     onTagPickerEvent: (MemoTagPickerEvent) -> Unit,
     onWebPickerEvent: (MemoWebPickerEvent) -> Unit,
+    onContactPickerEvent: (MemoContactPickerEvent) -> Unit,
     onPlacePickerEvent: (MemoPlacePickerEvent) -> Unit,
     onGeminiEvent: (MemoGeminiDialogEvent) -> Unit,
     onGeminiDismissRequest: () -> Unit,
@@ -139,6 +160,8 @@ private fun MemoDetailDialogHost(
     tagUiStateProvider: () -> MemoTagInputUiState,
     webPagingItems: LazyPagingItems<Web>,
     webUiStateProvider: () -> MemoWebInputUiState,
+    contactPagingItems: LazyPagingItems<Contact>,
+    contactUiStateProvider: () -> MemoContactInputUiState,
     placePagingItems: LazyPagingItems<Place>,
     placeCardUiStateProvider: () -> MemoPlaceCardUiState,
     placeCoordinateProvider: () -> Coordinate?,
@@ -151,6 +174,12 @@ private fun MemoDetailDialogHost(
         uiStateProvider = tagUiStateProvider,
     )
     MemoWebPickerDialogHost(dialogState = state.webPickerDialogState, onEvent = onWebPickerEvent, webPagingItems = webPagingItems, uiStateProvider = webUiStateProvider)
+    MemoContactPickerDialogHost(
+        dialogState = state.contactPickerDialogState,
+        onEvent = onContactPickerEvent,
+        contactPagingItems = contactPagingItems,
+        uiStateProvider = contactUiStateProvider,
+    )
     MemoPlacePickerDialogHost(
         dialogState = state.placePickerDialogState,
         onEvent = onPlacePickerEvent,
@@ -190,6 +219,7 @@ private fun MemoDetailScaffoldPreview(
             onFormEvent = {},
             onTagPickerEvent = {},
             onWebPickerEvent = {},
+            onContactPickerEvent = {},
             onPlacePickerEvent = {},
             onGeminiEvent = {},
             onGeminiDismissRequest = {},

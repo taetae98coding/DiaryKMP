@@ -12,6 +12,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w480dp-h1200dp")
@@ -21,7 +22,7 @@ class ContactAddScreenEffectTest {
 
     @Test
     fun `TC-CONTACT-ADD-FEATURE-005 추가에 성공하면 다음 연락처를 작성할 수 있는 상태로 초기화한다`() {
-        composeRule.setContactAddScreen(viewModel = effectViewModel(effect = ContactAddEffect.AddSucceeded))
+        composeRule.setContactAddScreen(viewModel = effectViewModel(effect = ContactAddEffect.AddSucceeded(id = Uuid.random())))
         composeRule.fillAllInput()
 
         composeRule.clickAdd()
@@ -30,13 +31,14 @@ class ContactAddScreenEffectTest {
         composeRule.descriptionInput().assert(hasText(""))
         composeRule.heightInput().assert(hasText(""))
         composeRule.footSizeInput().assert(hasText(""))
+        composeRule.hometownInput().assert(hasText(""))
         composeRule.onNodeWithText(DEFAULT_BIRTHDAY_NOT_SET).assertExists()
         composeRule.phoneNumberRowCount() shouldBe 0
     }
 
     @Test
     fun `TC-CONTACT-ADD-FEATURE-015 추가에 성공하면 이름 입력으로 초점을 옮긴다`() {
-        composeRule.setContactAddScreen(viewModel = effectViewModel(effect = ContactAddEffect.AddSucceeded))
+        composeRule.setContactAddScreen(viewModel = effectViewModel(effect = ContactAddEffect.AddSucceeded(id = Uuid.random())))
         composeRule.fillAllInput()
         composeRule.heightInput().assertIsFocused()
 
@@ -51,6 +53,7 @@ class ContactAddScreenEffectTest {
         composeRule.descriptionInput().performTextInput(TYPED_DESCRIPTION)
         composeRule.heightInput().performTextInput(TYPED_HEIGHT)
         composeRule.footSizeInput().performTextInput(TYPED_FOOT_SIZE)
+        composeRule.hometownInput().performTextInput(TYPED_HOMETOWN)
         composeRule.selectBirthday()
 
         composeRule.clickAdd()
@@ -58,6 +61,7 @@ class ContactAddScreenEffectTest {
         composeRule.descriptionInput().assert(hasText(TYPED_DESCRIPTION))
         composeRule.heightInput().assert(hasText(TYPED_HEIGHT))
         composeRule.footSizeInput().assert(hasText(TYPED_FOOT_SIZE))
+        composeRule.hometownInput().assert(hasText(TYPED_HOMETOWN))
         composeRule.onNodeWithText(todayDisplayText()).assertExists()
     }
 

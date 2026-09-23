@@ -33,6 +33,7 @@ internal fun ContactDetailScreen(
                 when (event) {
                     is ContactDetailScaffoldEvent.ClickNavigateUp -> navigateUp()
                     is ContactDetailScaffoldEvent.ClickUpdate -> viewModel.update(detail = state.detail)
+                    is ContactDetailScaffoldEvent.ClickFavorite -> viewModel.toggleFavorite()
                     is ContactDetailScaffoldEvent.ClickDelete -> viewModel.delete()
                 }
             },

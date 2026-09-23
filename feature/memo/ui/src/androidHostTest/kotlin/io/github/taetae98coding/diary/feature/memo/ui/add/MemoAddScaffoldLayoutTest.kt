@@ -29,6 +29,7 @@ class MemoAddScaffoldLayoutTest {
                     onFormEvent = {},
                     onTagPickerEvent = {},
                     onWebPickerEvent = {},
+                    onContactPickerEvent = {},
                     onPlacePickerEvent = {},
                     onGeminiEvent = {},
                     onGeminiDismissRequest = {},

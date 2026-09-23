@@ -14,6 +14,8 @@ import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestK
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
+import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoFinishedListNavKey
@@ -140,6 +142,8 @@ private fun EntryProviderScope<ScreenNavKey>.memoAddEntry(backStack: NavBackStac
             navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id)) },
             navigateToWebAdd = { backStack.add(WebAddNavKey()) },
             navigateToWebDetail = { id -> backStack.add(WebDetailNavKey(id = id)) },
+            navigateToContactAdd = { backStack.add(ContactAddNavKey) },
+            navigateToContactDetail = { id -> backStack.add(ContactDetailNavKey(id = id)) },
             navigateToPlaceAdd = { coordinate ->
                 backStack.add(
                     PlaceAddNavKey(
@@ -156,6 +160,7 @@ private fun EntryProviderScope<ScreenNavKey>.memoAddEntry(backStack: NavBackStac
             addViewModel = koinViewModel(),
             tagViewModel = koinViewModel { parametersOf(key.primaryTagId) },
             webViewModel = koinViewModel(),
+            contactViewModel = koinViewModel(),
             placeViewModel = koinViewModel(),
             placeMapViewModel = koinViewModel(),
             geminiViewModel = koinViewModel(),
@@ -180,6 +185,8 @@ private fun EntryProviderScope<ScreenNavKey>.memoDetailEntry(backStack: NavBackS
             navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id)) },
             navigateToWebAdd = { backStack.add(WebAddNavKey()) },
             navigateToWebDetail = { id -> backStack.add(WebDetailNavKey(id = id)) },
+            navigateToContactAdd = { backStack.add(ContactAddNavKey) },
+            navigateToContactDetail = { id -> backStack.add(ContactDetailNavKey(id = id)) },
             navigateToPlaceAdd = { coordinate ->
                 backStack.add(
                     PlaceAddNavKey(
@@ -195,6 +202,7 @@ private fun EntryProviderScope<ScreenNavKey>.memoDetailEntry(backStack: NavBackS
             detailViewModel = koinViewModel { parametersOf(key.id) },
             tagViewModel = koinViewModel { parametersOf(key.id) },
             webViewModel = koinViewModel { parametersOf(key.id) },
+            contactViewModel = koinViewModel { parametersOf(key.id) },
             placeViewModel = koinViewModel { parametersOf(key.id) },
             placeMapViewModel = koinViewModel(),
             geminiViewModel = koinViewModel(),
@@ -223,6 +231,8 @@ private fun MemoAddDetailPlaceholder(backStack: NavBackStack<ScreenNavKey>) {
         navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id)) },
         navigateToWebAdd = { backStack.add(WebAddNavKey()) },
         navigateToWebDetail = { id -> backStack.add(WebDetailNavKey(id = id)) },
+        navigateToContactAdd = { backStack.add(ContactAddNavKey) },
+        navigateToContactDetail = { id -> backStack.add(ContactDetailNavKey(id = id)) },
         navigateToPlaceAdd = { coordinate ->
             backStack.add(
                 PlaceAddNavKey(
@@ -239,6 +249,7 @@ private fun MemoAddDetailPlaceholder(backStack: NavBackStack<ScreenNavKey>) {
         addViewModel = koinViewModel(),
         tagViewModel = koinViewModel { parametersOf(null) },
         webViewModel = koinViewModel(),
+        contactViewModel = koinViewModel(),
         placeViewModel = koinViewModel(),
         placeMapViewModel = koinViewModel(),
         geminiViewModel = koinViewModel(),

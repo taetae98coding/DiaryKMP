@@ -30,7 +30,7 @@ class ContactPushRequestRemoteEntityTest :
                     .single()
                     .jsonObject
 
-            contact.keys shouldBe setOf("id", "detail", "isDeleted", "updatedAt", "createdAt")
+            contact.keys shouldBe setOf("id", "detail", "isFavorite", "isDeleted", "updatedAt", "createdAt")
             contact.getValue("detail").jsonObject.keys shouldBe
                 setOf(
                     "name",
@@ -39,6 +39,7 @@ class ContactPushRequestRemoteEntityTest :
                     "footSizeMillimeter",
                     "birthday",
                     "birthdayCalendar",
+                    "hometown",
                     "phoneNumberList",
                 )
         }

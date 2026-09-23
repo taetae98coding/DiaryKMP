@@ -12,6 +12,8 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.feature.contact.ui.Res
 import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_delete_button_content_description
+import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_favorite_button_content_description
+import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_unfavorite_button_content_description
 import io.github.taetae98coding.diary.feature.contact.ui.contact_navigate_up_button_content_description
 import org.jetbrains.compose.resources.stringResource
 import kotlin.uuid.Uuid
@@ -49,6 +51,17 @@ internal fun ContactDetailTopBar(
             val uiState = uiStateProvider()
 
             if (uiState is ContactDetailUiState.Content) {
+                ContactDetailFavoriteButton(
+                    onClick = { onEvent(ContactDetailScaffoldEvent.ClickFavorite) },
+                    contentDescription =
+                        if (uiState.isFavorite) {
+                            stringResource(Res.string.contact_detail_unfavorite_button_content_description)
+                        } else {
+                            stringResource(Res.string.contact_detail_favorite_button_content_description)
+                        },
+                    isFavoriteProvider = { uiState.isFavorite },
+                    isInProgressProvider = { uiState.isFavoriteInProgress },
+                )
                 DeleteButton(
                     onClick = { onEvent(ContactDetailScaffoldEvent.ClickDelete) },
                     contentDescription = stringResource(Res.string.contact_detail_delete_button_content_description),
@@ -65,7 +78,7 @@ private fun ContactDetailTopBarPreview() {
     DiaryTheme {
         ContactDetailTopBar(
             onEvent = {},
-            uiStateProvider = { ContactDetailUiState.Content(id = Uuid.NIL, detail = ContactDetail.EMPTY.copy(name = "김철수")) },
+            uiStateProvider = { ContactDetailUiState.Content(id = Uuid.NIL, detail = ContactDetail.EMPTY.copy(name = "김철수"), isFavorite = true) },
         )
     }
 }

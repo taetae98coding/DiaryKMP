@@ -97,7 +97,7 @@ class UpdateContactUseCaseTest :
                     detailSlot.captured.phoneNumberList shouldBe listOf(first, second, third)
                 }
 
-                Then("TC-CONTACT-DETAIL-DOMAIN-007 비운 값은 없는 값으로 반영한다") {
+                Then("TC-CONTACT-DETAIL-DOMAIN-007 비운 값은 없는 값이나 비어 있는 값으로 반영한다") {
                     useCase(
                         parameter =
                             UpdateContactUseCase.Parameter(
@@ -108,6 +108,7 @@ class UpdateContactUseCaseTest :
                                         height = null,
                                         footSize = null,
                                         birthday = null,
+                                        hometown = "",
                                         phoneNumberList = emptyList(),
                                     ),
                             ),
@@ -117,7 +118,18 @@ class UpdateContactUseCaseTest :
                     detailSlot.captured.height shouldBe null
                     detailSlot.captured.footSize shouldBe null
                     detailSlot.captured.birthday shouldBe null
+                    detailSlot.captured.hometown shouldBe ""
                     detailSlot.captured.phoneNumberList shouldBe emptyList()
+                }
+
+                Then("TC-CONTACT-DETAIL-DOMAIN-006 입력한 고향을 그대로 반영한다") {
+                    val hometown = "hometown-${fixtureMonkey.giveMeOne<String>()}"
+
+                    useCase(
+                        parameter = UpdateContactUseCase.Parameter(id = stored.id, detail = detail(hometown = hometown)),
+                    ).shouldBeSuccess(1)
+
+                    detailSlot.captured.hometown shouldBe hometown
                 }
 
                 Then("TC-CONTACT-DETAIL-DOMAIN-012 달력 구분만 바꿔도 그 구분으로 반영한다") {
@@ -381,6 +393,7 @@ class UpdateContactUseCaseTest :
             Contact(
                 id = Uuid.random(),
                 detail = detail(name = "stored-${fixtureMonkey.giveMeOne<String>()}"),
+                isFavorite = false,
                 isDeleted = false,
                 updatedAt = instant(),
                 createdAt = instant(),
@@ -393,6 +406,7 @@ class UpdateContactUseCaseTest :
             height: io.github.taetae98coding.diary.core.model.measure.Length? = null,
             footSize: io.github.taetae98coding.diary.core.model.measure.Length? = null,
             birthday: ContactBirthday? = null,
+            hometown: String = "",
             phoneNumberList: List<ContactPhoneNumber> = emptyList(),
         ): ContactDetail =
             ContactDetail(
@@ -401,6 +415,7 @@ class UpdateContactUseCaseTest :
                 height = height,
                 footSize = footSize,
                 birthday = birthday,
+                hometown = hometown,
                 phoneNumberList = phoneNumberList,
             )
     }

@@ -332,6 +332,71 @@ class AddMemoUseCaseTest :
             }
         }
 
+        Given("로그인한 계정과 선택할 연락처가 준비되어 있다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val contactIdSetSlot = slot<Set<Uuid>>()
+            val getAccountUseCase = mockk<GetAccountUseCase>()
+            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            val requestSyncUseCase = mockk<RequestSyncUseCase>()
+            coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.success(Unit)
+            val accountMemoRepository = mockk<AccountMemoRepository>()
+            coEvery {
+                accountMemoRepository.upsert(account = account, memo = any(), tagIdSet = any(), placeIdSet = any(), contactIdSet = capture(contactIdSetSlot))
+            } just Runs
+            val clock = mockk<Clock>()
+            every { clock.now() } returns now
+            val useCase =
+                AddMemoUseCase(
+                    getAccountUseCase = getAccountUseCase,
+                    requestSyncUseCase = requestSyncUseCase,
+                    accountMemoRepository = accountMemoRepository,
+                    clock = clock,
+                )
+
+            When("연락처를 선택하고 메모를 추가한다") {
+                Then("TC-MEMO-ADD-DATA-019 TC-MEMO-ADD-DATA-022 선택한 연락처가 메모의 연락처 연결로 함께 저장된다") {
+                    val contactIdSet = setOf(fixtureMonkey.giveMeOne<Uuid>(), fixtureMonkey.giveMeOne<Uuid>())
+
+                    val result =
+                        useCase(
+                            parameter =
+                                AddMemoUseCase.Parameter(
+                                    detail = titledDetail(),
+                                    contactIdSet = contactIdSet,
+                                ),
+                        )
+
+                    result.shouldBeSuccess()
+                    contactIdSetSlot.captured shouldBe contactIdSet
+                }
+            }
+
+            When("연락처를 선택하지 않고 메모를 추가한다") {
+                Then("TC-MEMO-ADD-DATA-020 연락처 연결 없이 저장된다") {
+                    val result = useCase(parameter = AddMemoUseCase.Parameter(detail = titledDetail()))
+
+                    result.shouldBeSuccess()
+                    contactIdSetSlot.captured.shouldBeEmpty()
+                }
+
+                Then("TC-MEMO-ADD-DOMAIN-013 연락처를 선택하지 않아도 메모 추가가 성립한다") {
+                    val result = useCase(parameter = AddMemoUseCase.Parameter(detail = titledDetail()))
+
+                    result.shouldBeSuccess()
+                    coVerify {
+                        accountMemoRepository.upsert(
+                            account = account,
+                            memo = any(),
+                            tagIdSet = any(),
+                            placeIdSet = any(),
+                            contactIdSet = any(),
+                        )
+                    }
+                }
+            }
+        }
+
         Given("로그인한 계정이 준비되어 있고 두 번 연속으로 메모를 추가한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())

@@ -222,6 +222,56 @@ class AccountContactRepositoryImplTest :
             ) shouldBe 0
         }
 
+        test("TC-CONTACT-DETAIL-DATA-012 즐겨찾기 변경은 계정 식별자와 즐겨찾기 여부를 트랜잭션에 위임한다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val contactId = fixtureMonkey.giveMeOne<Uuid>()
+            val updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val transaction = mockk<AccountContactTransaction>()
+            listOf(true, false).forEach { isFavorite ->
+                coEvery {
+                    transaction.updateFavorite(accountId = account.id, contactId = contactId, isFavorite = isFavorite, updatedAt = updatedAt)
+                } returns 1
+                val repository = repository(transaction = transaction)
+
+                repository.updateFavorite(account = account, contactId = contactId, isFavorite = isFavorite, updatedAt = updatedAt) shouldBe 1
+
+                coVerify(exactly = 1) {
+                    transaction.updateFavorite(accountId = account.id, contactId = contactId, isFavorite = isFavorite, updatedAt = updatedAt)
+                }
+            }
+        }
+
+        test("TC-CONTACT-DETAIL-DATA-013 대상 식별자와 계정을 만족하지 않으면 즐겨찾기 변경이 아무것도 바꾸지 않는다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val transaction = mockk<AccountContactTransaction>()
+            coEvery { transaction.updateFavorite(accountId = any(), contactId = any(), isFavorite = any(), updatedAt = any()) } returns 0
+            val repository = repository(transaction = transaction)
+
+            repository.updateFavorite(
+                account = account,
+                contactId = fixtureMonkey.giveMeOne<Uuid>(),
+                isFavorite = true,
+                updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+            ) shouldBe 0
+        }
+
+        test("TC-CONTACT-DETAIL-DATA-014 즐겨찾기 변경의 로컬 저장이 실패하면 실패를 그대로 전파한다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val transaction = mockk<AccountContactTransaction>()
+            coEvery { transaction.updateFavorite(accountId = any(), contactId = any(), isFavorite = any(), updatedAt = any()) } throws throwable
+            val repository = repository(transaction = transaction)
+
+            shouldThrow<IllegalStateException> {
+                repository.updateFavorite(
+                    account = account,
+                    contactId = fixtureMonkey.giveMeOne<Uuid>(),
+                    isFavorite = true,
+                    updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                )
+            } shouldBe throwable
+        }
+
         test("TC-CONTACT-DETAIL-DATA-007 삭제는 계정 식별자와 삭제 여부를 트랜잭션에 위임한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val contactId = fixtureMonkey.giveMeOne<Uuid>()
@@ -342,6 +392,7 @@ class AccountContactRepositoryImplTest :
             Contact(
                 id = fixtureMonkey.giveMeOne<Uuid>(),
                 detail = ContactDetail.EMPTY.copy(name = "name-${fixtureMonkey.giveMeOne<String>()}"),
+                isFavorite = false,
                 isDeleted = false,
                 updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
                 createdAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),

@@ -44,7 +44,7 @@ class AccountContactTransactionImplTest :
                 transactor.usePrepared(
                     """
                     SELECT id, name, description, height_centimeter, foot_size_millimeter, birthday, birthday_calendar,
-                        phone_number_list, is_deleted, updated_at, created_at
+                        hometown, phone_number_list, is_favorite, is_deleted, updated_at, created_at
                     FROM contact
                     ORDER BY id ASC
                     """,
@@ -235,6 +235,7 @@ class AccountContactTransactionImplTest :
             ContactLocalEntity(
                 id = fixtureMonkey.giveMeOne<Uuid>(),
                 detail = detail(),
+                isFavorite = false,
                 isDeleted = false,
                 updatedAt = instant(),
                 createdAt = instant(),
@@ -248,6 +249,7 @@ class AccountContactTransactionImplTest :
                 footSizeMillimeter = 250,
                 birthday = LocalDate(year = 1998, month = 5, day = 12),
                 birthdayCalendar = ContactBirthdayCalendarLocalEntity.SOLAR,
+                hometown = "hometown-${fixtureMonkey.giveMeOne<String>()}",
                 phoneNumberList = listOf(ContactPhoneNumberLocalEntity(number = "010-1234-5678")),
             )
 
@@ -271,11 +273,13 @@ class AccountContactTransactionImplTest :
                         footSizeMillimeter = if (isNull(4)) null else getInt(4),
                         birthday = if (isNull(5)) null else LocalDate.parse(getText(5)),
                         birthdayCalendar = if (isNull(6)) null else ContactBirthdayCalendarLocalEntity.fromPersistentValue(getText(6)),
-                        phoneNumberList = Json.decodeFromString(getText(7)),
+                        hometown = getText(7),
+                        phoneNumberList = Json.decodeFromString(getText(8)),
                     ),
-                isDeleted = getBoolean(8),
-                updatedAt = Instant.fromEpochMilliseconds(getLong(9)),
-                createdAt = Instant.fromEpochMilliseconds(getLong(10)),
+                isFavorite = getBoolean(9),
+                isDeleted = getBoolean(10),
+                updatedAt = Instant.fromEpochMilliseconds(getLong(11)),
+                createdAt = Instant.fromEpochMilliseconds(getLong(12)),
             )
 
         private fun SQLiteStatement.toAccountContact(): AccountContactLocalEntity =

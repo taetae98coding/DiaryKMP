@@ -9,6 +9,9 @@ import io.github.taetae98coding.diary.core.database.api.contact.transaction.Acco
 import io.github.taetae98coding.diary.core.database.api.memo.datasource.AccountMemoSyncLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.transaction.AccountMemoSyncTransaction
+import io.github.taetae98coding.diary.core.database.api.memocontact.datasource.AccountMemoContactSyncLocalDataSource
+import io.github.taetae98coding.diary.core.database.api.memocontact.entity.MemoContactLocalEntity
+import io.github.taetae98coding.diary.core.database.api.memocontact.transaction.AccountMemoContactSyncTransaction
 import io.github.taetae98coding.diary.core.database.api.memoplace.datasource.AccountMemoPlaceSyncLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.memoplace.entity.MemoPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memoplace.transaction.AccountMemoPlaceSyncTransaction
@@ -46,6 +49,8 @@ import io.github.taetae98coding.diary.core.network.api.contact.datasource.Contac
 import io.github.taetae98coding.diary.core.network.api.contact.entity.ContactPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.memo.datasource.MemoRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.memo.entity.MemoPullRemoteEntity
+import io.github.taetae98coding.diary.core.network.api.memocontact.datasource.MemoContactRemoteDataSource
+import io.github.taetae98coding.diary.core.network.api.memocontact.entity.MemoContactPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.memoplace.datasource.MemoPlaceRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.memoplace.entity.MemoPlacePullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.memotag.datasource.MemoTagRemoteDataSource
@@ -101,6 +106,7 @@ internal data class TestContext(
     val memoTagSyncLocalDataSource: AccountMemoTagSyncLocalDataSource,
     val memoPlaceSyncLocalDataSource: AccountMemoPlaceSyncLocalDataSource,
     val memoWebSyncLocalDataSource: AccountMemoWebSyncLocalDataSource,
+    val memoContactSyncLocalDataSource: AccountMemoContactSyncLocalDataSource,
     val tagLinkSyncLocalDataSource: AccountTagLinkSyncLocalDataSource,
     val webTagSyncLocalDataSource: AccountWebTagSyncLocalDataSource,
     val placeTagSyncLocalDataSource: AccountPlaceTagSyncLocalDataSource,
@@ -113,6 +119,7 @@ internal data class TestContext(
     val accountMemoTagSyncTransaction: AccountMemoTagSyncTransaction,
     val accountMemoPlaceSyncTransaction: AccountMemoPlaceSyncTransaction,
     val accountMemoWebSyncTransaction: AccountMemoWebSyncTransaction,
+    val accountMemoContactSyncTransaction: AccountMemoContactSyncTransaction,
     val accountTagLinkSyncTransaction: AccountTagLinkSyncTransaction,
     val accountWebTagSyncTransaction: AccountWebTagSyncTransaction,
     val accountPlaceTagSyncTransaction: AccountPlaceTagSyncTransaction,
@@ -125,6 +132,7 @@ internal data class TestContext(
     val memoTagRemoteDataSource: MemoTagRemoteDataSource,
     val memoPlaceRemoteDataSource: MemoPlaceRemoteDataSource,
     val memoWebRemoteDataSource: MemoWebRemoteDataSource,
+    val memoContactRemoteDataSource: MemoContactRemoteDataSource,
     val tagLinkRemoteDataSource: TagLinkRemoteDataSource,
     val webTagRemoteDataSource: WebTagRemoteDataSource,
     val placeTagRemoteDataSource: PlaceTagRemoteDataSource,
@@ -199,6 +207,13 @@ internal data class TestContext(
                     accountMemoWebSyncTransaction = accountMemoWebSyncTransaction,
                     memoWebRemoteDataSource = memoWebRemoteDataSource,
                 ),
+            memoContactSyncWork =
+                MemoContactSyncWork(
+                    accountMemoContactSyncLocalDataSource = memoContactSyncLocalDataSource,
+                    syncCursorLocalDataSource = syncCursorLocalDataSource,
+                    accountMemoContactSyncTransaction = accountMemoContactSyncTransaction,
+                    memoContactRemoteDataSource = memoContactRemoteDataSource,
+                ),
             tagLinkSyncWork =
                 TagLinkSyncWork(
                     accountTagLinkSyncLocalDataSource = tagLinkSyncLocalDataSource,
@@ -254,6 +269,7 @@ internal fun context(
     memoTagList: List<MemoTagLocalEntity> = emptyList(),
     memoPlaceList: List<MemoPlaceLocalEntity> = emptyList(),
     memoWebList: List<MemoWebLocalEntity> = emptyList(),
+    memoContactList: List<MemoContactLocalEntity> = emptyList(),
     tagLinkList: List<TagLinkLocalEntity> = emptyList(),
     webTagList: List<WebTagLocalEntity> = emptyList(),
     placeTagList: List<PlaceTagLocalEntity> = emptyList(),
@@ -270,6 +286,7 @@ internal fun context(
         memoTagList = memoTagList,
         memoPlaceList = memoPlaceList,
         memoWebList = memoWebList,
+        memoContactList = memoContactList,
         tagLinkList = tagLinkList,
         webTagList = webTagList,
         placeTagList = placeTagList,
@@ -301,6 +318,7 @@ private fun mockedTestContext(
         memoTagSyncLocalDataSource = mockk(),
         memoPlaceSyncLocalDataSource = mockk(),
         memoWebSyncLocalDataSource = mockk(),
+        memoContactSyncLocalDataSource = mockk(),
         tagLinkSyncLocalDataSource = mockk(),
         webTagSyncLocalDataSource = mockk(),
         placeTagSyncLocalDataSource = mockk(),
@@ -313,6 +331,7 @@ private fun mockedTestContext(
         accountMemoTagSyncTransaction = mockk(),
         accountMemoPlaceSyncTransaction = mockk(),
         accountMemoWebSyncTransaction = mockk(),
+        accountMemoContactSyncTransaction = mockk(),
         accountTagLinkSyncTransaction = mockk(),
         accountWebTagSyncTransaction = mockk(),
         accountPlaceTagSyncTransaction = mockk(),
@@ -325,6 +344,7 @@ private fun mockedTestContext(
         memoTagRemoteDataSource = mockk(),
         memoPlaceRemoteDataSource = mockk(),
         memoWebRemoteDataSource = mockk(),
+        memoContactRemoteDataSource = mockk(),
         tagLinkRemoteDataSource = mockk(),
         webTagRemoteDataSource = mockk(),
         placeTagRemoteDataSource = mockk(),
@@ -344,6 +364,7 @@ private fun TestContext.stubPending(
     memoTagList: List<MemoTagLocalEntity>,
     memoPlaceList: List<MemoPlaceLocalEntity>,
     memoWebList: List<MemoWebLocalEntity>,
+    memoContactList: List<MemoContactLocalEntity>,
     tagLinkList: List<TagLinkLocalEntity>,
     webTagList: List<WebTagLocalEntity>,
     placeTagList: List<PlaceTagLocalEntity>,
@@ -357,6 +378,7 @@ private fun TestContext.stubPending(
     coEvery { memoTagSyncLocalDataSource.findPending(accountId = accountId) } returns memoTagList
     coEvery { memoPlaceSyncLocalDataSource.findPending(accountId = accountId) } returns memoPlaceList
     coEvery { memoWebSyncLocalDataSource.findPending(accountId = accountId) } returns memoWebList
+    coEvery { memoContactSyncLocalDataSource.findPending(accountId = accountId) } returns memoContactList
     coEvery { tagLinkSyncLocalDataSource.findPending(accountId = accountId) } returns tagLinkList
     coEvery { webTagSyncLocalDataSource.findPending(accountId = accountId) } returns webTagList
     coEvery { placeTagSyncLocalDataSource.findPending(accountId = accountId) } returns placeTagList
@@ -391,6 +413,7 @@ private fun TestContext.stubTransactions() {
     coEvery { accountMemoTagSyncTransaction.clearPending(any(), any()) } returns Unit
     coEvery { accountMemoPlaceSyncTransaction.clearPending(any(), any()) } returns Unit
     coEvery { accountMemoWebSyncTransaction.clearPending(any(), any()) } returns Unit
+    coEvery { accountMemoContactSyncTransaction.clearPending(any(), any()) } returns Unit
     coEvery { accountTagLinkSyncTransaction.clearPending(any(), any()) } returns Unit
     coEvery { accountWebTagSyncTransaction.clearPending(any(), any()) } returns Unit
     coEvery { accountPlaceTagSyncTransaction.clearPending(any(), any()) } returns Unit
@@ -403,6 +426,7 @@ private fun TestContext.stubTransactions() {
     coEvery { accountMemoTagSyncTransaction.save(any(), any(), any()) } returns Unit
     coEvery { accountMemoPlaceSyncTransaction.save(any(), any(), any()) } returns Unit
     coEvery { accountMemoWebSyncTransaction.save(any(), any(), any()) } returns Unit
+    coEvery { accountMemoContactSyncTransaction.save(any(), any(), any()) } returns Unit
     coEvery { accountTagLinkSyncTransaction.save(any(), any(), any()) } returns Unit
     coEvery { accountWebTagSyncTransaction.save(any(), any(), any()) } returns Unit
     coEvery { accountPlaceTagSyncTransaction.save(any(), any(), any()) } returns Unit
@@ -418,6 +442,7 @@ private fun TestContext.stubRemoteDataSources() {
     coEvery { memoTagRemoteDataSource.push(any()) } returns Unit
     coEvery { memoPlaceRemoteDataSource.push(any()) } returns Unit
     coEvery { memoWebRemoteDataSource.push(any()) } returns Unit
+    coEvery { memoContactRemoteDataSource.push(any()) } returns Unit
     coEvery { tagLinkRemoteDataSource.push(any()) } returns Unit
     coEvery { webTagRemoteDataSource.push(any()) } returns Unit
     coEvery { placeTagRemoteDataSource.push(any()) } returns Unit
@@ -430,6 +455,7 @@ private fun TestContext.stubRemoteDataSources() {
     coEvery { memoTagRemoteDataSource.pull(any()) } returns emptyList()
     coEvery { memoPlaceRemoteDataSource.pull(any()) } returns emptyList()
     coEvery { memoWebRemoteDataSource.pull(any()) } returns emptyList()
+    coEvery { memoContactRemoteDataSource.pull(any()) } returns emptyList()
     coEvery { tagLinkRemoteDataSource.pull(any()) } returns emptyList()
     coEvery { webTagRemoteDataSource.pull(any()) } returns emptyList()
     coEvery { placeTagRemoteDataSource.pull(any()) } returns emptyList()
@@ -490,6 +516,21 @@ internal fun memoWeb(isDeleted: Boolean = fixtureMonkey.giveMeOne<Boolean>()): M
 internal fun memoWebPulls(usnList: List<Long>): List<MemoWebPullRemoteEntity> =
     usnList.map { usn ->
         MemoWebPullRemoteEntity(memoWeb = memoWeb().toRemote(), usn = usn)
+    }
+
+internal fun memoContacts(size: Int): List<MemoContactLocalEntity> = List(size) { memoContact() }
+
+internal fun memoContact(isDeleted: Boolean = fixtureMonkey.giveMeOne<Boolean>()): MemoContactLocalEntity =
+    fixtureMonkey
+        .giveMeKotlinBuilder<MemoContactLocalEntity>()
+        .setExp(MemoContactLocalEntity::isDeleted, isDeleted)
+        .setExp(MemoContactLocalEntity::updatedAt, instant())
+        .setExp(MemoContactLocalEntity::createdAt, instant())
+        .sample()
+
+internal fun memoContactPulls(usnList: List<Long>): List<MemoContactPullRemoteEntity> =
+    usnList.map { usn ->
+        MemoContactPullRemoteEntity(memoContact = memoContact().toRemote(), usn = usn)
     }
 
 internal fun memoTags(size: Int): List<MemoTagLocalEntity> = List(size) { memoTag() }

@@ -51,6 +51,15 @@
     <string name="memo_web_picker_search_empty_title">No search results</string>
     <string name="memo_web_picker_search_empty_description">Try a different search query.</string>
     <string name="memo_web_add_action">Add web</string>
+    <string name="memo_contact_select_label">Select contact</string>
+    <string name="memo_contact_select_action">Select contact</string>
+    <string name="memo_contact_detail_action">Open contact detail</string>
+    <string name="memo_contact_picker_title">Select Contact</string>
+    <string name="memo_contact_picker_add_label">Add contact</string>
+    <string name="memo_contact_picker_search_placeholder">Search contacts</string>
+    <string name="memo_contact_picker_search_empty_title">No search results</string>
+    <string name="memo_contact_picker_search_empty_description">Try a different search query.</string>
+    <string name="memo_contact_add_action">Add contact</string>
     <string name="memo_place_map_content_description">Memo place map</string>
     <string name="memo_place_show_on_map_action">Show location on map</string>
     <string name="memo_place_select_label">Select place</string>

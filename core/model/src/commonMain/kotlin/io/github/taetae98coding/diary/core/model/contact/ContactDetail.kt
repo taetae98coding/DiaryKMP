@@ -8,6 +8,7 @@ public data class ContactDetail(
     val height: Length?,
     val footSize: Length?,
     val birthday: ContactBirthday?,
+    val hometown: String,
     val phoneNumberList: List<ContactPhoneNumber>,
 ) {
     public companion object {
@@ -18,6 +19,7 @@ public data class ContactDetail(
                 height = null,
                 footSize = null,
                 birthday = null,
+                hometown = "",
                 phoneNumberList = emptyList(),
             )
     }

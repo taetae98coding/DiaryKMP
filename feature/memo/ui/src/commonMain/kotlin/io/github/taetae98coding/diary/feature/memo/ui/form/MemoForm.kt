@@ -21,6 +21,8 @@ import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.place.toCoordinate
+import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactInput
+import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceCard
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceCardUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceFillHeightCard
@@ -38,6 +40,7 @@ internal fun MemoForm(
     isStandalone: Boolean = true,
     tagUiStateProvider: () -> MemoTagInputUiState = { MemoTagInputUiState() },
     webUiStateProvider: () -> MemoWebInputUiState = { MemoWebInputUiState() },
+    contactUiStateProvider: () -> MemoContactInputUiState = { MemoContactInputUiState() },
     placeCardUiStateProvider: () -> MemoPlaceCardUiState = { MemoPlaceCardUiState() },
 ) {
     val scrollState = rememberScrollState()
@@ -51,6 +54,7 @@ internal fun MemoForm(
             placeMapState = placeMapState,
             tagUiStateProvider = tagUiStateProvider,
             webUiStateProvider = webUiStateProvider,
+            contactUiStateProvider = contactUiStateProvider,
             placeCardUiStateProvider = placeCardUiStateProvider,
         )
     } else {
@@ -62,6 +66,7 @@ internal fun MemoForm(
             placeMapState = placeMapState,
             tagUiStateProvider = tagUiStateProvider,
             webUiStateProvider = webUiStateProvider,
+            contactUiStateProvider = contactUiStateProvider,
             placeCardUiStateProvider = placeCardUiStateProvider,
         )
     }
@@ -75,6 +80,7 @@ private fun SplitForm(
     placeMapState: DiaryMapState?,
     tagUiStateProvider: () -> MemoTagInputUiState,
     webUiStateProvider: () -> MemoWebInputUiState,
+    contactUiStateProvider: () -> MemoContactInputUiState,
     placeCardUiStateProvider: () -> MemoPlaceCardUiState,
     modifier: Modifier = Modifier,
 ) {
@@ -85,6 +91,7 @@ private fun SplitForm(
             scrollState = scrollState,
             tagUiStateProvider = tagUiStateProvider,
             webUiStateProvider = webUiStateProvider,
+            contactUiStateProvider = contactUiStateProvider,
             modifier =
                 Modifier
                     .fillMaxHeight()
@@ -117,6 +124,7 @@ private fun ColumnForm(
     placeMapState: DiaryMapState?,
     tagUiStateProvider: () -> MemoTagInputUiState,
     webUiStateProvider: () -> MemoWebInputUiState,
+    contactUiStateProvider: () -> MemoContactInputUiState,
     placeCardUiStateProvider: () -> MemoPlaceCardUiState,
     modifier: Modifier = Modifier,
 ) {
@@ -126,6 +134,7 @@ private fun ColumnForm(
         scrollState = scrollState,
         tagUiStateProvider = tagUiStateProvider,
         webUiStateProvider = webUiStateProvider,
+        contactUiStateProvider = contactUiStateProvider,
         modifier = modifier.fillMaxSize(),
     ) {
         MemoPlaceCard(
@@ -145,6 +154,7 @@ private fun MemoInputColumn(
     scrollState: ScrollState,
     tagUiStateProvider: () -> MemoTagInputUiState,
     webUiStateProvider: () -> MemoWebInputUiState,
+    contactUiStateProvider: () -> MemoContactInputUiState,
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -178,6 +188,12 @@ private fun MemoInputColumn(
             uiStateProvider = webUiStateProvider,
             onWebClick = { id -> onEvent(MemoFormEvent.ClickWeb(id = id)) },
             onAddClick = { onEvent(MemoFormEvent.ClickWebAdd) },
+            modifier = Modifier.fillMaxWidth(),
+        )
+        MemoContactInput(
+            uiStateProvider = contactUiStateProvider,
+            onContactClick = { id -> onEvent(MemoFormEvent.ClickContact(id = id)) },
+            onAddClick = { onEvent(MemoFormEvent.ClickContactAdd) },
             modifier = Modifier.fillMaxWidth(),
         )
         content()

@@ -9,6 +9,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.memo.ui.contact.screenTestContactViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
@@ -80,6 +81,7 @@ class MemoDetailScreenTagTest {
                     detailViewModel = screenTestViewModel(uiState = MutableStateFlow(memoDetailUiState(detail = memoDetail(MEMO_TITLE)))),
                     tagViewModel = tagViewModel,
                     webViewModel = screenTestWebViewModel(),
+                    contactViewModel = screenTestContactViewModel(),
                     placeViewModel = screenTestPlaceViewModel(uiState = MutableStateFlow(MemoPlaceInputUiState(isSelectedPlaceLoaded = true))),
                     placeMapViewModel = screenTestPlaceMapViewModel(),
                     geminiViewModel = screenTestGeminiViewModel(),
@@ -89,6 +91,8 @@ class MemoDetailScreenTagTest {
                     navigateToTagDetail = {},
                     navigateToWebAdd = {},
                     navigateToWebDetail = {},
+                    navigateToContactAdd = {},
+                    navigateToContactDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
                     componentVisibleProvider = { MemoDetailScaffoldComponentVisible() },

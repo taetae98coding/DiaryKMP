@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "d36349a5599d3376e2ca7bfff48e9f57",
+    "identityHash": "f692355876c10177da83f551cb9b2585",
     "entities": [
       {
         "tableName": "memo",
@@ -989,6 +989,107 @@
         }
       },
       {
+        "tableName": "memo_contact",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`memo_id` TEXT NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000', `contact_id` TEXT NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000', `is_deleted` INTEGER NOT NULL DEFAULT 0, `updated_at` INTEGER NOT NULL DEFAULT 0, `created_at` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`memo_id`, `contact_id`))",
+        "fields": [
+          {
+            "fieldPath": "memoId",
+            "columnName": "memo_id",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'00000000-0000-0000-0000-000000000000'"
+          },
+          {
+            "fieldPath": "contactId",
+            "columnName": "contact_id",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'00000000-0000-0000-0000-000000000000'"
+          },
+          {
+            "fieldPath": "isDeleted",
+            "columnName": "is_deleted",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "memo_id",
+            "contact_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_memo_contact_contact_id",
+            "unique": false,
+            "columnNames": [
+              "contact_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_memo_contact_contact_id` ON `${TABLE_NAME}` (`contact_id`)"
+          }
+        ]
+      },
+      {
+        "tableName": "account_memo_contact",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`account_id` TEXT NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000', `memo_id` TEXT NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000', `contact_id` TEXT NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000', `is_dirty` INTEGER NOT NULL DEFAULT 1, PRIMARY KEY(`account_id`, `memo_id`, `contact_id`))",
+        "fields": [
+          {
+            "fieldPath": "accountId",
+            "columnName": "account_id",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'00000000-0000-0000-0000-000000000000'"
+          },
+          {
+            "fieldPath": "memoId",
+            "columnName": "memo_id",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'00000000-0000-0000-0000-000000000000'"
+          },
+          {
+            "fieldPath": "contactId",
+            "columnName": "contact_id",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'00000000-0000-0000-0000-000000000000'"
+          },
+          {
+            "fieldPath": "isDirty",
+            "columnName": "is_dirty",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "account_id",
+            "memo_id",
+            "contact_id"
+          ]
+        }
+      },
+      {
         "tableName": "web",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000', `is_deleted` INTEGER NOT NULL DEFAULT 0, `updated_at` INTEGER NOT NULL DEFAULT 0, `created_at` INTEGER NOT NULL DEFAULT 0, `title` TEXT NOT NULL DEFAULT '', `description` TEXT NOT NULL DEFAULT '', `url` TEXT NOT NULL DEFAULT '', `header_list` TEXT NOT NULL DEFAULT '[]', PRIMARY KEY(`id`))",
         "fields": [
@@ -1193,7 +1294,7 @@
       },
       {
         "tableName": "contact",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000', `is_deleted` INTEGER NOT NULL DEFAULT 0, `updated_at` INTEGER NOT NULL DEFAULT 0, `created_at` INTEGER NOT NULL DEFAULT 0, `name` TEXT NOT NULL DEFAULT '', `description` TEXT NOT NULL DEFAULT '', `height_centimeter` REAL DEFAULT NULL, `foot_size_millimeter` INTEGER DEFAULT NULL, `birthday` TEXT DEFAULT NULL, `birthday_calendar` TEXT DEFAULT NULL, `phone_number_list` TEXT NOT NULL DEFAULT '[]', PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000', `is_favorite` INTEGER NOT NULL DEFAULT 0, `is_deleted` INTEGER NOT NULL DEFAULT 0, `updated_at` INTEGER NOT NULL DEFAULT 0, `created_at` INTEGER NOT NULL DEFAULT 0, `name` TEXT NOT NULL DEFAULT '', `description` TEXT NOT NULL DEFAULT '', `height_centimeter` REAL DEFAULT NULL, `foot_size_millimeter` INTEGER DEFAULT NULL, `birthday` TEXT DEFAULT NULL, `birthday_calendar` TEXT DEFAULT NULL, `hometown` TEXT NOT NULL DEFAULT '', `phone_number_list` TEXT NOT NULL DEFAULT '[]', PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -1201,6 +1302,13 @@
             "affinity": "TEXT",
             "notNull": true,
             "defaultValue": "'00000000-0000-0000-0000-000000000000'"
+          },
+          {
+            "fieldPath": "isFavorite",
+            "columnName": "is_favorite",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
           },
           {
             "fieldPath": "isDeleted",
@@ -1260,6 +1368,13 @@
             "columnName": "birthday_calendar",
             "affinity": "TEXT",
             "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "detail.hometown",
+            "columnName": "hometown",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
           },
           {
             "fieldPath": "detail.phoneNumberList",
@@ -1449,7 +1564,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd36349a5599d3376e2ca7bfff48e9f57')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f692355876c10177da83f551cb9b2585')"
     ]
   }
 }

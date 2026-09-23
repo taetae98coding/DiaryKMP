@@ -1,6 +1,9 @@
 package io.github.taetae98coding.diary.feature.memo.ui
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactDetail
+import io.github.taetae98coding.diary.core.model.contact.ContactPhoneNumber
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDraft
@@ -62,6 +65,28 @@ internal fun previewWeb(
                 url = url,
                 headerList = emptyList(),
             ),
+        isDeleted = false,
+        updatedAt = Instant.DISTANT_PAST,
+        createdAt = Instant.DISTANT_PAST,
+    )
+
+internal fun previewContact(
+    name: String,
+    phoneNumber: String,
+): Contact =
+    Contact(
+        id = Uuid.random(),
+        detail =
+            ContactDetail(
+                name = name,
+                description = "",
+                height = null,
+                footSize = null,
+                birthday = null,
+                hometown = "",
+                phoneNumberList = listOf(ContactPhoneNumber(number = phoneNumber)),
+            ),
+        isFavorite = false,
         isDeleted = false,
         updatedAt = Instant.DISTANT_PAST,
         createdAt = Instant.DISTANT_PAST,

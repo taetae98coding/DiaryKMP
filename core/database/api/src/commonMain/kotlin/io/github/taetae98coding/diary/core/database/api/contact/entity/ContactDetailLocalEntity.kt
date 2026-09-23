@@ -16,6 +16,8 @@ public data class ContactDetailLocalEntity(
     val birthday: LocalDate?,
     @ColumnInfo(name = "birthday_calendar", defaultValue = "NULL")
     val birthdayCalendar: ContactBirthdayCalendarLocalEntity?,
+    @ColumnInfo(name = "hometown", defaultValue = "")
+    val hometown: String,
     @ColumnInfo(name = "phone_number_list", defaultValue = "'[]'")
     val phoneNumberList: List<ContactPhoneNumberLocalEntity>,
 )

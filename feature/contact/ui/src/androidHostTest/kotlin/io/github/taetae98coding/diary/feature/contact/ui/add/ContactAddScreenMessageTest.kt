@@ -10,6 +10,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w480dp-h1200dp")
@@ -19,13 +20,13 @@ class ContactAddScreenMessageTest {
 
     @Test
     fun `TC-CONTACT-ADD-FEATURE-007 기본 환경 추가 성공 안내`() {
-        assertMessage(effect = ContactAddEffect.AddSucceeded, expectedMessage = DEFAULT_ADD_SUCCEEDED_MESSAGE)
+        assertMessage(effect = ContactAddEffect.AddSucceeded(id = Uuid.random()), expectedMessage = DEFAULT_ADD_SUCCEEDED_MESSAGE)
     }
 
     @Test
     @Config(qualifiers = "ko")
     fun `TC-CONTACT-ADD-FEATURE-007 한국어 추가 성공 안내`() {
-        assertMessage(effect = ContactAddEffect.AddSucceeded, expectedMessage = KOREAN_ADD_SUCCEEDED_MESSAGE)
+        assertMessage(effect = ContactAddEffect.AddSucceeded(id = Uuid.random()), expectedMessage = KOREAN_ADD_SUCCEEDED_MESSAGE)
     }
 
     @Test

@@ -80,6 +80,12 @@ verify_jwt = true
 [functions.v1-sync-pull-memo-web]
 verify_jwt = true
 
+[functions.v1-sync-push-memo-contact]
+verify_jwt = true
+
+[functions.v1-sync-pull-memo-contact]
+verify_jwt = true
+
 [functions.v1-sync-push-tag-link]
 verify_jwt = true
 

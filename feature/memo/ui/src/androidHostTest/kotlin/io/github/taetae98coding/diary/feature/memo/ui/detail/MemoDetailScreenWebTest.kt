@@ -14,6 +14,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.closeDialogByBack
+import io.github.taetae98coding.diary.feature.memo.ui.contact.screenTestContactViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
@@ -255,6 +256,7 @@ class MemoDetailScreenWebTest {
                     detailViewModel = screenTestViewModel(uiState = MutableStateFlow(memoDetailUiState(detail = memoDetail(MEMO_TITLE)))),
                     tagViewModel = screenTestTagViewModel(),
                     webViewModel = webViewModel,
+                    contactViewModel = screenTestContactViewModel(),
                     placeViewModel = screenTestPlaceViewModel(uiState = MutableStateFlow(MemoPlaceInputUiState(isSelectedPlaceLoaded = true))),
                     placeMapViewModel = screenTestPlaceMapViewModel(),
                     geminiViewModel = screenTestGeminiViewModel(),
@@ -264,6 +266,8 @@ class MemoDetailScreenWebTest {
                     navigateToTagDetail = {},
                     navigateToWebAdd = {},
                     navigateToWebDetail = {},
+                    navigateToContactAdd = {},
+                    navigateToContactDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
                     componentVisibleProvider = { MemoDetailScaffoldComponentVisible() },
@@ -293,6 +297,7 @@ class MemoDetailScreenWebTest {
                     detailViewModel = screenTestViewModel(uiState = detailUiState),
                     tagViewModel = screenTestTagViewModel(),
                     webViewModel = webViewModel,
+                    contactViewModel = screenTestContactViewModel(),
                     placeViewModel = screenTestPlaceViewModel(uiState = MutableStateFlow(MemoPlaceInputUiState(isSelectedPlaceLoaded = true))),
                     placeMapViewModel = screenTestPlaceMapViewModel(),
                     geminiViewModel = screenTestGeminiViewModel(),
@@ -302,6 +307,8 @@ class MemoDetailScreenWebTest {
                     navigateToTagDetail = {},
                     navigateToWebAdd = navigateToWebAdd,
                     navigateToWebDetail = navigateToWebDetail,
+                    navigateToContactAdd = {},
+                    navigateToContactDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
                     componentVisibleProvider = { MemoDetailScaffoldComponentVisible() },

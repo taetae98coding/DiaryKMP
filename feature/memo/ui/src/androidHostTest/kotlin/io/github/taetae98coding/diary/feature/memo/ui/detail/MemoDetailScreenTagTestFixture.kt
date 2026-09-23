@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.memo.ui.contact.screenTestContactViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.placePagingData
@@ -51,6 +52,7 @@ internal fun ComposeContentTestRule.setMemoDetailScreenWithTag(
                 detailViewModel = screenTestViewModel(uiState = uiState),
                 tagViewModel = tagViewModel,
                 webViewModel = screenTestWebViewModel(),
+                contactViewModel = screenTestContactViewModel(),
                 placeViewModel = screenTestPlaceViewModel(uiState = placeUiState, placePagingData = placePagingData),
                 placeMapViewModel = screenTestPlaceMapViewModel(),
                 geminiViewModel = screenTestGeminiViewModel(),
@@ -60,6 +62,8 @@ internal fun ComposeContentTestRule.setMemoDetailScreenWithTag(
                 navigateToTagDetail = navigateToTagDetail,
                 navigateToWebAdd = {},
                 navigateToWebDetail = {},
+                navigateToContactAdd = {},
+                navigateToContactDetail = {},
                 navigateToPlaceAdd = navigateToPlaceAdd,
                 navigateToPlaceDetail = navigateToPlaceDetail,
                 componentVisibleProvider = { MemoDetailScaffoldComponentVisible() },

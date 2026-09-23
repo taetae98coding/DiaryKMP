@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.feature.memo.ui.form
 
 import androidx.paging.compose.LazyPagingItems
 import io.github.taetae98coding.diary.compose.core.paging.isConfirmedEmpty
+import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.Tag
@@ -13,11 +14,14 @@ internal fun handleMemoFormEvent(
     state: MemoFormState,
     tagPagingItems: LazyPagingItems<Tag>,
     webPagingItems: LazyPagingItems<Web>,
+    contactPagingItems: LazyPagingItems<Contact>,
     placePagingItems: LazyPagingItems<Place>,
     navigateToTagAdd: () -> Unit,
     navigateToTagDetail: (Uuid) -> Unit,
     navigateToWebAdd: () -> Unit,
     navigateToWebDetail: (Uuid) -> Unit,
+    navigateToContactAdd: () -> Unit,
+    navigateToContactDetail: (Uuid) -> Unit,
     navigateToPlaceAdd: (Coordinate?) -> Unit,
     navigateToPlaceDetail: (Uuid) -> Unit,
 ) {
@@ -38,6 +42,15 @@ internal fun handleMemoFormEvent(
                 navigateToWebAdd()
             } else {
                 state.webPickerDialogState.show()
+            }
+
+        is MemoFormEvent.ClickContact -> navigateToContactDetail(event.id)
+
+        is MemoFormEvent.ClickContactAdd ->
+            if (contactPagingItems.isConfirmedEmpty()) {
+                navigateToContactAdd()
+            } else {
+                state.contactPickerDialogState.show()
             }
 
         is MemoFormEvent.ClickPlace -> navigateToPlaceDetail(event.id)

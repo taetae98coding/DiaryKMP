@@ -16,7 +16,7 @@ import io.github.taetae98coding.diary.core.model.measure.Length.Companion.millim
 import io.github.taetae98coding.diary.core.network.api.contact.entity.ContactBirthdayCalendarRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.contact.entity.ContactDetailRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.contact.entity.ContactPhoneNumberRemoteEntity
-import io.github.taetae98coding.diary.core.testing.isDeletedCaseList
+import io.github.taetae98coding.diary.core.testing.favoriteAndDeletedCaseList
 import kotlinx.datetime.LocalDate
 import kotlin.uuid.Uuid
 
@@ -77,6 +77,7 @@ public fun FixtureMonkey.contactDetailCase(
 ): ContactDetailCase {
     val name = "name-${giveMeOne<String>()}"
     val description = "description-${giveMeOne<String>()}"
+    val hometown = if (hasMeasure) "hometown-${giveMeOne<String>()}" else ""
     // 키는 센티미터와 밀리미터를 오가며 저장하므로, 왕복에서 부동소수점 오차가 끼지 않도록 소수점 아래 한 자리 값으로 만든다.
     val heightCentimeter = if (hasMeasure) randomInt(bound = 2000) / 10.0 else null
     val footSizeMillimeter = if (hasMeasure) randomInt(bound = 500) else null
@@ -90,6 +91,7 @@ public fun FixtureMonkey.contactDetailCase(
                 height = heightCentimeter?.centimeter,
                 footSize = footSizeMillimeter?.millimeter,
                 birthday = calendarCase?.let { case -> ContactBirthday(date = requireNotNull(birthday), calendar = case.domain) },
+                hometown = hometown,
                 phoneNumberList = numberList.map { number -> ContactPhoneNumber(number = number) },
             ),
         local =
@@ -100,6 +102,7 @@ public fun FixtureMonkey.contactDetailCase(
                 footSizeMillimeter = footSizeMillimeter,
                 birthday = birthday,
                 birthdayCalendar = calendarCase?.local,
+                hometown = hometown,
                 phoneNumberList = numberList.map { number -> ContactPhoneNumberLocalEntity(number = number) },
             ),
         remote =
@@ -110,6 +113,7 @@ public fun FixtureMonkey.contactDetailCase(
                 footSizeMillimeter = footSizeMillimeter,
                 birthday = birthday,
                 birthdayCalendar = calendarCase?.remote,
+                hometown = hometown,
                 phoneNumberList = numberList.map { number -> ContactPhoneNumberRemoteEntity(number = number) },
             ),
     )
@@ -118,8 +122,8 @@ public fun FixtureMonkey.contactDetailCase(
 public fun FixtureMonkey.contactCaseList(): List<Contact> =
     contactPhoneNumberCaseList().flatMap { numberList ->
         contactMeasureCaseList.flatMap { hasMeasure ->
-            isDeletedCaseList.map { isDeleted ->
-                contact(numberList = numberList, hasMeasure = hasMeasure, isDeleted = isDeleted)
+            favoriteAndDeletedCaseList.map { (isFavorite, isDeleted) ->
+                contact(numberList = numberList, hasMeasure = hasMeasure, isFavorite = isFavorite, isDeleted = isDeleted)
             }
         }
     }
@@ -127,8 +131,8 @@ public fun FixtureMonkey.contactCaseList(): List<Contact> =
 public fun FixtureMonkey.localContactCaseList(): List<ContactLocalEntity> =
     contactPhoneNumberCaseList().flatMap { numberList ->
         contactMeasureCaseList.flatMap { hasMeasure ->
-            isDeletedCaseList.map { isDeleted ->
-                localContact(numberList = numberList, hasMeasure = hasMeasure, isDeleted = isDeleted)
+            favoriteAndDeletedCaseList.map { (isFavorite, isDeleted) ->
+                localContact(numberList = numberList, hasMeasure = hasMeasure, isFavorite = isFavorite, isDeleted = isDeleted)
             }
         }
     }
@@ -136,6 +140,7 @@ public fun FixtureMonkey.localContactCaseList(): List<ContactLocalEntity> =
 public fun FixtureMonkey.contact(
     numberList: List<String>,
     hasMeasure: Boolean,
+    isFavorite: Boolean,
     isDeleted: Boolean,
 ): Contact =
     Contact(
@@ -146,6 +151,7 @@ public fun FixtureMonkey.contact(
                 calendarCase = if (hasMeasure) contactBirthdayCalendarCaseList.random() else null,
                 hasMeasure = hasMeasure,
             ).domain,
+        isFavorite = isFavorite,
         isDeleted = isDeleted,
         updatedAt = giveMeOne(),
         createdAt = giveMeOne(),
@@ -154,6 +160,7 @@ public fun FixtureMonkey.contact(
 public fun FixtureMonkey.localContact(
     numberList: List<String>,
     hasMeasure: Boolean,
+    isFavorite: Boolean,
     isDeleted: Boolean,
 ): ContactLocalEntity =
     ContactLocalEntity(
@@ -164,6 +171,7 @@ public fun FixtureMonkey.localContact(
                 calendarCase = if (hasMeasure) contactBirthdayCalendarCaseList.random() else null,
                 hasMeasure = hasMeasure,
             ).local,
+        isFavorite = isFavorite,
         isDeleted = isDeleted,
         updatedAt = giveMeOne(),
         createdAt = giveMeOne(),
