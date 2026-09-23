@@ -52,11 +52,15 @@ public fun DiaryPickerRow(
             enabled = enabled,
         )
         color?.let { value -> DiaryColorIndicator(color = value) }
-        Column(modifier = Modifier.weight(1F)) {
+        Column(
+            modifier = Modifier.weight(1F),
+            verticalArrangement = Arrangement.spacedBy(DiaryTheme.dimens.cardLineSpacing),
+        ) {
             Text(
                 text = label.orLineReservation(),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+                style = DiaryTheme.typography.titleMediumEmphasized,
             )
             description?.let { value ->
                 Text(

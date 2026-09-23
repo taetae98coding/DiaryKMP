@@ -82,7 +82,7 @@ private fun FetchButton(
     ) {
         DiaryCrossfade(targetState = isFetchInProgressProvider()) { isFetchInProgress ->
             if (isFetchInProgress) {
-                CircularWavyProgressIndicator(modifier = Modifier.size(MusicLinkInputDefaults.FetchInProgressIndicatorSize))
+                CircularWavyProgressIndicator(modifier = Modifier.size(DiaryTheme.dimens.inProgressIndicatorSize))
             } else {
                 Text(text = stringResource(Res.string.music_link_fetch_button_label))
             }
