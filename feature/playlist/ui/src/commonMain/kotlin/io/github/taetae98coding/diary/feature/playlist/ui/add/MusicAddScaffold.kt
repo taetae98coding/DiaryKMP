@@ -29,6 +29,7 @@ internal fun MusicAddScaffold(
     modifier: Modifier = Modifier,
     state: MusicFormState = rememberMusicAddFormState(),
     uiStateProvider: () -> MusicAddUiState = { MusicAddUiState() },
+    componentVisibleProvider: () -> MusicAddScaffoldComponentVisible = { MusicAddScaffoldComponentVisible() },
 ) {
     Scaffold(
         modifier = modifier.submitShortcut { onEvent(MusicAddScaffoldEvent.ClickAdd) },
@@ -37,6 +38,7 @@ internal fun MusicAddScaffold(
                 title = stringResource(Res.string.music_add_title),
                 onNavigateUp = { onEvent(MusicAddScaffoldEvent.ClickNavigateUp) },
                 navigateUpContentDescription = stringResource(Res.string.playlist_navigate_up_button_content_description),
+                isNavigateUpVisibleProvider = { componentVisibleProvider().isNavigateUpButtonVisible },
             )
         },
         snackbarHost = { SnackbarHost(hostState = state.hostState) },

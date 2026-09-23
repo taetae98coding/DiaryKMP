@@ -107,6 +107,7 @@ class MusicAddScreenFocusTest {
             DiaryTheme {
                 MusicAddScreen(
                     navigateUp = {},
+                    componentVisibleProvider = { MusicAddScaffoldComponentVisible() },
                     viewModel = viewModel,
                 )
             }

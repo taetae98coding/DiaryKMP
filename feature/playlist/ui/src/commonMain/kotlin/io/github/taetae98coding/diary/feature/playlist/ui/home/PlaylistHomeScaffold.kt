@@ -36,6 +36,7 @@ internal fun PlaylistHomeScaffold(
     musicPagingItems: LazyPagingItems<Music> = remember { flowOf(PagingData.empty<Music>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> PlaylistHomeUiState = { PlaylistHomeUiState() },
     sortProvider: () -> ListSort = { ListSort.TITLE },
+    componentVisibleProvider: () -> PlaylistHomeScaffoldComponentVisible = { PlaylistHomeScaffoldComponentVisible() },
 ) {
     Scaffold(
         modifier = modifier,
@@ -47,10 +48,12 @@ internal fun PlaylistHomeScaffold(
             )
         },
         floatingActionButton = {
-            FloatingAddButton(
-                onClick = { onEvent(PlaylistHomeScaffoldEvent.ClickAdd) },
-                contentDescription = stringResource(Res.string.playlist_home_add_button_content_description),
-            )
+            if (componentVisibleProvider().isAddButtonVisible) {
+                FloatingAddButton(
+                    onClick = { onEvent(PlaylistHomeScaffoldEvent.ClickAdd) },
+                    contentDescription = stringResource(Res.string.playlist_home_add_button_content_description),
+                )
+            }
         },
     ) { paddingValues ->
         Column(

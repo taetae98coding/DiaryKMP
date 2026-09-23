@@ -40,7 +40,7 @@ class PlaylistHomeScreenTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-003 뒤로가기를 선택하면 이전 화면으로 돌아간다`() {
+    fun `TC-PLAYLIST-HOME-FEATURE-014 뒤로가기를 선택하면 돌아가기 행동을 한 번 전달한다`() {
         var navigateUpCount = 0
 
         setPlaylistHomeScreen(navigateUp = { navigateUpCount += 1 })
@@ -76,6 +76,7 @@ class PlaylistHomeScreenTest {
         musicList: List<Music> = emptyList(),
         navigateUp: () -> Unit = {},
         navigateToAdd: () -> Unit = {},
+        componentVisible: PlaylistHomeScaffoldComponentVisible = PlaylistHomeScaffoldComponentVisible(),
         syncViewModel: PlaylistHomeSyncViewModel = syncViewModel(),
     ) {
         val musicViewModel = mockk<PlaylistHomeViewModel>(relaxed = true)
@@ -87,6 +88,7 @@ class PlaylistHomeScreenTest {
                 PlaylistHomeScreen(
                     navigateUp = navigateUp,
                     navigateToAdd = navigateToAdd,
+                    componentVisibleProvider = { componentVisible },
                     musicViewModel = musicViewModel,
                     syncViewModel = syncViewModel,
                 )

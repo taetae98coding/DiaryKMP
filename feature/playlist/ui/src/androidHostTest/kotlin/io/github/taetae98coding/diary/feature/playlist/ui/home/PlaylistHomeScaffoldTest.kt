@@ -1,7 +1,9 @@
 package io.github.taetae98coding.diary.feature.playlist.ui.home
 
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHasNoClickAction
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onFirst
@@ -140,9 +142,44 @@ class PlaylistHomeScaffoldTest {
         eventList shouldBe listOf(PlaylistHomeScaffoldEvent.ClickNavigateUp)
     }
 
+    @Test
+    fun `TC-PLAYLIST-LIST-DETAIL-FEATURE-003 상세 영역에 곡 추가가 놓이면 곡 추가 버튼이 표시되지 않는다`() {
+        setPlaylistHomeScaffold(componentVisible = PlaylistHomeScaffoldComponentVisible(isAddButtonVisible = false))
+
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-PLAYLIST-LIST-DETAIL-FEATURE-004 추가 버튼 표시 상태이면 곡 추가 버튼이 표시된다`() {
+        setPlaylistHomeScaffold(componentVisible = PlaylistHomeScaffoldComponentVisible(isAddButtonVisible = true))
+
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).assert(hasClickAction())
+    }
+
+    @Test
+    fun `TC-PLAYLIST-LIST-DETAIL-FEATURE-007 상세 영역에 곡 추가가 놓여도 정렬 컨트롤은 표시된다`() {
+        setPlaylistHomeScaffold(componentVisible = PlaylistHomeScaffoldComponentVisible(isAddButtonVisible = false))
+
+        composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).assert(hasClickAction())
+    }
+
+    @Test
+    fun `TC-PLAYLIST-HOME-FEATURE-014 상세 영역에 곡 추가가 놓여도 뒤로가기 버튼은 표시된다`() {
+        val eventList = mutableListOf<PlaylistHomeScaffoldEvent>()
+        setPlaylistHomeScaffold(
+            onEvent = eventList::add,
+            componentVisible = PlaylistHomeScaffoldComponentVisible(isAddButtonVisible = false),
+        )
+
+        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
+
+        eventList shouldBe listOf(PlaylistHomeScaffoldEvent.ClickNavigateUp)
+    }
+
     private fun setPlaylistHomeScaffold(
         musicList: List<Music> = emptyList(),
         onEvent: (PlaylistHomeScaffoldEvent) -> Unit = {},
+        componentVisible: PlaylistHomeScaffoldComponentVisible = PlaylistHomeScaffoldComponentVisible(),
     ) {
         val musicPagingDataFlow: MutableStateFlow<PagingData<Music>> = MutableStateFlow(musicPagingDataOf(musicList))
 
@@ -151,6 +188,7 @@ class PlaylistHomeScaffoldTest {
                 PlaylistHomeScaffold(
                     onEvent = onEvent,
                     musicPagingItems = musicPagingDataFlow.collectAsLazyPagingItems(),
+                    componentVisibleProvider = { componentVisible },
                 )
             }
         }
@@ -162,6 +200,7 @@ class PlaylistHomeScaffoldTest {
         private const val KOREAN_NAVIGATE_UP_DESCRIPTION = "뒤로가기"
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
         private const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add music"
+        private const val DEFAULT_SORT_DESCRIPTION = "List sort"
         private const val FIRST_TITLE = "AlphaMusic"
         private const val FIRST_ARTIST = "AlphaArtist"
         private const val SECOND_TITLE = "BravoMusic"

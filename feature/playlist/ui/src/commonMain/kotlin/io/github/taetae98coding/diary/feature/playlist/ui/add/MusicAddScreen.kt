@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.feature.playlist.ui.form.rememberMusicAddF
 @Composable
 internal fun MusicAddScreen(
     navigateUp: () -> Unit,
+    componentVisibleProvider: () -> MusicAddScaffoldComponentVisible,
     viewModel: MusicAddViewModel,
     modifier: Modifier = Modifier,
 ) {
@@ -33,5 +34,6 @@ internal fun MusicAddScreen(
         modifier = modifier,
         state = state,
         uiStateProvider = { uiState },
+        componentVisibleProvider = componentVisibleProvider,
     )
 }

@@ -80,7 +80,7 @@ class MusicAddScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-015 뒤로가면 이전 화면으로 돌아간다`() {
+    fun `TC-MUSIC-ADD-FEATURE-015 TC-PLAYLIST-LIST-DETAIL-FEATURE-006 단독으로 표시되면 뒤로가기로 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         setMusicAddScreen(
             viewModel = screenTestViewModel(),
@@ -91,6 +91,16 @@ class MusicAddScreenTest {
         composeRule.waitForIdle()
 
         navigateUpCount shouldBe 1
+    }
+
+    @Test
+    fun `TC-PLAYLIST-LIST-DETAIL-FEATURE-005 목록과 함께 표시되면 뒤로가기 버튼이 표시되지 않는다`() {
+        setMusicAddScreen(
+            viewModel = screenTestViewModel(),
+            componentVisible = MusicAddScaffoldComponentVisible(isNavigateUpButtonVisible = false),
+        )
+
+        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).assertDoesNotExist()
     }
 
     private fun assertInvalidInputRetainsInput(effect: MusicAddEffect) {
@@ -108,11 +118,13 @@ class MusicAddScreenTest {
     private fun setMusicAddScreen(
         viewModel: MusicAddViewModel,
         navigateUp: () -> Unit = {},
+        componentVisible: MusicAddScaffoldComponentVisible = MusicAddScaffoldComponentVisible(),
     ) {
         composeRule.setContent {
             DiaryTheme {
                 MusicAddScreen(
                     navigateUp = navigateUp,
+                    componentVisibleProvider = { componentVisible },
                     viewModel = viewModel,
                 )
             }

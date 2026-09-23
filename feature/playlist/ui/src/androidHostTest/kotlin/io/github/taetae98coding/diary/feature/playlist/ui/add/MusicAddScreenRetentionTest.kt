@@ -25,6 +25,7 @@ class MusicAddScreenRetentionTest {
             DiaryTheme {
                 MusicAddScreen(
                     navigateUp = {},
+                    componentVisibleProvider = { MusicAddScaffoldComponentVisible() },
                     viewModel = fetchEffectViewModel(fetchedEffect()),
                 )
             }

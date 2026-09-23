@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 internal fun PlaylistHomeScreen(
     navigateUp: () -> Unit,
     navigateToAdd: () -> Unit,
+    componentVisibleProvider: () -> PlaylistHomeScaffoldComponentVisible,
     musicViewModel: PlaylistHomeViewModel,
     syncViewModel: PlaylistHomeSyncViewModel,
     modifier: Modifier = Modifier,
@@ -35,5 +36,6 @@ internal fun PlaylistHomeScreen(
         musicPagingItems = musicPagingItems,
         uiStateProvider = { uiState },
         sortProvider = { sort },
+        componentVisibleProvider = componentVisibleProvider,
     )
 }
