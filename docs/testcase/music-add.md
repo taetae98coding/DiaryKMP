@@ -4,7 +4,7 @@
 
 이 문서에서 `data > 동기화`, `data > 저장 실패`, `domain > 추가 요청 제한`, `domain > 항목의 계정 연결`, `feature > 뒤로가기`, `feature > 작성 상태 유지` 절은 [항목 추가 화면 공통 스펙](../spec/entity-add.md)이 소유한다. 나머지 케이스의 절은 기준 스펙이 소유한다.
 
-PlaylistHome에서 곡 추가를 선택해 MusicAdd로 이동하는 케이스는 [PlaylistHome 테스트 케이스](./playlist-home.md)에서 다룬다. 추가한 곡을 서버와 맞추는 흐름의 케이스는 [데이터 동기화 테스트 케이스](./data-sync.md)에서 다룬다. 이 화면에는 태그 입력이 없으므로 태그 연결 케이스는 두지 않는다.
+PlaylistHome에서 곡 추가를 선택해 MusicAdd로 이동하는 케이스는 [PlaylistHome 테스트 케이스](./playlist-home.md)에서, 곡 목록과 함께 표시할 때의 케이스는 [Playlist 목록·상세 배치 테스트 케이스](./playlist-list-detail.md)에서 다룬다. 추가한 곡을 서버와 맞추는 흐름의 케이스는 [데이터 동기화 테스트 케이스](./data-sync.md)에서 다룬다. 이 화면에는 태그 입력이 없으므로 태그 연결 케이스는 두지 않는다.
 
 ## feature
 
@@ -123,7 +123,7 @@ PlaylistHome에서 곡 추가를 선택해 MusicAdd로 이동하는 케이스는
 ### TC-MUSIC-ADD-FEATURE-015: 뒤로가면 이전 화면으로 돌아간다
 
 - 근거: `feature > 뒤로가기`
-- Given: MusicAdd 화면이 표시되어 있다.
+- Given: MusicAdd 화면이 단독으로 표시되어 있다.
 - When: 사용자가 뒤로가기를 실행한다.
 - Then: MusicAdd 화면에 진입하기 전 화면으로 돌아간다.
 

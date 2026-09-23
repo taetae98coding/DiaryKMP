@@ -6,6 +6,7 @@
 
 - [Contact 목록·상세 배치 스펙](./contact-list-detail.md)
 - [Memo 목록·상세 배치 스펙](./memo-list-detail.md)
+- [Playlist 목록·상세 배치 스펙](./playlist-list-detail.md)
 - [Routine 목록·상세 배치 스펙](./routine-list-detail.md)
 - [Setting 목록·상세 배치 스펙](./setting-list-detail.md)
 - [Tag 목록·상세 배치 스펙](./tag-list-detail.md)

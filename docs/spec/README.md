@@ -91,6 +91,7 @@
 | [장소 검색 공통](./place-search.md) | — |
 | [장소 검색 다이얼로그 컴포넌트](./place-search-dialog.md) | [장소 검색 다이얼로그 디자인](../design/place-search-dialog.md) |
 | [PlaylistHome 화면](./playlist-home.md) | [PlaylistHome 디자인](../design/playlist-home.md) |
+| [Playlist 목록·상세 배치](./playlist-list-detail.md) | [Playlist 목록·상세 배치 디자인](../design/playlist-list-detail.md) |
 | [프로필 이미지 변경](./profile-image.md) | — |
 | [QrHome 화면](./qr-home.md) | [QrHome 디자인](../design/qr-home.md) |
 | [RoutineAdd 화면](./routine-add.md) | [RoutineAdd 디자인](../design/routine-add.md) |

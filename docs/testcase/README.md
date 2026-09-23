@@ -94,6 +94,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [장소 태그](./place-tag.md) | [장소 태그](../spec/place-tag.md) |
 | [장소 검색 다이얼로그](./place-search-dialog.md) | [장소 검색 다이얼로그 컴포넌트](../spec/place-search-dialog.md) |
 | [PlaylistHome](./playlist-home.md) | [PlaylistHome 화면](../spec/playlist-home.md) |
+| [Playlist 목록·상세 배치](./playlist-list-detail.md) | [Playlist 목록·상세 배치](../spec/playlist-list-detail.md) |
 | [프로필 이미지 변경](./profile-image.md) | [프로필 이미지 변경](../spec/profile-image.md) |
 | [QrHome](./qr-home.md) | [QrHome 화면](../spec/qr-home.md) |
 | [RoutineAdd](./routine-add.md) | [RoutineAdd 화면](../spec/routine-add.md) |
@@ -149,4 +150,4 @@ TC-<SPEC>-<AREA>-<NNN>
 - [권한 요청 공통 스펙](../spec/permission.md) → [알림 권한 요청](./notification-permission.md), [위치 권한 요청](./location-permission.md)
   - 두 권한 문서가 공통 스펙의 요청 시점, 요청 기준, 요청 결과 케이스를 각자의 권한과 요청 지점에 맞춰 각각 갖는다.
   - 두 문서가 각자의 기본 보기 모드와 노출 대상 장소, 현재 위치 확인 시점에 맞춰 같은 공통 규칙의 케이스를 각각 갖는다.
-- [목록·상세 배치 공통 스펙](../spec/list-detail-pane.md) → [Contact](./contact-list-detail.md), [Memo](./memo-list-detail.md), [Routine](./routine-list-detail.md), [Setting](./setting-list-detail.md), [Tag](./tag-list-detail.md), [TagMemoFinishedList](./tag-memo-finished-list-detail.md), [Web](./web-list-detail.md) 목록·상세 배치
+- [목록·상세 배치 공통 스펙](../spec/list-detail-pane.md) → [Contact](./contact-list-detail.md), [Memo](./memo-list-detail.md), [Playlist](./playlist-list-detail.md), [Routine](./routine-list-detail.md), [Setting](./setting-list-detail.md), [Tag](./tag-list-detail.md), [TagMemoFinishedList](./tag-memo-finished-list-detail.md), [Web](./web-list-detail.md) 목록·상세 배치

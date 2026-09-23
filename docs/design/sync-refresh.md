@@ -54,7 +54,7 @@ PlaceHome과 TagDetail 장소 탭은 지도 모드에서 본문을 지도 영역
 
 ## 적응형 배치
 
-창 너비가 넓어져 목록과 상세를 함께 표시하는 배치에서는 목록 영역에만 당김과 진행 표시를 둔다. 상세 영역에는 두지 않는다. 목록과 상세를 함께 표시하는 조건은 [Memo 목록·상세 배치 디자인](./memo-list-detail.md), [Tag 목록·상세 배치 디자인](./tag-list-detail.md)과 [Contact 목록·상세 배치 디자인](./contact-list-detail.md)을 따른다.
+창 너비가 넓어져 목록과 상세를 함께 표시하는 배치에서는 목록 영역에만 당김과 진행 표시를 둔다. 상세 영역에는 두지 않는다. 목록과 상세를 함께 표시하는 조건은 [Memo 목록·상세 배치 디자인](./memo-list-detail.md), [Tag 목록·상세 배치 디자인](./tag-list-detail.md), [Contact 목록·상세 배치 디자인](./contact-list-detail.md)과 [Playlist 목록·상세 배치 디자인](./playlist-list-detail.md)을 따른다.
 
 PlaceHome과 TagDetail 장소 탭의 지도 모드는 창 너비에 따라 지도 영역과 장소 목록 영역이 위아래로 나뉘거나 좌우로 나뉜다. 어느 배치에서도 당김과 진행 표시는 장소 목록 영역에만 두며, 진행 표시의 자리는 그 시점의 장소 목록 영역 기준으로 다시 정한다. 두 영역을 가르는 조건은 [장소 보기 모드 디자인](./place-view-mode.md)의 `적응형 배치`를 따른다.
 

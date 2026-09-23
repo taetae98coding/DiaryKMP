@@ -2,7 +2,7 @@
 
 기준 스펙: [PlaylistHome 화면 스펙](../spec/playlist-home.md)
 
-목록이 나타나는 순서와 아직 준비되지 않은 자리를 다루는 규칙은 [페이지 조회 목록의 자리 표시 스펙](../spec/paged-list-placeholder.md)에, 빈 상태의 판정과 행동은 [목록 빈 상태 스펙](../spec/list-empty-state.md)에, 당김으로 시작하는 동기화와 진행 표시는 [새로고침 스펙](../spec/sync-refresh.md)에, 정렬 선택과 반영은 [목록 정렬 스펙](../spec/list-sort.md)에 위임되어 있으며, 이 문서의 케이스는 PlaylistHome에서 관찰하는 결과를 기준으로 한다. `더보기`에서 PlaylistHome으로 이동하는 케이스는 [MoreHome 테스트 케이스](./more-home.md)에서, 곡을 작성해 추가하는 케이스는 [MusicAdd 테스트 케이스](./music-add.md)에서, 곡을 서버와 맞추는 케이스는 [데이터 동기화 테스트 케이스](./data-sync.md)에서, 화면과 무관한 새로고침 공통 규칙의 케이스는 [새로고침 테스트 케이스](./sync-refresh.md)에서 다룬다.
+목록이 나타나는 순서와 아직 준비되지 않은 자리를 다루는 규칙은 [페이지 조회 목록의 자리 표시 스펙](../spec/paged-list-placeholder.md)에, 빈 상태의 판정과 행동은 [목록 빈 상태 스펙](../spec/list-empty-state.md)에, 당김으로 시작하는 동기화와 진행 표시는 [새로고침 스펙](../spec/sync-refresh.md)에, 정렬 선택과 반영은 [목록 정렬 스펙](../spec/list-sort.md)에 위임되어 있으며, 이 문서의 케이스는 PlaylistHome에서 관찰하는 결과를 기준으로 한다. `더보기`에서 PlaylistHome으로 이동하는 케이스는 [MoreHome 테스트 케이스](./more-home.md)에서, 곡을 작성해 추가하는 케이스는 [MusicAdd 테스트 케이스](./music-add.md)에서, 곡 목록과 곡 추가를 함께 표시할 때의 케이스는 [Playlist 목록·상세 배치 테스트 케이스](./playlist-list-detail.md)에서, 곡을 서버와 맞추는 케이스는 [데이터 동기화 테스트 케이스](./data-sync.md)에서, 화면과 무관한 새로고침 공통 규칙의 케이스는 [새로고침 테스트 케이스](./sync-refresh.md)에서 다룬다.
 
 ## feature
 
@@ -13,12 +13,18 @@
 - When: 사용자가 PlaylistHome 화면을 확인한다.
 - Then: 상단 바에 제목 `플레이리스트` 문구가 표시된다.
 
-### TC-PLAYLIST-HOME-FEATURE-003: 뒤로가기를 선택하면 이전 화면으로 돌아간다
+### TC-PLAYLIST-HOME-FEATURE-014: 표시 상태와 관계없이 뒤로가면 `더보기`로 돌아간다
 
 - 근거: `feature > 뒤로가기`
-- Given: 사용자가 `더보기`의 `플레이리스트` 바로가기로 PlaylistHome 화면에 들어와 있다.
-- When: 사용자가 뒤로가기를 선택한다.
-- Then: 이전 화면으로 돌아가는 동작이 한 번 실행된다.
+- Given: 사용자가 `더보기`의 `플레이리스트` 바로가기로 진입해 플레이리스트 화면이 테스트 데이터의 표시 상태로 나타나 있다.
+- When: 사용자가 PlaylistHome의 뒤로가기 동작을 실행한다.
+- Then: 플레이리스트 화면 전체를 떠나 `더보기` 화면으로 돌아간다.
+- 테스트 데이터:
+
+| 표시 상태 |
+| --- |
+| PlaylistHome이 단독으로 표시됨 |
+| PlaylistHome과 곡 추가가 함께 표시됨 |
 
 ### TC-PLAYLIST-HOME-FEATURE-004: 계정에 저장된 곡을 목록으로 표시한다
 
@@ -37,7 +43,7 @@
 ### TC-PLAYLIST-HOME-FEATURE-006: 곡 추가를 선택하면 MusicAdd로 이동한다
 
 - 근거: `feature > 곡 추가로 이동`
-- Given: PlaylistHome 화면이 표시되어 있고 목록이 테스트 데이터의 상태다.
+- Given: PlaylistHome 화면이 단독으로 표시되어 있고 목록이 테스트 데이터의 상태다.
 - When: 사용자가 곡 추가를 선택한다.
 - Then: MusicAdd 화면으로 이동하는 동작이 한 번 실행된다.
 - 테스트 데이터:

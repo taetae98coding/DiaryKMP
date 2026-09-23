@@ -1,6 +1,6 @@
 # PlaylistHome 화면 스펙
 
-이 문서는 사용자가 `더보기`의 `플레이리스트` 바로가기로 진입하는 PlaylistHome 화면의 내용과 행동을 다룬다. 바로가기 항목의 표시와 선택은 [MoreHome 화면 스펙](./more-home.md)에서, 세부 화면에서의 공통 내비게이션 노출 규칙은 [TopLevelNavigation 스펙](./top-level-navigation.md)에서, 곡을 작성해 추가하는 흐름과 곡이 갖는 정보는 [MusicAdd 화면 스펙](./music-add.md)에서, 페이지 단위로 조회하는 목록이 나타나는 순서와 아직 준비되지 않은 자리의 처리는 [페이지 조회 목록의 자리 표시 스펙](./paged-list-placeholder.md)에서, 목록이 비어 있을 때의 안내는 [목록 빈 상태 스펙](./list-empty-state.md)에서, 목록을 당겨 새로고침하는 행동과 동기화 진행 표시는 [새로고침 스펙](./sync-refresh.md)에서, 곡을 서버와 맞추는 규칙은 [데이터 동기화 스펙](./data-sync.md)에서 다룬다.
+이 문서는 사용자가 `더보기`의 `플레이리스트` 바로가기로 진입하는 PlaylistHome 화면의 내용과 행동을 다룬다. 바로가기 항목의 표시와 선택은 [MoreHome 화면 스펙](./more-home.md)에서, 세부 화면에서의 공통 내비게이션 노출 규칙은 [TopLevelNavigation 스펙](./top-level-navigation.md)에서, 곡을 작성해 추가하는 흐름과 곡이 갖는 정보는 [MusicAdd 화면 스펙](./music-add.md)에서, 곡 목록과 곡 추가를 함께 사용하는 배치는 [Playlist 목록·상세 배치 스펙](./playlist-list-detail.md)에서, 페이지 단위로 조회하는 목록이 나타나는 순서와 아직 준비되지 않은 자리의 처리는 [페이지 조회 목록의 자리 표시 스펙](./paged-list-placeholder.md)에서, 목록이 비어 있을 때의 안내는 [목록 빈 상태 스펙](./list-empty-state.md)에서, 목록을 당겨 새로고침하는 행동과 동기화 진행 표시는 [새로고침 스펙](./sync-refresh.md)에서, 곡을 서버와 맞추는 규칙은 [데이터 동기화 스펙](./data-sync.md)에서 다룬다.
 
 디자인: [PlaylistHome 화면 디자인](../design/playlist-home.md)
 
@@ -40,11 +40,15 @@
 
 곡 추가는 목록의 내용과 무관하게 언제나 실행할 수 있다. 노출할 곡이 없어 목록이 비어 있는 상태에서도 사용자는 곡 추가로 이동할 수 있다.
 
+목록과 상세를 함께 사용하는 환경에서는 상세 영역에 이미 곡 추가가 놓이므로 목록에서 곡 추가를 다시 실행하지 않는다. 그 기준은 [목록·상세 배치 공통 스펙](./list-detail-pane.md)의 `추가 진입 수단`을 따른다.
+
 곡 추가에서 뒤로 돌아오면 PlaylistHome으로 돌아오고, 추가한 곡이 반영된 목록을 본다.
 
 ### 뒤로가기
 
-사용자가 뒤로가기를 실행하면 [TopLevelNavigation 스펙](./top-level-navigation.md)의 `더보기 하위 화면의 뒤로가기`에 따라 `더보기`로 돌아간다.
+사용자가 PlaylistHome의 뒤로가기 동작을 실행하면 PlaylistHome이 단독으로 표시되는지 상세 영역과 함께 표시되는지와 관계없이 플레이리스트 화면 전체를 떠나 [TopLevelNavigation 스펙](./top-level-navigation.md)의 `더보기 하위 화면의 뒤로가기`에 따라 `더보기`로 돌아간다.
+
+상세 영역과 함께 표시되는 상태에서의 결과는 [Playlist 목록·상세 배치 스펙](./playlist-list-detail.md)의 `뒤로가기`를 따른다.
 
 ### 정렬 선택
 
