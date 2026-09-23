@@ -1,7 +1,3 @@
-@file:OptIn(ExperimentalWasmDsl::class)
-
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-
 plugins {
     alias(libs.plugins.primitive.kmp)
     alias(libs.plugins.primitive.android.library)
@@ -11,10 +7,6 @@ plugins {
 }
 
 kotlin {
-    wasmJs {
-        useEsModules()
-    }
-
     sourceSets {
         commonMain {
             dependencies {
@@ -29,14 +21,6 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.paging.testing)
                 implementation(libs.androidx.room3.testing)
-            }
-        }
-
-        wasmJsMain {
-            dependencies {
-                implementation(libs.androidx.sqlite.web)
-                implementation(libs.kotlinx.browser)
-                implementation(npm("sqlite-wasm-worker", layout.projectDirectory.dir("worker").asFile))
             }
         }
 
