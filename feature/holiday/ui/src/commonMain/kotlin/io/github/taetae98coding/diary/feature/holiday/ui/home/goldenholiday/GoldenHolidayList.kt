@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.feature.holiday.ui.home.goldenholiday
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -21,13 +22,14 @@ internal fun GoldenHolidayList(
     onEvent: (HolidayHomeYearContentEvent) -> Unit,
     modifier: Modifier = Modifier,
     groupList: List<GoldenHolidayGroup> = emptyList(),
+    contentPadding: PaddingValues = DiaryTheme.dimens.screenPaddingValues,
 ) {
     val colors = CalendarDefault.colors()
 
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Adaptive(GoldenHolidayListDefaults.MinColumnWidth),
         modifier = modifier,
-        contentPadding = DiaryTheme.dimens.screenPaddingValues,
+        contentPadding = contentPadding,
         verticalItemSpacing = DiaryTheme.dimens.itemSpacing,
         horizontalArrangement = Arrangement.spacedBy(DiaryTheme.dimens.itemSpacing),
     ) {

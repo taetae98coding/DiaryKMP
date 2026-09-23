@@ -23,13 +23,14 @@ internal fun HolidayHomeScreen(
         },
         modifier = modifier,
         state = state,
-        yearContent = { year ->
+        yearContent = { year, contentPadding ->
             HolidayHomeYearContent(
                 year = year,
                 state = state,
                 viewModelStoreProvider = viewModelStoreProvider,
                 navigateToMemoAdd = navigateToMemoAdd,
                 modifier = Modifier.fillMaxSize(),
+                contentPadding = contentPadding,
             )
         },
     )

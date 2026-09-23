@@ -96,7 +96,7 @@ class HolidayHomeScaffoldYearTest {
                 HolidayHomeScaffold(
                     onEvent = {},
                     state = state,
-                    yearContent = { year ->
+                    yearContent = { year, _ ->
                         GoldenHolidayYear(
                             uiStateProvider = { uiStateFor(year) },
                             onEvent = {},

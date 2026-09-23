@@ -103,7 +103,7 @@ class HolidayHomeAnnualLeaveStepperTest {
                 HolidayHomeScaffold(
                     onEvent = {},
                     state = rememberHolidayHomeScaffoldState(initialYear = YEAR),
-                    yearContent = { _ -> },
+                    yearContent = { _, _ -> },
                 )
             }
         }

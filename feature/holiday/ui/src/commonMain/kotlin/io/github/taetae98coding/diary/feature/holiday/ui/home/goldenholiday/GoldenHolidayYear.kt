@@ -1,6 +1,9 @@
 package io.github.taetae98coding.diary.feature.holiday.ui.home.goldenholiday
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.plus
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -20,6 +23,7 @@ internal fun GoldenHolidayYear(
     onEvent: (HolidayHomeYearContentEvent) -> Unit,
     modifier: Modifier = Modifier,
     uiStateProvider: () -> HolidayHomeYearUiState = { HolidayHomeYearUiState.Loading },
+    contentPadding: PaddingValues = PaddingValues(),
 ) {
     DiaryCrossfade(
         targetState = uiStateProvider(),
@@ -29,24 +33,25 @@ internal fun GoldenHolidayYear(
         when (uiState) {
             is HolidayHomeYearUiState.Loading ->
                 DiaryLoadingBox(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize().padding(contentPadding),
                     contentDescription = stringResource(Res.string.holiday_loading_content_description),
                 )
 
             is HolidayHomeYearUiState.Error ->
                 GoldenHolidayErrorDescription(
                     onRetry = { onEvent(HolidayHomeYearContentEvent.ClickRetry) },
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize().padding(contentPadding),
                 )
 
             is HolidayHomeYearUiState.NotProvided ->
-                GoldenHolidayNotProvidedDescription(modifier = Modifier.fillMaxSize())
+                GoldenHolidayNotProvidedDescription(modifier = Modifier.fillMaxSize().padding(contentPadding))
 
             is HolidayHomeYearUiState.Loaded ->
                 GoldenHolidayList(
                     groupList = uiState.goldenHolidayGroupList,
                     onEvent = onEvent,
                     modifier = Modifier.fillMaxSize(),
+                    contentPadding = DiaryTheme.dimens.screenPaddingValues + contentPadding,
                 )
         }
     }

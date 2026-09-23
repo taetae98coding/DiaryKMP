@@ -141,7 +141,7 @@ class HolidayHomeGoldenHolidayOptionTest {
                 HolidayHomeScaffold(
                     onEvent = {},
                     state = state,
-                    yearContent = { year ->
+                    yearContent = { year, _ ->
                         GoldenHolidayYear(
                             uiStateProvider = { if (year == YEAR) uiState else HolidayHomeYearUiState.Loaded() },
                             onEvent = {},

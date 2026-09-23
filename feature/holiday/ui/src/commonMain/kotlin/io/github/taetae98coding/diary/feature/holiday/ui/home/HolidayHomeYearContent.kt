@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.holiday.ui.home
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -25,6 +26,7 @@ internal fun HolidayHomeYearContent(
     navigateToMemoAdd: (LocalDateRange) -> Unit,
     modifier: Modifier = Modifier,
     state: HolidayHomeScaffoldState = rememberHolidayHomeScaffoldState(),
+    contentPadding: PaddingValues = PaddingValues(),
 ) {
     val viewModelStoreOwner = rememberViewModelStoreOwner(key = year, provider = viewModelStoreProvider)
 
@@ -46,6 +48,7 @@ internal fun HolidayHomeYearContent(
                 }
             },
             modifier = modifier,
+            contentPadding = contentPadding,
         )
     }
 }
