@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.place.ui.home
 
+import io.github.taetae98coding.diary.feature.place.ui.home.viewmode.PlaceHomeViewMode
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 

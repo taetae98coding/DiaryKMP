@@ -10,8 +10,8 @@ import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInput
 import io.github.taetae98coding.diary.compose.core.layout.DiaryInputColumn
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.tag.EntityTagInput
-import io.github.taetae98coding.diary.compose.tag.EntityTagInputUiState
+import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInput
+import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.feature.place.ui.PlaceAddressInput
 import io.github.taetae98coding.diary.feature.place.ui.PlaceCoordinateInput
 import io.github.taetae98coding.diary.feature.place.ui.Res

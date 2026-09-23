@@ -8,6 +8,10 @@ import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
+import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.birthdayItem
+import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.holidayItem
+import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.memoItem
+import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.weatherItem
 
 @Suppress("LongParameterList")
 internal fun CalendarWeekOfMonthGridScope.calendarHomeItems(

@@ -26,9 +26,9 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.MEMO_COLOR_INDICATOR_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.MEMO_DATE_HEADER_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.MEMO_DATE_TIME_TEST_TAG
-import io.github.taetae98coding.diary.compose.memo.MemoListEvent
-import io.github.taetae98coding.diary.compose.memo.MemoListItem
-import io.github.taetae98coding.diary.compose.memo.MemoListState
+import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
+import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
+import io.github.taetae98coding.diary.compose.memo.list.MemoListState
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.feature.tag.ui.allDayMemoDateTime
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemo

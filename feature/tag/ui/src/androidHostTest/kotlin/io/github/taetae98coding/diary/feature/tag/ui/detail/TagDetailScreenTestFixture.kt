@@ -12,11 +12,16 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.input.DIARY_EMOJI_INPUT_TEST_TAG
-import io.github.taetae98coding.diary.compose.memo.MemoListItem
+import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.model.web.Web
+import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailFormTab
+import io.github.taetae98coding.diary.feature.tag.ui.detail.memo.TagDetailMemoTab
+import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceTab
+import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.TagDetailTab
+import io.github.taetae98coding.diary.feature.tag.ui.detail.web.TagDetailWebTab
 import io.github.taetae98coding.diary.feature.tag.ui.form.TagFormState
 import io.github.taetae98coding.diary.feature.tag.ui.form.rememberTagDetailFormState
 import io.mockk.every

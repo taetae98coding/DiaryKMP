@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import io.github.taetae98coding.diary.feature.place.ui.home.viewmode.PlaceHomeViewMode
 
 @Stable
 internal class PlaceHomeScaffoldState(

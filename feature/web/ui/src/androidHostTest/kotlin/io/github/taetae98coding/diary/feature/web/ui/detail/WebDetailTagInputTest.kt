@@ -14,6 +14,8 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.web.ui.add.webTestTag
+import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
+import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageViewModel
 import io.github.taetae98coding.diary.feature.web.ui.sendTagAddedResult
 import io.kotest.matchers.shouldBe
 import io.mockk.every

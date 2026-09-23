@@ -1,6 +1,6 @@
 package io.github.taetae98coding.diary.compose.place
 
-import io.github.taetae98coding.diary.compose.map.DiaryMapProvider
+import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 
 public fun MapProvider.toDiaryMapProvider(): DiaryMapProvider =

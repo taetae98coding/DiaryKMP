@@ -3,7 +3,7 @@ package io.github.taetae98coding.diary.feature.place.ui.detail
 import androidx.compose.runtime.key
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
-import io.github.taetae98coding.diary.compose.map.DiaryMapProvider
+import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState

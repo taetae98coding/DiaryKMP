@@ -9,9 +9,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.snackbar.UndoSnackbarEffect
-import io.github.taetae98coding.diary.compose.memo.MemoListEvent
-import io.github.taetae98coding.diary.compose.memo.UpdateMemoListTodayEffect
-import io.github.taetae98coding.diary.compose.memo.rememberMemoListState
+import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
+import io.github.taetae98coding.diary.compose.memo.list.UpdateMemoListTodayEffect
+import io.github.taetae98coding.diary.compose.memo.list.rememberMemoListState
 import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.tag_memo_finished_list_deleted_message
 import io.github.taetae98coding.diary.feature.tag.ui.tag_memo_finished_list_restarted_message

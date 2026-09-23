@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import io.github.taetae98coding.diary.feature.web.ui.detail.tab.WebDetailTab
+import io.github.taetae98coding.diary.feature.web.ui.detail.viewmode.WebDetailViewMode
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test

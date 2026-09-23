@@ -9,8 +9,8 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.tag.TagFilterBottomSheetContent
-import io.github.taetae98coding.diary.compose.tag.TagFilterEvent
+import io.github.taetae98coding.diary.compose.tag.filter.TagFilterBottomSheetContent
+import io.github.taetae98coding.diary.compose.tag.filter.TagFilterEvent
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.calendar.ui.Res
 import io.github.taetae98coding.diary.feature.calendar.ui.TagListPreviewParameter

@@ -16,10 +16,12 @@ import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.tag.EntityTagInputUiState
-import io.github.taetae98coding.diary.compose.tag.EntityTagPickerDialogHost
-import io.github.taetae98coding.diary.compose.tag.EntityTagPickerEvent
+import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
+import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerDialogHost
+import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
+import io.github.taetae98coding.diary.feature.web.ui.detail.viewmode.WebDetailViewModeBottomSheetHost
 import io.github.taetae98coding.diary.feature.web.ui.form.WebFormEvent
 import io.github.taetae98coding.diary.feature.web.ui.form.WebFormState
 import io.github.taetae98coding.diary.feature.web.ui.form.rememberWebDetailFormState

@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.feature.web.ui.detail
 
+import io.github.taetae98coding.diary.feature.web.ui.detail.tab.WebDetailTab
+import io.github.taetae98coding.diary.feature.web.ui.detail.viewmode.WebDetailViewMode
+
 internal sealed interface WebDetailScaffoldEvent {
     data object ClickNavigateUp : WebDetailScaffoldEvent
 

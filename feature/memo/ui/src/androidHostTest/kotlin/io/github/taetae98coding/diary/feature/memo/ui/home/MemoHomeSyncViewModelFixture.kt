@@ -1,6 +1,6 @@
 package io.github.taetae98coding.diary.feature.memo.ui.home
 
-import io.github.taetae98coding.diary.compose.memo.MemoListUiState
+import io.github.taetae98coding.diary.compose.memo.list.MemoListUiState
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow

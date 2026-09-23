@@ -15,6 +15,10 @@ import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
+import io.github.taetae98coding.diary.feature.search.ui.home.memo.SearchHomeMemoViewModel
+import io.github.taetae98coding.diary.feature.search.ui.home.place.SearchHomePlaceViewModel
+import io.github.taetae98coding.diary.feature.search.ui.home.tag.SearchHomeTagViewModel
+import io.github.taetae98coding.diary.feature.search.ui.home.web.SearchHomeWebViewModel
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow

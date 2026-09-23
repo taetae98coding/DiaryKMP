@@ -6,7 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import io.github.taetae98coding.diary.compose.map.DiaryMapBounds
-import io.github.taetae98coding.diary.compose.map.DiaryMapProvider
+import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.compose.place.toCoordinateBounds
 import io.github.taetae98coding.diary.compose.place.toMapProvider
 import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY

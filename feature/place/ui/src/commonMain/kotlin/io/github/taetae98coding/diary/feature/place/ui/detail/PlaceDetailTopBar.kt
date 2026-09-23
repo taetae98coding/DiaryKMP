@@ -11,7 +11,7 @@ import io.github.taetae98coding.diary.compose.core.button.OpenInNewButton
 import io.github.taetae98coding.diary.compose.core.button.SearchButton
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.map.DiaryMapProvider
+import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.feature.place.ui.PREVIEW_PLACE_DETAIL
 import io.github.taetae98coding.diary.feature.place.ui.Res
 import io.github.taetae98coding.diary.feature.place.ui.place_detail_delete_button_content_description

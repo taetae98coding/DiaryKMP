@@ -21,6 +21,10 @@ import androidx.compose.ui.test.performTextReplacement
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.model.web.WebHeader
+import io.github.taetae98coding.diary.feature.web.ui.detail.page.WEB_DETAIL_PAGE_FAILURE_TEST_TAG
+import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
+import io.github.taetae98coding.diary.feature.web.ui.detail.tab.WebDetailTab
+import io.github.taetae98coding.diary.feature.web.ui.detail.viewmode.WebDetailViewMode
 import io.github.taetae98coding.diary.feature.web.ui.form.rememberWebDetailFormState
 import io.kotest.matchers.shouldBe
 import org.junit.Rule

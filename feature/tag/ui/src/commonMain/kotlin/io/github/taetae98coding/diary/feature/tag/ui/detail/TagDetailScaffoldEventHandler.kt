@@ -1,5 +1,7 @@
 package io.github.taetae98coding.diary.feature.tag.ui.detail
 
+import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeState
+
 internal fun handleTagDetailScaffoldEvent(
     event: TagDetailScaffoldEvent,
     viewModel: TagDetailViewModel,

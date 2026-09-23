@@ -3,7 +3,7 @@
 package io.github.taetae98coding.diary.feature.memo.ui.home
 
 import app.cash.turbine.test
-import io.github.taetae98coding.diary.compose.memo.MemoListUiState
+import io.github.taetae98coding.diary.compose.memo.list.MemoListUiState
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.GetProgressReportedUseCase
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase

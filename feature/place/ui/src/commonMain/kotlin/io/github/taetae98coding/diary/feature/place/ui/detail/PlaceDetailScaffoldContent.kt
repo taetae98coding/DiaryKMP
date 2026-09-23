@@ -8,7 +8,7 @@ import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.loading.DiaryLoadingBox
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.tag.EntityTagInputUiState
+import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.feature.place.ui.PREVIEW_PLACE_DETAIL
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceForm
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormEvent

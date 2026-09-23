@@ -5,6 +5,8 @@ import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
+import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.toDateRange
+import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.toDateRange
 import io.github.taetae98coding.diary.library.kotlinx.datetime.overlaps
 import kotlinx.datetime.LocalDateRange
 

@@ -13,7 +13,7 @@ import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInputFocusEffect
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
-import io.github.taetae98coding.diary.compose.tag.EntityTagPickerEvent
+import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.feature.place.api.PlaceAddedResult
 import io.github.taetae98coding.diary.feature.place.ui.Res

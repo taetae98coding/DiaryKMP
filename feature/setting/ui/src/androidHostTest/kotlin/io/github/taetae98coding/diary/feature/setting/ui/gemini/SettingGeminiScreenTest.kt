@@ -14,6 +14,9 @@ import androidx.compose.ui.test.performTextReplacement
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.gemini.GeminiModel
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
+import io.github.taetae98coding.diary.feature.setting.ui.gemini.model.SettingGeminiModelUiState
+import io.github.taetae98coding.diary.feature.setting.ui.gemini.model.SettingGeminiModelViewModel
+import io.github.taetae98coding.diary.feature.setting.ui.holiday.DEFAULT_NAVIGATE_UP_DESCRIPTION
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk

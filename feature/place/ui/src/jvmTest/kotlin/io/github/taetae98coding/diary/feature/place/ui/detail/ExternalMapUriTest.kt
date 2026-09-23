@@ -1,7 +1,7 @@
 package io.github.taetae98coding.diary.feature.place.ui.detail
 
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
-import io.github.taetae98coding.diary.compose.map.DiaryMapProvider
+import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 

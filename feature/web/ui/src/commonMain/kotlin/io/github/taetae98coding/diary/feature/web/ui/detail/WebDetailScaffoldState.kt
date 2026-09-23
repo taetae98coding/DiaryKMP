@@ -9,6 +9,8 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
+import io.github.taetae98coding.diary.feature.web.ui.detail.tab.WebDetailTab
+import io.github.taetae98coding.diary.feature.web.ui.detail.viewmode.WebDetailViewMode
 
 private const val TAB_INDEX = 0
 private const val VIEW_MODE_INDEX = 1

@@ -5,7 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
-import io.github.taetae98coding.diary.compose.tag.TagFilterEvent
+import io.github.taetae98coding.diary.compose.tag.filter.TagFilterEvent
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable

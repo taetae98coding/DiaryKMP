@@ -3,7 +3,7 @@ package io.github.taetae98coding.diary.feature.place.ui.detail
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
-import io.github.taetae98coding.diary.compose.map.DiaryMapProvider
+import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import platform.Foundation.NSBundle
 import platform.Foundation.NSURL.Companion.URLWithString
 import platform.UIKit.UIApplication

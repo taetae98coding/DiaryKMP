@@ -17,10 +17,10 @@ import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import com.navercorp.fixturemonkey.kotlin.setExp
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.memo.MemoListEvent
-import io.github.taetae98coding.diary.compose.memo.MemoListItem
-import io.github.taetae98coding.diary.compose.memo.MemoListUiState
-import io.github.taetae98coding.diary.compose.memo.rememberMemoListState
+import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
+import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
+import io.github.taetae98coding.diary.compose.memo.list.MemoListUiState
+import io.github.taetae98coding.diary.compose.memo.list.rememberMemoListState
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey

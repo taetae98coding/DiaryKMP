@@ -10,10 +10,10 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.shortcut.isAddShortcut
 import io.github.taetae98coding.diary.compose.core.shortcut.keyShortcut
-import io.github.taetae98coding.diary.compose.memo.MemoListEvent
-import io.github.taetae98coding.diary.compose.memo.MemoListUndoSnackbarEffect
-import io.github.taetae98coding.diary.compose.memo.UpdateMemoListTodayEffect
-import io.github.taetae98coding.diary.compose.memo.rememberMemoListState
+import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
+import io.github.taetae98coding.diary.compose.memo.list.MemoListUndoSnackbarEffect
+import io.github.taetae98coding.diary.compose.memo.list.UpdateMemoListTodayEffect
+import io.github.taetae98coding.diary.compose.memo.list.rememberMemoListState
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.uuid.Uuid
 

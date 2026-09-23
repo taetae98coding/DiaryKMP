@@ -10,6 +10,10 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.file.FileUri
+import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountUiState
+import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountViewModel
+import io.github.taetae98coding.diary.feature.more.ui.home.signout.MoreHomeSignOutUiState
+import io.github.taetae98coding.diary.feature.more.ui.home.signout.MoreHomeSignOutViewModel
 import io.github.taetae98coding.diary.feature.more.ui.photo.PhotoPicker
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery

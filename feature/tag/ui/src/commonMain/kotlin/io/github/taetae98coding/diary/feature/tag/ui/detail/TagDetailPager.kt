@@ -7,6 +7,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailFormTab
+import io.github.taetae98coding.diary.feature.tag.ui.detail.memo.TagDetailMemoTab
+import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceTab
+import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.TagDetailTab
+import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.TagDetailTabState
+import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.rememberTagDetailTabState
+import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.tagDetailTabList
+import io.github.taetae98coding.diary.feature.tag.ui.detail.web.TagDetailWebTab
 
 internal const val TAG_DETAIL_PAGER_TEST_TAG: String = "TagDetailPager"
 

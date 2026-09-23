@@ -12,6 +12,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
+import io.github.taetae98coding.diary.feature.search.ui.home.memo.SearchHomeMemoList
 import io.github.taetae98coding.diary.feature.search.ui.previewMemo
 import kotlinx.coroutines.flow.flowOf
 

@@ -5,6 +5,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.map.google.GoogleMap
+import io.github.taetae98coding.diary.compose.map.naver.NaverMap
+import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import kotlin.uuid.Uuid
 
 @Composable

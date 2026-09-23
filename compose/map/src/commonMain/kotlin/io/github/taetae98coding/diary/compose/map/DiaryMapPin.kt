@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.compose.map
 
 import androidx.compose.ui.graphics.Color
+import io.github.taetae98coding.diary.compose.map.provider.label
 import kotlin.uuid.Uuid
 
 public data class DiaryMapPin(

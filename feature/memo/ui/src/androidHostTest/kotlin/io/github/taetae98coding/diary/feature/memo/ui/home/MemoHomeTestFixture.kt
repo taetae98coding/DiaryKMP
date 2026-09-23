@@ -3,7 +3,7 @@ package io.github.taetae98coding.diary.feature.memo.ui.home
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
-import io.github.taetae98coding.diary.compose.memo.MemoListItem
+import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 
 internal fun memoPagingDataOf(itemList: List<MemoListItem>): PagingData<MemoListItem> =
     PagingData.from(
