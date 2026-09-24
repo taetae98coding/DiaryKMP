@@ -24,6 +24,7 @@ internal fun SettingHolidayScreen(
                 is SettingHolidayScaffoldEvent.ClickDeselectAll -> viewModel.deselectAll()
                 is SettingHolidayScaffoldEvent.ClickSelectDaysOff -> viewModel.selectDaysOff()
                 is SettingHolidayScaffoldEvent.ToggleHoliday -> viewModel.toggleHoliday(key = event.key)
+                is SettingHolidayScaffoldEvent.ToggleCountryOption -> viewModel.toggleCountryOption(option = event.option)
             }
         },
         modifier = modifier,

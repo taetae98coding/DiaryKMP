@@ -13,6 +13,12 @@
     <string name="setting_holiday_search_empty">검색 결과가 없습니다</string>
     <string name="setting_holiday_bulk_action_content_description">일괄 선택</string>
     <string name="setting_holiday_bulk_action_close_content_description">일괄 선택 닫기</string>
+    <string name="setting_holiday_country_title">국가</string>
+    <string name="setting_holiday_country_device">기기값</string>
+    <string name="setting_holiday_country_korea">한국</string>
+    <string name="setting_holiday_country_united_states">미국</string>
+    <string name="setting_holiday_country_unsupported_region">지원하지 않는 지역</string>
+    <string name="setting_holiday_list_title">공휴일</string>
     <string name="setting_map_default_provider_label">기본 지도</string>
     <string name="setting_map_naver_provider_label">네이버</string>
     <string name="setting_map_google_provider_label">Google</string>

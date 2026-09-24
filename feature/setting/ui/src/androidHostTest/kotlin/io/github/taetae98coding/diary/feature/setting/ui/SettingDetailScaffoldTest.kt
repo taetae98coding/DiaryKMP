@@ -10,7 +10,7 @@ import io.github.taetae98coding.diary.feature.setting.ui.browser.SettingBrowserS
 import io.github.taetae98coding.diary.feature.setting.ui.browser.SettingBrowserUiState
 import io.github.taetae98coding.diary.feature.setting.ui.holiday.SettingHolidayScaffold
 import io.github.taetae98coding.diary.feature.setting.ui.holiday.SettingHolidayScaffoldComponentVisible
-import io.github.taetae98coding.diary.feature.setting.ui.holiday.SettingHolidayUiState
+import io.github.taetae98coding.diary.feature.setting.ui.holiday.loadedUiState
 import io.github.taetae98coding.diary.feature.setting.ui.map.SettingMapScaffold
 import io.github.taetae98coding.diary.feature.setting.ui.map.SettingMapScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.setting.ui.map.SettingMapUiState
@@ -31,7 +31,7 @@ class SettingDetailScaffoldTest {
         composeRule.setContent {
             DiaryTheme {
                 SettingHolidayScaffold(
-                    uiStateProvider = { SettingHolidayUiState.Loaded(holidaySettingList = emptyList()) },
+                    uiStateProvider = { loadedUiState(holidaySettingList = emptyList()) },
                     onEvent = {},
                     componentVisibleProvider = {
                         SettingHolidayScaffoldComponentVisible(isNavigateUpButtonVisible = false)

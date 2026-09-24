@@ -4,10 +4,13 @@ import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.HolidaySettingLocalDataSource
+import io.github.taetae98coding.diary.core.datastore.api.setting.entity.HolidayCountryOptionLocalEntity
 import io.github.taetae98coding.diary.core.holiday.database.api.datasource.HolidayLocalDataSource
+import io.github.taetae98coding.diary.core.holiday.database.api.entity.HolidayCountryLocalEntity
 import io.github.taetae98coding.diary.core.holiday.database.api.entity.HolidayLocalEntity
 import io.github.taetae98coding.diary.core.holiday.database.api.transaction.HolidayTransaction
 import io.github.taetae98coding.diary.core.holiday.network.api.datasource.HolidayRemoteDataSource
+import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
 import io.github.taetae98coding.diary.data.holiday.HolidayDataTestKoinApplication
 import io.github.taetae98coding.diary.data.holiday.datasource.HolidayDirtyDataSource
 import io.github.taetae98coding.diary.data.holiday.mapper.toDomain
@@ -23,6 +26,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
 import org.koin.dsl.module
 import org.koin.plugin.module.dsl.koinApplication
@@ -124,7 +128,7 @@ class HolidayVisibilityDataTest :
             context.settingRepository.addHiddenKey(key = MIDSUMMER_DAY)
 
             context.holidayRepository
-                .get(year = YEAR)
+                .get(countrySet = setOf(HolidayCountry.KOREA), year = YEAR)
                 .first() shouldBe holidayList.map { local -> local.toDomain() }
         }
 
@@ -215,7 +219,7 @@ private fun holidayVisibilityTestContext(
     val holidayListFlow = MutableStateFlow(holidayList)
     val holidayLocalDataSource =
         mockk<HolidayLocalDataSource>().also { dataSource ->
-            every { dataSource.get(year = YEAR) } returns holidayListFlow
+            every { dataSource.get(countrySet = setOf(HolidayCountryLocalEntity.KOREA), year = YEAR) } returns holidayListFlow
         }
     val holidayRemoteDataSource = mockk<HolidayRemoteDataSource>()
     val holidayTransaction = mockk<HolidayTransaction>()
@@ -230,6 +234,7 @@ private fun holidayVisibilityTestContext(
     val settingLocalDataSource =
         mockk<HolidaySettingLocalDataSource>().also { dataSource ->
             every { dataSource.getHiddenKeySet() } returns hiddenKeySetFlow
+            every { dataSource.getCountryOptionSet() } returns flowOf(setOf(HolidayCountryOptionLocalEntity.KOREA))
             coEvery { dataSource.addHiddenKey(key = any()) } coAnswers {
                 hiddenKeySetFlow.value = hiddenKeySetFlow.value + firstArg<String>()
             }
@@ -285,6 +290,7 @@ private fun holiday(
     day: Int,
 ): HolidayLocalEntity =
     HolidayLocalEntity(
+        country = HolidayCountryLocalEntity.KOREA,
         year = YEAR,
         name = name,
         isHoliday = true,

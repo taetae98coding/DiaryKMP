@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.data.holiday.datasource
 
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -15,16 +16,16 @@ class HolidayDirtyDataSourceTest :
             val year = fixtureMonkey.giveMeOne<Int>()
             val dataSource = HolidayDirtyDataSource()
 
-            dataSource.isDirty(year = year) shouldBe true
+            dataSource.isDirty(country = HolidayCountry.KOREA, year = year) shouldBe true
         }
 
         test("기록한 연도는 동기화가 필요하지 않다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val dataSource = HolidayDirtyDataSource()
 
-            dataSource.clean(year = year)
+            dataSource.clean(country = HolidayCountry.KOREA, year = year)
 
-            dataSource.isDirty(year = year) shouldBe false
+            dataSource.isDirty(country = HolidayCountry.KOREA, year = year) shouldBe false
         }
 
         test("한 연도를 기록해도 다른 연도는 동기화가 필요하다") {
@@ -32,24 +33,34 @@ class HolidayDirtyDataSourceTest :
             val otherYear = generateSequence { fixtureMonkey.giveMeOne<Int>() }.first { candidate -> candidate != year }
             val dataSource = HolidayDirtyDataSource()
 
-            dataSource.clean(year = year)
+            dataSource.clean(country = HolidayCountry.KOREA, year = year)
 
-            dataSource.isDirty(year = otherYear) shouldBe true
+            dataSource.isDirty(country = HolidayCountry.KOREA, year = otherYear) shouldBe true
         }
 
         test("같은 연도를 여러 번 기록해도 동기화가 필요하지 않은 상태를 유지한다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val dataSource = HolidayDirtyDataSource()
 
-            repeat(3) { dataSource.clean(year = year) }
+            repeat(3) { dataSource.clean(country = HolidayCountry.KOREA, year = year) }
 
-            dataSource.isDirty(year = year) shouldBe false
+            dataSource.isDirty(country = HolidayCountry.KOREA, year = year) shouldBe false
         }
 
         test("새로 만든 기록은 이전 기록을 이어받지 않는다") {
             val year = fixtureMonkey.giveMeOne<Int>()
-            HolidayDirtyDataSource().clean(year = year)
+            HolidayDirtyDataSource().clean(country = HolidayCountry.KOREA, year = year)
 
-            HolidayDirtyDataSource().isDirty(year = year) shouldBe true
+            HolidayDirtyDataSource().isDirty(country = HolidayCountry.KOREA, year = year) shouldBe true
+        }
+
+        test("한 국가의 연도를 기록해도 같은 연도의 다른 국가는 동기화가 필요하다") {
+            val year = fixtureMonkey.giveMeOne<Int>()
+            val dataSource = HolidayDirtyDataSource()
+
+            dataSource.clean(country = HolidayCountry.KOREA, year = year)
+
+            dataSource.isDirty(country = HolidayCountry.UNITED_STATES, year = year) shouldBe true
+            dataSource.isDirty(country = HolidayCountry.KOREA, year = year) shouldBe false
         }
     })

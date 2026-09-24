@@ -9,10 +9,12 @@ import androidx.compose.ui.unit.Dp
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountrySetting
 import io.github.taetae98coding.diary.domain.holiday.model.HolidaySetting
 import io.github.taetae98coding.diary.feature.setting.ui.holiday.list.HolidaySettingList
 import io.github.taetae98coding.diary.feature.setting.ui.holiday.search.SettingHolidaySearchEmpty
 import io.github.taetae98coding.diary.feature.setting.ui.holiday.search.rememberSettingHolidaySearchResult
+import io.github.taetae98coding.diary.feature.setting.ui.previewHolidayCountrySetting
 import io.github.taetae98coding.diary.feature.setting.ui.previewHolidaySettingList
 
 // 검색어는 글자마다 바뀌므로 Scaffold가 아니라 걸러진 목록을 그리는 이곳에서 읽는다.
@@ -21,6 +23,7 @@ internal fun HolidaySettingContent(
     onEvent: (SettingHolidayScaffoldEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: SettingHolidayScaffoldState = rememberSettingHolidayScaffoldState(),
+    countrySetting: HolidayCountrySetting? = null,
     holidaySettingList: List<HolidaySetting> = emptyList(),
     listBottomPadding: Dp = DiaryTheme.dimens.screenVerticalPadding,
 ) {
@@ -49,6 +52,7 @@ internal fun HolidaySettingContent(
             HolidaySettingList(
                 onEvent = onEvent,
                 modifier = Modifier.fillMaxSize(),
+                countrySetting = countrySetting.takeUnless { content.isFiltering },
                 holidaySettingList = content.holidaySettingList,
                 bottomPadding = listBottomPadding,
             )
@@ -71,6 +75,7 @@ private fun HolidaySettingContentPreview() {
             HolidaySettingContent(
                 onEvent = {},
                 modifier = Modifier.fillMaxSize(),
+                countrySetting = previewHolidayCountrySetting(),
                 holidaySettingList = previewHolidaySettingList(),
             )
         }

@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.core.datastore.impl.datasource
 
 import androidx.datastore.core.DataStore
 import app.cash.turbine.test
+import io.github.taetae98coding.diary.core.datastore.api.setting.entity.HolidayCountryOptionLocalEntity
 import io.github.taetae98coding.diary.core.datastore.impl.HolidaySettingData
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
@@ -254,7 +255,112 @@ class HolidaySettingLocalDataSourceImplTest :
             actual shouldBeSameInstanceAs failure
             coVerify(exactly = 1) { dataStore.updateData(any()) }
         }
+        test("TC-HOLIDAY-COUNTRY-DOMAIN-001 국가 설정을 보관한 것이 없으면 기기값만 제공한다") {
+            val dataSource = HolidaySettingLocalDataSourceImpl(dataStore = mockDataStore(MutableStateFlow(HolidaySettingData())))
+
+            dataSource.getCountryOptionSet().first() shouldBe setOf(HolidayCountryOptionLocalEntity.DEVICE)
+        }
+
+        test("TC-HOLIDAY-COUNTRY-DATA-001 선택지 하나를 바꾸면 그 선택지만 바뀌어 저장된다") {
+            val caseList =
+                listOf(
+                    Triple(setOf(DEVICE), KOREA to true, setOf(DEVICE, KOREA)),
+                    Triple(setOf(DEVICE, KOREA), DEVICE to false, setOf(KOREA)),
+                    Triple(setOf(KOREA, UNITED_STATES), UNITED_STATES to false, setOf(KOREA)),
+                )
+
+            caseList.forEach { (initial, change, expected) ->
+                val settingFlow = MutableStateFlow(HolidaySettingData(countryOptionSet = initial.persistentValueSet()))
+                val dataSource = HolidaySettingLocalDataSourceImpl(dataStore = mockDataStore(settingFlow))
+                val (option, isAdded) = change
+
+                if (isAdded) {
+                    dataSource.addCountryOption(option = option)
+                } else {
+                    dataSource.removeCountryOption(option = option)
+                }
+
+                dataSource.getCountryOptionSet().first() shouldBe expected
+            }
+        }
+
+        test("TC-HOLIDAY-COUNTRY-DATA-002 모든 선택지를 해제한 상태도 그대로 저장된다") {
+            val settingFlow = MutableStateFlow(HolidaySettingData())
+            val dataSource = HolidaySettingLocalDataSourceImpl(dataStore = mockDataStore(settingFlow))
+
+            dataSource.removeCountryOption(option = DEVICE)
+
+            settingFlow.value.countryOptionSet shouldBe emptySet()
+            dataSource.getCountryOptionSet().first() shouldBe emptySet()
+        }
+
+        test("TC-HOLIDAY-COUNTRY-DATA-003 조회 중에 국가 설정이 바뀌면 이어서 새 결과를 제공한다") {
+            val settingFlow = MutableStateFlow(HolidaySettingData())
+            val dataSource = HolidaySettingLocalDataSourceImpl(dataStore = mockDataStore(settingFlow))
+
+            dataSource.getCountryOptionSet().test {
+                awaitItem() shouldBe setOf(DEVICE)
+
+                dataSource.addCountryOption(option = UNITED_STATES)
+
+                awaitItem() shouldBe setOf(DEVICE, UNITED_STATES)
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+        test("TC-HOLIDAY-COUNTRY-DATA-004 국가 설정을 바꿔도 공휴일 노출 설정은 바뀌지 않는다") {
+            val settingFlow = MutableStateFlow(HolidaySettingData(hiddenKeySet = setOf(MIDSUMMER_DAY_KEY)))
+            val dataSource = HolidaySettingLocalDataSourceImpl(dataStore = mockDataStore(settingFlow))
+
+            dataSource.addCountryOption(option = KOREA)
+            dataSource.removeCountryOption(option = DEVICE)
+
+            dataSource.getHiddenKeySet().first() shouldBe setOf(MIDSUMMER_DAY_KEY)
+        }
+
+        test("알 수 없는 국가 선택지 값은 무시한다") {
+            val settingFlow = MutableStateFlow(HolidaySettingData(countryOptionSet = setOf("kr", "jp")))
+            val dataSource = HolidaySettingLocalDataSourceImpl(dataStore = mockDataStore(settingFlow))
+
+            dataSource.getCountryOptionSet().first() shouldBe setOf(KOREA)
+        }
+
+        test("이미 고른 국가 선택지를 추가하면 기존 설정 인스턴스를 유지한다") {
+            val initialSetting = HolidaySettingData()
+            val settingFlow = MutableStateFlow(initialSetting)
+            var updatedSetting: HolidaySettingData? = null
+            val dataStore =
+                mockDataStore(settingFlow) { _, updated ->
+                    updatedSetting = updated
+                }
+            val dataSource = HolidaySettingLocalDataSourceImpl(dataStore = dataStore)
+
+            dataSource.addCountryOption(option = DEVICE)
+
+            updatedSetting shouldBeSameInstanceAs initialSetting
+        }
+
+        test("국가 선택지 저장이 실패하면 같은 오류를 전파한다") {
+            val failure = IllegalStateException("country failure")
+            val dataStore = mockk<DataStore<HolidaySettingData>>()
+            every { dataStore.data } returns MutableStateFlow(HolidaySettingData())
+            coEvery { dataStore.updateData(any()) } throws failure
+            val dataSource = HolidaySettingLocalDataSourceImpl(dataStore = dataStore)
+
+            val actual =
+                shouldThrowExactly<IllegalStateException> {
+                    dataSource.addCountryOption(option = KOREA)
+                }
+
+            actual shouldBeSameInstanceAs failure
+        }
     })
+
+private val DEVICE = HolidayCountryOptionLocalEntity.DEVICE
+private val KOREA = HolidayCountryOptionLocalEntity.KOREA
+private val UNITED_STATES = HolidayCountryOptionLocalEntity.UNITED_STATES
+
+private fun Set<HolidayCountryOptionLocalEntity>.persistentValueSet(): Set<String> = mapTo(mutableSetOf()) { option -> option.persistentValue }
 
 private fun mockDataStore(
     settingFlow: MutableStateFlow<HolidaySettingData>,

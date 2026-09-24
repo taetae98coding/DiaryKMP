@@ -16,6 +16,7 @@ import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefault
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.setting.ui.Res
 import io.github.taetae98coding.diary.feature.setting.ui.holiday.list.HolidaySettingListDefaults
+import io.github.taetae98coding.diary.feature.setting.ui.previewHolidayCountrySetting
 import io.github.taetae98coding.diary.feature.setting.ui.previewHolidaySettingList
 import io.github.taetae98coding.diary.feature.setting.ui.setting_holiday_loading_content_description
 import org.jetbrains.compose.resources.stringResource
@@ -78,6 +79,7 @@ private fun SettingHolidayBody(
                         onEvent = onEvent,
                         modifier = Modifier.fillMaxSize(),
                         state = state,
+                        countrySetting = uiState.countrySetting,
                         holidaySettingList = uiState.holidaySettingList,
                         listBottomPadding = HolidaySettingListDefaults.BottomPadding,
                     )
@@ -101,7 +103,7 @@ private class SettingHolidayUiStatePreviewParameter : PreviewParameterProvider<S
     override val values: Sequence<SettingHolidayUiState> =
         sequenceOf(
             SettingHolidayUiState.Loading,
-            SettingHolidayUiState.Loaded(holidaySettingList = previewHolidaySettingList()),
+            SettingHolidayUiState.Loaded(countrySetting = previewHolidayCountrySetting(), holidaySettingList = previewHolidaySettingList()),
         )
 }
 

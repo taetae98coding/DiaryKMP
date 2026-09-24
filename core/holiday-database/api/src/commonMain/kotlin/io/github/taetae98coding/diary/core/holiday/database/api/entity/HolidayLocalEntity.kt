@@ -6,9 +6,11 @@ import kotlinx.datetime.LocalDate
 
 @Entity(
     tableName = "holiday",
-    primaryKeys = ["year", "name", "start", "end_inclusive"],
+    primaryKeys = ["country", "year", "name", "start", "end_inclusive"],
 )
 public data class HolidayLocalEntity(
+    @ColumnInfo(name = "country", defaultValue = "kr")
+    val country: HolidayCountryLocalEntity,
     @ColumnInfo(name = "year", defaultValue = "0")
     val year: Int,
     @ColumnInfo(name = "name", defaultValue = "")

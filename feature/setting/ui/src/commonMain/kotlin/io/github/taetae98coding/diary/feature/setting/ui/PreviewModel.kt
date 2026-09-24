@@ -2,12 +2,21 @@ package io.github.taetae98coding.diary.feature.setting.ui
 
 import io.github.taetae98coding.diary.core.model.browser.ChromeProfile
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
+import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
+import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountryOption
+import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountrySetting
 import io.github.taetae98coding.diary.domain.holiday.model.HolidaySetting
 
 internal fun previewHolidaySettingList(): List<HolidaySetting> =
     listOf(
         HolidaySetting(key = "신정", name = "신정", isHoliday = true, isVisible = true),
         HolidaySetting(key = "초복", name = "초복", isHoliday = false, isVisible = false),
+    )
+
+internal fun previewHolidayCountrySetting(): HolidayCountrySetting =
+    HolidayCountrySetting(
+        selectedOptionSet = setOf(HolidayCountryOption.DEVICE),
+        deviceCountry = HolidayCountry.KOREA,
     )
 
 internal fun previewGeminiSetting(): GeminiSetting =

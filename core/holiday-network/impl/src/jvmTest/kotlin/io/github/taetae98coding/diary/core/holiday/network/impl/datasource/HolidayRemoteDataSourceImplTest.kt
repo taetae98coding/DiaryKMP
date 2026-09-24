@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.core.holiday.network.impl.datasource
 
 import io.github.taetae98coding.diary.core.holiday.network.api.datasource.HolidayRemoteDataSource
+import io.github.taetae98coding.diary.core.holiday.network.api.entity.HolidayCountryRemoteEntity
 import io.github.taetae98coding.diary.core.holiday.network.api.entity.HolidayRemoteEntity
 import io.github.taetae98coding.diary.core.holiday.network.impl.HolidayNetworkTestKoinApplication
 import io.github.taetae98coding.diary.core.holiday.network.impl.di.HolidayHttpClientEngine
@@ -25,7 +26,7 @@ class HolidayRemoteDataSourceImplTest :
             val engine = createMockEngine()
             val dataSource = createDataSource(engine)
 
-            val actual = dataSource.get(2026)
+            val actual = dataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = 2026)
 
             actual shouldHaveSize 129
             actual.first() shouldBe
@@ -61,19 +62,27 @@ class HolidayRemoteDataSourceImplTest :
                 }
             val dataSource = createDataSource(engine)
 
-            dataSource.get(2026) shouldBe emptyList()
+            dataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = 2026) shouldBe emptyList()
         }
 
-        test("조회 연도를 포함한 URL로 요청한다") {
-            val engine = createMockEngine()
-            val dataSource = createDataSource(engine)
+        test("TC-HOLIDAY-FETCH-DATA-011 요청한 국가와 연도의 공휴일을 원격에 요청한다") {
+            val caseMap =
+                mapOf(
+                    (HolidayCountryRemoteEntity.KOREA to 2026) to "https://taetae98coding.github.io/CalendarApi/holiday/kr/2026.json",
+                    (HolidayCountryRemoteEntity.UNITED_STATES to 2027) to "https://taetae98coding.github.io/CalendarApi/holiday/us/2027.json",
+                )
 
-            dataSource.get(2026)
+            caseMap.forEach { (request, expectedUrl) ->
+                val engine = createMockEngine()
+                val dataSource = createDataSource(engine)
 
-            engine.requestHistory
-                .single()
-                .url
-                .toString() shouldBe "https://taetae98coding.github.io/Holiday/holiday/2026.json"
+                dataSource.get(country = request.first, year = request.second)
+
+                engine.requestHistory
+                    .single()
+                    .url
+                    .toString() shouldBe expectedUrl
+            }
         }
     }) {
     public companion object {

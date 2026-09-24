@@ -51,16 +51,18 @@ class SettingHolidayScaffoldTest {
         val deselectedHoliday = holidaySetting(isHoliday = false, isVisible = false)
         composeRule.setSettingHolidayScaffold(
             uiState =
-                SettingHolidayUiState.Loaded(
+                loadedUiState(
                     holidaySettingList = selectedHolidayList + deselectedHoliday,
                 ),
         )
 
         selectedHolidayList.forEach { holidaySetting ->
+            composeRule.scrollToText(holidaySetting.name)
             composeRule
                 .onNode(hasText(holidaySetting.name) and hasRole(Role.Checkbox))
                 .assertIsOn()
         }
+        composeRule.scrollToText(deselectedHoliday.name)
         composeRule
             .onNode(hasText(deselectedHoliday.name) and hasRole(Role.Checkbox))
             .assertIsOff()
@@ -72,7 +74,7 @@ class SettingHolidayScaffoldTest {
             List(SCROLLABLE_HOLIDAY_COUNT) { holidaySetting(isHoliday = true, isVisible = true) }
         val eventList = mutableListOf<SettingHolidayScaffoldEvent>()
         composeRule.setSettingHolidayScaffold(
-            uiState = SettingHolidayUiState.Loaded(holidaySettingList = holidaySettingList),
+            uiState = loadedUiState(holidaySettingList = holidaySettingList),
             onEvent = eventList::add,
         )
 
@@ -94,7 +96,7 @@ class SettingHolidayScaffoldTest {
         val holidaySetting = holidaySetting(isHoliday = true, isVisible = true)
         val eventList = mutableListOf<SettingHolidayScaffoldEvent>()
         composeRule.setSettingHolidayScaffold(
-            uiState = SettingHolidayUiState.Loaded(holidaySettingList = listOf(holidaySetting)),
+            uiState = loadedUiState(holidaySettingList = listOf(holidaySetting)),
             onEvent = eventList::add,
         )
 

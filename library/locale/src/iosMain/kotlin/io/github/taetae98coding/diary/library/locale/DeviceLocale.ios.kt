@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.library.locale
 
 import platform.Foundation.NSLocale
+import platform.Foundation.countryCode
 import platform.Foundation.currentLocale
 import platform.Foundation.localeIdentifier
 import platform.Foundation.preferredLanguages
@@ -9,3 +10,5 @@ import platform.Foundation.preferredLanguages
 internal actual fun platformLanguageTag(): String =
     NSLocale.preferredLanguages.firstOrNull() as? String
         ?: NSLocale.currentLocale.localeIdentifier.replace('_', '-')
+
+internal actual fun platformRegionCode(): String = NSLocale.currentLocale.countryCode.orEmpty()

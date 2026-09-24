@@ -13,6 +13,12 @@
     <string name="setting_holiday_search_empty">No search results</string>
     <string name="setting_holiday_bulk_action_content_description">Bulk select</string>
     <string name="setting_holiday_bulk_action_close_content_description">Close bulk select</string>
+    <string name="setting_holiday_country_title">Country</string>
+    <string name="setting_holiday_country_device">Device setting</string>
+    <string name="setting_holiday_country_korea">South Korea</string>
+    <string name="setting_holiday_country_united_states">United States</string>
+    <string name="setting_holiday_country_unsupported_region">Unsupported region</string>
+    <string name="setting_holiday_list_title">Holidays</string>
     <string name="setting_map_default_provider_label">Default Map</string>
     <string name="setting_map_naver_provider_label">Naver</string>
     <string name="setting_map_google_provider_label">Google</string>

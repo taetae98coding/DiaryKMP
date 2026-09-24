@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.core.datastore.impl.datasource
 
 import androidx.datastore.core.DataStore
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.HolidaySettingLocalDataSource
+import io.github.taetae98coding.diary.core.datastore.api.setting.entity.HolidayCountryOptionLocalEntity
 import io.github.taetae98coding.diary.core.datastore.impl.HolidaySettingData
 import io.github.taetae98coding.diary.core.datastore.impl.di.HolidaySettingDataStore
 import kotlinx.coroutines.flow.Flow
@@ -35,6 +36,25 @@ internal class HolidaySettingLocalDataSourceImpl(
             setting.withHiddenKeySet(hiddenKeySet)
         }
     }
+
+    override fun getCountryOptionSet(): Flow<Set<HolidayCountryOptionLocalEntity>> =
+        dataStore
+            .data
+            .map { setting ->
+                setting.countryOptionSet.mapNotNullTo(mutableSetOf()) { value -> HolidayCountryOptionLocalEntity.fromPersistentValue(value) }
+            }
+
+    override suspend fun addCountryOption(option: HolidayCountryOptionLocalEntity) {
+        dataStore.updateData { setting ->
+            setting.withCountryOptionSet(setting.countryOptionSet + option.persistentValue)
+        }
+    }
+
+    override suspend fun removeCountryOption(option: HolidayCountryOptionLocalEntity) {
+        dataStore.updateData { setting ->
+            setting.withCountryOptionSet(setting.countryOptionSet - option.persistentValue)
+        }
+    }
 }
 
 private fun HolidaySettingData.withHiddenKeySet(hiddenKeySet: Set<String>): HolidaySettingData =
@@ -42,4 +62,11 @@ private fun HolidaySettingData.withHiddenKeySet(hiddenKeySet: Set<String>): Holi
         this
     } else {
         copy(hiddenKeySet = hiddenKeySet)
+    }
+
+private fun HolidaySettingData.withCountryOptionSet(countryOptionSet: Set<String>): HolidaySettingData =
+    if (countryOptionSet == this.countryOptionSet) {
+        this
+    } else {
+        copy(countryOptionSet = countryOptionSet)
     }

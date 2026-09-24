@@ -26,7 +26,7 @@ class SettingHolidayScreenTest {
         val viewModel =
             screenTestViewModel(
                 uiState =
-                    SettingHolidayUiState.Loaded(
+                    loadedUiState(
                         holidaySettingList = listOf(holidaySetting(isHoliday = true, isVisible = true)),
                     ),
             )
@@ -46,7 +46,7 @@ class SettingHolidayScreenTest {
         val holidaySetting = holidaySetting(isHoliday = true, isVisible = true)
         val viewModel =
             screenTestViewModel(
-                uiState = SettingHolidayUiState.Loaded(holidaySettingList = listOf(holidaySetting)),
+                uiState = loadedUiState(holidaySettingList = listOf(holidaySetting)),
             )
         composeRule.setSettingHolidayScreen(viewModel = viewModel)
 
@@ -62,7 +62,7 @@ class SettingHolidayScreenTest {
         val viewModel =
             screenTestViewModel(
                 uiState =
-                    SettingHolidayUiState.Loaded(
+                    loadedUiState(
                         holidaySettingList = listOf(holidaySetting(isHoliday = true, isVisible = true)),
                     ),
             )

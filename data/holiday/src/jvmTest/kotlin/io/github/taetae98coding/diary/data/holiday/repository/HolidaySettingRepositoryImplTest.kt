@@ -2,18 +2,23 @@ package io.github.taetae98coding.diary.data.holiday.repository
 
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.HolidaySettingLocalDataSource
+import io.github.taetae98coding.diary.core.datastore.api.setting.entity.HolidayCountryOptionLocalEntity
+import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountryOption
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 
 private const val MIDSUMMER_DAY_KEY = "초복"
 private const val CONSTITUTION_DAY_KEY = "제헌절"
@@ -202,7 +207,46 @@ class HolidaySettingRepositoryImplTest :
                 )
             } shouldBeSameInstanceAs failure
         }
+        test("보관된 국가 선택지를 도메인 선택지로 제공한다") {
+            val localDataSource = mockk<HolidaySettingLocalDataSource>()
+            every { localDataSource.getCountryOptionSet() } returns
+                flowOf(HolidayCountryOptionLocalEntity.entries.toSet())
+            val repository = HolidaySettingRepositoryImpl(holidaySettingLocalDataSource = localDataSource)
+
+            repository.getCountryOptionSet().first() shouldBe HolidayCountryOption.entries.toSet()
+        }
+
+        test("국가 선택지를 대응하는 보관 선택지로 추가하고 제거한다") {
+            countryOptionPairList.forEach { (option, localOption) ->
+                val localDataSource = mockk<HolidaySettingLocalDataSource>()
+                coEvery { localDataSource.addCountryOption(option = any()) } just Runs
+                coEvery { localDataSource.removeCountryOption(option = any()) } just Runs
+                val repository = HolidaySettingRepositoryImpl(holidaySettingLocalDataSource = localDataSource)
+
+                repository.addCountryOption(option = option)
+                repository.removeCountryOption(option = option)
+
+                coVerify(exactly = 1) { localDataSource.addCountryOption(option = localOption) }
+                coVerify(exactly = 1) { localDataSource.removeCountryOption(option = localOption) }
+            }
+        }
+
+        test("보관된 국가 선택지를 읽지 못하면 실패를 그대로 전파한다") {
+            val failure = IllegalStateException()
+            val localDataSource = mockk<HolidaySettingLocalDataSource>()
+            every { localDataSource.getCountryOptionSet() } returns flow { throw failure }
+            val repository = HolidaySettingRepositoryImpl(holidaySettingLocalDataSource = localDataSource)
+
+            shouldThrow<IllegalStateException> { repository.getCountryOptionSet().first() } shouldBeSameInstanceAs failure
+        }
     })
+
+private val countryOptionPairList: List<Pair<HolidayCountryOption, HolidayCountryOptionLocalEntity>> =
+    listOf(
+        HolidayCountryOption.DEVICE to HolidayCountryOptionLocalEntity.DEVICE,
+        HolidayCountryOption.KOREA to HolidayCountryOptionLocalEntity.KOREA,
+        HolidayCountryOption.UNITED_STATES to HolidayCountryOptionLocalEntity.UNITED_STATES,
+    )
 
 private fun mockHolidaySettingLocalDataSource(hiddenKeySetFlow: MutableStateFlow<Set<String>>): HolidaySettingLocalDataSource =
     mockk<HolidaySettingLocalDataSource>().also { dataSource ->

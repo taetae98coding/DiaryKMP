@@ -159,9 +159,10 @@ private fun getSettingHolidayUseCase(
     hiddenKeySetFlow: Flow<Set<String>>,
 ): GetSettingHolidayUseCase =
     GetSettingHolidayUseCase(
+        getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(),
         holidayRepository =
             mockk<HolidayRepository>().also { repository ->
-                every { repository.get() } returns holidayFlow
+                every { repository.get(countrySet = KOREA_COUNTRY_SET) } returns holidayFlow
             },
         holidaySettingRepository =
             mockk<HolidaySettingRepository>().also { repository ->

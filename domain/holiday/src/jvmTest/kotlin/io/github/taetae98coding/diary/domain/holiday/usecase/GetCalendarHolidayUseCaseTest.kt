@@ -124,7 +124,7 @@ class GetCalendarHolidayUseCaseTest :
                 )
             val goldenHolidayUseCase =
                 GetGoldenHolidayUseCase(
-                    getHolidayUseCase = GetHolidayUseCase(holidayRepository = holidayRepository),
+                    getHolidayUseCase = GetHolidayUseCase(getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(), holidayRepository = holidayRepository),
                 )
 
             When("캘린더용 공휴일과 황금연휴를 각각 조회한다") {
@@ -150,6 +150,7 @@ private fun getCalendarHolidayUseCase(
     hiddenKeySet: Set<String>,
 ): GetCalendarHolidayUseCase =
     GetCalendarHolidayUseCase(
+        getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(),
         holidayRepository = holidayRepository,
         holidaySettingRepository =
             mockk<HolidaySettingRepository>().also { repository ->
@@ -161,16 +162,16 @@ private fun holidayRepository(vararg holidayListByYear: Pair<Int, List<Holiday>>
     val holidayListMap = holidayListByYear.toMap()
 
     return mockk<HolidayRepository>().also { repository ->
-        every { repository.get(year = any()) } answers {
-            flowOf(holidayListMap[firstArg<Int>()].orEmpty())
+        every { repository.get(countrySet = KOREA_COUNTRY_SET, year = any()) } answers {
+            flowOf(holidayListMap[secondArg<Int>()].orEmpty())
         }
     }
 }
 
 private fun holidayRepositoryByStartYear(holidayList: List<Holiday>): HolidayRepository =
     mockk<HolidayRepository>().also { repository ->
-        every { repository.get(year = any()) } answers {
-            val year = firstArg<Int>()
+        every { repository.get(countrySet = KOREA_COUNTRY_SET, year = any()) } answers {
+            val year = secondArg<Int>()
             flowOf(holidayList.filter { holiday -> holiday.dateRange.start.year == year })
         }
     }

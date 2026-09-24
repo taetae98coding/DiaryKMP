@@ -3,9 +3,12 @@ package io.github.taetae98coding.diary.data.holiday.mapper
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.core.holiday.database.api.entity.HolidayCountryLocalEntity
 import io.github.taetae98coding.diary.core.holiday.database.api.entity.HolidayLocalEntity
+import io.github.taetae98coding.diary.core.holiday.network.api.entity.HolidayCountryRemoteEntity
 import io.github.taetae98coding.diary.core.holiday.network.api.entity.HolidayRemoteEntity
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
+import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -20,14 +23,25 @@ class HolidayMapperTest :
                 val year = fixtureMonkey.giveMeOne<Int>()
                 val remote = remoteHoliday(isHoliday = isHoliday)
 
-                remote.toLocal(year = year) shouldBe
+                remote.toLocal(country = HolidayCountry.UNITED_STATES, year = year) shouldBe
                     HolidayLocalEntity(
+                        country = HolidayCountryLocalEntity.UNITED_STATES,
                         year = year,
                         name = remote.name,
                         isHoliday = isHoliday,
                         start = remote.start,
                         endInclusive = remote.endInclusive,
                     )
+            }
+        }
+
+        test("country to local and remote") {
+            mapOf(
+                HolidayCountry.KOREA to (HolidayCountryLocalEntity.KOREA to HolidayCountryRemoteEntity.KOREA),
+                HolidayCountry.UNITED_STATES to (HolidayCountryLocalEntity.UNITED_STATES to HolidayCountryRemoteEntity.UNITED_STATES),
+            ).forEach { (country, expected) ->
+                country.toLocal() shouldBe expected.first
+                country.toRemote() shouldBe expected.second
             }
         }
 

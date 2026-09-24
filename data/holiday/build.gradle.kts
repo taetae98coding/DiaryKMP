@@ -10,6 +10,7 @@ kotlin {
                 implementation(projects.core.holidayDatabase.api)
                 implementation(projects.core.holidayNetwork.api)
                 implementation(projects.domain.holiday)
+                implementation(projects.library.locale)
             }
         }
     }

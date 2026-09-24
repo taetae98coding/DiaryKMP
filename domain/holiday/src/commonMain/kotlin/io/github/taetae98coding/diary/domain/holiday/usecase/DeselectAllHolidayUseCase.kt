@@ -9,13 +9,14 @@ import org.koin.core.annotation.Factory
 
 @Factory
 public class DeselectAllHolidayUseCase internal constructor(
+    private val getHolidayCountrySettingUseCase: GetHolidayCountrySettingUseCase,
     private val holidayRepository: HolidayRepository,
     private val holidaySettingRepository: HolidaySettingRepository,
 ) : UseCase<Unit, Unit>() {
     override suspend fun execute(parameter: Unit) {
         val targetKeySet =
             holidayRepository
-                .get()
+                .get(countrySet = getHolidayCountrySettingUseCase.countrySetFlow().first())
                 .first()
                 .mapTo(mutableSetOf()) { holiday -> holiday.name.toHolidayKey() }
 

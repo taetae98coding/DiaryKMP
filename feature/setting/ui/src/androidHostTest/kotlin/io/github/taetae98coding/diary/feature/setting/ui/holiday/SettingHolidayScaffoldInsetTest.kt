@@ -82,7 +82,7 @@ class SettingHolidayScaffoldInsetTest {
             DiaryTheme {
                 SettingHolidayScaffold(
                     onEvent = {},
-                    uiStateProvider = { SettingHolidayUiState.Loaded(holidaySettingList = holidaySettingList) },
+                    uiStateProvider = { loadedUiState(holidaySettingList = holidaySettingList) },
                 )
             }
         }

@@ -22,5 +22,6 @@ public class HolidayDatabaseModule {
     ): HolidayDatabase =
         builder
             .setDriver(driver)
+            .fallbackToDestructiveMigration(dropAllTables = true)
             .build()
 }

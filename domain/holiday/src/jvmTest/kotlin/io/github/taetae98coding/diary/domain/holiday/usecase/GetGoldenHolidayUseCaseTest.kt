@@ -391,13 +391,13 @@ private suspend fun goldenHolidayGroupList(
 
 private fun getGoldenHolidayUseCase(holidayRepository: HolidayRepository): GetGoldenHolidayUseCase =
     GetGoldenHolidayUseCase(
-        getHolidayUseCase = GetHolidayUseCase(holidayRepository = holidayRepository),
+        getHolidayUseCase = GetHolidayUseCase(getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(), holidayRepository = holidayRepository),
     )
 
 private fun holidayRepository(holidayList: List<Holiday>): HolidayRepository =
     mockk<HolidayRepository>().also { repository ->
-        every { repository.get(year = any()) } answers {
-            val year = firstArg<Int>()
+        every { repository.get(countrySet = KOREA_COUNTRY_SET, year = any()) } answers {
+            val year = secondArg<Int>()
             flowOf(holidayList.filter { holiday -> holiday.dateRange.start.year == year })
         }
     }

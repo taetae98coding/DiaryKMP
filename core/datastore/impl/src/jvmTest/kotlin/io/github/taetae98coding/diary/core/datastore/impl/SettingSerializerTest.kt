@@ -34,6 +34,8 @@ class SettingSerializerTest :
                     HolidaySettingData(),
                     HolidaySettingData(hiddenKeySet = setOf("초복")),
                     HolidaySettingData(hiddenKeySet = setOf("초복", "중복", "제헌절")),
+                    HolidaySettingData(countryOptionSet = emptySet()),
+                    HolidaySettingData(hiddenKeySet = setOf("초복"), countryOptionSet = setOf("kr", "us")),
                 )
 
             settings.forEach { setting ->
@@ -57,6 +59,7 @@ class SettingSerializerTest :
         test("저장된 항목이 없으면 기본 설정을 제공한다") {
             MapSettingSerializer.readText("{}") shouldBe MapSettingData()
             HolidaySettingSerializer.readText("{}") shouldBe HolidaySettingData()
+            HolidaySettingSerializer.readText("{}").countryOptionSet shouldBe setOf("device")
             GeminiSettingSerializer.readText("{}") shouldBe GeminiSettingLocalEntity()
         }
 

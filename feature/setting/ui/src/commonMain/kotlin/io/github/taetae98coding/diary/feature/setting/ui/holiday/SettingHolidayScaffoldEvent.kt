@@ -1,5 +1,7 @@
 package io.github.taetae98coding.diary.feature.setting.ui.holiday
 
+import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountryOption
+
 internal sealed interface SettingHolidayScaffoldEvent {
     data object ClickNavigateUp : SettingHolidayScaffoldEvent
 
@@ -11,5 +13,9 @@ internal sealed interface SettingHolidayScaffoldEvent {
 
     data class ToggleHoliday(
         val key: String,
+    ) : SettingHolidayScaffoldEvent
+
+    data class ToggleCountryOption(
+        val option: HolidayCountryOption,
     ) : SettingHolidayScaffoldEvent
 }

@@ -44,6 +44,6 @@ public class HolidayNetworkModule {
         }
 
     public companion object {
-        private const val BASE_URL = "https://taetae98coding.github.io/Holiday/"
+        private const val BASE_URL = "https://taetae98coding.github.io/CalendarApi/"
     }
 }

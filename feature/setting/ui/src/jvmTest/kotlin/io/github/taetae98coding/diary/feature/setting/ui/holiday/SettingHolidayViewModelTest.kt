@@ -5,11 +5,16 @@ package io.github.taetae98coding.diary.feature.setting.ui.holiday
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
+import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountryOption
+import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountrySetting
 import io.github.taetae98coding.diary.domain.holiday.model.HolidaySetting
 import io.github.taetae98coding.diary.domain.holiday.usecase.DeselectAllHolidayUseCase
+import io.github.taetae98coding.diary.domain.holiday.usecase.GetHolidayCountrySettingUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.GetSettingHolidayUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.SelectAllHolidayUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.SelectDaysOffHolidayUseCase
+import io.github.taetae98coding.diary.domain.holiday.usecase.ToggleHolidayCountryOptionUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.ToggleHolidayVisibilityUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
@@ -93,7 +98,7 @@ class SettingHolidayViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingHolidayUiState.Loading
-                    awaitItem() shouldBe SettingHolidayUiState.Loaded(holidaySettingList = holidaySettingList)
+                    awaitItem() shouldBe SettingHolidayUiState.Loaded(countrySetting = DEFAULT_COUNTRY_SETTING, holidaySettingList = holidaySettingList)
 
                     viewModel.toggleHoliday(key = target.key)
                     advanceUntilIdle()
@@ -128,7 +133,7 @@ class SettingHolidayViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingHolidayUiState.Loading
-                    awaitItem() shouldBe SettingHolidayUiState.Loaded(holidaySettingList = holidaySettingList)
+                    awaitItem() shouldBe SettingHolidayUiState.Loaded(countrySetting = DEFAULT_COUNTRY_SETTING, holidaySettingList = holidaySettingList)
 
                     viewModel.toggleHoliday(key = target.key)
                     advanceUntilIdle()
@@ -250,7 +255,7 @@ class SettingHolidayViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingHolidayUiState.Loading
-                    awaitItem() shouldBe SettingHolidayUiState.Loaded(holidaySettingList = holidaySettingList)
+                    awaitItem() shouldBe SettingHolidayUiState.Loaded(countrySetting = DEFAULT_COUNTRY_SETTING, holidaySettingList = holidaySettingList)
 
                     viewModel.toggleHoliday(key = unknownKey)
                     advanceUntilIdle()
@@ -331,8 +336,90 @@ class SettingHolidayViewModelTest : FunSpec() {
                 }
             }
         }
+
+        test("국가 설정과 공휴일 목록이 모두 확인되어야 목록 상태를 제공한다") {
+            runTest(mainDispatcher) {
+                val holidaySettingList = listOf(fixtureMonkey.holidaySetting(index = 0))
+                val countrySettingFlow = MutableStateFlow<Result<HolidayCountrySetting>>(Result.failure(IllegalStateException()))
+                val viewModel =
+                    settingHolidayViewModel(
+                        getHolidayCountrySettingUseCase = getHolidayCountrySettingUseCase(countrySettingFlow),
+                        getSettingHolidayUseCase =
+                            getSettingHolidayUseCase(
+                                flowOf(Result.success(holidaySettingList)),
+                            ),
+                    )
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe SettingHolidayUiState.Loading
+                    advanceUntilIdle()
+                    expectNoEvents()
+
+                    countrySettingFlow.value = Result.success(DEFAULT_COUNTRY_SETTING)
+
+                    awaitItem() shouldBe SettingHolidayUiState.Loaded(countrySetting = DEFAULT_COUNTRY_SETTING, holidaySettingList = holidaySettingList)
+                }
+            }
+        }
+
+        test("TC-SETTING-HOLIDAY-FEATURE-035 국가 선택지 변경은 해당 선택지로 전용 UseCase를 실행한다") {
+            runTest(mainDispatcher) {
+                val toggleHolidayCountryOptionUseCase = mockk<ToggleHolidayCountryOptionUseCase>()
+                coEvery { toggleHolidayCountryOptionUseCase(parameter = any()) } returns Result.success(Unit)
+                val viewModel =
+                    settingHolidayViewModel(
+                        getSettingHolidayUseCase = getSettingHolidayUseCase(emptyFlow()),
+                        toggleHolidayCountryOptionUseCase = toggleHolidayCountryOptionUseCase,
+                    )
+
+                HolidayCountryOption.entries.forEach { option -> viewModel.toggleCountryOption(option = option) }
+                advanceUntilIdle()
+
+                HolidayCountryOption.entries.forEach { option ->
+                    coVerify(exactly = 1) { toggleHolidayCountryOptionUseCase(parameter = option) }
+                }
+            }
+        }
+
+        test("TC-SETTING-HOLIDAY-FEATURE-038 국가 설정이 바뀌면 바뀐 설정과 목록을 제공한다") {
+            runTest(mainDispatcher) {
+                val koreaList = listOf(fixtureMonkey.holidaySetting(index = 0))
+                val bothList = koreaList + fixtureMonkey.holidaySetting(index = 1)
+                val koreaSetting = HolidayCountrySetting(selectedOptionSet = setOf(HolidayCountryOption.KOREA), deviceCountry = null)
+                val bothSetting = koreaSetting.copy(selectedOptionSet = setOf(HolidayCountryOption.KOREA, HolidayCountryOption.UNITED_STATES))
+                val countrySettingFlow = MutableStateFlow(Result.success(koreaSetting))
+                val holidaySettingFlow = MutableStateFlow(Result.success(koreaList))
+                val viewModel =
+                    settingHolidayViewModel(
+                        getHolidayCountrySettingUseCase = getHolidayCountrySettingUseCase(countrySettingFlow),
+                        getSettingHolidayUseCase = getSettingHolidayUseCase(holidaySettingFlow),
+                    )
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe SettingHolidayUiState.Loading
+                    awaitItem() shouldBe SettingHolidayUiState.Loaded(countrySetting = koreaSetting, holidaySettingList = koreaList)
+
+                    countrySettingFlow.value = Result.success(bothSetting)
+                    awaitItem() shouldBe SettingHolidayUiState.Loaded(countrySetting = bothSetting, holidaySettingList = koreaList)
+
+                    holidaySettingFlow.value = Result.success(bothList)
+                    awaitItem() shouldBe SettingHolidayUiState.Loaded(countrySetting = bothSetting, holidaySettingList = bothList)
+                }
+            }
+        }
     }
 }
+
+private val DEFAULT_COUNTRY_SETTING: HolidayCountrySetting =
+    HolidayCountrySetting(
+        selectedOptionSet = setOf(HolidayCountryOption.DEVICE),
+        deviceCountry = HolidayCountry.KOREA,
+    )
+
+private fun getHolidayCountrySettingUseCase(flow: Flow<Result<HolidayCountrySetting>> = flowOf(Result.success(DEFAULT_COUNTRY_SETTING))): GetHolidayCountrySettingUseCase =
+    mockk<GetHolidayCountrySettingUseCase>().also { useCase ->
+        every { useCase(Unit) } returns flow
+    }
 
 private fun getSettingHolidayUseCase(flow: Flow<Result<List<HolidaySetting>>>): GetSettingHolidayUseCase =
     mockk<GetSettingHolidayUseCase>().also { useCase ->
@@ -341,13 +428,17 @@ private fun getSettingHolidayUseCase(flow: Flow<Result<List<HolidaySetting>>>): 
 
 private fun settingHolidayViewModel(
     getSettingHolidayUseCase: GetSettingHolidayUseCase,
+    getHolidayCountrySettingUseCase: GetHolidayCountrySettingUseCase = getHolidayCountrySettingUseCase(),
+    toggleHolidayCountryOptionUseCase: ToggleHolidayCountryOptionUseCase = mockk(),
     toggleHolidayVisibilityUseCase: ToggleHolidayVisibilityUseCase = mockk(),
     selectAllHolidayUseCase: SelectAllHolidayUseCase = mockk(),
     deselectAllHolidayUseCase: DeselectAllHolidayUseCase = mockk(),
     selectDaysOffHolidayUseCase: SelectDaysOffHolidayUseCase = mockk(),
 ): SettingHolidayViewModel =
     SettingHolidayViewModel(
+        getHolidayCountrySettingUseCase = getHolidayCountrySettingUseCase,
         getSettingHolidayUseCase = getSettingHolidayUseCase,
+        toggleHolidayCountryOptionUseCase = toggleHolidayCountryOptionUseCase,
         toggleHolidayVisibilityUseCase = toggleHolidayVisibilityUseCase,
         selectAllHolidayUseCase = selectAllHolidayUseCase,
         deselectAllHolidayUseCase = deselectAllHolidayUseCase,

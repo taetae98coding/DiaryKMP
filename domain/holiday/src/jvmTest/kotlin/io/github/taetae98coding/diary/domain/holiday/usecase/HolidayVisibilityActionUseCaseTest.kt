@@ -172,6 +172,7 @@ class HolidayVisibilityActionUseCaseTest :
             coEvery { repository.submitHiddenKeySet(hiddenKeySet = keySet) } just Runs
             val useCase =
                 DeselectAllHolidayUseCase(
+                    getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(),
                     holidayRepository = holidayRepository,
                     holidaySettingRepository = repository,
                 )
@@ -180,7 +181,7 @@ class HolidayVisibilityActionUseCaseTest :
                 Then("TC-SETTING-HOLIDAY-FEATURE-010 이름을 정규화하고 중복을 제거한 모든 key를 제출한다") {
                     useCase(parameter = Unit).shouldBeSuccess()
 
-                    verify(exactly = 1) { holidayRepository.get() }
+                    verify(exactly = 1) { holidayRepository.get(countrySet = KOREA_COUNTRY_SET) }
                     verify(exactly = 0) { repository.getHiddenKeySet() }
                     coVerify(exactly = 1) { repository.submitHiddenKeySet(hiddenKeySet = keySet) }
                 }
@@ -213,6 +214,7 @@ class HolidayVisibilityActionUseCaseTest :
             coEvery { repository.submitHiddenKeySet(hiddenKeySet = setOf(workingDayKey)) } just Runs
             val useCase =
                 SelectDaysOffHolidayUseCase(
+                    getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(),
                     holidayRepository = holidayRepository,
                     holidaySettingRepository = repository,
                 )
@@ -221,7 +223,7 @@ class HolidayVisibilityActionUseCaseTest :
                 Then("TC-SETTING-HOLIDAY-FEATURE-011 하나라도 쉬는 날인 key는 숨기지 않고 나머지 key만 제출한다") {
                     useCase(parameter = Unit).shouldBeSuccess()
 
-                    verify(exactly = 1) { holidayRepository.get() }
+                    verify(exactly = 1) { holidayRepository.get(countrySet = KOREA_COUNTRY_SET) }
                     verify(exactly = 0) { repository.getHiddenKeySet() }
                     coVerify(exactly = 1) {
                         repository.submitHiddenKeySet(hiddenKeySet = setOf(workingDayKey))
@@ -244,11 +246,13 @@ class HolidayVisibilityActionUseCaseTest :
                 )
             val deselectAllUseCase =
                 DeselectAllHolidayUseCase(
+                    getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(),
                     holidayRepository = holidayRepository,
                     holidaySettingRepository = repository,
                 )
             val selectDaysOffHolidayUseCase =
                 SelectDaysOffHolidayUseCase(
+                    getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(),
                     holidayRepository = holidayRepository,
                     holidaySettingRepository = repository,
                 )
@@ -259,7 +263,7 @@ class HolidayVisibilityActionUseCaseTest :
                     deselectAllUseCase(parameter = Unit).shouldBeSuccess()
                     selectDaysOffHolidayUseCase(parameter = Unit).shouldBeSuccess()
 
-                    verify(exactly = 2) { holidayRepository.get() }
+                    verify(exactly = 2) { holidayRepository.get(countrySet = KOREA_COUNTRY_SET) }
                     verify(exactly = 0) { repository.getHiddenKeySet() }
                     coVerifyOrder {
                         repository.submitHiddenKeySet(hiddenKeySet = emptySet())
@@ -299,16 +303,18 @@ class HolidayVisibilityActionUseCaseTest :
             val failure = TestException(fixtureMonkey.giveMeOne())
             val holidayRepository =
                 mockk<HolidayRepository>().also { repository ->
-                    every { repository.get() } returns flow { throw failure }
+                    every { repository.get(countrySet = KOREA_COUNTRY_SET) } returns flow { throw failure }
                 }
             val repository = mockk<HolidaySettingRepository>(relaxed = true)
             val deselectAllUseCase =
                 DeselectAllHolidayUseCase(
+                    getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(),
                     holidayRepository = holidayRepository,
                     holidaySettingRepository = repository,
                 )
             val selectDaysOffUseCase =
                 SelectDaysOffHolidayUseCase(
+                    getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(),
                     holidayRepository = holidayRepository,
                     holidaySettingRepository = repository,
                 )
@@ -318,7 +324,7 @@ class HolidayVisibilityActionUseCaseTest :
                     deselectAllUseCase(parameter = Unit).shouldBeFailure() shouldBeSameInstanceAs failure
                     selectDaysOffUseCase(parameter = Unit).shouldBeFailure() shouldBeSameInstanceAs failure
 
-                    verify(exactly = 2) { holidayRepository.get() }
+                    verify(exactly = 2) { holidayRepository.get(countrySet = KOREA_COUNTRY_SET) }
                     verify(exactly = 0) { repository.getHiddenKeySet() }
                     coVerify(exactly = 0) { repository.submitHiddenKeySet(hiddenKeySet = any()) }
                 }
@@ -359,11 +365,13 @@ class HolidayVisibilityActionUseCaseTest :
                 )
             val deselectAllUseCase =
                 DeselectAllHolidayUseCase(
+                    getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(),
                     holidayRepository = holidayRepository,
                     holidaySettingRepository = repository,
                 )
             val selectDaysOffUseCase =
                 SelectDaysOffHolidayUseCase(
+                    getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(),
                     holidayRepository = holidayRepository,
                     holidaySettingRepository = repository,
                 )
@@ -380,7 +388,7 @@ class HolidayVisibilityActionUseCaseTest :
                         repository.addHiddenKey(key = selected.key)
                         repository.removeHiddenKey(key = deselected.key)
                     }
-                    verify(exactly = 2) { holidayRepository.get() }
+                    verify(exactly = 2) { holidayRepository.get(countrySet = KOREA_COUNTRY_SET) }
                     verify(exactly = 0) { repository.getHiddenKeySet() }
                     coVerify(exactly = 3) { repository.submitHiddenKeySet(hiddenKeySet = any()) }
                 }
@@ -401,7 +409,7 @@ private fun getSettingHolidayUseCase(result: Result<List<HolidaySetting>>): GetS
 
 private fun holidayRepository(holidayList: List<Holiday>): HolidayRepository =
     mockk<HolidayRepository>().also { repository ->
-        every { repository.get() } returns flowOf(holidayList)
+        every { repository.get(countrySet = KOREA_COUNTRY_SET) } returns flowOf(holidayList)
     }
 
 private fun holiday(

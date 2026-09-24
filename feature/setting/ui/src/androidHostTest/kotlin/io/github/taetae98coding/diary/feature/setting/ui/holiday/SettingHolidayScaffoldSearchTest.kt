@@ -32,7 +32,7 @@ class SettingHolidayScaffoldSearchTest {
     fun `한국어 환경에서 검색어 입력과 검색 결과 없음 문구를 제공한다`() {
         composeRule.setSettingHolidayScaffold(
             uiState =
-                SettingHolidayUiState.Loaded(
+                loadedUiState(
                     holidaySettingList = listOf(holidaySetting(isHoliday = true, isVisible = true, name = SEOLLAL_HOLIDAY_NAME)),
                 ),
         )
@@ -51,7 +51,7 @@ class SettingHolidayScaffoldSearchTest {
         val unmatched = holidaySetting(isHoliday = true, isVisible = true, name = MEMORIAL_DAY_NAME)
         composeRule.setSettingHolidayScaffold(
             uiState =
-                SettingHolidayUiState.Loaded(
+                loadedUiState(
                     holidaySettingList = listOf(firstMatched, unmatched, secondMatched),
                 ),
         )
@@ -69,7 +69,7 @@ class SettingHolidayScaffoldSearchTest {
     fun `TC-SETTING-HOLIDAY-FEATURE-022 검색 결과가 없으면 빈 상태 안내를 표시하고 검색어를 수정할 수 있다`() {
         val holidaySetting = holidaySetting(isHoliday = true, isVisible = true, name = SEOLLAL_HOLIDAY_NAME)
         composeRule.setSettingHolidayScaffold(
-            uiState = SettingHolidayUiState.Loaded(holidaySettingList = listOf(holidaySetting)),
+            uiState = loadedUiState(holidaySettingList = listOf(holidaySetting)),
         )
 
         composeRule.onNodeWithText(DEFAULT_SEARCH_PLACEHOLDER).assertExists()
@@ -90,7 +90,7 @@ class SettingHolidayScaffoldSearchTest {
         val matched = holidaySetting(isHoliday = true, isVisible = true, name = SEOLLAL_HOLIDAY_NAME)
         val unmatched = holidaySetting(isHoliday = false, isVisible = true, name = MEMORIAL_DAY_NAME)
         composeRule.setSettingHolidayScaffold(
-            uiState = SettingHolidayUiState.Loaded(holidaySettingList = listOf(matched, unmatched)),
+            uiState = loadedUiState(holidaySettingList = listOf(matched, unmatched)),
         )
 
         composeRule.searchInputField().performTextInput(SEOLLAL_QUERY)
@@ -120,7 +120,7 @@ class SettingHolidayScaffoldSearchTest {
         val holidaySetting = holidaySetting(isHoliday = true, isVisible = true, name = SEOLLAL_HOLIDAY_NAME)
         val eventList = mutableListOf<SettingHolidayScaffoldEvent>()
         composeRule.setSettingHolidayScaffold(
-            uiState = SettingHolidayUiState.Loaded(holidaySettingList = listOf(holidaySetting)),
+            uiState = loadedUiState(holidaySettingList = listOf(holidaySetting)),
             onEvent = eventList::add,
         )
 
@@ -150,12 +150,13 @@ class SettingHolidayScaffoldSearchTest {
                 holidaySetting(isHoliday = false, isVisible = true, name = MEMORIAL_DAY_NAME),
             )
         composeRule.setSettingHolidayScaffold(
-            uiState = SettingHolidayUiState.Loaded(holidaySettingList = holidaySettingList),
+            uiState = loadedUiState(holidaySettingList = holidaySettingList),
         )
 
         composeRule.searchInputField().performTextInput("   ")
 
         holidaySettingList.forEach { holidaySetting ->
+            composeRule.scrollToText(holidaySetting.name)
             composeRule.onNodeWithText(holidaySetting.name).assertIsDisplayed()
         }
     }
@@ -175,7 +176,7 @@ class SettingHolidayScaffoldSearchTest {
     fun `검색 결과가 없어지는 전환 도중에도 사라지는 목록이 항목을 보여준다`() {
         composeRule.setSettingHolidayScaffold(
             uiState =
-                SettingHolidayUiState.Loaded(
+                loadedUiState(
                     holidaySettingList = listOf(holidaySetting(isHoliday = true, isVisible = true, name = SEOLLAL_HOLIDAY_NAME)),
                 ),
         )

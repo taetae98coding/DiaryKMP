@@ -81,9 +81,10 @@ class GetCalendarHolidayUseCaseSettingTest :
             val failureMessage = fixtureMonkey.giveMeOne<String>()
             val useCase =
                 GetCalendarHolidayUseCase(
+                    getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(),
                     holidayRepository =
                         mockk<HolidayRepository>().also { repository ->
-                            every { repository.get(year = year) } returns
+                            every { repository.get(countrySet = KOREA_COUNTRY_SET, year = year) } returns
                                 flowOf(listOf(holiday(name = CONSTITUTION_DAY_NAME), holiday(name = MIDSUMMER_DAY_NAME)))
                         },
                     holidaySettingRepository =
@@ -142,9 +143,10 @@ private fun getCalendarHolidayUseCase(
     hiddenKeySetFlow: Flow<Set<String>>,
 ): GetCalendarHolidayUseCase =
     GetCalendarHolidayUseCase(
+        getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(),
         holidayRepository =
             mockk<HolidayRepository>().also { repository ->
-                every { repository.get(year = year) } returns holidayFlow
+                every { repository.get(countrySet = KOREA_COUNTRY_SET, year = year) } returns holidayFlow
             },
         holidaySettingRepository =
             mockk<HolidaySettingRepository>().also { repository ->

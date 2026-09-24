@@ -27,8 +27,8 @@ class GetHolidayUseCaseTest :
             val year = fixtureMonkey.giveMeOne<Int>()
             val holidayList = listOf(holiday(), holiday())
             val repository = mockk<HolidayRepository>()
-            every { repository.get(year = year) } returns flowOf(holidayList)
-            val useCase = GetHolidayUseCase(holidayRepository = repository)
+            every { repository.get(countrySet = KOREA_COUNTRY_SET, year = year) } returns flowOf(holidayList)
+            val useCase = GetHolidayUseCase(getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(), holidayRepository = repository)
 
             When("해당 연도의 공휴일을 조회한다") {
                 Then("저장된 공휴일을 성공 결과로 제공한다") {
@@ -43,8 +43,8 @@ class GetHolidayUseCaseTest :
         Given("특정 연도에 저장된 공휴일이 없다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val repository = mockk<HolidayRepository>()
-            every { repository.get(year = year) } returns flowOf(emptyList())
-            val useCase = GetHolidayUseCase(holidayRepository = repository)
+            every { repository.get(countrySet = KOREA_COUNTRY_SET, year = year) } returns flowOf(emptyList())
+            val useCase = GetHolidayUseCase(getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(), holidayRepository = repository)
 
             When("해당 연도의 공휴일을 조회한다") {
                 Then("빈 목록을 성공 결과로 제공한다") {
@@ -62,8 +62,8 @@ class GetHolidayUseCaseTest :
             val changedHolidayList = listOf(holiday(), holiday())
             val holidayFlow = MutableStateFlow(holidayList)
             val repository = mockk<HolidayRepository>()
-            every { repository.get(year = year) } returns holidayFlow
-            val useCase = GetHolidayUseCase(holidayRepository = repository)
+            every { repository.get(countrySet = KOREA_COUNTRY_SET, year = year) } returns holidayFlow
+            val useCase = GetHolidayUseCase(getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(), holidayRepository = repository)
 
             When("해당 연도의 공휴일을 계속 조회한다") {
                 Then("바뀐 공휴일을 이어서 제공한다") {
@@ -80,13 +80,15 @@ class GetHolidayUseCaseTest :
             val year = fixtureMonkey.giveMeOne<Int>()
             val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val repository = mockk<HolidayRepository>()
-            every { repository.get(year = year) } returns flow { throw failure }
-            val useCase = GetHolidayUseCase(holidayRepository = repository)
+            every { repository.get(countrySet = KOREA_COUNTRY_SET, year = year) } returns flow { throw failure }
+            val useCase = GetHolidayUseCase(getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(), holidayRepository = repository)
 
             When("해당 연도의 공휴일을 조회한다") {
                 Then("실패 원인을 그대로 제공한다") {
                     useCase(parameter = year).test {
-                        awaitItem().shouldBeFailure() shouldBeSameInstanceAs failure
+                        // flatMapLatest를 거치면 코루틴 스택 복원이 원인을 감싼 사본을 만들 수 있어 원래 원인을 비교한다.
+                        val throwable = awaitItem().shouldBeFailure()
+                        (throwable.cause ?: throwable) shouldBeSameInstanceAs failure
                         awaitComplete()
                     }
                 }

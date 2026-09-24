@@ -9,13 +9,14 @@ import org.koin.core.annotation.Factory
 
 @Factory
 public class SelectDaysOffHolidayUseCase internal constructor(
+    private val getHolidayCountrySettingUseCase: GetHolidayCountrySettingUseCase,
     private val holidayRepository: HolidayRepository,
     private val holidaySettingRepository: HolidaySettingRepository,
 ) : UseCase<Unit, Unit>() {
     override suspend fun execute(parameter: Unit) {
         val hiddenKeySet =
             holidayRepository
-                .get()
+                .get(countrySet = getHolidayCountrySettingUseCase.countrySetFlow().first())
                 .first()
                 .groupBy { holiday -> holiday.name.toHolidayKey() }
                 .filterValues { holidayList -> holidayList.none { holiday -> holiday.isHoliday } }

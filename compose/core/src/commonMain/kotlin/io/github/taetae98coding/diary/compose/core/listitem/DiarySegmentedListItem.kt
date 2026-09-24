@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SegmentedListItem
@@ -51,6 +52,28 @@ public fun DiarySelectableSegmentedListItem(
         modifier = modifier.fillMaxWidth(),
         colors = DiarySegmentedListItemDefaults.colors(),
         leadingContent = { RadioButton(selected = selected, onClick = null) },
+        content = content,
+    )
+}
+
+@Composable
+public fun DiaryCheckableSegmentedListItem(
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    checked: Boolean = false,
+    index: Int = 0,
+    count: Int = 1,
+    supportingContent: @Composable (() -> Unit)? = null,
+    content: @Composable () -> Unit,
+) {
+    SegmentedListItem(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        shapes = DiarySegmentedListItemDefaults.shapes(index = index, count = count),
+        modifier = modifier.fillMaxWidth(),
+        colors = DiarySegmentedListItemDefaults.colors(),
+        leadingContent = { Checkbox(checked = checked, onCheckedChange = null) },
+        supportingContent = supportingContent,
         content = content,
     )
 }
@@ -102,6 +125,34 @@ private fun DiarySelectableSegmentedListItemPreview(
                     count = 2,
                 ) {
                     Text(text = "Google")
+                }
+            }
+        }
+    }
+}
+
+@ComponentPreview
+@Composable
+private fun DiaryCheckableSegmentedListItemPreview() {
+    DiaryTheme {
+        Surface {
+            Column(verticalArrangement = Arrangement.spacedBy(DiarySegmentedListItemDefaults.Gap)) {
+                DiaryCheckableSegmentedListItem(
+                    onCheckedChange = {},
+                    checked = true,
+                    index = 0,
+                    count = 2,
+                    supportingContent = { Text(text = "한국") },
+                ) {
+                    Text(text = "기기값")
+                }
+
+                DiaryCheckableSegmentedListItem(
+                    onCheckedChange = {},
+                    index = 1,
+                    count = 2,
+                ) {
+                    Text(text = "미국")
                 }
             }
         }
