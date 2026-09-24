@@ -6,13 +6,14 @@ import io.kotest.matchers.shouldBe
 
 class SettingHomeItemListTest :
     FunSpec({
-        test("TC-SETTING-HOME-DOMAIN-001 설정 항목은 공휴일, 지도, Gemini, 브라우저 순서다") {
+        test("TC-SETTING-HOME-DOMAIN-001 설정 항목은 공휴일, 지도, Gemini, 브라우저, 다운로드 순서다") {
             settingHomeItemList shouldContainExactly
                 listOf(
                     SettingHomeItem.HOLIDAY,
                     SettingHomeItem.MAP,
                     SettingHomeItem.GEMINI,
                     SettingHomeItem.BROWSER,
+                    SettingHomeItem.DOWNLOAD,
                 )
         }
 

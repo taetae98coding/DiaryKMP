@@ -23,7 +23,7 @@ class HomebrewDownloadToolPreparerTest :
                     val commandRunner = commandRunner(installedList = listOf(DownloadTool.YT_DLP, DownloadTool.FFMPEG))
                     val preparer = HomebrewDownloadToolPreparer(commandRunner = commandRunner)
 
-                    preparer.prepare() shouldBe DownloadToolPrepareResult.Prepared(ytDlpPath = YT_DLP_PATH)
+                    preparer.prepare() shouldBe DownloadToolPrepareResult.Prepared
 
                     coVerify(exactly = 0) { commandRunner.run(commandList = any(), onLine = any()) }
                 }

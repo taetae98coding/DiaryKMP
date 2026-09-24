@@ -11,6 +11,10 @@ public fun String.toYoutubeVideoThumbnailOrNull(): String? {
     return "https://i.ytimg.com/vi/$videoId/hqdefault.jpg"
 }
 
+public fun String.isYoutubeVideoId(): Boolean = VIDEO_ID_REGEX.matches(this)
+
+public fun String.toYoutubeVideoLink(): String = "https://www.youtube.com/watch?v=$this"
+
 internal fun String.toYoutubeVideoIdOrNull(): String? {
     val parts = toYoutubeLinkPartsOrNull() ?: return null
     val segmentList = parts.pathSegmentList

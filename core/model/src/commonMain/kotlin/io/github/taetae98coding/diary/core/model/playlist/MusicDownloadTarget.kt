@@ -4,5 +4,5 @@ import kotlin.uuid.Uuid
 
 public data class MusicDownloadTarget(
     val id: Uuid,
-    val link: String,
+    val videoId: String,
 )

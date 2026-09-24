@@ -8,6 +8,7 @@ kotlin {
             dependencies {
                 implementation(projects.domain.browser)
                 implementation(projects.domain.holiday)
+                implementation(projects.domain.playlist)
                 implementation(projects.domain.setting)
                 implementation(projects.feature.setting.api)
             }

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">ip-api.com</domain>
-    </domain-config>
+    <!-- 같은 네트워크의 다운로드 프록시는 사용자가 입력한 사설 IP라 도메인으로 열 수 없어 평문 전체를 허용한다. -->
+    <base-config cleartextTrafficPermitted="true" />
 </network-security-config>

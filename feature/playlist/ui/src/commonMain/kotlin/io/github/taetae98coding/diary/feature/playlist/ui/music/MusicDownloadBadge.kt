@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -50,18 +52,29 @@ internal fun MusicDownloadBadge(
         ) {
             when (state) {
                 is MusicDownloadState.Pending -> ScheduleIcon(modifier = Modifier.size(MusicDownloadBadgeDefaults.IconSize))
-
-                is MusicDownloadState.Running ->
-                    Text(
-                        text = state.toPercentText(),
-                        style = DiaryTheme.typography.bodySmall,
-                    )
-
+                is MusicDownloadState.Running -> RunningContent(state = state)
                 is MusicDownloadState.Done -> CheckIcon(modifier = Modifier.size(MusicDownloadBadgeDefaults.IconSize))
-
                 is MusicDownloadState.Failed -> ErrorIcon(modifier = Modifier.size(MusicDownloadBadgeDefaults.IconSize))
             }
         }
+    }
+}
+
+@Composable
+private fun RunningContent(state: MusicDownloadState.Running) {
+    val progress = state.progress
+
+    if (progress == null) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(MusicDownloadBadgeDefaults.IconSize),
+            color = LocalContentColor.current,
+            strokeWidth = MusicDownloadBadgeDefaults.IndeterminateStrokeWidth,
+        )
+    } else {
+        Text(
+            text = progress.toPercentText(),
+            style = DiaryTheme.typography.bodySmall,
+        )
     }
 }
 
@@ -69,6 +82,7 @@ private class MusicDownloadBadgePreviewParameter : PreviewParameterProvider<Musi
     override val values: Sequence<MusicDownloadState> =
         sequenceOf(
             MusicDownloadState.Pending,
+            MusicDownloadState.Running(progress = null),
             MusicDownloadState.Running(progress = 0.62F),
             MusicDownloadState.Done,
             MusicDownloadState.Failed,

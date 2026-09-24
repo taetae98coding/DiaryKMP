@@ -6,4 +6,5 @@ internal val settingHomeItemList: List<SettingHomeItem> =
         SettingHomeItem.MAP,
         SettingHomeItem.GEMINI,
         SettingHomeItem.BROWSER,
+        SettingHomeItem.DOWNLOAD,
     )

@@ -5,5 +5,7 @@ import org.koin.core.annotation.Single
 
 @Single
 internal class NoOpMusicDownloadWorkScheduler : MusicDownloadWorkScheduler {
+    override val isSupported: Boolean = false
+
     override fun download(sort: ListSort): Unit = Unit
 }

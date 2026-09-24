@@ -17,6 +17,8 @@ internal class MusicDownloadManagerImpl(
     musicDownloadStateHolder: MusicDownloadStateHolder,
     musicDownloadEventHolder: MusicDownloadEventHolder,
 ) : MusicDownloadManager {
+    override val isSupported: Boolean = musicDownloadWorkScheduler.isSupported
+
     override val stateMap: Flow<Map<Uuid, MusicDownloadState>> = musicDownloadStateHolder.stateMap
 
     override val event: Flow<MusicDownloadEvent> = musicDownloadEventHolder.event

@@ -40,6 +40,8 @@ internal class PlaylistHomeDownloadViewModel(
         when (this) {
             MusicDownloadEvent.TOOL_NOT_INSTALLED -> PlaylistHomeDownloadEffect.ToolNotInstalled
             MusicDownloadEvent.TOOL_PREPARE_FAILED -> PlaylistHomeDownloadEffect.ToolPrepareFailed
+            MusicDownloadEvent.PROXY_NOT_CONFIGURED -> PlaylistHomeDownloadEffect.ProxyNotConfigured
+            MusicDownloadEvent.PROXY_UNREACHABLE -> PlaylistHomeDownloadEffect.ProxyUnreachable
         }
 
     fun download(sort: ListSort) {

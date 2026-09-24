@@ -49,4 +49,16 @@
     <string name="setting_gemini_save_button_content_description">Save</string>
     <string name="setting_gemini_save_succeeded_message">Saved.</string>
     <string name="setting_gemini_save_failed_message">Couldn't save.</string>
+    <string name="setting_home_download_item_label">Download</string>
+    <string name="setting_download_title">Download Settings</string>
+    <string name="setting_download_this_device_address_label">This device's proxy address</string>
+    <string name="setting_download_this_device_address_description">Enter this address in the Android or iOS app on the same network to have this device download videos for it</string>
+    <string name="setting_download_no_address_message">No network connection, so other devices can't reach this device</string>
+    <string name="setting_download_unavailable_message">Couldn't start the proxy. Restart the app.</string>
+    <string name="setting_download_proxy_address_label">Proxy address</string>
+    <string name="setting_download_proxy_address_placeholder">http://192.168.0.10:54321</string>
+    <string name="setting_download_proxy_address_description">Enter the address shown in Settings &gt; Download of the desktop app running on the same network</string>
+    <string name="setting_download_save_button_content_description">Save</string>
+    <string name="setting_download_save_succeeded_message">Saved.</string>
+    <string name="setting_download_save_failed_message">Couldn't save.</string>
 </resources>

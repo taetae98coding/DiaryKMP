@@ -1,20 +1,31 @@
 package io.github.taetae98coding.diary.work.musicdownload.tool
 
+import io.github.taetae98coding.diary.domain.playlist.link.toYoutubeVideoLink
+import io.github.taetae98coding.diary.work.musicdownload.di.MusicDownloadDispatcher
 import io.github.taetae98coding.diary.work.musicdownload.process.CommandRunner
 import io.github.taetae98coding.diary.work.musicdownload.process.SUCCESS_EXIT_CODE
+import io.github.taetae98coding.diary.work.musicdownload.work.MusicFilePath
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
+import kotlinx.io.files.Path
+import kotlinx.io.files.SystemFileSystem
 import org.koin.core.annotation.Factory
 
 @Factory
 internal class YtDlpDownloader(
     private val commandRunner: CommandRunner,
-) : MusicDownloader {
-    override suspend fun download(
-        ytDlpPath: String,
-        link: String,
-        path: String,
+    @param:MusicDownloadDispatcher private val dispatcher: CoroutineDispatcher,
+) {
+    suspend fun download(
+        videoId: String,
+        path: MusicFilePath,
         onProgress: suspend (Float) -> Unit,
     ): Boolean {
+        val ytDlpPath = commandRunner.find(command = DownloadTool.YT_DLP.command) ?: return false
         val progress = YtDlpProgress()
+
+        onProgress(0F)
+
         val exitCode =
             commandRunner.run(
                 commandList =
@@ -31,13 +42,25 @@ internal class YtDlpDownloader(
                         "--newline",
                         "--no-colors",
                         "-o",
-                        path,
-                        link,
+                        path.downloading,
+                        videoId.toYoutubeVideoLink(),
                     ),
             ) { line ->
                 progress.onLine(line = line)?.let { value -> onProgress(value) }
             }
 
-        return exitCode == SUCCESS_EXIT_CODE
+        return withContext(dispatcher) { path.complete(isDownloaded = exitCode == SUCCESS_EXIT_CODE) }
     }
+}
+
+private fun MusicFilePath.complete(isDownloaded: Boolean): Boolean {
+    val downloadingPath = Path(downloading)
+
+    if (isDownloaded && SystemFileSystem.exists(downloadingPath)) {
+        SystemFileSystem.atomicMove(source = downloadingPath, destination = Path(completed))
+        return true
+    }
+
+    SystemFileSystem.delete(path = downloadingPath, mustExist = false)
+    return false
 }

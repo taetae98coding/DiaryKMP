@@ -4,7 +4,7 @@ public sealed interface MusicDownloadState {
     public data object Pending : MusicDownloadState
 
     public data class Running(
-        val progress: Float,
+        val progress: Float?,
     ) : MusicDownloadState
 
     public data object Done : MusicDownloadState

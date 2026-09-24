@@ -52,6 +52,11 @@ class SettingHomeScreenTest {
         assertNavigatesOnlyTo(itemLabel = DEFAULT_BROWSER_ITEM_LABEL, expected = SettingHomeItem.BROWSER)
     }
 
+    @Test
+    fun `TC-SETTING-HOME-FEATURE-013 다운로드 항목을 선택하면 SettingDownload 화면으로 이동한다`() {
+        assertNavigatesOnlyTo(itemLabel = DEFAULT_DOWNLOAD_ITEM_LABEL, expected = SettingHomeItem.DOWNLOAD)
+    }
+
     private fun assertNavigatesOnlyTo(
         itemLabel: String,
         expected: SettingHomeItem,
@@ -62,6 +67,7 @@ class SettingHomeScreenTest {
             navigateToMap = { navigatedItemList += SettingHomeItem.MAP },
             navigateToGemini = { navigatedItemList += SettingHomeItem.GEMINI },
             navigateToBrowser = { navigatedItemList += SettingHomeItem.BROWSER },
+            navigateToDownload = { navigatedItemList += SettingHomeItem.DOWNLOAD },
         )
 
         composeRule.onNodeWithText(itemLabel).performClick()
@@ -76,6 +82,7 @@ class SettingHomeScreenTest {
         navigateToMap: () -> Unit = {},
         navigateToGemini: () -> Unit = {},
         navigateToBrowser: () -> Unit = {},
+        navigateToDownload: () -> Unit = {},
         viewModel: SettingHomeViewModel = screenTestViewModel(SettingHomeUiState.Loaded(itemList = settingHomeItemList)),
     ) {
         composeRule.setContent {
@@ -86,6 +93,7 @@ class SettingHomeScreenTest {
                     navigateToMap = navigateToMap,
                     navigateToGemini = navigateToGemini,
                     navigateToBrowser = navigateToBrowser,
+                    navigateToDownload = navigateToDownload,
                     viewModel = viewModel,
                 )
             }
@@ -98,6 +106,7 @@ class SettingHomeScreenTest {
         private const val DEFAULT_MAP_ITEM_LABEL = "Map"
         private const val DEFAULT_GEMINI_ITEM_LABEL = "Gemini"
         private const val DEFAULT_BROWSER_ITEM_LABEL = "Browser"
+        private const val DEFAULT_DOWNLOAD_ITEM_LABEL = "Download"
 
         private fun screenTestViewModel(uiState: SettingHomeUiState): SettingHomeViewModel {
             val viewModel = mockk<SettingHomeViewModel>()

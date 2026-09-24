@@ -61,3 +61,9 @@ internal val GeminiSettingSerializer: SettingSerializer<GeminiSettingLocalEntity
         serializer = GeminiSettingLocalEntity.serializer(),
         defaultValue = GeminiSettingLocalEntity(),
     )
+
+internal val MusicDownloadProxySettingSerializer: SettingSerializer<MusicDownloadProxySettingData> =
+    SettingSerializer(
+        serializer = MusicDownloadProxySettingData.serializer(),
+        defaultValue = MusicDownloadProxySettingData(),
+    )

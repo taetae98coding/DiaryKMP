@@ -4,6 +4,7 @@ import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.more.api.MoreHomeNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingBrowserNavKey
+import io.github.taetae98coding.diary.feature.setting.api.SettingDownloadNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHolidayNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
@@ -30,6 +31,8 @@ class SettingNavigationTest :
                     SettingGeminiNavKey to SettingMapNavKey,
                     SettingGeminiNavKey to SettingBrowserNavKey,
                     SettingBrowserNavKey to SettingHolidayNavKey,
+                    SettingBrowserNavKey to SettingDownloadNavKey,
+                    SettingDownloadNavKey to SettingMapNavKey,
                 )
 
             detailCases.forEach { (currentDetail, destination) ->
@@ -57,6 +60,7 @@ class SettingNavigationTest :
                     SettingMapNavKey,
                     SettingGeminiNavKey,
                     SettingBrowserNavKey,
+                    SettingDownloadNavKey,
                 )
 
             detailCases.forEach { detail ->

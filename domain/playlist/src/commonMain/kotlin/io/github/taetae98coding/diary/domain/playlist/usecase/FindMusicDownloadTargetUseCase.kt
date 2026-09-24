@@ -24,8 +24,8 @@ public class FindMusicDownloadTargetUseCase internal constructor(
     }
 
     private fun Music.toDownloadTargetOrNull(): MusicDownloadTarget? {
-        if (detail.link.toYoutubeVideoIdOrNull() == null) return null
+        val videoId = detail.link.toYoutubeVideoIdOrNull() ?: return null
 
-        return MusicDownloadTarget(id = id, link = detail.link.trim())
+        return MusicDownloadTarget(id = id, videoId = videoId)
     }
 }

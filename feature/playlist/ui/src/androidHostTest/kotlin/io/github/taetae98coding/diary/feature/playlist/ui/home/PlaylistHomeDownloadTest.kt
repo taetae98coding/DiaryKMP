@@ -76,6 +76,18 @@ class PlaylistHomeDownloadTest {
     }
 
     @Test
+    fun `TC-MUSIC-DOWNLOAD-FEATURE-018 백분율이 없는 진행 중인 곡의 항목에서 백분율 없이 진행 중임을 확인한다`() {
+        assertStateDisplayed(state = MusicDownloadState.Running(progress = null), description = DEFAULT_RUNNING_INDETERMINATE_DESCRIPTION)
+        composeRule.onNodeWithContentDescription(DEFAULT_RUNNING_DESCRIPTION).assertDoesNotExist()
+    }
+
+    @Test
+    @Config(qualifiers = "ko")
+    fun `TC-MUSIC-DOWNLOAD-FEATURE-018 한국어 환경에서 백분율이 없는 진행 중을 확인한다`() {
+        assertStateDisplayed(state = MusicDownloadState.Running(progress = null), description = KOREAN_RUNNING_INDETERMINATE_DESCRIPTION)
+    }
+
+    @Test
     fun `TC-MUSIC-DOWNLOAD-FEATURE-003 받기를 마친 곡의 항목에서 완료를 확인한다`() {
         assertStateDisplayed(state = MusicDownloadState.Done, description = DEFAULT_DONE_DESCRIPTION)
     }
@@ -185,6 +197,8 @@ class PlaylistHomeDownloadTest {
         private const val DEFAULT_PENDING_DESCRIPTION = "Waiting to download"
         private const val DEFAULT_RUNNING_DESCRIPTION = "Downloading 62%"
         private const val KOREAN_RUNNING_DESCRIPTION = "다운로드 중 62%"
+        private const val DEFAULT_RUNNING_INDETERMINATE_DESCRIPTION = "Downloading"
+        private const val KOREAN_RUNNING_INDETERMINATE_DESCRIPTION = "다운로드 중"
         private const val DEFAULT_DONE_DESCRIPTION = "Downloaded"
         private const val DEFAULT_FAILED_DESCRIPTION = "Download failed"
         private const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add music"

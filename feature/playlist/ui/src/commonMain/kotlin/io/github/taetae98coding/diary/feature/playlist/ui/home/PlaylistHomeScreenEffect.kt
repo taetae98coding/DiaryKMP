@@ -7,6 +7,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.feature.playlist.ui.Res
+import io.github.taetae98coding.diary.feature.playlist.ui.playlist_home_download_proxy_not_configured_message
+import io.github.taetae98coding.diary.feature.playlist.ui.playlist_home_download_proxy_unreachable_message
 import io.github.taetae98coding.diary.feature.playlist.ui.playlist_home_download_tool_not_installed_message
 import io.github.taetae98coding.diary.feature.playlist.ui.playlist_home_download_tool_prepare_failed_message
 import kotlinx.coroutines.flow.Flow
@@ -22,12 +24,16 @@ internal fun PlaylistHomeScreenEffect(
     val coroutineScope = rememberCoroutineScope()
     val toolNotInstalledMessage = stringResource(Res.string.playlist_home_download_tool_not_installed_message)
     val toolPrepareFailedMessage = stringResource(Res.string.playlist_home_download_tool_prepare_failed_message)
+    val proxyNotConfiguredMessage = stringResource(Res.string.playlist_home_download_proxy_not_configured_message)
+    val proxyUnreachableMessage = stringResource(Res.string.playlist_home_download_proxy_unreachable_message)
 
     CollectEffect(effect) { value ->
         val message =
             when (value) {
                 is PlaylistHomeDownloadEffect.ToolNotInstalled -> toolNotInstalledMessage
                 is PlaylistHomeDownloadEffect.ToolPrepareFailed -> toolPrepareFailedMessage
+                is PlaylistHomeDownloadEffect.ProxyNotConfigured -> proxyNotConfiguredMessage
+                is PlaylistHomeDownloadEffect.ProxyUnreachable -> proxyUnreachableMessage
             }
 
         coroutineScope.launch { hostState.showImmediate(message = message) }

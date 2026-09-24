@@ -72,7 +72,7 @@ class MusicDownloadManagerImplTest :
             eventHolder: MusicDownloadEventHolder = MusicDownloadEventHolder(),
         ): MusicDownloadManagerImpl =
             MusicDownloadManagerImpl(
-                musicDownloadWorkScheduler = scheduler,
+                musicDownloadWorkScheduler = scheduler.apply { every { isSupported } returns true },
                 musicDownloadStateHolder = stateHolder,
                 musicDownloadEventHolder = eventHolder,
             )

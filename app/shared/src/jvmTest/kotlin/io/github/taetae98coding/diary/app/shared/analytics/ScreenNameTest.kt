@@ -32,6 +32,7 @@ import io.github.taetae98coding.diary.feature.routine.api.RoutineAddNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineHomeNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingBrowserNavKey
+import io.github.taetae98coding.diary.feature.setting.api.SettingDownloadNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHolidayNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
@@ -143,6 +144,7 @@ class ScreenNameTest :
                 RoutineHomeNavKey to "RoutineHome",
                 SearchHomeNavKey() to "SearchHome",
                 SettingBrowserNavKey to "SettingBrowser",
+                SettingDownloadNavKey to "SettingDownload",
                 SettingGeminiNavKey to "SettingGemini",
                 SettingHolidayNavKey to "SettingHoliday",
                 SettingHomeNavKey to "SettingHome",

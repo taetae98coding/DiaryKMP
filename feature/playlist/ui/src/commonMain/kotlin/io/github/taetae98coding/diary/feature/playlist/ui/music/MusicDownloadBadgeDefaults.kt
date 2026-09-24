@@ -7,4 +7,5 @@ internal object MusicDownloadBadgeDefaults {
     val MinSize: Dp = 24.dp
     val IconSize: Dp = 16.dp
     val HorizontalPadding: Dp = 6.dp
+    val IndeterminateStrokeWidth: Dp = 2.dp
 }

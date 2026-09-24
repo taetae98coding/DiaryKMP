@@ -27,6 +27,13 @@
 	<string>$(GOOGLE_MAP_API_KEY)</string>
 	<key>NMFNcpKeyId</key>
 	<string>$(NAVER_MAP_NCP_KEY_ID)</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>같은 네트워크의 데스크톱 앱이 제공하는 다운로드 프록시에 연결해 곡을 내려받습니다.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>processing</string>

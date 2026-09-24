@@ -5,8 +5,11 @@
     <string name="playlist_home_download_button_content_description">Download music</string>
     <string name="playlist_home_download_tool_not_installed_message">yt-dlp and ffmpeg are required. Install them and try again.</string>
     <string name="playlist_home_download_tool_prepare_failed_message">Could not prepare the download tools.</string>
+    <string name="playlist_home_download_proxy_not_configured_message">Enter the proxy address in Settings &gt; Download.</string>
+    <string name="playlist_home_download_proxy_unreachable_message">Could not connect to the download proxy.</string>
     <string name="music_download_pending_content_description">Waiting to download</string>
     <string name="music_download_running_content_description">Downloading %1$s</string>
+    <string name="music_download_running_indeterminate_content_description">Downloading</string>
     <string name="music_download_done_content_description">Downloaded</string>
     <string name="music_download_failed_content_description">Download failed</string>
     <string name="playlist_home_empty_title">No music yet</string>

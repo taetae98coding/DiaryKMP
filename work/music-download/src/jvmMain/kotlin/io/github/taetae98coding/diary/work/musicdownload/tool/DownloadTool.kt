@@ -1,5 +1,7 @@
 package io.github.taetae98coding.diary.work.musicdownload.tool
 
+import io.github.taetae98coding.diary.work.musicdownload.process.CommandRunner
+
 internal enum class DownloadTool(
     val command: String,
     val formula: String,
@@ -15,3 +17,5 @@ internal val downloadToolList: List<DownloadTool> =
     )
 
 internal const val HOMEBREW_COMMAND: String = "brew"
+
+internal fun CommandRunner.findMissingDownloadToolList(): List<DownloadTool> = downloadToolList.filter { tool -> find(command = tool.command) == null }

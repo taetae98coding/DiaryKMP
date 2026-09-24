@@ -98,6 +98,36 @@ class PlaylistHomeDownloadViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-MUSIC-DOWNLOAD-FEATURE-015 프록시 주소가 없으면 설정에서 입력할 것을 알린다") {
+            runTest(mainDispatcher) {
+                val viewModel =
+                    viewModel(
+                        getMusicDownloadEventUseCase =
+                            downloadEventUseCase(eventFlow = flowOf(Result.success(MusicDownloadEvent.PROXY_NOT_CONFIGURED))),
+                    )
+
+                viewModel.effect.test {
+                    awaitItem() shouldBe PlaylistHomeDownloadEffect.ProxyNotConfigured
+                    awaitComplete()
+                }
+            }
+        }
+
+        test("TC-MUSIC-DOWNLOAD-FEATURE-016 프록시에 연결할 수 없으면 연결할 수 없음을 알린다") {
+            runTest(mainDispatcher) {
+                val viewModel =
+                    viewModel(
+                        getMusicDownloadEventUseCase =
+                            downloadEventUseCase(eventFlow = flowOf(Result.success(MusicDownloadEvent.PROXY_UNREACHABLE))),
+                    )
+
+                viewModel.effect.test {
+                    awaitItem() shouldBe PlaylistHomeDownloadEffect.ProxyUnreachable
+                    awaitComplete()
+                }
+            }
+        }
+
         test("TC-MUSIC-DOWNLOAD-FEATURE-011 알릴 것이 없으면 안내를 내보내지 않는다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel()
@@ -189,6 +219,7 @@ class PlaylistHomeDownloadViewModelTest : FunSpec() {
                 PlaylistHomeDownloadUiState().isDownloading shouldBe false
                 PlaylistHomeDownloadUiState(stateMap = mapOf(id to MusicDownloadState.Pending)).isDownloading shouldBe true
                 PlaylistHomeDownloadUiState(stateMap = mapOf(id to MusicDownloadState.Running(progress = 0F))).isDownloading shouldBe true
+                PlaylistHomeDownloadUiState(stateMap = mapOf(id to MusicDownloadState.Running(progress = null))).isDownloading shouldBe true
                 PlaylistHomeDownloadUiState(stateMap = mapOf(id to MusicDownloadState.Done)).isDownloading shouldBe false
                 PlaylistHomeDownloadUiState(stateMap = mapOf(id to MusicDownloadState.Failed)).isDownloading shouldBe false
             }

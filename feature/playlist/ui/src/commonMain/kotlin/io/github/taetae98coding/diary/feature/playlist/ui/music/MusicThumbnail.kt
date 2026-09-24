@@ -62,14 +62,21 @@ internal fun MusicThumbnail(
             )
 
             if (downloadState is MusicDownloadState.Running) {
-                LinearProgressIndicator(
-                    progress = { downloadState.progress },
-                    modifier =
-                        Modifier
-                            .align(Alignment.BottomCenter)
-                            .fillMaxWidth()
-                            .height(MusicThumbnailDefaults.ProgressIndicatorHeight),
-                )
+                val progressModifier =
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .height(MusicThumbnailDefaults.ProgressIndicatorHeight)
+                val progress = downloadState.progress
+
+                if (progress == null) {
+                    LinearProgressIndicator(modifier = progressModifier)
+                } else {
+                    LinearProgressIndicator(
+                        progress = { progress },
+                        modifier = progressModifier,
+                    )
+                }
             }
         }
     }
@@ -80,6 +87,7 @@ private class MusicThumbnailPreviewParameter : PreviewParameterProvider<MusicDow
         sequenceOf(
             null,
             MusicDownloadState.Pending,
+            MusicDownloadState.Running(progress = null),
             MusicDownloadState.Running(progress = 0.62F),
             MusicDownloadState.Done,
             MusicDownloadState.Failed,

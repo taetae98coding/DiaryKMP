@@ -62,6 +62,7 @@ class SettingHomeScaffoldTest {
         composeRule.onNodeWithText("지도").assertExists()
         composeRule.onNodeWithText(DEFAULT_GEMINI_ITEM_LABEL).assertExists()
         composeRule.onNodeWithText("브라우저").assertExists()
+        composeRule.onNodeWithText("다운로드").assertExists()
     }
 
     @Test
@@ -72,6 +73,7 @@ class SettingHomeScaffoldTest {
         composeRule.onNodeWithText(DEFAULT_MAP_ITEM_LABEL).assertExists()
         composeRule.onNodeWithText(DEFAULT_GEMINI_ITEM_LABEL).assertExists()
         composeRule.onNodeWithText(DEFAULT_BROWSER_ITEM_LABEL).assertExists()
+        composeRule.onNodeWithText(DEFAULT_DOWNLOAD_ITEM_LABEL).assertExists()
     }
 
     @Test
@@ -82,6 +84,7 @@ class SettingHomeScaffoldTest {
         composeRule.onNodeWithText(DEFAULT_MAP_ITEM_LABEL).assert(hasClickAction())
         composeRule.onNodeWithText(DEFAULT_GEMINI_ITEM_LABEL).assert(hasClickAction())
         composeRule.onNodeWithText(DEFAULT_BROWSER_ITEM_LABEL).assert(hasClickAction())
+        composeRule.onNodeWithText(DEFAULT_DOWNLOAD_ITEM_LABEL).assert(hasClickAction())
         composeRule.onAllNodes(hasClickAction()).fetchSemanticsNodes().size shouldBe CLICKABLE_NODE_COUNT
     }
 
@@ -90,16 +93,30 @@ class SettingHomeScaffoldTest {
         setSettingHomeScaffold()
 
         displayedItemLabels() shouldBe
-            listOf(DEFAULT_HOLIDAY_ITEM_LABEL, DEFAULT_MAP_ITEM_LABEL, DEFAULT_GEMINI_ITEM_LABEL, DEFAULT_BROWSER_ITEM_LABEL)
+            listOf(DEFAULT_HOLIDAY_ITEM_LABEL, DEFAULT_MAP_ITEM_LABEL, DEFAULT_GEMINI_ITEM_LABEL, DEFAULT_BROWSER_ITEM_LABEL, DEFAULT_DOWNLOAD_ITEM_LABEL)
     }
 
     @Test
     fun `TC-SETTING-HOME-FEATURE-011 브라우저 항목을 제공하지 않는 환경에서는 그 항목을 표시하지 않는다`() {
         setSettingHomeScaffold(
+            uiState =
+                SettingHomeUiState.Loaded(
+                    itemList = listOf(SettingHomeItem.HOLIDAY, SettingHomeItem.MAP, SettingHomeItem.GEMINI, SettingHomeItem.DOWNLOAD),
+                ),
+        )
+
+        composeRule.onNodeWithText(DEFAULT_BROWSER_ITEM_LABEL).assertDoesNotExist()
+        displayedItemLabels() shouldBe listOf(DEFAULT_HOLIDAY_ITEM_LABEL, DEFAULT_MAP_ITEM_LABEL, DEFAULT_GEMINI_ITEM_LABEL, DEFAULT_DOWNLOAD_ITEM_LABEL)
+    }
+
+    @Test
+    fun `TC-SETTING-HOME-FEATURE-014 다운로드 항목을 제공하지 않는 환경에서는 그 항목을 표시하지 않는다`() {
+        setSettingHomeScaffold(
             uiState = SettingHomeUiState.Loaded(itemList = listOf(SettingHomeItem.HOLIDAY, SettingHomeItem.MAP, SettingHomeItem.GEMINI)),
         )
 
         composeRule.onNodeWithText(DEFAULT_BROWSER_ITEM_LABEL).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_DOWNLOAD_ITEM_LABEL).assertDoesNotExist()
         displayedItemLabels() shouldBe listOf(DEFAULT_HOLIDAY_ITEM_LABEL, DEFAULT_MAP_ITEM_LABEL, DEFAULT_GEMINI_ITEM_LABEL)
     }
 
@@ -140,9 +157,10 @@ class SettingHomeScaffoldTest {
         private const val DEFAULT_MAP_ITEM_LABEL = "Map"
         private const val DEFAULT_GEMINI_ITEM_LABEL = "Gemini"
         private const val DEFAULT_BROWSER_ITEM_LABEL = "Browser"
+        private const val DEFAULT_DOWNLOAD_ITEM_LABEL = "Download"
 
         private const val NAVIGATE_UP_CLICKABLE_COUNT = 1
-        private const val SETTING_ITEM_CLICKABLE_COUNT = 4
+        private const val SETTING_ITEM_CLICKABLE_COUNT = 5
         private const val CLICKABLE_NODE_COUNT = NAVIGATE_UP_CLICKABLE_COUNT + SETTING_ITEM_CLICKABLE_COUNT
     }
 }

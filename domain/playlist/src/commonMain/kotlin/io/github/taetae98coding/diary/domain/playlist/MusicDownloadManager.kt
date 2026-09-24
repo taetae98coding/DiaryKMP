@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlin.uuid.Uuid
 
 public interface MusicDownloadManager {
+    public val isSupported: Boolean
+
     public val stateMap: Flow<Map<Uuid, MusicDownloadState>>
 
     public val event: Flow<MusicDownloadEvent>

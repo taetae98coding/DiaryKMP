@@ -5,8 +5,11 @@
     <string name="playlist_home_download_button_content_description">곡 다운로드</string>
     <string name="playlist_home_download_tool_not_installed_message">yt-dlp와 ffmpeg이 필요합니다. 직접 설치한 뒤 다시 시도해 주세요</string>
     <string name="playlist_home_download_tool_prepare_failed_message">다운로드 도구를 준비하지 못했습니다</string>
+    <string name="playlist_home_download_proxy_not_configured_message">설정의 다운로드에서 프록시 주소를 입력해 주세요</string>
+    <string name="playlist_home_download_proxy_unreachable_message">다운로드 프록시에 연결할 수 없습니다</string>
     <string name="music_download_pending_content_description">다운로드 대기 중</string>
     <string name="music_download_running_content_description">다운로드 중 %1$s</string>
+    <string name="music_download_running_indeterminate_content_description">다운로드 중</string>
     <string name="music_download_done_content_description">다운로드 완료</string>
     <string name="music_download_failed_content_description">다운로드 실패</string>
     <string name="playlist_home_empty_title">아직 곡이 없습니다</string>

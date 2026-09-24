@@ -11,12 +11,15 @@ import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingBrowserNavKey
+import io.github.taetae98coding.diary.feature.setting.api.SettingDownloadNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHolidayNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingMapNavKey
 import io.github.taetae98coding.diary.feature.setting.ui.browser.SettingBrowserScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.setting.ui.browser.SettingBrowserScreen
+import io.github.taetae98coding.diary.feature.setting.ui.download.SettingDownloadScaffoldComponentVisible
+import io.github.taetae98coding.diary.feature.setting.ui.download.SettingDownloadScreen
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.SettingGeminiScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.SettingGeminiScreen
 import io.github.taetae98coding.diary.feature.setting.ui.holiday.SettingHolidayScaffoldComponentVisible
@@ -32,6 +35,7 @@ public fun EntryProviderScope<ScreenNavKey>.settingEntry(backStack: NavBackStack
     settingMapEntry(backStack = backStack)
     settingGeminiEntry(backStack = backStack)
     settingBrowserEntry(backStack = backStack)
+    settingDownloadEntry(backStack = backStack)
 }
 
 private fun EntryProviderScope<ScreenNavKey>.settingHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
@@ -48,6 +52,7 @@ private fun EntryProviderScope<ScreenNavKey>.settingHomeEntry(backStack: NavBack
             navigateToMap = { backStack.navigateToSettingDetail(SettingMapNavKey) },
             navigateToGemini = { backStack.navigateToSettingDetail(SettingGeminiNavKey) },
             navigateToBrowser = { backStack.navigateToSettingDetail(SettingBrowserNavKey) },
+            navigateToDownload = { backStack.navigateToSettingDetail(SettingDownloadNavKey) },
             viewModel = koinViewModel(),
         )
     }
@@ -118,8 +123,24 @@ private fun EntryProviderScope<ScreenNavKey>.settingBrowserEntry(backStack: NavB
     }
 }
 
+private fun EntryProviderScope<ScreenNavKey>.settingDownloadEntry(backStack: NavBackStack<ScreenNavKey>) {
+    entry<SettingDownloadNavKey>(
+        metadata = ListDetailSceneStrategy.detailPane(sceneKey = SettingHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION),
+    ) {
+        val isListPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.List)
+
+        SettingDownloadScreen(
+            navigateUp = backStack::removeLastOrNull,
+            componentVisibleProvider = {
+                SettingDownloadScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible)
+            },
+            viewModel = koinViewModel(),
+        )
+    }
+}
+
 private val settingDetailNavKeySet: Set<ScreenNavKey> =
-    setOf(SettingHolidayNavKey, SettingMapNavKey, SettingGeminiNavKey, SettingBrowserNavKey)
+    setOf(SettingHolidayNavKey, SettingMapNavKey, SettingGeminiNavKey, SettingBrowserNavKey, SettingDownloadNavKey)
 
 internal fun NavBackStack<ScreenNavKey>.navigateToSettingDetail(destination: ScreenNavKey) {
     require(destination in settingDetailNavKeySet)

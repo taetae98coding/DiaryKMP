@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.setting.ui
 import io.github.taetae98coding.diary.core.model.browser.ChromeProfile
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
+import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadProxySetting
 import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountryOption
 import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountrySetting
 import io.github.taetae98coding.diary.domain.holiday.model.HolidaySetting
@@ -31,3 +32,11 @@ internal fun previewChromeProfileList(): List<ChromeProfile> =
         ChromeProfile(directory = "Default", name = "TaeJong"),
         ChromeProfile(directory = "Profile 1", name = "Work"),
     )
+
+internal fun previewMusicDownloadProxyAddressList(): List<String> =
+    listOf(
+        "http://192.168.0.10:27180",
+        "http://10.0.0.5:27180",
+    )
+
+internal fun previewMusicDownloadProxySetting(): MusicDownloadProxySetting = MusicDownloadProxySetting(address = "http://192.168.0.10:27180")

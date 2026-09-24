@@ -14,7 +14,9 @@ import io.github.taetae98coding.diary.work.musicdownload.tool.DownloadToolPrepar
 import io.github.taetae98coding.diary.work.musicdownload.tool.DownloadToolPreparer
 import io.github.taetae98coding.diary.work.musicdownload.tool.MusicDownloader
 import kotlinx.coroutines.CancellationException
+import org.koin.core.annotation.Factory
 
+@Factory
 internal class MusicDownloadWorkImpl(
     private val downloadToolPreparer: DownloadToolPreparer,
     private val musicDownloader: MusicDownloader,
@@ -24,35 +26,42 @@ internal class MusicDownloadWorkImpl(
     private val musicDownloadEventHolder: MusicDownloadEventHolder,
 ) : MusicDownloadWork {
     override suspend fun doWork(sort: ListSort) {
-        val ytDlpPath = prepareOrNull() ?: return
+        if (!prepare()) return
         val targetList = findMusicDownloadTargetUseCase(parameter = sort).getOrThrow()
 
         musicDownloadStateHolder.submitPending(idList = targetList.map { target -> target.id })
 
-        targetList.forEach { target -> download(ytDlpPath = ytDlpPath, target = target) }
+        targetList.forEach { target -> download(target = target) }
     }
 
-    private suspend fun prepareOrNull(): String? =
+    private suspend fun prepare(): Boolean =
         when (val result = downloadToolPreparer.prepare()) {
-            is DownloadToolPrepareResult.Prepared -> result.ytDlpPath
+            is DownloadToolPrepareResult.Prepared -> true
 
             is DownloadToolPrepareResult.NotInstalled -> {
                 musicDownloadEventHolder.send(event = MusicDownloadEvent.TOOL_NOT_INSTALLED)
-                null
+                false
             }
 
             is DownloadToolPrepareResult.Failed -> {
                 DiaryLogger.log(log = ConsoleLog(tag = TAG, message = "내려받기 도구 준비 실패"))
                 musicDownloadEventHolder.send(event = MusicDownloadEvent.TOOL_PREPARE_FAILED)
-                null
+                false
+            }
+
+            is DownloadToolPrepareResult.ProxyNotConfigured -> {
+                musicDownloadEventHolder.send(event = MusicDownloadEvent.PROXY_NOT_CONFIGURED)
+                false
+            }
+
+            is DownloadToolPrepareResult.ProxyUnreachable -> {
+                musicDownloadEventHolder.send(event = MusicDownloadEvent.PROXY_UNREACHABLE)
+                false
             }
         }
 
-    private suspend fun download(
-        ytDlpPath: String,
-        target: MusicDownloadTarget,
-    ) {
-        val name = target.id.toMusicFileName()
+    private suspend fun download(target: MusicDownloadTarget) {
+        val name = target.videoId.toMusicFileName()
 
         try {
             if (appFileLocalDataSource.exists(directory = MUSIC_FILE_DIRECTORY, name = name)) {
@@ -60,13 +69,12 @@ internal class MusicDownloadWorkImpl(
                 return
             }
 
-            musicDownloadStateHolder.update(id = target.id, state = MusicDownloadState.Running(progress = 0F))
+            musicDownloadStateHolder.update(id = target.id, state = MusicDownloadState.Running(progress = null))
 
-            val path = appFileLocalDataSource.resolve(directory = MUSIC_FILE_DIRECTORY, name = name)
+            val path = appFileLocalDataSource.resolveMusicFilePath(videoId = target.videoId)
             val isDownloaded =
                 musicDownloader.download(
-                    ytDlpPath = ytDlpPath,
-                    link = target.link,
+                    target = target,
                     path = path,
                     onProgress = { progress ->
                         musicDownloadStateHolder.update(id = target.id, state = MusicDownloadState.Running(progress = progress))

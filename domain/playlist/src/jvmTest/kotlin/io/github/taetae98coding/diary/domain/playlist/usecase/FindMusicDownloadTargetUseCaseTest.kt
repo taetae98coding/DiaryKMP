@@ -38,7 +38,7 @@ class FindMusicDownloadTargetUseCaseTest :
             When("다운로드 대상을 조회한다") {
                 Then("TC-MUSIC-DOWNLOAD-DOMAIN-001 TC-MUSIC-DOWNLOAD-FEATURE-007 영상 ID를 얻을 수 있는 곡만 대상이 된다") {
                     useCase(parameter = ListSort.TITLE).shouldBeSuccess() shouldBe
-                        listOf(MusicDownloadTarget(id = withVideo.id, link = "https://youtu.be/dQw4w9WgXcQ"))
+                        listOf(MusicDownloadTarget(id = withVideo.id, videoId = "dQw4w9WgXcQ"))
                 }
             }
         }
@@ -53,8 +53,8 @@ class FindMusicDownloadTargetUseCaseTest :
                 Then("TC-MUSIC-DOWNLOAD-DOMAIN-002 목록 순서를 그대로 유지한다") {
                     useCase(parameter = ListSort.TITLE).shouldBeSuccess() shouldBe
                         listOf(
-                            MusicDownloadTarget(id = first.id, link = "https://youtu.be/aaaaaaaaaaa"),
-                            MusicDownloadTarget(id = second.id, link = "https://www.youtube.com/watch?v=bbbbbbbbbbb"),
+                            MusicDownloadTarget(id = first.id, videoId = "aaaaaaaaaaa"),
+                            MusicDownloadTarget(id = second.id, videoId = "bbbbbbbbbbb"),
                         )
                 }
             }

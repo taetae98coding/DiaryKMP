@@ -15,6 +15,8 @@ internal class CoroutineMusicDownloadWorkScheduler(
     private val musicDownloadStateHolder: MusicDownloadStateHolder,
     @param:MusicDownloadScope private val scope: CoroutineScope,
 ) : MusicDownloadWorkScheduler {
+    override val isSupported: Boolean = true
+
     private var job: Job? = null
 
     override fun download(sort: ListSort) {

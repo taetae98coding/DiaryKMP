@@ -9,11 +9,11 @@ internal class HomebrewDownloadToolPreparer(
     private val commandRunner: CommandRunner,
 ) : DownloadToolPreparer {
     override suspend fun prepare(): DownloadToolPrepareResult {
-        val missingList = downloadToolList.filter { tool -> commandRunner.find(command = tool.command) == null }
+        val missingList = commandRunner.findMissingDownloadToolList()
         val brewPath = if (missingList.isEmpty()) null else commandRunner.find(command = HOMEBREW_COMMAND)
 
         return when {
-            missingList.isEmpty() -> prepared()
+            missingList.isEmpty() -> DownloadToolPrepareResult.Prepared
             brewPath == null -> DownloadToolPrepareResult.NotInstalled
             install(brewPath = brewPath, missingList = missingList) -> prepared()
             else -> DownloadToolPrepareResult.Failed
@@ -30,14 +30,10 @@ internal class HomebrewDownloadToolPreparer(
     }
 
     // 설치가 성공했다고 보고해도 실제로 실행할 수 있는 자리에 없을 수 있으므로 다시 확인한다.
-    private fun prepared(): DownloadToolPrepareResult {
-        val ytDlpPath = commandRunner.find(command = DownloadTool.YT_DLP.command)
-        val isAllFound = downloadToolList.all { tool -> commandRunner.find(command = tool.command) != null }
-
-        return if (isAllFound && ytDlpPath != null) {
-            DownloadToolPrepareResult.Prepared(ytDlpPath = ytDlpPath)
+    private fun prepared(): DownloadToolPrepareResult =
+        if (commandRunner.findMissingDownloadToolList().isEmpty()) {
+            DownloadToolPrepareResult.Prepared
         } else {
             DownloadToolPrepareResult.Failed
         }
-    }
 }

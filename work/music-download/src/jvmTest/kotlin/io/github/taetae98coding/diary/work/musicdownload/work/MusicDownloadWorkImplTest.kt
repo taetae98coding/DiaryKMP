@@ -21,8 +21,7 @@ import io.mockk.confirmVerified
 import io.mockk.mockk
 import kotlin.uuid.Uuid
 
-private const val YT_DLP_PATH = "/opt/homebrew/bin/yt-dlp"
-private const val PROGRESS_ARGUMENT_INDEX = 3
+private const val PROGRESS_ARGUMENT_INDEX = 2
 
 class MusicDownloadWorkImplTest :
     BehaviorSpec({
@@ -36,13 +35,13 @@ class MusicDownloadWorkImplTest :
 
                     work.doWork(sort = ListSort.TITLE)
 
-                    coVerify(exactly = 1) { downloader.download(ytDlpPath = YT_DLP_PATH, link = target.link, path = any(), onProgress = any()) }
+                    coVerify(exactly = 1) { downloader.download(target = target, path = any(), onProgress = any()) }
                     eventHolder.event.test { expectNoEvents() }
                 }
 
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-010 실행할 때마다 도구가 있는지 다시 확인한다") {
+                Then("TC-MUSIC-DOWNLOAD-DOMAIN-010 실행할 때마다 내려받을 수단이 갖춰져 있는지 다시 확인한다") {
                     val preparer = mockk<DownloadToolPreparer>()
-                    coEvery { preparer.prepare() } returns DownloadToolPrepareResult.Prepared(ytDlpPath = YT_DLP_PATH)
+                    coEvery { preparer.prepare() } returns DownloadToolPrepareResult.Prepared
                     val work = work(downloadToolPreparer = preparer)
 
                     work.doWork(sort = ListSort.TITLE)
@@ -53,67 +52,78 @@ class MusicDownloadWorkImplTest :
             }
         }
 
-        Given("도구가 없고 Homebrew도 없다") {
+        Given("프록시에 연결된다") {
             When("다운로드를 실행하면") {
-                Then("TC-MUSIC-DOWNLOAD-FEATURE-013 직접 설치할 것을 알리고 어떤 곡도 받지 않는다") {
+                Then("TC-MUSIC-DOWNLOAD-FEATURE-017 알리지 않고 곧바로 그 곡의 영상을 요청하기 시작한다") {
+                    val target = testDownloadTarget()
                     val eventHolder = MusicDownloadEventHolder()
-                    val holder = MusicDownloadStateHolder()
                     val downloader = succeedingDownloader()
                     val work =
                         work(
-                            downloadToolPreparer = preparer(result = DownloadToolPrepareResult.NotInstalled),
+                            targetList = listOf(target),
+                            downloadToolPreparer = preparer(result = DownloadToolPrepareResult.Prepared),
                             musicDownloader = downloader,
-                            musicDownloadStateHolder = holder,
                             musicDownloadEventHolder = eventHolder,
-                        )
-
-                    eventHolder.event.test {
-                        work.doWork(sort = ListSort.TITLE)
-
-                        awaitItem() shouldBe MusicDownloadEvent.TOOL_NOT_INSTALLED
-                    }
-
-                    holder.stateMap.value shouldBe emptyMap()
-                    coVerify(exactly = 0) { downloader.download(ytDlpPath = any(), link = any(), path = any(), onProgress = any()) }
-                }
-
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-011 대상 곡을 조회하지 않는다") {
-                    val findMusicDownloadTargetUseCase = mockk<FindMusicDownloadTargetUseCase>()
-                    val work =
-                        work(
-                            downloadToolPreparer = preparer(result = DownloadToolPrepareResult.NotInstalled),
-                            findMusicDownloadTargetUseCase = findMusicDownloadTargetUseCase,
                         )
 
                     work.doWork(sort = ListSort.TITLE)
 
-                    coVerify(exactly = 0) { findMusicDownloadTargetUseCase(parameter = any()) }
+                    coVerify(exactly = 1) { downloader.download(target = target, path = any(), onProgress = any()) }
+                    eventHolder.event.test { expectNoEvents() }
                 }
             }
         }
 
-        Given("도구를 설치하지 못한다") {
+        Given("내려받기 준비에 실패하는 조건이다") {
             When("다운로드를 실행하면") {
-                Then("TC-MUSIC-DOWNLOAD-FEATURE-014 준비 실패를 알리고 어떤 곡도 받지 않는다") {
-                    val eventHolder = MusicDownloadEventHolder()
-                    val holder = MusicDownloadStateHolder()
-                    val downloader = succeedingDownloader()
-                    val work =
-                        work(
-                            downloadToolPreparer = preparer(result = DownloadToolPrepareResult.Failed),
-                            musicDownloader = downloader,
-                            musicDownloadStateHolder = holder,
-                            musicDownloadEventHolder = eventHolder,
-                        )
+                val caseList =
+                    listOf(
+                        DownloadToolPrepareResult.NotInstalled to MusicDownloadEvent.TOOL_NOT_INSTALLED,
+                        DownloadToolPrepareResult.Failed to MusicDownloadEvent.TOOL_PREPARE_FAILED,
+                        DownloadToolPrepareResult.ProxyNotConfigured to MusicDownloadEvent.PROXY_NOT_CONFIGURED,
+                        DownloadToolPrepareResult.ProxyUnreachable to MusicDownloadEvent.PROXY_UNREACHABLE,
+                    )
 
-                    eventHolder.event.test {
+                Then(
+                    "TC-MUSIC-DOWNLOAD-FEATURE-013 TC-MUSIC-DOWNLOAD-FEATURE-014 TC-MUSIC-DOWNLOAD-FEATURE-015 TC-MUSIC-DOWNLOAD-FEATURE-016 " +
+                        "그 조건을 알리고 어떤 곡도 받지 않는다",
+                ) {
+                    caseList.forEach { (result, event) ->
+                        val eventHolder = MusicDownloadEventHolder()
+                        val holder = MusicDownloadStateHolder()
+                        val downloader = succeedingDownloader()
+                        val work =
+                            work(
+                                downloadToolPreparer = preparer(result = result),
+                                musicDownloader = downloader,
+                                musicDownloadStateHolder = holder,
+                                musicDownloadEventHolder = eventHolder,
+                            )
+
+                        eventHolder.event.test {
+                            work.doWork(sort = ListSort.TITLE)
+
+                            awaitItem() shouldBe event
+                        }
+
+                        holder.stateMap.value shouldBe emptyMap()
+                        coVerify(exactly = 0) { downloader.download(target = any(), path = any(), onProgress = any()) }
+                    }
+                }
+
+                Then("TC-MUSIC-DOWNLOAD-DOMAIN-011 대상 곡을 조회하지 않는다") {
+                    caseList.forEach { (result, _) ->
+                        val findMusicDownloadTargetUseCase = mockk<FindMusicDownloadTargetUseCase>()
+                        val work =
+                            work(
+                                downloadToolPreparer = preparer(result = result),
+                                findMusicDownloadTargetUseCase = findMusicDownloadTargetUseCase,
+                            )
+
                         work.doWork(sort = ListSort.TITLE)
 
-                        awaitItem() shouldBe MusicDownloadEvent.TOOL_PREPARE_FAILED
+                        coVerify(exactly = 0) { findMusicDownloadTargetUseCase(parameter = any()) }
                     }
-
-                    holder.stateMap.value shouldBe emptyMap()
-                    coVerify(exactly = 0) { downloader.download(ytDlpPath = any(), link = any(), path = any(), onProgress = any()) }
                 }
             }
         }
@@ -124,11 +134,11 @@ class MusicDownloadWorkImplTest :
                     val first = testDownloadTarget()
                     val second = testDownloadTarget()
                     val third = testDownloadTarget()
-                    val linkList = mutableListOf<String>()
+                    val targetList = mutableListOf<MusicDownloadTarget>()
                     val downloader = mockk<MusicDownloader>()
-                    coEvery { downloader.download(ytDlpPath = any(), link = any(), path = any(), onProgress = any()) } coAnswers
+                    coEvery { downloader.download(target = any(), path = any(), onProgress = any()) } coAnswers
                         {
-                            linkList += secondArg<String>()
+                            targetList += firstArg<MusicDownloadTarget>()
                             true
                         }
 
@@ -136,7 +146,7 @@ class MusicDownloadWorkImplTest :
 
                     work.doWork(sort = ListSort.TITLE)
 
-                    linkList shouldContainExactly listOf(first.link, second.link, third.link)
+                    targetList shouldContainExactly listOf(first, second, third)
                 }
 
                 Then("TC-MUSIC-DOWNLOAD-FEATURE-001 아직 차례가 오지 않은 곡은 대기 상태가 된다") {
@@ -145,12 +155,12 @@ class MusicDownloadWorkImplTest :
                     val holder = MusicDownloadStateHolder()
                     var pendingSnapshot: Map<Uuid, MusicDownloadState> = emptyMap()
                     val downloader = mockk<MusicDownloader>()
-                    coEvery { downloader.download(ytDlpPath = any(), link = first.link, path = any(), onProgress = any()) } coAnswers
+                    coEvery { downloader.download(target = first, path = any(), onProgress = any()) } coAnswers
                         {
                             pendingSnapshot = holder.stateMap.value
                             true
                         }
-                    coEvery { downloader.download(ytDlpPath = any(), link = second.link, path = any(), onProgress = any()) } returns true
+                    coEvery { downloader.download(target = second, path = any(), onProgress = any()) } returns true
 
                     val work = work(targetList = listOf(first, second), musicDownloader = downloader, musicDownloadStateHolder = holder)
 
@@ -162,13 +172,33 @@ class MusicDownloadWorkImplTest :
         }
 
         Given("받는 도중인 곡이 있다") {
-            When("받은 만큼이 알려지면") {
-                Then("TC-MUSIC-DOWNLOAD-FEATURE-002 그 곡이 받은 만큼을 진행 중 상태로 갖는다") {
+            When("받은 만큼이 아직 알려지지 않았으면") {
+                Then("TC-MUSIC-DOWNLOAD-FEATURE-018 그 곡은 백분율 없는 진행 중 상태를 갖는다") {
                     val target = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
                     var runningSnapshot: MusicDownloadState? = null
                     val downloader = mockk<MusicDownloader>()
-                    coEvery { downloader.download(ytDlpPath = any(), link = any(), path = any(), onProgress = any()) } coAnswers
+                    coEvery { downloader.download(target = any(), path = any(), onProgress = any()) } coAnswers
+                        {
+                            runningSnapshot = holder.stateMap.value[target.id]
+                            true
+                        }
+
+                    val work = work(targetList = listOf(target), musicDownloader = downloader, musicDownloadStateHolder = holder)
+
+                    work.doWork(sort = ListSort.TITLE)
+
+                    runningSnapshot shouldBe MusicDownloadState.Running(progress = null)
+                }
+            }
+
+            When("받은 만큼이 알려지면") {
+                Then("TC-MUSIC-DOWNLOAD-FEATURE-002 TC-MUSIC-DOWNLOAD-FEATURE-019 그 곡이 받은 만큼을 진행 중 상태로 갖는다") {
+                    val target = testDownloadTarget()
+                    val holder = MusicDownloadStateHolder()
+                    var runningSnapshot: MusicDownloadState? = null
+                    val downloader = mockk<MusicDownloader>()
+                    coEvery { downloader.download(target = any(), path = any(), onProgress = any()) } coAnswers
                         {
                             arg<suspend (Float) -> Unit>(PROGRESS_ARGUMENT_INDEX).invoke(0.62F)
                             runningSnapshot = holder.stateMap.value[target.id]
@@ -196,7 +226,7 @@ class MusicDownloadWorkImplTest :
                     holder.stateMap.value[target.id] shouldBe MusicDownloadState.Done
                 }
 
-                Then("TC-MUSIC-DOWNLOAD-DATA-001 TC-MUSIC-DOWNLOAD-DATA-003 그 곡의 파일 자리로 내려받기를 맡긴다") {
+                Then("TC-MUSIC-DOWNLOAD-DATA-001 TC-MUSIC-DOWNLOAD-DATA-008 그 곡의 영상 ID로 구분되는 파일 자리로 내려받기를 맡긴다") {
                     val target = testDownloadTarget()
                     val downloader = succeedingDownloader()
                     val fileDataSource = fileDataSource(exists = false)
@@ -206,9 +236,8 @@ class MusicDownloadWorkImplTest :
 
                     coVerify(exactly = 1) {
                         downloader.download(
-                            ytDlpPath = YT_DLP_PATH,
-                            link = target.link,
-                            path = "/tmp/music/${target.id}.mp4",
+                            target = target,
+                            path = testMusicFilePath(videoId = target.videoId),
                             onProgress = any(),
                         )
                     }
@@ -216,9 +245,9 @@ class MusicDownloadWorkImplTest :
             }
         }
 
-        Given("제목과 가수가 같고 링크가 다른 곡이 두 개 있다") {
+        Given("제목과 가수가 같고 영상이 다른 곡이 두 개 있다") {
             When("다운로드를 실행하면") {
-                Then("TC-MUSIC-DOWNLOAD-DATA-005 곡마다 다른 이름의 파일에 저장한다") {
+                Then("TC-MUSIC-DOWNLOAD-DATA-005 TC-MUSIC-DOWNLOAD-DATA-009 영상마다 다른 이름의 파일에 저장한다") {
                     val first = testDownloadTarget()
                     val second = testDownloadTarget()
                     val nameList = mutableListOf<String>()
@@ -235,7 +264,44 @@ class MusicDownloadWorkImplTest :
 
                     work.doWork(sort = ListSort.TITLE)
 
-                    nameList shouldContainExactly listOf("${first.id}.mp4", "${second.id}.mp4")
+                    nameList.filter { name -> name.endsWith(".mp4") && !name.contains(".downloading.") } shouldContainExactly
+                        listOf("${first.videoId}.mp4", "${second.videoId}.mp4")
+                }
+            }
+        }
+
+        Given("같은 영상을 가리키는 곡이 두 개 있다") {
+            When("다운로드를 실행하면") {
+                Then("TC-MUSIC-DOWNLOAD-DATA-010 내려받기는 한 번만 요청되고 두 곡 모두 완료가 된다") {
+                    val videoId = testVideoId()
+                    val first = testDownloadTarget(videoId = videoId)
+                    val second = testDownloadTarget(videoId = videoId)
+                    val holder = MusicDownloadStateHolder()
+                    val existingNameSet = mutableSetOf<String>()
+                    val fileDataSource = mockk<AppFileLocalDataSource>()
+                    coEvery { fileDataSource.exists(directory = any(), name = any()) } coAnswers { secondArg<String>() in existingNameSet }
+                    coEvery { fileDataSource.resolve(directory = any(), name = any()) } coAnswers { "/tmp/music/${secondArg<String>()}" }
+                    coEvery { fileDataSource.delete(directory = any(), name = any()) } returns Unit
+                    val downloader = mockk<MusicDownloader>()
+                    coEvery { downloader.download(target = any(), path = any(), onProgress = any()) } coAnswers
+                        {
+                            existingNameSet += firstArg<MusicDownloadTarget>().videoId.toMusicFileName()
+                            true
+                        }
+
+                    val work =
+                        work(
+                            targetList = listOf(first, second),
+                            musicDownloader = downloader,
+                            appFileLocalDataSource = fileDataSource,
+                            musicDownloadStateHolder = holder,
+                        )
+
+                    work.doWork(sort = ListSort.TITLE)
+
+                    coVerify(exactly = 1) { downloader.download(target = any(), path = any(), onProgress = any()) }
+                    holder.stateMap.value[first.id] shouldBe MusicDownloadState.Done
+                    holder.stateMap.value[second.id] shouldBe MusicDownloadState.Done
                 }
             }
         }
@@ -257,14 +323,14 @@ class MusicDownloadWorkImplTest :
                     work.doWork(sort = ListSort.TITLE)
 
                     holder.stateMap.value[target.id] shouldBe MusicDownloadState.Done
-                    coVerify(exactly = 0) { downloader.download(ytDlpPath = any(), link = any(), path = any(), onProgress = any()) }
+                    coVerify(exactly = 0) { downloader.download(target = any(), path = any(), onProgress = any()) }
                 }
             }
         }
 
         Given("받지 못하는 곡이다") {
             When("다운로드를 실행하면") {
-                Then("TC-MUSIC-DOWNLOAD-FEATURE-004 그 곡이 실패 상태가 된다") {
+                Then("TC-MUSIC-DOWNLOAD-FEATURE-004 TC-MUSIC-DOWNLOAD-DATA-011 그 곡이 실패 상태가 된다") {
                     val target = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
                     val work = work(targetList = listOf(target), musicDownloader = failingDownloader(), musicDownloadStateHolder = holder)
@@ -278,7 +344,7 @@ class MusicDownloadWorkImplTest :
                     val target = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
                     val downloader = mockk<MusicDownloader>()
-                    coEvery { downloader.download(ytDlpPath = any(), link = any(), path = any(), onProgress = any()) } throws
+                    coEvery { downloader.download(target = any(), path = any(), onProgress = any()) } throws
                         IllegalStateException("process failed")
 
                     val work = work(targetList = listOf(target), musicDownloader = downloader, musicDownloadStateHolder = holder)
@@ -300,7 +366,7 @@ class MusicDownloadWorkImplTest :
 
                     work.doWork(sort = ListSort.TITLE)
 
-                    coVerify(exactly = 1) { fileDataSource.delete(directory = MUSIC_FILE_DIRECTORY, name = "${target.id}.mp4") }
+                    coVerify(exactly = 1) { fileDataSource.delete(directory = MUSIC_FILE_DIRECTORY, name = "${target.videoId}.mp4") }
                 }
             }
         }
@@ -313,9 +379,9 @@ class MusicDownloadWorkImplTest :
                     val third = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
                     val downloader = mockk<MusicDownloader>()
-                    coEvery { downloader.download(ytDlpPath = any(), link = first.link, path = any(), onProgress = any()) } returns false
-                    coEvery { downloader.download(ytDlpPath = any(), link = second.link, path = any(), onProgress = any()) } returns true
-                    coEvery { downloader.download(ytDlpPath = any(), link = third.link, path = any(), onProgress = any()) } returns true
+                    coEvery { downloader.download(target = first, path = any(), onProgress = any()) } returns false
+                    coEvery { downloader.download(target = second, path = any(), onProgress = any()) } returns true
+                    coEvery { downloader.download(target = third, path = any(), onProgress = any()) } returns true
 
                     val work =
                         work(
@@ -341,8 +407,8 @@ class MusicDownloadWorkImplTest :
                     val holder = MusicDownloadStateHolder()
                     val downloader = succeedingDownloader()
                     val fileDataSource = mockk<AppFileLocalDataSource>()
-                    coEvery { fileDataSource.exists(directory = any(), name = "${downloaded.id}.mp4") } returns true
-                    coEvery { fileDataSource.exists(directory = any(), name = "${notDownloaded.id}.mp4") } returns false
+                    coEvery { fileDataSource.exists(directory = any(), name = "${downloaded.videoId}.mp4") } returns true
+                    coEvery { fileDataSource.exists(directory = any(), name = "${notDownloaded.videoId}.mp4") } returns false
                     coEvery { fileDataSource.resolve(directory = any(), name = any()) } returns "/tmp/music/file.mp4"
                     coEvery { fileDataSource.delete(directory = any(), name = any()) } returns Unit
 
@@ -356,8 +422,8 @@ class MusicDownloadWorkImplTest :
 
                     work.doWork(sort = ListSort.TITLE)
 
-                    coVerify(exactly = 0) { downloader.download(ytDlpPath = any(), link = downloaded.link, path = any(), onProgress = any()) }
-                    coVerify(exactly = 1) { downloader.download(ytDlpPath = any(), link = notDownloaded.link, path = any(), onProgress = any()) }
+                    coVerify(exactly = 0) { downloader.download(target = downloaded, path = any(), onProgress = any()) }
+                    coVerify(exactly = 1) { downloader.download(target = notDownloaded, path = any(), onProgress = any()) }
                     holder.stateMap.value[downloaded.id] shouldBe MusicDownloadState.Done
                     holder.stateMap.value[notDownloaded.id] shouldBe MusicDownloadState.Done
                 }
@@ -374,7 +440,7 @@ class MusicDownloadWorkImplTest :
                     val findMusicDownloadTargetUseCase = mockk<FindMusicDownloadTargetUseCase>()
                     coEvery { findMusicDownloadTargetUseCase(parameter = any()) } returns Result.success(targetList.toList())
                     val downloader = mockk<MusicDownloader>()
-                    coEvery { downloader.download(ytDlpPath = any(), link = any(), path = any(), onProgress = any()) } coAnswers
+                    coEvery { downloader.download(target = any(), path = any(), onProgress = any()) } coAnswers
                         {
                             targetList += added
                             true
@@ -404,7 +470,7 @@ class MusicDownloadWorkImplTest :
                     work.doWork(sort = ListSort.TITLE)
 
                     holder.stateMap.value shouldBe emptyMap()
-                    coVerify(exactly = 0) { downloader.download(ytDlpPath = any(), link = any(), path = any(), onProgress = any()) }
+                    coVerify(exactly = 0) { downloader.download(target = any(), path = any(), onProgress = any()) }
                 }
             }
         }
@@ -426,7 +492,7 @@ class MusicDownloadWorkImplTest :
         }
     })
 
-private fun preparer(result: DownloadToolPrepareResult = DownloadToolPrepareResult.Prepared(ytDlpPath = YT_DLP_PATH)): DownloadToolPreparer {
+private fun preparer(result: DownloadToolPrepareResult = DownloadToolPrepareResult.Prepared): DownloadToolPreparer {
     val preparer = mockk<DownloadToolPreparer>()
     coEvery { preparer.prepare() } returns result
 
@@ -435,14 +501,14 @@ private fun preparer(result: DownloadToolPrepareResult = DownloadToolPrepareResu
 
 private fun succeedingDownloader(): MusicDownloader {
     val downloader = mockk<MusicDownloader>()
-    coEvery { downloader.download(ytDlpPath = any(), link = any(), path = any(), onProgress = any()) } returns true
+    coEvery { downloader.download(target = any(), path = any(), onProgress = any()) } returns true
 
     return downloader
 }
 
 private fun failingDownloader(): MusicDownloader {
     val downloader = mockk<MusicDownloader>()
-    coEvery { downloader.download(ytDlpPath = any(), link = any(), path = any(), onProgress = any()) } returns false
+    coEvery { downloader.download(target = any(), path = any(), onProgress = any()) } returns false
 
     return downloader
 }

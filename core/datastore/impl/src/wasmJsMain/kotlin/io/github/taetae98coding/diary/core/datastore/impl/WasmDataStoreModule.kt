@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDispatc
 import io.github.taetae98coding.diary.core.datastore.impl.di.GeminiSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.HolidaySettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.MapSettingStorage
+import io.github.taetae98coding.diary.core.datastore.impl.di.MusicDownloadProxySettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.SyncTimeStorage
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -53,6 +54,14 @@ public class WasmDataStoreModule {
         WebLocalStorage(
             serializer = BrowserSettingSerializer,
             name = DataStoreModule.BROWSER_SETTING_NAME,
+        )
+
+    @Single
+    @MusicDownloadProxySettingStorage
+    internal fun providesMusicDownloadProxySettingStorage(): Storage<MusicDownloadProxySettingData> =
+        WebLocalStorage(
+            serializer = MusicDownloadProxySettingSerializer,
+            name = DataStoreModule.MUSIC_DOWNLOAD_PROXY_SETTING_NAME,
         )
 
     @Single

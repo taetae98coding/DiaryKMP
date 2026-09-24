@@ -4,6 +4,7 @@ import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.Brow
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.GeminiSettingLocalDataSource
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.HolidaySettingLocalDataSource
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.MapSettingLocalDataSource
+import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.MusicDownloadProxySettingLocalDataSource
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.GeminiSettingLocalEntity
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.MapProviderLocalEntity
 import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDirectory
@@ -29,17 +30,20 @@ class DataStoreModuleTest :
             val holidayDataSource = koin.get<HolidaySettingLocalDataSource>()
             val geminiDataSource = koin.get<GeminiSettingLocalDataSource>()
             val browserDataSource = koin.get<BrowserSettingLocalDataSource>()
+            val proxyDataSource = koin.get<MusicDownloadProxySettingLocalDataSource>()
             val geminiSetting = GeminiSettingLocalEntity(apiKey = "storedApiKey", model = "models/gemini-flash", systemPrompt = "지시문")
 
             mapDataSource.setDefaultProvider(provider = MapProviderLocalEntity.GOOGLE)
             holidayDataSource.addHiddenKey(key = "초복")
             geminiDataSource.upsert(setting = geminiSetting)
             browserDataSource.setChromeSessionProfileDirectory(directory = "Profile 1")
+            proxyDataSource.upsertAddress(address = "http://192.168.0.10:27180")
 
             mapDataSource.getDefaultProvider().first() shouldBe MapProviderLocalEntity.GOOGLE
             holidayDataSource.getHiddenKeySet().first() shouldBe setOf("초복")
             geminiDataSource.get().first() shouldBe geminiSetting
             browserDataSource.getChromeSessionProfileDirectory().first() shouldBe "Profile 1"
+            proxyDataSource.getAddress().first() shouldBe "http://192.168.0.10:27180"
 
             directory.listDirectoryEntries().map { path -> path.name }.toSet() shouldBe
                 setOf(
@@ -47,6 +51,7 @@ class DataStoreModuleTest :
                     DataStoreModule.HOLIDAY_SETTING_NAME,
                     DataStoreModule.GEMINI_SETTING_NAME,
                     DataStoreModule.BROWSER_SETTING_NAME,
+                    DataStoreModule.MUSIC_DOWNLOAD_PROXY_SETTING_NAME,
                 )
         }
 
@@ -68,6 +73,7 @@ class DataStoreModuleTest :
             koin.get<GeminiSettingLocalDataSource>().get().first() shouldBe
                 GeminiSettingLocalEntity(apiKey = "", model = "", systemPrompt = "")
             koin.get<BrowserSettingLocalDataSource>().getChromeSessionProfileDirectory().first() shouldBe ""
+            koin.get<MusicDownloadProxySettingLocalDataSource>().getAddress().first() shouldBe ""
         }
     })
 
