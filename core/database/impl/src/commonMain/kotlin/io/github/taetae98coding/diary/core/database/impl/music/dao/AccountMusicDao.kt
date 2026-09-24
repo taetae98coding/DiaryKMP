@@ -38,6 +38,23 @@ internal interface AccountMusicDao : RoomDao<AccountMusicLocalEntity> {
         FROM music
         INNER JOIN account_music
             ON account_music.music_id = music.id AND account_music.account_id = :accountId
+        WHERE music.is_deleted = 0
+        ORDER BY
+            CASE WHEN :sort = 'recently_updated' THEN music.updated_at END DESC,
+            music.title ASC
+        """,
+    )
+    suspend fun findList(
+        accountId: Uuid,
+        sort: String,
+    ): List<MusicLocalEntity>
+
+    @Query(
+        """
+        SELECT music.*
+        FROM music
+        INNER JOIN account_music
+            ON account_music.music_id = music.id AND account_music.account_id = :accountId
         WHERE music.id = :musicId
         """,
     )

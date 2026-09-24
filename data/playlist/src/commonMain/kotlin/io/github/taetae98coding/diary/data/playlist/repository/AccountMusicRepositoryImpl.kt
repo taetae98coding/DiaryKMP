@@ -42,6 +42,16 @@ internal class AccountMusicRepositoryImpl(
             pagingData.map { local -> local.toDomain() }
         }
 
+    override suspend fun findList(
+        account: Account,
+        sort: ListSort,
+    ): List<Music> =
+        accountMusicLocalDataSource
+            .findList(
+                accountId = account.id,
+                sort = sort.toLocal(),
+            ).map { local -> local.toDomain() }
+
     override fun find(
         account: Account,
         musicId: Uuid,

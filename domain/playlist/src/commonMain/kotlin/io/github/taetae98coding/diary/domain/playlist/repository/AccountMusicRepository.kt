@@ -15,6 +15,11 @@ public interface AccountMusicRepository {
         sort: ListSort,
     ): Flow<PagingData<Music>>
 
+    public suspend fun findList(
+        account: Account,
+        sort: ListSort,
+    ): List<Music>
+
     public fun find(
         account: Account,
         musicId: Uuid,

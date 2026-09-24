@@ -99,6 +99,7 @@ kotlin {
                 implementation(projects.library.coroutines)
                 implementation(projects.notification)
                 implementation(projects.work.dailyMemo)
+                implementation(projects.work.musicDownload)
                 implementation(projects.work.sync)
                 implementation(projects.logger.analytics.impl)
                 implementation(projects.logger.console.impl)
