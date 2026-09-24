@@ -888,3 +888,39 @@ internal object CalendarHomeYearMonthTitleDefaults {
     val VerticalPadding: Dp = 4.dp
 }
 ```
+
+## 아이콘은 Material Symbols Rounded 드로어블에서 생성한다
+
+**아이콘은 [Google Fonts의 Material Symbols](https://fonts.google.com/icons)에서 `Rounded` 스타일로 내려받은 벡터 드로어블을 원본으로 두고, 빌드가 그 드로어블에서 생성한 `ImageVector`를 `compose:core`의 아이콘 컴포저블이 감싼다.** Material Icons 라이브러리(`material-icons-core`, `material-icons-extended`)는 Android 문서가 더 이상 유지되지 않고 권장하지 않는다고 밝힌 artifact이며, 앱이 쓰지 않는 아이콘까지 담아 빌드 시간과 크기를 늘리므로 의존하지 않는다. 드로어블을 원본으로 두면 디자이너가 고른 아이콘을 변환 없이 그대로 넣을 수 있고, Kotlin으로 생성하면 XML 파싱 없이 모든 타깃의 공유 코드에서 타입 안전하게 참조할 수 있다.
+
+- Google Fonts에서 아이콘을 고르고 스타일을 `Rounded`로, 나머지 축은 기본값(Weight 400, Grade 0, Optical size 24)으로 둔 뒤 Android 탭의 XML을 내려받아 `compose/core/icons/<symbol_name>.xml`로 둔다. 파일 이름은 Material Symbols의 이름을 그대로 쓴다(`arrow_back.xml`). 옛 Material Icons 이름(`clear`, `place`, `error_outline`)이 아니라 Material Symbols가 현재 쓰는 이름(`close`, `location_on`, `error`)을 찾아 쓴다.
+- Fill 축은 기본값 0으로 둔다. 선택·활성 상태를 채운 모양으로 구분하는 짝의 채운 쪽(즐겨찾기 별)과 채운 도형 자체가 뜻인 아이콘(swipe 자리표시 원)만 Fill 1을 쓰고, 파일 이름 끝에 `_fill`을 붙인다(`star.xml`과 `star_fill.xml`).
+- `:compose:core`의 `generateImageVector` 태스크가 `icons/`의 드로어블마다 `DiaryIcons.<PascalCase 이름>` 확장 프로퍼티를 생성해 `commonMain`에 더한다. 생성된 파일은 고치지 않고 드로어블을 고친다. 좌우 반전은 드로어블의 `android:autoMirrored`를 그대로 따르고 코드에서 따로 정하지 않는다.
+- `DiaryIcons`는 `compose:core` 안에서만 쓴다. 화면과 컴포넌트는 `compose:core`의 `XxxIcon` 컴포저블을 쓴다. 컴포저블 이름은 화면이 부르는 뜻으로 짓고, 심벌과 뜻이 같으면 심벌 이름을 그대로 쓴다(`SearchIcon`), 다르면 뜻을 쓴다(`arrow_back`을 감싸는 `NavigateUpIcon`). 뜻이 이름에 있어야 심벌을 바꿔도 호출부가 바뀌지 않는다.
+- Google, Apple처럼 브랜드 가이드가 모양과 색을 정하는 로고는 Material Symbols에 없으므로 `ImageVector.Builder`로 Kotlin에서 직접 그린다. 그 외 아이콘을 Kotlin으로 직접 그리거나 `composeResources/drawable`에 두지 않는다.
+
+⚠️ 비권장 예시:
+
+```kotlin
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+
+Icon(imageVector = Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = contentDescription)
+```
+
+✅ 권장 예시:
+
+```kotlin
+// compose/core/icons/arrow_back.xml을 원본으로 generateImageVector가 DiaryIcons.ArrowBack을 생성한다.
+@Composable
+public fun NavigateUpIcon(
+    modifier: Modifier = Modifier,
+    contentDescription: String? = null,
+) {
+    Icon(
+        imageVector = DiaryIcons.ArrowBack,
+        contentDescription = contentDescription,
+        modifier = modifier,
+    )
+}
+```
