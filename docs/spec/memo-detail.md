@@ -12,11 +12,11 @@
 
 ### 진입
 
-사용자는 MemoHome 목록, TagDetail 메모 탭 또는 TagMemoFinishedList 화면에서 메모를 선택해 그 메모의 MemoDetail 화면으로 이동한다.
+사용자는 MemoHome 목록, TagDetail 메모 탭, TagMemoFinishedList 화면 또는 ContactDetail·PlaceDetail·WebDetail 화면의 메모 탭에서 메모를 선택해 그 메모의 MemoDetail 화면으로 이동한다.
 
 캘린더 홈 화면에서 캘린더에 표시된 메모 제목을 선택해서도 같은 메모의 MemoDetail 화면으로 이동하며, 이때의 선택과 배치는 [CalendarHome 스펙](./calendar-home.md)의 메모 선택을 따른다.
 
-MemoHome 목록에서 진입한 MemoDetail 화면의 목록 동시 표시와 단독 표시 상태는 [Memo 목록·상세 배치 스펙](./memo-list-detail.md)을, TagDetail 메모 탭에서 진입한 MemoDetail 화면은 [TagDetail 메모 탭 스펙](./tag-detail-memo.md)의 `메모 상세 확인`에 따라 단독으로 표시하고, TagMemoFinishedList 화면에서 진입한 MemoDetail 화면의 상태는 [TagMemoFinishedList 목록·상세 배치 스펙](./tag-memo-finished-list-detail.md)을 따른다.
+MemoHome 목록에서 진입한 MemoDetail 화면의 목록 동시 표시와 단독 표시 상태는 [Memo 목록·상세 배치 스펙](./memo-list-detail.md)을, TagDetail 메모 탭에서 진입한 MemoDetail 화면은 [TagDetail 메모 탭 스펙](./tag-detail-memo.md)의 `메모 상세 확인`에 따라, ContactDetail·PlaceDetail·WebDetail 메모 탭에서 진입한 MemoDetail 화면은 [항목 상세 메모 탭 공통 스펙](./entity-detail-memo.md)의 `메모 상세 확인`에 따라 단독으로 표시하고, TagMemoFinishedList 화면에서 진입한 MemoDetail 화면의 상태는 [TagMemoFinishedList 목록·상세 배치 스펙](./tag-memo-finished-list-detail.md)을 따른다.
 
 ### 첫진입 시 내용 표시
 
@@ -382,7 +382,7 @@ Gemini 작성 도우미의 생성은 이들과 다른 종류의 동작이므로 
 
 연결의 저장 방식과 해제된 연결이 저장소에 남는 규칙은 [항목 연결 공통 스펙](./entity-link.md)의 `연결의 저장`과 `연결의 상태와 시각`을 따른다.
 
-웹 연결을 바꾸면 저장소를 조회해 표시하는 곳에 함께 반영된다.
+웹 연결을 바꾸면 저장소를 조회해 표시하는 곳에 함께 반영된다. 연결을 해제하면 그 웹 항목의 [WebDetail 메모 탭](./web-detail-memo.md)에서 해당 메모가 사라지고, 연결을 만들면 그 탭에 노출 기준에 맞게 나타난다.
 
 웹 연결을 바꾸면 그 변경을 서버와 맞추기 위한 동기화가 시작된다. 동기화의 대기 상태, 업로드 순서, 실패 처리는 [데이터 동기화 스펙](./data-sync.md)을, 연결 종류로서의 동기화 규칙은 [항목 연결 공통 스펙](./entity-link.md)의 `동기화`를 따른다. 화면에는 동기화 진행 상태나 대기 여부를 표시하지 않으며, 동기화가 진행 중이거나 실패해도 사용자가 바꾼 웹 연결은 되돌아가지 않는다.
 
@@ -402,7 +402,7 @@ Gemini 작성 도우미의 생성은 이들과 다른 종류의 동작이므로 
 
 연결의 저장 방식과 해제된 연결이 저장소에 남는 규칙은 [항목 연결 공통 스펙](./entity-link.md)의 `연결의 저장`과 `연결의 상태와 시각`을 따른다.
 
-연락처 연결을 바꾸면 저장소를 조회해 표시하는 곳에 함께 반영된다.
+연락처 연결을 바꾸면 저장소를 조회해 표시하는 곳에 함께 반영된다. 연결을 해제하면 그 연락처의 [ContactDetail 메모 탭](./contact-detail-memo.md)에서 해당 메모가 사라지고, 연결을 만들면 그 탭에 노출 기준에 맞게 나타난다.
 
 연락처 연결을 바꾸면 그 변경을 서버와 맞추기 위한 동기화가 시작된다. 동기화의 대기 상태, 업로드 순서, 실패 처리는 [데이터 동기화 스펙](./data-sync.md)을, 연결 종류로서의 동기화 규칙은 [항목 연결 공통 스펙](./entity-link.md)의 `동기화`를 따른다. 화면에는 동기화 진행 상태나 대기 여부를 표시하지 않으며, 동기화가 진행 중이거나 실패해도 사용자가 바꾼 연락처 연결은 되돌아가지 않는다.
 
@@ -422,7 +422,7 @@ Gemini 작성 도우미의 생성은 이들과 다른 종류의 동작이므로 
 
 연결의 저장 방식과 해제된 연결이 저장소에 남는 규칙은 [항목 연결 공통 스펙](./entity-link.md)의 `연결의 저장`과 `연결의 상태와 시각`을 따른다.
 
-장소 연결을 바꾸면 저장소를 조회해 표시하는 곳에 함께 반영된다.
+장소 연결을 바꾸면 저장소를 조회해 표시하는 곳에 함께 반영된다. 연결을 해제하면 그 장소의 [PlaceDetail 메모 탭](./place-detail-memo.md)에서 해당 메모가 사라지고, 연결을 만들면 그 탭에 노출 기준에 맞게 나타난다.
 
 장소 연결을 바꾸면 그 변경을 서버와 맞추기 위한 동기화가 시작된다. 동기화의 대기 상태, 업로드 순서, 실패 처리는 [데이터 동기화 스펙](./data-sync.md)을, 연결 종류로서의 동기화 규칙은 [항목 연결 공통 스펙](./entity-link.md)의 `동기화`를 따른다. 화면에는 동기화 진행 상태나 대기 여부를 표시하지 않으며, 동기화가 진행 중이거나 실패해도 사용자가 바꾼 장소 연결은 되돌아가지 않는다.
 

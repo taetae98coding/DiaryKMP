@@ -77,6 +77,9 @@
 | TagDetail 장소 탭 목록 모드의 태그별 장소 목록 | 장소 아이콘 |
 | TagDetail 장소 탭 지도 모드의 태그별 장소 목록 | 지도 아이콘 |
 | TagMemoFinishedList 태그별 완료된 메모 목록 | 완료 아이콘 |
+| ContactDetail 메모 탭의 연락처별 메모 목록 | 메모 아이콘 |
+| PlaceDetail 메모 탭의 장소별 메모 목록 | 메모 아이콘 |
+| WebDetail 메모 탭의 웹 항목별 메모 목록 | 메모 아이콘 |
 | MemoHome 메모 목록, 좁히지 않은 상태 | 메모 아이콘 |
 | MemoHome 메모 목록, 좁힌 상태 | 필터 아이콘 |
 | MemoFinishedList 완료된 메모 목록 | 완료 아이콘 |
@@ -118,6 +121,12 @@ MemoHome 목록과 TagHome 목록에서 좁힌 상태와 좁히지 않은 상태
 | TagDetail 장소 탭 지도 모드의 태그별 장소 목록 | 제목 | `이 지역에 장소가 없습니다` | `No places in this area` |
 | TagDetail 장소 탭 지도 모드의 태그별 장소 목록 | 보조 | `지도를 옮기면 다른 장소를 볼 수 있습니다` | `Move the map to see other places.` |
 | TagMemoFinishedList 태그별 완료된 메모 목록 | 제목 | `이 태그에서 완료한 메모가 없습니다` | `No finished memos for this tag` |
+| ContactDetail 메모 탭의 연락처별 메모 목록 | 제목 | `이 연락처에 연결된 메모가 없습니다` | `No memos linked to this contact` |
+| ContactDetail 메모 탭의 연락처별 메모 목록 | 보조 | `추가 버튼으로 새 메모를 만들 수 있습니다` | `Use the add button to create a memo.` |
+| PlaceDetail 메모 탭의 장소별 메모 목록 | 제목 | `이 장소에 연결된 메모가 없습니다` | `No memos linked to this place` |
+| PlaceDetail 메모 탭의 장소별 메모 목록 | 보조 | `추가 버튼으로 새 메모를 만들 수 있습니다` | `Use the add button to create a memo.` |
+| WebDetail 메모 탭의 웹 항목별 메모 목록 | 제목 | `이 웹에 연결된 메모가 없습니다` | `No memos linked to this web` |
+| WebDetail 메모 탭의 웹 항목별 메모 목록 | 보조 | `추가 버튼으로 새 메모를 만들 수 있습니다` | `Use the add button to create a memo.` |
 | MemoHome 메모 목록, 좁히지 않은 상태 | 제목 | `아직 메모가 없습니다` | `No memos yet` |
 | MemoHome 메모 목록, 좁히지 않은 상태 | 보조 | `추가 버튼으로 새 메모를 만들 수 있습니다` | `Use the add button to create a memo.` |
 | MemoHome 메모 목록, 좁힌 상태 | 제목 | `조건에 맞는 메모가 없습니다` | `No memos match the filter` |

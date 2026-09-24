@@ -12,6 +12,7 @@
 | [TagFinishedList 화면](./tag-finished-list.md) | 태그 카드 |
 | [TagDetail 메모 탭](./tag-detail-memo.md) | 메모 카드 |
 | [TagMemoFinishedList 화면](./tag-memo-finished-list.md) | 메모 카드 |
+| [항목 상세 메모 탭 공통](./entity-detail-memo.md) | 메모 카드 |
 | [MemoHome 목록](./memo-home.md) | 메모 카드 |
 | [MemoFinishedList 화면](./memo-finished-list.md) | 메모 카드 |
 | [장소 보기 모드](./place-view-mode.md) | 장소 카드 |

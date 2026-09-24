@@ -21,6 +21,9 @@
 - TagDetail 웹 탭
 - TagDetail 장소 탭
 - TagMemoFinishedList
+- ContactDetail 메모 탭
+- PlaceDetail 메모 탭
+- WebDetail 메모 탭
 - RoutineHome
 - PlaceHome
 - WebHome

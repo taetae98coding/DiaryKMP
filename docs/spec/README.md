@@ -33,6 +33,7 @@
 | [ChecklistHome 화면](./checklist-home.md) | [ChecklistHome 디자인](../design/checklist-home.md) |
 | [ContactAdd 화면](./contact-add.md) | [ContactAdd 디자인](../design/contact-add.md) |
 | [ContactDetail 화면](./contact-detail.md) | [ContactDetail 디자인](../design/contact-detail.md) |
+| [ContactDetail 메모 탭](./contact-detail-memo.md) | [항목 상세 메모 탭 공통 디자인](../design/entity-detail-memo.md), [ContactDetail 디자인](../design/contact-detail.md) |
 | [ContactHome 화면](./contact-home.md) | [ContactHome 디자인](../design/contact-home.md) |
 | [Contact 목록·상세 배치](./contact-list-detail.md) | [Contact 목록·상세 배치 디자인](../design/contact-list-detail.md) |
 | [현재 위치 확인](./current-location.md) | — |
@@ -45,6 +46,7 @@
 | [DiaryMap 컴포넌트](./diary-map.md) | [DiaryMap 디자인](../design/diary-map.md) |
 | [항목 추가 화면 공통](./entity-add.md) | — |
 | [항목 상세 화면 공통](./entity-detail.md) | — |
+| [항목 상세 메모 탭 공통](./entity-detail-memo.md) | [항목 상세 메모 탭 공통 디자인](../design/entity-detail-memo.md) |
 | [항목 연결 공통](./entity-link.md) | — |
 | [항목 태그 연결 공통](./entity-tag.md) | — |
 | [FCM 토큰 등록](./fcm-token.md) | — |
@@ -93,6 +95,7 @@
 | [권한 요청 공통](./permission.md) | — |
 | [PlaceAdd 화면](./place-add.md) | [PlaceAdd 디자인](../design/place-add.md) |
 | [PlaceDetail 화면](./place-detail.md) | [PlaceDetail 디자인](../design/place-detail.md) |
+| [PlaceDetail 메모 탭](./place-detail-memo.md) | [항목 상세 메모 탭 공통 디자인](../design/entity-detail-memo.md), [PlaceDetail 디자인](../design/place-detail.md) |
 | [PlaceHome 화면](./place-home.md) | [PlaceHome 디자인](../design/place-home.md) |
 | [장소 보기 모드](./place-view-mode.md) | [장소 보기 모드 디자인](../design/place-view-mode.md) |
 | [장소 태그](./place-tag.md) | — |
@@ -137,6 +140,7 @@
 | [UseCase 실패 로깅](./usecase-failure-logging.md) | — |
 | [WebAdd 화면](./web-add.md) | [WebAdd 디자인](../design/web-add.md) |
 | [WebDetail 화면](./web-detail.md) | [WebDetail 디자인](../design/web-detail.md) |
+| [WebDetail 메모 탭](./web-detail-memo.md) | [항목 상세 메모 탭 공통 디자인](../design/entity-detail-memo.md), [WebDetail 디자인](../design/web-detail.md) |
 | [WebHome 화면](./web-home.md) | [WebHome 디자인](../design/web-home.md) |
 | [웹 태그](./web-tag.md) | — |
 | [Web 목록·상세 배치](./web-list-detail.md) | [Web 목록·상세 배치 디자인](../design/web-list-detail.md) |

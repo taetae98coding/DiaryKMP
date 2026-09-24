@@ -46,6 +46,8 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail, ContactAdd 화면 문서는 태그 입
 
 완료된 항목만 모아 보여 주는 목록 화면들이 함께 쓰는 화면 구조, 정렬 줄 자리, 목록과 빈 상태·새로고침 표현은 [완료 목록 공통](./finished-list.md)이 소유한다. 각 화면 문서는 상단 바 제목과 카드 표현, 제스처만 남긴다.
 
+연락처·장소·웹 상세 화면의 메모 탭이 함께 쓰는 탭 안 구성, 메모 추가 버튼, 정렬 줄, 목록, 제스처와 피드백, 단축키, 문구는 [항목 상세 메모 탭 공통](./entity-detail-memo.md)이 소유한다. 각 상세 화면 문서는 탭 행과 페이지 영역의 배치, 떠 있는 버튼의 교체, 탭 접근성 이름만 남긴다.
+
 여러 항목이 하나의 묶음으로 읽히는 세로 목록의 배경, 모양, 항목 사이 간격과 누름·선택 상태의 표현은 [묶음 목록 항목](./segmented-list-item.md)이 소유한다. 각 문서는 그 목록에 두는 항목과 순서, 문구만 남긴다.
 
 각 디자인 문서는 상단에 `기준 스펙` 링크를 두고, 그 스펙이 소유한 행위와 정책을 다시 정의하지 않는다.
@@ -68,6 +70,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail, ContactAdd 화면 문서는 태그 입
 - [ContactHome 화면](./contact-home.md)
 - [일일 메모 알림](./daily-memo-notification.md)
 - [항목 추가 화면 공통](./entity-add.md)
+- [항목 상세 메모 탭 공통](./entity-detail-memo.md)
 - [Contact 목록·상세 배치](./contact-list-detail.md)
 - [DDayHome 화면](./dday-home.md)
 - [설명 입력 컴포넌트](./description-input.md)

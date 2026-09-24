@@ -14,6 +14,9 @@
 | [TagDetail 웹 탭](./tag-detail-web.md) | 태그별 웹 목록 |
 | [TagDetail 장소 탭](./tag-detail-place.md) | 지도 모드의 태그별 장소 목록, 목록 모드의 태그별 장소 목록 |
 | [TagMemoFinishedList 화면](./tag-memo-finished-list.md) | 태그별 완료된 메모 목록 |
+| [ContactDetail 메모 탭](./contact-detail-memo.md) | 연락처별 메모 목록 |
+| [PlaceDetail 메모 탭](./place-detail-memo.md) | 장소별 메모 목록 |
+| [WebDetail 메모 탭](./web-detail-memo.md) | 웹 항목별 메모 목록 |
 | [MemoHome 목록](./memo-home.md) | 메모 목록 |
 | [MemoFinishedList 화면](./memo-finished-list.md) | 완료된 메모 목록 |
 | [RoutineHome 화면](./routine-home.md) | 루틴 목록 |
@@ -124,6 +127,9 @@ flowchart TD
 | TagDetail 장소 탭 목록 모드의 태그별 장소 목록 | 이 태그에 연결된 장소가 아직 없으며 새로 추가할 수 있다 |
 | TagDetail 장소 탭 지도 모드의 태그별 장소 목록 | 지금 보고 있는 지도 영역 안에 이 태그에 연결된 장소가 없다 |
 | TagMemoFinishedList 태그별 완료된 메모 목록 | 이 태그에서 완료한 메모가 아직 없다 |
+| ContactDetail 메모 탭의 연락처별 메모 목록 | 이 연락처에 연결된 메모가 아직 없으며 새로 추가할 수 있다 |
+| PlaceDetail 메모 탭의 장소별 메모 목록 | 이 장소에 연결된 메모가 아직 없으며 새로 추가할 수 있다 |
+| WebDetail 메모 탭의 웹 항목별 메모 목록 | 이 웹 항목에 연결된 메모가 아직 없으며 새로 추가할 수 있다 |
 | MemoHome 메모 목록, 좁히지 않은 상태 | 아직 메모가 없으며 새로 추가할 수 있다 |
 | MemoHome 메모 목록, 좁힌 상태 | 고른 조건에 맞는 메모가 없다 |
 | MemoFinishedList 완료된 메모 목록 | 완료한 메모가 아직 없다 |
