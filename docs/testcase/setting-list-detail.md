@@ -17,6 +17,7 @@
 | `공휴일` | SettingHoliday 화면 |
 | `지도` | SettingMap 화면 |
 | `Gemini` | SettingGemini 화면 |
+| `브라우저` | SettingBrowser 화면 |
 
 - 작성하지 않는 이유: 목록과 상세를 함께 표시하는 창 환경과 두 영역의 전환 이력을 함께 구동해야 관찰할 수 있어 현재 단위 테스트 환경에서는 결정적으로 검증할 수 없다. 창 크기와 여러 화면의 전환 이력을 제어할 수 있는 통합 UI 테스트 환경이 갖춰지면 자동화한다.
 
@@ -34,6 +35,8 @@
 | SettingMap 화면 | `공휴일` | SettingHoliday 화면 |
 | SettingHoliday 화면 | `Gemini` | SettingGemini 화면 |
 | SettingGemini 화면 | `지도` | SettingMap 화면 |
+| SettingGemini 화면 | `브라우저` | SettingBrowser 화면 |
+| SettingBrowser 화면 | `공휴일` | SettingHoliday 화면 |
 
 - 작성하지 않는 이유: 목록과 상세를 함께 표시하는 창 환경과 두 영역의 전환 이력을 함께 구동해야 관찰할 수 있어 현재 단위 테스트 환경에서는 결정적으로 검증할 수 없다. 창 크기와 여러 화면의 전환 이력을 제어할 수 있는 통합 UI 테스트 환경이 갖춰지면 자동화한다.
 

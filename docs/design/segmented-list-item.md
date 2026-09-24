@@ -8,7 +8,7 @@
 
 항목 수가 정해져 있고 서로 관련 있는 항목을 세로로 늘어놓는 목록에 쓴다. 묶음의 위아래 경계가 한 화면에 드러나 하나의 덩어리로 읽히는 목록이 대상이다.
 
-[SettingHome 화면](./setting-home.md)의 설정 목록과 [SettingMap 화면](./setting-map.md)의 기본 지도 선택이 이 표현을 쓴다.
+[SettingHome 화면](./setting-home.md)의 설정 목록, [SettingMap 화면](./setting-map.md)의 기본 지도 선택, [SettingBrowser 화면](./setting-browser.md)의 Chrome 프로필 선택이 이 표현을 쓴다.
 
 항목 수가 정해지지 않거나 검색·필터로 늘고 줄어 한 화면에 묶음 경계가 드러나지 않는 목록에는 쓰지 않는다. 그런 목록의 항목 표현은 각 화면 디자인이 소유한다.
 

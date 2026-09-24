@@ -40,6 +40,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [캘린더 메모 이동](./calendar-memo-move.md) | [캘린더 메모 이동](../spec/calendar-memo-move.md) |
 | [캘린더 메모 표시](./calendar-memo.md) | [캘린더 메모 표시](../spec/calendar-memo.md) |
 | [캘린더 연락처 생일 표시](./calendar-contact-birthday.md) | [캘린더 연락처 생일 표시](../spec/calendar-contact-birthday.md) |
+| [Chrome 로그인 이어받기](./chrome-session-import.md) | [Chrome 로그인 이어받기](../spec/chrome-session-import.md) |
 | [CalendarMonth](./calendar-month.md) | [CalendarMonth 컴포넌트](../spec/calendar-month.md) |
 | [Calendar 날짜 선택](./calendar-select.md) | [Calendar 날짜 선택](../spec/calendar-select.md) |
 | [CalendarText](./calendar-text.md) | [CalendarText 컴포넌트](../spec/calendar-text.md) |
@@ -105,6 +106,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [Routine 목록·상세 배치](./routine-list-detail.md) | [Routine 목록·상세 배치](../spec/routine-list-detail.md) |
 | [SearchHome](./search-home.md) | [SearchHome 화면](../spec/search-home.md) |
 | [화면 조회 로깅](./screen-view-logging.md) | [화면 조회 로깅](../spec/screen-view-logging.md) |
+| [SettingBrowser](./setting-browser.md) | [SettingBrowser 화면](../spec/setting-browser.md) |
 | [SettingGemini](./setting-gemini.md) | [SettingGemini 화면](../spec/setting-gemini.md) |
 | [SettingHoliday](./setting-holiday.md) | [SettingHoliday 화면](../spec/setting-holiday.md) |
 | [SettingHome](./setting-home.md) | [SettingHome 화면](../spec/setting-home.md) |

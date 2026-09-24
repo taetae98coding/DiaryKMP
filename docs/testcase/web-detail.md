@@ -4,7 +4,7 @@
 
 이 문서에서 `data > 태그 연결의 저장`, `data > 태그 입력의 조회` 절은 [항목 상세 화면 공통 스펙](../spec/entity-detail.md)이 소유한다. 나머지 케이스의 절은 기준 스펙이 소유한다.
 
-WebHome의 목록과 SearchHome의 웹 결과에서 웹 항목을 선택해 WebDetail로 이동하는 케이스는 [WebHome 테스트 케이스](./web-home.md)와 [SearchHome 테스트 케이스](./search-home.md)에서, 웹 항목이 갖는 정보와 요청 헤더 항목의 추가·삭제·입력 케이스는 [WebAdd 테스트 케이스](./web-add.md)에서, 웹 항목을 서버와 맞추는 케이스는 [데이터 동기화 테스트 케이스](./data-sync.md)에서 다룬다.
+WebHome의 목록과 SearchHome의 웹 결과에서 웹 항목을 선택해 WebDetail로 이동하는 케이스는 [WebHome 테스트 케이스](./web-home.md)와 [SearchHome 테스트 케이스](./search-home.md)에서, 웹 항목이 갖는 정보와 요청 헤더 항목의 추가·삭제·입력 케이스는 [WebAdd 테스트 케이스](./web-add.md)에서, 웹 항목을 서버와 맞추는 케이스는 [데이터 동기화 테스트 케이스](./data-sync.md)에서, 어떤 로그인 정보를 가져오고 무엇이 실패인지의 케이스는 [Chrome 로그인 이어받기 테스트 케이스](./chrome-session-import.md)에서 다룬다.
 
 태그 입력의 표시와 조작, 태그 선택 목록의 케이스는 [항목 태그 입력 컴포넌트 테스트 케이스](./entity-tag-input.md)에서 다룬다. 이 문서에는 WebDetail 화면에서만 다른 표시 기준과 반영 시점의 케이스만 둔다.
 
@@ -15,6 +15,7 @@ WebHome의 목록과 SearchHome의 웹 결과에서 웹 항목을 선택해 WebD
 ```mermaid
 stateDiagram-v2
     Loading: 웹 항목 조회 중
+    Preparing: 로그인 정보 가져오는 중
     Address: URL 방식 표시
     Fetching: 웹 페이지 불러오는 중
     Page: 응답 본문 표시
@@ -22,7 +23,11 @@ stateDiagram-v2
 
     [*] --> Loading: TC-WEB-DETAIL-FEATURE-001
     Loading --> Loading: 조회 실패 · TC-WEB-DETAIL-FEATURE-003
-    Loading --> Address: TC-WEB-DETAIL-FEATURE-002, TC-WEB-DETAIL-FEATURE-037
+    Loading --> Address: 가져오지 않는 환경 · TC-WEB-DETAIL-FEATURE-002, TC-WEB-DETAIL-FEATURE-037, TC-WEB-DETAIL-FEATURE-050
+    Loading --> Preparing: 가져오는 환경 · TC-WEB-DETAIL-FEATURE-047
+    Preparing --> Address: 성공 · TC-WEB-DETAIL-FEATURE-048
+    Preparing --> Address: 실패 · TC-WEB-DETAIL-FEATURE-049
+    Address --> Preparing: 수정으로 URL이 바뀜 · TC-WEB-DETAIL-FEATURE-051
     Address --> Address: 같은 방식 선택 · TC-WEB-DETAIL-FEATURE-042
     Address --> Fetching: 응답 본문 방식 선택 · TC-WEB-DETAIL-FEATURE-004, TC-WEB-DETAIL-FEATURE-040
     Address --> Page: 받은 응답 본문 있음 · TC-WEB-DETAIL-DOMAIN-039
@@ -391,6 +396,41 @@ stateDiagram-v2
 - When: 사용자가 표시 방식을 URL 방식으로 바꾼다.
 - Then: 불러오기 실패 안내와 다시 시도가 사라지고 현재 표시 방식으로 URL 방식이 표시된다.
 
+### TC-WEB-DETAIL-FEATURE-047: 로그인 정보를 가져오는 동안에는 진행 상태를 표시하고 주소를 열지 않는다
+
+- 근거: `feature > 로그인 정보 가져오기`
+- Given: 로그인 정보를 가져오는 환경이고, 대상 웹 항목이 조회되었으며 그 주소의 로그인 정보 가져오기가 아직 끝나지 않은 상태로 제어되어 있다.
+- When: 사용자가 URL 방식의 웹 페이지 자리를 확인한다.
+- Then: 웹 페이지 자리에 진행 상태가 표시되고 웹 표시 수단은 아직 주소를 열지 않으며, 표시 방식 변경, 수정, 뒤로가기는 그대로 실행할 수 있다.
+
+### TC-WEB-DETAIL-FEATURE-048: 로그인 정보를 가져오면 웹 표시 수단이 주소를 연다
+
+- 근거: `feature > 로그인 정보 가져오기`
+- Given: 로그인 정보를 가져오는 환경이고, 대상 웹 항목이 조회되었으며 그 주소의 로그인 정보 가져오기가 성공하도록 제어되어 있다.
+- When: 가져오기가 끝난다.
+- Then: 진행 상태가 사라지고 웹 표시 수단이 저장된 URL을 열며, 가져오기는 그 주소로 한 번만 실행된다.
+
+### TC-WEB-DETAIL-FEATURE-049: 로그인 정보를 가져오지 못하면 알리고 주소를 그대로 연다
+
+- 근거: `feature > 로그인 정보 가져오기`
+- Given: 로그인 정보를 가져오는 환경이고, 대상 웹 항목이 조회되었으며 그 주소의 로그인 정보 가져오기가 실패하도록 제어되어 있다.
+- When: 가져오기가 끝난다.
+- Then: 가져오지 못했다는 피드백이 한 번 표시되고 웹 표시 수단이 저장된 URL을 열며, 다시 시도 수단은 표시되지 않는다.
+
+### TC-WEB-DETAIL-FEATURE-050: 로그인 정보를 가져오지 않는 환경이면 곧바로 주소를 연다
+
+- 근거: `feature > 로그인 정보 가져오기`
+- Given: 설정이 꺼져 있거나 제공하지 않는 환경이어서 가져오기가 아무것도 하지 않고 곧바로 끝나도록 제어되어 있고, 대상 웹 항목이 조회되었다.
+- When: 사용자가 URL 방식의 웹 페이지 자리를 확인한다.
+- Then: 진행 상태 없이 웹 표시 수단이 저장된 URL을 열고 피드백은 표시되지 않는다.
+
+### TC-WEB-DETAIL-FEATURE-051: 수정으로 URL이 바뀌면 새 주소의 로그인 정보를 다시 가져온 뒤 연다
+
+- 근거: `feature > 수정 뒤의 웹 페이지`, `feature > 로그인 정보 가져오기`
+- Given: 로그인 정보를 가져오는 환경이고, URL 방식으로 첫 주소가 열려 있다.
+- When: 사용자가 URL을 다른 주소로 바꿔 수정을 실행하고 수정이 반영된다.
+- Then: 새 주소의 로그인 정보 가져오기가 한 번 실행되고, 그동안 진행 상태가 표시되며, 끝나면 웹 표시 수단이 새 주소를 연다. 제목이나 설명만 바뀐 수정에서는 가져오기가 다시 실행되지 않는다.
+
 ## domain
 
 ```mermaid
@@ -726,6 +766,13 @@ flowchart TD
 - Given: 대상 웹 항목의 수정 또는 삭제가 처리 중이다.
 - When: 사용자가 태그를 연결하고 이어서 다른 태그를 해제한다.
 - Then: 두 조작이 모두 반영된다.
+
+### TC-WEB-DETAIL-DOMAIN-043: 화면이 재생성되어도 로그인 정보를 다시 가져오지 않는다
+
+- 근거: `feature > 진행 상태 유지`
+- Given: 로그인 정보를 가져오는 환경이고, 저장된 URL의 로그인 정보를 한 번 가져와 URL 방식으로 열려 있다.
+- When: 화면이 시스템에 의해 재생성된다.
+- Then: 같은 주소의 로그인 정보 가져오기가 다시 실행되지 않고 웹 표시 수단이 저장된 URL을 그대로 연다.
 
 ## data
 

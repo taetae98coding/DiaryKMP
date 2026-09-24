@@ -24,6 +24,7 @@
 | [Calendar 날짜 선택](./calendar-select.md) | [Calendar 날짜 선택 디자인](../design/calendar-select.md) |
 | [캘린더 메모 이동](./calendar-memo-move.md) | [캘린더 메모 이동 디자인](../design/calendar-memo-move.md) |
 | [캘린더 메모 표시](./calendar-memo.md) | — |
+| [Chrome 로그인 이어받기](./chrome-session-import.md) | — |
 | [캘린더 연락처 생일 표시](./calendar-contact-birthday.md) | — |
 | [CalendarMonth 컴포넌트](./calendar-month.md) | [CalendarMonth 디자인](../design/calendar-month.md) |
 | [CalendarText 컴포넌트](./calendar-text.md) | [CalendarText 디자인](../design/calendar-text.md) |
@@ -104,6 +105,7 @@
 | [SearchHome 화면](./search-home.md) | [SearchHome 디자인](../design/search-home.md) |
 | [검색어 일치 판정](./search-match.md) | — |
 | [화면 조회 로깅](./screen-view-logging.md) | — |
+| [SettingBrowser 화면](./setting-browser.md) | [SettingBrowser 디자인](../design/setting-browser.md) |
 | [SettingGemini 화면](./setting-gemini.md) | [SettingGemini 디자인](../design/setting-gemini.md) |
 | [SettingHoliday 화면](./setting-holiday.md) | [SettingHoliday 디자인](../design/setting-holiday.md) |
 | [SettingHome 화면](./setting-home.md) | [SettingHome 디자인](../design/setting-home.md) |
