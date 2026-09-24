@@ -128,6 +128,10 @@ verify_jwt = true
 [functions.v1-fcm-token-submit]
 verify_jwt = false
 
+# pg_cron이 service role 키로 호출하고 함수 안에서 키를 대조하므로 게이트웨이 JWT 검증은 끈다.
+[functions.v1-daily-memo-notification-send]
+verify_jwt = false
+
 # 위 설정은 dev(project_id) 기준이며, client_id/secret은 push 시점 env로 주입된다.
 # dev/real 간 설정 차이가 없어 real은 project_id만 지정해 base 설정을 상속한다.
 # dev  배포: supabase config push --project-ref ljsscxmqzsoulswmwsia
