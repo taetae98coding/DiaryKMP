@@ -10,7 +10,7 @@ import org.koin.core.annotation.Factory
 internal class FcmTokenRemoteDataSourceImpl(
     private val supabaseFunction: SupabaseFunction,
 ) : FcmTokenRemoteDataSource {
-    override suspend fun submit(fcmToken: FcmTokenRemoteEntity) {
+    override suspend fun upsert(fcmToken: FcmTokenRemoteEntity) {
         supabaseFunction(function = SUBMIT_FCM_TOKEN_FUNCTION, body = fcmToken)
     }
 

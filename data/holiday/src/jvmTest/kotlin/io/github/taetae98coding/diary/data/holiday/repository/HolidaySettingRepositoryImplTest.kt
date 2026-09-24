@@ -118,7 +118,7 @@ class HolidaySettingRepositoryImplTest :
 
             hiddenKeySetFlow.value shouldBe submittedKeySet
             coVerify(exactly = 1) {
-                localDataSource.submitHiddenKeySet(
+                localDataSource.upsertHiddenKeySet(
                     hiddenKeySet = submittedKeySet,
                 )
             }
@@ -136,7 +136,7 @@ class HolidaySettingRepositoryImplTest :
 
             hiddenKeySetFlow.value shouldBe submittedKeySet
             coVerify(exactly = 1) {
-                localDataSource.submitHiddenKeySet(
+                localDataSource.upsertHiddenKeySet(
                     hiddenKeySet = submittedKeySet,
                 )
             }
@@ -160,7 +160,7 @@ class HolidaySettingRepositoryImplTest :
             }
 
             coVerify(exactly = 1) {
-                localDataSource.submitHiddenKeySet(
+                localDataSource.upsertHiddenKeySet(
                     hiddenKeySet = setOf(workingDayKey),
                 )
             }
@@ -195,7 +195,7 @@ class HolidaySettingRepositoryImplTest :
             val localDataSource = mockk<HolidaySettingLocalDataSource>()
             every { localDataSource.getHiddenKeySet() } returns MutableStateFlow(emptySet())
             coEvery {
-                localDataSource.submitHiddenKeySet(
+                localDataSource.upsertHiddenKeySet(
                     hiddenKeySet = any(),
                 )
             } throws failure
@@ -258,7 +258,7 @@ private fun mockHolidaySettingLocalDataSource(hiddenKeySetFlow: MutableStateFlow
             hiddenKeySetFlow.value = hiddenKeySetFlow.value - firstArg<String>()
         }
         coEvery {
-            dataSource.submitHiddenKeySet(
+            dataSource.upsertHiddenKeySet(
                 hiddenKeySet = any(),
             )
         } coAnswers {

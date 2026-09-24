@@ -19,7 +19,7 @@ internal class IosDailyMemoNotificationManager(
         time: LocalTime,
         upcomingList: List<UpcomingDailyMemoNotification>,
     ) {
-        localNotificationScheduler.submit(
+        localNotificationScheduler.upsert(
             identifierPrefix = DAILY_MEMO_NOTIFICATION_ID,
             requestList =
                 upcomingList.map { upcoming ->

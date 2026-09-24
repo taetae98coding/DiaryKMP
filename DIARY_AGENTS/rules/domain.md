@@ -19,6 +19,8 @@ Repository는 행위 해석을 담지 않고 데이터 조작을 그대로 가�
 | `setXxx`, `unsetXxx` | 최대 하나인 단일 값을 지정하고 지운다. 예: `setDefaultProvider` |
 | `submitXxx` | 집합 전체를 한 번에 교체한다. 항목별 조작(`add`/`remove`)으로 표현하면 중간 상태가 관찰되는 일괄 변경에 쓴다. 예: `submitHiddenKeySet` |
 
+이 표는 `domain:*`의 Repository·Manager 이름을 정한다. 이를 구현하는 `core:*` DataSource·Transaction의 이름은 [data.md](data.md)의 `DataSource 연산 이름`을 따르며, domain의 `submitXxx`는 data 계층에서 `upsertXxx`가 된다.
+
 집합을 다루는 Repository에 `add`/`remove`와 `submit`을 함께 두는 것은 중복이 아니다. 항목 하나를 바꾸는 행위(공휴일 하나 숨기기)와 집합 전체를 한 번에 정하는 행위(전체 선택, 공휴일만 선택)는 저장소에서 서로 다른 연산이고, 후자를 `add`/`remove` 반복으로 표현하면 중간 집합이 관찰된다.
 
 Boolean 플래그는 Repository 시그니처에서 시작한다. UseCase는 플래그로 분기하지 않고 행위별로 나눈다. 예: `FinishMemoUseCase`/`RestartMemoUseCase`가 `AccountMemoRepository.updateFinished(isFinished)` 하나를 함께 쓴다.

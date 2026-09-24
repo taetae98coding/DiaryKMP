@@ -30,7 +30,7 @@ class FcmTokenRemoteDataSourceImplTest :
             } returns httpResponse()
             val dataSource = FcmTokenRemoteDataSourceImpl(supabaseFunction = supabaseFunction)
 
-            dataSource.submit(fcmToken = fcmToken)
+            dataSource.upsert(fcmToken = fcmToken)
 
             bodySlot.captured shouldBe fcmToken
         }
@@ -44,7 +44,7 @@ class FcmTokenRemoteDataSourceImplTest :
             } returns httpResponse()
             val dataSource = FcmTokenRemoteDataSourceImpl(supabaseFunction = supabaseFunction)
 
-            dataSource.submit(fcmToken = fcmToken)
+            dataSource.upsert(fcmToken = fcmToken)
 
             bodySlot.captured shouldBe FcmTokenRemoteEntity(token = "token-a", timeZone = null, language = null)
         }
@@ -54,7 +54,7 @@ class FcmTokenRemoteDataSourceImplTest :
             coEvery { supabaseFunction(function = any(), body = any(), typeInfo = any(), headers = any()) } throws TestException("network")
             val dataSource = FcmTokenRemoteDataSourceImpl(supabaseFunction = supabaseFunction)
 
-            shouldThrow<TestException> { dataSource.submit(fcmToken = FcmTokenRemoteEntity(token = "token-a")) }
+            shouldThrow<TestException> { dataSource.upsert(fcmToken = FcmTokenRemoteEntity(token = "token-a")) }
         }
     })
 

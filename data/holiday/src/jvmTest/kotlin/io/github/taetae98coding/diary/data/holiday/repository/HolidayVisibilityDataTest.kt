@@ -183,7 +183,7 @@ class HolidayVisibilityDataTest :
             }
 
             coVerify(exactly = 1) {
-                context.settingLocalDataSource.submitHiddenKeySet(
+                context.settingLocalDataSource.upsertHiddenKeySet(
                     hiddenKeySet = newHiddenKeySet,
                 )
             }
@@ -242,7 +242,7 @@ private fun holidayVisibilityTestContext(
                 hiddenKeySetFlow.value = hiddenKeySetFlow.value - firstArg<String>()
             }
             coEvery {
-                dataSource.submitHiddenKeySet(
+                dataSource.upsertHiddenKeySet(
                     hiddenKeySet = any(),
                 )
             } coAnswers {

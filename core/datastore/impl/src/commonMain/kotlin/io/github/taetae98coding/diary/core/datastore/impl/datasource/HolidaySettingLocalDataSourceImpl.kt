@@ -31,7 +31,7 @@ internal class HolidaySettingLocalDataSourceImpl(
         }
     }
 
-    override suspend fun submitHiddenKeySet(hiddenKeySet: Set<String>) {
+    override suspend fun upsertHiddenKeySet(hiddenKeySet: Set<String>) {
         dataStore.updateData { setting ->
             setting.withHiddenKeySet(hiddenKeySet)
         }

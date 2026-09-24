@@ -49,6 +49,41 @@ iOS는 정해진 시각에 앱 코드를 깨우는 대신 알림 자체를 미�
 
 다른 `data:*`가 쓰는 매퍼만 `public`으로 두고, 그 모듈 안에서만 쓰는 매퍼는 `internal`로 둔다.
 
+### DataSource 연산 이름
+
+`core:*`의 DataSource·Transaction과 `notification`의 수단은 저장소나 원격에 쓰는 연산을 `upsert`로 부른다. 행 하나를 넣거나 갱신하는 연산과 집합 전체를 한 번에 교체하는 연산이 모두 여기 속한다. data 계층에서는 저장 방식이 쓰기 결과를 정하므로, 지우고 다시 넣는 교체도 호출자 입장에서는 "이 값으로 저장된 상태가 된다"는 한 가지 결과이기 때문이다.
+
+`submit`은 [domain.md](domain.md)의 `UseCase·Repository 네이밍`이 정한 domain 어휘다. Repository가 집합 전체 교체를 `submitXxx`로 선언하면, 그것을 구현하는 `data:*`는 DataSource의 `upsertXxx`로 옮긴다. DataSource나 Transaction에 `submit`을 쓰지 않는다.
+
+| 계층 | 집합 전체 교체 | 예 |
+| --- | --- | --- |
+| `domain:*` Repository | `submitXxx` | `HolidaySettingRepository.submitHiddenKeySet` |
+| `core:*` DataSource·Transaction, `notification` | `upsertXxx` / `upsert` | `HolidaySettingLocalDataSource.upsertHiddenKeySet`, `HolidayTransaction.upsert`, `LocalNotificationScheduler.upsert` |
+
+외부 API, 플랫폼, 서버 함수의 이름은 그 계약을 그대로 따른다. 예: `BGTaskScheduler.submit`, Supabase 함수 `v1-fcm-token-submit`.
+
+⚠️ 비권장 예시:
+
+```kotlin
+public interface HolidaySettingLocalDataSource {
+    public suspend fun submitHiddenKeySet(hiddenKeySet: Set<String>)
+}
+```
+
+✅ 권장 예시:
+
+```kotlin
+public interface HolidaySettingLocalDataSource {
+    public suspend fun upsertHiddenKeySet(hiddenKeySet: Set<String>)
+}
+
+internal class HolidaySettingRepositoryImpl(...) : HolidaySettingRepository {
+    override suspend fun submitHiddenKeySet(hiddenKeySet: Set<String>) {
+        holidaySettingLocalDataSource.upsertHiddenKeySet(hiddenKeySet = hiddenKeySet)
+    }
+}
+```
+
 ## 계층 의존 방향
 
 Repository·Manager 계약은 `domain:*`이 선언하고 `data:*`와 `work:*`가 구현한다. 의존은 `data:* → domain:*`, `work:* → domain:*` 방향이고, `domain:*`은 어떤 `data:*`나 `work:*`도 참조하지 않는다.

@@ -24,7 +24,7 @@ internal class HolidaySettingRepositoryImpl(
     }
 
     override suspend fun submitHiddenKeySet(hiddenKeySet: Set<String>) {
-        holidaySettingLocalDataSource.submitHiddenKeySet(hiddenKeySet = hiddenKeySet)
+        holidaySettingLocalDataSource.upsertHiddenKeySet(hiddenKeySet = hiddenKeySet)
     }
 
     override fun getCountryOptionSet(): Flow<Set<HolidayCountryOption>> =

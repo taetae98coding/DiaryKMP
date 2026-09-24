@@ -38,29 +38,29 @@ class FcmTokenRepositoryImplTest :
             repository.upsert()
             repository.delete()
 
-            coVerify(exactly = 0) { remote.submit(fcmToken = any()) }
+            coVerify(exactly = 0) { remote.upsert(fcmToken = any()) }
         }
 
         test("TC-FCM-TOKEN-DATA-001 등록 요청에는 현재 토큰, 시간대, 언어만 담는다") {
             val remote = mockk<FcmTokenRemoteDataSource>()
-            coEvery { remote.submit(fcmToken = any()) } returns Unit
+            coEvery { remote.upsert(fcmToken = any()) } returns Unit
             val repository = repository(token = "token-a", remote = remote)
 
             repository.upsert()
 
-            coVerify(exactly = 1) { remote.submit(fcmToken = FcmTokenRemoteEntity(token = "token-a", timeZone = "Asia/Seoul", language = "ko-KR")) }
+            coVerify(exactly = 1) { remote.upsert(fcmToken = FcmTokenRemoteEntity(token = "token-a", timeZone = "Asia/Seoul", language = "ko-KR")) }
         }
 
         test("TC-FCM-TOKEN-DOMAIN-019 같은 정보라도 요청마다 다시 등록한다") {
             val token = fixtureMonkey.nonBlankString()
             val remote = mockk<FcmTokenRemoteDataSource>()
-            coEvery { remote.submit(fcmToken = any()) } returns Unit
+            coEvery { remote.upsert(fcmToken = any()) } returns Unit
             val repository = repository(token = token, remote = remote)
 
             repository.upsert()
             repository.upsert()
 
-            coVerify(exactly = 2) { remote.submit(fcmToken = FcmTokenRemoteEntity(token = token, timeZone = "Asia/Seoul", language = "ko-KR")) }
+            coVerify(exactly = 2) { remote.upsert(fcmToken = FcmTokenRemoteEntity(token = token, timeZone = "Asia/Seoul", language = "ko-KR")) }
         }
 
         context("TC-FCM-TOKEN-DOMAIN-007 시간대나 언어가 바뀐 뒤의 등록에는 새 값이 담긴다") {
@@ -72,14 +72,14 @@ class FcmTokenRepositoryImplTest :
                     val (timeZone, language) = device
                     val token = fixtureMonkey.nonBlankString()
                     val remote = mockk<FcmTokenRemoteDataSource>()
-                    coEvery { remote.submit(fcmToken = any()) } returns Unit
+                    coEvery { remote.upsert(fcmToken = any()) } returns Unit
                     val repository = repository(token = token, remote = remote)
 
                     repository.upsert()
                     setDevice(timeZone = timeZone, language = language)
                     repository.upsert()
 
-                    coVerify(exactly = 1) { remote.submit(fcmToken = FcmTokenRemoteEntity(token = token, timeZone = timeZone, language = language)) }
+                    coVerify(exactly = 1) { remote.upsert(fcmToken = FcmTokenRemoteEntity(token = token, timeZone = timeZone, language = language)) }
                 }
             }
         }
@@ -88,42 +88,42 @@ class FcmTokenRepositoryImplTest :
             val token = fixtureMonkey.nonBlankString()
             val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val remote = mockk<FcmTokenRemoteDataSource>()
-            coEvery { remote.submit(fcmToken = any()) } throws failure
+            coEvery { remote.upsert(fcmToken = any()) } throws failure
             val repository = repository(token = token, remote = remote)
 
             shouldThrowExactly<IllegalStateException> { repository.upsert() } shouldBeSameInstanceAs failure
-            coVerify(exactly = 1) { remote.submit(fcmToken = any()) }
+            coVerify(exactly = 1) { remote.upsert(fcmToken = any()) }
 
-            coEvery { remote.submit(fcmToken = any()) } returns Unit
+            coEvery { remote.upsert(fcmToken = any()) } returns Unit
             repository.upsert()
 
-            coVerify(exactly = 2) { remote.submit(fcmToken = any()) }
+            coVerify(exactly = 2) { remote.upsert(fcmToken = any()) }
         }
 
         test("TC-FCM-TOKEN-DATA-002 해제 요청에는 현재 토큰만 담는다") {
             val remote = mockk<FcmTokenRemoteDataSource>()
-            coEvery { remote.submit(fcmToken = any()) } returns Unit
+            coEvery { remote.upsert(fcmToken = any()) } returns Unit
             val repository = repository(token = "token-a", remote = remote)
 
             repository.delete()
 
-            coVerify(exactly = 1) { remote.submit(fcmToken = FcmTokenRemoteEntity(token = "token-a", timeZone = null, language = null)) }
+            coVerify(exactly = 1) { remote.upsert(fcmToken = FcmTokenRemoteEntity(token = "token-a", timeZone = null, language = null)) }
         }
 
         test("TC-FCM-TOKEN-DOMAIN-021 해제에 실패하면 요청은 한 번만 보내고 실패를 전달하며, 다음 요청에서 다시 해제한다") {
             val token = fixtureMonkey.nonBlankString()
             val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val remote = mockk<FcmTokenRemoteDataSource>()
-            coEvery { remote.submit(fcmToken = any()) } throws failure
+            coEvery { remote.upsert(fcmToken = any()) } throws failure
             val repository = repository(token = token, remote = remote)
 
             shouldThrowExactly<IllegalStateException> { repository.delete() } shouldBeSameInstanceAs failure
-            coVerify(exactly = 1) { remote.submit(fcmToken = FcmTokenRemoteEntity(token = token)) }
+            coVerify(exactly = 1) { remote.upsert(fcmToken = FcmTokenRemoteEntity(token = token)) }
 
-            coEvery { remote.submit(fcmToken = any()) } returns Unit
+            coEvery { remote.upsert(fcmToken = any()) } returns Unit
             repository.delete()
 
-            coVerify(exactly = 2) { remote.submit(fcmToken = FcmTokenRemoteEntity(token = token)) }
+            coVerify(exactly = 2) { remote.upsert(fcmToken = FcmTokenRemoteEntity(token = token)) }
         }
 
         test("TC-FCM-TOKEN-DOMAIN-024 토큰을 받아 오지 못하면 제출하지 않고 실패를 전달한다") {
@@ -136,7 +136,7 @@ class FcmTokenRepositoryImplTest :
             shouldThrowExactly<IllegalStateException> { repository.upsert() } shouldBeSameInstanceAs failure
             shouldThrowExactly<IllegalStateException> { repository.delete() } shouldBeSameInstanceAs failure
 
-            coVerify(exactly = 0) { remote.submit(fcmToken = any()) }
+            coVerify(exactly = 0) { remote.upsert(fcmToken = any()) }
         }
 
         test("TC-FCM-TOKEN-DOMAIN-023 새로 발급된 토큰은 다음 등록에 담긴다") {
@@ -145,13 +145,13 @@ class FcmTokenRepositoryImplTest :
             val provider = mockk<FcmTokenProvider>()
             coEvery { provider.getToken() } returnsMany listOf(firstToken, newToken)
             val remote = mockk<FcmTokenRemoteDataSource>()
-            coEvery { remote.submit(fcmToken = any()) } returns Unit
+            coEvery { remote.upsert(fcmToken = any()) } returns Unit
             val repository = FcmTokenRepositoryImpl(fcmTokenProvider = provider, fcmTokenRemoteDataSource = remote)
 
             repository.upsert()
             repository.upsert()
 
-            coVerify(exactly = 1) { remote.submit(fcmToken = FcmTokenRemoteEntity(token = newToken, timeZone = "Asia/Seoul", language = "ko-KR")) }
+            coVerify(exactly = 1) { remote.upsert(fcmToken = FcmTokenRemoteEntity(token = newToken, timeZone = "Asia/Seoul", language = "ko-KR")) }
         }
     })
 

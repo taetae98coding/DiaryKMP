@@ -10,7 +10,7 @@ public interface HolidaySettingLocalDataSource {
 
     public suspend fun removeHiddenKey(key: String)
 
-    public suspend fun submitHiddenKeySet(hiddenKeySet: Set<String>)
+    public suspend fun upsertHiddenKeySet(hiddenKeySet: Set<String>)
 
     public fun getCountryOptionSet(): Flow<Set<HolidayCountryOptionLocalEntity>>
 

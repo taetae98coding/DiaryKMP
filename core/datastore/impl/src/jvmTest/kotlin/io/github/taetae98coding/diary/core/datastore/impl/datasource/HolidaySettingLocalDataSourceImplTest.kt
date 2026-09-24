@@ -132,7 +132,7 @@ class HolidaySettingLocalDataSourceImplTest :
             val dataStore = mockDataStore(settingFlow)
             val dataSource = HolidaySettingLocalDataSourceImpl(dataStore = dataStore)
 
-            dataSource.submitHiddenKeySet(
+            dataSource.upsertHiddenKeySet(
                 hiddenKeySet =
                     setOf(
                         SECOND_MIDSUMMER_DAY_KEY,
@@ -161,7 +161,7 @@ class HolidaySettingLocalDataSourceImplTest :
             val dataStore = mockDataStore(settingFlow)
             val dataSource = HolidaySettingLocalDataSourceImpl(dataStore = dataStore)
 
-            dataSource.submitHiddenKeySet(hiddenKeySet = emptySet())
+            dataSource.upsertHiddenKeySet(hiddenKeySet = emptySet())
 
             settingFlow.value shouldBe HolidaySettingData()
             coVerify(exactly = 1) { dataStore.updateData(any()) }
@@ -187,7 +187,7 @@ class HolidaySettingLocalDataSourceImplTest :
             dataSource.getHiddenKeySet().test {
                 awaitItem() shouldBe setOf(SECOND_MIDSUMMER_DAY_KEY, OTHER_HOLIDAY_KEY)
 
-                dataSource.submitHiddenKeySet(
+                dataSource.upsertHiddenKeySet(
                     hiddenKeySet =
                         setOf(
                             SECOND_MIDSUMMER_DAY_KEY,
@@ -238,7 +238,7 @@ class HolidaySettingLocalDataSourceImplTest :
         }
 
         test("숨긴 key 집합 제출이 실패하면 같은 오류를 전파한다") {
-            val failure = IllegalStateException("submit failure")
+            val failure = IllegalStateException("upsert failure")
             val settingFlow = MutableStateFlow(HolidaySettingData())
             val dataStore = mockk<DataStore<HolidaySettingData>>()
             every { dataStore.data } returns settingFlow
@@ -247,7 +247,7 @@ class HolidaySettingLocalDataSourceImplTest :
 
             val actual =
                 shouldThrowExactly<IllegalStateException> {
-                    dataSource.submitHiddenKeySet(
+                    dataSource.upsertHiddenKeySet(
                         hiddenKeySet = setOf(MIDSUMMER_DAY_KEY),
                     )
                 }

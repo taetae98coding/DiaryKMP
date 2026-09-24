@@ -16,7 +16,7 @@ internal class FcmTokenRepositoryImpl(
     override suspend fun upsert() {
         val token = fcmTokenProvider.getToken() ?: return
 
-        fcmTokenRemoteDataSource.submit(
+        fcmTokenRemoteDataSource.upsert(
             fcmToken =
                 FcmTokenRemoteEntity(
                     token = token,
@@ -29,6 +29,6 @@ internal class FcmTokenRepositoryImpl(
     override suspend fun delete() {
         val token = fcmTokenProvider.getToken() ?: return
 
-        fcmTokenRemoteDataSource.submit(fcmToken = FcmTokenRemoteEntity(token = token))
+        fcmTokenRemoteDataSource.upsert(fcmToken = FcmTokenRemoteEntity(token = token))
     }
 }
