@@ -10,11 +10,17 @@ import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
 import kotlin.uuid.Uuid
 
 internal fun NavBackStack<ScreenNavKey>.navigateToTagDetail(id: Uuid) {
-    if (lastOrNull() is TagDetailNavKey) {
+    while (lastOrNull() is TagDetailNavKey) {
         removeLastOrNull()
     }
 
     add(TagDetailNavKey(id))
+}
+
+internal fun List<ScreenNavKey>.isNavigatedFromTagDetail(key: ScreenNavKey): Boolean {
+    val index = lastIndexOf(key)
+
+    return index > 0 && this[index - 1] is TagDetailNavKey
 }
 
 internal fun NavBackStack<ScreenNavKey>.navigateToWebAddFromTagDetail(tagId: Uuid) {

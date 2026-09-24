@@ -174,7 +174,9 @@ private fun EntryProviderScope<ScreenNavKey>.tagDetailEntry(backStack: NavBackSt
             navigateToPlaceDetail = { id -> backStack.add(PlaceDetailNavKey(id = id)) },
             id = key.id,
             tagAddRequestKey = tagAddRequestKey,
-            componentVisibleProvider = { TagDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
+            componentVisibleProvider = {
+                TagDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible || backStack.isNavigatedFromTagDetail(key))
+            },
             viewModel = koinViewModel { parametersOf(key.id) },
         )
     }
