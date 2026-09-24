@@ -53,6 +53,11 @@ Login 화면은 주요 목적지가 아닌 별도 로그인 흐름으로 제공�
 
 사용자가 플랫폼의 로그인 흐름을 취소하면 앱은 오류를 안내하지 않고 Login 화면에 머무르며, 사용자는 다시 시도할 수 있다.
 
+브라우저에서 진행하는 로그인 흐름은 사용자가 로그인 페이지에서 취소를 선택한 경우뿐 아니라 다음도 취소로 본다.
+
+- Android에서 사용자가 로그인 브라우저 탭을 응답 없이 닫고 앱으로 돌아온 경우
+- 웹에서 사용자가 로그인 창을 응답 없이 닫은 경우
+
 예외적으로 데스크톱에서 사용자가 로그인 진행 중이던 브라우저 창을 응답 없이 닫으면 앱은 취소를 감지하지 못할 수 있다. 이 경우 별도 안내 없이 Login 화면에 머무른다.
 
 인증 결과를 받지 못하거나, 서버 인증 또는 앱 세션 설정에 실패하면 로그인 실패를 안내한다.
@@ -75,7 +80,16 @@ Login 화면은 주요 목적지가 아닌 별도 로그인 흐름으로 제공�
 
 Google 로그인은 앱이 지원하는 모든 플랫폼에서 완료할 수 있다.
 
-Apple 로그인은 현재 iOS에서만 완료할 수 있다. 그 외 플랫폼에서도 Apple 로그인 수단을 제공하지만, 사용자가 선택하면 인증 결과를 받지 못해 로그인 실패로 안내한다. 그 외 플랫폼의 Apple 로그인 완료 시점과 방식은 아직 정의하지 않았다(미정).
+Apple 로그인도 앱이 지원하는 모든 플랫폼에서 완료할 수 있다. iOS에서는 기기의 Apple 계정 로그인 흐름을 사용하고, 그 외 플랫폼에서는 Apple이 제공하는 웹 로그인 흐름을 사용한다.
+
+| 플랫폼 | Apple 로그인 흐름 |
+| --- | --- |
+| iOS | 기기의 Apple 계정 로그인 |
+| Android | 앱 안에서 여는 브라우저 탭의 Apple 웹 로그인 |
+| 데스크톱 | 시스템 브라우저의 Apple 웹 로그인 |
+| 웹 | 별도 창에서 여는 Apple 웹 로그인 |
+
+웹 로그인 흐름의 인증 결과는 서버를 거쳐 앱으로 돌아온다. 그 전달 계약은 `data > Apple 인증 결과 전달`이 정한다.
 
 로그인 수단마다 앱 로그인 요청은 서로 독립적이며, 한 수단의 실패가 다른 수단의 사용을 막지 않는다.
 
@@ -94,6 +108,10 @@ Google 로그인은 기본 인증에 필요한 범위로 시작한다.
 앱 로그인에는 Apple이 발급한 `idToken`과 로그인 시도에 사용한 nonce를 사용한다.
 
 Apple 로그인은 앱 계정에 필요한 이메일 범위로 시작하며, 사용자 이름 등 추가 정보는 요청하지 않는다.
+
+웹 로그인 흐름에서는 로그인 시도마다 새로운 nonce와 상태 값을 만들고, 이전 시도의 값을 재사용하지 않는다. 앱으로 돌아온 응답은 그 시도의 상태 값을 함께 가져와야 하며, 상태 값이 없거나 다른 응답은 인증 결과로 받지 않고 인증 결과를 받지 못한 것으로 본다.
+
+Apple이 사용자의 취소를 알린 응답은 인증 결과를 받지 못한 것이 아니라 사용자 취소로 본다.
 
 ### 인증 수단과 계정 동일성
 
@@ -143,6 +161,20 @@ JVM 데스크톱이 authorization code를 받으면 같은 로그인 시도에 �
 
 앱은 Apple이 발급한 `idToken`과 로그인 시도에 사용한 nonce를 서버에 전달한다.
 
+웹 로그인 흐름에서 앱은 Apple에 서버의 Apple 콜백 주소, 이번 시도의 nonce, 이번 시도의 상태 값을 담아 로그인을 요청한다. 상태 값에는 인증 결과가 돌아올 앱 복귀 주소를 함께 담는다.
+
+Apple은 인증 결과를 서버의 Apple 콜백 주소로 보낸다. 서버는 그 결과에서 `idToken`, 상태 값, 오류만 골라 상태 값에 담긴 앱 복귀 주소로 그대로 넘기고, 인증 결과를 저장하거나 검증하지 않는다. 앱 세션 발급을 위한 검증은 앱이 `idToken`을 전달한 뒤에만 이루어진다.
+
+서버는 앱 복귀 주소가 다음 중 하나일 때만 인증 결과를 넘긴다. 그 외 주소로는 어떤 값도 넘기지 않고 요청을 거절한다.
+
+| 플랫폼 | 앱 복귀 주소 |
+| --- | --- |
+| Android | 앱 식별자를 scheme으로 쓰는 앱 링크 |
+| 데스크톱 | 앱이 로그인 시도 동안만 여는 로컬 수신 주소(`127.0.0.1`) |
+| 웹 | 로컬 개발 출처(`localhost`, `127.0.0.1`)와 서버가 허용 목록으로 둔 웹 앱 출처 |
+
+웹에서는 인증 결과를 로그인 창에서 앱 창으로 넘기며, 앱은 서버의 Apple 콜백 주소 출처에서 온 결과만 받는다.
+
 서버는 전달받은 결과를 Apple 인증 정보로 검증하며, 이때 인증 결과가 이 앱을 대상으로 발급되었는지 함께 확인한다.
 
 사용자가 Apple 로그인에서 이메일 가리기를 선택하면 앱에 전달되는 이메일은 Apple의 비공개 릴레이 주소다. 앱은 가리기 여부와 관계없이 전달받은 이메일을 그대로 계정 이메일로 사용한다.
@@ -183,3 +215,5 @@ JVM 데스크톱이 authorization code를 받으면 같은 로그인 시도에 �
 
 - [About Sign in with Google](https://developer.android.com/identity/sign-in/credential-manager-siwg)
 - [Implementing User Authentication with Sign in with Apple](https://developer.apple.com/documentation/sign_in_with_apple/implementing-user-authentication-with-sign-in-with-apple)
+- [Incorporating Sign in with Apple into Other Platforms](https://developer.apple.com/documentation/signinwithapplerestapi/incorporating-sign-in-with-apple-into-other-platforms)
+- [Authenticating Users with Sign in with Apple](https://developer.apple.com/documentation/signinwithapplerestapi/authenticating-users-with-sign-in-with-apple)
