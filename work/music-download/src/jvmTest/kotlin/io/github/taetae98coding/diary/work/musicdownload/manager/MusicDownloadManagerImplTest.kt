@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.work.musicdownload.manager
 
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadEvent
 import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadState
 import io.github.taetae98coding.diary.work.musicdownload.scheduler.MusicDownloadWorkScheduler
 import io.github.taetae98coding.diary.work.musicdownload.state.MusicDownloadEventHolder
@@ -15,9 +16,9 @@ import kotlin.uuid.Uuid
 
 class MusicDownloadManagerImplTest :
     BehaviorSpec({
-        Given("진행 중인 다운로드가 없다") {
+        Given("다운로드 예약기가 준비되어 있다") {
             When("다운로드를 요청한다") {
-                Then("TC-PLAYLIST-HOME-FEATURE-019 목록의 곡 내려받기를 시작한다") {
+                Then("TC-PLAYLIST-HOME-FEATURE-019 지금 정렬로 목록의 곡 내려받기를 예약한다") {
                     val scheduler = mockk<MusicDownloadWorkScheduler>()
                     every { scheduler.download(sort = any()) } returns Unit
                     val manager = manager(scheduler = scheduler)
@@ -29,63 +30,37 @@ class MusicDownloadManagerImplTest :
             }
         }
 
-        Given("받고 있는 곡이 남아 있다") {
-            When("다운로드를 다시 요청한다") {
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-004 새 요청을 처리하지 않는다") {
-                    val holder = MusicDownloadStateHolder()
-                    holder.update(id = Uuid.random(), state = MusicDownloadState.Running(progress = 0.62F))
-                    val scheduler = mockk<MusicDownloadWorkScheduler>()
-                    val manager = manager(scheduler = scheduler, holder = holder)
-
-                    manager.requestDownload(sort = ListSort.TITLE)
-
-                    verify(exactly = 0) { scheduler.download(sort = any()) }
-                }
-
-                Then("TC-MUSIC-DOWNLOAD-FEATURE-006 진행 중인 곡의 상태가 그대로 남는다") {
+        Given("곡의 다운로드 상태가 바뀐다") {
+            When("상태를 관찰한다") {
+                Then("작업이 남긴 상태를 그대로 전달한다") {
                     val id = Uuid.random()
-                    val holder = MusicDownloadStateHolder()
-                    holder.update(id = id, state = MusicDownloadState.Running(progress = 0.62F))
-                    val manager = manager(holder = holder)
-
-                    manager.requestDownload(sort = ListSort.TITLE)
+                    val stateHolder = MusicDownloadStateHolder()
+                    val manager = manager(stateHolder = stateHolder)
 
                     manager.stateMap.test {
-                        awaitItem()[id] shouldBe MusicDownloadState.Running(progress = 0.62F)
+                        awaitItem() shouldBe emptyMap()
+
+                        stateHolder.update(id = id, state = MusicDownloadState.Running(progress = 0.62F))
+
+                        awaitItem() shouldBe mapOf(id to MusicDownloadState.Running(progress = 0.62F))
                         cancelAndIgnoreRemainingEvents()
                     }
                 }
             }
         }
 
-        Given("대기 중인 곡이 남아 있다") {
-            When("다운로드를 다시 요청한다") {
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-004 새 요청을 처리하지 않는다") {
-                    val holder = MusicDownloadStateHolder()
-                    holder.submitPending(idList = listOf(Uuid.random()))
-                    val scheduler = mockk<MusicDownloadWorkScheduler>()
-                    val manager = manager(scheduler = scheduler, holder = holder)
+        Given("도구 준비 결과를 알려야 한다") {
+            When("이벤트를 관찰한다") {
+                Then("작업이 보낸 이벤트를 그대로 전달한다") {
+                    val eventHolder = MusicDownloadEventHolder()
+                    val manager = manager(eventHolder = eventHolder)
 
-                    manager.requestDownload(sort = ListSort.TITLE)
+                    manager.event.test {
+                        eventHolder.send(event = MusicDownloadEvent.TOOL_NOT_INSTALLED)
 
-                    verify(exactly = 0) { scheduler.download(sort = any()) }
-                }
-            }
-        }
-
-        Given("모든 곡이 완료나 실패로 끝났다") {
-            When("다운로드를 다시 요청한다") {
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-005 다시 시작한다") {
-                    val holder = MusicDownloadStateHolder()
-                    holder.update(id = Uuid.random(), state = MusicDownloadState.Done)
-                    holder.update(id = Uuid.random(), state = MusicDownloadState.Failed)
-                    val scheduler = mockk<MusicDownloadWorkScheduler>()
-                    every { scheduler.download(sort = any()) } returns Unit
-                    val manager = manager(scheduler = scheduler, holder = holder)
-
-                    manager.requestDownload(sort = ListSort.TITLE)
-
-                    verify(exactly = 1) { scheduler.download(sort = ListSort.TITLE) }
+                        awaitItem() shouldBe MusicDownloadEvent.TOOL_NOT_INSTALLED
+                        expectNoEvents()
+                    }
                 }
             }
         }
@@ -93,12 +68,13 @@ class MusicDownloadManagerImplTest :
     public companion object {
         private fun manager(
             scheduler: MusicDownloadWorkScheduler = mockk(relaxed = true),
-            holder: MusicDownloadStateHolder = MusicDownloadStateHolder(),
+            stateHolder: MusicDownloadStateHolder = MusicDownloadStateHolder(),
+            eventHolder: MusicDownloadEventHolder = MusicDownloadEventHolder(),
         ): MusicDownloadManagerImpl =
             MusicDownloadManagerImpl(
                 musicDownloadWorkScheduler = scheduler,
-                musicDownloadStateHolder = holder,
-                musicDownloadEventHolder = MusicDownloadEventHolder(),
+                musicDownloadStateHolder = stateHolder,
+                musicDownloadEventHolder = eventHolder,
             )
     }
 }

@@ -14,7 +14,7 @@ import kotlin.uuid.Uuid
 @Single
 internal class MusicDownloadManagerImpl(
     private val musicDownloadWorkScheduler: MusicDownloadWorkScheduler,
-    private val musicDownloadStateHolder: MusicDownloadStateHolder,
+    musicDownloadStateHolder: MusicDownloadStateHolder,
     musicDownloadEventHolder: MusicDownloadEventHolder,
 ) : MusicDownloadManager {
     override val stateMap: Flow<Map<Uuid, MusicDownloadState>> = musicDownloadStateHolder.stateMap
@@ -22,8 +22,6 @@ internal class MusicDownloadManagerImpl(
     override val event: Flow<MusicDownloadEvent> = musicDownloadEventHolder.event
 
     override fun requestDownload(sort: ListSort) {
-        if (musicDownloadStateHolder.hasUnfinished) return
-
         musicDownloadWorkScheduler.download(sort = sort)
     }
 }

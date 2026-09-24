@@ -12,12 +12,6 @@ internal class MusicDownloadStateHolder {
     val stateMap: StateFlow<Map<Uuid, MusicDownloadState>>
         field = MutableStateFlow(emptyMap<Uuid, MusicDownloadState>())
 
-    val hasUnfinished: Boolean
-        get() =
-            stateMap.value.values.any { state ->
-                state is MusicDownloadState.Pending || state is MusicDownloadState.Running
-            }
-
     fun submitPending(idList: List<Uuid>) {
         stateMap.update { current ->
             current + idList.associateWith { id -> current[id] ?: MusicDownloadState.Pending }
