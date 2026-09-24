@@ -328,3 +328,58 @@ dataStore.updateData { setting -> setting.copy(mapDefaultProvider = provider.per
 ```
 
 경계를 넘지 않는 값에는 `.name`과 `valueOf`를 그대로 쓴다. `rememberSaveable`의 `Saver`가 그렇다. 저장과 복원이 같은 빌드 안에서만 짝을 이루므로 이름을 바꿔도 양쪽이 함께 바뀐다.
+
+## Dispatcher 주입
+
+**Koin이 만드는 클래스에서 blocking 작업을 코루틴 밖 스레드로 옮길 때 `Dispatchers.IO`·`Dispatchers.Default`를 직접 참조하지 않고, `CoroutineDispatcher`를 생성자로 주입받아 `withContext(dispatcher)`로 쓴다.** `core:*:impl`, `data:*`, `work:*`, `notification`의 DataSource, Repository, Work, 변환기가 대상이다.
+
+직접 참조하면 테스트가 dispatcher를 바꿔 넣을 수 없고, 어느 dispatcher를 쓸지가 구현 클래스마다 흩어져 플랫폼별로 다르게 정할 수 없다. 예를 들어 파일 읽기는 Android·JVM·iOS에서는 `Dispatchers.IO`로 옮기지만 wasm에는 `IO`가 없어 다른 dispatcher를 써야 한다. 이 선택은 구현 클래스가 아니라 플랫폼 소스셋의 Koin 모듈이 소유한다.
+
+다음 순서로 둔다.
+
+1. 모듈의 `impl/di`에 `@Qualifier` 어노테이션을 하나 둔다(`FileDispatcher`, `BrowserCookieDispatcher`, `DiarySettingDispatcher`). 하나의 모듈 안에서는 dispatcher 하나를 공유한다.
+2. 플랫폼 소스셋의 Koin 모듈이 그 qualifier로 `CoroutineDispatcher`를 제공한다. `Dispatchers.IO`는 이 제공 함수에서만 참조한다.
+3. 구현 클래스는 같은 qualifier로 `CoroutineDispatcher`를 주입받는다.
+4. 테스트는 `Dispatchers.Default`처럼 실제 dispatcher를 생성자에 직접 넘긴다.
+
+⚠️ 비권장 예시:
+
+```kotlin
+@Factory
+internal class JvmFileLocalDataSource : FileLocalDataSource {
+    override suspend fun size(uri: FileUri): Long = withContext(Dispatchers.IO) { uri.toFile().length() }
+}
+```
+
+✅ 권장 예시:
+
+```kotlin
+// core:file:impl commonMain di/FileDispatcher.kt
+@Qualifier
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.VALUE_PARAMETER)
+@Retention(AnnotationRetention.RUNTIME)
+internal annotation class FileDispatcher
+
+// core:file:impl nonWasmMain
+@Module
+@Configuration
+public class NonWasmFileModule {
+    @Factory
+    @FileDispatcher
+    internal fun providesFileDispatcher(): CoroutineDispatcher = Dispatchers.IO
+}
+
+// core:file:impl jvmMain
+@Factory
+internal class JvmFileLocalDataSource(
+    @FileDispatcher private val dispatcher: CoroutineDispatcher,
+) : FileLocalDataSource {
+    override suspend fun size(uri: FileUri): Long = withContext(dispatcher) { uri.toFile().length() }
+}
+```
+
+다음은 이 규칙의 대상이 아니다.
+
+- 플랫폼이 특정 스레드를 요구해 `Dispatchers.Main`으로 옮기는 경우. CoreLocation처럼 메인 스레드에서만 부를 수 있는 API가 그렇다. 이 선택은 우회할 수 없는 플랫폼 제약이므로 주입해도 바꿀 수 없다.
+- Koin이 만들지 않는 객체. Composable 안에서 `remember`로 만드는 UI 보조 객체가 그렇다.
+- 콜백을 `suspendCancellableCoroutine`으로 기다리기만 하는 코드. blocking이 없어 옮길 것이 없다.
