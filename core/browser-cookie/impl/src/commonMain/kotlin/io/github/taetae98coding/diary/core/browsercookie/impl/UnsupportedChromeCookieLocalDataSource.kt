@@ -6,8 +6,5 @@ import io.github.taetae98coding.diary.core.browsercookie.api.entity.BrowserCooki
 internal object UnsupportedChromeCookieLocalDataSource : ChromeCookieLocalDataSource {
     override val isSupported: Boolean = false
 
-    override suspend fun findByDomain(
-        profileDirectory: String,
-        domainSet: Set<String>,
-    ): List<BrowserCookieLocalEntity> = error("Chrome cookies are not supported on this platform.")
+    override suspend fun findAll(profileDirectory: String): List<BrowserCookieLocalEntity> = error("Chrome cookies are not supported on this platform.")
 }

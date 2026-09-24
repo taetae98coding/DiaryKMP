@@ -5,4 +5,6 @@ import io.github.taetae98coding.diary.core.browsercookie.api.entity.BrowserCooki
 
 internal object UnsupportedInAppBrowserCookieLocalDataSource : InAppBrowserCookieLocalDataSource {
     override suspend fun upsert(cookieList: List<BrowserCookieLocalEntity>): Unit = error("In-app browser cookies are not supported on this platform.")
+
+    override suspend fun deleteAll(): Unit = error("In-app browser cookies are not supported on this platform.")
 }

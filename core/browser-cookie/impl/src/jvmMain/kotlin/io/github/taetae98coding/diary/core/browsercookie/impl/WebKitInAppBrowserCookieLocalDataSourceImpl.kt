@@ -14,6 +14,10 @@ internal class WebKitInAppBrowserCookieLocalDataSourceImpl : InAppBrowserCookieL
         WebKitCookieStore.setCookies(cookieList = cookieList.map { cookie -> cookie.toWebKit() })
     }
 
+    override suspend fun deleteAll() {
+        WebKitCookieStore.deleteAllCookies()
+    }
+
     private fun BrowserCookieLocalEntity.toWebKit(): WebKitCookie =
         WebKitCookie(
             name = name,

@@ -15,13 +15,12 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.web.DiaryWebSession
+import io.github.taetae98coding.diary.compose.web.LocalDiaryWebSession
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageViewModel
-import io.github.taetae98coding.diary.feature.web.ui.detail.session.WebDetailSessionEffect
-import io.github.taetae98coding.diary.feature.web.ui.detail.session.WebDetailSessionUiState
-import io.github.taetae98coding.diary.feature.web.ui.detail.session.WebDetailSessionViewModel
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -308,7 +307,6 @@ class WebDetailScreenTest {
                     pageViewModel = pageViewModel(),
                     navigateToTagDetail = {},
                     tagViewModel = detailTagScreenTestViewModel(),
-                    sessionViewModel = sessionViewModel(uiState = uiStateFlow.value),
                 )
             }
         }
@@ -331,12 +329,12 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-049 로그인 정보를 가져오지 못하면 안내를 표시하고 웹 표시 수단이 주소를 연다`() {
+    fun `TC-WEB-DETAIL-FEATURE-049 TC-WEB-DETAIL-FEATURE-054 로그인 정보를 가져오지 못했다고 알리면 안내를 표시하고 웹 표시 수단이 주소를 연다`() {
         val uiState = testContentUiState()
 
         setWebDetailScreen(
             uiState = uiState,
-            sessionViewModel = sessionViewModel(uiState = uiState, effect = flowOf(WebDetailSessionEffect.ImportFailed)),
+            webSession = DiaryWebSession(failureId = 1),
         )
 
         composeRule.awaitText(DEFAULT_CHROME_SESSION_IMPORT_FAILED_MESSAGE)
@@ -350,11 +348,11 @@ class WebDetailScreenTest {
         pageViewModel: WebDetailPageViewModel = pageViewModel(),
         uriHandler: UriHandler = mockk(relaxed = true),
         navigateUp: () -> Unit = {},
-        sessionViewModel: WebDetailSessionViewModel = sessionViewModel(uiState = uiState),
+        webSession: DiaryWebSession = DiaryWebSession(),
     ) {
         composeRule.setContent {
             WebDetailScreenTestTheme {
-                CompositionLocalProvider(LocalUriHandler provides uriHandler) {
+                CompositionLocalProvider(LocalUriHandler provides uriHandler, LocalDiaryWebSession provides webSession) {
                     WebDetailScreen(
                         navigateToTagAdd = {},
                         tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
@@ -363,7 +361,6 @@ class WebDetailScreenTest {
                         pageViewModel = pageViewModel,
                         navigateToTagDetail = {},
                         tagViewModel = detailTagScreenTestViewModel(),
-                        sessionViewModel = sessionViewModel,
                     )
                 }
             }
@@ -392,17 +389,6 @@ class WebDetailScreenTest {
             every { viewModel.effect } returns effect
             justRun { viewModel.update(any()) }
             justRun { viewModel.delete() }
-
-            return viewModel
-        }
-
-        private fun sessionViewModel(
-            uiState: WebDetailUiState = testContentUiState(),
-            effect: Flow<WebDetailSessionEffect> = emptyFlow(),
-        ): WebDetailSessionViewModel {
-            val viewModel = mockk<WebDetailSessionViewModel>()
-            every { viewModel.uiState } returns MutableStateFlow(WebDetailSessionUiState.Prepared(url = uiState.urlOrEmpty()))
-            every { viewModel.effect } returns effect
 
             return viewModel
         }

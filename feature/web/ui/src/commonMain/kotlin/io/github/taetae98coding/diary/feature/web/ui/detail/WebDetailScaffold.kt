@@ -21,7 +21,6 @@ import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerDialogHo
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
-import io.github.taetae98coding.diary.feature.web.ui.detail.session.WebDetailSessionUiState
 import io.github.taetae98coding.diary.feature.web.ui.detail.viewmode.WebDetailViewModeBottomSheetHost
 import io.github.taetae98coding.diary.feature.web.ui.form.WebFormEvent
 import io.github.taetae98coding.diary.feature.web.ui.form.WebFormState
@@ -43,7 +42,6 @@ internal fun WebDetailScaffold(
     uiStateProvider: () -> WebDetailUiState = { WebDetailUiState.Loading },
     pageUiStateProvider: () -> WebDetailPageUiState = { WebDetailPageUiState.Loading },
     tagUiStateProvider: () -> EntityTagInputUiState = { EntityTagInputUiState() },
-    sessionUiStateProvider: () -> WebDetailSessionUiState = { WebDetailSessionUiState.Preparing },
 ) {
     val isChanged by remember(formState) {
         derivedStateOf {
@@ -76,7 +74,6 @@ internal fun WebDetailScaffold(
             uiStateProvider = uiStateProvider,
             pageUiStateProvider = pageUiStateProvider,
             tagUiStateProvider = tagUiStateProvider,
-            sessionUiStateProvider = sessionUiStateProvider,
         )
     }
 
@@ -104,7 +101,6 @@ private fun WebDetailScaffoldPreview() {
             formState = rememberWebDetailFormState(initialDetail = previewWebDetail()),
             uiStateProvider = { WebDetailUiState.Content(id = Uuid.NIL, detail = previewWebDetail()) },
             pageUiStateProvider = { WebDetailPageUiState.Content(page = previewWebPage()) },
-            sessionUiStateProvider = { WebDetailSessionUiState.Prepared(url = previewWebDetail().url) },
         )
     }
 }

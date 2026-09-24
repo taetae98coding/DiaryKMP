@@ -20,7 +20,7 @@ public actual fun DiaryWebView(
 }
 
 @Composable
-public actual fun DiaryWebView(
+internal actual fun DiaryUrlWebView(
     url: String,
     modifier: Modifier,
 ) {

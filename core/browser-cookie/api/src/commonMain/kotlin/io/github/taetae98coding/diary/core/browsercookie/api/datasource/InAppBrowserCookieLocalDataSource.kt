@@ -4,4 +4,6 @@ import io.github.taetae98coding.diary.core.browsercookie.api.entity.BrowserCooki
 
 public interface InAppBrowserCookieLocalDataSource {
     public suspend fun upsert(cookieList: List<BrowserCookieLocalEntity>)
+
+    public suspend fun deleteAll()
 }

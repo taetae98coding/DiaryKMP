@@ -12,6 +12,10 @@ private val msgSendIdIdReturnVoid =
     ObjCRuntime.msgSendHandle(FunctionDescriptor.ofVoid(ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.ADDRESS))
 private val msgSendBooleanReturnVoid =
     ObjCRuntime.msgSendHandle(FunctionDescriptor.ofVoid(ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.JAVA_BOOLEAN))
+private val msgSendIdIdIdReturnVoid =
+    ObjCRuntime.msgSendHandle(
+        FunctionDescriptor.ofVoid(ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.ADDRESS),
+    )
 private val msgSendRectReturnVoid =
     ObjCRuntime.msgSendHandle(FunctionDescriptor.ofVoid(ValueLayout.ADDRESS, ValueLayout.ADDRESS, ObjCRuntime.cgRectLayout))
 
@@ -32,6 +36,15 @@ internal fun MemorySegment.sendVoid(
     second: MemorySegment,
 ) {
     msgSendIdIdReturnVoid.invoke(this, selector, first, second)
+}
+
+internal fun MemorySegment.sendVoid(
+    selector: MemorySegment,
+    first: MemorySegment,
+    second: MemorySegment,
+    third: MemorySegment,
+) {
+    msgSendIdIdIdReturnVoid.invoke(this, selector, first, second, third)
 }
 
 internal fun MemorySegment.sendVoid(

@@ -1,7 +1,10 @@
 package io.github.taetae98coding.diary.app.shared
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.taetae98coding.diary.app.shared.analytics.ScreenViewEffect
 import io.github.taetae98coding.diary.app.shared.fcm.SubmitFcmTokenEffect
 import io.github.taetae98coding.diary.app.shared.notification.ScheduleDailyMemoNotificationEffect
@@ -9,6 +12,7 @@ import io.github.taetae98coding.diary.app.shared.scaffold.AppScaffold
 import io.github.taetae98coding.diary.compose.core.image.DiaryImageLoaderEffect
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.RequestPermissionEffect
+import io.github.taetae98coding.diary.compose.web.LocalDiaryWebSession
 import io.github.taetae98coding.diary.core.permission.Permission
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import org.koin.compose.viewmodel.koinViewModel
@@ -18,7 +22,9 @@ public fun App(modifier: Modifier = Modifier) {
     val syncViewModel = koinViewModel<AppSyncViewModel>()
     val notificationViewModel = koinViewModel<AppDailyMemoNotificationViewModel>()
     val fcmTokenViewModel = koinViewModel<AppFcmTokenViewModel>()
+    val chromeSessionViewModel = koinViewModel<AppChromeSessionViewModel>()
     val appState = rememberAppState()
+    val webSession by chromeSessionViewModel.session.collectAsStateWithLifecycle()
 
     DiaryImageLoaderEffect()
     RequestPermissionEffect(
@@ -39,15 +45,18 @@ public fun App(modifier: Modifier = Modifier) {
         submit = fcmTokenViewModel::submit,
         account = fcmTokenViewModel.account,
     )
+    ChromeSessionImportEffect(requestImport = chromeSessionViewModel::requestImport)
     ScreenViewEffect(
         log = DiaryLogger::log,
         appState = appState,
     )
 
-    DiaryTheme {
-        AppScaffold(
-            appState = appState,
-            modifier = modifier,
-        )
+    CompositionLocalProvider(LocalDiaryWebSession provides webSession) {
+        DiaryTheme {
+            AppScaffold(
+                appState = appState,
+                modifier = modifier,
+            )
+        }
     }
 }

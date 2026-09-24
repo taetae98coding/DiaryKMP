@@ -45,19 +45,14 @@ internal class ChromeCookieLocalDataSourceImpl(
     override val isSupported: Boolean
         get() = location.isSupported
 
-    override suspend fun findByDomain(
-        profileDirectory: String,
-        domainSet: Set<String>,
-    ): List<BrowserCookieLocalEntity> {
-        if (domainSet.isEmpty()) return emptyList()
-
+    override suspend fun findAll(profileDirectory: String): List<BrowserCookieLocalEntity> {
         val (databaseVersion, rowList) =
             withContext(dispatcher) {
                 val snapshot = ChromeCookieSnapshot.create(cookiesPath = location.cookiesPath(profileDirectory = profileDirectory))
 
                 try {
                     BundledSQLiteDriver().open(snapshot.databasePath.toString()).use { connection ->
-                        connection.readDatabaseVersion() to connection.readRowList(domainSet = domainSet)
+                        connection.readDatabaseVersion() to connection.readRowList()
                     }
                 } finally {
                     snapshot.delete()
@@ -74,16 +69,12 @@ internal class ChromeCookieLocalDataSourceImpl(
             if (statement.step()) statement.getLong(0) else 0L
         }
 
-    private fun SQLiteConnection.readRowList(domainSet: Set<String>): List<ChromeCookieRow> {
-        val domainList = domainSet.toList()
-        val placeholders = domainList.joinToString(separator = ", ") { "?" }
+    private fun SQLiteConnection.readRowList(): List<ChromeCookieRow> {
         val sql =
             "SELECT host_key, name, value, encrypted_value, path, has_expires, expires_utc, is_secure, is_httponly, samesite " +
-                "FROM cookies WHERE top_frame_site_key = '' AND host_key IN ($placeholders)"
+                "FROM cookies WHERE top_frame_site_key = ''"
 
         return prepare(sql).use { statement ->
-            domainList.forEachIndexed { index, domain -> statement.bindText(index + 1, domain) }
-
             buildList {
                 while (statement.step()) {
                     add(

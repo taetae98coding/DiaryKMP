@@ -32,8 +32,6 @@ import io.github.taetae98coding.diary.feature.web.ui.Res
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScaffoldEvent
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScaffoldState
 import io.github.taetae98coding.diary.feature.web.ui.detail.rememberWebDetailScaffoldState
-import io.github.taetae98coding.diary.feature.web.ui.detail.session.WebDetailSessionUiState
-import io.github.taetae98coding.diary.feature.web.ui.detail.session.isPrepared
 import io.github.taetae98coding.diary.feature.web.ui.detail.viewmode.WebDetailViewMode
 import io.github.taetae98coding.diary.feature.web.ui.detail.viewmode.WebDetailViewModeBar
 import io.github.taetae98coding.diary.feature.web.ui.previewWebDetail
@@ -53,7 +51,6 @@ internal fun WebDetailPage(
     state: WebDetailScaffoldState = rememberWebDetailScaffoldState(),
     urlProvider: () -> String = { "" },
     uiStateProvider: () -> WebDetailPageUiState = { WebDetailPageUiState.Loading },
-    sessionUiStateProvider: () -> WebDetailSessionUiState = { WebDetailSessionUiState.Preparing },
 ) {
     Column(modifier = modifier) {
         WebDetailViewModeBar(
@@ -69,9 +66,9 @@ internal fun WebDetailPage(
             when (mode) {
                 WebDetailViewMode.URL ->
                     UrlWebView(
+                        onEvent = onEvent,
                         modifier = Modifier.fillMaxSize(),
                         urlProvider = urlProvider,
-                        sessionUiStateProvider = sessionUiStateProvider,
                     )
 
                 WebDetailViewMode.RESPONSE ->
@@ -87,31 +84,17 @@ internal fun WebDetailPage(
 
 @Composable
 private fun UrlWebView(
+    onEvent: (WebDetailScaffoldEvent) -> Unit,
     modifier: Modifier = Modifier,
     urlProvider: () -> String = { "" },
-    sessionUiStateProvider: () -> WebDetailSessionUiState = { WebDetailSessionUiState.Preparing },
 ) {
-    val url = urlProvider()
-    val isSessionPrepared = sessionUiStateProvider().isPrepared(url = url)
+    val contentDescription = stringResource(Res.string.web_detail_page_content_description)
 
-    DiaryCrossfade(
-        targetState = isSessionPrepared,
-        modifier = modifier,
-    ) { isPrepared ->
-        if (isPrepared) {
-            val contentDescription = stringResource(Res.string.web_detail_page_content_description)
-
-            DiaryWebView(
-                url = url,
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .semantics { this.contentDescription = contentDescription },
-            )
-        } else {
-            DiaryLoadingBox(modifier = Modifier.fillMaxSize())
-        }
-    }
+    DiaryWebView(
+        url = urlProvider(),
+        modifier = modifier.semantics { this.contentDescription = contentDescription },
+        onSessionImportFailed = { onEvent(WebDetailScaffoldEvent.SessionImportFailed) },
+    )
 }
 
 @Composable
@@ -210,7 +193,6 @@ private fun WebDetailPagePreview(
                 state = rememberWebDetailScaffoldState(initialViewMode = value.viewMode),
                 urlProvider = { previewWebDetail().url },
                 uiStateProvider = { value.uiState },
-                sessionUiStateProvider = { WebDetailSessionUiState.Prepared(url = previewWebDetail().url) },
             )
         }
     }

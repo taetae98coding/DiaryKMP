@@ -5,8 +5,5 @@ import io.github.taetae98coding.diary.core.browsercookie.api.entity.BrowserCooki
 public interface ChromeCookieLocalDataSource {
     public val isSupported: Boolean
 
-    public suspend fun findByDomain(
-        profileDirectory: String,
-        domainSet: Set<String>,
-    ): List<BrowserCookieLocalEntity>
+    public suspend fun findAll(profileDirectory: String): List<BrowserCookieLocalEntity>
 }

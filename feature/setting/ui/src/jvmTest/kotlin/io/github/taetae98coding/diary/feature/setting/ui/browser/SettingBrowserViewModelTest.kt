@@ -4,10 +4,10 @@ package io.github.taetae98coding.diary.feature.setting.ui.browser
 
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.browser.ChromeProfile
-import io.github.taetae98coding.diary.domain.setting.usecase.FindChromeProfileListUseCase
-import io.github.taetae98coding.diary.domain.setting.usecase.GetChromeSessionProfileDirectoryUseCase
-import io.github.taetae98coding.diary.domain.setting.usecase.SelectChromeSessionProfileUseCase
-import io.github.taetae98coding.diary.domain.setting.usecase.UnselectChromeSessionProfileUseCase
+import io.github.taetae98coding.diary.domain.browser.usecase.FindChromeProfileListUseCase
+import io.github.taetae98coding.diary.domain.browser.usecase.GetChromeSessionProfileDirectoryUseCase
+import io.github.taetae98coding.diary.domain.browser.usecase.SelectChromeSessionProfileUseCase
+import io.github.taetae98coding.diary.domain.browser.usecase.UnselectChromeSessionProfileUseCase
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery

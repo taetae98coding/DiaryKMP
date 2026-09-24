@@ -8,6 +8,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 private const val FOUNDATION_PATH = "/System/Library/Frameworks/Foundation.framework/Foundation"
+private const val WEBKIT_PATH = "/System/Library/Frameworks/WebKit.framework/WebKit"
 
 // NSHTTPCookie는 HttpOnly 속성의 공개 상수가 없고 이 키 문자열만 받는다.
 private const val HTTP_ONLY_KEY = "HttpOnly"
@@ -24,6 +25,25 @@ public object WebKitCookieStore {
 
         suspendCancellableCoroutine { continuation ->
             ObjCRuntime.performOnMainThread { setCookiesOnMainThread(cookieList = cookieList, continuation = continuation) }
+        }
+    }
+
+    public suspend fun deleteAllCookies() {
+        suspendCancellableCoroutine { continuation ->
+            ObjCRuntime.performOnMainThread { deleteAllCookiesOnMainThread(continuation = continuation) }
+        }
+    }
+
+    private fun deleteAllCookiesOnMainThread(continuation: CancellableContinuation<Unit>) {
+        try {
+            val dataStore = ObjCRuntime.objcClass("WKWebsiteDataStore").send(ObjCRuntime.selector("defaultDataStore"))
+            val cookieType = ObjCRuntime.objcClass("NSSet").send(ObjCRuntime.selector("setWithObject:"), webKitString("WKWebsiteDataTypeCookies"))
+            val distantPast = ObjCRuntime.objcClass("NSDate").send(ObjCRuntime.selector("distantPast"))
+            val completion = ObjCBlock.create { if (continuation.isActive) continuation.resume(Unit) }
+
+            dataStore.sendVoid(ObjCRuntime.selector("removeDataOfTypes:modifiedSince:completionHandler:"), cookieType, distantPast, completion)
+        } catch (throwable: Throwable) {
+            if (continuation.isActive) continuation.resumeWithException(throwable)
         }
     }
 
@@ -110,9 +130,16 @@ private fun MemorySegment.setProperty(
     sendVoid(ObjCRuntime.selector("setObject:forKey:"), value, key)
 }
 
-// Foundation이 내보내는 NSString 상수는 포인터 변수라 한 번 더 읽어야 객체가 나온다.
-private fun foundationString(name: String): MemorySegment =
+// Foundation과 WebKit이 내보내는 NSString 상수는 포인터 변수라 한 번 더 읽어야 객체가 나온다.
+private fun foundationString(name: String): MemorySegment = frameworkString(frameworkPath = FOUNDATION_PATH, name = name)
+
+private fun webKitString(name: String): MemorySegment = frameworkString(frameworkPath = WEBKIT_PATH, name = name)
+
+private fun frameworkString(
+    frameworkPath: String,
+    name: String,
+): MemorySegment =
     ObjCRuntime
-        .frameworkSymbol(frameworkPath = FOUNDATION_PATH, name = name)
+        .frameworkSymbol(frameworkPath = frameworkPath, name = name)
         .reinterpret(ValueLayout.ADDRESS.byteSize())
         .get(ValueLayout.ADDRESS, 0L)

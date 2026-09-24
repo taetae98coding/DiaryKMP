@@ -16,8 +16,6 @@ import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestView
 import io.github.taetae98coding.diary.feature.web.ui.add.webTestTag
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageViewModel
-import io.github.taetae98coding.diary.feature.web.ui.detail.session.WebDetailSessionUiState
-import io.github.taetae98coding.diary.feature.web.ui.detail.session.WebDetailSessionViewModel
 import io.github.taetae98coding.diary.feature.web.ui.sendTagAddedResult
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -216,7 +214,6 @@ class WebDetailTagInputTest {
                     pageViewModel = pageViewModel,
                     navigateToTagDetail = navigateToTagDetail,
                     tagViewModel = tagViewModel,
-                    sessionViewModel = sessionViewModel(uiState = uiState),
                 )
             }
         }
@@ -258,12 +255,4 @@ class WebDetailTagInputTest {
             return viewModel
         }
     }
-}
-
-private fun sessionViewModel(uiState: WebDetailUiState): WebDetailSessionViewModel {
-    val viewModel = mockk<WebDetailSessionViewModel>()
-    every { viewModel.uiState } returns MutableStateFlow(WebDetailSessionUiState.Prepared(url = uiState.urlOrEmpty()))
-    every { viewModel.effect } returns emptyFlow()
-
-    return viewModel
 }

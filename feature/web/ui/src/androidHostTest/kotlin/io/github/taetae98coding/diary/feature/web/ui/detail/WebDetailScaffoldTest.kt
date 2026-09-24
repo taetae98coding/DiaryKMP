@@ -5,12 +5,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
-import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -26,7 +24,6 @@ import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WEB_DETAIL_PAGE_FAILURE_TEST_TAG
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
-import io.github.taetae98coding.diary.feature.web.ui.detail.session.WebDetailSessionUiState
 import io.github.taetae98coding.diary.feature.web.ui.detail.tab.WebDetailTab
 import io.github.taetae98coding.diary.feature.web.ui.detail.viewmode.WebDetailViewMode
 import io.github.taetae98coding.diary.feature.web.ui.form.rememberWebDetailFormState
@@ -513,35 +510,6 @@ class WebDetailScaffoldTest {
         composeRule.onNodeWithText(KOREAN_RETRY_BUTTON).assertExists()
     }
 
-    @Test
-    fun `TC-WEB-DETAIL-FEATURE-047 로그인 정보를 가져오는 동안에는 진행 표시를 두고 웹 표시 수단을 두지 않는다`() {
-        setWebDetailScaffold(sessionUiState = WebDetailSessionUiState.Preparing)
-
-        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
-        composeRule.onNodeWithContentDescription(DEFAULT_PAGE_DESCRIPTION).assertDoesNotExist()
-        composeRule.onNodeWithContentDescription(DEFAULT_VIEW_MODE_DESCRIPTION).assert(hasClickAction())
-        composeRule.onNodeWithContentDescription(DEFAULT_FORM_TAB_DESCRIPTION).assert(hasClickAction())
-        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).assert(hasClickAction())
-    }
-
-    @Test
-    fun `TC-WEB-DETAIL-FEATURE-048 TC-WEB-DETAIL-FEATURE-050 로그인 정보가 준비되면 진행 표시 없이 웹 표시 수단이 주소를 연다`() {
-        val uiState = testContentUiState()
-
-        setWebDetailScaffold(uiState = uiState, sessionUiState = WebDetailSessionUiState.Prepared(url = uiState.detail.url))
-
-        composeRule.onNodeWithContentDescription(DEFAULT_PAGE_DESCRIPTION).assertExists()
-        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertDoesNotExist()
-    }
-
-    @Test
-    fun `TC-WEB-DETAIL-FEATURE-051 다른 주소의 로그인 정보만 준비되어 있으면 새 주소를 열지 않고 진행 표시를 둔다`() {
-        setWebDetailScaffold(sessionUiState = WebDetailSessionUiState.Prepared(url = OTHER_URL))
-
-        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
-        composeRule.onNodeWithContentDescription(DEFAULT_PAGE_DESCRIPTION).assertDoesNotExist()
-    }
-
     private fun setWebDetailScaffold(
         uiState: WebDetailUiState = testContentUiState(),
         pageUiState: WebDetailPageUiState = WebDetailPageUiState.Loading,
@@ -549,7 +517,6 @@ class WebDetailScaffoldTest {
         initialTab: WebDetailTab = WebDetailTab.PAGE,
         initialViewMode: WebDetailViewMode = WebDetailViewMode.URL,
         onEvent: (WebDetailScaffoldEvent) -> Unit = {},
-        sessionUiState: WebDetailSessionUiState = WebDetailSessionUiState.Prepared(url = detail.url),
     ) {
         composeRule.setContent {
             WebDetailScaffoldUnderTest(
@@ -559,7 +526,6 @@ class WebDetailScaffoldTest {
                 initialTab = initialTab,
                 initialViewMode = initialViewMode,
                 onEvent = onEvent,
-                sessionUiState = sessionUiState,
             )
         }
     }
@@ -572,7 +538,6 @@ class WebDetailScaffoldTest {
         initialTab: WebDetailTab,
         initialViewMode: WebDetailViewMode,
         onEvent: (WebDetailScaffoldEvent) -> Unit,
-        sessionUiState: WebDetailSessionUiState = WebDetailSessionUiState.Prepared(url = detail.url),
     ) {
         DiaryTheme {
             // Scaffold는 탭과 표시 방식 선택을 이벤트로 올리기만 하므로, 화면이 하는 반영을 테스트가 대신한다.
@@ -594,7 +559,6 @@ class WebDetailScaffoldTest {
                 pageUiStateProvider = { pageUiState },
                 onFormEvent = {},
                 onTagPickerEvent = {},
-                sessionUiStateProvider = { sessionUiState },
             )
         }
     }
@@ -606,7 +570,6 @@ class WebDetailScaffoldTest {
         private const val SECOND_HEADER_VALUE = "ko-KR"
 
         private const val TYPED_TITLE = "WebDetailTypedTitle"
-        private const val OTHER_URL = "https://other.example.com"
 
         private const val KOREAN_OPEN_IN_NEW_DESCRIPTION = "외부로 열기"
         private const val KOREAN_DELETE_DESCRIPTION = "웹 삭제"

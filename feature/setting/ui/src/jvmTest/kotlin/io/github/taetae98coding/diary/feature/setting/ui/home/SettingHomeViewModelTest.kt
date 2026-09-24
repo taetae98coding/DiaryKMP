@@ -3,7 +3,7 @@
 package io.github.taetae98coding.diary.feature.setting.ui.home
 
 import app.cash.turbine.test
-import io.github.taetae98coding.diary.domain.setting.usecase.FindChromeSessionImportSupportUseCase
+import io.github.taetae98coding.diary.domain.browser.usecase.FindChromeSessionImportSupportUseCase
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery

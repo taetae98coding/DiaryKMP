@@ -35,31 +35,32 @@ class ChromeCookieLocalDataSourceImplTest :
             val database = createDatabase(ChromeCookieTestRow(hostKey = ".example.com", name = "session", encryptedValue = encryptChromeCookieValue(value, ".example.com", key)))
             val dataSource = dataSource(userDataDirectory = database, key = key)
 
-            val cookieList = dataSource.findByDomain(profileDirectory = PROFILE_DIRECTORY, domainSet = setOf(".example.com"))
+            val cookieList = dataSource.findAll(profileDirectory = PROFILE_DIRECTORY)
 
             cookieList.map { cookie -> cookie.name to cookie.value } shouldBe listOf("session" to value)
         }
 
-        test("암호화되지 않은 쿠키 값은 그대로 제공하고 키체인을 읽지 않는다") {
+        test("TC-CHROME-SESSION-IMPORT-DATA-013 암호화되지 않은 쿠키 값은 그대로 제공하고 키체인을 읽지 않는다") {
             val database = createDatabase(ChromeCookieTestRow(hostKey = "example.com", name = "plain", value = "plain-value"))
             val dataSource = dataSource(userDataDirectory = database, keyProvider = { error("keychain must not be read") })
 
-            dataSource.findByDomain(profileDirectory = PROFILE_DIRECTORY, domainSet = setOf("example.com")).map { cookie -> cookie.value } shouldBe listOf("plain-value")
+            dataSource.findAll(profileDirectory = PROFILE_DIRECTORY).map { cookie -> cookie.value } shouldBe listOf("plain-value")
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DATA-002 요청한 도메인의 쿠키만 제공한다") {
+        test("TC-CHROME-SESSION-IMPORT-DATA-012 저장소의 쿠키를 도메인과 관계없이 모두 제공한다") {
             val key = randomAesKey()
             val database =
                 createDatabase(
                     ChromeCookieTestRow(hostKey = "example.com", name = "host", encryptedValue = encryptChromeCookieValue("1", "example.com", key)),
                     ChromeCookieTestRow(hostKey = ".example.com", name = "domain", encryptedValue = encryptChromeCookieValue("2", ".example.com", key)),
-                    ChromeCookieTestRow(hostKey = "other.example.com", name = "other", encryptedValue = encryptChromeCookieValue("3", "other.example.com", key)),
+                    ChromeCookieTestRow(hostKey = "other.example.org", name = "other", encryptedValue = encryptChromeCookieValue("3", "other.example.org", key)),
                 )
             val dataSource = dataSource(userDataDirectory = database, key = key)
 
-            val cookieList = dataSource.findByDomain(profileDirectory = PROFILE_DIRECTORY, domainSet = setOf("example.com", ".example.com"))
+            val cookieList = dataSource.findAll(profileDirectory = PROFILE_DIRECTORY)
 
-            cookieList.map { cookie -> cookie.domain to cookie.name } shouldContainExactlyInAnyOrder listOf("example.com" to "host", ".example.com" to "domain")
+            cookieList.map { cookie -> cookie.domain to cookie.name } shouldContainExactlyInAnyOrder
+                listOf("example.com" to "host", ".example.com" to "domain", "other.example.org" to "other")
         }
 
         test("TC-CHROME-SESSION-IMPORT-DATA-003 특정 상위 사이트 안에서만 쓰는 쿠키는 제공하지 않는다") {
@@ -76,7 +77,7 @@ class ChromeCookieLocalDataSourceImplTest :
                 )
             val dataSource = dataSource(userDataDirectory = database, key = key)
 
-            dataSource.findByDomain(profileDirectory = PROFILE_DIRECTORY, domainSet = setOf(".example.com")).map { cookie -> cookie.name } shouldBe listOf("normal")
+            dataSource.findAll(profileDirectory = PROFILE_DIRECTORY).map { cookie -> cookie.name } shouldBe listOf("normal")
         }
 
         test("TC-CHROME-SESSION-IMPORT-DATA-004 쿠키 속성을 Chrome 저장소의 값대로 제공한다") {
@@ -101,7 +102,7 @@ class ChromeCookieLocalDataSourceImplTest :
                 )
             val dataSource = dataSource(userDataDirectory = database, key = key)
 
-            val cookieList = dataSource.findByDomain(profileDirectory = PROFILE_DIRECTORY, domainSet = setOf(".example.com"))
+            val cookieList = dataSource.findAll(profileDirectory = PROFILE_DIRECTORY)
 
             cookieList shouldContainExactlyInAnyOrder
                 cases.map { (row, sameSite) ->
@@ -127,7 +128,7 @@ class ChromeCookieLocalDataSourceImplTest :
                 )
             val dataSource = dataSource(userDataDirectory = database, key = key)
 
-            dataSource.findByDomain(profileDirectory = PROFILE_DIRECTORY, domainSet = setOf(".example.com")).map { cookie -> cookie.name } shouldBe listOf("valid")
+            dataSource.findAll(profileDirectory = PROFILE_DIRECTORY).map { cookie -> cookie.name } shouldBe listOf("valid")
         }
 
         test("해시를 붙이기 전 버전의 저장소는 값을 그대로 제공한다") {
@@ -139,7 +140,7 @@ class ChromeCookieLocalDataSourceImplTest :
                 )
             val dataSource = dataSource(userDataDirectory = database, key = key)
 
-            dataSource.findByDomain(profileDirectory = PROFILE_DIRECTORY, domainSet = setOf(".example.com")).map { cookie -> cookie.value } shouldBe listOf("1")
+            dataSource.findAll(profileDirectory = PROFILE_DIRECTORY).map { cookie -> cookie.value } shouldBe listOf("1")
         }
 
         test("TC-CHROME-SESSION-IMPORT-DATA-005 암호화 키를 얻지 못하면 실패로 알린다") {
@@ -148,7 +149,7 @@ class ChromeCookieLocalDataSourceImplTest :
             val dataSource = dataSource(userDataDirectory = database, keyProvider = { error("keychain denied") })
 
             shouldThrow<IllegalStateException> {
-                dataSource.findByDomain(profileDirectory = PROFILE_DIRECTORY, domainSet = setOf(".example.com"))
+                dataSource.findAll(profileDirectory = PROFILE_DIRECTORY)
             }
         }
 
@@ -156,7 +157,7 @@ class ChromeCookieLocalDataSourceImplTest :
             val dataSource = dataSource(userDataDirectory = createTempDirectory("diary-missing"), key = randomAesKey())
 
             shouldThrow<IllegalStateException> {
-                dataSource.findByDomain(profileDirectory = PROFILE_DIRECTORY, domainSet = setOf(".example.com"))
+                dataSource.findAll(profileDirectory = PROFILE_DIRECTORY)
             }
         }
 
@@ -167,16 +168,10 @@ class ChromeCookieLocalDataSourceImplTest :
             val snapshotCountBefore = snapshotDirectoryCount()
             val dataSource = dataSource(userDataDirectory = database, key = key)
 
-            dataSource.findByDomain(profileDirectory = PROFILE_DIRECTORY, domainSet = setOf(".example.com")) shouldHaveSize 1
+            dataSource.findAll(profileDirectory = PROFILE_DIRECTORY) shouldHaveSize 1
 
             snapshotDirectoryCount() shouldBe snapshotCountBefore
             database.resolve(PROFILE_DIRECTORY).resolve("Cookies").readBytes() shouldBe originalBytes
-        }
-
-        test("요청한 도메인이 없으면 저장소를 읽지 않고 빈 목록을 제공한다") {
-            val dataSource = dataSource(userDataDirectory = Paths.get("/nonexistent"), key = randomAesKey())
-
-            dataSource.findByDomain(profileDirectory = PROFILE_DIRECTORY, domainSet = emptySet()) shouldBe emptyList()
         }
 
         test("제공 여부는 저장소 위치의 제공 여부를 그대로 따른다") {
@@ -199,7 +194,7 @@ class ChromeCookieLocalDataSourceImplTest :
             createChromeCookieDatabase(path = otherPath, rowList = listOf(ChromeCookieTestRow(hostKey = "example.com", name = "other", value = "2")))
             val dataSource = dataSource(userDataDirectory = userDataDirectory, key = randomAesKey())
 
-            dataSource.findByDomain(profileDirectory = "Profile 1", domainSet = setOf("example.com")).map { cookie -> cookie.name } shouldBe listOf("other")
+            dataSource.findAll(profileDirectory = "Profile 1").map { cookie -> cookie.name } shouldBe listOf("other")
         }
 
         test("만료 시각이 없는 쿠키는 만료 시각 없음으로 제공한다") {
@@ -207,7 +202,7 @@ class ChromeCookieLocalDataSourceImplTest :
             val dataSource = dataSource(userDataDirectory = database, key = randomAesKey())
 
             dataSource
-                .findByDomain(profileDirectory = PROFILE_DIRECTORY, domainSet = setOf("example.com"))
+                .findAll(profileDirectory = PROFILE_DIRECTORY)
                 .single()
                 .expiresAt
                 .shouldBeNull()

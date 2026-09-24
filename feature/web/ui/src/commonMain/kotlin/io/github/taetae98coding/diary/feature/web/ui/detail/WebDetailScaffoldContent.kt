@@ -16,7 +16,6 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPage
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
-import io.github.taetae98coding.diary.feature.web.ui.detail.session.WebDetailSessionUiState
 import io.github.taetae98coding.diary.feature.web.ui.detail.tab.WebDetailTab
 import io.github.taetae98coding.diary.feature.web.ui.detail.tab.WebDetailTabRow
 import io.github.taetae98coding.diary.feature.web.ui.form.WebFormEvent
@@ -37,7 +36,6 @@ internal fun WebDetailScaffoldContent(
     uiStateProvider: () -> WebDetailUiState = { WebDetailUiState.Loading },
     pageUiStateProvider: () -> WebDetailPageUiState = { WebDetailPageUiState.Loading },
     tagUiStateProvider: () -> EntityTagInputUiState = { EntityTagInputUiState() },
-    sessionUiStateProvider: () -> WebDetailSessionUiState = { WebDetailSessionUiState.Preparing },
 ) {
     DiaryCrossfade(
         targetState = uiStateProvider(),
@@ -58,7 +56,6 @@ internal fun WebDetailScaffoldContent(
                         uiStateProvider = uiStateProvider,
                         pageUiStateProvider = pageUiStateProvider,
                         tagUiStateProvider = tagUiStateProvider,
-                        sessionUiStateProvider = sessionUiStateProvider,
                     )
                 } else {
                     WideContent(
@@ -70,7 +67,6 @@ internal fun WebDetailScaffoldContent(
                         uiStateProvider = uiStateProvider,
                         pageUiStateProvider = pageUiStateProvider,
                         tagUiStateProvider = tagUiStateProvider,
-                        sessionUiStateProvider = sessionUiStateProvider,
                     )
                 }
         }
@@ -87,7 +83,6 @@ private fun CompactContent(
     uiStateProvider: () -> WebDetailUiState,
     pageUiStateProvider: () -> WebDetailPageUiState,
     tagUiStateProvider: () -> EntityTagInputUiState,
-    sessionUiStateProvider: () -> WebDetailSessionUiState,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         WebDetailTabRow(
@@ -122,7 +117,6 @@ private fun CompactContent(
                         state = state,
                         urlProvider = { uiStateProvider().urlOrEmpty() },
                         uiStateProvider = pageUiStateProvider,
-                        sessionUiStateProvider = sessionUiStateProvider,
                     )
             }
         }
@@ -139,7 +133,6 @@ private fun WideContent(
     uiStateProvider: () -> WebDetailUiState,
     pageUiStateProvider: () -> WebDetailPageUiState,
     tagUiStateProvider: () -> EntityTagInputUiState,
-    sessionUiStateProvider: () -> WebDetailSessionUiState,
 ) {
     Row(modifier = Modifier.fillMaxSize()) {
         WebDetailForm(
@@ -163,7 +156,6 @@ private fun WideContent(
             state = state,
             urlProvider = { uiStateProvider().urlOrEmpty() },
             uiStateProvider = pageUiStateProvider,
-            sessionUiStateProvider = sessionUiStateProvider,
         )
     }
 }
@@ -180,7 +172,6 @@ private fun WebDetailScaffoldContentPreview() {
                 formState = rememberWebDetailFormState(initialDetail = previewWebDetail()),
                 uiStateProvider = { WebDetailUiState.Content(id = Uuid.NIL, detail = previewWebDetail()) },
                 pageUiStateProvider = { WebDetailPageUiState.Content(page = previewWebPage()) },
-                sessionUiStateProvider = { WebDetailSessionUiState.Prepared(url = previewWebDetail().url) },
             )
         }
     }
