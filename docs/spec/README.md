@@ -52,6 +52,7 @@
 | [완료 목록 공통](./finished-list.md) | — |
 | [Gemini 모델 목록 조회](./gemini-model-list.md) | — |
 | [Google 장소 검색](./google-place-search.md) | — |
+| [공휴일 국가 설정](./holiday-country.md) | — |
 | [공휴일 로컬 캐시](./holiday-database.md) | — |
 | [공휴일 동기화](./holiday-fetch.md) | — |
 | [HolidayHome 화면](./holiday-home.md) | [HolidayHome 디자인](../design/holiday-home.md) |

@@ -63,6 +63,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [FileHome](./file-home.md) | [FileHome 화면](../spec/file-home.md) |
 | [Gemini 모델 목록 조회](./gemini-model-list.md) | [Gemini 모델 목록 조회](../spec/gemini-model-list.md) |
 | [Google 장소 검색](./google-place-search.md) | [Google 장소 검색](../spec/google-place-search.md) |
+| [공휴일 국가 설정](./holiday-country.md) | [공휴일 국가 설정](../spec/holiday-country.md) |
 | [공휴일 로컬 캐시](./holiday-database.md) | [공휴일 로컬 캐시](../spec/holiday-database.md) |
 | [공휴일 동기화](./holiday-fetch.md) | [공휴일 동기화](../spec/holiday-fetch.md) |
 | [HolidayHome](./holiday-home.md) | [HolidayHome 화면](../spec/holiday-home.md) |
