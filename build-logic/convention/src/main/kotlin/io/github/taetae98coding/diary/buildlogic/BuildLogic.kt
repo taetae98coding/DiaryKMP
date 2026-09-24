@@ -7,5 +7,5 @@ public data object BuildLogic {
 
     public const val NAMESPACE: String = "io.github.taetae98coding.diary"
     public const val VERSION_CODE: Int = 1
-    public const val VERSION_NAME: String = "1.0.0"
+    public const val VERSION_NAME: String = "2.0.0"
 }
