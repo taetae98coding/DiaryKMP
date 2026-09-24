@@ -243,6 +243,7 @@ def resolve_environment(flavor: str, root: Path) -> Dict[str, str]:
     jvm_key = f"{flavor}.jvm.googleCredentialsClientId"
     secret_key = f"{flavor}.wasm.googleSecret"
     apple_client_ids_key = f"{flavor}.apple.clientIds"
+    apple_web_client_id_key = f"{flavor}.apple.webClientId"
 
     web_client_id = require_value(local_values, web_key, local_path)
     android_client_id = require_value(local_values, android_key, local_path)
@@ -251,6 +252,7 @@ def resolve_environment(flavor: str, root: Path) -> Dict[str, str]:
     ios_client_id = require_value(ios_values, "GID_CLIENT_ID", ios_path)
     web_secret = require_value(local_values, secret_key, local_path)
     apple_client_ids = require_value(local_values, apple_client_ids_key, local_path)
+    apple_web_client_id = require_value(local_values, apple_web_client_id_key, local_path)
 
     client_sources = {
         web_key: web_client_id,
@@ -272,7 +274,8 @@ def resolve_environment(flavor: str, root: Path) -> Dict[str, str]:
         "SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID": client_ids,
         "SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_SECRET": web_secret,
         "SUPABASE_AUTH_EXTERNAL_APPLE_CLIENT_ID": resolve_apple_client_ids(
-            apple_client_ids, apple_client_ids_key
+            f"{apple_client_ids},{apple_web_client_id}",
+            f"{apple_client_ids_key},{apple_web_client_id_key}",
         ),
     }
     for name, value in resolved.items():

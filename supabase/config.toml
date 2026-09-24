@@ -15,11 +15,12 @@ enabled = true
 # SUPABASE_AUTH_EXTERNAL_APPLE_CLIENT_ID: 콤마 구분 Apple client id 목록.
 # 네이티브 Sign in with Apple은 id_token의 aud가 앱 bundle id이므로 flavor별 bundle id를 넣는다
 # (dev="io.github.taetae98coding.diary.dev", real="io.github.taetae98coding.diary").
-# 웹(Services ID)을 추가하면 그 식별자도 목록에 함께 넣는다.
+# Android·JVM·WASM의 웹 Sign in with Apple은 aud가 Services ID이므로 flavor별 Services ID도 함께 넣는다
+# (dev="io.github.taetae98coding.diary.dev.web", real="io.github.taetae98coding.diary.web").
 client_id = "env(SUPABASE_AUTH_EXTERNAL_APPLE_CLIENT_ID)"
-# secret은 웹 OAuth 흐름 전용(.p8 키로 서명한 client secret JWT)이라 선언하지 않는다.
+# secret은 Supabase가 authorization code를 직접 교환하는 OAuth 흐름 전용(.p8 키로 서명한 client secret JWT)이라 선언하지 않는다.
+# 웹 흐름도 id_token을 앱이 직접 받아 signInWithIdToken으로 검증하므로 secret이 필요 없다.
 # CLI 설정 검증도 apple·google provider는 secret 필수 검사에서 제외한다.
-# 웹 Sign in with Apple을 붙일 때 Services ID와 함께 추가한다.
 
 # S3 Vector Buckets는 Pro 플랜 전용 기능인데 CLI가 기본값을 enabled로 두어,
 # 무료 티어에서는 config push가 402로 실패한다. 그래서 명시적으로 꺼둔다.
@@ -36,6 +37,11 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.v1-session-apple-id-token]
+verify_jwt = false
+
+# Apple이 form_post로 직접 호출하므로 JWT가 없다. 허용된 앱 복귀 주소로 결과를 넘기기만 한다.
+# 웹 앱 출처는 localhost 외에 secrets set으로 주입한 APPLE_SIGN_IN_WEB_ORIGINS(콤마 구분 origin 목록)도 허용한다.
+[functions.v1-session-apple-callback]
 verify_jwt = false
 
 [functions.v1-sync-push-tag]

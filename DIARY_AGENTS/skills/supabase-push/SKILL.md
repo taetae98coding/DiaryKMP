@@ -49,7 +49,7 @@ Google provider client ID 목록은 중복을 제거해 다음 순서로 구성�
 
 Apple provider 값은 `local.properties`에서만 읽는다.
 
-- `SUPABASE_AUTH_EXTERNAL_APPLE_CLIENT_ID`: `<flavor>.apple.clientIds`의 콤마 구분 목록을 중복 제거해 사용한다. 네이티브 Sign in with Apple은 `id_token`의 `aud`가 앱 bundle id이므로 해당 flavor의 bundle id를 포함한다. 각 항목은 reverse-DNS 형식이어야 한다.
+- `SUPABASE_AUTH_EXTERNAL_APPLE_CLIENT_ID`: `<flavor>.apple.clientIds`의 콤마 구분 목록 뒤에 `<flavor>.apple.webClientId`를 이어 붙이고 중복을 제거해 사용한다. 네이티브 Sign in with Apple은 `id_token`의 `aud`가 앱 bundle id이므로 해당 flavor의 bundle id를 포함하고, Android·JVM·WASM의 웹 Sign in with Apple은 `aud`가 Services ID이므로 `webClientId`를 포함한다. 각 항목은 reverse-DNS 형식이어야 한다.
 
 키가 없거나 비어 있으면 필요한 키 이름만 알리고 push를 중단한다.
 
