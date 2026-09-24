@@ -118,6 +118,7 @@ coil-test = { module = "io.coil-kt.coil3:coil-test", version.ref = "coil" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
 firebase-performance = { group = "com.google.firebase", name = "firebase-perf" }
 
 fixture-monkey-kotlin = { module = "com.navercorp.fixturemonkey:fixture-monkey-kotlin", version.ref = "fixtureMonkey" }

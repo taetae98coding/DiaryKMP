@@ -10,6 +10,7 @@
 		BA5D6FD12CE06E7F89FE162F /* KotlinMultiplatformLinkedPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 0FC996DB93EFABEEC7E53979 /* KotlinMultiplatformLinkedPackage */; };
 		F1B000000000000000000001 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = F1B000000000000000000011 /* FirebaseAnalytics */; };
 		F1B000000000000000000002 /* FirebasePerformance in Frameworks */ = {isa = PBXBuildFile; productRef = F1B000000000000000000012 /* FirebasePerformance */; };
+		F1B000000000000000000003 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = F1B000000000000000000013 /* FirebaseMessaging */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -47,6 +48,7 @@
 				BA5D6FD12CE06E7F89FE162F /* KotlinMultiplatformLinkedPackage in Frameworks */,
 				F1B000000000000000000001 /* FirebaseAnalytics in Frameworks */,
 				F1B000000000000000000002 /* FirebasePerformance in Frameworks */,
+				F1B000000000000000000003 /* FirebaseMessaging in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -105,6 +107,7 @@
 				0FC996DB93EFABEEC7E53979 /* KotlinMultiplatformLinkedPackage */,
 				F1B000000000000000000011 /* FirebaseAnalytics */,
 				F1B000000000000000000012 /* FirebasePerformance */,
+				F1B000000000000000000013 /* FirebaseMessaging */,
 			);
 			productName = DiaryApp;
 			productReference = D1A000000000000000000005 /* DiaryApp.app */;
@@ -507,6 +510,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F1B000000000000000000021 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebasePerformance;
+		};
+		F1B000000000000000000013 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F1B000000000000000000021 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
