@@ -1,7 +1,5 @@
 package io.github.taetae98coding.diary.compose.core.icon
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -14,7 +12,7 @@ public fun PreviousIcon(
     contentDescription: String? = null,
 ) {
     Icon(
-        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowLeft,
+        imageVector = DiaryIcons.KeyboardArrowLeft,
         contentDescription = contentDescription,
         modifier = modifier,
     )

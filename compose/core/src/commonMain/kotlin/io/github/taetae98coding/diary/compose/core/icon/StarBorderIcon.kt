@@ -1,7 +1,5 @@
 package io.github.taetae98coding.diary.compose.core.icon
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.StarBorder
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -14,7 +12,7 @@ public fun StarBorderIcon(
     contentDescription: String? = null,
 ) {
     Icon(
-        imageVector = Icons.Rounded.StarBorder,
+        imageVector = DiaryIcons.Star,
         contentDescription = contentDescription,
         modifier = modifier,
     )

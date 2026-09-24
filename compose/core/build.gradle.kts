@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.convention.compose)
+    alias(libs.plugins.primitive.image.vector)
 }
 
 kotlin {
@@ -8,7 +9,6 @@ kotlin {
             dependencies {
                 implementation(projects.library.composeUi)
                 implementation(libs.coil.compose)
-                implementation(libs.jetbrains.compose.material.icons.extended)
                 implementation(libs.jetbrains.lifecycle.runtime.compose)
                 implementation(libs.markdown.renderer.m3)
                 api(libs.androidx.paging.compose)

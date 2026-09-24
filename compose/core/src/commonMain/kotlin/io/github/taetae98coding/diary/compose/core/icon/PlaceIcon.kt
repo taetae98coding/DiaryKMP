@@ -1,7 +1,5 @@
 package io.github.taetae98coding.diary.compose.core.icon
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Place
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
@@ -17,7 +15,7 @@ public fun PlaceIcon(
     tint: Color = LocalContentColor.current,
 ) {
     Icon(
-        imageVector = Icons.Rounded.Place,
+        imageVector = DiaryIcons.LocationOn,
         contentDescription = contentDescription,
         modifier = modifier,
         tint = tint,

@@ -1,7 +1,5 @@
 package io.github.taetae98coding.diary.compose.core.icon
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Checklist
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -14,7 +12,7 @@ public fun ChecklistIcon(
     contentDescription: String? = null,
 ) {
     Icon(
-        imageVector = Icons.Rounded.Checklist,
+        imageVector = DiaryIcons.Checklist,
         contentDescription = contentDescription,
         modifier = modifier,
     )

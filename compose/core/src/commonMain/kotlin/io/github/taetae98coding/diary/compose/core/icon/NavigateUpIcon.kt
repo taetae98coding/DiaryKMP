@@ -1,7 +1,5 @@
 package io.github.taetae98coding.diary.compose.core.icon
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -14,7 +12,7 @@ public fun NavigateUpIcon(
     contentDescription: String? = null,
 ) {
     Icon(
-        imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+        imageVector = DiaryIcons.ArrowBack,
         contentDescription = contentDescription,
         modifier = modifier,
     )

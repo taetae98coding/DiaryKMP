@@ -1,7 +1,5 @@
 package io.github.taetae98coding.diary.compose.core.icon
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.QrCode
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -14,7 +12,7 @@ public fun QrIcon(
     contentDescription: String? = null,
 ) {
     Icon(
-        imageVector = Icons.Rounded.QrCode,
+        imageVector = DiaryIcons.QrCode,
         contentDescription = contentDescription,
         modifier = modifier,
     )
