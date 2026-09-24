@@ -8,6 +8,8 @@ internal sealed interface PlaylistHomeScaffoldEvent {
 
     data object ClickAdd : PlaylistHomeScaffoldEvent
 
+    data object ClickDownload : PlaylistHomeScaffoldEvent
+
     data object ClickSort : PlaylistHomeScaffoldEvent
 
     data class SelectSort(

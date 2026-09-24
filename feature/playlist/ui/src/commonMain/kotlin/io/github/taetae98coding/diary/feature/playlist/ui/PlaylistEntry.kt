@@ -53,6 +53,7 @@ private fun EntryProviderScope<ScreenNavKey>.playlistHomeEntry(backStack: NavBac
             componentVisibleProvider = { PlaylistHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible || !backStack.isPlaylistAddOnDetailPane()) },
             musicViewModel = koinViewModel(),
             syncViewModel = koinViewModel(),
+            downloadViewModel = koinViewModel(),
         )
     }
 }

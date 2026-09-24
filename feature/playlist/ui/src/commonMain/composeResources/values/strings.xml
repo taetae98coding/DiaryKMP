@@ -2,6 +2,13 @@
     <string name="playlist_home_title">Playlist</string>
     <string name="playlist_navigate_up_button_content_description">Navigate up</string>
     <string name="playlist_home_add_button_content_description">Add music</string>
+    <string name="playlist_home_download_button_content_description">Download music</string>
+    <string name="playlist_home_download_tool_not_installed_message">yt-dlp and ffmpeg are required. Install them and try again.</string>
+    <string name="playlist_home_download_tool_prepare_failed_message">Could not prepare the download tools.</string>
+    <string name="music_download_pending_content_description">Waiting to download</string>
+    <string name="music_download_running_content_description">Downloading %1$s</string>
+    <string name="music_download_done_content_description">Downloaded</string>
+    <string name="music_download_failed_content_description">Download failed</string>
     <string name="playlist_home_empty_title">No music yet</string>
     <string name="playlist_home_empty_description">Use the add button to add music.</string>
     <string name="music_add_title">Add Music</string>

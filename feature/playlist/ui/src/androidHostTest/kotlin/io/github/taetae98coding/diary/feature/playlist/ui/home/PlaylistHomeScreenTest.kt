@@ -18,6 +18,7 @@ import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -93,6 +94,7 @@ class PlaylistHomeScreenTest {
         navigateToDetail: (Uuid) -> Unit = {},
         componentVisible: PlaylistHomeScaffoldComponentVisible = PlaylistHomeScaffoldComponentVisible(),
         syncViewModel: PlaylistHomeSyncViewModel = syncViewModel(),
+        downloadViewModel: PlaylistHomeDownloadViewModel = downloadViewModel(),
     ) {
         setPlaylistHomeScreen(
             musicPagingData = musicPagingDataOf(musicList),
@@ -101,6 +103,7 @@ class PlaylistHomeScreenTest {
             navigateToDetail = navigateToDetail,
             componentVisible = componentVisible,
             syncViewModel = syncViewModel,
+            downloadViewModel = downloadViewModel,
         )
     }
 
@@ -111,6 +114,7 @@ class PlaylistHomeScreenTest {
         navigateToDetail: (Uuid) -> Unit = {},
         componentVisible: PlaylistHomeScaffoldComponentVisible = PlaylistHomeScaffoldComponentVisible(),
         syncViewModel: PlaylistHomeSyncViewModel = syncViewModel(),
+        downloadViewModel: PlaylistHomeDownloadViewModel = downloadViewModel(),
     ) {
         val musicViewModel = mockk<PlaylistHomeViewModel>(relaxed = true)
         every { musicViewModel.musicPagingData } returns MutableStateFlow(musicPagingData)
@@ -125,10 +129,18 @@ class PlaylistHomeScreenTest {
                     componentVisibleProvider = { componentVisible },
                     musicViewModel = musicViewModel,
                     syncViewModel = syncViewModel,
+                    downloadViewModel = downloadViewModel,
                 )
             }
         }
         composeRule.waitForIdle()
+    }
+
+    private fun downloadViewModel(): PlaylistHomeDownloadViewModel {
+        val viewModel = mockk<PlaylistHomeDownloadViewModel>(relaxed = true)
+        every { viewModel.uiState } returns MutableStateFlow(PlaylistHomeDownloadUiState())
+        every { viewModel.effect } returns emptyFlow()
+        return viewModel
     }
 
     private fun syncViewModel(): PlaylistHomeSyncViewModel {

@@ -17,6 +17,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.playlist.Music
+import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadState
 import io.github.taetae98coding.diary.domain.playlist.link.toYoutubeVideoThumbnailOrNull
 import io.github.taetae98coding.diary.feature.playlist.ui.previewMusic
 
@@ -27,19 +28,23 @@ internal fun MusicCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     music: Music? = null,
+    downloadStateProvider: () -> MusicDownloadState? = { null },
 ) {
     Card(
         onClick = onClick,
         modifier = modifier.testTag(MUSIC_CARD_TEST_TAG),
         enabled = music != null,
     ) {
-        MusicThumbnail(thumbnailProvider = {
-            music
-                ?.detail
-                ?.link
-                ?.toYoutubeVideoThumbnailOrNull()
-                .orEmpty()
-        })
+        MusicThumbnail(
+            thumbnailProvider = {
+                music
+                    ?.detail
+                    ?.link
+                    ?.toYoutubeVideoThumbnailOrNull()
+                    .orEmpty()
+            },
+            downloadStateProvider = { downloadStateProvider().takeIf { music != null } },
+        )
         Column(
             modifier = Modifier.styleable(style = DiaryTheme.styles.cardContent),
             verticalArrangement = Arrangement.spacedBy(DiaryTheme.dimens.cardLineSpacing),

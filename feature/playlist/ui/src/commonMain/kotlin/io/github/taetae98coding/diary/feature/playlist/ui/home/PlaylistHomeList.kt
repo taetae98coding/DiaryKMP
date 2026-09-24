@@ -26,6 +26,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
+import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadState
 import io.github.taetae98coding.diary.feature.playlist.ui.Res
 import io.github.taetae98coding.diary.feature.playlist.ui.music.MusicCard
 import io.github.taetae98coding.diary.feature.playlist.ui.playlist_home_empty_description
@@ -33,6 +34,7 @@ import io.github.taetae98coding.diary.feature.playlist.ui.playlist_home_empty_ti
 import io.github.taetae98coding.diary.feature.playlist.ui.previewMusic
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
+import kotlin.uuid.Uuid
 
 internal const val PLAYLIST_HOME_LIST_TEST_TAG: String = "PlaylistHomeList"
 
@@ -44,6 +46,7 @@ internal fun PlaylistHomeList(
     musicPagingItems: LazyPagingItems<Music> = remember { flowOf(PagingData.empty<Music>()) }.collectAsLazyPagingItems(),
     isRefreshingProvider: () -> Boolean = { false },
     sortProvider: () -> ListSort = { ListSort.TITLE },
+    downloadStateMapProvider: () -> Map<Uuid, MusicDownloadState> = { emptyMap() },
 ) {
     ListQueryScrollEffect(
         gridState = gridState,
@@ -93,6 +96,7 @@ internal fun PlaylistHomeList(
                                 .animateItem()
                                 .fillMaxWidth(),
                         music = music,
+                        downloadStateProvider = { music?.let { value -> downloadStateMapProvider()[value.id] } },
                     )
                 }
             }
