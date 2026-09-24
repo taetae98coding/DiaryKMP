@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadEvent
 import io.github.taetae98coding.diary.domain.playlist.usecase.GetMusicDownloadEventUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.GetMusicDownloadStateUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.RequestMusicDownloadUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -31,7 +32,7 @@ internal class PlaylistHomeDownloadViewModel(
             .map { result -> PlaylistHomeDownloadUiState(stateMap = result.getOrNull().orEmpty()) }
             .stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+                started = SharingStarted.WhileUiSubscribed,
                 initialValue = PlaylistHomeDownloadUiState(),
             )
 
