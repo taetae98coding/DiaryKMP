@@ -29,12 +29,13 @@ internal fun MemoContactPickerRow(
         label = contact?.detail?.name.orEmpty(),
         modifier = modifier,
         description =
-            contact
-                ?.detail
-                ?.phoneNumberList
-                ?.firstOrNull()
-                ?.number
-                .orEmpty(),
+            if (contact == null) {
+                ""
+            } else {
+                contact.detail.phoneNumberList
+                    .firstOrNull()
+                    ?.number
+            },
         enabled = contact != null,
     )
 }

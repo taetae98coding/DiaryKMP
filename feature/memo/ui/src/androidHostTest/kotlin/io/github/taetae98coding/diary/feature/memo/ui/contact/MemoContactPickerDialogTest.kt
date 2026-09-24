@@ -5,13 +5,16 @@ import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.DpRect
 import io.kotest.matchers.comparables.shouldBeLessThan
+import io.kotest.matchers.floats.plusOrMinus
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
@@ -101,13 +104,23 @@ class MemoContactPickerDialogTest {
         composeRule.setMemoContactPickerDialog(contactList = listOf(contact), onContactSelect = selectedIdList::add)
         composeRule.awaitContactPickerRows()
 
-        // 목록 항목에는 상세 이동 동작 이름이 없고 선택만 전달한다.
         composeRule
             .onAllNodes(hasContactClickLabel(DEFAULT_CONTACT_DETAIL_ACTION) and hasAnyAncestor(isDialog()))
             .assertCountEquals(0)
         composeRule.contactDialogNodeWithText(FIRST_CONTACT_NAME).performClick()
 
         selectedIdList shouldBe listOf(contact.id)
+    }
+
+    @Test
+    fun `전화번호가 없는 연락처의 이름은 항목의 세로 가운데에 놓인다`() {
+        composeRule.setMemoContactPickerDialog(contactList = listOf(testContact(name = FIRST_CONTACT_NAME)))
+        composeRule.awaitContactPickerRows()
+
+        val rowBounds = composeRule.onNode(isToggleable() and hasAnyAncestor(isDialog())).getUnclippedBoundsInRoot()
+        val nameBounds = composeRule.onNode(hasText(FIRST_CONTACT_NAME) and hasAnyAncestor(isDialog()), useUnmergedTree = true).getUnclippedBoundsInRoot()
+
+        nameBounds.centerY() shouldBe (rowBounds.centerY() plusOrMinus CENTER_TOLERANCE)
     }
 
     @Test
@@ -192,3 +205,7 @@ class MemoContactPickerDialogAddTest {
             .assertCountEquals(1)
     }
 }
+
+private const val CENTER_TOLERANCE: Float = 1F
+
+private fun DpRect.centerY(): Float = ((top + bottom) / 2).value
