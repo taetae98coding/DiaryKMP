@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.file.impl.di.AppFileDirectoryName
 import io.github.taetae98coding.diary.feature.login.ui.credential.AppleCredentialsConfig
 import io.github.taetae98coding.diary.feature.login.ui.credential.CredentialsDispatcher
 import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsClientId
+import io.github.taetae98coding.diary.feature.more.ui.photo.PhotoPickerDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.annotation.Configuration
@@ -38,7 +39,11 @@ internal class JvmAppModule {
 
     @Factory
     @CredentialsDispatcher
-    fun providesCredentialsDispatcher(): CoroutineDispatcher = Dispatchers.Default
+    fun providesCredentialsDispatcher(): CoroutineDispatcher = Dispatchers.IO
+
+    @Factory
+    @PhotoPickerDispatcher
+    fun providesPhotoPickerDispatcher(): CoroutineDispatcher = Dispatchers.IO
 
     @Factory
     fun providesAppleCredentialsConfig(): AppleCredentialsConfig = appleCredentialsConfig(clientId = BuildKonfig.APPLE_CREDENTIALS_CLIENT_ID)
