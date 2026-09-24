@@ -7,6 +7,6 @@ public interface ProfileImageRemoteDataSource {
     public suspend fun upload(
         mimeType: String,
         contentLength: Long,
-        openContent: () -> RawSource,
+        openContent: suspend () -> RawSource,
     ): ProfileImageRemoteEntity
 }

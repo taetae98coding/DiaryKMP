@@ -10,13 +10,8 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.core.file.api)
-            }
-        }
 
-        nonWasmMain {
-            dependencies {
                 implementation(libs.kotlinx.coroutines.core)
-                implementation(libs.kotlinx.io.core)
             }
         }
 

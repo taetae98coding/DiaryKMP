@@ -9,5 +9,11 @@ kotlin {
                 implementation(projects.logger.crashlytics.api)
             }
         }
+
+        jvmTest {
+            dependencies {
+                implementation(projects.core.testing)
+            }
+        }
     }
 }

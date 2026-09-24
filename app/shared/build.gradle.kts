@@ -27,7 +27,6 @@ kotlin {
                 implementation(projects.core.googleNetwork.impl)
                 implementation(projects.core.holidayDatabase.impl)
                 implementation(projects.core.holidayNetwork.impl)
-                implementation(projects.core.image.impl)
                 implementation(projects.core.ipNetwork.impl)
                 implementation(projects.core.location.impl)
                 implementation(projects.core.naverNetwork.impl)

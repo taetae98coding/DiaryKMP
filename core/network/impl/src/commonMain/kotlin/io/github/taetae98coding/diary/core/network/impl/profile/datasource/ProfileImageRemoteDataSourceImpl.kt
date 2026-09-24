@@ -22,7 +22,7 @@ internal class ProfileImageRemoteDataSourceImpl(
     override suspend fun upload(
         mimeType: String,
         contentLength: Long,
-        openContent: () -> RawSource,
+        openContent: suspend () -> RawSource,
     ): ProfileImageRemoteEntity =
         supabaseFunction(
             function = "v1-profile-upload",
@@ -38,7 +38,7 @@ internal class ProfileImageRemoteDataSourceImpl(
 private class ProfileImageContent(
     override val contentType: ContentType,
     override val contentLength: Long,
-    private val openContent: () -> RawSource,
+    private val openContent: suspend () -> RawSource,
 ) : OutgoingContent.WriteChannelContent() {
     // 한 덩어리씩 읽어 보내고 그때마다 flush해, 상대가 받는 속도만큼만 원본을 읽는다.
     override suspend fun writeTo(channel: ByteWriteChannel) {
