@@ -3,10 +3,10 @@ package io.github.taetae98coding.diary.data.holiday.mapper
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.core.holiday.database.api.entity.HolidayCountryLocalEntity
-import io.github.taetae98coding.diary.core.holiday.database.api.entity.HolidayLocalEntity
-import io.github.taetae98coding.diary.core.holiday.network.api.entity.HolidayCountryRemoteEntity
-import io.github.taetae98coding.diary.core.holiday.network.api.entity.HolidayRemoteEntity
+import io.github.taetae98coding.diary.core.calendar.database.api.entity.HolidayCountryLocalEntity
+import io.github.taetae98coding.diary.core.calendar.database.api.entity.HolidayLocalEntity
+import io.github.taetae98coding.diary.core.calendar.network.api.entity.HolidayCountryRemoteEntity
+import io.github.taetae98coding.diary.core.calendar.network.api.entity.HolidayRemoteEntity
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey

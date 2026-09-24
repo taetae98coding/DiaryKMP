@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.app.shared
 
+import io.github.taetae98coding.diary.core.calendar.database.impl.di.CalendarDatabaseDirectory
 import io.github.taetae98coding.diary.core.database.impl.di.DiaryDatabaseDirectory
 import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDirectory
 import io.github.taetae98coding.diary.core.file.impl.di.AppFileDirectoryName
-import io.github.taetae98coding.diary.core.holiday.database.impl.di.HolidayDatabaseDirectory
 import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsClientId
 import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
@@ -24,8 +24,8 @@ internal class JvmAppModule {
     fun providesAppFileDirectoryName(): String = BuildKonfig.APP_DIRECTORY
 
     @Factory
-    @HolidayDatabaseDirectory
-    fun providesHolidayDatabaseDirectory(): String = BuildKonfig.APP_DIRECTORY
+    @CalendarDatabaseDirectory
+    fun providesCalendarDatabaseDirectory(): String = BuildKonfig.APP_DIRECTORY
 
     @Factory
     @DiarySettingDirectory

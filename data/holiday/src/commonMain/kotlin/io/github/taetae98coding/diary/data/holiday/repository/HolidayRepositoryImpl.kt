@@ -1,8 +1,8 @@
 package io.github.taetae98coding.diary.data.holiday.repository
 
-import io.github.taetae98coding.diary.core.holiday.database.api.datasource.HolidayLocalDataSource
-import io.github.taetae98coding.diary.core.holiday.database.api.transaction.HolidayTransaction
-import io.github.taetae98coding.diary.core.holiday.network.api.datasource.HolidayRemoteDataSource
+import io.github.taetae98coding.diary.core.calendar.database.api.datasource.HolidayLocalDataSource
+import io.github.taetae98coding.diary.core.calendar.database.api.transaction.HolidayTransaction
+import io.github.taetae98coding.diary.core.calendar.network.api.datasource.HolidayRemoteDataSource
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
 import io.github.taetae98coding.diary.data.holiday.datasource.HolidayDirtyDataSource

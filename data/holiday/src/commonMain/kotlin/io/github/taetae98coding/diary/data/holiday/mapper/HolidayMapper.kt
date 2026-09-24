@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.data.holiday.mapper
 
-import io.github.taetae98coding.diary.core.holiday.database.api.entity.HolidayCountryLocalEntity
-import io.github.taetae98coding.diary.core.holiday.database.api.entity.HolidayLocalEntity
-import io.github.taetae98coding.diary.core.holiday.network.api.entity.HolidayCountryRemoteEntity
-import io.github.taetae98coding.diary.core.holiday.network.api.entity.HolidayRemoteEntity
+import io.github.taetae98coding.diary.core.calendar.database.api.entity.HolidayCountryLocalEntity
+import io.github.taetae98coding.diary.core.calendar.database.api.entity.HolidayLocalEntity
+import io.github.taetae98coding.diary.core.calendar.network.api.entity.HolidayCountryRemoteEntity
+import io.github.taetae98coding.diary.core.calendar.network.api.entity.HolidayRemoteEntity
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
 
