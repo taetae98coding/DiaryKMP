@@ -5,13 +5,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
 import io.github.taetae98coding.diary.compose.core.icon.ProfileIcon
@@ -25,7 +25,7 @@ public fun ProfileImage(
     contentDescription: String? = null,
 ) {
     val painter = rememberAsyncImagePainter(model = model)
-    val state by painter.state.collectAsState()
+    val state by painter.state.collectAsStateWithLifecycle()
 
     Box(
         // 이미지를 불러오지 못해 기본 프로필을 그리는 동안에도 이름이 남도록 바깥 노드에 둔다.

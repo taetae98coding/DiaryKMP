@@ -6,12 +6,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
 import io.github.taetae98coding.diary.compose.core.icon.WeatherIcon
@@ -26,7 +26,7 @@ internal fun WeatherConditionImage(
     modifier: Modifier = Modifier,
 ) {
     val painter = rememberAsyncImagePainter(model = condition.imageUrl)
-    val state by painter.state.collectAsState()
+    val state by painter.state.collectAsStateWithLifecycle()
 
     Box(
         modifier =

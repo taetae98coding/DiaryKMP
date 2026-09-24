@@ -29,6 +29,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.flowWithLifecycle
 import coil3.compose.AsyncImagePainter
 import coil3.compose.LocalPlatformContext
 import coil3.compose.rememberAsyncImagePainter
@@ -114,25 +116,29 @@ private fun LoadPhotoEffect(
     painter: AsyncImagePainter,
     state: ProfileImageEditState,
 ) {
-    LaunchedEffect(painter, state) {
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+
+    LaunchedEffect(painter, state, lifecycle) {
         // Coil은 사진이 없는 null 모델도 오류로 알리므로, 고른 사진이 있을 때만 읽기 결과를 반영한다.
-        painter.state.collect { value ->
-            if (state.uri == null) return@collect
+        painter.state
+            .flowWithLifecycle(lifecycle)
+            .collect { value ->
+                if (state.uri == null) return@collect
 
-            when (value) {
-                is AsyncImagePainter.State.Empty -> Unit
+                when (value) {
+                    is AsyncImagePainter.State.Empty -> Unit
 
-                is AsyncImagePainter.State.Loading -> state.onPhotoLoading()
+                    is AsyncImagePainter.State.Loading -> state.onPhotoLoading()
 
-                is AsyncImagePainter.State.Success -> {
-                    val size = value.painter.intrinsicSize
+                    is AsyncImagePainter.State.Success -> {
+                        val size = value.painter.intrinsicSize
 
-                    state.onPhotoLoaded(width = size.width.toInt(), height = size.height.toInt())
+                        state.onPhotoLoaded(width = size.width.toInt(), height = size.height.toInt())
+                    }
+
+                    is AsyncImagePainter.State.Error -> state.onPhotoUnreadable()
                 }
-
-                is AsyncImagePainter.State.Error -> state.onPhotoUnreadable()
             }
-        }
     }
 }
 
