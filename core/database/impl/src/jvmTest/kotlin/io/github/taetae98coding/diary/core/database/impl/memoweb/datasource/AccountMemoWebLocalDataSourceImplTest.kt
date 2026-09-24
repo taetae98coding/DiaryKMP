@@ -9,6 +9,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memoweb.entity.MemoWebLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebDetailLocalEntity
+import io.github.taetae98coding.diary.core.database.api.web.entity.WebHeaderLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.memo.transaction.AccountMemoTransactionImpl
@@ -209,7 +210,7 @@ class AccountMemoWebLocalDataSourceImplTest :
             loadSelectableWeb(accountId = accountId) shouldBe listOf(keptWeb)
         }
 
-        test("TC-MEMO-WEB-INPUT-DOMAIN-008 TC-MEMO-WEB-INPUT-DATA-003 검색어는 제목만으로 판정한다") {
+        test("TC-MEMO-WEB-INPUT-DOMAIN-015 TC-MEMO-WEB-INPUT-DATA-003 검색어는 제목과 설명으로 판정한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val titleMatchedWeb = web(title = "$SEARCH_QUERY-title")
             val descriptionMatchedWeb =
@@ -220,13 +221,17 @@ class AccountMemoWebLocalDataSourceImplTest :
                 web(title = LAST_WEB_TITLE).let { web ->
                     web.copy(detail = web.detail.copy(url = "https://$SEARCH_QUERY.example.com"))
                 }
+            val headerMatchedWeb =
+                web(title = HEADER_WEB_TITLE).let { web ->
+                    web.copy(detail = web.detail.copy(headerList = listOf(WebHeaderLocalEntity(name = SEARCH_QUERY, value = SEARCH_QUERY))))
+                }
             webTransaction.upsert(
                 accountId = accountId,
-                webList = listOf(titleMatchedWeb, descriptionMatchedWeb, urlMatchedWeb),
+                webList = listOf(titleMatchedWeb, descriptionMatchedWeb, urlMatchedWeb, headerMatchedWeb),
                 webTagList = emptyList(),
             )
 
-            loadSelectableWeb(accountId = accountId, query = SEARCH_QUERY) shouldBe listOf(titleMatchedWeb)
+            loadSelectableWeb(accountId = accountId, query = SEARCH_QUERY) shouldBe listOf(descriptionMatchedWeb, titleMatchedWeb)
         }
 
         test("TC-MEMO-WEB-INPUT-DOMAIN-009 빈 검색어는 선택 목록을 좁히지 않는다") {
@@ -307,6 +312,7 @@ class AccountMemoWebLocalDataSourceImplTest :
     public companion object {
         private const val FIRST_WEB_TITLE = "AppleWeb"
         private const val LAST_WEB_TITLE = "ZebraWeb"
+        private const val HEADER_WEB_TITLE = "HeaderWeb"
         private const val SEARCH_QUERY = "searchable"
         private const val PAGE_SIZE = 20
         private const val SMALL_PAGE_SIZE = 10

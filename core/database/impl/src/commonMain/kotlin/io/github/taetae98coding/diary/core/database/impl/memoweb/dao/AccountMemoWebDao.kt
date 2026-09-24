@@ -50,6 +50,7 @@ internal interface AccountMemoWebDao : RoomDao<AccountMemoWebLocalEntity> {
             AND (
                 :query = ''
                 OR INSTR(LOWER(web.title), LOWER(:query)) > 0
+                OR INSTR(LOWER(web.description), LOWER(:query)) > 0
             )
         ORDER BY web.title ASC
         """,

@@ -50,6 +50,7 @@ internal interface AccountMemoContactDao : RoomDao<AccountMemoContactLocalEntity
             AND (
                 :query = ''
                 OR INSTR(LOWER(contact.name), LOWER(:query)) > 0
+                OR INSTR(LOWER(contact.description), LOWER(:query)) > 0
             )
         ORDER BY contact.name ASC
         """,

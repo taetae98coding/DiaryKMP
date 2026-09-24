@@ -239,7 +239,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             loadSelectableContact(accountId = accountId) shouldBe listOf(keptContact)
         }
 
-        test("TC-MEMO-CONTACT-INPUT-DOMAIN-009 TC-MEMO-CONTACT-INPUT-DATA-003 검색어는 이름만으로 판정한다") {
+        test("TC-MEMO-CONTACT-INPUT-DOMAIN-016 TC-MEMO-CONTACT-INPUT-DATA-003 검색어는 이름과 설명으로 판정한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val nameMatchedContact = contact(name = "$SEARCH_QUERY-name")
             val descriptionMatchedContact =
@@ -250,12 +250,16 @@ class AccountMemoContactLocalDataSourceImplTest :
                 contact(name = LAST_CONTACT_NAME).let { contact ->
                     contact.copy(detail = contact.detail.copy(phoneNumberList = listOf(ContactPhoneNumberLocalEntity(number = SEARCH_QUERY))))
                 }
+            val hometownMatchedContact =
+                contact(name = HOMETOWN_CONTACT_NAME).let { contact ->
+                    contact.copy(detail = contact.detail.copy(hometown = SEARCH_QUERY))
+                }
             contactTransaction.upsert(
                 accountId = accountId,
-                contactList = listOf(nameMatchedContact, descriptionMatchedContact, phoneNumberMatchedContact),
+                contactList = listOf(nameMatchedContact, descriptionMatchedContact, phoneNumberMatchedContact, hometownMatchedContact),
             )
 
-            loadSelectableContact(accountId = accountId, query = SEARCH_QUERY) shouldBe listOf(nameMatchedContact)
+            loadSelectableContact(accountId = accountId, query = SEARCH_QUERY) shouldBe listOf(descriptionMatchedContact, nameMatchedContact)
         }
 
         test("TC-MEMO-CONTACT-INPUT-DOMAIN-010 빈 검색어는 선택 목록을 좁히지 않는다") {
@@ -336,6 +340,7 @@ class AccountMemoContactLocalDataSourceImplTest :
     public companion object {
         private const val FIRST_CONTACT_NAME = "AppleContact"
         private const val LAST_CONTACT_NAME = "ZebraContact"
+        private const val HOMETOWN_CONTACT_NAME = "HometownContact"
         private const val SEARCH_QUERY = "searchable"
         private const val PAGE_SIZE = 20
         private const val SMALL_PAGE_SIZE = 10
