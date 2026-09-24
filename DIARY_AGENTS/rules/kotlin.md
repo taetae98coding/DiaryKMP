@@ -70,7 +70,7 @@ private suspend fun List<Deferred<Unit>>.awaitAllCatching() {
 | 데이터 소스 제약 | 외부 API의 최대 건수·반경, 응답 간격, 파일 포맷의 표식 값 | 그 소스를 호출하는 `:core:*`의 구현 | 사용자가 관찰하면 spec |
 | 단위와 표준 | 한 주의 일수, 진법, 비트 마스크 | 쓰는 곳의 이름 있는 상수. 여러 모듈이 쓰면 `library:*` | 없음 |
 
-- 데이터 정책을 domain으로 올리지 않는다. 신선도 기준과 묶음 크기를 domain이 알면 [domain.md](domain.md)의 `원격 호출 연산 어휘` 절이 막는 방향으로 계약이 뒤집힌다.
+- 데이터 정책을 domain으로 올리지 않는다. 신선도 기준과 묶음 크기를 domain이 알면 [domain.md](domain.md)의 `sync·fetch·refresh 어휘` 절이 막는 방향으로 계약이 뒤집힌다.
 - 제품 정책과 데이터 계약의 값은 코드에만 두지 않는다. 문서에 없는 값을 발견하면 `spec-wave`로 먼저 적는다.
 - 같은 값을 여러 모듈이 각자 상수로 두지 않는다. 위 표의 한 자리에 두고 가져다 쓴다.
 - Preview와 테스트의 예시 값은 대상이 아니다.
