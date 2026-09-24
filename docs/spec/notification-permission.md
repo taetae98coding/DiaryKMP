@@ -24,22 +24,19 @@
 
 앱은 알림을 화면에 표시하는 권한만 요청한다. 소리, 배지처럼 플랫폼이 따로 나누어 두는 알림 방식은 요청하지 않으며, 그 방식이 필요해지면 필요한 기능의 스펙에서 정한다.
 
-Android와 웹은 알림 권한을 방식별로 나누지 않으므로 하나의 알림 권한을 요청한다.
+Android는 알림 권한을 방식별로 나누지 않으므로 하나의 알림 권한을 요청한다.
 
 ### 요청 제공 범위
 
-알림 권한 요청은 Android, iOS와 웹에서 제공한다. 그 밖의 기준은 [권한 요청 공통 스펙](./permission.md)의 요청 제공 범위를 따른다.
-
-웹에서 브라우저가 알림 기능을 제공하지 않으면 요청하지 않는다.
+알림 권한 요청은 Android와 iOS에서 제공한다. 웹은 [일일 메모 알림 스펙](./daily-memo-notification.md)에 따라 알림을 보내지 않으므로 권한을 요청하지 않는다. 그 밖의 기준은 [권한 요청 공통 스펙](./permission.md)의 요청 제공 범위를 따른다.
 
 ### 요청 결과의 사용
 
 요청 결과는 앱의 화면 표시나 사용자 행동을 바꾸지 않는다. `이미 허용`과 `허용`을 구분해 쓰지 않으며, 결과를 사용자 설정으로 저장하거나 앱 안에서 권한 상태를 다시 보여 주지 않는다.
 
-알림이 사용자에게 보이는지는 요청 결과가 아니라 시스템이 가진 권한 상태가 정하고, 그 판정은 각 알림 기능의 스펙이 소유한다. 알림 권한 개념이 없는 환경에서 알림이 발생하는지는 [일일 메모 알림 스펙](./daily-memo-notification.md)의 발생 조건을 따른다.
+알림이 사용자에게 보이는지는 요청 결과가 아니라 시스템이 가진 권한 상태가 정하고, 그 판정은 각 알림 기능의 스펙이 소유한다.
 
 ## 참고
 
 - [Android 알림 런타임 권한](https://developer.android.com/develop/ui/views/notifications/notification-permission)
 - [Apple Asking permission to use notifications](https://developer.apple.com/documentation/usernotifications/asking-permission-to-use-notifications)
-- [MDN Notification.requestPermission()](https://developer.mozilla.org/en-US/docs/Web/API/Notification/requestPermission_static)
