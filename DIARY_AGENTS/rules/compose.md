@@ -654,6 +654,46 @@ fun Example() {
 }
 ```
 
+## 시스템 영역 회피는 Scaffold inset과 WindowInsetsRulers로 나눈다
+
+**화면 단위의 시스템 영역 회피는 `Scaffold`의 `contentWindowInsets`와 `innerPadding`이 맡는다.** `innerPadding`에는 상단 바와 하단 바의 측정 높이가 함께 들어 있고, `contentWindowInsets`는 떠 있는 버튼과 스낵바의 자리도 정한다. 본문을 `innerPadding`만큼 줄이는 일을 rulers로 바꾸면 이 값들이 빠진다.
+
+**`Scaffold` 슬롯 안에서 영역 일부만 따로 피해야 하면 `WindowInsets`를 다시 읽지 않고 `Modifier.fitInside(WindowInsetsRulers.Xxx.current)`를 쓴다.** 예를 들어 소프트 키보드가 열릴 때 결과 영역만 줄이고 상단 바와 탭 행은 그대로 두는 경우다. rulers는 배치 단계에서 창 기준의 절대 위치를 주므로, 조상(`NavigationSuiteScaffold`, `Scaffold`의 `innerPadding`)이 이미 피한 영역을 다시 빼지 않고 inset 소비 사슬을 맞출 필요도 없다. `imePadding()`처럼 inset을 다시 읽으면 조상이 소비하지 않은 시스템 내비게이션 바 높이가 한 번 더 빠진다. 여러 영역을 함께 피할 때는 `WindowInsetsRulers.innermostOf(...)`로 묶는다.
+
+- 판단 기준: https://developer.android.com/develop/ui/compose/system/evaluate-rulers
+
+rulers는 배치 단계에서만 값을 주므로 다음에는 쓰지 않고 `WindowInsets`나 `innerPadding`을 쓴다.
+
+| 대상 | 이유 |
+| --- | --- |
+| lazy 목록의 `contentPadding`처럼 측정에 필요한 여백 | 측정 단계에서는 rulers 값을 읽을 수 없다 |
+| `verticalScroll`, lazy 목록의 항목처럼 높이가 제한되지 않은 자리 | `fitInside`는 크기가 정해진 제약에서만 영역에 맞춘다 |
+| Material 3 `FloatingActionButtonMenu`를 자손으로 두는 영역 | `fitInside`는 자식을 배치 단계에서 측정하는데, 그 아래에서는 메뉴를 펼칠 때 새로 생긴 항목과 닫기 버튼이 배치되지 않아 누를 수 없다(`SettingHoliday`에서 확인). 이런 화면은 `DiaryScaffoldDefaults.contentWindowInsets`로 본문 전체를 키보드 위로 줄인다 |
+
+`fitInside`를 붙이는 노드는 `fillMaxSize`나 `weight`처럼 앞선 modifier나 부모가 크기를 정한 자리에 둔다.
+
+Robolectric 테스트에서는 `AndroidComposeView`(`LocalView`)의 부모가 rulers의 inset을 받는다. 따라서 `ViewCompat.dispatchApplyWindowInsets`를 `LocalView.current.rootView`에 보내 `WindowInsets`와 rulers를 함께 갱신한다.
+
+⚠️ 비권장 예시:
+
+```kotlin
+SearchHomeResultPager(
+    // 조상이 소비하지 않은 시스템 내비게이션 바 높이까지 한 번 더 빠진다.
+    modifier = Modifier.weight(1f).imePadding(),
+)
+```
+
+✅ 권장 예시:
+
+```kotlin
+SearchHomeResultPager(
+    modifier =
+        Modifier
+            .weight(1f)
+            .fitInside(WindowInsetsRulers.Ime.current),
+)
+```
+
 ## 자주 바뀌는 state의 파생 값
 
 **자주 바뀌는 state를 읽어 드물게 바뀌는 값으로 줄인 결과를 composition에서 읽으면 `derivedStateOf`로 감싼다.** 여기서 `자주 바뀌는 state`는 사용자의 한 동작 동안 여러 번 바뀌는 값이다. `TextFieldState.text`는 글자마다, 스크롤·드래그 오프셋과 애니메이션 진행값은 프레임마다 바뀐다. 이런 값을 그대로 읽으면 읽은 컴포저블이 그 횟수만큼 recompose되지만, `derivedStateOf`로 감싸면 줄인 결과가 실제로 바뀔 때만 recompose된다.
