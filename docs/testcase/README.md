@@ -89,6 +89,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [MoreHome](./more-home.md) | [MoreHome 화면](../spec/more-home.md) |
 | [MusicAdd](./music-add.md) | [MusicAdd 화면](../spec/music-add.md) |
 | [MusicDetail](./music-detail.md) | [MusicDetail 화면](../spec/music-detail.md) |
+| [곡 다운로드](./music-download.md) | [곡 다운로드](../spec/music-download.md) |
 | [네이버 장소 검색](./naver-place-search.md) | [네이버 장소 검색](../spec/naver-place-search.md) |
 | [알림 권한 요청](./notification-permission.md) | [알림 권한 요청](../spec/notification-permission.md) |
 | [PlaceAdd](./place-add.md) | [PlaceAdd 화면](../spec/place-add.md) |
