@@ -18,6 +18,12 @@
     <string name="setting_map_google_provider_label">Google</string>
     <string name="setting_navigate_up_button_content_description">Navigate up</string>
     <string name="setting_home_gemini_item_label">Gemini</string>
+    <string name="setting_home_browser_item_label">Browser</string>
+    <string name="setting_browser_title">Browser Settings</string>
+    <string name="setting_browser_chrome_session_import_label">Use Chrome logins</string>
+    <string name="setting_browser_chrome_session_import_description">Opens sites you're signed in to in the chosen Chrome profile as signed in inside the app</string>
+    <string name="setting_browser_chrome_profile_none_label">None</string>
+    <string name="setting_browser_chrome_profile_unavailable_message">Couldn't load Chrome profiles</string>
     <string name="setting_gemini_title">Gemini Settings</string>
     <string name="setting_gemini_api_key_label">API key</string>
     <string name="setting_gemini_api_key_show_button_content_description">Show API key</string>

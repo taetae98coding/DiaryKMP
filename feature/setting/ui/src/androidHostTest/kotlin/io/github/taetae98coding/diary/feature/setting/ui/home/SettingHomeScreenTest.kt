@@ -6,6 +6,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,6 +47,11 @@ class SettingHomeScreenTest {
         assertNavigatesOnlyTo(itemLabel = DEFAULT_GEMINI_ITEM_LABEL, expected = SettingHomeItem.GEMINI)
     }
 
+    @Test
+    fun `TC-SETTING-HOME-FEATURE-010 브라우저 항목을 선택하면 SettingBrowser 화면으로 이동한다`() {
+        assertNavigatesOnlyTo(itemLabel = DEFAULT_BROWSER_ITEM_LABEL, expected = SettingHomeItem.BROWSER)
+    }
+
     private fun assertNavigatesOnlyTo(
         itemLabel: String,
         expected: SettingHomeItem,
@@ -53,6 +61,7 @@ class SettingHomeScreenTest {
             navigateToHoliday = { navigatedItemList += SettingHomeItem.HOLIDAY },
             navigateToMap = { navigatedItemList += SettingHomeItem.MAP },
             navigateToGemini = { navigatedItemList += SettingHomeItem.GEMINI },
+            navigateToBrowser = { navigatedItemList += SettingHomeItem.BROWSER },
         )
 
         composeRule.onNodeWithText(itemLabel).performClick()
@@ -66,6 +75,8 @@ class SettingHomeScreenTest {
         navigateToHoliday: () -> Unit = {},
         navigateToMap: () -> Unit = {},
         navigateToGemini: () -> Unit = {},
+        navigateToBrowser: () -> Unit = {},
+        viewModel: SettingHomeViewModel = screenTestViewModel(SettingHomeUiState.Loaded(itemList = settingHomeItemList)),
     ) {
         composeRule.setContent {
             DiaryTheme {
@@ -74,6 +85,8 @@ class SettingHomeScreenTest {
                     navigateToHoliday = navigateToHoliday,
                     navigateToMap = navigateToMap,
                     navigateToGemini = navigateToGemini,
+                    navigateToBrowser = navigateToBrowser,
+                    viewModel = viewModel,
                 )
             }
         }
@@ -84,5 +97,12 @@ class SettingHomeScreenTest {
         private const val DEFAULT_HOLIDAY_ITEM_LABEL = "Holiday"
         private const val DEFAULT_MAP_ITEM_LABEL = "Map"
         private const val DEFAULT_GEMINI_ITEM_LABEL = "Gemini"
+        private const val DEFAULT_BROWSER_ITEM_LABEL = "Browser"
+
+        private fun screenTestViewModel(uiState: SettingHomeUiState): SettingHomeViewModel {
+            val viewModel = mockk<SettingHomeViewModel>()
+            every { viewModel.uiState } returns MutableStateFlow(uiState)
+            return viewModel
+        }
     }
 }

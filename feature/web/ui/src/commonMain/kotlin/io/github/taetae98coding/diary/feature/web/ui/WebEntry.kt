@@ -98,6 +98,7 @@ private fun EntryProviderScope<ScreenNavKey>.webDetailEntry(backStack: NavBackSt
             webViewModel = koinViewModel { parametersOf(key.id) },
             pageViewModel = koinViewModel { parametersOf(key.id) },
             tagViewModel = koinViewModel { parametersOf(key.id) },
+            sessionViewModel = koinViewModel { parametersOf(key.id) },
         )
     }
 }

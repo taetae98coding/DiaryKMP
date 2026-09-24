@@ -8,4 +8,5 @@ public fun PolymorphicModuleBuilder<ScreenNavKey>.settingNavKeys() {
     subclass(SettingHolidayNavKey::class, SettingHolidayNavKey.serializer())
     subclass(SettingMapNavKey::class, SettingMapNavKey.serializer())
     subclass(SettingGeminiNavKey::class, SettingGeminiNavKey.serializer())
+    subclass(SettingBrowserNavKey::class, SettingBrowserNavKey.serializer())
 }

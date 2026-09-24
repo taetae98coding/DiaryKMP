@@ -23,6 +23,7 @@ import org.jetbrains.compose.resources.stringResource
 internal fun SettingHomeScaffold(
     onEvent: (SettingHomeScaffoldEvent) -> Unit,
     modifier: Modifier = Modifier,
+    uiStateProvider: () -> SettingHomeUiState = { SettingHomeUiState.Loading },
 ) {
     Scaffold(
         modifier = modifier,
@@ -42,17 +43,23 @@ internal fun SettingHomeScaffold(
             contentPadding = DiaryTheme.dimens.screenPaddingValues,
             verticalArrangement = Arrangement.spacedBy(DiarySegmentedListItemDefaults.Gap),
         ) {
-            itemsIndexed(
-                items = settingHomeItemList,
-                key = { _, item -> item.name },
-            ) { index, item ->
-                DiarySegmentedListItem(
-                    onClick = { onEvent(SettingHomeScaffoldEvent.ClickItem(item)) },
-                    modifier = Modifier.animateItem(),
-                    index = index,
-                    count = settingHomeItemList.size,
-                ) {
-                    Text(text = stringResource(item.labelResource))
+            when (val uiState = uiStateProvider()) {
+                is SettingHomeUiState.Loading -> Unit
+
+                is SettingHomeUiState.Loaded -> {
+                    itemsIndexed(
+                        items = uiState.itemList,
+                        key = { _, item -> item.name },
+                    ) { index, item ->
+                        DiarySegmentedListItem(
+                            onClick = { onEvent(SettingHomeScaffoldEvent.ClickItem(item)) },
+                            modifier = Modifier.animateItem(),
+                            index = index,
+                            count = uiState.itemList.size,
+                        ) {
+                            Text(text = stringResource(item.labelResource))
+                        }
+                    }
                 }
             }
         }
@@ -63,6 +70,9 @@ internal fun SettingHomeScaffold(
 @Composable
 private fun SettingHomeScaffoldPreview() {
     DiaryTheme {
-        SettingHomeScaffold(onEvent = {})
+        SettingHomeScaffold(
+            onEvent = {},
+            uiStateProvider = { SettingHomeUiState.Loaded(itemList = settingHomeItemList) },
+        )
     }
 }

@@ -5,4 +5,5 @@ internal val settingHomeItemList: List<SettingHomeItem> =
         SettingHomeItem.HOLIDAY,
         SettingHomeItem.MAP,
         SettingHomeItem.GEMINI,
+        SettingHomeItem.BROWSER,
     )

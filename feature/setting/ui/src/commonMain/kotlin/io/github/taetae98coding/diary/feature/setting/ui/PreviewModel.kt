@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.setting.ui
 
+import io.github.taetae98coding.diary.core.model.browser.ChromeProfile
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
 import io.github.taetae98coding.diary.domain.holiday.model.HolidaySetting
 
@@ -14,4 +15,10 @@ internal fun previewGeminiSetting(): GeminiSetting =
         apiKey = "AIzaSyExampleApiKeyValue",
         model = "models/gemini-3.6-flash",
         systemPrompt = "사용자의 요청을 메모 한 건으로 정리한다.",
+    )
+
+internal fun previewChromeProfileList(): List<ChromeProfile> =
+    listOf(
+        ChromeProfile(directory = "Default", name = "TaeJong"),
+        ChromeProfile(directory = "Profile 1", name = "Work"),
     )

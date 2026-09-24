@@ -20,6 +20,7 @@
     <string name="web_add_url_blank_message">Please enter a URL.</string>
     <string name="web_header_name_blank_message">Please enter a header name.</string>
     <string name="web_detail_update_button_content_description">Update web</string>
+    <string name="web_detail_chrome_session_import_failed_message">Couldn't get Chrome logins.</string>
     <string name="web_detail_update_succeeded_message">Web updated.</string>
     <string name="web_detail_form_tab_content_description">Edit web information</string>
     <string name="web_detail_page_tab_content_description">View web page</string>

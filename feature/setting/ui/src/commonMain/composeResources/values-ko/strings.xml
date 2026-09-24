@@ -18,6 +18,12 @@
     <string name="setting_map_google_provider_label">Google</string>
     <string name="setting_navigate_up_button_content_description">뒤로가기</string>
     <string name="setting_home_gemini_item_label">Gemini</string>
+    <string name="setting_home_browser_item_label">브라우저</string>
+    <string name="setting_browser_title">브라우저 설정</string>
+    <string name="setting_browser_chrome_session_import_label">Chrome 로그인 이어받기</string>
+    <string name="setting_browser_chrome_session_import_description">고른 Chrome 프로필에서 로그인한 사이트를 앱 안에서도 로그인된 상태로 엽니다</string>
+    <string name="setting_browser_chrome_profile_none_label">선택 안 함</string>
+    <string name="setting_browser_chrome_profile_unavailable_message">Chrome 프로필을 조회할 수 없습니다</string>
     <string name="setting_gemini_title">Gemini 설정</string>
     <string name="setting_gemini_api_key_label">API 키</string>
     <string name="setting_gemini_api_key_show_button_content_description">API 키 표시</string>

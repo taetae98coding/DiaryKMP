@@ -19,6 +19,9 @@ import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageViewModel
+import io.github.taetae98coding.diary.feature.web.ui.detail.session.WebDetailSessionEffect
+import io.github.taetae98coding.diary.feature.web.ui.detail.session.WebDetailSessionUiState
+import io.github.taetae98coding.diary.feature.web.ui.detail.session.WebDetailSessionViewModel
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -305,6 +308,7 @@ class WebDetailScreenTest {
                     pageViewModel = pageViewModel(),
                     navigateToTagDetail = {},
                     tagViewModel = detailTagScreenTestViewModel(),
+                    sessionViewModel = sessionViewModel(uiState = uiStateFlow.value),
                 )
             }
         }
@@ -326,12 +330,27 @@ class WebDetailScreenTest {
         composeRule.headerValueInput().assert(hasText(TYPED_HEADER_VALUE))
     }
 
+    @Test
+    fun `TC-WEB-DETAIL-FEATURE-049 로그인 정보를 가져오지 못하면 안내를 표시하고 웹 표시 수단이 주소를 연다`() {
+        val uiState = testContentUiState()
+
+        setWebDetailScreen(
+            uiState = uiState,
+            sessionViewModel = sessionViewModel(uiState = uiState, effect = flowOf(WebDetailSessionEffect.ImportFailed)),
+        )
+
+        composeRule.awaitText(DEFAULT_CHROME_SESSION_IMPORT_FAILED_MESSAGE)
+        composeRule.onNodeWithContentDescription(DEFAULT_PAGE_DESCRIPTION).assertExists()
+        composeRule.onNodeWithText(DEFAULT_RETRY_BUTTON).assertDoesNotExist()
+    }
+
     private fun setWebDetailScreen(
         uiState: WebDetailUiState = testContentUiState(),
         webViewModel: WebDetailViewModel = webViewModel(uiState = uiState),
         pageViewModel: WebDetailPageViewModel = pageViewModel(),
         uriHandler: UriHandler = mockk(relaxed = true),
         navigateUp: () -> Unit = {},
+        sessionViewModel: WebDetailSessionViewModel = sessionViewModel(uiState = uiState),
     ) {
         composeRule.setContent {
             WebDetailScreenTestTheme {
@@ -344,6 +363,7 @@ class WebDetailScreenTest {
                         pageViewModel = pageViewModel,
                         navigateToTagDetail = {},
                         tagViewModel = detailTagScreenTestViewModel(),
+                        sessionViewModel = sessionViewModel,
                     )
                 }
             }
@@ -360,6 +380,7 @@ class WebDetailScreenTest {
 
         private const val DEFAULT_UPDATE_SUCCEEDED_MESSAGE = "Web updated."
         private const val DEFAULT_HEADER_NAME_BLANK_MESSAGE = "Please enter a header name."
+        private const val DEFAULT_CHROME_SESSION_IMPORT_FAILED_MESSAGE = "Couldn't get Chrome logins."
 
         private fun webViewModel(
             uiState: WebDetailUiState = testContentUiState(),
@@ -371,6 +392,17 @@ class WebDetailScreenTest {
             every { viewModel.effect } returns effect
             justRun { viewModel.update(any()) }
             justRun { viewModel.delete() }
+
+            return viewModel
+        }
+
+        private fun sessionViewModel(
+            uiState: WebDetailUiState = testContentUiState(),
+            effect: Flow<WebDetailSessionEffect> = emptyFlow(),
+        ): WebDetailSessionViewModel {
+            val viewModel = mockk<WebDetailSessionViewModel>()
+            every { viewModel.uiState } returns MutableStateFlow(WebDetailSessionUiState.Prepared(url = uiState.urlOrEmpty()))
+            every { viewModel.effect } returns effect
 
             return viewModel
         }

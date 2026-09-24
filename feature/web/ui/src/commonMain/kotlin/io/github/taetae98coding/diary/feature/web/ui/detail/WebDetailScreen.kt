@@ -17,11 +17,14 @@ import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.feature.web.ui.Res
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageViewModel
+import io.github.taetae98coding.diary.feature.web.ui.detail.session.WebDetailSessionEffect
+import io.github.taetae98coding.diary.feature.web.ui.detail.session.WebDetailSessionViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.viewmode.WebDetailViewMode
 import io.github.taetae98coding.diary.feature.web.ui.form.WebFormState
 import io.github.taetae98coding.diary.feature.web.ui.form.handleWebFormEvent
 import io.github.taetae98coding.diary.feature.web.ui.form.rememberWebDetailFormState
 import io.github.taetae98coding.diary.feature.web.ui.tag.WebTagAddedResultEffect
+import io.github.taetae98coding.diary.feature.web.ui.web_detail_chrome_session_import_failed_message
 import io.github.taetae98coding.diary.feature.web.ui.web_detail_update_succeeded_message
 import io.github.taetae98coding.diary.feature.web.ui.web_header_name_blank_message
 import kotlinx.coroutines.flow.Flow
@@ -40,19 +43,18 @@ internal fun WebDetailScreen(
     webViewModel: WebDetailViewModel,
     pageViewModel: WebDetailPageViewModel,
     tagViewModel: WebDetailTagViewModel,
+    sessionViewModel: WebDetailSessionViewModel,
     modifier: Modifier = Modifier,
 ) {
     val uiState by webViewModel.uiState.collectAsStateWithLifecycle()
     val pageUiState by pageViewModel.uiState.collectAsStateWithLifecycle()
+    val sessionUiState by sessionViewModel.uiState.collectAsStateWithLifecycle()
     val tagUiState by tagViewModel.uiState.collectAsStateWithLifecycle()
     val tagPagingItems = tagViewModel.tagPagingData.collectAsLazyPagingItems()
     val content = uiState as? WebDetailUiState.Content
     val uriHandler = LocalUriHandler.current
 
-    WebTagAddedResultEffect(
-        requestKey = tagAddRequestKey,
-        onTagAdded = tagViewModel::add,
-    )
+    WebTagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::add)
 
     key(content?.id) {
         val scaffoldState = rememberWebDetailScaffoldState()
@@ -62,6 +64,7 @@ internal fun WebDetailScreen(
 
         WebDetailScreenEffect(
             effect = webViewModel.effect,
+            sessionEffect = sessionViewModel.effect,
             formState = formState,
             pageViewModel = pageViewModel,
             navigateUp = navigateUp,
@@ -103,6 +106,7 @@ internal fun WebDetailScreen(
             uiStateProvider = { uiState },
             pageUiStateProvider = { pageUiState },
             tagUiStateProvider = { tagUiState },
+            sessionUiStateProvider = { sessionUiState },
         )
     }
 }
@@ -160,10 +164,20 @@ private fun WebDetailScreenEffect(
     pageViewModel: WebDetailPageViewModel,
     navigateUp: () -> Unit,
     effect: Flow<WebDetailEffect> = emptyFlow(),
+    sessionEffect: Flow<WebDetailSessionEffect> = emptyFlow(),
 ) {
     val coroutineScope = rememberCoroutineScope()
     val updateSucceededMessage = stringResource(Res.string.web_detail_update_succeeded_message)
     val headerNameBlankMessage = stringResource(Res.string.web_header_name_blank_message)
+    val importFailedMessage = stringResource(Res.string.web_detail_chrome_session_import_failed_message)
+
+    CollectEffect(sessionEffect) { value ->
+        when (value) {
+            is WebDetailSessionEffect.ImportFailed -> {
+                coroutineScope.launch { formState.hostState.showImmediate(message = importFailedMessage) }
+            }
+        }
+    }
 
     CollectEffect(effect) { value ->
         when (value) {
