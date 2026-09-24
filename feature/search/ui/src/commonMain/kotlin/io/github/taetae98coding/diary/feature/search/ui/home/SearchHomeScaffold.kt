@@ -2,11 +2,13 @@ package io.github.taetae98coding.diary.feature.search.ui.home
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fitInside
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.WindowInsetsRulers
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
@@ -40,7 +42,10 @@ internal fun SearchHomeScaffold(
         ) {
             SearchHomeTabRow(state = state)
             SearchHomeResultPager(
-                modifier = Modifier.weight(1f),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .fitInside(WindowInsetsRulers.Ime.current),
                 state = state,
                 resultContent = resultContent,
             )
