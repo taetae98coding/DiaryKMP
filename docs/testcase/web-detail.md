@@ -23,11 +23,11 @@ stateDiagram-v2
 
     [*] --> Loading: TC-WEB-DETAIL-FEATURE-001
     Loading --> Loading: 조회 실패 · TC-WEB-DETAIL-FEATURE-003
-    Loading --> Address: 가져오지 않는 환경 · TC-WEB-DETAIL-FEATURE-002, TC-WEB-DETAIL-FEATURE-037, TC-WEB-DETAIL-FEATURE-050
-    Loading --> Preparing: 가져오는 환경 · TC-WEB-DETAIL-FEATURE-047
-    Preparing --> Address: 성공 · TC-WEB-DETAIL-FEATURE-048
+    Loading --> Address: 가져오는 중이 아님 · TC-WEB-DETAIL-FEATURE-002, TC-WEB-DETAIL-FEATURE-037, TC-WEB-DETAIL-FEATURE-050
+    Loading --> Preparing: 가져오는 중 · TC-WEB-DETAIL-FEATURE-047
+    Preparing --> Address: 성공 · TC-WEB-DETAIL-FEATURE-052
     Preparing --> Address: 실패 · TC-WEB-DETAIL-FEATURE-049
-    Address --> Preparing: 수정으로 URL이 바뀜 · TC-WEB-DETAIL-FEATURE-051
+    Address --> Preparing: 가져오기 시작 · TC-WEB-DETAIL-FEATURE-053
     Address --> Address: 같은 방식 선택 · TC-WEB-DETAIL-FEATURE-042
     Address --> Fetching: 응답 본문 방식 선택 · TC-WEB-DETAIL-FEATURE-004, TC-WEB-DETAIL-FEATURE-040
     Address --> Page: 받은 응답 본문 있음 · TC-WEB-DETAIL-DOMAIN-039
@@ -399,37 +399,57 @@ stateDiagram-v2
 ### TC-WEB-DETAIL-FEATURE-047: 로그인 정보를 가져오는 동안에는 진행 상태를 표시하고 주소를 열지 않는다
 
 - 근거: `feature > 로그인 정보 가져오기`
-- Given: 로그인 정보를 가져오는 환경이고, 대상 웹 항목이 조회되었으며 그 주소의 로그인 정보 가져오기가 아직 끝나지 않은 상태로 제어되어 있다.
+- Given: 대상 웹 항목이 조회되었고 로그인 정보 가져오는 상태가 `가져오는 중`으로 제어되어 있다.
 - When: 사용자가 URL 방식의 웹 페이지 자리를 확인한다.
 - Then: 웹 페이지 자리에 진행 상태가 표시되고 웹 표시 수단은 아직 주소를 열지 않으며, 표시 방식 변경, 수정, 뒤로가기는 그대로 실행할 수 있다.
-
-### TC-WEB-DETAIL-FEATURE-048: 로그인 정보를 가져오면 웹 표시 수단이 주소를 연다
-
-- 근거: `feature > 로그인 정보 가져오기`
-- Given: 로그인 정보를 가져오는 환경이고, 대상 웹 항목이 조회되었으며 그 주소의 로그인 정보 가져오기가 성공하도록 제어되어 있다.
-- When: 가져오기가 끝난다.
-- Then: 진행 상태가 사라지고 웹 표시 수단이 저장된 URL을 열며, 가져오기는 그 주소로 한 번만 실행된다.
 
 ### TC-WEB-DETAIL-FEATURE-049: 로그인 정보를 가져오지 못하면 알리고 주소를 그대로 연다
 
 - 근거: `feature > 로그인 정보 가져오기`
-- Given: 로그인 정보를 가져오는 환경이고, 대상 웹 항목이 조회되었으며 그 주소의 로그인 정보 가져오기가 실패하도록 제어되어 있다.
-- When: 가져오기가 끝난다.
+- Given: 대상 웹 항목이 조회되었고 로그인 정보 가져오는 상태가 `가져오는 중`이다.
+- When: 가져오는 상태가 `가져오기 실패`로 바뀐다.
 - Then: 가져오지 못했다는 피드백이 한 번 표시되고 웹 표시 수단이 저장된 URL을 열며, 다시 시도 수단은 표시되지 않는다.
 
-### TC-WEB-DETAIL-FEATURE-050: 로그인 정보를 가져오지 않는 환경이면 곧바로 주소를 연다
+### TC-WEB-DETAIL-FEATURE-050: 로그인 정보를 가져오는 중이 아니면 곧바로 주소를 연다
 
 - 근거: `feature > 로그인 정보 가져오기`
-- Given: 설정이 꺼져 있거나 제공하지 않는 환경이어서 가져오기가 아무것도 하지 않고 곧바로 끝나도록 제어되어 있고, 대상 웹 항목이 조회되었다.
+- Given: 대상 웹 항목이 조회되었고 로그인 정보 가져오는 상태가 테스트 데이터의 값으로 제어되어 있다.
 - When: 사용자가 URL 방식의 웹 페이지 자리를 확인한다.
-- Then: 진행 상태 없이 웹 표시 수단이 저장된 URL을 열고 피드백은 표시되지 않는다.
+- Then: 진행 상태 없이 웹 표시 수단이 저장된 URL을 열고, `가져오기 실패`가 아니면 피드백은 표시되지 않는다.
+- 테스트 데이터:
 
-### TC-WEB-DETAIL-FEATURE-051: 수정으로 URL이 바뀌면 새 주소의 로그인 정보를 다시 가져온 뒤 연다
+| 가져오는 상태 |
+| --- |
+| `가져온 적 없음` |
+| `가져오기 성공` |
 
-- 근거: `feature > 수정 뒤의 웹 페이지`, `feature > 로그인 정보 가져오기`
-- Given: 로그인 정보를 가져오는 환경이고, URL 방식으로 첫 주소가 열려 있다.
+### TC-WEB-DETAIL-FEATURE-052: 로그인 정보를 가져오면 웹 표시 수단이 주소를 새로 연다
+
+- 근거: `feature > 로그인 정보 가져오기`
+- Given: 대상 웹 항목이 조회되었고 로그인 정보 가져오는 상태가 `가져오는 중`이다.
+- When: 가져오는 상태가 `가져오기 성공`으로 바뀐다.
+- Then: 진행 상태가 사라지고 웹 표시 수단이 저장된 URL을 새로 열며, 피드백은 표시되지 않는다.
+
+### TC-WEB-DETAIL-FEATURE-053: 주소를 연 뒤 가져오기가 시작되면 진행 상태로 바뀌고 끝나면 다시 연다
+
+- 근거: `feature > 로그인 정보 가져오기`
+- Given: URL 방식으로 저장된 URL이 열려 있고 로그인 정보 가져오는 상태가 `가져오기 성공`이다.
+- When: 가져오는 상태가 `가져오는 중`으로 바뀌었다가 다시 `가져오기 성공`으로 바뀐다.
+- Then: 가져오는 동안 웹 표시 수단이 사라지고 진행 상태가 표시되며, 끝나면 웹 표시 수단이 저장된 URL을 이전과 다른 새 표시로 다시 연다.
+
+### TC-WEB-DETAIL-FEATURE-054: 들어왔을 때 마지막 가져오기 결과가 실패였으면 한 번 알린다
+
+- 근거: `feature > 로그인 정보 가져오기`
+- Given: 로그인 정보 가져오는 상태가 `가져오기 실패`다.
+- When: 사용자가 WebDetail 화면에 들어온다.
+- Then: 가져오지 못했다는 피드백이 한 번 표시되고 웹 표시 수단이 저장된 URL을 연다.
+
+### TC-WEB-DETAIL-FEATURE-055: 수정으로 URL이 바뀌어도 로그인 정보를 다시 가져오지 않는다
+
+- 근거: `feature > 수정 뒤의 웹 페이지`
+- Given: URL 방식으로 첫 주소가 열려 있고 로그인 정보 가져오는 상태가 `가져오기 성공`이다.
 - When: 사용자가 URL을 다른 주소로 바꿔 수정을 실행하고 수정이 반영된다.
-- Then: 새 주소의 로그인 정보 가져오기가 한 번 실행되고, 그동안 진행 상태가 표시되며, 끝나면 웹 표시 수단이 새 주소를 연다. 제목이나 설명만 바뀐 수정에서는 가져오기가 다시 실행되지 않는다.
+- Then: 로그인 정보 가져오기가 시작되지 않고 진행 상태 없이 웹 표시 수단이 새 주소를 연다.
 
 ## domain
 
@@ -767,12 +787,12 @@ flowchart TD
 - When: 사용자가 태그를 연결하고 이어서 다른 태그를 해제한다.
 - Then: 두 조작이 모두 반영된다.
 
-### TC-WEB-DETAIL-DOMAIN-043: 화면이 재생성되어도 로그인 정보를 다시 가져오지 않는다
+### TC-WEB-DETAIL-DOMAIN-044: 화면이 재생성되어도 이미 알린 가져오기 실패를 다시 알리지 않는다
 
 - 근거: `feature > 진행 상태 유지`
-- Given: 로그인 정보를 가져오는 환경이고, 저장된 URL의 로그인 정보를 한 번 가져와 URL 방식으로 열려 있다.
+- Given: 로그인 정보 가져오는 상태가 `가져오기 실패`여서 가져오지 못했다는 피드백이 한 번 표시되었다.
 - When: 화면이 시스템에 의해 재생성된다.
-- Then: 같은 주소의 로그인 정보 가져오기가 다시 실행되지 않고 웹 표시 수단이 저장된 URL을 그대로 연다.
+- Then: 피드백이 다시 표시되지 않고 로그인 정보 가져오기도 시작되지 않는다.
 
 ## data
 
