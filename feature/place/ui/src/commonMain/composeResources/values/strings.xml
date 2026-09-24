@@ -23,6 +23,11 @@
     <string name="place_detail_open_google_map_button_content_description">Open in Google Maps</string>
     <string name="place_detail_update_button_content_description">Update place</string>
     <string name="place_detail_update_succeeded_message">Place updated.</string>
+    <string name="place_detail_tab_detail_content_description">Place detail</string>
+    <string name="place_detail_tab_memo_content_description">Memo</string>
+    <string name="place_detail_memo_add_button_content_description">Add memo</string>
+    <string name="place_detail_memo_empty_title">No memos linked to this place</string>
+    <string name="place_detail_memo_empty_description">Use the add button to create a memo.</string>
     <string name="place_search_button_content_description">Search place</string>
     <string name="place_search_title">Search place</string>
     <string name="place_search_query_input_placeholder">Search for a place</string>

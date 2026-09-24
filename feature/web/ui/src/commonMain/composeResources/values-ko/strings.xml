@@ -24,6 +24,10 @@
     <string name="web_detail_update_succeeded_message">웹이 수정되었습니다.</string>
     <string name="web_detail_form_tab_content_description">웹 정보 수정</string>
     <string name="web_detail_page_tab_content_description">웹 페이지 보기</string>
+    <string name="web_detail_memo_tab_content_description">메모</string>
+    <string name="web_detail_memo_add_button_content_description">메모 추가</string>
+    <string name="web_detail_memo_empty_title">이 웹에 연결된 메모가 없습니다</string>
+    <string name="web_detail_memo_empty_description">추가 버튼으로 새 메모를 만들 수 있습니다</string>
     <string name="web_detail_page_content_description">웹 페이지</string>
     <string name="web_detail_page_failure_title">웹 페이지를 불러오지 못했습니다</string>
     <string name="web_detail_page_failure_description">네트워크 상태를 확인한 뒤 다시 시도해 주세요</string>

@@ -30,9 +30,12 @@ import io.github.taetae98coding.diary.core.database.impl.converter.ContactBirthd
 import io.github.taetae98coding.diary.core.database.impl.converter.ContactPhoneNumberListColumnTypeConverter
 import io.github.taetae98coding.diary.core.database.impl.converter.WebHeaderListColumnTypeConverter
 import io.github.taetae98coding.diary.core.database.impl.memo.dao.AccountCalendarMemoDao
+import io.github.taetae98coding.diary.core.database.impl.memo.dao.AccountContactMemoDao
 import io.github.taetae98coding.diary.core.database.impl.memo.dao.AccountMemoDao
 import io.github.taetae98coding.diary.core.database.impl.memo.dao.AccountMemoSyncDao
+import io.github.taetae98coding.diary.core.database.impl.memo.dao.AccountPlaceMemoDao
 import io.github.taetae98coding.diary.core.database.impl.memo.dao.AccountTagMemoDao
+import io.github.taetae98coding.diary.core.database.impl.memo.dao.AccountWebMemoDao
 import io.github.taetae98coding.diary.core.database.impl.memo.dao.MemoDao
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memocontact.dao.AccountMemoContactDao
@@ -151,6 +154,12 @@ internal abstract class DiaryDatabase : RoomDatabase() {
     abstract fun accountMemoDao(): AccountMemoDao
 
     abstract fun accountTagMemoDao(): AccountTagMemoDao
+
+    abstract fun accountContactMemoDao(): AccountContactMemoDao
+
+    abstract fun accountPlaceMemoDao(): AccountPlaceMemoDao
+
+    abstract fun accountWebMemoDao(): AccountWebMemoDao
 
     abstract fun accountCalendarMemoDao(): AccountCalendarMemoDao
 

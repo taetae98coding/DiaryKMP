@@ -26,6 +26,9 @@ internal class WebDetailScaffoldState(
     var viewMode: WebDetailViewMode by mutableStateOf(initialViewMode)
         private set
 
+    val startTab: WebDetailTab
+        get() = if (tab == WebDetailTab.MEMO) WebDetailTab.MEMO else WebDetailTab.FORM
+
     val viewModeSheetState: DialogState = DialogState()
 
     fun select(tab: WebDetailTab) {

@@ -1,10 +1,12 @@
 package io.github.taetae98coding.diary.feature.web.ui.detail
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
@@ -22,6 +24,7 @@ import androidx.compose.ui.test.performTextReplacement
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.model.web.WebHeader
+import io.github.taetae98coding.diary.feature.web.ui.detail.memo.WebDetailMemoTab
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WEB_DETAIL_PAGE_FAILURE_TEST_TAG
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
 import io.github.taetae98coding.diary.feature.web.ui.detail.tab.WebDetailTab
@@ -41,11 +44,12 @@ class WebDetailScaffoldTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-001 조회 중에는 제목과 탭 줄, 본문 영역을 표시하지 않는다`() {
+    fun `TC-WEB-DETAIL-FEATURE-001 TC-WEB-DETAIL-FEATURE-058 조회 중에는 제목과 본문 영역을 표시하지 않고 탭 줄은 표시한다`() {
         setWebDetailScaffold(uiState = WebDetailUiState.Loading)
 
-        composeRule.onNodeWithContentDescription(DEFAULT_FORM_TAB_DESCRIPTION).assertDoesNotExist()
-        composeRule.onNodeWithContentDescription(DEFAULT_PAGE_TAB_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_FORM_TAB_DESCRIPTION).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_PAGE_TAB_DESCRIPTION).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertExists()
         composeRule.onNodeWithTag(WEB_DETAIL_FORM_TEST_TAG).assertDoesNotExist()
         composeRule.onNodeWithTag(WEB_DETAIL_PAGE_FAILURE_TEST_TAG).assertDoesNotExist()
     }
@@ -338,10 +342,11 @@ class WebDetailScaffoldTest {
 
     @Test
     @Config(qualifiers = "w1000dp-h800dp")
-    fun `넓은 창에서는 탭 줄 없이 수정 폼과 웹 페이지를 좌우로 나눈다`() {
+    fun `넓은 창에서는 시작 쪽에 수정 폼과 메모 탭 줄을 두고 웹 페이지를 끝 쪽에 나란히 둔다`() {
         setWebDetailScaffold(pageUiState = WebDetailPageUiState.Failure, initialViewMode = WebDetailViewMode.RESPONSE)
 
-        composeRule.onNodeWithContentDescription(DEFAULT_FORM_TAB_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_FORM_TAB_DESCRIPTION).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertExists()
         composeRule.onNodeWithContentDescription(DEFAULT_PAGE_TAB_DESCRIPTION).assertDoesNotExist()
 
         val formBounds = composeRule.onNodeWithTag(WEB_DETAIL_FORM_TEST_TAG).fetchSemanticsNode().boundsInRoot
@@ -486,6 +491,7 @@ class WebDetailScaffoldTest {
         composeRule.onNodeWithContentDescription(KOREAN_DELETE_DESCRIPTION).assertExists()
         composeRule.onNodeWithContentDescription(KOREAN_FORM_TAB_DESCRIPTION).assertExists()
         composeRule.onNodeWithContentDescription(KOREAN_PAGE_TAB_DESCRIPTION).assertExists()
+        composeRule.onNodeWithContentDescription(KOREAN_MEMO_TAB_DESCRIPTION).assertExists()
     }
 
     @Test
@@ -559,7 +565,9 @@ class WebDetailScaffoldTest {
                 pageUiStateProvider = { pageUiState },
                 onFormEvent = {},
                 onTagPickerEvent = {},
-            )
+            ) {
+                WebDetailMemoTab(onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
+            }
         }
     }
 

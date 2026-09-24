@@ -31,4 +31,9 @@
     <string name="contact_detail_delete_button_content_description">연락처 삭제</string>
     <string name="contact_detail_update_button_content_description">연락처 수정</string>
     <string name="contact_detail_update_succeeded_message">연락처가 수정되었습니다.</string>
+    <string name="contact_detail_tab_detail_content_description">연락처 디테일</string>
+    <string name="contact_detail_tab_memo_content_description">메모</string>
+    <string name="contact_detail_memo_add_button_content_description">메모 추가</string>
+    <string name="contact_detail_memo_empty_title">이 연락처에 연결된 메모가 없습니다</string>
+    <string name="contact_detail_memo_empty_description">추가 버튼으로 새 메모를 만들 수 있습니다</string>
 </resources>

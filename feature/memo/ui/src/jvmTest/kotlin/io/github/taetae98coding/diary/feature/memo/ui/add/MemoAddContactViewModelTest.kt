@@ -98,6 +98,68 @@ class MemoAddContactViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-MEMO-ADD-FEATURE-063 ContactDetail 메모 탭에서 진입하면 그 연락처만 선택된 상태로 시작한다") {
+            runTest(mainDispatcher) {
+                val target = contact()
+                val other = contact()
+                val viewModel =
+                    viewModel(
+                        initialContactId = target.id,
+                        contactPagingFlow = flowOf(Result.success(PagingData.from(listOf(target, other)))),
+                        savedContactListFlow = flowOf(Result.success(listOf(target, other))),
+                    )
+
+                viewModel.uiState.test {
+                    advanceUntilIdle()
+
+                    expectMostRecentItem().selectedContactList shouldBe listOf(target)
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("TC-MEMO-ADD-FEATURE-064 ContactDetail 메모 탭에서 진입해도 초기 선택을 해제하거나 더 선택할 수 있다") {
+            runTest(mainDispatcher) {
+                val target = contact()
+                val other = contact()
+                val viewModel =
+                    viewModel(
+                        initialContactId = target.id,
+                        savedContactListFlow = flowOf(Result.success(listOf(target, other))),
+                    )
+
+                viewModel.uiState.test {
+                    advanceUntilIdle()
+                    expectMostRecentItem().selectedContactList shouldBe listOf(target)
+
+                    viewModel.unselectContact(id = target.id)
+                    viewModel.selectContact(id = other.id)
+                    advanceUntilIdle()
+
+                    expectMostRecentItem().selectedContactList shouldBe listOf(other)
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("TC-MEMO-ADD-DOMAIN-015 삭제된 대상 연락처는 ContactDetail 메모 탭에서 진입해도 선택되지 않은 상태로 시작한다") {
+            runTest(mainDispatcher) {
+                val deletedTarget = contact()
+                val viewModel =
+                    viewModel(
+                        initialContactId = deletedTarget.id,
+                        savedContactListFlow = flowOf(Result.success(emptyList())),
+                    )
+
+                viewModel.uiState.test {
+                    advanceUntilIdle()
+
+                    expectMostRecentItem().selectedContactList.shouldBeEmpty()
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
         test("TC-MEMO-ADD-FEATURE-059 진입하면 선택한 연락처가 없는 상태로 시작한다") {
             runTest(mainDispatcher) {
                 val contactList = listOf(contact(), contact())
@@ -303,6 +365,7 @@ class MemoAddContactViewModelTest : FunSpec() {
                 .sample()
 
         private fun viewModel(
+            initialContactId: Uuid? = null,
             contactPagingFlow: Flow<Result<PagingData<Contact>>> = emptyFlow(),
             savedContactListFlow: Flow<Result<List<Contact>>> = flowOf(Result.success(emptyList())),
             pageMemoSelectableContactUseCase: PageMemoSelectableContactUseCase =
@@ -323,6 +386,7 @@ class MemoAddContactViewModelTest : FunSpec() {
             }
 
             return MemoAddContactViewModel(
+                initialContactId = initialContactId,
                 pageMemoSelectableContactUseCase = pageMemoSelectableContactUseCase,
                 getSelectedContactUseCase = getSelectedContactUseCase,
             )

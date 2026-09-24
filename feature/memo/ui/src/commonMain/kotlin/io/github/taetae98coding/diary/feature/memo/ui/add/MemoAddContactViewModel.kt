@@ -22,16 +22,18 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import org.koin.core.annotation.InjectedParam
 import org.koin.core.annotation.KoinViewModel
 import kotlin.uuid.Uuid
 
 @KoinViewModel
 internal class MemoAddContactViewModel(
+    @InjectedParam initialContactId: Uuid?,
     pageMemoSelectableContactUseCase: PageMemoSelectableContactUseCase,
     getSelectedContactUseCase: GetSelectedContactUseCase,
 ) : ViewModel() {
     val contactIdSet: StateFlow<Set<Uuid>>
-        field = MutableStateFlow<Set<Uuid>>(emptySet())
+        field = MutableStateFlow(setOfNotNull(initialContactId))
 
     val uiState: StateFlow<MemoContactInputUiState> =
         contactIdSet

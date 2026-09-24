@@ -81,6 +81,9 @@ class ContactDetailScreenTest {
             DiaryTheme {
                 ContactDetailScreen(
                     navigateUp = {},
+                    navigateToMemoAdd = {},
+                    navigateToMemoDetail = {},
+                    id = id,
                     componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
                     viewModel = viewModel(uiState = uiState),
                 )
@@ -141,6 +144,9 @@ class ContactDetailScreenTest {
             DiaryTheme {
                 ContactDetailScreen(
                     navigateUp = navigateUp,
+                    navigateToMemoAdd = {},
+                    navigateToMemoDetail = {},
+                    id = FIRST_CONTACT_ID,
                     componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
                     viewModel = viewModel(uiState = uiState, effect = effect),
                 )

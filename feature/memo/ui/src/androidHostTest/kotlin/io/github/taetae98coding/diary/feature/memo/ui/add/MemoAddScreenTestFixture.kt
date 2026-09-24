@@ -111,6 +111,9 @@ internal fun screenTestViewModel(
  */
 internal fun screenTestRealViewModel(
     initialPrimaryTagId: Uuid? = null,
+    initialContactId: Uuid? = null,
+    initialPlaceId: Uuid? = null,
+    initialWebId: Uuid? = null,
     tagList: List<Tag> = emptyList(),
     webList: List<Web> = emptyList(),
     contactList: List<Contact> = emptyList(),
@@ -125,44 +128,25 @@ internal fun screenTestRealViewModel(
     every { pageTagUseCase(parameter = any()) } returns MutableStateFlow(Result.success(tagPagingDataOf(tagList)))
 
     val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
-    every { getSelectedTagUseCase(parameter = any()) } answers {
-        val tagIdSet = firstArg<Set<Uuid>>()
-
-        MutableStateFlow(Result.success(tagList.filter { tag -> tag.id in tagIdSet }))
-    }
+    every { getSelectedTagUseCase(parameter = any()) } answers { selectedFlowOf(list = tagList, idOf = Tag::id, idSet = firstArg()) }
 
     val pageMemoSelectableWebUseCase = mockk<PageMemoSelectableWebUseCase>()
     every { pageMemoSelectableWebUseCase(parameter = any()) } returns MutableStateFlow(Result.success(webPagingDataOf(webList)))
 
-    // 선택한 식별자로 저장소를 조회하는 동작을 저장된 웹 목록에서 골라내는 방식으로 대신한다.
     val getSelectedWebUseCase = mockk<GetSelectedWebUseCase>()
-    every { getSelectedWebUseCase(parameter = any()) } answers {
-        val webIdSet = firstArg<Set<Uuid>>()
-
-        MutableStateFlow(Result.success(webList.filter { web -> web.id in webIdSet }))
-    }
+    every { getSelectedWebUseCase(parameter = any()) } answers { selectedFlowOf(list = webList, idOf = Web::id, idSet = firstArg()) }
 
     val pageMemoSelectableContactUseCase = mockk<PageMemoSelectableContactUseCase>()
     every { pageMemoSelectableContactUseCase(parameter = any()) } returns MutableStateFlow(Result.success(contactPagingDataOf(contactList)))
 
-    // 선택한 식별자로 저장소를 조회하는 동작을 저장된 연락처 목록에서 골라내는 방식으로 대신한다.
     val getSelectedContactUseCase = mockk<GetSelectedContactUseCase>()
-    every { getSelectedContactUseCase(parameter = any()) } answers {
-        val contactIdSet = firstArg<Set<Uuid>>()
-
-        MutableStateFlow(Result.success(contactList.filter { contact -> contact.id in contactIdSet }))
-    }
+    every { getSelectedContactUseCase(parameter = any()) } answers { selectedFlowOf(list = contactList, idOf = Contact::id, idSet = firstArg()) }
 
     val pagePlaceUseCase = mockk<PagePlaceUseCase>()
     every { pagePlaceUseCase(parameter = any()) } returns MutableStateFlow(Result.success(placePagingDataOf(placeList)))
 
-    // 선택한 식별자로 저장소를 조회하는 동작을 저장된 장소 목록에서 골라내는 방식으로 대신한다.
     val getSelectedPlaceUseCase = mockk<GetSelectedPlaceUseCase>()
-    every { getSelectedPlaceUseCase(parameter = any()) } answers {
-        val placeIdSet = firstArg<Set<Uuid>>()
-
-        MutableStateFlow(Result.success(placeList.filter { place -> place.id in placeIdSet }))
-    }
+    every { getSelectedPlaceUseCase(parameter = any()) } answers { selectedFlowOf(list = placeList, idOf = Place::id, idSet = firstArg()) }
 
     val tagViewModel =
         MemoAddTagViewModel(
@@ -172,16 +156,19 @@ internal fun screenTestRealViewModel(
         )
     val webViewModel =
         MemoAddWebViewModel(
+            initialWebId = initialWebId,
             pageMemoSelectableWebUseCase = pageMemoSelectableWebUseCase,
             getSelectedWebUseCase = getSelectedWebUseCase,
         )
     val contactViewModel =
         MemoAddContactViewModel(
+            initialContactId = initialContactId,
             pageMemoSelectableContactUseCase = pageMemoSelectableContactUseCase,
             getSelectedContactUseCase = getSelectedContactUseCase,
         )
     val placeViewModel =
         MemoAddPlaceViewModel(
+            initialPlaceId = initialPlaceId,
             pagePlaceUseCase = pagePlaceUseCase,
             getSelectedPlaceUseCase = getSelectedPlaceUseCase,
         )
@@ -195,3 +182,10 @@ internal fun screenTestRealViewModel(
         placeViewModel = spyk(placeViewModel) { every { placePagingData } returns placePagingDataFlow },
     )
 }
+
+// 선택한 식별자로 저장소를 조회하는 동작을 준비된 목록에서 골라내는 방식으로 대신한다.
+private fun <T> selectedFlowOf(
+    list: List<T>,
+    idOf: (T) -> Uuid,
+    idSet: Set<Uuid>,
+): Flow<Result<List<T>>> = MutableStateFlow(Result.success(list.filter { item -> idOf(item) in idSet }))

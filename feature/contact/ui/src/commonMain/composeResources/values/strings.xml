@@ -31,4 +31,9 @@
     <string name="contact_detail_delete_button_content_description">Delete contact</string>
     <string name="contact_detail_update_button_content_description">Update contact</string>
     <string name="contact_detail_update_succeeded_message">Contact updated.</string>
+    <string name="contact_detail_tab_detail_content_description">Contact detail</string>
+    <string name="contact_detail_tab_memo_content_description">Memo</string>
+    <string name="contact_detail_memo_add_button_content_description">Add memo</string>
+    <string name="contact_detail_memo_empty_title">No memos linked to this contact</string>
+    <string name="contact_detail_memo_empty_description">Use the add button to create a memo.</string>
 </resources>

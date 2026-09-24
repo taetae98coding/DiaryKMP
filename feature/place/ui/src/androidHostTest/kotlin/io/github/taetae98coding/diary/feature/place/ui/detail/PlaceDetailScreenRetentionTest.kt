@@ -36,6 +36,9 @@ class PlaceDetailScreenRetentionTest {
             PlaceDetailScreenTestTheme {
                 PlaceDetailScreen(
                     navigateToTagAdd = {},
+                    navigateToMemoAdd = {},
+                    navigateToMemoDetail = {},
+                    id = FIRST_PLACE_ID,
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                     detailViewModel = viewModel,
                     searchViewModel = searchScreenTestViewModel(),
@@ -74,6 +77,9 @@ class PlaceDetailScreenRetentionTest {
                 if (isDisplayed) {
                     PlaceDetailScreen(
                         navigateToTagAdd = {},
+                        navigateToMemoAdd = {},
+                        navigateToMemoDetail = {},
+                        id = FIRST_PLACE_ID,
                         tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                         detailViewModel = screenTestViewModel(uiState = uiState),
                         searchViewModel = searchScreenTestViewModel(),

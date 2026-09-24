@@ -140,7 +140,7 @@ class ContactDetailFormTest {
             DiaryTheme {
                 state = rememberContactDetailFormState(initialDetail = detail)
 
-                ContactDetailScaffold(
+                ContactDetailTestScaffold(
                     onEvent = {},
                     state = state,
                     uiStateProvider = { ContactDetailUiState.Content(id = Uuid.random(), detail = detail) },
@@ -196,7 +196,7 @@ class ContactDetailFormTest {
             DiaryTheme {
                 state = rememberContactDetailFormState(initialDetail = detail)
 
-                ContactDetailScaffold(
+                ContactDetailTestScaffold(
                     onEvent = {},
                     state = state,
                     uiStateProvider = { ContactDetailUiState.Content(id = Uuid.random(), detail = detail) },
@@ -224,7 +224,7 @@ class ContactDetailFormTest {
     private fun setContactDetailScaffold(detail: ContactDetail) {
         composeRule.setContent {
             DiaryTheme {
-                ContactDetailScaffold(
+                ContactDetailTestScaffold(
                     onEvent = {},
                     state = rememberContactDetailFormState(initialDetail = detail),
                     uiStateProvider = { ContactDetailUiState.Content(id = Uuid.random(), detail = detail) },

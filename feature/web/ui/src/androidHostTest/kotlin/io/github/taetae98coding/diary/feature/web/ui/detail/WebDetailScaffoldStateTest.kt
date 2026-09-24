@@ -34,6 +34,35 @@ class WebDetailScaffoldStateTest {
     }
 
     @Test
+    fun `넓은 창의 시작 쪽 탭은 메모 탭을 골랐을 때만 메모이고 그 밖에는 수정 폼이다`() {
+        val state = WebDetailScaffoldState(initialTab = WebDetailTab.PAGE, initialViewMode = WebDetailViewMode.URL)
+
+        state.startTab shouldBe WebDetailTab.FORM
+
+        state.select(tab = WebDetailTab.MEMO)
+        state.startTab shouldBe WebDetailTab.MEMO
+
+        state.select(tab = WebDetailTab.FORM)
+        state.startTab shouldBe WebDetailTab.FORM
+    }
+
+    @Test
+    fun `TC-WEB-DETAIL-FEATURE-061 화면이 재생성되어도 메모 탭 선택을 유지한다`() {
+        val restorationTester = StateRestorationTester(composeRule)
+        var state by mutableStateOf<WebDetailScaffoldState?>(null)
+
+        restorationTester.setContent {
+            state = rememberWebDetailScaffoldState()
+        }
+
+        composeRule.runOnIdle { checkNotNull(state).select(tab = WebDetailTab.MEMO) }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        composeRule.runOnIdle { checkNotNull(state).tab shouldBe WebDetailTab.MEMO }
+    }
+
+    @Test
     fun `TC-WEB-DETAIL-FEATURE-037 URL 방식으로 시작하고 선택할 때마다 그 방식으로 바뀐다`() {
         val state = WebDetailScaffoldState(initialTab = WebDetailTab.PAGE, initialViewMode = WebDetailViewMode.URL)
 

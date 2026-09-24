@@ -11,6 +11,8 @@ import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestK
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
+import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
@@ -94,6 +96,9 @@ private fun EntryProviderScope<ScreenNavKey>.webDetailEntry(backStack: NavBackSt
             navigateUp = backStack::removeLastOrNull,
             navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
             navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+            navigateToMemoAdd = { backStack.add(MemoAddNavKey(initialWebId = key.id)) },
+            navigateToMemoDetail = { id -> backStack.add(MemoDetailNavKey(id = id)) },
+            id = key.id,
             tagAddRequestKey = tagAddRequestKey,
             webViewModel = koinViewModel { parametersOf(key.id) },
             pageViewModel = koinViewModel { parametersOf(key.id) },

@@ -8,6 +8,9 @@ import kotlin.uuid.Uuid
 @Serializable
 public data class MemoAddNavKey(
     val primaryTagId: Uuid? = null,
+    val initialContactId: Uuid? = null,
+    val initialPlaceId: Uuid? = null,
+    val initialWebId: Uuid? = null,
     val initialDateRange: InitialDateRange? = null,
 ) : ScreenNavKey {
     override val screenName: String get() = "MemoAdd"

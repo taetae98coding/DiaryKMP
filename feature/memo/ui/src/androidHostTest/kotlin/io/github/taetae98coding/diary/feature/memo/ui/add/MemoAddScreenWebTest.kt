@@ -151,6 +151,14 @@ class MemoAddScreenWebTest {
     }
 
     @Test
+    fun `TC-MEMO-ADD-FEATURE-063 WebDetail 메모 탭에서 진입하면 대상 웹 항목이 웹 입력에 선택되어 있다`() {
+        val web = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
+        composeRule.setMemoAddScreenForWeb(viewModels = screenTestRealViewModel(initialWebId = web.id, webList = listOf(web)))
+
+        composeRule.onNodeWithText(WIKI_WEB_TITLE).assertExists()
+    }
+
+    @Test
     fun `TC-MEMO-WEB-INPUT-FEATURE-014 목록을 닫아도 반영한 선택이 유지된다`() {
         val webList = listOf(testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL), testWeb(title = DOCS_WEB_TITLE, url = DOCS_WEB_URL))
         composeRule.setMemoAddScreenForWeb(viewModels = screenTestRealViewModel(webList = webList))

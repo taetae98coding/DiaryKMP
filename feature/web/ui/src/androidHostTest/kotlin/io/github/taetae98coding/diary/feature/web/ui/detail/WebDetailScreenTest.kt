@@ -300,6 +300,9 @@ class WebDetailScreenTest {
         restorationTester.setContent {
             WebDetailScreenTestTheme {
                 WebDetailScreen(
+                    navigateToMemoAdd = {},
+                    navigateToMemoDetail = {},
+                    id = FIRST_WEB_ID,
                     navigateToTagAdd = {},
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                     navigateUp = {},
@@ -354,6 +357,9 @@ class WebDetailScreenTest {
             WebDetailScreenTestTheme {
                 CompositionLocalProvider(LocalUriHandler provides uriHandler, LocalDiaryWebSession provides webSession) {
                     WebDetailScreen(
+                        navigateToMemoAdd = {},
+                        navigateToMemoDetail = {},
+                        id = FIRST_WEB_ID,
                         navigateToTagAdd = {},
                         tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                         navigateUp = navigateUp,

@@ -2,24 +2,36 @@ package io.github.taetae98coding.diary.feature.place.ui.detail
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.performClick
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.PagingData
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
+import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
+import io.github.taetae98coding.diary.compose.memo.list.MemoListUiState
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
+import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.place.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.place.ui.detail.memo.PlaceDetailMemoSyncViewModel
+import io.github.taetae98coding.diary.feature.place.ui.detail.memo.PlaceDetailMemoViewModel
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceDetailFormState
 import io.github.taetae98coding.diary.feature.place.ui.search.PlaceSearchUiState
@@ -29,13 +41,66 @@ import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+import org.koin.compose.KoinApplication
+import org.koin.dsl.koinConfiguration
+import org.koin.dsl.module
 import kotlin.uuid.Uuid
 
 internal const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
+internal const val DEFAULT_DETAIL_TAB_DESCRIPTION = "Place detail"
+internal const val DEFAULT_MEMO_TAB_DESCRIPTION = "Memo"
+internal const val KOREAN_DETAIL_TAB_DESCRIPTION = "장소 디테일"
+internal const val KOREAN_MEMO_TAB_DESCRIPTION = "메모"
+internal const val DEFAULT_MEMO_ADD_DESCRIPTION = "Add memo"
+internal const val KOREAN_MEMO_ADD_DESCRIPTION = "메모 추가"
+internal const val DEFAULT_SEARCH_BUTTON_DESCRIPTION = "Search place"
+internal val FIRST_PLACE_ID: Uuid = Uuid.parse("00000000-0000-0000-0000-000000000001")
+
+private const val EFFECT_BUFFER_CAPACITY = 8
+
+// KoinApplication에 넘긴 모듈은 첫 테스트의 것이 이어서 쓰이므로, 메모 탭이 얻는 값은 모듈이 붙잡는 이 흐름들로 테스트마다 바꾼다.
+internal val memoPagingDataFlow = MutableStateFlow(PagingData.empty<MemoListItem>())
+internal val memoListUiStateFlow = MutableStateFlow(MemoListUiState())
+internal val memoEffectFlow = MutableSharedFlow<MemoListEffect>(extraBufferCapacity = EFFECT_BUFFER_CAPACITY)
+
+internal var memoViewModelRef: PlaceDetailMemoViewModel? = null
+    private set
+
+internal var memoSyncViewModelRef: PlaceDetailMemoSyncViewModel? = null
+    private set
+
+private val placeDetailTabViewModelModule =
+    module {
+        factory {
+            mockk<PlaceDetailMemoViewModel>(relaxed = true)
+                .apply {
+                    every { memoPagingData } returns memoPagingDataFlow
+                    every { sort } returns MutableStateFlow(ListSort.DEFAULT)
+                    every { effect } returns memoEffectFlow
+                }.also { memoViewModelRef = it }
+        }
+        factory {
+            mockk<PlaceDetailMemoSyncViewModel>(relaxed = true)
+                .apply { every { uiState } returns memoListUiStateFlow }
+                .also { memoSyncViewModelRef = it }
+        }
+    }
+
+internal fun preparePlaceDetailTabViewModels(
+    memoPagingData: PagingData<MemoListItem> = PagingData.empty(),
+    memoListUiState: MemoListUiState = MemoListUiState(),
+) {
+    memoPagingDataFlow.value = memoPagingData
+    memoListUiStateFlow.value = memoListUiState
+    memoViewModelRef = null
+    memoSyncViewModelRef = null
+}
+
 internal const val DEFAULT_UPDATE_BUTTON_DESCRIPTION = "Update place"
 internal const val DEFAULT_DELETE_BUTTON_DESCRIPTION = "Delete place"
 internal const val DEFAULT_OPEN_NAVER_MAP_BUTTON_DESCRIPTION = "Open in Naver Map"
@@ -133,17 +198,27 @@ internal fun detailTagScreenTestViewModel(
 
 internal fun ComposeContentTestRule.setPlaceDetailScreen(
     viewModel: PlaceDetailViewModel,
+    id: Uuid = FIRST_PLACE_ID,
     navigateUp: () -> Unit = {},
     navigateToTagDetail: (Uuid) -> Unit = {},
+    navigateToMemoAdd: () -> Unit = {},
+    navigateToMemoDetail: (Uuid) -> Unit = {},
+    memoPagingData: PagingData<MemoListItem> = PagingData.empty(),
+    memoListUiState: MemoListUiState = MemoListUiState(),
     searchViewModel: PlaceSearchViewModel = searchScreenTestViewModel(),
     tagViewModel: PlaceDetailTagViewModel = detailTagScreenTestViewModel(),
     uriHandler: UriHandler = mockk(relaxed = true),
 ) {
+    preparePlaceDetailTabViewModels(memoPagingData = memoPagingData, memoListUiState = memoListUiState)
+
     setContent {
         CompositionLocalProvider(LocalUriHandler provides uriHandler) {
             PlaceDetailScreenTestTheme {
                 PlaceDetailScreen(
                     navigateToTagAdd = {},
+                    navigateToMemoAdd = navigateToMemoAdd,
+                    navigateToMemoDetail = navigateToMemoDetail,
+                    id = id,
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                     detailViewModel = viewModel,
                     searchViewModel = searchViewModel,
@@ -154,6 +229,12 @@ internal fun ComposeContentTestRule.setPlaceDetailScreen(
             }
         }
     }
+    waitForIdle()
+}
+
+internal fun ComposeContentTestRule.selectPlaceDetailTab(contentDescription: String) {
+    onNodeWithContentDescription(contentDescription).performClick()
+    waitForIdle()
 }
 
 internal fun ComposeContentTestRule.setPlaceDetailScaffoldState(initialDetail: PlaceDetail): PlaceFormState {
@@ -170,14 +251,28 @@ internal fun ComposeContentTestRule.setPlaceDetailScaffoldState(initialDetail: P
 }
 
 /**
- * PlaceDetail 화면은 결과 이벤트 버스를 [LocalResultEventBus]에서 읽으므로, 화면을 배치하는 테스트는 이 테마로 감싼다.
+ * PlaceDetail 화면은 결과 이벤트 버스를 [LocalResultEventBus]에서 읽고 메모 탭의 ViewModel을 Koin에서 얻으므로, 화면을 배치하는 테스트는 이 테마로 감싼다.
  */
 @Composable
 internal fun PlaceDetailScreenTestTheme(
     resultEventBus: ResultEventBus = ResultEventBus(),
     content: @Composable () -> Unit,
 ) {
-    CompositionLocalProvider(LocalResultEventBus provides resultEventBus) {
-        DiaryTheme(content = content)
+    // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로,
+    // 테스트마다 새 소유자를 제공해 이전 테스트의 탭별 ViewModel이 재사용되지 않게 한다.
+    val viewModelStoreOwner =
+        remember {
+            object : ViewModelStoreOwner {
+                override val viewModelStore: ViewModelStore = ViewModelStore()
+            }
+        }
+
+    CompositionLocalProvider(
+        LocalResultEventBus provides resultEventBus,
+        LocalViewModelStoreOwner provides viewModelStoreOwner,
+    ) {
+        KoinApplication(configuration = koinConfiguration { modules(placeDetailTabViewModelModule) }) {
+            DiaryTheme(content = content)
+        }
     }
 }

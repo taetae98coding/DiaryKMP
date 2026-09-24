@@ -23,6 +23,11 @@
     <string name="place_detail_open_google_map_button_content_description">Google 지도에서 열기</string>
     <string name="place_detail_update_button_content_description">장소 수정</string>
     <string name="place_detail_update_succeeded_message">장소가 수정되었습니다.</string>
+    <string name="place_detail_tab_detail_content_description">장소 디테일</string>
+    <string name="place_detail_tab_memo_content_description">메모</string>
+    <string name="place_detail_memo_add_button_content_description">메모 추가</string>
+    <string name="place_detail_memo_empty_title">이 장소에 연결된 메모가 없습니다</string>
+    <string name="place_detail_memo_empty_description">추가 버튼으로 새 메모를 만들 수 있습니다</string>
     <string name="place_search_button_content_description">장소 검색</string>
     <string name="place_search_title">장소 검색</string>
     <string name="place_search_query_input_placeholder">장소를 검색하세요</string>

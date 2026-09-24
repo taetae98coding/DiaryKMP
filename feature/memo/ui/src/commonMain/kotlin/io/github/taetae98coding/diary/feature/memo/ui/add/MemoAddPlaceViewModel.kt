@@ -21,16 +21,18 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import org.koin.core.annotation.InjectedParam
 import org.koin.core.annotation.KoinViewModel
 import kotlin.uuid.Uuid
 
 @KoinViewModel
 internal class MemoAddPlaceViewModel(
+    @InjectedParam initialPlaceId: Uuid?,
     pagePlaceUseCase: PagePlaceUseCase,
     getSelectedPlaceUseCase: GetSelectedPlaceUseCase,
 ) : ViewModel() {
     val placeIdSet: StateFlow<Set<Uuid>>
-        field = MutableStateFlow<Set<Uuid>>(emptySet())
+        field = MutableStateFlow(setOfNotNull(initialPlaceId))
 
     val uiState: StateFlow<MemoPlaceInputUiState> =
         placeIdSet

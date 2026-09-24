@@ -14,6 +14,8 @@ internal sealed interface WebDetailScaffoldEvent {
 
     data object ClickDelete : WebDetailScaffoldEvent
 
+    data object ClickMemoAdd : WebDetailScaffoldEvent
+
     data object ClickViewMode : WebDetailScaffoldEvent
 
     data object SessionImportFailed : WebDetailScaffoldEvent

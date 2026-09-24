@@ -24,6 +24,10 @@
     <string name="web_detail_update_succeeded_message">Web updated.</string>
     <string name="web_detail_form_tab_content_description">Edit web information</string>
     <string name="web_detail_page_tab_content_description">View web page</string>
+    <string name="web_detail_memo_tab_content_description">Memo</string>
+    <string name="web_detail_memo_add_button_content_description">Add memo</string>
+    <string name="web_detail_memo_empty_title">No memos linked to this web</string>
+    <string name="web_detail_memo_empty_description">Use the add button to create a memo.</string>
     <string name="web_detail_page_content_description">Web page</string>
     <string name="web_detail_page_failure_title">Unable to load the web page</string>
     <string name="web_detail_page_failure_description">Check your network and try again.</string>

@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.web.ui.detail
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -10,12 +11,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreProvider
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.feature.web.ui.Res
+import io.github.taetae98coding.diary.feature.web.ui.detail.memo.WebDetailMemoContent
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.viewmode.WebDetailViewMode
 import io.github.taetae98coding.diary.feature.web.ui.form.WebFormState
@@ -37,12 +40,16 @@ internal fun WebDetailScreen(
     navigateUp: () -> Unit,
     navigateToTagAdd: () -> Unit,
     navigateToTagDetail: (Uuid) -> Unit,
+    navigateToMemoAdd: () -> Unit,
+    navigateToMemoDetail: (Uuid) -> Unit,
+    id: Uuid,
     tagAddRequestKey: Uuid,
     webViewModel: WebDetailViewModel,
     pageViewModel: WebDetailPageViewModel,
     tagViewModel: WebDetailTagViewModel,
     modifier: Modifier = Modifier,
 ) {
+    val viewModelStoreProvider = rememberViewModelStoreProvider()
     val uiState by webViewModel.uiState.collectAsStateWithLifecycle()
     val pageUiState by pageViewModel.uiState.collectAsStateWithLifecycle()
     val tagUiState by tagViewModel.uiState.collectAsStateWithLifecycle()
@@ -54,18 +61,14 @@ internal fun WebDetailScreen(
 
     WebTagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::add)
 
+    val scaffoldState = key(id) { rememberWebDetailScaffoldState() }
+
     key(content?.id) {
-        val scaffoldState = rememberWebDetailScaffoldState()
         val formState = rememberWebDetailFormState(initialDetail = content?.detail ?: WebDetail.EMPTY)
 
         LoadWebPageEffect(pageViewModel = pageViewModel, state = scaffoldState)
 
-        WebDetailScreenEffect(
-            effect = webViewModel.effect,
-            formState = formState,
-            pageViewModel = pageViewModel,
-            navigateUp = navigateUp,
-        )
+        WebDetailScreenEffect(effect = webViewModel.effect, formState = formState, pageViewModel = pageViewModel, navigateUp = navigateUp)
 
         WebDetailScaffold(
             onEvent = { event ->
@@ -78,25 +81,12 @@ internal fun WebDetailScreen(
                     uriHandler = uriHandler,
                     url = content?.detail?.url,
                     navigateUp = navigateUp,
+                    navigateToMemoAdd = navigateToMemoAdd,
                     showSessionImportFailed = { coroutineScope.launch { formState.hostState.showImmediate(message = importFailedMessage) } },
                 )
             },
-            onFormEvent = { event ->
-                handleWebFormEvent(
-                    event = event,
-                    state = formState,
-                    tagPagingItems = tagPagingItems,
-                    navigateToTagAdd = navigateToTagAdd,
-                    navigateToTagDetail = navigateToTagDetail,
-                )
-            },
-            onTagPickerEvent = { event ->
-                handleWebDetailTagPickerEvent(
-                    event = event,
-                    tagViewModel = tagViewModel,
-                    navigateToTagAdd = navigateToTagAdd,
-                )
-            },
+            onFormEvent = { event -> handleWebFormEvent(event = event, state = formState, tagPagingItems = tagPagingItems, navigateToTagAdd = navigateToTagAdd, navigateToTagDetail = navigateToTagDetail) },
+            onTagPickerEvent = { event -> handleWebDetailTagPickerEvent(event = event, tagViewModel = tagViewModel, navigateToTagAdd = navigateToTagAdd) },
             modifier = modifier,
             state = scaffoldState,
             formState = formState,
@@ -104,10 +94,20 @@ internal fun WebDetailScreen(
             uiStateProvider = { uiState },
             pageUiStateProvider = { pageUiState },
             tagUiStateProvider = { tagUiState },
-        )
+        ) {
+            WebDetailMemoContent(
+                id = id,
+                viewModelStoreProvider = viewModelStoreProvider,
+                navigateToMemoAdd = navigateToMemoAdd,
+                navigateToMemoDetail = navigateToMemoDetail,
+                modifier = Modifier.fillMaxSize(),
+                snackbarHostState = formState.hostState,
+            )
+        }
     }
 }
 
+@Suppress("LongParameterList")
 private fun handleWebDetailScaffoldEvent(
     event: WebDetailScaffoldEvent,
     webViewModel: WebDetailViewModel,
@@ -117,10 +117,12 @@ private fun handleWebDetailScaffoldEvent(
     uriHandler: UriHandler,
     url: String?,
     navigateUp: () -> Unit,
+    navigateToMemoAdd: () -> Unit,
     showSessionImportFailed: () -> Unit,
 ) {
     when (event) {
         is WebDetailScaffoldEvent.ClickNavigateUp -> navigateUp()
+        is WebDetailScaffoldEvent.ClickMemoAdd -> navigateToMemoAdd()
         is WebDetailScaffoldEvent.SessionImportFailed -> showSessionImportFailed()
         is WebDetailScaffoldEvent.ClickRetry -> pageViewModel.retry()
         is WebDetailScaffoldEvent.ClickUpdate -> webViewModel.update(detail = formState.detail)

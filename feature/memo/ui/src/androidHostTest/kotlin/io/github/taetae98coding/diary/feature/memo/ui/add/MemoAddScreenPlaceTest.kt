@@ -129,6 +129,14 @@ class MemoAddScreenPlaceTest {
     }
 
     @Test
+    fun `TC-MEMO-ADD-FEATURE-063 PlaceDetail 메모 탭에서 진입하면 대상 장소가 장소 카드에 선택되어 있다`() {
+        val homePlace = testPlace(title = HOME_PLACE_TITLE)
+        setMemoAddScreen(viewModels = screenTestRealViewModel(initialPlaceId = homePlace.id, placeList = listOf(homePlace)))
+
+        composeRule.onNodeWithText(HOME_PLACE_TITLE).assertExists()
+    }
+
+    @Test
     fun `TC-MEMO-PLACE-CARD-FEATURE-013 목록에서 장소 선택을 해제하면 즉시 반영된다`() {
         val homePlace = testPlace(title = HOME_PLACE_TITLE)
         setMemoAddScreen(viewModels = screenTestRealViewModel(placeList = listOf(homePlace)))

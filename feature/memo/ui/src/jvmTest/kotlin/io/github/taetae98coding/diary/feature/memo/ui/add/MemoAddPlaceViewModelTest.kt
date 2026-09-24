@@ -107,6 +107,68 @@ class MemoAddPlaceViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-MEMO-ADD-FEATURE-063 PlaceDetail 메모 탭에서 진입하면 그 장소만 선택된 상태로 시작한다") {
+            runTest(mainDispatcher) {
+                val target = place()
+                val other = place()
+                val viewModel =
+                    viewModel(
+                        initialPlaceId = target.id,
+                        placePagingFlow = flowOf(Result.success(PagingData.from(listOf(target, other)))),
+                        savedPlaceListFlow = flowOf(Result.success(listOf(target, other))),
+                    )
+
+                viewModel.uiState.test {
+                    advanceUntilIdle()
+
+                    expectMostRecentItem().selectedPlaceList shouldBe listOf(target)
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("TC-MEMO-ADD-FEATURE-064 PlaceDetail 메모 탭에서 진입해도 초기 선택을 해제하거나 더 선택할 수 있다") {
+            runTest(mainDispatcher) {
+                val target = place()
+                val other = place()
+                val viewModel =
+                    viewModel(
+                        initialPlaceId = target.id,
+                        savedPlaceListFlow = flowOf(Result.success(listOf(target, other))),
+                    )
+
+                viewModel.uiState.test {
+                    advanceUntilIdle()
+                    expectMostRecentItem().selectedPlaceList shouldBe listOf(target)
+
+                    viewModel.unselectPlace(id = target.id)
+                    viewModel.selectPlace(id = other.id)
+                    advanceUntilIdle()
+
+                    expectMostRecentItem().selectedPlaceList shouldBe listOf(other)
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("TC-MEMO-ADD-DOMAIN-015 삭제된 대상 장소는 PlaceDetail 메모 탭에서 진입해도 선택되지 않은 상태로 시작한다") {
+            runTest(mainDispatcher) {
+                val deletedTarget = place()
+                val viewModel =
+                    viewModel(
+                        initialPlaceId = deletedTarget.id,
+                        savedPlaceListFlow = flowOf(Result.success(emptyList())),
+                    )
+
+                viewModel.uiState.test {
+                    advanceUntilIdle()
+
+                    expectMostRecentItem().selectedPlaceList.shouldBeEmpty()
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
         test("TC-MEMO-ADD-FEATURE-048 진입하면 선택한 장소가 없는 상태로 시작한다") {
             runTest(mainDispatcher) {
                 val placeList = listOf(place(), place())
@@ -294,6 +356,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
                 .sample()
 
         private fun viewModel(
+            initialPlaceId: Uuid? = null,
             placePagingFlow: Flow<Result<PagingData<Place>>> = emptyFlow(),
             savedPlaceListFlow: Flow<Result<List<Place>>> = flowOf(Result.success(emptyList())),
             pagePlaceUseCase: PagePlaceUseCase =
@@ -314,6 +377,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
             }
 
             return MemoAddPlaceViewModel(
+                initialPlaceId = initialPlaceId,
                 pagePlaceUseCase = pagePlaceUseCase,
                 getSelectedPlaceUseCase = getSelectedPlaceUseCase,
             )

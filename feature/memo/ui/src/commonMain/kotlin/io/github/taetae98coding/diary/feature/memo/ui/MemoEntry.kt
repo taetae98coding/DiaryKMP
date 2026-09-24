@@ -160,9 +160,9 @@ private fun EntryProviderScope<ScreenNavKey>.memoAddEntry(backStack: NavBackStac
             isStandalone = !isListPaneVisible,
             addViewModel = koinViewModel(),
             tagViewModel = koinViewModel { parametersOf(key.primaryTagId) },
-            webViewModel = koinViewModel(),
-            contactViewModel = koinViewModel(),
-            placeViewModel = koinViewModel(),
+            webViewModel = koinViewModel { parametersOf(key.initialWebId) },
+            contactViewModel = koinViewModel { parametersOf(key.initialContactId) },
+            placeViewModel = koinViewModel { parametersOf(key.initialPlaceId) },
             placeMapViewModel = koinViewModel(),
             geminiViewModel = koinViewModel(),
         )

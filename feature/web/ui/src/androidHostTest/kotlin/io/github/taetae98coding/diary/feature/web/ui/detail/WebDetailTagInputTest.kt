@@ -207,6 +207,9 @@ class WebDetailTagInputTest {
         composeRule.setContent {
             WebDetailScreenTestTheme(resultEventBus = resultEventBus) {
                 WebDetailScreen(
+                    navigateToMemoAdd = {},
+                    navigateToMemoDetail = {},
+                    id = FIRST_WEB_ID,
                     navigateToTagAdd = navigateToTagAdd,
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                     navigateUp = {},

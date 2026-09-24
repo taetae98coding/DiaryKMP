@@ -1,12 +1,12 @@
 package io.github.taetae98coding.diary.feature.place.ui.detail
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -16,9 +16,9 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleVisibility
 import io.github.taetae98coding.diary.compose.core.button.FloatingCheckButton
+import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
-import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerDialogHost
@@ -26,6 +26,12 @@ import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.place.ui.PREVIEW_PLACE_DETAIL
 import io.github.taetae98coding.diary.feature.place.ui.Res
+import io.github.taetae98coding.diary.feature.place.ui.detail.memo.PlaceDetailMemoFloatingActionButton
+import io.github.taetae98coding.diary.feature.place.ui.detail.memo.PlaceDetailMemoTab
+import io.github.taetae98coding.diary.feature.place.ui.detail.tab.PlaceDetailTab
+import io.github.taetae98coding.diary.feature.place.ui.detail.tab.PlaceDetailTabRow
+import io.github.taetae98coding.diary.feature.place.ui.detail.tab.PlaceDetailTabState
+import io.github.taetae98coding.diary.feature.place.ui.detail.tab.rememberPlaceDetailTabState
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormEvent
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.ReflectCoordinateEffect
@@ -42,14 +48,16 @@ import kotlin.uuid.Uuid
 internal fun PlaceDetailScaffold(
     state: PlaceFormState,
     onEvent: (PlaceDetailScaffoldEvent) -> Unit,
-    onFormEvent: (PlaceFormEvent) -> Unit,
     onSearchEvent: (PlaceSearchEvent) -> Unit,
     onTagPickerEvent: (EntityTagPickerEvent) -> Unit,
     modifier: Modifier = Modifier,
+    tabState: PlaceDetailTabState = rememberPlaceDetailTabState(),
     tagPagingItems: LazyPagingItems<Tag> = remember { flowOf(PagingData.empty<Tag>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> PlaceDetailUiState = { PlaceDetailUiState.Loading },
     searchUiStateProvider: () -> PlaceSearchUiState = { PlaceSearchUiState.Idle },
     tagUiStateProvider: () -> EntityTagInputUiState = { EntityTagInputUiState() },
+    tabFloatingActionButton: @Composable (PlaceDetailTab) -> Unit,
+    tabContent: @Composable (PlaceDetailTab) -> Unit,
 ) {
     ReflectCoordinateEffect(state = state)
 
@@ -60,15 +68,8 @@ internal fun PlaceDetailScaffold(
         mapState = state.mapState,
     )
 
-    val isChanged by remember(state) {
-        derivedStateOf {
-            val content = uiStateProvider() as? PlaceDetailUiState.Content
-            content != null && state.detail != content.detail
-        }
-    }
-
     Scaffold(
-        modifier = modifier.submitShortcut(isEnabledProvider = { isChanged }) { onEvent(PlaceDetailScaffoldEvent.ClickUpdate) },
+        modifier = modifier,
         topBar = {
             PlaceDetailTopBar(
                 onEvent = onEvent,
@@ -77,29 +78,28 @@ internal fun PlaceDetailScaffold(
             )
         },
         snackbarHost = { SnackbarHost(hostState = state.hostState) },
-        floatingActionButton = {
-            DiaryScaleVisibility(visible = isChanged) {
-                FloatingCheckButton(
-                    onClick = { onEvent(PlaceDetailScaffoldEvent.ClickUpdate) },
-                    contentDescription = stringResource(Res.string.place_detail_update_button_content_description),
-                    isInProgressProvider = {
-                        (uiStateProvider() as? PlaceDetailUiState.Content)?.isUpdateInProgress == true
-                    },
-                )
-            }
-        },
+        floatingActionButton = { tabFloatingActionButton(tabState.tab) },
         contentWindowInsets = DiaryScaffoldDefaults.contentWindowInsets,
     ) { paddingValues ->
-        PlaceDetailScaffoldContent(
-            onFormEvent = onFormEvent,
-            state = state,
+        Column(
             modifier =
                 Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
-            uiStateProvider = uiStateProvider,
-            tagUiStateProvider = tagUiStateProvider,
-        )
+        ) {
+            PlaceDetailTabRow(
+                modifier = Modifier.fillMaxWidth(),
+                state = tabState,
+            )
+            PlaceDetailPager(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(1F),
+                state = tabState,
+                tabContent = tabContent,
+            )
+        }
     }
 
     EntityTagPickerDialogHost(
@@ -108,6 +108,33 @@ internal fun PlaceDetailScaffold(
         tagPagingItems = tagPagingItems,
         uiStateProvider = tagUiStateProvider,
     )
+}
+
+@Composable
+internal fun PlaceDetailUpdateFloatingActionButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    isVisible: Boolean = false,
+    isInProgressProvider: () -> Boolean = { false },
+) {
+    DiaryScaleVisibility(
+        visible = isVisible,
+        modifier = modifier,
+    ) {
+        FloatingCheckButton(
+            onClick = onClick,
+            contentDescription = stringResource(Res.string.place_detail_update_button_content_description),
+            isInProgressProvider = isInProgressProvider,
+        )
+    }
+}
+
+@ComponentPreview
+@Composable
+private fun PlaceDetailUpdateFloatingActionButtonPreview() {
+    DiaryTheme {
+        PlaceDetailUpdateFloatingActionButton(onClick = {}, isVisible = true)
+    }
 }
 
 private class PlaceDetailUiStatePreviewParameter : PreviewParameterProvider<PlaceDetailUiState> {
@@ -126,14 +153,33 @@ private class PlaceDetailUiStatePreviewParameter : PreviewParameterProvider<Plac
 private fun PlaceDetailScaffoldPreview(
     @PreviewParameter(PlaceDetailUiStatePreviewParameter::class) uiState: PlaceDetailUiState,
 ) {
+    val state = rememberPlaceDetailFormState(initialDetail = PREVIEW_PLACE_DETAIL)
+
     DiaryTheme {
         PlaceDetailScaffold(
-            state = rememberPlaceDetailFormState(initialDetail = PREVIEW_PLACE_DETAIL),
+            state = state,
             onEvent = {},
-            onFormEvent = {},
             onSearchEvent = {},
             onTagPickerEvent = {},
             uiStateProvider = { uiState },
-        )
+            tabFloatingActionButton = { tab ->
+                when (tab) {
+                    PlaceDetailTab.DETAIL -> PlaceDetailUpdateFloatingActionButton(onClick = {}, isVisible = true)
+                    PlaceDetailTab.MEMO -> PlaceDetailMemoFloatingActionButton(onClick = {})
+                }
+            },
+        ) { tab ->
+            when (tab) {
+                PlaceDetailTab.DETAIL ->
+                    PlaceDetailScaffoldContent(
+                        onFormEvent = {},
+                        state = state,
+                        modifier = Modifier.fillMaxSize(),
+                        uiStateProvider = { uiState },
+                    )
+
+                PlaceDetailTab.MEMO -> PlaceDetailMemoTab(onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
+            }
+        }
     }
 }

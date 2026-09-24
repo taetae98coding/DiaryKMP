@@ -21,6 +21,8 @@ import io.github.taetae98coding.diary.feature.contact.ui.detail.ContactDetailSca
 import io.github.taetae98coding.diary.feature.contact.ui.detail.ContactDetailScreen
 import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeScreen
+import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
+import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -79,6 +81,9 @@ private fun EntryProviderScope<ScreenNavKey>.contactDetailEntry(backStack: NavBa
 
         ContactDetailScreen(
             navigateUp = backStack::removeLastOrNull,
+            navigateToMemoAdd = { backStack.add(MemoAddNavKey(initialContactId = key.id)) },
+            navigateToMemoDetail = { id -> backStack.add(MemoDetailNavKey(id = id)) },
+            id = key.id,
             componentVisibleProvider = { ContactDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
             viewModel = koinViewModel { parametersOf(key.id) },
         )

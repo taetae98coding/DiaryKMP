@@ -98,6 +98,68 @@ class MemoAddWebViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-MEMO-ADD-FEATURE-063 WebDetail 메모 탭에서 진입하면 그 웹 항목만 선택된 상태로 시작한다") {
+            runTest(mainDispatcher) {
+                val target = web()
+                val other = web()
+                val viewModel =
+                    viewModel(
+                        initialWebId = target.id,
+                        webPagingFlow = flowOf(Result.success(PagingData.from(listOf(target, other)))),
+                        savedWebListFlow = flowOf(Result.success(listOf(target, other))),
+                    )
+
+                viewModel.uiState.test {
+                    advanceUntilIdle()
+
+                    expectMostRecentItem().selectedWebList shouldBe listOf(target)
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("TC-MEMO-ADD-FEATURE-064 WebDetail 메모 탭에서 진입해도 초기 선택을 해제하거나 더 선택할 수 있다") {
+            runTest(mainDispatcher) {
+                val target = web()
+                val other = web()
+                val viewModel =
+                    viewModel(
+                        initialWebId = target.id,
+                        savedWebListFlow = flowOf(Result.success(listOf(target, other))),
+                    )
+
+                viewModel.uiState.test {
+                    advanceUntilIdle()
+                    expectMostRecentItem().selectedWebList shouldBe listOf(target)
+
+                    viewModel.unselectWeb(id = target.id)
+                    viewModel.selectWeb(id = other.id)
+                    advanceUntilIdle()
+
+                    expectMostRecentItem().selectedWebList shouldBe listOf(other)
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("TC-MEMO-ADD-DOMAIN-015 삭제된 대상 웹 항목는 WebDetail 메모 탭에서 진입해도 선택되지 않은 상태로 시작한다") {
+            runTest(mainDispatcher) {
+                val deletedTarget = web()
+                val viewModel =
+                    viewModel(
+                        initialWebId = deletedTarget.id,
+                        savedWebListFlow = flowOf(Result.success(emptyList())),
+                    )
+
+                viewModel.uiState.test {
+                    advanceUntilIdle()
+
+                    expectMostRecentItem().selectedWebList.shouldBeEmpty()
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
         test("TC-MEMO-ADD-FEATURE-055 진입하면 선택한 웹 항목이 없는 상태로 시작한다") {
             runTest(mainDispatcher) {
                 val webList = listOf(web(), web())
@@ -303,6 +365,7 @@ class MemoAddWebViewModelTest : FunSpec() {
                 .sample()
 
         private fun viewModel(
+            initialWebId: Uuid? = null,
             webPagingFlow: Flow<Result<PagingData<Web>>> = emptyFlow(),
             savedWebListFlow: Flow<Result<List<Web>>> = flowOf(Result.success(emptyList())),
             pageMemoSelectableWebUseCase: PageMemoSelectableWebUseCase =
@@ -323,6 +386,7 @@ class MemoAddWebViewModelTest : FunSpec() {
             }
 
             return MemoAddWebViewModel(
+                initialWebId = initialWebId,
                 pageMemoSelectableWebUseCase = pageMemoSelectableWebUseCase,
                 getSelectedWebUseCase = getSelectedWebUseCase,
             )

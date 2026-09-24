@@ -7,11 +7,15 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.compose.list)
+                implementation(libs.jetbrains.lifecycle.viewmodel.compose)
+                implementation(projects.compose.memo)
                 implementation(projects.compose.tag)
                 implementation(projects.compose.web)
+                implementation(projects.domain.memo)
                 implementation(projects.domain.sync)
                 implementation(projects.domain.tag)
                 implementation(projects.domain.web)
+                implementation(projects.feature.memo.api)
                 implementation(projects.feature.search.api)
                 implementation(projects.feature.tag.api)
                 implementation(projects.feature.web.api)

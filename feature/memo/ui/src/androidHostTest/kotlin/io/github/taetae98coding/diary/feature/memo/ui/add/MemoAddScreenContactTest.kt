@@ -151,6 +151,16 @@ class MemoAddScreenContactTest {
     }
 
     @Test
+    fun `TC-MEMO-ADD-FEATURE-063 ContactDetail 메모 탭에서 진입하면 대상 연락처가 연락처 입력에 선택되어 있다`() {
+        val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
+        composeRule.setMemoAddScreenForContact(
+            viewModels = screenTestRealViewModel(initialContactId = contact.id, contactList = listOf(contact)),
+        )
+
+        composeRule.onNodeWithText(FIRST_CONTACT_NAME).assertExists()
+    }
+
+    @Test
     fun `TC-MEMO-CONTACT-INPUT-FEATURE-014 목록을 닫아도 반영한 선택이 유지된다`() {
         val contactList = listOf(testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER), testContact(name = SECOND_CONTACT_NAME, phoneNumber = SECOND_CONTACT_PHONE_NUMBER))
         composeRule.setMemoAddScreenForContact(viewModels = screenTestRealViewModel(contactList = contactList))
