@@ -32,6 +32,10 @@ gradlePlugin {
             id = "io.github.taetae98coding.diary.primitive.android.library"
             implementationClass = "io.github.taetae98coding.diary.buildlogic.primitive.AndroidLibraryPrimitivePlugin"
         }
+        register("primitiveImageVector") {
+            id = "io.github.taetae98coding.diary.primitive.image.vector"
+            implementationClass = "io.github.taetae98coding.diary.buildlogic.primitive.ImageVectorPrimitivePlugin"
+        }
         register("primitiveCompose") {
             id = "io.github.taetae98coding.diary.primitive.compose"
             implementationClass = "io.github.taetae98coding.diary.buildlogic.primitive.ComposePrimitivePlugin"

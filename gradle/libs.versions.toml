@@ -177,6 +177,7 @@ primitive-android-host-test = { id = "io.github.taetae98coding.diary.primitive.a
 primitive-android-library = { id = "io.github.taetae98coding.diary.primitive.android.library" }
 primitive-compose = { id = "io.github.taetae98coding.diary.primitive.compose" }
 primitive-compose-test = { id = "io.github.taetae98coding.diary.primitive.compose.test" }
+primitive-image-vector = { id = "io.github.taetae98coding.diary.primitive.image.vector" }
 primitive-kmp = { id = "io.github.taetae98coding.diary.primitive.kmp" }
 primitive-koin = { id = "io.github.taetae98coding.diary.primitive.koin" }
 primitive-kotest = { id = "io.github.taetae98coding.diary.primitive.kotest" }
