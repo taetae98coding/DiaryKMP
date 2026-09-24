@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Google 로그인과 Apple 로그인 비교 · 모듈, 의존성, 흐름</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --panel: #ffffff;
+    --ink: #16181d;
+    --muted: #666d7a;
+    --line: #e2e5ea;
+    --accent: #3a7bd5;
+    --accent-soft: #e8f0fb;
+    --google: #d5567a;
+    --google-soft: #fbeaf0;
+    --apple: #2d2f36;
+    --apple-soft: #ebecf0;
+    --common: #7a5fd0;
+    --common-soft: #efeafb;
+    --server: #2f9e78;
+    --server-soft: #e6f5ef;
+    --warn-bg: #fff5e0;
+    --warn-ink: #8a5a00;
+    --warn-line: #f0d9a8;
+    --radius: 12px;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a;
+      --panel: #1c1f25;
+      --ink: #e8eaee;
+      --muted: #99a1ae;
+      --line: #2c313a;
+      --accent: #6fa8f5;
+      --accent-soft: #23303f;
+      --google: #f08aa8;
+      --google-soft: #33212a;
+      --apple: #d5d8df;
+      --apple-soft: #2a2d35;
+      --common: #a996ec;
+      --common-soft: #262138;
+      --server: #5fcfa6;
+      --server-soft: #1b2f28;
+      --warn-bg: #2f2716;
+      --warn-ink: #f0c674;
+      --warn-line: #4d4224;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px 20px 96px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Segoe UI", sans-serif;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { max-width: 1180px; margin: 0 auto; }
+  header { margin-bottom: 28px; }
+  h1 { font-size: 26px; margin: 0 0 6px; letter-spacing: -0.01em; }
+  h2 { font-size: 20px; margin: 0 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+  h3 { font-size: 16px; margin: 22px 0 10px; }
+  h4 { margin: 0 0 6px; font-size: 14px; }
+  p { margin: 8px 0; }
+  code { font-family: var(--mono); font-size: 0.88em; background: var(--accent-soft); padding: 1px 6px; border-radius: 6px; }
+  .path { font-family: var(--mono); font-size: 0.85em; color: var(--muted); }
+  .meta { color: var(--muted); font-size: 14px; }
+  .meta b { color: var(--ink); }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 22px; margin-bottom: 20px; }
+  .note { color: var(--muted); font-size: 0.93em; }
+  .tblwrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; vertical-align: top; padding: 9px 10px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; white-space: nowrap; }
+  td:first-child { white-space: nowrap; font-weight: 600; }
+  .tag { display: inline-block; font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 999px; line-height: 1.6; vertical-align: middle; }
+  .tag.google { background: var(--google-soft); color: var(--google); }
+  .tag.apple { background: var(--apple-soft); color: var(--apple); }
+  .tag.common { background: var(--common-soft); color: var(--common); }
+  .tag.server { background: var(--server-soft); color: var(--server); }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 860px) { .cols { grid-template-columns: 1fr; } }
+  .card { border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+  .card.google { border-color: var(--google); }
+  .card.apple { border-color: var(--apple); }
+  .card h4 { display: flex; align-items: center; gap: 8px; }
+  ul { margin: 6px 0; padding-left: 20px; }
+  li { margin: 3px 0; }
+
+  /* 흐름도 */
+  .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 6px; margin: 10px 0 4px; }
+  .step { position: relative; flex: 1 1 150px; min-width: 150px; border-radius: 10px; padding: 8px 10px; font-size: 13px; line-height: 1.5; border: 1px solid var(--line); background: var(--panel); }
+  .step b { display: block; font-size: 12px; color: var(--muted); font-weight: 600; margin-bottom: 2px; }
+  .step.app { border-color: var(--common); background: var(--common-soft); }
+  .step.os { border-color: var(--accent); background: var(--accent-soft); }
+  .step.idp { border-color: var(--google); background: var(--google-soft); }
+  .step.idp.apple { border-color: var(--apple); background: var(--apple-soft); }
+  .step.server { border-color: var(--server); background: var(--server-soft); }
+  .arrow { flex: 0 0 auto; align-self: center; color: var(--muted); font-size: 18px; padding: 0 2px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px 16px; font-size: 13px; color: var(--muted); margin: 6px 0 14px; }
+  .legend span::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -2px; border: 1px solid var(--line); }
+  .legend .l-app::before { background: var(--common-soft); border-color: var(--common); }
+  .legend .l-os::before { background: var(--accent-soft); border-color: var(--accent); }
+  .legend .l-idp::before { background: var(--google-soft); border-color: var(--google); }
+  .legend .l-apple::before { background: var(--apple-soft); border-color: var(--apple); }
+  .legend .l-server::before { background: var(--server-soft); border-color: var(--server); }
+  .platform { margin: 18px 0 6px; font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+  .platform small { font-weight: 500; color: var(--muted); }
+  .gotcha { background: var(--warn-bg); border: 1px solid var(--warn-line); color: var(--warn-ink); border-radius: var(--radius); padding: 12px 16px; margin: 14px 0; }
+  .gotcha h4 { color: inherit; }
+  .gotcha code { background: rgba(0,0,0,0.06); color: inherit; }
+  .diff { border-left: 3px solid var(--accent); padding-left: 12px; margin: 10px 0; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Google 로그인과 Apple 로그인 비교</h1>
+    <p class="meta">
+      <b>기준</b> 커밋 <code>d17675ee</code> 위의 <code>appleLogin</code> 작업 트리(Android·JVM·wasmJs Apple 로그인 추가 직후) ·
+      <b>최종 확인</b> 2026-09-24
+    </p>
+    <p class="note">
+      제품 관점의 행위와 정책은 <a href="../spec/login.md">Login 스펙</a>이, 화면 표현은 <a href="../design/login.md">Login 디자인</a>이 소유한다.
+      이 자료는 두 로그인 수단의 구현 구조만 대조한다. 스펙과 어긋나면 이 자료를 고친다.
+    </p>
+  </header>
+
+  <section id="summary">
+    <h2>한눈에 보기</h2>
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th>항목</th><th><span class="tag google">Google</span></th><th><span class="tag apple">Apple</span></th></tr></thead>
+        <tbody>
+          <tr>
+            <td>앱이 서버에 내는 인증 결과</td>
+            <td>플랫폼마다 둘 중 하나 — <code>idToken</code>+nonce(Android·iOS) 또는 authorization code(JVM·wasm). <code>GoogleCredential</code>은 두 종류의 sealed interface다.</td>
+            <td>모든 플랫폼에서 <code>idToken</code>+nonce 하나. <code>AppleCredential</code>은 단일 data class다.</td>
+          </tr>
+          <tr>
+            <td>네이티브 SDK를 쓰는 플랫폼</td>
+            <td>Android(Credential Manager), iOS(GoogleSignIn SPM)</td>
+            <td>iOS(AuthenticationServices)만</td>
+          </tr>
+          <tr>
+            <td>브라우저를 쓰는 플랫폼</td>
+            <td>JVM(시스템 브라우저 + 로컬 루프백), wasm(GIS 팝업)</td>
+            <td>Android(Custom Tab), JVM(시스템 브라우저 + 로컬 루프백), wasm(팝업)</td>
+          </tr>
+          <tr>
+            <td>IdP가 응답을 보내는 곳</td>
+            <td>Google은 <code>http://127.0.0.1:포트</code>(JVM)와 <code>postmessage</code>(wasm)를 허용해 앱이 직접 받는다.</td>
+            <td>Apple은 https 도메인만 허용하므로 서버 함수 <code>v1-session-apple-callback</code>이 받아 앱 복귀 주소로 넘긴다.</td>
+          </tr>
+          <tr>
+            <td>서버 함수</td>
+            <td><code>v1-session-google-id-token</code>, <code>v1-session-google-authorization-code</code></td>
+            <td><code>v1-session-apple-id-token</code>, <code>v1-session-apple-callback</code>(중계 전용)</td>
+          </tr>
+          <tr>
+            <td>서버가 들고 있는 비밀</td>
+            <td>OAuth client secret — Supabase provider 설정(<code>SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_SECRET</code>)과 Function secret <code>GOOGLE_CLIENT_SECRETS</code>(code 교환용)</td>
+            <td>없음. .p8 키로 만드는 client secret은 Supabase가 code를 직접 교환하는 OAuth 흐름에만 필요해 쓰지 않는다.</td>
+          </tr>
+          <tr>
+            <td>클라이언트 식별자</td>
+            <td>플랫폼별 OAuth client ID 3종(웹=Android 서버 client, iOS client, JVM client). <code>aud</code> 검증용으로 모두 Supabase에 등록.</td>
+            <td>flavor별 bundle id(iOS)와 Services ID(웹 흐름) 2종. 둘 다 Supabase <code>client_id</code> 목록에 등록.</td>
+          </tr>
+          <tr>
+            <td>사용자 취소 판정</td>
+            <td>Android <code>GetCredentialCancellationException</code>, iOS <code>kGIDSignInErrorCodeCanceled</code>, JVM <code>access_denied</code> 문자열, wasm <code>popup_closed</code></td>
+            <td>iOS <code>ASAuthorizationErrorCanceled</code>, 웹 흐름 공통 <code>user_cancelled_authorize</code>, Android는 브라우저 탭을 닫고 돌아오면 취소, wasm은 팝업 닫힘 감시</td>
+          </tr>
+          <tr>
+            <td>CSRF·재전송 방어</td>
+            <td>nonce(SHA-256 해시를 요청에, 원본을 서버에), JVM은 PKCE S256</td>
+            <td>nonce(같은 방식) + <code>state</code>(시도마다 새 토큰, 응답의 state가 다르면 인증 결과로 받지 않음)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="modules">
+    <h2>모듈과 파일</h2>
+    <p>두 수단은 같은 층을 지나지만, 파일 수와 소스셋 분포가 다르다. Google은 플랫폼마다 다른 SDK를 붙이므로 코드가 플랫폼 소스셋에 흩어지고, Apple은 웹 흐름을 세 플랫폼이 공유하므로 <code>commonMain</code>에 공통 조각이 모인다.</p>
+
+    <h3><code>feature:login:ui</code> — 인증 결과를 얻는 층</h3>
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th>소스셋</th><th><span class="tag google">Google</span></th><th><span class="tag apple">Apple</span></th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>commonMain</code></td>
+            <td><code>GoogleCredentialsManager</code>(expect), <code>GoogleCredentialsException</code>, <code>GoogleCredentialsUserCancelException</code></td>
+            <td><code>AppleCredentialsManager</code>(expect), <code>AppleCredentialsException</code>(+ <code>toAppleCredentialsFailure</code>), <code>AppleCredentialsUserCancelException</code>,
+              <b>웹 흐름 공통</b>: <code>AppleCredentialsConfig</code>, <code>AppleWebSignInRequestFactory</code>, <code>AppleWebSignInRequest</code>, <code>AppleWebSignInResponse</code>, <code>AppleWebSignInState</code>, <code>UrlQueryComponentEncoding</code></td>
+          </tr>
+          <tr>
+            <td>공유</td>
+            <td colspan="2"><span class="tag common">공통</span> <code>CredentialsNonce</code>(SHA-256 hex) — 두 수단이 같은 nonce 해시를 쓴다. 화면 배선은 <code>LoginHomeScreen</code>의 <code>requestGoogleSignIn</code> / <code>requestAppleSignIn</code>이 같은 모양으로 예외를 취소·실패로 나눈다.</td>
+          </tr>
+          <tr>
+            <td><code>androidMain</code></td>
+            <td><code>AndroidGoogleCredentialsManager</code>, <code>GoogleCredentialsServerClientId</code>(qualifier)</td>
+            <td><code>AndroidAppleCredentialsManager</code>, <code>AppleSignInRedirectActivity</code>, <code>AppleSignInRedirectRelay</code>, <span class="path">AndroidManifest.xml</span>(앱 식별자 scheme 인텐트 필터)</td>
+          </tr>
+          <tr>
+            <td><code>iosMain</code></td>
+            <td><code>IosGoogleCredentialsManager</code>(GIDSignIn 콜백)</td>
+            <td><code>IosAppleCredentialsManager</code>, <code>AppleIdAuthorizationDelegate</code></td>
+          </tr>
+          <tr>
+            <td><code>jvmMain</code></td>
+            <td><code>JvmGoogleCredentialsManager</code>, <code>GoogleAuthorizationCodeAttemptFactory</code>, <code>GoogleAuthorizationCodeAttempt</code>, <code>GooglePkceFactory</code>, <code>GooglePkce</code>, <code>GoogleCredentialsClientId</code>(qualifier)</td>
+            <td><code>JvmAppleCredentialsManager</code>, <code>AppleSignInLoopbackReceiver</code></td>
+          </tr>
+          <tr>
+            <td><code>jvmMain</code> 공유</td>
+            <td colspan="2"><span class="tag common">공통</span> <code>CredentialsDispatcher</code>(qualifier) — 블로킹 대기를 옮길 dispatcher를 두 수단이 함께 주입받는다. Apple 추가 전 이름은 <code>GoogleCredentialsDispatcher</code>였다.</td>
+          </tr>
+          <tr>
+            <td><code>wasmJsMain</code></td>
+            <td><code>WasmGoogleCredentialsManager</code>, <code>GoogleAuthorizationCodeClient</code>, <code>GoogleAuthorizationCodeResponse</code>, <code>GoogleAuthorizationCodeError</code>(GIS external interface), <code>GoogleCredentialsClientId</code>(qualifier)</td>
+            <td><code>WasmAppleCredentialsManager</code>(+ <code>AppleSignInPopupSession</code>), <code>AppleSignInMessage</code>(postMessage external interface)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>설정 주입 — <code>app:shared</code></h3>
+    <div class="cols">
+      <div class="card google">
+        <h4><span class="tag google">Google</span> 문자열 qualifier</h4>
+        <p>플랫폼별 client ID를 <code>String</code>으로 제공한다. Android는 <code>@GoogleCredentialsServerClientId</code>, JVM·wasm은 <code>@GoogleCredentialsClientId</code>. BuildKonfig 필드는 <code>GOOGLE_CREDENTIALS_SERVER_CLIENT_ID</code>(android), <code>GOOGLE_CREDENTIALS_CLIENT_ID</code>(jvm·wasmJs).</p>
+        <p class="note">iOS는 Koin을 거치지 않고 <code>GIDSignIn.sharedInstance</code>가 xcconfig의 <code>GID_CLIENT_ID</code>를 읽는다.</p>
+      </div>
+      <div class="card apple">
+        <h4><span class="tag apple">Apple</span> 설정 객체</h4>
+        <p>Services ID와 서버 콜백 주소를 묶은 <code>AppleCredentialsConfig(clientId, callbackUrl)</code>를 제공한다. <code>appleCredentialsConfig(clientId)</code>가 <code>BuildKonfig.SUPABASE_URL</code>에 <code>/functions/v1/v1-session-apple-callback</code>을 붙여 만든다. BuildKonfig 필드는 <code>APPLE_CREDENTIALS_CLIENT_ID</code>(android·jvm·wasmJs).</p>
+        <p class="note">iOS는 bundle id가 곧 client id라 설정 주입이 없다.</p>
+      </div>
+    </div>
+
+    <h3>domain·data·core — 두 수단이 같은 모양인 층</h3>
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th>층</th><th><span class="tag google">Google</span></th><th><span class="tag apple">Apple</span></th></tr></thead>
+        <tbody>
+          <tr><td><code>core:model</code></td><td><code>GoogleCredential.IdToken</code> / <code>GoogleCredential.AuthorizationCode(code, clientId, redirectUri, codeVerifier?)</code></td><td><code>AppleCredential(idToken, nonce)</code></td></tr>
+          <tr><td><code>domain:account</code></td><td><code>SignInWithGoogleUseCase</code></td><td><code>SignInWithAppleUseCase</code></td></tr>
+          <tr><td><code>data:account</code></td><td colspan="2"><span class="tag common">공통</span> <code>SessionRepositoryImpl.create(credential)</code>가 오버로드로 둘을 받아 <code>SessionRemoteDataSource</code> 호출 뒤 <code>SupabaseAuth.importAuthToken</code>으로 세션을 설정한다.</td></tr>
+          <tr><td><code>core:network:impl</code></td><td><code>createWithGoogle(code, …)</code> → <code>v1-session-google-authorization-code</code><br><code>createWithGoogle(idToken, nonce)</code> → <code>v1-session-google-id-token</code></td><td><code>createWithApple(idToken, nonce)</code> → <code>v1-session-apple-id-token</code></td></tr>
+          <tr><td>Supabase Functions</td><td><code>_shared/google-auth.ts</code>가 code를 Google 토큰 엔드포인트에서 <code>id_token</code>으로 바꾼 뒤 <code>_shared/id-token.ts</code>로 넘긴다.</td><td><code>v1-session-apple-callback/index.ts</code>는 세션을 만들지 않고 Apple form_post를 앱 복귀 주소로 중계만 한다. 세션 발급은 <code>_shared/id-token.ts</code>가 Google과 같은 함수(<code>issueSessionFromIdToken</code>)로 한다.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="deps">
+    <h2>의존성</h2>
+    <p>버전은 <code>gradle/libs.versions.toml</code>이 소유한다. 여기서는 어떤 artifact가 어느 수단·플랫폼에 들어오는지만 적는다.</p>
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th>플랫폼</th><th><span class="tag google">Google</span></th><th><span class="tag apple">Apple</span></th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Android</td>
+            <td><code>androidx.credentials:credentials-play-services-auth</code>, <code>com.google.android.libraries.identity.googleid:googleid</code></td>
+            <td><code>androidx.browser:browser</code>(Custom Tabs). 그 외는 플랫폼 API(<code>Activity</code>, <code>Uri</code>, <code>Lifecycle.currentStateFlow</code>)</td>
+          </tr>
+          <tr>
+            <td>iOS</td>
+            <td><code>swiftPMDependencies</code>의 <code>GoogleSignIn-iOS</code>(SPM, <code>GoogleSignIn</code> product)</td>
+            <td>시스템 프레임워크 <code>AuthenticationServices</code>. 외부 패키지 없음</td>
+          </tr>
+          <tr>
+            <td>JVM</td>
+            <td><code>com.google.oauth-client:google-oauth-client-jetty</code> — <code>LocalServerReceiver</code>(Jetty 루프백 서버), <code>AuthorizationCodeRequestUrl</code>, <code>AuthorizationCodeInstalledApp.browse</code></td>
+            <td>JDK 내장 <code>com.sun.net.httpserver.HttpServer</code>로 루프백 서버를 직접 두고, 브라우저 열기만 같은 artifact의 <code>AuthorizationCodeInstalledApp.browse</code>를 재사용</td>
+          </tr>
+          <tr>
+            <td>wasmJs</td>
+            <td><span class="path">index.html</span>의 <code>https://accounts.google.com/gsi/client</code> 스크립트(Google Identity Services) + <code>js()</code> 인터롭</td>
+            <td>외부 스크립트 없음. <code>kotlinx-browser</code>의 <code>window.open</code>, <code>message</code> 이벤트, <code>setInterval</code></td>
+          </tr>
+          <tr>
+            <td>공통</td>
+            <td colspan="2"><span class="tag common">공통</span> <code>org.kotlincrypto.hash:sha2</code>(nonce 해시), Koin(<code>koinInject</code>), Compose(<code>remember</code>)</td>
+          </tr>
+          <tr>
+            <td>서버</td>
+            <td><code>@supabase/supabase-js</code>, Google 토큰 엔드포인트 호출(<code>fetch</code>), zod</td>
+            <td>콜백 함수는 <code>Deno.serve</code>와 <code>FormData</code>·<code>atob</code>·<code>TextDecoder</code>만 쓴다. 세션 함수는 Google과 같은 <code>_shared</code>를 쓴다</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="diff">
+      <p><b>차이의 요지.</b> Google은 플랫폼마다 Google이 제공하는 SDK나 스크립트에 기댄다. Apple은 iOS 밖에서 제공하는 SDK가 웹용 JS 하나뿐이고 그것도 등록된 https 도메인에서만 동작하므로, 이 저장소는 SDK 대신 표준 OAuth 인가 URL과 플랫폼 기본 API만으로 흐름을 구성했다. 결과적으로 Apple 쪽 외부 의존성은 <code>androidx.browser</code> 하나다.</p>
+    </div>
+  </section>
+
+  <section id="flows">
+    <h2>흐름도</h2>
+    <div class="legend">
+      <span class="l-app">앱(feature:login:ui)</span>
+      <span class="l-os">플랫폼·SDK</span>
+      <span class="l-idp">Google</span>
+      <span class="l-apple">Apple</span>
+      <span class="l-server">Supabase Functions</span>
+    </div>
+    <p class="note">모든 흐름의 마지막은 같다 — 앱이 인증 결과를 <code>SignInWith…UseCase</code>로 넘기면 <code>SessionRepositoryImpl</code>이 서버 함수를 호출하고, 서버가 <code>signInWithIdToken</code>으로 검증해 발급한 access·refresh 토큰을 앱이 <code>SupabaseAuth.importAuthToken</code>으로 세션에 설정한다. 아래 도식은 그 앞, 인증 결과를 얻는 부분만 그린다.</p>
+
+    <div class="platform">Android</div>
+    <h4><span class="tag google">Google</span> Credential Manager → <code>idToken</code></h4>
+    <div class="flow">
+      <div class="step app"><b>앱</b>nonce 생성, <code>GetSignInWithGoogleOption(serverClientId).setNonce(hash)</code></div><div class="arrow">→</div>
+      <div class="step os"><b>Credential Manager</b>시스템 계정 선택 시트</div><div class="arrow">→</div>
+      <div class="step idp"><b>Google</b>기기 계정으로 <code>id_token</code> 발급</div><div class="arrow">→</div>
+      <div class="step app"><b>앱</b><code>GoogleIdTokenCredential.createFrom</code> → <code>GoogleCredential.IdToken(idToken, nonce)</code></div><div class="arrow">→</div>
+      <div class="step server"><b>v1-session-google-id-token</b></div>
+    </div>
+    <h4><span class="tag apple">Apple</span> Custom Tab → 서버 콜백 → 앱 링크</h4>
+    <div class="flow">
+      <div class="step app"><b>앱</b>nonce·state 생성, 복귀 주소 <code>&lt;applicationId&gt;://apple-sign-in</code>을 state에 담아 인가 URL 조립</div><div class="arrow">→</div>
+      <div class="step os"><b>Custom Tab</b><code>CustomTabsIntent.launchUrl</code></div><div class="arrow">→</div>
+      <div class="step idp apple"><b>Apple</b>로그인·동의 후 <code>form_post</code>로 <code>id_token</code>+<code>state</code></div><div class="arrow">→</div>
+      <div class="step server"><b>v1-session-apple-callback</b>state의 복귀 주소가 허용 목록이면 <code>303</code>으로 넘김</div><div class="arrow">→</div>
+      <div class="step os"><b>Android</b>scheme 인텐트 → <code>AppleSignInRedirectActivity</code></div><div class="arrow">→</div>
+      <div class="step app"><b>앱</b><code>AppleSignInRedirectRelay</code>가 대기 중 코루틴에 전달, state 검증 → <code>AppleCredential</code></div><div class="arrow">→</div>
+      <div class="step server"><b>v1-session-apple-id-token</b></div>
+    </div>
+    <p class="note">취소 감지: 앱이 <code>Lifecycle</code>이 RESUMED에서 벗어났다가 돌아오는 것을 관찰한다. 돌아온 뒤 1초 안에 앱 링크가 오지 않으면 브라우저 탭을 닫은 것으로 보고 취소 처리한다.</p>
+
+    <div class="platform">iOS</div>
+    <h4><span class="tag google">Google</span> GoogleSignIn SDK → <code>idToken</code></h4>
+    <div class="flow">
+      <div class="step app"><b>앱</b>nonce 생성, <code>GIDSignIn.sharedInstance.signInWithPresentingViewController(nonce: hash)</code></div><div class="arrow">→</div>
+      <div class="step os"><b>GoogleSignIn SDK</b>Safari 기반 인증 세션</div><div class="arrow">→</div>
+      <div class="step idp"><b>Google</b><code>id_token</code></div><div class="arrow">→</div>
+      <div class="step app"><b>앱</b><code>result.user.idToken.tokenString</code> → <code>GoogleCredential.IdToken</code></div><div class="arrow">→</div>
+      <div class="step server"><b>v1-session-google-id-token</b></div>
+    </div>
+    <h4><span class="tag apple">Apple</span> AuthenticationServices → <code>idToken</code></h4>
+    <div class="flow">
+      <div class="step app"><b>앱</b>nonce 생성, <code>ASAuthorizationAppleIDProvider().createRequest()</code>에 email 범위와 nonce 해시</div><div class="arrow">→</div>
+      <div class="step os"><b>ASAuthorizationController</b>기기의 Apple 계정 시트</div><div class="arrow">→</div>
+      <div class="step idp apple"><b>Apple</b><code>identityToken</code>(aud = bundle id)</div><div class="arrow">→</div>
+      <div class="step app"><b>앱</b><code>AppleIdAuthorizationDelegate</code> → <code>AppleCredential(idToken, nonce)</code></div><div class="arrow">→</div>
+      <div class="step server"><b>v1-session-apple-id-token</b></div>
+    </div>
+    <p class="note">iOS는 두 수단이 같은 모양이다. 다른 점은 Google은 SPM 패키지, Apple은 시스템 프레임워크라는 것뿐이다.</p>
+
+    <div class="platform">JVM 데스크톱</div>
+    <h4><span class="tag google">Google</span> 시스템 브라우저 + 루프백 → authorization code(PKCE)</h4>
+    <div class="flow">
+      <div class="step app"><b>앱</b><code>LocalServerReceiver</code>(Jetty)로 <code>http://127.0.0.1:포트/Callback</code> 열기, PKCE verifier·S256 challenge 생성</div><div class="arrow">→</div>
+      <div class="step os"><b>시스템 브라우저</b><code>AuthorizationCodeInstalledApp.browse</code></div><div class="arrow">→</div>
+      <div class="step idp"><b>Google</b>루프백 주소로 <code>code</code> 리디렉션(Google은 localhost 허용)</div><div class="arrow">→</div>
+      <div class="step app"><b>앱</b><code>receiver.waitForCode()</code> → <code>GoogleCredential.AuthorizationCode(code, clientId, redirectUri, codeVerifier)</code></div><div class="arrow">→</div>
+      <div class="step server"><b>v1-session-google-authorization-code</b><code>GOOGLE_CLIENT_SECRETS</code>로 code → <code>id_token</code> 교환 후 세션 발급</div>
+    </div>
+    <h4><span class="tag apple">Apple</span> 시스템 브라우저 + 서버 콜백 + 루프백 → <code>idToken</code></h4>
+    <div class="flow">
+      <div class="step app"><b>앱</b><code>AppleSignInLoopbackReceiver</code>(JDK HttpServer)로 <code>http://127.0.0.1:포트/callback</code> 열고 그 주소를 state에 담아 인가 URL 조립</div><div class="arrow">→</div>
+      <div class="step os"><b>시스템 브라우저</b><code>AuthorizationCodeInstalledApp.browse</code></div><div class="arrow">→</div>
+      <div class="step idp apple"><b>Apple</b><code>form_post</code>로 <code>id_token</code>+<code>state</code>(https 콜백만 허용)</div><div class="arrow">→</div>
+      <div class="step server"><b>v1-session-apple-callback</b><code>303</code> → 루프백 주소</div><div class="arrow">→</div>
+      <div class="step app"><b>앱</b>결과 페이지 응답 후 state 검증 → <code>AppleCredential</code></div><div class="arrow">→</div>
+      <div class="step server"><b>v1-session-apple-id-token</b></div>
+    </div>
+    <p class="note">Google은 code를 서버가 client secret으로 교환해야 하므로 서버에 비밀이 있고, Apple은 <code>id_token</code>을 앱이 직접 받아 서버에 비밀이 없다. 두 수단 모두 브라우저 창을 응답 없이 닫으면 취소를 감지하지 못한다(스펙이 허용하는 예외).</p>
+
+    <div class="platform">wasmJs</div>
+    <h4><span class="tag google">Google</span> GIS 팝업 → authorization code</h4>
+    <div class="flow">
+      <div class="step app"><b>앱</b><code>google.accounts.oauth2.initCodeClient({ux_mode: 'popup'})</code>, <code>requestCode()</code></div><div class="arrow">→</div>
+      <div class="step os"><b>GIS 스크립트</b>팝업 열기·닫기, 결과를 콜백으로</div><div class="arrow">→</div>
+      <div class="step idp"><b>Google</b><code>code</code>(redirect_uri = <code>postmessage</code>)</div><div class="arrow">→</div>
+      <div class="step app"><b>앱</b><code>GoogleCredential.AuthorizationCode(code, clientId, "postmessage")</code></div><div class="arrow">→</div>
+      <div class="step server"><b>v1-session-google-authorization-code</b></div>
+    </div>
+    <h4><span class="tag apple">Apple</span> 직접 여는 팝업 + 서버 콜백 + postMessage → <code>idToken</code></h4>
+    <div class="flow">
+      <div class="step app"><b>앱</b><code>window.location.origin</code>을 복귀 주소로 state에 담아 <code>window.open(인가 URL)</code></div><div class="arrow">→</div>
+      <div class="step idp apple"><b>Apple</b>팝업 안에서 로그인, <code>form_post</code></div><div class="arrow">→</div>
+      <div class="step server"><b>v1-session-apple-callback</b>허용된 origin이면 <code>window.opener.postMessage({idToken, state, error}, origin)</code> 하는 HTML 응답 후 팝업 닫기</div><div class="arrow">→</div>
+      <div class="step app"><b>앱</b><code>message</code> 이벤트의 <code>origin</code>이 콜백 함수 출처인지 확인, state 검증 → <code>AppleCredential</code></div><div class="arrow">→</div>
+      <div class="step server"><b>v1-session-apple-id-token</b></div>
+    </div>
+    <p class="note">GIS는 팝업 닫힘을 <code>popup_closed</code>로 알려 주지만, Apple 팝업은 앱이 직접 열었으므로 <code>popup.closed</code>를 500ms마다 확인해 취소로 처리한다.</p>
+  </section>
+
+  <section id="server">
+    <h2>서버와 외부 설정</h2>
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th>항목</th><th><span class="tag google">Google</span></th><th><span class="tag apple">Apple</span></th></tr></thead>
+        <tbody>
+          <tr>
+            <td>콘솔 등록</td>
+            <td>Google Cloud Console에 OAuth client 3종(웹, iOS, 데스크톱). Android는 웹 client를 서버 client로 쓴다.</td>
+            <td>Apple Developer에 App ID 2종(dev·real bundle)과 Services ID 2종(<code>io.github.taetae98coding.diary.dev.web</code>, <code>io.github.taetae98coding.diary.web</code>). Services ID마다 Primary App ID, 도메인 <code>&lt;ref&gt;.supabase.co</code>, Return URL <code>https://&lt;ref&gt;.supabase.co/functions/v1/v1-session-apple-callback</code>을 등록.</td>
+          </tr>
+          <tr>
+            <td>Supabase <code>config.toml</code></td>
+            <td><code>[auth.external.google]</code> — <code>client_id</code>(3종 콤마 목록), <code>secret</code>(웹 client secret)</td>
+            <td><code>[auth.external.apple]</code> — <code>client_id</code>(bundle id 2종 + Services ID 2종), secret 없음. <code>[functions.v1-session-apple-callback] verify_jwt = false</code></td>
+          </tr>
+          <tr>
+            <td>Function secrets</td>
+            <td><code>GOOGLE_CLIENT_SECRETS</code>(clientId → secret JSON)</td>
+            <td>선택 <code>APPLE_SIGN_IN_WEB_ORIGINS</code>(운영 웹 origin 허용 목록). 미설정 시 <code>localhost</code>·<code>127.0.0.1</code> origin만 허용</td>
+          </tr>
+          <tr>
+            <td><code>local.properties</code> 키</td>
+            <td><code>&lt;flavor&gt;.android.googleCredentialsServerClientId</code>, <code>&lt;flavor&gt;.jvm.googleCredentialsClientId</code>, <code>&lt;flavor&gt;.wasm.googleCredentialsClientId</code>, <code>&lt;flavor&gt;.jvm.googleSecret</code>, <code>&lt;flavor&gt;.wasm.googleSecret</code> + iOS xcconfig <code>GID_*</code></td>
+            <td><code>&lt;flavor&gt;.apple.clientIds</code>(Supabase 등록용 목록), <code>&lt;flavor&gt;.apple.webClientId</code>(앱이 쓰는 Services ID)</td>
+          </tr>
+          <tr>
+            <td>콜백 허용 규칙</td>
+            <td>Google 콘솔의 redirect URI 정책(localhost 허용, <code>postmessage</code> 허용)</td>
+            <td>서버 함수가 직접 판정 — Android scheme <code>io.github.taetae98coding.diary(.dev)?://apple-sign-in</code>, JVM <code>http://127.0.0.1:&lt;port&gt;/callback</code>, 웹 origin 허용 목록. 그 외는 <code>400</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="gotcha">
+      <h4>왜 Apple만 서버 콜백을 거치는가</h4>
+      <p>
+        Apple의 웹 Sign in with Apple은 Return URL을 <b>https 도메인</b>으로만 등록할 수 있고 <code>localhost</code>·IP·커스텀 scheme을 받지 않는다.
+        또 <code>id_token</code>을 직접 받으려면 <code>response_type=code id_token</code>이어야 하고, 이때 Apple은 <code>response_mode=form_post</code>만 허용한다.
+        그래서 https 주소를 가진 서버 함수가 POST를 받아 앱 복귀 주소로 넘기는 한 단계가 필요하다. Google은 루프백과 <code>postmessage</code>를 허용하므로 이 단계가 없다.
+      </p>
+      <p>
+        중계 함수는 <code>id_token</code>을 검증하거나 저장하지 않는다. 검증은 두 수단이 공유하는 <code>issueSessionFromIdToken</code>이 Supabase <code>signInWithIdToken</code>으로 한다.
+        복귀 주소 허용 목록이 엄격한 이유는, 임의 주소로 넘기면 공격자가 자기 nonce로 만든 시도의 <code>id_token</code>을 받아 세션을 얻을 수 있기 때문이다.
+      </p>
+    </div>
+  </section>
+
+  <section id="tests">
+    <h2>테스트 대응</h2>
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th>대상</th><th><span class="tag google">Google</span></th><th><span class="tag apple">Apple</span></th></tr></thead>
+        <tbody>
+          <tr><td>요청 조립</td><td><code>GooglePkceTest</code>(TC-LOGIN-DATA-008·009, RFC 7636 벡터)</td><td><code>AppleWebSignInRequestFactoryTest</code>(TC-LOGIN-DATA-010·011)</td></tr>
+          <tr><td>응답 판정</td><td>플랫폼 SDK 콜백에 위임 — 별도 유닛 테스트 없음</td><td><code>AppleWebSignInRequestTest</code>(TC-LOGIN-DOMAIN-005·006)</td></tr>
+          <tr><td>수신기</td><td>Jetty <code>LocalServerReceiver</code>는 라이브러리 — 테스트 없음</td><td><code>AppleSignInLoopbackReceiverTest</code>(TC-LOGIN-DATA-013, 실제 HTTP 요청)</td></tr>
+          <tr><td>취소 감지</td><td>SDK 예외 매핑 — <code>LoginHomeScreenTest</code>가 화면 수준에서 검증</td><td><code>AndroidAppleCredentialsManagerTest</code>(TC-LOGIN-FEATURE-022·023, <code>TestLifecycleOwner</code>)</td></tr>
+          <tr><td>화면·ViewModel·Repository</td><td colspan="2"><span class="tag common">공통</span> <code>LoginHomeScreenTest</code>, <code>LoginHomeViewModelTest</code>, <code>SessionRepositoryImplTest</code>, <code>SignInWith…UseCaseTest</code>가 두 수단을 테스트 데이터로 함께 순회한다.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+</body>
+</html>

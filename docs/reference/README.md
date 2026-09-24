@@ -12,6 +12,7 @@ Markdown 외 형식도 둘 수 있다. 파일을 추가하면 아래 목록에 �
 | [M3 Expressive 컴포넌트 조사](m3-expressive-component.md) | Markdown | `org.jetbrains.compose.material3:material3` `1.12.0-alpha03` | 2026-08-24 | 저장소가 쓰는 Material 3 버전에서 호출할 수 있는 컴포넌트 목록과 채택·미채택 이유 |
 | [Compose Styles API 조사](compose-styles.md) | Markdown | `org.jetbrains.compose.foundation:foundation` `1.12.0` · `material3` `1.12.0-alpha03` | 2026-09-19 | Styles API로 할 수 있는 것과 이 버전에서 되지 않는 것, 저장소의 채택·미채택 이유 |
 | [DiaryMap 구조](diary-map-architecture.html) | HTML | `compose:map` 모듈 · 커밋 `2796dc33` | 2026-08-24 | `DiaryMapState`의 상태 관리와 네이버·Google 지도가 Android·iOS·JVM·wasmJs에 붙는 방식 |
+| [Google·Apple 로그인 비교](login-provider-comparison.html) | HTML | `feature:login:ui` 모듈 · 커밋 `d17675ee` 위 `appleLogin` 작업 트리 | 2026-09-24 | 두 로그인 수단의 모듈·파일 분포, 플랫폼별 의존성, 인증 결과를 얻는 흐름도와 서버·외부 설정의 차이 |
 
 ## 최신 상태 유지
 
@@ -41,3 +42,11 @@ Markdown 외 형식도 둘 수 있다. 파일을 추가하면 아래 목록에 �
 `compose:map`을 세 층(배치·전환, 상태·계약, SDK 연동)으로 나눠 설명하고, `DiaryMapState`의 상태별 공개 범위와 지도·앱 사이의 두 방향 흐름, 저장·복원 항목을 정리한다. 플랫폼 탭으로 Android·iOS·JVM·wasmJs의 네이버·Google 구현을 나란히 보여주고, 같은 동작을 두 SDK에서 어떻게 얻는지 대조표로 둔다.
 
 제품 관점의 동작과 정책은 [스펙](../spec/diary-map.md)이, 화면 표현은 [디자인](../design/diary-map.md)이 소유한다. 이 자료는 구현 구조만 다루고, 스펙과 어긋나면 이 자료를 고친다.
+
+## Google·Apple 로그인 비교
+
+브라우저에서 `docs/reference/login-provider-comparison.html`을 열면 된다. 별도 실행 환경 없이 파일 하나로 동작한다.
+
+Google 로그인과 Apple 로그인이 `feature:login:ui`, `app:shared`, `core:network`, Supabase Functions의 어느 자리에 어떤 파일로 놓이는지 대조하고, 플랫폼별 외부 의존성과 Android·iOS·JVM·wasmJs에서 인증 결과를 얻는 흐름을 나란히 그린다. Apple만 서버 콜백 함수를 거치는 이유와 콜백 허용 규칙, 콘솔·Supabase·`local.properties` 설정의 차이도 함께 정리한다.
+
+제품 관점의 동작과 정책은 [스펙](../spec/login.md)이, 화면 표현은 [디자인](../design/login.md)이 소유한다. 이 자료는 구현 구조만 다루고, 스펙과 어긋나면 이 자료를 고친다.
