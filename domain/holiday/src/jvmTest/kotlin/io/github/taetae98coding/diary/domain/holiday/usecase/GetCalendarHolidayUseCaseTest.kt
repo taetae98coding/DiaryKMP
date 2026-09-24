@@ -21,7 +21,6 @@ private const val MIDSUMMER_DAY_NAME = "초복"
 private const val INDEPENDENCE_MOVEMENT_DAY_NAME = "삼일절"
 private const val SUBSTITUTE_INDEPENDENCE_MOVEMENT_DAY_NAME = "대체공휴일(삼일절)"
 private const val LUNAR_NEW_YEAR_NAME = "설날"
-private const val SPACED_SUBSTITUTE_HOLIDAY_NAME = "대체 공휴일"
 private const val SUBSTITUTE_HOLIDAY_NAME = "대체공휴일"
 
 private val fixtureMonkey: FixtureMonkey =
@@ -84,10 +83,10 @@ class GetCalendarHolidayUseCaseTest :
             }
         }
 
-        Given("TC-HOLIDAY-VISIBILITY-DOMAIN-006 공백만 다른 이름의 공휴일이 서로 다른 연도에 저장되어 있다") {
+        Given("공백만 다른 이름의 공휴일이 서로 다른 연도에 저장되어 있다") {
             val previousYearHoliday =
                 holiday(
-                    name = SPACED_SUBSTITUTE_HOLIDAY_NAME,
+                    name = "대체 공휴일",
                     start = july(year = 2025, day = 17),
                 )
             val holiday =
@@ -105,9 +104,9 @@ class GetCalendarHolidayUseCaseTest :
                     hiddenKeySet = setOf(SUBSTITUTE_HOLIDAY_NAME),
                 )
 
-            When("공백을 제거한 같은 key를 숨긴 채 두 연도의 캘린더용 공휴일을 각각 조회한다") {
-                Then("공백 표기와 관계없이 두 공휴일 모두 제공되지 않는다") {
-                    useCase(parameter = 2025).first().shouldBeSuccess() shouldBe emptyList()
+            When("한쪽 이름만 숨긴 채 두 연도의 캘린더용 공휴일을 각각 조회한다") {
+                Then("이름을 가공하지 않으므로 공백이 다른 이름의 공휴일은 그대로 제공된다") {
+                    useCase(parameter = 2025).first().shouldBeSuccess() shouldBe listOf(previousYearHoliday)
                     useCase(parameter = 2026).first().shouldBeSuccess() shouldBe emptyList()
                 }
             }

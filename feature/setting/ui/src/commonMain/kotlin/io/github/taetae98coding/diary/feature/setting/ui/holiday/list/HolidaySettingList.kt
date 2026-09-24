@@ -59,14 +59,14 @@ internal fun HolidaySettingList(
 
         items(
             items = holidaySettingList,
-            key = { holidaySetting -> "$HOLIDAY_ITEM_KEY_PREFIX${holidaySetting.key}" },
+            key = { holidaySetting -> "$HOLIDAY_ITEM_KEY_PREFIX${holidaySetting.name}" },
         ) { holidaySetting ->
             SettingHolidayItemRow(
                 holidaySetting = holidaySetting,
                 onClick = {
                     onEvent(
                         SettingHolidayScaffoldEvent.ToggleHoliday(
-                            key = holidaySetting.key,
+                            name = holidaySetting.name,
                         ),
                     )
                 },

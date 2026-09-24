@@ -223,35 +223,6 @@
 
 ## domain
 
-### TC-SETTING-HOLIDAY-DOMAIN-001: 공백만 다른 이름은 하나의 항목으로 묶는다
-
-- 근거: `domain > 공휴일 항목 구성`
-- Given: 공백의 위치나 종류만 다르고 나머지 글자는 같은 공휴일 이름들이 저장되어 있다.
-- When: SettingHoliday에 표시할 공휴일 항목을 구성한다.
-- Then: 모든 이름은 테스트 데이터의 같은 key를 가진 하나의 항목으로 판정된다.
-- 테스트 데이터:
-
-| 저장된 이름 | key |
-| --- | --- |
-| `대체 공휴일` | `대체공휴일` |
-| ` 대체공휴일 ` | `대체공휴일` |
-| `대체　공휴일` | `대체공휴일` |
-| `대체\t공휴일` | `대체공휴일` |
-
-### TC-SETTING-HOLIDAY-DOMAIN-003: 같은 key는 최근 공휴일의 원래 이름으로 하나만 표시한다
-
-- 근거: `domain > 공휴일 항목 구성`
-- Given: 공백만 다른 이름을 가진 같은 key의 공휴일들이 서로 다른 시작일로 저장되어 있다.
-- When: SettingHoliday에 표시할 공휴일 항목을 구성한다.
-- Then: 같은 key의 항목은 하나만 제공되고 시작일이 가장 최근인 공휴일의 원래 이름이 표시된다.
-
-### TC-SETTING-HOLIDAY-DOMAIN-004: 최근 시작일이 같으면 이름 오름차순의 첫 표기를 사용한다
-
-- 근거: `domain > 공휴일 항목 구성`
-- Given: 같은 key와 같은 최근 시작일을 가지면서 공백 표기가 다른 공휴일들이 저장되어 있다.
-- When: SettingHoliday에 표시할 공휴일 항목을 구성한다.
-- Then: 이름 오름차순에서 첫 번째인 원래 이름이 표시된다.
-
 ### TC-SETTING-HOLIDAY-DOMAIN-005: 같은 key 중 하나라도 쉬는 날이면 쉬는 날 항목이다
 
 - 근거: `domain > 공휴일 항목 구성`
@@ -259,12 +230,12 @@
 - When: SettingHoliday에 표시할 공휴일 항목을 구성한다.
 - Then: 해당 key는 쉬는 날인 항목으로 제공된다.
 
-### TC-SETTING-HOLIDAY-DOMAIN-006: 표시 이름과 key 순으로 항목을 정렬한다
+### TC-SETTING-HOLIDAY-DOMAIN-006: 표시 이름 순으로 항목을 정렬한다
 
 - 근거: `domain > 공휴일 항목 구성`
-- Given: 표시 이름이나 key가 서로 다른 공휴일들이 순서 없이 저장되어 있다.
+- Given: 표시 이름이 서로 다른 공휴일들이 순서 없이 저장되어 있다.
 - When: SettingHoliday에 표시할 공휴일 항목을 구성한다.
-- Then: 표시 이름 오름차순으로 정렬되며 표시 이름이 같으면 key 오름차순으로 정렬된다.
+- Then: 표시 이름 오름차순으로 정렬된다.
 
 ### TC-SETTING-HOLIDAY-DOMAIN-007: 숨긴 key만 선택 해제 상태로 제공한다
 
@@ -329,3 +300,14 @@
   | --- | --- |
   | `전체 해제` | 한국 공휴일 key |
   | `쉬는 날만 선택` | 한국 공휴일 key |
+
+### TC-SETTING-HOLIDAY-DOMAIN-014: 같은 key의 공휴일은 연도가 달라도 하나의 항목으로 제공한다
+
+- 근거: `domain > 공휴일 항목 구성`
+- Given: 이름이 같은 공휴일이 서로 다른 연도에 저장되어 있다.
+- When: SettingHoliday에 표시할 공휴일 항목을 구성한다.
+- Then: 그 이름의 항목은 하나만 제공되고 표시 이름은 저장된 이름 그대로다.
+
+### 작성하지 않는 이유
+
+- `TC-SETTING-HOLIDAY-DOMAIN-001`, `TC-SETTING-HOLIDAY-DOMAIN-003`, `TC-SETTING-HOLIDAY-DOMAIN-004`는 공백만 다른 이름을 같은 key로 합치고 대표 표기를 고르는 규칙이 스펙에서 사라져 검증할 행동이 없어졌다. 남은 케이스의 ID를 옮기지 않으려고 번호는 비워 둔다.

@@ -4,7 +4,6 @@ import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
-import io.github.taetae98coding.diary.domain.holiday.model.toHolidayKey
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -28,7 +27,7 @@ class GetSettingHolidayUseCaseTest :
     BehaviorSpec({
         Given("저장된 전체 공휴일과 숨김 key가 있다") {
             val holidayList = listOf(holiday())
-            val hiddenKeySet = setOf(holidayList.single().name.toHolidayKey())
+            val hiddenKeySet = setOf(holidayList.single().name)
             val useCase =
                 getSettingHolidayUseCase(
                     holidayFlow = flowOf(holidayList),
@@ -90,7 +89,7 @@ class GetSettingHolidayUseCaseTest :
                         awaitItem().shouldBeSuccess() shouldBe
                             holidayList.toHolidaySettingList(hiddenKeySet = emptySet())
 
-                        val changedHiddenKeySet = setOf(holidayList.single().name.toHolidayKey())
+                        val changedHiddenKeySet = setOf(holidayList.single().name)
                         hiddenKeySetFlow.value = changedHiddenKeySet
 
                         awaitItem().shouldBeSuccess() shouldBe

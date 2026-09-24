@@ -64,13 +64,12 @@ internal fun holidaySetting(
     isVisible: Boolean,
     name: String? = null,
 ): HolidaySetting {
-    // key는 목록 항목의 LazyColumn key로 쓰여 중복되면 안 되므로 난수 대신 고유한 값으로 만든다.
+    // 이름은 목록 항목의 LazyColumn key로 쓰여 중복되면 안 되므로 난수 대신 고유한 값으로 만든다.
     val identifier = Uuid.random().toString()
 
     return settingHolidayFixtureMonkey
         .giveMeOne<HolidaySetting>()
         .copy(
-            key = "holiday-key-$identifier",
             name = name ?: "Holiday $identifier",
             isHoliday = isHoliday,
             isVisible = isVisible,

@@ -1,7 +1,6 @@
 package io.github.taetae98coding.diary.domain.holiday.usecase
 
 import io.github.taetae98coding.diary.domain.core.UseCase
-import io.github.taetae98coding.diary.domain.holiday.model.toHolidayKey
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
 import kotlinx.coroutines.flow.first
@@ -18,7 +17,7 @@ public class DeselectAllHolidayUseCase internal constructor(
             holidayRepository
                 .get(countrySet = getHolidayCountrySettingUseCase.countrySetFlow().first())
                 .first()
-                .mapTo(mutableSetOf()) { holiday -> holiday.name.toHolidayKey() }
+                .mapTo(mutableSetOf()) { holiday -> holiday.name }
 
         holidaySettingRepository.submitHiddenKeySet(
             hiddenKeySet = targetKeySet,

@@ -9,7 +9,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import io.github.taetae98coding.diary.domain.holiday.model.toHolidayKey
 
 @Stable
 internal class SettingHolidayScaffoldState(
@@ -21,7 +20,7 @@ internal class SettingHolidayScaffoldState(
     val query: String
         get() = queryState.text.toString()
 
-    val isFiltering: Boolean by derivedStateOf { query.toHolidayKey().isNotEmpty() }
+    val isFiltering: Boolean by derivedStateOf { query.isNotBlank() }
 
     fun expandBulkAction() {
         isBulkActionExpanded = true

@@ -127,7 +127,7 @@ class SettingHolidayScaffoldSearchTest {
         composeRule.searchInputField().performTextInput(SEOLLAL_QUERY)
         composeRule.holidayItemNode(holidaySetting.name).performClick()
 
-        eventList shouldBe listOf(SettingHolidayScaffoldEvent.ToggleHoliday(key = holidaySetting.key))
+        eventList shouldBe listOf(SettingHolidayScaffoldEvent.ToggleHoliday(name = holidaySetting.name))
     }
 
     @Test
@@ -170,7 +170,6 @@ class SettingHolidayScaffoldSearchTest {
         composeRule.searchInputField().assertIsNotFocused()
     }
 
-    // 디자인의 `검색 결과 없음`은 목록과 안내가 교차하며 흐려지는 전환을 요구한다.
     // 사라지는 목록이 걸러진 뒤의 빈 목록을 그리면 교차 없이 즉시 사라지므로, 안내가 나타난 시점에 항목이 남아 있는지 확인한다.
     @Test
     fun `검색 결과가 없어지는 전환 도중에도 사라지는 목록이 항목을 보여준다`() {

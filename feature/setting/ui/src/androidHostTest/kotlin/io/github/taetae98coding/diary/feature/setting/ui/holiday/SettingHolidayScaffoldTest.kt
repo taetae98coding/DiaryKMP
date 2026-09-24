@@ -104,7 +104,7 @@ class SettingHolidayScaffoldTest {
             .onNode(hasText(holidaySetting.name) and hasRole(Role.Checkbox))
             .performClick()
 
-        eventList shouldBe listOf(SettingHolidayScaffoldEvent.ToggleHoliday(key = holidaySetting.key))
+        eventList shouldBe listOf(SettingHolidayScaffoldEvent.ToggleHoliday(name = holidaySetting.name))
     }
 
     companion object {

@@ -86,7 +86,7 @@ class SettingHolidayViewModelTest : FunSpec() {
                         fixtureMonkey.holidaySetting(index = 1, isVisible = false),
                     )
                 val toggleHolidayVisibilityUseCase = mockk<ToggleHolidayVisibilityUseCase>()
-                coEvery { toggleHolidayVisibilityUseCase(parameter = target.key) } returns Result.success(Unit)
+                coEvery { toggleHolidayVisibilityUseCase(parameter = target.name) } returns Result.success(Unit)
                 val viewModel =
                     settingHolidayViewModel(
                         getSettingHolidayUseCase =
@@ -100,14 +100,14 @@ class SettingHolidayViewModelTest : FunSpec() {
                     awaitItem() shouldBe SettingHolidayUiState.Loading
                     awaitItem() shouldBe SettingHolidayUiState.Loaded(countrySetting = DEFAULT_COUNTRY_SETTING, holidaySettingList = holidaySettingList)
 
-                    viewModel.toggleHoliday(key = target.key)
+                    viewModel.toggleHoliday(name = target.name)
                     advanceUntilIdle()
 
                     cancelAndIgnoreRemainingEvents()
                 }
 
                 coVerify(exactly = 1) {
-                    toggleHolidayVisibilityUseCase(parameter = target.key)
+                    toggleHolidayVisibilityUseCase(parameter = target.name)
                 }
             }
         }
@@ -121,7 +121,7 @@ class SettingHolidayViewModelTest : FunSpec() {
                         fixtureMonkey.holidaySetting(index = 1, isVisible = true),
                     )
                 val toggleHolidayVisibilityUseCase = mockk<ToggleHolidayVisibilityUseCase>()
-                coEvery { toggleHolidayVisibilityUseCase(parameter = target.key) } returns Result.success(Unit)
+                coEvery { toggleHolidayVisibilityUseCase(parameter = target.name) } returns Result.success(Unit)
                 val viewModel =
                     settingHolidayViewModel(
                         getSettingHolidayUseCase =
@@ -135,14 +135,14 @@ class SettingHolidayViewModelTest : FunSpec() {
                     awaitItem() shouldBe SettingHolidayUiState.Loading
                     awaitItem() shouldBe SettingHolidayUiState.Loaded(countrySetting = DEFAULT_COUNTRY_SETTING, holidaySettingList = holidaySettingList)
 
-                    viewModel.toggleHoliday(key = target.key)
+                    viewModel.toggleHoliday(name = target.name)
                     advanceUntilIdle()
 
                     cancelAndIgnoreRemainingEvents()
                 }
 
                 coVerify(exactly = 1) {
-                    toggleHolidayVisibilityUseCase(parameter = target.key)
+                    toggleHolidayVisibilityUseCase(parameter = target.name)
                 }
             }
         }
@@ -257,7 +257,7 @@ class SettingHolidayViewModelTest : FunSpec() {
                     awaitItem() shouldBe SettingHolidayUiState.Loading
                     awaitItem() shouldBe SettingHolidayUiState.Loaded(countrySetting = DEFAULT_COUNTRY_SETTING, holidaySettingList = holidaySettingList)
 
-                    viewModel.toggleHoliday(key = unknownKey)
+                    viewModel.toggleHoliday(name = unknownKey)
                     advanceUntilIdle()
 
                     cancelAndIgnoreRemainingEvents()
@@ -325,7 +325,7 @@ class SettingHolidayViewModelTest : FunSpec() {
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingHolidayUiState.Loading
 
-                    viewModel.toggleHoliday(key = fixtureMonkey.giveMeOne())
+                    viewModel.toggleHoliday(name = fixtureMonkey.giveMeOne())
                     advanceUntilIdle()
 
                     cancelAndIgnoreRemainingEvents()
@@ -451,7 +451,7 @@ private fun FixtureMonkey.holidaySetting(
     isVisible: Boolean = giveMeOne(),
 ): HolidaySetting =
     giveMeOne<HolidaySetting>().copy(
-        key = "$index-${giveMeOne<String>()}",
+        name = "$index-${giveMeOne<String>()}",
         isHoliday = isHoliday,
         isVisible = isVisible,
     )

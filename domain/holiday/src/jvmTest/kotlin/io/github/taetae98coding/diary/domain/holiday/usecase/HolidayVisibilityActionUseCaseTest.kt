@@ -4,7 +4,6 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.domain.holiday.model.HolidaySetting
-import io.github.taetae98coding.diary.domain.holiday.model.toHolidayKey
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -30,10 +29,10 @@ private val fixtureMonkey: FixtureMonkey =
 class HolidayVisibilityActionUseCaseTest :
     BehaviorSpec({
         Given("선택된 공휴일 key가 있다") {
-            val target = holidaySetting(key = uniqueKey(label = "target"), isVisible = true)
+            val target = holidaySetting(name = uniqueName(label = "target"), isVisible = true)
             val getSettingHolidayUseCase = getSettingHolidayUseCase(holidaySettingList = listOf(target))
             val repository = mockk<HolidaySettingRepository>()
-            coEvery { repository.addHiddenKey(key = target.key) } just Runs
+            coEvery { repository.addHiddenKey(key = target.name) } just Runs
             val useCase =
                 ToggleHolidayVisibilityUseCase(
                     getSettingHolidayUseCase = getSettingHolidayUseCase,
@@ -42,10 +41,10 @@ class HolidayVisibilityActionUseCaseTest :
 
             When("공휴일 선택 상태를 바꾼다") {
                 Then("TC-SETTING-HOLIDAY-FEATURE-008 해당 key를 숨김 설정에 추가한다") {
-                    useCase(parameter = " ${target.key} ").shouldBeSuccess()
+                    useCase(parameter = target.name).shouldBeSuccess()
 
                     verify(exactly = 1) { getSettingHolidayUseCase(parameter = Unit) }
-                    coVerify(exactly = 1) { repository.addHiddenKey(key = target.key) }
+                    coVerify(exactly = 1) { repository.addHiddenKey(key = target.name) }
                     coVerify(exactly = 0) {
                         repository.removeHiddenKey(key = any())
                         repository.submitHiddenKeySet(hiddenKeySet = any())
@@ -55,10 +54,10 @@ class HolidayVisibilityActionUseCaseTest :
         }
 
         Given("선택 해제된 공휴일 key가 있다") {
-            val target = holidaySetting(key = uniqueKey(label = "target"), isVisible = false)
+            val target = holidaySetting(name = uniqueName(label = "target"), isVisible = false)
             val getSettingHolidayUseCase = getSettingHolidayUseCase(holidaySettingList = listOf(target))
             val repository = mockk<HolidaySettingRepository>()
-            coEvery { repository.removeHiddenKey(key = target.key) } just Runs
+            coEvery { repository.removeHiddenKey(key = target.name) } just Runs
             val useCase =
                 ToggleHolidayVisibilityUseCase(
                     getSettingHolidayUseCase = getSettingHolidayUseCase,
@@ -67,10 +66,10 @@ class HolidayVisibilityActionUseCaseTest :
 
             When("공휴일 선택 상태를 바꾼다") {
                 Then("TC-SETTING-HOLIDAY-FEATURE-008 해당 key를 숨김 설정에서 제거한다") {
-                    useCase(parameter = target.key).shouldBeSuccess()
+                    useCase(parameter = target.name).shouldBeSuccess()
 
                     verify(exactly = 1) { getSettingHolidayUseCase(parameter = Unit) }
-                    coVerify(exactly = 1) { repository.removeHiddenKey(key = target.key) }
+                    coVerify(exactly = 1) { repository.removeHiddenKey(key = target.name) }
                     coVerify(exactly = 0) {
                         repository.addHiddenKey(key = any())
                         repository.submitHiddenKeySet(hiddenKeySet = any())
@@ -82,7 +81,7 @@ class HolidayVisibilityActionUseCaseTest :
         Given("현재 공휴일 목록에 없는 key가 있다") {
             val getSettingHolidayUseCase =
                 getSettingHolidayUseCase(
-                    holidaySettingList = listOf(holidaySetting(key = uniqueKey(label = "known"))),
+                    holidaySettingList = listOf(holidaySetting(name = uniqueName(label = "known"))),
                 )
             val repository = mockk<HolidaySettingRepository>(relaxed = true)
             val useCase =
@@ -93,7 +92,7 @@ class HolidayVisibilityActionUseCaseTest :
 
             When("알 수 없는 key의 선택 상태를 바꾸려 한다") {
                 Then("저장값을 변경하지 않는다") {
-                    useCase(parameter = uniqueKey(label = "unknown")).shouldBeSuccess()
+                    useCase(parameter = uniqueName(label = "unknown")).shouldBeSuccess()
 
                     verify(exactly = 1) { getSettingHolidayUseCase(parameter = Unit) }
                     coVerify(exactly = 0) {
@@ -106,7 +105,7 @@ class HolidayVisibilityActionUseCaseTest :
         }
 
         Given("화면 반영 전에 같은 공휴일을 다시 누른다") {
-            val selected = holidaySetting(key = uniqueKey(label = "double-toggle"), isVisible = true)
+            val selected = holidaySetting(name = uniqueName(label = "double-toggle"), isVisible = true)
             val deselected = selected.copy(isVisible = false)
             val getSettingHolidayUseCase =
                 mockk<GetSettingHolidayUseCase>().also { useCase ->
@@ -117,8 +116,8 @@ class HolidayVisibilityActionUseCaseTest :
                         )
                 }
             val repository = mockk<HolidaySettingRepository>()
-            coEvery { repository.addHiddenKey(key = selected.key) } just Runs
-            coEvery { repository.removeHiddenKey(key = selected.key) } just Runs
+            coEvery { repository.addHiddenKey(key = selected.name) } just Runs
+            coEvery { repository.removeHiddenKey(key = selected.name) } just Runs
             val useCase =
                 ToggleHolidayVisibilityUseCase(
                     getSettingHolidayUseCase = getSettingHolidayUseCase,
@@ -127,13 +126,13 @@ class HolidayVisibilityActionUseCaseTest :
 
             When("같은 key를 연속 두 번 토글한다") {
                 Then("각 동작을 최신 저장값에 적용해 처음 상태로 돌아온다") {
-                    useCase(parameter = selected.key).shouldBeSuccess()
-                    useCase(parameter = selected.key).shouldBeSuccess()
+                    useCase(parameter = selected.name).shouldBeSuccess()
+                    useCase(parameter = selected.name).shouldBeSuccess()
 
                     verify(exactly = 2) { getSettingHolidayUseCase(parameter = Unit) }
                     coVerifyOrder {
-                        repository.addHiddenKey(key = selected.key)
-                        repository.removeHiddenKey(key = selected.key)
+                        repository.addHiddenKey(key = selected.name)
+                        repository.removeHiddenKey(key = selected.name)
                     }
                 }
             }
@@ -162,9 +161,9 @@ class HolidayVisibilityActionUseCaseTest :
             val midsummerDayKey = "초복"
             val holidayList =
                 listOf(
-                    holiday(name = "대체 공휴일"),
                     holiday(name = substituteHolidayKey),
-                    holiday(name = "초 복"),
+                    holiday(name = substituteHolidayKey),
+                    holiday(name = midsummerDayKey),
                 )
             val keySet = setOf(substituteHolidayKey, midsummerDayKey)
             val holidayRepository = holidayRepository(holidayList = holidayList)
@@ -178,7 +177,7 @@ class HolidayVisibilityActionUseCaseTest :
                 )
 
             When("전체 선택 해제한다") {
-                Then("TC-SETTING-HOLIDAY-FEATURE-010 이름을 정규화하고 중복을 제거한 모든 key를 제출한다") {
+                Then("TC-SETTING-HOLIDAY-FEATURE-010 중복을 제거한 모든 key를 제출한다") {
                     useCase(parameter = Unit).shouldBeSuccess()
 
                     verify(exactly = 1) { holidayRepository.get(countrySet = KOREA_COUNTRY_SET) }
@@ -193,7 +192,7 @@ class HolidayVisibilityActionUseCaseTest :
             val workingDayKey = "초복"
             val dayOff =
                 holiday(
-                    name = "대체 공휴일",
+                    name = substituteHolidayKey,
                     isHoliday = true,
                 )
             val sameKeyWorkingDay =
@@ -203,7 +202,7 @@ class HolidayVisibilityActionUseCaseTest :
                 )
             val workingDay =
                 holiday(
-                    name = "초 복",
+                    name = workingDayKey,
                     isHoliday = false,
                 )
             val holidayRepository =
@@ -233,8 +232,8 @@ class HolidayVisibilityActionUseCaseTest :
         }
 
         Given("세 일괄 선택을 적용할 공휴일 목록이 있다") {
-            val dayOff = holiday(name = uniqueKey(label = "day-off"), isHoliday = true)
-            val workingDay = holiday(name = uniqueKey(label = "working-day"), isHoliday = false)
+            val dayOff = holiday(name = uniqueName(label = "day-off"), isHoliday = true)
+            val workingDay = holiday(name = uniqueName(label = "working-day"), isHoliday = false)
             val holidayList = listOf(dayOff, workingDay)
             val targetKeySet = setOf(dayOff.name, workingDay.name)
             val holidayRepository = holidayRepository(holidayList = holidayList)
@@ -286,7 +285,7 @@ class HolidayVisibilityActionUseCaseTest :
 
             When("토글을 실행한다") {
                 Then("조회 실패 원인을 그대로 제공하고 저장하지 않는다") {
-                    toggleUseCase(parameter = uniqueKey(label = "toggle")).shouldBeFailure() shouldBeSameInstanceAs failure
+                    toggleUseCase(parameter = uniqueName(label = "toggle")).shouldBeFailure() shouldBeSameInstanceAs failure
 
                     verify(exactly = 1) { getSettingHolidayUseCase(parameter = Unit) }
                     coVerify(exactly = 0) {
@@ -332,8 +331,8 @@ class HolidayVisibilityActionUseCaseTest :
         }
 
         Given("선택 상태를 저장할 수 없다") {
-            val selected = holidaySetting(key = uniqueKey(label = "selected"), isVisible = true)
-            val deselected = holidaySetting(key = uniqueKey(label = "deselected"), isVisible = false)
+            val selected = holidaySetting(name = uniqueName(label = "selected"), isVisible = true)
+            val deselected = holidaySetting(name = uniqueName(label = "deselected"), isVisible = false)
             val failure = TestException(fixtureMonkey.giveMeOne())
             val repository = mockk<HolidaySettingRepository>()
             coEvery { repository.addHiddenKey(key = any()) } throws failure
@@ -355,8 +354,8 @@ class HolidayVisibilityActionUseCaseTest :
                 holidayRepository(
                     holidayList =
                         listOf(
-                            holiday(name = selected.key, isHoliday = true),
-                            holiday(name = deselected.key, isHoliday = false),
+                            holiday(name = selected.name, isHoliday = true),
+                            holiday(name = deselected.name, isHoliday = false),
                         ),
                 )
             val selectAllUseCase =
@@ -378,15 +377,15 @@ class HolidayVisibilityActionUseCaseTest :
 
             When("각 선택 동작을 실행한다") {
                 Then("저장 실패 원인을 그대로 제공한다") {
-                    selectToggleUseCase(parameter = selected.key).shouldBeFailure() shouldBeSameInstanceAs failure
-                    deselectToggleUseCase(parameter = deselected.key).shouldBeFailure() shouldBeSameInstanceAs failure
+                    selectToggleUseCase(parameter = selected.name).shouldBeFailure() shouldBeSameInstanceAs failure
+                    deselectToggleUseCase(parameter = deselected.name).shouldBeFailure() shouldBeSameInstanceAs failure
                     selectAllUseCase(parameter = Unit).shouldBeFailure() shouldBeSameInstanceAs failure
                     deselectAllUseCase(parameter = Unit).shouldBeFailure() shouldBeSameInstanceAs failure
                     selectDaysOffUseCase(parameter = Unit).shouldBeFailure() shouldBeSameInstanceAs failure
 
                     coVerify(exactly = 1) {
-                        repository.addHiddenKey(key = selected.key)
-                        repository.removeHiddenKey(key = deselected.key)
+                        repository.addHiddenKey(key = selected.name)
+                        repository.removeHiddenKey(key = deselected.name)
                     }
                     verify(exactly = 2) { holidayRepository.get(countrySet = KOREA_COUNTRY_SET) }
                     verify(exactly = 0) { repository.getHiddenKeySet() }
@@ -426,15 +425,14 @@ private fun holiday(
 }
 
 private fun holidaySetting(
-    key: String = uniqueKey(label = "holiday"),
+    name: String = uniqueName(label = "holiday"),
     isHoliday: Boolean = fixtureMonkey.giveMeOne(),
     isVisible: Boolean = fixtureMonkey.giveMeOne(),
 ): HolidaySetting =
     HolidaySetting(
-        key = key,
-        name = fixtureMonkey.giveMeOne(),
+        name = name,
         isHoliday = isHoliday,
         isVisible = isVisible,
     )
 
-private fun uniqueKey(label: String): String = "${fixtureMonkey.giveMeOne<String>()}-$label".toHolidayKey()
+private fun uniqueName(label: String): String = "${fixtureMonkey.giveMeOne<String>()}-$label"

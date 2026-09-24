@@ -9,8 +9,8 @@ import io.github.taetae98coding.diary.domain.holiday.model.HolidaySetting
 
 internal fun previewHolidaySettingList(): List<HolidaySetting> =
     listOf(
-        HolidaySetting(key = "신정", name = "신정", isHoliday = true, isVisible = true),
-        HolidaySetting(key = "초복", name = "초복", isHoliday = false, isVisible = false),
+        HolidaySetting(name = "신정", isHoliday = true, isVisible = true),
+        HolidaySetting(name = "초복", isHoliday = false, isVisible = false),
     )
 
 internal fun previewHolidayCountrySetting(): HolidayCountrySetting =

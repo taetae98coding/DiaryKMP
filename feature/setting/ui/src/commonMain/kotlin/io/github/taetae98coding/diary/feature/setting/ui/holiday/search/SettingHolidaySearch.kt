@@ -3,16 +3,17 @@ package io.github.taetae98coding.diary.feature.setting.ui.holiday.search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import io.github.taetae98coding.diary.domain.holiday.model.HolidaySetting
-import io.github.taetae98coding.diary.domain.holiday.model.toHolidayKey
 
 internal fun matchesSettingHolidaySearch(
     query: String,
     displayName: String,
 ): Boolean {
-    val normalizedQuery = query.toHolidayKey()
+    val normalizedQuery = query.removeWhitespace()
 
-    return normalizedQuery.isEmpty() || displayName.toHolidayKey().contains(other = normalizedQuery, ignoreCase = true)
+    return normalizedQuery.isEmpty() || displayName.removeWhitespace().contains(other = normalizedQuery, ignoreCase = true)
 }
+
+private fun String.removeWhitespace(): String = filterNot { character -> character.isWhitespace() }
 
 @Composable
 internal fun rememberSettingHolidaySearchResult(

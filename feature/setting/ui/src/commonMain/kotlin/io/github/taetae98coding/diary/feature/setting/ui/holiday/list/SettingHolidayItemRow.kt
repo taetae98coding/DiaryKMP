@@ -86,8 +86,7 @@ private fun SettingHolidayItemRowPreview() {
         SettingHolidayItemRow(
             holidaySetting =
                 HolidaySetting(
-                    key = "대체공휴일",
-                    name = "대체 공휴일",
+                    name = "대체공휴일",
                     isHoliday = true,
                     isVisible = true,
                 ),

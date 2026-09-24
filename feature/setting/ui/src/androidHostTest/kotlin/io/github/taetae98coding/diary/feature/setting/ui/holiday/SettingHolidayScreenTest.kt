@@ -54,7 +54,7 @@ class SettingHolidayScreenTest {
             .onNode(hasText(holidaySetting.name) and hasRole(Role.Checkbox))
             .performClick()
 
-        verify(exactly = 1) { viewModel.toggleHoliday(key = holidaySetting.key) }
+        verify(exactly = 1) { viewModel.toggleHoliday(name = holidaySetting.name) }
     }
 
     @Test

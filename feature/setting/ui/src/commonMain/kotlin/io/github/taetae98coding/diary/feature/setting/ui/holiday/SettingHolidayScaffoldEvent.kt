@@ -12,7 +12,7 @@ internal sealed interface SettingHolidayScaffoldEvent {
     data object ClickSelectDaysOff : SettingHolidayScaffoldEvent
 
     data class ToggleHoliday(
-        val key: String,
+        val name: String,
     ) : SettingHolidayScaffoldEvent
 
     data class ToggleCountryOption(

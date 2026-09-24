@@ -56,9 +56,9 @@ internal class SettingHolidayViewModel(
         }
     }
 
-    fun toggleHoliday(key: String) {
+    fun toggleHoliday(name: String) {
         viewModelScope.launch {
-            toggleHolidayVisibilityUseCase(parameter = key)
+            toggleHolidayVisibilityUseCase(parameter = name)
         }
     }
 

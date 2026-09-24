@@ -6,7 +6,6 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
 import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountryOption
-import io.github.taetae98coding.diary.domain.holiday.model.toHolidayKey
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -198,8 +197,8 @@ class HolidayCountryApplyUseCaseTest :
                                 holidaySettingRepository = hiddenKeySettingRepository(hiddenKeySet = emptySet()),
                             )(parameter = Unit).first().shouldBeSuccess()
 
-                        setting.map { holidaySetting -> holidaySetting.key } shouldContainExactlyInAnyOrder
-                            countrySet.flatMap { country -> holidayMap.getValue(country) }.map { holiday -> holiday.name.toHolidayKey() }
+                        setting.map { holidaySetting -> holidaySetting.name } shouldContainExactlyInAnyOrder
+                            countrySet.flatMap { country -> holidayMap.getValue(country) }.map { holiday -> holiday.name }
                     }
                 }
             }
@@ -215,7 +214,7 @@ class HolidayCountryApplyUseCaseTest :
                 )
 
             When("전체 해제를 실행한다") {
-                val repository = hiddenKeySettingRepository(hiddenKeySet = setOf(unitedStatesHoliday.name.toHolidayKey()))
+                val repository = hiddenKeySettingRepository(hiddenKeySet = setOf(unitedStatesHoliday.name))
                 val submitted = slot<Set<String>>()
                 coEvery { repository.submitHiddenKeySet(hiddenKeySet = capture(submitted)) } returns Unit
 
@@ -226,12 +225,12 @@ class HolidayCountryApplyUseCaseTest :
                 )(parameter = Unit).shouldBeSuccess()
 
                 Then("숨김 key 집합이 한국 공휴일 key로 교체된다") {
-                    submitted.captured shouldBe setOf(koreaHoliday.name.toHolidayKey())
+                    submitted.captured shouldBe setOf(koreaHoliday.name)
                 }
             }
 
             When("쉬는 날만 선택을 실행한다") {
-                val repository = hiddenKeySettingRepository(hiddenKeySet = setOf(unitedStatesHoliday.name.toHolidayKey()))
+                val repository = hiddenKeySettingRepository(hiddenKeySet = setOf(unitedStatesHoliday.name))
                 val submitted = slot<Set<String>>()
                 coEvery { repository.submitHiddenKeySet(hiddenKeySet = capture(submitted)) } returns Unit
 
@@ -242,7 +241,7 @@ class HolidayCountryApplyUseCaseTest :
                 )(parameter = Unit).shouldBeSuccess()
 
                 Then("숨김 key 집합이 한국 공휴일 key로 교체된다") {
-                    submitted.captured shouldBe setOf(koreaHoliday.name.toHolidayKey())
+                    submitted.captured shouldBe setOf(koreaHoliday.name)
                 }
             }
         }
