@@ -5,18 +5,19 @@ import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.routing
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 
 internal class MapHttpServer private constructor(
     private val server: EmbeddedServer<*, *>,
     val url: String,
-) : AutoCloseable {
-    override fun close() {
-        server.stop()
+) {
+    suspend fun close() {
+        server.stopSuspend()
     }
 
     companion object {
-        fun start(routes: Routing.() -> Unit): MapHttpServer {
+        suspend fun start(routes: Routing.() -> Unit): MapHttpServer {
             val server =
                 embeddedServer(
                     factory = CIO,
@@ -27,21 +28,20 @@ internal class MapHttpServer private constructor(
                 }
 
             return try {
-                server.start()
+                server.startSuspend(wait = false)
                 val port =
-                    runBlocking {
-                        server.engine
-                            .resolvedConnectors()
-                            .single()
-                            .port
-                    }
+                    server.engine
+                        .resolvedConnectors()
+                        .single()
+                        .port
 
                 MapHttpServer(
                     server = server,
                     url = "http://localhost:$port/",
                 )
             } catch (throwable: Throwable) {
-                server.stop()
+                // 취소로 실패했어도 이미 뜬 서버는 닫아야 하므로 정리는 취소 없이 끝까지 실행한다.
+                withContext(NonCancellable) { server.stopSuspend() }
                 throw throwable
             }
         }

@@ -19,7 +19,7 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 
 internal object GoogleMapHttpServer {
-    fun start(
+    suspend fun start(
         camera: DiaryMapCamera?,
         spot: DiaryMapCoordinate? = null,
         isSpotSelectable: Boolean = false,
@@ -38,7 +38,7 @@ internal object GoogleMapHttpServer {
             isPinSelectable = isPinSelectable,
         )
 
-    fun start(
+    suspend fun start(
         apiKey: String,
         camera: DiaryMapCamera?,
         spot: DiaryMapCoordinate? = null,

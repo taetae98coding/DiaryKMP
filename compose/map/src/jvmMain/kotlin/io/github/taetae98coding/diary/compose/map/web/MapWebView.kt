@@ -12,7 +12,6 @@ import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.rememberDiaryMapState
 import io.github.taetae98coding.diary.library.webkit.WebKitWebViewPanel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,22 +20,20 @@ import kotlin.uuid.Uuid
 
 @Composable
 internal fun MapWebView(
-    startHttpServer: () -> MapHttpServer?,
+    startHttpServer: suspend () -> MapHttpServer?,
     modifier: Modifier = Modifier,
     state: DiaryMapState = rememberDiaryMapState(),
     onSpotClick: ((DiaryMapCoordinate) -> Unit)? = null,
     onPinClick: ((Uuid) -> Unit)? = null,
 ) {
-    // 서버 기동은 소켓 바인딩까지, 종료는 graceful shutdown까지 호출 스레드를 블로킹하므로
-    // composition 스레드(AWT EDT)에서 실행하지 않고 IO 스레드에서 실행한다.
     val httpServer by produceState<MapHttpServer?>(initialValue = null) {
         // 기동 중 화면 이탈로 취소되면 시작된 서버를 닫을 수 없으므로 기동은 취소 없이 끝까지 실행한다.
-        val server = withContext(NonCancellable + Dispatchers.IO) { startHttpServer() } ?: return@produceState
+        val server = withContext(NonCancellable) { startHttpServer() } ?: return@produceState
         value = server
         try {
             awaitCancellation()
         } finally {
-            withContext(NonCancellable + Dispatchers.IO) {
+            withContext(NonCancellable) {
                 server.close()
             }
         }

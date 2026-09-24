@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.compose.map.google
 
 import io.github.taetae98coding.diary.compose.map.DiaryMapCamera
+import io.github.taetae98coding.diary.compose.map.web.use
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe

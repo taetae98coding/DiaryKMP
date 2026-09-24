@@ -30,7 +30,7 @@ import io.ktor.server.routing.get
 import java.net.URLConnection
 
 internal object NaverMapHttpServer {
-    fun start(
+    suspend fun start(
         camera: DiaryMapCamera?,
         spot: DiaryMapCoordinate? = null,
         isSpotSelectable: Boolean = false,
@@ -49,7 +49,7 @@ internal object NaverMapHttpServer {
             isPinSelectable = isPinSelectable,
         )
 
-    fun start(
+    suspend fun start(
         ncpKeyId: String,
         camera: DiaryMapCamera?,
         spot: DiaryMapCoordinate? = null,
@@ -74,7 +74,7 @@ internal object NaverMapHttpServer {
         )
     }
 
-    fun start(
+    suspend fun start(
         html: String,
         naverMapsSdkLoader: () -> String,
         naverMapsProxyLoader: (String) -> String,
