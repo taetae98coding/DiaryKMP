@@ -18,6 +18,7 @@ kotlin {
             dependencies {
                 implementation(projects.compose.core)
                 implementation(projects.compose.permission)
+                implementation(projects.core.browserCookie.impl)
                 implementation(projects.core.database.impl)
                 implementation(projects.core.datastore.impl)
                 implementation(projects.core.fcm.impl)

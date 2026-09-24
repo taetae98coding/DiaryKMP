@@ -38,6 +38,12 @@ internal val MapSettingSerializer: SettingSerializer<MapSettingData> =
         defaultValue = MapSettingData(),
     )
 
+internal val BrowserSettingSerializer: SettingSerializer<BrowserSettingData> =
+    SettingSerializer(
+        serializer = BrowserSettingData.serializer(),
+        defaultValue = BrowserSettingData(),
+    )
+
 internal val HolidaySettingSerializer: SettingSerializer<HolidaySettingData> =
     SettingSerializer(
         serializer = HolidaySettingData.serializer(),

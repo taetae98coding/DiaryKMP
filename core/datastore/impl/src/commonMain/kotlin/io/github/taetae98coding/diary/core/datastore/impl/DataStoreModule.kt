@@ -4,6 +4,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.core.Storage
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.GeminiSettingLocalEntity
+import io.github.taetae98coding.diary.core.datastore.impl.di.BrowserSettingDataStore
+import io.github.taetae98coding.diary.core.datastore.impl.di.BrowserSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDispatcher
 import io.github.taetae98coding.diary.core.datastore.impl.di.GeminiSettingDataStore
 import io.github.taetae98coding.diary.core.datastore.impl.di.GeminiSettingStorage
@@ -52,6 +54,15 @@ public class DataStoreModule {
     ): DataStore<GeminiSettingLocalEntity> = createSettingDataStore(storage = storage, dispatcher = dispatcher, serializer = GeminiSettingSerializer)
 
     @Single
+    @BrowserSettingDataStore
+    internal fun providesBrowserSettingDataStore(
+        @BrowserSettingStorage
+        storage: Storage<BrowserSettingData>,
+        @DiarySettingDispatcher
+        dispatcher: CoroutineDispatcher,
+    ): DataStore<BrowserSettingData> = createSettingDataStore(storage = storage, dispatcher = dispatcher, serializer = BrowserSettingSerializer)
+
+    @Single
     @SyncTimeDataStore
     internal fun providesSyncTimeDataStore(
         @SyncTimeStorage
@@ -65,6 +76,7 @@ public class DataStoreModule {
         const val HOLIDAY_SETTING_NAME: String = "holiday-setting.json"
         const val GEMINI_SETTING_NAME: String = "gemini-setting.json"
         const val SYNC_TIME_NAME: String = "sync-time.json"
+        const val BROWSER_SETTING_NAME: String = "browser-setting.json"
     }
 }
 

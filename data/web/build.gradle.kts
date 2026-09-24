@@ -6,6 +6,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(projects.core.browserCookie.api)
                 implementation(projects.core.database.api)
                 implementation(projects.core.webNetwork.api)
                 implementation(projects.data.core)

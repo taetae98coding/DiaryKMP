@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.core.datastore.impl
 import androidx.datastore.core.Storage
 import androidx.datastore.core.okio.OkioStorage
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.GeminiSettingLocalEntity
+import io.github.taetae98coding.diary.core.datastore.impl.di.BrowserSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDispatcher
 import io.github.taetae98coding.diary.core.datastore.impl.di.GeminiSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.HolidaySettingStorage
@@ -50,6 +51,15 @@ public class NonWasmDataStoreModule {
             pathResolver = pathResolver,
             serializer = GeminiSettingSerializer,
             name = DataStoreModule.GEMINI_SETTING_NAME,
+        )
+
+    @Single
+    @BrowserSettingStorage
+    internal fun providesBrowserSettingStorage(pathResolver: SettingPathResolver): Storage<BrowserSettingData> =
+        createSettingStorage(
+            pathResolver = pathResolver,
+            serializer = BrowserSettingSerializer,
+            name = DataStoreModule.BROWSER_SETTING_NAME,
         )
 
     @Single

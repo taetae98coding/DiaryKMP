@@ -7,6 +7,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.domain.account)
+                implementation(projects.domain.setting)
                 implementation(projects.domain.sync)
                 api(libs.androidx.paging.common)
             }
