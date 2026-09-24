@@ -12,14 +12,12 @@ import io.github.taetae98coding.diary.work.musicdownload.state.MusicDownloadEven
 import io.github.taetae98coding.diary.work.musicdownload.state.MusicDownloadStateHolder
 import io.github.taetae98coding.diary.work.musicdownload.tool.DownloadToolPrepareResult
 import io.github.taetae98coding.diary.work.musicdownload.tool.DownloadToolPreparer
-import io.github.taetae98coding.diary.work.musicdownload.tool.YtDlpDownloader
+import io.github.taetae98coding.diary.work.musicdownload.tool.MusicDownloader
 import kotlinx.coroutines.CancellationException
-import org.koin.core.annotation.Factory
 
-@Factory
 internal class MusicDownloadWorkImpl(
     private val downloadToolPreparer: DownloadToolPreparer,
-    private val ytDlpDownloader: YtDlpDownloader,
+    private val musicDownloader: MusicDownloader,
     private val findMusicDownloadTargetUseCase: FindMusicDownloadTargetUseCase,
     private val appFileLocalDataSource: AppFileLocalDataSource,
     private val musicDownloadStateHolder: MusicDownloadStateHolder,
@@ -66,7 +64,7 @@ internal class MusicDownloadWorkImpl(
 
             val path = appFileLocalDataSource.resolve(directory = MUSIC_FILE_DIRECTORY, name = name)
             val isDownloaded =
-                ytDlpDownloader.download(
+                musicDownloader.download(
                     ytDlpPath = ytDlpPath,
                     link = target.link,
                     path = path,

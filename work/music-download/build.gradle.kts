@@ -9,13 +9,8 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(projects.domain.playlist)
-            }
-        }
-
-        jvmMain {
-            dependencies {
                 implementation(projects.core.file.api)
+                implementation(projects.domain.playlist)
                 implementation(projects.logger.console.api)
             }
         }

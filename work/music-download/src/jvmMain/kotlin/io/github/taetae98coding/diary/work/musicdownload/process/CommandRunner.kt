@@ -1,15 +1,16 @@
 package io.github.taetae98coding.diary.work.musicdownload.process
 
-import kotlinx.coroutines.Dispatchers
+import io.github.taetae98coding.diary.work.musicdownload.di.MusicDownloadDispatcher
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Factory
 import java.io.File
 import kotlin.coroutines.coroutineContext
 
-/**
- * GUI로 실행한 앱은 사용자의 셸 PATH를 물려받지 않으므로 Homebrew가 설치하는 자리를 직접 확인한다.
- */
+internal const val SUCCESS_EXIT_CODE: Int = 0
+
+// GUI로 실행한 앱은 사용자의 셸 PATH를 물려받지 않으므로 Homebrew가 설치하는 자리를 직접 확인한다.
 private val LOOKUP_DIRECTORY_LIST =
     listOf(
         "/opt/homebrew/bin",
@@ -19,7 +20,9 @@ private val LOOKUP_DIRECTORY_LIST =
     )
 
 @Factory
-internal class CommandRunner {
+internal class CommandRunner(
+    @param:MusicDownloadDispatcher private val dispatcher: CoroutineDispatcher,
+) {
     fun find(command: String): String? =
         LOOKUP_DIRECTORY_LIST
             .asSequence()
@@ -31,7 +34,7 @@ internal class CommandRunner {
         commandList: List<String>,
         onLine: suspend (String) -> Unit = {},
     ): Int =
-        withContext(Dispatchers.IO) {
+        withContext(dispatcher) {
             val process =
                 ProcessBuilder(commandList)
                     .redirectErrorStream(true)

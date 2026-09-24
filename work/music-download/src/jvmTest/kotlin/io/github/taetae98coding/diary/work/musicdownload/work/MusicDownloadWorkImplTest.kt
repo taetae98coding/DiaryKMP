@@ -11,7 +11,7 @@ import io.github.taetae98coding.diary.work.musicdownload.state.MusicDownloadEven
 import io.github.taetae98coding.diary.work.musicdownload.state.MusicDownloadStateHolder
 import io.github.taetae98coding.diary.work.musicdownload.tool.DownloadToolPrepareResult
 import io.github.taetae98coding.diary.work.musicdownload.tool.DownloadToolPreparer
-import io.github.taetae98coding.diary.work.musicdownload.tool.YtDlpDownloader
+import io.github.taetae98coding.diary.work.musicdownload.tool.MusicDownloader
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -32,7 +32,7 @@ class MusicDownloadWorkImplTest :
                     val target = testDownloadTarget()
                     val eventHolder = MusicDownloadEventHolder()
                     val downloader = succeedingDownloader()
-                    val work = work(targetList = listOf(target), ytDlpDownloader = downloader, musicDownloadEventHolder = eventHolder)
+                    val work = work(targetList = listOf(target), musicDownloader = downloader, musicDownloadEventHolder = eventHolder)
 
                     work.doWork(sort = ListSort.TITLE)
 
@@ -62,7 +62,7 @@ class MusicDownloadWorkImplTest :
                     val work =
                         work(
                             downloadToolPreparer = preparer(result = DownloadToolPrepareResult.NotInstalled),
-                            ytDlpDownloader = downloader,
+                            musicDownloader = downloader,
                             musicDownloadStateHolder = holder,
                             musicDownloadEventHolder = eventHolder,
                         )
@@ -101,7 +101,7 @@ class MusicDownloadWorkImplTest :
                     val work =
                         work(
                             downloadToolPreparer = preparer(result = DownloadToolPrepareResult.Failed),
-                            ytDlpDownloader = downloader,
+                            musicDownloader = downloader,
                             musicDownloadStateHolder = holder,
                             musicDownloadEventHolder = eventHolder,
                         )
@@ -125,14 +125,14 @@ class MusicDownloadWorkImplTest :
                     val second = testDownloadTarget()
                     val third = testDownloadTarget()
                     val linkList = mutableListOf<String>()
-                    val downloader = mockk<YtDlpDownloader>()
+                    val downloader = mockk<MusicDownloader>()
                     coEvery { downloader.download(ytDlpPath = any(), link = any(), path = any(), onProgress = any()) } coAnswers
                         {
                             linkList += secondArg<String>()
                             true
                         }
 
-                    val work = work(targetList = listOf(first, second, third), ytDlpDownloader = downloader)
+                    val work = work(targetList = listOf(first, second, third), musicDownloader = downloader)
 
                     work.doWork(sort = ListSort.TITLE)
 
@@ -144,7 +144,7 @@ class MusicDownloadWorkImplTest :
                     val second = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
                     var pendingSnapshot: Map<Uuid, MusicDownloadState> = emptyMap()
-                    val downloader = mockk<YtDlpDownloader>()
+                    val downloader = mockk<MusicDownloader>()
                     coEvery { downloader.download(ytDlpPath = any(), link = first.link, path = any(), onProgress = any()) } coAnswers
                         {
                             pendingSnapshot = holder.stateMap.value
@@ -152,7 +152,7 @@ class MusicDownloadWorkImplTest :
                         }
                     coEvery { downloader.download(ytDlpPath = any(), link = second.link, path = any(), onProgress = any()) } returns true
 
-                    val work = work(targetList = listOf(first, second), ytDlpDownloader = downloader, musicDownloadStateHolder = holder)
+                    val work = work(targetList = listOf(first, second), musicDownloader = downloader, musicDownloadStateHolder = holder)
 
                     work.doWork(sort = ListSort.TITLE)
 
@@ -167,7 +167,7 @@ class MusicDownloadWorkImplTest :
                     val target = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
                     var runningSnapshot: MusicDownloadState? = null
-                    val downloader = mockk<YtDlpDownloader>()
+                    val downloader = mockk<MusicDownloader>()
                     coEvery { downloader.download(ytDlpPath = any(), link = any(), path = any(), onProgress = any()) } coAnswers
                         {
                             arg<suspend (Float) -> Unit>(PROGRESS_ARGUMENT_INDEX).invoke(0.62F)
@@ -175,7 +175,7 @@ class MusicDownloadWorkImplTest :
                             true
                         }
 
-                    val work = work(targetList = listOf(target), ytDlpDownloader = downloader, musicDownloadStateHolder = holder)
+                    val work = work(targetList = listOf(target), musicDownloader = downloader, musicDownloadStateHolder = holder)
 
                     work.doWork(sort = ListSort.TITLE)
 
@@ -200,7 +200,7 @@ class MusicDownloadWorkImplTest :
                     val target = testDownloadTarget()
                     val downloader = succeedingDownloader()
                     val fileDataSource = fileDataSource(exists = false)
-                    val work = work(targetList = listOf(target), ytDlpDownloader = downloader, appFileLocalDataSource = fileDataSource)
+                    val work = work(targetList = listOf(target), musicDownloader = downloader, appFileLocalDataSource = fileDataSource)
 
                     work.doWork(sort = ListSort.TITLE)
 
@@ -249,7 +249,7 @@ class MusicDownloadWorkImplTest :
                     val work =
                         work(
                             targetList = listOf(target),
-                            ytDlpDownloader = downloader,
+                            musicDownloader = downloader,
                             appFileLocalDataSource = fileDataSource(exists = true),
                             musicDownloadStateHolder = holder,
                         )
@@ -267,7 +267,7 @@ class MusicDownloadWorkImplTest :
                 Then("TC-MUSIC-DOWNLOAD-FEATURE-004 그 곡이 실패 상태가 된다") {
                     val target = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
-                    val work = work(targetList = listOf(target), ytDlpDownloader = failingDownloader(), musicDownloadStateHolder = holder)
+                    val work = work(targetList = listOf(target), musicDownloader = failingDownloader(), musicDownloadStateHolder = holder)
 
                     work.doWork(sort = ListSort.TITLE)
 
@@ -277,11 +277,11 @@ class MusicDownloadWorkImplTest :
                 Then("TC-MUSIC-DOWNLOAD-FEATURE-004 내려받기가 예외로 끝나도 실패 상태가 된다") {
                     val target = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
-                    val downloader = mockk<YtDlpDownloader>()
+                    val downloader = mockk<MusicDownloader>()
                     coEvery { downloader.download(ytDlpPath = any(), link = any(), path = any(), onProgress = any()) } throws
                         IllegalStateException("process failed")
 
-                    val work = work(targetList = listOf(target), ytDlpDownloader = downloader, musicDownloadStateHolder = holder)
+                    val work = work(targetList = listOf(target), musicDownloader = downloader, musicDownloadStateHolder = holder)
 
                     work.doWork(sort = ListSort.TITLE)
 
@@ -294,7 +294,7 @@ class MusicDownloadWorkImplTest :
                     val work =
                         work(
                             targetList = listOf(target),
-                            ytDlpDownloader = failingDownloader(),
+                            musicDownloader = failingDownloader(),
                             appFileLocalDataSource = fileDataSource,
                         )
 
@@ -312,7 +312,7 @@ class MusicDownloadWorkImplTest :
                     val second = testDownloadTarget()
                     val third = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
-                    val downloader = mockk<YtDlpDownloader>()
+                    val downloader = mockk<MusicDownloader>()
                     coEvery { downloader.download(ytDlpPath = any(), link = first.link, path = any(), onProgress = any()) } returns false
                     coEvery { downloader.download(ytDlpPath = any(), link = second.link, path = any(), onProgress = any()) } returns true
                     coEvery { downloader.download(ytDlpPath = any(), link = third.link, path = any(), onProgress = any()) } returns true
@@ -320,7 +320,7 @@ class MusicDownloadWorkImplTest :
                     val work =
                         work(
                             targetList = listOf(first, second, third),
-                            ytDlpDownloader = downloader,
+                            musicDownloader = downloader,
                             musicDownloadStateHolder = holder,
                         )
 
@@ -349,7 +349,7 @@ class MusicDownloadWorkImplTest :
                     val work =
                         work(
                             targetList = listOf(downloaded, notDownloaded),
-                            ytDlpDownloader = downloader,
+                            musicDownloader = downloader,
                             appFileLocalDataSource = fileDataSource,
                             musicDownloadStateHolder = holder,
                         )
@@ -373,7 +373,7 @@ class MusicDownloadWorkImplTest :
                     val targetList = mutableListOf(target)
                     val findMusicDownloadTargetUseCase = mockk<FindMusicDownloadTargetUseCase>()
                     coEvery { findMusicDownloadTargetUseCase(parameter = any()) } returns Result.success(targetList.toList())
-                    val downloader = mockk<YtDlpDownloader>()
+                    val downloader = mockk<MusicDownloader>()
                     coEvery { downloader.download(ytDlpPath = any(), link = any(), path = any(), onProgress = any()) } coAnswers
                         {
                             targetList += added
@@ -383,7 +383,7 @@ class MusicDownloadWorkImplTest :
                     val work =
                         work(
                             findMusicDownloadTargetUseCase = findMusicDownloadTargetUseCase,
-                            ytDlpDownloader = downloader,
+                            musicDownloader = downloader,
                             musicDownloadStateHolder = holder,
                         )
 
@@ -399,7 +399,7 @@ class MusicDownloadWorkImplTest :
                 Then("TC-MUSIC-DOWNLOAD-DOMAIN-007 아무것도 받지 않고 끝난다") {
                     val holder = MusicDownloadStateHolder()
                     val downloader = succeedingDownloader()
-                    val work = work(targetList = emptyList(), ytDlpDownloader = downloader, musicDownloadStateHolder = holder)
+                    val work = work(targetList = emptyList(), musicDownloader = downloader, musicDownloadStateHolder = holder)
 
                     work.doWork(sort = ListSort.TITLE)
 
@@ -433,15 +433,15 @@ private fun preparer(result: DownloadToolPrepareResult = DownloadToolPrepareResu
     return preparer
 }
 
-private fun succeedingDownloader(): YtDlpDownloader {
-    val downloader = mockk<YtDlpDownloader>()
+private fun succeedingDownloader(): MusicDownloader {
+    val downloader = mockk<MusicDownloader>()
     coEvery { downloader.download(ytDlpPath = any(), link = any(), path = any(), onProgress = any()) } returns true
 
     return downloader
 }
 
-private fun failingDownloader(): YtDlpDownloader {
-    val downloader = mockk<YtDlpDownloader>()
+private fun failingDownloader(): MusicDownloader {
+    val downloader = mockk<MusicDownloader>()
     coEvery { downloader.download(ytDlpPath = any(), link = any(), path = any(), onProgress = any()) } returns false
 
     return downloader
@@ -463,14 +463,14 @@ private fun work(
         mockk<FindMusicDownloadTargetUseCase>().apply {
             coEvery { this@apply(parameter = any()) } returns Result.success(targetList)
         },
-    ytDlpDownloader: YtDlpDownloader = succeedingDownloader(),
+    musicDownloader: MusicDownloader = succeedingDownloader(),
     appFileLocalDataSource: AppFileLocalDataSource = fileDataSource(exists = false),
     musicDownloadStateHolder: MusicDownloadStateHolder = MusicDownloadStateHolder(),
     musicDownloadEventHolder: MusicDownloadEventHolder = MusicDownloadEventHolder(),
 ): MusicDownloadWorkImpl =
     MusicDownloadWorkImpl(
         downloadToolPreparer = downloadToolPreparer,
-        ytDlpDownloader = ytDlpDownloader,
+        musicDownloader = musicDownloader,
         findMusicDownloadTargetUseCase = findMusicDownloadTargetUseCase,
         appFileLocalDataSource = appFileLocalDataSource,
         musicDownloadStateHolder = musicDownloadStateHolder,

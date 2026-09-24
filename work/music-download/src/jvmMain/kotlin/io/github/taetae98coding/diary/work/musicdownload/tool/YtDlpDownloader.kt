@@ -1,15 +1,14 @@
 package io.github.taetae98coding.diary.work.musicdownload.tool
 
 import io.github.taetae98coding.diary.work.musicdownload.process.CommandRunner
+import io.github.taetae98coding.diary.work.musicdownload.process.SUCCESS_EXIT_CODE
 import org.koin.core.annotation.Factory
-
-private const val SUCCESS_EXIT_CODE = 0
 
 @Factory
 internal class YtDlpDownloader(
     private val commandRunner: CommandRunner,
-) {
-    suspend fun download(
+) : MusicDownloader {
+    override suspend fun download(
         ytDlpPath: String,
         link: String,
         path: String,
