@@ -331,7 +331,7 @@ dataStore.updateData { setting -> setting.copy(mapDefaultProvider = provider.per
 
 ## Dispatcher 주입
 
-**Koin이 만드는 클래스에서 blocking 작업을 코루틴 밖 스레드로 옮길 때 `Dispatchers.IO`·`Dispatchers.Default`를 직접 참조하지 않고, `CoroutineDispatcher`를 생성자로 주입받아 `withContext(dispatcher)`로 쓴다.** `core:*:impl`, `data:*`, `work:*`, `notification`의 DataSource, Repository, Work, 변환기가 대상이다.
+**Koin이 만드는 클래스에서 blocking 작업을 코루틴 밖 스레드로 옮길 때 `Dispatchers.IO`·`Dispatchers.Default`를 직접 참조하지 않고, `CoroutineDispatcher`를 생성자로 주입받아 `withContext(dispatcher)`로 쓴다.** `core:*:impl`, `data:*`, `work:*`의 DataSource, Repository, Work, 변환기가 대상이다.
 
 직접 참조하면 테스트가 dispatcher를 바꿔 넣을 수 없고, 어느 dispatcher를 쓸지가 구현 클래스마다 흩어져 플랫폼별로 다르게 정할 수 없다. 예를 들어 파일 읽기는 Android·JVM·iOS에서는 `Dispatchers.IO`로 옮기지만 wasm에는 `IO`가 없어 다른 dispatcher를 써야 한다. 이 선택은 구현 클래스가 아니라 플랫폼 소스셋의 Koin 모듈이 소유한다.
 

@@ -1,0 +1,4 @@
+<resources>
+    <string name="daily_memo_notification_channel_name">Daily memo reminder</string>
+    <string name="daily_memo_notification_channel_description">Reminds you every morning to check today\'s memos.</string>
+</resources>

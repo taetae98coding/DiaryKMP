@@ -2,19 +2,17 @@
 
 ## core와 data, work의 책임 경계
 
-`core:*`와 `notification`은 메커니즘을 감싸는 계층이고, `data:*`와 `work:*`는 그 메커니즘으로 무엇을 어떤 순서로 주고받을지 정하는 계층이다.
+`core:*`는 메커니즘을 감싸는 계층이고, `data:*`와 `work:*`는 그 메커니즘으로 무엇을 어떤 순서로 주고받을지 정하는 계층이다.
 
-- `core:*`는 저장소·네트워크·플랫폼 기능을 호출할 수 있는 상태로 만들어 주기까지만 한다. DAO, HttpClient, 위치 제공자가 여기 속한다. `notification`은 알림을 게시하는 수단만 갖는 같은 성격의 모듈이다.
+- `core:*`는 저장소·네트워크·플랫폼 기능을 호출할 수 있는 상태로 만들어 주기까지만 한다. DAO, HttpClient, 위치 제공자, FCM 토큰 제공자가 여기 속한다.
 - `data:*`는 그 DataSource들을 조합해 domain이 선언한 Repository·Manager 계약을 구현한다. 어떤 종류를 어떤 순서로 올려보내고 내려받는지, 몇 개씩 나눠 보내는지, 커서를 언제 전진시키는지는 data가 소유한다.
-- `work:*`는 백그라운드에서 실행되는 작업 하나를 기능 단위로 소유한다. domain 계약 구현, 작업 내용, 그 작업을 플랫폼이 깨우는 수단을 한 모듈에 둔다. `work:sync`는 동기화, `work:daily-memo`는 일일 메모 알림이다.
+- `work:*`는 백그라운드에서 실행되는 작업 하나를 기능 단위로 소유한다. domain 계약 구현, 작업 내용, 그 작업을 플랫폼이 깨우는 수단을 한 모듈에 둔다. `work:sync`는 동기화, `work:music-download`는 음악 내려받기다.
 
 `work:*` 안에서는 플랫폼 실행 수단(`WorkManager`, `BGTaskScheduler`, 코루틴 타이머)을 플랫폼 소스셋에, 작업 내용과 domain 계약 구현을 `commonMain`에 둔다. `androidMain`은 `commonMain`을 볼 수 있지만 반대는 컴파일되지 않으므로, 실행 수단이 작업 내용에 의존하고 작업 내용은 실행 수단을 모르는 방향을 소스셋이 강제한다. 예: `work:sync`의 `SyncWorkImpl`은 `commonMain`에 있고, `androidMain`의 `SyncWorker`·`AndroidSyncWorkScheduler`는 그 작업을 실행하고 예약만 한다.
 
 `WorkManager`를 감싸는 범용 실행 모듈은 두지 않는다. 작업마다 예약 정책, 제약, 상태 관찰 요구가 달라 공통 계약이 `WorkManager`의 표면을 다시 쓰는 것이 되고, 실제로 공유되는 코드는 `CoroutineWorker` 상속 정도다. 세 번째 작업이 같은 보일러플레이트를 반복하게 되면 그때 Android 전용 위임 Worker를 분리한다.
 
 실행 수단을 어떻게 쓰는지(실패 처리, 고유 작업 정책, 제약, `BGTask` 등록)는 [work.md](work.md)가 소유한다.
-
-iOS는 정해진 시각에 앱 코드를 깨우는 대신 알림 자체를 미리 등록하므로, 전달 시각 예약은 `notification`이 소유하고 `work:*`의 `iosMain`은 그 수단을 쓴다.
 
 `core:*`가 `core:database:api`와 `core:network:api`를 함께 참조하고 있으면 그 모듈은 data 책임을 들고 있는 것이므로 `data:*`나 `work:*`로 옮긴다.
 
@@ -24,7 +22,7 @@ iOS는 정해진 시각에 앱 코드를 깨우는 대신 알림 자체를 미�
 
 어느 쪽을 주입할지는 필요한 것이 정책인지 데이터 조작인지로 가른다.
 
-- 정책 판단이 필요하면 UseCase를 주입한다. 판단의 결론이 UseCase 안에서 정해지고 `work:*`는 그 결론만 쓰는 경우다. 계정 상태 판정, 노출 조건, 기본값 결정이 여기 속한다. 예: `work:daily-memo`는 알릴 메모를 고를 때 `GetDailyMemoUseCase`를 쓴다.
+- 정책 판단이 필요하면 UseCase를 주입한다. 판단의 결론이 UseCase 안에서 정해지고 `work:*`는 그 결론만 쓰는 경우다. 계정 상태 판정, 노출 조건, 기본값 결정이 여기 속한다.
 - 저장소나 원격에 값을 읽고 쓰기만 하면 Repository나 DataSource를 주입한다. 업로드 대기 항목 조회, 커서 갱신, 로컬↔원격 엔티티 변환이 여기 속한다.
 - 종류별 push·pull 순서, 청크 크기, 커서를 언제 전진시키는지는 정책이 아니라 저장소·원격 사정(외래 키 순서, 요청 크기 제한, 페이지 단위)에서 나오는 데이터 조작 절차다. `work:*`가 DataSource 위에서 직접 소유한다. 이 절차를 UseCase로 올리면 domain이 커서와 청크라는 data 구현을 알게 되어 [domain.md](domain.md)의 `sync·fetch·refresh 어휘` 절이 막는 방향으로 계약이 뒤집힌다.
 
@@ -51,14 +49,14 @@ iOS는 정해진 시각에 앱 코드를 깨우는 대신 알림 자체를 미�
 
 ### DataSource 연산 이름
 
-`core:*`의 DataSource·Transaction과 `notification`의 수단은 저장소나 원격에 쓰는 연산을 `upsert`로 부른다. 행 하나를 넣거나 갱신하는 연산과 집합 전체를 한 번에 교체하는 연산이 모두 여기 속한다. data 계층에서는 저장 방식이 쓰기 결과를 정하므로, 지우고 다시 넣는 교체도 호출자 입장에서는 "이 값으로 저장된 상태가 된다"는 한 가지 결과이기 때문이다.
+`core:*`의 DataSource·Transaction은 저장소나 원격에 쓰는 연산을 `upsert`로 부른다. 행 하나를 넣거나 갱신하는 연산과 집합 전체를 한 번에 교체하는 연산이 모두 여기 속한다. data 계층에서는 저장 방식이 쓰기 결과를 정하므로, 지우고 다시 넣는 교체도 호출자 입장에서는 "이 값으로 저장된 상태가 된다"는 한 가지 결과이기 때문이다.
 
 `submit`은 [domain.md](domain.md)의 `UseCase·Repository 네이밍`이 정한 domain 어휘다. Repository가 집합 전체 교체를 `submitXxx`로 선언하면, 그것을 구현하는 `data:*`는 DataSource의 `upsertXxx`로 옮긴다. DataSource나 Transaction에 `submit`을 쓰지 않는다.
 
 | 계층 | 집합 전체 교체 | 예 |
 | --- | --- | --- |
 | `domain:*` Repository | `submitXxx` | `HolidaySettingRepository.submitHiddenKeySet` |
-| `core:*` DataSource·Transaction, `notification` | `upsertXxx` / `upsert` | `HolidaySettingLocalDataSource.upsertHiddenKeySet`, `HolidayTransaction.upsert`, `LocalNotificationScheduler.upsert` |
+| `core:*` DataSource·Transaction | `upsertXxx` / `upsert` | `HolidaySettingLocalDataSource.upsertHiddenKeySet`, `HolidayTransaction.upsert` |
 
 외부 API, 플랫폼, 서버 함수의 이름은 그 계약을 그대로 따른다. 예: `BGTaskScheduler.submit`, Supabase 함수 `v1-fcm-token-submit`.
 

@@ -5,11 +5,18 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 plugins {
     alias(libs.plugins.primitive.kmp)
     alias(libs.plugins.primitive.android.library)
+    alias(libs.plugins.primitive.android.host.test)
     alias(libs.plugins.primitive.koin)
     alias(libs.plugins.primitive.kotest)
 }
 
 kotlin {
+    android {
+        androidResources {
+            enable = true
+        }
+    }
+
     swiftPMDependencies {
         iosMinimumDeploymentTarget.set("26.5")
         swiftPackage(
@@ -37,6 +44,7 @@ kotlin {
                 implementation(project.dependencies.platform(libs.firebase.bom))
                 implementation(libs.firebase.messaging)
                 implementation(libs.kotlinx.coroutines.play.services)
+                implementation(libs.androidx.startup.runtime)
             }
         }
     }

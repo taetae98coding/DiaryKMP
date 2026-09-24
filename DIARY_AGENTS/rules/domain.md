@@ -137,19 +137,19 @@ UseCase가 다른 domain 모듈에서 무엇을 주입받을지는 [data.md](dat
 
 ```kotlin
 // GetAccountUseCase가 가진 Account 판정 정책을 memo에서 다시 조합한다.
-public class GetDailyMemoUseCase internal constructor(
+public class GetCalendarMemoUseCase internal constructor(
     private val sessionRepository: SessionRepository,
     private val userDataRepository: UserDataRepository,
-    private val accountDailyMemoRepository: AccountDailyMemoRepository,
+    private val accountCalendarMemoRepository: AccountCalendarMemoRepository,
 )
 ```
 
 ✅ 권장 예시:
 
 ```kotlin
-public class GetDailyMemoUseCase internal constructor(
+public class GetCalendarMemoUseCase internal constructor(
     private val getAccountUseCase: GetAccountUseCase,
-    private val accountDailyMemoRepository: AccountDailyMemoRepository,
+    private val accountCalendarMemoRepository: AccountCalendarMemoRepository,
 )
 ```
 

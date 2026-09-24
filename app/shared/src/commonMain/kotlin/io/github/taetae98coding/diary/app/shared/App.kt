@@ -7,7 +7,6 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.taetae98coding.diary.app.shared.analytics.ScreenViewEffect
 import io.github.taetae98coding.diary.app.shared.fcm.SubmitFcmTokenEffect
-import io.github.taetae98coding.diary.app.shared.notification.ScheduleDailyMemoNotificationEffect
 import io.github.taetae98coding.diary.app.shared.scaffold.AppScaffold
 import io.github.taetae98coding.diary.compose.core.image.DiaryImageLoaderEffect
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -20,7 +19,6 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 public fun App(modifier: Modifier = Modifier) {
     val syncViewModel = koinViewModel<AppSyncViewModel>()
-    val notificationViewModel = koinViewModel<AppDailyMemoNotificationViewModel>()
     val fcmTokenViewModel = koinViewModel<AppFcmTokenViewModel>()
     val chromeSessionViewModel = koinViewModel<AppChromeSessionViewModel>()
     val appState = rememberAppState()
@@ -30,11 +28,6 @@ public fun App(modifier: Modifier = Modifier) {
     RequestPermissionEffect(
         permission = Permission.NOTIFICATION,
         onResult = {},
-    )
-    ScheduleDailyMemoNotificationEffect(
-        schedule = notificationViewModel::schedule,
-        submitUpcoming = notificationViewModel::submitUpcoming,
-        upcoming = notificationViewModel.upcoming,
     )
     SyncEffect(
         requestSync = syncViewModel::requestSync,

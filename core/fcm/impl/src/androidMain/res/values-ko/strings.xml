@@ -1,0 +1,4 @@
+<resources>
+    <string name="daily_memo_notification_channel_name">일일 메모 알림</string>
+    <string name="daily_memo_notification_channel_description">매일 아침 오늘의 메모를 확인하도록 안내합니다.</string>
+</resources>

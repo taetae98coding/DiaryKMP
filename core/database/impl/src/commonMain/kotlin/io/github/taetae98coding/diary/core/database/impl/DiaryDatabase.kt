@@ -30,7 +30,6 @@ import io.github.taetae98coding.diary.core.database.impl.converter.ContactBirthd
 import io.github.taetae98coding.diary.core.database.impl.converter.ContactPhoneNumberListColumnTypeConverter
 import io.github.taetae98coding.diary.core.database.impl.converter.WebHeaderListColumnTypeConverter
 import io.github.taetae98coding.diary.core.database.impl.memo.dao.AccountCalendarMemoDao
-import io.github.taetae98coding.diary.core.database.impl.memo.dao.AccountDailyMemoDao
 import io.github.taetae98coding.diary.core.database.impl.memo.dao.AccountMemoDao
 import io.github.taetae98coding.diary.core.database.impl.memo.dao.AccountMemoSyncDao
 import io.github.taetae98coding.diary.core.database.impl.memo.dao.AccountTagMemoDao
@@ -154,8 +153,6 @@ internal abstract class DiaryDatabase : RoomDatabase() {
     abstract fun accountTagMemoDao(): AccountTagMemoDao
 
     abstract fun accountCalendarMemoDao(): AccountCalendarMemoDao
-
-    abstract fun accountDailyMemoDao(): AccountDailyMemoDao
 
     abstract fun accountMemoSyncDao(): AccountMemoSyncDao
 

@@ -107,14 +107,14 @@ ViewModel의 `init` 블록에서 UseCase 호출이나 Flow collect 같은 작업
 
 **아래 계층이 멱등한 연산을 위임받는 시작 함수에는 가드를 두지 않는다.** 위임받은 쪽이 "이미 있으면 그대로 둔다"를 보장하면 시작 함수를 다시 불러도 다시 시작되는 작업이 없어 이 절의 요구가 이미 충족된다. 여기에 ViewModel 플래그를 더하면 같은 보장이 두 곳으로 갈라지고, 아래 계층의 멱등성이 깨져도 ViewModel 테스트가 통과해 회귀를 알려주지 못한다.
 
-✅ 권장 예시 — 일일 메모 알림 예약은 WorkManager의 `KEEP`, iOS의 동일 식별자 재등록, 타이머 예약기의 진행 중 job 검사가 예약을 하나로 유지하므로 ViewModel은 요청을 삼키지 않는다:
+✅ 권장 예시 — 주기 동기화 예약은 WorkManager의 `KEEP`, iOS의 동일 식별자 재등록, 타이머 예약기의 진행 중 job 검사가 예약을 하나로 유지하므로 ViewModel은 요청을 삼키지 않는다:
 
 ```kotlin
-internal class AppDailyMemoNotificationViewModel(
-    private val scheduleDailyMemoNotificationUseCase: ScheduleDailyMemoNotificationUseCase,
+internal class AppSyncViewModel(
+    private val schedulePeriodicSyncUseCase: SchedulePeriodicSyncUseCase,
 ) : ViewModel() {
-    fun schedule() {
-        viewModelScope.launch { scheduleDailyMemoNotificationUseCase(parameter = Unit) }
+    fun schedulePeriodicSync() {
+        viewModelScope.launch { schedulePeriodicSyncUseCase(parameter = Unit) }
     }
 }
 ```
