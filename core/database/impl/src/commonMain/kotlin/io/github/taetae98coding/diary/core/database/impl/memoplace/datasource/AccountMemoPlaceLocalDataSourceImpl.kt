@@ -19,4 +19,13 @@ internal class AccountMemoPlaceLocalDataSourceImpl(
             accountId = accountId,
             memoId = memoId,
         )
+
+    override suspend fun findPlaceIdList(
+        accountId: Uuid,
+        memoId: Uuid,
+    ): List<Uuid> =
+        database.accountMemoPlaceDao().findPlaceIdList(
+            accountId = accountId,
+            memoId = memoId,
+        )
 }

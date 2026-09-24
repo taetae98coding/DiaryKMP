@@ -4,6 +4,7 @@ import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoContactRepository
+import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoPlaceRepository
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoRepository
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoTagRepository
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoWebRepository
@@ -23,6 +24,7 @@ public class CopyMemoUseCase internal constructor(
     private val accountMemoTagRepository: AccountMemoTagRepository,
     private val accountMemoWebRepository: AccountMemoWebRepository,
     private val accountMemoContactRepository: AccountMemoContactRepository,
+    private val accountMemoPlaceRepository: AccountMemoPlaceRepository,
     private val clock: Clock,
 ) : UseCase<Uuid, Uuid>() {
     override suspend fun execute(parameter: Uuid): Uuid {
@@ -44,6 +46,11 @@ public class CopyMemoUseCase internal constructor(
                 account = account,
                 memoId = source.id,
             )
+        val placeIdSet =
+            accountMemoPlaceRepository.findPlaceIdSet(
+                account = account,
+                memoId = source.id,
+            )
         val memo =
             Memo(
                 id = Uuid.random(),
@@ -59,6 +66,7 @@ public class CopyMemoUseCase internal constructor(
             account = account,
             memo = memo,
             tagIdSet = tagIdSet,
+            placeIdSet = placeIdSet,
             webIdSet = webIdSet,
             contactIdSet = contactIdSet,
         )

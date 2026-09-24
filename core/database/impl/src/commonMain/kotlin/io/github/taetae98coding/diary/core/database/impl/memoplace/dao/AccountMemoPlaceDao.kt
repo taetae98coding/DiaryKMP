@@ -37,6 +37,22 @@ internal interface AccountMemoPlaceDao : RoomDao<AccountMemoPlaceLocalEntity> {
 
     @Query(
         """
+        SELECT memo_place.place_id
+        FROM memo_place
+        INNER JOIN account_memo_place
+            ON account_memo_place.memo_id = memo_place.memo_id
+                AND account_memo_place.place_id = memo_place.place_id
+                AND account_memo_place.account_id = :accountId
+        WHERE memo_place.memo_id = :memoId AND memo_place.is_deleted = 0
+        """,
+    )
+    suspend fun findPlaceIdList(
+        accountId: Uuid,
+        memoId: Uuid,
+    ): List<Uuid>
+
+    @Query(
+        """
         UPDATE account_memo_place
         SET is_dirty = 1
         WHERE account_id = :accountId AND memo_id = :memoId AND place_id = :placeId

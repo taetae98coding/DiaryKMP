@@ -9,4 +9,9 @@ public interface AccountMemoPlaceLocalDataSource {
         accountId: Uuid,
         memoId: Uuid,
     ): Flow<List<PlaceLocalEntity>>
+
+    public suspend fun findPlaceIdList(
+        accountId: Uuid,
+        memoId: Uuid,
+    ): List<Uuid>
 }

@@ -396,6 +396,77 @@ class AccountMemoPlaceTransactionImplTest :
             getPlaceList(accountId = accountId, memoId = memo.id) shouldBe listOf(place)
         }
 
+        suspend fun copyMemoWithPlace(
+            accountId: Uuid,
+            sourceId: Uuid,
+            copy: MemoLocalEntity,
+        ): Set<Uuid> {
+            val sourcePlaceIdSet =
+                dataSource
+                    .findPlaceIdList(accountId = accountId, memoId = sourceId)
+                    .toSet()
+            memoTransaction.upsert(
+                accountId = accountId,
+                memoList = listOf(copy),
+                memoTagList = emptyList(),
+                memoPlaceList = sourcePlaceIdSet.map { placeId -> memoPlace(memoId = copy.id, placeId = placeId, memo = copy) },
+            )
+            return sourcePlaceIdSet
+        }
+
+        test("TC-MEMO-DETAIL-DATA-039 복사본에 원본의 해제되지 않은 장소 연결만 복사 시점으로 저장된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val source = memo()
+            val keptPlaceList = List(2) { place() }
+            val removedPlace = place()
+            insertMemoWithPlaceList(accountId = accountId, memo = source, placeList = keptPlaceList + removedPlace)
+            accountMemoPlaceTransaction.upsert(accountId = accountId, memoId = source.id, placeId = removedPlace.id, isDeleted = true, updatedAt = instant())
+            val copiedAt = instant()
+            val copy = memo().copy(updatedAt = copiedAt, createdAt = copiedAt)
+
+            val sourcePlaceIdSet = copyMemoWithPlace(accountId = accountId, sourceId = source.id, copy = copy)
+
+            sourcePlaceIdSet shouldBe keptPlaceList.map { place -> place.id }.toSet()
+            findMemoPlaceList(memoId = copy.id) shouldContainExactlyInAnyOrder
+                keptPlaceList.map { place ->
+                    MemoPlaceLocalEntity(
+                        memoId = copy.id,
+                        placeId = place.id,
+                        isDeleted = false,
+                        updatedAt = copiedAt,
+                        createdAt = copiedAt,
+                    )
+                }
+        }
+
+        test("TC-MEMO-DETAIL-DATA-040 삭제된 장소를 가리키는 원본 연결도 복사본에 만들어진다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val source = memo()
+            val deletedPlace = place()
+            insertMemoWithPlaceList(accountId = accountId, memo = source, placeList = listOf(deletedPlace))
+            placeTransaction.upsert(accountId = accountId, placeList = listOf(deletedPlace.copy(isDeleted = true)), placeTagList = emptyList())
+            val copy = memo()
+
+            val sourcePlaceIdSet = copyMemoWithPlace(accountId = accountId, sourceId = source.id, copy = copy)
+
+            sourcePlaceIdSet shouldBe setOf(deletedPlace.id)
+            findMemoPlaceList(memoId = copy.id) shouldBe
+                listOf(memoPlace(memoId = copy.id, placeId = deletedPlace.id, memo = copy))
+        }
+
+        test("TC-MEMO-DETAIL-DATA-041 복사는 원본의 장소 연결을 바꾸지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val source = memo()
+            val place = place()
+            insertMemoWithPlaceList(accountId = accountId, memo = source, placeList = listOf(place))
+            val sourceMemoPlaceList = findMemoPlaceList(memoId = source.id)
+
+            copyMemoWithPlace(accountId = accountId, sourceId = source.id, copy = memo())
+
+            findMemoPlaceList(memoId = source.id) shouldBe sourceMemoPlaceList
+            getPlaceList(accountId = accountId, memoId = source.id) shouldBe listOf(place)
+        }
+
         listOf(
             "완료된" to { memo: MemoLocalEntity -> memo.copy(isFinished = true, isDeleted = false) },
             "삭제된" to { memo: MemoLocalEntity -> memo.copy(isFinished = false, isDeleted = true) },

@@ -27,6 +27,16 @@ internal class AccountMemoPlaceRepositoryImpl(
                 memoId = memoId,
             ).map { localList -> localList.map { local -> local.toDomain() } }
 
+    override suspend fun findPlaceIdSet(
+        account: Account,
+        memoId: Uuid,
+    ): Set<Uuid> =
+        accountMemoPlaceLocalDataSource
+            .findPlaceIdList(
+                accountId = account.id,
+                memoId = memoId,
+            ).toSet()
+
     override suspend fun upsert(
         account: Account,
         memoId: Uuid,
