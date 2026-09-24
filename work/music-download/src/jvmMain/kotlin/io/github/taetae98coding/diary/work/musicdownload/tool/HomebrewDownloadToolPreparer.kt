@@ -30,7 +30,7 @@ internal class HomebrewDownloadToolPreparer(
     }
 
     // 설치가 성공했다고 보고해도 실제로 실행할 수 있는 자리에 없을 수 있으므로 다시 확인한다.
-    private fun prepared(): DownloadToolPrepareResult =
+    private suspend fun prepared(): DownloadToolPrepareResult =
         if (commandRunner.findMissingDownloadToolList().isEmpty()) {
             DownloadToolPrepareResult.Prepared
         } else {

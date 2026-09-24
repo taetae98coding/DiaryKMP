@@ -23,12 +23,14 @@ private val LOOKUP_DIRECTORY_LIST =
 internal class CommandRunner(
     @param:MusicDownloadDispatcher private val dispatcher: CoroutineDispatcher,
 ) {
-    fun find(command: String): String? =
-        LOOKUP_DIRECTORY_LIST
-            .asSequence()
-            .map { directory -> File(directory, command) }
-            .firstOrNull { file -> file.canExecute() }
-            ?.absolutePath
+    suspend fun find(command: String): String? =
+        withContext(dispatcher) {
+            LOOKUP_DIRECTORY_LIST
+                .asSequence()
+                .map { directory -> File(directory, command) }
+                .firstOrNull { file -> file.canExecute() }
+                ?.absolutePath
+        }
 
     suspend fun run(
         commandList: List<String>,

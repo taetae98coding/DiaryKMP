@@ -18,4 +18,4 @@ internal val downloadToolList: List<DownloadTool> =
 
 internal const val HOMEBREW_COMMAND: String = "brew"
 
-internal fun CommandRunner.findMissingDownloadToolList(): List<DownloadTool> = downloadToolList.filter { tool -> find(command = tool.command) == null }
+internal suspend fun CommandRunner.findMissingDownloadToolList(): List<DownloadTool> = downloadToolList.filter { tool -> find(command = tool.command) == null }

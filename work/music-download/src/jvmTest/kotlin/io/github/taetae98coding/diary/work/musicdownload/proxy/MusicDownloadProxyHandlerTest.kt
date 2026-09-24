@@ -9,7 +9,6 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.mockk
 
 class MusicDownloadProxyHandlerTest :
@@ -103,7 +102,7 @@ private fun registry(result: Boolean): MusicVideoDownloadJobRegistry {
 
 private fun commandRunner(installedList: List<DownloadTool> = listOf(DownloadTool.YT_DLP, DownloadTool.FFMPEG)): CommandRunner {
     val commandRunner = mockk<CommandRunner>()
-    every { commandRunner.find(command = any()) } answers {
+    coEvery { commandRunner.find(command = any()) } coAnswers {
         val command = firstArg<String>()
         "/opt/homebrew/bin/$command".takeIf { installedList.any { tool -> tool.command == command } }
     }

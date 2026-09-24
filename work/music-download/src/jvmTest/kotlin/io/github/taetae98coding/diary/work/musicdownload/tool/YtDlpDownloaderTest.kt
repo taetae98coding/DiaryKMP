@@ -9,7 +9,6 @@ import io.kotest.matchers.collections.shouldContainInOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import java.nio.file.Path
@@ -62,7 +61,7 @@ class YtDlpDownloaderTest :
                     val path = tempMusicFilePath(videoId = videoId)
                     var completedExistsWhileDownloading = true
                     val commandRunner = mockk<CommandRunner>()
-                    every { commandRunner.find(command = DownloadTool.YT_DLP.command) } returns YT_DLP_PATH
+                    coEvery { commandRunner.find(command = DownloadTool.YT_DLP.command) } returns YT_DLP_PATH
                     coEvery { commandRunner.run(commandList = any(), onLine = any()) } coAnswers
                         {
                             Path.of(path.downloading).writeBytes(STREAM)
@@ -115,7 +114,7 @@ class YtDlpDownloaderTest :
                 Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-005 실행하지 않고 실패로 끝난다") {
                     val videoId = testVideoId()
                     val commandRunner = mockk<CommandRunner>()
-                    every { commandRunner.find(command = any()) } returns null
+                    coEvery { commandRunner.find(command = any()) } returns null
                     val downloader = YtDlpDownloader(commandRunner = commandRunner, dispatcher = Dispatchers.Default)
 
                     downloader.download(videoId = videoId, path = tempMusicFilePath(videoId = videoId), onProgress = {}) shouldBe false
@@ -140,7 +139,7 @@ private fun commandRunner(
     lineList: List<String> = emptyList(),
 ): CommandRunner {
     val commandRunner = mockk<CommandRunner>()
-    every { commandRunner.find(command = DownloadTool.YT_DLP.command) } returns YT_DLP_PATH
+    coEvery { commandRunner.find(command = DownloadTool.YT_DLP.command) } returns YT_DLP_PATH
     coEvery { commandRunner.run(commandList = any(), onLine = any()) } coAnswers {
         val commandList = firstArg<List<String>>()
         val onLine = secondArg<suspend (String) -> Unit>()

@@ -6,7 +6,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.mockk
 
 private const val YT_DLP_PATH = "/opt/homebrew/bin/yt-dlp"
@@ -102,7 +101,7 @@ class HomebrewDownloadToolPreparerTest :
             val commandRunner = mockk<CommandRunner>()
             var isRun = false
 
-            every { commandRunner.find(command = any()) } answers
+            coEvery { commandRunner.find(command = any()) } coAnswers
                 {
                     when (val command = firstArg<String>()) {
                         HOMEBREW_COMMAND -> BREW_PATH.takeIf { hasBrew }
