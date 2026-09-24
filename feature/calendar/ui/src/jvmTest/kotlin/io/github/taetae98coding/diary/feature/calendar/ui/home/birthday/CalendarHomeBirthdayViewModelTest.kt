@@ -7,9 +7,12 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.domain.contact.usecase.GetCalendarContactBirthdayUseCase
+import io.github.taetae98coding.diary.domain.lunar.usecase.FetchLunarUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -52,7 +55,7 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
                     LocalDate(year = 2026, month = Month.MAY, day = 1)..LocalDate(year = 2026, month = Month.SEPTEMBER, day = 30)
                 val birthdayList = listOf(birthday(), birthday())
                 val useCase = getCalendarContactBirthdayUseCase(expectedDateRange to Result.success(birthdayList))
-                val viewModel = CalendarHomeBirthdayViewModel(getCalendarContactBirthdayUseCase = useCase)
+                val viewModel = CalendarHomeBirthdayViewModel(fetchLunarUseCase = fetchLunarUseCase(), getCalendarContactBirthdayUseCase = useCase)
 
                 viewModel.fetch(YearMonth(year = 2026, month = Month.JULY))
 
@@ -77,7 +80,7 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
 
                 expectedRangeByYearMonth.forEach { (yearMonth, expectedDateRange) ->
                     val useCase = getCalendarContactBirthdayUseCase(expectedDateRange to Result.success(emptyList()))
-                    val viewModel = CalendarHomeBirthdayViewModel(getCalendarContactBirthdayUseCase = useCase)
+                    val viewModel = CalendarHomeBirthdayViewModel(fetchLunarUseCase = fetchLunarUseCase(), getCalendarContactBirthdayUseCase = useCase)
 
                     viewModel.fetch(yearMonth)
 
@@ -104,7 +107,7 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
                         julyDateRange to Result.success(listOf(mayBirthday)),
                         septemberDateRange to Result.success(listOf(novemberBirthday)),
                     )
-                val viewModel = CalendarHomeBirthdayViewModel(getCalendarContactBirthdayUseCase = useCase)
+                val viewModel = CalendarHomeBirthdayViewModel(fetchLunarUseCase = fetchLunarUseCase(), getCalendarContactBirthdayUseCase = useCase)
 
                 viewModel.fetch(YearMonth(year = 2026, month = Month.JULY))
 
@@ -124,7 +127,7 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
                 val useCase = mockk<GetCalendarContactBirthdayUseCase>()
                 every { useCase(parameter = any()) } returns
                     flowOf(Result.failure(IllegalStateException("birthday get failed")))
-                val viewModel = CalendarHomeBirthdayViewModel(getCalendarContactBirthdayUseCase = useCase)
+                val viewModel = CalendarHomeBirthdayViewModel(fetchLunarUseCase = fetchLunarUseCase(), getCalendarContactBirthdayUseCase = useCase)
 
                 viewModel.fetch(YearMonth(year = 2026, month = Month.JULY))
 
@@ -140,7 +143,7 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val yearMonth = YearMonth(year = 2026, month = Month.JULY)
                 val useCase = getCalendarContactBirthdayUseCase()
-                val viewModel = CalendarHomeBirthdayViewModel(getCalendarContactBirthdayUseCase = useCase)
+                val viewModel = CalendarHomeBirthdayViewModel(fetchLunarUseCase = fetchLunarUseCase(), getCalendarContactBirthdayUseCase = useCase)
 
                 viewModel.fetch(yearMonth)
 
@@ -158,6 +161,67 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-CALENDAR-HOME-DATA-038 화면이 표시되면 생일 조회 기간이 속한 연도의 음력 자료를 동기화한다") {
+            val expectedYearListByYearMonth =
+                listOf(
+                    YearMonth(year = 2026, month = Month.JULY) to listOf(2026),
+                    YearMonth(year = 2026, month = Month.DECEMBER) to listOf(2026, 2027),
+                    YearMonth(year = 2026, month = Month.JANUARY) to listOf(2025, 2026),
+                )
+
+            expectedYearListByYearMonth.forEach { (yearMonth, expectedYearList) ->
+                runTest(mainDispatcher) {
+                    val fetchLunarUseCase = fetchLunarUseCase()
+                    val viewModel = CalendarHomeBirthdayViewModel(fetchLunarUseCase = fetchLunarUseCase, getCalendarContactBirthdayUseCase = getCalendarContactBirthdayUseCase())
+
+                    viewModel.fetch(yearMonth)
+                    advanceUntilIdle()
+
+                    expectedYearListByYearMonth
+                        .flatMap { (_, yearList) -> yearList }
+                        .distinct()
+                        .forEach { year ->
+                            coVerify(exactly = if (year in expectedYearList) 1 else 0) { fetchLunarUseCase(parameter = year) }
+                        }
+                }
+            }
+        }
+
+        test("TC-CALENDAR-HOME-DATA-039 표시 중인 달이 바뀌면 이동한 달의 조회 기간이 속한 연도의 음력 자료를 동기화한다") {
+            runTest(mainDispatcher) {
+                val fetchLunarUseCase = fetchLunarUseCase()
+                val viewModel = CalendarHomeBirthdayViewModel(fetchLunarUseCase = fetchLunarUseCase, getCalendarContactBirthdayUseCase = getCalendarContactBirthdayUseCase())
+
+                viewModel.fetch(YearMonth(year = 2026, month = Month.JULY))
+                advanceUntilIdle()
+                viewModel.fetch(YearMonth(year = 2026, month = Month.NOVEMBER))
+                advanceUntilIdle()
+
+                coVerify(exactly = 2) { fetchLunarUseCase(parameter = 2026) }
+                coVerify(exactly = 1) { fetchLunarUseCase(parameter = 2027) }
+            }
+        }
+
+        test("TC-CALENDAR-HOME-DATA-040 음력 자료 동기화가 실패해도 생일 조회는 그대로 제공한다") {
+            runTest(mainDispatcher) {
+                val birthdayList = listOf(birthday())
+                val fetchLunarUseCase = mockk<FetchLunarUseCase>()
+                coEvery { fetchLunarUseCase(parameter = any()) } returns Result.failure(IllegalStateException("lunar fetch failed"))
+                val useCase =
+                    getCalendarContactBirthdayUseCase(
+                        LocalDate(year = 2026, month = Month.MAY, day = 1)..LocalDate(year = 2026, month = Month.SEPTEMBER, day = 30) to Result.success(birthdayList),
+                    )
+                val viewModel = CalendarHomeBirthdayViewModel(fetchLunarUseCase = fetchLunarUseCase, getCalendarContactBirthdayUseCase = useCase)
+
+                viewModel.fetch(YearMonth(year = 2026, month = Month.JULY))
+
+                viewModel.birthdayList.test {
+                    awaitItem() shouldBe emptyList()
+                    awaitItem() shouldBe birthdayList
+                }
+            }
+        }
+
         test("저장된 연락처가 바뀌면 조작 없이 표시할 생일이 갱신된다") {
             runTest(mainDispatcher) {
                 val birthday = birthday()
@@ -165,7 +229,7 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
                 val birthdayFlow = MutableStateFlow(listOf(birthday))
                 val useCase = mockk<GetCalendarContactBirthdayUseCase>()
                 every { useCase(parameter = any()) } returns birthdayFlow.map { list -> Result.success(list) }
-                val viewModel = CalendarHomeBirthdayViewModel(getCalendarContactBirthdayUseCase = useCase)
+                val viewModel = CalendarHomeBirthdayViewModel(fetchLunarUseCase = fetchLunarUseCase(), getCalendarContactBirthdayUseCase = useCase)
 
                 viewModel.fetch(YearMonth(year = 2026, month = Month.JULY))
 
@@ -181,6 +245,11 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
         }
     }
 }
+
+private fun fetchLunarUseCase(): FetchLunarUseCase =
+    mockk<FetchLunarUseCase>().also { useCase ->
+        coEvery { useCase(parameter = any()) } returns Result.success(emptyList())
+    }
 
 private fun getCalendarContactBirthdayUseCase(vararg resultByDateRange: Pair<LocalDateRange, Result<List<CalendarContactBirthday>>>): GetCalendarContactBirthdayUseCase {
     val results = resultByDateRange.toMap()

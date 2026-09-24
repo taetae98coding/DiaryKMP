@@ -2,6 +2,8 @@ package io.github.taetae98coding.diary.core.database.impl.contact.datasource
 
 import io.github.taetae98coding.diary.core.database.api.contact.datasource.AccountCalendarContactBirthdayLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.contact.entity.CalendarContactBirthdayLocalEntity
+import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactBirthdayCalendarLocalEntity
+import io.github.taetae98coding.diary.core.database.api.contact.entity.LunarContactBirthdayLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalDateRange
@@ -21,5 +23,12 @@ internal class AccountCalendarContactBirthdayLocalDataSourceImpl(
             accountId = accountId,
             start = dateRange.start,
             endInclusive = dateRange.endInclusive,
+            solarCalendar = ContactBirthdayCalendarLocalEntity.SOLAR,
+        )
+
+    override fun getLunar(accountId: Uuid): Flow<List<LunarContactBirthdayLocalEntity>> =
+        database.accountCalendarContactBirthdayDao().getLunar(
+            accountId = accountId,
+            lunarCalendar = ContactBirthdayCalendarLocalEntity.LUNAR,
         )
 }

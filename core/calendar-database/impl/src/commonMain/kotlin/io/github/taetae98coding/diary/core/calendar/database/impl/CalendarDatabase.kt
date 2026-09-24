@@ -5,12 +5,14 @@ import androidx.room3.ConstructedBy
 import androidx.room3.Database
 import androidx.room3.RoomDatabase
 import io.github.taetae98coding.diary.core.calendar.database.api.entity.HolidayLocalEntity
+import io.github.taetae98coding.diary.core.calendar.database.api.entity.LunarDateLocalEntity
 import io.github.taetae98coding.diary.core.calendar.database.impl.converter.HolidayCountryColumnTypeConverter
 import io.github.taetae98coding.diary.core.calendar.database.impl.dao.HolidayDao
+import io.github.taetae98coding.diary.core.calendar.database.impl.dao.LunarDateDao
 import io.github.taetae98coding.diary.library.room3.converter.LocalDateColumnTypeConverter
 
 @Database(
-    entities = [HolidayLocalEntity::class],
+    entities = [HolidayLocalEntity::class, LunarDateLocalEntity::class],
     version = 1,
 )
 @ConstructedBy(CalendarDatabaseConstructor::class)
@@ -20,6 +22,8 @@ import io.github.taetae98coding.diary.library.room3.converter.LocalDateColumnTyp
 )
 internal abstract class CalendarDatabase : RoomDatabase() {
     abstract fun holidayDao(): HolidayDao
+
+    abstract fun lunarDateDao(): LunarDateDao
 
     companion object {
         const val NAME: String = "calendar.db"

@@ -5,6 +5,7 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.contact.datasource.AccountCalendarContactBirthdayLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.contact.entity.CalendarContactBirthdayLocalEntity
+import io.github.taetae98coding.diary.core.database.api.contact.entity.LunarContactBirthdayLocalEntity
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.data.contact.mapper.toDomain
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -78,6 +79,25 @@ class AccountCalendarContactBirthdayRepositoryImplTest :
             val repository = AccountCalendarContactBirthdayRepositoryImpl(accountCalendarContactBirthdayLocalDataSource = localDataSource)
 
             repository.get(account = account, dateRange = dateRange).first() shouldBe emptyList()
+        }
+
+        test("음력 생일 조회는 현재 계정의 음력 생일 연락처를 도메인 모델로 반환하고 후속 변경도 반환한다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val localList = listOf(fixtureMonkey.giveMeOne<LunarContactBirthdayLocalEntity>())
+            val changedLocalList = listOf(fixtureMonkey.giveMeOne<LunarContactBirthdayLocalEntity>(), fixtureMonkey.giveMeOne<LunarContactBirthdayLocalEntity>())
+            val localFlow = MutableStateFlow(localList)
+            val localDataSource = mockk<AccountCalendarContactBirthdayLocalDataSource>()
+            every { localDataSource.getLunar(accountId = account.id) } returns localFlow
+            val repository = AccountCalendarContactBirthdayRepositoryImpl(accountCalendarContactBirthdayLocalDataSource = localDataSource)
+
+            repository.getLunar(account = account).test {
+                awaitItem() shouldBe localList.map { local -> local.toDomain() }
+
+                localFlow.value = changedLocalList
+
+                awaitItem() shouldBe changedLocalList.map { local -> local.toDomain() }
+                cancelAndIgnoreRemainingEvents()
+            }
         }
     }) {
     public companion object {

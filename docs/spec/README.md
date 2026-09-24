@@ -65,6 +65,7 @@
 | [목록 필터 반영](./list-filter.md) | [필터 Bottom Sheet 디자인](../design/filter-bottom-sheet.md) |
 | [위치 권한 요청](./location-permission.md) | — |
 | [Login 화면](./login.md) | [Login 디자인](../design/login.md) |
+| [음력 자료 동기화](./lunar-fetch.md) | — |
 | [MemoAdd 화면](./memo-add.md) | [MemoAdd 디자인](../design/memo-add.md) |
 | [MemoDetail 화면](./memo-detail.md) | [MemoDetail 디자인](../design/memo-detail.md) |
 | [MemoFinishedList 화면](./memo-finished-list.md) | [MemoFinishedList 디자인](../design/memo-finished-list.md) |

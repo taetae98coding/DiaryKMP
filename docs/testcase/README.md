@@ -71,6 +71,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [JVM 데이터베이스 저장](./jvm-database-storage.md) | [JVM 데이터베이스 저장](../spec/jvm-database-storage.md) |
 | [위치 권한 요청](./location-permission.md) | [위치 권한 요청](../spec/location-permission.md) |
 | [Login](./login.md) | [Login 화면](../spec/login.md) |
+| [음력 자료 동기화](./lunar-fetch.md) | [음력 자료 동기화](../spec/lunar-fetch.md) |
 | [MemoAdd](./memo-add.md) | [MemoAdd 화면](../spec/memo-add.md) |
 | [MemoDetail](./memo-detail.md) | [MemoDetail 화면](../spec/memo-detail.md) |
 | [MemoFinishedList](./memo-finished-list.md) | [MemoFinishedList 화면](../spec/memo-finished-list.md) |

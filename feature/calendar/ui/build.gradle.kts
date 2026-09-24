@@ -11,6 +11,7 @@ kotlin {
                 implementation(projects.compose.tag)
                 implementation(projects.domain.contact)
                 implementation(projects.domain.holiday)
+                implementation(projects.domain.lunar)
                 implementation(projects.domain.memo)
                 implementation(projects.domain.sync)
                 implementation(projects.domain.tag)

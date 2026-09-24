@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "52cfd5edb668405815b849c680b42a7e",
+    "identityHash": "01cbeb3d598b0683edfbcc523cbea939",
     "entities": [
       {
         "tableName": "holiday",
@@ -61,11 +61,65 @@
             "end_inclusive"
           ]
         }
+      },
+      {
+        "tableName": "lunar_date",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`solar` TEXT NOT NULL DEFAULT '1970-01-01', `solar_year` INTEGER NOT NULL DEFAULT 0, `lunar_year` INTEGER NOT NULL DEFAULT 0, `lunar_month` INTEGER NOT NULL DEFAULT 0, `lunar_day` INTEGER NOT NULL DEFAULT 0, `is_leap_month` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`solar`))",
+        "fields": [
+          {
+            "fieldPath": "solar",
+            "columnName": "solar",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'1970-01-01'"
+          },
+          {
+            "fieldPath": "solarYear",
+            "columnName": "solar_year",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "lunarYear",
+            "columnName": "lunar_year",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "lunarMonth",
+            "columnName": "lunar_month",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "lunarDay",
+            "columnName": "lunar_day",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "isLeapMonth",
+            "columnName": "is_leap_month",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "solar"
+          ]
+        }
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '52cfd5edb668405815b849c680b42a7e')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '01cbeb3d598b0683edfbcc523cbea939')"
     ]
   }
 }

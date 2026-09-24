@@ -9,6 +9,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.contact.entity.CalendarContactBirthdayLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactBirthdayCalendarLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
+import io.github.taetae98coding.diary.core.database.api.contact.entity.LunarContactBirthdayLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.contact.transaction.AccountContactTransactionImpl
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -173,17 +174,6 @@ class AccountCalendarContactBirthdayLocalDataSourceImplTest :
                     birthdayList.map { birthday -> birthday.birthdayDate } shouldBe listOf(expectedDate)
                 }
             }
-        }
-
-        test("TC-CALENDAR-CONTACT-BIRTHDAY-DOMAIN-007 음력 생일도 저장된 월·일을 그대로 차지한다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val solarContact = contact(birthday = LocalDate(1990, 7, 8), birthdayCalendar = ContactBirthdayCalendarLocalEntity.SOLAR)
-            val lunarContact = contact(birthday = LocalDate(1990, 7, 8), birthdayCalendar = ContactBirthdayCalendarLocalEntity.LUNAR)
-
-            upsert(accountId, solarContact, lunarContact)
-
-            birthdayList(accountId = accountId).map { birthday -> birthday.birthdayDate } shouldBe
-                listOf(LocalDate(2026, 7, 8), LocalDate(2026, 7, 8))
         }
 
         test("TC-CALENDAR-CONTACT-BIRTHDAY-DOMAIN-008 날짜와 이름 순으로 정렬해 전달한다") {
@@ -355,6 +345,59 @@ class AccountCalendarContactBirthdayLocalDataSourceImplTest :
                 start = LocalDate(2026, 7, 8),
                 endInclusive = LocalDate(2026, 7, 8),
             ) shouldBe listOf(contact.id)
+        }
+
+        test("양력 생일 조회는 음력 생일 연락처를 담지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val solarContact = contact(birthday = LocalDate(1990, 7, 8))
+            val lunarContact = contact(birthday = LocalDate(1990, 7, 8), birthdayCalendar = ContactBirthdayCalendarLocalEntity.LUNAR)
+
+            upsert(accountId, solarContact, lunarContact)
+
+            birthdayContactIdList(accountId = accountId) shouldBe listOf(solarContact.id)
+        }
+
+        test("달력 구분이 없는 생일은 양력으로 다룬다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val contact = contact(birthday = LocalDate(1990, 7, 8), birthdayCalendar = null)
+
+            upsert(accountId, contact)
+
+            birthdayContactIdList(accountId = accountId) shouldBe listOf(contact.id)
+        }
+
+        test("음력 생일 조회는 현재 계정의 삭제되지 않은 음력 생일 연락처만 저장된 날짜 그대로 담는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val lunarContact = contact(birthday = LocalDate(1990, 7, 8), name = "나", birthdayCalendar = ContactBirthdayCalendarLocalEntity.LUNAR)
+            val firstByNameLunarContact = contact(birthday = LocalDate(1991, 2, 28), name = "가", birthdayCalendar = ContactBirthdayCalendarLocalEntity.LUNAR)
+            val solarContact = contact(birthday = LocalDate(1990, 7, 8), name = "다")
+            val deletedLunarContact = contact(birthday = LocalDate(1990, 7, 8), name = "라", birthdayCalendar = ContactBirthdayCalendarLocalEntity.LUNAR).copy(isDeleted = true)
+            val noBirthdayContact = contact(birthday = null, name = "마")
+            val otherAccountLunarContact = contact(birthday = LocalDate(1990, 7, 8), name = "바", birthdayCalendar = ContactBirthdayCalendarLocalEntity.LUNAR)
+
+            upsert(accountId, lunarContact, firstByNameLunarContact, solarContact, deletedLunarContact, noBirthdayContact)
+            upsert(otherAccountId, otherAccountLunarContact)
+
+            dataSource.getLunar(accountId = accountId).first() shouldBe
+                listOf(
+                    LunarContactBirthdayLocalEntity(contactId = firstByNameLunarContact.id, name = "가", birthday = LocalDate(1991, 2, 28)),
+                    LunarContactBirthdayLocalEntity(contactId = lunarContact.id, name = "나", birthday = LocalDate(1990, 7, 8)),
+                )
+        }
+
+        test("음력 생일 조회 중에 연락처가 바뀌면 새 목록을 제공한다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val contact = contact(birthday = LocalDate(1990, 7, 8), birthdayCalendar = ContactBirthdayCalendarLocalEntity.LUNAR)
+
+            dataSource.getLunar(accountId = accountId).test {
+                awaitItem().shouldBeEmpty()
+
+                upsert(accountId, contact)
+
+                awaitItem().map { birthday -> birthday.contactId } shouldBe listOf(contact.id)
+                cancelAndIgnoreRemainingEvents()
+            }
         }
 
         test("태어난 해가 표시 대상 기간의 두 연도 중 뒤쪽이면 뒤쪽 연도의 생일만 담는다") {
