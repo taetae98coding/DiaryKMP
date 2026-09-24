@@ -6,10 +6,12 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(projects.core.fcm.api)
                 implementation(projects.core.image.api)
                 implementation(projects.core.network.api)
                 implementation(projects.core.supabase.api)
                 implementation(projects.domain.account)
+                implementation(projects.library.locale)
             }
         }
     }

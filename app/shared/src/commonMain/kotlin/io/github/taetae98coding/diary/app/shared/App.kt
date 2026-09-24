@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.app.shared
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.app.shared.analytics.ScreenViewEffect
+import io.github.taetae98coding.diary.app.shared.fcm.SubmitFcmTokenEffect
 import io.github.taetae98coding.diary.app.shared.notification.ScheduleDailyMemoNotificationEffect
 import io.github.taetae98coding.diary.app.shared.scaffold.AppScaffold
 import io.github.taetae98coding.diary.compose.core.image.DiaryImageLoaderEffect
@@ -16,6 +17,7 @@ import org.koin.compose.viewmodel.koinViewModel
 public fun App(modifier: Modifier = Modifier) {
     val syncViewModel = koinViewModel<AppSyncViewModel>()
     val notificationViewModel = koinViewModel<AppDailyMemoNotificationViewModel>()
+    val fcmTokenViewModel = koinViewModel<AppFcmTokenViewModel>()
     val appState = rememberAppState()
 
     DiaryImageLoaderEffect()
@@ -32,6 +34,10 @@ public fun App(modifier: Modifier = Modifier) {
         requestSync = syncViewModel::requestSync,
         schedulePeriodicSync = syncViewModel::schedulePeriodicSync,
         account = syncViewModel.account,
+    )
+    SubmitFcmTokenEffect(
+        submit = fcmTokenViewModel::submit,
+        account = fcmTokenViewModel.account,
     )
     ScreenViewEffect(
         log = DiaryLogger::log,
