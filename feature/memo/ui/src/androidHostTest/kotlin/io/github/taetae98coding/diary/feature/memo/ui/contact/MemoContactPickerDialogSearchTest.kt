@@ -1,9 +1,11 @@
 package io.github.taetae98coding.diary.feature.memo.ui.contact
 
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
+import androidx.test.platform.app.InstrumentationRegistry
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
@@ -30,6 +32,17 @@ class MemoContactPickerDialogSearchTest {
         composeRule.contactDialogNodeWithText(FIRST_CONTACT_NAME).assertExists()
         composeRule.contactDialogNodeWithText(SECOND_CONTACT_NAME).assertExists()
         queryList shouldBe listOf("")
+    }
+
+    @Test
+    fun `TC-MEMO-CONTACT-INPUT-FEATURE-030 목록을 열면 검색어 입력에 초점이 놓인다`() {
+        // 터치 모드가 아니면 대화상자가 첫 입력에 스스로 초점을 주므로, 휴대폰과 같은 터치 모드에서 확인한다.
+        InstrumentationRegistry.getInstrumentation().setInTouchMode(true)
+        val contactList = listOf(testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER), testContact(name = SECOND_CONTACT_NAME, phoneNumber = SECOND_CONTACT_PHONE_NUMBER))
+        composeRule.setMemoContactPickerDialogHost(contactList = contactList)
+        composeRule.awaitContactPickerRows()
+
+        composeRule.contactDialogSearchField().assertIsFocused()
     }
 
     @Test

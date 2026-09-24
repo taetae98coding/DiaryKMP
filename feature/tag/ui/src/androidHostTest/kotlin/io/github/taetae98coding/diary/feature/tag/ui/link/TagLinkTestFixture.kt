@@ -1,7 +1,6 @@
 package io.github.taetae98coding.diary.feature.tag.ui.link
 
 import androidx.activity.ComponentDialog
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,6 +26,7 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
+import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
@@ -158,7 +158,7 @@ internal fun ComposeContentTestRule.setTagLinkPickerDialog(
     uiState: TagLinkInputUiState = TagLinkInputUiState(),
     tagPagingData: PagingData<Tag> = tagPagingDataOf(tagList),
     tagPagingDataFlow: Flow<PagingData<Tag>> = MutableStateFlow(tagPagingData),
-    queryState: TextFieldState = TextFieldState(),
+    query: String = "",
     onDismissRequest: () -> Unit = {},
     onClickAdd: () -> Unit = {},
     onLink: (Uuid) -> Unit = {},
@@ -167,7 +167,7 @@ internal fun ComposeContentTestRule.setTagLinkPickerDialog(
     setContent {
         DiaryTheme {
             TagLinkPickerDialog(
-                queryState = queryState,
+                searchFieldState = rememberDiaryPickerSearchFieldState(initialText = query),
                 tagPagingItems = remember(tagPagingDataFlow) { tagPagingDataFlow }.collectAsLazyPagingItems(),
                 uiStateProvider = { uiState },
                 onDismissRequest = onDismissRequest,

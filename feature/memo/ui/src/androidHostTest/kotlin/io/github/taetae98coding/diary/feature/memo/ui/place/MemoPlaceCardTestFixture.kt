@@ -3,7 +3,6 @@ package io.github.taetae98coding.diary.feature.memo.ui.place
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -23,6 +22,7 @@ import androidx.compose.ui.unit.height
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
+import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.Place
@@ -157,7 +157,7 @@ internal fun ComposeContentTestRule.setMemoPlacePickerDialog(
     placeList: List<Place> = emptyList(),
     uiState: MemoPlaceInputUiState = MemoPlaceInputUiState(isSelectedPlaceLoaded = true),
     placePagingData: Flow<PagingData<Place>> = placePagingData(placeList),
-    queryState: TextFieldState = TextFieldState(),
+    query: String = "",
     onDismissRequest: () -> Unit = {},
     onPlaceSelect: (Uuid) -> Unit = {},
     onPlaceUnselect: (Uuid) -> Unit = {},
@@ -166,7 +166,7 @@ internal fun ComposeContentTestRule.setMemoPlacePickerDialog(
     setContent {
         DiaryTheme {
             MemoPlacePickerDialog(
-                queryState = queryState,
+                searchFieldState = rememberDiaryPickerSearchFieldState(initialText = query),
                 uiStateProvider = { uiState },
                 placePagingItems = remember(placePagingData) { placePagingData }.collectAsLazyPagingItems(),
                 onDismissRequest = onDismissRequest,

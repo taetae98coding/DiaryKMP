@@ -1,6 +1,5 @@
 package io.github.taetae98coding.diary.feature.memo.ui.place
 
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.paging.PagingData
@@ -8,6 +7,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
+import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
 import io.github.taetae98coding.diary.compose.core.effect.DiarySearchQueryEffect
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -26,7 +26,7 @@ internal fun MemoPlacePickerDialogHost(
 ) {
     if (!dialogState.isVisible) return
 
-    val queryState = rememberTextFieldState()
+    val searchFieldState = rememberDiaryPickerSearchFieldState()
 
     val hide = {
         onEvent(MemoPlacePickerEvent.ChangeQuery(query = ""))
@@ -34,7 +34,7 @@ internal fun MemoPlacePickerDialogHost(
     }
 
     DiarySearchQueryEffect(
-        queryState = queryState,
+        queryState = searchFieldState.textFieldState,
         onQueryChange = { query -> onEvent(MemoPlacePickerEvent.ChangeQuery(query = query)) },
     )
 
@@ -44,7 +44,7 @@ internal fun MemoPlacePickerDialogHost(
             if (event is MemoPlacePickerEvent.ClickAdd) hide()
             onEvent(event)
         },
-        queryState = queryState,
+        searchFieldState = searchFieldState,
         uiStateProvider = uiStateProvider,
         placePagingItems = placePagingItems,
         coordinateProvider = coordinateProvider,

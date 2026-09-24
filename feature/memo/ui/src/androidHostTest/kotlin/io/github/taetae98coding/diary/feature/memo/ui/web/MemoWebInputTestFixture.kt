@@ -1,6 +1,5 @@
 package io.github.taetae98coding.diary.feature.memo.ui.web
 
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,6 +22,7 @@ import androidx.compose.ui.unit.height
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
+import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
@@ -129,7 +129,7 @@ internal fun ComposeContentTestRule.setMemoWebPickerDialog(
     uiState: MemoWebInputUiState = MemoWebInputUiState(),
     webPagingData: PagingData<Web> = webPagingDataOf(webList),
     webPagingDataFlow: Flow<PagingData<Web>> = MutableStateFlow(webPagingData),
-    queryState: TextFieldState = TextFieldState(),
+    query: String = "",
     onDismissRequest: () -> Unit = {},
     onWebSelect: (Uuid) -> Unit = {},
     onWebUnselect: (Uuid) -> Unit = {},
@@ -138,7 +138,7 @@ internal fun ComposeContentTestRule.setMemoWebPickerDialog(
     setContent {
         DiaryTheme {
             MemoWebPickerDialog(
-                queryState = queryState,
+                searchFieldState = rememberDiaryPickerSearchFieldState(initialText = query),
                 webPagingItems = remember(webPagingDataFlow) { webPagingDataFlow }.collectAsLazyPagingItems(),
                 uiStateProvider = { uiState },
                 onDismissRequest = onDismissRequest,

@@ -1,6 +1,5 @@
 package io.github.taetae98coding.diary.feature.memo.ui.contact
 
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,6 +22,7 @@ import androidx.compose.ui.unit.height
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
+import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
@@ -137,7 +137,7 @@ internal fun ComposeContentTestRule.setMemoContactPickerDialog(
     uiState: MemoContactInputUiState = MemoContactInputUiState(),
     contactPagingData: PagingData<Contact> = contactPagingDataOf(contactList),
     contactPagingDataFlow: Flow<PagingData<Contact>> = MutableStateFlow(contactPagingData),
-    queryState: TextFieldState = TextFieldState(),
+    query: String = "",
     onDismissRequest: () -> Unit = {},
     onContactSelect: (Uuid) -> Unit = {},
     onContactUnselect: (Uuid) -> Unit = {},
@@ -146,7 +146,7 @@ internal fun ComposeContentTestRule.setMemoContactPickerDialog(
     setContent {
         DiaryTheme {
             MemoContactPickerDialog(
-                queryState = queryState,
+                searchFieldState = rememberDiaryPickerSearchFieldState(initialText = query),
                 contactPagingItems = remember(contactPagingDataFlow) { contactPagingDataFlow }.collectAsLazyPagingItems(),
                 uiStateProvider = { uiState },
                 onDismissRequest = onDismissRequest,

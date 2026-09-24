@@ -1,6 +1,5 @@
 package io.github.taetae98coding.diary.compose.tag.entity
 
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.isDialog
@@ -77,7 +76,7 @@ class EntityTagPickerDialogSearchTest {
         val unlinkedIdList = mutableListOf<Uuid>()
         composeRule.setEntityTagPickerDialog(
             tagList = listOf(workTag),
-            queryState = TextFieldState(initialText = WORK_TAG_QUERY),
+            query = WORK_TAG_QUERY,
             onAdd = linkedIdList::add,
             onRemove = unlinkedIdList::add,
         )
@@ -94,7 +93,7 @@ class EntityTagPickerDialogSearchTest {
     fun `TC-ENTITY-TAG-INPUT-FEATURE-022 검색어에 맞는 태그가 없으면 결과 없음을 알린다`() {
         composeRule.setEntityTagPickerDialog(
             tagList = emptyList(),
-            queryState = TextFieldState(initialText = WORK_TAG_QUERY),
+            query = WORK_TAG_QUERY,
         )
 
         composeRule.dialogNodeWithText(DEFAULT_PICKER_SEARCH_EMPTY_TITLE).assertExists()
@@ -107,7 +106,7 @@ class EntityTagPickerDialogSearchTest {
         var clickAddCount = 0
         composeRule.setEntityTagPickerDialog(
             tagList = emptyList(),
-            queryState = TextFieldState(initialText = WORK_TAG_QUERY),
+            query = WORK_TAG_QUERY,
             onClickAdd = { clickAddCount += 1 },
         )
 
@@ -122,7 +121,7 @@ class EntityTagPickerDialogSearchTest {
     fun `한국어 환경에서 태그 선택 목록의 검색 문구를 표시한다`() {
         composeRule.setEntityTagPickerDialog(
             tagList = emptyList(),
-            queryState = TextFieldState(initialText = WORK_TAG_QUERY),
+            query = WORK_TAG_QUERY,
         )
 
         composeRule.dialogNodeWithText(KOREAN_ENTITY_PICKER_SEARCH_EMPTY_TITLE).assertExists()

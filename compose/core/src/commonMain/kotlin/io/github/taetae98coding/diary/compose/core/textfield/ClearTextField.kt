@@ -30,6 +30,7 @@ import org.jetbrains.compose.resources.stringResource
 public fun ClearTextField(
     modifier: Modifier = Modifier,
     state: TextFieldState = rememberTextFieldState(),
+    focusRequester: FocusRequester = remember { FocusRequester() },
     label: @Composable (TextFieldLabelScope.() -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -40,7 +41,6 @@ public fun ClearTextField(
     clearButtonContentDescription: String = stringResource(Res.string.clear_text_field_button_content_description),
 ) {
     val hasText by remember(state) { derivedStateOf { state.text.isNotEmpty() } }
-    val focusRequester = remember { FocusRequester() }
 
     TextField(
         state = state,

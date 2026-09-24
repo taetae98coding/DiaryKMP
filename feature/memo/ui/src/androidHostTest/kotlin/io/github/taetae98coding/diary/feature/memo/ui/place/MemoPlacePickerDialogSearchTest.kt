@@ -1,7 +1,7 @@
 package io.github.taetae98coding.diary.feature.memo.ui.place
 
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.isToggleable
@@ -11,6 +11,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.test.platform.app.InstrumentationRegistry
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -40,6 +41,16 @@ class MemoPlacePickerDialogSearchTest {
         composeRule.placeDialogNodeWithText(HOME_PLACE_TITLE).assertExists()
         composeRule.placeDialogNodeWithText(OFFICE_PLACE_TITLE).assertExists()
         queryList shouldBe listOf("")
+    }
+
+    @Test
+    fun `TC-MEMO-PLACE-CARD-FEATURE-036 목록을 열면 검색어 입력에 초점이 놓인다`() {
+        // 터치 모드가 아니면 대화상자가 첫 입력에 스스로 초점을 주므로, 휴대폰과 같은 터치 모드에서 확인한다.
+        InstrumentationRegistry.getInstrumentation().setInTouchMode(true)
+        composeRule.setMemoPlacePickerDialogHost(placeList = listOf(testPlace(title = HOME_PLACE_TITLE), testPlace(title = OFFICE_PLACE_TITLE)))
+        composeRule.waitForIdle()
+
+        composeRule.placeDialogSearchField().assertIsFocused()
     }
 
     @Test
@@ -77,7 +88,7 @@ class MemoPlacePickerDialogSearchTest {
         val unselectedIdList = mutableListOf<Uuid>()
         composeRule.setMemoPlacePickerDialog(
             placeList = listOf(homePlace),
-            queryState = TextFieldState(initialText = HOME_PLACE_QUERY),
+            query = HOME_PLACE_QUERY,
             onPlaceSelect = selectedIdList::add,
             onPlaceUnselect = unselectedIdList::add,
         )
@@ -94,7 +105,7 @@ class MemoPlacePickerDialogSearchTest {
     fun `TC-MEMO-PLACE-CARD-FEATURE-033 검색어에 맞는 장소가 없으면 결과 없음을 알린다`() {
         composeRule.setMemoPlacePickerDialog(
             placeList = emptyList(),
-            queryState = TextFieldState(initialText = HOME_PLACE_QUERY),
+            query = HOME_PLACE_QUERY,
         )
 
         composeRule.placeDialogNodeWithText(DEFAULT_PLACE_PICKER_SEARCH_EMPTY_TITLE).assertExists()
@@ -107,7 +118,7 @@ class MemoPlacePickerDialogSearchTest {
     fun `한국어 환경에서 장소 선택 목록의 검색 문구를 표시한다`() {
         composeRule.setMemoPlacePickerDialog(
             placeList = emptyList(),
-            queryState = TextFieldState(initialText = HOME_PLACE_QUERY),
+            query = HOME_PLACE_QUERY,
         )
 
         composeRule.placeDialogNodeWithText(KOREAN_PLACE_PICKER_SEARCH_EMPTY_TITLE).assertExists()
@@ -135,7 +146,7 @@ class MemoPlacePickerDialogSearchTest {
         var placeAddCount = 0
         composeRule.setMemoPlacePickerDialog(
             placeList = emptyList(),
-            queryState = TextFieldState(initialText = HOME_PLACE_QUERY),
+            query = HOME_PLACE_QUERY,
             onPlaceAdd = { placeAddCount += 1 },
         )
 

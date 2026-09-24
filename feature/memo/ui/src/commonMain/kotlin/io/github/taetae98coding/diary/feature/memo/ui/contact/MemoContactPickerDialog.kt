@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -20,6 +18,9 @@ import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerAddButton
 import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerDialog
 import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerEmptyBox
 import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerSearchField
+import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerSearchFieldState
+import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
+import io.github.taetae98coding.diary.compose.core.effect.RequestFocusEffect
 import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -40,7 +41,7 @@ internal fun MemoContactPickerDialog(
     onDismissRequest: () -> Unit,
     onEvent: (MemoContactPickerEvent) -> Unit,
     modifier: Modifier = Modifier,
-    queryState: TextFieldState = rememberTextFieldState(),
+    searchFieldState: DiaryPickerSearchFieldState = rememberDiaryPickerSearchFieldState(),
     contactPagingItems: LazyPagingItems<Contact> = remember { flowOf(PagingData.empty<Contact>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> MemoContactInputUiState = { MemoContactInputUiState() },
 ) {
@@ -49,15 +50,17 @@ internal fun MemoContactPickerDialog(
         onDismissRequest = onDismissRequest,
         modifier = modifier,
     ) {
-        val isSearchEmpty by remember(queryState, contactPagingItems) {
-            derivedStateOf { queryState.text.isNotBlank() && contactPagingItems.isLoadedEmpty() }
+        RequestFocusEffect(focusRequester = searchFieldState.focusRequester)
+
+        val isSearchEmpty by remember(searchFieldState, contactPagingItems) {
+            derivedStateOf { searchFieldState.textFieldState.text.isNotBlank() && contactPagingItems.isLoadedEmpty() }
         }
 
         Column(modifier = Modifier.fillMaxWidth()) {
             DiaryPickerSearchField(
                 placeholder = stringResource(Res.string.memo_contact_picker_search_placeholder),
                 modifier = Modifier.fillMaxWidth(),
-                state = queryState,
+                state = searchFieldState,
             )
             Spacer(modifier = Modifier.height(DiaryTheme.dimens.componentSpacing))
             DiaryCrossfade(

@@ -1,6 +1,5 @@
 package io.github.taetae98coding.diary.compose.tag.entity
 
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.paging.PagingData
@@ -8,6 +7,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
+import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
 import io.github.taetae98coding.diary.compose.core.effect.DiarySearchQueryEffect
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -24,7 +24,7 @@ public fun EntityTagPickerDialogHost(
 ) {
     if (!dialogState.isVisible) return
 
-    val queryState = rememberTextFieldState()
+    val searchFieldState = rememberDiaryPickerSearchFieldState()
 
     val hide = {
         onEvent(EntityTagPickerEvent.ChangeQuery(query = ""))
@@ -32,7 +32,7 @@ public fun EntityTagPickerDialogHost(
     }
 
     DiarySearchQueryEffect(
-        queryState = queryState,
+        queryState = searchFieldState.textFieldState,
         onQueryChange = { query -> onEvent(EntityTagPickerEvent.ChangeQuery(query = query)) },
     )
 
@@ -42,7 +42,7 @@ public fun EntityTagPickerDialogHost(
             if (event is EntityTagPickerEvent.ClickAdd) hide()
             onEvent(event)
         },
-        queryState = queryState,
+        searchFieldState = searchFieldState,
         tagPagingItems = tagPagingItems,
         uiStateProvider = uiStateProvider,
     )

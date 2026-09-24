@@ -2,8 +2,6 @@ package io.github.taetae98coding.diary.compose.core.dialog
 
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
-import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,11 +16,12 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 public fun DiaryPickerSearchField(
     placeholder: String,
     modifier: Modifier = Modifier,
-    state: TextFieldState = rememberTextFieldState(),
+    state: DiaryPickerSearchFieldState = rememberDiaryPickerSearchFieldState(),
 ) {
     ClearTextField(
         modifier = modifier,
-        state = state,
+        state = state.textFieldState,
+        focusRequester = state.focusRequester,
         placeholder = { Text(text = placeholder) },
         leadingIcon = { SearchIcon() },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
@@ -37,7 +36,7 @@ private fun DiaryPickerSearchFieldPreview() {
         Surface {
             DiaryPickerSearchField(
                 placeholder = "태그 검색",
-                state = rememberTextFieldState(initialText = "업무"),
+                state = rememberDiaryPickerSearchFieldState(initialText = "업무"),
             )
         }
     }

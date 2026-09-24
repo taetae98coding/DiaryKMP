@@ -1,6 +1,5 @@
 package io.github.taetae98coding.diary.feature.tag.ui.link
 
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.isDialog
@@ -77,7 +76,7 @@ class TagLinkPickerDialogSearchTest {
         val unlinkedIdList = mutableListOf<Uuid>()
         composeRule.setTagLinkPickerDialog(
             tagList = listOf(workTag),
-            queryState = TextFieldState(initialText = WORK_TAG_QUERY),
+            query = WORK_TAG_QUERY,
             onLink = linkedIdList::add,
             onUnlink = unlinkedIdList::add,
         )
@@ -94,7 +93,7 @@ class TagLinkPickerDialogSearchTest {
     fun `TC-TAG-LINK-INPUT-FEATURE-022 검색어에 맞는 태그가 없으면 결과 없음을 알린다`() {
         composeRule.setTagLinkPickerDialog(
             tagList = emptyList(),
-            queryState = TextFieldState(initialText = WORK_TAG_QUERY),
+            query = WORK_TAG_QUERY,
         )
 
         composeRule.dialogNodeWithText(DEFAULT_PICKER_SEARCH_EMPTY_TITLE).assertExists()
@@ -107,7 +106,7 @@ class TagLinkPickerDialogSearchTest {
         var clickAddCount = 0
         composeRule.setTagLinkPickerDialog(
             tagList = emptyList(),
-            queryState = TextFieldState(initialText = WORK_TAG_QUERY),
+            query = WORK_TAG_QUERY,
             onClickAdd = { clickAddCount += 1 },
         )
 
@@ -122,7 +121,7 @@ class TagLinkPickerDialogSearchTest {
     fun `한국어 환경에서 태그 선택 목록의 검색 문구를 표시한다`() {
         composeRule.setTagLinkPickerDialog(
             tagList = emptyList(),
-            queryState = TextFieldState(initialText = WORK_TAG_QUERY),
+            query = WORK_TAG_QUERY,
         )
 
         composeRule.dialogNodeWithText(KOREAN_PICKER_SEARCH_EMPTY_TITLE).assertExists()

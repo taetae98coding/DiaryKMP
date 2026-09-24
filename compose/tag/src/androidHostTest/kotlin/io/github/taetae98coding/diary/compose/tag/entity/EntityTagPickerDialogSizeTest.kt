@@ -1,6 +1,5 @@
 package io.github.taetae98coding.diary.compose.tag.entity
 
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -39,7 +38,7 @@ class EntityTagPickerDialogSizeTest {
     fun `연결할 태그 선택 목록의 검색 결과 없음 안내도 같은 자리 높이를 쓴다`() {
         composeRule.setEntityTagPickerDialog(
             tagList = emptyList(),
-            queryState = TextFieldState(initialText = WORK_TAG_QUERY),
+            query = WORK_TAG_QUERY,
         )
 
         composeRule.onNode(hasTestTag(DIARY_PICKER_EMPTY_BOX_TEST_TAG)).assertHeightIsEqualTo(PICKER_LIST_HEIGHT)

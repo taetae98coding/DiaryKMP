@@ -1,7 +1,7 @@
 package io.github.taetae98coding.diary.feature.memo.ui.tag
 
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.isToggleable
@@ -9,6 +9,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
+import androidx.test.platform.app.InstrumentationRegistry
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
@@ -35,6 +36,16 @@ class MemoTagPickerDialogSearchTest {
         composeRule.dialogNodeWithText(WORK_TAG_TITLE).assertExists()
         composeRule.dialogNodeWithText(EXERCISE_TAG_TITLE).assertExists()
         queryList shouldBe listOf("")
+    }
+
+    @Test
+    fun `TC-MEMO-TAG-INPUT-FEATURE-046 목록을 열면 검색어 입력에 초점이 놓인다`() {
+        // 터치 모드가 아니면 대화상자가 첫 입력에 스스로 초점을 주므로, 휴대폰과 같은 터치 모드에서 확인한다.
+        InstrumentationRegistry.getInstrumentation().setInTouchMode(true)
+        composeRule.setMemoTagPickerDialogHost(tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE)))
+        composeRule.awaitTagPickerRows()
+
+        composeRule.dialogSearchField().assertIsFocused()
     }
 
     @Test
@@ -72,7 +83,7 @@ class MemoTagPickerDialogSearchTest {
         val primarySelectedIdList = mutableListOf<Uuid>()
         composeRule.setMemoTagPickerDialog(
             tagList = listOf(workTag),
-            queryState = TextFieldState(initialText = WORK_TAG_QUERY),
+            query = WORK_TAG_QUERY,
             onTagSelect = selectedIdList::add,
             onPrimaryTagSelect = primarySelectedIdList::add,
         )
@@ -90,7 +101,7 @@ class MemoTagPickerDialogSearchTest {
     fun `TC-MEMO-TAG-INPUT-FEATURE-041 검색어에 맞는 태그가 없으면 결과 없음을 알린다`() {
         composeRule.setMemoTagPickerDialog(
             tagList = emptyList(),
-            queryState = TextFieldState(initialText = WORK_TAG_QUERY),
+            query = WORK_TAG_QUERY,
         )
 
         composeRule.dialogNodeWithText(DEFAULT_PICKER_SEARCH_EMPTY_TITLE).assertExists()
@@ -103,7 +114,7 @@ class MemoTagPickerDialogSearchTest {
     fun `한국어 환경에서 태그 선택 목록의 검색 문구를 표시한다`() {
         composeRule.setMemoTagPickerDialog(
             tagList = emptyList(),
-            queryState = TextFieldState(initialText = WORK_TAG_QUERY),
+            query = WORK_TAG_QUERY,
         )
 
         composeRule.dialogNodeWithText(KOREAN_PICKER_SEARCH_EMPTY_TITLE).assertExists()
@@ -131,7 +142,7 @@ class MemoTagPickerDialogSearchTest {
         var tagAddCount = 0
         composeRule.setMemoTagPickerDialog(
             tagList = emptyList(),
-            queryState = TextFieldState(initialText = WORK_TAG_QUERY),
+            query = WORK_TAG_QUERY,
             onTagAdd = { tagAddCount += 1 },
         )
 
