@@ -26,3 +26,4 @@ SettingHome의 단독·목록/상세 배치와 표시 상태에 따른 뒤로가
 | 지도 항목 이름 | `지도` | `Map` |
 | Gemini 항목 이름 | `Gemini` | `Gemini` |
 | 브라우저 항목 이름 | `브라우저` | `Browser` |
+| 다운로드 항목 이름 | `다운로드` | `Download` |

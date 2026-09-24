@@ -92,6 +92,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [MusicAdd](./music-add.md) | [MusicAdd 화면](../spec/music-add.md) |
 | [MusicDetail](./music-detail.md) | [MusicDetail 화면](../spec/music-detail.md) |
 | [곡 다운로드](./music-download.md) | [곡 다운로드](../spec/music-download.md) |
+| [곡 다운로드 프록시](./music-download-proxy.md) | [곡 다운로드 프록시](../spec/music-download-proxy.md) |
 | [네이버 장소 검색](./naver-place-search.md) | [네이버 장소 검색](../spec/naver-place-search.md) |
 | [알림 권한 요청](./notification-permission.md) | [알림 권한 요청](../spec/notification-permission.md) |
 | [PlaceAdd](./place-add.md) | [PlaceAdd 화면](../spec/place-add.md) |
@@ -110,6 +111,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [SearchHome](./search-home.md) | [SearchHome 화면](../spec/search-home.md) |
 | [화면 조회 로깅](./screen-view-logging.md) | [화면 조회 로깅](../spec/screen-view-logging.md) |
 | [SettingBrowser](./setting-browser.md) | [SettingBrowser 화면](../spec/setting-browser.md) |
+| [SettingDownload](./setting-download.md) | [SettingDownload 화면](../spec/setting-download.md) |
 | [SettingGemini](./setting-gemini.md) | [SettingGemini 화면](../spec/setting-gemini.md) |
 | [SettingHoliday](./setting-holiday.md) | [SettingHoliday 화면](../spec/setting-holiday.md) |
 | [SettingHome](./setting-home.md) | [SettingHome 화면](../spec/setting-home.md) |

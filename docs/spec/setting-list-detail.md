@@ -1,6 +1,6 @@
 # Setting 목록·상세 배치 스펙
 
-이 문서는 설정 목록과 상세를 함께 사용할 때 이 배치에만 해당하는 상세 선택 상태, 뒤로가기와 초기화 경계를 다룬다. 함께 사용과 단독 사용, 표시 비율 조절, 배치에 참여하는 화면과 유지·초기화의 공통 기준은 [목록·상세 배치 공통 스펙](./list-detail-pane.md)을 따른다. 설정 목록과 각 세부 설정 화면의 내용과 행동은 [SettingHome 화면 스펙](./setting-home.md), [SettingHoliday 화면 스펙](./setting-holiday.md), [SettingMap 화면 스펙](./setting-map.md), [SettingGemini 화면 스펙](./setting-gemini.md), [SettingBrowser 화면 스펙](./setting-browser.md)에서 다룬다.
+이 문서는 설정 목록과 상세를 함께 사용할 때 이 배치에만 해당하는 상세 선택 상태, 뒤로가기와 초기화 경계를 다룬다. 함께 사용과 단독 사용, 표시 비율 조절, 배치에 참여하는 화면과 유지·초기화의 공통 기준은 [목록·상세 배치 공통 스펙](./list-detail-pane.md)을 따른다. 설정 목록과 각 세부 설정 화면의 내용과 행동은 [SettingHome 화면 스펙](./setting-home.md), [SettingHoliday 화면 스펙](./setting-holiday.md), [SettingMap 화면 스펙](./setting-map.md), [SettingGemini 화면 스펙](./setting-gemini.md), [SettingBrowser 화면 스펙](./setting-browser.md), [SettingDownload 화면 스펙](./setting-download.md)에서 다룬다.
 
 디자인: [Setting 목록·상세 배치 디자인](../design/setting-list-detail.md)
 
@@ -28,7 +28,7 @@
 
 ### 상세 선택
 
-상세 영역은 선택 전 상태, 공휴일 설정 선택, 지도 설정 선택, Gemini 설정 선택, 브라우저 설정 선택 중 하나의 상태를 가진다. 브라우저 설정 선택은 [SettingHome 화면 스펙](./setting-home.md)이 `브라우저` 항목을 제공하는 환경에서만 있다.
+상세 영역은 선택 전 상태, 공휴일 설정 선택, 지도 설정 선택, Gemini 설정 선택, 브라우저 설정 선택, 다운로드 설정 선택 중 하나의 상태를 가진다. 브라우저 설정 선택과 다운로드 설정 선택은 [SettingHome 화면 스펙](./setting-home.md)이 각 항목을 제공하는 환경에서만 있다.
 
 ### 유지와 초기화 기준
 

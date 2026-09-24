@@ -120,6 +120,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail, ContactAdd 화면 문서는 태그 입
 - [검색 입력](./search-input.md)
 - [묶음 목록 항목](./segmented-list-item.md)
 - [SettingBrowser 화면](./setting-browser.md)
+- [SettingDownload 화면](./setting-download.md)
 - [SettingGemini 화면](./setting-gemini.md)
 - [SettingHoliday 화면](./setting-holiday.md)
 - [SettingHome 화면](./setting-home.md)

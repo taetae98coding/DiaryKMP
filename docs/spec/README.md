@@ -87,6 +87,7 @@
 | [MusicAdd 화면](./music-add.md) | [MusicAdd 디자인](../design/music-add.md) |
 | [MusicDetail 화면](./music-detail.md) | [MusicDetail 디자인](../design/music-detail.md) |
 | [곡 다운로드](./music-download.md) | [PlaylistHome 디자인](../design/playlist-home.md) |
+| [곡 다운로드 프록시](./music-download-proxy.md) | — |
 | [네이버 장소 검색](./naver-place-search.md) | — |
 | [알림 권한 요청](./notification-permission.md) | — |
 | [권한 요청 공통](./permission.md) | — |
@@ -109,6 +110,7 @@
 | [검색어 일치 판정](./search-match.md) | — |
 | [화면 조회 로깅](./screen-view-logging.md) | — |
 | [SettingBrowser 화면](./setting-browser.md) | [SettingBrowser 디자인](../design/setting-browser.md) |
+| [SettingDownload 화면](./setting-download.md) | [SettingDownload 디자인](../design/setting-download.md) |
 | [SettingGemini 화면](./setting-gemini.md) | [SettingGemini 디자인](../design/setting-gemini.md) |
 | [SettingHoliday 화면](./setting-holiday.md) | [SettingHoliday 디자인](../design/setting-holiday.md) |
 | [SettingHome 화면](./setting-home.md) | [SettingHome 디자인](../design/setting-home.md) |
