@@ -46,6 +46,7 @@
 | [항목 상세 화면 공통](./entity-detail.md) | — |
 | [항목 연결 공통](./entity-link.md) | — |
 | [항목 태그 연결 공통](./entity-tag.md) | — |
+| [FCM 토큰 등록](./fcm-token.md) | — |
 | [FileHome 화면](./file-home.md) | [FileHome 디자인](../design/file-home.md) |
 | [완료 목록 공통](./finished-list.md) | — |
 | [Gemini 모델 목록 조회](./gemini-model-list.md) | — |

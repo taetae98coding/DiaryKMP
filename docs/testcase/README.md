@@ -58,6 +58,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [DiaryColorInput](./diary-color-input.md) | [DiaryColorInput 컴포넌트](../spec/diary-color-input.md) |
 | [DiaryDateTimeInput](./diary-date-time-input.md) | [DiaryDateTimeInput 컴포넌트](../spec/diary-date-time-input.md) |
 | [DiaryMap](./diary-map.md) | [DiaryMap 컴포넌트](../spec/diary-map.md) |
+| [FCM 토큰 등록](./fcm-token.md) | [FCM 토큰 등록](../spec/fcm-token.md) |
 | [FileHome](./file-home.md) | [FileHome 화면](../spec/file-home.md) |
 | [Gemini 모델 목록 조회](./gemini-model-list.md) | [Gemini 모델 목록 조회](../spec/gemini-model-list.md) |
 | [Google 장소 검색](./google-place-search.md) | [Google 장소 검색](../spec/google-place-search.md) |
