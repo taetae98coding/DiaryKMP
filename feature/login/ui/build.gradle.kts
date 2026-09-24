@@ -28,8 +28,16 @@ kotlin {
 
         androidMain {
             dependencies {
+                implementation(libs.androidx.browser)
                 implementation(libs.androidx.credentials.play.services.auth)
                 implementation(libs.google.identity.googleid)
+            }
+        }
+
+        androidHostTest {
+            dependencies {
+                implementation(libs.androidx.lifecycle.runtime.testing)
+                implementation(libs.kotlinx.coroutines.test)
             }
         }
 

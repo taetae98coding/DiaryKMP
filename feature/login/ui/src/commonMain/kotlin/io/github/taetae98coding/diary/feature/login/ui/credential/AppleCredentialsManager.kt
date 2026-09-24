@@ -11,7 +11,3 @@ internal interface AppleCredentialsManager {
 
 @Composable
 internal expect fun rememberAppleCredentialsManager(): AppleCredentialsManager
-
-internal class UnsupportedAppleCredentialsManager : AppleCredentialsManager {
-    override suspend fun signIn(): AppleCredential = throw AppleCredentialsException(message = "Apple sign-in is not supported on this platform")
-}

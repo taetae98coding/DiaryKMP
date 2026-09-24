@@ -260,6 +260,13 @@ buildkonfig {
                 nullable = false,
                 const = true,
             )
+            buildConfigField(
+                type = FieldSpec.Type.STRING,
+                name = "APPLE_CREDENTIALS_CLIENT_ID",
+                value = localProperties.getProperty("dev.apple.webClientId"),
+                nullable = false,
+                const = true,
+            )
         }
 
         create("jvm") {
@@ -277,6 +284,13 @@ buildkonfig {
                 nullable = false,
                 const = true,
             )
+            buildConfigField(
+                type = FieldSpec.Type.STRING,
+                name = "APPLE_CREDENTIALS_CLIENT_ID",
+                value = localProperties.getProperty("dev.apple.webClientId"),
+                nullable = false,
+                const = true,
+            )
         }
 
         create("wasmJs") {
@@ -284,6 +298,13 @@ buildkonfig {
                 type = FieldSpec.Type.STRING,
                 name = "GOOGLE_CREDENTIALS_CLIENT_ID",
                 value = localProperties.getProperty("dev.wasm.googleCredentialsClientId"),
+                nullable = false,
+                const = true,
+            )
+            buildConfigField(
+                type = FieldSpec.Type.STRING,
+                name = "APPLE_CREDENTIALS_CLIENT_ID",
+                value = localProperties.getProperty("dev.apple.webClientId"),
                 nullable = false,
                 const = true,
             )
@@ -296,6 +317,13 @@ buildkonfig {
                 type = FieldSpec.Type.STRING,
                 name = "GOOGLE_CREDENTIALS_SERVER_CLIENT_ID",
                 value = localProperties.getProperty("real.android.googleCredentialsServerClientId"),
+                nullable = false,
+                const = true,
+            )
+            buildConfigField(
+                type = FieldSpec.Type.STRING,
+                name = "APPLE_CREDENTIALS_CLIENT_ID",
+                value = localProperties.getProperty("real.apple.webClientId"),
                 nullable = false,
                 const = true,
             )
@@ -316,6 +344,13 @@ buildkonfig {
                 nullable = false,
                 const = true,
             )
+            buildConfigField(
+                type = FieldSpec.Type.STRING,
+                name = "APPLE_CREDENTIALS_CLIENT_ID",
+                value = localProperties.getProperty("real.apple.webClientId"),
+                nullable = false,
+                const = true,
+            )
         }
 
         create("wasmJs") {
@@ -323,6 +358,13 @@ buildkonfig {
                 type = FieldSpec.Type.STRING,
                 name = "GOOGLE_CREDENTIALS_CLIENT_ID",
                 value = localProperties.getProperty("real.wasm.googleCredentialsClientId"),
+                nullable = false,
+                const = true,
+            )
+            buildConfigField(
+                type = FieldSpec.Type.STRING,
+                name = "APPLE_CREDENTIALS_CLIENT_ID",
+                value = localProperties.getProperty("real.apple.webClientId"),
                 nullable = false,
                 const = true,
             )

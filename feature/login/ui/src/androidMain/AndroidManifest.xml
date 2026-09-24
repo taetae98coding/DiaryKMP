@@ -1,0 +1,23 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <!-- 서버 콜백이 Apple 인증 결과를 앱 식별자 scheme의 앱 링크로 돌려보낸다. 브라우저 탭 위에 잠시 떠서 결과를 넘기고 사라지므로
+             투명 테마로 두고 최근 앱 목록에 남기지 않는다. -->
+        <activity
+            android:name="io.github.taetae98coding.diary.feature.login.ui.credential.AppleSignInRedirectActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="apple-sign-in"
+                    android:scheme="${applicationId}" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

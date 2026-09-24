@@ -5,4 +5,4 @@ import org.koin.core.annotation.Qualifier
 @Qualifier
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
-public annotation class GoogleCredentialsDispatcher
+public annotation class CredentialsDispatcher

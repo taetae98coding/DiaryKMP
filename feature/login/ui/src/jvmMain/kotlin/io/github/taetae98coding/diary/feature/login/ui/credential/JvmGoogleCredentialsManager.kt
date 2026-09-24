@@ -14,7 +14,7 @@ import kotlin.coroutines.cancellation.CancellationException
 @Composable
 internal actual fun rememberGoogleCredentialsManager(): GoogleCredentialsManager {
     val clientId = koinInject<String>(qualifier = named<GoogleCredentialsClientId>())
-    val coroutineDispatcher = koinInject<CoroutineDispatcher>(qualifier = named<GoogleCredentialsDispatcher>())
+    val coroutineDispatcher = koinInject<CoroutineDispatcher>(qualifier = named<CredentialsDispatcher>())
 
     return remember(clientId, coroutineDispatcher) {
         JvmGoogleCredentialsManager(
