@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.app.shared
 
 import io.github.taetae98coding.diary.core.database.impl.di.DiaryDatabaseDirectory
 import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDirectory
+import io.github.taetae98coding.diary.core.file.impl.di.AppFileDirectoryName
 import io.github.taetae98coding.diary.core.holiday.database.impl.di.HolidayDatabaseDirectory
 import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsClientId
 import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsDispatcher
@@ -17,6 +18,10 @@ internal class JvmAppModule {
     @Factory
     @DiaryDatabaseDirectory
     fun providesDatabaseDirectory(): String = BuildKonfig.APP_DIRECTORY
+
+    @Factory
+    @AppFileDirectoryName
+    fun providesAppFileDirectoryName(): String = BuildKonfig.APP_DIRECTORY
 
     @Factory
     @HolidayDatabaseDirectory
