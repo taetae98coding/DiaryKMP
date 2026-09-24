@@ -119,6 +119,9 @@ verify_jwt = true
 [functions.v1-profile-upload]
 verify_jwt = true
 
+[functions.v1-fcm-token-submit]
+verify_jwt = false
+
 # 위 설정은 dev(project_id) 기준이며, client_id/secret은 push 시점 env로 주입된다.
 # dev/real 간 설정 차이가 없어 real은 project_id만 지정해 base 설정을 상속한다.
 # dev  배포: supabase config push --project-ref ljsscxmqzsoulswmwsia
