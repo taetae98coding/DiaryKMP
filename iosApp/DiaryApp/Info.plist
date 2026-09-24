@@ -25,6 +25,8 @@
 	<string>$(GID_SERVER_CLIENT_ID)</string>
 	<key>GMSApiKey</key>
 	<string>$(GOOGLE_MAP_API_KEY)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NMFNcpKeyId</key>
 	<string>$(NAVER_MAP_NCP_KEY_ID)</string>
 	<key>NSAppTransportSecurity</key>
