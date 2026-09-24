@@ -11,6 +11,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(libs.jetbrains.compose.ui)
+                implementation(libs.kotlinx.coroutines.core)
             }
         }
     }

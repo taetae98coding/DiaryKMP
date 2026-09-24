@@ -60,6 +60,9 @@ internal object ObjCRuntime {
         )
     private val mainQueue = linker.defaultLookup().find("_dispatch_main_q").orElseThrow()
 
+    // 전역 블록의 isa. 런타임이 이 클래스의 블록은 복사하거나 해제하지 않는다.
+    val concreteGlobalBlock: MemorySegment = linker.defaultLookup().find("_NSConcreteGlobalBlock").orElseThrow()
+
     private val mainThreadBlockId = AtomicLong(0L)
     private val mainThreadBlocks = ConcurrentHashMap<Long, () -> Unit>()
     private val runOnMainThreadStub =
@@ -152,4 +155,9 @@ internal object ObjCRuntime {
         handle: MethodHandle,
         descriptor: FunctionDescriptor,
     ): MemorySegment = linker.upcallStub(handle, descriptor, Arena.global())
+
+    fun frameworkSymbol(
+        frameworkPath: String,
+        name: String,
+    ): MemorySegment = SymbolLookup.libraryLookup(frameworkPath, Arena.global()).find(name).orElseThrow()
 }

@@ -13,6 +13,12 @@ private val msgSendIdIdReturnId =
     ObjCRuntime.msgSendHandle(
         FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.ADDRESS),
     )
+private val msgSendDoubleReturnId =
+    ObjCRuntime.msgSendHandle(FunctionDescriptor.of(ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.JAVA_DOUBLE))
+private val msgSendReturnDouble =
+    ObjCRuntime.msgSendHandle(FunctionDescriptor.of(ValueLayout.JAVA_DOUBLE, ValueLayout.ADDRESS, ValueLayout.ADDRESS))
+private val msgSendReturnBoolean =
+    ObjCRuntime.msgSendHandle(FunctionDescriptor.of(ValueLayout.JAVA_BOOLEAN, ValueLayout.ADDRESS, ValueLayout.ADDRESS))
 private val msgSendIdReturnBoolean =
     ObjCRuntime.msgSendHandle(FunctionDescriptor.of(ValueLayout.JAVA_BOOLEAN, ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.ADDRESS))
 private val msgSendRectIdReturnId =
@@ -52,6 +58,11 @@ internal fun MemorySegment.send(
 
 internal fun MemorySegment.send(
     selector: MemorySegment,
+    argument: Double,
+): MemorySegment = msgSendDoubleReturnId.invoke(this, selector, argument) as MemorySegment
+
+internal fun MemorySegment.send(
+    selector: MemorySegment,
     rect: AppKitRect,
     argument: MemorySegment,
 ): MemorySegment =
@@ -70,6 +81,10 @@ internal fun MemorySegment.sendBoolean(
     selector: MemorySegment,
     argument: MemorySegment,
 ): Boolean = msgSendIdReturnBoolean.invoke(this, selector, argument) as Boolean
+
+internal fun MemorySegment.sendBoolean(selector: MemorySegment): Boolean = msgSendReturnBoolean.invoke(this, selector) as Boolean
+
+internal fun MemorySegment.sendDouble(selector: MemorySegment): Double = msgSendReturnDouble.invoke(this, selector) as Double
 
 // stringWithUTF8String:은 autorelease된 객체를 반환하므로 withAutoreleasePool 안에서 쓴다.
 internal fun nsString(value: String): MemorySegment =
