@@ -91,7 +91,7 @@ MoreHome 화면에서는 현재 계정 상태와 기능 바로가기를 확인�
 | `플레이리스트` | [PlaylistHome 화면](./playlist-home.md) |
 | `황금연휴` | [HolidayHome 화면](./holiday-home.md) |
 
-`디데이`, `체크리스트`, `파일`의 화면은 아직 기능을 제공하지 않으며, 그 화면에서 보장하는 내용과 행동은 [더보기 준비 중 화면 공통 스펙](./more-menu-placeholder.md)을 따른다.
+`디데이`, `체크리스트`의 화면은 아직 기능을 제공하지 않으며, 그 화면에서 보장하는 내용과 행동은 [더보기 준비 중 화면 공통 스펙](./more-menu-placeholder.md)을 따른다.
 
 날씨는 기능 바로가기로 제공하지 않는다. 사용자는 [CalendarHome 화면 스펙](./calendar-home.md)의 날씨 표시로 날짜별 날씨를 확인한다.
 

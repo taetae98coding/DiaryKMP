@@ -64,6 +64,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [DiaryMap](./diary-map.md) | [DiaryMap 컴포넌트](../spec/client/diary-map.md) |
 | [푸시 알림 수신 등록](./fcm-token.md) | [푸시 알림 수신 등록(client)](../spec/client/fcm-token.md), [푸시 알림 수신 등록(common)](../spec/common/fcm-token.md), [푸시 알림 수신 등록(server)](../spec/server/fcm-token.md) |
 | [FileHome](./file-home.md) | [FileHome 화면](../spec/client/file-home.md) |
+| [파일 보관](./file-storage.md) | [파일 보관(client)](../spec/client/file-storage.md), [파일 보관(common)](../spec/common/file-storage.md), [파일 보관(server)](../spec/server/file-storage.md) |
 | [Gemini 모델 목록 조회](./gemini-model-list.md) | [Gemini 모델 목록 조회](../spec/client/gemini-model-list.md) |
 | [Google 장소 검색](./google-place-search.md) | [Google 장소 검색](../spec/client/google-place-search.md) |
 | [공휴일 국가 설정](./holiday-country.md) | [공휴일 국가 설정](../spec/client/holiday-country.md) |
@@ -150,8 +151,8 @@ TC-<SPEC>-<AREA>-<NNN>
 
 다음 공통 스펙은 전용 테스트 케이스 문서를 두지 않고, 그 스펙을 사용하는 화면의 문서에 케이스를 둔다.
 
-- [더보기 준비 중 화면 공통 스펙](../spec/client/more-menu-placeholder.md) → [DDayHome](./dday-home.md), [ChecklistHome](./checklist-home.md), [FileHome](./file-home.md)
-  - 세 화면이 같은 공통 규칙의 케이스를 각자의 제목 문구와 진입 항목에 맞춰 각각 갖는다.
+- [더보기 준비 중 화면 공통 스펙](../spec/client/more-menu-placeholder.md) → [DDayHome](./dday-home.md), [ChecklistHome](./checklist-home.md)
+  - 두 화면이 같은 공통 규칙의 케이스를 각자의 제목 문구와 진입 항목에 맞춰 각각 갖는다.
 - [태그 필터 스펙](../spec/client/tag-filter.md) → [MemoHome 목록](./memo-home.md), [CalendarHome](./calendar-home.md)
 - [태그 선택 입력 공통 스펙](../spec/client/tag-select-input.md) → [메모 태그 입력 컴포넌트](./memo-tag-input.md), [항목 태그 입력 컴포넌트](./entity-tag-input.md), [태그 연결 입력 컴포넌트](./tag-link-input.md)
   - 세 입력 문서가 공통 스펙의 같은 절을 각자의 대상과 문구에 맞춰 갖는다.

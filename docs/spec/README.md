@@ -171,6 +171,7 @@
 | 태그 연결 | [client](./client/tag-link.md) | [common](./common/tag-link.md) | — | — |
 | 태그 연결 입력 컴포넌트 | [client](./client/tag-link-input.md) | — | — | [태그 연결 입력 디자인](../design/tag-link-input.md) |
 | 태그 필터 | [client](./client/tag-filter.md) | — | — | [태그 필터 디자인](../design/tag-filter.md), [필터 Bottom Sheet 디자인](../design/filter-bottom-sheet.md) |
+| 파일 보관 | [client](./client/file-storage.md) | [common](./common/file-storage.md) | [server](./server/file-storage.md) | — |
 | 페이지 조회 목록의 자리 표시 | [client](./client/paged-list-placeholder.md) | — | — | [페이지 조회 목록의 자리 표시 디자인](../design/paged-list-placeholder.md) |
 | 푸시 알림 수신 등록 | [client](./client/fcm-token.md) | [common](./common/fcm-token.md) | [server](./server/fcm-token.md) | — |
 | 프로필 이미지 변경 | [client](./client/profile-image.md) | [common](./common/profile-image.md) | [server](./server/profile-image.md) | — |

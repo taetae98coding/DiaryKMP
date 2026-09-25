@@ -30,4 +30,3 @@
 
 - [DDayHome 화면 디자인](./dday-home.md)
 - [ChecklistHome 화면 디자인](./checklist-home.md)
-- [FileHome 화면 디자인](./file-home.md)

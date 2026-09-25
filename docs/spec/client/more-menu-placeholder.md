@@ -34,7 +34,6 @@
 | --- | --- | --- |
 | `디데이` | DDayHome | [DDayHome 화면 스펙](./dday-home.md) |
 | `체크리스트` | ChecklistHome | [ChecklistHome 화면 스펙](./checklist-home.md) |
-| `파일` | FileHome | [FileHome 화면 스펙](./file-home.md) |
 
 각 화면은 서로 독립된 화면이며, 한 화면에서 다른 화면으로 이동하지 않는다.
 
@@ -52,4 +51,3 @@
 
 - [DDayHome 화면 스펙](./dday-home.md)
 - [ChecklistHome 화면 스펙](./checklist-home.md)
-- [FileHome 화면 스펙](./file-home.md)
