@@ -29,7 +29,7 @@ import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
-import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBar
+import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
 import io.github.taetae98coding.diary.compose.web.WebCard
 import io.github.taetae98coding.diary.core.model.list.ListSort
@@ -59,10 +59,11 @@ internal fun TagDetailWebTab(
     )
 
     Column(modifier = modifier) {
-        DiaryListSortBar(
+        DiaryListSortBarHost(
             onClick = { onEvent(TagDetailWebContentEvent.ClickSort) },
             modifier = Modifier.fillMaxWidth(),
             sortProvider = sortProvider,
+            isSortVisibleProvider = { webPagingItems.itemCount > 0 },
         )
 
         DiaryCrossfade(

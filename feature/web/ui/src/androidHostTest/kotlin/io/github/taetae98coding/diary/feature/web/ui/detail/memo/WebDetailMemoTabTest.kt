@@ -58,7 +58,8 @@ class WebDetailMemoTabTest {
     @Test
     fun `정렬 컨트롤을 누르면 정렬 선택 요청을 전달한다`() {
         val eventList = mutableListOf<WebDetailMemoContentEvent>()
-        setMemoTab(onEvent = eventList::add)
+        setMemoTab(pagingData = webMemoPagingData(itemList = listOf(MemoListItem.Content(memo = webMemo(title = SORT_MEMO_TITLE)))), onEvent = eventList::add)
+        waitUntilMemoIsDisplayed(title = SORT_MEMO_TITLE)
 
         composeRule.onNodeWithText(DEFAULT_SORT_LABEL).performClick()
 
@@ -209,6 +210,7 @@ class WebDetailMemoTabTest {
         const val ALL_DAY_TITLE = "WebMemoAllDay"
         const val DATE_TIME_TITLE = "WebMemoDateTime"
         const val APPEND_ERROR_MEMO_TITLE = "WebMemoAppendError"
+        const val SORT_MEMO_TITLE = "WebMemoSort"
         const val CLICK_MEMO_TITLE = "WebMemoClick"
         const val FINISH_MEMO_TITLE = "WebMemoFinish"
         const val DELETE_MEMO_TITLE = "WebMemoDelete"

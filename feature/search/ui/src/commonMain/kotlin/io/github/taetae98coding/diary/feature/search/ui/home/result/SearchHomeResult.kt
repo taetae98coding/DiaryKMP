@@ -19,7 +19,7 @@ import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBar
+import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.feature.search.ui.Res
@@ -40,10 +40,11 @@ internal fun SearchHomeResult(
     list: @Composable () -> Unit,
 ) {
     Column(modifier = modifier.fillMaxSize()) {
-        DiaryListSortBar(
+        DiaryListSortBarHost(
             onClick = { onEvent(SearchHomeResultEvent.ClickSort) },
             modifier = Modifier.fillMaxWidth(),
             sortProvider = sortProvider,
+            isSortVisibleProvider = { pagingItems.itemCount > 0 },
         )
 
         DiaryCrossfade(

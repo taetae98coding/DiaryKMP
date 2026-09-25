@@ -169,7 +169,10 @@ class PlaylistHomeScaffoldTest {
 
     @Test
     fun `TC-PLAYLIST-LIST-DETAIL-FEATURE-007 상세 영역에 곡 추가가 놓여도 정렬 컨트롤은 표시된다`() {
-        setPlaylistHomeScaffold(componentVisible = PlaylistHomeScaffoldComponentVisible(isAddButtonVisible = false))
+        setPlaylistHomeScaffold(
+            musicList = listOf(testMusic(title = FIRST_TITLE)),
+            componentVisible = PlaylistHomeScaffoldComponentVisible(isAddButtonVisible = false),
+        )
 
         composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).assert(hasClickAction())
     }

@@ -58,7 +58,8 @@ class PlaceDetailMemoTabTest {
     @Test
     fun `정렬 컨트롤을 누르면 정렬 선택 요청을 전달한다`() {
         val eventList = mutableListOf<PlaceDetailMemoContentEvent>()
-        setMemoTab(onEvent = eventList::add)
+        setMemoTab(pagingData = placeMemoPagingData(itemList = listOf(MemoListItem.Content(memo = placeMemo(title = SORT_MEMO_TITLE)))), onEvent = eventList::add)
+        waitUntilMemoIsDisplayed(title = SORT_MEMO_TITLE)
 
         composeRule.onNodeWithText(DEFAULT_SORT_LABEL).performClick()
 
@@ -209,6 +210,7 @@ class PlaceDetailMemoTabTest {
         const val ALL_DAY_TITLE = "PlaceMemoAllDay"
         const val DATE_TIME_TITLE = "PlaceMemoDateTime"
         const val APPEND_ERROR_MEMO_TITLE = "PlaceMemoAppendError"
+        const val SORT_MEMO_TITLE = "PlaceMemoSort"
         const val CLICK_MEMO_TITLE = "PlaceMemoClick"
         const val FINISH_MEMO_TITLE = "PlaceMemoFinish"
         const val DELETE_MEMO_TITLE = "PlaceMemoDelete"

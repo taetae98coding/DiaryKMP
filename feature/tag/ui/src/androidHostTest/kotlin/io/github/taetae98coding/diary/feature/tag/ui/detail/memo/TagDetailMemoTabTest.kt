@@ -80,7 +80,11 @@ class TagDetailMemoTabTest {
     @Test
     @Config(qualifiers = "w320dp")
     fun `좁은 창에서 정렬 이름이 줄어들어도 완료된 메모 진입은 같은 줄에 그대로 표시한다`() {
-        setTagDetailMemoTab(sort = ListSort.RECENTLY_UPDATED)
+        setTagDetailMemoTab(
+            pagingData = tagMemoPagingData(itemList = listOf(MemoListItem.Content(memo = tagMemo(title = SORT_MEMO_TITLE)))),
+            sort = ListSort.RECENTLY_UPDATED,
+        )
+        waitUntilMemoIsDisplayed(title = SORT_MEMO_TITLE)
 
         val sortBounds = composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).assertIsDisplayed().getBoundsInRoot()
         val finishedListBounds = composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).assertIsDisplayed().getBoundsInRoot()
@@ -272,6 +276,7 @@ class TagDetailMemoTabTest {
         const val ALL_DAY_TITLE = "AllDayMemo"
         const val DATE_TIME_TITLE = "DateTimeMemo"
         const val APPEND_ERROR_MEMO_TITLE = "AppendErrorMemo"
+        const val SORT_MEMO_TITLE = "SortMemo"
         const val CLICK_MEMO_TITLE = "ClickMemo"
         const val FINISH_MEMO_TITLE = "FinishMemo"
         const val DELETE_MEMO_TITLE = "DeleteMemo"

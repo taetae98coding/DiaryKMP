@@ -18,7 +18,7 @@ import io.github.taetae98coding.diary.compose.core.icon.MemoIcon
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBar
+import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
 import io.github.taetae98coding.diary.compose.list.sort.memoListSortList
 import io.github.taetae98coding.diary.compose.memo.list.MemoList
@@ -48,10 +48,11 @@ internal fun ContactDetailMemoTab(
     sortProvider: () -> ListSort = { ListSort.DEFAULT },
 ) {
     Column(modifier = modifier) {
-        DiaryListSortBar(
+        DiaryListSortBarHost(
             onClick = { onEvent(ContactDetailMemoContentEvent.ClickSort) },
             modifier = Modifier.fillMaxWidth(),
             sortProvider = sortProvider,
+            isSortVisibleProvider = { memoPagingItems.itemCount > 0 },
         )
         MemoList(
             onEvent = onMemoListEvent,

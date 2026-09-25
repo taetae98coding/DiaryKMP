@@ -6,15 +6,24 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
+import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.core.model.memo.Memo
+import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
@@ -22,6 +31,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -82,6 +92,23 @@ class MemoHomeSortTest {
     }
 
     @Test
+    fun `TC-MEMO-HOME-FEATURE-063 목록이 비어 있으면 정렬 컨트롤 없이 완료된 메모 확인 동작만 남는다`() {
+        setMemoHomeScaffold(memoPagingData = memoPagingDataOf(emptyList()))
+
+        composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
+        composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).assert(hasClickAction())
+        composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).assertDoesNotExist()
+    }
+
+    @Test
+    fun `목록을 처음 준비하느라 메모가 아직 없으면 정렬 컨트롤을 표시하지 않는다`() {
+        setMemoHomeScaffold(memoPagingData = loadingMemoPagingData())
+
+        composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).assertDoesNotExist()
+    }
+
+    @Test
     fun `정렬 컨트롤은 선택한 정렬의 이름을 표시한다`() {
         setMemoHomeScaffold(sort = ListSort.RECENTLY_UPDATED)
 
@@ -99,13 +126,13 @@ class MemoHomeSortTest {
     }
 
     private fun setMemoHomeScaffold(
-        itemList: List<MemoListItem> = emptyList(),
+        memoPagingData: PagingData<MemoListItem> = memoPagingDataOf(listOf(memoListItem())),
         filterUiState: MemoHomeScaffoldFilterUiState = MemoHomeScaffoldFilterUiState(),
         onEvent: (MemoHomeScaffoldEvent) -> Unit = {},
         sortSheetState: DialogState = DialogState(),
         sort: ListSort = ListSort.DEFAULT,
     ) {
-        val memoPagingData = MutableStateFlow(memoPagingDataOf(itemList))
+        val memoPagingDataFlow = MutableStateFlow(memoPagingData)
 
         composeRule.setContent {
             DiaryTheme {
@@ -113,7 +140,7 @@ class MemoHomeSortTest {
                     onEvent = onEvent,
                     onMemoListEvent = {},
                     sortSheetState = sortSheetState,
-                    memoPagingItems = memoPagingData.collectAsLazyPagingItems(),
+                    memoPagingItems = memoPagingDataFlow.collectAsLazyPagingItems(),
                     filterUiStateProvider = { filterUiState },
                     sortProvider = { sort },
                 )
@@ -121,7 +148,19 @@ class MemoHomeSortTest {
         }
     }
 
+    private fun memoListItem(): MemoListItem =
+        MemoListItem.Content(
+            memo =
+                fixtureMonkey
+                    .giveMeKotlinBuilder<Memo>()
+                    .setExp(Memo::detail, fixtureMonkey.giveMeOne<MemoDetail>().copy(dateTime = null))
+                    .setExp(Memo::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                    .setExp(Memo::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                    .sample(),
+        )
+
     private companion object {
+        private const val DEFAULT_FINISHED_LIST_LABEL = "Finished memos"
         private const val DEFAULT_SORT_DESCRIPTION = "List sort"
         private const val KOREAN_SORT_DESCRIPTION = "목록 정렬"
         private const val DEFAULT_SORT_SHEET_TITLE = "Sort"
@@ -129,5 +168,8 @@ class MemoHomeSortTest {
         private const val KOREAN_DEFAULT_SORT = "기본순"
         private const val DEFAULT_TITLE_SORT = "Title"
         private const val DEFAULT_RECENTLY_UPDATED_SORT = "Recently updated"
+
+        private val fixtureMonkey: FixtureMonkey =
+            diaryFixtureMonkey()
     }
 }

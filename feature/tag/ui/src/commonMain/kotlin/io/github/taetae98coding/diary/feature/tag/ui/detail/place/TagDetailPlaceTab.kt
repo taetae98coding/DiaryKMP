@@ -16,7 +16,7 @@ import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBar
+import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.place.Place
@@ -43,10 +43,16 @@ internal fun TagDetailPlaceTab(
     )
 
     Column(modifier = modifier) {
-        DiaryListSortBar(
+        DiaryListSortBarHost(
             onClick = { onEvent(TagDetailPlaceContentEvent.ClickSort) },
             modifier = Modifier.fillMaxWidth(),
             sortProvider = sortProvider,
+            isSortVisibleProvider = {
+                when (state.viewMode) {
+                    TagDetailPlaceViewMode.LIST -> placePagingItems.itemCount > 0
+                    TagDetailPlaceViewMode.MAP -> placeListUiStateProvider().placeList.isNotEmpty()
+                }
+            },
             trailing = {
                 TagDetailPlaceViewModeButton(
                     onClick = state::toggleViewMode,

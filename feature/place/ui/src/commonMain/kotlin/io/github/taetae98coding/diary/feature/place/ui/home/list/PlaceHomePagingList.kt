@@ -26,7 +26,7 @@ import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
-import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBar
+import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.place.PlaceCard
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.place.Place
@@ -56,10 +56,11 @@ internal fun PlaceHomePagingList(
     )
 
     Column(modifier = modifier) {
-        DiaryListSortBar(
+        DiaryListSortBarHost(
             onClick = { onEvent(PlaceHomeScaffoldEvent.ClickSort) },
             modifier = Modifier.fillMaxWidth(),
             sortProvider = sortProvider,
+            isSortVisibleProvider = { placePagingItems.itemCount > 0 },
         )
 
         DiaryCrossfade(

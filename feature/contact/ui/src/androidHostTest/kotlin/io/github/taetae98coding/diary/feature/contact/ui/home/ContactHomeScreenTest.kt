@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.feature.contact.ui.home
 
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -77,7 +78,10 @@ class ContactHomeScreenTest {
 
     @Test
     fun `TC-CONTACT-HOME-FEATURE-012 고른 정렬을 정렬 컨트롤에 반영한다`() {
-        setContactHomeScreen()
+        setContactHomeScreen(contactList = listOf(testContact(name = CONTACT_NAME)))
+        composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(CONTACT_NAME).fetchSemanticsNodes().isNotEmpty()
+        }
 
         composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).performClick()
         composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).performClick()
@@ -137,6 +141,7 @@ class ContactHomeScreenTest {
     }
 
     private companion object {
+        private const val LIST_ITEM_TIMEOUT_MILLIS = 5_000L
         private const val CONTACT_NAME = "ContactHomeScreenName"
         private const val CONTACT_PHONE_NUMBER = "010-1111-2222"
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
