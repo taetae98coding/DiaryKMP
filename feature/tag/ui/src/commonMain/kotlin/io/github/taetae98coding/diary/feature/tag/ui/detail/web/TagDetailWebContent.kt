@@ -1,8 +1,10 @@
 package io.github.taetae98coding.diary.feature.tag.ui.detail.web
 
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.ViewModelStoreProvider
@@ -10,6 +12,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
+import io.github.taetae98coding.diary.compose.web.WebListUndoSnackbarEffect
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailSyncViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeEffect
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeState
@@ -25,6 +28,7 @@ internal fun TagDetailWebContent(
     navigateToWebDetail: (Uuid) -> Unit,
     scopeState: TagDetailScopeState,
     modifier: Modifier = Modifier,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     val viewModelStoreOwner = rememberViewModelStoreOwner(key = TagDetailTab.WEB, provider = viewModelStoreProvider)
 
@@ -36,6 +40,12 @@ internal fun TagDetailWebContent(
         val sort by webViewModel.sort.collectAsStateWithLifecycle()
         val queryScope by webViewModel.scope.collectAsStateWithLifecycle()
         val sortSheetState = rememberDialogState()
+
+        WebListUndoSnackbarEffect(
+            onRestore = webViewModel::restore,
+            effect = webViewModel.effect,
+            snackbarHostState = snackbarHostState,
+        )
 
         TagDetailScopeEffect(
             onSelect = { scope -> webViewModel.select(scope = scope) },
@@ -49,6 +59,7 @@ internal fun TagDetailWebContent(
                     is TagDetailWebContentEvent.Refresh -> syncViewModel.refresh()
                     is TagDetailWebContentEvent.ClickSort -> sortSheetState.show()
                     is TagDetailWebContentEvent.SelectSort -> webViewModel.select(sort = event.sort)
+                    is TagDetailWebContentEvent.DeleteWeb -> webViewModel.delete(id = event.id)
                 }
             },
             modifier = modifier,

@@ -1,0 +1,5 @@
+<resources>
+    <string name="web_list_deleted_message">웹이 삭제되었습니다.</string>
+    <string name="web_list_undo_action">실행 취소</string>
+    <string name="web_list_delete_content_description">웹 삭제</string>
+</resources>

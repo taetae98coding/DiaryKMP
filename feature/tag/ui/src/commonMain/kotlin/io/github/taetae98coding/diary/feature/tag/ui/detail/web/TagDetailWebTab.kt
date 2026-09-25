@@ -31,7 +31,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
-import io.github.taetae98coding.diary.compose.web.WebCard
+import io.github.taetae98coding.diary.compose.web.SwipeToDeleteWebCard
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.core.model.web.Web
@@ -92,8 +92,9 @@ internal fun TagDetailWebTab(
                     ) { index ->
                         val web = webPagingItems[index]
 
-                        WebCard(
+                        SwipeToDeleteWebCard(
                             onClick = { web?.let { value -> onEvent(TagDetailWebContentEvent.ClickWeb(id = value.id)) } },
+                            onDelete = { web?.let { value -> onEvent(TagDetailWebContentEvent.DeleteWeb(id = value.id)) } },
                             modifier =
                                 Modifier
                                     .animateItem()

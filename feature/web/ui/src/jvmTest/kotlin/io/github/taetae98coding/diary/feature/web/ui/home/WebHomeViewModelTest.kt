@@ -8,14 +8,19 @@ import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.compose.web.WebListEffect
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
+import io.github.taetae98coding.diary.domain.web.usecase.DeleteWebUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.PageWebUseCase
+import io.github.taetae98coding.diary.domain.web.usecase.RestoreWebUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +32,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -113,13 +119,102 @@ class WebHomeViewModelTest : FunSpec() {
                 }
             }
         }
+
+        test("TC-WEB-HOME-FEATURE-025 삭제에 성공하면 그 웹 항목의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val deleteWebUseCase = mockk<DeleteWebUseCase>()
+                coEvery { deleteWebUseCase(parameter = id) } returns Result.success(1)
+                val viewModel =
+                    viewModel(
+                        pageWebUseCase = pageWebUseCase(webListFlow = flowOf(Result.success(emptyList()))),
+                        deleteWebUseCase = deleteWebUseCase,
+                    )
+
+                viewModel.effect.test {
+                    viewModel.delete(id = id)
+
+                    awaitItem() shouldBe WebListEffect.Deleted(id = id)
+                    expectNoEvents()
+                }
+                coVerify(exactly = 1) { deleteWebUseCase(parameter = id) }
+            }
+        }
+
+        test("TC-WEB-HOME-FEATURE-031 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val deleteWebUseCase = mockk<DeleteWebUseCase>()
+                coEvery { deleteWebUseCase(parameter = id) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                val viewModel =
+                    viewModel(
+                        pageWebUseCase = pageWebUseCase(webListFlow = flowOf(Result.success(emptyList()))),
+                        deleteWebUseCase = deleteWebUseCase,
+                    )
+
+                viewModel.effect.test {
+                    viewModel.delete(id = id)
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                }
+            }
+        }
+
+        test("TC-WEB-HOME-DOMAIN-012 실행 취소를 저장하지 못하면 별도 안내를 보내지 않는다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val restoreWebUseCase = mockk<RestoreWebUseCase>()
+                coEvery { restoreWebUseCase(parameter = id) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                val viewModel =
+                    viewModel(
+                        pageWebUseCase = pageWebUseCase(webListFlow = flowOf(Result.success(emptyList()))),
+                        restoreWebUseCase = restoreWebUseCase,
+                    )
+
+                viewModel.effect.test {
+                    viewModel.restore(id = id)
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                }
+                coVerify(exactly = 1) { restoreWebUseCase(parameter = id) }
+            }
+        }
+
+        test("TC-WEB-HOME-FEATURE-026 실행 취소하면 그 웹 항목의 삭제를 되돌리는 요청을 한 번 보낸다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val restoreWebUseCase = mockk<RestoreWebUseCase>()
+                coEvery { restoreWebUseCase(parameter = id) } returns Result.success(1)
+                val viewModel =
+                    viewModel(
+                        pageWebUseCase = pageWebUseCase(webListFlow = flowOf(Result.success(emptyList()))),
+                        restoreWebUseCase = restoreWebUseCase,
+                    )
+
+                viewModel.restore(id = id)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { restoreWebUseCase(parameter = id) }
+            }
+        }
     }
 
     private companion object {
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
 
-        private fun viewModel(pageWebUseCase: PageWebUseCase): WebHomeViewModel = WebHomeViewModel(pageWebUseCase = pageWebUseCase)
+        private fun viewModel(
+            pageWebUseCase: PageWebUseCase,
+            deleteWebUseCase: DeleteWebUseCase = mockk(),
+            restoreWebUseCase: RestoreWebUseCase = mockk(),
+        ): WebHomeViewModel =
+            WebHomeViewModel(
+                pageWebUseCase = pageWebUseCase,
+                deleteWebUseCase = deleteWebUseCase,
+                restoreWebUseCase = restoreWebUseCase,
+            )
 
         private fun pageWebUseCase(webListFlow: Flow<Result<List<Web>>>): PageWebUseCase {
             val pageWebUseCase = mockk<PageWebUseCase>()

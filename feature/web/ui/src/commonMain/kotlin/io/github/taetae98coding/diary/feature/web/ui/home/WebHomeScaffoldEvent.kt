@@ -21,4 +21,8 @@ internal sealed interface WebHomeScaffoldEvent {
     data class ClickWeb(
         val id: Uuid,
     ) : WebHomeScaffoldEvent
+
+    data class DeleteWeb(
+        val id: Uuid,
+    ) : WebHomeScaffoldEvent
 }

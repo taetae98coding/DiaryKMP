@@ -20,6 +20,7 @@ import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -117,6 +118,7 @@ class WebHomeScreenTest {
         val webViewModel = mockk<WebHomeViewModel>()
         every { webViewModel.sort } returns MutableStateFlow(ListSort.TITLE)
         every { webViewModel.webPagingData } returns MutableStateFlow(webPagingDataOf(webList))
+        every { webViewModel.effect } returns emptyFlow()
 
         composeRule.setContent {
             DiaryTheme {

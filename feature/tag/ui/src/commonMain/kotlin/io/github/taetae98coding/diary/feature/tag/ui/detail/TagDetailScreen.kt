@@ -273,6 +273,7 @@ private fun TabContent(
                 navigateToWebDetail = navigateToWebDetail,
                 scopeState = scopeState,
                 modifier = Modifier.fillMaxSize(),
+                snackbarHostState = state.hostState,
             )
 
         TagDetailTab.PLACE ->

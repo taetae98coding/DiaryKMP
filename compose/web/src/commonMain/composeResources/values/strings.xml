@@ -1,0 +1,5 @@
+<resources>
+    <string name="web_list_deleted_message">Web deleted.</string>
+    <string name="web_list_undo_action">Undo</string>
+    <string name="web_list_delete_content_description">Delete web</string>
+</resources>

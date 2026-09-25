@@ -15,4 +15,8 @@ internal sealed interface TagDetailWebContentEvent {
     data class SelectSort(
         val sort: ListSort,
     ) : TagDetailWebContentEvent
+
+    data class DeleteWeb(
+        val id: Uuid,
+    ) : TagDetailWebContentEvent
 }

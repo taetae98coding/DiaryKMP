@@ -18,6 +18,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.compose.memo.list.MemoListUiState
+import io.github.taetae98coding.diary.compose.web.WebListEffect
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.Place
@@ -51,6 +52,7 @@ internal val memoPagingDataFlow = MutableStateFlow(PagingData.empty<MemoListItem
 internal val memoListUiStateFlow = MutableStateFlow(MemoListUiState())
 internal val memoEffectFlow = MutableSharedFlow<MemoListEffect>(extraBufferCapacity = EFFECT_BUFFER_CAPACITY)
 internal val webPagingDataFlow = MutableStateFlow(PagingData.empty<Web>())
+internal val webEffectFlow = MutableSharedFlow<WebListEffect>(extraBufferCapacity = EFFECT_BUFFER_CAPACITY)
 internal val placePagingDataFlow = MutableStateFlow(PagingData.empty<Place>())
 internal val placeListUiStateFlow = MutableStateFlow(TagDetailPlaceListUiState())
 internal val placeMapUiStateFlow = MutableStateFlow<TagDetailPlaceUiState>(TagDetailPlaceUiState.Loading)
@@ -107,6 +109,7 @@ private val tagDetailTabViewModelModule =
             mockk<TagDetailWebViewModel>(relaxed = true)
                 .apply {
                     every { webPagingData } returns webPagingDataFlow
+                    every { effect } returns webEffectFlow
                     every { sort } returns MutableStateFlow(ListSort.TITLE)
                     every { scope } returns MutableStateFlow(TagScope.SELF)
                 }.also { webViewModelRef = it }
