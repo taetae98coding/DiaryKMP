@@ -3,9 +3,11 @@ package io.github.taetae98coding.diary.feature.playlist.ui
 import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicAddNavKey
+import io.github.taetae98coding.diary.feature.playlist.api.MusicDetailNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.PlaylistHomeNavKey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
+import kotlin.uuid.Uuid
 
 class PlaylistNavigationTest :
     FunSpec({
@@ -22,6 +24,27 @@ class PlaylistNavigationTest :
                 backStack.navigateUpFromPlaylistHome()
 
                 backStack shouldContainExactly listOf(MoreHomeStubNavKey)
+            }
+        }
+
+        test("TC-PLAYLIST-LIST-DETAIL-FEATURE-014 곡 상세가 놓여 있으면 새 곡의 상세로 교체한다") {
+            val first = MusicDetailNavKey(id = Uuid.random())
+            val second = MusicDetailNavKey(id = Uuid.random())
+            val backStack = playlistBackStack(detailKeyList = listOf(first))
+
+            backStack.navigateToMusicDetail(id = second.id)
+
+            backStack shouldContainExactly listOf(MoreHomeStubNavKey, PlaylistHomeNavKey, second)
+        }
+
+        test("곡 상세가 놓여 있지 않으면 곡 상세를 이어서 놓는다") {
+            val detail = MusicDetailNavKey(id = Uuid.random())
+            listOf(emptyList(), listOf<ScreenNavKey>(MusicAddNavKey)).forEach { detailKeyList ->
+                val backStack = playlistBackStack(detailKeyList = detailKeyList)
+
+                backStack.navigateToMusicDetail(id = detail.id)
+
+                backStack shouldContainExactly listOf(MoreHomeStubNavKey, PlaylistHomeNavKey) + detailKeyList + detail
             }
         }
 

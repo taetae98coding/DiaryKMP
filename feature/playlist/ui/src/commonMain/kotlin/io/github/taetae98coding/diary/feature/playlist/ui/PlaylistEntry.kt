@@ -41,7 +41,7 @@ private fun EntryProviderScope<ScreenNavKey>.playlistHomeEntry(backStack: NavBac
         PlaylistHomeScreen(
             navigateUp = backStack::navigateUpFromPlaylistHome,
             navigateToAdd = { backStack.add(MusicAddNavKey) },
-            navigateToDetail = { id -> backStack.add(MusicDetailNavKey(id = id)) },
+            navigateToDetail = { id -> backStack.navigateToMusicDetail(id = id) },
             componentVisibleProvider = { PlaylistHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible || !backStack.isPlaylistAddOnDetailPane()) },
             musicViewModel = koinViewModel(),
             syncViewModel = koinViewModel(),
