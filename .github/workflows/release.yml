@@ -1,0 +1,260 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 배포 버전(예. 2.1.0). 비우면 현재 버전의 patch를 1 올린다
+        required: false
+        type: string
+      android:
+        description: Android를 Play 내부 테스트로 배포한다
+        required: false
+        type: boolean
+        default: true
+      ios:
+        description: iOS를 TestFlight로 배포한다
+        required: false
+        type: boolean
+        default: true
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  BUILD_LOGIC: build-logic/convention/src/main/kotlin/io/github/taetae98coding/diary/buildlogic/BuildLogic.kt
+  PBXPROJ: iosApp/DiaryApp.xcodeproj/project.pbxproj
+
+jobs:
+  version:
+    name: 버전 올림
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.bump.outputs.version }}
+      build: ${{ steps.bump.outputs.build }}
+      sha: ${{ steps.commit.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - id: bump
+        name: 버전 계산
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          current_name=$(sed -nE 's/.*VERSION_NAME: String = "([0-9]+\.[0-9]+\.[0-9]+)".*/\1/p' "$BUILD_LOGIC")
+          current_code=$(sed -nE 's/.*VERSION_CODE: Int = ([0-9]+).*/\1/p' "$BUILD_LOGIC")
+          if [ -z "$current_name" ] || [ -z "$current_code" ]; then
+            echo "::error::$BUILD_LOGIC 에서 현재 버전을 읽지 못했습니다."
+            exit 1
+          fi
+
+          if [ -n "$INPUT_VERSION" ]; then
+            if ! [[ "$INPUT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "::error::버전은 2.1.0 형식이어야 합니다: $INPUT_VERSION"
+              exit 1
+            fi
+            version="$INPUT_VERSION"
+          else
+            IFS=. read -r major minor patch <<< "$current_name"
+            version="$major.$minor.$((patch + 1))"
+          fi
+          build=$((current_code + 1))
+
+          if git rev-parse -q --verify "refs/tags/$version" >/dev/null; then
+            echo "::error::태그 $version 이 이미 있습니다."
+            exit 1
+          fi
+
+          echo "현재 $current_name ($current_code) -> $version ($build)"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "build=$build" >> "$GITHUB_OUTPUT"
+
+      - id: commit
+        name: 버전 커밋과 태그
+        env:
+          VERSION: ${{ steps.bump.outputs.version }}
+          BUILD: ${{ steps.bump.outputs.build }}
+        run: |
+          set -euo pipefail
+          sed -i -E "s/(VERSION_CODE: Int = )[0-9]+/\1$BUILD/" "$BUILD_LOGIC"
+          sed -i -E "s/(VERSION_NAME: String = \")[0-9.]+(\")/\1$VERSION\2/" "$BUILD_LOGIC"
+          sed -i -E "s/(CURRENT_PROJECT_VERSION = )[0-9]+;/\1$BUILD;/" "$PBXPROJ"
+          sed -i -E "s/(MARKETING_VERSION = )[0-9.]+;/\1$VERSION;/" "$PBXPROJ"
+          git diff --stat
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "chore: 앱을 $VERSION ($BUILD) 버전으로 올린다"
+          git tag -a "$VERSION" -m "$VERSION ($BUILD)"
+          git push origin HEAD:main
+          git push origin "$VERSION"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  android:
+    name: Android → Play 내부 테스트
+    needs: version
+    if: inputs.android
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.version.outputs.sha }}
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: android-actions/setup-android@v4
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      - name: 비밀 파일 복원
+        env:
+          LOCAL_PROPERTIES: ${{ secrets.LOCAL_PROPERTIES }}
+          ANDROID_REAL_KEYSTORE_BASE64: ${{ secrets.ANDROID_REAL_KEYSTORE_BASE64 }}
+          GOOGLE_SERVICES_REAL_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_REAL_JSON_BASE64 }}
+        run: |
+          set -euo pipefail
+          printf '%s\n' "$LOCAL_PROPERTIES" > local.properties
+          echo "sdk.dir=$ANDROID_HOME" >> local.properties
+          mkdir -p app/android/keystore
+          echo "$ANDROID_REAL_KEYSTORE_BASE64" | base64 -d > app/android/keystore/real.jks
+          echo "$GOOGLE_SERVICES_REAL_JSON_BASE64" | base64 -d > app/android/src/real/google-services.json
+          mkdir -p ~/.gradle
+          echo "org.gradle.jvmargs=-Xmx8g -XX:MaxMetaspaceSize=1g" >> ~/.gradle/gradle.properties
+
+      - name: AAB 빌드
+        run: ./gradlew :app:android:bundleRealRelease -Pbuildkonfig.flavor=real
+
+      - name: real 설정 확인
+        run: |
+          set -euo pipefail
+          aab=app/android/build/outputs/bundle/realRelease/android-real-release.aab
+          host=$(sed -nE 's#^real\.supabase\.url=https?://([^/]+).*#\1#p' local.properties)
+          unzip -p "$aab" 'base/dex/*.dex' | strings | grep -q "$host" \
+            || { echo "::error::AAB에 real Supabase 주소가 없습니다. -Pbuildkonfig.flavor=real 로 빌드됐는지 확인하세요."; exit 1; }
+
+      - uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: io.github.taetae98coding.diary
+          releaseFiles: app/android/build/outputs/bundle/realRelease/android-real-release.aab
+          releaseName: ${{ needs.version.outputs.version }} (${{ needs.version.outputs.build }})
+          track: internal
+          status: completed
+
+  ios:
+    name: iOS → TestFlight
+    needs: version
+    if: inputs.ios
+    runs-on: macos-26
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.version.outputs.sha }}
+
+      - name: Xcode 27 선택
+        run: |
+          set -euo pipefail
+          xcode=$(ls -d /Applications/Xcode_27*.app 2>/dev/null | sort -V | tail -1 || true)
+          if [ -z "$xcode" ]; then
+            echo "::error::러너에 Xcode 27이 없습니다."
+            ls -d /Applications/Xcode*.app
+            exit 1
+          fi
+          sudo xcode-select -s "$xcode"
+          xcodebuild -version
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      - uses: actions/cache@v6
+        with:
+          path: ~/.konan
+          key: konan-${{ runner.os }}-${{ hashFiles('gradle/libs.versions.toml') }}
+
+      - name: 비밀 파일 복원
+        env:
+          LOCAL_PROPERTIES: ${{ secrets.LOCAL_PROPERTIES }}
+          IOS_GOOGLE_SERVICE_INFO_REAL_PLIST_BASE64: ${{ secrets.IOS_GOOGLE_SERVICE_INFO_REAL_PLIST_BASE64 }}
+          IOS_REAL_LOCAL_XCCONFIG: ${{ secrets.IOS_REAL_LOCAL_XCCONFIG }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          set -euo pipefail
+          printf '%s\n' "$LOCAL_PROPERTIES" > local.properties
+          echo "$IOS_GOOGLE_SERVICE_INFO_REAL_PLIST_BASE64" | base64 -d > iosApp/Firebase/real/GoogleService-Info.plist
+          printf '%s\n' "$IOS_REAL_LOCAL_XCCONFIG" > iosApp/Config/RealLocal.xcconfig
+          mkdir -p "$RUNNER_TEMP/asc"
+          printf '%s\n' "$ASC_KEY_P8" > "$RUNNER_TEMP/asc/AuthKey_$ASC_KEY_ID.p8"
+          mkdir -p ~/.gradle
+          echo "org.gradle.jvmargs=-Xmx5g -XX:MaxMetaspaceSize=1g" >> ~/.gradle/gradle.properties
+
+      # 스킴 이름의 공백이 archive 중간 경로를 가르면 Kotlin SPM 빌드가 modulemap을 찾지 못하므로 공백 없는 사본으로 archive한다.
+      - name: archive용 스킴 준비
+        run: |
+          cp "iosApp/DiaryApp.xcodeproj/xcshareddata/xcschemes/DiaryApp Real.xcscheme" \
+             iosApp/DiaryApp.xcodeproj/xcshareddata/xcschemes/DiaryAppRealCI.xcscheme
+
+      - name: Archive
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          xcodebuild archive \
+            -project iosApp/DiaryApp.xcodeproj \
+            -scheme DiaryAppRealCI \
+            -configuration RealRelease \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/Diary.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/asc/AuthKey_$ASC_KEY_ID.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+
+      - name: TestFlight 업로드
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>4TV6L66XZ8</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>uploadSymbols</key><true/>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+          </dict>
+          </plist>
+          PLIST
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/Diary.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/asc/AuthKey_$ASC_KEY_ID.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
