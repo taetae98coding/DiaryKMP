@@ -2,9 +2,11 @@ package io.github.taetae98coding.diary.feature.search.ui.home.place
 
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.ViewModelStoreProvider
@@ -14,9 +16,11 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.effect.DiarySearchQueryEffect
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
+import io.github.taetae98coding.diary.compose.place.PlaceListUndoSnackbarEffect
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeQueryScrollEffect
 import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeResultEvent
+import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeResultItemEvent
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.uuid.Uuid
 
@@ -26,6 +30,7 @@ internal fun SearchHomePlaceContent(
     viewModelStoreProvider: ViewModelStoreProvider,
     navigateToDetail: (Uuid) -> Unit,
     modifier: Modifier = Modifier,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     val viewModelStoreOwner = rememberViewModelStoreOwner(key = SearchHomeType.PLACE, provider = viewModelStoreProvider)
 
@@ -37,6 +42,11 @@ internal fun SearchHomePlaceContent(
         val sort by viewModel.sort.collectAsStateWithLifecycle()
         val sortSheetState = rememberDialogState()
 
+        PlaceListUndoSnackbarEffect(
+            onRestore = viewModel::restore,
+            effect = viewModel.effect,
+            snackbarHostState = snackbarHostState,
+        )
         DiarySearchQueryEffect(
             queryState = queryState,
             onQueryChange = viewModel::updateQuery,
@@ -53,9 +63,14 @@ internal fun SearchHomePlaceContent(
         SearchHomePlaceList(
             onEvent = { event ->
                 when (event) {
-                    is SearchHomeResultEvent.ClickResult -> navigateToDetail(event.id)
                     is SearchHomeResultEvent.ClickSort -> sortSheetState.show()
                     is SearchHomeResultEvent.SelectSort -> viewModel.select(sort = event.sort)
+                }
+            },
+            onItemEvent = { event ->
+                when (event) {
+                    is SearchHomeResultItemEvent.Click -> navigateToDetail(event.id)
+                    is SearchHomeResultItemEvent.SwipeDelete -> viewModel.delete(id = event.id)
                 }
             },
             modifier = modifier,

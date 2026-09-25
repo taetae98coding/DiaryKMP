@@ -20,8 +20,10 @@ import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.icon.TagIcon
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
+import io.github.taetae98coding.diary.compose.core.swipe.SwipeFinishAction
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.tag.TagCard
+import io.github.taetae98coding.diary.compose.tag.SwipeTagCard
+import io.github.taetae98coding.diary.compose.tag.list.TagListEvent
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeResult
@@ -34,6 +36,7 @@ internal const val SEARCH_HOME_TAG_LIST_TEST_TAG: String = "SearchHomeTagList"
 @Composable
 internal fun SearchHomeTagList(
     onEvent: (SearchHomeResultEvent) -> Unit,
+    onTagListEvent: (TagListEvent) -> Unit,
     modifier: Modifier = Modifier,
     listState: LazyListState = rememberLazyListState(),
     sortSheetState: DialogState = rememberDialogState(),
@@ -62,13 +65,14 @@ internal fun SearchHomeTagList(
             ) { index ->
                 val tag = tagPagingItems[index]
 
-                TagCard(
-                    onClick = { tag?.let { value -> onEvent(SearchHomeResultEvent.ClickResult(id = value.id)) } },
+                SwipeTagCard(
+                    onEvent = onTagListEvent,
                     modifier =
                         Modifier
                             .animateItem()
                             .fillMaxWidth(),
                     tag = tag,
+                    finishAction = if (tag?.isFinished == true) SwipeFinishAction.RESTART else SwipeFinishAction.FINISH,
                 )
             }
         }
@@ -93,6 +97,7 @@ private fun SearchHomeTagListPreview() {
     DiaryTheme {
         SearchHomeTagList(
             onEvent = {},
+            onTagListEvent = {},
             modifier = Modifier.fillMaxSize(),
             tagPagingItems = tagPagingData.collectAsLazyPagingItems(),
         )

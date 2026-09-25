@@ -21,11 +21,12 @@ import io.github.taetae98coding.diary.compose.core.icon.PlaceIcon
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.place.PlaceCard
+import io.github.taetae98coding.diary.compose.place.SwipeToDeletePlaceCard
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeResult
 import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeResultEvent
+import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeResultItemEvent
 import io.github.taetae98coding.diary.feature.search.ui.previewPlace
 import kotlinx.coroutines.flow.flowOf
 
@@ -34,6 +35,7 @@ internal const val SEARCH_HOME_PLACE_LIST_TEST_TAG: String = "SearchHomePlaceLis
 @Composable
 internal fun SearchHomePlaceList(
     onEvent: (SearchHomeResultEvent) -> Unit,
+    onItemEvent: (SearchHomeResultItemEvent) -> Unit,
     modifier: Modifier = Modifier,
     listState: LazyListState = rememberLazyListState(),
     sortSheetState: DialogState = rememberDialogState(),
@@ -62,8 +64,9 @@ internal fun SearchHomePlaceList(
             ) { index ->
                 val place = placePagingItems[index]
 
-                PlaceCard(
-                    onClick = { place?.let { value -> onEvent(SearchHomeResultEvent.ClickResult(id = value.id)) } },
+                SwipeToDeletePlaceCard(
+                    onClick = { place?.let { value -> onItemEvent(SearchHomeResultItemEvent.Click(id = value.id)) } },
+                    onDelete = { place?.let { value -> onItemEvent(SearchHomeResultItemEvent.SwipeDelete(id = value.id)) } },
                     modifier =
                         Modifier
                             .animateItem()
@@ -93,6 +96,7 @@ private fun SearchHomePlaceListPreview() {
     DiaryTheme {
         SearchHomePlaceList(
             onEvent = {},
+            onItemEvent = {},
             modifier = Modifier.fillMaxSize(),
             placePagingItems = placePagingData.collectAsLazyPagingItems(),
         )

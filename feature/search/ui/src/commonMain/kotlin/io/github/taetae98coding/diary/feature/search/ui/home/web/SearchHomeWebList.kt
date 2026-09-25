@@ -21,11 +21,12 @@ import io.github.taetae98coding.diary.compose.core.icon.WebIcon
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.web.WebCard
+import io.github.taetae98coding.diary.compose.web.SwipeToDeleteWebCard
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeResult
 import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeResultEvent
+import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeResultItemEvent
 import io.github.taetae98coding.diary.feature.search.ui.previewWeb
 import kotlinx.coroutines.flow.flowOf
 
@@ -34,6 +35,7 @@ internal const val SEARCH_HOME_WEB_LIST_TEST_TAG: String = "SearchHomeWebList"
 @Composable
 internal fun SearchHomeWebList(
     onEvent: (SearchHomeResultEvent) -> Unit,
+    onItemEvent: (SearchHomeResultItemEvent) -> Unit,
     modifier: Modifier = Modifier,
     listState: LazyListState = rememberLazyListState(),
     sortSheetState: DialogState = rememberDialogState(),
@@ -62,8 +64,9 @@ internal fun SearchHomeWebList(
             ) { index ->
                 val web = webPagingItems[index]
 
-                WebCard(
-                    onClick = { web?.let { value -> onEvent(SearchHomeResultEvent.ClickResult(id = value.id)) } },
+                SwipeToDeleteWebCard(
+                    onClick = { web?.let { value -> onItemEvent(SearchHomeResultItemEvent.Click(id = value.id)) } },
+                    onDelete = { web?.let { value -> onItemEvent(SearchHomeResultItemEvent.SwipeDelete(id = value.id)) } },
                     modifier =
                         Modifier
                             .animateItem()
@@ -93,6 +96,7 @@ private fun SearchHomeWebListPreview() {
     DiaryTheme {
         SearchHomeWebList(
             onEvent = {},
+            onItemEvent = {},
             modifier = Modifier.fillMaxSize(),
             webPagingItems = webPagingData.collectAsLazyPagingItems(),
         )

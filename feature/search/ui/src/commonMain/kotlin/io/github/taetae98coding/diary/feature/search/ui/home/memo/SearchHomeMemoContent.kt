@@ -2,9 +2,11 @@ package io.github.taetae98coding.diary.feature.search.ui.home.memo
 
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.ViewModelStoreProvider
@@ -14,6 +16,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.effect.DiarySearchQueryEffect
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
+import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeQueryScrollEffect
 import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeResultEvent
@@ -26,6 +29,7 @@ internal fun SearchHomeMemoContent(
     viewModelStoreProvider: ViewModelStoreProvider,
     navigateToDetail: (Uuid) -> Unit,
     modifier: Modifier = Modifier,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     val viewModelStoreOwner = rememberViewModelStoreOwner(key = SearchHomeType.MEMO, provider = viewModelStoreProvider)
 
@@ -37,6 +41,11 @@ internal fun SearchHomeMemoContent(
         val sort by viewModel.sort.collectAsStateWithLifecycle()
         val sortSheetState = rememberDialogState()
 
+        SearchHomeMemoUndoSnackbarEffect(
+            onUndo = viewModel::undo,
+            effect = viewModel.effect,
+            snackbarHostState = snackbarHostState,
+        )
         DiarySearchQueryEffect(
             queryState = queryState,
             onQueryChange = viewModel::updateQuery,
@@ -53,9 +62,17 @@ internal fun SearchHomeMemoContent(
         SearchHomeMemoList(
             onEvent = { event ->
                 when (event) {
-                    is SearchHomeResultEvent.ClickResult -> navigateToDetail(event.id)
                     is SearchHomeResultEvent.ClickSort -> sortSheetState.show()
                     is SearchHomeResultEvent.SelectSort -> viewModel.select(sort = event.sort)
+                }
+            },
+            onMemoListEvent = { event ->
+                when (event) {
+                    is MemoListEvent.ClickMemo -> navigateToDetail(event.id)
+                    is MemoListEvent.SwipeFinish -> viewModel.finish(id = event.id)
+                    is MemoListEvent.SwipeRestart -> viewModel.restart(id = event.id)
+                    is MemoListEvent.SwipeDelete -> viewModel.delete(id = event.id)
+                    is MemoListEvent.Refresh -> Unit
                 }
             },
             modifier = modifier,

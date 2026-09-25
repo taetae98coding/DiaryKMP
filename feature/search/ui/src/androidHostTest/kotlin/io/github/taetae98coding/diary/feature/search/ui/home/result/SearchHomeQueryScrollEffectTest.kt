@@ -80,6 +80,7 @@ class SearchHomeQueryScrollEffectTest {
                 )
                 SearchHomeMemoList(
                     onEvent = {},
+                    onMemoListEvent = {},
                     modifier = Modifier.fillMaxSize(),
                     listState = listState,
                     memoPagingItems = memoPagingDataFlow.collectAsLazyPagingItems(),

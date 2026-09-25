@@ -180,7 +180,14 @@ class SearchHomeMemoViewModelTest : FunSpec() {
     }
 
     public companion object {
-        private fun viewModel(searchMemoUseCase: SearchMemoUseCase): SearchHomeMemoViewModel = SearchHomeMemoViewModel(searchMemoUseCase = searchMemoUseCase)
+        private fun viewModel(searchMemoUseCase: SearchMemoUseCase): SearchHomeMemoViewModel =
+            SearchHomeMemoViewModel(
+                searchMemoUseCase = searchMemoUseCase,
+                finishMemoUseCase = mockk(),
+                restartMemoUseCase = mockk(),
+                deleteMemoUseCase = mockk(),
+                restoreMemoUseCase = mockk(),
+            )
 
         private fun searchMemoUseCase(flow: Flow<Result<PagingData<Memo>>>): SearchMemoUseCase =
             mockk<SearchMemoUseCase>().apply {

@@ -12,7 +12,11 @@ kotlin {
                 implementation(projects.compose.place)
                 implementation(projects.compose.tag)
                 implementation(projects.compose.web)
+                implementation(projects.domain.memo)
+                implementation(projects.domain.place)
                 implementation(projects.domain.search)
+                implementation(projects.domain.tag)
+                implementation(projects.domain.web)
                 implementation(projects.feature.memo.api)
                 implementation(projects.feature.place.api)
                 implementation(projects.feature.search.api)
@@ -20,6 +24,12 @@ kotlin {
                 implementation(projects.feature.web.api)
 
                 implementation(libs.androidx.paging.compose)
+            }
+        }
+
+        androidHostTest {
+            dependencies {
+                implementation(libs.androidx.paging.testing)
             }
         }
 

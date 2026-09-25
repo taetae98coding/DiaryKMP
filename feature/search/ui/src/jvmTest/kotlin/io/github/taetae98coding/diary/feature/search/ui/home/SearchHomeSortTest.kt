@@ -43,8 +43,22 @@ class SearchHomeSortTest : FunSpec() {
             runTest(mainDispatcher) {
                 val searchMemoUseCase = searchMemoUseCase(successPagingDataFlowOf(emptyList<Memo>()))
                 val searchTagUseCase = searchTagUseCase(successPagingDataFlowOf(emptyList<Tag>()))
-                val memoViewModel = SearchHomeMemoViewModel(searchMemoUseCase = searchMemoUseCase)
-                val tagViewModel = SearchHomeTagViewModel(searchTagUseCase = searchTagUseCase)
+                val memoViewModel =
+                    SearchHomeMemoViewModel(
+                        searchMemoUseCase = searchMemoUseCase,
+                        finishMemoUseCase = mockk(),
+                        restartMemoUseCase = mockk(),
+                        deleteMemoUseCase = mockk(),
+                        restoreMemoUseCase = mockk(),
+                    )
+                val tagViewModel =
+                    SearchHomeTagViewModel(
+                        searchTagUseCase = searchTagUseCase,
+                        finishTagUseCase = mockk(),
+                        restartTagUseCase = mockk(),
+                        deleteTagUseCase = mockk(),
+                        restoreTagUseCase = mockk(),
+                    )
 
                 memoViewModel.pagingData.test {
                     tagViewModel.pagingData.test {
@@ -65,7 +79,14 @@ class SearchHomeSortTest : FunSpec() {
         test("TC-SEARCH-HOME-FEATURE-025 질의를 바꿔도 그 유형에서 고른 정렬이 유지된다") {
             runTest(mainDispatcher) {
                 val searchMemoUseCase = searchMemoUseCase(successPagingDataFlowOf(emptyList<Memo>()))
-                val viewModel = SearchHomeMemoViewModel(searchMemoUseCase = searchMemoUseCase)
+                val viewModel =
+                    SearchHomeMemoViewModel(
+                        searchMemoUseCase = searchMemoUseCase,
+                        finishMemoUseCase = mockk(),
+                        restartMemoUseCase = mockk(),
+                        deleteMemoUseCase = mockk(),
+                        restoreMemoUseCase = mockk(),
+                    )
 
                 viewModel.pagingData.test {
                     viewModel.select(sort = ListSort.RECENTLY_UPDATED)

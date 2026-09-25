@@ -16,6 +16,7 @@ import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlin.time.Instant
+import kotlin.uuid.Uuid
 
 internal const val QUERY: String = "여행"
 internal const val OTHER_QUERY: String = "회의"
@@ -64,3 +65,5 @@ internal fun searchWeb(title: String): Web =
         .sample()
 
 private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+
+internal fun searchId(): Uuid = fixtureMonkey.giveMeOne()

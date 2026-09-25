@@ -92,7 +92,12 @@ class SearchHomeWebViewModelTest : FunSpec() {
     }
 
     public companion object {
-        private fun viewModel(searchWebUseCase: SearchWebUseCase): SearchHomeWebViewModel = SearchHomeWebViewModel(searchWebUseCase = searchWebUseCase)
+        private fun viewModel(searchWebUseCase: SearchWebUseCase): SearchHomeWebViewModel =
+            SearchHomeWebViewModel(
+                searchWebUseCase = searchWebUseCase,
+                deleteWebUseCase = mockk(),
+                restoreWebUseCase = mockk(),
+            )
 
         private fun searchWebUseCase(flow: Flow<Result<PagingData<Web>>>): SearchWebUseCase =
             mockk<SearchWebUseCase>().apply {

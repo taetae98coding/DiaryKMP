@@ -2,16 +2,17 @@ package io.github.taetae98coding.diary.feature.search.ui.home
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fitInside
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.WindowInsetsRulers
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
+import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.search.ui.home.memo.SearchHomeMemoList
@@ -23,10 +24,13 @@ internal fun SearchHomeScaffold(
     onEvent: (SearchHomeScaffoldEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: SearchHomeScaffoldState = rememberSearchHomeScaffoldState(),
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     resultContent: @Composable (SearchHomeType) -> Unit,
 ) {
     Scaffold(
         modifier = modifier,
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        contentWindowInsets = DiaryScaffoldDefaults.contentWindowInsets,
         topBar = {
             SearchHomeTopBar(
                 onEvent = onEvent,
@@ -42,10 +46,7 @@ internal fun SearchHomeScaffold(
         ) {
             SearchHomeTabRow(state = state)
             SearchHomeResultPager(
-                modifier =
-                    Modifier
-                        .weight(1f)
-                        .fitInside(WindowInsetsRulers.Ime.current),
+                modifier = Modifier.weight(1f),
                 state = state,
                 resultContent = resultContent,
             )
@@ -73,6 +74,7 @@ private fun SearchHomeScaffoldPreview() {
         SearchHomeScaffold(onEvent = {}) {
             SearchHomeMemoList(
                 onEvent = {},
+                onMemoListEvent = {},
                 modifier = Modifier.fillMaxSize(),
                 memoPagingItems = memoPagingItems,
             )

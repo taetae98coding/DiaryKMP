@@ -92,7 +92,12 @@ class SearchHomePlaceViewModelTest : FunSpec() {
     }
 
     public companion object {
-        private fun viewModel(searchPlaceUseCase: SearchPlaceUseCase): SearchHomePlaceViewModel = SearchHomePlaceViewModel(searchPlaceUseCase = searchPlaceUseCase)
+        private fun viewModel(searchPlaceUseCase: SearchPlaceUseCase): SearchHomePlaceViewModel =
+            SearchHomePlaceViewModel(
+                searchPlaceUseCase = searchPlaceUseCase,
+                deletePlaceUseCase = mockk(),
+                restorePlaceUseCase = mockk(),
+            )
 
         private fun searchPlaceUseCase(flow: Flow<Result<PagingData<Place>>>): SearchPlaceUseCase =
             mockk<SearchPlaceUseCase>().apply {

@@ -40,6 +40,7 @@ internal fun resultUrl(): String = "https://example.com/${fixtureMonkey.giveMeOn
 internal fun resultMemo(
     title: String = resultTitle(),
     dateTime: MemoDateTime? = null,
+    isFinished: Boolean = false,
 ): Memo {
     val detail =
         fixtureMonkey
@@ -52,7 +53,7 @@ internal fun resultMemo(
         id = Uuid.random(),
         detail = detail,
         primaryTagId = null,
-        isFinished = false,
+        isFinished = isFinished,
         isDeleted = false,
         updatedAt = instant(),
         createdAt = instant(),
@@ -62,6 +63,7 @@ internal fun resultMemo(
 internal fun resultTag(
     emoji: String = "",
     title: String = resultTitle(),
+    isFinished: Boolean = false,
 ): Tag {
     val detail =
         fixtureMonkey
@@ -73,7 +75,7 @@ internal fun resultTag(
     return Tag(
         id = Uuid.random(),
         detail = detail,
-        isFinished = false,
+        isFinished = isFinished,
         isDeleted = false,
         updatedAt = instant(),
         createdAt = instant(),

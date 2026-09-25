@@ -8,4 +8,8 @@
     <string name="search_home_web_tab_label">웹</string>
     <string name="search_home_empty_title">검색 결과가 없습니다</string>
     <string name="search_home_empty_description">다른 검색어로 찾아보세요</string>
+    <string name="search_home_memo_finished_message">메모가 완료되었습니다.</string>
+    <string name="search_home_memo_restarted_message">메모를 다시 시작했습니다.</string>
+    <string name="search_home_memo_deleted_message">메모가 삭제되었습니다.</string>
+    <string name="search_home_undo_action">실행 취소</string>
 </resources>

@@ -92,7 +92,14 @@ class SearchHomeTagViewModelTest : FunSpec() {
     }
 
     public companion object {
-        private fun viewModel(searchTagUseCase: SearchTagUseCase): SearchHomeTagViewModel = SearchHomeTagViewModel(searchTagUseCase = searchTagUseCase)
+        private fun viewModel(searchTagUseCase: SearchTagUseCase): SearchHomeTagViewModel =
+            SearchHomeTagViewModel(
+                searchTagUseCase = searchTagUseCase,
+                finishTagUseCase = mockk(),
+                restartTagUseCase = mockk(),
+                deleteTagUseCase = mockk(),
+                restoreTagUseCase = mockk(),
+            )
 
         private fun searchTagUseCase(flow: Flow<Result<PagingData<Tag>>>): SearchTagUseCase =
             mockk<SearchTagUseCase>().apply {

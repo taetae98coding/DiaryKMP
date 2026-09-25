@@ -10,19 +10,25 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.place.PlaceListEffect
+import io.github.taetae98coding.diary.compose.tag.list.TagListEffect
+import io.github.taetae98coding.diary.compose.web.WebListEffect
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
+import io.github.taetae98coding.diary.feature.search.ui.home.memo.SearchHomeMemoEffect
 import io.github.taetae98coding.diary.feature.search.ui.home.memo.SearchHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.search.ui.home.place.SearchHomePlaceViewModel
 import io.github.taetae98coding.diary.feature.search.ui.home.tag.SearchHomeTagViewModel
 import io.github.taetae98coding.diary.feature.search.ui.home.web.SearchHomeWebViewModel
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import org.koin.compose.KoinApplication
 import org.koin.dsl.koinConfiguration
 import org.koin.dsl.module
@@ -41,6 +47,20 @@ private const val SEARCH_HOME_ENTRY_KEY = "SearchHome"
 private val appliedQueryFlow = MutableStateFlow("")
 private var isQueryApplied = true
 
+private var memoEffectChannel = Channel<SearchHomeMemoEffect>(Channel.BUFFERED)
+private var tagEffectChannel = Channel<TagListEffect>(Channel.BUFFERED)
+private var placeEffectChannel = Channel<PlaceListEffect>(Channel.BUFFERED)
+private var webEffectChannel = Channel<WebListEffect>(Channel.BUFFERED)
+
+internal var searchMemoViewModelRef: SearchHomeMemoViewModel? = null
+    private set
+internal var searchTagViewModelRef: SearchHomeTagViewModel? = null
+    private set
+internal var searchPlaceViewModelRef: SearchHomePlaceViewModel? = null
+    private set
+internal var searchWebViewModelRef: SearchHomeWebViewModel? = null
+    private set
+
 private val searchHomeViewModelModule =
     module {
         factory {
@@ -49,6 +69,11 @@ private val searchHomeViewModelModule =
                 every { appliedQuery } returns appliedQueryFlow
                 every { sort } returns MutableStateFlow(ListSort.TITLE)
                 every { updateQuery(any()) } answers { if (isQueryApplied) appliedQueryFlow.value = firstArg() }
+                every { effect } returns memoEffectChannel.receiveAsFlow()
+                every { finish(id = any()) } answers { memoEffectChannel.trySend(SearchHomeMemoEffect.Finished(id = firstArg())) }
+                every { restart(id = any()) } answers { memoEffectChannel.trySend(SearchHomeMemoEffect.Restarted(id = firstArg())) }
+                every { delete(id = any()) } answers { memoEffectChannel.trySend(SearchHomeMemoEffect.Deleted(id = firstArg())) }
+                searchMemoViewModelRef = this
             }
         }
         factory {
@@ -57,6 +82,11 @@ private val searchHomeViewModelModule =
                 every { appliedQuery } returns appliedQueryFlow
                 every { sort } returns MutableStateFlow(ListSort.TITLE)
                 every { updateQuery(any()) } answers { if (isQueryApplied) appliedQueryFlow.value = firstArg() }
+                every { effect } returns tagEffectChannel.receiveAsFlow()
+                every { finish(id = any()) } answers { tagEffectChannel.trySend(TagListEffect.Finished(id = firstArg())) }
+                every { restart(id = any()) } answers { tagEffectChannel.trySend(TagListEffect.Restarted(id = firstArg())) }
+                every { delete(id = any()) } answers { tagEffectChannel.trySend(TagListEffect.Deleted(id = firstArg())) }
+                searchTagViewModelRef = this
             }
         }
         factory {
@@ -65,6 +95,9 @@ private val searchHomeViewModelModule =
                 every { appliedQuery } returns appliedQueryFlow
                 every { sort } returns MutableStateFlow(ListSort.TITLE)
                 every { updateQuery(any()) } answers { if (isQueryApplied) appliedQueryFlow.value = firstArg() }
+                every { effect } returns placeEffectChannel.receiveAsFlow()
+                every { delete(id = any()) } answers { placeEffectChannel.trySend(PlaceListEffect.Deleted(id = firstArg())) }
+                searchPlaceViewModelRef = this
             }
         }
         factory {
@@ -73,6 +106,9 @@ private val searchHomeViewModelModule =
                 every { appliedQuery } returns appliedQueryFlow
                 every { sort } returns MutableStateFlow(ListSort.TITLE)
                 every { updateQuery(any()) } answers { if (isQueryApplied) appliedQueryFlow.value = firstArg() }
+                every { effect } returns webEffectChannel.receiveAsFlow()
+                every { delete(id = any()) } answers { webEffectChannel.trySend(WebListEffect.Deleted(id = firstArg())) }
+                searchWebViewModelRef = this
             }
         }
     }
@@ -98,6 +134,14 @@ internal fun ComposeContentTestRule.setSearchHomeScreen(
     tagPagingDataFlow.value = pagingDataOf(tagList)
     placePagingDataFlow.value = pagingDataOf(placeList)
     webPagingDataFlow.value = pagingDataOf(webList)
+    memoEffectChannel = Channel(Channel.BUFFERED)
+    tagEffectChannel = Channel(Channel.BUFFERED)
+    placeEffectChannel = Channel(Channel.BUFFERED)
+    webEffectChannel = Channel(Channel.BUFFERED)
+    searchMemoViewModelRef = null
+    searchTagViewModelRef = null
+    searchPlaceViewModelRef = null
+    searchWebViewModelRef = null
 
     setContent {
         // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로,
@@ -142,4 +186,16 @@ internal fun setSearchQueryApplied(isApplied: Boolean) {
 internal fun ComposeContentTestRule.selectSearchHomeTab(label: String) {
     onNodeWithText(label).performClick()
     waitForIdle()
+}
+
+internal fun updateSearchMemoResult(memoList: List<Memo>) {
+    memoPagingDataFlow.value = pagingDataOf(memoList)
+}
+
+internal fun updateSearchTagResult(tagList: List<Tag>) {
+    tagPagingDataFlow.value = pagingDataOf(tagList)
+}
+
+internal fun sendSearchMemoEffect(effect: SearchHomeMemoEffect) {
+    memoEffectChannel.trySend(effect).getOrThrow()
 }

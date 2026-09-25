@@ -2,19 +2,16 @@ package io.github.taetae98coding.diary.feature.search.ui.home.result
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTouchInput
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.MEMO_DATE_TIME_TEST_TAG
+import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.feature.search.ui.home.RESULT_EMOJI
@@ -29,7 +26,6 @@ import io.github.taetae98coding.diary.feature.search.ui.home.resultTag
 import io.github.taetae98coding.diary.feature.search.ui.home.resultWeb
 import io.github.taetae98coding.diary.feature.search.ui.home.tag.SearchHomeTagList
 import io.github.taetae98coding.diary.feature.search.ui.home.web.SearchHomeWebList
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
@@ -77,6 +73,7 @@ class SearchHomeResultListTest {
             DiaryTheme {
                 SearchHomeTagList(
                     onEvent = {},
+                    onTagListEvent = {},
                     modifier = Modifier.fillMaxSize(),
                     tagPagingItems = tagPagingDataFlow.collectAsLazyPagingItems(),
                 )
@@ -95,6 +92,7 @@ class SearchHomeResultListTest {
             DiaryTheme {
                 SearchHomePlaceList(
                     onEvent = {},
+                    onItemEvent = {},
                     modifier = Modifier.fillMaxSize(),
                     placePagingItems = placePagingDataFlow.collectAsLazyPagingItems(),
                 )
@@ -114,6 +112,7 @@ class SearchHomeResultListTest {
             DiaryTheme {
                 SearchHomeWebList(
                     onEvent = {},
+                    onItemEvent = {},
                     modifier = Modifier.fillMaxSize(),
                     webPagingItems = webPagingDataFlow.collectAsLazyPagingItems(),
                 )
@@ -156,6 +155,7 @@ class SearchHomeResultListTest {
             DiaryTheme {
                 SearchHomeMemoList(
                     onEvent = {},
+                    onMemoListEvent = {},
                     modifier = Modifier.fillMaxSize(),
                     memoPagingItems = memoPagingDataFlow.collectAsLazyPagingItems(),
                     query = QUERY,
@@ -188,43 +188,6 @@ class SearchHomeResultListTest {
         idList shouldBe listOf(memo.id)
     }
 
-    @Test
-    fun `TC-SWIPE-TO-FINISH-AND-DELETE-FEATURE-006 메모 검색 결과 카드는 좌우로 밀어도 밀리지 않고 동작을 실행하지 않는다`() {
-        val memo = resultMemo()
-        val eventList = mutableListOf<SearchHomeResultEvent>()
-        val memoPagingDataFlow = pagingDataFlowOf(listOf(memo))
-
-        composeRule.setContent {
-            DiaryTheme {
-                SearchHomeMemoList(
-                    onEvent = eventList::add,
-                    modifier = Modifier.fillMaxSize(),
-                    memoPagingItems = memoPagingDataFlow.collectAsLazyPagingItems(),
-                    query = QUERY,
-                )
-            }
-        }
-        val initialLeft = composeRule.onNodeWithText(memo.detail.title).getUnclippedBoundsInRoot().left
-
-        listOf(1F, -1F).forEach { direction ->
-            composeRule.onNodeWithText(memo.detail.title).performTouchInput {
-                down(center)
-                moveBy(delta = Offset(direction * DRAG_OFFSET, 0F), delayMillis = DRAG_DELAY_MILLIS)
-            }
-            composeRule.waitForIdle()
-
-            composeRule.onNodeWithText(memo.detail.title).getUnclippedBoundsInRoot().left shouldBe initialLeft
-            composeRule.onNodeWithContentDescription(FINISH_MEMO_DESCRIPTION).assertDoesNotExist()
-            composeRule.onNodeWithContentDescription(DELETE_MEMO_DESCRIPTION).assertDoesNotExist()
-
-            composeRule.onNodeWithText(memo.detail.title).performTouchInput { up() }
-            composeRule.waitForIdle()
-        }
-
-        composeRule.onNodeWithText(memo.detail.title).assertIsDisplayed()
-        eventList.shouldBeEmpty()
-    }
-
     private fun setMemoList(
         memoList: List<Memo> = emptyList(),
         query: String = "",
@@ -235,8 +198,9 @@ class SearchHomeResultListTest {
         composeRule.setContent {
             DiaryTheme {
                 SearchHomeMemoList(
-                    onEvent = { event ->
-                        if (event is SearchHomeResultEvent.ClickResult) onClickResult(event.id)
+                    onEvent = {},
+                    onMemoListEvent = { event ->
+                        if (event is MemoListEvent.ClickMemo) onClickResult(event.id)
                     },
                     modifier = Modifier.fillMaxSize(),
                     memoPagingItems = memoPagingDataFlow.collectAsLazyPagingItems(),
@@ -250,9 +214,5 @@ class SearchHomeResultListTest {
         private const val QUERY = "여행"
         private const val EMPTY_TITLE = "No search results"
         private const val EMPTY_DESCRIPTION = "Try a different search query."
-        private const val FINISH_MEMO_DESCRIPTION = "Finish memo"
-        private const val DELETE_MEMO_DESCRIPTION = "Delete memo"
-        private const val DRAG_OFFSET = 200F
-        private const val DRAG_DELAY_MILLIS = 100L
     }
 }
