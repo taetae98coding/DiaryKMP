@@ -96,6 +96,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [곡 다운로드 프록시](./music-download-proxy.md) | [곡 다운로드 프록시](../spec/music-download-proxy.md) |
 | [네이버 장소 검색](./naver-place-search.md) | [네이버 장소 검색](../spec/naver-place-search.md) |
 | [알림 권한 요청](./notification-permission.md) | [알림 권한 요청](../spec/notification-permission.md) |
+| [Play Integrity 판정 로깅](./play-integrity-logging.md) | [Play Integrity 판정 로깅](../spec/play-integrity-logging.md) |
 | [PlaceAdd](./place-add.md) | [PlaceAdd 화면](../spec/place-add.md) |
 | [PlaceDetail](./place-detail.md) | [PlaceDetail 화면](../spec/place-detail.md) |
 | [PlaceDetail 메모 탭](./place-detail-memo.md) | [PlaceDetail 메모 탭](../spec/place-detail-memo.md) |

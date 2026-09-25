@@ -7,6 +7,8 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.taetae98coding.diary.app.shared.analytics.ScreenViewEffect
 import io.github.taetae98coding.diary.app.shared.fcm.SubmitFcmTokenEffect
+import io.github.taetae98coding.diary.app.shared.integrity.AppPlayIntegrityViewModel
+import io.github.taetae98coding.diary.app.shared.integrity.PlayIntegrityLogEffect
 import io.github.taetae98coding.diary.app.shared.scaffold.AppScaffold
 import io.github.taetae98coding.diary.compose.core.image.DiaryImageLoaderEffect
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -21,6 +23,7 @@ public fun App(modifier: Modifier = Modifier) {
     val syncViewModel = koinViewModel<AppSyncViewModel>()
     val fcmTokenViewModel = koinViewModel<AppFcmTokenViewModel>()
     val chromeSessionViewModel = koinViewModel<AppChromeSessionViewModel>()
+    val playIntegrityViewModel = koinViewModel<AppPlayIntegrityViewModel>()
     val appState = rememberAppState()
     val webSession by chromeSessionViewModel.session.collectAsStateWithLifecycle()
 
@@ -39,6 +42,7 @@ public fun App(modifier: Modifier = Modifier) {
         account = fcmTokenViewModel.account,
     )
     ChromeSessionImportEffect(requestImport = chromeSessionViewModel::requestImport)
+    PlayIntegrityLogEffect(log = playIntegrityViewModel::log)
     ScreenViewEffect(
         log = DiaryLogger::log,
         appState = appState,

@@ -41,6 +41,7 @@ googleLocation = "21.4.0" # https://developers.google.com/android/guides/release
 googleMap = "8.5.0" # https://github.com/googlemaps/android-maps-compose/releases
 googleMaterial = "1.14.0" # https://github.com/material-components/material-components-android/releases
 googleOauthClient = "1.39.0" # https://github.com/googleapis/google-oauth-java-client/releases
+googlePlayIntegrity = "1.6.0" # https://developer.android.com/google/play/integrity/reference/release-notes
 googleServicesGradlePlugin = "4.5.0" # https://developers.google.com/android/guides/google-services-plugin?hl=en
 koin = "4.2.2" # https://github.com/InsertKoinIO/koin/releases
 koinCompiler = "1.2.1" # https://github.com/InsertKoinIO/koin-compiler-plugin/releases
@@ -118,6 +119,7 @@ coil-test = { module = "io.coil-kt.coil3:coil-test", version.ref = "coil" }
 
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
+firebase-common = { group = "com.google.firebase", name = "firebase-common" }
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
 firebase-performance = { group = "com.google.firebase", name = "firebase-perf" }
@@ -128,6 +130,7 @@ google-identity-googleid = { group = "com.google.android.libraries.identity.goog
 google-maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "googleMap" }
 google-material = { module = "com.google.android.material:material", version.ref = "googleMaterial" }
 google-oauth-client-jetty = { group = "com.google.oauth-client", name = "google-oauth-client-jetty", version.ref = "googleOauthClient" }
+google-play-integrity = { group = "com.google.android.play", name = "integrity", version.ref = "googlePlayIntegrity" }
 google-play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "googleLocation" }
 
 koin-androidx-workmanager = { group = "io.insert-koin", name = "koin-androidx-workmanager", version.ref = "koin" }

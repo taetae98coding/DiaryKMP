@@ -93,6 +93,7 @@
 | [네이버 장소 검색](./naver-place-search.md) | — |
 | [알림 권한 요청](./notification-permission.md) | — |
 | [권한 요청 공통](./permission.md) | — |
+| [Play Integrity 판정 로깅](./play-integrity-logging.md) | — |
 | [PlaceAdd 화면](./place-add.md) | [PlaceAdd 디자인](../design/place-add.md) |
 | [PlaceDetail 화면](./place-detail.md) | [PlaceDetail 디자인](../design/place-detail.md) |
 | [PlaceDetail 메모 탭](./place-detail-memo.md) | [항목 상세 메모 탭 공통 디자인](../design/entity-detail-memo.md), [PlaceDetail 디자인](../design/place-detail.md) |
