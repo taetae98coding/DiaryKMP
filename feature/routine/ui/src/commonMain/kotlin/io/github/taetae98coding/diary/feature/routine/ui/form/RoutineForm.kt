@@ -19,6 +19,7 @@ internal fun RoutineForm(
         DiaryTitleInput(
             state = state.titleState,
             modifier = Modifier.fillMaxWidth(),
+            nextFocusProvider = { state.descriptionState.focusTarget },
         )
         DiaryDescriptionInput(
             state = state.descriptionState,

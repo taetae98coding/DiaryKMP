@@ -31,6 +31,7 @@ internal fun DiaryDescriptionInputPageLayout(
         content = {
             ClearTextField(
                 state = state.textFieldState,
+                focusRequester = state.focusRequester,
                 label = { Text(text = stringResource(Res.string.diary_description_input_label)) },
                 lineLimits = TextFieldLineLimits.MultiLine(minHeightInLines = DiaryDescriptionInputDefaults.MIN_HEIGHT_IN_LINES, maxHeightInLines = DiaryDescriptionInputDefaults.MAX_HEIGHT_IN_LINES),
             )

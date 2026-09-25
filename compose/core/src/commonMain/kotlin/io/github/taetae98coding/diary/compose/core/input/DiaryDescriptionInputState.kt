@@ -10,14 +10,24 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.focus.FocusRequester
 
 @Stable
 public class DiaryDescriptionInputState internal constructor(
     internal val textFieldState: TextFieldState,
     internal val swipeState: AnchoredDraggableState<DiaryDescriptionInputPage>,
+    internal val focusRequester: FocusRequester,
 ) {
     public val text: CharSequence
         get() = textFieldState.text
+
+    public val focusTarget: FocusRequester
+        get() =
+            if (swipeState.currentValue == DiaryDescriptionInputPage.Input) {
+                focusRequester
+            } else {
+                FocusRequester.Default
+            }
 
     public fun clearText() {
         textFieldState.clearText()
@@ -47,10 +57,13 @@ public fun rememberDiaryDescriptionInputState(initialText: String = ""): DiaryDe
             AnchoredDraggableState(initialValue = initialDiaryDescriptionInputPage(initialText))
         }
 
-    return remember(textFieldState, swipeState) {
+    val focusRequester = remember { FocusRequester() }
+
+    return remember(textFieldState, swipeState, focusRequester) {
         DiaryDescriptionInputState(
             textFieldState = textFieldState,
             swipeState = swipeState,
+            focusRequester = focusRequester,
         )
     }
 }
