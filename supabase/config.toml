@@ -125,6 +125,12 @@ verify_jwt = true
 [functions.v1-profile-upload]
 verify_jwt = true
 
+[functions.v1-file-upload]
+verify_jwt = true
+
+[functions.v1-file-list]
+verify_jwt = true
+
 [functions.v1-fcm-token-submit]
 verify_jwt = false
 
