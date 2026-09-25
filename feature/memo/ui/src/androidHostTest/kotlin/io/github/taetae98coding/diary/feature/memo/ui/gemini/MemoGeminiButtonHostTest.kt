@@ -13,7 +13,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
-class MemoGeminiButtonTest {
+class MemoGeminiButtonHostTest {
     @get:Rule
     val composeRule = createComposeRule()
 
@@ -48,7 +48,7 @@ class MemoGeminiButtonTest {
     ) {
         composeRule.setContent {
             DiaryTheme {
-                MemoGeminiButton(
+                MemoGeminiButtonHost(
                     onClick = onClick,
                     isVisibleProvider = { isVisible },
                 )

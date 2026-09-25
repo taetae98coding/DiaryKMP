@@ -277,6 +277,76 @@ private fun LoadWebPageEffect(
 
 ViewModel이 노출하는 `Flow<XxxEffect>`를 UI가 받는 반대 방향은 `UI Effect 수집`을 따른다. 이 절은 UI가 소유한 state를 ViewModel이나 바깥으로 내보내는 방향만 다룬다.
 
+## 표시 여부는 호출부가 정한다
+
+**컴포넌트는 자기 자신을 그릴지를 파라미터로 받지 않는다.** `isVisible: Boolean`이나 `isVisibleProvider: () -> Boolean`을 받아 본문을 비우거나 `DiaryScaleVisibility`로 자신을 감추는 컴포넌트는 표현과 노출 판단을 함께 떠안는다. 호출부 선언만 보고는 그 자리에 무엇이 그려지는지 알 수 없고, 항상 보이는 자리에 쓰려는 호출자도 쓰지 않을 플래그를 함께 받게 된다. 표시 여부는 컴포넌트를 배치하는 쪽이 정할 일이므로, 호출부가 `if`나 `DiaryScaleVisibility`로 컴포넌트를 감싼다.
+
+**호출부 본문에서 표시 여부를 읽으면 `state 읽기 지연`을 어기게 될 때는 `XxxHost` 컴포저블로 감싼다.** Host는 표시 여부를 state 홀더나 provider로 받아 자기 본문에서 읽고, 보일 때만 컴포넌트를 호출한다. 이렇게 하면 읽는 자리가 Host 안으로 좁혀지고 컴포넌트는 표현만 맡는다. 다이얼로그의 표시 여부를 소유하는 `DiaryListSortBottomSheetHost`, `DiaryDatePickerDialogHost`와 같은 구조다. Scaffold의 `floatingActionButton`이나 상단 바의 `actions`처럼 따로 다시 구성되는 슬롯 람다 안에서는 Host 없이 그 람다 안에서 읽어도 된다.
+
+**컴포넌트의 일부만 감춰야 하면 컴포넌트에 부분 표시 플래그를 더하지 않고, Host가 감추지 않는 부분만 따로 그린다.** 부분을 감추다 보면 컴포넌트 전체가 비는 경우가 생기고, 그러면 결국 컴포넌트가 자기 표시 여부를 정하는 것과 같아지기 때문이다.
+
+다음은 이 규칙의 대상이 아니다.
+
+- 부모 컴포저블이 자식의 표시 여부를 정하는 것. Scaffold가 `componentVisibleProvider`로 떠 있는 버튼을 넣을지 정하거나, 상단 바가 뒤로가기 버튼을 넣을지 정하는 것은 호출부로서 내리는 결정이다. 단, 그 결정으로 부모 자신이 통째로 비면 부모가 자기 표시 여부를 정하는 것이므로 대상이 된다.
+- `DiaryScaleVisibility`, `DiaryScaleFadeVisibility`처럼 표시 전환 자체가 역할인 래퍼.
+
+⚠️ 비권장 예시:
+
+```kotlin
+@Composable
+internal fun MemoGeminiButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    // 버튼이 자기 표시 여부를 받는다. 호출부에서는 버튼이 그려지는지 보이지 않는다.
+    isVisibleProvider: () -> Boolean = { false },
+) {
+    if (!isVisibleProvider()) return
+
+    IconButton(onClick = onClick, modifier = modifier) { ... }
+}
+```
+
+✅ 권장 예시:
+
+```kotlin
+@Composable
+internal fun MemoGeminiButtonHost(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    isVisibleProvider: () -> Boolean = { false },
+) {
+    if (!isVisibleProvider()) return
+
+    MemoGeminiButton(
+        onClick = onClick,
+        modifier = modifier,
+    )
+}
+
+@Composable
+internal fun MemoGeminiButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    IconButton(onClick = onClick, modifier = modifier) { ... }
+}
+
+// 일부만 감추는 경우: 정렬 컨트롤을 감춰도 끝 쪽 컨트롤은 남긴다.
+@Composable
+public fun DiaryListSortBarHost(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    isSortVisibleProvider: () -> Boolean = { true },
+    trailing: @Composable (() -> Unit)? = null,
+) {
+    if (isSortVisibleProvider()) {
+        DiaryListSortBar(onClick = onClick, modifier = modifier, trailing = trailing)
+    } else if (trailing != null) {
+        DiaryListSortBarTrailing(modifier = modifier, trailing = trailing)
+    }
+}
+```
+
 ## ViewModel 파라미터 이름
 
 Screen 컴포저블이 받는 ViewModel 파라미터의 이름은 개수에 따라 정한다.

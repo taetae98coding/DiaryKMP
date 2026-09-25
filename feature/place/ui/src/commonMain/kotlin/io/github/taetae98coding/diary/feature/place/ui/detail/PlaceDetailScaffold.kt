@@ -14,7 +14,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleVisibility
 import io.github.taetae98coding.diary.compose.core.button.FloatingCheckButton
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
@@ -114,26 +113,21 @@ internal fun PlaceDetailScaffold(
 internal fun PlaceDetailUpdateFloatingActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    isVisible: Boolean = false,
     isInProgressProvider: () -> Boolean = { false },
 ) {
-    DiaryScaleVisibility(
-        visible = isVisible,
+    FloatingCheckButton(
+        onClick = onClick,
+        contentDescription = stringResource(Res.string.place_detail_update_button_content_description),
         modifier = modifier,
-    ) {
-        FloatingCheckButton(
-            onClick = onClick,
-            contentDescription = stringResource(Res.string.place_detail_update_button_content_description),
-            isInProgressProvider = isInProgressProvider,
-        )
-    }
+        isInProgressProvider = isInProgressProvider,
+    )
 }
 
 @ComponentPreview
 @Composable
 private fun PlaceDetailUpdateFloatingActionButtonPreview() {
     DiaryTheme {
-        PlaceDetailUpdateFloatingActionButton(onClick = {}, isVisible = true)
+        PlaceDetailUpdateFloatingActionButton(onClick = {})
     }
 }
 
@@ -164,7 +158,7 @@ private fun PlaceDetailScaffoldPreview(
             uiStateProvider = { uiState },
             tabFloatingActionButton = { tab ->
                 when (tab) {
-                    PlaceDetailTab.DETAIL -> PlaceDetailUpdateFloatingActionButton(onClick = {}, isVisible = true)
+                    PlaceDetailTab.DETAIL -> PlaceDetailUpdateFloatingActionButton(onClick = {})
                     PlaceDetailTab.MEMO -> PlaceDetailMemoFloatingActionButton(onClick = {})
                 }
             },

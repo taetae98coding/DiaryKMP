@@ -15,6 +15,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleVisibility
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
@@ -88,11 +89,12 @@ internal fun MemoDetailScaffold(
         },
         snackbarHost = { SnackbarHost(hostState = state.hostState) },
         floatingActionButton = {
-            MemoDetailUpdateButton(
-                isVisibleProvider = { isChanged },
-                uiStateProvider = uiStateProvider,
-                onEvent = onEvent,
-            )
+            DiaryScaleVisibility(visible = isChanged) {
+                MemoDetailUpdateButton(
+                    onEvent = onEvent,
+                    uiStateProvider = uiStateProvider,
+                )
+            }
         },
         contentWindowInsets = DiaryScaffoldDefaults.contentWindowInsets,
     ) { paddingValues ->

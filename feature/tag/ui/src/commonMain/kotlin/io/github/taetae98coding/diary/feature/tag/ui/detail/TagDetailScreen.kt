@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.ViewModelStoreProvider
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreProvider
+import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleVisibility
 import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.core.model.location.Coordinate
@@ -147,11 +148,12 @@ private fun TabFloatingActionButton(
 ) {
     when (tab) {
         TagDetailTab.DETAIL ->
-            TagDetailFormFloatingActionButton(
-                onClick = onUpdate,
-                isVisible = isUpdateVisible,
-                isInProgressProvider = isUpdateInProgressProvider,
-            )
+            DiaryScaleVisibility(visible = isUpdateVisible) {
+                TagDetailFormFloatingActionButton(
+                    onClick = onUpdate,
+                    isInProgressProvider = isUpdateInProgressProvider,
+                )
+            }
 
         TagDetailTab.MEMO -> TagDetailMemoFloatingActionButton(onClick = onMemoAdd)
 

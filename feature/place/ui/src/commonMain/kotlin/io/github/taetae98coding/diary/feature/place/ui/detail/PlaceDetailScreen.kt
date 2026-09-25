@@ -15,6 +15,7 @@ import androidx.lifecycle.viewmodel.ViewModelStoreProvider
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreProvider
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleVisibility
 import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
@@ -133,11 +134,12 @@ private fun TabFloatingActionButton(
 ) {
     when (tab) {
         PlaceDetailTab.DETAIL ->
-            PlaceDetailUpdateFloatingActionButton(
-                onClick = onUpdate,
-                isVisible = isUpdateVisible,
-                isInProgressProvider = isUpdateInProgressProvider,
-            )
+            DiaryScaleVisibility(visible = isUpdateVisible) {
+                PlaceDetailUpdateFloatingActionButton(
+                    onClick = onUpdate,
+                    isInProgressProvider = isUpdateInProgressProvider,
+                )
+            }
 
         PlaceDetailTab.MEMO -> PlaceDetailMemoFloatingActionButton(onClick = onMemoAdd)
     }
