@@ -9,7 +9,6 @@ import androidx.compose.material3.VerticalDragHandle
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.PaneExpansionState
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope
-import androidx.compose.material3.adaptive.navigation3.rememberListDetailSceneStrategy
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -27,6 +26,7 @@ import io.github.taetae98coding.diary.compose.core.animation.DiaryFadeContentTra
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
+import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
@@ -72,7 +72,7 @@ internal fun AppNavigation(
             sceneStrategies =
                 listOf(
                     remember { BottomSheetSceneStrategy<ScreenNavKey>() },
-                    rememberListDetailSceneStrategy(
+                    rememberDiaryListDetailSceneStrategy(
                         directive = appState.paneScaffoldDirective,
                         paneExpansionDragHandle = { state ->
                             AppPaneExpansionDragHandle(state = state)

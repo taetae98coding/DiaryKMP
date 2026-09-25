@@ -4,7 +4,6 @@ package io.github.taetae98coding.diary.feature.web.ui
 
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.navigation3.rememberListDetailSceneStrategy
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -31,6 +30,7 @@ import androidx.paging.PagingData
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
+import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -156,7 +156,7 @@ class WebListDetailPlaceholderTest {
                 CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
                     NavDisplay(
                         backStack = backStack,
-                        sceneStrategies = listOf(rememberListDetailSceneStrategy()),
+                        sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
                         entryDecorators =
                             listOf(
                                 rememberSaveableStateHolderNavEntryDecorator(),

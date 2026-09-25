@@ -4,7 +4,6 @@ package io.github.taetae98coding.diary.feature.routine.ui
 
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.navigation3.rememberListDetailSceneStrategy
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasSetTextAction
@@ -20,6 +19,7 @@ import androidx.navigation3.ui.NavDisplay
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
+import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -74,7 +74,7 @@ class RoutineListDetailPlaceholderTest {
                 DiaryTheme {
                     NavDisplay(
                         backStack = backStack,
-                        sceneStrategies = listOf(rememberListDetailSceneStrategy()),
+                        sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
                         entryDecorators =
                             listOf(
                                 rememberSaveableStateHolderNavEntryDecorator(),
