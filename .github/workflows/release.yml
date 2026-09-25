@@ -37,8 +37,66 @@ env:
   PBXPROJ: iosApp/DiaryApp.xcodeproj/project.pbxproj
 
 jobs:
+  test:
+    name: 🧪 테스트
+    runs-on: self-hosted
+    timeout-minutes: 90
+    steps:
+      - name: 📥 소스 가져오기
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          clean: true
+
+      - name: ☕ JDK 21 설치
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: 🗂️ CI 전용 캐시 위치 설정
+        run: |
+          set -euo pipefail
+          ci="$HOME/$CI_HOME_DIR"
+          mkdir -p "$ci/gradle"
+          # 실행 사이에 캐시는 유지하되 개발자의 ~/.gradle, ~/.konan과는 섞지 않는다.
+          {
+            echo "GRADLE_USER_HOME=$ci/gradle"
+            echo "KONAN_DATA_DIR=$ci/konan"
+          } >> "$GITHUB_ENV"
+          # 빌드가 끝난 뒤 Gradle 데몬이 개발 머신의 메모리를 붙잡지 않게 한다. Kotlin 데몬은 유휴 상태가 되면 스스로 종료한다.
+          printf '%s\n' 'org.gradle.daemon=false' > "$ci/gradle/gradle.properties"
+
+      - name: 🔐 local.properties 복원
+        env:
+          LOCAL_PROPERTIES: ${{ secrets.LOCAL_PROPERTIES }}
+        run: |
+          set -euo pipefail
+          sdk="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-$HOME/Library/Android/sdk}}"
+          printf '%s\n' "$LOCAL_PROPERTIES" > local.properties
+          echo "sdk.dir=$sdk" >> local.properties
+
+      - name: 🧪 포맷·정적 분석·단위 테스트
+        run: ./gradlew spotlessCheck detekt jvmTest testAndroidHostTest --continue
+
+      - name: 📤 테스트 리포트 업로드
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-reports
+          path: |
+            **/build/reports/tests/
+            **/build/reports/detekt/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: 🧹 비밀 파일 삭제
+        if: always()
+        run: rm -f local.properties
+
   version:
-    name: 버전
+    name: 🔢 버전 올림
+    needs: test
     runs-on: self-hosted
     permissions:
       contents: write
@@ -47,13 +105,16 @@ jobs:
       build: ${{ steps.bump.outputs.build }}
       sha: ${{ steps.commit.outputs.sha }}
     steps:
-      - uses: actions/checkout@v7
+      # 테스트를 통과한 커밋 위에 버전 커밋을 만들어야 하므로 실행을 시작한 커밋을 가져온다.
+      - name: 📥 소스 가져오기
+        uses: actions/checkout@v7
         with:
-          ref: main
+          ref: ${{ github.sha }}
           fetch-depth: 0
+          clean: true
 
       - id: bump
-        name: 버전 계산
+        name: 🔢 다음 버전 계산
         env:
           INPUT_VERSION: ${{ inputs.version }}
           BUMP: ${{ inputs.bump }}
@@ -95,7 +156,7 @@ jobs:
           echo "build=$build" >> "$GITHUB_OUTPUT"
 
       - id: commit
-        name: 버전 커밋과 태그
+        name: 🏷️ 버전 커밋·태그 push
         env:
           VERSION: ${{ steps.bump.outputs.version }}
           BUILD: ${{ steps.bump.outputs.build }}
@@ -117,41 +178,42 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -am "chore: 앱을 $VERSION ($BUILD) 버전으로 올린다"
           git tag -a "$VERSION" -m "$VERSION ($BUILD)"
+          # 테스트 중에 main이 앞서 나갔다면 fast-forward가 아니어서 push가 실패하고 배포를 멈춘다.
           git push origin HEAD:main
           git push origin "$VERSION"
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
   android:
-    name: Android → Play 내부 테스트
+    name: 🤖 Android → Play 내부 테스트
     needs: version
     if: inputs.android
     runs-on: [self-hosted, releaseAndroid]
     timeout-minutes: 90
     steps:
-      - uses: actions/checkout@v7
+      - name: 📥 소스 가져오기
+        uses: actions/checkout@v7
         with:
           ref: ${{ needs.version.outputs.sha }}
           clean: true
 
-      - uses: actions/setup-java@v6
+      - name: ☕ JDK 21 설치
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: 21
 
-      - name: CI 전용 캐시 위치 설정
+      - name: 🗂️ CI 전용 캐시 위치 설정
         run: |
           set -euo pipefail
           ci="$HOME/$CI_HOME_DIR"
           mkdir -p "$ci/gradle"
-          # 실행 사이에 캐시는 유지하되 개발자의 ~/.gradle, ~/.konan과는 섞지 않는다.
           {
             echo "GRADLE_USER_HOME=$ci/gradle"
             echo "KONAN_DATA_DIR=$ci/konan"
           } >> "$GITHUB_ENV"
-          # 빌드가 끝난 뒤 Gradle 데몬이 개발 머신의 메모리를 붙잡지 않게 한다. Kotlin 데몬은 유휴 상태가 되면 스스로 종료한다.
           printf '%s\n' 'org.gradle.daemon=false' > "$ci/gradle/gradle.properties"
 
-      - name: 비밀 파일 복원
+      - name: 🔐 서명 키·설정 파일 복원
         env:
           LOCAL_PROPERTIES: ${{ secrets.LOCAL_PROPERTIES }}
           ANDROID_REAL_KEYSTORE_BASE64: ${{ secrets.ANDROID_REAL_KEYSTORE_BASE64 }}
@@ -169,10 +231,10 @@ jobs:
           echo "$ANDROID_REAL_KEYSTORE_BASE64" | base64 -d > app/android/keystore/real.jks
           echo "$GOOGLE_SERVICES_REAL_JSON_BASE64" | base64 -d > app/android/src/real/google-services.json
 
-      - name: AAB 빌드
+      - name: 🏗️ real 릴리스 AAB 빌드
         run: ./gradlew :app:android:bundleRealRelease -Pbuildkonfig.flavor=real
 
-      - name: real 설정 확인
+      - name: 🔍 AAB에 real 설정이 들어갔는지 확인
         run: |
           set -euo pipefail
           aab=app/android/build/outputs/bundle/realRelease/android-real-release.aab
@@ -184,7 +246,8 @@ jobs:
             exit 1
           fi
 
-      - uses: r0adkll/upload-google-play@v1
+      - name: 🚀 Play 내부 테스트에 업로드
+        uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: io.github.taetae98coding.diary
@@ -193,23 +256,24 @@ jobs:
           tracks: internal
           status: completed
 
-      - name: 비밀 파일 삭제
+      - name: 🧹 비밀 파일 삭제
         if: always()
         run: rm -f local.properties app/android/keystore/real.jks app/android/src/real/google-services.json
 
   ios:
-    name: iOS → TestFlight
+    name: 🍎 iOS → TestFlight
     needs: version
     if: inputs.ios
     runs-on: [self-hosted, releaseiOS]
     timeout-minutes: 150
     steps:
-      - uses: actions/checkout@v7
+      - name: 📥 소스 가져오기
+        uses: actions/checkout@v7
         with:
           ref: ${{ needs.version.outputs.sha }}
           clean: true
 
-      - name: Xcode 27 선택
+      - name: 🛠️ Xcode 27 선택
         run: |
           set -euo pipefail
           # 개발 머신의 xcode-select 설정을 바꾸지 않도록 이 잡에서만 DEVELOPER_DIR로 고른다.
@@ -229,12 +293,13 @@ jobs:
           echo "DEVELOPER_DIR=$xcode/Contents/Developer" >> "$GITHUB_ENV"
           DEVELOPER_DIR="$xcode/Contents/Developer" xcodebuild -version
 
-      - uses: actions/setup-java@v6
+      - name: ☕ JDK 21 설치
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: 21
 
-      - name: CI 전용 캐시 위치 설정
+      - name: 🗂️ CI 전용 캐시 위치 설정
         run: |
           set -euo pipefail
           ci="$HOME/$CI_HOME_DIR"
@@ -246,7 +311,7 @@ jobs:
           } >> "$GITHUB_ENV"
           printf '%s\n' 'org.gradle.daemon=false' > "$ci/gradle/gradle.properties"
 
-      - name: 비밀 파일 복원
+      - name: 🔐 설정 파일·API 키 복원
         env:
           LOCAL_PROPERTIES: ${{ secrets.LOCAL_PROPERTIES }}
           IOS_GOOGLE_SERVICE_INFO_REAL_PLIST_BASE64: ${{ secrets.IOS_GOOGLE_SERVICE_INFO_REAL_PLIST_BASE64 }}
@@ -263,14 +328,14 @@ jobs:
           printf '%s\n' "$ASC_KEY_P8" > "$RUNNER_TEMP/asc/AuthKey_$ASC_KEY_ID.p8"
 
       # 스킴 이름의 공백이 archive 중간 경로를 가르면 Kotlin SPM 빌드가 modulemap을 찾지 못하므로 공백 없는 사본으로 archive한다.
-      - name: archive용 스킴 준비
+      - name: 📋 공백 없는 archive용 스킴 준비
         run: |
           cp "iosApp/DiaryApp.xcodeproj/xcshareddata/xcschemes/DiaryApp Real.xcscheme" \
              iosApp/DiaryApp.xcodeproj/xcshareddata/xcschemes/DiaryAppRealCI.xcscheme
 
       # 러너가 launchd 서비스로 돌면 로그인 키체인의 키에 접근하지 못해(errSecInternalComponent) codesign이 실패한다.
       # CI 전용 개발 인증서를 임시 키체인에 넣고 archive 동안만 검색 목록을 그 키체인으로 바꾼다. 배포 서명은 export에서 클라우드 서명을 받는다.
-      - name: 임시 키체인 준비
+      - name: 🔑 임시 키체인에 CI 서명 인증서 준비
         env:
           IOS_CI_SIGNING_P12_BASE64: ${{ secrets.IOS_CI_SIGNING_P12_BASE64 }}
           IOS_CI_SIGNING_P12_PASSWORD: ${{ secrets.IOS_CI_SIGNING_P12_PASSWORD }}
@@ -296,7 +361,7 @@ jobs:
             exit 1
           fi
 
-      - name: Archive
+      - name: 🏗️ RealRelease archive
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
@@ -314,7 +379,7 @@ jobs:
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID"
 
-      - name: TestFlight 업로드
+      - name: 🚀 TestFlight에 업로드
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
@@ -343,7 +408,7 @@ jobs:
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID"
 
-      - name: 비밀 파일과 임시 키체인 정리
+      - name: 🧹 비밀 파일·임시 키체인 정리
         if: always()
         run: |
           if [ -f "$RUNNER_TEMP/keychains.orig" ]; then
