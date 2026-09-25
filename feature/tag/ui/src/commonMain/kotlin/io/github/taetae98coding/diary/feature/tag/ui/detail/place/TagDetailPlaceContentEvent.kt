@@ -10,6 +10,10 @@ internal sealed interface TagDetailPlaceContentEvent {
         val id: Uuid,
     ) : TagDetailPlaceContentEvent
 
+    data class DeletePlace(
+        val id: Uuid,
+    ) : TagDetailPlaceContentEvent
+
     data class MoveMap(
         val bounds: CoordinateBounds?,
         val coordinate: Coordinate?,

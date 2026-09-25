@@ -22,7 +22,7 @@ import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefr
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
-import io.github.taetae98coding.diary.compose.place.PlaceCard
+import io.github.taetae98coding.diary.compose.place.SwipeToDeletePlaceCard
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.feature.place.ui.Res
 import io.github.taetae98coding.diary.feature.place.ui.home.PlaceHomeScaffoldEvent
@@ -89,8 +89,9 @@ internal fun PlaceList(
                         items = state.placeList,
                         key = { place -> place.id },
                     ) { place ->
-                        PlaceCard(
+                        SwipeToDeletePlaceCard(
                             onClick = { onEvent(PlaceHomeScaffoldEvent.ClickPlace(id = place.id)) },
+                            onDelete = { onEvent(PlaceHomeScaffoldEvent.DeletePlace(id = place.id)) },
                             place = place,
                         )
                     }

@@ -1,8 +1,10 @@
 package io.github.taetae98coding.diary.feature.tag.ui.detail.place
 
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.ViewModelStoreProvider
@@ -11,6 +13,7 @@ import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.place.PlaceListUndoSnackbarEffect
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailSyncViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeEffect
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeState
@@ -29,6 +32,7 @@ internal fun TagDetailPlaceContent(
     mapState: DiaryMapState,
     scopeState: TagDetailScopeState,
     modifier: Modifier = Modifier,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     val viewModelStoreOwner = rememberViewModelStoreOwner(key = TagDetailTab.PLACE, provider = viewModelStoreProvider)
 
@@ -42,6 +46,12 @@ internal fun TagDetailPlaceContent(
         val sort by placeViewModel.sort.collectAsStateWithLifecycle()
         val queryScope by placeViewModel.scope.collectAsStateWithLifecycle()
         val sortSheetState = rememberDialogState()
+
+        PlaceListUndoSnackbarEffect(
+            onRestore = placeViewModel::restore,
+            effect = placeViewModel.effect,
+            snackbarHostState = snackbarHostState,
+        )
 
         TagDetailScopeEffect(
             onSelect = { scope -> placeViewModel.select(scope = scope) },
@@ -57,6 +67,8 @@ internal fun TagDetailPlaceContent(
             onEvent = { event ->
                 when (event) {
                     is TagDetailPlaceContentEvent.ClickPlace -> navigateToPlaceDetail(event.id)
+
+                    is TagDetailPlaceContentEvent.DeletePlace -> placeViewModel.delete(id = event.id)
 
                     is TagDetailPlaceContentEvent.MoveMap -> {
                         placeViewModel.updateVisibleBounds(event.bounds)

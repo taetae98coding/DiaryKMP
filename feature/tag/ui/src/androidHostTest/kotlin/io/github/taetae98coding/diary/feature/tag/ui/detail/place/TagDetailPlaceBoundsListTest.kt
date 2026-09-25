@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -12,9 +14,11 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
+import androidx.compose.ui.test.swipeLeft
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.place.PLACE_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.feature.tag.ui.detail.isRefreshingFlow
@@ -59,6 +63,21 @@ class TagDetailPlaceBoundsListTest {
         composeRule.onNodeWithText(FIRST_TITLE).performClick()
 
         eventList shouldBe listOf(TagDetailPlaceContentEvent.ClickPlace(id = place.id))
+    }
+
+    @Test
+    fun `TC-TAG-DETAIL-PLACE-FEATURE-039 지도 모드의 목록에서 장소 카드를 삭제 방향으로 밀면 그 장소의 삭제만 요청한다`() {
+        val place = tagPlace(title = FIRST_TITLE)
+        val eventList = mutableListOf<TagDetailPlaceContentEvent>()
+        setBoundsList(
+            MutableStateFlow(TagDetailPlaceListUiState(isLoaded = true, placeList = listOf(place))),
+            onEvent = eventList::add,
+        )
+
+        composeRule.onNode(hasTestTag(PLACE_CARD_TEST_TAG) and hasText(FIRST_TITLE)).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+
+        eventList shouldBe listOf(TagDetailPlaceContentEvent.DeletePlace(id = place.id))
     }
 
     @Test

@@ -23,11 +23,11 @@ import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
-class DeletePlaceUseCaseTest :
+class RestorePlaceUseCaseTest :
     BehaviorSpec({
-        Given("현재 계정과 저장된 장소가 준비되어 있다") {
+        Given("현재 계정과 삭제된 장소이 준비되어 있다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
-            val id = Uuid.random()
+            val id = fixtureMonkey.giveMeOne<Uuid>()
             val isDeletedSlot = slot<Boolean>()
             val updatedAtSlot = slot<Instant>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
@@ -41,27 +41,27 @@ class DeletePlaceUseCaseTest :
                     updatedAt = capture(updatedAtSlot),
                 )
             } returns 1
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val clock = mockk<Clock>()
             every { clock.now() } returns now
             val requestSyncUseCase = requestSyncUseCase()
             val useCase =
-                DeletePlaceUseCase(
+                RestorePlaceUseCase(
                     getAccountUseCase = getAccountUseCase,
                     requestSyncUseCase = requestSyncUseCase,
                     accountPlaceRepository = accountPlaceRepository,
                     clock = clock,
                 )
 
-            When("장소를 삭제한다") {
-                Then("TC-PLACE-DETAIL-DOMAIN-010 TC-PLACE-HOME-DOMAIN-028 삭제 여부와 수정 시각만 바꾼다") {
+            When("장소의 삭제를 실행 취소한다") {
+                Then("TC-PLACE-HOME-DOMAIN-029 삭제 여부를 미삭제로 되돌리고 수정 시각을 갱신한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
-                    isDeletedSlot.captured shouldBe true
+                    isDeletedSlot.captured shouldBe false
                     updatedAtSlot.captured shouldBe now
                 }
 
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-PLACE-DETAIL-DATA-008 TC-PLACE-HOME-DATA-006 삭제를 서버와 맞추기 위한 동기화를 요청한다") {
+                Then("TC-PLACE-HOME-DATA-006 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
@@ -69,49 +69,29 @@ class DeletePlaceUseCaseTest :
             }
         }
 
-        Given("삭제는 성공하지만 서버 반영이 실패하도록 준비되어 있다") {
-            val account = fixtureMonkey.giveMeOne<Account.User>()
-            val id = Uuid.random()
-            val isDeletedSlot = slot<Boolean>()
-            val updatedAtSlot = slot<Instant>()
+        Given("게스트 계정이 준비되어 있다") {
+            val account = fixtureMonkey.giveMeOne<Account.Guest>()
+            val id = fixtureMonkey.giveMeOne<Uuid>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountPlaceRepository = mockk<AccountPlaceRepository>()
             coEvery {
-                accountPlaceRepository.updateDeleted(
-                    account = account,
-                    placeId = id,
-                    isDeleted = capture(isDeletedSlot),
-                    updatedAt = capture(updatedAtSlot),
-                )
+                accountPlaceRepository.updateDeleted(account = account, placeId = id, isDeleted = any(), updatedAt = any())
             } returns 1
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
-            val clock = mockk<Clock>()
-            every { clock.now() } returns now
-            val requestSyncUseCase = mockk<RequestSyncUseCase>()
-            coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns
-                Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
             val useCase =
-                DeletePlaceUseCase(
+                RestorePlaceUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    requestSyncUseCase = requestSyncUseCase,
+                    requestSyncUseCase = requestSyncUseCase(),
                     accountPlaceRepository = accountPlaceRepository,
-                    clock = clock,
+                    clock = Clock.System,
                 )
 
-            When("장소를 삭제한다") {
-                Then("TC-PLACE-DETAIL-DATA-010 삭제는 성공으로 전달되고 기기에 반영한 삭제를 되돌리지 않는다") {
+            When("장소의 삭제를 실행 취소한다") {
+                Then("TC-PLACE-HOME-DATA-007 게스트 계정 기준으로 기기에만 실행 취소를 반영한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
-                    isDeletedSlot.captured shouldBe true
-                    updatedAtSlot.captured shouldBe now
                     coVerify(exactly = 1) {
-                        accountPlaceRepository.updateDeleted(
-                            account = account,
-                            placeId = id,
-                            isDeleted = any(),
-                            updatedAt = any(),
-                        )
+                        accountPlaceRepository.updateDeleted(account = account, placeId = id, isDeleted = false, updatedAt = any())
                     }
                 }
             }
@@ -123,65 +103,64 @@ class DeletePlaceUseCaseTest :
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val accountPlaceRepository = mockk<AccountPlaceRepository>(relaxed = true)
             val useCase =
-                DeletePlaceUseCase(
+                RestorePlaceUseCase(
                     getAccountUseCase = getAccountUseCase,
                     requestSyncUseCase = requestSyncUseCase(),
                     accountPlaceRepository = accountPlaceRepository,
                     clock = Clock.System,
                 )
 
-            When("장소를 삭제한다") {
-                Then("계정 조회 실패를 전달하고 삭제를 저장하지 않는다") {
-                    val result = useCase(parameter = Uuid.random())
+            When("장소의 삭제를 실행 취소한다") {
+                Then("TC-PLACE-HOME-DOMAIN-030 실행 취소가 성공으로 다뤄지지 않고 장소의 삭제 여부를 바꾸지 않는다") {
+                    useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
+                        .shouldBeFailure()
+                        .shouldBeSameInstanceAs(throwable)
 
-                    result.shouldBeFailure() shouldBeSameInstanceAs throwable
                     coVerify(exactly = 0) {
-                        accountPlaceRepository.updateDeleted(
-                            account = any(),
-                            placeId = any(),
-                            isDeleted = any(),
-                            updatedAt = any(),
-                        )
+                        accountPlaceRepository.updateDeleted(account = any(), placeId = any(), isDeleted = any(), updatedAt = any())
                     }
                 }
             }
         }
 
-        Given("삭제 저장이 실패하도록 준비되어 있다") {
+        Given("실행 취소 저장이 실패하도록 준비되어 있다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountPlaceRepository = mockk<AccountPlaceRepository>()
             coEvery {
-                accountPlaceRepository.updateDeleted(
-                    account = account,
-                    placeId = any(),
-                    isDeleted = any(),
-                    updatedAt = any(),
-                )
+                accountPlaceRepository.updateDeleted(account = account, placeId = any(), isDeleted = any(), updatedAt = any())
             } throws throwable
+            val requestSyncUseCase = requestSyncUseCase()
             val useCase =
-                DeletePlaceUseCase(
+                RestorePlaceUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    requestSyncUseCase = requestSyncUseCase(),
+                    requestSyncUseCase = requestSyncUseCase,
                     accountPlaceRepository = accountPlaceRepository,
                     clock = Clock.System,
                 )
 
-            When("장소를 삭제한다") {
-                Then("TC-PLACE-DETAIL-DATA-005 삭제를 성공으로 다루지 않고 저장 실패를 전달한다") {
-                    val result = useCase(parameter = Uuid.random())
+            When("장소의 삭제를 실행 취소한다") {
+                Then("TC-PLACE-HOME-DATA-008 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
+                    useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
+                        .shouldBeFailure()
+                        .shouldBeSameInstanceAs(throwable)
 
-                    result.shouldBeFailure() shouldBeSameInstanceAs throwable
+                    coVerify(exactly = 0) { requestSyncUseCase(parameter = any()) }
                 }
             }
         }
     }) {
-    private companion object {
+    public companion object {
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
 
-        private fun requestSyncUseCase(): RequestSyncUseCase = mockk(relaxed = true)
+        private fun requestSyncUseCase(): RequestSyncUseCase {
+            val useCase = mockk<RequestSyncUseCase>()
+            coEvery { useCase(parameter = any()) } returns Result.success(Unit)
+
+            return useCase
+        }
     }
 }

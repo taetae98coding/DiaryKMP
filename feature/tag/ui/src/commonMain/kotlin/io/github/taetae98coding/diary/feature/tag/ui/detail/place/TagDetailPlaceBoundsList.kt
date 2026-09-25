@@ -20,7 +20,7 @@ import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
-import io.github.taetae98coding.diary.compose.place.PlaceCard
+import io.github.taetae98coding.diary.compose.place.SwipeToDeletePlaceCard
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.feature.tag.ui.Res
@@ -82,8 +82,9 @@ internal fun TagDetailPlaceBoundsList(
                     items = state.placeList,
                     key = { place -> place.id },
                 ) { place ->
-                    PlaceCard(
+                    SwipeToDeletePlaceCard(
                         onClick = { onEvent(TagDetailPlaceContentEvent.ClickPlace(id = place.id)) },
+                        onDelete = { onEvent(TagDetailPlaceContentEvent.DeletePlace(id = place.id)) },
                         place = place,
                     )
                 }

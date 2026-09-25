@@ -1,0 +1,5 @@
+<resources>
+    <string name="place_list_deleted_message">장소가 삭제되었습니다.</string>
+    <string name="place_list_undo_action">실행 취소</string>
+    <string name="place_list_delete_content_description">장소 삭제</string>
+</resources>

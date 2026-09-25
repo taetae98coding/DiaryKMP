@@ -7,16 +7,21 @@ import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.compose.place.PlaceListEffect
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.location.CoordinateBounds
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
+import io.github.taetae98coding.diary.domain.place.usecase.DeletePlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.GetPlaceListUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceHomeUseCase
+import io.github.taetae98coding.diary.domain.place.usecase.RestorePlaceUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -264,6 +269,70 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
                 flowOf(viewModel.placePagingData.first()).asSnapshot().shouldBeEmpty()
             }
         }
+
+        test("TC-PLACE-HOME-FEATURE-054 삭제에 성공하면 그 장소의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val deletePlaceUseCase = mockk<DeletePlaceUseCase>()
+                coEvery { deletePlaceUseCase(parameter = id) } returns Result.success(1)
+                val viewModel = viewModel(deletePlaceUseCase = deletePlaceUseCase)
+
+                viewModel.effect.test {
+                    viewModel.delete(id = id)
+
+                    awaitItem() shouldBe PlaceListEffect.Deleted(id = id)
+                    expectNoEvents()
+                }
+                coVerify(exactly = 1) { deletePlaceUseCase(parameter = id) }
+            }
+        }
+
+        test("TC-PLACE-HOME-FEATURE-062 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val deletePlaceUseCase = mockk<DeletePlaceUseCase>()
+                coEvery { deletePlaceUseCase(parameter = id) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                val viewModel = viewModel(deletePlaceUseCase = deletePlaceUseCase)
+
+                viewModel.effect.test {
+                    viewModel.delete(id = id)
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                }
+            }
+        }
+
+        test("TC-PLACE-HOME-FEATURE-059 실행 취소하면 그 장소의 삭제를 되돌리는 요청을 한 번 보낸다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val restorePlaceUseCase = mockk<RestorePlaceUseCase>()
+                coEvery { restorePlaceUseCase(parameter = id) } returns Result.success(1)
+                val viewModel = viewModel(restorePlaceUseCase = restorePlaceUseCase)
+
+                viewModel.restore(id = id)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { restorePlaceUseCase(parameter = id) }
+            }
+        }
+
+        test("TC-PLACE-HOME-DOMAIN-030 실행 취소를 저장하지 못하면 별도 안내를 보내지 않는다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val restorePlaceUseCase = mockk<RestorePlaceUseCase>()
+                coEvery { restorePlaceUseCase(parameter = id) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                val viewModel = viewModel(restorePlaceUseCase = restorePlaceUseCase)
+
+                viewModel.effect.test {
+                    viewModel.restore(id = id)
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                }
+                coVerify(exactly = 1) { restorePlaceUseCase(parameter = id) }
+            }
+        }
     }
 
     private companion object {
@@ -296,6 +365,8 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
         private fun viewModel(
             getPlaceListUseCase: GetPlaceListUseCase = getPlaceListUseCase(),
             placePagingFlow: Flow<Result<PagingData<Place>>> = emptyFlow(),
+            deletePlaceUseCase: DeletePlaceUseCase = mockk(),
+            restorePlaceUseCase: RestorePlaceUseCase = mockk(),
         ): PlaceHomePlaceListViewModel {
             val pagePlaceHomeUseCase = mockk<PagePlaceHomeUseCase>()
             every { pagePlaceHomeUseCase(parameter = ListSort.TITLE) } returns placePagingFlow
@@ -303,6 +374,8 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
             return PlaceHomePlaceListViewModel(
                 getPlaceListUseCase = getPlaceListUseCase,
                 pagePlaceHomeUseCase = pagePlaceHomeUseCase,
+                deletePlaceUseCase = deletePlaceUseCase,
+                restorePlaceUseCase = restorePlaceUseCase,
             )
         }
 

@@ -27,7 +27,7 @@ import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefr
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
-import io.github.taetae98coding.diary.compose.place.PlaceCard
+import io.github.taetae98coding.diary.compose.place.SwipeToDeletePlaceCard
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.feature.place.ui.Res
@@ -85,30 +85,46 @@ internal fun PlaceHomePagingList(
                     )
                 }
             } else {
-                DiaryRefreshableStaggeredGrid(
-                    onRefresh = { onEvent(PlaceHomeScaffoldEvent.Refresh) },
-                    modifier = Modifier.fillMaxSize(),
-                    state = gridState,
+                PlaceHomePagingGrid(
+                    onEvent = onEvent,
+                    gridState = gridState,
+                    placePagingItems = placePagingItems,
                     isRefreshingProvider = isRefreshingProvider,
-                    listTestTag = PLACE_HOME_PAGING_LIST_TEST_TAG,
-                ) {
-                    items(
-                        count = placePagingItems.itemCount,
-                        key = placePagingItems.itemKey { place -> place.id },
-                    ) { index ->
-                        val place = placePagingItems[index]
-
-                        PlaceCard(
-                            onClick = { place?.let { value -> onEvent(PlaceHomeScaffoldEvent.ClickPlace(id = value.id)) } },
-                            modifier =
-                                Modifier
-                                    .animateItem()
-                                    .fillMaxWidth(),
-                            place = place,
-                        )
-                    }
-                }
+                )
             }
+        }
+    }
+}
+
+@Composable
+private fun PlaceHomePagingGrid(
+    onEvent: (PlaceHomeScaffoldEvent) -> Unit,
+    gridState: LazyStaggeredGridState,
+    placePagingItems: LazyPagingItems<Place>,
+    isRefreshingProvider: () -> Boolean,
+) {
+    DiaryRefreshableStaggeredGrid(
+        onRefresh = { onEvent(PlaceHomeScaffoldEvent.Refresh) },
+        modifier = Modifier.fillMaxSize(),
+        state = gridState,
+        isRefreshingProvider = isRefreshingProvider,
+        listTestTag = PLACE_HOME_PAGING_LIST_TEST_TAG,
+    ) {
+        items(
+            count = placePagingItems.itemCount,
+            key = placePagingItems.itemKey { place -> place.id },
+        ) { index ->
+            val place = placePagingItems[index]
+
+            SwipeToDeletePlaceCard(
+                onClick = { place?.let { value -> onEvent(PlaceHomeScaffoldEvent.ClickPlace(id = value.id)) } },
+                onDelete = { place?.let { value -> onEvent(PlaceHomeScaffoldEvent.DeletePlace(id = value.id)) } },
+                modifier =
+                    Modifier
+                        .animateItem()
+                        .fillMaxWidth(),
+                place = place,
+            )
         }
     }
 }

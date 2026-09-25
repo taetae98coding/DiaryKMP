@@ -264,6 +264,8 @@ class PlaceHomeExecutionBoundaryTest {
             return PlaceHomePlaceListViewModel(
                 getPlaceListUseCase = getPlaceListUseCase,
                 pagePlaceHomeUseCase = pagePlaceHomeUseCase,
+                deletePlaceUseCase = mockk(),
+                restorePlaceUseCase = mockk(),
             )
         }
 

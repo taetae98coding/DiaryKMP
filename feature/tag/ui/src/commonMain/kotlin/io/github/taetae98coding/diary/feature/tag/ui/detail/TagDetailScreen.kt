@@ -286,6 +286,7 @@ private fun TabContent(
                 mapState = placeMapState,
                 scopeState = scopeState,
                 modifier = Modifier.fillMaxSize(),
+                snackbarHostState = state.hostState,
             )
     }
 }

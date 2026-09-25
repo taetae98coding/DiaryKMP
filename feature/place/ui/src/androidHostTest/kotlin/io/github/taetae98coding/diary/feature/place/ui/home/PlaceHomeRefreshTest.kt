@@ -117,6 +117,8 @@ class PlaceHomeRefreshTest {
                 PlaceHomePlaceListViewModel(
                     getPlaceListUseCase = getPlaceListUseCase,
                     pagePlaceHomeUseCase = pagePlaceHomeUseCase,
+                    deletePlaceUseCase = mockk(),
+                    restorePlaceUseCase = mockk(),
                 ),
             syncViewModel =
                 PlaceHomeSyncViewModel(
