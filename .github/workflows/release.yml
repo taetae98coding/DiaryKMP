@@ -31,13 +31,15 @@ permissions:
   contents: read
 
 env:
+  # self-hosted 러너는 실행 사이에 홈 디렉터리를 공유하므로, 개발 환경과 섞이지 않게 CI 전용 캐시 위치를 쓴다.
+  CI_HOME_DIR: .diary-ci
   BUILD_LOGIC: build-logic/convention/src/main/kotlin/io/github/taetae98coding/diary/buildlogic/BuildLogic.kt
   PBXPROJ: iosApp/DiaryApp.xcodeproj/project.pbxproj
 
 jobs:
   version:
     name: 버전
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     permissions:
       contents: write
     outputs:
@@ -104,10 +106,11 @@ jobs:
             echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          sed -i -E "s/(VERSION_CODE: Int = )[0-9]+/\1$BUILD/" "$BUILD_LOGIC"
-          sed -i -E "s/(VERSION_NAME: String = \")[0-9.]+(\")/\1$VERSION\2/" "$BUILD_LOGIC"
-          sed -i -E "s/(CURRENT_PROJECT_VERSION = )[0-9]+;/\1$BUILD;/" "$PBXPROJ"
-          sed -i -E "s/(MARKETING_VERSION = )[0-9.]+;/\1$VERSION;/" "$PBXPROJ"
+          # self-hosted macOS 러너의 BSD sed와 GNU sed의 -i 문법이 달라 perl로 치환한다.
+          perl -pi -e 's/(VERSION_CODE: Int = )\d+/${1}$ENV{BUILD}/' "$BUILD_LOGIC"
+          perl -pi -e 's/(VERSION_NAME: String = ")[\d.]+(")/${1}$ENV{VERSION}${2}/' "$BUILD_LOGIC"
+          perl -pi -e 's/(CURRENT_PROJECT_VERSION = )\d+;/${1}$ENV{BUILD};/' "$PBXPROJ"
+          perl -pi -e 's/(MARKETING_VERSION = )[\d.]+;/${1}$ENV{VERSION};/' "$PBXPROJ"
           git diff --stat
 
           git config user.name "github-actions[bot]"
@@ -122,21 +125,31 @@ jobs:
     name: Android → Play 내부 테스트
     needs: version
     if: inputs.android
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, releaseAndroid]
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v7
         with:
           ref: ${{ needs.version.outputs.sha }}
+          clean: true
 
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: 21
 
-      - uses: android-actions/setup-android@v4
-
-      - uses: gradle/actions/setup-gradle@v6
+      - name: CI 전용 캐시 위치 설정
+        run: |
+          set -euo pipefail
+          ci="$HOME/$CI_HOME_DIR"
+          mkdir -p "$ci/gradle"
+          # 실행 사이에 캐시는 유지하되 개발자의 ~/.gradle, ~/.konan과는 섞지 않는다.
+          {
+            echo "GRADLE_USER_HOME=$ci/gradle"
+            echo "KONAN_DATA_DIR=$ci/konan"
+          } >> "$GITHUB_ENV"
+          # 빌드가 끝난 뒤 Gradle·Kotlin 데몬이 개발 머신의 메모리를 붙잡지 않게 한다.
+          printf '%s\n' 'org.gradle.daemon=false' 'kotlin.compiler.execution.strategy=in-process' > "$ci/gradle/gradle.properties"
 
       - name: 비밀 파일 복원
         env:
@@ -145,13 +158,16 @@ jobs:
           GOOGLE_SERVICES_REAL_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_REAL_JSON_BASE64 }}
         run: |
           set -euo pipefail
+          sdk="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-$HOME/Library/Android/sdk}}"
+          if [ ! -d "$sdk" ]; then
+            echo "::error::Android SDK를 찾지 못했습니다: $sdk"
+            exit 1
+          fi
           printf '%s\n' "$LOCAL_PROPERTIES" > local.properties
-          echo "sdk.dir=$ANDROID_HOME" >> local.properties
+          echo "sdk.dir=$sdk" >> local.properties
           mkdir -p app/android/keystore app/android/src/real
           echo "$ANDROID_REAL_KEYSTORE_BASE64" | base64 -d > app/android/keystore/real.jks
           echo "$GOOGLE_SERVICES_REAL_JSON_BASE64" | base64 -d > app/android/src/real/google-services.json
-          mkdir -p ~/.gradle
-          echo "org.gradle.jvmargs=-Xmx8g -XX:MaxMetaspaceSize=1g" >> ~/.gradle/gradle.properties
 
       - name: AAB 빌드
         run: ./gradlew :app:android:bundleRealRelease -Pbuildkonfig.flavor=real
@@ -170,46 +186,61 @@ jobs:
           packageName: io.github.taetae98coding.diary
           releaseFiles: app/android/build/outputs/bundle/realRelease/android-real-release.aab
           releaseName: ${{ needs.version.outputs.version }} (${{ needs.version.outputs.build }})
-          track: internal
+          tracks: internal
           status: completed
+
+      - name: 비밀 파일 삭제
+        if: always()
+        run: rm -f local.properties app/android/keystore/real.jks app/android/src/real/google-services.json
 
   ios:
     name: iOS → TestFlight
     needs: version
     if: inputs.ios
-    # Xcode 27은 macOS 러너의 기본 이미지에 없고 xcode-27 이미지(preview)에만 있다.
-    runs-on: xcode-27
+    runs-on: [self-hosted, releaseiOS]
     timeout-minutes: 150
     steps:
       - uses: actions/checkout@v7
         with:
           ref: ${{ needs.version.outputs.sha }}
+          clean: true
 
       - name: Xcode 27 선택
         run: |
           set -euo pipefail
-          xcode=$(ls -d /Applications/Xcode_27*.app 2>/dev/null | sort -V | tail -1 || true)
-          if [ -n "$xcode" ]; then
-            sudo xcode-select -s "$xcode"
-          fi
-          xcodebuild -version
-          if ! xcodebuild -version | head -1 | grep -q '^Xcode 27'; then
+          # 개발 머신의 xcode-select 설정을 바꾸지 않도록 이 잡에서만 DEVELOPER_DIR로 고른다.
+          xcode=""
+          for app in /Applications/Xcode_27*.app /Applications/Xcode.app; do
+            [ -d "$app" ] || continue
+            if DEVELOPER_DIR="$app/Contents/Developer" xcodebuild -version 2>/dev/null | head -1 | grep -q '^Xcode 27'; then
+              xcode="$app"
+              break
+            fi
+          done
+          if [ -z "$xcode" ]; then
             echo "::error::러너에 Xcode 27이 없습니다."
             ls -d /Applications/Xcode*.app
             exit 1
           fi
+          echo "DEVELOPER_DIR=$xcode/Contents/Developer" >> "$GITHUB_ENV"
+          DEVELOPER_DIR="$xcode/Contents/Developer" xcodebuild -version
 
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: 21
 
-      - uses: gradle/actions/setup-gradle@v6
-
-      - uses: actions/cache@v6
-        with:
-          path: ~/.konan
-          key: konan-${{ runner.os }}-${{ hashFiles('gradle/libs.versions.toml') }}
+      - name: CI 전용 캐시 위치 설정
+        run: |
+          set -euo pipefail
+          ci="$HOME/$CI_HOME_DIR"
+          mkdir -p "$ci/gradle" "$ci/DerivedData"
+          {
+            echo "GRADLE_USER_HOME=$ci/gradle"
+            echo "KONAN_DATA_DIR=$ci/konan"
+            echo "CI_DERIVED_DATA=$ci/DerivedData"
+          } >> "$GITHUB_ENV"
+          printf '%s\n' 'org.gradle.daemon=false' 'kotlin.compiler.execution.strategy=in-process' > "$ci/gradle/gradle.properties"
 
       - name: 비밀 파일 복원
         env:
@@ -226,8 +257,6 @@ jobs:
           printf '%s\n' "$IOS_REAL_LOCAL_XCCONFIG" > iosApp/Config/RealLocal.xcconfig
           mkdir -p "$RUNNER_TEMP/asc"
           printf '%s\n' "$ASC_KEY_P8" > "$RUNNER_TEMP/asc/AuthKey_$ASC_KEY_ID.p8"
-          mkdir -p ~/.gradle
-          echo "org.gradle.jvmargs=-Xmx5g -XX:MaxMetaspaceSize=1g" >> ~/.gradle/gradle.properties
 
       # 스킴 이름의 공백이 archive 중간 경로를 가르면 Kotlin SPM 빌드가 modulemap을 찾지 못하므로 공백 없는 사본으로 archive한다.
       - name: archive용 스킴 준비
@@ -246,6 +275,7 @@ jobs:
             -scheme DiaryAppRealCI \
             -configuration RealRelease \
             -destination 'generic/platform=iOS' \
+            -derivedDataPath "$CI_DERIVED_DATA" \
             -archivePath "$RUNNER_TEMP/Diary.xcarchive" \
             -allowProvisioningUpdates \
             -authenticationKeyPath "$RUNNER_TEMP/asc/AuthKey_$ASC_KEY_ID.p8" \
@@ -280,3 +310,9 @@ jobs:
             -authenticationKeyPath "$RUNNER_TEMP/asc/AuthKey_$ASC_KEY_ID.p8" \
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+
+      - name: 비밀 파일 삭제
+        if: always()
+        run: |
+          rm -f local.properties iosApp/Firebase/real/GoogleService-Info.plist iosApp/Config/RealLocal.xcconfig
+          rm -rf "$RUNNER_TEMP/asc" "$RUNNER_TEMP/Diary.xcarchive" "$RUNNER_TEMP/export"
