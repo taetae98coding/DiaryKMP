@@ -1,0 +1,4 @@
+# GitHub가 preview로 제공하는 러너 라벨이라 actionlint 내장 목록에 아직 없다.
+self-hosted-runner:
+  labels:
+    - xcode-27
