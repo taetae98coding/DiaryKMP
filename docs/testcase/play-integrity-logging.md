@@ -83,6 +83,7 @@ flowchart TD
 | 빈 목록인 `deviceRecognitionVerdict` |
 | 아래 항목이 하나도 없는 묶음 `deviceIntegrity` |
 | 아래 항목이 하나도 없는 묶음 `deviceAttributes` |
+| 값이 없음으로 온 `deviceRecognitionVerdict` |
 
 ### TC-PLAY-INTEGRITY-LOGGING-DOMAIN-006: 알려지지 않은 새 항목도 그대로 전달한다
 

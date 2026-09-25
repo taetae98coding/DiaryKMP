@@ -159,6 +159,13 @@ PlaylistHome에서 곡을 선택해 MusicDetail로 이동하는 케이스는 [Pl
 - When: 사용자가 외부로 열기를 실행한다.
 - Then: 입력 중이던 제목, 가수와 링크가 그대로 유지된다.
 
+### TC-MUSIC-DETAIL-FEATURE-030: 앱 밖에서 열지 못해도 화면을 유지하고 알리지 않는다
+
+- 근거: `feature > 외부로 열기`
+- Given: 제목을 바꾼 MusicDetail 화면이 표시되어 있고, 저장된 링크를 앱 밖에서 여는 것이 실패하도록 제어되어 있다.
+- When: 사용자가 외부로 열기를 실행한다.
+- Then: MusicDetail 화면이 그대로 남고 입력 중이던 제목이 유지되며, 열지 못했다는 안내는 표시되지 않는다.
+
 ### TC-MUSIC-DETAIL-FEATURE-018: 저장된 링크가 비어 있으면 외부로 열기를 제공하지 않는다
 
 - 근거: `feature > 외부로 열기`

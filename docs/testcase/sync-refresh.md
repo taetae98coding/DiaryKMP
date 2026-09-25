@@ -2,6 +2,8 @@
 
 기준 스펙: [새로고침 스펙](../spec/client/sync-refresh.md)
 
+TagDetail 웹·장소 탭, PlaceHome, WebHome, ContactHome, PlaylistHome에서 당겨 동기화를 요청하고 진행을 표시하는 케이스는 각 화면의 테스트 케이스 문서가 그 화면에서 관찰하는 결과로 자동화한다.
+
 ## feature
 
 ### TC-SYNC-REFRESH-FEATURE-001: 당기면 화면의 새로고침 대상이 다시 동기화된다
@@ -23,9 +25,14 @@
 | TagDetail 웹 탭 | 계정 데이터 서버 동기화 |
 | TagDetail 장소 탭 | 계정 데이터 서버 동기화 |
 | TagMemoFinishedList | 계정 데이터 서버 동기화 |
+| ContactDetail 메모 탭 | 계정 데이터 서버 동기화 |
+| PlaceDetail 메모 탭 | 계정 데이터 서버 동기화 |
+| WebDetail 메모 탭 | 계정 데이터 서버 동기화 |
 | RoutineHome | 계정 데이터 서버 동기화 |
 | PlaceHome | 계정 데이터 서버 동기화 |
 | WebHome | 계정 데이터 서버 동기화 |
+| ContactHome | 계정 데이터 서버 동기화 |
+| PlaylistHome | 계정 데이터 서버 동기화 |
 
 ### TC-SYNC-REFRESH-FEATURE-002: 당겨서 요청한 동기화가 실행되는 동안 진행이 표시된다
 
@@ -70,8 +77,21 @@
 | 연락처 추가 |
 | 연락처 수정 |
 | 연락처 삭제 |
+| 메모 다시 시작 |
+| 메모 복사 |
+| 메모 이동 |
+| 메모 대표 태그 변경 |
+| 곡 추가 |
+| 곡 수정 |
+| 곡 삭제 |
+| 연락처 즐겨찾기 변경 |
 | 메모와 태그의 연결 변경 |
 | 메모와 장소의 연결 변경 |
+| 메모와 웹 항목의 연결 변경 |
+| 메모와 연락처의 연결 변경 |
+| 태그와 태그의 연결 변경 |
+| 장소와 태그의 연결 변경 |
+| 웹 항목과 태그의 연결 변경 |
 
 ### TC-SYNC-REFRESH-FEATURE-011: 주기 동기화는 진행을 표시하지 않는다
 
@@ -110,9 +130,15 @@
 ### TC-SYNC-REFRESH-FEATURE-008: 로그인하지 않은 상태에서 당기면 서버 동기화도 진행 표시도 없다
 
 - 근거: `feature > 로그인하지 않은 상태`
-- Given: 로그인하지 않은 상태로 MemoHome, TagHome, TagDetail 메모·웹·장소 탭, TagMemoFinishedList, RoutineHome, PlaceHome 또는 WebHome이 표시되어 있다.
+- Given: 테스트 데이터의 계정 상태로 CalendarHome을 제외한 새로고침 대상 화면이 표시되어 있다.
 - When: 사용자가 화면을 당겨 새로고침을 요청한다.
 - Then: 계정 데이터 서버 동기화가 요청되지 않고 진행 표시가 나타나지 않는다.
+- 테스트 데이터:
+
+| 계정 상태 |
+| --- |
+| 로그인하지 않음 |
+| 로그인한 계정이 있지만 로그인 정보가 확인되지 않았거나 더 이상 유효하지 않음 |
 
 ### TC-SYNC-REFRESH-FEATURE-010: PlaceHome에서는 장소 목록 영역에서만 당김이 시작된다
 

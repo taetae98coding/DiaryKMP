@@ -2,7 +2,7 @@
 
 기준 스펙: [WebDetail 화면 스펙](../spec/client/web-detail.md)
 
-이 문서에서 `data > 태그 연결의 저장`, `data > 태그 입력의 조회` 절은 [항목 상세 화면 공통 스펙](../spec/client/entity-detail.md)이 소유한다. 나머지 케이스의 절은 기준 스펙이 소유한다.
+이 문서에서 `feature > 진입할 때의 입력 초점`, `data > 태그 연결의 저장`, `data > 태그 입력의 조회` 절은 [항목 상세 화면 공통 스펙](../spec/client/entity-detail.md)이 소유한다. 나머지 케이스의 절은 기준 스펙이 소유한다.
 
 WebHome의 목록과 SearchHome의 웹 결과에서 웹 항목을 선택해 WebDetail로 이동하는 케이스는 [WebHome 테스트 케이스](./web-home.md)와 [SearchHome 테스트 케이스](./search-home.md)에서, 웹 항목이 갖는 정보와 요청 헤더 항목의 추가·삭제·입력 케이스는 [WebAdd 테스트 케이스](./web-add.md)에서, 웹 항목을 서버와 맞추는 케이스는 [데이터 동기화 테스트 케이스](./data-sync.md)에서, 어떤 로그인 정보를 가져오고 무엇이 실패인지의 케이스는 [Chrome 로그인 이어받기 테스트 케이스](./chrome-session-import.md)에서 다룬다.
 
@@ -225,7 +225,7 @@ stateDiagram-v2
 
 ### TC-WEB-DETAIL-FEATURE-023: 진입할 때는 어느 입력에도 초점을 두지 않는다
 
-- 근거: `feature > 진입과 내용`
+- 근거: `feature > 진입할 때의 입력 초점`
 - Given: 대상 웹 항목이 조회된다.
 - When: WebDetail 화면이 표시된다.
 - Then: 제목, 설명, URL과 요청 헤더 입력 중 어느 것도 초점을 갖지 않는다.
@@ -337,6 +337,13 @@ stateDiagram-v2
 - Given: 대상 웹 항목에 태그 하나가 연결되어 태그 입력에 표시되어 있다.
 - When: 사용자가 그 태그를 누른다.
 - Then: 그 태그의 TagDetail 화면 이동이 한 번 요청된다.
+
+### TC-WEB-DETAIL-FEATURE-065: 태그 연결이나 해제의 저장에 실패하면 안내 없이 저장된 연결을 그대로 보여 준다
+
+- 근거: `feature > 태그 입력`
+- Given: 대상 웹 항목에 태그 하나가 연결되어 태그 입력에 표시되어 있고, 태그 연결과 해제의 저장이 실패하도록 설정되어 있다.
+- When: 사용자가 다른 태그를 연결하고 연결된 태그를 해제한 뒤, 같은 태그를 다시 연결한다.
+- Then: 별도 안내 없이 태그 입력에는 저장된 연결인 처음 태그 하나만 표시되고, 다시 연결한 요청도 그대로 실행된다.
 
 ### TC-WEB-DETAIL-FEATURE-037: 내용 표시 상태는 URL 방식으로 시작하고 웹 페이지를 불러오지 않는다
 

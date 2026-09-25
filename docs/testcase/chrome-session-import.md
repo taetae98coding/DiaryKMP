@@ -11,7 +11,9 @@ flowchart TD
     trigger["계기 발생"] --> which{"어떤 계기인가?"}
     which -- "앱이 보이게 됨 · TC-CHROME-SESSION-IMPORT-DOMAIN-018" --> selected{"제공 환경이고<br/>목록에 있는 프로필을 골랐는가?"}
     which -- "다른 프로필을 고름 · TC-CHROME-SESSION-IMPORT-DOMAIN-016" --> clear["웹 표시 수단의 로그인 정보를 모두 지운다"]
-    which -- "선택 안 함으로 되돌림 · TC-CHROME-SESSION-IMPORT-DOMAIN-017" --> clearOnly["웹 표시 수단의 로그인 정보를 모두 지운다"] --> done["끝"]
+    which -- "선택 안 함으로 되돌림 · TC-CHROME-SESSION-IMPORT-DOMAIN-017, 023" --> clearOnly["웹 표시 수단의 로그인 정보를 모두 지운다"]
+    clearOnly -- "성공" --> done["끝"]
+    clearOnly -- "실패 · TC-CHROME-SESSION-IMPORT-DOMAIN-022" --> fail
     clear -- "성공" --> selected
     clear -- "실패 · TC-CHROME-SESSION-IMPORT-DOMAIN-020" --> fail["가져오기 실패"]
     selected -- "아니오 · TC-CHROME-SESSION-IMPORT-DOMAIN-001, 002, 011" --> done
@@ -182,6 +184,13 @@ flowchart TD
 - When: 사용자가 `선택 안 함`을 고른다.
 - Then: Chrome 쿠키 보관 공간을 읽지 않고 아무것도 넘기지 않으며, 가져오는 상태는 `가져오기 실패`가 된다.
 
+### TC-CHROME-SESSION-IMPORT-DOMAIN-023: 가져오는 중에 선택 안 함으로 되돌리면 진행 중인 가져오기를 취소하고 지우기만 한다
+
+- 근거: `domain > 가져오는 계기`, `domain > 가져오는 상태`
+- Given: 제공 환경이고 목록에 있는 프로필을 골라 두었으며, 그 프로필의 가져오기가 끝나지 않도록 제어되어 가져오는 상태가 `가져오는 중`이다.
+- When: 사용자가 `선택 안 함`을 고른다.
+- Then: 진행 중인 가져오기는 결과를 남기지 않고, 앱 안 웹 표시 수단의 로그인 정보를 모두 지운 뒤 아무것도 새로 가져오지 않으며, 가져오는 상태는 `가져온 적 없음`이 된다. 취소된 가져오기는 `가져오기 실패`로 기록되지 않는다.
+
 ## data
 
 ### TC-CHROME-SESSION-IMPORT-DATA-001: 암호화된 쿠키 값을 풀어 제공한다
@@ -300,6 +309,6 @@ flowchart TD
 
 ### 작성하지 않는 이유
 
-- 시스템이 키체인 접근 허용을 묻고 사용자가 허용하거나 거부하는 흐름은 macOS의 실제 키체인과 대화상자에 의존하므로 유닛 테스트 케이스로 작성하지 않는다. 키를 얻지 못한 결과는 TC-CHROME-SESSION-IMPORT-DATA-005에서 다룬다.
+- 시스템이 키체인 접근 허용을 묻고 사용자가 허용하거나 거부하는 흐름, 30초 안에 응답하지 않으면 실패로 다루는 규칙, 얻은 키를 앱이 실행되는 동안 기억해 다시 묻지 않는 규칙은 macOS의 실제 키체인과 대화상자에 의존하므로 유닛 테스트 케이스로 작성하지 않는다. 키체인 읽기를 대신할 수 있는 경계가 생기면 자동화한다. 키를 얻지 못한 결과는 TC-CHROME-SESSION-IMPORT-DATA-005에서 다룬다.
 - 가져온 로그인 정보가 앱을 다시 시작해도 남는 규칙과 Chrome이 아직 보관 공간에 쓰지 않은 쿠키를 가져올 수 없는 규칙은 실제 WebKit 보관 공간과 실행 중인 Chrome에 의존하므로 유닛 테스트 케이스로 작성하지 않는다.
 - 앱 창이 보이게 되는 것을 운영체제가 알리는 흐름은 실제 창에 의존하므로 유닛 테스트 케이스로 작성하지 않는다. 그 계기에 하는 일은 TC-CHROME-SESSION-IMPORT-DOMAIN-018에서 다룬다.

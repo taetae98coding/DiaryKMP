@@ -2,7 +2,7 @@
 
 기준 스펙: [MemoFinishedList 화면 스펙](../spec/client/memo-finished-list.md)
 
-이 문서에서 `domain > 노출 기준`, `domain > 대상 항목`, `domain > 실행 경계`, `feature > 빈 상태`, `feature > 상세 확인`, `feature > 진입과 이동`, `feature > 추가 미제공`, `feature > 정렬 선택` 절은 [완료 목록 공통 스펙](../spec/client/finished-list.md)이 소유한다. `domain > 날짜 그룹과 오늘 기준` 절은 [MemoHome 목록 스펙](../spec/client/memo-home.md)이 소유한다. 나머지 케이스의 절은 기준 스펙이 소유한다.
+이 문서에서 `domain > 노출 기준`, `domain > 대상 항목`, `domain > 실행 경계`, `feature > 빈 상태`, `feature > 불러오기 실패`, `feature > 상세 확인`, `feature > 진입과 이동`, `feature > 추가 미제공`, `feature > 정렬 선택` 절은 [완료 목록 공통 스펙](../spec/client/finished-list.md)이 소유한다. `domain > 날짜 그룹과 오늘 기준` 절은 [MemoHome 목록 스펙](../spec/client/memo-home.md)이 소유한다. 나머지 케이스의 절은 기준 스펙이 소유한다.
 
 자리 표시 케이스의 `근거`가 가리키는 절은 공통 규칙을 [페이지 조회 목록의 자리 표시 스펙](../spec/client/paged-list-placeholder.md)에, 빈 상태 케이스의 `근거`가 가리키는 절은 [목록 빈 상태 스펙](../spec/client/list-empty-state.md)에, 정렬 케이스의 `근거`가 가리키는 절은 [목록 정렬 스펙](../spec/client/list-sort.md)에 위임한다.
 
@@ -239,6 +239,21 @@
 - When: MemoFinishedList 화면이 표시된다.
 - Then: 빈 상태 안내가 표시되고 정렬 컨트롤은 표시되지 않는다.
 
+### TC-MEMO-FINISHED-LIST-FEATURE-033: 메모 상세에서 돌아오면 목록에서 보던 자리가 그대로다
+
+- 근거: `feature > 상세 확인`
+- Given: 한 화면에 다 들어가지 않는 수의 완료 메모가 표시되어 있고, 사용자가 목록을 내려 뒤쪽의 메모를 보고 있다.
+- When: 사용자가 메모를 선택해 MemoDetail 화면으로 이동했다가 뒤로 돌아온다.
+- Then: 상세로 떠나기 전에 보던 메모가 그대로 보이고 첫 메모 카드는 보이지 않는다.
+
+
+### TC-MEMO-FINISHED-LIST-FEATURE-034: 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다
+
+- 근거: `feature > 안내와 실행 취소`
+- Given: MemoFinishedList 화면에서 메모를 다시 시작해 다시 시작 안내와 실행 취소 동작이 표시되어 있다.
+- When: 사용자가 MemoFinishedList 화면을 떠났다가 다시 돌아온다.
+- Then: 안내와 실행 취소 동작이 보이지 않고, 다시 시작을 되돌리는 요청은 일어나지 않는다.
+
 ## domain
 
 ### TC-MEMO-FINISHED-LIST-DOMAIN-001: 다시 시작은 메모를 제거하지 않고 미완료 상태로 바꾼다
@@ -313,6 +328,13 @@
 - Then: 정렬 컨트롤은 기본순을 알리고 목록은 맨 위부터 보인다.
 - 작성하지 않는 이유: MemoHome 목록과 MemoFinishedList 화면 사이의 화면 전환 이력과 화면마다 상태를 보관하는 범위를 함께 재현해야 해서 화면 단위의 유닛 테스트 환경에서 결정적으로 재현할 수 없다. 새로 진입한 화면이 기본순으로 시작하는 결과는 TC-MEMO-FINISHED-LIST-FEATURE-028이 다룬다. 화면 전환 이력과 화면별 상태 보관을 함께 제어할 수 있는 내비게이션 테스트 환경이 갖춰지면 자동화한다.
 
+### TC-MEMO-FINISHED-LIST-DOMAIN-010: 앱이 백그라운드에 다녀와도 정렬 선택과 보던 자리가 그대로다
+
+- 근거: `domain > 실행 경계`
+- Given: MemoFinishedList 화면에 한 화면에 다 들어가지 않는 수의 완료 메모가 사용자가 고른 제목순으로 표시되어 있고, 사용자가 목록을 내려 뒤쪽의 메모를 보고 있다.
+- When: 앱이 종료되지 않은 채 백그라운드에 갔다가 돌아온다.
+- Then: 정렬 컨트롤은 여전히 제목순을 알리고, 보던 메모가 그대로 보이며 첫 메모 카드는 보이지 않는다.
+
 ## data
 
 ### TC-MEMO-FINISHED-LIST-DATA-001: 현재 계정의 완료·미삭제 메모만 목록에서 조회한다
@@ -364,16 +386,16 @@
 
 ### TC-MEMO-FINISHED-LIST-DATA-005: 목록 조회 실패에 별도의 오류나 재시도 동작을 제공하지 않는다
 
-- 근거: `data > 목록 조회`
+- 근거: `feature > 불러오기 실패`, `data > 목록 조회`
 - Given: 목록 조회가 테스트 데이터의 시점에 실패하도록 설정되어 있다.
 - When: 사용자가 MemoFinishedList 화면을 확인한다.
-- Then: 별도 재시도 동작 없이 테스트 데이터의 기존 표시 결과를 유지한다.
+- Then: 오류 안내와 별도 재시도 동작 없이 테스트 데이터의 결과가 표시된다.
 - 테스트 데이터:
 
-  | 실패 시점 | 기존 표시 결과 |
+  | 실패 시점 | 결과 |
   | --- | --- |
-  | 최초 조회 | 표시된 메모 없음 |
-  | 추가 조회 | 이미 표시된 메모 |
+  | 최초 조회 | 빈 상태 안내 |
+  | 추가 조회 | 이미 표시된 메모가 그대로 표시됨 |
 
 ### TC-MEMO-FINISHED-LIST-DATA-006: 상태 변경을 현재 계정의 메모에 즉시 저장한다
 
