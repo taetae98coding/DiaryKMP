@@ -739,6 +739,7 @@ rulers는 배치 단계에서만 값을 주므로 다음에는 쓰지 않고 `Wi
 | lazy 목록의 `contentPadding`처럼 측정에 필요한 여백 | 측정 단계에서는 rulers 값을 읽을 수 없다 |
 | `verticalScroll`, lazy 목록의 항목처럼 높이가 제한되지 않은 자리 | `fitInside`는 크기가 정해진 제약에서만 영역에 맞춘다 |
 | Material 3 `FloatingActionButtonMenu`를 자손으로 두는 영역 | `fitInside`는 자식을 배치 단계에서 측정하는데, 그 아래에서는 메뉴를 펼칠 때 새로 생긴 항목과 닫기 버튼이 배치되지 않아 누를 수 없다(`SettingHoliday`에서 확인). 이런 화면은 `DiaryScaffoldDefaults.contentWindowInsets`로 본문 전체를 키보드 위로 줄인다 |
+| 나중에 나타나 높이가 커지는 스낵바를 자손으로 두는 영역 | `fitInside`로 줄인 영역 안에서는 스낵바가 커진 뒤 다시 배치되지 않아 화면 밖에 놓인다(`SearchHome`에서 확인). 스낵바는 `Scaffold`의 `snackbarHost` 슬롯에 두고 `DiaryScaffoldDefaults.contentWindowInsets`로 본문과 함께 키보드 위로 줄인다 |
 
 `fitInside`를 붙이는 노드는 `fillMaxSize`나 `weight`처럼 앞선 modifier나 부모가 크기를 정한 자리에 둔다.
 
@@ -747,7 +748,7 @@ Robolectric 테스트에서는 `AndroidComposeView`(`LocalView`)의 부모가 ru
 ⚠️ 비권장 예시:
 
 ```kotlin
-SearchHomeResultPager(
+ResultPager(
     // 조상이 소비하지 않은 시스템 내비게이션 바 높이까지 한 번 더 빠진다.
     modifier = Modifier.weight(1f).imePadding(),
 )
@@ -756,7 +757,7 @@ SearchHomeResultPager(
 ✅ 권장 예시:
 
 ```kotlin
-SearchHomeResultPager(
+ResultPager(
     modifier =
         Modifier
             .weight(1f)
