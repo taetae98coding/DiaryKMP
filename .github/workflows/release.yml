@@ -264,6 +264,8 @@ jobs:
           cp "iosApp/DiaryApp.xcodeproj/xcshareddata/xcschemes/DiaryApp Real.xcscheme" \
              iosApp/DiaryApp.xcodeproj/xcshareddata/xcschemes/DiaryAppRealCI.xcscheme
 
+      # 러너가 launchd 서비스로 돌면 로그인 키체인의 개발 인증서 키에 접근하지 못해(errSecInternalComponent) archive는 서명 없이 만들고,
+      # 배포 서명은 export 단계에서 API 키로 Apple 클라우드 서명을 받는다.
       - name: Archive
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
@@ -277,6 +279,7 @@ jobs:
             -destination 'generic/platform=iOS' \
             -derivedDataPath "$CI_DERIVED_DATA" \
             -archivePath "$RUNNER_TEMP/Diary.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO \
             -allowProvisioningUpdates \
             -authenticationKeyPath "$RUNNER_TEMP/asc/AuthKey_$ASC_KEY_ID.p8" \
             -authenticationKeyID "$ASC_KEY_ID" \
