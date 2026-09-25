@@ -33,6 +33,8 @@ public fun SwipeToDeleteBox(
             )
         }
 
+    ResetDismissedSwipeEffect(state = state)
+
     SwipeToDismissBox(
         state = state,
         backgroundContent = {

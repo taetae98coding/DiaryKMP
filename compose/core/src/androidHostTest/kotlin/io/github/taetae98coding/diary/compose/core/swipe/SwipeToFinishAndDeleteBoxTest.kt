@@ -72,6 +72,40 @@ class SwipeToFinishAndDeleteBoxTest {
     }
 
     @Test
+    fun `TC-SWIPE-TO-FINISH-AND-DELETE-DOMAIN-006 시작 방향 동작 뒤에도 카드가 남으면 원래 모양으로 돌아와 다시 실행할 수 있다`() {
+        var finishCount = 0
+        setSwipeToFinishAndDeleteBox(onFinish = { finishCount += 1 })
+
+        repeat(2) {
+            composeRule.onNodeWithText(CONTENT_TEXT).performTouchInput { swipeRight() }
+            composeRule.waitForIdle()
+            composeRule.mainClock.advanceTimeBy(RESET_WAIT_MILLIS)
+            composeRule.waitForIdle()
+
+            composeRule.onNodeWithText(CONTENT_TEXT).assertIsDisplayed()
+        }
+
+        finishCount shouldBe 2
+    }
+
+    @Test
+    fun `TC-SWIPE-TO-FINISH-AND-DELETE-DOMAIN-006 끝 방향 동작 뒤에도 카드가 남으면 원래 모양으로 돌아와 다시 실행할 수 있다`() {
+        var deleteCount = 0
+        setSwipeToFinishAndDeleteBox(onDelete = { deleteCount += 1 })
+
+        repeat(2) {
+            composeRule.onNodeWithText(CONTENT_TEXT).performTouchInput { swipeLeft() }
+            composeRule.waitForIdle()
+            composeRule.mainClock.advanceTimeBy(RESET_WAIT_MILLIS)
+            composeRule.waitForIdle()
+
+            composeRule.onNodeWithText(CONTENT_TEXT).assertIsDisplayed()
+        }
+
+        deleteCount shouldBe 2
+    }
+
+    @Test
     fun `좌에서 우로 절반을 넘으면 완료 아이콘만 표시한다`() {
         assertActionIconShownAfterHalfSwipe(
             direction = 1f,
@@ -300,6 +334,7 @@ class SwipeToFinishAndDeleteBoxTest {
     }
 
     public companion object {
+        private const val RESET_WAIT_MILLIS = 2_000L
         private const val SHORT_SWIPE_START_OFFSET = 1f
         private const val SHORT_SWIPE_END_OFFSET = 21f
         private const val SHORT_SWIPE_DURATION_MILLIS = 1_000L

@@ -124,6 +124,23 @@ class SwipeToDeleteBoxTest {
         composeRule.onNodeWithContentDescription(DELETE_DESCRIPTION).assertDoesNotExist()
     }
 
+    @Test
+    fun `TC-SWIPE-TO-FINISH-AND-DELETE-DOMAIN-006 삭제 전용 카드도 삭제 뒤에 남으면 원래 모양으로 돌아와 다시 실행할 수 있다`() {
+        var deleteCount = 0
+        setSwipeToDeleteBox(onDelete = { deleteCount += 1 })
+
+        repeat(2) {
+            composeRule.onNodeWithTag(CARD_TEST_TAG).performTouchInput { swipeLeft() }
+            composeRule.waitForIdle()
+            composeRule.mainClock.advanceTimeBy(RESET_WAIT_MILLIS)
+            composeRule.waitForIdle()
+
+            composeRule.onNodeWithText(CONTENT_TEXT).assertIsDisplayed()
+        }
+
+        deleteCount shouldBe 2
+    }
+
     @Composable
     private fun DeleteBox(
         key: Any?,
@@ -169,6 +186,7 @@ class SwipeToDeleteBoxTest {
     }
 
     private companion object {
+        const val RESET_WAIT_MILLIS = 2_000L
         const val CONTENT_TEXT = "SwipeToDeleteBoxContent"
         const val DELETE_DESCRIPTION = "Delete item"
         const val CARD_TEST_TAG = "SwipeToDeleteBoxCard"
