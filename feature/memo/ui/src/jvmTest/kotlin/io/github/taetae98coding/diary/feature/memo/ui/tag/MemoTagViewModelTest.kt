@@ -557,6 +557,7 @@ class MemoTagViewModelTest : FunSpec() {
                 mockk<PageMemoSelectableTagUseCase>().apply {
                     every { this@apply(any()) } returns tagListFlow.map { result -> result.map { tagList -> PagingData.from(tagList) } }
                 },
+            isListOpened: Boolean = true,
         ): MemoTagViewModel {
             val getMemoTagUseCase = mockk<GetMemoTagUseCase>()
             every { getMemoTagUseCase(any()) } returns memoTagFlow
@@ -573,7 +574,10 @@ class MemoTagViewModelTest : FunSpec() {
                 removeMemoTagUseCase = removeMemoTagUseCase,
                 setMemoPrimaryTagUseCase = setMemoPrimaryTagUseCase,
                 unsetMemoPrimaryTagUseCase = unsetMemoPrimaryTagUseCase,
-            )
+            ).apply {
+                // 화면은 선택 목록을 열 때 검색어를 알려 주므로, 목록이 열린 상태를 만든다.
+                if (isListOpened) updateQuery(query = "")
+            }
         }
     }
 }

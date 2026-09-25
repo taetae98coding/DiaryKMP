@@ -132,7 +132,7 @@ class PlaceAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-ENTITY-TAG-INPUT-DOMAIN-016 복원 뒤 새로 만든 화면은 대상 전체를 먼저 보여 주고 되살린 검색어는 입력 정지 대기 시간이 지나야 반영한다") {
+        test("TC-ENTITY-TAG-INPUT-DOMAIN-017 복원 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
             runTest(mainDispatcher) {
                 val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
                 val allTagList = List(2) { tag() }
@@ -147,21 +147,15 @@ class PlaceAddTagViewModelTest : FunSpec() {
                         getSelectedTagUseCase = getSelectedTagUseCase(),
                     )
 
+                // 복원된 화면은 목록을 다시 열면서 되살린 검색어를 처음으로 알려 준다.
                 viewModel.tagPagingData.test {
-                    flowOf(awaitItem()).asSnapshot() shouldBe allTagList
-
                     viewModel.updateQuery(query)
-                    advanceTimeBy(INPUT_IDLE_DELAY - 1.milliseconds)
-                    runCurrent()
-
-                    expectNoEvents()
-
-                    advanceTimeBy(2.milliseconds)
                     runCurrent()
 
                     flowOf(awaitItem()).asSnapshot() shouldBe matchedTagList
                     cancelAndIgnoreRemainingEvents()
                 }
+                verify(exactly = 0) { pageTagUseCase(parameter = "") }
             }
         }
     }

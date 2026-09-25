@@ -356,6 +356,7 @@ class MemoWebViewModelTest : FunSpec() {
                 mockk<PageMemoSelectableWebUseCase>().apply {
                     every { this@apply(parameter = any()) } returns webPagingFlow
                 },
+            isListOpened: Boolean = true,
         ): MemoWebViewModel {
             val getMemoWebUseCase = mockk<GetMemoWebUseCase>()
             every { getMemoWebUseCase(any()) } returns memoWebFlow
@@ -366,7 +367,10 @@ class MemoWebViewModelTest : FunSpec() {
                 getMemoWebUseCase = getMemoWebUseCase,
                 addMemoWebUseCase = addMemoWebUseCase,
                 removeMemoWebUseCase = removeMemoWebUseCase,
-            )
+            ).apply {
+                // 화면은 선택 목록을 열 때 검색어를 알려 주므로, 목록이 열린 상태를 만든다.
+                if (isListOpened) updateQuery(query = "")
+            }
         }
     }
 }

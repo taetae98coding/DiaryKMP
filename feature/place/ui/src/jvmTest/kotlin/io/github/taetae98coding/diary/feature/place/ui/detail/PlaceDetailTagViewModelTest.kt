@@ -22,6 +22,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -208,7 +209,7 @@ class PlaceDetailTagViewModelTest : FunSpec() {
     }
 
     private fun restorationTests() {
-        test("TC-ENTITY-TAG-INPUT-DOMAIN-016 복원 뒤 새로 만든 화면은 대상 전체를 먼저 보여 주고 되살린 검색어는 입력 정지 대기 시간이 지나야 반영한다") {
+        test("TC-ENTITY-TAG-INPUT-DOMAIN-017 복원 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
@@ -221,23 +222,17 @@ class PlaceDetailTagViewModelTest : FunSpec() {
                 every {
                     useCase(parameter = PagePlaceSelectableTagUseCase.Parameter(placeId = id, query = query))
                 } returns flowOf(Result.success(PagingData.from(matchedTagList)))
-                val viewModel = viewModel(id = id, pagePlaceSelectableTagUseCase = useCase)
+                val viewModel = viewModel(id = id, pagePlaceSelectableTagUseCase = useCase, isListOpened = false)
 
+                // 복원된 화면은 목록을 다시 열면서 되살린 검색어를 처음으로 알려 준다.
                 viewModel.tagPagingData.test {
-                    flowOf(awaitItem()).asSnapshot() shouldBe allTagList
-
                     viewModel.updateQuery(query)
-                    advanceTimeBy(INPUT_IDLE_DELAY - 1.milliseconds)
-                    runCurrent()
-
-                    expectNoEvents()
-
-                    advanceTimeBy(2.milliseconds)
                     runCurrent()
 
                     flowOf(awaitItem()).asSnapshot() shouldBe matchedTagList
                     cancelAndIgnoreRemainingEvents()
                 }
+                verify(exactly = 0) { useCase(parameter = PagePlaceSelectableTagUseCase.Parameter(placeId = id, query = "")) }
             }
         }
     }
@@ -251,6 +246,7 @@ class PlaceDetailTagViewModelTest : FunSpec() {
             mockk<PagePlaceSelectableTagUseCase>().apply {
                 every { this@apply(parameter = any()) } returns flowOf(Result.success(PagingData.empty()))
             },
+        isListOpened: Boolean = true,
     ): PlaceDetailTagViewModel {
         val getPlaceTagUseCase = mockk<GetPlaceTagUseCase>()
         every { getPlaceTagUseCase(parameter = id) } returns tagFlow
@@ -261,7 +257,10 @@ class PlaceDetailTagViewModelTest : FunSpec() {
             getPlaceTagUseCase = getPlaceTagUseCase,
             addPlaceTagUseCase = addPlaceTagUseCase,
             removePlaceTagUseCase = removePlaceTagUseCase,
-        )
+        ).apply {
+            // 화면은 선택 목록을 열 때 검색어를 알려 주므로, 목록이 열린 상태를 만든다.
+            if (isListOpened) updateQuery(query = "")
+        }
     }
 
     public companion object {

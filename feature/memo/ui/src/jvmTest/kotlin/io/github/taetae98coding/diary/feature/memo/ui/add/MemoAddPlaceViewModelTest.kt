@@ -19,6 +19,7 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
@@ -32,6 +33,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.time.Instant
@@ -48,6 +50,28 @@ class MemoAddPlaceViewModelTest : FunSpec() {
 
         afterTest {
             Dispatchers.resetMain()
+        }
+
+        test("TC-MEMO-PLACE-CARD-DOMAIN-030 메모리 정리 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
+            runTest(mainDispatcher) {
+                val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
+                val allList = List(2) { place() }
+                val matchedList = listOf(allList.first())
+                val useCase = mockk<PagePlaceUseCase>()
+                every { useCase(parameter = "") } returns flowOf(Result.success(PagingData.from(allList)))
+                every { useCase(parameter = query) } returns flowOf(Result.success(PagingData.from(matchedList)))
+                val viewModel = viewModel(pagePlaceUseCase = useCase, isListOpened = false)
+
+                // 복원된 화면은 목록을 다시 열면서 되살린 검색어를 처음으로 알려 준다.
+                viewModel.placePagingData.test {
+                    viewModel.updateQuery(query)
+                    runCurrent()
+
+                    flowOf(awaitItem()).asSnapshot() shouldBe matchedList
+                    cancelAndIgnoreRemainingEvents()
+                }
+                verify(exactly = 0) { useCase(parameter = "") }
+            }
         }
 
         test("선택한 장소가 조회되지 않으면 장소 카드는 로딩 상태를 유지한다") {
@@ -365,6 +389,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
                 mockk<PagePlaceUseCase>().apply {
                     every { this@apply(parameter = any()) } returns placePagingFlow
                 },
+            isListOpened: Boolean = true,
         ): MemoAddPlaceViewModel {
             // 선택한 식별자로 저장소를 조회하는 동작을 저장된 장소 목록에서 골라내는 방식으로 대신한다.
             val getSelectedPlaceUseCase = mockk<GetSelectedPlaceUseCase>()
@@ -382,7 +407,10 @@ class MemoAddPlaceViewModelTest : FunSpec() {
                 initialPlaceId = initialPlaceId,
                 pagePlaceUseCase = pagePlaceUseCase,
                 getSelectedPlaceUseCase = getSelectedPlaceUseCase,
-            )
+            ).apply {
+                // 화면은 선택 목록을 열 때 검색어를 알려 주므로, 목록이 열린 상태를 만든다.
+                if (isListOpened) updateQuery(query = "")
+            }
         }
     }
 }

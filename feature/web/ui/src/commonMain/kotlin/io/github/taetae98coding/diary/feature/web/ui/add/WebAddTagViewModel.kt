@@ -11,7 +11,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
-import io.github.taetae98coding.diary.library.coroutines.flow.debounceSearchQuery
+import io.github.taetae98coding.diary.library.coroutines.flow.debounceReportedSearchQuery
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,11 +35,12 @@ internal class WebAddTagViewModel(
     val tagIdSet: StateFlow<Set<Uuid>>
         field = MutableStateFlow(setOfNotNull(initialTagId))
 
-    private val query = MutableStateFlow("")
+    // 화면이 검색어를 알려 주기 전에는 조회하지 않는다. 기준은 debounceReportedSearchQuery를 따른다.
+    private val query = MutableStateFlow<String?>(null)
 
     val tagPagingData: Flow<PagingData<Tag>> =
         query
-            .debounceSearchQuery()
+            .debounceReportedSearchQuery()
             .flatMapLatest { value -> pageTagUseCase(parameter = value) }
             .mapNotNull { result -> result.getOrNull() }
             .cachedIn(viewModelScope)
