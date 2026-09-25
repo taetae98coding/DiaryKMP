@@ -87,6 +87,7 @@
 | PlaylistHome 화면 | [client](./client/playlist-home.md) | — | — | [PlaylistHome 디자인](../design/playlist-home.md) |
 | ProfileImageEdit 화면 | [client](./client/profile-image-edit.md) | — | — | [ProfileImageEdit 디자인](../design/profile-image-edit.md) |
 | QrHome 화면 | [client](./client/qr-home.md) | — | — | [QrHome 디자인](../design/qr-home.md) |
+| QrScan 화면 | [client](./client/qr-scan.md) | — | — | [QrScan 디자인](../design/qr-scan.md) |
 | Routine 목록·상세 배치 | [client](./client/routine-list-detail.md) | — | — | [Routine 목록·상세 배치 디자인](../design/routine-list-detail.md) |
 | RoutineAdd 화면 | [client](./client/routine-add.md) | — | — | [RoutineAdd 디자인](../design/routine-add.md) |
 | RoutineHome 화면 | [client](./client/routine-home.md) | — | — | [RoutineHome 디자인](../design/routine-home.md) |
@@ -161,6 +162,7 @@
 | 장소 보기 모드 | [client](./client/place-view-mode.md) | — | — | [장소 보기 모드 디자인](../design/place-view-mode.md) |
 | 장소 태그 | [client](./client/place-tag.md) | [common](./common/place-tag.md) | — | — |
 | 제목 입력 | [client](./client/title-input.md) | — | — | [제목 입력 디자인](../design/title-input.md) |
+| 카메라 권한 요청 | [client](./client/camera-permission.md) | — | — | — |
 | 캘린더 메모 이동 | [client](./client/calendar-memo-move.md) | — | — | [캘린더 메모 이동 디자인](../design/calendar-memo-move.md) |
 | 캘린더 메모 표시 | [client](./client/calendar-memo.md) | — | — | — |
 | 캘린더 연락처 생일 표시 | [client](./client/calendar-contact-birthday.md) | — | — | — |

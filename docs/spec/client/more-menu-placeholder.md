@@ -32,7 +32,6 @@
 
 | 기능 바로가기 항목 | 화면 | 화면 스펙 |
 | --- | --- | --- |
-| `QR` | QrHome | [QrHome 화면 스펙](./qr-home.md) |
 | `디데이` | DDayHome | [DDayHome 화면 스펙](./dday-home.md) |
 | `체크리스트` | ChecklistHome | [ChecklistHome 화면 스펙](./checklist-home.md) |
 | `파일` | FileHome | [FileHome 화면 스펙](./file-home.md) |
@@ -51,7 +50,6 @@
 
 ## 이 문서를 참조하는 문서
 
-- [QrHome 화면 스펙](./qr-home.md)
 - [DDayHome 화면 스펙](./dday-home.md)
 - [ChecklistHome 화면 스펙](./checklist-home.md)
 - [FileHome 화면 스펙](./file-home.md)

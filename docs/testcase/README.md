@@ -47,6 +47,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [CalendarText](./calendar-text.md) | [CalendarText 컴포넌트](../spec/client/calendar-text.md) |
 | [CalendarWeekOfMonth](./calendar-week-of-month.md) | [CalendarWeekOfMonth 컴포넌트](../spec/client/calendar-week-of-month.md) |
 | [Calendar](./calendar.md) | [Calendar 컴포넌트](../spec/client/calendar.md) |
+| [카메라 권한 요청](./camera-permission.md) | [카메라 권한 요청](../spec/client/camera-permission.md) |
 | [ChecklistHome](./checklist-home.md) | [ChecklistHome 화면](../spec/client/checklist-home.md) |
 | [ContactAdd](./contact-add.md) | [ContactAdd 화면](../spec/client/contact-add.md) |
 | [ContactDetail](./contact-detail.md) | [ContactDetail 화면](../spec/client/contact-detail.md) |
@@ -109,6 +110,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [프로필 이미지 변경](./profile-image.md) | [프로필 이미지 변경(client)](../spec/client/profile-image.md), [프로필 이미지 변경(common)](../spec/common/profile-image.md), [프로필 이미지 변경(server)](../spec/server/profile-image.md) |
 | [ProfileImageEdit](./profile-image-edit.md) | [ProfileImageEdit 화면](../spec/client/profile-image-edit.md) |
 | [QrHome](./qr-home.md) | [QrHome 화면](../spec/client/qr-home.md) |
+| [QrScan](./qr-scan.md) | [QrScan 화면](../spec/client/qr-scan.md) |
 | [RoutineAdd](./routine-add.md) | [RoutineAdd 화면](../spec/client/routine-add.md) |
 | [RoutineHome](./routine-home.md) | [RoutineHome 화면](../spec/client/routine-home.md) |
 | [Routine 목록·상세 배치](./routine-list-detail.md) | [Routine 목록·상세 배치](../spec/client/routine-list-detail.md) |
@@ -148,8 +150,8 @@ TC-<SPEC>-<AREA>-<NNN>
 
 다음 공통 스펙은 전용 테스트 케이스 문서를 두지 않고, 그 스펙을 사용하는 화면의 문서에 케이스를 둔다.
 
-- [더보기 준비 중 화면 공통 스펙](../spec/client/more-menu-placeholder.md) → [QrHome](./qr-home.md), [DDayHome](./dday-home.md), [ChecklistHome](./checklist-home.md), [FileHome](./file-home.md)
-  - 네 화면이 같은 공통 규칙의 케이스를 각자의 제목 문구와 진입 항목에 맞춰 각각 갖는다.
+- [더보기 준비 중 화면 공통 스펙](../spec/client/more-menu-placeholder.md) → [DDayHome](./dday-home.md), [ChecklistHome](./checklist-home.md), [FileHome](./file-home.md)
+  - 세 화면이 같은 공통 규칙의 케이스를 각자의 제목 문구와 진입 항목에 맞춰 각각 갖는다.
 - [태그 필터 스펙](../spec/client/tag-filter.md) → [MemoHome 목록](./memo-home.md), [CalendarHome](./calendar-home.md)
 - [태그 선택 입력 공통 스펙](../spec/client/tag-select-input.md) → [메모 태그 입력 컴포넌트](./memo-tag-input.md), [항목 태그 입력 컴포넌트](./entity-tag-input.md), [태그 연결 입력 컴포넌트](./tag-link-input.md)
   - 세 입력 문서가 공통 스펙의 같은 절을 각자의 대상과 문구에 맞춰 갖는다.
@@ -164,8 +166,8 @@ TC-<SPEC>-<AREA>-<NNN>
   - `검색어 반영 시점`의 케이스는 [메모 태그 입력 컴포넌트](./memo-tag-input.md)와 [SearchHome](./search-home.md)이 대표로 갖는다. 같은 정책을 쓰는 나머지 목록은 각자의 검색 케이스만 둔다.
 - [장소 보기 모드 스펙](../spec/client/place-view-mode.md) → [PlaceHome](./place-home.md), [TagDetail 장소 탭](./tag-detail-place.md)
   - 두 문서가 각자의 기본 보기 모드와 노출 대상 장소, 현재 위치 확인 시점에 맞춰 같은 공통 규칙의 케이스를 각각 갖는다.
-- [권한 요청 공통 스펙](../spec/client/permission.md) → [알림 권한 요청](./notification-permission.md), [위치 권한 요청](./location-permission.md)
-  - 두 권한 문서가 공통 스펙의 요청 시점, 요청 기준, 요청 결과 케이스를 각자의 권한과 요청 지점에 맞춰 각각 갖는다.
+- [권한 요청 공통 스펙](../spec/client/permission.md) → [알림 권한 요청](./notification-permission.md), [위치 권한 요청](./location-permission.md), [카메라 권한 요청](./camera-permission.md)
+  - 세 권한 문서가 공통 스펙의 요청 시점, 요청 기준, 요청 결과 케이스를 각자의 권한과 요청 지점에 맞춰 각각 갖는다.
 - [항목 연결 공통 스펙](../spec/common/entity-link.md)과 [앱 스펙](../spec/client/entity-link.md) → [메모 태그](./memo-tag.md), [메모 장소](./memo-place.md), [메모 웹](./memo-web.md), [메모 연락처](./memo-contact.md), [웹 태그](./web-tag.md), [장소 태그](./place-tag.md), [태그 연결](./tag-link.md)
   - 각 연결 문서가 공통 스펙의 절을 자기 연결 종류에 맞춰 각각 갖는다.
 - [항목 태그 연결 공통 스펙](../spec/common/entity-tag.md)과 [앱 스펙](../spec/client/entity-tag.md) → [메모 태그](./memo-tag.md), [웹 태그](./web-tag.md), [장소 태그](./place-tag.md)

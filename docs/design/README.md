@@ -118,6 +118,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼�
 - [Playlist 목록·상세 배치](./playlist-list-detail.md)
 - [ProfileImageEdit 화면](./profile-image-edit.md)
 - [QrHome 화면](./qr-home.md)
+- [QrScan 화면](./qr-scan.md)
 - [RoutineAdd 화면](./routine-add.md)
 - [RoutineHome 화면](./routine-home.md)
 - [Routine 목록·상세 배치](./routine-list-detail.md)

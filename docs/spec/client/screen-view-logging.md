@@ -81,6 +81,7 @@ stateDiagram-v2
 | `PlaylistHome` | [PlaylistHome 화면](./playlist-home.md) |
 | `ProfileImageEdit` | [ProfileImageEdit 화면](./profile-image-edit.md) |
 | `QrHome` | [QrHome 화면](./qr-home.md) |
+| `QrScan` | [QrScan 화면](./qr-scan.md) |
 | `RoutineAdd` | [RoutineAdd 화면](./routine-add.md) |
 | `RoutineHome` | [RoutineHome 화면](./routine-home.md) |
 | `SearchHome` | [SearchHome 화면](./search-home.md) |

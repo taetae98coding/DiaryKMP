@@ -28,7 +28,6 @@
 
 ## 이 문서를 참조하는 문서
 
-- [QrHome 화면 디자인](./qr-home.md)
 - [DDayHome 화면 디자인](./dday-home.md)
 - [ChecklistHome 화면 디자인](./checklist-home.md)
 - [FileHome 화면 디자인](./file-home.md)
