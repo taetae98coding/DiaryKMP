@@ -14,5 +14,6 @@ public sealed interface Account {
         val profileImage: String?,
         val email: String,
         val isSessionValid: Boolean,
+        val isSessionPending: Boolean = false,
     ) : Account
 }

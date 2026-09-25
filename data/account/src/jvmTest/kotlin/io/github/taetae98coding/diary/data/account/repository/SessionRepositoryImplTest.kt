@@ -340,8 +340,8 @@ class SessionRepositoryImplTest :
 
         listOf(
             SupabaseSessionStatus.Authenticated to Session.Authenticated,
-            SupabaseSessionStatus.Initializing to Session.NotAuthenticated,
-            SupabaseSessionStatus.RefreshFailure to Session.NotAuthenticated,
+            SupabaseSessionStatus.Initializing to Session.Pending,
+            SupabaseSessionStatus.RefreshFailure to Session.Pending,
             SupabaseSessionStatus.NotAuthenticated to Session.NotAuthenticated,
         ).forEach { (supabaseStatus, session) ->
             test("TC-LOGIN-DATA-006 $supabaseStatus 세션 상태를 $session 로 판단한다") {

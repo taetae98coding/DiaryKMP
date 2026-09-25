@@ -16,10 +16,10 @@ public class SchedulePeriodicSyncUseCase internal constructor(
     override suspend fun execute(parameter: Unit) {
         val account = getAccountUseCase(parameter = Unit).first().getOrThrow()
 
-        if (account is Account.User && account.isSessionValid) {
-            syncManager.schedulePeriodicSync(period = SYNC_PERIOD)
-        } else {
-            syncManager.cancelPeriodicSync()
+        when {
+            account is Account.User && account.isSessionValid -> syncManager.schedulePeriodicSync(period = SYNC_PERIOD)
+            account is Account.User && account.isSessionPending -> Unit
+            else -> syncManager.cancelPeriodicSync()
         }
     }
 }

@@ -71,6 +71,7 @@ class GetAccountUseCaseTest :
 
         listOf(
             Session.Authenticated to true,
+            Session.Pending to false,
             Session.NotAuthenticated to false,
         ).forEach { (session, isSessionValid) ->
             Given("사용자 정보가 저장되어 있고 로그인 세션이 $session 이다") {
@@ -86,6 +87,31 @@ class GetAccountUseCaseTest :
                         useCase(Unit).test {
                             val user = awaitItem().shouldBeSuccess().shouldBeInstanceOf<Account.User>()
                             user.isSessionValid shouldBe isSessionValid
+                            awaitComplete()
+                        }
+                    }
+                }
+            }
+        }
+
+        listOf(
+            Session.Pending to true,
+            Session.NotAuthenticated to false,
+        ).forEach { (session, isSessionPending) ->
+            Given("사용자 정보가 저장되어 있고 로그인 세션이 $session 이다") {
+                val userData = UserData(id = fixtureMonkey.giveMeOne<Uuid>(), email = fixtureMonkey.giveMeOne<String>(), profileImage = fixtureMonkey.giveMeOne<String>())
+                val sessionRepository = mockk<SessionRepository>()
+                every { sessionRepository.get() } returns flowOf(session)
+                val userDataRepository = mockk<UserDataRepository>()
+                every { userDataRepository.get() } returns flowOf<UserData?>(userData)
+                val useCase = GetAccountUseCase(sessionRepository = sessionRepository, userDataRepository = userDataRepository)
+
+                When("현재 계정 상태를 확인한다") {
+                    Then("TC-ACCOUNT-DOMAIN-009 $session 세션이 갱신되지 않은 사용자의 세션 확인 중 여부가 $isSessionPending 이다") {
+                        useCase(Unit).test {
+                            val user = awaitItem().shouldBeSuccess().shouldBeInstanceOf<Account.User>()
+                            user.isSessionValid shouldBe false
+                            user.isSessionPending shouldBe isSessionPending
                             awaitComplete()
                         }
                     }
