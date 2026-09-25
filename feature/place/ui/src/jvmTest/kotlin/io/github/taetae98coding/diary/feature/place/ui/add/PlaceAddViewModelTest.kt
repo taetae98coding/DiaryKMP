@@ -12,6 +12,8 @@ import io.github.taetae98coding.diary.domain.place.exception.PlaceCoordinateInva
 import io.github.taetae98coding.diary.domain.place.exception.PlaceTitleBlankException
 import io.github.taetae98coding.diary.domain.place.usecase.AddPlaceUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
+import io.github.taetae98coding.diary.feature.place.ui.form.mapCoordinateInFormPrecision
+import io.github.taetae98coding.diary.feature.place.ui.form.placeAddFormState
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
@@ -138,6 +140,36 @@ class PlaceAddViewModelTest : FunSpec() {
 
                 viewModel.uiState.value.isInProgress
                     .shouldBeFalse()
+            }
+        }
+
+        test("TC-PLACE-ADD-FEATURE-019 지도에서 고른 좌표로 장소를 추가한다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val selectedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
+                val useCase = mockk<AddPlaceUseCase>()
+                coEvery { useCase(any()) } returns Result.success(id)
+                val viewModel = viewModel(addPlaceUseCase = useCase)
+                collectUiState(viewModel)
+                val state = placeAddFormState(initialMapCoordinate = fixtureMonkey.mapCoordinateInFormPrecision())
+                state.titleState.setText("title-${fixtureMonkey.giveMeOne<String>()}")
+
+                state.selectSpotOnMap(selectedCoordinate)
+                viewModel.effect.test {
+                    viewModel.add(detail = state.detail, tagIdSet = emptySet())
+                    advanceUntilIdle()
+
+                    awaitItem() shouldBe PlaceAddEffect.AddSucceeded(id = id)
+                    expectNoEvents()
+                }
+
+                coVerify(exactly = 1) {
+                    useCase(
+                        match { parameter ->
+                            parameter.detail.coordinate == Coordinate(latitude = selectedCoordinate.latitude, longitude = selectedCoordinate.longitude)
+                        },
+                    )
+                }
             }
         }
 

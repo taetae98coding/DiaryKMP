@@ -69,6 +69,11 @@ internal class PlaceFormState(
         longitudeState.setTextAndPlaceCursorAtEnd(coordinate.longitude.toCoordinateText())
     }
 
+    fun selectSpotOnMap(coordinate: DiaryMapCoordinate) {
+        setCoordinate(coordinate)
+        mapState.selectSpot(spot)
+    }
+
     fun applySearchedPlace(place: SearchedPlace) {
         setCoordinate(place.coordinate.toDiaryMapCoordinate())
         addressState.setTextAndPlaceCursorAtEnd(place.address)
@@ -97,7 +102,8 @@ internal fun rememberPlaceAddFormState(
         initialAddress = "",
         initialColor = initialColor,
         defaultProvider = defaultProvider,
-        initialCoordinate = initialCoordinate,
+        initialCoordinate = null,
+        initialMapCoordinate = initialCoordinate,
     )
 
 @Composable
@@ -115,6 +121,10 @@ internal fun rememberPlaceDetailFormState(
             initialDetail.coordinate
                 .takeIf { coordinate -> coordinate.isRepresentable }
                 ?.toDiaryMapCoordinate(),
+        initialMapCoordinate =
+            initialDetail.coordinate
+                .takeIf { coordinate -> coordinate.isRepresentable }
+                ?.toDiaryMapCoordinate(),
     )
 
 @Composable
@@ -125,6 +135,7 @@ private fun rememberPlaceFormState(
     initialColor: Color,
     defaultProvider: MapProvider?,
     initialCoordinate: DiaryMapCoordinate?,
+    initialMapCoordinate: DiaryMapCoordinate?,
 ): PlaceFormState {
     val titleState = rememberDiaryTitleInputState(initialText = initialTitle)
     val descriptionState = rememberDiaryDescriptionInputState(initialText = initialDescription)
@@ -142,7 +153,7 @@ private fun rememberPlaceFormState(
             key(defaultProvider) {
                 rememberDiaryMapState(
                     initialProvider = defaultProvider.toDiaryMapProvider(),
-                    initialCoordinate = initialCoordinate,
+                    initialCoordinate = initialMapCoordinate,
                 )
             }
         }
