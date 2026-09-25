@@ -42,3 +42,7 @@ dependencies {
     implementation(libs.jetbrains.lifecycle.runtime.compose)
 }
 ```
+
+## 의존성 baseline
+
+앱 모듈의 runtime classpath는 `dependencies/*.txt` baseline으로 고정하고, `dependencyGuard`가 baseline과 달라지면 실패한다. 의존성이나 버전을 의도적으로 바꿨으면 `./gradlew dependencyGuardBaseline`으로 baseline을 갱신하고, 추가·제거·버전 변경된 전이 의존성이 의도한 것인지 diff로 확인한 뒤 같은 커밋에 포함한다.

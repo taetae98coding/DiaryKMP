@@ -1,6 +1,6 @@
 ---
 name: verify-wave
-description: Diary KMP 프로젝트에서 저장소 전체를 검증할 때 사용한다. 이번 작업에서 수정한 코드가 규칙 문서를 어겼는지 별도 세션의 sonnet 모델로 검토하도록 먼저 위임하고, 보고를 기다리는 동안 spotlessApply로 포맷을 적용한 뒤 detekt와 jvmTest·testAndroidHostTest를 한 번의 명령으로 실행한다. 검토가 찾은 위반을 고치고, 규칙 검토와 수정은 최대 3회만 반복한다. 네 단계가 모두 성공해야 통과한 것으로 본다.
+description: Diary KMP 프로젝트에서 저장소 전체를 검증할 때 사용한다. 이번 작업에서 수정한 코드가 규칙 문서를 어겼는지 별도 세션의 sonnet 모델로 검토하도록 먼저 위임하고, 보고를 기다리는 동안 spotlessApply로 포맷을 적용한 뒤 detekt, dependencyGuard, jvmTest·testAndroidHostTest를 한 번의 명령으로 실행한다. 검토가 찾은 위반을 고치고, 규칙 검토와 수정은 최대 3회만 반복한다. 네 단계가 모두 성공해야 통과한 것으로 본다.
 ---
 
 # Verify Wave
@@ -14,11 +14,11 @@ description: Diary KMP 프로젝트에서 저장소 전체를 검증할 때 사�
 1. 규칙 검토의 `대상 선정`과 `검토 위임`까지 수행하고, 보고를 기다리지 않고 다음으로 넘어간다.
 2. Gradle 검증을 순서대로 실행한다.
    1. `./gradlew spotlessApply`
-   2. `./gradlew detekt jvmTest testAndroidHostTest --continue`
+   2. `./gradlew detekt dependencyGuard jvmTest testAndroidHostTest --continue`
 3. 검토 보고가 오면 `결과 반영`을 수행한다.
 4. 결과 반영으로 코드를 고쳤으면 Gradle 검증을 다시 실행한다.
 
-`spotlessApply`는 코드를 바꾸므로 단독으로 먼저 실행한다. `detekt`와 두 테스트 태스크는 서로 독립이라 한 번의 명령으로 함께 실행하고, `--continue`로 하나가 실패해도 나머지 결과까지 모은다.
+`spotlessApply`는 코드를 바꾸므로 단독으로 먼저 실행한다. `detekt`, `dependencyGuard`, 두 테스트 태스크는 서로 독립이라 한 번의 명령으로 함께 실행하고, `--continue`로 하나가 실패해도 나머지 결과까지 모은다.
 
 Gradle 명령끼리는 병렬로 실행하지 않는다. 같은 저장소에서 동시에 실행하면 데몬과 빌드 락을 두고 경합한다.
 
@@ -96,7 +96,7 @@ Gradle 명령끼리는 병렬로 실행하지 않는다. 같은 저장소에서 
 
 ## 통과 조건
 
-규칙 검토에서 확인한 위반이 남아 있지 않고 `spotlessApply`와 `detekt jvmTest testAndroidHostTest --continue`가 모두 성공한 경우에만 검증을 통과한 것으로 본다.
+규칙 검토에서 확인한 위반이 남아 있지 않고 `spotlessApply`와 `detekt dependencyGuard jvmTest testAndroidHostTest --continue`가 모두 성공한 경우에만 검증을 통과한 것으로 본다.
 
 로컬 파일 복구 조건에 해당하지 않는 명령이 하나라도 실패하거나 실행할 수 없으면 검증 실패로 보고, 실패한 명령과 핵심 오류를 사용자에게 보고한 뒤 다음 지시를 받는다.
 

@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.primitive.kotlin)
     alias(libs.plugins.primitive.compose)
+    alias(libs.plugins.dependency.guard)
 }
 
 kotlin {
@@ -56,4 +57,8 @@ tasks.named<ProcessResources>("wasmJsProcessResources") {
             "googleMapApiKey" to googleMapApiKey,
         )
     }
+}
+
+dependencyGuard {
+    configuration("wasmJsRuntimeClasspath")
 }

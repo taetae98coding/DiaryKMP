@@ -30,6 +30,7 @@ androidxWork = "2.11.2" # https://developer.android.com/jetpack/androidx/release
 
 buildKonfig = "0.23.0" # https://github.com/yshrsmz/BuildKonfig/releases
 coil = "3.6.3" # https://github.com/coil-kt/coil/releases
+dependencyGuard = "0.5.0" # https://github.com/dropbox/dependency-guard/releases
 detekt = "2.0.0-alpha.6" # https://github.com/detekt/detekt/releases
 firebase = "34.19.0" # https://firebase.google.com/support/release-notes/android
 firebaseCrashlyticsGradlePlugin = "3.0.8"
@@ -164,6 +165,7 @@ android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.
 androidx-room3 = { id = "androidx.room3", version.ref = "androidxRoom3" }
 
 build-konfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildKonfig" }
+dependency-guard = { id = "com.dropbox.dependency-guard", version.ref = "dependencyGuard" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsGradlePlugin" }
 firebase-performance = { id = "com.google.firebase.firebase-perf", version.ref = "firebasePerformanceGradlePlugin" }

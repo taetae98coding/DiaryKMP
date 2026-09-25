@@ -4,6 +4,7 @@ import io.github.taetae98coding.diary.buildlogic.localProperties
 plugins {
     alias(libs.plugins.primitive.android.application)
     alias(libs.plugins.primitive.compose)
+    alias(libs.plugins.dependency.guard)
     alias(libs.plugins.google.services)
     alias(libs.plugins.firebase.crashlytics)
     alias(libs.plugins.firebase.performance)
@@ -81,4 +82,8 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.firebase.performance)
     implementation(libs.google.material)
+}
+
+dependencyGuard {
+    configuration("realReleaseRuntimeClasspath")
 }
