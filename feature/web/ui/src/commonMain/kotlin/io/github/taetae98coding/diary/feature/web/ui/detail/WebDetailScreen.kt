@@ -14,6 +14,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreProvider
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
+import io.github.taetae98coding.diary.compose.core.snackbar.DismissUndoSnackbarEffect
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
 import io.github.taetae98coding.diary.core.model.web.WebDetail
@@ -69,6 +70,7 @@ internal fun WebDetailScreen(
         LoadWebPageEffect(pageViewModel = pageViewModel, state = scaffoldState)
 
         WebDetailScreenEffect(effect = webViewModel.effect, formState = formState, pageViewModel = pageViewModel, navigateUp = navigateUp)
+        DismissUndoSnackbarEffect(keyProvider = { scaffoldState.tab }, hostState = formState.hostState)
 
         WebDetailScaffold(
             onEvent = { event ->

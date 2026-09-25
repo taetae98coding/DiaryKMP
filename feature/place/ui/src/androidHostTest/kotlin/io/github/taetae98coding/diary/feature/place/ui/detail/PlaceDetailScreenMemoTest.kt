@@ -176,6 +176,24 @@ class PlaceDetailScreenMemoTest {
     }
 
     @Test
+    fun `TC-PLACE-DETAIL-MEMO-FEATURE-022 안내가 보이는 동안 다른 탭으로 바꾸면 안내가 닫히고 되돌릴 수 없다`() {
+        val memo = swipeMemo()
+
+        composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+        emitMemoEffect(MemoListEffect.Deleted(id = memo.id))
+        composeRule.onNodeWithText(DEFAULT_DELETED_MESSAGE).assertIsDisplayed()
+
+        composeRule.selectPlaceDetailTab(DEFAULT_DETAIL_TAB_DESCRIPTION)
+        composeRule.mainClock.advanceTimeBy(TAB_CHANGE_SETTLE_MILLIS)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_DELETED_MESSAGE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).assertDoesNotExist()
+        verify(exactly = 0) { memoViewModel().restore(id = any()) }
+    }
+
+    @Test
     fun `TC-SYNC-REFRESH-FEATURE-001 메모 탭에서 목록을 당기면 새로고침을 요청한다`() {
         setScreenOnMemoTab(memoPagingData = placeMemoPagingData(itemList = listOf(MemoListItem.Content(memo = placeMemo(title = SCREEN_MEMO_TITLE)))))
         waitUntilMemoIsDisplayed(title = SCREEN_MEMO_TITLE)
@@ -294,6 +312,8 @@ class PlaceDetailScreenMemoTest {
         const val SCREEN_MEMO_TITLE = "PlaceDetailScreenMemo"
         const val INDEPENDENT_MEMO_TITLE = "PlaceDetailIndependentMemo"
         const val DEFAULT_FINISHED_MESSAGE = "Memo finished."
+        const val DEFAULT_DELETED_MESSAGE = "Memo deleted."
+        const val TAB_CHANGE_SETTLE_MILLIS = 1_000L
         const val KOREAN_DELETED_MESSAGE = "메모가 삭제되었습니다."
         const val DEFAULT_UNDO_ACTION = "Undo"
         const val KOREAN_UNDO_ACTION = "실행 취소"

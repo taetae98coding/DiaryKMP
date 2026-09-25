@@ -318,6 +318,36 @@ class TagDetailScreenMemoTest {
         }
     }
 
+    @Test
+    fun `TC-TAG-DETAIL-FEATURE-065 메모 카드 위에서 왼쪽으로 밀면 탭은 바뀌지 않고 그 메모가 삭제된다`() {
+        val memo = swipeMemo()
+
+        composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { memoViewModel().delete(id = memo.id) }
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.onNodeWithContentDescription(DEFAULT_WEB_TAB_DESCRIPTION).assertIsNotSelected()
+    }
+
+    @Test
+    fun `TC-TAG-DETAIL-MEMO-FEATURE-034 안내가 보이는 동안 다른 탭으로 바꾸면 안내가 닫히고 되돌릴 수 없다`() {
+        val memo = swipeMemo()
+
+        composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+        emitMemoEffect(MemoListEffect.Deleted(id = memo.id))
+        composeRule.onNodeWithText(DEFAULT_DELETED_MESSAGE).assertIsDisplayed()
+
+        composeRule.selectTagDetailTab(DEFAULT_WEB_TAB_DESCRIPTION)
+        composeRule.mainClock.advanceTimeBy(TAB_CHANGE_SETTLE_MILLIS)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_DELETED_MESSAGE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).assertDoesNotExist()
+        verify(exactly = 0) { memoViewModel().restore(id = any()) }
+    }
+
     private fun swipeMemo(memoTabDescription: String = DEFAULT_MEMO_TAB_DESCRIPTION): Memo {
         val memo = tagMemo(title = SCREEN_MEMO_TITLE)
         setTagDetailScreenOnMemoTab(
@@ -463,6 +493,7 @@ class TagDetailScreenMemoTest {
 
     private companion object {
         const val PAGING_ITEMS_TIMEOUT_MILLIS = 5_000L
+        const val TAB_CHANGE_SETTLE_MILLIS = 1_000L
         const val DEFAULT_FINISHED_MESSAGE = "Memo finished."
         const val KOREAN_FINISHED_MESSAGE = "메모가 완료되었습니다."
         const val DEFAULT_DELETED_MESSAGE = "Memo deleted."

@@ -17,6 +17,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleVisibility
 import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
+import io.github.taetae98coding.diary.compose.core.snackbar.DismissUndoSnackbarEffect
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
@@ -69,6 +70,7 @@ internal fun PlaceDetailScreen(
 
     PlaceTagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::add)
     PlaceDetailScreenEffect(effect = detailViewModel.effect, scaffoldState = scaffoldState, navigateUp = navigateUp)
+    DismissUndoSnackbarEffect(keyProvider = { tabState.tab }, hostState = scaffoldState.hostState)
 
     PlaceDetailScaffold(
         state = scaffoldState,
