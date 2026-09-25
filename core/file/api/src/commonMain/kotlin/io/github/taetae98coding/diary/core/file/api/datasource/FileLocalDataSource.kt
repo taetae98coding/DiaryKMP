@@ -4,6 +4,10 @@ import io.github.taetae98coding.diary.core.model.file.FileUri
 import kotlinx.io.RawSource
 
 public interface FileLocalDataSource {
+    public suspend fun name(uri: FileUri): String
+
+    public suspend fun mimeType(uri: FileUri): String
+
     public suspend fun size(uri: FileUri): Long
 
     public suspend fun openSource(uri: FileUri): RawSource

@@ -10,14 +10,25 @@ import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
 import org.koin.core.annotation.Factory
 import platform.Foundation.NSURL
+import platform.UniformTypeIdentifiers.UTType
 
 @Factory
 internal class IosFileLocalDataSource(
     @FileDispatcher private val dispatcher: CoroutineDispatcher,
 ) : FileLocalDataSource {
+    override suspend fun name(uri: FileUri): String = checkNotNull(uri.toUrl().lastPathComponent) { "File uri has no name. uri=$uri" }
+
+    override suspend fun mimeType(uri: FileUri): String =
+        uri
+            .toUrl()
+            .pathExtension
+            ?.takeIf { extension -> extension.isNotEmpty() }
+            ?.let { extension -> UTType.typeWithFilenameExtension(extension)?.preferredMIMEType }
+            .orEmpty()
+
     override suspend fun size(uri: FileUri): Long =
         withContext(dispatcher) {
-            SystemFileSystem.metadataOrNull(uri.toPath())?.size ?: 0
+            checkNotNull(SystemFileSystem.metadataOrNull(uri.toPath())?.size) { "File size cannot be read. uri=$uri" }
         }
 
     override suspend fun openSource(uri: FileUri): RawSource = withContext(dispatcher) { SystemFileSystem.source(uri.toPath()) }
@@ -26,9 +37,7 @@ internal class IosFileLocalDataSource(
         withContext(dispatcher) { SystemFileSystem.delete(uri.toPath(), mustExist = false) }
     }
 
-    private fun FileUri.toPath(): Path {
-        val url = checkNotNull(NSURL.URLWithString(value)) { "File uri is not a url. uri=$this" }
+    private fun FileUri.toUrl(): NSURL = checkNotNull(NSURL.URLWithString(value)) { "File uri is not a url. uri=$this" }
 
-        return Path(checkNotNull(url.path) { "File uri has no path. uri=$this" })
-    }
+    private fun FileUri.toPath(): Path = Path(checkNotNull(toUrl().path) { "File uri has no path. uri=$this" })
 }

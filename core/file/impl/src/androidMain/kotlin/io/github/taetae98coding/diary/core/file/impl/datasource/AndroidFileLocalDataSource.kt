@@ -24,6 +24,18 @@ internal class AndroidFileLocalDataSource(
 ) : FileLocalDataSource {
     private val fileDataSource = JavaFileLocalDataSource(dispatcher = dispatcher)
 
+    override suspend fun name(uri: FileUri): String {
+        val parsed = Uri.parse(uri.value)
+
+        return if (parsed.isContent()) withContext(dispatcher) { parsed.displayName(uri = uri) } else fileDataSource.name(uri = uri)
+    }
+
+    override suspend fun mimeType(uri: FileUri): String {
+        val parsed = Uri.parse(uri.value)
+
+        return if (parsed.isContent()) withContext(dispatcher) { context.contentResolver.getType(parsed).orEmpty() } else fileDataSource.mimeType(uri = uri)
+    }
+
     override suspend fun size(uri: FileUri): Long {
         val parsed = Uri.parse(uri.value)
 
@@ -64,6 +76,13 @@ internal class AndroidFileLocalDataSource(
 
             if (index >= 0 && cursor.moveToFirst() && !cursor.isNull(index)) cursor.getLong(index) else null
         }
+
+    private fun Uri.displayName(uri: FileUri): String =
+        context.contentResolver.query(this, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
+            val index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+
+            if (index >= 0 && cursor.moveToFirst() && !cursor.isNull(index)) cursor.getString(index) else null
+        } ?: error("Content name cannot be read. uri=$uri")
 
     private fun Uri.isContent(): Boolean = scheme == ContentResolver.SCHEME_CONTENT
 }
