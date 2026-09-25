@@ -11,12 +11,16 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.domain.contact.usecase.DeleteContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.PageContactUseCase
+import io.github.taetae98coding.diary.domain.contact.usecase.RestoreContactUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -28,6 +32,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -132,13 +137,102 @@ class ContactHomeViewModelTest : FunSpec() {
                 }
             }
         }
+
+        test("TC-CONTACT-HOME-FEATURE-026 삭제에 성공하면 그 연락처의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val deleteContactUseCase = mockk<DeleteContactUseCase>()
+                coEvery { deleteContactUseCase(parameter = id) } returns Result.success(1)
+                val viewModel =
+                    viewModel(
+                        pageContactUseCase = pageContactUseCase(contactListFlow = flowOf(Result.success(emptyList()))),
+                        deleteContactUseCase = deleteContactUseCase,
+                    )
+
+                viewModel.effect.test {
+                    viewModel.delete(id = id)
+
+                    awaitItem() shouldBe ContactHomeEffect.Deleted(id = id)
+                    expectNoEvents()
+                }
+                coVerify(exactly = 1) { deleteContactUseCase(parameter = id) }
+            }
+        }
+
+        test("TC-CONTACT-HOME-FEATURE-032 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val deleteContactUseCase = mockk<DeleteContactUseCase>()
+                coEvery { deleteContactUseCase(parameter = id) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                val viewModel =
+                    viewModel(
+                        pageContactUseCase = pageContactUseCase(contactListFlow = flowOf(Result.success(emptyList()))),
+                        deleteContactUseCase = deleteContactUseCase,
+                    )
+
+                viewModel.effect.test {
+                    viewModel.delete(id = id)
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                }
+            }
+        }
+
+        test("TC-CONTACT-HOME-DOMAIN-015 실행 취소를 저장하지 못하면 별도 안내를 보내지 않는다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val restoreContactUseCase = mockk<RestoreContactUseCase>()
+                coEvery { restoreContactUseCase(parameter = id) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                val viewModel =
+                    viewModel(
+                        pageContactUseCase = pageContactUseCase(contactListFlow = flowOf(Result.success(emptyList()))),
+                        restoreContactUseCase = restoreContactUseCase,
+                    )
+
+                viewModel.effect.test {
+                    viewModel.restore(id = id)
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                }
+                coVerify(exactly = 1) { restoreContactUseCase(parameter = id) }
+            }
+        }
+
+        test("TC-CONTACT-HOME-FEATURE-027 실행 취소하면 그 연락처의 삭제를 되돌리는 요청을 한 번 보낸다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val restoreContactUseCase = mockk<RestoreContactUseCase>()
+                coEvery { restoreContactUseCase(parameter = id) } returns Result.success(1)
+                val viewModel =
+                    viewModel(
+                        pageContactUseCase = pageContactUseCase(contactListFlow = flowOf(Result.success(emptyList()))),
+                        restoreContactUseCase = restoreContactUseCase,
+                    )
+
+                viewModel.restore(id = id)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { restoreContactUseCase(parameter = id) }
+            }
+        }
     }
 
     private companion object {
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
 
-        private fun viewModel(pageContactUseCase: PageContactUseCase): ContactHomeViewModel = ContactHomeViewModel(pageContactUseCase = pageContactUseCase)
+        private fun viewModel(
+            pageContactUseCase: PageContactUseCase,
+            deleteContactUseCase: DeleteContactUseCase = mockk(),
+            restoreContactUseCase: RestoreContactUseCase = mockk(),
+        ): ContactHomeViewModel =
+            ContactHomeViewModel(
+                pageContactUseCase = pageContactUseCase,
+                deleteContactUseCase = deleteContactUseCase,
+                restoreContactUseCase = restoreContactUseCase,
+            )
 
         private fun pageContactUseCase(contactListFlow: Flow<Result<List<Contact>>>): PageContactUseCase {
             val pageContactUseCase = mockk<PageContactUseCase>()

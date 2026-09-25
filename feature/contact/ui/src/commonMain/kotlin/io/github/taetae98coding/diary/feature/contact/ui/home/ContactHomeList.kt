@@ -78,8 +78,9 @@ internal fun ContactHomeList(
                 ) { index ->
                     val contact = contactPagingItems[index]
 
-                    ContactCard(
+                    SwipeToDeleteContactCard(
                         onClick = { contact?.let { value -> onEvent(ContactHomeScaffoldEvent.ClickContact(id = value.id)) } },
+                        onDelete = { contact?.let { value -> onEvent(ContactHomeScaffoldEvent.DeleteContact(id = value.id)) } },
                         modifier =
                             Modifier
                                 .animateItem()

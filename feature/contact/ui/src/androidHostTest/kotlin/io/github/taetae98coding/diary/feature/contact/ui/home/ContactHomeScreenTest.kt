@@ -20,6 +20,7 @@ import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -125,6 +126,7 @@ class ContactHomeScreenTest {
         every { contactViewModel.sort } returns sort
         every { contactViewModel.contactPagingData } returns MutableStateFlow(contactPagingDataOf(contactList))
         every { contactViewModel.select(sort = any()) } answers { sort.value = firstArg() }
+        every { contactViewModel.effect } returns emptyFlow()
 
         composeRule.setContent {
             DiaryTheme {

@@ -26,6 +26,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeLeft
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
@@ -87,12 +89,14 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.receiveAsFlow
 import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -114,8 +118,14 @@ class ContactListDetailPlaceholderTest {
     private val viewModelList = mutableListOf<ContactAddViewModel>()
     private val backStack = NavBackStack<ScreenNavKey>(MoreNavKey, ContactHomeNavKey)
     private var homeContactList: List<Contact> = emptyList()
+    private val homeViewModelList = mutableListOf<ContactHomeViewModel>()
 
     // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트마다 전역 Koin을 정리한다.
+    @Before
+    fun resetUiDispatcher() {
+        resetAndroidUiDispatcher()
+    }
+
     @After
     fun tearDown() {
         stopKoin()
@@ -266,6 +276,23 @@ class ContactListDetailPlaceholderTest {
         backStack.toList() shouldBe listOf(MoreNavKey, ContactHomeNavKey)
         composeRule.onNode(contactCard(contact)).assertIsDisplayed()
         composeRule.nameInput().assert(hasText(input.name))
+    }
+
+    @Test
+    fun `TC-CONTACT-HOME-FEATURE-035 상세에 열린 연락처를 목록에서 밀어 삭제해도 상세 영역은 그 연락처의 상세로 남는다`() {
+        val contact = listedContact()
+        setContactNavDisplay(contactList = listOf(contact))
+        composeRule.onNode(contactCard(contact)).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(detailContent(id = contact.id)).assertIsDisplayed()
+
+        composeRule.onNode(contactCard(contact)).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { homeViewModelList.last().delete(id = contact.id) }
+        backStack.toList() shouldBe listOf(MoreNavKey, ContactHomeNavKey, ContactDetailNavKey(id = contact.id))
+        composeRule.onNodeWithText(detailContent(id = contact.id)).assertIsDisplayed()
+        composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(0)
     }
 
     @Test
@@ -451,10 +478,12 @@ class ContactListDetailPlaceholderTest {
         module {
             factory { screenTestViewModel().also { viewModel -> viewModelList += viewModel } }
             factory {
-                mockk<ContactHomeViewModel>(relaxed = true).apply {
-                    every { contactPagingData } returns MutableStateFlow(contactPagingDataOf(homeContactList))
-                    every { sort } returns MutableStateFlow(ListSort.NAME)
-                }
+                mockk<ContactHomeViewModel>(relaxed = true)
+                    .apply {
+                        every { contactPagingData } returns MutableStateFlow(contactPagingDataOf(homeContactList))
+                        every { sort } returns MutableStateFlow(ListSort.NAME)
+                        every { effect } returns emptyFlow()
+                    }.also { viewModel -> homeViewModelList += viewModel }
             }
             factory {
                 mockk<ContactHomeSyncViewModel>(relaxed = true).apply {
