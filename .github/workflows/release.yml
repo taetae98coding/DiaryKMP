@@ -177,8 +177,12 @@ jobs:
           set -euo pipefail
           aab=app/android/build/outputs/bundle/realRelease/android-real-release.aab
           host=$(sed -nE 's#^real\.supabase\.url=https?://([^/]+).*#\1#p' local.properties)
-          unzip -p "$aab" 'base/dex/*.dex' | strings | grep -q "$host" \
-            || { echo "::error::AAB에 real Supabase 주소가 없습니다. -Pbuildkonfig.flavor=real 로 빌드됐는지 확인하세요."; exit 1; }
+          # grep -q가 먼저 끝나면 앞 명령이 SIGPIPE로 실패해 pipefail에 걸리므로 끝까지 읽는 -c로 센다.
+          count=$(unzip -p "$aab" 'base/dex/*.dex' | LC_ALL=C grep -a -c "$host" || true)
+          if [ "${count:-0}" -eq 0 ]; then
+            echo "::error::AAB에 real Supabase 주소가 없습니다. -Pbuildkonfig.flavor=real 로 빌드됐는지 확인하세요."
+            exit 1
+          fi
 
       - uses: r0adkll/upload-google-play@v1
         with:
