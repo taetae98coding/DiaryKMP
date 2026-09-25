@@ -2,7 +2,7 @@
 
 이 문서는 하나의 태그가 다른 태그로 향하는 단방향 연결을 가질 수 있다는 규칙 가운데 태그와 태그의 연결에만 해당하는 부분을 다룬다. 연결의 성질과 동기화 계약은 [항목 연결 공통 스펙](./entity-link.md)을, 앱이 연결을 기기에 저장하는 규칙은 [항목 연결 앱 스펙](../client/entity-link.md)을 따른다. 앱이 기기에 저장된 연결로 연결된 태그와 하위 태그를 조회하는 규칙, 향해 오는 연결의 존재 판정, 태그의 상태 변화가 그 조회와 판정에 주는 영향, 아래 `연결의 의미`가 앱의 목록에 적용되는 범위와 예외는 [태그 연결 앱 스펙](../client/tag-link.md)이 소유한다.
 
-태그 자체의 추가·수정·완료·삭제는 [TagAdd 화면 스펙](../client/tag-add.md)과 [TagDetail 화면 스펙](../client/tag-detail.md)을 따르고, 메모·웹 항목·장소와 태그의 연결은 [항목 태그 연결 공통 스펙](./entity-tag.md)과 각 연결 스펙을 따른다.
+태그 자체의 추가·수정·완료·삭제는 [TagAdd 화면 스펙](../client/tag-add.md), [TagDetail 화면 스펙](../client/tag-detail.md), [TagHome 목록 스펙](../client/tag-home.md), [TagFinishedList 화면 스펙](../client/tag-finished-list.md)을 따르고, 메모·웹 항목·장소와 태그의 연결은 [항목 태그 연결 공통 스펙](./entity-tag.md)과 각 연결 스펙을 따른다.
 
 사용자가 연결을 만들고 해제하는 조작과 연결된 태그를 화면에 보여 주는 방법은 [태그 연결 입력 컴포넌트 스펙](../client/tag-link-input.md)이 소유하므로 이 문서에는 `feature` 영역을 두지 않는다.
 

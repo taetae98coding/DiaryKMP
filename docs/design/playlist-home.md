@@ -1,6 +1,6 @@
 # PlaylistHome 화면 디자인
 
-기준 스펙: [PlaylistHome 화면 스펙](../spec/client/playlist-home.md), [MusicAdd 화면 스펙](../spec/client/music-add.md), [MusicDetail 화면 스펙](../spec/client/music-detail.md), [곡 다운로드 스펙](../spec/client/music-download.md), [곡 다운로드 프록시 스펙](../spec/client/music-download-proxy.md), [Playlist 목록·상세 배치 스펙](../spec/client/playlist-list-detail.md), [새로고침 스펙](../spec/client/sync-refresh.md), [페이지 조회 목록의 자리 표시 스펙](../spec/client/paged-list-placeholder.md), [목록 빈 상태 스펙](../spec/client/list-empty-state.md)
+기준 스펙: [PlaylistHome 화면 스펙](../spec/client/playlist-home.md), [SwipeToFinishAndDelete 컴포넌트 스펙](../spec/client/swipe-to-finish-and-delete.md), [MusicAdd 화면 스펙](../spec/client/music-add.md), [MusicDetail 화면 스펙](../spec/client/music-detail.md), [곡 다운로드 스펙](../spec/client/music-download.md), [곡 다운로드 프록시 스펙](../spec/client/music-download-proxy.md), [Playlist 목록·상세 배치 스펙](../spec/client/playlist-list-detail.md), [새로고침 스펙](../spec/client/sync-refresh.md), [페이지 조회 목록의 자리 표시 스펙](../spec/client/paged-list-placeholder.md), [목록 빈 상태 스펙](../spec/client/list-empty-state.md)
 
 ## 화면 구조
 
@@ -38,11 +38,23 @@ PlaylistHome 화면은 `더보기`에서 이어지는 세부 화면이며, 공�
 
 카드는 화면 너비와 관계없이 한 행에 두 개씩 표시되는 2열 고정 그리드로 배치하고, 카드 사이에는 가로와 세로로 각각 [공통 항목 간격](./dimens.md)을 둔다. 격자 바깥 여백은 [공통 화면 가로 여백과 세로 여백](./dimens.md)을 따른다. 썸네일 영역의 높이가 카드 폭으로 정해지고 제목과 가수가 모두 한 줄이어서 카드 높이가 서로 같으므로 지그재그 격자를 쓰지 않는다.
 
-카드 전체를 누를 수 있는 자리로 두고, 누르면 그 곡의 [MusicDetail 화면](./music-detail.md)으로 이동한다. 카드에는 기본 눌림 표현을 쓰고, 목록에서 지금 보고 있는 곡을 따로 강조하는 선택 표현은 두지 않는다. 곡을 지우는 수단은 상세의 삭제 버튼 하나이므로 카드를 옆으로 미는 조작에는 반응하지 않는다.
+카드 전체를 누를 수 있는 자리로 두고, 누르면 그 곡의 [MusicDetail 화면](./music-detail.md)으로 이동한다. 카드에는 기본 눌림 표현을 쓰고, 목록에서 지금 보고 있는 곡을 따로 강조하는 선택 표현은 두지 않는다.
 
 아직 준비되지 않은 자리 표시 카드는 가리키는 곡이 없으므로 누를 수 있는 자리로 두지 않는다.
 
 목록이 갱신될 때 카드가 자리를 옮기면 기본 항목 이동 애니메이션으로 옮긴다.
+
+## 삭제 스와이프
+
+사용자는 곡 카드를 오른쪽에서 왼쪽으로 스와이프해 삭제한다. 곡에는 완료 여부가 없으므로 왼쪽에서 오른쪽으로 미는 조작에는 반응하지 않는다.
+
+스와이프 중 상태 아이콘, 삭제 기준, 취소와 비활성 표현은 [SwipeToFinishAndDelete 컴포넌트 디자인](./swipe-to-finish-and-delete.md)을 따른다. 자리 표시 카드는 스와이프가 시작되지 않는다. 썸네일, 상태 배지와 진행 막대 위에서 시작한 스와이프도 카드 전체의 스와이프로 다루며, 스와이프하는 동안 배지와 진행 막대는 카드와 함께 움직인다.
+
+삭제가 성립하면 카드를 격자에서 없애고, 결과 안내와 실행 취소 동작을 스낵바로 표시한다. 실행 취소 동작이 있는 스낵바는 Material 기본의 긴 표시 시간을 쓴다. 이미 보이는 스낵바가 있으면 그것이 삭제 안내든 내려받기 준비 안내든 표시 시간이 지나기를 기다리지 않고 즉시 새 안내로 바꾼다. 스낵바는 `내려받기 준비 안내`와 같은 자리에 두어 플로팅 액션 버튼에 가리지 않게 한다. 표현은 [MemoHome 목록 디자인](./memo-home.md)의 완료·삭제 스낵바와 같다.
+
+삭제가 저장되지 못하면 스낵바를 표시하지 않는다.
+
+실행 취소로 돌아온 카드는 스와이프 전 모양으로 정렬 기준에 맞는 자리에 다시 나타난다. 그 곡에 다운로드 상태가 있으면 배지와 진행 막대도 `다운로드 상태 표시`에 따라 함께 나타난다.
 
 ## 썸네일
 
@@ -155,7 +167,7 @@ Homebrew가 없을 때의 문구에는 사용자가 무엇을 해야 하는지�
 
 목록과 상세를 함께 표시하는 배치에서 당김과 진행 표시를 두는 영역은 [새로고침 디자인](./sync-refresh.md)의 `적응형 배치`를 따라 목록 영역에만 둔다.
 
-진행 표시는 본문 위쪽에, 플로팅 액션 버튼은 본문 오른쪽 아래에 놓이므로 두 요소는 겹치지 않는다. 진행 표시가 나타나 있는 동안에도 목록을 스크롤하고 곡 추가 버튼과 뒤로가기를 누르는 조작을 그대로 할 수 있으며, 어떤 요소도 비활성으로 표시하지 않는다.
+진행 표시는 본문 위쪽에, 플로팅 액션 버튼은 본문 오른쪽 아래에 놓이므로 두 요소는 겹치지 않는다. 진행 표시가 나타나 있는 동안에도 카드를 스와이프해 삭제하고 목록을 스크롤하고 곡 추가 버튼과 뒤로가기를 누르는 조작을 그대로 할 수 있으며, 어떤 요소도 비활성으로 표시하지 않는다.
 
 ## 적응형 배치
 
@@ -188,6 +200,9 @@ Homebrew가 없을 때의 문구에는 사용자가 무엇을 해야 하는지�
 | 프록시 연결 실패 안내 | `다운로드 프록시에 연결할 수 없습니다` | `Could not connect to the download proxy.` |
 | 빈 상태 제목 문구 | `아직 곡이 없습니다` | `No music yet` |
 | 빈 상태 보조 문구 | `추가 버튼으로 새 곡을 담을 수 있습니다` | `Use the add button to add music.` |
+| 삭제 안내 | `곡이 삭제되었습니다.` | `Song deleted.` |
+| 실행 취소 동작 | `실행 취소` | `Undo` |
+| 삭제 스와이프 아이콘 접근성 이름 | `곡 삭제` | `Delete song` |
 
 진행 중 상태 이름의 숫자 자리에는 배지에 표시한 백분율을 그대로 넣고, 백분율이 없는 동안에는 숫자 없이 진행 중임만 읽힌다.
 

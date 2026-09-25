@@ -174,6 +174,8 @@ TC-<SPEC>-<AREA>-<NNN>
 - [항목 추가 화면 공통 스펙](../spec/client/entity-add.md) → [MemoAdd](./memo-add.md), [TagAdd](./tag-add.md), [PlaceAdd](./place-add.md), [WebAdd](./web-add.md), [ContactAdd](./contact-add.md), [MusicAdd](./music-add.md), [RoutineAdd](./routine-add.md)
   - 각 추가 화면 문서가 공통 스펙의 절을 자기 화면의 입력과 동작에 맞춰 각각 갖는다.
 - [장소 검색 공통 스펙](../spec/client/place-search.md) → [Google 장소 검색](./google-place-search.md), [네이버 장소 검색](./naver-place-search.md)
+- [MemoHome 목록 스펙](../spec/client/memo-home.md)의 `안내와 실행 취소` → [MemoHome 목록](./memo-home.md), [MemoFinishedList](./memo-finished-list.md), [TagMemoFinishedList](./tag-memo-finished-list.md), [TagDetail 메모 탭](./tag-detail-memo.md), [ContactDetail 메모 탭](./contact-detail-memo.md), [PlaceDetail 메모 탭](./place-detail-memo.md), [WebDetail 메모 탭](./web-detail-memo.md), [TagHome 목록](./tag-home.md), [TagFinishedList](./tag-finished-list.md), [WebHome](./web-home.md), [TagDetail 웹 탭](./tag-detail-web.md), [PlaceHome](./place-home.md), [TagDetail 장소 탭](./tag-detail-place.md), [ContactHome](./contact-home.md), [PlaylistHome](./playlist-home.md), [SearchHome](./search-home.md)
+  - 화면이 재생성되거나 앱이 백그라운드에 다녀올 때의 실행 경계 케이스는 [MemoHome 목록](./memo-home.md)이 대표로 갖고, 나머지 목록 문서는 이 경계의 케이스를 따로 두지 않는다. 그 밖의 케이스는 각 문서가 자기 목록의 안내와 동작에 맞춰 갖는다.
 - [완료 목록 공통 스펙](../spec/client/finished-list.md) → [MemoFinishedList](./memo-finished-list.md), [TagFinishedList](./tag-finished-list.md), [TagMemoFinishedList](./tag-memo-finished-list.md)
   - 세 문서가 공통 스펙의 절을 각자의 대상 항목과 동작에 맞춰 각각 갖는다.
 - [항목 상세 화면 공통 스펙](../spec/client/entity-detail.md) → [ContactDetail](./contact-detail.md), [MemoDetail](./memo-detail.md), [MusicDetail](./music-detail.md), [PlaceDetail](./place-detail.md), [TagDetail](./tag-detail.md), [WebDetail](./web-detail.md)
