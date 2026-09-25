@@ -4,6 +4,7 @@ import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
+import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
 import kotlin.uuid.Uuid
 
 internal fun NavBackStack<ScreenNavKey>.navigateToMemoDetailFromHome(id: Uuid) {
@@ -22,4 +23,8 @@ internal fun NavBackStack<ScreenNavKey>.navigateToCopiedMemo(id: Uuid) {
 internal fun NavBackStack<ScreenNavKey>.navigateToTagAddFromMemoHomeFilter() {
     removeLastOrNull()
     add(TagAddNavKey())
+}
+
+internal fun NavBackStack<ScreenNavKey>.navigateToWebAddFromMemoWebInput() {
+    add(WebAddNavKey())
 }

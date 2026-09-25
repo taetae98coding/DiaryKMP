@@ -46,7 +46,7 @@ private fun EntryProviderScope<ScreenNavKey>.webHomeEntry(backStack: NavBackStac
         WebHomeScreen(
             navigateUp = backStack::removeLastOrNull,
             navigateToSearch = { backStack.add(SearchHomeNavKey(initialType = SearchHomeType.WEB)) },
-            navigateToAdd = { backStack.add(WebAddNavKey()) },
+            navigateToAdd = backStack::navigateToWebAddFromHome,
             navigateToDetail = { id -> backStack.add(WebDetailNavKey(id = id)) },
             componentVisibleProvider = { WebHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible) },
             webViewModel = koinViewModel(),

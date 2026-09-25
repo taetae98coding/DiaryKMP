@@ -149,7 +149,7 @@ private fun handlePlaceAddTagPickerEvent(
 }
 
 @Composable
-private fun AddEffect(
+internal fun AddEffect(
     resultEventBus: ResultEventBus = LocalResultEventBus.current,
     effect: Flow<PlaceAddEffect> = emptyFlow(),
     scaffoldState: PlaceFormState = rememberPlaceAddFormState(),

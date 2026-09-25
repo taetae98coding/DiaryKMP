@@ -31,7 +31,6 @@ import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.api.isTagListDetailPane
 import io.github.taetae98coding.diary.feature.tag.ui.add.TagAddScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.tag.ui.add.TagAddScreen
-import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailScreen
 import io.github.taetae98coding.diary.feature.tag.ui.finished.TagFinishedListScreen
 import io.github.taetae98coding.diary.feature.tag.ui.home.ScrollToFirstTagOnReselectEffect
@@ -188,9 +187,7 @@ private fun EntryProviderScope<ScreenNavKey>.tagDetailEntry(backStack: NavBackSt
             navigateToPlaceDetail = { id -> backStack.add(PlaceDetailNavKey(id = id)) },
             id = navKey.id,
             tagAddRequestKey = tagAddRequestKey,
-            componentVisibleProvider = {
-                TagDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible || backStack.isNavigatedFromTagDetail(navKey))
-            },
+            componentVisibleProvider = { backStack.tagDetailScaffoldComponentVisible(key = navKey, isListPaneVisible = isListPaneVisible) },
             // 목록에서 다른 태그를 고르면 같은 화면이 대상만 바꿔 이어지므로, 대상마다 따로 ViewModel을 둔다.
             detailViewModel = koinViewModel(key = "TagDetailViewModel:${navKey.id}") { parametersOf(navKey.id) },
             placeMapViewModel = koinViewModel(),
@@ -200,27 +197,22 @@ private fun EntryProviderScope<ScreenNavKey>.tagDetailEntry(backStack: NavBackSt
 
 private fun EntryProviderScope<ScreenNavKey>.tagMemoFinishedListEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<TagMemoFinishedListNavKey>(
-        metadata = { key ->
-            ListDetailSceneStrategy.listPane(
-                sceneKey = key,
-                detailPlaceholder = { TagMemoFinishedListDetailPlaceholder() },
-            ) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION)
-        },
+        metadata = ::tagMemoFinishedListPaneMetadata,
     ) { key ->
         TagMemoFinishedListScreen(
             navigateUp = backStack::navigateUpFromTagMemoFinishedList,
-            navigateToMemoDetail = { id ->
-                if (backStack.lastOrNull() is MemoDetailNavKey) {
-                    backStack.removeLastOrNull()
-                }
-
-                backStack.add(MemoDetailNavKey(id = id))
-            },
+            navigateToMemoDetail = backStack::navigateToMemoDetailFromTagMemoFinishedList,
             memoViewModel = koinViewModel { parametersOf(key.tagId) },
             syncViewModel = koinViewModel(),
         )
     }
 }
+
+internal fun tagMemoFinishedListPaneMetadata(key: TagMemoFinishedListNavKey): Map<String, Any> =
+    ListDetailSceneStrategy.listPane(
+        sceneKey = key,
+        detailPlaceholder = { TagMemoFinishedListDetailPlaceholder() },
+    ) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION)
 
 private fun NavBackStack<ScreenNavKey>.tagListDetailPaneMetadata(key: ScreenNavKey): Map<String, Any> =
     if (isTagListDetailPane(key)) {

@@ -41,7 +41,6 @@ import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
-import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import kotlinx.coroutines.flow.Flow
 import org.koin.compose.viewmodel.koinViewModel
@@ -135,7 +134,7 @@ private fun EntryProviderScope<ScreenNavKey>.memoAddEntry(backStack: NavBackStac
             navigateUp = { backStack.removeLastOrNull() },
             navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
             navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id)) },
-            navigateToWebAdd = { backStack.add(WebAddNavKey()) },
+            navigateToWebAdd = backStack::navigateToWebAddFromMemoWebInput,
             navigateToWebDetail = { id -> backStack.add(WebDetailNavKey(id = id)) },
             navigateToContactAdd = { backStack.add(ContactAddNavKey) },
             navigateToContactDetail = { id -> backStack.add(ContactDetailNavKey(id = id)) },
@@ -175,7 +174,7 @@ private fun EntryProviderScope<ScreenNavKey>.memoDetailEntry(backStack: NavBackS
             navigateToCopiedMemo = { id -> backStack.navigateToCopiedMemo(id) },
             navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
             navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id)) },
-            navigateToWebAdd = { backStack.add(WebAddNavKey()) },
+            navigateToWebAdd = backStack::navigateToWebAddFromMemoWebInput,
             navigateToWebDetail = { id -> backStack.add(WebDetailNavKey(id = id)) },
             navigateToContactAdd = { backStack.add(ContactAddNavKey) },
             navigateToContactDetail = { id -> backStack.add(ContactDetailNavKey(id = id)) },
@@ -233,7 +232,7 @@ private fun MemoAddDetailPlaceholder(backStack: NavBackStack<ScreenNavKey>) {
         navigateUp = {},
         navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
         navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id)) },
-        navigateToWebAdd = { backStack.add(WebAddNavKey()) },
+        navigateToWebAdd = backStack::navigateToWebAddFromMemoWebInput,
         navigateToWebDetail = { id -> backStack.add(WebDetailNavKey(id = id)) },
         navigateToContactAdd = { backStack.add(ContactAddNavKey) },
         navigateToContactDetail = { id -> backStack.add(ContactDetailNavKey(id = id)) },

@@ -33,7 +33,7 @@ public fun EntryProviderScope<ScreenNavKey>.contactEntry(backStack: NavBackStack
     contactDetailEntry(backStack = backStack)
 }
 
-private fun EntryProviderScope<ScreenNavKey>.contactHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
+internal fun EntryProviderScope<ScreenNavKey>.contactHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<ContactHomeNavKey>(
         clazzContentKey = { CONTACT_HOME_CONTENT_KEY },
         metadata = contactHomeListPaneMetadata(),
@@ -67,7 +67,7 @@ internal fun contactHomeListPaneMetadata(): Map<String, Any> =
         },
     ) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION)
 
-private fun EntryProviderScope<ScreenNavKey>.contactAddEntry(backStack: NavBackStack<ScreenNavKey>) {
+internal fun EntryProviderScope<ScreenNavKey>.contactAddEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<ContactAddNavKey>(
         metadata = { key -> backStack.contactListDetailPaneMetadata(key) },
     ) {
@@ -81,7 +81,7 @@ private fun EntryProviderScope<ScreenNavKey>.contactAddEntry(backStack: NavBackS
     }
 }
 
-private fun EntryProviderScope<ScreenNavKey>.contactDetailEntry(backStack: NavBackStack<ScreenNavKey>) {
+internal fun EntryProviderScope<ScreenNavKey>.contactDetailEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<ContactDetailNavKey>(
         metadata = { key -> backStack.contactListDetailPaneMetadata(key) },
     ) { key ->
