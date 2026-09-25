@@ -150,7 +150,7 @@
 | 알림 권한 요청 | [client](./client/notification-permission.md) | — | — | — |
 | 앱 로깅 | [client](./client/app-logging.md) | — | — | — |
 | 앱 이름 | [client](./client/app-name.md) | — | — | — |
-| 완료 목록 공통 | [client](./client/finished-list.md) | — | — | — |
+| 완료 목록 공통 | [client](./client/finished-list.md) | — | — | [완료 목록 공통 디자인](../design/finished-list.md) |
 | 웹 태그 | [client](./client/web-tag.md) | [common](./common/web-tag.md) | — | — |
 | 위치 권한 요청 | [client](./client/location-permission.md) | — | — | — |
 | 음력 자료 동기화 | [client](./client/lunar-fetch.md) | — | — | — |
