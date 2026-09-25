@@ -82,4 +82,5 @@ Compose UI 테스트는 `androidHostTest`에서 Robolectric을 사용해 작성�
 - `rememberXxxState`처럼 Composable 팩토리가 제공하는 초기화, 같은 Composition 안의 인스턴스 유지, 저장·복원 동작은 그 팩토리로 상태를 생성해 `androidHostTest`에서 별도로 검증한다.
 - 스펙이 화면 재생성 후 상태 유지를 요구하고 팩토리가 `rememberSaveable` 또는 저장 가능한 내비게이션 상태를 쓰면 `StateRestorationTester`로 실제 복원을 검증한다. 이 테스트를 생성자 기반 상태 전이 테스트로 대체하지 않는다.
 - `StateRestorationTester.setContent`에서 최신 상태 홀더를 캡처하고, 상태 변경과 검증은 `runOnIdle`에서 수행한다. 복원 후에는 현재 화면뿐 아니라 스펙이 요구하는 뒤로가기 결과처럼 관찰되는 전환 이력도 검증한다.
+- Pager나 Flow의 결과가 이어서 전달되기를 기다리는 Robolectric 화면 테스트는 테스트마다 시작 전에 `AndroidUiDispatcher.Main`의 남은 예약 상태를 비운다. 조회 결과는 앱 전체가 함께 쓰는 이 디스패처로 화면에 전달되는데, Robolectric은 테스트가 끝날 때 메인 스레드 대기열만 비우고 디스패처는 "이미 예약했다"는 표시와 앞선 테스트가 남긴 작업을 그대로 들고 있어 뒤이은 테스트의 작업을 다시 예약하지 않는다. 비우지 않으면 앞선 테스트에 따라 결과가 전달되지 않아 전체 실행에서만 실패한다.
 
