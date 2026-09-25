@@ -76,7 +76,7 @@ class AccountWebTransactionImplTest :
                 )
         }
 
-        test("TC-DATA-SYNC-DOMAIN-001 웹 항목 추가·수정·삭제는 업로드 대기 상태가 된다") {
+        test("TC-DATA-SYNC-DOMAIN-001 웹 항목 추가·수정·삭제·실행 취소는 업로드 대기 상태가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val web = web().copy(isDeleted = false)
             val pending = listOf(AccountWebLocalEntity(accountId = accountId, webId = web.id, isDirty = true))
@@ -90,6 +90,10 @@ class AccountWebTransactionImplTest :
 
             database.accountWebDao().upsert(AccountWebLocalEntity(accountId = accountId, webId = web.id, isDirty = false))
             transaction.updateDeleted(accountId = accountId, webId = web.id, isDeleted = true, updatedAt = instant())
+            findAccountWebList() shouldBe pending
+
+            database.accountWebDao().upsert(AccountWebLocalEntity(accountId = accountId, webId = web.id, isDirty = false))
+            transaction.updateDeleted(accountId = accountId, webId = web.id, isDeleted = false, updatedAt = instant())
             findAccountWebList() shouldBe pending
         }
 

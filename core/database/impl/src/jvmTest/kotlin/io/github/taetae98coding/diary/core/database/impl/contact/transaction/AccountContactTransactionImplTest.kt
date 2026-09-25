@@ -232,7 +232,7 @@ class AccountContactTransactionImplTest :
             findContactList() shouldBe contactList
         }
 
-        test("TC-DATA-SYNC-DOMAIN-001 TC-CONTACT-ADD-DATA-009 연락처 추가·수정·삭제·즐겨찾기 변경은 업로드 대기 상태가 된다") {
+        test("TC-DATA-SYNC-DOMAIN-001 TC-CONTACT-ADD-DATA-009 연락처 추가·수정·삭제·실행 취소·즐겨찾기 변경은 업로드 대기 상태가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val contact = contact().copy(isDeleted = false)
             val pending = listOf(AccountContactLocalEntity(accountId = accountId, contactId = contact.id, isDirty = true))
@@ -240,6 +240,7 @@ class AccountContactTransactionImplTest :
                 listOf(
                     { transaction.updateDetail(accountId = accountId, contactId = contact.id, detail = detail(), updatedAt = instant()) },
                     { transaction.updateDeleted(accountId = accountId, contactId = contact.id, isDeleted = true, updatedAt = instant()) },
+                    { transaction.updateDeleted(accountId = accountId, contactId = contact.id, isDeleted = false, updatedAt = instant()) },
                     {
                         transaction.updateFavorite(
                             accountId = accountId,

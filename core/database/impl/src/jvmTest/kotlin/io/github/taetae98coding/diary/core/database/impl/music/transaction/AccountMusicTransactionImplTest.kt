@@ -128,6 +128,19 @@ class AccountMusicTransactionImplTest :
             findAccountMusicList() shouldBe listOf(AccountMusicLocalEntity(accountId = accountId, musicId = music.id, isDirty = true))
         }
 
+        test("TC-DATA-SYNC-DOMAIN-001 삭제의 실행 취소는 삭제 여부를 미삭제로 되돌리고 업로드 대기로 기록한다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val music = music().copy(isDeleted = true)
+            transaction.upsert(accountId = accountId, musicList = listOf(music))
+            markUploaded(database = database, accountId = accountId, musicId = music.id)
+            val updatedAt = instant()
+
+            transaction.updateDeleted(accountId = accountId, musicId = music.id, isDeleted = false, updatedAt = updatedAt) shouldBe 1
+
+            findMusicList() shouldBe listOf(music.copy(isDeleted = false, updatedAt = updatedAt))
+            findAccountMusicList() shouldBe listOf(AccountMusicLocalEntity(accountId = accountId, musicId = music.id, isDirty = true))
+        }
+
         test("TC-MUSIC-DETAIL-DATA-004 현재 계정과 대상 식별자를 만족하는 곡이 없으면 아무것도 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()

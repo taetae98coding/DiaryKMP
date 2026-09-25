@@ -67,7 +67,7 @@ class AccountTagTransactionImplTest :
                 .any { tag -> tag.id == tagId } shouldBe true
         }
 
-        test("TC-DATA-SYNC-DOMAIN-001 태그 생성·수정·완료·다시 시작·삭제는 업로드 대기 상태가 된다") {
+        test("TC-DATA-SYNC-DOMAIN-001 태그 생성·수정·완료·다시 시작·삭제·실행 취소는 업로드 대기 상태가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag()
             val updatedAt = instant()
@@ -94,6 +94,10 @@ class AccountTagTransactionImplTest :
 
             insertWithSyncState(accountId, tag.copy(isDeleted = false), isDirty = false)
             transaction.updateDeleted(accountId, tag.id, isDeleted = true, updatedAt = updatedAt)
+            assertPending(accountId = accountId, tagId = tag.id)
+
+            insertWithSyncState(accountId, tag.copy(isDeleted = true), isDirty = false)
+            transaction.updateDeleted(accountId, tag.id, isDeleted = false, updatedAt = updatedAt)
             assertPending(accountId = accountId, tagId = tag.id)
         }
 

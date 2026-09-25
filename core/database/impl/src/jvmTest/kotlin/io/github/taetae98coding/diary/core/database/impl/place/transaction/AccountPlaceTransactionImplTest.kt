@@ -78,7 +78,7 @@ class AccountPlaceTransactionImplTest :
                 )
         }
 
-        test("TC-DATA-SYNC-DOMAIN-001 장소 추가·수정·삭제는 업로드 대기 상태가 된다") {
+        test("TC-DATA-SYNC-DOMAIN-001 장소 추가·수정·삭제·실행 취소는 업로드 대기 상태가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place().copy(isDeleted = false)
             val pending = listOf(AccountPlaceLocalEntity(accountId = accountId, placeId = place.id, isDirty = true))
@@ -92,6 +92,10 @@ class AccountPlaceTransactionImplTest :
 
             database.accountPlaceDao().upsert(AccountPlaceLocalEntity(accountId = accountId, placeId = place.id, isDirty = false))
             transaction.updateDeleted(accountId = accountId, placeId = place.id, isDeleted = true, updatedAt = instant())
+            findAccountPlaceList() shouldBe pending
+
+            database.accountPlaceDao().upsert(AccountPlaceLocalEntity(accountId = accountId, placeId = place.id, isDirty = false))
+            transaction.updateDeleted(accountId = accountId, placeId = place.id, isDeleted = false, updatedAt = instant())
             findAccountPlaceList() shouldBe pending
         }
 
