@@ -1,0 +1,51 @@
+name: 🧰 빌드 환경 준비
+description: JDK 21을 설치하고 CI 전용 캐시 위치를 잡은 뒤 local.properties를 복원한다
+
+inputs:
+  local-properties:
+    description: local.properties 내용(secrets.LOCAL_PROPERTIES)
+    required: true
+  android-sdk:
+    description: Android SDK가 반드시 있어야 하는 잡이면 true. 없으면 실패한다
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - name: ☕ JDK 21 설치
+      uses: actions/setup-java@v6
+      with:
+        distribution: temurin
+        java-version: 21
+
+    - name: 🗂️ CI 전용 캐시 위치 설정
+      shell: bash
+      run: |
+        set -euo pipefail
+        # self-hosted 러너는 실행 사이에 홈 디렉터리를 공유하므로, 캐시는 유지하되 개발자의 ~/.gradle, ~/.konan과 섞지 않는다.
+        ci="$HOME/.diary-ci"
+        mkdir -p "$ci/gradle" "$ci/DerivedData"
+        {
+          echo "GRADLE_USER_HOME=$ci/gradle"
+          echo "KONAN_DATA_DIR=$ci/konan"
+          echo "CI_DERIVED_DATA=$ci/DerivedData"
+        } >> "$GITHUB_ENV"
+        # 빌드가 끝난 뒤 Gradle 데몬이 개발 머신의 메모리를 붙잡지 않게 한다. Kotlin 데몬은 유휴 상태가 되면 스스로 종료한다.
+        printf '%s\n' 'org.gradle.daemon=false' > "$ci/gradle/gradle.properties"
+
+    - name: 🔐 local.properties 복원
+      shell: bash
+      env:
+        LOCAL_PROPERTIES: ${{ inputs.local-properties }}
+        REQUIRE_ANDROID_SDK: ${{ inputs.android-sdk }}
+      run: |
+        set -euo pipefail
+        printf '%s\n' "$LOCAL_PROPERTIES" > local.properties
+        sdk="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-$HOME/Library/Android/sdk}}"
+        if [ -d "$sdk" ]; then
+          echo "sdk.dir=$sdk" >> local.properties
+        elif [ "$REQUIRE_ANDROID_SDK" = "true" ]; then
+          echo "::error::Android SDK를 찾지 못했습니다: $sdk"
+          exit 1
+        fi

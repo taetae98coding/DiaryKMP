@@ -1,0 +1,47 @@
+name: Test
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    secrets:
+      LOCAL_PROPERTIES:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: 🧪 포맷·정적 분석·의존성·단위 테스트
+    runs-on: self-hosted
+    timeout-minutes: 90
+    steps:
+      - name: 📥 소스 가져오기
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          clean: true
+
+      - name: 🧰 빌드 환경 준비
+        uses: ./.github/actions/setup
+        with:
+          local-properties: ${{ secrets.LOCAL_PROPERTIES }}
+          android-sdk: 'true'
+
+      - name: 🧪 포맷·정적 분석·의존성·단위 테스트
+        run: ./gradlew spotlessCheck detekt dependencyGuard jvmTest testAndroidHostTest --continue
+
+      - name: 📤 테스트 리포트 업로드
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-reports
+          path: |
+            **/build/reports/tests/
+            **/build/reports/detekt/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: 🧹 비밀 파일 삭제
+        if: always()
+        run: rm -f local.properties
