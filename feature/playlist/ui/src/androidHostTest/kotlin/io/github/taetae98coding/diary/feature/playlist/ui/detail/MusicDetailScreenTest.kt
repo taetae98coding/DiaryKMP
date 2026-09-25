@@ -10,6 +10,7 @@ import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -18,6 +19,7 @@ import androidx.compose.ui.test.performTextReplacement
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
 import io.kotest.matchers.shouldBe
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.Flow
@@ -221,6 +223,29 @@ class MusicDetailScreenTest {
     }
 
     @Test
+    fun `TC-MUSIC-DETAIL-FEATURE-030 앱 밖에서 열지 못해도 화면과 입력을 유지한다`() {
+        var navigateUpCount = 0
+        val uriHandler =
+            mockk<UriHandler> {
+                every { openUri(any()) } throws IllegalStateException("no browser")
+            }
+        setMusicDetailScreen(uiState = contentUiState(), navigateUp = { navigateUpCount += 1 }, uriHandler = uriHandler)
+        composeRule.titleInput().performTextReplacement(EDITING_TITLE)
+        composeRule.waitForIdle()
+        val textListBeforeOpen = composeRule.visibleTextList()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_OPEN_IN_NEW_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { uriHandler.openUri(STORED_LINK) }
+        navigateUpCount shouldBe 0
+        // 스낵바나 다른 안내가 나타나면 화면의 글이 늘어나므로, 열기 전과 같은지로 안내가 없음을 확인한다.
+        composeRule.visibleTextList() shouldBe textListBeforeOpen
+        composeRule.titleInput().assert(hasText(EDITING_TITLE))
+        composeRule.onNodeWithContentDescription(DEFAULT_OPEN_IN_NEW_DESCRIPTION).assertExists()
+    }
+
+    @Test
     fun `TC-MUSIC-DETAIL-FEATURE-018 저장된 링크가 비어 있으면 외부로 열기를 제공하지 않는다`() {
         setMusicDetailScreen(uiState = contentUiState(detail = testMusicDetail(link = "")))
 
@@ -323,6 +348,12 @@ class MusicDetailScreenTest {
 
         composeRule.titleInput().assert(hasText(CHANGED_TITLE))
     }
+
+    private fun ComposeContentTestRule.visibleTextList(): List<String> =
+        onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text), useUnmergedTree = true)
+            .fetchSemanticsNodes()
+            .flatMap { node -> node.config[SemanticsProperties.Text] }
+            .map { text -> text.text }
 
     private fun setMusicDetailScreen(
         uiState: MutableStateFlow<MusicDetailUiState>,
