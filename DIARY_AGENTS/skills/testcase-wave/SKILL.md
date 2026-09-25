@@ -13,7 +13,7 @@ description: Diary KMP 프로젝트에서 사용자가 스펙 기반 테스트 �
 
 ## 원칙
 
-확정된 스펙을 기대 결과의 유일한 근거로 삼는다. 스펙만 지정된 경우 `docs/spec/<slug>.md`에 대응하는 `docs/testcase/<slug>.md`를 대상으로 한다.
+확정된 스펙을 기대 결과의 유일한 근거로 삼는다. 스펙만 지정된 경우 `docs/spec/{client,common,server}/<slug>.md`에 대응하는 `docs/testcase/<slug>.md`를 대상으로 한다.
 
 QA 전문가가 코드를 보지 않고도 실행 조건과 기대 결과를 이해할 수 있게 쓴다. 각 케이스는 하나의 구분 가능한 행동이나 규칙을 검증하고, 같은 입력과 기대 결과를 `feature`, `domain`, `data`에 반복하지 않는다.
 
@@ -103,7 +103,7 @@ QA 전문가가 코드를 보지 않고도 실행 조건과 기대 결과를 이
 ```markdown
 # Login 테스트 케이스
 
-기준 스펙: [Login 화면 스펙](../spec/login.md)
+기준 스펙: [Login 화면 스펙](../spec/client/login.md)
 
 ## feature
 

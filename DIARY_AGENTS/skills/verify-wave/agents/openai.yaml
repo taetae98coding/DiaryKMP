@@ -1,4 +1,4 @@
 interface:
   display_name: "Verify Wave"
-  short_description: "규칙 검토, 포맷, 정적 분석, 유닛 테스트 검증 게이트"
-  default_prompt: "Use $verify-wave to delegate a rule review of the changed code to a separate session and, while it runs, apply spotlessApply and then run detekt with the unit test tasks."
+  short_description: "규칙·추적 검토, 포맷, 정적 분석, 유닛 테스트 검증 게이트"
+  default_prompt: "Use $verify-wave to delegate a rule review of the changed code and a spec-testcase-test-code traceability review to separate opus sessions and, while it runs, apply spotlessApply and then run detekt with the unit test tasks."

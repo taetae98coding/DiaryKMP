@@ -66,7 +66,7 @@ description: Diary KMP 프로젝트에서 사용자가 Markdown 디자인 문서
 ```markdown
 # MemoAdd 화면 디자인
 
-기준 스펙: [MemoAdd 화면 스펙](../spec/memo-add.md)
+기준 스펙: [MemoAdd 화면 스펙](../spec/client/memo-add.md)
 ```
 
 본문은 고정 템플릿을 채우지 말고 실제 디자인 결정 단위로 구성한다. 공통 컴포넌트나 배치 문서가 이미 결정을 소유하면 링크로 참조하고 같은 규칙을 반복하지 않는다.

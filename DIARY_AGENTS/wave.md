@@ -10,7 +10,7 @@
 2. 목록에 없으면 `rg --files docs`로 기능명과 일치하는 slug를 찾는다.
 3. 대상 문서가 링크하는 상위 문서와 공통 문서를 함께 읽는다.
 
-같은 slug는 `docs/spec`, `docs/design`, `docs/testcase`에서 같은 대상을 가리킨다. 범위를 추론할 수 없거나 대상 후보가 여러 개면 작성 전에 사용자에게 확인한다.
+같은 slug는 `docs/spec`, `docs/design`, `docs/testcase`에서 같은 대상을 가리킨다. `docs/spec`은 `client`, `common`, `server` 하위 폴더에 같은 slug가 여러 개 있을 수 있으며, 폴더 구분은 [docs/spec/README.md](../docs/spec/README.md)를 따른다. 범위를 추론할 수 없거나 대상 후보가 여러 개면 작성 전에 사용자에게 확인한다.
 
 ## 작성 전 검토
 

@@ -26,4 +26,4 @@
 - [DIARY_AGENTS.md](../DIARY_AGENTS.md)
 - [wave.md](wave.md)
 - `skills/spec-wave`, `skills/design-wave`, `skills/testcase-wave`, `skills/testcode-wave`
-- `skills/rebase-wave`
+- `skills/rebase-wave`, `skills/verify-wave`
