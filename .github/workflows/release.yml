@@ -148,8 +148,8 @@ jobs:
             echo "GRADLE_USER_HOME=$ci/gradle"
             echo "KONAN_DATA_DIR=$ci/konan"
           } >> "$GITHUB_ENV"
-          # 빌드가 끝난 뒤 Gradle·Kotlin 데몬이 개발 머신의 메모리를 붙잡지 않게 한다.
-          printf '%s\n' 'org.gradle.daemon=false' 'kotlin.compiler.execution.strategy=in-process' > "$ci/gradle/gradle.properties"
+          # 빌드가 끝난 뒤 Gradle 데몬이 개발 머신의 메모리를 붙잡지 않게 한다. Kotlin 데몬은 유휴 상태가 되면 스스로 종료한다.
+          printf '%s\n' 'org.gradle.daemon=false' > "$ci/gradle/gradle.properties"
 
       - name: 비밀 파일 복원
         env:
@@ -240,7 +240,7 @@ jobs:
             echo "KONAN_DATA_DIR=$ci/konan"
             echo "CI_DERIVED_DATA=$ci/DerivedData"
           } >> "$GITHUB_ENV"
-          printf '%s\n' 'org.gradle.daemon=false' 'kotlin.compiler.execution.strategy=in-process' > "$ci/gradle/gradle.properties"
+          printf '%s\n' 'org.gradle.daemon=false' > "$ci/gradle/gradle.properties"
 
       - name: 비밀 파일 복원
         env:
