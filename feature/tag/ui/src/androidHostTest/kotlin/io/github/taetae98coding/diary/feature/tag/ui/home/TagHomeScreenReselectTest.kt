@@ -22,6 +22,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -115,6 +116,7 @@ class TagHomeScreenReselectTest {
 
             every { viewModel.sort } returns MutableStateFlow(ListSort.TITLE)
             every { viewModel.tagPagingData } returns MutableStateFlow(tagPagingDataOf(tagList))
+            every { viewModel.effect } returns emptyFlow()
             every { viewModel.filterUiState } returns MutableStateFlow(TagHomeScaffoldFilterUiState())
 
             return viewModel

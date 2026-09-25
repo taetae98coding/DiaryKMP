@@ -25,6 +25,18 @@ public fun FixtureMonkey.tag(title: String): Tag =
         .setExp(Tag::createdAt, giveMeOne<Instant>())
         .sample()
 
+public fun FixtureMonkey.tag(
+    title: String,
+    isFinished: Boolean,
+): Tag =
+    giveMeKotlinBuilder<Tag>()
+        .setExp(Tag::detail, giveMeOne<TagDetail>().copy(emoji = "", title = title))
+        .setExp(Tag::isFinished, isFinished)
+        .setExp(Tag::isDeleted, false)
+        .setExp(Tag::updatedAt, giveMeOne<Instant>())
+        .setExp(Tag::createdAt, giveMeOne<Instant>())
+        .sample()
+
 public fun FixtureMonkey.localTag(
     isFinished: Boolean,
     isDeleted: Boolean,

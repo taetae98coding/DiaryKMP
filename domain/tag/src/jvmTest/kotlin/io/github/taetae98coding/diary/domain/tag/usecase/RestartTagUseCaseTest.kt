@@ -46,7 +46,7 @@ class RestartTagUseCaseTest :
                 )
 
             When("태그 완료를 실행 취소한다") {
-                Then("TC-TAG-DETAIL-DATA-002 현재 계정의 태그를 미완료 상태와 동작 시점 수정 시각으로 되돌린다") {
+                Then("TC-TAG-DETAIL-DATA-002 TC-TAG-HOME-DOMAIN-017 현재 계정의 태그를 미완료 상태와 동작 시점 수정 시각으로 되돌린다") {
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
 
                     val result = useCase(parameter = tagId)

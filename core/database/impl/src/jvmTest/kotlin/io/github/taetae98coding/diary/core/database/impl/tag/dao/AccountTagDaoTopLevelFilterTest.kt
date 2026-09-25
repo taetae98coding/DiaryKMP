@@ -222,6 +222,12 @@ class AccountTagDaoTopLevelFilterTest :
                 cursor = fixtureMonkey.giveMeOne<Long>(),
             )
             topLevelTagIdList(accountId = accountId) shouldBe listOf(fromTag.id)
+
+            tagTransaction.updateDeleted(accountId = accountId, tagId = fromTag.id, isDeleted = true, updatedAt = instant())
+            topLevelTagIdList(accountId = accountId) shouldBe listOf(toTag.id)
+
+            tagTransaction.updateDeleted(accountId = accountId, tagId = fromTag.id, isDeleted = false, updatedAt = instant())
+            topLevelTagIdList(accountId = accountId) shouldBe listOf(fromTag.id)
         }
 
         test("TC-TAG-LINK-DOMAIN-020 계정과 연결되지 않은 출발 태그의 연결은 세지 않는다") {

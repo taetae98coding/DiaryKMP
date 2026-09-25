@@ -68,6 +68,7 @@ class TagFinishedListScaffoldRefreshTest {
         composeRule.setContent {
             DiaryTheme {
                 TagFinishedListScaffold(
+                    onTagListEvent = {},
                     tagPagingItems = tagPagingDataFlow.collectAsLazyPagingItems(),
                     onEvent = onEvent,
                     uiStateProvider = { uiState },

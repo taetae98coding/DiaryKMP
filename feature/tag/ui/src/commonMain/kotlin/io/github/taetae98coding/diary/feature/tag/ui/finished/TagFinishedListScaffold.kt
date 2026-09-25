@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -19,9 +21,11 @@ import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
 import io.github.taetae98coding.diary.compose.core.icon.FinishIcon
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
+import io.github.taetae98coding.diary.compose.core.swipe.SwipeFinishAction
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
+import io.github.taetae98coding.diary.compose.tag.list.TagListEvent
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.tag.ui.Res
@@ -37,8 +41,10 @@ internal const val TAG_FINISHED_LIST_TEST_TAG: String = "TagFinishedList"
 @Composable
 internal fun TagFinishedListScaffold(
     onEvent: (TagFinishedListScaffoldEvent) -> Unit,
+    onTagListEvent: (TagListEvent) -> Unit,
     modifier: Modifier = Modifier,
     sortSheetState: DialogState = rememberDialogState(),
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     tagPagingItems: LazyPagingItems<Tag> = remember { flowOf(PagingData.empty<Tag>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> TagFinishedListUiState = { TagFinishedListUiState() },
     sortProvider: () -> ListSort = { ListSort.TITLE },
@@ -52,6 +58,7 @@ internal fun TagFinishedListScaffold(
                 navigateUpContentDescription = stringResource(Res.string.tag_finished_list_navigate_up_button_content_description),
             )
         },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
     ) { paddingValues ->
         Column(
             modifier =
@@ -68,9 +75,10 @@ internal fun TagFinishedListScaffold(
 
             TagList(
                 tagPagingItems = tagPagingItems,
-                onTagClick = { id -> onEvent(TagFinishedListScaffoldEvent.ClickTag(id)) },
+                onEvent = onTagListEvent,
                 onRefresh = { onEvent(TagFinishedListScaffoldEvent.Refresh) },
                 modifier = Modifier.fillMaxSize(),
+                finishAction = SwipeFinishAction.RESTART,
                 isRefreshingProvider = { uiStateProvider().isRefreshing },
                 sortProvider = sortProvider,
                 listTestTag = TAG_FINISHED_LIST_TEST_TAG,
@@ -97,6 +105,7 @@ private fun TagFinishedListScaffoldPreview() {
     DiaryTheme {
         TagFinishedListScaffold(
             onEvent = {},
+            onTagListEvent = {},
         )
     }
 }

@@ -22,6 +22,7 @@ import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,6 +45,7 @@ class TagFinishedListRestorationTest {
         every { viewModel.sort } returns sortFlow
         every { viewModel.select(sort = any()) } answers { sortFlow.value = firstArg() }
         every { viewModel.tagPagingData } returns MutableStateFlow(tagPagingDataOf(tagList))
+        every { viewModel.effect } returns emptyFlow()
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
             DiaryTheme {

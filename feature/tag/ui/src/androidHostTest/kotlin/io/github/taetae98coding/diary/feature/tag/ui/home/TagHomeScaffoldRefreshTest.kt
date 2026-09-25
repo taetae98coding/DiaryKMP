@@ -82,6 +82,7 @@ class TagHomeScaffoldRefreshTest {
         composeRule.setContent {
             DiaryTheme {
                 TagHomeScaffold(
+                    onTagListEvent = {},
                     tagPagingItems = tagPagingDataFlow.collectAsLazyPagingItems(),
                     onEvent = onEvent,
                     uiStateProvider = { TagHomeUiState(isRefreshing = isRefreshingProvider()) },

@@ -12,5 +12,11 @@ kotlin {
                 api(libs.androidx.paging.compose)
             }
         }
+
+        androidHostTest {
+            dependencies {
+                implementation(projects.core.testing)
+            }
+        }
     }
 }

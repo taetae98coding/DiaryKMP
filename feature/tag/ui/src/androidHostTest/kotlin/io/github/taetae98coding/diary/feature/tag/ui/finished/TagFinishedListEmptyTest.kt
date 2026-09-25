@@ -94,6 +94,7 @@ class TagFinishedListEmptyTest {
         composeRule.setContent {
             DiaryTheme {
                 TagFinishedListScaffold(
+                    onTagListEvent = {},
                     tagPagingItems = tagPagingDataFlow.collectAsLazyPagingItems(),
                     onEvent = onEvent,
                 )

@@ -19,10 +19,12 @@ import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.TAG_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.tag.list.TagListEvent
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
@@ -107,11 +109,13 @@ class TagHomeScaffoldTest {
     fun `태그 카드를 선택하면 해당 태그의 상세 화면 전환 행동을 한 번 전달한다`() {
         val tag = tag(title = FIRST_TITLE)
         val eventList = mutableListOf<TagHomeScaffoldEvent>()
-        setTagHomeScaffold(tagList = listOf(tag), onEvent = eventList::add)
+        val tagListEventList = mutableListOf<TagListEvent>()
+        setTagHomeScaffold(tagList = listOf(tag), onEvent = eventList::add, onTagListEvent = tagListEventList::add)
 
         composeRule.onAllNodesWithTag(TAG_CARD_TEST_TAG).onFirst().performClick()
 
-        eventList shouldBe listOf(TagHomeScaffoldEvent.ClickTag(tag.id))
+        eventList.shouldBeEmpty()
+        tagListEventList shouldBe listOf(TagListEvent.ClickTag(tag.id))
     }
 
     @Test
@@ -133,20 +137,27 @@ class TagHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-026 태그 카드를 스와이프해도 완료와 삭제가 실행되지 않는다`() {
+    fun `TC-TAG-HOME-FEATURE-039 격자의 태그 카드를 좌에서 우로 밀면 그 태그의 완료를 한 번 전달한다`() {
         val tag = tag(title = FIRST_TITLE)
-        val eventList = mutableListOf<TagHomeScaffoldEvent>()
-        setTagHomeScaffold(tagList = listOf(tag), onEvent = eventList::add)
+        val tagListEventList = mutableListOf<TagListEvent>()
+        setTagHomeScaffold(tagList = listOf(tag), onTagListEvent = tagListEventList::add)
 
         composeRule.onNodeWithText(FIRST_TITLE).performTouchInput { swipeRight() }
         composeRule.waitForIdle()
+
+        tagListEventList shouldBe listOf(TagListEvent.SwipeFinish(id = tag.id))
+    }
+
+    @Test
+    fun `TC-TAG-HOME-FEATURE-040 격자의 태그 카드를 우에서 좌로 밀면 그 태그의 삭제를 한 번 전달한다`() {
+        val tag = tag(title = FIRST_TITLE)
+        val tagListEventList = mutableListOf<TagListEvent>()
+        setTagHomeScaffold(tagList = listOf(tag), onTagListEvent = tagListEventList::add)
+
         composeRule.onNodeWithText(FIRST_TITLE).performTouchInput { swipeLeft() }
         composeRule.waitForIdle()
 
-        eventList.forEach { event -> (event is TagHomeScaffoldEvent.ClickTag) shouldBe true }
-        composeRule.onNodeWithText(FIRST_TITLE).assertExists()
-        composeRule.onNodeWithContentDescription(DEFAULT_FINISH_ACTION_DESCRIPTION).assertDoesNotExist()
-        composeRule.onNodeWithContentDescription(DEFAULT_DELETE_ACTION_DESCRIPTION).assertDoesNotExist()
+        tagListEventList shouldBe listOf(TagListEvent.SwipeDelete(id = tag.id))
     }
 
     @Test
@@ -166,6 +177,7 @@ class TagHomeScaffoldTest {
     private fun setTagHomeScaffold(
         tagList: List<Tag> = emptyList(),
         onEvent: (TagHomeScaffoldEvent) -> Unit = {},
+        onTagListEvent: (TagListEvent) -> Unit = {},
         componentVisibleProvider: () -> TagHomeScaffoldComponentVisible = { TagHomeScaffoldComponentVisible() },
     ) {
         val tagPagingDataFlow = MutableStateFlow(tagPagingDataOf(tagList))
@@ -173,6 +185,7 @@ class TagHomeScaffoldTest {
         composeRule.setContent {
             DiaryTheme {
                 TagHomeScaffold(
+                    onTagListEvent = onTagListEvent,
                     tagPagingItems = tagPagingDataFlow.collectAsLazyPagingItems(),
                     onEvent = onEvent,
                     componentVisibleProvider = componentVisibleProvider,
@@ -185,8 +198,6 @@ class TagHomeScaffoldTest {
         private const val KOREAN_ADD_BUTTON_DESCRIPTION = "태그 추가"
         private const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add tag"
         private const val DEFAULT_FINISHED_LIST_BUTTON_LABEL = "Finished tags"
-        private const val DEFAULT_FINISH_ACTION_DESCRIPTION = "Finish tag"
-        private const val DEFAULT_DELETE_ACTION_DESCRIPTION = "Delete tag"
         private const val KOREAN_FINISHED_LIST_BUTTON_LABEL = "완료된 태그"
         private const val FIRST_TITLE = "FirstTagTitle"
         private const val SECOND_TITLE = "SecondTagTitle"

@@ -199,6 +199,28 @@ class AccountTagFinishedDaoTest :
             }
         }
 
+        test("TC-TAG-FINISHED-LIST-DATA-004 완료되고 삭제된 태그의 삭제를 되돌리면 페이지를 무효화하고 태그를 완료 목록의 정렬 위치에 넣는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val finishedTag = tag(title = "Bravo", isFinished = true)
+            val deletedTag = tag(title = "Alpha", isFinished = true, isDeleted = true)
+            insert(accountId, finishedTag, deletedTag)
+            val pagingSource = database.accountTagDao().pageFinished(accountId = accountId, sort = ListSortLocalEntity.DEFAULT.queryValue)
+            pagingSource.loadPage().data shouldBe listOf(finishedTag)
+
+            assertFinishedPageInvalidated(
+                pagingSource = pagingSource,
+                accountId = accountId,
+                expectedIdList = listOf(deletedTag.id, finishedTag.id),
+            ) {
+                database.accountTagDao().updateDeleted(
+                    accountId = accountId,
+                    tagId = deletedTag.id,
+                    isDeleted = false,
+                    updatedAt = Instant.fromEpochMilliseconds(2_000),
+                )
+            }
+        }
+
         listOf(
             "다시 시작" to true,
             "삭제" to false,

@@ -23,6 +23,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -181,6 +182,8 @@ class TagHomeScreenTest {
             every { viewModel.sort } returns MutableStateFlow(ListSort.TITLE)
 
             every { viewModel.tagPagingData } returns MutableStateFlow(tagPagingDataOf(listOf(tag)))
+
+            every { viewModel.effect } returns emptyFlow()
             every { viewModel.filterUiState } returns MutableStateFlow(TagHomeScaffoldFilterUiState())
 
             return viewModel

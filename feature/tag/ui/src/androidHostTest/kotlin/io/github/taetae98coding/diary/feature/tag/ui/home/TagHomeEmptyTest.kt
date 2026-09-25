@@ -158,6 +158,7 @@ class TagHomeEmptyTest {
         composeRule.setContent {
             DiaryTheme {
                 TagHomeScaffold(
+                    onTagListEvent = {},
                     tagPagingItems = tagPagingDataFlow.collectAsLazyPagingItems(),
                     onEvent = onEvent,
                 )

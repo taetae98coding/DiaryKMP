@@ -3,11 +3,16 @@ package io.github.taetae98coding.diary.feature.tag.ui.home
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasStateDescription
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.test.swipeRight
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.navercorp.fixturemonkey.FixtureMonkey
@@ -16,12 +21,15 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.TAG_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.tag.list.TagListEvent
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
+import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,6 +42,11 @@ import kotlin.time.Instant
 class TagHomeScaffoldFilterTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun resetUiDispatcher() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-TAG-HOME-FEATURE-027 필터 버튼을 누르면 필터 열기 행동을 한 번 전달한다`() {
@@ -109,26 +122,45 @@ class TagHomeScaffoldFilterTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-033 필터를 켜 두어도 태그 추가와 완료된 태그 확인, 검색, 태그 선택을 실행할 수 있다`() {
-        val tag = tag(title = TAG_TITLE)
-        setTagHomeScaffold(pagingData = tagPagingDataOf(listOf(tag)), isFilterApplied = true)
+    fun `TC-TAG-HOME-FEATURE-033 필터를 켜 두어도 태그 추가와 완료된 태그 확인, 검색, 태그 선택, 완료와 삭제를 실행할 수 있다`() {
+        val finishingTag = tag(title = TAG_TITLE)
+        val deletingTag = tag(title = OTHER_TAG_TITLE)
+        val tagListEventList = mutableListOf<TagListEvent>()
+        setTagHomeScaffold(
+            pagingData = tagPagingDataOf(listOf(finishingTag, deletingTag)),
+            isFilterApplied = true,
+            onTagListEvent = tagListEventList::add,
+        )
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).assert(hasClickAction())
         composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_BUTTON_LABEL).assert(hasClickAction())
         composeRule.onNodeWithContentDescription(DEFAULT_SEARCH_BUTTON_DESCRIPTION).assert(hasClickAction())
-        composeRule.onNodeWithTag(TAG_CARD_TEST_TAG).assert(hasClickAction())
+        composeRule.onNode(hasTestTag(TAG_CARD_TEST_TAG) and hasText(TAG_TITLE)).assert(hasClickAction())
+
+        composeRule.onNode(hasTestTag(TAG_CARD_TEST_TAG) and hasText(TAG_TITLE)).performTouchInput { swipeRight() }
+        composeRule.waitForIdle()
+        composeRule.onNode(hasTestTag(TAG_CARD_TEST_TAG) and hasText(OTHER_TAG_TITLE)).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+
+        tagListEventList shouldBe
+            listOf(
+                TagListEvent.SwipeFinish(id = finishingTag.id),
+                TagListEvent.SwipeDelete(id = deletingTag.id),
+            )
     }
 
     private fun setTagHomeScaffold(
         pagingData: PagingData<Tag> = tagPagingDataOf(emptyList()),
         isFilterApplied: Boolean = false,
         onEvent: (TagHomeScaffoldEvent) -> Unit = {},
+        onTagListEvent: (TagListEvent) -> Unit = {},
     ) {
         val tagPagingDataFlow = MutableStateFlow(pagingData)
 
         composeRule.setContent {
             DiaryTheme {
                 TagHomeScaffold(
+                    onTagListEvent = onTagListEvent,
                     tagPagingItems = tagPagingDataFlow.collectAsLazyPagingItems(),
                     onEvent = onEvent,
                     filterUiStateProvider = { TagHomeScaffoldFilterUiState(isApplied = isFilterApplied) },
@@ -151,6 +183,7 @@ class TagHomeScaffoldFilterTest {
         private const val DEFAULT_FINISHED_LIST_BUTTON_LABEL = "Finished tags"
         private const val DEFAULT_SEARCH_BUTTON_DESCRIPTION = "Search"
         private const val TAG_TITLE = "FilterTagTitle"
+        private const val OTHER_TAG_TITLE = "FilterOtherTagTitle"
 
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()

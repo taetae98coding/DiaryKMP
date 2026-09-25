@@ -70,6 +70,7 @@ class TagHomePagingTest {
 
             DiaryTheme {
                 TagHomeScaffold(
+                    onTagListEvent = {},
                     tagPagingItems = tagPagingItems,
                     onEvent = {},
                 )

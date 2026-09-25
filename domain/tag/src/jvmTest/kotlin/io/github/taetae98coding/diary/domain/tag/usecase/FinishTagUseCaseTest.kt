@@ -46,7 +46,7 @@ class FinishTagUseCaseTest :
                 )
 
             When("태그를 완료한다") {
-                Then("TC-TAG-DETAIL-DATA-002 현재 계정의 태그를 완료 상태와 동작 시점 수정 시각으로 갱신한다") {
+                Then("TC-TAG-DETAIL-DATA-002 TC-TAG-HOME-DOMAIN-016 현재 계정의 태그를 완료 상태와 동작 시점 수정 시각으로 갱신한다") {
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
 
                     val result = useCase(parameter = tagId)

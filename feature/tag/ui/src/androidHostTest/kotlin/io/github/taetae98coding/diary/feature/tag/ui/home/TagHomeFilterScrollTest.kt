@@ -124,6 +124,7 @@ class TagHomeFilterScrollTest {
                 val currentIsApplied by isApplied
 
                 TagHomeScaffold(
+                    onTagListEvent = {},
                     tagPagingItems = tagPagingData.collectAsLazyPagingItems(),
                     onEvent = {},
                     filterUiStateProvider = { TagHomeScaffoldFilterUiState(isApplied = currentIsApplied) },
@@ -146,6 +147,7 @@ class TagHomeFilterScrollTest {
                 val tagPagingItems = remember(currentTagList) { MutableStateFlow(tagPagingDataOf(currentTagList)) }.collectAsLazyPagingItems()
 
                 TagHomeScaffold(
+                    onTagListEvent = {},
                     tagPagingItems = tagPagingItems,
                     onEvent = {},
                     filterUiStateProvider = { TagHomeScaffoldFilterUiState(isApplied = currentIsApplied) },

@@ -11,4 +11,11 @@
     <string name="tag_filter_unselect_all_label">지우기</string>
     <string name="tag_filter_unselect_all_content_description">태그 필터 지우기</string>
     <string name="tag_filter_add_label">태그 추가</string>
+    <string name="tag_list_swipe_finish_content_description">태그 완료</string>
+    <string name="tag_list_swipe_restart_content_description">태그 다시 시작</string>
+    <string name="tag_list_swipe_delete_content_description">태그 삭제</string>
+    <string name="tag_list_finished_message">태그가 완료되었습니다.</string>
+    <string name="tag_list_restarted_message">태그를 다시 시작했습니다.</string>
+    <string name="tag_list_deleted_message">태그가 삭제되었습니다.</string>
+    <string name="tag_list_undo_action">실행 취소</string>
 </resources>

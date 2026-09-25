@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -29,6 +31,7 @@ import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
+import io.github.taetae98coding.diary.compose.tag.list.TagListEvent
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.tag.ui.Res
@@ -47,8 +50,10 @@ internal const val TAG_HOME_LIST_TEST_TAG: String = "TagHomeList"
 @Composable
 internal fun TagHomeScaffold(
     onEvent: (TagHomeScaffoldEvent) -> Unit,
+    onTagListEvent: (TagListEvent) -> Unit,
     modifier: Modifier = Modifier,
     sortSheetState: DialogState = rememberDialogState(),
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     gridState: LazyGridState = rememberLazyGridState(),
     tagPagingItems: LazyPagingItems<Tag> = remember { flowOf(PagingData.empty<Tag>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> TagHomeUiState = { TagHomeUiState() },
@@ -64,6 +69,7 @@ internal fun TagHomeScaffold(
                 filterUiStateProvider = filterUiStateProvider,
             )
         },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         floatingActionButton = {
             if (componentVisibleProvider().isAddButtonVisible) {
                 FloatingAddButton(
@@ -95,7 +101,7 @@ internal fun TagHomeScaffold(
             TagList(
                 tagPagingItems = tagPagingItems,
                 gridState = gridState,
-                onTagClick = { id -> onEvent(TagHomeScaffoldEvent.ClickTag(id)) },
+                onEvent = onTagListEvent,
                 onRefresh = { onEvent(TagHomeScaffoldEvent.Refresh) },
                 modifier = Modifier.fillMaxSize(),
                 isRefreshingProvider = { uiStateProvider().isRefreshing },
@@ -147,6 +153,7 @@ private fun TagHomeScaffoldPreview(
     DiaryTheme {
         TagHomeScaffold(
             onEvent = {},
+            onTagListEvent = {},
             filterUiStateProvider = { TagHomeScaffoldFilterUiState(isApplied = isFilterApplied) },
         )
     }

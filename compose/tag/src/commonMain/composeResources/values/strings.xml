@@ -11,4 +11,11 @@
     <string name="tag_filter_unselect_all_label">Clear</string>
     <string name="tag_filter_unselect_all_content_description">Clear tag filter</string>
     <string name="tag_filter_add_label">Add tag</string>
+    <string name="tag_list_swipe_finish_content_description">Finish tag</string>
+    <string name="tag_list_swipe_restart_content_description">Restart tag</string>
+    <string name="tag_list_swipe_delete_content_description">Delete tag</string>
+    <string name="tag_list_finished_message">Tag finished.</string>
+    <string name="tag_list_restarted_message">Tag restarted.</string>
+    <string name="tag_list_deleted_message">Tag deleted.</string>
+    <string name="tag_list_undo_action">Undo</string>
 </resources>
