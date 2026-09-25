@@ -1,4 +1,7 @@
 <resources>
     <string name="qr_home_title">QR</string>
     <string name="qr_navigate_up_button_content_description">Navigate up</string>
+    <string name="qr_scan_button_content_description">Scan QR code</string>
+    <string name="qr_camera_permission_denied_message">Allow camera access to scan QR codes.</string>
+    <string name="qr_scan_title">Scan QR code</string>
 </resources>

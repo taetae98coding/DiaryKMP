@@ -17,6 +17,7 @@ androidGradlePlugin = "9.4.0" # https://developer.android.com/build/releases/gra
 
 androidxActivity = "1.13.0" # https://developer.android.com/jetpack/androidx/releases/activity?hl=en
 androidxBrowser = "1.10.0" # https://developer.android.com/jetpack/androidx/releases/browser?hl=en
+androidxCamera = "1.6.2" # https://developer.android.com/jetpack/androidx/releases/camera?hl=en
 androidxComposeUi = "1.12.0" # https://developer.android.com/jetpack/androidx/releases/compose-ui?hl=en
 androidxCredentials = "1.6.0" # https://developer.android.com/jetpack/androidx/releases/credentials?hl=en
 androidxDatastore = "1.3.0-alpha11" # https://developer.android.com/jetpack/androidx/releases/datastore?hl=en
@@ -83,6 +84,9 @@ jetbrains-navigation3-ui = { module = "org.jetbrains.androidx.navigation3:naviga
 
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
 androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "androidxBrowser" }
+androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "androidxCamera" }
+androidx-camera-compose = { group = "androidx.camera", name = "camera-compose", version.ref = "androidxCamera" }
+androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "androidxCamera" }
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest", version.ref = "androidxComposeUi" }
 androidx-credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "androidxCredentials" }
 androidx-datastore-core-okio = { group = "androidx.datastore", name = "datastore-core-okio", version.ref = "androidxDatastore" }

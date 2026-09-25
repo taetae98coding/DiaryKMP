@@ -11,6 +11,14 @@ androidx.arch.core:core-runtime:2.2.0
 androidx.autofill:autofill:1.0.0
 androidx.biometric:biometric:1.1.0
 androidx.browser:browser:1.10.0
+androidx.camera.featurecombinationquery:featurecombinationquery:1.6.2
+androidx.camera.viewfinder:viewfinder-compose:1.6.2
+androidx.camera.viewfinder:viewfinder-core:1.6.2
+androidx.camera:camera-camera2-pipe:1.6.2
+androidx.camera:camera-camera2:1.6.2
+androidx.camera:camera-compose:1.6.2
+androidx.camera:camera-core:1.6.2
+androidx.camera:camera-lifecycle:1.6.2
 androidx.cardview:cardview:1.0.0
 androidx.collection:collection-jvm:1.6.0
 androidx.collection:collection-ktx:1.6.0
@@ -65,6 +73,7 @@ androidx.concurrent:concurrent-futures:1.1.0
 androidx.constraintlayout:constraintlayout-core:1.1.1
 androidx.constraintlayout:constraintlayout:2.2.1
 androidx.coordinatorlayout:coordinatorlayout:1.1.0
+androidx.core:core-backported-fixes:1.0.0
 androidx.core:core-ktx:1.19.0
 androidx.core:core-viewtree:1.0.0
 androidx.core:core:1.19.0
@@ -220,9 +229,10 @@ com.google.android.libraries.identity.googleid:googleid:1.2.1
 com.google.android.material:material:1.14.0
 com.google.android.play:core-common:2.0.4
 com.google.android.play:integrity:1.6.0
+com.google.auto.value:auto-value-annotations:1.6.3
 com.google.code.findbugs:jsr305:3.0.2
 com.google.code.gson:gson:2.8.6
-com.google.dagger:dagger:2.57.2
+com.google.dagger:dagger:2.59
 com.google.errorprone:error_prone_annotations:2.26.0
 com.google.firebase:firebase-abt:21.1.1
 com.google.firebase:firebase-analytics:23.2.0
