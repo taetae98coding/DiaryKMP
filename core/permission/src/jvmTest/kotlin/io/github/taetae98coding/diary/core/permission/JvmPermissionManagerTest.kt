@@ -14,6 +14,10 @@ class JvmPermissionManagerTest :
             JvmPermissionManager().request(Permission.LOCATION) shouldBe PermissionResult.DENIED
         }
 
+        test("TC-CAMERA-PERMISSION-DOMAIN-003 데스크톱 앱에서는 카메라 권한을 요청 없이 거부로 처리한다") {
+            JvmPermissionManager().request(Permission.CAMERA) shouldBe PermissionResult.DENIED
+        }
+
         test("TC-LOCATION-PERMISSION-DOMAIN-011 권한 개념이 없는 환경에서는 허용 여부가 허용되지 않음이다") {
             val permissionManager = JvmPermissionManager()
 

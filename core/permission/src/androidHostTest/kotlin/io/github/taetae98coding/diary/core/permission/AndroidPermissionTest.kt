@@ -28,6 +28,18 @@ class AndroidPermissionTest {
     }
 
     @Test
+    fun `카메라 권한은 카메라 사용 권한 하나만 요청한다`() {
+        Permission.CAMERA.toAndroidPermissionList() shouldContainExactly listOf(Manifest.permission.CAMERA)
+    }
+
+    @Test
+    fun `카메라 권한이 허용되어 있으면 허용 여부 조회 결과가 허용이다`() {
+        shadowOf(RuntimeEnvironment.getApplication()).grantPermissions(Manifest.permission.CAMERA)
+
+        RuntimeEnvironment.getApplication().isPermissionGranted(Permission.CAMERA) shouldBe true
+    }
+
+    @Test
     fun `권한이 허용되지 않았으면 허용 여부 조회 결과가 허용되지 않음이다`() {
         RuntimeEnvironment.getApplication().isPermissionGranted(Permission.LOCATION) shouldBe false
     }

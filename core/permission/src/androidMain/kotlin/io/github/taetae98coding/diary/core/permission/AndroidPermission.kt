@@ -13,6 +13,8 @@ public fun Permission.toAndroidPermissionList(): List<String> =
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
             )
+
+        Permission.CAMERA -> listOf(Manifest.permission.CAMERA)
     }
 
 // 정확도가 다른 권한을 함께 요청하면 시스템이 그중 하나만 허용할 수 있으므로 하나라도 허용되면 허용으로 본다.

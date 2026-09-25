@@ -9,13 +9,13 @@ import kotlin.coroutines.resume
 public class WasmPermissionManager : PermissionManager() {
     override suspend fun readIsGranted(permission: Permission): Boolean =
         when (permission) {
-            Permission.NOTIFICATION -> false
+            Permission.NOTIFICATION, Permission.CAMERA -> false
             Permission.LOCATION -> queryLocationPermissionState() == GRANTED_STATE
         }
 
     override suspend fun requestPermission(permission: Permission): PermissionResult =
         when (permission) {
-            Permission.NOTIFICATION -> PermissionResult.DENIED
+            Permission.NOTIFICATION, Permission.CAMERA -> PermissionResult.DENIED
             Permission.LOCATION -> requestLocationPermission()
         }
 
