@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
@@ -18,6 +19,8 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeLeft
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
@@ -58,15 +61,18 @@ import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeUiSta
 import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.home.musicPagingDataOf
 import io.github.taetae98coding.diary.feature.playlist.ui.home.testMusic
+import io.github.taetae98coding.diary.feature.playlist.ui.music.MUSIC_CARD_TEST_TAG
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -87,8 +93,14 @@ class PlaylistListDetailNavigationTest {
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     private val backStack = NavBackStack<ScreenNavKey>(NavigationTestMoreNavKey, PlaylistHomeNavKey)
+    private val homeViewModelList = mutableListOf<PlaylistHomeViewModel>()
 
     // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트마다 전역 Koin을 정리한다.
+    @Before
+    fun resetUiDispatcher() {
+        resetAndroidUiDispatcher()
+    }
+
     @After
     fun tearDown() {
         stopKoin()
@@ -230,6 +242,22 @@ class PlaylistListDetailNavigationTest {
     }
 
     @Test
+    fun `TC-PLAYLIST-HOME-FEATURE-033 상세에 열린 곡을 목록에서 밀어 삭제해도 상세 영역은 그 곡의 상세로 남는다`() {
+        val music = testMusic(title = listedMusicTitle())
+        setPlaylistNavDisplay(music = music)
+        composeRule.onNodeWithText(music.detail.title).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(DEFAULT_DELETE_MUSIC_DESCRIPTION).assertExists()
+
+        composeRule.onNode(hasTestTag(MUSIC_CARD_TEST_TAG) and hasText(music.detail.title)).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { homeViewModelList.last().delete(id = music.id) }
+        backStack.toList() shouldBe listOf(NavigationTestMoreNavKey, PlaylistHomeNavKey, MusicDetailNavKey(id = music.id))
+        composeRule.onNodeWithContentDescription(DEFAULT_DELETE_MUSIC_DESCRIPTION).assertExists()
+    }
+
+    @Test
     fun `TC-PLAYLIST-LIST-DETAIL-FEATURE-015 곡을 고르지 않은 상태에서 뒤로가면 더보기로 돌아간다`() {
         val music = testMusic(title = listedMusicTitle())
         setPlaylistNavDisplay(music = music)
@@ -345,10 +373,11 @@ class PlaylistListDetailNavigationTest {
     ): Module =
         module {
             factory<PlaylistHomeViewModel> {
-                mockk(relaxed = true) {
+                mockk<PlaylistHomeViewModel>(relaxed = true) {
                     every { musicPagingData } returns MutableStateFlow(musicPagingDataOf(musicList))
                     every { sort } returns MutableStateFlow(ListSort.TITLE)
-                }
+                    every { effect } returns emptyFlow()
+                }.also { viewModel -> homeViewModelList += viewModel }
             }
             factory<PlaylistHomeSyncViewModel> {
                 mockk(relaxed = true) {

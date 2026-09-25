@@ -30,4 +30,7 @@
     <string name="music_detail_delete_button_content_description">Delete music</string>
     <string name="music_detail_update_button_content_description">Update music</string>
     <string name="music_detail_update_succeeded_message">Music updated.</string>
+    <string name="playlist_home_deleted_message">Song deleted.</string>
+    <string name="playlist_home_undo_action">Undo</string>
+    <string name="playlist_home_delete_content_description">Delete song</string>
 </resources>

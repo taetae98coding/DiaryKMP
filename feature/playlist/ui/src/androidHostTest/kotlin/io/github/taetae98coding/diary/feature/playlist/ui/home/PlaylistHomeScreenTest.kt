@@ -156,6 +156,7 @@ class PlaylistHomeScreenTest {
         val musicViewModel = mockk<PlaylistHomeViewModel>(relaxed = true)
         every { musicViewModel.musicPagingData } returns musicPagingDataFlow
         every { musicViewModel.sort } returns MutableStateFlow(ListSort.TITLE)
+        every { musicViewModel.effect } returns emptyFlow()
 
         composeRule.setContent {
             DiaryTheme {

@@ -21,4 +21,8 @@ internal sealed interface PlaylistHomeScaffoldEvent {
     data class ClickMusic(
         val id: Uuid,
     ) : PlaylistHomeScaffoldEvent
+
+    data class DeleteMusic(
+        val id: Uuid,
+    ) : PlaylistHomeScaffoldEvent
 }

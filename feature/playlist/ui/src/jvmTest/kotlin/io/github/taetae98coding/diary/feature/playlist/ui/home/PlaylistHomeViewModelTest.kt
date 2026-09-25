@@ -11,11 +11,15 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
+import io.github.taetae98coding.diary.domain.playlist.usecase.DeleteMusicUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.PageMusicUseCase
+import io.github.taetae98coding.diary.domain.playlist.usecase.RestoreMusicUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +31,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -131,13 +136,102 @@ class PlaylistHomeViewModelTest : FunSpec() {
                 }
             }
         }
+
+        test("TC-PLAYLIST-HOME-FEATURE-022 삭제에 성공하면 그 곡의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val deleteMusicUseCase = mockk<DeleteMusicUseCase>()
+                coEvery { deleteMusicUseCase(parameter = id) } returns Result.success(1)
+                val viewModel =
+                    viewModel(
+                        pageMusicUseCase = pageMusicUseCase(musicListFlow = flowOf(Result.success(emptyList()))),
+                        deleteMusicUseCase = deleteMusicUseCase,
+                    )
+
+                viewModel.effect.test {
+                    viewModel.delete(id = id)
+
+                    awaitItem() shouldBe PlaylistHomeEffect.Deleted(id = id)
+                    expectNoEvents()
+                }
+                coVerify(exactly = 1) { deleteMusicUseCase(parameter = id) }
+            }
+        }
+
+        test("TC-PLAYLIST-HOME-FEATURE-028 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val deleteMusicUseCase = mockk<DeleteMusicUseCase>()
+                coEvery { deleteMusicUseCase(parameter = id) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                val viewModel =
+                    viewModel(
+                        pageMusicUseCase = pageMusicUseCase(musicListFlow = flowOf(Result.success(emptyList()))),
+                        deleteMusicUseCase = deleteMusicUseCase,
+                    )
+
+                viewModel.effect.test {
+                    viewModel.delete(id = id)
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                }
+            }
+        }
+
+        test("TC-PLAYLIST-HOME-DOMAIN-007 실행 취소를 저장하지 못하면 별도 안내를 보내지 않는다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val restoreMusicUseCase = mockk<RestoreMusicUseCase>()
+                coEvery { restoreMusicUseCase(parameter = id) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                val viewModel =
+                    viewModel(
+                        pageMusicUseCase = pageMusicUseCase(musicListFlow = flowOf(Result.success(emptyList()))),
+                        restoreMusicUseCase = restoreMusicUseCase,
+                    )
+
+                viewModel.effect.test {
+                    viewModel.restore(id = id)
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                }
+                coVerify(exactly = 1) { restoreMusicUseCase(parameter = id) }
+            }
+        }
+
+        test("TC-PLAYLIST-HOME-FEATURE-023 실행 취소하면 그 곡의 삭제를 되돌리는 요청을 한 번 보낸다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val restoreMusicUseCase = mockk<RestoreMusicUseCase>()
+                coEvery { restoreMusicUseCase(parameter = id) } returns Result.success(1)
+                val viewModel =
+                    viewModel(
+                        pageMusicUseCase = pageMusicUseCase(musicListFlow = flowOf(Result.success(emptyList()))),
+                        restoreMusicUseCase = restoreMusicUseCase,
+                    )
+
+                viewModel.restore(id = id)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { restoreMusicUseCase(parameter = id) }
+            }
+        }
     }
 
     private companion object {
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
 
-        private fun viewModel(pageMusicUseCase: PageMusicUseCase): PlaylistHomeViewModel = PlaylistHomeViewModel(pageMusicUseCase = pageMusicUseCase)
+        private fun viewModel(
+            pageMusicUseCase: PageMusicUseCase,
+            deleteMusicUseCase: DeleteMusicUseCase = mockk(),
+            restoreMusicUseCase: RestoreMusicUseCase = mockk(),
+        ): PlaylistHomeViewModel =
+            PlaylistHomeViewModel(
+                pageMusicUseCase = pageMusicUseCase,
+                deleteMusicUseCase = deleteMusicUseCase,
+                restoreMusicUseCase = restoreMusicUseCase,
+            )
 
         private fun pageMusicUseCase(musicListFlow: Flow<Result<List<Music>>>): PageMusicUseCase {
             val pageMusicUseCase = mockk<PageMusicUseCase>()

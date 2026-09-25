@@ -107,7 +107,7 @@ class RequestSyncUseCaseTest :
                 requestSyncUseCase(getAccountUseCase = getAccountUseCase, syncManager = syncManager)
 
             When("메모, 태그, 장소, 웹 항목, 연락처, 곡 또는 일곱 연결 종류에 변경이 발생해 동기화를 요청한다") {
-                Then("TC-DATA-SYNC-DOMAIN-002 TC-PLACE-ADD-DATA-008 TC-WEB-ADD-DATA-007 TC-CONTACT-ADD-DATA-011 TC-MEMO-ADD-DATA-025 TC-WEB-HOME-DATA-008 동기화가 요청되지 않는다") {
+                Then("TC-DATA-SYNC-DOMAIN-002 TC-PLACE-ADD-DATA-008 TC-WEB-ADD-DATA-007 TC-CONTACT-ADD-DATA-011 TC-MEMO-ADD-DATA-025 TC-WEB-HOME-DATA-008 TC-CONTACT-HOME-DATA-009 TC-PLAYLIST-HOME-DATA-005 동기화가 요청되지 않는다") {
                     val result = useCase(parameter = SyncTrigger.DATA_CHANGED)
 
                     result.shouldBeSuccess(Unit)
