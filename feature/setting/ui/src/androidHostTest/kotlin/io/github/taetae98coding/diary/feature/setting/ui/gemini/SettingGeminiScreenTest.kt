@@ -162,6 +162,62 @@ class SettingGeminiScreenTest {
     }
 
     @Test
+    fun `TC-SETTING-GEMINI-FEATURE-033 받아 둔 목록이 있으면 인증 정보가 비어 있어도 모델 선택을 열어 고를 수 있다`() {
+        assertLoadedModelSelectableWithBlankApiKey(apiKey = "")
+    }
+
+    @Test
+    fun `TC-SETTING-GEMINI-FEATURE-033 받아 둔 목록이 있으면 인증 정보가 공백뿐이어도 모델 선택을 열어 고를 수 있다`() {
+        assertLoadedModelSelectableWithBlankApiKey(apiKey = "   ")
+    }
+
+    private fun assertLoadedModelSelectableWithBlankApiKey(apiKey: String) {
+        val modelViewModel = modelViewModel(SettingGeminiModelUiState(isLoaded = true, modelList = MODEL_LIST))
+        setScreen(
+            settingViewModel = settingViewModel(SettingGeminiUiState.Loaded(setting = GeminiSetting.EMPTY.copy(apiKey = apiKey))),
+            modelViewModel = modelViewModel,
+        )
+
+        composeRule.onNode(hasContentDescription(DEFAULT_MODEL_LABEL, substring = true)).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_MODEL_PICKER_TITLE).assertExists()
+        composeRule.onNodeWithText(MODEL_LIST[1].id).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNode(hasContentDescription(MODEL_LIST[1].id, substring = true)).assertExists()
+        composeRule.onNodeWithText(DEFAULT_API_KEY_BLANK_MESSAGE).assertDoesNotExist()
+        verify(exactly = 0) { modelViewModel.fetch(any()) }
+    }
+
+    @Test
+    fun `TC-SETTING-GEMINI-FEATURE-034 받아 둔 목록이 있어도 인증 정보가 비어 있으면 다시 조회하지 않고 입력 필요를 알린다`() {
+        assertReloadRejectedWithBlankApiKey(apiKey = "")
+    }
+
+    @Test
+    fun `TC-SETTING-GEMINI-FEATURE-034 받아 둔 목록이 있어도 인증 정보가 공백뿐이면 다시 조회하지 않고 입력 필요를 알린다`() {
+        assertReloadRejectedWithBlankApiKey(apiKey = "   ")
+    }
+
+    private fun assertReloadRejectedWithBlankApiKey(apiKey: String) {
+        val modelViewModel = modelViewModel(SettingGeminiModelUiState(isLoaded = true, modelList = MODEL_LIST))
+        setScreen(
+            settingViewModel = settingViewModel(SettingGeminiUiState.Loaded(setting = GeminiSetting.EMPTY.copy(apiKey = apiKey))),
+            modelViewModel = modelViewModel,
+        )
+
+        composeRule.onNode(hasContentDescription(DEFAULT_MODEL_LABEL, substring = true)).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(DEFAULT_RELOAD_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_API_KEY_BLANK_MESSAGE).assertExists()
+        composeRule.onNodeWithText(MODEL_LIST[0].id).assertExists()
+        composeRule.onNodeWithText(MODEL_LIST[1].id).assertExists()
+        verify(exactly = 0) { modelViewModel.fetch(any()) }
+    }
+
+    @Test
     fun `TC-SETTING-GEMINI-FEATURE-014 모델을 골라도 저장하지 않는다`() {
         val setting = GeminiSetting(apiKey = STORED_API_KEY, model = MODEL_LIST[0].id, systemPrompt = "")
         val settingViewModel = settingViewModel(SettingGeminiUiState.Loaded(setting = setting))
@@ -389,6 +445,7 @@ class SettingGeminiScreenTest {
         private const val DEFAULT_MODEL_LABEL = "Model"
         private const val DEFAULT_MODEL_PICKER_TITLE = "Select model"
         private const val DEFAULT_API_KEY_BLANK_MESSAGE = "Please enter an API key."
+        private const val DEFAULT_RELOAD_DESCRIPTION = "Reload models"
 
         private val MODEL_LIST =
             listOf(

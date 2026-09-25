@@ -67,7 +67,7 @@ internal fun SettingGeminiScreen(
                 }
 
                 is SettingGeminiScaffoldEvent.ClickModel -> {
-                    if (formState.apiKey.isBlank()) {
+                    if (formState.apiKey.isBlank() && !modelUiState.isLoaded) {
                         coroutineScope.launch { formState.hostState.showImmediate(message = apiKeyBlankMessage) }
                     } else {
                         formState.modelDialogState.show()
@@ -81,7 +81,14 @@ internal fun SettingGeminiScreen(
         },
         onModelDialogEvent = { event ->
             when (event) {
-                is SettingGeminiModelDialogEvent.ClickReload -> modelViewModel.fetch(apiKey = formState.apiKey)
+                is SettingGeminiModelDialogEvent.ClickReload -> {
+                    if (formState.apiKey.isBlank()) {
+                        coroutineScope.launch { formState.hostState.showImmediate(message = apiKeyBlankMessage) }
+                    } else {
+                        modelViewModel.fetch(apiKey = formState.apiKey)
+                    }
+                }
+
                 is SettingGeminiModelDialogEvent.SelectModel -> formState.model = event.id
             }
         },
