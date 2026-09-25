@@ -39,7 +39,7 @@ class CalendarBarTextTest {
     }
 
     @Test
-    fun `TC-CALENDAR-BAR-TEXT-FEATURE-002 글이 한 줄에 다 들어가지 않아도 줄을 바꾸거나 생략하지 않는다`() {
+    fun `TC-CALENDAR-BAR-TEXT-FEATURE-002 글이 한 번에 다 보이지 않아도 뒷부분을 생략하지 않는다`() {
         composeRule.setContent {
             DiaryTheme {
                 CalendarBarText(
@@ -51,8 +51,9 @@ class CalendarBarTextTest {
 
         val textLayoutResult = composeRule.onNodeWithText(LONG_TEXT).textLayoutResult()
 
-        textLayoutResult.lineCount shouldBe 1
-        textLayoutResult.getLineEnd(lineIndex = 0, visibleEnd = false) shouldBe LONG_TEXT.length
+        val lastLineIndex = textLayoutResult.lineCount - 1
+        (0..lastLineIndex).none { lineIndex -> textLayoutResult.isLineEllipsized(lineIndex) } shouldBe true
+        textLayoutResult.getLineEnd(lineIndex = lastLineIndex, visibleEnd = false) shouldBe LONG_TEXT.length
     }
 
     @Test

@@ -37,6 +37,30 @@ class MusicDownloadProxyServerTest :
                         ?.toInt() shouldNotBe 0
                 }
 
+                Then("TC-MUSIC-DOWNLOAD-PROXY-DOMAIN-005 시작한 뒤 네트워크가 바뀌어도 후보를 바꾸지 않고 주소를 다시 확인하지 않는다") {
+                    var addressLookupCount = 0
+                    val addressListQueue =
+                        ArrayDeque(
+                            listOf(
+                                listOf(InetAddress.getByName("192.168.0.10")),
+                                listOf(InetAddress.getByName("10.0.0.5")),
+                            ),
+                        )
+                    val server =
+                        server(
+                            networkAddressSource = {
+                                addressLookupCount += 1
+                                addressListQueue.removeFirst()
+                            },
+                        )
+                    val started = withTimeout(START_TIMEOUT_MILLIS) { JvmMusicDownloadProxyManager(musicDownloadProxyServer = server).status.first() }
+                    val checkedAgain = withTimeout(START_TIMEOUT_MILLIS) { JvmMusicDownloadProxyManager(musicDownloadProxyServer = server).status.first() }
+
+                    checkedAgain shouldBe started
+                    started.shouldBeInstanceOf<MusicDownloadProxyStatus.Serving>().addressList.single() shouldMatch SERVING_ADDRESS_REGEX
+                    addressLookupCount shouldBe 1
+                }
+
                 Then("두 번 시작해도 각자 제공 중이 된다") {
                     val first = withTimeout(START_TIMEOUT_MILLIS) { server().status.filterNotNull().first() }
                     val second = withTimeout(START_TIMEOUT_MILLIS) { server().status.filterNotNull().first() }
@@ -49,10 +73,15 @@ class MusicDownloadProxyServerTest :
         }
     })
 
-private fun server(): MusicDownloadProxyServer =
+private fun server(
+    networkAddressSource: NetworkAddressSource =
+        NetworkAddressSource {
+            listOf(InetAddress.getByName("192.168.0.10"), InetAddress.getByName("127.0.0.1"))
+        },
+): MusicDownloadProxyServer =
     MusicDownloadProxyServer(
         handler = mockk(),
-        networkAddressSource = { listOf(InetAddress.getByName("192.168.0.10"), InetAddress.getByName("127.0.0.1")) },
+        networkAddressSource = networkAddressSource,
         scope = CoroutineScope(SupervisorJob() + Dispatchers.Default + CoroutineExceptionHandler { _, _ -> }),
         dispatcher = Dispatchers.IO,
     )

@@ -29,6 +29,30 @@ class ContactNavigationTest :
             }
         }
 
+        test("목록에서 연락처를 선택하면 쌓여 있던 상세 화면을 모두 대신하고 연락처 추가 화면은 남긴다") {
+            val selectedId = Uuid.random()
+            val backStack =
+                NavBackStack<ScreenNavKey>(
+                    ContactHomeNavKey,
+                    ContactAddNavKey,
+                    ContactDetailNavKey(id = Uuid.random()),
+                    ContactDetailNavKey(id = Uuid.random()),
+                )
+
+            backStack.navigateToContactDetail(selectedId)
+
+            backStack shouldContainExactly listOf(ContactHomeNavKey, ContactAddNavKey, ContactDetailNavKey(id = selectedId))
+        }
+
+        test("상세 영역에 연락처 상세가 없으면 목록에서 선택한 연락처 상세를 이어 둔다") {
+            val selectedId = Uuid.random()
+            val backStack = NavBackStack<ScreenNavKey>(MoreHomeStubNavKey, ContactHomeNavKey)
+
+            backStack.navigateToContactDetail(selectedId)
+
+            backStack shouldContainExactly listOf(MoreHomeStubNavKey, ContactHomeNavKey, ContactDetailNavKey(id = selectedId))
+        }
+
         test("연락처 목록이 없는 전환 이력에서는 연락처 목록 뒤로가기 동작이 전환 이력을 바꾸지 않는다") {
             val backStack = NavBackStack<ScreenNavKey>(MoreHomeStubNavKey, ContactDetailNavKey(id = Uuid.random()))
             val expected = backStack.toList()

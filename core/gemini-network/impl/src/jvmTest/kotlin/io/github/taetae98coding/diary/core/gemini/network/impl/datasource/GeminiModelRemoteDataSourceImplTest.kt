@@ -9,6 +9,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldEndWith
 import io.kotest.matchers.string.shouldStartWith
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.ktor.client.engine.HttpClientEngine
@@ -185,13 +186,17 @@ class GeminiModelRemoteDataSourceImplTest :
             engine.requestHistory.size shouldBe 2
         }
 
-        test("생성을 요청하지 않으므로 요청에 본문을 담지 않는다") {
+        test("TC-GEMINI-MODEL-LIST-DOMAIN-004: 조회는 모델 정보만 받아 오고 내용을 생성하지 않는다") {
             val engine = createEngine()
             val dataSource = createDataSource(engine)
 
             dataSource.getAvailableModel(apiKey = API_KEY)
 
-            engine.requestHistory.single().method shouldBe HttpMethod.Get
+            val request = engine.requestHistory.single()
+
+            request.method shouldBe HttpMethod.Get
+            request.body.contentLength shouldBe 0L
+            request.url.encodedPath shouldEndWith "/models"
         }
     }) {
     private companion object {

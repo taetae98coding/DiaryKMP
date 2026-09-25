@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.compose.core.input
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.test.assertCountEquals
@@ -100,6 +103,27 @@ class DiaryDateTimeInputTest {
         composeRule.onNodeWithText(START_TIME_TEXT).assertExists()
         composeRule.onNodeWithText(END_DATE_TEXT).assertExists()
         composeRule.onNodeWithText(END_TIME_TEXT).assertExists()
+    }
+
+    @Test
+    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-035 초기 기간이 바뀌면 바뀐 초기 기간으로 처음부터 시작한다`() {
+        var initialValue: DiaryDateTimeInputValue by mutableStateOf(dateTimeValue())
+        composeRule.setContent {
+            DiaryTheme {
+                DiaryDateTimeInput(state = rememberDiaryDateTimeInputState(initialValue = initialValue))
+            }
+        }
+
+        composeRule.onNode(hasRole(Role.Switch)).performClick()
+        composeRule.onNode(hasRole(Role.Switch)).assertIsOff()
+
+        initialValue = allDayValue()
+
+        composeRule.onNode(hasRole(Role.Switch)).assertIsOn()
+        composeRule.onNode(hasRole(Role.Checkbox)).assertIsOn()
+        composeRule.onNodeWithText(START_DATE_TEXT).assertExists()
+        composeRule.onNodeWithText(ALL_DAY_END_DATE_TEXT).assertExists()
+        composeRule.onNodeWithText(START_TIME_TEXT).assertDoesNotExist()
     }
 
     @Test

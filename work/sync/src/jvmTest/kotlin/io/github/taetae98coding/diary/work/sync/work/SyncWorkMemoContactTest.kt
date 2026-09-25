@@ -37,7 +37,7 @@ class SyncWorkMemoContactTest :
             requestOrder.dropLast(2) shouldContainExactlyInAnyOrder listOf("contact", "contact", "memo", "memo")
         }
 
-        test("TC-DATA-SYNC-DOMAIN-020 메모·연락처 연결만 대기하면 메모·연락처 연결 요청만 발생한다") {
+        test("메모·연락처 연결만 대기하면 메모·연락처 연결 요청만 발생한다") {
             val context = context(memoContactList = memoContacts(size = 1))
 
             context.subject.doWork()
@@ -120,7 +120,7 @@ class SyncWorkMemoContactTest :
             coVerify(exactly = 0) { context.contactRemoteDataSource.pull(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-021 연락처 업로드가 실패하면 메모·연락처 연결을 시도하지 않는다") {
+        test("TC-DATA-SYNC-DOMAIN-079 연락처 업로드가 실패하면 메모·연락처 연결을 시도하지 않는다") {
             val context =
                 context(
                     contactList = contacts(size = 1),

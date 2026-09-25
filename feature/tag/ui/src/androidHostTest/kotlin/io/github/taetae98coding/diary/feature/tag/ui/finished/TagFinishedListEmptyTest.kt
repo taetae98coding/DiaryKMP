@@ -1,8 +1,12 @@
 package io.github.taetae98coding.diary.feature.tag.ui.finished
 
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.navercorp.fixturemonkey.FixtureMonkey
@@ -15,6 +19,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.list.loadingTagPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
+import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
@@ -60,6 +65,28 @@ class TagFinishedListEmptyTest {
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
     }
 
+    @Test
+    fun `TC-TAG-FINISHED-LIST-FEATURE-020 처음 불러오기에 실패하면 오류 안내 없이 빈 상태 안내를 표시한다`() {
+        setTagFinishedListScaffold(
+            MutableStateFlow(tagEntityPagingData(itemList = emptyList<Tag>(), refresh = LoadState.Error(IllegalStateException("Refresh failed")))),
+        )
+
+        composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
+        composeRule.onNodeWithText(DEFAULT_RETRY_TEXT).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-TAG-FINISHED-LIST-FEATURE-020 이어서 불러오기에 실패해도 앞서 불러온 태그를 그대로 표시한다`() {
+        setTagFinishedListScaffold(
+            MutableStateFlow(tagEntityPagingData(itemList = listOf(tag(title = TAG_TITLE)), append = LoadState.Error(IllegalStateException("Append failed")))),
+        )
+
+        composeRule.onNodeWithText(TAG_TITLE).assertIsDisplayed()
+        composeRule.onAllNodesWithTag(TAG_CARD_TEST_TAG).assertCountEquals(1)
+        composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_RETRY_TEXT).assertDoesNotExist()
+    }
+
     private fun setTagFinishedListScaffold(
         tagPagingDataFlow: MutableStateFlow<PagingData<Tag>>,
         onEvent: (TagFinishedListScaffoldEvent) -> Unit = {},
@@ -79,6 +106,7 @@ class TagFinishedListEmptyTest {
         private const val KOREAN_EMPTY_TITLE = "완료한 태그가 없습니다"
         private const val TAG_HOME_EMPTY_DESCRIPTION = "Use the add button to create a tag."
         private const val TAG_TITLE = "FinishedEmptyStateTagTitle"
+        private const val DEFAULT_RETRY_TEXT = "Retry"
 
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()

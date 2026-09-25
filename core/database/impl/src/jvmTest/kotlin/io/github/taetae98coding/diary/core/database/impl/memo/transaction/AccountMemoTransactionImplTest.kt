@@ -95,7 +95,7 @@ class AccountMemoTransactionImplTest :
                 .any { memo -> memo.id == memoId } shouldBe true
         }
 
-        test("TC-DATA-SYNC-DOMAIN-001 메모 생성·수정·완료·삭제·실행 취소는 업로드 대기 상태가 된다") {
+        test("TC-DATA-SYNC-DOMAIN-001 메모 생성·수정·완료·다시 시작·삭제·실행 취소·대표 태그 지정과 해제는 업로드 대기 상태가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val updatedAt = instant()
@@ -126,6 +126,19 @@ class AccountMemoTransactionImplTest :
 
             insertWithSyncState(accountId, memo.copy(isDeleted = true), isDirty = false)
             transaction.updateDeleted(accountId, memo.id, isDeleted = false, updatedAt = updatedAt)
+            assertPending(accountId = accountId, memoId = memo.id)
+
+            insertWithSyncState(accountId, memo.copy(primaryTagId = null), isDirty = false)
+            memoTagTransaction.updatePrimaryTagId(
+                accountId = accountId,
+                memoId = memo.id,
+                primaryTagId = fixtureMonkey.giveMeOne<Uuid>(),
+                updatedAt = updatedAt,
+            )
+            assertPending(accountId = accountId, memoId = memo.id)
+
+            insertWithSyncState(accountId, memo.copy(primaryTagId = fixtureMonkey.giveMeOne<Uuid>()), isDirty = false)
+            memoTagTransaction.updatePrimaryTagId(accountId = accountId, memoId = memo.id, primaryTagId = null, updatedAt = updatedAt)
             assertPending(accountId = accountId, memoId = memo.id)
         }
 
@@ -238,6 +251,50 @@ class AccountMemoTransactionImplTest :
 
             findMemo(accountId = accountId, memoId = memo.id) shouldBe
                 memo.copy(detail = newDetail, updatedAt = updatedAt)
+        }
+
+        listOf(
+            "완료된" to { memo: MemoLocalEntity -> memo.copy(isFinished = true, isDeleted = false) },
+            "삭제된" to { memo: MemoLocalEntity -> memo.copy(isFinished = false, isDeleted = true) },
+        ).forEach { (label, change) ->
+            test("TC-MEMO-PRIMARY-TAG-DOMAIN-007 $label 메모의 대표 태그도 다른 태그로 바꿀 수 있다") {
+                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val newPrimaryTagId = fixtureMonkey.giveMeOne<Uuid>()
+                val memo = change(memo()).copy(primaryTagId = fixtureMonkey.giveMeOne<Uuid>())
+                insertWithSyncState(accountId, memo, isDirty = false)
+
+                memoTagTransaction.updatePrimaryTagId(
+                    accountId = accountId,
+                    memoId = memo.id,
+                    primaryTagId = newPrimaryTagId,
+                    updatedAt = instant(),
+                )
+
+                findMemo(accountId = accountId, memoId = memo.id)?.primaryTagId shouldBe newPrimaryTagId
+            }
+        }
+
+        listOf<Pair<String, (Uuid) -> Uuid?>>(
+            "다른 태그로 지정하면" to { newTagId -> newTagId },
+            "지정을 해제하면" to { _ -> null },
+        ).forEach { (label, nextPrimaryTagId) ->
+            test("TC-MEMO-PRIMARY-TAG-DOMAIN-008 대표 태그를 $label 메모의 내용과 완료·삭제 여부는 바뀌지 않는다") {
+                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val memo = memo().copy(primaryTagId = fixtureMonkey.giveMeOne<Uuid>())
+                insertWithSyncState(accountId, memo, isDirty = false)
+
+                memoTagTransaction.updatePrimaryTagId(
+                    accountId = accountId,
+                    memoId = memo.id,
+                    primaryTagId = nextPrimaryTagId(fixtureMonkey.giveMeOne<Uuid>()),
+                    updatedAt = instant(),
+                )
+
+                val stored = findMemo(accountId = accountId, memoId = memo.id)
+                stored?.detail shouldBe memo.detail
+                stored?.isFinished shouldBe memo.isFinished
+                stored?.isDeleted shouldBe memo.isDeleted
+            }
         }
 
         test("TC-MEMO-TAG-DOMAIN-001 하나의 메모에 여러 태그를 연결해 저장한다") {
@@ -570,13 +627,18 @@ class AccountMemoTransactionImplTest :
             memoTagTransaction.upsert(accountId = accountId, memoId = memo.id, tagId = tagId, isDeleted = true, updatedAt = removedAt)
 
             findMemoTagIdList(memoId = memo.id).shouldBeEmpty()
+            database.memoTagDao().findByMemoIdList(listOf(memo.id)).single().let { memoTag ->
+                memoTag.tagId shouldBe tagId
+                memoTag.isDeleted shouldBe true
+                memoTag.updatedAt shouldBe removedAt
+            }
             findMemo(accountId = accountId, memoId = memo.id)?.let { stored ->
                 stored.primaryTagId.shouldBeNull()
                 stored.updatedAt shouldBe removedAt
             }
         }
 
-        test("TC-MEMO-DETAIL-DATA-007 제거 저장이 실패하면 연결과 대표 태그 지정이 모두 유지된다") {
+        test("TC-MEMO-DETAIL-DATA-007 TC-MEMO-TAG-DATA-011 제거 저장이 실패하면 연결과 대표 태그 지정이 모두 유지된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tagId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()

@@ -32,7 +32,19 @@ class IpRemoteDataSourceImplTest :
                 )
         }
 
-        test("TC-CURRENT-LOCATION-DATA-001 위경도 fields 파라미터를 포함한 URL로 요청한다") {
+        test("TC-CURRENT-LOCATION-DATA-001 공인 IP 기준 위치를 외부 서비스에 한 번 조회한다") {
+            val engine = createMockEngine()
+            val dataSource = createDataSource(engine)
+
+            dataSource.get()
+
+            engine.requestHistory.size shouldBe 1
+            engine.requestHistory
+                .single()
+                .url.host shouldBe "ip-api.com"
+        }
+
+        test("공인 IP 기준 위치 조회는 위경도 필드만 요청한다") {
             val engine = createMockEngine()
             val dataSource = createDataSource(engine)
 

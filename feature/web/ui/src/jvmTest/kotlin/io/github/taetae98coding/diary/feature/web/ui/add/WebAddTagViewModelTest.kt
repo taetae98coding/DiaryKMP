@@ -3,6 +3,7 @@
 package io.github.taetae98coding.diary.feature.web.ui.add
 
 import androidx.paging.PagingData
+import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
@@ -10,6 +11,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -21,11 +23,13 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlin.time.Instant
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.uuid.Uuid
 
 class WebAddTagViewModelTest : FunSpec() {
@@ -66,7 +70,7 @@ class WebAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-ADD-FEATURE-018 고른 태그를 해제하면 선택에서 빠진다") {
+        test("TC-ENTITY-TAG-INPUT-FEATURE-009 연결된 태그의 해제를 요청하면 선택에서 빠진다") {
             runTest(mainDispatcher) {
                 val firstTag = tag()
                 val secondTag = tag()
@@ -109,6 +113,39 @@ class WebAddTagViewModelTest : FunSpec() {
                 }
             }
         }
+
+        test("TC-ENTITY-TAG-INPUT-DOMAIN-016 복원 뒤 새로 만든 화면은 대상 전체를 먼저 보여 주고 되살린 검색어는 입력 정지 대기 시간이 지나야 반영한다") {
+            runTest(mainDispatcher) {
+                val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
+                val allTagList = List(2) { tag() }
+                val matchedTagList = listOf(allTagList.first())
+                val pageTagUseCase = mockk<PageTagUseCase>()
+                every { pageTagUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(allTagList)))
+                every { pageTagUseCase(parameter = query) } returns flowOf(Result.success(PagingData.from(matchedTagList)))
+                val viewModel =
+                    WebAddTagViewModel(
+                        initialTagId = null,
+                        pageTagUseCase = pageTagUseCase,
+                        getSelectedTagUseCase = mockk(relaxed = true),
+                    )
+
+                viewModel.tagPagingData.test {
+                    flowOf(awaitItem()).asSnapshot() shouldBe allTagList
+
+                    viewModel.updateQuery(query)
+                    advanceTimeBy(INPUT_IDLE_DELAY - 1.milliseconds)
+                    runCurrent()
+
+                    expectNoEvents()
+
+                    advanceTimeBy(2.milliseconds)
+                    runCurrent()
+
+                    flowOf(awaitItem()).asSnapshot() shouldBe matchedTagList
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
     }
 
     private fun viewModel(
@@ -137,8 +174,6 @@ class WebAddTagViewModelTest : FunSpec() {
                 .giveMeKotlinBuilder<Tag>()
                 .setExp(Tag::isFinished, false)
                 .setExp(Tag::isDeleted, false)
-                .setExp(Tag::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Tag::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
                 .sample()
     }
 }

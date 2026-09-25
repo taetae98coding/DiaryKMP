@@ -307,7 +307,7 @@ class UpdatePlaceUseCaseTest :
                 )
 
             When("공백이 아닌 제목과 유효한 좌표로 수정한다") {
-                Then("TC-PLACE-DETAIL-DATA-005 저장 실패를 그대로 전달한다") {
+                Then("TC-PLACE-DETAIL-DATA-005 수정을 성공으로 다루지 않고 저장 실패를 전달한다") {
                     val result = useCase(parameter = UpdatePlaceUseCase.Parameter(id = Uuid.random(), detail = detail()))
 
                     result.shouldBeFailure() shouldBeSameInstanceAs throwable

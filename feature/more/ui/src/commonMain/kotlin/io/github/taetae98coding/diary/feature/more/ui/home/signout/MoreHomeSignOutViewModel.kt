@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.more.ui.home.signout
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.domain.account.usecase.SignOutUseCase
@@ -13,16 +14,20 @@ import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
 internal class MoreHomeSignOutViewModel(
+    private val savedStateHandle: SavedStateHandle,
     private val findSyncPendingUseCase: FindSyncPendingUseCase,
     private val signOutUseCase: SignOutUseCase,
 ) : ViewModel() {
     val uiState: StateFlow<MoreHomeSignOutUiState>
-        field = MutableStateFlow(MoreHomeSignOutUiState())
+        field =
+        MutableStateFlow(
+            MoreHomeSignOutUiState(isConfirmVisible = savedStateHandle[KEY_IS_CONFIRM_VISIBLE] ?: false),
+        )
 
     fun signOut() {
         viewModelScope.launch {
             if (findSyncPendingUseCase(parameter = Unit).first().getOrDefault(false)) {
-                uiState.update { state -> state.copy(isConfirmVisible = true) }
+                updateConfirmVisible(isConfirmVisible = true)
             } else {
                 signOutUseCase(parameter = Unit)
             }
@@ -30,7 +35,7 @@ internal class MoreHomeSignOutViewModel(
     }
 
     fun confirmSignOut() {
-        uiState.update { state -> state.copy(isConfirmVisible = false) }
+        updateConfirmVisible(isConfirmVisible = false)
 
         viewModelScope.launch {
             signOutUseCase(parameter = Unit)
@@ -38,6 +43,15 @@ internal class MoreHomeSignOutViewModel(
     }
 
     fun cancelSignOut() {
-        uiState.update { state -> state.copy(isConfirmVisible = false) }
+        updateConfirmVisible(isConfirmVisible = false)
+    }
+
+    private fun updateConfirmVisible(isConfirmVisible: Boolean) {
+        savedStateHandle[KEY_IS_CONFIRM_VISIBLE] = isConfirmVisible
+        uiState.update { state -> state.copy(isConfirmVisible = isConfirmVisible) }
+    }
+
+    private companion object {
+        const val KEY_IS_CONFIRM_VISIBLE = "isConfirmVisible"
     }
 }

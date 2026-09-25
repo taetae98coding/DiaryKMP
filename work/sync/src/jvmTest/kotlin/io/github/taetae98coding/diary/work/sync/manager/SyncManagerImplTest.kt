@@ -178,6 +178,76 @@ class SyncManagerImplTest :
             }
         }
 
+        test("TC-SYNC-REFRESH-DOMAIN-013 한 화면에서 당겨 시작한 동기화가 실행 중이면 옮겨 간 다른 화면에도 진행이 표시된다") {
+            runTest {
+                val workState = MutableStateFlow(SyncWorkState.NONE)
+                val syncManager = syncManager(syncWorkScheduler = syncWorkScheduler(workState = workState), scope = backgroundScope)
+                val pulledScreenProgressList = mutableListOf<Boolean>()
+                val pulledScreen = launch { syncManager.isProgressReported.collect { value -> pulledScreenProgressList += value } }
+                runCurrent()
+                syncManager.requestSync(reportsProgress = true)
+                workState.value = SyncWorkState.RUNNING
+                runCurrent()
+                pulledScreen.cancelAndJoin()
+
+                val movedScreenProgressList = mutableListOf<Boolean>()
+                val movedScreen = launch { syncManager.isProgressReported.collect { value -> movedScreenProgressList += value } }
+                runCurrent()
+                movedScreen.cancelAndJoin()
+
+                pulledScreenProgressList.last() shouldBe true
+                movedScreenProgressList shouldBe listOf(true)
+            }
+        }
+
+        test("TC-SYNC-REFRESH-DOMAIN-014 다른 화면에 다녀오면 돌아온 시점의 실행 여부로 진행 표시를 다시 정한다") {
+            val caseList =
+                listOf(
+                    SyncWorkState.RUNNING to true,
+                    SyncWorkState.NONE to false,
+                )
+
+            caseList.forEach { (returnedWorkState, isProgressReported) ->
+                runTest {
+                    val workState = MutableStateFlow(SyncWorkState.NONE)
+                    val syncManager = syncManager(syncWorkScheduler = syncWorkScheduler(workState = workState), scope = backgroundScope)
+                    val screen = launch { syncManager.isProgressReported.collect { } }
+                    runCurrent()
+                    syncManager.requestSync(reportsProgress = true)
+                    workState.value = SyncWorkState.RUNNING
+                    runCurrent()
+                    screen.cancelAndJoin()
+
+                    workState.value = returnedWorkState
+                    runCurrent()
+                    val returnedProgressList = mutableListOf<Boolean>()
+                    val returnedScreen = launch { syncManager.isProgressReported.collect { value -> returnedProgressList += value } }
+                    runCurrent()
+                    returnedScreen.cancelAndJoin()
+
+                    returnedProgressList shouldBe listOf(isProgressReported)
+                }
+            }
+        }
+
+        test("TC-SYNC-REFRESH-DOMAIN-014 다른 화면에 다녀온 사이 표시 대상이 아닌 동기화만 실행 중이면 진행을 표시하지 않는다") {
+            runTest {
+                val workState = MutableStateFlow(SyncWorkState.NONE)
+                val syncManager = syncManager(syncWorkScheduler = syncWorkScheduler(workState = workState), scope = backgroundScope)
+                runCurrent()
+
+                syncManager.requestSync(reportsProgress = false)
+                workState.value = SyncWorkState.RUNNING
+                runCurrent()
+                val returnedProgressList = mutableListOf<Boolean>()
+                val returnedScreen = launch { syncManager.isProgressReported.collect { value -> returnedProgressList += value } }
+                runCurrent()
+                returnedScreen.cancelAndJoin()
+
+                returnedProgressList shouldBe listOf(false)
+            }
+        }
+
         test("TC-DATA-SYNC-DOMAIN-056 주기 동기화 예약의 주기를 백그라운드 작업에 전달한다") {
             runTest {
                 val period = 4.hours

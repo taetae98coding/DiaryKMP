@@ -2,14 +2,25 @@
 
 package io.github.taetae98coding.diary.feature.more.ui.home.refresh
 
+import app.cash.turbine.test
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.RefreshUserDataUseCase
+import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountUiState
+import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountViewModel
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -17,6 +28,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlin.uuid.Uuid
 
 class MoreHomeRefreshViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -46,7 +58,7 @@ class MoreHomeRefreshViewModelTest : FunSpec() {
             }
         }
 
-        test("앞선 확인이 진행 중이면 새 확인을 겹쳐 시작하지 않는다") {
+        test("TC-MORE-HOME-DOMAIN-014 앞선 다시 확인이 끝나기 전에 화면이 다시 표시되면 새로 요청하지 않는다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Unit>()
                 val useCase = mockk<RefreshUserDataUseCase>()
@@ -64,17 +76,43 @@ class MoreHomeRefreshViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MORE-HOME-DOMAIN-013 사용자 정보 다시 확인에 실패해도 아무것도 알리지 않는다") {
+        test("TC-MORE-HOME-DOMAIN-013 사용자 정보 다시 확인에 실패해도 계정 표시가 바뀌지 않는다") {
             runTest(mainDispatcher) {
+                val email = "diary-" + fixtureMonkey.giveMeOne<String>()
+                val profileImage = fixtureMonkey.giveMeOne<String>()
+                val getAccountUseCase = mockk<GetAccountUseCase>()
+                every { getAccountUseCase(Unit) } returns
+                    flowOf(
+                        Result.success<Account>(
+                            Account.User(
+                                id = fixtureMonkey.giveMeOne<Uuid>(),
+                                profileImage = profileImage,
+                                email = email,
+                                isSessionValid = fixtureMonkey.giveMeOne<Boolean>(),
+                            ),
+                        ),
+                    )
+                val accountViewModel = MoreHomeAccountViewModel(getAccountUseCase = getAccountUseCase)
                 val useCase = mockk<RefreshUserDataUseCase>()
-                coEvery { useCase(Unit) } returns Result.failure(IllegalStateException("refresh failed"))
+                coEvery { useCase(Unit) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
                 val viewModel = MoreHomeRefreshViewModel(refreshUserDataUseCase = useCase)
 
-                viewModel.refresh()
-                advanceUntilIdle()
+                accountViewModel.uiState.test {
+                    awaitItem() shouldBe MoreHomeAccountUiState.Loading
+                    awaitItem() shouldBe MoreHomeAccountUiState.User(profileImage = profileImage, email = email)
+
+                    viewModel.refresh()
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                }
 
                 coVerify(exactly = 1) { useCase(Unit) }
             }
         }
+    }
+
+    public companion object {
+        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
     }
 }

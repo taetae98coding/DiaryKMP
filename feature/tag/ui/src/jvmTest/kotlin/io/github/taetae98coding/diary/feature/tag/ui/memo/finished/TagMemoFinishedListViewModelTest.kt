@@ -228,7 +228,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("메모 다시 시작에 실패하면 Effect를 보내지 않는다") {
+        test("TC-TAG-MEMO-FINISHED-LIST-FEATURE-021 메모 다시 시작 저장에 실패하면 안내 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val memoId = fixtureMonkey.giveMeOne<Uuid>()
                 val restartMemoUseCase = mockk<RestartMemoUseCase>()
@@ -281,7 +281,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("메모 삭제에 실패하면 Effect를 보내지 않는다") {
+        test("TC-TAG-MEMO-FINISHED-LIST-FEATURE-021 메모 삭제 저장에 실패하면 안내 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val memoId = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()

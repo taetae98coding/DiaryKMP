@@ -134,7 +134,7 @@ class PlaceHomeMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-DOMAIN-003 현재 위치 확인을 다시 요청해도 한 번만 확인한다") {
+        test("TC-PLACE-HOME-DOMAIN-003 같은 화면에서 현재 위치 확인을 다시 요청해도 한 번만 확인한다") {
             runTest(mainDispatcher) {
                 val coordinate = fixtureMonkey.giveMeOne<Coordinate>()
                 val fetchCurrentLocationUseCase = fetchCurrentLocationUseCase(Result.success(coordinate))

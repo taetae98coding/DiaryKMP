@@ -1,10 +1,16 @@
 package io.github.taetae98coding.diary.feature.memo.ui.home.filter
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -238,7 +244,7 @@ class MemoHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-063 태그가 있으면 태그 칩 뒤에 태그 추가 칩을 표시한다`() {
+    fun `TC-MEMO-HOME-FEATURE-066 태그가 있으면 태그 칩 뒤에 태그 추가 칩을 표시한다`() {
         setBottomSheetContent(tagList = listOf(tag(title = FIRST_TAG_TITLE)))
 
         composeRule.onNodeWithText(FIRST_TAG_TITLE).assertExists()
@@ -246,38 +252,70 @@ class MemoHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-063 태그 없이 조회가 끝나도 태그 추가 칩을 표시한다`() {
+    fun `TC-MEMO-HOME-FEATURE-066 태그 없이 조회가 끝나도 태그 추가 칩을 표시한다`() {
         setBottomSheetContent(tagPagingData = tagPagingDataOf(emptyList()))
 
         composeRule.onNodeWithText(ADD_LABEL).assertIsEnabled()
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-063 태그 조회가 진행 중이어도 태그 추가 칩을 표시한다`() {
+    fun `TC-MEMO-HOME-FEATURE-066 태그 없이 조회가 끝나면 태그 칩만 사라지고 빈 상태 안내는 나타나지 않는다`() {
+        val tag = tag(title = FIRST_TAG_TITLE)
+        val tagPagingFlow = MutableStateFlow(tagPagingDataOf(listOf(tag)))
+        val emptyTagPagingFlow = MutableStateFlow(tagPagingDataOf(emptyList()))
+        var isTagEmpty by mutableStateOf(false)
+        composeRule.setContent {
+            DiaryTheme {
+                MemoHomeFilterBottomSheetContent(
+                    tagPagingItems = (if (isTagEmpty) emptyTagPagingFlow else tagPagingFlow).collectAsLazyPagingItems(),
+                    uiStateProvider = { MemoHomeFilterUiState() },
+                    onEvent = {},
+                    onTagFilterEvent = {},
+                )
+            }
+        }
+        composeRule.onNodeWithText(FIRST_TAG_TITLE).assertExists()
+        val textListWithTag = displayedTextList()
+
+        isTagEmpty = true
+        composeRule.waitUntil(timeoutMillis = TAG_UPDATE_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(FIRST_TAG_TITLE).fetchSemanticsNodes().isEmpty()
+        }
+
+        displayedTextList() shouldBe textListWithTag - FIRST_TAG_TITLE
+        composeRule.onNodeWithText(ADD_LABEL).assertIsEnabled()
+    }
+
+    @Test
+    fun `TC-MEMO-HOME-FEATURE-066 태그 조회가 진행 중이어도 태그 추가 칩을 표시한다`() {
         setBottomSheetContent(tagPagingData = refreshingTagPagingData())
 
         composeRule.onNodeWithText(ADD_LABEL).assertIsEnabled()
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-063 태그 조회에 실패해도 태그 추가 칩을 표시한다`() {
+    fun `TC-MEMO-HOME-FEATURE-066 태그 조회에 실패해도 태그 추가 칩을 표시한다`() {
         setBottomSheetContent(tagPagingData = failedTagPagingData())
 
         composeRule.onNodeWithText(ADD_LABEL).assertIsEnabled()
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-064 태그 추가 칩을 누르면 태그 추가 Event만 전달한다`() {
-        val tag = tag(title = FIRST_TAG_TITLE)
+    fun `TC-MEMO-HOME-FEATURE-064 태그 추가 칩을 누르면 태그 선택을 바꾸지 않고 태그 추가 Event만 전달한다`() {
+        val selectedTag = tag(title = FIRST_TAG_TITLE)
+        val unselectedTag = tag(title = SECOND_TAG_TITLE)
         val eventList = mutableListOf<TagFilterEvent>()
         setBottomSheetContent(
-            tagList = listOf(tag),
+            tagList = listOf(selectedTag, unselectedTag),
+            uiState = MemoHomeFilterUiState(selectedTagIdSet = setOf(selectedTag.id)),
             onTagFilterEvent = eventList::add,
         )
 
         composeRule.onNodeWithText(ADD_LABEL).performClick()
 
         eventList shouldBe listOf(TagFilterEvent.ClickAdd)
+        composeRule.onNodeWithText(FIRST_TAG_TITLE).assertIsSelected()
+        composeRule.onNodeWithText(SECOND_TAG_TITLE).assertIsNotSelected()
     }
 
     @Test
@@ -293,6 +331,12 @@ class MemoHomeFilterBottomSheetContentTest {
 
         eventList.shouldBeEmpty()
     }
+
+    private fun displayedTextList(): List<String> =
+        composeRule
+            .onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text), useUnmergedTree = true)
+            .fetchSemanticsNodes()
+            .flatMap { node -> node.config[SemanticsProperties.Text].map { text -> text.text } }
 
     private fun setBottomSheetContent(
         tagList: List<Tag> = emptyList(),
@@ -325,6 +369,7 @@ class MemoHomeFilterBottomSheetContentTest {
         private const val ALL_LABEL = "All"
         private const val UNSELECT_ALL_CONTENT_DESCRIPTION = "Clear tag filter"
         private const val ADD_LABEL = "Add tag"
+        private const val TAG_UPDATE_TIMEOUT_MILLIS = 5_000L
         private const val TAG_INACTIVE_DESCRIPTION = "Tag filter is not applied while the tag axis is Without."
 
         private val fixtureMonkey: FixtureMonkey =

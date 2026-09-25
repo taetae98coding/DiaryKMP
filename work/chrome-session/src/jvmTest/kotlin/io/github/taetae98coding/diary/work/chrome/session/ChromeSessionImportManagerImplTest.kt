@@ -237,6 +237,29 @@ class ChromeSessionImportManagerImplTest :
             }
         }
 
+        test("TC-CHROME-SESSION-IMPORT-DOMAIN-022 선택 안 함으로 되돌릴 때 지우기에 실패하면 실패가 된다") {
+            runTest {
+                val findUseCase = mockk<FindChromeSessionImportProfileUseCase>()
+                coEvery { findUseCase(Unit) } returns Result.success(null)
+                val importUseCase = importUseCase()
+                val repository = mockk<InAppBrowserCookieRepository>()
+                coEvery { repository.deleteAll() } throws IllegalStateException("clear failed")
+                val manager = manager(scope = backgroundScope, findUseCase = findUseCase, importUseCase = importUseCase, repository = repository)
+
+                manager.state.test {
+                    awaitItem() shouldBe ChromeSessionImportState.IDLE
+
+                    manager.requestImport(clearsBefore = true)
+
+                    awaitItem() shouldBe ChromeSessionImportState.FAILED
+                    advanceUntilIdle()
+                    expectNoEvents()
+                }
+
+                coVerify(exactly = 0) { importUseCase(any()) }
+            }
+        }
+
         test("TC-CHROME-SESSION-IMPORT-DOMAIN-021 가져오기에 실패해도 남아 있던 로그인 정보를 지우지 않는다") {
             runTest {
                 val importUseCase = mockk<ImportChromeSessionUseCase>()

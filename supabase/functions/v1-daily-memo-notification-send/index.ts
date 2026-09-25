@@ -36,36 +36,41 @@ serve(async (request) => {
   let removed = 0;
 
   for (const due of dueTokens) {
-    const { data: memos, error: memoError } = await client.rpc("list_daily_memos", {
-      target_account_id: due.account_id,
-      target_date: due.local_date,
-    });
-    if (memoError) {
-      console.error("list_daily_memos failed", { account_id: due.account_id, error: memoError });
-    }
-
-    const text = buildNotificationText(
-      due.language,
-      toContent(memoError ? null : memos.map((memo: { title: string }) => memo.title)),
-    );
-    const result = await fcm.send(buildFcmMessage(due.token, text, new Date(due.expires_at), now));
-
-    switch (result.status) {
-      case "sent":
-        sent++;
-        break;
-      case "invalid_token": {
-        removed++;
-        const { error } = await client.rpc("unregister_fcm_token", { token: due.token });
-        if (error) {
-          console.error("unregister_fcm_token failed", error);
-        }
-        break;
+    try {
+      const { data: memos, error: memoError } = await client.rpc("list_daily_memos", {
+        target_account_id: due.account_id,
+        target_date: due.local_date,
+      });
+      if (memoError) {
+        console.error("list_daily_memos failed", { account_id: due.account_id, error: memoError });
       }
-      case "failed":
-        failed++;
-        console.error("fcm send failed", result.error);
-        break;
+
+      const text = buildNotificationText(
+        due.language,
+        toContent(memoError ? null : memos.map((memo: { title: string }) => memo.title)),
+      );
+      const result = await fcm.send(buildFcmMessage(due.token, text, new Date(due.expires_at), now));
+
+      switch (result.status) {
+        case "sent":
+          sent++;
+          break;
+        case "invalid_token": {
+          removed++;
+          const { error } = await client.rpc("unregister_fcm_token", { token: due.token });
+          if (error) {
+            console.error("unregister_fcm_token failed", error);
+          }
+          break;
+        }
+        case "failed":
+          failed++;
+          console.error("fcm send failed", result.error);
+          break;
+      }
+    } catch (error) {
+      failed++;
+      console.error("daily memo notification failed", { account_id: due.account_id, error });
     }
   }
 

@@ -150,17 +150,18 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-HOME-FEATURE-023 목록을 조회하지 못하면 빈 목록을 제공한다") {
+        test("TC-PLACE-HOME-FEATURE-023 목록을 조회하지 못하면 빈 상태로 제공한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(getPlaceListUseCase = getPlaceListUseCase(Result.failure(IllegalStateException("query error"))))
 
-                viewModel.placeListFlow().test {
-                    awaitItem() shouldBe emptyList()
+                viewModel.placeListUiState.test {
+                    awaitItem().isEmpty shouldBe false
 
                     viewModel.updateVisibleBounds(fixtureMonkey.giveMeOne<CoordinateBounds>())
 
-                    advanceUntilIdle()
-                    expectNoEvents()
+                    val uiState = awaitItem()
+                    uiState.placeList.shouldBeEmpty()
+                    uiState.isEmpty shouldBe true
                 }
             }
         }

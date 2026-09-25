@@ -77,7 +77,7 @@ class TagAddScaffoldEmojiInputTest {
     }
 
     @Test
-    fun `TC-TAG-ADD-FEATURE-014 기본 환경에서 이모지 입력 라벨은 Emoji이다`() {
+    fun `기본 환경에서 이모지 입력 라벨은 Emoji이다`() {
         setTagAddScaffold()
 
         composeRule.onNodeWithText(DEFAULT_EMOJI_LABEL).assertExists()
@@ -85,7 +85,7 @@ class TagAddScaffoldEmojiInputTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-ADD-FEATURE-014 한국어 환경에서 이모지 입력 라벨은 이모지이다`() {
+    fun `한국어 환경에서 이모지 입력 라벨은 이모지이다`() {
         setTagAddScaffold()
 
         composeRule.onNodeWithText(KOREAN_EMOJI_LABEL).assertExists()

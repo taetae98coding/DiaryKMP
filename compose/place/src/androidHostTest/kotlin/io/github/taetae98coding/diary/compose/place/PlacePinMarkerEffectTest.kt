@@ -57,7 +57,7 @@ class PlacePinMarkerEffectTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-026 TC-TAG-DETAIL-PLACE-FEATURE-026 목록이 비어 있으면 핀도 없다`() {
+    fun `TC-PLACE-HOME-FEATURE-026 목록이 비어 있으면 핀도 없다`() {
         val placeListFlow = MutableStateFlow(listOf(place()))
         val mapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
         setEffect(mapState = mapState, placeListFlow = placeListFlow)

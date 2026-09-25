@@ -4,6 +4,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
@@ -26,6 +27,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.compose.viewmodel.koinViewModel
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
@@ -108,7 +110,8 @@ class TagDetailScreenTest {
                     navigateToMemoFinishedList = {},
                     id = FIRST_TAG_ID,
                     componentVisibleProvider = { TagDetailScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    detailViewModel = viewModel,
+                    placeMapViewModel = koinViewModel(),
                     navigateToWebAdd = {},
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},
@@ -173,7 +176,8 @@ class TagDetailScreenTest {
                     navigateToMemoFinishedList = {},
                     id = FIRST_TAG_ID,
                     componentVisibleProvider = { TagDetailScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    detailViewModel = viewModel,
+                    placeMapViewModel = koinViewModel(),
                     navigateToWebAdd = {},
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},
@@ -247,7 +251,7 @@ class TagDetailScreenUpdateTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-011 수정을 처리하는 동안 수정 버튼이 진행 표시로 바뀐다`() {
+    fun `TC-TAG-DETAIL-FEATURE-011 수정을 처리하는 동안 수정 버튼이 이름을 유지한 채 진행 표시로 바뀐다`() {
         val uiState = MutableStateFlow(tagDetailUiState(id = FIRST_TAG_ID, detail = tagDetail(TAG_TITLE), isInProgress = true))
         setTagDetailScreen(screenTestViewModel(uiState))
         composeRule.waitForIdle()
@@ -256,7 +260,7 @@ class TagDetailScreenUpdateTest {
         composeRule.waitForIdle()
 
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
-        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assert(hasClickAction())
     }
 
     private fun setTagDetailScreen(viewModel: TagDetailViewModel) {
@@ -272,7 +276,8 @@ class TagDetailScreenUpdateTest {
                     navigateToMemoFinishedList = {},
                     id = FIRST_TAG_ID,
                     componentVisibleProvider = { TagDetailScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    detailViewModel = viewModel,
+                    placeMapViewModel = koinViewModel(),
                     navigateToWebAdd = {},
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},
@@ -365,7 +370,8 @@ class TagDetailScreenActionTest {
                     navigateToMemoFinishedList = {},
                     id = FIRST_TAG_ID,
                     componentVisibleProvider = { TagDetailScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    detailViewModel = viewModel,
+                    placeMapViewModel = koinViewModel(),
                     navigateToWebAdd = {},
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},
@@ -417,7 +423,8 @@ class TagDetailScreenMessageTest {
                     navigateToMemoFinishedList = {},
                     id = FIRST_TAG_ID,
                     componentVisibleProvider = { TagDetailScaffoldComponentVisible() },
-                    viewModel = titleLoadedViewModel(),
+                    detailViewModel = titleLoadedViewModel(),
+                    placeMapViewModel = koinViewModel(),
                     navigateToWebAdd = {},
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},
@@ -456,7 +463,8 @@ class TagDetailScreenMessageTest {
                     navigateToMemoFinishedList = {},
                     id = FIRST_TAG_ID,
                     componentVisibleProvider = { TagDetailScaffoldComponentVisible() },
-                    viewModel = viewModel,
+                    detailViewModel = viewModel,
+                    placeMapViewModel = koinViewModel(),
                     navigateToWebAdd = {},
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},

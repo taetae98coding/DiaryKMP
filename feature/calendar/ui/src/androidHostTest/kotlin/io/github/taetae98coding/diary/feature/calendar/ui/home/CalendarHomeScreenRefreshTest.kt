@@ -9,10 +9,12 @@ import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherViewModel
 import io.mockk.clearMocks
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -51,6 +53,20 @@ class CalendarHomeScreenRefreshTest {
         verify(exactly = 1) { syncViewModel.refresh() }
         verify(exactly = 1) { holidayViewModel.fetch(yearMonth = JULY_2026) }
         verify(exactly = 1) { weatherViewModel.fetch() }
+    }
+
+    @Test
+    fun `TC-CALENDAR-HOME-DATA-047 당겨서 새로고침해도 음력 자료를 다시 동기화하지 않는다`() {
+        val fetchLunarUseCase = fetchLunarUseCase()
+        setCalendarHomeScreen(birthdayViewModel = lunarObservingBirthdayViewModel(fetchLunarUseCase = fetchLunarUseCase))
+        composeRule.waitForIdle()
+        coVerify(exactly = 1) { fetchLunarUseCase(parameter = 2026) }
+        clearMocks(fetchLunarUseCase, answers = false)
+
+        composeRule.onNodeWithTag(PULL_TO_REFRESH_TEST_TAG).performTouchInput { swipeDown() }
+        composeRule.waitForIdle()
+
+        coVerify(exactly = 0) { fetchLunarUseCase(parameter = any()) }
     }
 
     @Test
@@ -117,6 +133,7 @@ class CalendarHomeScreenRefreshTest {
         holidayViewModel: CalendarHomeHolidayViewModel = holidayViewModel(),
         weatherViewModel: CalendarHomeWeatherViewModel = weatherViewModel(),
         syncViewModel: CalendarHomeSyncViewModel = syncViewModel(),
+        birthdayViewModel: CalendarHomeBirthdayViewModel = birthdayViewModel(),
     ) {
         val memoViewModel =
             mockk<CalendarHomeMemoViewModel>().also { viewModel ->
@@ -136,7 +153,7 @@ class CalendarHomeScreenRefreshTest {
                     navigateToMemoDetail = {},
                     navigateToMemoAdd = {},
                     navigateToContactDetail = {},
-                    birthdayViewModel = birthdayViewModel(),
+                    birthdayViewModel = birthdayViewModel,
                     navigateToFilter = {},
                     state = state,
                     holidayViewModel = holidayViewModel,

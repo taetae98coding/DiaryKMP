@@ -33,6 +33,7 @@ import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
 import io.github.taetae98coding.diary.compose.web.WebCard
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_web_empty_description
@@ -51,10 +52,12 @@ internal fun TagDetailWebTab(
     webPagingItems: LazyPagingItems<Web> = remember { flowOf(PagingData.empty<Web>()) }.collectAsLazyPagingItems(),
     isRefreshingProvider: () -> Boolean = { false },
     sortProvider: () -> ListSort = { ListSort.TITLE },
+    scopeProvider: () -> TagScope = { TagScope.SELF },
 ) {
     ListQueryScrollEffect(
         gridState = gridState,
         sortProvider = sortProvider,
+        filterProvider = scopeProvider,
         itemListProvider = { webPagingItems.itemSnapshotList.items },
     )
 

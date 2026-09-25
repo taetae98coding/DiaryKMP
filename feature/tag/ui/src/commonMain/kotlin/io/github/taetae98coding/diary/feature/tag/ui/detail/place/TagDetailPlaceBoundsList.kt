@@ -22,6 +22,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.compose.place.PlaceCard
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.previewPlace
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_place_map_empty_description
@@ -38,10 +39,12 @@ internal fun TagDetailPlaceBoundsList(
     placeListUiStateProvider: () -> TagDetailPlaceListUiState = { TagDetailPlaceListUiState() },
     isRefreshingProvider: () -> Boolean = { false },
     sortProvider: () -> ListSort = { ListSort.TITLE },
+    scopeProvider: () -> TagScope = { TagScope.SELF },
 ) {
     ListQueryScrollEffect(
         staggeredGridState = gridState,
         sortProvider = sortProvider,
+        filterProvider = scopeProvider,
         itemListProvider = { placeListUiStateProvider().placeList },
     )
 

@@ -82,7 +82,7 @@ class AccountMemoTagSyncTransactionImplTest :
                 .findPending(accountId = accountId)
                 .any { pending -> pending.memoId == memoTag.memoId && pending.tagId == memoTag.tagId }
 
-        test("TC-MEMO-TAG-DATA-006 해제된 연결도 포함해 현재 계정의 업로드 대기 관계만 조회한다") {
+        test("TC-MEMO-TAG-DATA-006 해제된 연결도 업로드 대상에서 빠지지 않고 현재 계정의 업로드 대기 관계만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstPending = memoTag()
@@ -186,7 +186,7 @@ class AccountMemoTagSyncTransactionImplTest :
             syncCursorDataSource.find(accountId = accountId, kind = SyncKind.MEMO_TAG) shouldBe 5L
         }
 
-        test("TC-MEMO-TAG-DATA-007 기기에 없던 관계는 새로 저장되고 동기화 완료로 기록된다") {
+        test("TC-DATA-SYNC-DATA-025 기기에 없던 관계는 새로 저장되고 동기화 완료로 기록된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val remote = memoTag()
 
@@ -194,6 +194,18 @@ class AccountMemoTagSyncTransactionImplTest :
 
             findMemoTag(memoId = remote.memoId, tagId = remote.tagId) shouldBe remote
             syncDataSource.findPending(accountId = accountId).shouldBeEmpty()
+        }
+
+        test("TC-MEMO-TAG-DATA-007 서버 수정 시각이 기기보다 늦은 연결은 응답대로 저장되고 내려받기 위치가 갱신된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val local = memoTag(updatedAt = Instant.fromEpochMilliseconds(1_000))
+            val remote = local.copy(isDeleted = !local.isDeleted, updatedAt = Instant.fromEpochMilliseconds(2_000))
+            insertWithSyncState(accountId, local, isDirty = false)
+
+            transaction.save(accountId = accountId, memoTagList = listOf(remote), cursor = 8L)
+
+            findMemoTag(memoId = local.memoId, tagId = local.tagId) shouldBe remote
+            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.MEMO_TAG) shouldBe 8L
         }
 
         test("내려받기 저장은 이미 있는 연결의 대기 여부를 덮어쓰지 않는다") {

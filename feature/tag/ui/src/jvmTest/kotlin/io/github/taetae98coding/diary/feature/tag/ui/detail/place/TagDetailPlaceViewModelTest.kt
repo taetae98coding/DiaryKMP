@@ -140,29 +140,31 @@ class TagDetailPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-DATA-005 표시 범위를 바꾸면 장소 목록을 새 기준으로 다시 조회한다") {
+        test("TC-TAG-DETAIL-DATA-005 표시 범위를 넓혔다 되돌리면 장소 목록을 각 범위 기준으로 다시 조회한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val selfPlaceList = List(2) { item() }
+                val childPlaceList = selfPlaceList + List(2) { item() }
                 val pageTagPlaceUseCase = mockk<PageTagPlaceUseCase>()
-                every { pageTagPlaceUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(emptyList<Place>())))
+                every { pageTagPlaceUseCase(parameter = PageTagPlaceUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, sort = ListSort.TITLE)) } returns
+                    flowOf(Result.success(PagingData.from(selfPlaceList)))
+                every { pageTagPlaceUseCase(parameter = PageTagPlaceUseCase.Parameter(tagId = tagId, scope = TagScope.CHILD, sort = ListSort.TITLE)) } returns
+                    flowOf(Result.success(PagingData.from(childPlaceList)))
                 val viewModel = viewModel(tagId = tagId, pageTagPlaceUseCase = pageTagPlaceUseCase)
 
                 viewModel.placePagingData.test {
-                    awaitItem()
-                    viewModel.select(scope = TagScope.DESCENDANT)
-                    awaitItem()
-                    cancelAndIgnoreRemainingEvents()
-                }
+                    flowOf(awaitItem()).asSnapshot() shouldBe selfPlaceList
 
-                viewModel.scope.value shouldBe TagScope.DESCENDANT
-                verify(exactly = 1) { pageTagPlaceUseCase(parameter = PageTagPlaceUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, sort = ListSort.TITLE)) }
-                verify(exactly = 1) {
-                    pageTagPlaceUseCase(parameter = PageTagPlaceUseCase.Parameter(tagId = tagId, scope = TagScope.DESCENDANT, sort = ListSort.TITLE))
+                    viewModel.select(scope = TagScope.CHILD)
+                    flowOf(awaitItem()).asSnapshot() shouldBe childPlaceList
+
+                    viewModel.select(scope = TagScope.SELF)
+                    flowOf(awaitItem()).asSnapshot() shouldBe selfPlaceList
+                    cancelAndIgnoreRemainingEvents()
                 }
             }
         }
-
-        test("TC-TAG-DETAIL-PLACE-DOMAIN-010 TC-TAG-DETAIL-PLACE-DATA-008 목록 모드는 보이는 영역 밖의 장소도 노출한다") {
+        test("TC-TAG-DETAIL-PLACE-DOMAIN-010 목록 모드는 보이는 영역 밖의 장소도 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val bounds = bounds()
@@ -189,6 +191,28 @@ class TagDetailPlaceViewModelTest : FunSpec() {
                     flowOf(awaitItem()).asSnapshot() shouldBe outsidePlaceList
                     cancelAndIgnoreRemainingEvents()
                 }
+            }
+        }
+
+        test("TC-TAG-DETAIL-PLACE-DATA-008 지도 모드의 목록은 영역 안 장소가 한 페이지보다 많아도 한 번에 모두 조회한다") {
+            runTest(mainDispatcher) {
+                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val bounds = bounds()
+                val boundsPlaceList = List(MORE_THAN_ONE_PAGE) { item() }
+                val getTagPlaceListUseCase = mockk<GetTagPlaceListUseCase>()
+                every {
+                    getTagPlaceListUseCase(parameter = GetTagPlaceListUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, bounds = bounds, sort = ListSort.TITLE))
+                } returns flowOf(Result.success(boundsPlaceList))
+                val viewModel = viewModel(tagId = tagId, getTagPlaceListUseCase = getTagPlaceListUseCase)
+
+                viewModel.placeListUiState.test {
+                    awaitItem() shouldBe TagDetailPlaceListUiState()
+                    viewModel.updateVisibleBounds(bounds)
+                    awaitItem() shouldBe TagDetailPlaceListUiState(isLoaded = true, placeList = boundsPlaceList)
+                    cancelAndIgnoreRemainingEvents()
+                }
+
+                verify(exactly = 1) { getTagPlaceListUseCase(parameter = any()) }
             }
         }
 
@@ -330,6 +354,8 @@ class TagDetailPlaceViewModelTest : FunSpec() {
     public companion object {
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
+
+        private const val MORE_THAN_ONE_PAGE = 25
 
         private fun viewModel(
             tagId: Uuid,

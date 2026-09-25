@@ -5,6 +5,8 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.holiday.GoldenHolidayGroup
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.domain.holiday.usecase.FetchHolidayUseCase
@@ -21,6 +23,7 @@ import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFix
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.goldenHoliday
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.goldenHolidayGroup
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.holiday
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.every
@@ -36,6 +39,9 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+
+private val fixtureMonkey: FixtureMonkey =
+    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -156,7 +162,7 @@ class HolidayHomeScreenTest {
         coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(providedHolidayList())
         coEvery { fetchHolidayUseCase(parameter = YEAR - 1) } returnsMany
             listOf(
-                Result.failure(IllegalStateException("${YEAR - 1} holiday sync failed")),
+                Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())),
                 Result.success(providedHolidayList()),
             )
         composeRule.setHolidayHomeScreen(

@@ -8,13 +8,18 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.MockEngineConfig
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.respondError
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.http.HttpStatusCode
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.runTest
 import java.io.IOException
 
 private const val ADDRESS = "http://192.168.0.10:27180"
@@ -71,7 +76,42 @@ class ProxyDownloadToolPreparerTest :
                 }
             }
         }
+
+        Given("프록시가 연결 확인에 응답하기까지 시간이 걸린다") {
+            When("준비한다") {
+                Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-011 10초 안에 응답하면 준비되고 10초가 지나면 연결할 수 없음으로 끝난다") {
+                    val caseList =
+                        listOf(
+                            PROXY_HEALTH_TIMEOUT_MILLIS - 1 to DownloadToolPrepareResult.Prepared,
+                            PROXY_HEALTH_TIMEOUT_MILLIS + 1 to DownloadToolPrepareResult.ProxyUnreachable,
+                        )
+
+                    caseList.forEach { (delayMillis, expected) ->
+                        runTest {
+                            val engine = delayedEngine(scheduler = testScheduler, delayMillis = delayMillis)
+                            val preparer = preparer(address = ADDRESS, engine = engine)
+
+                            preparer.prepare() shouldBe expected
+                        }
+                    }
+                }
+            }
+        }
     })
+
+private fun delayedEngine(
+    scheduler: TestCoroutineScheduler,
+    delayMillis: Long,
+): MockEngine =
+    MockEngine(
+        MockEngineConfig().apply {
+            dispatcher = StandardTestDispatcher(scheduler)
+            addHandler {
+                delay(delayMillis)
+                respond(content = "OK")
+            }
+        },
+    )
 
 private fun preparer(
     address: String,

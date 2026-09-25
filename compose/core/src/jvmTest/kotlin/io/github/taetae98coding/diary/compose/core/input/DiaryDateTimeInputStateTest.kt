@@ -210,6 +210,83 @@ class DiaryDateTimeInputStateTest : FunSpec() {
             state.endInclusive shouldBe LocalDateTime(date = date, time = LocalTime(hour = 17, minute = 30))
         }
 
+        test("TC-DIARY-DATE-TIME-INPUT-DOMAIN-002 이전 기간보다 앞선 날짜·시간 기간을 한 번에 넣으면 보정 없이 그대로 들어간다") {
+            val date = anyDate()
+            val state =
+                DiaryDateTimeInputState(
+                    hasDateTime = true,
+                    isAllDay = false,
+                    start = LocalDateTime(date = date.plus(1, DateTimeUnit.DAY), time = LocalTime(hour = 10, minute = 0)),
+                    endInclusive = LocalDateTime(date = date.plus(1, DateTimeUnit.DAY), time = LocalTime(hour = 11, minute = 0)),
+                )
+            val value =
+                DiaryDateTimeInputValue.DateTime(
+                    start = LocalDateTime(date = date, time = LocalTime(hour = 13, minute = 0)),
+                    endInclusive = LocalDateTime(date = date, time = LocalTime(hour = 15, minute = 0)),
+                )
+
+            state.select(value)
+
+            state.value shouldBe value
+        }
+
+        test("TC-DIARY-DATE-TIME-INPUT-DOMAIN-002 이전 기간보다 뒤인 날짜·시간 기간을 한 번에 넣으면 보정 없이 그대로 들어간다") {
+            val date = anyDate()
+            val state =
+                DiaryDateTimeInputState(
+                    hasDateTime = true,
+                    isAllDay = false,
+                    start = LocalDateTime(date = date, time = LocalTime(hour = 20, minute = 0)),
+                    endInclusive = LocalDateTime(date = date, time = LocalTime(hour = 21, minute = 0)),
+                )
+            val value =
+                DiaryDateTimeInputValue.DateTime(
+                    start = LocalDateTime(date = date.plus(2, DateTimeUnit.DAY), time = LocalTime(hour = 9, minute = 0)),
+                    endInclusive = LocalDateTime(date = date.plus(3, DateTimeUnit.DAY), time = LocalTime(hour = 8, minute = 0)),
+                )
+
+            state.select(value)
+
+            state.value shouldBe value
+        }
+
+        test("TC-DIARY-DATE-TIME-INPUT-DOMAIN-002 기간을 사용하지 않는 종일 상태에 날짜·시간 기간을 넣으면 기본 시각이 끼어들지 않는다") {
+            val date = anyDate()
+            val state =
+                allDayState(
+                    start = date,
+                    endInclusive = date,
+                    clock = clockOf(LocalDateTime(date = date, time = LocalTime(hour = 9, minute = 40))),
+                )
+            state.hasDateTime = false
+            val value =
+                DiaryDateTimeInputValue.DateTime(
+                    start = LocalDateTime(date = date, time = LocalTime(hour = 13, minute = 0)),
+                    endInclusive = LocalDateTime(date = date, time = LocalTime(hour = 15, minute = 0)),
+                )
+
+            state.select(value)
+
+            state.hasDateTime shouldBe true
+            state.value shouldBe value
+        }
+
+        test("TC-DIARY-DATE-TIME-INPUT-DOMAIN-002 날짜·시간 상태에 종일 기간을 넣으면 생성된 날짜 범위가 그대로 들어간다") {
+            val (start, endInclusive) = anyPeriod()
+            val state =
+                DiaryDateTimeInputState(
+                    hasDateTime = true,
+                    isAllDay = false,
+                    start = LocalDateTime(date = endInclusive.date.plus(1, DateTimeUnit.DAY), time = anyTime()),
+                    endInclusive = LocalDateTime(date = endInclusive.date.plus(2, DateTimeUnit.DAY), time = anyTime()),
+                )
+            val value = DiaryDateTimeInputValue.AllDay(dateRange = start.date..endInclusive.date)
+
+            state.select(value)
+
+            state.value shouldBe value
+        }
+
         test("같은 종일 값을 다시 선택하면 시간이 유지된다") {
             val (start, endInclusive) = anyPeriod()
             val state =

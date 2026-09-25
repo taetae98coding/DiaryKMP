@@ -1,11 +1,16 @@
 package io.github.taetae98coding.diary.feature.calendar.ui.home
 
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyInput
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
@@ -17,6 +22,7 @@ import io.github.taetae98coding.diary.domain.weather.usecase.RefreshCurrentWeath
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherViewModel
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -31,6 +37,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+
+private val fixtureMonkey: FixtureMonkey =
+    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
@@ -52,7 +61,7 @@ class CalendarHomeScreenWeatherFetchTest {
     fun `TC-CALENDAR-HOME-DATA-022 날씨 동기화가 실패해도 날씨 없이 표시하고 다른 표시를 막지 않는다`() {
         val fetchCurrentWeatherUseCase = mockk<FetchCurrentWeatherUseCase>()
         coEvery { fetchCurrentWeatherUseCase(parameter = Unit) } returns
-            Result.failure(IllegalStateException("weather fetch failed"))
+            Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
         val refreshCurrentWeatherUseCase = mockk<RefreshCurrentWeatherUseCase>()
         coEvery { refreshCurrentWeatherUseCase(parameter = Unit) } returns Result.success(Unit)
         val getCurrentCalendarWeatherUseCase = mockk<GetCurrentCalendarWeatherUseCase>()
@@ -78,6 +87,8 @@ class CalendarHomeScreenWeatherFetchTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(CONSTITUTION_DAY_NAME).assertIsDisplayed()
+        composeRule.onAllNodesWithText(TEMPERATURE_UNIT, substring = true).assertCountEquals(0)
+        composeRule.onAllNodes(isDialog()).assertCountEquals(0)
     }
 
     @Test
@@ -141,6 +152,7 @@ class CalendarHomeScreenWeatherFetchTest {
 
     companion object {
         private const val CONSTITUTION_DAY_NAME = "제헌절"
+        private const val TEMPERATURE_UNIT = "°"
         private val JULY_2026 = YearMonth(year = 2026, month = Month.JULY)
     }
 }

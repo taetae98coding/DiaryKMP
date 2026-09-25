@@ -3,10 +3,14 @@
 package io.github.taetae98coding.diary.feature.memo.ui.finished
 
 import androidx.paging.PagingData
+import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.core.model.memo.Memo
+import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.domain.memo.usecase.DeleteMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.FinishMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageFinishedMemoUseCase
@@ -14,6 +18,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.RestartMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -32,6 +37,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.datetime.LocalDate
 import kotlin.uuid.Uuid
 
 class MemoFinishedListViewModelTest : FunSpec() {
@@ -81,17 +87,27 @@ class MemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("메모 다시 시작에 실패하면 Effect를 보내지 않는다") {
+        test("TC-MEMO-FINISHED-LIST-FEATURE-026 메모 다시 시작이 저장되지 못하면 안내 Effect를 보내지 않고 메모가 목록에 남는다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memo = fixtureMonkey.giveMeOne<Memo>()
+                val pageFinishedMemoUseCase = mockk<PageFinishedMemoUseCase>()
+                every { pageFinishedMemoUseCase(parameter = ListSort.DEFAULT) } returns flowOf(Result.success(PagingData.from(listOf(memo))))
                 val restartMemoUseCase = mockk<RestartMemoUseCase>()
                 coEvery { restartMemoUseCase(any()) } returns Result.failure(IllegalStateException())
-                val viewModel = viewModel(restartMemoUseCase = restartMemoUseCase)
+                val viewModel = viewModel(pageFinishedMemoUseCase = pageFinishedMemoUseCase, restartMemoUseCase = restartMemoUseCase)
 
                 viewModel.effect.test {
-                    viewModel.restart(id = memoId)
+                    viewModel.restart(id = memo.id)
                     advanceUntilIdle()
 
+                    expectNoEvents()
+                }
+
+                viewModel.memoPagingData.test {
+                    flowOf(awaitItem())
+                        .asSnapshot()
+                        .filterIsInstance<MemoListItem.Content>()
+                        .map { item -> item.memo } shouldBe listOf(memo)
                     expectNoEvents()
                 }
             }
@@ -134,17 +150,27 @@ class MemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("메모 삭제에 실패하면 Effect를 보내지 않는다") {
+        test("TC-MEMO-FINISHED-LIST-FEATURE-026 메모 삭제가 저장되지 못하면 안내 Effect를 보내지 않고 메모가 목록에 남는다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memo = fixtureMonkey.giveMeOne<Memo>()
+                val pageFinishedMemoUseCase = mockk<PageFinishedMemoUseCase>()
+                every { pageFinishedMemoUseCase(parameter = ListSort.DEFAULT) } returns flowOf(Result.success(PagingData.from(listOf(memo))))
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
                 coEvery { deleteMemoUseCase(any()) } returns Result.failure(IllegalStateException())
-                val viewModel = viewModel(deleteMemoUseCase = deleteMemoUseCase)
+                val viewModel = viewModel(pageFinishedMemoUseCase = pageFinishedMemoUseCase, deleteMemoUseCase = deleteMemoUseCase)
 
                 viewModel.effect.test {
-                    viewModel.delete(id = memoId)
+                    viewModel.delete(id = memo.id)
                     advanceUntilIdle()
 
+                    expectNoEvents()
+                }
+
+                viewModel.memoPagingData.test {
+                    flowOf(awaitItem())
+                        .asSnapshot()
+                        .filterIsInstance<MemoListItem.Content>()
+                        .map { item -> item.memo } shouldBe listOf(memo)
                     expectNoEvents()
                 }
             }
@@ -165,6 +191,56 @@ class MemoFinishedListViewModelTest : FunSpec() {
                 }
 
                 coVerify(exactly = 1) { restoreMemoUseCase(parameter = memoId) }
+            }
+        }
+
+        test("TC-MEMO-FINISHED-LIST-FEATURE-030 정렬을 바꾸면 그 정렬로 목록을 다시 조회한다") {
+            listOf(ListSort.TITLE, ListSort.RECENTLY_UPDATED).forEach { sort ->
+                runTest(mainDispatcher) {
+                    val pageFinishedMemoUseCase = mockk<PageFinishedMemoUseCase>()
+                    every { pageFinishedMemoUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.empty()))
+                    val viewModel = viewModel(pageFinishedMemoUseCase = pageFinishedMemoUseCase)
+
+                    viewModel.memoPagingData.test {
+                        awaitItem()
+
+                        viewModel.select(sort = sort)
+
+                        awaitItem()
+                        cancelAndIgnoreRemainingEvents()
+                    }
+
+                    viewModel.sort.value shouldBe sort
+                    verify(exactly = 1) { pageFinishedMemoUseCase(parameter = sort) }
+                }
+            }
+        }
+
+        test("TC-MEMO-FINISHED-LIST-FEATURE-031 기본순이 아닌 정렬에서는 날짜 헤더를 표시하지 않는다") {
+            runTest(mainDispatcher) {
+                val memo =
+                    fixtureMonkey
+                        .giveMeOne<Memo>()
+                        .let { value ->
+                            value.copy(
+                                detail = value.detail.copy(dateTime = MemoDateTime.AllDay(dateRange = LocalDate(2026, 1, 1)..LocalDate(2026, 1, 1))),
+                            )
+                        }
+                val pageFinishedMemoUseCase = mockk<PageFinishedMemoUseCase>()
+                every { pageFinishedMemoUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(listOf(memo))))
+                val viewModel = viewModel(pageFinishedMemoUseCase = pageFinishedMemoUseCase)
+
+                viewModel.memoPagingData.test {
+                    val defaultItemList = flowOf(awaitItem()).asSnapshot()
+                    defaultItemList.filterIsInstance<MemoListItem.DateHeader>().size shouldBe 1
+
+                    viewModel.select(sort = ListSort.TITLE)
+
+                    val titleItemList = flowOf(awaitItem()).asSnapshot()
+                    titleItemList.filterIsInstance<MemoListItem.DateHeader>().shouldBeEmpty()
+                    titleItemList.filterIsInstance<MemoListItem.Content>().map { item -> item.memo } shouldBe listOf(memo)
+                    cancelAndIgnoreRemainingEvents()
+                }
             }
         }
 

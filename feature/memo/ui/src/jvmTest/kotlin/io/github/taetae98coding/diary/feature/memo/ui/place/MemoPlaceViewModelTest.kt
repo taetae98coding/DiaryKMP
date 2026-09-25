@@ -16,7 +16,6 @@ import io.github.taetae98coding.diary.domain.memo.usecase.RemoveMemoPlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -67,7 +66,7 @@ class MemoPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("장소 목록 페이지 조회에 실패하면 빈 목록을 전달하고 선택 상태는 그대로 표시한다") {
+        test("장소 목록 페이지 조회에 실패하면 없는 것으로 확정할 목록을 전달하지 않고 선택 상태는 그대로 표시한다") {
             runTest(mainDispatcher) {
                 val connectedPlace = place()
                 val viewModel =
@@ -76,7 +75,11 @@ class MemoPlaceViewModelTest : FunSpec() {
                         memoPlaceFlow = flowOf(Result.success(listOf(connectedPlace))),
                     )
 
-                flowOf(viewModel.placePagingData.first()).asSnapshot().shouldBeEmpty()
+                viewModel.placePagingData.test {
+                    advanceUntilIdle()
+                    expectNoEvents()
+                    cancelAndIgnoreRemainingEvents()
+                }
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe MemoPlaceInputUiState()

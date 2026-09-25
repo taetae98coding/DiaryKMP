@@ -21,16 +21,23 @@ class MemoTagPickerDialogRestorationTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-DOMAIN-019 화면이 재생성되어도 열려 있는 목록의 검색어가 유지된다`() {
+    fun `TC-MEMO-TAG-INPUT-DOMAIN-019 화면이 회전해도 열려 있는 목록의 검색어와 좁힌 결과가 유지된다`() {
         val workTag = testTag(title = WORK_TAG_TITLE)
-        val tagPagingDataFlow = MutableStateFlow(tagPagingDataOf(listOf(workTag)))
+        val exerciseTag = testTag(title = EXERCISE_TAG_TITLE)
+        val tagPagingDataFlow = MutableStateFlow(tagPagingDataOf(listOf(workTag, exerciseTag)))
         val queryList = mutableListOf<String>()
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
             DiaryTheme {
                 MemoTagPickerDialogHost(
                     dialogState = rememberDialogState(initialVisible = true),
-                    onEvent = { event -> if (event is MemoTagPickerEvent.ChangeQuery) queryList += event.query },
+                    onEvent = { event ->
+                        if (event is MemoTagPickerEvent.ChangeQuery) {
+                            queryList += event.query
+                            val narrowedList = if (event.query.isEmpty()) listOf(workTag, exerciseTag) else listOf(workTag)
+                            tagPagingDataFlow.value = tagPagingDataOf(narrowedList)
+                        }
+                    },
                     tagPagingItems = tagPagingDataFlow.collectAsLazyPagingItems(),
                 )
             }
@@ -47,5 +54,6 @@ class MemoTagPickerDialogRestorationTest {
         composeRule.dialogNodeWithText(WORK_TAG_QUERY).assertExists()
         composeRule.awaitTagPickerRows()
         composeRule.dialogNodeWithText(WORK_TAG_TITLE).assertExists()
+        composeRule.dialogNodeWithText(EXERCISE_TAG_TITLE).assertDoesNotExist()
     }
 }

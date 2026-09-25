@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.tag.ui.add
 
+import androidx.compose.runtime.remember
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
@@ -21,12 +22,28 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.navigation3.runtime.result.ResultEventBus
+import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.feature.tag.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
+import io.github.taetae98coding.diary.feature.tag.ui.link.TagLinkInputUiState
+import io.github.taetae98coding.diary.feature.tag.ui.link.WORK_TAG_TITLE
+import io.github.taetae98coding.diary.feature.tag.ui.link.testTag
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.receiveAsFlow
 import org.junit.Rule
 import org.junit.Test
@@ -104,9 +121,16 @@ class TagAddScreenTest {
     }
 
     @Test
-    fun `TC-TAG-ADD-FEATURE-012 화면이 재생성되어도 제목 설명 컬러를 유지한다`() {
+    fun `TC-TAG-ADD-FEATURE-012 화면이 회전하거나 창 크기가 바뀌어도 이모지 제목 설명 컬러와 고른 연결을 유지한다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val viewModel = screenTestViewModel()
+        val linkedTag = testTag(title = WORK_TAG_TITLE)
+        // 고른 연결은 회전 중에도 살아 있는 상태 보관자가 들고 있다.
+        val linkViewModel =
+            screenTestLinkViewModel(
+                uiState = MutableStateFlow(TagLinkInputUiState(linkedTagList = listOf(linkedTag))),
+                linkedTagIdSet = MutableStateFlow(setOf(linkedTag.id)),
+            )
         restorationTester.setContent {
             TagAddScreenTestTheme {
                 TagAddScreen(
@@ -116,7 +140,7 @@ class TagAddScreenTest {
                     navigateUp = {},
                     navigateToDetail = {},
                     addViewModel = viewModel,
-                    linkViewModel = screenTestLinkViewModel(),
+                    linkViewModel = linkViewModel,
                     componentVisibleProvider = { TagAddScaffoldComponentVisible() },
                 )
             }
@@ -140,6 +164,70 @@ class TagAddScreenTest {
         composeRule.emojiInput().assert(hasText(TYPED_EMOJI))
         composeRule.descriptionInput().assert(hasText(TYPED_DESCRIPTION))
         composeRule.onNodeWithText(BLUE_HEX, substring = true).assertExists()
+        composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
+    }
+
+    @Test
+    fun `TC-TAG-ADD-FEATURE-025 메모리 정리 뒤 복원하면 입력 내용은 복원하고 고른 연결은 복원하지 않는다`() {
+        val restorationTester = StateRestorationTester(composeRule)
+        val viewModel = screenTestViewModel()
+        val linkedTag = testTag(title = fixtureText(prefix = "LinkedTag"))
+        val typedTitle = fixtureText(prefix = "TagTitle")
+        val typedDescription = fixtureText(prefix = "TagDescription")
+        lateinit var linkViewModel: TagAddLinkViewModel
+        restorationTester.setContent {
+            // 메모리 정리 뒤에는 고른 연결을 들고 있던 상태 보관자도 새로 만들어진다.
+            linkViewModel = remember { realLinkViewModel(tagList = listOf(linkedTag)) }
+            TagAddScreenTestTheme {
+                TagAddScreen(
+                    navigateToTagAdd = {},
+                    addedResultRequestKey = null,
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    navigateUp = {},
+                    navigateToDetail = {},
+                    addViewModel = viewModel,
+                    linkViewModel = linkViewModel,
+                    componentVisibleProvider = { TagAddScaffoldComponentVisible() },
+                )
+            }
+        }
+        composeRule.runOnIdle { linkViewModel.link(id = linkedTag.id) }
+        val initialColorHex = currentColorHex()
+        composeRule.onNodeWithText(initialColorHex, substring = true).performScrollTo().performClick()
+        composeRule.onNode(hasSetTextAction() and hasText(initialColorHex)).performTextReplacement(BLUE_HEX)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_CONFIRM).performClick()
+        composeRule.waitForIdle()
+        composeRule.inputEmoji(emoji = TYPED_EMOJI)
+        composeRule.titleInput().performTextInput(typedTitle)
+        composeRule.descriptionInput().performTextInput(typedDescription)
+        composeRule.onNodeWithText(linkedTag.detail.title).assertExists()
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        composeRule.titleInput().assert(hasText(typedTitle))
+        composeRule.emojiInput().assert(hasText(TYPED_EMOJI))
+        composeRule.descriptionInput().assert(hasText(typedDescription))
+        composeRule.onNodeWithText(BLUE_HEX, substring = true).assertExists()
+        composeRule.onNodeWithText(linkedTag.detail.title).assertDoesNotExist()
+        composeRule.runOnIdle { linkViewModel.linkedTagIdSet.value.shouldBeEmpty() }
+    }
+
+    @Test
+    fun `TC-TAG-ADD-DATA-008 컬러를 바꾸지 않고 추가하면 처음 제시한 컬러로 추가를 요청한다`() {
+        val viewModel = screenTestViewModel()
+        val detailSlot = slot<TagDetail>()
+        every { viewModel.add(capture(detailSlot), any()) } just Runs
+        setTagAddScreen(viewModel = viewModel)
+        val initialColorHex = currentColorHex()
+
+        composeRule.titleInput().performTextInput(TYPED_TITLE)
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        "#%06X".format(detailSlot.captured.color.toInt() and RGB_MASK) shouldBe initialColorHex
+        detailSlot.captured.description shouldBe ""
     }
 
     private fun assertFocusMovesToTitle(effect: TagAddEffect) {
@@ -205,6 +293,17 @@ class TagAddScreenTest {
         composeRule.onNodeWithText(initialColorHex, substring = true).assertExists()
     }
 
+    private fun realLinkViewModel(tagList: List<Tag>): TagAddLinkViewModel {
+        val pageTagUseCase = mockk<PageTagUseCase>()
+        every { pageTagUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.empty()))
+        val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
+        every { getSelectedTagUseCase(parameter = any()) } answers {
+            val tagIdSet = firstArg<Set<Uuid>>()
+            flowOf(Result.success(tagList.filter { tag -> tag.id in tagIdSet }))
+        }
+        return TagAddLinkViewModel(pageTagUseCase = pageTagUseCase, getSelectedTagUseCase = getSelectedTagUseCase)
+    }
+
     private fun currentColorHex(): String =
         composeRule
             .onNode(hasHexText() and hasClickAction())
@@ -241,6 +340,7 @@ class TagAddScreenTest {
         private const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add tag"
         private const val DEFAULT_CONFIRM = "Confirm"
         private const val BLUE_HEX = "#0000FF"
+        private const val RGB_MASK = 0xFFFFFF
 
         private val hexRegex = Regex(pattern = "#[0-9A-F]{6}")
 

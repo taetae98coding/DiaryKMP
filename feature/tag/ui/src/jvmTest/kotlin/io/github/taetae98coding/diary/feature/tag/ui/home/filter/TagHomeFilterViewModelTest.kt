@@ -105,6 +105,34 @@ class TagHomeFilterViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-TAG-HOME-FEATURE-035 필터 선택을 저장하지 못하면 바꾸기 전의 선택을 그대로 노출한다") {
+            listOf(false, true).forEach { savedValue ->
+                runTest(mainDispatcher) {
+                    val enableTopLevelTagFilterUseCase = mockk<EnableTopLevelTagFilterUseCase>()
+                    coEvery { enableTopLevelTagFilterUseCase(parameter = Unit) } returns Result.failure(IllegalStateException())
+                    val disableTopLevelTagFilterUseCase = mockk<DisableTopLevelTagFilterUseCase>()
+                    coEvery { disableTopLevelTagFilterUseCase(parameter = Unit) } returns Result.failure(IllegalStateException())
+                    val viewModel =
+                        viewModel(
+                            getTopLevelTagFilterUseCase = getTopLevelTagFilterUseCase(MutableStateFlow(savedValue).map { value -> Result.success(value) }),
+                            enableTopLevelTagFilterUseCase = enableTopLevelTagFilterUseCase,
+                            disableTopLevelTagFilterUseCase = disableTopLevelTagFilterUseCase,
+                        )
+
+                    viewModel.uiState.test {
+                        runCurrent()
+                        expectMostRecentItem() shouldBe TagHomeFilterUiState(isTopLevelOnly = savedValue)
+
+                        if (savedValue) viewModel.disableTopLevelOnly() else viewModel.enableTopLevelOnly()
+                        runCurrent()
+
+                        expectNoEvents()
+                        viewModel.uiState.value shouldBe TagHomeFilterUiState(isTopLevelOnly = savedValue)
+                    }
+                }
+            }
+        }
+
         test("TC-TAG-HOME-FEATURE-029 최상위 태그만 보기를 끄면 필터를 끄는 동작을 한 번 실행한다") {
             runTest(mainDispatcher) {
                 val disableTopLevelTagFilterUseCase = disableTopLevelTagFilterUseCase()

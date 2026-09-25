@@ -82,8 +82,50 @@ class MemoWebPickerDialogSearchTest {
 
         // 검색 입력에도 같은 문자열이 들어 있으므로 목록 항목은 URL로 가려 누른다.
         composeRule.webDialogNodeWithText(WIKI_WEB_URL).performClick()
+        composeRule.waitForIdle()
 
         selectedIdList shouldBe listOf(web.id)
+        composeRule.webDialogNodeWithText(WIKI_WEB_URL).assertExists()
+    }
+
+    @Test
+    fun `TC-MEMO-WEB-INPUT-FEATURE-024 검색어가 있으면 그 검색어로 좁힌 조회 결과만 목록에 나타난다`() {
+        // 좁힌 조회 결과는 목록을 처음 그릴 때 넘긴다. 검색 입력에도 검색어가 들어 있으므로 항목은 URL로 가린다.
+        composeRule.setMemoWebPickerDialog(webList = listOf(testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)), query = WIKI_WEB_QUERY)
+        composeRule.awaitWebPickerRows()
+
+        composeRule.webDialogNodeWithText(WIKI_WEB_URL).assertExists()
+        composeRule.webDialogNodeWithText(DOCS_WEB_TITLE).assertDoesNotExist()
+        composeRule.webDialogNodeWithText(DOCS_WEB_URL).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-MEMO-WEB-INPUT-FEATURE-025 검색어가 없으면 대상 전체의 조회 결과가 목록에 나타난다`() {
+        val webList = listOf(testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL), testWeb(title = DOCS_WEB_TITLE, url = DOCS_WEB_URL))
+        composeRule.setMemoWebPickerDialog(webList = webList, query = "")
+        composeRule.awaitWebPickerRows()
+
+        composeRule.webDialogNodeWithText(WIKI_WEB_URL).assertExists()
+        composeRule.webDialogNodeWithText(DOCS_WEB_URL).assertExists()
+    }
+
+    @Test
+    fun `TC-MEMO-WEB-INPUT-FEATURE-026 검색어로 좁힌 목록에서 선택한 웹 항목을 누르면 해제를 전달하고 목록에 남는다`() {
+        val web = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
+        val unselectedIdList = mutableListOf<Uuid>()
+        composeRule.setMemoWebPickerDialog(
+            webList = listOf(web),
+            uiState = MemoWebInputUiState(selectedWebList = listOf(web)),
+            query = WIKI_WEB_QUERY,
+            onWebUnselect = unselectedIdList::add,
+        )
+        composeRule.awaitWebPickerRows()
+
+        composeRule.webDialogNodeWithText(WIKI_WEB_URL).performClick()
+        composeRule.waitForIdle()
+
+        unselectedIdList shouldBe listOf(web.id)
+        composeRule.webDialogNodeWithText(WIKI_WEB_URL).assertExists()
     }
 
     @Test

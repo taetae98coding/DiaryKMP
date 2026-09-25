@@ -5,9 +5,12 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -130,6 +133,24 @@ class PlaceHomeScaffoldTest {
         setPlaceHomeScaffold(uiStateProvider = { PlaceHomeUiState.Loading })
 
         composeRule.onNodeWithContentDescription(DEFAULT_SEARCH_DESCRIPTION).assert(hasClickAction())
+    }
+
+    @Test
+    fun `상단 바의 검색 버튼을 길게 누르면 접근성 이름과 같은 설명을 표시한다`() {
+        setPlaceHomeScaffold()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_SEARCH_DESCRIPTION).performTouchInput { longClick() }
+
+        composeRule.onNodeWithText(DEFAULT_SEARCH_DESCRIPTION).assertExists()
+    }
+
+    @Test
+    fun `상단 바의 보기 모드 전환 버튼을 길게 누르면 접근성 이름과 같은 설명을 표시한다`() {
+        setPlaceHomeScaffold()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_LIST_VIEW_MODE_DESCRIPTION).performTouchInput { longClick() }
+
+        composeRule.onNodeWithText(DEFAULT_LIST_VIEW_MODE_DESCRIPTION).assertExists()
     }
 
     private fun setPlaceHomeScaffold(

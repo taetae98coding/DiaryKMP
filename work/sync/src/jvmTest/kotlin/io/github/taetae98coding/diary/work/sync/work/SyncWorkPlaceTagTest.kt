@@ -36,7 +36,7 @@ class SyncWorkPlaceTagTest :
             requestOrder shouldContainExactly listOf("tag", "tag", "placeTag", "placeTag")
         }
 
-        test("TC-DATA-SYNC-DOMAIN-020 장소·태그 연결만 대기하면 장소·태그 연결 요청만 발생한다") {
+        test("장소·태그 연결만 대기하면 장소·태그 연결 요청만 발생한다") {
             val context = context(placeTagList = placeTags(size = 1))
 
             context.subject.doWork()

@@ -95,15 +95,17 @@ class MemoAddPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("장소 선택 목록 페이지 조회에 실패하면 빈 목록을 전달한다") {
+        test("장소 선택 목록 페이지 조회에 실패하면 없는 것으로 확정할 목록을 전달하지 않는다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(placePagingFlow = flowOf(Result.failure(IllegalStateException("place error"))))
 
-                val itemList = flowOf(viewModel.placePagingData.first()).asSnapshot()
+                viewModel.placePagingData.test {
+                    advanceUntilIdle()
+                    expectNoEvents()
+                    cancelAndIgnoreRemainingEvents()
+                }
                 viewModel.viewModelScope.cancel()
                 advanceUntilIdle()
-
-                itemList.shouldBeEmpty()
             }
         }
 

@@ -15,6 +15,7 @@ import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.contact.exception.ContactNameBlankException
 import io.github.taetae98coding.diary.domain.contact.exception.ContactPhoneNumberBlankException
 import io.github.taetae98coding.diary.domain.contact.repository.AccountContactRepository
+import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
@@ -29,6 +30,7 @@ import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.coVerifyOrder
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -263,6 +265,63 @@ class AddContactUseCaseTest :
             }
         }
 
+        Given("연락처를 추가할 수 있는 현재 계정이 준비되어 있다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val getAccountUseCase = mockk<GetAccountUseCase>()
+            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            val accountContactRepository = mockk<AccountContactRepository>(relaxed = true)
+            val requestSyncUseCase = requestSyncUseCase()
+            val useCase =
+                AddContactUseCase(
+                    getAccountUseCase = getAccountUseCase,
+                    requestSyncUseCase = requestSyncUseCase,
+                    accountContactRepository = accountContactRepository,
+                    clock = Clock.System,
+                )
+
+            When("연락처 추가에 성공한다") {
+                Then("TC-CONTACT-ADD-DATA-009 기기에 저장한 뒤 서버와 맞추기 위한 동기화를 한 번 요청한다") {
+                    useCase(parameter = AddContactUseCase.Parameter(detail = detail())).shouldBeSuccess()
+
+                    coVerifyOrder {
+                        accountContactRepository.upsert(account = account, contact = any())
+                        requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED)
+                    }
+                    coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
+                }
+            }
+        }
+
+        Given("연락처 저장은 성공하지만 서버 반영이 실패하도록 준비되어 있다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val getAccountUseCase = mockk<GetAccountUseCase>()
+            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            val accountContactRepository = mockk<AccountContactRepository>(relaxed = true)
+            val requestSyncUseCase = mockk<RequestSyncUseCase>()
+            coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns
+                Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+            val useCase =
+                AddContactUseCase(
+                    getAccountUseCase = getAccountUseCase,
+                    requestSyncUseCase = requestSyncUseCase,
+                    accountContactRepository = accountContactRepository,
+                    clock = Clock.System,
+                )
+
+            When("공백이 아닌 이름으로 연락처를 추가한다") {
+                Then("TC-CONTACT-ADD-DATA-010 추가는 성공으로 전달되고 저장한 연락처를 되돌리지 않는다") {
+                    val contactSlot = slot<Contact>()
+                    coEvery { accountContactRepository.upsert(account = account, contact = capture(contactSlot)) } just Runs
+
+                    val contactId = useCase(parameter = AddContactUseCase.Parameter(detail = detail())).shouldBeSuccess()
+
+                    contactSlot.captured.id shouldBe contactId
+                    contactSlot.captured.isDeleted shouldBe false
+                    coVerify(exactly = 0) { accountContactRepository.updateDeleted(account = any(), contactId = any(), isDeleted = any(), updatedAt = any()) }
+                }
+            }
+        }
+
         Given("계정이 게스트 상태로 준비되어 있다") {
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(Account.Guest))
@@ -276,7 +335,7 @@ class AddContactUseCaseTest :
                 )
 
             When("공백이 아닌 이름으로 연락처를 추가한다") {
-                Then("게스트 계정으로 기기에 저장한다") {
+                Then("TC-CONTACT-ADD-DATA-011 게스트 계정으로 기기에 저장한다") {
                     useCase(parameter = AddContactUseCase.Parameter(detail = detail())).shouldBeSuccess()
 
                     coVerify(exactly = 1) { accountContactRepository.upsert(account = Account.Guest, contact = any()) }
@@ -323,7 +382,7 @@ class AddContactUseCaseTest :
                 )
 
             When("공백이 아닌 이름으로 연락처를 추가한다") {
-                Then("TC-CONTACT-ADD-DATA-003 저장 실패를 그대로 전달한다") {
+                Then("TC-CONTACT-ADD-DATA-003 추가를 성공으로 다루지 않고 저장 실패를 전달한다") {
                     val result = useCase(parameter = AddContactUseCase.Parameter(detail = detail()))
 
                     result.shouldBeFailure() shouldBeSameInstanceAs throwable

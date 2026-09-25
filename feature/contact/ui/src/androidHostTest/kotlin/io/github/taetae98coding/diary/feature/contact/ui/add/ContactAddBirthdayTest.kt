@@ -1,12 +1,15 @@
 package io.github.taetae98coding.diary.feature.contact.ui.add
 
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import kotlinx.datetime.LocalDate
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -162,5 +165,49 @@ class ContactAddBirthdayTest {
         composeRule.onNodeWithText(reselectedDisplayText).assertExists()
         composeRule.onNodeWithText(DEFAULT_BIRTHDAY_CALENDAR_LUNAR).assertIsSelected()
         composeRule.onNodeWithText(DEFAULT_BIRTHDAY_CALENDAR_SOLAR).assertIsNotSelected()
+    }
+
+    @Test
+    fun `TC-CONTACT-ADD-FEATURE-031 생일을 고르지 않았으면 생일 고르기가 오늘 날짜에서 시작한다`() {
+        composeRule.setContactAddScreen()
+
+        composeRule.onNodeWithText(DEFAULT_BIRTHDAY_NOT_SET).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.pickerSelection(today()).assertExists()
+    }
+
+    @Test
+    fun `TC-CONTACT-ADD-FEATURE-032 양력으로 고른 생일이 있으면 생일 고르기가 그 날짜에서 시작한다`() {
+        composeRule.setContactAddScreen()
+        composeRule.selectBirthday()
+        val reselectedDisplayText = composeRule.reselectBirthday()
+
+        composeRule.onNodeWithText(reselectedDisplayText).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.pickerSelection(reselectBirthdayDate()).assertExists()
+        composeRule.pickerSelection(today()).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-CONTACT-ADD-FEATURE-032 음력으로 고른 생일이 있으면 생일 고르기가 그 날짜에서 시작한다`() {
+        composeRule.setContactAddScreen()
+        composeRule.selectBirthday()
+        val reselectedDisplayText = composeRule.reselectBirthday()
+        composeRule.selectBirthdayCalendar(DEFAULT_BIRTHDAY_CALENDAR_LUNAR)
+
+        composeRule.onNodeWithText(reselectedDisplayText).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.pickerSelection(reselectBirthdayDate()).assertExists()
+        composeRule.pickerSelection(today()).assertDoesNotExist()
+    }
+
+    // 날짜 고르기는 머리글에서 지금 가리키는 날짜를 기본 환경의 문구로 알린다.
+    private fun ComposeContentTestRule.pickerSelection(date: LocalDate): SemanticsNodeInteraction = onNodeWithContentDescription("$DEFAULT_DATE_PICKER_CURRENT_SELECTION_PREFIX${dayCellText(date)}")
+
+    private companion object {
+        private const val DEFAULT_DATE_PICKER_CURRENT_SELECTION_PREFIX = "Current selection: "
     }
 }

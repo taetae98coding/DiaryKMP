@@ -284,6 +284,29 @@ class GetCalendarContactBirthdayUseCaseTest :
             }
         }
 
+        Given("TC-CALENDAR-CONTACT-BIRTHDAY-DOMAIN-023: 음력 1990년 7월 8일 생일 연락처와 양력 1990년 8월 20일 생일 연락처가 있고 기기에 저장된 음력 자료를 읽지 못한다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val dateRange = LocalDate(2026, 8, 17)..LocalDate(2026, 8, 23)
+            val solarBirthday = calendarContactBirthday(date = LocalDate(2026, 8, 20))
+            val lunarBirthday = lunarContactBirthday(birthday = LocalDate(1990, 7, 8))
+            val lunarRepository = mockk<LunarRepository>()
+            every { lunarRepository.get(dateRange = dateRange) } returns flow { throw IllegalStateException(fixtureMonkey.giveMeOne<String>()) }
+            val useCase =
+                useCase(
+                    account = account,
+                    dateRange = dateRange,
+                    solarBirthdayList = listOf(solarBirthday),
+                    lunarBirthdayList = listOf(lunarBirthday),
+                    lunarRepository = lunarRepository,
+                )
+
+            When("2026년 8월 17일부터 8월 23일까지를 표시 대상 기간으로 조회한다") {
+                Then("조회가 성공하고 양력 생일만 결과에 포함된다") {
+                    useCase(parameter = dateRange).first().shouldBeSuccess() shouldBe listOf(solarBirthday)
+                }
+            }
+        }
+
         Given("TC-CALENDAR-CONTACT-BIRTHDAY-DOMAIN-021: 양력 8월 21일 `가`, 음력 7월 8일 `나`, 양력 8월 20일 `다` 연락처가 있고 2026년 음력 자료가 준비되어 있다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val dateRange = LocalDate(2026, 8, 17)..LocalDate(2026, 8, 23)

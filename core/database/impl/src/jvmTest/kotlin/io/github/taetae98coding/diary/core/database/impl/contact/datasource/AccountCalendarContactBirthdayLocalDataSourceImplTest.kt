@@ -199,6 +199,16 @@ class AccountCalendarContactBirthdayLocalDataSourceImplTest :
                 contactList.map { contact -> contact.id }.sortedBy { id -> id.toString() }
         }
 
+        test("TC-CALENDAR-CONTACT-BIRTHDAY-DOMAIN-022 즐겨찾기 여부는 생일의 노출과 순서를 바꾸지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val notFavoriteContact = contact(birthday = LocalDate(1990, 7, 8), name = "가").copy(isFavorite = false)
+            val favoriteContact = contact(birthday = LocalDate(1990, 7, 8), name = "나").copy(isFavorite = true)
+
+            upsert(accountId, favoriteContact, notFavoriteContact)
+
+            birthdayContactIdList(accountId = accountId) shouldContainExactly listOf(notFavoriteContact.id, favoriteContact.id)
+        }
+
         test("TC-CALENDAR-CONTACT-BIRTHDAY-DOMAIN-009 같은 표시 대상 기간을 다시 조회해도 순서가 유지된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val contactList = List(3) { index -> contact(birthday = LocalDate(1990, 7, 6 + index)) }

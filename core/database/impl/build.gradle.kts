@@ -21,6 +21,7 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.paging.testing)
                 implementation(libs.androidx.room3.testing)
+                implementation(projects.core.testing)
             }
         }
 

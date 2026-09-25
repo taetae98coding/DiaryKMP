@@ -30,6 +30,9 @@ private class JvmGoogleCredentialsManager(
     private val authorizationCodeAttemptFactory: GoogleAuthorizationCodeAttemptFactory =
         GoogleAuthorizationCodeAttemptFactory(clientId),
 ) : GoogleCredentialsManager {
+    // 시스템 브라우저 창이 닫혀도 앱에는 아무 신호가 오지 않는다.
+    override val isSignInEndDetectable: Boolean = false
+
     override suspend fun signIn(): GoogleCredential {
         val receiver =
             LocalServerReceiver

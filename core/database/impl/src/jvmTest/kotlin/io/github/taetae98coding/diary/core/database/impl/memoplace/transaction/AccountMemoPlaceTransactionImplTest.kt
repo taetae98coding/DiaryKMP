@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.core.database.impl.memoplace.transaction
 
+import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.room3.useReaderConnection
 import androidx.sqlite.SQLiteStatement
@@ -13,12 +14,16 @@ import io.github.taetae98coding.diary.core.database.api.memoplace.entity.MemoPla
 import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
+import io.github.taetae98coding.diary.core.database.api.placetag.entity.PlaceTagLocalEntity
+import io.github.taetae98coding.diary.core.database.api.tag.entity.TagScopeLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.memo.datasource.AccountMemoSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.memo.transaction.AccountMemoTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.memoplace.datasource.AccountMemoPlaceLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.memoplace.datasource.AccountMemoPlaceSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.place.transaction.AccountPlaceTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
+import io.github.taetae98coding.diary.core.testing.tag.localTag
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
@@ -27,9 +32,11 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.every
 import io.mockk.spyk
 import kotlinx.coroutines.flow.first
+import kotlinx.datetime.LocalDateTime
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -40,6 +47,7 @@ class AccountMemoPlaceTransactionImplTest :
         lateinit var database: DiaryDatabase
         lateinit var memoTransaction: AccountMemoTransactionImpl
         lateinit var placeTransaction: AccountPlaceTransactionImpl
+        lateinit var tagTransaction: AccountTagTransactionImpl
         lateinit var accountMemoPlaceTransaction: AccountMemoPlaceTransactionImpl
         lateinit var syncTransaction: AccountMemoPlaceSyncTransactionImpl
         lateinit var dataSource: AccountMemoPlaceLocalDataSourceImpl
@@ -53,6 +61,7 @@ class AccountMemoPlaceTransactionImplTest :
                     .build()
             memoTransaction = AccountMemoTransactionImpl(database = database)
             placeTransaction = AccountPlaceTransactionImpl(database = database)
+            tagTransaction = AccountTagTransactionImpl(database = database)
             accountMemoPlaceTransaction = AccountMemoPlaceTransactionImpl(database = database)
             syncTransaction = AccountMemoPlaceSyncTransactionImpl(database = database)
             dataSource = AccountMemoPlaceLocalDataSourceImpl(database = database)
@@ -177,10 +186,10 @@ class AccountMemoPlaceTransactionImplTest :
             val memoPlace = memoPlace(memoId = memo.id, placeId = place.id, memo = memo)
             insertMemoWithPlaceList(accountId = accountId, memo = memo, placeList = listOf(place))
 
-            memoTransaction.updateFinished(accountId = accountId, memoId = memo.id, isFinished = true, updatedAt = instant())
+            memoTransaction.updateFinished(accountId = accountId, memoId = memo.id, isFinished = true, updatedAt = fixtureMonkey.giveMeOne<Instant>())
             findMemoPlaceList(memoId = memo.id) shouldBe listOf(memoPlace)
 
-            memoTransaction.updateDeleted(accountId = accountId, memoId = memo.id, isDeleted = true, updatedAt = instant())
+            memoTransaction.updateDeleted(accountId = accountId, memoId = memo.id, isDeleted = true, updatedAt = fixtureMonkey.giveMeOne<Instant>())
             findMemoPlaceList(memoId = memo.id) shouldBe listOf(memoPlace)
         }
 
@@ -189,7 +198,7 @@ class AccountMemoPlaceTransactionImplTest :
             val memo = memo()
             val place = place()
             val newDetail = fixtureMonkey.giveMeOne<MemoDetailLocalEntity>()
-            val updatedAt = instant()
+            val updatedAt = fixtureMonkey.giveMeOne<Instant>()
             insertMemoWithPlaceList(accountId = accountId, memo = memo, placeList = listOf(place))
 
             memoTransaction.updateDetail(accountId = accountId, memoId = memo.id, detail = newDetail, updatedAt = updatedAt)
@@ -205,7 +214,7 @@ class AccountMemoPlaceTransactionImplTest :
             val memo = memo()
             val place = place()
             insertMemoWithPlaceList(accountId = accountId, memo = memo, placeList = listOf(place))
-            val removedAt = instant()
+            val removedAt = fixtureMonkey.giveMeOne<Instant>()
 
             accountMemoPlaceTransaction.upsert(accountId = accountId, memoId = memo.id, placeId = place.id, isDeleted = true, updatedAt = removedAt)
 
@@ -226,7 +235,7 @@ class AccountMemoPlaceTransactionImplTest :
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val place = place()
-            val createdAt = instant()
+            val createdAt = fixtureMonkey.giveMeOne<Instant>()
             placeTransaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = emptyList())
             memoTransaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
             database.memoPlaceDao().upsert(
@@ -234,11 +243,11 @@ class AccountMemoPlaceTransactionImplTest :
                     memoId = memo.id,
                     placeId = place.id,
                     isDeleted = true,
-                    updatedAt = instant(),
+                    updatedAt = fixtureMonkey.giveMeOne<Instant>(),
                     createdAt = createdAt,
                 ),
             )
-            val restoredAt = instant()
+            val restoredAt = fixtureMonkey.giveMeOne<Instant>()
 
             accountMemoPlaceTransaction.upsert(accountId = accountId, memoId = memo.id, placeId = place.id, isDeleted = false, updatedAt = restoredAt)
 
@@ -268,7 +277,7 @@ class AccountMemoPlaceTransactionImplTest :
                 memoId = memo.id,
                 placeId = removedPlace.id,
                 isDeleted = true,
-                updatedAt = instant(),
+                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
             )
 
             findPendingPlaceIdList(accountId = accountId) shouldBe listOf(removedPlace.id)
@@ -288,7 +297,7 @@ class AccountMemoPlaceTransactionImplTest :
                 memoId = memo.id,
                 placeId = addedPlace.id,
                 isDeleted = false,
-                updatedAt = instant(),
+                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
             )
 
             findPendingPlaceIdList(accountId = accountId) shouldBe listOf(addedPlace.id)
@@ -296,7 +305,7 @@ class AccountMemoPlaceTransactionImplTest :
 
         test("TC-MEMO-PLACE-DATA-001 저장된 연결의 생성 시각과 수정 시각은 저장 시점으로 서로 같고 해제되지 않은 상태다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val now = instant()
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val memo = memo().copy(updatedAt = now, createdAt = now)
             val place = place()
 
@@ -342,7 +351,7 @@ class AccountMemoPlaceTransactionImplTest :
         test("TC-MEMO-PLACE-DATA-003 같은 연결을 다른 수정 시각으로 저장하면 마지막 내용으로 덮어쓴다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
-            val changedMemo = memo.copy(updatedAt = instant())
+            val changedMemo = memo.copy(updatedAt = fixtureMonkey.giveMeOne<Instant>())
             val place = place()
 
             insertMemoWithPlaceList(accountId = accountId, memo = memo, placeList = listOf(place))
@@ -367,7 +376,7 @@ class AccountMemoPlaceTransactionImplTest :
             val removedPlace = place()
             insertMemoWithPlaceList(accountId = accountId, memo = memo, placeList = listOf(keptPlace, removedPlace))
 
-            accountMemoPlaceTransaction.upsert(accountId = accountId, memoId = memo.id, placeId = removedPlace.id, isDeleted = true, updatedAt = instant())
+            accountMemoPlaceTransaction.upsert(accountId = accountId, memoId = memo.id, placeId = removedPlace.id, isDeleted = true, updatedAt = fixtureMonkey.giveMeOne<Instant>())
 
             getPlaceList(accountId = accountId, memoId = memo.id) shouldBe listOf(keptPlace)
         }
@@ -378,7 +387,7 @@ class AccountMemoPlaceTransactionImplTest :
             val place = place()
             placeTransaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = emptyList())
             memoTransaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
-            val updatedAt = instant()
+            val updatedAt = fixtureMonkey.giveMeOne<Instant>()
 
             accountMemoPlaceTransaction.upsert(accountId = accountId, memoId = memo.id, placeId = place.id, isDeleted = false, updatedAt = updatedAt)
 
@@ -420,8 +429,8 @@ class AccountMemoPlaceTransactionImplTest :
             val keptPlaceList = List(2) { place() }
             val removedPlace = place()
             insertMemoWithPlaceList(accountId = accountId, memo = source, placeList = keptPlaceList + removedPlace)
-            accountMemoPlaceTransaction.upsert(accountId = accountId, memoId = source.id, placeId = removedPlace.id, isDeleted = true, updatedAt = instant())
-            val copiedAt = instant()
+            accountMemoPlaceTransaction.upsert(accountId = accountId, memoId = source.id, placeId = removedPlace.id, isDeleted = true, updatedAt = fixtureMonkey.giveMeOne<Instant>())
+            val copiedAt = fixtureMonkey.giveMeOne<Instant>()
             val copy = memo().copy(updatedAt = copiedAt, createdAt = copiedAt)
 
             val sourcePlaceIdSet = copyMemoWithPlace(accountId = accountId, sourceId = source.id, copy = copy)
@@ -467,6 +476,171 @@ class AccountMemoPlaceTransactionImplTest :
             getPlaceList(accountId = accountId, memoId = source.id) shouldBe listOf(place)
         }
 
+        test("TC-MEMO-PLACE-DOMAIN-010 연결된 장소는 제목 오름차순으로 조회된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = memo()
+            val firstPlace = place().withTitle(title = "AAA")
+            val secondPlace = place().withTitle(title = "BBB")
+            val thirdPlace = place().withTitle(title = "CCC")
+            insertMemoWithPlaceList(accountId = accountId, memo = memo, placeList = listOf(thirdPlace, firstPlace, secondPlace))
+
+            getPlaceList(accountId = accountId, memoId = memo.id) shouldBe listOf(firstPlace, secondPlace, thirdPlace)
+        }
+
+        test("TC-MEMO-PLACE-DOMAIN-011 삭제된 장소는 메모의 연결된 장소 조회에서 빠진다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = memo()
+            val keptPlace = place()
+            val deletedPlace = place()
+            insertMemoWithPlaceList(accountId = accountId, memo = memo, placeList = listOf(keptPlace, deletedPlace))
+
+            placeTransaction.upsert(accountId = accountId, placeList = listOf(deletedPlace.copy(isDeleted = true)), placeTagList = emptyList())
+
+            getPlaceList(accountId = accountId, memoId = memo.id) shouldBe listOf(keptPlace)
+        }
+
+        test("TC-MEMO-PLACE-DOMAIN-012 장소 연결은 장소 목록의 노출과 순서를 바꾸지 않는다") {
+            listOf("AAA" to "BBB", "BBB" to "AAA").forEach { (linkedTitle, unlinkedTitle) ->
+                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val memo = memo()
+                val linkedPlace = place().withTitle(title = linkedTitle)
+                val unlinkedPlace = place().withTitle(title = unlinkedTitle)
+                insertMemoWithPlaceList(accountId = accountId, memo = memo, placeList = listOf(linkedPlace))
+                placeTransaction.upsert(accountId = accountId, placeList = listOf(unlinkedPlace), placeTagList = emptyList())
+
+                val placeList =
+                    database
+                        .accountPlaceDao()
+                        .page(accountId = accountId, query = "", sort = "title")
+                        .loadAll()
+
+                placeList.map { place -> place.id } shouldBe listOf(linkedPlace, unlinkedPlace).sortedBy { place -> place.detail.title }.map { place -> place.id }
+            }
+        }
+
+        test("TC-MEMO-PLACE-DOMAIN-013 연결된 장소의 제목은 메모 검색에 쓰이지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val query = "query-${fixtureMonkey.giveMeOne<Uuid>()}"
+            val memo = memo().copy(isDeleted = false).withTitle(title = "memo-title")
+            val memoWithDescription = memo.copy(detail = memo.detail.copy(description = "memo-description"))
+            val place = place().withTitle(title = "place-$query")
+            insertMemoWithPlaceList(accountId = accountId, memo = memoWithDescription, placeList = listOf(place))
+
+            val memoList =
+                database
+                    .searchMemoDao()
+                    .page(accountId = accountId, query = query, sort = "title")
+                    .loadAll()
+
+            memoList.shouldBeEmpty()
+        }
+
+        test("TC-MEMO-PLACE-DOMAIN-014 장소 연결은 태그로 메모를 조회한 결과를 바꾸지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = memo().copy(isFinished = false, isDeleted = false, primaryTagId = null)
+            val place = place()
+            val tag = fixtureMonkey.localTag(isFinished = false, isDeleted = false)
+            tagTransaction.upsert(accountId = accountId, tagList = listOf(tag), tagLinkList = emptyList())
+            insertMemoWithPlaceList(accountId = accountId, memo = memo, placeList = listOf(place))
+            placeTransaction.upsert(
+                accountId = accountId,
+                placeList = listOf(place),
+                placeTagList =
+                    listOf(
+                        PlaceTagLocalEntity(
+                            placeId = place.id,
+                            tagId = tag.id,
+                            isDeleted = false,
+                            updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+                            createdAt = fixtureMonkey.giveMeOne<Instant>(),
+                        ),
+                    ),
+            )
+
+            val memoList =
+                database
+                    .accountTagMemoDao()
+                    .page(accountId = accountId, tagId = tag.id, scope = TagScopeLocalEntity.SELF.queryValue, sort = "title")
+                    .loadAll()
+
+            memoList.shouldBeEmpty()
+        }
+
+        test("TC-MEMO-PLACE-DOMAIN-015 필터를 고르지 않은 메모 목록에서 장소 연결은 노출과 순서를 바꾸지 않는다") {
+            listOf("AAA" to "BBB", "BBB" to "AAA").forEach { (linkedTitle, unlinkedTitle) ->
+                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val linkedMemo = memo().copy(isFinished = false, isDeleted = false).withTitle(title = linkedTitle)
+                val unlinkedMemo = memo().copy(isFinished = false, isDeleted = false).withTitle(title = unlinkedTitle)
+                insertMemoWithPlaceList(accountId = accountId, memo = linkedMemo, placeList = listOf(place()))
+                memoTransaction.upsert(accountId = accountId, memoList = listOf(unlinkedMemo), memoTagList = emptyList())
+
+                val memoList =
+                    database
+                        .accountMemoDao()
+                        .page(accountId = accountId, sort = "title")
+                        .loadAll()
+
+                memoList.map { memo -> memo.id } shouldBe listOf(linkedMemo, unlinkedMemo).sortedBy { memo -> memo.detail.title }.map { memo -> memo.id }
+            }
+        }
+
+        test("TC-MEMO-PLACE-DOMAIN-016 장소 연결은 캘린더의 메모 노출을 바꾸지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val start = LocalDateTime(year = 2026, month = 9, day = 25, hour = 9, minute = 0)
+            val endInclusive = LocalDateTime(year = 2026, month = 9, day = 26, hour = 9, minute = 0)
+            val linkedMemo = memo().copy(isDeleted = false).withPeriod(start = start, endInclusive = endInclusive)
+            val unlinkedMemo = memo().copy(isDeleted = false).withPeriod(start = start, endInclusive = endInclusive)
+            insertMemoWithPlaceList(accountId = accountId, memo = linkedMemo, placeList = listOf(place()))
+            memoTransaction.upsert(accountId = accountId, memoList = listOf(unlinkedMemo), memoTagList = emptyList())
+
+            val calendarMemoList =
+                database
+                    .accountCalendarMemoDao()
+                    .get(accountId = accountId, start = start.date, endInclusive = endInclusive.date)
+                    .first()
+
+            calendarMemoList.map { memo -> memo.id } shouldContainExactlyInAnyOrder listOf(linkedMemo.id, unlinkedMemo.id)
+        }
+
+        test("TC-MEMO-PLACE-DOMAIN-017 연결된 메모의 제목은 장소 검색에 쓰이지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val query = "query-${fixtureMonkey.giveMeOne<Uuid>()}"
+            val memo = memo().copy(isDeleted = false).withTitle(title = "memo-$query")
+            val place = place().let { value -> value.copy(detail = value.detail.copy(title = "place-title", description = "place-description", address = "place-address")) }
+            insertMemoWithPlaceList(accountId = accountId, memo = memo, placeList = listOf(place))
+
+            val placeList =
+                database
+                    .searchPlaceDao()
+                    .page(accountId = accountId, query = query, sort = "title")
+                    .loadAll()
+
+            placeList.shouldBeEmpty()
+        }
+
+        test("TC-MEMO-PLACE-DOMAIN-018 메모 연결은 태그로 장소를 조회한 결과를 바꾸지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = memo().copy(isFinished = false, isDeleted = false, primaryTagId = null)
+            val place = place()
+            val tag = fixtureMonkey.localTag(isFinished = false, isDeleted = false)
+            tagTransaction.upsert(accountId = accountId, tagList = listOf(tag), tagLinkList = emptyList())
+            placeTransaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = emptyList())
+            memoTransaction.upsert(
+                accountId = accountId,
+                memoList = listOf(memo),
+                memoTagList = listOf(memoTag(memoId = memo.id, tagId = tag.id, memo = memo)),
+                memoPlaceList = listOf(memoPlace(memoId = memo.id, placeId = place.id, memo = memo)),
+            )
+
+            val placeList =
+                database
+                    .accountTagPlaceDao()
+                    .page(accountId = accountId, tagId = tag.id, scope = TagScopeLocalEntity.SELF.queryValue, sort = "title")
+                    .loadAll()
+
+            placeList.shouldBeEmpty()
+        }
+
         listOf(
             "완료된" to { memo: MemoLocalEntity -> memo.copy(isFinished = true, isDeleted = false) },
             "삭제된" to { memo: MemoLocalEntity -> memo.copy(isFinished = false, isDeleted = true) },
@@ -478,7 +652,7 @@ class AccountMemoPlaceTransactionImplTest :
                 placeTransaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = emptyList())
                 memoTransaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
 
-                accountMemoPlaceTransaction.upsert(accountId = accountId, memoId = memo.id, placeId = place.id, isDeleted = false, updatedAt = instant())
+                accountMemoPlaceTransaction.upsert(accountId = accountId, memoId = memo.id, placeId = place.id, isDeleted = false, updatedAt = fixtureMonkey.giveMeOne<Instant>())
 
                 getPlaceList(accountId = accountId, memoId = memo.id) shouldBe listOf(place)
             }
@@ -491,8 +665,6 @@ class AccountMemoPlaceTransactionImplTest :
         private fun memo(): MemoLocalEntity =
             fixtureMonkey
                 .giveMeKotlinBuilder<MemoLocalEntity>()
-                .setExp(MemoLocalEntity::updatedAt, instant())
-                .setExp(MemoLocalEntity::createdAt, instant())
                 .sample()
 
         private fun place(): PlaceLocalEntity =
@@ -500,8 +672,6 @@ class AccountMemoPlaceTransactionImplTest :
                 .giveMeKotlinBuilder<PlaceLocalEntity>()
                 .setExp(PlaceLocalEntity::detail, placeDetail())
                 .setExp(PlaceLocalEntity::isDeleted, false)
-                .setExp(PlaceLocalEntity::updatedAt, instant())
-                .setExp(PlaceLocalEntity::createdAt, instant())
                 .sample()
 
         private fun placeDetail(): PlaceDetailLocalEntity =
@@ -511,7 +681,19 @@ class AccountMemoPlaceTransactionImplTest :
                 .setExp(PlaceDetailLocalEntity::longitude, fixtureMonkey.giveMeOne<Long>() % 180 + 0.5)
                 .sample()
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun PlaceLocalEntity.withTitle(title: String): PlaceLocalEntity = copy(detail = detail.copy(title = title))
+
+        private fun MemoLocalEntity.withTitle(title: String): MemoLocalEntity = copy(detail = detail.copy(title = title))
+
+        private fun MemoLocalEntity.withPeriod(
+            start: LocalDateTime,
+            endInclusive: LocalDateTime,
+        ): MemoLocalEntity = copy(detail = detail.copy(isAllDay = false, start = start, endInclusive = endInclusive))
+
+        private suspend fun <T : Any> PagingSource<Int, T>.loadAll(): List<T> =
+            load(PagingSource.LoadParams.Refresh(key = null, loadSize = 100, placeholdersEnabled = false))
+                .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, T>>()
+                .data
 
         private fun memoPlace(
             memoId: Uuid,

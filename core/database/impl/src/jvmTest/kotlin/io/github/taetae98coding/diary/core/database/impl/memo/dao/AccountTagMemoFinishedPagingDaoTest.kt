@@ -15,6 +15,7 @@ import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntit
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagScopeLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.memofilter.entity.MemoFilterTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memotag.entity.AccountMemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -193,6 +194,18 @@ class AccountTagMemoFinishedPagingDaoTest :
             insertTagMemo(accountId, targetTag, disconnectedFinishedMemo, isConnectionDeleted = true)
             insertTagMemo(accountId, otherTag, otherTagFinishedMemo)
             insertTagMemo(otherAccountId, targetTag, otherAccountFinishedMemo)
+
+            finishedTagPagedIds(accountId = accountId, tagId = targetTag.id) shouldBe listOf(finishedMemo.id)
+        }
+
+        test("TC-TAG-MEMO-FINISHED-LIST-DOMAIN-005 MemoHome의 태그 필터를 골라 두어도 대상 태그의 완료 메모는 그대로 조회된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val targetTag = tag()
+            val filterTag = tag()
+            val finishedMemo = memo(isFinished = true, isDeleted = false)
+            insertTagMemo(accountId, targetTag, finishedMemo)
+            insertTag(accountId = accountId, tag = filterTag)
+            database.memoFilterTagDao().upsert(entity = MemoFilterTagLocalEntity(accountId = accountId, tagId = filterTag.id))
 
             finishedTagPagedIds(accountId = accountId, tagId = targetTag.id) shouldBe listOf(finishedMemo.id)
         }

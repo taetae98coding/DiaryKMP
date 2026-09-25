@@ -90,7 +90,7 @@ class CalendarHomeScreenMemoTest {
     fun `TC-CALENDAR-HOME-DATA-019 메모 조회가 실패해도 메모 없이 표시하고 공휴일 표시를 막지 않는다`() {
         val getCalendarMemoUseCase = mockk<GetCalendarMemoUseCase>()
         every { getCalendarMemoUseCase(parameter = any()) } returns
-            flowOf(Result.failure(IllegalStateException("memo get failed")))
+            flowOf(Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())))
         val getCalendarFilterUseCase = mockk<GetCalendarFilterUseCase>()
         every { getCalendarFilterUseCase(parameter = Unit) } returns flowOf(Result.success(emptyList()))
         val memoViewModel =

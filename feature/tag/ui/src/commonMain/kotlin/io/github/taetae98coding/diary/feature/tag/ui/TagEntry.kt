@@ -7,11 +7,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
+import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateProvider
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
@@ -62,24 +65,8 @@ private fun EntryProviderScope<ScreenNavKey>.tagHomeEntry(
     homeReselectEvent: Flow<Unit>,
 ) {
     entry<TagHomeNavKey>(
-        metadata =
-            ListDetailSceneStrategy.listPane(
-                sceneKey = TagHomeNavKey,
-                detailPlaceholder = {
-                    val tagAddRequestKey = rememberResultRequestKey()
-
-                    TagAddScreen(
-                        navigateUp = {},
-                        navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-                        navigateToDetail = { id -> backStack.navigateToTagDetail(id) },
-                        addedResultRequestKey = null,
-                        tagAddRequestKey = tagAddRequestKey,
-                        componentVisibleProvider = { TagAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
-                        addViewModel = koinViewModel(),
-                        linkViewModel = koinViewModel(),
-                    )
-                },
-            ) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION),
+        clazzContentKey = { TAG_HOME_CONTENT_KEY },
+        metadata = tagHomeListPaneMetadata(backStack = backStack),
     ) {
         val isDetailPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.Detail)
         val gridState = rememberLazyGridState()
@@ -89,9 +76,7 @@ private fun EntryProviderScope<ScreenNavKey>.tagHomeEntry(
             gridState = gridState,
         )
         TagHomeScreen(
-            navigateToAdd = {
-                backStack.add(TagAddNavKey())
-            },
+            navigateToAdd = { backStack.navigateToTagAdd() },
             navigateToDetail = { id -> backStack.navigateToTagDetail(id) },
             navigateToFilter = {
                 backStack.add(TagHomeFilterNavKey)
@@ -113,6 +98,34 @@ private fun EntryProviderScope<ScreenNavKey>.tagHomeEntry(
             syncViewModel = koinViewModel(),
         )
     }
+}
+
+internal const val TAG_HOME_CONTENT_KEY: String = "TagHomeNavKey"
+
+internal fun tagHomeListPaneMetadata(backStack: NavBackStack<ScreenNavKey>): Map<String, Any> =
+    ListDetailSceneStrategy.listPane(
+        sceneKey = TagHomeNavKey,
+        detailPlaceholder = {
+            ListDetailPlaceholderStateProvider(listContentKey = TAG_HOME_CONTENT_KEY) {
+                TagAddDetailPlaceholder(backStack = backStack)
+            }
+        },
+    ) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION)
+
+@Composable
+private fun TagAddDetailPlaceholder(backStack: NavBackStack<ScreenNavKey>) {
+    val tagAddRequestKey = rememberResultRequestKey()
+
+    TagAddScreen(
+        navigateUp = {},
+        navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+        navigateToDetail = { id -> backStack.navigateToTagDetail(id) },
+        addedResultRequestKey = null,
+        tagAddRequestKey = tagAddRequestKey,
+        componentVisibleProvider = { TagAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
+        addViewModel = koinViewModel(),
+        linkViewModel = koinViewModel(),
+    )
 }
 
 private fun EntryProviderScope<ScreenNavKey>.tagHomeFilterEntry() {
@@ -156,28 +169,31 @@ private fun EntryProviderScope<ScreenNavKey>.tagAddEntry(backStack: NavBackStack
 
 private fun EntryProviderScope<ScreenNavKey>.tagDetailEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<TagDetailNavKey>(
+        clazzContentKey = { key -> backStack.tagDetailContentKey(key) },
         metadata = { key -> backStack.tagListDetailPaneMetadata(key) },
-    ) { key ->
+    ) { navKey ->
         val isListPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.List)
-        val tagAddRequestKey = rememberResultRequestKey()
+        val tagAddRequestKey = key(navKey.id) { rememberResultRequestKey() }
 
         TagDetailScreen(
             navigateUp = { backStack.removeLastOrNull() },
             navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
             navigateToDetail = { id -> backStack.add(TagDetailNavKey(id)) },
-            navigateToMemoAdd = { backStack.add(MemoAddNavKey(primaryTagId = key.id)) },
+            navigateToMemoAdd = { backStack.add(MemoAddNavKey(primaryTagId = navKey.id)) },
             navigateToMemoDetail = { id -> backStack.add(MemoDetailNavKey(id = id)) },
-            navigateToMemoFinishedList = { backStack.add(TagMemoFinishedListNavKey(tagId = key.id)) },
-            navigateToWebAdd = { backStack.navigateToWebAddFromTagDetail(tagId = key.id) },
+            navigateToMemoFinishedList = { backStack.add(TagMemoFinishedListNavKey(tagId = navKey.id)) },
+            navigateToWebAdd = { backStack.navigateToWebAddFromTagDetail(tagId = navKey.id) },
             navigateToWebDetail = { id -> backStack.add(WebDetailNavKey(id = id)) },
-            navigateToPlaceAdd = { coordinate -> backStack.navigateToPlaceAddFromTagDetail(tagId = key.id, coordinate = coordinate) },
+            navigateToPlaceAdd = { coordinate -> backStack.navigateToPlaceAddFromTagDetail(tagId = navKey.id, coordinate = coordinate) },
             navigateToPlaceDetail = { id -> backStack.add(PlaceDetailNavKey(id = id)) },
-            id = key.id,
+            id = navKey.id,
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = {
-                TagDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible || backStack.isNavigatedFromTagDetail(key))
+                TagDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible || backStack.isNavigatedFromTagDetail(navKey))
             },
-            viewModel = koinViewModel { parametersOf(key.id) },
+            // 목록에서 다른 태그를 고르면 같은 화면이 대상만 바꿔 이어지므로, 대상마다 따로 ViewModel을 둔다.
+            detailViewModel = koinViewModel(key = "TagDetailViewModel:${navKey.id}") { parametersOf(navKey.id) },
+            placeMapViewModel = koinViewModel(),
         )
     }
 }

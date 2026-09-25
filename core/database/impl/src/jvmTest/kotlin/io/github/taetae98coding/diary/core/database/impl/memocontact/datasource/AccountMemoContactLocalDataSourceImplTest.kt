@@ -99,7 +99,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             loadSelectableContact(accountId = accountId).shouldBeEmpty()
         }
 
-        test("TC-MEMO-CONTACT-DOMAIN-011 조회한 연락처는 이름 오름차순으로 정렬된다") {
+        test("TC-MEMO-DETAIL-DATA-047 TC-MEMO-CONTACT-DOMAIN-011 조회한 연락처는 이름 오름차순으로 정렬된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val lastContact = contact(name = LAST_CONTACT_NAME)
@@ -316,7 +316,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             loadSelectableContact(accountId = accountId) shouldBe listOf(firstContact, addedContact)
         }
 
-        test("TC-MEMO-CONTACT-INPUT-DATA-005 저장된 연락처의 이름이 바뀌면 연결된 연락처 조회와 선택 목록에 함께 반영된다") {
+        test("TC-MEMO-DETAIL-DATA-048 TC-MEMO-CONTACT-INPUT-DATA-005 저장된 연락처의 이름이 바뀌면 연결된 연락처 조회와 선택 목록에 함께 반영된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val contact = contact(name = FIRST_CONTACT_NAME)

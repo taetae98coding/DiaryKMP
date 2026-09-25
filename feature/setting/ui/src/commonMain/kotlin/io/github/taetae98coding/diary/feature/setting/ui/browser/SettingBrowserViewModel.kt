@@ -36,6 +36,7 @@ internal class SettingBrowserViewModel(
                         profileList = profileList,
                         selectedProfileDirectory = directory.takeIf { selected -> profileList.isListed(directory = selected) }.orEmpty(),
                         isProfileListUnavailable = profileListResult.isFailure,
+                        hasStoredProfile = directory.isNotEmpty(),
                     )
                 },
                 onFailure = { SettingBrowserUiState.Loading },
@@ -55,7 +56,7 @@ internal class SettingBrowserViewModel(
     }
 
     fun unselectProfile() {
-        if (isSelected(directory = "")) return
+        if ((uiState.value as? SettingBrowserUiState.Loaded)?.hasStoredProfile == false) return
 
         viewModelScope.launch {
             unselectChromeSessionProfileUseCase(parameter = Unit)

@@ -199,6 +199,46 @@ class PlaceDetailScreenMemoTest {
         composeRule.onNodeWithContentDescription(DEFAULT_MEMO_ADD_DESCRIPTION).assertExists()
     }
 
+    @Test
+    fun `TC-PLACE-DETAIL-DOMAIN-037 수정이나 삭제를 처리하는 중에도 메모 완료와 실행 취소를 요청한다`() {
+        val memo = inProgressSwipeMemo()
+
+        composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeRight() }
+        composeRule.waitForIdle()
+        emitMemoEffect(MemoListEffect.Finished(id = memo.id))
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { memoViewModel().finish(id = memo.id) }
+        verify(exactly = 1) { memoViewModel().restart(id = memo.id) }
+    }
+
+    @Test
+    fun `TC-PLACE-DETAIL-DOMAIN-037 수정이나 삭제를 처리하는 중에도 메모 삭제와 실행 취소를 요청한다`() {
+        val memo = inProgressSwipeMemo()
+
+        composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+        emitMemoEffect(MemoListEffect.Deleted(id = memo.id))
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { memoViewModel().delete(id = memo.id) }
+        verify(exactly = 1) { memoViewModel().restore(id = memo.id) }
+    }
+
+    private fun inProgressSwipeMemo(): Memo {
+        val memo = placeMemo(title = SCREEN_MEMO_TITLE)
+        composeRule.setPlaceDetailScreen(
+            viewModel = screenTestViewModel(MutableStateFlow(screenContent().copy(isUpdateInProgress = true, isDeleteInProgress = true))),
+            memoPagingData = placeMemoPagingData(itemList = listOf(MemoListItem.Content(memo = memo))),
+        )
+        composeRule.selectPlaceDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+        waitUntilMemoIsDisplayed(title = memo.detail.title)
+
+        return memo
+    }
+
     private fun swipeMemo(memoTabDescription: String = DEFAULT_MEMO_TAB_DESCRIPTION): Memo {
         val memo = placeMemo(title = SCREEN_MEMO_TITLE)
         setScreenOnMemoTab(

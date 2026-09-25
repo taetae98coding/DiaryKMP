@@ -6,6 +6,8 @@ import io.github.taetae98coding.diary.core.model.authentication.AppleCredential
 
 @Stable
 internal interface AppleCredentialsManager {
+    val isSignInEndDetectable: Boolean
+
     suspend fun signIn(): AppleCredential
 }
 

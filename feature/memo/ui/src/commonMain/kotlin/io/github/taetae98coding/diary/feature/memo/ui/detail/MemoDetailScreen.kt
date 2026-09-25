@@ -66,7 +66,7 @@ internal fun MemoDetailScreen(
     val placePagingItems = placeViewModel.placePagingData.collectAsLazyPagingItems()
     val content = uiState as? MemoDetailUiState.Content
 
-    MemoDetailEnterEffect(tagAddRequestKey = tagAddRequestKey, tagViewModel = tagViewModel, webViewModel = webViewModel, contactViewModel = contactViewModel, placeViewModel = placeViewModel, placeMapViewModel = placeMapViewModel)
+    MemoDetailEnterEffect(targetId = content?.id, tagAddRequestKey = tagAddRequestKey, tagViewModel = tagViewModel, webViewModel = webViewModel, contactViewModel = contactViewModel, placeViewModel = placeViewModel, placeMapViewModel = placeMapViewModel, geminiViewModel = geminiViewModel)
 
     key(content?.id) {
         val scaffoldState = rememberMemoDetailFormState(initialDetail = content?.detail ?: MemoDetail.EMPTY)
@@ -127,7 +127,6 @@ private fun MemoDetailTargetEffect(
     navigateToCopiedMemo: (Uuid) -> Unit,
 ) {
     MemoDetailScreenEffect(effect = detailViewModel.effect, scaffoldState = scaffoldState, navigateUp = navigateUp, navigateToCopiedMemo = navigateToCopiedMemo)
-    MemoGeminiCloseEffect(geminiViewModel = geminiViewModel)
     MemoGeminiSettingRequiredEffect(hostState = scaffoldState.hostState, effect = geminiViewModel.effect)
 
     if (id != null) {
@@ -137,13 +136,17 @@ private fun MemoDetailTargetEffect(
 
 @Composable
 private fun MemoDetailEnterEffect(
+    targetId: Uuid?,
     tagAddRequestKey: Uuid,
     tagViewModel: MemoTagViewModel,
     webViewModel: MemoWebViewModel,
     contactViewModel: MemoContactViewModel,
     placeViewModel: MemoPlaceViewModel,
     placeMapViewModel: MemoPlaceMapViewModel,
+    geminiViewModel: MemoGeminiViewModel,
 ) {
+    MemoGeminiCloseEffect(targetId = targetId, geminiViewModel = geminiViewModel)
+
     LifecycleEventEffect(Lifecycle.Event.ON_START) {
         placeMapViewModel.fetchCurrentLocation()
     }

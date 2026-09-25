@@ -1,7 +1,15 @@
 package io.github.taetae98coding.diary.feature.memo.ui.gemini
 
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.performClick
 import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputValue
+import io.github.taetae98coding.diary.compose.core.input.DiaryDescriptionInput
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDraft
@@ -167,6 +175,72 @@ class MemoGeminiApplyTest {
         }
     }
 
+    @Test
+    fun `TC-MEMO-GEMINI-FEATURE-027 입력 상태를 보던 중 설명을 반영해도 입력 상태를 유지한다`() {
+        val state = createFormStateWithDescriptionInput()
+        val viewModel = createViewModel()
+        composeRule.onNodeWithContentDescription(INPUT_TAB_DESCRIPTION).assertIsSelected()
+
+        applyField(field = MemoGeminiField.DESCRIPTION, viewModel = viewModel, state = state)
+
+        composeRule.runOnIdle { state.descriptionState.text.toString() shouldBe DRAFT.description }
+        composeRule.onNodeWithContentDescription(INPUT_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.onNodeWithContentDescription(PREVIEW_TAB_DESCRIPTION).assertIsNotSelected()
+        composeRule.onNode(hasSetTextAction()).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-MEMO-GEMINI-FEATURE-027 미리보기 상태를 보던 중 설명을 반영해도 미리보기 상태를 유지한다`() {
+        val state = createFormStateWithDescriptionInput()
+        val viewModel = createViewModel()
+        composeRule.onNodeWithContentDescription(PREVIEW_TAB_DESCRIPTION).performClick()
+        // 탭을 고르면 페이지가 애니메이션으로 넘어가므로 입력 칸이 가려질 때까지 기다린다.
+        composeRule.waitUntil(timeoutMillis = WAIT_TIMEOUT_MILLIS) {
+            runCatching { composeRule.onNode(hasSetTextAction()).assertIsNotDisplayed() }.isSuccess
+        }
+        composeRule.onNodeWithContentDescription(PREVIEW_TAB_DESCRIPTION).assertIsSelected()
+
+        applyField(field = MemoGeminiField.DESCRIPTION, viewModel = viewModel, state = state)
+
+        composeRule.runOnIdle { state.descriptionState.text.toString() shouldBe DRAFT.description }
+        composeRule.onNodeWithContentDescription(PREVIEW_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.onNodeWithContentDescription(INPUT_TAB_DESCRIPTION).assertIsNotSelected()
+        composeRule.onNode(hasSetTextAction()).assertIsNotDisplayed()
+    }
+
+    @Test
+    fun `TC-MEMO-GEMINI-DATA-008 사용하지 않는 기간은 생성에 전달하지 않는다`() {
+        val state = createFilledFormState()
+        val viewModel = createViewModel()
+        composeRule.runOnIdle {
+            state.dateTimeState.select(DiaryDateTimeInputValue.AllDay(dateRange = LocalDate(2026, 9, 21)..LocalDate(2026, 9, 22)))
+            state.dateTimeState.hasDateTime = false
+        }
+
+        composeRule.runOnIdle {
+            handleMemoGeminiEvent(
+                event = MemoGeminiDialogEvent.ClickGenerate(prompt = ""),
+                geminiViewModel = viewModel,
+                state = state,
+            )
+        }
+
+        verify(exactly = 1) { viewModel.generate(match { parameter -> parameter.dateTime == null }) }
+    }
+
+    private fun createFormStateWithDescriptionInput(): MemoFormState {
+        lateinit var state: MemoFormState
+
+        composeRule.setContent {
+            DiaryTheme {
+                state = rememberMemoAddFormState()
+                DiaryDescriptionInput(state = state.descriptionState)
+            }
+        }
+
+        return state
+    }
+
     private fun applyField(
         field: MemoGeminiField,
         viewModel: MemoGeminiViewModel,
@@ -200,6 +274,9 @@ class MemoGeminiApplyTest {
     private companion object {
         private const val INITIAL_TITLE = "기존 제목"
         private const val INITIAL_DESCRIPTION = "기존 설명"
+        private const val INPUT_TAB_DESCRIPTION = "Input"
+        private const val PREVIEW_TAB_DESCRIPTION = "Preview"
+        private const val WAIT_TIMEOUT_MILLIS = 5_000L
 
         private val DRAFT =
             MemoDraft(

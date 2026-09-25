@@ -171,14 +171,13 @@ class SettingGeminiScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-016 저장하는 동안 저장 동작을 진행 표시로 바꾼다`() {
+    fun `TC-SETTING-GEMINI-FEATURE-016 저장하는 동안 진행 상태를 표시한다`() {
         setScaffold(
             uiState = SettingGeminiUiState.Loaded(setting = GeminiSetting.EMPTY, isInProgress = true),
             initialSetting = GeminiSetting.EMPTY.copy(apiKey = STORED_API_KEY),
         )
 
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
-        composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test

@@ -47,7 +47,7 @@ internal fun TagHomeScreen(
             }
         },
         modifier =
-            modifier.keyShortcut { keyEvent ->
+            modifier.keyShortcut(isEnableProvider = { componentVisibleProvider().isAddButtonVisible }) { keyEvent ->
                 if (keyEvent.isAddShortcut()) {
                     navigateToAdd()
                     true

@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.compose.map.web
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -12,6 +13,8 @@ import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.rememberDiaryMapState
 import io.github.taetae98coding.diary.library.webkit.WebKitWebViewPanel
+import io.github.taetae98coding.diary.library.webkit.hideWhileCoveredByOverlay
+import io.github.taetae98coding.diary.library.webkit.webKitWebViewOverlayId
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -78,13 +81,12 @@ internal fun MapWebView(
 
     val overlayId = remember(webViewPanel) { Uuid.random() }
 
-    MapWebViewOverlayEffect(
-        webViewPanel = webViewPanel,
-        overlayId = overlayId,
-    )
+    LaunchedEffect(webViewPanel, overlayId) {
+        webViewPanel.hideWhileCoveredByOverlay(overlayId = overlayId)
+    }
 
     SwingPanel(
         factory = { webViewPanel },
-        modifier = modifier.semantics { mapWebViewOverlayId = overlayId },
+        modifier = modifier.semantics { webKitWebViewOverlayId = overlayId },
     )
 }

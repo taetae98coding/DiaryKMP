@@ -326,7 +326,7 @@ class AddPlaceUseCaseTest :
                 )
 
             When("공백이 아닌 제목과 유효한 좌표로 장소를 추가한다") {
-                Then("TC-PLACE-ADD-DATA-004 저장 실패를 그대로 전달한다") {
+                Then("TC-PLACE-ADD-DATA-004 추가를 성공으로 다루지 않고 저장 실패를 전달한다") {
                     val result = useCase(parameter = AddPlaceUseCase.Parameter(detail = detail(), tagIdSet = emptySet()))
 
                     result.shouldBeFailure() shouldBeSameInstanceAs throwable

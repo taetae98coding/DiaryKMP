@@ -1,11 +1,13 @@
-@file:OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@file:OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class)
 
 package io.github.taetae98coding.diary.feature.memo.ui
 
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
+import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
@@ -42,6 +44,21 @@ class MemoEntryTest :
 
             backStackCases.forEach { (backStack, key) ->
                 metadataOf(backStack = backStack, key = key).keys shouldBe detailPaneMetadataKeys
+            }
+        }
+
+        test("TC-MEMO-LIST-DETAIL-FEATURE-024 필터를 열어도 상세 영역의 화면은 목록·상세 배치의 상세 pane으로 남는다") {
+            val detailKey = MemoDetailNavKey(id = Uuid.random())
+            val addKey = MemoAddNavKey()
+            val backStackCases =
+                listOf(
+                    listOf(OtherTopLevelNavKey, MemoHomeNavKey, detailKey, MemoHomeFilterNavKey) to detailKey,
+                    listOf(OtherTopLevelNavKey, MemoHomeNavKey, addKey, MemoHomeFilterNavKey) to addKey,
+                )
+
+            backStackCases.forEach { (backStack, key) ->
+                metadataOf(backStack = backStack, key = key).keys shouldBe detailPaneMetadataKeys
+                metadataOf(backStack = backStack, key = MemoHomeFilterNavKey).keys shouldBe BottomSheetSceneStrategy.bottomSheet().keys
             }
         }
 

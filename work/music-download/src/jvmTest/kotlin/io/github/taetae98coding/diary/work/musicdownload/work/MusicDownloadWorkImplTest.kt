@@ -200,7 +200,7 @@ class MusicDownloadWorkImplTest :
                     val downloader = mockk<MusicDownloader>()
                     coEvery { downloader.download(target = any(), path = any(), onProgress = any()) } coAnswers
                         {
-                            arg<suspend (Float) -> Unit>(PROGRESS_ARGUMENT_INDEX).invoke(0.62F)
+                            arg<suspend (Float) -> Unit>(PROGRESS_ARGUMENT_INDEX).invoke(0.45F)
                             runningSnapshot = holder.stateMap.value[target.id]
                             true
                         }
@@ -209,7 +209,7 @@ class MusicDownloadWorkImplTest :
 
                     work.doWork(sort = ListSort.TITLE)
 
-                    runningSnapshot shouldBe MusicDownloadState.Running(progress = 0.62F)
+                    runningSnapshot shouldBe MusicDownloadState.Running(progress = 0.45F)
                 }
             }
         }
@@ -399,33 +399,131 @@ class MusicDownloadWorkImplTest :
             }
         }
 
-        Given("한 곡은 이미 받아 두었고 다른 곡은 아직 받지 못했다") {
-            When("다운로드를 다시 실행하면") {
-                Then("TC-MUSIC-DOWNLOAD-DOMAIN-005 TC-MUSIC-DOWNLOAD-DOMAIN-008 파일이 없는 곡만 다시 받는다") {
-                    val downloaded = testDownloadTarget()
-                    val notDownloaded = testDownloadTarget()
+        Given("다운로드를 한 번 실행해 한 곡은 완료되고 다른 한 곡은 실패했다") {
+            When("두 곡 모두 성공하도록 설정하고 다운로드를 한 번 더 실행하면") {
+                Then("TC-MUSIC-DOWNLOAD-DOMAIN-005 이전에 실패한 곡만 다시 받아 완료가 되고 완료된 곡은 내려받지 않은 채 완료로 남는다") {
+                    val done = testDownloadTarget()
+                    val failed = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
-                    val downloader = succeedingDownloader()
+                    val existingNameSet = mutableSetOf<String>()
                     val fileDataSource = mockk<AppFileLocalDataSource>()
-                    coEvery { fileDataSource.exists(directory = any(), name = "${downloaded.videoId}.mp4") } returns true
-                    coEvery { fileDataSource.exists(directory = any(), name = "${notDownloaded.videoId}.mp4") } returns false
-                    coEvery { fileDataSource.resolve(directory = any(), name = any()) } returns "/tmp/music/file.mp4"
+                    coEvery { fileDataSource.exists(directory = any(), name = any()) } coAnswers { secondArg<String>() in existingNameSet }
+                    coEvery { fileDataSource.resolve(directory = any(), name = any()) } coAnswers { "/tmp/music/${secondArg<String>()}" }
                     coEvery { fileDataSource.delete(directory = any(), name = any()) } returns Unit
-
+                    var isFailedTargetSucceeding = false
+                    var doneStateWhileRetrying: MusicDownloadState? = null
+                    val downloader = mockk<MusicDownloader>()
+                    coEvery { downloader.download(target = done, path = any(), onProgress = any()) } coAnswers
+                        {
+                            existingNameSet += done.videoId.toMusicFileName()
+                            true
+                        }
+                    coEvery { downloader.download(target = failed, path = any(), onProgress = any()) } coAnswers
+                        {
+                            if (isFailedTargetSucceeding) {
+                                doneStateWhileRetrying = holder.stateMap.value[done.id]
+                                existingNameSet += failed.videoId.toMusicFileName()
+                            }
+                            isFailedTargetSucceeding
+                        }
                     val work =
                         work(
-                            targetList = listOf(downloaded, notDownloaded),
+                            targetList = listOf(done, failed),
                             musicDownloader = downloader,
                             appFileLocalDataSource = fileDataSource,
                             musicDownloadStateHolder = holder,
                         )
+                    work.doWork(sort = ListSort.TITLE)
+                    holder.stateMap.value[done.id] shouldBe MusicDownloadState.Done
+                    holder.stateMap.value[failed.id] shouldBe MusicDownloadState.Failed
 
+                    isFailedTargetSucceeding = true
                     work.doWork(sort = ListSort.TITLE)
 
-                    coVerify(exactly = 0) { downloader.download(target = downloaded, path = any(), onProgress = any()) }
-                    coVerify(exactly = 1) { downloader.download(target = notDownloaded, path = any(), onProgress = any()) }
-                    holder.stateMap.value[downloaded.id] shouldBe MusicDownloadState.Done
-                    holder.stateMap.value[notDownloaded.id] shouldBe MusicDownloadState.Done
+                    coVerify(exactly = 1) { downloader.download(target = done, path = any(), onProgress = any()) }
+                    coVerify(exactly = 2) { downloader.download(target = failed, path = any(), onProgress = any()) }
+                    doneStateWhileRetrying shouldBe MusicDownloadState.Done
+                    holder.stateMap.value[done.id] shouldBe MusicDownloadState.Done
+                    holder.stateMap.value[failed.id] shouldBe MusicDownloadState.Done
+                }
+            }
+        }
+
+        Given("다운로드를 한 번 실행해 목록 순서대로 있는 두 곡이 모두 실패했다") {
+            When("첫째 곡이 진행 중인 채로 다운로드를 한 번 더 실행하면") {
+                Then("TC-MUSIC-DOWNLOAD-DOMAIN-013 첫째 곡은 진행 중이 되고 둘째 곡은 대기로 바뀌지 않고 실패로 남는다") {
+                    val first = testDownloadTarget()
+                    val second = testDownloadTarget()
+                    val holder = MusicDownloadStateHolder()
+                    var isRetrying = false
+                    var retrySnapshot: Map<Uuid, MusicDownloadState> = emptyMap()
+                    val downloader = mockk<MusicDownloader>()
+                    coEvery { downloader.download(target = first, path = any(), onProgress = any()) } coAnswers
+                        {
+                            if (isRetrying) retrySnapshot = holder.stateMap.value
+                            false
+                        }
+                    coEvery { downloader.download(target = second, path = any(), onProgress = any()) } returns false
+                    val work = work(targetList = listOf(first, second), musicDownloader = downloader, musicDownloadStateHolder = holder)
+                    work.doWork(sort = ListSort.TITLE)
+                    holder.stateMap.value shouldBe mapOf(first.id to MusicDownloadState.Failed, second.id to MusicDownloadState.Failed)
+
+                    isRetrying = true
+                    work.doWork(sort = ListSort.TITLE)
+
+                    retrySnapshot[first.id] shouldBe MusicDownloadState.Running(progress = null)
+                    retrySnapshot[second.id] shouldBe MusicDownloadState.Failed
+                }
+            }
+        }
+
+        Given("다운로드를 한 번 실행해 실패한 곡의 파일이 그 뒤 앱 전용 보관 공간에 생겼다") {
+            When("다운로드를 한 번 더 실행해 그 곡의 차례가 되면") {
+                Then("TC-MUSIC-DOWNLOAD-DOMAIN-019 내려받기를 다시 시작하지 않고 곧바로 완료가 된다") {
+                    val target = testDownloadTarget()
+                    val holder = MusicDownloadStateHolder()
+                    var isFileExisting = false
+                    val fileDataSource = mockk<AppFileLocalDataSource>()
+                    coEvery { fileDataSource.exists(directory = any(), name = any()) } coAnswers { isFileExisting }
+                    coEvery { fileDataSource.resolve(directory = any(), name = any()) } coAnswers { "/tmp/music/${secondArg<String>()}" }
+                    coEvery { fileDataSource.delete(directory = any(), name = any()) } returns Unit
+                    val downloader = failingDownloader()
+                    val work =
+                        work(
+                            targetList = listOf(target),
+                            musicDownloader = downloader,
+                            appFileLocalDataSource = fileDataSource,
+                            musicDownloadStateHolder = holder,
+                        )
+                    work.doWork(sort = ListSort.TITLE)
+                    holder.stateMap.value[target.id] shouldBe MusicDownloadState.Failed
+
+                    isFileExisting = true
+                    work.doWork(sort = ListSort.TITLE)
+
+                    holder.stateMap.value[target.id] shouldBe MusicDownloadState.Done
+                    coVerify(exactly = 1) { downloader.download(target = target, path = any(), onProgress = any()) }
+                }
+            }
+        }
+
+        Given("앱을 새로 시작했고 두 곡 중 한 곡의 파일만 앱 전용 보관 공간에 있다") {
+            When("다운로드를 실행하기 전에 곡의 다운로드 상태를 확인하면") {
+                Then("TC-MUSIC-DOWNLOAD-DOMAIN-008 파일이 있는 곡을 포함해 두 곡 모두 어떤 상태도 갖지 않는다") {
+                    val downloaded = testDownloadTarget()
+                    val notDownloaded = testDownloadTarget()
+                    val holder = MusicDownloadStateHolder()
+                    val fileDataSource = mockk<AppFileLocalDataSource>()
+                    coEvery { fileDataSource.exists(directory = any(), name = downloaded.videoId.toMusicFileName()) } returns true
+                    coEvery { fileDataSource.exists(directory = any(), name = notDownloaded.videoId.toMusicFileName()) } returns false
+                    work(
+                        targetList = listOf(downloaded, notDownloaded),
+                        appFileLocalDataSource = fileDataSource,
+                        musicDownloadStateHolder = holder,
+                    )
+
+                    holder.stateMap.value[downloaded.id] shouldBe null
+                    holder.stateMap.value[notDownloaded.id] shouldBe null
                 }
             }
         }

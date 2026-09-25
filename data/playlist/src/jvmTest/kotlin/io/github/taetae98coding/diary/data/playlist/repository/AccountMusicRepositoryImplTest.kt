@@ -55,7 +55,7 @@ class AccountMusicRepositoryImplTest :
             }
         }
 
-        test("TC-MUSIC-ADD-DATA-004 로컬 저장이 실패하면 실패를 그대로 전파한다") {
+        test("TC-MUSIC-ADD-DATA-004 기기 저장이 실패하면 추가를 성공으로 다루지 않고 실패를 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val music = music()
             val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())

@@ -1,6 +1,12 @@
 package io.github.taetae98coding.diary.feature.tag.ui.link
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.isToggleable
@@ -10,9 +16,12 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.test.platform.app.InstrumentationRegistry
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
+import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
@@ -42,7 +51,50 @@ class TagLinkPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-019 검색어를 입력하면 확정 동작 없이 그 검색어가 즉시 반영된다`() {
+    fun `TC-TAG-LINK-INPUT-FEATURE-032 목록을 열어도 검색어 입력에 초점이 놓이지 않고 검색어 입력을 누르면 초점을 받는다`() {
+        InstrumentationRegistry.getInstrumentation().setInTouchMode(true)
+        val dialogState = DialogState(isVisible = false)
+        composeRule.setTagLinkPickerDialogHost(
+            dialogState = dialogState,
+            tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE)),
+        )
+
+        composeRule.runOnIdle { dialogState.show() }
+        composeRule.awaitTagLinkPickerRows()
+
+        composeRule.dialogSearchField().assertIsNotFocused()
+        composeRule.dialogSearchField().performClick()
+        composeRule.dialogSearchField().assertIsFocused()
+    }
+
+    @Test
+    fun `TC-TAG-LINK-INPUT-FEATURE-019 검색어를 입력하면 별도의 확정 동작 없이 목록이 좁혀진다`() {
+        val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
+        setQueryFilteredPickerDialogHost(tagList = tagList)
+        composeRule.awaitTagLinkPickerRow(title = EXERCISE_TAG_TITLE)
+
+        composeRule.dialogSearchField().performTextInput(WORK_TAG_QUERY)
+
+        composeRule.awaitTagLinkPickerRowGone(title = EXERCISE_TAG_TITLE)
+        composeRule.awaitTagLinkPickerRow(title = WORK_TAG_TITLE)
+    }
+
+    @Test
+    fun `TC-TAG-LINK-INPUT-FEATURE-020 검색어를 지우면 대상 전체가 다시 나타난다`() {
+        val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
+        setQueryFilteredPickerDialogHost(tagList = tagList)
+        composeRule.dialogSearchField().performTextInput(WORK_TAG_QUERY)
+        composeRule.awaitTagLinkPickerRowGone(title = EXERCISE_TAG_TITLE)
+
+        composeRule.dialogSearchField().performTextClearance()
+
+        composeRule.awaitTagLinkPickerRow(title = EXERCISE_TAG_TITLE)
+        composeRule.awaitTagLinkPickerRow(title = WORK_TAG_TITLE)
+        composeRule.dialogNodeWithText(DEFAULT_PICKER_SEARCH_PLACEHOLDER).assertExists()
+    }
+
+    @Test
+    fun `검색어를 입력하거나 지우면 확정 동작 없이 그 검색어를 바로 전달한다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
         val queryList = mutableListOf<String>()
         composeRule.setTagLinkPickerDialogHost(tagList = tagList, onQueryChange = queryList::add)
@@ -50,42 +102,53 @@ class TagLinkPickerDialogSearchTest {
 
         composeRule.dialogSearchField().performTextInput(WORK_TAG_QUERY)
         composeRule.waitForIdle()
-
         queryList.last() shouldBe WORK_TAG_QUERY
-    }
-
-    @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-020 검색어를 지우면 검색어가 없는 상태가 즉시 반영된다`() {
-        val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
-        val queryList = mutableListOf<String>()
-        composeRule.setTagLinkPickerDialogHost(tagList = tagList, onQueryChange = queryList::add)
-        composeRule.dialogSearchField().performTextInput(WORK_TAG_QUERY)
-        composeRule.waitForIdle()
 
         composeRule.dialogSearchField().performTextClearance()
         composeRule.waitForIdle()
-
         queryList.last() shouldBe ""
-        composeRule.dialogNodeWithText(DEFAULT_PICKER_SEARCH_PLACEHOLDER).assertExists()
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-021 검색어로 좁힌 목록에서도 연결과 해제를 전달한다`() {
+    fun `TC-TAG-LINK-INPUT-FEATURE-021 검색어로 좁힌 목록에서도 연결과 해제를 전달하고 그 태그는 목록에 남는다`() {
         val workTag = testTag(title = WORK_TAG_TITLE)
         val linkedIdList = mutableListOf<Uuid>()
         val unlinkedIdList = mutableListOf<Uuid>()
-        composeRule.setTagLinkPickerDialog(
-            tagList = listOf(workTag),
-            query = WORK_TAG_QUERY,
-            onLink = linkedIdList::add,
-            onUnlink = unlinkedIdList::add,
-        )
+        val uiState = mutableStateOf(TagLinkInputUiState())
+        composeRule.setContent {
+            DiaryTheme {
+                TagLinkPickerDialog(
+                    searchFieldState = rememberDiaryPickerSearchFieldState(initialText = WORK_TAG_QUERY),
+                    tagPagingItems = remember { MutableStateFlow(tagPagingDataOf(listOf(workTag))) }.collectAsLazyPagingItems(),
+                    uiStateProvider = { uiState.value },
+                    onDismissRequest = {},
+                    onEvent = { event ->
+                        if (event is TagLinkPickerEvent.Link) {
+                            linkedIdList += event.id
+                            uiState.value = TagLinkInputUiState(linkedTagList = listOf(workTag))
+                        }
+                        if (event is TagLinkPickerEvent.Unlink) {
+                            unlinkedIdList += event.id
+                            uiState.value = TagLinkInputUiState()
+                        }
+                    },
+                )
+            }
+        }
+        composeRule.awaitTagLinkPickerRow(title = WORK_TAG_TITLE)
 
         composeRule.dialogNodeWithText(WORK_TAG_TITLE).performClick()
         composeRule.waitForIdle()
 
         linkedIdList shouldBe listOf(workTag.id)
         unlinkedIdList shouldBe emptyList()
+        composeRule.dialogNodeWithText(WORK_TAG_TITLE).assertExists()
+
+        composeRule.dialogNodeWithText(WORK_TAG_TITLE).performClick()
+        composeRule.waitForIdle()
+
+        linkedIdList shouldBe listOf(workTag.id)
+        unlinkedIdList shouldBe listOf(workTag.id)
         composeRule.dialogNodeWithText(WORK_TAG_TITLE).assertExists()
     }
 
@@ -165,29 +228,82 @@ class TagLinkPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-DOMAIN-010 화면이 재생성되어도 열려 있는 목록의 검색어가 유지된다`() {
-        val workTag = testTag(title = WORK_TAG_TITLE)
-        val tagPagingDataFlow = MutableStateFlow(tagPagingDataOf(listOf(workTag)))
+    fun `TC-TAG-LINK-INPUT-DOMAIN-010 화면이 회전하거나 창 크기가 바뀌어도 열려 있는 목록의 검색어와 좁힌 결과가 유지된다`() {
+        val narrowedTagPagingDataFlow = MutableStateFlow(tagPagingDataOf(listOf(testTag(title = WORK_TAG_TITLE))))
         val queryList = mutableListOf<String>()
         val restorationTester = StateRestorationTester(composeRule)
+        lateinit var dialogState: DialogState
         restorationTester.setContent {
+            dialogState = rememberDialogState()
             DiaryTheme {
                 TagLinkPickerDialogHost(
-                    dialogState = rememberDialogState(initialVisible = true),
+                    dialogState = dialogState,
                     onEvent = { event -> if (event is TagLinkPickerEvent.ChangeQuery) queryList += event.query },
-                    tagPagingItems = tagPagingDataFlow.collectAsLazyPagingItems(),
+                    tagPagingItems = narrowedTagPagingDataFlow.collectAsLazyPagingItems(),
                 )
             }
         }
+        composeRule.runOnIdle { dialogState.show() }
         composeRule.dialogSearchField().performTextInput(WORK_TAG_QUERY)
         composeRule.waitForIdle()
 
         restorationTester.emulateSavedInstanceStateRestore()
         composeRule.waitForIdle()
 
+        composeRule.runOnIdle { dialogState.isVisible shouldBe true }
         queryList.last() shouldBe WORK_TAG_QUERY
         composeRule.dialogNodeWithText(WORK_TAG_QUERY).assertExists()
-        composeRule.awaitTagLinkPickerRows()
-        composeRule.dialogNodeWithText(WORK_TAG_TITLE).assertExists()
+        composeRule.awaitTagLinkPickerRow(title = WORK_TAG_TITLE)
+        composeRule.dialogNodeWithText(EXERCISE_TAG_TITLE).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-TAG-LINK-INPUT-DOMAIN-014 메모리 정리 뒤 복원하면 목록이 다시 열리고 검색어가 다시 나타나 그 검색어를 다시 전달한다`() {
+        val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
+        val restorationTester = StateRestorationTester(composeRule)
+        lateinit var dialogState: DialogState
+        lateinit var receivedQueryList: MutableList<String>
+        restorationTester.setContent {
+            dialogState = rememberDialogState()
+            // 메모리 정리 뒤에는 검색어를 받던 쪽도 새로 만들어지므로, 받은 검색어를 저장하지 않는 상태로 둔다.
+            receivedQueryList = remember { mutableListOf() }
+            DiaryTheme {
+                TagLinkPickerDialogHost(
+                    dialogState = dialogState,
+                    onEvent = { event -> if (event is TagLinkPickerEvent.ChangeQuery) receivedQueryList += event.query },
+                    tagPagingItems = remember { MutableStateFlow(tagPagingDataOf(tagList)) }.collectAsLazyPagingItems(),
+                )
+            }
+        }
+        composeRule.runOnIdle { dialogState.show() }
+        composeRule.dialogSearchField().performTextInput(WORK_TAG_QUERY)
+        composeRule.waitForIdle()
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { dialogState.isVisible shouldBe true }
+        composeRule.dialogNodeWithText(WORK_TAG_QUERY).assertExists()
+        receivedQueryList shouldBe listOf(WORK_TAG_QUERY)
+    }
+
+    private fun setQueryFilteredPickerDialogHost(tagList: List<Tag>) {
+        composeRule.setContent {
+            var query by remember { mutableStateOf("") }
+            // 같은 목록에 이어서 넘긴 조회 결과는 화면 스레드의 공용 디스패처를 거쳐야 도착해 결과가 일정하지 않다.
+            // 검색어마다 새 목록을 만들어 목록이 처음 그릴 때 그 검색어의 조회 결과를 받게 한다.
+            val tagPagingItems =
+                remember(query) {
+                    MutableStateFlow(tagPagingDataOf(tagList.filter { tag -> tag.detail.title.contains(query, ignoreCase = true) }))
+                }.collectAsLazyPagingItems()
+
+            DiaryTheme {
+                TagLinkPickerDialogHost(
+                    dialogState = remember { DialogState(isVisible = true) },
+                    onEvent = { event -> if (event is TagLinkPickerEvent.ChangeQuery) query = event.query },
+                    tagPagingItems = tagPagingItems,
+                )
+            }
+        }
     }
 }

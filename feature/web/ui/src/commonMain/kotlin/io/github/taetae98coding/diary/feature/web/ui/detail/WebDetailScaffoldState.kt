@@ -9,16 +9,19 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
+import io.github.taetae98coding.diary.compose.web.DiaryWebSessionImportFailureState
 import io.github.taetae98coding.diary.feature.web.ui.detail.tab.WebDetailTab
 import io.github.taetae98coding.diary.feature.web.ui.detail.viewmode.WebDetailViewMode
 
 private const val TAB_INDEX = 0
 private const val VIEW_MODE_INDEX = 1
+private const val NOTIFIED_SESSION_IMPORT_FAILURE_ID_INDEX = 2
 
 @Stable
 internal class WebDetailScaffoldState(
     initialTab: WebDetailTab,
     initialViewMode: WebDetailViewMode,
+    val sessionImportFailureState: DiaryWebSessionImportFailureState = DiaryWebSessionImportFailureState(),
 ) {
     var tab: WebDetailTab by mutableStateOf(initialTab)
         private set
@@ -31,6 +34,13 @@ internal class WebDetailScaffoldState(
 
     val viewModeSheetState: DialogState = DialogState()
 
+    fun isFormVisible(isCompactWidth: Boolean): Boolean =
+        if (isCompactWidth) {
+            tab == WebDetailTab.FORM
+        } else {
+            startTab == WebDetailTab.FORM
+        }
+
     fun select(tab: WebDetailTab) {
         this.tab = tab
     }
@@ -42,11 +52,21 @@ internal class WebDetailScaffoldState(
     companion object {
         val Saver: Saver<WebDetailScaffoldState, Any> =
             listSaver(
-                save = { state -> listOf(state.tab.name, state.viewMode.name) },
+                save = { state ->
+                    listOf(
+                        state.tab.name,
+                        state.viewMode.name,
+                        state.sessionImportFailureState.notifiedFailureId,
+                    )
+                },
                 restore = { value ->
                     WebDetailScaffoldState(
-                        initialTab = WebDetailTab.valueOf(value[TAB_INDEX]),
-                        initialViewMode = WebDetailViewMode.valueOf(value[VIEW_MODE_INDEX]),
+                        initialTab = WebDetailTab.valueOf(value[TAB_INDEX] as String),
+                        initialViewMode = WebDetailViewMode.valueOf(value[VIEW_MODE_INDEX] as String),
+                        sessionImportFailureState =
+                            DiaryWebSessionImportFailureState(
+                                notifiedFailureId = value[NOTIFIED_SESSION_IMPORT_FAILURE_ID_INDEX] as Int,
+                            ),
                     )
                 },
             )

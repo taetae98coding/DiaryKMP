@@ -105,6 +105,28 @@ class HolidayHomeScaffoldGoldenHolidayTest {
         composeRule.textCount(LONG_HOLIDAY_NAME) shouldBe SUMMARY_AND_TWO_WEEK_COUNT
     }
 
+    @Test
+    fun `TC-HOLIDAY-HOME-FEATURE-048 같은 이름의 공휴일이 여러 개 포함되면 이름은 한 번만 표시된다`() {
+        setGoldenHoliday(
+            optionList =
+                listOf(
+                    goldenHoliday(
+                        holidayList =
+                            listOf(
+                                holiday(name = LUNAR_NEW_YEAR_NAME, start = february(day = 16)),
+                                holiday(name = LUNAR_NEW_YEAR_NAME, start = february(day = 17)),
+                                holiday(name = SUBSTITUTE_HOLIDAY_NAME, start = february(day = 18)),
+                            ),
+                        start = february(day = 14),
+                        endInclusive = february(day = 18),
+                    ),
+                ),
+        )
+
+        composeRule.onNodeWithText("$LUNAR_NEW_YEAR_NAME, $SUBSTITUTE_HOLIDAY_NAME").assertExists()
+        composeRule.onNodeWithText("$LUNAR_NEW_YEAR_NAME, $LUNAR_NEW_YEAR_NAME, $SUBSTITUTE_HOLIDAY_NAME").assertDoesNotExist()
+    }
+
     private fun setGoldenHoliday(optionList: List<GoldenHoliday>) {
         val uiState =
             HolidayHomeYearUiState.Loaded(
@@ -131,6 +153,8 @@ class HolidayHomeScaffoldGoldenHolidayTest {
     private companion object {
         private const val HOLIDAY_NAME = "공휴일"
         private const val LONG_HOLIDAY_NAME = "연휴"
+        private const val LUNAR_NEW_YEAR_NAME = "설날"
+        private const val SUBSTITUTE_HOLIDAY_NAME = "대체공휴일"
 
         // 이름은 요약 줄에 한 번, 겹치는 주마다 한 번씩 표시된다.
         private const val SUMMARY_AND_ONE_WEEK_COUNT = 2

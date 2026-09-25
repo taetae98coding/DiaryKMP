@@ -20,12 +20,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.number
-import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 
@@ -180,8 +178,7 @@ internal fun ComposeContentTestRule.selectBirthday() {
 
 // 오늘이 아닌 날짜를 골라 생일의 날짜만 바뀌는 경우를 만든다.
 internal fun ComposeContentTestRule.reselectBirthday(): String {
-    val today = today()
-    val target = today.plus(RESELECT_DAY_OFFSET, DateTimeUnit.DAY)
+    val target = reselectBirthdayDate()
 
     onNodeWithText(todayDisplayText()).performClick()
     waitForIdle()
@@ -193,11 +190,18 @@ internal fun ComposeContentTestRule.reselectBirthday(): String {
     return displayText(year = target.year, monthNumber = target.month.number, day = target.day)
 }
 
-// 오늘과 같은 달에 남는 하루 뒤를 고른다. 달이 넘어가면 그 날짜 칸이 열린 달에 없어 고를 수 없다.
-private const val RESELECT_DAY_OFFSET = 1
+// 다이얼로그가 여는 오늘의 달 안에서 오늘과 다른 날짜를 고른다. 다른 달의 날짜 칸은 열린 달에 없어 고를 수 없으므로,
+// 그 달의 1일을 고르고 오늘이 1일이면 2일을 고른다. 어느 달이든 두 날짜는 모두 있다.
+internal fun reselectBirthdayDate(): LocalDate {
+    val today = today()
+
+    return LocalDate(year = today.year, month = today.month, day = if (today.day == FIRST_DAY_OF_MONTH) FIRST_DAY_OF_MONTH + 1 else FIRST_DAY_OF_MONTH)
+}
+
+private const val FIRST_DAY_OF_MONTH = 1
 
 // 날짜 선택 다이얼로그의 날짜 칸은 기본 환경에서 요일과 월 이름을 모두 쓴 문구로 읽힌다.
-private fun dayCellText(date: LocalDate): String = "${DEFAULT_DAY_OF_WEEK_NAMES[date.dayOfWeek.isoDayNumber - 1]}, ${DEFAULT_FULL_MONTH_NAMES[date.month.number - 1]} ${date.day}, ${date.year}"
+internal fun dayCellText(date: LocalDate): String = "${DEFAULT_DAY_OF_WEEK_NAMES[date.dayOfWeek.isoDayNumber - 1]}, ${DEFAULT_FULL_MONTH_NAMES[date.month.number - 1]} ${date.day}, ${date.year}"
 
 private val DEFAULT_DAY_OF_WEEK_NAMES =
     listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")

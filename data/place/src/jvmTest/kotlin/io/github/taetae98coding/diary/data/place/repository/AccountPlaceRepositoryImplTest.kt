@@ -55,7 +55,7 @@ class AccountPlaceRepositoryImplTest :
             }
         }
 
-        test("TC-PLACE-ADD-DATA-004 로컬 저장이 실패하면 실패를 그대로 전파한다") {
+        test("TC-PLACE-ADD-DATA-004 기기 저장이 실패하면 추가를 성공으로 다루지 않고 실패를 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val place = place()
             val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
@@ -206,7 +206,7 @@ class AccountPlaceRepositoryImplTest :
             }
         }
 
-        test("TC-PLACE-DETAIL-DATA-005 수정과 삭제의 로컬 저장이 실패하면 실패를 그대로 전파한다") {
+        test("TC-PLACE-DETAIL-DATA-005 수정과 삭제의 기기 저장이 실패하면 성공으로 다루지 않고 실패를 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val place = place()
             val updatedAt = instant()

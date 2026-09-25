@@ -24,13 +24,13 @@ public fun FloatingCheckButton(
     DiaryTooltipBox(text = contentDescription.orEmpty()) {
         FloatingActionButton(
             onClick = onClick,
-            modifier = modifier,
+            modifier = modifier.buttonContentDescription(contentDescription = contentDescription),
         ) {
             DiaryCrossfade(targetState = isInProgressProvider()) { isInProgress ->
                 if (isInProgress) {
                     CircularWavyProgressIndicator(modifier = Modifier.size(DiaryTheme.dimens.inProgressIndicatorSize))
                 } else {
-                    CheckIcon(contentDescription = contentDescription)
+                    CheckIcon(contentDescription = null)
                 }
             }
         }

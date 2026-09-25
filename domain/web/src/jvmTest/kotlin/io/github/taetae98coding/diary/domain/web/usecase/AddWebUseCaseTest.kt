@@ -381,7 +381,7 @@ class AddWebUseCaseTest :
                 )
 
             When("공백이 아닌 제목과 URL로 웹 항목을 추가한다") {
-                Then("TC-WEB-ADD-DATA-004 저장 실패를 그대로 전달한다") {
+                Then("TC-WEB-ADD-DATA-004 추가를 성공으로 다루지 않고 저장 실패를 전달한다") {
                     val result = useCase(parameter = AddWebUseCase.Parameter(detail = detail(), tagIdSet = emptySet()))
 
                     result.shouldBeFailure() shouldBeSameInstanceAs throwable

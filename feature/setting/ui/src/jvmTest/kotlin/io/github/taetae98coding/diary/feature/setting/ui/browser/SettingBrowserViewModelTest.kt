@@ -3,11 +3,15 @@
 package io.github.taetae98coding.diary.feature.setting.ui.browser
 
 import app.cash.turbine.test
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.browser.ChromeProfile
 import io.github.taetae98coding.diary.domain.browser.usecase.FindChromeProfileListUseCase
 import io.github.taetae98coding.diary.domain.browser.usecase.GetChromeSessionProfileDirectoryUseCase
 import io.github.taetae98coding.diary.domain.browser.usecase.SelectChromeSessionProfileUseCase
 import io.github.taetae98coding.diary.domain.browser.usecase.UnselectChromeSessionProfileUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
@@ -22,10 +26,14 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+
+private val fixtureMonkey: FixtureMonkey =
+    diaryFixtureMonkey()
 
 private val profileA = ChromeProfile(directory = "Default", name = "TaeJong")
 private val profileB = ChromeProfile(directory = "Profile 1", name = "Work")
@@ -104,7 +112,12 @@ class SettingBrowserViewModelTest : FunSpec() {
                     viewModel.uiState.test {
                         awaitItem() shouldBe SettingBrowserUiState.Loading
                         awaitItem() shouldBe
-                            SettingBrowserUiState.Loaded(profileList = emptyList(), selectedProfileDirectory = "", isProfileListUnavailable = true)
+                            SettingBrowserUiState.Loaded(
+                                profileList = emptyList(),
+                                selectedProfileDirectory = "",
+                                isProfileListUnavailable = true,
+                                hasStoredProfile = directory.isNotEmpty(),
+                            )
                     }
                 }
             }
@@ -116,8 +129,62 @@ class SettingBrowserViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingBrowserUiState.Loading
-                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = listOf(profileA), selectedProfileDirectory = "")
+                    awaitItem() shouldBe
+                        SettingBrowserUiState.Loaded(profileList = listOf(profileA), selectedProfileDirectory = "", hasStoredProfile = true)
                 }
+            }
+        }
+
+        test("TC-SETTING-BROWSER-FEATURE-010 저장된 프로필이 있는데 선택 안 함으로 표시될 때 선택 안 함을 고르면 저장값을 지운다") {
+            val caseList =
+                listOf(
+                    Result.success(listOf(profileA)),
+                    Result.failure(IllegalStateException("local state unreadable")),
+                )
+
+            caseList.forEach { profileListResult ->
+                runTest(mainDispatcher) {
+                    val storedDirectory = "unlisted-${fixtureMonkey.giveMeOne<String>()}"
+                    val stored = MutableStateFlow<Result<String>>(Result.success(storedDirectory))
+                    val unselectUseCase = mockk<UnselectChromeSessionProfileUseCase>()
+                    coEvery { unselectUseCase(Unit) } coAnswers {
+                        stored.value = Result.success("")
+                        Result.success(Unit)
+                    }
+                    val viewModel = viewModel(directoryFlow = stored, profileListResult = profileListResult, unselectUseCase = unselectUseCase)
+
+                    viewModel.uiState.test {
+                        awaitItem() shouldBe SettingBrowserUiState.Loading
+                        (awaitItem() as SettingBrowserUiState.Loaded).selectedProfileDirectory shouldBe ""
+
+                        viewModel.unselectProfile()
+                        advanceUntilIdle()
+
+                        (awaitItem() as SettingBrowserUiState.Loaded).hasStoredProfile shouldBe false
+                    }
+
+                    coVerify(exactly = 1) { unselectUseCase(Unit) }
+                    stored.value shouldBe Result.success("")
+                }
+            }
+        }
+
+        test("TC-SETTING-BROWSER-FEATURE-005 저장된 프로필이 없고 선택 안 함이 선택되어 있으면 선택 안 함을 다시 골라도 저장을 요청하지 않는다") {
+            runTest(mainDispatcher) {
+                val unselectUseCase = mockk<UnselectChromeSessionProfileUseCase>()
+                val viewModel = viewModel(directoryFlow = MutableStateFlow(Result.success("")), unselectUseCase = unselectUseCase)
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe SettingBrowserUiState.Loading
+                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = profileList, selectedProfileDirectory = "")
+
+                    viewModel.unselectProfile()
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                }
+
+                coVerify(exactly = 0) { unselectUseCase(Unit) }
             }
         }
 
@@ -223,6 +290,96 @@ class SettingBrowserViewModelTest : FunSpec() {
                 }
             }
         }
+
+        test("TC-SETTING-BROWSER-FEATURE-011 화면을 보는 동안에는 프로필 목록이 바뀌지 않는다") {
+            runTest(mainDispatcher) {
+                val findProfileListUseCase = profileListUseCaseReturning(profileList, listOf(profileA))
+                val viewModel = refreshViewModel(findProfileListUseCase = findProfileListUseCase)
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe SettingBrowserUiState.Loading
+                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = profileList, selectedProfileDirectory = "")
+                    advanceTimeBy(UI_STOP_TIMEOUT_MILLIS * 2)
+                    advanceUntilIdle()
+                    expectNoEvents()
+                }
+            }
+        }
+
+        test("TC-SETTING-BROWSER-FEATURE-012 화면을 떠났다가 다시 들어오면 프로필 목록을 다시 읽는다") {
+            runTest(mainDispatcher) {
+                val findProfileListUseCase = profileListUseCaseReturning(profileList, listOf(profileA))
+
+                refreshViewModel(findProfileListUseCase = findProfileListUseCase).uiState.test {
+                    awaitItem() shouldBe SettingBrowserUiState.Loading
+                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = profileList, selectedProfileDirectory = "")
+                }
+
+                refreshViewModel(findProfileListUseCase = findProfileListUseCase).uiState.test {
+                    awaitItem() shouldBe SettingBrowserUiState.Loading
+                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = listOf(profileA), selectedProfileDirectory = "")
+                }
+            }
+        }
+
+        test("TC-SETTING-BROWSER-FEATURE-013 다른 앱에 다녀온 지 5초가 지나 돌아오면 프로필 목록을 다시 읽는다") {
+            runTest(mainDispatcher) {
+                val findProfileListUseCase = profileListUseCaseReturning(profileList, listOf(profileA))
+                val viewModel = refreshViewModel(findProfileListUseCase = findProfileListUseCase)
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe SettingBrowserUiState.Loading
+                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = profileList, selectedProfileDirectory = "")
+                }
+                advanceTimeBy(UI_STOP_TIMEOUT_MILLIS + 1)
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = profileList, selectedProfileDirectory = "")
+                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = listOf(profileA), selectedProfileDirectory = "")
+                }
+            }
+        }
+
+        test("TC-SETTING-BROWSER-FEATURE-014 다른 앱에 다녀온 지 5초 안에 돌아오면 읽어 둔 프로필 목록을 그대로 둔다") {
+            runTest(mainDispatcher) {
+                val findProfileListUseCase = profileListUseCaseReturning(profileList, listOf(profileA))
+                val viewModel = refreshViewModel(findProfileListUseCase = findProfileListUseCase)
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe SettingBrowserUiState.Loading
+                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = profileList, selectedProfileDirectory = "")
+                }
+                advanceTimeBy(UI_STOP_TIMEOUT_MILLIS - 1)
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = profileList, selectedProfileDirectory = "")
+                    advanceUntilIdle()
+                    expectNoEvents()
+                }
+                coVerify(exactly = 1) { findProfileListUseCase(Unit) }
+            }
+        }
+    }
+
+    private fun profileListUseCaseReturning(
+        first: List<ChromeProfile>,
+        next: List<ChromeProfile>,
+    ): FindChromeProfileListUseCase {
+        val findProfileListUseCase = mockk<FindChromeProfileListUseCase>()
+        coEvery { findProfileListUseCase(Unit) } returnsMany listOf(Result.success(first), Result.success(next))
+        return findProfileListUseCase
+    }
+
+    private fun refreshViewModel(findProfileListUseCase: FindChromeProfileListUseCase): SettingBrowserViewModel {
+        val getDirectoryUseCase = mockk<GetChromeSessionProfileDirectoryUseCase>()
+        every { getDirectoryUseCase(Unit) } returns flowOf(Result.success(""))
+
+        return SettingBrowserViewModel(
+            getChromeSessionProfileDirectoryUseCase = getDirectoryUseCase,
+            findChromeProfileListUseCase = findProfileListUseCase,
+            selectChromeSessionProfileUseCase = mockk(),
+            unselectChromeSessionProfileUseCase = mockk(),
+        )
     }
 
     private fun viewModel(

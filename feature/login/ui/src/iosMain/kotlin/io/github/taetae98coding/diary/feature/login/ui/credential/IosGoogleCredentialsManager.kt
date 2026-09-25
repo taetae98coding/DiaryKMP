@@ -28,6 +28,8 @@ internal actual fun rememberGoogleCredentialsManager(): GoogleCredentialsManager
 private class IosGoogleCredentialsManager(
     private val viewController: UIViewController,
 ) : GoogleCredentialsManager {
+    override val isSignInEndDetectable: Boolean = true
+
     override suspend fun signIn(): GoogleCredential =
         suspendCancellableCoroutine { continuation ->
             val nonce = Uuid.random().toString()

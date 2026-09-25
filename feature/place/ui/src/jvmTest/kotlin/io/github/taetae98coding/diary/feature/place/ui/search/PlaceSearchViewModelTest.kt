@@ -146,6 +146,79 @@ class PlaceSearchViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-PLACE-SEARCH-DIALOG-DOMAIN-017 제공자를 바꾸면 직전 결과를 곧바로 비운다") {
+            runTest(mainDispatcher) {
+                val naverList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
+                val googleList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
+                val completion = CompletableDeferred<Result<List<SearchedPlace>>>()
+                val naverRequest = searchRequest(provider = MapProvider.NAVER)
+                val googleRequest = naverRequest.copy(provider = MapProvider.GOOGLE)
+                val fetchSearchedPlaceUseCase = mockk<FetchSearchedPlaceUseCase>()
+                coEvery { fetchSearchedPlaceUseCase(naverRequest.toParameter()) } returns Result.success(naverList)
+                coEvery { fetchSearchedPlaceUseCase(googleRequest.toParameter()) } coAnswers { completion.await() }
+                val viewModel = viewModel(fetchSearchedPlaceUseCase = fetchSearchedPlaceUseCase)
+                collectUiState(viewModel)
+
+                viewModel.search(request = naverRequest)
+                advanceUntilIdle()
+                viewModel.uiState.value shouldBe PlaceSearchUiState.Loaded(placeList = naverList)
+
+                viewModel.search(request = googleRequest)
+                runCurrent()
+
+                viewModel.uiState.value shouldBe PlaceSearchUiState.Idle
+
+                completion.complete(Result.success(googleList))
+                advanceUntilIdle()
+
+                viewModel.uiState.value shouldBe PlaceSearchUiState.Loaded(placeList = googleList)
+            }
+        }
+
+        test("TC-PLACE-SEARCH-DIALOG-DOMAIN-018 한 제공자의 검색 실패는 다른 제공자로 바꾼 검색에 영향을 주지 않는다") {
+            runTest(mainDispatcher) {
+                val googleList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
+                val naverRequest = searchRequest(provider = MapProvider.NAVER)
+                val googleRequest = naverRequest.copy(provider = MapProvider.GOOGLE)
+                val fetchSearchedPlaceUseCase = mockk<FetchSearchedPlaceUseCase>()
+                coEvery { fetchSearchedPlaceUseCase(naverRequest.toParameter()) } returns
+                    Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                coEvery { fetchSearchedPlaceUseCase(googleRequest.toParameter()) } returns Result.success(googleList)
+                val viewModel = viewModel(fetchSearchedPlaceUseCase = fetchSearchedPlaceUseCase)
+                collectUiState(viewModel)
+
+                viewModel.search(request = naverRequest)
+                advanceUntilIdle()
+                viewModel.uiState.value shouldBe PlaceSearchUiState.Failed
+
+                viewModel.search(request = googleRequest)
+                advanceUntilIdle()
+
+                viewModel.uiState.value shouldBe PlaceSearchUiState.Loaded(placeList = googleList)
+            }
+        }
+
+        test("같은 제공자로 다시 검색하면 제공자 전환으로 다루지 않는다") {
+            runTest(mainDispatcher) {
+                val firstList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
+                val completion = CompletableDeferred<Result<List<SearchedPlace>>>()
+                val firstRequest = searchRequest(provider = MapProvider.GOOGLE)
+                val secondRequest = searchRequest(provider = MapProvider.GOOGLE, bounds = fixtureMonkey.giveMeOne<CoordinateBounds>())
+                val fetchSearchedPlaceUseCase = mockk<FetchSearchedPlaceUseCase>()
+                coEvery { fetchSearchedPlaceUseCase(firstRequest.toParameter()) } returns Result.success(firstList)
+                coEvery { fetchSearchedPlaceUseCase(secondRequest.toParameter()) } coAnswers { completion.await() }
+                val viewModel = viewModel(fetchSearchedPlaceUseCase = fetchSearchedPlaceUseCase)
+                collectUiState(viewModel)
+
+                viewModel.search(request = firstRequest)
+                advanceUntilIdle()
+                viewModel.search(request = secondRequest)
+                runCurrent()
+
+                viewModel.uiState.value shouldBe PlaceSearchUiState.Loaded(placeList = firstList)
+            }
+        }
+
         test("검색은 입력한 검색어와 제공자와 보이는 영역을 그대로 요청한다") {
             runTest(mainDispatcher) {
                 val request = searchRequest(provider = MapProvider.GOOGLE, bounds = fixtureMonkey.giveMeOne<CoordinateBounds>())

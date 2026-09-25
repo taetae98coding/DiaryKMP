@@ -17,6 +17,7 @@ import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.calendarfilter.entity.CalendarFilterTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memo.transaction.AccountMemoTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.memofilter.entity.MemoFilterTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
@@ -351,7 +352,7 @@ class AccountCalendarMemoLocalDataSourceImplTest :
             }
         }
 
-        test("TC-MEMO-PRIMARY-TAG-DOMAIN-006 삭제한 태그를 되살리면 대표 태그 지정이 그대로 유지된다") {
+        test("TC-MEMO-PRIMARY-TAG-DOMAIN-006 삭제한 태그의 삭제가 다른 기기에서 받은 내용으로 풀려도 대표 태그 지정이 유지된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag().copy(isDeleted = true)
             val memo = overlappingMemo().copy(primaryTagId = tag.id)
@@ -361,11 +362,10 @@ class AccountCalendarMemoLocalDataSourceImplTest :
             calendarMemoFlow(accountId = accountId).test {
                 awaitUntil { calendarMemoList -> calendarMemoList.single().color == memo.detail.color }
 
-                tagTransaction.updateDeleted(
+                AccountTagSyncTransactionImpl(database = database).save(
                     accountId = accountId,
-                    tagId = tag.id,
-                    isDeleted = false,
-                    updatedAt = instant(),
+                    tagList = listOf(tag.copy(isDeleted = false)),
+                    cursor = fixtureMonkey.giveMeOne<Long>(),
                 )
                 awaitUntil { calendarMemoList -> calendarMemoList.single().color == tag.detail.color }
 

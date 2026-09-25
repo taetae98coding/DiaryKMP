@@ -82,7 +82,38 @@ class AccountTagLinkSyncTransactionImplTest :
                 .findPending(accountId = accountId)
                 .any { pending -> pending.fromTagId == tagLink.fromTagId && pending.toTagId == tagLink.toTagId }
 
-        test("TC-TAG-LINK-DATA-003 해제된 연결도 포함해 현재 계정의 업로드 대기 연결만 조회한다") {
+        test("TC-TAG-LINK-DATA-003 그 계정에서 연결하거나 해제한 연결은 그 계정의 업로드 대기로만 조회된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val linkTransaction = AccountTagLinkTransactionImpl(database = database)
+            val linked = tagLink()
+            val released = tagLink()
+            insertWithSyncState(accountId, released, isDirty = false)
+            insertWithSyncState(otherAccountId, released, isDirty = false)
+
+            linkTransaction.upsert(
+                accountId = accountId,
+                fromTagId = linked.fromTagId,
+                toTagId = linked.toTagId,
+                isDeleted = false,
+                updatedAt = instant(),
+            )
+            linkTransaction.upsert(
+                accountId = accountId,
+                fromTagId = released.fromTagId,
+                toTagId = released.toTagId,
+                isDeleted = true,
+                updatedAt = instant(),
+            )
+
+            syncDataSource
+                .findPending(accountId = accountId)
+                .map { pending -> pending.fromTagId to pending.toTagId }
+                .shouldContainExactlyInAnyOrder(linked.fromTagId to linked.toTagId, released.fromTagId to released.toTagId)
+            syncDataSource.findPending(accountId = otherAccountId).shouldBeEmpty()
+        }
+
+        test("해제된 연결도 포함해 현재 계정의 업로드 대기 연결만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstPending = tagLink()

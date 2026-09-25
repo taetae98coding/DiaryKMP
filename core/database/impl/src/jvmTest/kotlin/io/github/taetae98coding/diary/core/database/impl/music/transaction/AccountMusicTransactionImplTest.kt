@@ -13,8 +13,12 @@ import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalE
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.music.entity.AccountMusicLocalEntity
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.spyk
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -58,7 +62,7 @@ class AccountMusicTransactionImplTest :
                 ) { statement -> statement.readAll { it.toAccountMusic() } }
             }
 
-        test("TC-MUSIC-ADD-DATA-001 TC-MUSIC-ADD-DATA-005 곡과 현재 계정의 연결을 업로드 대기 상태로 함께 저장한다") {
+        test("TC-MUSIC-ADD-DATA-001 TC-MUSIC-ADD-DATA-005 TC-DATA-SYNC-DOMAIN-001 곡과 현재 계정의 연결을 업로드 대기 상태로 함께 저장한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val music = music()
 
@@ -97,7 +101,7 @@ class AccountMusicTransactionImplTest :
             findMusicList() shouldBe listOf(music)
         }
 
-        test("TC-MUSIC-DETAIL-DATA-003 TC-MUSIC-DETAIL-DATA-007 TC-MUSIC-ADD-DATA-011 수정은 제목, 가수, 링크와 수정 시각만 바꾸고 남은 썸네일 주소는 지우지 않으며 업로드 대기로 기록한다") {
+        test("TC-MUSIC-DETAIL-DATA-003 TC-MUSIC-DETAIL-DATA-007 TC-MUSIC-ADD-DATA-011 TC-DATA-SYNC-DOMAIN-001 수정은 제목, 가수, 링크와 수정 시각만 바꾸고 남은 썸네일 주소는 지우지 않으며 업로드 대기로 기록한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val music = music()
             transaction.upsert(accountId = accountId, musicList = listOf(music))
@@ -111,7 +115,7 @@ class AccountMusicTransactionImplTest :
             findAccountMusicList() shouldBe listOf(AccountMusicLocalEntity(accountId = accountId, musicId = music.id, isDirty = true))
         }
 
-        test("TC-MUSIC-DETAIL-DOMAIN-007 TC-MUSIC-DETAIL-DATA-005 삭제는 삭제 여부와 수정 시각만 바꾸고 곡과 계정 연결을 남긴다") {
+        test("TC-MUSIC-DETAIL-DOMAIN-007 TC-MUSIC-DETAIL-DATA-005 TC-DATA-SYNC-DOMAIN-001 삭제는 삭제 여부와 수정 시각만 바꾸고 곡과 계정 연결을 남기며 업로드 대기로 기록한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val music = music().copy(isDeleted = false)
             transaction.upsert(accountId = accountId, musicList = listOf(music))
@@ -141,15 +145,40 @@ class AccountMusicTransactionImplTest :
             findMusicList() shouldBe listOf(music)
         }
 
-        test("TC-MUSIC-ADD-DATA-003 같은 식별자의 곡이 있으면 덮어쓴다") {
+        test("TC-MUSIC-ADD-DATA-003 곡을 추가해도 이미 저장된 곡은 덮어쓰이지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val savedMusic = music()
+            val addedMusic =
+                music().copy(
+                    detail =
+                        MusicDetailLocalEntity(
+                            link = "https://www.youtube.com/watch?v=added-${fixtureMonkey.giveMeOne<String>()}",
+                            title = "added-${savedMusic.detail.title}",
+                            artist = "added-${savedMusic.detail.artist}",
+                            thumbnail = savedMusic.detail.thumbnail,
+                        ),
+                )
+            transaction.upsert(accountId = accountId, musicList = listOf(savedMusic))
+
+            transaction.upsert(accountId = accountId, musicList = listOf(addedMusic))
+
+            findMusicList() shouldBe listOf(savedMusic, addedMusic).sortedBy { music -> music.id.toString() }
+        }
+
+        test("TC-MUSIC-ADD-DATA-004 저장에 실패하면 곡과 계정 연결 중 어느 것도 남지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val music = music()
-            val renamedMusic = music.copy(detail = music.detail.copy(title = "renamed-${fixtureMonkey.giveMeOne<String>()}"))
+            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val failingDatabase = spyk(database)
+            every { failingDatabase.accountMusicDao() } throws throwable
+            val failingTransaction = AccountMusicTransactionImpl(database = failingDatabase)
 
-            transaction.upsert(accountId = accountId, musicList = listOf(music))
-            transaction.upsert(accountId = accountId, musicList = listOf(renamedMusic))
+            shouldThrow<IllegalStateException> {
+                failingTransaction.upsert(accountId = accountId, musicList = listOf(music))
+            }.message shouldBe throwable.message
 
-            findMusicList() shouldBe listOf(renamedMusic)
+            findMusicList().shouldBeEmpty()
+            findAccountMusicList().shouldBeEmpty()
         }
     }) {
     public companion object {

@@ -54,10 +54,12 @@ internal fun PlaceDetailTopBar(
                     onClick = { onEvent(PlaceDetailScaffoldEvent.ClickOpenExternalMap) },
                     contentDescription = mapProviderProvider().openExternalMapContentDescription(),
                 )
-                SearchButton(
-                    onClick = { onEvent(PlaceDetailScaffoldEvent.ClickSearch) },
-                    contentDescription = stringResource(Res.string.place_search_button_content_description),
-                )
+                if (uiState.isMapDisplayed) {
+                    SearchButton(
+                        onClick = { onEvent(PlaceDetailScaffoldEvent.ClickSearch) },
+                        contentDescription = stringResource(Res.string.place_search_button_content_description),
+                    )
+                }
                 DeleteButton(
                     onClick = { onEvent(PlaceDetailScaffoldEvent.ClickDelete) },
                     contentDescription = stringResource(Res.string.place_detail_delete_button_content_description),

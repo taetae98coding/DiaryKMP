@@ -67,7 +67,7 @@ class SyncWorkTest :
             Triple(1, 0, Pair(1, 0)),
             Triple(0, 0, Pair(0, 0)),
         ).forEach { (tagCount, memoCount, expectedRequestCounts) ->
-            test("TC-DATA-SYNC-DOMAIN-020 태그 $tagCount 개, 메모 $memoCount 개면 빈 종류 요청을 생략한다") {
+            test("태그 $tagCount 개, 메모 $memoCount 개면 빈 종류 요청을 생략한다") {
                 val context = context(tagList = tags(tagCount), memoList = memos(memoCount))
 
                 context.subject.doWork()

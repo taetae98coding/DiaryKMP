@@ -72,6 +72,7 @@ import io.github.taetae98coding.diary.core.network.api.web.entity.WebPullRemoteE
 import io.github.taetae98coding.diary.core.network.api.webtag.datasource.WebTagRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.webtag.entity.WebTagPullRemoteEntity
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.sync.usecase.PrepareSyncUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
@@ -97,6 +98,7 @@ internal val fixtureMonkey: FixtureMonkey =
 internal data class TestContext(
     val accountId: Uuid,
     val getAccountUseCase: GetAccountUseCase,
+    val prepareSyncUseCase: PrepareSyncUseCase,
     val tagSyncLocalDataSource: AccountTagSyncLocalDataSource,
     val placeSyncLocalDataSource: AccountPlaceSyncLocalDataSource,
     val webSyncLocalDataSource: AccountWebSyncLocalDataSource,
@@ -144,6 +146,7 @@ internal data class TestContext(
     val subject: SyncWorkImpl =
         SyncWorkImpl(
             getAccountUseCase = getAccountUseCase,
+            prepareSyncUseCase = prepareSyncUseCase,
             tagSyncWork =
                 TagSyncWork(
                     accountTagSyncLocalDataSource = tagSyncLocalDataSource,
@@ -309,6 +312,7 @@ private fun mockedTestContext(
     return TestContext(
         accountId = accountId,
         getAccountUseCase = mockk<GetAccountUseCase>().apply { every { this@apply(parameter = Unit) } returns accountFlow },
+        prepareSyncUseCase = mockk<PrepareSyncUseCase>().apply { coEvery { this@apply(parameter = any()) } returns Result.success(Unit) },
         tagSyncLocalDataSource = mockk(),
         placeSyncLocalDataSource = mockk(),
         webSyncLocalDataSource = mockk(),

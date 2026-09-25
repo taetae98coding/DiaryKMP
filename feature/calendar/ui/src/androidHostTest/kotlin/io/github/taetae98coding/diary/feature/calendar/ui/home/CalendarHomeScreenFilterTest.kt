@@ -36,7 +36,7 @@ class CalendarHomeScreenFilterTest {
     }
 
     @Test
-    fun `필터가 적용되어 있으면 필터 버튼에 적용 상태를 알린다`() {
+    fun `TC-CALENDAR-HOME-FEATURE-086 선택한 태그가 있으면 필터 버튼이 적용 상태를 알린다`() {
         setCalendarHomeScreen(
             filterUiState = CalendarHomeScaffoldFilterUiState(isApplied = true),
         )
@@ -49,6 +49,19 @@ class CalendarHomeScreenFilterTest {
             .fetchSemanticsNode()
             .config
             .getOrNull(SemanticsProperties.StateDescription) shouldBe DEFAULT_FILTER_APPLIED_STATE_DESCRIPTION
+    }
+
+    @Test
+    fun `TC-CALENDAR-HOME-FEATURE-086 선택한 태그가 없으면 필터 버튼이 적용 상태를 알리지 않는다`() {
+        setCalendarHomeScreen(
+            filterUiState = CalendarHomeScaffoldFilterUiState(isApplied = false),
+        )
+
+        composeRule
+            .onNodeWithContentDescription(DEFAULT_FILTER_BUTTON_DESCRIPTION)
+            .fetchSemanticsNode()
+            .config
+            .getOrNull(SemanticsProperties.StateDescription) shouldBe null
     }
 
     private fun setCalendarHomeScreen(

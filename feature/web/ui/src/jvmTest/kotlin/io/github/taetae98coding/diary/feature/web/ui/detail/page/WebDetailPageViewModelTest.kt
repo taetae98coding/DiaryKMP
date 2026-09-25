@@ -199,7 +199,7 @@ class WebDetailPageViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-DOMAIN-040 불러온 적이 없으면 수정으로 URL이 바뀌어도 요청하지 않는다") {
+        test("TC-WEB-DETAIL-DOMAIN-040 응답 본문 방식을 한 번도 열지 않았으면 수정으로 URL이 바뀌어도 요청하지 않는다") {
             runTest(mainDispatcher) {
                 val id = Uuid.random()
                 val webFlow = MutableStateFlow<Result<Web?>>(Result.success(web(id = id)))
@@ -223,6 +223,82 @@ class WebDetailPageViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-WEB-DETAIL-DOMAIN-040 응답 본문 방식에서 불러온 뒤 URL 방식으로 되돌렸으면 수정으로 바뀐 URL로 곧바로 한 번 다시 불러온다") {
+            runTest(mainDispatcher) {
+                val id = Uuid.random()
+                val reloadedPage = webPage()
+                val webFlow = MutableStateFlow<Result<Web?>>(Result.success(web(id = id)))
+                val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
+                coEvery {
+                    fetchWebPageUseCase(parameter = FetchWebPageUseCase.Parameter(url = URL, headerList = HEADER_LIST))
+                } returns Result.success(webPage())
+                coEvery {
+                    fetchWebPageUseCase(parameter = FetchWebPageUseCase.Parameter(url = OTHER_URL, headerList = HEADER_LIST))
+                } returns Result.success(reloadedPage)
+                val viewModel = viewModel(fetchWebPageUseCase = fetchWebPageUseCase, id = id, webFlow = webFlow)
+                viewModel.load()
+                advanceUntilIdle()
+
+                // URL 방식으로 되돌린 동안에는 화면이 불러오기를 요청하지 않으므로 수정 성공만 전달된다.
+                webFlow.value = Result.success(web(id = id, url = OTHER_URL))
+                viewModel.refresh()
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) {
+                    fetchWebPageUseCase(parameter = FetchWebPageUseCase.Parameter(url = OTHER_URL, headerList = HEADER_LIST))
+                }
+
+                viewModel.load()
+                advanceUntilIdle()
+
+                coVerify(exactly = 2) { fetchWebPageUseCase(parameter = any()) }
+                viewModel.uiState.value shouldBe WebDetailPageUiState.Content(page = reloadedPage)
+            }
+        }
+
+        test("TC-WEB-DETAIL-DOMAIN-007 응답 본문 방식에서 본문이 표시된 뒤 다른 경로에서 URL과 요청 헤더가 바뀌어도 다시 불러오지 않는다") {
+            runTest(mainDispatcher) {
+                val id = Uuid.random()
+                val webPage = webPage()
+                val webFlow = MutableStateFlow<Result<Web?>>(Result.success(web(id = id)))
+                val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
+                coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.success(webPage)
+                val viewModel = viewModel(fetchWebPageUseCase = fetchWebPageUseCase, id = id, webFlow = webFlow)
+                viewModel.load()
+                advanceUntilIdle()
+
+                webFlow.value = Result.success(web(id = id, url = OTHER_URL, headerList = HEADER_LIST + WebHeader(name = "header-${fixtureMonkey.giveMeOne<String>()}", value = fixtureMonkey.giveMeOne<String>())))
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { fetchWebPageUseCase(parameter = any()) }
+                viewModel.uiState.value shouldBe WebDetailPageUiState.Content(page = webPage)
+            }
+        }
+
+        test("TC-WEB-DETAIL-DOMAIN-048 다른 경로에서 URL이 바뀐 뒤 제목만 고쳐 수정해도 최신 저장 URL로 한 번 다시 불러온다") {
+            runTest(mainDispatcher) {
+                val id = Uuid.random()
+                val webFlow = MutableStateFlow<Result<Web?>>(Result.success(web(id = id)))
+                val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
+                coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.success(webPage())
+                val viewModel = viewModel(fetchWebPageUseCase = fetchWebPageUseCase, id = id, webFlow = webFlow)
+                viewModel.load()
+                advanceUntilIdle()
+                webFlow.value = Result.success(web(id = id, url = OTHER_URL))
+                advanceUntilIdle()
+
+                val externallyChanged = web(id = id, url = OTHER_URL)
+                webFlow.value = Result.success(externallyChanged.copy(detail = externallyChanged.detail.copy(title = "changed-${fixtureMonkey.giveMeOne<String>()}")))
+                viewModel.refresh()
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) {
+                    fetchWebPageUseCase(parameter = FetchWebPageUseCase.Parameter(url = OTHER_URL, headerList = HEADER_LIST))
+                }
+                coVerify(exactly = 2) { fetchWebPageUseCase(parameter = any()) }
+            }
+        }
+
         test("TC-WEB-DETAIL-DATA-022 URL 방식에서는 웹 페이지를 원격에 요청하지 않는다") {
             runTest(mainDispatcher) {
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
@@ -238,7 +314,7 @@ class WebDetailPageViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-FEATURE-013 TC-WEB-DETAIL-DOMAIN-007 TC-WEB-DETAIL-DOMAIN-012 TC-WEB-DETAIL-DOMAIN-039 다시 불러오기는 응답 본문 방식이 처음 될 때 한 번만 일어난다") {
+        test("TC-WEB-DETAIL-FEATURE-013 TC-WEB-DETAIL-DOMAIN-012 TC-WEB-DETAIL-DOMAIN-039 다시 불러오기는 응답 본문 방식이 처음 될 때 한 번만 일어난다") {
             runTest(mainDispatcher) {
                 val webPage = webPage()
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()

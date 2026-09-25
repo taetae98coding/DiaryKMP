@@ -36,7 +36,7 @@ class SyncWorkTagLinkTest :
             requestOrder shouldContainExactly listOf("tag", "tag", "tagLink", "tagLink")
         }
 
-        test("TC-DATA-SYNC-DOMAIN-020 태그 연결만 대기하면 태그 연결 요청만 발생한다") {
+        test("태그 연결만 대기하면 태그 연결 요청만 발생한다") {
             val context = context(tagLinkList = tagLinks(size = 1))
 
             context.subject.doWork()

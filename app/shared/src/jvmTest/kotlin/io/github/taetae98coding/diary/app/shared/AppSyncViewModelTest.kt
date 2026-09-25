@@ -122,6 +122,27 @@ class AppSyncViewModelTest : FunSpec() {
             }
         }
 
+        listOf<Pair<String, (Account.User) -> Account.User>>(
+            "이메일" to { account -> account.copy(email = "changed-${account.email}") },
+            "프로필 이미지" to { account -> account.copy(profileImage = "changed-${account.profileImage}") },
+        ).forEach { (label, change) ->
+            test("TC-DATA-SYNC-DOMAIN-081 같은 계정의 $label 이 바뀌면 동기화 계기가 다시 발생한다") {
+                runTest(mainDispatcher) {
+                    val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                    val changedAccount = change(account)
+                    val accountFlow = MutableStateFlow<Account>(account)
+                    val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
+
+                    viewModel.account.test {
+                        awaitItem() shouldBe account
+                        accountFlow.value = changedAccount
+                        awaitItem() shouldBe changedAccount
+                        expectNoEvents()
+                    }
+                }
+            }
+        }
+
         test("계정 확인에 실패하면 동기화 계기가 발생하지 않는다") {
             runTest(mainDispatcher) {
                 val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
@@ -137,25 +158,7 @@ class AppSyncViewModelTest : FunSpec() {
             }
         }
 
-        test("다시 관측을 시작하면 확인된 계정이 한 번만 다시 전달된다") {
-            runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
-                val accountFlow = MutableStateFlow<Account>(account)
-                val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
-
-                viewModel.account.test {
-                    awaitItem() shouldBe account
-                    expectNoEvents()
-                }
-
-                viewModel.account.test {
-                    awaitItem() shouldBe account
-                    expectNoEvents()
-                }
-            }
-        }
-
-        test("관측이 끊긴 지 오래된 뒤 다시 관측해도 확인된 계정이 한 번만 다시 전달된다") {
+        test("TC-DATA-SYNC-DOMAIN-085 관측이 끊긴 지 오래된 뒤 다시 관측해도 확인된 계정이 한 번만 다시 전달된다") {
             runTest(mainDispatcher) {
                 val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
                 val accountFlow = MutableStateFlow<Account>(account)

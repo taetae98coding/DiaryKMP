@@ -13,6 +13,7 @@ import io.github.taetae98coding.diary.domain.place.usecase.AddPlaceTagUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.GetPlaceTagUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceSelectableTagUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.RemovePlaceTagUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -29,11 +30,13 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlin.time.Instant
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.uuid.Uuid
 
 class PlaceDetailTagViewModelTest : FunSpec() {
@@ -152,6 +155,7 @@ class PlaceDetailTagViewModelTest : FunSpec() {
             }
         }
         searchTests()
+        restorationTests()
     }
 
     private fun searchTests() {
@@ -203,6 +207,41 @@ class PlaceDetailTagViewModelTest : FunSpec() {
         }
     }
 
+    private fun restorationTests() {
+        test("TC-ENTITY-TAG-INPUT-DOMAIN-016 복원 뒤 새로 만든 화면은 대상 전체를 먼저 보여 주고 되살린 검색어는 입력 정지 대기 시간이 지나야 반영한다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
+                val allTagList = List(2) { tag() }
+                val matchedTagList = listOf(allTagList.first())
+                val useCase = mockk<PagePlaceSelectableTagUseCase>()
+                every {
+                    useCase(parameter = PagePlaceSelectableTagUseCase.Parameter(placeId = id, query = ""))
+                } returns flowOf(Result.success(PagingData.from(allTagList)))
+                every {
+                    useCase(parameter = PagePlaceSelectableTagUseCase.Parameter(placeId = id, query = query))
+                } returns flowOf(Result.success(PagingData.from(matchedTagList)))
+                val viewModel = viewModel(id = id, pagePlaceSelectableTagUseCase = useCase)
+
+                viewModel.tagPagingData.test {
+                    flowOf(awaitItem()).asSnapshot() shouldBe allTagList
+
+                    viewModel.updateQuery(query)
+                    advanceTimeBy(INPUT_IDLE_DELAY - 1.milliseconds)
+                    runCurrent()
+
+                    expectNoEvents()
+
+                    advanceTimeBy(2.milliseconds)
+                    runCurrent()
+
+                    flowOf(awaitItem()).asSnapshot() shouldBe matchedTagList
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+    }
+
     private fun viewModel(
         id: Uuid,
         tagFlow: Flow<Result<List<Tag>>> = flowOf(Result.success(emptyList())),
@@ -235,8 +274,6 @@ class PlaceDetailTagViewModelTest : FunSpec() {
             fixtureMonkey
                 .giveMeKotlinBuilder<Tag>()
                 .setExp(Tag::isDeleted, false)
-                .setExp(Tag::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Tag::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
                 .sample()
     }
 }

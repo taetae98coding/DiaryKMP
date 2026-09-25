@@ -27,6 +27,7 @@ internal fun LoginHomeScaffold(
     onEvent: (LoginHomeScaffoldEvent) -> Unit,
     modifier: Modifier = Modifier,
     uiStateProvider: () -> LoginHomeUiState = { LoginHomeUiState() },
+    platformSignInState: LoginPlatformSignInState = rememberLoginPlatformSignInState(),
     hostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     Scaffold(
@@ -41,7 +42,7 @@ internal fun LoginHomeScaffold(
         snackbarHost = { SnackbarHost(hostState = hostState) },
     ) { paddingValues ->
         DiaryCrossfade(
-            targetState = uiStateProvider().isInProgress,
+            targetState = uiStateProvider().isInProgress || platformSignInState.isInProgress,
             modifier =
                 Modifier
                     .fillMaxSize()

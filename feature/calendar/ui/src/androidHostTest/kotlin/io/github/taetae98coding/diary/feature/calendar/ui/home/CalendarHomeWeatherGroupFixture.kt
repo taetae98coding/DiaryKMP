@@ -4,6 +4,7 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
@@ -29,6 +30,8 @@ internal object CalendarHomeWeatherGroupFixture {
     const val APPOINTMENT_TITLE = "약속"
     const val WORKSHOP_TITLE = "워크숍"
     const val HOLIDAY_NAME = "임시공휴일"
+    const val BIRTHDAY_NAME = "홍길동"
+    const val BIRTHDAY_TEXT = "🎂 홍길동"
 
     val JULY_2026: YearMonth = YearMonth(year = 2026, month = Month.JULY)
 
@@ -79,6 +82,13 @@ internal object CalendarHomeWeatherGroupFixture {
             dateRange = dateRange,
         )
 
+    fun birthday(date: LocalDate): CalendarContactBirthday =
+        CalendarContactBirthday(
+            contactId = Uuid.random(),
+            name = BIRTHDAY_NAME,
+            date = date,
+        )
+
     fun july(day: Int): LocalDate = LocalDate(year = 2026, month = Month.JULY, day = day)
 
     private fun weather(
@@ -98,6 +108,7 @@ internal fun ComposeContentTestRule.setCalendarHomeWeatherGroupScreen(
     weatherList: List<CalendarWeather>,
     memoList: List<CalendarMemo> = emptyList(),
     holidayList: List<Holiday> = emptyList(),
+    birthdayList: List<CalendarContactBirthday> = emptyList(),
 ) {
     val holidayViewModel =
         mockk<CalendarHomeHolidayViewModel>().also { viewModel ->
@@ -123,7 +134,7 @@ internal fun ComposeContentTestRule.setCalendarHomeWeatherGroupScreen(
                 navigateToMemoDetail = {},
                 navigateToMemoAdd = {},
                 navigateToContactDetail = {},
-                birthdayViewModel = birthdayViewModel(),
+                birthdayViewModel = birthdayViewModel(birthdayListFlow = MutableStateFlow(birthdayList)),
                 navigateToFilter = {},
                 state = state,
                 holidayViewModel = holidayViewModel,

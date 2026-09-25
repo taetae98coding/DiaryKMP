@@ -21,6 +21,11 @@ internal class AccountMemoFilterRepositoryImpl(
                 tagList.map { tag -> tag.toDomain() }
             }
 
+    override fun getTagIdSet(account: Account): Flow<Set<Uuid>> =
+        accountMemoFilterLocalDataSource
+            .getTagIdList(accountId = account.id)
+            .map { tagIdList -> tagIdList.toSet() }
+
     override suspend fun upsert(
         account: Account,
         tagId: Uuid,

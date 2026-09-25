@@ -15,6 +15,7 @@ import io.github.taetae98coding.diary.domain.contact.usecase.PageContactUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -79,6 +80,24 @@ class ContactHomeViewModelTest : FunSpec() {
                     contactListFlow.value = Result.success(afterContactList)
 
                     flowOf(awaitItem()).asSnapshot() shouldBe afterContactList
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("TC-CONTACT-HOME-FEATURE-005 연락처가 새로 저장되면 별도 조작 없이 목록에 나타난다") {
+            runTest(mainDispatcher) {
+                val shownContactList = listOf(contact(name = "김철수"))
+                val addedContact = contact(name = "이영희")
+                val contactListFlow = MutableStateFlow(Result.success(shownContactList))
+                val viewModel = viewModel(pageContactUseCase = pageContactUseCase(contactListFlow = contactListFlow))
+
+                viewModel.contactPagingData.test {
+                    flowOf(awaitItem()).asSnapshot() shouldBe shownContactList
+
+                    contactListFlow.value = Result.success(shownContactList + addedContact)
+
+                    flowOf(awaitItem()).asSnapshot() shouldContain addedContact
                     cancelAndIgnoreRemainingEvents()
                 }
             }

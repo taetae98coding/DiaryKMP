@@ -78,28 +78,30 @@ class TagDetailWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-DATA-005 표시 범위를 바꾸면 웹 목록을 새 기준으로 다시 조회한다") {
+        test("TC-TAG-DETAIL-DATA-005 표시 범위를 넓혔다 되돌리면 웹 목록을 각 범위 기준으로 다시 조회한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val selfWebList = List(2) { item() }
+                val childWebList = selfWebList + List(2) { item() }
                 val pageTagWebUseCase = mockk<PageTagWebUseCase>()
-                every { pageTagWebUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(emptyList<Web>())))
+                every { pageTagWebUseCase(parameter = PageTagWebUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, sort = ListSort.TITLE)) } returns
+                    flowOf(Result.success(PagingData.from(selfWebList)))
+                every { pageTagWebUseCase(parameter = PageTagWebUseCase.Parameter(tagId = tagId, scope = TagScope.CHILD, sort = ListSort.TITLE)) } returns
+                    flowOf(Result.success(PagingData.from(childWebList)))
                 val viewModel = TagDetailWebViewModel(tagId = tagId, pageTagWebUseCase = pageTagWebUseCase)
 
                 viewModel.webPagingData.test {
-                    awaitItem()
-                    viewModel.select(scope = TagScope.DESCENDANT)
-                    awaitItem()
-                    cancelAndIgnoreRemainingEvents()
-                }
+                    flowOf(awaitItem()).asSnapshot() shouldBe selfWebList
 
-                viewModel.scope.value shouldBe TagScope.DESCENDANT
-                verify(exactly = 1) { pageTagWebUseCase(parameter = PageTagWebUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, sort = ListSort.TITLE)) }
-                verify(exactly = 1) {
-                    pageTagWebUseCase(parameter = PageTagWebUseCase.Parameter(tagId = tagId, scope = TagScope.DESCENDANT, sort = ListSort.TITLE))
+                    viewModel.select(scope = TagScope.CHILD)
+                    flowOf(awaitItem()).asSnapshot() shouldBe childWebList
+
+                    viewModel.select(scope = TagScope.SELF)
+                    flowOf(awaitItem()).asSnapshot() shouldBe selfWebList
+                    cancelAndIgnoreRemainingEvents()
                 }
             }
         }
-
         test("TC-TAG-DETAIL-WEB-FEATURE-004 조회가 실패하면 목록을 전달하지 않는다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()

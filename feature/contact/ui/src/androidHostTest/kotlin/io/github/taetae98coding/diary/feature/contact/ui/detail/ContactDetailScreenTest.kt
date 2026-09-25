@@ -6,10 +6,19 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
+import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
+import io.github.taetae98coding.diary.feature.contact.ui.add.DEFAULT_BIRTHDAY_CLEAR_DESCRIPTION
+import io.github.taetae98coding.diary.feature.contact.ui.add.DEFAULT_BIRTHDAY_NOT_SET
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.justRun
@@ -17,6 +26,9 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDateRange
+import kotlinx.datetime.plus
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -68,6 +80,30 @@ class ContactDetailScreenTest {
 
         composeRule.onNode(hasText(EDITING_NAME) and hasSetTextAction()).assertExists()
         composeRule.onNode(hasText(CHANGED_NAME) and hasSetTextAction()).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-CONTACT-DETAIL-DOMAIN-002 저장된 생일이 다른 경로에서 바뀌어도 입력 중인 생일은 덮어쓰지 않는다`() {
+        val id = Uuid.random()
+        val birthdayRange = fixtureMonkey.giveMeOne<LocalDateRange>()
+        val stored = testContactDetail(name = CONTACT_NAME, birthday = ContactBirthday(date = birthdayRange.start, calendar = ContactBirthdayCalendar.SOLAR))
+        val uiState = MutableStateFlow<ContactDetailUiState>(ContactDetailUiState.Content(id = id, detail = stored))
+
+        setContactDetailScreen(uiState = uiState)
+        composeRule.onNodeWithContentDescription(DEFAULT_BIRTHDAY_CLEAR_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle {
+            uiState.value =
+                ContactDetailUiState.Content(
+                    id = id,
+                    detail = stored.copy(birthday = ContactBirthday(date = birthdayRange.endInclusive.plus(1, DateTimeUnit.DAY), calendar = ContactBirthdayCalendar.LUNAR)),
+                )
+        }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_BIRTHDAY_NOT_SET).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_BIRTHDAY_CLEAR_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
@@ -158,6 +194,7 @@ class ContactDetailScreenTest {
         private const val CONTACT_NAME = "ContactDetailScreenName"
         private const val CHANGED_NAME = "ContactDetailScreenChanged"
         private const val EDITING_NAME = "ContactDetailScreenEditing"
+        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
         private fun viewModel(
             uiState: MutableStateFlow<ContactDetailUiState>,

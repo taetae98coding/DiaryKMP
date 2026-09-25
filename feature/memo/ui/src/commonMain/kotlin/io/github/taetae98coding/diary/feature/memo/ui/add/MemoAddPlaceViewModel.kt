@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import org.koin.core.annotation.InjectedParam
@@ -54,7 +55,7 @@ internal class MemoAddPlaceViewModel(
         query
             .debounceSearchQuery()
             .flatMapLatest { value -> pagePlaceUseCase(parameter = value) }
-            .map { result -> result.getOrElse { PagingData.empty() } }
+            .mapNotNull { result -> result.getOrNull() }
             .cachedIn(viewModelScope)
 
     fun updateQuery(query: String) {

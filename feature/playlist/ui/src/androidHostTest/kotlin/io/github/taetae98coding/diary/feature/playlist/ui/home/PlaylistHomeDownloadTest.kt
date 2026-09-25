@@ -71,14 +71,19 @@ class PlaylistHomeDownloadTest {
     }
 
     @Test
-    fun `TC-MUSIC-DOWNLOAD-FEATURE-002 진행 중인 곡의 항목에서 받은 만큼을 백분율로 확인한다`() {
-        assertStateDisplayed(state = MusicDownloadState.Running(progress = 0.62F), description = DEFAULT_RUNNING_DESCRIPTION)
+    fun `TC-MUSIC-DOWNLOAD-FEATURE-002 먼저 받는 화면에서 50%로 멈춘 곡의 항목에서 45%를 확인한다`() {
+        assertStateDisplayed(state = MusicDownloadState.Running(progress = FIRST_PHASE_PROGRESS), description = DEFAULT_FIRST_PHASE_RUNNING_DESCRIPTION)
+    }
+
+    @Test
+    fun `TC-MUSIC-DOWNLOAD-FEATURE-002 이어서 받는 소리에서 100%로 멈춘 곡의 항목에서 99%를 확인한다`() {
+        assertStateDisplayed(state = MusicDownloadState.Running(progress = LATER_PHASE_PROGRESS), description = DEFAULT_LATER_PHASE_RUNNING_DESCRIPTION)
     }
 
     @Test
     fun `TC-MUSIC-DOWNLOAD-FEATURE-018 백분율이 없는 진행 중인 곡의 항목에서 백분율 없이 진행 중임을 확인한다`() {
         assertStateDisplayed(state = MusicDownloadState.Running(progress = null), description = DEFAULT_RUNNING_INDETERMINATE_DESCRIPTION)
-        composeRule.onNodeWithContentDescription(DEFAULT_RUNNING_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_FIRST_PHASE_RUNNING_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
@@ -99,8 +104,14 @@ class PlaylistHomeDownloadTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MUSIC-DOWNLOAD-FEATURE-002 한국어 환경에서 진행 중인 곡의 백분율을 확인한다`() {
-        assertStateDisplayed(state = MusicDownloadState.Running(progress = 0.62F), description = KOREAN_RUNNING_DESCRIPTION)
+    fun `TC-MUSIC-DOWNLOAD-FEATURE-002 한국어 환경에서 먼저 받는 화면에서 멈춘 곡의 45%를 확인한다`() {
+        assertStateDisplayed(state = MusicDownloadState.Running(progress = FIRST_PHASE_PROGRESS), description = KOREAN_FIRST_PHASE_RUNNING_DESCRIPTION)
+    }
+
+    @Test
+    @Config(qualifiers = "ko")
+    fun `TC-MUSIC-DOWNLOAD-FEATURE-002 한국어 환경에서 이어서 받는 소리에서 멈춘 곡의 99%를 확인한다`() {
+        assertStateDisplayed(state = MusicDownloadState.Running(progress = LATER_PHASE_PROGRESS), description = KOREAN_LATER_PHASE_RUNNING_DESCRIPTION)
     }
 
     @Test
@@ -145,7 +156,7 @@ class PlaylistHomeDownloadTest {
         setPlaylistHomeScaffold(
             musicList = listOf(music),
             onEvent = eventList::add,
-            downloadUiState = PlaylistHomeDownloadUiState(stateMap = mapOf(music.id to MusicDownloadState.Running(progress = 0.62F))),
+            downloadUiState = PlaylistHomeDownloadUiState(stateMap = mapOf(music.id to MusicDownloadState.Running(progress = FIRST_PHASE_PROGRESS))),
         )
 
         composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).assert(hasClickAction())
@@ -195,8 +206,12 @@ class PlaylistHomeDownloadTest {
         private const val DEFAULT_DOWNLOAD_DESCRIPTION = "Download music"
         private const val KOREAN_DOWNLOAD_DESCRIPTION = "곡 다운로드"
         private const val DEFAULT_PENDING_DESCRIPTION = "Waiting to download"
-        private const val DEFAULT_RUNNING_DESCRIPTION = "Downloading 62%"
-        private const val KOREAN_RUNNING_DESCRIPTION = "다운로드 중 62%"
+        private const val FIRST_PHASE_PROGRESS = 0.45F
+        private const val LATER_PHASE_PROGRESS = 0.99F
+        private const val DEFAULT_FIRST_PHASE_RUNNING_DESCRIPTION = "Downloading 45%"
+        private const val DEFAULT_LATER_PHASE_RUNNING_DESCRIPTION = "Downloading 99%"
+        private const val KOREAN_FIRST_PHASE_RUNNING_DESCRIPTION = "다운로드 중 45%"
+        private const val KOREAN_LATER_PHASE_RUNNING_DESCRIPTION = "다운로드 중 99%"
         private const val DEFAULT_RUNNING_INDETERMINATE_DESCRIPTION = "Downloading"
         private const val KOREAN_RUNNING_INDETERMINATE_DESCRIPTION = "다운로드 중"
         private const val DEFAULT_DONE_DESCRIPTION = "Downloaded"

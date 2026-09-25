@@ -2,6 +2,8 @@ package io.github.taetae98coding.diary.feature.tag.ui.detail
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -20,6 +22,7 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.feature.tag.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailLinkViewModel
@@ -36,6 +39,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.compose.KoinApplication
+import org.koin.compose.viewmodel.koinViewModel
 import org.koin.dsl.koinConfiguration
 import org.koin.dsl.module
 import kotlin.uuid.Uuid
@@ -90,6 +94,7 @@ private val tagDetailTabViewModelModule =
                 .apply {
                     every { memoPagingData } returns memoPagingDataFlow
                     every { sort } returns MutableStateFlow(ListSort.DEFAULT)
+                    every { scope } returns MutableStateFlow(TagScope.SELF)
                     every { effect } returns memoEffectFlow
                 }.also { memoViewModelRef = it }
         }
@@ -103,6 +108,7 @@ private val tagDetailTabViewModelModule =
                 .apply {
                     every { webPagingData } returns webPagingDataFlow
                     every { sort } returns MutableStateFlow(ListSort.TITLE)
+                    every { scope } returns MutableStateFlow(TagScope.SELF)
                 }.also { webViewModelRef = it }
         }
         factory {
@@ -111,6 +117,7 @@ private val tagDetailTabViewModelModule =
                     every { placePagingData } returns placePagingDataFlow
                     every { placeListUiState } returns placeListUiStateFlow
                     every { sort } returns MutableStateFlow(ListSort.TITLE)
+                    every { scope } returns MutableStateFlow(TagScope.SELF)
                 }.also { placeViewModelRef = it }
         }
         factory {
@@ -128,6 +135,8 @@ private val tagDetailTabViewModelModule =
 internal fun ComposeContentTestRule.setTagDetailScreen(
     viewModel: TagDetailViewModel,
     id: Uuid = FIRST_TAG_ID,
+    detailIdState: State<Uuid> = mutableStateOf(id),
+    viewModelFor: (Uuid) -> TagDetailViewModel = { viewModel },
     resultEventBus: ResultEventBus = ResultEventBus(),
     navigateToTagAdd: () -> Unit = {},
     linkUiState: TagLinkInputUiState = TagLinkInputUiState(),
@@ -158,6 +167,8 @@ internal fun ComposeContentTestRule.setTagDetailScreen(
 
     setContent {
         TagDetailScreenTestHost(resultEventBus = resultEventBus) {
+            val currentId = detailIdState.value
+
             TagDetailScreen(
                 navigateToTagAdd = navigateToTagAdd,
                 tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
@@ -166,9 +177,10 @@ internal fun ComposeContentTestRule.setTagDetailScreen(
                 navigateToMemoAdd = navigateToMemoAdd,
                 navigateToMemoDetail = navigateToMemoDetail,
                 navigateToMemoFinishedList = navigateToMemoFinishedList,
-                id = id,
+                id = currentId,
                 componentVisibleProvider = { componentVisible },
-                viewModel = viewModel,
+                detailViewModel = remember(currentId) { viewModelFor(currentId) },
+                placeMapViewModel = koinViewModel(),
                 navigateToWebAdd = navigateToWebAdd,
                 navigateToWebDetail = navigateToWebDetail,
                 navigateToPlaceAdd = navigateToPlaceAdd,

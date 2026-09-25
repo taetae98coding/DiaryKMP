@@ -9,5 +9,6 @@ internal sealed interface SettingBrowserUiState {
         val profileList: List<ChromeProfile>,
         val selectedProfileDirectory: String,
         val isProfileListUnavailable: Boolean = false,
+        val hasStoredProfile: Boolean = selectedProfileDirectory.isNotEmpty(),
     ) : SettingBrowserUiState
 }

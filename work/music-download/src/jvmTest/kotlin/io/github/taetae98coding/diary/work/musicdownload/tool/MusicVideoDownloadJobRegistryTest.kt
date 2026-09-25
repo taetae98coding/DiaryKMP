@@ -47,6 +47,27 @@ class MusicVideoDownloadJobRegistryTest :
                     }
                 }
 
+                Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-013 작업이 실패하면 합류한 요청 모두 실패 결과를 받는다") {
+                    runTest {
+                        val videoId = testVideoId()
+                        val gate = CompletableDeferred<Boolean>()
+                        val ytDlpDownloader = mockk<YtDlpDownloader>()
+                        coEvery { ytDlpDownloader.download(videoId = any(), path = any(), onProgress = any()) } coAnswers { gate.await() }
+                        val registry = registry(ytDlpDownloader = ytDlpDownloader, scope = this)
+
+                        val first = async { registry.download(videoId = videoId, path = testMusicFilePath(videoId), onProgress = {}) }
+                        advanceUntilIdle()
+                        val second = async { registry.download(videoId = videoId, path = testMusicFilePath(videoId), onProgress = {}) }
+                        advanceUntilIdle()
+                        gate.complete(false)
+                        advanceUntilIdle()
+
+                        first.await() shouldBe false
+                        second.await() shouldBe false
+                        coVerify(exactly = 1) { ytDlpDownloader.download(videoId = videoId, path = any(), onProgress = any()) }
+                    }
+                }
+
                 Then("합류한 요청도 진행률을 함께 받는다") {
                     runTest {
                         val videoId = testVideoId()

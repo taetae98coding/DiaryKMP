@@ -2,17 +2,22 @@
 
 package io.github.taetae98coding.diary.feature.tag.ui.detail
 
+import androidx.paging.PagingData
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.domain.tag.usecase.AddTagLinkUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.DeleteTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FinishTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.GetLinkedTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.PageTagLinkSelectableTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.RestartTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.UpdateTagUseCase
+import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailLinkViewModel
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -26,6 +31,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
@@ -166,6 +172,56 @@ class TagDetailViewModelTest : FunSpec() {
 
                 coVerify(exactly = 1) { updateTagUseCase(UpdateTagUseCase.Parameter(id = id, detail = firstDetail)) }
                 coVerify(exactly = 0) { updateTagUseCase(UpdateTagUseCase.Parameter(id = id, detail = secondDetail)) }
+
+                completion.complete(Result.success(1))
+                advanceUntilIdle()
+            }
+        }
+
+        test("TC-TAG-DETAIL-DOMAIN-010 수정을 처리하는 중에도 태그를 연결하면 연결된 태그로 조회된다") {
+            runTest(mainDispatcher) {
+                val tag = tag()
+                val toTag = tag()
+                val completion = CompletableDeferred<Result<Int>>()
+                val updateTagUseCase = mockk<UpdateTagUseCase>()
+                coEvery { updateTagUseCase(any()) } coAnswers { completion.await() }
+                val findTagUseCase = mockk<FindTagUseCase>()
+                every { findTagUseCase(any()) } returns flowOf(Result.success(tag))
+                val linkedTagFlow = MutableStateFlow<Result<List<Tag>>>(Result.success(emptyList()))
+                val getLinkedTagUseCase = mockk<GetLinkedTagUseCase>()
+                every { getLinkedTagUseCase(parameter = tag.id) } returns linkedTagFlow
+                val addTagLinkUseCase = mockk<AddTagLinkUseCase>()
+                coEvery { addTagLinkUseCase(parameter = AddTagLinkUseCase.Parameter(fromTagId = tag.id, toTagId = toTag.id)) } coAnswers {
+                    linkedTagFlow.value = Result.success(listOf(toTag))
+                    Result.success(Unit)
+                }
+                val pageTagLinkSelectableTagUseCase = mockk<PageTagLinkSelectableTagUseCase>()
+                every { pageTagLinkSelectableTagUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.empty()))
+                val viewModel = viewModel(id = tag.id, findTagUseCase = findTagUseCase, updateTagUseCase = updateTagUseCase)
+                val linkViewModel =
+                    TagDetailLinkViewModel(
+                        id = tag.id,
+                        pageTagLinkSelectableTagUseCase = pageTagLinkSelectableTagUseCase,
+                        getLinkedTagUseCase = getLinkedTagUseCase,
+                        addTagLinkUseCase = addTagLinkUseCase,
+                        removeTagLinkUseCase = mockk(relaxed = true),
+                    )
+
+                viewModel.uiState.test {
+                    linkViewModel.uiState.test {
+                        awaitItem().linkedTagList shouldBe emptyList()
+                        viewModel.update(tag.detail.copy(title = "edited-${tag.detail.title}"))
+                        runCurrent()
+
+                        linkViewModel.link(tagId = toTag.id)
+                        runCurrent()
+
+                        awaitItem().linkedTagList shouldBe listOf(toTag)
+                        cancelAndIgnoreRemainingEvents()
+                    }
+                    (expectMostRecentItem() as TagDetailUiState.Content).isInProgress shouldBe true
+                    cancelAndIgnoreRemainingEvents()
+                }
 
                 completion.complete(Result.success(1))
                 advanceUntilIdle()

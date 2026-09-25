@@ -1,6 +1,9 @@
 package io.github.taetae98coding.diary.feature.memo.ui.detail
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
@@ -15,6 +18,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.feature.memo.ui.form.rememberMemoDetailFormState
+import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.DEFAULT_MAP_DESCRIPTION
 import io.github.taetae98coding.diary.feature.memo.ui.tag.tagPagingDataOf
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,6 +46,32 @@ class MemoDetailScaffoldTest {
         composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assertDoesNotExist()
         composeRule.onNodeWithContentDescription(DEFAULT_FINISH_BUTTON_DESCRIPTION).assertDoesNotExist()
         composeRule.onNodeWithContentDescription(DEFAULT_DELETE_BUTTON_DESCRIPTION).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-MEMO-DETAIL-FEATURE-075 로딩 상태에서는 화면 제목과 작성 도우미·완료·다시 시작·복사·삭제·수정 동작을 제공하지 않는다`() {
+        var uiState by mutableStateOf<MemoDetailUiState>(MemoDetailUiState.Loading)
+        setMemoDetailScaffold(
+            uiStateProvider = { uiState },
+            geminiUiStateProvider = { MemoGeminiUiState(isButtonVisible = true) },
+        )
+
+        composeRule.onNodeWithText(MEMO_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_GEMINI_BUTTON_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_FINISH_BUTTON_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_RESTART_BUTTON_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_COPY_BUTTON_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_DELETE_BUTTON_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assertDoesNotExist()
+
+        uiState = memoDetailUiState(detail = memoDetail(MEMO_TITLE))
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(MEMO_TITLE).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_GEMINI_BUTTON_DESCRIPTION).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_FINISH_BUTTON_DESCRIPTION).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_COPY_BUTTON_DESCRIPTION).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_DELETE_BUTTON_DESCRIPTION).assertExists()
     }
 
     @Test
@@ -90,6 +120,7 @@ class MemoDetailScaffoldTest {
         uiStateProvider: () -> MemoDetailUiState = { memoDetailUiState() },
         onEvent: (MemoDetailScaffoldEvent) -> Unit = {},
         componentVisibleProvider: () -> MemoDetailScaffoldComponentVisible = { MemoDetailScaffoldComponentVisible() },
+        geminiUiStateProvider: () -> MemoGeminiUiState = { MemoGeminiUiState() },
     ) {
         composeRule.setContent {
             DiaryTheme {
@@ -107,6 +138,7 @@ class MemoDetailScaffoldTest {
                     onPlacePickerEvent = {},
                     onGeminiEvent = {},
                     onGeminiDismissRequest = {},
+                    geminiUiStateProvider = geminiUiStateProvider,
                     componentVisibleProvider = componentVisibleProvider,
                 )
             }
@@ -119,6 +151,7 @@ class MemoDetailScaffoldTest {
         private const val KOREAN_NAVIGATE_UP_DESCRIPTION = "뒤로가기"
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
         private const val MEMO_TITLE = "MemoDetailTitle"
+        private const val DEFAULT_GEMINI_BUTTON_DESCRIPTION = "Writing assistant"
     }
 }
 
@@ -215,7 +248,7 @@ class MemoDetailScaffoldInProgressTest {
         setMemoDetailScaffold(uiStateProvider = { memoDetailUiState(detail = memoDetail(MEMO_TITLE), isFinishInProgress = true) })
 
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
-        composeRule.onNodeWithContentDescription(DEFAULT_FINISH_BUTTON_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_FINISH_BUTTON_DESCRIPTION).assertExists()
         composeRule.onNodeWithContentDescription(DEFAULT_DELETE_BUTTON_DESCRIPTION).assert(hasClickAction())
     }
 
@@ -224,7 +257,7 @@ class MemoDetailScaffoldInProgressTest {
         setMemoDetailScaffold(uiStateProvider = { memoDetailUiState(detail = memoDetail(MEMO_TITLE), isDeleteInProgress = true) })
 
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
-        composeRule.onNodeWithContentDescription(DEFAULT_DELETE_BUTTON_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_DELETE_BUTTON_DESCRIPTION).assertExists()
         composeRule.onNodeWithContentDescription(DEFAULT_FINISH_BUTTON_DESCRIPTION).assertIsOff()
     }
 

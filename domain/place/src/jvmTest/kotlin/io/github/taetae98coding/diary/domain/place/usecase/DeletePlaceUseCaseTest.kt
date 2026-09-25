@@ -170,7 +170,7 @@ class DeletePlaceUseCaseTest :
                 )
 
             When("장소를 삭제한다") {
-                Then("TC-PLACE-DETAIL-DATA-005 저장 실패를 그대로 전달한다") {
+                Then("TC-PLACE-DETAIL-DATA-005 삭제를 성공으로 다루지 않고 저장 실패를 전달한다") {
                     val result = useCase(parameter = Uuid.random())
 
                     result.shouldBeFailure() shouldBeSameInstanceAs throwable

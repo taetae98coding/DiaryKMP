@@ -19,7 +19,7 @@ class YtDlpProgressTest :
 
         Given("영상과 소리를 차례로 받는다") {
             When("스트림이 바뀌어 백분율이 다시 0부터 올라간다") {
-                Then("비율이 줄어들지 않는다") {
+                Then("TC-MUSIC-DOWNLOAD-DOMAIN-014 비율이 줄어들지 않는다") {
                     val progress = YtDlpProgress()
                     val valueList = mutableListOf<Float>()
 
@@ -52,7 +52,7 @@ class YtDlpProgressTest :
 
         Given("같은 백분율이 다시 들어온다") {
             When("그 줄을 읽는다") {
-                Then("줄어들거나 같은 값은 돌려주지 않는다") {
+                Then("TC-MUSIC-DOWNLOAD-DOMAIN-014 줄어들거나 같은 값은 돌려주지 않는다") {
                     val progress = YtDlpProgress()
 
                     progress.onLine(line = "[download] Destination: video.f137.mp4")

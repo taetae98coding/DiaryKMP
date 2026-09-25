@@ -119,6 +119,31 @@ class MusicAddViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-MUSIC-ADD-FEATURE-031 기기 저장에 실패하면 Effect 없이 진행 상태만 해제하고 같은 내용으로 다시 추가할 수 있다") {
+            runTest(mainDispatcher) {
+                val detail = MusicDetail(title = "title-${fixtureMonkey.giveMeOne<String>()}", artist = "artist-${fixtureMonkey.giveMeOne<String>()}", link = YOUTUBE_LINK)
+                val useCase = mockk<AddMusicUseCase>()
+                coEvery { useCase(any()) } returns Result.failure(IllegalStateException())
+                val viewModel = viewModel(addMusicUseCase = useCase)
+
+                viewModel.effect.test {
+                    viewModel.add(detail)
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                    viewModel.uiState.value.isInProgress
+                        .shouldBeFalse()
+
+                    viewModel.add(detail)
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                }
+
+                coVerify(exactly = 2) { useCase(detail) }
+            }
+        }
+
         test("TC-MUSIC-ADD-FEATURE-007 추가를 처리하는 동안 진행 상태를 유지하고 완료 후 해제한다") {
             runTest(mainDispatcher) {
                 val detail = fixtureMonkey.giveMeOne<MusicDetail>()

@@ -301,37 +301,41 @@ class AccountMemoWebTransactionImplTest :
         }
 
         test("TC-MEMO-WEB-DOMAIN-012 웹 연결은 메모 목록의 노출과 순서를 바꾸지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val linkedMemo = memo().visible().withTitle(title = "AAA")
-            val unlinkedMemo = memo().visible().withTitle(title = "BBB")
-            val web = web()
-            insertMemoWithWebList(accountId = accountId, memo = linkedMemo, webList = listOf(web))
-            memoTransaction.upsert(accountId = accountId, memoList = listOf(unlinkedMemo), memoTagList = emptyList())
+            listOf("AAA" to "BBB", "BBB" to "AAA").forEach { (linkedTitle, unlinkedTitle) ->
+                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val linkedMemo = memo().visible().withTitle(title = linkedTitle)
+                val unlinkedMemo = memo().visible().withTitle(title = unlinkedTitle)
+                val web = web()
+                insertMemoWithWebList(accountId = accountId, memo = linkedMemo, webList = listOf(web))
+                memoTransaction.upsert(accountId = accountId, memoList = listOf(unlinkedMemo), memoTagList = emptyList())
 
-            val memoList =
-                database
-                    .accountMemoDao()
-                    .page(accountId = accountId, sort = "title")
-                    .loadAll()
+                val memoList =
+                    database
+                        .accountMemoDao()
+                        .page(accountId = accountId, sort = "title")
+                        .loadAll()
 
-            memoList.map { memo -> memo.id } shouldBe listOf(linkedMemo.id, unlinkedMemo.id)
+                memoList.map { memo -> memo.id } shouldBe listOf(linkedMemo, unlinkedMemo).sortedBy { memo -> memo.detail.title }.map { memo -> memo.id }
+            }
         }
 
         test("TC-MEMO-WEB-DOMAIN-013 메모 연결은 웹 목록의 노출과 순서를 바꾸지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val memo = memo()
-            val linkedWeb = web().withTitle(title = "AAA")
-            val unlinkedWeb = web().withTitle(title = "BBB")
-            insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(linkedWeb))
-            webTransaction.upsert(accountId = accountId, webList = listOf(unlinkedWeb), webTagList = emptyList())
+            listOf("AAA" to "BBB", "BBB" to "AAA").forEach { (linkedTitle, unlinkedTitle) ->
+                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val memo = memo()
+                val linkedWeb = web().withTitle(title = linkedTitle)
+                val unlinkedWeb = web().withTitle(title = unlinkedTitle)
+                insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(linkedWeb))
+                webTransaction.upsert(accountId = accountId, webList = listOf(unlinkedWeb), webTagList = emptyList())
 
-            val webList =
-                database
-                    .accountWebDao()
-                    .page(accountId = accountId, sort = "title")
-                    .loadAll()
+                val webList =
+                    database
+                        .accountWebDao()
+                        .page(accountId = accountId, sort = "title")
+                        .loadAll()
 
-            webList.map { web -> web.id } shouldBe listOf(linkedWeb.id, unlinkedWeb.id)
+                webList.map { web -> web.id } shouldBe listOf(linkedWeb, unlinkedWeb).sortedBy { web -> web.detail.title }.map { web -> web.id }
+            }
         }
 
         test("TC-MEMO-WEB-DOMAIN-014 웹 연결은 태그로 메모를 조회한 결과를 바꾸지 않는다") {
@@ -354,6 +358,29 @@ class AccountMemoWebTransactionImplTest :
                     .loadAll()
 
             memoList.shouldBeEmpty()
+        }
+
+        test("TC-MEMO-WEB-DOMAIN-016 메모 연결은 태그로 웹 항목을 조회한 결과를 바꾸지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = memo().visible().copy(primaryTagId = null)
+            val web = web()
+            val tag = tag()
+            tagTransaction.upsert(accountId = accountId, tagList = listOf(tag), tagLinkList = emptyList())
+            webTransaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
+            memoTransaction.upsert(
+                accountId = accountId,
+                memoList = listOf(memo),
+                memoTagList = listOf(memoTag(memoId = memo.id, tagId = tag.id, memo = memo)),
+                memoWebList = listOf(memoWeb(memoId = memo.id, webId = web.id, memo = memo)),
+            )
+
+            val webList =
+                database
+                    .accountTagWebDao()
+                    .page(accountId = accountId, tagId = tag.id, scope = TagScopeLocalEntity.SELF.queryValue, sort = "title")
+                    .loadAll()
+
+            webList.shouldBeEmpty()
         }
 
         test("TC-MEMO-WEB-DATA-010 연결을 하나 해제하면 그 연결만 업로드 대기가 된다") {
@@ -539,6 +566,71 @@ class AccountMemoWebTransactionImplTest :
                     ),
                 )
             getWebList(accountId = accountId, memoId = source.id) shouldBe listOf(keptWeb)
+        }
+
+        test("TC-MEMO-DETAIL-DATA-045 삭제된 웹 항목을 가리키는 원본 연결도 복사본에 만들어진다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val source = memo()
+            val deletedWeb = web()
+            insertMemoWithWebList(accountId = accountId, memo = source, webList = listOf(deletedWeb))
+            webTransaction.upsert(accountId = accountId, webList = listOf(deletedWeb.copy(isDeleted = true)), webTagList = emptyList())
+
+            val copiedAt = fixtureMonkey.giveMeOne<Instant>()
+            val copy = memo().copy(updatedAt = copiedAt, createdAt = copiedAt)
+            val sourceWebIdSet =
+                dataSource
+                    .findWebIdList(accountId = accountId, memoId = source.id)
+                    .toSet()
+            memoTransaction.upsert(
+                accountId = accountId,
+                memoList = listOf(copy),
+                memoTagList = emptyList(),
+                memoWebList =
+                    sourceWebIdSet.map { webId ->
+                        MemoWebLocalEntity(
+                            memoId = copy.id,
+                            webId = webId,
+                            isDeleted = false,
+                            updatedAt = copiedAt,
+                            createdAt = copiedAt,
+                        )
+                    },
+            )
+
+            sourceWebIdSet shouldBe setOf(deletedWeb.id)
+            findMemoWebList(memoId = copy.id).map { memoWeb -> memoWeb.webId } shouldBe listOf(deletedWeb.id)
+        }
+
+        test("TC-MEMO-WEB-DOMAIN-015 연결된 웹 항목의 제목은 메모 검색에 쓰이지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val query = "query-${fixtureMonkey.giveMeOne<Uuid>()}"
+            val memo = memo().visible().let { value -> value.copy(detail = value.detail.copy(title = "memo-title", description = "memo-description")) }
+            val web = web().withTitle(title = "web-$query")
+            insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(web))
+
+            val memoList =
+                database
+                    .searchMemoDao()
+                    .page(accountId = accountId, query = query, sort = "title")
+                    .loadAll()
+
+            memoList.shouldBeEmpty()
+        }
+
+        test("TC-MEMO-WEB-DOMAIN-015 연결된 메모의 제목은 웹 검색에 쓰이지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val query = "query-${fixtureMonkey.giveMeOne<Uuid>()}"
+            val memo = memo().visible().withTitle(title = "memo-$query")
+            val web = web().let { value -> value.copy(detail = value.detail.copy(title = "web-title", description = "web-description", url = "https://example.com")) }
+            insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(web))
+
+            val webList =
+                database
+                    .searchWebDao()
+                    .page(accountId = accountId, query = query, sort = "title")
+                    .loadAll()
+
+            webList.shouldBeEmpty()
         }
 
         listOf(

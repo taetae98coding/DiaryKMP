@@ -34,6 +34,7 @@ internal fun TagDetailWebContent(
         val isRefreshing by syncViewModel.isRefreshing.collectAsStateWithLifecycle()
         val webPagingItems = webViewModel.webPagingData.collectAsLazyPagingItems()
         val sort by webViewModel.sort.collectAsStateWithLifecycle()
+        val queryScope by webViewModel.scope.collectAsStateWithLifecycle()
         val sortSheetState = rememberDialogState()
 
         TagDetailScopeEffect(
@@ -55,6 +56,7 @@ internal fun TagDetailWebContent(
             webPagingItems = webPagingItems,
             isRefreshingProvider = { isRefreshing },
             sortProvider = { sort },
+            scopeProvider = { queryScope },
         )
     }
 }

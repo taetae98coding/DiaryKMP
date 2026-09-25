@@ -29,7 +29,7 @@ class FcmMessagingServiceTest {
     }
 
     @Test
-    fun `알림 메시지를 받으면 서버가 보낸 제목과 본문을 그대로 표시한다`() {
+    fun `TC-DAILY-MEMO-NOTIFICATION-FEATURE-008 알림 메시지를 받으면 서버가 보낸 제목과 본문을 그대로 표시한다`() {
         service.onMessageReceived(
             remoteMessage(
                 title = "오늘 확인할 메모가 2개 있어요",
@@ -48,7 +48,7 @@ class FcmMessagingServiceTest {
     }
 
     @Test
-    fun `메시지에 채널이 없으면 일일 메모 알림 채널로 표시한다`() {
+    fun `TC-DAILY-MEMO-NOTIFICATION-FEATURE-009 메시지에 채널이 없으면 일일 메모 알림 채널로 표시한다`() {
         service.onMessageReceived(remoteMessage(title = "Check today's memos", body = null, channelId = null, tag = null))
 
         shadowOf(notificationManager()).allNotifications.single().channelId shouldBe DAILY_MEMO_NOTIFICATION_CHANNEL_ID

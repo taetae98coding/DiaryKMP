@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.domain.core.FlowUseCase
 import io.github.taetae98coding.diary.domain.lunar.repository.LunarRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -37,7 +38,7 @@ public class GetCalendarContactBirthdayUseCase internal constructor(
         combine(
             accountCalendarContactBirthdayRepository.get(account = account, dateRange = dateRange),
             accountCalendarContactBirthdayRepository.getLunar(account = account),
-            lunarRepository.get(dateRange = dateRange),
+            lunarRepository.get(dateRange = dateRange).catch { emit(emptyList()) },
         ) { solarBirthdayList, lunarBirthdayList, lunarDateList ->
             val birthdayList = solarBirthdayList + lunarBirthdayList.toCalendarContactBirthdayList(lunarDateList = lunarDateList)
 

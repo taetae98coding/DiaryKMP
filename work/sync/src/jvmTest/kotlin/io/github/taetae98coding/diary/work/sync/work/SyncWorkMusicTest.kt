@@ -17,7 +17,7 @@ import kotlin.uuid.Uuid
 
 class SyncWorkMusicTest :
     FunSpec({
-        test("TC-DATA-SYNC-DOMAIN-020 곡만 대기하면 곡 요청만 발생한다") {
+        test("곡만 대기하면 곡 요청만 발생한다") {
             val context = context(musicList = musics(size = 1))
 
             context.subject.doWork()

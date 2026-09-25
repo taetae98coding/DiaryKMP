@@ -117,7 +117,7 @@ class WebDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-003 최초 조회 실패는 메모 없이 오류와 재시도를 표시하지 않는다`() {
+    fun `TC-WEB-DETAIL-MEMO-FEATURE-003 최초 조회 실패는 오류와 재시도 없이 빈 상태 안내를 표시한다`() {
         val error = LoadState.Error(IllegalStateException("Refresh failed"))
         setMemoTab(pagingData = webMemoPagingData(itemList = emptyList(), refresh = error))
 
@@ -125,6 +125,8 @@ class WebDetailMemoTabTest {
         composeRule.onNodeWithText(DEFAULT_ERROR_TEXT).assertDoesNotExist()
         composeRule.onNodeWithText(DEFAULT_RETRY_TEXT).assertDoesNotExist()
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
+        composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertExists()
+        composeRule.onNodeWithText(DEFAULT_EMPTY_DESCRIPTION).assertExists()
     }
 
     @Test
@@ -215,6 +217,8 @@ class WebDetailMemoTabTest {
         const val FINISH_MEMO_TITLE = "WebMemoFinish"
         const val DELETE_MEMO_TITLE = "WebMemoDelete"
         const val DEFAULT_ERROR_TEXT = "Error"
+        const val DEFAULT_EMPTY_TITLE = "No memos linked to this web"
+        const val DEFAULT_EMPTY_DESCRIPTION = "Use the add button to create a memo."
         const val DEFAULT_RETRY_TEXT = "Retry"
         const val DEFAULT_FINISHED_LIST_LABEL = "Finished memos"
         const val DEFAULT_SORT_LABEL = "Default"

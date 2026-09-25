@@ -2,26 +2,37 @@ package io.github.taetae98coding.diary.feature.web.ui.detail
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isRoot
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.withKeyDown
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.web.DiaryWebSession
+import io.github.taetae98coding.diary.compose.web.LocalDiaryWebSession
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.feature.web.ui.detail.memo.WebDetailMemoTab
@@ -87,7 +98,7 @@ class WebDetailScaffoldTest {
     fun `TC-WEB-DETAIL-FEATURE-019 삭제를 처리하는 동안 삭제 버튼이 진행 표시로 바뀐다`() {
         setWebDetailScaffold(uiState = testContentUiState().copy(isDeleteInProgress = true))
 
-        composeRule.onNodeWithContentDescription(DEFAULT_DELETE_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_DELETE_DESCRIPTION).assert(hasClickAction())
         composeRule.onNodeWithContentDescription(DEFAULT_OPEN_IN_NEW_DESCRIPTION).assertExists()
     }
 
@@ -227,6 +238,51 @@ class WebDetailScaffoldTest {
     }
 
     @Test
+    fun `좁은 창에서 수정 버튼이 보이지 않는 웹 페이지 탭에서는 수정 단축키가 수정 행동을 전달하지 않는다`() {
+        val detail = testWebDetail()
+        val eventList = mutableListOf<WebDetailScaffoldEvent>()
+
+        setWebDetailScaffold(
+            uiState = testContentUiState(detail = detail),
+            detail = detail,
+            initialTab = WebDetailTab.FORM,
+            onEvent = eventList::add,
+        )
+        composeRule.titleInput().performTextReplacement(TYPED_TITLE)
+        composeRule.waitForIdle()
+
+        composeRule.selectPageTab()
+        eventList.clear()
+        composeRule.pressSubmitShortcut()
+        eventList shouldBe emptyList()
+
+        composeRule.selectFormTab()
+        eventList.clear()
+        composeRule.pressSubmitShortcut()
+        eventList shouldBe listOf(WebDetailScaffoldEvent.ClickUpdate)
+    }
+
+    @Test
+    @Config(qualifiers = "w1000dp-h800dp")
+    fun `넓은 창에서는 웹 페이지 탭이 선택되어 있어도 수정 폼이 보이므로 수정 단축키가 수정 행동을 전달한다`() {
+        val detail = testWebDetail()
+        val eventList = mutableListOf<WebDetailScaffoldEvent>()
+
+        setWebDetailScaffold(
+            uiState = testContentUiState(detail = detail),
+            detail = detail,
+            onEvent = eventList::add,
+        )
+        composeRule.titleInput().performTextReplacement(TYPED_TITLE)
+        composeRule.waitForIdle()
+        eventList.clear()
+
+        composeRule.pressSubmitShortcut()
+
+        eventList shouldBe listOf(WebDetailScaffoldEvent.ClickUpdate)
+    }
+
+    @Test
     fun `TC-WEB-DETAIL-FEATURE-025 수정을 처리하는 동안 수정 버튼이 진행 표시로 바뀐다`() {
         val detail = testWebDetail()
 
@@ -238,7 +294,7 @@ class WebDetailScaffoldTest {
         composeRule.titleInput().performTextReplacement(TYPED_TITLE)
         composeRule.waitForIdle()
 
-        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_DESCRIPTION).assert(hasClickAction())
         composeRule.onNodeWithContentDescription(DEFAULT_DELETE_DESCRIPTION).assertExists()
     }
 
@@ -393,6 +449,62 @@ class WebDetailScaffoldTest {
     }
 
     @Test
+    fun `TC-WEB-DETAIL-FEATURE-054 탭을 바꿨다가 웹 페이지 탭으로 돌아와도 이미 알린 가져오기 실패를 다시 알리지 않는다`() {
+        val eventList = mutableListOf<WebDetailScaffoldEvent>()
+
+        setWebDetailScaffold(session = DiaryWebSession(failureId = 1), onEvent = eventList::add)
+        composeRule.waitForIdle()
+
+        composeRule.selectFormTab()
+        composeRule.selectPageTab()
+
+        eventList.count { event -> event == WebDetailScaffoldEvent.SessionImportFailed } shouldBe 1
+    }
+
+    @Test
+    fun `TC-WEB-DETAIL-FEATURE-054 표시 방식을 오갔다가 URL 방식으로 돌아와도 이미 알린 가져오기 실패를 다시 알리지 않는다`() {
+        val eventList = mutableListOf<WebDetailScaffoldEvent>()
+
+        setWebDetailScaffold(
+            pageUiState = WebDetailPageUiState.Failure,
+            session = DiaryWebSession(failureId = 1),
+            onEvent = eventList::add,
+        )
+        composeRule.waitForIdle()
+
+        composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
+        composeRule.selectViewMode(label = DEFAULT_URL_VIEW_MODE_LABEL)
+
+        eventList.count { event -> event == WebDetailScaffoldEvent.SessionImportFailed } shouldBe 1
+    }
+
+    @Test
+    fun `TC-WEB-DETAIL-DOMAIN-044 화면이 재생성되어도 이미 알린 가져오기 실패를 다시 알리지 않는다`() {
+        val restorationTester = StateRestorationTester(composeRule)
+        val eventList = mutableListOf<WebDetailScaffoldEvent>()
+        val uiState = testContentUiState()
+
+        restorationTester.setContent {
+            CompositionLocalProvider(LocalDiaryWebSession provides DiaryWebSession(failureId = 1)) {
+                WebDetailScaffoldUnderTest(
+                    uiState = uiState,
+                    pageUiState = WebDetailPageUiState.Loading,
+                    detail = uiState.detail,
+                    initialTab = WebDetailTab.PAGE,
+                    initialViewMode = WebDetailViewMode.URL,
+                    onEvent = eventList::add,
+                )
+            }
+        }
+        composeRule.waitForIdle()
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        eventList.count { event -> event == WebDetailScaffoldEvent.SessionImportFailed } shouldBe 1
+    }
+
+    @Test
     fun `TC-WEB-DETAIL-FEATURE-041 URL 방식으로 되돌리면 응답 본문 대신 URL 방식으로 표시한다`() {
         setWebDetailScaffold(pageUiState = WebDetailPageUiState.Failure, initialViewMode = WebDetailViewMode.RESPONSE)
         composeRule.selectViewMode(label = DEFAULT_URL_VIEW_MODE_LABEL)
@@ -522,17 +634,20 @@ class WebDetailScaffoldTest {
         detail: WebDetail = (uiState as? WebDetailUiState.Content)?.detail ?: WebDetail.EMPTY,
         initialTab: WebDetailTab = WebDetailTab.PAGE,
         initialViewMode: WebDetailViewMode = WebDetailViewMode.URL,
+        session: DiaryWebSession = DiaryWebSession(),
         onEvent: (WebDetailScaffoldEvent) -> Unit = {},
     ) {
         composeRule.setContent {
-            WebDetailScaffoldUnderTest(
-                uiState = uiState,
-                pageUiState = pageUiState,
-                detail = detail,
-                initialTab = initialTab,
-                initialViewMode = initialViewMode,
-                onEvent = onEvent,
-            )
+            CompositionLocalProvider(LocalDiaryWebSession provides session) {
+                WebDetailScaffoldUnderTest(
+                    uiState = uiState,
+                    pageUiState = pageUiState,
+                    detail = detail,
+                    initialTab = initialTab,
+                    initialViewMode = initialViewMode,
+                    onEvent = onEvent,
+                )
+            }
         }
     }
 
@@ -569,6 +684,12 @@ class WebDetailScaffoldTest {
                 WebDetailMemoTab(onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
             }
         }
+    }
+
+    private fun ComposeContentTestRule.pressSubmitShortcut() {
+        // 탭을 누르면 도움말 팝업이 따로 root를 만들므로 화면 root를 골라 입력한다.
+        onAllNodes(isRoot()).onFirst().performKeyInput { withKeyDown(Key.MetaLeft) { pressKey(Key.Enter) } }
+        waitForIdle()
     }
 
     private companion object {

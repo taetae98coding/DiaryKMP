@@ -199,6 +199,47 @@ class WebDetailScreenMemoTest {
         composeRule.onNodeWithContentDescription(DEFAULT_MEMO_ADD_DESCRIPTION).assertExists()
     }
 
+    @Test
+    fun `TC-WEB-DETAIL-DOMAIN-047 수정 삭제 웹 페이지 불러오기를 처리하는 중에도 메모 완료와 실행 취소를 요청한다`() {
+        val memo = inProgressSwipeMemo()
+
+        composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeRight() }
+        composeRule.waitForIdle()
+        emitMemoEffect(MemoListEffect.Finished(id = memo.id))
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { memoViewModel().finish(id = memo.id) }
+        verify(exactly = 1) { memoViewModel().restart(id = memo.id) }
+    }
+
+    @Test
+    fun `TC-WEB-DETAIL-DOMAIN-047 수정 삭제 웹 페이지 불러오기를 처리하는 중에도 메모 삭제와 실행 취소를 요청한다`() {
+        val memo = inProgressSwipeMemo()
+
+        composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+        emitMemoEffect(MemoListEffect.Deleted(id = memo.id))
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { memoViewModel().delete(id = memo.id) }
+        verify(exactly = 1) { memoViewModel().restore(id = memo.id) }
+    }
+
+    // 웹 페이지 불러오기는 화면 fixture가 불러오는 중 상태로 둔다.
+    private fun inProgressSwipeMemo(): Memo {
+        val memo = webMemo(title = SCREEN_MEMO_TITLE)
+        composeRule.setWebDetailMemoScreen(
+            viewModel = memoScreenWebViewModel(MutableStateFlow(content().copy(isUpdateInProgress = true, isDeleteInProgress = true))),
+            memoPagingData = webMemoPagingData(itemList = listOf(MemoListItem.Content(memo = memo))),
+        )
+        composeRule.selectWebDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+        waitUntilMemoIsDisplayed(title = memo.detail.title)
+
+        return memo
+    }
+
     private fun swipeMemo(memoTabDescription: String = DEFAULT_MEMO_TAB_DESCRIPTION): Memo {
         val memo = webMemo(title = SCREEN_MEMO_TITLE)
         setScreenOnMemoTab(

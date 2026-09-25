@@ -119,6 +119,16 @@ class AddTagUseCaseTest :
                     tagSlot.captured.detail shouldBe detail
                 }
 
+                Then("TC-TAG-ADD-DOMAIN-009 설명을 입력하지 않아도 설명이 빈 태그로 저장한다") {
+                    val detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = nonBlankTitle(), description = "")
+
+                    val result = useCase(parameter = AddTagUseCase.Parameter(detail = detail))
+
+                    result.shouldBeSuccess(tagSlot.captured.id)
+                    tagSlot.captured.detail.description shouldBe ""
+                    tagSlot.captured.detail shouldBe detail
+                }
+
                 Then("TC-TAG-ADD-DATA-003 미완료·미삭제 상태와 추가 시각을 저장한다") {
                     val detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = nonBlankTitle())
 
@@ -231,7 +241,7 @@ class AddTagUseCaseTest :
                 )
 
             When("공백이 아닌 제목으로 태그를 추가한다") {
-                Then("태그 저장 후 동기화를 한 번 요청한다") {
+                Then("TC-TAG-ADD-DATA-007 태그를 기기에 저장한 뒤 동기화를 한 번 요청한다") {
                     val result = useCase(parameter = AddTagUseCase.Parameter(detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = nonBlankTitle())))
 
                     result.shouldBeSuccess()

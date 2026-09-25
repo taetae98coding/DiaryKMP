@@ -13,9 +13,12 @@ import io.github.taetae98coding.diary.core.database.api.contact.transaction.Acco
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
+import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.contact.ContactPhoneNumber
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.core.testing.contact.contactDetailCaseWithoutBirthdayCalendar
 import io.github.taetae98coding.diary.data.contact.mapper.toDomain
 import io.github.taetae98coding.diary.data.contact.mapper.toLocal
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
@@ -173,6 +176,24 @@ class AccountContactRepositoryImplTest :
             val repository = repository(localDataSource = localDataSource)
 
             repository.find(account = account, contactId = local.id).first() shouldBe local.toDomain()
+        }
+
+        test("TC-CONTACT-ADD-DATA-012 달력 구분 없이 날짜만 저장된 생일은 양력 생일로 조회한다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val case = fixtureMonkey.contactDetailCaseWithoutBirthdayCalendar()
+            val local = localContact().copy(detail = case.local)
+            val localDataSource = mockk<AccountContactLocalDataSource>()
+            every { localDataSource.find(accountId = account.id, contactId = local.id) } returns flowOf(local)
+            val repository = repository(localDataSource = localDataSource)
+
+            val birthday =
+                repository
+                    .find(account = account, contactId = local.id)
+                    .first()
+                    ?.detail
+                    ?.birthday
+
+            birthday shouldBe ContactBirthday(date = checkNotNull(case.local.birthday), calendar = ContactBirthdayCalendar.SOLAR)
         }
 
         test("TC-CONTACT-DETAIL-DATA-002 조회되는 로컬 연락처가 없으면 없음을 전달한다") {
@@ -333,7 +354,7 @@ class AccountContactRepositoryImplTest :
             } shouldBeSameInstanceAs throwable
         }
 
-        test("TC-CONTACT-ADD-DATA-003 로컬 저장이 실패하면 실패를 그대로 전파한다") {
+        test("TC-CONTACT-ADD-DATA-003 기기 저장이 실패하면 추가를 성공으로 다루지 않고 실패를 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val contact = contact()
             val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())

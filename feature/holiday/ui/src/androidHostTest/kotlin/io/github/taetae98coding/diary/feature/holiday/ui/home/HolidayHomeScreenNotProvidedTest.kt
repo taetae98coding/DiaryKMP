@@ -3,6 +3,8 @@ package io.github.taetae98coding.diary.feature.holiday.ui.home
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.domain.holiday.usecase.FetchHolidayUseCase
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.DEFAULT_ERROR_DESCRIPTION
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.DEFAULT_NOT_PROVIDED_DESCRIPTION
@@ -10,6 +12,7 @@ import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFix
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.KOREAN_NOT_PROVIDED_DESCRIPTION
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.KOREAN_RETRY_LABEL
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.YEAR
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.mockk.coEvery
 import io.mockk.mockk
 import org.junit.After
@@ -19,6 +22,9 @@ import org.junit.runner.RunWith
 import org.koin.core.context.stopKoin
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+
+private val fixtureMonkey: FixtureMonkey =
+    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -81,7 +87,7 @@ class HolidayHomeScreenNotProvidedTest {
         coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(providedHolidayList())
         coEvery { fetchHolidayUseCase(parameter = YEAR) } returns Result.success(emptyList())
         coEvery { fetchHolidayUseCase(parameter = YEAR - 1) } returns
-            Result.failure(IllegalStateException("${YEAR - 1} holiday sync failed"))
+            Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
         composeRule.setHolidayHomeScreen(
             targetYear = targetYear,
             fetchHolidayUseCase = fetchHolidayUseCase,

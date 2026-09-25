@@ -26,6 +26,9 @@ private class JvmAppleCredentialsManager(
     private val requestFactory: AppleWebSignInRequestFactory,
     private val coroutineDispatcher: CoroutineDispatcher,
 ) : AppleCredentialsManager {
+    // 시스템 브라우저 창이 닫혀도 앱에는 아무 신호가 오지 않는다.
+    override val isSignInEndDetectable: Boolean = false
+
     override suspend fun signIn(): AppleCredential =
         try {
             runInterruptible(coroutineDispatcher) {

@@ -34,6 +34,20 @@ class SyncWorkMemoTagTest :
             requestOrder shouldContainExactly listOf("tag", "memo", "memoTag", "memoTag")
         }
 
+        test("TC-MEMO-TAG-DATA-006 해제된 연결도 해제 상태로 업로드된다") {
+            val memoTagList = listOf(memoTag().copy(isDeleted = true), memoTag().copy(isDeleted = false))
+            val context = context(memoTagList = memoTagList)
+            val requests = mutableListOf<List<MemoTagRemoteEntity>>()
+            coEvery { context.memoTagRemoteDataSource.push(any()) } coAnswers {
+                requests += firstArg<List<MemoTagRemoteEntity>>()
+            }
+
+            context.subject.doWork()
+
+            requests.flatten() shouldContainExactly memoTagList.map { memoTag -> memoTag.toRemote() }
+            requests.flatten().map { request -> request.isDeleted } shouldContainExactly listOf(true, false)
+        }
+
         listOf(
             1 to listOf(1),
             100 to listOf(100),

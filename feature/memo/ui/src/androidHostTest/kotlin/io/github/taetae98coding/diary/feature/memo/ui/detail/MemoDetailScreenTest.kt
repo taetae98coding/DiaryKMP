@@ -9,6 +9,8 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
@@ -28,6 +30,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.contact.screenTestContactViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceViewModel
@@ -36,6 +39,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
+import io.mockk.verify
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -154,6 +158,56 @@ class MemoDetailScreenTest {
     }
 
     @Test
+    fun `TC-MEMO-GEMINI-FEATURE-022 화면이 재생성되어도 MemoDetail이 도우미를 닫지 않는다`() {
+        val restorationTester = StateRestorationTester(composeRule)
+        val geminiViewModel = screenTestGeminiViewModel()
+        restorationTester.setContent {
+            MemoDetailScreenTestTheme {
+                MemoDetailScreen(
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    detailViewModel = titleLoadedViewModel(),
+                    tagViewModel = screenTestTagViewModel(),
+                    webViewModel = screenTestWebViewModel(),
+                    contactViewModel = screenTestContactViewModel(),
+                    placeViewModel = screenTestPlaceViewModel(),
+                    placeMapViewModel = screenTestPlaceMapViewModel(),
+                    geminiViewModel = geminiViewModel,
+                    navigateUp = {},
+                    navigateToCopiedMemo = {},
+                    navigateToTagAdd = {},
+                    navigateToTagDetail = {},
+                    navigateToWebAdd = {},
+                    navigateToWebDetail = {},
+                    navigateToContactAdd = {},
+                    navigateToContactDetail = {},
+                    navigateToPlaceAdd = {},
+                    navigateToPlaceDetail = {},
+                    componentVisibleProvider = { MemoDetailScaffoldComponentVisible() },
+                    isStandalone = true,
+                )
+            }
+        }
+        composeRule.waitForIdle()
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        composeRule.runOnIdle { verify(exactly = 0) { geminiViewModel.close() } }
+    }
+
+    @Test
+    fun `TC-MEMO-GEMINI-FEATURE-023 MemoDetail의 상세 대상이 다른 메모로 바뀌면 도우미를 닫는다`() {
+        val uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE)))
+        val geminiViewModel = screenTestGeminiViewModel()
+        setMemoDetailScreen(screenTestViewModel(uiState), geminiViewModel = geminiViewModel)
+        composeRule.waitForIdle()
+
+        uiState.value = memoDetailUiState(id = SECOND_MEMO_ID, detail = memoDetail(SECOND_MEMO_TITLE))
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { geminiViewModel.close() }
+    }
+
+    @Test
     fun `TC-MEMO-DETAIL-FEATURE-009 다른 메모를 선택하면 새 메모 내용으로 바뀐다`() {
         val uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE)))
         setMemoDetailScreen(screenTestViewModel(uiState))
@@ -215,7 +269,7 @@ class MemoDetailScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-013 수정을 처리하는 동안 수정 버튼이 진행 표시로 바뀐다`() {
+    fun `TC-MEMO-DETAIL-FEATURE-013 수정을 처리하는 동안 수정 버튼에 진행 표시가 나타난다`() {
         val uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE), isInProgress = true))
         setMemoDetailScreen(screenTestViewModel(uiState))
         composeRule.waitForIdle()
@@ -224,12 +278,13 @@ class MemoDetailScreenTest {
         composeRule.waitForIdle()
 
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
-        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assertExists()
     }
 
     private fun setMemoDetailScreen(
         viewModel: MemoDetailViewModel,
         navigateUp: () -> Unit = {},
+        geminiViewModel: MemoGeminiViewModel = screenTestGeminiViewModel(),
     ) {
         composeRule.setContent {
             MemoDetailScreenTestTheme {
@@ -241,7 +296,7 @@ class MemoDetailScreenTest {
                     contactViewModel = screenTestContactViewModel(),
                     placeViewModel = screenTestPlaceViewModel(),
                     placeMapViewModel = screenTestPlaceMapViewModel(),
-                    geminiViewModel = screenTestGeminiViewModel(),
+                    geminiViewModel = geminiViewModel,
                     navigateUp = navigateUp,
                     navigateToCopiedMemo = {},
                     navigateToTagAdd = {},
@@ -461,6 +516,27 @@ class MemoDetailScreenActionTest {
     }
 
     @Test
+    fun `TC-MEMO-DETAIL-FEATURE-073 같은 메모가 다른 경로로 완료되거나 다시 시작되면 완료 동작이 저장된 완료 여부에 맞게 바뀐다`() {
+        val uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE), isFinished = false))
+        setMemoDetailScreen(screenTestViewModel(uiState))
+        composeRule.waitForIdle()
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().performTextInput(EDIT_SUFFIX)
+
+        uiState.value = uiState.value.copy(isFinished = true)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_RESTART_BUTTON_DESCRIPTION).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_FINISH_BUTTON_DESCRIPTION).assertDoesNotExist()
+
+        uiState.value = uiState.value.copy(isFinished = false)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_FINISH_BUTTON_DESCRIPTION).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_RESTART_BUTTON_DESCRIPTION).assertDoesNotExist()
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().assert(hasText(MEMO_TITLE + EDIT_SUFFIX))
+    }
+
+    @Test
     fun `TC-MEMO-DETAIL-FEATURE-026 메모를 삭제하면 뒤로가기와 같은 동작으로 화면에서 빠져나간다`() {
         var navigateUpCount = 0
         val effectChannel = Channel<MemoDetailEffect>(capacity = Channel.BUFFERED)
@@ -576,14 +652,17 @@ class MemoDetailScreenActionTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-028 복사를 처리하는 동안 복사 버튼이 진행 표시로 바뀐다`() {
+    fun `TC-MEMO-DETAIL-FEATURE-028 복사를 처리하는 동안 복사 버튼이 이름을 유지한 채 진행 표시로 바뀐다`() {
         val uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE), isCopyInProgress = true))
         setMemoDetailScreen(screenTestViewModel(uiState))
 
         composeRule.waitForIdle()
 
-        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
-        composeRule.onNodeWithContentDescription(DEFAULT_COPY_BUTTON_DESCRIPTION).assertDoesNotExist()
+        composeRule
+            .onNode(
+                hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate).and(hasAnyAncestor(hasContentDescription(DEFAULT_COPY_BUTTON_DESCRIPTION))),
+                useUnmergedTree = true,
+            ).assertExists()
         composeRule.onNodeWithContentDescription(DEFAULT_FINISH_BUTTON_DESCRIPTION).assertExists()
         composeRule.onNodeWithContentDescription(DEFAULT_DELETE_BUTTON_DESCRIPTION).assertExists()
     }

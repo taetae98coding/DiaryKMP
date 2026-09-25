@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.work.sync.work
 import io.github.taetae98coding.diary.core.datastore.api.sync.datasource.AccountSyncTimeLocalDataSource
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.sync.usecase.PrepareSyncUseCase
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.github.taetae98coding.diary.logger.crashlytics.api.CrashlyticsLog
 import io.github.taetae98coding.diary.work.sync.work.SyncWork
@@ -19,6 +20,7 @@ import kotlin.uuid.Uuid
 @Factory
 internal class SyncWorkImpl(
     private val getAccountUseCase: GetAccountUseCase,
+    private val prepareSyncUseCase: PrepareSyncUseCase,
     private val tagSyncWork: TagSyncWork,
     private val placeSyncWork: PlaceSyncWork,
     private val webSyncWork: WebSyncWork,
@@ -43,6 +45,8 @@ internal class SyncWorkImpl(
                     is Account.User -> account.id
                 }
 
+            // 플랫폼마다 다른 주기 예약기가 요청 경로를 거치지 않고 이 작업을 바로 실행하므로 준비를 요청 시점이 아니라 여기서 한다.
+            prepareSyncUseCase(parameter = accountId).getOrThrow()
             push(accountId = accountId)
             pull(accountId = accountId)
             accountSyncTimeLocalDataSource.upsert(accountId = accountId, syncedAt = clock.now())

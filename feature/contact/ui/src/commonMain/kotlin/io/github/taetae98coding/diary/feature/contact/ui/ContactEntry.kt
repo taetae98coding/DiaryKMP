@@ -8,6 +8,7 @@ import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
+import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateProvider
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
@@ -34,30 +35,37 @@ public fun EntryProviderScope<ScreenNavKey>.contactEntry(backStack: NavBackStack
 
 private fun EntryProviderScope<ScreenNavKey>.contactHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<ContactHomeNavKey>(
-        metadata =
-            ListDetailSceneStrategy.listPane(
-                sceneKey = ContactHomeNavKey,
-                detailPlaceholder = {
-                    ContactAddScreen(
-                        navigateUp = {},
-                        componentVisibleProvider = { ContactAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
-                        viewModel = koinViewModel(),
-                    )
-                },
-            ) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION),
+        clazzContentKey = { CONTACT_HOME_CONTENT_KEY },
+        metadata = contactHomeListPaneMetadata(),
     ) {
         val isDetailPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.Detail)
 
         ContactHomeScreen(
             navigateUp = backStack::navigateUpFromContactHome,
             navigateToAdd = { backStack.add(ContactAddNavKey) },
-            navigateToDetail = { id -> backStack.add(ContactDetailNavKey(id = id)) },
+            navigateToDetail = { id -> backStack.navigateToContactDetail(id) },
             componentVisibleProvider = { ContactHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible || !backStack.isContactAddOnDetailPane()) },
             contactViewModel = koinViewModel(),
             syncViewModel = koinViewModel(),
         )
     }
 }
+
+internal const val CONTACT_HOME_CONTENT_KEY: String = "ContactHomeNavKey"
+
+internal fun contactHomeListPaneMetadata(): Map<String, Any> =
+    ListDetailSceneStrategy.listPane(
+        sceneKey = ContactHomeNavKey,
+        detailPlaceholder = {
+            ListDetailPlaceholderStateProvider(listContentKey = CONTACT_HOME_CONTENT_KEY) {
+                ContactAddScreen(
+                    navigateUp = {},
+                    componentVisibleProvider = { ContactAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
+                    viewModel = koinViewModel(),
+                )
+            }
+        },
+    ) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION)
 
 private fun EntryProviderScope<ScreenNavKey>.contactAddEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<ContactAddNavKey>(

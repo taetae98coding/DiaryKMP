@@ -36,7 +36,7 @@ class CalendarTextTest {
     }
 
     @Test
-    fun `글이 한 줄에 다 들어가지 않아도 줄을 바꾸거나 생략하지 않는다`() {
+    fun `TC-CALENDAR-TEXT-DOMAIN-001 글이 한 번에 다 들어가지 않아도 줄을 바꾸거나 생략하지 않는다`() {
         composeRule.setContent {
             DiaryTheme {
                 CalendarText(

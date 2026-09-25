@@ -1,6 +1,9 @@
 package io.github.taetae98coding.diary.feature.setting.ui.gemini
 
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.hasSetTextAction
@@ -11,12 +14,15 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.gemini.GeminiModel
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.model.SettingGeminiModelUiState
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.model.SettingGeminiModelViewModel
 import io.github.taetae98coding.diary.feature.setting.ui.holiday.DEFAULT_NAVIGATE_UP_DESCRIPTION
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -35,6 +41,8 @@ private const val API_KEY_INDEX = 0
 private const val SYSTEM_PROMPT_INDEX = 1
 private const val STORED_API_KEY = "storedApiKey"
 private const val MODEL_ID = "models/gemini-flash"
+
+private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -84,6 +92,33 @@ class SettingGeminiScreenTest {
     }
 
     @Test
+    fun `TC-SETTING-GEMINI-FEATURE-004 인증 정보에 공백만 있으면 다이얼로그를 열지 않고 입력 필요를 알린다`() {
+        val systemPrompt = "prompt" + fixtureMonkey.giveMeOne<Int>()
+        val modelViewModel = modelViewModel(SettingGeminiModelUiState())
+        setScreen(
+            settingViewModel = settingViewModel(SettingGeminiUiState.Loaded(setting = GeminiSetting.EMPTY.copy(apiKey = "   ", systemPrompt = systemPrompt))),
+            modelViewModel = modelViewModel,
+        )
+
+        composeRule.onNode(hasContentDescription(DEFAULT_MODEL_LABEL, substring = true)).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_API_KEY_BLANK_MESSAGE).assertExists()
+        composeRule.onNodeWithText(DEFAULT_MODEL_PICKER_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(systemPrompt).assertExists()
+        verify(exactly = 0) { modelViewModel.fetch(any()) }
+    }
+
+    @Test
+    fun `TC-SETTING-GEMINI-FEATURE-032 모델은 목록에서 고를 뿐 직접 적을 수 없다`() {
+        setScreen()
+
+        composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(2)
+        composeRule.onNode(hasContentDescription(DEFAULT_MODEL_LABEL, substring = true)).assert(hasClickAction())
+        composeRule.onNode(hasContentDescription(DEFAULT_MODEL_LABEL, substring = true)).assert(hasSetTextAction().not())
+    }
+
+    @Test
     fun `TC-SETTING-GEMINI-FEATURE-005 다이얼로그를 열면 입력란의 인증 정보로 조회한다`() {
         val modelViewModel = modelViewModel(SettingGeminiModelUiState())
         setScreen(
@@ -112,7 +147,7 @@ class SettingGeminiScreenTest {
     }
 
     @Test
-    fun `이미 받아 둔 목록이 있으면 다이얼로그를 열어도 다시 조회하지 않는다`() {
+    fun `TC-SETTING-GEMINI-FEATURE-030 이미 받아 둔 목록이 있으면 다이얼로그를 열어도 다시 조회하지 않는다`() {
         val modelViewModel = modelViewModel(SettingGeminiModelUiState(isLoaded = true, modelList = MODEL_LIST))
         setScreen(
             settingViewModel = settingViewModel(SettingGeminiUiState.Loaded(setting = GeminiSetting.EMPTY.copy(apiKey = STORED_API_KEY))),
@@ -231,6 +266,26 @@ class SettingGeminiScreenTest {
         setScreen(settingViewModel = settingViewModel(SettingGeminiUiState.Loaded(setting = setting)))
 
         composeRule.onAllNodes(hasSetTextAction())[API_KEY_INDEX].performTextInput(" ")
+
+        composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertExists()
+    }
+
+    @Test
+    fun `TC-SETTING-GEMINI-DOMAIN-004 인증 정보의 영문 대소문자만 바꿔도 저장 동작을 제공한다`() {
+        val setting = GeminiSetting(apiKey = STORED_API_KEY, model = MODEL_ID, systemPrompt = "지시문")
+        setScreen(settingViewModel = settingViewModel(SettingGeminiUiState.Loaded(setting = setting)))
+
+        composeRule.onAllNodes(hasSetTextAction())[API_KEY_INDEX].performTextReplacement(STORED_API_KEY.uppercase())
+
+        composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertExists()
+    }
+
+    @Test
+    fun `TC-SETTING-GEMINI-DOMAIN-004 시스템 프롬프트 앞에 공백만 더해도 저장 동작을 제공한다`() {
+        val setting = GeminiSetting(apiKey = STORED_API_KEY, model = MODEL_ID, systemPrompt = "지시문")
+        setScreen(settingViewModel = settingViewModel(SettingGeminiUiState.Loaded(setting = setting)))
+
+        composeRule.onAllNodes(hasSetTextAction())[SYSTEM_PROMPT_INDEX].performTextReplacement(" ${setting.systemPrompt}")
 
         composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertExists()
     }

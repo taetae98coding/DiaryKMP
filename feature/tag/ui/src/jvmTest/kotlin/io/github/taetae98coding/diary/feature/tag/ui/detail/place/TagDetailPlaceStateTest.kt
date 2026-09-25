@@ -46,7 +46,7 @@ class TagDetailPlaceStateTest :
             state.addCoordinate.shouldBeNull()
         }
 
-        test("TC-TAG-DETAIL-PLACE-DOMAIN-006 목록 모드로 되돌려도 보고 있던 지도 위치는 유지한다") {
+        test("TC-TAG-DETAIL-PLACE-DOMAIN-005 목록 모드로 되돌려도 보고 있던 지도 위치는 유지한다") {
             val coordinate = fixtureMonkey.giveMeOne<Coordinate>()
             val state = TagDetailPlaceState(initialViewMode = TagDetailPlaceViewMode.MAP)
             state.moveMap(coordinate = coordinate)

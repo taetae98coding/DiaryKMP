@@ -128,6 +128,31 @@ class ContactAddViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-CONTACT-ADD-FEATURE-030 기기 저장에 실패하면 Effect 없이 진행 상태만 해제하고 같은 내용으로 다시 추가할 수 있다") {
+            runTest(mainDispatcher) {
+                val detail = detail().copy(description = "description-${fixtureMonkey.giveMeOne<String>()}", phoneNumberList = listOf(ContactPhoneNumber(number = "phone-${fixtureMonkey.giveMeOne<String>()}")))
+                val useCase = mockk<AddContactUseCase>()
+                coEvery { useCase(any()) } returns Result.failure(IllegalStateException())
+                val viewModel = ContactAddViewModel(addContactUseCase = useCase)
+
+                viewModel.effect.test {
+                    viewModel.add(detail = detail)
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                    viewModel.uiState.value.isInProgress
+                        .shouldBeFalse()
+
+                    viewModel.add(detail = detail)
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                }
+
+                coVerify(exactly = 2) { useCase(AddContactUseCase.Parameter(detail = detail)) }
+            }
+        }
+
         test("TC-CONTACT-ADD-FEATURE-008 추가를 처리하는 동안 진행 상태를 유지하고 완료 후 해제한다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<Uuid>>()

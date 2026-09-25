@@ -48,23 +48,23 @@ public class DiaryDateTimeInputState internal constructor(
                 else -> DiaryDateTimeInputValue.DateTime(start = start, endInclusive = endInclusive)
             }
 
+    // 항목별 선택 함수를 거치면 한쪽을 먼저 바꾸는 순간 이전 기간과 비교한 보정이 끼어들어 값이 틀어지므로 두 끝을 한 번에 넣는다.
     public fun select(value: DiaryDateTimeInputValue) {
         when (value) {
             is DiaryDateTimeInputValue.AllDay -> {
-                selectAllDay(true)
-                selectStartDate(value.dateRange.start)
-                selectEndDate(value.dateRange.endInclusive)
+                isAllDay = true
+                start = LocalDateTime(date = value.dateRange.start, time = Midnight)
+                endInclusive = LocalDateTime(date = value.dateRange.endInclusive, time = Midnight)
             }
 
             is DiaryDateTimeInputValue.DateTime -> {
-                selectAllDay(false)
-                selectStartDate(value.start.date)
-                selectStartTime(value.start.time)
-                selectEndDate(value.endInclusive.date)
-                selectEndTime(value.endInclusive.time)
+                isAllDay = false
+                start = value.start
+                endInclusive = value.endInclusive
             }
         }
 
+        coerceEndInclusive()
         hasDateTime = true
     }
 

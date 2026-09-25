@@ -153,7 +153,7 @@ class TagDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-006 최초 조회 실패는 메모 없이 오류와 재시도를 표시하지 않는다`() {
+    fun `TC-TAG-DETAIL-MEMO-FEATURE-006 최초 조회 실패는 오류와 재시도 없이 빈 상태 안내를 표시한다`() {
         val error = LoadState.Error(IllegalStateException("Refresh failed"))
         setTagDetailMemoTab(
             pagingData = tagMemoPagingData(itemList = emptyList(), refresh = error),
@@ -163,6 +163,8 @@ class TagDetailMemoTabTest {
         composeRule.onNodeWithText(DEFAULT_ERROR_TEXT).assertDoesNotExist()
         composeRule.onNodeWithText(DEFAULT_RETRY_TEXT).assertDoesNotExist()
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
+        composeRule.onNodeWithText(EMPTY_TITLE).assertExists()
+        composeRule.onNodeWithText(EMPTY_DESCRIPTION).assertExists()
     }
 
     @Test
@@ -268,6 +270,8 @@ class TagDetailMemoTabTest {
     private companion object {
         const val PAGING_ITEMS_TIMEOUT_MILLIS = 5_000L
         const val DEFAULT_FINISHED_LIST_LABEL = "Finished memos"
+        const val EMPTY_TITLE = "No memos linked to this tag"
+        const val EMPTY_DESCRIPTION = "Use the add button to create a memo."
         const val DEFAULT_SORT_DESCRIPTION = "List sort"
         const val KOREAN_FINISHED_LIST_LABEL = "완료된 메모"
         const val DEFAULT_ERROR_TEXT = "Error"

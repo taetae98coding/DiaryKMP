@@ -26,6 +26,12 @@ kotlin {
             }
         }
 
+        androidHostTest {
+            dependencies {
+                implementation(libs.androidx.lifecycle.runtime.testing)
+            }
+        }
+
         jvmTest {
             dependencies {
                 implementation(libs.androidx.paging.testing)

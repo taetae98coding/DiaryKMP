@@ -18,6 +18,8 @@ import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -394,6 +396,51 @@ class MemoGeminiViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-MEMO-GEMINI-FEATURE-025 도우미를 닫으면 반영 표시가 사라진다") {
+            runTest(mainDispatcher) {
+                val viewModel = createViewModel()
+                advanceUntilIdle()
+                viewModel.open()
+                viewModel.generate(parameter = PARAMETER)
+                advanceUntilIdle()
+                viewModel.markApplied(field = MemoGeminiField.TITLE)
+                advanceUntilIdle()
+
+                viewModel.close()
+                viewModel.open()
+                viewModel.generate(parameter = PARAMETER)
+                advanceUntilIdle()
+
+                val uiState = viewModel.uiState.value
+
+                uiState.step shouldBe MemoGeminiStep.RESULT
+                uiState.appliedFieldSet shouldBe emptySet()
+            }
+        }
+
+        test("TC-MEMO-GEMINI-FEATURE-026 다른 화면에서 저장한 설정으로 다음 시작을 판정한다") {
+            runTest(mainDispatcher) {
+                val settingFlow = MutableStateFlow(Result.success(COMPLETE_SETTING.copy(apiKey = "")))
+                val viewModel = createViewModel(settingFlow = settingFlow)
+                advanceUntilIdle()
+
+                viewModel.effect.test {
+                    viewModel.open()
+                    advanceUntilIdle()
+                    awaitItem() shouldBe MemoGeminiEffect.SettingRequired
+
+                    settingFlow.value = Result.success(COMPLETE_SETTING)
+                    advanceUntilIdle()
+                    viewModel.open()
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                }
+
+                viewModel.uiState.value.step shouldBe MemoGeminiStep.PROMPT
+            }
+        }
+
         test("TC-MEMO-GEMINI-FEATURE-020 생성 중에 닫으면 요청을 멈춘다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<MemoDraft>>()
@@ -433,6 +480,7 @@ class MemoGeminiViewModelTest : FunSpec() {
 private fun TestScope.createViewModel(
     setting: GeminiSetting = COMPLETE_SETTING,
     settingResult: Result<GeminiSetting> = Result.success(setting),
+    settingFlow: Flow<Result<GeminiSetting>> = flowOf(settingResult),
     draft: MemoDraft = DRAFT,
     fetchMemoDraftUseCase: FetchMemoDraftUseCase =
         mockk {
@@ -443,7 +491,7 @@ private fun TestScope.createViewModel(
         MemoGeminiViewModel(
             getGeminiSettingUseCase =
                 mockk {
-                    every { this@mockk(Unit) } returns flowOf(settingResult)
+                    every { this@mockk(Unit) } returns settingFlow
                 },
             fetchMemoDraftUseCase = fetchMemoDraftUseCase,
         )

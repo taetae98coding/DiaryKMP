@@ -91,7 +91,7 @@ class SchedulePeriodicSyncUseCaseTest :
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
 
             When("앱이 계정을 확인한다") {
-                Then("TC-DATA-SYNC-DOMAIN-059 주기 동기화 예약이 해제된다") {
+                Then("TC-DATA-SYNC-DOMAIN-083 주기 동기화 예약이 해제된다") {
                     val syncManager = mockk<SyncManager>(relaxed = true)
                     val useCase =
                         SchedulePeriodicSyncUseCase(

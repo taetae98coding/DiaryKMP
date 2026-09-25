@@ -113,7 +113,7 @@ internal fun MemoHomeScaffold(
                 modifier = Modifier.fillMaxSize(),
                 uiStateProvider = memoListUiStateProvider,
                 sortProvider = sortProvider,
-                filterProvider = filterUiStateProvider,
+                filterProvider = { filterUiStateProvider().listQueryFilter },
                 listTestTag = MEMO_HOME_LIST_TEST_TAG,
                 empty = { Empty(isFilterAppliedProvider = { filterUiStateProvider().isApplied }) },
             )

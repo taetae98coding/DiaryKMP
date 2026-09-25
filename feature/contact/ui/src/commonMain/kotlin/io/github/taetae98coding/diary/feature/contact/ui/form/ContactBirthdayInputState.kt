@@ -68,7 +68,7 @@ internal class ContactBirthdayInputState(
 
 @Composable
 internal fun rememberContactBirthdayInputState(initialBirthday: ContactBirthday? = null): ContactBirthdayInputState =
-    rememberSaveable(initialBirthday, saver = ContactBirthdayInputState.Saver) {
+    rememberSaveable(saver = ContactBirthdayInputState.Saver) {
         ContactBirthdayInputState(birthday = initialBirthday)
     }
 

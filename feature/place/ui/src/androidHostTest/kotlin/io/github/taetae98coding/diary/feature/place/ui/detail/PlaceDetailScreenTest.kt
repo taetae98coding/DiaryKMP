@@ -1,8 +1,10 @@
 package io.github.taetae98coding.diary.feature.place.ui.detail
 
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -61,8 +63,8 @@ class PlaceDetailScreenTest {
         composeRule.input(TITLE_INDEX).assert(hasText(detail.title))
         composeRule.input(DESCRIPTION_INDEX).assert(hasText(detail.description))
         composeRule.input(ADDRESS_INDEX).assert(hasText(detail.address))
-        composeRule.input(LATITUDE_INDEX).assert(hasText(detail.coordinate.latitude.toString()))
-        composeRule.input(LONGITUDE_INDEX).assert(hasText(detail.coordinate.longitude.toString()))
+        composeRule.input(LATITUDE_INDEX).assert(hasText(SAVED_LATITUDE_TEXT))
+        composeRule.input(LONGITUDE_INDEX).assert(hasText(SAVED_LONGITUDE_TEXT))
         // 저장된 제목은 상단 바와 제목 입력 두 곳에 표시된다.
         composeRule
             .onAllNodes(hasText(detail.title))
@@ -128,7 +130,7 @@ class PlaceDetailScreenTest {
         composeRule.input(TITLE_INDEX).assert(hasText(CHANGED_TITLE))
         composeRule.input(DESCRIPTION_INDEX).assert(hasText(CHANGED_DESCRIPTION))
         composeRule.input(LATITUDE_INDEX).assert(hasText(INVALID_LATITUDE))
-        composeRule.input(LONGITUDE_INDEX).assert(hasText(detail.coordinate.longitude.toString()))
+        composeRule.input(LONGITUDE_INDEX).assert(hasText(SAVED_LONGITUDE_TEXT))
     }
 
     @Test
@@ -161,10 +163,15 @@ class PlaceDetailScreenTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-020 기본 지도를 확인하지 못하면 지도를 표시하지 않고 입력과 동작은 사용할 수 있다`() {
+    fun `TC-PLACE-DETAIL-FEATURE-020 기본 지도를 확인하지 못하면 지도 영역과 로딩 안내 없이 입력 영역만 표시하고 동작은 사용할 수 있다`() {
         composeRule.setPlaceDetailScreen(viewModel = screenTestViewModel())
 
         composeRule.waitForIdle()
+
+        composeRule
+            .onAllNodes(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate))
+            .fetchSemanticsNodes()
+            .size shouldBe 0
 
         composeRule
             .onAllNodes(hasContentDescription(DEFAULT_MAP_DESCRIPTION))

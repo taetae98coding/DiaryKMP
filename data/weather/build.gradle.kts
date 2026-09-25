@@ -12,5 +12,11 @@ kotlin {
                 implementation(projects.domain.weather)
             }
         }
+
+        jvmTest {
+            dependencies {
+                implementation(projects.logger.crashlytics.api)
+            }
+        }
     }
 }

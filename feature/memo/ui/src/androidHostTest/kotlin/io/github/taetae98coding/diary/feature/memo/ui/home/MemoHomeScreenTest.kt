@@ -1,11 +1,15 @@
 package io.github.taetae98coding.diary.feature.memo.ui.home
 
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
@@ -34,6 +38,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.time.Instant
+import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -120,6 +125,47 @@ class MemoHomeScreenTest {
     }
 
     @Test
+    fun `TC-MEMO-HOME-FEATURE-067 안내가 보이는 동안 다른 메모를 삭제하면 삭제 안내만 남고 실행 취소는 삭제에만 적용된다`() {
+        val environment = screenTestEnvironment()
+        val otherMemoId = fixtureMonkey.giveMeOne<Uuid>()
+        justRun { environment.viewModel.restore(id = otherMemoId) }
+        setMemoHomeScreen(environment.viewModel)
+
+        composeRule.onNodeWithText(MEMO_TITLE).performTouchInput { swipeRight() }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_FINISHED_MESSAGE).assertExists()
+
+        environment.effectChannel.trySend(MemoListEffect.Deleted(id = otherMemoId)).getOrThrow()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_FINISHED_MESSAGE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_DELETED_MESSAGE).assertExists()
+
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { environment.viewModel.restore(id = otherMemoId) }
+        verify(exactly = 0) { environment.viewModel.restart(id = any()) }
+    }
+
+    @Test
+    fun `TC-MEMO-HOME-FEATURE-069 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
+        val environment = screenTestEnvironment()
+        setMemoHomeScreen(environment.viewModel)
+
+        composeRule.onNodeWithText(MEMO_TITLE).performTouchInput { swipeRight() }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_FINISHED_MESSAGE).assertExists()
+
+        composeRule.mainClock.advanceTimeBy(AFTER_UNDO_SNACKBAR_DISMISS_MILLIS)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_FINISHED_MESSAGE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).assertDoesNotExist()
+        verify(exactly = 0) { environment.viewModel.restart(id = any()) }
+    }
+
+    @Test
     fun `필터 버튼을 누르면 필터 화면으로 이동한다`() {
         val environment = screenTestEnvironment()
         var navigateToFilterCount = 0
@@ -161,16 +207,67 @@ class MemoHomeScreenTest {
         navigateToSearchCount shouldBe 1
     }
 
+    @Test
+    fun `상단 바의 검색 버튼을 길게 누르면 접근성 이름과 같은 설명을 표시한다`() {
+        val environment = screenTestEnvironment()
+        setMemoHomeScreen(viewModel = environment.viewModel)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_SEARCH_BUTTON_DESCRIPTION).performTouchInput { longClick() }
+
+        composeRule.onNodeWithText(DEFAULT_SEARCH_BUTTON_DESCRIPTION).assertExists()
+    }
+
+    @Test
+    fun `Cmd A 단축키를 입력하면 메모 추가 화면으로 한 번 이동한다`() {
+        val environment = screenTestEnvironment()
+        var navigateToAddCount = 0
+        setMemoHomeScreen(
+            viewModel = environment.viewModel,
+            navigateToAdd = { navigateToAddCount += 1 },
+        )
+
+        performAddShortcut()
+
+        navigateToAddCount shouldBe 1
+    }
+
+    @Test
+    fun `TC-MEMO-LIST-DETAIL-FEATURE-013 상세 영역에 메모 추가 화면이 표시되면 Cmd A 단축키로도 메모 추가 화면을 다시 열지 않는다`() {
+        val environment = screenTestEnvironment()
+        var navigateToAddCount = 0
+        setMemoHomeScreen(
+            viewModel = environment.viewModel,
+            navigateToAdd = { navigateToAddCount += 1 },
+            componentVisible = MemoHomeScaffoldComponentVisible(isAddButtonVisible = false),
+        )
+
+        performAddShortcut()
+
+        navigateToAddCount shouldBe 0
+    }
+
+    private fun performAddShortcut() {
+        composeRule.onRoot().performKeyInput {
+            keyDown(Key.MetaLeft)
+            keyDown(Key.A)
+            keyUp(Key.A)
+            keyUp(Key.MetaLeft)
+        }
+        composeRule.waitForIdle()
+    }
+
     private fun setMemoHomeScreen(
         viewModel: MemoHomeViewModel,
+        navigateToAdd: () -> Unit = {},
         navigateToFilter: () -> Unit = {},
         navigateToFinishedList: () -> Unit = {},
         navigateToSearch: () -> Unit = {},
+        componentVisible: MemoHomeScaffoldComponentVisible = MemoHomeScaffoldComponentVisible(),
     ) {
         composeRule.setContent {
             DiaryTheme {
                 MemoHomeScreen(
-                    navigateToAdd = {},
+                    navigateToAdd = navigateToAdd,
                     navigateToDetail = {},
                     navigateToFilter = navigateToFilter,
                     navigateToFinishedList = navigateToFinishedList,
@@ -178,7 +275,7 @@ class MemoHomeScreenTest {
                     listState = rememberLazyListState(),
                     memoViewModel = viewModel,
                     syncViewModel = screenTestSyncViewModel(),
-                    componentVisibleProvider = { MemoHomeScaffoldComponentVisible() },
+                    componentVisibleProvider = { componentVisible },
                 )
             }
         }
@@ -189,6 +286,7 @@ class MemoHomeScreenTest {
     }
 
     public companion object {
+        private const val AFTER_UNDO_SNACKBAR_DISMISS_MILLIS = 11_000L
         private const val LIST_ITEM_TIMEOUT_MILLIS = 5_000L
         private const val DEFAULT_FINISHED_MESSAGE = "Memo finished."
         private const val KOREAN_FINISHED_MESSAGE = "메모가 완료되었습니다."
@@ -236,6 +334,7 @@ class MemoHomeScreenTest {
             return ScreenTestEnvironment(
                 memo = memo,
                 viewModel = viewModel,
+                effectChannel = effectChannel,
             )
         }
     }
@@ -244,4 +343,5 @@ class MemoHomeScreenTest {
 private class ScreenTestEnvironment(
     val memo: Memo,
     val viewModel: MemoHomeViewModel,
+    val effectChannel: Channel<MemoListEffect>,
 )

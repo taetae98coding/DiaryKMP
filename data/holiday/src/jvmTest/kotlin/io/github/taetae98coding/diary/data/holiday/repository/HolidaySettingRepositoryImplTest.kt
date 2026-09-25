@@ -1,9 +1,12 @@
 package io.github.taetae98coding.diary.data.holiday.repository
 
 import app.cash.turbine.test
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.HolidaySettingLocalDataSource
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.HolidayCountryOptionLocalEntity
 import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountryOption
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
@@ -19,6 +22,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+
+private val fixtureMonkey: FixtureMonkey =
+    diaryFixtureMonkey()
 
 private const val MIDSUMMER_DAY_KEY = "초복"
 private const val CONSTITUTION_DAY_KEY = "제헌절"
@@ -167,7 +173,7 @@ class HolidaySettingRepositoryImplTest :
         }
 
         test("숨김 key 추가 오류를 그대로 전파한다") {
-            val failure = IllegalStateException("update failure")
+            val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val localDataSource = mockk<HolidaySettingLocalDataSource>()
             every { localDataSource.getHiddenKeySet() } returns MutableStateFlow(emptySet())
             coEvery { localDataSource.addHiddenKey(key = any()) } throws failure
@@ -179,7 +185,7 @@ class HolidaySettingRepositoryImplTest :
         }
 
         test("숨김 key 제거 오류를 그대로 전파한다") {
-            val failure = IllegalStateException("update failure")
+            val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val localDataSource = mockk<HolidaySettingLocalDataSource>()
             every { localDataSource.getHiddenKeySet() } returns MutableStateFlow(emptySet())
             coEvery { localDataSource.removeHiddenKey(key = any()) } throws failure
@@ -191,7 +197,7 @@ class HolidaySettingRepositoryImplTest :
         }
 
         test("숨김 key 집합 제출 오류를 그대로 전파한다") {
-            val failure = IllegalStateException("update failure")
+            val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val localDataSource = mockk<HolidaySettingLocalDataSource>()
             every { localDataSource.getHiddenKeySet() } returns MutableStateFlow(emptySet())
             coEvery {

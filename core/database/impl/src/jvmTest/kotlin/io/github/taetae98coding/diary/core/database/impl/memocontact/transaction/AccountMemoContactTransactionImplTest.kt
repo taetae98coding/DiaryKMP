@@ -303,37 +303,41 @@ class AccountMemoContactTransactionImplTest :
         }
 
         test("TC-MEMO-CONTACT-DOMAIN-013 연락처 연결은 메모 목록의 노출과 순서를 바꾸지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val linkedMemo = memo().visible().withTitle(title = "AAA")
-            val unlinkedMemo = memo().visible().withTitle(title = "BBB")
-            val contact = contact()
-            insertMemoWithContactList(accountId = accountId, memo = linkedMemo, contactList = listOf(contact))
-            memoTransaction.upsert(accountId = accountId, memoList = listOf(unlinkedMemo), memoTagList = emptyList())
+            listOf("AAA" to "BBB", "BBB" to "AAA").forEach { (linkedTitle, unlinkedTitle) ->
+                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val linkedMemo = memo().visible().withTitle(title = linkedTitle)
+                val unlinkedMemo = memo().visible().withTitle(title = unlinkedTitle)
+                val contact = contact()
+                insertMemoWithContactList(accountId = accountId, memo = linkedMemo, contactList = listOf(contact))
+                memoTransaction.upsert(accountId = accountId, memoList = listOf(unlinkedMemo), memoTagList = emptyList())
 
-            val memoList =
-                database
-                    .accountMemoDao()
-                    .page(accountId = accountId, sort = "name")
-                    .loadAll()
+                val memoList =
+                    database
+                        .accountMemoDao()
+                        .page(accountId = accountId, sort = "title")
+                        .loadAll()
 
-            memoList.map { memo -> memo.id } shouldBe listOf(linkedMemo.id, unlinkedMemo.id)
+                memoList.map { memo -> memo.id } shouldBe listOf(linkedMemo, unlinkedMemo).sortedBy { memo -> memo.detail.title }.map { memo -> memo.id }
+            }
         }
 
         test("TC-MEMO-CONTACT-DOMAIN-014 메모 연결은 연락처 목록의 노출과 순서를 바꾸지 않는다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val memo = memo()
-            val linkedContact = contact().withName(name = "AAA")
-            val unlinkedContact = contact().withName(name = "BBB")
-            insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(linkedContact))
-            contactTransaction.upsert(accountId = accountId, contactList = listOf(unlinkedContact))
+            listOf("AAA" to "BBB", "BBB" to "AAA").forEach { (linkedTitle, unlinkedTitle) ->
+                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val memo = memo()
+                val linkedContact = contact().withName(name = linkedTitle)
+                val unlinkedContact = contact().withName(name = unlinkedTitle)
+                insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(linkedContact))
+                contactTransaction.upsert(accountId = accountId, contactList = listOf(unlinkedContact))
 
-            val contactList =
-                database
-                    .accountContactDao()
-                    .page(accountId = accountId, sort = "name")
-                    .loadAll()
+                val contactList =
+                    database
+                        .accountContactDao()
+                        .page(accountId = accountId, sort = "name")
+                        .loadAll()
 
-            contactList.map { contact -> contact.id } shouldBe listOf(linkedContact.id, unlinkedContact.id)
+                contactList.map { contact -> contact.id } shouldBe listOf(linkedContact, unlinkedContact).sortedBy { contact -> contact.detail.name }.map { contact -> contact.id }
+            }
         }
 
         test("TC-MEMO-CONTACT-DOMAIN-015 메모 연결은 캘린더 생일 노출을 바꾸지 않는다") {
@@ -364,6 +368,22 @@ class AccountMemoContactTransactionImplTest :
                 database
                     .accountTagMemoDao()
                     .page(accountId = accountId, tagId = tag.id, scope = TagScopeLocalEntity.SELF.queryValue, sort = "title")
+                    .loadAll()
+
+            memoList.shouldBeEmpty()
+        }
+
+        test("TC-MEMO-CONTACT-DOMAIN-017 연결된 연락처의 이름은 메모 검색에 쓰이지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val query = "query-${fixtureMonkey.giveMeOne<Uuid>()}"
+            val memo = memo().visible().let { value -> value.copy(detail = value.detail.copy(title = "memo-title", description = "memo-description")) }
+            val contact = contact().withName(name = "contact-$query")
+            insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact))
+
+            val memoList =
+                database
+                    .searchMemoDao()
+                    .page(accountId = accountId, query = query, sort = "title")
                     .loadAll()
 
             memoList.shouldBeEmpty()
@@ -598,6 +618,37 @@ class AccountMemoContactTransactionImplTest :
 
             sourceContactIdSet shouldBe setOf(deletedContact.id)
             findMemoContactList(memoId = copy.id).map { memoContact -> memoContact.contactId } shouldBe listOf(deletedContact.id)
+        }
+
+        test("TC-MEMO-DETAIL-DATA-046 복사는 원본의 연락처 연결을 바꾸지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val source = memo()
+            val contact = contact()
+            insertMemoWithContactList(accountId = accountId, memo = source, contactList = listOf(contact))
+            val sourceMemoContactList = findMemoContactList(memoId = source.id)
+
+            val copiedAt = instant()
+            val copy = memo().copy(updatedAt = copiedAt, createdAt = copiedAt)
+            memoTransaction.upsert(
+                accountId = accountId,
+                memoList = listOf(copy),
+                memoTagList = emptyList(),
+                memoContactList =
+                    dataSource
+                        .findContactIdList(accountId = accountId, memoId = source.id)
+                        .map { contactId ->
+                            MemoContactLocalEntity(
+                                memoId = copy.id,
+                                contactId = contactId,
+                                isDeleted = false,
+                                updatedAt = copiedAt,
+                                createdAt = copiedAt,
+                            )
+                        },
+            )
+
+            findMemoContactList(memoId = source.id) shouldBe sourceMemoContactList
+            getContactList(accountId = accountId, memoId = source.id) shouldBe listOf(contact)
         }
 
         listOf(

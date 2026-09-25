@@ -32,6 +32,8 @@ private class WasmAppleCredentialsManager(
     private val requestFactory: AppleWebSignInRequestFactory,
     private val callbackOrigin: String,
 ) : AppleCredentialsManager {
+    override val isSignInEndDetectable: Boolean = true
+
     override suspend fun signIn(): AppleCredential =
         suspendCancellableCoroutine { continuation ->
             val request = requestFactory.create(returnUri = window.location.origin)

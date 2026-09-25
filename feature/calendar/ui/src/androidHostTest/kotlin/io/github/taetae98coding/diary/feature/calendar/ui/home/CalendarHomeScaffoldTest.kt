@@ -1,5 +1,10 @@
 package io.github.taetae98coding.diary.feature.calendar.ui.home
 
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.assertIsDisplayed
@@ -10,6 +15,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.testing.TestLifecycleOwner
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.library.kotlinx.datetime.sundayOfWeek
 import io.kotest.matchers.shouldBe
@@ -98,7 +106,7 @@ class CalendarHomeScaffoldTest {
     }
 
     @Test
-    fun `화면이 재생성되어도 상단 바 제목이 보던 달을 유지한다`() {
+    fun `TC-CALENDAR-HOME-FEATURE-087 화면이 재생성되어도 상단 바 제목이 보던 달을 유지한다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
         val nextYearMonth =
             today.yearMonth.firstDay
@@ -118,6 +126,58 @@ class CalendarHomeScaffoldTest {
 
         composeRule.onNodeWithText(englishTitle(nextYearMonth)).assertIsDisplayed()
     }
+
+    @Test
+    fun `TC-CALENDAR-HOME-FEATURE-088 다른 앱에 다녀와도 상단 바 제목이 보던 달을 유지한다`() {
+        val nextYearMonth = nextYearMonth()
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+
+        composeRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                DiaryTheme {
+                    CalendarHomeScaffold(onEvent = {})
+                }
+            }
+        }
+        composeRule.onRoot().performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(englishTitle(nextYearMonth)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-CALENDAR-HOME-FEATURE-089 앱을 다시 실행하면 오늘이 속한 달부터 다시 본다`() {
+        val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+        var launchCount by mutableIntStateOf(0)
+
+        // 앱을 다시 실행하면 저장해 둔 화면 상태가 없으므로, 새 키로 저장 상태 없이 화면을 다시 구성한다.
+        composeRule.setContent {
+            key(launchCount) {
+                DiaryTheme {
+                    CalendarHomeScaffold(onEvent = {})
+                }
+            }
+        }
+        composeRule.onRoot().performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(englishTitle(nextYearMonth())).assertIsDisplayed()
+
+        composeRule.runOnIdle { launchCount += 1 }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(englishTitle(today.yearMonth)).assertIsDisplayed()
+    }
+
+    private fun nextYearMonth(): YearMonth =
+        Clock.System
+            .todayIn(TimeZone.currentSystemDefault())
+            .yearMonth.firstDay
+            .plus(1, DateTimeUnit.MONTH)
+            .yearMonth
 
     private fun koreanTitle(yearMonth: YearMonth): String = CalendarHomeTestFixture.koreanTitle(yearMonth)
 

@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntit
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.memofilter.entity.MemoFilterTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagSyncTransactionImpl
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -180,6 +181,44 @@ class MemoFilterTagDaoTest :
             database.selectedTagIdList(accountId = accountId) shouldBe listOf(tag.id)
         }
 
+        test("저장된 선택 식별자 조회는 선택할 수 없게 된 태그의 선택도 포함한다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val selectableTag = tag()
+            val finishedTag = tag(isFinished = true)
+            val deletedTag = tag(isDeleted = true)
+            val unlinkedTag = tag()
+            database.insertTag(accountId, selectableTag, finishedTag, deletedTag)
+            database.insertTag(otherAccountId, selectableTag)
+            database.tagDao().upsert(unlinkedTag)
+            listOf(selectableTag, finishedTag, deletedTag, unlinkedTag).forEach { tag ->
+                database.select(accountId = accountId, tagId = tag.id)
+            }
+            database.select(accountId = otherAccountId, tagId = selectableTag.id)
+
+            database
+                .memoFilterTagDao()
+                .getTagIdList(accountId = accountId)
+                .first()
+                .toSet() shouldBe setOf(selectableTag.id, finishedTag.id, deletedTag.id, unlinkedTag.id)
+        }
+
+        test("저장된 선택 식별자는 태그가 완료되어도 바뀌지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val tag = tag()
+            database.insertTag(accountId, tag)
+            database.select(accountId = accountId, tagId = tag.id)
+
+            database.accountTagDao().updateFinished(
+                accountId = accountId,
+                tagId = tag.id,
+                isFinished = true,
+                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+            )
+
+            database.memoFilterTagDao().getTagIdList(accountId = accountId).first() shouldBe listOf(tag.id)
+        }
+
         test("TC-MEMO-HOME-DATA-009 필터 선택과 해제는 동기화 업로드 대기 목록에 나타나지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag()
@@ -213,23 +252,19 @@ class MemoFilterTagDaoTest :
 
         test("TC-MEMO-HOME-DATA-015 선택 전체 해제는 무시되고 있던 선택까지 지운다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val selectableTag = tag()
-            val finishedTag = tag(isFinished = true)
-            val deletedTag = tag(isDeleted = true)
-            database.insertTag(accountId, selectableTag, finishedTag, deletedTag)
-            listOf(selectableTag, finishedTag, deletedTag).forEach { tag ->
+            val firstTag = tag()
+            val secondTag = tag(isDeleted = true)
+            database.insertTag(accountId, firstTag, secondTag)
+            listOf(firstTag, secondTag).forEach { tag ->
                 database.select(accountId = accountId, tagId = tag.id)
             }
+            database.selectedTagIdList(accountId = accountId) shouldBe listOf(firstTag.id)
 
             database.memoFilterTagDao().deleteAll(accountId = accountId)
-
-            database.selectedTagIdList(accountId = accountId).shouldBeEmpty()
-
-            database.accountTagDao().updateFinished(
+            AccountTagSyncTransactionImpl(database = database).save(
                 accountId = accountId,
-                tagId = finishedTag.id,
-                isFinished = false,
-                updatedAt = Instant.fromEpochMilliseconds(3_000),
+                tagList = listOf(secondTag.copy(isDeleted = false)),
+                cursor = fixtureMonkey.giveMeOne<Long>(),
             )
 
             database.selectedTagIdList(accountId = accountId).shouldBeEmpty()

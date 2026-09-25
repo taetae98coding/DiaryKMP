@@ -8,6 +8,7 @@ import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
+import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateProvider
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicAddNavKey
@@ -32,17 +33,8 @@ public fun EntryProviderScope<ScreenNavKey>.playlistEntry(backStack: NavBackStac
 
 private fun EntryProviderScope<ScreenNavKey>.playlistHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<PlaylistHomeNavKey>(
-        metadata =
-            ListDetailSceneStrategy.listPane(
-                sceneKey = PlaylistHomeNavKey,
-                detailPlaceholder = {
-                    MusicAddScreen(
-                        navigateUp = {},
-                        componentVisibleProvider = { MusicAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
-                        viewModel = koinViewModel(),
-                    )
-                },
-            ) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION),
+        clazzContentKey = { PLAYLIST_HOME_CONTENT_KEY },
+        metadata = playlistHomeListPaneMetadata(),
     ) {
         val isDetailPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.Detail)
 
@@ -57,6 +49,22 @@ private fun EntryProviderScope<ScreenNavKey>.playlistHomeEntry(backStack: NavBac
         )
     }
 }
+
+internal const val PLAYLIST_HOME_CONTENT_KEY: String = "PlaylistHomeNavKey"
+
+internal fun playlistHomeListPaneMetadata(): Map<String, Any> =
+    ListDetailSceneStrategy.listPane(
+        sceneKey = PlaylistHomeNavKey,
+        detailPlaceholder = {
+            ListDetailPlaceholderStateProvider(listContentKey = PLAYLIST_HOME_CONTENT_KEY) {
+                MusicAddScreen(
+                    navigateUp = {},
+                    componentVisibleProvider = { MusicAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
+                    viewModel = koinViewModel(),
+                )
+            }
+        },
+    ) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION)
 
 private fun EntryProviderScope<ScreenNavKey>.musicAddEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<MusicAddNavKey>(

@@ -13,6 +13,7 @@ import io.github.taetae98coding.diary.domain.tag.usecase.AddTagLinkUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetLinkedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagLinkSelectableTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.RemoveTagLinkUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -29,10 +30,13 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -117,7 +121,7 @@ class TagDetailLinkViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-DOMAIN-010 연결과 해제는 이어서 실행해도 모두 반영된다") {
+        test("연결과 해제는 이어서 실행해도 모두 반영된다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val firstToTagId = fixtureMonkey.giveMeOne<Uuid>()
@@ -152,6 +156,7 @@ class TagDetailLinkViewModelTest : FunSpec() {
             }
         }
         searchTests()
+        restorationTests()
     }
 
     private fun searchTests() {
@@ -197,6 +202,42 @@ class TagDetailLinkViewModelTest : FunSpec() {
                     advanceUntilIdle()
 
                     expectNoEvents()
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+    }
+
+    private fun restorationTests() {
+        test("TC-TAG-LINK-INPUT-DOMAIN-014 복원 뒤 새로 만든 화면은 대상 전체를 먼저 보여 주고 되살린 검색어는 입력 정지 대기 시간이 지나야 반영한다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val allTagList = List(2) { tag() }
+                val matchedTagList = listOf(allTagList.first())
+                val pageTagLinkSelectableTagUseCase = mockk<PageTagLinkSelectableTagUseCase>()
+                every {
+                    pageTagLinkSelectableTagUseCase(parameter = PageTagLinkSelectableTagUseCase.Parameter(fromTagId = id, query = ""))
+                } returns flowOf(Result.success(PagingData.from(allTagList)))
+                every {
+                    pageTagLinkSelectableTagUseCase(
+                        parameter = PageTagLinkSelectableTagUseCase.Parameter(fromTagId = id, query = SEARCH_QUERY),
+                    )
+                } returns flowOf(Result.success(PagingData.from(matchedTagList)))
+                val viewModel = viewModel(id = id, pageTagLinkSelectableTagUseCase = pageTagLinkSelectableTagUseCase)
+
+                viewModel.tagPagingData.test {
+                    flowOf(awaitItem()).asSnapshot() shouldBe allTagList
+
+                    viewModel.updateQuery(SEARCH_QUERY)
+                    advanceTimeBy(INPUT_IDLE_DELAY - 1.milliseconds)
+                    runCurrent()
+
+                    expectNoEvents()
+
+                    advanceTimeBy(2.milliseconds)
+                    runCurrent()
+
+                    flowOf(awaitItem()).asSnapshot() shouldBe matchedTagList
                     cancelAndIgnoreRemainingEvents()
                 }
             }

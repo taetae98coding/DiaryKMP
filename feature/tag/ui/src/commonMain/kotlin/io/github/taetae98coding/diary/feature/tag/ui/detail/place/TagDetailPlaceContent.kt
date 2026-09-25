@@ -10,6 +10,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
+import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailSyncViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeEffect
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeState
@@ -24,6 +25,8 @@ internal fun TagDetailPlaceContent(
     viewModelStoreProvider: ViewModelStoreProvider,
     navigateToPlaceDetail: (Uuid) -> Unit,
     state: TagDetailPlaceState,
+    mapViewModel: TagDetailPlaceMapViewModel,
+    mapState: DiaryMapState,
     scopeState: TagDetailScopeState,
     modifier: Modifier = Modifier,
 ) {
@@ -31,13 +34,13 @@ internal fun TagDetailPlaceContent(
 
     CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
         val placeViewModel = koinViewModel<TagDetailPlaceViewModel> { parametersOf(id) }
-        val mapViewModel = koinViewModel<TagDetailPlaceMapViewModel>()
         val syncViewModel = koinViewModel<TagDetailSyncViewModel>()
         val isRefreshing by syncViewModel.isRefreshing.collectAsStateWithLifecycle()
         val uiState by mapViewModel.uiState.collectAsStateWithLifecycle()
         val placeListUiState by placeViewModel.placeListUiState.collectAsStateWithLifecycle()
         val placePagingItems = placeViewModel.placePagingData.collectAsLazyPagingItems()
         val sort by placeViewModel.sort.collectAsStateWithLifecycle()
+        val queryScope by placeViewModel.scope.collectAsStateWithLifecycle()
         val sortSheetState = rememberDialogState()
 
         TagDetailScopeEffect(
@@ -69,12 +72,14 @@ internal fun TagDetailPlaceContent(
             },
             modifier = modifier,
             state = state,
+            mapState = mapState,
             sortSheetState = sortSheetState,
             uiStateProvider = { uiState },
             placeListUiStateProvider = { placeListUiState },
             placePagingItems = placePagingItems,
             isRefreshingProvider = { isRefreshing },
             sortProvider = { sort },
+            scopeProvider = { queryScope },
         )
     }
 }

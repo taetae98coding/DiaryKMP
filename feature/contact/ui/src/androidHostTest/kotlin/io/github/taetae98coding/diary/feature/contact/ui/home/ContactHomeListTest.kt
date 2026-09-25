@@ -1,12 +1,15 @@
 package io.github.taetae98coding.diary.feature.contact.ui.home
 
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
@@ -116,6 +119,33 @@ class ContactHomeListTest {
         eventList shouldBe listOf(ContactHomeScaffoldEvent.ClickContact(id = contact.id))
     }
 
+    @Test
+    fun `TC-CONTACT-HOME-DOMAIN-010 화면이 재생성되어도 보던 목록 위치를 유지한다`() {
+        val contactList =
+            List(RESTORATION_CONTACT_COUNT) { index ->
+                testContact(name = "연락처-${index.toString().padStart(length = 2, padChar = '0')}")
+            }
+        val pagingDataFlow = MutableStateFlow(contactPagingDataOf(contactList))
+        val restorationTester = StateRestorationTester(composeRule)
+
+        restorationTester.setContent {
+            DiaryTheme {
+                ContactHomeList(
+                    onEvent = {},
+                    contactPagingItems = pagingDataFlow.collectAsLazyPagingItems(),
+                )
+            }
+        }
+        composeRule.onNodeWithTag(CONTACT_HOME_LIST_TEST_TAG).performScrollToIndex(RESTORATION_SCROLL_INDEX)
+        composeRule.onNodeWithText(contactList[RESTORATION_SCROLL_INDEX].detail.name).assertIsDisplayed()
+        composeRule.onNodeWithText(contactList.first().detail.name).assertDoesNotExist()
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        composeRule.onNodeWithText(contactList[RESTORATION_SCROLL_INDEX].detail.name).assertIsDisplayed()
+        composeRule.onNodeWithText(contactList.first().detail.name).assertDoesNotExist()
+    }
+
     private fun setContactHomeList(
         contactList: List<Contact> = emptyList(),
         pagingData: PagingData<Contact> = contactPagingDataOf(contactList),
@@ -141,5 +171,7 @@ class ContactHomeListTest {
         private const val OTHER_CONTACT_PHONE_NUMBER = "010-3333-4444"
         private const val CONTACT_DESCRIPTION = "ContactHomeListDescription"
         private const val CONTACT_HOMETOWN = "ContactHomeListHometown"
+        private const val RESTORATION_CONTACT_COUNT = 40
+        private const val RESTORATION_SCROLL_INDEX = 30
     }
 }

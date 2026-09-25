@@ -36,14 +36,19 @@ export class FcmClient {
   }
 
   async send(message: FcmMessage): Promise<FcmSendResult> {
-    const response = await fetch(`https://fcm.googleapis.com/v1/projects/${this.projectId}/messages:send`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${this.accessToken}`,
-      },
-      body: JSON.stringify({ message }),
-    });
+    let response: Response;
+    try {
+      response = await fetch(`https://fcm.googleapis.com/v1/projects/${this.projectId}/messages:send`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+        body: JSON.stringify({ message }),
+      });
+    } catch (error) {
+      return { status: "failed", error };
+    }
 
     if (response.ok) {
       return { status: "sent" };

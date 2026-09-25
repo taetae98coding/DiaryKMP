@@ -25,6 +25,8 @@ internal actual fun rememberAppleCredentialsManager(): AppleCredentialsManager {
 private class IosAppleCredentialsManager(
     private val viewController: UIViewController,
 ) : AppleCredentialsManager {
+    override val isSignInEndDetectable: Boolean = true
+
     /**
      * [ASAuthorizationController]가 delegate를 weak 참조로 들고 있어, 응답을 받을 때까지
      * delegate를 여기에서 강하게 참조한다. delegate는 controller를 강하게 참조한다.

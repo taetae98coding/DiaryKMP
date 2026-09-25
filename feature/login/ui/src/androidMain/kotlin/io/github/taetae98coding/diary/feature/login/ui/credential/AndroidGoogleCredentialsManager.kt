@@ -33,6 +33,8 @@ private class AndroidGoogleCredentialsManager(
     private val context: Context,
     private val serverClientId: String,
 ) : GoogleCredentialsManager {
+    override val isSignInEndDetectable: Boolean = true
+
     private val credentialManager = CredentialManager.create(context)
 
     override suspend fun signIn(): GoogleCredential =

@@ -79,7 +79,7 @@ class AccountMemoPlaceLocalDataSourceImplTest :
             dataSource.getPlaceList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
         }
 
-        test("조회한 장소는 제목 오름차순으로 정렬된다") {
+        test("TC-MEMO-DETAIL-DATA-049 조회한 장소는 제목 오름차순으로 정렬된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val lastPlace = place(title = LAST_PLACE_TITLE)
@@ -87,6 +87,18 @@ class AccountMemoPlaceLocalDataSourceImplTest :
             insertMemoWithPlaceList(accountId = accountId, memo = memo, placeList = listOf(lastPlace, firstPlace))
 
             dataSource.getPlaceList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(firstPlace, lastPlace)
+        }
+
+        test("TC-MEMO-DETAIL-DATA-044 연결된 장소의 제목이 바뀌면 장소 카드의 조회 결과가 갱신된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = memo()
+            val place = place(title = FIRST_PLACE_TITLE)
+            insertMemoWithPlaceList(accountId = accountId, memo = memo, placeList = listOf(place))
+            val renamedPlace = place.copy(detail = place.detail.copy(title = LAST_PLACE_TITLE))
+
+            placeTransaction.upsert(accountId = accountId, placeList = listOf(renamedPlace), placeTagList = emptyList())
+
+            dataSource.getPlaceList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(renamedPlace)
         }
 
         test("TC-MEMO-PLACE-DATA-009 가리키는 장소가 기기에 없는 연결은 저장되지만 조회에 나타나지 않는다") {

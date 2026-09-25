@@ -103,7 +103,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
                 val year = fixtureMonkey.giveMeOne<Int>().toPositiveYear()
                 val useCase = mockk<FetchHolidayUseCase>()
                 coEvery { useCase(parameter = year) } returns
-                    Result.failure(IllegalStateException("$year holiday sync failed"))
+                    Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
                 coEvery { useCase(parameter = year + 1) } returns Result.success(emptyList())
                 val viewModel = holidayViewModel(fetchHolidayUseCase = useCase)
 
@@ -160,7 +160,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
                 val year = fixtureMonkey.giveMeOne<Int>().toPositiveYear()
                 val useCase = mockk<FetchHolidayUseCase>()
                 coEvery { useCase(parameter = year) } returns
-                    Result.failure(IllegalStateException("$year holiday sync failed"))
+                    Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
                 coEvery { useCase(parameter = year + 1) } returns Result.success(emptyList())
                 val viewModel = holidayViewModel(fetchHolidayUseCase = useCase)
 
@@ -394,7 +394,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
                 val results =
                     listOf(
                         Result.success(emptyList<Holiday>()),
-                        Result.failure(IllegalStateException("$year holiday get failed")),
+                        Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())),
                     )
 
                 results.forEach { result ->
@@ -419,7 +419,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
                     holidayViewModel(
                         getCalendarHolidayUseCase =
                             getCalendarHolidayUseCase(
-                                year - 1 to Result.failure(IllegalStateException("${year - 1} holiday get failed")),
+                                year - 1 to Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())),
                                 year to Result.success(listOf(holiday)),
                             ),
                     )

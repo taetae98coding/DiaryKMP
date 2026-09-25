@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.tag.ui.detail.place
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasClickAction
@@ -14,17 +15,23 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_DETAIL_TAB_D
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_MEMO_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_PLACE_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_WEB_TAB_DESCRIPTION
+import io.github.taetae98coding.diary.feature.tag.ui.detail.FIRST_TAG_ID
 import io.github.taetae98coding.diary.feature.tag.ui.detail.KOREAN_PLACE_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TAG_TITLE
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailUiState
+import io.github.taetae98coding.diary.feature.tag.ui.detail.placePagingDataFlow
+import io.github.taetae98coding.diary.feature.tag.ui.detail.placeViewModelRef
 import io.github.taetae98coding.diary.feature.tag.ui.detail.screenTestViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.selectTagDetailTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.setTagDetailScreen
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
+import io.github.taetae98coding.diary.feature.tag.ui.fixtureId
+import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagPlace
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldNotBeSameInstanceAs
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
@@ -83,14 +90,18 @@ class TagDetailPlaceScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-013 빈 상태에서도 장소 추가를 실행할 수 있다`() {
+    fun `TC-TAG-DETAIL-PLACE-FEATURE-013 빈 상태에서도 장소 추가와 보기 모드 전환을 실행할 수 있다`() {
         var navigateCount = 0
         setScreenOnPlaceTab(navigateToPlaceAdd = { navigateCount += 1 })
         composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertExists()
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
+        composeRule.onNodeWithContentDescription(DEFAULT_SHOW_MAP_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
 
         navigateCount shouldBe 1
+        composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_SHOW_LIST_DESCRIPTION).assert(hasClickAction())
     }
 
     @Test
@@ -162,22 +173,35 @@ class TagDetailPlaceScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-DOMAIN-008 상세 대상이 다른 태그로 바뀌어도 보기 모드를 유지한다`() {
-        val uiStateFlow = MutableStateFlow<TagDetailUiState>(tagDetailUiState(detail = tagDetail(TAG_TITLE)))
+    fun `TC-TAG-DETAIL-PLACE-DOMAIN-008 상세 대상이 다른 태그로 바뀌어도 지도 모드를 유지하고 목록만 새 태그의 장소로 바뀐다`() {
+        val detailIdState = mutableStateOf(FIRST_TAG_ID)
+        val firstPlace = tagPlace(title = fixtureText(prefix = "FirstPlace"))
+        val secondPlace = tagPlace(title = fixtureText(prefix = "SecondPlace"))
+        val secondTagTitle = fixtureText(prefix = "SecondTag")
         composeRule.setTagDetailScreen(
-            viewModel = screenTestViewModel(uiStateFlow),
-            placePagingData = tagEntityPagingData(itemList = listOf(tagPlace(title = PLACE_TITLE))),
+            viewModel = screenTestViewModel(MutableStateFlow(tagDetailUiState(detail = tagDetail(TAG_TITLE)))),
+            detailIdState = detailIdState,
+            viewModelFor = { id -> screenTestViewModel(MutableStateFlow(tagDetailUiState(id = id, detail = tagDetail(secondTagTitle)))) },
+            placePagingData = tagEntityPagingData(itemList = listOf(firstPlace)),
         )
         composeRule.selectTagDetailTab(DEFAULT_PLACE_TAB_DESCRIPTION)
         composeRule.onNodeWithContentDescription(DEFAULT_SHOW_MAP_DESCRIPTION).performClick()
         composeRule.waitForIdle()
+        val firstPlaceViewModel = checkNotNull(placeViewModelRef)
 
-        composeRule.runOnIdle { uiStateFlow.value = tagDetailUiState(id = SECOND_TAG_ID, detail = tagDetail(OTHER_TAG_TITLE)) }
+        composeRule.runOnIdle {
+            placePagingDataFlow.value = tagEntityPagingData(itemList = listOf(secondPlace))
+            detailIdState.value = fixtureId()
+        }
         composeRule.waitForIdle()
 
-        // 보기 모드를 들고 있는 상태가 그대로이면 지도 위치도 같은 상태에 남아 있다.
-        composeRule.onNodeWithText(PLACE_TITLE).assertDoesNotExist()
+        composeRule.selectTagDetailTab(DEFAULT_PLACE_TAB_DESCRIPTION)
         composeRule.onNodeWithContentDescription(DEFAULT_SHOW_LIST_DESCRIPTION).assert(hasClickAction())
+        checkNotNull(placeViewModelRef) shouldNotBeSameInstanceAs firstPlaceViewModel
+        composeRule.onNodeWithContentDescription(DEFAULT_SHOW_LIST_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(secondPlace.detail.title).assertIsDisplayed()
+        composeRule.onNodeWithText(firstPlace.detail.title).assertDoesNotExist()
     }
 
     private fun setScreenOnPlaceTab(
@@ -212,8 +236,6 @@ class TagDetailPlaceScreenTest {
 
     private companion object {
         const val PLACE_TITLE = "TagDetailScreenPlace"
-        const val OTHER_TAG_TITLE = "TagDetailOtherTag"
-        val SECOND_TAG_ID: Uuid = Uuid.parse("00000000-0000-0000-0000-000000000002")
         const val DEFAULT_EMPTY_TITLE = "No places linked to this tag"
         const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add place"
         const val KOREAN_ADD_BUTTON_DESCRIPTION = "장소 추가"

@@ -24,13 +24,13 @@ public fun DownloadButton(
     DiaryTooltipBox(text = contentDescription.orEmpty()) {
         IconButton(
             onClick = onClick,
-            modifier = modifier,
+            modifier = modifier.buttonContentDescription(contentDescription = contentDescription),
         ) {
             DiaryCrossfade(targetState = isInProgressProvider()) { isInProgress ->
                 if (isInProgress) {
                     CircularWavyProgressIndicator(modifier = Modifier.size(DiaryTheme.dimens.inProgressIndicatorSize))
                 } else {
-                    DownloadIcon(contentDescription = contentDescription)
+                    DownloadIcon(contentDescription = null)
                 }
             }
         }

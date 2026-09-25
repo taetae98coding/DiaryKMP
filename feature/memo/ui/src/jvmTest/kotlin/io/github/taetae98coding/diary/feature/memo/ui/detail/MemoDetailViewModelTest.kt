@@ -142,7 +142,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("조회한 메모의 완료 상태를 상태에 채우고 후속 변경도 반영한다") {
+        test("TC-MEMO-DETAIL-FEATURE-073 같은 메모가 다른 경로로 완료되거나 다시 시작되면 저장된 완료 여부를 상태에 반영한다") {
             runTest(mainDispatcher) {
                 val memo = memo().copy(isFinished = false)
                 val finishedMemo = memo.copy(isFinished = true)
@@ -163,6 +163,42 @@ class MemoDetailViewModelTest : FunSpec() {
 
                     resultFlow.emit(Result.success(finishedMemo))
                     (awaitItem() as MemoDetailUiState.Content).isFinished shouldBe true
+
+                    resultFlow.emit(Result.success(memo))
+                    (awaitItem() as MemoDetailUiState.Content).isFinished shouldBe false
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("TC-MEMO-DETAIL-FEATURE-074 같은 메모가 다른 경로로 삭제되어도 화면을 닫지 않고 마지막 저장 내용을 계속 표시한다") {
+            runTest(mainDispatcher) {
+                val memo = memo().copy(isDeleted = false)
+                val deletedMemo = memo.copy(isDeleted = true)
+                val resultFlow = MutableSharedFlow<Result<Memo?>>(replay = 1)
+                val findMemoUseCase = mockk<FindMemoUseCase>()
+                every { findMemoUseCase(any()) } returns resultFlow
+                val viewModel =
+                    viewModel(
+                        id = memo.id,
+                        findMemoUseCase = findMemoUseCase,
+                    )
+
+                viewModel.effect.test {
+                    viewModel.uiState.test {
+                        awaitItem() shouldBe MemoDetailUiState.Loading
+
+                        resultFlow.emit(Result.success(memo))
+                        (awaitItem() as MemoDetailUiState.Content).detail shouldBe memo.detail
+
+                        resultFlow.emit(Result.success(deletedMemo))
+                        advanceUntilIdle()
+
+                        val uiState = viewModel.uiState.value.shouldBeInstanceOf<MemoDetailUiState.Content>()
+                        uiState.detail shouldBe deletedMemo.detail
+                        cancelAndIgnoreRemainingEvents()
+                    }
+                    expectNoEvents()
                     cancelAndIgnoreRemainingEvents()
                 }
             }

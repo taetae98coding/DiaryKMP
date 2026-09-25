@@ -82,7 +82,7 @@ class AccountPlaceTagSyncTransactionImplTest :
                 .findPending(accountId = accountId)
                 .any { pending -> pending.placeId == placeTag.placeId && pending.tagId == placeTag.tagId }
 
-        test("TC-WEB-TAG-DATA-004 해제된 연결도 포함해 현재 계정의 업로드 대기 연결만 조회한다") {
+        test("TC-PLACE-TAG-DATA-004 해제된 연결도 포함해 현재 계정의 업로드 대기 연결만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstPending = placeTag()
@@ -148,7 +148,7 @@ class AccountPlaceTagSyncTransactionImplTest :
             syncCursorDataSource.find(accountId = accountId, kind = SyncKind.PLACE_TAG) shouldBe 11L
         }
 
-        test("TC-DATA-SYNC-DATA-028 장소과 태그의 연결의 내려받기 위치는 다른 종류와 따로 기록된다") {
+        test("TC-DATA-SYNC-DATA-028 장소와 태그의 연결의 내려받기 위치는 다른 종류와 따로 기록된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
 
             transaction.save(accountId = accountId, placeTagList = listOf(placeTag()), cursor = 7L)
@@ -187,7 +187,7 @@ class AccountPlaceTagSyncTransactionImplTest :
             syncCursorDataSource.find(accountId = accountId, kind = SyncKind.PLACE_TAG) shouldBe 5L
         }
 
-        test("TC-DATA-SYNC-DATA-025 TC-WEB-TAG-DATA-007 기기에 없던 연결은 새로 저장되고 동기화 완료로 기록된다") {
+        test("TC-DATA-SYNC-DATA-025 TC-PLACE-TAG-DATA-007 기기에 없던 연결은 새로 저장되고 동기화 완료로 기록된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val remote = placeTag()
 
@@ -215,7 +215,7 @@ class AccountPlaceTagSyncTransactionImplTest :
             isPending(synced, accountId) shouldBe false
         }
 
-        test("TC-WEB-TAG-DATA-003 같은 장소의 다른 연결은 서로 독립적으로 저장된다") {
+        test("TC-PLACE-TAG-DATA-003 같은 장소의 다른 연결은 서로 독립적으로 저장된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val placeId = fixtureMonkey.giveMeOne<Uuid>()
             val local = placeTag(placeId = placeId, updatedAt = Instant.fromEpochMilliseconds(2_000))

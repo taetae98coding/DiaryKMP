@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.core.database.impl.webtag.datasource
 
 import androidx.paging.PagingSource
 import androidx.room3.Room
+import androidx.room3.useReaderConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
@@ -14,6 +15,7 @@ import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntit
 import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.search.datasource.SearchWebLocalDataSourceImpl
+import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.web.datasource.AccountTagWebLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.web.datasource.AccountWebLocalDataSourceImpl
@@ -248,10 +250,15 @@ class AccountWebTagLocalDataSourceImplTest :
             tagTransaction.updateFinished(accountId = accountId, tagId = tag.id, isFinished = true, updatedAt = instant())
             linkedTagIdList(accountId = accountId, webId = web.id) shouldBe listOf(tag.id)
 
-            tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = true, updatedAt = instant())
+            val deletedAt = instant()
+            tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = true, updatedAt = deletedAt)
             linkedTagList(accountId = accountId, webId = web.id).shouldBeEmpty()
 
-            tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = false, updatedAt = instant())
+            AccountTagSyncTransactionImpl(database = database).save(
+                accountId = accountId,
+                tagList = listOf(tag.copy(isFinished = true, isDeleted = false, updatedAt = deletedAt)),
+                cursor = fixtureMonkey.giveMeOne<Long>(),
+            )
             linkedTagIdList(accountId = accountId, webId = web.id) shouldBe listOf(tag.id)
         }
 
@@ -501,7 +508,7 @@ class AccountWebTagLocalDataSourceImplTest :
             tagWebIdList(accountId = accountId, tagId = unselectedTag.id).shouldBeEmpty()
         }
 
-        test("TC-WEB-TAG-DATA-002 저장이 실패하면 웹 항목과 태그 연결이 모두 남지 않는다") {
+        test("TC-WEB-TAG-DATA-002 TC-WEB-ADD-DATA-004 저장이 실패하면 웹 항목, 계정 연결과 태그 연결이 모두 남지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val web = web()
             val targetTag = tag()
@@ -530,6 +537,14 @@ class AccountWebTagLocalDataSourceImplTest :
             linkedTagIdList(accountId = accountId, webId = web.id).shouldBeEmpty()
             tagWebIdList(accountId = accountId, tagId = targetTag.id).shouldBeEmpty()
             webDataSource.find(accountId = accountId, webId = web.id).first().shouldBeNull()
+            listOf("web", "account_web", "web_tag", "account_web_tag").forEach { table ->
+                database.useReaderConnection { transactor ->
+                    transactor.usePrepared("SELECT COUNT(*) FROM $table") { statement ->
+                        statement.step()
+                        statement.getLong(0)
+                    }
+                } shouldBe 0L
+            }
         }
 
         test("TC-WEB-TAG-DOMAIN-014 TC-WEB-DETAIL-DATA-021 태그 연결은 웹 목록과 웹 검색 결과를 바꾸지 않는다") {

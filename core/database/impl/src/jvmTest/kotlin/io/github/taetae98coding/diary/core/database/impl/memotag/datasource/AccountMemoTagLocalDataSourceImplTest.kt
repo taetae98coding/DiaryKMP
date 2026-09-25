@@ -20,6 +20,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlinx.coroutines.flow.first
+import kotlinx.datetime.LocalDateTime
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -118,7 +119,26 @@ class AccountMemoTagLocalDataSourceImplTest :
             dataSource.getTagList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(tag)
         }
 
-        test("TC-MEMO-TAG-INPUT-DOMAIN-001 TC-MEMO-TAG-DOMAIN-011 다른 계정의 연결은 조회되지 않는다") {
+        test("TC-MEMO-TAG-DOMAIN-011 계정과 연결되지 않은 태그를 메모에 연결해도 메모의 연결된 태그로 조회되지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = memo()
+            val otherAccountTag = tag()
+            insertMemo(accountId = accountId, memo = memo)
+            tagTransaction.upsert(accountId = otherAccountId, tagList = listOf(otherAccountTag), tagLinkList = emptyList())
+
+            memoTagTransaction.upsert(
+                accountId = accountId,
+                memoId = memo.id,
+                tagId = otherAccountTag.id,
+                isDeleted = false,
+                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+            )
+
+            dataSource.getTagList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
+        }
+
+        test("TC-MEMO-TAG-INPUT-DOMAIN-001 다른 계정의 연결은 조회되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
@@ -452,6 +472,60 @@ class AccountMemoTagLocalDataSourceImplTest :
 
             dataSource.getTagList(accountId = accountId, memoId = memo.id).first() shouldContainExactlyInAnyOrder listOf(tag)
         }
+
+        test("TC-MEMO-TAG-DOMAIN-014 필터를 고르지 않은 메모 목록에서 태그 연결은 노출과 순서를 바꾸지 않는다") {
+            listOf("AAA" to "BBB", "BBB" to "AAA").forEach { (linkedTitle, unlinkedTitle) ->
+                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val linkedMemo = memo().visible().withTitle(title = linkedTitle)
+                val unlinkedMemo = memo().visible().withTitle(title = unlinkedTitle)
+                insertMemo(accountId = accountId, memo = linkedMemo)
+                insertMemo(accountId = accountId, memo = unlinkedMemo)
+                connect(accountId = accountId, memoId = linkedMemo.id, tag = tag())
+
+                val memoList =
+                    database
+                        .accountMemoDao()
+                        .page(accountId = accountId, sort = "title")
+                        .loadAll()
+
+                memoList.map { memo -> memo.id } shouldBe listOf(linkedMemo, unlinkedMemo).sortedBy { memo -> memo.detail.title }.map { memo -> memo.id }
+            }
+        }
+
+        test("TC-MEMO-TAG-DOMAIN-015 태그 필터를 고르지 않은 캘린더에서 태그 연결은 메모 노출을 바꾸지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val start = LocalDateTime(year = 2026, month = 9, day = 25, hour = 9, minute = 0)
+            val endInclusive = LocalDateTime(year = 2026, month = 9, day = 26, hour = 9, minute = 0)
+            val linkedMemo = memo().visible().withPeriod(start = start, endInclusive = endInclusive)
+            val unlinkedMemo = memo().visible().withPeriod(start = start, endInclusive = endInclusive)
+            insertMemo(accountId = accountId, memo = linkedMemo)
+            insertMemo(accountId = accountId, memo = unlinkedMemo)
+            connect(accountId = accountId, memoId = linkedMemo.id, tag = tag())
+
+            val calendarMemoList =
+                database
+                    .accountCalendarMemoDao()
+                    .get(accountId = accountId, start = start.date, endInclusive = endInclusive.date)
+                    .first()
+
+            calendarMemoList.map { memo -> memo.id } shouldContainExactlyInAnyOrder listOf(linkedMemo.id, unlinkedMemo.id)
+        }
+
+        test("TC-MEMO-TAG-DOMAIN-016 연결된 태그의 제목은 메모 검색에 쓰이지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val query = "query-${fixtureMonkey.giveMeOne<Uuid>()}"
+            val memo = memo().visible().let { value -> value.copy(detail = value.detail.copy(title = "memo-title", description = "memo-description")) }
+            insertMemo(accountId = accountId, memo = memo)
+            connect(accountId = accountId, memoId = memo.id, tag = tag().withTitle(title = "tag-$query"))
+
+            val memoList =
+                database
+                    .searchMemoDao()
+                    .page(accountId = accountId, query = query, sort = "title")
+                    .loadAll()
+
+            memoList.shouldBeEmpty()
+        }
     }) {
     public companion object {
         private const val FIRST_TAG_TITLE = "AppleTag"
@@ -480,6 +554,20 @@ class AccountMemoTagLocalDataSourceImplTest :
                 .sample()
 
         private fun TagLocalEntity.withTitle(title: String): TagLocalEntity = copy(detail = detail.copy(title = title))
+
+        private fun MemoLocalEntity.visible(): MemoLocalEntity = copy(isFinished = false, isDeleted = false)
+
+        private fun MemoLocalEntity.withTitle(title: String): MemoLocalEntity = copy(detail = detail.copy(title = title))
+
+        private fun MemoLocalEntity.withPeriod(
+            start: LocalDateTime,
+            endInclusive: LocalDateTime,
+        ): MemoLocalEntity = copy(detail = detail.copy(isAllDay = false, start = start, endInclusive = endInclusive))
+
+        private suspend fun <T : Any> PagingSource<Int, T>.loadAll(): List<T> =
+            load(PagingSource.LoadParams.Refresh(key = null, loadSize = 100, placeholdersEnabled = false))
+                .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, T>>()
+                .data
 
         private fun TagLocalEntity.withDetail(
             emoji: String,

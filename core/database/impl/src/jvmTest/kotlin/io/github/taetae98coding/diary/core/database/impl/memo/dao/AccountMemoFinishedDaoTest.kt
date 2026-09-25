@@ -240,6 +240,31 @@ class AccountMemoFinishedDaoTest :
                 )
         }
 
+        test("TC-MEMO-FINISHED-LIST-DATA-007 제목순은 제목 오름차순으로 조회한다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val firstTitleMemo = sortMemo(title = "Alpha", updatedAt = 1_000, startDay = 21)
+            val lastTitleMemo = sortMemo(title = "Bravo", updatedAt = 3_000, startDay = 19)
+            insert(accountId, lastTitleMemo, firstTitleMemo)
+
+            database
+                .accountMemoDao()
+                .pageFinished(accountId = accountId, sort = ListSortLocalEntity.TITLE.queryValue)
+                .pagedIds() shouldBe listOf(firstTitleMemo.id, lastTitleMemo.id)
+        }
+
+        test("TC-MEMO-FINISHED-LIST-DATA-007 최근 수정순은 수정 시각 내림차순으로 조회하고 같으면 제목 오름차순으로 조회한다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val latestMemo = sortMemo(title = "Zebra", updatedAt = 3_000, startDay = 19)
+            val sameUpdatedFirstMemo = sortMemo(title = "Alpha", updatedAt = 1_000, startDay = 21)
+            val sameUpdatedLastMemo = sortMemo(title = "Bravo", updatedAt = 1_000, startDay = 20)
+            insert(accountId, sameUpdatedLastMemo, latestMemo, sameUpdatedFirstMemo)
+
+            database
+                .accountMemoDao()
+                .pageFinished(accountId = accountId, sort = ListSortLocalEntity.RECENTLY_UPDATED.queryValue)
+                .pagedIds() shouldBe listOf(latestMemo.id, sameUpdatedFirstMemo.id, sameUpdatedLastMemo.id)
+        }
+
         test("TC-MEMO-FINISHED-LIST-DOMAIN-007 완료 시점은 목록 순서에 영향을 주지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val earlyStartMemo =
@@ -369,6 +394,23 @@ class AccountMemoFinishedDaoTest :
                 .setExp(MemoLocalEntity::updatedAt, updatedAt)
                 .setExp(MemoLocalEntity::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
                 .sample()
+
+        private fun sortMemo(
+            title: String,
+            updatedAt: Long,
+            startDay: Int,
+        ): MemoLocalEntity =
+            memo(
+                isFinished = true,
+                updatedAt = Instant.fromEpochMilliseconds(updatedAt),
+                detail =
+                    detail(
+                        title = title,
+                        isAllDay = true,
+                        start = LocalDateTime(year = 2026, month = 7, day = startDay, hour = 0, minute = 0),
+                        endInclusive = LocalDateTime(year = 2026, month = 7, day = startDay, hour = 0, minute = 0),
+                    ),
+            )
 
         private fun tag(): TagLocalEntity =
             fixtureMonkey

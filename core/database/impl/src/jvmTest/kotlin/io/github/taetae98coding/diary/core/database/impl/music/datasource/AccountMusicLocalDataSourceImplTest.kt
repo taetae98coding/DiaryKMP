@@ -80,7 +80,7 @@ class AccountMusicLocalDataSourceImplTest :
             pagedMusics(accountId) shouldBe listOf(firstMusic, lastMusic)
         }
 
-        test("TC-PLAYLIST-HOME-DOMAIN-002 저장된 곡이 없는 계정은 빈 목록으로 조회된다") {
+        test("TC-PLAYLIST-HOME-DOMAIN-001 다른 계정의 곡만 저장되어 있으면 빈 목록으로 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             musicTransaction.upsert(accountId = otherAccountId, musicList = listOf(music()))

@@ -35,11 +35,26 @@ internal const val KOREAN_SIGN_IN_FAILED_MESSAGE: String = "로그인에 실패�
 internal val screenTestFixtureMonkey: FixtureMonkey =
     diaryFixtureMonkey()
 
-internal fun screenTestViewModel(effect: Flow<LoginHomeEffect> = emptyFlow()): LoginHomeViewModel {
+internal fun screenTestViewModel(
+    effect: Flow<LoginHomeEffect> = emptyFlow(),
+    uiState: MutableStateFlow<LoginHomeUiState> = MutableStateFlow(LoginHomeUiState()),
+): LoginHomeViewModel {
     val viewModel = mockk<LoginHomeViewModel>()
-    every { viewModel.uiState } returns MutableStateFlow(LoginHomeUiState())
+    every { viewModel.uiState } returns uiState
     every { viewModel.effect } returns effect
     return viewModel
+}
+
+internal fun mockGoogleCredentialsManager(isSignInEndDetectable: Boolean = true): GoogleCredentialsManager {
+    val manager = mockk<GoogleCredentialsManager>()
+    every { manager.isSignInEndDetectable } returns isSignInEndDetectable
+    return manager
+}
+
+internal fun mockAppleCredentialsManager(isSignInEndDetectable: Boolean = true): AppleCredentialsManager {
+    val manager = mockk<AppleCredentialsManager>()
+    every { manager.isSignInEndDetectable } returns isSignInEndDetectable
+    return manager
 }
 
 internal fun ComposeContentTestRule.setLoginHomeScreen(
@@ -65,7 +80,7 @@ internal fun ComposeContentTestRule.assertGoogleCredentialFailureMessage(
     expectedMessage: String,
 ) {
     val viewModel = screenTestViewModel()
-    val googleCredentialsManager = mockk<GoogleCredentialsManager>()
+    val googleCredentialsManager = mockGoogleCredentialsManager()
     coEvery { googleCredentialsManager.signIn() } throws GoogleCredentialsException()
     setLoginHomeScreen(viewModel = viewModel, googleCredentialsManager = googleCredentialsManager)
 
@@ -82,7 +97,7 @@ internal fun ComposeContentTestRule.assertAppleCredentialFailureMessage(
     expectedMessage: String,
 ) {
     val viewModel = screenTestViewModel()
-    val appleCredentialsManager = mockk<AppleCredentialsManager>()
+    val appleCredentialsManager = mockAppleCredentialsManager()
     coEvery { appleCredentialsManager.signIn() } throws AppleCredentialsException()
     setLoginHomeScreen(viewModel = viewModel, appleCredentialsManager = appleCredentialsManager)
 
@@ -101,7 +116,7 @@ internal fun ComposeContentTestRule.assertAppSignInFailureMessage(
     val credential = screenTestFixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
     val effect = Channel<LoginHomeEffect>(capacity = Channel.BUFFERED)
     val viewModel = screenTestViewModel(effect = effect.receiveAsFlow())
-    val googleCredentialsManager = mockk<GoogleCredentialsManager>()
+    val googleCredentialsManager = mockGoogleCredentialsManager()
     coEvery { googleCredentialsManager.signIn() } returns credential
     every { viewModel.signInWithGoogle(credential) } answers {
         effect.trySend(LoginHomeEffect.SignInFailed).getOrThrow()
@@ -113,6 +128,7 @@ internal fun ComposeContentTestRule.assertAppSignInFailureMessage(
 
     verify(exactly = 1) { viewModel.signInWithGoogle(credential) }
     onNodeWithText(expectedMessage).assertExists()
+    onNodeWithContentDescription(buttonDescription).assertExists()
 }
 
 internal fun ComposeContentTestRule.assertNoAppSignInRequest(
@@ -121,8 +137,8 @@ internal fun ComposeContentTestRule.assertNoAppSignInRequest(
     appleFailure: Throwable = AppleCredentialsException(),
 ) {
     val viewModel = screenTestViewModel()
-    val googleCredentialsManager = mockk<GoogleCredentialsManager>()
-    val appleCredentialsManager = mockk<AppleCredentialsManager>()
+    val googleCredentialsManager = mockGoogleCredentialsManager()
+    val appleCredentialsManager = mockAppleCredentialsManager()
     coEvery { googleCredentialsManager.signIn() } throws googleFailure
     coEvery { appleCredentialsManager.signIn() } throws appleFailure
     setLoginHomeScreen(

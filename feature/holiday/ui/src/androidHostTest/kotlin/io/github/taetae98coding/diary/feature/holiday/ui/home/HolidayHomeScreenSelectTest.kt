@@ -2,8 +2,12 @@ package io.github.taetae98coding.diary.feature.holiday.ui.home
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performTouchInput
 import io.github.taetae98coding.diary.domain.holiday.usecase.FetchHolidayUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.GetGoldenHolidayUseCase
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.DEFAULT_ERROR_DESCRIPTION
@@ -17,6 +21,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import org.junit.After
 import org.junit.Rule
@@ -62,6 +67,38 @@ class HolidayHomeScreenSelectTest {
         composeRule.performUp()
 
         navigatedDateRangeList shouldBe listOf(february(day = 6)..february(day = 9))
+    }
+
+    @Test
+    fun `TC-HOLIDAY-HOME-FEATURE-054 기간을 선택하는 도중 시스템이 선택을 중단하면 그 기간으로 MemoAdd 화면 이동이 요청된다`() {
+        val navigatedDateRangeList = mutableListOf<LocalDateRange>()
+        setHolidayHomeScreen(navigateToMemoAdd = { navigatedDateRangeList += it })
+
+        composeRule.performLongPress(composeRule.dayCenter(day = 6))
+        composeRule.performMoveTo(composeRule.dayCenter(day = 9))
+        composeRule.onRoot().performTouchInput { cancel() }
+        composeRule.waitForIdle()
+
+        navigatedDateRangeList shouldBe listOf(february(day = 6)..february(day = 9))
+    }
+
+    @Test
+    fun `TC-HOLIDAY-HOME-FEATURE-055 기간을 선택하는 도중 화면이 재생성되면 MemoAdd 화면 이동이 요청되지 않는다`() {
+        val restorationTester = StateRestorationTester(composeRule)
+        val navigatedDateRangeList = mutableListOf<LocalDateRange>()
+        setHolidayHomeScreen(
+            navigateToMemoAdd = { navigatedDateRangeList += it },
+            restorationTester = restorationTester,
+        )
+
+        composeRule.performLongPress(composeRule.dayCenter(day = 6))
+        composeRule.performMoveTo(composeRule.dayCenter(day = 9))
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+        composeRule.performUp()
+
+        navigatedDateRangeList shouldBe emptyList()
+        composeRule.onNodeWithText(YEAR.toString()).assertExists()
     }
 
     @Test
@@ -132,16 +169,32 @@ class HolidayHomeScreenSelectTest {
         composeRule.performUp()
     }
 
+    @Test
+    fun `TC-HOLIDAY-HOME-FEATURE-053 기간 선택이 진행되는 동안 목록이 세로로 이동하지 않는다`() {
+        setHolidayHomeScreen(getGoldenHolidayUseCase = manyGoldenHolidayUseCase())
+        composeRule.onAllNodesWithText(manyHolidayName(index = MANY_GROUP_COUNT - 1)).fetchSemanticsNodes().isEmpty() shouldBe true
+        val start = composeRule.firstDayCenter(day = MANY_HOLIDAY_DAY)
+
+        composeRule.performLongPress(start)
+        composeRule.performMoveTo(Offset(x = start.x, y = 1F))
+
+        composeRule.firstDayCenter(day = MANY_HOLIDAY_DAY) shouldBe start
+
+        composeRule.performUp()
+    }
+
     private fun setHolidayHomeScreen(
         fetchHolidayUseCase: FetchHolidayUseCase = successfulFetchHolidayUseCase(),
         getGoldenHolidayUseCase: GetGoldenHolidayUseCase = selectableGetGoldenHolidayUseCase(),
         navigateToMemoAdd: (LocalDateRange) -> Unit = {},
+        restorationTester: StateRestorationTester? = null,
     ) {
         composeRule.setHolidayHomeScreen(
             targetYear = targetYear,
             fetchHolidayUseCase = fetchHolidayUseCase,
             getGoldenHolidayUseCase = getGoldenHolidayUseCase,
             navigateToMemoAdd = navigateToMemoAdd,
+            restorationTester = restorationTester,
         )
     }
 
@@ -172,7 +225,45 @@ class HolidayHomeScreenSelectTest {
                 ),
         )
 
+    // 연휴 항목마다 다른 달의 같은 날짜를 공휴일로 두어, 목록이 한 화면을 넘도록 만든다.
+    private fun manyGoldenHolidayUseCase(): GetGoldenHolidayUseCase =
+        mockk<GetGoldenHolidayUseCase>().also { useCase ->
+            every { useCase(parameter = any()) } answers {
+                val parameter = firstArg<GetGoldenHolidayUseCase.Parameter>()
+                val groupList =
+                    if (parameter.year == YEAR) {
+                        List(MANY_GROUP_COUNT) { index ->
+                            val date = LocalDate(year = YEAR, month = index + 1, day = MANY_HOLIDAY_DAY)
+                            goldenHolidayGroup(
+                                optionList =
+                                    listOf(
+                                        goldenHoliday(
+                                            holidayList = listOf(holiday(name = manyHolidayName(index = index), start = date)),
+                                            start = date,
+                                            endInclusive = date,
+                                        ),
+                                    ),
+                            )
+                        }
+                    } else {
+                        emptyList()
+                    }
+
+                flowOf(Result.success(groupList))
+            }
+        }
+
+    private fun manyHolidayName(index: Int): String = "$HOLIDAY_NAME$index"
+
+    private fun androidx.compose.ui.test.junit4.ComposeContentTestRule.firstDayCenter(day: Int): Offset =
+        onAllNodesWithText(day.toString())[0]
+            .fetchSemanticsNode()
+            .boundsInRoot
+            .center
+
     private companion object {
         private const val HOLIDAY_NAME = "공휴일"
+        private const val MANY_GROUP_COUNT = 12
+        private const val MANY_HOLIDAY_DAY = 6
     }
 }

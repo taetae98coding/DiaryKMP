@@ -36,7 +36,7 @@ class SyncWorkWebTagTest :
             requestOrder shouldContainExactly listOf("tag", "tag", "webTag", "webTag")
         }
 
-        test("TC-DATA-SYNC-DOMAIN-020 웹·태그 연결만 대기하면 웹·태그 연결 요청만 발생한다") {
+        test("웹·태그 연결만 대기하면 웹·태그 연결 요청만 발생한다") {
             val context = context(webTagList = webTags(size = 1))
 
             context.subject.doWork()

@@ -26,13 +26,13 @@ public fun FinishButton(
         IconToggleButton(
             checked = isFinishedProvider(),
             onCheckedChange = { onClick() },
-            modifier = modifier,
+            modifier = modifier.buttonContentDescription(contentDescription = contentDescription),
         ) {
             DiaryCrossfade(targetState = isInProgressProvider()) { isInProgress ->
                 if (isInProgress) {
                     CircularWavyProgressIndicator(modifier = Modifier.size(DiaryTheme.dimens.inProgressIndicatorSize))
                 } else {
-                    FinishIcon(contentDescription = contentDescription)
+                    FinishIcon(contentDescription = null)
                 }
             }
         }

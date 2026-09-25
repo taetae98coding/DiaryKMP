@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.feature.web.ui.detail.tab
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
@@ -13,6 +16,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
+import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.DEFAULT_DELETE_DESCRIPTION
 import io.github.taetae98coding.diary.feature.web.ui.detail.DEFAULT_FORM_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.web.ui.detail.DEFAULT_MEMO_TAB_DESCRIPTION
@@ -21,10 +26,15 @@ import io.github.taetae98coding.diary.feature.web.ui.detail.DEFAULT_OPEN_IN_NEW_
 import io.github.taetae98coding.diary.feature.web.ui.detail.DEFAULT_PAGE_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.web.ui.detail.DEFAULT_UPDATE_DESCRIPTION
 import io.github.taetae98coding.diary.feature.web.ui.detail.DEFAULT_VIEW_MODE_DESCRIPTION
+import io.github.taetae98coding.diary.feature.web.ui.detail.FIRST_WEB_ID
 import io.github.taetae98coding.diary.feature.web.ui.detail.KOREAN_MEMO_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.web.ui.detail.WEB_DETAIL_FORM_TEST_TAG
+import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScreen
+import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScreenTestTheme
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailUiState
+import io.github.taetae98coding.diary.feature.web.ui.detail.memoScreenPageViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.memoScreenWebViewModel
+import io.github.taetae98coding.diary.feature.web.ui.detail.prepareWebDetailTabViewModels
 import io.github.taetae98coding.diary.feature.web.ui.detail.selectWebDetailTab
 import io.github.taetae98coding.diary.feature.web.ui.detail.setWebDetailMemoScreen
 import io.github.taetae98coding.diary.feature.web.ui.detail.testContentUiState
@@ -160,6 +170,40 @@ class WebDetailTabTest {
         waitUntilMemoListExists()
 
         composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
+    }
+
+    @Test
+    fun `TC-WEB-DETAIL-DOMAIN-045 화면을 떠났다 다시 들어오면 메모 탭이 선택되지 않은 상태로 시작한다`() {
+        var isShown by mutableStateOf(true)
+        prepareWebDetailTabViewModels()
+        composeRule.setContent {
+            WebDetailScreenTestTheme {
+                if (isShown) {
+                    WebDetailScreen(
+                        navigateUp = {},
+                        navigateToTagAdd = {},
+                        navigateToTagDetail = {},
+                        navigateToMemoAdd = {},
+                        navigateToMemoDetail = {},
+                        id = FIRST_WEB_ID,
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        webViewModel = memoScreenWebViewModel(uiState = MutableStateFlow(testContentUiState(detail = testWebDetail(title = WEB_TITLE)))),
+                        pageViewModel = memoScreenPageViewModel(),
+                        tagViewModel = detailTagScreenTestViewModel(),
+                    )
+                }
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.selectWebDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
+
+        composeRule.runOnIdle { isShown = false }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { isShown = true }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsNotSelected()
     }
 
     private fun waitUntilMemoListExists() {

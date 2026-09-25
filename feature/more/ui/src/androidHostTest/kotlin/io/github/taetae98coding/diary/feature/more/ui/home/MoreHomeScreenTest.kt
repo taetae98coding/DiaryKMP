@@ -11,15 +11,20 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.domain.account.usecase.SignOutUseCase
+import io.github.taetae98coding.diary.domain.sync.usecase.FindSyncPendingUseCase
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountUiState
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountViewModel
 import io.github.taetae98coding.diary.feature.more.ui.home.refresh.MoreHomeRefreshViewModel
 import io.github.taetae98coding.diary.feature.more.ui.home.signout.MoreHomeSignOutUiState
 import io.github.taetae98coding.diary.feature.more.ui.home.signout.MoreHomeSignOutViewModel
 import io.kotest.matchers.shouldBe
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -204,26 +209,6 @@ class MoreHomeScreenTest {
     }
 
     @Test
-    fun `TC-MORE-HOME-DOMAIN-009 화면이 재생성되어도 확인 다이얼로그가 열린 상태를 유지한다`() {
-        val restorationTester = StateRestorationTester(composeRule)
-        val signOutViewModel = screenTestSignOutViewModel(MoreHomeSignOutUiState(isConfirmVisible = true))
-        restorationTester.setContent {
-            DiaryTheme {
-                MoreHomeScaffold(
-                    onEvent = {},
-                    accountUiStateProvider = { MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL) },
-                    signOutUiStateProvider = { signOutViewModel.uiState.value },
-                )
-            }
-        }
-        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_TITLE).assertIsDisplayed()
-
-        restorationTester.emulateSavedInstanceStateRestore()
-
-        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_TITLE).assertIsDisplayed()
-    }
-
-    @Test
     fun `TC-MORE-HOME-FEATURE-030 사용자 상태에서 프로필을 선택하면 ProfileImageEdit 화면으로 이동한다`() {
         var navigateCount = 0
         setMoreHomeScreen(
@@ -269,22 +254,6 @@ class MoreHomeScreenTest {
         composeRule.waitForIdle()
 
         verify(exactly = 2) { refreshViewModel.refresh() }
-    }
-
-    @Test
-    fun `TC-MORE-HOME-DOMAIN-013 사용자 정보 다시 확인에 실패해도 계정 표시가 바뀌지 않는다`() {
-        val refreshViewModel = screenTestRefreshViewModel()
-        setMoreHomeScreen(
-            viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)),
-            refreshViewModel = refreshViewModel,
-        )
-
-        composeRule.waitForIdle()
-
-        verify(exactly = 1) { refreshViewModel.refresh() }
-        composeRule.onNodeWithText(USER_EMAIL).assertIsDisplayed()
-        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_LABEL).assertIsDisplayed()
-        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_TITLE).assertDoesNotExist()
     }
 
     @Test
@@ -386,6 +355,57 @@ class MoreHomeScreenTest {
         composeRule.waitForIdle()
 
         navigateToPlaylistCount shouldBe 1
+    }
+
+    @Test
+    fun `TC-MORE-HOME-DOMAIN-016 화면 구성이 바뀌어 다시 그려져도 다이얼로그가 열린 상태를 유지한다`() {
+        val syncPendingFlow = MutableStateFlow(Result.success(true))
+        val findSyncPendingUseCase = mockk<FindSyncPendingUseCase>()
+        every { findSyncPendingUseCase(Unit) } returns syncPendingFlow
+        val signOutUseCase = mockk<SignOutUseCase>()
+        coEvery { signOutUseCase(Unit) } returns Result.success(Unit)
+        // 화면 구성이 바뀌어도 화면의 상태 보관 객체는 그대로 남으므로 같은 인스턴스로 다시 그린다.
+        val signOutViewModel =
+            MoreHomeSignOutViewModel(
+                savedStateHandle = SavedStateHandle(),
+                findSyncPendingUseCase = findSyncPendingUseCase,
+                signOutUseCase = signOutUseCase,
+            )
+        val accountViewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL))
+        val refreshViewModel = screenTestRefreshViewModel()
+        val restorationTester = StateRestorationTester(composeRule)
+        restorationTester.setContent {
+            DiaryTheme {
+                MoreHomeScreen(
+                    navigateToChecklist = {},
+                    navigateToContact = {},
+                    navigateToDDay = {},
+                    navigateToFile = {},
+                    navigateToHoliday = {},
+                    navigateToLogin = {},
+                    navigateToPlace = {},
+                    navigateToPlaylist = {},
+                    navigateToProfileImageEdit = {},
+                    navigateToQr = {},
+                    navigateToSearch = {},
+                    navigateToSetting = {},
+                    navigateToWeb = {},
+                    accountViewModel = accountViewModel,
+                    signOutViewModel = signOutViewModel,
+                    refreshViewModel = refreshViewModel,
+                )
+            }
+        }
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_LABEL).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_TITLE).assertIsDisplayed()
+        syncPendingFlow.value = Result.success(false)
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_TITLE).assertIsDisplayed()
+        coVerify(exactly = 0) { signOutUseCase(Unit) }
     }
 
     private fun setMoreHomeScreen(

@@ -55,7 +55,7 @@ class PlaylistHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLAYLIST-HOME-FEATURE-005 곡 페이지 조회에 실패하면 빈 페이지를 노출한다") {
+        test("TC-PLAYLIST-HOME-FEATURE-021 곡 페이지 조회에 실패하면 빈 페이지를 노출한다") {
             runTest(mainDispatcher) {
                 val viewModel =
                     viewModel(
@@ -79,6 +79,24 @@ class PlaylistHomeViewModelTest : FunSpec() {
                     musicListFlow.value = Result.success(afterMusicList)
 
                     flowOf(awaitItem()).asSnapshot() shouldBe afterMusicList
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("TC-PLAYLIST-HOME-FEATURE-011 곡을 추가하면 별도 조작 없이 그 곡이 든 목록을 노출한다") {
+            runTest(mainDispatcher) {
+                val existing = music(title = "existing" + fixtureMonkey.giveMeOne<Int>().toString().filter(Char::isDigit))
+                val added = music(title = "added" + fixtureMonkey.giveMeOne<Int>().toString().filter(Char::isDigit))
+                val musicListFlow = MutableStateFlow(Result.success(listOf(existing)))
+                val viewModel = viewModel(pageMusicUseCase = pageMusicUseCase(musicListFlow = musicListFlow))
+
+                viewModel.musicPagingData.test {
+                    flowOf(awaitItem()).asSnapshot() shouldBe listOf(existing)
+
+                    musicListFlow.value = Result.success(listOf(existing, added))
+
+                    flowOf(awaitItem()).asSnapshot() shouldBe listOf(existing, added)
                     cancelAndIgnoreRemainingEvents()
                 }
             }

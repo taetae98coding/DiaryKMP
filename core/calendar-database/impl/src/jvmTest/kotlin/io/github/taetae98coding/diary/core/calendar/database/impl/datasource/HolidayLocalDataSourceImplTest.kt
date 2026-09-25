@@ -192,6 +192,16 @@ class HolidayLocalDataSourceImplTest :
             dataSource.get(countrySet = setOf(KOREA, UNITED_STATES), year = YEAR).first() shouldBe listOf(korea, unitedStates)
         }
 
+        test("TC-HOLIDAY-DATABASE-DATA-017 전체 조회에서 이름이 같으면 한국, 미국 순으로 반환한다") {
+            val name: String = fixtureMonkey.giveMeOne()
+            val unitedStates = holiday(country = UNITED_STATES, year = YEAR, name = name, start = LocalDate(2026, 1, 1))
+            val korea = holiday(country = KOREA, year = OTHER_YEAR, name = name, start = LocalDate(2027, 12, 31))
+            transaction.upsert(country = UNITED_STATES, year = YEAR, holidayList = listOf(unitedStates))
+            transaction.upsert(country = KOREA, year = OTHER_YEAR, holidayList = listOf(korea))
+
+            dataSource.get(countrySet = setOf(KOREA, UNITED_STATES)).first() shouldBe listOf(korea, unitedStates)
+        }
+
         test("국가 집합이 비어 있으면 전체 조회도 빈 목록을 반환한다") {
             transaction.upsert(country = KOREA, year = YEAR, holidayList = listOf(holiday()))
 

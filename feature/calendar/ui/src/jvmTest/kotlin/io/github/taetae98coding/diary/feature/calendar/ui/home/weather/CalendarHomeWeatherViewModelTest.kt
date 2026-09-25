@@ -148,7 +148,7 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val useCase = mockk<FetchCurrentWeatherUseCase>()
                 coEvery { useCase(parameter = Unit) } returns
-                    Result.failure(IllegalStateException("weather fetch failed"))
+                    Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
                 val viewModel = weatherViewModel(fetchCurrentWeatherUseCase = useCase)
 
                 viewModel.fetch()
@@ -181,7 +181,7 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
                 val results =
                     listOf(
                         Result.success(CalendarWeatherReport()),
-                        Result.failure(IllegalStateException("weather get failed")),
+                        Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())),
                     )
 
                 results.forEach { result ->

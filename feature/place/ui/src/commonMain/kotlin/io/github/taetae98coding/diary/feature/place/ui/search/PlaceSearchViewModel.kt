@@ -10,8 +10,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.transformLatest
 import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
@@ -22,15 +23,25 @@ internal class PlaceSearchViewModel(
 
     val uiState: StateFlow<PlaceSearchUiState> =
         request
-            .mapLatest { request ->
+            .runningFold(initial = PlaceSearchRequestChange()) { change, request ->
+                PlaceSearchRequestChange(previous = change.current, current = request)
+            }.transformLatest { change ->
+                val request = change.current
                 if (request == null) {
-                    PlaceSearchUiState.Idle
-                } else {
+                    emit(PlaceSearchUiState.Idle)
+                    return@transformLatest
+                }
+
+                if (change.previous != null && change.previous.provider != request.provider) {
+                    emit(PlaceSearchUiState.Idle)
+                }
+
+                val uiState =
                     fetchSearchedPlaceUseCase(parameter = request.toParameter()).fold(
                         onSuccess = { placeList -> PlaceSearchUiState.Loaded(placeList = placeList) },
                         onFailure = { PlaceSearchUiState.Failed },
                     )
-                }
+                emit(uiState)
             }.stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileUiSubscribed,
@@ -45,3 +56,8 @@ internal class PlaceSearchViewModel(
         request.value = null
     }
 }
+
+private data class PlaceSearchRequestChange(
+    val previous: PlaceSearchRequest? = null,
+    val current: PlaceSearchRequest? = null,
+)

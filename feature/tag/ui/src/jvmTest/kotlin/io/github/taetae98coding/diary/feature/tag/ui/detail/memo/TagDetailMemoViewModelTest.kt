@@ -22,6 +22,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.RestartMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -79,29 +80,32 @@ class TagDetailMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-DATA-005 표시 범위를 바꾸면 메모 목록을 새 기준으로 다시 조회한다") {
+        test("TC-TAG-DETAIL-DATA-005 표시 범위를 넓혔다 되돌리면 메모 목록을 각 범위 기준으로 다시 조회한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val selfMemoList = List(2) { memo() }
+                val childMemoList = selfMemoList + List(2) { memo() }
                 val pageTagMemoUseCase = mockk<PageTagMemoUseCase>()
-                every { pageTagMemoUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(emptyList<Memo>())))
+                every { pageTagMemoUseCase(parameter = PageTagMemoUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, sort = ListSort.DEFAULT)) } returns
+                    flowOf(Result.success(PagingData.from(selfMemoList)))
+                every { pageTagMemoUseCase(parameter = PageTagMemoUseCase.Parameter(tagId = tagId, scope = TagScope.CHILD, sort = ListSort.DEFAULT)) } returns
+                    flowOf(Result.success(PagingData.from(childMemoList)))
                 val viewModel = viewModel(tagId = tagId, pageTagMemoUseCase = pageTagMemoUseCase)
 
                 viewModel.memoPagingData.test {
-                    awaitItem()
+                    flowOf(awaitItem()).asSnapshot().memoList() shouldContainExactlyInAnyOrder selfMemoList
+
                     viewModel.select(scope = TagScope.CHILD)
-                    advanceUntilIdle()
-                    awaitItem()
+                    flowOf(awaitItem()).asSnapshot().memoList() shouldContainExactlyInAnyOrder childMemoList
+
+                    viewModel.select(scope = TagScope.SELF)
+                    flowOf(awaitItem()).asSnapshot().memoList() shouldContainExactlyInAnyOrder selfMemoList
                     cancelAndIgnoreRemainingEvents()
                 }
                 viewModel.viewModelScope.cancel()
                 advanceUntilIdle()
-
-                viewModel.scope.value shouldBe TagScope.CHILD
-                verify(exactly = 1) { pageTagMemoUseCase(parameter = PageTagMemoUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, sort = ListSort.DEFAULT)) }
-                verify(exactly = 1) { pageTagMemoUseCase(parameter = PageTagMemoUseCase.Parameter(tagId = tagId, scope = TagScope.CHILD, sort = ListSort.DEFAULT)) }
             }
         }
-
         test("TC-TAG-DETAIL-DATA-004 표시 범위를 바꿔도 저장소에 기록하지 않는다") {
             runTest(mainDispatcher) {
                 val finishMemoUseCase = mockk<FinishMemoUseCase>()
@@ -304,6 +308,8 @@ class TagDetailMemoViewModelTest : FunSpec() {
             deleteMemoUseCase = deleteMemoUseCase,
             restoreMemoUseCase = restoreMemoUseCase,
         )
+
+    private fun List<MemoListItem>.memoList(): List<Memo> = filterIsInstance<MemoListItem.Content>().map { item -> item.memo }
 
     private fun memo(): Memo =
         fixtureMonkey

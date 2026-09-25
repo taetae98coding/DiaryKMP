@@ -195,7 +195,7 @@ class ContactAddScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-LIST-DETAIL-FEATURE-006 단독으로 표시되면 뒤로가기를 선택해 이전 화면으로 돌아간다`() {
+    fun `TC-CONTACT-ADD-FEATURE-033 TC-CONTACT-LIST-DETAIL-FEATURE-006 단독으로 표시되면 뒤로가기를 선택해 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         composeRule.setContactAddScreen(navigateUp = { navigateUpCount++ })
 

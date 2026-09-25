@@ -52,6 +52,30 @@ class AccountMemoFilterRepositoryImplTest :
             } shouldBe failure
         }
 
+        test("저장된 선택 조회는 태그 상태와 관계없이 현재 계정에 저장된 선택 태그 식별자를 집합으로 전달한다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val tagIdList = listOf(fixtureMonkey.giveMeOne<Uuid>(), fixtureMonkey.giveMeOne<Uuid>())
+            val localDataSource = mockk<AccountMemoFilterLocalDataSource>()
+            every { localDataSource.getTagIdList(accountId = account.id) } returns flowOf(tagIdList)
+            val repository = AccountMemoFilterRepositoryImpl(accountMemoFilterLocalDataSource = localDataSource)
+
+            val tagIdSet = repository.getTagIdSet(account = account).first()
+
+            tagIdSet shouldBe tagIdList.toSet()
+        }
+
+        test("저장된 선택 조회 중 발생한 에러는 그대로 전파한다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val localDataSource = mockk<AccountMemoFilterLocalDataSource>()
+            every { localDataSource.getTagIdList(accountId = account.id) } returns flow { throw failure }
+            val repository = AccountMemoFilterRepositoryImpl(accountMemoFilterLocalDataSource = localDataSource)
+
+            shouldThrow<IllegalStateException> {
+                repository.getTagIdSet(account = account).first()
+            } shouldBe failure
+        }
+
         test("태그 선택은 현재 계정의 선택으로 저장한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val tagId = fixtureMonkey.giveMeOne<Uuid>()

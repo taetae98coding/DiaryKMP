@@ -1,5 +1,10 @@
 package io.github.taetae98coding.diary.feature.calendar.ui.home
 
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
@@ -13,6 +18,9 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.testing.TestLifecycleOwner
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeTestFixture.DEFAULT_CANCEL
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeTestFixture.DEFAULT_CONFIRM
@@ -187,6 +195,54 @@ class CalendarHomeScaffoldDatePickerDialogTest {
             .onNode(hasText(englishTitle(today.yearMonth)) and hasContentDescription(DROP_UP_DESCRIPTION))
             .assertExists()
         composeRule.onNode(hasText(text = dayCellText(today.yearMonth, day = 1), substring = true)).assert(isSelected())
+    }
+
+    @Test
+    fun `TC-CALENDAR-HOME-FEATURE-090 달 선택 중 다른 앱에 다녀와도 달 선택이 열린 채로 유지된다`() {
+        val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+
+        composeRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                DiaryTheme {
+                    CalendarHomeScaffold(onEvent = {})
+                }
+            }
+        }
+        composeRule.onNodeWithText(englishTitle(today.yearMonth)).performClick()
+
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_CONFIRM).assertExists()
+        composeRule
+            .onNode(hasText(englishTitle(today.yearMonth)) and hasContentDescription(DROP_UP_DESCRIPTION))
+            .assertExists()
+    }
+
+    @Test
+    fun `TC-CALENDAR-HOME-FEATURE-091 달 선택 중 앱을 다시 실행하면 달 선택이 닫힌 상태로 시작한다`() {
+        val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+        var launchCount by mutableIntStateOf(0)
+
+        // 앱을 다시 실행하면 저장해 둔 화면 상태가 없으므로, 새 키로 저장 상태 없이 화면을 다시 구성한다.
+        composeRule.setContent {
+            key(launchCount) {
+                DiaryTheme {
+                    CalendarHomeScaffold(onEvent = {})
+                }
+            }
+        }
+        composeRule.onNodeWithText(englishTitle(today.yearMonth)).performClick()
+        composeRule.onNodeWithText(DEFAULT_CONFIRM).assertExists()
+
+        composeRule.runOnIdle { launchCount += 1 }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_CONFIRM).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DROP_DOWN_DESCRIPTION, useUnmergedTree = true).assertExists()
+        composeRule.onNodeWithText(englishTitle(today.yearMonth)).assertIsDisplayed()
     }
 
     private fun setCalendarHomeScaffold() {

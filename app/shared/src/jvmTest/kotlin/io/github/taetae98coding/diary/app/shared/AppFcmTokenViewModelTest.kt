@@ -17,6 +17,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -73,18 +74,85 @@ class AppFcmTokenViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FCM-TOKEN-DOMAIN-020 로그아웃되어 게스트로 바뀌면 제출 계기가 발생한다") {
+        test("TC-FCM-TOKEN-DOMAIN-020 로그아웃되어 게스트로 바뀌면 앞선 제출을 기다리지 않고 제출 계기가 한 번 발생한다") {
             runTest(mainDispatcher) {
                 val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                val accountFlow = MutableStateFlow<Account>(account)
+                val submitFcmTokenUseCase = mockk<SubmitFcmTokenUseCase>()
+                coEvery { submitFcmTokenUseCase(parameter = Unit) } coAnswers { awaitCancellation() }
+                val viewModel = viewModel(accountFlow = accountFlow.toResultFlow(), submitFcmTokenUseCase = submitFcmTokenUseCase)
+
+                viewModel.account.test {
+                    awaitItem() shouldBe account
+                    viewModel.submit()
+                    advanceUntilIdle()
+
+                    accountFlow.value = Account.Guest
+                    awaitItem() shouldBe Account.Guest
+                    viewModel.submit()
+                    advanceUntilIdle()
+                    expectNoEvents()
+                }
+
+                coVerify(exactly = 2) { submitFcmTokenUseCase(parameter = Unit) }
+            }
+        }
+
+        test("TC-FCM-TOKEN-DOMAIN-003 같은 계정의 세션이 인증된 상태로 바뀌면 제출 계기가 발생한다") {
+            runTest(mainDispatcher) {
+                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = false)
+                val validAccount = account.copy(isSessionValid = true)
                 val accountFlow = MutableStateFlow<Account>(account)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
                 viewModel.account.test {
                     awaitItem() shouldBe account
-                    accountFlow.value = Account.Guest
-                    awaitItem() shouldBe Account.Guest
+                    accountFlow.value = validAccount
+                    awaitItem() shouldBe validAccount
                     expectNoEvents()
                 }
+            }
+        }
+
+        context("TC-FCM-TOKEN-DOMAIN-026 같은 계정의 계정 정보가 바뀌면 제출 계기가 발생한다") {
+            listOf<Pair<String, (Account.User) -> Account.User>>(
+                "이메일" to { account -> account.copy(email = account.email + "-changed") },
+                "프로필 이미지" to { account -> account.copy(profileImage = account.profileImage + "-changed") },
+            ).forEach { (name, change) ->
+                test(name) {
+                    runTest(mainDispatcher) {
+                        val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                        val changedAccount = change(account)
+                        val accountFlow = MutableStateFlow<Account>(account)
+                        val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
+
+                        viewModel.account.test {
+                            awaitItem() shouldBe account
+                            accountFlow.value = changedAccount
+                            awaitItem() shouldBe changedAccount
+                            expectNoEvents()
+                        }
+                    }
+                }
+            }
+        }
+
+        test("TC-FCM-TOKEN-DOMAIN-027 화면이 재생성되어 다시 관측하면 같은 계정이어도 제출 계기가 한 번 다시 발생한다") {
+            runTest(mainDispatcher) {
+                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                val accountFlow = MutableStateFlow<Account>(account)
+                val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
+
+                val firstJob = launch { viewModel.account.collect { } }
+                advanceUntilIdle()
+                firstJob.cancelAndJoin()
+
+                val accountList = mutableListOf<Account>()
+                val secondJob = launch { viewModel.account.collect { value -> accountList.add(value) } }
+                advanceUntilIdle()
+                secondJob.cancelAndJoin()
+
+                accountList shouldBe listOf(account)
             }
         }
 
@@ -104,7 +172,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
             }
         }
 
-        test("같은 계정이 다시 확인되기만 하면 제출 계기가 발생하지 않는다") {
+        test("TC-FCM-TOKEN-DOMAIN-025 같은 계정이 같은 정보로 다시 확인되기만 하면 제출 계기가 발생하지 않는다") {
             runTest(mainDispatcher) {
                 val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
                 val accountFlow = MutableStateFlow<Account>(account)

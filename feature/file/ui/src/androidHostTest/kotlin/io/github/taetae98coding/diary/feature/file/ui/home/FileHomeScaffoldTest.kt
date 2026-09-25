@@ -1,5 +1,7 @@
 package io.github.taetae98coding.diary.feature.file.ui.home
 
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -40,6 +42,21 @@ class FileHomeScaffoldTest {
 
         composeRule.onAllNodes(hasClickAction()).fetchSemanticsNodes().size shouldBe 1
         composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).assertExists()
+    }
+
+    @Test
+    @Config(qualifiers = "ko")
+    fun `TC-FILE-HOME-FEATURE-004 제목 외의 정보와 준비 중 안내를 표시하지 않는다`() {
+        setFileHomeScaffold()
+
+        val texts =
+            composeRule
+                .onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text), useUnmergedTree = true)
+                .fetchSemanticsNodes()
+                .flatMap { node -> node.config[SemanticsProperties.Text] }
+                .map { text -> text.text }
+
+        texts shouldBe listOf(KOREAN_TITLE)
     }
 
     @Test

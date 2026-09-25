@@ -8,8 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import io.github.taetae98coding.diary.compose.core.button.SearchButton
 import io.github.taetae98coding.diary.compose.core.icon.FilterIcon
-import io.github.taetae98coding.diary.compose.core.icon.SearchIcon
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.tag.ui.Res
@@ -31,11 +31,10 @@ internal fun TagHomeTopBar(
     TopAppBar(
         title = { Text(text = stringResource(Res.string.tag_home_title)) },
         actions = {
-            IconButton(onClick = { onEvent(TagHomeScaffoldEvent.ClickSearch) }) {
-                SearchIcon(
-                    contentDescription = stringResource(Res.string.tag_home_search_action_content_description),
-                )
-            }
+            SearchButton(
+                onClick = { onEvent(TagHomeScaffoldEvent.ClickSearch) },
+                contentDescription = stringResource(Res.string.tag_home_search_action_content_description),
+            )
             IconButton(
                 onClick = { onEvent(TagHomeScaffoldEvent.ClickFilter) },
                 modifier =

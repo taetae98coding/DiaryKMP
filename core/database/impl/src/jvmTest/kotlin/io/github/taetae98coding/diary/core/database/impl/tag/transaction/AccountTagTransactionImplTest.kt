@@ -8,9 +8,11 @@ import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
+import io.github.taetae98coding.diary.core.database.api.taglink.entity.TagLinkLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.tag.datasource.AccountTagSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.taglink.datasource.AccountTagLinkSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -65,7 +67,7 @@ class AccountTagTransactionImplTest :
                 .any { tag -> tag.id == tagId } shouldBe true
         }
 
-        test("TC-DATA-SYNC-DOMAIN-001 태그 생성·수정·완료·삭제·실행 취소는 업로드 대기 상태가 된다") {
+        test("TC-DATA-SYNC-DOMAIN-001 태그 생성·수정·완료·다시 시작·삭제는 업로드 대기 상태가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag()
             val updatedAt = instant()
@@ -86,17 +88,28 @@ class AccountTagTransactionImplTest :
             transaction.updateFinished(accountId, tag.id, isFinished = true, updatedAt = updatedAt)
             assertPending(accountId = accountId, tagId = tag.id)
 
-            insertWithSyncState(accountId, tag.copy(isDeleted = false), isDirty = false)
-            transaction.updateDeleted(accountId, tag.id, isDeleted = true, updatedAt = updatedAt)
-            assertPending(accountId = accountId, tagId = tag.id)
-
             insertWithSyncState(accountId, tag.copy(isFinished = true), isDirty = false)
             transaction.updateFinished(accountId, tag.id, isFinished = false, updatedAt = updatedAt)
             assertPending(accountId = accountId, tagId = tag.id)
 
-            insertWithSyncState(accountId, tag.copy(isDeleted = true), isDirty = false)
-            transaction.updateDeleted(accountId, tag.id, isDeleted = false, updatedAt = updatedAt)
+            insertWithSyncState(accountId, tag.copy(isDeleted = false), isDirty = false)
+            transaction.updateDeleted(accountId, tag.id, isDeleted = true, updatedAt = updatedAt)
             assertPending(accountId = accountId, tagId = tag.id)
+        }
+
+        test("TC-TAG-ADD-DATA-007 새 태그를 기기에 저장하면 태그와 함께 만든 연결도 업로드 대기로 기록된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val toTag = tag()
+            val newTag = tag()
+            val link = TagLinkLocalEntity(fromTagId = newTag.id, toTagId = toTag.id, isDeleted = false, updatedAt = instant(), createdAt = instant())
+            insertWithSyncState(accountId, toTag, isDirty = false)
+
+            transaction.upsert(accountId = accountId, tagList = listOf(newTag), tagLinkList = listOf(link))
+
+            syncDataSource.findPending(accountId = accountId) shouldBe listOf(newTag)
+            AccountTagLinkSyncLocalDataSourceImpl(database = database)
+                .findPending(accountId = accountId)
+                .map { pending -> pending.fromTagId to pending.toTagId } shouldBe listOf(newTag.id to toTag.id)
         }
 
         test("TC-DATA-SYNC-DOMAIN-003 같은 태그를 반복 변경해도 업로드 대상은 한 건이다") {

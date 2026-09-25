@@ -50,6 +50,7 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.titleInput
 import io.github.taetae98coding.diary.feature.tag.ui.detail.web.TAG_DETAIL_WEB_LIST_TEST_TAG
+import io.github.taetae98coding.diary.feature.tag.ui.fixtureId
 import io.github.taetae98coding.diary.feature.tag.ui.form.rememberTagDetailFormState
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagPlace
@@ -59,6 +60,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.compose.viewmodel.koinViewModel
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -392,7 +394,8 @@ class TagDetailTabScreenTest {
                     navigateToMemoFinishedList = {},
                     id = FIRST_TAG_ID,
                     componentVisibleProvider = { TagDetailScaffoldComponentVisible() },
-                    viewModel = screenTestViewModel(MutableStateFlow(tagDetailUiState(detail = tagDetail(TAG_TITLE)))),
+                    detailViewModel = screenTestViewModel(MutableStateFlow(tagDetailUiState(detail = tagDetail(TAG_TITLE)))),
+                    placeMapViewModel = koinViewModel(),
                     navigateToWebAdd = {},
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},
@@ -408,6 +411,38 @@ class TagDetailTabScreenTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithContentDescription(tabDescription).assertIsSelected()
+    }
+
+    @Test
+    fun `TC-TAG-DETAIL-FEATURE-057 목록에서 다른 태그를 선택하면 태그 디테일 탭에서 다시 시작한다`() {
+        val detailIdState = mutableStateOf(FIRST_TAG_ID)
+        composeRule.setTagDetailScreen(
+            viewModel = screenTestViewModel(MutableStateFlow(tagDetailUiState(detail = tagDetail(TAG_TITLE)))),
+            detailIdState = detailIdState,
+            viewModelFor = { id -> screenTestViewModel(MutableStateFlow(tagDetailUiState(id = id, detail = tagDetail(TAG_TITLE)))) },
+        )
+        composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
+
+        composeRule.runOnIdle { detailIdState.value = fixtureId() }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_DETAIL_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_ADD_BUTTON_DESCRIPTION).assertDoesNotExist()
+    }
+
+    @Test
+    fun `목록 탭 사이를 옮기면 추가 버튼은 그대로 남고 접근성 이름만 바뀐다`() {
+        setTagDetailScreen()
+        composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_ADD_BUTTON_DESCRIPTION).assert(hasClickAction())
+
+        composeRule.selectTagDetailTab(DEFAULT_WEB_TAB_DESCRIPTION)
+        composeRule.onNodeWithContentDescription(DEFAULT_WEB_ADD_BUTTON_DESCRIPTION).assert(hasClickAction())
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_ADD_BUTTON_DESCRIPTION).assertDoesNotExist()
+
+        composeRule.selectTagDetailTab(DEFAULT_DETAIL_TAB_DESCRIPTION)
+        composeRule.onNodeWithContentDescription(DEFAULT_WEB_ADD_BUTTON_DESCRIPTION).assertDoesNotExist()
     }
 
     private fun assertNavigateUpKeepsTab(tabDescription: String) {

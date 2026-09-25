@@ -216,6 +216,24 @@ class TagDetailScopeRestorationTest {
         composeRule.onNodeWithContentDescription(DEFAULT_SCOPE_BUTTON_DESCRIPTION).performClick()
         composeRule.onNodeWithText(DEFAULT_DESCENDANT_LABEL).assertIsSelected()
     }
+
+    @Test
+    fun `표시 범위 선택을 연 채 화면이 재생성되면 선택이 열린 상태로 돌아온다`() {
+        val restorationTester = StateRestorationTester(composeRule)
+        lateinit var scopeState: TagDetailScopeState
+
+        restorationTester.setContent {
+            scopeState = rememberTagDetailScopeState()
+            TagDetailScopeTestScaffold(scopeState = scopeState)
+        }
+
+        composeRule.onNodeWithContentDescription(DEFAULT_SCOPE_BUTTON_DESCRIPTION).performClick()
+        composeRule.onNodeWithText(DEFAULT_CHILD_LABEL).assertExists()
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        composeRule.runOnIdle { scopeState.sheetState.isVisible shouldBe true }
+        composeRule.onNodeWithText(DEFAULT_CHILD_LABEL).assertExists()
+    }
 }
 
 private fun ComposeContentTestRule.setTagDetailScaffoldWithScope(

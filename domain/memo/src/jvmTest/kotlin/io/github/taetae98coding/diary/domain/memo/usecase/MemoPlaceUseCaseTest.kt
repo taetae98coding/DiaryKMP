@@ -1,7 +1,6 @@
 package io.github.taetae98coding.diary.domain.memo.usecase
 
 import com.navercorp.fixturemonkey.FixtureMonkey
-import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.place.Place
@@ -28,7 +27,7 @@ class MemoPlaceUseCaseTest :
     BehaviorSpec({
         Given("로그인한 계정과 현재 시각이 준비되어 있다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val getAccountUseCase = accountUseCase(account = account)
             val accountMemoPlaceRepository = mockk<AccountMemoPlaceRepository>(relaxed = true)
             val requestSyncUseCase = mockk<RequestSyncUseCase>(relaxed = true)
@@ -61,7 +60,8 @@ class MemoPlaceUseCaseTest :
                     }
                 }
 
-                Then("TC-MEMO-PLACE-DATA-005 연결 변경을 서버와 맞추기 위한 동기화를 요청한다") {
+                Then("TC-MEMO-DETAIL-DATA-042 TC-MEMO-PLACE-DATA-005 장소 선택은 연결 변경을 서버와 맞추기 위한 동기화를 요청한다") {
+                    val requestSyncUseCase = mockk<RequestSyncUseCase>(relaxed = true)
                     val useCase =
                         AddMemoPlaceUseCase(
                             getAccountUseCase = getAccountUseCase,
@@ -80,11 +80,34 @@ class MemoPlaceUseCaseTest :
                         )
 
                     result.shouldBeSuccess()
-                    coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
+                    coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
                 }
             }
 
             When("장소를 해제한다") {
+                Then("TC-MEMO-DETAIL-DATA-042 장소 선택 해제는 연결 변경을 서버와 맞추기 위한 동기화를 요청한다") {
+                    val requestSyncUseCase = mockk<RequestSyncUseCase>(relaxed = true)
+                    val useCase =
+                        RemoveMemoPlaceUseCase(
+                            getAccountUseCase = getAccountUseCase,
+                            requestSyncUseCase = requestSyncUseCase,
+                            accountMemoPlaceRepository = accountMemoPlaceRepository,
+                            clock = clock,
+                        )
+
+                    val result =
+                        useCase(
+                            parameter =
+                                RemoveMemoPlaceUseCase.Parameter(
+                                    memoId = fixtureMonkey.giveMeOne<Uuid>(),
+                                    placeId = fixtureMonkey.giveMeOne<Uuid>(),
+                                ),
+                        )
+
+                    result.shouldBeSuccess()
+                    coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
+                }
+
                 Then("TC-MEMO-DETAIL-DATA-021 메모와 그 장소의 연결을 해제 상태와 해제 시점으로 저장한다") {
                     val memoId = fixtureMonkey.giveMeOne<Uuid>()
                     val placeId = fixtureMonkey.giveMeOne<Uuid>()
@@ -107,6 +130,66 @@ class MemoPlaceUseCaseTest :
                             isDeleted = true,
                             updatedAt = now,
                         )
+                    }
+                }
+            }
+        }
+
+        Given("동기화 요청이 실패하도록 준비되어 있다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val now = fixtureMonkey.giveMeOne<Instant>()
+            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val getAccountUseCase = accountUseCase(account = account)
+            val requestSyncUseCase = mockk<RequestSyncUseCase>()
+            coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.failure(throwable)
+            val accountMemoPlaceRepository = mockk<AccountMemoPlaceRepository>(relaxed = true)
+            val clock = mockk<Clock>()
+            every { clock.now() } returns now
+
+            When("장소를 추가한다") {
+                Then("TC-MEMO-DETAIL-DATA-043 저장한 장소 연결을 되돌리지 않는다") {
+                    val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                    val placeId = fixtureMonkey.giveMeOne<Uuid>()
+                    val useCase =
+                        AddMemoPlaceUseCase(
+                            getAccountUseCase = getAccountUseCase,
+                            requestSyncUseCase = requestSyncUseCase,
+                            accountMemoPlaceRepository = accountMemoPlaceRepository,
+                            clock = clock,
+                        )
+
+                    val result = useCase(parameter = AddMemoPlaceUseCase.Parameter(memoId = memoId, placeId = placeId))
+
+                    result.shouldBeSuccess()
+                    coVerify(exactly = 1) {
+                        accountMemoPlaceRepository.upsert(account = account, memoId = memoId, placeId = placeId, isDeleted = false, updatedAt = now)
+                    }
+                    coVerify(exactly = 0) {
+                        accountMemoPlaceRepository.upsert(account = account, memoId = memoId, placeId = placeId, isDeleted = true, updatedAt = any())
+                    }
+                }
+            }
+
+            When("장소를 해제한다") {
+                Then("TC-MEMO-DETAIL-DATA-043 저장한 장소 연결 해제를 되돌리지 않는다") {
+                    val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                    val placeId = fixtureMonkey.giveMeOne<Uuid>()
+                    val useCase =
+                        RemoveMemoPlaceUseCase(
+                            getAccountUseCase = getAccountUseCase,
+                            requestSyncUseCase = requestSyncUseCase,
+                            accountMemoPlaceRepository = accountMemoPlaceRepository,
+                            clock = clock,
+                        )
+
+                    val result = useCase(parameter = RemoveMemoPlaceUseCase.Parameter(memoId = memoId, placeId = placeId))
+
+                    result.shouldBeSuccess()
+                    coVerify(exactly = 1) {
+                        accountMemoPlaceRepository.upsert(account = account, memoId = memoId, placeId = placeId, isDeleted = true, updatedAt = now)
+                    }
+                    coVerify(exactly = 0) {
+                        accountMemoPlaceRepository.upsert(account = account, memoId = memoId, placeId = placeId, isDeleted = false, updatedAt = any())
                     }
                 }
             }
@@ -154,7 +237,7 @@ class MemoPlaceUseCaseTest :
         Given("로그인한 계정과 메모에 연결된 장소가 준비되어 있다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val memoId = fixtureMonkey.giveMeOne<Uuid>()
-            val placeList = List(2) { place() }
+            val placeList = List(2) { fixtureMonkey.giveMeOne<Place>() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountMemoPlaceRepository = mockk<AccountMemoPlaceRepository>()
@@ -196,13 +279,6 @@ class MemoPlaceUseCaseTest :
     public companion object {
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
-
-        private fun place(): Place =
-            fixtureMonkey
-                .giveMeKotlinBuilder<Place>()
-                .setExp(Place::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Place::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .sample()
 
         private fun accountUseCase(account: Account = fixtureMonkey.giveMeOne<Account.User>()): GetAccountUseCase {
             val getAccountUseCase = mockk<GetAccountUseCase>()

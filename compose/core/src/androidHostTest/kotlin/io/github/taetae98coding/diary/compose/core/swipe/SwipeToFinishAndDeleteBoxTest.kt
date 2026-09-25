@@ -162,6 +162,45 @@ class SwipeToFinishAndDeleteBoxTest {
         composeRule.onNodeWithText(CONTENT_TEXT).assertIsDisplayed()
     }
 
+    @Test
+    fun `TC-SWIPE-TO-FINISH-AND-DELETE-DOMAIN-002 실행 취소로 다시 나타난 카드는 실행 전 상태로 표시되고 동작을 다시 실행하지 않는다`() {
+        val key = fixtureMonkey.giveMeOne<Long>()
+        var isShown by mutableStateOf(true)
+        var finishCount = 0
+        var deleteCount = 0
+        composeRule.setContent {
+            DiaryTheme {
+                if (isShown) {
+                    SwipeToFinishAndDeleteBox(
+                        key = key,
+                        onFinish = { finishCount += 1 },
+                        onDelete = { deleteCount += 1 },
+                        finishContentDescription = FINISH_DESCRIPTION,
+                        deleteContentDescription = DELETE_DESCRIPTION,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Content()
+                    }
+                }
+            }
+        }
+        composeRule.onNodeWithText(CONTENT_TEXT).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+        deleteCount shouldBe 1
+
+        // 동작이 반영되면 카드가 목록에서 사라지고, 실행 취소하면 같은 항목의 카드가 다시 나타난다.
+        composeRule.runOnIdle { isShown = false }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { isShown = true }
+        composeRule.waitForIdle()
+
+        finishCount shouldBe 0
+        deleteCount shouldBe 1
+        composeRule.onNodeWithText(CONTENT_TEXT).assertIsDisplayed()
+        composeRule.onNodeWithContentDescription(FINISH_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DELETE_DESCRIPTION).assertDoesNotExist()
+    }
+
     // 구현 계약 회귀 테스트: 실행 기준 전 원형 아이콘은 작게, 기준을 넘은 동작 아이콘은 크게 표시되어야 한다.
     // AnimatedContent에 고정 크기를 주면 자식이 그 크기 제약을 그대로 물려받아 원형 아이콘이 동작 아이콘 크기로
     // 확대되던 결함(Modifier.size는 부모 제약에 종속)의 재발을 막는다.

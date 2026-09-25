@@ -18,8 +18,10 @@ import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
+import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.place.Place
+import io.github.taetae98coding.diary.core.model.tag.TagScope
 import kotlinx.coroutines.flow.flowOf
 
 @Composable
@@ -29,13 +31,14 @@ internal fun TagDetailPlaceTab(
     state: TagDetailPlaceState = rememberTagDetailPlaceState(),
     sortSheetState: DialogState = rememberDialogState(),
     uiStateProvider: () -> TagDetailPlaceUiState = { TagDetailPlaceUiState.Loading },
+    mapState: DiaryMapState = rememberTagDetailPlaceMapState(uiState = uiStateProvider()),
     placeListUiStateProvider: () -> TagDetailPlaceListUiState = { TagDetailPlaceListUiState() },
     placePagingItems: LazyPagingItems<Place> = remember { flowOf(PagingData.empty<Place>()) }.collectAsLazyPagingItems(),
     isRefreshingProvider: () -> Boolean = { false },
     sortProvider: () -> ListSort = { ListSort.TITLE },
+    scopeProvider: () -> TagScope = { TagScope.SELF },
 ) {
     val uiState = uiStateProvider()
-    val mapState = rememberTagDetailPlaceMapState(uiState = uiState)
 
     TagDetailPlaceMoveMapEffect(
         onEvent = onEvent,
@@ -43,22 +46,12 @@ internal fun TagDetailPlaceTab(
     )
 
     Column(modifier = modifier) {
-        DiaryListSortBarHost(
-            onClick = { onEvent(TagDetailPlaceContentEvent.ClickSort) },
-            modifier = Modifier.fillMaxWidth(),
+        TagDetailPlaceSortBar(
+            onEvent = onEvent,
+            state = state,
+            placeListUiStateProvider = placeListUiStateProvider,
+            placePagingItems = placePagingItems,
             sortProvider = sortProvider,
-            isSortVisibleProvider = {
-                when (state.viewMode) {
-                    TagDetailPlaceViewMode.LIST -> placePagingItems.itemCount > 0
-                    TagDetailPlaceViewMode.MAP -> placeListUiStateProvider().placeList.isNotEmpty()
-                }
-            },
-            trailing = {
-                TagDetailPlaceViewModeButton(
-                    onClick = state::toggleViewMode,
-                    viewModeProvider = { state.viewMode },
-                )
-            },
         )
 
         DiaryCrossfade(
@@ -73,6 +66,7 @@ internal fun TagDetailPlaceTab(
                         placePagingItems = placePagingItems,
                         isRefreshingProvider = isRefreshingProvider,
                         sortProvider = sortProvider,
+                        scopeProvider = scopeProvider,
                     )
 
                 TagDetailPlaceViewMode.MAP ->
@@ -87,6 +81,7 @@ internal fun TagDetailPlaceTab(
                                 placeListUiStateProvider = placeListUiStateProvider,
                                 isRefreshingProvider = isRefreshingProvider,
                                 sortProvider = sortProvider,
+                                scopeProvider = scopeProvider,
                             )
                     }
             }
@@ -97,6 +92,33 @@ internal fun TagDetailPlaceTab(
         onSelect = { sort -> onEvent(TagDetailPlaceContentEvent.SelectSort(sort = sort)) },
         state = sortSheetState,
         sortProvider = sortProvider,
+    )
+}
+
+@Composable
+private fun TagDetailPlaceSortBar(
+    onEvent: (TagDetailPlaceContentEvent) -> Unit,
+    state: TagDetailPlaceState,
+    placeListUiStateProvider: () -> TagDetailPlaceListUiState,
+    placePagingItems: LazyPagingItems<Place>,
+    sortProvider: () -> ListSort,
+) {
+    DiaryListSortBarHost(
+        onClick = { onEvent(TagDetailPlaceContentEvent.ClickSort) },
+        modifier = Modifier.fillMaxWidth(),
+        sortProvider = sortProvider,
+        isSortVisibleProvider = {
+            when (state.viewMode) {
+                TagDetailPlaceViewMode.LIST -> placePagingItems.itemCount > 0
+                TagDetailPlaceViewMode.MAP -> placeListUiStateProvider().placeList.isNotEmpty()
+            }
+        },
+        trailing = {
+            TagDetailPlaceViewModeButton(
+                onClick = state::toggleViewMode,
+                viewModeProvider = { state.viewMode },
+            )
+        },
     )
 }
 

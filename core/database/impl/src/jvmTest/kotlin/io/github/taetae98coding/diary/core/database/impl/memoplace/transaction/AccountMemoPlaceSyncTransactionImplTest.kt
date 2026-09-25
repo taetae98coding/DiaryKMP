@@ -164,7 +164,7 @@ class AccountMemoPlaceSyncTransactionImplTest :
             isPending(accountId = accountId, memoPlace = local) shouldBe true
         }
 
-        test("TC-MEMO-PLACE-DATA-008 기기에 없던 연결은 새로 저장되고 동기화 완료로 기록된다") {
+        test("TC-DATA-SYNC-DATA-025 기기에 없던 연결은 새로 저장되고 동기화 완료로 기록된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val remote = memoPlace()
 
@@ -172,6 +172,18 @@ class AccountMemoPlaceSyncTransactionImplTest :
 
             findMemoPlace(memoId = remote.memoId) shouldBe listOf(remote)
             syncDataSource.findPending(accountId = accountId).shouldBeEmpty()
+        }
+
+        test("TC-MEMO-PLACE-DATA-008 서버 수정 시각이 기기보다 늦은 연결은 응답대로 저장되고 내려받기 위치가 갱신된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val local = memoPlace(updatedAt = Instant.fromEpochMilliseconds(1_000))
+            val remote = local.copy(isDeleted = !local.isDeleted, updatedAt = Instant.fromEpochMilliseconds(2_000))
+            insertWithSyncState(accountId, local, isDirty = false)
+
+            transaction.save(accountId = accountId, memoPlaceList = listOf(remote), cursor = 8L)
+
+            findMemoPlace(memoId = local.memoId) shouldBe listOf(remote)
+            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.MEMO_PLACE) shouldBe 8L
         }
 
         test("TC-DATA-SYNC-DATA-026 내려받기 저장이 실패하면 연결과 커서가 모두 반영되지 않는다") {

@@ -6,6 +6,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextReplacement
@@ -160,6 +161,44 @@ class PlaceDetailScreenUpdateTest {
             .size shouldBe 1
         composeRule.input(TITLE_INDEX).assert(hasText(detail.title))
         composeRule.input(DESCRIPTION_INDEX).assert(hasText(CHANGED_DESCRIPTION))
+    }
+
+    @Test
+    fun `TC-PLACE-DETAIL-FEATURE-054 수정 저장에 실패하면 안내 없이 입력을 유지하고 수정 반영을 다시 실행할 수 있다`() {
+        val detail = placeDetail()
+        val id = Uuid.random()
+        val uiState = MutableStateFlow(content(id = id, detail = detail))
+        val viewModel = screenTestViewModel(uiState = uiState)
+        every { viewModel.update(any()) } answers {
+            uiState.value = content(id = id, detail = detail, isUpdateInProgress = true)
+            uiState.value = content(id = id, detail = detail, isUpdateInProgress = false)
+        }
+        var navigateUpCount = 0
+        composeRule.setPlaceDetailScreen(viewModel = viewModel, navigateUp = { navigateUpCount++ })
+
+        composeRule.input(TITLE_INDEX).performTextReplacement(CHANGED_TITLE)
+        composeRule.input(LATITUDE_INDEX).performTextReplacement(CHANGED_LATITUDE)
+        composeRule.input(LONGITUDE_INDEX).performTextReplacement(CHANGED_LONGITUDE)
+        composeRule.triggerUpdate()
+
+        navigateUpCount shouldBe 0
+        composeRule.onNodeWithText(DEFAULT_UPDATE_SUCCEEDED_MESSAGE).assertDoesNotExist()
+        composeRule.input(TITLE_INDEX).assert(hasText(CHANGED_TITLE))
+        composeRule.input(LATITUDE_INDEX).assert(hasText(CHANGED_LATITUDE))
+        composeRule.input(LONGITUDE_INDEX).assert(hasText(CHANGED_LONGITUDE))
+        composeRule
+            .onAllNodes(hasText(detail.title))
+            .fetchSemanticsNodes()
+            .size shouldBe 1
+
+        composeRule.triggerUpdate()
+
+        val changedDetail =
+            detail.copy(
+                title = CHANGED_TITLE,
+                coordinate = Coordinate(latitude = CHANGED_LATITUDE.toDouble(), longitude = CHANGED_LONGITUDE.toDouble()),
+            )
+        verify(exactly = 2) { viewModel.update(detail = changedDetail) }
     }
 
     private fun ComposeContentTestRule.triggerUpdate() {

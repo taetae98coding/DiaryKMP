@@ -135,7 +135,7 @@ class CalendarHomeMemoViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val useCase = mockk<GetCalendarMemoUseCase>()
                 every { useCase(parameter = any()) } returns
-                    flowOf(Result.failure(IllegalStateException("memo get failed")))
+                    flowOf(Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())))
                 val viewModel = memoViewModel(getCalendarMemoUseCase = useCase)
 
                 viewModel.fetch(YearMonth(year = 2026, month = Month.JULY))
@@ -170,7 +170,7 @@ class CalendarHomeMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("선택한 태그가 있으면 필터 적용 상태를 노출한다") {
+        test("TC-CALENDAR-HOME-FEATURE-086 선택한 태그가 있으면 필터 적용 상태를 노출한다") {
             runTest(mainDispatcher) {
                 val selectedTagList = listOf(tag())
                 val viewModel =
@@ -186,6 +186,24 @@ class CalendarHomeMemoViewModelTest : FunSpec() {
                     advanceUntilIdle()
                     awaitItem() shouldBe CalendarHomeScaffoldFilterUiState(isApplied = true)
                     cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("TC-CALENDAR-HOME-FEATURE-086 선택한 태그가 없으면 필터 적용 상태를 노출하지 않는다") {
+            runTest(mainDispatcher) {
+                val viewModel =
+                    memoViewModel(
+                        getCalendarFilterUseCase =
+                            calendarFilterUseCase(
+                                flow = flowOf(Result.success(emptyList())),
+                            ),
+                    )
+
+                viewModel.filterUiState.test {
+                    awaitItem() shouldBe CalendarHomeScaffoldFilterUiState()
+                    advanceUntilIdle()
+                    expectNoEvents()
                 }
             }
         }

@@ -9,6 +9,7 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
+import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateProvider
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
@@ -37,23 +38,8 @@ public fun EntryProviderScope<ScreenNavKey>.webEntry(backStack: NavBackStack<Scr
 
 private fun EntryProviderScope<ScreenNavKey>.webHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<WebHomeNavKey>(
-        metadata =
-            ListDetailSceneStrategy.listPane(
-                sceneKey = WebHomeNavKey,
-                detailPlaceholder = {
-                    val tagAddRequestKey = rememberResultRequestKey()
-
-                    WebAddScreen(
-                        navigateUp = {},
-                        navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
-                        navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
-                        tagAddRequestKey = tagAddRequestKey,
-                        componentVisibleProvider = { WebAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
-                        addViewModel = koinViewModel(),
-                        tagViewModel = koinViewModel { parametersOf(null) },
-                    )
-                },
-            ) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION),
+        clazzContentKey = { WEB_HOME_CONTENT_KEY },
+        metadata = webHomeListPaneMetadata(backStack = backStack),
     ) {
         val isDetailPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.Detail)
 
@@ -68,6 +54,28 @@ private fun EntryProviderScope<ScreenNavKey>.webHomeEntry(backStack: NavBackStac
         )
     }
 }
+
+internal const val WEB_HOME_CONTENT_KEY: String = "WebHomeNavKey"
+
+internal fun webHomeListPaneMetadata(backStack: NavBackStack<ScreenNavKey>): Map<String, Any> =
+    ListDetailSceneStrategy.listPane(
+        sceneKey = WebHomeNavKey,
+        detailPlaceholder = {
+            ListDetailPlaceholderStateProvider(listContentKey = WEB_HOME_CONTENT_KEY) {
+                val tagAddRequestKey = rememberResultRequestKey()
+
+                WebAddScreen(
+                    navigateUp = {},
+                    navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+                    navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
+                    tagAddRequestKey = tagAddRequestKey,
+                    componentVisibleProvider = { WebAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
+                    addViewModel = koinViewModel(),
+                    tagViewModel = koinViewModel { parametersOf(null) },
+                )
+            }
+        },
+    ) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION)
 
 private fun EntryProviderScope<ScreenNavKey>.webAddEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<WebAddNavKey>(

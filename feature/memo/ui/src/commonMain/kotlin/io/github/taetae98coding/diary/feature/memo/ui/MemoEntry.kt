@@ -13,6 +13,7 @@ import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.compose.core.result.rememberResultRequestKey
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_FRACTION
+import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateProvider
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
@@ -65,11 +66,8 @@ private fun EntryProviderScope<ScreenNavKey>.memoHomeEntry(
     homeReselectEvent: Flow<Unit>,
 ) {
     entry<MemoHomeNavKey>(
-        metadata =
-            ListDetailSceneStrategy.listPane(
-                sceneKey = MemoHomeNavKey,
-                detailPlaceholder = { MemoAddDetailPlaceholder(backStack = backStack) },
-            ) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION),
+        clazzContentKey = { MEMO_HOME_CONTENT_KEY },
+        metadata = memoHomeListPaneMetadata(backStack = backStack),
     ) {
         val isDetailPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.Detail)
         val listState = rememberLazyListState()
@@ -91,13 +89,7 @@ private fun EntryProviderScope<ScreenNavKey>.memoHomeEntry(
             navigateToSearch = {
                 backStack.add(SearchHomeNavKey(initialType = SearchHomeType.MEMO))
             },
-            navigateToDetail = { id ->
-                if (backStack.lastOrNull() is MemoDetailNavKey) {
-                    backStack.removeLastOrNull()
-                }
-
-                backStack.add(MemoDetailNavKey(id))
-            },
+            navigateToDetail = { id -> backStack.navigateToMemoDetailFromHome(id) },
             componentVisibleProvider = {
                 val isMemoDetailVisible = backStack.lastOrNull() is MemoDetailNavKey
                 val isAddPaneVisible = isDetailPaneVisible && !isMemoDetailVisible
@@ -116,10 +108,7 @@ private fun EntryProviderScope<ScreenNavKey>.memoHomeFilterEntry(backStack: NavB
         metadata = BottomSheetSceneStrategy.bottomSheet(),
     ) {
         MemoHomeFilterContent(
-            navigateToTagAdd = {
-                backStack.removeLastOrNull()
-                backStack.add(TagAddNavKey())
-            },
+            navigateToTagAdd = { backStack.navigateToTagAddFromMemoHomeFilter() },
         )
     }
 }
@@ -183,10 +172,7 @@ private fun EntryProviderScope<ScreenNavKey>.memoDetailEntry(backStack: NavBackS
 
         MemoDetailScreen(
             navigateUp = { backStack.removeLastOrNull() },
-            navigateToCopiedMemo = { id ->
-                backStack.removeLastOrNull()
-                backStack.add(MemoDetailNavKey(id))
-            },
+            navigateToCopiedMemo = { id -> backStack.navigateToCopiedMemo(id) },
             navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
             navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id)) },
             navigateToWebAdd = { backStack.add(WebAddNavKey()) },
@@ -221,6 +207,18 @@ private fun NavBackStack<ScreenNavKey>.memoListDetailPaneMetadata(key: ScreenNav
 
     return ListDetailSceneStrategy.detailPane(sceneKey = sceneKey) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION)
 }
+
+internal const val MEMO_HOME_CONTENT_KEY: String = "MemoHomeNavKey"
+
+internal fun memoHomeListPaneMetadata(backStack: NavBackStack<ScreenNavKey>): Map<String, Any> =
+    ListDetailSceneStrategy.listPane(
+        sceneKey = MemoHomeNavKey,
+        detailPlaceholder = {
+            ListDetailPlaceholderStateProvider(listContentKey = MEMO_HOME_CONTENT_KEY) {
+                MemoAddDetailPlaceholder(backStack = backStack)
+            }
+        },
+    ) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION)
 
 internal fun List<ScreenNavKey>.memoDetailPaneSceneKey(key: ScreenNavKey): ScreenNavKey? =
     findMemoDetailPaneListKey(key) { belowKey ->

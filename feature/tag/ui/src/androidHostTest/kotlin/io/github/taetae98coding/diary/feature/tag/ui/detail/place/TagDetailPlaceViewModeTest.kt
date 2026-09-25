@@ -5,10 +5,12 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.core.model.place.Place
@@ -37,6 +39,27 @@ class TagDetailPlaceViewModeTest {
         composeRule.onNodeWithText(PLACE_TITLE).assertIsDisplayed()
         composeRule.onNodeWithContentDescription(DEFAULT_SHOW_MAP_DESCRIPTION).assert(hasClickAction())
         composeRule.onNodeWithContentDescription(DEFAULT_SHOW_LIST_DESCRIPTION).assertDoesNotExist()
+    }
+
+    @Test
+    fun `목록 모드에서 보기 모드 전환 버튼을 길게 누르면 접근성 이름과 같은 설명을 표시한다`() {
+        setPlaceTab(pagingData = tagEntityPagingData(itemList = listOf(tagPlace(title = PLACE_TITLE))))
+
+        composeRule.onNodeWithContentDescription(DEFAULT_SHOW_MAP_DESCRIPTION).performTouchInput { longClick() }
+
+        composeRule.onNodeWithText(DEFAULT_SHOW_MAP_DESCRIPTION).assertExists()
+    }
+
+    @Test
+    fun `지도 모드에서 보기 모드 전환 버튼을 길게 누르면 접근성 이름과 같은 설명을 표시한다`() {
+        setPlaceTab(
+            state = TagDetailPlaceState(initialViewMode = TagDetailPlaceViewMode.MAP),
+            pagingData = tagEntityPagingData(itemList = listOf(tagPlace(title = PLACE_TITLE))),
+        )
+
+        composeRule.onNodeWithContentDescription(DEFAULT_SHOW_LIST_DESCRIPTION).performTouchInput { longClick() }
+
+        composeRule.onNodeWithText(DEFAULT_SHOW_LIST_DESCRIPTION).assertExists()
     }
 
     @Test
@@ -96,7 +119,7 @@ class TagDetailPlaceViewModeTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-DOMAIN-006 화면이 재생성되어도 바꿔 둔 보기 모드를 유지한다`() {
+    fun `TC-TAG-DETAIL-PLACE-DOMAIN-006 화면이 회전하거나 창 크기가 바뀌어도 바꿔 둔 보기 모드를 유지한다`() {
         val place = tagPlace(title = PLACE_TITLE)
         val pagingDataFlow = MutableStateFlow(tagEntityPagingData(itemList = listOf(place)))
         val restorationTester = StateRestorationTester(composeRule)

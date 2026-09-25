@@ -142,6 +142,47 @@ class MemoFinishedListScreenTest {
     }
 
     @Test
+    fun `TC-MEMO-FINISHED-LIST-FEATURE-025 안내가 보이는 동안 다른 메모를 삭제하면 삭제 안내만 남고 실행 취소는 삭제에만 적용된다`() {
+        val environment = screenTestEnvironment()
+        val otherMemoId = fixtureMonkey.giveMeOne<Uuid>()
+        justRun { environment.viewModel.restore(id = otherMemoId) }
+        setMemoFinishedListScreen(environment.viewModel)
+
+        composeRule.onNodeWithText(MEMO_TITLE).performTouchInput { swipeRight() }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_RESTARTED_MESSAGE).assertExists()
+
+        environment.effectChannel.trySend(MemoFinishedListEffect.Deleted(id = otherMemoId)).getOrThrow()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_RESTARTED_MESSAGE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_DELETED_MESSAGE).assertExists()
+
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { environment.viewModel.restore(id = otherMemoId) }
+        verify(exactly = 0) { environment.viewModel.finish(id = any()) }
+    }
+
+    @Test
+    fun `TC-MEMO-FINISHED-LIST-FEATURE-027 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
+        val environment = screenTestEnvironment()
+        setMemoFinishedListScreen(environment.viewModel)
+
+        composeRule.onNodeWithText(MEMO_TITLE).performTouchInput { swipeRight() }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_RESTARTED_MESSAGE).assertExists()
+
+        composeRule.mainClock.advanceTimeBy(AFTER_UNDO_SNACKBAR_DISMISS_MILLIS)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_RESTARTED_MESSAGE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).assertDoesNotExist()
+        verify(exactly = 0) { environment.viewModel.finish(id = any()) }
+    }
+
+    @Test
     fun `TC-MEMO-FINISHED-LIST-FEATURE-019 메모를 선택하면 그 메모의 상세로 이동한다`() {
         val environment = screenTestEnvironment()
         val navigatedIdList = mutableListOf<Uuid>()
@@ -192,6 +233,7 @@ class MemoFinishedListScreenTest {
     }
 
     public companion object {
+        private const val AFTER_UNDO_SNACKBAR_DISMISS_MILLIS = 11_000L
         private const val LIST_ITEM_TIMEOUT_MILLIS = 5_000L
         private const val MEMO_TITLE = "MemoFinishedListScreenTitle"
         private const val DEFAULT_TITLE = "Finished Memos"
@@ -234,6 +276,7 @@ class MemoFinishedListScreenTest {
             return ScreenTestEnvironment(
                 memo = memo,
                 viewModel = viewModel,
+                effectChannel = effectChannel,
             )
         }
     }
@@ -242,4 +285,5 @@ class MemoFinishedListScreenTest {
 private class ScreenTestEnvironment(
     val memo: Memo,
     val viewModel: MemoFinishedListViewModel,
+    val effectChannel: Channel<MemoFinishedListEffect>,
 )

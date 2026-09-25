@@ -20,6 +20,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.memo.usecase.DeleteMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.FinishMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoExistenceFilterUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterTagIdUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoHomeUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestartMemoUseCase
@@ -81,17 +82,27 @@ class MemoHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("메모 완료에 실패하면 Effect를 보내지 않는다") {
+        test("TC-MEMO-HOME-FEATURE-068 메모 완료가 저장되지 못하면 안내 Effect를 보내지 않고 메모가 목록에 남는다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memo = datedMemo()
+                val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
+                every { pageMemoHomeUseCase(parameter = ListSort.DEFAULT) } returns flowOf(Result.success(PagingData.from(listOf(memo))))
                 val finishMemoUseCase = mockk<FinishMemoUseCase>()
                 coEvery { finishMemoUseCase(any()) } returns Result.failure(IllegalStateException())
-                val viewModel = viewModel(finishMemoUseCase = finishMemoUseCase)
+                val viewModel = viewModel(pageMemoHomeUseCase = pageMemoHomeUseCase, finishMemoUseCase = finishMemoUseCase)
 
                 viewModel.effect.test {
-                    viewModel.finish(id = memoId)
+                    viewModel.finish(id = memo.id)
                     advanceUntilIdle()
 
+                    expectNoEvents()
+                }
+
+                viewModel.memoPagingData.test {
+                    flowOf(awaitItem())
+                        .asSnapshot()
+                        .filterIsInstance<MemoListItem.Content>()
+                        .map { item -> item.memo } shouldBe listOf(memo)
                     expectNoEvents()
                 }
             }
@@ -134,17 +145,27 @@ class MemoHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("메모 삭제에 실패하면 Effect를 보내지 않는다") {
+        test("TC-MEMO-HOME-FEATURE-068 메모 삭제가 저장되지 못하면 안내 Effect를 보내지 않고 메모가 목록에 남는다") {
             runTest(mainDispatcher) {
-                val memoId = fixtureMonkey.giveMeOne<Uuid>()
+                val memo = datedMemo()
+                val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
+                every { pageMemoHomeUseCase(parameter = ListSort.DEFAULT) } returns flowOf(Result.success(PagingData.from(listOf(memo))))
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
                 coEvery { deleteMemoUseCase(any()) } returns Result.failure(IllegalStateException())
-                val viewModel = viewModel(deleteMemoUseCase = deleteMemoUseCase)
+                val viewModel = viewModel(pageMemoHomeUseCase = pageMemoHomeUseCase, deleteMemoUseCase = deleteMemoUseCase)
 
                 viewModel.effect.test {
-                    viewModel.delete(id = memoId)
+                    viewModel.delete(id = memo.id)
                     advanceUntilIdle()
 
+                    expectNoEvents()
+                }
+
+                viewModel.memoPagingData.test {
+                    flowOf(awaitItem())
+                        .asSnapshot()
+                        .filterIsInstance<MemoListItem.Content>()
+                        .map { item -> item.memo } shouldBe listOf(memo)
                     expectNoEvents()
                 }
             }
@@ -205,6 +226,57 @@ class MemoHomeViewModelTest : FunSpec() {
                     awaitItem() shouldBe MemoHomeScaffoldFilterUiState()
                     advanceUntilIdle()
                     awaitItem() shouldBe MemoHomeScaffoldFilterUiState(selectedTagIdSet = selectedTagList.map { tag -> tag.id }.toSet())
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("선택한 태그가 선택할 수 없게 되어도 목록 위치 되돌림 기준은 바뀌지 않는다") {
+            runTest(mainDispatcher) {
+                val selectedTag = tag()
+                val filterFlow = MutableStateFlow(Result.success(listOf(selectedTag)))
+                val viewModel =
+                    viewModel(
+                        getMemoFilterUseCase = filterUseCase(filterFlow = filterFlow),
+                        getMemoFilterTagIdUseCase = filterTagIdUseCase(tagIdSetFlow = flowOf(Result.success(setOf(selectedTag.id)))),
+                    )
+
+                viewModel.filterUiState.test {
+                    awaitItem()
+                    advanceUntilIdle()
+                    val selected = expectMostRecentItem()
+
+                    filterFlow.value = Result.success(emptyList())
+                    advanceUntilIdle()
+                    val ignored = awaitItem()
+
+                    ignored.isApplied shouldBe false
+                    ignored.listQueryFilter shouldBe selected.listQueryFilter
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("저장된 선택이 바뀌면 목록 위치 되돌림 기준도 바뀐다") {
+            runTest(mainDispatcher) {
+                val firstTagId = fixtureMonkey.giveMeOne<Uuid>()
+                val secondTagId = fixtureMonkey.giveMeOne<Uuid>()
+                val tagIdSetFlow = MutableStateFlow(Result.success(setOf(firstTagId)))
+                val viewModel =
+                    viewModel(
+                        getMemoFilterUseCase = filterUseCase(filterFlow = flowOf(Result.success(emptyList()))),
+                        getMemoFilterTagIdUseCase = filterTagIdUseCase(tagIdSetFlow = tagIdSetFlow),
+                    )
+
+                viewModel.filterUiState.test {
+                    awaitItem()
+                    advanceUntilIdle()
+                    expectMostRecentItem().listQueryFilter.storedTagIdSet shouldBe setOf(firstTagId)
+
+                    tagIdSetFlow.value = Result.success(setOf(firstTagId, secondTagId))
+                    advanceUntilIdle()
+
+                    awaitItem().listQueryFilter.storedTagIdSet shouldBe setOf(firstTagId, secondTagId)
                     cancelAndIgnoreRemainingEvents()
                 }
             }
@@ -341,6 +413,7 @@ class MemoHomeViewModelTest : FunSpec() {
 
         private fun viewModel(
             getMemoFilterUseCase: GetMemoFilterUseCase = filterUseCase(filterFlow = emptyFlow()),
+            getMemoFilterTagIdUseCase: GetMemoFilterTagIdUseCase = filterTagIdUseCase(),
             getMemoExistenceFilterUseCase: GetMemoExistenceFilterUseCase = existenceFilterUseCase(),
             pageMemoHomeUseCase: PageMemoHomeUseCase = memoUseCase(),
             finishMemoUseCase: FinishMemoUseCase = mockk(),
@@ -350,6 +423,7 @@ class MemoHomeViewModelTest : FunSpec() {
         ): MemoHomeViewModel =
             MemoHomeViewModel(
                 getMemoFilterUseCase = getMemoFilterUseCase,
+                getMemoFilterTagIdUseCase = getMemoFilterTagIdUseCase,
                 getMemoExistenceFilterUseCase = getMemoExistenceFilterUseCase,
                 pageMemoHomeUseCase = pageMemoHomeUseCase,
                 finishMemoUseCase = finishMemoUseCase,
@@ -363,6 +437,13 @@ class MemoHomeViewModelTest : FunSpec() {
             every { getMemoExistenceFilterUseCase(parameter = Unit) } returns existenceFlow
 
             return getMemoExistenceFilterUseCase
+        }
+
+        private fun filterTagIdUseCase(tagIdSetFlow: Flow<Result<Set<Uuid>>> = flowOf(Result.success(emptySet()))): GetMemoFilterTagIdUseCase {
+            val getMemoFilterTagIdUseCase = mockk<GetMemoFilterTagIdUseCase>()
+            every { getMemoFilterTagIdUseCase(parameter = Unit) } returns tagIdSetFlow
+
+            return getMemoFilterTagIdUseCase
         }
 
         private fun filterUseCase(filterFlow: Flow<Result<List<Tag>>>): GetMemoFilterUseCase {

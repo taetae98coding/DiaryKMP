@@ -63,7 +63,7 @@ class CalendarHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `선택되지 않은 태그를 누르면 선택 Event를 전달한다`() {
+    fun `TC-CALENDAR-HOME-FEATURE-049 선택되지 않은 태그를 누르면 선택 Event를 전달한다`() {
         val tag = tag(title = FIRST_TAG_TITLE)
         val eventList = mutableListOf<TagFilterEvent>()
         setBottomSheetContent(
@@ -77,7 +77,7 @@ class CalendarHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `선택된 태그를 누르면 선택 해제 Event를 전달한다`() {
+    fun `TC-CALENDAR-HOME-FEATURE-051 선택된 태그를 누르면 선택 해제 Event를 전달한다`() {
         val tag = tag(title = FIRST_TAG_TITLE)
         val eventList = mutableListOf<TagFilterEvent>()
         setBottomSheetContent(

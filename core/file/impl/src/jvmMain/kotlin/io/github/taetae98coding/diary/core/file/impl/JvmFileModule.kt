@@ -6,6 +6,8 @@ import io.github.taetae98coding.diary.library.applicationsupport.applicationSupp
 import org.koin.core.annotation.Configuration
 import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Module
+import java.nio.file.Path
+import java.nio.file.Paths
 
 @Module
 @Configuration
@@ -16,7 +18,12 @@ public class JvmFileModule {
         @AppFileDirectoryName
         directoryName: String,
     ): String =
-        applicationSupportDirectory(directoryName = directoryName)
+        resolveAppFileDirectory(userHome = Paths.get(System.getProperty("user.home")), directoryName = directoryName)
             .toAbsolutePath()
             .toString()
 }
+
+internal fun resolveAppFileDirectory(
+    userHome: Path,
+    directoryName: String,
+): Path = applicationSupportDirectory(directoryName = directoryName, userHome = userHome)

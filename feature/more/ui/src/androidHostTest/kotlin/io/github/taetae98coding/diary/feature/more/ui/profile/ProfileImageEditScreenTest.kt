@@ -37,6 +37,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -66,7 +67,8 @@ class ProfileImageEditScreenTest {
                 .intercept(SQUARE_URI, ColorImage(color = IMAGE_COLOR, width = SQUARE_SIZE, height = SQUARE_SIZE))
                 .intercept({ data -> data == UNREADABLE_URI }) { chain ->
                     ErrorResult(image = null, request = chain.request, throwable = IllegalStateException("Unreadable photo."))
-                }.build()
+                }.intercept({ data -> data == LOADING_URI }) { awaitCancellation() }
+                .build()
 
         SingletonImageLoader.setUnsafe(
             ImageLoader
@@ -112,6 +114,17 @@ class ProfileImageEditScreenTest {
         composeRule.onNodeWithText(DEFAULT_EMPTY_MESSAGE).assertDoesNotExist()
         composeRule.onNodeWithContentDescription(DEFAULT_APPLY_DESCRIPTION).assertIsDisplayed()
         composeRule.onNodeWithText(DEFAULT_CHOOSE_PHOTO_LABEL).assertIsEnabled()
+    }
+
+    @Test
+    fun `TC-PROFILE-IMAGE-EDIT-FEATURE-014 고른 사진을 읽는 동안 불러오는 중을 표시하고 반영을 실행할 수 없다`() {
+        setProfileImageEditScreen(viewModel = screenTestViewModel(), photoPicker = screenTestPhotoPicker(LOADING_URI))
+
+        choosePhoto()
+
+        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
+        composeRule.onNodeWithText(DEFAULT_EMPTY_MESSAGE).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_APPLY_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
@@ -173,7 +186,10 @@ class ProfileImageEditScreenTest {
 
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
         composeRule.onNodeWithText(DEFAULT_CHOOSE_PHOTO_LABEL).assertIsNotEnabled()
-        composeRule.onNodeWithContentDescription(DEFAULT_APPLY_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_APPLY_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 0) { viewModel.changeProfileImage(uri = any(), cropRegion = any()) }
     }
 
     @Test
@@ -480,6 +496,7 @@ class ProfileImageEditScreenTest {
         private const val PORTRAIT_URI = "content://media/external/images/media/2"
         private const val SQUARE_URI = "content://media/external/images/media/3"
         private const val UNREADABLE_URI = "content://media/external/images/media/4"
+        private const val LOADING_URI = "content://media/external/images/media/5"
         private const val DEFAULT_PHOTO_DESCRIPTION = "Photo being edited"
         private const val DEFAULT_APPLY_DESCRIPTION = "Done"
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"

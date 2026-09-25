@@ -23,7 +23,7 @@ class DailyMemoNotificationChannelTest {
     }
 
     @Test
-    fun `일일 메모 알림 채널은 소리와 화면 위 떠오름이 없는 낮은 중요도로 디자인 문구를 갖고 만들어진다`() {
+    fun `TC-DAILY-MEMO-NOTIFICATION-DOMAIN-031 일일 메모 알림 채널은 소리와 화면 위 떠오름이 없는 낮은 중요도로 디자인 문구를 갖고 만들어진다`() {
         context.createDailyMemoNotificationChannel()
 
         val channel = notificationManager().getNotificationChannel(DAILY_MEMO_NOTIFICATION_CHANNEL_ID)
@@ -34,7 +34,7 @@ class DailyMemoNotificationChannelTest {
     }
 
     @Test
-    fun `앱 시작 초기화가 채널을 만들고 다시 실행해도 채널은 하나만 남는다`() {
+    fun `TC-DAILY-MEMO-NOTIFICATION-DOMAIN-031 앱 시작 초기화가 채널을 만들고 다시 실행해도 채널은 하나만 남는다`() {
         val initializer = FcmNotificationChannelInitializer()
 
         initializer.create(context)

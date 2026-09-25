@@ -1,5 +1,7 @@
 package io.github.taetae98coding.diary.feature.setting.ui.holiday
 
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
@@ -13,6 +15,9 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
+import io.github.taetae98coding.diary.domain.holiday.model.HolidaySetting
+import io.github.taetae98coding.diary.feature.setting.ui.holiday.search.rememberSettingHolidaySearchResult
+import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
@@ -63,6 +68,28 @@ class SettingHolidayScaffoldSearchTest {
         composeRule.textNodeCount(unmatched.name) shouldBe 0
         composeRule.onNodeWithText(firstMatched.name).getUnclippedBoundsInRoot().top shouldBeLessThan
             composeRule.onNodeWithText(secondMatched.name).getUnclippedBoundsInRoot().top
+    }
+
+    @Test
+    fun `TC-SETTING-HOLIDAY-FEATURE-044 검색어는 입력을 멈출 때까지 기다리지 않고 곧바로 목록에 반영된다`() {
+        val matched = holidaySetting(isHoliday = true, isVisible = true, name = SEOLLAL_HOLIDAY_NAME)
+        val unmatched = holidaySetting(isHoliday = true, isVisible = true, name = MEMORIAL_DAY_NAME)
+        lateinit var state: SettingHolidayScaffoldState
+        var searchResult: List<HolidaySetting> = emptyList()
+        composeRule.setContent {
+            state = rememberSettingHolidayScaffoldState()
+            searchResult = rememberSettingHolidaySearchResult(query = state.query, holidaySettingList = listOf(matched, unmatched))
+        }
+        composeRule.runOnIdle { searchResult shouldBe listOf(matched, unmatched) }
+        composeRule.mainClock.autoAdvance = false
+
+        composeRule.runOnUiThread {
+            state.queryState.setTextAndPlaceCursorAtEnd(SEOLLAL_QUERY)
+            Snapshot.sendApplyNotifications()
+        }
+        composeRule.mainClock.advanceTimeBy(INPUT_IDLE_DELAY.inWholeMilliseconds / 2)
+
+        composeRule.runOnUiThread { searchResult shouldBe listOf(matched) }
     }
 
     @Test

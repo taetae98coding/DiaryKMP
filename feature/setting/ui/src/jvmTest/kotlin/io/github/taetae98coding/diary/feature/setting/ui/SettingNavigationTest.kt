@@ -14,15 +14,17 @@ import io.kotest.matchers.collections.shouldContainExactly
 
 class SettingNavigationTest :
     FunSpec({
-        test("설정 상세로 이동하면 설정 목록 다음에 상세를 추가한다") {
-            val backStack = settingBackStack()
+        test("TC-SETTING-LIST-DETAIL-FEATURE-002 설정 상세로 이동하면 설정 목록 다음에 상세를 추가한다") {
+            settingDetailList.forEach { destination ->
+                val backStack = settingBackStack()
 
-            backStack.navigateToSettingDetail(destination = SettingHolidayNavKey)
+                backStack.navigateToSettingDetail(destination = destination)
 
-            backStack shouldContainExactly listOf(MoreHomeNavKey, SettingHomeNavKey, SettingHolidayNavKey)
+                backStack shouldContainExactly listOf(MoreHomeNavKey, SettingHomeNavKey, destination)
+            }
         }
 
-        test("다른 설정 상세로 이동하면 현재 상세를 교체한다") {
+        test("TC-SETTING-LIST-DETAIL-FEATURE-003 다른 설정 상세로 이동하면 현재 상세를 교체한다") {
             val detailCases =
                 listOf(
                     SettingHolidayNavKey to SettingMapNavKey,
@@ -30,6 +32,7 @@ class SettingNavigationTest :
                     SettingHolidayNavKey to SettingGeminiNavKey,
                     SettingGeminiNavKey to SettingMapNavKey,
                     SettingGeminiNavKey to SettingBrowserNavKey,
+                    SettingGeminiNavKey to SettingDownloadNavKey,
                     SettingBrowserNavKey to SettingHolidayNavKey,
                     SettingBrowserNavKey to SettingDownloadNavKey,
                     SettingDownloadNavKey to SettingMapNavKey,
@@ -44,12 +47,14 @@ class SettingNavigationTest :
             }
         }
 
-        test("현재 설정 상세를 다시 선택하면 전환 이력을 유지한다") {
-            val backStack = settingBackStack(SettingHolidayNavKey)
+        test("TC-SETTING-LIST-DETAIL-FEATURE-011 현재 설정 상세를 다시 선택하면 전환 이력을 유지한다") {
+            settingDetailList.forEach { detail ->
+                val backStack = settingBackStack(detail)
 
-            backStack.navigateToSettingDetail(destination = SettingHolidayNavKey)
+                backStack.navigateToSettingDetail(destination = detail)
 
-            backStack shouldContainExactly listOf(MoreHomeNavKey, SettingHomeNavKey, SettingHolidayNavKey)
+                backStack shouldContainExactly listOf(MoreHomeNavKey, SettingHomeNavKey, detail)
+            }
         }
 
         test("TC-SETTING-HOME-FEATURE-003 뒤로가기 동작을 선택하면 상세 표시 여부와 관계없이 더보기로 돌아간다") {
@@ -80,6 +85,15 @@ class SettingNavigationTest :
             backStack shouldContainExactly listOf(MoreHomeNavKey)
         }
     })
+
+private val settingDetailList: List<ScreenNavKey> =
+    listOf(
+        SettingHolidayNavKey,
+        SettingMapNavKey,
+        SettingGeminiNavKey,
+        SettingBrowserNavKey,
+        SettingDownloadNavKey,
+    )
 
 private fun settingBackStack(vararg detail: ScreenNavKey): NavBackStack<ScreenNavKey> =
     NavBackStack(

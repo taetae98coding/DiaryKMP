@@ -1,8 +1,10 @@
 package io.github.taetae98coding.diary.feature.place.ui.add
 
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -36,10 +38,15 @@ class PlaceAddMapAreaTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-024 기본 지도를 확인하지 못하면 지도를 표시하지 않는다`() {
+    fun `TC-PLACE-ADD-FEATURE-024 기본 지도를 확인하지 못하면 지도 영역과 로딩 안내 없이 입력 영역만 표시한다`() {
         composeRule.setPlaceAddScreen(viewModel = screenTestViewModel())
 
         composeRule.waitForIdle()
+
+        composeRule
+            .onAllNodes(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate))
+            .fetchSemanticsNodes()
+            .size shouldBe 0
 
         composeRule
             .onAllNodes(hasContentDescription(DEFAULT_MAP_DESCRIPTION))

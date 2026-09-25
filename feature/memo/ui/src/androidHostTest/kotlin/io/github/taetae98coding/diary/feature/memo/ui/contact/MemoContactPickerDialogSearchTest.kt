@@ -81,10 +81,55 @@ class MemoContactPickerDialogSearchTest {
         composeRule.contactDialogSearchField().performTextInput(WIKI_CONTACT_QUERY)
         composeRule.waitForIdle()
 
-        // 검색 입력에도 같은 문자열이 들어 있으므로 목록 항목은 URL로 가려 누른다.
+        // 검색 입력에도 같은 문자열이 들어 있을 수 있으므로 목록 항목은 전화번호로 가려 누른다.
         composeRule.contactDialogNodeWithText(FIRST_CONTACT_PHONE_NUMBER).performClick()
+        composeRule.waitForIdle()
 
         selectedIdList shouldBe listOf(contact.id)
+        composeRule.contactDialogNodeWithText(FIRST_CONTACT_PHONE_NUMBER).assertExists()
+    }
+
+    @Test
+    fun `TC-MEMO-CONTACT-INPUT-FEATURE-024 검색어가 있으면 그 검색어로 좁힌 조회 결과만 목록에 나타난다`() {
+        // 좁힌 조회 결과는 목록을 처음 그릴 때 넘긴다. 검색 입력에도 검색어가 들어 있으므로 항목은 전화번호로 가린다.
+        composeRule.setMemoContactPickerDialog(
+            contactList = listOf(testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)),
+            query = FIRST_CONTACT_NAME,
+        )
+        composeRule.awaitContactPickerRows()
+
+        composeRule.contactDialogNodeWithText(FIRST_CONTACT_PHONE_NUMBER).assertExists()
+        composeRule.contactDialogNodeWithText(SECOND_CONTACT_NAME).assertDoesNotExist()
+        composeRule.contactDialogNodeWithText(SECOND_CONTACT_PHONE_NUMBER).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-MEMO-CONTACT-INPUT-FEATURE-025 검색어가 없으면 대상 전체의 조회 결과가 목록에 나타난다`() {
+        val contactList = listOf(testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER), testContact(name = SECOND_CONTACT_NAME, phoneNumber = SECOND_CONTACT_PHONE_NUMBER))
+        composeRule.setMemoContactPickerDialog(contactList = contactList, query = "")
+        composeRule.awaitContactPickerRows()
+
+        composeRule.contactDialogNodeWithText(FIRST_CONTACT_PHONE_NUMBER).assertExists()
+        composeRule.contactDialogNodeWithText(SECOND_CONTACT_PHONE_NUMBER).assertExists()
+    }
+
+    @Test
+    fun `TC-MEMO-CONTACT-INPUT-FEATURE-026 검색어로 좁힌 목록에서 선택한 연락처를 누르면 해제를 전달하고 목록에 남는다`() {
+        val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
+        val unselectedIdList = mutableListOf<Uuid>()
+        composeRule.setMemoContactPickerDialog(
+            contactList = listOf(contact),
+            uiState = MemoContactInputUiState(selectedContactList = listOf(contact)),
+            query = FIRST_CONTACT_NAME,
+            onContactUnselect = unselectedIdList::add,
+        )
+        composeRule.awaitContactPickerRows()
+
+        composeRule.contactDialogNodeWithText(FIRST_CONTACT_PHONE_NUMBER).performClick()
+        composeRule.waitForIdle()
+
+        unselectedIdList shouldBe listOf(contact.id)
+        composeRule.contactDialogNodeWithText(FIRST_CONTACT_PHONE_NUMBER).assertExists()
     }
 
     @Test

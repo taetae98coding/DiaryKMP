@@ -3,11 +3,14 @@ package io.github.taetae98coding.diary.feature.more.ui.home
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.feature.more.ui.home.account.MORE_HOME_ACCOUNT_PLACEHOLDER_CHIP_TEST_TAG
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountUiState
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
@@ -44,6 +47,13 @@ class MoreHomeScaffoldTest {
         composeRule.onNodeWithText(DEFAULT_GUEST_LABEL).assertDoesNotExist()
         composeRule.onNodeWithText(DEFAULT_SIGN_IN_LABEL).assertDoesNotExist()
         composeRule.onNodeWithText(DEFAULT_SIGN_OUT_LABEL).assertDoesNotExist()
+    }
+
+    @Test
+    fun `확인 중 상태의 계정 동작 자리는 누를 수 없는 상태로 둔다`() {
+        setMoreHomeScaffold(accountUiStateProvider = { MoreHomeAccountUiState.Loading })
+
+        composeRule.onNodeWithTag(MORE_HOME_ACCOUNT_PLACEHOLDER_CHIP_TEST_TAG).assertIsNotEnabled()
     }
 
     @Test

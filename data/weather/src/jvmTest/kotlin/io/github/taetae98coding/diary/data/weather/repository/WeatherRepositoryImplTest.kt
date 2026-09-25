@@ -14,11 +14,18 @@ import io.github.taetae98coding.diary.core.weather.network.api.entity.ForecastRe
 import io.github.taetae98coding.diary.core.weather.network.api.entity.ForecastWeatherRemoteEntity
 import io.github.taetae98coding.diary.core.weather.network.api.entity.LocationNameRemoteEntity
 import io.github.taetae98coding.diary.core.weather.network.api.entity.WeatherConditionRemoteEntity
+import io.github.taetae98coding.diary.data.weather.WeatherDataTestKoinApplication
 import io.github.taetae98coding.diary.data.weather.datasource.WeatherLocalDataSource
 import io.github.taetae98coding.diary.data.weather.mapper.toDomain
+import io.github.taetae98coding.diary.domain.weather.usecase.FetchCurrentWeatherUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.logger.core.DiaryLog
+import io.github.taetae98coding.diary.logger.core.DiaryLogger
+import io.github.taetae98coding.diary.logger.core.DiaryLoggerDelegate
+import io.github.taetae98coding.diary.logger.crashlytics.api.CrashlyticsLog
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -32,6 +39,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeout
+import org.koin.dsl.module
+import org.koin.plugin.module.dsl.koinApplication
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -709,6 +718,77 @@ class WeatherRepositoryImplTest :
                 .first() shouldBe currentWeather.toDomain()
         }
 
+        test("TC-WEATHER-FETCH-DOMAIN-023 지역명만 실패한 동기화는 오류 보고를 남기지 않는다") {
+            val weatherRemoteDataSource = weatherRemoteDataSource()
+            coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } throws WeatherRepositoryTestException(fixtureMonkey.giveMeOne())
+            val ipRemoteDataSource = ipRemoteDataSource()
+            val clock = clock(now = fixtureMonkey.giveMeOne<Instant>())
+            val useCase =
+                koinApplication<WeatherDataTestKoinApplication> {
+                    modules(
+                        module {
+                            single<LocationProvider> { locationProvider(location = null) }
+                            single<IpRemoteDataSource> { ipRemoteDataSource }
+                            single<WeatherRemoteDataSource> { weatherRemoteDataSource }
+                            single<Clock> { clock }
+                        },
+                    )
+                }.koin.get<FetchCurrentWeatherUseCase>()
+            val reportList = recordCrashlyticsLog()
+
+            val result = useCase(parameter = Unit)
+
+            result.isSuccess shouldBe true
+            reportList.shouldBeEmpty()
+        }
+
+        test("TC-WEATHER-FETCH-DOMAIN-024 간격 때문에 조회 없이 끝난 동기화는 오류 보고를 남기지 않는다") {
+            val weatherRemoteDataSource = weatherRemoteDataSource()
+            val ipRemoteDataSource = ipRemoteDataSource()
+            var now = fixtureMonkey.giveMeOne<Instant>()
+            val clock = clock { now }
+            val useCase =
+                koinApplication<WeatherDataTestKoinApplication> {
+                    modules(
+                        module {
+                            single<LocationProvider> { locationProvider(location = null) }
+                            single<IpRemoteDataSource> { ipRemoteDataSource }
+                            single<WeatherRemoteDataSource> { weatherRemoteDataSource }
+                            single<Clock> { clock }
+                        },
+                    )
+                }.koin.get<FetchCurrentWeatherUseCase>()
+            useCase(parameter = Unit).isSuccess shouldBe true
+            val reportList = recordCrashlyticsLog()
+
+            now += 59.minutes
+            val result = useCase(parameter = Unit)
+
+            result.isSuccess shouldBe true
+            weatherRemoteDataSource.verifyFetchCount(count = 1)
+            reportList.shouldBeEmpty()
+        }
+
+        test("TC-WEATHER-FETCH-DATA-029 조회하지 않는 동기화는 현재 위치도 확인하지 않는다") {
+            val ipRemoteDataSource = ipRemoteDataSource()
+            val locationProvider = locationProvider(location = null)
+            var now = fixtureMonkey.giveMeOne<Instant>()
+            val repository =
+                repository(
+                    ipRemoteDataSource = ipRemoteDataSource,
+                    weatherRemoteDataSource = weatherRemoteDataSource(),
+                    locationProvider = locationProvider,
+                    clock = clock { now },
+                )
+            repository.fetch()
+
+            now += 59.minutes
+            repository.fetch()
+
+            coVerify(exactly = 1) { locationProvider.getCurrentLocation() }
+            coVerify(exactly = 1) { ipRemoteDataSource.get() }
+        }
+
         test("TC-WEATHER-FETCH-DATA-025 다시 동기화하면 지역명도 새 결과로 교체한다") {
             val seongnam = fixtureMonkey.giveMeOne<LocationNameRemoteEntity>().copy(name = "Seongnam-si", localNames = mapOf("ko" to "성남시"))
             val yongin = fixtureMonkey.giveMeOne<LocationNameRemoteEntity>().copy(name = "Yongin-si", localNames = mapOf("ko" to "용인시"))
@@ -822,6 +902,22 @@ private enum class FailurePoint {
     IP,
     CURRENT_WEATHER,
     FORECAST,
+}
+
+private fun recordCrashlyticsLog(): List<CrashlyticsLog> {
+    val reportList = mutableListOf<CrashlyticsLog>()
+    val delegate = mockk<DiaryLoggerDelegate>()
+
+    every { delegate.log(log = any()) } answers {
+        val log = firstArg<DiaryLog>()
+        if (log is CrashlyticsLog) {
+            reportList += log
+        }
+    }
+
+    DiaryLogger.add(delegate = delegate)
+
+    return reportList
 }
 
 private class WeatherRepositoryTestException(

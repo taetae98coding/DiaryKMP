@@ -3,7 +3,13 @@ package io.github.taetae98coding.diary.feature.calendar.ui.home.filter
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+
+private val fixtureMonkey: FixtureMonkey =
+    diaryFixtureMonkey()
 
 internal fun tagPagingDataOf(tagList: List<Tag>): PagingData<Tag> =
     PagingData.from(
@@ -32,7 +38,7 @@ internal fun failedTagPagingData(): PagingData<Tag> =
         data = emptyList(),
         sourceLoadStates =
             LoadStates(
-                refresh = LoadState.Error(IllegalStateException("tag page load failed")),
+                refresh = LoadState.Error(IllegalStateException(fixtureMonkey.giveMeOne<String>())),
                 prepend = LoadState.NotLoading(endOfPaginationReached = true),
                 append = LoadState.NotLoading(endOfPaginationReached = true),
             ),

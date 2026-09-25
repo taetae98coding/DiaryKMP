@@ -252,20 +252,31 @@ class PlaceAddViewModelTest : FunSpec() {
             }
         }
 
-        test("알 수 없는 실패에는 Effect를 보내지 않고 진행 상태만 해제한다") {
+        test("TC-PLACE-ADD-FEATURE-039 저장에 실패하면 Effect를 보내지 않고 진행 상태만 해제해 같은 내용으로 다시 추가할 수 있다") {
             runTest(mainDispatcher) {
+                val detail = detail()
+                val tagIdSet = setOf(fixtureMonkey.giveMeOne<Uuid>())
+                val parameter = AddPlaceUseCase.Parameter(detail = detail, tagIdSet = tagIdSet)
                 val useCase = mockk<AddPlaceUseCase>()
                 coEvery { useCase(any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
                 val viewModel = viewModel(addPlaceUseCase = useCase)
                 collectUiState(viewModel)
 
                 viewModel.effect.test {
-                    viewModel.add(detail(), tagIdSet = emptySet())
+                    viewModel.add(detail, tagIdSet = tagIdSet)
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                    viewModel.uiState.value.isInProgress
+                        .shouldBeFalse()
+
+                    viewModel.add(detail, tagIdSet = tagIdSet)
                     advanceUntilIdle()
 
                     expectNoEvents()
                 }
 
+                coVerify(exactly = 2) { useCase(parameter) }
                 viewModel.uiState.value.isInProgress
                     .shouldBeFalse()
             }

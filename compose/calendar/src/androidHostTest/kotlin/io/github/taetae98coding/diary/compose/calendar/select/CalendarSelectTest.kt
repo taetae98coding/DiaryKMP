@@ -101,6 +101,18 @@ class CalendarSelectTest {
     }
 
     @Test
+    fun `TC-CALENDAR-SELECT-FEATURE-014 시스템이 선택 제스처를 중단하면 그 시점의 기간으로 선택이 완료된다`() {
+        val selectedList = mutableListOf<LocalDateRange>()
+        composeRule.setCalendar(onSelect = { selectedList += it })
+
+        composeRule.performLongPress(composeRule.dayCenter(day = 14))
+        composeRule.performMoveTo(composeRule.dayCenter(day = 17))
+        composeRule.performCancel()
+
+        selectedList shouldBe listOf(july(day = 14)..july(day = 17))
+    }
+
+    @Test
     fun `TC-CALENDAR-SELECT-FEATURE-009 선택 중 오른쪽 가장자리 영역에 머무르면 다음 달로 이동하고 선택이 유지된다`() {
         val calendarState = CalendarState(initialYearMonth = JULY_2026)
         composeRule.setCalendar(calendarState = calendarState)

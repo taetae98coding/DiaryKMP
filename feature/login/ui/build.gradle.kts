@@ -36,6 +36,7 @@ kotlin {
 
         androidHostTest {
             dependencies {
+                implementation(projects.logger.core)
                 implementation(libs.androidx.lifecycle.runtime.testing)
                 implementation(libs.kotlinx.coroutines.test)
             }

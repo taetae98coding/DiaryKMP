@@ -117,7 +117,7 @@ class PlaceDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-MEMO-FEATURE-003 최초 조회 실패는 메모 없이 오류와 재시도를 표시하지 않는다`() {
+    fun `TC-PLACE-DETAIL-MEMO-FEATURE-003 최초 조회 실패는 오류와 재시도 없이 빈 상태 안내를 표시한다`() {
         val error = LoadState.Error(IllegalStateException("Refresh failed"))
         setMemoTab(pagingData = placeMemoPagingData(itemList = emptyList(), refresh = error))
 
@@ -125,6 +125,8 @@ class PlaceDetailMemoTabTest {
         composeRule.onNodeWithText(DEFAULT_ERROR_TEXT).assertDoesNotExist()
         composeRule.onNodeWithText(DEFAULT_RETRY_TEXT).assertDoesNotExist()
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
+        composeRule.onNodeWithText(EMPTY_TITLE).assertExists()
+        composeRule.onNodeWithText(EMPTY_DESCRIPTION).assertExists()
     }
 
     @Test
@@ -206,6 +208,8 @@ class PlaceDetailMemoTabTest {
     private companion object {
         const val PAGING_ITEMS_TIMEOUT_MILLIS = 5_000L
         const val DISPLAYED_MEMO_COUNT = 3
+        const val EMPTY_TITLE = "No memos linked to this place"
+        const val EMPTY_DESCRIPTION = "Use the add button to create a memo."
         const val NO_DATE_TITLE = "PlaceMemoNoDate"
         const val ALL_DAY_TITLE = "PlaceMemoAllDay"
         const val DATE_TIME_TITLE = "PlaceMemoDateTime"

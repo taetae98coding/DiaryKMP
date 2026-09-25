@@ -131,6 +131,8 @@ internal const val INVALID_LATITUDE = "abc"
 
 private const val SAVED_LATITUDE = 37.5665
 private const val SAVED_LONGITUDE = 126.978
+internal const val SAVED_LATITUDE_TEXT = "37.566500"
+internal const val SAVED_LONGITUDE_TEXT = "126.978000"
 private const val SAVED_COLOR = 0xFF3A7BD5
 internal const val SAVED_ADDRESS = "Saved Address"
 

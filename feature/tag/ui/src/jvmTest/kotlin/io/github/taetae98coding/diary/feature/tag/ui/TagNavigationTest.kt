@@ -19,6 +19,7 @@ import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlin.uuid.Uuid
 
@@ -112,19 +113,95 @@ class TagNavigationTest :
             }
         }
 
-        test("목록에서 태그를 선택하면 쌓여 있던 상세 화면을 모두 대신하고 태그 추가 화면은 남긴다") {
-            val selectedId = Uuid.random()
+        test("TC-TAG-DETAIL-FEATURE-056 상세 영역의 태그 추가에서 연 상세 화면은 뒤로가기 동작을 제공하지 않는다") {
+            val linkedKey = TagDetailNavKey(id = Uuid.random())
             val backStack =
                 NavBackStack<ScreenNavKey>(
                     TagHomeNavKey,
-                    TagAddNavKey(),
                     TagDetailNavKey(id = Uuid.random()),
-                    TagDetailNavKey(id = Uuid.random()),
+                    TagAddNavKey(requestKey = Uuid.random()),
+                    linkedKey,
                 )
 
-            backStack.navigateToTagDetail(selectedId)
+            backStack.isNavigatedFromTagDetail(linkedKey).shouldBeFalse()
+        }
 
-            backStack shouldContainExactly listOf(TagHomeNavKey, TagAddNavKey(), TagDetailNavKey(id = selectedId))
+        test("TC-TAG-LIST-DETAIL-FEATURE-017 목록에서 태그를 고르면 상세 영역에 쌓인 화면을 모두 정리하고 뒤로가면 상세를 고르기 전으로 돌아간다") {
+            val selectedId = Uuid.random()
+            val pathCases =
+                listOf(
+                    listOf(TagDetailNavKey(id = Uuid.random())),
+                    listOf(TagDetailNavKey(id = Uuid.random()), TagDetailNavKey(id = Uuid.random())),
+                    listOf(TagDetailNavKey(id = Uuid.random()), TagAddNavKey(requestKey = Uuid.random()), TagDetailNavKey(id = Uuid.random())),
+                    listOf(TagAddNavKey(), TagDetailNavKey(id = Uuid.random()), TagDetailNavKey(id = Uuid.random())),
+                )
+
+            pathCases.forEach { pathKeyList ->
+                val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, *pathKeyList.toTypedArray())
+
+                backStack.navigateToTagDetail(selectedId)
+
+                backStack shouldContainExactly listOf(TagHomeNavKey, TagDetailNavKey(id = selectedId))
+
+                backStack.removeLastOrNull()
+
+                backStack shouldContainExactly listOf(TagHomeNavKey)
+            }
+        }
+
+        test("TC-TAG-LIST-DETAIL-FEATURE-019 태그 상세가 놓인 동안 목록에서 태그 추가를 실행하면 그 위에 태그 추가가 놓이고 뒤로가면 이전 태그 상세로 돌아온다") {
+            val detailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, detailKey)
+            val detailContentKey = backStack.tagDetailContentKey(detailKey)
+
+            backStack.navigateToTagAdd()
+
+            backStack shouldContainExactly listOf(TagHomeNavKey, detailKey, TagAddNavKey())
+
+            backStack.removeLastOrNull()
+
+            backStack shouldContainExactly listOf(TagHomeNavKey, detailKey)
+            backStack.tagDetailContentKey(detailKey) shouldBe detailContentKey
+        }
+
+        test("목록에서 고른 상세는 대상이 바뀌어도 같은 화면으로 이어지고, 다른 경로로 연 상세는 대상마다 따로 둔다") {
+            val firstKey = TagDetailNavKey(id = Uuid.random())
+            val secondKey = TagDetailNavKey(id = Uuid.random())
+            val linkedKey = TagDetailNavKey(id = Uuid.random())
+            val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, firstKey, linkedKey)
+            val firstContentKey = backStack.tagDetailContentKey(firstKey)
+            val linkedContentKey = backStack.tagDetailContentKey(linkedKey)
+
+            backStack.navigateToTagDetail(secondKey.id)
+
+            backStack.tagDetailContentKey(secondKey) shouldBe firstContentKey
+            linkedContentKey shouldNotBe firstContentKey
+            NavBackStack<ScreenNavKey>(MemoDetailNavKey(id = Uuid.random()), linkedKey).tagDetailContentKey(linkedKey) shouldNotBe firstContentKey
+        }
+
+        test("연결이 순환해 같은 태그의 상세가 두 번 놓여도 두 상세는 서로 다른 화면이고, 앞선 상세는 뒤로 돌아올 때까지 같은 화면으로 남는다") {
+            val tagId = Uuid.random()
+            val listSelectedKey = TagDetailNavKey(id = tagId)
+            val linkedKey = TagDetailNavKey(id = Uuid.random())
+            val revisitedKey = TagDetailNavKey(id = tagId)
+            val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, listSelectedKey, linkedKey)
+            val listSelectedContentKey = backStack.tagDetailContentKey(listSelectedKey)
+            val linkedContentKey = backStack.tagDetailContentKey(linkedKey)
+
+            backStack.add(revisitedKey)
+
+            backStack.tagDetailContentKey(listSelectedKey) shouldBe listSelectedContentKey
+            backStack.tagDetailContentKey(linkedKey) shouldBe linkedContentKey
+            backStack.tagDetailContentKey(revisitedKey) shouldNotBe listSelectedContentKey
+            backStack.tagDetailContentKey(revisitedKey) shouldNotBe linkedContentKey
+            backStack.isNavigatedFromTagDetail(listSelectedKey).shouldBeFalse()
+            backStack.isNavigatedFromTagDetail(revisitedKey).shouldBeTrue()
+
+            backStack.removeLastOrNull()
+            backStack.removeLastOrNull()
+
+            backStack shouldContainExactly listOf(TagHomeNavKey, listSelectedKey)
+            backStack.tagDetailContentKey(listSelectedKey) shouldBe listSelectedContentKey
         }
 
         test("전환 이력에 없는 상세 화면과 첫 화면은 다른 태그의 상세에서 이동해 온 것으로 보지 않는다") {

@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.core.database.impl.placetag.datasource
 
 import androidx.paging.PagingSource
 import androidx.room3.Room
+import androidx.room3.useReaderConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
@@ -19,6 +20,7 @@ import io.github.taetae98coding.diary.core.database.impl.place.datasource.Accoun
 import io.github.taetae98coding.diary.core.database.impl.place.transaction.AccountPlaceSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.place.transaction.AccountPlaceTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.placetag.transaction.AccountPlaceTagTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
@@ -257,10 +259,15 @@ class AccountPlaceTagLocalDataSourceImplTest :
             tagTransaction.updateFinished(accountId = accountId, tagId = tag.id, isFinished = true, updatedAt = instant())
             linkedTagIdList(accountId = accountId, placeId = place.id) shouldBe listOf(tag.id)
 
-            tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = true, updatedAt = instant())
+            val deletedAt = instant()
+            tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = true, updatedAt = deletedAt)
             linkedTagList(accountId = accountId, placeId = place.id).shouldBeEmpty()
 
-            tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = false, updatedAt = instant())
+            AccountTagSyncTransactionImpl(database = database).save(
+                accountId = accountId,
+                tagList = listOf(tag.copy(isFinished = true, isDeleted = false, updatedAt = deletedAt)),
+                cursor = fixtureMonkey.giveMeOne<Long>(),
+            )
             linkedTagIdList(accountId = accountId, placeId = place.id) shouldBe listOf(tag.id)
         }
 
@@ -510,7 +517,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
             tagPlaceIdList(accountId = accountId, tagId = unselectedTag.id).shouldBeEmpty()
         }
 
-        test("TC-PLACE-TAG-DATA-002 저장이 실패하면 장소와 태그 연결이 모두 남지 않는다") {
+        test("TC-PLACE-TAG-DATA-002 TC-PLACE-ADD-DATA-004 저장이 실패하면 장소, 계정 연결과 태그 연결이 모두 남지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place()
             val targetTag = tag()
@@ -539,6 +546,14 @@ class AccountPlaceTagLocalDataSourceImplTest :
             linkedTagIdList(accountId = accountId, placeId = place.id).shouldBeEmpty()
             tagPlaceIdList(accountId = accountId, tagId = targetTag.id).shouldBeEmpty()
             placeDataSource.find(accountId = accountId, placeId = place.id).first().shouldBeNull()
+            listOf("place", "account_place", "place_tag", "account_place_tag").forEach { table ->
+                database.useReaderConnection { transactor ->
+                    transactor.usePrepared("SELECT COUNT(*) FROM $table") { statement ->
+                        statement.step()
+                        statement.getLong(0)
+                    }
+                } shouldBe 0L
+            }
         }
 
         test("TC-PLACE-TAG-DOMAIN-014 TC-PLACE-DETAIL-DATA-015 태그 연결은 장소 목록·지도 핀과 장소 검색 결과를 바꾸지 않는다") {

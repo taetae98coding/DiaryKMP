@@ -75,7 +75,7 @@ class LunarRepositoryImplTest :
             coVerify(exactly = 0) { transaction.upsert(solarYear = any(), lunarDateList = any()) }
         }
 
-        test("TC-LUNAR-FETCH-DATA-004 로컬 캐시 교체가 실패하면 실패를 그대로 전달한다") {
+        test("TC-LUNAR-FETCH-DATA-004 기기 저장이 실패하면 동기화가 실패로 끝난다") {
             val failure = TestException(fixtureMonkey.giveMeOne())
             val remoteList = listOf(remoteLunarDate(day = 1))
             val remoteDataSource = mockk<LunarRemoteDataSource>()
@@ -105,6 +105,21 @@ class LunarRepositoryImplTest :
             repository.fetch(year = YEAR) shouldBe localList.map { local -> local.toDomain() }
             coVerify(exactly = 1) { remoteDataSource.get(year = YEAR) }
             coVerify(exactly = 1) { transaction.upsert(solarYear = YEAR, lunarDateList = localList) }
+        }
+
+        test("TC-LUNAR-FETCH-DATA-014 앱 프로세스를 새로 시작하면 성공했던 연도도 다시 원격 조회한다") {
+            val remoteList = listOf(remoteLunarDate(day = 1))
+            val localList = remoteList.map { remote -> remote.toLocal(solarYear = YEAR) }
+            val remoteDataSource = mockk<LunarRemoteDataSource>()
+            coEvery { remoteDataSource.get(year = YEAR) } returns remoteList
+            val transaction = mockk<LunarTransaction>()
+            coEvery { transaction.upsert(solarYear = YEAR, lunarDateList = localList) } just Runs
+            repository(remoteDataSource = remoteDataSource, transaction = transaction).fetch(year = YEAR)
+
+            // 저장소를 새로 만들어 빈 동기화 이력으로 시작하는 새 프로세스를 흉내 낸다.
+            repository(remoteDataSource = remoteDataSource, transaction = transaction).fetch(year = YEAR)
+
+            coVerify(exactly = 2) { remoteDataSource.get(year = YEAR) }
         }
 
         test("TC-LUNAR-FETCH-DATA-006 원격 조회 실패 후 다시 요청하면 다시 원격 조회한다") {

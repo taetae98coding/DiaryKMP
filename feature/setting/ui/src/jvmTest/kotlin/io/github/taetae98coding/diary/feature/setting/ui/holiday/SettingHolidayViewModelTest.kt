@@ -362,6 +362,31 @@ class SettingHolidayViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-SETTING-HOLIDAY-FEATURE-042 설정이나 공휴일을 읽지 못하면 확인 중 상태를 유지한다") {
+            val caseList =
+                listOf(
+                    Result.failure<HolidayCountrySetting>(IllegalStateException("read error")) to
+                        Result.success(listOf(fixtureMonkey.holidaySetting(index = 0))),
+                    Result.success(DEFAULT_COUNTRY_SETTING) to Result.failure<List<HolidaySetting>>(IllegalStateException("read error")),
+                )
+
+            caseList.forEach { (countrySettingResult, holidaySettingListResult) ->
+                runTest(mainDispatcher) {
+                    val viewModel =
+                        settingHolidayViewModel(
+                            getHolidayCountrySettingUseCase = getHolidayCountrySettingUseCase(flowOf(countrySettingResult)),
+                            getSettingHolidayUseCase = getSettingHolidayUseCase(flowOf(holidaySettingListResult)),
+                        )
+
+                    viewModel.uiState.test {
+                        awaitItem() shouldBe SettingHolidayUiState.Loading
+                        advanceUntilIdle()
+                        expectNoEvents()
+                    }
+                }
+            }
+        }
+
         test("TC-SETTING-HOLIDAY-FEATURE-035 국가 선택지 변경은 해당 선택지로 전용 UseCase를 실행한다") {
             runTest(mainDispatcher) {
                 val toggleHolidayCountryOptionUseCase = mockk<ToggleHolidayCountryOptionUseCase>()

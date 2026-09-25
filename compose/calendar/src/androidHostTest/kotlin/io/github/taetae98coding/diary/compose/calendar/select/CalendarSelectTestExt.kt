@@ -43,6 +43,12 @@ internal fun ComposeContentTestRule.rootWidth(): Float =
         .size.width
         .toFloat()
 
+internal fun ComposeContentTestRule.rootHeight(): Float =
+    onRoot()
+        .fetchSemanticsNode()
+        .size.height
+        .toFloat()
+
 internal fun ComposeContentTestRule.dayCenter(
     day: Int,
     index: Int = 0,
@@ -73,6 +79,11 @@ internal fun ComposeContentTestRule.performMove(position: Offset) {
 
 internal fun ComposeContentTestRule.performUp() {
     onRoot().performTouchInput { up() }
+    waitForIdle()
+}
+
+internal fun ComposeContentTestRule.performCancel() {
+    onRoot().performTouchInput { cancel() }
     waitForIdle()
 }
 

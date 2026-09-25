@@ -26,6 +26,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
@@ -141,6 +142,63 @@ class CalendarHomeFilterViewModelTest : FunSpec() {
 
                 coVerify(exactly = 1) {
                     unselectCalendarFilterTagUseCase(parameter = tagId)
+                }
+            }
+        }
+
+        test("TC-CALENDAR-HOME-FEATURE-049 태그를 선택하면 그 태그가 선택된 것으로 표시된다") {
+            runTest(mainDispatcher) {
+                val tag = tag(title = "Alpha")
+                val selectedTagListFlow = MutableStateFlow<Result<List<Tag>>>(Result.success(emptyList()))
+                val selectCalendarFilterTagUseCase = mockk<SelectCalendarFilterTagUseCase>()
+                coEvery { selectCalendarFilterTagUseCase(parameter = tag.id) } answers {
+                    selectedTagListFlow.value = Result.success(listOf(tag))
+                    Result.success(Unit)
+                }
+                val viewModel =
+                    viewModel(
+                        getCalendarFilterUseCase = filterUseCase(flow = selectedTagListFlow),
+                        selectCalendarFilterTagUseCase = selectCalendarFilterTagUseCase,
+                    )
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe CalendarHomeFilterUiState()
+                    advanceUntilIdle()
+
+                    viewModel.selectTag(id = tag.id)
+                    advanceUntilIdle()
+
+                    awaitItem() shouldBe CalendarHomeFilterUiState(selectedTagIdSet = setOf(tag.id))
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("TC-CALENDAR-HOME-FEATURE-051 마지막 태그의 선택을 해제하면 선택 표시가 사라진다") {
+            runTest(mainDispatcher) {
+                val tag = tag(title = "Alpha")
+                val selectedTagListFlow = MutableStateFlow<Result<List<Tag>>>(Result.success(listOf(tag)))
+                val unselectCalendarFilterTagUseCase = mockk<UnselectCalendarFilterTagUseCase>()
+                coEvery { unselectCalendarFilterTagUseCase(parameter = tag.id) } answers {
+                    selectedTagListFlow.value = Result.success(emptyList())
+                    Result.success(Unit)
+                }
+                val viewModel =
+                    viewModel(
+                        getCalendarFilterUseCase = filterUseCase(flow = selectedTagListFlow),
+                        unselectCalendarFilterTagUseCase = unselectCalendarFilterTagUseCase,
+                    )
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe CalendarHomeFilterUiState()
+                    advanceUntilIdle()
+                    awaitItem() shouldBe CalendarHomeFilterUiState(selectedTagIdSet = setOf(tag.id))
+
+                    viewModel.unselectTag(id = tag.id)
+                    advanceUntilIdle()
+
+                    awaitItem() shouldBe CalendarHomeFilterUiState()
+                    cancelAndIgnoreRemainingEvents()
                 }
             }
         }

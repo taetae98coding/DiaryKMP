@@ -12,6 +12,9 @@ import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
+import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadState
+import io.github.taetae98coding.diary.domain.playlist.usecase.GetMusicDownloadEventUseCase
+import io.github.taetae98coding.diary.domain.playlist.usecase.GetMusicDownloadStateUseCase
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.justRun
@@ -87,6 +90,40 @@ class PlaylistHomeScreenTest {
         verify(exactly = 1) { syncViewModel.refresh() }
     }
 
+    @Test
+    fun `TC-MUSIC-DOWNLOAD-DOMAIN-020 목록을 당겨 새로고침해도 곡의 다운로드 상태가 그대로 유지된다`() {
+        val done = testMusic(title = MUSIC_TITLE)
+        val failed = testMusic(title = MUSIC_ARTIST)
+        val musicPagingDataFlow = MutableStateFlow(musicPagingDataOf(listOf(done, failed)))
+        val syncViewModel = syncViewModel()
+        every { syncViewModel.refresh() } answers { musicPagingDataFlow.value = musicPagingDataOf(listOf(done, failed)) }
+        val getMusicDownloadStateUseCase = mockk<GetMusicDownloadStateUseCase>()
+        every { getMusicDownloadStateUseCase(parameter = Unit) } returns
+            MutableStateFlow(Result.success(mapOf(done.id to MusicDownloadState.Done, failed.id to MusicDownloadState.Failed)))
+        val getMusicDownloadEventUseCase = mockk<GetMusicDownloadEventUseCase>()
+        every { getMusicDownloadEventUseCase(parameter = Unit) } returns emptyFlow()
+        val downloadViewModel =
+            PlaylistHomeDownloadViewModel(
+                getMusicDownloadStateUseCase = getMusicDownloadStateUseCase,
+                getMusicDownloadEventUseCase = getMusicDownloadEventUseCase,
+                requestMusicDownloadUseCase = mockk(),
+            )
+        setPlaylistHomeScreen(
+            musicPagingDataFlow = musicPagingDataFlow,
+            syncViewModel = syncViewModel,
+            downloadViewModel = downloadViewModel,
+        )
+        composeRule.onNodeWithContentDescription(DEFAULT_DONE_DESCRIPTION).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_FAILED_DESCRIPTION).assertExists()
+
+        composeRule.onNodeWithTag(PULL_TO_REFRESH_TEST_TAG).performTouchInput { swipeDown() }
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { syncViewModel.refresh() }
+        composeRule.onNodeWithContentDescription(DEFAULT_DONE_DESCRIPTION).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_FAILED_DESCRIPTION).assertExists()
+    }
+
     private fun setPlaylistHomeScreen(
         musicList: List<Music> = emptyList(),
         navigateUp: () -> Unit = {},
@@ -97,7 +134,7 @@ class PlaylistHomeScreenTest {
         downloadViewModel: PlaylistHomeDownloadViewModel = downloadViewModel(),
     ) {
         setPlaylistHomeScreen(
-            musicPagingData = musicPagingDataOf(musicList),
+            musicPagingDataFlow = MutableStateFlow(musicPagingDataOf(musicList)),
             navigateUp = navigateUp,
             navigateToAdd = navigateToAdd,
             navigateToDetail = navigateToDetail,
@@ -108,7 +145,7 @@ class PlaylistHomeScreenTest {
     }
 
     private fun setPlaylistHomeScreen(
-        musicPagingData: PagingData<Music>,
+        musicPagingDataFlow: MutableStateFlow<PagingData<Music>>,
         navigateUp: () -> Unit = {},
         navigateToAdd: () -> Unit = {},
         navigateToDetail: (Uuid) -> Unit = {},
@@ -117,7 +154,7 @@ class PlaylistHomeScreenTest {
         downloadViewModel: PlaylistHomeDownloadViewModel = downloadViewModel(),
     ) {
         val musicViewModel = mockk<PlaylistHomeViewModel>(relaxed = true)
-        every { musicViewModel.musicPagingData } returns MutableStateFlow(musicPagingData)
+        every { musicViewModel.musicPagingData } returns musicPagingDataFlow
         every { musicViewModel.sort } returns MutableStateFlow(ListSort.TITLE)
 
         composeRule.setContent {
@@ -155,5 +192,7 @@ class PlaylistHomeScreenTest {
         private const val MUSIC_ARTIST = "ScreenMusicArtist"
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
         private const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add music"
+        private const val DEFAULT_DONE_DESCRIPTION = "Downloaded"
+        private const val DEFAULT_FAILED_DESCRIPTION = "Download failed"
     }
 }

@@ -2,6 +2,8 @@
 
 package io.github.taetae98coding.diary.app.shared.analytics
 
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.app.shared.navigation.AppNavKeySavedStateConfiguration
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNavKey
@@ -46,6 +48,7 @@ import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebHomeNavKey
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -61,17 +64,21 @@ import kotlin.uuid.Uuid
 class ScreenNameTest :
     FunSpec({
         test("TC-SCREEN-VIEW-LOGGING-DOMAIN-011 각 화면은 목록에 정의된 이름으로 남는다") {
-            screenNameByNavKey.forEach { (navKey, screenName) ->
+            screenNameByNavKey().forEach { (navKey, screenName) ->
                 withClue(navKey) { navKey.screenName shouldBe screenName }
             }
         }
 
         test("화면 이름 목록은 등록된 모든 화면 키를 한 번씩만 담는다") {
+            val screenNameByNavKey = screenNameByNavKey()
+
             screenNameByNavKey.keys.map { navKey -> navKey::class }.toSet() shouldBe registeredScreenNavKeyClassSet()
             screenNameByNavKey.size shouldBe registeredScreenNavKeyClassSet().size
         }
 
         test("화면 이름은 서로 겹치지 않는다") {
+            val screenNameByNavKey = screenNameByNavKey()
+
             screenNameByNavKey.values.toSet().size shouldBe screenNameByNavKey.size
         }
 
@@ -82,7 +89,7 @@ class ScreenNameTest :
         }
 
         test("TC-SCREEN-VIEW-LOGGING-DOMAIN-010 화면 이름에 그 화면에 전달된 값이 담기지 않는다") {
-            val id = Uuid.random()
+            val id = fixtureMonkey.giveMeOne<Uuid>()
             val valuedNavKeyList =
                 listOf(
                     ContactDetailNavKey(id = id),
@@ -113,29 +120,31 @@ class ScreenNameTest :
         }
     }) {
     public companion object {
+        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
+
         // 화면 이름은 Google Analytics 4로 나가는 계약이므로 스펙이 정한 값을 그대로 적는다.
-        private val screenNameByNavKey: Map<ScreenNavKey, String> =
+        private fun screenNameByNavKey(): Map<ScreenNavKey, String> =
             mapOf(
                 CalendarHomeNavKey to "CalendarHome",
                 CalendarHomeFilterNavKey to "CalendarHomeFilter",
                 ChecklistHomeNavKey to "ChecklistHome",
                 ContactAddNavKey to "ContactAdd",
-                ContactDetailNavKey(id = Uuid.random()) to "ContactDetail",
+                ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "ContactDetail",
                 ContactHomeNavKey to "ContactHome",
                 DDayHomeNavKey to "DDayHome",
                 FileHomeNavKey to "FileHome",
                 HolidayHomeNavKey to "HolidayHome",
                 LoginHomeNavKey to "LoginHome",
                 MemoAddNavKey() to "MemoAdd",
-                MemoDetailNavKey(id = Uuid.random()) to "MemoDetail",
+                MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "MemoDetail",
                 MemoFinishedListNavKey to "MemoFinishedList",
                 MemoHomeNavKey to "MemoHome",
                 MemoHomeFilterNavKey to "MemoHomeFilter",
                 MoreHomeNavKey to "MoreHome",
                 MusicAddNavKey to "MusicAdd",
-                MusicDetailNavKey(id = Uuid.random()) to "MusicDetail",
+                MusicDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "MusicDetail",
                 PlaceAddNavKey() to "PlaceAdd",
-                PlaceDetailNavKey(id = Uuid.random()) to "PlaceDetail",
+                PlaceDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "PlaceDetail",
                 PlaceHomeNavKey to "PlaceHome",
                 PlaylistHomeNavKey to "PlaylistHome",
                 ProfileImageEditNavKey to "ProfileImageEdit",
@@ -150,29 +159,29 @@ class ScreenNameTest :
                 SettingHomeNavKey to "SettingHome",
                 SettingMapNavKey to "SettingMap",
                 TagAddNavKey() to "TagAdd",
-                TagDetailNavKey(id = Uuid.random()) to "TagDetail",
+                TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "TagDetail",
                 TagFinishedListNavKey to "TagFinishedList",
                 TagHomeNavKey to "TagHome",
                 TagHomeFilterNavKey to "TagHomeFilter",
-                TagMemoFinishedListNavKey(tagId = Uuid.random()) to "TagMemoFinishedList",
+                TagMemoFinishedListNavKey(tagId = fixtureMonkey.giveMeOne<Uuid>()) to "TagMemoFinishedList",
                 WebAddNavKey() to "WebAdd",
-                WebDetailNavKey(id = Uuid.random()) to "WebDetail",
+                WebDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "WebDetail",
                 WebHomeNavKey to "WebHome",
             )
 
         private fun valuedNavKeyPairList(): List<Pair<ScreenNavKey, ScreenNavKey>> =
             listOf(
-                ContactDetailNavKey(id = Uuid.random()) to ContactDetailNavKey(id = Uuid.random()),
-                MemoDetailNavKey(id = Uuid.random()) to MemoDetailNavKey(id = Uuid.random()),
-                MemoAddNavKey(primaryTagId = Uuid.random()) to MemoAddNavKey(),
-                MusicDetailNavKey(id = Uuid.random()) to MusicDetailNavKey(id = Uuid.random()),
-                PlaceDetailNavKey(id = Uuid.random()) to PlaceDetailNavKey(id = Uuid.random()),
-                PlaceAddNavKey(initialTagId = Uuid.random()) to PlaceAddNavKey(),
-                TagAddNavKey(requestKey = Uuid.random()) to TagAddNavKey(),
-                TagDetailNavKey(id = Uuid.random()) to TagDetailNavKey(id = Uuid.random()),
-                TagMemoFinishedListNavKey(tagId = Uuid.random()) to TagMemoFinishedListNavKey(tagId = Uuid.random()),
-                WebAddNavKey(initialTagId = Uuid.random()) to WebAddNavKey(),
-                WebDetailNavKey(id = Uuid.random()) to WebDetailNavKey(id = Uuid.random()),
+                ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                MemoAddNavKey(primaryTagId = fixtureMonkey.giveMeOne<Uuid>()) to MemoAddNavKey(),
+                MusicDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to MusicDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                PlaceDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to PlaceDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                PlaceAddNavKey(initialTagId = fixtureMonkey.giveMeOne<Uuid>()) to PlaceAddNavKey(),
+                TagAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()) to TagAddNavKey(),
+                TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                TagMemoFinishedListNavKey(tagId = fixtureMonkey.giveMeOne<Uuid>()) to TagMemoFinishedListNavKey(tagId = fixtureMonkey.giveMeOne<Uuid>()),
+                WebAddNavKey(initialTagId = fixtureMonkey.giveMeOne<Uuid>()) to WebAddNavKey(),
+                WebDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to WebDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
             )
 
         private fun collectRegisteredScreenNavKey(): Map<KClass<*>, KSerializer<*>> {

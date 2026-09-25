@@ -192,6 +192,36 @@ class ContactDetailTabTest {
     }
 
     @Test
+    fun `TC-CONTACT-DETAIL-DOMAIN-013 화면을 떠났다 다시 들어오면 연락처 디테일 탭으로 시작한다`() {
+        var isShown by mutableStateOf(true)
+        prepareContactDetailTabViewModels()
+
+        composeRule.setContent {
+            ContactDetailScreenTestHost {
+                if (isShown) {
+                    ContactDetailScreen(
+                        navigateUp = {},
+                        navigateToMemoAdd = {},
+                        navigateToMemoDetail = {},
+                        id = FIRST_CONTACT_ID,
+                        componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
+                        viewModel = screenTestViewModel(uiState = MutableStateFlow(content())),
+                    )
+                }
+            }
+        }
+        composeRule.selectContactDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
+
+        composeRule.runOnIdle { isShown = false }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { isShown = true }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_DETAIL_TAB_DESCRIPTION).assertIsSelected()
+    }
+
+    @Test
     fun `TC-CONTACT-DETAIL-DOMAIN-014 상세 대상이 다른 연락처로 바뀌면 연락처 디테일 탭으로 초기화한다`() {
         var id by mutableStateOf(FIRST_CONTACT_ID)
         prepareContactDetailTabViewModels()
