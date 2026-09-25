@@ -61,7 +61,7 @@ class DeletePlaceUseCaseTest :
                     updatedAtSlot.captured shouldBe now
                 }
 
-                Then("TC-PLACE-DETAIL-DATA-008 삭제를 서버와 맞추기 위한 동기화를 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-PLACE-DETAIL-DATA-008 삭제를 서버와 맞추기 위한 동기화를 요청한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }

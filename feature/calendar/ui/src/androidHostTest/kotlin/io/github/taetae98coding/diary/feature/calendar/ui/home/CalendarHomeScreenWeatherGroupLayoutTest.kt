@@ -20,6 +20,7 @@ import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeath
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.nextSundayWeather
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeWeatherGroupFixture.sundayWeather
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -153,6 +154,26 @@ class CalendarHomeScreenWeatherGroupLayoutTest {
         val temperatureBottom = bottom(text = SUNDAY_TEMPERATURE_TEXT)
         (temperatureBottom <= top(text = TRIP_TITLE)) shouldBe true
         (temperatureBottom <= top(text = BIRTHDAY_TEXT)) shouldBe true
+    }
+
+    @Test
+    fun `TC-CALENDAR-HOME-DOMAIN-017 표시 대상이 바뀌어 겹침 여부가 달라지면 그 주의 그룹 구성을 다시 정한다`() {
+        val memoListFlow = MutableStateFlow(listOf(memo(title = TRIP_TITLE, start = july(day = 16), endInclusive = july(day = 17))))
+        composeRule.setCalendarHomeWeatherGroupScreen(
+            weatherList = listOf(sundayWeather(), mondayWeather()),
+            memoListFlow = memoListFlow,
+        )
+        (top(text = TRIP_TITLE) < top(text = SUNDAY_TEMPERATURE_TEXT)) shouldBe true
+
+        memoListFlow.value = listOf(memo(title = TRIP_TITLE, start = july(day = 13), endInclusive = july(day = 14)))
+        composeRule.waitForIdle()
+
+        (bottom(text = SUNDAY_TEMPERATURE_TEXT) <= top(text = TRIP_TITLE)) shouldBe true
+
+        memoListFlow.value = listOf(memo(title = TRIP_TITLE, start = july(day = 16), endInclusive = july(day = 17)))
+        composeRule.waitForIdle()
+
+        (top(text = TRIP_TITLE) < top(text = SUNDAY_TEMPERATURE_TEXT)) shouldBe true
     }
 
     // 온도는 날씨 아이템 하나로 병합되므로 병합 전 트리에서 온도 글자 자체의 위치를 읽는다.

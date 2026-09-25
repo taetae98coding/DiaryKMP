@@ -84,7 +84,7 @@ class SubmitFcmTokenUseCaseTest :
             When("토큰을 제출한다") {
                 val result = useCase(parameter = Unit)
 
-                Then("TC-FCM-TOKEN-DOMAIN-015 실패를 전달하고 그 원인을 담은 오류 보고가 한 번 남는다") {
+                Then("TC-FCM-TOKEN-DOMAIN-015 TC-USECASE-FAILURE-LOGGING-DOMAIN-009 실패를 전달하고 그 원인을 담은 오류 보고가 한 번 남는다") {
                     result.shouldBeFailure() shouldBeSameInstanceAs failure
 
                     val report = reportList.single()
@@ -105,7 +105,7 @@ class SubmitFcmTokenUseCaseTest :
             When("토큰을 제출한다") {
                 val result = useCase(parameter = Unit)
 
-                Then("TC-FCM-TOKEN-DOMAIN-015 실패를 전달하고 그 원인을 담은 오류 보고가 한 번 남는다") {
+                Then("TC-FCM-TOKEN-DOMAIN-015 TC-USECASE-FAILURE-LOGGING-DOMAIN-009 실패를 전달하고 그 원인을 담은 오류 보고가 한 번 남는다") {
                     result.shouldBeFailure() shouldBeSameInstanceAs failure
 
                     val report = reportList.single()

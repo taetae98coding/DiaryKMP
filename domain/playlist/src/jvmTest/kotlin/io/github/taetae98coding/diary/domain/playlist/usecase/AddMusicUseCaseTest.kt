@@ -225,7 +225,7 @@ class AddMusicUseCaseTest :
                 )
 
             When("곡 추가에 성공한다") {
-                Then("TC-MUSIC-ADD-DATA-005 추가한 곡을 서버와 맞추기 위한 동기화를 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-MUSIC-ADD-DATA-005 추가한 곡을 서버와 맞추기 위한 동기화를 요청한다") {
                     useCase(parameter = detail()).shouldBeSuccess()
 
                     coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }

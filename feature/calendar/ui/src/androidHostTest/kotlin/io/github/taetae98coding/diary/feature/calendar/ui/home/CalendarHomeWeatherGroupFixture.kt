@@ -109,6 +109,7 @@ internal fun ComposeContentTestRule.setCalendarHomeWeatherGroupScreen(
     memoList: List<CalendarMemo> = emptyList(),
     holidayList: List<Holiday> = emptyList(),
     birthdayList: List<CalendarContactBirthday> = emptyList(),
+    memoListFlow: MutableStateFlow<List<CalendarMemo>> = MutableStateFlow(memoList),
 ) {
     val holidayViewModel =
         mockk<CalendarHomeHolidayViewModel>().also { viewModel ->
@@ -119,7 +120,7 @@ internal fun ComposeContentTestRule.setCalendarHomeWeatherGroupScreen(
     val memoViewModel =
         mockk<CalendarHomeMemoViewModel>().also { viewModel ->
             every { viewModel.fetch(any()) } returns Unit
-            every { viewModel.memoList } returns MutableStateFlow(memoList)
+            every { viewModel.memoList } returns memoListFlow
             every { viewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
         }
 

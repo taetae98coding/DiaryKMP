@@ -151,6 +151,32 @@ class DiaryDescriptionInputPreviewPageTest {
     }
 
     @Test
+    fun `TC-DESCRIPTION-INPUT-FEATURE-024 화면이 재생성되어도 시작 상태를 다시 정하지 않는다`() {
+        val restorationTester = StateRestorationTester(composeRule)
+        lateinit var state: DiaryDescriptionInputState
+        restorationTester.setContent {
+            state = rememberDiaryDescriptionInputState(initialText = MARKDOWN_SOURCE)
+            scope = rememberCoroutineScope()
+
+            DiaryTheme {
+                DiaryDescriptionInput(state = state)
+            }
+        }
+        awaitSettled(state = state, page = DiaryDescriptionInputPage.Preview)
+        snapToPage(state = state, page = DiaryDescriptionInputPage.Input)
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle {
+            state.swipeState.currentValue shouldBe DiaryDescriptionInputPage.Input
+            state.text.toString() shouldBe MARKDOWN_SOURCE
+        }
+        composeRule.onNode(hasSetTextAction()).assertIsDisplayed()
+        composeRule.onNode(hasSetTextAction()).assert(hasText(MARKDOWN_SOURCE))
+    }
+
+    @Test
     fun `TC-DESCRIPTION-INPUT-FEATURE-017 엔터로 나눈 줄이 미리보기에서도 나뉘어 표시된다`() {
         val state = setDiaryDescriptionInput()
         composeRule.onNode(hasSetTextAction()).performTextInput(LINE_BREAK_SOURCE)

@@ -371,6 +371,12 @@ class AccountCalendarMemoLocalDataSourceImplTest :
 
                 cancelAndIgnoreRemainingEvents()
             }
+
+            database
+                .accountMemoDao()
+                .find(accountId = accountId, memoId = memo.id)
+                .first()
+                ?.primaryTagId shouldBe tag.id
         }
 
         test("TC-CALENDAR-MEMO-DATA-003 TC-CALENDAR-MEMO-DATA-006 메모의 기간이 바뀌면 표시 대상 여부가 다시 정해진다") {
@@ -422,6 +428,20 @@ class AccountCalendarMemoLocalDataSourceImplTest :
                 )
 
                 awaitUntil { calendarMemoList -> calendarMemoList.isEmpty() }
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+        test("TC-CALENDAR-MEMO-DATA-007 표시 대상 기간과 겹치는 메모가 새로 저장되면 결과에 들어온다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = overlappingMemo()
+
+            calendarMemoFlow(accountId = accountId).test {
+                awaitItem().shouldBeEmpty()
+
+                upsert(accountId, memo)
+
+                awaitUntil { calendarMemoList -> calendarMemoList.map { calendarMemo -> calendarMemo.id } == listOf(memo.id) }
                 cancelAndIgnoreRemainingEvents()
             }
         }

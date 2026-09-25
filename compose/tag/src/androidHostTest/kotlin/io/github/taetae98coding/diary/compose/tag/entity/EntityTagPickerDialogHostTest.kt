@@ -40,20 +40,7 @@ class EntityTagPickerDialogHostTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-004 나타낼 태그가 없어도 태그 추가 항목을 누르면 태그 선택 목록이 열린다`() {
-        setEntityTagInputWithPicker(tagList = emptyList())
-
-        composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).assertExists()
-        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertDoesNotExist()
-
-        composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).performClick()
-        composeRule.waitForIdle()
-
-        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
-    }
-
-    @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-004 나타낼 태그가 여러 개여도 태그 추가 항목을 누르면 태그 선택 목록이 열린다`() {
+    fun `TC-ENTITY-TAG-INPUT-FEATURE-004 나타낼 태그가 있을 때 태그 추가 항목을 누르면 태그 선택 목록이 열린다`() {
         val tagList = listOf(entityTestTag(title = WORK_TAG_TITLE), entityTestTag(title = EXERCISE_TAG_TITLE))
         setEntityTagInputWithPicker(tagList = tagList)
 

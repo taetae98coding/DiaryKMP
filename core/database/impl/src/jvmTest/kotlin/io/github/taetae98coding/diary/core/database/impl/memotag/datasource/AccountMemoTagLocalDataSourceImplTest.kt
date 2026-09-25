@@ -8,10 +8,13 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
+import io.github.taetae98coding.diary.core.database.api.tag.entity.TagDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.memotag.transaction.AccountMemoTagSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.memotag.transaction.AccountMemoTagTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
@@ -171,6 +174,82 @@ class AccountMemoTagLocalDataSourceImplTest :
             tagTransaction.upsert(accountId = accountId, tagList = listOf(tag.copy(isDeleted = true)), tagLinkList = emptyList())
 
             dataSource.getTagList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
+        }
+
+        test("TC-MEMO-TAG-DOMAIN-017 삭제된 태그의 삭제가 다른 기기에서 받은 내용으로 풀리면 다시 조회된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = memo()
+            val tag = tag()
+            insertMemo(accountId = accountId, memo = memo)
+            connect(accountId = accountId, memoId = memo.id, tag = tag)
+            tagTransaction.upsert(accountId = accountId, tagList = listOf(tag.copy(isDeleted = true)), tagLinkList = emptyList())
+            dataSource.getTagList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
+
+            AccountTagSyncTransactionImpl(database = database).save(
+                accountId = accountId,
+                tagList = listOf(tag.copy(isDeleted = false)),
+                cursor = 1L,
+            )
+
+            dataSource.getTagList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(tag)
+        }
+
+        test("TC-MEMO-TAG-DOMAIN-018 태그의 이모지·제목·설명·컬러를 수정해도 메모와의 연결은 바뀌지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = memo()
+            val tag = tag()
+            insertMemo(accountId = accountId, memo = memo)
+            connect(accountId = accountId, memoId = memo.id, tag = tag)
+            val memoTagList = database.memoTagDao().findByMemoIdList(listOf(memo.id))
+            val newDetail =
+                TagDetailLocalEntity(
+                    emoji = "✈️",
+                    title = "edited-${fixtureMonkey.giveMeOne<Uuid>()}",
+                    description = "edited-${fixtureMonkey.giveMeOne<Uuid>()}",
+                    color = tag.detail.color.inv(),
+                )
+
+            tagTransaction.updateDetail(accountId = accountId, tagId = tag.id, detail = newDetail, updatedAt = instant())
+
+            dataSource
+                .getTagList(accountId = accountId, memoId = memo.id)
+                .first()
+                .map { connectedTag -> connectedTag.id to connectedTag.detail } shouldBe listOf(tag.id to newDetail)
+            database.memoTagDao().findByMemoIdList(listOf(memo.id)) shouldBe memoTagList
+        }
+
+        listOf<Pair<String, Boolean>>(
+            "연결되지 않은 태그 하나를 새로 연결하면" to false,
+            "연결된 태그 하나의 연결을 해제하면" to true,
+        ).forEach { (label, isDeleted) ->
+            test("TC-MEMO-TAG-DATA-012 TC-DATA-SYNC-DOMAIN-001 $label 그 연결만 업로드 대기가 된다") {
+                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val memo = memo().copy(primaryTagId = null)
+                val keptTag = tag()
+                val removedTag = tag()
+                val addedTag = tag()
+                insertMemo(accountId = accountId, memo = memo)
+                connect(accountId = accountId, memoId = memo.id, tag = keptTag)
+                connect(accountId = accountId, memoId = memo.id, tag = removedTag)
+                tagTransaction.upsert(accountId = accountId, tagList = listOf(addedTag), tagLinkList = emptyList())
+                AccountMemoTagSyncTransactionImpl(database = database).clearPending(
+                    accountId = accountId,
+                    memoTagList = database.memoTagDao().findByMemoIdList(listOf(memo.id)),
+                )
+                val syncDataSource = AccountMemoTagSyncLocalDataSourceImpl(database = database)
+                syncDataSource.findPending(accountId = accountId).shouldBeEmpty()
+                val changedTagId = if (isDeleted) removedTag.id else addedTag.id
+
+                memoTagTransaction.upsert(
+                    accountId = accountId,
+                    memoId = memo.id,
+                    tagId = changedTagId,
+                    isDeleted = isDeleted,
+                    updatedAt = instant(),
+                )
+
+                syncDataSource.findPending(accountId = accountId).map { memoTag -> memoTag.tagId } shouldBe listOf(changedTagId)
+            }
         }
 
         test("TC-MEMO-DETAIL-DATA-019 연결된 태그가 완료되어도 조회 결과에 남는다") {

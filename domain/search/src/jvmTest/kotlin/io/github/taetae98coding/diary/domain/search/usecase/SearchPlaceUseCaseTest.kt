@@ -56,6 +56,29 @@ class SearchPlaceUseCaseTest :
             }
         }
 
+        Given("로그인하지 않은 게스트 상태이고 질의를 만족하는 장소가 준비되어 있다") {
+            val placeList = List(2) { place() }
+            val getAccountUseCase = mockk<GetAccountUseCase>()
+            val searchPlaceRepository = mockk<SearchPlaceRepository>()
+            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(Account.Guest))
+            every {
+                searchPlaceRepository.page(account = Account.Guest, query = QUERY, sort = ListSort.TITLE)
+            } returns flowOf(PagingData.from(placeList))
+            val useCase =
+                SearchPlaceUseCase(
+                    getAccountUseCase = getAccountUseCase,
+                    searchPlaceRepository = searchPlaceRepository,
+                )
+
+            When("질의로 장소를 검색한다") {
+                Then("TC-SEARCH-HOME-DOMAIN-015 게스트 계정의 검색 결과를 같은 기준으로 전달한다") {
+                    val pagingData = useCase(parameter = SearchPlaceUseCase.Parameter(query = QUERY, sort = ListSort.TITLE)).first().shouldBeSuccess()
+
+                    flowOf(pagingData).asSnapshot() shouldBe placeList
+                }
+            }
+        }
+
         Given("빈 질의가 준비되어 있다") {
             val getAccountUseCase = mockk<GetAccountUseCase>()
             val searchPlaceRepository = mockk<SearchPlaceRepository>()

@@ -6,7 +6,9 @@ import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.ActivityResultRegistryOwner
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.core.app.ActivityOptionsCompat
@@ -76,6 +78,21 @@ class CalendarHomeScreenLocationPermissionTest {
     }
 
     @Test
+    fun `TC-LOCATION-PERMISSION-FEATURE-003 요청을 허용해도 캘린더 홈 화면이 유지되고 별도 안내가 표시되지 않는다`() {
+        val registry = PermissionResultRegistry(result = GRANTED_RESULT)
+
+        setCalendarHomeScreen(
+            registry = registry,
+            weatherViewModel = weatherViewModel(),
+        )
+        composeRule.waitForIdle()
+
+        registry.launchedPermissionList shouldHaveSize 1
+        composeRule.onNodeWithText(CalendarHomeTestFixture.englishTitle(JULY_2026)).assertIsDisplayed()
+        composeRule.onAllNodes(isDialog()).assertCountEquals(0)
+    }
+
+    @Test
     fun `TC-LOCATION-PERMISSION-FEATURE-003 요청을 거부해도 캘린더 홈 화면이 유지되고 별도 안내가 표시되지 않는다`() {
         val registry = PermissionResultRegistry(result = DENIED_RESULT)
 
@@ -85,7 +102,9 @@ class CalendarHomeScreenLocationPermissionTest {
         )
         composeRule.waitForIdle()
 
+        registry.launchedPermissionList shouldHaveSize 1
         composeRule.onNodeWithText(CalendarHomeTestFixture.englishTitle(JULY_2026)).assertIsDisplayed()
+        composeRule.onAllNodes(isDialog()).assertCountEquals(0)
     }
 
     @Test

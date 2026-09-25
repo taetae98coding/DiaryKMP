@@ -264,7 +264,7 @@ class EntityTagPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-DOMAIN-016 메모리 정리 뒤 복원하면 목록이 다시 열리고 검색어가 다시 나타나 그 검색어를 다시 전달한다`() {
+    fun `TC-ENTITY-TAG-INPUT-DOMAIN-017 메모리 정리 뒤 복원하면 목록이 다시 열리고 검색어가 다시 나타나 그 검색어를 다시 전달한다`() {
         val tagList = listOf(entityTestTag(title = WORK_TAG_TITLE), entityTestTag(title = EXERCISE_TAG_TITLE))
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var dialogState: DialogState

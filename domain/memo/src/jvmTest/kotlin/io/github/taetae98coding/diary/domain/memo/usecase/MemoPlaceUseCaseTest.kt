@@ -60,7 +60,7 @@ class MemoPlaceUseCaseTest :
                     }
                 }
 
-                Then("TC-MEMO-DETAIL-DATA-042 TC-MEMO-PLACE-DATA-005 장소 선택은 연결 변경을 서버와 맞추기 위한 동기화를 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-MEMO-DETAIL-DATA-042 TC-MEMO-PLACE-DATA-005 장소 선택은 연결 변경을 서버와 맞추기 위한 동기화를 요청한다") {
                     val requestSyncUseCase = mockk<RequestSyncUseCase>(relaxed = true)
                     val useCase =
                         AddMemoPlaceUseCase(
@@ -85,7 +85,7 @@ class MemoPlaceUseCaseTest :
             }
 
             When("장소를 해제한다") {
-                Then("TC-MEMO-DETAIL-DATA-042 장소 선택 해제는 연결 변경을 서버와 맞추기 위한 동기화를 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-MEMO-DETAIL-DATA-042 장소 선택 해제는 연결 변경을 서버와 맞추기 위한 동기화를 요청한다") {
                     val requestSyncUseCase = mockk<RequestSyncUseCase>(relaxed = true)
                     val useCase =
                         RemoveMemoPlaceUseCase(

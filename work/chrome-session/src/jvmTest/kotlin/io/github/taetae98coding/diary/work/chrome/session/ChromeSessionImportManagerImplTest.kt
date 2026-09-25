@@ -189,6 +189,34 @@ class ChromeSessionImportManagerImplTest :
             }
         }
 
+        test("TC-CHROME-SESSION-IMPORT-DOMAIN-023 가져오는 중에 선택 안 함으로 되돌리면 진행 중인 가져오기를 취소하고 지운 뒤 가져온 적 없음이 된다") {
+            runTest {
+                val pending = CompletableDeferred<Result<Unit>>()
+                val findUseCase = mockk<FindChromeSessionImportProfileUseCase>()
+                coEvery { findUseCase(Unit) } returnsMany listOf(Result.success(profileA), Result.success(null))
+                val importUseCase = mockk<ImportChromeSessionUseCase>()
+                coEvery { importUseCase(profileA) } coAnswers { pending.await() }
+                val repository = repository()
+                val manager = manager(scope = backgroundScope, findUseCase = findUseCase, importUseCase = importUseCase, repository = repository)
+
+                manager.state.test {
+                    awaitItem() shouldBe ChromeSessionImportState.IDLE
+
+                    manager.requestImport(clearsBefore = false)
+                    awaitItem() shouldBe ChromeSessionImportState.IMPORTING
+
+                    manager.requestImport(clearsBefore = true)
+                    awaitItem() shouldBe ChromeSessionImportState.IDLE
+                    advanceUntilIdle()
+                    expectNoEvents()
+                }
+
+                pending.isCompleted shouldBe false
+                coVerify(exactly = 1) { repository.deleteAll() }
+                coVerify(exactly = 1) { importUseCase(any()) }
+            }
+        }
+
         test("가져오는 중에 취소된 뒤 가져올 프로필이 없으면 가져오기 전 상태로 돌아간다") {
             runTest {
                 val pending = CompletableDeferred<Result<Unit>>()

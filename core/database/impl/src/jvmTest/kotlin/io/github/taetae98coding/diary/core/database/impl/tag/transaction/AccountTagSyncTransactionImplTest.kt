@@ -81,7 +81,7 @@ class AccountTagSyncTransactionImplTest :
             tagId: Uuid,
         ): Boolean = syncDataSource.findPending(accountId = accountId).any { tag -> tag.id == tagId }
 
-        test("TC-DATA-SYNC-DOMAIN-009 현재 계정의 업로드 대기 태그를 조회하고 완료 태그는 제외한다") {
+        test("TC-DATA-SYNC-DOMAIN-009 현재 계정의 업로드 대기 태그를 조회하고 동기화 완료 태그는 제외한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstPendingTag = tag()
@@ -96,6 +96,16 @@ class AccountTagSyncTransactionImplTest :
             syncDataSource
                 .findPending(accountId = accountId)
                 .shouldContainExactlyInAnyOrder(firstPendingTag, secondPendingTag)
+        }
+
+        test("TC-DATA-SYNC-DOMAIN-087 로그인한 계정의 업로드 대상에 게스트 상태에서 만든 태그는 포함되지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val guestTag = tag()
+            val accountTag = tag()
+            insertWithSyncState(Uuid.NIL, guestTag, isDirty = true)
+            insertWithSyncState(accountId, accountTag, isDirty = true)
+
+            syncDataSource.findPending(accountId = accountId) shouldBe listOf(accountTag)
         }
 
         test("TC-DATA-SYNC-DOMAIN-026 업로드한 수정 시각이 그대로면 동기화 완료가 된다") {
@@ -198,7 +208,7 @@ class AccountTagSyncTransactionImplTest :
         listOf(
             "늦음" to Instant.fromEpochMilliseconds(3_000),
             "같음" to Instant.fromEpochMilliseconds(2_000),
-            "이름" to Instant.fromEpochMilliseconds(1_000),
+            "이른" to Instant.fromEpochMilliseconds(1_000),
         ).forEach { (label, remoteUpdatedAt) ->
             test("TC-DATA-SYNC-DATA-024 서버의 수정 시각이 기기보다 $label 이어도 업로드 대기 여부는 바뀌지 않는다") {
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()

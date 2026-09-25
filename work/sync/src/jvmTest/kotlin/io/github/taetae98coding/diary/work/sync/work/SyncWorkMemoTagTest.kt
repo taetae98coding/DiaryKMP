@@ -189,7 +189,7 @@ class SyncWorkMemoTagTest :
             coVerify(exactly = 0) { context.accountMemoTagSyncTransaction.save(any(), any(), any()) }
         }
 
-        test("요청에 전달된 계정의 메모 태그만 조회한다") {
+        test("실행 시점에 확인된 계정의 메모 태그만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val context = context(accountId = accountId)

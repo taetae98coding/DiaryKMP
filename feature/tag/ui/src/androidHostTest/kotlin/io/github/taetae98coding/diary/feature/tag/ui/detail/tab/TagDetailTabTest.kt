@@ -75,6 +75,7 @@ class TagDetailTabTest {
         setTagDetailScaffold()
 
         composeRule.onNodeWithContentDescription(DEFAULT_DETAIL_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.titleInput().assertExists()
         composeRule.onNodeWithTag(TAG_DETAIL_MEMO_LIST_TEST_TAG).assertDoesNotExist()
         composeRule.onNodeWithTag(TAG_DETAIL_WEB_LIST_TEST_TAG).assertDoesNotExist()
         composeRule.onNodeWithTag(TAG_DETAIL_PLACE_LIST_TEST_TAG).assertDoesNotExist()
@@ -144,6 +145,7 @@ class TagDetailTabTest {
 
         composeRule.onNodeWithContentDescription(DEFAULT_DETAIL_TAB_DESCRIPTION).assertIsSelected()
         composeRule.onNodeWithTag(TAG_DETAIL_MEMO_LIST_TEST_TAG).assertDoesNotExist()
+        composeRule.titleInput().assertExists()
     }
 
     @Test
@@ -249,6 +251,27 @@ class TagDetailTabTest {
             composeRule.onNodeWithContentDescription(DEFAULT_FINISH_BUTTON_DESCRIPTION).assert(hasClickAction())
             composeRule.onNodeWithContentDescription(DEFAULT_DELETE_BUTTON_DESCRIPTION).assert(hasClickAction())
         }
+    }
+
+    @Test
+    fun `TC-TAG-DETAIL-FEATURE-060 완료된 태그의 TagDetail 화면에서도 네 탭을 모두 사용할 수 있다`() {
+        setTagDetailScaffold(uiStateProvider = { tagDetailUiState(detail = tagDetail(TAG_TITLE), isFinished = true) })
+
+        mapOf(
+            DEFAULT_MEMO_TAB_DESCRIPTION to TAG_DETAIL_MEMO_LIST_TEST_TAG,
+            DEFAULT_WEB_TAB_DESCRIPTION to TAG_DETAIL_WEB_LIST_TEST_TAG,
+            DEFAULT_PLACE_TAB_DESCRIPTION to TAG_DETAIL_PLACE_LIST_TEST_TAG,
+        ).forEach { (tabDescription, listTestTag) ->
+            selectTab(tabDescription)
+
+            composeRule.onNodeWithContentDescription(tabDescription).assertIsSelected()
+            composeRule.onNodeWithTag(listTestTag).assertExists()
+        }
+
+        selectTab(DEFAULT_DETAIL_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_DETAIL_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.titleInput().assertExists()
     }
 
     private fun selectTab(contentDescription: String) {

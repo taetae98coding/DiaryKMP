@@ -14,7 +14,7 @@ class JvmPermissionManagerTest :
             JvmPermissionManager().request(Permission.LOCATION) shouldBe PermissionResult.DENIED
         }
 
-        test("권한 개념이 없는 환경에서는 모든 권한의 허용 여부가 허용되지 않음이다") {
+        test("TC-LOCATION-PERMISSION-DOMAIN-011 권한 개념이 없는 환경에서는 허용 여부가 허용되지 않음이다") {
             val permissionManager = JvmPermissionManager()
 
             Permission.entries.forEach { permission ->

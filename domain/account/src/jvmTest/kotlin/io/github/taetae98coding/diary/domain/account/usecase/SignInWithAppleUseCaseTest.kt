@@ -65,7 +65,7 @@ class SignInWithAppleUseCaseTest :
             When("해당 credential로 로그인을 요청한다") {
                 useCase(parameter = credential)
 
-                Then("TC-LOGIN-DOMAIN-003 그 원인을 담은 오류 보고가 한 번 남는다") {
+                Then("TC-LOGIN-DOMAIN-003 TC-USECASE-FAILURE-LOGGING-DOMAIN-009 그 원인을 담은 오류 보고가 한 번 남는다") {
                     val report = reportList.single()
 
                     report.throwable shouldBeSameInstanceAs failure

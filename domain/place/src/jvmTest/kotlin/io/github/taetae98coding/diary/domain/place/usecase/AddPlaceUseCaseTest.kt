@@ -242,7 +242,7 @@ class AddPlaceUseCaseTest :
                 )
 
             When("장소 추가에 성공한다") {
-                Then("TC-PLACE-ADD-DATA-006 추가한 장소를 서버와 맞추기 위한 동기화를 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-PLACE-ADD-DATA-006 추가한 장소를 서버와 맞추기 위한 동기화를 요청한다") {
                     useCase(parameter = AddPlaceUseCase.Parameter(detail = detail(), tagIdSet = emptySet())).shouldBeSuccess()
 
                     coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }

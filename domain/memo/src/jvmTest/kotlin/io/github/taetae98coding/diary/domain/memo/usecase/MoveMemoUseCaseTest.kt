@@ -103,7 +103,7 @@ class MoveMemoUseCaseTest :
                     detailSlot.captured.dateTime shouldBe MemoDateTime.AllDay(dateRange = july(day = 21)..july(day = 23))
                 }
 
-                Then("TC-CALENDAR-MEMO-MOVE-DATA-003 저장 후 동기화를 한 번 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-CALENDAR-MEMO-MOVE-DATA-003 저장 후 동기화를 한 번 요청한다") {
                     val dateTime = MemoDateTime.AllDay(dateRange = july(day = 14)..july(day = 16))
                     val dateRange = july(day = 15)..july(day = 17)
 

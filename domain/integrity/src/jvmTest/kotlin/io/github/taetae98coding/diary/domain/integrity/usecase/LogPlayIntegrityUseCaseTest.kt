@@ -18,6 +18,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
@@ -177,6 +178,7 @@ class LogPlayIntegrityUseCaseTest :
                     buildJsonObject { putJsonArray("deviceRecognitionVerdict") {} },
                     buildJsonObject {},
                     buildJsonObject { putJsonObject("deviceAttributes") {} },
+                    buildJsonObject { put("deviceRecognitionVerdict", JsonNull) },
                 )
 
             When("판정을 확인한다") {

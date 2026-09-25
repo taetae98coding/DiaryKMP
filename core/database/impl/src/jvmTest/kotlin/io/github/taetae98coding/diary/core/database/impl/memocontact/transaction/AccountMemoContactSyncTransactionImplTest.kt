@@ -94,6 +94,16 @@ class AccountMemoContactSyncTransactionImplTest :
                 .shouldContainExactlyInAnyOrder(firstPending, secondPending)
         }
 
+        test("TC-DATA-SYNC-DOMAIN-087 로그인한 계정의 업로드 대상에 게스트 상태에서 만든 메모와 연락처의 연결은 포함되지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val guestEntity = memoContact()
+            val accountEntity = memoContact()
+            insertWithSyncState(accountId = Uuid.NIL, memoContact = guestEntity, isDirty = true)
+            insertWithSyncState(accountId = accountId, memoContact = accountEntity, isDirty = true)
+
+            syncDataSource.findPending(accountId = accountId) shouldBe listOf(accountEntity)
+        }
+
         test("TC-DATA-SYNC-DOMAIN-026 업로드한 수정 시각이 그대로면 동기화 완료가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memoContact = memoContact()

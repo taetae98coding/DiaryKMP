@@ -184,6 +184,24 @@ class MemoAddScreenTagTest {
     }
 
     @Test
+    fun `TC-MEMO-TAG-INPUT-FEATURE-022 대표 태그 칩을 눌러도 선택 상태와 대표 지정, 태그 선택 목록은 바뀌지 않는다`() {
+        val navigatedTagIdList = mutableListOf<Uuid>()
+        val workTag = testTag(title = WORK_TAG_TITLE)
+        val exerciseTag = testTag(title = EXERCISE_TAG_TITLE)
+        setMemoAddScreen(viewModels = screenTestRealViewModel(tagList = listOf(workTag, exerciseTag)), navigateToTagDetail = navigatedTagIdList::add)
+        selectWorkTagAndPrimaryExerciseTag()
+
+        composeRule.onNodeWithText(EXERCISE_TAG_TITLE).performClick()
+        composeRule.waitForIdle()
+
+        navigatedTagIdList shouldBe listOf(exerciseTag.id)
+        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
+        composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertExists()
+        composeRule.onAllNodesWithContentDescription(DEFAULT_PRIMARY_TAG_DESCRIPTION).assertCountEquals(1)
+    }
+
+    @Test
     fun `TC-MEMO-TAG-INPUT-FEATURE-020 목록을 닫아도 반영된 선택과 대표 태그 지정이 유지된다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
         setMemoAddScreen(viewModels = screenTestRealViewModel(tagList = tagList))

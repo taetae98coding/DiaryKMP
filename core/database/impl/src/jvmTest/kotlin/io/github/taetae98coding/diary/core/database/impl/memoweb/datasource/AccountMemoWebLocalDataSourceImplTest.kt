@@ -7,13 +7,16 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
+import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memoweb.entity.MemoWebLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebHeaderLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
+import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.memo.transaction.AccountMemoTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.memoweb.transaction.AccountMemoWebSyncTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.web.transaction.AccountWebSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.web.transaction.AccountWebTransactionImpl
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
@@ -146,7 +149,7 @@ class AccountMemoWebLocalDataSourceImplTest :
             dataSource.getWebList(accountId = accountId, memoId = missingMemoId).first().shouldBeEmpty()
         }
 
-        test("메모가 내려받아지면 먼저 저장되어 있던 연결의 웹 항목이 함께 나타난다") {
+        test("TC-MEMO-WEB-DATA-012 메모가 내려받아지면 먼저 저장되어 있던 연결의 웹 항목이 함께 나타난다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val web = web()
@@ -175,6 +178,79 @@ class AccountMemoWebLocalDataSourceImplTest :
             insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(web()))
 
             dataSource.getWebList(accountId = otherAccountId, memoId = memo.id).first().shouldBeEmpty()
+        }
+
+        test("TC-MEMO-WEB-DOMAIN-017 계정과 연결되지 않은 웹 항목은 메모의 연결된 웹 항목으로 조회되지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = memo()
+            val otherAccountWeb = web()
+            webTransaction.upsert(accountId = otherAccountId, webList = listOf(otherAccountWeb), webTagList = emptyList())
+
+            memoTransaction.upsert(
+                accountId = accountId,
+                memoList = listOf(memo),
+                memoTagList = emptyList(),
+                memoWebList = listOf(memoWeb(memoId = memo.id, webId = otherAccountWeb.id)),
+            )
+
+            database.memoWebDao().findByMemoIdList(listOf(memo.id)).size shouldBe 1
+            dataSource.getWebList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
+        }
+
+        test("TC-MEMO-WEB-DOMAIN-018 같은 태그와 연결되어 있어도 메모와 웹 항목은 연결되지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = memo()
+            val web = web()
+            webTransaction.upsert(
+                accountId = accountId,
+                webList = listOf(web),
+                webTagList =
+                    listOf(
+                        WebTagLocalEntity(
+                            webId = web.id,
+                            tagId = tagId,
+                            isDeleted = false,
+                            updatedAt = web.updatedAt,
+                            createdAt = web.createdAt,
+                        ),
+                    ),
+            )
+
+            memoTransaction.upsert(
+                accountId = accountId,
+                memoList = listOf(memo),
+                memoTagList =
+                    listOf(
+                        MemoTagLocalEntity(
+                            memoId = memo.id,
+                            tagId = tagId,
+                            isDeleted = false,
+                            updatedAt = memo.updatedAt,
+                            createdAt = memo.createdAt,
+                        ),
+                    ),
+            )
+
+            dataSource.getWebList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
+        }
+
+        test("TC-MEMO-WEB-DOMAIN-019 삭제된 웹 항목의 삭제가 다른 기기에서 받은 내용으로 풀리면 다시 조회된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = memo()
+            val web = web()
+            insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(web))
+            webTransaction.upsert(accountId = accountId, webList = listOf(web.copy(isDeleted = true)), webTagList = emptyList())
+            dataSource.getWebList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
+
+            AccountWebSyncTransactionImpl(database = database).save(
+                accountId = accountId,
+                webList = listOf(web.copy(isDeleted = false)),
+                cursor = 1L,
+            )
+
+            dataSource.getWebList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(web)
         }
 
         test("TC-MEMO-WEB-INPUT-DOMAIN-001 선택할 수 있는 웹 항목은 계정과 연결된 삭제되지 않은 웹 항목이다") {

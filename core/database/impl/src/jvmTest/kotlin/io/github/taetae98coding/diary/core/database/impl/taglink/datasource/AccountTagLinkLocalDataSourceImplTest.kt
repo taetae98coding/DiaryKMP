@@ -291,6 +291,13 @@ class AccountTagLinkLocalDataSourceImplTest :
 
             tagTransaction.updateFinished(accountId = accountId, tagId = toTag.id, isFinished = true, updatedAt = instant())
             linkedTagIdList(accountId = accountId, fromTagId = fromTag.id) shouldBe listOf(toTag.id)
+
+            tagTransaction.updateDeleted(accountId = accountId, tagId = toTag.id, isDeleted = true, updatedAt = instant())
+            database
+                .tagLinkDao()
+                .findByFromTagIdList(listOf(fromTag.id))
+                .single()
+                .isDeleted shouldBe false
         }
 
         test("TC-TAG-LINK-DOMAIN-013 삭제된 도착 태그는 조회되지 않고 다른 기기에서 받은 내용으로 삭제가 풀리면 다시 조회된다") {

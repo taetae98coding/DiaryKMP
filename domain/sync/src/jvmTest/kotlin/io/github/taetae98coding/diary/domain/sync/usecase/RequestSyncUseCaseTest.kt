@@ -33,7 +33,7 @@ class RequestSyncUseCaseTest :
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
 
             When("메모나 태그에 변경이 발생해 동기화를 요청한다") {
-                Then("TC-DATA-SYNC-DOMAIN-024 확인된 사용자 계정으로 동기화가 한 번 요청된다") {
+                Then("TC-DATA-SYNC-DOMAIN-024 TC-SYNC-REFRESH-FEATURE-004 데이터 변경 계기면 확인된 사용자 계정으로 진행을 보고하지 않는 동기화가 한 번 요청된다") {
                     val syncManager = mockk<SyncManager>(relaxed = true)
                     val useCase =
                         requestSyncUseCase(getAccountUseCase = getAccountUseCase, syncManager = syncManager)
@@ -90,7 +90,7 @@ class RequestSyncUseCaseTest :
             }
 
             When("사용자가 화면을 당겨 새로고침을 요청한다") {
-                Then("동기화가 요청되지 않는다") {
+                Then("TC-SYNC-REFRESH-FEATURE-008 로그인 정보가 유효하지 않으면 계정 데이터 서버 동기화가 요청되지 않아 진행 표시 대상도 없다") {
                     val result = useCase(parameter = SyncTrigger.USER_REQUESTED)
 
                     result.shouldBeSuccess(Unit)
@@ -107,7 +107,7 @@ class RequestSyncUseCaseTest :
                 requestSyncUseCase(getAccountUseCase = getAccountUseCase, syncManager = syncManager)
 
             When("메모, 태그, 장소, 웹 항목, 연락처, 곡 또는 일곱 연결 종류에 변경이 발생해 동기화를 요청한다") {
-                Then("TC-DATA-SYNC-DOMAIN-002 TC-PLACE-ADD-DATA-008 TC-WEB-ADD-DATA-007 동기화가 요청되지 않는다") {
+                Then("TC-DATA-SYNC-DOMAIN-002 TC-PLACE-ADD-DATA-008 TC-WEB-ADD-DATA-007 TC-CONTACT-ADD-DATA-011 TC-MEMO-ADD-DATA-025 TC-WEB-HOME-DATA-008 동기화가 요청되지 않는다") {
                     val result = useCase(parameter = SyncTrigger.DATA_CHANGED)
 
                     result.shouldBeSuccess(Unit)

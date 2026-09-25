@@ -276,7 +276,7 @@ class AddWebUseCaseTest :
                 )
 
             When("웹 항목 추가에 성공한다") {
-                Then("TC-WEB-ADD-DATA-005 추가한 웹 항목을 서버와 맞추기 위한 동기화를 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-WEB-ADD-DATA-005 추가한 웹 항목을 서버와 맞추기 위한 동기화를 요청한다") {
                     useCase(parameter = AddWebUseCase.Parameter(detail = detail(), tagIdSet = emptySet())).shouldBeSuccess()
 
                     coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }

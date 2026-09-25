@@ -54,7 +54,7 @@ class TagHomeScaffoldFilterTest {
     }
 
     @Test
-    fun `필터를 적용하지 않으면 필터 버튼에 적용 상태를 알리지 않는다`() {
+    fun `TC-TAG-HOME-FEATURE-037 최상위 태그만 보기를 끄면 필터 버튼에 적용 상태를 알리지 않는다`() {
         setTagHomeScaffold(isFilterApplied = false)
 
         composeRule
@@ -63,7 +63,7 @@ class TagHomeScaffoldFilterTest {
     }
 
     @Test
-    fun `필터를 적용하면 필터 버튼이 적용 상태를 알린다`() {
+    fun `TC-TAG-HOME-FEATURE-037 최상위 태그만 보기를 켜면 필터 버튼이 적용 상태를 알린다`() {
         setTagHomeScaffold(isFilterApplied = true)
 
         composeRule

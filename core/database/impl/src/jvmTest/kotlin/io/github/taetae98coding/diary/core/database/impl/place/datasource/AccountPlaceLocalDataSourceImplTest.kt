@@ -256,7 +256,7 @@ class AccountPlaceLocalDataSourceImplTest :
             }
         }
 
-        test("선택한 식별자 조회는 현재 계정의 삭제되지 않은 장소만 제목 오름차순으로 전달한다") {
+        test("TC-MEMO-PLACE-CARD-DOMAIN-029 선택한 식별자 조회는 현재 계정의 삭제되지 않은 장소만 선택 순서와 관계없이 제목 오름차순으로 전달한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstPlace = place(title = FIRST_PLACE_TITLE)
@@ -274,7 +274,7 @@ class AccountPlaceLocalDataSourceImplTest :
             dataSource
                 .get(
                     accountId = accountId,
-                    placeIdSet = setOf(firstPlace.id, lastPlace.id, deletedPlace.id, otherAccountPlace.id),
+                    placeIdSet = setOf(lastPlace.id, deletedPlace.id, firstPlace.id, otherAccountPlace.id),
                 ).first() shouldBe listOf(firstPlace, lastPlace)
         }
 

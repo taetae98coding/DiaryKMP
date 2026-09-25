@@ -194,7 +194,7 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-020 삭제에 성공하면 이전 화면으로 돌아간다`() {
+    fun `TC-WEB-DETAIL-FEATURE-020 TC-TAG-DETAIL-WEB-FEATURE-020 삭제에 성공하면 뒤로가기와 같은 닫기로 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         val webViewModel = webViewModel(effect = flowOf(WebDetailEffect.DeleteSucceeded))
 

@@ -54,14 +54,14 @@ class DeleteWebUseCaseTest :
                 )
 
             When("웹 항목을 삭제한다") {
-                Then("TC-WEB-DETAIL-DOMAIN-016 삭제 여부와 수정 시각만 바꾼다") {
+                Then("TC-WEB-DETAIL-DOMAIN-016 TC-WEB-HOME-DOMAIN-010 삭제 여부와 수정 시각만 바꾼다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     isDeletedSlot.captured shouldBe true
                     updatedAtSlot.captured shouldBe now
                 }
 
-                Then("TC-WEB-DETAIL-DATA-011 TC-WEB-DETAIL-DATA-012 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-WEB-DETAIL-DATA-011 TC-WEB-DETAIL-DATA-012 TC-WEB-HOME-DATA-007 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }

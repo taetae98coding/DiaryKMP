@@ -36,16 +36,19 @@ class MemoTagInputTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-013 선택한 태그의 제목이 바뀌면 태그 칩에 반영된다`() {
+    fun `TC-MEMO-TAG-INPUT-FEATURE-013 선택한 태그의 이모지나 제목이 바뀌면 태그 칩에 반영된다`() {
         val tag = testTag(title = WORK_TAG_TITLE)
-        val renamedTag = tag.copy(detail = tag.detail.copy(title = RENAMED_TAG_TITLE))
+        val otherTag = testTag(title = EXERCISE_TAG_TITLE)
+        val renamedTag = tag.copy(detail = tag.detail.copy(emoji = RENAMED_TAG_EMOJI, title = RENAMED_TAG_TITLE))
+        val selectTagList = composeRule.setMemoTagInputWithSelection()
+        selectTagList(listOf(tag, otherTag), tag.id)
+        composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
 
-        composeRule.setMemoTagInput(
-            uiState = MemoTagInputUiState(selectedTagList = listOf(renamedTag), primaryTagId = renamedTag.id),
-        )
+        selectTagList(listOf(renamedTag, otherTag), tag.id)
 
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertDoesNotExist()
-        composeRule.onNodeWithText(RENAMED_TAG_TITLE).assertExists()
+        composeRule.onNodeWithText("$RENAMED_TAG_EMOJI $RENAMED_TAG_TITLE").assertExists()
+        composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertExists()
         composeRule.onNodeWithContentDescription(DEFAULT_PRIMARY_TAG_DESCRIPTION).assertExists()
     }
 
@@ -132,6 +135,7 @@ class MemoTagInputTest {
         private const val SCROLL_TAG_TITLE_PREFIX = "MemoTagScroll"
         private const val SCROLL_TAG_COUNT = 30
         private const val RENAMED_TAG_TITLE = "MemoTagRenamed"
+        private const val RENAMED_TAG_EMOJI = "🏃"
     }
 }
 

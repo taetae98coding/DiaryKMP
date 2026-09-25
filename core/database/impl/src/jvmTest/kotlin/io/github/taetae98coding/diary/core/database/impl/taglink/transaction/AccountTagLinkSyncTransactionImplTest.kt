@@ -82,7 +82,7 @@ class AccountTagLinkSyncTransactionImplTest :
                 .findPending(accountId = accountId)
                 .any { pending -> pending.fromTagId == tagLink.fromTagId && pending.toTagId == tagLink.toTagId }
 
-        test("TC-TAG-LINK-DATA-003 그 계정에서 연결하거나 해제한 연결은 그 계정의 업로드 대기로만 조회된다") {
+        test("TC-TAG-LINK-DATA-003 TC-DATA-SYNC-DOMAIN-001 그 계정에서 연결하거나 해제한 연결은 그 계정의 업로드 대기로만 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val linkTransaction = AccountTagLinkTransactionImpl(database = database)
@@ -128,6 +128,16 @@ class AccountTagLinkSyncTransactionImplTest :
             syncDataSource
                 .findPending(accountId = accountId)
                 .shouldContainExactlyInAnyOrder(firstPending, secondPending)
+        }
+
+        test("TC-DATA-SYNC-DOMAIN-087 로그인한 계정의 업로드 대상에 게스트 상태에서 만든 태그와 태그의 연결은 포함되지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val guestEntity = tagLink()
+            val accountEntity = tagLink()
+            insertWithSyncState(accountId = Uuid.NIL, tagLink = guestEntity, isDirty = true)
+            insertWithSyncState(accountId = accountId, tagLink = accountEntity, isDirty = true)
+
+            syncDataSource.findPending(accountId = accountId) shouldBe listOf(accountEntity)
         }
 
         test("TC-DATA-SYNC-DOMAIN-026 업로드한 수정 시각이 그대로면 동기화 완료가 된다") {

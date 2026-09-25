@@ -2,10 +2,13 @@ package io.github.taetae98coding.diary.feature.memo.ui.add
 
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -15,6 +18,7 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.navigation3.runtime.result.ResultEventBus
@@ -29,6 +33,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiVie
 import io.github.taetae98coding.diary.feature.memo.ui.place.DEFAULT_PLACE_PICKER_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.place.DEFAULT_PLACE_SELECT_LABEL
 import io.github.taetae98coding.diary.feature.memo.ui.place.HOME_PLACE_TITLE
+import io.github.taetae98coding.diary.feature.memo.ui.place.MEMO_PLACE_PICKER_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.memo.ui.place.OFFICE_PLACE_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.place.placeDialogNodeWithText
 import io.github.taetae98coding.diary.feature.memo.ui.place.placePagingDataOf
@@ -200,6 +205,42 @@ class MemoAddScreenPlaceTest {
         composeRule.onNodeWithText(HOME_PLACE_TITLE).assertExists()
     }
 
+    @Test
+    fun `TC-MEMO-PLACE-CARD-FEATURE-038 목록을 닫았다가 다시 열면 앞부분부터 나타난다`() {
+        val placeList =
+            List(PICKER_PLACE_COUNT) { index ->
+                testPlace(title = "$PICKER_PLACE_TITLE_PREFIX${index.toString().padStart(length = 3, padChar = '0')}")
+            }
+        setMemoAddScreen(viewModels = screenTestRealViewModel(placeList = placeList))
+
+        composeRule.openPlacePicker()
+        composeRule.awaitPlacePickerRows()
+        composeRule.onNode(hasTestTag(MEMO_PLACE_PICKER_LIST_TEST_TAG)).performScrollToIndex(placeList.lastIndex)
+        composeRule.waitForIdle()
+        composeRule.placeDialogNodeWithText(placeList.first().detail.title).assertIsNotDisplayed()
+
+        composeRule.closeDialogByBack()
+        composeRule.openPlacePicker()
+        composeRule.awaitPlacePickerRows()
+
+        composeRule.placeDialogNodeWithText(placeList.first().detail.title).assertIsDisplayed()
+    }
+
+    /**
+     * 선택 목록은 나누어 준비되므로 첫 구간이 목록에 나타날 때까지 프레임과 실제 시간을 함께 진행시킨다.
+     */
+    private fun ComposeContentTestRule.awaitPlacePickerRows() {
+        repeat(PICKER_WAIT_ATTEMPT_COUNT) {
+            waitForIdle()
+            if (onNode(hasTestTag(MEMO_PLACE_PICKER_LIST_TEST_TAG)).fetchSemanticsNode().children.isNotEmpty()) return
+            mainClock.advanceTimeByFrame()
+            @Suppress("ForbiddenMethodCall")
+            Thread.sleep(PICKER_WAIT_INTERVAL_MILLIS)
+        }
+
+        error("장소 선택 목록의 첫 구간이 준비되지 않았다")
+    }
+
     /**
      * 장소 추가 칩은 칩 영역의 자체 스크롤 안에 있어 본문 스크롤로 표시 영역까지 옮길 수 없으므로 클릭 동작을 직접 실행한다.
      */
@@ -252,5 +293,9 @@ class MemoAddScreenPlaceTest {
     private companion object {
         private const val TYPED_TITLE = "MemoTitleInput"
         private const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add memo"
+        private const val PICKER_PLACE_TITLE_PREFIX = "MemoPlacePicker"
+        private const val PICKER_PLACE_COUNT: Int = 30
+        private const val PICKER_WAIT_ATTEMPT_COUNT: Int = 500
+        private const val PICKER_WAIT_INTERVAL_MILLIS: Long = 10
     }
 }

@@ -28,6 +28,8 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.spyk
 import kotlinx.coroutines.flow.first
+import kotlinx.datetime.LocalDateRange
+import kotlinx.datetime.atTime
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -95,7 +97,7 @@ class AccountMemoTransactionImplTest :
                 .any { memo -> memo.id == memoId } shouldBe true
         }
 
-        test("TC-DATA-SYNC-DOMAIN-001 메모 생성·수정·완료·다시 시작·삭제·실행 취소·대표 태그 지정과 해제는 업로드 대기 상태가 된다") {
+        test("TC-DATA-SYNC-DOMAIN-001 TC-MEMO-ADD-DATA-023 메모 생성·수정·복사·이동·완료·다시 시작·삭제·실행 취소·대표 태그 지정과 해제는 업로드 대기 상태가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val updatedAt = instant()
@@ -108,6 +110,27 @@ class AccountMemoTransactionImplTest :
                 accountId = accountId,
                 memoId = memo.id,
                 detail = fixtureMonkey.giveMeOne<MemoDetailLocalEntity>(),
+                updatedAt = updatedAt,
+            )
+            assertPending(accountId = accountId, memoId = memo.id)
+
+            // 복사는 원본의 내용을 담은 새 메모를 저장한다.
+            val copiedMemo = memo().copy(detail = memo.detail)
+            transaction.upsert(accountId = accountId, memoList = listOf(copiedMemo), memoTagList = emptyList())
+            assertPending(accountId = accountId, memoId = copiedMemo.id)
+
+            // 이동은 기간만 바꾼 내용을 수정으로 저장한다.
+            val movedDateRange = fixtureMonkey.giveMeOne<LocalDateRange>()
+            insertWithSyncState(accountId, memo, isDirty = false)
+            transaction.updateDetail(
+                accountId = accountId,
+                memoId = memo.id,
+                detail =
+                    memo.detail.copy(
+                        isAllDay = true,
+                        start = movedDateRange.start.atTime(hour = 0, minute = 0),
+                        endInclusive = movedDateRange.endInclusive.atTime(hour = 0, minute = 0),
+                    ),
                 updatedAt = updatedAt,
             )
             assertPending(accountId = accountId, memoId = memo.id)

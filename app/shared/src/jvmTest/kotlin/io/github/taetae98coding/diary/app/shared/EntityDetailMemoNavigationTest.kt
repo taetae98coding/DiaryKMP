@@ -15,8 +15,11 @@ import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
+import io.github.taetae98coding.diary.feature.place.api.PlaceAddNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceHomeNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
+import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebHomeNavKey
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -79,6 +82,32 @@ class EntityDetailMemoNavigationTest :
                 withClue(keys) {
                     appState.isNavigationVisible.shouldBeFalse()
                     appState.currentTopLevelNavigation shouldBe TopLevelNavigation.More
+                }
+            }
+        }
+
+        test(
+            "TC-TAG-DETAIL-MEMO-FEATURE-031 TC-TAG-DETAIL-WEB-FEATURE-019 TC-TAG-DETAIL-PLACE-FEATURE-035 " +
+                "넓은 화면에서도 TagDetail의 목록 탭에서 이어진 추가와 상세 화면에서는 내비게이션을 숨긴다",
+        ) {
+            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val tagDetailBackStack = listOf(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.Tag.key, TagDetailNavKey(id = tagId))
+            val backStackCases =
+                listOf(
+                    tagDetailBackStack + MemoAddNavKey(primaryTagId = tagId),
+                    tagDetailBackStack + MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                    tagDetailBackStack + WebAddNavKey(initialTagId = tagId),
+                    tagDetailBackStack + WebDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                    tagDetailBackStack + PlaceAddNavKey(initialTagId = tagId),
+                    tagDetailBackStack + PlaceDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                )
+
+            backStackCases.forEach { keys ->
+                val appState = createAppState(keys = keys)
+
+                withClue(keys) {
+                    appState.isNavigationVisible.shouldBeFalse()
+                    appState.currentTopLevelNavigation shouldBe TopLevelNavigation.Tag
                 }
             }
         }

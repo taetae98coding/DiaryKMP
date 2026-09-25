@@ -2,10 +2,10 @@
 
 package io.github.taetae98coding.diary.feature.memo.ui
 
+import androidx.activity.ComponentActivity
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
-import androidx.compose.material3.adaptive.navigation3.rememberListDetailSceneStrategy
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -19,7 +19,7 @@ import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
@@ -38,6 +38,7 @@ import androidx.navigation3.ui.NavDisplay
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
+import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -46,6 +47,7 @@ import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddContactViewModel
@@ -64,6 +66,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.web.testWeb
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -85,7 +88,7 @@ import kotlin.uuid.Uuid
 @Config(sdk = [36], qualifiers = "w1280dp-h1600dp")
 class MemoListDetailPlaceholderTest {
     @get:Rule
-    val composeRule = createComposeRule()
+    val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     private var currentInput: PlaceholderInput? = null
     private val tagViewModelList = mutableListOf<MemoAddTagViewModel>()
@@ -126,12 +129,54 @@ class MemoListDetailPlaceholderTest {
 
     @Test
     fun `TC-MEMO-LIST-DETAIL-DOMAIN-003 배치를 떠나기 전에는 상세 영역에서 메모 상세를 보고 돌아와도 메모 추가의 입력과 선택이 남는다`() {
-        assertPlaceholderRetained(route = MemoDetailNavKey(id = Uuid.random()))
+        assertPlaceholderRetained(route = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()))
     }
 
     @Test
     fun `TC-MEMO-LIST-DETAIL-DOMAIN-003 배치를 떠나기 전에는 메모 추가에서 연 연결 항목 화면에 다녀와도 메모 추가의 입력과 선택이 남는다`() {
-        assertPlaceholderRetained(route = TagAddNavKey(requestKey = Uuid.random()))
+        assertPlaceholderRetained(route = TagAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()))
+    }
+
+    @Test
+    fun `TC-MEMO-LIST-DETAIL-FEATURE-021 메모 추가에 이어 연 메모 상세에서 뒤로가면 목록을 유지하고 메모 추가로 되돌아간다`() {
+        val input = placeholderInput()
+        val detail = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+        setMemoNavDisplay(input = input)
+        composeRule.runOnIdle {
+            backStack.add(MemoAddNavKey())
+            backStack.add(detail)
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(ROUTE_CONTENT).assertExists()
+
+        pressBack()
+
+        backStack.toList() shouldBe listOf(MemoHomeNavKey, MemoAddNavKey())
+        composeRule.onNodeWithText(MEMO_HOME_CONTENT).assertExists()
+        composeRule.onNodeWithText(ROUTE_CONTENT).assertDoesNotExist()
+        composeRule.onNodeWithText(MEMO_ADD_CONTENT).assertExists()
+    }
+
+    @Test
+    fun `TC-MEMO-LIST-DETAIL-FEATURE-021 선택한 메모 없이 목록에서 연 메모 상세에서 뒤로가면 목록을 유지하고 선택 전 메모 추가로 되돌아간다`() {
+        val input = placeholderInput()
+        setMemoNavDisplay(input = input)
+        composeRule.fillPlaceholder(input = input)
+        composeRule.runOnIdle { backStack.add(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())) }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(ROUTE_CONTENT).assertExists()
+
+        pressBack()
+
+        backStack.toList() shouldBe listOf(MemoHomeNavKey)
+        composeRule.onNodeWithText(MEMO_HOME_CONTENT).assertExists()
+        composeRule.onNodeWithText(ROUTE_CONTENT).assertDoesNotExist()
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().assert(hasText(input.title))
+    }
+
+    private fun pressBack() {
+        composeRule.runOnIdle { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
+        composeRule.waitForIdle()
     }
 
     private fun assertPlaceholderRetained(route: ScreenNavKey) {
@@ -162,7 +207,7 @@ class MemoListDetailPlaceholderTest {
                 CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
                     NavDisplay(
                         backStack = backStack,
-                        sceneStrategies = listOf(rememberListDetailSceneStrategy()),
+                        sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
                         entryDecorators =
                             listOf(
                                 rememberSaveableStateHolderNavEntryDecorator(),
@@ -177,6 +222,9 @@ class MemoListDetailPlaceholderTest {
                                 entry<MemoDetailNavKey>(
                                     metadata = ListDetailSceneStrategy.detailPane(sceneKey = MemoHomeNavKey),
                                 ) { Text(text = ROUTE_CONTENT) }
+                                entry<MemoAddNavKey>(
+                                    metadata = ListDetailSceneStrategy.detailPane(sceneKey = MemoHomeNavKey),
+                                ) { Text(text = MEMO_ADD_CONTENT) }
                                 entry<TagAddNavKey> { Text(text = ROUTE_CONTENT) }
                                 entry<OtherTopLevelNavKey> { Text(text = OTHER_TOP_LEVEL_CONTENT) }
                             },
@@ -258,6 +306,7 @@ class MemoListDetailPlaceholderTest {
     private companion object {
         const val MEMO_HOME_CONTENT = "MemoHomeContent"
         const val ROUTE_CONTENT = "RouteContent"
+        const val MEMO_ADD_CONTENT = "MemoAddContent"
         const val OTHER_TOP_LEVEL_CONTENT = "OtherTopLevelContent"
         val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 

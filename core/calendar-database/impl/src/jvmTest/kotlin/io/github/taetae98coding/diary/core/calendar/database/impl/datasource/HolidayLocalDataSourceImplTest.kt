@@ -202,7 +202,7 @@ class HolidayLocalDataSourceImplTest :
             dataSource.get(countrySet = setOf(KOREA, UNITED_STATES)).first() shouldBe listOf(korea, unitedStates)
         }
 
-        test("국가 집합이 비어 있으면 전체 조회도 빈 목록을 반환한다") {
+        test("TC-HOLIDAY-DATABASE-DATA-018 전체 조회에서 국가 집합이 비어 있으면 빈 목록을 반환한다") {
             transaction.upsert(country = KOREA, year = YEAR, holidayList = listOf(holiday()))
 
             dataSource.get(countrySet = emptySet()).first().shouldBeEmpty()

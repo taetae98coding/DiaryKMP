@@ -67,7 +67,7 @@ class TagHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-HOME-FEATURE-030 필터를 켜 두면 필터가 적용된 상태를 노출한다") {
+        test("TC-TAG-HOME-FEATURE-037 필터를 켜 두면 필터가 적용된 상태를 노출한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(getTopLevelTagFilterUseCase = getTopLevelTagFilterUseCase(flowOf(Result.success(true))))
 
@@ -78,7 +78,7 @@ class TagHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("필터를 끄면 필터가 적용되지 않은 상태를 노출한다") {
+        test("TC-TAG-HOME-FEATURE-037 필터를 끄면 필터가 적용되지 않은 상태를 노출한다") {
             runTest(mainDispatcher) {
                 val isTopLevelOnly = MutableStateFlow(true)
                 val viewModel =

@@ -13,6 +13,7 @@ import io.github.taetae98coding.diary.work.musicdownload.tool.DownloadToolPrepar
 import io.github.taetae98coding.diary.work.musicdownload.tool.DownloadToolPreparer
 import io.github.taetae98coding.diary.work.musicdownload.tool.MusicDownloader
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
@@ -266,6 +267,52 @@ class MusicDownloadWorkImplTest :
 
                     nameList.filter { name -> name.endsWith(".mp4") && !name.contains(".downloading.") } shouldContainExactly
                         listOf("${first.videoId}.mp4", "${second.videoId}.mp4")
+                }
+            }
+        }
+
+        Given("받아 둔 파일이 있는 곡이 삭제되거나 링크가 바뀐다") {
+            When("그 뒤 같은 영상을 가리키는 곡으로 다운로드를 다시 실행하면") {
+                Then("TC-MUSIC-DOWNLOAD-DATA-012 받아 둔 파일을 지우지 않아 다시 받지 않고 완료가 된다") {
+                    val videoId = testVideoId()
+                    val downloaded = testDownloadTarget(videoId = videoId)
+                    val relinked = testDownloadTarget()
+                    val sameVideo = testDownloadTarget(videoId = videoId)
+                    val holder = MusicDownloadStateHolder()
+                    val existingNameSet = mutableSetOf<String>()
+                    val fileDataSource = mockk<AppFileLocalDataSource>()
+                    coEvery { fileDataSource.exists(directory = any(), name = any()) } coAnswers { secondArg<String>() in existingNameSet }
+                    coEvery { fileDataSource.resolve(directory = any(), name = any()) } coAnswers { "/tmp/music/${secondArg<String>()}" }
+                    coEvery { fileDataSource.delete(directory = any(), name = any()) } coAnswers { existingNameSet -= secondArg<String>() }
+                    val downloader = mockk<MusicDownloader>()
+                    coEvery { downloader.download(target = any(), path = any(), onProgress = any()) } coAnswers
+                        {
+                            existingNameSet += firstArg<MusicDownloadTarget>().videoId.toMusicFileName()
+                            true
+                        }
+                    val downloadedTargetList = listOf(downloaded)
+                    val deletedTargetList = emptyList<MusicDownloadTarget>()
+                    val relinkedTargetList = listOf(relinked)
+                    val sameVideoTargetList = listOf(sameVideo)
+                    val targetListInRunOrder = listOf(downloadedTargetList, deletedTargetList, relinkedTargetList, sameVideoTargetList)
+                    val findMusicDownloadTargetUseCase = mockk<FindMusicDownloadTargetUseCase>()
+                    coEvery { findMusicDownloadTargetUseCase(parameter = any()) } returnsMany
+                        targetListInRunOrder.map { targetList -> Result.success(targetList) }
+                    val work =
+                        work(
+                            findMusicDownloadTargetUseCase = findMusicDownloadTargetUseCase,
+                            musicDownloader = downloader,
+                            appFileLocalDataSource = fileDataSource,
+                            musicDownloadStateHolder = holder,
+                        )
+
+                    repeat(times = targetListInRunOrder.size) { work.doWork(sort = ListSort.TITLE) }
+
+                    videoId.toMusicFileName() shouldBeIn existingNameSet
+                    coVerify(exactly = 0) { fileDataSource.delete(directory = any(), name = videoId.toMusicFileName()) }
+                    coVerify(exactly = 1) { downloader.download(target = downloaded, path = any(), onProgress = any()) }
+                    coVerify(exactly = 0) { downloader.download(target = sameVideo, path = any(), onProgress = any()) }
+                    holder.stateMap.value[sameVideo.id] shouldBe MusicDownloadState.Done
                 }
             }
         }

@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
@@ -16,6 +17,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
@@ -23,14 +25,16 @@ import androidx.compose.ui.test.swipeRight
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
-import io.github.taetae98coding.diary.core.model.location.Coordinate
+import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.SearchedPlace
+import io.github.taetae98coding.diary.core.testing.place.coordinateInFormPrecision
 import io.github.taetae98coding.diary.feature.place.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.place.ui.detail.DEFAULT_DELETE_BUTTON_DESCRIPTION
 import io.github.taetae98coding.diary.feature.place.ui.detail.DEFAULT_DETAIL_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.place.ui.detail.DEFAULT_MEMO_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.place.ui.detail.DEFAULT_NAVIGATE_UP_DESCRIPTION
 import io.github.taetae98coding.diary.feature.place.ui.detail.DEFAULT_OPEN_NAVER_MAP_BUTTON_DESCRIPTION
+import io.github.taetae98coding.diary.feature.place.ui.detail.DEFAULT_SEARCH_BUTTON_DESCRIPTION
 import io.github.taetae98coding.diary.feature.place.ui.detail.DEFAULT_UPDATE_BUTTON_DESCRIPTION
 import io.github.taetae98coding.diary.feature.place.ui.detail.FIRST_PLACE_ID
 import io.github.taetae98coding.diary.feature.place.ui.detail.KOREAN_DETAIL_TAB_DESCRIPTION
@@ -42,6 +46,7 @@ import io.github.taetae98coding.diary.feature.place.ui.detail.PlaceDetailScreenT
 import io.github.taetae98coding.diary.feature.place.ui.detail.PlaceDetailUiState
 import io.github.taetae98coding.diary.feature.place.ui.detail.content
 import io.github.taetae98coding.diary.feature.place.ui.detail.detailTagScreenTestViewModel
+import io.github.taetae98coding.diary.feature.place.ui.detail.memo.PLACE_DETAIL_MEMO_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.place.ui.detail.placeDetail
 import io.github.taetae98coding.diary.feature.place.ui.detail.placeMemo
 import io.github.taetae98coding.diary.feature.place.ui.detail.placeMemoPagingData
@@ -53,6 +58,7 @@ import io.github.taetae98coding.diary.feature.place.ui.detail.setPlaceDetailScre
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceDetailFormState
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
@@ -151,6 +157,30 @@ class PlaceDetailTabTest {
     }
 
     @Test
+    fun `TC-PLACE-DETAIL-FEATURE-055 탭을 전환해도 메모 탭에서 보던 목록 위치가 유지된다`() {
+        val memoTitleList = List(MEMO_COUNT) { index -> "PlaceMemo$index${newMemoTitle()}" }
+        composeRule.setPlaceDetailScreen(
+            viewModel = screenTestViewModel(uiState = MutableStateFlow(placeContent())),
+            memoPagingData =
+                placeMemoPagingData(
+                    itemList = memoTitleList.map { title -> MemoListItem.Content(memo = placeMemo(title = title)) },
+                ),
+        )
+        composeRule.selectPlaceDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+        waitUntilMemoListExists(memoTitle = memoTitleList.first())
+
+        composeRule.onNodeWithTag(PLACE_DETAIL_MEMO_LIST_TEST_TAG).performScrollToNode(hasText(memoTitleList.last()))
+        composeRule.waitForIdle()
+        isDisplayed(memoTitleList.first()).shouldBeFalse()
+
+        composeRule.selectPlaceDetailTab(DEFAULT_DETAIL_TAB_DESCRIPTION)
+        composeRule.selectPlaceDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithText(memoTitleList.last()).assertIsDisplayed()
+        isDisplayed(memoTitleList.first()).shouldBeFalse()
+    }
+
+    @Test
     fun `TC-PLACE-DETAIL-FEATURE-048 수정 반영 동작은 장소 디테일 탭에서만 제공된다`() {
         val placeTitle = newPlaceTitle()
         setScreen(placeTitle = placeTitle)
@@ -165,7 +195,7 @@ class PlaceDetailTabTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-049 외부 지도로 열기 장소 검색과 삭제는 선택한 탭과 관계없이 제공된다`() {
+    fun `TC-PLACE-DETAIL-FEATURE-049 외부 지도로 열기와 삭제는 선택한 탭과 관계없이 제공된다`() {
         setScreen()
 
         listOf(DEFAULT_DETAIL_TAB_DESCRIPTION, DEFAULT_MEMO_TAB_DESCRIPTION).forEach { tabDescription ->
@@ -173,6 +203,34 @@ class PlaceDetailTabTest {
 
             composeRule.onNodeWithContentDescription(DEFAULT_OPEN_NAVER_MAP_BUTTON_DESCRIPTION).assert(hasClickAction())
             composeRule.onNodeWithContentDescription(DEFAULT_DELETE_BUTTON_DESCRIPTION).assert(hasClickAction())
+        }
+    }
+
+    @Test
+    fun `TC-PLACE-DETAIL-FEATURE-049 기본 지도를 확인했으면 선택한 탭과 관계없이 장소 검색을 제공한다`() {
+        val detail = placeDetail(title = newPlaceTitle())
+        preparePlaceDetailTabViewModels()
+        composeRule.setContent {
+            PlaceDetailScreenTestTheme {
+                PlaceDetailScaffold(
+                    state = rememberPlaceDetailFormState(initialDetail = detail),
+                    onEvent = {},
+                    onSearchEvent = {},
+                    onTagPickerEvent = {},
+                    tabState = rememberPlaceDetailTabState(initialTab = PlaceDetailTab.MEMO),
+                    uiStateProvider = { content(id = FIRST_PLACE_ID, detail = detail).copy(defaultProvider = MapProvider.NAVER) },
+                    tabFloatingActionButton = {},
+                    // 지도 제공자의 실제 표시 요소는 만들 수 없으므로 탭 본문은 탭 이름으로 대신한다.
+                ) { tab -> Text(text = tab.name) }
+            }
+        }
+        composeRule.waitForIdle()
+
+        listOf(DEFAULT_MEMO_TAB_DESCRIPTION, DEFAULT_DETAIL_TAB_DESCRIPTION).forEach { tabDescription ->
+            composeRule.selectPlaceDetailTab(tabDescription)
+
+            composeRule.onNodeWithContentDescription(tabDescription).assertIsSelected()
+            composeRule.onNodeWithContentDescription(DEFAULT_SEARCH_BUTTON_DESCRIPTION).assert(hasClickAction())
         }
     }
 
@@ -238,7 +296,7 @@ class PlaceDetailTabTest {
         // 검색 다이얼로그는 지도를 포함해 호스트 테스트 환경에서 띄울 수 없으므로, 검색 결과를 고른 것과 같은 반영을 화면 상태에 직접 적용한다.
         val placeTitle = newPlaceTitle()
         val detail = placeDetail(title = placeTitle)
-        val place = fixtureMonkey.giveMeOne<SearchedPlace>().copy(coordinate = coordinateInFormPrecision())
+        val place = fixtureMonkey.giveMeOne<SearchedPlace>().copy(coordinate = fixtureMonkey.coordinateInFormPrecision())
         lateinit var formState: PlaceFormState
         preparePlaceDetailTabViewModels()
         composeRule.setContent {
@@ -304,6 +362,10 @@ class PlaceDetailTabTest {
         composeRule.onNodeWithContentDescription(DEFAULT_DETAIL_TAB_DESCRIPTION).assertIsSelected()
     }
 
+    private fun isDisplayed(text: String): Boolean =
+        runCatching { composeRule.onNodeWithText(text).assertIsDisplayed() }
+            .isSuccess
+
     // 페이지 조회 목록은 항목이 준비된 뒤에 나타나므로 메모 제목이 보일 때까지 기다린다.
     private fun waitUntilMemoListExists(memoTitle: String) {
         composeRule.waitUntil(timeoutMillis = PAGE_TIMEOUT_MILLIS) {
@@ -326,20 +388,11 @@ class PlaceDetailTabTest {
 
     private companion object {
         const val EDIT_SUFFIX = "Edited"
+        const val MEMO_COUNT = 30
         const val PAGE_TIMEOUT_MILLIS = 5_000L
-        const val MAX_LATITUDE_IN_TEN_THOUSANDTHS = 900_000
-        const val MAX_LONGITUDE_IN_TEN_THOUSANDTHS = 1_800_000
-        const val TEN_THOUSAND = 10_000.0
 
         fun newPlaceTitle(): String = "PlaceTitle${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
 
         fun newMemoTitle(): String = "PlaceMemo${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
-
-        // 입력란은 좌표를 소수점 아래 여섯 자리로 옮겨 적으므로, 그 자리 안에서 표현되는 값으로 만들어야 옮겨 적은 뒤에도 같은 값으로 읽힌다.
-        fun coordinateInFormPrecision(): Coordinate =
-            Coordinate(
-                latitude = fixtureMonkey.giveMeOne<Int>() % MAX_LATITUDE_IN_TEN_THOUSANDTHS / TEN_THOUSAND,
-                longitude = fixtureMonkey.giveMeOne<Int>() % MAX_LONGITUDE_IN_TEN_THOUSANDTHS / TEN_THOUSAND,
-            )
     }
 }

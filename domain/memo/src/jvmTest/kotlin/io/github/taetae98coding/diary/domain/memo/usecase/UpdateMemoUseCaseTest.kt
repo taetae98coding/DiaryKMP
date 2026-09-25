@@ -208,7 +208,7 @@ class UpdateMemoUseCaseTest :
                 )
 
             When("공백이 아닌 제목으로 메모를 수정한다") {
-                Then("메모 갱신 후 동기화를 한 번 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 메모 갱신 후 동기화를 한 번 요청한다") {
                     val detail = fixtureMonkey.giveMeOne<MemoDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}")
 
                     val result = useCase(parameter = UpdateMemoUseCase.Parameter(id = memoId, detail = detail))

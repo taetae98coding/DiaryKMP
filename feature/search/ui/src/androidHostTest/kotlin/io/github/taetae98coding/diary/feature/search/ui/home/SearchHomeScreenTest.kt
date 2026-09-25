@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.feature.search.ui.home
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -10,6 +13,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.MEMO_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.place.PLACE_CARD_TEST_TAG
@@ -17,6 +23,7 @@ import io.github.taetae98coding.diary.compose.tag.TAG_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.web.WEB_CARD_TEST_TAG
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.search.ui.home.memo.SEARCH_HOME_MEMO_LIST_TEST_TAG
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
@@ -24,6 +31,8 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
+
+private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
@@ -271,6 +280,73 @@ class SearchHomeScreenTest {
 
         composeRule.onNodeWithText(memoList.last().detail.title).assertIsDisplayed()
         composeRule.onNodeWithText(memoList.first().detail.title).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-SEARCH-HOME-FEATURE-027 질의를 고쳤다가 반영되기 전에 원래 검색어로 되돌리면 보던 자리를 유지한다`() {
+        val memoList = List(RESULT_COUNT) { resultMemo() }
+        val extraText = "추가-${fixtureMonkey.giveMeOne<String>()}"
+
+        composeRule.setSearchHomeScreen(memoList = memoList)
+        inputQuery()
+        composeRule.onNodeWithTag(SEARCH_HOME_MEMO_LIST_TEST_TAG).performScrollToIndex(RESULT_COUNT - 1)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(memoList.last().detail.title).assertIsDisplayed()
+
+        setSearchQueryApplied(isApplied = false)
+        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).performTextInput(extraText)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).performTextReplacement(QUERY)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(memoList.last().detail.title).assertIsDisplayed()
+        composeRule.onNodeWithText(memoList.first().detail.title).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-SEARCH-HOME-FEATURE-028 결과를 선택해 상세 화면에 다녀와도 보던 자리를 유지한다`() {
+        val memoList = List(RESULT_COUNT) { resultMemo() }
+        var isShown by mutableStateOf(true)
+        val navigatedIdList = mutableListOf<Uuid>()
+
+        composeRule.setSearchHomeScreen(
+            memoList = memoList,
+            navigateToMemoDetail = { id ->
+                navigatedIdList.add(id)
+                isShown = false
+            },
+            isShownProvider = { isShown },
+        )
+        inputQuery()
+        composeRule.onNodeWithTag(SEARCH_HOME_MEMO_LIST_TEST_TAG).performScrollToIndex(RESULT_COUNT - 1)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(memoList.last().detail.title).performClick()
+        composeRule.waitForIdle()
+        navigatedIdList shouldBe listOf(memoList.last().id)
+        composeRule.runOnIdle { isShown = true }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(memoList.last().detail.title).assertIsDisplayed()
+        composeRule.onNodeWithText(memoList.first().detail.title).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-SEARCH-HOME-FEATURE-029 고친 질의가 반영된 뒤 원래 검색어로 되돌리면 처음부터 본다`() {
+        val memoList = List(RESULT_COUNT) { resultMemo() }
+
+        composeRule.setSearchHomeScreen(memoList = memoList)
+        inputQuery()
+        composeRule.onNodeWithTag(SEARCH_HOME_MEMO_LIST_TEST_TAG).performScrollToIndex(RESULT_COUNT - 1)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(memoList.first().detail.title).assertDoesNotExist()
+
+        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).performTextInput("추가-${fixtureMonkey.giveMeOne<String>()}")
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).performTextReplacement(QUERY)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(memoList.first().detail.title).assertIsDisplayed()
     }
 
     private fun assertResultCardCount(

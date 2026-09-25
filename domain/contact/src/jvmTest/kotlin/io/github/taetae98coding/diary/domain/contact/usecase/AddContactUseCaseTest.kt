@@ -280,7 +280,7 @@ class AddContactUseCaseTest :
                 )
 
             When("연락처 추가에 성공한다") {
-                Then("TC-CONTACT-ADD-DATA-009 기기에 저장한 뒤 서버와 맞추기 위한 동기화를 한 번 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-CONTACT-ADD-DATA-009 기기에 저장한 뒤 서버와 맞추기 위한 동기화를 한 번 요청한다") {
                     useCase(parameter = AddContactUseCase.Parameter(detail = detail())).shouldBeSuccess()
 
                     coVerifyOrder {
@@ -326,10 +326,11 @@ class AddContactUseCaseTest :
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(Account.Guest))
             val accountContactRepository = mockk<AccountContactRepository>(relaxed = true)
+            val requestSyncUseCase = requestSyncUseCase()
             val useCase =
                 AddContactUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    requestSyncUseCase = requestSyncUseCase(),
+                    requestSyncUseCase = requestSyncUseCase,
                     accountContactRepository = accountContactRepository,
                     clock = Clock.System,
                 )
@@ -339,6 +340,7 @@ class AddContactUseCaseTest :
                     useCase(parameter = AddContactUseCase.Parameter(detail = detail())).shouldBeSuccess()
 
                     coVerify(exactly = 1) { accountContactRepository.upsert(account = Account.Guest, contact = any()) }
+                    coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
                 }
             }
         }

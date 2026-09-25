@@ -469,6 +469,19 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
+    fun `TC-CALENDAR-MEMO-MOVE-DOMAIN-015 캘린더 밖으로 드래그해 완료하면 가장 가까운 날짜 칸을 기준으로 반영된다`() {
+        val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
+        setCalendarHomeScreen(memoListFlow = MutableStateFlow(listOf(memo)))
+        val start = memoPressPosition(title = MEETING_TITLE, day = 15)
+
+        performLongPress(start)
+        performMoveTo(Offset(x = start.x, y = rootHeight() + BELOW_CALENDAR_DISTANCE))
+        performUp()
+
+        movedList shouldBe listOf(Triple(memo.id, memo.dateTime, august(day = 4)..august(day = 6)))
+    }
+
+    @Test
     fun `TC-CALENDAR-MEMO-MOVE-FEATURE-012 이동 중 다른 손가락으로 왼쪽으로 스와이프하면 다음 달로 이동하고 메모 이동이 유지된다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         var capturedState: CalendarHomeScaffoldState? = null
@@ -918,6 +931,13 @@ class CalendarHomeScreenMoveTest {
             .size.width
             .toFloat()
 
+    private fun rootHeight(): Float =
+        composeRule
+            .onRoot()
+            .fetchSemanticsNode()
+            .size.height
+            .toFloat()
+
     private fun performLongPress(position: Offset) {
         composeRule.onRoot().performTouchInput {
             down(position)
@@ -1030,6 +1050,7 @@ class CalendarHomeScreenMoveTest {
         private const val IDLE_WAIT_MILLIS = 5_000L
         private const val FRAME_MILLIS = 16L
         private const val SECONDARY_POINTER_ID = 1
+        private const val BELOW_CALENDAR_DISTANCE = 200F
         private val MONTH_SWIPE_DISTANCE = 64.dp
 
         // 페이저 스와이프로 처리되면 달이 넘어가는 거리여야 달 이동이 일어나지 않음을 확인할 수 있다.

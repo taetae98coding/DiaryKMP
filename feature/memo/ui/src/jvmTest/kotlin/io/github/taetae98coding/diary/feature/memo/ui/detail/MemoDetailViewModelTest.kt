@@ -477,6 +477,41 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-MEMO-DETAIL-FEATURE-083 수정 저장에 실패하면 Effect를 보내지 않고 진행 상태를 해제해 다시 수정할 수 있다") {
+            runTest(mainDispatcher) {
+                val memo = memo()
+                val findMemoUseCase = mockk<FindMemoUseCase>()
+                every { findMemoUseCase(parameter = memo.id) } returns flowOf(Result.success(memo))
+                val updateMemoUseCase = mockk<UpdateMemoUseCase>()
+                coEvery { updateMemoUseCase(any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                val viewModel = viewModel(id = memo.id, findMemoUseCase = findMemoUseCase, updateMemoUseCase = updateMemoUseCase)
+                val detail = fixtureMonkey.giveMeOne<MemoDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}")
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe MemoDetailUiState.Loading
+                    runCurrent()
+                    awaitItem().shouldBeInstanceOf<MemoDetailUiState.Content>().isInProgress shouldBe false
+
+                    viewModel.effect.test {
+                        viewModel.update(detail)
+                        advanceUntilIdle()
+
+                        expectNoEvents()
+                    }
+
+                    cancelAndIgnoreRemainingEvents()
+                }
+
+                viewModel.uiState.value
+                    .shouldBeInstanceOf<MemoDetailUiState.Content>()
+                    .isInProgress shouldBe false
+                viewModel.update(detail)
+                advanceUntilIdle()
+
+                coVerify(exactly = 2) { updateMemoUseCase(any()) }
+            }
+        }
+
         test("TC-MEMO-DETAIL-DATA-003 완료를 실행하면 현재 메모의 완료를 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
@@ -544,7 +579,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("삭제에 실패하면 Effect를 보내지 않는다") {
+        test("TC-MEMO-DETAIL-FEATURE-085 삭제에 실패하면 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
                 coEvery { deleteMemoUseCase(any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
@@ -556,6 +591,33 @@ class MemoDetailViewModelTest : FunSpec() {
 
                     expectNoEvents()
                 }
+            }
+        }
+
+        test("TC-MEMO-DETAIL-FEATURE-086 완료와 다시 시작 저장에 실패하면 Effect를 보내지 않고 다시 요청할 수 있다") {
+            runTest(mainDispatcher) {
+                val finishMemoUseCase = mockk<FinishMemoUseCase>()
+                coEvery { finishMemoUseCase(any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                val restartMemoUseCase = mockk<RestartMemoUseCase>()
+                coEvery { restartMemoUseCase(any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                val viewModel = viewModel(finishMemoUseCase = finishMemoUseCase, restartMemoUseCase = restartMemoUseCase)
+
+                viewModel.effect.test {
+                    viewModel.finish()
+                    advanceUntilIdle()
+                    viewModel.restart()
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                }
+
+                viewModel.finish()
+                advanceUntilIdle()
+                viewModel.restart()
+                advanceUntilIdle()
+
+                coVerify(exactly = 2) { finishMemoUseCase(any()) }
+                coVerify(exactly = 2) { restartMemoUseCase(any()) }
             }
         }
 

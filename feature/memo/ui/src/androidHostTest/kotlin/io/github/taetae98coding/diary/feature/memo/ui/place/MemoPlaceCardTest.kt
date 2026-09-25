@@ -95,6 +95,25 @@ class MemoPlaceCardTest {
     }
 
     @Test
+    fun `TC-MEMO-PLACE-CARD-FEATURE-037 목록의 장소를 눌러도 장소 상세로 이동하지 않고 선택이 바뀌지 않는다`() {
+        val placeList = listOf(testPlace(title = HOME_PLACE_TITLE), testPlace(title = OFFICE_PLACE_TITLE))
+        var placeClickCount = 0
+        var addClickCount = 0
+
+        composeRule.setMemoPlaceCard(
+            uiStateProvider = { placeCardUiState(selectedPlaceList = placeList) },
+            onPlaceClick = { placeClickCount += 1 },
+            onAddClick = { addClickCount += 1 },
+        )
+        composeRule.onNodeWithText(HOME_PLACE_TITLE).performClick()
+
+        placeClickCount shouldBe 0
+        addClickCount shouldBe 0
+        composeRule.onNodeWithText(HOME_PLACE_TITLE).assertExists()
+        composeRule.onNodeWithText(OFFICE_PLACE_TITLE).assertExists()
+    }
+
+    @Test
     fun `TC-MEMO-PLACE-CARD-FEATURE-009 노출하는 장소가 없거나 여러 개여도 장소 추가 항목이 표시된다`() {
         var uiState by mutableStateOf(placeCardUiState())
         composeRule.setMemoPlaceCard(uiStateProvider = { uiState })

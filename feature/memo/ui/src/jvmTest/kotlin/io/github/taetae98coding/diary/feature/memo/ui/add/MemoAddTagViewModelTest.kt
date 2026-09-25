@@ -486,20 +486,18 @@ class MemoAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-MEMO-FEATURE-020 선택할 수 없는 대상 태그는 선택과 대표 지정 없이 시작한다") {
+        test("TC-MEMO-ADD-DOMAIN-016 완료되었거나 삭제된 대상 태그는 선택과 대표 지정 없이 시작한다") {
             runTest(mainDispatcher) {
                 val selectableTag = tag()
-                val unselectableTagIdList =
-                    listOf(
-                        fixtureMonkey.giveMeOne<Uuid>(),
-                        fixtureMonkey.giveMeOne<Uuid>(),
-                    )
+                val finishedTag = tag().copy(isFinished = true)
+                val deletedTag = tag().copy(isDeleted = true)
 
-                unselectableTagIdList.forEach { unselectableTagId ->
+                listOf(finishedTag, deletedTag).forEach { targetTag ->
+                    // 선택한 태그 조회는 선택할 수 있는 태그만 돌려주므로, 완료되거나 삭제된 대상 태그는 조회 결과에 없다.
                     val viewModel =
                         viewModel(
-                            initialPrimaryTagId = unselectableTagId,
-                            tagListFlow = flowOf(Result.success(listOf(selectableTag))),
+                            initialPrimaryTagId = targetTag.id,
+                            tagListFlow = flowOf(Result.success(listOf(selectableTag, finishedTag, deletedTag).filter { tag -> !tag.isFinished && !tag.isDeleted })),
                         )
 
                     viewModel.uiState.test {

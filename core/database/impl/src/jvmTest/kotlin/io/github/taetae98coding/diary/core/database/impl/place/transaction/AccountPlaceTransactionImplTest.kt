@@ -78,6 +78,23 @@ class AccountPlaceTransactionImplTest :
                 )
         }
 
+        test("TC-DATA-SYNC-DOMAIN-001 장소 추가·수정·삭제는 업로드 대기 상태가 된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val place = place().copy(isDeleted = false)
+            val pending = listOf(AccountPlaceLocalEntity(accountId = accountId, placeId = place.id, isDirty = true))
+
+            transaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = emptyList())
+            findAccountPlaceList() shouldBe pending
+
+            database.accountPlaceDao().upsert(AccountPlaceLocalEntity(accountId = accountId, placeId = place.id, isDirty = false))
+            transaction.updateDetail(accountId = accountId, placeId = place.id, detail = placeDetail(), updatedAt = instant())
+            findAccountPlaceList() shouldBe pending
+
+            database.accountPlaceDao().upsert(AccountPlaceLocalEntity(accountId = accountId, placeId = place.id, isDirty = false))
+            transaction.updateDeleted(accountId = accountId, placeId = place.id, isDeleted = true, updatedAt = instant())
+            findAccountPlaceList() shouldBe pending
+        }
+
         test("TC-PLACE-ADD-DATA-002 TC-PLACE-ADD-DATA-003 제목, 설명, 컬러, 좌표와 미삭제 상태, 추가 시각을 그대로 저장한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val now = instant()

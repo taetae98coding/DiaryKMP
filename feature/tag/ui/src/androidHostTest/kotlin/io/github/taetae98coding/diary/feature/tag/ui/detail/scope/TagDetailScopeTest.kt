@@ -89,6 +89,20 @@ class TagDetailScopeTest {
     }
 
     @Test
+    fun `TC-TAG-DETAIL-FEATURE-049 지금 범위와 같은 이 태그만을 골라도 선택이 닫히고 범위는 그대로다`() {
+        lateinit var scopeState: TagDetailScopeState
+        composeRule.setTagDetailScaffoldWithScope { state -> scopeState = state }
+        composeRule.onNodeWithContentDescription(DEFAULT_SCOPE_BUTTON_DESCRIPTION).performClick()
+        composeRule.onNodeWithText(DEFAULT_SELF_LABEL).assertIsSelected()
+
+        composeRule.onNodeWithText(DEFAULT_SELF_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_SCOPE_TITLE).assertDoesNotExist()
+        composeRule.runOnIdle { scopeState.scope shouldBe TagScope.SELF }
+    }
+
+    @Test
     fun `TC-TAG-DETAIL-FEATURE-050 선택한 탭과 관계없이 표시 범위를 열 수 있다`() {
         composeRule.setTagDetailScaffoldWithScope()
 
@@ -218,7 +232,7 @@ class TagDetailScopeRestorationTest {
     }
 
     @Test
-    fun `표시 범위 선택을 연 채 화면이 재생성되면 선택이 열린 상태로 돌아온다`() {
+    fun `TC-TAG-DETAIL-FEATURE-064 표시 범위 선택을 연 채 화면이 재생성되면 선택이 열린 상태로 돌아온다`() {
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var scopeState: TagDetailScopeState
 
@@ -233,6 +247,7 @@ class TagDetailScopeRestorationTest {
 
         composeRule.runOnIdle { scopeState.sheetState.isVisible shouldBe true }
         composeRule.onNodeWithText(DEFAULT_CHILD_LABEL).assertExists()
+        composeRule.onNodeWithText(DEFAULT_SELF_LABEL).assertIsSelected()
     }
 }
 

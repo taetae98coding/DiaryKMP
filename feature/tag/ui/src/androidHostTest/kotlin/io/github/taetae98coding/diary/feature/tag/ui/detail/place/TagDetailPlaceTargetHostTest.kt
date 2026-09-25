@@ -8,6 +8,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
@@ -60,6 +61,49 @@ class TagDetailPlaceTargetHostTest {
             (targetMarker == beforeMarker) shouldBe false
         }
         coVerify(exactly = 1) { fetch(parameter = Unit) }
+    }
+
+    @Test
+    fun `TC-TAG-DETAIL-PLACE-FEATURE-036 다른 탭에 다녀와도 지도 위치, 확대 수준과 지도 제공자가 남는다`() {
+        val fetch = fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>())
+        val movedCoordinate = fixtureMonkey.giveMeOne<Coordinate>().toDiaryMapCoordinate()
+        var isPlaceTabSelected by mutableStateOf(true)
+        val id = Uuid.random()
+        val mapViewModel = mapViewModel(fetch)
+        // TagDetail 화면은 네 탭을 이 호스트 안에 두므로, 탭 본문이 컴포지션에서 빠졌다가 돌아오는 것을 호스트 안에서 재현한다.
+        composeRule.setContent {
+            TagDetailPlaceTargetHost(
+                id = id,
+                placeMapViewModel = mapViewModel,
+            ) { state, placeMapState ->
+                placeState = state
+                TagDetailPlaceFetchCurrentLocationEffect(mapViewModel = mapViewModel, state = state)
+                if (isPlaceTabSelected) {
+                    mapState = placeMapState
+                }
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { placeState.toggleViewMode() }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle {
+            mapState.moveTo(movedCoordinate)
+            mapState.select(DiaryMapProvider.GOOGLE)
+        }
+        val beforeMapState = mapState
+
+        composeRule.runOnIdle { isPlaceTabSelected = false }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { isPlaceTabSelected = true }
+        composeRule.waitForIdle()
+
+        // 같은 지도 상태가 이어지므로 위치와 함께 확대 수준도 그대로다.
+        composeRule.runOnIdle {
+            mapState shouldBeSameInstanceAs beforeMapState
+            mapState.coordinate shouldBe movedCoordinate
+            mapState.provider shouldBe DiaryMapProvider.GOOGLE
+            placeState.viewMode shouldBe TagDetailPlaceViewMode.MAP
+        }
     }
 
     @Test

@@ -7,6 +7,7 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
+import io.github.taetae98coding.diary.core.database.api.memocontact.entity.MemoContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memofilter.entity.MemoExistenceFilterLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memoplace.entity.MemoPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
@@ -25,6 +26,7 @@ import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.calendarfilter.entity.CalendarFilterTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.contact.entity.AccountContactLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.memocontact.entity.AccountMemoContactLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memofilter.entity.MemoFilterTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memoplace.entity.AccountMemoPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memotag.entity.AccountMemoTagLocalEntity
@@ -56,6 +58,7 @@ private val ACCOUNT_TABLE_LIST =
         "account_memo_tag",
         "account_memo_place",
         "account_memo_web",
+        "account_memo_contact",
         "account_tag_link",
         "account_web_tag",
         "account_place_tag",
@@ -76,6 +79,7 @@ private val ENTITY_TABLE_LIST =
         "memo_tag",
         "memo_place",
         "memo_web",
+        "memo_contact",
         "tag_link",
         "web_tag",
         "place_tag",
@@ -87,6 +91,8 @@ private data class FilledEntity(
     val otherTagId: Uuid,
     val placeId: Uuid,
     val webId: Uuid,
+    val contactId: Uuid,
+    val musicId: Uuid,
 )
 
 class AccountDataTransactionImplTest :
@@ -155,7 +161,31 @@ class AccountDataTransactionImplTest :
             database.musicDao().upsert(music)
             database.accountMusicDao().upsert(AccountMusicLocalEntity(accountId = accountId, musicId = music.id, isDirty = isDirty))
 
-            return FilledEntity(memoId = memo.id, tagId = tag.id, otherTagId = otherTag.id, placeId = place.id, webId = web.id)
+            return FilledEntity(
+                memoId = memo.id,
+                tagId = tag.id,
+                otherTagId = otherTag.id,
+                placeId = place.id,
+                webId = web.id,
+                contactId = contact.id,
+                musicId = music.id,
+            )
+        }
+
+        suspend fun linkEntityToAccount(
+            accountId: Uuid,
+            entity: FilledEntity,
+        ) {
+            database.accountMemoDao().upsert(AccountMemoLocalEntity(accountId = accountId, memoId = entity.memoId, isDirty = false))
+            listOf(entity.tagId, entity.otherTagId).forEach { tagId ->
+                database.accountTagDao().upsert(AccountTagLocalEntity(accountId = accountId, tagId = tagId, isDirty = false))
+            }
+            database.accountPlaceDao().upsert(AccountPlaceLocalEntity(accountId = accountId, placeId = entity.placeId, isDirty = false))
+            database.accountWebDao().upsert(AccountWebLocalEntity(accountId = accountId, webId = entity.webId, isDirty = false))
+            database.accountContactDao().upsert(
+                AccountContactLocalEntity(accountId = accountId, contactId = entity.contactId, isDirty = false),
+            )
+            database.accountMusicDao().upsert(AccountMusicLocalEntity(accountId = accountId, musicId = entity.musicId, isDirty = false))
         }
 
         suspend fun fillRelation(
@@ -182,6 +212,13 @@ class AccountDataTransactionImplTest :
             )
             database.accountMemoWebDao().upsert(
                 AccountMemoWebLocalEntity(accountId = accountId, memoId = entity.memoId, webId = entity.webId, isDirty = isDirty),
+            )
+
+            database.memoContactDao().upsert(
+                fixtureMonkey.giveMeOne<MemoContactLocalEntity>().copy(memoId = entity.memoId, contactId = entity.contactId),
+            )
+            database.accountMemoContactDao().upsert(
+                AccountMemoContactLocalEntity(accountId = accountId, memoId = entity.memoId, contactId = entity.contactId, isDirty = isDirty),
             )
 
             database.tagLinkDao().upsert(
@@ -279,7 +316,28 @@ class AccountDataTransactionImplTest :
             countRow(table = "memo_existence_filter") shouldBe 1
         }
 
-        test("TC-DATA-SYNC-DATA-037 강제 전체 재동기화 뒤에는 열두 종류가 모두 기본 커서로 조회된다") {
+        test("TC-DATA-SYNC-DATA-051 강제 전체 재동기화는 다른 계정과도 연결된 항목과 연결을 남기고 그 계정과의 연결만 지운다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val entity = fillEntity(accountId = accountId, isDirty = true)
+            fillRelation(accountId = accountId, isDirty = true, entity = entity)
+            linkEntityToAccount(accountId = otherAccountId, entity = entity)
+            fillRelation(accountId = otherAccountId, isDirty = false, entity = entity)
+
+            transaction.delete(accountId = accountId)
+
+            ENTITY_TABLE_LIST.forEach { table ->
+                withClue(table) { countRow(table = table) shouldBeGreaterThan 0 }
+            }
+            ACCOUNT_TABLE_LIST.filter { table -> table.startsWith("account_") }.forEach { table ->
+                withClue(table) {
+                    countRow(table = table, where = "account_id = '$accountId'") shouldBe 0
+                    countRow(table = table, where = "account_id = '$otherAccountId'") shouldBeGreaterThan 0
+                }
+            }
+        }
+
+        test("TC-DATA-SYNC-DATA-037 강제 전체 재동기화 뒤에는 열세 종류가 모두 기본 커서로 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             fill(accountId = accountId)
 

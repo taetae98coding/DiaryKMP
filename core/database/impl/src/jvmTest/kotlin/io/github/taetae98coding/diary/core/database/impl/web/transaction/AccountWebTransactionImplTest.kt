@@ -76,6 +76,23 @@ class AccountWebTransactionImplTest :
                 )
         }
 
+        test("TC-DATA-SYNC-DOMAIN-001 웹 항목 추가·수정·삭제는 업로드 대기 상태가 된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val web = web().copy(isDeleted = false)
+            val pending = listOf(AccountWebLocalEntity(accountId = accountId, webId = web.id, isDirty = true))
+
+            transaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
+            findAccountWebList() shouldBe pending
+
+            database.accountWebDao().upsert(AccountWebLocalEntity(accountId = accountId, webId = web.id, isDirty = false))
+            transaction.updateDetail(accountId = accountId, webId = web.id, detail = detail(), updatedAt = instant())
+            findAccountWebList() shouldBe pending
+
+            database.accountWebDao().upsert(AccountWebLocalEntity(accountId = accountId, webId = web.id, isDirty = false))
+            transaction.updateDeleted(accountId = accountId, webId = web.id, isDeleted = true, updatedAt = instant())
+            findAccountWebList() shouldBe pending
+        }
+
         test("TC-WEB-ADD-DOMAIN-009 TC-WEB-ADD-DOMAIN-010 제목, 설명, URL과 미삭제 상태, 추가 시각을 그대로 저장한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val now = instant()

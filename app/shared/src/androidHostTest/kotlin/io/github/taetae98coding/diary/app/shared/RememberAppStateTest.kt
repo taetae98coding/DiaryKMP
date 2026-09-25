@@ -122,7 +122,7 @@ class RememberAppStateTest {
     }
 
     @Test
-    fun `TagAdd 내비게이션 키를 화면 재생성 후 복원한다`() {
+    fun `TC-TOP-LEVEL-NAVIGATION-DOMAIN-017 목적지 위에 열려 있던 TagAdd 화면을 화면 재생성 후 복원한다`() {
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var appState: AppState
         restorationTester.setContent {

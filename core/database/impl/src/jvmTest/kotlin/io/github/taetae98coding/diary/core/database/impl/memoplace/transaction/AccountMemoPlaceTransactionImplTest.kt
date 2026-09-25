@@ -264,7 +264,7 @@ class AccountMemoPlaceTransactionImplTest :
                 )
         }
 
-        test("TC-MEMO-PLACE-DATA-010 연결을 하나 해제하면 그 연결만 업로드 대기가 된다") {
+        test("TC-MEMO-PLACE-DATA-010 TC-DATA-SYNC-DOMAIN-001 연결을 하나 해제하면 그 연결만 업로드 대기가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val removedPlace = place()
@@ -283,7 +283,7 @@ class AccountMemoPlaceTransactionImplTest :
             findPendingPlaceIdList(accountId = accountId) shouldBe listOf(removedPlace.id)
         }
 
-        test("TC-MEMO-PLACE-DATA-010 연결을 하나 만들면 그 연결만 업로드 대기가 된다") {
+        test("TC-MEMO-PLACE-DATA-010 TC-DATA-SYNC-DOMAIN-001 연결을 하나 만들면 그 연결만 업로드 대기가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val keptPlace = place()

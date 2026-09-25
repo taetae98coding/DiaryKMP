@@ -156,7 +156,7 @@ class UpdateContactUseCaseTest :
                     coVerify(exactly = 0) { accountContactRepository.upsert(account = any(), contact = any()) }
                 }
 
-                Then("TC-CONTACT-DETAIL-DATA-010 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-CONTACT-DETAIL-DATA-010 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
                     useCase(parameter = UpdateContactUseCase.Parameter(id = stored.id, detail = detail())).shouldBeSuccess(1)
 
                     coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }

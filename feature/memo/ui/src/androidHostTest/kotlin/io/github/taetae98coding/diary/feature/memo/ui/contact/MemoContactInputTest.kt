@@ -42,7 +42,7 @@ class MemoContactInputTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-015 선택한 연락처의 제목이 바뀌면 연락처 칩에 반영된다`() {
+    fun `TC-MEMO-CONTACT-INPUT-FEATURE-015 선택한 연락처의 이름이 바뀌면 연락처 칩에 반영된다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val renamedContact = contact.copy(detail = contact.detail.copy(name = RENAMED_CONTACT_TITLE))
         val selectContactList = composeRule.setMemoContactInputWithSelection()

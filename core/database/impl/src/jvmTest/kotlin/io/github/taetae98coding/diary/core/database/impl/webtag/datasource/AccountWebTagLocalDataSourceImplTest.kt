@@ -8,12 +8,17 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
+import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagScopeLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
 import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
+import io.github.taetae98coding.diary.core.database.impl.memo.datasource.AccountTagMemoLocalDataSourceImpl
+import io.github.taetae98coding.diary.core.database.impl.memo.transaction.AccountMemoTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.memotag.datasource.AccountMemoTagLocalDataSourceImpl
+import io.github.taetae98coding.diary.core.database.impl.memoweb.transaction.AccountMemoWebTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.search.datasource.SearchWebLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
@@ -22,7 +27,9 @@ import io.github.taetae98coding.diary.core.database.impl.web.datasource.AccountW
 import io.github.taetae98coding.diary.core.database.impl.web.datasource.AccountWebSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.web.transaction.AccountWebSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.web.transaction.AccountWebTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.webtag.transaction.AccountWebTagSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.webtag.transaction.AccountWebTagTransactionImpl
+import io.github.taetae98coding.diary.core.testing.memo.localMemo
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
@@ -297,6 +304,13 @@ class AccountWebTagLocalDataSourceImplTest :
             link(accountId = accountId, webId = web.id, tagId = tag.id)
 
             tagTransaction.updateFinished(accountId = accountId, tagId = tag.id, isFinished = true, updatedAt = instant())
+
+            database
+                .webTagDao()
+                .findByWebIdList(listOf(web.id))
+                .single()
+                .isDeleted shouldBe false
+
             tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = true, updatedAt = instant())
 
             database
@@ -360,6 +374,48 @@ class AccountWebTagLocalDataSourceImplTest :
 
             tagWebIdList(accountId = accountId, tagId = firstTag.id).shouldBeEmpty()
             tagWebIdList(accountId = accountId, tagId = secondTag.id) shouldBe listOf(web.id)
+        }
+
+        test("TC-WEB-TAG-DOMAIN-016 웹 항목과 태그를 연결해도 그 웹 항목에 연결된 메모에는 태그가 연결되지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = fixtureMonkey.localMemo(isFinished = false, isDeleted = false, primaryTagId = null)
+            val web = web()
+            val tag = tag()
+            insertWeb(accountId, web)
+            insertTag(accountId, tag)
+            AccountMemoTransactionImpl(database = database).upsert(
+                accountId = accountId,
+                memoList = listOf(memo),
+                memoTagList = emptyList(),
+            )
+            AccountMemoWebTransactionImpl(database = database).upsert(
+                accountId = accountId,
+                memoId = memo.id,
+                webId = web.id,
+                isDeleted = false,
+                updatedAt = instant(),
+            )
+
+            link(accountId = accountId, webId = web.id, tagId = tag.id)
+
+            AccountMemoTagLocalDataSourceImpl(database = database)
+                .getTagList(accountId = accountId, memoId = memo.id)
+                .first()
+                .shouldBeEmpty()
+            val tagMemoResult =
+                AccountTagMemoLocalDataSourceImpl(database = database)
+                    .page(accountId = accountId, tagId = tag.id, scope = TagScopeLocalEntity.SELF, sort = ListSortLocalEntity.DEFAULT)
+                    .load(
+                        PagingSource.LoadParams.Refresh(
+                            key = null,
+                            loadSize = 100,
+                            placeholdersEnabled = false,
+                        ),
+                    )
+            tagMemoResult
+                .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, MemoLocalEntity>>()
+                .data
+                .shouldBeEmpty()
         }
 
         test("TC-WEB-TAG-DATA-003 연결 해제는 같은 웹 항목의 다른 연결을 바꾸지 않는다") {
@@ -627,7 +683,7 @@ class AccountWebTagLocalDataSourceImplTest :
                 ?.isDeleted shouldBe true
         }
 
-        test("TC-WEB-TAG-DATA-004 연결의 업로드 대기 여부가 계정별로 기록된다") {
+        test("TC-WEB-TAG-DATA-004 TC-DATA-SYNC-DOMAIN-001 연결의 업로드 대기 여부가 계정별로 기록된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val web = web()
@@ -640,6 +696,17 @@ class AccountWebTagLocalDataSourceImplTest :
             webTagSyncDataSource
                 .findPending(accountId = accountId)
                 .map { webTag -> webTag.tagId } shouldBe listOf(targetTag.id)
+            webTagSyncDataSource.findPending(accountId = otherAccountId).shouldBeEmpty()
+
+            AccountWebTagSyncTransactionImpl(database = database).clearPending(
+                accountId = accountId,
+                webTagList = webTagSyncDataSource.findPending(accountId = accountId),
+            )
+            unlink(accountId = accountId, webId = web.id, tagId = targetTag.id)
+
+            webTagSyncDataSource
+                .findPending(accountId = accountId)
+                .map { webTag -> webTag.tagId to webTag.isDeleted } shouldBe listOf(targetTag.id to true)
             webTagSyncDataSource.findPending(accountId = otherAccountId).shouldBeEmpty()
         }
 

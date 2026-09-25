@@ -88,14 +88,21 @@ class PlaceAddTagAddTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-028 TagAdd 화면에서 추가한 태그 하나가 돌아왔을 때 연결 대상이 된다`() {
+    fun `TC-ENTITY-TAG-INPUT-FEATURE-028 TagAdd 화면에서 추가한 태그 하나가 돌아왔을 때 이전 연결과 함께 연결 대상이 된다`() {
+        val linkedTag = placeTestTag(title = EXERCISE_TAG_TITLE)
         val addedTag = placeTestTag(title = WORK_TAG_TITLE)
         val resultEventBus = ResultEventBus()
-        setPlaceAddScreen(tagList = listOf(addedTag), resultEventBus = resultEventBus)
+        setPlaceAddScreen(tagList = listOf(linkedTag, addedTag), resultEventBus = resultEventBus)
+        composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).performClick()
+        composeRule.waitForIdle()
+        dialogNodeWithText(EXERCISE_TAG_TITLE).performClick()
+        composeRule.waitForIdle()
+        closeDialogByBack()
 
         resultEventBus.sendTagAddedResult(id = addedTag.id)
         composeRule.waitForIdle()
 
+        composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertExists()
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
     }
 

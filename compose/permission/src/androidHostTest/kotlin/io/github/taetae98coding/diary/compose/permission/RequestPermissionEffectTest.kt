@@ -25,8 +25,14 @@ import io.github.taetae98coding.diary.core.permission.Permission
 import io.github.taetae98coding.diary.core.permission.PermissionResult
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.just
+import io.mockk.runs
+import io.mockk.slot
+import io.mockk.spyk
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,7 +48,7 @@ class RequestPermissionEffectTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-NOTIFICATION-PERMISSION-FEATURE-001 알림 권한이 결정되어 있지 않으면 앱 시작 시 시스템 알림 권한 요청이 시작된다`() {
+    fun `TC-NOTIFICATION-PERMISSION-FEATURE-001 알림 권한이 허용되어 있지 않으면 앱 시작 시 시스템 알림 권한 요청이 시작된다`() {
         val registry = PermissionResultRegistry(result = notificationResult(isGranted = false))
 
         setRequestPermissionEffect(permission = Permission.NOTIFICATION, registry = registry)
@@ -52,13 +58,13 @@ class RequestPermissionEffectTest {
     }
 
     @Test
-    fun `시스템 알림 권한 요청에 알림 표시 권한이 포함된다`() {
+    fun `TC-NOTIFICATION-PERMISSION-DOMAIN-006 Android에서는 하나의 알림 권한만 요청한다`() {
         val registry = PermissionResultRegistry(result = notificationResult(isGranted = false))
 
         setRequestPermissionEffect(permission = Permission.NOTIFICATION, registry = registry)
         composeRule.waitForIdle()
 
-        registry.launchedPermissionList.single() shouldContain Manifest.permission.POST_NOTIFICATIONS
+        registry.launchedPermissionList.single() shouldContainExactly listOf(Manifest.permission.POST_NOTIFICATIONS)
     }
 
     @Test
@@ -219,6 +225,16 @@ class RequestPermissionEffectTest {
     }
 
     @Test
+    fun `TC-LOCATION-PERMISSION-DOMAIN-007 Android에서는 정확한 위치 사용 권한을 포함해 요청한다`() {
+        val registry = PermissionResultRegistry(result = locationResult(isFineGranted = false, isCoarseGranted = false))
+
+        setRequestPermissionEffect(permission = Permission.LOCATION, registry = registry)
+        composeRule.waitForIdle()
+
+        registry.launchedPermissionList.single() shouldContain Manifest.permission.ACCESS_FINE_LOCATION
+    }
+
+    @Test
     fun `대략적인 위치만 허용해도 허용으로 처리한다`() {
         val registry = PermissionResultRegistry(result = locationResult(isFineGranted = false, isCoarseGranted = true))
         val resultList = mutableListOf<PermissionResult>()
@@ -234,8 +250,10 @@ class RequestPermissionEffectTest {
     }
 
     @Test
-    fun `요청을 허용하면 같은 manager의 허용 여부가 바로 바뀐다`() {
-        val registry = PermissionResultRegistry(result = locationResult(isFineGranted = true, isCoarseGranted = true))
+    fun `TC-LOCATION-PERMISSION-DOMAIN-010 앱 안에서 요청을 허용하면 응답 직후 바뀐 허용 여부가 반영된다`() {
+        val requestCode = slot<Int>()
+        val registry = spyk<ActivityResultRegistry>()
+        every { registry.onLaunch(capture(requestCode), any<ActivityResultContract<Any?, Any?>>(), any(), any()) } just runs
 
         composeRule.setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides TestLifecycleOwner(Lifecycle.State.RESUMED)) {
@@ -256,6 +274,17 @@ class RequestPermissionEffectTest {
                     )
                 }
             }
+        }
+        composeRule.waitForIdle()
+
+        requestCode.isCaptured shouldBe true
+        composeRule.onNodeWithText(GRANTED_CONTENT + false).assertIsDisplayed()
+
+        // 실제 시스템은 허용 응답과 함께 권한 상태도 바꾸므로 응답 전에 권한을 허용한다.
+        composeRule.runOnIdle {
+            val result = locationResult(isFineGranted = true, isCoarseGranted = true)
+            shadowOf(RuntimeEnvironment.getApplication()).grantPermissions(*result.keys.toTypedArray())
+            registry.dispatchResult(requestCode.captured, result)
         }
         composeRule.waitForIdle()
 

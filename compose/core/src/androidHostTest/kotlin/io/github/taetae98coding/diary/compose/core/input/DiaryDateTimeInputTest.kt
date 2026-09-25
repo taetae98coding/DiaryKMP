@@ -152,7 +152,7 @@ class DiaryDateTimeInputTest {
     }
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-032 종일로 전환한 뒤 다시 해제하면 시간이 기본 시각에서 다시 시작한다`() {
+    fun `여러 날짜 기간을 종일로 전환한 뒤 다시 해제하면 두 시각이 모두 기본 시각으로 다시 표시된다`() {
         val defaultTimeText = defaultTimeText()
 
         setDiaryDateTimeInput(initialValue = dateTimeValue())

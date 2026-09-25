@@ -67,7 +67,7 @@ class TagLinkUseCaseTest :
                     }
                 }
 
-                Then("TC-TAG-LINK-DATA-007 저장한 뒤 동기화를 한 번 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-TAG-LINK-DATA-007 저장한 뒤 동기화를 한 번 요청한다") {
                     val fromTagId = fixtureMonkey.giveMeOne<Uuid>()
                     val toTagId = fixtureMonkey.giveMeOne<Uuid>()
                     val syncRepository = mockk<AccountTagLinkRepository>(relaxed = true)
@@ -121,7 +121,7 @@ class TagLinkUseCaseTest :
                     }
                 }
 
-                Then("TC-TAG-LINK-DATA-007 해제를 저장한 뒤 동기화를 한 번 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-TAG-LINK-DATA-007 해제를 저장한 뒤 동기화를 한 번 요청한다") {
                     val fromTagId = fixtureMonkey.giveMeOne<Uuid>()
                     val toTagId = fixtureMonkey.giveMeOne<Uuid>()
                     val syncRepository = mockk<AccountTagLinkRepository>(relaxed = true)

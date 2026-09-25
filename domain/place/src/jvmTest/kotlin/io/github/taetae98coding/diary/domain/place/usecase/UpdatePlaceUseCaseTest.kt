@@ -63,7 +63,7 @@ class UpdatePlaceUseCaseTest :
                 )
 
             When("공백이 아닌 제목과 유효한 좌표로 수정한다") {
-                Then("TC-PLACE-DETAIL-DATA-008 수정을 서버와 맞추기 위한 동기화를 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-PLACE-DETAIL-DATA-008 수정을 서버와 맞추기 위한 동기화를 요청한다") {
                     useCase(parameter = UpdatePlaceUseCase.Parameter(id = id, detail = detail())).shouldBeSuccess(1)
 
                     coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }

@@ -25,8 +25,10 @@ import io.github.taetae98coding.diary.feature.place.ui.home.list.PLACE_HOME_PAGI
 import io.github.taetae98coding.diary.feature.place.ui.home.placePagingDataFlowOf
 import io.github.taetae98coding.diary.feature.place.ui.home.rememberPlaceHomeScaffoldState
 import io.github.taetae98coding.diary.feature.place.ui.home.viewModeTestPlace
+import io.github.taetae98coding.diary.feature.place.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.booleans.shouldBeFalse
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,6 +40,11 @@ import org.robolectric.annotation.Config
 class PlaceHomeListPositionTest {
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-PLACE-HOME-DOMAIN-026 화면이 회전하거나 창 크기가 바뀌어도 목록 모드에서 보던 목록 위치를 유지한다`() {

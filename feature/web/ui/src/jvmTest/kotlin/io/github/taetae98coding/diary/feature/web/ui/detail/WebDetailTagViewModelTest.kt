@@ -155,6 +155,48 @@ class WebDetailTagViewModelTest : FunSpec() {
                 }
             }
         }
+
+        test("TC-WEB-DETAIL-FEATURE-065 연결이나 해제의 저장에 실패하면 저장된 연결을 그대로 보여 주고 다시 연결할 수 있다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val storedTag = tag()
+                val newTagId = fixtureMonkey.giveMeOne<Uuid>()
+                val addWebTagUseCase = mockk<AddWebTagUseCase>()
+                coEvery { addWebTagUseCase(parameter = any()) } returns Result.failure(IllegalStateException("연결 저장 실패"))
+                val removeWebTagUseCase = mockk<RemoveWebTagUseCase>()
+                coEvery { removeWebTagUseCase(parameter = any()) } returns Result.failure(IllegalStateException("해제 저장 실패"))
+                val viewModel =
+                    viewModel(
+                        id = id,
+                        tagFlow = flowOf(Result.success(listOf(storedTag))),
+                        addWebTagUseCase = addWebTagUseCase,
+                        removeWebTagUseCase = removeWebTagUseCase,
+                    )
+
+                viewModel.uiState.test {
+                    awaitItem().tagList.shouldBeEmpty()
+                    awaitItem().tagList shouldBe listOf(storedTag)
+
+                    viewModel.add(tagId = newTagId)
+                    viewModel.remove(tagId = storedTag.id)
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                    viewModel.uiState.value.tagList shouldBe listOf(storedTag)
+
+                    viewModel.add(tagId = newTagId)
+                    advanceUntilIdle()
+
+                    coVerify(exactly = 2) {
+                        addWebTagUseCase(parameter = AddWebTagUseCase.Parameter(webId = id, tagId = newTagId))
+                    }
+                    coVerify(exactly = 1) {
+                        removeWebTagUseCase(parameter = RemoveWebTagUseCase.Parameter(webId = id, tagId = storedTag.id))
+                    }
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
         searchTests()
         restorationTests()
     }

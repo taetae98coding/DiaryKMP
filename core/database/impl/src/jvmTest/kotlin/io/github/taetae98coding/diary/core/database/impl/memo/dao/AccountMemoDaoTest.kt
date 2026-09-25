@@ -81,6 +81,19 @@ class AccountMemoDaoTest :
             return result.shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, MemoLocalEntity>>().data.map { memo -> memo.id }
         }
 
+        suspend fun PagingSource<Int, MemoLocalEntity>.pagedMemos(): List<MemoLocalEntity> {
+            val result =
+                load(
+                    PagingSource.LoadParams.Refresh(
+                        key = null,
+                        loadSize = 100,
+                        placeholdersEnabled = false,
+                    ),
+                )
+
+            return result.shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, MemoLocalEntity>>().data
+        }
+
         suspend fun pagedIds(accountId: Uuid): List<Uuid> = database.accountMemoDao().page(accountId = accountId, sort = ListSortLocalEntity.DEFAULT.queryValue).pagedIds()
 
         suspend fun insertTag(
@@ -684,6 +697,67 @@ class AccountMemoDaoTest :
                     .page(accountId = accountId, sort = sort.queryValue)
                     .pagedIds() shouldBe listOf(memo.id)
             }
+        }
+
+        test("TC-MEMO-HOME-DATA-017 추가, 제목·기간 변경, 완료, 삭제가 메모 목록 조회 결과에 반영된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val firstMemo = sortMemo(title = "Alpha", updatedAt = 1_000, startDay = 19)
+            val secondMemo = sortMemo(title = "Bravo", updatedAt = 1_000, startDay = 21)
+            insert(accountId, firstMemo, secondMemo)
+            pagedIds(accountId) shouldBe listOf(firstMemo.id, secondMemo.id)
+
+            val addedMemo = sortMemo(title = "Charlie", updatedAt = 2_000, startDay = 20)
+            insert(accountId, addedMemo)
+            pagedIds(accountId) shouldBe listOf(firstMemo.id, addedMemo.id, secondMemo.id)
+
+            val newTitle = "Renamed-${fixtureMonkey.giveMeOne<String>()}"
+            database.accountMemoDao().updateDetail(
+                accountId = accountId,
+                memoId = addedMemo.id,
+                title = newTitle,
+                description = addedMemo.detail.description,
+                color = addedMemo.detail.color,
+                isAllDay = addedMemo.detail.isAllDay,
+                start = addedMemo.detail.start,
+                endInclusive = addedMemo.detail.endInclusive,
+                updatedAt = Instant.fromEpochMilliseconds(3_000),
+            ) shouldBe 1
+            database
+                .accountMemoDao()
+                .page(accountId = accountId, sort = ListSortLocalEntity.DEFAULT.queryValue)
+                .pagedMemos()
+                .first { memo -> memo.id == addedMemo.id }
+                .detail
+                .title shouldBe newTitle
+
+            database.accountMemoDao().updateDetail(
+                accountId = accountId,
+                memoId = secondMemo.id,
+                title = secondMemo.detail.title,
+                description = secondMemo.detail.description,
+                color = secondMemo.detail.color,
+                isAllDay = true,
+                start = LocalDateTime(year = 2026, month = 7, day = 18, hour = 0, minute = 0),
+                endInclusive = LocalDateTime(year = 2026, month = 7, day = 18, hour = 23, minute = 59),
+                updatedAt = Instant.fromEpochMilliseconds(4_000),
+            ) shouldBe 1
+            pagedIds(accountId) shouldBe listOf(secondMemo.id, firstMemo.id, addedMemo.id)
+
+            database.accountMemoDao().updateFinished(
+                accountId = accountId,
+                memoId = firstMemo.id,
+                isFinished = true,
+                updatedAt = Instant.fromEpochMilliseconds(5_000),
+            ) shouldBe 1
+            pagedIds(accountId) shouldBe listOf(secondMemo.id, addedMemo.id)
+
+            database.accountMemoDao().updateDeleted(
+                accountId = accountId,
+                memoId = addedMemo.id,
+                isDeleted = true,
+                updatedAt = Instant.fromEpochMilliseconds(6_000),
+            ) shouldBe 1
+            pagedIds(accountId) shouldBe listOf(secondMemo.id)
         }
     }) {
     public companion object {

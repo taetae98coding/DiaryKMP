@@ -108,7 +108,7 @@ class RestartTagUseCaseTest :
                 )
 
             When("태그 완료를 실행 취소한다") {
-                Then("태그 갱신 후 동기화를 한 번 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 태그 갱신 후 동기화를 한 번 요청한다") {
                     val result = useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
 
                     result.shouldBeSuccess(1)

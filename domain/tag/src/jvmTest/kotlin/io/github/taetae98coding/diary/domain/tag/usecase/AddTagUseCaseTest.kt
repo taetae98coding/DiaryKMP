@@ -241,7 +241,7 @@ class AddTagUseCaseTest :
                 )
 
             When("공백이 아닌 제목으로 태그를 추가한다") {
-                Then("TC-TAG-ADD-DATA-007 태그를 기기에 저장한 뒤 동기화를 한 번 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-TAG-ADD-DATA-007 태그를 기기에 저장한 뒤 동기화를 한 번 요청한다") {
                     val result = useCase(parameter = AddTagUseCase.Parameter(detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = nonBlankTitle())))
 
                     result.shouldBeSuccess()

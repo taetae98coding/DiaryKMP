@@ -160,7 +160,7 @@ class AccountTagDaoTopLevelFilterTest :
             topLevelTagIdList(accountId = accountId) shouldBe listOf(alphaTag.id, bravoTag.id, charlieTag.id)
         }
 
-        test("TC-TAG-HOME-DATA-007 연결을 만들면 페이지를 무효화하고 최상위 태그 목록에서 도착 태그를 제외한다") {
+        test("TC-TAG-HOME-DATA-007 연결을 만들면 도착 태그를 최상위 태그 목록에서 제외하고 해제하면 다시 포함한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val fromTag = tag(title = "alpha")
             val toTag = tag(title = "bravo")
@@ -176,6 +176,17 @@ class AccountTagDaoTopLevelFilterTest :
             withTimeout(INVALIDATION_TIMEOUT_MILLIS) { invalidated.await() }
             pagingSource.invalid.shouldBeTrue()
             topLevelTagIdList(accountId = accountId) shouldBe listOf(fromTag.id)
+
+            val linkedPagingSource = topLevelPagingSource(accountId = accountId)
+            linkedPagingSource.pagedTagIdList() shouldBe listOf(fromTag.id)
+            val linkedInvalidated = CompletableDeferred<Unit>()
+            linkedPagingSource.registerInvalidatedCallback { linkedInvalidated.complete(Unit) }
+
+            unlink(accountId = accountId, fromTagId = fromTag.id, toTagId = toTag.id)
+
+            withTimeout(INVALIDATION_TIMEOUT_MILLIS) { linkedInvalidated.await() }
+            linkedPagingSource.invalid.shouldBeTrue()
+            topLevelTagIdList(accountId = accountId) shouldBe listOf(fromTag.id, toTag.id)
         }
 
         test("TC-TAG-LINK-DOMAIN-018 해제한 연결은 향해 오는 연결로 세지 않는다") {

@@ -96,7 +96,7 @@ class UpdateWebUseCaseTest :
                     detailSlot.captured.headerList shouldBe emptyList()
                 }
 
-                Then("TC-WEB-DETAIL-DATA-011 TC-WEB-DETAIL-DATA-012 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-WEB-DETAIL-DATA-011 TC-WEB-DETAIL-DATA-012 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
                     useCase(parameter = UpdateWebUseCase.Parameter(id = stored.id, detail = detail())).shouldBeSuccess(1)
 
                     coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }

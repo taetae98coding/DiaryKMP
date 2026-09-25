@@ -200,7 +200,7 @@ class UpdateTagUseCaseTest :
                 )
 
             When("공백이 아닌 제목으로 태그를 수정한다") {
-                Then("태그 갱신 후 동기화를 한 번 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 태그 갱신 후 동기화를 한 번 요청한다") {
                     val detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}")
 
                     val result = useCase(parameter = UpdateTagUseCase.Parameter(id = tagId, detail = detail))

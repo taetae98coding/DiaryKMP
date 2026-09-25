@@ -383,7 +383,7 @@ class AccountMemoWebTransactionImplTest :
             webList.shouldBeEmpty()
         }
 
-        test("TC-MEMO-WEB-DATA-010 연결을 하나 해제하면 그 연결만 업로드 대기가 된다") {
+        test("TC-MEMO-WEB-DATA-010 TC-DATA-SYNC-DOMAIN-001 연결을 하나 해제하면 그 연결만 업로드 대기가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val removedWeb = web()
@@ -402,7 +402,7 @@ class AccountMemoWebTransactionImplTest :
             findPendingWebIdList(accountId = accountId) shouldBe listOf(removedWeb.id)
         }
 
-        test("TC-MEMO-WEB-DATA-010 연결을 하나 만들면 그 연결만 업로드 대기가 된다") {
+        test("TC-MEMO-WEB-DATA-010 TC-DATA-SYNC-DOMAIN-001 연결을 하나 만들면 그 연결만 업로드 대기가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val keptWeb = web()

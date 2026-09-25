@@ -11,6 +11,8 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
+import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.navercorp.fixturemonkey.FixtureMonkey
@@ -83,6 +85,25 @@ class TagHomeEmptyTest {
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
         composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertExists()
+    }
+
+    @Test
+    fun `TC-TAG-HOME-FEATURE-038 이어서 불러오지 못해도 이미 보이는 태그를 그대로 둔다`() {
+        setTagHomeScaffold(
+            pagingData =
+                PagingData.from(
+                    data = listOf(tag(title = TAG_TITLE)),
+                    sourceLoadStates =
+                        LoadStates(
+                            refresh = LoadState.NotLoading(endOfPaginationReached = false),
+                            prepend = LoadState.NotLoading(endOfPaginationReached = true),
+                            append = LoadState.Error(IllegalStateException(TAG_TITLE)),
+                        ),
+                ),
+        )
+
+        composeRule.onNodeWithText(TAG_TITLE).assertExists()
+        composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
     }
 
     @Test

@@ -98,6 +98,16 @@ class AccountPlaceSyncTransactionImplTest :
                 .shouldContainExactlyInAnyOrder(firstPendingPlace, secondPendingPlace)
         }
 
+        test("TC-DATA-SYNC-DOMAIN-087 로그인한 계정의 업로드 대상에 게스트 상태에서 만든 장소는 포함되지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val guestEntity = place()
+            val accountEntity = place()
+            insertWithSyncState(accountId = Uuid.NIL, place = guestEntity, isDirty = true)
+            insertWithSyncState(accountId = accountId, place = accountEntity, isDirty = true)
+
+            syncDataSource.findPending(accountId = accountId) shouldBe listOf(accountEntity)
+        }
+
         test("TC-DATA-SYNC-DOMAIN-026 업로드한 수정 시각이 그대로면 동기화 완료가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place()
@@ -211,7 +221,7 @@ class AccountPlaceSyncTransactionImplTest :
         listOf(
             "늦음" to Instant.fromEpochMilliseconds(3_000),
             "같음" to Instant.fromEpochMilliseconds(2_000),
-            "이름" to Instant.fromEpochMilliseconds(1_000),
+            "이른" to Instant.fromEpochMilliseconds(1_000),
         ).forEach { (label, remoteUpdatedAt) ->
             test("TC-DATA-SYNC-DATA-024 서버의 수정 시각이 기기보다 $label 이어도 업로드 대기 여부는 바뀌지 않는다") {
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()

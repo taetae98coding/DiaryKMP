@@ -6,6 +6,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.paging.PagingData
@@ -169,6 +170,24 @@ class TagDetailPlaceScreenTest {
         composeRule.selectTagDetailTab(DEFAULT_PLACE_TAB_DESCRIPTION)
 
         composeRule.onNodeWithText(PLACE_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_SHOW_LIST_DESCRIPTION).assert(hasClickAction())
+    }
+
+    @Test
+    fun `TC-TAG-DETAIL-PLACE-FEATURE-037 다른 탭을 선택한 동안에는 지도 영역과 보기 모드 전환을 쓸 수 없다`() {
+        setScreenOnPlaceTab(placePagingData = tagEntityPagingData(itemList = listOf(tagPlace(title = PLACE_TITLE))))
+        composeRule.onNodeWithContentDescription(DEFAULT_SHOW_MAP_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(DEFAULT_SHOW_LIST_DESCRIPTION).assert(hasClickAction())
+
+        listOf(DEFAULT_MEMO_TAB_DESCRIPTION, DEFAULT_DETAIL_TAB_DESCRIPTION).forEach { tabDescription ->
+            composeRule.selectTagDetailTab(tabDescription)
+
+            composeRule.onNodeWithContentDescription(DEFAULT_SHOW_LIST_DESCRIPTION).assertDoesNotExist()
+            composeRule.onNodeWithTag(TAG_DETAIL_PLACE_BOUNDS_LIST_TEST_TAG).assertDoesNotExist()
+        }
+
+        composeRule.selectTagDetailTab(DEFAULT_PLACE_TAB_DESCRIPTION)
         composeRule.onNodeWithContentDescription(DEFAULT_SHOW_LIST_DESCRIPTION).assert(hasClickAction())
     }
 

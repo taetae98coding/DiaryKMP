@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.feature.memo.ui.add
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -9,6 +10,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performTextInput
 import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.core.model.contact.Contact
@@ -25,6 +27,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.contact.SECOND_CONTACT_NAM
 import io.github.taetae98coding.diary.feature.memo.ui.contact.SECOND_CONTACT_PHONE_NUMBER
 import io.github.taetae98coding.diary.feature.memo.ui.contact.awaitContactPickerRows
 import io.github.taetae98coding.diary.feature.memo.ui.contact.contactDialogNodeWithText
+import io.github.taetae98coding.diary.feature.memo.ui.contact.contactPickerList
 import io.github.taetae98coding.diary.feature.memo.ui.contact.refreshingContactPagingData
 import io.github.taetae98coding.diary.feature.memo.ui.contact.testContact
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
@@ -45,6 +48,8 @@ private const val FIRST_ADDED_CONTACT_NAME: String = "MemoContactFirstAdded"
 private const val SECOND_ADDED_CONTACT_NAME: String = "MemoContactSecondAdded"
 private const val CONTACT_TEST_TYPED_TITLE: String = "MemoContactTypedTitle"
 private const val CONTACT_TEST_ADD_BUTTON_DESCRIPTION: String = "Add memo"
+private const val CONTACT_TEST_PICKER_NAME_PREFIX: String = "MemoContactPicker"
+private const val CONTACT_TEST_PICKER_COUNT: Int = 30
 
 private fun ResultEventBus.sendContactAddedResult(contact: Contact) {
     sendResult<ContactAddedResult>(result = ContactAddedResult(id = contact.id))
@@ -231,6 +236,27 @@ class MemoAddScreenContactTest {
 
         coVerify(exactly = 1) { addMemoUseCase(any<AddMemoUseCase.Parameter>()) }
         composeRule.onNodeWithText(FIRST_CONTACT_NAME).performScrollTo().assertExists()
+    }
+
+    @Test
+    fun `TC-MEMO-CONTACT-INPUT-FEATURE-021 목록을 닫았다가 다시 열면 앞부분부터 나타난다`() {
+        val contactList =
+            List(CONTACT_TEST_PICKER_COUNT) { index ->
+                testContact(name = "$CONTACT_TEST_PICKER_NAME_PREFIX${index.toString().padStart(length = 3, padChar = '0')}")
+            }
+        composeRule.setMemoAddScreenForContact(viewModels = screenTestRealViewModel(contactList = contactList))
+
+        composeRule.openContactPicker()
+        composeRule.awaitContactPickerRows()
+        composeRule.contactPickerList().performScrollToIndex(contactList.lastIndex)
+        composeRule.waitForIdle()
+        composeRule.contactDialogNodeWithText(contactList.first().detail.name).assertIsNotDisplayed()
+
+        composeRule.closeDialogByBack()
+        composeRule.openContactPicker()
+        composeRule.awaitContactPickerRows()
+
+        composeRule.contactDialogNodeWithText(contactList.first().detail.name).assertIsDisplayed()
     }
 
     private fun ComposeContentTestRule.selectContact(name: String) {

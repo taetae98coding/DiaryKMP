@@ -284,7 +284,7 @@ class SyncWorkPlaceTagTest :
             coVerify(exactly = 0) { context.accountPlaceTagSyncTransaction.save(any(), any(), any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-024 요청에 전달된 계정의 장소·태그 연결만 조회한다") {
+        test("TC-DATA-SYNC-DOMAIN-024 실행 시점에 확인된 계정의 장소·태그 연결만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val context = context(accountId = accountId)

@@ -219,6 +219,28 @@ class PlaceSearchViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-PLACE-SEARCH-DIALOG-DOMAIN-020 검색 중에 검색어를 비우면 늦게 도착한 결과를 쓰지 않는다") {
+            runTest(mainDispatcher) {
+                val lateList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
+                val lateCompletion = CompletableDeferred<Result<List<SearchedPlace>>>()
+                val request = searchRequest()
+                val fetchSearchedPlaceUseCase = mockk<FetchSearchedPlaceUseCase>()
+                coEvery { fetchSearchedPlaceUseCase(request.toParameter()) } coAnswers { lateCompletion.await() }
+                val viewModel = viewModel(fetchSearchedPlaceUseCase = fetchSearchedPlaceUseCase)
+                collectUiState(viewModel)
+
+                viewModel.search(request = request)
+                runCurrent()
+                viewModel.clear()
+                advanceUntilIdle()
+
+                lateCompletion.complete(Result.success(lateList))
+                advanceUntilIdle()
+
+                viewModel.uiState.value shouldBe PlaceSearchUiState.Idle
+            }
+        }
+
         test("검색은 입력한 검색어와 제공자와 보이는 영역을 그대로 요청한다") {
             runTest(mainDispatcher) {
                 val request = searchRequest(provider = MapProvider.GOOGLE, bounds = fixtureMonkey.giveMeOne<CoordinateBounds>())

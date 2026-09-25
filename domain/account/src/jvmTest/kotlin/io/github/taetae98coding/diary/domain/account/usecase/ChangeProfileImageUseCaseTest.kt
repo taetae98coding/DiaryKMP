@@ -35,7 +35,7 @@ class ChangeProfileImageUseCaseTest :
                     coVerify(exactly = 0) { repository.refresh() }
                 }
 
-                Then("이미지는 JPEG로 바꾸고, 남긴 이미지의 최대 변 길이는 1024px이고 화질은 90이다") {
+                Then("TC-PROFILE-IMAGE-DOMAIN-002 이미지는 JPEG로 바꾸고, 남긴 이미지의 최대 변 길이는 1024px이고 화질은 90이다") {
                     coVerify(exactly = 1) {
                         repository.updateProfileImage(uri = parameter.uri, format = ImageFormat.JPEG, cropRegion = parameter.cropRegion, maxSideLength = MAX_SIDE_LENGTH_PX, quality = QUALITY_PERCENT)
                     }

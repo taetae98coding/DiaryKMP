@@ -19,15 +19,14 @@ import javax.imageio.ImageIO
 
 class JvmImageConverterTest :
     FunSpec({
-        test("투명한 부분이 있는 이미지도 같은 크기의 JPEG로 바꾼다") {
+        test("TC-PROFILE-IMAGE-DOMAIN-002 투명한 부분이 있는 이미지도 같은 크기의 JPEG로 바꾼다") {
             val converter = JvmImageConverter(dispatcher = Dispatchers.Default)
 
             val decoded =
                 converter.convert(source = imageFileUri(bytes = transparentPng()), format = ImageFormat.JPEG, cropRegion = ImageCropRegion.FULL, maxSideLength = MAX_SIDE_LENGTH, quality = QUALITY).useBytes { bytes ->
-                    ImageIO.read(ByteArrayInputStream(bytes))
+                    readJpeg(bytes = bytes)
                 }
 
-            decoded.shouldNotBeNull()
             decoded.width shouldBe IMAGE_SIZE
             decoded.height shouldBe IMAGE_SIZE
             decoded.colorModel.hasAlpha() shouldBe false
@@ -75,44 +74,44 @@ class JvmImageConverterTest :
             oriented.getRGB(0, 1) shouldBe Color.BLUE.rgb
         }
 
-        test("정한 영역만 남긴 정사각형 JPEG로 바꾼다") {
+        test("TC-PROFILE-IMAGE-DOMAIN-002 정한 영역만 남긴 정사각형 JPEG로 바꾼다") {
             val converter = JvmImageConverter(dispatcher = Dispatchers.Default)
             val region = ImageCropRegion(left = 0.25F, top = 0F, right = 0.75F, bottom = 1F)
 
             val decoded =
                 converter.convert(source = imageFileUri(bytes = opaqueJpeg(width = 8, height = 4)), format = ImageFormat.JPEG, cropRegion = region, maxSideLength = MAX_SIDE_LENGTH, quality = QUALITY).useBytes { bytes ->
-                    ImageIO.read(ByteArrayInputStream(bytes))
+                    readJpeg(bytes = bytes)
                 }
 
             decoded.width shouldBe 4
             decoded.height shouldBe 4
         }
 
-        test("남긴 이미지의 긴 변이 최대 변 길이를 넘으면 그 길이로 줄인다") {
+        test("TC-PROFILE-IMAGE-DOMAIN-002 남긴 이미지의 긴 변이 최대 변 길이를 넘으면 그 길이로 줄인다") {
             val converter = JvmImageConverter(dispatcher = Dispatchers.Default)
 
             val decoded =
                 converter.convert(source = imageFileUri(bytes = opaqueJpeg(width = 8, height = 8)), format = ImageFormat.JPEG, cropRegion = ImageCropRegion.FULL, maxSideLength = 4, quality = QUALITY).useBytes { bytes ->
-                    ImageIO.read(ByteArrayInputStream(bytes))
+                    readJpeg(bytes = bytes)
                 }
 
             decoded.width shouldBe 4
             decoded.height shouldBe 4
         }
 
-        test("남긴 이미지가 최대 변 길이를 넘지 않으면 해상도를 그대로 둔다") {
+        test("TC-PROFILE-IMAGE-DOMAIN-002 남긴 이미지가 최대 변 길이를 넘지 않으면 해상도를 그대로 둔다") {
             val converter = JvmImageConverter(dispatcher = Dispatchers.Default)
 
             val decoded =
                 converter.convert(source = imageFileUri(bytes = opaqueJpeg(width = 4, height = 4)), format = ImageFormat.JPEG, cropRegion = ImageCropRegion.FULL, maxSideLength = MAX_SIDE_LENGTH, quality = QUALITY).useBytes { bytes ->
-                    ImageIO.read(ByteArrayInputStream(bytes))
+                    readJpeg(bytes = bytes)
                 }
 
             decoded.width shouldBe 4
             decoded.height shouldBe 4
         }
 
-        test("촬영 방향을 반영한 사진에서 영역을 남긴다") {
+        test("TC-PROFILE-IMAGE-DOMAIN-002 촬영 방향을 반영한 사진에서 영역을 남긴다") {
             val converter = JvmImageConverter(dispatcher = Dispatchers.Default)
             // 8x4 사진에 90도 회전 방향이 있으면 4x8로 보이므로, 가로 전체와 세로 가운데를 남기면 4x4가 된다.
             val region = ImageCropRegion(left = 0F, top = 0.25F, right = 1F, bottom = 0.75F)
@@ -120,7 +119,7 @@ class JvmImageConverterTest :
             val decoded =
                 converter
                     .convert(source = imageFileUri(bytes = jpegWithExifOrientation(orientation = 6, width = 8, height = 4)), format = ImageFormat.JPEG, cropRegion = region, maxSideLength = MAX_SIDE_LENGTH, quality = QUALITY)
-                    .useBytes { bytes -> ImageIO.read(ByteArrayInputStream(bytes)) }
+                    .useBytes { bytes -> readJpeg(bytes = bytes) }
 
             decoded.width shouldBe 4
             decoded.height shouldBe 4
@@ -130,6 +129,7 @@ class JvmImageConverterTest :
         private const val IMAGE_SIZE = 4
         private const val MAX_SIDE_LENGTH = 1024
         private const val QUALITY = 90
+        private val JPEG_SOI_MARKER = byteArrayOf(0xFF.toByte(), 0xD8.toByte())
 
         private fun FileUri.toFile(): File = File(URI(value))
 
@@ -142,6 +142,19 @@ class JvmImageConverterTest :
             } finally {
                 file.delete()
             }
+        }
+
+        private fun readJpeg(bytes: ByteArray): BufferedImage {
+            bytes.copyOfRange(0, 2) shouldBe JPEG_SOI_MARKER
+            ImageIO.createImageInputStream(ByteArrayInputStream(bytes)).use { input ->
+                ImageIO
+                    .getImageReaders(input)
+                    .next()
+                    .formatName
+                    .lowercase() shouldBe "jpeg"
+            }
+
+            return ImageIO.read(ByteArrayInputStream(bytes)).shouldNotBeNull()
         }
 
         private fun imageFileUri(bytes: ByteArray): FileUri {

@@ -369,6 +369,42 @@ class DiaryDateTimeInputStateTest : FunSpec() {
             state.start shouldBe state.endInclusive
         }
 
+        test("TC-DIARY-DATE-TIME-INPUT-FEATURE-014 종일 아님에서 시작일만 바꿔 종료보다 뒤가 되면 종료가 시작의 날짜와 시각에 맞춰진다") {
+            val startDate = anyDate()
+            val endDate = startDate.plus(1, DateTimeUnit.DAY)
+            val (endTime, startTime) = anyOrderedTimePair()
+            val state =
+                DiaryDateTimeInputState(
+                    hasDateTime = true,
+                    isAllDay = false,
+                    start = LocalDateTime(date = startDate, time = startTime),
+                    endInclusive = LocalDateTime(date = endDate, time = endTime),
+                )
+
+            state.selectStartDate(endDate)
+
+            state.start shouldBe LocalDateTime(date = endDate, time = startTime)
+            state.endInclusive shouldBe LocalDateTime(date = endDate, time = startTime)
+        }
+
+        test("TC-DIARY-DATE-TIME-INPUT-FEATURE-015 종일 아님에서 종료일만 바꿔 시작보다 앞이 되면 시작이 종료의 날짜와 시각에 맞춰진다") {
+            val startDate = anyDate()
+            val endDate = startDate.plus(1, DateTimeUnit.DAY)
+            val (endTime, startTime) = anyOrderedTimePair()
+            val state =
+                DiaryDateTimeInputState(
+                    hasDateTime = true,
+                    isAllDay = false,
+                    start = LocalDateTime(date = startDate, time = startTime),
+                    endInclusive = LocalDateTime(date = endDate, time = endTime),
+                )
+
+            state.selectEndDate(startDate)
+
+            state.endInclusive shouldBe LocalDateTime(date = startDate, time = endTime)
+            state.start shouldBe LocalDateTime(date = startDate, time = endTime)
+        }
+
         test("기간 관계를 유지하는 선택은 다른 항목을 바꾸지 않는다") {
             val (start, endInclusive) = anyPeriod()
             val newStartDate = start.date.plus(-1, DateTimeUnit.DAY)
@@ -428,6 +464,17 @@ class DiaryDateTimeInputStateTest : FunSpec() {
                 hour = fixtureMonkey.giveMeOne<Int>().mod(24),
                 minute = fixtureMonkey.giveMeOne<Int>().mod(59) + 1,
             )
+
+        private fun anyOrderedTimePair(): Pair<LocalTime, LocalTime> {
+            val earlier = LocalTime(hour = fixtureMonkey.giveMeOne<Int>().mod(23), minute = fixtureMonkey.giveMeOne<Int>().mod(60))
+            val later =
+                LocalTime(
+                    hour = earlier.hour + 1 + fixtureMonkey.giveMeOne<Int>().mod(23 - earlier.hour),
+                    minute = fixtureMonkey.giveMeOne<Int>().mod(60),
+                )
+
+            return earlier to later
+        }
 
         private fun anyPeriod(): Pair<LocalDateTime, LocalDateTime> {
             val first = LocalDateTime(date = anyDate(), time = anyTime())

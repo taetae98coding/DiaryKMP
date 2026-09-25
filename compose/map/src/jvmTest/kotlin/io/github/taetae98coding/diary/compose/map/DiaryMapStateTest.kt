@@ -277,6 +277,24 @@ class DiaryMapStateTest :
             }
         }
 
+        test("TC-DIARY-MAP-DOMAIN-045 화면이 지도를 옮기도록 지정하면 지도에 보내는 이동 요청은 보고 있던 확대 수준을 유지한다") {
+            runTest {
+                val camera = fixtureMonkey.giveMeOne<DiaryMapCamera>()
+                val target = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()
+                val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
+                state.moveCamera(camera)
+
+                state.moveTo(target)
+
+                state.moveCommand.first() shouldBe
+                    DiaryMapCamera(
+                        latitude = target.latitude,
+                        longitude = target.longitude,
+                        zoom = camera.zoom,
+                    )
+            }
+        }
+
         test("moveTo를 같은 위치로 반복해도 명령이 그때마다 전달된다") {
             runTest {
                 val target = fixtureMonkey.giveMeOne<DiaryMapCoordinate>()

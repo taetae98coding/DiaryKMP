@@ -82,7 +82,7 @@ class WebHomeSortTest {
     }
 
     @Test
-    fun `정렬 컨트롤은 선택한 정렬의 이름을 표시한다`() {
+    fun `TC-WEB-HOME-FEATURE-020 최근 수정순이 선택되면 정렬 컨트롤이 최근 수정순을 알린다`() {
         setWebHomeScaffold(webList = listOf(testWeb(title = TITLE)), sort = ListSort.RECENTLY_UPDATED)
 
         composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).assertExists()

@@ -122,7 +122,7 @@ class FetchSearchedPlaceUseCaseTest :
                         east = 127.0,
                     )
 
-                Then("기준 위치 없이 검색한다") {
+                Then("TC-PLACE-SEARCH-DIALOG-DOMAIN-016 크기가 없는 영역이면 기준 위치 없이 검색한다") {
                     useCase(parameter = googleParameter(query = query, bounds = bounds)).shouldBeSuccess() shouldBe placeList
 
                     biasList.last().shouldBeNull()
@@ -138,7 +138,7 @@ class FetchSearchedPlaceUseCaseTest :
                         east = 130.0,
                     )
 
-                Then("반경을 줄이지 않고 가장 큰 원을 그대로 기준 위치로 삼는다") {
+                Then("TC-PLACE-SEARCH-DIALOG-DOMAIN-019 반경을 줄이지 않고 가장 큰 원을 그대로 기준 위치로 삼는다") {
                     useCase(parameter = googleParameter(query = query, bounds = bounds)).shouldBeSuccess() shouldBe placeList
 
                     biasList.last().shouldNotBeNull().radiusMeters shouldBe

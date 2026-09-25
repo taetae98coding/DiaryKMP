@@ -61,7 +61,7 @@ class MemoContactUseCaseTest :
                     }
                 }
 
-                Then("TC-MEMO-DETAIL-DATA-035 TC-MEMO-CONTACT-DATA-005 연결 변경을 서버와 맞추기 위한 동기화를 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-MEMO-DETAIL-DATA-035 TC-MEMO-CONTACT-DATA-005 연결 변경을 서버와 맞추기 위한 동기화를 요청한다") {
                     val useCase =
                         AddMemoContactUseCase(
                             getAccountUseCase = getAccountUseCase,

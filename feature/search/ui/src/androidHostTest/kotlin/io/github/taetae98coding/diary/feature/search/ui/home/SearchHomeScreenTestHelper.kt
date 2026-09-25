@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.feature.search.ui.home
 
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -35,6 +36,8 @@ private val webPagingDataFlow = MutableStateFlow(pagingDataOf<Web>(emptyList()))
 
 // 검색어 반영 시점은 ViewModel 테스트가 검증하므로, 화면 테스트에서는 입력한 질의가 곧바로 반영된 것으로 다룬다.
 // 반영을 기다리는 상태를 확인하는 테스트만 반영을 멈춘다.
+private const val SEARCH_HOME_ENTRY_KEY = "SearchHome"
+
 private val appliedQueryFlow = MutableStateFlow("")
 private var isQueryApplied = true
 
@@ -87,6 +90,7 @@ internal fun ComposeContentTestRule.setSearchHomeScreen(
     navigateToTagDetail: (Uuid) -> Unit = {},
     navigateToPlaceDetail: (Uuid) -> Unit = {},
     navigateToWebDetail: (Uuid) -> Unit = {},
+    isShownProvider: () -> Boolean = { true },
 ) {
     appliedQueryFlow.value = ""
     isQueryApplied = isQueryAppliedImmediately
@@ -108,19 +112,31 @@ internal fun ComposeContentTestRule.setSearchHomeScreen(
         CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
             KoinApplication(configuration = koinConfiguration { modules(searchHomeViewModelModule) }) {
                 DiaryTheme {
-                    SearchHomeScreen(
-                        navigateUp = navigateUp,
-                        navigateToMemoDetail = navigateToMemoDetail,
-                        navigateToTagDetail = navigateToTagDetail,
-                        navigateToPlaceDetail = navigateToPlaceDetail,
-                        navigateToWebDetail = navigateToWebDetail,
-                        initialType = initialType,
-                    )
+                    // 내비게이션이 뒤에 쌓인 화면을 컴포지션에서 내리고 저장 상태만 보관하는 것을 그대로 따른다.
+                    val saveableStateHolder = rememberSaveableStateHolder()
+
+                    if (isShownProvider()) {
+                        saveableStateHolder.SaveableStateProvider(key = SEARCH_HOME_ENTRY_KEY) {
+                            SearchHomeScreen(
+                                navigateUp = navigateUp,
+                                navigateToMemoDetail = navigateToMemoDetail,
+                                navigateToTagDetail = navigateToTagDetail,
+                                navigateToPlaceDetail = navigateToPlaceDetail,
+                                navigateToWebDetail = navigateToWebDetail,
+                                initialType = initialType,
+                            )
+                        }
+                    }
                 }
             }
         }
     }
     waitForIdle()
+}
+
+// 사용자가 입력을 이어 가는 동안처럼 입력한 질의가 아직 결과에 반영되지 않은 상태를 만든다.
+internal fun setSearchQueryApplied(isApplied: Boolean) {
+    isQueryApplied = isApplied
 }
 
 internal fun ComposeContentTestRule.selectSearchHomeTab(label: String) {

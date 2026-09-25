@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.feature.memo.ui.add
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -9,6 +10,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performTextInput
 import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.core.model.web.Web
@@ -28,6 +30,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.web.awaitWebPickerRows
 import io.github.taetae98coding.diary.feature.memo.ui.web.refreshingWebPagingData
 import io.github.taetae98coding.diary.feature.memo.ui.web.testWeb
 import io.github.taetae98coding.diary.feature.memo.ui.web.webDialogNodeWithText
+import io.github.taetae98coding.diary.feature.memo.ui.web.webPickerList
 import io.github.taetae98coding.diary.feature.web.api.WebAddedResult
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
@@ -45,6 +48,8 @@ private const val FIRST_ADDED_WEB_TITLE: String = "MemoWebFirstAdded"
 private const val SECOND_ADDED_WEB_TITLE: String = "MemoWebSecondAdded"
 private const val WEB_TEST_TYPED_TITLE: String = "MemoWebTypedTitle"
 private const val WEB_TEST_ADD_BUTTON_DESCRIPTION: String = "Add memo"
+private const val WEB_TEST_PICKER_TITLE_PREFIX: String = "MemoWebPicker"
+private const val WEB_TEST_PICKER_COUNT: Int = 30
 
 private fun ResultEventBus.sendWebAddedResult(web: Web) {
     sendResult<WebAddedResult>(result = WebAddedResult(id = web.id))
@@ -229,6 +234,27 @@ class MemoAddScreenWebTest {
 
         coVerify(exactly = 1) { addMemoUseCase(any<AddMemoUseCase.Parameter>()) }
         composeRule.onNodeWithText(WIKI_WEB_TITLE).performScrollTo().assertExists()
+    }
+
+    @Test
+    fun `TC-MEMO-WEB-INPUT-FEATURE-021 목록을 닫았다가 다시 열면 앞부분부터 나타난다`() {
+        val webList =
+            List(WEB_TEST_PICKER_COUNT) { index ->
+                testWeb(title = "$WEB_TEST_PICKER_TITLE_PREFIX${index.toString().padStart(length = 3, padChar = '0')}")
+            }
+        composeRule.setMemoAddScreenForWeb(viewModels = screenTestRealViewModel(webList = webList))
+
+        composeRule.openWebPicker()
+        composeRule.awaitWebPickerRows()
+        composeRule.webPickerList().performScrollToIndex(webList.lastIndex)
+        composeRule.waitForIdle()
+        composeRule.webDialogNodeWithText(webList.first().detail.title).assertIsNotDisplayed()
+
+        composeRule.closeDialogByBack()
+        composeRule.openWebPicker()
+        composeRule.awaitWebPickerRows()
+
+        composeRule.webDialogNodeWithText(webList.first().detail.title).assertIsDisplayed()
     }
 
     private fun ComposeContentTestRule.selectWeb(title: String) {

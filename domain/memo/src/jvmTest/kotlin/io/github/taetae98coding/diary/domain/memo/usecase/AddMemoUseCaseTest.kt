@@ -474,7 +474,7 @@ class AddMemoUseCaseTest :
                 )
 
             When("공백이 아닌 제목으로 메모를 추가한다") {
-                Then("메모 저장 후 동기화를 한 번 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-MEMO-ADD-DATA-023 메모 저장 후 동기화를 한 번 요청한다") {
                     val result = useCase(parameter = AddMemoUseCase.Parameter(detail = fixtureMonkey.giveMeOne<MemoDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}")))
 
                     result.shouldBeSuccess()
@@ -482,6 +482,63 @@ class AddMemoUseCaseTest :
                         accountMemoRepository.upsert(account = account, memo = any(), tagIdSet = any())
                         requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED)
                     }
+                    coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
+                }
+            }
+        }
+
+        Given("메모 저장은 성공하지만 서버 반영이 실패하도록 준비되어 있다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val getAccountUseCase = mockk<GetAccountUseCase>()
+            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            val requestSyncUseCase = mockk<RequestSyncUseCase>()
+            coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns
+                Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+            val memoSlot = slot<Memo>()
+            val accountMemoRepository = mockk<AccountMemoRepository>(relaxed = true)
+            coEvery { accountMemoRepository.upsert(account = account, memo = capture(memoSlot), tagIdSet = any()) } just Runs
+            val clock = mockk<Clock>()
+            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
+            val useCase =
+                AddMemoUseCase(
+                    getAccountUseCase = getAccountUseCase,
+                    requestSyncUseCase = requestSyncUseCase,
+                    accountMemoRepository = accountMemoRepository,
+                    clock = clock,
+                )
+
+            When("공백이 아닌 제목으로 메모를 추가한다") {
+                Then("TC-MEMO-ADD-DATA-024 추가는 성공으로 전달되고 저장한 메모를 되돌리지 않는다") {
+                    val memoId = useCase(parameter = AddMemoUseCase.Parameter(detail = titledDetail())).shouldBeSuccess()
+
+                    memoSlot.captured.id shouldBe memoId
+                    memoSlot.captured.isDeleted.shouldBeFalse()
+                    coVerify(exactly = 0) { accountMemoRepository.updateDeleted(account = any(), memoId = any(), isDeleted = any(), updatedAt = any()) }
+                }
+            }
+        }
+
+        Given("계정이 게스트 상태로 준비되어 있다") {
+            val getAccountUseCase = mockk<GetAccountUseCase>()
+            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(Account.Guest))
+            val requestSyncUseCase = mockk<RequestSyncUseCase>()
+            coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.success(Unit)
+            val accountMemoRepository = mockk<AccountMemoRepository>(relaxed = true)
+            val clock = mockk<Clock>()
+            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
+            val useCase =
+                AddMemoUseCase(
+                    getAccountUseCase = getAccountUseCase,
+                    requestSyncUseCase = requestSyncUseCase,
+                    accountMemoRepository = accountMemoRepository,
+                    clock = clock,
+                )
+
+            When("공백이 아닌 제목으로 메모를 추가한다") {
+                Then("TC-MEMO-ADD-DATA-025 게스트 계정으로 기기에 저장하고 추가를 성공으로 전달하며 서버 반영 여부는 동기화 요청에 맡긴다") {
+                    useCase(parameter = AddMemoUseCase.Parameter(detail = titledDetail())).shouldBeSuccess()
+
+                    coVerify(exactly = 1) { accountMemoRepository.upsert(account = Account.Guest, memo = any(), tagIdSet = any()) }
                     coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
                 }
             }

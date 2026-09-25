@@ -65,7 +65,7 @@ class PlaceTagUseCaseTest :
                     }
                 }
 
-                Then("TC-PLACE-TAG-DATA-008 TC-PLACE-DETAIL-DATA-012 저장한 뒤 동기화를 한 번 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-PLACE-TAG-DATA-008 TC-PLACE-DETAIL-DATA-012 저장한 뒤 동기화를 한 번 요청한다") {
                     val placeId = fixtureMonkey.giveMeOne<Uuid>()
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
                     val syncRepository = mockk<AccountPlaceTagRepository>(relaxed = true)
@@ -119,7 +119,7 @@ class PlaceTagUseCaseTest :
                     }
                 }
 
-                Then("TC-PLACE-TAG-DATA-008 TC-PLACE-DETAIL-DATA-012 해제를 저장한 뒤 동기화를 한 번 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-PLACE-TAG-DATA-008 TC-PLACE-DETAIL-DATA-012 해제를 저장한 뒤 동기화를 한 번 요청한다") {
                     val placeId = fixtureMonkey.giveMeOne<Uuid>()
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
                     val syncRepository = mockk<AccountPlaceTagRepository>(relaxed = true)

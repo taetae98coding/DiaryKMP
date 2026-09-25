@@ -139,7 +139,7 @@ class CopyMemoUseCaseTest :
                 )
 
             When("메모를 복사한다") {
-                Then("TC-MEMO-DETAIL-DATA-017 복사본을 저장한 뒤 동기화를 한 번 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-MEMO-DETAIL-DATA-017 복사본을 저장한 뒤 동기화를 한 번 요청한다") {
                     val result = useCase(parameter = source.id)
 
                     result.shouldBeSuccess()

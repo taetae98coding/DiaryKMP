@@ -2,6 +2,8 @@ package io.github.taetae98coding.diary.feature.memo.ui.home
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.remember
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
@@ -43,6 +45,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.time.Instant
+import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -128,7 +131,7 @@ class MemoHomeScaffoldTest {
     }
 
     @Test
-    fun `필터가 적용되면 상태를 알리고 버튼을 누르면 필터 열기 Event를 전달한다`() {
+    fun `TC-MEMO-HOME-FEATURE-072 유무 필터의 한 축이 있음이면 필터 버튼이 적용 상태를 알리고 누르면 필터 열기 Event를 전달한다`() {
         val eventList = mutableListOf<MemoHomeScaffoldEvent>()
         setMemoHomeScaffold(
             filterUiState = MemoHomeScaffoldFilterUiState(existence = MemoExistenceFilter(date = MemoFilterExistence.EXIST)),
@@ -141,6 +144,35 @@ class MemoHomeScaffoldTest {
             .performClick()
 
         eventList shouldBe listOf(MemoHomeScaffoldEvent.ClickFilter)
+    }
+
+    @Test
+    fun `TC-MEMO-HOME-FEATURE-072 세 축이 모두 전체이고 선택한 태그가 없으면 필터 버튼이 적용 상태를 알리지 않는다`() {
+        setMemoHomeScaffold(filterUiState = MemoHomeScaffoldFilterUiState())
+
+        filterButtonStateDescription() shouldBe null
+    }
+
+    @Test
+    fun `TC-MEMO-HOME-FEATURE-072 유무 필터의 한 축이 없음이면 필터 버튼이 적용 상태를 알린다`() {
+        setMemoHomeScaffold(filterUiState = MemoHomeScaffoldFilterUiState(existence = MemoExistenceFilter(tag = MemoFilterExistence.NOT_EXIST)))
+
+        filterButtonStateDescription() shouldBe DEFAULT_FILTER_APPLIED_STATE_DESCRIPTION
+    }
+
+    @Test
+    fun `TC-MEMO-HOME-FEATURE-072 태그를 하나 이상 선택하면 필터 버튼이 적용 상태를 알린다`() {
+        val tagId = fixtureMonkey.giveMeOne<Uuid>()
+        setMemoHomeScaffold(filterUiState = MemoHomeScaffoldFilterUiState(selectedTagIdSet = setOf(tagId), storedTagIdSet = setOf(tagId)))
+
+        filterButtonStateDescription() shouldBe DEFAULT_FILTER_APPLIED_STATE_DESCRIPTION
+    }
+
+    @Test
+    fun `TC-MEMO-HOME-FEATURE-072 선택한 태그가 모두 판정에서 무시되고 있으면 필터 버튼이 적용 상태를 알리지 않는다`() {
+        setMemoHomeScaffold(filterUiState = MemoHomeScaffoldFilterUiState(selectedTagIdSet = emptySet(), storedTagIdSet = setOf(fixtureMonkey.giveMeOne<Uuid>())))
+
+        filterButtonStateDescription() shouldBe null
     }
 
     @Test
@@ -219,6 +251,13 @@ class MemoHomeScaffoldTest {
             ?.title
             ?.let(::waitUntilMemoIsDisplayed)
     }
+
+    private fun filterButtonStateDescription(): String? =
+        composeRule
+            .onNodeWithContentDescription(DEFAULT_FILTER_BUTTON_DESCRIPTION)
+            .fetchSemanticsNode()
+            .config
+            .getOrNull(SemanticsProperties.StateDescription)
 
     private fun waitUntilMemoIsDisplayed(title: String) {
         composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {

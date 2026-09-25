@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
+import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
@@ -75,6 +76,15 @@ class MemoNavigationTest :
 
             tagAddKey.requestKey.shouldBeNull()
             backStack shouldContainExactly listOf(MemoHomeNavKey, detailKey)
+        }
+
+        test("TC-WEB-ADD-FEATURE-017 메모 웹 입력에서 웹 추가를 선택하면 초기 태그 없는 웹 추가로 이동한다") {
+            val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, MemoAddNavKey())
+
+            backStack.navigateToWebAddFromMemoWebInput()
+
+            backStack shouldContainExactly listOf(MemoHomeNavKey, MemoAddNavKey(), WebAddNavKey())
+            (backStack.last() as WebAddNavKey).initialTagId.shouldBeNull()
         }
     }) {
     companion object {

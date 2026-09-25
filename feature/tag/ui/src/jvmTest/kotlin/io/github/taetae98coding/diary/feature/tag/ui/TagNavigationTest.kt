@@ -43,6 +43,65 @@ class TagNavigationTest :
             }
         }
 
+        test("TC-TAG-MEMO-FINISHED-LIST-DETAIL-FEATURE-003 메모를 선택하면 목록을 유지한 채 그 메모의 상세가 놓인다") {
+            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val memoId = fixtureMonkey.giveMeOne<Uuid>()
+            val backStack = tagMemoFinishedListBackStack(tagId = tagId, finishedDetailKeyList = emptyList())
+
+            backStack.navigateToMemoDetailFromTagMemoFinishedList(memoId)
+
+            backStack.toList() shouldContainExactly
+                listOf(
+                    TagHomeNavKey,
+                    TagDetailNavKey(id = tagId),
+                    TagMemoFinishedListNavKey(tagId = tagId),
+                    MemoDetailNavKey(id = memoId),
+                )
+        }
+
+        test("TC-TAG-MEMO-FINISHED-LIST-DETAIL-FEATURE-004 다른 메모를 선택하면 이전 상세를 쌓지 않고 교체한다") {
+            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val selectedId = fixtureMonkey.giveMeOne<Uuid>()
+            val backStack =
+                tagMemoFinishedListBackStack(
+                    tagId = tagId,
+                    finishedDetailKeyList = listOf(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
+                )
+
+            backStack.navigateToMemoDetailFromTagMemoFinishedList(selectedId)
+
+            backStack.toList() shouldContainExactly
+                listOf(
+                    TagHomeNavKey,
+                    TagDetailNavKey(id = tagId),
+                    TagMemoFinishedListNavKey(tagId = tagId),
+                    MemoDetailNavKey(id = selectedId),
+                )
+        }
+
+        test("TC-TAG-MEMO-FINISHED-LIST-DETAIL-FEATURE-009 상세가 선택된 상태에서 뒤로가면 목록을 유지하고 선택 전 상태가 된다") {
+            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val openCases =
+                listOf(
+                    listOf(fixtureMonkey.giveMeOne<Uuid>()),
+                    listOf(fixtureMonkey.giveMeOne<Uuid>(), fixtureMonkey.giveMeOne<Uuid>()),
+                )
+
+            openCases.forEach { memoIdList ->
+                val backStack = tagMemoFinishedListBackStack(tagId = tagId, finishedDetailKeyList = emptyList())
+                memoIdList.forEach { memoId -> backStack.navigateToMemoDetailFromTagMemoFinishedList(memoId) }
+
+                backStack.removeLastOrNull()
+
+                backStack.toList() shouldContainExactly
+                    listOf(
+                        TagHomeNavKey,
+                        TagDetailNavKey(id = tagId),
+                        TagMemoFinishedListNavKey(tagId = tagId),
+                    )
+            }
+        }
+
         test("TC-TAG-DETAIL-WEB-FEATURE-007 웹 탭에서 시작한 웹 추가는 대상 태그를 초기 태그로 넘긴다") {
             val tagId = Uuid.random()
             val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))

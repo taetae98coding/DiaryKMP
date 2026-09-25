@@ -1,7 +1,10 @@
 package io.github.taetae98coding.diary.feature.contact.ui.add
 
+import androidx.compose.runtime.remember
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
@@ -175,6 +178,7 @@ class ContactAddScreenTest {
         composeRule.descriptionInput().performTextInput(TYPED_DESCRIPTION)
         composeRule.heightInput().performTextInput(TYPED_HEIGHT)
         composeRule.footSizeInput().performTextInput(TYPED_FOOT_SIZE)
+        composeRule.hometownInput().performTextInput(TYPED_HOMETOWN)
         composeRule.selectBirthday()
         composeRule.addPhoneNumberRow()
         composeRule.phoneNumberInput().performTextInput(TYPED_FIRST_PHONE_NUMBER)
@@ -189,7 +193,52 @@ class ContactAddScreenTest {
         composeRule.descriptionInput().assert(hasText(TYPED_DESCRIPTION))
         composeRule.heightInput().assert(hasText(TYPED_HEIGHT))
         composeRule.footSizeInput().assert(hasText(TYPED_FOOT_SIZE))
+        composeRule.hometownInput().assert(hasText(TYPED_HOMETOWN))
         composeRule.onNodeWithText(todayDisplayText()).assertExists()
+        composeRule.phoneNumberInput().assert(hasText(TYPED_FIRST_PHONE_NUMBER))
+        composeRule.phoneNumberInput(row = 1).assert(hasText(TYPED_SECOND_PHONE_NUMBER))
+    }
+
+    @Test
+    fun `TC-CONTACT-ADD-FEATURE-035 메모리 정리 뒤 복원해도 작성 중이던 내용을 모두 복원한다`() {
+        val restorationTester = StateRestorationTester(composeRule)
+        restorationTester.setContent {
+            // 메모리 정리 뒤에는 화면 상태를 들고 있던 객체도 새로 만들어지므로 복원할 때마다 새 인스턴스를 쓴다.
+            val viewModel = remember { screenTestViewModel() }
+
+            ContactAddScreenTestTheme {
+                ContactAddScreen(
+                    navigateUp = {},
+                    componentVisibleProvider = { ContactAddScaffoldComponentVisible() },
+                    viewModel = viewModel,
+                )
+            }
+        }
+        composeRule.nameInput().performTextInput(TYPED_NAME)
+        composeRule.descriptionInput().performTextInput(TYPED_DESCRIPTION)
+        composeRule.heightInput().performTextInput(TYPED_HEIGHT)
+        composeRule.footSizeInput().performTextInput(TYPED_FOOT_SIZE)
+        composeRule.hometownInput().performTextInput(TYPED_HOMETOWN)
+        composeRule.selectBirthday()
+        composeRule.selectBirthdayCalendar(DEFAULT_BIRTHDAY_CALENDAR_LUNAR)
+        composeRule.addPhoneNumberRow()
+        composeRule.phoneNumberInput().performTextInput(TYPED_FIRST_PHONE_NUMBER)
+        composeRule.addPhoneNumberRow()
+        composeRule.phoneNumberInput(row = 1).performTextInput(TYPED_SECOND_PHONE_NUMBER)
+        composeRule.waitForIdle()
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        composeRule.nameInput().assert(hasText(TYPED_NAME))
+        composeRule.descriptionInput().assert(hasText(TYPED_DESCRIPTION))
+        composeRule.heightInput().assert(hasText(TYPED_HEIGHT))
+        composeRule.footSizeInput().assert(hasText(TYPED_FOOT_SIZE))
+        composeRule.hometownInput().assert(hasText(TYPED_HOMETOWN))
+        composeRule.onNodeWithText(todayDisplayText()).assertExists()
+        composeRule.onNodeWithText(DEFAULT_BIRTHDAY_CALENDAR_LUNAR).assertIsSelected()
+        composeRule.onNodeWithText(DEFAULT_BIRTHDAY_CALENDAR_SOLAR).assertIsNotSelected()
+        composeRule.phoneNumberRowCount() shouldBe 2
         composeRule.phoneNumberInput().assert(hasText(TYPED_FIRST_PHONE_NUMBER))
         composeRule.phoneNumberInput(row = 1).assert(hasText(TYPED_SECOND_PHONE_NUMBER))
     }

@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.memo.ui.detail
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
@@ -481,8 +482,14 @@ class MemoDetailScreenActionTest {
     @get:Rule
     val composeRule = createComposeRule()
 
+    // 스낵바는 닫기 동작을 제공하므로, 닫기 동작을 가진 노드와 알려진 안내 문구가 없으면 안내가 표시되지 않은 것이다.
+    private fun assertNoFeedbackShown() {
+        composeRule.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.Dismiss)).assertCountEquals(0)
+        FEEDBACK_MESSAGE_LIST.forEach { message -> composeRule.onNodeWithText(message).assertDoesNotExist() }
+    }
+
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-023 완료되지 않은 메모를 완료하면 완료 버튼이 다시 시작 동작으로 바뀐다`() {
+    fun `TC-MEMO-DETAIL-FEATURE-023 완료되지 않은 메모를 완료하면 안내 없이 완료 버튼이 다시 시작 동작으로 바뀐다`() {
         val uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE), isFinished = false))
         val viewModel = screenTestViewModel(uiState)
         every { viewModel.finish() } answers { uiState.value = uiState.value.copy(isFinished = true) }
@@ -496,10 +503,11 @@ class MemoDetailScreenActionTest {
         composeRule.onNodeWithContentDescription(DEFAULT_RESTART_BUTTON_DESCRIPTION).assertExists()
         composeRule.onNodeWithContentDescription(DEFAULT_FINISH_BUTTON_DESCRIPTION).assertDoesNotExist()
         composeRule.onAllNodes(hasSetTextAction()).onFirst().assert(hasText(MEMO_TITLE + EDIT_SUFFIX))
+        assertNoFeedbackShown()
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-024 완료된 메모를 다시 시작하면 완료 버튼이 완료 동작으로 바뀐다`() {
+    fun `TC-MEMO-DETAIL-FEATURE-024 완료된 메모를 다시 시작하면 안내 없이 완료 버튼이 완료 동작으로 바뀐다`() {
         val uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE), isFinished = true))
         val viewModel = screenTestViewModel(uiState)
         every { viewModel.restart() } answers { uiState.value = uiState.value.copy(isFinished = false) }
@@ -513,6 +521,7 @@ class MemoDetailScreenActionTest {
         composeRule.onNodeWithContentDescription(DEFAULT_FINISH_BUTTON_DESCRIPTION).assertExists()
         composeRule.onNodeWithContentDescription(DEFAULT_RESTART_BUTTON_DESCRIPTION).assertDoesNotExist()
         composeRule.onAllNodes(hasSetTextAction()).onFirst().assert(hasText(MEMO_TITLE + EDIT_SUFFIX))
+        assertNoFeedbackShown()
     }
 
     @Test
@@ -702,6 +711,10 @@ class MemoDetailScreenActionTest {
 
     public companion object {
         private val COPIED_MEMO_ID: Uuid = Uuid.parse("00000000-0000-0000-0000-000000000003")
+
+        // 이 화면이 보이는 안내와, 목록 화면에서 완료·다시 시작·삭제 때 보이는 안내를 함께 둔다.
+        private val FEEDBACK_MESSAGE_LIST: List<String> =
+            listOf("Memo updated.", DEFAULT_COPY_SUCCEEDED_MESSAGE, "Memo finished.", "Memo restarted.", "Memo deleted.", "Undo")
     }
 }
 

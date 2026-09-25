@@ -4,8 +4,11 @@ package io.github.taetae98coding.diary.compose.core.input
 
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -71,6 +74,25 @@ class DiaryTitleInputTest {
         composeRule.onNodeWithContentDescription(DEFAULT_CLEAR_DESCRIPTION).assertDoesNotExist()
     }
 
+    @Test
+    fun `TC-TITLE-INPUT-FEATURE-005 기본 환경에서 제목이 채워져 있어도 Title 라벨이 보이고 필수 표시는 없다`() {
+        setDiaryTitleInput(initialText = INITIAL_TEXT)
+
+        composeRule.onNode(hasSetTextAction()).assert(hasText(INITIAL_TEXT))
+        composeRule.onNodeWithText(DEFAULT_LABEL).assertExists()
+        composeRule.onAllNodes(hasText(REQUIRED_MARK, substring = true)).assertCountEquals(0)
+    }
+
+    @Test
+    @Config(qualifiers = "ko")
+    fun `TC-TITLE-INPUT-FEATURE-005 한국어 환경에서 제목이 채워져 있어도 제목 라벨이 보이고 필수 표시는 없다`() {
+        setDiaryTitleInput(initialText = INITIAL_TEXT)
+
+        composeRule.onNode(hasSetTextAction()).assert(hasText(INITIAL_TEXT))
+        composeRule.onNodeWithText(KOREAN_LABEL).assertExists()
+        composeRule.onAllNodes(hasText(REQUIRED_MARK, substring = true)).assertCountEquals(0)
+    }
+
     private fun setDiaryTitleInput(
         initialText: String = "",
         onState: (DiaryTitleInputState) -> Unit = {},
@@ -89,5 +111,6 @@ class DiaryTitleInputTest {
         private const val KOREAN_LABEL = "제목"
         private const val INITIAL_TEXT = "DiaryTitleInputValue"
         private const val DEFAULT_CLEAR_DESCRIPTION = "Clear text"
+        private const val REQUIRED_MARK = "*"
     }
 }

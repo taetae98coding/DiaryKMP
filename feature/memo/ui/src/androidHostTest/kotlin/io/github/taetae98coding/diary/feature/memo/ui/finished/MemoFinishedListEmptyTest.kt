@@ -2,10 +2,15 @@ package io.github.taetae98coding.diary.feature.memo.ui.finished
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.remember
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.paging.LoadState
+import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.navercorp.fixturemonkey.FixtureMonkey
@@ -13,6 +18,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.memo.MEMO_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.compose.memo.list.rememberMemoListState
 import io.github.taetae98coding.diary.core.model.memo.Memo
@@ -64,6 +70,55 @@ class MemoFinishedListEmptyTest {
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
     }
 
+    @Test
+    fun `TC-MEMO-FINISHED-LIST-DATA-005 처음 불러오기에 실패하면 오류 안내와 다시 시도 없이 빈 상태 안내를 표시한다`() {
+        setMemoFinishedListScaffold(
+            MutableStateFlow(
+                memoPagingDataWithLoadStates(
+                    itemList = emptyList(),
+                    refresh = LoadState.Error(IllegalStateException(fixtureMonkey.giveMeOne<String>())),
+                ),
+            ),
+        )
+
+        composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
+        composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertExists()
+        composeRule.onNodeWithText(DEFAULT_RETRY_TEXT).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-MEMO-FINISHED-LIST-DATA-005 이어서 불러오기에 실패해도 앞서 불러온 메모를 그대로 표시한다`() {
+        setMemoFinishedListScaffold(
+            MutableStateFlow(
+                memoPagingDataWithLoadStates(
+                    itemList = listOf(MemoListItem.Content(memo = memo(title = MEMO_TITLE))),
+                    append = LoadState.Error(IllegalStateException(fixtureMonkey.giveMeOne<String>())),
+                ),
+            ),
+        )
+        waitUntilTextDisplayed(MEMO_TITLE)
+
+        composeRule.onNodeWithText(MEMO_TITLE).assertIsDisplayed()
+        composeRule.onAllNodesWithTag(MEMO_CARD_TEST_TAG).assertCountEquals(1)
+        composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_RETRY_TEXT).assertDoesNotExist()
+    }
+
+    private fun memoPagingDataWithLoadStates(
+        itemList: List<MemoListItem>,
+        refresh: LoadState = LoadState.NotLoading(endOfPaginationReached = true),
+        append: LoadState = LoadState.NotLoading(endOfPaginationReached = true),
+    ): PagingData<MemoListItem> =
+        PagingData.from(
+            data = itemList,
+            sourceLoadStates =
+                LoadStates(
+                    refresh = refresh,
+                    prepend = LoadState.NotLoading(endOfPaginationReached = true),
+                    append = append,
+                ),
+        )
+
     private fun waitUntilTextDisplayed(text: String) {
         composeRule.waitUntil(timeoutMillis = TIMEOUT_MILLIS) {
             composeRule.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty()
@@ -89,6 +144,7 @@ class MemoFinishedListEmptyTest {
         private const val KOREAN_EMPTY_TITLE = "완료한 메모가 없습니다"
         private const val MEMO_HOME_EMPTY_DESCRIPTION = "Use the add button to create a memo."
         private const val MEMO_TITLE = "FinishedEmptyStateMemoTitle"
+        private const val DEFAULT_RETRY_TEXT = "Retry"
         private const val TIMEOUT_MILLIS = 5_000L
 
         private val fixtureMonkey: FixtureMonkey =

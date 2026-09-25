@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.memo.ui.tag
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -11,7 +12,11 @@ import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.test.platform.app.InstrumentationRegistry
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
+import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -24,6 +29,11 @@ import kotlin.uuid.Uuid
 class MemoTagPickerDialogSearchTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun resetUiDispatcher() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-MEMO-TAG-INPUT-FEATURE-037 목록을 열면 검색어가 비어 있고 대상 태그가 모두 나타난다`() {
@@ -49,31 +59,59 @@ class MemoTagPickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-038 검색어를 입력하면 확정 동작 없이 그 검색어가 즉시 반영된다`() {
+    fun `TC-MEMO-TAG-INPUT-FEATURE-038 검색어를 입력하면 확정 동작 없이 목록이 즉시 좁혀진다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
         val queryList = mutableListOf<String>()
-        composeRule.setMemoTagPickerDialogHost(tagList = tagList, onQueryChange = queryList::add)
+        setSearchableTagPickerDialogHost(tagList = tagList, queryList = queryList)
         composeRule.awaitTagPickerRows()
 
         composeRule.dialogSearchField().performTextInput(WORK_TAG_QUERY)
         composeRule.waitForIdle()
 
         queryList.last() shouldBe WORK_TAG_QUERY
+        composeRule.waitUntil(timeoutMillis = SEARCH_TIMEOUT_MILLIS) {
+            composeRule.onAllNodes(hasText(EXERCISE_TAG_TITLE) and hasAnyAncestor(isDialog())).fetchSemanticsNodes().isEmpty()
+        }
+        composeRule.dialogNodeWithText(WORK_TAG_TITLE).assertExists()
+        composeRule.dialogNodeWithText(EXERCISE_TAG_TITLE).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-039 검색어를 지우면 검색어가 없는 상태가 즉시 반영된다`() {
+    fun `TC-MEMO-TAG-INPUT-FEATURE-039 검색어를 지우면 대상 전체가 다시 나타난다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
         val queryList = mutableListOf<String>()
-        composeRule.setMemoTagPickerDialogHost(tagList = tagList, onQueryChange = queryList::add)
+        setSearchableTagPickerDialogHost(tagList = tagList, queryList = queryList)
+        composeRule.awaitTagPickerRows()
         composeRule.dialogSearchField().performTextInput(WORK_TAG_QUERY)
-        composeRule.waitForIdle()
+        composeRule.waitUntil(timeoutMillis = SEARCH_TIMEOUT_MILLIS) {
+            composeRule.onAllNodes(hasText(EXERCISE_TAG_TITLE) and hasAnyAncestor(isDialog())).fetchSemanticsNodes().isEmpty()
+        }
 
         composeRule.dialogSearchField().performTextClearance()
         composeRule.waitForIdle()
 
         queryList.last() shouldBe ""
         composeRule.dialogNodeWithText(DEFAULT_PICKER_SEARCH_PLACEHOLDER).assertExists()
+        composeRule.waitUntil(timeoutMillis = SEARCH_TIMEOUT_MILLIS) {
+            composeRule.onAllNodes(hasText(EXERCISE_TAG_TITLE) and hasAnyAncestor(isDialog())).fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.dialogNodeWithText(WORK_TAG_TITLE).assertExists()
+        composeRule.dialogNodeWithText(EXERCISE_TAG_TITLE).assertExists()
+    }
+
+    // 검색어에 맞는 태그를 고르는 조회 자체는 저장소 테스트가 검증하므로, 여기서는 검색어가 전달되면 그 조건의 결과가 이어서 도착하게 한다.
+    private fun setSearchableTagPickerDialogHost(
+        tagList: List<Tag>,
+        queryList: MutableList<String>,
+    ) {
+        val tagPagingDataFlow = MutableStateFlow(tagPagingDataOf(tagList))
+        composeRule.setMemoTagPickerDialogHost(
+            tagPagingDataFlow = tagPagingDataFlow,
+            onQueryChange = { query ->
+                queryList.add(query)
+                tagPagingDataFlow.value = tagPagingDataOf(tagList.filter { tag -> tag.detail.title.contains(query, ignoreCase = true) })
+            },
+        )
     }
 
     @Test
@@ -171,5 +209,9 @@ class MemoTagPickerDialogSearchTest {
         composeRule.dialogNodeWithText(DEFAULT_PICKER_SEARCH_PLACEHOLDER).assertExists()
         composeRule.dialogNodeWithText(WORK_TAG_TITLE).assertExists()
         composeRule.dialogNodeWithText(EXERCISE_TAG_TITLE).assertExists()
+    }
+
+    private companion object {
+        private const val SEARCH_TIMEOUT_MILLIS = 5_000L
     }
 }

@@ -40,12 +40,13 @@ class MemoCardTest {
     @Test
     fun `메모 카드의 제목 왼쪽 원형 표시에 저장된 컬러를 사용한다`() {
         val colorArgb = fixtureMonkey.giveMeOne<Int>() or 0xFF000000.toInt()
+        val detail = fixtureMonkey.giveMeOne<MemoDetail>()
         val memo =
             fixtureMonkey
                 .giveMeKotlinBuilder<Memo>()
                 .setExp(
                     Memo::detail,
-                    fixtureMonkey.giveMeOne<MemoDetail>().copy(color = colorArgb.toLong()),
+                    detail.copy(title = "Title${detail.title}", color = colorArgb.toLong()),
                 ).setExp(
                     Memo::updatedAt,
                     Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),

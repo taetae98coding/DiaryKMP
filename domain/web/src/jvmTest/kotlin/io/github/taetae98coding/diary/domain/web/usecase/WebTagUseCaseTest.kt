@@ -65,7 +65,7 @@ class WebTagUseCaseTest :
                     }
                 }
 
-                Then("TC-WEB-TAG-DATA-008 TC-WEB-DETAIL-DATA-018 저장한 뒤 동기화를 한 번 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-WEB-TAG-DATA-008 TC-WEB-DETAIL-DATA-018 저장한 뒤 동기화를 한 번 요청한다") {
                     val webId = fixtureMonkey.giveMeOne<Uuid>()
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
                     val syncRepository = mockk<AccountWebTagRepository>(relaxed = true)
@@ -119,7 +119,7 @@ class WebTagUseCaseTest :
                     }
                 }
 
-                Then("TC-WEB-TAG-DATA-008 TC-WEB-DETAIL-DATA-018 해제를 저장한 뒤 동기화를 한 번 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-WEB-TAG-DATA-008 TC-WEB-DETAIL-DATA-018 해제를 저장한 뒤 동기화를 한 번 요청한다") {
                     val webId = fixtureMonkey.giveMeOne<Uuid>()
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
                     val syncRepository = mockk<AccountWebTagRepository>(relaxed = true)

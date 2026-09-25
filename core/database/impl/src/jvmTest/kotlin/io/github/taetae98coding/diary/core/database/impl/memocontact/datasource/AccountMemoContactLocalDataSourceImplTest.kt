@@ -12,6 +12,7 @@ import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactPh
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memocontact.entity.MemoContactLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
+import io.github.taetae98coding.diary.core.database.impl.contact.transaction.AccountContactSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.contact.transaction.AccountContactTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.memo.transaction.AccountMemoTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.memocontact.transaction.AccountMemoContactSyncTransactionImpl
@@ -156,7 +157,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             dataSource.getContactList(accountId = accountId, memoId = missingMemoId).first().shouldBeEmpty()
         }
 
-        test("메모가 내려받아지면 먼저 저장되어 있던 연결의 연락처가 함께 나타난다") {
+        test("TC-MEMO-CONTACT-DATA-012 메모가 내려받아지면 먼저 저장되어 있던 연결의 연락처가 함께 나타난다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val contact = contact()
@@ -185,6 +186,41 @@ class AccountMemoContactLocalDataSourceImplTest :
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact()))
 
             dataSource.getContactList(accountId = otherAccountId, memoId = memo.id).first().shouldBeEmpty()
+        }
+
+        test("TC-MEMO-CONTACT-DOMAIN-018 계정과 연결되지 않은 연락처는 메모의 연결된 연락처로 조회되지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = memo()
+            val otherAccountContact = contact()
+            contactTransaction.upsert(accountId = otherAccountId, contactList = listOf(otherAccountContact))
+
+            memoTransaction.upsert(
+                accountId = accountId,
+                memoList = listOf(memo),
+                memoTagList = emptyList(),
+                memoContactList = listOf(memoContact(memoId = memo.id, contactId = otherAccountContact.id)),
+            )
+
+            database.memoContactDao().findByMemoIdList(listOf(memo.id)).size shouldBe 1
+            dataSource.getContactList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
+        }
+
+        test("TC-MEMO-CONTACT-DOMAIN-019 삭제된 연락처의 삭제가 다른 기기에서 받은 내용으로 풀리면 다시 조회된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = memo()
+            val contact = contact()
+            insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact))
+            contactTransaction.upsert(accountId = accountId, contactList = listOf(contact.copy(isDeleted = true)))
+            dataSource.getContactList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
+
+            AccountContactSyncTransactionImpl(database = database).save(
+                accountId = accountId,
+                contactList = listOf(contact.copy(isDeleted = false)),
+                cursor = 1L,
+            )
+
+            dataSource.getContactList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(contact)
         }
 
         test("TC-MEMO-CONTACT-INPUT-DOMAIN-001 선택할 수 있는 연락처는 계정과 연결된 삭제되지 않은 연락처다") {
@@ -217,9 +253,8 @@ class AccountMemoContactLocalDataSourceImplTest :
             loadSelectableContact(accountId = accountId) shouldBe listOf(firstContact, lastFavoriteContact)
         }
 
-        test("TC-MEMO-CONTACT-INPUT-DOMAIN-004 연락처 목록의 정렬 선택은 선택 목록의 순서를 바꾸지 않는다") {
+        test("선택 목록은 수정 시각과 관계없이 이름 오름차순으로 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            // 선택 목록 조회는 정렬 기준을 받지 않으므로, 수정 시각이 뒤집혀 있어도 이름 오름차순 그대로 나온다.
             val lastContact = contact(name = LAST_CONTACT_NAME).copy(updatedAt = Instant.fromEpochMilliseconds(2_000_000_000))
             val firstContact = contact(name = FIRST_CONTACT_NAME).copy(updatedAt = Instant.fromEpochMilliseconds(1_000_000_000))
             contactTransaction.upsert(accountId = accountId, contactList = listOf(lastContact, firstContact))

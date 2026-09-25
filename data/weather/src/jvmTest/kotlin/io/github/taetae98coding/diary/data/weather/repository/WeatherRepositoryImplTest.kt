@@ -528,6 +528,31 @@ class WeatherRepositoryImplTest :
             }
         }
 
+        test("TC-WEATHER-FETCH-DOMAIN-026 이전 성공 뒤의 실패는 다음 조회 시점을 미루지 않는다") {
+            val failure = WeatherRepositoryTestException(fixtureMonkey.giveMeOne())
+            val weatherRemoteDataSource = weatherRemoteDataSource()
+            coEvery {
+                weatherRemoteDataSource.getCurrentWeather(any(), any())
+            } returns fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>() andThenThrows failure andThen fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
+            var now = fixtureMonkey.giveMeOne<Instant>()
+            val repository =
+                repository(
+                    ipRemoteDataSource = ipRemoteDataSource(),
+                    weatherRemoteDataSource = weatherRemoteDataSource,
+                    clock = clock { now },
+                )
+
+            repository.fetch()
+            now += 1.hours
+            shouldThrowExactly<WeatherRepositoryTestException> {
+                repository.fetch()
+            } shouldBeSameInstanceAs failure
+            now += 1.minutes
+            repository.fetch()
+
+            coVerify(exactly = 3) { weatherRemoteDataSource.getCurrentWeather(any(), any()) }
+        }
+
         test("TC-WEATHER-FETCH-DOMAIN-022 조회한 동기화가 성공할 때마다 간격 기준 시각이 갱신된다") {
             val weatherRemoteDataSource = weatherRemoteDataSource()
             var now = fixtureMonkey.giveMeOne<Instant>()

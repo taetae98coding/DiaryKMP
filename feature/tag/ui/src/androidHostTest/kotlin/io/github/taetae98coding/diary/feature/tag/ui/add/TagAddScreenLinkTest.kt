@@ -110,6 +110,25 @@ class TagAddScreenLinkTest {
     }
 
     @Test
+    fun `TC-TAG-ADD-FEATURE-010 제목 미입력으로 추가를 실행해도 고른 연결은 유지된다`() {
+        val effect = Channel<TagAddEffect>(capacity = Channel.BUFFERED)
+        val viewModel = screenTestViewModel(effect = effect.receiveAsFlow())
+        val linkedTagIdSet = MutableStateFlow(emptySet<Uuid>())
+        val tag = testTag(title = WORK_TAG_TITLE)
+        every { viewModel.add(any(), any()) } answers {
+            effect.trySend(TagAddEffect.TitleBlank).getOrThrow()
+        }
+        setTagAddScreen(viewModel = viewModel, tagList = listOf(tag), linkedTagIdSet = linkedTagIdSet)
+        linkWorkTag()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        linkedTagIdSet.value shouldBe setOf(tag.id)
+        composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
+    }
+
+    @Test
     fun `TC-TAG-ADD-FEATURE-020 추가에 성공하면 고른 연결의 식별자도 비운다`() {
         val effect = Channel<TagAddEffect>(capacity = Channel.BUFFERED)
         val viewModel = screenTestViewModel(effect = effect.receiveAsFlow())

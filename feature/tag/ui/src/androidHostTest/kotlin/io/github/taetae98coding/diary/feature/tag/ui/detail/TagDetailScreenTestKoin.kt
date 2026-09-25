@@ -82,7 +82,7 @@ internal var syncViewModelRef: TagDetailSyncViewModel? = null
 
 private const val EFFECT_BUFFER_CAPACITY = 8
 
-private val tagDetailTabViewModelModule =
+internal val tagDetailTabViewModelModule =
     module {
         factory {
             mockk<TagDetailLinkViewModel>(relaxed = true)
