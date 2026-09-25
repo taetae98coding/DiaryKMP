@@ -12,4 +12,6 @@ public sealed interface TagFilterEvent {
     ) : TagFilterEvent
 
     public data object UnselectAll : TagFilterEvent
+
+    public data object ClickAdd : TagFilterEvent
 }

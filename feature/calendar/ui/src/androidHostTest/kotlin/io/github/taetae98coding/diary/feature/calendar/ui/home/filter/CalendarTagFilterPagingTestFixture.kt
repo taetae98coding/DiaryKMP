@@ -15,3 +15,25 @@ internal fun tagPagingDataOf(tagList: List<Tag>): PagingData<Tag> =
                 append = LoadState.NotLoading(endOfPaginationReached = true),
             ),
     )
+
+internal fun refreshingTagPagingData(): PagingData<Tag> =
+    PagingData.from(
+        data = emptyList(),
+        sourceLoadStates =
+            LoadStates(
+                refresh = LoadState.Loading,
+                prepend = LoadState.NotLoading(endOfPaginationReached = false),
+                append = LoadState.NotLoading(endOfPaginationReached = false),
+            ),
+    )
+
+internal fun failedTagPagingData(): PagingData<Tag> =
+    PagingData.from(
+        data = emptyList(),
+        sourceLoadStates =
+            LoadStates(
+                refresh = LoadState.Error(IllegalStateException("tag page load failed")),
+                prepend = LoadState.NotLoading(endOfPaginationReached = true),
+                append = LoadState.NotLoading(endOfPaginationReached = true),
+            ),
+    )

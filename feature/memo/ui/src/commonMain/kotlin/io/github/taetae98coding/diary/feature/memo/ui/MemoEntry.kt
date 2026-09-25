@@ -54,7 +54,7 @@ public fun EntryProviderScope<ScreenNavKey>.memoEntry(
         backStack = backStack,
         homeReselectEvent = homeReselectEvent,
     )
-    memoHomeFilterEntry()
+    memoHomeFilterEntry(backStack = backStack)
     memoFinishedListEntry(backStack = backStack)
     memoAddEntry(backStack = backStack)
     memoDetailEntry(backStack = backStack)
@@ -111,11 +111,16 @@ private fun EntryProviderScope<ScreenNavKey>.memoHomeEntry(
     }
 }
 
-private fun EntryProviderScope<ScreenNavKey>.memoHomeFilterEntry() {
+private fun EntryProviderScope<ScreenNavKey>.memoHomeFilterEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<MemoHomeFilterNavKey>(
         metadata = BottomSheetSceneStrategy.bottomSheet(),
     ) {
-        MemoHomeFilterContent()
+        MemoHomeFilterContent(
+            navigateToTagAdd = {
+                backStack.removeLastOrNull()
+                backStack.add(TagAddNavKey())
+            },
+        )
     }
 }
 

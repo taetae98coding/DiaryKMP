@@ -54,6 +54,12 @@ public fun TagFilterFlexBox(
                 )
             }
         }
+
+        TagFilterAddChip(
+            onEvent = onEvent,
+            modifier = Modifier.animatePlacement(lookaheadScope = this),
+            isEnabled = isEnabled,
+        )
     }
 }
 

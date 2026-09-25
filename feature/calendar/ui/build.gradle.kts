@@ -19,6 +19,7 @@ kotlin {
                 implementation(projects.feature.calendar.api)
                 implementation(projects.feature.contact.api)
                 implementation(projects.feature.memo.api)
+                implementation(projects.feature.tag.api)
                 implementation(projects.library.kotlin)
                 implementation(projects.library.kotlinxDatetime)
                 implementation(libs.coil.compose)

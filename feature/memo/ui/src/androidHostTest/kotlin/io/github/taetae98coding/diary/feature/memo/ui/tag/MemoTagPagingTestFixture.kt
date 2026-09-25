@@ -48,3 +48,14 @@ internal fun appendFailedTagPagingDataOf(tagList: List<Tag>): PagingData<Tag> =
                 append = LoadState.Error(IllegalStateException("append failed")),
             ),
     )
+
+internal fun failedTagPagingData(): PagingData<Tag> =
+    PagingData.from(
+        data = emptyList(),
+        sourceLoadStates =
+            LoadStates(
+                refresh = LoadState.Error(IllegalStateException("tag page load failed")),
+                prepend = LoadState.NotLoading(endOfPaginationReached = true),
+                append = LoadState.NotLoading(endOfPaginationReached = true),
+            ),
+    )

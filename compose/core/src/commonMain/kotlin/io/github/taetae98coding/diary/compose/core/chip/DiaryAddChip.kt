@@ -1,5 +1,7 @@
 package io.github.taetae98coding.diary.compose.core.chip
 
+import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.ChipColors
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -15,6 +17,8 @@ public fun DiaryAddChip(
     label: String,
     actionLabel: String,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    colors: ChipColors = AssistChipDefaults.assistChipColors(),
 ) {
     DiaryAssistChip(
         onClick = onClick,
@@ -24,7 +28,9 @@ public fun DiaryAddChip(
                 // 칩의 클릭 동작은 유지하고 이름만 덧붙이도록 action을 비워 둔다.
                 onClick(label = actionLabel, action = null)
             },
+        enabled = enabled,
         leadingIcon = { AddIcon() },
+        colors = colors,
     )
 }
 

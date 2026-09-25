@@ -9,7 +9,10 @@ import io.github.taetae98coding.diary.compose.tag.filter.TagFilterEvent
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-internal fun MemoHomeFilterContent(modifier: Modifier = Modifier) {
+internal fun MemoHomeFilterContent(
+    navigateToTagAdd: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val viewModel = koinViewModel<MemoHomeFilterViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val tagPagingItems = viewModel.tagPagingData.collectAsLazyPagingItems()
@@ -29,6 +32,7 @@ internal fun MemoHomeFilterContent(modifier: Modifier = Modifier) {
                 is TagFilterEvent.Select -> viewModel.selectTag(id = event.id)
                 is TagFilterEvent.Unselect -> viewModel.unselectTag(id = event.id)
                 is TagFilterEvent.UnselectAll -> viewModel.unselectAllTag()
+                is TagFilterEvent.ClickAdd -> navigateToTagAdd()
             }
         },
         modifier = modifier,

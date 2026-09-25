@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.calendar.ui.home.filter
 
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
@@ -7,6 +8,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
@@ -119,15 +121,59 @@ class CalendarHomeFilterBottomSheetContentTest {
         eventList.shouldBeEmpty()
     }
 
+    @Test
+    fun `TC-CALENDAR-HOME-FEATURE-084 태그가 있으면 태그 칩 뒤에 태그 추가 칩을 표시한다`() {
+        setBottomSheetContent(tagList = listOf(tag(title = FIRST_TAG_TITLE)))
+
+        composeRule.onNodeWithText(FIRST_TAG_TITLE).assertExists()
+        composeRule.onNodeWithText(ADD_LABEL).assertIsEnabled()
+    }
+
+    @Test
+    fun `TC-CALENDAR-HOME-FEATURE-084 태그 없이 조회가 끝나도 태그 추가 칩을 표시한다`() {
+        setBottomSheetContent(tagPagingData = tagPagingDataOf(emptyList()))
+
+        composeRule.onNodeWithText(ADD_LABEL).assertIsEnabled()
+    }
+
+    @Test
+    fun `TC-CALENDAR-HOME-FEATURE-084 태그 조회가 진행 중이어도 태그 추가 칩을 표시한다`() {
+        setBottomSheetContent(tagPagingData = refreshingTagPagingData())
+
+        composeRule.onNodeWithText(ADD_LABEL).assertIsEnabled()
+    }
+
+    @Test
+    fun `TC-CALENDAR-HOME-FEATURE-084 태그 조회에 실패해도 태그 추가 칩을 표시한다`() {
+        setBottomSheetContent(tagPagingData = failedTagPagingData())
+
+        composeRule.onNodeWithText(ADD_LABEL).assertIsEnabled()
+    }
+
+    @Test
+    fun `TC-CALENDAR-HOME-FEATURE-085 태그 추가 칩을 누르면 태그 추가 Event만 전달한다`() {
+        val tag = tag(title = FIRST_TAG_TITLE)
+        val eventList = mutableListOf<TagFilterEvent>()
+        setBottomSheetContent(
+            tagList = listOf(tag),
+            onEvent = eventList::add,
+        )
+
+        composeRule.onNodeWithText(ADD_LABEL).performClick()
+
+        eventList shouldBe listOf(TagFilterEvent.ClickAdd)
+    }
+
     private fun setBottomSheetContent(
         tagList: List<Tag> = emptyList(),
         uiState: CalendarHomeFilterUiState = CalendarHomeFilterUiState(),
+        tagPagingData: PagingData<Tag> = tagPagingDataOf(tagList),
         onEvent: (TagFilterEvent) -> Unit = {},
     ) {
         composeRule.setContent {
             DiaryTheme {
                 CalendarHomeFilterBottomSheetContent(
-                    tagPagingItems = MutableStateFlow(tagPagingDataOf(tagList)).collectAsLazyPagingItems(),
+                    tagPagingItems = MutableStateFlow(tagPagingData).collectAsLazyPagingItems(),
                     uiStateProvider = { uiState },
                     onEvent = onEvent,
                 )
@@ -140,6 +186,7 @@ class CalendarHomeFilterBottomSheetContentTest {
         private const val SECOND_TAG_TITLE = "CalendarFilterBravo"
         private const val TAG_EMOJI = "🏃"
         private const val UNSELECT_ALL_CONTENT_DESCRIPTION = "Clear tag filter"
+        private const val ADD_LABEL = "Add tag"
 
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()

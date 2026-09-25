@@ -10,4 +10,5 @@
     <string name="entity_tag_picker_search_empty_description">다른 검색어로 찾아보세요</string>
     <string name="tag_filter_unselect_all_label">지우기</string>
     <string name="tag_filter_unselect_all_content_description">태그 필터 지우기</string>
+    <string name="tag_filter_add_label">태그 추가</string>
 </resources>
