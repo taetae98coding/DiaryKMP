@@ -1,6 +1,10 @@
 package io.github.taetae98coding.diary.compose.memo
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -12,6 +16,7 @@ import androidx.compose.ui.test.swipeRight
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.compose.core.swipe.SwipeFinishAction
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.core.model.memo.Memo
@@ -175,6 +180,100 @@ class SwipeMemoCardTest {
         deleteCount shouldBe 1
     }
 
+    @Test
+    fun `다시 시작 카드를 좌에서 우로 스와이프하면 다시 시작 동작만 한 번 실행한다`() {
+        val eventList = mutableListOf<MemoListEvent>()
+        val memo = memo().copy(isFinished = true)
+        composeRule.setContent {
+            DiaryTheme {
+                SwipeMemoCard(
+                    onEvent = eventList::add,
+                    memo = memo,
+                    finishAction = SwipeFinishAction.RESTART,
+                )
+            }
+        }
+
+        composeRule.onNodeWithText(MEMO_TITLE).performTouchInput { swipeRight() }
+        composeRule.waitForIdle()
+
+        eventList shouldBe listOf(MemoListEvent.SwipeRestart(id = memo.id))
+    }
+
+    @Test
+    fun `TC-SWIPE-TO-FINISH-AND-DELETE-DOMAIN-005 완료 뒤 같은 자리에 완료된 메모가 남으면 원래 모양으로 돌아오고 다시 시작을 한 번 실행한다`() {
+        val memo = memo().copy(isFinished = false)
+
+        assertSecondSwipeAfterStateChange(
+            initial = memo,
+            firstEvent = MemoListEvent.SwipeFinish(id = memo.id),
+            finishedStateList = listOf(true),
+            secondEvent = MemoListEvent.SwipeRestart(id = memo.id),
+        )
+    }
+
+    @Test
+    fun `TC-SWIPE-TO-FINISH-AND-DELETE-DOMAIN-005 다시 시작 뒤 같은 자리에 미완료 메모가 남으면 원래 모양으로 돌아오고 완료를 한 번 실행한다`() {
+        val memo = memo().copy(isFinished = true)
+
+        assertSecondSwipeAfterStateChange(
+            initial = memo,
+            firstEvent = MemoListEvent.SwipeRestart(id = memo.id),
+            finishedStateList = listOf(false),
+            secondEvent = MemoListEvent.SwipeFinish(id = memo.id),
+        )
+    }
+
+    @Test
+    fun `TC-SWIPE-TO-FINISH-AND-DELETE-DOMAIN-005 완료 뒤 실행 취소로 미완료 메모가 돌아오면 원래 모양으로 돌아오고 완료를 한 번 실행한다`() {
+        val memo = memo().copy(isFinished = false)
+
+        assertSecondSwipeAfterStateChange(
+            initial = memo,
+            firstEvent = MemoListEvent.SwipeFinish(id = memo.id),
+            finishedStateList = listOf(true, false),
+            secondEvent = MemoListEvent.SwipeFinish(id = memo.id),
+        )
+    }
+
+    // 목록 입장에서는 같은 자리에 완료 여부만 바뀐 메모가 차례로 들어오는 것이다.
+    private fun assertSecondSwipeAfterStateChange(
+        initial: Memo,
+        firstEvent: MemoListEvent,
+        finishedStateList: List<Boolean>,
+        secondEvent: MemoListEvent,
+    ) {
+        val eventList = mutableListOf<MemoListEvent>()
+        var memo by mutableStateOf(initial)
+        composeRule.setContent {
+            DiaryTheme {
+                SwipeMemoCard(
+                    onEvent = eventList::add,
+                    memo = memo,
+                    finishAction = if (memo.isFinished) SwipeFinishAction.RESTART else SwipeFinishAction.FINISH,
+                )
+            }
+        }
+        val initialLeft = composeRule.onNodeWithText(MEMO_TITLE).getUnclippedBoundsInRoot().left
+
+        composeRule.onNodeWithText(MEMO_TITLE).performTouchInput { swipeRight() }
+        composeRule.waitForIdle()
+        eventList shouldBe listOf(firstEvent)
+
+        finishedStateList.forEach { isFinished ->
+            composeRule.runOnIdle { memo = initial.copy(isFinished = isFinished) }
+            composeRule.waitForIdle()
+        }
+
+        composeRule.onNodeWithText(MEMO_TITLE).getUnclippedBoundsInRoot().left shouldBe initialLeft
+        eventList shouldBe listOf(firstEvent)
+
+        composeRule.onNodeWithText(MEMO_TITLE).performTouchInput { swipeRight() }
+        composeRule.waitForIdle()
+
+        eventList shouldBe listOf(firstEvent, secondEvent)
+    }
+
     private fun setSwipeMemoCard(
         memo: Memo? = memo(),
         onClick: () -> Unit = {},
@@ -188,6 +287,7 @@ class SwipeMemoCardTest {
                         when (event) {
                             is MemoListEvent.ClickMemo -> onClick()
                             is MemoListEvent.SwipeFinish -> onFinish()
+                            is MemoListEvent.SwipeRestart -> Unit
                             is MemoListEvent.SwipeDelete -> onDelete()
                             is MemoListEvent.Refresh -> Unit
                         }

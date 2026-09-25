@@ -12,7 +12,7 @@ import io.github.taetae98coding.diary.core.model.memo.Memo
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-internal fun SwipeMemoCard(
+public fun SwipeMemoCard(
     onEvent: (MemoListEvent) -> Unit,
     modifier: Modifier = Modifier,
     memo: Memo? = null,
@@ -25,8 +25,9 @@ internal fun SwipeMemoCard(
         }
 
     SwipeToFinishAndDeleteBox(
-        key = memo?.id,
-        onFinish = { memo?.let { value -> onEvent(MemoListEvent.SwipeFinish(id = value.id)) } },
+        // key가 바뀌어야 스와이프 상태가 새로 만들어지므로 완료 여부를 함께 넣는다.
+        key = memo?.let { value -> value.id to value.isFinished },
+        onFinish = { memo?.let { value -> onEvent(value.swipeFinishEvent(finishAction = finishAction)) } },
         onDelete = { memo?.let { value -> onEvent(MemoListEvent.SwipeDelete(id = value.id)) } },
         finishContentDescription = finishContentDescription,
         deleteContentDescription = stringResource(Res.string.memo_list_swipe_delete_content_description),
@@ -40,6 +41,12 @@ internal fun SwipeMemoCard(
         )
     }
 }
+
+private fun Memo.swipeFinishEvent(finishAction: SwipeFinishAction): MemoListEvent =
+    when (finishAction) {
+        SwipeFinishAction.FINISH -> MemoListEvent.SwipeFinish(id = id)
+        SwipeFinishAction.RESTART -> MemoListEvent.SwipeRestart(id = id)
+    }
 
 @ComponentPreview
 @Composable

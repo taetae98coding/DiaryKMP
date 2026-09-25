@@ -70,6 +70,7 @@ internal fun MemoHomeScreen(
             when (event) {
                 is MemoListEvent.ClickMemo -> navigateToDetail(event.id)
                 is MemoListEvent.SwipeFinish -> memoViewModel.finish(id = event.id)
+                is MemoListEvent.SwipeRestart -> memoViewModel.restart(id = event.id)
                 is MemoListEvent.SwipeDelete -> memoViewModel.delete(id = event.id)
                 is MemoListEvent.Refresh -> syncViewModel.refresh()
             }

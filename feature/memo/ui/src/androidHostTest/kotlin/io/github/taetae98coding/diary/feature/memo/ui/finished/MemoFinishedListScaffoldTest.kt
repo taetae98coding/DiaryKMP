@@ -214,7 +214,7 @@ class MemoFinishedListScaffoldTest {
         composeRule.onNodeWithText(FIRST_TITLE).performTouchInput { swipeRight() }
         composeRule.waitForIdle()
 
-        eventList shouldBe listOf(MemoListEvent.SwipeFinish(memo.id))
+        eventList shouldBe listOf(MemoListEvent.SwipeRestart(memo.id))
     }
 
     @Test

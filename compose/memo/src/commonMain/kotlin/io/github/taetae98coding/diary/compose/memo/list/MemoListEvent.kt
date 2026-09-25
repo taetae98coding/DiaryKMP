@@ -13,6 +13,10 @@ public sealed interface MemoListEvent {
         val id: Uuid,
     ) : MemoListEvent
 
+    public data class SwipeRestart(
+        val id: Uuid,
+    ) : MemoListEvent
+
     public data class SwipeDelete(
         val id: Uuid,
     ) : MemoListEvent
