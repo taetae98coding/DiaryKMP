@@ -1,10 +1,10 @@
 # ContactDetail 메모 탭 테스트 케이스
 
-기준 스펙: [ContactDetail 메모 탭 스펙](../spec/contact-detail-memo.md)
+기준 스펙: [ContactDetail 메모 탭 스펙](../spec/client/contact-detail-memo.md)
 
-이 문서의 `근거`가 가리키는 절 중 `feature > 진입`, `feature > 메모 추가의 초기 선택`, `feature > 단독 표시와 돌아오기`, `domain > 상세 대상`, `domain > 연락처의 상태와 노출`은 기준 스펙이 소유하고, 나머지 절은 [항목 상세 메모 탭 공통 스펙](../spec/entity-detail-memo.md)이 소유한다.
+이 문서의 `근거`가 가리키는 절 중 `feature > 진입`, `feature > 메모 추가의 초기 선택`, `feature > 단독 표시와 돌아오기`, `domain > 상세 대상`, `domain > 연락처의 상태와 노출`은 기준 스펙이 소유하고, 나머지 절은 [항목 상세 메모 탭 공통 스펙](../spec/client/entity-detail-memo.md)이 소유한다.
 
-자리 표시 케이스의 `근거`가 가리키는 절은 공통 규칙을 [페이지 조회 목록의 자리 표시 스펙](../spec/paged-list-placeholder.md)에, 빈 상태 케이스의 `근거`가 가리키는 절은 [목록 빈 상태 스펙](../spec/list-empty-state.md)에 위임한다.
+자리 표시 케이스의 `근거`가 가리키는 절은 공통 규칙을 [페이지 조회 목록의 자리 표시 스펙](../spec/client/paged-list-placeholder.md)에, 빈 상태 케이스의 `근거`가 가리키는 절은 [목록 빈 상태 스펙](../spec/client/list-empty-state.md)에 위임한다.
 
 화면 전체의 탭 전환과 선택한 탭의 유지, 연락처 디테일 탭의 케이스는 [ContactDetail 테스트 케이스](./contact-detail.md)에서 다룬다. MemoAdd 화면이 초기 선택을 표시하는 케이스는 [MemoAdd 테스트 케이스](./memo-add.md)에서 다룬다.
 
@@ -26,16 +26,16 @@
 
 ### TC-CONTACT-DETAIL-MEMO-FEATURE-003: 목록 조회 실패에 별도의 오류나 재시도 동작을 표시하지 않는다
 
-- 근거: `feature > 목록 표시`
+- 근거: `feature > 목록 표시`, `feature > 빈 상태`
 - Given: 목록 조회가 테스트 데이터의 시점에 실패하도록 설정되어 있다.
 - When: 사용자가 ContactDetail 화면의 메모 탭을 확인한다.
-- Then: 별도 재시도 동작 없이 테스트 데이터의 기존 표시 결과를 유지한다.
+- Then: 별도 오류 안내나 재시도 동작 없이 테스트 데이터의 표시 결과가 된다.
 - 테스트 데이터:
 
-| 실패 시점 | 기존 표시 결과 |
+| 실패 시점 | 표시 결과 |
 | --- | --- |
-| 최초 조회 | 표시된 메모 없음. 이때의 빈 상태 안내는 `TC-CONTACT-DETAIL-MEMO-FEATURE-012`가 다룬다 |
-| 추가 조회 | 이미 표시된 메모 |
+| 최초 조회 | 목록이 준비된 것으로 다뤄져 메모 카드 대신 빈 상태 안내가 표시된다. 안내 내용은 `TC-CONTACT-DETAIL-MEMO-FEATURE-012`와 같다 |
+| 추가 조회 | 이미 표시된 메모가 그대로 남는다 |
 
 ### TC-CONTACT-DETAIL-MEMO-FEATURE-004: 메모를 선택하면 그 메모의 상세로 이동한다
 
@@ -178,6 +178,9 @@
 | --- |
 | ContactHome의 연락처 목록 |
 | 캘린더 홈 화면의 생일 |
+| 메모의 연락처 입력 |
+
+- 작성하지 않는 이유: ContactDetail 화면에서 메모 탭을 선택하면 같은 대상의 메모 목록이 표시되는 것과 ContactHome의 연락처 목록에서 선택한 연락처의 ContactDetail 화면에 이르는 것은 자동화한다. 나머지 진입 화면에서 항목을 선택해 ContactDetail 화면에 이르는 결과는 진입 화면마다 다른 기능의 화면과 전환 이력을 함께 구성해야 판정할 수 있어 현재 테스트 환경에서는 결정적으로 검증할 수 없다. 여러 기능의 화면과 전환 이력을 함께 구성할 수 있는 테스트 환경이 갖춰지면 진입 경로별로 자동화한다.
 
 ### TC-CONTACT-DETAIL-MEMO-FEATURE-020: 메모 탭에서 이동한 MemoAdd와 MemoDetail 화면은 단독으로 표시한다
 
@@ -228,6 +231,13 @@
 - Given: 삭제되지 않은 연락처의 ContactDetail 화면의 메모 탭이 표시되어 있다.
 - When: 사용자가 메모 추가를 선택한다.
 - Then: MemoAdd 화면은 대상 연락처만 선택된 상태이고 태그, 웹 항목, 장소과 기간은 선택되지 않은 상태로 시작하며, 대상 연락처를 대표로 지정하는 표시는 없다.
+
+### TC-CONTACT-DETAIL-MEMO-DOMAIN-003: 상세 대상이 다른 연락처로 바뀌면 목록을 새 연락처의 메모로 바꾼다
+
+- 근거: `domain > 상세 대상`
+- Given: 현재 계정에 연락처 두 개가 있고, 각 연락처에 서로 다른 미완료·미삭제 메모가 해제되지 않은 연결로 저장되어 있다. 첫 연락처가 상세 대상이다.
+- When: 사용자가 연락처 목록에서 다른 연락처를 선택해 상세 대상이 바뀐다.
+- Then: 메모 목록에는 새로 선택한 연락처와 연결된 메모만 표시되고, 첫 연락처에만 연결된 메모는 표시되지 않는다.
 
 ## data
 

@@ -1,6 +1,6 @@
 # RoutineAdd 테스트 케이스
 
-기준 스펙: [RoutineAdd 화면 스펙](../spec/routine-add.md)
+기준 스펙: [RoutineAdd 화면 스펙](../spec/client/routine-add.md)
 
 RoutineAdd로 진입하는 케이스는 [RoutineHome 테스트 케이스](./routine-home.md)에서, 제목 입력과 설명 입력 컴포넌트 자체의 케이스는 [설명 입력 컴포넌트 테스트 케이스](./description-input.md)에서, 목록과 함께 표시할 때의 케이스는 [Routine 목록·상세 배치 테스트 케이스](./routine-list-detail.md)에서 다룬다.
 

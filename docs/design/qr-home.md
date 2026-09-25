@@ -1,6 +1,6 @@
 # QrHome 화면 디자인
 
-기준 스펙: [QrHome 화면 스펙](../spec/qr-home.md)
+기준 스펙: [QrHome 화면 스펙](../spec/client/qr-home.md)
 
 ## 화면 구조
 

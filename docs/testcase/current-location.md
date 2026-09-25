@@ -1,6 +1,6 @@
 # 현재 위치 확인 테스트 케이스
 
-기준 스펙: [현재 위치 확인 스펙](../spec/current-location.md)
+기준 스펙: [현재 위치 확인 스펙](../spec/client/current-location.md)
 
 확인한 위치와 확인 실패를 각 기능이 어떻게 쓰는지는 [현재 날씨 동기화 테스트 케이스](./weather-fetch.md)와 [PlaceHome 테스트 케이스](./place-home.md)에서 다룬다.
 
@@ -61,12 +61,12 @@
 
 ## data
 
-### TC-CURRENT-LOCATION-DATA-001: 공인 IP 기준 위치 조회로 위도와 경도만 요청한다
+### TC-CURRENT-LOCATION-DATA-001: 공인 IP 기준 위치를 외부 서비스에 한 번 조회한다
 
 - 근거: `domain > 공인 IP 기준 위치`
 - Given: 디바이스에서 위치를 확인할 수 없는 조건이 제어되어 있고, 공인 IP 기준 위치 조회가 성공하도록 제어되어 있다.
 - When: 현재 위치 확인을 요청한다.
-- Then: 외부 경계로 나가는 조회 요청이 위도와 경도만 받도록 지정되어 한 번 발생한다.
+- Then: 공인 IP로 위치를 알려 주는 외부 서비스로 나가는 조회 요청이 한 번 발생한다.
 
 ### TC-CURRENT-LOCATION-DATA-002: 공인 IP 기준 위치 응답의 위도와 경도를 현재 위치로 제공한다
 

@@ -1,6 +1,6 @@
 # Calendar 테스트 케이스
 
-기준 스펙: [Calendar 컴포넌트 스펙](../spec/calendar.md)
+기준 스펙: [Calendar 컴포넌트 스펙](../spec/client/calendar.md)
 
 ## feature
 

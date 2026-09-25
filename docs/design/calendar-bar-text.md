@@ -1,6 +1,6 @@
 # CalendarBarText 컴포넌트 디자인
 
-기준 스펙: [CalendarBarText 컴포넌트 스펙](../spec/calendar-bar-text.md)
+기준 스펙: [CalendarBarText 컴포넌트 스펙](../spec/client/calendar-bar-text.md)
 
 ## 구성
 

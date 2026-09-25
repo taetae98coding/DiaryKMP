@@ -1,6 +1,6 @@
 # 캘린더 메모 표시 테스트 케이스
 
-기준 스펙: [캘린더 메모 표시 스펙](../spec/calendar-memo.md)
+기준 스펙: [캘린더 메모 표시 스펙](../spec/client/calendar-memo.md)
 
 ## domain
 

@@ -1,6 +1,6 @@
 # ProfileImageEdit 테스트 케이스
 
-기준 스펙: [ProfileImageEdit 화면 스펙](../spec/profile-image-edit.md)
+기준 스펙: [ProfileImageEdit 화면 스펙](../spec/client/profile-image-edit.md)
 
 ## feature
 
@@ -12,7 +12,7 @@ stateDiagram-v2
     Unreadable: 사진을 읽을 수 없음
     Uploading: 반영 중
     [*] --> Empty: 진입 · TC-PROFILE-IMAGE-EDIT-FEATURE-001
-    Empty --> Loading: 사진 선택 · TC-PROFILE-IMAGE-EDIT-FEATURE-002
+    Empty --> Loading: 사진 고름 · TC-PROFILE-IMAGE-EDIT-FEATURE-014
     Loading --> Ready: 사진을 읽음 · TC-PROFILE-IMAGE-EDIT-FEATURE-012
     Loading --> Unreadable: 읽기 실패 · TC-PROFILE-IMAGE-EDIT-FEATURE-008
     Ready --> Uploading: 반영 실행 · TC-PROFILE-IMAGE-EDIT-FEATURE-005
@@ -42,6 +42,13 @@ stateDiagram-v2
 - Given: 사진이 없는 상태이고 사진 선택 도구가 열려 있다.
 - When: 사용자가 읽을 수 있는 사진을 고른다.
 - Then: 고른 사진이 표시되고 사진 선택 안내가 사라지며, 반영 실행과 사진 선택을 선택할 수 있다.
+
+### TC-PROFILE-IMAGE-EDIT-FEATURE-014: 고른 사진을 읽는 동안 불러오는 중을 표시하고 반영을 실행할 수 없다
+
+- 근거: `feature > 사진 고르기`, `domain > 반영 실행 조건`
+- Given: 사진이 없는 상태이고 사진 선택 도구가 열려 있으며, 고를 사진의 읽기가 끝나지 않도록 제어되어 있다.
+- When: 사용자가 그 사진을 고른다.
+- Then: 불러오는 중임이 표시되고, 사진 선택 안내는 사라지며 반영 실행은 선택할 수 없다.
 
 ### TC-PROFILE-IMAGE-EDIT-FEATURE-003: 다른 사진을 고르면 새 사진의 처음 상태로 바뀐다
 
@@ -116,7 +123,7 @@ stateDiagram-v2
 ### 반영 중단과 이미 반영된 결과
 
 - 근거: `feature > 뒤로가기`
-- 작성하지 않는 이유: 진행 중이던 반영이 중단되는 것과 중단 전에 이미 계정에 반영된 결과가 유지되는 것은 원격과 인증 제공자에 남은 상태라 화면 경계에서 관찰할 수 없다. 자동화하려면 실제 원격 저장소와 인증 제공자의 상태를 요청 도중에 조회하는 수단이 필요하다.
+- 작성하지 않는 이유: 진행 중이던 반영이 중단되는 것과 중단 전에 이미 계정에 반영된 결과가 유지되는 것은 서버와 인증 제공자에 남은 상태라 화면 경계에서 관찰할 수 없다. 자동화하려면 실제 서버와 인증 제공자의 상태를 요청 도중에 조회하는 수단이 필요하다.
 
 ## domain
 

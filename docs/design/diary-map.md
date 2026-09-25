@@ -1,6 +1,6 @@
 # DiaryMap 컴포넌트 디자인
 
-기준 스펙: [DiaryMap 컴포넌트 스펙](../spec/diary-map.md)
+기준 스펙: [DiaryMap 컴포넌트 스펙](../spec/client/diary-map.md)
 
 ## 구성
 

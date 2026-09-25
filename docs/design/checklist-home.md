@@ -1,6 +1,6 @@
 # ChecklistHome 화면 디자인
 
-기준 스펙: [ChecklistHome 화면 스펙](../spec/checklist-home.md)
+기준 스펙: [ChecklistHome 화면 스펙](../spec/client/checklist-home.md)
 
 ## 화면 구조
 

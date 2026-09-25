@@ -1,6 +1,6 @@
 # TagDetail 장소 탭 디자인
 
-기준 스펙: [TagDetail 장소 탭 스펙](../spec/tag-detail-place.md)
+기준 스펙: [TagDetail 장소 탭 스펙](../spec/client/tag-detail-place.md)
 
 화면 전체의 구조, 상단 바, 탭 행, 페이지 전환과 떠 있는 버튼의 교체는 [TagDetail 화면 디자인](./tag-detail.md)이 소유한다. 탭 본문의 영역 분할과 적응형 배치, 보기 모드 전환 표현, 장소 격자와 장소 카드, 지도 핀, 정렬 줄과 빈 상태와 새로고침이 놓이는 자리는 [장소 보기 모드 디자인](./place-view-mode.md)이 소유한다. 이 문서는 장소 탭이 그 두 문서와 다르게 두는 것만 정한다.
 

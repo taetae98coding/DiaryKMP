@@ -1,8 +1,8 @@
 # PlaylistHome 테스트 케이스
 
-기준 스펙: [PlaylistHome 화면 스펙](../spec/playlist-home.md)
+기준 스펙: [PlaylistHome 화면 스펙](../spec/client/playlist-home.md)
 
-목록이 나타나는 순서와 아직 준비되지 않은 자리를 다루는 규칙은 [페이지 조회 목록의 자리 표시 스펙](../spec/paged-list-placeholder.md)에, 빈 상태의 판정과 행동은 [목록 빈 상태 스펙](../spec/list-empty-state.md)에, 당김으로 시작하는 동기화와 진행 표시는 [새로고침 스펙](../spec/sync-refresh.md)에, 정렬 선택과 반영은 [목록 정렬 스펙](../spec/list-sort.md)에 위임되어 있으며, 이 문서의 케이스는 PlaylistHome에서 관찰하는 결과를 기준으로 한다. `더보기`에서 PlaylistHome으로 이동하는 케이스는 [MoreHome 테스트 케이스](./more-home.md)에서, 곡을 작성해 추가하는 케이스는 [MusicAdd 테스트 케이스](./music-add.md)에서, 선택한 곡을 확인하고 수정하고 삭제하는 케이스는 [MusicDetail 테스트 케이스](./music-detail.md)에서, 곡 목록과 상세 영역을 함께 표시할 때의 케이스는 [Playlist 목록·상세 배치 테스트 케이스](./playlist-list-detail.md)에서, 곡을 서버와 맞추는 케이스는 [데이터 동기화 테스트 케이스](./data-sync.md)에서, 화면과 무관한 새로고침 공통 규칙의 케이스는 [새로고침 테스트 케이스](./sync-refresh.md)에서, 목록의 곡을 기기에 내려받는 케이스는 [곡 다운로드 테스트 케이스](./music-download.md)에서 다룬다.
+목록이 나타나는 순서와 아직 준비되지 않은 자리를 다루는 규칙은 [페이지 조회 목록의 자리 표시 스펙](../spec/client/paged-list-placeholder.md)에, 빈 상태의 판정과 행동은 [목록 빈 상태 스펙](../spec/client/list-empty-state.md)에, 당김으로 시작하는 동기화와 진행 표시는 [새로고침 스펙](../spec/client/sync-refresh.md)에, 정렬 선택과 반영은 [목록 정렬 스펙](../spec/client/list-sort.md)에 위임되어 있으며, 이 문서의 케이스는 PlaylistHome에서 관찰하는 결과를 기준으로 한다. `더보기`에서 PlaylistHome으로 이동하는 케이스는 [MoreHome 테스트 케이스](./more-home.md)에서, 곡을 작성해 추가하는 케이스는 [MusicAdd 테스트 케이스](./music-add.md)에서, 선택한 곡을 확인하고 수정하고 삭제하는 케이스는 [MusicDetail 테스트 케이스](./music-detail.md)에서, 곡 목록과 상세 영역을 함께 표시할 때의 케이스는 [Playlist 목록·상세 배치 테스트 케이스](./playlist-list-detail.md)에서, 곡을 서버와 맞추는 케이스는 [데이터 동기화 테스트 케이스](./data-sync.md)에서, 화면과 무관한 새로고침 공통 규칙의 케이스는 [새로고침 테스트 케이스](./sync-refresh.md)에서, 목록의 곡을 기기에 내려받는 케이스는 [곡 다운로드 테스트 케이스](./music-download.md)에서 다룬다.
 
 ## feature
 
@@ -40,6 +40,13 @@
 - Given: 현재 계정에 노출 기준을 만족하는 곡이 하나도 없고 목록 준비가 끝났다.
 - When: PlaylistHome 화면이 표시된다.
 - Then: 목록 자리에 아직 곡이 없으며 새로 추가할 수 있음을 알리는 안내가 표시된다.
+
+### TC-PLAYLIST-HOME-FEATURE-021: 곡 목록을 조회하지 못하면 오류 안내 없이 빈 상태를 알린다
+
+- 근거: `data > 목록 조회`
+- Given: 현재 계정의 곡 목록 조회가 실패하도록 제어되어 있다.
+- When: PlaylistHome 화면이 표시된다.
+- Then: 곡이 하나도 표시되지 않고, 목록 자리에 곡이 없을 때와 같은 빈 상태 안내가 표시되며, 조회에 실패했다는 오류 안내는 표시되지 않는다.
 
 ### TC-PLAYLIST-HOME-FEATURE-006: 곡 추가를 선택하면 MusicAdd로 이동한다
 
@@ -95,7 +102,6 @@
 - Given: PlaylistHome 화면에 곡 목록이 표시되어 있다.
 - When: 노출 기준을 만족하는 곡이 새로 저장된다.
 - Then: 별도 조작 없이 그 곡이 목록에 나타난다.
-- 작성하지 않는 이유: 화면을 구성한 뒤 목록이 갱신되는 전환은 자동화하지 않는다. 호스트 테스트는 한 JVM에서 여러 화면 테스트를 이어서 실행하는데, 앞 테스트가 초기화한 코루틴 메인 디스패처 바인딩이 남아 뒤 테스트에서는 컴포지션 이후의 페이지 조회 갱신이 전달되지 않아 실행 순서에 따라 결과가 달라진다. 저장 전후의 목록 표시는 각각의 목록으로 구성해 확인하고, 갱신 전환은 테스트 클래스마다 실행 환경을 격리할 수 있게 되면 작성한다.
 
 ### TC-PLAYLIST-HOME-FEATURE-012: 링크가 없는 곡도 목록에 그대로 나타난다
 

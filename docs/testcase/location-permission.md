@@ -1,8 +1,8 @@
 # 위치 권한 요청 테스트 케이스
 
-기준 스펙: [위치 권한 요청 스펙](../spec/location-permission.md)
+기준 스펙: [위치 권한 요청 스펙](../spec/client/location-permission.md)
 
-모든 권한이 공유하는 요청 시점, 요청 기준, 요청 결과는 [권한 요청 공통 스펙](../spec/permission.md)이 소유하고, 위치 권한에 적용된 결과를 이 문서가 확인한다.
+모든 권한이 공유하는 요청 시점, 요청 기준, 요청 결과는 [권한 요청 공통 스펙](../spec/client/permission.md)이 소유하고, 위치 권한에 적용된 결과를 이 문서가 확인한다.
 
 ## feature
 
@@ -15,14 +15,14 @@
 
 ### TC-LOCATION-PERMISSION-FEATURE-002: 위치 권한이 이미 허용되어 있으면 요청이 시작되지 않는다
 
-- 근거: [권한 요청 공통 스펙의 요청 기준](../spec/permission.md#요청-기준)
+- 근거: [권한 요청 공통 스펙의 요청 기준](../spec/client/permission.md#요청-기준)
 - Given: 위치 권한이 이미 허용되어 있고, 캘린더 홈 화면이 준비되어 있다.
 - When: 캘린더 홈 화면이 표시된다.
 - Then: 시스템 위치 권한 요청이 시작되지 않는다.
 
 ### TC-LOCATION-PERMISSION-FEATURE-003: 요청에 어떻게 응답해도 화면이 유지되고 별도 안내가 표시되지 않는다
 
-- 근거: [권한 요청 공통 스펙의 권한 요청 응답](../spec/permission.md#권한-요청-응답)
+- 근거: [권한 요청 공통 스펙의 권한 요청 응답](../spec/client/permission.md#권한-요청-응답)
 - Given: 위치 권한이 허용되어 있지 않아 캘린더 홈 화면 진입으로 시스템 위치 권한 요청이 시작되었고, 요청 응답이 정해져 있다.
 - When: 사용자가 위치 권한 요청에 응답한다.
 - Then: 캘린더 홈 화면이 그대로 유지되고 사용자에게 별도 안내가 표시되지 않는다.
@@ -35,7 +35,7 @@
 
 ## domain
 
-스펙이 따르는 [권한 요청 공통 스펙의 요청 기준](../spec/permission.md#요청-기준)이 정의한 경로와 각 경로를 덮는 케이스는 다음과 같다.
+스펙이 따르는 [권한 요청 공통 스펙의 요청 기준](../spec/client/permission.md#요청-기준)이 정의한 경로와 각 경로를 덮는 케이스는 다음과 같다.
 
 ```mermaid
 flowchart TD
@@ -79,7 +79,7 @@ flowchart TD
 
 ### TC-LOCATION-PERMISSION-DOMAIN-004: 위치 권한이 이미 허용되어 있는지 확인할 수 없으면 요청 없이 거부로 처리한다
 
-- 근거: [권한 요청 공통 스펙의 요청 기준](../spec/permission.md#요청-기준)
+- 근거: [권한 요청 공통 스펙의 요청 기준](../spec/client/permission.md#요청-기준)
 - Given: 위치 권한이 이미 허용되어 있는지 확인할 수 없는 환경이다.
 - When: 앱이 위치 권한을 요청한다.
 - Then: 시스템 위치 권한 요청이 시작되지 않고 거부로 처리된다.
@@ -87,7 +87,7 @@ flowchart TD
 
 ### TC-LOCATION-PERMISSION-DOMAIN-005: 시스템이 더 이상 요청을 표시하지 않으면 거부와 같이 처리한다
 
-- 근거: [권한 요청 공통 스펙의 요청 기준](../spec/permission.md#요청-기준)
+- 근거: [권한 요청 공통 스펙의 요청 기준](../spec/client/permission.md#요청-기준)
 - Given: 사용자가 이전에 요청을 거부해 시스템이 더 이상 위치 권한 요청을 표시하지 않는 상태다.
 - When: 앱이 위치 권한을 요청한다.
 - Then: 사용자에게 요청이 표시되지 않고 거부로 처리된다.

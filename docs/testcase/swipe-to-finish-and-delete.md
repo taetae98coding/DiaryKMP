@@ -1,6 +1,6 @@
 # SwipeToFinishAndDelete 컴포넌트 테스트 케이스
 
-기준 스펙: [SwipeToFinishAndDelete 컴포넌트 스펙](../spec/swipe-to-finish-and-delete.md)
+기준 스펙: [SwipeToFinishAndDelete 컴포넌트 스펙](../spec/client/swipe-to-finish-and-delete.md)
 
 메모 목록처럼 컴포넌트를 배치한 화면에서 시작 방향 동작이 완료인지 다시 시작인지, 그 결과와 피드백이 무엇인지는 각 화면의 테스트 케이스 문서에서 다룬다.
 
@@ -42,3 +42,10 @@
 - Given: 카드에서 두 방향의 동작 중 하나가 실행되었다.
 - When: 같은 카드 자리가 다른 항목을 표시한다.
 - Then: 카드는 동작 실행 전의 원래 상태로 표시되고 동작이 다시 실행되지 않는다.
+
+### TC-SWIPE-TO-FINISH-AND-DELETE-DOMAIN-002: 실행 취소로 다시 나타난 카드는 실행 전 상태로 표시된다
+
+- 근거: `domain > 카드 상태 초기화`
+- Given: 카드에서 두 방향의 동작 중 하나가 실행되어 카드가 목록에서 사라졌다.
+- When: 사용자가 실행 취소해 같은 항목의 카드가 목록에 다시 나타난다.
+- Then: 카드는 동작 실행 전의 원래 상태로 표시되고 어느 방향의 동작도 다시 실행되지 않는다.

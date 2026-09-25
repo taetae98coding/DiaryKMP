@@ -1,6 +1,6 @@
 # MemoFinishedList 화면 디자인
 
-기준 스펙: [MemoFinishedList 화면 스펙](../spec/memo-finished-list.md)
+기준 스펙: [MemoFinishedList 화면 스펙](../spec/client/memo-finished-list.md)
 
 화면 구조, 정렬 줄 자리, 목록과 빈 상태·새로고침의 공통 표현은 [완료 목록 공통 디자인](./finished-list.md)을 따른다.
 
@@ -28,7 +28,7 @@
 
 시작 방향의 상태 아이콘에는 완료 아이콘 대신 화살표가 원을 그리는 다시 시작 아이콘을 표시한다. 끝 방향의 삭제 아이콘은 MemoHome 목록과 같다.
 
-다시 시작 또는 삭제 뒤의 피드백과 실행 취소는 스낵바로 표시한다.
+다시 시작 또는 삭제 뒤의 피드백과 실행 취소는 스낵바로 표시한다. 표시 시간과 새 안내로 바꾸는 방식, 저장되지 못했을 때 스낵바를 표시하지 않는 것은 [MemoHome 목록 디자인](./memo-home.md)의 `완료와 삭제 제스처`와 같다.
 
 ## 문구와 접근성
 

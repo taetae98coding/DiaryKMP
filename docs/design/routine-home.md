@@ -1,6 +1,6 @@
 # RoutineHome 화면 디자인
 
-기준 스펙: [RoutineHome 화면 스펙](../spec/routine-home.md), [목록 빈 상태 스펙](../spec/list-empty-state.md), [새로고침 스펙](../spec/sync-refresh.md)
+기준 스펙: [RoutineHome 화면 스펙](../spec/client/routine-home.md), [목록 빈 상태 스펙](../spec/client/list-empty-state.md), [새로고침 스펙](../spec/client/sync-refresh.md)
 
 ## 화면 구조
 

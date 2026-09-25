@@ -13,7 +13,7 @@
 - [TagMemoFinishedList 목록·상세 배치 디자인](./tag-memo-finished-list-detail.md)
 - [Web 목록·상세 배치 디자인](./web-list-detail.md)
 
-기준 스펙: [목록·상세 배치 공통 스펙](../spec/list-detail-pane.md)
+기준 스펙: [목록·상세 배치 공통 스펙](../spec/client/list-detail-pane.md)
 
 ## 적응형 배치
 

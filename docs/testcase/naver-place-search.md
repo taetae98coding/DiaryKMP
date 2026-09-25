@@ -1,14 +1,14 @@
 # 네이버 장소 검색 테스트 케이스
 
-기준 스펙: [네이버 장소 검색 스펙](../spec/naver-place-search.md)
+기준 스펙: [네이버 장소 검색 스펙](../spec/client/naver-place-search.md)
 
-이 문서에서 `data > 원격 조회`, `domain > 검색어`, `domain > 인증` 절은 [장소 검색 공통 스펙](../spec/place-search.md)이 소유한다. 나머지 케이스의 절은 기준 스펙이 소유한다.
+이 문서에서 `data > 원격 조회`, `data > 실패 처리`, `domain > 검색어`, `domain > 인증` 절은 [장소 검색 공통 스펙](../spec/client/place-search.md)이 소유한다. 나머지 케이스의 절은 기준 스펙이 소유한다.
 
 ## domain
 
 ### TC-NAVER-PLACE-SEARCH-DOMAIN-001: 검색은 최대 개수인 5개를 요청한다
 
-- 근거: `domain > 검색어`
+- 근거: `domain > 결과 개수와 정렬`
 - Given: 네이버 인증 정보가 준비되어 있다.
 - When: 검색어로 장소 검색을 요청한다.
 - Then: 외부 경계로 나가는 요청에 결과 개수 5개가 포함된다.

@@ -1,8 +1,8 @@
 # MusicDetail 테스트 케이스
 
-기준 스펙: [MusicDetail 화면 스펙](../spec/music-detail.md)
+기준 스펙: [MusicDetail 화면 스펙](../spec/client/music-detail.md)
 
-이 문서에서 `feature > 진입할 때의 입력 초점`, `domain > 요청 제한`, `data > 대상 조회` 절은 [항목 상세 화면 공통 스펙](../spec/entity-detail.md)이 소유한다. 나머지 케이스의 절은 기준 스펙이 소유한다.
+이 문서에서 `feature > 진입할 때의 입력 초점`, `domain > 요청 제한`, `data > 대상 조회` 절은 [항목 상세 화면 공통 스펙](../spec/client/entity-detail.md)이 소유한다. 나머지 케이스의 절은 기준 스펙이 소유한다.
 
 PlaylistHome에서 곡을 선택해 MusicDetail로 이동하는 케이스는 [PlaylistHome 테스트 케이스](./playlist-home.md)에서, 곡 목록과 함께 표시할 때의 케이스는 [Playlist 목록·상세 배치 테스트 케이스](./playlist-list-detail.md)에서, 링크로 영상 정보를 조회하는 공통 규칙의 케이스는 [MusicAdd 테스트 케이스](./music-add.md)에서, 수정하거나 삭제한 곡을 서버와 맞추는 흐름의 케이스는 [데이터 동기화 테스트 케이스](./data-sync.md)에서 다룬다. 이 화면에는 태그 입력이 없으므로 태그 연결 케이스는 두지 않는다.
 
@@ -370,7 +370,7 @@ PlaylistHome에서 곡을 선택해 MusicDetail로 이동하는 케이스는 [Pl
 - 근거: `data > 수정의 저장`, `data > 삭제의 저장`
 - Given: 현재 계정과 대상 식별자를 함께 만족하는 곡이 저장되어 있지 않다.
 - When: 테스트 데이터의 동작을 실행한다.
-- Then: 저장소의 어떤 곡도 바뀌지 않는다.
+- Then: 기기에 저장된 어떤 곡도 바뀌지 않는다.
 - 테스트 데이터:
 
 | 동작 |
@@ -378,7 +378,7 @@ PlaylistHome에서 곡을 선택해 MusicDetail로 이동하는 케이스는 [Pl
 | 내용 수정 |
 | 삭제 |
 
-### TC-MUSIC-DETAIL-DATA-005: 삭제는 곡과 계정 연결을 저장소에서 제거하지 않는다
+### TC-MUSIC-DETAIL-DATA-005: 삭제는 곡과 계정 연결을 기기에서 지우지 않는다
 
 - 근거: `data > 삭제의 저장`
 - Given: 현재 계정과 연결된 곡이 저장되어 있다.

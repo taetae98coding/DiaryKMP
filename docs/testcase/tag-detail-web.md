@@ -1,8 +1,8 @@
 # TagDetail 웹 탭 테스트 케이스
 
-기준 스펙: [TagDetail 웹 탭 스펙](../spec/tag-detail-web.md)
+기준 스펙: [TagDetail 웹 탭 스펙](../spec/client/tag-detail-web.md)
 
-자리 표시 케이스의 `근거`가 가리키는 절은 공통 규칙을 [페이지 조회 목록의 자리 표시 스펙](../spec/paged-list-placeholder.md)에, 빈 상태 케이스의 `근거`가 가리키는 절은 [목록 빈 상태 스펙](../spec/list-empty-state.md)에, 새로고침 케이스의 `근거`가 가리키는 절은 [새로고침 스펙](../spec/sync-refresh.md)에 위임한다.
+자리 표시 케이스의 `근거`가 가리키는 절은 공통 규칙을 [페이지 조회 목록의 자리 표시 스펙](../spec/client/paged-list-placeholder.md)에, 빈 상태 케이스의 `근거`가 가리키는 절은 [목록 빈 상태 스펙](../spec/client/list-empty-state.md)에, 새로고침 케이스의 `근거`가 가리키는 절은 [새로고침 스펙](../spec/client/sync-refresh.md)에 위임한다.
 
 ## feature
 
@@ -189,7 +189,7 @@
 - When: 현재 계정에서 대상 태그의 웹 목록을 조회한다.
 - Then: 현재 계정과 연결되어 있고 대상 태그와 해제되지 않은 연결을 가지며 삭제되지 않은 웹 항목만 조회된다.
 
-### TC-TAG-DETAIL-WEB-DATA-002: 태그별 웹 항목을 페이지 단위로 조회한다
+### TC-TAG-DETAIL-WEB-DATA-002: 태그별 웹 항목을 목록을 내리는 만큼 나누어 불러온다
 
 - 근거: `data > 태그별 웹 항목 조회`
 - Given: 대상 태그에 연결된 웹 항목이 한 페이지보다 많다.

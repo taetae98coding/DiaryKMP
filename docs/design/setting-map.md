@@ -1,6 +1,6 @@
 # SettingMap 화면 디자인
 
-기준 스펙: [SettingMap 화면 스펙](../spec/setting-map.md)
+기준 스펙: [SettingMap 화면 스펙](../spec/client/setting-map.md)
 
 ## 화면 구조
 

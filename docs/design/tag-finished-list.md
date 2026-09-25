@@ -1,6 +1,6 @@
 # TagFinishedList 화면 디자인
 
-기준 스펙: [TagFinishedList 화면 스펙](../spec/tag-finished-list.md)
+기준 스펙: [TagFinishedList 화면 스펙](../spec/client/tag-finished-list.md)
 
 화면 구조, 정렬 줄 자리, 목록과 빈 상태·새로고침의 공통 표현은 [완료 목록 공통 디자인](./finished-list.md)을 따른다.
 

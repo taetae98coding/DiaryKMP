@@ -1,8 +1,8 @@
 # ContactDetail 테스트 케이스
 
-기준 스펙: [ContactDetail 화면 스펙](../spec/contact-detail.md)
+기준 스펙: [ContactDetail 화면 스펙](../spec/client/contact-detail.md)
 
-이 문서에서 `feature > 진입할 때의 입력 초점`, `domain > 요청 제한`, `data > 대상 조회`, `data > 저장 실패` 절은 [항목 상세 화면 공통 스펙](../spec/entity-detail.md)이 소유한다. 나머지 케이스의 절은 기준 스펙이 소유한다.
+이 문서에서 `feature > 진입할 때의 입력 초점`, `domain > 요청 제한`, `data > 대상 조회`, `data > 저장 실패` 절은 [항목 상세 화면 공통 스펙](../spec/client/entity-detail.md)이 소유한다. 나머지 케이스의 절은 기준 스펙이 소유한다.
 
 ContactHome에서 연락처를 선택해 ContactDetail로 이동하는 케이스는 [ContactHome 테스트 케이스](./contact-home.md)에서, 각 입력의 문자 제한과 조작 자체의 케이스는 [ContactAdd 테스트 케이스](./contact-add.md)에서, 설명 입력 자체의 케이스는 [설명 입력 테스트 케이스](./description-input.md)에서, 목록과 상세를 함께 쓰는 배치의 케이스는 [Contact 목록·상세 배치 테스트 케이스](./contact-list-detail.md)에서, 연락처를 서버와 맞추는 케이스는 [데이터 동기화 테스트 케이스](./data-sync.md)에서 다룬다.
 
@@ -534,12 +534,12 @@ flowchart TD
 - When: 수정을 반영한다.
 - Then: 저장된 어떤 연락처도 바뀌지 않는다.
 
-### TC-CONTACT-DETAIL-DATA-007: 삭제는 연락처와 계정 연결과 전화번호를 저장소에서 제거하지 않는다
+### TC-CONTACT-DETAIL-DATA-007: 삭제는 연락처와 계정 연결과 전화번호를 기기에서 지우지 않는다
 
 - 근거: `data > 삭제의 저장`
 - Given: 전화번호를 가진 연락처가 현재 계정과 연결되어 저장되어 있다.
 - When: 그 연락처의 삭제를 반영한다.
-- Then: 연락처와 계정 연결과 전화번호가 저장소에 그대로 남고 삭제 여부와 수정 시각만 바뀐다.
+- Then: 연락처와 계정 연결과 전화번호가 기기에 그대로 남고 삭제 여부와 수정 시각만 바뀐다.
 
 ### TC-CONTACT-DETAIL-DATA-008: 대상 식별자와 계정을 만족하지 않으면 삭제가 아무것도 바꾸지 않는다
 
@@ -551,7 +551,7 @@ flowchart TD
 ### TC-CONTACT-DETAIL-DATA-009: 저장에 실패하면 실패를 그대로 전달한다
 
 - 근거: `data > 저장 실패`
-- Given: 저장소가 실패를 반환하도록 설정되어 있다.
+- Given: 기기 저장이 실패하도록 설정되어 있다.
 - When: 테스트 데이터의 동작을 반영한다.
 - Then: 실패가 성공으로 바뀌지 않고 그대로 전달되며 저장된 연락처는 바뀌지 않는다.
 - 테스트 데이터:
@@ -580,7 +580,7 @@ flowchart TD
 - 근거: `data > 수정과 즐겨찾기 변경과 삭제의 동기화`
 - Given: 인증된 사용자 계정이 없는 상태로 연락처가 저장되어 있다.
 - When: 그 연락처를 수정하거나 즐겨찾기를 바꾸거나 삭제한다.
-- Then: 기기 저장소에는 반영되고 서버로 보내는 요청은 일어나지 않는다.
+- Then: 기기에는 반영되고 서버로 보내는 요청은 일어나지 않는다.
 
 ### TC-CONTACT-DETAIL-DATA-012: 즐겨찾기 변경은 즐겨찾기 여부와 수정 시각만 저장한다
 

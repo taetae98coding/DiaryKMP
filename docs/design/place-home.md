@@ -1,6 +1,6 @@
 # PlaceHome 화면 디자인
 
-기준 스펙: [PlaceHome 화면 스펙](../spec/place-home.md), [새로고침 스펙](../spec/sync-refresh.md), [페이지 조회 목록의 자리 표시 스펙](../spec/paged-list-placeholder.md)
+기준 스펙: [PlaceHome 화면 스펙](../spec/client/place-home.md), [새로고침 스펙](../spec/client/sync-refresh.md), [페이지 조회 목록의 자리 표시 스펙](../spec/client/paged-list-placeholder.md)
 
 본문의 영역 분할과 적응형 배치, 보기 모드 전환 표현, 장소 격자와 장소 카드, 지도 핀, 정렬 줄과 빈 상태와 새로고침이 놓이는 자리는 [장소 보기 모드 디자인](./place-view-mode.md)이 소유한다. 이 문서에는 PlaceHome 화면의 상단 바 구성, 전환 버튼과 검색 버튼을 두는 자리, 장소 추가 버튼과 이 화면의 문구만 둔다.
 

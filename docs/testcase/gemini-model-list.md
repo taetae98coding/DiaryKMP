@@ -1,6 +1,6 @@
 # Gemini 모델 목록 조회 테스트 케이스
 
-기준 스펙: [Gemini 모델 목록 조회 스펙](../spec/gemini-model-list.md)
+기준 스펙: [Gemini 모델 목록 조회 스펙](../spec/client/gemini-model-list.md)
 
 받아 온 모델을 사용자에게 보여주고 그중 하나를 고르는 케이스는 [SettingGemini 테스트 케이스](./setting-gemini.md)에서 다룬다.
 
@@ -37,6 +37,13 @@
 - When: 모델 목록 조회를 요청한다.
 - Then: 전달되는 모델의 순서가 응답에 담긴 순서와 같고, 별도 정렬 조건이 요청에 포함되지 않는다.
 
+### TC-GEMINI-MODEL-LIST-DOMAIN-004: 조회는 모델 정보만 받아 오고 내용을 생성하지 않는다
+
+- 근거: `domain > 모델 목록 조회`
+- Given: 인증 정보가 준비되어 있다.
+- When: 모델 목록 조회를 요청한다.
+- Then: 외부 경계로 나가는 요청은 모델 목록을 읽는 요청 하나뿐이며, 생성할 내용을 담지 않고 내용 생성을 요청하지 않는다.
+
 ## data
 
 ### TC-GEMINI-MODEL-LIST-DATA-001: 인증 정보를 담아 조회한다
@@ -51,12 +58,12 @@
 - 근거: `domain > 모델 정보`, `data > 원격 조회`
 - Given: 외부 응답이 내용 생성에 쓸 수 있는 모델 목록을 담은 성공으로 제어되어 있다.
 - When: 모델 목록 조회를 요청한다.
-- Then: 응답에 담긴 모델 개수와 각 모델의 식별자, 표시 이름, 설명이 받은 값 그대로 전달된다.
+- Then: 응답에 담긴 모델 개수와 각 모델의 구분 이름, 표시 이름, 설명이 받은 값 그대로 전달된다.
 
 ### TC-GEMINI-MODEL-LIST-DATA-003: 설명이 없는 모델도 전달한다
 
 - 근거: `domain > 모델 정보`
-- Given: 외부 응답이 설명 없이 식별자와 표시 이름만 있는 모델을 담은 성공으로 제어되어 있다.
+- Given: 외부 응답이 설명 없이 구분 이름과 표시 이름만 있는 모델을 담은 성공으로 제어되어 있다.
 - When: 모델 목록 조회를 요청한다.
 - Then: 그 모델이 설명 없는 모델로 전달되고 조회는 실패하지 않는다.
 
@@ -107,7 +114,7 @@
 ```mermaid
 flowchart TD
     Call["인증 정보를 담아 조회<br/>TC-GEMINI-MODEL-LIST-DATA-001"] -- "성공" --> Filter["내용 생성에 쓸 수 있는 모델만 남김<br/>TC-GEMINI-MODEL-LIST-DOMAIN-002"]
-    Filter -- "남은 모델 있음" --> Result["모델 목록 전달<br/>TC-GEMINI-MODEL-LIST-DATA-002"]
+    Filter -- "남은 모델 있음" --> Res["모델 목록 전달<br/>TC-GEMINI-MODEL-LIST-DATA-002"]
     Filter -- "남은 모델 없음" --> Empty["빈 목록을 성공으로 전달<br/>TC-GEMINI-MODEL-LIST-DATA-004"]
     Call -- "인증 정보가 유효하지 않음" --> Auth["인증 실패로 알림<br/>TC-GEMINI-MODEL-LIST-DATA-005"]
     Call -- "그 밖의 실패" --> Other["실패로 알림<br/>TC-GEMINI-MODEL-LIST-DATA-006"]
@@ -116,4 +123,3 @@ flowchart TD
 ## 작성하지 않는 이유
 
 - `domain > 모델 목록 조회`의 최대 개수를 넘는 결과를 이어서 받지 않는다는 규칙은 이어받기 기능 자체가 없어 관찰할 동작이 없다. 이어받기를 제공하는 요구사항이 생기면 그때 케이스를 추가한다.
-- `domain > 모델 목록 조회`의 조회가 내용을 생성하지 않는다는 규칙은 요청에 생성 대상이 포함되지 않는 것으로만 드러나며, 이는 TC-GEMINI-MODEL-LIST-DATA-001이 확인하는 요청 내용에 이미 포함된다.

@@ -1,16 +1,16 @@
 # TagMemoFinishedList 화면 테스트 케이스
 
-기준 스펙: [TagMemoFinishedList 화면 스펙](../spec/tag-memo-finished-list.md)
+기준 스펙: [TagMemoFinishedList 화면 스펙](../spec/client/tag-memo-finished-list.md)
 
-이 문서에서 `feature > 빈 상태`, `feature > 추가 미제공` 절은 [완료 목록 공통 스펙](../spec/finished-list.md)이 소유한다. `domain > 날짜 그룹과 오늘 기준` 절은 [MemoHome 목록 스펙](../spec/memo-home.md)이 소유한다. 나머지 케이스의 절은 기준 스펙이 소유한다.
+이 문서에서 `domain > 대상 항목`, `domain > 정렬`, `feature > 빈 상태`, `feature > 추가 미제공`, `feature > 불러오기 실패` 절은 [완료 목록 공통 스펙](../spec/client/finished-list.md)이 소유한다. `domain > 날짜 그룹과 오늘 기준` 절은 [MemoHome 목록 스펙](../spec/client/memo-home.md)이 소유한다. `domain > 실행 경계` 절 중 정렬 선택과 보던 자리는 [완료 목록 공통 스펙](../spec/client/finished-list.md)이 소유한다. 나머지 케이스의 절은 기준 스펙이 소유한다.
 
-자리 표시 케이스의 `근거`가 가리키는 절은 공통 규칙을 [페이지 조회 목록의 자리 표시 스펙](../spec/paged-list-placeholder.md)에, 빈 상태 케이스의 `근거`가 가리키는 절은 [목록 빈 상태 스펙](../spec/list-empty-state.md)에 위임한다.
+자리 표시 케이스의 `근거`가 가리키는 절은 공통 규칙을 [페이지 조회 목록의 자리 표시 스펙](../spec/client/paged-list-placeholder.md)에, 빈 상태 케이스의 `근거`가 가리키는 절은 [목록 빈 상태 스펙](../spec/client/list-empty-state.md)에 위임한다.
 
 ## feature
 
 ### TC-TAG-MEMO-FINISHED-LIST-FEATURE-001: 대상 태그와 연결된 완료·미삭제 메모만 목록에 표시한다
 
-- 근거: `feature > 목록 표시`, `domain > 메모 노출과 정렬`
+- 근거: `feature > 목록 표시`, `domain > 태그 연결과 노출 기준`
 - Given: 대상 태그에 연결된 완료·미삭제 메모, 미완료·미삭제 메모, 완료·삭제 메모와 다른 태그에만 연결된 완료·미삭제 메모가 함께 저장되어 있다.
 - When: 사용자가 TagMemoFinishedList 화면을 연다.
 - Then: 대상 태그와 연결되고 완료되었으며 삭제되지 않은 메모만 표시된다.
@@ -84,7 +84,7 @@
 
 ### TC-TAG-MEMO-FINISHED-LIST-FEATURE-009: 목록 조회 실패에 별도의 오류나 재시도 동작을 표시하지 않는다
 
-- 근거: `feature > 목록 표시`
+- 근거: `feature > 불러오기 실패`
 - Given: 목록 조회가 테스트 데이터의 시점에 실패하도록 설정되어 있다.
 - When: 사용자가 TagMemoFinishedList 화면을 확인한다.
 - Then: 별도 재시도 동작 없이 테스트 데이터의 기존 표시 결과를 유지한다.
@@ -99,15 +99,15 @@
 
 - 근거: `feature > 진입과 이동`
 - Given: 대상 태그에 연결된 완료된 메모가 하나도 없다.
-- When: 사용자가 TagMemoList 화면에서 완료된 메모 확인을 선택한다.
+- When: 사용자가 대상 태그의 TagDetail 화면 메모 탭에서 완료된 메모 확인을 선택한다.
 - Then: 같은 태그의 TagMemoFinishedList 화면으로 이동한다.
 
-### TC-TAG-MEMO-FINISHED-LIST-FEATURE-011: 뒤로가기를 사용하면 같은 태그의 TagMemoList 화면으로 돌아간다
+### TC-TAG-MEMO-FINISHED-LIST-FEATURE-011: 뒤로가기를 사용하면 메모 탭이 선택된 같은 태그의 TagDetail 화면으로 돌아간다
 
 - 근거: `feature > 진입과 이동`
-- Given: TagMemoList 화면에서 진입한 TagMemoFinishedList 화면이 표시되어 있다.
+- Given: 대상 태그의 TagDetail 화면 메모 탭에서 진입한 TagMemoFinishedList 화면이 표시되어 있다.
 - When: 사용자가 뒤로간다.
-- Then: TagMemoFinishedList 화면이 닫히고 같은 태그의 TagMemoList 화면이 표시된다.
+- Then: TagMemoFinishedList 화면이 닫히고 메모 탭이 선택된 같은 태그의 TagDetail 화면이 표시된다.
 
 ### TC-TAG-MEMO-FINISHED-LIST-FEATURE-012: 이 화면에서는 메모를 추가할 수 없다
 
@@ -118,7 +118,7 @@
 
 ### TC-TAG-MEMO-FINISHED-LIST-FEATURE-013: 완료된 메모가 없으면 빈 상태 안내를 표시한다
 
-- 근거: `feature > 빈 상태`
+- 근거: `feature > 빈 상태`, `feature > 빈 상태 문구`
 - Given: 대상 태그와 연결되고 노출 기준을 만족하는 메모가 하나도 없고 목록의 준비가 끝났다.
 - When: 사용자가 TagMemoFinishedList 화면을 확인한다.
 - Then: 메모 카드 대신 이 태그에서 완료한 메모가 없음을 알리는 안내가 표시되고, 메모 추가를 권하는 안내는 표시되지 않는다.
@@ -132,7 +132,7 @@
 
 ### TC-TAG-MEMO-FINISHED-LIST-FEATURE-015: 대상 태그를 조회하지 못해도 빈 상태 안내는 같은 기준으로 표시한다
 
-- 근거: `feature > 빈 상태`
+- 근거: `feature > 빈 상태`, `feature > 빈 상태 문구`
 - Given: 대상 태그를 조회하지 못해 상단 바에 태그 표시가 없고, 노출 기준을 만족하는 메모가 하나도 없으며 목록의 준비가 끝났다.
 - When: 사용자가 TagMemoFinishedList 화면을 확인한다.
 - Then: 이 태그에서 완료한 메모가 없음을 알리는 안내가 표시된다.
@@ -177,7 +177,19 @@
 - Given: TagMemoFinishedList 화면을 벗어난 사이 날짜가 바뀌어 새 오늘과 이전 오늘에 시작하는 완료 메모가 각각 있다.
 - When: 사용자가 TagMemoFinishedList 화면으로 복귀한다.
 - Then: 새 오늘에 해당하는 날짜 그룹이 오늘로 표시되고 이전 오늘의 날짜 그룹은 더 이상 오늘로 표시되지 않는다.
-- 작성하지 않는 이유: [MemoFinishedList 테스트 케이스](./memo-finished-list.md)의 `TC-MEMO-FINISHED-LIST-FEATURE-014`와 같은 제약으로, 오늘 판정이 시스템 시계를 따르는데 현재 테스트 환경에서는 시스템 시계를 제어할 수 없어 화면을 벗어난 사이 날짜가 바뀌는 상황을 결정적으로 재현할 수 없다. 오늘 판정에 사용하는 시계를 테스트에서 주입할 수 있는 구조가 마련되면 자동화한다.
+
+### TC-TAG-MEMO-FINISHED-LIST-FEATURE-021: 다시 시작이나 삭제가 저장되지 못하면 메모가 남고 안내를 표시하지 않는다
+
+- 근거: `feature > 안내와 실행 취소`
+- Given: 목록에 완료된 메모가 표시되어 있고, 테스트 데이터의 동작을 저장하면 실패하도록 설정되어 있다.
+- When: 사용자가 그 메모에 테스트 데이터의 동작을 실행한다.
+- Then: 메모의 상태가 바뀌지 않아 목록에 그대로 남고, 동작을 알리는 안내와 실행 취소는 표시되지 않는다.
+- 테스트 데이터:
+
+| 동작 |
+| --- |
+| 다시 시작 |
+| 삭제 |
 
 ## domain
 
@@ -211,7 +223,7 @@
 
 ### TC-TAG-MEMO-FINISHED-LIST-DOMAIN-003: 완료한 시점은 목록 순서에 영향을 주지 않는다
 
-- 근거: `domain > 태그 연결과 노출 기준`
+- 근거: `domain > 정렬`, `domain > 정렬과 날짜 그룹`
 - Given: 기간 기준 정렬 순서와 완료된 순서가 서로 반대인, 대상 태그에 연결된 완료 메모들이 저장되어 있다.
 - When: 대상 태그의 완료된 메모 목록을 조회한다.
 - Then: 완료된 순서와 관계없이 기간 기준 정렬 순서로 조회된다.
@@ -223,18 +235,40 @@
 - When: 사용자가 완료된 메모 목록에서 그 메모를 다시 시작한다.
 - Then: 그 메모는 완료된 메모 목록에서 제외되고 같은 태그의 미완료 메모 목록에 포함된다.
 
+### TC-TAG-MEMO-FINISHED-LIST-DOMAIN-005: MemoHome의 필터 선택은 이 목록에 적용하지 않는다
+
+- 근거: `domain > 태그 연결과 노출 기준`
+- Given: MemoHome의 태그 필터에서 대상 태그가 아닌 다른 태그를 골라 두었고, 대상 태그와 연결된 완료된 메모가 저장되어 있다.
+- When: 대상 태그의 완료된 메모 목록을 조회한다.
+- Then: 그 메모가 조회된다.
+
+### TC-TAG-MEMO-FINISHED-LIST-DOMAIN-006: 화면이 재생성되어도 정렬 선택과 보던 자리가 그대로다
+
+- 근거: `domain > 실행 경계`
+- Given: TagMemoFinishedList 화면에 한 화면에 다 들어가지 않는 수의 완료 메모가 사용자가 고른 제목순으로 표시되어 있고, 사용자가 목록을 내려 뒤쪽의 메모를 보고 있다.
+- When: 화면 회전처럼 시스템이 화면을 재생성한다.
+- Then: 정렬 컨트롤은 여전히 제목순을 알리고, 재생성 전에 보던 메모가 그대로 보이며 목록의 맨 위로 돌아가지 않는다.
+
+### TC-TAG-MEMO-FINISHED-LIST-DOMAIN-007: TagDetail 화면으로 돌아갔다가 다시 진입하면 처음 정렬로 맨 위부터 보인다
+
+- 근거: `domain > 실행 경계`
+- Given: 사용자가 TagMemoFinishedList 화면에서 정렬을 제목순으로 바꾸고 목록을 내려 뒤쪽의 메모를 보고 있다.
+- When: 사용자가 뒤로가 TagDetail 화면의 메모 탭으로 돌아간 뒤 다시 완료된 메모 확인을 선택한다.
+- Then: 정렬 컨트롤은 기본순을 알리고 목록은 맨 위부터 보인다.
+- 작성하지 않는 이유: TagDetail 화면과 TagMemoFinishedList 화면 사이의 화면 전환 이력과 화면마다 상태를 보관하는 범위를 함께 재현해야 해서 화면 단위의 유닛 테스트 환경에서 결정적으로 재현할 수 없다. 화면 전환 이력과 화면별 상태 보관을 함께 제어할 수 있는 내비게이션 테스트 환경이 갖춰지면 자동화한다.
+
 ## data
 
 ### TC-TAG-MEMO-FINISHED-LIST-DATA-001: 현재 계정의 대상 태그와 활성 연결을 가진 완료·미삭제 메모만 조회한다
 
-- 근거: `data > 태그별 완료 메모 조회`, `domain > 메모 노출과 정렬`, `domain > 대상 메모`
+- 근거: `data > 태그별 완료 메모 조회`, `domain > 태그 연결과 노출 기준`, `domain > 대상 항목`
 - Given: 현재 계정과 다른 계정, 대상 태그와 다른 태그, 해제된 연결과 해제되지 않은 연결, 완료·삭제 상태가 서로 다른 메모가 함께 저장되어 있다.
 - When: 현재 계정에서 대상 태그의 완료된 메모 목록을 조회한다.
 - Then: 현재 계정과 연결되어 있고 대상 태그와 해제되지 않은 연결을 가지며 완료되었고 삭제되지 않은 메모만 조회된다.
 
 ### TC-TAG-MEMO-FINISHED-LIST-DATA-002: 목록은 기간, 시작 시점, 종료 시점, 제목 순서로 조회한다
 
-- 근거: `domain > 태그 연결과 노출 기준`, `data > 태그별 완료 메모 조회`
+- 근거: `domain > 정렬`, `domain > 정렬과 날짜 그룹`, `data > 태그별 완료 메모 조회`
 - Given: 대상 태그에 연결된 테스트 데이터의 완료 메모들이 저장되어 있다.
 - When: 대상 태그의 완료된 메모 목록을 조회한다.
 - Then: 테스트 데이터의 기대 순서로 조회된다.
@@ -284,10 +318,10 @@
 
 ## 작성하지 않는 이유
 
-시작 시점, 종료 시점, 제목이 모두 같은 메모끼리의 순서는 기준 스펙이 따르는 [MemoHome 목록 스펙](../spec/memo-home.md)에서 정하지 않으므로 기대 결과를 판정할 수 없어 작성하지 않는다.
+시작 시점, 종료 시점, 제목이 모두 같은 메모끼리의 순서는 기준 스펙이 따르는 [MemoHome 목록 스펙](../spec/client/memo-home.md)에서 정하지 않으므로 기대 결과를 판정할 수 없어 작성하지 않는다.
 
 상단 바 태그 표시의 한 줄 배치와 폭을 넘는 제목의 무한 반복 가로 이동, 날짜 헤더의 스크롤 고정은 시각적 레이아웃과 애니메이션이므로 현재 단위 테스트 환경에서 외부 결과로 결정적으로 판정할 수 없다. 제목 폭을 제어하고 여러 시점의 화면 프레임을 비교할 수 있는 시각 회귀 테스트 환경이 갖춰지면 자동화한다.
 
 당겨서 새로고침과 진행 표시는 [새로고침 테스트 케이스](./sync-refresh.md)에서 다루므로 이 문서에서 다시 작성하지 않는다.
 
-메모 상세를 목록과 함께 표시하는 배치와 그 뒤로가기는 [TagMemoList 목록·상세 배치 테스트 케이스](./tag-memo-finished-list-detail.md)에서 다루므로 이 문서에서 다시 작성하지 않는다.
+메모 상세를 목록과 함께 표시하는 배치와 그 뒤로가기는 [TagMemoFinishedList 목록·상세 배치 테스트 케이스](./tag-memo-finished-list-detail.md)에서 다루므로 이 문서에서 다시 작성하지 않는다.

@@ -1,6 +1,6 @@
 # Setting 목록·상세 배치 테스트 케이스
 
-기준 스펙: [Setting 목록·상세 배치 스펙](../spec/setting-list-detail.md)
+기준 스펙: [Setting 목록·상세 배치 스펙](../spec/client/setting-list-detail.md)
 
 ## feature
 
@@ -20,8 +20,6 @@
 | `브라우저` | SettingBrowser 화면 |
 | `다운로드` | SettingDownload 화면 |
 
-- 작성하지 않는 이유: 목록과 상세를 함께 표시하는 창 환경과 두 영역의 전환 이력을 함께 구동해야 관찰할 수 있어 현재 단위 테스트 환경에서는 결정적으로 검증할 수 없다. 창 크기와 여러 화면의 전환 이력을 제어할 수 있는 통합 UI 테스트 환경이 갖춰지면 자동화한다.
-
 ### TC-SETTING-LIST-DETAIL-FEATURE-003: 다른 설정 항목을 선택하면 현재 상세 화면을 교체한다
 
 - 근거: `feature > 상세 영역의 구성`
@@ -37,12 +35,26 @@
 | SettingHoliday 화면 | `Gemini` | SettingGemini 화면 |
 | SettingGemini 화면 | `지도` | SettingMap 화면 |
 | SettingGemini 화면 | `브라우저` | SettingBrowser 화면 |
-| `다운로드` | SettingDownload 화면 |
+| SettingGemini 화면 | `다운로드` | SettingDownload 화면 |
 | SettingBrowser 화면 | `공휴일` | SettingHoliday 화면 |
 | SettingBrowser 화면 | `다운로드` | SettingDownload 화면 |
 | SettingDownload 화면 | `지도` | SettingMap 화면 |
 
-- 작성하지 않는 이유: 목록과 상세를 함께 표시하는 창 환경과 두 영역의 전환 이력을 함께 구동해야 관찰할 수 있어 현재 단위 테스트 환경에서는 결정적으로 검증할 수 없다. 창 크기와 여러 화면의 전환 이력을 제어할 수 있는 통합 UI 테스트 환경이 갖춰지면 자동화한다.
+### TC-SETTING-LIST-DETAIL-FEATURE-011: 현재 상세인 설정 항목을 다시 선택하면 아무것도 바뀌지 않는다
+
+- 근거: `feature > 상세 영역의 구성`
+- Given: 목록과 상세를 함께 사용하고 있고 테스트 데이터의 설정 화면이 현재 상세다.
+- When: 사용자가 설정 목록에서 현재 상세와 같은 설정 항목을 다시 선택한다.
+- Then: 설정 목록과 현재 상세가 그대로 유지되고, 같은 상세가 전환 이력에 한 번 더 쌓이지 않는다.
+- 테스트 데이터:
+
+| 현재 상세 화면 | 다시 선택하는 설정 항목 |
+| --- | --- |
+| SettingHoliday 화면 | `공휴일` |
+| SettingMap 화면 | `지도` |
+| SettingGemini 화면 | `Gemini` |
+| SettingBrowser 화면 | `브라우저` |
+| SettingDownload 화면 | `다운로드` |
 
 ### TC-SETTING-LIST-DETAIL-FEATURE-005: 선택 전 상태에는 조작 가능한 동작이 없다
 

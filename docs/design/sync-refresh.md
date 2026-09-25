@@ -1,6 +1,6 @@
 # 새로고침 디자인
 
-기준 스펙: [새로고침 스펙](../spec/sync-refresh.md)
+기준 스펙: [새로고침 스펙](../spec/client/sync-refresh.md)
 
 ## 공통 컴포넌트
 
@@ -32,11 +32,11 @@
 
 포인터와 트랙패드를 사용하는 환경에서는 본문이 맨 위에 있을 때 아래 방향 스크롤로 같은 조작을 할 수 있다.
 
-키보드만 사용하는 환경에는 별도의 새로고침 컨트롤을 두지 않는다. 새로고침 대상은 화면 진입과 계정 확인 계기로도 동기화되므로 대체 컨트롤 없이 진행 표시만 제공한다.
+키보드만 사용하는 환경에는 별도의 새로고침 컨트롤을 두지 않는다. 앱이 시작되거나 다시 활성 상태가 되어 계정이 확인될 때, 로그인할 때처럼 사용자가 당기지 않아도 동기화가 일어나므로 대체 컨트롤 없이 진행 표시만 제공한다. 동기화 계기는 [데이터 동기화 스펙](../spec/client/data-sync.md)의 `동기화 계기`를 따른다.
 
 ## 화면별 배치
 
-MemoHome, TagDetail 메모 탭, TagMemoFinishedList, ContactDetail·PlaceDetail·WebDetail 메모 탭의 메모 목록과 TagHome의 태그 그리드, WebHome의 웹 그리드, ContactHome의 연락처 그리드, PlaylistHome의 곡 그리드, RoutineHome의 루틴 목록은 목록이 이미 세로로 스크롤되므로 당김 컨테이너만 감싼다. 목록의 내용 여백, 항목 간격, 스티키 날짜 헤더는 각 화면 디자인을 그대로 따른다. RoutineHome은 목록 대신 빈 상태를 표시해 스크롤할 것이 없으므로 당김이 곧바로 시작된다.
+MemoHome, MemoFinishedList, TagDetail 메모 탭, TagMemoFinishedList, ContactDetail·PlaceDetail·WebDetail 메모 탭의 메모 목록과 TagHome·TagFinishedList의 태그 그리드, WebHome과 TagDetail 웹 탭의 웹 그리드, ContactHome의 연락처 그리드, PlaylistHome의 곡 그리드, RoutineHome의 루틴 목록은 목록이 이미 세로로 스크롤되므로 당김 컨테이너만 감싼다. 목록의 내용 여백, 항목 간격, 스티키 날짜 헤더는 각 화면 디자인을 그대로 따른다. RoutineHome은 목록 대신 빈 상태를 표시해 스크롤할 것이 없으므로 당김이 곧바로 시작된다.
 
 CalendarHome의 캘린더는 세로로 스크롤되지 않으므로, 본문 영역이 세로 방향 끌기를 당김 컨테이너에 전달하도록 한다. 캘린더의 좌우 스와이프로 달을 이동하는 조작은 그대로 유지하며, 세로 끌기와 가로 스와이프는 서로 방향으로 구분된다.
 

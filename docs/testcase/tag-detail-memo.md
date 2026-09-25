@@ -1,8 +1,8 @@
 # TagDetail 메모 탭 테스트 케이스
 
-기준 스펙: [TagDetail 메모 탭 스펙](../spec/tag-detail-memo.md)
+기준 스펙: [TagDetail 메모 탭 스펙](../spec/client/tag-detail-memo.md)
 
-자리 표시 케이스의 `근거`가 가리키는 절은 공통 규칙을 [페이지 조회 목록의 자리 표시 스펙](../spec/paged-list-placeholder.md)에, 빈 상태 케이스의 `근거`가 가리키는 절은 [목록 빈 상태 스펙](../spec/list-empty-state.md)에 위임한다.
+자리 표시 케이스의 `근거`가 가리키는 절은 공통 규칙을 [페이지 조회 목록의 자리 표시 스펙](../spec/client/paged-list-placeholder.md)에, 빈 상태 케이스의 `근거`가 가리키는 절은 [목록 빈 상태 스펙](../spec/client/list-empty-state.md)에 위임한다.
 
 웹 탭과 장소 탭의 케이스는 [TagDetail 웹 탭 테스트 케이스](./tag-detail-web.md)와 [TagDetail 장소 탭 테스트 케이스](./tag-detail-place.md)에서 다룬다.
 
@@ -24,16 +24,16 @@
 
 ### TC-TAG-DETAIL-MEMO-FEATURE-006: 목록 조회 실패에 별도의 오류나 재시도 동작을 표시하지 않는다
 
-- 근거: `feature > 목록 표시`
+- 근거: `feature > 목록 표시`, `feature > 빈 상태`
 - Given: 목록 조회가 테스트 데이터의 시점에 실패하도록 설정되어 있다.
 - When: 사용자가 TagDetail 화면의 메모 탭을 확인한다.
-- Then: 별도 재시도 동작 없이 테스트 데이터의 기존 표시 결과를 유지한다.
+- Then: 별도 오류 안내나 재시도 동작 없이 테스트 데이터의 표시 결과가 된다.
 - 테스트 데이터:
 
-| 실패 시점 | 기존 표시 결과 |
+| 실패 시점 | 표시 결과 |
 | --- | --- |
-| 최초 조회 | 표시된 메모 없음. 이때의 빈 상태 안내는 `TC-TAG-DETAIL-MEMO-FEATURE-021`이 다룬다 |
-| 추가 조회 | 이미 표시된 메모 |
+| 최초 조회 | 목록이 준비된 것으로 다뤄져 메모 카드 대신 빈 상태 안내가 표시된다. 안내 내용은 `TC-TAG-DETAIL-MEMO-FEATURE-021`과 같다 |
+| 추가 조회 | 이미 표시된 메모가 그대로 남는다 |
 
 ### TC-TAG-DETAIL-MEMO-FEATURE-007: 메모를 선택하면 그 메모의 상세로 이동한다
 

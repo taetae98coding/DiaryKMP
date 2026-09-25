@@ -8,13 +8,13 @@
 
 항목 수가 정해져 있고 서로 관련 있는 항목을 세로로 늘어놓는 목록에 쓴다. 묶음의 위아래 경계가 한 화면에 드러나 하나의 덩어리로 읽히는 목록이 대상이다.
 
-[SettingHome 화면](./setting-home.md)의 설정 목록, [SettingMap 화면](./setting-map.md)의 기본 지도 선택, [SettingBrowser 화면](./setting-browser.md)의 Chrome 프로필 선택, [SettingHoliday 화면](./setting-holiday.md)의 국가 선택이 이 표현을 쓴다.
+[SettingHome 화면](./setting-home.md)의 설정 목록, [SettingMap 화면](./setting-map.md)의 기본 지도 선택, [SettingBrowser 화면](./setting-browser.md)의 Chrome 프로필 선택, [SettingHoliday 화면](./setting-holiday.md)의 국가 선택, [SettingDownload 화면](./setting-download.md)의 주소 묶음이 이 표현을 쓴다.
 
 항목 수가 정해지지 않거나 검색·필터로 늘고 줄어 한 화면에 묶음 경계가 드러나지 않는 목록에는 쓰지 않는다. 그런 목록의 항목 표현은 각 화면 디자인이 소유한다.
 
 ## 묶음 모양
 
-항목마다 화면 배경보다 한 단계 높은 표면 색의 자기 배경을 둔다.
+항목마다 Material 3 표면 컨테이너 색 가운데 가장 높은 단계의 색으로 자기 배경을 둔다. [목록 빈 상태 디자인](./list-empty-state.md)의 아이콘 배경 도형과 같은 색이다.
 
 첫 항목의 위쪽 모서리와 마지막 항목의 아래쪽 모서리만 크게 둥글리고, 맞닿는 안쪽 모서리는 작게 둥글려 여러 항목이 하나의 묶음으로 읽히게 한다. 항목이 하나뿐이면 네 모서리를 모두 크게 둥글린다.
 
@@ -27,6 +27,8 @@
 항목을 누르고 있는 동안에는 그 항목의 배경 모양이 변형되어 지금 누르고 있는 항목이 어느 것인지 드러낸다. 손을 놓으면 원래 모양으로 돌아온다.
 
 묶음 전체가 아니라 항목 하나씩 조작 대상이 된다.
+
+내용을 보여 주기만 하고 누를 수 없는 항목도 같은 배경, 모양, 틈, 최소 높이와 안쪽 여백을 쓰며, 누름과 선택 상태의 표현만 두지 않는다. [SettingDownload 화면](./setting-download.md)의 주소 묶음이 그렇다.
 
 ## 선택 상태
 

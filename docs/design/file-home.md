@@ -1,6 +1,6 @@
 # FileHome 화면 디자인
 
-기준 스펙: [FileHome 화면 스펙](../spec/file-home.md)
+기준 스펙: [FileHome 화면 스펙](../spec/client/file-home.md)
 
 ## 화면 구조
 

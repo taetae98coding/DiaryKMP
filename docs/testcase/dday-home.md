@@ -1,8 +1,8 @@
 # DDayHome 테스트 케이스
 
-기준 스펙: [DDayHome 화면 스펙](../spec/dday-home.md)
+기준 스펙: [DDayHome 화면 스펙](../spec/client/dday-home.md)
 
-DDayHome 화면의 진입, 화면 내용, 뒤로가기는 [더보기 준비 중 화면 공통 스펙](../spec/more-menu-placeholder.md)에 위임되어 있다.
+DDayHome 화면의 진입, 화면 내용, 뒤로가기는 [더보기 준비 중 화면 공통 스펙](../spec/client/more-menu-placeholder.md)에 위임되어 있다.
 
 ## feature
 

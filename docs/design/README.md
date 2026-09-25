@@ -32,13 +32,15 @@
 
 화면 위쪽에 두는 검색 입력의 해부구조와 조작, 접근성 문구는 [검색 입력](./search-input.md)이 소유한다. 각 문서는 검색을 어디에 두고 결과를 어떻게 표시하는지와 자리 표시 문구만 남긴다.
 
+항목의 제목을 한 줄로 입력하는 제목 입력의 구성, 라벨, 지우기 버튼, 소프트 키보드와 문구는 [제목 입력](./title-input.md)이 소유한다. 각 문서는 제목 입력을 본문 어느 자리에 두는지만 남긴다.
+
 MemoAdd 화면과 MemoDetail 화면이 함께 쓰는 본문의 구성과 적응형 배치, 떠 있는 동작 버튼의 자리는 [메모 본문 배치](./memo-form.md)가 소유한다. 두 화면 문서는 화면마다 다른 진입별 표시와 버튼의 표시 조건, 문구만 남긴다.
 
 두 화면이 함께 쓰는 작성 도우미의 여는 버튼과 다이얼로그 구조, 상태별 표시와 문구는 [메모 Gemini 작성 도우미](./memo-gemini.md)가 소유한다. 두 화면 문서는 그 버튼을 상단 바 어느 자리에 두는지만 남긴다.
 
 태그를 고르는 입력들이 함께 쓰는 칩 영역과 추가 칩, 태그 선택 목록과 그 안의 검색·빈 상태·준비 상태 표현은 [태그 선택 입력 공통](./tag-select-input.md)이 소유한다. [항목 태그 입력 컴포넌트](./entity-tag-input.md), [메모 태그 입력 컴포넌트](./memo-tag-input.md), [태그 연결 입력 컴포넌트](./tag-link-input.md) 문서는 그 입력에서만 다른 칩 구성과 목록 항목의 추가 요소, 라벨과 문구만 남긴다.
 
-WebAdd, WebDetail, PlaceAdd, PlaceDetail, ContactAdd 화면 문서는 태그 입력을 폼의 어느 자리에 두는지와 화면마다 다른 반영 시점의 표현만 남긴다.
+WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼의 어느 자리에 두는지와 화면마다 다른 반영 시점의 표현만 남긴다.
 
 장소 목록을 목록 모드와 지도 모드로 함께 보여 주는 자리의 영역 분할과 적응형 배치, 보기 모드 전환 표현, 장소 격자와 장소 카드, 지도 핀은 [장소 보기 모드](./place-view-mode.md)가 소유한다. PlaceHome 화면과 TagDetail 장소 탭 문서는 전환 컨트롤을 두는 자리와 화면마다 다른 컨트롤, 문구만 남긴다.
 
@@ -143,6 +145,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail, ContactAdd 화면 문서는 태그 입
 - [태그 연결 입력 컴포넌트](./tag-link-input.md)
 - [태그 선택 입력 공통](./tag-select-input.md)
 - [Tag 목록·상세 배치](./tag-list-detail.md)
+- [제목 입력](./title-input.md)
 - [TagMemoFinishedList 화면](./tag-memo-finished-list.md)
 - [TagMemoFinishedList 목록·상세 배치](./tag-memo-finished-list-detail.md)
 - [TopLevelNavigation](./top-level-navigation.md)
