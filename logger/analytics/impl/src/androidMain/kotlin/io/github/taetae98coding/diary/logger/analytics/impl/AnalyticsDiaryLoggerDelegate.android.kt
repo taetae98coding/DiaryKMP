@@ -10,3 +10,20 @@ internal actual fun logScreenView(screenName: String) {
         param(FirebaseAnalytics.Param.SCREEN_NAME, screenName)
     }
 }
+
+internal actual fun logEvent(
+    name: String,
+    parameters: Map<String, Any>,
+) {
+    Firebase.analytics.logEvent(name) {
+        parameters.forEach { (key, value) ->
+            when (value) {
+                is String -> param(key, value)
+                is Int -> param(key, value.toLong())
+                is Long -> param(key, value)
+                is Double -> param(key, value)
+                else -> param(key, value.toString())
+            }
+        }
+    }
+}

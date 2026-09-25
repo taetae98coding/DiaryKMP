@@ -14,3 +14,20 @@ internal actual fun logScreenView(screenName: String) {
         parameters = mapOf(kFIRParameterScreenName.orEmpty() to screenName),
     )
 }
+
+internal actual fun logEvent(
+    name: String,
+    parameters: Map<String, Any>,
+) {
+    FIRAnalytics.logEventWithName(
+        name = name,
+        parameters =
+            parameters.entries.associate<_, Any?, Any> { (key, value) ->
+                key to
+                    when (value) {
+                        is String, is Int, is Long, is Double -> value
+                        else -> value.toString()
+                    }
+            },
+    )
+}
