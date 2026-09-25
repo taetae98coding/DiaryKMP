@@ -1,4 +1,18 @@
 <resources>
     <string name="file_home_title">Files</string>
     <string name="file_navigate_up_button_content_description">Navigate up</string>
+    <string name="file_home_add_button_content_description">Add file</string>
+    <string name="file_home_guest_title">Sign in required</string>
+    <string name="file_home_guest_description">Sign in to upload and view your files</string>
+    <string name="file_home_empty_title">No files yet</string>
+    <string name="file_home_empty_description">Use the add button to upload a file</string>
+    <string name="file_home_load_failed_message">Couldn't load files</string>
+    <string name="file_home_load_more_failed_message">Couldn't load more</string>
+    <string name="file_home_retry">Retry</string>
+    <string name="file_home_upload_too_large_message">Only files up to 50 MB can be uploaded.</string>
+    <string name="file_home_upload_failed_message">Couldn't upload the file.</string>
+    <string name="file_size_byte">%1$s B</string>
+    <string name="file_size_kilobyte">%1$s KB</string>
+    <string name="file_size_megabyte">%1$s MB</string>
+    <string name="file_item_supporting_format">%1$s · %2$s %3$s</string>
 </resources>
