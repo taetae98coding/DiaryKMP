@@ -54,17 +54,17 @@ class QrHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-HOME-FEATURE-005 한국어 환경에서 선택할 수 있는 동작은 뒤로가기와 QR 스캔 시작뿐이다`() {
+    fun `TC-QR-HOME-FEATURE-012 한국어 환경에서 선택할 수 있는 동작은 뒤로가기와 QR 추가뿐이다`() {
         setQrHomeScaffold()
 
-        clickableContentDescriptionList() shouldContainExactly listOf(KOREAN_NAVIGATE_UP_DESCRIPTION, KOREAN_SCAN_DESCRIPTION)
+        clickableContentDescriptionList() shouldContainExactly listOf(KOREAN_NAVIGATE_UP_DESCRIPTION, KOREAN_ADD_DESCRIPTION)
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-005 기본 환경에서 선택할 수 있는 동작은 뒤로가기와 QR 스캔 시작뿐이다`() {
+    fun `TC-QR-HOME-FEATURE-012 기본 환경에서 선택할 수 있는 동작은 뒤로가기와 QR 추가뿐이다`() {
         setQrHomeScaffold()
 
-        clickableContentDescriptionList() shouldContainExactly listOf(DEFAULT_NAVIGATE_UP_DESCRIPTION, DEFAULT_SCAN_DESCRIPTION)
+        clickableContentDescriptionList() shouldContainExactly listOf(DEFAULT_NAVIGATE_UP_DESCRIPTION, DEFAULT_ADD_DESCRIPTION)
     }
 
     @Test
@@ -79,14 +79,14 @@ class QrHomeScaffoldTest {
     }
 
     @Test
-    fun `QR 스캔 버튼을 누르면 QR 스캔 시작 이벤트를 한 번 내보낸다`() {
+    fun `QR 추가 버튼을 누르면 QR 추가 이벤트를 한 번 내보낸다`() {
         val eventList = mutableListOf<QrHomeScaffoldEvent>()
         setQrHomeScaffold(onEvent = { event -> eventList += event })
 
-        composeRule.onNodeWithContentDescription(DEFAULT_SCAN_DESCRIPTION).performClick()
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
-        eventList shouldBe listOf(QrHomeScaffoldEvent.ClickScan)
+        eventList shouldBe listOf(QrHomeScaffoldEvent.ClickAdd)
     }
 
     private fun setQrHomeScaffold(onEvent: (QrHomeScaffoldEvent) -> Unit = {}) {
@@ -108,7 +108,7 @@ class QrHomeScaffoldTest {
         private const val DEFAULT_TITLE = "QR"
         private const val KOREAN_NAVIGATE_UP_DESCRIPTION = "뒤로가기"
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
-        private const val KOREAN_SCAN_DESCRIPTION = "QR 스캔"
-        private const val DEFAULT_SCAN_DESCRIPTION = "Scan QR code"
+        private const val KOREAN_ADD_DESCRIPTION = "QR 추가"
+        private const val DEFAULT_ADD_DESCRIPTION = "Add QR code"
     }
 }

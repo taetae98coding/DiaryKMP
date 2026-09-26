@@ -6,6 +6,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-internal actual fun QrScanCameraPreview(modifier: Modifier) {
+internal actual fun QrScanCameraPreview(
+    onDetect: (String) -> Unit,
+    modifier: Modifier,
+) {
     Box(modifier = modifier.background(color = QrScanCameraPreviewDefaults.EmptyColor))
 }

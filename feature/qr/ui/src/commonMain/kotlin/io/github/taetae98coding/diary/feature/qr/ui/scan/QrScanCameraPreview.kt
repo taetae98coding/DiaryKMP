@@ -6,12 +6,15 @@ import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 
 @Composable
-internal expect fun QrScanCameraPreview(modifier: Modifier = Modifier)
+internal expect fun QrScanCameraPreview(
+    onDetect: (String) -> Unit,
+    modifier: Modifier = Modifier,
+)
 
 @ComponentPreview
 @Composable
 private fun QrScanCameraPreviewPreview() {
     DiaryTheme {
-        QrScanCameraPreview()
+        QrScanCameraPreview(onDetect = {})
     }
 }

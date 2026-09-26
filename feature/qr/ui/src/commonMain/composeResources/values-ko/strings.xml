@@ -1,6 +1,9 @@
 <resources>
     <string name="qr_home_title">QR</string>
     <string name="qr_navigate_up_button_content_description">뒤로가기</string>
+    <string name="qr_add_button_content_description">QR 추가</string>
+    <string name="qr_add_title">QR 추가</string>
+    <string name="qr_add_value_label">QR 값</string>
     <string name="qr_scan_button_content_description">QR 스캔</string>
     <string name="qr_camera_permission_denied_message">카메라 권한을 허용해야 QR을 스캔할 수 있습니다.</string>
     <string name="qr_scan_title">QR 스캔</string>

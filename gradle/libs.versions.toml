@@ -40,6 +40,7 @@ fixtureMonkey = "1.2.3" # https://github.com/naver/fixture-monkey/releases
 googleId = "1.2.1" # https://developers.google.com/identity/android-credential-manager/releases?hl=en
 googleLocation = "21.4.0" # https://developers.google.com/android/guides/releases?hl=en
 googleMap = "8.5.0" # https://github.com/googlemaps/android-maps-compose/releases
+googleMlkitBarcodeScanning = "17.3.0" # https://developers.google.com/ml-kit/release-notes
 googleMaterial = "1.14.0" # https://github.com/material-components/material-components-android/releases
 googleOauthClient = "1.39.0" # https://github.com/googleapis/google-oauth-java-client/releases
 googlePlayIntegrity = "1.6.0" # https://developer.android.com/google/play/integrity/reference/release-notes
@@ -52,6 +53,7 @@ ksp = "2.3.12" # https://github.com/google/ksp/releases
 markdownRenderer = "0.45.0" # https://github.com/mikepenz/multiplatform-markdown-renderer/releases
 mockk = "1.14.11" # https://github.com/mockk/mockk/releases
 naverMap = "3.24.0" # https://github.com/navermaps/android-map-sdk
+qrose = "1.3.0" # https://github.com/alexzhirkevich/qrose/releases
 robolectric = "4.17" # https://github.com/robolectric/robolectric/releases
 spotless = "8.10.2" # https://github.com/diffplug/spotless/releases
 supabaseKt = "3.8.0" # https://github.com/supabase-community/supabase-kt/releases
@@ -132,6 +134,7 @@ fixture-monkey-kotlin = { module = "com.navercorp.fixturemonkey:fixture-monkey-k
 
 google-identity-googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleId" }
 google-maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "googleMap" }
+google-mlkit-barcode-scanning = { group = "com.google.mlkit", name = "barcode-scanning", version.ref = "googleMlkitBarcodeScanning" }
 google-material = { module = "com.google.android.material:material", version.ref = "googleMaterial" }
 google-oauth-client-jetty = { group = "com.google.oauth-client", name = "google-oauth-client-jetty", version.ref = "googleOauthClient" }
 google-play-integrity = { group = "com.google.android.play", name = "integrity", version.ref = "googlePlayIntegrity" }
@@ -152,6 +155,8 @@ markdown-renderer-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 
 naver-map = { module = "com.naver.maps:map-sdk", version.ref = "naverMap" }
+
+qrose = { module = "io.github.alexzhirkevich:qrose", version.ref = "qrose" }
 
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 

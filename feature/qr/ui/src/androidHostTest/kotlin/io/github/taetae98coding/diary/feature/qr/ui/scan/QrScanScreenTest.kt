@@ -61,14 +61,35 @@ class QrScanScreenTest {
     }
 
     @Test
-    fun `TC-QR-SCAN-FEATURE-003 뒤로가기를 선택하면 QrHome 화면으로 돌아간다`() {
+    fun `TC-QR-SCAN-FEATURE-006 뒤로가기를 선택하면 값을 넘기지 않고 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
-        setQrScanScreen(navigateUp = { navigateUpCount += 1 })
+        val valueList = mutableListOf<String>()
+        setQrScanScreen(
+            navigateUp = { navigateUpCount += 1 },
+            navigateUpWithValue = { value -> valueList += value },
+        )
 
         composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
         navigateUpCount shouldBe 1
+        valueList.shouldBeEmpty()
+    }
+
+    @Test
+    fun `TC-QR-SCAN-FEATURE-008 QR을 읽기 전에는 화면에 머무른다`() {
+        var navigateUpCount = 0
+        val valueList = mutableListOf<String>()
+        setQrScanScreen(
+            navigateUp = { navigateUpCount += 1 },
+            navigateUpWithValue = { value -> valueList += value },
+        )
+
+        composeRule.mainClock.advanceTimeBy(SCAN_WAIT_MILLIS)
+        composeRule.waitForIdle()
+
+        navigateUpCount shouldBe 0
+        valueList.shouldBeEmpty()
     }
 
     @Test
@@ -100,7 +121,10 @@ class QrScanScreenTest {
         composeRule.setContent {
             CompositionLocalProvider(LocalActivityResultRegistryOwner provides registryOwner) {
                 DiaryTheme {
-                    QrScanScreen(navigateUp = {})
+                    QrScanScreen(
+                        navigateUp = {},
+                        navigateUpWithValue = {},
+                    )
                 }
             }
         }
@@ -109,10 +133,16 @@ class QrScanScreenTest {
         verify(exactly = 0) { registry.onLaunch(any(), any<ActivityResultContract<Any?, Any?>>(), any(), any()) }
     }
 
-    private fun setQrScanScreen(navigateUp: () -> Unit = {}) {
+    private fun setQrScanScreen(
+        navigateUp: () -> Unit = {},
+        navigateUpWithValue: (String) -> Unit = {},
+    ) {
         composeRule.setContent {
             DiaryTheme {
-                QrScanScreen(navigateUp = navigateUp)
+                QrScanScreen(
+                    navigateUp = navigateUp,
+                    navigateUpWithValue = navigateUpWithValue,
+                )
             }
         }
     }
@@ -129,5 +159,6 @@ class QrScanScreenTest {
         private const val DEFAULT_TITLE = "Scan QR code"
         private const val KOREAN_NAVIGATE_UP_DESCRIPTION = "뒤로가기"
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
+        private const val SCAN_WAIT_MILLIS = 10_000L
     }
 }

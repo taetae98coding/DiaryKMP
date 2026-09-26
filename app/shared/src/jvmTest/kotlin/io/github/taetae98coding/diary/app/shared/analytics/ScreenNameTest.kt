@@ -29,6 +29,7 @@ import io.github.taetae98coding.diary.feature.place.api.PlaceHomeNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicAddNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicDetailNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.PlaylistHomeNavKey
+import io.github.taetae98coding.diary.feature.qr.api.QrAddNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrHomeNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrScanNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineAddNavKey
@@ -149,6 +150,7 @@ class ScreenNameTest :
                 PlaceHomeNavKey to "PlaceHome",
                 PlaylistHomeNavKey to "PlaylistHome",
                 ProfileImageEditNavKey to "ProfileImageEdit",
+                QrAddNavKey to "QrAdd",
                 QrHomeNavKey to "QrHome",
                 QrScanNavKey to "QrScan",
                 RoutineAddNavKey to "RoutineAdd",

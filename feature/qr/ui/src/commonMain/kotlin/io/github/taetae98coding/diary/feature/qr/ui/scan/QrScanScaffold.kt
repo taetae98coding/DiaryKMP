@@ -29,6 +29,7 @@ internal fun QrScanScaffold(
         },
     ) { paddingValues ->
         QrScanCameraPreview(
+            onDetect = { value -> onEvent(QrScanScaffoldEvent.DetectQr(value = value)) },
             modifier =
                 Modifier
                     .fillMaxSize()
