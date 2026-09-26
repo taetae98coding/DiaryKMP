@@ -2,6 +2,8 @@
 
 기준 스펙: [CalendarWeekOfMonth 컴포넌트 스펙](../spec/client/calendar-week-of-month.md)
 
+`feature > 날짜 누름과 주 누름`은 규칙을 [Calendar 컴포넌트 스펙](../spec/client/calendar.md)의 `날짜 누름`과 `주 누름`에 위임하므로, 그 케이스는 [Calendar 테스트 케이스](calendar.md)의 TC-CALENDAR-FEATURE-020부터 TC-CALENDAR-FEATURE-025가 갖고 여기서 중복 작성하지 않는다.
+
 ## feature
 
 ### TC-CALENDAR-WEEK-OF-MONTH-FEATURE-001: 지정한 달과 주 순서에 해당하는 7일을 일요일부터 순서대로 표시한다

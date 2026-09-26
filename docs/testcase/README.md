@@ -44,6 +44,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [Chrome 로그인 이어받기](./chrome-session-import.md) | [Chrome 로그인 이어받기](../spec/client/chrome-session-import.md) |
 | [CalendarMonth](./calendar-month.md) | [CalendarMonth 컴포넌트](../spec/client/calendar-month.md) |
 | [Calendar 날짜 선택](./calendar-select.md) | [Calendar 날짜 선택](../spec/client/calendar-select.md) |
+| [CalendarTimetable](./calendar-timetable.md) | [CalendarTimetable 화면](../spec/client/calendar-timetable.md) |
 | [CalendarText](./calendar-text.md) | [CalendarText 컴포넌트](../spec/client/calendar-text.md) |
 | [CalendarWeekOfMonth](./calendar-week-of-month.md) | [CalendarWeekOfMonth 컴포넌트](../spec/client/calendar-week-of-month.md) |
 | [Calendar](./calendar.md) | [Calendar 컴포넌트](../spec/client/calendar.md) |
@@ -140,6 +141,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [TagMemoFinishedList](./tag-memo-finished-list.md) | [TagMemoFinishedList 화면](../spec/client/tag-memo-finished-list.md) |
 | [TagMemoFinishedList 목록·상세 배치](./tag-memo-finished-list-detail.md) | [TagMemoFinishedList 목록·상세 배치](../spec/client/tag-memo-finished-list-detail.md) |
 | [제목 입력](./title-input.md) | [제목 입력](../spec/client/title-input.md) |
+| [Timetable](./timetable.md) | [Timetable 컴포넌트](../spec/client/timetable.md) |
 | [TopLevelNavigation](./top-level-navigation.md) | [TopLevelNavigation](../spec/client/top-level-navigation.md) |
 | [기능 실패 로깅](./usecase-failure-logging.md) | [기능 실패 로깅](../spec/client/usecase-failure-logging.md) |
 | [WebAdd](./web-add.md) | [WebAdd 화면](../spec/client/web-add.md) |

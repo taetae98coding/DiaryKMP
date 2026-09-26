@@ -56,6 +56,7 @@
 | CalendarHome | [client](./client/calendar-home.md) | — | — | [CalendarHome 디자인](../design/calendar-home.md) |
 | CalendarMonth 컴포넌트 | [client](./client/calendar-month.md) | — | — | [CalendarMonth 디자인](../design/calendar-month.md) |
 | CalendarText 컴포넌트 | [client](./client/calendar-text.md) | — | — | [CalendarText 디자인](../design/calendar-text.md) |
+| CalendarTimetable 화면 | [client](./client/calendar-timetable.md) | — | — | [CalendarTimetable 디자인](../design/calendar-timetable.md) |
 | CalendarWeekOfMonth 컴포넌트 | [client](./client/calendar-week-of-month.md) | — | — | [CalendarWeekOfMonth 디자인](../design/calendar-week-of-month.md) |
 | ChecklistHome 화면 | [client](./client/checklist-home.md) | — | — | [ChecklistHome 디자인](../design/checklist-home.md) |
 | Chrome 로그인 이어받기 | [client](./client/chrome-session-import.md) | — | — | — |
@@ -111,6 +112,7 @@
 | TagHome 목록 | [client](./client/tag-home.md) | — | — | [TagHome 디자인](../design/tag-home.md), [필터 Bottom Sheet 디자인](../design/filter-bottom-sheet.md) |
 | TagMemoFinishedList 목록·상세 배치 | [client](./client/tag-memo-finished-list-detail.md) | — | — | [TagMemoFinishedList 목록·상세 배치 디자인](../design/tag-memo-finished-list-detail.md) |
 | TagMemoFinishedList 화면 | [client](./client/tag-memo-finished-list.md) | — | — | [TagMemoFinishedList 디자인](../design/tag-memo-finished-list.md) |
+| Timetable 컴포넌트 | [client](./client/timetable.md) | — | — | [Timetable 컴포넌트 디자인](../design/timetable.md) |
 | TopLevelNavigation | [client](./client/top-level-navigation.md) | — | — | [TopLevelNavigation 디자인](../design/top-level-navigation.md) |
 | Web 목록·상세 배치 | [client](./client/web-list-detail.md) | — | — | [Web 목록·상세 배치 디자인](../design/web-list-detail.md) |
 | WebAdd 화면 | [client](./client/web-add.md) | — | — | [WebAdd 디자인](../design/web-add.md) |
