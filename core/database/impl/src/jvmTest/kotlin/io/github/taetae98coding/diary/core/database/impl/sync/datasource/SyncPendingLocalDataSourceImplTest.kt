@@ -14,6 +14,7 @@ import io.github.taetae98coding.diary.core.database.impl.memoweb.entity.AccountM
 import io.github.taetae98coding.diary.core.database.impl.music.entity.AccountMusicLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.place.entity.AccountPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.placetag.entity.AccountPlaceTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.qr.entity.AccountQrLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.taglink.entity.AccountTagLinkLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.web.entity.AccountWebLocalEntity
@@ -47,6 +48,9 @@ private val pendingWriterMap: Map<String, PendingWriter> =
         },
         "곡" to { database, accountId, isDirty ->
             database.accountMusicSyncDao().upsert(AccountMusicLocalEntity(accountId = accountId, musicId = uuid(), isDirty = isDirty))
+        },
+        "QR" to { database, accountId, isDirty ->
+            database.accountQrSyncDao().upsert(AccountQrLocalEntity(accountId = accountId, qrId = uuid(), isDirty = isDirty))
         },
         "메모" to { database, accountId, isDirty ->
             database.accountMemoSyncDao().upsert(AccountMemoLocalEntity(accountId = accountId, memoId = uuid(), isDirty = isDirty))
@@ -90,8 +94,8 @@ private val pendingWriterMap: Map<String, PendingWriter> =
 
 class SyncPendingLocalDataSourceImplTest :
     FunSpec({
-        test("업로드 대기 확인이 동기화 대상 열세 종류를 모두 다룬다") {
-            pendingWriterMap.size shouldBe 13
+        test("업로드 대기 확인이 동기화 대상 열네 종류를 모두 다룬다") {
+            pendingWriterMap.size shouldBe 14
         }
 
         lateinit var database: DiaryDatabase
@@ -110,7 +114,7 @@ class SyncPendingLocalDataSourceImplTest :
             database.close()
         }
 
-        test("TC-MORE-HOME-DOMAIN-007 동기화 대상 열세 종류 중 어느 한 종류만 업로드 대기여도 대기 항목이 있다고 알린다") {
+        test("TC-MORE-HOME-DOMAIN-007 동기화 대상 열네 종류 중 어느 한 종류만 업로드 대기여도 대기 항목이 있다고 알린다") {
             pendingWriterMap.forEach { (kind, write) ->
                 val accountId = uuid()
 

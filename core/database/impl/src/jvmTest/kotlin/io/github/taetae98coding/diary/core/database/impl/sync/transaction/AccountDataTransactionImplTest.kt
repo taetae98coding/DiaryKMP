@@ -15,6 +15,7 @@ import io.github.taetae98coding.diary.core.database.api.memoweb.entity.MemoWebLo
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.placetag.entity.PlaceTagLocalEntity
+import io.github.taetae98coding.diary.core.database.api.qr.entity.QrLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
 import io.github.taetae98coding.diary.core.database.api.sync.datasource.SyncCursorLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
@@ -34,6 +35,7 @@ import io.github.taetae98coding.diary.core.database.impl.memoweb.entity.AccountM
 import io.github.taetae98coding.diary.core.database.impl.music.entity.AccountMusicLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.place.entity.AccountPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.placetag.entity.AccountPlaceTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.qr.entity.AccountQrLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.sync.datasource.SyncCursorLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.sync.entity.SyncCursorLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
@@ -55,6 +57,7 @@ private val ACCOUNT_TABLE_LIST =
         "account_web",
         "account_contact",
         "account_music",
+        "account_qr",
         "account_memo_tag",
         "account_memo_place",
         "account_memo_web",
@@ -76,6 +79,7 @@ private val ENTITY_TABLE_LIST =
         "web",
         "contact",
         "music",
+        "qr",
         "memo_tag",
         "memo_place",
         "memo_web",
@@ -93,6 +97,7 @@ private data class FilledEntity(
     val webId: Uuid,
     val contactId: Uuid,
     val musicId: Uuid,
+    val qrId: Uuid,
 )
 
 class AccountDataTransactionImplTest :
@@ -126,7 +131,7 @@ class AccountDataTransactionImplTest :
                 }
             }
 
-        /** 다른 종류를 참조하지 않는 여섯 종류를 한 계정 몫으로 채우고 만든 항목을 돌려준다. */
+        /** 다른 종류를 참조하지 않는 일곱 종류를 한 계정 몫으로 채우고 만든 항목을 돌려준다. */
         suspend fun fillEntity(
             accountId: Uuid,
             isDirty: Boolean,
@@ -138,6 +143,7 @@ class AccountDataTransactionImplTest :
             val web = fixtureMonkey.giveMeOne<WebLocalEntity>()
             val contact = fixtureMonkey.giveMeOne<ContactLocalEntity>()
             val music = fixtureMonkey.giveMeOne<MusicLocalEntity>()
+            val qr = fixtureMonkey.giveMeOne<QrLocalEntity>()
 
             database.memoDao().upsert(memo)
             database.accountMemoDao().upsert(AccountMemoLocalEntity(accountId = accountId, memoId = memo.id, isDirty = isDirty))
@@ -161,6 +167,9 @@ class AccountDataTransactionImplTest :
             database.musicDao().upsert(music)
             database.accountMusicDao().upsert(AccountMusicLocalEntity(accountId = accountId, musicId = music.id, isDirty = isDirty))
 
+            database.qrDao().upsert(qr)
+            database.accountQrDao().upsert(AccountQrLocalEntity(accountId = accountId, qrId = qr.id, isDirty = isDirty))
+
             return FilledEntity(
                 memoId = memo.id,
                 tagId = tag.id,
@@ -169,6 +178,7 @@ class AccountDataTransactionImplTest :
                 webId = web.id,
                 contactId = contact.id,
                 musicId = music.id,
+                qrId = qr.id,
             )
         }
 
@@ -186,6 +196,7 @@ class AccountDataTransactionImplTest :
                 AccountContactLocalEntity(accountId = accountId, contactId = entity.contactId, isDirty = false),
             )
             database.accountMusicDao().upsert(AccountMusicLocalEntity(accountId = accountId, musicId = entity.musicId, isDirty = false))
+            database.accountQrDao().upsert(AccountQrLocalEntity(accountId = accountId, qrId = entity.qrId, isDirty = false))
         }
 
         suspend fun fillRelation(
@@ -337,7 +348,7 @@ class AccountDataTransactionImplTest :
             }
         }
 
-        test("TC-DATA-SYNC-DATA-037 강제 전체 재동기화 뒤에는 열세 종류가 모두 기본 커서로 조회된다") {
+        test("TC-DATA-SYNC-DATA-037 강제 전체 재동기화 뒤에는 열네 종류가 모두 기본 커서로 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             fill(accountId = accountId)
 

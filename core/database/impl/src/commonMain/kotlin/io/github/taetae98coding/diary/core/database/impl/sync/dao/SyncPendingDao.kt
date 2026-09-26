@@ -15,6 +15,7 @@ internal interface SyncPendingDao {
             OR EXISTS(SELECT 1 FROM account_web WHERE account_id = :accountId AND is_dirty = 1)
             OR EXISTS(SELECT 1 FROM account_contact WHERE account_id = :accountId AND is_dirty = 1)
             OR EXISTS(SELECT 1 FROM account_music WHERE account_id = :accountId AND is_dirty = 1)
+            OR EXISTS(SELECT 1 FROM account_qr WHERE account_id = :accountId AND is_dirty = 1)
             OR EXISTS(SELECT 1 FROM account_memo WHERE account_id = :accountId AND is_dirty = 1)
             OR EXISTS(SELECT 1 FROM account_memo_tag WHERE account_id = :accountId AND is_dirty = 1)
             OR EXISTS(SELECT 1 FROM account_memo_place WHERE account_id = :accountId AND is_dirty = 1)

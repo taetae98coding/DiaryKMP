@@ -26,6 +26,7 @@ internal class SyncWorkImpl(
     private val webSyncWork: WebSyncWork,
     private val contactSyncWork: ContactSyncWork,
     private val musicSyncWork: MusicSyncWork,
+    private val qrSyncWork: QrSyncWork,
     private val memoSyncWork: MemoSyncWork,
     private val memoTagSyncWork: MemoTagSyncWork,
     private val memoPlaceSyncWork: MemoPlaceSyncWork,
@@ -75,6 +76,7 @@ internal class SyncWorkImpl(
             val web = async { webSyncWork.push(accountId = accountId) }
             val contact = async { contactSyncWork.push(accountId = accountId) }
             val music = async { musicSyncWork.push(accountId = accountId) }
+            val qr = async { qrSyncWork.push(accountId = accountId) }
             val memo =
                 async {
                     tag.await()
@@ -122,7 +124,7 @@ internal class SyncWorkImpl(
                     placeTagSyncWork.push(accountId = accountId)
                 }
 
-            listOf(tag, place, web, contact, music, memo, memoTag, memoPlace, memoWeb, memoContact, tagLink, webTag, placeTag)
+            listOf(tag, place, web, contact, music, qr, memo, memoTag, memoPlace, memoWeb, memoContact, tagLink, webTag, placeTag)
                 .awaitAllCatching()
         }
     }
@@ -135,6 +137,7 @@ internal class SyncWorkImpl(
                 async { webSyncWork.pull(accountId = accountId) },
                 async { contactSyncWork.pull(accountId = accountId) },
                 async { musicSyncWork.pull(accountId = accountId) },
+                async { qrSyncWork.pull(accountId = accountId) },
                 async { memoSyncWork.pull(accountId = accountId) },
                 async { memoTagSyncWork.pull(accountId = accountId) },
                 async { memoPlaceSyncWork.pull(accountId = accountId) },

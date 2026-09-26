@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlin.uuid.Uuid
 
-// 열세 종류를 같은 방식으로 다루도록 종류마다 대기 항목, 서버 요청, 기기 저장을 묶는다.
+// 열네 종류를 같은 방식으로 다루도록 종류마다 대기 항목, 서버 요청, 기기 저장을 묶는다.
 private class SyncKindCase(
     val label: String,
     val push: suspend MockKMatcherScope.(TestContext) -> Unit,
@@ -34,6 +34,7 @@ private const val PLACE = "장소"
 private const val WEB = "웹 항목"
 private const val CONTACT = "연락처"
 private const val MUSIC = "곡"
+private const val QR = "QR"
 private const val MEMO = "메모"
 private const val MEMO_TAG = "메모와 태그의 연결"
 private const val MEMO_PLACE = "메모와 장소의 연결"
@@ -42,6 +43,9 @@ private const val MEMO_CONTACT = "메모와 연락처의 연결"
 private const val TAG_LINK = "태그와 태그의 연결"
 private const val WEB_TAG = "웹 항목과 태그의 연결"
 private const val PLACE_TAG = "장소와 태그의 연결"
+
+private const val FIRST_PAGE_USN = 2L
+private const val SECOND_PAGE_USN = 5L
 
 private val kindCaseList: List<SyncKindCase> =
     listOf(
@@ -84,6 +88,14 @@ private val kindCaseList: List<SyncKindCase> =
             clearPending = { context -> context.accountMusicSyncTransaction.clearPending(any(), any()) },
             save = { context -> context.accountMusicSyncTransaction.save(any(), any(), any()) },
             pulls = { usnList -> musicPulls(usnList = usnList).let { pullList -> pullList to pullList.map { pull -> pull.music.toLocal() } } },
+        ),
+        SyncKindCase(
+            label = QR,
+            push = { context -> context.qrRemoteDataSource.push(any()) },
+            pull = { context, usn -> context.qrRemoteDataSource.pull(usn = usn) },
+            clearPending = { context -> context.accountQrSyncTransaction.clearPending(any(), any()) },
+            save = { context -> context.accountQrSyncTransaction.save(any(), any(), any()) },
+            pulls = { usnList -> qrPulls(usnList = usnList).let { pullList -> pullList to pullList.map { pull -> pull.qr.toLocal() } } },
         ),
         SyncKindCase(
             label = MEMO,
@@ -166,6 +178,7 @@ private fun kindContext(pendingCountMap: Map<String, Int>): TestContext {
         webList = webs(size = count(WEB)),
         contactList = contacts(size = count(CONTACT)),
         musicList = musics(size = count(MUSIC)),
+        qrList = qrs(size = count(QR)),
         memoList = memos(size = count(MEMO)),
         memoTagList = memoTags(size = count(MEMO_TAG)),
         memoPlaceList = memoPlaces(size = count(MEMO_PLACE)),
@@ -208,7 +221,7 @@ private fun TestContext.verifyNoPull() {
 class SyncWorkKindTest :
     FunSpec({
         kindCaseList.forEach { kindCase ->
-            test("TC-DATA-SYNC-DOMAIN-020 ${kindCase.label}만 대기하면 ${kindCase.label}만 요청하고 나머지 열두 종류는 요청하지 않는다") {
+            test("TC-DATA-SYNC-DOMAIN-020 ${kindCase.label}만 대기하면 ${kindCase.label}만 요청하고 나머지 열세 종류는 요청하지 않는다") {
                 val context = kindContext(pendingCountMap = mapOf(kindCase.label to 1))
 
                 context.subject.doWork()
@@ -219,7 +232,7 @@ class SyncWorkKindTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-020 대기 항목이 없으면 열세 종류 모두 요청하지 않는다") {
+        test("TC-DATA-SYNC-DOMAIN-020 대기 항목이 없으면 열네 종류 모두 요청하지 않는다") {
             val context = kindContext(pendingCountMap = emptyMap())
 
             context.subject.doWork()
@@ -227,7 +240,7 @@ class SyncWorkKindTest :
             kindCaseList.forEach { kindCase -> context.verifyPushCount(label = kindCase.label, exactly = 0) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-020 열세 종류 모두 대기하면 열세 종류 모두 요청한다") {
+        test("TC-DATA-SYNC-DOMAIN-020 열네 종류 모두 대기하면 열네 종류 모두 요청한다") {
             val context = kindContext(pendingCountMap = kindCaseList.associate { kindCase -> kindCase.label to 1 })
 
             context.subject.doWork()
@@ -235,9 +248,9 @@ class SyncWorkKindTest :
             kindCaseList.forEach { kindCase -> context.verifyPushCount(label = kindCase.label, exactly = 1) }
         }
 
-        val independentLabelList = listOf(TAG, PLACE, WEB, CONTACT, MUSIC)
+        val independentLabelList = listOf(TAG, PLACE, WEB, CONTACT, MUSIC, QR)
         independentLabelList.forEach { delayedLabel ->
-            test("TC-DATA-SYNC-DOMAIN-055 $delayedLabel 업로드가 지연되어도 나머지 네 종류의 첫 요청이 먼저 시작된다") {
+            test("TC-DATA-SYNC-DOMAIN-055 $delayedLabel 업로드가 지연되어도 나머지 다섯 종류의 첫 요청이 먼저 시작된다") {
                 runTest {
                     val context = kindContext(pendingCountMap = independentLabelList.associateWith { 1 })
                     val eventList = mutableListOf<String>()
@@ -417,6 +430,72 @@ class SyncWorkKindTest :
                 context.subject.doWork()
 
                 savedList shouldContainExactly listOf(localList to 9L)
+            }
+
+            test("TC-DATA-SYNC-DOMAIN-038 ${kindCase.label} 내려받기가 지연되어도 업로드가 끝난 뒤 나머지 열세 종류의 첫 내려받기를 먼저 시작한다") {
+                runTest {
+                    val context = kindContext(pendingCountMap = kindCaseList.associate { other -> other.label to 1 })
+                    val eventList = mutableListOf<String>()
+                    kindCaseList.forEach { other ->
+                        coEvery { other.push(this, context) } coAnswers { eventList += "pushEnd:${other.label}" }
+                        coEvery { other.pull(this, context, 0L) } coAnswers {
+                            eventList += "pullStart:${other.label}"
+                            if (other.label == kindCase.label) delay(PULL_DELAY)
+                            eventList += "pullEnd:${other.label}"
+                            emptyList()
+                        }
+                    }
+
+                    context.subject.doWork()
+
+                    val lastPushEndIndex = eventList.indexOfLast { event -> event.startsWith("pushEnd:") }
+                    val firstPullStartIndex = eventList.indexOfFirst { event -> event.startsWith("pullStart:") }
+                    (lastPushEndIndex < firstPullStartIndex) shouldBe true
+                    val delayedEndIndex = eventList.indexOf("pullEnd:${kindCase.label}")
+                    kindCaseList
+                        .filterNot { other -> other.label == kindCase.label }
+                        .forEach { other -> (eventList.indexOf("pullStart:${other.label}") in 0 until delayedEndIndex) shouldBe true }
+                }
+            }
+
+            test("TC-DATA-SYNC-DOMAIN-039 ${kindCase.label} 내려받기가 실패해도 나머지 열세 종류는 빈 응답까지 내려받아 반영하고 위치가 전진한다") {
+                val context = kindContext(pendingCountMap = emptyMap())
+                val failure = TestException(fixtureMonkey.giveMeOne())
+                val otherKindCaseList = kindCaseList.filterNot { other -> other.label == kindCase.label }
+                coEvery { kindCase.pull(this, context, any()) } throws failure
+                val expectedSaveMap =
+                    otherKindCaseList.associate { other ->
+                        val (firstPullList, firstLocalList) = other.pulls(listOf(FIRST_PAGE_USN))
+                        val (secondPullList, secondLocalList) = other.pulls(listOf(SECOND_PAGE_USN))
+                        coEvery { other.pull(this, context, 0L) } returns firstPullList
+                        coEvery { other.pull(this, context, FIRST_PAGE_USN) } returns secondPullList
+                        coEvery { other.pull(this, context, SECOND_PAGE_USN) } returns emptyList()
+                        other.label to listOf(firstLocalList to FIRST_PAGE_USN, secondLocalList to SECOND_PAGE_USN)
+                    }
+                val savedMap = otherKindCaseList.associate { other -> other.label to mutableListOf<Pair<List<Any>, Long>>() }
+                otherKindCaseList.forEach { other ->
+                    coEvery { other.save(this, context) } coAnswers {
+                        savedMap.getValue(other.label) += secondArg<List<Any>>() to thirdArg<Long>()
+                    }
+                }
+
+                shouldThrowExactly<TestException> { context.subject.doWork() }
+
+                savedMap shouldBe expectedSaveMap
+                coVerify(exactly = 0) { kindCase.save(this, context) }
+            }
+
+            test("TC-DATA-SYNC-DOMAIN-040 ${kindCase.label} 내려받기가 실패하면 나머지 종류의 내려받기가 끝난 뒤 동기화가 실패한다") {
+                val context = kindContext(pendingCountMap = emptyMap())
+                val failure = TestException(fixtureMonkey.giveMeOne())
+                coEvery { kindCase.pull(this, context, any()) } throws failure
+
+                val actual = shouldThrowExactly<TestException> { context.subject.doWork() }
+
+                actual.message shouldBe failure.message
+                kindCaseList
+                    .filterNot { other -> other.label == kindCase.label }
+                    .forEach { other -> coVerify(exactly = 1) { other.pull(this, context, 0L) } }
             }
         }
     })

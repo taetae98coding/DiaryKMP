@@ -122,6 +122,12 @@ verify_jwt = true
 [functions.v1-sync-pull-music]
 verify_jwt = true
 
+[functions.v1-sync-push-qr]
+verify_jwt = true
+
+[functions.v1-sync-pull-qr]
+verify_jwt = true
+
 [functions.v1-profile-upload]
 verify_jwt = true
 

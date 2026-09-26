@@ -16,6 +16,7 @@ kotlin {
 
         jvmTest {
             dependencies {
+                implementation(projects.core.testing)
                 implementation(ktorLibs.client.contentNegotiation)
                 implementation(ktorLibs.client.mock)
                 implementation(ktorLibs.serialization.kotlinx.json)

@@ -111,6 +111,23 @@ internal interface AccountDataDao {
 
     @Query(
         """
+        DELETE FROM qr
+        WHERE EXISTS (
+            SELECT 1 FROM account_qr
+            WHERE account_qr.qr_id = qr.id AND account_qr.account_id = :accountId
+        ) AND NOT EXISTS (
+            SELECT 1 FROM account_qr
+            WHERE account_qr.qr_id = qr.id AND account_qr.account_id != :accountId
+        )
+        """,
+    )
+    suspend fun deleteQr(accountId: Uuid)
+
+    @Query("DELETE FROM account_qr WHERE account_id = :accountId")
+    suspend fun deleteAccountQr(accountId: Uuid)
+
+    @Query(
+        """
         DELETE FROM memo_tag
         WHERE EXISTS (
             SELECT 1 FROM account_memo_tag

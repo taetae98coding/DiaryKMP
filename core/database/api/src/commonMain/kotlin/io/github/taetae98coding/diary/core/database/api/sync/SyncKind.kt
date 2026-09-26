@@ -7,6 +7,7 @@ public enum class SyncKind {
     WEB,
     CONTACT,
     MUSIC,
+    QR,
     MEMO_TAG,
     MEMO_PLACE,
     MEMO_WEB,
