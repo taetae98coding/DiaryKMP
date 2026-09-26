@@ -2,7 +2,7 @@
 
 기준 스펙: [메모 웹 앱 스펙](../spec/client/memo-web.md), [메모 웹 스펙](../spec/common/memo-web.md)
 
-이 문서에서 `domain > 연결된 웹 항목의 정렬`, `domain > 연결의 의미`, `data > 메모별 웹 항목 표시` 절은 [메모 웹 앱 스펙](../spec/client/memo-web.md)이, `data > 연결의 저장` 절은 [항목 연결 앱 스펙](../spec/client/entity-link.md)이 소유한다. `data > 공유되는 연결`, `data > 내려받기 순서와 표시`, `data > 동기화`, `domain > 연결할 수 있는 항목`, `domain > 연결된 항목의 조회`, `domain > 연결의 상태와 시각`, `domain > 항목의 상태 변화와 연결` 절은 [항목 연결 공통 스펙](../spec/common/entity-link.md)이 소유한다. 나머지 케이스의 절은 [메모 웹 스펙](../spec/common/memo-web.md)이 소유한다.
+이 문서에서 `domain > 연결된 웹 항목의 정렬`, `domain > 연결의 의미`, `data > 메모별 웹 항목 표시` 절은 [메모 웹 앱 스펙](../spec/client/memo-web.md)이, `data > 연결의 저장` 절은 [항목 연결 앱 스펙](../spec/client/entity-link.md)이 소유한다. `data > 공유되는 연결`, `data > 내려받기 순서와 표시`, `data > 동기화`, `domain > 연결의 성질`, `domain > 연결할 수 있는 항목`, `domain > 연결된 항목의 조회`, `domain > 연결의 상태와 시각`, `domain > 항목의 상태 변화와 연결` 절은 [항목 연결 공통 스펙](../spec/common/entity-link.md)이 소유한다. 나머지 케이스의 절은 [메모 웹 스펙](../spec/common/memo-web.md)이 소유한다.
 
 사용자가 웹 항목을 고르고 해제하는 조작의 케이스는 [메모 웹 입력 컴포넌트 테스트 케이스](./memo-web-input.md)에서, 메모를 추가하면서 웹 항목을 연결하는 케이스는 [MemoAdd 테스트 케이스](./memo-add.md)에서, 저장된 메모의 웹 연결을 바꾸는 케이스는 [MemoDetail 테스트 케이스](./memo-detail.md)에서 다룬다.
 
@@ -24,14 +24,14 @@
 
 ### TC-MEMO-WEB-DOMAIN-003: 같은 메모와 웹 항목의 연결은 중복되지 않는다
 
-- 근거: `domain > 메모와 웹 항목의 연결`
+- 근거: `domain > 연결의 성질`
 - Given: 한 메모와 한 웹 항목이 이미 연결되어 저장되어 있다.
 - When: 같은 메모와 같은 웹 항목의 연결을 다시 저장한다.
 - Then: 그 메모와 웹 항목의 연결은 하나로 유지되고 연결이 두 건으로 늘어나지 않는다.
 
 ### TC-MEMO-WEB-DOMAIN-004: 연결된 웹 항목이 없는 메모도 저장된다
 
-- 근거: `domain > 메모와 웹 항목의 연결`
+- 근거: `domain > 연결의 성질`
 - Given: 연결할 웹 항목을 지정하지 않은 새 메모가 준비되어 있다.
 - When: 그 메모를 저장한다.
 - Then: 메모가 실패 없이 저장되고, 그 메모에 연결된 웹 항목을 조회하면 아무것도 조회되지 않는다.

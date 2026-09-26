@@ -257,7 +257,7 @@ flowchart TD
 - When: 프로필 목록을 읽는다.
 - Then: 그 프로필의 이름을 `Profile 2`로 제공한다.
 
-### TC-CHROME-SESSION-IMPORT-DATA-011: 프로필 정보 파일이 없거나 해석할 수 없으면 실패로 알린다
+### TC-CHROME-SESSION-IMPORT-DATA-011: 프로필 정보 파일이 없거나 읽거나 해석할 수 없으면 실패로 알린다
 
 - 근거: `data > Chrome 프로필 목록 읽기`
 - Given: Chrome의 프로필 정보 파일이 테스트 데이터의 상태다.
@@ -268,7 +268,8 @@ flowchart TD
 | 파일 상태 |
 | --- |
 | 파일이 없음 |
-| 내용이 JSON이 아님 |
+| 파일을 읽을 수 없음 |
+| 형식을 해석할 수 없음 |
 
 ### TC-CHROME-SESSION-IMPORT-DATA-012: 보관 공간의 쿠키를 도메인과 관계없이 모두 제공한다
 

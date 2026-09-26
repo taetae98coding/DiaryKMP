@@ -2,7 +2,7 @@
 
 이 문서는 사용자가 TagDetail 화면의 메모 탭에서 그 태그의 완료된 메모를 모아 확인하는 TagMemoFinishedList 화면 가운데 이 화면에만 해당하는 부분을 다룬다. 진입과 이동, 빈 상태, 추가 미제공, 상세 확인, 정렬 선택, 노출 기준과 실행 경계의 공통 규칙은 [완료 목록 공통 스펙](./finished-list.md)을 따른다. 이 화면의 짝이 되는 목록은 같은 태그의 [TagDetail 메모 탭](./tag-detail-memo.md)이다.
 
-메모 카드의 내용, 기간 표시, 정렬과 날짜 그룹은 [MemoHome 목록 스펙](./memo-home.md)을 따르고, 다시 시작·삭제의 상태 전이도 같은 문서를 따른다. 완료·삭제 상호작용의 공통 규칙은 [SwipeToFinishAndDelete 컴포넌트 스펙](./swipe-to-finish-and-delete.md)을, 메모와 태그 연결의 의미는 [메모 태그 스펙](../common/memo-tag.md)을, 상세 확인은 [MemoDetail 화면 스펙](./memo-detail.md)을 따른다. 목록과 메모 상세를 함께 사용할 때의 선택 상태와 뒤로가기는 [TagMemoFinishedList 목록·상세 배치 스펙](./tag-memo-finished-list-detail.md)에서 다룬다.
+메모 카드의 내용, 기간 표시, 정렬과 날짜 그룹은 [MemoHome 목록 스펙](./memo-home.md)을 따르고, 다시 시작·삭제의 상태 전이는 [MemoFinishedList 화면 스펙](./memo-finished-list.md)을 따른다. 완료·삭제 상호작용의 공통 규칙은 [SwipeToFinishAndDelete 컴포넌트 스펙](./swipe-to-finish-and-delete.md)을, 메모와 태그 연결의 의미는 [메모 태그 스펙](../common/memo-tag.md)을, 상세 확인은 [MemoDetail 화면 스펙](./memo-detail.md)을 따른다. 목록과 메모 상세를 함께 사용할 때의 선택 상태와 뒤로가기는 [TagMemoFinishedList 목록·상세 배치 스펙](./tag-memo-finished-list-detail.md)에서 다룬다.
 
 태그와 무관하게 계정의 완료된 메모 전체를 확인하는 화면은 [MemoFinishedList 화면 스펙](./memo-finished-list.md)에서 다룬다.
 
@@ -84,7 +84,7 @@ TagDetail 화면의 표시 범위는 이 목록에 적용하지 않는다. 그 �
 
 ### 다시 시작·삭제·실행 취소
 
-상태 전이와 수정 시각 갱신은 [MemoHome 목록 스펙](./memo-home.md)의 `완료와 삭제의 상태 전이`를 따른다.
+상태 전이와 수정 시각 갱신은 [MemoFinishedList 화면 스펙](./memo-finished-list.md)의 `다시 시작과 삭제의 상태 전이`를 따른다.
 
 다시 시작, 삭제와 실행 취소는 메모와 태그의 연결을 바꾸지 않는다.
 
@@ -106,6 +106,6 @@ TagDetail 화면의 표시 범위는 이 목록에 적용하지 않는다. 그 �
 
 ### 상태 변경의 저장
 
-다시 시작, 삭제와 실행 취소의 저장 흐름은 [MemoHome 목록 스펙](./memo-home.md)의 `상태 변경의 저장`을 따른다.
+다시 시작, 삭제와 실행 취소의 저장 흐름은 [MemoFinishedList 화면 스펙](./memo-finished-list.md)의 `상태 변경의 저장`을 따른다.
 
 메모 상태를 바꿔도 메모와 태그의 연결은 유지한다.

@@ -47,7 +47,7 @@ flowchart TD
     Ready -- "아니오 · TC-TAG-LINK-INPUT-FEATURE-025" --> Open["태그 선택 목록 열기"]
     Ready -- 예 --> Any{"나타낼 태그가<br/>하나라도 있는가"}
     Any -- "예 · TC-TAG-LINK-INPUT-FEATURE-004 · TC-TAG-LINK-INPUT-DOMAIN-011" --> Open
-    Any -- "아니오 · TC-TAG-LINK-INPUT-FEATURE-024" --> Move["TagAdd 화면으로 이동"]
+    Any -- "아니오 · TC-TAG-LINK-INPUT-FEATURE-024 · TC-TAG-LINK-INPUT-FEATURE-033" --> Move["TagAdd 화면으로 이동"]
 ```
 
 ### TC-TAG-LINK-INPUT-FEATURE-004: 나타낼 태그가 있을 때 추가 항목을 누르면 태그 선택 목록이 열린다
@@ -77,6 +77,13 @@ flowchart TD
 - Given: 태그 선택 목록에 나타낼 태그가 하나도 없는 것으로 확정되어 있다.
 - When: 사용자가 연결 입력의 태그 연결 항목을 누른다.
 - Then: TagAdd 화면 이동이 한 번 요청되고 태그 선택 목록은 열리지 않는다.
+
+### TC-TAG-LINK-INPUT-FEATURE-033: 목록을 연 적이 없어도 화면에 들어온 뒤 대상이 없다고 확인되면 첫 누름에 TagAdd 이동을 요청한다
+
+- 근거: `domain > 추가 항목의 동작 판정`
+- Given: 태그 선택 목록에 나타낼 태그가 하나도 저장되어 있지 않은 상태로 화면에 들어왔고, 태그 선택 목록을 한 번도 열지 않은 채 나타낼 태그가 없다는 확인이 끝났다.
+- When: 사용자가 연결 입력의 태그 연결 항목을 처음 누른다.
+- Then: 태그 선택 목록이 열리지 않고 TagAdd 화면으로의 이동이 한 번 요청된다.
 
 ### TC-TAG-LINK-INPUT-FEATURE-025: 목록의 대상을 확인하는 중에는 추가 항목이 목록을 연다
 
@@ -417,3 +424,7 @@ flowchart TD
 - Given: 로그인한 계정에 검색어를 만족하는 태그가 한 번에 조회하는 범위보다 많이 저장되어 있고, 사용자가 목록의 뒤쪽 구간까지 확인한 상태다.
 - When: 사용자가 검색어를 다른 값으로 바꾼다.
 - Then: 새 검색어를 만족하는 태그가 정렬 순서 앞쪽부터 조회되어 목록의 처음부터 나타난다.
+
+## 작성하지 않는 이유
+
+`TC-TAG-LINK-INPUT-FEATURE-002`에서 태그의 컬러가 바뀌어 칩에 반영되는 결과는 칩에 칠해진 색으로만 드러나 픽셀 판정이 필요하므로 판정하지 않고, 이모지와 제목의 반영만 판정한다. 칩의 컬러 값을 외부에서 관찰할 수 있는 수단이 갖춰지면 그 케이스에 더한다.

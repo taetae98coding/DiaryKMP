@@ -16,6 +16,8 @@
 
 태그를 함께 고르는 입력의 행동과 판정 기준은 [태그 선택 입력 공통 스펙](./tag-select-input.md)을, 함께 만들어지는 연결의 규칙은 [항목 연결 공통 스펙](../common/entity-link.md)을 따른다.
 
+디자인: [항목 추가 화면 공통 디자인](../../design/entity-add.md)
+
 ## feature
 
 ### 작성 상태 유지

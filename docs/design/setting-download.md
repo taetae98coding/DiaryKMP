@@ -70,7 +70,7 @@ SettingDownload의 단독·목록/상세 배치와 표시 상태에 따른 뒤�
 | 뒤로가기 접근성 이름 | `뒤로가기` | `Navigate up` |
 | 이 기기의 프록시 주소 설정 이름 | `이 기기의 프록시 주소` | `This device's proxy address` |
 | 이 기기의 프록시 주소 보조 문구 | `같은 네트워크의 Android나 iOS 앱에서 이 주소를 입력하면 이 기기가 대신 영상을 받아 전달합니다` | `Enter this address in the Android or iOS app on the same network to have this device download videos for it` |
-| 닿을 주소 없음 안내 | `연결된 네트워크가 없어 다른 기기가 닿을 주소가 없습니다` | `No network connection, so other devices can't reach this device` |
+| 닿을 주소 없음 안내 | `같은 네트워크의 다른 기기가 닿을 주소가 없습니다` | `No address that other devices on the same network can reach` |
 | 프록시 시작 실패 안내 | `프록시를 시작하지 못했습니다. 앱을 다시 실행해 주세요` | `Couldn't start the proxy. Restart the app.` |
 | 프록시 주소 입력 라벨 | `프록시 주소` | `Proxy address` |
 | 프록시 주소 자리 표시 문구 | `http://192.168.0.10:54321` | `http://192.168.0.10:54321` |

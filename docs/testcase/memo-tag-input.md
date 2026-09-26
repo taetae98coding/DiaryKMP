@@ -40,7 +40,7 @@ flowchart TD
     Ready -- "아니오 · TC-MEMO-TAG-INPUT-FEATURE-030" --> Open["태그 선택 목록 열기"]
     Ready -- 예 --> Any{"나타낼 태그가<br/>하나라도 있는가"}
     Any -- "예 · TC-MEMO-TAG-INPUT-FEATURE-003 · TC-MEMO-TAG-INPUT-DOMAIN-012" --> Open
-    Any -- "아니오 · TC-MEMO-TAG-INPUT-FEATURE-029" --> Move["TagAdd 화면으로 이동"]
+    Any -- "아니오 · TC-MEMO-TAG-INPUT-FEATURE-029 · TC-MEMO-TAG-INPUT-FEATURE-047" --> Move["TagAdd 화면으로 이동"]
 ```
 
 ### TC-MEMO-TAG-INPUT-FEATURE-029: 나타낼 태그가 없는 것으로 확정되면 추가 항목이 TagAdd 이동을 요청한다
@@ -49,6 +49,13 @@ flowchart TD
 - Given: 태그 선택 목록에 나타낼 태그가 하나도 없는 것으로 확정되어 있다.
 - When: 사용자가 태그 입력의 추가 항목을 누른다.
 - Then: TagAdd 화면 이동이 한 번 요청되고 태그 선택 목록은 열리지 않는다.
+
+### TC-MEMO-TAG-INPUT-FEATURE-047: 목록을 연 적이 없어도 화면에 들어온 뒤 대상이 없다고 확인되면 첫 누름에 TagAdd 이동을 요청한다
+
+- 근거: `domain > 추가 항목의 동작 판정`
+- Given: 태그 선택 목록에 나타낼 태그가 하나도 저장되어 있지 않은 상태로 화면에 들어왔고, 태그 선택 목록을 한 번도 열지 않은 채 나타낼 태그가 없다는 확인이 끝났다.
+- When: 사용자가 태그 입력의 추가 항목을 처음 누른다.
+- Then: 태그 선택 목록이 열리지 않고 TagAdd 화면으로의 이동이 한 번 요청된다.
 
 ### TC-MEMO-TAG-INPUT-FEATURE-030: 목록의 대상을 확인하는 중에는 추가 항목이 목록을 연다
 
@@ -220,7 +227,6 @@ flowchart TD
 - Given: 한 화면에 모두 담기지 않는 수의 선택할 수 있는 태그가 저장되어 있고 태그 선택 목록이 열려 있다.
 - When: 사용자가 목록의 끝까지 이동한다.
 - Then: 정렬 순서의 앞부분부터 나타난 목록에 다음 태그가 이어서 나타나고, 사용자는 목록에 나타나는 기준을 만족하는 태그를 모두 확인할 수 있다.
-- 작성하지 않는 이유: 목록을 끝으로 옮긴 뒤 다음 태그가 준비되는 과정은 화면 테스트 환경에서 배경 조회가 끝나는 시점을 제어할 수 없어 같은 조건에서 결과가 일정하지 않다. 조회가 정렬 순서 앞쪽부터 나뉘어 이루어지고 이어지는 조회가 그다음 태그를 가져온다는 결과는 `TC-MEMO-TAG-INPUT-DATA-003`으로 검증한다. 화면 테스트에서 배경 조회 완료 시점을 제어할 수 있게 되면 작성한다.
 
 ### TC-MEMO-TAG-INPUT-FEATURE-025: 다음 태그를 불러오는 동안에도 이미 나타난 태그를 조작할 수 있다
 

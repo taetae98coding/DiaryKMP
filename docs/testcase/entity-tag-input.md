@@ -47,7 +47,7 @@ flowchart TD
     Ready -- "아니오 · TC-ENTITY-TAG-INPUT-FEATURE-025" --> Open["태그 선택 목록 열기"]
     Ready -- 예 --> Any{"나타낼 태그가<br/>하나라도 있는가"}
     Any -- "예 · TC-ENTITY-TAG-INPUT-FEATURE-004 · TC-ENTITY-TAG-INPUT-DOMAIN-013" --> Open
-    Any -- "아니오 · TC-ENTITY-TAG-INPUT-FEATURE-024" --> Move["TagAdd 화면으로 이동"]
+    Any -- "아니오 · TC-ENTITY-TAG-INPUT-FEATURE-024 · TC-ENTITY-TAG-INPUT-FEATURE-033" --> Move["TagAdd 화면으로 이동"]
 ```
 
 ### TC-ENTITY-TAG-INPUT-FEATURE-004: 나타낼 태그가 있을 때 추가 항목을 누르면 태그 선택 목록이 열린다
@@ -77,6 +77,13 @@ flowchart TD
 - Given: 태그 선택 목록에 나타낼 태그가 하나도 없는 것으로 확정되어 있다.
 - When: 사용자가 태그 입력의 태그 추가 항목을 누른다.
 - Then: TagAdd 화면 이동이 한 번 요청되고 태그 선택 목록은 열리지 않는다.
+
+### TC-ENTITY-TAG-INPUT-FEATURE-033: 목록을 연 적이 없어도 화면에 들어온 뒤 대상이 없다고 확인되면 첫 누름에 TagAdd 이동을 요청한다
+
+- 근거: `domain > 추가 항목의 동작 판정`
+- Given: 태그 선택 목록에 나타낼 태그가 하나도 저장되어 있지 않은 상태로 화면에 들어왔고, 태그 선택 목록을 한 번도 열지 않은 채 나타낼 태그가 없다는 확인이 끝났다.
+- When: 사용자가 태그 입력의 태그 추가 항목을 처음 누른다.
+- Then: 태그 선택 목록이 열리지 않고 TagAdd 화면으로의 이동이 한 번 요청된다.
 
 ### TC-ENTITY-TAG-INPUT-FEATURE-025: 목록의 대상을 확인하는 중에는 추가 항목이 목록을 연다
 

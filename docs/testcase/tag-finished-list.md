@@ -2,7 +2,7 @@
 
 기준 스펙: [TagFinishedList 화면 스펙](../spec/client/tag-finished-list.md)
 
-이 문서에서 `domain > 노출 기준`, `domain > 대상 항목`, `domain > 실행 경계`, `feature > 빈 상태`, `feature > 불러오기 실패`, `feature > 상세 확인`, `feature > 진입과 이동`, `feature > 추가 미제공` 절은 [완료 목록 공통 스펙](../spec/client/finished-list.md)이 소유한다. 나머지 케이스의 절은 기준 스펙이 소유한다.
+이 문서에서 `domain > 노출 기준`, `domain > 대상 항목`, `domain > 실행 경계`, `feature > 빈 상태`, `feature > 불러오기 실패`, `feature > 상세 확인`, `feature > 진입과 이동`, `feature > 추가 미제공`, `feature > 새로고침` 절은 [완료 목록 공통 스펙](../spec/client/finished-list.md)이 소유한다. 나머지 케이스의 절은 기준 스펙이 소유한다.
 
 자리 표시 케이스의 `근거`가 가리키는 절은 공통 규칙을 [페이지 조회 목록의 자리 표시 스펙](../spec/client/paged-list-placeholder.md)에, 빈 상태 케이스의 `근거`가 가리키는 절은 [목록 빈 상태 스펙](../spec/client/list-empty-state.md)에 위임한다.
 
@@ -176,6 +176,27 @@
 - When: 사용자가 TagFinishedList 화면을 떠났다가 다시 돌아온다.
 - Then: 안내와 실행 취소 동작이 보이지 않고, 삭제를 되돌리는 요청은 일어나지 않는다.
 
+### TC-TAG-FINISHED-LIST-FEATURE-030: 화면에 들어오거나 다른 화면에서 돌아오는 것만으로는 새로고침하지 않는다
+
+- 근거: `feature > 새로고침`
+- Given: 로그인한 사용자 계정이 확인되어 있고 진행 중인 동기화가 없다.
+- When: 사용자가 TagFinishedList 화면에 들어오거나, 다른 화면으로 이동했다가 TagFinishedList 화면으로 돌아온다.
+- Then: 서버와 맞추는 새로고침이 요청되지 않는다.
+
+### TC-TAG-FINISHED-LIST-FEATURE-031: 태그 상세에서 돌아오면 목록에서 보던 자리가 그대로다
+
+- 근거: `feature > 상세 확인`
+- Given: TagFinishedList 화면에 한 화면에 다 들어가지 않는 수의 완료된 태그가 표시되어 있고, 사용자가 목록을 내려 뒤쪽의 태그를 보고 있다.
+- When: 사용자가 태그를 선택해 TagDetail 화면으로 이동했다가 뒤로 돌아온다.
+- Then: 상세로 떠나기 전에 보던 태그가 그대로 보이고 첫 태그 카드는 보이지 않는다.
+
+### TC-TAG-FINISHED-LIST-FEATURE-032: 이 화면에서는 주요 목적지의 공통 내비게이션을 제공하지 않는다
+
+- 근거: `feature > 진입과 이동`
+- Given: 사용자가 TagHome 목록에서 완료된 태그 확인을 선택했다.
+- When: TagFinishedList 화면이 표시된다.
+- Then: 주요 목적지의 공통 내비게이션이 제공되지 않는다.
+
 ## domain
 
 ### TC-TAG-FINISHED-LIST-DOMAIN-008: 완료 시점은 목록 순서에 영향을 주지 않는다
@@ -205,7 +226,20 @@
 - Given: 사용자가 TagFinishedList 화면에서 정렬을 최근 수정순으로 바꾸고 목록을 내려 뒤쪽의 태그를 보고 있다.
 - When: 사용자가 뒤로가 TagHome 목록으로 돌아간 뒤 다시 완료된 태그 확인을 선택한다.
 - Then: 정렬 컨트롤은 제목순을 알리고 목록은 맨 위부터 보인다.
-- 작성하지 않는 이유: TagHome 목록과 TagFinishedList 화면 사이의 화면 전환 이력과 화면마다 상태를 보관하는 범위를 함께 재현해야 해서 화면 단위의 유닛 테스트 환경에서 결정적으로 재현할 수 없다. 화면 전환 이력과 화면별 상태 보관을 함께 제어할 수 있는 내비게이션 테스트 환경이 갖춰지면 자동화한다.
+
+### TC-TAG-FINISHED-LIST-DOMAIN-012: 앱이 백그라운드에 다녀와도 정렬 선택과 보던 자리가 그대로다
+
+- 근거: `domain > 실행 경계`
+- Given: TagFinishedList 화면에 한 화면에 다 들어가지 않는 수의 완료된 태그가 사용자가 고른 최근 수정순으로 표시되어 있고, 사용자가 목록을 내려 뒤쪽의 태그를 보고 있다.
+- When: 앱이 종료되지 않은 채 백그라운드에 갔다가 돌아온다.
+- Then: 정렬 컨트롤은 여전히 최근 수정순을 알리고, 보던 태그가 그대로 보이며 첫 태그 카드는 보이지 않는다.
+
+### TC-TAG-FINISHED-LIST-DOMAIN-013: 시스템이 앱을 정리한 뒤 다시 만들면 정렬은 처음으로 돌아가고 보던 위치는 다시 보인다
+
+- 근거: `domain > 실행 경계`
+- Given: TagFinishedList 화면에 한 화면에 다 들어가지 않는 수의 완료된 태그가 사용자가 고른 최근 수정순으로 표시되어 있고, 사용자가 목록을 내려 뒤쪽의 태그를 보고 있다.
+- When: 앱이 백그라운드에 있는 동안 시스템이 앱을 정리했다가 다시 만든다.
+- Then: 정렬 컨트롤은 제목순을 알리고, 처음 정렬로 놓인 목록에서 떠나기 전과 같은 위치의 태그가 보이며 첫 태그 카드는 보이지 않는다.
 
 ## data
 

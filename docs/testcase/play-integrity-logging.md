@@ -125,7 +125,7 @@ flowchart TD
 - 근거: `client > domain > 실행 경계`
 - Given: Android 앱이 활성 상태가 되어 판정 확인이 시작되었고, 서버가 아직 답하지 않았다.
 - When: 앱이 백그라운드로 간 뒤 서버가 판정 결과를 돌려준다.
-- Then: 확인이 취소되지 않고 끝까지 진행된다.
+- Then: 확인이 취소되지 않고 끝까지 진행되어, 사건 종류가 `play_integrity`인 원격 분석 로그가 한 번 남는다.
 
 ### TC-PLAY-INTEGRITY-LOGGING-DOMAIN-013: 앱이 보이는 동안 포커스만 오가는 것은 계기가 아니다
 
@@ -187,12 +187,12 @@ flowchart TD
 - When: 화면 회전으로 화면이 재생성되어 다시 보이게 된다.
 - Then: 판정 확인이 한 번 더 일어난다.
 
-### TC-PLAY-INTEGRITY-LOGGING-DOMAIN-020: 확인 중 화면이 재생성되어도 끝까지 진행한다
+### TC-PLAY-INTEGRITY-LOGGING-DOMAIN-020: 확인 중 화면이 재생성되어도 끝까지 진행해 로그를 남긴다
 
 - 근거: `client > domain > 실행 경계`
 - Given: Android 앱이 활성 상태가 되어 판정 확인이 시작되었고, 서버가 아직 답하지 않았다.
 - When: 화면이 재생성된 뒤 서버가 판정 결과를 돌려준다.
-- Then: 먼저 시작한 확인이 취소되지 않고 끝까지 진행된다.
+- Then: 먼저 시작한 확인이 취소되지 않고 끝까지 진행되어, 그 확인의 `play_integrity` 원격 분석 로그가 한 번 남는다.
 
 ### TC-PLAY-INTEGRITY-LOGGING-DOMAIN-017: 확인 중 앱 프로세스가 종료되면 로그를 남기지 않고 실패로 보지 않는다
 

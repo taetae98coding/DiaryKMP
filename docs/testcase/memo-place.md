@@ -2,7 +2,7 @@
 
 기준 스펙: [메모 장소 앱 스펙](../spec/client/memo-place.md), [메모 장소 스펙](../spec/common/memo-place.md)
 
-이 문서에서 `domain > 연결된 장소의 정렬`, `domain > 연결의 의미`, `data > 메모별 장소 표시` 절은 [메모 장소 앱 스펙](../spec/client/memo-place.md)이, `data > 연결의 저장` 절은 [항목 연결 앱 스펙](../spec/client/entity-link.md)이 소유한다. `data > 공유되는 연결`, `data > 내려받기 순서와 표시`, `data > 동기화`, `domain > 연결할 수 있는 항목`, `domain > 연결된 항목의 조회`, `domain > 연결의 상태와 시각`, `domain > 항목의 상태 변화와 연결` 절은 [항목 연결 공통 스펙](../spec/common/entity-link.md)이 소유한다. 나머지 케이스의 절은 [메모 장소 스펙](../spec/common/memo-place.md)이 소유한다.
+이 문서에서 `domain > 연결된 장소의 정렬`, `domain > 연결의 의미`, `data > 메모별 장소 표시` 절은 [메모 장소 앱 스펙](../spec/client/memo-place.md)이, `data > 연결의 저장` 절은 [항목 연결 앱 스펙](../spec/client/entity-link.md)이 소유한다. `data > 공유되는 연결`, `data > 내려받기 순서와 표시`, `data > 동기화`, `domain > 연결의 성질`, `domain > 연결할 수 있는 항목`, `domain > 연결된 항목의 조회`, `domain > 연결의 상태와 시각`, `domain > 항목의 상태 변화와 연결` 절은 [항목 연결 공통 스펙](../spec/common/entity-link.md)이 소유한다. 나머지 케이스의 절은 [메모 장소 스펙](../spec/common/memo-place.md)이 소유한다.
 
 사용자가 장소를 고르고 해제하는 조작의 케이스는 [메모 장소 카드 테스트 케이스](./memo-place-card.md)에서, 메모를 추가하면서 장소를 연결하는 케이스는 [MemoAdd 테스트 케이스](./memo-add.md)에서, 저장된 메모의 장소 연결을 바꾸는 케이스는 [MemoDetail 테스트 케이스](./memo-detail.md)에서 다룬다.
 
@@ -24,14 +24,14 @@
 
 ### TC-MEMO-PLACE-DOMAIN-003: 같은 메모와 장소의 연결은 중복되지 않는다
 
-- 근거: `domain > 메모와 장소의 연결`
+- 근거: `domain > 연결의 성질`
 - Given: 한 메모와 한 장소가 이미 연결되어 저장되어 있다.
 - When: 같은 메모와 같은 장소의 연결을 다시 저장한다.
 - Then: 그 메모와 장소의 연결은 하나로 유지되고 연결이 두 건으로 늘어나지 않는다.
 
 ### TC-MEMO-PLACE-DOMAIN-004: 연결된 장소가 없는 메모도 저장된다
 
-- 근거: `domain > 메모와 장소의 연결`
+- 근거: `domain > 연결의 성질`
 - Given: 연결할 장소를 지정하지 않은 새 메모가 준비되어 있다.
 - When: 그 메모를 저장한다.
 - Then: 메모가 실패 없이 저장되고, 그 메모에 연결된 장소를 조회하면 아무것도 조회되지 않는다.
@@ -62,6 +62,13 @@
 - Given: 장소가 연결된 메모가 저장되어 있다.
 - When: 그 메모의 제목, 설명, 컬러, 기간을 다른 내용으로 수정한다.
 - Then: 수정한 내용은 반영되고 그 메모에 연결된 장소는 수정 전과 같다.
+
+### TC-MEMO-PLACE-DOMAIN-022: 장소의 제목·설명·컬러·좌표·주소 수정은 메모 연결을 바꾸지 않는다
+
+- 근거: `domain > 메모와 장소의 연결`, `domain > 항목의 상태 변화와 연결`
+- Given: 장소가 연결된 메모가 저장되어 있다.
+- When: 그 장소의 제목, 설명, 컬러, 좌표, 주소를 다른 내용으로 수정한다.
+- Then: 수정한 내용은 반영되고 그 메모와 장소의 연결은 수정 전과 같다.
 
 ### TC-MEMO-PLACE-DOMAIN-008: 기기에서 연결을 해제하면 해제 상태로 남는다
 

@@ -4,6 +4,8 @@
 
 모든 권한이 공유하는 요청 시점, 요청 기준, 요청 결과는 [권한 요청 공통 스펙](../spec/client/permission.md)이 소유하고, 위치 권한에 적용된 결과를 이 문서가 확인한다.
 
+위치 권한 요청에 대략적인 위치만 허용으로 응답해도 허용으로 보는 결과와, 요청 결과가 캘린더 홈 화면의 날씨 동기화에 반영되는 결과는 [CalendarHome 테스트 케이스](calendar-home.md)의 TC-CALENDAR-HOME-DATA-025 등이 다룬다.
+
 ## feature
 
 ### TC-LOCATION-PERMISSION-FEATURE-001: 위치 권한이 허용되어 있지 않으면 캘린더 홈 화면 진입 시 시스템 위치 권한 요청이 시작된다
@@ -68,7 +70,8 @@ flowchart TD
   | 실행 상태 변화 |
   | --- |
   | 화면 재구성 |
-  | 화면을 벗어났다가 복귀 |
+  | 다른 화면으로 이동했다가 복귀 |
+  | 앱이 백그라운드에 갔다가 복귀 |
 
 ### TC-LOCATION-PERMISSION-DOMAIN-003: 캘린더 홈 화면이 처음부터 다시 시작되면 요청 조건을 다시 확인한다
 
@@ -158,8 +161,10 @@ flowchart TD
 - When: 앱이 위치 권한이 허용되어 있는지 확인한다.
 - Then: 확인 결과가 `허용`이다.
 
-## 작성하지 않는 케이스
+### TC-LOCATION-PERMISSION-DOMAIN-013: 캘린더 홈 화면 밖에서는 위치 권한을 요청하지 않는다
 
-- 위치 권한 요청에 대략적인 위치만 허용으로 응답한 경우에도 허용으로 보는 결과는 정확한 위치를 허용한 경우와 관찰 결과가 같으므로 별도 케이스로 작성하지 않는다. 두 허용 응답이 같은 결과로 이어지는 것은 [CalendarHome 테스트 케이스](calendar-home.md)의 TC-CALENDAR-HOME-DATA-025로 확인한다.
-- 캘린더 홈 화면 밖에서 위치 권한을 요청하지 않는 결과는 자동화하지 않는다. 이 결과를 다루는 [현재 위치 확인 테스트 케이스](current-location.md)의 TC-CURRENT-LOCATION-DOMAIN-005, [PlaceHome 테스트 케이스](place-home.md)의 TC-PLACE-HOME-DOMAIN-005, [DiaryMap 테스트 케이스](diary-map.md)의 TC-DIARY-MAP-DOMAIN-040은 모두 `작성하지 않는 이유`와 함께 미작성으로 남아 있다. 현재 위치 확인은 화면 없이 수행되어 권한 요청을 대신 받는 대체물을 연결할 자리가 없고, PlaceHome의 지도와 DiaryMap은 지도 제공자의 실제 지도 표시 요소가 필요해 지도를 표시한 화면을 구성할 수 없기 때문이며, 각 케이스의 `작성하지 않는 이유`가 자동화 조건을 소유한다.
-- 요청 결과가 캘린더 홈 화면의 날씨 동기화에 반영되는 결과는 [CalendarHome 테스트 케이스](calendar-home.md)에서 다루므로 여기서 중복 작성하지 않는다.
+- 근거: `domain > 요청 지점`
+- Given: 위치 권한이 허용되어 있지 않다.
+- When: 사용자가 캘린더 홈 화면이 아닌 곳에서 지도를 보거나, 앱이 현재 위치를 확인한다.
+- Then: 시스템 위치 권한 요청이 시작되지 않는다.
+- 작성하지 않는 이유: 현재 위치 확인은 화면 없이 수행되어 권한 요청을 대신 받는 대체물을 연결할 자리가 없고, PlaceHome의 지도와 DiaryMap은 지도 제공자의 실제 지도 표시 요소가 필요해 지도를 표시한 화면을 구성할 수 없다. 같은 결과를 각 기능에서 다루는 [현재 위치 확인 테스트 케이스](current-location.md)의 TC-CURRENT-LOCATION-DOMAIN-005, [PlaceHome 테스트 케이스](place-home.md)의 TC-PLACE-HOME-DOMAIN-005, [DiaryMap 테스트 케이스](diary-map.md)의 TC-DIARY-MAP-DOMAIN-040도 같은 이유로 미작성이다. 화면 밖에서 시작되는 시스템 권한 요청을 관찰하거나 지도 표시 요소를 대체할 수 있는 테스트 환경이 제공되면 자동화한다.

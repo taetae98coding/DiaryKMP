@@ -11,7 +11,7 @@
 - 근거: `feature > 뒤로가기`
 - Given: 설정 화면이 테스트 데이터의 표시 상태로 나타나 있다.
 - When: 사용자가 SettingHome의 뒤로가기 동작을 실행한다.
-- Then: 설정 화면 전체를 떠나 `더보기` 화면으로 돌아가고 공통 내비게이션이 다시 제공된다.
+- Then: 설정 화면 전체를 떠나 `더보기` 화면으로 돌아간다.
 - 테스트 데이터:
 
 | 표시 상태 |
@@ -23,6 +23,8 @@
 | SettingHome과 SettingGemini가 함께 표시됨 |
 | SettingHome과 SettingBrowser가 함께 표시됨 |
 | SettingHome과 SettingDownload가 함께 표시됨 |
+
+`더보기` 화면으로 돌아간 뒤 공통 내비게이션이 다시 제공되는 결과는 [TopLevelNavigation 테스트 케이스](./top-level-navigation.md)의 TC-TOP-LEVEL-NAVIGATION-FEATURE-005가 다룬다.
 
 ### TC-SETTING-HOME-FEATURE-005: 설정 항목을 표시한다
 
