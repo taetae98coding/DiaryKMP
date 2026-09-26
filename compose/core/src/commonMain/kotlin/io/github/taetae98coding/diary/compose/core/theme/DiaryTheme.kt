@@ -57,6 +57,7 @@ public fun DiaryTheme(
             cardLineSpacing = 4.dp,
             colorIndicatorSize = 8.dp,
             colorIndicatorSpacing = 12.dp,
+            calendarItemSpacing = 2.dp,
             inProgressIndicatorSize = 24.dp,
         )
 

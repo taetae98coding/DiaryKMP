@@ -23,6 +23,7 @@ public data class DiaryDimens(
     val cardLineSpacing: Dp,
     val colorIndicatorSize: Dp,
     val colorIndicatorSpacing: Dp,
+    val calendarItemSpacing: Dp,
     val inProgressIndicatorSize: Dp,
 ) {
     public val screenPaddingValues: PaddingValues =
