@@ -86,6 +86,7 @@
 | Playlist 목록·상세 배치 | [client](./client/playlist-list-detail.md) | — | — | [Playlist 목록·상세 배치 디자인](../design/playlist-list-detail.md) |
 | PlaylistHome 화면 | [client](./client/playlist-home.md) | — | — | [PlaylistHome 디자인](../design/playlist-home.md) |
 | ProfileImageEdit 화면 | [client](./client/profile-image-edit.md) | — | — | [ProfileImageEdit 디자인](../design/profile-image-edit.md) |
+| QrAdd 화면 | [client](./client/qr-add.md) | — | — | [QrAdd 디자인](../design/qr-add.md) |
 | QrHome 화면 | [client](./client/qr-home.md) | — | — | [QrHome 디자인](../design/qr-home.md) |
 | QrScan 화면 | [client](./client/qr-scan.md) | — | — | [QrScan 디자인](../design/qr-scan.md) |
 | Routine 목록·상세 배치 | [client](./client/routine-list-detail.md) | — | — | [Routine 목록·상세 배치 디자인](../design/routine-list-detail.md) |

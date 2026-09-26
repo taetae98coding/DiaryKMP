@@ -110,6 +110,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [Playlist 목록·상세 배치](./playlist-list-detail.md) | [Playlist 목록·상세 배치](../spec/client/playlist-list-detail.md) |
 | [프로필 이미지 변경](./profile-image.md) | [프로필 이미지 변경(client)](../spec/client/profile-image.md), [프로필 이미지 변경(common)](../spec/common/profile-image.md), [프로필 이미지 변경(server)](../spec/server/profile-image.md) |
 | [ProfileImageEdit](./profile-image-edit.md) | [ProfileImageEdit 화면](../spec/client/profile-image-edit.md) |
+| [QrAdd](./qr-add.md) | [QrAdd 화면](../spec/client/qr-add.md) |
 | [QrHome](./qr-home.md) | [QrHome 화면](../spec/client/qr-home.md) |
 | [QrScan](./qr-scan.md) | [QrScan 화면](../spec/client/qr-scan.md) |
 | [RoutineAdd](./routine-add.md) | [RoutineAdd 화면](../spec/client/routine-add.md) |
