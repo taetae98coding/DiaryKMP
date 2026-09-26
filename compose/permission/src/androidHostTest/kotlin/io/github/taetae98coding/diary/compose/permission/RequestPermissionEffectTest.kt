@@ -1,6 +1,8 @@
 package io.github.taetae98coding.diary.compose.permission
 
 import android.Manifest
+import android.content.pm.PackageManager
+import android.hardware.camera2.CameraManager
 import androidx.activity.compose.LocalActivityResultRegistryOwner
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.ActivityResultRegistryOwner
@@ -290,6 +292,25 @@ class RequestPermissionEffectTest {
     }
 
     @Test
+    fun `TC-CAMERA-PERMISSION-DOMAIN-007 Android에서는 기기에 카메라가 없어도 권한 요청이 진행되고 허용하면 허용으로 처리한다`() {
+        val application = RuntimeEnvironment.getApplication()
+        shadowOf(application.packageManager).setSystemFeature(PackageManager.FEATURE_CAMERA_ANY, false)
+        application.getSystemService(CameraManager::class.java).cameraIdList.shouldBeEmpty()
+        val registry = PermissionResultRegistry(result = cameraResult(isGranted = true))
+        val resultList = mutableListOf<PermissionResult>()
+
+        setRequestPermissionEffect(
+            permission = Permission.CAMERA,
+            registry = registry,
+            onResult = { result -> resultList += result },
+        )
+        composeRule.waitForIdle()
+
+        registry.launchedPermissionList shouldHaveSize 1
+        resultList.single() shouldBe PermissionResult.GRANTED
+    }
+
+    @Test
     fun `TC-LOCATION-PERMISSION-DOMAIN-010 앱 안에서 요청을 허용하면 응답 직후 바뀐 허용 여부가 반영된다`() {
         val requestCode = slot<Int>()
         val registry = spyk<ActivityResultRegistry>()
@@ -403,6 +424,8 @@ class RequestPermissionEffectTest {
         private const val SCREEN_KEY = "screen"
 
         private fun notificationResult(isGranted: Boolean) = mapOf(Manifest.permission.POST_NOTIFICATIONS to isGranted)
+
+        private fun cameraResult(isGranted: Boolean) = mapOf(Manifest.permission.CAMERA to isGranted)
 
         private fun locationResult(
             isFineGranted: Boolean,
