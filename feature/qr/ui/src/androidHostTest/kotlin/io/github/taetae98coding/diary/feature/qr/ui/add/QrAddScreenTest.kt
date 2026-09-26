@@ -17,8 +17,10 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.text.TextRange
 import androidx.navigation3.runtime.result.ResultEventBus
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.core.testing.qr.qrDetail
 import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScannedResult
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -38,7 +40,7 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [36])
+@Config(sdk = [36], qualifiers = "w480dp-h1200dp")
 class QrAddScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
@@ -102,8 +104,10 @@ class QrAddScreenTest {
             registry = respondingRegistry(isGranted = false),
             navigateToScan = { navigateToScanCount += 1 },
         )
-        val value = qrTestFixtureMonkey.qrValue()
-        composeRule.onQrValueInput().performTextInput(value)
+        val detail = qrTestFixtureMonkey.qrDetail(description = "description-${qrTestFixtureMonkey.giveMeOne<String>()}")
+        composeRule.onTitleInput().performTextInput(detail.title)
+        composeRule.onDescriptionInput().performTextInput(detail.description)
+        composeRule.onQrValueInput().performTextInput(detail.value)
         composeRule.waitForIdle()
 
         composeRule.onNodeWithContentDescription(KOREAN_SCAN_DESCRIPTION).performClick()
@@ -111,7 +115,29 @@ class QrAddScreenTest {
 
         navigateToScanCount shouldBe 0
         composeRule.onNodeWithText(KOREAN_PERMISSION_DENIED_MESSAGE).assertExists()
-        composeRule.qrValueInputText() shouldBe value
+        composeRule.titleInputText() shouldBe detail.title
+        composeRule.descriptionInputText() shouldBe detail.description
+        composeRule.qrValueInputText() shouldBe detail.value
+    }
+
+    @Test
+    @Config(qualifiers = "ko")
+    fun `권한 안내가 보이는 동안 추가 결과가 나오면 즉시 새 피드백으로 바꾼다`() {
+        composeRule.setContent {
+            QrAddScreenContent(
+                registry = respondingRegistry(isGranted = false),
+                viewModel = remember { effectViewModel(effect = QrAddEffect.AddSucceeded) },
+            )
+        }
+        composeRule.onNodeWithContentDescription(KOREAN_SCAN_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(KOREAN_PERMISSION_DENIED_MESSAGE).assertExists()
+
+        composeRule.onNodeWithContentDescription(KOREAN_ADD_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(KOREAN_ADD_SUCCEEDED_MESSAGE).assertExists()
+        composeRule.onNodeWithText(KOREAN_PERMISSION_DENIED_MESSAGE).assertDoesNotExist()
     }
 
     @Test
@@ -238,7 +264,7 @@ class QrAddScreenTest {
 
     @Test
     fun `스캔 결과로 값을 바꾸면 입력 커서를 값의 끝에 둔다`() {
-        val value = qrTestFixtureMonkey.qrValue()
+        val value = qrTestFixtureMonkey.qrDetail().value
         val resultEventBus = ResultEventBus()
         setQrAddScreen(
             registry = respondingRegistry(isGranted = true),
@@ -311,6 +337,7 @@ class QrAddScreenTest {
         navigateUp: () -> Unit = {},
         navigateToScan: () -> Unit = {},
         resultEventBus: ResultEventBus = remember { ResultEventBus() },
+        viewModel: QrAddViewModel = remember { screenTestViewModel() },
     ) {
         val registryOwner =
             object : ActivityResultRegistryOwner {
@@ -324,6 +351,7 @@ class QrAddScreenTest {
                     navigateToScan = navigateToScan,
                     permissionManager = rememberPermissionManager(),
                     resultEventBus = resultEventBus,
+                    viewModel = viewModel,
                 )
             }
         }
@@ -365,6 +393,8 @@ class QrAddScreenTest {
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
         private const val DEFAULT_SCAN_DESCRIPTION = "Scan QR code"
         private const val KOREAN_SCAN_DESCRIPTION = "QR 스캔"
+        private const val KOREAN_ADD_DESCRIPTION = "QR 추가"
+        private const val KOREAN_ADD_SUCCEEDED_MESSAGE = "QR이 추가되었습니다."
         private const val SNACKBAR_DISMISS_WAIT_MILLIS = 10_000L
         private const val KOREAN_PERMISSION_DENIED_MESSAGE = "카메라 권한을 허용해야 QR을 스캔할 수 있습니다."
     }

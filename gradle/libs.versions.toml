@@ -45,6 +45,7 @@ googleMaterial = "1.14.0" # https://github.com/material-components/material-comp
 googleOauthClient = "1.39.0" # https://github.com/googleapis/google-oauth-java-client/releases
 googlePlayIntegrity = "1.6.0" # https://developer.android.com/google/play/integrity/reference/release-notes
 googleServicesGradlePlugin = "4.5.0" # https://developers.google.com/android/guides/google-services-plugin?hl=en
+jsqr = "1.4.0" # https://github.com/cozmo/jsQR/releases
 koin = "4.2.2" # https://github.com/InsertKoinIO/koin/releases
 koinCompiler = "1.2.1" # https://github.com/InsertKoinIO/koin-compiler-plugin/releases
 kotest = "6.2.5" # https://github.com/kotest/kotest/releases

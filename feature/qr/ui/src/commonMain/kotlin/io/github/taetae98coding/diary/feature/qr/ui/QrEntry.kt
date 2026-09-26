@@ -13,6 +13,7 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.QrAddScreen
 import io.github.taetae98coding.diary.feature.qr.ui.home.QrHomeScreen
 import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScanScreen
 import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScannedResult
+import org.koin.compose.viewmodel.koinViewModel
 
 public fun EntryProviderScope<ScreenNavKey>.qrEntry(backStack: NavBackStack<ScreenNavKey>) {
     qrHomeEntry(backStack = backStack)
@@ -25,6 +26,8 @@ private fun EntryProviderScope<ScreenNavKey>.qrHomeEntry(backStack: NavBackStack
         QrHomeScreen(
             navigateUp = backStack::removeLastOrNull,
             navigateToAdd = { backStack.add(QrAddNavKey) },
+            qrViewModel = koinViewModel(),
+            syncViewModel = koinViewModel(),
         )
     }
 }
@@ -36,6 +39,7 @@ private fun EntryProviderScope<ScreenNavKey>.qrAddEntry(backStack: NavBackStack<
             navigateToScan = { backStack.add(QrScanNavKey) },
             permissionManager = rememberPermissionManager(),
             resultEventBus = LocalResultEventBus.current,
+            viewModel = koinViewModel(),
         )
     }
 }

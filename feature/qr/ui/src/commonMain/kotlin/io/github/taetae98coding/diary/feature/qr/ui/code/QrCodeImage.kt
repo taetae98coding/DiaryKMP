@@ -7,12 +7,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.style.ExperimentalFoundationStyleApi
-import androidx.compose.foundation.style.contentPadding
 import androidx.compose.foundation.style.styleable
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
 import io.github.alexzhirkevich.qrose.options.QrBrush
 import io.github.alexzhirkevich.qrose.options.solid
 import io.github.alexzhirkevich.qrose.rememberQrCodePainter
@@ -25,18 +24,12 @@ internal fun QrCodeImage(
     valueProvider: () -> String = { "" },
 ) {
     val value = valueProvider()
-    val shape = MaterialTheme.shapes.medium
 
     Box(
         modifier =
             modifier
-                .size(QrCodeImageDefaults.Size)
-                .styleable {
-                    shape(shape)
-                    clip()
-                    background(QrCodeImageDefaults.BackgroundColor)
-                    contentPadding(QrCodeImageDefaults.QuietZone)
-                }.semantics { qrCodeValue = value },
+                .styleable(style = DiaryTheme.styles.qrImage)
+                .semantics { qrCodeValue = value },
     ) {
         if (value.isNotEmpty()) {
             Image(
@@ -57,6 +50,9 @@ internal fun QrCodeImage(
 @Composable
 private fun QrCodeImagePreview() {
     DiaryTheme {
-        QrCodeImage(valueProvider = { "https://example.com" })
+        QrCodeImage(
+            modifier = Modifier.size(200.dp),
+            valueProvider = { "https://example.com" },
+        )
     }
 }

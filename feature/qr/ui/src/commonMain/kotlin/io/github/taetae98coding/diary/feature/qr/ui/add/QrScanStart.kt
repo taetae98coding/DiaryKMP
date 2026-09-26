@@ -6,12 +6,9 @@ import io.github.taetae98coding.diary.core.permission.PermissionResult
 
 internal suspend fun startQrScan(
     permissionManager: PermissionManager,
-    isSupported: Boolean,
     onGranted: () -> Unit,
     onDenied: () -> Unit,
 ) {
-    if (!isSupported) return
-
     when (permissionManager.request(Permission.CAMERA)) {
         PermissionResult.ALREADY_GRANTED, PermissionResult.GRANTED -> onGranted()
         PermissionResult.DENIED -> onDenied()

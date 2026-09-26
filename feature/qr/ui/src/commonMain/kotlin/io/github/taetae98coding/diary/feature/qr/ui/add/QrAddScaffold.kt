@@ -1,29 +1,23 @@
 package io.github.taetae98coding.diary.feature.qr.ui.add
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
+import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
 import io.github.taetae98coding.diary.compose.core.button.QrScanButton
+import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
+import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.qr.ui.Res
-import io.github.taetae98coding.diary.feature.qr.ui.code.QrCodeImage
+import io.github.taetae98coding.diary.feature.qr.ui.qr_add_button_content_description
 import io.github.taetae98coding.diary.feature.qr.ui.qr_add_title
-import io.github.taetae98coding.diary.feature.qr.ui.qr_add_value_label
 import io.github.taetae98coding.diary.feature.qr.ui.qr_navigate_up_button_content_description
 import io.github.taetae98coding.diary.feature.qr.ui.qr_scan_button_content_description
 import org.jetbrains.compose.resources.stringResource
@@ -32,10 +26,11 @@ import org.jetbrains.compose.resources.stringResource
 internal fun QrAddScaffold(
     onEvent: (QrAddScaffoldEvent) -> Unit,
     modifier: Modifier = Modifier,
-    state: QrAddScaffoldState = rememberQrAddScaffoldState(),
+    state: QrAddFormState = rememberQrAddFormState(),
+    uiStateProvider: () -> QrAddUiState = { QrAddUiState() },
 ) {
     Scaffold(
-        modifier = modifier,
+        modifier = modifier.submitShortcut { onEvent(QrAddScaffoldEvent.ClickAdd) },
         topBar = {
             DiaryNavigateUpTopBar(
                 title = stringResource(Res.string.qr_add_title),
@@ -50,39 +45,34 @@ internal fun QrAddScaffold(
             )
         },
         snackbarHost = { SnackbarHost(hostState = state.hostState) },
+        floatingActionButton = {
+            FloatingAddButton(
+                onClick = { onEvent(QrAddScaffoldEvent.ClickAdd) },
+                contentDescription = stringResource(Res.string.qr_add_button_content_description),
+                isInProgressProvider = { uiStateProvider().isInProgress },
+            )
+        },
         contentWindowInsets = DiaryScaffoldDefaults.contentWindowInsets,
     ) { paddingValues ->
-        Column(
+        QrAddForm(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
-                    .verticalScroll(rememberScrollState())
-                    .padding(
-                        horizontal = DiaryTheme.dimens.screenHorizontalPadding,
-                        vertical = DiaryTheme.dimens.screenVerticalPadding,
-                    ),
-            verticalArrangement = Arrangement.spacedBy(DiaryTheme.dimens.componentSpacing),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            QrCodeImage(valueProvider = { state.valueState.text.toString() })
-            OutlinedTextField(
-                state = state.valueState,
-                modifier =
-                    Modifier
-                        .widthIn(max = QrAddScaffoldDefaults.ValueInputMaxWidth)
-                        .fillMaxWidth(),
-                label = { Text(text = stringResource(Res.string.qr_add_value_label)) },
-                inputTransformation = QrValueInputTransformation,
-            )
-        }
+                    .padding(paddingValues),
+            state = state,
+        )
     }
 }
 
 @ScreenPreview
 @Composable
-private fun QrAddScaffoldPreview() {
+private fun QrAddScaffoldPreview(
+    @PreviewParameter(BooleanPreviewParameter::class) isInProgress: Boolean,
+) {
     DiaryTheme {
-        QrAddScaffold(onEvent = {})
+        QrAddScaffold(
+            onEvent = {},
+            uiStateProvider = { QrAddUiState(isInProgress = isInProgress) },
+        )
     }
 }

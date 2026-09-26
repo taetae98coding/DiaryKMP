@@ -7,6 +7,8 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.compose.permission)
+                implementation(projects.domain.qr)
+                implementation(projects.domain.sync)
                 implementation(projects.feature.qr.api)
                 implementation(libs.qrose)
             }
@@ -18,6 +20,32 @@ kotlin {
                 implementation(libs.androidx.camera.compose)
                 implementation(libs.androidx.camera.lifecycle)
                 implementation(libs.google.mlkit.barcode.scanning)
+            }
+        }
+
+        jvmTest {
+            dependencies {
+                implementation(projects.core.testing)
+                implementation(libs.androidx.paging.testing)
+            }
+        }
+
+        androidHostTest {
+            dependencies {
+                implementation(projects.core.testing)
+                implementation(libs.androidx.lifecycle.runtime.testing)
+            }
+        }
+
+        jvmMain {
+            dependencies {
+                implementation(projects.library.avfoundation)
+            }
+        }
+
+        wasmJsMain {
+            dependencies {
+                implementation(npm("jsqr", libs.versions.jsqr.get()))
             }
         }
     }
