@@ -175,8 +175,8 @@ class TagHomeScreenTest {
                 fixtureMonkey
                     .giveMeKotlinBuilder<Tag>()
                     .setExp(Tag::detail, fixtureMonkey.giveMeOne<TagDetail>().copy(emoji = "", title = TAG_TITLE))
-                    .setExp(Tag::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                    .setExp(Tag::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                    .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                    .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
                     .sample()
             val viewModel = mockk<TagHomeViewModel>()
             every { viewModel.sort } returns MutableStateFlow(ListSort.TITLE)

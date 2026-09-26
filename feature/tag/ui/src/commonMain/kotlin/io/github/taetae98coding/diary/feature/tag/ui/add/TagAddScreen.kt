@@ -44,6 +44,7 @@ internal fun TagAddScreen(
     val uiState by addViewModel.uiState.collectAsStateWithLifecycle()
     val linkUiState by linkViewModel.uiState.collectAsStateWithLifecycle()
     val tagPagingItems = linkViewModel.tagPagingData.collectAsLazyPagingItems()
+    val selectableTagPagingItems = linkViewModel.selectableTagPagingData.collectAsLazyPagingItems()
 
     DiaryTitleInputFocusEffect(state = scaffoldState.titleState)
     TagLinkAddedResultEffect(
@@ -75,7 +76,7 @@ internal fun TagAddScreen(
                 is TagAddScaffoldEvent.ClickLink -> navigateToDetail(event.id)
 
                 is TagAddScaffoldEvent.ClickLinkAdd ->
-                    if (tagPagingItems.isConfirmedEmpty()) {
+                    if (selectableTagPagingItems.isConfirmedEmpty()) {
                         navigateToTagAdd()
                     } else {
                         scaffoldState.linkPickerDialogState.show()

@@ -88,7 +88,7 @@ internal fun PlaylistHomeScaffold(
                 musicPagingItems = musicPagingItems,
                 isRefreshingProvider = { uiStateProvider().isRefreshing },
                 sortProvider = sortProvider,
-                downloadStateMapProvider = { downloadUiStateProvider().stateMap },
+                downloadStateProvider = { music -> downloadUiStateProvider().stateOf(music = music) },
             )
         }
     }

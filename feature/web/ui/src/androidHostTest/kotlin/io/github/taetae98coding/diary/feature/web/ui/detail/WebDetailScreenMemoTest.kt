@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.web.ui.detail
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -11,6 +12,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.swipeDown
@@ -200,6 +202,23 @@ class WebDetailScreenMemoTest {
     }
 
     @Test
+    fun `TC-WEB-DETAIL-MEMO-DOMAIN-003 다른 탭에 다녀와도 메모 탭에서 보던 목록 위치가 유지된다`() {
+        val titleList = List(POSITION_MEMO_COUNT) { index -> "$POSITION_MEMO_TITLE_PREFIX${index.toString().padStart(length = 2, padChar = '0')}" }
+        setScreenOnMemoTab(memoPagingData = webMemoPagingData(itemList = titleList.map { title -> MemoListItem.Content(memo = webMemo(title = title)) }))
+        waitUntilMemoIsDisplayed(title = titleList.first())
+        composeRule.onNodeWithTag(WEB_DETAIL_MEMO_LIST_TEST_TAG).performScrollToNode(hasText(titleList.last()))
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(titleList.last()).assertIsDisplayed()
+
+        composeRule.selectWebDetailTab(DEFAULT_FORM_TAB_DESCRIPTION)
+        composeRule.selectWebDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+        waitUntilMemoIsDisplayed(title = titleList.last())
+
+        composeRule.onNodeWithText(titleList.last()).assertIsDisplayed()
+        composeRule.onNodeWithText(titleList.first()).assertIsNotDisplayed()
+    }
+
+    @Test
     fun `TC-WEB-DETAIL-DOMAIN-047 수정 삭제 웹 페이지 불러오기를 처리하는 중에도 메모 완료와 실행 취소를 요청한다`() {
         val memo = inProgressSwipeMemo()
 
@@ -309,6 +328,8 @@ class WebDetailScreenMemoTest {
 
     private companion object {
         const val PAGING_ITEMS_TIMEOUT_MILLIS = 5_000L
+        const val POSITION_MEMO_COUNT = 30
+        const val POSITION_MEMO_TITLE_PREFIX = "WebDetailPositionMemo"
         const val CONTACT_NAME = "WebDetailMemoScreenName"
         const val SCREEN_MEMO_TITLE = "WebDetailScreenMemo"
         const val INDEPENDENT_MEMO_TITLE = "WebDetailIndependentMemo"

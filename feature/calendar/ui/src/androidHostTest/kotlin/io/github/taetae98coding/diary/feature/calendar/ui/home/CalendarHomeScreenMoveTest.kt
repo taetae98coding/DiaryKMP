@@ -42,6 +42,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.MoveMemoUseCase
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.toDateRange
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.toDateRange
+import io.github.taetae98coding.diary.feature.calendar.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
@@ -59,6 +60,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -76,6 +78,11 @@ class CalendarHomeScreenMoveTest {
     val composeRule = createComposeRule()
 
     private val movedList = mutableListOf<Triple<Uuid, MemoDateTime, LocalDateRange>>()
+
+    @Before
+    fun resetUiDispatcher() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-CALENDAR-MEMO-MOVE-FEATURE-001 메모 제목을 길게 누르면 메모 이동이 시작되고 날짜 기간 선택은 시작되지 않는다`() {
@@ -403,6 +410,93 @@ class CalendarHomeScreenMoveTest {
 
         performUpAndSettle()
         movedList shouldBe listOf(Triple(memo.id, memo.dateTime, expectedDateRange))
+    }
+
+    @Test
+    fun `TC-CALENDAR-MEMO-MOVE-FEATURE-016 이동 중 가장자리 영역에 머무는 동안 달 이동이 반복된다`() {
+        val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
+        var capturedState: CalendarHomeScaffoldState? = null
+        setCalendarHomeScreen(
+            memoListFlow = MutableStateFlow(listOf(memo)),
+            onState = { capturedState = it },
+        )
+
+        val pressPosition = memoPressPosition(title = MEETING_TITLE, day = 15)
+        performLongPress(pressPosition)
+        composeRule.mainClock.autoAdvance = false
+        performMove(Offset(x = rootWidth() - 1F, y = pressPosition.y))
+        advanceTimeUntil { capturedState?.calendarState?.currentYearMonth == AUGUST_2026 }
+        // 2026년 9월 화면에서 포인터 위치(셋째 주 토요일)의 날짜는 9월 19일이므로 7월 15일에서 66일을 옮긴 기간이 된다.
+        val expectedDateRange = september(day = 18)..september(day = 20)
+        advanceTimeUntil {
+            capturedState
+                ?.calendarState
+                ?.moveState
+                ?.moving
+                ?.toDateRange == expectedDateRange
+        }
+
+        capturedState?.calendarState?.currentYearMonth shouldBe SEPTEMBER_2026
+        capturedState
+            ?.calendarState
+            ?.moveState
+            ?.moving
+            ?.key shouldBe memo.id
+        performUpAndSettle()
+    }
+
+    @Test
+    fun `TC-CALENDAR-MEMO-MOVE-DOMAIN-016 가장자리 영역 밖에서는 이동을 위한 드래그로 달이 이동하지 않는다`() {
+        val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
+        var capturedState: CalendarHomeScaffoldState? = null
+        setCalendarHomeScreen(
+            memoListFlow = MutableStateFlow(listOf(memo)),
+            onState = { capturedState = it },
+        )
+
+        performLongPress(memoPressPosition(title = MEETING_TITLE, day = 15))
+        performMoveTo(dayCenter(day = 17))
+        composeRule.mainClock.advanceTimeBy(IDLE_WAIT_MILLIS)
+
+        capturedState?.calendarState?.currentYearMonth shouldBe JULY_2026
+        capturedState
+            ?.calendarState
+            ?.moveState
+            ?.moving
+            ?.key shouldBe memo.id
+        performUp()
+    }
+
+    @Test
+    fun `TC-CALENDAR-MEMO-MOVE-DOMAIN-017 이동 중 왼쪽 가장자리 영역에 머무르면 이전 달로 이동하고 메모 이동이 유지된다`() {
+        val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
+        var capturedState: CalendarHomeScaffoldState? = null
+        setCalendarHomeScreen(
+            memoListFlow = MutableStateFlow(listOf(memo)),
+            onState = { capturedState = it },
+        )
+
+        val pressPosition = memoPressPosition(title = MEETING_TITLE, day = 15)
+        performLongPress(pressPosition)
+        composeRule.mainClock.autoAdvance = false
+        performMove(Offset(x = 1F, y = pressPosition.y))
+        // 2026년 6월 화면에서 포인터 위치(셋째 주 일요일)의 날짜는 6월 14일이므로 7월 15일에서 31일을 앞당긴 기간이 된다.
+        val expectedDateRange = june(day = 13)..june(day = 15)
+        advanceTimeUntil {
+            capturedState
+                ?.calendarState
+                ?.moveState
+                ?.moving
+                ?.toDateRange == expectedDateRange
+        }
+
+        capturedState?.calendarState?.currentYearMonth shouldBe JUNE_2026
+        capturedState
+            ?.calendarState
+            ?.moveState
+            ?.moving
+            ?.key shouldBe memo.id
+        performUpAndSettle()
     }
 
     @Test
@@ -1031,6 +1125,8 @@ class CalendarHomeScreenMoveTest {
 
     private fun august(day: Int): LocalDate = LocalDate(year = 2026, month = Month.AUGUST, day = day)
 
+    private fun september(day: Int): LocalDate = LocalDate(year = 2026, month = Month.SEPTEMBER, day = day)
+
     private fun firstYearJanuary(day: Int): LocalDate = LocalDate(year = 1, month = Month.JANUARY, day = day)
 
     companion object {
@@ -1058,6 +1154,7 @@ class CalendarHomeScreenMoveTest {
         private val JUNE_2026 = YearMonth(year = 2026, month = Month.JUNE)
         private val JULY_2026 = YearMonth(year = 2026, month = Month.JULY)
         private val AUGUST_2026 = YearMonth(year = 2026, month = Month.AUGUST)
+        private val SEPTEMBER_2026 = YearMonth(year = 2026, month = Month.SEPTEMBER)
         private val FIRST_YEAR_MONTH = YearMonth(year = 1, month = Month.JANUARY)
     }
 }

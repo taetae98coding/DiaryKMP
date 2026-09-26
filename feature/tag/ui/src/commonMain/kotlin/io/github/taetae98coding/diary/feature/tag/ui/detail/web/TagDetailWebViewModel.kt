@@ -19,9 +19,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.InjectedParam
 import org.koin.core.annotation.KoinViewModel
@@ -44,8 +46,11 @@ internal class TagDetailWebViewModel(
         combine(sort, scope) { sortValue, scopeValue -> sortValue to scopeValue }
             .flatMapLatest { (sortValue, scopeValue) ->
                 pageTagWebUseCase(parameter = PageTagWebUseCase.Parameter(tagId = tagId, scope = scopeValue, sort = sortValue))
-            }.mapNotNull { result -> result.getOrNull() }
-            .cachedIn(viewModelScope)
+                    .runningFold<Result<PagingData<Web>>, PagingData<Web>?>(initial = null) { last, result ->
+                        result.getOrElse { last ?: PagingData.empty() }
+                    }.filterNotNull()
+                    .distinctUntilChanged()
+            }.cachedIn(viewModelScope)
 
     private val _effect = Channel<WebListEffect>(Channel.BUFFERED)
     val effect: Flow<WebListEffect> = _effect.receiveAsFlow()

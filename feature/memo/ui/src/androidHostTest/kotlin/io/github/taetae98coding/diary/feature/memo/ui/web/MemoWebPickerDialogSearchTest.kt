@@ -158,6 +158,16 @@ class MemoWebPickerDialogSearchTest {
     }
 
     @Test
+    fun `TC-MEMO-WEB-INPUT-FEATURE-006 검색어에 맞는 웹 항목이 없어도 웹 추가 항목을 표시한다`() {
+        composeRule.setMemoWebPickerDialogHost(webList = emptyList())
+        composeRule.webDialogSearchField().performTextInput(WIKI_WEB_QUERY)
+        composeRule.waitForIdle()
+
+        composeRule.webDialogNodeWithText(DEFAULT_WEB_PICKER_SEARCH_EMPTY_TITLE).assertExists()
+        composeRule.webDialogNodeWithText(DEFAULT_WEB_PICKER_ADD_LABEL).assertExists()
+    }
+
+    @Test
     fun `TC-MEMO-WEB-INPUT-FEATURE-028 검색 결과가 없어도 웹 추가 항목으로 이동을 전달한다`() {
         var webAddCount = 0
         composeRule.setMemoWebPickerDialogHost(webList = emptyList(), onWebAdd = { webAddCount += 1 })

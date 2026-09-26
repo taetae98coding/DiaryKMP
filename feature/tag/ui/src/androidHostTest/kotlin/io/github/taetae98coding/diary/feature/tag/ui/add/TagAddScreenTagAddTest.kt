@@ -12,6 +12,8 @@ import androidx.navigation3.runtime.result.ResultEffect
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.PagingData
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.feature.tag.api.TagAddedResult
 import io.github.taetae98coding.diary.feature.tag.api.tagAddedResultKey
 import io.github.taetae98coding.diary.feature.tag.ui.TEST_TAG_ADD_REQUEST_KEY
@@ -27,6 +29,7 @@ import io.github.taetae98coding.diary.feature.tag.ui.link.dialogNodeWithText
 import io.github.taetae98coding.diary.feature.tag.ui.link.refreshingTagPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.link.tagPagingDataOf
 import io.github.taetae98coding.diary.feature.tag.ui.link.testTag
+import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.tag.ui.sendTagAddedResult
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
@@ -34,7 +37,9 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.receiveAsFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,6 +53,30 @@ import kotlin.uuid.Uuid
 class TagAddScreenTagAddTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
+
+    @Test
+    fun `TC-TAG-LINK-INPUT-FEATURE-024 TC-TAG-LINK-INPUT-FEATURE-033 저장된 태그가 없으면 목록을 연 적이 없어도 첫 누름에 태그 연결 칩이 TagAdd 이동을 요청한다`() {
+        val pageTagUseCase = mockk<PageTagUseCase>()
+        every { pageTagUseCase(parameter = any()) } returns flowOf(Result.success(tagPagingDataOf(emptyList())))
+        val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
+        every { getSelectedTagUseCase(parameter = any()) } returns flowOf(Result.success(emptyList()))
+        var tagAddCount = 0
+        setTagAddScreen(
+            tagLinkViewModel = TagAddLinkViewModel(pageTagUseCase = pageTagUseCase, getSelectedTagUseCase = getSelectedTagUseCase),
+            navigateToTagAdd = { tagAddCount += 1 },
+        )
+
+        composeRule.onNodeWithText(DEFAULT_TAG_LINK_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        tagAddCount shouldBe 1
+        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertDoesNotExist()
+    }
 
     @Test
     fun `TC-TAG-LINK-INPUT-FEATURE-025 목록의 대상을 확인하는 중에는 태그 연결 칩이 목록을 연다`() {
@@ -280,9 +309,8 @@ class TagAddScreenTagAddTest {
         addedResultRequestKey: Uuid? = null,
         resultEventBus: ResultEventBus = ResultEventBus(),
         resultCollector: @Composable () -> Unit = {},
+        tagLinkViewModel: TagAddLinkViewModel = linkViewModel(tagList = tagList, tagPagingData = tagPagingData),
     ) {
-        val linkViewModel = linkViewModel(tagList = tagList, tagPagingData = tagPagingData)
-
         composeRule.setContent {
             TagAddScreenTestTheme(resultEventBus = resultEventBus) {
                 resultCollector()
@@ -294,7 +322,7 @@ class TagAddScreenTagAddTest {
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                     componentVisibleProvider = { TagAddScaffoldComponentVisible() },
                     addViewModel = viewModel,
-                    linkViewModel = linkViewModel,
+                    linkViewModel = tagLinkViewModel,
                 )
             }
         }
@@ -324,6 +352,7 @@ class TagAddScreenTagAddTest {
             return mockk<TagAddLinkViewModel>(relaxed = true).apply {
                 every { this@apply.uiState } returns uiState
                 every { this@apply.tagPagingData } returns tagPagingData
+                every { this@apply.selectableTagPagingData } returns tagPagingData
                 every { this@apply.linkedTagIdSet } returns linkedTagIdSet
                 every { link(id = any()) } answers {
                     linkedTagIdSet.value += firstArg<Uuid>()

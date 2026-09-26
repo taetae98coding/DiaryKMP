@@ -13,6 +13,7 @@ import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactAddedResultEffect
 import io.github.taetae98coding.diary.feature.memo.ui.form.MemoFormState
+import io.github.taetae98coding.diary.feature.memo.ui.form.collectMemoFormSelectablePagingItems
 import io.github.taetae98coding.diary.feature.memo.ui.form.handleMemoFormEvent
 import io.github.taetae98coding.diary.feature.memo.ui.form.rememberMemoAddFormState
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiSettingRequiredEffect
@@ -61,6 +62,7 @@ internal fun MemoAddScreen(
     val webPagingItems = webViewModel.webPagingData.collectAsLazyPagingItems()
     val contactPagingItems = contactViewModel.contactPagingData.collectAsLazyPagingItems()
     val placePagingItems = placeViewModel.placePagingData.collectAsLazyPagingItems()
+    val selectablePagingItems = collectMemoFormSelectablePagingItems(tag = tagViewModel.selectableTagPagingData, web = webViewModel.selectableWebPagingData, contact = contactViewModel.selectableContactPagingData, place = placeViewModel.selectablePlacePagingData)
 
     MemoAddEnterEffect(tagAddRequestKey = tagAddRequestKey, tagViewModel = tagViewModel, webViewModel = webViewModel, contactViewModel = contactViewModel, placeViewModel = placeViewModel, placeMapViewModel = placeMapViewModel)
     MemoAddFormEffect(scaffoldState = scaffoldState, addViewModel = addViewModel, geminiViewModel = geminiViewModel)
@@ -76,10 +78,7 @@ internal fun MemoAddScreen(
             handleMemoFormEvent(
                 event = event,
                 state = scaffoldState,
-                tagPagingItems = tagPagingItems,
-                webPagingItems = webPagingItems,
-                contactPagingItems = contactPagingItems,
-                placePagingItems = placePagingItems,
+                selectablePagingItems = selectablePagingItems,
                 navigateToTagAdd = navigateToTagAdd,
                 navigateToTagDetail = navigateToTagDetail,
                 navigateToWebAdd = navigateToWebAdd,

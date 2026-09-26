@@ -203,6 +203,70 @@ class CalendarHomeFilterViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-CALENDAR-HOME-FEATURE-096 필터 선택을 저장하지 못하면 바꾸기 전의 선택을 그대로 노출한다") {
+            runTest(mainDispatcher) {
+                val selectedTag = tag(title = fixtureMonkey.giveMeOne())
+                val unselectedTag = tag(title = fixtureMonkey.giveMeOne())
+                val selectedTagListFlow = MutableStateFlow<Result<List<Tag>>>(Result.success(listOf(selectedTag)))
+                val selectCalendarFilterTagUseCase = mockk<SelectCalendarFilterTagUseCase>()
+                coEvery { selectCalendarFilterTagUseCase(parameter = unselectedTag.id) } returns
+                    Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                val unselectCalendarFilterTagUseCase = mockk<UnselectCalendarFilterTagUseCase>()
+                coEvery { unselectCalendarFilterTagUseCase(parameter = selectedTag.id) } returns
+                    Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                val viewModel =
+                    viewModel(
+                        getCalendarFilterUseCase = filterUseCase(flow = selectedTagListFlow),
+                        selectCalendarFilterTagUseCase = selectCalendarFilterTagUseCase,
+                        unselectCalendarFilterTagUseCase = unselectCalendarFilterTagUseCase,
+                    )
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe CalendarHomeFilterUiState()
+                    advanceUntilIdle()
+                    awaitItem() shouldBe CalendarHomeFilterUiState(selectedTagIdSet = setOf(selectedTag.id))
+
+                    viewModel.selectTag(id = unselectedTag.id)
+                    viewModel.unselectTag(id = selectedTag.id)
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                    viewModel.uiState.value shouldBe CalendarHomeFilterUiState(selectedTagIdSet = setOf(selectedTag.id))
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("TC-CALENDAR-HOME-FEATURE-095 TagAdd 화면에서 태그를 추가해도 추가한 태그는 필터에 선택되지 않는다") {
+            runTest(mainDispatcher) {
+                val selectedTag = tag(title = fixtureMonkey.giveMeOne())
+                val addedTag = tag(title = fixtureMonkey.giveMeOne())
+                val tagListFlow = MutableStateFlow<Result<List<Tag>>>(Result.success(listOf(selectedTag)))
+                val selectCalendarFilterTagUseCase = mockk<SelectCalendarFilterTagUseCase>()
+                val viewModel =
+                    viewModel(
+                        pageTagUseCase = pageTagUseCase(flow = tagListFlow),
+                        getCalendarFilterUseCase = filterUseCase(flow = flowOf(Result.success(listOf(selectedTag)))),
+                        selectCalendarFilterTagUseCase = selectCalendarFilterTagUseCase,
+                    )
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe CalendarHomeFilterUiState()
+                    advanceUntilIdle()
+                    awaitItem() shouldBe CalendarHomeFilterUiState(selectedTagIdSet = setOf(selectedTag.id))
+
+                    tagListFlow.value = Result.success(listOf(selectedTag, addedTag))
+                    advanceUntilIdle()
+
+                    flowOf(viewModel.tagPagingData.first()).asSnapshot() shouldBe listOf(selectedTag, addedTag)
+                    expectNoEvents()
+                    viewModel.uiState.value shouldBe CalendarHomeFilterUiState(selectedTagIdSet = setOf(selectedTag.id))
+                    cancelAndIgnoreRemainingEvents()
+                }
+                coVerify(exactly = 0) { selectCalendarFilterTagUseCase(parameter = any()) }
+            }
+        }
+
         test("TC-CALENDAR-HOME-FEATURE-082 태그 선택 전체 해제를 전체 해제 UseCase에 전달한다") {
             runTest(mainDispatcher) {
                 val unselectAllCalendarFilterTagUseCase = mockk<UnselectAllCalendarFilterTagUseCase>()
@@ -262,8 +326,8 @@ class CalendarHomeFilterViewModelTest : FunSpec() {
                 .setExp(Tag::detail, fixtureMonkey.giveMeOne<TagDetail>().copy(title = title))
                 .setExp(Tag::isFinished, false)
                 .setExp(Tag::isDeleted, false)
-                .setExp(Tag::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Tag::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

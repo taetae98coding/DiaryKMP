@@ -30,10 +30,10 @@ import io.github.taetae98coding.diary.feature.memo.ui.web.MemoWebInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.web.webPagingDataOf
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.spyk
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.map
 import kotlin.uuid.Uuid
 
 /**
@@ -80,21 +80,25 @@ internal fun screenTestViewModel(
     every { tagViewModel.uiState } returns MutableStateFlow(MemoTagInputUiState())
     every { tagViewModel.selection } returns MutableStateFlow(MemoTagSelection())
     every { tagViewModel.tagPagingData } returns tagPagingData
+    every { tagViewModel.selectableTagPagingData } returns tagPagingData
 
     val webViewModel = mockk<MemoAddWebViewModel>(relaxed = true)
     every { webViewModel.uiState } returns MutableStateFlow(MemoWebInputUiState())
     every { webViewModel.webIdSet } returns MutableStateFlow(emptySet())
     every { webViewModel.webPagingData } returns webPagingData
+    every { webViewModel.selectableWebPagingData } returns webPagingData
 
     val contactViewModel = mockk<MemoAddContactViewModel>(relaxed = true)
     every { contactViewModel.uiState } returns MutableStateFlow(MemoContactInputUiState())
     every { contactViewModel.contactIdSet } returns MutableStateFlow(emptySet())
     every { contactViewModel.contactPagingData } returns contactPagingData
+    every { contactViewModel.selectableContactPagingData } returns contactPagingData
 
     val placeViewModel = mockk<MemoAddPlaceViewModel>(relaxed = true)
     every { placeViewModel.uiState } returns MutableStateFlow(MemoPlaceInputUiState())
     every { placeViewModel.placeIdSet } returns MutableStateFlow(emptySet())
     every { placeViewModel.placePagingData } returns placePagingData
+    every { placeViewModel.selectablePlacePagingData } returns placePagingData
 
     return MemoAddScreenViewModels(
         viewModel = viewModel,
@@ -125,25 +129,25 @@ internal fun screenTestRealViewModel(
     addMemoUseCase: AddMemoUseCase = mockk(),
 ): MemoAddScreenViewModels {
     val pageTagUseCase = mockk<PageTagUseCase>()
-    every { pageTagUseCase(parameter = any()) } returns MutableStateFlow(Result.success(tagPagingDataOf(tagList)))
+    every { pageTagUseCase(parameter = any()) } returns tagPagingDataFlow.map { pagingData -> Result.success(pagingData) }
 
     val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
     every { getSelectedTagUseCase(parameter = any()) } answers { selectedFlowOf(list = tagList, idOf = Tag::id, idSet = firstArg()) }
 
     val pageMemoSelectableWebUseCase = mockk<PageMemoSelectableWebUseCase>()
-    every { pageMemoSelectableWebUseCase(parameter = any()) } returns MutableStateFlow(Result.success(webPagingDataOf(webList)))
+    every { pageMemoSelectableWebUseCase(parameter = any()) } returns webPagingDataFlow.map { pagingData -> Result.success(pagingData) }
 
     val getSelectedWebUseCase = mockk<GetSelectedWebUseCase>()
     every { getSelectedWebUseCase(parameter = any()) } answers { selectedFlowOf(list = webList, idOf = Web::id, idSet = firstArg()) }
 
     val pageMemoSelectableContactUseCase = mockk<PageMemoSelectableContactUseCase>()
-    every { pageMemoSelectableContactUseCase(parameter = any()) } returns MutableStateFlow(Result.success(contactPagingDataOf(contactList)))
+    every { pageMemoSelectableContactUseCase(parameter = any()) } returns contactPagingDataFlow.map { pagingData -> Result.success(pagingData) }
 
     val getSelectedContactUseCase = mockk<GetSelectedContactUseCase>()
     every { getSelectedContactUseCase(parameter = any()) } answers { selectedFlowOf(list = contactList, idOf = Contact::id, idSet = firstArg()) }
 
     val pagePlaceUseCase = mockk<PagePlaceUseCase>()
-    every { pagePlaceUseCase(parameter = any()) } returns MutableStateFlow(Result.success(placePagingDataOf(placeList)))
+    every { pagePlaceUseCase(parameter = any()) } returns placePagingDataFlow.map { pagingData -> Result.success(pagingData) }
 
     val getSelectedPlaceUseCase = mockk<GetSelectedPlaceUseCase>()
     every { getSelectedPlaceUseCase(parameter = any()) } answers { selectedFlowOf(list = placeList, idOf = Place::id, idSet = firstArg()) }
@@ -175,11 +179,10 @@ internal fun screenTestRealViewModel(
 
     return MemoAddScreenViewModels(
         viewModel = MemoAddViewModel(addMemoUseCase = addMemoUseCase),
-        // 선택 목록의 페이지 조회 자체는 이 화면 검증의 대상이 아니므로 준비된 목록으로 고정한다.
-        tagViewModel = spyk(tagViewModel) { every { tagPagingData } returns tagPagingDataFlow },
-        webViewModel = spyk(webViewModel) { every { webPagingData } returns webPagingDataFlow },
-        contactViewModel = spyk(contactViewModel) { every { contactPagingData } returns contactPagingDataFlow },
-        placeViewModel = spyk(placeViewModel) { every { placePagingData } returns placePagingDataFlow },
+        tagViewModel = tagViewModel,
+        webViewModel = webViewModel,
+        contactViewModel = contactViewModel,
+        placeViewModel = placeViewModel,
     )
 }
 

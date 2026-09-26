@@ -49,7 +49,7 @@ class UpdatePlaceUseCaseTest :
                     updatedAt = capture(updatedAtSlot),
                 )
             } returns 1
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val clock = mockk<Clock>()
             every { clock.now() } returns now
             val requestSyncUseCase = requestSyncUseCase()
@@ -78,12 +78,13 @@ class UpdatePlaceUseCaseTest :
                     updatedAtSlot.captured shouldBe now
                 }
 
-                Then("TC-PLACE-DETAIL-DOMAIN-006 설명이 비어 있으면 빈 설명으로 수정한다") {
+                Then("TC-PLACE-DETAIL-DOMAIN-006 설명과 주소가 비어 있으면 빈 설명과 빈 주소로 수정한다") {
                     useCase(
-                        parameter = UpdatePlaceUseCase.Parameter(id = id, detail = detail(description = "")),
+                        parameter = UpdatePlaceUseCase.Parameter(id = id, detail = detail(description = "", address = "")),
                     ).shouldBeSuccess(1)
 
                     detailSlot.captured.description shouldBe ""
+                    detailSlot.captured.address shouldBe ""
                 }
             }
 
@@ -115,6 +116,20 @@ class UpdatePlaceUseCaseTest :
 
                         detailSlot.captured.coordinate shouldBe coordinate
                     }
+                }
+            }
+
+            When("소수 여섯째 자리보다 긴 좌표로 수정한다") {
+                Then("TC-PLACE-DETAIL-DOMAIN-038 여섯째 자리로 반올림한 좌표로 수정한다") {
+                    useCase(
+                        parameter =
+                            UpdatePlaceUseCase.Parameter(
+                                id = id,
+                                detail = detail(coordinate = Coordinate(latitude = 37.1234567, longitude = 127.1234564)),
+                            ),
+                    ).shouldBeSuccess(1)
+
+                    detailSlot.captured.coordinate shouldBe Coordinate(latitude = 37.123457, longitude = 127.123456)
                 }
             }
         }
@@ -225,7 +240,7 @@ class UpdatePlaceUseCaseTest :
         Given("장소 수정은 성공하지만 서버 반영이 실패하도록 준비되어 있다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val id = Uuid.random()
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val detailSlot = slot<PlaceDetail>()
             val updatedAtSlot = slot<Instant>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
@@ -344,8 +359,8 @@ class UpdatePlaceUseCaseTest :
                 id = id,
                 detail = detail(title = title),
                 isDeleted = false,
-                updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
-                createdAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+                createdAt = fixtureMonkey.giveMeOne<Instant>(),
             )
     }
 }

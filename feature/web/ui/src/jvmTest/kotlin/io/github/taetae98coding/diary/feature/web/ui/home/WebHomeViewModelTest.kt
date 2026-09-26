@@ -120,6 +120,26 @@ class WebHomeViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-WEB-HOME-FEATURE-021 지금 선택된 정렬을 다시 골라도 목록을 다시 조회하지 않아 순서가 그대로다") {
+            runTest(mainDispatcher) {
+                val webList = listOf(web(title = "A-${fixtureMonkey.giveMeOne<String>()}"), web(title = "B-${fixtureMonkey.giveMeOne<String>()}"))
+                val pageWebUseCase = pageWebUseCase(webListFlow = flowOf(Result.success(webList)))
+                val viewModel = viewModel(pageWebUseCase = pageWebUseCase)
+
+                viewModel.webPagingData.test {
+                    flowOf(awaitItem()).asSnapshot() shouldBe webList
+
+                    viewModel.select(sort = ListSort.TITLE)
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                    cancelAndIgnoreRemainingEvents()
+                }
+                viewModel.sort.value shouldBe ListSort.TITLE
+                coVerify(exactly = 1) { pageWebUseCase(parameter = ListSort.TITLE) }
+            }
+        }
+
         test("TC-WEB-HOME-FEATURE-025 삭제에 성공하면 그 웹 항목의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
@@ -224,7 +244,6 @@ class WebHomeViewModelTest : FunSpec() {
             return pageWebUseCase
         }
 
-        // FixtureMonkey가 Instant를 생성하지 못하므로 웹 항목은 직접 만든다.
         private fun web(title: String): Web {
             val detail =
                 fixtureMonkey
@@ -236,8 +255,8 @@ class WebHomeViewModelTest : FunSpec() {
                 id = Uuid.random(),
                 detail = detail,
                 isDeleted = false,
-                updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
-                createdAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+                createdAt = fixtureMonkey.giveMeOne<Instant>(),
             )
         }
     }

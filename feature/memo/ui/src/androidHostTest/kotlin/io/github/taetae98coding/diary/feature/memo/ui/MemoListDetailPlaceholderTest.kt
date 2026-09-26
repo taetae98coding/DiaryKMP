@@ -14,6 +14,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasSetTextAction
@@ -54,6 +55,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddContactViewMode
 import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddPlaceViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddTagViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddWebViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.add.colorHexText
 import io.github.taetae98coding.diary.feature.memo.ui.add.screenTestRealViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.contact.testContact
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiUiState
@@ -66,7 +68,9 @@ import io.github.taetae98coding.diary.feature.memo.ui.web.testWeb
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -108,6 +112,7 @@ class MemoListDetailPlaceholderTest {
         val input = placeholderInput()
         setMemoNavDisplay(input = input)
         composeRule.fillPlaceholder(input = input)
+        val colorBeforeLeaving = composeRule.colorHexText()
 
         composeRule.runOnIdle {
             backStack.clear()
@@ -125,6 +130,11 @@ class MemoListDetailPlaceholderTest {
         composeRule.onNode(hasRole(Role.Switch)).performScrollTo().assertIsOff()
         input.selectedTitleList.forEach { title -> composeRule.onAllNodesWithText(title).assertCountEquals(0) }
         tagViewModelList shouldHaveSize 2
+        tagViewModelList
+            .last()
+            .uiState.value.primaryTagId
+            .shouldBeNull()
+        composeRule.colorHexText() shouldNotBe colorBeforeLeaving
     }
 
     @Test
@@ -174,6 +184,41 @@ class MemoListDetailPlaceholderTest {
         composeRule.onAllNodes(hasSetTextAction()).onFirst().assert(hasText(input.title))
     }
 
+    @Test
+    fun `TC-MEMO-LIST-DETAIL-FEATURE-001 함께 표시하는 환경에서는 목록과 상세 영역이 모두 표시된다`() {
+        setMemoNavDisplay(input = placeholderInput())
+
+        composeRule.onNodeWithText(MEMO_HOME_CONTENT).assertIsDisplayed()
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-MEMO-LIST-DETAIL-FEATURE-002 선택한 메모가 없으면 상세 영역에 메모 추가 화면이 표시된다`() {
+        val input = placeholderInput()
+        setMemoNavDisplay(input = input)
+
+        backStack.toList() shouldBe listOf(MemoHomeNavKey)
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().assert(hasText(""))
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().performTextInput(input.title)
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().assert(hasText(input.title))
+        composeRule.onNodeWithText(ROUTE_CONTENT).assertDoesNotExist()
+    }
+
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `TC-MEMO-LIST-DETAIL-FEATURE-004 한 영역만 표시하는 환경에서는 현재 영역만 표시된다`() {
+        setMemoNavDisplay(input = placeholderInput())
+
+        composeRule.onNodeWithText(MEMO_HOME_CONTENT).assertIsDisplayed()
+        composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(0)
+
+        composeRule.runOnIdle { backStack.add(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())) }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(ROUTE_CONTENT).assertIsDisplayed()
+        composeRule.onNodeWithText(MEMO_HOME_CONTENT).assertDoesNotExist()
+    }
+
     private fun pressBack() {
         composeRule.runOnIdle { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
         composeRule.waitForIdle()
@@ -196,6 +241,9 @@ class MemoListDetailPlaceholderTest {
         composeRule.onNode(hasRole(Role.Switch)).performScrollTo().assertIsOn()
         input.selectedTitleList.forEach { title -> composeRule.onAllNodesWithText(title).onFirst().assertExists() }
         tagViewModelList shouldHaveSize 1
+        tagViewModelList
+            .last()
+            .uiState.value.primaryTagId shouldBe input.tag.id
     }
 
     private fun setMemoNavDisplay(input: PlaceholderInput) {
@@ -282,7 +330,7 @@ class MemoListDetailPlaceholderTest {
         onAllNodes(hasSetTextAction())[1].performTextInput(input.description)
         onNode(hasRole(Role.Switch)).performScrollTo().performClick()
         runOnIdle {
-            tagViewModelList.last().selectTag(input.tag.id)
+            tagViewModelList.last().selectPrimaryTag(input.tag.id)
             webViewModelList.last().selectWeb(input.web.id)
             contactViewModelList.last().selectContact(input.contact.id)
             placeViewModelList.last().selectPlace(input.place.id)

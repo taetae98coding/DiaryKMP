@@ -75,7 +75,7 @@ class AddTagUseCaseTest :
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.success(Unit)
             val accountTagRepository = mockk<AccountTagRepository>()
             coEvery { accountTagRepository.upsert(account = account, tag = capture(tagSlot), linkedTagIdSet = any()) } just Runs
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val clock = mockk<Clock>()
             every { clock.now() } returns now
             val useCase =
@@ -159,7 +159,7 @@ class AddTagUseCaseTest :
                 )
             } just Runs
             val clock = mockk<Clock>()
-            every { clock.now() } returns Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
             val useCase =
                 AddTagUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -231,7 +231,7 @@ class AddTagUseCaseTest :
             val accountTagRepository = mockk<AccountTagRepository>()
             coEvery { accountTagRepository.upsert(account = account, tag = any(), linkedTagIdSet = any()) } just Runs
             val clock = mockk<Clock>()
-            every { clock.now() } returns Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
             val useCase =
                 AddTagUseCase(
                     getAccountUseCase = getAccountUseCase,

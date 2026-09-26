@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.compose.core.input
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.Role
@@ -28,6 +29,7 @@ import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputTestF
 import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputTestFixture.hasRole
 import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputTestFixture.toDefaultDisplayText
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.kotest.matchers.shouldBe
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import org.junit.Rule
@@ -85,6 +87,26 @@ class DiaryDateTimeInputTest {
 
         composeRule.onNode(hasRole(Role.Checkbox)).assertIsOn()
         composeRule.onAllNodesWithText(today).assertCountEquals(2)
+    }
+
+    @Test
+    fun `초기 기간 없이 만든 상태만 처음 켤 때 그날의 오늘을 쓰도록 표시해 둔다`() {
+        val stateList = mutableListOf<DiaryDateTimeInputState>()
+        composeRule.setContent {
+            stateList += rememberDiaryDateTimeInputState()
+            stateList += rememberDiaryDateTimeInputState(initialValue = allDayValue())
+        }
+
+        composeRule.runOnIdle {
+            // 팩토리가 켠 표시는 공개 상태로 드러나지 않으므로 저장 결과로 확인한다. 저장 결과는 키와 값을 번갈아 담은 목록이다.
+            val savedList =
+                stateList.take(2).map { state ->
+                    val saved = with(DiaryDateTimeInputState.Saver) { SaverScope { true }.save(state) } as List<*>
+                    saved.chunked(2).associate { (key, value) -> key to value }
+                }
+
+            savedList.map { saved -> saved[IS_PERIOD_UNSELECTED_KEY] } shouldBe listOf(true, false)
+        }
     }
 
     @Test
@@ -194,5 +216,9 @@ class DiaryDateTimeInputTest {
                 DiaryDateTimeInput(state = rememberDiaryDateTimeInputState(initialValue = initialValue))
             }
         }
+    }
+
+    private companion object {
+        private const val IS_PERIOD_UNSELECTED_KEY = "isPeriodUnselected"
     }
 }

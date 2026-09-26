@@ -89,8 +89,8 @@ class PageFinishedMemoUseCaseTest :
                 .giveMeKotlinBuilder<Memo>()
                 .setExp(Memo::isFinished, true)
                 .setExp(Memo::isDeleted, false)
-                .setExp(Memo::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Memo::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

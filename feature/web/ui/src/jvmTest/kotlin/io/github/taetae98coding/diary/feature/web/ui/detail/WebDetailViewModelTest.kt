@@ -389,14 +389,13 @@ class WebDetailViewModelTest : FunSpec() {
             )
         }
 
-        // FixtureMonkey가 Instant를 생성하지 못하므로 웹 항목은 직접 만든다.
         private fun web(): Web =
             Web(
                 id = Uuid.random(),
                 detail = fixtureMonkey.giveMeKotlinBuilder<WebDetail>().sample(),
                 isDeleted = false,
-                updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
-                createdAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+                createdAt = fixtureMonkey.giveMeOne<Instant>(),
             )
     }
 }

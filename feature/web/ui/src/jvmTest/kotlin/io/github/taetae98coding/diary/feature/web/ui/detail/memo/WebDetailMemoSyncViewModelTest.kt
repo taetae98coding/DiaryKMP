@@ -69,6 +69,22 @@ class WebDetailMemoSyncViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-WEB-DETAIL-DATA-003 화면 상태만 관찰하면 서버 동기화를 요청하지 않는다") {
+            runTest(mainDispatcher) {
+                val requestSyncUseCase = mockk<RequestSyncUseCase>()
+                val viewModel = viewModel(requestSyncUseCase = requestSyncUseCase)
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe MemoListUiState()
+                    advanceUntilIdle()
+
+                    cancelAndIgnoreRemainingEvents()
+                }
+
+                coVerify(exactly = 0) { requestSyncUseCase(parameter = any()) }
+            }
+        }
+
         test("동기화 진행 여부 조회가 실패하면 진행을 표시하지 않는다") {
             runTest(mainDispatcher) {
                 val viewModel =

@@ -2,12 +2,14 @@
 
 package io.github.taetae98coding.diary.feature.place.ui.search
 
+import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.location.CoordinateBounds
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.SearchedPlace
 import io.github.taetae98coding.diary.domain.place.usecase.FetchSearchedPlaceUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -17,16 +19,15 @@ import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
-import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlin.time.Duration.Companion.milliseconds
 
 class PlaceSearchViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -48,12 +49,16 @@ class PlaceSearchViewModelTest : FunSpec() {
                 val fetchSearchedPlaceUseCase = mockk<FetchSearchedPlaceUseCase>()
                 coEvery { fetchSearchedPlaceUseCase(request.toParameter()) } returns Result.success(placeList)
                 val viewModel = viewModel(fetchSearchedPlaceUseCase = fetchSearchedPlaceUseCase)
-                collectUiState(viewModel)
 
-                viewModel.search(request = request)
-                advanceUntilIdle()
+                viewModel.uiState.test {
+                    awaitItem() shouldBe PlaceSearchUiState.Idle
 
-                viewModel.uiState.value shouldBe PlaceSearchUiState.Loaded(placeList = placeList)
+                    viewModel.search(request = request)
+                    advanceUntilIdle()
+
+                    awaitItem() shouldBe PlaceSearchUiState.Loaded(placeList = placeList)
+                    expectNoEvents()
+                }
             }
         }
 
@@ -64,12 +69,16 @@ class PlaceSearchViewModelTest : FunSpec() {
                 coEvery { fetchSearchedPlaceUseCase(request.toParameter()) } returns
                     Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
                 val viewModel = viewModel(fetchSearchedPlaceUseCase = fetchSearchedPlaceUseCase)
-                collectUiState(viewModel)
 
-                viewModel.search(request = request)
-                advanceUntilIdle()
+                viewModel.uiState.test {
+                    awaitItem() shouldBe PlaceSearchUiState.Idle
 
-                viewModel.uiState.value shouldBe PlaceSearchUiState.Failed
+                    viewModel.search(request = request)
+                    advanceUntilIdle()
+
+                    awaitItem() shouldBe PlaceSearchUiState.Failed
+                    expectNoEvents()
+                }
             }
         }
 
@@ -80,17 +89,20 @@ class PlaceSearchViewModelTest : FunSpec() {
                 val fetchSearchedPlaceUseCase = mockk<FetchSearchedPlaceUseCase>()
                 coEvery { fetchSearchedPlaceUseCase(request.toParameter()) } returns Result.success(placeList)
                 val viewModel = viewModel(fetchSearchedPlaceUseCase = fetchSearchedPlaceUseCase)
-                collectUiState(viewModel)
 
-                viewModel.search(request = request)
-                advanceUntilIdle()
+                viewModel.uiState.test {
+                    awaitItem() shouldBe PlaceSearchUiState.Idle
 
-                viewModel.uiState.value shouldBe PlaceSearchUiState.Loaded(placeList = placeList)
+                    viewModel.search(request = request)
+                    advanceUntilIdle()
+                    awaitItem() shouldBe PlaceSearchUiState.Loaded(placeList = placeList)
 
-                viewModel.clear()
-                advanceUntilIdle()
+                    viewModel.clear()
+                    advanceUntilIdle()
 
-                viewModel.uiState.value shouldBe PlaceSearchUiState.Idle
+                    awaitItem() shouldBe PlaceSearchUiState.Idle
+                    expectNoEvents()
+                }
             }
         }
 
@@ -105,19 +117,24 @@ class PlaceSearchViewModelTest : FunSpec() {
                 coEvery { fetchSearchedPlaceUseCase(firstRequest.toParameter()) } returns Result.success(firstList)
                 coEvery { fetchSearchedPlaceUseCase(secondRequest.toParameter()) } coAnswers { completion.await() }
                 val viewModel = viewModel(fetchSearchedPlaceUseCase = fetchSearchedPlaceUseCase)
-                collectUiState(viewModel)
 
-                viewModel.search(request = firstRequest)
-                advanceUntilIdle()
-                viewModel.search(request = secondRequest)
-                runCurrent()
+                viewModel.uiState.test {
+                    awaitItem() shouldBe PlaceSearchUiState.Idle
 
-                viewModel.uiState.value shouldBe PlaceSearchUiState.Loaded(placeList = firstList)
+                    viewModel.search(request = firstRequest)
+                    advanceUntilIdle()
+                    awaitItem() shouldBe PlaceSearchUiState.Loaded(placeList = firstList)
 
-                completion.complete(Result.success(secondList))
-                advanceUntilIdle()
+                    viewModel.search(request = secondRequest)
+                    runCurrent()
 
-                viewModel.uiState.value shouldBe PlaceSearchUiState.Loaded(placeList = secondList)
+                    expectNoEvents()
+
+                    completion.complete(Result.success(secondList))
+                    advanceUntilIdle()
+
+                    awaitItem() shouldBe PlaceSearchUiState.Loaded(placeList = secondList)
+                }
             }
         }
 
@@ -132,17 +149,22 @@ class PlaceSearchViewModelTest : FunSpec() {
                 coEvery { fetchSearchedPlaceUseCase(firstRequest.toParameter()) } coAnswers { lateCompletion.await() }
                 coEvery { fetchSearchedPlaceUseCase(secondRequest.toParameter()) } returns Result.success(latestList)
                 val viewModel = viewModel(fetchSearchedPlaceUseCase = fetchSearchedPlaceUseCase)
-                collectUiState(viewModel)
 
-                viewModel.search(request = firstRequest)
-                runCurrent()
-                viewModel.search(request = secondRequest)
-                advanceUntilIdle()
+                viewModel.uiState.test {
+                    awaitItem() shouldBe PlaceSearchUiState.Idle
 
-                lateCompletion.complete(Result.success(lateList))
-                advanceUntilIdle()
+                    viewModel.search(request = firstRequest)
+                    runCurrent()
+                    viewModel.search(request = secondRequest)
+                    advanceUntilIdle()
 
-                viewModel.uiState.value shouldBe PlaceSearchUiState.Loaded(placeList = latestList)
+                    awaitItem() shouldBe PlaceSearchUiState.Loaded(placeList = latestList)
+
+                    lateCompletion.complete(Result.success(lateList))
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                }
             }
         }
 
@@ -157,21 +179,24 @@ class PlaceSearchViewModelTest : FunSpec() {
                 coEvery { fetchSearchedPlaceUseCase(naverRequest.toParameter()) } returns Result.success(naverList)
                 coEvery { fetchSearchedPlaceUseCase(googleRequest.toParameter()) } coAnswers { completion.await() }
                 val viewModel = viewModel(fetchSearchedPlaceUseCase = fetchSearchedPlaceUseCase)
-                collectUiState(viewModel)
 
-                viewModel.search(request = naverRequest)
-                advanceUntilIdle()
-                viewModel.uiState.value shouldBe PlaceSearchUiState.Loaded(placeList = naverList)
+                viewModel.uiState.test {
+                    awaitItem() shouldBe PlaceSearchUiState.Idle
 
-                viewModel.search(request = googleRequest)
-                runCurrent()
+                    viewModel.search(request = naverRequest)
+                    advanceUntilIdle()
+                    awaitItem() shouldBe PlaceSearchUiState.Loaded(placeList = naverList)
 
-                viewModel.uiState.value shouldBe PlaceSearchUiState.Idle
+                    viewModel.search(request = googleRequest)
+                    runCurrent()
 
-                completion.complete(Result.success(googleList))
-                advanceUntilIdle()
+                    awaitItem() shouldBe PlaceSearchUiState.Idle
 
-                viewModel.uiState.value shouldBe PlaceSearchUiState.Loaded(placeList = googleList)
+                    completion.complete(Result.success(googleList))
+                    advanceUntilIdle()
+
+                    awaitItem() shouldBe PlaceSearchUiState.Loaded(placeList = googleList)
+                }
             }
         }
 
@@ -185,16 +210,20 @@ class PlaceSearchViewModelTest : FunSpec() {
                     Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
                 coEvery { fetchSearchedPlaceUseCase(googleRequest.toParameter()) } returns Result.success(googleList)
                 val viewModel = viewModel(fetchSearchedPlaceUseCase = fetchSearchedPlaceUseCase)
-                collectUiState(viewModel)
 
-                viewModel.search(request = naverRequest)
-                advanceUntilIdle()
-                viewModel.uiState.value shouldBe PlaceSearchUiState.Failed
+                viewModel.uiState.test {
+                    awaitItem() shouldBe PlaceSearchUiState.Idle
 
-                viewModel.search(request = googleRequest)
-                advanceUntilIdle()
+                    viewModel.search(request = naverRequest)
+                    advanceUntilIdle()
+                    awaitItem() shouldBe PlaceSearchUiState.Failed
 
-                viewModel.uiState.value shouldBe PlaceSearchUiState.Loaded(placeList = googleList)
+                    viewModel.search(request = googleRequest)
+                    advanceUntilIdle()
+
+                    awaitItem() shouldBe PlaceSearchUiState.Idle
+                    awaitItem() shouldBe PlaceSearchUiState.Loaded(placeList = googleList)
+                }
             }
         }
 
@@ -208,14 +237,20 @@ class PlaceSearchViewModelTest : FunSpec() {
                 coEvery { fetchSearchedPlaceUseCase(firstRequest.toParameter()) } returns Result.success(firstList)
                 coEvery { fetchSearchedPlaceUseCase(secondRequest.toParameter()) } coAnswers { completion.await() }
                 val viewModel = viewModel(fetchSearchedPlaceUseCase = fetchSearchedPlaceUseCase)
-                collectUiState(viewModel)
 
-                viewModel.search(request = firstRequest)
-                advanceUntilIdle()
-                viewModel.search(request = secondRequest)
-                runCurrent()
+                viewModel.uiState.test {
+                    awaitItem() shouldBe PlaceSearchUiState.Idle
 
-                viewModel.uiState.value shouldBe PlaceSearchUiState.Loaded(placeList = firstList)
+                    viewModel.search(request = firstRequest)
+                    advanceUntilIdle()
+                    awaitItem() shouldBe PlaceSearchUiState.Loaded(placeList = firstList)
+
+                    viewModel.search(request = secondRequest)
+                    runCurrent()
+
+                    expectNoEvents()
+                    cancelAndIgnoreRemainingEvents()
+                }
             }
         }
 
@@ -227,17 +262,50 @@ class PlaceSearchViewModelTest : FunSpec() {
                 val fetchSearchedPlaceUseCase = mockk<FetchSearchedPlaceUseCase>()
                 coEvery { fetchSearchedPlaceUseCase(request.toParameter()) } coAnswers { lateCompletion.await() }
                 val viewModel = viewModel(fetchSearchedPlaceUseCase = fetchSearchedPlaceUseCase)
-                collectUiState(viewModel)
 
-                viewModel.search(request = request)
-                runCurrent()
-                viewModel.clear()
-                advanceUntilIdle()
+                viewModel.uiState.test {
+                    awaitItem() shouldBe PlaceSearchUiState.Idle
 
-                lateCompletion.complete(Result.success(lateList))
-                advanceUntilIdle()
+                    viewModel.search(request = request)
+                    runCurrent()
+                    viewModel.clear()
+                    advanceUntilIdle()
 
-                viewModel.uiState.value shouldBe PlaceSearchUiState.Idle
+                    lateCompletion.complete(Result.success(lateList))
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                }
+            }
+        }
+
+        test("TC-PLACE-SEARCH-DIALOG-FEATURE-020 앱이 백그라운드에 갔다가 돌아와도 결과를 유지하고 다시 검색하지 않는다") {
+            runTest(mainDispatcher) {
+                val placeList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
+                val request = searchRequest()
+                val fetchSearchedPlaceUseCase = mockk<FetchSearchedPlaceUseCase>()
+                coEvery { fetchSearchedPlaceUseCase(request.toParameter()) } returns Result.success(placeList)
+                val viewModel = viewModel(fetchSearchedPlaceUseCase = fetchSearchedPlaceUseCase)
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe PlaceSearchUiState.Idle
+
+                    viewModel.search(request = request)
+                    advanceUntilIdle()
+
+                    awaitItem() shouldBe PlaceSearchUiState.Loaded(placeList = placeList)
+                }
+
+                // 화면이 백그라운드에 있는 동안 상태 구독이 끊기는 시간보다 오래 머문다.
+                advanceTimeBy(BACKGROUND_DURATION)
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe PlaceSearchUiState.Loaded(placeList = placeList)
+                    advanceUntilIdle()
+                    expectNoEvents()
+                }
+
+                coVerify(exactly = 1) { fetchSearchedPlaceUseCase(any()) }
             }
         }
 
@@ -247,10 +315,15 @@ class PlaceSearchViewModelTest : FunSpec() {
                 val fetchSearchedPlaceUseCase = mockk<FetchSearchedPlaceUseCase>()
                 coEvery { fetchSearchedPlaceUseCase(any()) } returns Result.success(emptyList())
                 val viewModel = viewModel(fetchSearchedPlaceUseCase = fetchSearchedPlaceUseCase)
-                collectUiState(viewModel)
 
-                viewModel.search(request = request)
-                advanceUntilIdle()
+                viewModel.uiState.test {
+                    awaitItem() shouldBe PlaceSearchUiState.Idle
+
+                    viewModel.search(request = request)
+                    advanceUntilIdle()
+
+                    awaitItem() shouldBe PlaceSearchUiState.Loaded(placeList = emptyList())
+                }
 
                 coVerify(exactly = 1) {
                     fetchSearchedPlaceUseCase(
@@ -267,14 +340,10 @@ class PlaceSearchViewModelTest : FunSpec() {
 
     private companion object {
         private const val SEARCHED_PLACE_COUNT = 3
+        private val BACKGROUND_DURATION = (UI_STOP_TIMEOUT_MILLIS * 2).milliseconds
 
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
-
-        // uiState는 구독자가 있을 때 시작되므로 검증 동안 수집을 유지한다.
-        private fun TestScope.collectUiState(viewModel: PlaceSearchViewModel) {
-            backgroundScope.launch { viewModel.uiState.collect() }
-        }
 
         private fun viewModel(fetchSearchedPlaceUseCase: FetchSearchedPlaceUseCase = mockk()): PlaceSearchViewModel = PlaceSearchViewModel(fetchSearchedPlaceUseCase = fetchSearchedPlaceUseCase)
 

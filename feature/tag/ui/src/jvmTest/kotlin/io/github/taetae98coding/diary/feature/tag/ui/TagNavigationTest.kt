@@ -43,6 +43,30 @@ class TagNavigationTest :
             }
         }
 
+        test("TC-TAG-MEMO-FINISHED-LIST-DETAIL-DOMAIN-001 목록 화면을 떠났다가 다시 진입하면 상세가 선택 전 상태로 돌아간다") {
+            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val openCases =
+                listOf(
+                    listOf(fixtureMonkey.giveMeOne<Uuid>()),
+                    listOf(fixtureMonkey.giveMeOne<Uuid>(), fixtureMonkey.giveMeOne<Uuid>()),
+                )
+
+            openCases.forEach { memoIdList ->
+                val backStack = tagMemoFinishedListBackStack(tagId = tagId, finishedDetailKeyList = emptyList())
+                memoIdList.forEach { memoId -> backStack.navigateToMemoDetailFromTagMemoFinishedList(memoId) }
+
+                backStack.navigateUpFromTagMemoFinishedList()
+                backStack.add(TagMemoFinishedListNavKey(tagId = tagId))
+
+                backStack.toList() shouldContainExactly
+                    listOf(
+                        TagHomeNavKey,
+                        TagDetailNavKey(id = tagId),
+                        TagMemoFinishedListNavKey(tagId = tagId),
+                    )
+            }
+        }
+
         test("TC-TAG-MEMO-FINISHED-LIST-DETAIL-FEATURE-003 메모를 선택하면 목록을 유지한 채 그 메모의 상세가 놓인다") {
             val tagId = fixtureMonkey.giveMeOne<Uuid>()
             val memoId = fixtureMonkey.giveMeOne<Uuid>()

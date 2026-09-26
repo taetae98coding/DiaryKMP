@@ -24,6 +24,7 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.EDIT_SUFFIX
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailScreen
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailScreenTestHost
+import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailUiState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.prepareTagDetailTabViewModels
 import io.github.taetae98coding.diary.feature.tag.ui.detail.screenTestViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.selectTagDetailTab
@@ -61,6 +62,36 @@ class TagDetailNavigationTest {
 
         backStack shouldContainExactly listOf(TagHomeNavKey, TagDetailNavKey(id = tagId))
         composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
+    }
+
+    @Test
+    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-024 대상 태그가 완료되었거나 삭제되었어도 완료된 메모 목록으로 이동할 수 있다`() {
+        val tagId = fixtureId()
+        val title = fixtureText(prefix = "Tag")
+        // 삭제된 태그는 상세 대상 태그로 조회되지 않으므로 태그를 불러오지 못한 상태로 둔다.
+        val uiStateCases =
+            listOf(
+                tagDetailUiState(id = tagId, detail = tagDetail(title = title), isFinished = true),
+                TagDetailUiState.Loading,
+            )
+        val uiState = MutableStateFlow(uiStateCases.first())
+        val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = tagId))
+        setTagNavDisplay(backStack = backStack, titleMap = mapOf(tagId to title), uiStateFlowOf = { uiState })
+
+        uiStateCases.forEach { case ->
+            composeRule.runOnIdle {
+                uiState.value = case
+                backStack.removeAll { key -> key is TagMemoFinishedListNavKey }
+            }
+            composeRule.waitForIdle()
+            composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+
+            composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).performClick()
+            composeRule.waitForIdle()
+
+            backStack shouldContainExactly listOf(TagHomeNavKey, TagDetailNavKey(id = tagId), TagMemoFinishedListNavKey(tagId = tagId))
+            composeRule.onNodeWithText(FINISHED_LIST_CONTENT).assertIsDisplayed()
+        }
     }
 
     @Test
@@ -125,6 +156,9 @@ class TagDetailNavigationTest {
     private fun setTagNavDisplay(
         backStack: NavBackStack<ScreenNavKey>,
         titleMap: Map<Uuid, String>,
+        uiStateFlowOf: (Uuid) -> MutableStateFlow<TagDetailUiState> = { id ->
+            MutableStateFlow(tagDetailUiState(id = id, detail = tagDetail(title = titleMap.getValue(id))))
+        },
     ) {
         prepareTagDetailTabViewModels()
         composeRule.setContent {
@@ -154,9 +188,7 @@ class TagDetailNavigationTest {
                                     componentVisibleProvider = { TagDetailScaffoldComponentVisible() },
                                     detailViewModel =
                                         remember(navKey.id) {
-                                            screenTestViewModel(
-                                                MutableStateFlow(tagDetailUiState(id = navKey.id, detail = tagDetail(title = titleMap.getValue(navKey.id)))),
-                                            )
+                                            screenTestViewModel(uiStateFlowOf(navKey.id))
                                         },
                                     placeMapViewModel = koinViewModel(),
                                 )

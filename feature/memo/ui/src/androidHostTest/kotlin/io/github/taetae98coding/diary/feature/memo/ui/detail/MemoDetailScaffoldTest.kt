@@ -253,6 +253,15 @@ class MemoDetailScaffoldInProgressTest {
     }
 
     @Test
+    fun `TC-MEMO-DETAIL-FEATURE-028 다시 시작을 처리하는 동안 다시 시작 버튼이 진행 표시로 바뀐다`() {
+        setMemoDetailScaffold(uiStateProvider = { memoDetailUiState(detail = memoDetail(MEMO_TITLE), isFinished = true, isFinishInProgress = true) })
+
+        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_RESTART_BUTTON_DESCRIPTION).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_DELETE_BUTTON_DESCRIPTION).assert(hasClickAction())
+    }
+
+    @Test
     fun `TC-MEMO-DETAIL-FEATURE-028 삭제를 처리하는 동안 삭제 버튼이 진행 표시로 바뀐다`() {
         setMemoDetailScaffold(uiStateProvider = { memoDetailUiState(detail = memoDetail(MEMO_TITLE), isDeleteInProgress = true) })
 

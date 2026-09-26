@@ -1,7 +1,9 @@
 package io.github.taetae98coding.diary.feature.holiday.ui.home
 
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -15,6 +17,7 @@ import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFix
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.DEFAULT_INCREASE_DESCRIPTION
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.DEFAULT_LOADING_DESCRIPTION
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.DEFAULT_NAVIGATE_UP_DESCRIPTION
+import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.DEFAULT_NOT_PROVIDED_DESCRIPTION
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.DEFAULT_RETRY_LABEL
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.KOREAN_ERROR_DESCRIPTION
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.KOREAN_RETRY_LABEL
@@ -180,8 +183,20 @@ class HolidayHomeScreenTest {
         composeRule.onNodeWithText(THIS_YEAR_PERIOD).assertExists()
     }
 
+    @Test
+    fun `TC-HOLIDAY-HOME-FEATURE-056 준비가 끝났지만 황금연휴가 없으면 안내 없이 빈 목록이 표시된다`() {
+        composeRule.setHolidayHomeScreen(targetYear = targetYear)
+
+        composeRule.onAllNodesWithText(text = PERIOD_SEPARATOR, substring = true).assertCountEquals(0)
+        composeRule.onNodeWithContentDescription(DEFAULT_LOADING_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_ERROR_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_RETRY_LABEL).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_NOT_PROVIDED_DESCRIPTION).assertDoesNotExist()
+    }
+
     private companion object {
         private const val HOLIDAY_NAME = "공휴일"
+        private const val PERIOD_SEPARATOR = " ~ "
 
         private fun suspendedFetchHolidayUseCase(completion: CompletableDeferred<Result<List<Holiday>>>): FetchHolidayUseCase =
             mockk<FetchHolidayUseCase>().also { useCase ->

@@ -168,6 +168,26 @@ class MemoTagPickerDialogSearchTest {
     }
 
     @Test
+    fun `TC-MEMO-TAG-INPUT-DOMAIN-016 공백만 있는 검색어로는 목록이 좁혀지지 않고 결과 없음도 알리지 않는다`() {
+        val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
+        composeRule.setMemoTagPickerDialog(tagList = tagList, query = BLANK_QUERY)
+        composeRule.awaitTagPickerRows()
+
+        composeRule.dialogNodeWithText(WORK_TAG_TITLE).assertExists()
+        composeRule.dialogNodeWithText(EXERCISE_TAG_TITLE).assertExists()
+        composeRule.dialogNodeWithText(DEFAULT_PICKER_SEARCH_EMPTY_TITLE).assertDoesNotExist()
+        composeRule.dialogNodeWithText(DEFAULT_PICKER_SEARCH_EMPTY_DESCRIPTION).assertDoesNotExist()
+    }
+
+    @Test
+    fun `공백만 있는 검색어이고 나타낼 태그가 없어도 결과 없음을 알리지 않는다`() {
+        composeRule.setMemoTagPickerDialog(tagList = emptyList(), query = BLANK_QUERY)
+
+        composeRule.dialogNodeWithText(DEFAULT_PICKER_SEARCH_EMPTY_TITLE).assertDoesNotExist()
+        composeRule.dialogNodeWithText(DEFAULT_PICKER_SEARCH_EMPTY_DESCRIPTION).assertDoesNotExist()
+    }
+
+    @Test
     fun `검색어가 비어 있으면 나타낼 태그가 없어도 결과 없음을 알리지 않는다`() {
         composeRule.setMemoTagPickerDialog(tagList = emptyList())
 
@@ -213,5 +233,6 @@ class MemoTagPickerDialogSearchTest {
 
     private companion object {
         private const val SEARCH_TIMEOUT_MILLIS = 5_000L
+        private const val BLANK_QUERY = "   "
     }
 }

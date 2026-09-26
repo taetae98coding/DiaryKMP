@@ -189,14 +189,13 @@ class PlaceHomeScaffoldTest {
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
 
-        // FixtureMonkey가 Instant를 생성하지 못하므로 장소는 직접 만든다.
         private fun place(): Place =
             Place(
                 id = Uuid.random(),
                 detail = fixtureMonkey.giveMeOne<PlaceDetail>(),
                 isDeleted = false,
-                updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
-                createdAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+                createdAt = fixtureMonkey.giveMeOne<Instant>(),
             )
     }
 }

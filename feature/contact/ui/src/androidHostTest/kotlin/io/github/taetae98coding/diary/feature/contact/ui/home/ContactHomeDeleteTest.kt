@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
@@ -138,6 +139,16 @@ class ContactHomeDeleteTest {
         composeRule.onNodeWithText(DEFAULT_DELETED_MESSAGE).assertDoesNotExist()
         composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).assertDoesNotExist()
         verify(exactly = 0) { environment.viewModel.restore(id = any()) }
+    }
+
+    @Test
+    fun `TC-CONTACT-HOME-FEATURE-036 목록에서 삭제하기 전에 확인을 되묻지 않고 곧바로 삭제를 요청한다`() {
+        val environment = setContactHomeScreen()
+
+        swipeFirstCardLeft()
+
+        composeRule.onNode(isDialog()).assertDoesNotExist()
+        verify(exactly = 1) { environment.viewModel.delete(id = environment.first.id) }
     }
 
     @Test

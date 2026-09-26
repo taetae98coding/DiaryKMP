@@ -80,7 +80,7 @@ class AccountContactLocalDataSourceImplTest :
                 listOf(recentFavorite, oldFavorite, recentOther, oldOther)
         }
 
-        test("TC-CONTACT-HOME-DOMAIN-009 즐겨찾기 우선은 목록에 노출하는 연락처를 바꾸지 않는다") {
+        test("즐겨찾기인 연락처도 삭제되었거나 다른 계정과 연결되어 있으면 노출하지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val favorite = contact(name = FIRST_NAME, isFavorite = true)
@@ -110,13 +110,44 @@ class AccountContactLocalDataSourceImplTest :
             page(accountId = accountId, sort = ListSortLocalEntity.NAME) shouldBe listOf(stored)
         }
 
-        test("TC-CONTACT-HOME-DATA-007 즐겨찾기 우선을 조회 조건으로 넘겨 정렬된 순서로 조회한다") {
+        test("TC-CONTACT-HOME-DATA-007 즐겨찾기 우선을 조회 조건으로 넘겨 뒤쪽 구간의 즐겨찾기도 첫 구간에 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val otherList = List(PAGE_SIZE) { index -> contact(name = "A-${index.toString().padStart(length = 2, padChar = '0')}") }
             val favorite = contact(name = LAST_NAME, isFavorite = true)
-            val other = contact(name = FIRST_NAME, isFavorite = false)
-            transaction.upsert(accountId = accountId, contactList = listOf(other, favorite))
+            transaction.upsert(accountId = accountId, contactList = otherList + favorite)
 
-            page(accountId = accountId, sort = ListSortLocalEntity.NAME) shouldBe listOf(favorite, other)
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME) shouldBe listOf(favorite) + otherList.dropLast(1)
+        }
+
+        test("TC-CONTACT-HOME-DOMAIN-004 즐겨찾기가 없으면 목록은 이름 오름차순으로 정렬한다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val first = contact(name = FIRST_NAME)
+            val another = contact(name = ANOTHER_NAME)
+            val middle = contact(name = MIDDLE_NAME)
+            val last = contact(name = LAST_NAME)
+            transaction.upsert(accountId = accountId, contactList = listOf(middle, last, first, another))
+
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME) shouldBe listOf(first, another, middle, last)
+        }
+
+        test("TC-CONTACT-HOME-DOMAIN-005 최근 수정순은 수정 시각 내림차순이고 같으면 이름 오름차순이다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val recent = contact(name = LAST_NAME, updatedAt = NEW_INSTANT)
+            val oldFirst = contact(name = FIRST_NAME, updatedAt = OLD_INSTANT)
+            val oldAnother = contact(name = ANOTHER_NAME, updatedAt = OLD_INSTANT)
+            transaction.upsert(accountId = accountId, contactList = listOf(oldAnother, oldFirst, recent))
+
+            page(accountId = accountId, sort = ListSortLocalEntity.RECENTLY_UPDATED) shouldBe listOf(recent, oldFirst, oldAnother)
+        }
+
+        test("TC-CONTACT-HOME-DOMAIN-009 즐겨찾기가 없으면 노출 기준의 연락처가 모두 고른 기준 하나로만 정렬된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val nameFirst = contact(name = FIRST_NAME, updatedAt = OLD_INSTANT)
+            val nameLast = contact(name = LAST_NAME, updatedAt = NEW_INSTANT)
+            transaction.upsert(accountId = accountId, contactList = listOf(nameLast, nameFirst))
+
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME) shouldBe listOf(nameFirst, nameLast)
+            page(accountId = accountId, sort = ListSortLocalEntity.RECENTLY_UPDATED) shouldBe listOf(nameLast, nameFirst)
         }
 
         test("TC-CONTACT-ADD-DATA-008 고향을 비우면 비어 있는 값으로 저장한다") {

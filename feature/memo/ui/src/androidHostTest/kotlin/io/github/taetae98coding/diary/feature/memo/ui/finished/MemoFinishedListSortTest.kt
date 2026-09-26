@@ -1,12 +1,16 @@
 package io.github.taetae98coding.diary.feature.memo.ui.finished
 
+import androidx.compose.runtime.remember
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -66,9 +70,14 @@ class MemoFinishedListSortTest {
         setMemoFinishedListScaffold(sortSheetState = DialogState(isVisible = true))
 
         composeRule.onNodeWithText(DEFAULT_SORT_SHEET_TITLE).assertExists()
-        composeRule.onAllNodesWithText(DEFAULT_DEFAULT_SORT).onLast().assertExists()
-        composeRule.onNodeWithText(DEFAULT_TITLE_SORT).assertExists()
-        composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).assertExists()
+        composeRule
+            .onAllNodes(isSelectable())
+            .fetchSemanticsNodes()
+            .map { node -> node.config[SemanticsProperties.Text].joinToString(separator = "") { text -> text.text } } shouldBe
+            listOf(DEFAULT_DEFAULT_SORT, DEFAULT_TITLE_SORT, DEFAULT_RECENTLY_UPDATED_SORT)
+        composeRule.onAllNodes(isSelectable())[0].assertIsSelected()
+        composeRule.onAllNodes(isSelectable())[1].assertIsNotSelected()
+        composeRule.onAllNodes(isSelectable())[2].assertIsNotSelected()
     }
 
     @Test
@@ -140,6 +149,62 @@ class MemoFinishedListSortTest {
         composeRule.onNodeWithText(DEFAULT_DEFAULT_SORT).assertDoesNotExist()
         composeRule.onNodeWithText(memoList[RESTORATION_SCROLL_INDEX].detail.title).assertIsDisplayed()
         composeRule.onNodeWithText(memoList.first().detail.title).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-MEMO-FINISHED-LIST-DOMAIN-011 시스템이 앱을 정리한 뒤 다시 만들면 정렬은 처음으로 돌아가고 보던 위치는 다시 보인다`() {
+        val memoList =
+            List(RESTORATION_MEMO_COUNT) { index ->
+                memo(title = "완료 메모-${index.toString().padStart(length = 2, padChar = '0')}")
+            }
+        var nextViewModel = restorationViewModel(memoList = memoList)
+        val restorationTester = StateRestorationTester(composeRule)
+
+        // 시스템이 앱을 정리하면 ViewModel도 사라지므로, 복원으로 컴포지션을 다시 만들 때만 새 ViewModel을 받게 한다.
+        restorationTester.setContent {
+            val viewModel = remember { nextViewModel }
+            DiaryTheme {
+                MemoFinishedListScreen(
+                    navigateUp = {},
+                    navigateToDetail = {},
+                    memoViewModel = viewModel,
+                    syncViewModel = screenTestSyncViewModel(),
+                )
+            }
+        }
+        composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(memoList.first().detail.title).fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).performClick()
+        composeRule.onNodeWithText(DEFAULT_TITLE_SORT).performClick()
+        composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(DEFAULT_SORT_SHEET_TITLE).fetchSemanticsNodes().isEmpty()
+        }
+        composeRule.onNodeWithTag(MEMO_FINISHED_LIST_TEST_TAG).performScrollToIndex(RESTORATION_SCROLL_INDEX)
+        composeRule.onNodeWithText(memoList[RESTORATION_SCROLL_INDEX].detail.title).assertIsDisplayed()
+        nextViewModel = restorationViewModel(memoList = memoList)
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(memoList[RESTORATION_SCROLL_INDEX].detail.title).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        composeRule.onNodeWithText(DEFAULT_DEFAULT_SORT).assertExists()
+        composeRule.onNodeWithText(DEFAULT_TITLE_SORT).assertDoesNotExist()
+        composeRule.onNodeWithText(memoList[RESTORATION_SCROLL_INDEX].detail.title).assertIsDisplayed()
+        composeRule.onNodeWithText(memoList.first().detail.title).assertDoesNotExist()
+    }
+
+    private fun restorationViewModel(memoList: List<Memo>): MemoFinishedListViewModel {
+        val sortFlow = MutableStateFlow(ListSort.DEFAULT)
+        val viewModel = mockk<MemoFinishedListViewModel>(relaxed = true)
+        every { viewModel.sort } returns sortFlow
+        every { viewModel.select(sort = any()) } answers { sortFlow.value = firstArg() }
+        every { viewModel.memoPagingData } returns
+            MutableStateFlow(memoPagingDataOf(memoList.map { memo -> MemoListItem.Content(memo = memo) }))
+        every { viewModel.effect } returns emptyFlow()
+
+        return viewModel
     }
 
     private fun assertSelectSort(

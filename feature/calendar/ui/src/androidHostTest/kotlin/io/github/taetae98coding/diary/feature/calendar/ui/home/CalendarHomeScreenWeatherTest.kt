@@ -253,7 +253,7 @@ class CalendarHomeScreenWeatherTest {
     }
 
     @Test
-    fun `TC-WEATHER-FETCH-DOMAIN-025 각 날씨의 아이콘은 대표 상태의 아이콘을 사용한다`() {
+    fun `TC-CALENDAR-HOME-FEATURE-097 각 날씨의 아이콘은 대표 상태의 아이콘을 사용한다`() {
         val weather =
             CalendarWeather(
                 date = july(day = 15),

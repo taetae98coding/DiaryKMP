@@ -394,6 +394,32 @@ class GetCalendarContactBirthdayUseCaseTest :
             }
         }
 
+        Given("TC-CALENDAR-CONTACT-BIRTHDAY-DATA-010: 첫 기간에서는 음력 자료를 읽지 못하고 둘째 기간에서는 읽을 수 있으며, 첫 기간을 조회해 음력 생일이 빠진 결과를 받은 상태다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val firstDateRange = LocalDate(2026, 7, 5)..LocalDate(2026, 7, 11)
+            val secondDateRange = LocalDate(2026, 8, 17)..LocalDate(2026, 8, 23)
+            val lunarBirthday = lunarContactBirthday(birthday = LocalDate(1990, 7, 8))
+            val getAccountUseCase = mockk<GetAccountUseCase>()
+            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            val repository = mockk<AccountCalendarContactBirthdayRepository>()
+            every { repository.get(account = account, dateRange = any()) } returns flowOf(emptyList())
+            every { repository.getLunar(account = account) } returns flowOf(listOf(lunarBirthday))
+            val lunarRepository = mockk<LunarRepository>()
+            every { lunarRepository.get(dateRange = firstDateRange) } returns flow { throw IllegalStateException(fixtureMonkey.giveMeOne<String>()) }
+            every { lunarRepository.get(dateRange = secondDateRange) } returns
+                flowOf(lunarDateList(start = LocalDate(2026, 8, 17), endInclusive = LocalDate(2026, 8, 23), lunarYear = 2026, month = 7, firstDay = 5))
+            val useCase = useCase(getAccountUseCase = getAccountUseCase, repository = repository, lunarRepository = lunarRepository)
+
+            When("표시 대상 기간을 2026년 8월 17일부터 8월 23일까지로 바꿔 조회한다") {
+                Then("바뀐 기간의 음력 자료를 다시 읽어 2026년 8월 20일을 차지하는 음력 생일이 담긴 결과가 전달된다") {
+                    useCase(parameter = firstDateRange).first().shouldBeSuccess() shouldBe emptyList()
+
+                    useCase(parameter = secondDateRange).first().shouldBeSuccess() shouldBe listOf(lunarBirthday.toCalendar(date = LocalDate(2026, 8, 20)))
+                    verify(exactly = 1) { lunarRepository.get(dateRange = secondDateRange) }
+                }
+            }
+        }
+
         Given("TC-CALENDAR-CONTACT-BIRTHDAY-DATA-007: 음력 생일 연락처가 저장되어 있다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val dateRange = dateRange()
@@ -468,7 +494,7 @@ class GetCalendarContactBirthdayUseCaseTest :
             birthday: LocalDate,
         ): LunarContactBirthday =
             LunarContactBirthday(
-                contactId = Uuid.random(),
+                contactId = fixtureMonkey.giveMeOne<Uuid>(),
                 name = name,
                 birthday = birthday,
             )

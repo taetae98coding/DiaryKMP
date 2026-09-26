@@ -48,7 +48,7 @@ class SearchWebUseCaseTest :
                     flowOf(pagingData).asSnapshot() shouldBe webList
                 }
 
-                Then("앞뒤 공백을 뺀 질의로 조회한다") {
+                Then("TC-SEARCH-HOME-DOMAIN-017 앞뒤 공백을 뺀 질의로 조회한다") {
                     val pagingData = useCase(parameter = SearchWebUseCase.Parameter(query = "  $QUERY  ", sort = ListSort.TITLE)).first().shouldBeSuccess()
 
                     flowOf(pagingData).asSnapshot() shouldBe webList
@@ -134,8 +134,8 @@ class SearchWebUseCaseTest :
             fixtureMonkey
                 .giveMeKotlinBuilder<Web>()
                 .setExp(Web::isDeleted, false)
-                .setExp(Web::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Web::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Web::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Web::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

@@ -1,10 +1,14 @@
 package io.github.taetae98coding.diary.feature.web.ui.detail
 
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.testing.TestLifecycleOwner
 import io.github.taetae98coding.diary.feature.web.ui.detail.tab.WebDetailTab
 import io.github.taetae98coding.diary.feature.web.ui.detail.viewmode.WebDetailViewMode
 import io.kotest.matchers.shouldBe
@@ -96,7 +100,31 @@ class WebDetailScaffoldStateTest {
     }
 
     @Test
-    fun `화면이 재생성되어도 선택한 탭을 유지한다`() {
+    fun `TC-WEB-DETAIL-DOMAIN-051 백그라운드에 다녀와도 선택한 탭과 고른 표시 방식을 유지한다`() {
+        val lifecycleOwner = TestLifecycleOwner(initialState = Lifecycle.State.RESUMED)
+        var state by mutableStateOf<WebDetailScaffoldState?>(null)
+
+        composeRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                state = rememberWebDetailScaffoldState()
+            }
+        }
+        composeRule.runOnIdle {
+            checkNotNull(state).select(tab = WebDetailTab.MEMO)
+            checkNotNull(state).select(viewMode = WebDetailViewMode.RESPONSE)
+        }
+
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
+
+        composeRule.runOnIdle {
+            checkNotNull(state).tab shouldBe WebDetailTab.MEMO
+            checkNotNull(state).viewMode shouldBe WebDetailViewMode.RESPONSE
+        }
+    }
+
+    @Test
+    fun `TC-WEB-DETAIL-FEATURE-068 화면이 재생성되어도 선택한 웹 정보 수정 탭이나 웹 페이지 탭을 유지한다`() {
         val restorationTester = StateRestorationTester(composeRule)
         var state by mutableStateOf<WebDetailScaffoldState?>(null)
 
@@ -112,6 +140,13 @@ class WebDetailScaffoldStateTest {
 
         restorationTester.emulateSavedInstanceStateRestore()
 
-        composeRule.runOnIdle { checkNotNull(state).tab shouldBe WebDetailTab.FORM }
+        composeRule.runOnIdle {
+            checkNotNull(state).tab shouldBe WebDetailTab.FORM
+            checkNotNull(state).select(tab = WebDetailTab.PAGE)
+        }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        composeRule.runOnIdle { checkNotNull(state).tab shouldBe WebDetailTab.PAGE }
     }
 }

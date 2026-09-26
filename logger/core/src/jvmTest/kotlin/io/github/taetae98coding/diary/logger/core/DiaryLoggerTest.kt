@@ -23,27 +23,29 @@ class DiaryLoggerTest :
             }
         }
 
-        Given("서로 다른 종류를 담당하는 기록 수단 A와 B가 등록되어 있다") {
-            val delegateA = recordingDelegate { log -> log is FirstLog }
-            val delegateB = recordingDelegate { log -> log is SecondLog }
+        Given("기록 수단 A와 B가 등록되어 있다") {
+            val delegateA = recordingDelegate()
+            val delegateB = recordingDelegate()
             DiaryLogger.add(delegate = delegateA.delegate)
             DiaryLogger.add(delegate = delegateB.delegate)
 
-            When("A가 담당하는 종류의 로그를 공통 창구에 전달한다") {
-                Then("TC-APP-LOGGING-DOMAIN-001 그 로그가 A에만 남고 B에는 남지 않는다") {
-                    val log = FirstLog(value = fixtureMonkey.giveMeOne<Int>())
+            When("서로 다른 종류의 로그를 차례로 공통 창구에 전달한다") {
+                Then("TC-APP-LOGGING-DOMAIN-020 두 로그가 종류와 관계없이 A와 B 모두에 전달된다") {
+                    val firstLog = FirstLog(value = fixtureMonkey.giveMeOne<Int>())
+                    val secondLog = SecondLog(value = fixtureMonkey.giveMeOne<Int>())
 
-                    DiaryLogger.log(log = log)
+                    DiaryLogger.log(log = firstLog)
+                    DiaryLogger.log(log = secondLog)
 
-                    delegateA.logList.shouldContainExactly(log)
-                    delegateB.logList.shouldBeEmpty()
+                    delegateA.logList.shouldContainExactly(firstLog, secondLog)
+                    delegateB.logList.shouldContainExactly(firstLog, secondLog)
                 }
             }
         }
 
         Given("같은 종류를 담당하는 기록 수단 두 개가 등록되어 있다") {
-            val first = recordingDelegate { log -> log is FirstLog }
-            val second = recordingDelegate { log -> log is FirstLog }
+            val first = recordingDelegate()
+            val second = recordingDelegate()
             DiaryLogger.add(delegate = first.delegate)
             DiaryLogger.add(delegate = second.delegate)
 
@@ -55,23 +57,6 @@ class DiaryLoggerTest :
 
                     first.logList.shouldContainExactly(log)
                     second.logList.shouldContainExactly(log)
-                }
-            }
-        }
-
-        Given("특정 종류만 담당하는 기록 수단이 등록되어 있다") {
-            val recording = recordingDelegate { log -> log is FirstLog }
-            DiaryLogger.add(delegate = recording.delegate)
-
-            When("어느 수단도 담당하지 않는 종류의 로그를 공통 창구에 전달한다") {
-                Then("TC-APP-LOGGING-DOMAIN-003 어느 기록 수단에도 로그가 남지 않고 전달은 오류 없이 완료된다") {
-                    val log = SecondLog(value = fixtureMonkey.giveMeOne<Int>())
-
-                    shouldNotThrowAny {
-                        DiaryLogger.log(log = log)
-                    }
-
-                    recording.logList.shouldBeEmpty()
                 }
             }
         }
@@ -162,16 +147,12 @@ class DiaryLoggerTest :
             val logList: List<DiaryLog>,
         )
 
-        private fun recordingDelegate(isTarget: (DiaryLog) -> Boolean = { true }): RecordingDelegate {
+        private fun recordingDelegate(): RecordingDelegate {
             val logList = mutableListOf<DiaryLog>()
             val delegate = mockk<DiaryLoggerDelegate>()
 
             every { delegate.log(log = any()) } answers {
-                val log = firstArg<DiaryLog>()
-
-                if (isTarget(log)) {
-                    logList += log
-                }
+                logList += firstArg<DiaryLog>()
             }
 
             return RecordingDelegate(delegate = delegate, logList = logList)

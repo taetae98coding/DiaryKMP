@@ -456,8 +456,8 @@ class MemoHomeViewModelTest : FunSpec() {
         private fun tag(): Tag =
             fixtureMonkey
                 .giveMeKotlinBuilder<Tag>()
-                .setExp(Tag::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Tag::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
 
         private fun datedMemo(): Memo =
@@ -466,8 +466,8 @@ class MemoHomeViewModelTest : FunSpec() {
                 .setExp(
                     Memo::detail,
                     fixtureMonkey.giveMeOne<MemoDetail>().copy(dateTime = MemoDateTime.AllDay(dateRange = LocalDate(2026, 1, 1)..LocalDate(2026, 1, 1))),
-                ).setExp(Memo::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Memo::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                ).setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
 
         private fun memoUseCase(): PageMemoHomeUseCase {

@@ -11,6 +11,6 @@ public data class NaverPlaceRemoteEntity(
     @SerialName("description") val description: String,
     @SerialName("address") val address: String,
     @SerialName("roadAddress") val roadAddress: String,
-    @SerialName("mapx") val mapx: String,
-    @SerialName("mapy") val mapy: String,
+    @SerialName("mapx") val mapx: String = "",
+    @SerialName("mapy") val mapy: String = "",
 )

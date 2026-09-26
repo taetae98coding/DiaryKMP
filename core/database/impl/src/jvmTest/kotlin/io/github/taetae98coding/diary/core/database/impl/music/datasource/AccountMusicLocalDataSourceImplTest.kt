@@ -175,6 +175,21 @@ class AccountMusicLocalDataSourceImplTest :
             pagedMusics(accountId).shouldBeEmpty()
         }
 
+        test("TC-PLAYLIST-HOME-DATA-007 실행 취소한 곡은 제목 오름차순에 맞는 자리로 다시 조회된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val firstMusic = music(title = FIRST_MUSIC_TITLE)
+            val middleMusic = music(title = MIDDLE_MUSIC_TITLE)
+            val lastMusic = music(title = LAST_MUSIC_TITLE)
+            musicTransaction.upsert(accountId = accountId, musicList = listOf(lastMusic, middleMusic, firstMusic))
+            musicTransaction.updateDeleted(accountId = accountId, musicId = middleMusic.id, isDeleted = true, updatedAt = instant())
+            pagedMusics(accountId) shouldBe listOf(firstMusic, lastMusic)
+            val restoredAt = instant()
+
+            musicTransaction.updateDeleted(accountId = accountId, musicId = middleMusic.id, isDeleted = false, updatedAt = restoredAt)
+
+            pagedMusics(accountId) shouldBe listOf(firstMusic, middleMusic.copy(updatedAt = restoredAt), lastMusic)
+        }
+
         test("최근 수정순은 수정 시각 내림차순으로 조회하고 같으면 제목 오름차순으로 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val latestMusic = music(title = LAST_MUSIC_TITLE).copy(updatedAt = Instant.fromEpochMilliseconds(3_000))
@@ -225,6 +240,6 @@ class AccountMusicLocalDataSourceImplTest :
                 .setExp(MusicLocalEntity::createdAt, instant())
                 .sample()
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
     }
 }

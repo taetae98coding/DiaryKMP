@@ -26,6 +26,7 @@ import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.domain.tag.usecase.AddTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.feature.tag.ui.TEST_TAG_ADD_REQUEST_KEY
@@ -35,7 +36,10 @@ import io.github.taetae98coding.diary.feature.tag.ui.link.WORK_TAG_TITLE
 import io.github.taetae98coding.diary.feature.tag.ui.link.testTag
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.Runs
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -215,6 +219,62 @@ class TagAddScreenTest {
     }
 
     @Test
+    fun `TC-TAG-ADD-FEATURE-026 저장에 실패하면 안내 없이 작성 내용과 고른 연결을 유지하고 같은 내용으로 다시 추가할 수 있다`() {
+        val linkedTag = testTag(title = WORK_TAG_TITLE)
+        val useCase = mockk<AddTagUseCase>()
+        coEvery { useCase(any()) } returns Result.failure(IllegalStateException("저장 실패"))
+        composeRule.setContent {
+            TagAddScreenTestTheme {
+                TagAddScreen(
+                    navigateToTagAdd = {},
+                    addedResultRequestKey = null,
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    navigateUp = {},
+                    navigateToDetail = {},
+                    addViewModel = TagAddViewModel(addTagUseCase = useCase),
+                    linkViewModel =
+                        screenTestLinkViewModel(
+                            uiState = MutableStateFlow(TagLinkInputUiState(linkedTagList = listOf(linkedTag))),
+                            linkedTagIdSet = MutableStateFlow(setOf(linkedTag.id)),
+                        ),
+                    componentVisibleProvider = { TagAddScaffoldComponentVisible() },
+                )
+            }
+        }
+        changeColor(hex = BLUE_HEX)
+        composeRule.inputEmoji(emoji = TYPED_EMOJI)
+        composeRule.titleInput().performTextInput(TYPED_TITLE)
+        composeRule.descriptionInput().performTextInput(TYPED_DESCRIPTION)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_ADD_SUCCEEDED_MESSAGE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_TITLE_BLANK_MESSAGE).assertDoesNotExist()
+        composeRule.emojiInput().assert(hasText(TYPED_EMOJI))
+        composeRule.titleInput().assert(hasText(TYPED_TITLE))
+        composeRule.descriptionInput().assert(hasText(TYPED_DESCRIPTION))
+        currentColorHex() shouldBe BLUE_HEX
+        composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        val expected =
+            AddTagUseCase.Parameter(
+                detail =
+                    TagDetail(
+                        emoji = TYPED_EMOJI,
+                        title = TYPED_TITLE,
+                        description = TYPED_DESCRIPTION,
+                        color = BLUE_COLOR,
+                    ),
+                linkedTagIdSet = setOf(linkedTag.id),
+            )
+        coVerify(exactly = 2) { useCase(expected) }
+    }
+
+    @Test
     fun `TC-TAG-ADD-DATA-008 컬러를 바꾸지 않고 추가하면 처음 제시한 컬러로 추가를 요청한다`() {
         val viewModel = screenTestViewModel()
         val detailSlot = slot<TagDetail>()
@@ -252,9 +312,11 @@ class TagAddScreenTest {
         every { viewModel.add(any(), any()) } answers { effect.trySend(TagAddEffect.AddSucceeded(id = Uuid.random())).getOrThrow() }
         setTagAddScreen(viewModel = viewModel)
 
+        changeColor(hex = BLUE_HEX)
         composeRule.inputEmoji(emoji = TYPED_EMOJI)
         composeRule.titleInput().performTextInput(TYPED_TITLE)
         composeRule.descriptionInput().performTextInput(TYPED_DESCRIPTION)
+        currentColorHex() shouldBe BLUE_HEX
 
         triggerAdd()
         composeRule.waitForIdle()
@@ -263,8 +325,18 @@ class TagAddScreenTest {
         composeRule.onNodeWithText(TYPED_TITLE).assertDoesNotExist()
         composeRule.emojiInput().assert(hasText(DEFAULT_EMOJI_LABEL))
         composeRule.descriptionInput().assert(hasText(""))
-        composeRule.onNode(hasHexText() and hasClickAction()).assertExists()
+        // 새 무작위 컬러가 고른 컬러와 우연히 같을 확률은 약 1,600만 분의 1이라 새 컬러 제시를 값의 변화로 판정한다.
+        currentColorHex() shouldNotBe BLUE_HEX
         composeRule.titleInput().assertIsFocused()
+    }
+
+    private fun changeColor(hex: String) {
+        val currentHex = currentColorHex()
+        composeRule.onNodeWithText(currentHex, substring = true).performScrollTo().performClick()
+        composeRule.onNode(hasSetTextAction() and hasText(currentHex)).performTextReplacement(hex)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_CONFIRM).performClick()
+        composeRule.waitForIdle()
     }
 
     private fun assertTitleBlankRetainsInput(initialTitle: String) {
@@ -340,6 +412,9 @@ class TagAddScreenTest {
         private const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add tag"
         private const val DEFAULT_CONFIRM = "Confirm"
         private const val BLUE_HEX = "#0000FF"
+        private val BLUE_COLOR: Long = 0xFF0000FF.toInt().toLong()
+        private const val DEFAULT_ADD_SUCCEEDED_MESSAGE = "Tag added."
+        private const val DEFAULT_TITLE_BLANK_MESSAGE = "Please enter a title."
         private const val RGB_MASK = 0xFFFFFF
 
         private val hexRegex = Regex(pattern = "#[0-9A-F]{6}")

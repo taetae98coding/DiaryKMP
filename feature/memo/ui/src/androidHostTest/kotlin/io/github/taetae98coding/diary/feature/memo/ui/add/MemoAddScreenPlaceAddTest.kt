@@ -21,8 +21,10 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.OFFICE_PLACE_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.place.placeDialogNodeWithText
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
+import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.place.api.PlaceAddedResult
 import io.kotest.matchers.shouldBe
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,6 +36,11 @@ import org.robolectric.annotation.Config
 class MemoAddScreenPlaceAddTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-MEMO-PLACE-CARD-FEATURE-025 목록의 장소 추가 항목을 누르면 목록이 닫히고 PlaceAdd 이동을 요청한다`() {

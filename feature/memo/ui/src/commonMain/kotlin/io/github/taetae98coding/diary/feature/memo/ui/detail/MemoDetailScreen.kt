@@ -1,8 +1,11 @@
 package io.github.taetae98coding.diary.feature.memo.ui.detail
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
@@ -13,6 +16,7 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactAddedResultEffect
 import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.form.MemoFormState
+import io.github.taetae98coding.diary.feature.memo.ui.form.collectMemoFormSelectablePagingItems
 import io.github.taetae98coding.diary.feature.memo.ui.form.handleMemoFormEvent
 import io.github.taetae98coding.diary.feature.memo.ui.form.rememberMemoDetailFormState
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiCloseEffect
@@ -64,14 +68,15 @@ internal fun MemoDetailScreen(
     val webPagingItems = webViewModel.webPagingData.collectAsLazyPagingItems()
     val contactPagingItems = contactViewModel.contactPagingData.collectAsLazyPagingItems()
     val placePagingItems = placeViewModel.placePagingData.collectAsLazyPagingItems()
-    val content = uiState as? MemoDetailUiState.Content
+    val selectablePagingItems = collectMemoFormSelectablePagingItems(tag = tagViewModel.selectableTagPagingData, web = webViewModel.selectableWebPagingData, contact = contactViewModel.selectableContactPagingData, place = placeViewModel.selectablePlacePagingData)
+    val shownContent = rememberShownMemoDetailContent(uiState = uiState)
 
-    MemoDetailEnterEffect(targetId = content?.id, tagAddRequestKey = tagAddRequestKey, tagViewModel = tagViewModel, webViewModel = webViewModel, contactViewModel = contactViewModel, placeViewModel = placeViewModel, placeMapViewModel = placeMapViewModel, geminiViewModel = geminiViewModel)
+    MemoDetailEnterEffect(targetId = shownContent?.id, tagAddRequestKey = tagAddRequestKey, tagViewModel = tagViewModel, webViewModel = webViewModel, contactViewModel = contactViewModel, placeViewModel = placeViewModel, placeMapViewModel = placeMapViewModel, geminiViewModel = geminiViewModel)
 
-    key(content?.id) {
-        val scaffoldState = rememberMemoDetailFormState(initialDetail = content?.detail ?: MemoDetail.EMPTY)
+    key(shownContent?.id) {
+        val scaffoldState = rememberMemoDetailFormState(initialDetail = shownContent?.detail ?: MemoDetail.EMPTY)
 
-        MemoDetailTargetEffect(id = content?.id, scaffoldState = scaffoldState, detailViewModel = detailViewModel, geminiViewModel = geminiViewModel, navigateUp = navigateUp, navigateToCopiedMemo = navigateToCopiedMemo)
+        MemoDetailTargetEffect(id = shownContent?.id, scaffoldState = scaffoldState, detailViewModel = detailViewModel, geminiViewModel = geminiViewModel, navigateUp = navigateUp, navigateToCopiedMemo = navigateToCopiedMemo)
 
         MemoDetailScaffold(
             state = scaffoldState,
@@ -82,10 +87,7 @@ internal fun MemoDetailScreen(
                 handleMemoFormEvent(
                     event = event,
                     state = scaffoldState,
-                    tagPagingItems = tagPagingItems,
-                    webPagingItems = webPagingItems,
-                    contactPagingItems = contactPagingItems,
-                    placePagingItems = placePagingItems,
+                    selectablePagingItems = selectablePagingItems,
                     navigateToTagAdd = navigateToTagAdd,
                     navigateToTagDetail = navigateToTagDetail,
                     navigateToWebAdd = navigateToWebAdd,
@@ -115,6 +117,19 @@ internal fun MemoDetailScreen(
             isStandalone = isStandalone,
         )
     }
+}
+
+// 내용을 한 번 보인 뒤 조회가 잠시 끊겨 로딩으로 돌아가도 입력 상태를 새로 만들지 않도록, 마지막으로 보인 내용을 대상으로 붙잡아 둔다.
+@Composable
+private fun rememberShownMemoDetailContent(uiState: MemoDetailUiState): MemoDetailUiState.Content? {
+    val content = uiState as? MemoDetailUiState.Content
+    val lastContent = remember { mutableStateOf<MemoDetailUiState.Content?>(null) }
+
+    SideEffect {
+        if (content != null) lastContent.value = content
+    }
+
+    return content ?: lastContent.value
 }
 
 @Composable

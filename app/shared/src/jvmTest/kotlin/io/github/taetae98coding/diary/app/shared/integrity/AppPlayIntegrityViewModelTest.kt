@@ -30,7 +30,7 @@ class AppPlayIntegrityViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-PLAY-INTEGRITY-LOGGING-DOMAIN-011 확인 중 앱이 백그라운드로 가도 끝까지 진행한다") {
+        test("확인을 요청하면 서버 응답을 기다려 끝까지 진행한다") {
             runTest(mainDispatcher) {
                 val serverResponse = CompletableDeferred<Unit>()
                 var finishedCount = 0

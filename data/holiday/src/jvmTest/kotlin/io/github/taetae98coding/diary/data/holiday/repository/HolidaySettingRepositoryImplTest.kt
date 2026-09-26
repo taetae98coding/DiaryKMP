@@ -148,7 +148,7 @@ class HolidaySettingRepositoryImplTest :
             }
         }
 
-        test("TC-SETTING-HOLIDAY-FEATURE-012 목표 상태와 같은 일괄 변경은 새 값을 제공하지 않는다") {
+        test("저장된 집합과 같은 집합을 제출해도 그대로 위임한다") {
             val workingDayKey = SECOND_MIDSUMMER_DAY_KEY
             val hiddenKeySetFlow = MutableStateFlow(setOf(workingDayKey))
             val localDataSource = mockHolidaySettingLocalDataSource(hiddenKeySetFlow)

@@ -20,6 +20,7 @@ import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
+import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -36,7 +37,7 @@ class MoveMemoUseCaseTest :
     BehaviorSpec({
         Given("삭제되지 않은 메모가 저장되어 있다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val memoId = fixtureMonkey.giveMeOne<Uuid>()
             val storedMemo = memo(id = memoId, isDeleted = false)
             val detailSlot = slot<MemoDetail>()
@@ -86,11 +87,13 @@ class MoveMemoUseCaseTest :
                     val result = useCase(parameter = MoveMemoUseCase.Parameter(id = memoId, fromDateTime = dateTime, toDateRange = dateRange))
 
                     result.shouldBeSuccess(Unit)
-                    detailSlot.captured.title shouldBe storedMemo.detail.title
-                    detailSlot.captured.description shouldBe storedMemo.detail.description
-                    detailSlot.captured.color shouldBe storedMemo.detail.color
-                    coVerify(exactly = 0) { accountMemoRepository.updateFinished(account = any(), memoId = any(), isFinished = any(), updatedAt = any()) }
-                    coVerify(exactly = 0) { accountMemoRepository.updateDeleted(account = any(), memoId = any(), isDeleted = any(), updatedAt = any()) }
+                    detailSlot.captured shouldBe storedMemo.detail.copy(dateTime = MemoDateTime.AllDay(dateRange = dateRange))
+                    updatedAtSlot.captured shouldBe now
+                    // 완료·삭제 여부, 생성 시각, 태그·대표 태그·장소·웹·연락처 연결은 내용 저장과 따로 바뀌므로, 내용 저장 외의 변경 요청이 없어야 한다.
+                    coVerify(atLeast = 1) {
+                        accountMemoRepository.updateDetail(account = account, memoId = memoId, detail = any(), updatedAt = any())
+                    }
+                    confirmVerified(accountMemoRepository)
                 }
 
                 Then("TC-CALENDAR-MEMO-MOVE-DOMAIN-003 저장된 기간과 다르더라도 파라미터로 받은 이동 시작 시점의 기간을 기준으로 저장한다") {
@@ -142,6 +145,7 @@ class MoveMemoUseCaseTest :
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val memoId = fixtureMonkey.giveMeOne<Uuid>()
             val storedMemo = memo(id = memoId, isDeleted = false, isFinished = true)
+            val detailSlot = slot<MemoDetail>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
@@ -150,10 +154,10 @@ class MoveMemoUseCaseTest :
             every { findMemoUseCase(parameter = memoId) } returns flowOf(Result.success(storedMemo))
             val accountMemoRepository = mockk<AccountMemoRepository>()
             coEvery {
-                accountMemoRepository.updateDetail(account = account, memoId = memoId, detail = any(), updatedAt = any())
+                accountMemoRepository.updateDetail(account = account, memoId = memoId, detail = capture(detailSlot), updatedAt = any())
             } returns 1
             val clock = mockk<Clock>()
-            every { clock.now() } returns Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
             val useCase =
                 MoveMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -171,6 +175,7 @@ class MoveMemoUseCaseTest :
                     val result = useCase(parameter = MoveMemoUseCase.Parameter(id = memoId, fromDateTime = dateTime, toDateRange = dateRange))
 
                     result.shouldBeSuccess(Unit)
+                    detailSlot.captured.dateTime shouldBe MemoDateTime.AllDay(dateRange = july(day = 16)..july(day = 18))
                     coVerify(exactly = 1) {
                         accountMemoRepository.updateDetail(account = account, memoId = memoId, detail = any(), updatedAt = any())
                     }
@@ -303,8 +308,8 @@ class MoveMemoUseCaseTest :
                 .setExp(Memo::id, id)
                 .setExp(Memo::isDeleted, isDeleted)
                 .setExp(Memo::isFinished, isFinished)
-                .setExp(Memo::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Memo::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

@@ -30,6 +30,7 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import kotlinx.coroutines.flow.first
 import kotlinx.datetime.LocalDateTime
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -119,8 +120,8 @@ class AccountMemoDaoExistenceFilterTest :
                         memoId = memoId,
                         tagId = tagId,
                         isDeleted = isDeleted,
-                        updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
-                        createdAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                        updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+                        createdAt = fixtureMonkey.giveMeOne<Instant>(),
                     ),
                 )
                 database.accountMemoTagDao().upsert(
@@ -146,8 +147,8 @@ class AccountMemoDaoExistenceFilterTest :
                         memoId = memoId,
                         placeId = placeId,
                         isDeleted = isDeleted,
-                        updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
-                        createdAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                        updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+                        createdAt = fixtureMonkey.giveMeOne<Instant>(),
                     ),
                 )
                 database.accountMemoPlaceDao().upsert(
@@ -333,11 +334,13 @@ class AccountMemoDaoExistenceFilterTest :
             insertMemo(accountId, tagMemo, noTagMemo)
             insertTag(accountId, tag)
             linkTag(accountId = accountId, memoId = tagMemo.id, tagId = tag.id)
+            selectFilterTag(accountId = accountId, tagId = tag.id)
+            pagedIds(accountId) shouldBe listOf(tagMemo.id)
 
             setExistence(hasTag = false)
-            selectFilterTag(accountId = accountId, tagId = tag.id)
 
             pagedIds(accountId) shouldBe listOf(noTagMemo.id)
+            database.memoFilterTagDao().getTagIdList(accountId = accountId).first() shouldBe listOf(tag.id)
         }
 
         test("TC-MEMO-HOME-FEATURE-054 태그 축을 되돌리면 유지된 태그 선택이 다시 적용된다") {
@@ -357,7 +360,7 @@ class AccountMemoDaoExistenceFilterTest :
             pagedIds(accountId) shouldBe listOf(tagMemo.id)
         }
 
-        test("TC-MEMO-HOME-FEATURE-053 태그 축이 있음이면 선택한 태그를 함께 적용한다") {
+        test("TC-MEMO-HOME-DOMAIN-021 태그 축이 있음이면 태그 필터를 함께 적용한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val selectedTag = tag()
             val otherTag = tag()
@@ -595,8 +598,8 @@ class AccountMemoDaoExistenceFilterTest :
                 .setExp(MemoLocalEntity::detail, detail)
                 .setExp(MemoLocalEntity::isFinished, isFinished)
                 .setExp(MemoLocalEntity::isDeleted, isDeleted)
-                .setExp(MemoLocalEntity::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(MemoLocalEntity::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(MemoLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(MemoLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
 
         private fun detail(
@@ -622,8 +625,8 @@ class AccountMemoDaoExistenceFilterTest :
                 .setExp(TagLocalEntity::detail, fixtureMonkey.giveMeOne<TagDetailLocalEntity>())
                 .setExp(TagLocalEntity::isFinished, isFinished)
                 .setExp(TagLocalEntity::isDeleted, isDeleted)
-                .setExp(TagLocalEntity::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(TagLocalEntity::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(TagLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(TagLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
 
         private fun place(isDeleted: Boolean = false): PlaceLocalEntity =
@@ -632,8 +635,8 @@ class AccountMemoDaoExistenceFilterTest :
                 .setExp(PlaceLocalEntity::id, fixtureMonkey.giveMeOne<Uuid>())
                 .setExp(PlaceLocalEntity::detail, fixtureMonkey.giveMeOne<PlaceDetailLocalEntity>())
                 .setExp(PlaceLocalEntity::isDeleted, isDeleted)
-                .setExp(PlaceLocalEntity::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(PlaceLocalEntity::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(PlaceLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(PlaceLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

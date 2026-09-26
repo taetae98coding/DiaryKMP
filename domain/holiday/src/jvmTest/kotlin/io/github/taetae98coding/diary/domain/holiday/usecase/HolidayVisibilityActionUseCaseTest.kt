@@ -231,6 +231,52 @@ class HolidayVisibilityActionUseCaseTest :
             }
         }
 
+        Given("TC-SETTING-HOLIDAY-FEATURE-012 저장된 숨긴 공휴일 이름 목록이 일괄 선택 결과와 이미 같다") {
+            val dayOff = holiday(name = uniqueName(label = "day-off"), isHoliday = true)
+            val workingDay = holiday(name = uniqueName(label = "working-day"), isHoliday = false)
+            val holidayRepository = holidayRepository(holidayList = listOf(dayOff, workingDay))
+            val caseList =
+                listOf(
+                    "전체 선택" to emptySet(),
+                    "전체 해제" to setOf(dayOff.name, workingDay.name),
+                    "쉬는 날만 선택" to setOf(workingDay.name),
+                )
+
+            When("테스트 데이터의 일괄 선택을 실행한다") {
+                Then("저장된 목록과 같은 목록을 그대로 제출해 새 저장값을 만들지 않는다") {
+                    caseList.forEach { (action, storedHiddenKeySet) ->
+                        val repository = mockk<HolidaySettingRepository>()
+                        every { repository.getHiddenKeySet() } returns flowOf(storedHiddenKeySet)
+                        coEvery { repository.submitHiddenKeySet(hiddenKeySet = any()) } just Runs
+                        val useCase: suspend () -> Result<Unit> =
+                            mapOf(
+                                "전체 선택" to suspend { SelectAllHolidayUseCase(holidaySettingRepository = repository)(parameter = Unit) },
+                                "전체 해제" to
+                                    suspend {
+                                        DeselectAllHolidayUseCase(
+                                            getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(),
+                                            holidayRepository = holidayRepository,
+                                            holidaySettingRepository = repository,
+                                        )(parameter = Unit)
+                                    },
+                                "쉬는 날만 선택" to
+                                    suspend {
+                                        SelectDaysOffHolidayUseCase(
+                                            getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(),
+                                            holidayRepository = holidayRepository,
+                                            holidaySettingRepository = repository,
+                                        )(parameter = Unit)
+                                    },
+                            ).getValue(action)
+
+                        useCase().shouldBeSuccess()
+
+                        coVerify(exactly = 1) { repository.submitHiddenKeySet(hiddenKeySet = storedHiddenKeySet) }
+                    }
+                }
+            }
+        }
+
         Given("세 일괄 선택을 적용할 공휴일 목록이 있다") {
             val dayOff = holiday(name = uniqueName(label = "day-off"), isHoliday = true)
             val workingDay = holiday(name = uniqueName(label = "working-day"), isHoliday = false)

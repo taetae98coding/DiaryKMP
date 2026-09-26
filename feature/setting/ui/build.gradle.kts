@@ -16,6 +16,7 @@ kotlin {
 
         jvmTest {
             dependencies {
+                implementation(projects.core.testing)
                 implementation(projects.feature.more.api)
             }
         }
@@ -23,6 +24,7 @@ kotlin {
         androidHostTest {
             dependencies {
                 implementation(libs.androidx.lifecycle.runtime.testing)
+                implementation(projects.core.testing)
             }
         }
     }

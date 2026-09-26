@@ -22,6 +22,7 @@ import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -156,10 +157,12 @@ class UpdateContactUseCaseTest :
                     coVerify(exactly = 0) { accountContactRepository.upsert(account = any(), contact = any()) }
                 }
 
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-CONTACT-DETAIL-DATA-010 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-CONTACT-DETAIL-DATA-010 로컬 저장 결과로 성공을 판단하고 동기화를 한 번 요청한다") {
+                    clearMocks(requestSyncUseCase, answers = false)
+
                     useCase(parameter = UpdateContactUseCase.Parameter(id = stored.id, detail = detail())).shouldBeSuccess(1)
 
-                    coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
+                    coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
                 }
             }
 
@@ -230,7 +233,7 @@ class UpdateContactUseCaseTest :
                 }
 
                 When("이름을 비우고 번호가 없는 전화번호 항목과 함께 수정한다") {
-                    Then("TC-CONTACT-DETAIL-DOMAIN-004 전화번호를 먼저 판단해 아무 내용도 수정하지 않는다") {
+                    Then("TC-CONTACT-DETAIL-DOMAIN-019 이름을 비워도 전화번호를 먼저 판단해 아무 내용도 수정하지 않는다") {
                         val result =
                             useCase(
                                 parameter =
@@ -387,7 +390,7 @@ class UpdateContactUseCaseTest :
             return useCase
         }
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun contact(): Contact =
             Contact(

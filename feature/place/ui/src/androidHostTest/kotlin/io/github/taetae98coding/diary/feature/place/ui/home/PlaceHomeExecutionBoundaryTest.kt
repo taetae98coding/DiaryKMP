@@ -116,7 +116,7 @@ class PlaceHomeExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-DOMAIN-022 장소 추가나 장소 상세로 이동한 뒤 뒤로 돌아와도 바꿔 둔 보기 모드를 유지한다`() {
+    fun `TC-PLACE-HOME-DOMAIN-022 장소 추가, 장소 상세나 검색으로 이동한 뒤 뒤로 돌아와도 바꿔 둔 보기 모드를 유지한다`() {
         val mapViewModel = mapViewModel(fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>()))
         var isPlaceHomeOnTop by mutableStateOf(true)
         composeRule.setContent {
@@ -130,7 +130,7 @@ class PlaceHomeExecutionBoundaryTest {
         }
         selectListMode()
 
-        listOf("장소 추가", "장소 상세").forEach { destination ->
+        listOf("장소 추가", "장소 상세", "검색").forEach { destination ->
             withClue(destination) {
                 composeRule.runOnIdle { isPlaceHomeOnTop = false }
                 composeRule.waitForIdle()

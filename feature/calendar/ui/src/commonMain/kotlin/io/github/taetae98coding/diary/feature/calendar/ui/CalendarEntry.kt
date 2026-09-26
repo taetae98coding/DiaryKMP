@@ -17,7 +17,6 @@ import io.github.taetae98coding.diary.feature.calendar.ui.home.rememberCalendarH
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
-import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import kotlinx.coroutines.flow.Flow
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -74,10 +73,7 @@ private fun EntryProviderScope<ScreenNavKey>.calendarHomeFilterEntry(backStack: 
         metadata = BottomSheetSceneStrategy.bottomSheet(),
     ) {
         CalendarHomeFilterContent(
-            navigateToTagAdd = {
-                backStack.removeLastOrNull()
-                backStack.add(TagAddNavKey())
-            },
+            navigateToTagAdd = backStack::navigateToTagAddFromCalendarHomeFilter,
         )
     }
 }

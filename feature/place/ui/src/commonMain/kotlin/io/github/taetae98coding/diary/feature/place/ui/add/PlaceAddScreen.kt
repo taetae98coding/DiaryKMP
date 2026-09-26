@@ -50,6 +50,7 @@ internal fun PlaceAddScreen(
     val searchUiState by searchViewModel.uiState.collectAsStateWithLifecycle()
     val tagUiState by tagViewModel.uiState.collectAsStateWithLifecycle()
     val tagPagingItems = tagViewModel.tagPagingData.collectAsLazyPagingItems()
+    val selectableTagPagingItems = tagViewModel.selectableTagPagingData.collectAsLazyPagingItems()
     val scaffoldState =
         rememberPlaceAddFormState(
             defaultProvider = uiState.defaultProvider,
@@ -85,7 +86,7 @@ internal fun PlaceAddScreen(
             handlePlaceFormEvent(
                 event = event,
                 state = scaffoldState,
-                tagPagingItems = tagPagingItems,
+                selectableTagPagingItems = selectableTagPagingItems,
                 navigateToTagAdd = navigateToTagAdd,
                 navigateToTagDetail = navigateToTagDetail,
             )

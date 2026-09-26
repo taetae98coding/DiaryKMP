@@ -29,6 +29,8 @@ class RoutineAddScreenRestorationTest {
 
     @Test
     fun `TC-ROUTINE-ADD-FEATURE-005 화면이 재생성되어도 입력 중이던 제목과 설명을 유지한다`() {
+        val title = "title-${fixtureMonkey.giveMeOne<String>()}"
+        val description = "description-${fixtureMonkey.giveMeOne<String>()}"
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
             DiaryTheme {
@@ -38,15 +40,15 @@ class RoutineAddScreenRestorationTest {
                 )
             }
         }
-        composeRule.titleInput().performTextInput(TITLE)
-        composeRule.descriptionInput().performTextInput(DESCRIPTION)
+        composeRule.titleInput().performTextInput(title)
+        composeRule.descriptionInput().performTextInput(description)
         composeRule.waitForIdle()
 
         restorationTester.emulateSavedInstanceStateRestore()
         composeRule.waitForIdle()
 
-        composeRule.titleInput().editableText() shouldBe TITLE
-        composeRule.descriptionInput().editableText() shouldBe DESCRIPTION
+        composeRule.titleInput().editableText() shouldBe title
+        composeRule.descriptionInput().editableText() shouldBe description
     }
 
     @Test
@@ -88,8 +90,5 @@ class RoutineAddScreenRestorationTest {
     private companion object {
         private const val TITLE_INPUT_INDEX = 0
         private const val DESCRIPTION_INPUT_INDEX = 1
-
-        private const val TITLE = "RoutineAddRestoredTitle"
-        private const val DESCRIPTION = "RoutineAddRestoredDescription"
     }
 }

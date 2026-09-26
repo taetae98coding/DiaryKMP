@@ -10,6 +10,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
+import io.github.taetae98coding.diary.core.database.api.memoplace.entity.MemoPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memoweb.entity.MemoWebLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
@@ -442,9 +443,10 @@ class AccountMemoWebTransactionImplTest :
                 )
         }
 
-        test("TC-MEMO-WEB-DATA-002 저장이 실패하면 메모와 계정 연결, 태그 연결, 웹 연결이 모두 남지 않는다") {
+        test("TC-MEMO-WEB-DATA-002 저장이 실패하면 메모와 계정 연결, 태그·웹·장소 연결이 모두 남지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val placeId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val web = web()
             val memoSyncDataSource = AccountMemoSyncLocalDataSourceImpl(database = database)
@@ -457,12 +459,14 @@ class AccountMemoWebTransactionImplTest :
                     accountId = accountId,
                     memoList = listOf(memo),
                     memoTagList = listOf(memoTag(memoId = memo.id, tagId = tagId, memo = memo)),
+                    memoPlaceList = listOf(MemoPlaceLocalEntity(memoId = memo.id, placeId = placeId, isDeleted = false, updatedAt = memo.updatedAt, createdAt = memo.createdAt)),
                     memoWebList = listOf(memoWeb(memoId = memo.id, webId = web.id, memo = memo)),
                 )
             }
 
             findMemo(accountId = accountId, memoId = memo.id).shouldBeNull()
             database.memoTagDao().findByMemoIdList(listOf(memo.id)).shouldBeEmpty()
+            database.memoPlaceDao().findByMemoIdList(listOf(memo.id)).shouldBeEmpty()
             findMemoWebList(memoId = memo.id).shouldBeEmpty()
             memoSyncDataSource.findPending(accountId = accountId).shouldBeEmpty()
         }
@@ -709,7 +713,7 @@ class AccountMemoWebTransactionImplTest :
                 .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, T>>()
                 .data
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun memoWeb(
             memoId: Uuid,

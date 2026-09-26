@@ -1,21 +1,13 @@
 package io.github.taetae98coding.diary.feature.memo.ui.form
 
-import androidx.paging.compose.LazyPagingItems
 import io.github.taetae98coding.diary.compose.core.paging.isConfirmedEmpty
-import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.location.Coordinate
-import io.github.taetae98coding.diary.core.model.place.Place
-import io.github.taetae98coding.diary.core.model.tag.Tag
-import io.github.taetae98coding.diary.core.model.web.Web
 import kotlin.uuid.Uuid
 
 internal fun handleMemoFormEvent(
     event: MemoFormEvent,
     state: MemoFormState,
-    tagPagingItems: LazyPagingItems<Tag>,
-    webPagingItems: LazyPagingItems<Web>,
-    contactPagingItems: LazyPagingItems<Contact>,
-    placePagingItems: LazyPagingItems<Place>,
+    selectablePagingItems: MemoFormSelectablePagingItems,
     navigateToTagAdd: () -> Unit,
     navigateToTagDetail: (Uuid) -> Unit,
     navigateToWebAdd: () -> Unit,
@@ -29,7 +21,7 @@ internal fun handleMemoFormEvent(
         is MemoFormEvent.ClickTag -> navigateToTagDetail(event.id)
 
         is MemoFormEvent.ClickTagAdd ->
-            if (tagPagingItems.isConfirmedEmpty()) {
+            if (selectablePagingItems.tag.isConfirmedEmpty()) {
                 navigateToTagAdd()
             } else {
                 state.tagPickerDialogState.show()
@@ -38,7 +30,7 @@ internal fun handleMemoFormEvent(
         is MemoFormEvent.ClickWeb -> navigateToWebDetail(event.id)
 
         is MemoFormEvent.ClickWebAdd ->
-            if (webPagingItems.isConfirmedEmpty()) {
+            if (selectablePagingItems.web.isConfirmedEmpty()) {
                 navigateToWebAdd()
             } else {
                 state.webPickerDialogState.show()
@@ -47,7 +39,7 @@ internal fun handleMemoFormEvent(
         is MemoFormEvent.ClickContact -> navigateToContactDetail(event.id)
 
         is MemoFormEvent.ClickContactAdd ->
-            if (contactPagingItems.isConfirmedEmpty()) {
+            if (selectablePagingItems.contact.isConfirmedEmpty()) {
                 navigateToContactAdd()
             } else {
                 state.contactPickerDialogState.show()
@@ -56,7 +48,7 @@ internal fun handleMemoFormEvent(
         is MemoFormEvent.ClickPlace -> navigateToPlaceDetail(event.id)
 
         is MemoFormEvent.ClickPlaceAdd ->
-            if (placePagingItems.isConfirmedEmpty()) {
+            if (selectablePagingItems.place.isConfirmedEmpty()) {
                 navigateToPlaceAdd(event.coordinate)
             } else {
                 state.placePickerDialogState.show()

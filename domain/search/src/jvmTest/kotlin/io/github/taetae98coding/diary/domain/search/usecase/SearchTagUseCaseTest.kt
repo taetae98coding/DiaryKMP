@@ -48,7 +48,7 @@ class SearchTagUseCaseTest :
                     flowOf(pagingData).asSnapshot() shouldBe tagList
                 }
 
-                Then("앞뒤 공백을 뺀 질의로 조회한다") {
+                Then("TC-SEARCH-HOME-DOMAIN-017 앞뒤 공백을 뺀 질의로 조회한다") {
                     val pagingData = useCase(parameter = SearchTagUseCase.Parameter(query = "  $QUERY  ", sort = ListSort.TITLE)).first().shouldBeSuccess()
 
                     flowOf(pagingData).asSnapshot() shouldBe tagList
@@ -134,8 +134,8 @@ class SearchTagUseCaseTest :
             fixtureMonkey
                 .giveMeKotlinBuilder<Tag>()
                 .setExp(Tag::isDeleted, false)
-                .setExp(Tag::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Tag::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

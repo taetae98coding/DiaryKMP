@@ -237,6 +237,37 @@ class MusicDetailViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-MUSIC-DETAIL-FEATURE-020 삭제를 처리하는 동안에도 수정과 불러오기를 실행한다") {
+            runTest(mainDispatcher) {
+                val deleteCompletion = CompletableDeferred<Result<Int>>()
+                val deleteMusicUseCase = mockk<DeleteMusicUseCase>()
+                coEvery { deleteMusicUseCase(any()) } coAnswers { deleteCompletion.await() }
+                val updateMusicUseCase = mockk<UpdateMusicUseCase>()
+                coEvery { updateMusicUseCase(any()) } returns Result.success(1)
+                val fetchYoutubeVideoUseCase = mockk<FetchYoutubeVideoUseCase>()
+                coEvery { fetchYoutubeVideoUseCase(any()) } returns Result.success(fixtureMonkey.giveMeOne<YoutubeVideo>())
+                val viewModel =
+                    viewModel(
+                        updateMusicUseCase = updateMusicUseCase,
+                        deleteMusicUseCase = deleteMusicUseCase,
+                        fetchYoutubeVideoUseCase = fetchYoutubeVideoUseCase,
+                    )
+                val detail = fixtureMonkey.giveMeOne<MusicDetail>()
+
+                viewModel.delete()
+                runCurrent()
+                viewModel.update(detail = detail)
+                viewModel.fetchLink(YOUTUBE_LINK)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { updateMusicUseCase(UpdateMusicUseCase.Parameter(id = DEFAULT_ID, detail = detail)) }
+                coVerify(exactly = 1) { fetchYoutubeVideoUseCase(YOUTUBE_LINK) }
+
+                deleteCompletion.complete(Result.success(1))
+                advanceUntilIdle()
+            }
+        }
+
         test("TC-MUSIC-DETAIL-FEATURE-012 TC-MUSIC-DETAIL-FEATURE-013 다시 불러오기에 성공하면 불러온 값 Effect만 보낸다") {
             runTest(mainDispatcher) {
                 val video = fixtureMonkey.giveMeOne<YoutubeVideo>()
@@ -255,6 +286,7 @@ class MusicDetailViewModelTest : FunSpec() {
 
                     awaitItem() shouldBe
                         MusicDetailEffect.LinkFetched(
+                            link = YOUTUBE_LINK,
                             title = video.title,
                             artist = video.channelName,
                         )
@@ -269,7 +301,7 @@ class MusicDetailViewModelTest : FunSpec() {
             MusicLinkBlankException() to MusicDetailEffect.LinkBlank,
             MusicLinkNotYoutubeException() to MusicDetailEffect.LinkNotYoutube,
         ).forEach { (throwable, expected) ->
-            test("TC-MUSIC-DETAIL-FEATURE-012 링크가 성립하지 않으면 ${expected::class.simpleName} Effect를 보낸다") {
+            test("TC-MUSIC-DETAIL-FEATURE-031 링크가 성립하지 않으면 ${expected::class.simpleName} Effect를 보낸다") {
                 runTest(mainDispatcher) {
                     val useCase = mockk<FetchYoutubeVideoUseCase>()
                     coEvery { useCase(any()) } returns Result.failure(throwable)
@@ -286,7 +318,7 @@ class MusicDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-DETAIL-FEATURE-012 영상 정보를 가져오지 못하면 불러오기 실패 Effect를 보낸다") {
+        test("TC-MUSIC-DETAIL-FEATURE-032 영상 정보를 가져오지 못하면 불러오기 실패 Effect를 보낸다") {
             runTest(mainDispatcher) {
                 val useCase = mockk<FetchYoutubeVideoUseCase>()
                 coEvery { useCase(any()) } returns Result.failure(IllegalStateException("fetch failed"))
@@ -321,6 +353,11 @@ class MusicDetailViewModelTest : FunSpec() {
 
                 completion.complete(Result.success(1))
                 advanceUntilIdle()
+
+                viewModel.update(detail = secondDetail)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { useCase(UpdateMusicUseCase.Parameter(id = DEFAULT_ID, detail = secondDetail)) }
             }
         }
 
@@ -338,8 +375,13 @@ class MusicDetailViewModelTest : FunSpec() {
 
                 coVerify(exactly = 1) { useCase(DEFAULT_ID) }
 
-                completion.complete(Result.success(1))
+                completion.complete(Result.failure(IllegalStateException("delete failed")))
                 advanceUntilIdle()
+
+                viewModel.delete()
+                advanceUntilIdle()
+
+                coVerify(exactly = 2) { useCase(DEFAULT_ID) }
             }
         }
 
@@ -359,6 +401,11 @@ class MusicDetailViewModelTest : FunSpec() {
 
                 completion.complete(Result.success(fixtureMonkey.giveMeOne<YoutubeVideo>()))
                 advanceUntilIdle()
+
+                viewModel.fetchLink(YOUTUBE_LINK)
+                advanceUntilIdle()
+
+                coVerify(exactly = 2) { useCase(YOUTUBE_LINK) }
             }
         }
 
@@ -407,7 +454,7 @@ class MusicDetailViewModelTest : FunSpec() {
                 .setExp(Music::createdAt, instant())
                 .sample()
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun viewModel(
             id: Uuid = DEFAULT_ID,

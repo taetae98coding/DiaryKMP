@@ -32,7 +32,7 @@ class MemoContactInputTest {
     }
 
     @Test
-    fun `칩에는 제목만 표시하고 URL은 표시하지 않는다`() {
+    fun `칩에는 이름만 표시하고 전화번호는 표시하지 않는다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
 
         composeRule.setMemoContactInput(uiState = MemoContactInputUiState(selectedContactList = listOf(contact)))
@@ -158,12 +158,13 @@ class MemoContactInputAddChipTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-002 선택한 연락처가 없거나 여러 개여도 연락처 추가 항목이 표시된다`() {
+    fun `TC-MEMO-CONTACT-INPUT-FEATURE-002 선택한 연락처가 없거나 하나거나 여러 개여도 연락처 추가 항목이 표시된다`() {
         val contactList = listOf(testContact(name = FIRST_CONTACT_NAME), testContact(name = SECOND_CONTACT_NAME))
         val selectContactList = composeRule.setMemoContactInputWithSelection()
 
         listOf(
             emptyList(),
+            contactList.take(1),
             contactList,
         ).forEach { selectedContactList ->
             selectContactList(selectedContactList)

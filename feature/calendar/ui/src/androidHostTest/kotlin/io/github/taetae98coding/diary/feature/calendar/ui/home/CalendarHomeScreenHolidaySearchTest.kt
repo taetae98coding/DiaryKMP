@@ -7,7 +7,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
@@ -132,6 +134,7 @@ class CalendarHomeScreenHolidaySearchTest {
 
         composeRule.onNodeWithText(CalendarHomeTestFixture.englishTitle(JULY_2026)).assertIsDisplayed()
         composeRule.onNodeWithText(CONSTITUTION_DAY_NAME).assertIsDisplayed()
+        composeRule.onAllNodes(isDialog()).assertCountEquals(0)
     }
 
     @Test

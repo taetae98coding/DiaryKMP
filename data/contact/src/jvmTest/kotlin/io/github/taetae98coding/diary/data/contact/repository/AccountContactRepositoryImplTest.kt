@@ -121,7 +121,7 @@ class AccountContactRepositoryImplTest :
             }
         }
 
-        test("TC-CONTACT-HOME-DOMAIN-005 최근 수정순은 로컬 조회의 최근 수정순 조건으로 전달된다") {
+        test("각 정렬은 같은 로컬 조회 조건으로 전달된다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val localDataSource = mockk<AccountContactLocalDataSource>()
             every { localDataSource.page(accountId = account.id, sort = any()) } returns pagingSource(emptyList())
@@ -151,7 +151,7 @@ class AccountContactRepositoryImplTest :
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val contactId = fixtureMonkey.giveMeOne<Uuid>()
             val detail = ContactDetail.EMPTY.copy(name = "name-${fixtureMonkey.giveMeOne<String>()}", phoneNumberList = emptyList())
-            val updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val updatedAt = fixtureMonkey.giveMeOne<Instant>()
             val transaction = mockk<AccountContactTransaction>()
             coEvery { transaction.updateDetail(accountId = any(), contactId = any(), detail = any(), updatedAt = any()) } returns 1
             val repository = repository(transaction = transaction)
@@ -214,7 +214,7 @@ class AccountContactRepositoryImplTest :
                     name = "name-${fixtureMonkey.giveMeOne<String>()}",
                     phoneNumberList = listOf(ContactPhoneNumber(number = "010-1234-5678"), ContactPhoneNumber(number = "02-1-2")),
                 )
-            val updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val updatedAt = fixtureMonkey.giveMeOne<Instant>()
             val transaction = mockk<AccountContactTransaction>()
             coEvery {
                 transaction.updateDetail(accountId = account.id, contactId = contactId, detail = detail.toLocal(), updatedAt = updatedAt)
@@ -239,14 +239,14 @@ class AccountContactRepositoryImplTest :
                 account = account,
                 contactId = contactId,
                 detail = ContactDetail.EMPTY,
-                updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
             ) shouldBe 0
         }
 
         test("TC-CONTACT-DETAIL-DATA-012 즐겨찾기 변경은 계정 식별자와 즐겨찾기 여부를 트랜잭션에 위임한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val contactId = fixtureMonkey.giveMeOne<Uuid>()
-            val updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val updatedAt = fixtureMonkey.giveMeOne<Instant>()
             val transaction = mockk<AccountContactTransaction>()
             listOf(true, false).forEach { isFavorite ->
                 coEvery {
@@ -272,7 +272,7 @@ class AccountContactRepositoryImplTest :
                 account = account,
                 contactId = fixtureMonkey.giveMeOne<Uuid>(),
                 isFavorite = true,
-                updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
             ) shouldBe 0
         }
 
@@ -288,7 +288,7 @@ class AccountContactRepositoryImplTest :
                     account = account,
                     contactId = fixtureMonkey.giveMeOne<Uuid>(),
                     isFavorite = true,
-                    updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                    updatedAt = fixtureMonkey.giveMeOne<Instant>(),
                 )
             } shouldBe throwable
         }
@@ -296,7 +296,7 @@ class AccountContactRepositoryImplTest :
         test("TC-CONTACT-DETAIL-DATA-007 삭제는 계정 식별자와 삭제 여부를 트랜잭션에 위임한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val contactId = fixtureMonkey.giveMeOne<Uuid>()
-            val updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val updatedAt = fixtureMonkey.giveMeOne<Instant>()
             val transaction = mockk<AccountContactTransaction>()
             coEvery {
                 transaction.updateDeleted(accountId = account.id, contactId = contactId, isDeleted = true, updatedAt = updatedAt)
@@ -320,7 +320,7 @@ class AccountContactRepositoryImplTest :
                 account = account,
                 contactId = fixtureMonkey.giveMeOne<Uuid>(),
                 isDeleted = true,
-                updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
             ) shouldBe 0
         }
 
@@ -333,7 +333,7 @@ class AccountContactRepositoryImplTest :
                 transaction.updateDeleted(accountId = any(), contactId = any(), isDeleted = any(), updatedAt = any())
             } throws throwable
             val repository = repository(transaction = transaction)
-            val updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val updatedAt = fixtureMonkey.giveMeOne<Instant>()
 
             shouldThrow<IllegalStateException> {
                 repository.updateDetail(
@@ -415,8 +415,8 @@ class AccountContactRepositoryImplTest :
                 detail = ContactDetail.EMPTY.copy(name = "name-${fixtureMonkey.giveMeOne<String>()}"),
                 isFavorite = false,
                 isDeleted = false,
-                updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
-                createdAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+                createdAt = fixtureMonkey.giveMeOne<Instant>(),
             )
     }
 }

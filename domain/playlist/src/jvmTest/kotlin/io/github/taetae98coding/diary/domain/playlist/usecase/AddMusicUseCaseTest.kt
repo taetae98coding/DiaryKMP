@@ -107,7 +107,7 @@ class AddMusicUseCaseTest :
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountMusicRepository = mockk<AccountMusicRepository>()
             coEvery { accountMusicRepository.upsert(account = account, music = capture(musicSlot)) } just Runs
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val clock = mockk<Clock>()
             every { clock.now() } returns now
             val useCase =

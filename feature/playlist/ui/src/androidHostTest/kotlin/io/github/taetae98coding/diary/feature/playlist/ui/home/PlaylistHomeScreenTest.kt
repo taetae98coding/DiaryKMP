@@ -99,7 +99,7 @@ class PlaylistHomeScreenTest {
         every { syncViewModel.refresh() } answers { musicPagingDataFlow.value = musicPagingDataOf(listOf(done, failed)) }
         val getMusicDownloadStateUseCase = mockk<GetMusicDownloadStateUseCase>()
         every { getMusicDownloadStateUseCase(parameter = Unit) } returns
-            MutableStateFlow(Result.success(mapOf(done.id to MusicDownloadState.Done, failed.id to MusicDownloadState.Failed)))
+            MutableStateFlow(Result.success(mapOf(done.downloadTarget() to MusicDownloadState.Done, failed.downloadTarget() to MusicDownloadState.Failed)))
         val getMusicDownloadEventUseCase = mockk<GetMusicDownloadEventUseCase>()
         every { getMusicDownloadEventUseCase(parameter = Unit) } returns emptyFlow()
         val downloadViewModel =

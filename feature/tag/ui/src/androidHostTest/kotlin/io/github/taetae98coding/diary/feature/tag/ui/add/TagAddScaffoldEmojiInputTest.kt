@@ -34,6 +34,7 @@ class TagAddScaffoldEmojiInputTest {
             RUNNER + SWIMMER to SWIMMER,
             KOREA_FLAG + JAPAN_FLAG to JAPAN_FLAG,
             "abc" to "c",
+            NON_EMOJI_CHARACTER to NON_EMOJI_CHARACTER,
         ).forEach { (input, expected) ->
             composeRule.emojiInput().performClick()
             composeRule.waitForIdle()
@@ -111,5 +112,6 @@ class TagAddScaffoldEmojiInputTest {
         private const val MAN_RUNNING = "🏃‍♂️"
         private const val KOREA_FLAG = "🇰🇷"
         private const val JAPAN_FLAG = "🇯🇵"
+        private const val NON_EMOJI_CHARACTER = "가"
     }
 }

@@ -55,12 +55,19 @@ class PlaceAddCoordinateParseTest {
                 VALID_LATITUDE to "",
                 "" to VALID_LONGITUDE,
                 "abc" to VALID_LONGITUDE,
+                VALID_LATITUDE to "--1",
                 "-" to VALID_LONGITUDE,
                 "1.2.3" to VALID_LONGITUDE,
                 "37,5" to VALID_LONGITUDE,
                 "NaN" to VALID_LONGITUDE,
                 "Infinity" to VALID_LONGITUDE,
                 "-Infinity" to VALID_LONGITUDE,
+                "1e1" to VALID_LONGITUDE,
+                "37.5f" to VALID_LONGITUDE,
+                "37.5d" to VALID_LONGITUDE,
+                "0x1p3" to VALID_LONGITUDE,
+                "37." to VALID_LONGITUDE,
+                ".5" to VALID_LONGITUDE,
             )
 
         caseList.forEach { (latitude, longitude) ->
@@ -72,6 +79,47 @@ class PlaceAddCoordinateParseTest {
                     .shouldBeFalse()
             }
         }
+    }
+
+    @Test
+    fun `TC-PLACE-ADD-FEATURE-009 범위를 벗어난 값은 성립하지 않는 좌표로 넘긴다`() {
+        val detailSlot = setPlaceAddScreenCapturingDetail()
+
+        val caseList =
+            listOf(
+                "90.1" to VALID_LONGITUDE,
+                "-90.1" to VALID_LONGITUDE,
+                VALID_LATITUDE to "180.1",
+                VALID_LATITUDE to "-180.1",
+            )
+
+        caseList.forEach { (latitude, longitude) ->
+            enterCoordinate(latitude = latitude, longitude = longitude)
+
+            withClue("위도 '$latitude', 경도 '$longitude'") {
+                detailSlot.captured.coordinate shouldBe Coordinate(latitude = latitude.toDouble(), longitude = longitude.toDouble())
+                detailSlot.captured.coordinate.isRepresentable
+                    .shouldBeFalse()
+            }
+        }
+    }
+
+    @Test
+    fun `TC-PLACE-ADD-FEATURE-042 소수 여섯째 자리보다 길게 입력한 좌표는 반올림한 값으로 추가를 요청한다`() {
+        val detailSlot = setPlaceAddScreenCapturingDetail()
+
+        enterCoordinate(latitude = "37.1234567", longitude = "127.1234564")
+
+        detailSlot.captured.coordinate shouldBe Coordinate(latitude = 37.123457, longitude = 127.123456)
+    }
+
+    @Test
+    fun `TC-PLACE-ADD-FEATURE-043 부호가 붙거나 앞뒤에 공백이 있는 십진수 좌표는 그 값으로 추가를 요청한다`() {
+        val detailSlot = setPlaceAddScreenCapturingDetail()
+
+        enterCoordinate(latitude = "+37.5", longitude = " -127 ")
+
+        detailSlot.captured.coordinate shouldBe Coordinate(latitude = 37.5, longitude = -127.0)
     }
 
     private fun setPlaceAddScreenCapturingDetail(): CapturingSlot<PlaceDetail> {

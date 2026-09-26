@@ -26,8 +26,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 
-private const val YEAR = 2026
-private const val OTHER_YEAR = 2027
+private const val MIN_SOLAR_YEAR = 1_000
+private const val SOLAR_YEAR_SPAN = 9_000
 
 private val fixtureMonkey: FixtureMonkey =
     diaryFixtureMonkey()
@@ -35,156 +35,166 @@ private val fixtureMonkey: FixtureMonkey =
 class LunarRepositoryImplTest :
     FunSpec({
         test("TC-LUNAR-FETCH-DATA-001 원격 음력 자료로 요청한 연도의 캐시를 교체한다") {
-            val remoteList = listOf(remoteLunarDate(day = 1), remoteLunarDate(day = 2))
-            val expectedLocalList = remoteList.map { remote -> remote.toLocal(solarYear = YEAR) }
+            val year = solarYear()
+            val remoteList = listOf(remoteLunarDate(year = year, day = 1), remoteLunarDate(year = year, day = 2))
+            val expectedLocalList = remoteList.map { remote -> remote.toLocal(solarYear = year) }
             val remoteDataSource = mockk<LunarRemoteDataSource>()
-            coEvery { remoteDataSource.get(year = YEAR) } returns remoteList
+            coEvery { remoteDataSource.get(year = year) } returns remoteList
             val transaction = mockk<LunarTransaction>()
-            coEvery { transaction.upsert(solarYear = YEAR, lunarDateList = expectedLocalList) } just Runs
+            coEvery { transaction.upsert(solarYear = year, lunarDateList = expectedLocalList) } just Runs
             val repository = repository(remoteDataSource = remoteDataSource, transaction = transaction)
 
-            repository.fetch(year = YEAR) shouldBe expectedLocalList.map { local -> local.toDomain() }
+            repository.fetch(year = year) shouldBe expectedLocalList.map { local -> local.toDomain() }
 
-            coVerify(exactly = 1) { remoteDataSource.get(year = YEAR) }
-            coVerify(exactly = 1) { transaction.upsert(solarYear = YEAR, lunarDateList = expectedLocalList) }
-            coVerify(exactly = 0) { transaction.upsert(solarYear = match { year -> year != YEAR }, lunarDateList = any()) }
+            coVerify(exactly = 1) { remoteDataSource.get(year = year) }
+            coVerify(exactly = 1) { transaction.upsert(solarYear = year, lunarDateList = expectedLocalList) }
+            coVerify(exactly = 0) { transaction.upsert(solarYear = match { solarYear -> solarYear != year }, lunarDateList = any()) }
         }
 
         test("TC-LUNAR-FETCH-DATA-002 원격이 자료를 제공하지 않으면 요청한 연도의 캐시를 제거한다") {
+            val year = solarYear()
             val remoteDataSource = mockk<LunarRemoteDataSource>()
-            coEvery { remoteDataSource.get(year = YEAR) } returns emptyList()
+            coEvery { remoteDataSource.get(year = year) } returns emptyList()
             val transaction = mockk<LunarTransaction>()
-            coEvery { transaction.upsert(solarYear = YEAR, lunarDateList = emptyList()) } just Runs
+            coEvery { transaction.upsert(solarYear = year, lunarDateList = emptyList()) } just Runs
             val repository = repository(remoteDataSource = remoteDataSource, transaction = transaction)
 
-            repository.fetch(year = YEAR) shouldBe emptyList()
+            repository.fetch(year = year) shouldBe emptyList()
 
-            coVerify(exactly = 1) { transaction.upsert(solarYear = YEAR, lunarDateList = emptyList()) }
+            coVerify(exactly = 1) { transaction.upsert(solarYear = year, lunarDateList = emptyList()) }
         }
 
         test("TC-LUNAR-FETCH-DATA-003 원격 조회가 실패하면 기존 캐시를 유지한다") {
+            val year = solarYear()
             val failure = TestException(fixtureMonkey.giveMeOne())
             val remoteDataSource = mockk<LunarRemoteDataSource>()
-            coEvery { remoteDataSource.get(year = YEAR) } throws failure
+            coEvery { remoteDataSource.get(year = year) } throws failure
             val transaction = mockk<LunarTransaction>(relaxed = true)
             val repository = repository(remoteDataSource = remoteDataSource, transaction = transaction)
 
-            val actual = shouldThrowExactly<TestException> { repository.fetch(year = YEAR) }
+            val actual = shouldThrowExactly<TestException> { repository.fetch(year = year) }
 
             actual shouldBeSameInstanceAs failure
             coVerify(exactly = 0) { transaction.upsert(solarYear = any(), lunarDateList = any()) }
         }
 
         test("TC-LUNAR-FETCH-DATA-004 기기 저장이 실패하면 동기화가 실패로 끝난다") {
+            val year = solarYear()
             val failure = TestException(fixtureMonkey.giveMeOne())
-            val remoteList = listOf(remoteLunarDate(day = 1))
+            val remoteList = listOf(remoteLunarDate(year = year, day = 1))
             val remoteDataSource = mockk<LunarRemoteDataSource>()
-            coEvery { remoteDataSource.get(year = YEAR) } returns remoteList
+            coEvery { remoteDataSource.get(year = year) } returns remoteList
             val transaction = mockk<LunarTransaction>()
-            coEvery { transaction.upsert(solarYear = YEAR, lunarDateList = any()) } throws failure
+            coEvery { transaction.upsert(solarYear = year, lunarDateList = any()) } throws failure
             val repository = repository(remoteDataSource = remoteDataSource, transaction = transaction)
 
-            val actual = shouldThrowExactly<TestException> { repository.fetch(year = YEAR) }
+            val actual = shouldThrowExactly<TestException> { repository.fetch(year = year) }
 
             actual shouldBeSameInstanceAs failure
         }
 
         test("TC-LUNAR-FETCH-DATA-005 이미 동기화에 성공한 연도는 다시 원격 조회하지 않고 로컬 캐시를 결과로 제공한다") {
-            val remoteList = listOf(remoteLunarDate(day = 1))
-            val localList = remoteList.map { remote -> remote.toLocal(solarYear = YEAR) }
+            val year = solarYear()
+            val remoteList = listOf(remoteLunarDate(year = year, day = 1))
+            val localList = remoteList.map { remote -> remote.toLocal(solarYear = year) }
             val remoteDataSource = mockk<LunarRemoteDataSource>()
-            coEvery { remoteDataSource.get(year = YEAR) } returns remoteList
+            coEvery { remoteDataSource.get(year = year) } returns remoteList
             val localDataSource = mockk<LunarLocalDataSource>()
-            every { localDataSource.get(dateRange = LocalDate(YEAR, 1, 1)..LocalDate(YEAR, 12, 31)) } returns flowOf(localList)
+            every { localDataSource.get(dateRange = LocalDate(year, 1, 1)..LocalDate(year, 12, 31)) } returns flowOf(localList)
             val transaction = mockk<LunarTransaction>()
-            coEvery { transaction.upsert(solarYear = YEAR, lunarDateList = localList) } just Runs
+            coEvery { transaction.upsert(solarYear = year, lunarDateList = localList) } just Runs
             val repository = repository(remoteDataSource = remoteDataSource, localDataSource = localDataSource, transaction = transaction)
 
-            repository.fetch(year = YEAR)
+            repository.fetch(year = year)
 
-            repository.fetch(year = YEAR) shouldBe localList.map { local -> local.toDomain() }
-            coVerify(exactly = 1) { remoteDataSource.get(year = YEAR) }
-            coVerify(exactly = 1) { transaction.upsert(solarYear = YEAR, lunarDateList = localList) }
+            repository.fetch(year = year) shouldBe localList.map { local -> local.toDomain() }
+            coVerify(exactly = 1) { remoteDataSource.get(year = year) }
+            coVerify(exactly = 1) { transaction.upsert(solarYear = year, lunarDateList = localList) }
         }
 
         test("TC-LUNAR-FETCH-DATA-014 앱 프로세스를 새로 시작하면 성공했던 연도도 다시 원격 조회한다") {
-            val remoteList = listOf(remoteLunarDate(day = 1))
-            val localList = remoteList.map { remote -> remote.toLocal(solarYear = YEAR) }
+            val year = solarYear()
+            val remoteList = listOf(remoteLunarDate(year = year, day = 1))
+            val localList = remoteList.map { remote -> remote.toLocal(solarYear = year) }
             val remoteDataSource = mockk<LunarRemoteDataSource>()
-            coEvery { remoteDataSource.get(year = YEAR) } returns remoteList
+            coEvery { remoteDataSource.get(year = year) } returns remoteList
             val transaction = mockk<LunarTransaction>()
-            coEvery { transaction.upsert(solarYear = YEAR, lunarDateList = localList) } just Runs
-            repository(remoteDataSource = remoteDataSource, transaction = transaction).fetch(year = YEAR)
+            coEvery { transaction.upsert(solarYear = year, lunarDateList = localList) } just Runs
+            repository(remoteDataSource = remoteDataSource, transaction = transaction).fetch(year = year)
 
             // 저장소를 새로 만들어 빈 동기화 이력으로 시작하는 새 프로세스를 흉내 낸다.
-            repository(remoteDataSource = remoteDataSource, transaction = transaction).fetch(year = YEAR)
+            repository(remoteDataSource = remoteDataSource, transaction = transaction).fetch(year = year)
 
-            coVerify(exactly = 2) { remoteDataSource.get(year = YEAR) }
+            coVerify(exactly = 2) { remoteDataSource.get(year = year) }
         }
 
         test("TC-LUNAR-FETCH-DATA-006 원격 조회 실패 후 다시 요청하면 다시 원격 조회한다") {
+            val year = solarYear()
             val failure = TestException(fixtureMonkey.giveMeOne())
-            val remoteList = listOf(remoteLunarDate(day = 1))
-            val expectedLocalList = remoteList.map { remote -> remote.toLocal(solarYear = YEAR) }
+            val remoteList = listOf(remoteLunarDate(year = year, day = 1))
+            val expectedLocalList = remoteList.map { remote -> remote.toLocal(solarYear = year) }
             val remoteDataSource = mockk<LunarRemoteDataSource>()
-            coEvery { remoteDataSource.get(year = YEAR) } throws failure andThen remoteList
+            coEvery { remoteDataSource.get(year = year) } throws failure andThen remoteList
             val transaction = mockk<LunarTransaction>()
-            coEvery { transaction.upsert(solarYear = YEAR, lunarDateList = expectedLocalList) } just Runs
+            coEvery { transaction.upsert(solarYear = year, lunarDateList = expectedLocalList) } just Runs
             val repository = repository(remoteDataSource = remoteDataSource, transaction = transaction)
 
-            shouldThrowExactly<TestException> { repository.fetch(year = YEAR) }
-            repository.fetch(year = YEAR)
+            shouldThrowExactly<TestException> { repository.fetch(year = year) }
+            repository.fetch(year = year)
 
-            coVerify(exactly = 2) { remoteDataSource.get(year = YEAR) }
-            coVerify(exactly = 1) { transaction.upsert(solarYear = YEAR, lunarDateList = expectedLocalList) }
+            coVerify(exactly = 2) { remoteDataSource.get(year = year) }
+            coVerify(exactly = 1) { transaction.upsert(solarYear = year, lunarDateList = expectedLocalList) }
         }
 
         test("TC-LUNAR-FETCH-DATA-006 로컬 캐시 교체 실패 후 다시 요청하면 다시 원격 조회한다") {
+            val year = solarYear()
             val failure = TestException(fixtureMonkey.giveMeOne())
-            val remoteList = listOf(remoteLunarDate(day = 1))
-            val expectedLocalList = remoteList.map { remote -> remote.toLocal(solarYear = YEAR) }
+            val remoteList = listOf(remoteLunarDate(year = year, day = 1))
+            val expectedLocalList = remoteList.map { remote -> remote.toLocal(solarYear = year) }
             val remoteDataSource = mockk<LunarRemoteDataSource>()
-            coEvery { remoteDataSource.get(year = YEAR) } returns remoteList
+            coEvery { remoteDataSource.get(year = year) } returns remoteList
             val transaction = mockk<LunarTransaction>()
-            coEvery { transaction.upsert(solarYear = YEAR, lunarDateList = expectedLocalList) } throws failure andThenJust Runs
+            coEvery { transaction.upsert(solarYear = year, lunarDateList = expectedLocalList) } throws failure andThenJust Runs
             val repository = repository(remoteDataSource = remoteDataSource, transaction = transaction)
 
-            shouldThrowExactly<TestException> { repository.fetch(year = YEAR) }
-            repository.fetch(year = YEAR)
+            shouldThrowExactly<TestException> { repository.fetch(year = year) }
+            repository.fetch(year = year)
 
-            coVerify(exactly = 2) { remoteDataSource.get(year = YEAR) }
-            coVerify(exactly = 2) { transaction.upsert(solarYear = YEAR, lunarDateList = expectedLocalList) }
+            coVerify(exactly = 2) { remoteDataSource.get(year = year) }
+            coVerify(exactly = 2) { transaction.upsert(solarYear = year, lunarDateList = expectedLocalList) }
         }
 
         test("TC-LUNAR-FETCH-DATA-007 한 연도의 동기화 이력은 다른 연도의 동기화를 막지 않는다") {
-            val remoteList = listOf(remoteLunarDate(day = 1))
+            val year = solarYear()
+            val remoteList = listOf(remoteLunarDate(year = year, day = 1))
             val remoteDataSource = mockk<LunarRemoteDataSource>()
             coEvery { remoteDataSource.get(year = any()) } returns remoteList
             val transaction = mockk<LunarTransaction>()
             coEvery { transaction.upsert(solarYear = any(), lunarDateList = any()) } just Runs
             val repository = repository(remoteDataSource = remoteDataSource, transaction = transaction)
 
-            repository.fetch(year = YEAR)
-            repository.fetch(year = OTHER_YEAR)
+            repository.fetch(year = year)
+            repository.fetch(year = year + 1)
 
-            coVerify(exactly = 1) { remoteDataSource.get(year = OTHER_YEAR) }
-            coVerify(exactly = 1) { transaction.upsert(solarYear = OTHER_YEAR, lunarDateList = remoteList.map { remote -> remote.toLocal(solarYear = OTHER_YEAR) }) }
+            coVerify(exactly = 1) { remoteDataSource.get(year = year + 1) }
+            coVerify(exactly = 1) { transaction.upsert(solarYear = year + 1, lunarDateList = remoteList.map { remote -> remote.toLocal(solarYear = year + 1) }) }
         }
 
         test("TC-LUNAR-FETCH-DATA-008 자료를 제공하지 않은 연도도 다시 요청하면 원격 조회를 생략한다") {
+            val year = solarYear()
             val remoteDataSource = mockk<LunarRemoteDataSource>()
-            coEvery { remoteDataSource.get(year = YEAR) } returns emptyList()
+            coEvery { remoteDataSource.get(year = year) } returns emptyList()
             val localDataSource = mockk<LunarLocalDataSource>()
             every { localDataSource.get(dateRange = any()) } returns flowOf(emptyList())
             val transaction = mockk<LunarTransaction>()
-            coEvery { transaction.upsert(solarYear = YEAR, lunarDateList = emptyList()) } just Runs
+            coEvery { transaction.upsert(solarYear = year, lunarDateList = emptyList()) } just Runs
             val repository = repository(remoteDataSource = remoteDataSource, localDataSource = localDataSource, transaction = transaction)
 
-            repository.fetch(year = YEAR)
-            repository.fetch(year = YEAR) shouldBe emptyList()
+            repository.fetch(year = year)
+            repository.fetch(year = year) shouldBe emptyList()
 
-            coVerify(exactly = 1) { remoteDataSource.get(year = YEAR) }
-            coVerify(exactly = 1) { transaction.upsert(solarYear = YEAR, lunarDateList = emptyList()) }
+            coVerify(exactly = 1) { remoteDataSource.get(year = year) }
+            coVerify(exactly = 1) { transaction.upsert(solarYear = year, lunarDateList = emptyList()) }
         }
 
         test("기간별 조회는 로컬 캐시의 음력 날짜를 순서대로 도메인 모델로 제공한다") {
@@ -210,13 +220,18 @@ private fun repository(
         lunarDirtyDataSource = LunarDirtyDataSource(),
     )
 
-private fun remoteLunarDate(day: Int): LunarDateRemoteEntity =
+private fun solarYear(): Int = fixtureMonkey.giveMeOne<Int>().mod(SOLAR_YEAR_SPAN) + MIN_SOLAR_YEAR
+
+private fun remoteLunarDate(
+    year: Int,
+    day: Int,
+): LunarDateRemoteEntity =
     LunarDateRemoteEntity(
-        solar = LocalDate(YEAR, 1, day),
-        year = YEAR - 1,
-        month = 11,
-        day = 12 + day,
-        isLeapMonth = false,
+        solar = LocalDate(year, 1, day),
+        year = fixtureMonkey.giveMeOne(),
+        month = fixtureMonkey.giveMeOne(),
+        day = fixtureMonkey.giveMeOne(),
+        isLeapMonth = fixtureMonkey.giveMeOne(),
     )
 
 private fun localLunarDate(solar: LocalDate): LunarDateLocalEntity =

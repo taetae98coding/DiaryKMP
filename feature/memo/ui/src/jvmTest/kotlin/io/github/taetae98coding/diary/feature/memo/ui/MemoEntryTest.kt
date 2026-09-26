@@ -52,6 +52,26 @@ class MemoEntryTest :
             }
         }
 
+        test("TC-MEMO-LIST-DETAIL-FEATURE-003 목록에서 메모를 선택하면 그 메모의 상세가 상세 영역에 놓인다") {
+            val selectedId = fixtureMonkey.giveMeOne<Uuid>()
+            val backStack = NavBackStack<ScreenNavKey>(OtherTopLevelNavKey, MemoHomeNavKey)
+
+            backStack.navigateToMemoDetailFromHome(selectedId)
+
+            backStack.last() shouldBe MemoDetailNavKey(id = selectedId)
+            metadataOf(backStack = backStack.toList(), key = backStack.last()).keys shouldBe detailPaneMetadataKeys
+        }
+
+        test("TC-MEMO-LIST-DETAIL-FEATURE-015 상세 영역에 메모 상세가 놓인 동안 목록에서 추가를 실행하면 메모 추가가 상세 영역에 놓인다") {
+            val detailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val backStack = NavBackStack<ScreenNavKey>(OtherTopLevelNavKey, MemoHomeNavKey, detailKey)
+
+            backStack.navigateToMemoAddFromHome()
+
+            backStack.toList() shouldBe listOf(OtherTopLevelNavKey, MemoHomeNavKey, detailKey, MemoAddNavKey())
+            metadataOf(backStack = backStack.toList(), key = backStack.last()).keys shouldBe detailPaneMetadataKeys
+        }
+
         test("TC-MEMO-LIST-DETAIL-FEATURE-024 필터를 열어도 상세 영역의 화면은 목록·상세 배치의 상세 pane으로 남는다") {
             val detailKey = MemoDetailNavKey(id = Uuid.random())
             val addKey = MemoAddNavKey()

@@ -167,7 +167,7 @@ class HolidaySettingLocalDataSourceImplTest :
             coVerify(exactly = 1) { dataStore.updateData(any()) }
         }
 
-        test("제출한 숨긴 key 집합이 같으면 기존 설정 인스턴스를 유지하고 새 값을 제공하지 않는다") {
+        test("TC-SETTING-HOLIDAY-FEATURE-012 제출한 숨긴 key 집합이 같으면 기존 설정 인스턴스를 유지하고 새 값을 제공하지 않는다") {
             val initialSetting =
                 HolidaySettingData(
                     hiddenKeySet =

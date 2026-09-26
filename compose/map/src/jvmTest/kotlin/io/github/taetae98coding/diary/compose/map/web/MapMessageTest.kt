@@ -1,12 +1,16 @@
 package io.github.taetae98coding.diary.compose.map.web
 
+import androidx.compose.ui.graphics.Color
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.map.DiaryMapBounds
 import io.github.taetae98coding.diary.compose.map.DiaryMapCamera
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
+import io.github.taetae98coding.diary.compose.map.DiaryMapPin
+import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.google.createGoogleMapHtml
 import io.github.taetae98coding.diary.compose.map.naver.createNaverMapHtml
+import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
@@ -34,7 +38,7 @@ class MapMessageTest :
             naverHtml shouldContain """"zoom": 9.0"""
         }
 
-        test("TC-DIARY-MAP-DOMAIN-026: 확인할 수 없는 위치 소식은 무시되어 초기 지도 위치 정책을 따른다") {
+        test("TC-DIARY-MAP-DOMAIN-026: 확인할 수 없는 위치 소식은 무시되어 전환한 지도 요청 내용이 초기 지도 위치 정책을 따른다") {
             val messages =
                 listOf(
                     "지도 위치 형식이 아닌 내용",
@@ -46,7 +50,12 @@ class MapMessageTest :
                 )
 
             messages.forEach { message ->
-                message.toMapMessageOrNull().shouldBeNull()
+                val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
+
+                state.handleMapMessage(message = message, onReady = {}, onSpotClick = null, onPinClick = null)
+
+                val googleHtml = requireNotNull(createGoogleMapHtml(apiKey = "test-key_123", camera = state.camera))
+                googleHtml shouldContain "var diaryMapCamera = null;"
             }
         }
 
@@ -63,7 +72,16 @@ class MapMessageTest :
                 val message =
                     """{"type": "click", "latitude": ${coordinate.latitude}, "longitude": ${coordinate.longitude}}"""
 
-                message.toMapMessageOrNull() shouldBe MapMessage.Click(coordinate = coordinate)
+                val deliveredList = mutableListOf<DiaryMapCoordinate>()
+
+                DiaryMapState(initialProvider = DiaryMapProvider.NAVER).handleMapMessage(
+                    message = message,
+                    onReady = {},
+                    onSpotClick = { spot -> deliveredList += spot },
+                    onPinClick = null,
+                )
+
+                deliveredList shouldBe listOf(coordinate)
             }
         }
 
@@ -79,21 +97,38 @@ class MapMessageTest :
                 )
 
             messages.forEach { message ->
-                message.toMapMessageOrNull().shouldBeNull()
+                val deliveredList = mutableListOf<DiaryMapCoordinate>()
+
+                DiaryMapState(initialProvider = DiaryMapProvider.NAVER).handleMapMessage(
+                    message = message,
+                    onReady = {},
+                    onSpotClick = { spot -> deliveredList += spot },
+                    onPinClick = null,
+                )
+
+                deliveredList shouldBe emptyList()
             }
         }
 
         test("TC-DIARY-MAP-DOMAIN-039: 지도가 알려온 핀 누르기 소식의 식별 값을 전달한다") {
             val idList = List(2) { Uuid.random() }
+            val deliveredList = mutableListOf<Uuid>()
+            val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
+            state.updatePins(idList.map { id -> pin(id = id) })
 
             idList.forEach { id ->
-                val message = """{"type": "pinClick", "id": "$id"}"""
-
-                message.toMapMessageOrNull() shouldBe MapMessage.PinClick(id = id)
+                state.handleMapMessage(
+                    message = """{"type": "pinClick", "id": "$id"}""",
+                    onReady = {},
+                    onSpotClick = null,
+                    onPinClick = { pinId -> deliveredList += pinId },
+                )
             }
+
+            deliveredList shouldBe idList
         }
 
-        test("TC-DIARY-MAP-DOMAIN-039: 확인할 수 없는 핀 누르기 소식은 전달하지 않는다") {
+        test("TC-DIARY-MAP-DOMAIN-039: 확인할 수 없거나 표시된 핀에 없는 핀 누르기 소식은 전달하지 않는다") {
             val messages =
                 listOf(
                     """{"type": "pinClick"}""",
@@ -101,11 +136,23 @@ class MapMessageTest :
                     """{"type": "pinClick", "id": ""}""",
                     """{"type": "pinClick", "id": 1}""",
                     """{"type": "pinClick", "id": "식별자가 아닌 값"}""",
+                    // 표시된 핀에 없는 식별 값
+                    """{"type": "pinClick", "id": "${Uuid.random()}"}""",
                 )
+            val deliveredList = mutableListOf<Uuid>()
+            val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
+            state.updatePins(List(2) { pin(id = Uuid.random()) })
 
             messages.forEach { message ->
-                message.toMapMessageOrNull().shouldBeNull()
+                state.handleMapMessage(
+                    message = message,
+                    onReady = {},
+                    onSpotClick = null,
+                    onPinClick = { pinId -> deliveredList += pinId },
+                )
             }
+
+            deliveredList shouldBe emptyList()
         }
 
         test("핀 누르기 소식과 지도 누르기 소식을 서로 구분한다") {
@@ -200,5 +247,13 @@ class MapMessageTest :
     private companion object {
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
+
+        private fun pin(id: Uuid): DiaryMapPin =
+            DiaryMapPin(
+                id = id,
+                coordinate = fixtureMonkey.giveMeOne<DiaryMapCoordinate>(),
+                color = Color(fixtureMonkey.giveMeOne<Int>()),
+                label = "label-${fixtureMonkey.giveMeOne<Int>()}",
+            )
     }
 }

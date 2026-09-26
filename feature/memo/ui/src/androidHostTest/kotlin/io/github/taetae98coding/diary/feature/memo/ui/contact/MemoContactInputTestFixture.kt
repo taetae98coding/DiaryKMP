@@ -21,18 +21,18 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.height
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.Contact
-import io.github.taetae98coding.diary.core.model.contact.ContactDetail
-import io.github.taetae98coding.diary.core.model.contact.ContactPhoneNumber
+import io.github.taetae98coding.diary.core.testing.contact.contact
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 internal const val FIRST_CONTACT_NAME = "Kim"
@@ -58,29 +58,17 @@ internal const val KOREAN_CONTACT_PICKER_SEARCH_EMPTY_DESCRIPTION: String = "다
 
 internal const val MEMO_CONTACT_INPUT_TAG: String = "MemoContactInput"
 
+private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
+
 internal fun testContact(
     name: String,
     phoneNumber: String? = null,
     isDeleted: Boolean = false,
     isFavorite: Boolean = false,
 ): Contact =
-    Contact(
-        id = Uuid.random(),
-        detail =
-            ContactDetail(
-                name = name,
-                description = "",
-                height = null,
-                footSize = null,
-                birthday = null,
-                hometown = "",
-                phoneNumberList = phoneNumber?.let { number -> listOf(ContactPhoneNumber(number = number)) }.orEmpty(),
-            ),
-        isFavorite = isFavorite,
-        isDeleted = isDeleted,
-        updatedAt = Instant.DISTANT_PAST,
-        createdAt = Instant.DISTANT_PAST,
-    )
+    fixtureMonkey
+        .contact(numberList = listOfNotNull(phoneNumber), hasMeasure = true, isFavorite = isFavorite, isDeleted = isDeleted)
+        .let { contact -> contact.copy(detail = contact.detail.copy(name = name)) }
 
 internal fun screenTestContactViewModel(
     uiState: StateFlow<MemoContactInputUiState> = MutableStateFlow(MemoContactInputUiState()),
@@ -89,6 +77,7 @@ internal fun screenTestContactViewModel(
     val viewModel = mockk<MemoContactViewModel>(relaxed = true)
     every { viewModel.uiState } returns uiState
     every { viewModel.contactPagingData } returns contactPagingDataFlow
+    every { viewModel.selectableContactPagingData } returns contactPagingDataFlow
     return viewModel
 }
 

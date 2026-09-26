@@ -22,6 +22,8 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.datetime.LocalDate
 
+private val MAX_SOLAR_DATE: LocalDate = LocalDate(2100, 1, 1)
+
 private val fixtureMonkey: FixtureMonkey =
     diaryFixtureMonkey()
 
@@ -120,9 +122,9 @@ private fun recordCrashlyticsLog(): List<CrashlyticsLog> {
 
 private fun lunarDate(): LunarDate =
     LunarDate(
-        solar = LocalDate(2026, 8, 20),
-        year = 2026,
-        month = 7,
-        day = 8,
-        isLeapMonth = false,
+        solar = LocalDate.fromEpochDays(fixtureMonkey.giveMeOne<Long>().mod(MAX_SOLAR_DATE.toEpochDays())),
+        year = fixtureMonkey.giveMeOne(),
+        month = fixtureMonkey.giveMeOne(),
+        day = fixtureMonkey.giveMeOne(),
+        isLeapMonth = fixtureMonkey.giveMeOne(),
     )

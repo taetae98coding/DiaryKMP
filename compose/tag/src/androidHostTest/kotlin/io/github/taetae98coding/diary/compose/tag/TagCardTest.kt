@@ -115,10 +115,10 @@ class TagCardTest {
                 fixtureMonkey.giveMeOne<TagDetail>().copy(color = colorArgb.toLong()),
             ).setExp(
                 Tag::updatedAt,
-                Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                fixtureMonkey.giveMeOne<Instant>(),
             ).setExp(
                 Tag::createdAt,
-                Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                fixtureMonkey.giveMeOne<Instant>(),
             ).sample()
 
     private fun setTagCard(

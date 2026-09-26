@@ -20,6 +20,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -175,12 +176,13 @@ class AppFcmTokenViewModelTest : FunSpec() {
         test("TC-FCM-TOKEN-DOMAIN-025 같은 계정이 같은 정보로 다시 확인되기만 하면 제출 계기가 발생하지 않는다") {
             runTest(mainDispatcher) {
                 val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
-                val accountFlow = MutableStateFlow<Account>(account)
+                // 같은 값을 다시 보내지 않는 상태 흐름으로는 "다시 확인됨"을 만들 수 없으므로 같은 값을 그대로 다시 보내는 흐름을 쓴다.
+                val accountFlow = MutableSharedFlow<Account>(replay = 1).apply { tryEmit(account) }
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
                 viewModel.account.test {
                     awaitItem() shouldBe account
-                    accountFlow.value = account
+                    accountFlow.emit(account.copy())
                     expectNoEvents()
                 }
             }

@@ -31,7 +31,7 @@ class TagLinkInputTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-002 연결한 태그의 제목이 바뀌면 칩에 반영된다`() {
+    fun `TC-TAG-LINK-INPUT-FEATURE-002 연결한 태그의 이모지나 제목이 바뀌면 칩에 반영된다`() {
         val tag = testTag(title = WORK_TAG_TITLE)
         val linkTagList = composeRule.setTagLinkInputWithLink()
         linkTagList(listOf(tag))
@@ -40,6 +40,11 @@ class TagLinkInputTest {
 
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertDoesNotExist()
         composeRule.onNodeWithText(RENAMED_TAG_TITLE).assertExists()
+
+        linkTagList(listOf(tag.copy(detail = tag.detail.copy(emoji = EMOJI, title = RENAMED_TAG_TITLE, color = tag.detail.color.inv()))))
+
+        composeRule.onNodeWithText(RENAMED_TAG_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText("$EMOJI $RENAMED_TAG_TITLE").assertExists()
     }
 
     @Test

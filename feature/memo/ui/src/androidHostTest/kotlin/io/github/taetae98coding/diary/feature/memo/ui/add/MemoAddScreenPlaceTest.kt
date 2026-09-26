@@ -40,12 +40,14 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.placePagingDataOf
 import io.github.taetae98coding.diary.feature.memo.ui.place.refreshingPlacePagingData
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
+import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -58,6 +60,11 @@ import kotlin.uuid.Uuid
 class MemoAddScreenPlaceTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-MEMO-PLACE-CARD-FEATURE-010 추가 항목을 누르면 장소 선택 목록이 열린다`() {
@@ -78,7 +85,7 @@ class MemoAddScreenPlaceTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-022 선택할 수 있는 장소가 없는 것으로 확정되면 추가 항목이 PlaceAdd 이동을 요청한다`() {
+    fun `TC-MEMO-PLACE-CARD-FEATURE-022 TC-MEMO-PLACE-CARD-FEATURE-042 선택할 수 있는 장소가 없으면 목록을 연 적이 없어도 첫 누름에 추가 항목이 PlaceAdd 이동을 요청한다`() {
         var placeAddCount = 0
         setMemoAddScreen(
             viewModels = screenTestRealViewModel(placeList = emptyList()),
@@ -131,6 +138,21 @@ class MemoAddScreenPlaceTest {
         composeRule.placeDialogNodeWithText(HOME_PLACE_TITLE).assertIsOn()
         // 목록이 열린 채로 카드의 장소 목록에도 칩이 나타난다.
         composeRule.onAllNodesWithText(HOME_PLACE_TITLE).assertCountEquals(2)
+    }
+
+    @Test
+    fun `TC-MEMO-PLACE-CARD-FEATURE-040 목록의 장소를 눌러도 장소 상세로 이동하지 않는다`() {
+        val homePlace = testPlace(title = HOME_PLACE_TITLE)
+        var placeDetailCount = 0
+        setMemoAddScreen(
+            viewModels = screenTestRealViewModel(placeList = listOf(homePlace)),
+            navigateToPlaceDetail = { placeDetailCount += 1 },
+        )
+
+        composeRule.selectPlace(homePlace.detail.title)
+
+        placeDetailCount shouldBe 0
+        composeRule.placeDialogNodeWithText(HOME_PLACE_TITLE).assertIsOn()
     }
 
     @Test
@@ -261,6 +283,7 @@ class MemoAddScreenPlaceTest {
     private fun setMemoAddScreen(
         viewModels: MemoAddScreenViewModels,
         navigateToPlaceAdd: (Coordinate?) -> Unit = {},
+        navigateToPlaceDetail: (Uuid) -> Unit = {},
     ) {
         composeRule.setContent {
             MemoAddScreenTestTheme {
@@ -281,7 +304,7 @@ class MemoAddScreenPlaceTest {
                     navigateToContactAdd = {},
                     navigateToContactDetail = {},
                     navigateToPlaceAdd = navigateToPlaceAdd,
-                    navigateToPlaceDetail = {},
+                    navigateToPlaceDetail = navigateToPlaceDetail,
                     initialDateRange = null,
                     componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
                     isStandalone = true,

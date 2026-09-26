@@ -64,6 +64,6 @@ internal fun searchWeb(title: String): Web =
         .setExp(Web::createdAt, instant())
         .sample()
 
-private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
 internal fun searchId(): Uuid = fixtureMonkey.giveMeOne()

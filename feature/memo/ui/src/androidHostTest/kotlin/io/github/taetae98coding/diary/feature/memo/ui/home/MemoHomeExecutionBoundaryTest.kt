@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assert
@@ -86,6 +87,35 @@ class MemoHomeExecutionBoundaryTest {
             .onNodeWithContentDescription(DEFAULT_FILTER_BUTTON_DESCRIPTION)
             .assert(hasStateDescription(DEFAULT_FILTER_APPLIED_STATE_DESCRIPTION))
         composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).assertExists()
+        assertScrolledPosition(memoList)
+    }
+
+    @Test
+    fun `TC-MEMO-HOME-DOMAIN-022 시스템이 앱을 정리한 뒤 다시 만들면 정렬은 처음으로 돌아가고 보던 위치는 다시 보인다`() {
+        val memoList = memoList()
+        var nextViewModel = realViewModel(memoList = memoList, existence = MemoExistenceFilter())
+        val restorationTester = StateRestorationTester(composeRule)
+        // 시스템이 앱을 정리하면 ViewModel도 사라지므로, 복원으로 컴포지션을 다시 만들 때만 새 ViewModel을 받게 한다.
+        restorationTester.setContent {
+            val viewModel = remember { nextViewModel }
+            Home(viewModel = viewModel)
+        }
+        waitUntilMemoIsDisplayed(memoList)
+        composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).performClick()
+        composeRule.onNodeWithText(DEFAULT_TITLE_SORT).performClick()
+        composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(DEFAULT_SORT_SHEET_TITLE).fetchSemanticsNodes().isEmpty()
+        }
+        scrollList(memoList)
+        nextViewModel = realViewModel(memoList = memoList, existence = MemoExistenceFilter())
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(memoList[SCROLLED_INDEX].detail.title).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        composeRule.onNodeWithText(DEFAULT_DEFAULT_SORT).assertExists()
+        composeRule.onNodeWithText(DEFAULT_TITLE_SORT).assertDoesNotExist()
         assertScrolledPosition(memoList)
     }
 
@@ -214,6 +244,8 @@ class MemoHomeExecutionBoundaryTest {
         private const val DEFAULT_FILTER_BUTTON_DESCRIPTION = "Filter"
         private const val DEFAULT_FILTER_APPLIED_STATE_DESCRIPTION = "Filter applied"
         private const val DEFAULT_RECENTLY_UPDATED_SORT = "Recently updated"
+        private const val DEFAULT_TITLE_SORT = "Title"
+        private const val DEFAULT_DEFAULT_SORT = "Default"
         private const val DEFAULT_SORT_DESCRIPTION = "List sort"
         private const val DEFAULT_SORT_SHEET_TITLE = "Sort"
 

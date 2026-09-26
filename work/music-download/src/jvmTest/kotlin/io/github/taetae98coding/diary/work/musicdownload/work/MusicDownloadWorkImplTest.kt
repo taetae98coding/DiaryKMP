@@ -20,7 +20,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.confirmVerified
 import io.mockk.mockk
-import kotlin.uuid.Uuid
 
 private const val PROGRESS_ARGUMENT_INDEX = 2
 
@@ -154,7 +153,7 @@ class MusicDownloadWorkImplTest :
                     val first = testDownloadTarget()
                     val second = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
-                    var pendingSnapshot: Map<Uuid, MusicDownloadState> = emptyMap()
+                    var pendingSnapshot: Map<MusicDownloadTarget, MusicDownloadState> = emptyMap()
                     val downloader = mockk<MusicDownloader>()
                     coEvery { downloader.download(target = first, path = any(), onProgress = any()) } coAnswers
                         {
@@ -167,7 +166,7 @@ class MusicDownloadWorkImplTest :
 
                     work.doWork(sort = ListSort.TITLE)
 
-                    pendingSnapshot[second.id] shouldBe MusicDownloadState.Pending
+                    pendingSnapshot[second] shouldBe MusicDownloadState.Pending
                 }
             }
         }
@@ -181,7 +180,7 @@ class MusicDownloadWorkImplTest :
                     val downloader = mockk<MusicDownloader>()
                     coEvery { downloader.download(target = any(), path = any(), onProgress = any()) } coAnswers
                         {
-                            runningSnapshot = holder.stateMap.value[target.id]
+                            runningSnapshot = holder.stateMap.value[target]
                             true
                         }
 
@@ -190,6 +189,37 @@ class MusicDownloadWorkImplTest :
                     work.doWork(sort = ListSort.TITLE)
 
                     runningSnapshot shouldBe MusicDownloadState.Running(progress = null)
+                }
+            }
+
+            When("받은 만큼이 차례로 알려진 뒤 끝나면") {
+                Then("TC-MUSIC-DOWNLOAD-DOMAIN-021 백분율을 가진 뒤로는 완료될 때까지 백분율 없는 진행 중이 되지 않는다") {
+                    val target = testDownloadTarget()
+                    val holder = MusicDownloadStateHolder()
+                    val snapshotList = mutableListOf<MusicDownloadState?>()
+                    val downloader = mockk<MusicDownloader>()
+                    coEvery { downloader.download(target = any(), path = any(), onProgress = any()) } coAnswers
+                        {
+                            val onProgress = arg<suspend (Float) -> Unit>(PROGRESS_ARGUMENT_INDEX)
+                            listOf(0.25F, 0.5F, 1F).forEach { progress ->
+                                onProgress(progress)
+                                snapshotList += holder.stateMap.value[target]
+                            }
+                            true
+                        }
+
+                    val work = work(targetList = listOf(target), musicDownloader = downloader, musicDownloadStateHolder = holder)
+
+                    work.doWork(sort = ListSort.TITLE)
+                    snapshotList += holder.stateMap.value[target]
+
+                    snapshotList shouldBe
+                        listOf(
+                            MusicDownloadState.Running(progress = 0.25F),
+                            MusicDownloadState.Running(progress = 0.5F),
+                            MusicDownloadState.Running(progress = 1F),
+                            MusicDownloadState.Done,
+                        )
                 }
             }
 
@@ -202,7 +232,7 @@ class MusicDownloadWorkImplTest :
                     coEvery { downloader.download(target = any(), path = any(), onProgress = any()) } coAnswers
                         {
                             arg<suspend (Float) -> Unit>(PROGRESS_ARGUMENT_INDEX).invoke(0.45F)
-                            runningSnapshot = holder.stateMap.value[target.id]
+                            runningSnapshot = holder.stateMap.value[target]
                             true
                         }
 
@@ -224,7 +254,7 @@ class MusicDownloadWorkImplTest :
 
                     work.doWork(sort = ListSort.TITLE)
 
-                    holder.stateMap.value[target.id] shouldBe MusicDownloadState.Done
+                    holder.stateMap.value[target] shouldBe MusicDownloadState.Done
                 }
 
                 Then("TC-MUSIC-DOWNLOAD-DATA-001 TC-MUSIC-DOWNLOAD-DATA-008 그 곡의 영상 ID로 구분되는 파일 자리로 내려받기를 맡긴다") {
@@ -312,7 +342,7 @@ class MusicDownloadWorkImplTest :
                     coVerify(exactly = 0) { fileDataSource.delete(directory = any(), name = videoId.toMusicFileName()) }
                     coVerify(exactly = 1) { downloader.download(target = downloaded, path = any(), onProgress = any()) }
                     coVerify(exactly = 0) { downloader.download(target = sameVideo, path = any(), onProgress = any()) }
-                    holder.stateMap.value[sameVideo.id] shouldBe MusicDownloadState.Done
+                    holder.stateMap.value[sameVideo] shouldBe MusicDownloadState.Done
                 }
             }
         }
@@ -347,8 +377,8 @@ class MusicDownloadWorkImplTest :
                     work.doWork(sort = ListSort.TITLE)
 
                     coVerify(exactly = 1) { downloader.download(target = any(), path = any(), onProgress = any()) }
-                    holder.stateMap.value[first.id] shouldBe MusicDownloadState.Done
-                    holder.stateMap.value[second.id] shouldBe MusicDownloadState.Done
+                    holder.stateMap.value[first] shouldBe MusicDownloadState.Done
+                    holder.stateMap.value[second] shouldBe MusicDownloadState.Done
                 }
             }
         }
@@ -369,7 +399,7 @@ class MusicDownloadWorkImplTest :
 
                     work.doWork(sort = ListSort.TITLE)
 
-                    holder.stateMap.value[target.id] shouldBe MusicDownloadState.Done
+                    holder.stateMap.value[target] shouldBe MusicDownloadState.Done
                     coVerify(exactly = 0) { downloader.download(target = any(), path = any(), onProgress = any()) }
                 }
             }
@@ -384,7 +414,7 @@ class MusicDownloadWorkImplTest :
 
                     work.doWork(sort = ListSort.TITLE)
 
-                    holder.stateMap.value[target.id] shouldBe MusicDownloadState.Failed
+                    holder.stateMap.value[target] shouldBe MusicDownloadState.Failed
                 }
 
                 Then("TC-MUSIC-DOWNLOAD-FEATURE-004 내려받기가 예외로 끝나도 실패 상태가 된다") {
@@ -398,7 +428,7 @@ class MusicDownloadWorkImplTest :
 
                     work.doWork(sort = ListSort.TITLE)
 
-                    holder.stateMap.value[target.id] shouldBe MusicDownloadState.Failed
+                    holder.stateMap.value[target] shouldBe MusicDownloadState.Failed
                 }
 
                 Then("TC-MUSIC-DOWNLOAD-DATA-006 받다 만 파일을 지운다") {
@@ -439,9 +469,9 @@ class MusicDownloadWorkImplTest :
 
                     work.doWork(sort = ListSort.TITLE)
 
-                    holder.stateMap.value[first.id] shouldBe MusicDownloadState.Failed
-                    holder.stateMap.value[second.id] shouldBe MusicDownloadState.Done
-                    holder.stateMap.value[third.id] shouldBe MusicDownloadState.Done
+                    holder.stateMap.value[first] shouldBe MusicDownloadState.Failed
+                    holder.stateMap.value[second] shouldBe MusicDownloadState.Done
+                    holder.stateMap.value[third] shouldBe MusicDownloadState.Done
                 }
             }
         }
@@ -468,7 +498,7 @@ class MusicDownloadWorkImplTest :
                     coEvery { downloader.download(target = failed, path = any(), onProgress = any()) } coAnswers
                         {
                             if (isFailedTargetSucceeding) {
-                                doneStateWhileRetrying = holder.stateMap.value[done.id]
+                                doneStateWhileRetrying = holder.stateMap.value[done]
                                 existingNameSet += failed.videoId.toMusicFileName()
                             }
                             isFailedTargetSucceeding
@@ -481,8 +511,8 @@ class MusicDownloadWorkImplTest :
                             musicDownloadStateHolder = holder,
                         )
                     work.doWork(sort = ListSort.TITLE)
-                    holder.stateMap.value[done.id] shouldBe MusicDownloadState.Done
-                    holder.stateMap.value[failed.id] shouldBe MusicDownloadState.Failed
+                    holder.stateMap.value[done] shouldBe MusicDownloadState.Done
+                    holder.stateMap.value[failed] shouldBe MusicDownloadState.Failed
 
                     isFailedTargetSucceeding = true
                     work.doWork(sort = ListSort.TITLE)
@@ -490,8 +520,8 @@ class MusicDownloadWorkImplTest :
                     coVerify(exactly = 1) { downloader.download(target = done, path = any(), onProgress = any()) }
                     coVerify(exactly = 2) { downloader.download(target = failed, path = any(), onProgress = any()) }
                     doneStateWhileRetrying shouldBe MusicDownloadState.Done
-                    holder.stateMap.value[done.id] shouldBe MusicDownloadState.Done
-                    holder.stateMap.value[failed.id] shouldBe MusicDownloadState.Done
+                    holder.stateMap.value[done] shouldBe MusicDownloadState.Done
+                    holder.stateMap.value[failed] shouldBe MusicDownloadState.Done
                 }
             }
         }
@@ -503,7 +533,7 @@ class MusicDownloadWorkImplTest :
                     val second = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
                     var isRetrying = false
-                    var retrySnapshot: Map<Uuid, MusicDownloadState> = emptyMap()
+                    var retrySnapshot: Map<MusicDownloadTarget, MusicDownloadState> = emptyMap()
                     val downloader = mockk<MusicDownloader>()
                     coEvery { downloader.download(target = first, path = any(), onProgress = any()) } coAnswers
                         {
@@ -513,13 +543,13 @@ class MusicDownloadWorkImplTest :
                     coEvery { downloader.download(target = second, path = any(), onProgress = any()) } returns false
                     val work = work(targetList = listOf(first, second), musicDownloader = downloader, musicDownloadStateHolder = holder)
                     work.doWork(sort = ListSort.TITLE)
-                    holder.stateMap.value shouldBe mapOf(first.id to MusicDownloadState.Failed, second.id to MusicDownloadState.Failed)
+                    holder.stateMap.value shouldBe mapOf(first to MusicDownloadState.Failed, second to MusicDownloadState.Failed)
 
                     isRetrying = true
                     work.doWork(sort = ListSort.TITLE)
 
-                    retrySnapshot[first.id] shouldBe MusicDownloadState.Running(progress = null)
-                    retrySnapshot[second.id] shouldBe MusicDownloadState.Failed
+                    retrySnapshot[first] shouldBe MusicDownloadState.Running(progress = null)
+                    retrySnapshot[second] shouldBe MusicDownloadState.Failed
                 }
             }
         }
@@ -543,12 +573,12 @@ class MusicDownloadWorkImplTest :
                             musicDownloadStateHolder = holder,
                         )
                     work.doWork(sort = ListSort.TITLE)
-                    holder.stateMap.value[target.id] shouldBe MusicDownloadState.Failed
+                    holder.stateMap.value[target] shouldBe MusicDownloadState.Failed
 
                     isFileExisting = true
                     work.doWork(sort = ListSort.TITLE)
 
-                    holder.stateMap.value[target.id] shouldBe MusicDownloadState.Done
+                    holder.stateMap.value[target] shouldBe MusicDownloadState.Done
                     coVerify(exactly = 1) { downloader.download(target = target, path = any(), onProgress = any()) }
                 }
             }
@@ -569,8 +599,8 @@ class MusicDownloadWorkImplTest :
                         musicDownloadStateHolder = holder,
                     )
 
-                    holder.stateMap.value[downloaded.id] shouldBe null
-                    holder.stateMap.value[notDownloaded.id] shouldBe null
+                    holder.stateMap.value[downloaded] shouldBe null
+                    holder.stateMap.value[notDownloaded] shouldBe null
                 }
             }
         }
@@ -600,7 +630,7 @@ class MusicDownloadWorkImplTest :
 
                     work.doWork(sort = ListSort.TITLE)
 
-                    holder.stateMap.value.keys shouldContainExactly setOf(target.id)
+                    holder.stateMap.value.keys shouldContainExactly setOf(target)
                 }
             }
         }

@@ -48,7 +48,6 @@ internal fun failedWebPagingData(): PagingData<Web> =
             ),
     )
 
-// FixtureMonkey가 Instant를 생성하지 못하므로 웹 항목은 직접 만든다.
 internal fun testWeb(
     title: String,
     url: String = "https://example.com/${fixtureMonkey.giveMeOne<Int>()}",
@@ -66,7 +65,7 @@ internal fun testWeb(
         id = Uuid.random(),
         detail = detail,
         isDeleted = false,
-        updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
-        createdAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+        updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+        createdAt = fixtureMonkey.giveMeOne<Instant>(),
     )
 }

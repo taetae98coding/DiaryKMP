@@ -1,11 +1,9 @@
 package io.github.taetae98coding.diary.feature.setting.ui.gemini
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
@@ -16,7 +14,6 @@ import io.github.taetae98coding.diary.feature.setting.ui.gemini.form.SettingGemi
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.form.rememberSettingGeminiFormState
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.model.SettingGeminiModelDialogEvent
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.model.SettingGeminiModelFailure
-import io.github.taetae98coding.diary.feature.setting.ui.gemini.model.SettingGeminiModelUiState
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.model.SettingGeminiModelViewModel
 import io.github.taetae98coding.diary.feature.setting.ui.setting_gemini_api_key_blank_message
 import io.github.taetae98coding.diary.feature.setting.ui.setting_gemini_model_fetch_failed_message
@@ -25,7 +22,6 @@ import io.github.taetae98coding.diary.feature.setting.ui.setting_gemini_save_fai
 import io.github.taetae98coding.diary.feature.setting.ui.setting_gemini_save_succeeded_message
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 
@@ -45,11 +41,6 @@ internal fun SettingGeminiScreen(
     val coroutineScope = rememberCoroutineScope()
     val apiKeyBlankMessage = stringResource(Res.string.setting_gemini_api_key_blank_message)
 
-    FetchModelEffect(
-        state = formState,
-        modelViewModel = modelViewModel,
-        modelUiStateProvider = { modelUiState },
-    )
     SaveEffect(
         state = formState,
         effect = settingViewModel.effect,
@@ -67,10 +58,19 @@ internal fun SettingGeminiScreen(
                 }
 
                 is SettingGeminiScaffoldEvent.ClickModel -> {
-                    if (formState.apiKey.isBlank() && !modelUiState.isLoaded) {
-                        coroutineScope.launch { formState.hostState.showImmediate(message = apiKeyBlankMessage) }
-                    } else {
-                        formState.modelDialogState.show()
+                    when {
+                        modelUiState.isLoaded -> {
+                            formState.modelDialogState.show()
+                        }
+
+                        formState.apiKey.isBlank() -> {
+                            coroutineScope.launch { formState.hostState.showImmediate(message = apiKeyBlankMessage) }
+                        }
+
+                        else -> {
+                            modelViewModel.fetch(apiKey = formState.apiKey)
+                            formState.modelDialogState.show()
+                        }
                     }
                 }
 
@@ -98,23 +98,6 @@ internal fun SettingGeminiScreen(
         modelUiStateProvider = { modelUiState },
         componentVisibleProvider = componentVisibleProvider,
     )
-}
-
-@Composable
-private fun FetchModelEffect(
-    state: SettingGeminiFormState,
-    modelViewModel: SettingGeminiModelViewModel,
-    modelUiStateProvider: () -> SettingGeminiModelUiState,
-) {
-    LaunchedEffect(state, modelViewModel) {
-        snapshotFlow { state.modelDialogState.isVisible }
-            .filter { isDialogVisible -> isDialogVisible }
-            .collect {
-                if (modelUiStateProvider().isLoaded) return@collect
-
-                modelViewModel.fetch(apiKey = state.apiKey)
-            }
-    }
 }
 
 @Composable

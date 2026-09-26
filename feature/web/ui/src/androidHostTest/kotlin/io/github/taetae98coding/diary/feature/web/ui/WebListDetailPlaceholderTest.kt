@@ -39,6 +39,7 @@ import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebHomeNavKey
 import io.github.taetae98coding.diary.feature.web.ui.add.INPUT_COUNT_WITHOUT_HEADER
@@ -125,6 +126,11 @@ class WebListDetailPlaceholderTest {
         assertPlaceholderRetained(route = TagAddNavKey(requestKey = Uuid.random()))
     }
 
+    @Test
+    fun `TC-WEB-LIST-DETAIL-DOMAIN-005 배치를 떠나기 전에는 웹 추가의 태그 입력에서 연 태그 상세에 다녀와도 웹 추가의 입력과 태그 선택이 남는다`() {
+        assertPlaceholderRetained(route = TagDetailNavKey(id = Uuid.random()))
+    }
+
     private fun assertPlaceholderRetained(route: ScreenNavKey) {
         val input = placeholderInput()
         setWebNavDisplay(input = input)
@@ -171,6 +177,7 @@ class WebListDetailPlaceholderTest {
                                 ) { Text(text = WEB_HOME_CONTENT) }
                                 entry<WebDetailNavKey> { Text(text = ROUTE_CONTENT) }
                                 entry<TagAddNavKey> { Text(text = ROUTE_CONTENT) }
+                                entry<TagDetailNavKey> { Text(text = ROUTE_CONTENT) }
                             },
                     )
                 }

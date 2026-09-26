@@ -41,6 +41,7 @@ class ContactAddScreenTest {
         composeRule.descriptionInput().assert(hasText(""))
         composeRule.heightInput().assert(hasText(""))
         composeRule.footSizeInput().assert(hasText(""))
+        composeRule.hometownInput().assert(hasText(""))
         composeRule.onNodeWithText(DEFAULT_BIRTHDAY_NOT_SET).assertExists()
         composeRule.phoneNumberRowCount() shouldBe 0
     }
@@ -149,6 +150,24 @@ class ContactAddScreenTest {
             composeRule.waitForIdle()
 
             composeRule.footSizeInput().assert(hasText(expected))
+        }
+    }
+
+    @Test
+    fun `TC-CONTACT-ADD-FEATURE-037 키와 신발 사이즈는 입력한 값을 한 번에 지울 수 있다`() {
+        composeRule.setContactAddScreen()
+
+        listOf(
+            composeRule.heightInput() to TYPED_HEIGHT,
+            composeRule.footSizeInput() to TYPED_FOOT_SIZE,
+        ).forEach { (input, typed) ->
+            input.performTextInput(typed)
+            composeRule.waitForIdle()
+
+            composeRule.onNodeWithContentDescription(DEFAULT_CLEAR_TEXT_DESCRIPTION).performClick()
+            composeRule.waitForIdle()
+
+            input.assert(hasText(""))
         }
     }
 
@@ -328,5 +347,9 @@ class ContactAddScreenTest {
         composeRule.onNodeWithText(KOREAN_BIRTHDAY_NOT_SET).assertExists()
         composeRule.onNodeWithText(KOREAN_PHONE_NUMBER_LABEL).assertExists()
         composeRule.onNodeWithContentDescription(KOREAN_ADD_BUTTON_DESCRIPTION).assert(hasClickAction())
+    }
+
+    private companion object {
+        private const val DEFAULT_CLEAR_TEXT_DESCRIPTION = "Clear text"
     }
 }

@@ -3,11 +3,18 @@ package io.github.taetae98coding.diary.logger.analytics.impl
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.logger.analytics.api.AnalyticsEventLog
 import io.github.taetae98coding.diary.logger.analytics.api.ScreenViewLog
+import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.string.shouldBeEmpty
+import io.mockk.clearMocks
+import io.mockk.confirmVerified
+import io.mockk.mockk
+import io.mockk.verify
+import kotlinx.serialization.json.JsonObject
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 
@@ -32,8 +39,46 @@ class AnalyticsDiaryLoggerDelegateTest :
                 }
             }
         }
+
+        Given("원격 분석 기록 수단이 등록되어 있다") {
+            val recordScreenView = mockk<(String) -> Unit>(relaxed = true)
+            val recordEvent = mockk<(String, Map<String, Any>) -> Unit>(relaxed = true)
+            DiaryLogger.add(delegate = AnalyticsDiaryLoggerDelegate(recordScreenView = recordScreenView, recordEvent = recordEvent))
+
+            When("화면 조회 로그와 원격 분석 로그를 공통 창구에 전달한다") {
+                Then("TC-APP-LOGGING-DOMAIN-001 원격 분석 기록 수단이 두 로그를 남긴다") {
+                    clearMocks(recordScreenView, recordEvent)
+                    val screenViewLog = ScreenViewLog(screenName = fixtureMonkey.giveMeOne<String>())
+                    val eventLog = AnalyticsEventLog(name = fixtureMonkey.giveMeOne<String>(), parameters = JsonObject(emptyMap()))
+
+                    DiaryLogger.log(log = screenViewLog)
+                    DiaryLogger.log(log = eventLog)
+
+                    verify(exactly = 1) { recordScreenView(screenViewLog.screenName) }
+                    verify(exactly = 1) { recordEvent(eventLog.name, any()) }
+                    confirmVerified(recordScreenView, recordEvent)
+                }
+            }
+
+            When("원격 분석 로그가 아닌 종류의 로그를 공통 창구에 전달한다") {
+                Then("TC-APP-LOGGING-DOMAIN-001 TC-APP-LOGGING-DOMAIN-003 원격 분석 기록 수단은 그 로그를 남기지 않고 전달은 오류 없이 완료된다") {
+                    clearMocks(recordScreenView, recordEvent)
+
+                    shouldNotThrowAny {
+                        DiaryLogger.log(log = OtherLog(value = fixtureMonkey.giveMeOne<Int>()))
+                    }
+
+                    verify(exactly = 0) { recordScreenView(any()) }
+                    verify(exactly = 0) { recordEvent(any(), any()) }
+                }
+            }
+        }
     }) {
     public companion object {
+        private data class OtherLog(
+            val value: Int,
+        ) : DiaryLog
+
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
 

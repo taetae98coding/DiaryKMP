@@ -19,6 +19,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.closeDialogByBack
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.memo.ui.web.DEFAULT_WEB_PICKER_ADD_LABEL
 import io.github.taetae98coding.diary.feature.memo.ui.web.DEFAULT_WEB_PICKER_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.web.DEFAULT_WEB_SELECT_LABEL
@@ -37,6 +38,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -100,6 +102,11 @@ class MemoAddScreenWebTest {
     @get:Rule
     val composeRule = createComposeRule()
 
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
+
     @Test
     fun `TC-MEMO-WEB-INPUT-FEATURE-001 추가 항목을 누르면 선택할 수 있는 웹 목록이 열린다`() {
         val webList = listOf(testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL), testWeb(title = DOCS_WEB_TITLE, url = DOCS_WEB_URL))
@@ -118,7 +125,7 @@ class MemoAddScreenWebTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-003 선택할 수 있는 웹 항목이 없으면 추가 항목이 WebAdd 이동을 요청한다`() {
+    fun `TC-MEMO-WEB-INPUT-FEATURE-003 TC-MEMO-WEB-INPUT-FEATURE-031 선택할 수 있는 웹 항목이 없으면 목록을 연 적이 없어도 첫 누름에 추가 항목이 WebAdd 이동을 요청한다`() {
         var webAddCount = 0
         composeRule.setMemoAddScreenForWeb(
             viewModels = screenTestRealViewModel(webList = emptyList()),
@@ -270,6 +277,11 @@ class MemoAddScreenWebTest {
 class MemoAddScreenWebAddedResultTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-MEMO-WEB-INPUT-FEATURE-008 WebAdd 화면에서 추가한 웹 항목 하나가 돌아왔을 때 선택된다`() {

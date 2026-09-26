@@ -64,4 +64,4 @@ internal fun <T : Any> tagEntityLoadingPagingData(): PagingData<T> =
             ),
     )
 
-private fun instant(): Instant = Instant.fromEpochMilliseconds(webPlaceFixtureMonkey.giveMeOne<Long>())
+private fun instant(): Instant = webPlaceFixtureMonkey.giveMeOne<Instant>()

@@ -257,7 +257,7 @@ class AccountPlaceRepositoryImplTest :
                 .setExp(PlaceLocalEntity::createdAt, instant())
                 .sample()
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun pagingSource(placeList: List<PlaceLocalEntity>): PagingSource<Int, PlaceLocalEntity> =
             mockk(relaxed = true) {

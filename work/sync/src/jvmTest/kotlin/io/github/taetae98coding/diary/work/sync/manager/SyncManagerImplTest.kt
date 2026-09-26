@@ -110,7 +110,7 @@ class SyncManagerImplTest :
             }
         }
 
-        test("TC-SYNC-REFRESH-DOMAIN-005 진행 표시 중 변경으로 새 동기화가 이어져도 진행 표시가 유지된다") {
+        test("TC-SYNC-REFRESH-DOMAIN-005 진행 표시 중 진행을 보고하지 않는 요청으로 새 동기화가 이어져도 끝날 때까지 진행 표시가 유지된다") {
             runTest {
                 val workState = MutableStateFlow(SyncWorkState.NONE)
                 val syncManager = syncManager(syncWorkScheduler = syncWorkScheduler(workState = workState), scope = backgroundScope)
@@ -122,6 +122,29 @@ class SyncManagerImplTest :
                 syncManager.requestSync(reportsProgress = false)
                 runCurrent()
 
+                syncManager.isProgressReported.value shouldBe true
+
+                workState.value = SyncWorkState.NONE
+                runCurrent()
+
+                syncManager.isProgressReported.value shouldBe false
+            }
+        }
+
+        test("TC-SYNC-REFRESH-DOMAIN-009 진행 중에 다시 당기면 새 동기화를 요청하고 진행 표시가 이어진다") {
+            runTest {
+                val workState = MutableStateFlow(SyncWorkState.NONE)
+                val syncWorkScheduler = syncWorkScheduler(workState = workState)
+                val syncManager = syncManager(syncWorkScheduler = syncWorkScheduler, scope = backgroundScope)
+                runCurrent()
+                syncManager.requestSync(reportsProgress = true)
+                workState.value = SyncWorkState.RUNNING
+                runCurrent()
+
+                syncManager.requestSync(reportsProgress = true)
+                runCurrent()
+
+                verify(exactly = 2) { syncWorkScheduler.sync() }
                 syncManager.isProgressReported.value shouldBe true
             }
         }
@@ -145,21 +168,35 @@ class SyncManagerImplTest :
             }
         }
 
-        test("TC-SYNC-REFRESH-DOMAIN-010 관찰이 끊긴 뒤 다시 관찰해도 실행 중이면 진행 표시 대상이다") {
-            runTest {
-                val workState = MutableStateFlow(SyncWorkState.NONE)
-                val syncManager = syncManager(syncWorkScheduler = syncWorkScheduler(workState = workState), scope = backgroundScope)
-                runCurrent()
-                syncManager.requestSync(reportsProgress = true)
-                workState.value = SyncWorkState.RUNNING
-                runCurrent()
+        test("TC-SYNC-REFRESH-DOMAIN-010 화면이 재생성되어 다시 관찰하면 그 시점의 실행 여부로 진행 표시를 다시 정한다") {
+            // 재생성 시점의 실행 여부: 표시 대상 동기화 실행 중, 실행 중인 동기화 없음, 표시 대상이 아닌 동기화만 실행 중
+            val caseList =
+                listOf(
+                    Triple(true, SyncWorkState.RUNNING, true),
+                    Triple(true, SyncWorkState.NONE, false),
+                    Triple(false, SyncWorkState.RUNNING, false),
+                )
 
-                val job = launch { syncManager.isProgressReported.collect { } }
-                runCurrent()
-                job.cancelAndJoin()
-                runCurrent()
+            caseList.forEach { (reportsProgress, recreatedWorkState, isProgressReported) ->
+                runTest {
+                    val workState = MutableStateFlow(SyncWorkState.NONE)
+                    val syncManager = syncManager(syncWorkScheduler = syncWorkScheduler(workState = workState), scope = backgroundScope)
+                    val screen = launch { syncManager.isProgressReported.collect { } }
+                    runCurrent()
+                    syncManager.requestSync(reportsProgress = reportsProgress)
+                    workState.value = SyncWorkState.RUNNING
+                    runCurrent()
+                    screen.cancelAndJoin()
 
-                syncManager.isProgressReported.value shouldBe true
+                    workState.value = recreatedWorkState
+                    runCurrent()
+                    val recreatedProgressList = mutableListOf<Boolean>()
+                    val recreatedScreen = launch { syncManager.isProgressReported.collect { value -> recreatedProgressList += value } }
+                    runCurrent()
+                    recreatedScreen.cancelAndJoin()
+
+                    recreatedProgressList shouldBe listOf(isProgressReported)
+                }
             }
         }
 

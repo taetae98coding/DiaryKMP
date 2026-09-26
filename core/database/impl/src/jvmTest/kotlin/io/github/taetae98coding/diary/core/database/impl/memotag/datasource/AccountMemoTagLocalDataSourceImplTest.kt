@@ -488,20 +488,22 @@ class AccountMemoTagLocalDataSourceImplTest :
             val emojiTag = tag().withDetail(emoji = "✈️", title = "AlphaTag", description = "")
             val descriptionTag = tag().withDetail(emoji = "", title = "BetaTag", description = "여행 기록")
             val otherTag = tag().withDetail(emoji = "", title = "GammaTag", description = "")
+            val koreanTitleTag = tag().withDetail(emoji = "", title = "여행 기록", description = "")
             insertMemo(accountId = accountId, memo = memo)
             tagTransaction.upsert(
                 accountId = accountId,
-                tagList = listOf(titleTag, emojiTag, descriptionTag, otherTag),
+                tagList = listOf(titleTag, emojiTag, descriptionTag, otherTag, koreanTitleTag),
                 tagLinkList = emptyList(),
             )
 
             dataSource.pageSelectableTag(accountId = accountId, memoId = memo.id, query = "trav").loadPage().data shouldBe listOf(titleTag)
             dataSource.pageSelectableTag(accountId = accountId, memoId = memo.id, query = "✈️").loadPage().data shouldBe listOf(emojiTag)
-            dataSource.pageSelectableTag(accountId = accountId, memoId = memo.id, query = "여행").loadPage().data shouldBe listOf(descriptionTag)
+            dataSource.pageSelectableTag(accountId = accountId, memoId = memo.id, query = "여행").loadPage().data shouldBe listOf(descriptionTag, koreanTitleTag)
+            dataSource.pageSelectableTag(accountId = accountId, memoId = memo.id, query = "업무").loadPage().data shouldBe emptyList()
             dataSource
                 .pageSelectableTag(accountId = accountId, memoId = memo.id, query = "")
                 .loadPage()
-                .data shouldBe listOf(emojiTag, descriptionTag, otherTag, titleTag)
+                .data shouldBe listOf(emojiTag, descriptionTag, otherTag, titleTag, koreanTitleTag)
         }
 
         test("TC-MEMO-TAG-INPUT-DOMAIN-017 검색어를 만족하지 않으면 연결된 완료된 태그도 선택 목록에서 빠진다") {
@@ -668,6 +670,6 @@ class AccountMemoTagLocalDataSourceImplTest :
             return load(params).shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, TagLocalEntity>>()
         }
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
     }
 }

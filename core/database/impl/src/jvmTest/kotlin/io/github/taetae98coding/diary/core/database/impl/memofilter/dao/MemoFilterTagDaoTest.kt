@@ -9,6 +9,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
+import io.github.taetae98coding.diary.core.database.impl.calendarfilter.entity.CalendarFilterTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memofilter.entity.MemoFilterTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagSyncTransactionImpl
@@ -270,6 +271,46 @@ class MemoFilterTagDaoTest :
             database.selectedTagIdList(accountId = accountId).shouldBeEmpty()
         }
 
+        test("TC-MEMO-HOME-DOMAIN-024 무시되고 있는 선택만 남으면 보이는 선택이 없고 태그가 다시 선택할 수 있게 되면 그 선택이 다시 적용된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val tag = tag(isDeleted = true)
+            database.insertTag(accountId, tag)
+            database.select(accountId = accountId, tagId = tag.id)
+
+            database.selectedTagIdList(accountId = accountId).shouldBeEmpty()
+
+            AccountTagSyncTransactionImpl(database = database).save(
+                accountId = accountId,
+                tagList = listOf(tag.copy(isDeleted = false)),
+                cursor = fixtureMonkey.giveMeOne<Long>(),
+            )
+
+            database.selectedTagIdList(accountId = accountId) shouldBe listOf(tag.id)
+        }
+
+        test("TC-MEMO-HOME-DATA-019 선택 전체 해제는 다른 화면의 태그 필터 선택을 지우지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val tag = tag()
+            database.insertTag(accountId, tag)
+            database.select(accountId = accountId, tagId = tag.id)
+            database.calendarFilterTagDao().upsert(
+                entity =
+                    CalendarFilterTagLocalEntity(
+                        accountId = accountId,
+                        tagId = tag.id,
+                    ),
+            )
+
+            database.memoFilterTagDao().deleteAll(accountId = accountId)
+
+            database.selectedTagIdList(accountId = accountId).shouldBeEmpty()
+            database
+                .calendarFilterTagDao()
+                .getTagList(accountId = accountId)
+                .first()
+                .map { selectedTag -> selectedTag.id } shouldBe listOf(tag.id)
+        }
+
         test("TC-MEMO-HOME-DATA-016 선택 전체 해제는 다른 계정의 선택을 지우지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
@@ -321,8 +362,8 @@ class MemoFilterTagDaoTest :
                 .setExp(TagLocalEntity::detail, fixtureMonkey.giveMeOne<TagDetailLocalEntity>().copy(title = title))
                 .setExp(TagLocalEntity::isFinished, isFinished)
                 .setExp(TagLocalEntity::isDeleted, isDeleted)
-                .setExp(TagLocalEntity::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(TagLocalEntity::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(TagLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(TagLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

@@ -47,7 +47,7 @@ class CoroutineSyncWorkSchedulerTest :
 
         Given("동기화 작업이 진행 중이다") {
             When("동기화가 다시 요청된다") {
-                Then("TC-DATA-SYNC-DOMAIN-018 TC-PLACE-HOME-DOMAIN-018 진행 중이던 동기화 작업은 취소되고 새 동기화 작업이 한 번 새로 시작된다") {
+                Then("TC-DATA-SYNC-DOMAIN-018 TC-SYNC-REFRESH-DOMAIN-009 TC-PLACE-HOME-DOMAIN-018 진행 중이던 동기화 작업은 취소되고 새 동기화 작업이 한 번 새로 시작된다") {
                     runTest {
                         var startCount = 0
                         var cancelCount = 0
@@ -124,6 +124,34 @@ class CoroutineSyncWorkSchedulerTest :
                         runCurrent()
 
                         manager.state.first() shouldBe SyncWorkState.RUNNING
+                    }
+                }
+            }
+        }
+
+        Given("실행 중인 동기화 작업이 성공 또는 실패로 끝나도록 준비되어 있다") {
+            When("동기화가 요청되어 실행되고 끝난다") {
+                Then("TC-SYNC-REFRESH-FEATURE-005 성공이든 실패든 끝나면 남은 작업이 없는 상태가 된다") {
+                    // 성공은 실패 원인 없이, 실패는 실패 원인을 던지며 끝난다.
+                    val failureList: List<Throwable?> = listOf(null, IllegalStateException("sync failure"))
+
+                    failureList.forEach { failure ->
+                        val syncWork = mockk<SyncWork>()
+                        coEvery { syncWork.doWork() } coAnswers { if (failure != null) throw failure }
+                        val scheduler = TestCoroutineScheduler()
+                        val scope = CoroutineScope(SupervisorJob() + StandardTestDispatcher(scheduler) + CoroutineExceptionHandler { _, _ -> })
+                        val manager =
+                            CoroutineSyncWorkScheduler(
+                                syncWork = syncWork,
+                                scope = scope,
+                            )
+
+                        manager.sync()
+                        manager.state.first() shouldBe SyncWorkState.RUNNING
+
+                        scheduler.runCurrent()
+
+                        manager.state.first() shouldBe SyncWorkState.NONE
                     }
                 }
             }

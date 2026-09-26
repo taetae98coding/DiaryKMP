@@ -90,7 +90,7 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-027 동기화가 진행 중이면 위치 권한 허용 계기의 동기화도 시작하지 않는다") {
+        test("TC-CALENDAR-HOME-DATA-052 동기화가 진행 중에 위치 권한을 허용하면 끝난 뒤 위치 권한 허용 계기의 동기화를 요청한다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<Unit>>()
                 val fetchCurrentWeatherUseCase = mockk<FetchCurrentWeatherUseCase>()
@@ -103,11 +103,109 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
                     )
 
                 viewModel.fetch()
+                advanceUntilIdle()
+                viewModel.refreshOnLocationPermissionGranted()
+                advanceUntilIdle()
+                coVerify(exactly = 0) { useCase(parameter = Unit) }
+
+                completion.complete(Result.success(Unit))
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { useCase(parameter = Unit) }
+                coVerify(exactly = 1) { fetchCurrentWeatherUseCase(parameter = Unit) }
+                viewModel.isLoading.value shouldBe false
+            }
+        }
+
+        test("TC-CALENDAR-HOME-DATA-053 동기화가 진행 중에 위치 권한 허용이 여러 번 일어나도 끝난 뒤 한 번만 더 동기화한다") {
+            runTest(mainDispatcher) {
+                val completion = CompletableDeferred<Result<Unit>>()
+                val fetchCurrentWeatherUseCase = mockk<FetchCurrentWeatherUseCase>()
+                coEvery { fetchCurrentWeatherUseCase(parameter = Unit) } coAnswers { completion.await() }
+                val useCase = successfulRefreshCurrentWeatherUseCase()
+                val viewModel =
+                    weatherViewModel(
+                        fetchCurrentWeatherUseCase = fetchCurrentWeatherUseCase,
+                        refreshCurrentWeatherUseCase = useCase,
+                    )
+
+                viewModel.fetch()
+                advanceUntilIdle()
+                viewModel.refreshOnLocationPermissionGranted()
                 viewModel.refreshOnLocationPermissionGranted()
                 completion.complete(Result.success(Unit))
                 advanceUntilIdle()
 
-                coVerify(exactly = 0) { useCase(parameter = Unit) }
+                coVerify(exactly = 1) { useCase(parameter = Unit) }
+            }
+        }
+
+        test("진행 중이던 동기화가 실패해도 끝난 뒤 위치 권한 허용 계기의 동기화를 요청한다") {
+            runTest(mainDispatcher) {
+                val completion = CompletableDeferred<Result<Unit>>()
+                val fetchCurrentWeatherUseCase = mockk<FetchCurrentWeatherUseCase>()
+                coEvery { fetchCurrentWeatherUseCase(parameter = Unit) } coAnswers { completion.await() }
+                val useCase = successfulRefreshCurrentWeatherUseCase()
+                val viewModel =
+                    weatherViewModel(
+                        fetchCurrentWeatherUseCase = fetchCurrentWeatherUseCase,
+                        refreshCurrentWeatherUseCase = useCase,
+                    )
+
+                viewModel.fetch()
+                advanceUntilIdle()
+                viewModel.refreshOnLocationPermissionGranted()
+                completion.complete(Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())))
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { useCase(parameter = Unit) }
+            }
+        }
+
+        test("TC-SYNC-REFRESH-DOMAIN-015 진행 중인 날씨 동기화가 없을 때 위치 권한을 허용하면 그 동기화가 끝날 때까지 진행 중임을 알린다") {
+            runTest(mainDispatcher) {
+                val completion = CompletableDeferred<Result<Unit>>()
+                val useCase = mockk<RefreshCurrentWeatherUseCase>()
+                coEvery { useCase(parameter = Unit) } coAnswers { completion.await() }
+                val viewModel = weatherViewModel(refreshCurrentWeatherUseCase = useCase)
+
+                viewModel.refreshOnLocationPermissionGranted()
+                advanceUntilIdle()
+                viewModel.isLoading.value shouldBe true
+
+                completion.complete(Result.success(Unit))
+                advanceUntilIdle()
+
+                viewModel.isLoading.value shouldBe false
+            }
+        }
+
+        test("TC-SYNC-REFRESH-DOMAIN-015 날씨 동기화 중에 위치 권한을 허용하면 한 번 더 받는 동기화가 끝날 때까지 진행 중임을 알린다") {
+            runTest(mainDispatcher) {
+                val fetchCompletion = CompletableDeferred<Result<Unit>>()
+                val fetchCurrentWeatherUseCase = mockk<FetchCurrentWeatherUseCase>()
+                coEvery { fetchCurrentWeatherUseCase(parameter = Unit) } coAnswers { fetchCompletion.await() }
+                val refreshCompletion = CompletableDeferred<Result<Unit>>()
+                val refreshCurrentWeatherUseCase = mockk<RefreshCurrentWeatherUseCase>()
+                coEvery { refreshCurrentWeatherUseCase(parameter = Unit) } coAnswers { refreshCompletion.await() }
+                val viewModel =
+                    weatherViewModel(
+                        fetchCurrentWeatherUseCase = fetchCurrentWeatherUseCase,
+                        refreshCurrentWeatherUseCase = refreshCurrentWeatherUseCase,
+                    )
+
+                viewModel.fetch()
+                advanceUntilIdle()
+                viewModel.refreshOnLocationPermissionGranted()
+                fetchCompletion.complete(Result.success(Unit))
+                advanceUntilIdle()
+                coVerify(exactly = 1) { refreshCurrentWeatherUseCase(parameter = Unit) }
+                viewModel.isLoading.value shouldBe true
+
+                refreshCompletion.complete(Result.success(Unit))
+                advanceUntilIdle()
+
+                viewModel.isLoading.value shouldBe false
             }
         }
 

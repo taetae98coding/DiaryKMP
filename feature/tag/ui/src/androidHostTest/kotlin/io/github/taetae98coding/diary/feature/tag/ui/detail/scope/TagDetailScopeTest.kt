@@ -211,7 +211,19 @@ class TagDetailScopeRestorationTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-053 화면 재생성 후에도 고른 표시 범위가 유지된다`() {
+    fun `TC-TAG-DETAIL-FEATURE-053 화면 재생성 후에도 고른 직속 하위까지 범위가 유지된다`() {
+        assertScopeRestored(scope = TagScope.CHILD, label = DEFAULT_CHILD_LABEL)
+    }
+
+    @Test
+    fun `TC-TAG-DETAIL-FEATURE-053 화면 재생성 후에도 고른 모든 하위까지 범위가 유지된다`() {
+        assertScopeRestored(scope = TagScope.DESCENDANT, label = DEFAULT_DESCENDANT_LABEL)
+    }
+
+    private fun assertScopeRestored(
+        scope: TagScope,
+        label: String,
+    ) {
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var scopeState: TagDetailScopeState
 
@@ -220,15 +232,15 @@ class TagDetailScopeRestorationTest {
             TagDetailScopeTestScaffold(scopeState = scopeState)
         }
 
-        composeRule.runOnIdle { scopeState.select(scope = TagScope.DESCENDANT) }
+        composeRule.runOnIdle { scopeState.select(scope = scope) }
         restorationTester.emulateSavedInstanceStateRestore()
 
         composeRule.runOnIdle {
-            scopeState.scope shouldBe TagScope.DESCENDANT
+            scopeState.scope shouldBe scope
             scopeState.isApplied shouldBe true
         }
         composeRule.onNodeWithContentDescription(DEFAULT_SCOPE_BUTTON_DESCRIPTION).performClick()
-        composeRule.onNodeWithText(DEFAULT_DESCENDANT_LABEL).assertIsSelected()
+        composeRule.onNodeWithText(label).assertIsSelected()
     }
 
     @Test

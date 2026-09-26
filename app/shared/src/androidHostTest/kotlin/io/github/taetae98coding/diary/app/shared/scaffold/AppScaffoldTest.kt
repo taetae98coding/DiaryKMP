@@ -27,6 +27,7 @@ import io.github.taetae98coding.diary.app.shared.AppState
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelReselectEvent
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.kotest.matchers.floats.shouldBeGreaterThan
 import io.kotest.matchers.floats.shouldBeLessThan
 import io.mockk.every
@@ -64,13 +65,23 @@ class AppScaffoldTest {
 
     @Test
     fun `TC-TOP-LEVEL-NAVIGATION-FEATURE-002 현재 목적지만 선택 상태로 표시한다`() {
+        val backStack = NavBackStack(TopLevelNavigation.Memo.key)
         setAppScaffold(
-            mockWindowInfo(mutableStateOf(windowSize(width = 400.dp, height = 800.dp))),
+            windowInfo = mockWindowInfo(mutableStateOf(windowSize(width = 400.dp, height = 800.dp))),
+            backStack = backStack,
         )
 
-        composeRule.onNode(navigationItem(DEFAULT_MEMO_LABEL), useUnmergedTree = true).assertIsSelected()
-        DEFAULT_UNSELECTED_LABELS.forEach { label ->
-            composeRule.onNode(navigationItem(label), useUnmergedTree = true).assertIsNotSelected()
+        DEFAULT_LABEL_MAP.forEach { (destination, selectedLabel) ->
+            composeRule.runOnIdle {
+                backStack.clear()
+                backStack.add(destination.key)
+            }
+            composeRule.waitForIdle()
+
+            composeRule.onNode(navigationItem(selectedLabel), useUnmergedTree = true).assertIsSelected()
+            (DEFAULT_LABELS - selectedLabel).forEach { label ->
+                composeRule.onNode(navigationItem(label), useUnmergedTree = true).assertIsNotSelected()
+            }
         }
     }
 
@@ -123,14 +134,17 @@ class AppScaffoldTest {
         assertVerticalNavigationItems()
     }
 
-    private fun setAppScaffold(windowInfo: WindowInfo) {
+    private fun setAppScaffold(
+        windowInfo: WindowInfo,
+        backStack: NavBackStack<ScreenNavKey> = NavBackStack(TopLevelNavigation.Memo.key),
+    ) {
         composeRule.setContent {
             CompositionLocalProvider(LocalWindowInfo provides windowInfo) {
                 DiaryTheme {
                     AppScaffold(
                         appState =
                             AppState(
-                                backStack = NavBackStack(TopLevelNavigation.Memo.key),
+                                backStack = backStack,
                                 scaffoldState = rememberNavigationSuiteScaffoldState(),
                                 reselectEvent = TopLevelReselectEvent(),
                                 paneScaffoldDirectiveProvider = { PaneScaffoldDirective.Default },
@@ -179,7 +193,14 @@ class AppScaffoldTest {
         private const val KOREAN_MEMO_LABEL = "메모"
         private const val DEFAULT_MEMO_LABEL = "Memo"
         private val DEFAULT_LABELS = listOf("Memo", "Tag", "Calendar", "Routine", "More")
-        private val DEFAULT_UNSELECTED_LABELS = DEFAULT_LABELS - DEFAULT_MEMO_LABEL
+        private val DEFAULT_LABEL_MAP =
+            mapOf(
+                TopLevelNavigation.Memo to "Memo",
+                TopLevelNavigation.Tag to "Tag",
+                TopLevelNavigation.Calendar to "Calendar",
+                TopLevelNavigation.Routine to "Routine",
+                TopLevelNavigation.More to "More",
+            )
         private val KOREAN_LABELS = listOf("메모", "태그", "캘린더", "루틴", "더보기")
 
         private fun navigationItem(label: String): SemanticsMatcher = hasClickAction() and hasAnyDescendant(hasContentDescription(label))

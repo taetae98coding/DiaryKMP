@@ -7,6 +7,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.layout.isCompactWidth
@@ -27,6 +32,8 @@ import io.github.taetae98coding.diary.feature.web.ui.previewWebDetail
 import io.github.taetae98coding.diary.feature.web.ui.previewWebPage
 import kotlin.uuid.Uuid
 
+private const val MEMO_CONTENT_STATE_KEY: String = "WebDetailMemoContent"
+
 @Composable
 internal fun WebDetailScaffoldContent(
     onEvent: (WebDetailScaffoldEvent) -> Unit,
@@ -40,6 +47,17 @@ internal fun WebDetailScaffoldContent(
     tagUiStateProvider: () -> EntityTagInputUiState = { EntityTagInputUiState() },
     memoContent: @Composable () -> Unit,
 ) {
+    // 다른 탭으로 바꾸면 메모 탭의 구성이 사라지므로 돌아왔을 때 목록 위치를 되찾도록 저장 상태를 탭 밖에 보관한다.
+    // 창 너비가 바뀌면 새 배치가 먼저 구성되고 이전 배치가 나중에 사라져 저장 상태를 넘겨받지 못하므로, 메모 탭의 구성 자체를 새 배치로 옮긴다.
+    val memoStateHolder = rememberSaveableStateHolder()
+    val currentMemoContent by rememberUpdatedState(memoContent)
+    val movableMemoContent =
+        remember(memoStateHolder) {
+            movableContentOf {
+                memoStateHolder.SaveableStateProvider(key = MEMO_CONTENT_STATE_KEY) { currentMemoContent() }
+            }
+        }
+
     if (isCompactWidth()) {
         CompactContent(
             onEvent = onEvent,
@@ -51,7 +69,7 @@ internal fun WebDetailScaffoldContent(
             uiStateProvider = uiStateProvider,
             pageUiStateProvider = pageUiStateProvider,
             tagUiStateProvider = tagUiStateProvider,
-            memoContent = memoContent,
+            memoContent = movableMemoContent,
         )
     } else {
         WideContent(
@@ -64,7 +82,7 @@ internal fun WebDetailScaffoldContent(
             uiStateProvider = uiStateProvider,
             pageUiStateProvider = pageUiStateProvider,
             tagUiStateProvider = tagUiStateProvider,
-            memoContent = memoContent,
+            memoContent = movableMemoContent,
         )
     }
 }

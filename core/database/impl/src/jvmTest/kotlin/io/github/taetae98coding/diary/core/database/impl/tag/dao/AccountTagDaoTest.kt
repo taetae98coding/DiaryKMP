@@ -347,7 +347,7 @@ class AccountTagDaoTest :
             tagIdList(accountId) shouldBe listOf(secondTag.id, firstTag.id)
         }
 
-        test("상세 갱신은 해당 계정의 태그 제목, 설명, 컬러, 수정 시각만 바꾸고 나머지 속성은 유지한다") {
+        test("TC-TAG-DETAIL-DATA-001 상세 갱신은 해당 계정의 태그 이모지, 제목, 설명, 컬러, 수정 시각만 바꾸고 완료·삭제 여부, 생성 시각과 계정 연결은 유지한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag(updatedAt = Instant.fromEpochMilliseconds(1_000))
@@ -442,8 +442,8 @@ class AccountTagDaoTest :
             emoji: String = "",
             isFinished: Boolean = false,
             isDeleted: Boolean = false,
-            updatedAt: Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
-            createdAt: Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+            updatedAt: Instant = fixtureMonkey.giveMeOne<Instant>(),
+            createdAt: Instant = fixtureMonkey.giveMeOne<Instant>(),
         ): TagLocalEntity =
             fixtureMonkey
                 .giveMeKotlinBuilder<TagLocalEntity>()

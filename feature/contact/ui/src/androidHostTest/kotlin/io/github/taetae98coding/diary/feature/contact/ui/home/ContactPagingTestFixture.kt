@@ -49,7 +49,6 @@ internal fun failedContactPagingData(): PagingData<Contact> =
             ),
     )
 
-// FixtureMonkey가 Instant를 생성하지 못하므로 연락처는 직접 만든다.
 internal fun testContact(
     name: String,
     phoneNumberList: List<String> = emptyList(),
@@ -72,6 +71,6 @@ internal fun testContact(
             ),
         isFavorite = isFavorite,
         isDeleted = false,
-        updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
-        createdAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+        updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+        createdAt = fixtureMonkey.giveMeOne<Instant>(),
     )

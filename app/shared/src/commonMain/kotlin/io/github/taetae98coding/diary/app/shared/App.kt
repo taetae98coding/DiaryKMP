@@ -12,7 +12,9 @@ import io.github.taetae98coding.diary.app.shared.integrity.PlayIntegrityLogEffec
 import io.github.taetae98coding.diary.app.shared.scaffold.AppScaffold
 import io.github.taetae98coding.diary.compose.core.image.DiaryImageLoaderEffect
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.permission.LocalPermissionRequestHistory
 import io.github.taetae98coding.diary.compose.permission.RequestPermissionEffect
+import io.github.taetae98coding.diary.compose.permission.rememberPermissionRequestHistory
 import io.github.taetae98coding.diary.compose.web.LocalDiaryWebSession
 import io.github.taetae98coding.diary.core.permission.Permission
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
@@ -48,7 +50,10 @@ public fun App(modifier: Modifier = Modifier) {
         appState = appState,
     )
 
-    CompositionLocalProvider(LocalDiaryWebSession provides webSession) {
+    CompositionLocalProvider(
+        LocalDiaryWebSession provides webSession,
+        LocalPermissionRequestHistory provides rememberPermissionRequestHistory(),
+    ) {
         DiaryTheme {
             AppScaffold(
                 appState = appState,

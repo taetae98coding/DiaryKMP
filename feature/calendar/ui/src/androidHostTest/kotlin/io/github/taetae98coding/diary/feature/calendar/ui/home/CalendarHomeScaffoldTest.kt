@@ -128,6 +128,25 @@ class CalendarHomeScaffoldTest {
     }
 
     @Test
+    fun `TC-CALENDAR-HOME-FEATURE-101 시스템이 앱을 정리했다가 다시 만들어도 상단 바 제목이 보던 달을 유지한다`() {
+        val nextYearMonth = nextYearMonth()
+        val restorationTester = StateRestorationTester(composeRule)
+
+        restorationTester.setContent {
+            DiaryTheme {
+                CalendarHomeScaffold(onEvent = {})
+            }
+        }
+        composeRule.onRoot().performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+
+        // 시스템이 정리한 앱을 다시 만들 때도 화면 재생성과 같이 저장해 둔 화면 상태에서 복원한다.
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        composeRule.onNodeWithText(englishTitle(nextYearMonth)).assertIsDisplayed()
+    }
+
+    @Test
     fun `TC-CALENDAR-HOME-FEATURE-088 다른 앱에 다녀와도 상단 바 제목이 보던 달을 유지한다`() {
         val nextYearMonth = nextYearMonth()
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)

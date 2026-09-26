@@ -23,58 +23,60 @@ import kotlinx.coroutines.flow.flowOf
 
 class SessionRepositoryImplTest :
     FunSpec({
-        test("TC-LOGIN-DATA-001 authorization code 매핑") {
-            val credential =
-                GoogleCredential.AuthorizationCode(
-                    code = fixtureMonkey.giveMeOne<String>(),
-                    clientId = fixtureMonkey.giveMeOne<String>(),
-                    redirectUri = fixtureMonkey.giveMeOne<String>(),
-                    codeVerifier = fixtureMonkey.giveMeOne<String>(),
-                )
-            val response = fixtureMonkey.giveMeOne<SessionRemoteEntity>()
-            val remoteDataSource = mockk<SessionRemoteDataSource>()
-            val supabaseAuth = mockk<SupabaseAuth>()
-            coEvery {
-                remoteDataSource.createWithGoogle(
-                    code = credential.code,
-                    clientId = credential.clientId,
-                    redirectUri = credential.redirectUri,
-                    codeVerifier = credential.codeVerifier,
-                )
-            } returns response
-            coEvery {
-                supabaseAuth.importAuthToken(
-                    accessToken = response.accessToken,
-                    refreshToken = response.refreshToken,
-                )
-            } returns Unit
-            val repository =
-                SessionRepositoryImpl(
-                    sessionRemoteDataSource = remoteDataSource,
-                    supabaseAuth = supabaseAuth,
-                )
+        listOf("데스크톱", "그 외 인가 코드 제공 플랫폼").forEach { platform ->
+            test("TC-LOGIN-DATA-001 $platform authorization code 매핑") {
+                val credential =
+                    GoogleCredential.AuthorizationCode(
+                        code = fixtureMonkey.giveMeOne<String>(),
+                        clientId = fixtureMonkey.giveMeOne<String>(),
+                        redirectUri = fixtureMonkey.giveMeOne<String>(),
+                        codeVerifier = if (platform == "데스크톱") fixtureMonkey.giveMeOne<String>() else null,
+                    )
+                val response = fixtureMonkey.giveMeOne<SessionRemoteEntity>()
+                val remoteDataSource = mockk<SessionRemoteDataSource>()
+                val supabaseAuth = mockk<SupabaseAuth>()
+                coEvery {
+                    remoteDataSource.createWithGoogle(
+                        code = credential.code,
+                        clientId = credential.clientId,
+                        redirectUri = credential.redirectUri,
+                        codeVerifier = credential.codeVerifier,
+                    )
+                } returns response
+                coEvery {
+                    supabaseAuth.importAuthToken(
+                        accessToken = response.accessToken,
+                        refreshToken = response.refreshToken,
+                    )
+                } returns Unit
+                val repository =
+                    SessionRepositoryImpl(
+                        sessionRemoteDataSource = remoteDataSource,
+                        supabaseAuth = supabaseAuth,
+                    )
 
-            repository.create(credential = credential)
+                repository.create(credential = credential)
 
-            coVerify(exactly = 1) {
-                remoteDataSource.createWithGoogle(
-                    code = credential.code,
-                    clientId = credential.clientId,
-                    redirectUri = credential.redirectUri,
-                    codeVerifier = credential.codeVerifier,
-                )
-            }
-            coVerify(exactly = 0) {
-                remoteDataSource.createWithGoogle(
-                    idToken = any(),
-                    nonce = any(),
-                )
-            }
-            coVerify(exactly = 1) {
-                supabaseAuth.importAuthToken(
-                    accessToken = response.accessToken,
-                    refreshToken = response.refreshToken,
-                )
+                coVerify(exactly = 1) {
+                    remoteDataSource.createWithGoogle(
+                        code = credential.code,
+                        clientId = credential.clientId,
+                        redirectUri = credential.redirectUri,
+                        codeVerifier = credential.codeVerifier,
+                    )
+                }
+                coVerify(exactly = 0) {
+                    remoteDataSource.createWithGoogle(
+                        idToken = any(),
+                        nonce = any(),
+                    )
+                }
+                coVerify(exactly = 1) {
+                    supabaseAuth.importAuthToken(
+                        accessToken = response.accessToken,
+                        refreshToken = response.refreshToken,
+                    )
+                }
             }
         }
 

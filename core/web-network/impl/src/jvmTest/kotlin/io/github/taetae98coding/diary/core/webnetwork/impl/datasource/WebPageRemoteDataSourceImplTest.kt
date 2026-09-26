@@ -75,9 +75,33 @@ class WebPageRemoteDataSourceImplTest :
                 dataSource.get(url = URL, headerList = emptyList()).body shouldBe body
             }
         }
+
+        test("TC-WEB-DETAIL-DOMAIN-049 다른 주소로 옮겨 가라는 응답을 따라가 마지막 응답과 그 주소를 결과로 삼는다") {
+            val body = "<html><body>${fixtureMonkey.giveMeOne<String>()}</body></html>"
+            val engine =
+                MockEngine { request ->
+                    if (request.url.toString() == URL) {
+                        respond(content = "", status = HttpStatusCode.Found, headers = headersOf(HttpHeaders.Location, REDIRECTED_URL))
+                    } else {
+                        respond(
+                            content = body,
+                            status = HttpStatusCode.OK,
+                            headers = headersOf(HttpHeaders.ContentType, ContentType.Text.Html.toString()),
+                        )
+                    }
+                }
+            val dataSource = createDataSource(engine)
+
+            val actual = dataSource.get(url = URL, headerList = emptyList())
+
+            engine.requestHistory.map { request -> request.url.toString() } shouldBe listOf(URL, REDIRECTED_URL)
+            actual.url shouldBe REDIRECTED_URL
+            actual.body shouldBe body
+        }
     }) {
     public companion object {
         private const val URL = "https://developer.android.com/"
+        private const val REDIRECTED_URL = "https://developer.android.com/redirected/"
 
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()

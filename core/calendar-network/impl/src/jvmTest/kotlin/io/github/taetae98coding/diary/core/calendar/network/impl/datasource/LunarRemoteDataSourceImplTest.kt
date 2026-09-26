@@ -45,7 +45,7 @@ class LunarRemoteDataSourceImplTest :
                 )
         }
 
-        test("해당 연도 자료가 없으면 빈 목록을 제공한다") {
+        test("TC-LUNAR-FETCH-DOMAIN-003 TC-LUNAR-FETCH-DATA-002 해당 연도 자료가 없으면 빈 음력 날짜 목록을 제공한다") {
             val engine =
                 MockEngine {
                     respond(

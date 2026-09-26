@@ -41,6 +41,7 @@ import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlace
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.domain.tag.usecase.AddTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
@@ -48,6 +49,8 @@ import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.ui.add.TagAddLinkViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.add.TagAddViewModel
+import io.github.taetae98coding.diary.feature.tag.ui.add.emojiInput
+import io.github.taetae98coding.diary.feature.tag.ui.add.inputEmoji
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_DETAIL_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TAG_TITLE
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailScreen
@@ -59,8 +62,12 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
 import io.github.taetae98coding.diary.feature.tag.ui.link.testTag
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.spyk
+import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.After
 import org.junit.Before
@@ -86,6 +93,8 @@ class TagListDetailPlaceholderTest {
     private var currentInput: PlaceholderInput? = null
     private val linkViewModelList = mutableListOf<TagAddLinkViewModel>()
     private val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey)
+    private val addTagUseCase = mockk<AddTagUseCase>()
+    private val resultEventBus = spyk(ResultEventBus())
 
     // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트마다 전역 Koin을 정리한다.
     // 같은 실행에서 앞서 돈 다른 테스트 클래스가 전역 Koin을 남겨 둘 수 있으므로 시작 전에도 정리한다.
@@ -149,6 +158,20 @@ class TagListDetailPlaceholderTest {
     }
 
     @Test
+    fun `TC-TAG-LIST-DETAIL-FEATURE-020 선택한 태그가 없을 때 상세 영역에서 추가한 태그는 다른 태그 입력에 돌려주지 않는다`() {
+        val input = placeholderInput()
+        coEvery { addTagUseCase(parameter = any()) } returns Result.success(fixtureId())
+        setTagNavDisplay(input = input)
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().performTextInput(input.title)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        coVerify(exactly = 1) { addTagUseCase(parameter = any()) }
+        verify(exactly = 0) { resultEventBus.sendResult<Any?>(resultKey = any(), result = any()) }
+    }
+
+    @Test
     fun `TC-TAG-LIST-DETAIL-DOMAIN-002 다른 주요 목적지에 다녀오면 상세 영역의 태그 추가는 입력과 연결이 모두 비어 있는 상태로 시작한다`() {
         val input = placeholderInput()
         setTagNavDisplay(input = input)
@@ -167,6 +190,7 @@ class TagListDetailPlaceholderTest {
 
         composeRule.onAllNodes(hasSetTextAction()).onFirst().assert(hasText(""))
         composeRule.onAllNodes(hasSetTextAction())[1].assert(hasText(""))
+        composeRule.onAllNodesWithText(input.emoji).assertCountEquals(0)
         composeRule.onAllNodesWithText(input.linkedTag.detail.title).assertCountEquals(0)
         linkViewModelList shouldHaveSize 2
     }
@@ -263,6 +287,7 @@ class TagListDetailPlaceholderTest {
         composeRule.runOnIdle { backStack.removeLastOrNull() }
         composeRule.waitForIdle()
 
+        composeRule.emojiInput().assert(hasText(input.emoji))
         composeRule.onAllNodes(hasSetTextAction()).onFirst().assert(hasText(input.title))
         composeRule.onAllNodes(hasSetTextAction())[1].assert(hasText(input.description))
         composeRule.onAllNodesWithText(input.linkedTag.detail.title).onFirst().assertExists()
@@ -351,8 +376,6 @@ class TagListDetailPlaceholderTest {
                     override val viewModelStore: ViewModelStore = ViewModelStore()
                 }
             }
-        val resultEventBus = remember { ResultEventBus() }
-
         CompositionLocalProvider(
             LocalViewModelStoreOwner provides viewModelStoreOwner,
             LocalResultEventBus provides resultEventBus,
@@ -365,7 +388,7 @@ class TagListDetailPlaceholderTest {
 
     private fun placeholderViewModelModule() =
         module {
-            factory { TagAddViewModel(addTagUseCase = mockk()) }
+            factory { TagAddViewModel(addTagUseCase = addTagUseCase) }
             factory { linkViewModel().also { linkViewModelList += it } }
         }
 
@@ -385,14 +408,17 @@ class TagListDetailPlaceholderTest {
     }
 
     private fun ComposeContentTestRule.fillPlaceholder(input: PlaceholderInput) {
+        inputEmoji(input.emoji)
         onAllNodes(hasSetTextAction()).onFirst().performTextInput(input.title)
         onAllNodes(hasSetTextAction())[1].performTextInput(input.description)
         runOnIdle { linkViewModelList.last().link(input.linkedTag.id) }
         waitForIdle()
         onAllNodesWithText(input.linkedTag.detail.title).onFirst().assertExists()
+        emojiInput().assert(hasText(input.emoji))
     }
 
     private data class PlaceholderInput(
+        val emoji: String,
         val title: String,
         val description: String,
         val linkedTag: Tag,
@@ -404,11 +430,14 @@ class TagListDetailPlaceholderTest {
         const val ROUTE_CONTENT = "RouteContent"
         const val OTHER_TOP_LEVEL_CONTENT = "OtherTopLevelContent"
         const val DEFAULT_TAG_ADD_TITLE = "Add Tag"
+        const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add tag"
+        const val EMOJI = "🏃"
 
         fun detailContent(id: Uuid): String = "TagDetail-$id"
 
         fun placeholderInput(): PlaceholderInput =
             PlaceholderInput(
+                emoji = EMOJI,
                 title = fixtureText(prefix = "title"),
                 description = fixtureText(prefix = "description"),
                 linkedTag = testTag(title = fixtureText(prefix = "tag")),

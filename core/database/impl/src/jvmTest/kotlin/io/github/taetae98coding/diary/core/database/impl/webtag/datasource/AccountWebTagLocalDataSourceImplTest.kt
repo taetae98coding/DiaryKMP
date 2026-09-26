@@ -433,7 +433,7 @@ class AccountWebTagLocalDataSourceImplTest :
             linkedTagIdList(accountId = accountId, webId = web.id) shouldBe listOf(keptTag.id)
         }
 
-        test("TC-WEB-TAG-DATA-010 가리키는 항목이 기기에 없는 연결도 저장은 성공한다") {
+        test("TC-WEB-TAG-DATA-010 가리키는 태그가 기기에 없는 연결도 저장은 성공한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val web = web()
             val tag = tag()
@@ -443,6 +443,20 @@ class AccountWebTagLocalDataSourceImplTest :
             linkedTagList(accountId = accountId, webId = web.id).shouldBeEmpty()
 
             insertTag(accountId, tag)
+            linkedTagIdList(accountId = accountId, webId = web.id) shouldBe listOf(tag.id)
+        }
+
+        test("TC-WEB-TAG-DATA-010 가리키는 웹 항목이 기기에 없는 연결도 저장은 성공한다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val web = web()
+            val tag = tag()
+            insertTag(accountId, tag)
+
+            link(accountId = accountId, webId = web.id, tagId = tag.id)
+            tagWebIdList(accountId = accountId, tagId = tag.id).shouldBeEmpty()
+
+            insertWeb(accountId, web)
+            tagWebIdList(accountId = accountId, tagId = tag.id) shouldBe listOf(web.id)
             linkedTagIdList(accountId = accountId, webId = web.id) shouldBe listOf(tag.id)
         }
 
@@ -562,6 +576,30 @@ class AccountWebTagLocalDataSourceImplTest :
                 tagWebIdList(accountId = accountId, tagId = value.id) shouldBe listOf(web.id)
             }
             tagWebIdList(accountId = accountId, tagId = unselectedTag.id).shouldBeEmpty()
+        }
+
+        test("TC-WEB-ADD-DATA-009 고른 뒤 완료된 태그는 추가한 웹 항목과 연결되어 연결된 태그로 조회된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val web = web()
+            val finishedTag = tag().copy(isFinished = true)
+            insertTag(accountId, finishedTag)
+
+            webTransaction.upsert(accountId = accountId, webList = listOf(web), webTagList = listOf(webTag(webId = web.id, tagId = finishedTag.id)))
+
+            linkedTagIdList(accountId = accountId, webId = web.id) shouldBe listOf(finishedTag.id)
+        }
+
+        test("TC-WEB-ADD-DATA-009 고른 뒤 삭제된 태그도 추가한 웹 항목과 연결되어 삭제를 되돌리면 연결된 태그로 조회된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val web = web()
+            val deletedTag = tag().copy(isDeleted = true)
+            insertTag(accountId, deletedTag)
+
+            webTransaction.upsert(accountId = accountId, webList = listOf(web), webTagList = listOf(webTag(webId = web.id, tagId = deletedTag.id)))
+
+            linkedTagIdList(accountId = accountId, webId = web.id).shouldBeEmpty()
+            insertTag(accountId, deletedTag.copy(isDeleted = false))
+            linkedTagIdList(accountId = accountId, webId = web.id) shouldBe listOf(deletedTag.id)
         }
 
         test("TC-WEB-TAG-DATA-002 TC-WEB-ADD-DATA-004 저장이 실패하면 웹 항목, 계정 연결과 태그 연결이 모두 남지 않는다") {
@@ -784,7 +822,7 @@ class AccountWebTagLocalDataSourceImplTest :
             return result.shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, WebLocalEntity>>().data.map { web -> web.id }
         }
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun tag(title: String = "title-${fixtureMonkey.giveMeOne<String>()}"): TagLocalEntity =
             fixtureMonkey
@@ -799,6 +837,18 @@ class AccountWebTagLocalDataSourceImplTest :
                         isDeleted = false,
                     )
                 }
+
+        private fun webTag(
+            webId: Uuid,
+            tagId: Uuid,
+        ): WebTagLocalEntity =
+            WebTagLocalEntity(
+                webId = webId,
+                tagId = tagId,
+                isDeleted = false,
+                updatedAt = instant(),
+                createdAt = instant(),
+            )
 
         private fun TagLocalEntity.withDetail(
             emoji: String,

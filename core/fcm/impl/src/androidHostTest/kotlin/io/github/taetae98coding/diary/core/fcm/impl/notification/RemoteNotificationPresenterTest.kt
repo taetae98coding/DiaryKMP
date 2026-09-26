@@ -106,6 +106,20 @@ class RemoteNotificationPresenterTest {
         shadowOf(notificationManager()).allNotifications shouldHaveSize 2
     }
 
+    @Test
+    fun `TC-DAILY-MEMO-NOTIFICATION-FEATURE-011 지우지 않은 이전 날의 알림은 다음 날 알림이 대신한다`() {
+        val previousDay = fixtureMonkey.giveMeOne<RemoteNotification>()
+        val nextDay = fixtureMonkey.giveMeOne<RemoteNotification>().copy(title = "next ${previousDay.title}", tag = previousDay.tag)
+
+        presenter.present(previousDay)
+        presenter.present(nextDay)
+
+        val notificationList = shadowOf(notificationManager()).allNotifications
+
+        notificationList shouldHaveSize 1
+        notificationList.single().extras.getString(Notification.EXTRA_TITLE) shouldBe nextDay.title
+    }
+
     // 라이브러리 모듈의 테스트 매니페스트에는 런처 진입점이 없으므로, 앱이 가진 런처 진입점을 테스트 환경에 만들어 준다.
     private fun addLauncherActivity() {
         val componentName = ComponentName(context, LAUNCHER_ACTIVITY_CLASS_NAME)

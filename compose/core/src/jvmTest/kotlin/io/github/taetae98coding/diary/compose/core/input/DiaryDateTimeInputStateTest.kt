@@ -16,6 +16,7 @@ import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
+import kotlinx.datetime.todayIn
 import kotlin.time.Clock
 
 private data class DefaultPeriodTestData(
@@ -40,6 +41,69 @@ class DiaryDateTimeInputStateTest : FunSpec() {
             state.hasDateTime = false
 
             state.value.shouldBeNull()
+        }
+
+        test("TC-DIARY-DATE-TIME-INPUT-FEATURE-039 표시한 뒤 날짜가 바뀐 다음에 처음 사용하도록 전환하면 전환한 날의 종일 기간이 선택된다") {
+            val (start, _) = anyPeriod()
+            val nextDay = start.date.plus(1, DateTimeUnit.DAY)
+            val state =
+                DiaryDateTimeInputState(
+                    hasDateTime = false,
+                    isAllDay = true,
+                    start = start,
+                    endInclusive = start,
+                    clock = clockOf(LocalDateTime(date = nextDay, time = LocalTime(hour = 9, minute = 0))),
+                    isPeriodUnselected = true,
+                )
+
+            state.hasDateTime = true
+
+            state.value shouldBe DiaryDateTimeInputValue.AllDay(dateRange = nextDay..nextDay)
+        }
+
+        test("처음 사용하도록 전환한 뒤에는 껐다 켜도 날짜를 다시 정하지 않는다") {
+            val (start, _) = anyPeriod()
+            val firstDay = start.date.plus(1, DateTimeUnit.DAY)
+            val laterDay = firstDay.plus(1, DateTimeUnit.DAY)
+            val state =
+                DiaryDateTimeInputState(
+                    hasDateTime = false,
+                    isAllDay = true,
+                    start = start,
+                    endInclusive = start,
+                    clock =
+                        clockOf(
+                            LocalDateTime(date = firstDay, time = LocalTime(hour = 9, minute = 0)),
+                            LocalDateTime(date = laterDay, time = LocalTime(hour = 9, minute = 0)),
+                        ),
+                    isPeriodUnselected = true,
+                )
+
+            state.hasDateTime = true
+            state.hasDateTime = false
+            state.hasDateTime = true
+
+            state.value shouldBe DiaryDateTimeInputValue.AllDay(dateRange = firstDay..firstDay)
+        }
+
+        test("사용처가 기간을 채우면 그 뒤 처음 켤 때 날짜를 다시 정하지 않는다") {
+            val (start, _) = anyPeriod()
+            val filledDay = start.date.plus(3, DateTimeUnit.DAY)
+            val state =
+                DiaryDateTimeInputState(
+                    hasDateTime = false,
+                    isAllDay = true,
+                    start = start,
+                    endInclusive = start,
+                    clock = clockOf(LocalDateTime(date = start.date.plus(1, DateTimeUnit.DAY), time = LocalTime(hour = 9, minute = 0))),
+                    isPeriodUnselected = true,
+                )
+
+            state.select(DiaryDateTimeInputValue.AllDay(dateRange = filledDay..filledDay))
+            state.hasDateTime = false
+            state.hasDateTime = true
+
+            state.value shouldBe DiaryDateTimeInputValue.AllDay(dateRange = filledDay..filledDay)
         }
 
         test("종일이면 값이 날짜 범위로 노출된다") {
@@ -440,6 +504,25 @@ class DiaryDateTimeInputStateTest : FunSpec() {
             restored.isAllDay shouldBe state.isAllDay
             restored.start shouldBe state.start
             restored.endInclusive shouldBe state.endInclusive
+        }
+
+        test("Saver는 아직 켜지 않은 상태를 되살려 복원 뒤 처음 켤 때 그날의 오늘을 쓴다") {
+            val (start, _) = anyPeriod()
+            val state =
+                DiaryDateTimeInputState(
+                    hasDateTime = false,
+                    isAllDay = true,
+                    start = start,
+                    endInclusive = start,
+                    isPeriodUnselected = true,
+                )
+
+            val saved = with(DiaryDateTimeInputState.Saver) { SaverScope { true }.save(state) }
+            val restored = checkNotNull(DiaryDateTimeInputState.Saver.restore(checkNotNull(saved)))
+            restored.hasDateTime = true
+            val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+
+            restored.value shouldBe DiaryDateTimeInputValue.AllDay(dateRange = today..today)
         }
 
         test("기본 시각은 30분 단위로 올린다") {

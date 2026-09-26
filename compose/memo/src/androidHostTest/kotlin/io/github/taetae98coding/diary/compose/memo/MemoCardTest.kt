@@ -49,10 +49,10 @@ class MemoCardTest {
                     detail.copy(title = "Title${detail.title}", color = colorArgb.toLong()),
                 ).setExp(
                     Memo::updatedAt,
-                    Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                    fixtureMonkey.giveMeOne<Instant>(),
                 ).setExp(
                     Memo::createdAt,
-                    Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                    fixtureMonkey.giveMeOne<Instant>(),
                 ).sample()
 
         setMemoCard(memo)
@@ -159,10 +159,10 @@ class MemoCardTest {
                 fixtureMonkey.giveMeOne<MemoDetail>().copy(dateTime = dateTime),
             ).setExp(
                 Memo::updatedAt,
-                Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                fixtureMonkey.giveMeOne<Instant>(),
             ).setExp(
                 Memo::createdAt,
-                Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                fixtureMonkey.giveMeOne<Instant>(),
             ).sample()
 
     private fun setMemoCard(

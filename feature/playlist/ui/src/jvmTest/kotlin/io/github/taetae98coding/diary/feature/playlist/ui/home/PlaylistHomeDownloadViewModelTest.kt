@@ -6,6 +6,7 @@ import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadEvent
 import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadState
+import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadTarget
 import io.github.taetae98coding.diary.domain.playlist.usecase.GetMusicDownloadEventUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.GetMusicDownloadStateUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.RequestMusicDownloadUseCase
@@ -28,6 +29,8 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.uuid.Uuid
+
+private const val VIDEO_ID: String = "dQw4w9WgXcQ"
 
 class PlaylistHomeDownloadViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -152,6 +155,27 @@ class PlaylistHomeDownloadViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-MUSIC-DOWNLOAD-FEATURE-020 화면에 들어와 상태와 안내를 관찰만 하면 내려받기를 요청하지 않는다") {
+            runTest(mainDispatcher) {
+                val requestMusicDownloadUseCase = mockk<RequestMusicDownloadUseCase>()
+                val viewModel = viewModel(requestMusicDownloadUseCase = requestMusicDownloadUseCase)
+
+                viewModel.uiState.test {
+                    awaitItem()
+                    advanceUntilIdle()
+
+                    cancelAndIgnoreRemainingEvents()
+                }
+                viewModel.effect.test {
+                    advanceUntilIdle()
+
+                    cancelAndIgnoreRemainingEvents()
+                }
+
+                coVerify(exactly = 0) { requestMusicDownloadUseCase(parameter = any()) }
+            }
+        }
+
         test("TC-MUSIC-DOWNLOAD-DATA-002 목록을 표시하는 것만으로는 재생 정보를 조회하지 않는다") {
             runTest(mainDispatcher) {
                 val requestMusicDownloadUseCase = mockk<RequestMusicDownloadUseCase>()
@@ -170,7 +194,7 @@ class PlaylistHomeDownloadViewModelTest : FunSpec() {
 
         test("TC-PLAYLIST-HOME-FEATURE-020 화면을 떠났다 돌아와도 진행 중인 상태를 그대로 본다") {
             runTest(mainDispatcher) {
-                val id = Uuid.random()
+                val id = MusicDownloadTarget(id = Uuid.random(), videoId = VIDEO_ID)
                 val stateMapFlow = MutableStateFlow(Result.success(mapOf(id to MusicDownloadState.Running(progress = 0.62F))))
                 val getMusicDownloadStateUseCase = downloadStateUseCase(stateMapFlow = stateMapFlow)
 
@@ -214,7 +238,7 @@ class PlaylistHomeDownloadViewModelTest : FunSpec() {
 
         test("대기나 진행 중인 곡이 있으면 다운로드가 진행 중이다") {
             runTest(mainDispatcher) {
-                val id = Uuid.random()
+                val id = MusicDownloadTarget(id = Uuid.random(), videoId = VIDEO_ID)
 
                 PlaylistHomeDownloadUiState().isDownloading shouldBe false
                 PlaylistHomeDownloadUiState(stateMap = mapOf(id to MusicDownloadState.Pending)).isDownloading shouldBe true
@@ -245,7 +269,7 @@ class PlaylistHomeDownloadViewModelTest : FunSpec() {
             return getMusicDownloadEventUseCase
         }
 
-        private fun downloadStateUseCase(stateMapFlow: Flow<Result<Map<Uuid, MusicDownloadState>>> = flowOf(Result.success(emptyMap()))): GetMusicDownloadStateUseCase {
+        private fun downloadStateUseCase(stateMapFlow: Flow<Result<Map<MusicDownloadTarget, MusicDownloadState>>> = flowOf(Result.success(emptyMap()))): GetMusicDownloadStateUseCase {
             val getMusicDownloadStateUseCase = mockk<GetMusicDownloadStateUseCase>()
             every { getMusicDownloadStateUseCase(parameter = Unit) } returns stateMapFlow
 

@@ -99,8 +99,8 @@ private fun memo(dateTime: MemoDateTime?): Memo =
     fixtureMonkey
         .giveMeKotlinBuilder<Memo>()
         .setExp(Memo::detail, fixtureMonkey.giveMeOne<MemoDetail>().copy(dateTime = dateTime))
-        .setExp(Memo::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-        .setExp(Memo::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+        .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+        .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
         .sample()
 
 private fun allDay(day: Int): MemoDateTime.AllDay = MemoDateTime.AllDay(dateRange = LocalDate(year = 2026, month = 7, day = day)..LocalDate(year = 2026, month = 7, day = day))

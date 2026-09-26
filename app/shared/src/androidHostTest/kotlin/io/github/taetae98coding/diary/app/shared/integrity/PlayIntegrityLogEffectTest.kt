@@ -6,13 +6,26 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.domain.integrity.repository.PlayIntegrityRepository
 import io.github.taetae98coding.diary.domain.integrity.usecase.LogPlayIntegrityUseCase
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.logger.analytics.api.AnalyticsEventLog
+import io.github.taetae98coding.diary.logger.core.DiaryLog
+import io.github.taetae98coding.diary.logger.core.DiaryLogger
+import io.github.taetae98coding.diary.logger.core.DiaryLoggerDelegate
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonObject
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,24 +67,23 @@ class PlayIntegrityLogEffectTest {
     }
 
     @Test
-    fun `TC-PLAY-INTEGRITY-LOGGING-DOMAIN-011 확인 중 앱이 백그라운드로 가도 끝까지 진행한다`() {
+    fun `TC-PLAY-INTEGRITY-LOGGING-DOMAIN-011 확인 중 앱이 백그라운드로 가도 끝까지 진행해 로그를 남긴다`() {
         val serverResponse = CompletableDeferred<Unit>()
-        var finishedCount = 0
-        val useCase = mockk<LogPlayIntegrityUseCase>()
-        coEvery { useCase(Unit) } coAnswers {
+        val logList = recordPlayIntegrityLog()
+        val repository = mockk<PlayIntegrityRepository>()
+        coEvery { repository.fetch() } coAnswers {
             serverResponse.await()
-            finishedCount += 1
-            Result.success(Unit)
+            verdict()
         }
-        val viewModel = AppPlayIntegrityViewModel(logPlayIntegrityUseCase = useCase)
+        val viewModel = AppPlayIntegrityViewModel(logPlayIntegrityUseCase = logPlayIntegrityUseCase(repository = repository))
         val lifecycleOwner = setEffect(log = viewModel::log, initialState = Lifecycle.State.STARTED)
 
         composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
         composeRule.runOnIdle { serverResponse.complete(Unit) }
-        composeRule.waitUntil { finishedCount == 1 }
+        composeRule.waitUntil { logList.isNotEmpty() }
 
-        finishedCount shouldBe 1
-        coVerify(exactly = 1) { useCase(Unit) }
+        logList.single().name shouldBe PLAY_INTEGRITY_EVENT
+        coVerify(exactly = 1) { repository.fetch() }
     }
 
     @Test
@@ -87,28 +99,29 @@ class PlayIntegrityLogEffectTest {
     }
 
     @Test
-    fun `TC-PLAY-INTEGRITY-LOGGING-DOMAIN-020 확인 중 화면이 재생성되어도 끝까지 진행한다`() {
+    fun `TC-PLAY-INTEGRITY-LOGGING-DOMAIN-020 확인 중 화면이 재생성되어도 끝까지 진행해 로그를 남긴다`() {
         val serverResponse = CompletableDeferred<Unit>()
-        var firstFinished = false
+        val logList = recordPlayIntegrityLog()
         var callCount = 0
-        val useCase = mockk<LogPlayIntegrityUseCase>()
-        coEvery { useCase(Unit) } coAnswers {
+        val repository = mockk<PlayIntegrityRepository>()
+        coEvery { repository.fetch() } coAnswers {
             callCount += 1
             if (callCount == 1) {
                 serverResponse.await()
-                firstFinished = true
+                verdict()
+            } else {
+                null
             }
-            Result.success(Unit)
         }
-        val viewModel = AppPlayIntegrityViewModel(logPlayIntegrityUseCase = useCase)
+        val viewModel = AppPlayIntegrityViewModel(logPlayIntegrityUseCase = logPlayIntegrityUseCase(repository = repository))
         val restorationTester = setRestorableEffect(log = viewModel::log)
 
         composeRule.runOnIdle { callCount shouldBe 1 }
         restorationTester.emulateSavedInstanceStateRestore()
         composeRule.runOnIdle { serverResponse.complete(Unit) }
-        composeRule.waitUntil { firstFinished }
+        composeRule.waitUntil { logList.isNotEmpty() }
 
-        firstFinished shouldBe true
+        logList.single().name shouldBe PLAY_INTEGRITY_EVENT
     }
 
     private fun setRestorableEffect(log: () -> Unit): StateRestorationTester {
@@ -137,5 +150,31 @@ class PlayIntegrityLogEffectTest {
         }
 
         return lifecycleOwner
+    }
+
+    // 판정 확인은 서버 응답을 받은 뒤 판정 결과 로그를 남기는 데까지가 한 과정이므로, 로그를 남기는 실제 확인 과정을 쓰고 서버 응답만 제어한다.
+    // 확인 과정의 생성자는 다른 모듈에서 부를 수 없게 막혀 있어 Java 리플렉션으로 만든다.
+    private fun logPlayIntegrityUseCase(repository: PlayIntegrityRepository): LogPlayIntegrityUseCase =
+        LogPlayIntegrityUseCase::class.java
+            .getConstructor(PlayIntegrityRepository::class.java)
+            .newInstance(repository)
+
+    private fun verdict(): JsonObject = buildJsonObject { putJsonObject("requestDetails") { put("requestHash", fixtureMonkey.giveMeOne<String>()) } }
+
+    private fun recordPlayIntegrityLog(): List<AnalyticsEventLog> {
+        val logList = mutableListOf<AnalyticsEventLog>()
+        val delegate = mockk<DiaryLoggerDelegate>()
+        every { delegate.log(log = any()) } answers {
+            val log = firstArg<DiaryLog>()
+            if (log is AnalyticsEventLog) logList += log
+        }
+        DiaryLogger.add(delegate = delegate)
+
+        return logList
+    }
+
+    private companion object {
+        const val PLAY_INTEGRITY_EVENT: String = "play_integrity"
+        val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
     }
 }

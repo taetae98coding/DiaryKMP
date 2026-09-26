@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.tag.ui.finished
 
+import androidx.compose.runtime.remember
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -75,6 +76,56 @@ class TagFinishedListRestorationTest {
         composeRule.onNodeWithText(DEFAULT_TITLE_SORT).assertDoesNotExist()
         composeRule.onNodeWithText(tagList[SCROLL_INDEX].detail.title).assertIsDisplayed()
         composeRule.onNodeWithText(tagList.first().detail.title).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-TAG-FINISHED-LIST-DOMAIN-013 시스템이 앱을 정리한 뒤 다시 만들면 정렬은 처음으로 돌아가고 보던 위치는 다시 보인다`() {
+        val titlePrefix = fixtureText(prefix = "FinishedTag")
+        val tagList = List(TAG_COUNT) { index -> finishedTag(title = "${titlePrefix}Index$index") }
+        var nextViewModel = sortableViewModel(tagList = tagList)
+        val restorationTester = StateRestorationTester(composeRule)
+        // 시스템이 앱을 정리하면 정렬을 들고 있던 ViewModel도 사라지므로, 복원으로 컴포지션을 다시 만들 때만 새 ViewModel을 받게 한다.
+        restorationTester.setContent {
+            val viewModel = remember { nextViewModel }
+            DiaryTheme {
+                TagFinishedListScreen(
+                    navigateUp = {},
+                    navigateToDetail = {},
+                    tagViewModel = viewModel,
+                    syncViewModel = screenTestSyncViewModel(),
+                )
+            }
+        }
+        composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(tagList.first().detail.title).fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).performClick()
+        composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).performClick()
+        composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(DEFAULT_SORT_SHEET_TITLE).fetchSemanticsNodes().isEmpty()
+        }
+        composeRule.onNodeWithTag(TAG_FINISHED_LIST_TEST_TAG).performScrollToIndex(SCROLL_INDEX)
+        composeRule.onNodeWithText(tagList[SCROLL_INDEX].detail.title).assertIsDisplayed()
+        nextViewModel = sortableViewModel(tagList = tagList)
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_TITLE_SORT).assertExists()
+        composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).assertDoesNotExist()
+        composeRule.onNodeWithText(tagList[SCROLL_INDEX].detail.title).assertIsDisplayed()
+        composeRule.onNodeWithText(tagList.first().detail.title).assertDoesNotExist()
+    }
+
+    private fun sortableViewModel(tagList: List<Tag>): TagFinishedListViewModel {
+        val sortFlow = MutableStateFlow(ListSort.TITLE)
+        val viewModel = mockk<TagFinishedListViewModel>(relaxed = true)
+        every { viewModel.sort } returns sortFlow
+        every { viewModel.select(sort = any()) } answers { sortFlow.value = firstArg() }
+        every { viewModel.tagPagingData } returns MutableStateFlow(tagPagingDataOf(tagList))
+        every { viewModel.effect } returns emptyFlow()
+
+        return viewModel
     }
 
     private fun finishedTag(title: String): Tag =

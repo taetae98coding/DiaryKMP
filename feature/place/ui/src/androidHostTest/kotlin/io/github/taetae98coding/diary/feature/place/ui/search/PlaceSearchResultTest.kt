@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.feature.place.ui.search
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -10,6 +11,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import io.github.taetae98coding.diary.core.model.place.SearchedPlace
+import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
@@ -25,7 +27,9 @@ class PlaceSearchResultTest {
 
     @Test
     fun `TC-PLACE-SEARCH-DIALOG-FEATURE-003 검색어가 비어 있으면 결과를 표시하지 않는다`() {
-        val place = searchedPlace(name = PLACE_NAME, address = PLACE_ADDRESS)
+        val placeName = randomText(prefix = PLACE_NAME_PREFIX)
+        val placeAddress = randomText(prefix = PLACE_ADDRESS_PREFIX)
+        val place = searchedPlace(name = placeName, address = placeAddress)
 
         composeRule.setPlaceSearchContent(uiStateProvider = { PlaceSearchUiState.Loaded(placeList = listOf(place)) })
 
@@ -39,26 +43,35 @@ class PlaceSearchResultTest {
     }
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-FEATURE-004 검색어를 입력하면 찾은 장소가 목록에 표시된다`() {
-        val first = searchedPlace(name = FIRST_PLACE_NAME, address = PLACE_ADDRESS)
-        val second = searchedPlace(name = SECOND_PLACE_NAME, address = PLACE_ADDRESS)
+    fun `TC-PLACE-SEARCH-DIALOG-FEATURE-004 검색어를 입력하면 찾은 장소가 받은 순서대로 목록에 표시된다`() {
+        val query = randomText(prefix = QUERY_PREFIX)
+        val placeAddress = randomText(prefix = PLACE_ADDRESS_PREFIX)
+        val firstPlaceName = randomText(prefix = FIRST_PLACE_NAME_PREFIX)
+        val secondPlaceName = randomText(prefix = SECOND_PLACE_NAME_PREFIX)
+        val first = searchedPlace(name = firstPlaceName, address = placeAddress)
+        val second = searchedPlace(name = secondPlaceName, address = placeAddress)
 
         composeRule.setPlaceSearchContent(uiStateProvider = { PlaceSearchUiState.Loaded(placeList = listOf(first, second)) })
 
-        composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(QUERY)
+        composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(query)
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(first.name).assertExists()
         composeRule.onNodeWithText(second.name).assertExists()
+        composeRule.onNodeWithText(first.name).getUnclippedBoundsInRoot().top shouldBeLessThan
+            composeRule.onNodeWithText(second.name).getUnclippedBoundsInRoot().top
     }
 
     @Test
     fun `TC-PLACE-SEARCH-DIALOG-FEATURE-005 결과 항목에 이름과 주소가 함께 표시된다`() {
-        val place = searchedPlace(name = PLACE_NAME, address = PLACE_ADDRESS)
+        val query = randomText(prefix = QUERY_PREFIX)
+        val placeName = randomText(prefix = PLACE_NAME_PREFIX)
+        val placeAddress = randomText(prefix = PLACE_ADDRESS_PREFIX)
+        val place = searchedPlace(name = placeName, address = placeAddress)
 
         composeRule.setPlaceSearchContent(uiStateProvider = { PlaceSearchUiState.Loaded(placeList = listOf(place)) })
 
-        composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(QUERY)
+        composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(query)
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(place.name).assertExists()
@@ -67,9 +80,10 @@ class PlaceSearchResultTest {
 
     @Test
     fun `TC-PLACE-SEARCH-DIALOG-FEATURE-006 결과가 없으면 결과 없음 안내가 표시된다`() {
+        val query = randomText(prefix = QUERY_PREFIX)
         composeRule.setPlaceSearchContent(uiStateProvider = { PlaceSearchUiState.Loaded() })
 
-        composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(QUERY)
+        composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(query)
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(DEFAULT_EMPTY_MESSAGE).assertExists()
@@ -81,12 +95,15 @@ class PlaceSearchResultTest {
 
     @Test
     fun `TC-PLACE-SEARCH-DIALOG-FEATURE-007 검색에 실패하면 실패 안내가 표시된다`() {
-        val place = searchedPlace(name = PLACE_NAME, address = PLACE_ADDRESS)
+        val query = randomText(prefix = QUERY_PREFIX)
+        val placeName = randomText(prefix = PLACE_NAME_PREFIX)
+        val placeAddress = randomText(prefix = PLACE_ADDRESS_PREFIX)
+        val place = searchedPlace(name = placeName, address = placeAddress)
         val uiState = mutableStateOf<PlaceSearchUiState>(PlaceSearchUiState.Loaded(placeList = listOf(place)))
 
         composeRule.setPlaceSearchContent(uiStateProvider = { uiState.value })
 
-        composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(QUERY)
+        composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(query)
         composeRule.waitForIdle()
         composeRule.runOnIdle { uiState.value = PlaceSearchUiState.Failed }
         composeRule.waitForIdle()
@@ -100,11 +117,14 @@ class PlaceSearchResultTest {
 
     @Test
     fun `TC-PLACE-SEARCH-DIALOG-FEATURE-008 검색어를 지우면 결과가 사라진다`() {
-        val place = searchedPlace(name = PLACE_NAME, address = PLACE_ADDRESS)
+        val query = randomText(prefix = QUERY_PREFIX)
+        val placeName = randomText(prefix = PLACE_NAME_PREFIX)
+        val placeAddress = randomText(prefix = PLACE_ADDRESS_PREFIX)
+        val place = searchedPlace(name = placeName, address = placeAddress)
 
         composeRule.setPlaceSearchContent(uiStateProvider = { PlaceSearchUiState.Loaded(placeList = listOf(place)) })
 
-        composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(QUERY)
+        composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(query)
         composeRule.waitForIdle()
         composeRule.onNodeWithText(place.name).assertExists()
 
@@ -119,7 +139,10 @@ class PlaceSearchResultTest {
 
     @Test
     fun `TC-PLACE-SEARCH-DIALOG-FEATURE-010 목록의 장소를 고르면 고른 장소가 전달된다`() {
-        val place = searchedPlace(name = PLACE_NAME, address = PLACE_ADDRESS)
+        val query = randomText(prefix = QUERY_PREFIX)
+        val placeName = randomText(prefix = PLACE_NAME_PREFIX)
+        val placeAddress = randomText(prefix = PLACE_ADDRESS_PREFIX)
+        val place = searchedPlace(name = placeName, address = placeAddress)
         var selected: SearchedPlace? = null
 
         composeRule.setPlaceSearchContent(
@@ -127,7 +150,7 @@ class PlaceSearchResultTest {
             onSelect = { value -> selected = value },
         )
 
-        composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(QUERY)
+        composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(query)
         composeRule.waitForIdle()
         composeRule.onNodeWithText(place.name).assert(hasClickAction()).performClick()
         composeRule.waitForIdle()
@@ -136,10 +159,10 @@ class PlaceSearchResultTest {
     }
 
     private companion object {
-        private const val QUERY = "place"
-        private const val PLACE_NAME = "Named Place"
-        private const val PLACE_ADDRESS = "Road Address"
-        private const val FIRST_PLACE_NAME = "First Place"
-        private const val SECOND_PLACE_NAME = "Second Place"
+        private const val QUERY_PREFIX = "query"
+        private const val PLACE_NAME_PREFIX = "place"
+        private const val PLACE_ADDRESS_PREFIX = "address"
+        private const val FIRST_PLACE_NAME_PREFIX = "first-place"
+        private const val SECOND_PLACE_NAME_PREFIX = "second-place"
     }
 }

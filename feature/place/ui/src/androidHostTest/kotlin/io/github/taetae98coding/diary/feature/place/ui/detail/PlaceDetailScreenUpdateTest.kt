@@ -65,18 +65,39 @@ class PlaceDetailScreenUpdateTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-009 제목을 비운 채 수정을 실행하면 빈 제목으로 요청한다`() {
+    fun `TC-PLACE-DETAIL-FEATURE-009 제목을 비운 채 수정하면 비운 제목으로 요청하고 화면 제목은 기존 제목으로 남는다`() {
+        assertBlankTitleUpdate(blankTitle = "")
+    }
+
+    @Test
+    fun `TC-PLACE-DETAIL-FEATURE-009 제목을 공백만 남긴 채 수정하면 공백 제목으로 요청하고 화면 제목은 기존 제목으로 남는다`() {
+        assertBlankTitleUpdate(blankTitle = BLANK_TITLE)
+    }
+
+    // 기존 제목을 쓰는 판단은 수정 규칙이 하므로(TC-PLACE-DETAIL-DOMAIN-005), 화면은 입력한 값을 그대로 넘기고 저장 결과를 표시한다.
+    private fun assertBlankTitleUpdate(blankTitle: String) {
         val detail = placeDetail()
-        val viewModel = screenTestViewModel(uiState = MutableStateFlow(content(detail = detail)))
+        val id = Uuid.random()
+        val uiState = MutableStateFlow(content(id = id, detail = detail))
+        val viewModel = screenTestViewModel(uiState = uiState)
+        every { viewModel.update(any()) } answers {
+            uiState.value = content(id = id, detail = detail.copy(description = CHANGED_DESCRIPTION, address = CHANGED_ADDRESS))
+        }
 
         composeRule.setPlaceDetailScreen(viewModel = viewModel)
 
-        composeRule.input(TITLE_INDEX).performTextClearance()
+        composeRule.input(TITLE_INDEX).performTextReplacement(blankTitle)
+        composeRule.input(DESCRIPTION_INDEX).performTextReplacement(CHANGED_DESCRIPTION)
+        composeRule.input(ADDRESS_INDEX).performTextReplacement(CHANGED_ADDRESS)
         composeRule.triggerUpdate()
 
         verify(exactly = 1) {
-            viewModel.update(detail = detail.copy(title = ""))
+            viewModel.update(detail = detail.copy(title = blankTitle, description = CHANGED_DESCRIPTION, address = CHANGED_ADDRESS))
         }
+        composeRule
+            .onAllNodes(hasText(detail.title))
+            .fetchSemanticsNodes()
+            .size shouldBe 1
     }
 
     @Test
@@ -205,5 +226,9 @@ class PlaceDetailScreenUpdateTest {
         waitForIdle()
         onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).performClick()
         waitForIdle()
+    }
+
+    private companion object {
+        private const val BLANK_TITLE = "   "
     }
 }

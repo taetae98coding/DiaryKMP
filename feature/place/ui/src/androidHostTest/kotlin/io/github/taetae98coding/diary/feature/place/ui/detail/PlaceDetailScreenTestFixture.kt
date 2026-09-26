@@ -195,6 +195,7 @@ internal fun detailTagScreenTestViewModel(
     val viewModel = mockk<PlaceDetailTagViewModel>(relaxed = true)
     every { viewModel.uiState } returns MutableStateFlow(EntityTagInputUiState(tagList = tagList))
     every { viewModel.tagPagingData } returns MutableStateFlow(PagingData.from(selectableTagList))
+    every { viewModel.selectableTagPagingData } returns MutableStateFlow(PagingData.from(selectableTagList))
     return viewModel
 }
 

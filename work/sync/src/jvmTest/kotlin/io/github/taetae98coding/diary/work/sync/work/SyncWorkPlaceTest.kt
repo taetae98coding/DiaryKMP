@@ -52,6 +52,25 @@ class SyncWorkPlaceTest :
             }
         }
 
+        test("TC-DATA-SYNC-DOMAIN-019 장소와 메모 요청이 모두 성공한 뒤 메모·장소 연결 전용 요청을 시작한다") {
+            val context =
+                context(
+                    tagList = tags(size = 1),
+                    placeList = places(size = 101),
+                    memoList = memos(size = 101),
+                    memoPlaceList = memoPlaces(size = 101),
+                )
+            val requestOrder = mutableListOf<String>()
+            coEvery { context.placeRemoteDataSource.push(any()) } coAnswers { requestOrder += "place" }
+            coEvery { context.memoRemoteDataSource.push(any()) } coAnswers { requestOrder += "memo" }
+            coEvery { context.memoPlaceRemoteDataSource.push(any()) } coAnswers { requestOrder += "memoPlace" }
+
+            context.subject.doWork()
+
+            requestOrder.takeLast(2) shouldContainExactly listOf("memoPlace", "memoPlace")
+            requestOrder.dropLast(2) shouldContainExactlyInAnyOrder listOf("place", "place", "memo", "memo")
+        }
+
         listOf(
             "태그" to "장소",
             "장소" to "태그",

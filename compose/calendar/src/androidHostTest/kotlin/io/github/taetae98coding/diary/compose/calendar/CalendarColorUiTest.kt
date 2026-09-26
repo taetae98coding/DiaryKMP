@@ -1,10 +1,12 @@
 package io.github.taetae98coding.diary.compose.calendar
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -88,7 +90,7 @@ class CalendarColorUiTest {
     }
 
     @Test
-    fun `날짜에 요일 및 복수 공휴일 범위의 우선순위에 맞는 색상을 적용한다`() {
+    fun `TC-CALENDAR-FEATURE-019 지정한 공휴일 기간에 드는 날짜가 공휴일로 구분된다`() {
         val colors = fixtureMonkey.giveMeCalendarColor()
         val defaultContentColor = fixtureMonkey.giveMeColor()
         composeRule.setContent {
@@ -121,7 +123,7 @@ class CalendarColorUiTest {
     }
 
     @Test
-    fun `공휴일 공급자가 변경되면 날짜 색상을 갱신한다`() {
+    fun `TC-CALENDAR-DOMAIN-004 공휴일 지정이 바뀌면 공휴일 구분이 갱신된다`() {
         val colors = fixtureMonkey.giveMeCalendarColor()
         val defaultContentColor = fixtureMonkey.giveMeColor()
         val holiday = LocalDate(year = 2026, month = Month.JULY, day = 13)
@@ -129,9 +131,8 @@ class CalendarColorUiTest {
         composeRule.setContent {
             DiaryTheme {
                 CompositionLocalProvider(LocalContentColor provides defaultContentColor) {
-                    CalendarWeekOfMonth(
-                        yearMonth = YearMonth(year = 2026, month = Month.JULY),
-                        weekOfMonth = 2,
+                    Calendar(
+                        state = rememberCalendarState(initialYearMonth = YearMonth(year = 2026, month = Month.JULY)),
                         holidayProvider = holidayProvider,
                         colors = colors,
                     ) {}
@@ -153,7 +154,38 @@ class CalendarColorUiTest {
     }
 
     @Test
-    fun `이웃 달 날짜는 의미 색상을 유지한 채 강조를 낮춘다`() {
+    fun `TC-CALENDAR-WEEK-OF-MONTH-DOMAIN-009 주요 날짜가 아닌 날짜는 공휴일 일요일 토요일 그 밖의 날짜 순으로 구분된다`() {
+        val colors = fixtureMonkey.giveMeCalendarColor()
+        val defaultContentColor = fixtureMonkey.giveMeColor()
+        val wednesdayHoliday = LocalDate(year = 2026, month = Month.JULY, day = 8)
+        val saturdayHoliday = LocalDate(year = 2026, month = Month.JULY, day = 18)
+        composeRule.setContent {
+            DiaryTheme {
+                CompositionLocalProvider(LocalContentColor provides defaultContentColor) {
+                    Column {
+                        listOf(1, 2).forEach { weekOfMonth ->
+                            CalendarWeekOfMonth(
+                                yearMonth = YearMonth(year = 2026, month = Month.JULY),
+                                weekOfMonth = weekOfMonth,
+                                modifier = Modifier.weight(1F),
+                                holidayProvider = { listOf(wednesdayHoliday..wednesdayHoliday, saturdayHoliday..saturdayHoliday) },
+                                colors = colors,
+                            ) {}
+                        }
+                    }
+                }
+            }
+        }
+
+        composeRule.onNodeWithText("5").textColor() shouldBe colors.sundayAndHolidayColor
+        composeRule.onNodeWithText("8").textColor() shouldBe colors.sundayAndHolidayColor
+        composeRule.onNodeWithText("18").textColor() shouldBe colors.sundayAndHolidayColor
+        composeRule.onNodeWithText("11").textColor() shouldBe colors.saturdayColor
+        composeRule.onNodeWithText("6").textColor() shouldBe defaultContentColor
+    }
+
+    @Test
+    fun `TC-CALENDAR-WEEK-OF-MONTH-FEATURE-015 지정한 달에 속하지 않는 날짜는 요일 구분을 유지한 채 지정한 달의 날짜와 구분된다`() {
         val colors = fixtureMonkey.giveMeCalendarColor()
         val defaultContentColor = fixtureMonkey.giveMeColor()
         composeRule.setContent {

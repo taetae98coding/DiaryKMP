@@ -2,6 +2,7 @@
 
 package io.github.taetae98coding.diary.feature.tag.ui.detail.form
 
+import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
@@ -25,8 +26,10 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -52,6 +55,31 @@ class TagDetailLinkViewModelTest : FunSpec() {
 
         afterTest {
             Dispatchers.resetMain()
+        }
+
+        test("TC-TAG-LINK-INPUT-FEATURE-033 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val item = tag()
+                val parameter = PageTagLinkSelectableTagUseCase.Parameter(fromTagId = id, query = "")
+                val useCase = mockk<PageTagLinkSelectableTagUseCase>()
+                every { useCase(parameter = parameter) } returns flowOf(Result.success(PagingData.from(listOf(item))))
+                val viewModel =
+                    TagDetailLinkViewModel(
+                        id = id,
+                        pageTagLinkSelectableTagUseCase = useCase,
+                        getLinkedTagUseCase = mockk(relaxed = true),
+                        addTagLinkUseCase = mockk(relaxed = true),
+                        removeTagLinkUseCase = mockk(relaxed = true),
+                    )
+
+                val itemList = flowOf(viewModel.selectableTagPagingData.first()).asSnapshot()
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+
+                itemList shouldBe listOf(item)
+                verify(exactly = 1) { useCase(parameter = parameter) }
+            }
         }
 
         test("TC-TAG-DETAIL-FEATURE-030 저장된 연결의 도착 태그를 연결 대상으로 표시한다") {
@@ -118,6 +146,45 @@ class TagDetailLinkViewModelTest : FunSpec() {
 
                 coVerify(exactly = 1) {
                     removeTagLinkUseCase(parameter = RemoveTagLinkUseCase.Parameter(fromTagId = id, toTagId = toTagId))
+                }
+            }
+        }
+
+        test("TC-TAG-DETAIL-FEATURE-070 연결이나 해제의 저장에 실패하면 저장된 연결을 그대로 보여 주고 다시 연결할 수 있다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val linkedTag = tag()
+                val otherTagId = fixtureMonkey.giveMeOne<Uuid>()
+                val addTagLinkUseCase = mockk<AddTagLinkUseCase>()
+                coEvery { addTagLinkUseCase(parameter = any()) } returns Result.failure(IllegalStateException("저장 실패"))
+                val removeTagLinkUseCase = mockk<RemoveTagLinkUseCase>()
+                coEvery { removeTagLinkUseCase(parameter = any()) } returns Result.failure(IllegalStateException("저장 실패"))
+                val viewModel =
+                    viewModel(
+                        id = id,
+                        linkedTagFlow = flowOf(Result.success(listOf(linkedTag))),
+                        addTagLinkUseCase = addTagLinkUseCase,
+                        removeTagLinkUseCase = removeTagLinkUseCase,
+                    )
+
+                viewModel.uiState.test {
+                    advanceUntilIdle()
+                    expectMostRecentItem().linkedTagList shouldBe listOf(linkedTag)
+
+                    viewModel.link(tagId = otherTagId)
+                    viewModel.unlink(tagId = linkedTag.id)
+                    viewModel.link(tagId = otherTagId)
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                    viewModel.uiState.value.linkedTagList shouldBe listOf(linkedTag)
+                }
+
+                coVerify(exactly = 2) {
+                    addTagLinkUseCase(parameter = AddTagLinkUseCase.Parameter(fromTagId = id, toTagId = otherTagId))
+                }
+                coVerify(exactly = 1) {
+                    removeTagLinkUseCase(parameter = RemoveTagLinkUseCase.Parameter(fromTagId = id, toTagId = linkedTag.id))
                 }
             }
         }
@@ -275,8 +342,8 @@ class TagDetailLinkViewModelTest : FunSpec() {
             fixtureMonkey
                 .giveMeKotlinBuilder<Tag>()
                 .setExp(Tag::isDeleted, false)
-                .setExp(Tag::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Tag::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

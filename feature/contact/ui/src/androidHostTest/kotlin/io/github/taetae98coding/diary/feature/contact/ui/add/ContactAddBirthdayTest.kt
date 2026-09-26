@@ -70,7 +70,7 @@ class ContactAddBirthdayTest {
     }
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-022 생일을 고르지 않은 동안에는 달력 구분을 고르는 수단을 제공하지 않는다`() {
+    fun `TC-CONTACT-ADD-FEATURE-036 생일을 고르지 않은 동안에는 달력 구분을 고르는 수단을 제공하지 않는다`() {
         composeRule.setContactAddScreen()
 
         composeRule.onNodeWithContentDescription(DEFAULT_BIRTHDAY_CALENDAR_DESCRIPTION).assertDoesNotExist()

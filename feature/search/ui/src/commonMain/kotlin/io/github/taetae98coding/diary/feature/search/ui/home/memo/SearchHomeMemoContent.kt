@@ -14,10 +14,10 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
-import io.github.taetae98coding.diary.compose.core.effect.DiarySearchQueryEffect
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
+import io.github.taetae98coding.diary.feature.search.ui.home.SearchHomeQueryEffect
 import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeQueryScrollEffect
 import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeResultEvent
 import org.koin.compose.viewmodel.koinViewModel
@@ -35,6 +35,14 @@ internal fun SearchHomeMemoContent(
 
     CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
         val viewModel = koinViewModel<SearchHomeMemoViewModel>()
+
+        // 결과를 받기 전에 지금 질의를 먼저 알려, 다시 나타난 유형이 떠나기 전의 결과를 건너뛰게 한다.
+        SearchHomeQueryEffect(
+            queryState = queryState,
+            onQueryShow = viewModel::showQuery,
+            onQueryChange = viewModel::updateQuery,
+        )
+
         val memoPagingItems = viewModel.pagingData.collectAsLazyPagingItems()
         val appliedQuery by viewModel.appliedQuery.collectAsStateWithLifecycle()
         val listState = rememberLazyListState()
@@ -45,10 +53,6 @@ internal fun SearchHomeMemoContent(
             onUndo = viewModel::undo,
             effect = viewModel.effect,
             snackbarHostState = snackbarHostState,
-        )
-        DiarySearchQueryEffect(
-            queryState = queryState,
-            onQueryChange = viewModel::updateQuery,
         )
         SearchHomeQueryScrollEffect(
             listState = listState,

@@ -226,7 +226,7 @@ class AccountTagMemoFinishedPagingDaoTest :
             }
         }
 
-        test("TC-TAG-MEMO-FINISHED-LIST-DATA-002 완료된 태그별 메모는 기간 없음, 시작 시점, 종료 시점, 제목 순으로 조회한다") {
+        test("TC-TAG-MEMO-FINISHED-LIST-DATA-002 완료된 태그별 메모는 기간 없음, 시작 날짜, 종일 여부, 시작 시각, 종료 시점, 제목 순으로 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val targetTag = tag()
             val noDateTimeBravoMemo =
@@ -306,8 +306,32 @@ class AccountTagMemoFinishedPagingDaoTest :
                             endInclusive = LocalDateTime(year = 2026, month = 7, day = 20, hour = 0, minute = 0),
                         ),
                 )
+            val multiDayAllDayMemo =
+                memo(
+                    isFinished = true,
+                    detail =
+                        detail(
+                            title = "Alpha",
+                            isAllDay = true,
+                            start = LocalDateTime(year = 2026, month = 7, day = 19, hour = 0, minute = 0),
+                            endInclusive = LocalDateTime(year = 2026, month = 7, day = 21, hour = 0, minute = 0),
+                        ),
+                )
+            val midnightMemo =
+                memo(
+                    isFinished = true,
+                    detail =
+                        detail(
+                            title = "Alpha",
+                            isAllDay = false,
+                            start = LocalDateTime(year = 2026, month = 7, day = 19, hour = 0, minute = 0),
+                            endInclusive = LocalDateTime(year = 2026, month = 7, day = 19, hour = 1, minute = 0),
+                        ),
+                )
             listOf(
                 nextDayMemo,
+                midnightMemo,
+                multiDayAllDayMemo,
                 sameDayLateEndMemo,
                 sameDayEarlyEndBravoMemo,
                 sameDayEarlyEndAlphaMemo,
@@ -323,6 +347,8 @@ class AccountTagMemoFinishedPagingDaoTest :
                     noDateTimeAlphaMemo.id,
                     noDateTimeBravoMemo.id,
                     allDayMemo.id,
+                    multiDayAllDayMemo.id,
+                    midnightMemo.id,
                     sameDayEarlyEndAlphaMemo.id,
                     sameDayEarlyEndBravoMemo.id,
                     sameDayLateEndMemo.id,
@@ -586,7 +612,7 @@ class AccountTagMemoFinishedPagingDaoTest :
                 .setExp(MemoTagLocalEntity::createdAt, instant())
                 .sample()
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun detail(
             isAllDay: Boolean?,

@@ -132,7 +132,7 @@ class AddContactUseCaseTest :
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountContactRepository = mockk<AccountContactRepository>()
             coEvery { accountContactRepository.upsert(account = account, contact = capture(contactSlot)) } just Runs
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val clock = mockk<Clock>()
             every { clock.now() } returns now
             val useCase =

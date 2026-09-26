@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
@@ -52,6 +53,12 @@ internal class MemoAddWebViewModel(
         query
             .debounceReportedSearchQuery()
             .flatMapLatest { value -> pageMemoSelectableWebUseCase(parameter = value) }
+            .mapNotNull { result -> result.getOrNull() }
+            .cachedIn(viewModelScope)
+
+    val selectableWebPagingData: Flow<PagingData<Web>> =
+        flowOf("")
+            .flatMapLatest { query -> pageMemoSelectableWebUseCase(parameter = query) }
             .mapNotNull { result -> result.getOrNull() }
             .cachedIn(viewModelScope)
 

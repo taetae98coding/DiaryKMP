@@ -606,7 +606,7 @@ internal fun recordCrashlyticsLog(): List<CrashlyticsLog> {
     return reportList
 }
 
-private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
 internal fun webTags(size: Int): List<WebTagLocalEntity> = List(size) { webTag() }
 

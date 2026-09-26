@@ -143,6 +143,24 @@ class AppSyncViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-DATA-SYNC-DOMAIN-081 같은 계정의 로그인 세션이 인증되지 않았다가 다시 인증되면 동기화 계기가 다시 발생한다") {
+            runTest(mainDispatcher) {
+                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true, isSessionPending = false)
+                val invalidAccount = account.copy(isSessionValid = false)
+                val accountFlow = MutableStateFlow<Account>(account)
+                val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
+
+                viewModel.account.test {
+                    awaitItem() shouldBe account
+                    accountFlow.value = invalidAccount
+                    awaitItem() shouldBe invalidAccount
+                    accountFlow.value = account
+                    awaitItem() shouldBe account
+                    expectNoEvents()
+                }
+            }
+        }
+
         test("계정 확인에 실패하면 동기화 계기가 발생하지 않는다") {
             runTest(mainDispatcher) {
                 val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
@@ -178,16 +196,21 @@ class AppSyncViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SYNC-REFRESH-FEATURE-003 동기화 계기가 발생하면 진행을 표시할 동기화를 요청한다") {
-            runTest(mainDispatcher) {
-                val requestSyncUseCase = mockk<RequestSyncUseCase>()
-                coEvery { requestSyncUseCase(parameter = SyncTrigger.ACCOUNT_CONFIRMED) } returns Result.success(Unit)
-                val viewModel = viewModel(requestSyncUseCase = requestSyncUseCase)
+        listOf(
+            "TC-SYNC-REFRESH-FEATURE-003" to SyncTrigger.ACCOUNT_CONFIRMED,
+            "TC-SYNC-REFRESH-FEATURE-012" to SyncTrigger.ACCOUNT_UPDATED,
+        ).forEach { (caseId, trigger) ->
+            test("$caseId $trigger 계기를 그대로 동기화 요청에 전달한다") {
+                runTest(mainDispatcher) {
+                    val requestSyncUseCase = mockk<RequestSyncUseCase>()
+                    coEvery { requestSyncUseCase(parameter = trigger) } returns Result.success(Unit)
+                    val viewModel = viewModel(requestSyncUseCase = requestSyncUseCase)
 
-                viewModel.requestSync()
-                advanceUntilIdle()
+                    viewModel.requestSync(trigger = trigger)
+                    advanceUntilIdle()
 
-                coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.ACCOUNT_CONFIRMED) }
+                    coVerify(exactly = 1) { requestSyncUseCase(parameter = trigger) }
+                }
             }
         }
 

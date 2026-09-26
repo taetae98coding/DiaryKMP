@@ -32,11 +32,13 @@ import io.github.taetae98coding.diary.feature.memo.ui.contact.refreshingContactP
 import io.github.taetae98coding.diary.feature.memo.ui.contact.testContact
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -100,6 +102,11 @@ class MemoAddScreenContactTest {
     @get:Rule
     val composeRule = createComposeRule()
 
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
+
     @Test
     fun `TC-MEMO-CONTACT-INPUT-FEATURE-001 추가 항목을 누르면 선택할 수 있는 연락처 목록이 열린다`() {
         val contactList = listOf(testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER), testContact(name = SECOND_CONTACT_NAME, phoneNumber = SECOND_CONTACT_PHONE_NUMBER))
@@ -118,7 +125,7 @@ class MemoAddScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-003 선택할 수 있는 연락처가 없으면 추가 항목이 ContactAdd 이동을 요청한다`() {
+    fun `TC-MEMO-CONTACT-INPUT-FEATURE-003 TC-MEMO-CONTACT-INPUT-FEATURE-031 선택할 수 있는 연락처가 없으면 목록을 연 적이 없어도 첫 누름에 추가 항목이 ContactAdd 이동을 요청한다`() {
         var contactAddCount = 0
         composeRule.setMemoAddScreenForContact(
             viewModels = screenTestRealViewModel(contactList = emptyList()),
@@ -178,7 +185,7 @@ class MemoAddScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-007 목록의 웹 추가 항목을 누르면 목록이 닫히고 ContactAdd 이동을 요청한다`() {
+    fun `TC-MEMO-CONTACT-INPUT-FEATURE-007 목록의 연락처 추가 항목을 누르면 목록이 닫히고 ContactAdd 이동을 요청한다`() {
         val contactList = listOf(testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER))
         var contactAddCount = 0
         composeRule.setMemoAddScreenForContact(
@@ -259,6 +266,23 @@ class MemoAddScreenContactTest {
         composeRule.contactDialogNodeWithText(contactList.first().detail.name).assertIsDisplayed()
     }
 
+    @Test
+    fun `TC-MEMO-CONTACT-INPUT-FEATURE-006 목록을 끝까지 확인해도 연락처 추가 항목을 표시한다`() {
+        val contactList =
+            List(CONTACT_TEST_PICKER_COUNT) { index ->
+                testContact(name = "$CONTACT_TEST_PICKER_NAME_PREFIX${index.toString().padStart(length = 3, padChar = '0')}")
+            }
+        composeRule.setMemoAddScreenForContact(viewModels = screenTestRealViewModel(contactList = contactList))
+
+        composeRule.openContactPicker()
+        composeRule.awaitContactPickerRows()
+        composeRule.contactPickerList().performScrollToIndex(contactList.lastIndex)
+        composeRule.waitForIdle()
+
+        composeRule.contactDialogNodeWithText(contactList.last().detail.name).assertIsDisplayed()
+        composeRule.contactDialogNodeWithText(DEFAULT_CONTACT_PICKER_ADD_LABEL).assertIsDisplayed()
+    }
+
     private fun ComposeContentTestRule.selectContact(name: String) {
         openContactPicker()
         awaitContactPickerRows()
@@ -272,6 +296,11 @@ class MemoAddScreenContactTest {
 class MemoAddScreenContactAddedResultTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-MEMO-CONTACT-INPUT-FEATURE-008 ContactAdd 화면에서 추가한 연락처 하나가 돌아왔을 때 선택된다`() {

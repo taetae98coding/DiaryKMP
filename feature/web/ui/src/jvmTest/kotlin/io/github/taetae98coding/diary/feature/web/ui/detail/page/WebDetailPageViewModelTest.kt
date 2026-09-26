@@ -314,7 +314,7 @@ class WebDetailPageViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-FEATURE-013 TC-WEB-DETAIL-DOMAIN-012 TC-WEB-DETAIL-DOMAIN-039 다시 불러오기는 응답 본문 방식이 처음 될 때 한 번만 일어난다") {
+        test("TC-WEB-DETAIL-FEATURE-013 TC-WEB-DETAIL-DOMAIN-012 TC-WEB-DETAIL-DOMAIN-039 TC-WEB-DETAIL-DOMAIN-051 다시 불러오기는 응답 본문 방식이 처음 될 때 한 번만 일어난다") {
             runTest(mainDispatcher) {
                 val webPage = webPage()
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
@@ -418,7 +418,7 @@ class WebDetailPageViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-DATA-006 화면에 다시 진입하면 이전에 받은 웹 페이지를 복원하지 않고 다시 요청한다") {
+        test("TC-WEB-DETAIL-DATA-006 다시 진입한 화면은 이전에 받은 웹 페이지 없이 시작하고 응답 본문 방식이 되면 다시 요청한다") {
             runTest(mainDispatcher) {
                 val fetchWebPageUseCase = mockk<FetchWebPageUseCase>()
                 coEvery { fetchWebPageUseCase(parameter = any()) } returns Result.success(webPage())
@@ -467,7 +467,6 @@ class WebDetailPageViewModelTest : FunSpec() {
             )
         }
 
-        // FixtureMonkey가 Instant를 생성하지 못하므로 웹 항목은 직접 만든다.
         private fun web(
             id: Uuid,
             url: String = URL,
@@ -483,8 +482,8 @@ class WebDetailPageViewModelTest : FunSpec() {
                         headerList = headerList,
                     ),
                 isDeleted = false,
-                updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
-                createdAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+                createdAt = fixtureMonkey.giveMeOne<Instant>(),
             )
 
         private fun webPage(): WebPage = fixtureMonkey.giveMeOne<WebPage>()

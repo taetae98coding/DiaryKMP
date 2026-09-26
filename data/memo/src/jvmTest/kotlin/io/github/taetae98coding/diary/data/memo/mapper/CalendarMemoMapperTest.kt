@@ -11,7 +11,7 @@ import io.kotest.matchers.shouldBe
 
 class CalendarMemoMapperTest :
     FunSpec({
-        test("TC-CALENDAR-MEMO-DOMAIN-007 local to domain") {
+        test("종일 여부에 따라 종일 기간 또는 시각이 있는 기간으로 변환한다") {
             listOf(true, false).forEach { isAllDay ->
                 val local = fixtureMonkey.giveMeOne<CalendarMemoLocalEntity>().copy(isAllDay = isAllDay)
 

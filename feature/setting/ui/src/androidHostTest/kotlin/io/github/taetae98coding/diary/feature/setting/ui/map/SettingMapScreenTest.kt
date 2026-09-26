@@ -24,10 +24,11 @@ class SettingMapScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-SETTING-MAP-FEATURE-003 뒤로가기 동작을 선택하면 이전 화면으로 돌아간다`() {
+    fun `TC-SETTING-MAP-FEATURE-003 뒤로가기 동작을 선택하면 이전 화면으로 돌아가고 기본 지도는 그대로 둔다`() {
         var navigateUpCount = 0
+        val viewModel = screenTestViewModel(SettingMapUiState.Loaded(defaultProvider = MapProvider.NAVER))
         setSettingMapScreen(
-            viewModel = screenTestViewModel(SettingMapUiState.Loaded(defaultProvider = MapProvider.NAVER)),
+            viewModel = viewModel,
             navigateUp = { navigateUpCount += 1 },
         )
 
@@ -35,6 +36,7 @@ class SettingMapScreenTest {
         composeRule.waitForIdle()
 
         navigateUpCount shouldBe 1
+        verify(exactly = 0) { viewModel.selectDefaultProvider(any()) }
     }
 
     @Test

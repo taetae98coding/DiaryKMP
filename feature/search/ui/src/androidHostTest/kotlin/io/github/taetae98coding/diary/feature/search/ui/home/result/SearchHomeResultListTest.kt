@@ -14,6 +14,10 @@ import io.github.taetae98coding.diary.compose.memo.MEMO_DATE_TIME_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
+import io.github.taetae98coding.diary.core.model.place.Place
+import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.core.model.web.Web
+import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.search.ui.home.RESULT_EMOJI
 import io.github.taetae98coding.diary.feature.search.ui.home.loadingPagingDataFlowOf
 import io.github.taetae98coding.diary.feature.search.ui.home.memo.SearchHomeMemoList
@@ -148,6 +152,51 @@ class SearchHomeResultListTest {
     }
 
     @Test
+    fun `TC-SEARCH-HOME-FEATURE-016 질의를 입력했는데 태그 결과가 없으면 결과 없음을 알린다`() {
+        setEmptyResultList(type = SearchHomeType.TAG, query = QUERY)
+
+        composeRule.onNodeWithText(EMPTY_TITLE).assertIsDisplayed()
+        composeRule.onNodeWithText(EMPTY_DESCRIPTION).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-SEARCH-HOME-FEATURE-016 질의를 입력했는데 장소 결과가 없으면 결과 없음을 알린다`() {
+        setEmptyResultList(type = SearchHomeType.PLACE, query = QUERY)
+
+        composeRule.onNodeWithText(EMPTY_TITLE).assertIsDisplayed()
+        composeRule.onNodeWithText(EMPTY_DESCRIPTION).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-SEARCH-HOME-FEATURE-016 질의를 입력했는데 웹 결과가 없으면 결과 없음을 알린다`() {
+        setEmptyResultList(type = SearchHomeType.WEB, query = QUERY)
+
+        composeRule.onNodeWithText(EMPTY_TITLE).assertIsDisplayed()
+        composeRule.onNodeWithText(EMPTY_DESCRIPTION).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-SEARCH-HOME-FEATURE-018 질의가 비어 있으면 태그 결과에도 결과 없음을 알리지 않는다`() {
+        setEmptyResultList(type = SearchHomeType.TAG, query = "")
+
+        composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-SEARCH-HOME-FEATURE-018 질의가 비어 있으면 장소 결과에도 결과 없음을 알리지 않는다`() {
+        setEmptyResultList(type = SearchHomeType.PLACE, query = "")
+
+        composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-SEARCH-HOME-FEATURE-018 질의가 비어 있으면 웹 결과에도 결과 없음을 알리지 않는다`() {
+        setEmptyResultList(type = SearchHomeType.WEB, query = "")
+
+        composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-SEARCH-HOME-FEATURE-019 결과를 준비하는 동안에는 결과 없음을 알리지 않는다`() {
         val memoPagingDataFlow = loadingPagingDataFlowOf<Memo>()
 
@@ -206,6 +255,46 @@ class SearchHomeResultListTest {
                     memoPagingItems = memoPagingDataFlow.collectAsLazyPagingItems(),
                     query = query,
                 )
+            }
+        }
+    }
+
+    // 태그·장소·웹 결과 목록을 빈 조회 결과와 테스트 데이터의 질의로 구성한다.
+    private fun setEmptyResultList(
+        type: SearchHomeType,
+        query: String,
+    ) {
+        val tagPagingDataFlow = pagingDataFlowOf(emptyList<Tag>())
+        val placePagingDataFlow = pagingDataFlowOf(emptyList<Place>())
+        val webPagingDataFlow = pagingDataFlowOf(emptyList<Web>())
+
+        composeRule.setContent {
+            DiaryTheme {
+                if (type == SearchHomeType.TAG) {
+                    SearchHomeTagList(
+                        onEvent = {},
+                        onTagListEvent = {},
+                        modifier = Modifier.fillMaxSize(),
+                        tagPagingItems = tagPagingDataFlow.collectAsLazyPagingItems(),
+                        query = query,
+                    )
+                } else if (type == SearchHomeType.PLACE) {
+                    SearchHomePlaceList(
+                        onEvent = {},
+                        onItemEvent = {},
+                        modifier = Modifier.fillMaxSize(),
+                        placePagingItems = placePagingDataFlow.collectAsLazyPagingItems(),
+                        query = query,
+                    )
+                } else {
+                    SearchHomeWebList(
+                        onEvent = {},
+                        onItemEvent = {},
+                        modifier = Modifier.fillMaxSize(),
+                        webPagingItems = webPagingDataFlow.collectAsLazyPagingItems(),
+                        query = query,
+                    )
+                }
             }
         }
     }

@@ -521,7 +521,7 @@ class AccountTagScopeDaoTest :
             return result.shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, T>>().data.map(id)
         }
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun tag(): TagLocalEntity =
             fixtureMonkey

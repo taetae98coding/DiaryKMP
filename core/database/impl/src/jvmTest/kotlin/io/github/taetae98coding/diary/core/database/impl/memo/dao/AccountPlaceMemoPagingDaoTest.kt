@@ -12,6 +12,7 @@ import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLo
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memoplace.entity.MemoPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
+import io.github.taetae98coding.diary.core.database.api.placetag.entity.PlaceTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memoplace.entity.AccountMemoPlaceLocalEntity
@@ -185,16 +186,61 @@ class AccountPlaceMemoPagingDaoTest :
             pagedIds(accountId = accountId, placeId = target.id) shouldBe listOf(activeMemo.id)
         }
 
-        test("TC-PLACE-DETAIL-MEMO-DOMAIN-001 대상 장소가 삭제되어도 연결된 미완료 메모는 계속 조회된다") {
+        test("TC-PLACE-DETAIL-MEMO-FEATURE-018 대상 장소에 연결된 완료된 메모는 메모 탭 목록에 포함하지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val target = place(isDeleted = true)
+            val target = place()
+            val activeMemo = memo(isFinished = false)
+            val finishedMemo = memo(isFinished = true)
+            insertPlaceMemo(accountId, target, activeMemo)
+            insertPlaceMemo(accountId, target, finishedMemo)
+
+            pagedIds(accountId = accountId, placeId = target.id) shouldBe listOf(activeMemo.id)
+        }
+
+        test("TC-PLACE-DETAIL-MEMO-DOMAIN-001 대상 장소를 삭제해도 연결된 미완료 메모는 계속 조회된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val target = place()
             val targetMemo = memo()
             insertPlaceMemo(accountId, target, targetMemo)
+
+            database.placeDao().upsert(listOf(target.copy(isDeleted = true, updatedAt = instant())))
 
             pagedIds(accountId = accountId, placeId = target.id) shouldBe listOf(targetMemo.id)
         }
 
-        test("TC-PLACE-DETAIL-MEMO-DATA-002 장소별 메모는 기간 없음, 시작 시점, 종료 시점, 제목 순으로 조회한다") {
+        test("TC-PLACE-DETAIL-MEMO-DOMAIN-001 대상 장소의 태그 연결을 바꿔도 연결된 미완료 메모는 계속 조회된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val target = place()
+            val targetMemo = memo()
+            val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            insertPlaceMemo(accountId, target, targetMemo)
+
+            database.placeTagDao().upsert(listOf(placeTag(placeId = target.id, tagId = tagId, isDeleted = false)))
+            pagedIds(accountId = accountId, placeId = target.id) shouldBe listOf(targetMemo.id)
+
+            database.placeTagDao().upsert(listOf(placeTag(placeId = target.id, tagId = tagId, isDeleted = true)))
+            pagedIds(accountId = accountId, placeId = target.id) shouldBe listOf(targetMemo.id)
+        }
+
+        test("TC-PLACE-DETAIL-MEMO-DOMAIN-001 대상 장소의 좌표를 수정해도 연결된 미완료 메모는 계속 조회된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val target = place()
+            val targetMemo = memo()
+            insertPlaceMemo(accountId, target, targetMemo)
+
+            database.placeDao().upsert(
+                listOf(
+                    target.copy(
+                        detail = target.detail.copy(latitude = -target.detail.latitude, longitude = -target.detail.longitude),
+                        updatedAt = instant(),
+                    ),
+                ),
+            )
+
+            pagedIds(accountId = accountId, placeId = target.id) shouldBe listOf(targetMemo.id)
+        }
+
+        test("TC-PLACE-DETAIL-MEMO-DATA-002 장소별 메모는 기간 없음, 종일 여부, 시작 시점, 종료 시점, 제목 순으로 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val target = place()
             val noDateTimeBravoMemo = memo(detail = detail(title = "Bravo", isAllDay = null, start = null, endInclusive = null))
@@ -249,8 +295,30 @@ class AccountPlaceMemoPagingDaoTest :
                             endInclusive = LocalDateTime(year = 2026, month = 7, day = 20, hour = 0, minute = 0),
                         ),
                 )
+            val multiDayAllDayMemo =
+                memo(
+                    detail =
+                        detail(
+                            title = "Alpha",
+                            isAllDay = true,
+                            start = LocalDateTime(year = 2026, month = 7, day = 19, hour = 0, minute = 0),
+                            endInclusive = LocalDateTime(year = 2026, month = 7, day = 21, hour = 0, minute = 0),
+                        ),
+                )
+            val midnightMemo =
+                memo(
+                    detail =
+                        detail(
+                            title = "Alpha",
+                            isAllDay = false,
+                            start = LocalDateTime(year = 2026, month = 7, day = 19, hour = 0, minute = 0),
+                            endInclusive = LocalDateTime(year = 2026, month = 7, day = 19, hour = 1, minute = 0),
+                        ),
+                )
             listOf(
                 nextDayMemo,
+                midnightMemo,
+                multiDayAllDayMemo,
                 sameDayLateEndMemo,
                 sameDayEarlyEndBravoMemo,
                 sameDayEarlyEndAlphaMemo,
@@ -266,6 +334,8 @@ class AccountPlaceMemoPagingDaoTest :
                     noDateTimeAlphaMemo.id,
                     noDateTimeBravoMemo.id,
                     allDayMemo.id,
+                    multiDayAllDayMemo.id,
+                    midnightMemo.id,
                     sameDayEarlyEndAlphaMemo.id,
                     sameDayEarlyEndBravoMemo.id,
                     sameDayLateEndMemo.id,
@@ -422,7 +492,20 @@ class AccountPlaceMemoPagingDaoTest :
                 .setExp(MemoPlaceLocalEntity::createdAt, instant())
                 .sample()
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun placeTag(
+            placeId: Uuid,
+            tagId: Uuid,
+            isDeleted: Boolean,
+        ): PlaceTagLocalEntity =
+            PlaceTagLocalEntity(
+                placeId = placeId,
+                tagId = tagId,
+                isDeleted = isDeleted,
+                updatedAt = instant(),
+                createdAt = instant(),
+            )
+
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun detail(
             isAllDay: Boolean?,

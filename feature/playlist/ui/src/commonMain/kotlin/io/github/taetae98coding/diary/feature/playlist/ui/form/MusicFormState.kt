@@ -39,9 +39,12 @@ internal class MusicFormState(
     }
 
     fun fill(
+        link: String,
         title: String,
         artist: String,
     ) {
+        if (this.link != link) return
+
         titleState.setText(title)
         artistState.setText(artist)
     }

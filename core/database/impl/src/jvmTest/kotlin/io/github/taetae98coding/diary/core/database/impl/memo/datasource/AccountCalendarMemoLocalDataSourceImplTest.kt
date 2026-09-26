@@ -293,6 +293,25 @@ class AccountCalendarMemoLocalDataSourceImplTest :
                 )
         }
 
+        test("TC-CALENDAR-MEMO-DOMAIN-020 기간 형태·시작·종료·제목이 모두 같으면 식별값의 오름차순으로 전달한다") {
+            val sameTitle = "같은 제목 ${fixtureMonkey.giveMeOne<String>()}"
+            val allDayAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val allDayMemoList =
+                List(SAME_ORDER_MEMO_COUNT) {
+                    allDayMemo(start = LocalDate(2026, 7, 6), endInclusive = LocalDate(2026, 7, 7)).withTitle(sameTitle)
+                }
+            val dateTimeAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val dateTimeMemoList =
+                List(SAME_ORDER_MEMO_COUNT) {
+                    dateTimeMemo(start = LocalDateTime(2026, 7, 6, 9, 0), endInclusive = LocalDateTime(2026, 7, 6, 10, 0)).withTitle(sameTitle)
+                }
+            upsert(allDayAccountId, *allDayMemoList.toTypedArray())
+            upsert(dateTimeAccountId, *dateTimeMemoList.toTypedArray())
+
+            calendarMemoIdList(accountId = allDayAccountId) shouldContainExactly allDayMemoList.map { memo -> memo.id }.sortedBy { id -> id.toString() }
+            calendarMemoIdList(accountId = dateTimeAccountId) shouldContainExactly dateTimeMemoList.map { memo -> memo.id }.sortedBy { id -> id.toString() }
+        }
+
         test("TC-CALENDAR-MEMO-DOMAIN-016 같은 표시 대상 기간을 다시 조회해도 순서가 유지된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             upsert(
@@ -408,6 +427,28 @@ class AccountCalendarMemoLocalDataSourceImplTest :
                 )
                 awaitUntil { calendarMemoList -> calendarMemoList.map { calendarMemo -> calendarMemo.id } == listOf(memo.id) }
 
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+        test("TC-CALENDAR-MEMO-DOMAIN-010 메모 제목이 바뀌면 조작 없이 결과에 반영된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val beforeTitle = "기존 제목 ${fixtureMonkey.giveMeOne<String>()}"
+            val afterTitle = "새 제목 ${fixtureMonkey.giveMeOne<String>()}"
+            val memo = overlappingMemo().withTitle(beforeTitle)
+            upsert(accountId, memo)
+
+            calendarMemoFlow(accountId = accountId).test {
+                awaitItem().map { calendarMemo -> calendarMemo.id to calendarMemo.title } shouldBe listOf(memo.id to beforeTitle)
+
+                memoTransaction.updateDetail(
+                    accountId = accountId,
+                    memoId = memo.id,
+                    detail = memo.detail.copy(title = afterTitle),
+                    updatedAt = instant(),
+                )
+
+                awaitUntil { calendarMemoList -> calendarMemoList.map { calendarMemo -> calendarMemo.id to calendarMemo.title } == listOf(memo.id to afterTitle) }
                 cancelAndIgnoreRemainingEvents()
             }
         }
@@ -722,6 +763,7 @@ class AccountCalendarMemoLocalDataSourceImplTest :
         private val RANGE_START: LocalDate = LocalDate(2026, 7, 5)
         private val RANGE_END_INCLUSIVE: LocalDate = LocalDate(2026, 7, 11)
         private val Midnight: LocalTime = LocalTime(hour = 0, minute = 0)
+        private const val SAME_ORDER_MEMO_COUNT = 3
 
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
@@ -733,7 +775,7 @@ class AccountCalendarMemoLocalDataSourceImplTest :
             }
         }
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun detail(
             isAllDay: Boolean?,

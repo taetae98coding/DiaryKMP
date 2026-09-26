@@ -2,6 +2,11 @@ package io.github.taetae98coding.diary.feature.tag.ui.add
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
+import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -66,6 +71,24 @@ class TagAddScreenLinkTest {
 
         tagAddCount shouldBe 1
         composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-TAG-LINK-INPUT-FEATURE-008 목록에서 태그 두 개를 누르면 목록과 연결 입력에 연결 상태로 표시된다`() {
+        val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
+        setTagAddScreen(tagList = tagList)
+        composeRule.onNodeWithText(DEFAULT_TAG_LINK_LABEL).performClick()
+        composeRule.awaitTagLinkPickerRows()
+
+        composeRule.dialogNodeWithText(WORK_TAG_TITLE).performClick()
+        composeRule.dialogNodeWithText(EXERCISE_TAG_TITLE).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNode(isToggleable() and hasAnyAncestor(isDialog()) and hasText(WORK_TAG_TITLE)).assertIsOn()
+        composeRule.onNode(isToggleable() and hasAnyAncestor(isDialog()) and hasText(EXERCISE_TAG_TITLE)).assertIsOn()
+        composeRule.closeDialogByBack()
+        composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
+        composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertExists()
     }
 
     @Test
@@ -279,6 +302,7 @@ class TagAddScreenLinkTest {
             val viewModel = mockk<TagAddLinkViewModel>(relaxed = true)
             every { viewModel.uiState } returns uiState
             every { viewModel.tagPagingData } returns tagPagingData
+            every { viewModel.selectableTagPagingData } returns tagPagingData
             every { viewModel.linkedTagIdSet } returns linkedTagIdSet
             every { viewModel.link(any()) } answers {
                 linkedTagIdSet.value = linkedTagIdSet.value + firstArg<Uuid>()

@@ -30,6 +30,17 @@ internal class MusicVideoDownloadJobRegistry(
     ): Boolean {
         val job = mutex.withLock { jobMap.getOrPut(videoId) { start(videoId = videoId, path = path) } }
 
+        return job.await(onProgress = onProgress)
+    }
+
+    suspend fun join(
+        videoId: String,
+        onProgress: suspend (Float) -> Unit,
+    ): Boolean? = mutex.withLock { jobMap[videoId] }?.await(onProgress = onProgress)
+
+    private suspend fun MusicVideoDownloadJob.await(onProgress: suspend (Float) -> Unit): Boolean {
+        val job = this
+
         return coroutineScope {
             val collector = launch { job.progress.filterNotNull().collect { value -> onProgress(value) } }
 

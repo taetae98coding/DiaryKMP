@@ -14,11 +14,13 @@ import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
+import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
+import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
@@ -79,6 +81,11 @@ class TagEntryTest :
                     listOf(OtherTopLevelNavKey, MemoHomeNavKey, TagAddNavKey()) to TagAddNavKey(),
                     listOf(OtherTopLevelNavKey, TagAddNavKey()) to TagAddNavKey(),
                     listOf(OtherTopLevelNavKey, MemoHomeNavKey, memoDetailKey, tagDetailKey) to tagDetailKey,
+                    listOf(OtherTopLevelNavKey, CalendarHomeFilterStandInNavKey, TagAddNavKey()) to TagAddNavKey(),
+                    listOf(OtherTopLevelNavKey, WebDetailNavKey(id = Uuid.random()), TagAddNavKey()) to TagAddNavKey(),
+                    listOf(OtherTopLevelNavKey, PlaceDetailNavKey(id = Uuid.random()), TagAddNavKey()) to TagAddNavKey(),
+                    listOf(OtherTopLevelNavKey, WebDetailNavKey(id = Uuid.random()), tagDetailKey) to tagDetailKey,
+                    listOf(OtherTopLevelNavKey, PlaceDetailNavKey(id = Uuid.random()), tagDetailKey) to tagDetailKey,
                 )
 
             backStackCases.forEach { (backStack, key) ->
@@ -136,4 +143,10 @@ class TagEntryTest :
 private data object OtherTopLevelNavKey : ScreenNavKey {
     override val screenName: String
         get() = "OtherTopLevel"
+}
+
+// 캘린더 홈의 태그 필터를 대신한다. 캘린더 기능 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
+private data object CalendarHomeFilterStandInNavKey : ScreenNavKey {
+    override val screenName: String
+        get() = "CalendarHomeFilter"
 }

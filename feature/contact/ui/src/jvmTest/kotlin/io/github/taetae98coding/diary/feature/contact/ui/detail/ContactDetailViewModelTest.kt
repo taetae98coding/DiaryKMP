@@ -148,6 +148,17 @@ class ContactDetailViewModelTest : FunSpec() {
 
                     expectNoEvents()
                 }
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe ContactDetailUiState.Loading
+                    awaitItem() shouldBe ContactDetailUiState.Content(id = contact.id, detail = contact.detail)
+                    cancelAndIgnoreRemainingEvents()
+                }
+
+                viewModel.update(detail = contact.detail)
+                advanceUntilIdle()
+
+                coVerify(exactly = 2) { updateContactUseCase(parameter = UpdateContactUseCase.Parameter(id = contact.id, detail = contact.detail)) }
             }
         }
 
@@ -272,6 +283,40 @@ class ContactDetailViewModelTest : FunSpec() {
 
                     expectNoEvents()
                 }
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe ContactDetailUiState.Loading
+                    awaitItem() shouldBe ContactDetailUiState.Content(id = contact.id, detail = contact.detail)
+                    cancelAndIgnoreRemainingEvents()
+                }
+
+                viewModel.delete()
+                advanceUntilIdle()
+
+                coVerify(exactly = 2) { deleteContactUseCase(parameter = contact.id) }
+            }
+        }
+
+        test("TC-CONTACT-DETAIL-DOMAIN-011 삭제를 처리하는 동안 같은 삭제 요청은 처리하지 않는다") {
+            runTest(mainDispatcher) {
+                val contact = contact()
+                val deferred = CompletableDeferred<Result<Int>>()
+                val deleteContactUseCase = mockk<DeleteContactUseCase>()
+                coEvery { deleteContactUseCase(parameter = contact.id) } coAnswers { deferred.await() }
+                val viewModel =
+                    viewModel(
+                        id = contact.id,
+                        contactFlow = flowOf(Result.success(contact)),
+                        deleteContactUseCase = deleteContactUseCase,
+                    )
+
+                viewModel.delete()
+                advanceUntilIdle()
+                viewModel.delete()
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { deleteContactUseCase(parameter = contact.id) }
+                deferred.complete(Result.success(1))
             }
         }
 
@@ -548,16 +593,76 @@ class ContactDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-FEATURE-018 대상 연락처가 삭제 상태가 되어도 내용 표시 상태를 유지한다") {
+        test("TC-CONTACT-DETAIL-DOMAIN-011 삭제를 처리하는 동안에도 수정과 즐겨찾기 변경은 처리한다") {
             runTest(mainDispatcher) {
-                val contact = contact().copy(isDeleted = true)
-                val viewModel = viewModel(id = contact.id, contactFlow = flowOf(Result.success(contact)))
+                val contact = contact().copy(isFavorite = false)
+                val deleteDeferred = CompletableDeferred<Result<Int>>()
+                val deleteContactUseCase = mockk<DeleteContactUseCase>()
+                coEvery { deleteContactUseCase(parameter = contact.id) } coAnswers { deleteDeferred.await() }
+                val updateContactUseCase = mockk<UpdateContactUseCase>()
+                coEvery { updateContactUseCase(parameter = any()) } returns Result.success(1)
+                val favoriteContactUseCase = mockk<FavoriteContactUseCase>()
+                coEvery { favoriteContactUseCase(parameter = contact.id) } returns Result.success(1)
+                val viewModel =
+                    viewModel(
+                        id = contact.id,
+                        contactFlow = flowOf(Result.success(contact)),
+                        updateContactUseCase = updateContactUseCase,
+                        favoriteContactUseCase = favoriteContactUseCase,
+                        deleteContactUseCase = deleteContactUseCase,
+                    )
+
+                backgroundScope.launch { viewModel.uiState.collect { } }
+                advanceUntilIdle()
+
+                viewModel.delete()
+                advanceUntilIdle()
+                viewModel.update(detail = contact.detail)
+                advanceUntilIdle()
+                viewModel.toggleFavorite()
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { updateContactUseCase(parameter = any()) }
+                coVerify(exactly = 1) { favoriteContactUseCase(parameter = contact.id) }
+                deleteDeferred.complete(Result.success(1))
+            }
+        }
+
+        test("TC-CONTACT-DETAIL-FEATURE-018 대상 연락처가 삭제 상태로 바뀌어도 내용 표시 상태를 유지하고 수정과 삭제를 처리한다") {
+            runTest(mainDispatcher) {
+                val contact = contact()
+                val contactFlow = MutableStateFlow(Result.success<Contact?>(contact))
+                val updateContactUseCase = mockk<UpdateContactUseCase>()
+                coEvery { updateContactUseCase(parameter = any()) } returns Result.success(1)
+                val deleteContactUseCase = mockk<DeleteContactUseCase>()
+                coEvery { deleteContactUseCase(parameter = contact.id) } returns Result.success(1)
+                val viewModel =
+                    viewModel(
+                        id = contact.id,
+                        contactFlow = contactFlow,
+                        updateContactUseCase = updateContactUseCase,
+                        deleteContactUseCase = deleteContactUseCase,
+                    )
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe ContactDetailUiState.Loading
                     awaitItem() shouldBe ContactDetailUiState.Content(id = contact.id, detail = contact.detail)
+
+                    contactFlow.value = Result.success(contact.copy(isDeleted = true))
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                    viewModel.uiState.value shouldBe ContactDetailUiState.Content(id = contact.id, detail = contact.detail)
+
+                    viewModel.update(detail = contact.detail)
+                    advanceUntilIdle()
+                    viewModel.delete()
+                    advanceUntilIdle()
                     cancelAndIgnoreRemainingEvents()
                 }
+
+                coVerify(exactly = 1) { updateContactUseCase(parameter = UpdateContactUseCase.Parameter(id = contact.id, detail = contact.detail)) }
+                coVerify(exactly = 1) { deleteContactUseCase(parameter = contact.id) }
             }
         }
     }
@@ -587,15 +692,14 @@ class ContactDetailViewModelTest : FunSpec() {
             )
         }
 
-        // FixtureMonkey가 Instant를 생성하지 못하므로 연락처는 직접 만든다.
         private fun contact(): Contact =
             Contact(
                 id = fixtureMonkey.giveMeOne<Uuid>(),
                 detail = fixtureMonkey.giveMeKotlinBuilder<ContactDetail>().sample(),
                 isFavorite = false,
                 isDeleted = false,
-                updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
-                createdAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+                createdAt = fixtureMonkey.giveMeOne<Instant>(),
             )
     }
 }

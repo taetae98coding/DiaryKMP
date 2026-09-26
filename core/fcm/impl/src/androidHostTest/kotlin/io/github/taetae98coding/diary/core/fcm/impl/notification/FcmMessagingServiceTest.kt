@@ -5,6 +5,9 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Bundle
 import com.google.firebase.messaging.RemoteMessage
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import org.junit.Before
@@ -15,6 +18,8 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+
+private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -30,26 +35,25 @@ class FcmMessagingServiceTest {
 
     @Test
     fun `TC-DAILY-MEMO-NOTIFICATION-FEATURE-008 알림 메시지를 받으면 서버가 보낸 제목과 본문을 그대로 표시한다`() {
-        service.onMessageReceived(
-            remoteMessage(
-                title = "오늘 확인할 메모가 2개 있어요",
-                body = "- 치과 예약\n- 우유 사기",
-                channelId = "custom",
-                tag = "daily-memo",
-            ),
-        )
+        // 빈 문자열이면 본문이 없는 알림이 되어 다른 경로를 타므로 접두사로 비어 있지 않음을 보장한다.
+        val title = "title${fixtureMonkey.giveMeOne<String>()}"
+        val body = "- ${fixtureMonkey.giveMeOne<String>()}\n- ${fixtureMonkey.giveMeOne<String>()}"
+        val channelId = "channel${fixtureMonkey.giveMeOne<Int>()}"
+        val tag = "tag${fixtureMonkey.giveMeOne<Int>()}"
+
+        service.onMessageReceived(remoteMessage(title = title, body = body, channelId = channelId, tag = tag))
 
         val posted = shadowOf(notificationManager()).allNotifications.single()
 
-        posted.extras.getString(Notification.EXTRA_TITLE) shouldBe "오늘 확인할 메모가 2개 있어요"
-        posted.extras.getString(Notification.EXTRA_TEXT) shouldBe "- 치과 예약\n- 우유 사기"
-        posted.channelId shouldBe "custom"
-        shadowOf(notificationManager()).activeNotifications.single().tag shouldBe "daily-memo"
+        posted.extras.getString(Notification.EXTRA_TITLE) shouldBe title
+        posted.extras.getString(Notification.EXTRA_TEXT) shouldBe body
+        posted.channelId shouldBe channelId
+        shadowOf(notificationManager()).activeNotifications.single().tag shouldBe tag
     }
 
     @Test
     fun `TC-DAILY-MEMO-NOTIFICATION-FEATURE-009 메시지에 채널이 없으면 일일 메모 알림 채널로 표시한다`() {
-        service.onMessageReceived(remoteMessage(title = "Check today's memos", body = null, channelId = null, tag = null))
+        service.onMessageReceived(remoteMessage(title = "title${fixtureMonkey.giveMeOne<String>()}", body = null, channelId = null, tag = null))
 
         shadowOf(notificationManager()).allNotifications.single().channelId shouldBe DAILY_MEMO_NOTIFICATION_CHANNEL_ID
     }

@@ -72,8 +72,8 @@ class MemoHomeSortBarLayoutTest {
         fixtureMonkey
             .giveMeKotlinBuilder<Memo>()
             .setExp(Memo::detail, fixtureMonkey.giveMeOne<MemoDetail>().copy(title = title, dateTime = null))
-            .setExp(Memo::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-            .setExp(Memo::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+            .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+            .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
             .sample()
 
     private companion object {

@@ -63,7 +63,7 @@ class TagDetailPlaceViewModeTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-021 보기 모드를 바꾸면 목록 모드의 목록이 사라진다`() {
+    fun `TC-TAG-DETAIL-PLACE-FEATURE-021 보기 모드를 바꾸면 목록 모드의 목록이 사라지고 전환 컨트롤이 목록으로 보기를 가리킨다`() {
         val place = tagPlace(title = PLACE_TITLE)
         setPlaceTab(pagingData = tagEntityPagingData(itemList = listOf(place)))
 
@@ -91,7 +91,7 @@ class TagDetailPlaceViewModeTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-023 지도가 표시되지 않아도 전환 버튼은 같은 자리에 남는다`() {
+    fun `TC-TAG-DETAIL-PLACE-FEATURE-023 지도가 표시되지 않는 지도 모드에서 전환하면 목록 모드로 바뀌고 장소 전체가 목록에 표시된다`() {
         val place = tagPlace(title = PLACE_TITLE)
         setPlaceTab(
             state = TagDetailPlaceState(initialViewMode = TagDetailPlaceViewMode.MAP),
@@ -104,6 +104,25 @@ class TagDetailPlaceViewModeTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(PLACE_TITLE).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-TAG-DETAIL-PLACE-FEATURE-023 지도가 표시되지 않는 목록 모드에서 전환하면 지도 모드로 바뀌고 지도와 장소 목록 영역이 모두 표시되지 않는다`() {
+        val place = tagPlace(title = PLACE_TITLE)
+        setPlaceTab(
+            pagingData = tagEntityPagingData(itemList = listOf(place)),
+            placeListUiState = TagDetailPlaceListUiState(isLoaded = true, placeList = listOf(place)),
+        )
+
+        composeRule.onNodeWithContentDescription(DEFAULT_SHOW_MAP_DESCRIPTION).assert(hasClickAction())
+
+        composeRule.onNodeWithContentDescription(DEFAULT_SHOW_MAP_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_SHOW_LIST_DESCRIPTION).assert(hasClickAction())
+        composeRule.onNodeWithTag(TAG_DETAIL_PLACE_LIST_TEST_TAG).assertDoesNotExist()
+        composeRule.onNodeWithTag(TAG_DETAIL_PLACE_BOUNDS_LIST_TEST_TAG).assertDoesNotExist()
+        composeRule.onNodeWithText(PLACE_TITLE).assertDoesNotExist()
     }
 
     @Test

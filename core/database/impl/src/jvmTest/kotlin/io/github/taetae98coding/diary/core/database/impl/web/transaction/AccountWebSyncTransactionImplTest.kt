@@ -327,7 +327,7 @@ class AccountWebSyncTransactionImplTest :
 
         private fun detail(): WebDetailLocalEntity = fixtureMonkey.giveMeOne<WebDetailLocalEntity>()
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun SQLiteStatement.toWeb(): WebLocalEntity =
             WebLocalEntity(

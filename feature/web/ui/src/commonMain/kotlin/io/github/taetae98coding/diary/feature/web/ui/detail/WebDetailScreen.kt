@@ -55,6 +55,7 @@ internal fun WebDetailScreen(
     val pageUiState by pageViewModel.uiState.collectAsStateWithLifecycle()
     val tagUiState by tagViewModel.uiState.collectAsStateWithLifecycle()
     val tagPagingItems = tagViewModel.tagPagingData.collectAsLazyPagingItems()
+    val selectableTagPagingItems = tagViewModel.selectableTagPagingData.collectAsLazyPagingItems()
     val content = uiState as? WebDetailUiState.Content
     val uriHandler = LocalUriHandler.current
     val coroutineScope = rememberCoroutineScope()
@@ -87,7 +88,7 @@ internal fun WebDetailScreen(
                     showSessionImportFailed = { coroutineScope.launch { formState.hostState.showImmediate(message = importFailedMessage) } },
                 )
             },
-            onFormEvent = { event -> handleWebFormEvent(event = event, state = formState, tagPagingItems = tagPagingItems, navigateToTagAdd = navigateToTagAdd, navigateToTagDetail = navigateToTagDetail) },
+            onFormEvent = { event -> handleWebFormEvent(event = event, state = formState, selectableTagPagingItems = selectableTagPagingItems, navigateToTagAdd = navigateToTagAdd, navigateToTagDetail = navigateToTagDetail) },
             onTagPickerEvent = { event -> handleWebDetailTagPickerEvent(event = event, tagViewModel = tagViewModel, navigateToTagAdd = navigateToTagAdd) },
             modifier = modifier,
             state = scaffoldState,

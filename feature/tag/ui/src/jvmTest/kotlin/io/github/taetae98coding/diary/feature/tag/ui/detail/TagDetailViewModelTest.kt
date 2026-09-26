@@ -457,6 +457,36 @@ class TagDetailViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-TAG-DETAIL-FEATURE-069 수정 저장에 실패하면 Effect 없이 진행 상태만 해제하고 다시 수정할 수 있다") {
+            runTest(mainDispatcher) {
+                val tag = tag()
+                val detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}")
+                val findTagUseCase = mockk<FindTagUseCase>()
+                every { findTagUseCase(tag.id) } returns flowOf(Result.success(tag))
+                val updateTagUseCase = mockk<UpdateTagUseCase>()
+                coEvery { updateTagUseCase(any()) } returns Result.failure(IllegalStateException("저장 실패"))
+                val viewModel = viewModel(id = tag.id, findTagUseCase = findTagUseCase, updateTagUseCase = updateTagUseCase)
+
+                viewModel.uiState.test {
+                    viewModel.effect.test {
+                        viewModel.update(detail)
+                        advanceUntilIdle()
+
+                        expectNoEvents()
+
+                        viewModel.update(detail)
+                        advanceUntilIdle()
+
+                        expectNoEvents()
+                    }
+
+                    (expectMostRecentItem() as TagDetailUiState.Content).isInProgress shouldBe false
+                }
+
+                coVerify(exactly = 2) { updateTagUseCase(UpdateTagUseCase.Parameter(id = tag.id, detail = detail)) }
+            }
+        }
+
         test("TC-TAG-DETAIL-FEATURE-010 수정에 성공하면 수정 성공 Effect를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val updateTagUseCase = mockk<UpdateTagUseCase>()
@@ -555,16 +585,17 @@ class TagDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-FEATURE-013 수정에 성공해 저장 제목이 바뀌면 상단 바 제목이 갱신된다") {
+        test("TC-TAG-DETAIL-FEATURE-013 수정에 성공해 저장 이모지와 제목이 바뀌면 화면 제목에 쓰는 저장 내용이 갱신된다") {
             runTest(mainDispatcher) {
-                val tag = tag()
+                val tag = tag().let { value -> value.copy(detail = value.detail.copy(emoji = "\uD83C\uDFC3")) }
                 val newTitle = "new-${fixtureMonkey.giveMeOne<String>()}"
+                val newEmoji = "\uD83C\uDFCA"
                 val resultFlow = MutableSharedFlow<Result<Tag?>>(replay = 1)
                 val findTagUseCase = mockk<FindTagUseCase>()
                 every { findTagUseCase(any()) } returns resultFlow
                 val updateTagUseCase = mockk<UpdateTagUseCase>()
                 coEvery { updateTagUseCase(any()) } coAnswers {
-                    resultFlow.emit(Result.success(tag.copy(detail = tag.detail.copy(title = newTitle))))
+                    resultFlow.emit(Result.success(tag.copy(detail = tag.detail.copy(emoji = newEmoji, title = newTitle))))
                     Result.success(1)
                 }
                 val viewModel =
@@ -578,12 +609,12 @@ class TagDetailViewModelTest : FunSpec() {
                     awaitItem() shouldBe TagDetailUiState.Loading
 
                     resultFlow.emit(Result.success(tag))
-                    (awaitItem() as TagDetailUiState.Content).detail.title shouldBe tag.detail.title
+                    (awaitItem() as TagDetailUiState.Content).detail.emojiWithTitle shouldBe tag.detail.emojiWithTitle
 
-                    viewModel.update(tag.detail.copy(title = newTitle))
+                    viewModel.update(tag.detail.copy(emoji = newEmoji, title = newTitle))
                     advanceUntilIdle()
 
-                    (awaitItem() as TagDetailUiState.Content).detail.title shouldBe newTitle
+                    (awaitItem() as TagDetailUiState.Content).detail.emojiWithTitle shouldBe "$newEmoji $newTitle"
                     cancelAndIgnoreRemainingEvents()
                 }
             }
@@ -597,8 +628,8 @@ class TagDetailViewModelTest : FunSpec() {
         private fun tag(): Tag =
             fixtureMonkey
                 .giveMeKotlinBuilder<Tag>()
-                .setExp(Tag::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Tag::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
 
         private fun emptyFindTagUseCase(): FindTagUseCase {

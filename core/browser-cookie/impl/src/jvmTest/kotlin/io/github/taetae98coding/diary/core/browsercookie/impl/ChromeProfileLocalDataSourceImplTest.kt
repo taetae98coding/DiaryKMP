@@ -6,6 +6,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.Dispatchers
 import java.nio.file.Path
+import kotlin.io.path.createDirectory
 import kotlin.io.path.createTempDirectory
 import kotlin.io.path.writeText
 
@@ -38,6 +39,19 @@ class ChromeProfileLocalDataSourceImplTest :
             val dataSource =
                 ChromeProfileLocalDataSourceImpl(
                     location = ChromeCookieLocation(isSupported = true, userDataDirectory = createTempDirectory("diary-chrome-missing")),
+                    dispatcher = Dispatchers.Default,
+                )
+
+            shouldThrowAny { dataSource.findAll() }
+        }
+
+        test("TC-CHROME-SESSION-IMPORT-DATA-011 프로필 정보 파일을 읽을 수 없으면 실패로 알린다") {
+            val userDataDirectory = createTempDirectory("diary-chrome-unreadable")
+            // 같은 이름의 폴더를 두어 파일로 읽을 수 없게 한다.
+            userDataDirectory.resolve("Local State").createDirectory()
+            val dataSource =
+                ChromeProfileLocalDataSourceImpl(
+                    location = ChromeCookieLocation(isSupported = true, userDataDirectory = userDataDirectory),
                     dispatcher = Dispatchers.Default,
                 )
 

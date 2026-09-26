@@ -92,14 +92,18 @@ class SearchHomeTagViewModelTest : FunSpec() {
     }
 
     public companion object {
-        private fun viewModel(searchTagUseCase: SearchTagUseCase): SearchHomeTagViewModel =
+        // 화면은 유형 결과가 나타나면 지금 질의를 먼저 알리므로, 기본으로 진입할 때의 빈 질의를 알린 상태로 만든다.
+        private fun viewModel(
+            searchTagUseCase: SearchTagUseCase,
+            isQueryShown: Boolean = true,
+        ): SearchHomeTagViewModel =
             SearchHomeTagViewModel(
                 searchTagUseCase = searchTagUseCase,
                 finishTagUseCase = mockk(),
                 restartTagUseCase = mockk(),
                 deleteTagUseCase = mockk(),
                 restoreTagUseCase = mockk(),
-            )
+            ).also { viewModel -> if (isQueryShown) viewModel.showQuery("") }
 
         private fun searchTagUseCase(flow: Flow<Result<PagingData<Tag>>>): SearchTagUseCase =
             mockk<SearchTagUseCase>().apply {

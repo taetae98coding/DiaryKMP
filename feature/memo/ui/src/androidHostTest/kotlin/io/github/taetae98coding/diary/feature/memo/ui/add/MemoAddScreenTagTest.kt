@@ -24,6 +24,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.closeDialogByBack
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PICKER_TAG_ADD
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PICKER_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PRIMARY_SET_DESCRIPTION
@@ -44,6 +45,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,6 +58,11 @@ import kotlin.uuid.Uuid
 class MemoAddScreenTagTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-MEMO-TAG-INPUT-FEATURE-008 목록에서 태그를 선택하면 태그 칩으로 즉시 표시된다`() {
@@ -264,6 +271,11 @@ class MemoAddScreenTagPickerOpenTest {
     @get:Rule
     val composeRule = createComposeRule()
 
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
+
     @Test
     fun `TC-MEMO-TAG-INPUT-FEATURE-003 추가 항목을 누르면 선택할 수 있는 태그 목록이 열린다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
@@ -280,6 +292,22 @@ class MemoAddScreenTagPickerOpenTest {
         composeRule.dialogNodeWithText(WORK_TAG_TITLE).assertExists()
         composeRule.dialogNodeWithText(EXERCISE_TAG_TITLE).assertExists()
         tagAddCount shouldBe 0
+    }
+
+    @Test
+    fun `TC-MEMO-TAG-INPUT-FEATURE-024 목록의 끝으로 이동하면 다음 태그가 이어서 나타난다`() {
+        val tagList = List(PICKER_TAG_COUNT) { index -> testTag(title = "$PICKER_TAG_TITLE_PREFIX${index.toString().padStart(length = 3, padChar = '0')}") }
+        setMemoAddScreen(viewModels = screenTestRealViewModel(tagList = tagList))
+
+        composeRule.onNodeWithText(DEFAULT_TAG_SELECT_LABEL).performScrollTo().performClick()
+        composeRule.awaitTagPickerRows()
+        composeRule.dialogNodeWithText(tagList.first().detail.title).assertIsDisplayed()
+        composeRule.dialogNodeWithText(tagList.last().detail.title).assertDoesNotExist()
+
+        composeRule.tagPickerList().performScrollToIndex(tagList.lastIndex)
+        composeRule.waitForIdle()
+
+        composeRule.dialogNodeWithText(tagList.last().detail.title).assertIsDisplayed()
     }
 
     @Test
@@ -301,7 +329,7 @@ class MemoAddScreenTagPickerOpenTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-029 나타낼 태그가 없는 것으로 확정되면 추가 항목이 TagAdd 이동을 요청한다`() {
+    fun `TC-MEMO-TAG-INPUT-FEATURE-029 TC-MEMO-TAG-INPUT-FEATURE-047 나타낼 태그가 없으면 목록을 연 적이 없어도 첫 누름에 추가 항목이 TagAdd 이동을 요청한다`() {
         var tagAddCount = 0
         setMemoAddScreen(
             viewModels = screenTestRealViewModel(tagList = emptyList()),
@@ -387,6 +415,11 @@ class MemoAddScreenTagPickerOpenTest {
 class MemoAddScreenTagRequestTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-MEMO-ADD-FEATURE-042 TagDetail 메모 탭에서 진입하면 대상 태그를 대표 태그로 표시한다`() {

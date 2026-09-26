@@ -24,6 +24,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.spyk
@@ -655,7 +656,7 @@ class AccountMemoTransactionImplTest :
                 memoTag.isDeleted shouldBe true
                 memoTag.updatedAt shouldBe removedAt
             }
-            findMemo(accountId = accountId, memoId = memo.id)?.let { stored ->
+            findMemo(accountId = accountId, memoId = memo.id).shouldNotBeNull().let { stored ->
                 stored.primaryTagId.shouldBeNull()
                 stored.updatedAt shouldBe removedAt
             }
@@ -782,7 +783,7 @@ class AccountMemoTransactionImplTest :
                 .setExp(TagLocalEntity::createdAt, instant())
                 .sample()
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun memoTag(
             memoId: Uuid,

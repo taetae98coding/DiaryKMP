@@ -52,6 +52,22 @@ class MemoAddWebViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
+        test("TC-MEMO-WEB-INPUT-FEATURE-031 선택 목록을 열지 않아도 선택할 수 있는 웹 항목 전체를 빈 검색어로 조회한다") {
+            runTest(mainDispatcher) {
+                val item = web()
+                val pageMemoSelectableWebUseCase = mockk<PageMemoSelectableWebUseCase>()
+                every { pageMemoSelectableWebUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(listOf(item))))
+                val viewModel = viewModel(pageMemoSelectableWebUseCase = pageMemoSelectableWebUseCase, isListOpened = false)
+
+                val itemList = flowOf(viewModel.selectableWebPagingData.first()).asSnapshot()
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+
+                itemList shouldBe listOf(item)
+                verify(exactly = 1) { pageMemoSelectableWebUseCase(parameter = "") }
+            }
+        }
+
         test("TC-MEMO-WEB-INPUT-DOMAIN-017 메모리 정리 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
             runTest(mainDispatcher) {
                 val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
@@ -384,8 +400,8 @@ class MemoAddWebViewModelTest : FunSpec() {
             fixtureMonkey
                 .giveMeKotlinBuilder<Web>()
                 .setExp(Web::isDeleted, false)
-                .setExp(Web::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Web::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Web::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Web::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
 
         private fun viewModel(

@@ -2,6 +2,7 @@
 
 package io.github.taetae98coding.diary.feature.tag.ui.detail.web
 
+import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
@@ -26,6 +27,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
@@ -108,7 +110,7 @@ class TagDetailWebViewModelTest : FunSpec() {
                 }
             }
         }
-        test("TC-TAG-DETAIL-WEB-FEATURE-004 조회가 실패하면 목록을 전달하지 않는다") {
+        test("TC-TAG-DETAIL-WEB-FEATURE-004 최초 조회가 실패하면 조회가 끝난 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
@@ -117,9 +119,35 @@ class TagDetailWebViewModelTest : FunSpec() {
                 val viewModel = TagDetailWebViewModel(tagId = tagId, pageTagWebUseCase = pageTagWebUseCase, deleteWebUseCase = mockk(), restoreWebUseCase = mockk())
 
                 viewModel.webPagingData.test {
+                    advanceUntilIdle()
+                    val itemList = flowOf(awaitItem()).asSnapshot()
                     expectNoEvents()
-                    cancelAndIgnoreRemainingEvents()
+
+                    itemList.shouldBeEmpty()
                 }
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+            }
+        }
+
+        test("TC-TAG-DETAIL-WEB-FEATURE-004 조회가 성공한 뒤 실패하면 마지막으로 불러온 웹 항목을 그대로 노출한다") {
+            runTest(mainDispatcher) {
+                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val webList = List(2) { item() }
+                val pageTagWebUseCase = mockk<PageTagWebUseCase>()
+                every { pageTagWebUseCase(parameter = PageTagWebUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, sort = ListSort.TITLE)) } returns
+                    flowOf(Result.success(PagingData.from(webList)), Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())))
+                val viewModel = TagDetailWebViewModel(tagId = tagId, pageTagWebUseCase = pageTagWebUseCase, deleteWebUseCase = mockk(), restoreWebUseCase = mockk())
+
+                viewModel.webPagingData.test {
+                    advanceUntilIdle()
+                    val itemList = flowOf(awaitItem()).asSnapshot()
+                    expectNoEvents()
+
+                    itemList shouldBe webList
+                }
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
             }
         }
 
@@ -198,8 +226,8 @@ class TagDetailWebViewModelTest : FunSpec() {
             fixtureMonkey
                 .giveMeKotlinBuilder<Web>()
                 .setExp(Web::isDeleted, false)
-                .setExp(Web::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Web::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Web::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Web::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

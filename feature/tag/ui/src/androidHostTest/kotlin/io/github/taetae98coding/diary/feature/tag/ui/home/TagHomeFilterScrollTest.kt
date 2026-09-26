@@ -19,8 +19,10 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
+import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,8 +36,14 @@ class TagHomeFilterScrollTest {
     @get:Rule
     val composeRule = createComposeRule()
 
+    // 목록을 만든 뒤 바뀐 페이지 데이터가 전달되기를 기다리므로, 앞선 테스트가 남긴 디스패처 예약을 비운다.
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
+
     @Test
-    fun `TC-TAG-HOME-DOMAIN-011 좁힌 목록이 놓이기 전에는 목록 위치를 유지한다`() {
+    fun `TC-TAG-HOME-FEATURE-050 좁힌 목록이 놓이기 전에는 목록 위치를 유지한다`() {
         val allTagList = tagList(ALL_TAG_COUNT)
         val isApplied = mutableStateOf(false)
         val tagPagingData = MutableStateFlow(tagPagingDataOf(allTagList))
@@ -45,6 +53,7 @@ class TagHomeFilterScrollTest {
         switchFilter(isApplied = isApplied, value = true)
 
         composeRule.onNodeWithText(allTagList.first().title()).assertDoesNotExist()
+        composeRule.onNodeWithText(allTagList.last().title()).assertIsDisplayed()
     }
 
     @Test
@@ -85,7 +94,7 @@ class TagHomeFilterScrollTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-DOMAIN-012 필터를 바꾸지 않은 목록 갱신에서는 목록 위치를 유지한다`() {
+    fun `TC-TAG-HOME-FEATURE-051 필터를 바꾸지 않은 목록 갱신에서는 목록 위치를 유지한다`() {
         val allTagList = tagList(ALL_TAG_COUNT)
         val isApplied = mutableStateOf(false)
         val tagListState = mutableStateOf(allTagList)
@@ -177,8 +186,8 @@ class TagHomeFilterScrollTest {
             fixtureMonkey
                 .giveMeKotlinBuilder<Tag>()
                 .setExp(Tag::detail, fixtureMonkey.giveMeOne<TagDetail>().copy(emoji = "", title = title))
-                .setExp(Tag::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Tag::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

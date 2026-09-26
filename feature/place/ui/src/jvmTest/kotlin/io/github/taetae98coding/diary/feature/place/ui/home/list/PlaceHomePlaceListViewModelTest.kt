@@ -333,6 +333,45 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
                 coVerify(exactly = 1) { restorePlaceUseCase(parameter = id) }
             }
         }
+
+        test("TC-PLACE-HOME-FEATURE-066 정렬을 바꾸면 두 보기 모드의 목록에 함께 적용된다") {
+            runTest(mainDispatcher) {
+                val bounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
+                val titlePlaceList = placeList(PLACE_COUNT)
+                val recentlyUpdatedPlaceList = placeList(PLACE_COUNT)
+                val getPlaceListUseCase = mockk<GetPlaceListUseCase>()
+                every {
+                    getPlaceListUseCase(parameter = GetPlaceListUseCase.Parameter(bounds = bounds, sort = ListSort.TITLE))
+                } returns flowOf(Result.success(titlePlaceList))
+                every {
+                    getPlaceListUseCase(parameter = GetPlaceListUseCase.Parameter(bounds = bounds, sort = ListSort.RECENTLY_UPDATED))
+                } returns flowOf(Result.success(recentlyUpdatedPlaceList))
+                val pagePlaceHomeUseCase = mockk<PagePlaceHomeUseCase>()
+                every { pagePlaceHomeUseCase(parameter = ListSort.TITLE) } returns flowOf(Result.success(PagingData.from(titlePlaceList)))
+                every {
+                    pagePlaceHomeUseCase(parameter = ListSort.RECENTLY_UPDATED)
+                } returns flowOf(Result.success(PagingData.from(recentlyUpdatedPlaceList)))
+                val viewModel =
+                    viewModel(
+                        getPlaceListUseCase = getPlaceListUseCase,
+                        pagePlaceHomeUseCase = pagePlaceHomeUseCase,
+                    )
+
+                viewModel.placeListFlow().test {
+                    awaitItem() shouldBe emptyList()
+
+                    viewModel.updateVisibleBounds(bounds)
+                    awaitItem() shouldBe titlePlaceList
+
+                    viewModel.select(sort = ListSort.RECENTLY_UPDATED)
+                    awaitItem() shouldBe recentlyUpdatedPlaceList
+
+                    cancelAndIgnoreRemainingEvents()
+                }
+                flowOf(viewModel.placePagingData.first()).asSnapshot() shouldBe recentlyUpdatedPlaceList
+                viewModel.sort.value shouldBe ListSort.RECENTLY_UPDATED
+            }
+        }
     }
 
     private companion object {
@@ -341,9 +380,8 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
-        // FixtureMonkey가 Instant를 생성하지 못하므로 장소는 직접 만든다.
         private fun place(): Place =
             Place(
                 id = Uuid.random(),
@@ -362,22 +400,26 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
             return useCase
         }
 
+        private fun pagePlaceHomeUseCase(placePagingFlow: Flow<Result<PagingData<Place>>>): PagePlaceHomeUseCase {
+            val useCase = mockk<PagePlaceHomeUseCase>()
+            every { useCase(parameter = ListSort.TITLE) } returns placePagingFlow
+
+            return useCase
+        }
+
         private fun viewModel(
             getPlaceListUseCase: GetPlaceListUseCase = getPlaceListUseCase(),
             placePagingFlow: Flow<Result<PagingData<Place>>> = emptyFlow(),
+            pagePlaceHomeUseCase: PagePlaceHomeUseCase = pagePlaceHomeUseCase(placePagingFlow),
             deletePlaceUseCase: DeletePlaceUseCase = mockk(),
             restorePlaceUseCase: RestorePlaceUseCase = mockk(),
-        ): PlaceHomePlaceListViewModel {
-            val pagePlaceHomeUseCase = mockk<PagePlaceHomeUseCase>()
-            every { pagePlaceHomeUseCase(parameter = ListSort.TITLE) } returns placePagingFlow
-
-            return PlaceHomePlaceListViewModel(
+        ): PlaceHomePlaceListViewModel =
+            PlaceHomePlaceListViewModel(
                 getPlaceListUseCase = getPlaceListUseCase,
                 pagePlaceHomeUseCase = pagePlaceHomeUseCase,
                 deletePlaceUseCase = deletePlaceUseCase,
                 restorePlaceUseCase = restorePlaceUseCase,
             )
-        }
 
         private fun PlaceHomePlaceListViewModel.placeListFlow(): Flow<List<Place>> =
             placeListUiState

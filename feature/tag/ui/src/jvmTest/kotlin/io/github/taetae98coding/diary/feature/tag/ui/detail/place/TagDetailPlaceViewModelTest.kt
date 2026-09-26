@@ -2,6 +2,7 @@
 
 package io.github.taetae98coding.diary.feature.tag.ui.detail.place
 
+import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
@@ -28,6 +29,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
@@ -97,6 +99,33 @@ class TagDetailPlaceViewModelTest : FunSpec() {
 
                 verify(exactly = 1) { pageTagPlaceUseCase(parameter = PageTagPlaceUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, sort = ListSort.TITLE)) }
                 verify(exactly = 0) { pageTagPlaceUseCase(parameter = PageTagPlaceUseCase.Parameter(tagId = otherTagId, scope = TagScope.SELF, sort = ListSort.TITLE)) }
+            }
+        }
+
+        test("TC-TAG-DETAIL-PLACE-FEATURE-021 지도 모드의 목록에는 보이는 영역 안의 장소만 남고 영역 밖의 장소는 나타나지 않는다") {
+            runTest(mainDispatcher) {
+                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val bounds = bounds()
+                val insidePlace = item()
+                val outsidePlace = item()
+                val getTagPlaceListUseCase = mockk<GetTagPlaceListUseCase>()
+                every {
+                    getTagPlaceListUseCase(
+                        parameter = GetTagPlaceListUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, bounds = bounds, sort = ListSort.TITLE),
+                    )
+                } returns flowOf(Result.success(listOf(insidePlace)))
+                val pageTagPlaceUseCase = mockk<PageTagPlaceUseCase>()
+                every { pageTagPlaceUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.from(listOf(insidePlace, outsidePlace))))
+                val viewModel = viewModel(tagId = tagId, getTagPlaceListUseCase = getTagPlaceListUseCase, pageTagPlaceUseCase = pageTagPlaceUseCase)
+
+                viewModel.placeListUiState.test {
+                    awaitItem() shouldBe TagDetailPlaceListUiState()
+
+                    viewModel.updateVisibleBounds(bounds)
+
+                    awaitItem() shouldBe TagDetailPlaceListUiState(isLoaded = true, placeList = listOf(insidePlace))
+                    cancelAndIgnoreRemainingEvents()
+                }
             }
         }
 
@@ -344,25 +373,44 @@ class TagDetailPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-PLACE-FEATURE-004 조회가 실패하면 목록을 전달하지 않는다") {
+        test("TC-TAG-DETAIL-PLACE-FEATURE-004 최초 조회가 실패하면 조회가 끝난 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
                 val pageTagPlaceUseCase = mockk<PageTagPlaceUseCase>()
                 every { pageTagPlaceUseCase(parameter = PageTagPlaceUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, sort = ListSort.TITLE)) } returns flowOf(Result.failure(throwable))
-                val viewModel =
-                    TagDetailPlaceViewModel(
-                        tagId = tagId,
-                        getTagPlaceListUseCase = mockk(),
-                        pageTagPlaceUseCase = pageTagPlaceUseCase,
-                        deletePlaceUseCase = mockk(),
-                        restorePlaceUseCase = mockk(),
-                    )
+                val viewModel = viewModel(tagId = tagId, pageTagPlaceUseCase = pageTagPlaceUseCase)
 
                 viewModel.placePagingData.test {
+                    advanceUntilIdle()
+                    val itemList = flowOf(awaitItem()).asSnapshot()
                     expectNoEvents()
-                    cancelAndIgnoreRemainingEvents()
+
+                    itemList.shouldBeEmpty()
                 }
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+            }
+        }
+
+        test("TC-TAG-DETAIL-PLACE-FEATURE-004 조회가 성공한 뒤 실패하면 마지막으로 불러온 장소를 그대로 노출한다") {
+            runTest(mainDispatcher) {
+                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val placeList = List(2) { item() }
+                val pageTagPlaceUseCase = mockk<PageTagPlaceUseCase>()
+                every { pageTagPlaceUseCase(parameter = PageTagPlaceUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, sort = ListSort.TITLE)) } returns
+                    flowOf(Result.success(PagingData.from(placeList)), Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())))
+                val viewModel = viewModel(tagId = tagId, pageTagPlaceUseCase = pageTagPlaceUseCase)
+
+                viewModel.placePagingData.test {
+                    advanceUntilIdle()
+                    val itemList = flowOf(awaitItem()).asSnapshot()
+                    expectNoEvents()
+
+                    itemList shouldBe placeList
+                }
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
             }
         }
 
@@ -447,8 +495,8 @@ class TagDetailPlaceViewModelTest : FunSpec() {
             fixtureMonkey
                 .giveMeKotlinBuilder<Place>()
                 .setExp(Place::isDeleted, false)
-                .setExp(Place::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Place::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Place::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Place::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

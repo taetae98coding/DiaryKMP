@@ -92,12 +92,16 @@ class SearchHomeWebViewModelTest : FunSpec() {
     }
 
     public companion object {
-        private fun viewModel(searchWebUseCase: SearchWebUseCase): SearchHomeWebViewModel =
+        // 화면은 유형 결과가 나타나면 지금 질의를 먼저 알리므로, 기본으로 진입할 때의 빈 질의를 알린 상태로 만든다.
+        private fun viewModel(
+            searchWebUseCase: SearchWebUseCase,
+            isQueryShown: Boolean = true,
+        ): SearchHomeWebViewModel =
             SearchHomeWebViewModel(
                 searchWebUseCase = searchWebUseCase,
                 deleteWebUseCase = mockk(),
                 restoreWebUseCase = mockk(),
-            )
+            ).also { viewModel -> if (isQueryShown) viewModel.showQuery("") }
 
         private fun searchWebUseCase(flow: Flow<Result<PagingData<Web>>>): SearchWebUseCase =
             mockk<SearchWebUseCase>().apply {

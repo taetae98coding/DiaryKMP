@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
@@ -25,6 +26,7 @@ import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.memo.ui.tag.failedTagPagingData
 import io.github.taetae98coding.diary.feature.memo.ui.tag.refreshingTagPagingData
 import io.github.taetae98coding.diary.feature.memo.ui.tag.tagPagingDataOf
@@ -32,18 +34,25 @@ import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.time.Instant
+import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
 class MemoHomeFilterBottomSheetContentTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-MEMO-HOME-FEATURE-020 태그 필터에 전체 태그와 선택 여부를 표시한다`() {
@@ -118,7 +127,7 @@ class MemoHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-057 선택한 태그가 없으면 지우기를 실행할 수 없다`() {
+    fun `TC-MEMO-HOME-FEATURE-057 TC-MEMO-HOME-DOMAIN-024 보이는 선택한 태그가 없으면 지우기를 실행할 수 없다`() {
         val tag = tag(title = FIRST_TAG_TITLE)
         val eventList = mutableListOf<TagFilterEvent>()
         setBottomSheetContent(
@@ -148,9 +157,11 @@ class MemoHomeFilterBottomSheetContentTest {
         )
 
         composeRule.onNodeWithText(TAG_INACTIVE_DESCRIPTION).assertExists()
+        composeRule.onNodeWithText(FIRST_TAG_TITLE).assertIsNotEnabled()
         composeRule.onNodeWithText(SECOND_TAG_TITLE).assertIsNotEnabled()
         composeRule.onNodeWithContentDescription(UNSELECT_ALL_CONTENT_DESCRIPTION).assertIsNotEnabled()
 
+        composeRule.onNodeWithText(FIRST_TAG_TITLE).performClick()
         composeRule.onNodeWithText(SECOND_TAG_TITLE).performClick()
         composeRule.onNodeWithContentDescription(UNSELECT_ALL_CONTENT_DESCRIPTION).performClick()
 
@@ -338,6 +349,90 @@ class MemoHomeFilterBottomSheetContentTest {
             .fetchSemanticsNodes()
             .flatMap { node -> node.config[SemanticsProperties.Text].map { text -> text.text } }
 
+    @Test
+    fun `TC-MEMO-HOME-FEATURE-078 태그를 조회하지 못하면 오류 안내 없이 태그 추가 칩만 표시한다`() {
+        val tag = tag(title = FIRST_TAG_TITLE)
+        val tagPagingFlow = MutableStateFlow(tagPagingDataOf(listOf(tag)))
+        val failedTagPagingFlow = MutableStateFlow(failedTagPagingData())
+        var isFailed by mutableStateOf(false)
+        setSwitchingContent { if (isFailed) failedTagPagingFlow else tagPagingFlow }
+        composeRule.onNodeWithText(FIRST_TAG_TITLE).assertExists()
+        val textListWithTag = displayedTextList()
+
+        isFailed = true
+        composeRule.waitUntil(timeoutMillis = TAG_UPDATE_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(FIRST_TAG_TITLE).fetchSemanticsNodes().isEmpty()
+        }
+
+        displayedTextList() shouldBe textListWithTag - FIRST_TAG_TITLE
+        composeRule.onNodeWithText(ADD_LABEL).assertIsEnabled()
+    }
+
+    @Test
+    fun `TC-MEMO-HOME-FEATURE-079 태그의 이모지, 제목이나 컬러가 바뀌면 필터에 반영하고 선택 여부를 유지한다`() {
+        val selectedTag = tag(title = FIRST_TAG_TITLE)
+        val unselectedTag = tag(title = SECOND_TAG_TITLE)
+        val tagPagingFlow = MutableStateFlow(tagPagingDataOf(listOf(selectedTag, unselectedTag)))
+        val changedTagPagingFlow =
+            MutableStateFlow(
+                tagPagingDataOf(
+                    listOf(
+                        selectedTag.changed(title = CHANGED_FIRST_TAG_TITLE),
+                        unselectedTag.changed(title = CHANGED_SECOND_TAG_TITLE),
+                    ),
+                ),
+            )
+        var isChanged by mutableStateOf(false)
+        setSwitchingContent(selectedTagIdSet = setOf(selectedTag.id)) { if (isChanged) changedTagPagingFlow else tagPagingFlow }
+        composeRule.onNodeWithText(FIRST_TAG_TITLE).assertIsSelected()
+
+        isChanged = true
+        composeRule.waitUntil(timeoutMillis = TAG_UPDATE_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText("$TAG_EMOJI $CHANGED_FIRST_TAG_TITLE").fetchSemanticsNodes().isNotEmpty()
+        }
+
+        composeRule.onNodeWithText("$TAG_EMOJI $CHANGED_FIRST_TAG_TITLE").assertIsSelected()
+        composeRule.onNodeWithText("$TAG_EMOJI $CHANGED_SECOND_TAG_TITLE").assertIsNotSelected()
+        composeRule.onAllNodesWithText(FIRST_TAG_TITLE).assertCountEquals(0)
+        composeRule.onAllNodesWithText(SECOND_TAG_TITLE).assertCountEquals(0)
+    }
+
+    @Test
+    fun `TC-MEMO-HOME-FEATURE-080 필터를 연 채로 태그가 추가되면 필터에 바로 나타난다`() {
+        val selectedTag = tag(title = FIRST_TAG_TITLE)
+        val addedTag = tag(title = SECOND_TAG_TITLE)
+        val tagPagingFlow = MutableStateFlow(tagPagingDataOf(listOf(selectedTag)))
+        val addedTagPagingFlow = MutableStateFlow(tagPagingDataOf(listOf(selectedTag, addedTag)))
+        var isAdded by mutableStateOf(false)
+        setSwitchingContent(selectedTagIdSet = setOf(selectedTag.id)) { if (isAdded) addedTagPagingFlow else tagPagingFlow }
+        composeRule.onNodeWithText(FIRST_TAG_TITLE).assertIsSelected()
+
+        isAdded = true
+        composeRule.waitUntil(timeoutMillis = TAG_UPDATE_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(SECOND_TAG_TITLE).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        composeRule.onNodeWithText(SECOND_TAG_TITLE).assertIsNotSelected()
+        composeRule.onNodeWithText(FIRST_TAG_TITLE).assertIsSelected()
+    }
+
+    // 필터를 연 채로 조회 결과가 바뀌는 것을 재현하려고, 화면에 넘기는 태그 흐름을 테스트가 바꾼다.
+    private fun setSwitchingContent(
+        selectedTagIdSet: Set<Uuid> = emptySet(),
+        tagPagingFlowProvider: () -> MutableStateFlow<PagingData<Tag>>,
+    ) {
+        composeRule.setContent {
+            DiaryTheme {
+                MemoHomeFilterBottomSheetContent(
+                    tagPagingItems = tagPagingFlowProvider().collectAsLazyPagingItems(),
+                    uiStateProvider = { MemoHomeFilterUiState(selectedTagIdSet = selectedTagIdSet) },
+                    onEvent = {},
+                    onTagFilterEvent = {},
+                )
+            }
+        }
+    }
+
     private fun setBottomSheetContent(
         tagList: List<Tag> = emptyList(),
         uiState: MemoHomeFilterUiState = MemoHomeFilterUiState(),
@@ -359,6 +454,8 @@ class MemoHomeFilterBottomSheetContentTest {
 
     companion object {
         private const val FIRST_TAG_TITLE = "MemoFilterAlpha"
+        private const val CHANGED_FIRST_TAG_TITLE = "ChangedFilterAlpha"
+        private const val CHANGED_SECOND_TAG_TITLE = "ChangedFilterBravo"
         private const val SECOND_TAG_TITLE = "MemoFilterBravo"
         private const val TAG_EMOJI = "🏃"
         private const val DATE_LABEL = "Date"
@@ -384,8 +481,10 @@ class MemoHomeFilterBottomSheetContentTest {
                 .setExp(Tag::detail, fixtureMonkey.giveMeOne<TagDetail>().copy(emoji = emoji, title = title))
                 .setExp(Tag::isFinished, false)
                 .setExp(Tag::isDeleted, false)
-                .setExp(Tag::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Tag::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
+
+        private fun Tag.changed(title: String): Tag = copy(detail = detail.copy(emoji = TAG_EMOJI, title = title, color = detail.color.inv()))
     }
 }

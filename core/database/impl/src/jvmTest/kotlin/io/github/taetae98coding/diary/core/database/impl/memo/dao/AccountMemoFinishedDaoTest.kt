@@ -20,10 +20,12 @@ import io.github.taetae98coding.diary.core.database.impl.memotag.entity.AccountM
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.withTimeout
 import kotlinx.datetime.LocalDateTime
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -80,6 +82,22 @@ class AccountMemoFinishedDaoTest :
 
         suspend fun finishedIds(accountId: Uuid): List<Uuid> = database.accountMemoDao().pageFinished(accountId = accountId, sort = ListSortLocalEntity.DEFAULT.queryValue).pagedIds()
 
+        // 목록 화면은 열어 둔 조회가 무효화되면 스스로 다시 조회하므로, 새로 요청하지 않아도 반영된다는 것을 무효화로 확인한다.
+        suspend fun assertOpenedPageInvalidated(
+            accountId: Uuid,
+            change: suspend () -> Unit,
+        ) {
+            val pagingSource = database.accountMemoDao().pageFinished(accountId = accountId, sort = ListSortLocalEntity.DEFAULT.queryValue)
+            pagingSource.pagedIds()
+            val invalidated = CompletableDeferred<Unit>()
+            pagingSource.registerInvalidatedCallback { invalidated.complete(Unit) }
+
+            change()
+
+            withTimeout(INVALIDATION_TIMEOUT_MILLIS) { invalidated.await() }
+            pagingSource.invalid.shouldBeTrue()
+        }
+
         suspend fun insertTag(
             accountId: Uuid,
             vararg tagList: TagLocalEntity,
@@ -109,8 +127,8 @@ class AccountMemoFinishedDaoTest :
                         memoId = memoId,
                         tagId = tagId,
                         isDeleted = false,
-                        updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
-                        createdAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                        updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+                        createdAt = fixtureMonkey.giveMeOne<Instant>(),
                     ),
                 )
                 database.accountMemoTagDao().upsert(
@@ -158,7 +176,7 @@ class AccountMemoFinishedDaoTest :
             finishedIds(accountId) shouldContainExactlyInAnyOrder listOf(taggedMemo.id, noTagMemo.id)
         }
 
-        test("TC-MEMO-FINISHED-LIST-DATA-003 목록은 기간, 시작 시점, 종료 시점, 제목 순으로 정렬해 조회한다") {
+        test("TC-MEMO-FINISHED-LIST-DATA-003 목록은 기간, 종일 여부, 시작 시점, 종료 시점, 제목 순으로 정렬해 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val noDateTimeBravoMemo = memo(isFinished = true, detail = detail(title = "Bravo", isAllDay = null, start = null, endInclusive = null))
             val noDateTimeAlphaMemo = memo(isFinished = true, detail = detail(title = "Alpha", isAllDay = null, start = null, endInclusive = null))
@@ -217,9 +235,33 @@ class AccountMemoFinishedDaoTest :
                             endInclusive = LocalDateTime(year = 2026, month = 7, day = 20, hour = 0, minute = 0),
                         ),
                 )
+            val multiDayAllDayMemo =
+                memo(
+                    isFinished = true,
+                    detail =
+                        detail(
+                            title = "Alpha",
+                            isAllDay = true,
+                            start = LocalDateTime(year = 2026, month = 7, day = 19, hour = 0, minute = 0),
+                            endInclusive = LocalDateTime(year = 2026, month = 7, day = 21, hour = 0, minute = 0),
+                        ),
+                )
+            val midnightMemo =
+                memo(
+                    isFinished = true,
+                    detail =
+                        detail(
+                            title = "Alpha",
+                            isAllDay = false,
+                            start = LocalDateTime(year = 2026, month = 7, day = 19, hour = 0, minute = 0),
+                            endInclusive = LocalDateTime(year = 2026, month = 7, day = 19, hour = 1, minute = 0),
+                        ),
+                )
             insert(
                 accountId,
                 nextDayMemo,
+                midnightMemo,
+                multiDayAllDayMemo,
                 sameDayLateEndMemo,
                 sameDayEarlyEndBravoMemo,
                 sameDayEarlyEndAlphaMemo,
@@ -233,6 +275,8 @@ class AccountMemoFinishedDaoTest :
                     noDateTimeAlphaMemo.id,
                     noDateTimeBravoMemo.id,
                     allDayMemo.id,
+                    multiDayAllDayMemo.id,
+                    midnightMemo.id,
                     sameDayEarlyEndAlphaMemo.id,
                     sameDayEarlyEndBravoMemo.id,
                     sameDayLateEndMemo.id,
@@ -294,36 +338,58 @@ class AccountMemoFinishedDaoTest :
             finishedIds(accountId) shouldBe listOf(earlyStartMemo.id, lateStartMemo.id)
         }
 
-        test("TC-MEMO-FINISHED-LIST-DATA-004 상태와 기간 변경이 완료된 메모 목록 조회 결과에 반영된다") {
+        test("TC-MEMO-FINISHED-LIST-DATA-004 상태와 기간 변경이 열어 둔 완료된 메모 목록에 반영된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val finishedMemo = memo(isFinished = true)
-            val activeMemo = memo(isFinished = false)
-            insert(accountId, finishedMemo, activeMemo)
-            finishedIds(accountId) shouldBe listOf(finishedMemo.id)
+            val firstMemo = sortMemo(title = "Alpha", updatedAt = 1_000, startDay = 19)
+            val secondMemo = sortMemo(title = "Bravo", updatedAt = 1_000, startDay = 21)
+            val activeMemo = sortMemo(title = "Charlie", updatedAt = 1_000, startDay = 20).copy(isFinished = false)
+            insert(accountId, firstMemo, secondMemo, activeMemo)
+            finishedIds(accountId) shouldBe listOf(firstMemo.id, secondMemo.id)
 
-            database.accountMemoDao().updateFinished(
-                accountId = accountId,
-                memoId = finishedMemo.id,
-                isFinished = false,
-                updatedAt = Instant.fromEpochMilliseconds(2_000),
-            ) shouldBe 1
-            finishedIds(accountId).shouldBeEmpty()
+            assertOpenedPageInvalidated(accountId) {
+                database.accountMemoDao().updateFinished(
+                    accountId = accountId,
+                    memoId = activeMemo.id,
+                    isFinished = true,
+                    updatedAt = Instant.fromEpochMilliseconds(2_000),
+                ) shouldBe 1
+            }
+            finishedIds(accountId) shouldBe listOf(firstMemo.id, activeMemo.id, secondMemo.id)
 
-            database.accountMemoDao().updateFinished(
-                accountId = accountId,
-                memoId = activeMemo.id,
-                isFinished = true,
-                updatedAt = Instant.fromEpochMilliseconds(3_000),
-            ) shouldBe 1
-            finishedIds(accountId) shouldBe listOf(activeMemo.id)
+            assertOpenedPageInvalidated(accountId) {
+                database.accountMemoDao().updateDetail(
+                    accountId = accountId,
+                    memoId = secondMemo.id,
+                    title = secondMemo.detail.title,
+                    description = secondMemo.detail.description,
+                    color = secondMemo.detail.color,
+                    isAllDay = true,
+                    start = LocalDateTime(year = 2026, month = 7, day = 18, hour = 0, minute = 0),
+                    endInclusive = LocalDateTime(year = 2026, month = 7, day = 18, hour = 0, minute = 0),
+                    updatedAt = Instant.fromEpochMilliseconds(3_000),
+                ) shouldBe 1
+            }
+            finishedIds(accountId) shouldBe listOf(secondMemo.id, firstMemo.id, activeMemo.id)
 
-            database.accountMemoDao().updateDeleted(
-                accountId = accountId,
-                memoId = activeMemo.id,
-                isDeleted = true,
-                updatedAt = Instant.fromEpochMilliseconds(4_000),
-            ) shouldBe 1
-            finishedIds(accountId).shouldBeEmpty()
+            assertOpenedPageInvalidated(accountId) {
+                database.accountMemoDao().updateFinished(
+                    accountId = accountId,
+                    memoId = firstMemo.id,
+                    isFinished = false,
+                    updatedAt = Instant.fromEpochMilliseconds(4_000),
+                ) shouldBe 1
+            }
+            finishedIds(accountId) shouldBe listOf(secondMemo.id, activeMemo.id)
+
+            assertOpenedPageInvalidated(accountId) {
+                database.accountMemoDao().updateDeleted(
+                    accountId = accountId,
+                    memoId = activeMemo.id,
+                    isDeleted = true,
+                    updatedAt = Instant.fromEpochMilliseconds(5_000),
+                ) shouldBe 1
+            }
+            finishedIds(accountId) shouldBe listOf(secondMemo.id)
         }
 
         test("TC-MEMO-FINISHED-LIST-DATA-006 상태 변경은 현재 계정과 연결된 메모에만 적용된다") {
@@ -378,11 +444,13 @@ class AccountMemoFinishedDaoTest :
         }
     }) {
     public companion object {
+        private const val INVALIDATION_TIMEOUT_MILLIS = 5_000L
+
         private fun memo(
             id: Uuid = fixtureMonkey.giveMeOne<Uuid>(),
             isFinished: Boolean = false,
             isDeleted: Boolean = false,
-            updatedAt: Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+            updatedAt: Instant = fixtureMonkey.giveMeOne<Instant>(),
             detail: MemoDetailLocalEntity = fixtureMonkey.giveMeOne<MemoDetailLocalEntity>(),
         ): MemoLocalEntity =
             fixtureMonkey
@@ -392,7 +460,7 @@ class AccountMemoFinishedDaoTest :
                 .setExp(MemoLocalEntity::isFinished, isFinished)
                 .setExp(MemoLocalEntity::isDeleted, isDeleted)
                 .setExp(MemoLocalEntity::updatedAt, updatedAt)
-                .setExp(MemoLocalEntity::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(MemoLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
 
         private fun sortMemo(
@@ -419,8 +487,8 @@ class AccountMemoFinishedDaoTest :
                 .setExp(TagLocalEntity::detail, fixtureMonkey.giveMeOne<TagDetailLocalEntity>())
                 .setExp(TagLocalEntity::isFinished, false)
                 .setExp(TagLocalEntity::isDeleted, false)
-                .setExp(TagLocalEntity::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(TagLocalEntity::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(TagLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(TagLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
 
         private fun detail(

@@ -53,7 +53,7 @@
     <string name="setting_download_title">다운로드 설정</string>
     <string name="setting_download_this_device_address_label">이 기기의 프록시 주소</string>
     <string name="setting_download_this_device_address_description">같은 네트워크의 Android나 iOS 앱에서 이 주소를 입력하면 이 기기가 대신 영상을 받아 전달합니다</string>
-    <string name="setting_download_no_address_message">연결된 네트워크가 없어 다른 기기가 닿을 주소가 없습니다</string>
+    <string name="setting_download_no_address_message">같은 네트워크의 다른 기기가 닿을 주소가 없습니다</string>
     <string name="setting_download_unavailable_message">프록시를 시작하지 못했습니다. 앱을 다시 실행해 주세요</string>
     <string name="setting_download_proxy_address_label">프록시 주소</string>
     <string name="setting_download_proxy_address_placeholder">http://192.168.0.10:54321</string>

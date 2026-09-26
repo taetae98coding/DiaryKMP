@@ -21,18 +21,20 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.height
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.Place
-import io.github.taetae98coding.diary.core.model.place.PlaceDetail
+import io.github.taetae98coding.diary.core.testing.place.coordinateInFormPrecision
+import io.github.taetae98coding.diary.core.testing.place.place
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 private const val SCROLL_PLACE_TITLE_PREFIX: String = "MemoPlaceScroll"
@@ -62,25 +64,15 @@ internal const val KOREAN_PLACE_PICKER_SEARCH_EMPTY_DESCRIPTION: String = "다�
 internal const val NAVER_PROVIDER_NAME: String = "Naver"
 internal const val GOOGLE_PROVIDER_NAME: String = "Google"
 
+private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
+
 internal fun testPlace(
     title: String,
-    latitude: Double = 37.5666102,
-    longitude: Double = 126.9783881,
+    coordinate: Coordinate = fixtureMonkey.coordinateInFormPrecision(),
 ): Place =
-    Place(
-        id = Uuid.random(),
-        detail =
-            PlaceDetail(
-                title = title,
-                description = "",
-                color = 0xFF3A7BD5,
-                coordinate = Coordinate(latitude = latitude, longitude = longitude),
-                address = "",
-            ),
-        isDeleted = false,
-        updatedAt = Instant.DISTANT_PAST,
-        createdAt = Instant.DISTANT_PAST,
-    )
+    fixtureMonkey.place(isDeleted = false).let { place ->
+        place.copy(detail = place.detail.copy(title = title, coordinate = coordinate))
+    }
 
 /**
  * 칩이 칩 영역 높이를 넘겨 여러 줄이 되도록 충분히 많은 장소를 만든다.
@@ -98,6 +90,7 @@ internal fun screenTestPlaceViewModel(
     val viewModel = mockk<MemoPlaceViewModel>(relaxed = true)
     every { viewModel.uiState } returns uiState
     every { viewModel.placePagingData } returns placePagingData
+    every { viewModel.selectablePlacePagingData } returns placePagingData
 
     return viewModel
 }

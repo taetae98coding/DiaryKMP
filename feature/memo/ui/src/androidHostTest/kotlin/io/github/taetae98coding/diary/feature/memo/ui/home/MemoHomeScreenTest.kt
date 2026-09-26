@@ -23,6 +23,7 @@ import io.github.taetae98coding.diary.compose.memo.list.MemoListUiState
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
+import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -32,6 +33,7 @@ import io.mockk.verify
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,15 +48,21 @@ class MemoHomeScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
 
+    @Before
+    fun resetUiDispatcher() {
+        resetAndroidUiDispatcher()
+    }
+
     @Test
     fun `TC-MEMO-HOME-FEATURE-003 좌에서 우로 스와이프하면 메모가 완료되어 목록에서 사라진다`() {
         val environment = screenTestEnvironment()
         setMemoHomeScreen(environment.viewModel)
 
         composeRule.onNodeWithText(MEMO_TITLE).performTouchInput { swipeRight() }
-        composeRule.waitForIdle()
+        waitUntilMemoIsShown(isShown = false)
 
         verify(exactly = 1) { environment.viewModel.finish(id = environment.memo.id) }
+        composeRule.onNodeWithText(MEMO_TITLE).assertDoesNotExist()
         composeRule.onNodeWithText(DEFAULT_FINISHED_MESSAGE).assertExists()
         composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).assertExists()
     }
@@ -78,11 +86,12 @@ class MemoHomeScreenTest {
         setMemoHomeScreen(environment.viewModel)
 
         composeRule.onNodeWithText(MEMO_TITLE).performTouchInput { swipeRight() }
-        composeRule.waitForIdle()
+        waitUntilMemoIsShown(isShown = false)
         composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).performClick()
-        composeRule.waitForIdle()
+        waitUntilMemoIsShown(isShown = true)
 
         verify(exactly = 1) { environment.viewModel.restart(id = environment.memo.id) }
+        composeRule.onNodeWithText(MEMO_TITLE).assertExists()
     }
 
     @Test
@@ -91,9 +100,10 @@ class MemoHomeScreenTest {
         setMemoHomeScreen(environment.viewModel)
 
         composeRule.onNodeWithText(MEMO_TITLE).performTouchInput { swipeLeft() }
-        composeRule.waitForIdle()
+        waitUntilMemoIsShown(isShown = false)
 
         verify(exactly = 1) { environment.viewModel.delete(id = environment.memo.id) }
+        composeRule.onNodeWithText(MEMO_TITLE).assertDoesNotExist()
         composeRule.onNodeWithText(DEFAULT_DELETED_MESSAGE).assertExists()
         composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).assertExists()
     }
@@ -117,11 +127,12 @@ class MemoHomeScreenTest {
         setMemoHomeScreen(environment.viewModel)
 
         composeRule.onNodeWithText(MEMO_TITLE).performTouchInput { swipeLeft() }
-        composeRule.waitForIdle()
+        waitUntilMemoIsShown(isShown = false)
         composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).performClick()
-        composeRule.waitForIdle()
+        waitUntilMemoIsShown(isShown = true)
 
         verify(exactly = 1) { environment.viewModel.restore(id = environment.memo.id) }
+        composeRule.onNodeWithText(MEMO_TITLE).assertExists()
     }
 
     @Test
@@ -194,6 +205,21 @@ class MemoHomeScreenTest {
     }
 
     @Test
+    fun `TC-MEMO-HOME-FEATURE-077 메모를 선택하면 그 메모의 상세 화면으로 한 번 이동한다`() {
+        val environment = screenTestEnvironment()
+        val detailIdList = mutableListOf<Uuid>()
+        setMemoHomeScreen(
+            viewModel = environment.viewModel,
+            navigateToDetail = detailIdList::add,
+        )
+
+        composeRule.onNodeWithText(MEMO_TITLE).performClick()
+        composeRule.waitForIdle()
+
+        detailIdList shouldBe listOf(environment.memo.id)
+    }
+
+    @Test
     fun `TC-MEMO-HOME-FEATURE-047 검색 버튼을 선택하면 검색 화면으로 이동한다`() {
         val environment = screenTestEnvironment()
         var navigateToSearchCount = 0
@@ -246,6 +272,12 @@ class MemoHomeScreenTest {
         navigateToAddCount shouldBe 0
     }
 
+    private fun waitUntilMemoIsShown(isShown: Boolean) {
+        composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(MEMO_TITLE).fetchSemanticsNodes().isNotEmpty() == isShown
+        }
+    }
+
     private fun performAddShortcut() {
         composeRule.onRoot().performKeyInput {
             keyDown(Key.MetaLeft)
@@ -259,6 +291,7 @@ class MemoHomeScreenTest {
     private fun setMemoHomeScreen(
         viewModel: MemoHomeViewModel,
         navigateToAdd: () -> Unit = {},
+        navigateToDetail: (Uuid) -> Unit = {},
         navigateToFilter: () -> Unit = {},
         navigateToFinishedList: () -> Unit = {},
         navigateToSearch: () -> Unit = {},
@@ -268,7 +301,7 @@ class MemoHomeScreenTest {
             DiaryTheme {
                 MemoHomeScreen(
                     navigateToAdd = navigateToAdd,
-                    navigateToDetail = {},
+                    navigateToDetail = navigateToDetail,
                     navigateToFilter = navigateToFilter,
                     navigateToFinishedList = navigateToFinishedList,
                     navigateToSearch = navigateToSearch,
@@ -306,8 +339,8 @@ class MemoHomeScreenTest {
                 fixtureMonkey
                     .giveMeKotlinBuilder<Memo>()
                     .setExp(Memo::detail, fixtureMonkey.giveMeOne<MemoDetail>().copy(title = MEMO_TITLE))
-                    .setExp(Memo::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                    .setExp(Memo::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                    .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                    .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
                     .sample()
             val pagingFlow =
                 MutableStateFlow(
@@ -322,14 +355,21 @@ class MemoHomeScreenTest {
             every { viewModel.memoPagingData } returns pagingFlow
             every { viewModel.filterUiState } returns MutableStateFlow(MemoHomeScaffoldFilterUiState())
             every { viewModel.effect } returns effectChannel.receiveAsFlow()
+            // 저장된 상태 변경이 목록 조회 결과에 반영되는 것을 대신해, 동작마다 목록에 그 메모가 있는지를 바꾼다.
             every { viewModel.finish(id = memo.id) } answers {
+                pagingFlow.value = memoPagingDataOf(itemList = emptyList())
                 effectChannel.trySend(MemoListEffect.Finished(id = memo.id)).getOrThrow()
             }
             every { viewModel.delete(id = memo.id) } answers {
+                pagingFlow.value = memoPagingDataOf(itemList = emptyList())
                 effectChannel.trySend(MemoListEffect.Deleted(id = memo.id)).getOrThrow()
             }
-            justRun { viewModel.restart(id = memo.id) }
-            justRun { viewModel.restore(id = memo.id) }
+            every { viewModel.restart(id = memo.id) } answers {
+                pagingFlow.value = memoPagingDataOf(itemList = listOf(MemoListItem.Content(memo = memo)))
+            }
+            every { viewModel.restore(id = memo.id) } answers {
+                pagingFlow.value = memoPagingDataOf(itemList = listOf(MemoListItem.Content(memo = memo)))
+            }
 
             return ScreenTestEnvironment(
                 memo = memo,

@@ -122,6 +122,18 @@ class AccountPlaceTagLocalDataSourceImplTest :
             )
         }
 
+        fun addedPlaceTag(
+            placeId: Uuid,
+            tagId: Uuid,
+        ): PlaceTagLocalEntity =
+            PlaceTagLocalEntity(
+                placeId = placeId,
+                tagId = tagId,
+                isDeleted = false,
+                updatedAt = instant(),
+                createdAt = instant(),
+            )
+
         suspend fun linkedTagList(
             accountId: Uuid,
             placeId: Uuid,
@@ -212,15 +224,19 @@ class AccountPlaceTagLocalDataSourceImplTest :
             linkedTagList(accountId = accountId, placeId = place.id).shouldBeEmpty()
         }
 
-        test("TC-PLACE-TAG-DOMAIN-005 연결은 장소와 태그의 내용을 바꾸지 않는다") {
+        test("TC-PLACE-TAG-DOMAIN-005 연결하거나 해제해도 장소와 태그의 내용은 바뀌지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place()
-            val tag = tag()
+            val baseTag = tag()
+            val tag = baseTag.copy(detail = baseTag.detail.copy(color = place.detail.color.inv()))
             insertPlace(accountId, place)
             insertTag(accountId, tag)
 
             link(accountId = accountId, placeId = place.id, tagId = tag.id)
+            database.accountPlaceDao().find(accountId = accountId, placeId = place.id).first() shouldBe place
+            database.accountTagDao().find(accountId = accountId, tagId = tag.id).first() shouldBe tag
 
+            unlink(accountId = accountId, placeId = place.id, tagId = tag.id)
             database.accountPlaceDao().find(accountId = accountId, placeId = place.id).first() shouldBe place
             database.accountTagDao().find(accountId = accountId, tagId = tag.id).first() shouldBe tag
         }
@@ -543,6 +559,30 @@ class AccountPlaceTagLocalDataSourceImplTest :
             selectableTagIdList(accountId = accountId, placeId = place.id, query = "업무").shouldBeEmpty()
         }
 
+        test("TC-PLACE-ADD-DATA-010 고른 뒤 완료된 태그는 추가한 장소와 연결되어 연결된 태그로 조회된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val place = place()
+            val finishedTag = tag().copy(isFinished = true)
+            insertTag(accountId, finishedTag)
+
+            placeTransaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = listOf(addedPlaceTag(placeId = place.id, tagId = finishedTag.id)))
+
+            linkedTagIdList(accountId = accountId, placeId = place.id) shouldBe listOf(finishedTag.id)
+        }
+
+        test("TC-PLACE-ADD-DATA-010 고른 뒤 삭제된 태그도 추가한 장소와 연결되어 삭제를 되돌리면 연결된 태그로 조회된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val place = place()
+            val deletedTag = tag().copy(isDeleted = true)
+            insertTag(accountId, deletedTag)
+
+            placeTransaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = listOf(addedPlaceTag(placeId = place.id, tagId = deletedTag.id)))
+
+            linkedTagIdList(accountId = accountId, placeId = place.id).shouldBeEmpty()
+            insertTag(accountId, deletedTag.copy(isDeleted = false))
+            linkedTagIdList(accountId = accountId, placeId = place.id) shouldBe listOf(deletedTag.id)
+        }
+
         test("TC-PLACE-TAG-DATA-001 TC-PLACE-ADD-DATA-009 TC-PLACE-ADD-DATA-011 장소 추가와 태그 연결이 하나의 저장 작업으로 반영된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place()
@@ -786,7 +826,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
             longitude: Double,
         ): PlaceLocalEntity = copy(detail = detail.copy(latitude = latitude, longitude = longitude))
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun tag(title: String = "title-${fixtureMonkey.giveMeOne<String>()}"): TagLocalEntity =
             fixtureMonkey

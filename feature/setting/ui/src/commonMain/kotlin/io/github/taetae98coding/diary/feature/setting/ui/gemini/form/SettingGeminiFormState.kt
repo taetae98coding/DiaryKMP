@@ -13,7 +13,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.focus.FocusRequester
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
-import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
 
 @Stable
@@ -70,7 +69,7 @@ internal fun rememberSettingGeminiFormState(initialSetting: GeminiSetting = Gemi
     val systemPromptState = rememberTextFieldState(initialText = initialSetting.systemPrompt)
     val systemPromptFocusRequester = remember { FocusRequester() }
     val hostState = remember { SnackbarHostState() }
-    val modelDialogState = rememberDialogState()
+    val modelDialogState = remember { DialogState() }
 
     return rememberSaveable(
         apiKeyState,

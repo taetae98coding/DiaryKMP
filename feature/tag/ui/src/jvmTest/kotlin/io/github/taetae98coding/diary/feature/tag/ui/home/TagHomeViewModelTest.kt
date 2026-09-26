@@ -2,6 +2,7 @@
 
 package io.github.taetae98coding.diary.feature.tag.ui.home
 
+import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
@@ -28,6 +29,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
@@ -58,10 +60,33 @@ class TagHomeViewModelTest : FunSpec() {
 
         test("TC-TAG-HOME-DATA-005 조회한 태그 페이지를 그대로 노출한다") {
             runTest(mainDispatcher) {
-                val tagList = listOf(tag(title = "Alpha"), tag(title = "Bravo"))
+                val tagList = listOf(tag(title = fixtureMonkey.giveMeOne()), tag(title = fixtureMonkey.giveMeOne()))
                 val viewModel = viewModel(pageTagHomeUseCase = pageTagHomeUseCase(tagListFlow = flowOf(Result.success(tagList))))
 
                 flowOf(viewModel.tagPagingData.first()).asSnapshot() shouldBe tagList
+            }
+        }
+
+        test("TC-TAG-HOME-FEATURE-038 태그 페이지 조회가 성공한 뒤 실패하면 마지막으로 불러온 태그를 그대로 노출한다") {
+            runTest(mainDispatcher) {
+                val tagList = listOf(tag(title = fixtureMonkey.giveMeOne()), tag(title = fixtureMonkey.giveMeOne()))
+                val viewModel =
+                    viewModel(
+                        pageTagHomeUseCase =
+                            pageTagHomeUseCase(
+                                tagListFlow = flowOf(Result.success(tagList), Result.failure(IllegalStateException())),
+                            ),
+                    )
+
+                viewModel.tagPagingData.test {
+                    advanceUntilIdle()
+                    val itemList = flowOf(awaitItem()).asSnapshot()
+                    expectNoEvents()
+
+                    itemList shouldBe tagList
+                }
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
             }
         }
 
@@ -280,8 +305,8 @@ class TagHomeViewModelTest : FunSpec() {
                 .setExp(Tag::detail, fixtureMonkey.giveMeOne<TagDetail>().copy(title = title))
                 .setExp(Tag::isFinished, false)
                 .setExp(Tag::isDeleted, false)
-                .setExp(Tag::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Tag::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

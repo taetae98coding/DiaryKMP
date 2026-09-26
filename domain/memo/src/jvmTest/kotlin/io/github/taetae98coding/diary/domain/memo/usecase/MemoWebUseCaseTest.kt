@@ -28,7 +28,7 @@ class MemoWebUseCaseTest :
     BehaviorSpec({
         Given("로그인한 계정과 현재 시각이 준비되어 있다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val getAccountUseCase = accountUseCase(account = account)
             val accountMemoWebRepository = mockk<AccountMemoWebRepository>(relaxed = true)
             val requestSyncUseCase = mockk<RequestSyncUseCase>(relaxed = true)
@@ -114,7 +114,7 @@ class MemoWebUseCaseTest :
 
         Given("동기화 요청이 실패하도록 준비되어 있다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val getAccountUseCase = accountUseCase(account = account)
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
@@ -260,8 +260,8 @@ class MemoWebUseCaseTest :
         private fun web(): Web =
             fixtureMonkey
                 .giveMeKotlinBuilder<Web>()
-                .setExp(Web::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Web::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Web::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Web::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
 
         private fun accountUseCase(account: Account = fixtureMonkey.giveMeOne<Account.User>()): GetAccountUseCase {

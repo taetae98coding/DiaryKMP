@@ -308,8 +308,8 @@ class SyncWorkTagLinkTest :
             fixtureMonkey
                 .giveMeKotlinBuilder<TagLinkLocalEntity>()
                 .setExp(TagLinkLocalEntity::isDeleted, isDeleted)
-                .setExp(TagLinkLocalEntity::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(TagLinkLocalEntity::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(TagLinkLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(TagLinkLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

@@ -104,6 +104,34 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-MEMO-DETAIL-FEATURE-090 내용을 표시한 뒤 조회가 잠시 끊기면 로딩 상태가 되었다가 다시 내용으로 돌아온다") {
+            runTest(mainDispatcher) {
+                listOf<Result<Memo?>>(
+                    Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())),
+                    Result.success(null),
+                ).forEach { brokenResult ->
+                    val memo = memo()
+                    val resultFlow = MutableSharedFlow<Result<Memo?>>(replay = 1)
+                    val findMemoUseCase = mockk<FindMemoUseCase>()
+                    every { findMemoUseCase(any()) } returns resultFlow
+                    val viewModel = viewModel(findMemoUseCase = findMemoUseCase)
+
+                    viewModel.uiState.test {
+                        awaitItem() shouldBe MemoDetailUiState.Loading
+                        resultFlow.emit(Result.success(memo))
+                        awaitItem().shouldBeInstanceOf<MemoDetailUiState.Content>().id shouldBe memo.id
+
+                        resultFlow.emit(brokenResult)
+                        awaitItem() shouldBe MemoDetailUiState.Loading
+
+                        resultFlow.emit(Result.success(memo))
+                        awaitItem().shouldBeInstanceOf<MemoDetailUiState.Content>().detail shouldBe memo.detail
+                        cancelAndIgnoreRemainingEvents()
+                    }
+                }
+            }
+        }
+
         test("TC-MEMO-DETAIL-FEATURE-001 조회한 메모의 제목, 설명, 컬러를 상태에 채우고 후속 변경도 반영한다") {
             runTest(mainDispatcher) {
                 val memo = memo()
@@ -821,8 +849,8 @@ class MemoDetailViewModelTest : FunSpec() {
         private fun memo(): Memo =
             fixtureMonkey
                 .giveMeKotlinBuilder<Memo>()
-                .setExp(Memo::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Memo::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
 
         private fun emptyFindMemoUseCase(): FindMemoUseCase {

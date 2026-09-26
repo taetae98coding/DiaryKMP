@@ -251,7 +251,7 @@ class AccountTagDaoTopLevelFilterTest :
             topLevelTagIdList(accountId = accountId) shouldBe listOf(toTag.id)
         }
 
-        test("TC-TAG-HOME-DATA-012 필터 선택을 켜 두어도 검색, 메모·태그 연결·항목의 태그 선택 목록과 태그 필터의 선택할 수 있는 태그는 좁혀지지 않는다") {
+        test("TC-TAG-HOME-DATA-012 필터 선택을 켜 두어도 검색, 메모·태그 연결·웹 항목·장소의 태그 선택 목록과 태그 필터의 선택할 수 있는 태그는 좁혀지지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val fromTag = tag(title = "alpha")
             val toTag = tag(title = "bravo")
@@ -274,6 +274,14 @@ class AccountTagDaoTopLevelFilterTest :
                 .accountTagLinkDao()
                 .pageSelectableTag(accountId = accountId, fromTagId = fromTag.id, query = "")
                 .pagedTagIdList() shouldBe listOf(toTag.id)
+            database
+                .accountWebTagDao()
+                .pageSelectableTag(accountId = accountId, webId = fixtureMonkey.giveMeOne<Uuid>(), query = "")
+                .pagedTagIdList() shouldBe listOf(fromTag.id, toTag.id)
+            database
+                .accountPlaceTagDao()
+                .pageSelectableTag(accountId = accountId, placeId = fixtureMonkey.giveMeOne<Uuid>(), query = "")
+                .pagedTagIdList() shouldBe listOf(fromTag.id, toTag.id)
             database
                 .accountTagDao()
                 .page(accountId = accountId, query = "bravo", sort = ListSortLocalEntity.DEFAULT.queryValue)
@@ -322,7 +330,7 @@ class AccountTagDaoTopLevelFilterTest :
                 .data
                 .map { tag -> tag.id }
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun tag(title: String): TagLocalEntity =
             fixtureMonkey

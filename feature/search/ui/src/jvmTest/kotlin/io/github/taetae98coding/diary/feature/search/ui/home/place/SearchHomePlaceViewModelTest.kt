@@ -92,12 +92,16 @@ class SearchHomePlaceViewModelTest : FunSpec() {
     }
 
     public companion object {
-        private fun viewModel(searchPlaceUseCase: SearchPlaceUseCase): SearchHomePlaceViewModel =
+        // 화면은 유형 결과가 나타나면 지금 질의를 먼저 알리므로, 기본으로 진입할 때의 빈 질의를 알린 상태로 만든다.
+        private fun viewModel(
+            searchPlaceUseCase: SearchPlaceUseCase,
+            isQueryShown: Boolean = true,
+        ): SearchHomePlaceViewModel =
             SearchHomePlaceViewModel(
                 searchPlaceUseCase = searchPlaceUseCase,
                 deletePlaceUseCase = mockk(),
                 restorePlaceUseCase = mockk(),
-            )
+            ).also { viewModel -> if (isQueryShown) viewModel.showQuery("") }
 
         private fun searchPlaceUseCase(flow: Flow<Result<PagingData<Place>>>): SearchPlaceUseCase =
             mockk<SearchPlaceUseCase>().apply {

@@ -176,6 +176,55 @@ class HolidayCountryApplyUseCaseTest :
             }
         }
 
+        Given("TC-HOLIDAY-COUNTRY-DOMAIN-004 적용 국가가 한국과 미국이고 두 국가에 같은 이름의 공휴일이 있으며 그 이름을 숨겼다") {
+            val sharedName = "shared-${fixtureMonkey.giveMeOne<String>()}"
+            val koreaHoliday = holiday(name = sharedName, date = LocalDate(year = HOLIDAY_YEAR, month = 3, day = 1))
+            val unitedStatesHoliday = holiday(name = sharedName, date = LocalDate(year = HOLIDAY_YEAR, month = 7, day = 4))
+            val otherHoliday = holiday(name = "other")
+            val useCase =
+                GetCalendarHolidayUseCase(
+                    getHolidayCountrySettingUseCase = countrySettingUseCase(optionSet = BOTH_OPTION_SET),
+                    holidayRepository =
+                        holidayRepository(
+                            holidayMap =
+                                mapOf(
+                                    HolidayCountry.KOREA to listOf(koreaHoliday, otherHoliday),
+                                    HolidayCountry.UNITED_STATES to listOf(unitedStatesHoliday),
+                                ),
+                        ),
+                    holidaySettingRepository = hiddenKeySettingRepository(hiddenKeySet = setOf(sharedName)),
+                )
+
+            When("그 연도의 캘린더용 공휴일을 조회한다") {
+                Then("같은 이름의 두 국가 공휴일이 모두 빠지고 다른 이름의 공휴일만 제공된다") {
+                    useCase(parameter = HOLIDAY_YEAR).first().shouldBeSuccess() shouldBe listOf(otherHoliday)
+                }
+            }
+        }
+
+        Given("TC-HOLIDAY-COUNTRY-DOMAIN-005 적용 국가가 한국과 미국이고 두 국가에 같은 이름의 공휴일이 있다") {
+            val sharedName = "shared-${fixtureMonkey.giveMeOne<String>()}"
+            val useCase =
+                GetSettingHolidayUseCase(
+                    getHolidayCountrySettingUseCase = countrySettingUseCase(optionSet = BOTH_OPTION_SET),
+                    holidayRepository =
+                        holidayRepository(
+                            holidayMap =
+                                mapOf(
+                                    HolidayCountry.KOREA to listOf(holiday(name = sharedName, date = LocalDate(year = HOLIDAY_YEAR, month = 3, day = 1))),
+                                    HolidayCountry.UNITED_STATES to listOf(holiday(name = sharedName, date = LocalDate(year = HOLIDAY_YEAR, month = 7, day = 4))),
+                                ),
+                        ),
+                    holidaySettingRepository = hiddenKeySettingRepository(hiddenKeySet = emptySet()),
+                )
+
+            When("SettingHoliday에 표시할 공휴일 항목을 구성한다") {
+                Then("그 이름의 항목이 하나만 제공된다") {
+                    useCase(parameter = Unit).first().shouldBeSuccess().map { setting -> setting.name } shouldBe listOf(sharedName)
+                }
+            }
+        }
+
         Given("TC-SETTING-HOLIDAY-DOMAIN-012 한국과 미국 공휴일이 저장되어 있다") {
             val holidayMap = countryHolidayMap()
             val caseList =

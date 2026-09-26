@@ -56,7 +56,23 @@ class PlaceHomeMapViewModelTest : FunSpec() {
             }
         }
 
-        test("저장된 기본 지도를 초기 제공자로 제공한다") {
+        test("TC-PLACE-HOME-FEATURE-013 기본 지도가 바뀌면 바뀐 기본 지도를 제공한다") {
+            runTest(mainDispatcher) {
+                val providerFlow = MutableStateFlow(Result.success(MapProvider.NAVER))
+                val viewModel = viewModel(defaultMapProvider = providerFlow)
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe PlaceHomeUiState.Loading
+                    viewModel.fetchCurrentLocation()
+                    awaitItem() shouldBe PlaceHomeUiState.Loaded(defaultProvider = MapProvider.NAVER, initialCoordinate = null)
+
+                    providerFlow.value = Result.success(MapProvider.GOOGLE)
+                    awaitItem() shouldBe PlaceHomeUiState.Loaded(defaultProvider = MapProvider.GOOGLE, initialCoordinate = null)
+                }
+            }
+        }
+
+        test("TC-PLACE-HOME-FEATURE-012 저장된 기본 지도를 초기 제공자로 제공한다") {
             MapProvider.entries.forEach { provider ->
                 runTest(mainDispatcher) {
                     val viewModel = viewModel(defaultMapProvider = flowOf(Result.success(provider)))

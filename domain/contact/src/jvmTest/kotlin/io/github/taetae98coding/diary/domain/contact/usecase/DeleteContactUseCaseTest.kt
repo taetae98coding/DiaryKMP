@@ -13,6 +13,7 @@ import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -60,10 +61,12 @@ class DeleteContactUseCaseTest :
                     }
                 }
 
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-CONTACT-DETAIL-DATA-010 TC-CONTACT-HOME-DATA-008 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-CONTACT-DETAIL-DATA-010 TC-CONTACT-HOME-DATA-008 로컬 저장 결과로 성공을 판단하고 동기화를 한 번 요청한다") {
+                    clearMocks(requestSyncUseCase, answers = false)
+
                     useCase(parameter = contactId).shouldBeSuccess(1)
 
-                    coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
+                    coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
                 }
             }
         }
@@ -189,6 +192,6 @@ class DeleteContactUseCaseTest :
             return useCase
         }
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
     }
 }

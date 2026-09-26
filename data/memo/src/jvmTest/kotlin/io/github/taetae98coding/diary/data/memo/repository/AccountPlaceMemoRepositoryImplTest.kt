@@ -53,8 +53,8 @@ class AccountPlaceMemoRepositoryImplTest :
 private fun memo(): MemoLocalEntity =
     fixtureMonkey
         .giveMeKotlinBuilder<MemoLocalEntity>()
-        .setExp(MemoLocalEntity::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-        .setExp(MemoLocalEntity::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+        .setExp(MemoLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+        .setExp(MemoLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
         .sample()
 
 private fun mockMemoPagingSource(memoList: List<MemoLocalEntity>): PagingSource<Int, MemoLocalEntity> =

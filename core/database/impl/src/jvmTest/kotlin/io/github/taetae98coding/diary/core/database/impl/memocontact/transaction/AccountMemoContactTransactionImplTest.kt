@@ -14,7 +14,9 @@ import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLo
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memocontact.entity.MemoContactLocalEntity
+import io.github.taetae98coding.diary.core.database.api.memoplace.entity.MemoPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
+import io.github.taetae98coding.diary.core.database.api.memoweb.entity.MemoWebLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagScopeLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
@@ -210,11 +212,25 @@ class AccountMemoContactTransactionImplTest :
             getContactList(accountId = accountId, memoId = memo.id) shouldBe listOf(contact)
         }
 
-        test("TC-MEMO-CONTACT-DOMAIN-007 연락처의 이름·설명·URL·요청 헤더 수정은 연락처 연결을 바꾸지 않는다") {
+        test("TC-MEMO-CONTACT-DOMAIN-007 연락처의 이름·설명·키·신발 사이즈·생일·고향·전화번호 수정은 연락처 연결을 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val contact = contact()
             val changedContact = contact.copy(detail = contactDetail(), updatedAt = instant())
+            insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact))
+
+            contactTransaction.upsert(accountId = accountId, contactList = listOf(changedContact))
+
+            findMemoContactList(memoId = memo.id) shouldBe
+                listOf(memoContact(memoId = memo.id, contactId = contact.id, memo = memo))
+            getContactList(accountId = accountId, memoId = memo.id) shouldBe listOf(changedContact)
+        }
+
+        test("TC-MEMO-CONTACT-DOMAIN-007 연락처의 즐겨찾기 여부 수정은 연락처 연결을 바꾸지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = memo()
+            val contact = contact()
+            val changedContact = contact.copy(isFavorite = !contact.isFavorite, updatedAt = instant())
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact))
 
             contactTransaction.upsert(accountId = accountId, contactList = listOf(changedContact))
@@ -448,9 +464,11 @@ class AccountMemoContactTransactionImplTest :
                 )
         }
 
-        test("TC-MEMO-CONTACT-DATA-002 저장이 실패하면 메모와 계정 연결, 태그 연결, 연락처 연결이 모두 남지 않는다") {
+        test("TC-MEMO-CONTACT-DATA-002 저장이 실패하면 메모와 계정 연결, 태그·웹·연락처·장소 연결이 모두 남지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tagId = fixtureMonkey.giveMeOne<Uuid>()
+            val placeId = fixtureMonkey.giveMeOne<Uuid>()
+            val webId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val contact = contact()
             val memoSyncDataSource = AccountMemoSyncLocalDataSourceImpl(database = database)
@@ -463,12 +481,16 @@ class AccountMemoContactTransactionImplTest :
                     accountId = accountId,
                     memoList = listOf(memo),
                     memoTagList = listOf(memoTag(memoId = memo.id, tagId = tagId, memo = memo)),
+                    memoPlaceList = listOf(MemoPlaceLocalEntity(memoId = memo.id, placeId = placeId, isDeleted = false, updatedAt = memo.updatedAt, createdAt = memo.createdAt)),
+                    memoWebList = listOf(MemoWebLocalEntity(memoId = memo.id, webId = webId, isDeleted = false, updatedAt = memo.updatedAt, createdAt = memo.createdAt)),
                     memoContactList = listOf(memoContact(memoId = memo.id, contactId = contact.id, memo = memo)),
                 )
             }
 
             findMemo(accountId = accountId, memoId = memo.id).shouldBeNull()
             database.memoTagDao().findByMemoIdList(listOf(memo.id)).shouldBeEmpty()
+            database.memoPlaceDao().findByMemoIdList(listOf(memo.id)).shouldBeEmpty()
+            database.memoWebDao().findByMemoIdList(listOf(memo.id)).shouldBeEmpty()
             findMemoContactList(memoId = memo.id).shouldBeEmpty()
             memoSyncDataSource.findPending(accountId = accountId).shouldBeEmpty()
         }
@@ -721,7 +743,7 @@ class AccountMemoContactTransactionImplTest :
                 .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, T>>()
                 .data
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun memoContact(
             memoId: Uuid,

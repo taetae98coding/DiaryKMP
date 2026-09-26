@@ -92,11 +92,12 @@ class GetCalendarMemoUseCaseTest :
             }
         }
 
-        Given("TC-CALENDAR-MEMO-DOMAIN-010: 표시 대상 기간으로 캘린더 메모를 조회해 결과를 계속 관찰하고 있다") {
+        Given("TC-CALENDAR-MEMO-DOMAIN-010: 제목이 `기존 제목`인 메모를 표시 대상 기간으로 조회해 결과를 계속 관찰하고 있다") {
             val dateRange = randomDateRange()
             val account = fixtureMonkey.giveMeOne<Account.User>()
-            val memoList = listOf(calendarMemo())
-            val changedMemoList = listOf(calendarMemo(), calendarMemo())
+            val memo = calendarMemo().copy(title = "기존 제목 ${fixtureMonkey.giveMeOne<String>()}")
+            val memoList = listOf(memo)
+            val changedMemoList = listOf(memo.copy(title = "새 제목 ${fixtureMonkey.giveMeOne<String>()}"))
             val memoListFlow = MutableStateFlow(memoList)
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
@@ -108,8 +109,8 @@ class GetCalendarMemoUseCaseTest :
                     accountCalendarMemoRepository = accountCalendarMemoRepository,
                 )
 
-            When("조회를 다시 요청하지 않은 상태에서 저장된 메모가 바뀐다") {
-                Then("바뀐 내용이 반영된 결과가 이어서 전달된다") {
+            When("조회를 다시 요청하지 않은 상태에서 그 메모의 제목이 `새 제목`으로 바뀐다") {
+                Then("같은 메모의 제목이 `새 제목`으로 바뀐 결과가 이어서 전달된다") {
                     useCase(parameter = dateRange).test {
                         awaitItem().shouldBeSuccess() shouldBe memoList
 

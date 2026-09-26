@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDraft
 import io.github.taetae98coding.diary.domain.memo.usecase.FetchMemoDraftUseCase
 import io.github.taetae98coding.diary.domain.setting.exception.GeminiApiKeyInvalidException
 import io.github.taetae98coding.diary.domain.setting.usecase.GetGeminiSettingUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
@@ -25,6 +26,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -466,6 +468,62 @@ class MemoGeminiViewModelTest : FunSpec() {
                 uiState.draft shouldBe MemoDraft.EMPTY
             }
         }
+        test("TC-MEMO-GEMINI-FEATURE-030 다른 앱에 다녀와도 받아 둔 결과가 유지된다") {
+            runTest(mainDispatcher) {
+                val viewModel = createUnsubscribedViewModel(fetchMemoDraftUseCase = createFetchUseCase())
+                viewModel.uiState.test {
+                    awaitItem()
+                    advanceUntilIdle()
+                    viewModel.open()
+                    viewModel.generate(parameter = PARAMETER)
+                    advanceUntilIdle()
+                    cancelAndIgnoreRemainingEvents()
+                }
+
+                advanceTimeBy(UI_STOP_TIMEOUT_MILLIS * 2)
+
+                viewModel.uiState.test {
+                    advanceUntilIdle()
+                    val uiState = expectMostRecentItem()
+
+                    uiState.step shouldBe MemoGeminiStep.RESULT
+                    uiState.draft shouldBe DRAFT
+                }
+            }
+        }
+
+        test("TC-MEMO-GEMINI-FEATURE-030 다른 앱에 가 있는 동안 진행 중인 생성이 이어져 돌아오면 결과가 보인다") {
+            runTest(mainDispatcher) {
+                val completion = CompletableDeferred<Result<MemoDraft>>()
+                val viewModel =
+                    createUnsubscribedViewModel(
+                        fetchMemoDraftUseCase =
+                            mockk {
+                                coEvery { this@mockk(any()) } coAnswers { completion.await() }
+                            },
+                    )
+                viewModel.uiState.test {
+                    awaitItem()
+                    advanceUntilIdle()
+                    viewModel.open()
+                    viewModel.generate(parameter = PARAMETER)
+                    advanceUntilIdle()
+                    cancelAndIgnoreRemainingEvents()
+                }
+
+                advanceTimeBy(UI_STOP_TIMEOUT_MILLIS * 2)
+                completion.complete(Result.success(DRAFT))
+                advanceUntilIdle()
+
+                viewModel.uiState.test {
+                    advanceUntilIdle()
+                    val uiState = expectMostRecentItem()
+
+                    uiState.step shouldBe MemoGeminiStep.RESULT
+                    uiState.draft shouldBe DRAFT
+                }
+            }
+        }
     }
 
     private companion object {
@@ -475,6 +533,16 @@ class MemoGeminiViewModelTest : FunSpec() {
             }
     }
 }
+
+// 다른 앱에 다녀오는 동안 화면이 구독을 멈추는 경계를 재현하려고 구독을 시작하지 않은 채로 만든다.
+private fun createUnsubscribedViewModel(fetchMemoDraftUseCase: FetchMemoDraftUseCase): MemoGeminiViewModel =
+    MemoGeminiViewModel(
+        getGeminiSettingUseCase =
+            mockk {
+                every { this@mockk(Unit) } returns flowOf(Result.success(COMPLETE_SETTING))
+            },
+        fetchMemoDraftUseCase = fetchMemoDraftUseCase,
+    )
 
 // 화면이 늘 상태를 구독하므로, 테스트도 같은 조건에서 관찰하도록 구독을 먼저 시작한다.
 private fun TestScope.createViewModel(

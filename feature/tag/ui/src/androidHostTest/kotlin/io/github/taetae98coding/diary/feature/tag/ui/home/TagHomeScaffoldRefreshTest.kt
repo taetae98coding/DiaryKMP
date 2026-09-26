@@ -95,8 +95,8 @@ class TagHomeScaffoldRefreshTest {
         fixtureMonkey
             .giveMeKotlinBuilder<Tag>()
             .setExp(Tag::detail, fixtureMonkey.giveMeOne<TagDetail>().copy(emoji = "", title = title))
-            .setExp(Tag::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-            .setExp(Tag::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+            .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+            .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
             .sample()
 
     public companion object {

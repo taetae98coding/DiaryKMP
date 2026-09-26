@@ -2,6 +2,7 @@
 
 package io.github.taetae98coding.diary.feature.web.ui.add
 
+import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
@@ -21,7 +22,11 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
@@ -44,6 +49,22 @@ class WebAddTagViewModelTest : FunSpec() {
 
         afterTest {
             Dispatchers.resetMain()
+        }
+
+        test("TC-ENTITY-TAG-INPUT-FEATURE-033 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
+            runTest(mainDispatcher) {
+                val item = tag()
+                val useCase = mockk<PageTagUseCase>()
+                every { useCase(parameter = "") } returns flowOf(Result.success(PagingData.from(listOf(item))))
+                val viewModel = WebAddTagViewModel(initialTagId = null, pageTagUseCase = useCase, getSelectedTagUseCase = mockk(relaxed = true))
+
+                val itemList = flowOf(viewModel.selectableTagPagingData.first()).asSnapshot()
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+
+                itemList shouldBe listOf(item)
+                verify(exactly = 1) { useCase(parameter = "") }
+            }
         }
 
         test("TC-WEB-ADD-FEATURE-017 초기 태그가 없으면 태그를 하나도 고르지 않은 상태로 시작한다") {
@@ -111,6 +132,44 @@ class WebAddTagViewModelTest : FunSpec() {
                     advanceUntilIdle()
                     expectMostRecentItem().tagList.shouldBeEmpty()
                     cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("TC-WEB-ADD-DATA-009 고른 뒤 완료되거나 삭제되어 제외된 것으로 표시된 태그도 연결할 선택에 그대로 남는다") {
+            listOf<(Tag) -> Tag>(
+                { value -> value.copy(isFinished = true) },
+                { value -> value.copy(isDeleted = true) },
+            ).forEach { change ->
+                runTest(mainDispatcher) {
+                    val tag = tag()
+                    val storedTag = MutableStateFlow(tag)
+                    val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()
+                    every { getSelectedTagUseCase(parameter = any()) } answers {
+                        val idSet = firstArg<Set<Uuid>>()
+                        storedTag.map { value ->
+                            Result.success(listOf(value).filter { selected -> selected.id in idSet && !selected.isFinished && !selected.isDeleted })
+                        }
+                    }
+                    val viewModel =
+                        WebAddTagViewModel(
+                            initialTagId = null,
+                            pageTagUseCase = mockk(relaxed = true),
+                            getSelectedTagUseCase = getSelectedTagUseCase,
+                        )
+
+                    viewModel.uiState.test {
+                        viewModel.add(id = tag.id)
+                        advanceUntilIdle()
+                        expectMostRecentItem().tagList shouldBe listOf(tag)
+
+                        storedTag.value = change(tag)
+                        advanceUntilIdle()
+                        expectMostRecentItem().tagList.shouldBeEmpty()
+                        cancelAndIgnoreRemainingEvents()
+                    }
+
+                    viewModel.tagIdSet.value shouldBe setOf(tag.id)
                 }
             }
         }

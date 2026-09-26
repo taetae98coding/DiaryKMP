@@ -21,19 +21,22 @@ import kotlin.uuid.Uuid
 
 class SyncWorkPlaceTagTest :
     FunSpec({
-        test("TC-DATA-SYNC-DOMAIN-019 TC-PLACE-TAG-DATA-005 모든 태그 요청이 성공한 뒤 장소·태그 연결 전용 요청을 시작한다") {
+        test("TC-DATA-SYNC-DOMAIN-019 TC-PLACE-TAG-DATA-005 모든 태그 요청과 장소 요청이 성공한 뒤 장소·태그 연결 전용 요청을 시작한다") {
             val context =
                 context(
                     tagList = tags(size = 101),
+                    placeList = places(size = 101),
                     placeTagList = placeTags(size = 101),
                 )
             val requestOrder = mutableListOf<String>()
             coEvery { context.tagRemoteDataSource.push(any()) } coAnswers { requestOrder += "tag" }
+            coEvery { context.placeRemoteDataSource.push(any()) } coAnswers { requestOrder += "place" }
             coEvery { context.placeTagRemoteDataSource.push(any()) } coAnswers { requestOrder += "placeTag" }
 
             context.subject.doWork()
 
-            requestOrder shouldContainExactly listOf("tag", "tag", "placeTag", "placeTag")
+            requestOrder.takeLast(2) shouldContainExactly listOf("placeTag", "placeTag")
+            requestOrder.dropLast(2) shouldContainExactlyInAnyOrder listOf("tag", "tag", "place", "place")
         }
 
         test("장소·태그 연결만 대기하면 장소·태그 연결 요청만 발생한다") {
@@ -308,8 +311,8 @@ class SyncWorkPlaceTagTest :
             fixtureMonkey
                 .giveMeKotlinBuilder<PlaceTagLocalEntity>()
                 .setExp(PlaceTagLocalEntity::isDeleted, isDeleted)
-                .setExp(PlaceTagLocalEntity::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(PlaceTagLocalEntity::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(PlaceTagLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(PlaceTagLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

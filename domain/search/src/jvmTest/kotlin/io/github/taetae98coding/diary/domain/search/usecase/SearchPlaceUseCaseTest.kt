@@ -48,7 +48,7 @@ class SearchPlaceUseCaseTest :
                     flowOf(pagingData).asSnapshot() shouldBe placeList
                 }
 
-                Then("앞뒤 공백을 뺀 질의로 조회한다") {
+                Then("TC-SEARCH-HOME-DOMAIN-017 앞뒤 공백을 뺀 질의로 조회한다") {
                     val pagingData = useCase(parameter = SearchPlaceUseCase.Parameter(query = "  $QUERY  ", sort = ListSort.TITLE)).first().shouldBeSuccess()
 
                     flowOf(pagingData).asSnapshot() shouldBe placeList
@@ -134,8 +134,8 @@ class SearchPlaceUseCaseTest :
             fixtureMonkey
                 .giveMeKotlinBuilder<Place>()
                 .setExp(Place::isDeleted, false)
-                .setExp(Place::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Place::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Place::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Place::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

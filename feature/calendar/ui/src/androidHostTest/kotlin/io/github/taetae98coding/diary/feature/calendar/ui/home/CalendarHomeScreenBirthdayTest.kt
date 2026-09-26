@@ -7,7 +7,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -166,6 +168,28 @@ class CalendarHomeScreenBirthdayTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(CONSTITUTION_DAY_NAME).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-CALENDAR-HOME-DATA-040 음력 자료 동기화가 실패해도 별도 안내 없이 생일을 표시한다`() {
+        val getCalendarContactBirthdayUseCase = mockk<GetCalendarContactBirthdayUseCase>()
+        every { getCalendarContactBirthdayUseCase(parameter = any()) } returns
+            flowOf(Result.success(listOf(birthday(name = NAME, date = july(day = 8)))))
+        val fetchLunarUseCase = mockk<FetchLunarUseCase>()
+        coEvery { fetchLunarUseCase(parameter = any()) } returns
+            Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+        val birthdayViewModel =
+            CalendarHomeBirthdayViewModel(fetchLunarUseCase = fetchLunarUseCase, getCalendarContactBirthdayUseCase = getCalendarContactBirthdayUseCase)
+
+        setCalendarHomeScreen(
+            initialYearMonth = JULY_2026,
+            holidayList = emptyList(),
+            birthdayViewModel = birthdayViewModel,
+        )
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(BIRTHDAY_TEXT).assertIsDisplayed()
+        composeRule.onAllNodes(isDialog()).assertCountEquals(0)
     }
 
     @Test

@@ -40,7 +40,7 @@ class CopyMemoUseCaseTest :
     BehaviorSpec({
         Given("로그인한 계정의 메모와 복사 시점이 준비되어 있다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val source = memo()
             val memoSlot = slot<Memo>()
             val tagIdSetSlot = slot<Set<Uuid>>()
@@ -124,7 +124,7 @@ class CopyMemoUseCaseTest :
             coEvery { accountMemoWebRepository.findWebIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoTagRepository.findTagIdSet(account = account, memoId = source.id) } returns emptySet()
             val clock = mockk<Clock>()
-            every { clock.now() } returns Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
             val useCase =
                 CopyMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -177,7 +177,7 @@ class CopyMemoUseCaseTest :
                 coEvery { accountMemoWebRepository.findWebIdSet(account = account, memoId = source.id) } returns emptySet()
                 coEvery { accountMemoTagRepository.findTagIdSet(account = account, memoId = source.id) } returns emptySet()
                 val clock = mockk<Clock>()
-                every { clock.now() } returns Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+                every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
                 val useCase =
                     CopyMemoUseCase(
                         getAccountUseCase = getAccountUseCase,
@@ -227,7 +227,7 @@ class CopyMemoUseCaseTest :
             coEvery { accountMemoWebRepository.findWebIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoTagRepository.findTagIdSet(account = account, memoId = source.id) } returns setOf(primaryTagId, otherTagId)
             val clock = mockk<Clock>()
-            every { clock.now() } returns Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
             val useCase =
                 CopyMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -277,7 +277,7 @@ class CopyMemoUseCaseTest :
             coEvery { accountMemoPlaceRepository.findPlaceIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoWebRepository.findWebIdSet(account = account, memoId = source.id) } returns setOf(firstWebId, secondWebId)
             val clock = mockk<Clock>()
-            every { clock.now() } returns Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
             val useCase =
                 CopyMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -337,7 +337,7 @@ class CopyMemoUseCaseTest :
             coEvery { accountMemoWebRepository.findWebIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoTagRepository.findTagIdSet(account = account, memoId = source.id) } returns emptySet()
             val clock = mockk<Clock>()
-            every { clock.now() } returns Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
             val useCase =
                 CopyMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -384,7 +384,7 @@ class CopyMemoUseCaseTest :
             coEvery { accountMemoWebRepository.findWebIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoTagRepository.findTagIdSet(account = account, memoId = source.id) } returns emptySet()
             val clock = mockk<Clock>()
-            every { clock.now() } returns Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
             val useCase =
                 CopyMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -444,7 +444,7 @@ class CopyMemoUseCaseTest :
             coEvery { accountMemoWebRepository.findWebIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoTagRepository.findTagIdSet(account = account, memoId = source.id) } returns emptySet()
             val clock = mockk<Clock>()
-            every { clock.now() } returns Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
             val useCase =
                 CopyMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -604,7 +604,7 @@ class CopyMemoUseCaseTest :
             coEvery { accountMemoWebRepository.findWebIdSet(account = account, memoId = source.id) } returns emptySet()
             coEvery { accountMemoTagRepository.findTagIdSet(account = account, memoId = source.id) } returns emptySet()
             val clock = mockk<Clock>()
-            every { clock.now() } returns Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
             val useCase =
                 CopyMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -637,8 +637,8 @@ class CopyMemoUseCaseTest :
         private fun memo(): Memo =
             fixtureMonkey
                 .giveMeKotlinBuilder<Memo>()
-                .setExp(Memo::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Memo::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

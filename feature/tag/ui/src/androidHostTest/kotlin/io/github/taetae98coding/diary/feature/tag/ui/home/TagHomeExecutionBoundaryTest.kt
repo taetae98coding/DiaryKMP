@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assert
@@ -27,12 +28,15 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
+import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,6 +50,11 @@ import kotlin.uuid.Uuid
 class TagHomeExecutionBoundaryTest {
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-TAG-HOME-FEATURE-036 태그를 선택하면 그 태그의 TagDetail 화면으로 이동한다`() {
@@ -80,6 +89,33 @@ class TagHomeExecutionBoundaryTest {
             .onNodeWithContentDescription(DEFAULT_FILTER_BUTTON_DESCRIPTION)
             .assert(hasStateDescription(DEFAULT_FILTER_APPLIED_STATE_DESCRIPTION))
         composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).assertExists()
+        assertScrolledPosition(tagList)
+    }
+
+    @Test
+    fun `TC-TAG-HOME-DOMAIN-020 시스템이 앱을 정리한 뒤 다시 만들면 필터 선택은 이어지고 정렬은 처음으로 돌아가며 보던 위치는 다시 보인다`() {
+        val tagList = tagList()
+        val filterUiState = TagHomeScaffoldFilterUiState(isApplied = true)
+        var nextViewModel = screenTestViewModel(tagList = tagList, sort = ListSort.RECENTLY_UPDATED, filterUiState = filterUiState)
+        val restorationTester = StateRestorationTester(composeRule)
+        // 시스템이 앱을 정리하면 정렬을 들고 있던 ViewModel도 사라지므로, 복원으로 컴포지션을 다시 만들 때만 새 ViewModel을 받게 한다.
+        restorationTester.setContent {
+            val viewModel = remember { nextViewModel }
+            Home(viewModel = viewModel)
+        }
+        composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).assertExists()
+        scrollList()
+        // 필터 선택은 기기에 저장된 값으로 다시 조회되므로 새 ViewModel도 켜진 선택을 받는다.
+        nextViewModel = screenTestViewModel(tagList = tagList, filterUiState = filterUiState)
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        composeRule
+            .onNodeWithContentDescription(DEFAULT_FILTER_BUTTON_DESCRIPTION)
+            .assert(hasStateDescription(DEFAULT_FILTER_APPLIED_STATE_DESCRIPTION))
+        composeRule.onNodeWithText(DEFAULT_TITLE_SORT).assertExists()
+        composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).assertDoesNotExist()
         assertScrolledPosition(tagList)
     }
 
@@ -122,10 +158,35 @@ class TagHomeExecutionBoundaryTest {
         assertScrolledPosition(tagList)
     }
 
+    @Test
+    fun `TC-TAG-HOME-FEATURE-049 화면에 들어오거나 다른 화면에서 돌아오는 것만으로는 새로고침하지 않는다`() {
+        val viewModel = screenTestViewModel(tagList = tagList())
+        val syncViewModel = screenTestSyncViewModel()
+        var isTagHomeOnTop by mutableStateOf(true)
+        composeRule.setContent {
+            // 내비게이션이 뒤에 쌓인 화면을 컴포지션에서 내리고 저장 상태만 보관하는 것을 그대로 따른다.
+            val saveableStateHolder = rememberSaveableStateHolder()
+            if (isTagHomeOnTop) {
+                saveableStateHolder.SaveableStateProvider(key = TAG_HOME_ENTRY_KEY) {
+                    Home(viewModel = viewModel, syncViewModel = syncViewModel)
+                }
+            }
+        }
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { isTagHomeOnTop = false }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { isTagHomeOnTop = true }
+        composeRule.waitForIdle()
+
+        verify(exactly = 0) { syncViewModel.refresh() }
+    }
+
     @Composable
     private fun Home(
         viewModel: TagHomeViewModel,
         navigateToDetail: (Uuid) -> Unit = {},
+        syncViewModel: TagHomeSyncViewModel = screenTestSyncViewModel(),
     ) {
         DiaryTheme {
             TagHomeScreen(
@@ -136,7 +197,7 @@ class TagHomeExecutionBoundaryTest {
                 navigateToSearch = {},
                 gridState = rememberLazyGridState(),
                 tagViewModel = viewModel,
-                syncViewModel = screenTestSyncViewModel(),
+                syncViewModel = syncViewModel,
                 componentVisibleProvider = { TagHomeScaffoldComponentVisible() },
             )
         }
@@ -187,6 +248,7 @@ class TagHomeExecutionBoundaryTest {
         private const val DEFAULT_FILTER_BUTTON_DESCRIPTION = "Filter"
         private const val DEFAULT_FILTER_APPLIED_STATE_DESCRIPTION = "Filter applied"
         private const val DEFAULT_RECENTLY_UPDATED_SORT = "Recently updated"
+        private const val DEFAULT_TITLE_SORT = "Title"
 
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()

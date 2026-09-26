@@ -8,6 +8,8 @@ import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
+import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
+import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -55,6 +57,14 @@ class MemoNavigationTest :
             backStack.navigateToCopiedMemo(copiedId)
 
             backStack shouldContainExactly listOf(MemoHomeNavKey, addKey, MemoDetailNavKey(id = copiedId))
+        }
+
+        test("TC-MEMO-HOME-FEATURE-047 검색을 선택하면 메모 결과부터 보여 주는 SearchHome 화면으로 이동한다") {
+            val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey)
+
+            backStack.navigateToSearchFromMemoHome()
+
+            backStack shouldContainExactly listOf(MemoHomeNavKey, SearchHomeNavKey(initialType = SearchHomeType.MEMO))
         }
 
         test("TC-MEMO-HOME-FEATURE-064 태그 추가를 누르면 필터를 닫고 TagAdd 화면으로 이동한다") {

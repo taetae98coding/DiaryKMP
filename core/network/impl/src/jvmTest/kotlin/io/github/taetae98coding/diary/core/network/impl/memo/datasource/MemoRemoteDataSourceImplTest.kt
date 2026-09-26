@@ -125,8 +125,8 @@ class MemoRemoteDataSourceImplTest :
         private fun memo(): MemoRemoteEntity =
             fixtureMonkey
                 .giveMeKotlinBuilder<MemoRemoteEntity>()
-                .setExp(MemoRemoteEntity::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(MemoRemoteEntity::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(MemoRemoteEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(MemoRemoteEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
 
         private fun instant(): Instant =

@@ -112,8 +112,8 @@ class FindMusicDownloadTargetUseCaseTest :
             fixtureMonkey
                 .giveMeKotlinBuilder<Music>()
                 .setExp(Music::detail, MusicDetail(title = "제목", artist = "가수", link = link))
-                .setExp(Music::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Music::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Music::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Music::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

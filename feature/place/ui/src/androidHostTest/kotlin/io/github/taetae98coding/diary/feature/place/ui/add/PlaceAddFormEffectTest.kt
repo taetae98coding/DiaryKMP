@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.place.ui.add
 
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -104,6 +105,27 @@ class PlaceAddFormEffectTest {
     }
 
     @Test
+    fun `TC-PLACE-ADD-FEATURE-041 좌표가 성립하지 않아도 지도가 보고 있는 위치를 옮기지 않는다`() {
+        val selectedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
+        val effectChannel = Channel<PlaceAddEffect>(capacity = Channel.BUFFERED)
+        val state = setPlaceAddForm(effect = effectChannel.receiveAsFlow())
+
+        composeRule.write { state().selectSpotOnMap(selectedCoordinate) }
+        composeRule.waitForIdle()
+        val cameraBefore = composeRule.runOnIdle { state().mapState.coordinate }
+
+        composeRule.write { state().latitudeState.setTextAndPlaceCursorAtEnd(INVALID_LATITUDE_TEXT) }
+        composeRule.runOnIdle { effectChannel.trySend(PlaceAddEffect.CoordinateInvalid) }
+        composeRule.mainClock.advanceTimeBy(REFLECT_WAIT_MILLIS)
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle {
+            state().detail.coordinate.isRepresentable shouldBe false
+            state().mapState.coordinate shouldBe cameraBefore
+        }
+    }
+
+    @Test
     fun `TC-PLACE-ADD-DOMAIN-013 지도가 다른 위치를 보게 되어도 입력한 좌표는 바뀌지 않는다`() {
         val selectedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
         val viewedCoordinate = generateSequence { fixtureMonkey.mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != selectedCoordinate }
@@ -151,5 +173,9 @@ class PlaceAddFormEffectTest {
 
     private companion object {
         private const val DEFAULT_ADD_SUCCEEDED_MESSAGE = "Place added."
+        private const val INVALID_LATITUDE_TEXT = "abc"
+
+        // 입력 정지 대기 시간이 넉넉히 지나도록 기다린다.
+        private const val REFLECT_WAIT_MILLIS = 400L
     }
 }

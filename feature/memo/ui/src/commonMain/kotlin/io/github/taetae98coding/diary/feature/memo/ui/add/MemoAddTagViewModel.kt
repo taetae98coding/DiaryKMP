@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
@@ -49,6 +50,12 @@ internal class MemoAddTagViewModel(
     val tagPagingData: Flow<PagingData<Tag>> =
         query
             .debounceReportedSearchQuery()
+            .flatMapLatest { value -> pageTagUseCase(parameter = value) }
+            .mapNotNull { result -> result.getOrNull() }
+            .cachedIn(viewModelScope)
+
+    val selectableTagPagingData: Flow<PagingData<Tag>> =
+        flowOf("")
             .flatMapLatest { value -> pageTagUseCase(parameter = value) }
             .mapNotNull { result -> result.getOrNull() }
             .cachedIn(viewModelScope)

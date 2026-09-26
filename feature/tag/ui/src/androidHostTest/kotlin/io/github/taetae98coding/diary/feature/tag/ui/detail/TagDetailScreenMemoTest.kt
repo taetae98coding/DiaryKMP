@@ -96,15 +96,28 @@ class TagDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-027 태그 디테일 탭에서는 Cmd A 단축키를 입력해도 메모 추가 화면으로 이동하지 않는다`() {
+    fun `TC-TAG-DETAIL-MEMO-FEATURE-027 메모 탭이 아닌 탭에서는 메모 추가를 실행할 수 없고 메모 탭으로 전환하면 실행할 수 있다`() {
         var navigateToMemoAddCount = 0
         setTagDetailScreen(navigateToMemoAdd = { navigateToMemoAddCount += 1 })
 
-        composeRule.onRoot().performAddShortcut()
+        listOf(
+            DEFAULT_DETAIL_TAB_DESCRIPTION,
+            DEFAULT_WEB_TAB_DESCRIPTION,
+            DEFAULT_PLACE_TAB_DESCRIPTION,
+        ).forEach { tabDescription ->
+            composeRule.selectTagDetailTab(tabDescription)
 
-        navigateToMemoAddCount shouldBe 0
-        composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).assertDoesNotExist()
-        composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).assertDoesNotExist()
+            composeRule.onRoot().performAddShortcut()
+            composeRule.waitForIdle()
+
+            navigateToMemoAddCount shouldBe 0
+            composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).assertDoesNotExist()
+        }
+
+        composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).performClick()
+
+        navigateToMemoAddCount shouldBe 1
     }
 
     @Test
@@ -140,7 +153,15 @@ class TagDetailScreenMemoTest {
         var navigateToMemoFinishedListCount = 0
         setTagDetailScreen(navigateToMemoFinishedList = { navigateToMemoFinishedListCount += 1 })
 
-        composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).assertDoesNotExist()
+        listOf(
+            DEFAULT_DETAIL_TAB_DESCRIPTION,
+            DEFAULT_WEB_TAB_DESCRIPTION,
+            DEFAULT_PLACE_TAB_DESCRIPTION,
+        ).forEach { tabDescription ->
+            composeRule.selectTagDetailTab(tabDescription)
+
+            composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).assertDoesNotExist()
+        }
 
         composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
         composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).performClick()

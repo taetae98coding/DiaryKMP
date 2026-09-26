@@ -127,6 +127,23 @@ class HolidayHomeScaffoldGoldenHolidayTest {
         composeRule.onNodeWithText("$LUNAR_NEW_YEAR_NAME, $LUNAR_NEW_YEAR_NAME, $SUBSTITUTE_HOLIDAY_NAME").assertDoesNotExist()
     }
 
+    @Test
+    fun `TC-HOLIDAY-HOME-FEATURE-057 연이은 연차 날짜는 하나의 연차로 이어서 표시된다`() {
+        setGoldenHoliday(
+            optionList =
+                listOf(
+                    goldenHoliday(
+                        holidayList = listOf(holiday(name = LUNAR_NEW_YEAR_NAME, start = february(day = 16), endInclusive = february(day = 18))),
+                        start = february(day = 7),
+                        endInclusive = february(day = 18),
+                        annualLeaveDateRangeList = listOf(february(day = 9)..february(day = 13)),
+                    ),
+                ),
+        )
+
+        composeRule.textCount(DEFAULT_ANNUAL_LEAVE_ITEM_LABEL) shouldBe 1
+    }
+
     private fun setGoldenHoliday(optionList: List<GoldenHoliday>) {
         val uiState =
             HolidayHomeYearUiState.Loaded(

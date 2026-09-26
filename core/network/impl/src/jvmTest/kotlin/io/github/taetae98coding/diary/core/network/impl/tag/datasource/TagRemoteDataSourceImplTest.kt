@@ -125,8 +125,8 @@ class TagRemoteDataSourceImplTest :
         private fun tag(): TagRemoteEntity =
             fixtureMonkey
                 .giveMeKotlinBuilder<TagRemoteEntity>()
-                .setExp(TagRemoteEntity::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(TagRemoteEntity::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(TagRemoteEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(TagRemoteEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
 
         private fun instant(): Instant =

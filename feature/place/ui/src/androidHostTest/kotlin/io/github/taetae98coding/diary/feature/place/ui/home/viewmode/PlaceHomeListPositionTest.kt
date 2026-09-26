@@ -26,6 +26,7 @@ import io.github.taetae98coding.diary.feature.place.ui.home.placePagingDataFlowO
 import io.github.taetae98coding.diary.feature.place.ui.home.rememberPlaceHomeScaffoldState
 import io.github.taetae98coding.diary.feature.place.ui.home.viewModeTestPlace
 import io.github.taetae98coding.diary.feature.place.ui.resetAndroidUiDispatcher
+import io.kotest.assertions.withClue
 import io.kotest.matchers.booleans.shouldBeFalse
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
@@ -76,7 +77,7 @@ class PlaceHomeListPositionTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-DOMAIN-026 장소 추가나 장소 상세로 이동한 뒤 뒤로 돌아와도 목록 모드에서 보던 목록 위치를 유지한다`() {
+    fun `TC-PLACE-HOME-DOMAIN-026 장소 추가, 장소 상세나 검색으로 이동한 뒤 뒤로 돌아와도 목록 모드에서 보던 목록 위치를 유지한다`() {
         val placeList = placeList()
         val placePagingDataFlow = placePagingDataFlowOf(placeList)
         var isPlaceHomeOnTop by mutableStateOf(true)
@@ -91,12 +92,16 @@ class PlaceHomeListPositionTest {
         }
         selectListModeAndScroll()
 
-        composeRule.runOnIdle { isPlaceHomeOnTop = false }
-        composeRule.waitForIdle()
-        composeRule.runOnIdle { isPlaceHomeOnTop = true }
-        composeRule.waitForIdle()
+        listOf("장소 추가", "장소 상세", "검색").forEach { destination ->
+            withClue(destination) {
+                composeRule.runOnIdle { isPlaceHomeOnTop = false }
+                composeRule.waitForIdle()
+                composeRule.runOnIdle { isPlaceHomeOnTop = true }
+                composeRule.waitForIdle()
 
-        assertScrolledPosition(placeList)
+                assertScrolledPosition(placeList)
+            }
+        }
     }
 
     @Test

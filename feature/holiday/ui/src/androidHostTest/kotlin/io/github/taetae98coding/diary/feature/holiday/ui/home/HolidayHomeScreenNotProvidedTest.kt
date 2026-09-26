@@ -67,6 +67,21 @@ class HolidayHomeScreenNotProvidedTest {
     }
 
     @Test
+    fun `TC-HOLIDAY-HOME-FEATURE-059 적용 국가가 없으면 제공 없음 안내가 표시된다`() {
+        val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
+        coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(emptyList())
+        composeRule.setHolidayHomeScreen(
+            targetYear = targetYear,
+            fetchHolidayUseCase = fetchHolidayUseCase,
+        )
+
+        composeRule.onNodeWithText(DEFAULT_NOT_PROVIDED_DESCRIPTION).assertExists()
+        composeRule.onNodeWithText(DEFAULT_ERROR_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_RETRY_LABEL).assertDoesNotExist()
+        composeRule.onNodeWithText(THIS_YEAR_PERIOD).assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-HOLIDAY-HOME-FEATURE-042 앞뒤 년도만 제공되지 않으면 표시 년도의 목록이 표시된다`() {
         val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
         coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(emptyList())

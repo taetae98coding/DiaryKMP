@@ -73,6 +73,34 @@ class HolidayHomeScreenRevisitTest {
     }
 
     @Test
+    fun `TC-HOLIDAY-HOME-FEATURE-058 한 년도의 제공 없음은 다른 년도의 표시에 영향을 주지 않는다`() {
+        val getGoldenHolidayUseCase = mockk<GetGoldenHolidayUseCase>()
+        every { getGoldenHolidayUseCase(parameter = any()) } answers {
+            val parameter = firstArg<GetGoldenHolidayUseCase.Parameter>()
+            val groupList =
+                if (parameter.year == YEAR + 1) {
+                    listOf(nextYearGoldenHolidayGroup())
+                } else {
+                    emptyList()
+                }
+
+            flowOf(Result.success(groupList))
+        }
+        composeRule.setHolidayHomeScreen(
+            targetYear = targetYear,
+            fetchHolidayUseCase = thisYearNotProvidedFetchHolidayUseCase(),
+            getGoldenHolidayUseCase = getGoldenHolidayUseCase,
+        )
+
+        composeRule.onNodeWithText(DEFAULT_NOT_PROVIDED_DESCRIPTION).assertExists()
+
+        scrollTo(year = YEAR + 1)
+
+        composeRule.onNodeWithText(NEXT_YEAR_PERIOD).assertExists()
+        composeRule.onNodeWithText(DEFAULT_NOT_PROVIDED_DESCRIPTION).assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-HOLIDAY-HOME-FEATURE-031 완료된 년도로 다시 이동하면 로딩 없이 곧바로 목록이 표시된다`() {
         composeRule.setHolidayHomeScreen(
             targetYear = targetYear,

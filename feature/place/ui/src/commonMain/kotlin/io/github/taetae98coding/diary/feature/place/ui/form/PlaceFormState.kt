@@ -27,6 +27,7 @@ import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
 import io.github.taetae98coding.diary.core.model.place.SearchedPlace
+import io.github.taetae98coding.diary.domain.place.toPlacePrecision
 import io.github.taetae98coding.diary.feature.place.ui.decimalOrNaN
 import io.github.taetae98coding.diary.feature.place.ui.toCoordinateText
 import io.github.taetae98coding.diary.library.compose.ui.color.randomColor
@@ -87,7 +88,7 @@ internal class PlaceFormState(
         Coordinate(
             latitude = latitudeState.decimalOrNaN(),
             longitude = longitudeState.decimalOrNaN(),
-        )
+        ).toPlacePrecision()
 }
 
 @Composable

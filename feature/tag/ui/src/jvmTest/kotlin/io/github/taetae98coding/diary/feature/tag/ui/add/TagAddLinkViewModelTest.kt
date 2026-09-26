@@ -2,6 +2,7 @@
 
 package io.github.taetae98coding.diary.feature.tag.ui.add
 
+import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
@@ -17,10 +18,13 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -43,6 +47,22 @@ class TagAddLinkViewModelTest : FunSpec() {
 
         afterTest {
             Dispatchers.resetMain()
+        }
+
+        test("TC-TAG-LINK-INPUT-FEATURE-033 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
+            runTest(mainDispatcher) {
+                val item = tag()
+                val useCase = mockk<PageTagUseCase>()
+                every { useCase(parameter = "") } returns flowOf(Result.success(PagingData.from(listOf(item))))
+                val viewModel = TagAddLinkViewModel(pageTagUseCase = useCase, getSelectedTagUseCase = mockk(relaxed = true))
+
+                val itemList = flowOf(viewModel.selectableTagPagingData.first()).asSnapshot()
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+
+                itemList shouldBe listOf(item)
+                verify(exactly = 1) { useCase(parameter = "") }
+            }
         }
 
         test("TC-TAG-ADD-FEATURE-018 처음에는 연결 대상으로 표시하는 태그가 없다") {
@@ -161,18 +181,26 @@ class TagAddLinkViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-ADD-DOMAIN-004 표시 기준에서 빠진 태그는 연결 대상으로 표시하지 않는다") {
+        test("TC-TAG-ADD-DOMAIN-004 고른 태그가 완료되거나 삭제되면 연결 대상에서 제외된 것으로 표시하고 선택은 유지한다") {
             runTest(mainDispatcher) {
-                val viewModel = viewModel(selectedTagList = { emptyList() })
-                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val tag = tag()
+                val selectableTagList = MutableStateFlow(listOf(tag))
+                val viewModel =
+                    viewModel(
+                        selectedTagListFlow = { tagIdSet ->
+                            selectableTagList.map { tagList -> Result.success(tagList.filter { it.id in tagIdSet }) }
+                        },
+                    )
 
                 viewModel.uiState.test {
                     awaitItem().linkedTagList.shouldBeEmpty()
+                    viewModel.link(id = tag.id)
+                    awaitItem().linkedTagList shouldBe listOf(tag)
 
-                    viewModel.link(id = tagId)
+                    selectableTagList.value = emptyList()
 
-                    expectNoEvents()
-                    viewModel.linkedTagIdSet.value shouldBe setOf(tagId)
+                    awaitItem().linkedTagList.shouldBeEmpty()
+                    viewModel.linkedTagIdSet.value shouldBe setOf(tag.id)
                 }
             }
         }
@@ -257,8 +285,8 @@ class TagAddLinkViewModelTest : FunSpec() {
                 .giveMeKotlinBuilder<Tag>()
                 .setExp(Tag::isFinished, false)
                 .setExp(Tag::isDeleted, false)
-                .setExp(Tag::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Tag::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

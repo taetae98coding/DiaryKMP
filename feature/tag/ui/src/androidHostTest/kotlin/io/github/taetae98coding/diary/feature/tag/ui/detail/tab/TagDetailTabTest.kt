@@ -40,6 +40,11 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailScreen
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailScreenTestHost
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailTestTabContent
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailUiState
+import io.github.taetae98coding.diary.feature.tag.ui.detail.changeColor
+import io.github.taetae98coding.diary.feature.tag.ui.detail.colorHexText
+import io.github.taetae98coding.diary.feature.tag.ui.detail.descriptionInput
+import io.github.taetae98coding.diary.feature.tag.ui.detail.emojiInput
+import io.github.taetae98coding.diary.feature.tag.ui.detail.inputEmoji
 import io.github.taetae98coding.diary.feature.tag.ui.detail.memo.TAG_DETAIL_MEMO_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TAG_DETAIL_PLACE_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.tag.ui.detail.prepareTagDetailTabViewModels
@@ -221,8 +226,18 @@ class TagDetailTabTest {
 
     @Test
     fun `TC-TAG-DETAIL-FEATURE-041 탭을 전환해도 수정 중이던 내용이 유지된다`() {
-        setTagDetailScaffold(uiStateProvider = { tagDetailUiState(detail = tagDetail(TAG_TITLE)) })
+        val storedDetail =
+            tagDetail(
+                title = TAG_TITLE,
+                emoji = STORED_EMOJI,
+                description = STORED_DESCRIPTION,
+                color = STORED_COLOR,
+            )
+        setTagDetailScaffold(uiStateProvider = { tagDetailUiState(detail = storedDetail) })
+        composeRule.inputEmoji(emoji = EDITED_EMOJI)
         composeRule.titleInput().performTextInput(EDIT_SUFFIX)
+        composeRule.descriptionInput().performTextInput(EDIT_SUFFIX)
+        composeRule.changeColor(hex = EDITED_COLOR_HEX)
 
         listOf(
             DEFAULT_MEMO_TAB_DESCRIPTION,
@@ -232,7 +247,10 @@ class TagDetailTabTest {
             selectTab(tabDescription)
             selectTab(DEFAULT_DETAIL_TAB_DESCRIPTION)
 
+            composeRule.emojiInput().assert(hasText(EDITED_EMOJI))
             composeRule.titleInput().assert(hasText(TAG_TITLE + EDIT_SUFFIX))
+            composeRule.descriptionInput().assert(hasText(STORED_DESCRIPTION + EDIT_SUFFIX))
+            composeRule.colorHexText() shouldBe EDITED_COLOR_HEX
         }
     }
 
@@ -495,3 +513,9 @@ class TagDetailTabScreenTest {
         const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
     }
 }
+
+private const val STORED_EMOJI = "\uD83C\uDFC3"
+private const val EDITED_EMOJI = "\uD83C\uDFCA"
+private const val STORED_DESCRIPTION = "TagDetailTabDescription"
+private val STORED_COLOR: Long = 0xFFFF0000.toInt().toLong()
+private const val EDITED_COLOR_HEX = "#0000FF"

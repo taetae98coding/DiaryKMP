@@ -1,28 +1,28 @@
 package io.github.taetae98coding.diary.work.musicdownload.state
 
 import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadState
+import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadTarget
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import org.koin.core.annotation.Single
-import kotlin.uuid.Uuid
 
 @Single
 internal class MusicDownloadStateHolder {
-    val stateMap: StateFlow<Map<Uuid, MusicDownloadState>>
-        field = MutableStateFlow(emptyMap<Uuid, MusicDownloadState>())
+    val stateMap: StateFlow<Map<MusicDownloadTarget, MusicDownloadState>>
+        field = MutableStateFlow(emptyMap<MusicDownloadTarget, MusicDownloadState>())
 
-    fun submitPending(idList: List<Uuid>) {
+    fun submitPending(targetList: List<MusicDownloadTarget>) {
         stateMap.update { current ->
-            current + idList.associateWith { id -> current[id] ?: MusicDownloadState.Pending }
+            current + targetList.associateWith { target -> current[target] ?: MusicDownloadState.Pending }
         }
     }
 
     fun update(
-        id: Uuid,
+        target: MusicDownloadTarget,
         state: MusicDownloadState,
     ) {
-        stateMap.update { current -> current + (id to state) }
+        stateMap.update { current -> current + (target to state) }
     }
 
     fun clearUnfinished() {

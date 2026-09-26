@@ -1,6 +1,9 @@
 package io.github.taetae98coding.diary.feature.calendar.ui.home
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
@@ -11,6 +14,9 @@ import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollToKey
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.testing.TestLifecycleOwner
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
@@ -99,6 +105,28 @@ class CalendarHomeScreenWeatherScrollTest {
     }
 
     @Test
+    fun `TC-CALENDAR-HOME-DOMAIN-018 날씨가 사라졌다가 다시 채워져도 아이템 스크롤을 되돌리지 않는다`() {
+        val weatherReportFlow = MutableStateFlow(CalendarWeatherReport())
+        val memoList = memoList()
+        setCalendarHomeScreen(
+            weatherReportFlow = weatherReportFlow,
+            memoList = memoList,
+        )
+        weatherReportFlow.value = weatherReport(temperature = FIRST_TEMPERATURE)
+        composeRule.waitForIdle()
+        weatherReportFlow.value = CalendarWeatherReport()
+        composeRule.waitForIdle()
+        scrollMemoWeekToLastMemo(memoList = memoList)
+        composeRule.onNodeWithText(memoTitle(index = 0)).isNotDisplayed() shouldBe true
+
+        weatherReportFlow.value = weatherReport(temperature = UPDATED_TEMPERATURE)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(UPDATED_TEMPERATURE_TEXT).isNotDisplayed() shouldBe true
+        composeRule.onNodeWithText(memoTitle(index = MEMO_COUNT - 1)).assertIsDisplayed()
+    }
+
+    @Test
     fun `TC-CALENDAR-HOME-DOMAIN-010 화면이 재생성되어도 이미 표시 중인 날씨로는 아이템 스크롤을 되돌리지 않는다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val memoList = memoList()
@@ -139,6 +167,113 @@ class CalendarHomeScreenWeatherScrollTest {
         composeRule.onNodeWithText(FIRST_TEMPERATURE_TEXT).assertIsDisplayed()
         composeRule.onNodeWithText(memoTitle(index = 0)).assertIsDisplayed()
     }
+
+    @Test
+    fun `TC-CALENDAR-HOME-DOMAIN-020 다른 화면에서 돌아온 뒤 처음 도착한 날씨는 아이템 스크롤을 되돌린다`() {
+        val weatherReportFlow = MutableStateFlow(CalendarWeatherReport())
+        val memoList = memoList()
+        val isShown = mutableStateOf(true)
+        setReturnableCalendarHomeScreen(
+            weatherReportFlow = weatherReportFlow,
+            memoList = memoList,
+            isShown = isShown,
+            lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED),
+        )
+        showWeatherThenClear(weatherReportFlow = weatherReportFlow)
+
+        composeRule.runOnIdle { isShown.value = false }
+        composeRule.runOnIdle { isShown.value = true }
+        composeRule.waitForIdle()
+        scrollMemoWeekToLastMemo(memoList = memoList)
+        composeRule.onNodeWithText(memoTitle(index = 0)).isNotDisplayed() shouldBe true
+
+        weatherReportFlow.value = weatherReport(temperature = UPDATED_TEMPERATURE)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(UPDATED_TEMPERATURE_TEXT).assertIsDisplayed()
+        composeRule.onNodeWithText(memoTitle(index = 0)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-CALENDAR-HOME-DOMAIN-021 다른 앱에 다녀온 뒤 도착한 날씨는 아이템 스크롤을 되돌리지 않는다`() {
+        val weatherReportFlow = MutableStateFlow(CalendarWeatherReport())
+        val memoList = memoList()
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        setReturnableCalendarHomeScreen(
+            weatherReportFlow = weatherReportFlow,
+            memoList = memoList,
+            isShown = mutableStateOf(true),
+            lifecycleOwner = lifecycleOwner,
+        )
+        showWeatherThenClear(weatherReportFlow = weatherReportFlow)
+
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
+        composeRule.waitForIdle()
+        scrollMemoWeekToLastMemo(memoList = memoList)
+        composeRule.onNodeWithText(memoTitle(index = 0)).isNotDisplayed() shouldBe true
+
+        weatherReportFlow.value = weatherReport(temperature = UPDATED_TEMPERATURE)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(UPDATED_TEMPERATURE_TEXT).isNotDisplayed() shouldBe true
+        composeRule.onNodeWithText(memoTitle(index = MEMO_COUNT - 1)).assertIsDisplayed()
+    }
+
+    private fun showWeatherThenClear(weatherReportFlow: MutableStateFlow<CalendarWeatherReport>) {
+        weatherReportFlow.value = weatherReport(temperature = FIRST_TEMPERATURE)
+        composeRule.waitForIdle()
+        weatherReportFlow.value = CalendarWeatherReport()
+        composeRule.waitForIdle()
+    }
+
+    /** 다른 화면으로 이동하면 캘린더 홈 화면이 구성에서 빠지고, 돌아오면 보던 달과 스크롤 상태 그대로 다시 구성된다. */
+    private fun setReturnableCalendarHomeScreen(
+        weatherReportFlow: MutableStateFlow<CalendarWeatherReport>,
+        memoList: List<CalendarMemo>,
+        isShown: MutableState<Boolean>,
+        lifecycleOwner: TestLifecycleOwner,
+    ) {
+        val memoViewModel = memoViewModel(memoList = memoList)
+        val weatherViewModel = weatherViewModel(weatherReportFlow = weatherReportFlow)
+        val holidayViewModel = holidayViewModel()
+        val birthdayViewModel = birthdayViewModel()
+        val syncViewModel = syncViewModel()
+
+        composeRule.setContent {
+            val state =
+                rememberCalendarHomeScaffoldState(
+                    calendarState = rememberCalendarState(initialYearMonth = JULY_2026),
+                )
+
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                DiaryTheme {
+                    if (isShown.value) {
+                        CalendarHomeScreen(
+                            navigateToMemoDetail = {},
+                            navigateToMemoAdd = {},
+                            navigateToContactDetail = {},
+                            birthdayViewModel = birthdayViewModel,
+                            navigateToFilter = {},
+                            state = state,
+                            holidayViewModel = holidayViewModel,
+                            memoViewModel = memoViewModel,
+                            weatherViewModel = weatherViewModel,
+                            syncViewModel = syncViewModel,
+                            permissionManager = rememberPermissionManager(),
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun memoViewModel(memoList: List<CalendarMemo>): CalendarHomeMemoViewModel =
+        mockk<CalendarHomeMemoViewModel>().also { viewModel ->
+            every { viewModel.fetch(any()) } returns Unit
+            every { viewModel.memoList } returns MutableStateFlow(memoList)
+            every { viewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
+        }
 
     private fun scrollMemoWeekToLastMemo(memoList: List<CalendarMemo>) {
         composeRule

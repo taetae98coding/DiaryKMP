@@ -1,10 +1,17 @@
 package io.github.taetae98coding.diary.feature.memo.ui.home
 
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasStateDescription
+import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -17,15 +24,26 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.memo.MEMO_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
+import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoExistenceFilterUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterTagIdUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoHomeUseCase
+import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,6 +56,11 @@ import kotlin.time.Instant
 class MemoHomeSortTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun resetUiDispatcher() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-MEMO-HOME-FEATURE-061 목록 위에 현재 정렬을 표시한다`() {
@@ -52,9 +75,14 @@ class MemoHomeSortTest {
         setMemoHomeScaffold(sortSheetState = DialogState(isVisible = true))
 
         composeRule.onNodeWithText(DEFAULT_SORT_SHEET_TITLE).assertExists()
-        composeRule.onAllNodesWithText(DEFAULT_DEFAULT_SORT).onLast().assertExists()
-        composeRule.onNodeWithText(DEFAULT_TITLE_SORT).assertExists()
-        composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).assertExists()
+        composeRule
+            .onAllNodes(isSelectable())
+            .fetchSemanticsNodes()
+            .map { node -> node.config[SemanticsProperties.Text].joinToString(separator = "") { text -> text.text } } shouldBe
+            listOf(DEFAULT_DEFAULT_SORT, DEFAULT_TITLE_SORT, DEFAULT_RECENTLY_UPDATED_SORT)
+        composeRule.onAllNodes(isSelectable())[0].assertIsSelected()
+        composeRule.onAllNodes(isSelectable())[1].assertIsNotSelected()
+        composeRule.onAllNodes(isSelectable())[2].assertIsNotSelected()
     }
 
     @Test
@@ -73,22 +101,90 @@ class MemoHomeSortTest {
     @Test
     fun `TC-MEMO-HOME-FEATURE-050 최근 수정순을 고르면 그 정렬을 전달한다`() {
         val eventList = mutableListOf<MemoHomeScaffoldEvent>()
-        setMemoHomeScaffold(onEvent = eventList::add, sortSheetState = DialogState(isVisible = true))
+        val sortSheetState = DialogState(isVisible = true)
+        setMemoHomeScaffold(onEvent = eventList::add, sortSheetState = sortSheetState)
 
         composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).performClick()
         composeRule.waitForIdle()
 
         eventList shouldBe listOf(MemoHomeScaffoldEvent.SelectSort(sort = ListSort.RECENTLY_UPDATED))
+        sortSheetState.isVisible shouldBe false
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-052 필터가 적용되어 있어도 정렬을 고를 수 있다`() {
-        val eventList = mutableListOf<MemoHomeScaffoldEvent>()
-        setMemoHomeScaffold(filterUiState = MemoHomeScaffoldFilterUiState(existence = MemoExistenceFilter(date = MemoFilterExistence.EXIST)), onEvent = eventList::add)
+    fun `TC-MEMO-HOME-FEATURE-052 정렬을 바꿔도 필터로 걸러진 같은 메모가 순서만 바뀌어 표시된다`() {
+        val titlePrefix = "SortMemo${fixtureMonkey.giveMeOne<Int>()}"
+        val firstMemo = fixtureMonkey.memo(title = "${titlePrefix}First")
+        val secondMemo = fixtureMonkey.memo(title = "${titlePrefix}Second")
+        val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
+        every { pageMemoHomeUseCase(parameter = ListSort.DEFAULT) } returns flowOf(Result.success(PagingData.from(listOf(firstMemo, secondMemo))))
+        every { pageMemoHomeUseCase(parameter = ListSort.RECENTLY_UPDATED) } returns
+            flowOf(Result.success(PagingData.from(listOf(secondMemo, firstMemo))))
+        val viewModel =
+            realViewModel(
+                pageMemoHomeUseCase = pageMemoHomeUseCase,
+                existence = MemoExistenceFilter(date = MemoFilterExistence.EXIST),
+            )
+        composeRule.setContent {
+            DiaryTheme {
+                MemoHomeScreen(
+                    navigateToAdd = {},
+                    navigateToDetail = {},
+                    navigateToFilter = {},
+                    navigateToFinishedList = {},
+                    navigateToSearch = {},
+                    componentVisibleProvider = { MemoHomeScaffoldComponentVisible() },
+                    listState = rememberLazyListState(),
+                    memoViewModel = viewModel,
+                    syncViewModel = screenTestSyncViewModel(),
+                )
+            }
+        }
+        waitUntilAbove(upperTitle = firstMemo.detail.title, lowerTitle = secondMemo.detail.title)
 
         composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).performClick()
+        composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).performClick()
+        waitUntilAbove(upperTitle = secondMemo.detail.title, lowerTitle = firstMemo.detail.title)
 
-        eventList shouldBe listOf(MemoHomeScaffoldEvent.ClickSort)
+        composeRule.onAllNodesWithTag(MEMO_CARD_TEST_TAG).assertCountEquals(2)
+        composeRule
+            .onNodeWithContentDescription(DEFAULT_FILTER_BUTTON_DESCRIPTION)
+            .assert(hasStateDescription(DEFAULT_FILTER_APPLIED_STATE_DESCRIPTION))
+    }
+
+    private fun waitUntilAbove(
+        upperTitle: String,
+        lowerTitle: String,
+    ) {
+        composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
+            val upper = composeRule.onAllNodesWithText(upperTitle).fetchSemanticsNodes().firstOrNull()
+            val lower = composeRule.onAllNodesWithText(lowerTitle).fetchSemanticsNodes().firstOrNull()
+
+            upper != null && lower != null && upper.positionInRoot.y < lower.positionInRoot.y
+        }
+    }
+
+    private fun realViewModel(
+        pageMemoHomeUseCase: PageMemoHomeUseCase,
+        existence: MemoExistenceFilter,
+    ): MemoHomeViewModel {
+        val getMemoFilterUseCase = mockk<GetMemoFilterUseCase>()
+        every { getMemoFilterUseCase(parameter = Unit) } returns flowOf(Result.success(emptyList()))
+        val getMemoFilterTagIdUseCase = mockk<GetMemoFilterTagIdUseCase>()
+        every { getMemoFilterTagIdUseCase(parameter = Unit) } returns flowOf(Result.success(emptySet()))
+        val getMemoExistenceFilterUseCase = mockk<GetMemoExistenceFilterUseCase>()
+        every { getMemoExistenceFilterUseCase(parameter = Unit) } returns flowOf(Result.success(existence))
+
+        return MemoHomeViewModel(
+            getMemoFilterUseCase = getMemoFilterUseCase,
+            getMemoFilterTagIdUseCase = getMemoFilterTagIdUseCase,
+            getMemoExistenceFilterUseCase = getMemoExistenceFilterUseCase,
+            pageMemoHomeUseCase = pageMemoHomeUseCase,
+            finishMemoUseCase = mockk(),
+            restartMemoUseCase = mockk(),
+            deleteMemoUseCase = mockk(),
+            restoreMemoUseCase = mockk(),
+        )
     }
 
     @Test
@@ -154,13 +250,16 @@ class MemoHomeSortTest {
                 fixtureMonkey
                     .giveMeKotlinBuilder<Memo>()
                     .setExp(Memo::detail, fixtureMonkey.giveMeOne<MemoDetail>().copy(dateTime = null))
-                    .setExp(Memo::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                    .setExp(Memo::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                    .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                    .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
                     .sample(),
         )
 
     private companion object {
         private const val DEFAULT_FINISHED_LIST_LABEL = "Finished memos"
+        private const val DEFAULT_FILTER_BUTTON_DESCRIPTION = "Filter"
+        private const val DEFAULT_FILTER_APPLIED_STATE_DESCRIPTION = "Filter applied"
+        private const val LIST_ITEM_TIMEOUT_MILLIS = 5_000L
         private const val DEFAULT_SORT_DESCRIPTION = "List sort"
         private const val KOREAN_SORT_DESCRIPTION = "목록 정렬"
         private const val DEFAULT_SORT_SHEET_TITLE = "Sort"

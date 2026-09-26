@@ -22,7 +22,7 @@ class RoutineEntryTest :
             metadataOf(backStack = backStack, key = RoutineAddNavKey).keys shouldBe detailPaneMetadataKeys
         }
 
-        test("TC-ROUTINE-LIST-DETAIL-DOMAIN-001 루틴 목록에서 진입하지 않은 루틴 추가는 목록·상세 배치에 참여하지 않는다") {
+        test("루틴 목록 바로 위가 아닌 루틴 추가는 목록·상세 배치의 상세 pane이 아니다") {
             val backStackCases =
                 listOf(
                     listOf(OtherTopLevelNavKey, RoutineAddNavKey),

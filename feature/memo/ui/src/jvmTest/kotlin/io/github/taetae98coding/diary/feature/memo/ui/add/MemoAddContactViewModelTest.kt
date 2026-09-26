@@ -52,6 +52,22 @@ class MemoAddContactViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
+        test("TC-MEMO-CONTACT-INPUT-FEATURE-031 선택 목록을 열지 않아도 선택할 수 있는 연락처 전체를 빈 검색어로 조회한다") {
+            runTest(mainDispatcher) {
+                val item = contact()
+                val pageMemoSelectableContactUseCase = mockk<PageMemoSelectableContactUseCase>()
+                every { pageMemoSelectableContactUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(listOf(item))))
+                val viewModel = viewModel(pageMemoSelectableContactUseCase = pageMemoSelectableContactUseCase, isListOpened = false)
+
+                val itemList = flowOf(viewModel.selectableContactPagingData.first()).asSnapshot()
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+
+                itemList shouldBe listOf(item)
+                verify(exactly = 1) { pageMemoSelectableContactUseCase(parameter = "") }
+            }
+        }
+
         test("TC-MEMO-CONTACT-INPUT-DOMAIN-018 메모리 정리 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
             runTest(mainDispatcher) {
                 val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
@@ -384,8 +400,8 @@ class MemoAddContactViewModelTest : FunSpec() {
             fixtureMonkey
                 .giveMeKotlinBuilder<Contact>()
                 .setExp(Contact::isDeleted, false)
-                .setExp(Contact::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Contact::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Contact::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Contact::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
 
         private fun viewModel(

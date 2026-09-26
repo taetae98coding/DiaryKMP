@@ -164,8 +164,8 @@ class SyncWorkMusicTest :
             fixtureMonkey
                 .giveMeKotlinBuilder<MusicLocalEntity>()
                 .setExp(MusicLocalEntity::isDeleted, isDeleted)
-                .setExp(MusicLocalEntity::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(MusicLocalEntity::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(MusicLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(MusicLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

@@ -36,9 +36,9 @@ internal class AppSyncViewModel(
                 replay = 1,
             )
 
-    fun requestSync() {
+    fun requestSync(trigger: SyncTrigger) {
         viewModelScope.launch {
-            requestSyncUseCase(parameter = SyncTrigger.ACCOUNT_CONFIRMED)
+            requestSyncUseCase(parameter = trigger)
         }
     }
 

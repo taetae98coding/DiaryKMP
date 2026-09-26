@@ -1,11 +1,14 @@
 package io.github.taetae98coding.diary.domain.browser.usecase
 
 import app.cash.turbine.test
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.browser.ChromeProfile
 import io.github.taetae98coding.diary.core.model.browser.ChromeSessionImportState
 import io.github.taetae98coding.diary.domain.browser.ChromeSessionImportManager
 import io.github.taetae98coding.diary.domain.browser.repository.ChromeProfileRepository
 import io.github.taetae98coding.diary.domain.browser.repository.ChromeSessionImportSettingRepository
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
@@ -20,22 +23,24 @@ import io.mockk.verify
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 
-private const val PROFILE_DIRECTORY = "Profile 1"
+private val fixtureMonkey: FixtureMonkey =
+    diaryFixtureMonkey()
 
 class ChromeSessionImportSettingUseCaseTest :
     BehaviorSpec({
         Given("선택 저장에 성공한다") {
+            val profileDirectory = "profile-" + fixtureMonkey.giveMeOne<String>()
             val repository = mockk<ChromeSessionImportSettingRepository>()
             coEvery { repository.setProfileDirectory(directory = any()) } just runs
             coEvery { repository.unsetProfileDirectory() } just runs
 
             When("프로필을 고른다") {
                 val manager = mockk<ChromeSessionImportManager>(relaxed = true)
-                val result = SelectChromeSessionProfileUseCase(chromeSessionImportSettingRepository = repository, chromeSessionImportManager = manager)(parameter = PROFILE_DIRECTORY)
+                val result = SelectChromeSessionProfileUseCase(chromeSessionImportSettingRepository = repository, chromeSessionImportManager = manager)(parameter = profileDirectory)
 
                 Then("TC-CHROME-SESSION-IMPORT-DOMAIN-016 그 프로필이 한 번 저장되고, 지운 뒤 가져오도록 요청되며 성공이 전달된다") {
                     result.shouldBeSuccess()
-                    coVerify(exactly = 1) { repository.setProfileDirectory(directory = PROFILE_DIRECTORY) }
+                    coVerify(exactly = 1) { repository.setProfileDirectory(directory = profileDirectory) }
                     verify(exactly = 1) { manager.requestImport(clearsBefore = true) }
                 }
             }
@@ -53,13 +58,14 @@ class ChromeSessionImportSettingUseCaseTest :
         }
 
         Given("선택 저장에 실패한다") {
+            val profileDirectory = "profile-" + fixtureMonkey.giveMeOne<String>()
             val repository = mockk<ChromeSessionImportSettingRepository>()
             coEvery { repository.setProfileDirectory(directory = any()) } throws IllegalStateException("write failed")
             coEvery { repository.unsetProfileDirectory() } throws IllegalStateException("write failed")
 
             When("프로필을 고른다") {
                 val manager = mockk<ChromeSessionImportManager>(relaxed = true)
-                val result = SelectChromeSessionProfileUseCase(chromeSessionImportSettingRepository = repository, chromeSessionImportManager = manager)(parameter = PROFILE_DIRECTORY)
+                val result = SelectChromeSessionProfileUseCase(chromeSessionImportSettingRepository = repository, chromeSessionImportManager = manager)(parameter = profileDirectory)
 
                 Then("실패가 그대로 전달되고 가져오기를 요청하지 않는다") {
                     result.shouldBeFailure()
@@ -110,8 +116,9 @@ class ChromeSessionImportSettingUseCaseTest :
         }
 
         Given("저장된 선택을 읽을 수 있다") {
+            val profileDirectory = "profile-" + fixtureMonkey.giveMeOne<String>()
             val repository = mockk<ChromeSessionImportSettingRepository>()
-            every { repository.getProfileDirectory() } returns flowOf("", PROFILE_DIRECTORY)
+            every { repository.getProfileDirectory() } returns flowOf("", profileDirectory)
 
             When("고른 프로필을 조회한다") {
                 val useCase = GetChromeSessionProfileDirectoryUseCase(chromeSessionImportSettingRepository = repository)
@@ -119,7 +126,7 @@ class ChromeSessionImportSettingUseCaseTest :
                 Then("저장된 값이 바뀌는 대로 성공으로 전달된다") {
                     useCase(parameter = Unit).test {
                         awaitItem() shouldBe Result.success("")
-                        awaitItem() shouldBe Result.success(PROFILE_DIRECTORY)
+                        awaitItem() shouldBe Result.success(profileDirectory)
                         awaitComplete()
                     }
                 }
@@ -143,7 +150,7 @@ class ChromeSessionImportSettingUseCaseTest :
         }
 
         Given("Chrome 프로필 목록을 읽을 수 있다") {
-            val profileList = listOf(ChromeProfile(directory = "Default", name = "TaeJong"), ChromeProfile(directory = PROFILE_DIRECTORY, name = "Work"))
+            val profileList = List(2) { fixtureMonkey.giveMeOne<ChromeProfile>() }
             val repository = mockk<ChromeProfileRepository>()
             coEvery { repository.findAll() } returns profileList
 

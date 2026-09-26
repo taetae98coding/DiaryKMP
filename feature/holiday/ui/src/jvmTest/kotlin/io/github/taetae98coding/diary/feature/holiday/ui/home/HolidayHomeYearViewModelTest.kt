@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.core.model.holiday.GoldenHolidayGroup
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.domain.holiday.usecase.FetchHolidayUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.GetGoldenHolidayUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -26,6 +27,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -400,7 +402,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
             }
         }
 
-        test("황금연휴 조회에 실패하면 오류 상태를 표시한다") {
+        test("황금연휴 조회에 실패하면 알리지 않고 공휴일 없이 계산한 빈 목록을 표시한다") {
             runTest(mainDispatcher) {
                 val year = randomYear()
                 val getGoldenHolidayUseCase = mockk<GetGoldenHolidayUseCase>()
@@ -411,7 +413,85 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe HolidayHomeYearUiState.Loading
-                    awaitItem() shouldBe HolidayHomeYearUiState.Error
+                    awaitItem() shouldBe HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = emptyList())
+                }
+            }
+        }
+
+        test("TC-HOLIDAY-HOME-FEATURE-060 기기 지역을 바꾸고 5초가 지나기 전에 돌아오면 목록은 이전 지역 기준으로 남는다") {
+            runTest(mainDispatcher) {
+                val year = randomYear()
+                val previousRegionList = listOf(goldenHolidayGroup(year = year))
+                val changedRegionList = listOf(goldenHolidayGroup(year = year))
+                val getGoldenHolidayUseCase = regionChangingGetGoldenHolidayUseCase(previousRegionList, changedRegionList)
+                val viewModel = holidayHomeYearViewModel(year = year, getGoldenHolidayUseCase = getGoldenHolidayUseCase)
+                viewModel.fetch()
+                viewModel.uiState.test {
+                    awaitItem() shouldBe HolidayHomeYearUiState.Loading
+                    awaitItem() shouldBe HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = previousRegionList)
+                }
+
+                advanceTimeBy(UI_STOP_TIMEOUT_MILLIS - 1)
+                viewModel.fetch()
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = previousRegionList)
+
+                    advanceUntilIdle()
+                    expectNoEvents()
+                }
+            }
+        }
+
+        test("TC-HOLIDAY-HOME-FEATURE-061 기기 지역을 바꾸고 5초가 지난 뒤 돌아오면 바뀐 지역 기준으로 목록이 다시 표시된다") {
+            runTest(mainDispatcher) {
+                val year = randomYear()
+                val previousRegionList = listOf(goldenHolidayGroup(year = year))
+                val changedRegionList = listOf(goldenHolidayGroup(year = year))
+                val getGoldenHolidayUseCase = regionChangingGetGoldenHolidayUseCase(previousRegionList, changedRegionList)
+                val viewModel = holidayHomeYearViewModel(year = year, getGoldenHolidayUseCase = getGoldenHolidayUseCase)
+                viewModel.fetch()
+                viewModel.uiState.test {
+                    awaitItem() shouldBe HolidayHomeYearUiState.Loading
+                    awaitItem() shouldBe HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = previousRegionList)
+                }
+
+                advanceTimeBy(UI_STOP_TIMEOUT_MILLIS + 1)
+                viewModel.fetch()
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = previousRegionList)
+                    awaitItem() shouldBe HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = changedRegionList)
+                }
+            }
+        }
+
+        test("TC-HOLIDAY-HOME-FEATURE-062 바뀐 지역에 적용 국가가 없으면 5초가 지나기 전에 돌아와도 제공 없음 안내가 표시된다") {
+            runTest(mainDispatcher) {
+                val year = randomYear()
+                val previousRegionList = listOf(goldenHolidayGroup(year = year))
+                var isRegionChanged = false
+                val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
+                coEvery { fetchHolidayUseCase(parameter = any()) } coAnswers {
+                    if (isRegionChanged) Result.success(emptyList()) else Result.success(providedHolidayList())
+                }
+                val getGoldenHolidayUseCase = mockk<GetGoldenHolidayUseCase>()
+                every { getGoldenHolidayUseCase(parameter = any()) } returns flowOf(Result.success(previousRegionList))
+                val viewModel =
+                    holidayHomeYearViewModel(year = year, fetchHolidayUseCase = fetchHolidayUseCase, getGoldenHolidayUseCase = getGoldenHolidayUseCase)
+                viewModel.fetch()
+                viewModel.uiState.test {
+                    awaitItem() shouldBe HolidayHomeYearUiState.Loading
+                    awaitItem() shouldBe HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = previousRegionList)
+                }
+
+                isRegionChanged = true
+                advanceTimeBy(UI_STOP_TIMEOUT_MILLIS - 1)
+                viewModel.fetch()
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = previousRegionList)
+                    awaitItem() shouldBe HolidayHomeYearUiState.NotProvided
                 }
             }
         }
@@ -428,6 +508,19 @@ private fun holidayHomeYearViewModel(
         fetchHolidayUseCase = fetchHolidayUseCase,
         getGoldenHolidayUseCase = getGoldenHolidayUseCase,
     )
+
+// 기기 지역은 조회를 시작할 때 한 번 읽히므로, 두 번째 조회부터 바뀐 지역의 결과를 돌려주는 것으로 지역 변경을 흉내 낸다.
+private fun regionChangingGetGoldenHolidayUseCase(
+    previousRegionList: List<GoldenHolidayGroup>,
+    changedRegionList: List<GoldenHolidayGroup>,
+): GetGoldenHolidayUseCase =
+    mockk<GetGoldenHolidayUseCase>().also { useCase ->
+        every { useCase(parameter = any()) } returnsMany
+            listOf(
+                flowOf(Result.success(previousRegionList)),
+                flowOf(Result.success(changedRegionList)),
+            )
+    }
 
 private fun providedHolidayList(): List<Holiday> = listOf(holiday(year = randomYear()))
 

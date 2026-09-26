@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
@@ -42,6 +43,12 @@ internal class MemoContactViewModel(
         query
             .debounceReportedSearchQuery()
             .flatMapLatest { value -> pageMemoSelectableContactUseCase(parameter = value) }
+            .mapNotNull { result -> result.getOrNull() }
+            .cachedIn(viewModelScope)
+
+    val selectableContactPagingData: Flow<PagingData<Contact>> =
+        flowOf("")
+            .flatMapLatest { query -> pageMemoSelectableContactUseCase(parameter = query) }
             .mapNotNull { result -> result.getOrNull() }
             .cachedIn(viewModelScope)
 

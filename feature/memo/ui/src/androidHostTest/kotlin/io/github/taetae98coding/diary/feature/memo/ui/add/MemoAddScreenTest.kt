@@ -69,7 +69,7 @@ class MemoAddScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-005 뒤로가기 버튼을 선택하면 이전 화면으로 돌아간다`() {
+    fun `TC-MEMO-ADD-FEATURE-005 TC-CONTACT-DETAIL-MEMO-FEATURE-021 TC-PLACE-DETAIL-MEMO-FEATURE-021 TC-WEB-DETAIL-MEMO-FEATURE-021 뒤로가기 버튼을 선택하면 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         setMemoAddScreen(
             viewModels = screenTestViewModel(),

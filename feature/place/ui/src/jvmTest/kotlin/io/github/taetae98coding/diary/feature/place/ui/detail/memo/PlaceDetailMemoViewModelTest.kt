@@ -60,6 +60,30 @@ class PlaceDetailMemoViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
+        listOf(ListSort.TITLE, ListSort.RECENTLY_UPDATED).forEach { sort ->
+            test("TC-PLACE-DETAIL-MEMO-FEATURE-025 $sort 정렬을 고르면 그 정렬로 목록을 다시 조회한다") {
+                runTest(mainDispatcher) {
+                    val placeId = fixtureMonkey.giveMeOne<Uuid>()
+                    val memo = memo()
+                    val pagePlaceMemoUseCase = mockk<PagePlaceMemoUseCase>()
+                    every { pagePlaceMemoUseCase(parameter = PagePlaceMemoUseCase.Parameter(placeId = placeId, sort = ListSort.DEFAULT)) } returns
+                        flowOf(Result.success(PagingData.from(emptyList())))
+                    every { pagePlaceMemoUseCase(parameter = PagePlaceMemoUseCase.Parameter(placeId = placeId, sort = sort)) } returns
+                        flowOf(Result.success(PagingData.from(listOf(memo))))
+                    val viewModel = viewModel(placeId = placeId, pagePlaceMemoUseCase = pagePlaceMemoUseCase)
+
+                    viewModel.select(sort = sort)
+                    val itemList = flowOf(viewModel.memoPagingData.first()).asSnapshot()
+                    viewModel.viewModelScope.cancel()
+                    advanceUntilIdle()
+
+                    viewModel.sort.value shouldBe sort
+                    itemList.filterIsInstance<MemoListItem.Content>().map { it.memo } shouldBe listOf(memo)
+                    verify(exactly = 1) { pagePlaceMemoUseCase(parameter = PagePlaceMemoUseCase.Parameter(placeId = placeId, sort = sort)) }
+                }
+            }
+        }
+
         test("TC-PLACE-DETAIL-MEMO-DATA-001 장소별 메모 paging에 주입된 장소 ID를 전달한다") {
             runTest(mainDispatcher) {
                 val placeId = fixtureMonkey.giveMeOne<Uuid>()
@@ -252,7 +276,7 @@ class PlaceDetailMemoViewModelTest : FunSpec() {
             .setExp(
                 Memo::detail,
                 fixtureMonkey.giveMeOne<MemoDetail>().copy(dateTime = null),
-            ).setExp(Memo::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-            .setExp(Memo::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+            ).setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+            .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
             .sample()
 }

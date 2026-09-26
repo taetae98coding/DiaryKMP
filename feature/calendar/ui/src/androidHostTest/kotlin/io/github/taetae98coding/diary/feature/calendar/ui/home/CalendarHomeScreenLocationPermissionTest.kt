@@ -165,7 +165,7 @@ class CalendarHomeScreenLocationPermissionTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DATA-027 권한 허용 시점에 날씨 동기화가 진행 중이면 새 동기화를 시작하지 않는다`() {
+    fun `TC-CALENDAR-HOME-DATA-052 권한 허용 시점에 날씨 동기화가 진행 중이면 그 동기화가 끝난 뒤 한 번 더 동기화한다`() {
         val fetchGate = CompletableDeferred<Unit>()
         val fetchCurrentWeatherUseCase = mockk<FetchCurrentWeatherUseCase>()
         coEvery { fetchCurrentWeatherUseCase(parameter = Unit) } coAnswers {
@@ -192,7 +192,12 @@ class CalendarHomeScreenLocationPermissionTest {
 
         coVerify(exactly = 1) { fetchCurrentWeatherUseCase(parameter = Unit) }
         coVerify(exactly = 0) { refreshCurrentWeatherUseCase(parameter = Unit) }
+
         fetchGate.complete(Unit)
+        composeRule.waitForIdle()
+
+        coVerify(exactly = 1) { refreshCurrentWeatherUseCase(parameter = Unit) }
+        coVerify(exactly = 1) { fetchCurrentWeatherUseCase(parameter = Unit) }
     }
 
     private fun setCalendarHomeScreen(

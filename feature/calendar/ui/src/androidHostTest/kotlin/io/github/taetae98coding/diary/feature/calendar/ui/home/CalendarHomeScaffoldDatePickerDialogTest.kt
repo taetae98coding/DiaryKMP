@@ -198,6 +198,27 @@ class CalendarHomeScaffoldDatePickerDialogTest {
     }
 
     @Test
+    fun `TC-CALENDAR-HOME-FEATURE-102 달 선택 중 시스템이 앱을 정리했다가 다시 만들어도 달 선택이 열린 채로 다시 보인다`() {
+        val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+        val restorationTester = StateRestorationTester(composeRule)
+
+        restorationTester.setContent {
+            DiaryTheme {
+                CalendarHomeScaffold(onEvent = {})
+            }
+        }
+        composeRule.onNodeWithText(englishTitle(today.yearMonth)).performClick()
+
+        // 시스템이 정리한 앱을 다시 만들 때도 화면 재생성과 같이 저장해 둔 화면 상태에서 복원한다.
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        composeRule.onNodeWithText(DEFAULT_CONFIRM).assertExists()
+        composeRule
+            .onNode(hasText(englishTitle(today.yearMonth)) and hasContentDescription(DROP_UP_DESCRIPTION))
+            .assertExists()
+    }
+
+    @Test
     fun `TC-CALENDAR-HOME-FEATURE-090 달 선택 중 다른 앱에 다녀와도 달 선택이 열린 채로 유지된다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)

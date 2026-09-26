@@ -64,10 +64,12 @@ internal fun fetchEffectViewModel(vararg effect: MusicAddEffect): MusicAddViewMo
 }
 
 internal fun fetchedEffect(
+    link: String = TYPED_LINK,
     title: String = FETCHED_TITLE,
     artist: String = FETCHED_ARTIST,
 ): MusicAddEffect =
     MusicAddEffect.LinkFetched(
+        link = link,
         title = title,
         artist = artist,
     )

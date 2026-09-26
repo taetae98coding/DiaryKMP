@@ -96,6 +96,28 @@ class MusicVideoDownloadJobRegistryTest :
                 }
             }
 
+            When("같은 영상의 작업에 합류하면") {
+                Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-007 새로 받지 않고 진행 중인 작업의 결과를 받는다") {
+                    runTest {
+                        val videoId = testVideoId()
+                        val gate = CompletableDeferred<Boolean>()
+                        val ytDlpDownloader = mockk<YtDlpDownloader>()
+                        coEvery { ytDlpDownloader.download(videoId = any(), path = any(), onProgress = any()) } coAnswers { gate.await() }
+                        val registry = registry(ytDlpDownloader = ytDlpDownloader, scope = this)
+
+                        launch { registry.download(videoId = videoId, path = testMusicFilePath(videoId), onProgress = {}) }
+                        advanceUntilIdle()
+                        val joined = async { registry.join(videoId = videoId, onProgress = {}) }
+                        advanceUntilIdle()
+                        gate.complete(true)
+                        advanceUntilIdle()
+
+                        joined.await() shouldBe true
+                        coVerify(exactly = 1) { ytDlpDownloader.download(videoId = videoId, path = any(), onProgress = any()) }
+                    }
+                }
+            }
+
             When("다른 영상을 요청하면") {
                 Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-010 첫 영상이 끝나기를 기다리지 않고 함께 받는다") {
                     runTest {
@@ -143,6 +165,21 @@ class MusicVideoDownloadJobRegistryTest :
                         advanceUntilIdle()
 
                         isCompleted shouldBe true
+                    }
+                }
+            }
+        }
+
+        Given("받는 중인 영상이 없다") {
+            When("그 영상의 작업에 합류하면") {
+                Then("합류할 작업이 없음을 알리고 새로 받지 않는다") {
+                    runTest {
+                        val ytDlpDownloader = mockk<YtDlpDownloader>()
+                        val registry = registry(ytDlpDownloader = ytDlpDownloader, scope = this)
+
+                        registry.join(videoId = testVideoId(), onProgress = {}) shouldBe null
+
+                        coVerify(exactly = 0) { ytDlpDownloader.download(videoId = any(), path = any(), onProgress = any()) }
                     }
                 }
             }

@@ -14,6 +14,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
@@ -25,9 +26,11 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
@@ -55,6 +58,7 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
+import io.github.taetae98coding.diary.feature.contact.ui.add.ContactAddEffect
 import io.github.taetae98coding.diary.feature.contact.ui.add.ContactAddViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.add.DEFAULT_BIRTHDAY_NOT_SET
 import io.github.taetae98coding.diary.feature.contact.ui.add.INPUT_COUNT_WITHOUT_PHONE_NUMBER
@@ -63,6 +67,7 @@ import io.github.taetae98coding.diary.feature.contact.ui.add.TYPED_FOOT_SIZE
 import io.github.taetae98coding.diary.feature.contact.ui.add.TYPED_HEIGHT
 import io.github.taetae98coding.diary.feature.contact.ui.add.addPhoneNumberRow
 import io.github.taetae98coding.diary.feature.contact.ui.add.descriptionInput
+import io.github.taetae98coding.diary.feature.contact.ui.add.effectViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.add.footSizeInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.heightInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.hometownInput
@@ -75,15 +80,20 @@ import io.github.taetae98coding.diary.feature.contact.ui.add.todayDisplayText
 import io.github.taetae98coding.diary.feature.contact.ui.detail.ContactDetailEffect
 import io.github.taetae98coding.diary.feature.contact.ui.detail.ContactDetailUiState
 import io.github.taetae98coding.diary.feature.contact.ui.detail.ContactDetailViewModel
+import io.github.taetae98coding.diary.feature.contact.ui.detail.DEFAULT_MEMO_ADD_DESCRIPTION
+import io.github.taetae98coding.diary.feature.contact.ui.detail.DEFAULT_MEMO_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.contact.ui.detail.memo.ContactDetailMemoSyncViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.detail.memo.ContactDetailMemoViewModel
+import io.github.taetae98coding.diary.feature.contact.ui.detail.selectContactDetailTab
 import io.github.taetae98coding.diary.feature.contact.ui.home.CONTACT_CARD_TEST_TAG
+import io.github.taetae98coding.diary.feature.contact.ui.home.CONTACT_HOME_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeSyncViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeUiState
 import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.home.contactPagingDataOf
 import io.github.taetae98coding.diary.feature.contact.ui.home.testContact
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
+import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -119,6 +129,7 @@ class ContactListDetailPlaceholderTest {
     private val backStack = NavBackStack<ScreenNavKey>(MoreNavKey, ContactHomeNavKey)
     private var homeContactList: List<Contact> = emptyList()
     private val homeViewModelList = mutableListOf<ContactHomeViewModel>()
+    private var contactAddViewModelFactory: () -> ContactAddViewModel = { screenTestViewModel() }
 
     // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트마다 전역 Koin을 정리한다.
     @Before
@@ -318,6 +329,68 @@ class ContactListDetailPlaceholderTest {
     }
 
     @Test
+    fun `TC-CONTACT-LIST-DETAIL-FEATURE-015 선택 전 연락처 추가에서 추가에 성공해도 상세 영역은 연락처 추가로 남는다`() {
+        contactAddViewModelFactory = { effectViewModel(effect = ContactAddEffect.AddSucceeded(id = fixtureMonkey.giveMeOne<Uuid>())) }
+        val contact = listedContact()
+        setContactNavDisplay(contactList = listOf(contact))
+        composeRule.nameInput().performTextInput(placeholderInput().name)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_CONTACT_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        backStack.toList() shouldBe listOf(MoreNavKey, ContactHomeNavKey)
+        composeRule.onNodeWithText(DEFAULT_ADD_SUCCEEDED_MESSAGE).assertExists()
+        composeRule.onNode(contactCard(contact)).assertIsDisplayed()
+        composeRule.assertContactAddIsEmpty()
+    }
+
+    @Test
+    fun `TC-CONTACT-LIST-DETAIL-DOMAIN-008 더보기로 돌아갔다가 다시 진입하면 상세 선택이 초기화된다`() {
+        val contact = listedContact()
+        setContactNavDisplay(contactList = listOf(contact))
+        composeRule.onNode(contactCard(contact)).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(detailContent(id = contact.id)).assertIsDisplayed()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(MORE_CONTENT).assertIsDisplayed()
+        composeRule.runOnIdle { backStack.add(ContactHomeNavKey) }
+        composeRule.waitForIdle()
+
+        backStack.toList() shouldBe listOf(MoreNavKey, ContactHomeNavKey)
+        composeRule.onNodeWithText(detailContent(id = contact.id)).assertDoesNotExist()
+        composeRule.nameInput().assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-CONTACT-LIST-DETAIL-FEATURE-016 상세에서 연 연락처 추가가 놓인 동안 다른 연락처를 고르면 추가를 걷어내고 그 상세로 바꾼다`() {
+        val first = listedContact()
+        val second = listedContact()
+        val typedName = placeholderInput().name
+        setContactNavDisplay(contactList = listOf(first, second))
+        composeRule.onNode(contactCard(first)).performClick()
+        composeRule.waitForIdle()
+        composeRule.clickListAddButton()
+        composeRule.nameInput().performTextInput(typedName)
+        composeRule.waitForIdle()
+
+        composeRule.onNode(contactCard(second)).performClick()
+        composeRule.waitForIdle()
+
+        backStack.toList() shouldBe listOf(MoreNavKey, ContactHomeNavKey, ContactDetailNavKey(id = second.id))
+        composeRule.onNodeWithText(detailContent(id = second.id)).assertIsDisplayed()
+
+        pressBack()
+
+        backStack.toList() shouldBe listOf(MoreNavKey, ContactHomeNavKey)
+        composeRule.onNodeWithText(detailContent(id = first.id)).assertDoesNotExist()
+        composeRule.onNodeWithText(typedName).assertDoesNotExist()
+        composeRule.assertContactAddIsEmpty()
+    }
+
+    @Test
     fun `TC-CONTACT-LIST-DETAIL-FEATURE-014 선택 전 연락처 추가가 놓인 상태에서 뒤로가면 배치를 떠나 더보기로 간다`() {
         setContactNavDisplay(contactList = listOf(listedContact()))
         composeRule.nameInput().assertIsDisplayed()
@@ -327,6 +400,126 @@ class ContactListDetailPlaceholderTest {
         backStack.toList() shouldBe listOf(MoreNavKey)
         composeRule.onNodeWithText(MORE_CONTENT).assertIsDisplayed()
         composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(0)
+    }
+
+    @Test
+    @Config(qualifiers = "w400dp-h800dp")
+    fun `TC-CONTACT-HOME-DOMAIN-011 연락처 추가로 이동한 뒤 뒤로가도 보던 목록 위치를 유지한다`() {
+        val contactList = positionContactList()
+        setContactNavDisplay(contactList = contactList)
+        scrollToPositionContact(contactList)
+
+        composeRule.clickListAddButton()
+        composeRule.nameInput().assertIsDisplayed()
+        pressBack()
+
+        assertPositionContactDisplayed(contactList)
+    }
+
+    @Test
+    @Config(qualifiers = "w400dp-h800dp")
+    fun `TC-CONTACT-HOME-DOMAIN-011 연락처 상세로 이동한 뒤 뒤로가도 보던 목록 위치를 유지한다`() {
+        val contactList = positionContactList()
+        setContactNavDisplay(contactList = contactList)
+        scrollToPositionContact(contactList)
+
+        composeRule.onNode(contactCard(contactList[POSITION_SCROLL_INDEX])).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(detailContent(id = contactList[POSITION_SCROLL_INDEX].id)).assertIsDisplayed()
+        pressBack()
+
+        assertPositionContactDisplayed(contactList)
+    }
+
+    @Test
+    @Config(qualifiers = "w400dp-h800dp")
+    fun `TC-CONTACT-HOME-DOMAIN-011 다른 앱에 다녀와도 보던 목록 위치를 유지한다`() {
+        val contactList = positionContactList()
+        setContactNavDisplay(contactList = contactList)
+        scrollToPositionContact(contactList)
+
+        composeRule.activityRule.scenario.moveToState(Lifecycle.State.CREATED)
+        composeRule.waitForIdle()
+        composeRule.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
+        composeRule.waitForIdle()
+
+        assertPositionContactDisplayed(contactList)
+    }
+
+    @Test
+    @Config(qualifiers = "w400dp-h800dp")
+    fun `TC-CONTACT-HOME-DOMAIN-012 더보기로 나갔다 다시 진입하면 목록의 맨 위부터 보여 준다`() {
+        val contactList = positionContactList()
+        setContactNavDisplay(contactList = contactList)
+        scrollToPositionContact(contactList)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(MORE_CONTENT).assertIsDisplayed()
+        composeRule.runOnIdle { backStack.add(ContactHomeNavKey) }
+        composeRule.waitForIdle()
+
+        composeRule.onNode(contactCard(contactList.first())).assertIsDisplayed()
+        composeRule.onNode(contactCard(contactList[POSITION_SCROLL_INDEX])).assertDoesNotExist()
+    }
+
+    // 목록 위치는 기기에 남기지 않으므로, 앱을 다시 실행한 화면은 저장된 상태 없이 새로 그린 화면과 같다.
+    @Test
+    @Config(qualifiers = "w400dp-h800dp")
+    fun `TC-CONTACT-HOME-DOMAIN-012 앱을 다시 실행해 진입하면 목록의 맨 위부터 보여 준다`() {
+        val contactList = positionContactList()
+
+        setContactNavDisplay(contactList = contactList)
+
+        composeRule.onNode(contactCard(contactList.first())).assertIsDisplayed()
+        composeRule.onNode(contactCard(contactList[POSITION_SCROLL_INDEX])).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-021 메모 탭에서 연 메모 추가에서 뒤로가면 메모 탭이 선택된 같은 연락처의 상세로 돌아온다`() {
+        val contact = listedContact()
+        setContactNavDisplay(contactList = listOf(contact), isProductDetail = true)
+        composeRule.onNode(contactCard(contact)).performClick()
+        composeRule.waitForIdle()
+        composeRule.selectContactDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_ADD_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(ROUTE_CONTENT).assertIsDisplayed()
+        pressBack()
+
+        backStack.toList() shouldBe listOf(MoreNavKey, ContactHomeNavKey, ContactDetailNavKey(id = contact.id))
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
+    }
+
+    @Test
+    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-021 메모 탭에서 연 메모 상세에서 뒤로가면 메모 탭이 선택된 같은 연락처의 상세로 돌아온다`() {
+        val contact = listedContact()
+        setContactNavDisplay(contactList = listOf(contact), isProductDetail = true)
+        composeRule.onNode(contactCard(contact)).performClick()
+        composeRule.waitForIdle()
+        composeRule.selectContactDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+
+        composeRule.runOnIdle { backStack.add(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())) }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(ROUTE_CONTENT).assertIsDisplayed()
+        pressBack()
+
+        backStack.toList() shouldBe listOf(MoreNavKey, ContactHomeNavKey, ContactDetailNavKey(id = contact.id))
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
+    }
+
+    private fun positionContactList(): List<Contact> = List(POSITION_CONTACT_COUNT) { index -> testContact(name = "position-${index.toString().padStart(length = 2, padChar = '0')}-${fixtureMonkey.giveMeOne<Int>()}") }
+
+    private fun scrollToPositionContact(contactList: List<Contact>) {
+        composeRule.onNodeWithTag(CONTACT_HOME_LIST_TEST_TAG).performScrollToIndex(POSITION_SCROLL_INDEX)
+        composeRule.waitForIdle()
+        assertPositionContactDisplayed(contactList)
+    }
+
+    private fun assertPositionContactDisplayed(contactList: List<Contact>) {
+        composeRule.onNode(contactCard(contactList[POSITION_SCROLL_INDEX])).assertIsDisplayed()
+        composeRule.onNode(contactCard(contactList.first())).assertDoesNotExist()
     }
 
     private fun pressBack() {
@@ -444,6 +637,7 @@ class ContactListDetailPlaceholderTest {
                                     }
                                 }
                                 entry<MemoAddNavKey> { Text(text = ROUTE_CONTENT) }
+                                entry<MemoDetailNavKey> { Text(text = ROUTE_CONTENT) }
                             },
                     )
                 }
@@ -476,7 +670,7 @@ class ContactListDetailPlaceholderTest {
     // 배치를 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓰고, 만들어진 인스턴스를 세어 저장 범위를 확인한다.
     private fun placeholderViewModelModule() =
         module {
-            factory { screenTestViewModel().also { viewModel -> viewModelList += viewModel } }
+            factory { contactAddViewModelFactory().also { viewModel -> viewModelList += viewModel } }
             factory {
                 mockk<ContactHomeViewModel>(relaxed = true)
                     .apply {
@@ -540,7 +734,11 @@ class ContactListDetailPlaceholderTest {
         const val CONTACT_HOME_CONTENT = "ContactHomeContent"
         const val ROUTE_CONTENT = "RouteContent"
         const val DEFAULT_ADD_CONTACT_DESCRIPTION = "Add contact"
+        const val DEFAULT_ADD_SUCCEEDED_MESSAGE = "Contact added."
+        const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
         const val DEFAULT_DELETE_CONTACT_DESCRIPTION = "Delete contact"
+        const val POSITION_CONTACT_COUNT = 30
+        const val POSITION_SCROLL_INDEX = 25
         val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
         fun detailContent(id: Uuid): String = "ContactDetail-$id"

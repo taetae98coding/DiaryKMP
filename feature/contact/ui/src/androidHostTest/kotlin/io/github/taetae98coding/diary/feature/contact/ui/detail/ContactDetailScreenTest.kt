@@ -136,7 +136,7 @@ class ContactDetailScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-020 다른 연락처로 바뀌면 저장된 내용으로 다시 시작한다`() {
+    fun `상세 대상이 다른 연락처로 바뀌면 그 연락처의 저장된 내용으로 다시 채운다`() {
         val stored = testContactDetail(name = CONTACT_NAME)
         val other = testContactDetail(name = CHANGED_NAME)
         val uiState = MutableStateFlow<ContactDetailUiState>(ContactDetailUiState.Content(id = Uuid.random(), detail = stored))

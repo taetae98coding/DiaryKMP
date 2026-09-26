@@ -265,6 +265,17 @@ class AccountContactTransactionImplTest :
             }
         }
 
+        test("TC-CONTACT-DETAIL-DOMAIN-018 삭제 상태인 연락처도 즐겨찾기를 바꿀 수 있고 삭제 여부는 그대로 남는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val contact = contact().copy(isFavorite = false, isDeleted = true)
+            val updatedAt = instant()
+            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+
+            transaction.updateFavorite(accountId = accountId, contactId = contact.id, isFavorite = true, updatedAt = updatedAt)
+
+            findContactList() shouldBe listOf(contact.copy(isFavorite = true, updatedAt = updatedAt))
+        }
+
         test("TC-CONTACT-ADD-DATA-003 저장에 실패하면 연락처와 계정 연결 중 어느 것도 남지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val contact = contact()
@@ -307,7 +318,7 @@ class AccountContactTransactionImplTest :
                 phoneNumberList = listOf(ContactPhoneNumberLocalEntity(number = "010-1234-5678")),
             )
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun <T> SQLiteStatement.readAll(read: (SQLiteStatement) -> T): List<T> =
             buildList {

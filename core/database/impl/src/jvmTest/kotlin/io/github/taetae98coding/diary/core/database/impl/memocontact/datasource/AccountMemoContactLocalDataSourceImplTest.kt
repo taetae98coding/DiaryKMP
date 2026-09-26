@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.core.database.impl.memocontact.datasource
 import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
@@ -21,7 +22,9 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeout
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -70,6 +73,20 @@ class AccountMemoContactLocalDataSourceImplTest :
                         )
                     },
             )
+        }
+
+        suspend fun awaitSelectableContactInvalidated(
+            accountId: Uuid,
+            change: suspend () -> Unit,
+        ) {
+            val pagingSource = dataSource.pageSelectableContact(accountId = accountId, query = "")
+            pagingSource.load(PagingSource.LoadParams.Refresh(key = null, loadSize = PAGE_SIZE, placeholdersEnabled = false))
+            val invalidated = CompletableDeferred<Unit>()
+            pagingSource.registerInvalidatedCallback { invalidated.complete(Unit) }
+
+            change()
+
+            withTimeout(INVALIDATION_TIMEOUT_MILLIS) { invalidated.await() }
         }
 
         suspend fun loadSelectableContact(
@@ -339,28 +356,36 @@ class AccountMemoContactLocalDataSourceImplTest :
             secondPage.data shouldBe expected.drop(SMALL_PAGE_SIZE).take(SMALL_PAGE_SIZE)
         }
 
-        test("TC-MEMO-CONTACT-INPUT-DATA-005 연락처가 추가되면 선택 목록 조회 결과에 나타난다") {
+        test("TC-MEMO-CONTACT-INPUT-DATA-005 연락처가 추가되면 열려 있는 선택 목록이 스스로 다시 조회되어 나타난다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstContact = contact(name = FIRST_CONTACT_NAME)
             contactTransaction.upsert(accountId = accountId, contactList = listOf(firstContact))
-            loadSelectableContact(accountId = accountId) shouldBe listOf(firstContact)
-
             val addedContact = contact(name = LAST_CONTACT_NAME)
-            contactTransaction.upsert(accountId = accountId, contactList = listOf(addedContact))
+
+            awaitSelectableContactInvalidated(accountId = accountId) {
+                contactTransaction.upsert(accountId = accountId, contactList = listOf(addedContact))
+            }
 
             loadSelectableContact(accountId = accountId) shouldBe listOf(firstContact, addedContact)
         }
 
-        test("TC-MEMO-DETAIL-DATA-048 TC-MEMO-CONTACT-INPUT-DATA-005 저장된 연락처의 이름이 바뀌면 연결된 연락처 조회와 선택 목록에 함께 반영된다") {
+        test("TC-MEMO-DETAIL-DATA-048 TC-MEMO-CONTACT-INPUT-DATA-005 저장된 연락처의 이름이 바뀌면 연결된 연락처 조회와 열려 있는 선택 목록에 스스로 반영된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val contact = contact(name = FIRST_CONTACT_NAME)
             insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact))
             val renamedContact = contact.copy(detail = contact.detail.copy(name = LAST_CONTACT_NAME))
 
-            contactTransaction.upsert(accountId = accountId, contactList = listOf(renamedContact))
+            dataSource.getContactList(accountId = accountId, memoId = memo.id).test {
+                awaitItem() shouldBe listOf(contact)
 
-            dataSource.getContactList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(renamedContact)
+                awaitSelectableContactInvalidated(accountId = accountId) {
+                    contactTransaction.upsert(accountId = accountId, contactList = listOf(renamedContact))
+                }
+
+                awaitItem() shouldBe listOf(renamedContact)
+                cancelAndIgnoreRemainingEvents()
+            }
             loadSelectableContact(accountId = accountId) shouldBe listOf(renamedContact)
         }
 
@@ -377,6 +402,7 @@ class AccountMemoContactLocalDataSourceImplTest :
         private const val LAST_CONTACT_NAME = "ZebraContact"
         private const val HOMETOWN_CONTACT_NAME = "HometownContact"
         private const val SEARCH_QUERY = "searchable"
+        private const val INVALIDATION_TIMEOUT_MILLIS = 5_000L
         private const val PAGE_SIZE = 20
         private const val SMALL_PAGE_SIZE = 10
         private const val CONTACT_COUNT = 25
@@ -421,7 +447,7 @@ class AccountMemoContactLocalDataSourceImplTest :
                 createdAt = instant(),
             )
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private suspend fun PagingSource<Int, ContactLocalEntity>.loadPage(
             key: Int? = null,

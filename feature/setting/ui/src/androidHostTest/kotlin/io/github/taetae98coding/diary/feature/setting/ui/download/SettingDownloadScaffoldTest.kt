@@ -72,7 +72,7 @@ class SettingDownloadScaffoldTest {
     fun `TC-SETTING-DOWNLOAD-FEATURE-002 한국어 환경에서 닿을 주소가 없으면 그 사실을 알린다`() {
         setScaffold(uiState = SettingDownloadUiState.Serving(addressList = emptyList()))
 
-        composeRule.onNodeWithText("연결된 네트워크가 없어 다른 기기가 닿을 주소가 없습니다").assertExists()
+        composeRule.onNodeWithText("같은 네트워크의 다른 기기가 닿을 주소가 없습니다").assertExists()
     }
 
     @Test
@@ -296,7 +296,7 @@ class SettingDownloadScaffoldTest {
         private const val DEFAULT_TITLE = "Download Settings"
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
         private const val DEFAULT_THIS_DEVICE_LABEL = "This device's proxy address"
-        private const val DEFAULT_NO_ADDRESS_MESSAGE = "No network connection, so other devices can't reach this device"
+        private const val DEFAULT_NO_ADDRESS_MESSAGE = "No address that other devices on the same network can reach"
         private const val DEFAULT_UNAVAILABLE_MESSAGE = "Couldn't start the proxy. Restart the app."
         private const val DEFAULT_ADDRESS_LABEL = "Proxy address"
         private const val DEFAULT_SAVE_DESCRIPTION = "Save"

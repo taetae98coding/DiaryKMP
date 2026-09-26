@@ -65,6 +65,18 @@ class MemoHomeEmptyTest {
     }
 
     @Test
+    fun `TC-MEMO-HOME-FEATURE-041 선택한 태그가 모두 판정에서 무시되고 있으면 아직 메모가 없음을 알린다`() {
+        setMemoHomeScaffold(
+            memoPagingDataFlow = MutableStateFlow(memoPagingDataOf(emptyList())),
+            filterUiState = MemoHomeScaffoldFilterUiState(storedTagIdSet = setOf(fixtureMonkey.giveMeOne<Uuid>())),
+        )
+
+        composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
+        composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertExists()
+        composeRule.onNodeWithText(DEFAULT_FILTERED_EMPTY_TITLE).assertDoesNotExist()
+    }
+
+    @Test
     @Config(qualifiers = "ko")
     fun `TC-MEMO-HOME-FEATURE-041 한국어 환경에서 빈 상태 안내는 아직 메모가 없습니다이다`() {
         setMemoHomeScaffold(MutableStateFlow(memoPagingDataOf(emptyList())))
@@ -300,8 +312,8 @@ class MemoHomeEmptyTest {
                 .setExp(Memo::detail, fixtureMonkey.giveMeOne<MemoDetail>().copy(title = title, dateTime = null))
                 .setExp(Memo::isFinished, false)
                 .setExp(Memo::isDeleted, false)
-                .setExp(Memo::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Memo::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

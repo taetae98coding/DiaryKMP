@@ -76,6 +76,24 @@ class MoreHomeRefreshViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-MORE-HOME-DOMAIN-018 확인 중에 기다리는 동안 화면이 다시 표시되어도 새로 요청하지 않는다") {
+            runTest(mainDispatcher) {
+                val accountDetermined = CompletableDeferred<Unit>()
+                val useCase = mockk<RefreshUserDataUseCase>()
+                coEvery { useCase(Unit) } coAnswers { Result.success(accountDetermined.await()) }
+                val viewModel = MoreHomeRefreshViewModel(refreshUserDataUseCase = useCase)
+
+                viewModel.refresh()
+                runCurrent()
+                viewModel.refresh()
+                runCurrent()
+                accountDetermined.complete(Unit)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { useCase(Unit) }
+            }
+        }
+
         test("TC-MORE-HOME-DOMAIN-013 사용자 정보 다시 확인에 실패해도 계정 표시가 바뀌지 않는다") {
             runTest(mainDispatcher) {
                 val email = "diary-" + fixtureMonkey.giveMeOne<String>()

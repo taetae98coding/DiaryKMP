@@ -23,11 +23,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.InjectedParam
@@ -75,8 +77,11 @@ internal class TagDetailPlaceViewModel(
         combine(sort, scope) { sortValue, scopeValue -> sortValue to scopeValue }
             .flatMapLatest { (sortValue, scopeValue) ->
                 pageTagPlaceUseCase(parameter = PageTagPlaceUseCase.Parameter(tagId = tagId, scope = scopeValue, sort = sortValue))
-            }.mapNotNull { result -> result.getOrNull() }
-            .cachedIn(viewModelScope)
+                    .runningFold<Result<PagingData<Place>>, PagingData<Place>?>(initial = null) { last, result ->
+                        result.getOrElse { last ?: PagingData.empty() }
+                    }.filterNotNull()
+                    .distinctUntilChanged()
+            }.cachedIn(viewModelScope)
 
     private val _effect = Channel<PlaceListEffect>(Channel.BUFFERED)
     val effect: Flow<PlaceListEffect> = _effect.receiveAsFlow()

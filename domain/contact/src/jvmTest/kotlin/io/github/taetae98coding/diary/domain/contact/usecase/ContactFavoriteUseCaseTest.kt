@@ -51,17 +51,26 @@ class ContactFavoriteUseCaseTest :
                         clock = clock(now = now),
                     )
 
-                Then("TC-CONTACT-DETAIL-DOMAIN-012 즐겨찾기 여부를 즐겨찾기로 바꾸고 수정 시각을 변경 시점으로 기록한다") {
+                Then("TC-CONTACT-DETAIL-DOMAIN-017 즐겨찾기 여부를 즐겨찾기로 바꾸고 수정 시각을 변경 시점으로 기록한다") {
                     useCase(parameter = contactId).shouldBeSuccess(1)
 
                     isFavoriteSlot.captured shouldBe true
                     updatedAtSlot.captured shouldBe now
                 }
 
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-CONTACT-DETAIL-DATA-010 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
-                    useCase(parameter = contactId).shouldBeSuccess(1)
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-CONTACT-DETAIL-DATA-010 로컬 저장 결과로 성공을 판단하고 동기화를 한 번 요청한다") {
+                    val onceRequestSyncUseCase = requestSyncUseCase()
+                    val onceUseCase =
+                        FavoriteContactUseCase(
+                            getAccountUseCase = getAccountUseCase(account = account),
+                            requestSyncUseCase = onceRequestSyncUseCase,
+                            accountContactRepository = accountContactRepository,
+                            clock = clock(now = now),
+                        )
 
-                    coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
+                    onceUseCase(parameter = contactId).shouldBeSuccess(1)
+
+                    coVerify(exactly = 1) { onceRequestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
                 }
             }
 
@@ -74,17 +83,26 @@ class ContactFavoriteUseCaseTest :
                         clock = clock(now = now),
                     )
 
-                Then("TC-CONTACT-DETAIL-DOMAIN-012 즐겨찾기 여부를 즐겨찾기가 아닌 값으로 바꾸고 수정 시각을 변경 시점으로 기록한다") {
+                Then("TC-CONTACT-DETAIL-DOMAIN-017 즐겨찾기 여부를 즐겨찾기가 아닌 값으로 바꾸고 수정 시각을 변경 시점으로 기록한다") {
                     useCase(parameter = contactId).shouldBeSuccess(1)
 
                     isFavoriteSlot.captured shouldBe false
                     updatedAtSlot.captured shouldBe now
                 }
 
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-CONTACT-DETAIL-DATA-010 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
-                    useCase(parameter = contactId).shouldBeSuccess(1)
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-CONTACT-DETAIL-DATA-010 로컬 저장 결과로 성공을 판단하고 동기화를 한 번 요청한다") {
+                    val onceRequestSyncUseCase = requestSyncUseCase()
+                    val onceUseCase =
+                        UnfavoriteContactUseCase(
+                            getAccountUseCase = getAccountUseCase(account = account),
+                            requestSyncUseCase = onceRequestSyncUseCase,
+                            accountContactRepository = accountContactRepository,
+                            clock = clock(now = now),
+                        )
 
-                    coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
+                    onceUseCase(parameter = contactId).shouldBeSuccess(1)
+
+                    coVerify(exactly = 1) { onceRequestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
                 }
             }
         }
@@ -187,6 +205,6 @@ class ContactFavoriteUseCaseTest :
 
         private fun clock(now: Instant): Clock = mockk<Clock>().also { clock -> every { clock.now() } returns now }
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
     }
 }

@@ -1,9 +1,12 @@
 package io.github.taetae98coding.diary.core.gemini.network.impl.datasource
 
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.gemini.network.api.GeminiException
 import io.github.taetae98coding.diary.core.gemini.network.api.datasource.GeminiModelRemoteDataSource
 import io.github.taetae98coding.diary.core.gemini.network.impl.GeminiNetworkTestKoinApplication
 import io.github.taetae98coding.diary.core.gemini.network.impl.di.GeminiHttpClientEngine
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -29,14 +32,16 @@ import kotlinx.serialization.json.putJsonArray
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.koin.plugin.module.dsl.koinApplication
+import kotlin.uuid.Uuid
 
 class GeminiModelRemoteDataSourceImplTest :
     FunSpec({
         test("TC-GEMINI-MODEL-LIST-DOMAIN-001: 조회는 최대 개수인 1000개를 요청한다") {
+            val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
             val engine = createEngine()
             val dataSource = createDataSource(engine)
 
-            dataSource.getAvailableModel(apiKey = API_KEY)
+            dataSource.getAvailableModel(apiKey = apiKey)
 
             engine.requestHistory
                 .single()
@@ -45,28 +50,32 @@ class GeminiModelRemoteDataSourceImplTest :
         }
 
         test("TC-GEMINI-MODEL-LIST-DOMAIN-002: 내용 생성에 쓸 수 있는 모델만 결과에 포함한다") {
+            val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
+            val generateOnly = modelName()
+            val generateAndCount = modelName()
             val content =
                 listModelsResponse(
-                    model(name = "models/generate-only", methods = listOf("generateContent")),
-                    model(name = "models/generate-and-count", methods = listOf("generateContent", "countTokens")),
-                    model(name = "models/embed-only", methods = listOf("embedContent")),
-                    model(name = "models/count-only", methods = listOf("countTokens")),
-                    model(name = "models/image-only", methods = listOf("predict")),
-                    model(name = "models/no-method", methods = emptyList()),
+                    model(name = generateOnly, methods = listOf("generateContent")),
+                    model(name = generateAndCount, methods = listOf("generateContent", "countTokens")),
+                    model(name = modelName(), methods = listOf("embedContent")),
+                    model(name = modelName(), methods = listOf("countTokens")),
+                    model(name = modelName(), methods = listOf("predict")),
+                    model(name = modelName(), methods = emptyList()),
                 )
             val dataSource = createDataSource(createEngine(content = content))
 
-            dataSource.getAvailableModel(apiKey = API_KEY).map { model -> model.id } shouldContainExactly
-                listOf("models/generate-only", "models/generate-and-count")
+            dataSource.getAvailableModel(apiKey = apiKey).map { model -> model.id } shouldContainExactly
+                listOf(generateOnly, generateAndCount)
         }
 
         test("TC-GEMINI-MODEL-LIST-DOMAIN-003: 받은 순서를 그대로 유지한다") {
-            val order = listOf("models/third", "models/first", "models/second")
+            val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
+            val order = List(3) { modelName() }
             val content = listModelsResponse(*order.map { name -> model(name = name) }.toTypedArray())
             val engine = createEngine(content = content)
             val dataSource = createDataSource(engine)
 
-            dataSource.getAvailableModel(apiKey = API_KEY).map { model -> model.id } shouldContainExactly order
+            dataSource.getAvailableModel(apiKey = apiKey).map { model -> model.id } shouldContainExactly order
 
             val parameters =
                 engine.requestHistory
@@ -76,79 +85,84 @@ class GeminiModelRemoteDataSourceImplTest :
         }
 
         test("TC-GEMINI-MODEL-LIST-DATA-001: 인증 정보를 담아 조회한다") {
+            val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
             val engine = createEngine()
             val dataSource = createDataSource(engine)
 
-            dataSource.getAvailableModel(apiKey = API_KEY)
+            dataSource.getAvailableModel(apiKey = apiKey)
 
             val request = engine.requestHistory.single()
             request.method shouldBe HttpMethod.Get
             request.url.toString() shouldStartWith "https://generativelanguage.googleapis.com/v1beta/models"
-            request.headers["x-goog-api-key"] shouldBe API_KEY
+            request.headers["x-goog-api-key"] shouldBe apiKey
         }
 
         test("TC-GEMINI-MODEL-LIST-DATA-002: 성공 응답의 모델 정보를 그대로 전달한다") {
+            val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
+            val expected =
+                List(2) {
+                    Triple(modelName(), "Gemini ${fixtureMonkey.giveMeOne<Uuid>()}", "설명 ${fixtureMonkey.giveMeOne<Uuid>()}")
+                }
             val content =
                 listModelsResponse(
-                    model(name = "models/gemini-flash", displayName = "Gemini Flash", description = "빠른 범용 모델"),
-                    model(name = "models/gemini-pro", displayName = "Gemini Pro", description = "정확한 범용 모델"),
+                    *expected.map { (name, displayName, description) -> model(name = name, displayName = displayName, description = description) }.toTypedArray(),
                 )
             val dataSource = createDataSource(createEngine(content = content))
 
-            val actual = dataSource.getAvailableModel(apiKey = API_KEY)
+            val actual = dataSource.getAvailableModel(apiKey = apiKey)
 
-            actual.size shouldBe 2
-            actual[0].id shouldBe "models/gemini-flash"
-            actual[0].displayName shouldBe "Gemini Flash"
-            actual[0].description shouldBe "빠른 범용 모델"
-            actual[1].id shouldBe "models/gemini-pro"
-            actual[1].displayName shouldBe "Gemini Pro"
-            actual[1].description shouldBe "정확한 범용 모델"
+            actual.map { model -> Triple(model.id, model.displayName, model.description) } shouldContainExactly expected
         }
 
         test("TC-GEMINI-MODEL-LIST-DATA-003: 설명이 없는 모델도 전달한다") {
+            val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
+            val name = modelName()
+            val displayName = "Gemini ${fixtureMonkey.giveMeOne<Uuid>()}"
             val content =
                 listModelsResponse(
                     buildJsonObject {
-                        put("name", "models/gemini-flash")
-                        put("displayName", "Gemini Flash")
+                        put("name", name)
+                        put("displayName", displayName)
                         putJsonArray("supportedGenerationMethods") { add("generateContent") }
                     },
                 )
             val dataSource = createDataSource(createEngine(content = content))
 
-            val actual = dataSource.getAvailableModel(apiKey = API_KEY).single()
+            val actual = dataSource.getAvailableModel(apiKey = apiKey).single()
 
-            actual.id shouldBe "models/gemini-flash"
-            actual.displayName shouldBe "Gemini Flash"
+            actual.id shouldBe name
+            actual.displayName shouldBe displayName
             actual.description shouldBe ""
         }
 
         test("TC-GEMINI-MODEL-LIST-DATA-004: 기준에 맞는 모델이 없으면 빈 목록을 성공으로 전달한다") {
+            val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
             val contents =
                 listOf(
                     listModelsResponse(),
-                    listModelsResponse(model(name = "models/embed-only", methods = listOf("embedContent"))),
+                    listModelsResponse(model(name = modelName(), methods = listOf("embedContent"))),
                 )
 
             contents.forEach { content ->
                 val dataSource = createDataSource(createEngine(content = content))
 
-                dataSource.getAvailableModel(apiKey = API_KEY).shouldBeEmpty()
+                dataSource.getAvailableModel(apiKey = apiKey).shouldBeEmpty()
             }
         }
 
         test("TC-GEMINI-MODEL-LIST-DATA-005: 인증 정보가 유효하지 않은 실패를 구분해 알린다") {
+            val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
             listOf(HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden).forEach { status ->
                 val dataSource = createDataSource(MockEngine { respondError(status) })
 
-                val actual = shouldThrow<GeminiException.InvalidApiKey> { dataSource.getAvailableModel(apiKey = API_KEY) }
+                val actual = shouldThrow<GeminiException.InvalidApiKey> { dataSource.getAvailableModel(apiKey = apiKey) }
 
                 actual.cause.shouldBeInstanceOf<ResponseException>()
             }
         }
 
         test("TC-GEMINI-MODEL-LIST-DATA-006: 그 밖의 실패를 실패로 알린다") {
+            val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
             listOf(
                 HttpStatusCode.BadRequest,
                 HttpStatusCode.TooManyRequests,
@@ -156,19 +170,22 @@ class GeminiModelRemoteDataSourceImplTest :
             ).forEach { status ->
                 val dataSource = createDataSource(MockEngine { respondError(status) })
 
-                shouldThrow<ResponseException> { dataSource.getAvailableModel(apiKey = API_KEY) }
+                shouldThrow<ResponseException> { dataSource.getAvailableModel(apiKey = apiKey) }
             }
 
             val brokenDataSource = createDataSource(createEngine(content = "{"))
 
-            shouldThrow<Throwable> { brokenDataSource.getAvailableModel(apiKey = API_KEY) }
+            shouldThrow<Throwable> { brokenDataSource.getAvailableModel(apiKey = apiKey) }
         }
 
         test("TC-GEMINI-MODEL-LIST-DATA-007: 조회할 때마다 새로 조회한다") {
+            val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
+            val first = modelName()
+            val second = modelName()
             val contents =
                 mutableListOf(
-                    listModelsResponse(model(name = "models/first")),
-                    listModelsResponse(model(name = "models/second")),
+                    listModelsResponse(model(name = first)),
+                    listModelsResponse(model(name = second)),
                 )
             val engine =
                 MockEngine {
@@ -180,17 +197,18 @@ class GeminiModelRemoteDataSourceImplTest :
                 }
             val dataSource = createDataSource(engine)
 
-            dataSource.getAvailableModel(apiKey = API_KEY).map { model -> model.id } shouldContainExactly listOf("models/first")
-            dataSource.getAvailableModel(apiKey = API_KEY).map { model -> model.id } shouldContainExactly listOf("models/second")
+            dataSource.getAvailableModel(apiKey = apiKey).map { model -> model.id } shouldContainExactly listOf(first)
+            dataSource.getAvailableModel(apiKey = apiKey).map { model -> model.id } shouldContainExactly listOf(second)
 
             engine.requestHistory.size shouldBe 2
         }
 
         test("TC-GEMINI-MODEL-LIST-DOMAIN-004: 조회는 모델 정보만 받아 오고 내용을 생성하지 않는다") {
+            val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
             val engine = createEngine()
             val dataSource = createDataSource(engine)
 
-            dataSource.getAvailableModel(apiKey = API_KEY)
+            dataSource.getAvailableModel(apiKey = apiKey)
 
             val request = engine.requestHistory.single()
 
@@ -200,7 +218,9 @@ class GeminiModelRemoteDataSourceImplTest :
         }
     }) {
     private companion object {
-        private const val API_KEY = "testApiKey"
+        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
+
+        private fun modelName(): String = "models/gemini-${fixtureMonkey.giveMeOne<Uuid>()}"
 
         private fun model(
             name: String,
@@ -223,7 +243,7 @@ class GeminiModelRemoteDataSourceImplTest :
                 }
             }.toString()
 
-        private fun createEngine(content: String = listModelsResponse(model(name = "models/gemini-flash"))): MockEngine =
+        private fun createEngine(content: String = listModelsResponse(model(name = modelName()))): MockEngine =
             MockEngine {
                 respond(
                     content = content,

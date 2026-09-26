@@ -71,6 +71,11 @@ class MusicAddViewModelTest : FunSpec() {
 
                 completion.complete(Result.success(fixtureMonkey.giveMeOne<Uuid>()))
                 advanceUntilIdle()
+
+                viewModel.add(secondDetail)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { useCase(secondDetail) }
             }
         }
 
@@ -203,6 +208,7 @@ class MusicAddViewModelTest : FunSpec() {
 
                     awaitItem() shouldBe
                         MusicAddEffect.LinkFetched(
+                            link = YOUTUBE_LINK,
                             title = video.title,
                             artist = video.channelName,
                         )

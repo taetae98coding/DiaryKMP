@@ -11,8 +11,13 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
+import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadState
+import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadTarget
 import io.github.taetae98coding.diary.domain.playlist.usecase.DeleteMusicUseCase
+import io.github.taetae98coding.diary.domain.playlist.usecase.GetMusicDownloadEventUseCase
+import io.github.taetae98coding.diary.domain.playlist.usecase.GetMusicDownloadStateUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.PageMusicUseCase
+import io.github.taetae98coding.diary.domain.playlist.usecase.RequestMusicDownloadUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.RestoreMusicUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
@@ -26,6 +31,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -199,6 +205,51 @@ class PlaylistHomeViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-PLAYLIST-HOME-DOMAIN-008 목록에서 삭제하고 실행 취소해도 곡의 다운로드 상태가 바뀌지 않고 다운로드를 요청하지 않는다") {
+            runTest(mainDispatcher) {
+                val music = music(title = "Alpha")
+                val stateMap = mapOf(MusicDownloadTarget(id = music.id, videoId = "dQw4w9WgXcQ") to MusicDownloadState.Running(progress = 0.62F))
+                val getMusicDownloadStateUseCase = mockk<GetMusicDownloadStateUseCase>()
+                every { getMusicDownloadStateUseCase(parameter = Unit) } returns MutableStateFlow(Result.success(stateMap))
+                val getMusicDownloadEventUseCase = mockk<GetMusicDownloadEventUseCase>()
+                every { getMusicDownloadEventUseCase(parameter = Unit) } returns emptyFlow()
+                val requestMusicDownloadUseCase = mockk<RequestMusicDownloadUseCase>()
+                val downloadViewModel =
+                    PlaylistHomeDownloadViewModel(
+                        getMusicDownloadStateUseCase = getMusicDownloadStateUseCase,
+                        getMusicDownloadEventUseCase = getMusicDownloadEventUseCase,
+                        requestMusicDownloadUseCase = requestMusicDownloadUseCase,
+                    )
+                val deleteMusicUseCase = mockk<DeleteMusicUseCase>()
+                coEvery { deleteMusicUseCase(parameter = music.id) } returns Result.success(1)
+                val restoreMusicUseCase = mockk<RestoreMusicUseCase>()
+                coEvery { restoreMusicUseCase(parameter = music.id) } returns Result.success(1)
+                val viewModel =
+                    viewModel(
+                        pageMusicUseCase = pageMusicUseCase(musicListFlow = flowOf(Result.success(listOf(music)))),
+                        deleteMusicUseCase = deleteMusicUseCase,
+                        restoreMusicUseCase = restoreMusicUseCase,
+                    )
+
+                downloadViewModel.uiState.test {
+                    awaitItem()
+                    advanceUntilIdle()
+                    awaitItem() shouldBe PlaylistHomeDownloadUiState(stateMap = stateMap)
+
+                    viewModel.delete(id = music.id)
+                    advanceUntilIdle()
+                    viewModel.restore(id = music.id)
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                    downloadViewModel.uiState.value shouldBe PlaylistHomeDownloadUiState(stateMap = stateMap)
+                }
+                coVerify(exactly = 1) { deleteMusicUseCase(parameter = music.id) }
+                coVerify(exactly = 1) { restoreMusicUseCase(parameter = music.id) }
+                coVerify(exactly = 0) { requestMusicDownloadUseCase(parameter = any()) }
+            }
+        }
+
         test("TC-PLAYLIST-HOME-FEATURE-023 실행 취소하면 그 곡의 삭제를 되돌리는 요청을 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
@@ -241,7 +292,6 @@ class PlaylistHomeViewModelTest : FunSpec() {
             return pageMusicUseCase
         }
 
-        // FixtureMonkey가 Instant를 생성하지 못하므로 곡은 직접 만든다.
         private fun music(title: String): Music {
             val detail =
                 fixtureMonkey
@@ -253,8 +303,8 @@ class PlaylistHomeViewModelTest : FunSpec() {
                 id = Uuid.random(),
                 detail = detail,
                 isDeleted = false,
-                updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
-                createdAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+                createdAt = fixtureMonkey.giveMeOne<Instant>(),
             )
         }
     }

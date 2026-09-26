@@ -61,7 +61,7 @@ class RestorePlaceUseCaseTest :
                     updatedAtSlot.captured shouldBe now
                 }
 
-                Then("TC-PLACE-HOME-DATA-006 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
+                Then("TC-PLACE-HOME-DATA-006 TC-SYNC-REFRESH-FEATURE-004 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }

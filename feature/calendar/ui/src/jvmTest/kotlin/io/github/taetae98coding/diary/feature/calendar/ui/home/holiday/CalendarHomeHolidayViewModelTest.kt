@@ -8,6 +8,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.domain.holiday.usecase.FetchHolidayUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.GetCalendarHolidayUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -21,12 +22,16 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.DateTimeUnit
@@ -407,6 +412,40 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
                         advanceUntilIdle()
                         expectNoEvents()
                     }
+                }
+            }
+        }
+
+        test("TC-CALENDAR-HOME-DATA-054 기기 지역이 바뀐 뒤 캘린더가 보이지 않은 시간에 따라 공휴일을 다시 표시한다") {
+            val caseMap =
+                mapOf(
+                    UI_STOP_TIMEOUT_MILLIS - 1 to false,
+                    UI_STOP_TIMEOUT_MILLIS + 1 to true,
+                )
+
+            caseMap.forEach { (hiddenMillis, isRegionChangeShown) ->
+                runTest(mainDispatcher) {
+                    val year = fixtureMonkey.giveMeOne<Int>().toPositiveYear()
+                    val koreaHoliday = holiday(year = year)
+                    val unitedStatesHoliday = holiday(year = year)
+                    var isKoreaRegion = true
+                    val getCalendarHolidayUseCase = mockk<GetCalendarHolidayUseCase>()
+                    every { getCalendarHolidayUseCase(parameter = year) } answers {
+                        flow { emit(Result.success(listOf(if (isKoreaRegion) koreaHoliday else unitedStatesHoliday))) }
+                    }
+                    val viewModel = holidayViewModel(getCalendarHolidayUseCase = getCalendarHolidayUseCase)
+                    viewModel.fetch(YearMonth(year = year, month = Month.JULY))
+                    val shownJob = backgroundScope.launch { viewModel.holidayList.collect {} }
+                    advanceUntilIdle()
+                    viewModel.holidayList.value shouldBe listOf(koreaHoliday)
+
+                    shownJob.cancel()
+                    isKoreaRegion = false
+                    advanceTimeBy(hiddenMillis)
+                    backgroundScope.launch { viewModel.holidayList.collect {} }
+                    runCurrent()
+
+                    viewModel.holidayList.value shouldBe listOf(if (isRegionChangeShown) unitedStatesHoliday else koreaHoliday)
                 }
             }
         }

@@ -9,10 +9,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -31,6 +33,7 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.withKeyDown
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.web.DIARY_WEB_VIEW_TEST_TAG
 import io.github.taetae98coding.diary.compose.web.DiaryWebSession
 import io.github.taetae98coding.diary.compose.web.LocalDiaryWebSession
 import io.github.taetae98coding.diary.core.model.web.WebDetail
@@ -502,6 +505,37 @@ class WebDetailScaffoldTest {
         composeRule.waitForIdle()
 
         eventList.count { event -> event == WebDetailScaffoldEvent.SessionImportFailed } shouldBe 1
+    }
+
+    @Test
+    fun `TC-WEB-DETAIL-FEATURE-066 응답 본문 방식에서는 가져오기가 시작되어도 표시가 바뀌지 않고 URL 방식으로 바꾸면 진행 상태를 거친다`() {
+        var session by mutableStateOf(DiaryWebSession(importCount = 1))
+        val uiState = testContentUiState()
+        composeRule.setContent {
+            CompositionLocalProvider(LocalDiaryWebSession provides session) {
+                WebDetailScaffoldUnderTest(
+                    uiState = uiState,
+                    pageUiState = WebDetailPageUiState.Failure,
+                    detail = uiState.detail,
+                    initialTab = WebDetailTab.PAGE,
+                    initialViewMode = WebDetailViewMode.RESPONSE,
+                    onEvent = {},
+                )
+            }
+        }
+        composeRule.onNodeWithTag(WEB_DETAIL_PAGE_FAILURE_TEST_TAG).assertExists()
+
+        composeRule.runOnIdle { session = DiaryWebSession(isPreparing = true, importCount = 1) }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithTag(WEB_DETAIL_PAGE_FAILURE_TEST_TAG).assertExists()
+        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertDoesNotExist()
+
+        composeRule.selectViewMode(label = DEFAULT_URL_VIEW_MODE_LABEL)
+
+        composeRule.onNodeWithTag(WEB_DETAIL_PAGE_FAILURE_TEST_TAG).assertDoesNotExist()
+        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
+        composeRule.onNodeWithTag(DIARY_WEB_VIEW_TEST_TAG).assertDoesNotExist()
     }
 
     @Test

@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.place.exception.PlaceCoordinateInvalidException
 import io.github.taetae98coding.diary.domain.place.repository.AccountPlaceRepository
+import io.github.taetae98coding.diary.domain.place.toPlacePrecision
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
 import kotlinx.coroutines.flow.first
@@ -21,11 +22,13 @@ public class UpdatePlaceUseCase internal constructor(
     private val clock: Clock,
 ) : UseCase<UpdatePlaceUseCase.Parameter, Int>() {
     override suspend fun execute(parameter: Parameter): Int {
-        if (!parameter.detail.coordinate.isRepresentable) throw PlaceCoordinateInvalidException()
+        val coordinate = parameter.detail.coordinate.toPlacePrecision()
+        if (!coordinate.isRepresentable) throw PlaceCoordinateInvalidException()
 
         val account = getAccountUseCase(parameter = Unit).first().getOrThrow()
         val detail =
             parameter.detail.copy(
+                coordinate = coordinate,
                 title =
                     parameter.detail.title.ifBlank {
                         findPlaceUseCase(parameter.id)

@@ -209,6 +209,20 @@ class AccountMemoPlaceTransactionImplTest :
             getPlaceList(accountId = accountId, memoId = memo.id) shouldBe listOf(place)
         }
 
+        test("TC-MEMO-PLACE-DOMAIN-022 장소의 제목·설명·컬러·좌표·주소 수정은 메모 연결을 바꾸지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = memo()
+            val place = place()
+            val changedPlace = place.copy(detail = placeDetail(), updatedAt = fixtureMonkey.giveMeOne<Instant>())
+            insertMemoWithPlaceList(accountId = accountId, memo = memo, placeList = listOf(place))
+
+            placeTransaction.upsert(accountId = accountId, placeList = listOf(changedPlace), placeTagList = emptyList())
+
+            findMemoPlaceList(memoId = memo.id) shouldBe
+                listOf(memoPlace(memoId = memo.id, placeId = place.id, memo = memo))
+            getPlaceList(accountId = accountId, memoId = memo.id) shouldBe listOf(changedPlace)
+        }
+
         test("TC-MEMO-PLACE-DOMAIN-008 TC-MEMO-DETAIL-DATA-021 연결을 해제하면 조회에서 제외되고 해제 상태로 남는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()

@@ -52,6 +52,47 @@ class MemoAddPlaceViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
+        test("TC-MEMO-PLACE-CARD-FEATURE-042 선택 목록을 열지 않아도 선택할 수 있는 장소 전체를 빈 검색어로 조회한다") {
+            runTest(mainDispatcher) {
+                val item = place()
+                val pagePlaceUseCase = mockk<PagePlaceUseCase>()
+                every { pagePlaceUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(listOf(item))))
+                val viewModel = viewModel(pagePlaceUseCase = pagePlaceUseCase, isListOpened = false)
+
+                val itemList = flowOf(viewModel.selectablePlacePagingData.first()).asSnapshot()
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+
+                itemList shouldBe listOf(item)
+                verify(exactly = 1) { pagePlaceUseCase(parameter = "") }
+            }
+        }
+
+        test("TC-MEMO-ADD-FEATURE-071 선택한 장소의 제목, 컬러, 위치가 바뀌면 장소 카드에 바로 반영된다") {
+            runTest(mainDispatcher) {
+                val place = place()
+                val changedPlace = place.copy(detail = fixtureMonkey.giveMeOne<Place>().detail.copy(title = "changed-${fixtureMonkey.giveMeOne<String>()}"))
+                val savedPlaceListFlow = MutableStateFlow(Result.success(listOf(place)))
+                val viewModel = viewModel(savedPlaceListFlow = savedPlaceListFlow)
+
+                viewModel.selectPlace(id = place.id)
+
+                viewModel.uiState.test {
+                    advanceUntilIdle()
+                    expectMostRecentItem().selectedPlaceList shouldBe listOf(place)
+
+                    savedPlaceListFlow.value = Result.success(listOf(changedPlace))
+                    advanceUntilIdle()
+
+                    val selectedPlace = expectMostRecentItem().selectedPlaceList.single()
+                    selectedPlace.detail.title shouldBe changedPlace.detail.title
+                    selectedPlace.detail.color shouldBe changedPlace.detail.color
+                    selectedPlace.detail.coordinate shouldBe changedPlace.detail.coordinate
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
         test("TC-MEMO-PLACE-CARD-DOMAIN-030 메모리 정리 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
             runTest(mainDispatcher) {
                 val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
@@ -377,8 +418,8 @@ class MemoAddPlaceViewModelTest : FunSpec() {
             fixtureMonkey
                 .giveMeKotlinBuilder<Place>()
                 .setExp(Place::isDeleted, false)
-                .setExp(Place::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Place::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Place::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Place::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
 
         private fun viewModel(

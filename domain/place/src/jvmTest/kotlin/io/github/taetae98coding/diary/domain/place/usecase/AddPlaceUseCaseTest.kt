@@ -113,7 +113,7 @@ class AddPlaceUseCaseTest :
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountPlaceRepository = mockk<AccountPlaceRepository>()
             coEvery { accountPlaceRepository.upsert(account = account, place = capture(placeSlot), tagIdSet = any()) } just Runs
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val clock = mockk<Clock>()
             every { clock.now() } returns now
             val useCase =
@@ -222,6 +222,19 @@ class AddPlaceUseCaseTest :
                         useCase(parameter = AddPlaceUseCase.Parameter(detail = detail(coordinate = coordinate), tagIdSet = emptySet())).shouldBeSuccess()
 
                         placeSlot.captured.detail.coordinate shouldBe coordinate
+                    }
+                }
+            }
+
+            listOf(
+                Coordinate(latitude = 37.1234567, longitude = 127.1234564) to Coordinate(latitude = 37.123457, longitude = 127.123456),
+                Coordinate(latitude = 90.0000004, longitude = -180.0000004) to Coordinate(latitude = 90.0, longitude = -180.0),
+            ).forEach { (coordinate, expected) ->
+                When("소수 여섯째 자리보다 긴 좌표 $coordinate 로 장소를 추가한다") {
+                    Then("TC-PLACE-ADD-DOMAIN-028 여섯째 자리로 반올림한 좌표로 저장한다") {
+                        useCase(parameter = AddPlaceUseCase.Parameter(detail = detail(coordinate = coordinate), tagIdSet = emptySet())).shouldBeSuccess()
+
+                        placeSlot.captured.detail.coordinate shouldBe expected
                     }
                 }
             }

@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.core.database.impl.memoweb.datasource
 import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
@@ -23,7 +24,9 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeout
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -72,6 +75,20 @@ class AccountMemoWebLocalDataSourceImplTest :
                         )
                     },
             )
+        }
+
+        suspend fun awaitSelectableWebInvalidated(
+            accountId: Uuid,
+            change: suspend () -> Unit,
+        ) {
+            val pagingSource = dataSource.pageSelectableWeb(accountId = accountId, query = "")
+            pagingSource.load(PagingSource.LoadParams.Refresh(key = null, loadSize = PAGE_SIZE, placeholdersEnabled = false))
+            val invalidated = CompletableDeferred<Unit>()
+            pagingSource.registerInvalidatedCallback { invalidated.complete(Unit) }
+
+            change()
+
+            withTimeout(INVALIDATION_TIMEOUT_MILLIS) { invalidated.await() }
         }
 
         suspend fun loadSelectableWeb(
@@ -352,28 +369,36 @@ class AccountMemoWebLocalDataSourceImplTest :
             secondPage.data shouldBe expected.drop(SMALL_PAGE_SIZE).take(SMALL_PAGE_SIZE)
         }
 
-        test("TC-MEMO-WEB-INPUT-DATA-005 웹 항목이 추가되면 선택 목록 조회 결과에 나타난다") {
+        test("TC-MEMO-WEB-INPUT-DATA-005 웹 항목이 추가되면 열려 있는 선택 목록이 스스로 다시 조회되어 나타난다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstWeb = web(title = FIRST_WEB_TITLE)
             webTransaction.upsert(accountId = accountId, webList = listOf(firstWeb), webTagList = emptyList())
-            loadSelectableWeb(accountId = accountId) shouldBe listOf(firstWeb)
-
             val addedWeb = web(title = LAST_WEB_TITLE)
-            webTransaction.upsert(accountId = accountId, webList = listOf(addedWeb), webTagList = emptyList())
+
+            awaitSelectableWebInvalidated(accountId = accountId) {
+                webTransaction.upsert(accountId = accountId, webList = listOf(addedWeb), webTagList = emptyList())
+            }
 
             loadSelectableWeb(accountId = accountId) shouldBe listOf(firstWeb, addedWeb)
         }
 
-        test("TC-MEMO-DETAIL-DATA-031 TC-MEMO-WEB-INPUT-DATA-005 저장된 웹 항목의 제목이 바뀌면 연결된 웹 조회와 선택 목록에 함께 반영된다") {
+        test("TC-MEMO-DETAIL-DATA-031 TC-MEMO-WEB-INPUT-DATA-005 저장된 웹 항목의 제목이 바뀌면 연결된 웹 항목 조회와 열려 있는 선택 목록에 스스로 반영된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val web = web(title = FIRST_WEB_TITLE)
             insertMemoWithWebList(accountId = accountId, memo = memo, webList = listOf(web))
             val renamedWeb = web.copy(detail = web.detail.copy(title = LAST_WEB_TITLE))
 
-            webTransaction.upsert(accountId = accountId, webList = listOf(renamedWeb), webTagList = emptyList())
+            dataSource.getWebList(accountId = accountId, memoId = memo.id).test {
+                awaitItem() shouldBe listOf(web)
 
-            dataSource.getWebList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(renamedWeb)
+                awaitSelectableWebInvalidated(accountId = accountId) {
+                    webTransaction.upsert(accountId = accountId, webList = listOf(renamedWeb), webTagList = emptyList())
+                }
+
+                awaitItem() shouldBe listOf(renamedWeb)
+                cancelAndIgnoreRemainingEvents()
+            }
             loadSelectableWeb(accountId = accountId) shouldBe listOf(renamedWeb)
         }
 
@@ -390,6 +415,7 @@ class AccountMemoWebLocalDataSourceImplTest :
         private const val LAST_WEB_TITLE = "ZebraWeb"
         private const val HEADER_WEB_TITLE = "HeaderWeb"
         private const val SEARCH_QUERY = "searchable"
+        private const val INVALIDATION_TIMEOUT_MILLIS = 5_000L
         private const val PAGE_SIZE = 20
         private const val SMALL_PAGE_SIZE = 10
         private const val WEB_COUNT = 25
@@ -432,7 +458,7 @@ class AccountMemoWebLocalDataSourceImplTest :
                 createdAt = instant(),
             )
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private suspend fun PagingSource<Int, WebLocalEntity>.loadPage(
             key: Int? = null,

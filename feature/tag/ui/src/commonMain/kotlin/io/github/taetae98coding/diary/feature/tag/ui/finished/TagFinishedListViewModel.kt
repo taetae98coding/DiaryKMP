@@ -19,9 +19,11 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 import kotlin.uuid.Uuid
@@ -39,9 +41,13 @@ internal class TagFinishedListViewModel(
 
     val tagPagingData: Flow<PagingData<Tag>> =
         sort
-            .flatMapLatest { value -> pageFinishedTagUseCase(parameter = value) }
-            .map { result -> result.getOrElse { PagingData.empty() } }
-            .cachedIn(viewModelScope)
+            .flatMapLatest { value ->
+                pageFinishedTagUseCase(parameter = value)
+                    .runningFold<Result<PagingData<Tag>>, PagingData<Tag>?>(initial = null) { last, result ->
+                        result.getOrElse { last ?: PagingData.empty() }
+                    }.filterNotNull()
+                    .distinctUntilChanged()
+            }.cachedIn(viewModelScope)
 
     private val _effect = Channel<TagListEffect>(Channel.BUFFERED)
     val effect: Flow<TagListEffect> = _effect.receiveAsFlow()

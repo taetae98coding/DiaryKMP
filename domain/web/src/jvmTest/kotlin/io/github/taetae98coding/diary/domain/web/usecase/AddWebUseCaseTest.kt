@@ -67,6 +67,20 @@ class AddWebUseCaseTest :
                         result.shouldBeFailure().shouldBeInstanceOf<WebTitleBlankException>()
                         coVerify(exactly = 0) { accountWebRepository.upsert(account = any(), web = any(), tagIdSet = any()) }
                     }
+
+                    Then("TC-WEB-ADD-DOMAIN-002 이름 없는 헤더도 있으면 제목 공백 예외를 먼저 알린다") {
+                        val result =
+                            useCase(
+                                parameter =
+                                    AddWebUseCase.Parameter(
+                                        detail = detail(title = blankTitle, headerList = listOf(WebHeader(name = "  ", value = "value"))),
+                                        tagIdSet = emptySet(),
+                                    ),
+                            )
+
+                        result.shouldBeFailure().shouldBeInstanceOf<WebTitleBlankException>()
+                        coVerify(exactly = 0) { accountWebRepository.upsert(account = any(), web = any(), tagIdSet = any()) }
+                    }
                 }
             }
         }
@@ -156,7 +170,7 @@ class AddWebUseCaseTest :
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountWebRepository = mockk<AccountWebRepository>()
             coEvery { accountWebRepository.upsert(account = account, web = capture(webSlot), tagIdSet = any()) } just Runs
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val clock = mockk<Clock>()
             every { clock.now() } returns now
             val useCase =

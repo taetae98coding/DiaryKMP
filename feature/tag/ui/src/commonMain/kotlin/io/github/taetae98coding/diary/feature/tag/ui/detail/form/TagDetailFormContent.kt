@@ -39,6 +39,7 @@ internal fun TagDetailFormContent(
         val viewModel = koinViewModel<TagDetailLinkViewModel> { parametersOf(id) }
         val linkUiState by viewModel.uiState.collectAsStateWithLifecycle()
         val tagPagingItems = viewModel.tagPagingData.collectAsLazyPagingItems()
+        val selectableTagPagingItems = viewModel.selectableTagPagingData.collectAsLazyPagingItems()
 
         TagLinkAddedResultEffect(
             requestKey = tagAddRequestKey,
@@ -49,7 +50,7 @@ internal fun TagDetailFormContent(
             onEvent = { event ->
                 when (event) {
                     is TagDetailFormContentEvent.ClickLink ->
-                        if (tagPagingItems.isConfirmedEmpty()) {
+                        if (selectableTagPagingItems.isConfirmedEmpty()) {
                             navigateToTagAdd()
                         } else {
                             state.linkPickerDialogState.show()

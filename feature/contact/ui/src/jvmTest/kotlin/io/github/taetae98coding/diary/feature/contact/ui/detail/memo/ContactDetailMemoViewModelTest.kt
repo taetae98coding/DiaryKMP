@@ -60,6 +60,30 @@ class ContactDetailMemoViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
+        listOf(ListSort.TITLE, ListSort.RECENTLY_UPDATED).forEach { sort ->
+            test("TC-CONTACT-DETAIL-MEMO-FEATURE-025 $sort 정렬을 고르면 그 정렬로 목록을 다시 조회한다") {
+                runTest(mainDispatcher) {
+                    val contactId = fixtureMonkey.giveMeOne<Uuid>()
+                    val memo = memo()
+                    val pageContactMemoUseCase = mockk<PageContactMemoUseCase>()
+                    every { pageContactMemoUseCase(parameter = PageContactMemoUseCase.Parameter(contactId = contactId, sort = ListSort.DEFAULT)) } returns
+                        flowOf(Result.success(PagingData.from(emptyList())))
+                    every { pageContactMemoUseCase(parameter = PageContactMemoUseCase.Parameter(contactId = contactId, sort = sort)) } returns
+                        flowOf(Result.success(PagingData.from(listOf(memo))))
+                    val viewModel = viewModel(contactId = contactId, pageContactMemoUseCase = pageContactMemoUseCase)
+
+                    viewModel.select(sort = sort)
+                    val itemList = flowOf(viewModel.memoPagingData.first()).asSnapshot()
+                    viewModel.viewModelScope.cancel()
+                    advanceUntilIdle()
+
+                    viewModel.sort.value shouldBe sort
+                    itemList.filterIsInstance<MemoListItem.Content>().map { it.memo } shouldBe listOf(memo)
+                    verify(exactly = 1) { pageContactMemoUseCase(parameter = PageContactMemoUseCase.Parameter(contactId = contactId, sort = sort)) }
+                }
+            }
+        }
+
         test("TC-CONTACT-DETAIL-MEMO-DATA-001 연락처별 메모 paging에 주입된 연락처 ID를 전달한다") {
             runTest(mainDispatcher) {
                 val contactId = fixtureMonkey.giveMeOne<Uuid>()
@@ -252,7 +276,7 @@ class ContactDetailMemoViewModelTest : FunSpec() {
             .setExp(
                 Memo::detail,
                 fixtureMonkey.giveMeOne<MemoDetail>().copy(dateTime = null),
-            ).setExp(Memo::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-            .setExp(Memo::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+            ).setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+            .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
             .sample()
 }

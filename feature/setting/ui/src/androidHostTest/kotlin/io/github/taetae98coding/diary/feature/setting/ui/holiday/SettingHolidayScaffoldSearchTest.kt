@@ -1,13 +1,16 @@
 package io.github.taetae98coding.diary.feature.setting.ui.holiday
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -15,6 +18,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
+import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.domain.holiday.model.HolidaySetting
 import io.github.taetae98coding.diary.feature.setting.ui.holiday.search.rememberSettingHolidaySearchResult
 import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
@@ -146,15 +150,25 @@ class SettingHolidayScaffoldSearchTest {
     fun `TC-SETTING-HOLIDAY-FEATURE-025 필터링된 목록에서도 선택 상태를 바꿀 수 있다`() {
         val holidaySetting = holidaySetting(isHoliday = true, isVisible = true, name = SEOLLAL_HOLIDAY_NAME)
         val eventList = mutableListOf<SettingHolidayScaffoldEvent>()
-        composeRule.setSettingHolidayScaffold(
-            uiState = loadedUiState(holidaySettingList = listOf(holidaySetting)),
-            onEvent = eventList::add,
-        )
+        val uiState = mutableStateOf(loadedUiState(holidaySettingList = listOf(holidaySetting)))
+        composeRule.setContent {
+            DiaryTheme {
+                SettingHolidayScaffold(
+                    onEvent = { event ->
+                        eventList += event
+                        uiState.value = loadedUiState(holidaySettingList = listOf(holidaySetting.copy(isVisible = false)))
+                    },
+                    uiStateProvider = { uiState.value },
+                )
+            }
+        }
 
         composeRule.searchInputField().performTextInput(SEOLLAL_QUERY)
         composeRule.holidayItemNode(holidaySetting.name).performClick()
 
         eventList shouldBe listOf(SettingHolidayScaffoldEvent.ToggleHoliday(name = holidaySetting.name))
+        composeRule.searchInputField().assert(hasText(SEOLLAL_QUERY))
+        composeRule.holidayItemNode(holidaySetting.name).assertIsOff()
     }
 
     @Test

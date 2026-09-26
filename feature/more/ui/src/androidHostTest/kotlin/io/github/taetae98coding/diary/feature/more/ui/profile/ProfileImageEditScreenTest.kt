@@ -188,8 +188,19 @@ class ProfileImageEditScreenTest {
         composeRule.onNodeWithText(DEFAULT_CHOOSE_PHOTO_LABEL).assertIsNotEnabled()
         composeRule.onNodeWithContentDescription(DEFAULT_APPLY_DESCRIPTION).performClick()
         composeRule.waitForIdle()
+        repeat(PUSH_COUNT) {
+            composeRule.onNodeWithContentDescription(DEFAULT_PHOTO_DESCRIPTION).performTouchInput { swipeLeft() }
+        }
+        composeRule.onNodeWithContentDescription(DEFAULT_PHOTO_DESCRIPTION).performTouchInput { pinch(start0 = center, end0 = centerLeft, start1 = center, end1 = centerRight) }
+        composeRule.waitForIdle()
 
         verify(exactly = 0) { viewModel.changeProfileImage(uri = any(), cropRegion = any()) }
+
+        composeRule.runOnIdle { uiState.value = ProfileImageEditUiState(isInProgress = false) }
+        composeRule.onNodeWithContentDescription(DEFAULT_APPLY_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        capturedRegions(viewModel = viewModel, uri = FileUri(LANDSCAPE_URI)).single().shouldBeCloseTo(LANDSCAPE_INITIAL_REGION)
     }
 
     @Test

@@ -30,7 +30,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import kotlin.uuid.Uuid
 
 class CoroutineMusicDownloadWorkSchedulerTest :
     BehaviorSpec({
@@ -74,13 +73,13 @@ class CoroutineMusicDownloadWorkSchedulerTest :
 
                 Then("TC-MUSIC-DOWNLOAD-FEATURE-006 진행 중인 곡의 상태가 그대로 남는다") {
                     runTest {
-                        val id = Uuid.random()
+                        val target = testDownloadTarget()
                         val gate = CompletableDeferred<Unit>()
                         val stateHolder = MusicDownloadStateHolder()
                         val work = mockk<MusicDownloadWork>()
                         coEvery { work.doWork(sort = any()) } coAnswers
                             {
-                                stateHolder.update(id = id, state = MusicDownloadState.Running(progress = 0.62F))
+                                stateHolder.update(target = target, state = MusicDownloadState.Running(progress = 0.62F))
                                 gate.await()
                             }
                         val scheduler = scheduler(work = work, stateHolder = stateHolder, scope = this)
@@ -90,7 +89,7 @@ class CoroutineMusicDownloadWorkSchedulerTest :
                         scheduler.download(sort = ListSort.RECENTLY_UPDATED)
                         advanceUntilIdle()
 
-                        stateHolder.stateMap.value shouldBe mapOf(id to MusicDownloadState.Running(progress = 0.62F))
+                        stateHolder.stateMap.value shouldBe mapOf(target to MusicDownloadState.Running(progress = 0.62F))
 
                         gate.complete(Unit)
                         advanceUntilIdle()
@@ -122,18 +121,18 @@ class CoroutineMusicDownloadWorkSchedulerTest :
             When("다운로드가 끝나면") {
                 Then("완료와 실패만 남기고 대기와 진행 중을 정리한다") {
                     runTest {
-                        val pending = Uuid.random()
-                        val running = Uuid.random()
-                        val done = Uuid.random()
-                        val failed = Uuid.random()
+                        val pending = testDownloadTarget()
+                        val running = testDownloadTarget()
+                        val done = testDownloadTarget()
+                        val failed = testDownloadTarget()
                         val stateHolder = MusicDownloadStateHolder()
                         val work = mockk<MusicDownloadWork>()
                         coEvery { work.doWork(sort = any()) } coAnswers
                             {
-                                stateHolder.update(id = pending, state = MusicDownloadState.Pending)
-                                stateHolder.update(id = running, state = MusicDownloadState.Running(progress = 0.5F))
-                                stateHolder.update(id = done, state = MusicDownloadState.Done)
-                                stateHolder.update(id = failed, state = MusicDownloadState.Failed)
+                                stateHolder.update(target = pending, state = MusicDownloadState.Pending)
+                                stateHolder.update(target = running, state = MusicDownloadState.Running(progress = 0.5F))
+                                stateHolder.update(target = done, state = MusicDownloadState.Done)
+                                stateHolder.update(target = failed, state = MusicDownloadState.Failed)
                                 error("download interrupted")
                             }
                         // 실행 수단은 실패를 전용 스코프의 핸들러에 맡기므로 테스트 스코프가 아닌 그런 스코프에 예약한다.
@@ -185,6 +184,42 @@ class CoroutineMusicDownloadWorkSchedulerTest :
                         downloadedList shouldContainExactly targetList
                         coVerify(exactly = 1) { findTargetUseCase(parameter = any()) }
                         coVerify(exactly = 0) { findTargetUseCase(parameter = ListSort.RECENTLY_UPDATED) }
+                    }
+                }
+            }
+        }
+
+        Given("영상 A를 가리키던 곡이 진행 중인 채 멈춰 있고 그 곡의 링크가 영상 B로 바뀌었다") {
+            When("다운로드를 한 번 더 실행하고 멈춰 있던 곡이 끝나면") {
+                Then("TC-MUSIC-DOWNLOAD-DOMAIN-022 대상을 다시 판정하지 않고 영상 A만 한 번 받으며 영상 B는 받지 않는다") {
+                    runTest {
+                        val targetA = testDownloadTarget()
+                        val targetB = testDownloadTarget().copy(id = targetA.id)
+                        val gate = CompletableDeferred<Unit>()
+                        val findTargetUseCase = mockk<FindMusicDownloadTargetUseCase>()
+                        coEvery { findTargetUseCase(parameter = any()) } returnsMany listOf(Result.success(listOf(targetA)), Result.success(listOf(targetB)))
+                        val downloader = mockk<MusicDownloader>()
+                        coEvery { downloader.download(target = any(), path = any(), onProgress = any()) } coAnswers
+                            {
+                                gate.await()
+                                true
+                            }
+                        val scheduler =
+                            scheduler(
+                                work = realWork(findMusicDownloadTargetUseCase = findTargetUseCase, musicDownloader = downloader),
+                                scope = this,
+                            )
+
+                        scheduler.download(sort = ListSort.TITLE)
+                        advanceUntilIdle()
+                        scheduler.download(sort = ListSort.TITLE)
+                        advanceUntilIdle()
+                        gate.complete(Unit)
+                        advanceUntilIdle()
+
+                        coVerify(exactly = 1) { findTargetUseCase(parameter = any()) }
+                        coVerify(exactly = 1) { downloader.download(target = targetA, path = any(), onProgress = any()) }
+                        coVerify(exactly = 0) { downloader.download(target = targetB, path = any(), onProgress = any()) }
                     }
                 }
             }

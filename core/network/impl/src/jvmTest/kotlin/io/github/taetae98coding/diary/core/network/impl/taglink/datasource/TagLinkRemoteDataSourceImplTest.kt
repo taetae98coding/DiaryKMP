@@ -127,8 +127,8 @@ class TagLinkRemoteDataSourceImplTest :
             fixtureMonkey
                 .giveMeKotlinBuilder<TagLinkRemoteEntity>()
                 .setExp(TagLinkRemoteEntity::isDeleted, isDeleted)
-                .setExp(TagLinkRemoteEntity::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(TagLinkRemoteEntity::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(TagLinkRemoteEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(TagLinkRemoteEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
 
         private suspend fun httpResponse(

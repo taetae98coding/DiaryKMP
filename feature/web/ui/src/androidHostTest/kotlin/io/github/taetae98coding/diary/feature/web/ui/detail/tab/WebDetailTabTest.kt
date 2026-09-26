@@ -14,6 +14,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
@@ -24,6 +25,7 @@ import io.github.taetae98coding.diary.feature.web.ui.detail.DEFAULT_MEMO_TAB_DES
 import io.github.taetae98coding.diary.feature.web.ui.detail.DEFAULT_NAVIGATE_UP_DESCRIPTION
 import io.github.taetae98coding.diary.feature.web.ui.detail.DEFAULT_OPEN_IN_NEW_DESCRIPTION
 import io.github.taetae98coding.diary.feature.web.ui.detail.DEFAULT_PAGE_TAB_DESCRIPTION
+import io.github.taetae98coding.diary.feature.web.ui.detail.DEFAULT_RESPONSE_VIEW_MODE_LABEL
 import io.github.taetae98coding.diary.feature.web.ui.detail.DEFAULT_UPDATE_DESCRIPTION
 import io.github.taetae98coding.diary.feature.web.ui.detail.DEFAULT_VIEW_MODE_DESCRIPTION
 import io.github.taetae98coding.diary.feature.web.ui.detail.FIRST_WEB_ID
@@ -32,17 +34,26 @@ import io.github.taetae98coding.diary.feature.web.ui.detail.WEB_DETAIL_FORM_TEST
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScreen
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScreenTestTheme
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailUiState
+import io.github.taetae98coding.diary.feature.web.ui.detail.addHeaderRow
+import io.github.taetae98coding.diary.feature.web.ui.detail.descriptionInput
+import io.github.taetae98coding.diary.feature.web.ui.detail.headerNameInput
+import io.github.taetae98coding.diary.feature.web.ui.detail.headerValueInput
 import io.github.taetae98coding.diary.feature.web.ui.detail.memoScreenPageViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.memoScreenWebViewModel
+import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
 import io.github.taetae98coding.diary.feature.web.ui.detail.prepareWebDetailTabViewModels
+import io.github.taetae98coding.diary.feature.web.ui.detail.selectViewMode
 import io.github.taetae98coding.diary.feature.web.ui.detail.selectWebDetailTab
 import io.github.taetae98coding.diary.feature.web.ui.detail.setWebDetailMemoScreen
 import io.github.taetae98coding.diary.feature.web.ui.detail.testContentUiState
 import io.github.taetae98coding.diary.feature.web.ui.detail.testWebDetail
+import io.github.taetae98coding.diary.feature.web.ui.detail.testWebPage
 import io.github.taetae98coding.diary.feature.web.ui.detail.titleInput
+import io.github.taetae98coding.diary.feature.web.ui.detail.urlInput
 import io.github.taetae98coding.diary.feature.web.ui.detail.webMemo
 import io.github.taetae98coding.diary.feature.web.ui.detail.webMemoPagingData
 import io.kotest.matchers.shouldBe
+import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
@@ -57,11 +68,24 @@ class WebDetailTabTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-056 화면에 처음 진입하면 메모 탭은 선택되어 있지 않다`() {
+    fun `TC-WEB-DETAIL-FEATURE-056 웹 페이지를 탭으로 두는 배치에서는 웹 페이지 탭으로 시작하고 메모 탭은 선택되어 있지 않다`() {
         setScreen()
 
         composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsNotSelected()
+        composeRule.onNodeWithContentDescription(DEFAULT_FORM_TAB_DESCRIPTION).assertIsNotSelected()
         composeRule.onNodeWithContentDescription(DEFAULT_PAGE_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.onNodeWithText(MEMO_TITLE).assertDoesNotExist()
+    }
+
+    @Test
+    @Config(qualifiers = "w1000dp-h800dp")
+    fun `TC-WEB-DETAIL-FEATURE-056 웹 페이지를 늘 함께 두는 배치에서는 웹 정보 수정 탭으로 시작하고 메모 탭은 선택되어 있지 않다`() {
+        setScreen()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_FORM_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsNotSelected()
+        composeRule.onNodeWithContentDescription(DEFAULT_PAGE_TAB_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithTag(WEB_DETAIL_FORM_TEST_TAG).assertExists()
         composeRule.onNodeWithText(MEMO_TITLE).assertDoesNotExist()
     }
 
@@ -114,16 +138,52 @@ class WebDetailTabTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-059 메모 탭에 다녀와도 수정 중이던 내용이 유지된다`() {
-        setScreen()
+    fun `TC-WEB-DETAIL-FEATURE-059 메모 탭에 다녀와도 수정 중이던 내용과 웹 페이지 상태가 유지된다`() {
+        val pageViewModel = memoScreenPageViewModel(pageUiState = WebDetailPageUiState.Content(page = testWebPage()))
+        composeRule.setWebDetailMemoScreen(
+            viewModel = memoScreenWebViewModel(uiState = MutableStateFlow(testContentUiState(detail = testWebDetail(title = WEB_TITLE)))),
+            memoPagingData = webMemoPagingData(itemList = listOf(MemoListItem.Content(memo = webMemo(title = MEMO_TITLE)))),
+            pageViewModel = pageViewModel,
+        )
+        composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
         composeRule.selectWebDetailTab(DEFAULT_FORM_TAB_DESCRIPTION)
         composeRule.titleInput().performTextReplacement(TYPED_TITLE)
+        composeRule.descriptionInput().performTextReplacement(TYPED_DESCRIPTION)
+        composeRule.urlInput().performTextReplacement(TYPED_URL)
+        composeRule.addHeaderRow()
+        composeRule.headerNameInput().performTextInput(TYPED_HEADER_NAME)
+        composeRule.headerValueInput().performTextInput(TYPED_HEADER_VALUE)
         composeRule.waitForIdle()
 
         composeRule.selectWebDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+        waitUntilMemoListExists()
         composeRule.selectWebDetailTab(DEFAULT_FORM_TAB_DESCRIPTION)
 
         composeRule.titleInput().assert(hasText(TYPED_TITLE))
+        composeRule.descriptionInput().assert(hasText(TYPED_DESCRIPTION))
+        composeRule.urlInput().assert(hasText(TYPED_URL))
+        composeRule.headerNameInput().assert(hasText(TYPED_HEADER_NAME))
+        composeRule.headerValueInput().assert(hasText(TYPED_HEADER_VALUE))
+
+        composeRule.selectWebDetailTab(DEFAULT_PAGE_TAB_DESCRIPTION)
+        composeRule.onNodeWithText(DEFAULT_RESPONSE_VIEW_MODE_LABEL).assertExists()
+        verify(exactly = 1) { pageViewModel.load() }
+        verify(exactly = 0) { pageViewModel.retry() }
+        verify(exactly = 0) { pageViewModel.refresh() }
+    }
+
+    @Test
+    fun `TC-WEB-DETAIL-MEMO-FEATURE-027 웹 페이지 표시 방식을 바꿔도 메모 탭의 목록은 바뀌지 않는다`() {
+        setScreen()
+        composeRule.selectWebDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+        waitUntilMemoListExists()
+
+        composeRule.selectWebDetailTab(DEFAULT_PAGE_TAB_DESCRIPTION)
+        composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
+        composeRule.selectWebDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+
+        waitUntilMemoListExists()
+        composeRule.onNodeWithText(MEMO_TITLE).assertExists()
     }
 
     @Test
@@ -204,6 +264,7 @@ class WebDetailTabTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsNotSelected()
+        composeRule.onNodeWithContentDescription(DEFAULT_PAGE_TAB_DESCRIPTION).assertIsSelected()
     }
 
     private fun waitUntilMemoListExists() {
@@ -226,6 +287,10 @@ class WebDetailTabTest {
     private companion object {
         const val WEB_TITLE = "WebDetailTabTitle"
         const val TYPED_TITLE = "WebDetailTabTypedTitle"
+        const val TYPED_DESCRIPTION = "WebDetailTabTypedDescription"
+        const val TYPED_URL = "https://example.com/web-detail-tab"
+        const val TYPED_HEADER_NAME = "X-Web-Detail-Tab"
+        const val TYPED_HEADER_VALUE = "WebDetailTabHeaderValue"
         const val MEMO_TITLE = "WebDetailTabMemo"
         const val PAGE_TIMEOUT_MILLIS = 5_000L
     }

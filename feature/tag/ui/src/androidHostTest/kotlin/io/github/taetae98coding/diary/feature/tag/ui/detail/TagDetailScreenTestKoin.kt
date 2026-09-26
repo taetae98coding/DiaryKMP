@@ -91,6 +91,7 @@ internal val tagDetailTabViewModelModule =
                 .apply {
                     every { uiState } returns linkUiStateFlow
                     every { tagPagingData } returns linkTagPagingDataFlow
+                    every { selectableTagPagingData } returns linkTagPagingDataFlow
                 }.also { linkViewModelRef = it }
         }
         factory {

@@ -361,8 +361,8 @@ class AccountTagFinishedDaoTest :
             title: String = fixtureMonkey.giveMeOne<String>(),
             isFinished: Boolean = false,
             isDeleted: Boolean = false,
-            updatedAt: Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
-            createdAt: Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+            updatedAt: Instant = fixtureMonkey.giveMeOne<Instant>(),
+            createdAt: Instant = fixtureMonkey.giveMeOne<Instant>(),
         ): TagLocalEntity =
             fixtureMonkey
                 .giveMeKotlinBuilder<TagLocalEntity>()

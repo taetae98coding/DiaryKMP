@@ -36,8 +36,6 @@ import io.github.taetae98coding.diary.feature.memo.ui.home.filter.MemoHomeFilter
 import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagViewModel
 import io.github.taetae98coding.diary.feature.place.api.PlaceAddNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
-import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
-import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
@@ -76,18 +74,14 @@ private fun EntryProviderScope<ScreenNavKey>.memoHomeEntry(
             listState = listState,
         )
         MemoHomeScreen(
-            navigateToAdd = {
-                backStack.add(MemoAddNavKey())
-            },
+            navigateToAdd = backStack::navigateToMemoAddFromHome,
             navigateToFilter = {
                 backStack.add(MemoHomeFilterNavKey)
             },
             navigateToFinishedList = {
                 backStack.add(MemoFinishedListNavKey)
             },
-            navigateToSearch = {
-                backStack.add(SearchHomeNavKey(initialType = SearchHomeType.MEMO))
-            },
+            navigateToSearch = backStack::navigateToSearchFromMemoHome,
             navigateToDetail = { id -> backStack.navigateToMemoDetailFromHome(id) },
             componentVisibleProvider = {
                 val isMemoDetailVisible = backStack.lastOrNull() is MemoDetailNavKey

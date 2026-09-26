@@ -39,21 +39,21 @@ class SyncEffectTest {
     }
 
     @Test
-    fun `TC-DATA-SYNC-DOMAIN-032 Android와 iOS에서 앱이 다시 화면에 보이게 되면 동기화를 다시 요청한다`() {
+    fun `TC-DATA-SYNC-DOMAIN-032 TC-SYNC-REFRESH-FEATURE-003 Android와 iOS에서 앱이 다시 화면에 보이게 되면 진행을 표시할 동기화를 다시 요청한다`() {
         val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
         val accountFlow = MutableStateFlow<Account>(account)
-        val requestSync = mockk<() -> Unit>(relaxed = true)
+        val requestSync = mockk<(SyncTrigger) -> Unit>(relaxed = true)
         val lifecycleOwner = setSyncEffect(accountFlow, requestSync)
 
         composeRule.runOnIdle {
-            verify(exactly = 1) { requestSync() }
+            verify(exactly = 1) { requestSync(any()) }
         }
 
         composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
         composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.STARTED }
 
         composeRule.runOnIdle {
-            verify(exactly = 2) { requestSync() }
+            verify(exactly = 2) { requestSync(SyncTrigger.ACCOUNT_CONFIRMED) }
         }
     }
 
@@ -62,14 +62,14 @@ class SyncEffectTest {
         val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
         val otherAccount = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
         val accountFlow = MutableStateFlow<Account>(Account.Guest)
-        val requestSync = mockk<() -> Unit>(relaxed = true)
+        val requestSync = mockk<(SyncTrigger) -> Unit>(relaxed = true)
         setSyncEffect(accountFlow, requestSync, initialState = Lifecycle.State.CREATED)
 
         composeRule.runOnIdle { accountFlow.value = account }
         composeRule.runOnIdle { accountFlow.value = otherAccount }
 
         composeRule.runOnIdle {
-            verify(exactly = 0) { requestSync() }
+            verify(exactly = 0) { requestSync(any()) }
         }
     }
 
@@ -78,23 +78,23 @@ class SyncEffectTest {
         val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
         val otherAccount = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
         val accountFlow = MutableStateFlow<Account>(Account.Guest)
-        val requestSync = mockk<() -> Unit>(relaxed = true)
+        val requestSync = mockk<(SyncTrigger) -> Unit>(relaxed = true)
         val lifecycleOwner = setSyncEffect(accountFlow, requestSync, initialState = Lifecycle.State.CREATED)
 
         composeRule.runOnIdle { accountFlow.value = account }
         composeRule.runOnIdle { accountFlow.value = otherAccount }
         composeRule.runOnIdle {
-            verify(exactly = 0) { requestSync() }
+            verify(exactly = 0) { requestSync(any()) }
             lifecycleOwner.currentState = Lifecycle.State.STARTED
         }
 
         composeRule.runOnIdle {
-            verify(exactly = 1) { requestSync() }
+            verify(exactly = 1) { requestSync(any()) }
         }
     }
 
     @Test
-    fun `TC-DATA-SYNC-DOMAIN-085 앱 화면이 다시 만들어지면 같은 계정이어도 진행을 표시할 동기화를 한 번 다시 요청한다`() {
+    fun `TC-DATA-SYNC-DOMAIN-085 TC-SYNC-REFRESH-FEATURE-003 앱 화면이 다시 만들어지면 같은 계정이어도 진행을 표시할 동기화를 한 번 다시 요청한다`() {
         val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
         val getAccountUseCase = mockk<GetAccountUseCase>()
         every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
@@ -133,14 +133,14 @@ class SyncEffectTest {
     fun `Android와 iOS에서는 포커스를 잃고 다시 얻는 것은 계기가 아니다`() {
         val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
         val accountFlow = MutableStateFlow<Account>(account)
-        val requestSync = mockk<() -> Unit>(relaxed = true)
+        val requestSync = mockk<(SyncTrigger) -> Unit>(relaxed = true)
         val lifecycleOwner = setSyncEffect(accountFlow, requestSync, initialState = Lifecycle.State.RESUMED)
 
         composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.STARTED }
         composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
 
         composeRule.runOnIdle {
-            verify(exactly = 1) { requestSync() }
+            verify(exactly = 1) { requestSync(any()) }
         }
     }
 
@@ -172,7 +172,7 @@ class SyncEffectTest {
 
     private fun setSyncEffect(
         accountFlow: MutableStateFlow<Account>,
-        requestSync: () -> Unit,
+        requestSync: (SyncTrigger) -> Unit,
         initialState: Lifecycle.State = Lifecycle.State.STARTED,
         schedulePeriodicSync: () -> Unit = mockk(relaxed = true),
     ): TestLifecycleOwner {

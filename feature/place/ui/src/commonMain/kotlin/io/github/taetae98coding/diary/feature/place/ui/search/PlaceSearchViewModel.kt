@@ -1,63 +1,49 @@
-@file:OptIn(ExperimentalCoroutinesApi::class)
-
 package io.github.taetae98coding.diary.feature.place.ui.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.domain.place.usecase.FetchSearchedPlaceUseCase
-import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.runningFold
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.transformLatest
+import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
 internal class PlaceSearchViewModel(
     private val fetchSearchedPlaceUseCase: FetchSearchedPlaceUseCase,
 ) : ViewModel() {
-    private val request = MutableStateFlow<PlaceSearchRequest?>(null)
+    // 결과는 검색한 순간에 한 번 받는 값이므로 구독이 잠시 끊겨도 다시 조회하지 않도록 ViewModel이 들고 있는다.
+    val uiState: StateFlow<PlaceSearchUiState>
+        field = MutableStateFlow<PlaceSearchUiState>(PlaceSearchUiState.Idle)
 
-    val uiState: StateFlow<PlaceSearchUiState> =
-        request
-            .runningFold(initial = PlaceSearchRequestChange()) { change, request ->
-                PlaceSearchRequestChange(previous = change.current, current = request)
-            }.transformLatest { change ->
-                val request = change.current
-                if (request == null) {
-                    emit(PlaceSearchUiState.Idle)
-                    return@transformLatest
-                }
+    private var lastRequest: PlaceSearchRequest? = null
+    private var searchJob: Job? = null
 
-                if (change.previous != null && change.previous.provider != request.provider) {
-                    emit(PlaceSearchUiState.Idle)
-                }
+    fun search(request: PlaceSearchRequest) {
+        val previousRequest = lastRequest
 
-                val uiState =
+        lastRequest = request
+        searchJob?.cancel()
+
+        if (previousRequest != null && previousRequest.provider != request.provider) {
+            uiState.value = PlaceSearchUiState.Idle
+        }
+
+        searchJob =
+            viewModelScope.launch {
+                uiState.value =
                     fetchSearchedPlaceUseCase(parameter = request.toParameter()).fold(
                         onSuccess = { placeList -> PlaceSearchUiState.Loaded(placeList = placeList) },
                         onFailure = { PlaceSearchUiState.Failed },
                     )
-                emit(uiState)
-            }.stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileUiSubscribed,
-                initialValue = PlaceSearchUiState.Idle,
-            )
-
-    fun search(request: PlaceSearchRequest) {
-        this.request.value = request
+            }
     }
 
     fun clear() {
-        request.value = null
+        lastRequest = null
+        searchJob?.cancel()
+        searchJob = null
+        uiState.value = PlaceSearchUiState.Idle
     }
 }
-
-private data class PlaceSearchRequestChange(
-    val previous: PlaceSearchRequest? = null,
-    val current: PlaceSearchRequest? = null,
-)

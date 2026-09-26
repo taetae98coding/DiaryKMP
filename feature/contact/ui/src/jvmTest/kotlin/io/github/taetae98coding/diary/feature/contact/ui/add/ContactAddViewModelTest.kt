@@ -90,41 +90,45 @@ class ContactAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-ADD-FEATURE-009 이름이 공백이면 이름 미입력 Effect를 보내고 진행 상태를 해제한다") {
-            runTest(mainDispatcher) {
-                val useCase = mockk<AddContactUseCase>()
-                coEvery { useCase(any()) } returns Result.failure(ContactNameBlankException())
-                val viewModel = ContactAddViewModel(addContactUseCase = useCase)
+        test("TC-CONTACT-ADD-FEATURE-009 이름이 비어 있거나 공백이면 이름 미입력 Effect를 보내고 진행 상태를 해제한다") {
+            BLANK_TEXT_LIST.forEach { blankName ->
+                runTest(mainDispatcher) {
+                    val useCase = mockk<AddContactUseCase>()
+                    coEvery { useCase(any()) } returns Result.failure(ContactNameBlankException())
+                    val viewModel = ContactAddViewModel(addContactUseCase = useCase)
 
-                viewModel.effect.test {
-                    viewModel.add(detail = detail(name = "  "))
-                    advanceUntilIdle()
+                    viewModel.effect.test {
+                        viewModel.add(detail = detail(name = blankName))
+                        advanceUntilIdle()
 
-                    awaitItem() shouldBe ContactAddEffect.NameBlank
-                    expectNoEvents()
+                        awaitItem() shouldBe ContactAddEffect.NameBlank
+                        expectNoEvents()
+                    }
+
+                    viewModel.uiState.value.isInProgress
+                        .shouldBeFalse()
                 }
-
-                viewModel.uiState.value.isInProgress
-                    .shouldBeFalse()
             }
         }
 
-        test("TC-CONTACT-ADD-FEATURE-009 번호가 공백인 전화번호 항목이 있으면 전화번호 미입력 Effect를 보내고 진행 상태를 해제한다") {
-            runTest(mainDispatcher) {
-                val useCase = mockk<AddContactUseCase>()
-                coEvery { useCase(any()) } returns Result.failure(ContactPhoneNumberBlankException())
-                val viewModel = ContactAddViewModel(addContactUseCase = useCase)
+        test("TC-CONTACT-ADD-FEATURE-009 번호가 비어 있거나 공백인 전화번호 항목이 있으면 전화번호 미입력 Effect를 보내고 진행 상태를 해제한다") {
+            BLANK_TEXT_LIST.forEach { blankNumber ->
+                runTest(mainDispatcher) {
+                    val useCase = mockk<AddContactUseCase>()
+                    coEvery { useCase(any()) } returns Result.failure(ContactPhoneNumberBlankException())
+                    val viewModel = ContactAddViewModel(addContactUseCase = useCase)
 
-                viewModel.effect.test {
-                    viewModel.add(detail = detail().copy(phoneNumberList = listOf(ContactPhoneNumber(number = "  "))))
-                    advanceUntilIdle()
+                    viewModel.effect.test {
+                        viewModel.add(detail = detail().copy(phoneNumberList = listOf(ContactPhoneNumber(number = blankNumber))))
+                        advanceUntilIdle()
 
-                    awaitItem() shouldBe ContactAddEffect.PhoneNumberBlank
-                    expectNoEvents()
+                        awaitItem() shouldBe ContactAddEffect.PhoneNumberBlank
+                        expectNoEvents()
+                    }
+
+                    viewModel.uiState.value.isInProgress
+                        .shouldBeFalse()
                 }
-
-                viewModel.uiState.value.isInProgress
-                    .shouldBeFalse()
             }
         }
 
@@ -201,6 +205,8 @@ class ContactAddViewModelTest : FunSpec() {
     public companion object {
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
+
+        private val BLANK_TEXT_LIST: List<String> = listOf("", "  ")
 
         private fun detail(name: String = "name-${fixtureMonkey.giveMeOne<String>()}"): ContactDetail = ContactDetail.EMPTY.copy(name = name)
     }

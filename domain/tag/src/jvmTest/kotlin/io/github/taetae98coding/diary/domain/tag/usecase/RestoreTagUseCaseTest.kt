@@ -61,7 +61,7 @@ class RestoreTagUseCaseTest :
                     updatedAtSlot.captured shouldBe now
                 }
 
-                Then("TC-TAG-HOME-DATA-014 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
+                Then("TC-TAG-HOME-DATA-014 TC-SYNC-REFRESH-FEATURE-004 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }

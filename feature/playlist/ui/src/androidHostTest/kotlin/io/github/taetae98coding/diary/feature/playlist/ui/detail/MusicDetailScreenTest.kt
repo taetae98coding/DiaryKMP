@@ -1,12 +1,16 @@
 package io.github.taetae98coding.diary.feature.playlist.ui.detail
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasNoClickAction
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
@@ -14,6 +18,7 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -82,14 +87,18 @@ class MusicDetailScreenTest {
         val viewModel = setMusicDetailScreen(uiState = contentUiState())
 
         composeRule.titleInput().performTextReplacement(EDITING_TITLE)
+        composeRule.artistInput().performTextReplacement(EDITING_ARTIST)
+        composeRule.linkInput().performTextReplacement(CHANGED_LINK)
         composeRule.waitForIdle()
 
         composeRule.titleInput().assert(hasText(EDITING_TITLE))
+        composeRule.artistInput().assert(hasText(EDITING_ARTIST))
+        composeRule.linkInput().assert(hasText(CHANGED_LINK))
         composeRule.nodeCount(DEFAULT_UPDATE_BUTTON_DESCRIPTION) shouldBe 1
 
         composeRule.clickUpdate()
 
-        verify(exactly = 1) { viewModel.update(detail = testMusicDetail(title = EDITING_TITLE)) }
+        verify(exactly = 1) { viewModel.update(detail = testMusicDetail(title = EDITING_TITLE, artist = EDITING_ARTIST, link = CHANGED_LINK)) }
     }
 
     @Test
@@ -97,6 +106,36 @@ class MusicDetailScreenTest {
         setMusicDetailScreen(uiState = contentUiState())
 
         composeRule.linkInput().performTextReplacement("")
+        composeRule.waitForIdle()
+
+        composeRule.nodeCount(DEFAULT_UPDATE_BUTTON_DESCRIPTION) shouldBe 1
+    }
+
+    @Test
+    fun `TC-MUSIC-DETAIL-FEATURE-006 가수를 바꾸면 수정 동작을 제공한다`() {
+        setMusicDetailScreen(uiState = contentUiState())
+
+        composeRule.artistInput().performTextReplacement(EDITING_ARTIST)
+        composeRule.waitForIdle()
+
+        composeRule.nodeCount(DEFAULT_UPDATE_BUTTON_DESCRIPTION) shouldBe 1
+    }
+
+    @Test
+    fun `TC-MUSIC-DETAIL-FEATURE-006 링크를 바꾸면 수정 동작을 제공한다`() {
+        setMusicDetailScreen(uiState = contentUiState())
+
+        composeRule.linkInput().performTextReplacement(CHANGED_LINK)
+        composeRule.waitForIdle()
+
+        composeRule.nodeCount(DEFAULT_UPDATE_BUTTON_DESCRIPTION) shouldBe 1
+    }
+
+    @Test
+    fun `TC-MUSIC-DETAIL-FEATURE-006 저장된 링크 앞뒤에 공백만 붙여도 수정 동작을 제공한다`() {
+        setMusicDetailScreen(uiState = contentUiState())
+
+        composeRule.linkInput().performTextReplacement(" $STORED_LINK ")
         composeRule.waitForIdle()
 
         composeRule.nodeCount(DEFAULT_UPDATE_BUTTON_DESCRIPTION) shouldBe 1
@@ -134,6 +173,7 @@ class MusicDetailScreenTest {
         composeRule.runOnIdle {
             effect.value =
                 MusicDetailEffect.LinkFetched(
+                    link = STORED_LINK,
                     title = FETCHED_TITLE,
                     artist = FETCHED_ARTIST,
                 )
@@ -144,6 +184,44 @@ class MusicDetailScreenTest {
         composeRule.artistInput().assert(hasText(FETCHED_ARTIST))
         composeRule.linkInput().assert(hasText(STORED_LINK))
         composeRule.nodeCount(DEFAULT_THUMBNAIL_PREVIEW_DESCRIPTION) shouldBe 1
+    }
+
+    @Test
+    fun `TC-MUSIC-DETAIL-FEATURE-033 다시 불러오는 동안 링크를 다른 영상으로 바꾸면 도착한 결과를 채우지 않는다`() {
+        val effect = MutableStateFlow<MusicDetailEffect?>(null)
+        setMusicDetailScreen(uiState = contentUiState(), effect = effect.filterNotNull())
+
+        composeRule.clickFetch()
+        composeRule.linkInput().performTextReplacement(CHANGED_LINK)
+        composeRule.waitForIdle()
+        val textListBeforeResult = composeRule.visibleTextList()
+        composeRule.runOnIdle {
+            effect.value = MusicDetailEffect.LinkFetched(link = STORED_LINK, title = FETCHED_TITLE, artist = FETCHED_ARTIST)
+        }
+        composeRule.waitForIdle()
+
+        composeRule.titleInput().assert(hasText(STORED_TITLE))
+        composeRule.artistInput().assert(hasText(STORED_ARTIST))
+        composeRule.linkInput().assert(hasText(CHANGED_LINK))
+        composeRule.visibleTextList() shouldBe textListBeforeResult
+    }
+
+    @Test
+    fun `TC-MUSIC-DETAIL-FEATURE-033 다시 불러오는 동안 링크를 바꿨다가 되돌리면 도착한 결과를 채운다`() {
+        val effect = MutableStateFlow<MusicDetailEffect?>(null)
+        setMusicDetailScreen(uiState = contentUiState(), effect = effect.filterNotNull())
+
+        composeRule.clickFetch()
+        composeRule.linkInput().performTextReplacement(CHANGED_LINK)
+        composeRule.linkInput().performTextReplacement(STORED_LINK)
+        composeRule.waitForIdle()
+        composeRule.runOnIdle {
+            effect.value = MusicDetailEffect.LinkFetched(link = STORED_LINK, title = FETCHED_TITLE, artist = FETCHED_ARTIST)
+        }
+        composeRule.waitForIdle()
+
+        composeRule.titleInput().assert(hasText(FETCHED_TITLE))
+        composeRule.artistInput().assert(hasText(FETCHED_ARTIST))
     }
 
     @Test
@@ -280,14 +358,20 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-027 뒤로가기를 선택하면 돌아가기 행동을 한 번 전달한다`() {
+    fun `TC-MUSIC-DETAIL-FEATURE-027 입력을 바꾼 채 뒤로가면 돌아가기 행동을 한 번 전달하고 수정하지 않는다`() {
         var navigateUpCount = 0
 
-        setMusicDetailScreen(uiState = contentUiState(), navigateUp = { navigateUpCount += 1 })
+        val viewModel = setMusicDetailScreen(uiState = contentUiState(), navigateUp = { navigateUpCount += 1 })
+        composeRule.titleInput().performTextReplacement(EDITING_TITLE)
+        composeRule.artistInput().performTextReplacement(EDITING_ARTIST)
+        composeRule.linkInput().performTextReplacement(CHANGED_LINK)
+        composeRule.waitForIdle()
+
         composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
         navigateUpCount shouldBe 1
+        verify(exactly = 0) { viewModel.update(detail = any()) }
     }
 
     @Test
@@ -314,39 +398,119 @@ class MusicDetailScreenTest {
     fun `TC-MUSIC-DETAIL-FEATURE-025 화면이 재생성되어도 입력 중이던 내용을 유지한다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val uiState = contentUiState()
+        val viewModel = detailViewModel(uiState = uiState)
 
         restorationTester.setContent {
             DiaryTheme {
                 MusicDetailScreen(
                     navigateUp = {},
                     componentVisibleProvider = { MusicDetailScaffoldComponentVisible() },
-                    viewModel = detailViewModel(uiState = uiState),
+                    viewModel = viewModel,
                 )
             }
         }
         composeRule.titleInput().performTextReplacement(EDITING_TITLE)
+        composeRule.artistInput().performTextReplacement(EDITING_ARTIST)
+        composeRule.linkInput().performTextReplacement(CHANGED_LINK)
         composeRule.waitForIdle()
 
         restorationTester.emulateSavedInstanceStateRestore()
         composeRule.waitForIdle()
 
         composeRule.titleInput().assert(hasText(EDITING_TITLE))
+        composeRule.artistInput().assert(hasText(EDITING_ARTIST))
+        composeRule.linkInput().assert(hasText(CHANGED_LINK))
+        composeRule.nodeCount(DEFAULT_THUMBNAIL_PREVIEW_DESCRIPTION) shouldBe 1
+        verify(exactly = 0) { viewModel.fetchLink(link = any()) }
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-026 다른 곡으로 바뀌면 저장된 내용으로 다시 시작한다`() {
-        val uiState = contentUiState()
+    fun `TC-MUSIC-DETAIL-FEATURE-026 수정하지 않고 떠났다가 같은 곡에 다시 진입하면 저장된 내용으로 시작한다`() {
+        val viewModel = detailViewModel(uiState = contentUiState())
+        var isVisible by mutableStateOf(true)
 
-        setMusicDetailScreen(uiState = uiState)
-        composeRule.titleInput().performTextReplacement(EDITING_TITLE)
-        composeRule.waitForIdle()
-
-        composeRule.runOnIdle {
-            uiState.value = MusicDetailUiState.Content(id = Uuid.random(), detail = testMusicDetail(title = CHANGED_TITLE))
+        composeRule.setContent {
+            DiaryTheme {
+                if (isVisible) {
+                    MusicDetailScreen(
+                        navigateUp = {},
+                        componentVisibleProvider = { MusicDetailScaffoldComponentVisible() },
+                        viewModel = viewModel,
+                    )
+                }
+            }
         }
         composeRule.waitForIdle()
+        composeRule.titleInput().performTextReplacement(EDITING_TITLE)
+        composeRule.artistInput().performTextReplacement(EDITING_ARTIST)
+        composeRule.linkInput().performTextReplacement(CHANGED_LINK)
+        composeRule.waitForIdle()
 
-        composeRule.titleInput().assert(hasText(CHANGED_TITLE))
+        composeRule.runOnIdle { isVisible = false }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { isVisible = true }
+        composeRule.waitForIdle()
+
+        composeRule.titleInput().assert(hasText(STORED_TITLE))
+        composeRule.artistInput().assert(hasText(STORED_ARTIST))
+        composeRule.linkInput().assert(hasText(STORED_LINK))
+        verify(exactly = 0) { viewModel.update(detail = any()) }
+    }
+
+    @Test
+    fun `TC-MUSIC-DETAIL-FEATURE-031 링크가 비어 있으면 다시 불러오기 뒤 링크 입력을 알리고 초점을 옮긴다`() {
+        assertFetchLinkInvalid(link = "", effect = MusicDetailEffect.LinkBlank, message = DEFAULT_LINK_BLANK_MESSAGE)
+    }
+
+    @Test
+    fun `TC-MUSIC-DETAIL-FEATURE-031 링크가 공백뿐이면 다시 불러오기 뒤 링크 입력을 알리고 초점을 옮긴다`() {
+        assertFetchLinkInvalid(link = "   ", effect = MusicDetailEffect.LinkBlank, message = DEFAULT_LINK_BLANK_MESSAGE)
+    }
+
+    @Test
+    fun `TC-MUSIC-DETAIL-FEATURE-031 링크가 YouTube 주소가 아니면 다시 불러오기 뒤 YouTube 영상 링크를 알리고 초점을 옮긴다`() {
+        assertFetchLinkInvalid(link = NOT_YOUTUBE_LINK, effect = MusicDetailEffect.LinkNotYoutube, message = DEFAULT_LINK_NOT_YOUTUBE_MESSAGE)
+    }
+
+    @Test
+    fun `TC-MUSIC-DETAIL-FEATURE-032 영상 정보를 가져오지 못하면 실패를 알리고 입력과 초점을 유지한다`() {
+        val effect = MutableStateFlow<MusicDetailEffect?>(null)
+        val viewModel = setMusicDetailScreen(uiState = contentUiState(), effect = effect.filterNotNull())
+        composeRule.titleInput().performTextReplacement(EDITING_TITLE)
+        composeRule.artistInput().performTextReplacement(EDITING_ARTIST)
+        composeRule.waitForIdle()
+        composeRule.artistInput().assertIsFocused()
+
+        composeRule.clickFetch()
+        verify(exactly = 1) { viewModel.fetchLink(link = STORED_LINK) }
+        composeRule.runOnIdle { effect.value = MusicDetailEffect.LinkFetchFailed }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_LINK_FETCH_FAILED_MESSAGE).assertExists()
+        composeRule.titleInput().assert(hasText(EDITING_TITLE))
+        composeRule.artistInput().assert(hasText(EDITING_ARTIST))
+        composeRule.linkInput().assert(hasText(STORED_LINK))
+        composeRule.artistInput().assertIsFocused()
+    }
+
+    private fun assertFetchLinkInvalid(
+        link: String,
+        effect: MusicDetailEffect,
+        message: String,
+    ) {
+        val effectFlow = MutableStateFlow<MusicDetailEffect?>(null)
+        setMusicDetailScreen(uiState = contentUiState(), effect = effectFlow.filterNotNull())
+        composeRule.linkInput().performTextReplacement(link)
+        composeRule.waitForIdle()
+
+        composeRule.clickFetch()
+        composeRule.runOnIdle { effectFlow.value = effect }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(message).assertExists()
+        composeRule.linkInput().assertIsFocused()
+        composeRule.titleInput().assert(hasText(STORED_TITLE))
+        composeRule.artistInput().assert(hasText(STORED_ARTIST))
     }
 
     private fun ComposeContentTestRule.visibleTextList(): List<String> =
@@ -381,6 +545,11 @@ class MusicDetailScreenTest {
 
     private companion object {
         private const val CHANGED_LINK = "https://www.youtube.com/watch?v=ArmDp-zijuc"
+        private const val NOT_YOUTUBE_LINK = "https://vimeo.com/76979871"
+        private const val EDITING_ARTIST = "MusicDetailEditingArtist"
+        private const val DEFAULT_LINK_BLANK_MESSAGE = "Please enter a link."
+        private const val DEFAULT_LINK_NOT_YOUTUBE_MESSAGE = "Please enter a YouTube video link."
+        private const val DEFAULT_LINK_FETCH_FAILED_MESSAGE = "Could not fetch music info from the link."
 
         private fun contentUiState(
             id: Uuid = Uuid.random(),

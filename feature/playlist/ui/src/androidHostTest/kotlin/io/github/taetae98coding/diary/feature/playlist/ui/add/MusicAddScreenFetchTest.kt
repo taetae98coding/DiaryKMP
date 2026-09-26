@@ -1,13 +1,19 @@
 package io.github.taetae98coding.diary.feature.playlist.ui.add
 
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.kotest.matchers.shouldBe
 import io.mockk.verify
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -86,6 +92,72 @@ class MusicAddScreenFetchTest {
         composeRule.titleInput().assert(hasText(FETCHED_TITLE))
         composeRule.artistInput().assert(hasText(FETCHED_ARTIST))
     }
+
+    @Test
+    fun `TC-MUSIC-ADD-FEATURE-034 불러온 영상 제목과 채널 이름을 앞뒤 공백까지 그대로 채운다`() {
+        val title = "  $FETCHED_TITLE  "
+        val artist = "  $FETCHED_ARTIST  "
+        setMusicAddScreen(viewModel = fetchEffectViewModel(fetchedEffect(title = title, artist = artist)))
+        composeRule.linkInput().performTextInput(TYPED_LINK)
+        composeRule.waitForIdle()
+
+        composeRule.clickFetch()
+
+        composeRule.titleInput().assert(hasText(title))
+        composeRule.artistInput().assert(hasText(artist))
+    }
+
+    @Test
+    fun `TC-MUSIC-ADD-FEATURE-035 불러오는 동안 링크를 다른 영상으로 바꾸면 도착한 결과를 채우지 않는다`() {
+        assertLinkChangedDuringFetch(changedLink = OTHER_TYPED_LINK)
+    }
+
+    @Test
+    fun `TC-MUSIC-ADD-FEATURE-035 불러오는 동안 링크를 지우면 도착한 결과를 채우지 않는다`() {
+        assertLinkChangedDuringFetch(changedLink = "")
+    }
+
+    @Test
+    fun `TC-MUSIC-ADD-FEATURE-035 불러오는 동안 링크를 바꿨다가 되돌리면 도착한 결과를 채운다`() {
+        val effect = MutableStateFlow<MusicAddEffect?>(null)
+        setMusicAddScreen(viewModel = screenTestViewModel(effect = effect.filterNotNull()))
+        composeRule.fillAllInput()
+
+        composeRule.clickFetch()
+        composeRule.linkInput().performTextReplacement(OTHER_TYPED_LINK)
+        composeRule.linkInput().performTextReplacement(TYPED_LINK)
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { effect.value = fetchedEffect() }
+        composeRule.waitForIdle()
+
+        composeRule.titleInput().assert(hasText(FETCHED_TITLE))
+        composeRule.artistInput().assert(hasText(FETCHED_ARTIST))
+    }
+
+    private fun assertLinkChangedDuringFetch(changedLink: String) {
+        val effect = MutableStateFlow<MusicAddEffect?>(null)
+        setMusicAddScreen(viewModel = screenTestViewModel(effect = effect.filterNotNull()))
+        composeRule.fillAllInput()
+
+        composeRule.clickFetch()
+        composeRule.linkInput().performTextReplacement(changedLink)
+        composeRule.waitForIdle()
+        val textListBeforeResult = composeRule.visibleTextList()
+        composeRule.runOnIdle { effect.value = fetchedEffect() }
+        composeRule.waitForIdle()
+
+        composeRule.titleInput().assert(hasText(TYPED_TITLE))
+        composeRule.artistInput().assert(hasText(TYPED_ARTIST))
+        composeRule.linkInput().assert(hasText(changedLink))
+        composeRule.onAllNodes(hasText(FETCHED_TITLE, substring = true)).fetchSemanticsNodes().size shouldBe 0
+        composeRule.visibleTextList() shouldBe textListBeforeResult
+    }
+
+    private fun ComposeContentTestRule.visibleTextList(): List<String> =
+        onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text), useUnmergedTree = true)
+            .fetchSemanticsNodes()
+            .flatMap { node -> node.config[SemanticsProperties.Text] }
+            .map { text -> text.text }
 
     @Test
     fun `TC-MUSIC-ADD-FEATURE-023 썸네일만 바꾸거나 지우는 조작을 두지 않는다`() {

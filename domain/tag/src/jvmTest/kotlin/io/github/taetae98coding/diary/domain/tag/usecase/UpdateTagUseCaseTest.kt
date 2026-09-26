@@ -35,13 +35,13 @@ class UpdateTagUseCaseTest :
         ).forEach { (blankTitle, label) ->
             Given("$label 으로 수정하고 기존 태그에 저장된 제목이 있다") {
                 val account = fixtureMonkey.giveMeOne<Account.User>()
-                val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+                val now = fixtureMonkey.giveMeOne<Instant>()
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val storedTag =
                     fixtureMonkey
                         .giveMeKotlinBuilder<Tag>()
-                        .setExp(Tag::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                        .setExp(Tag::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                        .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                        .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
                         .sample()
                 val detailSlot = slot<TagDetail>()
                 val getAccountUseCase = mockk<GetAccountUseCase>()
@@ -83,7 +83,7 @@ class UpdateTagUseCaseTest :
 
         Given("로그인한 계정과 현재 시각이 준비되어 있다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val tagId = fixtureMonkey.giveMeOne<Uuid>()
             val detailSlot = slot<TagDetail>()
             val updatedAtSlot = slot<Instant>()
@@ -189,7 +189,7 @@ class UpdateTagUseCaseTest :
                 accountTagRepository.updateDetail(account = account, tagId = tagId, detail = any(), updatedAt = any())
             } returns 1
             val clock = mockk<Clock>()
-            every { clock.now() } returns Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
             val useCase =
                 UpdateTagUseCase(
                     getAccountUseCase = getAccountUseCase,

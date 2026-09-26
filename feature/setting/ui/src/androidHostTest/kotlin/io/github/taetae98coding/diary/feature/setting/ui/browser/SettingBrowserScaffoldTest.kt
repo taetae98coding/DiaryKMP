@@ -13,8 +13,11 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.browser.ChromeProfile
+import io.github.taetae98coding.diary.core.testing.browser.chromeProfileList
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
@@ -61,40 +64,43 @@ class SettingBrowserScaffoldTest {
     @Test
     @Config(qualifiers = "ko")
     fun `TC-SETTING-BROWSER-FEATURE-002 한국어 환경에서 설정 이름과 보조 문구, 선택 안 함과 프로필을 제공한다`() {
-        setSettingBrowserScaffold()
+        val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
+        setSettingBrowserScaffold(uiState = loaded(profileList = listOf(profileA, profileB), selectedProfileDirectory = ""))
 
         composeRule.onNodeWithText("Chrome 로그인 이어받기").assertExists()
         composeRule.onNodeWithText("고른 Chrome 프로필에서 로그인한 사이트를 앱 안에서도 로그인된 상태로 엽니다").assertExists()
         composeRule.onNodeWithText("선택 안 함").assert(hasClickAction())
-        composeRule.onNodeWithText(PROFILE_A.name).assert(hasClickAction())
-        composeRule.onNodeWithText(PROFILE_B.name).assert(hasClickAction())
+        composeRule.onNodeWithText(profileA.name).assert(hasClickAction())
+        composeRule.onNodeWithText(profileB.name).assert(hasClickAction())
     }
 
     @Test
     fun `TC-SETTING-BROWSER-FEATURE-002 기본 환경에서 설정 이름과 보조 문구, 선택 안 함과 프로필을 순서대로 제공한다`() {
-        setSettingBrowserScaffold()
+        val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
+        setSettingBrowserScaffold(uiState = loaded(profileList = listOf(profileA, profileB), selectedProfileDirectory = ""))
 
         composeRule.onNodeWithText(DEFAULT_LABEL).assertExists()
         composeRule.onNodeWithText(DEFAULT_DESCRIPTION).assertExists()
-        selectableItemLabels() shouldBe listOf(DEFAULT_NONE_LABEL, PROFILE_A.name, PROFILE_B.name)
+        selectableItemLabels() shouldBe listOf(DEFAULT_NONE_LABEL, profileA.name, profileB.name)
     }
 
     @Test
     fun `TC-SETTING-BROWSER-FEATURE-003 저장된 선택만 선택된 상태로 표시한다`() {
+        val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
         val cases =
             mapOf(
                 "" to DEFAULT_NONE_LABEL,
-                PROFILE_A.directory to PROFILE_A.name,
-                PROFILE_B.directory to PROFILE_B.name,
+                profileA.directory to profileA.name,
+                profileB.directory to profileB.name,
             )
 
         val selectedDirectory = mutableStateOf("")
-        setSettingBrowserScaffold(uiStateProvider = { loaded(selectedProfileDirectory = selectedDirectory.value) })
+        setSettingBrowserScaffold(uiStateProvider = { loaded(profileList = listOf(profileA, profileB), selectedProfileDirectory = selectedDirectory.value) })
 
         cases.forEach { (directory, selectedLabel) ->
             composeRule.runOnIdle { selectedDirectory.value = directory }
 
-            listOf(DEFAULT_NONE_LABEL, PROFILE_A.name, PROFILE_B.name).forEach { label ->
+            listOf(DEFAULT_NONE_LABEL, profileA.name, profileB.name).forEach { label ->
                 if (label == selectedLabel) {
                     composeRule.onNodeWithText(label).assertIsSelected()
                 } else {
@@ -106,16 +112,17 @@ class SettingBrowserScaffoldTest {
 
     @Test
     fun `TC-SETTING-BROWSER-FEATURE-004 항목을 고르면 그 선택을 요청한다`() {
+        val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
         val eventList = mutableListOf<SettingBrowserScaffoldEvent>()
-        setSettingBrowserScaffold(uiState = loaded(selectedProfileDirectory = ""), onEvent = eventList::add)
+        setSettingBrowserScaffold(uiState = loaded(profileList = listOf(profileA, profileB), selectedProfileDirectory = ""), onEvent = eventList::add)
 
-        composeRule.onNodeWithText(PROFILE_A.name).performClick()
+        composeRule.onNodeWithText(profileA.name).performClick()
         composeRule.onNodeWithText(DEFAULT_NONE_LABEL).performClick()
         composeRule.waitForIdle()
 
         eventList shouldBe
             listOf(
-                SettingBrowserScaffoldEvent.SelectProfile(directory = PROFILE_A.directory),
+                SettingBrowserScaffoldEvent.SelectProfile(directory = profileA.directory),
                 SettingBrowserScaffoldEvent.SelectProfile(directory = ""),
             )
     }
@@ -205,12 +212,15 @@ class SettingBrowserScaffoldTest {
         private const val DEFAULT_NONE_LABEL = "None"
         private const val DEFAULT_UNAVAILABLE_MESSAGE = "Couldn't load Chrome profiles"
 
-        private val PROFILE_A = ChromeProfile(directory = "Default", name = "TaeJong")
-        private val PROFILE_B = ChromeProfile(directory = "Profile 1", name = "Work")
+        private val fixtureMonkey: FixtureMonkey =
+            diaryFixtureMonkey()
 
-        private fun loaded(selectedProfileDirectory: String): SettingBrowserUiState.Loaded =
+        private fun loaded(
+            profileList: List<ChromeProfile> = fixtureMonkey.chromeProfileList(size = 2),
+            selectedProfileDirectory: String,
+        ): SettingBrowserUiState.Loaded =
             SettingBrowserUiState.Loaded(
-                profileList = listOf(PROFILE_A, PROFILE_B),
+                profileList = profileList,
                 selectedProfileDirectory = selectedProfileDirectory,
             )
     }

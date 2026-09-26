@@ -11,7 +11,9 @@ import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntit
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.calendarfilter.entity.CalendarFilterTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memofilter.entity.MemoFilterTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.sync.transaction.AccountDataTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagSyncTransactionImpl
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -259,6 +261,46 @@ class CalendarFilterTagDaoTest :
             database.selectedTagIdList(accountId = accountId).shouldBeEmpty()
         }
 
+        test("TC-CALENDAR-HOME-DOMAIN-019 무시되고 있는 선택만 남으면 보이는 선택이 없고 태그가 다시 선택할 수 있게 되면 그 선택이 다시 적용된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val tag = tag(isDeleted = true)
+            database.insertTag(accountId, tag)
+            database.select(accountId = accountId, tagId = tag.id)
+
+            database.selectedTagIdList(accountId = accountId).shouldBeEmpty()
+
+            AccountTagSyncTransactionImpl(database = database).save(
+                accountId = accountId,
+                tagList = listOf(tag.copy(isDeleted = false)),
+                cursor = fixtureMonkey.giveMeOne<Long>(),
+            )
+
+            database.selectedTagIdList(accountId = accountId) shouldBe listOf(tag.id)
+        }
+
+        test("TC-CALENDAR-HOME-DATA-051 선택 전체 해제는 다른 화면의 태그 필터 선택을 지우지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val tag = tag()
+            database.insertTag(accountId, tag)
+            database.select(accountId = accountId, tagId = tag.id)
+            database.memoFilterTagDao().upsert(
+                entity =
+                    MemoFilterTagLocalEntity(
+                        accountId = accountId,
+                        tagId = tag.id,
+                    ),
+            )
+
+            database.calendarFilterTagDao().deleteAll(accountId = accountId)
+
+            database.selectedTagIdList(accountId = accountId).shouldBeEmpty()
+            database
+                .memoFilterTagDao()
+                .getTagList(accountId = accountId)
+                .first()
+                .map { selectedTag -> selectedTag.id } shouldBe listOf(tag.id)
+        }
+
         test("TC-CALENDAR-HOME-DATA-036 선택 전체 해제는 다른 계정의 선택을 지우지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
@@ -269,6 +311,22 @@ class CalendarFilterTagDaoTest :
             database.select(accountId = otherAccountId, tagId = tag.id)
 
             database.calendarFilterTagDao().deleteAll(accountId = accountId)
+
+            database.selectedTagIdList(accountId = accountId).shouldBeEmpty()
+            database.selectedTagIdList(accountId = otherAccountId) shouldBe listOf(tag.id)
+        }
+
+        test("TC-CALENDAR-HOME-DATA-049 강제 전체 재동기화로 계정 데이터를 지우면 그 계정의 캘린더 필터 선택은 처음 상태로 돌아간다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val tag = tag()
+            database.insertTag(accountId, tag)
+            database.insertTag(otherAccountId, tag)
+            database.select(accountId = accountId, tagId = tag.id)
+            database.select(accountId = otherAccountId, tagId = tag.id)
+
+            AccountDataTransactionImpl(database = database).delete(accountId = accountId)
+            database.insertTag(accountId, tag)
 
             database.selectedTagIdList(accountId = accountId).shouldBeEmpty()
             database.selectedTagIdList(accountId = otherAccountId) shouldBe listOf(tag.id)
@@ -310,8 +368,8 @@ class CalendarFilterTagDaoTest :
                 .setExp(TagLocalEntity::detail, fixtureMonkey.giveMeOne<TagDetailLocalEntity>().copy(title = title))
                 .setExp(TagLocalEntity::isFinished, isFinished)
                 .setExp(TagLocalEntity::isDeleted, isDeleted)
-                .setExp(TagLocalEntity::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(TagLocalEntity::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(TagLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(TagLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

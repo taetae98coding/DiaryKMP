@@ -168,7 +168,7 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-MEMO-FINISHED-LIST-FEATURE-009 태그별 완료 메모 최초 조회가 실패하면 PagingData를 내보내지 않아 초기 빈 목록을 유지한다") {
+        test("TC-TAG-MEMO-FINISHED-LIST-FEATURE-009 태그별 완료 메모 최초 조회가 실패하면 조회가 끝난 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val pageFinishedTagMemoUseCase = mockk<PageFinishedTagMemoUseCase>()
@@ -178,7 +178,10 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
 
                 viewModel.memoPagingData.test {
                     advanceUntilIdle()
+                    val itemList = flowOf(awaitItem()).asSnapshot()
                     expectNoEvents()
+
+                    itemList shouldBe emptyList()
                 }
                 viewModel.viewModelScope.cancel()
                 advanceUntilIdle()
@@ -354,8 +357,8 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
             .giveMeKotlinBuilder<Tag>()
             .setExp(Tag::isFinished, isFinished)
             .setExp(Tag::isDeleted, isDeleted)
-            .setExp(Tag::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-            .setExp(Tag::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+            .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+            .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
             .sample()
 
     private fun memo(): Memo =
@@ -364,8 +367,8 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
             .setExp(
                 Memo::detail,
                 fixtureMonkey.giveMeOne<MemoDetail>().copy(dateTime = null),
-            ).setExp(Memo::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-            .setExp(Memo::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+            ).setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+            .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
             .sample()
 
     private companion object {

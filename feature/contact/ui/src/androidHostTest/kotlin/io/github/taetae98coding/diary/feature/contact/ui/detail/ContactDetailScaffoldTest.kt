@@ -52,7 +52,7 @@ class ContactDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-005 조회에 성공하면 입력과 삭제 동작을 제공한다`() {
+    fun `조회에 성공하면 입력과 삭제 동작을 제공한다`() {
         setContactDetailScaffold(uiState = content())
 
         composeRule.onNodeWithContentDescription(DEFAULT_DELETE_BUTTON_DESCRIPTION).assert(hasClickAction())

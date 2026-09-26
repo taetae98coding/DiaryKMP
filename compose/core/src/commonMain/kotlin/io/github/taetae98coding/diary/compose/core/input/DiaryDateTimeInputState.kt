@@ -28,8 +28,20 @@ public class DiaryDateTimeInputState internal constructor(
     start: LocalDateTime,
     endInclusive: LocalDateTime,
     private val clock: Clock = Clock.System,
+    isPeriodUnselected: Boolean = false,
 ) {
-    public var hasDateTime: Boolean by mutableStateOf(hasDateTime)
+    private var isDateTimeUsed: Boolean by mutableStateOf(hasDateTime)
+
+    private var isPeriodUnselected: Boolean = isPeriodUnselected
+
+    public var hasDateTime: Boolean
+        get() = isDateTimeUsed
+        set(value) {
+            if (value && isPeriodUnselected) {
+                selectToday()
+            }
+            isDateTimeUsed = value
+        }
 
     public var isAllDay: Boolean by mutableStateOf(isAllDay)
         private set
@@ -65,6 +77,7 @@ public class DiaryDateTimeInputState internal constructor(
         }
 
         coerceEndInclusive()
+        isPeriodUnselected = false
         hasDateTime = true
     }
 
@@ -98,6 +111,19 @@ public class DiaryDateTimeInputState internal constructor(
     public fun selectEndTime(time: LocalTime) {
         endInclusive = LocalDateTime(date = endInclusive.date, time = time)
         coerceStart()
+    }
+
+    private fun selectToday() {
+        val today =
+            clock
+                .now()
+                .toLocalDateTime(TimeZone.currentSystemDefault())
+                .date
+
+        isAllDay = true
+        start = LocalDateTime(date = today, time = start.time)
+        endInclusive = LocalDateTime(date = today, time = endInclusive.time)
+        isPeriodUnselected = false
     }
 
     private fun updateToDefaultPeriod() {
@@ -137,6 +163,7 @@ public class DiaryDateTimeInputState internal constructor(
         private const val START_TIME_KEY = "startTime"
         private const val END_DATE_KEY = "endDate"
         private const val END_TIME_KEY = "endTime"
+        private const val IS_PERIOD_UNSELECTED_KEY = "isPeriodUnselected"
 
         val Saver: Saver<DiaryDateTimeInputState, Any> =
             mapSaver(
@@ -148,6 +175,7 @@ public class DiaryDateTimeInputState internal constructor(
                         START_TIME_KEY to state.start.time.toMillisecondOfDay(),
                         END_DATE_KEY to state.endInclusive.date.toEpochDays(),
                         END_TIME_KEY to state.endInclusive.time.toMillisecondOfDay(),
+                        IS_PERIOD_UNSELECTED_KEY to state.isPeriodUnselected,
                     )
                 },
                 restore = { map ->
@@ -164,6 +192,7 @@ public class DiaryDateTimeInputState internal constructor(
                                 date = LocalDate.fromEpochDays(checkNotNull(map[END_DATE_KEY]) as Long),
                                 time = LocalTime.fromMillisecondOfDay(checkNotNull(map[END_TIME_KEY]) as Int),
                             ),
+                        isPeriodUnselected = map[IS_PERIOD_UNSELECTED_KEY] as? Boolean ?: false,
                     )
                 },
             )
@@ -183,6 +212,7 @@ public fun rememberDiaryDateTimeInputState(initialValue: DiaryDateTimeInputValue
                     isAllDay = true,
                     start = LocalDateTime(date = now.date, time = defaultTime),
                     endInclusive = LocalDateTime(date = now.date, time = defaultTime),
+                    isPeriodUnselected = true,
                 )
 
             is DiaryDateTimeInputValue.AllDay ->

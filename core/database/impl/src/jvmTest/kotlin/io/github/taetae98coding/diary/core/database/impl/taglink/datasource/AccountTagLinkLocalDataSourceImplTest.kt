@@ -591,6 +591,32 @@ class AccountTagLinkLocalDataSourceImplTest :
 
             linkedTagIdList(accountId = accountId, fromTagId = fromTag.id) shouldBe listOf(finishedTag.id)
         }
+
+        test("TC-TAG-ADD-DATA-005 삭제된 태그를 향하는 연결도 태그와 함께 저장되어 삭제를 되돌리면 연결된 태그로 조회된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val deletedTag = tag().copy(isDeleted = true)
+            insertTag(accountId, deletedTag)
+            val fromTag = tag()
+
+            tagTransaction.upsert(
+                accountId = accountId,
+                tagList = listOf(fromTag),
+                tagLinkList =
+                    listOf(
+                        TagLinkLocalEntity(
+                            fromTagId = fromTag.id,
+                            toTagId = deletedTag.id,
+                            isDeleted = false,
+                            updatedAt = fromTag.updatedAt,
+                            createdAt = fromTag.createdAt,
+                        ),
+                    ),
+            )
+
+            linkedTagIdList(accountId = accountId, fromTagId = fromTag.id).shouldBeEmpty()
+            insertTag(accountId, deletedTag.copy(isDeleted = false))
+            linkedTagIdList(accountId = accountId, fromTagId = fromTag.id) shouldBe listOf(deletedTag.id)
+        }
     }) {
     public companion object {
         private const val SELECTABLE_TAG_COUNT: Int = 25
@@ -625,7 +651,7 @@ class AccountTagLinkLocalDataSourceImplTest :
             return result.shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, TagLocalEntity>>().data.map { tag -> tag.id }
         }
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun tag(title: String = "title-${fixtureMonkey.giveMeOne<String>()}"): TagLocalEntity =
             fixtureMonkey
