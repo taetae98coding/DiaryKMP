@@ -51,7 +51,7 @@ class CalendarHomeScaffoldTest {
 
         composeRule.setContent {
             DiaryTheme {
-                CalendarHomeScaffold(onEvent = {})
+                CalendarHomeScaffold(onEvent = {}, onCalendarEvent = {})
             }
         }
 
@@ -65,7 +65,7 @@ class CalendarHomeScaffoldTest {
 
         composeRule.setContent {
             DiaryTheme {
-                CalendarHomeScaffold(onEvent = {})
+                CalendarHomeScaffold(onEvent = {}, onCalendarEvent = {})
             }
         }
 
@@ -78,7 +78,7 @@ class CalendarHomeScaffoldTest {
 
         composeRule.setContent {
             DiaryTheme {
-                CalendarHomeScaffold(onEvent = {})
+                CalendarHomeScaffold(onEvent = {}, onCalendarEvent = {})
             }
         }
 
@@ -95,7 +95,7 @@ class CalendarHomeScaffoldTest {
 
         composeRule.setContent {
             DiaryTheme {
-                CalendarHomeScaffold(onEvent = {})
+                CalendarHomeScaffold(onEvent = {}, onCalendarEvent = {})
             }
         }
 
@@ -116,7 +116,7 @@ class CalendarHomeScaffoldTest {
 
         restorationTester.setContent {
             DiaryTheme {
-                CalendarHomeScaffold(onEvent = {})
+                CalendarHomeScaffold(onEvent = {}, onCalendarEvent = {})
             }
         }
         composeRule.onRoot().performTouchInput { swipeLeft() }
@@ -134,7 +134,7 @@ class CalendarHomeScaffoldTest {
 
         restorationTester.setContent {
             DiaryTheme {
-                CalendarHomeScaffold(onEvent = {})
+                CalendarHomeScaffold(onEvent = {}, onCalendarEvent = {})
             }
         }
         composeRule.onRoot().performTouchInput { swipeLeft() }
@@ -154,7 +154,7 @@ class CalendarHomeScaffoldTest {
         composeRule.setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 DiaryTheme {
-                    CalendarHomeScaffold(onEvent = {})
+                    CalendarHomeScaffold(onEvent = {}, onCalendarEvent = {})
                 }
             }
         }
@@ -177,7 +177,7 @@ class CalendarHomeScaffoldTest {
         composeRule.setContent {
             key(launchCount) {
                 DiaryTheme {
-                    CalendarHomeScaffold(onEvent = {})
+                    CalendarHomeScaffold(onEvent = {}, onCalendarEvent = {})
                 }
             }
         }

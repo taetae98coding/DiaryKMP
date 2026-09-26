@@ -91,6 +91,7 @@ class CalendarHomeScreenPrimaryDateTest {
                     navigateToContactDetail = {},
                     birthdayViewModel = birthdayViewModel(),
                     navigateToFilter = {},
+                    navigateToTimetable = {},
                     holidayViewModel = holidayViewModel,
                     memoViewModel = memoViewModel,
                     weatherViewModel = weatherViewModel(),

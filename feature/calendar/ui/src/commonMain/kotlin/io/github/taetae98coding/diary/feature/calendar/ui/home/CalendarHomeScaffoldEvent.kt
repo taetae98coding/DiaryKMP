@@ -24,8 +24,4 @@ internal sealed interface CalendarHomeScaffoldEvent {
         val fromDateTime: MemoDateTime,
         val toDateRange: LocalDateRange,
     ) : CalendarHomeScaffoldEvent
-
-    data class SelectDate(
-        val dateRange: LocalDateRange,
-    ) : CalendarHomeScaffoldEvent
 }

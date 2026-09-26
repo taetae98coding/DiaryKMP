@@ -3,8 +3,6 @@ package io.github.taetae98coding.diary.feature.calendar.ui.home
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.hasNoClickAction
-import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -144,6 +142,7 @@ class CalendarHomeScreenSelectTest {
                     navigateToContactDetail = {},
                     birthdayViewModel = birthdayViewModel(),
                     navigateToFilter = {},
+                    navigateToTimetable = {},
                     state = state,
                     holidayViewModel = holidayViewModel,
                     memoViewModel = memoViewModel,
@@ -155,10 +154,9 @@ class CalendarHomeScreenSelectTest {
         }
     }
 
-    // 상단 바 오늘 버튼도 일 숫자를 표시하므로 클릭할 수 없는 날짜 숫자만 대상으로 삼는다.
     private fun dayCenter(day: Int): Offset =
         composeRule
-            .onAllNodes(hasText(day.toString()).and(hasNoClickAction()))[0]
+            .onAllNodes(CalendarHomeTestFixture.dateCell(day = day))[0]
             .fetchSemanticsNode()
             .boundsInRoot
             .center

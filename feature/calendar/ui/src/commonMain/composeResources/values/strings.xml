@@ -22,4 +22,16 @@
         <item>November</item>
         <item>December</item>
     </string-array>
+    <string name="calendar_timetable_navigate_up_content_description">Navigate up</string>
+    <string name="calendar_timetable_hour_am">%1$d AM</string>
+    <string name="calendar_timetable_hour_pm">%1$d PM</string>
+    <string-array name="calendar_timetable_day_of_week_titles">
+        <item>Sun</item>
+        <item>Mon</item>
+        <item>Tue</item>
+        <item>Wed</item>
+        <item>Thu</item>
+        <item>Fri</item>
+        <item>Sat</item>
+    </string-array>
 </resources>

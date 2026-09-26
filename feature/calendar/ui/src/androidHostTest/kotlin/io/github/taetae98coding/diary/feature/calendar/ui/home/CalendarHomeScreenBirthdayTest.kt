@@ -267,6 +267,7 @@ class CalendarHomeScreenBirthdayTest {
                     navigateToMemoAdd = {},
                     navigateToContactDetail = navigateToContactDetail,
                     navigateToFilter = {},
+                    navigateToTimetable = {},
                     state = state,
                     holidayViewModel = holidayViewModel(holidayListFlow = MutableStateFlow(holidayList)),
                     memoViewModel = memoViewModel,

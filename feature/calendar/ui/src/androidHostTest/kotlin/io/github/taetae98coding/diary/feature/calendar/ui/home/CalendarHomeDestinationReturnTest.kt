@@ -102,6 +102,7 @@ class CalendarHomeDestinationReturnTest {
                                     navigateToMemoAdd = {},
                                     navigateToContactDetail = {},
                                     navigateToFilter = {},
+                                    navigateToTimetable = {},
                                     state = state,
                                     permissionManager = rememberPermissionManager(),
                                     holidayViewModel = holidayViewModel,

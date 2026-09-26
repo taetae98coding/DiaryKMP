@@ -10,10 +10,13 @@ import io.github.taetae98coding.diary.compose.permission.rememberPermissionManag
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeNavKey
+import io.github.taetae98coding.diary.feature.calendar.api.CalendarTimetableNavKey
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeScreen
 import io.github.taetae98coding.diary.feature.calendar.ui.home.ScrollToTodayOnReselectEffect
 import io.github.taetae98coding.diary.feature.calendar.ui.home.filter.CalendarHomeFilterContent
 import io.github.taetae98coding.diary.feature.calendar.ui.home.rememberCalendarHomeScaffoldState
+import io.github.taetae98coding.diary.feature.calendar.ui.timetable.CalendarTimetableScreen
+import io.github.taetae98coding.diary.feature.calendar.ui.timetable.rememberCalendarTimetableScaffoldState
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
@@ -29,6 +32,7 @@ public fun EntryProviderScope<ScreenNavKey>.calendarEntry(
         homeReselectEvent = homeReselectEvent,
     )
     calendarHomeFilterEntry(backStack = backStack)
+    calendarTimetableEntry(backStack = backStack)
 }
 
 private fun EntryProviderScope<ScreenNavKey>.calendarHomeEntry(
@@ -57,6 +61,7 @@ private fun EntryProviderScope<ScreenNavKey>.calendarHomeEntry(
             },
             navigateToContactDetail = { contactId -> backStack.add(ContactDetailNavKey(contactId)) },
             navigateToFilter = { backStack.add(CalendarHomeFilterNavKey) },
+            navigateToTimetable = backStack::add,
             state = state,
             permissionManager = rememberPermissionManager(),
             holidayViewModel = koinViewModel(),
@@ -74,6 +79,17 @@ private fun EntryProviderScope<ScreenNavKey>.calendarHomeFilterEntry(backStack: 
     ) {
         CalendarHomeFilterContent(
             navigateToTagAdd = backStack::navigateToTagAddFromCalendarHomeFilter,
+        )
+    }
+}
+
+private fun EntryProviderScope<ScreenNavKey>.calendarTimetableEntry(backStack: NavBackStack<ScreenNavKey>) {
+    entry<CalendarTimetableNavKey> { key ->
+        CalendarTimetableScreen(
+            navigateUp = { backStack.removeLastOrNull() },
+            navigateToMemoDetail = { id -> backStack.add(MemoDetailNavKey(id)) },
+            state = rememberCalendarTimetableScaffoldState(type = key.type, initialDate = key.date),
+            viewModel = koinViewModel(),
         )
     }
 }

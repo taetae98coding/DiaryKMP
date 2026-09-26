@@ -14,8 +14,6 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.test.assertCountEquals
-import androidx.compose.ui.test.hasNoClickAction
-import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -553,7 +551,7 @@ class CalendarHomeScreenMoveTest {
             initialYearMonth = JUNE_2026,
             memoListFlow = MutableStateFlow(listOf(memo)),
         )
-        composeRule.onAllNodes(hasText("2").and(hasNoClickAction())).assertCountEquals(2)
+        composeRule.onAllNodes(CalendarHomeTestFixture.dateCell(day = 2)).assertCountEquals(2)
 
         performLongPress(memoPressPosition(title = MEETING_TITLE, day = 23))
         performMoveTo(dayCenter(day = 2, index = 1))
@@ -938,6 +936,7 @@ class CalendarHomeScreenMoveTest {
                         navigateToContactDetail = navigateToContactDetail,
                         birthdayViewModel = birthdayViewModel,
                         navigateToFilter = {},
+                        navigateToTimetable = {},
                         state = state,
                         holidayViewModel = holidayViewModel,
                         memoViewModel = mockMemoViewModel,
@@ -977,13 +976,12 @@ class CalendarHomeScreenMoveTest {
         }
     }
 
-    // 상단 바 오늘 버튼도 일 숫자를 표시하므로 클릭할 수 없는 날짜 숫자만 대상으로 삼는다.
     private fun dayCenter(
         day: Int,
         index: Int = 0,
     ): Offset =
         composeRule
-            .onAllNodes(hasText(day.toString()).and(hasNoClickAction()))[index]
+            .onAllNodes(CalendarHomeTestFixture.dateCell(day = day))[index]
             .fetchSemanticsNode()
             .boundsInRoot
             .center

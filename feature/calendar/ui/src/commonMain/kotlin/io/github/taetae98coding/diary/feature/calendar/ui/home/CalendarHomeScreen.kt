@@ -13,6 +13,7 @@ import io.github.taetae98coding.diary.compose.permission.rememberPermissionManag
 import io.github.taetae98coding.diary.core.permission.Permission
 import io.github.taetae98coding.diary.core.permission.PermissionManager
 import io.github.taetae98coding.diary.core.permission.PermissionResult
+import io.github.taetae98coding.diary.feature.calendar.api.CalendarTimetableNavKey
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
@@ -30,6 +31,7 @@ internal fun CalendarHomeScreen(
     navigateToMemoAdd: (LocalDateRange) -> Unit,
     navigateToContactDetail: (Uuid) -> Unit,
     navigateToFilter: () -> Unit,
+    navigateToTimetable: (CalendarTimetableNavKey) -> Unit,
     state: CalendarHomeScaffoldState,
     permissionManager: PermissionManager,
     holidayViewModel: CalendarHomeHolidayViewModel,
@@ -92,11 +94,11 @@ internal fun CalendarHomeScreen(
                 weatherViewModel = weatherViewModel,
                 syncViewModel = syncViewModel,
                 navigateToMemoDetail = navigateToMemoDetail,
-                navigateToMemoAdd = navigateToMemoAdd,
                 navigateToContactDetail = navigateToContactDetail,
                 navigateToFilter = navigateToFilter,
             )
         },
+        onCalendarEvent = { event -> handleCalendarHomeCalendarEvent(event = event, state = state, navigateToMemoAdd = navigateToMemoAdd, navigateToTimetable = navigateToTimetable) },
     )
 }
 

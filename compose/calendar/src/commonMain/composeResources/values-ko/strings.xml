@@ -8,4 +8,20 @@
         <item>금</item>
         <item>토</item>
     </string-array>
+    <string-array name="calendar_month_titles">
+        <item>1월</item>
+        <item>2월</item>
+        <item>3월</item>
+        <item>4월</item>
+        <item>5월</item>
+        <item>6월</item>
+        <item>7월</item>
+        <item>8월</item>
+        <item>9월</item>
+        <item>10월</item>
+        <item>11월</item>
+        <item>12월</item>
+    </string-array>
+    <string name="calendar_date_content_description">%1$s %2$d일</string>
+    <string name="calendar_week_content_description">%1$s %2$d일 주</string>
 </resources>

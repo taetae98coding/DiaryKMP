@@ -86,6 +86,7 @@ class CalendarHomeScreenFilterTest {
                     navigateToContactDetail = {},
                     birthdayViewModel = birthdayViewModel(),
                     navigateToFilter = navigateToFilter,
+                    navigateToTimetable = {},
                     holidayViewModel = holidayViewModel,
                     memoViewModel = memoViewModel,
                     weatherViewModel = weatherViewModel(),

@@ -181,7 +181,7 @@ class CalendarHomeScaffoldDatePickerDialogTest {
 
         restorationTester.setContent {
             DiaryTheme {
-                CalendarHomeScaffold(onEvent = {})
+                CalendarHomeScaffold(onEvent = {}, onCalendarEvent = {})
             }
         }
         composeRule.onNodeWithText(englishTitle(today.yearMonth)).performClick()
@@ -204,7 +204,7 @@ class CalendarHomeScaffoldDatePickerDialogTest {
 
         restorationTester.setContent {
             DiaryTheme {
-                CalendarHomeScaffold(onEvent = {})
+                CalendarHomeScaffold(onEvent = {}, onCalendarEvent = {})
             }
         }
         composeRule.onNodeWithText(englishTitle(today.yearMonth)).performClick()
@@ -226,7 +226,7 @@ class CalendarHomeScaffoldDatePickerDialogTest {
         composeRule.setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 DiaryTheme {
-                    CalendarHomeScaffold(onEvent = {})
+                    CalendarHomeScaffold(onEvent = {}, onCalendarEvent = {})
                 }
             }
         }
@@ -251,7 +251,7 @@ class CalendarHomeScaffoldDatePickerDialogTest {
         composeRule.setContent {
             key(launchCount) {
                 DiaryTheme {
-                    CalendarHomeScaffold(onEvent = {})
+                    CalendarHomeScaffold(onEvent = {}, onCalendarEvent = {})
                 }
             }
         }
@@ -269,7 +269,7 @@ class CalendarHomeScaffoldDatePickerDialogTest {
     private fun setCalendarHomeScaffold() {
         composeRule.setContent {
             DiaryTheme {
-                CalendarHomeScaffold(onEvent = {})
+                CalendarHomeScaffold(onEvent = {}, onCalendarEvent = {})
             }
         }
     }

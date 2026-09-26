@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import io.github.taetae98coding.diary.compose.calendar.Calendar
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefault
+import io.github.taetae98coding.diary.compose.calendar.CalendarEvent
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PullToRefreshGestureBox
@@ -26,6 +27,7 @@ import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarWeather
 @Composable
 internal fun CalendarHomeContent(
     onEvent: (CalendarHomeScaffoldEvent) -> Unit,
+    onCalendarEvent: (CalendarEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: CalendarHomeScaffoldState = rememberCalendarHomeScaffoldState(),
     weatherProvider: () -> CalendarWeatherReport = { CalendarWeatherReport() },
@@ -49,7 +51,10 @@ internal fun CalendarHomeContent(
                 Calendar(
                     modifier = Modifier.fillMaxSize(),
                     state = state.calendarState,
-                    onSelect = { dateRange -> onEvent(CalendarHomeScaffoldEvent.SelectDate(dateRange = dateRange)) },
+                    onEvent = onCalendarEvent,
+                    isSelectEnabled = true,
+                    isDateClickEnabled = true,
+                    isWeekClickEnabled = true,
                     holidayProvider = {
                         holidayProvider()
                             .filter { it.isHoliday }
@@ -91,6 +96,7 @@ private fun CalendarHomeContentPreview() {
     DiaryTheme {
         CalendarHomeContent(
             onEvent = {},
+            onCalendarEvent = {},
             modifier = Modifier.fillMaxSize(),
             weatherProvider = { weatherReport },
             memoProvider = { memoList },

@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.app.shared.navigation.AppNavKeySavedStateC
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeNavKey
+import io.github.taetae98coding.diary.feature.calendar.api.CalendarTimetableNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistHomeNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
@@ -55,6 +56,7 @@ import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldNotContain
+import kotlinx.datetime.LocalDate
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
@@ -92,8 +94,10 @@ class ScreenNameTest :
 
         test("TC-SCREEN-VIEW-LOGGING-DOMAIN-010 화면 이름에 그 화면에 전달된 값이 담기지 않는다") {
             val id = fixtureMonkey.giveMeOne<Uuid>()
+            val date = fixtureMonkey.giveMeOne<LocalDate>()
             val valuedNavKeyList =
                 listOf(
+                    CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.WEEK, date = date),
                     ContactDetailNavKey(id = id),
                     MemoDetailNavKey(id = id),
                     MemoAddNavKey(primaryTagId = id),
@@ -107,7 +111,10 @@ class ScreenNameTest :
                 )
 
             valuedNavKeyList.forEach { navKey ->
-                withClue(navKey) { navKey.screenName shouldNotContain id.toString() }
+                withClue(navKey) {
+                    navKey.screenName shouldNotContain id.toString()
+                    navKey.screenName shouldNotContain date.toString()
+                }
             }
         }
 
@@ -129,6 +136,7 @@ class ScreenNameTest :
             mapOf(
                 CalendarHomeNavKey to "CalendarHome",
                 CalendarHomeFilterNavKey to "CalendarHomeFilter",
+                CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.DAY, date = fixtureMonkey.giveMeOne<LocalDate>()) to "CalendarTimetable",
                 ChecklistHomeNavKey to "ChecklistHome",
                 ContactAddNavKey to "ContactAdd",
                 ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "ContactDetail",
@@ -175,6 +183,8 @@ class ScreenNameTest :
 
         private fun valuedNavKeyPairList(): List<Pair<ScreenNavKey, ScreenNavKey>> =
             listOf(
+                CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.DAY, date = fixtureMonkey.giveMeOne<LocalDate>()) to
+                    CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.WEEK, date = fixtureMonkey.giveMeOne<LocalDate>()),
                 ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
                 MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
                 MemoAddNavKey(primaryTagId = fixtureMonkey.giveMeOne<Uuid>()) to MemoAddNavKey(),

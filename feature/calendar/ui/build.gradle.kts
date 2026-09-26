@@ -9,6 +9,7 @@ kotlin {
                 implementation(projects.compose.calendar)
                 implementation(projects.compose.permission)
                 implementation(projects.compose.tag)
+                implementation(projects.compose.timetable)
                 implementation(projects.domain.contact)
                 implementation(projects.domain.holiday)
                 implementation(projects.domain.lunar)
@@ -20,6 +21,7 @@ kotlin {
                 implementation(projects.feature.contact.api)
                 implementation(projects.feature.memo.api)
                 implementation(projects.feature.tag.api)
+                implementation(projects.library.composeUi)
                 implementation(projects.library.kotlin)
                 implementation(projects.library.kotlinxDatetime)
                 implementation(libs.coil.compose)
@@ -28,6 +30,7 @@ kotlin {
 
         androidHostTest {
             dependencies {
+                implementation(projects.core.testing)
                 implementation(libs.androidx.lifecycle.runtime.testing)
                 implementation(libs.jetbrains.lifecycle.viewmodel.navigation3)
             }
@@ -35,6 +38,7 @@ kotlin {
 
         jvmTest {
             dependencies {
+                implementation(projects.core.testing)
                 implementation(libs.androidx.paging.testing)
             }
         }

@@ -114,6 +114,7 @@ class CalendarHomeScreenTodayButtonTest {
                     navigateToContactDetail = {},
                     birthdayViewModel = birthdayViewModel(),
                     navigateToFilter = {},
+                    navigateToTimetable = {},
                     holidayViewModel = holidayViewModel,
                     memoViewModel = memoViewModel,
                     weatherViewModel = weatherViewModel(),

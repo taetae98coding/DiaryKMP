@@ -137,6 +137,7 @@ internal fun ComposeContentTestRule.setCalendarHomeWeatherGroupScreen(
                 navigateToContactDetail = {},
                 birthdayViewModel = birthdayViewModel(birthdayListFlow = MutableStateFlow(birthdayList)),
                 navigateToFilter = {},
+                navigateToTimetable = {},
                 state = state,
                 holidayViewModel = holidayViewModel,
                 memoViewModel = memoViewModel,

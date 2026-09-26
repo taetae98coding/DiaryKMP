@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import io.github.taetae98coding.diary.compose.calendar.Calendar
+import io.github.taetae98coding.diary.compose.calendar.CalendarEvent
 import io.github.taetae98coding.diary.compose.calendar.CalendarState
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -34,7 +35,7 @@ class CalendarSelectBoundaryTest {
         restorationTester.setContent {
             DiaryTheme {
                 calendarState = rememberCalendarState(initialYearMonth = JULY_2026)
-                Calendar(state = calendarState, onSelect = {}) {}
+                Calendar(state = calendarState, onEvent = {}, isSelectEnabled = true) {}
             }
         }
 
@@ -53,7 +54,11 @@ class CalendarSelectBoundaryTest {
         val selectedList = mutableListOf<LocalDateRange>()
         restorationTester.setContent {
             DiaryTheme {
-                Calendar(state = rememberCalendarState(initialYearMonth = JULY_2026), onSelect = { selectedList += it }) {}
+                Calendar(
+                    state = rememberCalendarState(initialYearMonth = JULY_2026),
+                    onEvent = { event -> (event as? CalendarEvent.Select)?.let { selectedList += it.dateRange } },
+                    isSelectEnabled = true,
+                ) {}
             }
         }
 
@@ -73,7 +78,11 @@ class CalendarSelectBoundaryTest {
         composeRule.setContent {
             CompositionLocalProvider(LocalSaveableStateRegistry provides registry) {
                 DiaryTheme {
-                    Calendar(state = rememberCalendarState(initialYearMonth = JULY_2026), onSelect = { selectedList += it }) {}
+                    Calendar(
+                        state = rememberCalendarState(initialYearMonth = JULY_2026),
+                        onEvent = { event -> (event as? CalendarEvent.Select)?.let { selectedList += it.dateRange } },
+                        isSelectEnabled = true,
+                    ) {}
                 }
             }
         }
@@ -93,7 +102,11 @@ class CalendarSelectBoundaryTest {
         composeRule.setContent {
             DiaryTheme {
                 if (isShown) {
-                    Calendar(state = rememberCalendarState(initialYearMonth = JULY_2026), onSelect = { selectedList += it }) {}
+                    Calendar(
+                        state = rememberCalendarState(initialYearMonth = JULY_2026),
+                        onEvent = { event -> (event as? CalendarEvent.Select)?.let { selectedList += it.dateRange } },
+                        isSelectEnabled = true,
+                    ) {}
                 }
             }
         }

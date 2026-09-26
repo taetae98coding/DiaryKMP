@@ -9,8 +9,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import io.github.taetae98coding.diary.compose.calendar.CalendarColor
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefault
+import io.github.taetae98coding.diary.compose.calendar.CalendarEvent
+import io.github.taetae98coding.diary.compose.calendar.calendarClick
+import io.github.taetae98coding.diary.compose.calendar.calendarDateContentDescription
 import io.github.taetae98coding.diary.compose.calendar.dateAt
 import io.github.taetae98coding.diary.compose.calendar.dayOfWeekColor
 import io.github.taetae98coding.diary.compose.calendar.week.CalendarWeekOfMonthDefaults
@@ -28,6 +33,7 @@ internal fun CalendarDayOfMonth(
     yearMonth: YearMonth,
     weekOfMonth: Int,
     modifier: Modifier = Modifier,
+    onEvent: ((CalendarEvent) -> Unit)? = null,
     holidayProvider: () -> List<LocalDateRange> = { emptyList() },
     primaryDateProvider: () -> List<LocalDate> = { emptyList() },
     colors: CalendarColor = CalendarDefault.colors(),
@@ -72,7 +78,16 @@ internal fun CalendarDayOfMonth(
         day = date.day,
         containerColor = containerColor.adjust(isAdjacentMonth = isAdjacentMonth),
         contentColor = contentColor.adjust(isAdjacentMonth = isAdjacentMonth),
-        modifier = modifier,
+        modifier =
+            modifier.then(
+                onEvent?.let {
+                    val contentDescription = calendarDateContentDescription(date = date)
+
+                    Modifier
+                        .semantics { this.contentDescription = contentDescription }
+                        .calendarClick { it(CalendarEvent.ClickDate(date = date)) }
+                } ?: Modifier,
+            ),
     )
 }
 
