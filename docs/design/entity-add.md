@@ -9,6 +9,7 @@
 - [ContactAdd 화면 디자인](./contact-add.md)
 - [MusicAdd 화면 디자인](./music-add.md)
 - [PlaceAdd 화면 디자인](./place-add.md)
+- [QrAdd 화면 디자인](./qr-add.md)
 - [RoutineAdd 화면 디자인](./routine-add.md)
 - [TagAdd 화면 디자인](./tag-add.md)
 - [WebAdd 화면 디자인](./web-add.md)

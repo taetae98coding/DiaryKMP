@@ -2,7 +2,7 @@
 
 기준 스펙: [새로고침 스펙](../spec/client/sync-refresh.md)
 
-TagDetail 웹·장소 탭, PlaceHome, WebHome, ContactHome, PlaylistHome에서 당겨 동기화를 요청하고 진행을 표시하는 케이스는 각 화면의 테스트 케이스 문서가 그 화면에서 관찰하는 결과로 자동화한다.
+TagDetail 웹·장소 탭, PlaceHome, WebHome, ContactHome, PlaylistHome, QrHome에서 당겨 동기화를 요청하고 진행을 표시하는 케이스는 각 화면의 테스트 케이스 문서가 그 화면에서 관찰하는 결과로 자동화한다.
 
 `feature > 당겨서 새로고침`의 새로 받은 내용이 별도 조작 없이 화면에 반영되는 결과는 각 대상 화면의 테스트 케이스 문서가 그 화면의 저장된 내용 변경이 자동으로 반영되는 케이스로 다룬다. RoutineHome은 노출할 루틴이 없어 새로고침 중에도 빈 상태 안내를 유지하는 케이스만 둔다.
 
@@ -93,6 +93,9 @@ TagDetail 웹·장소 탭, PlaceHome, WebHome, ContactHome, PlaylistHome에서 �
 | 웹 항목 실행 취소 |
 | 연락처 실행 취소 |
 | 곡 실행 취소 |
+| QR 추가 |
+| QR 삭제 |
+| QR 실행 취소 |
 | 연락처 즐겨찾기 변경 |
 | 메모와 태그의 연결 변경 |
 | 메모와 장소의 연결 변경 |

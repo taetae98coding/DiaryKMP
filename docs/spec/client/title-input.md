@@ -10,6 +10,7 @@
 - [MusicDetail 화면 스펙](./music-detail.md)
 - [PlaceAdd 화면 스펙](./place-add.md)
 - [PlaceDetail 화면 스펙](./place-detail.md)
+- [QrAdd 화면 스펙](./qr-add.md)
 - [RoutineAdd 화면 스펙](./routine-add.md)
 - [TagAdd 화면 스펙](./tag-add.md)
 - [TagDetail 화면 스펙](./tag-detail.md)

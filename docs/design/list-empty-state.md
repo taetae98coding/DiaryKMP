@@ -89,6 +89,7 @@
 | WebHome 웹 목록 | 웹 아이콘 |
 | ContactHome 연락처 목록 | 연락처 아이콘 |
 | PlaylistHome 곡 목록 | 플레이리스트 아이콘 |
+| QrHome QR 목록 | QR 아이콘 |
 | SearchHome 메모 검색 결과 목록 | 메모 아이콘 |
 | SearchHome 태그 검색 결과 목록 | 태그 아이콘 |
 | SearchHome 장소 검색 결과 목록 | 장소 아이콘 |
@@ -145,6 +146,8 @@ MemoHome 목록과 TagHome 목록에서 좁힌 상태와 좁히지 않은 상태
 | ContactHome 연락처 목록 | 보조 | `추가 버튼으로 새 연락처를 만들 수 있습니다` | `Use the add button to create a contact.` |
 | PlaylistHome 곡 목록 | 제목 | `아직 곡이 없습니다` | `No music yet` |
 | PlaylistHome 곡 목록 | 보조 | `추가 버튼으로 새 곡을 담을 수 있습니다` | `Use the add button to add music.` |
+| QrHome QR 목록 | 제목 | `아직 QR이 없습니다` | `No QR codes yet` |
+| QrHome QR 목록 | 보조 | `추가 버튼으로 새 QR을 만들 수 있습니다` | `Use the add button to create a QR code.` |
 | SearchHome 네 유형의 검색 결과 목록 | 제목 | `검색 결과가 없습니다` | `No search results` |
 | SearchHome 네 유형의 검색 결과 목록 | 보조 | `다른 검색어로 찾아보세요` | `Try a different search query.` |
 

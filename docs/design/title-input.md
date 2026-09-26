@@ -11,6 +11,7 @@
 - [MusicDetail 화면 디자인](./music-detail.md)
 - [PlaceAdd 화면 디자인](./place-add.md)
 - [PlaceDetail 화면 디자인](./place-detail.md)
+- [QrAdd 화면 디자인](./qr-add.md)
 - [RoutineAdd 화면 디자인](./routine-add.md)
 - [TagAdd 화면 디자인](./tag-add.md)
 - [TagDetail 화면 디자인](./tag-detail.md)

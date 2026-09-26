@@ -8,11 +8,12 @@
 - [MemoAdd 화면 스펙](./memo-add.md)
 - [MusicAdd 화면 스펙](./music-add.md)
 - [PlaceAdd 화면 스펙](./place-add.md)
+- [QrAdd 화면 스펙](./qr-add.md)
 - [RoutineAdd 화면 스펙](./routine-add.md)
 - [TagAdd 화면 스펙](./tag-add.md)
 - [WebAdd 화면 스펙](./web-add.md)
 
-이 문서에서 `대상 항목`은 그 화면이 추가하는 연락처, 메모, 곡, 장소, 루틴, 태그 또는 웹 항목 하나를 가리킨다.
+이 문서에서 `대상 항목`은 그 화면이 추가하는 연락처, 메모, 곡, 장소, QR, 루틴, 태그 또는 웹 항목 하나를 가리킨다.
 
 태그를 함께 고르는 입력의 행동과 판정 기준은 [태그 선택 입력 공통 스펙](./tag-select-input.md)을, 함께 만들어지는 연결의 규칙은 [항목 연결 공통 스펙](../common/entity-link.md)을 따른다.
 

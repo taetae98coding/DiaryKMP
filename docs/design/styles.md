@@ -12,8 +12,9 @@
 | Bottom Sheet 내용 | 폭 전체를 채우고, 마지막 줄 아래에 [Bottom Sheet 아래 여백](./dimens.md)을 둔다. 좌우 여백은 두지 않고 안에 놓이는 영역과 줄이 각자 둔다 | 제목 아래에서 스크롤하는 내용 영역 |
 | Bottom Sheet 영역 | 폭 전체를 채우고, 좌우에 [Bottom Sheet 가로 여백](./dimens.md)을 안쪽 여백으로 두어 내용의 좌우를 제목과 맞춘다 | 유무 필터 영역, 태그 필터 소제목과 칩 영역, 영역 사이 구분선 |
 | Bottom Sheet 선택 줄 | 최소 높이 `56dp`이고, 좌우에 [Bottom Sheet 가로 여백](./dimens.md)을 안쪽 여백으로 둔다. 누르는 동안 드러나는 배경은 여백을 넘어 Bottom Sheet의 좌우 끝까지 채운다 | 정렬, 표시 방식, 표시 범위를 고르는 줄 |
-| 카드 내용 | 폭 전체를 채우고, 네 방향에 [카드 안쪽 여백](./dimens.md)을 둔다 | 메모, 태그, 장소, 웹, 연락처, 곡 카드와 HolidayHome 황금연휴 카드, SettingHoliday 공휴일 항목, SettingGemini 모델 선택 줄 |
+| 카드 내용 | 폭 전체를 채우고, 네 방향에 [카드 안쪽 여백](./dimens.md)을 둔다 | 메모, 태그, 장소, 웹, 연락처, 곡, QR 카드와 HolidayHome 황금연휴 카드, SettingHoliday 공휴일 항목, SettingGemini 모델 선택 줄 |
 | 흐림 | 불투명도 `38%` | 적용되지 않는 동안의 태그 필터 영역, 이동 중인 캘린더 메모 조각 |
+| QR 그림 | 자리 전체를 흰색으로 채우고 그 안에 QR을 검은색으로 그린다. 스캐너가 QR의 경계를 찾을 수 있도록 QR과 자리 가장자리 사이에 `16dp`의 흰 여백을 둔다. 앱이 어두운 테마여도 흰 바탕과 검은 QR을 바꾸지 않는다. 자리의 모서리는 [Material 3](https://m3.material.io/styles/shape/corner-radius-scale)의 `medium` 모양으로 둥글린다 | QrAdd의 QR 그림, QrHome의 QR 카드 그림 |
 | 캘린더 아이템 모양 | 모서리를 `4dp` 둥글게 깎은 사각형 | CalendarText의 배경, 캘린더 메모 이동 고스트의 그림자, 시간표의 하루 일정 블록 |
 
 ## 사용 기준
@@ -40,3 +41,5 @@
 - [캘린더 메모 이동](./calendar-memo-move.md)
 - [CalendarTimetable](./calendar-timetable.md)
 - [HolidayHome 화면](./holiday-home.md)
+- [QrAdd 화면](./qr-add.md)
+- [QrHome 화면](./qr-home.md)

@@ -20,6 +20,7 @@
 | [WebHome 화면](./web-home.md) | 웹 카드 |
 | [ContactHome 화면](./contact-home.md) | 연락처 카드 |
 | [PlaylistHome 화면](./playlist-home.md) | 곡 카드 |
+| [QrHome 화면](./qr-home.md) | QR 카드 |
 | [SearchHome 화면](./search-home.md) | 메모 카드 · 태그 카드 · 장소 카드 · 웹 카드 |
 | [메모 장소 카드 컴포넌트](./memo-place-card.md) | 장소 선택 행 |
 | [메모 웹 입력 컴포넌트](./memo-web-input.md) | 웹 선택 항목 |

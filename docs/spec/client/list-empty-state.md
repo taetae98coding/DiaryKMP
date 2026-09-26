@@ -24,6 +24,7 @@
 | [WebHome 화면](./web-home.md) | 웹 목록 |
 | [ContactHome 화면](./contact-home.md) | 연락처 목록 |
 | [PlaylistHome 화면](./playlist-home.md) | 곡 목록 |
+| [QrHome 화면](./qr-home.md) | QR 목록 |
 | [SearchHome 화면](./search-home.md) | 메모 검색 결과 목록, 태그 검색 결과 목록, 장소 검색 결과 목록, 웹 검색 결과 목록 |
 
 SearchHome의 결과 목록은 질의가 비어 있는 동안 빈 상태를 표시하지 않는다. 이 조건은 [SearchHome 화면 스펙](./search-home.md)의 `결과 없음 판정`이 소유하며, 그 조건을 만족한 뒤의 표시와 행동만 이 문서를 따른다.
@@ -139,6 +140,7 @@ flowchart TD
 | WebHome 웹 목록 | 아직 웹 항목이 없으며 새로 추가할 수 있다 |
 | ContactHome 연락처 목록 | 아직 연락처가 없으며 새로 추가할 수 있다 |
 | PlaylistHome 곡 목록 | 아직 곡이 없으며 새로 추가할 수 있다 |
+| QrHome QR 목록 | 아직 QR이 없으며 새로 추가할 수 있다 |
 | SearchHome 메모 검색 결과 목록 | 질의에 맞는 메모가 없으며 다른 질의로 다시 찾을 수 있다 |
 | SearchHome 태그 검색 결과 목록 | 질의에 맞는 태그가 없으며 다른 질의로 다시 찾을 수 있다 |
 | SearchHome 장소 검색 결과 목록 | 질의에 맞는 장소가 없으며 다른 질의로 다시 찾을 수 있다 |

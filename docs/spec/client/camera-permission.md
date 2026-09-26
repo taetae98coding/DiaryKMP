@@ -20,11 +20,17 @@
 
 카메라 권한 요청 조건은 화면이 시작될 때가 아니라 사용자가 QR 스캔 시작을 선택할 때마다 확인한다. 사용자가 카메라를 쓰겠다고 선택한 순간에 묻는 것이 요청의 이유를 가장 분명하게 알려 주기 때문이다.
 
-QR 스캔 시작 밖에서는 카메라 권한을 요청하지 않는다. QrScan 화면에 들어와 있는 동안에도 요청하지 않는다.
+QR 스캔 시작 밖에서는 카메라 권한을 요청하지 않는다. QrScan 화면에 들어와 있는 동안에도 앱이 새로 요청하지 않는다.
+
+웹에서는 QR 스캔 시작에서 받은 허용을 브라우저가 기억하지 않으면, QrScan 화면이 카메라를 켤 때 브라우저가 카메라 사용을 다시 물을 수 있다. 이는 브라우저의 권한 정책이 정하는 것이며, 사용자가 거부하면 [QrScan 화면 스펙](./qr-scan.md)의 `화면 내용`에서 카메라를 시작할 수 없는 경우와 같다.
 
 ### 요청 제공 범위
 
-카메라 권한 요청은 Android와 iOS에서 제공한다. 웹과 데스크톱 앱에서는 요청하지 않는다. 이는 [QrAdd 화면 스펙](./qr-add.md)의 `QR 스캔 제공 범위`에 맞춘 것이며, 그 밖의 기준은 [권한 요청 공통 스펙](./permission.md)의 요청 제공 범위를 따른다.
+카메라 권한 요청은 Android, iOS, 데스크톱 앱과 웹에서 제공한다. 이는 [QrAdd 화면 스펙](./qr-add.md)의 `QR 스캔 제공 범위`에 맞춘 것이며, 그 밖의 기준은 [권한 요청 공통 스펙](./permission.md)의 요청 제공 범위를 따른다.
+
+웹에서 브라우저가 카메라 권한이 허용되어 있는지 알려 주지 않으면, 요청을 시작할 때 이미 허용되어 있는지 확인할 수 없는 것으로 보지 않고 브라우저에 카메라 사용을 요청해 그 응답으로 결과를 정한다. 사용자가 이전에 거부해 브라우저가 거부 상태를 알려 주면 요청하지 않고 `거부`로 처리한다. 기기에 카메라가 없어 브라우저가 카메라 사용 요청에 응할 수 없으면 `거부`로 처리한다.
+
+Android, iOS와 데스크톱 앱의 권한 요청은 기기에 카메라가 있는지와 관계없이 진행되므로, 카메라가 없어도 허용하면 QrScan 화면으로 이동한다.
 
 ### 요청 결과의 사용
 
@@ -36,3 +42,4 @@ QR 스캔 시작 밖에서는 카메라 권한을 요청하지 않는다. QrScan
 
 - [Android 카메라 권한](https://developer.android.com/media/camera/camerax/architecture#permissions)
 - [Apple Requesting authorization to capture and save media](https://developer.apple.com/documentation/avfoundation/requesting-authorization-to-capture-and-save-media)
+- [MDN MediaDevices.getUserMedia()](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia)
