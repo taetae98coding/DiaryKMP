@@ -1,5 +1,10 @@
 package io.github.taetae98coding.diary.library.webkit
 
+import io.github.taetae98coding.diary.library.objc.ObjCRuntime
+import io.github.taetae98coding.diary.library.objc.release
+import io.github.taetae98coding.diary.library.objc.send
+import io.github.taetae98coding.diary.library.objc.sendBoolean
+import io.github.taetae98coding.diary.library.objc.utf8String
 import java.lang.foreign.FunctionDescriptor
 import java.lang.foreign.MemorySegment
 import java.lang.foreign.ValueLayout

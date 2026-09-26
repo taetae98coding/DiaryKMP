@@ -2,6 +2,11 @@ package io.github.taetae98coding.diary.library.webkit
 
 import androidx.compose.ui.awt.ComposeDialog
 import androidx.compose.ui.awt.ComposeWindow
+import io.github.taetae98coding.diary.library.objc.ObjCRuntime
+import io.github.taetae98coding.diary.library.objc.appKitFrame
+import io.github.taetae98coding.diary.library.objc.nsString
+import io.github.taetae98coding.diary.library.objc.send
+import io.github.taetae98coding.diary.library.objc.sendVoid
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
 import java.awt.event.HierarchyBoundsListener

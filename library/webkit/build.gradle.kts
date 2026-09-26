@@ -10,6 +10,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(projects.library.objc)
                 implementation(libs.jetbrains.compose.ui)
                 implementation(libs.kotlinx.coroutines.core)
             }

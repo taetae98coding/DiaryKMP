@@ -1,4 +1,4 @@
-package io.github.taetae98coding.diary.library.webkit
+package io.github.taetae98coding.diary.library.objc
 
 import java.lang.foreign.Arena
 import java.lang.foreign.FunctionDescriptor
@@ -15,12 +15,12 @@ import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Objective-C 런타임과 libdispatch를 java.lang.foreign으로 감싼 최소 바인딩.
- * AppKit·WebKit 객체는 메인 스레드에서만 다뤄야 하므로, 모든 호출은 [performOnMainThread]로
+ * AppKit 객체는 메인 스레드에서만 다뤄야 하므로, AppKit을 건드리는 호출은 [performOnMainThread]로
  * 감싼 블록 안에서 이뤄져야 한다. 메시지 전송은 [MemorySegment.send] 계열 확장 함수가 맡는다.
  */
-internal object ObjCRuntime {
+public object ObjCRuntime {
     // AWT 창의 좌표는 point 단위라 AppKit 좌표와 배율 변환 없이 맞는다.
-    val cgRectLayout: MemoryLayout =
+    public val cgRectLayout: MemoryLayout =
         MemoryLayout.structLayout(
             ValueLayout.JAVA_DOUBLE.withName("x"),
             ValueLayout.JAVA_DOUBLE.withName("y"),
@@ -58,10 +58,12 @@ internal object ObjCRuntime {
             linker.defaultLookup().find("dispatch_async_f").orElseThrow(),
             FunctionDescriptor.ofVoid(ValueLayout.ADDRESS, ValueLayout.ADDRESS, ValueLayout.ADDRESS),
         )
-    private val mainQueue = linker.defaultLookup().find("_dispatch_main_q").orElseThrow()
+
+    // dispatch_get_main_queue()는 헤더의 인라인 함수라 심볼이 없고, 그 함수가 돌려주는 전역 객체를 직접 쓴다.
+    public val mainQueue: MemorySegment = linker.defaultLookup().find("_dispatch_main_q").orElseThrow()
 
     // 전역 블록의 isa. 런타임이 이 클래스의 블록은 복사하거나 해제하지 않는다.
-    val concreteGlobalBlock: MemorySegment = linker.defaultLookup().find("_NSConcreteGlobalBlock").orElseThrow()
+    public val concreteGlobalBlock: MemorySegment = linker.defaultLookup().find("_NSConcreteGlobalBlock").orElseThrow()
 
     private val mainThreadBlockId = AtomicLong(0L)
     private val mainThreadBlocks = ConcurrentHashMap<Long, () -> Unit>()
@@ -76,8 +78,8 @@ internal object ObjCRuntime {
     private val classes = ConcurrentHashMap<String, MemorySegment>()
 
     init {
-        // WKWebView 클래스가 objc 런타임에 등록되도록 WebKit 프레임워크를 프로세스에 적재한다.
-        SymbolLookup.libraryLookup("/System/Library/Frameworks/WebKit.framework/WebKit", Arena.global())
+        // NSString 같은 기본 클래스가 objc 런타임에 등록되도록 Foundation을 프로세스에 적재한다.
+        ObjCFramework.load(ObjCFramework.FOUNDATION_PATH)
     }
 
     private fun downcall(
@@ -85,9 +87,9 @@ internal object ObjCRuntime {
         descriptor: FunctionDescriptor,
     ): MethodHandle = linker.downcallHandle(objc.find(name).orElseThrow(), descriptor)
 
-    fun msgSendHandle(descriptor: FunctionDescriptor): MethodHandle = linker.downcallHandle(objc.find("objc_msgSend").orElseThrow(), descriptor)
+    public fun msgSendHandle(descriptor: FunctionDescriptor): MethodHandle = linker.downcallHandle(objc.find("objc_msgSend").orElseThrow(), descriptor)
 
-    fun performOnMainThread(block: () -> Unit) {
+    public fun performOnMainThread(block: () -> Unit) {
         val id = mainThreadBlockId.incrementAndGet()
 
         mainThreadBlocks[id] = block
@@ -109,7 +111,7 @@ internal object ObjCRuntime {
 
     // stringWithUTF8String: 같은 autorelease 반환 객체가 풀 없이 누수되지 않도록,
     // objc 객체를 다루는 블록은 항상 풀 안에서 실행한다.
-    fun <T> withAutoreleasePool(block: () -> T): T {
+    public fun <T> withAutoreleasePool(block: () -> T): T {
         val pool = autoreleasePoolPush.invoke() as MemorySegment
 
         try {
@@ -119,21 +121,25 @@ internal object ObjCRuntime {
         }
     }
 
-    fun objcClass(name: String): MemorySegment =
+    /**
+     * 프레임워크의 클래스는 그 프레임워크가 적재된 뒤에야 등록된다. 적재 전에 찾으면 NULL이 캐시되므로
+     * Foundation 밖의 클래스는 [ObjCFramework.load]를 먼저 호출한 뒤 찾는다.
+     */
+    public fun objcClass(name: String): MemorySegment =
         classes.getOrPut(name) {
             Arena.ofConfined().use { arena ->
                 objcGetClass.invoke(arena.allocateUtf8String(name)) as MemorySegment
             }
         }
 
-    fun selector(name: String): MemorySegment =
+    public fun selector(name: String): MemorySegment =
         selectors.getOrPut(name) {
             Arena.ofConfined().use { arena ->
                 selRegisterName.invoke(arena.allocateUtf8String(name)) as MemorySegment
             }
         }
 
-    fun allocateClass(
+    public fun allocateClass(
         superclassName: String,
         name: String,
         methodSelector: MemorySegment,
@@ -151,13 +157,8 @@ internal object ObjCRuntime {
         return objcClass
     }
 
-    fun upcallStub(
+    public fun upcallStub(
         handle: MethodHandle,
         descriptor: FunctionDescriptor,
     ): MemorySegment = linker.upcallStub(handle, descriptor, Arena.global())
-
-    fun frameworkSymbol(
-        frameworkPath: String,
-        name: String,
-    ): MemorySegment = SymbolLookup.libraryLookup(frameworkPath, Arena.global()).find(name).orElseThrow()
 }

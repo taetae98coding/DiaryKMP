@@ -1,4 +1,4 @@
-package io.github.taetae98coding.diary.library.webkit
+package io.github.taetae98coding.diary.library.objc
 
 import java.lang.foreign.Arena
 import java.lang.foreign.FunctionDescriptor
@@ -19,18 +19,18 @@ private val msgSendIdIdIdReturnVoid =
 private val msgSendRectReturnVoid =
     ObjCRuntime.msgSendHandle(FunctionDescriptor.ofVoid(ValueLayout.ADDRESS, ValueLayout.ADDRESS, ObjCRuntime.cgRectLayout))
 
-internal fun MemorySegment.sendVoid(selector: MemorySegment) {
+public fun MemorySegment.sendVoid(selector: MemorySegment) {
     msgSendReturnVoid.invoke(this, selector)
 }
 
-internal fun MemorySegment.sendVoid(
+public fun MemorySegment.sendVoid(
     selector: MemorySegment,
     argument: MemorySegment,
 ) {
     msgSendIdReturnVoid.invoke(this, selector, argument)
 }
 
-internal fun MemorySegment.sendVoid(
+public fun MemorySegment.sendVoid(
     selector: MemorySegment,
     first: MemorySegment,
     second: MemorySegment,
@@ -38,7 +38,7 @@ internal fun MemorySegment.sendVoid(
     msgSendIdIdReturnVoid.invoke(this, selector, first, second)
 }
 
-internal fun MemorySegment.sendVoid(
+public fun MemorySegment.sendVoid(
     selector: MemorySegment,
     first: MemorySegment,
     second: MemorySegment,
@@ -47,14 +47,14 @@ internal fun MemorySegment.sendVoid(
     msgSendIdIdIdReturnVoid.invoke(this, selector, first, second, third)
 }
 
-internal fun MemorySegment.sendVoid(
+public fun MemorySegment.sendVoid(
     selector: MemorySegment,
     argument: Boolean,
 ) {
     msgSendBooleanReturnVoid.invoke(this, selector, argument)
 }
 
-internal fun MemorySegment.sendVoid(
+public fun MemorySegment.sendVoid(
     selector: MemorySegment,
     rect: AppKitRect,
 ) {
@@ -63,6 +63,6 @@ internal fun MemorySegment.sendVoid(
     }
 }
 
-internal fun MemorySegment.release() {
+public fun MemorySegment.release() {
     sendVoid(ObjCRuntime.selector("release"))
 }

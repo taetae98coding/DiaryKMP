@@ -1,5 +1,11 @@
 package io.github.taetae98coding.diary.library.webkit
 
+import io.github.taetae98coding.diary.library.objc.AppKitRect
+import io.github.taetae98coding.diary.library.objc.ObjCRuntime
+import io.github.taetae98coding.diary.library.objc.nsString
+import io.github.taetae98coding.diary.library.objc.release
+import io.github.taetae98coding.diary.library.objc.send
+import io.github.taetae98coding.diary.library.objc.sendVoid
 import java.lang.foreign.MemorySegment
 
 private const val IPC_HANDLER_NAME = "ipc"
@@ -71,7 +77,7 @@ internal class WebKitWebViewBridge(
             return
         }
 
-        val configuration = ObjCRuntime.objcClass("WKWebViewConfiguration").send(ObjCRuntime.selector("new"))
+        val configuration = webKitClass("WKWebViewConfiguration").send(ObjCRuntime.selector("new"))
         val contentController = configuration.send(ObjCRuntime.selector("userContentController"))
         val messageHandler = WebKitScriptMessageHandler(onMessage = onIpcMessage)
 
@@ -82,8 +88,7 @@ internal class WebKitWebViewBridge(
         )
 
         val userScript =
-            ObjCRuntime
-                .objcClass("WKUserScript")
+            webKitClass("WKUserScript")
                 .send(ObjCRuntime.selector("alloc"))
                 .send(
                     ObjCRuntime.selector("initWithSource:injectionTime:forMainFrameOnly:"),
@@ -96,8 +101,7 @@ internal class WebKitWebViewBridge(
         userScript.release()
 
         val webView =
-            ObjCRuntime
-                .objcClass("WKWebView")
+            webKitClass("WKWebView")
                 .send(ObjCRuntime.selector("alloc"))
                 .send(ObjCRuntime.selector("initWithFrame:configuration:"), AppKitRect.ZERO, configuration)
 

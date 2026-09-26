@@ -1,4 +1,4 @@
-package io.github.taetae98coding.diary.library.webkit
+package io.github.taetae98coding.diary.library.objc
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
