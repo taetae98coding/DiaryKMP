@@ -127,8 +127,8 @@ class WebTagRemoteDataSourceImplTest :
             fixtureMonkey
                 .giveMeKotlinBuilder<WebTagRemoteEntity>()
                 .setExp(WebTagRemoteEntity::isDeleted, isDeleted)
-                .setExp(WebTagRemoteEntity::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(WebTagRemoteEntity::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(WebTagRemoteEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(WebTagRemoteEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
 
         private suspend fun httpResponse(

@@ -2,6 +2,7 @@
 
 package io.github.taetae98coding.diary.feature.web.ui.detail
 
+import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
@@ -13,6 +14,7 @@ import io.github.taetae98coding.diary.domain.web.usecase.AddWebTagUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.GetWebTagUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.PageWebSelectableTagUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.RemoveWebTagUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -21,19 +23,24 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlin.time.Instant
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.uuid.Uuid
 
 class WebDetailTagViewModelTest : FunSpec() {
@@ -49,6 +56,31 @@ class WebDetailTagViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
+        test("TC-ENTITY-TAG-INPUT-FEATURE-033 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val item = tag()
+                val parameter = PageWebSelectableTagUseCase.Parameter(webId = id, query = "")
+                val useCase = mockk<PageWebSelectableTagUseCase>()
+                every { useCase(parameter = parameter) } returns flowOf(Result.success(PagingData.from(listOf(item))))
+                val viewModel =
+                    WebDetailTagViewModel(
+                        id = id,
+                        pageWebSelectableTagUseCase = useCase,
+                        getWebTagUseCase = mockk(relaxed = true),
+                        addWebTagUseCase = mockk(relaxed = true),
+                        removeWebTagUseCase = mockk(relaxed = true),
+                    )
+
+                val itemList = flowOf(viewModel.selectableTagPagingData.first()).asSnapshot()
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+
+                itemList shouldBe listOf(item)
+                verify(exactly = 1) { useCase(parameter = parameter) }
+            }
+        }
+
         test("TC-WEB-DETAIL-DOMAIN-034 저장된 연결의 태그를 연결 대상으로 표시한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
@@ -62,7 +94,7 @@ class WebDetailTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-FEATURE-033 저장된 연결이 바뀌면 연결 대상 표시도 바뀐다") {
+        test("TC-WEB-DETAIL-FEATURE-033 TC-WEB-DETAIL-DOMAIN-050 저장된 연결이 바뀌면 연결 대상 표시도 바뀐다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val tag = tag()
@@ -151,7 +183,50 @@ class WebDetailTagViewModelTest : FunSpec() {
                 }
             }
         }
+
+        test("TC-WEB-DETAIL-FEATURE-065 연결이나 해제의 저장에 실패하면 저장된 연결을 그대로 보여 주고 다시 연결할 수 있다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val storedTag = tag()
+                val newTagId = fixtureMonkey.giveMeOne<Uuid>()
+                val addWebTagUseCase = mockk<AddWebTagUseCase>()
+                coEvery { addWebTagUseCase(parameter = any()) } returns Result.failure(IllegalStateException("연결 저장 실패"))
+                val removeWebTagUseCase = mockk<RemoveWebTagUseCase>()
+                coEvery { removeWebTagUseCase(parameter = any()) } returns Result.failure(IllegalStateException("해제 저장 실패"))
+                val viewModel =
+                    viewModel(
+                        id = id,
+                        tagFlow = flowOf(Result.success(listOf(storedTag))),
+                        addWebTagUseCase = addWebTagUseCase,
+                        removeWebTagUseCase = removeWebTagUseCase,
+                    )
+
+                viewModel.uiState.test {
+                    awaitItem().tagList.shouldBeEmpty()
+                    awaitItem().tagList shouldBe listOf(storedTag)
+
+                    viewModel.add(tagId = newTagId)
+                    viewModel.remove(tagId = storedTag.id)
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                    viewModel.uiState.value.tagList shouldBe listOf(storedTag)
+
+                    viewModel.add(tagId = newTagId)
+                    advanceUntilIdle()
+
+                    coVerify(exactly = 2) {
+                        addWebTagUseCase(parameter = AddWebTagUseCase.Parameter(webId = id, tagId = newTagId))
+                    }
+                    coVerify(exactly = 1) {
+                        removeWebTagUseCase(parameter = RemoveWebTagUseCase.Parameter(webId = id, tagId = storedTag.id))
+                    }
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
         searchTests()
+        restorationTests()
     }
 
     private fun searchTests() {
@@ -203,6 +278,35 @@ class WebDetailTagViewModelTest : FunSpec() {
         }
     }
 
+    private fun restorationTests() {
+        test("TC-ENTITY-TAG-INPUT-DOMAIN-017 복원 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
+                val allTagList = List(2) { tag() }
+                val matchedTagList = listOf(allTagList.first())
+                val useCase = mockk<PageWebSelectableTagUseCase>()
+                every {
+                    useCase(parameter = PageWebSelectableTagUseCase.Parameter(webId = id, query = ""))
+                } returns flowOf(Result.success(PagingData.from(allTagList)))
+                every {
+                    useCase(parameter = PageWebSelectableTagUseCase.Parameter(webId = id, query = query))
+                } returns flowOf(Result.success(PagingData.from(matchedTagList)))
+                val viewModel = viewModel(id = id, pageWebSelectableTagUseCase = useCase, isListOpened = false)
+
+                // 복원된 화면은 목록을 다시 열면서 되살린 검색어를 처음으로 알려 준다.
+                viewModel.tagPagingData.test {
+                    viewModel.updateQuery(query)
+                    runCurrent()
+
+                    flowOf(awaitItem()).asSnapshot() shouldBe matchedTagList
+                    cancelAndIgnoreRemainingEvents()
+                }
+                verify(exactly = 0) { useCase(parameter = PageWebSelectableTagUseCase.Parameter(webId = id, query = "")) }
+            }
+        }
+    }
+
     private fun viewModel(
         id: Uuid,
         tagFlow: Flow<Result<List<Tag>>> = flowOf(Result.success(emptyList())),
@@ -212,6 +316,7 @@ class WebDetailTagViewModelTest : FunSpec() {
             mockk<PageWebSelectableTagUseCase>().apply {
                 every { this@apply(parameter = any()) } returns flowOf(Result.success(PagingData.empty()))
             },
+        isListOpened: Boolean = true,
     ): WebDetailTagViewModel {
         val getWebTagUseCase = mockk<GetWebTagUseCase>()
         every { getWebTagUseCase(parameter = id) } returns tagFlow
@@ -222,7 +327,10 @@ class WebDetailTagViewModelTest : FunSpec() {
             getWebTagUseCase = getWebTagUseCase,
             addWebTagUseCase = addWebTagUseCase,
             removeWebTagUseCase = removeWebTagUseCase,
-        )
+        ).apply {
+            // 화면은 선택 목록을 열 때 검색어를 알려 주므로, 목록이 열린 상태를 만든다.
+            if (isListOpened) updateQuery(query = "")
+        }
     }
 
     public companion object {
@@ -235,8 +343,6 @@ class WebDetailTagViewModelTest : FunSpec() {
             fixtureMonkey
                 .giveMeKotlinBuilder<Tag>()
                 .setExp(Tag::isDeleted, false)
-                .setExp(Tag::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Tag::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
                 .sample()
     }
 }

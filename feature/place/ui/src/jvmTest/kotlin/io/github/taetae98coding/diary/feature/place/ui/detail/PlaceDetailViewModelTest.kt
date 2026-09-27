@@ -363,20 +363,30 @@ class PlaceDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("알 수 없는 수정 실패에는 Effect를 보내지 않고 진행 상태만 해제한다") {
+        test("TC-PLACE-DETAIL-FEATURE-054 수정 저장에 실패하면 Effect를 보내지 않고 진행 상태만 해제해 수정 반영을 다시 실행할 수 있다") {
             runTest(mainDispatcher) {
+                val id = Uuid.random()
+                val detail = detail()
+                val parameter = UpdatePlaceUseCase.Parameter(id = id, detail = detail)
                 val updatePlaceUseCase = mockk<UpdatePlaceUseCase>()
                 coEvery { updatePlaceUseCase(any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
-                val viewModel = viewModel(updatePlaceUseCase = updatePlaceUseCase)
+                val viewModel = viewModel(id = id, updatePlaceUseCase = updatePlaceUseCase)
                 collectUiState(viewModel)
 
                 viewModel.effect.test {
-                    viewModel.update(detail = detail())
+                    viewModel.update(detail = detail)
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                    viewModel.isUpdateInProgress().shouldBeFalse()
+
+                    viewModel.update(detail = detail)
                     advanceUntilIdle()
 
                     expectNoEvents()
                 }
 
+                coVerify(exactly = 2) { updatePlaceUseCase(parameter) }
                 viewModel.isUpdateInProgress().shouldBeFalse()
             }
         }
@@ -458,14 +468,13 @@ class PlaceDetailViewModelTest : FunSpec() {
                 address = address,
             )
 
-        // FixtureMonkey가 Instant를 생성하지 못하므로 장소는 직접 만든다.
         private fun place(id: Uuid = Uuid.random()): Place =
             Place(
                 id = id,
                 detail = detail(),
                 isDeleted = false,
-                updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
-                createdAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+                createdAt = fixtureMonkey.giveMeOne<Instant>(),
             )
     }
 }

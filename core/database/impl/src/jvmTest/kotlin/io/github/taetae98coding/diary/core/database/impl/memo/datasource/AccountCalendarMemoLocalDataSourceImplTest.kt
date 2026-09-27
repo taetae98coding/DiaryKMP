@@ -17,6 +17,7 @@ import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.calendarfilter.entity.CalendarFilterTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memo.transaction.AccountMemoTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.memofilter.entity.MemoFilterTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
@@ -292,6 +293,25 @@ class AccountCalendarMemoLocalDataSourceImplTest :
                 )
         }
 
+        test("TC-CALENDAR-MEMO-DOMAIN-020 기간 형태·시작·종료·제목이 모두 같으면 식별값의 오름차순으로 전달한다") {
+            val sameTitle = "같은 제목 ${fixtureMonkey.giveMeOne<String>()}"
+            val allDayAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val allDayMemoList =
+                List(SAME_ORDER_MEMO_COUNT) {
+                    allDayMemo(start = LocalDate(2026, 7, 6), endInclusive = LocalDate(2026, 7, 7)).withTitle(sameTitle)
+                }
+            val dateTimeAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val dateTimeMemoList =
+                List(SAME_ORDER_MEMO_COUNT) {
+                    dateTimeMemo(start = LocalDateTime(2026, 7, 6, 9, 0), endInclusive = LocalDateTime(2026, 7, 6, 10, 0)).withTitle(sameTitle)
+                }
+            upsert(allDayAccountId, *allDayMemoList.toTypedArray())
+            upsert(dateTimeAccountId, *dateTimeMemoList.toTypedArray())
+
+            calendarMemoIdList(accountId = allDayAccountId) shouldContainExactly allDayMemoList.map { memo -> memo.id }.sortedBy { id -> id.toString() }
+            calendarMemoIdList(accountId = dateTimeAccountId) shouldContainExactly dateTimeMemoList.map { memo -> memo.id }.sortedBy { id -> id.toString() }
+        }
+
         test("TC-CALENDAR-MEMO-DOMAIN-016 같은 표시 대상 기간을 다시 조회해도 순서가 유지된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             upsert(
@@ -351,7 +371,7 @@ class AccountCalendarMemoLocalDataSourceImplTest :
             }
         }
 
-        test("TC-MEMO-PRIMARY-TAG-DOMAIN-006 삭제한 태그를 되살리면 대표 태그 지정이 그대로 유지된다") {
+        test("TC-MEMO-PRIMARY-TAG-DOMAIN-006 삭제한 태그의 삭제가 다른 기기에서 받은 내용으로 풀려도 대표 태그 지정이 유지된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag().copy(isDeleted = true)
             val memo = overlappingMemo().copy(primaryTagId = tag.id)
@@ -361,16 +381,21 @@ class AccountCalendarMemoLocalDataSourceImplTest :
             calendarMemoFlow(accountId = accountId).test {
                 awaitUntil { calendarMemoList -> calendarMemoList.single().color == memo.detail.color }
 
-                tagTransaction.updateDeleted(
+                AccountTagSyncTransactionImpl(database = database).save(
                     accountId = accountId,
-                    tagId = tag.id,
-                    isDeleted = false,
-                    updatedAt = instant(),
+                    tagList = listOf(tag.copy(isDeleted = false)),
+                    cursor = fixtureMonkey.giveMeOne<Long>(),
                 )
                 awaitUntil { calendarMemoList -> calendarMemoList.single().color == tag.detail.color }
 
                 cancelAndIgnoreRemainingEvents()
             }
+
+            database
+                .accountMemoDao()
+                .find(accountId = accountId, memoId = memo.id)
+                .first()
+                ?.primaryTagId shouldBe tag.id
         }
 
         test("TC-CALENDAR-MEMO-DATA-003 TC-CALENDAR-MEMO-DATA-006 메모의 기간이 바뀌면 표시 대상 여부가 다시 정해진다") {
@@ -406,6 +431,28 @@ class AccountCalendarMemoLocalDataSourceImplTest :
             }
         }
 
+        test("TC-CALENDAR-MEMO-DOMAIN-010 메모 제목이 바뀌면 조작 없이 결과에 반영된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val beforeTitle = "기존 제목 ${fixtureMonkey.giveMeOne<String>()}"
+            val afterTitle = "새 제목 ${fixtureMonkey.giveMeOne<String>()}"
+            val memo = overlappingMemo().withTitle(beforeTitle)
+            upsert(accountId, memo)
+
+            calendarMemoFlow(accountId = accountId).test {
+                awaitItem().map { calendarMemo -> calendarMemo.id to calendarMemo.title } shouldBe listOf(memo.id to beforeTitle)
+
+                memoTransaction.updateDetail(
+                    accountId = accountId,
+                    memoId = memo.id,
+                    detail = memo.detail.copy(title = afterTitle),
+                    updatedAt = instant(),
+                )
+
+                awaitUntil { calendarMemoList -> calendarMemoList.map { calendarMemo -> calendarMemo.id to calendarMemo.title } == listOf(memo.id to afterTitle) }
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
         test("TC-CALENDAR-MEMO-DATA-004 메모가 삭제되면 결과에서 빠진다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = overlappingMemo().copy(isDeleted = false)
@@ -422,6 +469,20 @@ class AccountCalendarMemoLocalDataSourceImplTest :
                 )
 
                 awaitUntil { calendarMemoList -> calendarMemoList.isEmpty() }
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+        test("TC-CALENDAR-MEMO-DATA-007 표시 대상 기간과 겹치는 메모가 새로 저장되면 결과에 들어온다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = overlappingMemo()
+
+            calendarMemoFlow(accountId = accountId).test {
+                awaitItem().shouldBeEmpty()
+
+                upsert(accountId, memo)
+
+                awaitUntil { calendarMemoList -> calendarMemoList.map { calendarMemo -> calendarMemo.id } == listOf(memo.id) }
                 cancelAndIgnoreRemainingEvents()
             }
         }
@@ -702,6 +763,7 @@ class AccountCalendarMemoLocalDataSourceImplTest :
         private val RANGE_START: LocalDate = LocalDate(2026, 7, 5)
         private val RANGE_END_INCLUSIVE: LocalDate = LocalDate(2026, 7, 11)
         private val Midnight: LocalTime = LocalTime(hour = 0, minute = 0)
+        private const val SAME_ORDER_MEMO_COUNT = 3
 
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
@@ -713,7 +775,7 @@ class AccountCalendarMemoLocalDataSourceImplTest :
             }
         }
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun detail(
             isAllDay: Boolean?,

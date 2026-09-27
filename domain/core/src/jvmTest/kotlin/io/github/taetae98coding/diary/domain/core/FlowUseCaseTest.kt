@@ -46,6 +46,27 @@ class FlowUseCaseTest :
             }
         }
 
+        Given("콘솔 기록 수단이 등록되어 있고 지속 관찰하는 작업이 값을 보낸 뒤 실패하도록 준비되어 있다") {
+            val recording = recordingDelegate()
+            DiaryLogger.add(delegate = recording.delegate)
+
+            When("작업을 한 번 관찰한다") {
+                Then("TC-USECASE-FAILURE-LOGGING-DOMAIN-013 실패를 전달한 뒤 관찰이 끝나고 실패 로그는 한 번만 남는다") {
+                    val failure = IllegalStateException("failure-" + fixtureMonkey.giveMeOne<String>())
+                    val values = fixtureMonkey.giveMeOne<List<String>>().ifEmpty { listOf(fixtureMonkey.giveMeOne<String>()) }
+                    val useCase = EmitThenFailFlowUseCase(values = values, throwable = failure)
+
+                    useCase(parameter = fixtureMonkey.giveMeOne<String>()).test {
+                        values.forEach { value -> awaitItem().shouldBeSuccess() shouldBe value }
+                        awaitItem().shouldBeFailure() shouldBeSameInstanceAs failure
+                        awaitComplete()
+                    }
+
+                    recording.logList.shouldHaveSize(1)
+                }
+            }
+        }
+
         Given("콘솔 기록 수단이 등록되어 있고 지속 관찰하는 작업이 실패를 반복하도록 준비되어 있다") {
             val recording = recordingDelegate()
             DiaryLogger.add(delegate = recording.delegate)
@@ -110,6 +131,17 @@ private class FailingFlowUseCase(
     private val throwable: Throwable,
 ) : FlowUseCase<String, String>() {
     override fun execute(parameter: String): Flow<Result<String>> = flow { throw throwable }
+}
+
+private class EmitThenFailFlowUseCase(
+    private val values: List<String>,
+    private val throwable: Throwable,
+) : FlowUseCase<String, String>() {
+    override fun execute(parameter: String): Flow<Result<String>> =
+        flow {
+            values.forEach { value -> emit(Result.success(value)) }
+            throw throwable
+        }
 }
 
 private class SuccessFlowUseCase : FlowUseCase<String, String>() {

@@ -6,9 +6,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import androidx.compose.ui.test.junit4.StateRestorationTester
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.holiday.GoldenHolidayGroup
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
@@ -19,6 +24,7 @@ import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFix
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.goldenHoliday
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.goldenHolidayGroup
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.holiday
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -30,6 +36,9 @@ import org.koin.compose.KoinApplication
 import org.koin.core.module.Module
 import org.koin.dsl.koinConfiguration
 import org.koin.dsl.module
+
+private val fixtureMonkey: FixtureMonkey =
+    diaryFixtureMonkey()
 
 internal const val THIS_YEAR_PERIOD: String = "Feb 5 ~ Feb 8"
 internal const val NEXT_YEAR_PERIOD: String = "Feb 5 ~ Feb 7"
@@ -48,7 +57,7 @@ internal fun previousYearFailFetchHolidayUseCase(): FetchHolidayUseCase =
     mockk<FetchHolidayUseCase>().also { useCase ->
         coEvery { useCase(parameter = any()) } returns Result.success(providedHolidayList())
         coEvery { useCase(parameter = YEAR - 1) } returns
-            Result.failure(IllegalStateException("${YEAR - 1} holiday sync failed"))
+            Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
     }
 
 internal fun thisYearNotProvidedFetchHolidayUseCase(): FetchHolidayUseCase =
@@ -135,7 +144,11 @@ internal fun ComposeContentTestRule.setHolidayHomeScreen(
     getGoldenHolidayUseCase: GetGoldenHolidayUseCase = emptyGetGoldenHolidayUseCase(),
     navigateUp: () -> Unit = {},
     navigateToMemoAdd: (LocalDateRange) -> Unit = {},
+    lifecycleOwner: LifecycleOwner? = null,
+    restorationTester: StateRestorationTester? = null,
 ) {
+    val setContent: (@Composable () -> Unit) -> Unit = restorationTester?.let { tester -> tester::setContent } ?: this::setContent
+
     setContent {
         // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로,
         // 테스트마다 새 소유자를 제공해 이전 테스트의 년도별 ViewModel이 재사용되지 않게 한다.
@@ -146,7 +159,10 @@ internal fun ComposeContentTestRule.setHolidayHomeScreen(
                 }
             }
 
-        CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
+        CompositionLocalProvider(
+            LocalViewModelStoreOwner provides viewModelStoreOwner,
+            LocalLifecycleOwner provides (lifecycleOwner ?: LocalLifecycleOwner.current),
+        ) {
             KoinApplication(
                 configuration =
                     koinConfiguration {

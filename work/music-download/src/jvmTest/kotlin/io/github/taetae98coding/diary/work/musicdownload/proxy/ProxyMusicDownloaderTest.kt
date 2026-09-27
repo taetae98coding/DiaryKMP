@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.work.musicdownload.proxy
 import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadProxySetting
 import io.github.taetae98coding.diary.domain.setting.repository.MusicDownloadProxySettingRepository
 import io.github.taetae98coding.diary.work.musicdownload.tool.tempMusicFilePath
+import io.github.taetae98coding.diary.work.musicdownload.work.MusicFilePath
 import io.github.taetae98coding.diary.work.musicdownload.work.testDownloadTarget
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContain
@@ -20,6 +21,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOf
 import java.nio.file.Path
+import kotlin.io.path.createTempDirectory
 import kotlin.io.path.exists
 import kotlin.io.path.readBytes
 
@@ -64,6 +66,26 @@ class ProxyMusicDownloaderTest :
 
                     progressList shouldContain 1F
                     progressList.all { value -> value in 0F..1F } shouldBe true
+                }
+            }
+        }
+
+        Given("프록시가 파일 전체를 응답하지만 받은 파일을 둘 자리에 저장할 수 없다") {
+            When("영상을 받으면") {
+                Then("TC-MUSIC-DOWNLOAD-FEATURE-004 받은 파일을 저장하지 못하면 실패로 끝나고 파일이 남지 않는다") {
+                    val target = testDownloadTarget()
+                    val directory = createTempDirectory("diary-music").resolve("missing")
+                    val path =
+                        MusicFilePath(
+                            downloading = directory.resolve("${target.videoId}.downloading.mp4").toString(),
+                            completed = directory.resolve("${target.videoId}.mp4").toString(),
+                        )
+                    val downloader = downloader(engine = fileEngine())
+
+                    downloader.download(target = target, path = path, onProgress = {}) shouldBe false
+
+                    Path.of(path.completed).exists() shouldBe false
+                    Path.of(path.downloading).exists() shouldBe false
                 }
             }
         }

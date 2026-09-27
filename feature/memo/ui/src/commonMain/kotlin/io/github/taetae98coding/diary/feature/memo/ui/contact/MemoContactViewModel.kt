@@ -12,13 +12,14 @@ import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoContactUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoSelectableContactUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RemoveMemoContactUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
-import io.github.taetae98coding.diary.library.coroutines.flow.debounceSearchQuery
+import io.github.taetae98coding.diary.library.coroutines.flow.debounceReportedSearchQuery
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
@@ -35,12 +36,19 @@ internal class MemoContactViewModel(
     private val addMemoContactUseCase: AddMemoContactUseCase,
     private val removeMemoContactUseCase: RemoveMemoContactUseCase,
 ) : ViewModel() {
-    private val query = MutableStateFlow("")
+    // 화면이 검색어를 알려 주기 전에는 조회하지 않는다. 기준은 debounceReportedSearchQuery를 따른다.
+    private val query = MutableStateFlow<String?>(null)
 
     val contactPagingData: Flow<PagingData<Contact>> =
         query
-            .debounceSearchQuery()
+            .debounceReportedSearchQuery()
             .flatMapLatest { value -> pageMemoSelectableContactUseCase(parameter = value) }
+            .mapNotNull { result -> result.getOrNull() }
+            .cachedIn(viewModelScope)
+
+    val selectableContactPagingData: Flow<PagingData<Contact>> =
+        flowOf("")
+            .flatMapLatest { query -> pageMemoSelectableContactUseCase(parameter = query) }
             .mapNotNull { result -> result.getOrNull() }
             .cachedIn(viewModelScope)
 

@@ -13,5 +13,8 @@ internal sealed interface PlaceDetailUiState {
         val defaultProvider: MapProvider? = null,
         val isUpdateInProgress: Boolean = false,
         val isDeleteInProgress: Boolean = false,
-    ) : PlaceDetailUiState
+    ) : PlaceDetailUiState {
+        val isMapDisplayed: Boolean
+            get() = defaultProvider != null
+    }
 }

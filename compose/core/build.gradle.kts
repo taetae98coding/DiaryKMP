@@ -10,6 +10,7 @@ kotlin {
                 implementation(projects.library.composeUi)
                 implementation(libs.coil.compose)
                 implementation(libs.jetbrains.lifecycle.runtime.compose)
+                implementation(libs.jetbrains.lifecycle.viewmodel.compose)
                 implementation(libs.markdown.renderer.m3)
                 api(libs.androidx.paging.compose)
                 api(libs.jetbrains.compose.material3)

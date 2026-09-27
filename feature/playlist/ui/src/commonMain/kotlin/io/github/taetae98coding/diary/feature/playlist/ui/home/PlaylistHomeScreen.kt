@@ -8,6 +8,13 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
+import io.github.taetae98coding.diary.compose.core.snackbar.UndoSnackbarEffect
+import io.github.taetae98coding.diary.feature.playlist.ui.Res
+import io.github.taetae98coding.diary.feature.playlist.ui.playlist_home_deleted_message
+import io.github.taetae98coding.diary.feature.playlist.ui.playlist_home_undo_action
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import org.jetbrains.compose.resources.stringResource
 import kotlin.uuid.Uuid
 
 @Composable
@@ -32,6 +39,11 @@ internal fun PlaylistHomeScreen(
         effect = downloadViewModel.effect,
         hostState = snackbarHostState,
     )
+    PlaylistHomeUndoSnackbarEffect(
+        onRestore = musicViewModel::restore,
+        effect = musicViewModel.effect,
+        snackbarHostState = snackbarHostState,
+    )
 
     PlaylistHomeScaffold(
         onEvent = { event ->
@@ -43,6 +55,7 @@ internal fun PlaylistHomeScreen(
                 is PlaylistHomeScaffoldEvent.SelectSort -> musicViewModel.select(sort = event.sort)
                 is PlaylistHomeScaffoldEvent.Refresh -> syncViewModel.refresh()
                 is PlaylistHomeScaffoldEvent.ClickMusic -> navigateToDetail(event.id)
+                is PlaylistHomeScaffoldEvent.DeleteMusic -> musicViewModel.delete(id = event.id)
             }
         },
         modifier = modifier,
@@ -53,5 +66,30 @@ internal fun PlaylistHomeScreen(
         downloadUiStateProvider = { downloadUiState },
         snackbarHostState = snackbarHostState,
         componentVisibleProvider = componentVisibleProvider,
+    )
+}
+
+@Composable
+private fun PlaylistHomeUndoSnackbarEffect(
+    onRestore: (Uuid) -> Unit,
+    effect: Flow<PlaylistHomeEffect> = emptyFlow(),
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+) {
+    val deletedMessage = stringResource(Res.string.playlist_home_deleted_message)
+
+    UndoSnackbarEffect(
+        effect = effect,
+        hostState = snackbarHostState,
+        actionLabel = stringResource(Res.string.playlist_home_undo_action),
+        message = { value ->
+            when (value) {
+                is PlaylistHomeEffect.Deleted -> deletedMessage
+            }
+        },
+        onUndo = { value ->
+            when (value) {
+                is PlaylistHomeEffect.Deleted -> onRestore(value.id)
+            }
+        },
     )
 }

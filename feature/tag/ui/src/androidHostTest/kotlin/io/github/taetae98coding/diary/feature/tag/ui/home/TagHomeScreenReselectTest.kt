@@ -22,6 +22,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -107,14 +108,15 @@ class TagHomeScreenReselectTest {
                     fixtureMonkey
                         .giveMeKotlinBuilder<Tag>()
                         .setExp(Tag::detail, fixtureMonkey.giveMeOne<TagDetail>().copy(emoji = "", title = tagTitle(index = index)))
-                        .setExp(Tag::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                        .setExp(Tag::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                        .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                        .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
                         .sample()
                 }
             val viewModel = mockk<TagHomeViewModel>()
 
             every { viewModel.sort } returns MutableStateFlow(ListSort.TITLE)
             every { viewModel.tagPagingData } returns MutableStateFlow(tagPagingDataOf(tagList))
+            every { viewModel.effect } returns emptyFlow()
             every { viewModel.filterUiState } returns MutableStateFlow(TagHomeScaffoldFilterUiState())
 
             return viewModel

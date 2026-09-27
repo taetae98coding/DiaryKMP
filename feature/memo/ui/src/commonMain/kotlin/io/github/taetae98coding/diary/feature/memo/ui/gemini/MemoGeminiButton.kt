@@ -16,10 +16,7 @@ import org.jetbrains.compose.resources.stringResource
 internal fun MemoGeminiButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    isVisibleProvider: () -> Boolean = { false },
 ) {
-    if (!isVisibleProvider()) return
-
     val contentDescription = stringResource(Res.string.memo_gemini_button_content_description)
 
     DiaryTooltipBox(text = contentDescription) {
@@ -37,10 +34,7 @@ internal fun MemoGeminiButton(
 private fun MemoGeminiButtonPreview() {
     DiaryTheme {
         Surface {
-            MemoGeminiButton(
-                onClick = {},
-                isVisibleProvider = { true },
-            )
+            MemoGeminiButton(onClick = {})
         }
     }
 }

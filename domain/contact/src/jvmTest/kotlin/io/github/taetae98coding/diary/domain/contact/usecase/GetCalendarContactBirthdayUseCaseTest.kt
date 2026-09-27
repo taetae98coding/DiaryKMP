@@ -284,6 +284,29 @@ class GetCalendarContactBirthdayUseCaseTest :
             }
         }
 
+        Given("TC-CALENDAR-CONTACT-BIRTHDAY-DOMAIN-023: 음력 1990년 7월 8일 생일 연락처와 양력 1990년 8월 20일 생일 연락처가 있고 기기에 저장된 음력 자료를 읽지 못한다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val dateRange = LocalDate(2026, 8, 17)..LocalDate(2026, 8, 23)
+            val solarBirthday = calendarContactBirthday(date = LocalDate(2026, 8, 20))
+            val lunarBirthday = lunarContactBirthday(birthday = LocalDate(1990, 7, 8))
+            val lunarRepository = mockk<LunarRepository>()
+            every { lunarRepository.get(dateRange = dateRange) } returns flow { throw IllegalStateException(fixtureMonkey.giveMeOne<String>()) }
+            val useCase =
+                useCase(
+                    account = account,
+                    dateRange = dateRange,
+                    solarBirthdayList = listOf(solarBirthday),
+                    lunarBirthdayList = listOf(lunarBirthday),
+                    lunarRepository = lunarRepository,
+                )
+
+            When("2026년 8월 17일부터 8월 23일까지를 표시 대상 기간으로 조회한다") {
+                Then("조회가 성공하고 양력 생일만 결과에 포함된다") {
+                    useCase(parameter = dateRange).first().shouldBeSuccess() shouldBe listOf(solarBirthday)
+                }
+            }
+        }
+
         Given("TC-CALENDAR-CONTACT-BIRTHDAY-DOMAIN-021: 양력 8월 21일 `가`, 음력 7월 8일 `나`, 양력 8월 20일 `다` 연락처가 있고 2026년 음력 자료가 준비되어 있다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val dateRange = LocalDate(2026, 8, 17)..LocalDate(2026, 8, 23)
@@ -331,6 +354,68 @@ class GetCalendarContactBirthdayUseCaseTest :
                         awaitItem().shouldBeSuccess() shouldBe listOf(lunarBirthday.toCalendar(date = LocalDate(2026, 8, 20)))
                         cancelAndIgnoreRemainingEvents()
                     }
+                }
+            }
+        }
+
+        Given("TC-CALENDAR-CONTACT-BIRTHDAY-DATA-008: 음력 자료를 처음에는 읽지 못하고 그 뒤에는 읽을 수 있는 상태로 첫 번째 계정의 결과를 계속 관찰하고 있다") {
+            val dateRange = LocalDate(2026, 8, 17)..LocalDate(2026, 8, 23)
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val otherAccount = fixtureMonkey.giveMeOne<Account.User>()
+            val lunarBirthday = lunarContactBirthday(birthday = LocalDate(1990, 7, 8))
+            val accountFlow = MutableStateFlow<Result<Account>>(Result.success(account))
+            val getAccountUseCase = mockk<GetAccountUseCase>()
+            every { getAccountUseCase(parameter = Unit) } returns accountFlow
+            val repository = mockk<AccountCalendarContactBirthdayRepository>()
+            every { repository.get(account = any(), dateRange = dateRange) } returns flowOf(emptyList())
+            every { repository.getLunar(account = any()) } returns flowOf(listOf(lunarBirthday))
+            val lunarRepository = mockk<LunarRepository>()
+            val lunarDateFlowList =
+                listOf<Flow<List<LunarDate>>>(
+                    flow { throw IllegalStateException(fixtureMonkey.giveMeOne<String>()) },
+                    flowOf(lunarDateList(start = LocalDate(2026, 8, 17), endInclusive = LocalDate(2026, 8, 23), lunarYear = 2026, month = 7, firstDay = 5)),
+                )
+            every { lunarRepository.get(dateRange = dateRange) } returnsMany lunarDateFlowList
+            val useCase = useCase(getAccountUseCase = getAccountUseCase, repository = repository, lunarRepository = lunarRepository)
+
+            When("현재 사용자 계정이 다른 계정으로 바뀐다") {
+                Then("음력 생일이 빠진 결과에 이어 음력 자료를 다시 읽은 결과가 전달된다") {
+                    useCase(parameter = dateRange).test {
+                        awaitItem().shouldBeSuccess() shouldBe emptyList()
+
+                        accountFlow.value = Result.success(otherAccount)
+
+                        awaitItem().shouldBeSuccess() shouldBe listOf(lunarBirthday.toCalendar(date = LocalDate(2026, 8, 20)))
+                        cancelAndIgnoreRemainingEvents()
+                    }
+
+                    verify(exactly = 2) { lunarRepository.get(dateRange = dateRange) }
+                }
+            }
+        }
+
+        Given("TC-CALENDAR-CONTACT-BIRTHDAY-DATA-010: 첫 기간에서는 음력 자료를 읽지 못하고 둘째 기간에서는 읽을 수 있으며, 첫 기간을 조회해 음력 생일이 빠진 결과를 받은 상태다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val firstDateRange = LocalDate(2026, 7, 5)..LocalDate(2026, 7, 11)
+            val secondDateRange = LocalDate(2026, 8, 17)..LocalDate(2026, 8, 23)
+            val lunarBirthday = lunarContactBirthday(birthday = LocalDate(1990, 7, 8))
+            val getAccountUseCase = mockk<GetAccountUseCase>()
+            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            val repository = mockk<AccountCalendarContactBirthdayRepository>()
+            every { repository.get(account = account, dateRange = any()) } returns flowOf(emptyList())
+            every { repository.getLunar(account = account) } returns flowOf(listOf(lunarBirthday))
+            val lunarRepository = mockk<LunarRepository>()
+            every { lunarRepository.get(dateRange = firstDateRange) } returns flow { throw IllegalStateException(fixtureMonkey.giveMeOne<String>()) }
+            every { lunarRepository.get(dateRange = secondDateRange) } returns
+                flowOf(lunarDateList(start = LocalDate(2026, 8, 17), endInclusive = LocalDate(2026, 8, 23), lunarYear = 2026, month = 7, firstDay = 5))
+            val useCase = useCase(getAccountUseCase = getAccountUseCase, repository = repository, lunarRepository = lunarRepository)
+
+            When("표시 대상 기간을 2026년 8월 17일부터 8월 23일까지로 바꿔 조회한다") {
+                Then("바뀐 기간의 음력 자료를 다시 읽어 2026년 8월 20일을 차지하는 음력 생일이 담긴 결과가 전달된다") {
+                    useCase(parameter = firstDateRange).first().shouldBeSuccess() shouldBe emptyList()
+
+                    useCase(parameter = secondDateRange).first().shouldBeSuccess() shouldBe listOf(lunarBirthday.toCalendar(date = LocalDate(2026, 8, 20)))
+                    verify(exactly = 1) { lunarRepository.get(dateRange = secondDateRange) }
                 }
             }
         }
@@ -409,7 +494,7 @@ class GetCalendarContactBirthdayUseCaseTest :
             birthday: LocalDate,
         ): LunarContactBirthday =
             LunarContactBirthday(
-                contactId = Uuid.random(),
+                contactId = fixtureMonkey.giveMeOne<Uuid>(),
                 name = name,
                 birthday = birthday,
             )

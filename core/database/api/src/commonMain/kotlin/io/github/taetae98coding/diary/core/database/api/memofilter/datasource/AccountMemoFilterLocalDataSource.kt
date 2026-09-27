@@ -7,6 +7,8 @@ import kotlin.uuid.Uuid
 public interface AccountMemoFilterLocalDataSource {
     public fun getTagList(accountId: Uuid): Flow<List<TagLocalEntity>>
 
+    public fun getTagIdList(accountId: Uuid): Flow<List<Uuid>>
+
     public suspend fun upsert(
         accountId: Uuid,
         tagId: Uuid,

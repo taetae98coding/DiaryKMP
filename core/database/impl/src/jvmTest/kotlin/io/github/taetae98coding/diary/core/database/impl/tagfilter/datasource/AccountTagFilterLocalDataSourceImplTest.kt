@@ -6,6 +6,7 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.tagfilter.entity.TagFilterLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
+import io.github.taetae98coding.diary.core.database.impl.sync.transaction.AccountDataTransactionImpl
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -72,6 +73,18 @@ class AccountTagFilterLocalDataSourceImplTest :
 
             dataSource.find(accountId = accountId).first()?.isTopLevelOnly shouldBe true
             dataSource.find(accountId = otherAccountId).first().shouldBeNull()
+        }
+
+        test("TC-TAG-HOME-DATA-013 강제 전체 재동기화로 계정 데이터를 지우면 그 계정의 필터 선택은 꺼진 상태로 돌아간다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            dataSource.upsert(accountId = accountId, isTopLevelOnly = true)
+            dataSource.upsert(accountId = otherAccountId, isTopLevelOnly = true)
+
+            AccountDataTransactionImpl(database = database).delete(accountId = accountId)
+
+            dataSource.find(accountId = accountId).first().shouldBeNull()
+            dataSource.find(accountId = otherAccountId).first()?.isTopLevelOnly shouldBe true
         }
 
         test("TC-TAG-HOME-DATA-008 데이터베이스를 닫고 다시 열어도 필터 선택을 유지한다") {

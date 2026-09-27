@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.core.database.impl
 
+import androidx.room3.AutoMigration
 import androidx.room3.ColumnTypeConverters
 import androidx.room3.ConstructedBy
 import androidx.room3.Database
@@ -14,6 +15,7 @@ import io.github.taetae98coding.diary.core.database.api.memoweb.entity.MemoWebLo
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.placetag.entity.PlaceTagLocalEntity
+import io.github.taetae98coding.diary.core.database.api.qr.entity.QrLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tagfilter.entity.TagFilterLocalEntity
 import io.github.taetae98coding.diary.core.database.api.taglink.entity.TagLinkLocalEntity
@@ -70,6 +72,10 @@ import io.github.taetae98coding.diary.core.database.impl.placetag.dao.AccountPla
 import io.github.taetae98coding.diary.core.database.impl.placetag.dao.AccountPlaceTagSyncDao
 import io.github.taetae98coding.diary.core.database.impl.placetag.dao.PlaceTagDao
 import io.github.taetae98coding.diary.core.database.impl.placetag.entity.AccountPlaceTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.qr.dao.AccountQrDao
+import io.github.taetae98coding.diary.core.database.impl.qr.dao.AccountQrSyncDao
+import io.github.taetae98coding.diary.core.database.impl.qr.dao.QrDao
+import io.github.taetae98coding.diary.core.database.impl.qr.entity.AccountQrLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.search.dao.SearchMemoDao
 import io.github.taetae98coding.diary.core.database.impl.search.dao.SearchPlaceDao
 import io.github.taetae98coding.diary.core.database.impl.search.dao.SearchTagDao
@@ -133,9 +139,14 @@ import io.github.taetae98coding.diary.library.room3.converter.UuidColumnTypeConv
         AccountContactLocalEntity::class,
         MusicLocalEntity::class,
         AccountMusicLocalEntity::class,
+        QrLocalEntity::class,
+        AccountQrLocalEntity::class,
         SyncCursorLocalEntity::class,
     ],
-    version = 1,
+    version = 2,
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2),
+    ],
 )
 @ConstructedBy(DiaryDatabaseConstructor::class)
 @ColumnTypeConverters(
@@ -258,6 +269,12 @@ internal abstract class DiaryDatabase : RoomDatabase() {
     abstract fun accountMusicDao(): AccountMusicDao
 
     abstract fun accountMusicSyncDao(): AccountMusicSyncDao
+
+    abstract fun qrDao(): QrDao
+
+    abstract fun accountQrDao(): AccountQrDao
+
+    abstract fun accountQrSyncDao(): AccountQrSyncDao
 
     abstract fun syncCursorDao(): SyncCursorDao
 

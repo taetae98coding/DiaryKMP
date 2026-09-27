@@ -145,8 +145,8 @@ class MemoHomeScreenTodayHeaderTest {
                     fixtureMonkey
                         .giveMeOne<MemoDetail>()
                         .copy(dateTime = MemoDateTime.AllDay(dateRange = date..date)),
-                ).setExp(Memo::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Memo::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                ).setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
 
         private fun dateHeader(text: String): SemanticsMatcher = hasTestTag(MEMO_DATE_HEADER_TEST_TAG) and hasText(text)

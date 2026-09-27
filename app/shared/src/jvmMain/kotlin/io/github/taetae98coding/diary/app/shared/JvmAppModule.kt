@@ -4,6 +4,7 @@ import io.github.taetae98coding.diary.core.calendar.database.impl.di.CalendarDat
 import io.github.taetae98coding.diary.core.database.impl.di.DiaryDatabaseDirectory
 import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDirectory
 import io.github.taetae98coding.diary.core.file.impl.di.AppFileDirectoryName
+import io.github.taetae98coding.diary.feature.file.ui.picker.FilePickerDispatcher
 import io.github.taetae98coding.diary.feature.login.ui.credential.AppleCredentialsConfig
 import io.github.taetae98coding.diary.feature.login.ui.credential.CredentialsDispatcher
 import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsClientId
@@ -40,6 +41,10 @@ internal class JvmAppModule {
     @Factory
     @CredentialsDispatcher
     fun providesCredentialsDispatcher(): CoroutineDispatcher = Dispatchers.IO
+
+    @Factory
+    @FilePickerDispatcher
+    fun providesFilePickerDispatcher(): CoroutineDispatcher = Dispatchers.IO
 
     @Factory
     @PhotoPickerDispatcher

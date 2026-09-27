@@ -223,6 +223,18 @@ internal fun ComposeContentTestRule.awaitEntityTagPickerRows() {
     }
 }
 
+internal fun ComposeContentTestRule.awaitEntityTagPickerRow(title: String) {
+    awaitEntityTagPicker(description = "$title 항목이 목록에 나타나지 않았다") {
+        onAllNodes(hasText(title) and hasAnyAncestor(isDialog())).fetchSemanticsNodes().isNotEmpty()
+    }
+}
+
+internal fun ComposeContentTestRule.awaitEntityTagPickerRowGone(title: String) {
+    awaitEntityTagPicker(description = "$title 항목이 목록에서 사라지지 않았다") {
+        onAllNodes(hasText(title) and hasAnyAncestor(isDialog())).fetchSemanticsNodes().isEmpty()
+    }
+}
+
 /**
  * 목록 갱신은 백그라운드 조회가 끝난 뒤에 반영되므로 조건을 만족할 때까지 프레임과 실제 시간을 함께 진행시킨다.
  */

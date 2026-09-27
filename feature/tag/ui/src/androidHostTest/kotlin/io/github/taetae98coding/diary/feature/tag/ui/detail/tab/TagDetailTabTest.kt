@@ -40,6 +40,11 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailScreen
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailScreenTestHost
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailTestTabContent
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailUiState
+import io.github.taetae98coding.diary.feature.tag.ui.detail.changeColor
+import io.github.taetae98coding.diary.feature.tag.ui.detail.colorHexText
+import io.github.taetae98coding.diary.feature.tag.ui.detail.descriptionInput
+import io.github.taetae98coding.diary.feature.tag.ui.detail.emojiInput
+import io.github.taetae98coding.diary.feature.tag.ui.detail.inputEmoji
 import io.github.taetae98coding.diary.feature.tag.ui.detail.memo.TAG_DETAIL_MEMO_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TAG_DETAIL_PLACE_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.tag.ui.detail.prepareTagDetailTabViewModels
@@ -50,6 +55,7 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.titleInput
 import io.github.taetae98coding.diary.feature.tag.ui.detail.web.TAG_DETAIL_WEB_LIST_TEST_TAG
+import io.github.taetae98coding.diary.feature.tag.ui.fixtureId
 import io.github.taetae98coding.diary.feature.tag.ui.form.rememberTagDetailFormState
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagPlace
@@ -59,6 +65,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.compose.viewmodel.koinViewModel
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -73,6 +80,7 @@ class TagDetailTabTest {
         setTagDetailScaffold()
 
         composeRule.onNodeWithContentDescription(DEFAULT_DETAIL_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.titleInput().assertExists()
         composeRule.onNodeWithTag(TAG_DETAIL_MEMO_LIST_TEST_TAG).assertDoesNotExist()
         composeRule.onNodeWithTag(TAG_DETAIL_WEB_LIST_TEST_TAG).assertDoesNotExist()
         composeRule.onNodeWithTag(TAG_DETAIL_PLACE_LIST_TEST_TAG).assertDoesNotExist()
@@ -142,6 +150,7 @@ class TagDetailTabTest {
 
         composeRule.onNodeWithContentDescription(DEFAULT_DETAIL_TAB_DESCRIPTION).assertIsSelected()
         composeRule.onNodeWithTag(TAG_DETAIL_MEMO_LIST_TEST_TAG).assertDoesNotExist()
+        composeRule.titleInput().assertExists()
     }
 
     @Test
@@ -217,8 +226,18 @@ class TagDetailTabTest {
 
     @Test
     fun `TC-TAG-DETAIL-FEATURE-041 탭을 전환해도 수정 중이던 내용이 유지된다`() {
-        setTagDetailScaffold(uiStateProvider = { tagDetailUiState(detail = tagDetail(TAG_TITLE)) })
+        val storedDetail =
+            tagDetail(
+                title = TAG_TITLE,
+                emoji = STORED_EMOJI,
+                description = STORED_DESCRIPTION,
+                color = STORED_COLOR,
+            )
+        setTagDetailScaffold(uiStateProvider = { tagDetailUiState(detail = storedDetail) })
+        composeRule.inputEmoji(emoji = EDITED_EMOJI)
         composeRule.titleInput().performTextInput(EDIT_SUFFIX)
+        composeRule.descriptionInput().performTextInput(EDIT_SUFFIX)
+        composeRule.changeColor(hex = EDITED_COLOR_HEX)
 
         listOf(
             DEFAULT_MEMO_TAB_DESCRIPTION,
@@ -228,7 +247,10 @@ class TagDetailTabTest {
             selectTab(tabDescription)
             selectTab(DEFAULT_DETAIL_TAB_DESCRIPTION)
 
+            composeRule.emojiInput().assert(hasText(EDITED_EMOJI))
             composeRule.titleInput().assert(hasText(TAG_TITLE + EDIT_SUFFIX))
+            composeRule.descriptionInput().assert(hasText(STORED_DESCRIPTION + EDIT_SUFFIX))
+            composeRule.colorHexText() shouldBe EDITED_COLOR_HEX
         }
     }
 
@@ -247,6 +269,27 @@ class TagDetailTabTest {
             composeRule.onNodeWithContentDescription(DEFAULT_FINISH_BUTTON_DESCRIPTION).assert(hasClickAction())
             composeRule.onNodeWithContentDescription(DEFAULT_DELETE_BUTTON_DESCRIPTION).assert(hasClickAction())
         }
+    }
+
+    @Test
+    fun `TC-TAG-DETAIL-FEATURE-060 완료된 태그의 TagDetail 화면에서도 네 탭을 모두 사용할 수 있다`() {
+        setTagDetailScaffold(uiStateProvider = { tagDetailUiState(detail = tagDetail(TAG_TITLE), isFinished = true) })
+
+        mapOf(
+            DEFAULT_MEMO_TAB_DESCRIPTION to TAG_DETAIL_MEMO_LIST_TEST_TAG,
+            DEFAULT_WEB_TAB_DESCRIPTION to TAG_DETAIL_WEB_LIST_TEST_TAG,
+            DEFAULT_PLACE_TAB_DESCRIPTION to TAG_DETAIL_PLACE_LIST_TEST_TAG,
+        ).forEach { (tabDescription, listTestTag) ->
+            selectTab(tabDescription)
+
+            composeRule.onNodeWithContentDescription(tabDescription).assertIsSelected()
+            composeRule.onNodeWithTag(listTestTag).assertExists()
+        }
+
+        selectTab(DEFAULT_DETAIL_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_DETAIL_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.titleInput().assertExists()
     }
 
     private fun selectTab(contentDescription: String) {
@@ -392,7 +435,8 @@ class TagDetailTabScreenTest {
                     navigateToMemoFinishedList = {},
                     id = FIRST_TAG_ID,
                     componentVisibleProvider = { TagDetailScaffoldComponentVisible() },
-                    viewModel = screenTestViewModel(MutableStateFlow(tagDetailUiState(detail = tagDetail(TAG_TITLE)))),
+                    detailViewModel = screenTestViewModel(MutableStateFlow(tagDetailUiState(detail = tagDetail(TAG_TITLE)))),
+                    placeMapViewModel = koinViewModel(),
                     navigateToWebAdd = {},
                     navigateToWebDetail = {},
                     navigateToPlaceAdd = {},
@@ -408,6 +452,38 @@ class TagDetailTabScreenTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithContentDescription(tabDescription).assertIsSelected()
+    }
+
+    @Test
+    fun `TC-TAG-DETAIL-FEATURE-057 목록에서 다른 태그를 선택하면 태그 디테일 탭에서 다시 시작한다`() {
+        val detailIdState = mutableStateOf(FIRST_TAG_ID)
+        composeRule.setTagDetailScreen(
+            viewModel = screenTestViewModel(MutableStateFlow(tagDetailUiState(detail = tagDetail(TAG_TITLE)))),
+            detailIdState = detailIdState,
+            viewModelFor = { id -> screenTestViewModel(MutableStateFlow(tagDetailUiState(id = id, detail = tagDetail(TAG_TITLE)))) },
+        )
+        composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
+
+        composeRule.runOnIdle { detailIdState.value = fixtureId() }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_DETAIL_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_ADD_BUTTON_DESCRIPTION).assertDoesNotExist()
+    }
+
+    @Test
+    fun `목록 탭 사이를 옮기면 추가 버튼은 그대로 남고 접근성 이름만 바뀐다`() {
+        setTagDetailScreen()
+        composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_ADD_BUTTON_DESCRIPTION).assert(hasClickAction())
+
+        composeRule.selectTagDetailTab(DEFAULT_WEB_TAB_DESCRIPTION)
+        composeRule.onNodeWithContentDescription(DEFAULT_WEB_ADD_BUTTON_DESCRIPTION).assert(hasClickAction())
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_ADD_BUTTON_DESCRIPTION).assertDoesNotExist()
+
+        composeRule.selectTagDetailTab(DEFAULT_DETAIL_TAB_DESCRIPTION)
+        composeRule.onNodeWithContentDescription(DEFAULT_WEB_ADD_BUTTON_DESCRIPTION).assertDoesNotExist()
     }
 
     private fun assertNavigateUpKeepsTab(tabDescription: String) {
@@ -437,3 +513,9 @@ class TagDetailTabScreenTest {
         const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
     }
 }
+
+private const val STORED_EMOJI = "\uD83C\uDFC3"
+private const val EDITED_EMOJI = "\uD83C\uDFCA"
+private const val STORED_DESCRIPTION = "TagDetailTabDescription"
+private val STORED_COLOR: Long = 0xFFFF0000.toInt().toLong()
+private const val EDITED_COLOR_HEX = "#0000FF"

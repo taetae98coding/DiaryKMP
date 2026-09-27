@@ -1,11 +1,16 @@
 package io.github.taetae98coding.diary.feature.setting.ui.holiday
 
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -13,6 +18,10 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
+import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.domain.holiday.model.HolidaySetting
+import io.github.taetae98coding.diary.feature.setting.ui.holiday.search.rememberSettingHolidaySearchResult
+import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
@@ -63,6 +72,28 @@ class SettingHolidayScaffoldSearchTest {
         composeRule.textNodeCount(unmatched.name) shouldBe 0
         composeRule.onNodeWithText(firstMatched.name).getUnclippedBoundsInRoot().top shouldBeLessThan
             composeRule.onNodeWithText(secondMatched.name).getUnclippedBoundsInRoot().top
+    }
+
+    @Test
+    fun `TC-SETTING-HOLIDAY-FEATURE-044 검색어는 입력을 멈출 때까지 기다리지 않고 곧바로 목록에 반영된다`() {
+        val matched = holidaySetting(isHoliday = true, isVisible = true, name = SEOLLAL_HOLIDAY_NAME)
+        val unmatched = holidaySetting(isHoliday = true, isVisible = true, name = MEMORIAL_DAY_NAME)
+        lateinit var state: SettingHolidayScaffoldState
+        var searchResult: List<HolidaySetting> = emptyList()
+        composeRule.setContent {
+            state = rememberSettingHolidayScaffoldState()
+            searchResult = rememberSettingHolidaySearchResult(query = state.query, holidaySettingList = listOf(matched, unmatched))
+        }
+        composeRule.runOnIdle { searchResult shouldBe listOf(matched, unmatched) }
+        composeRule.mainClock.autoAdvance = false
+
+        composeRule.runOnUiThread {
+            state.queryState.setTextAndPlaceCursorAtEnd(SEOLLAL_QUERY)
+            Snapshot.sendApplyNotifications()
+        }
+        composeRule.mainClock.advanceTimeBy(INPUT_IDLE_DELAY.inWholeMilliseconds / 2)
+
+        composeRule.runOnUiThread { searchResult shouldBe listOf(matched) }
     }
 
     @Test
@@ -119,15 +150,25 @@ class SettingHolidayScaffoldSearchTest {
     fun `TC-SETTING-HOLIDAY-FEATURE-025 필터링된 목록에서도 선택 상태를 바꿀 수 있다`() {
         val holidaySetting = holidaySetting(isHoliday = true, isVisible = true, name = SEOLLAL_HOLIDAY_NAME)
         val eventList = mutableListOf<SettingHolidayScaffoldEvent>()
-        composeRule.setSettingHolidayScaffold(
-            uiState = loadedUiState(holidaySettingList = listOf(holidaySetting)),
-            onEvent = eventList::add,
-        )
+        val uiState = mutableStateOf(loadedUiState(holidaySettingList = listOf(holidaySetting)))
+        composeRule.setContent {
+            DiaryTheme {
+                SettingHolidayScaffold(
+                    onEvent = { event ->
+                        eventList += event
+                        uiState.value = loadedUiState(holidaySettingList = listOf(holidaySetting.copy(isVisible = false)))
+                    },
+                    uiStateProvider = { uiState.value },
+                )
+            }
+        }
 
         composeRule.searchInputField().performTextInput(SEOLLAL_QUERY)
         composeRule.holidayItemNode(holidaySetting.name).performClick()
 
         eventList shouldBe listOf(SettingHolidayScaffoldEvent.ToggleHoliday(name = holidaySetting.name))
+        composeRule.searchInputField().assert(hasText(SEOLLAL_QUERY))
+        composeRule.holidayItemNode(holidaySetting.name).assertIsOff()
     }
 
     @Test

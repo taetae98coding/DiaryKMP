@@ -10,7 +10,7 @@ public data class CalendarColor(
     val saturdayColor: Color,
 )
 
-internal fun CalendarColor.dayOfWeekColor(
+public fun CalendarColor.dayOfWeekColor(
     dayOfWeek: DayOfWeek,
     defaultColor: Color,
     isHoliday: Boolean = false,

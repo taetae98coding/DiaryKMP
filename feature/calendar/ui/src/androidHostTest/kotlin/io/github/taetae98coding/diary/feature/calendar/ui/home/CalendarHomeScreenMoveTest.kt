@@ -2,16 +2,23 @@ package io.github.taetae98coding.diary.feature.calendar.ui.home
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
+import androidx.compose.runtime.saveable.SaveableStateRegistry
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.test.assertCountEquals
-import androidx.compose.ui.test.hasNoClickAction
-import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
@@ -20,25 +27,38 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
+import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
+import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
+import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
+import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
+import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarFilterUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarMemoUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.MoveMemoUseCase
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.toDateRange
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.toDateRange
+import io.github.taetae98coding.diary.feature.calendar.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.mockk.clearMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,6 +76,11 @@ class CalendarHomeScreenMoveTest {
     val composeRule = createComposeRule()
 
     private val movedList = mutableListOf<Triple<Uuid, MemoDateTime, LocalDateRange>>()
+
+    @Before
+    fun resetUiDispatcher() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-CALENDAR-MEMO-MOVE-FEATURE-001 메모 제목을 길게 누르면 메모 이동이 시작되고 날짜 기간 선택은 시작되지 않는다`() {
@@ -133,13 +158,49 @@ class CalendarHomeScreenMoveTest {
     @Test
     fun `TC-CALENDAR-MEMO-MOVE-FEATURE-005 이동을 완료하면 날짜 차이만큼 옮겨진 기간이 반영된다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
-        setCalendarHomeScreen(memoListFlow = MutableStateFlow(listOf(memo)))
+        val movedDateRange = july(day = 21)..july(day = 23)
+        val storedMemoFlow = MutableStateFlow(Result.success(listOf(memo)))
+        val moveMemoUseCase = mockk<MoveMemoUseCase>()
+        coEvery { moveMemoUseCase(parameter = any()) } answers {
+            val parameter = firstArg<MoveMemoUseCase.Parameter>()
+            storedMemoFlow.value = Result.success(listOf(memo.copy(dateTime = MemoDateTime.AllDay(dateRange = parameter.toDateRange))))
+            Result.success(Unit)
+        }
+        val getCalendarMemoUseCase = mockk<GetCalendarMemoUseCase>()
+        every { getCalendarMemoUseCase(parameter = any()) } returns storedMemoFlow
+        val getCalendarFilterUseCase = mockk<GetCalendarFilterUseCase>()
+        every { getCalendarFilterUseCase(parameter = Unit) } returns flowOf(Result.success(emptyList()))
+        setCalendarHomeScreen(
+            memoListFlow = MutableStateFlow(emptyList()),
+            memoViewModel =
+                CalendarHomeMemoViewModel(
+                    getCalendarFilterUseCase = getCalendarFilterUseCase,
+                    getCalendarMemoUseCase = getCalendarMemoUseCase,
+                    moveMemoUseCase = moveMemoUseCase,
+                ),
+        )
+        composeRule.onAllNodesWithText(MEETING_TITLE).assertCountEquals(1)
 
         performLongPress(memoPressPosition(title = MEETING_TITLE, day = 15))
         performMoveTo(dayCenter(day = 22))
         performUp()
 
-        movedList shouldBe listOf(Triple(memo.id, memo.dateTime, july(day = 21)..july(day = 23)))
+        coVerify(exactly = 1) {
+            moveMemoUseCase(
+                parameter = MoveMemoUseCase.Parameter(id = memo.id, fromDateTime = memo.dateTime, toDateRange = movedDateRange),
+            )
+        }
+        composeRule.onAllNodesWithText(MEETING_TITLE).assertCountEquals(1)
+        val bounds =
+            composeRule
+                .onNodeWithText(MEETING_TITLE)
+                .fetchSemanticsNode()
+                .boundsInRoot
+        // 바뀐 기간의 가운데인 7월 22일 칸에 걸쳐 있고, 원래 기간이 있던 7월 14일의 주 줄보다 아래에 놓인다.
+        val movedCenter = dayCenter(day = 22)
+        (bounds.left < movedCenter.x && movedCenter.x < bounds.right) shouldBe true
+        (dayCenter(day = 14).y < movedCenter.y && movedCenter.y < bounds.center.y) shouldBe true
+        composeRule.onAllNodes(isDialog()).assertCountEquals(0)
     }
 
     @Test
@@ -196,6 +257,71 @@ class CalendarHomeScreenMoveTest {
             ?.moveState
             ?.moving
             .shouldBeNull()
+    }
+
+    @Test
+    fun `TC-CALENDAR-MEMO-MOVE-DOMAIN-009 앱이 백그라운드로 이동해도 이동 중 표시가 남지 않고 그 시점의 기간이 반영된다`() {
+        val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
+        val registry = SaveableStateRegistry(restoredValues = null) { true }
+        var capturedState: CalendarHomeScaffoldState? = null
+        setCalendarHomeScreen(
+            memoListFlow = MutableStateFlow(listOf(memo)),
+            saveableStateRegistry = registry,
+            onState = { capturedState = it },
+        )
+
+        performLongPress(memoPressPosition(title = MEETING_TITLE, day = 15))
+        performMoveTo(dayCenter(day = 22))
+        composeRule.runOnIdle { registry.performSave() }
+        performCancel()
+
+        movedList shouldBe listOf(Triple(memo.id, memo.dateTime, july(day = 21)..july(day = 23)))
+        capturedState
+            ?.calendarState
+            ?.moveState
+            ?.moving
+            .shouldBeNull()
+    }
+
+    @Test
+    fun `TC-CALENDAR-MEMO-MOVE-DOMAIN-014 화면을 벗어나면 이동 중 표시가 남지 않고 그 시점의 기간이 반영된다`() {
+        val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
+        var isShown by mutableStateOf(true)
+        setCalendarHomeScreen(
+            memoListFlow = MutableStateFlow(listOf(memo)),
+            isShown = { isShown },
+        )
+
+        performLongPress(memoPressPosition(title = MEETING_TITLE, day = 15))
+        performMoveTo(dayCenter(day = 22))
+        composeRule.runOnIdle { isShown = false }
+        composeRule.waitForIdle()
+
+        movedList shouldBe listOf(Triple(memo.id, memo.dateTime, july(day = 21)..july(day = 23)))
+    }
+
+    @Test
+    fun `TC-CALENDAR-MEMO-MOVE-FEATURE-015 이동 중 달 이동으로 옮겨질 기간이 달라지면 추가 촉각 피드백을 받는다`() {
+        val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
+        val hapticFeedback = mockk<HapticFeedback>(relaxed = true)
+        var capturedState: CalendarHomeScaffoldState? = null
+        setCalendarHomeScreen(
+            memoListFlow = MutableStateFlow(listOf(memo)),
+            hapticFeedback = hapticFeedback,
+            onState = { capturedState = it },
+        )
+
+        val pressPosition = memoPressPosition(title = MEETING_TITLE, day = 15)
+        performLongPress(pressPosition)
+        clearMocks(hapticFeedback, answers = false)
+
+        performSecondaryDown(secondaryPosition(pressPosition))
+        performSecondaryMoveBy(monthSwipeDelta(direction = -1))
+
+        capturedState?.calendarState?.currentYearMonth shouldBe AUGUST_2026
+        verify(exactly = 1) { hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick) }
+        performSecondaryUp()
+        performUp()
     }
 
     @Test
@@ -263,21 +389,112 @@ class CalendarHomeScreenMoveTest {
         performLongPress(pressPosition)
         composeRule.mainClock.autoAdvance = false
         performMove(Offset(x = rootWidth() - 1F, y = pressPosition.y))
-        advanceTimeUntil { capturedState?.calendarState?.currentYearMonth == AUGUST_2026 }
+        // 2026년 8월 화면에서 포인터 위치(셋째 주 토요일)의 날짜는 8월 15일이므로 7월 15일에서 31일을 옮긴 기간이 된다.
+        val expectedDateRange = august(day = 14)..august(day = 16)
+        advanceTimeUntil {
+            capturedState
+                ?.calendarState
+                ?.moveState
+                ?.moving
+                ?.toDateRange == expectedDateRange
+        }
 
+        capturedState?.calendarState?.currentYearMonth shouldBe AUGUST_2026
         capturedState
             ?.calendarState
             ?.moveState
             ?.moving
             ?.key shouldBe memo.id
+
+        performUpAndSettle()
+        movedList shouldBe listOf(Triple(memo.id, memo.dateTime, expectedDateRange))
+    }
+
+    @Test
+    fun `TC-CALENDAR-MEMO-MOVE-FEATURE-016 이동 중 가장자리 영역에 머무는 동안 달 이동이 반복된다`() {
+        val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
+        var capturedState: CalendarHomeScaffoldState? = null
+        setCalendarHomeScreen(
+            memoListFlow = MutableStateFlow(listOf(memo)),
+            onState = { capturedState = it },
+        )
+
+        val pressPosition = memoPressPosition(title = MEETING_TITLE, day = 15)
+        performLongPress(pressPosition)
+        composeRule.mainClock.autoAdvance = false
+        performMove(Offset(x = rootWidth() - 1F, y = pressPosition.y))
+        advanceTimeUntil { capturedState?.calendarState?.currentYearMonth == AUGUST_2026 }
+        // 2026년 9월 화면에서 포인터 위치(셋째 주 토요일)의 날짜는 9월 19일이므로 7월 15일에서 66일을 옮긴 기간이 된다.
+        val expectedDateRange = september(day = 18)..september(day = 20)
+        advanceTimeUntil {
+            capturedState
+                ?.calendarState
+                ?.moveState
+                ?.moving
+                ?.toDateRange == expectedDateRange
+        }
+
+        capturedState?.calendarState?.currentYearMonth shouldBe SEPTEMBER_2026
         capturedState
             ?.calendarState
             ?.moveState
             ?.moving
-            ?.toDateRange shouldNotBe memo.dateTime.toDateRange()
-
+            ?.key shouldBe memo.id
         performUpAndSettle()
-        movedList.size shouldBe 1
+    }
+
+    @Test
+    fun `TC-CALENDAR-MEMO-MOVE-DOMAIN-016 가장자리 영역 밖에서는 이동을 위한 드래그로 달이 이동하지 않는다`() {
+        val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
+        var capturedState: CalendarHomeScaffoldState? = null
+        setCalendarHomeScreen(
+            memoListFlow = MutableStateFlow(listOf(memo)),
+            onState = { capturedState = it },
+        )
+
+        performLongPress(memoPressPosition(title = MEETING_TITLE, day = 15))
+        performMoveTo(dayCenter(day = 17))
+        composeRule.mainClock.advanceTimeBy(IDLE_WAIT_MILLIS)
+
+        capturedState?.calendarState?.currentYearMonth shouldBe JULY_2026
+        capturedState
+            ?.calendarState
+            ?.moveState
+            ?.moving
+            ?.key shouldBe memo.id
+        performUp()
+    }
+
+    @Test
+    fun `TC-CALENDAR-MEMO-MOVE-DOMAIN-017 이동 중 왼쪽 가장자리 영역에 머무르면 이전 달로 이동하고 메모 이동이 유지된다`() {
+        val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
+        var capturedState: CalendarHomeScaffoldState? = null
+        setCalendarHomeScreen(
+            memoListFlow = MutableStateFlow(listOf(memo)),
+            onState = { capturedState = it },
+        )
+
+        val pressPosition = memoPressPosition(title = MEETING_TITLE, day = 15)
+        performLongPress(pressPosition)
+        composeRule.mainClock.autoAdvance = false
+        performMove(Offset(x = 1F, y = pressPosition.y))
+        // 2026년 6월 화면에서 포인터 위치(셋째 주 일요일)의 날짜는 6월 14일이므로 7월 15일에서 31일을 앞당긴 기간이 된다.
+        val expectedDateRange = june(day = 13)..june(day = 15)
+        advanceTimeUntil {
+            capturedState
+                ?.calendarState
+                ?.moveState
+                ?.moving
+                ?.toDateRange == expectedDateRange
+        }
+
+        capturedState?.calendarState?.currentYearMonth shouldBe JUNE_2026
+        capturedState
+            ?.calendarState
+            ?.moveState
+            ?.moving
+            ?.key shouldBe memo.id
+        performUpAndSettle()
     }
 
     @Test
@@ -334,13 +551,26 @@ class CalendarHomeScreenMoveTest {
             initialYearMonth = JUNE_2026,
             memoListFlow = MutableStateFlow(listOf(memo)),
         )
-        composeRule.onAllNodes(hasText("2").and(hasNoClickAction())).assertCountEquals(2)
+        composeRule.onAllNodes(CalendarHomeTestFixture.dateCell(day = 2)).assertCountEquals(2)
 
         performLongPress(memoPressPosition(title = MEETING_TITLE, day = 23))
         performMoveTo(dayCenter(day = 2, index = 1))
         performUp()
 
         movedList shouldBe listOf(Triple(memo.id, memo.dateTime, july(day = 2)..july(day = 3)))
+    }
+
+    @Test
+    fun `TC-CALENDAR-MEMO-MOVE-DOMAIN-015 캘린더 밖으로 드래그해 완료하면 가장 가까운 날짜 칸을 기준으로 반영된다`() {
+        val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
+        setCalendarHomeScreen(memoListFlow = MutableStateFlow(listOf(memo)))
+        val start = memoPressPosition(title = MEETING_TITLE, day = 15)
+
+        performLongPress(start)
+        performMoveTo(Offset(x = start.x, y = rootHeight() + BELOW_CALENDAR_DISTANCE))
+        performUp()
+
+        movedList shouldBe listOf(Triple(memo.id, memo.dateTime, august(day = 4)..august(day = 6)))
     }
 
     @Test
@@ -531,15 +761,155 @@ class CalendarHomeScreenMoveTest {
         composeRule.onAllNodesWithText(TRIP_TITLE).assertCountEquals(2)
     }
 
+    @Test
+    fun `TC-CALENDAR-MEMO-MOVE-FEATURE-014 공휴일 이름 위에서 길게 누르면 날짜 기간 선택이 시작되고 검색 결과는 열리지 않는다`() {
+        val uriHandler = mockk<UriHandler>(relaxed = true)
+        val memoAddList = mutableListOf<LocalDateRange>()
+        var capturedState: CalendarHomeScaffoldState? = null
+        setCalendarHomeScreen(
+            memoListFlow = MutableStateFlow(listOf(memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16)))),
+            holidayList = listOf(Holiday(name = CONSTITUTION_DAY_NAME, isHoliday = true, dateRange = july(day = 17)..july(day = 17))),
+            uriHandler = uriHandler,
+            navigateToMemoAdd = memoAddList::add,
+            onState = { capturedState = it },
+        )
+
+        performLongPress(itemPressPosition(text = CONSTITUTION_DAY_NAME, day = 17))
+
+        capturedState?.calendarSelectState?.dateRange shouldBe july(day = 17)..july(day = 17)
+        capturedState
+            ?.calendarState
+            ?.moveState
+            ?.moving
+            .shouldBeNull()
+        performUp()
+        memoAddList shouldBe listOf(july(day = 17)..july(day = 17))
+        verify(exactly = 0) { uriHandler.openUri(any()) }
+        movedList.shouldBeEmpty()
+    }
+
+    @Test
+    fun `TC-CALENDAR-MEMO-MOVE-FEATURE-014 생일 위에서 길게 누르면 날짜 기간 선택이 시작되고 ContactDetail 화면으로 이동하지 않는다`() {
+        val contactDetailList = mutableListOf<Uuid>()
+        val memoAddList = mutableListOf<LocalDateRange>()
+        var capturedState: CalendarHomeScaffoldState? = null
+        setCalendarHomeScreen(
+            memoListFlow = MutableStateFlow(listOf(memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16)))),
+            birthdayList = listOf(CalendarContactBirthday(contactId = fixtureMonkey.giveMeOne<Uuid>(), name = BIRTHDAY_NAME, date = july(day = 8))),
+            navigateToContactDetail = contactDetailList::add,
+            navigateToMemoAdd = memoAddList::add,
+            onState = { capturedState = it },
+        )
+
+        performLongPress(itemPressPosition(text = BIRTHDAY_TEXT, day = 8))
+
+        capturedState?.calendarSelectState?.dateRange shouldBe july(day = 8)..july(day = 8)
+        capturedState
+            ?.calendarState
+            ?.moveState
+            ?.moving
+            .shouldBeNull()
+        performUp()
+        memoAddList shouldBe listOf(july(day = 8)..july(day = 8))
+        contactDetailList.shouldBeEmpty()
+        movedList.shouldBeEmpty()
+    }
+
+    @Test
+    @Config(sdk = [36], qualifiers = "w411dp-h891dp")
+    fun `TC-CALENDAR-MEMO-MOVE-FEATURE-014 날씨 위에서 길게 누르면 날짜 기간 선택이 시작되고 검색 결과는 열리지 않는다`() {
+        val uriHandler = mockk<UriHandler>(relaxed = true)
+        val memoAddList = mutableListOf<LocalDateRange>()
+        var capturedState: CalendarHomeScaffoldState? = null
+        setCalendarHomeScreen(
+            memoListFlow = MutableStateFlow(listOf(memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16)))),
+            weatherList =
+                listOf(
+                    calendarWeather(
+                        date = july(day = 21),
+                        temperature = CalendarWeatherTemperature.MinMax(min = 17.8, max = 28.2),
+                        descriptionList = listOf(SUNNY_DESCRIPTION),
+                    ),
+                ),
+            uriHandler = uriHandler,
+            navigateToMemoAdd = memoAddList::add,
+            onState = { capturedState = it },
+        )
+
+        performLongPress(itemPressPosition(text = WEATHER_TEMPERATURE_TEXT, day = 21))
+
+        capturedState?.calendarSelectState?.dateRange shouldBe july(day = 21)..july(day = 21)
+        capturedState
+            ?.calendarState
+            ?.moveState
+            ?.moving
+            .shouldBeNull()
+        performUp()
+        memoAddList shouldBe listOf(july(day = 21)..july(day = 21))
+        verify(exactly = 0) { uriHandler.openUri(any()) }
+        movedList.shouldBeEmpty()
+    }
+
+    @Test
+    fun `TC-CALENDAR-MEMO-MOVE-DATA-002 저장에 실패하면 원래 기간으로 표시되고 오류 안내가 표시되지 않는다`() {
+        val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
+        val moveMemoUseCase = mockk<MoveMemoUseCase>()
+        coEvery { moveMemoUseCase(parameter = any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+        val getCalendarMemoUseCase = mockk<GetCalendarMemoUseCase>()
+        every { getCalendarMemoUseCase(parameter = any()) } returns flowOf(Result.success(listOf(memo)))
+        val getCalendarFilterUseCase = mockk<GetCalendarFilterUseCase>()
+        every { getCalendarFilterUseCase(parameter = Unit) } returns flowOf(Result.success(emptyList()))
+        setCalendarHomeScreen(
+            memoListFlow = MutableStateFlow(emptyList()),
+            memoViewModel =
+                CalendarHomeMemoViewModel(
+                    getCalendarFilterUseCase = getCalendarFilterUseCase,
+                    getCalendarMemoUseCase = getCalendarMemoUseCase,
+                    moveMemoUseCase = moveMemoUseCase,
+                ),
+        )
+        composeRule.onAllNodesWithText(MEETING_TITLE).assertCountEquals(1)
+
+        performLongPress(memoPressPosition(title = MEETING_TITLE, day = 15))
+        performMoveTo(dayCenter(day = 22))
+        performUp()
+
+        coVerify(exactly = 1) { moveMemoUseCase(parameter = any()) }
+        composeRule.onAllNodesWithText(MEETING_TITLE).assertCountEquals(1)
+        val bounds =
+            composeRule
+                .onNodeWithText(MEETING_TITLE)
+                .fetchSemanticsNode()
+                .boundsInRoot
+        // 원래 기간의 첫날인 7월 14일 칸에 걸쳐 있고, 옮기려던 7월 21일이 있는 다음 주 줄보다 위에 남아 있다.
+        val originalStart = dayCenter(day = 14)
+        (bounds.left < originalStart.x && originalStart.x < bounds.right) shouldBe true
+        (originalStart.y < bounds.center.y && bounds.center.y < dayCenter(day = 21).y) shouldBe true
+        composeRule.onAllNodes(isDialog()).assertCountEquals(0)
+    }
+
     private fun setCalendarHomeScreen(
         memoListFlow: StateFlow<List<CalendarMemo>>,
         initialYearMonth: YearMonth = JULY_2026,
         hapticFeedback: HapticFeedback? = null,
         restorationTester: StateRestorationTester? = null,
+        holidayList: List<Holiday> = emptyList(),
+        birthdayList: List<CalendarContactBirthday> = emptyList(),
+        weatherList: List<CalendarWeather> = emptyList(),
+        uriHandler: UriHandler? = null,
+        navigateToMemoAdd: (LocalDateRange) -> Unit = {},
+        navigateToContactDetail: (Uuid) -> Unit = {},
+        memoViewModel: CalendarHomeMemoViewModel? = null,
+        saveableStateRegistry: SaveableStateRegistry? = null,
+        isShown: () -> Boolean = { true },
         onState: (CalendarHomeScaffoldState) -> Unit = {},
     ) {
-        val memoViewModel =
-            mockk<CalendarHomeMemoViewModel>().also { viewModel ->
+        val holidayViewModel = holidayViewModel(holidayListFlow = MutableStateFlow(holidayList))
+        val birthdayViewModel = birthdayViewModel(birthdayListFlow = MutableStateFlow(birthdayList))
+        val weatherViewModel =
+            weatherViewModel(weatherReportFlow = MutableStateFlow(CalendarWeatherReport(weatherList = weatherList)))
+        val mockMemoViewModel =
+            memoViewModel ?: mockk<CalendarHomeMemoViewModel>().also { viewModel ->
                 every { viewModel.fetch(any()) } returns Unit
                 every { viewModel.memoList } returns memoListFlow
                 every { viewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
@@ -552,26 +922,25 @@ class CalendarHomeScreenMoveTest {
             restorationTester?.let { tester -> { content -> tester.setContent(content) } } ?: composeRule::setContent
 
         setContent {
-            val state =
-                rememberCalendarHomeScaffoldState(
-                    calendarState = rememberCalendarState(initialYearMonth = initialYearMonth),
-                )
-            onState(state)
-
-            DiaryTheme {
-                CompositionLocalProvider(
-                    LocalHapticFeedback provides (hapticFeedback ?: LocalHapticFeedback.current),
-                ) {
+            CompositionLocalProvider(LocalSaveableStateRegistry provides (saveableStateRegistry ?: LocalSaveableStateRegistry.current)) {
+                CalendarHomeScreenContent(
+                    initialYearMonth = initialYearMonth,
+                    hapticFeedback = hapticFeedback,
+                    uriHandler = uriHandler,
+                    isShown = isShown,
+                    onState = onState,
+                ) { state ->
                     CalendarHomeScreen(
                         navigateToMemoDetail = {},
-                        navigateToMemoAdd = {},
-                        navigateToContactDetail = {},
-                        birthdayViewModel = birthdayViewModel(),
+                        navigateToMemoAdd = navigateToMemoAdd,
+                        navigateToContactDetail = navigateToContactDetail,
+                        birthdayViewModel = birthdayViewModel,
                         navigateToFilter = {},
+                        navigateToTimetable = {},
                         state = state,
-                        holidayViewModel = holidayViewModel(),
-                        memoViewModel = memoViewModel,
-                        weatherViewModel = weatherViewModel(),
+                        holidayViewModel = holidayViewModel,
+                        memoViewModel = mockMemoViewModel,
+                        weatherViewModel = weatherViewModel,
                         syncViewModel = syncViewModel(),
                         permissionManager = rememberPermissionManager(),
                     )
@@ -580,13 +949,39 @@ class CalendarHomeScreenMoveTest {
         }
     }
 
-    // 상단 바 오늘 버튼도 일 숫자를 표시하므로 클릭할 수 없는 날짜 숫자만 대상으로 삼는다.
+    @Composable
+    private fun CalendarHomeScreenContent(
+        initialYearMonth: YearMonth,
+        hapticFeedback: HapticFeedback?,
+        uriHandler: UriHandler?,
+        isShown: () -> Boolean,
+        onState: (CalendarHomeScaffoldState) -> Unit,
+        content: @Composable (CalendarHomeScaffoldState) -> Unit,
+    ) {
+        val state =
+            rememberCalendarHomeScaffoldState(
+                calendarState = rememberCalendarState(initialYearMonth = initialYearMonth),
+            )
+        onState(state)
+
+        DiaryTheme {
+            CompositionLocalProvider(
+                LocalHapticFeedback provides (hapticFeedback ?: LocalHapticFeedback.current),
+                LocalUriHandler provides (uriHandler ?: LocalUriHandler.current),
+            ) {
+                if (isShown()) {
+                    content(state)
+                }
+            }
+        }
+    }
+
     private fun dayCenter(
         day: Int,
         index: Int = 0,
     ): Offset =
         composeRule
-            .onAllNodes(hasText(day.toString()).and(hasNoClickAction()))[index]
+            .onAllNodes(CalendarHomeTestFixture.dateCell(day = day))[index]
             .fetchSemanticsNode()
             .boundsInRoot
             .center
@@ -607,11 +1002,32 @@ class CalendarHomeScreenMoveTest {
         return Offset(x = dayCenter(day = day, index = dayIndex).x, y = bounds.center.y)
     }
 
+    // 아이템 가운데는 날짜 경계에 걸릴 수 있어 x는 지정한 날짜 칸의 중심, y는 아이템의 세로 중심을 사용한다.
+    private fun itemPressPosition(
+        text: String,
+        day: Int,
+    ): Offset {
+        val bounds =
+            composeRule
+                .onNodeWithText(text, useUnmergedTree = true)
+                .fetchSemanticsNode()
+                .boundsInRoot
+
+        return Offset(x = dayCenter(day = day).x, y = bounds.center.y)
+    }
+
     private fun rootWidth(): Float =
         composeRule
             .onRoot()
             .fetchSemanticsNode()
             .size.width
+            .toFloat()
+
+    private fun rootHeight(): Float =
+        composeRule
+            .onRoot()
+            .fetchSemanticsNode()
+            .size.height
             .toFloat()
 
     private fun performLongPress(position: Offset) {
@@ -695,17 +1111,11 @@ class CalendarHomeScreenMoveTest {
         endInclusive: LocalDate,
     ): CalendarMemo =
         CalendarMemo(
-            id = Uuid.random(),
+            id = fixtureMonkey.giveMeOne<Uuid>(),
             title = title,
             color = fixtureMonkey.giveMeOne(),
             dateTime = MemoDateTime.AllDay(dateRange = start..endInclusive),
         )
-
-    private fun MemoDateTime.toDateRange(): LocalDateRange =
-        when (this) {
-            is MemoDateTime.AllDay -> dateRange
-            is MemoDateTime.DateTime -> start.date..endInclusive.date
-        }
 
     private fun june(day: Int): LocalDate = LocalDate(year = 2026, month = Month.JUNE, day = day)
 
@@ -713,11 +1123,18 @@ class CalendarHomeScreenMoveTest {
 
     private fun august(day: Int): LocalDate = LocalDate(year = 2026, month = Month.AUGUST, day = day)
 
+    private fun september(day: Int): LocalDate = LocalDate(year = 2026, month = Month.SEPTEMBER, day = day)
+
     private fun firstYearJanuary(day: Int): LocalDate = LocalDate(year = 1, month = Month.JANUARY, day = day)
 
     companion object {
         private const val MEETING_TITLE = "회의"
         private const val TRIP_TITLE = "여행"
+        private const val CONSTITUTION_DAY_NAME = "제헌절"
+        private const val BIRTHDAY_NAME = "홍길동"
+        private const val BIRTHDAY_TEXT = "🎂 홍길동"
+        private const val SUNNY_DESCRIPTION = "맑음"
+        private const val WEATHER_TEMPERATURE_TEXT = "17.8°/28.2°"
 
         // 두 주에 걸친 메모는 원본 조각 2개와 같은 수의 고스트 아이템이 표시된다.
         private const val PIECE_COUNT = 2
@@ -727,6 +1144,7 @@ class CalendarHomeScreenMoveTest {
         private const val IDLE_WAIT_MILLIS = 5_000L
         private const val FRAME_MILLIS = 16L
         private const val SECONDARY_POINTER_ID = 1
+        private const val BELOW_CALENDAR_DISTANCE = 200F
         private val MONTH_SWIPE_DISTANCE = 64.dp
 
         // 페이저 스와이프로 처리되면 달이 넘어가는 거리여야 달 이동이 일어나지 않음을 확인할 수 있다.
@@ -734,6 +1152,7 @@ class CalendarHomeScreenMoveTest {
         private val JUNE_2026 = YearMonth(year = 2026, month = Month.JUNE)
         private val JULY_2026 = YearMonth(year = 2026, month = Month.JULY)
         private val AUGUST_2026 = YearMonth(year = 2026, month = Month.AUGUST)
+        private val SEPTEMBER_2026 = YearMonth(year = 2026, month = Month.SEPTEMBER)
         private val FIRST_YEAR_MONTH = YearMonth(year = 1, month = Month.JANUARY)
     }
 }

@@ -4,6 +4,8 @@ import androidx.compose.material3.adaptive.layout.PaneScaffoldDirective
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldState
 import androidx.navigation3.runtime.NavBackStack
 import app.cash.turbine.test
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelReselectEvent
 import io.github.taetae98coding.diary.app.shared.navigation.topLevelNavigationList
@@ -13,10 +15,15 @@ import io.github.taetae98coding.diary.feature.login.api.LoginHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
+import io.github.taetae98coding.diary.feature.routine.api.RoutineAddNavKey
+import io.github.taetae98coding.diary.feature.setting.api.SettingBrowserNavKey
+import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
@@ -90,7 +97,7 @@ class AppStateTest :
         }
 
         test("TC-TOP-LEVEL-NAVIGATION-FEATURE-012 이어진 화면이 열려 있으면 닫고 돌아오기만 한다") {
-            openedScreenCases.forEach { case ->
+            openedScreenCases().forEach { case ->
                 val appState = createAppState(*case.backStack.toTypedArray())
 
                 appState.reselectEvent.flowOf(case.topLevelNavigation).test {
@@ -104,7 +111,7 @@ class AppStateTest :
         }
 
         test("TC-TOP-LEVEL-NAVIGATION-FEATURE-013 이어진 화면을 닫은 뒤 다시 선택하면 돌아갈 자리를 알린다") {
-            openedScreenCases.forEach { case ->
+            openedScreenCases().forEach { case ->
                 val appState = createAppState(*case.backStack.toTypedArray())
 
                 appState.navigateTo(case.topLevelNavigation)
@@ -123,7 +130,7 @@ class AppStateTest :
                 createAppState(
                     TopLevelNavigation.DEFAULT.key,
                     TopLevelNavigation.Memo.key,
-                    MemoDetailNavKey(Uuid.random()),
+                    MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()),
                 )
 
             appState.navigateTo(TopLevelNavigation.Memo)
@@ -161,7 +168,7 @@ class AppStateTest :
         }
 
         test("TC-TOP-LEVEL-NAVIGATION-FEATURE-004 세부 화면 단독 표시 시 내비게이션 숨김") {
-            detailDestinationCases.forEach { case ->
+            detailDestinationCases().forEach { case ->
                 val appState = createAppState(*case.backStack.toTypedArray())
 
                 appState.isNavigationVisible.shouldBeFalse()
@@ -169,8 +176,18 @@ class AppStateTest :
             }
         }
 
+        test("TC-SETTING-BROWSER-FEATURE-001 단독 화면에서 뒤로가면 설정 목록으로 돌아가고 공통 내비게이션은 계속 숨긴다") {
+            val appState = createAppState(*(expectedBackStack(TopLevelNavigation.More) + SettingHomeNavKey + SettingBrowserNavKey).toTypedArray())
+            appState.isNavigationVisible.shouldBeFalse()
+
+            appState.backStack.removeLast()
+
+            appState.backStack.last() shouldBe SettingHomeNavKey
+            appState.isNavigationVisible.shouldBeFalse()
+        }
+
         test("TC-TOP-LEVEL-NAVIGATION-FEATURE-005 주요 목적지 복귀 후 내비게이션 표시") {
-            detailDestinationCases.forEach { case ->
+            detailDestinationCases().forEach { case ->
                 val appState = createAppState(*case.backStack.toTypedArray())
 
                 appState.backStack.removeLast()
@@ -181,7 +198,7 @@ class AppStateTest :
         }
 
         test("TC-TOP-LEVEL-NAVIGATION-FEATURE-007 목록과 세부 화면 함께 표시 시 내비게이션 표시") {
-            listDetailTwoPaneCases.forEach { case ->
+            listDetailTwoPaneCases().forEach { case ->
                 val appState = createAppState(*case.backStack.toTypedArray(), isListDetailTwoPane = true)
 
                 appState.isNavigationVisible.shouldBeTrue()
@@ -190,7 +207,7 @@ class AppStateTest :
         }
 
         test("TC-TOP-LEVEL-NAVIGATION-FEATURE-008 주요 목적지 위에 겹쳐 표시할 때 내비게이션 표시") {
-            overlayDestinationCases.forEach { case ->
+            overlayDestinationCases().forEach { case ->
                 val appState = createAppState(*case.backStack.toTypedArray())
 
                 appState.isNavigationVisible.shouldBeTrue()
@@ -203,7 +220,7 @@ class AppStateTest :
                 createAppState(
                     TopLevelNavigation.DEFAULT.key,
                     TopLevelNavigation.Memo.key,
-                    MemoDetailNavKey(Uuid.random()),
+                    MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()),
                     MemoHomeFilterNavKey,
                     isListDetailTwoPane = true,
                 )
@@ -213,7 +230,7 @@ class AppStateTest :
         }
 
         test("TC-TOP-LEVEL-NAVIGATION-FEATURE-004 넓은 화면이어도 목록에서 진입하지 않은 세부 화면은 내비게이션 숨김") {
-            listDetailStandaloneCases.forEach { case ->
+            listDetailStandaloneCases().forEach { case ->
                 val appState = createAppState(*case.backStack.toTypedArray(), isListDetailTwoPane = true)
 
                 appState.isNavigationVisible.shouldBeFalse()
@@ -227,7 +244,7 @@ class AppStateTest :
                     TopLevelNavigation.DEFAULT.key,
                     TopLevelNavigation.Memo.key,
                     MemoAddNavKey(),
-                    MemoDetailNavKey(Uuid.random()),
+                    MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()),
                     isListDetailTwoPane = true,
                 )
 
@@ -259,8 +276,21 @@ class AppStateTest :
             appState.isNavigationVisible.shouldBeFalse()
         }
 
+        test("TC-TAG-FINISHED-LIST-FEATURE-032 완료된 태그 목록에서는 화면 너비와 관계없이 내비게이션 숨김") {
+            listOf(false, true).forEach { isListDetailTwoPane ->
+                val appState =
+                    createAppState(
+                        *(expectedBackStack(TopLevelNavigation.Tag) + TagFinishedListNavKey).toTypedArray(),
+                        isListDetailTwoPane = isListDetailTwoPane,
+                    )
+
+                appState.isNavigationVisible.shouldBeFalse()
+                appState.currentTopLevelNavigation shouldBe TopLevelNavigation.Tag
+            }
+        }
+
         test("TC-TAG-MEMO-FINISHED-LIST-DETAIL-FEATURE-008 넓은 화면에서 완료된 메모 목록과 상세를 함께 표시해도 내비게이션 숨김") {
-            tagMemoFinishedListDetailCases.forEach { case ->
+            tagMemoFinishedListDetailCases().forEach { case ->
                 val appState = createAppState(*case.backStack.toTypedArray(), isListDetailTwoPane = true)
 
                 appState.isNavigationVisible.shouldBeFalse()
@@ -268,13 +298,55 @@ class AppStateTest :
             }
         }
 
+        test("TC-TOP-LEVEL-NAVIGATION-DOMAIN-014 다른 주요 목적지에 다녀오면 떠난 목적지 위에 열어 둔 화면이 닫힌다") {
+            leftDestinationCases().forEach { case ->
+                TopLevelNavigation.entries
+                    .filterNot { other -> other == case.topLevelNavigation }
+                    .forEach { other ->
+                        val appState = createAppState(*case.backStack.toTypedArray())
+
+                        appState.navigateTo(other)
+                        appState.navigateTo(case.topLevelNavigation)
+
+                        appState.backStack.toList() shouldBe expectedBackStack(case.topLevelNavigation)
+                        appState.currentTopLevelNavigation shouldBe case.topLevelNavigation
+                        appState.assertBackReturnsToDefaultOnly()
+                    }
+            }
+        }
+
+        test("TC-MEMO-LIST-DETAIL-DOMAIN-001 다른 주요 목적지에 다녀오면 상세 영역이 선택 전 상태로 돌아간다") {
+            listDetailLeaveCases(
+                topLevelNavigation = TopLevelNavigation.Memo,
+                detailList =
+                    listOf(
+                        listOf(MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())),
+                        listOf(MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()), MemoAddNavKey()),
+                    ),
+            ).forEach { case ->
+                assertListDetailResetAfterLeaving(case)
+            }
+        }
+
+        test("TC-TAG-LIST-DETAIL-DOMAIN-001 다른 주요 목적지에 다녀오면 상세 영역이 선택 전 상태로 돌아간다") {
+            listDetailLeaveCases(
+                topLevelNavigation = TopLevelNavigation.Tag,
+                detailList =
+                    listOf(
+                        listOf(TagDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())),
+                        listOf(TagDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()), TagDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())),
+                        listOf(TagDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()), TagAddNavKey()),
+                    ),
+            ).forEach { case ->
+                assertListDetailResetAfterLeaving(case)
+            }
+        }
+
         test("TC-TOP-LEVEL-NAVIGATION-DOMAIN-008 기본 목적지 선택 시 이전 목적지 이력 제거") {
-            val appState =
-                createAppState(
-                    TopLevelNavigation.DEFAULT.key,
-                    TopLevelNavigation.More.key,
-                    LoginHomeNavKey,
-                )
+            val appState = createAppState(TopLevelNavigation.DEFAULT.key)
+            appState.navigateTo(TopLevelNavigation.Memo)
+            appState.navigateTo(TopLevelNavigation.Tag)
+            appState.backStack.last() shouldBe TopLevelNavigation.Tag.key
 
             appState.navigateTo(TopLevelNavigation.DEFAULT)
 
@@ -283,7 +355,9 @@ class AppStateTest :
         }
     }) {
     public companion object {
-        private val openedScreenCases =
+        private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
+
+        private fun openedScreenCases(): List<DetailDestinationCase> =
             listOf(
                 DetailDestinationCase(
                     topLevelNavigation = TopLevelNavigation.Memo,
@@ -291,7 +365,7 @@ class AppStateTest :
                         listOf(
                             TopLevelNavigation.DEFAULT.key,
                             TopLevelNavigation.Memo.key,
-                            MemoDetailNavKey(Uuid.random()),
+                            MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()),
                         ),
                 ),
                 DetailDestinationCase(
@@ -314,7 +388,7 @@ class AppStateTest :
                 ),
             )
 
-        private val detailDestinationCases =
+        private fun detailDestinationCases(): List<DetailDestinationCase> =
             listOf(
                 DetailDestinationCase(
                     topLevelNavigation = TopLevelNavigation.Memo,
@@ -330,7 +404,7 @@ class AppStateTest :
                 ),
             )
 
-        private val overlayDestinationCases =
+        private fun overlayDestinationCases(): List<DetailDestinationCase> =
             listOf(
                 DetailDestinationCase(
                     topLevelNavigation = TopLevelNavigation.Memo,
@@ -356,11 +430,11 @@ class AppStateTest :
                 ),
             )
 
-        private val listDetailStandaloneCases =
+        private fun listDetailStandaloneCases(): List<DetailDestinationCase> =
             listOf(
                 DetailDestinationCase(
                     topLevelNavigation = TopLevelNavigation.Calendar,
-                    backStack = listOf(TopLevelNavigation.Calendar.key, MemoDetailNavKey(Uuid.random())),
+                    backStack = listOf(TopLevelNavigation.Calendar.key, MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())),
                 ),
                 DetailDestinationCase(
                     topLevelNavigation = TopLevelNavigation.Calendar,
@@ -382,17 +456,17 @@ class AppStateTest :
                         listOf(
                             TopLevelNavigation.DEFAULT.key,
                             TopLevelNavigation.Memo.key,
-                            MemoDetailNavKey(Uuid.random()),
-                            TagDetailNavKey(Uuid.random()),
+                            MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()),
+                            TagDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()),
                         ),
                 ),
             )
 
-        private val tagMemoFinishedListDetailCases =
-            Uuid.random().let { tagId ->
+        private fun tagMemoFinishedListDetailCases(): List<DetailDestinationCase> =
+            fixtureMonkey.giveMeOne<Uuid>().let { tagId ->
                 listOf(
                     null,
-                    MemoDetailNavKey(Uuid.random()),
+                    MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()),
                 ).map { detailKey ->
                     DetailDestinationCase(
                         topLevelNavigation = TopLevelNavigation.Tag,
@@ -408,7 +482,7 @@ class AppStateTest :
                 }
             }
 
-        private val listDetailTwoPaneCases =
+        private fun listDetailTwoPaneCases(): List<DetailDestinationCase> =
             listOf(
                 DetailDestinationCase(
                     topLevelNavigation = TopLevelNavigation.Memo,
@@ -416,7 +490,7 @@ class AppStateTest :
                 ),
                 DetailDestinationCase(
                     topLevelNavigation = TopLevelNavigation.Memo,
-                    backStack = listOf(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.Memo.key, MemoDetailNavKey(Uuid.random())),
+                    backStack = listOf(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.Memo.key, MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())),
                 ),
                 DetailDestinationCase(
                     topLevelNavigation = TopLevelNavigation.Tag,
@@ -424,9 +498,66 @@ class AppStateTest :
                 ),
                 DetailDestinationCase(
                     topLevelNavigation = TopLevelNavigation.Tag,
-                    backStack = listOf(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.Tag.key, TagDetailNavKey(Uuid.random())),
+                    backStack = listOf(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.Tag.key, TagDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())),
                 ),
             )
+
+        private fun leftDestinationCases(): List<DetailDestinationCase> =
+            listOf(
+                TopLevelNavigation.Memo to MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()),
+                TopLevelNavigation.Memo to MemoAddNavKey(),
+                TopLevelNavigation.Memo to MemoHomeFilterNavKey,
+                TopLevelNavigation.Tag to TagDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()),
+                TopLevelNavigation.Tag to TagAddNavKey(),
+                TopLevelNavigation.Tag to TagHomeFilterNavKey,
+                TopLevelNavigation.Calendar to MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>()),
+                TopLevelNavigation.Calendar to CalendarHomeFilterNavKey,
+                TopLevelNavigation.Routine to RoutineAddNavKey,
+                TopLevelNavigation.More to LoginHomeNavKey,
+                TopLevelNavigation.More to SettingHomeNavKey,
+            ).map { (topLevelNavigation, openedKey) ->
+                DetailDestinationCase(
+                    topLevelNavigation = topLevelNavigation,
+                    backStack = expectedBackStack(topLevelNavigation) + openedKey,
+                )
+            }
+
+        private fun listDetailLeaveCases(
+            topLevelNavigation: TopLevelNavigation,
+            detailList: List<List<ScreenNavKey>>,
+        ): List<ListDetailLeaveCase> =
+            detailList.flatMap { detail ->
+                TopLevelNavigation.entries
+                    .filterNot { other -> other == topLevelNavigation }
+                    .map { other ->
+                        ListDetailLeaveCase(
+                            topLevelNavigation = topLevelNavigation,
+                            other = other,
+                            backStack = expectedBackStack(topLevelNavigation) + detail,
+                        )
+                    }
+            }
+
+        private fun assertListDetailResetAfterLeaving(case: ListDetailLeaveCase) {
+            val appState = createAppState(*case.backStack.toTypedArray(), isListDetailTwoPane = true)
+
+            appState.navigateTo(case.other)
+            appState.navigateTo(case.topLevelNavigation)
+
+            appState.backStack.toList() shouldBe expectedBackStack(case.topLevelNavigation)
+            appState.currentTopLevelNavigation shouldBe case.topLevelNavigation
+            appState.isNavigationVisible.shouldBeTrue()
+            appState.assertBackReturnsToDefaultOnly()
+        }
+
+        private fun AppState.assertBackReturnsToDefaultOnly() {
+            if (backStack.size > 1) {
+                backStack.removeLast()
+            }
+
+            backStack.toList() shouldBe listOf(TopLevelNavigation.DEFAULT.key)
+            currentTopLevelNavigation shouldBe TopLevelNavigation.DEFAULT
+        }
 
         private fun createAppState(
             vararg keys: ScreenNavKey,
@@ -451,6 +582,12 @@ class AppStateTest :
                 .map(TopLevelNavigation::key)
     }
 }
+
+private data class ListDetailLeaveCase(
+    val topLevelNavigation: TopLevelNavigation,
+    val other: TopLevelNavigation,
+    val backStack: List<ScreenNavKey>,
+)
 
 private data class DetailDestinationCase(
     val topLevelNavigation: TopLevelNavigation,

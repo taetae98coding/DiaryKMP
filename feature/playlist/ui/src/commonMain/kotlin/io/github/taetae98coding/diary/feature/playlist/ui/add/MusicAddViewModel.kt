@@ -59,6 +59,7 @@ internal class MusicAddViewModel(
                         .onSuccess { video ->
                             _effect.send(
                                 MusicAddEffect.LinkFetched(
+                                    link = link,
                                     title = video.title,
                                     artist = video.channelName,
                                 ),

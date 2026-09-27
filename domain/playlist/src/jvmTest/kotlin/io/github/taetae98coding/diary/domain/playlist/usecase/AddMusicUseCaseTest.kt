@@ -107,7 +107,7 @@ class AddMusicUseCaseTest :
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountMusicRepository = mockk<AccountMusicRepository>()
             coEvery { accountMusicRepository.upsert(account = account, music = capture(musicSlot)) } just Runs
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val clock = mockk<Clock>()
             every { clock.now() } returns now
             val useCase =
@@ -225,7 +225,7 @@ class AddMusicUseCaseTest :
                 )
 
             When("곡 추가에 성공한다") {
-                Then("TC-MUSIC-ADD-DATA-005 추가한 곡을 서버와 맞추기 위한 동기화를 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-MUSIC-ADD-DATA-005 추가한 곡을 서버와 맞추기 위한 동기화를 요청한다") {
                     useCase(parameter = detail()).shouldBeSuccess()
 
                     coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
@@ -301,7 +301,7 @@ class AddMusicUseCaseTest :
                 )
 
             When("공백이 아닌 제목으로 곡을 추가한다") {
-                Then("TC-MUSIC-ADD-DATA-004 저장 실패를 그대로 전달한다") {
+                Then("TC-MUSIC-ADD-DATA-004 추가를 성공으로 다루지 않고 저장 실패를 전달한다") {
                     val result = useCase(parameter = detail())
 
                     result.shouldBeFailure() shouldBeSameInstanceAs throwable

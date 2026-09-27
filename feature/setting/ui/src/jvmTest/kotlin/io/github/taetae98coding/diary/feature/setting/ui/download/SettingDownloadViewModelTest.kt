@@ -56,6 +56,24 @@ class SettingDownloadViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-SETTING-DOWNLOAD-FEATURE-020 데스크톱 앱에서는 화면에 다시 들어와도 앞서 확인한 주소 후보를 그대로 제공한다") {
+            runTest(mainDispatcher) {
+                val statusFlow = MutableStateFlow(Result.success<MusicDownloadProxyStatus>(MusicDownloadProxyStatus.Serving(addressList = ADDRESS_LIST)))
+
+                viewModel(statusFlow = statusFlow).uiState.test {
+                    awaitItem() shouldBe SettingDownloadUiState.Loading
+                    awaitItem() shouldBe SettingDownloadUiState.Serving(addressList = ADDRESS_LIST)
+                }
+
+                viewModel(statusFlow = statusFlow).uiState.test {
+                    awaitItem() shouldBe SettingDownloadUiState.Loading
+                    awaitItem() shouldBe SettingDownloadUiState.Serving(addressList = ADDRESS_LIST)
+                    advanceUntilIdle()
+                    expectNoEvents()
+                }
+            }
+        }
+
         test("TC-SETTING-DOWNLOAD-FEATURE-002 제공 중이지만 주소 후보가 없으면 빈 후보를 제공한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(statusFlow = flowOf(Result.success(MusicDownloadProxyStatus.Serving(addressList = emptyList()))))
@@ -78,7 +96,7 @@ class SettingDownloadViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-DOWNLOAD-FEATURE-004 프록시 상태나 저장된 주소를 확인하지 못하면 확인 중 상태를 유지한다") {
+        test("TC-SETTING-DOWNLOAD-FEATURE-004 TC-SETTING-DOWNLOAD-FEATURE-018 프록시 상태나 저장된 주소를 확인하지 못하면 확인 중 상태를 유지한다") {
             val caseList =
                 listOf(
                     emptyFlow<Result<MusicDownloadProxyStatus>>() to notProvidedSettingFlow(MusicDownloadProxySetting.EMPTY),

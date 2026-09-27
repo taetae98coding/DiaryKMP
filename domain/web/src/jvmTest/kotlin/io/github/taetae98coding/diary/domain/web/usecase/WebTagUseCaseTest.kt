@@ -30,7 +30,7 @@ class WebTagUseCaseTest :
     BehaviorSpec({
         Given("로그인한 계정과 현재 시각이 준비되어 있다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
@@ -65,7 +65,7 @@ class WebTagUseCaseTest :
                     }
                 }
 
-                Then("TC-WEB-TAG-DATA-008 TC-WEB-DETAIL-DATA-018 저장한 뒤 동기화를 한 번 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-WEB-TAG-DATA-008 TC-WEB-DETAIL-DATA-018 저장한 뒤 동기화를 한 번 요청한다") {
                     val webId = fixtureMonkey.giveMeOne<Uuid>()
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
                     val syncRepository = mockk<AccountWebTagRepository>(relaxed = true)
@@ -119,7 +119,7 @@ class WebTagUseCaseTest :
                     }
                 }
 
-                Then("TC-WEB-TAG-DATA-008 TC-WEB-DETAIL-DATA-018 해제를 저장한 뒤 동기화를 한 번 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-WEB-TAG-DATA-008 TC-WEB-DETAIL-DATA-018 해제를 저장한 뒤 동기화를 한 번 요청한다") {
                     val webId = fixtureMonkey.giveMeOne<Uuid>()
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
                     val syncRepository = mockk<AccountWebTagRepository>(relaxed = true)
@@ -229,8 +229,8 @@ class WebTagUseCaseTest :
         private fun tag(): Tag =
             fixtureMonkey
                 .giveMeKotlinBuilder<Tag>()
-                .setExp(Tag::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Tag::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

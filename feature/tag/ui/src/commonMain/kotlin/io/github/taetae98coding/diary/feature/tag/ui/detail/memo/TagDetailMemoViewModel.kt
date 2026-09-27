@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.compose.memo.list.toMemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.domain.memo.usecase.DeleteMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.FinishMemoUseCase
@@ -22,10 +23,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.InjectedParam
 import org.koin.core.annotation.KoinViewModel
@@ -50,7 +53,10 @@ internal class TagDetailMemoViewModel(
         combine(sort, scope) { sortValue, scopeValue -> sortValue to scopeValue }
             .flatMapLatest { (sortValue, scopeValue) ->
                 pageTagMemoUseCase(parameter = PageTagMemoUseCase.Parameter(tagId = tagId, scope = scopeValue, sort = sortValue))
-                    .mapNotNull { result -> result.getOrNull() }
+                    .runningFold<Result<PagingData<Memo>>, PagingData<Memo>?>(initial = null) { last, result ->
+                        result.getOrElse { last ?: PagingData.empty() }
+                    }.filterNotNull()
+                    .distinctUntilChanged()
                     .map { pagingData -> pagingData.toMemoListItem(sort = sortValue) }
             }.cachedIn(viewModelScope)
 

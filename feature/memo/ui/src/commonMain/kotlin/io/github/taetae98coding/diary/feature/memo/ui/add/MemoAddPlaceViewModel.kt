@@ -11,14 +11,16 @@ import io.github.taetae98coding.diary.domain.place.usecase.GetSelectedPlaceUseCa
 import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceInputUiState
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
-import io.github.taetae98coding.diary.library.coroutines.flow.debounceSearchQuery
+import io.github.taetae98coding.diary.library.coroutines.flow.debounceReportedSearchQuery
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import org.koin.core.annotation.InjectedParam
@@ -48,13 +50,20 @@ internal class MemoAddPlaceViewModel(
                 initialValue = MemoPlaceInputUiState(),
             )
 
-    private val query = MutableStateFlow("")
+    // 화면이 검색어를 알려 주기 전에는 조회하지 않는다. 기준은 debounceReportedSearchQuery를 따른다.
+    private val query = MutableStateFlow<String?>(null)
 
     val placePagingData: Flow<PagingData<Place>> =
         query
-            .debounceSearchQuery()
+            .debounceReportedSearchQuery()
             .flatMapLatest { value -> pagePlaceUseCase(parameter = value) }
-            .map { result -> result.getOrElse { PagingData.empty() } }
+            .mapNotNull { result -> result.getOrNull() }
+            .cachedIn(viewModelScope)
+
+    val selectablePlacePagingData: Flow<PagingData<Place>> =
+        flowOf("")
+            .flatMapLatest { query -> pagePlaceUseCase(parameter = query) }
+            .mapNotNull { result -> result.getOrNull() }
             .cachedIn(viewModelScope)
 
     fun updateQuery(query: String) {

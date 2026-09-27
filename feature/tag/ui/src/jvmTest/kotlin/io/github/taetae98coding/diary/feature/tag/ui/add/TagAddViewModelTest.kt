@@ -109,6 +109,32 @@ class TagAddViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-TAG-ADD-FEATURE-026 기기 저장에 실패하면 Effect 없이 진행 상태만 해제하고 같은 내용으로 다시 추가할 수 있다") {
+            runTest(mainDispatcher) {
+                val detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = nonBlankTitle())
+                val linkedTagIdSet = setOf(fixtureMonkey.giveMeOne<Uuid>())
+                val useCase = mockk<AddTagUseCase>()
+                coEvery { useCase(any()) } returns Result.failure(IllegalStateException("저장 실패"))
+                val viewModel = TagAddViewModel(addTagUseCase = useCase)
+
+                viewModel.effect.test {
+                    viewModel.add(detail = detail, linkedTagIdSet = linkedTagIdSet)
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                    viewModel.uiState.value.isInProgress
+                        .shouldBeFalse()
+
+                    viewModel.add(detail = detail, linkedTagIdSet = linkedTagIdSet)
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                }
+
+                coVerify(exactly = 2) { useCase(AddTagUseCase.Parameter(detail = detail, linkedTagIdSet = linkedTagIdSet)) }
+            }
+        }
+
         test("추가를 처리하는 동안 진행 상태를 유지하고 완료 후 해제한다") {
             runTest(mainDispatcher) {
                 val detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = nonBlankTitle())

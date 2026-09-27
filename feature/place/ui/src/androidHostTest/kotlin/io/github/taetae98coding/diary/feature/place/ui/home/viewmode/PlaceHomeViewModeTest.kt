@@ -72,7 +72,7 @@ class PlaceHomeViewModeTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-DOMAIN-022 화면이 재생성되어도 바꿔 둔 보기 모드를 유지한다`() {
+    fun `TC-PLACE-HOME-DOMAIN-022 화면이 회전하거나 창 크기가 바뀌어도 목록 모드의 목록을 유지한다`() {
         val place = viewModeTestPlace()
         val placePagingDataFlow = placePagingDataFlowOf(listOf(place))
         val restorationTester = StateRestorationTester(composeRule)

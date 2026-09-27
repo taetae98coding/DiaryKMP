@@ -8,7 +8,7 @@ import kotlin.uuid.Uuid
 internal fun handleWebFormEvent(
     event: WebFormEvent,
     state: WebFormState,
-    tagPagingItems: LazyPagingItems<Tag>,
+    selectableTagPagingItems: LazyPagingItems<Tag>,
     navigateToTagAdd: () -> Unit,
     navigateToTagDetail: (Uuid) -> Unit,
 ) {
@@ -16,7 +16,7 @@ internal fun handleWebFormEvent(
         is WebFormEvent.ClickTag -> navigateToTagDetail(event.id)
 
         is WebFormEvent.ClickTagAdd ->
-            if (tagPagingItems.isConfirmedEmpty()) {
+            if (selectableTagPagingItems.isConfirmedEmpty()) {
                 navigateToTagAdd()
             } else {
                 state.tagPickerDialogState.show()

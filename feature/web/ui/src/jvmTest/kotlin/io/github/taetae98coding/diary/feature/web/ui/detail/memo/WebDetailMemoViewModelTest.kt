@@ -60,6 +60,30 @@ class WebDetailMemoViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
+        listOf(ListSort.TITLE, ListSort.RECENTLY_UPDATED).forEach { sort ->
+            test("TC-WEB-DETAIL-MEMO-FEATURE-025 $sort 정렬을 고르면 그 정렬로 목록을 다시 조회한다") {
+                runTest(mainDispatcher) {
+                    val webId = fixtureMonkey.giveMeOne<Uuid>()
+                    val memo = memo()
+                    val pageWebMemoUseCase = mockk<PageWebMemoUseCase>()
+                    every { pageWebMemoUseCase(parameter = PageWebMemoUseCase.Parameter(webId = webId, sort = ListSort.DEFAULT)) } returns
+                        flowOf(Result.success(PagingData.from(emptyList())))
+                    every { pageWebMemoUseCase(parameter = PageWebMemoUseCase.Parameter(webId = webId, sort = sort)) } returns
+                        flowOf(Result.success(PagingData.from(listOf(memo))))
+                    val viewModel = viewModel(webId = webId, pageWebMemoUseCase = pageWebMemoUseCase)
+
+                    viewModel.select(sort = sort)
+                    val itemList = flowOf(viewModel.memoPagingData.first()).asSnapshot()
+                    viewModel.viewModelScope.cancel()
+                    advanceUntilIdle()
+
+                    viewModel.sort.value shouldBe sort
+                    itemList.filterIsInstance<MemoListItem.Content>().map { it.memo } shouldBe listOf(memo)
+                    verify(exactly = 1) { pageWebMemoUseCase(parameter = PageWebMemoUseCase.Parameter(webId = webId, sort = sort)) }
+                }
+            }
+        }
+
         test("TC-WEB-DETAIL-MEMO-DATA-001 웹 항목별 메모 paging에 주입된 웹 항목 ID를 전달한다") {
             runTest(mainDispatcher) {
                 val webId = fixtureMonkey.giveMeOne<Uuid>()
@@ -252,7 +276,7 @@ class WebDetailMemoViewModelTest : FunSpec() {
             .setExp(
                 Memo::detail,
                 fixtureMonkey.giveMeOne<MemoDetail>().copy(dateTime = null),
-            ).setExp(Memo::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-            .setExp(Memo::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+            ).setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+            .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
             .sample()
 }

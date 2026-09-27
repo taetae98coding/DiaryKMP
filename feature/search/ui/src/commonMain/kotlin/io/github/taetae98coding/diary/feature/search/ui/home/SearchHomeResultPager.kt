@@ -48,6 +48,7 @@ private fun SearchHomeResultPagerPreview() {
         SearchHomeResultPager(modifier = Modifier.fillMaxSize()) {
             SearchHomeMemoList(
                 onEvent = {},
+                onMemoListEvent = {},
                 modifier = Modifier.fillMaxSize(),
                 memoPagingItems = memoPagingItems,
             )

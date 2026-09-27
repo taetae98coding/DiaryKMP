@@ -1,13 +1,17 @@
 package io.github.taetae98coding.diary.library.webkit
 
+import io.github.taetae98coding.diary.library.objc.ObjCFramework
+import io.github.taetae98coding.diary.library.objc.ObjCRuntime
+import io.github.taetae98coding.diary.library.objc.send
+import io.github.taetae98coding.diary.library.objc.sendBoolean
+import io.github.taetae98coding.diary.library.objc.sendDouble
+import io.github.taetae98coding.diary.library.objc.utf8String
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.doubles.plusOrMinus
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import java.lang.foreign.MemorySegment
-import java.lang.foreign.ValueLayout
 
-private const val FOUNDATION_PATH = "/System/Library/Frameworks/Foundation.framework/Foundation"
 private const val MILLIS_PER_SECOND = 1_000.0
 private const val EXPIRES_AT_EPOCH_MILLISECONDS = 1_800_000_000_000L
 
@@ -90,8 +94,4 @@ private val expectedSameSitePolicyMap: Map<WebKitCookieSameSite, String?> =
         WebKitCookieSameSite.UNSPECIFIED to null,
     )
 
-private fun foundationString(name: String): MemorySegment =
-    ObjCRuntime
-        .frameworkSymbol(frameworkPath = FOUNDATION_PATH, name = name)
-        .reinterpret(ValueLayout.ADDRESS.byteSize())
-        .get(ValueLayout.ADDRESS, 0L)
+private fun foundationString(name: String): MemorySegment = ObjCFramework.string(frameworkPath = ObjCFramework.FOUNDATION_PATH, name = name)

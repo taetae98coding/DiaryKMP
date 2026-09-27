@@ -1,19 +1,25 @@
 package io.github.taetae98coding.diary.feature.tag.ui.detail
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.ViewModelStoreProvider
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreProvider
+import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleVisibility
 import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
+import io.github.taetae98coding.diary.compose.core.snackbar.DismissUndoSnackbarEffect
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
+import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.Res
@@ -23,8 +29,9 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.memo.TagDetailMemoCo
 import io.github.taetae98coding.diary.feature.tag.ui.detail.memo.TagDetailMemoFloatingActionButton
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceContent
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceFloatingActionButton
+import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceState
-import io.github.taetae98coding.diary.feature.tag.ui.detail.place.rememberTagDetailPlaceState
+import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceTargetHost
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.rememberTagDetailScopeState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.TagDetailTab
@@ -56,31 +63,76 @@ internal fun TagDetailScreen(
     id: Uuid,
     tagAddRequestKey: Uuid,
     componentVisibleProvider: () -> TagDetailScaffoldComponentVisible,
-    viewModel: TagDetailViewModel,
+    detailViewModel: TagDetailViewModel,
+    placeMapViewModel: TagDetailPlaceMapViewModel,
+    modifier: Modifier = Modifier,
+) {
+    TagDetailPlaceTargetHost(
+        id = id,
+        placeMapViewModel = placeMapViewModel,
+    ) { placeState, placeMapState ->
+        TagDetailScreenContent(
+            navigateUp = navigateUp,
+            navigateToTagAdd = navigateToTagAdd,
+            navigateToDetail = navigateToDetail,
+            navigateToMemoAdd = navigateToMemoAdd,
+            navigateToMemoDetail = navigateToMemoDetail,
+            navigateToMemoFinishedList = navigateToMemoFinishedList,
+            navigateToWebAdd = navigateToWebAdd,
+            navigateToWebDetail = navigateToWebDetail,
+            navigateToPlaceAdd = navigateToPlaceAdd,
+            navigateToPlaceDetail = navigateToPlaceDetail,
+            id = id,
+            tagAddRequestKey = tagAddRequestKey,
+            componentVisibleProvider = componentVisibleProvider,
+            detailViewModel = detailViewModel,
+            placeState = placeState,
+            placeMapViewModel = placeMapViewModel,
+            placeMapState = placeMapState,
+            modifier = modifier,
+        )
+    }
+}
+
+@Composable
+private fun TagDetailScreenContent(
+    navigateUp: () -> Unit,
+    navigateToTagAdd: () -> Unit,
+    navigateToDetail: (Uuid) -> Unit,
+    navigateToMemoAdd: () -> Unit,
+    navigateToMemoDetail: (Uuid) -> Unit,
+    navigateToMemoFinishedList: () -> Unit,
+    navigateToWebAdd: () -> Unit,
+    navigateToWebDetail: (Uuid) -> Unit,
+    navigateToPlaceAdd: (Coordinate?) -> Unit,
+    navigateToPlaceDetail: (Uuid) -> Unit,
+    id: Uuid,
+    tagAddRequestKey: Uuid,
+    componentVisibleProvider: () -> TagDetailScaffoldComponentVisible,
+    detailViewModel: TagDetailViewModel,
+    placeState: TagDetailPlaceState,
+    placeMapViewModel: TagDetailPlaceMapViewModel,
+    placeMapState: DiaryMapState,
     modifier: Modifier = Modifier,
 ) {
     val tabState = rememberTagDetailTabState()
-    val placeState = rememberTagDetailPlaceState()
     val scopeState = rememberTagDetailScopeState()
     val viewModelStoreProvider = rememberViewModelStoreProvider()
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by detailViewModel.uiState.collectAsStateWithLifecycle()
     val content = uiState as? TagDetailUiState.Content
 
     val scaffoldState = key(content?.id) { rememberTagDetailFormState(initialDetail = content?.detail ?: TagDetail.EMPTY) }
 
     val isUpdateEnabled by rememberIsUpdateEnabled(scaffoldState = scaffoldState, uiStateProvider = { uiState })
 
-    TagDetailScreenEffect(
-        effect = viewModel.effect,
-        scaffoldState = scaffoldState,
-        navigateUp = navigateUp,
-    )
+    TagDetailScreenEffect(effect = detailViewModel.effect, scaffoldState = scaffoldState, navigateUp = navigateUp)
+    DismissUndoSnackbarEffect(keyProvider = { tabState.tab }, hostState = scaffoldState.hostState)
 
     TagDetailScaffold(
-        onEvent = { event -> handleTagDetailScaffoldEvent(event = event, viewModel = viewModel, scopeState = scopeState, navigateUp = navigateUp) },
+        onEvent = { event -> handleTagDetailScaffoldEvent(event = event, viewModel = detailViewModel, scopeState = scopeState, navigateUp = navigateUp) },
         modifier =
             modifier.tagDetailTabShortcut(
-                onUpdate = { viewModel.update(detail = scaffoldState.detail) },
+                onUpdate = { detailViewModel.update(detail = scaffoldState.detail) },
                 onMemoAdd = navigateToMemoAdd,
                 onWebAdd = navigateToWebAdd,
                 onPlaceAdd = { navigateToPlaceAdd(placeState.addCoordinate) },
@@ -95,7 +147,7 @@ internal fun TagDetailScreen(
         tabFloatingActionButton = { tab ->
             TabFloatingActionButton(
                 tab = tab,
-                onUpdate = { viewModel.update(detail = scaffoldState.detail) },
+                onUpdate = { detailViewModel.update(detail = scaffoldState.detail) },
                 onMemoAdd = navigateToMemoAdd,
                 onWebAdd = navigateToWebAdd,
                 onPlaceAdd = { navigateToPlaceAdd(placeState.addCoordinate) },
@@ -116,6 +168,8 @@ internal fun TagDetailScreen(
             navigateToPlaceDetail = navigateToPlaceDetail,
             tagAddRequestKey = tagAddRequestKey,
             placeState = placeState,
+            placeMapViewModel = placeMapViewModel,
+            placeMapState = placeMapState,
             scopeState = scopeState,
             uiStateProvider = { uiState },
             state = scaffoldState,
@@ -145,19 +199,27 @@ private fun TabFloatingActionButton(
     isUpdateVisible: Boolean = false,
     isUpdateInProgressProvider: () -> Boolean = { false },
 ) {
-    when (tab) {
-        TagDetailTab.DETAIL ->
+    // 태그 디테일 탭으로 옮겨 추가 버튼이 사라지는 동안에도 떠나기 전 목록 탭의 버튼으로 그린다.
+    val lastAddTab = remember { mutableStateOf(TagDetailTab.MEMO) }
+    val addTab = if (tab == TagDetailTab.DETAIL) lastAddTab.value else tab
+
+    SideEffect { lastAddTab.value = addTab }
+
+    Box {
+        DiaryScaleVisibility(visible = tab == TagDetailTab.DETAIL && isUpdateVisible) {
             TagDetailFormFloatingActionButton(
                 onClick = onUpdate,
-                isVisible = isUpdateVisible,
                 isInProgressProvider = isUpdateInProgressProvider,
             )
+        }
 
-        TagDetailTab.MEMO -> TagDetailMemoFloatingActionButton(onClick = onMemoAdd)
-
-        TagDetailTab.WEB -> TagDetailWebFloatingActionButton(onClick = onWebAdd)
-
-        TagDetailTab.PLACE -> TagDetailPlaceFloatingActionButton(onClick = onPlaceAdd)
+        DiaryScaleVisibility(visible = tab != TagDetailTab.DETAIL) {
+            when (addTab) {
+                TagDetailTab.DETAIL, TagDetailTab.MEMO -> TagDetailMemoFloatingActionButton(onClick = onMemoAdd)
+                TagDetailTab.WEB -> TagDetailWebFloatingActionButton(onClick = onWebAdd)
+                TagDetailTab.PLACE -> TagDetailPlaceFloatingActionButton(onClick = onPlaceAdd)
+            }
+        }
     }
 }
 
@@ -174,6 +236,8 @@ private fun TabContent(
     navigateToPlaceDetail: (Uuid) -> Unit,
     tagAddRequestKey: Uuid,
     placeState: TagDetailPlaceState,
+    placeMapViewModel: TagDetailPlaceMapViewModel,
+    placeMapState: DiaryMapState,
     scopeState: TagDetailScopeState,
     uiStateProvider: () -> TagDetailUiState = { TagDetailUiState.Loading },
     state: TagFormState = rememberTagDetailFormState(initialDetail = TagDetail.EMPTY),
@@ -209,6 +273,7 @@ private fun TabContent(
                 navigateToWebDetail = navigateToWebDetail,
                 scopeState = scopeState,
                 modifier = Modifier.fillMaxSize(),
+                snackbarHostState = state.hostState,
             )
 
         TagDetailTab.PLACE ->
@@ -217,8 +282,11 @@ private fun TabContent(
                 viewModelStoreProvider = viewModelStoreProvider,
                 navigateToPlaceDetail = navigateToPlaceDetail,
                 state = placeState,
+                mapViewModel = placeMapViewModel,
+                mapState = placeMapState,
                 scopeState = scopeState,
                 modifier = Modifier.fillMaxSize(),
+                snackbarHostState = state.hostState,
             )
     }
 }

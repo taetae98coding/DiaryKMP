@@ -22,6 +22,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -52,6 +53,22 @@ class MemoContactViewModelTest : FunSpec() {
 
         afterTest {
             Dispatchers.resetMain()
+        }
+
+        test("TC-MEMO-CONTACT-INPUT-FEATURE-031 선택 목록을 열지 않아도 선택할 수 있는 연락처 전체를 빈 검색어로 조회한다") {
+            runTest(mainDispatcher) {
+                val item = contact()
+                val pageMemoSelectableContactUseCase = mockk<PageMemoSelectableContactUseCase>()
+                every { pageMemoSelectableContactUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(listOf(item))))
+                val viewModel = viewModel(pageMemoSelectableContactUseCase = pageMemoSelectableContactUseCase, isListOpened = false)
+
+                val itemList = flowOf(viewModel.selectableContactPagingData.first()).asSnapshot()
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+
+                itemList shouldBe listOf(item)
+                verify(exactly = 1) { pageMemoSelectableContactUseCase(parameter = "") }
+            }
         }
 
         test("TC-MEMO-DETAIL-FEATURE-066 연락처 입력에 저장된 연락처 연결이 표시된다") {
@@ -342,8 +359,8 @@ class MemoContactViewModelTest : FunSpec() {
             fixtureMonkey
                 .giveMeKotlinBuilder<Contact>()
                 .setExp(Contact::isDeleted, false)
-                .setExp(Contact::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Contact::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Contact::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Contact::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
 
         private fun viewModel(
@@ -356,6 +373,7 @@ class MemoContactViewModelTest : FunSpec() {
                 mockk<PageMemoSelectableContactUseCase>().apply {
                     every { this@apply(parameter = any()) } returns contactPagingFlow
                 },
+            isListOpened: Boolean = true,
         ): MemoContactViewModel {
             val getMemoContactUseCase = mockk<GetMemoContactUseCase>()
             every { getMemoContactUseCase(any()) } returns memoContactFlow
@@ -366,7 +384,10 @@ class MemoContactViewModelTest : FunSpec() {
                 getMemoContactUseCase = getMemoContactUseCase,
                 addMemoContactUseCase = addMemoContactUseCase,
                 removeMemoContactUseCase = removeMemoContactUseCase,
-            )
+            ).apply {
+                // 화면은 선택 목록을 열 때 검색어를 알려 주므로, 목록이 열린 상태를 만든다.
+                if (isListOpened) updateQuery(query = "")
+            }
         }
     }
 }

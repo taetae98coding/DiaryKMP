@@ -22,6 +22,8 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.datetime.LocalDate
 
+private val MAX_SOLAR_DATE: LocalDate = LocalDate(2100, 1, 1)
+
 private val fixtureMonkey: FixtureMonkey =
     diaryFixtureMonkey()
 
@@ -55,7 +57,7 @@ class FetchLunarUseCaseTest :
             When("특정 연도의 음력 자료 동기화를 요청한다") {
                 val result = useCase(parameter = year)
 
-                Then("TC-LUNAR-FETCH-DOMAIN-001 그 원인을 담은 오류 보고가 한 번 남는다") {
+                Then("TC-LUNAR-FETCH-DOMAIN-001 TC-USECASE-FAILURE-LOGGING-DOMAIN-009 그 원인을 담은 오류 보고가 한 번 남는다") {
                     val report = reportList.single()
 
                     report.throwable shouldBeSameInstanceAs failure
@@ -120,9 +122,9 @@ private fun recordCrashlyticsLog(): List<CrashlyticsLog> {
 
 private fun lunarDate(): LunarDate =
     LunarDate(
-        solar = LocalDate(2026, 8, 20),
-        year = 2026,
-        month = 7,
-        day = 8,
-        isLeapMonth = false,
+        solar = LocalDate.fromEpochDays(fixtureMonkey.giveMeOne<Long>().mod(MAX_SOLAR_DATE.toEpochDays())),
+        year = fixtureMonkey.giveMeOne(),
+        month = fixtureMonkey.giveMeOne(),
+        day = fixtureMonkey.giveMeOne(),
+        isLeapMonth = fixtureMonkey.giveMeOne(),
     )

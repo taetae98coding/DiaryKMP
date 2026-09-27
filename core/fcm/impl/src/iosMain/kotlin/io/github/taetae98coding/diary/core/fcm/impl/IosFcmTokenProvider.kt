@@ -13,9 +13,14 @@ import kotlin.coroutines.resumeWithException
 
 @Factory
 internal class IosFcmTokenProvider : FcmTokenProvider {
-    override suspend fun getToken(): String? =
-        suspendCancellableCoroutine { continuation ->
-            FIRMessaging.messaging().tokenWithCompletion { token: String?, error: NSError? ->
+    override suspend fun getToken(): String? {
+        val messaging = FIRMessaging.messaging()
+
+        // 수신 정보는 APNs 기기 토큰이 앱 델리게이트로 전달된 뒤에야 발급되고, 그 전에 요청하면 오류로 답한다.
+        if (messaging.APNSToken == null) return null
+
+        return suspendCancellableCoroutine { continuation ->
+            messaging.tokenWithCompletion { token: String?, error: NSError? ->
                 if (!continuation.isActive) return@tokenWithCompletion
 
                 if (error == null) {
@@ -25,6 +30,7 @@ internal class IosFcmTokenProvider : FcmTokenProvider {
                 }
             }
         }
+    }
 }
 
 internal class FcmTokenException(

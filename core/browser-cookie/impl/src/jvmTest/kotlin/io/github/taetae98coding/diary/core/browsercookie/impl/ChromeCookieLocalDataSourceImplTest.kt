@@ -119,7 +119,7 @@ class ChromeCookieLocalDataSourceImplTest :
                 }
         }
 
-        test("host_key 해시가 맞지 않는 쿠키는 제공하지 않는다") {
+        test("TC-CHROME-SESSION-IMPORT-DATA-015 사이트가 확인되지 않는 쿠키는 실패 없이 빼고 제공한다") {
             val key = randomAesKey()
             val database =
                 createDatabase(

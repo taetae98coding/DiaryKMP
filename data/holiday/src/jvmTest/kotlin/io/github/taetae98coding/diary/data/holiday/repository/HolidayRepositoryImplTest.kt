@@ -168,7 +168,7 @@ class HolidayRepositoryImplTest :
             coVerify(exactly = 0) { transaction.upsert(country = any(), year = any(), holidayList = any()) }
         }
 
-        test("TC-HOLIDAY-FETCH-DATA-004 로컬 캐시 교체가 실패하면 기존 캐시를 유지한다") {
+        test("TC-HOLIDAY-FETCH-DATA-004 기기 저장이 실패하면 동기화가 실패로 끝난다") {
             val year = fixtureMonkey.giveMeOne<Int>()
             val remoteHolidayList = listOf(remoteHoliday())
             val expectedHolidayList = remoteHolidayList.map { remote -> remote.toLocal(country = HolidayCountry.KOREA, year = year) }
@@ -235,6 +235,43 @@ class HolidayRepositoryImplTest :
                     holidayList = expectedHolidayList,
                 )
             }
+        }
+
+        test("TC-HOLIDAY-FETCH-DATA-008 앱 프로세스를 새로 시작하면 성공했던 연도도 다시 원격 조회한다") {
+            val year = fixtureMonkey.giveMeOne<Int>()
+            val remoteHolidayList = listOf(remoteHoliday(), remoteHoliday())
+            val expectedHolidayList = remoteHolidayList.map { remote -> remote.toLocal(country = HolidayCountry.KOREA, year = year) }
+            val remoteDataSource = mockk<HolidayRemoteDataSource>()
+            coEvery { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) } returns remoteHolidayList
+            val localDataSource = mockk<HolidayLocalDataSource>()
+            val transaction = mockk<HolidayTransaction>()
+            coEvery {
+                transaction.upsert(
+                    country = HolidayCountryLocalEntity.KOREA,
+                    year = year,
+                    holidayList = expectedHolidayList,
+                )
+            } just Runs
+            val previousRepository =
+                HolidayRepositoryImpl(
+                    holidayRemoteDataSource = remoteDataSource,
+                    holidayLocalDataSource = localDataSource,
+                    holidayTransaction = transaction,
+                    holidayDirtyDataSource = HolidayDirtyDataSource(),
+                )
+            previousRepository.fetch(country = HolidayCountry.KOREA, year = year)
+
+            // 저장소를 새로 만들어 빈 동기화 이력으로 시작하는 새 프로세스를 흉내 낸다.
+            val repository =
+                HolidayRepositoryImpl(
+                    holidayRemoteDataSource = remoteDataSource,
+                    holidayLocalDataSource = localDataSource,
+                    holidayTransaction = transaction,
+                    holidayDirtyDataSource = HolidayDirtyDataSource(),
+                )
+            repository.fetch(country = HolidayCountry.KOREA, year = year)
+
+            coVerify(exactly = 2) { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) }
         }
 
         test("TC-HOLIDAY-FETCH-DATA-006 원격 조회 실패 후 다시 요청하면 다시 원격 조회한다") {

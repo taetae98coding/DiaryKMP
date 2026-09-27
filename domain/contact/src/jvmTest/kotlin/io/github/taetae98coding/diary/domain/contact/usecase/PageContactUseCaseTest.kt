@@ -74,8 +74,8 @@ class PageContactUseCaseTest :
         private fun contact(): Contact =
             fixtureMonkey
                 .giveMeKotlinBuilder<Contact>()
-                .setExp(Contact::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Contact::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Contact::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Contact::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

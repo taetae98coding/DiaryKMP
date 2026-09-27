@@ -44,6 +44,8 @@ internal class AndroidAppleCredentialsManager(
     private val launchBrowser: (String) -> Unit,
     private val redirectRelay: AppleSignInRedirectRelay = AppleSignInRedirectRelay,
 ) : AppleCredentialsManager {
+    override val isSignInEndDetectable: Boolean = true
+
     override suspend fun signIn(): AppleCredential {
         val request = requestFactory.create(returnUri = returnUri)
         val redirect = redirectRelay.begin()

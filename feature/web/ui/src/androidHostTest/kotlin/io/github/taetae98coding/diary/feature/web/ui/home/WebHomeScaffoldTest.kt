@@ -54,7 +54,7 @@ class WebHomeScaffoldTest {
         composeRule.onNodeWithText(DESCRIPTION).assertDoesNotExist()
     }
 
-    // 컴포지션 이후의 목록 갱신은 실행 순서에 따라 전달되지 않아 자동화하지 않는다. 저장 전후의 목록을 각각 구성해 확인한다.
+    // 저장 전후의 목록을 각각 구성해 확인한다. 화면을 꾸민 뒤의 전환은 WebHomeListUpdateTest가 확인한다.
     @Test
     fun `TC-WEB-HOME-FEATURE-004 저장 전 목록에는 새 웹 항목이 없다`() {
         setWebHomeScaffold(webList = listOf(testWeb(title = FIRST_TITLE, url = FIRST_URL)))

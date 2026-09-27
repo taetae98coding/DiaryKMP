@@ -18,6 +18,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlin.time.Instant
@@ -58,11 +59,13 @@ class PageMusicUseCaseTest :
                 )
 
             When("곡 목록을 페이지로 조회한다") {
-                Then("TC-PLAYLIST-HOME-DOMAIN-002 실패를 그대로 전달한다") {
+                Then("TC-PLAYLIST-HOME-DOMAIN-002 노출할 곡을 전달하지 않고 곡 목록을 조회하지 않는다") {
                     useCase(parameter = ListSort.TITLE)
                         .first()
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
+
+                    verify(exactly = 0) { accountMusicRepository.page(account = any(), sort = any()) }
                 }
             }
         }
@@ -74,8 +77,8 @@ class PageMusicUseCaseTest :
         private fun music(): Music =
             fixtureMonkey
                 .giveMeKotlinBuilder<Music>()
-                .setExp(Music::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Music::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Music::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Music::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

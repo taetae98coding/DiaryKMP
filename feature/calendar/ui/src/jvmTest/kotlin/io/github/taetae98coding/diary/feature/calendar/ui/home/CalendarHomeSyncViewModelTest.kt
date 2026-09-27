@@ -3,9 +3,12 @@
 package io.github.taetae98coding.diary.feature.calendar.ui.home
 
 import app.cash.turbine.test
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.GetProgressReportedUseCase
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
@@ -23,6 +26,9 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+
+private val fixtureMonkey: FixtureMonkey =
+    diaryFixtureMonkey()
 
 class CalendarHomeSyncViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -70,7 +76,7 @@ class CalendarHomeSyncViewModelTest : FunSpec() {
 
         test("동기화 진행 여부 조회가 실패하면 진행 표시하지 않는다") {
             runTest(mainDispatcher) {
-                val isRefreshingFlow = MutableStateFlow(Result.failure<Boolean>(IllegalStateException("sync state error")))
+                val isRefreshingFlow = MutableStateFlow(Result.failure<Boolean>(IllegalStateException(fixtureMonkey.giveMeOne<String>())))
                 val viewModel = viewModel(getProgressReportedUseCase = syncRefreshingUseCase(isRefreshingFlow = isRefreshingFlow))
 
                 viewModel.isRefreshing.test {

@@ -7,6 +7,8 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
+import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadTarget
+import io.github.taetae98coding.diary.domain.playlist.link.toMusicDownloadTargetOrNull
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -47,7 +49,6 @@ internal fun failedMusicPagingData(): PagingData<Music> =
             ),
     )
 
-// FixtureMonkey가 Instant를 생성하지 못하므로 곡은 직접 만든다.
 internal fun testMusic(
     title: String,
     artist: String = "가수-${fixtureMonkey.giveMeOne<Int>()}",
@@ -57,6 +58,8 @@ internal fun testMusic(
         id = Uuid.random(),
         detail = MusicDetail(title = title, artist = artist, link = link),
         isDeleted = false,
-        updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
-        createdAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+        updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+        createdAt = fixtureMonkey.giveMeOne<Instant>(),
     )
+
+internal fun Music.downloadTarget(): MusicDownloadTarget = checkNotNull(toMusicDownloadTargetOrNull())

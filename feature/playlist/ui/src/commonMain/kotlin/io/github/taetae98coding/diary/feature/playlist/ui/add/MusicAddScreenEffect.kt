@@ -54,6 +54,7 @@ internal fun MusicAddScreenEffect(
 
             is MusicAddEffect.LinkFetched -> {
                 state.fill(
+                    link = value.link,
                     title = value.title,
                     artist = value.artist,
                 )

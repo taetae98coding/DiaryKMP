@@ -19,8 +19,11 @@ import io.github.taetae98coding.diary.app.shared.navigation.AppNavKeySavedStateC
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelReselectEvent
 import io.github.taetae98coding.diary.app.shared.navigation.rememberScreenNavBackStack
+import io.github.taetae98coding.diary.core.navigation.ScreenDeepLink
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNavKey
+import io.github.taetae98coding.diary.feature.file.api.FileAddNavKey
+import io.github.taetae98coding.diary.feature.file.api.FileHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.isMemoListDetailPane
 import io.github.taetae98coding.diary.feature.routine.api.isRoutineListDetailPane
@@ -66,6 +69,31 @@ internal class AppState(
         backStack.clear()
         backStack.addAll(navKeyList)
     }
+
+    fun openDeepLink(deepLink: String) {
+        when (deepLink) {
+            ScreenDeepLink.FILE_HOME -> openFileHome()
+        }
+    }
+
+    private fun openFileHome() {
+        if (isFileScreenVisible()) return
+
+        val navKeyList =
+            listOf(TopLevelNavigation.DEFAULT, TopLevelNavigation.More)
+                .distinct()
+                .map(TopLevelNavigation::key)
+
+        backStack.clear()
+        backStack.addAll(navKeyList + FileHomeNavKey)
+    }
+
+    private fun isFileScreenVisible(): Boolean =
+        when (backStack.lastOrNull()) {
+            FileHomeNavKey -> true
+            FileAddNavKey -> backStack.getOrNull(backStack.lastIndex - 1) == FileHomeNavKey
+            else -> false
+        }
 
     private fun isTopLevelVisible(): Boolean {
         val currentKey = currentContentKey()

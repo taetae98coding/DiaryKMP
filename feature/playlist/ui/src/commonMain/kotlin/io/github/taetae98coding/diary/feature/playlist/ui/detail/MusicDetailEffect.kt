@@ -8,6 +8,7 @@ internal sealed interface MusicDetailEffect {
     data object LinkBlank : MusicDetailEffect
 
     data class LinkFetched(
+        val link: String,
         val title: String,
         val artist: String,
     ) : MusicDetailEffect

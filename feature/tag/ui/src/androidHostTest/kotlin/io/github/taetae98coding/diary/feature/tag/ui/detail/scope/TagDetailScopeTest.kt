@@ -89,6 +89,20 @@ class TagDetailScopeTest {
     }
 
     @Test
+    fun `TC-TAG-DETAIL-FEATURE-049 지금 범위와 같은 이 태그만을 골라도 선택이 닫히고 범위는 그대로다`() {
+        lateinit var scopeState: TagDetailScopeState
+        composeRule.setTagDetailScaffoldWithScope { state -> scopeState = state }
+        composeRule.onNodeWithContentDescription(DEFAULT_SCOPE_BUTTON_DESCRIPTION).performClick()
+        composeRule.onNodeWithText(DEFAULT_SELF_LABEL).assertIsSelected()
+
+        composeRule.onNodeWithText(DEFAULT_SELF_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_SCOPE_TITLE).assertDoesNotExist()
+        composeRule.runOnIdle { scopeState.scope shouldBe TagScope.SELF }
+    }
+
+    @Test
     fun `TC-TAG-DETAIL-FEATURE-050 선택한 탭과 관계없이 표시 범위를 열 수 있다`() {
         composeRule.setTagDetailScaffoldWithScope()
 
@@ -197,7 +211,19 @@ class TagDetailScopeRestorationTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-053 화면 재생성 후에도 고른 표시 범위가 유지된다`() {
+    fun `TC-TAG-DETAIL-FEATURE-053 화면 재생성 후에도 고른 직속 하위까지 범위가 유지된다`() {
+        assertScopeRestored(scope = TagScope.CHILD, label = DEFAULT_CHILD_LABEL)
+    }
+
+    @Test
+    fun `TC-TAG-DETAIL-FEATURE-053 화면 재생성 후에도 고른 모든 하위까지 범위가 유지된다`() {
+        assertScopeRestored(scope = TagScope.DESCENDANT, label = DEFAULT_DESCENDANT_LABEL)
+    }
+
+    private fun assertScopeRestored(
+        scope: TagScope,
+        label: String,
+    ) {
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var scopeState: TagDetailScopeState
 
@@ -206,15 +232,34 @@ class TagDetailScopeRestorationTest {
             TagDetailScopeTestScaffold(scopeState = scopeState)
         }
 
-        composeRule.runOnIdle { scopeState.select(scope = TagScope.DESCENDANT) }
+        composeRule.runOnIdle { scopeState.select(scope = scope) }
         restorationTester.emulateSavedInstanceStateRestore()
 
         composeRule.runOnIdle {
-            scopeState.scope shouldBe TagScope.DESCENDANT
+            scopeState.scope shouldBe scope
             scopeState.isApplied shouldBe true
         }
         composeRule.onNodeWithContentDescription(DEFAULT_SCOPE_BUTTON_DESCRIPTION).performClick()
-        composeRule.onNodeWithText(DEFAULT_DESCENDANT_LABEL).assertIsSelected()
+        composeRule.onNodeWithText(label).assertIsSelected()
+    }
+
+    @Test
+    fun `TC-TAG-DETAIL-FEATURE-064 표시 범위 선택을 연 채 화면이 재생성되면 선택이 열린 상태로 돌아온다`() {
+        val restorationTester = StateRestorationTester(composeRule)
+        lateinit var scopeState: TagDetailScopeState
+
+        restorationTester.setContent {
+            scopeState = rememberTagDetailScopeState()
+            TagDetailScopeTestScaffold(scopeState = scopeState)
+        }
+
+        composeRule.onNodeWithContentDescription(DEFAULT_SCOPE_BUTTON_DESCRIPTION).performClick()
+        composeRule.onNodeWithText(DEFAULT_CHILD_LABEL).assertExists()
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        composeRule.runOnIdle { scopeState.sheetState.isVisible shouldBe true }
+        composeRule.onNodeWithText(DEFAULT_CHILD_LABEL).assertExists()
+        composeRule.onNodeWithText(DEFAULT_SELF_LABEL).assertIsSelected()
     }
 }
 

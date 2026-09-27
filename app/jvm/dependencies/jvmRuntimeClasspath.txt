@@ -129,6 +129,14 @@ io.coil-kt.coil3:coil-network-core:3.6.3
 io.coil-kt.coil3:coil-network-ktor3-jvm:3.6.3
 io.coil-kt.coil3:coil-network-ktor3:3.6.3
 io.coil-kt.coil3:coil:3.6.3
+io.github.alexzhirkevich:qrose-core-desktop:1.3.0
+io.github.alexzhirkevich:qrose-core:1.3.0
+io.github.alexzhirkevich:qrose-desktop:1.3.0
+io.github.alexzhirkevich:qrose-encoder-core-desktop:1.3.0
+io.github.alexzhirkevich:qrose-encoder-core:1.3.0
+io.github.alexzhirkevich:qrose-encoder-matrix-desktop:1.3.0
+io.github.alexzhirkevich:qrose-encoder-matrix:1.3.0
+io.github.alexzhirkevich:qrose:1.3.0
 io.github.jan-tennert.supabase:auth-kt-jvm:3.8.0
 io.github.jan-tennert.supabase:auth-kt:3.8.0
 io.github.jan-tennert.supabase:functions-kt-jvm:3.8.0

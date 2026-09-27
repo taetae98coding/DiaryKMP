@@ -163,7 +163,7 @@ class AccountMemoRepositoryImplTest :
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val memoId = fixtureMonkey.giveMeOne<Uuid>()
             val detail = fixtureMonkey.giveMeOne<MemoDetail>()
-            val updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val updatedAt = fixtureMonkey.giveMeOne<Instant>()
             val localDataSource = mockk<AccountMemoLocalDataSource>()
             val transaction = mockk<AccountMemoTransaction>()
             coEvery {
@@ -182,8 +182,8 @@ class AccountMemoRepositoryImplTest :
 private fun memo(): MemoLocalEntity =
     fixtureMonkey
         .giveMeKotlinBuilder<MemoLocalEntity>()
-        .setExp(MemoLocalEntity::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-        .setExp(MemoLocalEntity::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+        .setExp(MemoLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+        .setExp(MemoLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
         .sample()
 
 private fun mockMemoPagingSource(memoList: List<MemoLocalEntity>): PagingSource<Int, MemoLocalEntity> =

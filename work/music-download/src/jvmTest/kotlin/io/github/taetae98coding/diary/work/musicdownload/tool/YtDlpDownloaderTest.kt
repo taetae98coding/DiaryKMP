@@ -4,8 +4,6 @@ import io.github.taetae98coding.diary.work.musicdownload.process.CommandRunner
 import io.github.taetae98coding.diary.work.musicdownload.work.MusicFilePath
 import io.github.taetae98coding.diary.work.musicdownload.work.testVideoId
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.collections.shouldContainInOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -16,11 +14,14 @@ import kotlin.io.path.createTempDirectory
 import kotlin.io.path.exists
 import kotlin.io.path.readBytes
 import kotlin.io.path.writeBytes
+import kotlin.math.roundToInt
 
 private const val YT_DLP_PATH = "/opt/homebrew/bin/yt-dlp"
 private const val SUCCESS_EXIT_CODE = 0
 private const val FAILURE_EXIT_CODE = 1
-private const val FIRST_PHASE_CEILING = 0.9F
+private const val PERCENT_SCALE = 100
+private const val VIDEO_DESTINATION_LINE = "[download] Destination: video.f137.mp4"
+private const val AUDIO_DESTINATION_LINE = "[download] Destination: video.f140.m4a"
 private val STREAM = byteArrayOf(1, 2, 3, 4)
 
 class YtDlpDownloaderTest :
@@ -82,12 +83,67 @@ class YtDlpDownloaderTest :
                     val videoId = testVideoId()
                     val path = tempMusicFilePath(videoId = videoId)
                     val progressList = mutableListOf<Float>()
-                    val commandRunner = commandRunner(exitCode = SUCCESS_EXIT_CODE, lineList = listOf("[download]  50.0% of 10MiB"))
+                    val commandRunner = commandRunner(exitCode = SUCCESS_EXIT_CODE, lineList = listOf(VIDEO_DESTINATION_LINE, "[download]  50.0% of 10MiB"))
                     val downloader = YtDlpDownloader(commandRunner = commandRunner, dispatcher = Dispatchers.Default)
 
                     downloader.download(videoId = videoId, path = path, onProgress = { value -> progressList += value })
 
-                    progressList shouldContainInOrder listOf(0F, 0.5F * FIRST_PHASE_CEILING)
+                    progressList.first() shouldBe 0F
+                }
+
+                Then("TC-MUSIC-DOWNLOAD-FEATURE-002 화면을 받는 단계에서 도구가 50%를 알리면 45%를 알린다") {
+                    val videoId = testVideoId()
+                    val progressList = mutableListOf<Float>()
+                    val commandRunner = commandRunner(exitCode = SUCCESS_EXIT_CODE, lineList = listOf(VIDEO_DESTINATION_LINE, "[download]  50.0% of 10MiB"))
+                    val downloader = YtDlpDownloader(commandRunner = commandRunner, dispatcher = Dispatchers.Default)
+
+                    downloader.download(videoId = videoId, path = tempMusicFilePath(videoId = videoId), onProgress = { value -> progressList += value })
+
+                    (progressList.last() * PERCENT_SCALE).roundToInt() shouldBe 45
+                }
+
+                Then("TC-MUSIC-DOWNLOAD-FEATURE-002 소리를 받는 단계에서 도구가 100%를 알리면 99%를 알린다") {
+                    val videoId = testVideoId()
+                    val progressList = mutableListOf<Float>()
+                    val commandRunner =
+                        commandRunner(
+                            exitCode = SUCCESS_EXIT_CODE,
+                            lineList = listOf(VIDEO_DESTINATION_LINE, "[download] 100.0% of 10MiB", AUDIO_DESTINATION_LINE, "[download] 100.0% of 1MiB"),
+                        )
+                    val downloader = YtDlpDownloader(commandRunner = commandRunner, dispatcher = Dispatchers.Default)
+
+                    downloader.download(videoId = videoId, path = tempMusicFilePath(videoId = videoId), onProgress = { value -> progressList += value })
+
+                    (progressList.last() * PERCENT_SCALE).roundToInt() shouldBe 99
+                }
+
+                Then("TC-MUSIC-DOWNLOAD-DOMAIN-017 영상과 소리를 합치는 동안 99%에 머물고 다른 백분율을 거치지 않고 끝난다") {
+                    val videoId = testVideoId()
+                    val progressList = mutableListOf<Float>()
+                    var progressCountBeforeMerge = 0
+                    val commandRunner = mockk<CommandRunner>()
+                    coEvery { commandRunner.find(command = DownloadTool.YT_DLP.command) } returns YT_DLP_PATH
+                    coEvery { commandRunner.run(commandList = any(), onLine = any()) } coAnswers
+                        {
+                            val commandList = firstArg<List<String>>()
+                            val onLine = secondArg<suspend (String) -> Unit>()
+
+                            listOf(VIDEO_DESTINATION_LINE, "[download] 100.0% of 10MiB", AUDIO_DESTINATION_LINE, "[download] 100.0% of 1MiB")
+                                .forEach { line -> onLine(line) }
+                            progressCountBeforeMerge = progressList.size
+                            onLine("[Merger] Merging formats into \"video.mp4\"")
+                            onLine("Deleting original file video.f137.mp4 (pass -k to keep)")
+                            Path.of(commandList[commandList.indexOf("-o") + 1]).writeBytes(STREAM)
+                            SUCCESS_EXIT_CODE
+                        }
+                    val downloader = YtDlpDownloader(commandRunner = commandRunner, dispatcher = Dispatchers.Default)
+
+                    val isDownloaded =
+                        downloader.download(videoId = videoId, path = tempMusicFilePath(videoId = videoId), onProgress = { value -> progressList += value })
+
+                    isDownloaded shouldBe true
+                    progressList.size shouldBe progressCountBeforeMerge
+                    (progressList.last() * PERCENT_SCALE).roundToInt() shouldBe 99
                 }
             }
         }
@@ -152,8 +208,4 @@ private fun commandRunner(
     }
 
     return commandRunner
-}
-
-private fun List<Float>.shouldContainInOrder(expected: List<Float>) {
-    filter { value -> value in expected } shouldContainExactly expected
 }

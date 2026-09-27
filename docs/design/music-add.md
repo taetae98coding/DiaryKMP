@@ -1,6 +1,6 @@
 # MusicAdd 화면 디자인
 
-기준 스펙: [MusicAdd 화면 스펙](../spec/music-add.md), [Playlist 목록·상세 배치 스펙](../spec/playlist-list-detail.md)
+기준 스펙: [MusicAdd 화면 스펙](../spec/client/music-add.md), [Playlist 목록·상세 배치 스펙](../spec/client/playlist-list-detail.md)
 
 화면 구조, 표시 영역과 소프트 키보드, 초점과 단축키, 진행과 피드백은 [항목 추가 화면 공통 디자인](./entity-add.md)을 따른다.
 
@@ -84,4 +84,4 @@ MusicAdd 화면은 창 너비에 따라 단독으로 표시하거나 [Playlist �
 
 불러오기가 진행되는 동안에는 버튼이 처리 중임을 낭독 도구에 알리고, 버튼의 이름은 바꾸지 않는다.
 
-제목 입력의 이름과 표현은 그 입력 컴포넌트의 디자인을 따른다.
+제목 입력의 이름과 표현은 [제목 입력 디자인](./title-input.md)을 따른다.

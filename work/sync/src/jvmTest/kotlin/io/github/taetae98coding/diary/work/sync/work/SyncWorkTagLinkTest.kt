@@ -36,7 +36,7 @@ class SyncWorkTagLinkTest :
             requestOrder shouldContainExactly listOf("tag", "tag", "tagLink", "tagLink")
         }
 
-        test("TC-DATA-SYNC-DOMAIN-020 태그 연결만 대기하면 태그 연결 요청만 발생한다") {
+        test("태그 연결만 대기하면 태그 연결 요청만 발생한다") {
             val context = context(tagLinkList = tagLinks(size = 1))
 
             context.subject.doWork()
@@ -284,7 +284,7 @@ class SyncWorkTagLinkTest :
             coVerify(exactly = 0) { context.accountTagLinkSyncTransaction.save(any(), any(), any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-024 요청에 전달된 계정의 태그 연결만 조회한다") {
+        test("TC-DATA-SYNC-DOMAIN-024 실행 시점에 확인된 계정의 태그 연결만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val context = context(accountId = accountId)
@@ -308,8 +308,8 @@ class SyncWorkTagLinkTest :
             fixtureMonkey
                 .giveMeKotlinBuilder<TagLinkLocalEntity>()
                 .setExp(TagLinkLocalEntity::isDeleted, isDeleted)
-                .setExp(TagLinkLocalEntity::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(TagLinkLocalEntity::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(TagLinkLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(TagLinkLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

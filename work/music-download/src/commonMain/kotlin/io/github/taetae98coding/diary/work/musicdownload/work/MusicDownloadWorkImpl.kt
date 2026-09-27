@@ -29,7 +29,7 @@ internal class MusicDownloadWorkImpl(
         if (!prepare()) return
         val targetList = findMusicDownloadTargetUseCase(parameter = sort).getOrThrow()
 
-        musicDownloadStateHolder.submitPending(idList = targetList.map { target -> target.id })
+        musicDownloadStateHolder.submitPending(targetList = targetList)
 
         targetList.forEach { target -> download(target = target) }
     }
@@ -65,11 +65,11 @@ internal class MusicDownloadWorkImpl(
 
         try {
             if (appFileLocalDataSource.exists(directory = MUSIC_FILE_DIRECTORY, name = name)) {
-                musicDownloadStateHolder.update(id = target.id, state = MusicDownloadState.Done)
+                musicDownloadStateHolder.update(target = target, state = MusicDownloadState.Done)
                 return
             }
 
-            musicDownloadStateHolder.update(id = target.id, state = MusicDownloadState.Running(progress = null))
+            musicDownloadStateHolder.update(target = target, state = MusicDownloadState.Running(progress = null))
 
             val path = appFileLocalDataSource.resolveMusicFilePath(videoId = target.videoId)
             val isDownloaded =
@@ -77,21 +77,21 @@ internal class MusicDownloadWorkImpl(
                     target = target,
                     path = path,
                     onProgress = { progress ->
-                        musicDownloadStateHolder.update(id = target.id, state = MusicDownloadState.Running(progress = progress))
+                        musicDownloadStateHolder.update(target = target, state = MusicDownloadState.Running(progress = progress))
                     },
                 )
 
             if (isDownloaded) {
-                musicDownloadStateHolder.update(id = target.id, state = MusicDownloadState.Done)
+                musicDownloadStateHolder.update(target = target, state = MusicDownloadState.Done)
             } else {
                 appFileLocalDataSource.delete(directory = MUSIC_FILE_DIRECTORY, name = name)
-                musicDownloadStateHolder.update(id = target.id, state = MusicDownloadState.Failed)
+                musicDownloadStateHolder.update(target = target, state = MusicDownloadState.Failed)
             }
         } catch (exception: CancellationException) {
             throw exception
         } catch (throwable: Throwable) {
             DiaryLogger.log(log = ConsoleLog(tag = TAG, message = "곡 다운로드 실패", throwable = throwable))
-            musicDownloadStateHolder.update(id = target.id, state = MusicDownloadState.Failed)
+            musicDownloadStateHolder.update(target = target, state = MusicDownloadState.Failed)
         }
     }
 

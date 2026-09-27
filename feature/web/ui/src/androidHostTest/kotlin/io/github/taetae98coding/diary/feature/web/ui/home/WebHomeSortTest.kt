@@ -6,10 +6,12 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
+import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.web.Web
@@ -72,17 +74,15 @@ class WebHomeSortTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-022 목록이 비어 있어도 정렬을 고를 수 있다`() {
-        val eventList = mutableListOf<WebHomeScaffoldEvent>()
-        setWebHomeScaffold(onEvent = eventList::add)
+    fun `TC-WEB-HOME-FEATURE-024 목록이 비어 있으면 정렬 컨트롤이 표시되지 않는다`() {
+        setWebHomeScaffold()
 
-        composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).performClick()
-
-        eventList shouldBe listOf(WebHomeScaffoldEvent.ClickSort)
+        composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
-    fun `정렬 컨트롤은 선택한 정렬의 이름을 표시한다`() {
+    fun `TC-WEB-HOME-FEATURE-020 최근 수정순이 선택되면 정렬 컨트롤이 최근 수정순을 알린다`() {
         setWebHomeScaffold(webList = listOf(testWeb(title = TITLE)), sort = ListSort.RECENTLY_UPDATED)
 
         composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).assertExists()

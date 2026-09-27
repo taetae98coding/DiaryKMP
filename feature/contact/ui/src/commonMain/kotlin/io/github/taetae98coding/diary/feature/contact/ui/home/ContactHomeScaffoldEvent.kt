@@ -19,4 +19,8 @@ internal sealed interface ContactHomeScaffoldEvent {
     data class ClickContact(
         val id: Uuid,
     ) : ContactHomeScaffoldEvent
+
+    data class DeleteContact(
+        val id: Uuid,
+    ) : ContactHomeScaffoldEvent
 }

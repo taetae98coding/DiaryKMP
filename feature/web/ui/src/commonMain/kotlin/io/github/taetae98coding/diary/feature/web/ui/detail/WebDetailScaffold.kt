@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.core.layout.isCompactWidth
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.shortcut.isAddShortcut
@@ -55,10 +56,12 @@ internal fun WebDetailScaffold(
         }
     }
 
+    val isCompactWidth = isCompactWidth()
+
     Scaffold(
         modifier =
             modifier
-                .submitShortcut(isEnabledProvider = { isChanged && state.tab != WebDetailTab.MEMO }) { onEvent(WebDetailScaffoldEvent.ClickUpdate) }
+                .submitShortcut(isEnabledProvider = { isChanged && state.isFormVisible(isCompactWidth) }) { onEvent(WebDetailScaffoldEvent.ClickUpdate) }
                 .keyShortcut(isEnableProvider = { state.tab == WebDetailTab.MEMO }) { keyEvent ->
                     if (keyEvent.isAddShortcut()) {
                         onEvent(WebDetailScaffoldEvent.ClickMemoAdd)

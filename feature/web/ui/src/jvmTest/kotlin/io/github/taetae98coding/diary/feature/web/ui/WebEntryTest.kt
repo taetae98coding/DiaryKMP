@@ -7,6 +7,8 @@ import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebHomeNavKey
@@ -40,6 +42,16 @@ class WebEntryTest :
             val backStack = listOf(OtherNavKey, WebHomeNavKey, key)
 
             metadataOf(backStack = backStack, key = key).shouldBeEmpty()
+        }
+
+        test("TC-TAG-DETAIL-WEB-FEATURE-019 TagDetail 웹 탭에서 이어진 웹 추가와 웹 상세는 목록·상세 배치에 참여하지 않는다") {
+            val tagDetailKey = TagDetailNavKey(id = Uuid.random())
+            val tagDetailBackStack = listOf(OtherNavKey, TagHomeNavKey, tagDetailKey)
+            val addKey = WebAddNavKey(initialTagId = tagDetailKey.id)
+            val detailKey = WebDetailNavKey(id = Uuid.random())
+
+            metadataOf(backStack = tagDetailBackStack + addKey, key = addKey).shouldBeEmpty()
+            metadataOf(backStack = tagDetailBackStack + detailKey, key = detailKey).shouldBeEmpty()
         }
 
         test("WebHome 화면은 목록·상세 배치의 목록 pane이다") {

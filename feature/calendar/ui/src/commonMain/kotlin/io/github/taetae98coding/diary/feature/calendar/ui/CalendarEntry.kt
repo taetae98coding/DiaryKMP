@@ -7,13 +7,17 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeNavKey
+import io.github.taetae98coding.diary.feature.calendar.api.CalendarTimetableNavKey
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeScreen
 import io.github.taetae98coding.diary.feature.calendar.ui.home.ScrollToTodayOnReselectEffect
 import io.github.taetae98coding.diary.feature.calendar.ui.home.filter.CalendarHomeFilterContent
 import io.github.taetae98coding.diary.feature.calendar.ui.home.rememberCalendarHomeScaffoldState
+import io.github.taetae98coding.diary.feature.calendar.ui.timetable.CalendarTimetableScreen
+import io.github.taetae98coding.diary.feature.calendar.ui.timetable.rememberCalendarTimetableScaffoldState
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
@@ -28,7 +32,8 @@ public fun EntryProviderScope<ScreenNavKey>.calendarEntry(
         backStack = backStack,
         homeReselectEvent = homeReselectEvent,
     )
-    calendarHomeFilterEntry()
+    calendarHomeFilterEntry(backStack = backStack)
+    calendarTimetableEntry(backStack = backStack)
 }
 
 private fun EntryProviderScope<ScreenNavKey>.calendarHomeEntry(
@@ -57,6 +62,7 @@ private fun EntryProviderScope<ScreenNavKey>.calendarHomeEntry(
             },
             navigateToContactDetail = { contactId -> backStack.add(ContactDetailNavKey(contactId)) },
             navigateToFilter = { backStack.add(CalendarHomeFilterNavKey) },
+            navigateToTimetable = backStack::add,
             state = state,
             permissionManager = rememberPermissionManager(),
             holidayViewModel = koinViewModel(),
@@ -68,10 +74,38 @@ private fun EntryProviderScope<ScreenNavKey>.calendarHomeEntry(
     }
 }
 
-private fun EntryProviderScope<ScreenNavKey>.calendarHomeFilterEntry() {
+private fun EntryProviderScope<ScreenNavKey>.calendarHomeFilterEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<CalendarHomeFilterNavKey>(
         metadata = BottomSheetSceneStrategy.bottomSheet(),
     ) {
-        CalendarHomeFilterContent()
+        CalendarHomeFilterContent(
+            navigateToTagAdd = backStack::navigateToTagAddFromCalendarHomeFilter,
+        )
     }
 }
+
+private fun EntryProviderScope<ScreenNavKey>.calendarTimetableEntry(backStack: NavBackStack<ScreenNavKey>) {
+    entry<CalendarTimetableNavKey> { key ->
+        CalendarTimetableScreen(
+            navigateUp = { backStack.removeLastOrNull() },
+            navigateToMemoDetail = { id -> backStack.add(MemoDetailNavKey(id)) },
+            navigateToMemoAdd = { dateTime -> backStack.add(dateTime.toMemoAddNavKey()) },
+            state = rememberCalendarTimetableScaffoldState(type = key.type, initialDate = key.date),
+            memoViewModel = koinViewModel(),
+            holidayViewModel = koinViewModel(),
+        )
+    }
+}
+
+private fun MemoDateTime.toMemoAddNavKey(): MemoAddNavKey =
+    when (this) {
+        is MemoDateTime.AllDay ->
+            MemoAddNavKey(
+                initialDateRange = MemoAddNavKey.InitialDateRange(start = dateRange.start, endInclusive = dateRange.endInclusive),
+            )
+
+        is MemoDateTime.DateTime ->
+            MemoAddNavKey(
+                initialDateTimeRange = MemoAddNavKey.InitialDateTimeRange(start = start, endInclusive = endInclusive),
+            )
+    }

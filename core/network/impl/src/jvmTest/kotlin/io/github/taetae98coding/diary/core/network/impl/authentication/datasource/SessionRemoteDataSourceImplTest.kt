@@ -68,7 +68,7 @@ class SessionRemoteDataSourceImplTest :
             actual shouldBe response
         }
 
-        test("verifier가 없는 authorization code 요청은 codeVerifier 필드를 생략한다") {
+        test("TC-LOGIN-DATA-001 코드 확인 값이 없는 authorization code 요청은 codeVerifier 필드를 생략한다") {
             val request =
                 GoogleAuthorizationCodeRequestRemoteEntity(
                     authorizationCode = fixtureMonkey.giveMeOne<String>(),

@@ -29,8 +29,8 @@ class ColorPickerDialogTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-DIARY-COLOR-INPUT-FEATURE-004 슬라이더를 움직이면 Hex 입력 칸이 함께 갱신된다`() {
-        setColorPickerDialog(initialColor = Color.Black)
+    fun `TC-DIARY-COLOR-INPUT-FEATURE-004 슬라이더를 움직이면 미리보기 컬러와 Hex 입력 칸이 함께 갱신된다`() {
+        val state = setColorPickerDialog(initialColor = Color.Black)
 
         composeRule
             .onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))[0]
@@ -38,6 +38,7 @@ class ColorPickerDialogTest {
         composeRule.waitForIdle()
 
         composeRule.onNode(hasSetTextAction()).assert(hasText(RED_HEX))
+        composeRule.runOnIdle { state.color shouldBe Color.Red }
     }
 
     @Test
@@ -105,16 +106,19 @@ class ColorPickerDialogTest {
         values shouldContainExactly listOf(red, green, blue)
     }
 
-    private fun setColorPickerDialog(initialColor: Color) {
+    private fun setColorPickerDialog(initialColor: Color): ColorPickerState {
+        lateinit var state: ColorPickerState
         composeRule.setContent {
+            state = rememberColorPickerState(initialColor = initialColor)
             DiaryTheme {
                 ColorPickerDialog(
-                    state = rememberColorPickerState(initialColor = initialColor),
+                    state = state,
                     onDismissRequest = {},
                     onConfirm = {},
                 )
             }
         }
+        return state
     }
 
     public companion object {

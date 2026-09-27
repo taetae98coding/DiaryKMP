@@ -1,7 +1,10 @@
 package io.github.taetae98coding.diary.feature.playlist.ui.home
 
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -64,12 +67,15 @@ class PlaylistHomeEmptyTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-005 목록을 조회하지 못하면 빈 상태 안내를 표시하고 오류를 알리지 않는다`() {
-        setPlaylistHomeScaffold(pagingData = failedMusicPagingData())
+    fun `TC-PLAYLIST-HOME-FEATURE-021 목록을 조회하지 못하면 빈 상태 안내를 표시하고 오류를 알리지 않는다`() {
+        val snackbarHostState = SnackbarHostState()
+        setPlaylistHomeScaffold(pagingData = failedMusicPagingData(), snackbarHostState = snackbarHostState)
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
         composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertExists()
         composeRule.onNodeWithTag(MUSIC_CARD_TEST_TAG).assertDoesNotExist()
+        composeRule.onAllNodes(isDialog()).assertCountEquals(0)
+        composeRule.runOnIdle { snackbarHostState.currentSnackbarData shouldBe null }
     }
 
     @Test
@@ -95,6 +101,7 @@ class PlaylistHomeEmptyTest {
     private fun setPlaylistHomeScaffold(
         pagingData: PagingData<Music>,
         onEvent: (PlaylistHomeScaffoldEvent) -> Unit = {},
+        snackbarHostState: SnackbarHostState = SnackbarHostState(),
     ) {
         val musicPagingDataFlow = MutableStateFlow(pagingData)
 
@@ -103,6 +110,7 @@ class PlaylistHomeEmptyTest {
                 PlaylistHomeScaffold(
                     onEvent = onEvent,
                     musicPagingItems = musicPagingDataFlow.collectAsLazyPagingItems(),
+                    snackbarHostState = snackbarHostState,
                 )
             }
         }

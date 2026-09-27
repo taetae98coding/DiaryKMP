@@ -35,7 +35,7 @@ class LocationRepositoryImplTest :
             coVerify(exactly = 0) { ipRemoteDataSource.get() }
         }
 
-        test("TC-CURRENT-LOCATION-DOMAIN-002 디바이스에서 위치를 확인하지 못하면 공인 IP 기준 위치를 사용한다") {
+        test("TC-CURRENT-LOCATION-DOMAIN-002 디바이스 위치를 확인하지 못한 모든 조건에서 공인 IP 기준 위치를 사용한다") {
             val ipEntity = fixtureMonkey.giveMeOne<IpRemoteEntity>()
             val repository =
                 repository(

@@ -169,6 +169,35 @@ class GetGoldenHolidayUseCaseTest :
             }
         }
 
+        Given("TC-HOLIDAY-HOME-FEATURE-057 설날이 저장되어 있고 연차 개수가 5다") {
+            val holiday = holiday(start = february(day = 16), endInclusive = february(day = 18))
+
+            When("2026년의 황금연휴를 구한다") {
+                val group = goldenHolidayGroupList(annualLeaveCount = 5, holidayList = listOf(holiday)).single()
+
+                Then("첫 번째 대안의 연이은 연차 날짜는 하나의 기간으로 이어진다") {
+                    group.optionList.first().annualLeaveDateRangeList shouldBe listOf(february(day = 9)..february(day = 13))
+                }
+            }
+        }
+
+        // 2023년 12월 31일은 일요일, 2024년 1월 1일은 월요일이다.
+        Given("TC-HOLIDAY-HOME-DOMAIN-021 2023년 12월 29일 금요일이 공휴일이고 연차 개수가 1이다") {
+            val holiday = holiday(start = LocalDate(year = 2023, month = Month.DECEMBER, day = 29))
+
+            When("2024년의 황금연휴를 구한다") {
+                val groupList = goldenHolidayGroupList(year = 2024, annualLeaveCount = 1, holidayList = listOf(holiday))
+
+                Then("2024년에 걸치지 않는 대안도 항목에 남는다") {
+                    groupList.single().optionList.map { option -> option.dateRange } shouldBe
+                        listOf(
+                            LocalDate(year = 2023, month = Month.DECEMBER, day = 28)..LocalDate(year = 2023, month = Month.DECEMBER, day = 31),
+                            LocalDate(year = 2023, month = Month.DECEMBER, day = 29)..LocalDate(year = 2024, month = Month.JANUARY, day = 1),
+                        )
+                }
+            }
+        }
+
         Given("TC-HOLIDAY-HOME-DOMAIN-017 날짜를 공유하지 않는 공휴일이 두 개 저장되어 있다") {
             val februaryHoliday = holiday(start = february(day = 6))
             val septemberHoliday = holiday(start = LocalDate(year = 2026, month = Month.SEPTEMBER, day = 25))

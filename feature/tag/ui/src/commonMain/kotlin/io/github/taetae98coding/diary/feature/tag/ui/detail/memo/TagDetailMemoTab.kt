@@ -19,7 +19,7 @@ import io.github.taetae98coding.diary.compose.core.icon.MemoIcon
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBar
+import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
 import io.github.taetae98coding.diary.compose.list.sort.memoListSortList
 import io.github.taetae98coding.diary.compose.memo.list.MemoList
@@ -29,6 +29,7 @@ import io.github.taetae98coding.diary.compose.memo.list.MemoListState
 import io.github.taetae98coding.diary.compose.memo.list.MemoListUiState
 import io.github.taetae98coding.diary.compose.memo.list.rememberMemoListState
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_memo_empty_description
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_memo_empty_title
@@ -48,12 +49,14 @@ internal fun TagDetailMemoTab(
     memoPagingItems: LazyPagingItems<MemoListItem> = remember { flowOf(PagingData.empty<MemoListItem>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> MemoListUiState = { MemoListUiState() },
     sortProvider: () -> ListSort = { ListSort.DEFAULT },
+    scopeProvider: () -> TagScope = { TagScope.SELF },
 ) {
     Column(modifier = modifier) {
-        DiaryListSortBar(
+        DiaryListSortBarHost(
             onClick = { onEvent(TagDetailMemoContentEvent.ClickSort) },
             modifier = Modifier.fillMaxWidth(),
             sortProvider = sortProvider,
+            isSortVisibleProvider = { memoPagingItems.itemCount > 0 },
             trailing = {
                 ListEntryButton(
                     onClick = { onEvent(TagDetailMemoContentEvent.ClickFinishedList) },
@@ -71,6 +74,7 @@ internal fun TagDetailMemoTab(
             memoPagingItems = memoPagingItems,
             uiStateProvider = uiStateProvider,
             sortProvider = sortProvider,
+            filterProvider = scopeProvider,
             listTestTag = TAG_DETAIL_MEMO_LIST_TEST_TAG,
             empty = {
                 DiaryEmptyBox(

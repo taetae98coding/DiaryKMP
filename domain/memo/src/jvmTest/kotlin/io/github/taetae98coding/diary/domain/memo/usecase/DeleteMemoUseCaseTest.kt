@@ -26,7 +26,7 @@ class DeleteMemoUseCaseTest :
     BehaviorSpec({
         Given("로그인한 계정과 현재 시각이 준비되어 있다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
@@ -98,7 +98,7 @@ class DeleteMemoUseCaseTest :
                 accountMemoRepository.updateDeleted(account = account, memoId = any(), isDeleted = any(), updatedAt = any())
             } returns 1
             val clock = mockk<Clock>()
-            every { clock.now() } returns Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
             val useCase =
                 DeleteMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -108,7 +108,7 @@ class DeleteMemoUseCaseTest :
                 )
 
             When("메모를 삭제한다") {
-                Then("메모 갱신 후 동기화를 한 번 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 메모 갱신 후 동기화를 한 번 요청한다") {
                     val result = useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
 
                     result.shouldBeSuccess(1)

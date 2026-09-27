@@ -91,8 +91,8 @@ class AccountCalendarFilterRepositoryImplTest :
         private fun tag(): TagLocalEntity =
             fixtureMonkey
                 .giveMeKotlinBuilder<TagLocalEntity>()
-                .setExp(TagLocalEntity::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(TagLocalEntity::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(TagLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(TagLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

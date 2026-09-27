@@ -21,16 +21,23 @@ class MemoWebPickerDialogRestorationTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-DOMAIN-012 화면이 재생성되어도 열려 있는 목록의 검색어가 유지된다`() {
-        val web = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
-        val webPagingDataFlow = MutableStateFlow(webPagingDataOf(listOf(web)))
+    fun `TC-MEMO-WEB-INPUT-DOMAIN-012 화면이 회전해도 열려 있는 목록의 검색어와 좁힌 결과가 유지된다`() {
+        val matchedWeb = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
+        val otherWeb = testWeb(title = DOCS_WEB_TITLE, url = DOCS_WEB_URL)
+        val webPagingDataFlow = MutableStateFlow(webPagingDataOf(listOf(matchedWeb, otherWeb)))
         val queryList = mutableListOf<String>()
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
             DiaryTheme {
                 MemoWebPickerDialogHost(
                     dialogState = rememberDialogState(initialVisible = true),
-                    onEvent = { event -> if (event is MemoWebPickerEvent.ChangeQuery) queryList += event.query },
+                    onEvent = { event ->
+                        if (event is MemoWebPickerEvent.ChangeQuery) {
+                            queryList += event.query
+                            val narrowedList = if (event.query.isEmpty()) listOf(matchedWeb, otherWeb) else listOf(matchedWeb)
+                            webPagingDataFlow.value = webPagingDataOf(narrowedList)
+                        }
+                    },
                     webPagingItems = webPagingDataFlow.collectAsLazyPagingItems(),
                 )
             }
@@ -48,6 +55,7 @@ class MemoWebPickerDialogRestorationTest {
         composeRule.awaitWebPickerRows()
         // 제목은 검색 입력의 값과 겹칠 수 있으므로 목록 항목은 URL로 가려 확인한다.
         composeRule.webDialogNodeWithText(WIKI_WEB_URL).assertExists()
+        composeRule.webDialogNodeWithText(DOCS_WEB_URL).assertDoesNotExist()
     }
 
     public companion object {

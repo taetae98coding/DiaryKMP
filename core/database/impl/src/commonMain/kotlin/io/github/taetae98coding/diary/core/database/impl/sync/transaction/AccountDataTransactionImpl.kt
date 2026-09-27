@@ -53,6 +53,9 @@ internal class AccountDataTransactionImpl(
             dao.deleteMusic(accountId = accountId)
             dao.deleteAccountMusic(accountId = accountId)
 
+            dao.deleteQr(accountId = accountId)
+            dao.deleteAccountQr(accountId = accountId)
+
             dao.deleteTagFilter(accountId = accountId)
             dao.deleteMemoFilterTag(accountId = accountId)
             dao.deleteCalendarFilterTag(accountId = accountId)

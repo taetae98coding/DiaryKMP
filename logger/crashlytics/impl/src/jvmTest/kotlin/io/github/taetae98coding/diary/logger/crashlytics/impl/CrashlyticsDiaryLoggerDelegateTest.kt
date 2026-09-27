@@ -3,11 +3,16 @@ package io.github.taetae98coding.diary.logger.crashlytics.impl
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.github.taetae98coding.diary.logger.crashlytics.api.CrashlyticsLog
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.string.shouldBeEmpty
+import io.mockk.clearMocks
+import io.mockk.confirmVerified
+import io.mockk.mockk
+import io.mockk.verify
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 
@@ -35,8 +40,41 @@ class CrashlyticsDiaryLoggerDelegateTest :
                 }
             }
         }
+
+        Given("오류 보고 기록 수단이 등록되어 있다") {
+            val record = mockk<(String, Throwable) -> Unit>(relaxed = true)
+            DiaryLogger.add(delegate = CrashlyticsDiaryLoggerDelegate(record = record))
+
+            When("오류 보고 로그를 공통 창구에 전달한다") {
+                Then("TC-APP-LOGGING-DOMAIN-001 오류 보고 기록 수단이 그 로그를 남긴다") {
+                    clearMocks(record)
+                    val log = CrashlyticsLog(message = fixtureMonkey.giveMeOne<String>(), throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+
+                    DiaryLogger.log(log = log)
+
+                    verify(exactly = 1) { record(log.message, log.throwable) }
+                    confirmVerified(record)
+                }
+            }
+
+            When("오류 보고 로그가 아닌 종류의 로그를 공통 창구에 전달한다") {
+                Then("TC-APP-LOGGING-DOMAIN-001 TC-APP-LOGGING-DOMAIN-003 오류 보고 기록 수단은 그 로그를 남기지 않고 전달은 오류 없이 완료된다") {
+                    clearMocks(record)
+
+                    shouldNotThrowAny {
+                        DiaryLogger.log(log = OtherLog(value = fixtureMonkey.giveMeOne<Int>()))
+                    }
+
+                    verify(exactly = 0) { record(any(), any()) }
+                }
+            }
+        }
     }) {
     public companion object {
+        private data class OtherLog(
+            val value: Int,
+        ) : DiaryLog
+
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
 

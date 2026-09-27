@@ -38,7 +38,7 @@ internal fun PlaceDetailScaffoldContent(
                     onEvent = onFormEvent,
                     modifier = Modifier.fillMaxSize(),
                     state = state,
-                    isMapDisplayed = uiState.defaultProvider != null,
+                    isMapDisplayed = uiState.isMapDisplayed,
                     tagUiStateProvider = tagUiStateProvider,
                 )
         }

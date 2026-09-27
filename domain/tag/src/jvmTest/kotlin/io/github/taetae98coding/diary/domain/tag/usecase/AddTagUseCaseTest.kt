@@ -75,7 +75,7 @@ class AddTagUseCaseTest :
             coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns Result.success(Unit)
             val accountTagRepository = mockk<AccountTagRepository>()
             coEvery { accountTagRepository.upsert(account = account, tag = capture(tagSlot), linkedTagIdSet = any()) } just Runs
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val clock = mockk<Clock>()
             every { clock.now() } returns now
             val useCase =
@@ -119,6 +119,16 @@ class AddTagUseCaseTest :
                     tagSlot.captured.detail shouldBe detail
                 }
 
+                Then("TC-TAG-ADD-DOMAIN-009 설명을 입력하지 않아도 설명이 빈 태그로 저장한다") {
+                    val detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = nonBlankTitle(), description = "")
+
+                    val result = useCase(parameter = AddTagUseCase.Parameter(detail = detail))
+
+                    result.shouldBeSuccess(tagSlot.captured.id)
+                    tagSlot.captured.detail.description shouldBe ""
+                    tagSlot.captured.detail shouldBe detail
+                }
+
                 Then("TC-TAG-ADD-DATA-003 미완료·미삭제 상태와 추가 시각을 저장한다") {
                     val detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = nonBlankTitle())
 
@@ -149,7 +159,7 @@ class AddTagUseCaseTest :
                 )
             } just Runs
             val clock = mockk<Clock>()
-            every { clock.now() } returns Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
             val useCase =
                 AddTagUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -221,7 +231,7 @@ class AddTagUseCaseTest :
             val accountTagRepository = mockk<AccountTagRepository>()
             coEvery { accountTagRepository.upsert(account = account, tag = any(), linkedTagIdSet = any()) } just Runs
             val clock = mockk<Clock>()
-            every { clock.now() } returns Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
             val useCase =
                 AddTagUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -231,7 +241,7 @@ class AddTagUseCaseTest :
                 )
 
             When("공백이 아닌 제목으로 태그를 추가한다") {
-                Then("태그 저장 후 동기화를 한 번 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-TAG-ADD-DATA-007 태그를 기기에 저장한 뒤 동기화를 한 번 요청한다") {
                     val result = useCase(parameter = AddTagUseCase.Parameter(detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = nonBlankTitle())))
 
                     result.shouldBeSuccess()

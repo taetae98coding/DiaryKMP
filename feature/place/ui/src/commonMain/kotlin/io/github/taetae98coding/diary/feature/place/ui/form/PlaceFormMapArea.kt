@@ -22,10 +22,7 @@ internal fun PlaceFormMapArea(
     DiaryMap(
         state = state.mapState,
         modifier = modifier.semantics { this.contentDescription = contentDescription },
-        onSpotClick = { coordinate ->
-            state.setCoordinate(coordinate)
-            state.mapState.selectSpot(state.spot)
-        },
+        onSpotClick = state::selectSpotOnMap,
     )
 }
 

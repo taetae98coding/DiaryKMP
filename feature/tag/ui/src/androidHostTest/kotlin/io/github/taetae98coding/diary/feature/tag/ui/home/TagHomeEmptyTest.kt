@@ -11,6 +11,8 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
+import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.navercorp.fixturemonkey.FixtureMonkey
@@ -86,6 +88,25 @@ class TagHomeEmptyTest {
     }
 
     @Test
+    fun `TC-TAG-HOME-FEATURE-038 이어서 불러오지 못해도 이미 보이는 태그를 그대로 둔다`() {
+        setTagHomeScaffold(
+            pagingData =
+                PagingData.from(
+                    data = listOf(tag(title = TAG_TITLE)),
+                    sourceLoadStates =
+                        LoadStates(
+                            refresh = LoadState.NotLoading(endOfPaginationReached = false),
+                            prepend = LoadState.NotLoading(endOfPaginationReached = true),
+                            append = LoadState.Error(IllegalStateException(TAG_TITLE)),
+                        ),
+                ),
+        )
+
+        composeRule.onNodeWithText(TAG_TITLE).assertExists()
+        composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-TAG-HOME-FEATURE-021 빈 상태에서도 태그 추가와 완료된 태그 확인을 실행할 수 있다`() {
         setTagHomeScaffold(pagingData = tagPagingDataOf(emptyList()))
 
@@ -137,6 +158,7 @@ class TagHomeEmptyTest {
         composeRule.setContent {
             DiaryTheme {
                 TagHomeScaffold(
+                    onTagListEvent = {},
                     tagPagingItems = tagPagingDataFlow.collectAsLazyPagingItems(),
                     onEvent = onEvent,
                 )
@@ -162,8 +184,8 @@ class TagHomeEmptyTest {
             fixtureMonkey
                 .giveMeKotlinBuilder<Tag>()
                 .setExp(Tag::detail, fixtureMonkey.giveMeOne<TagDetail>().copy(emoji = "", title = title))
-                .setExp(Tag::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Tag::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

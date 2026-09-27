@@ -1,6 +1,6 @@
 # SettingBrowser 화면 디자인
 
-기준 스펙: [SettingBrowser 화면 스펙](../spec/setting-browser.md)
+기준 스펙: [SettingBrowser 화면 스펙](../spec/client/setting-browser.md)
 
 ## 화면 구조
 

@@ -1,6 +1,6 @@
 # Calendar 컴포넌트 디자인
 
-기준 스펙: [Calendar 컴포넌트 스펙](../spec/calendar.md)
+기준 스펙: [Calendar 컴포넌트 스펙](../spec/client/calendar.md)
 
 ## 달 배치
 
@@ -10,7 +10,7 @@
 
 여섯 주 위에는 요일을 한 줄로 표시한다.
 
-한 줄에는 일요일부터 토요일까지 일곱 요일을 순서대로 표시하고, 각 요일은 같은 너비를 차지해 아래 주의 날짜와 세로로 정렬한다.
+한 줄에는 일요일부터 토요일까지 일곱 요일을 순서대로 표시하고, 각 요일은 같은 너비를 차지해 아래 주의 날짜와 세로로 정렬한다. 요일 이름은 각 칸의 가운데에 Material 3의 작은 레이블 강조 글자 스타일로 표시한다.
 
 일요일은 일요일·공휴일 강조색, 토요일은 토요일 강조색, 나머지 요일은 캘린더가 배치된 화면의 기본 글자색으로 표시한다.
 
@@ -41,7 +41,7 @@
 
 ## 날짜와 아이템 표현
 
-주요 날짜의 표현은 [CalendarWeekOfMonth 컴포넌트 디자인](calendar-week-of-month.md)의 날짜 표현을 따른다. 날짜 의미의 우선순위는 [CalendarWeekOfMonth 컴포넌트 스펙](../spec/calendar-week-of-month.md)을 따른다.
+주요 날짜의 표현은 [CalendarWeekOfMonth 컴포넌트 디자인](calendar-week-of-month.md)의 날짜 표현을 따른다. 날짜 의미의 우선순위는 [CalendarWeekOfMonth 컴포넌트 스펙](../spec/client/calendar-week-of-month.md)을 따른다.
 
 기간 아이템의 날짜 칸과 줄 배치는 [CalendarWeekOfMonth 컴포넌트 디자인](calendar-week-of-month.md)의 아이템 배치를 따른다.
 

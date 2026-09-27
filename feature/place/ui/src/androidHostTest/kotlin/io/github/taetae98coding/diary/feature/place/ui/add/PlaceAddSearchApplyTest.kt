@@ -116,7 +116,7 @@ class PlaceAddSearchApplyTest {
     }
 
     @Test
-    fun `장소를 고르면 검색이 닫힌다`() {
+    fun `TC-PLACE-SEARCH-DIALOG-FEATURE-010 장소를 고르면 검색이 닫힌다`() {
         val state = composeRule.setPlaceAddScaffoldState()
 
         composeRule.runOnIdle { state.searchDialogState.show() }

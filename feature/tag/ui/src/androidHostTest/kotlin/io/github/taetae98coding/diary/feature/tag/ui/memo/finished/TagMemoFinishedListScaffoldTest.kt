@@ -261,7 +261,7 @@ class TagMemoFinishedListScaffoldTest {
         composeRule.onNodeWithText(RESTART_MEMO_TITLE).performTouchInput { swipeRight() }
         composeRule.waitForIdle()
 
-        eventList.shouldContainExactly(MemoListEvent.SwipeFinish(id = memo.id))
+        eventList.shouldContainExactly(MemoListEvent.SwipeRestart(id = memo.id))
     }
 
     @Test

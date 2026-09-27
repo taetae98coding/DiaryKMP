@@ -27,10 +27,11 @@ internal class TagDetailScopeState(
     }
 
     companion object {
-        val Saver: Saver<TagDetailScopeState, String> =
+        // 표시 범위 Bottom Sheet의 표시 여부는 sheetState가 따로 저장하므로, 복원할 때도 그 복원된 sheetState를 그대로 쓴다.
+        fun saver(sheetState: DialogState): Saver<TagDetailScopeState, String> =
             Saver(
                 save = { state -> state.scope.name },
-                restore = { saved -> TagDetailScopeState(sheetState = DialogState(), initialScope = TagScope.valueOf(saved)) },
+                restore = { saved -> TagDetailScopeState(sheetState = sheetState, initialScope = TagScope.valueOf(saved)) },
             )
     }
 }
@@ -39,7 +40,7 @@ internal class TagDetailScopeState(
 internal fun rememberTagDetailScopeState(): TagDetailScopeState {
     val sheetState = rememberDialogState()
 
-    return rememberSaveable(sheetState, saver = TagDetailScopeState.Saver) {
+    return rememberSaveable(sheetState, saver = TagDetailScopeState.saver(sheetState = sheetState)) {
         TagDetailScopeState(sheetState = sheetState)
     }
 }

@@ -18,6 +18,7 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.feature.memo.ui.home.memoPagingDataOf
+import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -27,6 +28,7 @@ import io.mockk.verify
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,6 +42,11 @@ import kotlin.uuid.Uuid
 class MemoFinishedListScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun resetUiDispatcher() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-MEMO-FINISHED-LIST-FEATURE-007 완료된 메모가 하나도 없어도 화면을 사용할 수 있다`() {
@@ -69,9 +76,10 @@ class MemoFinishedListScreenTest {
         setMemoFinishedListScreen(environment.viewModel)
 
         composeRule.onNodeWithText(MEMO_TITLE).performTouchInput { swipeRight() }
-        composeRule.waitForIdle()
+        waitUntilMemoIsShown(isShown = false)
 
         verify(exactly = 1) { environment.viewModel.restart(id = environment.memo.id) }
+        composeRule.onNodeWithText(MEMO_TITLE).assertDoesNotExist()
         composeRule.onNodeWithText(DEFAULT_RESTARTED_MESSAGE).assertExists()
         composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).assertExists()
     }
@@ -90,16 +98,17 @@ class MemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-016 다시 시작을 실행 취소하면 메모를 다시 완료한다`() {
+    fun `TC-MEMO-FINISHED-LIST-FEATURE-016 다시 시작을 실행 취소하면 메모를 다시 완료해 목록에 다시 나타난다`() {
         val environment = screenTestEnvironment()
         setMemoFinishedListScreen(environment.viewModel)
 
         composeRule.onNodeWithText(MEMO_TITLE).performTouchInput { swipeRight() }
-        composeRule.waitForIdle()
+        waitUntilMemoIsShown(isShown = false)
         composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).performClick()
-        composeRule.waitForIdle()
+        waitUntilMemoIsShown(isShown = true)
 
         verify(exactly = 1) { environment.viewModel.finish(id = environment.memo.id) }
+        composeRule.onNodeWithText(MEMO_TITLE).assertExists()
     }
 
     @Test
@@ -108,9 +117,10 @@ class MemoFinishedListScreenTest {
         setMemoFinishedListScreen(environment.viewModel)
 
         composeRule.onNodeWithText(MEMO_TITLE).performTouchInput { swipeLeft() }
-        composeRule.waitForIdle()
+        waitUntilMemoIsShown(isShown = false)
 
         verify(exactly = 1) { environment.viewModel.delete(id = environment.memo.id) }
+        composeRule.onNodeWithText(MEMO_TITLE).assertDoesNotExist()
         composeRule.onNodeWithText(DEFAULT_DELETED_MESSAGE).assertExists()
         composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).assertExists()
     }
@@ -129,16 +139,58 @@ class MemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-018 삭제를 실행 취소하면 메모를 복구한다`() {
+    fun `TC-MEMO-FINISHED-LIST-FEATURE-018 삭제를 실행 취소하면 메모를 복구해 목록에 다시 나타난다`() {
         val environment = screenTestEnvironment()
         setMemoFinishedListScreen(environment.viewModel)
 
         composeRule.onNodeWithText(MEMO_TITLE).performTouchInput { swipeLeft() }
+        waitUntilMemoIsShown(isShown = false)
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).performClick()
+        waitUntilMemoIsShown(isShown = true)
+
+        verify(exactly = 1) { environment.viewModel.restore(id = environment.memo.id) }
+        composeRule.onNodeWithText(MEMO_TITLE).assertExists()
+    }
+
+    @Test
+    fun `TC-MEMO-FINISHED-LIST-FEATURE-025 안내가 보이는 동안 다른 메모를 삭제하면 삭제 안내만 남고 실행 취소는 삭제에만 적용된다`() {
+        val environment = screenTestEnvironment()
+        val otherMemoId = fixtureMonkey.giveMeOne<Uuid>()
+        justRun { environment.viewModel.restore(id = otherMemoId) }
+        setMemoFinishedListScreen(environment.viewModel)
+
+        composeRule.onNodeWithText(MEMO_TITLE).performTouchInput { swipeRight() }
         composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_RESTARTED_MESSAGE).assertExists()
+
+        environment.effectChannel.trySend(MemoFinishedListEffect.Deleted(id = otherMemoId)).getOrThrow()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_RESTARTED_MESSAGE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_DELETED_MESSAGE).assertExists()
+
         composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).performClick()
         composeRule.waitForIdle()
 
-        verify(exactly = 1) { environment.viewModel.restore(id = environment.memo.id) }
+        verify(exactly = 1) { environment.viewModel.restore(id = otherMemoId) }
+        verify(exactly = 0) { environment.viewModel.finish(id = any()) }
+    }
+
+    @Test
+    fun `TC-MEMO-FINISHED-LIST-FEATURE-027 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
+        val environment = screenTestEnvironment()
+        setMemoFinishedListScreen(environment.viewModel)
+
+        composeRule.onNodeWithText(MEMO_TITLE).performTouchInput { swipeRight() }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_RESTARTED_MESSAGE).assertExists()
+
+        composeRule.mainClock.advanceTimeBy(AFTER_UNDO_SNACKBAR_DISMISS_MILLIS)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_RESTARTED_MESSAGE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).assertDoesNotExist()
+        verify(exactly = 0) { environment.viewModel.finish(id = any()) }
     }
 
     @Test
@@ -170,6 +222,12 @@ class MemoFinishedListScreenTest {
         navigateUpCount shouldBe 1
     }
 
+    private fun waitUntilMemoIsShown(isShown: Boolean) {
+        composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(MEMO_TITLE).fetchSemanticsNodes().isNotEmpty() == isShown
+        }
+    }
+
     private fun setMemoFinishedListScreen(
         viewModel: MemoFinishedListViewModel,
         navigateUp: () -> Unit = {},
@@ -192,6 +250,7 @@ class MemoFinishedListScreenTest {
     }
 
     public companion object {
+        private const val AFTER_UNDO_SNACKBAR_DISMISS_MILLIS = 11_000L
         private const val LIST_ITEM_TIMEOUT_MILLIS = 5_000L
         private const val MEMO_TITLE = "MemoFinishedListScreenTitle"
         private const val DEFAULT_TITLE = "Finished Memos"
@@ -212,28 +271,36 @@ class MemoFinishedListScreenTest {
                     .setExp(Memo::detail, fixtureMonkey.giveMeOne<MemoDetail>().copy(title = MEMO_TITLE, dateTime = null))
                     .setExp(Memo::isFinished, true)
                     .setExp(Memo::isDeleted, false)
-                    .setExp(Memo::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                    .setExp(Memo::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                    .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                    .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
                     .sample()
             val effectChannel = Channel<MemoFinishedListEffect>(capacity = Channel.BUFFERED)
             val viewModel = mockk<MemoFinishedListViewModel>()
             every { viewModel.sort } returns MutableStateFlow(ListSort.DEFAULT)
 
-            every { viewModel.memoPagingData } returns
-                MutableStateFlow(memoPagingDataOf(listOf(MemoListItem.Content(memo = memo))))
+            val pagingFlow = MutableStateFlow(memoPagingDataOf(listOf(MemoListItem.Content(memo = memo))))
+            every { viewModel.memoPagingData } returns pagingFlow
             every { viewModel.effect } returns effectChannel.receiveAsFlow()
+            // 저장된 상태 변경이 목록 조회 결과에 반영되는 것을 대신해, 동작마다 목록에 그 메모가 있는지를 바꾼다.
             every { viewModel.restart(id = memo.id) } answers {
+                pagingFlow.value = memoPagingDataOf(emptyList())
                 effectChannel.trySend(MemoFinishedListEffect.Restarted(id = memo.id)).getOrThrow()
             }
             every { viewModel.delete(id = memo.id) } answers {
+                pagingFlow.value = memoPagingDataOf(emptyList())
                 effectChannel.trySend(MemoFinishedListEffect.Deleted(id = memo.id)).getOrThrow()
             }
-            justRun { viewModel.finish(id = memo.id) }
-            justRun { viewModel.restore(id = memo.id) }
+            every { viewModel.finish(id = memo.id) } answers {
+                pagingFlow.value = memoPagingDataOf(listOf(MemoListItem.Content(memo = memo)))
+            }
+            every { viewModel.restore(id = memo.id) } answers {
+                pagingFlow.value = memoPagingDataOf(listOf(MemoListItem.Content(memo = memo)))
+            }
 
             return ScreenTestEnvironment(
                 memo = memo,
                 viewModel = viewModel,
+                effectChannel = effectChannel,
             )
         }
     }
@@ -242,4 +309,5 @@ class MemoFinishedListScreenTest {
 private class ScreenTestEnvironment(
     val memo: Memo,
     val viewModel: MemoFinishedListViewModel,
+    val effectChannel: Channel<MemoFinishedListEffect>,
 )

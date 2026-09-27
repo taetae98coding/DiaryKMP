@@ -29,10 +29,11 @@ import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
-import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBar
+import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
-import io.github.taetae98coding.diary.compose.web.WebCard
+import io.github.taetae98coding.diary.compose.web.SwipeToDeleteWebCard
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_web_empty_description
@@ -51,18 +52,21 @@ internal fun TagDetailWebTab(
     webPagingItems: LazyPagingItems<Web> = remember { flowOf(PagingData.empty<Web>()) }.collectAsLazyPagingItems(),
     isRefreshingProvider: () -> Boolean = { false },
     sortProvider: () -> ListSort = { ListSort.TITLE },
+    scopeProvider: () -> TagScope = { TagScope.SELF },
 ) {
     ListQueryScrollEffect(
         gridState = gridState,
         sortProvider = sortProvider,
+        filterProvider = scopeProvider,
         itemListProvider = { webPagingItems.itemSnapshotList.items },
     )
 
     Column(modifier = modifier) {
-        DiaryListSortBar(
+        DiaryListSortBarHost(
             onClick = { onEvent(TagDetailWebContentEvent.ClickSort) },
             modifier = Modifier.fillMaxWidth(),
             sortProvider = sortProvider,
+            isSortVisibleProvider = { webPagingItems.itemCount > 0 },
         )
 
         DiaryCrossfade(
@@ -88,8 +92,9 @@ internal fun TagDetailWebTab(
                     ) { index ->
                         val web = webPagingItems[index]
 
-                        WebCard(
+                        SwipeToDeleteWebCard(
                             onClick = { web?.let { value -> onEvent(TagDetailWebContentEvent.ClickWeb(id = value.id)) } },
+                            onDelete = { web?.let { value -> onEvent(TagDetailWebContentEvent.DeleteWeb(id = value.id)) } },
                             modifier =
                                 Modifier
                                     .animateItem()

@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
+import io.github.taetae98coding.diary.feature.place.ui.form.ReflectCoordinateEffect
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceDetailFormState
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
@@ -30,25 +31,30 @@ class PlaceDetailScaffoldStateTest {
                 Coordinate(latitude = -33.4489, longitude = -70.6693),
             )
         val stateList = mutableListOf<PlaceFormState>()
+        composeRule.mainClock.autoAdvance = false
 
         composeRule.setContent {
             coordinateList.forEach { coordinate ->
                 key(coordinate) {
-                    stateList +=
+                    val state =
                         rememberPlaceDetailFormState(
                             initialDetail = placeDetail(coordinate = coordinate),
                             defaultProvider = MapProvider.NAVER,
                         )
+                    ReflectCoordinateEffect(state = state)
+                    stateList += state
                 }
             }
         }
+        // 지도의 지점은 입력한 좌표를 입력 정지 대기 시간 뒤에 반영하므로 그 시간이 지나기를 기다린다.
+        composeRule.mainClock.advanceTimeBy(SPOT_REFLECT_WAIT_MILLIS)
 
         composeRule.runOnIdle {
             coordinateList.forEachIndexed { index, coordinate ->
                 val expected = DiaryMapCoordinate(latitude = coordinate.latitude, longitude = coordinate.longitude)
 
                 stateList[index].mapState.coordinate shouldBe expected
-                stateList[index].spot shouldBe expected
+                stateList[index].mapState.spot shouldBe expected
             }
         }
     }
@@ -99,5 +105,9 @@ class PlaceDetailScaffoldStateTest {
             state.latitudeState.text.toString() shouldBe ""
             state.longitudeState.text.toString() shouldBe ""
         }
+    }
+
+    private companion object {
+        private const val SPOT_REFLECT_WAIT_MILLIS = 400L
     }
 }

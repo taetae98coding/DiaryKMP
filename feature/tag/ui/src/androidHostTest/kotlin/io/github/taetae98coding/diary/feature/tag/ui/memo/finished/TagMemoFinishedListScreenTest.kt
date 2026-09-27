@@ -1,8 +1,11 @@
 package io.github.taetae98coding.diary.feature.tag.ui.memo.finished
 
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -10,10 +13,16 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.testing.TestLifecycleOwner
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.memo.MEMO_DATE_HEADER_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
+import io.github.taetae98coding.diary.feature.tag.ui.allDayMemoDateTime
+import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemoPagingData
 import io.kotest.matchers.shouldBe
@@ -23,12 +32,16 @@ import io.mockk.verify
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.time.Clock
 import kotlin.uuid.Uuid
+import java.util.TimeZone as JavaTimeZone
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -167,6 +180,74 @@ class TagMemoFinishedListScreenTest {
         navigateUpCount shouldBe 1
     }
 
+    @Test
+    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-020 화면으로 돌아오면 바뀐 오늘에 맞춰 오늘 날짜 그룹 표시를 갱신한다`() {
+        val originalTimeZone = JavaTimeZone.getDefault()
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.CREATED)
+
+        try {
+            JavaTimeZone.setDefault(JavaTimeZone.getTimeZone(FIRST_TIME_ZONE))
+            val firstToday = Clock.System.todayIn(TimeZone.currentSystemDefault())
+            JavaTimeZone.setDefault(JavaTimeZone.getTimeZone(SECOND_TIME_ZONE))
+            val secondToday = Clock.System.todayIn(TimeZone.currentSystemDefault())
+            JavaTimeZone.setDefault(JavaTimeZone.getTimeZone(FIRST_TIME_ZONE))
+            val secondTodayMemo = tagMemo(title = fixtureText(prefix = "SecondTodayMemo"), dateTime = allDayMemoDateTime(secondToday))
+            val viewModel = mockk<TagMemoFinishedListViewModel>(relaxed = true)
+            every { viewModel.uiState } returns MutableStateFlow(TagMemoFinishedListUiState())
+            every { viewModel.sort } returns MutableStateFlow(ListSort.DEFAULT)
+            every { viewModel.memoPagingData } returns
+                MutableStateFlow(
+                    tagMemoPagingData(
+                        itemList =
+                            listOf(
+                                MemoListItem.DateHeader(date = firstToday),
+                                MemoListItem.Content(memo = tagMemo(title = fixtureText(prefix = "FirstTodayMemo"), dateTime = allDayMemoDateTime(firstToday))),
+                                MemoListItem.DateHeader(date = secondToday),
+                                MemoListItem.Content(memo = secondTodayMemo),
+                            ),
+                    ),
+                )
+            composeRule.setContent {
+                CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                    DiaryTheme {
+                        TagMemoFinishedListScreen(
+                            navigateUp = {},
+                            navigateToMemoDetail = {},
+                            memoViewModel = viewModel,
+                            syncViewModel = screenTestSyncViewModel(),
+                        )
+                    }
+                }
+            }
+            composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
+            waitUntilMemoIsDisplayed(title = secondTodayMemo.detail.title)
+            val beforeHeaderTextList = dateHeaderTextList()
+            beforeHeaderTextList.count { text -> text == DEFAULT_TODAY_HEADER } shouldBe 1
+
+            // 화면을 벗어난 사이 날짜가 바뀐 것을 시간대 변경으로 재현한다.
+            composeRule.runOnIdle {
+                lifecycleOwner.currentState = Lifecycle.State.CREATED
+                JavaTimeZone.setDefault(JavaTimeZone.getTimeZone(SECOND_TIME_ZONE))
+                lifecycleOwner.currentState = Lifecycle.State.RESUMED
+            }
+            composeRule.waitForIdle()
+
+            val afterHeaderTextList = dateHeaderTextList()
+            afterHeaderTextList.count { text -> text == DEFAULT_TODAY_HEADER } shouldBe 1
+            val previousDateText = beforeHeaderTextList.single { text -> text != DEFAULT_TODAY_HEADER }
+            afterHeaderTextList.contains(previousDateText) shouldBe false
+            afterHeaderTextList.size shouldBe beforeHeaderTextList.size
+        } finally {
+            JavaTimeZone.setDefault(originalTimeZone)
+        }
+    }
+
+    private fun dateHeaderTextList(): List<String> =
+        composeRule
+            .onAllNodesWithTag(MEMO_DATE_HEADER_TEST_TAG, useUnmergedTree = true)
+            .fetchSemanticsNodes()
+            .map { node -> node.config[SemanticsProperties.Text].joinToString { text -> text.text } }
+
     private fun setTagMemoFinishedListScreen(
         viewModel: TagMemoFinishedListViewModel,
         uiState: TagMemoFinishedListUiState = TagMemoFinishedListUiState(),
@@ -246,6 +327,9 @@ class TagMemoFinishedListScreenTest {
         const val DEFAULT_UNDO_ACTION = "Undo"
         const val KOREAN_UNDO_ACTION = "실행 취소"
         const val SCREEN_MEMO_TITLE = "TagMemoFinishedListScreenMemo"
+        const val DEFAULT_TODAY_HEADER = "Today"
+        const val FIRST_TIME_ZONE = "Pacific/Kiritimati"
+        const val SECOND_TIME_ZONE = "Etc/GMT+12"
     }
 }
 

@@ -36,7 +36,7 @@ class DiaryDescriptionInputTabTest {
     private lateinit var scope: CoroutineScope
 
     @Test
-    fun `TC-DESCRIPTION-INPUT-FEATURE-013 미리보기 탭을 선택하면 미리보기 페이지가 표시된다`() {
+    fun `TC-DESCRIPTION-INPUT-FEATURE-002 미리보기 탭을 선택하면 미리보기 페이지가 표시된다`() {
         val state = setDiaryDescriptionInput()
         composeRule.onNode(hasSetTextAction()).performTextInput(MARKDOWN_SOURCE)
         awaitPreviewText(MARKDOWN_HEADING_TEXT)
@@ -51,7 +51,7 @@ class DiaryDescriptionInputTabTest {
     }
 
     @Test
-    fun `TC-DESCRIPTION-INPUT-FEATURE-014 입력 탭을 선택하면 입력 페이지가 표시된다`() {
+    fun `TC-DESCRIPTION-INPUT-FEATURE-003 입력 탭을 선택하면 입력 페이지가 표시된다`() {
         val state = setDiaryDescriptionInput()
         composeRule.onNode(hasSetTextAction()).performTextInput(MARKDOWN_SOURCE)
         awaitPreviewText(MARKDOWN_HEADING_TEXT)
@@ -67,7 +67,7 @@ class DiaryDescriptionInputTabTest {
     }
 
     @Test
-    fun `TC-DESCRIPTION-INPUT-FEATURE-015 채워진 설명이 없으면 처음 표시될 때 입력 탭이 선택되어 있다`() {
+    fun `TC-DESCRIPTION-INPUT-FEATURE-001 채워진 설명이 없으면 처음 표시될 때 입력 탭이 선택되어 있다`() {
         setDiaryDescriptionInput()
 
         composeRule.onNodeWithContentDescription(INPUT_TAB_DESCRIPTION).assertIsSelected()
@@ -75,7 +75,7 @@ class DiaryDescriptionInputTabTest {
     }
 
     @Test
-    fun `TC-DESCRIPTION-INPUT-FEATURE-016 스와이프로 전환하면 선택된 탭이 보고 있는 페이지를 따라간다`() {
+    fun `스와이프로 전환하면 선택된 탭이 보고 있는 페이지를 따라간다`() {
         val state = setDiaryDescriptionInput()
 
         composeRule.onRoot().performTouchInput { swipeLeft() }

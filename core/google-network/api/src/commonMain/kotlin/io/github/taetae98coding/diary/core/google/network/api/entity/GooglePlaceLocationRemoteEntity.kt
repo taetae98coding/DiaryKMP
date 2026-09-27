@@ -5,6 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 public data class GooglePlaceLocationRemoteEntity(
-    @SerialName("latitude") val latitude: Double = 0.0,
-    @SerialName("longitude") val longitude: Double = 0.0,
+    @SerialName("latitude") val latitude: Double = Double.NaN,
+    @SerialName("longitude") val longitude: Double = Double.NaN,
 )

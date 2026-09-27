@@ -12,5 +12,11 @@ kotlin {
                 api(libs.kotlinx.coroutines.core)
             }
         }
+
+        jvmMain {
+            dependencies {
+                implementation(projects.library.avfoundation)
+            }
+        }
     }
 }

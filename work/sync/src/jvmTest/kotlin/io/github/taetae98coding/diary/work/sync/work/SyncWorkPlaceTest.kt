@@ -52,6 +52,25 @@ class SyncWorkPlaceTest :
             }
         }
 
+        test("TC-DATA-SYNC-DOMAIN-019 장소와 메모 요청이 모두 성공한 뒤 메모·장소 연결 전용 요청을 시작한다") {
+            val context =
+                context(
+                    tagList = tags(size = 1),
+                    placeList = places(size = 101),
+                    memoList = memos(size = 101),
+                    memoPlaceList = memoPlaces(size = 101),
+                )
+            val requestOrder = mutableListOf<String>()
+            coEvery { context.placeRemoteDataSource.push(any()) } coAnswers { requestOrder += "place" }
+            coEvery { context.memoRemoteDataSource.push(any()) } coAnswers { requestOrder += "memo" }
+            coEvery { context.memoPlaceRemoteDataSource.push(any()) } coAnswers { requestOrder += "memoPlace" }
+
+            context.subject.doWork()
+
+            requestOrder.takeLast(2) shouldContainExactly listOf("memoPlace", "memoPlace")
+            requestOrder.dropLast(2) shouldContainExactlyInAnyOrder listOf("place", "place", "memo", "memo")
+        }
+
         listOf(
             "태그" to "장소",
             "장소" to "태그",
@@ -77,7 +96,7 @@ class SyncWorkPlaceTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-020 장소만 대기하면 장소 요청만 발생한다") {
+        test("장소만 대기하면 장소 요청만 발생한다") {
             val context = context(placeList = places(size = 1))
 
             context.subject.doWork()
@@ -90,7 +109,7 @@ class SyncWorkPlaceTest :
             coVerify(exactly = 0) { context.memoPlaceRemoteDataSource.push(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-020 메모·장소 연결만 대기하면 그 연결 요청만 발생한다") {
+        test("메모·장소 연결만 대기하면 그 연결 요청만 발생한다") {
             val context = context(memoPlaceList = memoPlaces(size = 1))
 
             context.subject.doWork()
@@ -102,7 +121,7 @@ class SyncWorkPlaceTest :
             coVerify(exactly = 0) { context.memoTagRemoteDataSource.push(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-020 대기 항목이 없으면 일곱 종류 요청이 모두 없다") {
+        test("대기 항목이 없으면 일곱 종류 요청이 모두 없다") {
             val context = context()
 
             context.subject.doWork()
@@ -116,7 +135,7 @@ class SyncWorkPlaceTest :
             coVerify(exactly = 0) { context.tagLinkRemoteDataSource.push(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-053 장소 묶음이 실패하면 메모와 장소의 연결만 시도하지 않는다") {
+        test("장소 묶음이 실패하면 메모와 장소의 연결을 시도하지 않는다") {
             val context =
                 context(
                     tagList = tags(size = 1),

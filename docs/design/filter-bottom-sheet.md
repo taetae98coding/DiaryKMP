@@ -1,6 +1,6 @@
 # 필터 Bottom Sheet 디자인
 
-기준 스펙: [태그 필터 스펙](../spec/tag-filter.md), [목록 필터 반영 스펙](../spec/list-filter.md), [MemoHome 목록 스펙](../spec/memo-home.md), [CalendarHome 화면 스펙](../spec/calendar-home.md), [TagHome 목록 스펙](../spec/tag-home.md), [TagDetail 화면 스펙](../spec/tag-detail.md)
+기준 스펙: [태그 필터 스펙](../spec/client/tag-filter.md), [목록 필터 반영 스펙](../spec/client/list-filter.md), [MemoHome 목록 스펙](../spec/client/memo-home.md), [CalendarHome 화면 스펙](../spec/client/calendar-home.md), [TagHome 목록 스펙](../spec/client/tag-home.md), [TagDetail 화면 스펙](../spec/client/tag-detail.md)
 
 이 문서는 화면에서 필터를 여는 버튼의 표현과 필터 Bottom Sheet의 공통 구조, 항목 줄의 누름 표현, 닫는 조작, 적응형 배치, 바꾼 필터가 아래 화면에 반영될 때의 전환을 소유한다.
 
@@ -20,7 +20,7 @@ Bottom Sheet 안에 어떤 필터를 어떤 순서로 담는지, 각 필터의 �
 
 필터가 적용되지 않았으면 기본 상단 바 아이콘 색을 사용한다. 필터가 적용되었으면 아이콘을 주요 색으로 표시해 필터가 적용되었음을 알린다. 어떤 필터가 적용되었는지는 아이콘으로 구분하지 않고 배지나 숫자도 표시하지 않는다.
 
-무엇을 적용된 상태로 볼지는 화면이 담은 필터에 따라 다르므로 각 화면 디자인이 소유한다.
+무엇을 적용된 상태로 볼지는 [목록 필터 반영 스펙](../spec/client/list-filter.md)의 `필터 적용 상태`를 따른다.
 
 목록이 비어 있어도, 필터를 적용해 두었어도 버튼은 같은 모양과 같은 자리에 표시하며 비활성 표현을 사용하지 않는다.
 
@@ -29,6 +29,8 @@ Bottom Sheet 안에 어떤 필터를 어떤 순서로 담는지, 각 필터의 �
 ## Bottom Sheet 표시
 
 필터 아이콘 버튼을 누르면 현재 화면 위에 필터 Bottom Sheet를 표시한다. 아래에 있던 화면은 닫거나 교체하지 않고 어둡게 처리한 배경 아래에 그대로 유지하며, 공통 내비게이션도 계속 표시한다. 목록과 상세를 함께 표시하는 배치에서는 두 영역을 모두 아래에 유지한다.
+
+Bottom Sheet는 절반만 펼친 중간 단계 없이 내용 높이만큼 모두 펼친 상태로 열린다. 화면이 회전하거나 다시 그려져도 열려 있던 Bottom Sheet는 같은 상태로 다시 표시한다.
 
 Bottom Sheet 상단에는 드래그 핸들을 표시하고, 그 아래에 제목을 배치한다. 별도 닫기 버튼은 표시하지 않는다.
 
@@ -52,11 +54,13 @@ Bottom Sheet 상단에는 드래그 핸들을 표시하고, 그 아래에 제목
 
 필터를 바꾸어도 Bottom Sheet는 열린 상태를 유지해 여러 필터를 이어서 바꿀 수 있게 한다. 바뀐 결과는 Bottom Sheet 아래에 그대로 보이는 화면에 즉시 반영된다.
 
+Bottom Sheet 안의 동작이 다른 화면으로 이동하면 Bottom Sheet를 닫은 뒤 그 화면을 표시한다. 그 화면에서 돌아오면 Bottom Sheet 없이 필터를 연 화면만 표시한다.
+
 키보드나 포인터를 사용하는 환경에서는 Bottom Sheet 안의 조작 요소에 차례로 초점을 이동할 수 있고, `Enter` 또는 `Space`로 조작하며 `Escape`로 닫을 수 있다.
 
 ## 필터 반영 전환
 
-필터를 바꾸면 Bottom Sheet 아래에 그대로 보이는 목록이 좁힌 결과로 다시 놓인다. 어느 목록이 이때 처음부터 다시 표시되는지는 [목록 필터 반영 스펙](../spec/list-filter.md)의 `적용 대상`을 따른다.
+필터를 바꾸면 Bottom Sheet 아래에 그대로 보이는 목록이 좁힌 결과로 다시 놓인다. 어느 목록이 이때 처음부터 다시 표시되는지는 [목록 필터 반영 스펙](../spec/client/list-filter.md)의 `적용 대상`을, 언제 다시 표시되는지는 같은 문서의 `되돌리는 시점`을 따른다.
 
 목록은 좁힌 결과가 놓이는 시점에 한 번 맨 위로 이동하며, 이동 과정을 보여 주는 스크롤 애니메이션은 두지 않는다. Bottom Sheet가 열려 있어 사용자가 목록의 일부만 보고 있으므로 움직임을 따라가게 하지 않고 결과만 바꾼다. 항목이 자리를 옮기는 이동 애니메이션도 두지 않으며, 좁힌 결과를 준비하는 동안의 표시는 [페이지 조회 목록의 자리 표시 디자인](./paged-list-placeholder.md)을 따른다. 이는 [목록 정렬 디자인](./list-sort.md)의 `전환`과 같은 기준이다.
 

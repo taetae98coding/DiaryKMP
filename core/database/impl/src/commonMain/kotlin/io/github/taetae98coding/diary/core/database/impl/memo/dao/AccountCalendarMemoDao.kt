@@ -51,7 +51,8 @@ internal interface AccountCalendarMemoDao {
             memo.start ASC,
             CASE WHEN memo.is_all_day = 1 THEN memo.end_inclusive END DESC,
             CASE WHEN memo.is_all_day = 0 THEN memo.end_inclusive END ASC,
-            memo.title ASC
+            memo.title ASC,
+            memo.id ASC
         """,
     )
     fun get(

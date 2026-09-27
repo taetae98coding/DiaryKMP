@@ -115,6 +115,22 @@ export const musicPushRequestSchema = z.object({
   ),
 });
 
+export const qrPushRequestSchema = z.object({
+  qrList: z.array(
+    z.object({
+      id: z.string().uuid(),
+      isDeleted: z.boolean(),
+      updatedAt: z.string().datetime({ offset: true }),
+      createdAt: z.string().datetime({ offset: true }),
+      detail: z.object({
+        title: z.string(),
+        description: z.string(),
+        value: z.string(),
+      }),
+    }),
+  ),
+});
+
 export const contactPushRequestSchema = z.object({
   contactList: z.array(
     z.object({

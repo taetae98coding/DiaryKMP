@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.work.sync.work
 import io.github.taetae98coding.diary.core.datastore.api.sync.datasource.AccountSyncTimeLocalDataSource
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.sync.usecase.PrepareSyncUseCase
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.github.taetae98coding.diary.logger.crashlytics.api.CrashlyticsLog
 import io.github.taetae98coding.diary.work.sync.work.SyncWork
@@ -19,11 +20,13 @@ import kotlin.uuid.Uuid
 @Factory
 internal class SyncWorkImpl(
     private val getAccountUseCase: GetAccountUseCase,
+    private val prepareSyncUseCase: PrepareSyncUseCase,
     private val tagSyncWork: TagSyncWork,
     private val placeSyncWork: PlaceSyncWork,
     private val webSyncWork: WebSyncWork,
     private val contactSyncWork: ContactSyncWork,
     private val musicSyncWork: MusicSyncWork,
+    private val qrSyncWork: QrSyncWork,
     private val memoSyncWork: MemoSyncWork,
     private val memoTagSyncWork: MemoTagSyncWork,
     private val memoPlaceSyncWork: MemoPlaceSyncWork,
@@ -43,6 +46,8 @@ internal class SyncWorkImpl(
                     is Account.User -> account.id
                 }
 
+            // 플랫폼마다 다른 주기 예약기가 요청 경로를 거치지 않고 이 작업을 바로 실행하므로 준비를 요청 시점이 아니라 여기서 한다.
+            prepareSyncUseCase(parameter = accountId).getOrThrow()
             push(accountId = accountId)
             pull(accountId = accountId)
             accountSyncTimeLocalDataSource.upsert(accountId = accountId, syncedAt = clock.now())
@@ -71,6 +76,7 @@ internal class SyncWorkImpl(
             val web = async { webSyncWork.push(accountId = accountId) }
             val contact = async { contactSyncWork.push(accountId = accountId) }
             val music = async { musicSyncWork.push(accountId = accountId) }
+            val qr = async { qrSyncWork.push(accountId = accountId) }
             val memo =
                 async {
                     tag.await()
@@ -118,7 +124,7 @@ internal class SyncWorkImpl(
                     placeTagSyncWork.push(accountId = accountId)
                 }
 
-            listOf(tag, place, web, contact, music, memo, memoTag, memoPlace, memoWeb, memoContact, tagLink, webTag, placeTag)
+            listOf(tag, place, web, contact, music, qr, memo, memoTag, memoPlace, memoWeb, memoContact, tagLink, webTag, placeTag)
                 .awaitAllCatching()
         }
     }
@@ -131,6 +137,7 @@ internal class SyncWorkImpl(
                 async { webSyncWork.pull(accountId = accountId) },
                 async { contactSyncWork.pull(accountId = accountId) },
                 async { musicSyncWork.pull(accountId = accountId) },
+                async { qrSyncWork.pull(accountId = accountId) },
                 async { memoSyncWork.pull(accountId = accountId) },
                 async { memoTagSyncWork.pull(accountId = accountId) },
                 async { memoPlaceSyncWork.pull(accountId = accountId) },

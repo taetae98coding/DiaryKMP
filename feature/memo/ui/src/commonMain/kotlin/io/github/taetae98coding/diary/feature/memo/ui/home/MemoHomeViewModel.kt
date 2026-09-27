@@ -14,6 +14,7 @@ import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.domain.memo.usecase.DeleteMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.FinishMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoExistenceFilterUseCase
+import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterTagIdUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoHomeUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestartMemoUseCase
@@ -37,6 +38,7 @@ import kotlin.uuid.Uuid
 @KoinViewModel
 internal class MemoHomeViewModel(
     getMemoFilterUseCase: GetMemoFilterUseCase,
+    getMemoFilterTagIdUseCase: GetMemoFilterTagIdUseCase,
     getMemoExistenceFilterUseCase: GetMemoExistenceFilterUseCase,
     pageMemoHomeUseCase: PageMemoHomeUseCase,
     private val finishMemoUseCase: FinishMemoUseCase,
@@ -47,14 +49,16 @@ internal class MemoHomeViewModel(
     val filterUiState: StateFlow<MemoHomeScaffoldFilterUiState> =
         combine(
             getMemoFilterUseCase(parameter = Unit),
+            getMemoFilterTagIdUseCase(parameter = Unit),
             getMemoExistenceFilterUseCase(parameter = Unit),
-        ) { tagListResult, existenceResult ->
+        ) { tagListResult, storedTagIdSetResult, existenceResult ->
             MemoHomeScaffoldFilterUiState(
                 selectedTagIdSet =
                     tagListResult
                         .getOrDefault(emptyList())
                         .map { tag -> tag.id }
                         .toSet(),
+                storedTagIdSet = storedTagIdSetResult.getOrDefault(emptySet()),
                 existence = existenceResult.getOrDefault(MemoExistenceFilter()),
             )
         }.stateIn(

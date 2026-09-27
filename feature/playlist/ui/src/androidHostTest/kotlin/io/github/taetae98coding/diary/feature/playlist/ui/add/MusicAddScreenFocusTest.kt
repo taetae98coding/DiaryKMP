@@ -85,6 +85,28 @@ class MusicAddScreenFocusTest {
         composeRule.linkInput().assertIsFocused()
     }
 
+    @Test
+    fun `TC-MUSIC-ADD-FEATURE-033 불러오기에 성공해도 입력 초점을 옮기지 않는다`() {
+        assertFetchKeepsFocus(effect = fetchedEffect())
+    }
+
+    @Test
+    fun `TC-MUSIC-ADD-FEATURE-033 영상 정보를 가져오지 못해도 입력 초점을 옮기지 않는다`() {
+        assertFetchKeepsFocus(effect = MusicAddEffect.LinkFetchFailed)
+    }
+
+    private fun assertFetchKeepsFocus(effect: MusicAddEffect) {
+        setMusicAddScreen(viewModel = fetchEffectViewModel(effect))
+        composeRule.linkInput().performTextInput(TYPED_LINK)
+        composeRule.artistInput().performClick()
+        composeRule.waitForIdle()
+        composeRule.artistInput().assertIsFocused()
+
+        composeRule.clickFetch()
+
+        composeRule.artistInput().assertIsFocused()
+    }
+
     private fun setMusicAddScreen(viewModel: MusicAddViewModel) {
         composeRule.setContent {
             DiaryTheme {

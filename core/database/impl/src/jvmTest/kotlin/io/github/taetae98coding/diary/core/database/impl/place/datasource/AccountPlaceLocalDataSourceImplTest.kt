@@ -223,6 +223,33 @@ class AccountPlaceLocalDataSourceImplTest :
                 .pagedPlaces(loadSize = PLACE_PAGE_SIZE) shouldBe listOf(target)
         }
 
+        test("TC-MEMO-PLACE-CARD-DATA-005 장소 선택 목록은 요청한 크기만큼만 가져오고 다음 구간을 이어서 가져온다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val placeList =
+                List(PLACE_COUNT) { index ->
+                    place(title = "Place-${index.toString().padStart(length = 3, padChar = '0')}")
+                }.reversed()
+            val expected = placeList.sortedBy { place -> place.detail.title }
+            placeTransaction.upsert(accountId = accountId, placeList = placeList, placeTagList = emptyList())
+
+            val firstPage =
+                dataSource
+                    .page(accountId = accountId, query = "", sort = ListSortLocalEntity.DEFAULT)
+                    .load(PagingSource.LoadParams.Refresh(key = null, loadSize = PLACE_PAGE_SIZE, placeholdersEnabled = false))
+                    .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, PlaceLocalEntity>>()
+
+            firstPage.data shouldBe expected.take(PLACE_PAGE_SIZE)
+            firstPage.nextKey shouldBe PLACE_PAGE_SIZE
+
+            val secondPage =
+                dataSource
+                    .page(accountId = accountId, query = "", sort = ListSortLocalEntity.DEFAULT)
+                    .load(PagingSource.LoadParams.Append(key = requireNotNull(firstPage.nextKey), loadSize = PLACE_PAGE_SIZE, placeholdersEnabled = false))
+                    .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, PlaceLocalEntity>>()
+
+            secondPage.data shouldBe expected.drop(PLACE_PAGE_SIZE).take(PLACE_PAGE_SIZE)
+        }
+
         test("TC-MEMO-PLACE-CARD-DATA-001 저장된 장소의 변화가 페이지 조회에 반영된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place()
@@ -256,7 +283,7 @@ class AccountPlaceLocalDataSourceImplTest :
             }
         }
 
-        test("선택한 식별자 조회는 현재 계정의 삭제되지 않은 장소만 제목 오름차순으로 전달한다") {
+        test("TC-MEMO-PLACE-CARD-DOMAIN-029 선택한 식별자 조회는 현재 계정의 삭제되지 않은 장소만 선택 순서와 관계없이 제목 오름차순으로 전달한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstPlace = place(title = FIRST_PLACE_TITLE)
@@ -274,7 +301,7 @@ class AccountPlaceLocalDataSourceImplTest :
             dataSource
                 .get(
                     accountId = accountId,
-                    placeIdSet = setOf(firstPlace.id, lastPlace.id, deletedPlace.id, otherAccountPlace.id),
+                    placeIdSet = setOf(lastPlace.id, deletedPlace.id, firstPlace.id, otherAccountPlace.id),
                 ).first() shouldBe listOf(firstPlace, lastPlace)
         }
 
@@ -424,6 +451,6 @@ class AccountPlaceLocalDataSourceImplTest :
                 .setExp(PlaceDetailLocalEntity::longitude, longitude)
                 .sample()
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
     }
 }

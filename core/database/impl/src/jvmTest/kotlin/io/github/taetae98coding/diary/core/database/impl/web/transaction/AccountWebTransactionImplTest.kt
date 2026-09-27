@@ -76,6 +76,27 @@ class AccountWebTransactionImplTest :
                 )
         }
 
+        test("TC-DATA-SYNC-DOMAIN-001 웹 항목 추가·수정·삭제·실행 취소는 업로드 대기 상태가 된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val web = web().copy(isDeleted = false)
+            val pending = listOf(AccountWebLocalEntity(accountId = accountId, webId = web.id, isDirty = true))
+
+            transaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
+            findAccountWebList() shouldBe pending
+
+            database.accountWebDao().upsert(AccountWebLocalEntity(accountId = accountId, webId = web.id, isDirty = false))
+            transaction.updateDetail(accountId = accountId, webId = web.id, detail = detail(), updatedAt = instant())
+            findAccountWebList() shouldBe pending
+
+            database.accountWebDao().upsert(AccountWebLocalEntity(accountId = accountId, webId = web.id, isDirty = false))
+            transaction.updateDeleted(accountId = accountId, webId = web.id, isDeleted = true, updatedAt = instant())
+            findAccountWebList() shouldBe pending
+
+            database.accountWebDao().upsert(AccountWebLocalEntity(accountId = accountId, webId = web.id, isDirty = false))
+            transaction.updateDeleted(accountId = accountId, webId = web.id, isDeleted = false, updatedAt = instant())
+            findAccountWebList() shouldBe pending
+        }
+
         test("TC-WEB-ADD-DOMAIN-009 TC-WEB-ADD-DOMAIN-010 제목, 설명, URL과 미삭제 상태, 추가 시각을 그대로 저장한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val now = instant()
@@ -122,23 +143,24 @@ class AccountWebTransactionImplTest :
             findWebList().single().detail.headerList shouldBe emptyList()
         }
 
-        test("TC-WEB-ADD-DATA-002 같은 식별자의 웹 항목을 다시 저장하면 덮어쓴다") {
+        test("TC-WEB-ADD-DATA-002 웹 항목을 추가해도 이미 저장된 웹 항목은 덮어쓰이지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val web = web()
-            val changedWeb = web.copy(detail = detail())
-
-            transaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
-            transaction.upsert(accountId = accountId, webList = listOf(changedWeb), webTagList = emptyList())
-
-            findWebList() shouldBe listOf(changedWeb)
-            findAccountWebList() shouldBe
-                listOf(
-                    AccountWebLocalEntity(
-                        accountId = accountId,
-                        webId = web.id,
-                        isDirty = true,
-                    ),
+            val savedWeb = web()
+            val addedWeb =
+                web().copy(
+                    detail =
+                        WebDetailLocalEntity(
+                            title = "added-${savedWeb.detail.title}",
+                            description = "added-${savedWeb.detail.description}",
+                            url = "https://added.example.com/${fixtureMonkey.giveMeOne<String>()}",
+                            headerList = listOf(WebHeaderLocalEntity(name = "X-Added", value = "value-${fixtureMonkey.giveMeOne<String>()}")),
+                        ),
                 )
+            transaction.upsert(accountId = accountId, webList = listOf(savedWeb), webTagList = emptyList())
+
+            transaction.upsert(accountId = accountId, webList = listOf(addedWeb), webTagList = emptyList())
+
+            findWebList() shouldBe listOf(savedWeb, addedWeb).sortedBy { web -> web.id.toString() }
         }
 
         test("TC-WEB-DETAIL-DATA-014 수정은 제목, 설명, URL, 요청 헤더와 수정 시각을 덮어쓴다") {
@@ -332,7 +354,7 @@ class AccountWebTransactionImplTest :
 
         private fun detail(): WebDetailLocalEntity = fixtureMonkey.giveMeOne<WebDetailLocalEntity>()
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun <T> SQLiteStatement.readAll(read: (SQLiteStatement) -> T): List<T> =
             buildList {

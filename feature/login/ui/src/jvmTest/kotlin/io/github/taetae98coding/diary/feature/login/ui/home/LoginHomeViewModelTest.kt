@@ -288,6 +288,37 @@ class LoginHomeViewModelTest : FunSpec() {
             }
         }
 
+        context("TC-LOGIN-FEATURE-026 Login 화면에 다시 들어오면 로그인 수단 선택 대기 상태에서 시작한다") {
+            listOf<Pair<String, (SignInWithGoogleUseCase, GoogleCredential) -> Unit>>(
+                "앱 로그인 처리 중" to { useCase, credential ->
+                    coEvery { useCase(credential) } coAnswers { CompletableDeferred<Result<Unit>>().await() }
+                },
+                "앱 로그인 실패" to { useCase, credential ->
+                    coEvery { useCase(credential) } returns Result.failure(IllegalStateException())
+                },
+            ).forEach { (name, arrange) ->
+                test(name) {
+                    runTest(mainDispatcher) {
+                        val credential = fixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
+                        val googleUseCase = mockk<SignInWithGoogleUseCase>()
+                        val appleUseCase = mockk<SignInWithAppleUseCase>()
+                        arrange(googleUseCase, credential)
+                        val previousViewModel = loginHomeViewModel(googleUseCase, appleUseCase)
+                        previousViewModel.signInWithGoogle(credential)
+                        runCurrent()
+
+                        val viewModel = loginHomeViewModel(googleUseCase, appleUseCase)
+
+                        viewModel.uiState.value.isInProgress
+                            .shouldBeFalse()
+                        viewModel.effect.test {
+                            expectNoEvents()
+                        }
+                    }
+                }
+            }
+        }
+
         test("로그인이 취소되면 진행 상태를 해제하고 다시 로그인할 수 있다") {
             runTest(mainDispatcher) {
                 val firstCredential = fixtureMonkey.giveMeOne<GoogleCredential.IdToken>()

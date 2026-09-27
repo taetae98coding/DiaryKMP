@@ -1,6 +1,6 @@
 # RoutineAdd 화면 디자인
 
-기준 스펙: [RoutineAdd 화면 스펙](../spec/routine-add.md)
+기준 스펙: [RoutineAdd 화면 스펙](../spec/client/routine-add.md)
 
 화면 구조, 표시 영역과 소프트 키보드, 초점과 단축키의 공통 표현은 [항목 추가 화면 공통 디자인](./entity-add.md)을 따른다.
 
@@ -33,4 +33,4 @@ RoutineHome에서 진입하면 넓은 화면에서는 루틴 목록과 RoutineAd
 | 상단 바 제목 | `루틴 추가` | `Add Routine` |
 | 추가 버튼 접근성 이름 | `루틴 추가` | `Add routine` |
 
-제목 입력과 설명 입력의 이름과 표현은 각 입력 컴포넌트의 디자인을 따른다.
+제목 입력의 이름과 표현은 [제목 입력 디자인](./title-input.md)을, 설명 입력은 [설명 입력 컴포넌트 디자인](./description-input.md)을 따른다.

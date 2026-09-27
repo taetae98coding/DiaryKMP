@@ -119,6 +119,16 @@ class MemoDraftRepositoryImplTest :
                 setOf("now", "timeZone")
         }
 
+        test("TC-MEMO-GEMINI-DATA-008: 공백뿐인 제목과 설명, 사용하지 않는 기간은 보내지 않는다") {
+            listOf("", "   ", "\n\t").forEach { blank ->
+                val prompt = fetchPrompt(request = request.copy(title = blank, description = blank, dateTime = null))
+
+                prompt.containsKey("currentTitle") shouldBe false
+                prompt.containsKey("currentDescription") shouldBe false
+                prompt.containsKey("currentPeriod") shouldBe false
+            }
+        }
+
         test("생성 결과를 메모 초안으로 전달한다") {
             val content =
                 buildJsonObject {

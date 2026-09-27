@@ -81,7 +81,7 @@ class AccountWebRepositoryImplTest :
             }
         }
 
-        test("TC-WEB-ADD-DATA-004 로컬 저장이 실패하면 실패를 그대로 전파한다") {
+        test("TC-WEB-ADD-DATA-004 기기 저장이 실패하면 추가를 성공으로 다루지 않고 실패를 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val web = web()
             val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
@@ -205,7 +205,7 @@ class AccountWebRepositoryImplTest :
             } shouldBeSameInstanceAs throwable
         }
 
-        test("TC-WEB-HOME-DOMAIN-002 조회된 웹 항목이 없으면 빈 목록을 전달한다") {
+        test("조회된 웹 항목이 없으면 빈 목록을 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val localDataSource = mockk<AccountWebLocalDataSource>()
             val transaction = mockk<AccountWebTransaction>()
@@ -233,7 +233,7 @@ class AccountWebRepositoryImplTest :
                 .setExp(WebLocalEntity::createdAt, instant())
                 .sample()
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun pagingSource(webList: List<WebLocalEntity>): PagingSource<Int, WebLocalEntity> =
             mockk(relaxed = true) {

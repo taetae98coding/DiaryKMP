@@ -104,7 +104,7 @@ class AppChromeSessionViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DOMAIN-020 가져오는 중을 거치지 않은 실패는 가져온 횟수를 늘리지 않고 실패 번호만 제공한다") {
+        test("가져오는 중을 거치지 않은 실패는 가져온 횟수를 늘리지 않고 실패 번호만 제공한다") {
             runTest(mainDispatcher) {
                 val importState = MutableStateFlow(ChromeSessionImportState.IDLE)
                 val viewModel = viewModel(importState = importState)

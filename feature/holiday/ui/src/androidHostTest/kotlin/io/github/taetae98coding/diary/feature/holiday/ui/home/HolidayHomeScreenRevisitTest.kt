@@ -4,6 +4,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.domain.holiday.usecase.FetchHolidayUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.GetGoldenHolidayUseCase
@@ -11,6 +13,7 @@ import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFix
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.DEFAULT_LOADING_DESCRIPTION
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.DEFAULT_NOT_PROVIDED_DESCRIPTION
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.YEAR
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -23,6 +26,9 @@ import org.junit.runner.RunWith
 import org.koin.core.context.stopKoin
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+
+private val fixtureMonkey: FixtureMonkey =
+    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -64,6 +70,34 @@ class HolidayHomeScreenRevisitTest {
 
         composeRule.onNodeWithText(NEXT_YEAR_PERIOD).assertExists()
         composeRule.onNodeWithText(DEFAULT_ERROR_DESCRIPTION).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-HOLIDAY-HOME-FEATURE-058 한 년도의 제공 없음은 다른 년도의 표시에 영향을 주지 않는다`() {
+        val getGoldenHolidayUseCase = mockk<GetGoldenHolidayUseCase>()
+        every { getGoldenHolidayUseCase(parameter = any()) } answers {
+            val parameter = firstArg<GetGoldenHolidayUseCase.Parameter>()
+            val groupList =
+                if (parameter.year == YEAR + 1) {
+                    listOf(nextYearGoldenHolidayGroup())
+                } else {
+                    emptyList()
+                }
+
+            flowOf(Result.success(groupList))
+        }
+        composeRule.setHolidayHomeScreen(
+            targetYear = targetYear,
+            fetchHolidayUseCase = thisYearNotProvidedFetchHolidayUseCase(),
+            getGoldenHolidayUseCase = getGoldenHolidayUseCase,
+        )
+
+        composeRule.onNodeWithText(DEFAULT_NOT_PROVIDED_DESCRIPTION).assertExists()
+
+        scrollTo(year = YEAR + 1)
+
+        composeRule.onNodeWithText(NEXT_YEAR_PERIOD).assertExists()
+        composeRule.onNodeWithText(DEFAULT_NOT_PROVIDED_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
@@ -113,7 +147,7 @@ class HolidayHomeScreenRevisitTest {
         coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(providedHolidayList())
         coEvery { fetchHolidayUseCase(parameter = YEAR - 1) } returnsMany
             listOf(
-                Result.failure(IllegalStateException("${YEAR - 1} holiday sync failed")),
+                Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())),
                 Result.success(providedHolidayList()),
             )
         composeRule.setHolidayHomeScreen(

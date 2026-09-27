@@ -137,17 +137,19 @@ class AccountTagLocalDataSourceImplTest :
             val emojiTag = selectableTag().withDetail(emoji = "✈️", title = "AlphaTag", description = "")
             val descriptionTag = selectableTag().withDetail(emoji = "", title = "BetaTag", description = "여행 기록")
             val otherTag = selectableTag().withDetail(emoji = "", title = "GammaTag", description = "")
+            val koreanTitleTag = selectableTag().withDetail(emoji = "", title = "여행 기록", description = "")
 
             transaction.upsert(
                 accountId = accountId,
-                tagList = listOf(titleTag, emojiTag, descriptionTag, otherTag),
+                tagList = listOf(titleTag, emojiTag, descriptionTag, otherTag, koreanTitleTag),
                 tagLinkList = emptyList(),
             )
 
             dataSource.page(accountId = accountId, query = "trav", sort = ListSortLocalEntity.DEFAULT).loadPage().data shouldBe listOf(titleTag)
             dataSource.page(accountId = accountId, query = "✈️", sort = ListSortLocalEntity.DEFAULT).loadPage().data shouldBe listOf(emojiTag)
-            dataSource.page(accountId = accountId, query = "여행", sort = ListSortLocalEntity.DEFAULT).loadPage().data shouldBe listOf(descriptionTag)
-            dataSource.page(accountId = accountId, query = "", sort = ListSortLocalEntity.DEFAULT).loadPage().data shouldBe listOf(emojiTag, descriptionTag, otherTag, titleTag)
+            dataSource.page(accountId = accountId, query = "여행", sort = ListSortLocalEntity.DEFAULT).loadPage().data shouldBe listOf(descriptionTag, koreanTitleTag)
+            dataSource.page(accountId = accountId, query = "업무", sort = ListSortLocalEntity.DEFAULT).loadPage().data shouldBe emptyList()
+            dataSource.page(accountId = accountId, query = "", sort = ListSortLocalEntity.DEFAULT).loadPage().data shouldBe listOf(emojiTag, descriptionTag, otherTag, titleTag, koreanTitleTag)
         }
 
         test("TC-MEMO-TAG-INPUT-DATA-005 검색어를 만족하는 태그가 정렬 뒤쪽에 있어도 첫 페이지에 담긴다") {
@@ -220,6 +222,6 @@ class AccountTagLocalDataSourceImplTest :
             description: String,
         ): TagLocalEntity = copy(detail = detail.copy(emoji = emoji, title = title, description = description))
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
     }
 }

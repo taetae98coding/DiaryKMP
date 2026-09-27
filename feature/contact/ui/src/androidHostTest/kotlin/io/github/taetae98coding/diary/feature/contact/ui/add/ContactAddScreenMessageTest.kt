@@ -5,6 +5,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTextInput
+import io.mockk.verify
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,6 +52,54 @@ class ContactAddScreenMessageTest {
         assertMessage(effect = ContactAddEffect.PhoneNumberBlank, expectedMessage = KOREAN_PHONE_NUMBER_BLANK_MESSAGE)
     }
 
+    @Test
+    fun `TC-CONTACT-ADD-FEATURE-009 이름이 비어 있으면 그 입력으로 추가하고 이름 입력이 필요함을 알린다`() {
+        assertBlankInput(effect = ContactAddEffect.NameBlank, expectedMessage = DEFAULT_NAME_BLANK_MESSAGE, name = "", phoneNumber = null)
+    }
+
+    @Test
+    fun `TC-CONTACT-ADD-FEATURE-009 이름이 공백 문자로만 이루어지면 그 입력으로 추가하고 이름 입력이 필요함을 알린다`() {
+        assertBlankInput(effect = ContactAddEffect.NameBlank, expectedMessage = DEFAULT_NAME_BLANK_MESSAGE, name = BLANK_TEXT, phoneNumber = null)
+    }
+
+    @Test
+    fun `TC-CONTACT-ADD-FEATURE-009 번호가 비어 있는 전화번호 항목이 있으면 그 입력으로 추가하고 전화번호 입력이 필요함을 알린다`() {
+        assertBlankInput(effect = ContactAddEffect.PhoneNumberBlank, expectedMessage = DEFAULT_PHONE_NUMBER_BLANK_MESSAGE, name = TYPED_NAME, phoneNumber = "")
+    }
+
+    @Test
+    fun `TC-CONTACT-ADD-FEATURE-009 번호가 공백 문자로만 이루어진 전화번호 항목이 있으면 그 입력으로 추가하고 전화번호 입력이 필요함을 알린다`() {
+        assertBlankInput(effect = ContactAddEffect.PhoneNumberBlank, expectedMessage = DEFAULT_PHONE_NUMBER_BLANK_MESSAGE, name = TYPED_NAME, phoneNumber = BLANK_TEXT)
+    }
+
+    private fun assertBlankInput(
+        effect: ContactAddEffect,
+        expectedMessage: String,
+        name: String,
+        phoneNumber: String?,
+    ) {
+        val viewModel = effectViewModel(effect = effect)
+        composeRule.setContactAddScreen(viewModel = viewModel)
+        composeRule.nameInput().performTextInput(name)
+        if (phoneNumber != null) {
+            composeRule.addPhoneNumberRow()
+            composeRule.phoneNumberInput().performTextInput(phoneNumber)
+        }
+        composeRule.waitForIdle()
+
+        composeRule.clickAdd()
+
+        verify(exactly = 1) {
+            viewModel.add(
+                detail =
+                    match { detail ->
+                        detail.name == name && detail.phoneNumberList.map { value -> value.number } == listOfNotNull(phoneNumber)
+                    },
+            )
+        }
+        composeRule.onNodeWithText(expectedMessage).assertExists()
+    }
+
     private fun assertMessage(
         effect: ContactAddEffect,
         expectedMessage: String,
@@ -67,5 +116,9 @@ class ContactAddScreenMessageTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(expectedMessage).assertExists()
+    }
+
+    private companion object {
+        private const val BLANK_TEXT = "   "
     }
 }

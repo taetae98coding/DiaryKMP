@@ -7,11 +7,15 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
@@ -23,6 +27,7 @@ import io.github.taetae98coding.diary.domain.contact.usecase.GetCalendarContactB
 import io.github.taetae98coding.diary.domain.lunar.usecase.FetchLunarUseCase
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.every
@@ -39,6 +44,9 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
+
+private val fixtureMonkey: FixtureMonkey =
+    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -140,7 +148,7 @@ class CalendarHomeScreenBirthdayTest {
     fun `TC-CALENDAR-HOME-DATA-034 생일 조회가 실패해도 생일 없이 표시하고 공휴일 표시를 막지 않는다`() {
         val getCalendarContactBirthdayUseCase = mockk<GetCalendarContactBirthdayUseCase>()
         every { getCalendarContactBirthdayUseCase(parameter = any()) } returns
-            flowOf(Result.failure(IllegalStateException("birthday get failed")))
+            flowOf(Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())))
         val fetchLunarUseCase = mockk<FetchLunarUseCase>()
         coEvery { fetchLunarUseCase(parameter = any()) } returns Result.success(emptyList())
         val birthdayViewModel =
@@ -160,6 +168,28 @@ class CalendarHomeScreenBirthdayTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(CONSTITUTION_DAY_NAME).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-CALENDAR-HOME-DATA-040 음력 자료 동기화가 실패해도 별도 안내 없이 생일을 표시한다`() {
+        val getCalendarContactBirthdayUseCase = mockk<GetCalendarContactBirthdayUseCase>()
+        every { getCalendarContactBirthdayUseCase(parameter = any()) } returns
+            flowOf(Result.success(listOf(birthday(name = NAME, date = july(day = 8)))))
+        val fetchLunarUseCase = mockk<FetchLunarUseCase>()
+        coEvery { fetchLunarUseCase(parameter = any()) } returns
+            Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+        val birthdayViewModel =
+            CalendarHomeBirthdayViewModel(fetchLunarUseCase = fetchLunarUseCase, getCalendarContactBirthdayUseCase = getCalendarContactBirthdayUseCase)
+
+        setCalendarHomeScreen(
+            initialYearMonth = JULY_2026,
+            holidayList = emptyList(),
+            birthdayViewModel = birthdayViewModel,
+        )
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(BIRTHDAY_TEXT).assertIsDisplayed()
+        composeRule.onAllNodes(isDialog()).assertCountEquals(0)
     }
 
     @Test
@@ -237,6 +267,7 @@ class CalendarHomeScreenBirthdayTest {
                     navigateToMemoAdd = {},
                     navigateToContactDetail = navigateToContactDetail,
                     navigateToFilter = {},
+                    navigateToTimetable = {},
                     state = state,
                     holidayViewModel = holidayViewModel(holidayListFlow = MutableStateFlow(holidayList)),
                     memoViewModel = memoViewModel,

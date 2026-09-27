@@ -13,6 +13,7 @@ import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -50,17 +51,22 @@ class DeleteContactUseCaseTest :
                 )
 
             When("연락처를 삭제한다") {
-                Then("TC-CONTACT-DETAIL-DOMAIN-010 삭제 여부와 삭제 시점을 반영한다") {
+                Then("TC-CONTACT-DETAIL-DOMAIN-010 TC-CONTACT-HOME-DOMAIN-013 삭제 여부와 삭제 시점을 반영하고 즐겨찾기 여부는 바꾸지 않는다") {
                     useCase(parameter = contactId).shouldBeSuccess(1)
 
                     isDeletedSlot.captured shouldBe true
                     updatedAtSlot.captured shouldBe now
+                    coVerify(exactly = 0) {
+                        accountContactRepository.updateFavorite(account = any(), contactId = any(), isFavorite = any(), updatedAt = any())
+                    }
                 }
 
-                Then("TC-CONTACT-DETAIL-DATA-010 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-CONTACT-DETAIL-DATA-010 TC-CONTACT-HOME-DATA-008 로컬 저장 결과로 성공을 판단하고 동기화를 한 번 요청한다") {
+                    clearMocks(requestSyncUseCase, answers = false)
+
                     useCase(parameter = contactId).shouldBeSuccess(1)
 
-                    coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
+                    coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
                 }
             }
         }
@@ -186,6 +192,6 @@ class DeleteContactUseCaseTest :
             return useCase
         }
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
     }
 }

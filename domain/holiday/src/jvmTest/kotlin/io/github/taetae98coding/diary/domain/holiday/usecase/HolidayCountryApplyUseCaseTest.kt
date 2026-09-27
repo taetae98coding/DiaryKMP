@@ -176,6 +176,55 @@ class HolidayCountryApplyUseCaseTest :
             }
         }
 
+        Given("TC-HOLIDAY-COUNTRY-DOMAIN-004 적용 국가가 한국과 미국이고 두 국가에 같은 이름의 공휴일이 있으며 그 이름을 숨겼다") {
+            val sharedName = "shared-${fixtureMonkey.giveMeOne<String>()}"
+            val koreaHoliday = holiday(name = sharedName, date = LocalDate(year = HOLIDAY_YEAR, month = 3, day = 1))
+            val unitedStatesHoliday = holiday(name = sharedName, date = LocalDate(year = HOLIDAY_YEAR, month = 7, day = 4))
+            val otherHoliday = holiday(name = "other")
+            val useCase =
+                GetCalendarHolidayUseCase(
+                    getHolidayCountrySettingUseCase = countrySettingUseCase(optionSet = BOTH_OPTION_SET),
+                    holidayRepository =
+                        holidayRepository(
+                            holidayMap =
+                                mapOf(
+                                    HolidayCountry.KOREA to listOf(koreaHoliday, otherHoliday),
+                                    HolidayCountry.UNITED_STATES to listOf(unitedStatesHoliday),
+                                ),
+                        ),
+                    holidaySettingRepository = hiddenKeySettingRepository(hiddenKeySet = setOf(sharedName)),
+                )
+
+            When("그 연도의 캘린더용 공휴일을 조회한다") {
+                Then("같은 이름의 두 국가 공휴일이 모두 빠지고 다른 이름의 공휴일만 제공된다") {
+                    useCase(parameter = HOLIDAY_YEAR).first().shouldBeSuccess() shouldBe listOf(otherHoliday)
+                }
+            }
+        }
+
+        Given("TC-HOLIDAY-COUNTRY-DOMAIN-005 적용 국가가 한국과 미국이고 두 국가에 같은 이름의 공휴일이 있다") {
+            val sharedName = "shared-${fixtureMonkey.giveMeOne<String>()}"
+            val useCase =
+                GetSettingHolidayUseCase(
+                    getHolidayCountrySettingUseCase = countrySettingUseCase(optionSet = BOTH_OPTION_SET),
+                    holidayRepository =
+                        holidayRepository(
+                            holidayMap =
+                                mapOf(
+                                    HolidayCountry.KOREA to listOf(holiday(name = sharedName, date = LocalDate(year = HOLIDAY_YEAR, month = 3, day = 1))),
+                                    HolidayCountry.UNITED_STATES to listOf(holiday(name = sharedName, date = LocalDate(year = HOLIDAY_YEAR, month = 7, day = 4))),
+                                ),
+                        ),
+                    holidaySettingRepository = hiddenKeySettingRepository(hiddenKeySet = emptySet()),
+                )
+
+            When("SettingHoliday에 표시할 공휴일 항목을 구성한다") {
+                Then("그 이름의 항목이 하나만 제공된다") {
+                    useCase(parameter = Unit).first().shouldBeSuccess().map { setting -> setting.name } shouldBe listOf(sharedName)
+                }
+            }
+        }
+
         Given("TC-SETTING-HOLIDAY-DOMAIN-012 한국과 미국 공휴일이 저장되어 있다") {
             val holidayMap = countryHolidayMap()
             val caseList =
@@ -272,6 +321,44 @@ class HolidayCountryApplyUseCaseTest :
                             .first()
                             .shouldBeSuccess()
                             .map { group -> group.optionList.single().dateRange } shouldBe listOf(dateRange)
+                    }
+                }
+            }
+        }
+
+        Given("TC-HOLIDAY-HOME-DATA-015 5월 1일은 미국 공휴일로만, 5월 4일은 한국 공휴일로만 저장되어 있고 적용 국가가 한국인 채 2026년의 황금연휴를 조회하고 있다") {
+            val holidayMap =
+                mapOf(
+                    HolidayCountry.KOREA to listOf(holiday(name = "korea-day", isHoliday = true, date = may(day = 4))),
+                    HolidayCountry.UNITED_STATES to listOf(holiday(name = "united-states-day", isHoliday = true, date = may(day = 1))),
+                )
+            val optionSetFlow = MutableStateFlow(setOf(HolidayCountryOption.KOREA))
+            val useCase =
+                GetGoldenHolidayUseCase(
+                    getHolidayUseCase =
+                        GetHolidayUseCase(
+                            getHolidayCountrySettingUseCase = countrySettingUseCase(optionSetFlow = optionSetFlow),
+                            holidayRepository = holidayRepository(holidayMap = holidayMap),
+                        ),
+                )
+
+            When("국가 설정이 바뀌어 적용 국가가 한국과 미국이 된다") {
+                Then("바뀐 적용 국가의 공휴일로 다시 계산한 황금연휴를 이어서 제공한다") {
+                    useCase(parameter = GetGoldenHolidayUseCase.Parameter(year = 2026, annualLeaveCount = 0)).test {
+                        awaitItem()
+                            .shouldBeSuccess()
+                            .map { group -> group.optionList.single().dateRange } shouldBe listOf(may(day = 2)..may(day = 4))
+
+                        optionSetFlow.value = BOTH_OPTION_SET
+
+                        // 대상 년도마다 국가 설정을 따로 받아 합치므로 바뀐 결과 앞뒤에 같은 결과가 더 올 수 있다.
+                        val expected = listOf(may(day = 1)..may(day = 4))
+                        var actual: List<LocalDateRange>
+                        do {
+                            actual = awaitItem().shouldBeSuccess().map { group -> group.optionList.single().dateRange }
+                        } while (actual != expected)
+                        actual shouldBe expected
+                        cancelAndIgnoreRemainingEvents()
                     }
                 }
             }

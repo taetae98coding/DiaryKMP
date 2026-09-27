@@ -95,6 +95,8 @@ internal interface AccountMemoDao : RoomDao<AccountMemoLocalEntity> {
             )
         ORDER BY
             CASE WHEN :sort = 'default' THEN memo.start IS NULL END DESC,
+            CASE WHEN :sort = 'default' THEN date(memo.start) END ASC,
+            CASE WHEN :sort = 'default' THEN memo.is_all_day END DESC,
             CASE WHEN :sort = 'default' THEN memo.start END ASC,
             CASE WHEN :sort = 'default' THEN memo.end_inclusive END ASC,
             CASE WHEN :sort = 'recently_updated' THEN memo.updated_at END DESC,
@@ -115,6 +117,8 @@ internal interface AccountMemoDao : RoomDao<AccountMemoLocalEntity> {
         WHERE memo.is_finished = 1 AND memo.is_deleted = 0
         ORDER BY
             CASE WHEN :sort = 'default' THEN memo.start IS NULL END DESC,
+            CASE WHEN :sort = 'default' THEN date(memo.start) END ASC,
+            CASE WHEN :sort = 'default' THEN memo.is_all_day END DESC,
             CASE WHEN :sort = 'default' THEN memo.start END ASC,
             CASE WHEN :sort = 'default' THEN memo.end_inclusive END ASC,
             CASE WHEN :sort = 'recently_updated' THEN memo.updated_at END DESC,

@@ -2,6 +2,10 @@ name: Test
 
 on:
   workflow_dispatch:
+  # main에 머지하는 PR은 머지 결과로 같은 검증을 통과해야 한다.
+  pull_request:
+    branches:
+      - main
   workflow_call:
     secrets:
       LOCAL_PROPERTIES:
@@ -10,9 +14,16 @@ on:
 permissions:
   contents: read
 
+# 같은 PR에 새 커밋이 올라오면 이전 검증은 더 볼 필요가 없다.
+concurrency:
+  group: test-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: 🧪 포맷·정적 분석·의존성·단위 테스트
+    # 공개 저장소라 포크의 PR 코드가 self-hosted runner와 비밀 값에 닿지 않게 한다.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: self-hosted
     timeout-minutes: 90
     steps:

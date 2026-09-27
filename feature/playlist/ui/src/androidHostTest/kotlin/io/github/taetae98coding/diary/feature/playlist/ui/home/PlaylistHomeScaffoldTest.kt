@@ -87,9 +87,8 @@ class PlaylistHomeScaffoldTest {
         composeRule.onAllNodesWithTag(MUSIC_CARD_TEST_TAG).assertCountEquals(1)
     }
 
-    // 컴포지션 이후의 목록 갱신은 실행 순서에 따라 전달되지 않아 자동화하지 않는다. 저장 전후의 목록을 각각 구성해 확인한다.
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-011 저장 전 목록에는 새 곡이 없다`() {
+    fun `목록에 없는 곡은 표시하지 않는다`() {
         setPlaylistHomeScaffold(musicList = listOf(testMusic(title = FIRST_TITLE)))
 
         composeRule.onNodeWithText(FIRST_TITLE).assertExists()
@@ -97,7 +96,7 @@ class PlaylistHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-PLAYLIST-HOME-FEATURE-011 저장 뒤 목록에는 새 곡이 있다`() {
+    fun `목록의 곡을 모두 표시한다`() {
         setPlaylistHomeScaffold(
             musicList =
                 listOf(
@@ -169,7 +168,10 @@ class PlaylistHomeScaffoldTest {
 
     @Test
     fun `TC-PLAYLIST-LIST-DETAIL-FEATURE-007 상세 영역에 곡 추가가 놓여도 정렬 컨트롤은 표시된다`() {
-        setPlaylistHomeScaffold(componentVisible = PlaylistHomeScaffoldComponentVisible(isAddButtonVisible = false))
+        setPlaylistHomeScaffold(
+            musicList = listOf(testMusic(title = FIRST_TITLE)),
+            componentVisible = PlaylistHomeScaffoldComponentVisible(isAddButtonVisible = false),
+        )
 
         composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).assert(hasClickAction())
     }

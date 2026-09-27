@@ -1,6 +1,6 @@
 # Routine 목록·상세 배치 디자인
 
-기준 스펙: [Routine 목록·상세 배치 스펙](../spec/routine-list-detail.md)
+기준 스펙: [Routine 목록·상세 배치 스펙](../spec/client/routine-list-detail.md)
 
 배치, 크기 조절, 버튼 노출과 조절 상태 표시의 공통 표현은 [목록·상세 배치 공통 디자인](./list-detail-pane.md)을 따른다.
 

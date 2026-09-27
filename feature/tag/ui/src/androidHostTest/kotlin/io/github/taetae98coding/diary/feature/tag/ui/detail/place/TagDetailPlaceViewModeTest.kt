@@ -5,10 +5,12 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.core.model.place.Place
@@ -40,7 +42,28 @@ class TagDetailPlaceViewModeTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-021 보기 모드를 바꾸면 목록 모드의 목록이 사라진다`() {
+    fun `목록 모드에서 보기 모드 전환 버튼을 길게 누르면 접근성 이름과 같은 설명을 표시한다`() {
+        setPlaceTab(pagingData = tagEntityPagingData(itemList = listOf(tagPlace(title = PLACE_TITLE))))
+
+        composeRule.onNodeWithContentDescription(DEFAULT_SHOW_MAP_DESCRIPTION).performTouchInput { longClick() }
+
+        composeRule.onNodeWithText(DEFAULT_SHOW_MAP_DESCRIPTION).assertExists()
+    }
+
+    @Test
+    fun `지도 모드에서 보기 모드 전환 버튼을 길게 누르면 접근성 이름과 같은 설명을 표시한다`() {
+        setPlaceTab(
+            state = TagDetailPlaceState(initialViewMode = TagDetailPlaceViewMode.MAP),
+            pagingData = tagEntityPagingData(itemList = listOf(tagPlace(title = PLACE_TITLE))),
+        )
+
+        composeRule.onNodeWithContentDescription(DEFAULT_SHOW_LIST_DESCRIPTION).performTouchInput { longClick() }
+
+        composeRule.onNodeWithText(DEFAULT_SHOW_LIST_DESCRIPTION).assertExists()
+    }
+
+    @Test
+    fun `TC-TAG-DETAIL-PLACE-FEATURE-021 보기 모드를 바꾸면 목록 모드의 목록이 사라지고 전환 컨트롤이 목록으로 보기를 가리킨다`() {
         val place = tagPlace(title = PLACE_TITLE)
         setPlaceTab(pagingData = tagEntityPagingData(itemList = listOf(place)))
 
@@ -68,7 +91,7 @@ class TagDetailPlaceViewModeTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-023 지도가 표시되지 않아도 전환 버튼은 같은 자리에 남는다`() {
+    fun `TC-TAG-DETAIL-PLACE-FEATURE-023 지도가 표시되지 않는 지도 모드에서 전환하면 목록 모드로 바뀌고 장소 전체가 목록에 표시된다`() {
         val place = tagPlace(title = PLACE_TITLE)
         setPlaceTab(
             state = TagDetailPlaceState(initialViewMode = TagDetailPlaceViewMode.MAP),
@@ -84,6 +107,25 @@ class TagDetailPlaceViewModeTest {
     }
 
     @Test
+    fun `TC-TAG-DETAIL-PLACE-FEATURE-023 지도가 표시되지 않는 목록 모드에서 전환하면 지도 모드로 바뀌고 지도와 장소 목록 영역이 모두 표시되지 않는다`() {
+        val place = tagPlace(title = PLACE_TITLE)
+        setPlaceTab(
+            pagingData = tagEntityPagingData(itemList = listOf(place)),
+            placeListUiState = TagDetailPlaceListUiState(isLoaded = true, placeList = listOf(place)),
+        )
+
+        composeRule.onNodeWithContentDescription(DEFAULT_SHOW_MAP_DESCRIPTION).assert(hasClickAction())
+
+        composeRule.onNodeWithContentDescription(DEFAULT_SHOW_MAP_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_SHOW_LIST_DESCRIPTION).assert(hasClickAction())
+        composeRule.onNodeWithTag(TAG_DETAIL_PLACE_LIST_TEST_TAG).assertDoesNotExist()
+        composeRule.onNodeWithTag(TAG_DETAIL_PLACE_BOUNDS_LIST_TEST_TAG).assertDoesNotExist()
+        composeRule.onNodeWithText(PLACE_TITLE).assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-TAG-DETAIL-PLACE-FEATURE-024 지도를 확인하기 전에는 지도 모드의 목록과 빈 상태를 표시하지 않는다`() {
         setPlaceTab(
             state = TagDetailPlaceState(initialViewMode = TagDetailPlaceViewMode.MAP),
@@ -96,7 +138,7 @@ class TagDetailPlaceViewModeTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-DOMAIN-006 화면이 재생성되어도 바꿔 둔 보기 모드를 유지한다`() {
+    fun `TC-TAG-DETAIL-PLACE-DOMAIN-006 화면이 회전하거나 창 크기가 바뀌어도 바꿔 둔 보기 모드를 유지한다`() {
         val place = tagPlace(title = PLACE_TITLE)
         val pagingDataFlow = MutableStateFlow(tagEntityPagingData(itemList = listOf(place)))
         val restorationTester = StateRestorationTester(composeRule)

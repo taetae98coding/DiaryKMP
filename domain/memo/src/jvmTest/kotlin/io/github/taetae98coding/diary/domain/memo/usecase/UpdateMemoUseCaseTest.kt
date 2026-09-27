@@ -36,13 +36,13 @@ class UpdateMemoUseCaseTest :
         ).forEach { (blankTitle, label) ->
             Given("$label 으로 수정하고 기존 메모에 저장된 제목이 있다") {
                 val account = fixtureMonkey.giveMeOne<Account.User>()
-                val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+                val now = fixtureMonkey.giveMeOne<Instant>()
                 val memoId = fixtureMonkey.giveMeOne<Uuid>()
                 val storedMemo =
                     fixtureMonkey
                         .giveMeKotlinBuilder<Memo>()
-                        .setExp(Memo::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                        .setExp(Memo::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                        .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                        .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
                         .sample()
                 val detailSlot = slot<MemoDetail>()
                 val getAccountUseCase = mockk<GetAccountUseCase>()
@@ -84,7 +84,7 @@ class UpdateMemoUseCaseTest :
 
         Given("로그인한 계정과 현재 시각이 준비되어 있다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val memoId = fixtureMonkey.giveMeOne<Uuid>()
             val detailSlot = slot<MemoDetail>()
             val updatedAtSlot = slot<Instant>()
@@ -197,7 +197,7 @@ class UpdateMemoUseCaseTest :
                 accountMemoRepository.updateDetail(account = account, memoId = memoId, detail = any(), updatedAt = any())
             } returns 1
             val clock = mockk<Clock>()
-            every { clock.now() } returns Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
             val useCase =
                 UpdateMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -208,7 +208,7 @@ class UpdateMemoUseCaseTest :
                 )
 
             When("공백이 아닌 제목으로 메모를 수정한다") {
-                Then("메모 갱신 후 동기화를 한 번 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 메모 갱신 후 동기화를 한 번 요청한다") {
                     val detail = fixtureMonkey.giveMeOne<MemoDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}")
 
                     val result = useCase(parameter = UpdateMemoUseCase.Parameter(id = memoId, detail = detail))

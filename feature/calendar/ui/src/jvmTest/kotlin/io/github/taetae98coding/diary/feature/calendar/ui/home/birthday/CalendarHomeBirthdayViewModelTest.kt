@@ -2,6 +2,7 @@
 
 package io.github.taetae98coding.diary.feature.calendar.ui.home.birthday
 
+import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
@@ -18,6 +19,8 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -126,7 +129,7 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val useCase = mockk<GetCalendarContactBirthdayUseCase>()
                 every { useCase(parameter = any()) } returns
-                    flowOf(Result.failure(IllegalStateException("birthday get failed")))
+                    flowOf(Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())))
                 val viewModel = CalendarHomeBirthdayViewModel(fetchLunarUseCase = fetchLunarUseCase(), getCalendarContactBirthdayUseCase = useCase)
 
                 viewModel.fetch(YearMonth(year = 2026, month = Month.JULY))
@@ -202,11 +205,27 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-CALENDAR-HOME-DATA-048 음력 자료 동기화가 진행 중이어도 새로 요청한다") {
+            runTest(mainDispatcher) {
+                val fetchLunarUseCase = mockk<FetchLunarUseCase>()
+                coEvery { fetchLunarUseCase(parameter = any()) } coAnswers { awaitCancellation() }
+                val viewModel = CalendarHomeBirthdayViewModel(fetchLunarUseCase = fetchLunarUseCase, getCalendarContactBirthdayUseCase = getCalendarContactBirthdayUseCase())
+
+                viewModel.fetch(YearMonth(year = 2026, month = Month.JULY))
+                advanceUntilIdle()
+                viewModel.fetch(YearMonth(year = 2026, month = Month.AUGUST))
+                advanceUntilIdle()
+
+                coVerify(exactly = 2) { fetchLunarUseCase(parameter = 2026) }
+                viewModel.viewModelScope.cancel()
+            }
+        }
+
         test("TC-CALENDAR-HOME-DATA-040 음력 자료 동기화가 실패해도 생일 조회는 그대로 제공한다") {
             runTest(mainDispatcher) {
                 val birthdayList = listOf(birthday())
                 val fetchLunarUseCase = mockk<FetchLunarUseCase>()
-                coEvery { fetchLunarUseCase(parameter = any()) } returns Result.failure(IllegalStateException("lunar fetch failed"))
+                coEvery { fetchLunarUseCase(parameter = any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
                 val useCase =
                     getCalendarContactBirthdayUseCase(
                         LocalDate(year = 2026, month = Month.MAY, day = 1)..LocalDate(year = 2026, month = Month.SEPTEMBER, day = 30) to Result.success(birthdayList),

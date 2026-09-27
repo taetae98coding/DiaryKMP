@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 public data class GooglePlaceRemoteEntity(
     @SerialName("id") val id: String,
     @SerialName("displayName") val displayName: GooglePlaceDisplayNameRemoteEntity,
-    @SerialName("location") val location: GooglePlaceLocationRemoteEntity,
+    @SerialName("location") val location: GooglePlaceLocationRemoteEntity = GooglePlaceLocationRemoteEntity(),
     @SerialName("types") val types: List<String> = emptyList(),
     @SerialName("formattedAddress") val formattedAddress: String = "",
     @SerialName("shortFormattedAddress") val shortFormattedAddress: String = "",

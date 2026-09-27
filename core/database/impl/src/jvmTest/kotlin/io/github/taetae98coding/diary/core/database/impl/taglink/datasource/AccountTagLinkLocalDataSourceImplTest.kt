@@ -15,6 +15,7 @@ import io.github.taetae98coding.diary.core.database.api.taglink.entity.TagLinkLo
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.memo.transaction.AccountMemoTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.memotag.transaction.AccountMemoTagTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.taglink.transaction.AccountTagLinkTransactionImpl
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -290,19 +291,31 @@ class AccountTagLinkLocalDataSourceImplTest :
 
             tagTransaction.updateFinished(accountId = accountId, tagId = toTag.id, isFinished = true, updatedAt = instant())
             linkedTagIdList(accountId = accountId, fromTagId = fromTag.id) shouldBe listOf(toTag.id)
+
+            tagTransaction.updateDeleted(accountId = accountId, tagId = toTag.id, isDeleted = true, updatedAt = instant())
+            database
+                .tagLinkDao()
+                .findByFromTagIdList(listOf(fromTag.id))
+                .single()
+                .isDeleted shouldBe false
         }
 
-        test("TC-TAG-LINK-DOMAIN-013 삭제된 도착 태그는 조회되지 않고 실행 취소하면 다시 조회된다") {
+        test("TC-TAG-LINK-DOMAIN-013 삭제된 도착 태그는 조회되지 않고 다른 기기에서 받은 내용으로 삭제가 풀리면 다시 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val fromTag = tag()
             val toTag = tag()
             insertTag(accountId, fromTag, toTag)
             link(accountId = accountId, fromTagId = fromTag.id, toTagId = toTag.id)
 
-            tagTransaction.updateDeleted(accountId = accountId, tagId = toTag.id, isDeleted = true, updatedAt = instant())
+            val deletedAt = instant()
+            tagTransaction.updateDeleted(accountId = accountId, tagId = toTag.id, isDeleted = true, updatedAt = deletedAt)
             linkedTagList(accountId = accountId, fromTagId = fromTag.id).shouldBeEmpty()
 
-            tagTransaction.updateDeleted(accountId = accountId, tagId = toTag.id, isDeleted = false, updatedAt = instant())
+            AccountTagSyncTransactionImpl(database = database).save(
+                accountId = accountId,
+                tagList = listOf(toTag.copy(isDeleted = false, updatedAt = deletedAt)),
+                cursor = fixtureMonkey.giveMeOne<Long>(),
+            )
             linkedTagIdList(accountId = accountId, fromTagId = fromTag.id) shouldBe listOf(toTag.id)
         }
 
@@ -434,7 +447,18 @@ class AccountTagLinkLocalDataSourceImplTest :
             selectableTagIdList(accountId = accountId, fromTagId = fromTag.id) shouldBe listOf(linkedFinishedTag.id)
         }
 
-        test("TC-TAG-LINK-INPUT-DOMAIN-005 연결을 해제한 완료된 태그는 다시 나타나지 않는다") {
+        test("TC-TAG-LINK-INPUT-DOMAIN-005 연결할 수 있는 태그에 없는 연결된 태그도 연결할 수 있는 태그와 함께 나타난다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val fromTag = tag(title = "delta")
+            val selectableTag = tag(title = "alpha")
+            val linkedFinishedTag = tag(title = "bravo").copy(isFinished = true)
+            insertTag(accountId, fromTag, selectableTag, linkedFinishedTag)
+            link(accountId = accountId, fromTagId = fromTag.id, toTagId = linkedFinishedTag.id)
+
+            selectableTagIdList(accountId = accountId, fromTagId = fromTag.id) shouldBe listOf(selectableTag.id, linkedFinishedTag.id)
+        }
+
+        test("연결을 해제한 완료된 태그는 다시 나타나지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val fromTag = tag()
             val finishedTag = tag().copy(isFinished = true)
@@ -567,6 +591,32 @@ class AccountTagLinkLocalDataSourceImplTest :
 
             linkedTagIdList(accountId = accountId, fromTagId = fromTag.id) shouldBe listOf(finishedTag.id)
         }
+
+        test("TC-TAG-ADD-DATA-005 삭제된 태그를 향하는 연결도 태그와 함께 저장되어 삭제를 되돌리면 연결된 태그로 조회된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val deletedTag = tag().copy(isDeleted = true)
+            insertTag(accountId, deletedTag)
+            val fromTag = tag()
+
+            tagTransaction.upsert(
+                accountId = accountId,
+                tagList = listOf(fromTag),
+                tagLinkList =
+                    listOf(
+                        TagLinkLocalEntity(
+                            fromTagId = fromTag.id,
+                            toTagId = deletedTag.id,
+                            isDeleted = false,
+                            updatedAt = fromTag.updatedAt,
+                            createdAt = fromTag.createdAt,
+                        ),
+                    ),
+            )
+
+            linkedTagIdList(accountId = accountId, fromTagId = fromTag.id).shouldBeEmpty()
+            insertTag(accountId, deletedTag.copy(isDeleted = false))
+            linkedTagIdList(accountId = accountId, fromTagId = fromTag.id) shouldBe listOf(deletedTag.id)
+        }
     }) {
     public companion object {
         private const val SELECTABLE_TAG_COUNT: Int = 25
@@ -601,7 +651,7 @@ class AccountTagLinkLocalDataSourceImplTest :
             return result.shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, TagLocalEntity>>().data.map { tag -> tag.id }
         }
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun tag(title: String = "title-${fixtureMonkey.giveMeOne<String>()}"): TagLocalEntity =
             fixtureMonkey

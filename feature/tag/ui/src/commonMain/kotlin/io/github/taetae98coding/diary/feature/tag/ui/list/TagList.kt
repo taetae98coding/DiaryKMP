@@ -24,22 +24,24 @@ import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
+import io.github.taetae98coding.diary.compose.core.swipe.SwipeFinishAction
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
-import io.github.taetae98coding.diary.compose.tag.TagCard
+import io.github.taetae98coding.diary.compose.tag.SwipeTagCard
+import io.github.taetae98coding.diary.compose.tag.list.TagListEvent
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.tag.ui.previewTag
 import kotlinx.coroutines.flow.flowOf
-import kotlin.uuid.Uuid
 
 internal const val TAG_LIST_TEST_TAG: String = "TagList"
 
 @Composable
 internal fun TagList(
-    onTagClick: (Uuid) -> Unit,
+    onEvent: (TagListEvent) -> Unit,
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
+    finishAction: SwipeFinishAction = SwipeFinishAction.FINISH,
     gridState: LazyGridState = rememberLazyGridState(),
     tagPagingItems: LazyPagingItems<Tag> = remember { flowOf(PagingData.empty<Tag>()) }.collectAsLazyPagingItems(),
     isRefreshingProvider: () -> Boolean = { false },
@@ -90,13 +92,14 @@ internal fun TagList(
                 ) { index ->
                     val tag = tagPagingItems[index]
 
-                    TagCard(
-                        tag = tag,
-                        onClick = { tag?.let { value -> onTagClick(value.id) } },
+                    SwipeTagCard(
+                        onEvent = onEvent,
                         modifier =
                             Modifier
                                 .animateItem()
                                 .fillMaxWidth(),
+                        tag = tag,
+                        finishAction = finishAction,
                     )
                 }
             }
@@ -118,7 +121,7 @@ private fun TagListPreview() {
 
     DiaryTheme {
         TagList(
-            onTagClick = {},
+            onEvent = {},
             onRefresh = {},
             modifier = Modifier.fillMaxSize(),
             tagPagingItems = tagPagingData.collectAsLazyPagingItems(),

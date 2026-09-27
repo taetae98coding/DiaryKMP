@@ -3,7 +3,7 @@ import { z } from "npm:zod@3";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-region",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-region, x-file-name",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 

@@ -73,7 +73,7 @@ class AccountWebLocalDataSourceImplTest :
             pagedWebs(accountId) shouldBe listOf(firstWeb, lastWeb)
         }
 
-        test("TC-WEB-HOME-DOMAIN-002 저장된 웹 항목이 없는 계정은 빈 목록으로 조회된다") {
+        test("저장된 웹 항목이 없는 계정은 빈 목록으로 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             webTransaction.upsert(accountId = otherAccountId, webList = listOf(web()), webTagList = emptyList())
@@ -255,6 +255,6 @@ class AccountWebLocalDataSourceImplTest :
                 .setExp(WebDetailLocalEntity::title, title)
                 .sample()
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
     }
 }

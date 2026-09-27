@@ -1,15 +1,19 @@
 package io.github.taetae98coding.diary.feature.place.ui.detail
 
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
+import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.kotest.matchers.shouldBe
+import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
@@ -61,8 +65,8 @@ class PlaceDetailScreenTest {
         composeRule.input(TITLE_INDEX).assert(hasText(detail.title))
         composeRule.input(DESCRIPTION_INDEX).assert(hasText(detail.description))
         composeRule.input(ADDRESS_INDEX).assert(hasText(detail.address))
-        composeRule.input(LATITUDE_INDEX).assert(hasText(detail.coordinate.latitude.toString()))
-        composeRule.input(LONGITUDE_INDEX).assert(hasText(detail.coordinate.longitude.toString()))
+        composeRule.input(LATITUDE_INDEX).assert(hasText(SAVED_LATITUDE_TEXT))
+        composeRule.input(LONGITUDE_INDEX).assert(hasText(SAVED_LONGITUDE_TEXT))
         // 저장된 제목은 상단 바와 제목 입력 두 곳에 표시된다.
         composeRule
             .onAllNodes(hasText(detail.title))
@@ -77,6 +81,21 @@ class PlaceDetailScreenTest {
 
         composeRule.waitForIdle()
 
+        composeRule
+            .onAllNodes(hasContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION))
+            .fetchSemanticsNodes()
+            .size shouldBe 0
+    }
+
+    @Test
+    fun `TC-PLACE-DETAIL-FEATURE-059 여섯째 자리보다 긴 자리수로 저장된 좌표도 바꾸지 않으면 수정 동작을 제공하지 않는다`() {
+        val detail = placeDetail(coordinate = Coordinate(latitude = 37.1234567, longitude = 127.1234564))
+
+        composeRule.setPlaceDetailScreen(viewModel = screenTestViewModel(uiState = MutableStateFlow(content(detail = detail))))
+        composeRule.waitForIdle()
+
+        composeRule.input(LATITUDE_INDEX).assert(hasText("37.123457"))
+        composeRule.input(LONGITUDE_INDEX).assert(hasText("127.123456"))
         composeRule
             .onAllNodes(hasContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION))
             .fetchSemanticsNodes()
@@ -128,22 +147,27 @@ class PlaceDetailScreenTest {
         composeRule.input(TITLE_INDEX).assert(hasText(CHANGED_TITLE))
         composeRule.input(DESCRIPTION_INDEX).assert(hasText(CHANGED_DESCRIPTION))
         composeRule.input(LATITUDE_INDEX).assert(hasText(INVALID_LATITUDE))
-        composeRule.input(LONGITUDE_INDEX).assert(hasText(detail.coordinate.longitude.toString()))
+        composeRule.input(LONGITUDE_INDEX).assert(hasText(SAVED_LONGITUDE_TEXT))
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-017 뒤로가기 버튼을 누르면 뒤로가기를 한 번 실행한다`() {
+    fun `TC-PLACE-DETAIL-FEATURE-017 바꾼 내용을 반영하지 않고 뒤로가면 수정을 요청하지 않고 뒤로가기를 한 번 실행한다`() {
         var navigateUpCount = 0
+        val viewModel = screenTestViewModel()
 
         composeRule.setPlaceDetailScreen(
-            viewModel = screenTestViewModel(),
+            viewModel = viewModel,
             navigateUp = { navigateUpCount++ },
         )
+        composeRule.input(TITLE_INDEX).performTextReplacement(CHANGED_TITLE)
+        composeRule.input(DESCRIPTION_INDEX).performTextReplacement(CHANGED_DESCRIPTION)
 
         composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
         navigateUpCount shouldBe 1
+        verify(exactly = 0) { viewModel.update(any()) }
+        verify(exactly = 0) { viewModel.delete() }
     }
 
     @Test
@@ -161,10 +185,15 @@ class PlaceDetailScreenTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-020 기본 지도를 확인하지 못하면 지도를 표시하지 않고 입력과 동작은 사용할 수 있다`() {
+    fun `TC-PLACE-DETAIL-FEATURE-020 기본 지도를 확인하지 못하면 지도 영역과 로딩 안내 없이 입력 영역만 표시하고 동작은 사용할 수 있다`() {
         composeRule.setPlaceDetailScreen(viewModel = screenTestViewModel())
 
         composeRule.waitForIdle()
+
+        composeRule
+            .onAllNodes(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate))
+            .fetchSemanticsNodes()
+            .size shouldBe 0
 
         composeRule
             .onAllNodes(hasContentDescription(DEFAULT_MAP_DESCRIPTION))

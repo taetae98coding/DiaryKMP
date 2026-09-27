@@ -1,8 +1,11 @@
 package io.github.taetae98coding.diary.data.setting.repository
 
 import app.cash.turbine.test
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.MusicDownloadProxySettingLocalDataSource
 import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadProxySetting
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -12,6 +15,8 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+
+private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 private const val ADDRESS = "http://192.168.0.10:27180"
 private const val OTHER_ADDRESS = "http://10.0.0.5:27180"
@@ -46,8 +51,8 @@ class MusicDownloadProxySettingRepositoryImplTest :
             }
         }
 
-        test("저장된 값을 읽을 수 없으면 비어 있는 설정으로 바꾸지 않고 실패를 그대로 알린다") {
-            val failure = IllegalStateException("proxy setting read failed")
+        test("TC-SETTING-DOWNLOAD-DATA-003 저장된 값을 읽을 수 없으면 비어 있는 설정으로 바꾸지 않고 실패를 그대로 알린다") {
+            val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val repository =
                 MusicDownloadProxySettingRepositoryImpl(
                     musicDownloadProxySettingLocalDataSource =

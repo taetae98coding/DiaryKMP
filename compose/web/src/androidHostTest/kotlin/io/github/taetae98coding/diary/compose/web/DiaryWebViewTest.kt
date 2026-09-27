@@ -131,6 +131,35 @@ class DiaryWebViewTest {
         composeRule.runOnIdle { verify(exactly = 1) { onSessionImportFailed() } }
     }
 
+    @Test
+    fun `웹 표시 영역이 빠졌다가 다시 들어와도 알린 실패 번호를 가진 상태가 같으면 다시 알리지 않는다`() {
+        val isVisible = mutableStateOf(true)
+        val onSessionImportFailed = mockk<() -> Unit>(relaxed = true)
+
+        composeRule.setContent {
+            val sessionImportFailureState = rememberDiaryWebSessionImportFailureState()
+
+            DiaryTheme {
+                CompositionLocalProvider(LocalDiaryWebSession provides DiaryWebSession(failureId = 1)) {
+                    if (isVisible.value) {
+                        DiaryWebView(
+                            url = URL,
+                            onSessionImportFailed = onSessionImportFailed,
+                            sessionImportFailureState = sessionImportFailureState,
+                        )
+                    }
+                }
+            }
+        }
+        composeRule.runOnIdle { verify(exactly = 1) { onSessionImportFailed() } }
+
+        composeRule.runOnIdle { isVisible.value = false }
+        composeRule.runOnIdle { isVisible.value = true }
+
+        composeRule.onNodeWithTag(DIARY_WEB_VIEW_TEST_TAG).assertExists()
+        composeRule.runOnIdle { verify(exactly = 1) { onSessionImportFailed() } }
+    }
+
     private fun setDiaryWebView(
         session: MutableState<DiaryWebSession>,
         onSessionImportFailed: () -> Unit = {},

@@ -85,6 +85,27 @@ class AccountTagDaoTest :
             tagIdList(accountId) shouldBe expectedIdList
         }
 
+        test("TC-MEMO-ADD-DOMAIN-016 선택한 태그 조회는 완료되거나 삭제된 대상 태그를 선택한 것으로 돌려주지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val selectableTag = tag(isFinished = false, isDeleted = false)
+            val finishedTag = tag(isFinished = true, isDeleted = false)
+            val deletedTag = tag(isFinished = false, isDeleted = true)
+            insert(accountId, selectableTag, finishedTag, deletedTag)
+
+            listOf(finishedTag, deletedTag).forEach { unselectableTag ->
+                database
+                    .accountTagDao()
+                    .get(accountId = accountId, tagIdSet = setOf(unselectableTag.id))
+                    .first()
+                    .shouldBeEmpty()
+            }
+            database
+                .accountTagDao()
+                .get(accountId = accountId, tagIdSet = setOf(selectableTag.id))
+                .first()
+                .map { tag -> tag.id } shouldBe listOf(selectableTag.id)
+        }
+
         test("TC-TAG-HOME-DATA-001 TC-MEMO-HOME-DOMAIN-007 현재 계정과 연결된 미완료·미삭제 태그만 목록에서 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
@@ -326,7 +347,7 @@ class AccountTagDaoTest :
             tagIdList(accountId) shouldBe listOf(secondTag.id, firstTag.id)
         }
 
-        test("상세 갱신은 해당 계정의 태그 제목, 설명, 컬러, 수정 시각만 바꾸고 나머지 속성은 유지한다") {
+        test("TC-TAG-DETAIL-DATA-001 상세 갱신은 해당 계정의 태그 이모지, 제목, 설명, 컬러, 수정 시각만 바꾸고 완료·삭제 여부, 생성 시각과 계정 연결은 유지한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag(updatedAt = Instant.fromEpochMilliseconds(1_000))
@@ -421,8 +442,8 @@ class AccountTagDaoTest :
             emoji: String = "",
             isFinished: Boolean = false,
             isDeleted: Boolean = false,
-            updatedAt: Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
-            createdAt: Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+            updatedAt: Instant = fixtureMonkey.giveMeOne<Instant>(),
+            createdAt: Instant = fixtureMonkey.giveMeOne<Instant>(),
         ): TagLocalEntity =
             fixtureMonkey
                 .giveMeKotlinBuilder<TagLocalEntity>()

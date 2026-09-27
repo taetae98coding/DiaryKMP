@@ -34,6 +34,7 @@ internal fun LoginHomeScreen(
     modifier: Modifier = Modifier,
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val platformSignInState = rememberLoginPlatformSignInState()
     val hostState = remember { SnackbarHostState() }
     val signInFailedMessage = stringResource(Res.string.login_sign_in_failed_message)
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -45,7 +46,6 @@ internal fun LoginHomeScreen(
     )
 
     LoginHomeScaffold(
-        uiStateProvider = { uiState },
         onEvent = { event ->
             when (event) {
                 is LoginHomeScaffoldEvent.ClickNavigateUp -> {
@@ -55,6 +55,7 @@ internal fun LoginHomeScreen(
                 is LoginHomeScaffoldEvent.ClickGoogleSignIn -> {
                     coroutineScope.launch {
                         requestGoogleSignIn(
+                            platformSignInState = platformSignInState,
                             viewModel = viewModel,
                             credentialsManager = googleCredentialsManager,
                             hostState = hostState,
@@ -66,6 +67,7 @@ internal fun LoginHomeScreen(
                 is LoginHomeScaffoldEvent.ClickAppleSignIn -> {
                     coroutineScope.launch {
                         requestAppleSignIn(
+                            platformSignInState = platformSignInState,
                             viewModel = viewModel,
                             credentialsManager = appleCredentialsManager,
                             hostState = hostState,
@@ -76,18 +78,27 @@ internal fun LoginHomeScreen(
             }
         },
         modifier = modifier,
+        uiStateProvider = { uiState },
+        platformSignInState = platformSignInState,
         hostState = hostState,
     )
 }
 
 private suspend fun requestGoogleSignIn(
+    platformSignInState: LoginPlatformSignInState,
     viewModel: LoginHomeViewModel,
     credentialsManager: GoogleCredentialsManager,
     hostState: SnackbarHostState,
     signInFailedMessage: String,
 ) {
+    if (viewModel.uiState.value.isInProgress) return
+
     try {
-        viewModel.signInWithGoogle(credential = credentialsManager.signIn())
+        val credential =
+            platformSignInState.signIn(isEndDetectable = credentialsManager.isSignInEndDetectable) {
+                credentialsManager.signIn()
+            } ?: return
+        viewModel.signInWithGoogle(credential = credential)
     } catch (_: GoogleCredentialsUserCancelException) {
     } catch (_: GoogleCredentialsException) {
         hostState.showImmediate(message = signInFailedMessage)
@@ -95,13 +106,20 @@ private suspend fun requestGoogleSignIn(
 }
 
 private suspend fun requestAppleSignIn(
+    platformSignInState: LoginPlatformSignInState,
     viewModel: LoginHomeViewModel,
     credentialsManager: AppleCredentialsManager,
     hostState: SnackbarHostState,
     signInFailedMessage: String,
 ) {
+    if (viewModel.uiState.value.isInProgress) return
+
     try {
-        viewModel.signInWithApple(credential = credentialsManager.signIn())
+        val credential =
+            platformSignInState.signIn(isEndDetectable = credentialsManager.isSignInEndDetectable) {
+                credentialsManager.signIn()
+            } ?: return
+        viewModel.signInWithApple(credential = credential)
     } catch (_: AppleCredentialsUserCancelException) {
     } catch (_: AppleCredentialsException) {
         hostState.showImmediate(message = signInFailedMessage)

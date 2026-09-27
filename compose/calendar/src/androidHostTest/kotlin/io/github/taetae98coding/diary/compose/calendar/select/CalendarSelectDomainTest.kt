@@ -33,7 +33,20 @@ class CalendarSelectDomainTest {
     }
 
     @Test
-    fun `TC-CALENDAR-SELECT-DOMAIN-003 날짜 선택을 사용하지 않는 화면에서는 길게 눌러도 아무 일도 일어나지 않는다`() {
+    fun `TC-CALENDAR-SELECT-DOMAIN-012 캘린더 밖의 위치는 가장 가까운 날짜 칸을 가리킨다`() {
+        val selectedList = mutableListOf<LocalDateRange>()
+        composeRule.setCalendar(onSelect = { selectedList += it })
+        val start = composeRule.dayCenter(day = 15)
+
+        composeRule.performLongPress(start)
+        composeRule.performMoveTo(Offset(x = start.x, y = composeRule.rootHeight() + BELOW_CALENDAR_DISTANCE))
+        composeRule.performUp()
+
+        selectedList shouldBe listOf(july(day = 15)..august(day = 5))
+    }
+
+    @Test
+    fun `TC-CALENDAR-SELECT-DOMAIN-003 날짜 선택을 사용하지 않는 화면에서는 선택된 기간이 생기지 않는다`() {
         val calendarState = CalendarState(initialYearMonth = JULY_2026)
         composeRule.setCalendar(calendarState = calendarState, onSelect = null)
 
@@ -114,5 +127,9 @@ class CalendarSelectDomainTest {
         (settledYearMonth == AUGUST_2026 || settledYearMonth == SEPTEMBER_2026) shouldBe true
         calendarState.currentYearMonth shouldBe settledYearMonth
         composeRule.performUpAndSettle()
+    }
+
+    private companion object {
+        private const val BELOW_CALENDAR_DISTANCE = 200F
     }
 }

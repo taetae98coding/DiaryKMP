@@ -82,6 +82,32 @@ class MusicDownloadProxyHandlerTest :
             }
         }
 
+        Given("같은 영상을 받는 중이고 그 사이 내려받기 도구가 없어졌다") {
+            When("요청을 처리하면") {
+                Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-007 도구를 확인하지 않고 진행 중인 작업에 합류해 그 결과를 전달한다") {
+                    val videoId = testVideoId()
+                    val registry = registry(result = true, joinResult = true)
+                    val commandRunner = commandRunner(installedList = emptyList())
+                    val handler = handler(registry = registry, commandRunner = commandRunner)
+
+                    handler.handle(videoId = videoId) shouldBe MusicDownloadProxyResponse.Completed(path = "/tmp/music/$videoId.mp4")
+
+                    coVerify(exactly = 1) { registry.join(videoId = videoId, onProgress = any()) }
+                    coVerify(exactly = 0) { registry.download(videoId = any(), path = any(), onProgress = any()) }
+                    coVerify(exactly = 0) { commandRunner.find(command = any()) }
+                }
+
+                Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-013 합류한 작업이 실패하면 실패로 응답한다") {
+                    val registry = registry(result = true, joinResult = false)
+                    val handler = handler(registry = registry, commandRunner = commandRunner(installedList = emptyList()))
+
+                    handler.handle(videoId = testVideoId()) shouldBe MusicDownloadProxyResponse.Failed
+
+                    coVerify(exactly = 0) { registry.download(videoId = any(), path = any(), onProgress = any()) }
+                }
+            }
+        }
+
         Given("내려받기가 실패한다") {
             When("요청을 처리하면") {
                 Then("TC-MUSIC-DOWNLOAD-PROXY-DATA-006 실패로 응답한다") {
@@ -93,9 +119,13 @@ class MusicDownloadProxyHandlerTest :
         }
     })
 
-private fun registry(result: Boolean): MusicVideoDownloadJobRegistry {
+private fun registry(
+    result: Boolean,
+    joinResult: Boolean? = null,
+): MusicVideoDownloadJobRegistry {
     val registry = mockk<MusicVideoDownloadJobRegistry>()
     coEvery { registry.download(videoId = any(), path = any(), onProgress = any()) } returns result
+    coEvery { registry.join(videoId = any(), onProgress = any()) } returns joinResult
 
     return registry
 }

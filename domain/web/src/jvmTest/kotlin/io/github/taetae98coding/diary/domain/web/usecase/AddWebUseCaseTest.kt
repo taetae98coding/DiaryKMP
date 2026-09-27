@@ -67,6 +67,20 @@ class AddWebUseCaseTest :
                         result.shouldBeFailure().shouldBeInstanceOf<WebTitleBlankException>()
                         coVerify(exactly = 0) { accountWebRepository.upsert(account = any(), web = any(), tagIdSet = any()) }
                     }
+
+                    Then("TC-WEB-ADD-DOMAIN-002 이름 없는 헤더도 있으면 제목 공백 예외를 먼저 알린다") {
+                        val result =
+                            useCase(
+                                parameter =
+                                    AddWebUseCase.Parameter(
+                                        detail = detail(title = blankTitle, headerList = listOf(WebHeader(name = "  ", value = "value"))),
+                                        tagIdSet = emptySet(),
+                                    ),
+                            )
+
+                        result.shouldBeFailure().shouldBeInstanceOf<WebTitleBlankException>()
+                        coVerify(exactly = 0) { accountWebRepository.upsert(account = any(), web = any(), tagIdSet = any()) }
+                    }
                 }
             }
         }
@@ -156,7 +170,7 @@ class AddWebUseCaseTest :
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountWebRepository = mockk<AccountWebRepository>()
             coEvery { accountWebRepository.upsert(account = account, web = capture(webSlot), tagIdSet = any()) } just Runs
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val clock = mockk<Clock>()
             every { clock.now() } returns now
             val useCase =
@@ -276,7 +290,7 @@ class AddWebUseCaseTest :
                 )
 
             When("웹 항목 추가에 성공한다") {
-                Then("TC-WEB-ADD-DATA-005 추가한 웹 항목을 서버와 맞추기 위한 동기화를 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-WEB-ADD-DATA-005 추가한 웹 항목을 서버와 맞추기 위한 동기화를 요청한다") {
                     useCase(parameter = AddWebUseCase.Parameter(detail = detail(), tagIdSet = emptySet())).shouldBeSuccess()
 
                     coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
@@ -381,7 +395,7 @@ class AddWebUseCaseTest :
                 )
 
             When("공백이 아닌 제목과 URL로 웹 항목을 추가한다") {
-                Then("TC-WEB-ADD-DATA-004 저장 실패를 그대로 전달한다") {
+                Then("TC-WEB-ADD-DATA-004 추가를 성공으로 다루지 않고 저장 실패를 전달한다") {
                     val result = useCase(parameter = AddWebUseCase.Parameter(detail = detail(), tagIdSet = emptySet()))
 
                     result.shouldBeFailure() shouldBeSameInstanceAs throwable

@@ -132,7 +132,7 @@ class UserDataRepositoryImplTest :
         }
 
         listOf("반영에 성공", "반영에 실패").forEach { uploadCase ->
-            test("$uploadCase 해도 바꾼 이미지 파일을 지운다") {
+            test("TC-PROFILE-IMAGE-DATA-008 $uploadCase 해도 바꾼 이미지 파일을 지운다") {
                 val uri = fileUri()
                 val converted = fileUri()
                 val fileLocalDataSource = fileLocalDataSource(uri = converted)
@@ -148,6 +148,36 @@ class UserDataRepositoryImplTest :
                 runCatching { repository.updateProfileImage(uri = uri, format = ImageFormat.JPEG, cropRegion = cropRegion(), maxSideLength = MAX_SIDE_LENGTH, quality = QUALITY) }
 
                 coVerify(exactly = 1) { fileLocalDataSource.delete(uri = converted) }
+            }
+        }
+
+        test("TC-PROFILE-IMAGE-DATA-009 반영 자체는 사용자 정보를 다시 확인하지 않고, 다시 확인한 뒤 새 주소가 나타난다") {
+            val previousUser = fixtureMonkey.giveMeOne<SupabaseUser>()
+            val newUser = previousUser.copy(profileImage = "new-${previousUser.profileImage}")
+            val userFlow = MutableStateFlow(previousUser)
+            val supabaseAuth = mockk<SupabaseAuth>()
+            every { supabaseAuth.getUserFlow() } returns userFlow
+            coEvery { supabaseAuth.retrieveUserForCurrentSession() } answers { userFlow.value = newUser }
+            val uri = fileUri()
+            val converted = fileUri()
+            val repository =
+                repository(
+                    supabaseAuth = supabaseAuth,
+                    imageConverter = imageConverter(uri = uri, converted = converted),
+                    fileLocalDataSource = fileLocalDataSource(uri = converted),
+                )
+
+            repository.get().test {
+                awaitItem()?.profileImage shouldBe previousUser.profileImage
+
+                repository.updateProfileImage(uri = uri, format = ImageFormat.JPEG, cropRegion = cropRegion(), maxSideLength = MAX_SIDE_LENGTH, quality = QUALITY)
+
+                expectNoEvents()
+                coVerify(exactly = 0) { supabaseAuth.retrieveUserForCurrentSession() }
+
+                repository.refresh()
+
+                awaitItem()?.profileImage shouldBe newUser.profileImage
             }
         }
 
@@ -172,6 +202,28 @@ class UserDataRepositoryImplTest :
             repository.refresh()
 
             coVerify(exactly = 1) { supabaseAuth.retrieveUserForCurrentSession() }
+        }
+
+        test("TC-MORE-HOME-DATA-007 사용자 정보 다시 확인에 성공하면 저장된 사용자 정보가 받은 정보로 바뀐다") {
+            val previousUser = fixtureMonkey.giveMeOne<SupabaseUser>()
+            val retrievedUser =
+                previousUser.copy(
+                    email = "retrieved-" + fixtureMonkey.giveMeOne<String>(),
+                    profileImage = "retrieved-" + fixtureMonkey.giveMeOne<String>(),
+                )
+            val userFlow = MutableStateFlow<SupabaseUser?>(previousUser)
+            val supabaseAuth = mockk<SupabaseAuth>()
+            every { supabaseAuth.getUserFlow() } returns userFlow
+            coEvery { supabaseAuth.retrieveUserForCurrentSession() } answers { userFlow.value = retrievedUser }
+            val repository = repository(supabaseAuth = supabaseAuth)
+
+            repository.get().test {
+                awaitItem() shouldBe UserData(id = previousUser.id, email = previousUser.email, profileImage = previousUser.profileImage)
+
+                repository.refresh()
+
+                awaitItem() shouldBe UserData(id = retrievedUser.id, email = retrievedUser.email, profileImage = retrievedUser.profileImage)
+            }
         }
 
         test("TC-MORE-HOME-DATA-006 사용자 정보 다시 확인에 실패하면 저장된 사용자 정보가 바뀌지 않는다") {

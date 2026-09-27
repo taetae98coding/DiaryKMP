@@ -2,8 +2,11 @@ package io.github.taetae98coding.diary.feature.memo.ui.add
 
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.SemanticsNodeInteractionsProvider
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsFocused
@@ -22,12 +25,15 @@ import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.navigation3.runtime.result.ResultEventBus
+import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputValue
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -37,6 +43,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.number
@@ -64,7 +72,7 @@ class MemoAddScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-005 뒤로가기 버튼을 선택하면 이전 화면으로 돌아간다`() {
+    fun `TC-MEMO-ADD-FEATURE-005 TC-CONTACT-DETAIL-MEMO-FEATURE-021 TC-PLACE-DETAIL-MEMO-FEATURE-021 TC-WEB-DETAIL-MEMO-FEATURE-021 뒤로가기 버튼을 선택하면 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         setMemoAddScreen(
             viewModels = screenTestViewModel(),
@@ -77,14 +85,14 @@ class MemoAddScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-006 추가 버튼으로 성공하면 입력 칸을 비우고 다시 초점을 맞춘다`() {
+    fun `TC-MEMO-ADD-FEATURE-006 추가 버튼으로 성공하면 입력 칸을 비우고 새 무작위 컬러를 제시하며 다시 초점을 맞춘다`() {
         assertSuccessClearsInput {
             composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
         }
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-006 단축키로 성공하면 입력 칸을 비우고 다시 초점을 맞춘다`() {
+    fun `TC-MEMO-ADD-FEATURE-006 단축키로 성공하면 입력 칸을 비우고 새 무작위 컬러를 제시하며 다시 초점을 맞춘다`() {
         assertSuccessClearsInput {
             composeRule.onAllNodes(hasSetTextAction()).onFirst().performKeyInput {
                 keyDown(Key.MetaLeft)
@@ -96,12 +104,12 @@ class MemoAddScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-009 제목이 비어 있으면 입력 칸을 비운 채 다시 초점을 맞춘다`() {
+    fun `TC-MEMO-ADD-FEATURE-009 제목이 비어 있으면 입력한 설명을 유지한 채 제목에 초점을 맞춘다`() {
         assertTitleBlankRetainsInput(initialInput = "")
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-009 공백만 입력하면 입력 내용을 유지한 채 다시 초점을 맞춘다`() {
+    fun `TC-MEMO-ADD-FEATURE-009 공백만 입력하면 제목과 설명을 유지한 채 제목에 초점을 맞춘다`() {
         assertTitleBlankRetainsInput(initialInput = WHITESPACE_TITLE)
     }
 
@@ -177,6 +185,7 @@ class MemoAddScreenTest {
         composeRule.onAllNodes(hasSetTextAction())[1].performTextInput(TYPED_DESCRIPTION)
         composeRule.onNodeWithText(TYPED_TITLE).assertExists()
         composeRule.onAllNodes(hasSetTextAction())[1].assert(hasText(TYPED_DESCRIPTION))
+        val colorBeforeAdd = composeRule.colorHexText()
 
         triggerAdd()
         composeRule.waitForIdle()
@@ -184,6 +193,8 @@ class MemoAddScreenTest {
         verify(exactly = 1) { viewModels.viewModel.add(detail = any(), tagSelection = any(), webIdSet = any(), contactIdSet = any(), placeIdSet = any()) }
         composeRule.onNodeWithText(TYPED_TITLE).assertDoesNotExist()
         composeRule.onAllNodes(hasSetTextAction())[1].assert(hasText(""))
+        // 무작위 컬러가 우연히 같을 확률은 약 1,600만 분의 1이라 새 컬러 제시를 값의 변화로 판정한다.
+        composeRule.colorHexText() shouldNotBe colorBeforeAdd
         composeRule.onAllNodes(hasSetTextAction()).onFirst().assertIsFocused()
         navigateUpCount shouldBe 0
     }
@@ -198,6 +209,7 @@ class MemoAddScreenTest {
             navigateUp = { navigateUpCount += 1 },
         )
 
+        composeRule.onAllNodes(hasSetTextAction())[1].performTextInput(TYPED_DESCRIPTION)
         if (initialInput.isNotEmpty()) {
             composeRule.onAllNodes(hasSetTextAction()).onFirst().performTextInput(initialInput)
         }
@@ -215,6 +227,7 @@ class MemoAddScreenTest {
         if (initialInput.isNotEmpty()) {
             composeRule.onAllNodes(hasSetTextAction()).onFirst().assert(hasText(initialInput))
         }
+        composeRule.onAllNodes(hasSetTextAction())[1].assert(hasText(TYPED_DESCRIPTION))
         navigateUpCount shouldBe 0
     }
 
@@ -242,7 +255,7 @@ class MemoAddScreenTest {
                     navigateToContactDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
-                    initialDateRange = null,
+                    initialDateTime = null,
                     componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
                     isStandalone = true,
                 )
@@ -270,9 +283,51 @@ class MemoAddScreenInitialDateTimeTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-047 캘린더 홈에서 기간을 선택해 진입하면 그 기간이 종일 기간으로 입력되어 있다`() {
+    fun `TC-MEMO-ADD-FEATURE-047 캘린더 홈이나 황금연휴 화면에서 기간을 선택해 진입하면 그 기간이 종일 기간으로 입력되어 있다`() {
         val start = LocalDate(year = 2026, month = Month.JULY, day = 14)
         val endInclusive = LocalDate(year = 2026, month = Month.JULY, day = 17)
+        setMemoAddScreen(initialDateTime = MemoAddNavKey(initialDateRange = MemoAddNavKey.InitialDateRange(start = start, endInclusive = endInclusive)).initialDateTime())
+
+        composeRule.onNode(hasRole(Role.Switch)).assertIsOn()
+        composeRule.onNode(hasRole(Role.Checkbox)).assertIsOn()
+        composeRule.onNodeWithText(start.toDefaultDisplayText()).assertExists()
+        composeRule.onNodeWithText(endInclusive.toDefaultDisplayText()).assertExists()
+    }
+
+    @Test
+    fun `TC-MEMO-ADD-FEATURE-072 캘린더 시간표 화면에서 기간을 선택해 진입하면 고른 방법에 맞는 기간이 입력되어 있다 - 시간대 선택`() {
+        val date = LocalDate(year = 2026, month = Month.JULY, day = 14)
+        setMemoAddScreen(
+            initialDateTime =
+                MemoAddNavKey(
+                    initialDateTimeRange =
+                        MemoAddNavKey.InitialDateTimeRange(
+                            start = LocalDateTime(date = date, time = LocalTime(hour = 10, minute = 0)),
+                            endInclusive = LocalDateTime(date = date, time = LocalTime(hour = 11, minute = 30)),
+                        ),
+                ).initialDateTime(),
+        )
+
+        composeRule.onNode(hasRole(Role.Switch)).assertIsOn()
+        composeRule.onNode(hasRole(Role.Checkbox)).assertIsOff()
+        composeRule.onAllNodesWithText(date.toDefaultDisplayText()).assertCountEquals(2)
+        composeRule.onNodeWithText("10:00 AM").assertExists()
+        composeRule.onNodeWithText("11:30 AM").assertExists()
+    }
+
+    @Test
+    fun `TC-MEMO-ADD-FEATURE-072 캘린더 시간표 화면에서 기간을 선택해 진입하면 고른 방법에 맞는 기간이 입력되어 있다 - 날짜 선택`() {
+        val start = LocalDate(year = 2026, month = Month.JULY, day = 14)
+        val endInclusive = LocalDate(year = 2026, month = Month.JULY, day = 17)
+        setMemoAddScreen(initialDateTime = MemoAddNavKey(initialDateRange = MemoAddNavKey.InitialDateRange(start = start, endInclusive = endInclusive)).initialDateTime())
+
+        composeRule.onNode(hasRole(Role.Switch)).assertIsOn()
+        composeRule.onNode(hasRole(Role.Checkbox)).assertIsOn()
+        composeRule.onNodeWithText(start.toDefaultDisplayText()).assertExists()
+        composeRule.onNodeWithText(endInclusive.toDefaultDisplayText()).assertExists()
+    }
+
+    private fun setMemoAddScreen(initialDateTime: DiaryDateTimeInputValue?) {
         composeRule.setContent {
             MemoAddScreenTestTheme {
                 val viewModels = screenTestViewModel()
@@ -295,19 +350,13 @@ class MemoAddScreenInitialDateTimeTest {
                     navigateToContactDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
-                    initialDateRange = MemoAddNavKey.InitialDateRange(start = start, endInclusive = endInclusive),
+                    initialDateTime = initialDateTime,
                     componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
                     isStandalone = true,
                 )
             }
         }
-
         composeRule.waitForIdle()
-
-        composeRule.onNode(hasRole(Role.Switch)).assertIsOn()
-        composeRule.onNode(hasRole(Role.Checkbox)).assertIsOn()
-        composeRule.onNodeWithText(start.toDefaultDisplayText()).assertExists()
-        composeRule.onNodeWithText(endInclusive.toDefaultDisplayText()).assertExists()
     }
 
     public companion object {
@@ -370,7 +419,7 @@ class MemoAddScreenMessageTest {
                     navigateToContactDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
-                    initialDateRange = null,
+                    initialDateTime = null,
                     componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
                     isStandalone = true,
                 )
@@ -402,3 +451,20 @@ private val DEFAULT_MONTH_NAMES =
     listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
 private fun LocalDate.toDefaultDisplayText(): String = "${DEFAULT_MONTH_NAMES[month.number - 1]} $day, $year"
+
+private val COLOR_HEX_REGEX = Regex("^#[0-9A-F]{6}$")
+
+/**
+ * 컬러 입력은 현재 컬러를 16진수 문구로 보여 주므로, 제시된 컬러를 그 문구로 읽는다.
+ */
+internal fun SemanticsNodeInteractionsProvider.colorHexText(): String =
+    onNode(SemanticsMatcher("컬러 16진수 문구") { node -> node.colorHexTextOrNull() != null })
+        .fetchSemanticsNode()
+        .colorHexTextOrNull()
+        .shouldNotBeNull()
+
+private fun SemanticsNode.colorHexTextOrNull(): String? =
+    config
+        .getOrNull(SemanticsProperties.Text)
+        ?.map { text -> text.text }
+        ?.firstOrNull { text -> COLOR_HEX_REGEX.matches(text) }

@@ -101,8 +101,21 @@ class AndroidSyncWorkSchedulerTest {
     }
 
     @Test
-    fun `대기 중인 작업이 실행되어 끝나면 남은 작업이 없는 상태가 된다`() {
+    fun `TC-SYNC-REFRESH-FEATURE-005 대기 중인 작업이 실행되어 성공으로 끝나면 남은 작업이 없는 상태가 된다`() {
         runBlocking {
+            val manager = AndroidSyncWorkScheduler(context = context)
+            manager.sync()
+
+            connectNetwork()
+
+            manager.state.first() shouldBe SyncWorkState.NONE
+        }
+    }
+
+    @Test
+    fun `TC-SYNC-REFRESH-FEATURE-005 실행 중인 작업이 실패로 끝나도 남은 작업이 없는 상태가 된다`() {
+        runBlocking {
+            coEvery { syncWork.doWork() } throws IllegalStateException("sync failure")
             val manager = AndroidSyncWorkScheduler(context = context)
             manager.sync()
 

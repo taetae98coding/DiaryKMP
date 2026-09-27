@@ -37,3 +37,14 @@ internal fun appendFailedPlacePagingDataOf(placeList: List<Place>): PagingData<P
                 append = LoadState.Error(IllegalStateException("append failed")),
             ),
     )
+
+internal fun appendingPlacePagingDataOf(placeList: List<Place>): PagingData<Place> =
+    PagingData.from(
+        data = placeList,
+        sourceLoadStates =
+            LoadStates(
+                refresh = LoadState.NotLoading(endOfPaginationReached = false),
+                prepend = LoadState.NotLoading(endOfPaginationReached = true),
+                append = LoadState.Loading,
+            ),
+    )

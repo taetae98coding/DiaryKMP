@@ -20,6 +20,7 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.text.font.FontWeight
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.CoroutineScope
@@ -64,15 +65,25 @@ class DiaryDescriptionInputPreviewPageTest {
     }
 
     @Test
-    fun `TC-DESCRIPTION-INPUT-FEATURE-009 미리보기 페이지에 마크다운 해석 결과가 표시된다`() {
+    fun `TC-DESCRIPTION-INPUT-FEATURE-009 미리보기 페이지에 강조 문법이 굵은 내용으로 표시되고 문법 기호는 표시되지 않는다`() {
         val state = setDiaryDescriptionInput()
-        composeRule.onNode(hasSetTextAction()).performTextInput(MARKDOWN_SOURCE)
-        awaitPreviewText(MARKDOWN_HEADING_TEXT)
+        composeRule.onNode(hasSetTextAction()).performTextInput(BOLD_SOURCE)
 
         snapToPage(state = state, page = DiaryDescriptionInputPage.Preview)
+        awaitPreviewNode(previewText(BOLD_TEXT))
 
-        composeRule.onNodeWithText(MARKDOWN_HEADING_TEXT).assertIsDisplayed()
-        composeRule.onNodeWithText(MARKDOWN_SOURCE).assertIsNotDisplayed()
+        composeRule.onNode(previewText(BOLD_TEXT)).assertIsDisplayed()
+        val previewText =
+            composeRule
+                .onNode(previewText(BOLD_TEXT))
+                .fetchSemanticsNode()
+                .config[SemanticsProperties.Text]
+                .single { it.text == BOLD_TEXT }
+        previewText.spanStyles.any { range ->
+            range.item.fontWeight == FontWeight.Bold && range.start == 0 && range.end == BOLD_TEXT.length
+        } shouldBe true
+        composeRule.onNode(previewText(BOLD_SOURCE)).assertDoesNotExist()
+        composeRule.onNode(previewText(BOLD_MARKER, substring = true)).assertDoesNotExist()
     }
 
     @Test
@@ -140,6 +151,32 @@ class DiaryDescriptionInputPreviewPageTest {
     }
 
     @Test
+    fun `TC-DESCRIPTION-INPUT-FEATURE-024 화면이 재생성되어도 시작 상태를 다시 정하지 않는다`() {
+        val restorationTester = StateRestorationTester(composeRule)
+        lateinit var state: DiaryDescriptionInputState
+        restorationTester.setContent {
+            state = rememberDiaryDescriptionInputState(initialText = MARKDOWN_SOURCE)
+            scope = rememberCoroutineScope()
+
+            DiaryTheme {
+                DiaryDescriptionInput(state = state)
+            }
+        }
+        awaitSettled(state = state, page = DiaryDescriptionInputPage.Preview)
+        snapToPage(state = state, page = DiaryDescriptionInputPage.Input)
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle {
+            state.swipeState.currentValue shouldBe DiaryDescriptionInputPage.Input
+            state.text.toString() shouldBe MARKDOWN_SOURCE
+        }
+        composeRule.onNode(hasSetTextAction()).assertIsDisplayed()
+        composeRule.onNode(hasSetTextAction()).assert(hasText(MARKDOWN_SOURCE))
+    }
+
+    @Test
     fun `TC-DESCRIPTION-INPUT-FEATURE-017 엔터로 나눈 줄이 미리보기에서도 나뉘어 표시된다`() {
         val state = setDiaryDescriptionInput()
         composeRule.onNode(hasSetTextAction()).performTextInput(LINE_BREAK_SOURCE)
@@ -174,7 +211,10 @@ class DiaryDescriptionInputPreviewPageTest {
         composeRule.onNodeWithText(CODE_BLOCK_PREVIEW_TEXT).assertIsDisplayed()
     }
 
-    private fun previewText(text: String): SemanticsMatcher = hasText(text) and SemanticsMatcher.keyNotDefined(SemanticsActions.SetText)
+    private fun previewText(
+        text: String,
+        substring: Boolean = false,
+    ): SemanticsMatcher = hasText(text, substring = substring) and SemanticsMatcher.keyNotDefined(SemanticsActions.SetText)
 
     private fun awaitPreviewNode(matcher: SemanticsMatcher) {
         composeRule.waitUntil(timeoutMillis = WAIT_TIMEOUT_MILLIS) {
@@ -239,6 +279,9 @@ class DiaryDescriptionInputPreviewPageTest {
     public companion object {
         private const val WAIT_TIMEOUT_MILLIS = 5_000L
         private const val MARKDOWN_SOURCE = "# MarkdownHeading"
+        private const val BOLD_SOURCE = "**강조**"
+        private const val BOLD_TEXT = "강조"
+        private const val BOLD_MARKER = "**"
         private const val MARKDOWN_HEADING_TEXT = "MarkdownHeading"
         private const val MODIFIED_MARKDOWN_SOURCE = "# ModifiedHeading"
         private const val MODIFIED_MARKDOWN_HEADING_TEXT = "ModifiedHeading"

@@ -1,8 +1,11 @@
 package io.github.taetae98coding.diary.feature.memo.ui.gemini
 
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.hasAnySibling
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
@@ -78,7 +81,7 @@ class MemoGeminiDialogTest {
         composeRule.onNodeWithText(ALL_DAY_PERIOD_TEXT).assertExists()
 
         listOf(DEFAULT_TITLE_LABEL, DEFAULT_DESCRIPTION_LABEL, DEFAULT_DATE_TIME_LABEL).forEach { label ->
-            composeRule.onNodeWithContentDescription("Apply $label").assert(hasClickAction())
+            composeRule.onNodeWithContentDescription(applyDescription(label)).assert(hasClickAction())
         }
     }
 
@@ -90,14 +93,14 @@ class MemoGeminiDialogTest {
             onEvent = { event -> if (event is MemoGeminiDialogEvent.ClickApply) fieldList += event.field },
         )
 
-        composeRule.onNodeWithContentDescription("Apply $DEFAULT_DESCRIPTION_LABEL").performClick()
+        composeRule.onNodeWithContentDescription(applyDescription(DEFAULT_DESCRIPTION_LABEL)).performClick()
         composeRule.waitForIdle()
 
         fieldList shouldBe listOf(MemoGeminiField.DESCRIPTION)
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-014 반영한 결과에 반영됨을 표시하고 반영 동작을 유지한다`() {
+    fun `TC-MEMO-GEMINI-FEATURE-024 반영한 결과에만 반영했다는 표시를 보인다`() {
         setDialog(
             uiState =
                 MemoGeminiUiState(
@@ -108,7 +111,48 @@ class MemoGeminiDialogTest {
         )
 
         composeRule.onAllNodesWithContentDescription(DEFAULT_APPLIED_DESCRIPTION).fetchSemanticsNodes().size shouldBe 1
-        composeRule.onNodeWithContentDescription("Apply $DEFAULT_TITLE_LABEL").assert(hasClickAction())
+        composeRule
+            .onNode(hasContentDescription(DEFAULT_APPLIED_DESCRIPTION) and hasAnySibling(hasText(DEFAULT_TITLE_LABEL)))
+            .assertExists()
+    }
+
+    @Test
+    fun `TC-MEMO-GEMINI-FEATURE-014 반영한 뒤에도 결과와 모든 반영 동작을 유지한다`() {
+        setDialog(
+            uiState =
+                MemoGeminiUiState(
+                    step = MemoGeminiStep.RESULT,
+                    draft = DRAFT,
+                    appliedFieldSet = setOf(MemoGeminiField.TITLE),
+                ),
+        )
+        awaitText(DRAFT.description)
+
+        composeRule.onNodeWithText(DRAFT.title).assertExists()
+        composeRule.onNodeWithText(ALL_DAY_PERIOD_TEXT).assertExists()
+        listOf(DEFAULT_TITLE_LABEL, DEFAULT_DESCRIPTION_LABEL, DEFAULT_DATE_TIME_LABEL).forEach { label ->
+            composeRule.onNodeWithContentDescription(applyDescription(label)).assert(hasClickAction())
+        }
+    }
+
+    @Test
+    fun `TC-MEMO-GEMINI-FEATURE-028 화면이 재생성되어도 진행 중인 생성 표시를 유지한다`() {
+        setRestorableDialog(uiState = MemoGeminiUiState(step = MemoGeminiStep.GENERATING)).emulateSavedInstanceStateRestore()
+
+        composeRule.onAllNodesWithContentDescription(DEFAULT_GENERATING_MESSAGE).fetchSemanticsNodes().size shouldBe 1
+        composeRule.onNodeWithText(DEFAULT_CANCEL_ACTION).assert(hasClickAction())
+    }
+
+    @Test
+    fun `TC-MEMO-GEMINI-FEATURE-028 화면이 재생성되어도 받아 둔 결과를 유지한다`() {
+        setRestorableDialog(uiState = MemoGeminiUiState(step = MemoGeminiStep.RESULT, draft = DRAFT)).emulateSavedInstanceStateRestore()
+        awaitText(DRAFT.description)
+
+        composeRule.onNodeWithText(DRAFT.title).assertExists()
+        composeRule.onNodeWithText(ALL_DAY_PERIOD_TEXT).assertExists()
+        listOf(DEFAULT_TITLE_LABEL, DEFAULT_DESCRIPTION_LABEL, DEFAULT_DATE_TIME_LABEL).forEach { label ->
+            composeRule.onNodeWithContentDescription(applyDescription(label)).assert(hasClickAction())
+        }
     }
 
     @Test
@@ -121,9 +165,9 @@ class MemoGeminiDialogTest {
                 ),
         )
 
-        composeRule.onNodeWithContentDescription("Apply $DEFAULT_TITLE_LABEL").assert(hasClickAction())
-        composeRule.onNodeWithContentDescription("Apply $DEFAULT_DESCRIPTION_LABEL").assertDoesNotExist()
-        composeRule.onNodeWithContentDescription("Apply $DEFAULT_DATE_TIME_LABEL").assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(applyDescription(DEFAULT_TITLE_LABEL)).assert(hasClickAction())
+        composeRule.onNodeWithContentDescription(applyDescription(DEFAULT_DESCRIPTION_LABEL)).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(applyDescription(DEFAULT_DATE_TIME_LABEL)).assertDoesNotExist()
     }
 
     @Test
@@ -219,11 +263,30 @@ class MemoGeminiDialogTest {
         composeRule.onNodeWithText("Sep 21, 2026 9:30 AM – Sep 21, 2026 10:30 AM").assertExists()
     }
 
+    private fun applyDescription(label: String): String = "$DEFAULT_APPLY_ACTION $label"
+
     // 설명은 마크다운 해석을 거쳐 표시되고 그 해석은 Compose가 대기하지 않는 별도 디스패처에서 끝나므로 표시될 때까지 기다린다.
     private fun awaitText(text: String) {
         composeRule.waitUntil(timeoutMillis = WAIT_TIMEOUT_MILLIS) {
             composeRule.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty()
         }
+    }
+
+    // 도우미의 단계와 결과는 화면 재생성과 함께 유지되는 곳이 보관하므로, 재생성 뒤에도 같은 상태를 넘긴다.
+    private fun setRestorableDialog(uiState: MemoGeminiUiState): StateRestorationTester {
+        val restorationTester = StateRestorationTester(composeRule)
+
+        restorationTester.setContent {
+            DiaryTheme {
+                MemoGeminiDialogHost(
+                    onEvent = {},
+                    onDismissRequest = {},
+                    uiStateProvider = { uiState },
+                )
+            }
+        }
+
+        return restorationTester
     }
 
     private fun setDialog(

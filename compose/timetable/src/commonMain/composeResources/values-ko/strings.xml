@@ -1,0 +1,13 @@
+<resources>
+    <string name="timetable_hour_am">오전 %1$d시</string>
+    <string name="timetable_hour_pm">오후 %1$d시</string>
+    <string-array name="timetable_day_of_week_titles">
+        <item>일</item>
+        <item>월</item>
+        <item>화</item>
+        <item>수</item>
+        <item>목</item>
+        <item>금</item>
+        <item>토</item>
+    </string-array>
+</resources>

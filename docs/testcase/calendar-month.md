@@ -1,6 +1,6 @@
 # CalendarMonth 테스트 케이스
 
-기준 스펙: [CalendarMonth 컴포넌트 스펙](../spec/calendar-month.md)
+기준 스펙: [CalendarMonth 컴포넌트 스펙](../spec/client/calendar-month.md)
 
 ## feature
 

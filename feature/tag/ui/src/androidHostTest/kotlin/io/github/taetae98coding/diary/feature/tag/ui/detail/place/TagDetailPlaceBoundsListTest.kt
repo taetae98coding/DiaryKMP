@@ -4,16 +4,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
+import androidx.compose.ui.test.swipeLeft
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.place.PLACE_CARD_TEST_TAG
+import io.github.taetae98coding.diary.core.model.place.Place
+import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.feature.tag.ui.detail.isRefreshingFlow
 import io.github.taetae98coding.diary.feature.tag.ui.tagPlace
 import io.kotest.matchers.shouldBe
@@ -56,6 +63,21 @@ class TagDetailPlaceBoundsListTest {
         composeRule.onNodeWithText(FIRST_TITLE).performClick()
 
         eventList shouldBe listOf(TagDetailPlaceContentEvent.ClickPlace(id = place.id))
+    }
+
+    @Test
+    fun `TC-TAG-DETAIL-PLACE-FEATURE-039 지도 모드의 목록에서 장소 카드를 삭제 방향으로 밀면 그 장소의 삭제만 요청한다`() {
+        val place = tagPlace(title = FIRST_TITLE)
+        val eventList = mutableListOf<TagDetailPlaceContentEvent>()
+        setBoundsList(
+            MutableStateFlow(TagDetailPlaceListUiState(isLoaded = true, placeList = listOf(place))),
+            onEvent = eventList::add,
+        )
+
+        composeRule.onNode(hasTestTag(PLACE_CARD_TEST_TAG) and hasText(FIRST_TITLE)).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+
+        eventList shouldBe listOf(TagDetailPlaceContentEvent.DeletePlace(id = place.id))
     }
 
     @Test
@@ -137,14 +159,54 @@ class TagDetailPlaceBoundsListTest {
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
     }
 
+    @Test
+    fun `표시 범위를 바꾸고 새 범위의 목록이 도착하면 목록을 처음부터 표시한다`() {
+        val placeList = List(SCROLL_PLACE_COUNT) { index -> tagPlace(title = "$SCROLL_TITLE_PREFIX$index") }
+        val widenedFirstPlace = tagPlace(title = WIDENED_FIRST_TITLE)
+        val uiStateFlow = MutableStateFlow(TagDetailPlaceListUiState(isLoaded = true, placeList = placeList))
+        val scopeFlow = MutableStateFlow(TagScope.SELF)
+        setBoundsList(uiStateFlow = uiStateFlow, scopeFlow = scopeFlow)
+        scrollToLast(placeList = placeList)
+
+        composeRule.runOnIdle { scopeFlow.value = TagScope.DESCENDANT }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { uiStateFlow.value = TagDetailPlaceListUiState(isLoaded = true, placeList = listOf(widenedFirstPlace) + placeList) }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(WIDENED_FIRST_TITLE).assertIsDisplayed()
+    }
+
+    @Test
+    fun `표시 범위가 그대로면 목록이 바뀌어도 보던 위치를 유지한다`() {
+        val placeList = List(SCROLL_PLACE_COUNT) { index -> tagPlace(title = "$SCROLL_TITLE_PREFIX$index") }
+        val addedFirstPlace = tagPlace(title = WIDENED_FIRST_TITLE)
+        val uiStateFlow = MutableStateFlow(TagDetailPlaceListUiState(isLoaded = true, placeList = placeList))
+        setBoundsList(uiStateFlow = uiStateFlow, scopeFlow = MutableStateFlow(TagScope.SELF))
+        scrollToLast(placeList = placeList)
+
+        composeRule.runOnIdle { uiStateFlow.value = TagDetailPlaceListUiState(isLoaded = true, placeList = listOf(addedFirstPlace) + placeList) }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(WIDENED_FIRST_TITLE).assertDoesNotExist()
+    }
+
+    private fun scrollToLast(placeList: List<Place>) {
+        composeRule.onNodeWithTag(TAG_DETAIL_PLACE_BOUNDS_LIST_TEST_TAG).performScrollToIndex(placeList.lastIndex)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(placeList.first().detail.title).assertDoesNotExist()
+    }
+
     private fun setBoundsList(
         uiStateFlow: MutableStateFlow<TagDetailPlaceListUiState>,
         isRefreshingFlow: MutableStateFlow<Boolean> = MutableStateFlow(false),
+        scopeFlow: MutableStateFlow<TagScope> = MutableStateFlow(TagScope.SELF),
         onEvent: (TagDetailPlaceContentEvent) -> Unit = {},
     ) {
         composeRule.setContent {
             val uiState by uiStateFlow.collectAsStateWithLifecycle()
             val isRefreshing by isRefreshingFlow.collectAsStateWithLifecycle()
+            val scope by scopeFlow.collectAsStateWithLifecycle()
 
             DiaryTheme {
                 TagDetailPlaceBoundsList(
@@ -152,6 +214,7 @@ class TagDetailPlaceBoundsListTest {
                     modifier = Modifier.fillMaxSize(),
                     placeListUiStateProvider = { uiState },
                     isRefreshingProvider = { isRefreshing },
+                    scopeProvider = { scope },
                 )
             }
         }
@@ -164,5 +227,8 @@ class TagDetailPlaceBoundsListTest {
         const val KOREAN_MAP_EMPTY_TITLE = "이 지역에 장소가 없습니다"
         const val KOREAN_MAP_EMPTY_DESCRIPTION = "지도를 옮기면 다른 장소를 볼 수 있습니다"
         const val DEFAULT_REFRESHING_DESCRIPTION = "Refreshing"
+        const val SCROLL_PLACE_COUNT = 40
+        const val SCROLL_TITLE_PREFIX = "ScrollBoundsPlace"
+        const val WIDENED_FIRST_TITLE = "WidenedFirstPlace"
     }
 }

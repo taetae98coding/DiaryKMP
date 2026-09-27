@@ -4,10 +4,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextReplacement
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -52,7 +63,9 @@ internal val FIRST_TAG_ID: Uuid = Uuid.parse("00000000-0000-0000-0000-0000000000
 internal fun tagDetail(
     title: String,
     emoji: String = "",
-): TagDetail = TagDetail.EMPTY.copy(emoji = emoji, title = title)
+    description: String = "",
+    color: Long = TagDetail.EMPTY.color,
+): TagDetail = TagDetail(emoji = emoji, title = title, description = description, color = color)
 
 internal fun tagDetailUiState(
     id: Uuid = FIRST_TAG_ID,
@@ -86,6 +99,44 @@ internal fun ComposeContentTestRule.emojiInput(): SemanticsNodeInteraction = onN
 internal fun ComposeContentTestRule.titleInput(): SemanticsNodeInteraction = onAllNodes(hasSetTextAction())[0]
 
 internal fun ComposeContentTestRule.descriptionInput(): SemanticsNodeInteraction = onAllNodes(hasSetTextAction())[1]
+
+private const val DEFAULT_DIALOG_CONFIRM = "Confirm"
+private const val RGB_MASK = 0xFFFFFF
+private val hexColorRegex = Regex(pattern = "#[0-9A-F]{6}")
+
+internal fun Long.toHexColorText(): String = "#%06X".format(toInt() and RGB_MASK)
+
+internal fun ComposeContentTestRule.inputEmoji(emoji: String) {
+    emojiInput().performScrollTo().performClick()
+    waitForIdle()
+    onNode(hasSetTextAction() and hasAnyAncestor(isDialog())).performTextReplacement(emoji)
+    waitForIdle()
+    onNodeWithText(DEFAULT_DIALOG_CONFIRM).performClick()
+    waitForIdle()
+}
+
+internal fun ComposeContentTestRule.colorHexText(): String =
+    onNode(hasHexColorText() and hasClickAction())
+        .fetchSemanticsNode()
+        .config[SemanticsProperties.Text]
+        .firstNotNullOf { text -> hexColorRegex.find(text.text)?.value }
+
+internal fun ComposeContentTestRule.changeColor(hex: String) {
+    val currentHex = colorHexText()
+    onNode(hasHexColorText() and hasClickAction()).performScrollTo().performClick()
+    waitForIdle()
+    onNode(hasSetTextAction() and hasText(currentHex)).performTextReplacement(hex)
+    waitForIdle()
+    onNodeWithText(DEFAULT_DIALOG_CONFIRM).performClick()
+    waitForIdle()
+}
+
+private fun hasHexColorText(): SemanticsMatcher =
+    SemanticsMatcher(description = "Hex color text") { node ->
+        node.config
+            .getOrNull(SemanticsProperties.Text)
+            ?.any { text -> hexColorRegex.containsMatchIn(text.text) } == true
+    }
 
 @Composable
 internal fun TagDetailTestTabContent(

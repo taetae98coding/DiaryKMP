@@ -1,6 +1,6 @@
 # Setting 목록·상세 배치 디자인
 
-기준 스펙: [Setting 목록·상세 배치 스펙](../spec/setting-list-detail.md)
+기준 스펙: [Setting 목록·상세 배치 스펙](../spec/client/setting-list-detail.md)
 
 배치, 크기 조절, 버튼 노출, 선택 전 상세와 조절 상태 표시의 공통 표현은 [목록·상세 배치 공통 디자인](./list-detail-pane.md)을 따른다.
 

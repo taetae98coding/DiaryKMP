@@ -14,6 +14,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreProvider
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
+import io.github.taetae98coding.diary.compose.core.snackbar.DismissUndoSnackbarEffect
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
 import io.github.taetae98coding.diary.core.model.web.WebDetail
@@ -54,6 +55,7 @@ internal fun WebDetailScreen(
     val pageUiState by pageViewModel.uiState.collectAsStateWithLifecycle()
     val tagUiState by tagViewModel.uiState.collectAsStateWithLifecycle()
     val tagPagingItems = tagViewModel.tagPagingData.collectAsLazyPagingItems()
+    val selectableTagPagingItems = tagViewModel.selectableTagPagingData.collectAsLazyPagingItems()
     val content = uiState as? WebDetailUiState.Content
     val uriHandler = LocalUriHandler.current
     val coroutineScope = rememberCoroutineScope()
@@ -69,6 +71,7 @@ internal fun WebDetailScreen(
         LoadWebPageEffect(pageViewModel = pageViewModel, state = scaffoldState)
 
         WebDetailScreenEffect(effect = webViewModel.effect, formState = formState, pageViewModel = pageViewModel, navigateUp = navigateUp)
+        DismissUndoSnackbarEffect(keyProvider = { scaffoldState.tab }, hostState = formState.hostState)
 
         WebDetailScaffold(
             onEvent = { event ->
@@ -85,7 +88,7 @@ internal fun WebDetailScreen(
                     showSessionImportFailed = { coroutineScope.launch { formState.hostState.showImmediate(message = importFailedMessage) } },
                 )
             },
-            onFormEvent = { event -> handleWebFormEvent(event = event, state = formState, tagPagingItems = tagPagingItems, navigateToTagAdd = navigateToTagAdd, navigateToTagDetail = navigateToTagDetail) },
+            onFormEvent = { event -> handleWebFormEvent(event = event, state = formState, selectableTagPagingItems = selectableTagPagingItems, navigateToTagAdd = navigateToTagAdd, navigateToTagDetail = navigateToTagDetail) },
             onTagPickerEvent = { event -> handleWebDetailTagPickerEvent(event = event, tagViewModel = tagViewModel, navigateToTagAdd = navigateToTagAdd) },
             modifier = modifier,
             state = scaffoldState,

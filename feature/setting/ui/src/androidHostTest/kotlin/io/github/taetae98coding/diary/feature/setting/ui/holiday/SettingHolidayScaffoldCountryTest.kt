@@ -145,6 +145,16 @@ class SettingHolidayScaffoldCountryTest {
         composeRule.onNode(hasText(DEFAULT_COUNTRY_DEVICE) and hasText(expected) and isToggleable()).assertExists()
     }
 
+    @Test
+    fun `TC-SETTING-HOLIDAY-FEATURE-040 검색어가 비어 있고 공휴일 항목이 없으면 빈 상태 없이 국가 선택지만 제공한다`() {
+        composeRule.setSettingHolidayScaffold(uiState = loadedUiState(holidaySettingList = emptyList()))
+
+        composeRule.countryNode(DEFAULT_COUNTRY_DEVICE).assertExists()
+        composeRule.countryNode(DEFAULT_COUNTRY_KOREA).assertExists()
+        composeRule.countryNode(DEFAULT_COUNTRY_UNITED_STATES).assertExists()
+        composeRule.onNodeWithText(DEFAULT_SEARCH_EMPTY).assertDoesNotExist()
+    }
+
     private companion object {
         const val KOREAN_COUNTRY_TITLE = "국가"
         const val KOREAN_COUNTRY_DEVICE = "기기값"

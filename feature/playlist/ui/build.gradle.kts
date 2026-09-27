@@ -20,5 +20,11 @@ kotlin {
                 implementation(libs.androidx.paging.testing)
             }
         }
+
+        androidHostTest {
+            dependencies {
+                implementation(libs.jetbrains.lifecycle.viewmodel.navigation3)
+            }
+        }
     }
 }

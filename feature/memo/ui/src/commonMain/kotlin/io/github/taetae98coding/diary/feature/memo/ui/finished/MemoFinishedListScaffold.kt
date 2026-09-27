@@ -23,7 +23,7 @@ import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderD
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.swipe.SwipeFinishAction
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBar
+import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
 import io.github.taetae98coding.diary.compose.list.sort.memoListSortList
 import io.github.taetae98coding.diary.compose.memo.list.MemoList
@@ -71,10 +71,11 @@ internal fun MemoFinishedListScaffold(
                     .fillMaxSize()
                     .padding(paddingValues),
         ) {
-            DiaryListSortBar(
+            DiaryListSortBarHost(
                 onClick = { onEvent(MemoFinishedListScaffoldEvent.ClickSort) },
                 modifier = Modifier.fillMaxWidth(),
                 sortProvider = sortProvider,
+                isSortVisibleProvider = { memoPagingItems.itemCount > 0 },
             )
 
             MemoList(

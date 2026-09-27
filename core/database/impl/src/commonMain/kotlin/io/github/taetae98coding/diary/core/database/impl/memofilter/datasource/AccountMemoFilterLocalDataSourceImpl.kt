@@ -14,6 +14,8 @@ internal class AccountMemoFilterLocalDataSourceImpl(
 ) : AccountMemoFilterLocalDataSource {
     override fun getTagList(accountId: Uuid): Flow<List<TagLocalEntity>> = database.memoFilterTagDao().getTagList(accountId = accountId)
 
+    override fun getTagIdList(accountId: Uuid): Flow<List<Uuid>> = database.memoFilterTagDao().getTagIdList(accountId = accountId)
+
     override suspend fun upsert(
         accountId: Uuid,
         tagId: Uuid,

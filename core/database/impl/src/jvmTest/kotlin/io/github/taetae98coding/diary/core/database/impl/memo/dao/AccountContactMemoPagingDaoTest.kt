@@ -185,16 +185,26 @@ class AccountContactMemoPagingDaoTest :
             pagedIds(accountId = accountId, contactId = target.id) shouldBe listOf(activeMemo.id)
         }
 
-        test("TC-CONTACT-DETAIL-MEMO-DOMAIN-001 대상 연락처가 삭제되어도 연결된 미완료 메모는 계속 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val target = contact(isDeleted = true)
-            val targetMemo = memo()
-            insertContactMemo(accountId, target, targetMemo)
+        test("TC-CONTACT-DETAIL-MEMO-DOMAIN-001 대상 연락처를 삭제하거나 즐겨찾기를 바꿔도 연결된 미완료 메모는 계속 조회된다") {
+            val changeList: List<(ContactLocalEntity) -> ContactLocalEntity> =
+                listOf(
+                    { contact -> contact.copy(isDeleted = true, updatedAt = instant()) },
+                    { contact -> contact.copy(isFavorite = !contact.isFavorite, updatedAt = instant()) },
+                )
 
-            pagedIds(accountId = accountId, contactId = target.id) shouldBe listOf(targetMemo.id)
+            changeList.forEach { change ->
+                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val target = contact()
+                val targetMemo = memo()
+                insertContactMemo(accountId, target, targetMemo)
+
+                insertContact(accountId = accountId, contact = change(target))
+
+                pagedIds(accountId = accountId, contactId = target.id) shouldBe listOf(targetMemo.id)
+            }
         }
 
-        test("TC-CONTACT-DETAIL-MEMO-DATA-002 연락처별 메모는 기간 없음, 시작 시점, 종료 시점, 제목 순으로 조회한다") {
+        test("TC-CONTACT-DETAIL-MEMO-DATA-002 연락처별 메모는 기간 없음, 종일 여부, 시작 시점, 종료 시점, 제목 순으로 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val target = contact()
             val noDateTimeBravoMemo = memo(detail = detail(title = "Bravo", isAllDay = null, start = null, endInclusive = null))
@@ -249,8 +259,30 @@ class AccountContactMemoPagingDaoTest :
                             endInclusive = LocalDateTime(year = 2026, month = 7, day = 20, hour = 0, minute = 0),
                         ),
                 )
+            val multiDayAllDayMemo =
+                memo(
+                    detail =
+                        detail(
+                            title = "Alpha",
+                            isAllDay = true,
+                            start = LocalDateTime(year = 2026, month = 7, day = 19, hour = 0, minute = 0),
+                            endInclusive = LocalDateTime(year = 2026, month = 7, day = 21, hour = 0, minute = 0),
+                        ),
+                )
+            val midnightMemo =
+                memo(
+                    detail =
+                        detail(
+                            title = "Alpha",
+                            isAllDay = false,
+                            start = LocalDateTime(year = 2026, month = 7, day = 19, hour = 0, minute = 0),
+                            endInclusive = LocalDateTime(year = 2026, month = 7, day = 19, hour = 1, minute = 0),
+                        ),
+                )
             listOf(
                 nextDayMemo,
+                midnightMemo,
+                multiDayAllDayMemo,
                 sameDayLateEndMemo,
                 sameDayEarlyEndBravoMemo,
                 sameDayEarlyEndAlphaMemo,
@@ -266,6 +298,8 @@ class AccountContactMemoPagingDaoTest :
                     noDateTimeAlphaMemo.id,
                     noDateTimeBravoMemo.id,
                     allDayMemo.id,
+                    multiDayAllDayMemo.id,
+                    midnightMemo.id,
                     sameDayEarlyEndAlphaMemo.id,
                     sameDayEarlyEndBravoMemo.id,
                     sameDayLateEndMemo.id,
@@ -422,7 +456,7 @@ class AccountContactMemoPagingDaoTest :
                 .setExp(MemoContactLocalEntity::createdAt, instant())
                 .sample()
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun detail(
             isAllDay: Boolean?,

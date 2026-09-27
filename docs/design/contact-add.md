@@ -1,12 +1,12 @@
 # ContactAdd 화면 디자인
 
-기준 스펙: [ContactAdd 화면 스펙](../spec/contact-add.md)
+기준 스펙: [ContactAdd 화면 스펙](../spec/client/contact-add.md)
 
 화면 구조, 표시 영역과 소프트 키보드, 초점과 단축키, 진행과 피드백, 여러 항목을 담는 입력의 공통 표현은 [항목 추가 화면 공통 디자인](./entity-add.md)을 따른다.
 
 ## 화면 구조
 
-ContactAdd 화면은 창 너비에 따라 단독으로 표시하거나 [Contact 목록·상세 배치 디자인](./contact-list-detail.md)에 따라 연락처 목록과 함께 상세 영역에 표시한다.
+ContactAdd 화면은 창 너비에 따라 단독으로 표시하거나 [Contact 목록·상세 배치 디자인](./contact-list-detail.md)에 따라 연락처 목록과 함께 상세 영역에 표시한다. 메모의 연락처 입력에서 진입한 ContactAdd 화면은 창 너비와 관계없이 단독으로 표시한다.
 
 뒤로가기 버튼의 노출 조건은 [목록·상세 배치 공통 디자인](./list-detail-pane.md)의 `버튼 노출`을 따른다.
 

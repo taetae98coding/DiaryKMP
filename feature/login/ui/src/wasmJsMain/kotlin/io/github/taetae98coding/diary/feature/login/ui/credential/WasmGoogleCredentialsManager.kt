@@ -21,6 +21,8 @@ internal actual fun rememberGoogleCredentialsManager(): GoogleCredentialsManager
 private class WasmGoogleCredentialsManager(
     private val clientId: String,
 ) : GoogleCredentialsManager {
+    override val isSignInEndDetectable: Boolean = true
+
     override suspend fun signIn(): GoogleCredential =
         suspendCancellableCoroutine { continuation ->
             val client =

@@ -36,4 +36,7 @@
     <string name="contact_detail_memo_add_button_content_description">Add memo</string>
     <string name="contact_detail_memo_empty_title">No memos linked to this contact</string>
     <string name="contact_detail_memo_empty_description">Use the add button to create a memo.</string>
+    <string name="contact_home_deleted_message">Contact deleted.</string>
+    <string name="contact_home_undo_action">Undo</string>
+    <string name="contact_home_delete_content_description">Delete contact</string>
 </resources>

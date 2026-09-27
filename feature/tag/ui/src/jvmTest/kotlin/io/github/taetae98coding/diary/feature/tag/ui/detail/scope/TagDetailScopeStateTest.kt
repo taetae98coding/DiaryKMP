@@ -7,10 +7,11 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeSameInstanceAs
 
 class TagDetailScopeStateTest :
     FunSpec({
-        test("TC-TAG-DETAIL-FEATURE-048 TC-TAG-DETAIL-DOMAIN-018 새로 만든 상태는 이 태그만 범위로 시작한다") {
+        test("TC-TAG-DETAIL-FEATURE-048 새로 만든 상태는 이 태그만 범위로 시작한다") {
             val state = TagDetailScopeState(sheetState = DialogState())
 
             state.scope shouldBe TagScope.SELF
@@ -51,13 +52,29 @@ class TagDetailScopeStateTest :
 
         test("저장하고 복원해도 고른 범위가 유지된다") {
             TagScope.entries.forEach { scope ->
-                val state = TagDetailScopeState(sheetState = DialogState())
+                val sheetState = DialogState()
+                val state = TagDetailScopeState(sheetState = sheetState)
                 state.select(scope = scope)
+                val saver = TagDetailScopeState.saver(sheetState = sheetState)
 
-                val saved = with(TagDetailScopeState.Saver) { SaverScope { true }.save(state) }
-                val restored = TagDetailScopeState.Saver.restore(checkNotNull(saved))
+                val saved = with(saver) { SaverScope { true }.save(state) }
+                val restored = saver.restore(checkNotNull(saved))
 
                 checkNotNull(restored).scope shouldBe scope
+            }
+        }
+
+        test("복원한 상태는 함께 복원된 Bottom Sheet 표시 상태를 그대로 쓴다") {
+            listOf(true, false).forEach { isVisible ->
+                val restoredSheetState = DialogState(isVisible = isVisible)
+                val state = TagDetailScopeState(sheetState = DialogState(isVisible = isVisible))
+                val saver = TagDetailScopeState.saver(sheetState = restoredSheetState)
+
+                val saved = with(saver) { SaverScope { true }.save(state) }
+                val restored = checkNotNull(saver.restore(checkNotNull(saved)))
+
+                restored.sheetState shouldBeSameInstanceAs restoredSheetState
+                restored.sheetState.isVisible shouldBe isVisible
             }
         }
     })

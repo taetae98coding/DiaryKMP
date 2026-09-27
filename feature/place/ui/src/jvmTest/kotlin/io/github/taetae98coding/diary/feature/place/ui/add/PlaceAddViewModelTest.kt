@@ -12,6 +12,8 @@ import io.github.taetae98coding.diary.domain.place.exception.PlaceCoordinateInva
 import io.github.taetae98coding.diary.domain.place.exception.PlaceTitleBlankException
 import io.github.taetae98coding.diary.domain.place.usecase.AddPlaceUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
+import io.github.taetae98coding.diary.feature.place.ui.form.mapCoordinateInFormPrecision
+import io.github.taetae98coding.diary.feature.place.ui.form.placeAddFormState
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
@@ -141,6 +143,36 @@ class PlaceAddViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-PLACE-ADD-FEATURE-019 지도에서 고른 좌표로 장소를 추가한다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val selectedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
+                val useCase = mockk<AddPlaceUseCase>()
+                coEvery { useCase(any()) } returns Result.success(id)
+                val viewModel = viewModel(addPlaceUseCase = useCase)
+                collectUiState(viewModel)
+                val state = placeAddFormState(initialMapCoordinate = fixtureMonkey.mapCoordinateInFormPrecision())
+                state.titleState.setText("title-${fixtureMonkey.giveMeOne<String>()}")
+
+                state.selectSpotOnMap(selectedCoordinate)
+                viewModel.effect.test {
+                    viewModel.add(detail = state.detail, tagIdSet = emptySet())
+                    advanceUntilIdle()
+
+                    awaitItem() shouldBe PlaceAddEffect.AddSucceeded(id = id)
+                    expectNoEvents()
+                }
+
+                coVerify(exactly = 1) {
+                    useCase(
+                        match { parameter ->
+                            parameter.detail.coordinate == Coordinate(latitude = selectedCoordinate.latitude, longitude = selectedCoordinate.longitude)
+                        },
+                    )
+                }
+            }
+        }
+
         test("TC-PLACE-ADD-FEATURE-006 추가를 처리하는 동안 진행 상태를 유지하고 완료 후 해제한다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<Uuid>>()
@@ -252,20 +284,31 @@ class PlaceAddViewModelTest : FunSpec() {
             }
         }
 
-        test("알 수 없는 실패에는 Effect를 보내지 않고 진행 상태만 해제한다") {
+        test("TC-PLACE-ADD-FEATURE-039 저장에 실패하면 Effect를 보내지 않고 진행 상태만 해제해 같은 내용으로 다시 추가할 수 있다") {
             runTest(mainDispatcher) {
+                val detail = detail()
+                val tagIdSet = setOf(fixtureMonkey.giveMeOne<Uuid>())
+                val parameter = AddPlaceUseCase.Parameter(detail = detail, tagIdSet = tagIdSet)
                 val useCase = mockk<AddPlaceUseCase>()
                 coEvery { useCase(any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
                 val viewModel = viewModel(addPlaceUseCase = useCase)
                 collectUiState(viewModel)
 
                 viewModel.effect.test {
-                    viewModel.add(detail(), tagIdSet = emptySet())
+                    viewModel.add(detail, tagIdSet = tagIdSet)
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                    viewModel.uiState.value.isInProgress
+                        .shouldBeFalse()
+
+                    viewModel.add(detail, tagIdSet = tagIdSet)
                     advanceUntilIdle()
 
                     expectNoEvents()
                 }
 
+                coVerify(exactly = 2) { useCase(parameter) }
                 viewModel.uiState.value.isInProgress
                     .shouldBeFalse()
             }

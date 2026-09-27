@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.calendar.CalendarColor
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefault
+import io.github.taetae98coding.diary.compose.calendar.CalendarEvent
 import io.github.taetae98coding.diary.compose.calendar.WEEKS_PER_MONTH
 import io.github.taetae98coding.diary.compose.calendar.grid.CalendarWeekOfMonthGridScope
 import io.github.taetae98coding.diary.compose.calendar.scroll.CalendarItemScrollState
@@ -27,6 +28,9 @@ internal fun CalendarMonth(
     modifier: Modifier = Modifier,
     selectState: CalendarSelectState = rememberCalendarSelectState(),
     itemScrollState: CalendarItemScrollState = rememberCalendarItemScrollState(),
+    onEvent: ((CalendarEvent) -> Unit)? = null,
+    isDateClickEnabled: Boolean = false,
+    isWeekClickEnabled: Boolean = false,
     holidayProvider: () -> List<LocalDateRange> = { emptyList() },
     primaryDateProvider: () -> List<LocalDate> = { emptyList() },
     colors: CalendarColor = CalendarDefault.colors(),
@@ -40,6 +44,9 @@ internal fun CalendarMonth(
                 modifier = Modifier.weight(1F),
                 selectState = selectState,
                 itemScrollState = itemScrollState,
+                onEvent = onEvent,
+                isDateClickEnabled = isDateClickEnabled,
+                isWeekClickEnabled = isWeekClickEnabled,
                 holidayProvider = holidayProvider,
                 primaryDateProvider = primaryDateProvider,
                 colors = colors,

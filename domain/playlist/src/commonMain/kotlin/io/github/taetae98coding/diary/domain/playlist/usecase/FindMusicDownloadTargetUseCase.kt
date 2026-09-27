@@ -1,11 +1,10 @@
 package io.github.taetae98coding.diary.domain.playlist.usecase
 
 import io.github.taetae98coding.diary.core.model.list.ListSort
-import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadTarget
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.core.UseCase
-import io.github.taetae98coding.diary.domain.playlist.link.toYoutubeVideoIdOrNull
+import io.github.taetae98coding.diary.domain.playlist.link.toMusicDownloadTargetOrNull
 import io.github.taetae98coding.diary.domain.playlist.repository.AccountMusicRepository
 import kotlinx.coroutines.flow.first
 import org.koin.core.annotation.Factory
@@ -20,12 +19,6 @@ public class FindMusicDownloadTargetUseCase internal constructor(
 
         return accountMusicRepository
             .findList(account = account, sort = parameter)
-            .mapNotNull { music -> music.toDownloadTargetOrNull() }
-    }
-
-    private fun Music.toDownloadTargetOrNull(): MusicDownloadTarget? {
-        val videoId = detail.link.toYoutubeVideoIdOrNull() ?: return null
-
-        return MusicDownloadTarget(id = id, videoId = videoId)
+            .mapNotNull { music -> music.toMusicDownloadTargetOrNull() }
     }
 }

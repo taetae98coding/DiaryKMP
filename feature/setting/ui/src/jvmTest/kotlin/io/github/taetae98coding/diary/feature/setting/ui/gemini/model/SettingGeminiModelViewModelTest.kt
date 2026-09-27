@@ -8,6 +8,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMe
 import io.github.taetae98coding.diary.core.model.gemini.GeminiModel
 import io.github.taetae98coding.diary.domain.setting.exception.GeminiApiKeyInvalidException
 import io.github.taetae98coding.diary.domain.setting.usecase.FetchGeminiModelUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -19,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -51,6 +53,31 @@ class SettingGeminiModelViewModelTest : FunSpec() {
 
                 viewModel.uiState.value shouldBe SettingGeminiModelUiState()
                 coVerify(exactly = 0) { fetchGeminiModelUseCase(any()) }
+            }
+        }
+
+        test("TC-SETTING-GEMINI-FEATURE-031 다른 앱에 다녀와도 받아 둔 모델 목록을 다시 조회하지 않는다") {
+            runTest(mainDispatcher) {
+                val modelList = fixtureMonkey.giveMe<GeminiModel>(2)
+                val fetchGeminiModelUseCase = mockk<FetchGeminiModelUseCase>()
+                coEvery { fetchGeminiModelUseCase(API_KEY) } returns Result.success(modelList)
+                val viewModel = SettingGeminiModelViewModel(fetchGeminiModelUseCase = fetchGeminiModelUseCase)
+                viewModel.fetch(apiKey = API_KEY)
+                advanceUntilIdle()
+                val loaded = viewModel.uiState.value
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe loaded
+                }
+                advanceTimeBy(UI_STOP_TIMEOUT_MILLIS * 2)
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe loaded
+                    advanceUntilIdle()
+                    expectNoEvents()
+                }
+                loaded.modelList shouldBe modelList
+                coVerify(exactly = 1) { fetchGeminiModelUseCase(any()) }
             }
         }
 

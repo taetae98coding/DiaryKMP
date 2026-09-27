@@ -16,12 +16,12 @@ import io.github.taetae98coding.diary.domain.memo.usecase.RemoveMemoPlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -54,6 +54,22 @@ class MemoPlaceViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
+        test("TC-MEMO-PLACE-CARD-FEATURE-042 선택 목록을 열지 않아도 선택할 수 있는 장소 전체를 빈 검색어로 조회한다") {
+            runTest(mainDispatcher) {
+                val item = place()
+                val pagePlaceUseCase = mockk<PagePlaceUseCase>()
+                every { pagePlaceUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(listOf(item))))
+                val viewModel = viewModel(pagePlaceUseCase = pagePlaceUseCase, isListOpened = false)
+
+                val itemList = flowOf(viewModel.selectablePlacePagingData.first()).asSnapshot()
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+
+                itemList shouldBe listOf(item)
+                verify(exactly = 1) { pagePlaceUseCase(parameter = "") }
+            }
+        }
+
         test("저장된 장소 연결이 조회되지 않으면 로딩 상태를 유지한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(memoPlaceFlow = emptyFlow())
@@ -67,7 +83,7 @@ class MemoPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("장소 목록 페이지 조회에 실패하면 빈 목록을 전달하고 선택 상태는 그대로 표시한다") {
+        test("장소 목록 페이지 조회에 실패하면 없는 것으로 확정할 목록을 전달하지 않고 선택 상태는 그대로 표시한다") {
             runTest(mainDispatcher) {
                 val connectedPlace = place()
                 val viewModel =
@@ -76,7 +92,11 @@ class MemoPlaceViewModelTest : FunSpec() {
                         memoPlaceFlow = flowOf(Result.success(listOf(connectedPlace))),
                     )
 
-                flowOf(viewModel.placePagingData.first()).asSnapshot().shouldBeEmpty()
+                viewModel.placePagingData.test {
+                    advanceUntilIdle()
+                    expectNoEvents()
+                    cancelAndIgnoreRemainingEvents()
+                }
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe MemoPlaceInputUiState()
@@ -343,8 +363,8 @@ class MemoPlaceViewModelTest : FunSpec() {
             fixtureMonkey
                 .giveMeKotlinBuilder<Place>()
                 .setExp(Place::isDeleted, false)
-                .setExp(Place::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Place::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Place::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Place::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
 
         private fun viewModel(
@@ -357,6 +377,7 @@ class MemoPlaceViewModelTest : FunSpec() {
                 mockk<PagePlaceUseCase>().apply {
                     every { this@apply(parameter = any()) } returns placePagingFlow
                 },
+            isListOpened: Boolean = true,
         ): MemoPlaceViewModel {
             val getMemoPlaceUseCase = mockk<GetMemoPlaceUseCase>()
             every { getMemoPlaceUseCase(any()) } returns memoPlaceFlow
@@ -367,7 +388,10 @@ class MemoPlaceViewModelTest : FunSpec() {
                 getMemoPlaceUseCase = getMemoPlaceUseCase,
                 addMemoPlaceUseCase = addMemoPlaceUseCase,
                 removeMemoPlaceUseCase = removeMemoPlaceUseCase,
-            )
+            ).apply {
+                // 화면은 선택 목록을 열 때 검색어를 알려 주므로, 목록이 열린 상태를 만든다.
+                if (isListOpened) updateQuery(query = "")
+            }
         }
     }
 }

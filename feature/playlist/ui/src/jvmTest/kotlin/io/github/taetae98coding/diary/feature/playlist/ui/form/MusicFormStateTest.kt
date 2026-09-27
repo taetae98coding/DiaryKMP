@@ -27,7 +27,7 @@ class MusicFormStateTest :
         test("TC-MUSIC-ADD-FEATURE-016 불러오기에 성공하면 제목과 가수를 채우고 링크와 썸네일은 그대로 둔다") {
             val state = formState(link = YOUTUBE_LINK)
 
-            state.fill(title = FETCHED_TITLE, artist = FETCHED_ARTIST)
+            state.fill(link = state.link, title = FETCHED_TITLE, artist = FETCHED_ARTIST)
 
             state.detail.title shouldBe FETCHED_TITLE
             state.detail.artist shouldBe FETCHED_ARTIST
@@ -42,7 +42,7 @@ class MusicFormStateTest :
             test("TC-MUSIC-ADD-FEATURE-024 제목과 가수가 $label 이면 불러온 값으로 채운다") {
                 val state = formState(title = blank, artist = blank)
 
-                state.fill(title = FETCHED_TITLE, artist = FETCHED_ARTIST)
+                state.fill(link = state.link, title = FETCHED_TITLE, artist = FETCHED_ARTIST)
 
                 state.detail.title shouldBe FETCHED_TITLE
                 state.detail.artist shouldBe FETCHED_ARTIST
@@ -56,7 +56,36 @@ class MusicFormStateTest :
                     artist = "artist-${fixtureMonkey.giveMeOne<String>()}",
                 )
 
-            state.fill(title = FETCHED_TITLE, artist = FETCHED_ARTIST)
+            state.fill(link = state.link, title = FETCHED_TITLE, artist = FETCHED_ARTIST)
+
+            state.detail.title shouldBe FETCHED_TITLE
+            state.detail.artist shouldBe FETCHED_ARTIST
+        }
+
+        listOf(
+            OTHER_YOUTUBE_LINK to "다른 영상의 링크로 바꾼",
+            "" to "지운",
+        ).forEach { (changedLink, label) ->
+            test("TC-MUSIC-ADD-FEATURE-035 TC-MUSIC-DETAIL-FEATURE-033 불러오는 동안 링크를 $label 뒤 도착한 결과는 채우지 않는다") {
+                val title = "title-${fixtureMonkey.giveMeOne<String>()}"
+                val artist = "artist-${fixtureMonkey.giveMeOne<String>()}"
+                val state = formState(title = title, artist = artist, link = YOUTUBE_LINK)
+                state.linkState.textFieldState.setTextAndPlaceCursorAtEnd(changedLink)
+
+                state.fill(link = YOUTUBE_LINK, title = FETCHED_TITLE, artist = FETCHED_ARTIST)
+
+                state.detail.title shouldBe title
+                state.detail.artist shouldBe artist
+                state.detail.link shouldBe changedLink
+            }
+        }
+
+        test("TC-MUSIC-ADD-FEATURE-035 TC-MUSIC-DETAIL-FEATURE-033 링크를 바꿨다가 실행한 때의 링크로 되돌리면 도착한 결과를 채운다") {
+            val state = formState(link = YOUTUBE_LINK)
+            state.linkState.textFieldState.setTextAndPlaceCursorAtEnd(OTHER_YOUTUBE_LINK)
+            state.linkState.textFieldState.setTextAndPlaceCursorAtEnd(YOUTUBE_LINK)
+
+            state.fill(link = YOUTUBE_LINK, title = FETCHED_TITLE, artist = FETCHED_ARTIST)
 
             state.detail.title shouldBe FETCHED_TITLE
             state.detail.artist shouldBe FETCHED_ARTIST

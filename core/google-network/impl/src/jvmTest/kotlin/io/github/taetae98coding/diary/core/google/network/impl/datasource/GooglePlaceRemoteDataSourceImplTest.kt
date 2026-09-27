@@ -16,6 +16,7 @@ import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.doubles.shouldBeNaN
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldStartWith
 import io.ktor.client.engine.HttpClientEngine
@@ -32,12 +33,14 @@ import io.ktor.http.content.TextContent
 import io.ktor.http.headersOf
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.double
 import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.put
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.koin.plugin.module.dsl.koinApplication
@@ -196,6 +199,43 @@ class GooglePlaceRemoteDataSourceImplTest :
                     dataSource.search(query = fixtureMonkey.giveMeOne<String>(), locationBias = null)
                 }
             }
+        }
+
+        test("TC-GOOGLE-PLACE-SEARCH-DATA-007: 좌표가 빠진 장소가 섞여 있어도 검색은 실패하지 않고 그 장소를 좌표를 확인할 수 없는 장소로 받은 순서대로 전달한다") {
+            val representable = fixtureMonkey.giveMeOne<GooglePlaceRemoteEntity>()
+            val withoutLocationId = "place-${fixtureMonkey.giveMeOne<Int>()}"
+            val withoutLatitudeId = "place-${fixtureMonkey.giveMeOne<Int>()}"
+            val content =
+                buildJsonObject {
+                    put(
+                        "places",
+                        buildJsonArray {
+                            add(Json.encodeToJsonElement(representable))
+                            add(
+                                buildJsonObject {
+                                    put("id", withoutLocationId)
+                                    put("displayName", buildJsonObject { put("text", withoutLocationId) })
+                                },
+                            )
+                            add(
+                                buildJsonObject {
+                                    put("id", withoutLatitudeId)
+                                    put("displayName", buildJsonObject { put("text", withoutLatitudeId) })
+                                    put("location", buildJsonObject { put("longitude", representable.location.longitude) })
+                                },
+                            )
+                        },
+                    )
+                }.toString()
+            val dataSource = createDataSource(createEngine(content = content))
+
+            val actual = dataSource.search(query = fixtureMonkey.giveMeOne<String>(), locationBias = null)
+
+            actual.map { place -> place.id } shouldBe listOf(representable.id, withoutLocationId, withoutLatitudeId)
+            actual[0] shouldBe representable
+            actual[1].location.latitude.shouldBeNaN()
+            actual[1].location.longitude.shouldBeNaN()
+            actual[2].location.latitude.shouldBeNaN()
         }
 
         test("Google 장소 텍스트 검색 주소로 요청한다") {

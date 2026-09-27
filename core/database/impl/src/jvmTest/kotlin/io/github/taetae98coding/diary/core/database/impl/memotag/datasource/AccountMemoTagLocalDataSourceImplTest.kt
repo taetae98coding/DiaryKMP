@@ -8,10 +8,13 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
+import io.github.taetae98coding.diary.core.database.api.tag.entity.TagDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.memotag.transaction.AccountMemoTagSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.memotag.transaction.AccountMemoTagTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
@@ -20,6 +23,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlinx.coroutines.flow.first
+import kotlinx.datetime.LocalDateTime
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -118,7 +122,26 @@ class AccountMemoTagLocalDataSourceImplTest :
             dataSource.getTagList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(tag)
         }
 
-        test("TC-MEMO-TAG-INPUT-DOMAIN-001 TC-MEMO-TAG-DOMAIN-011 다른 계정의 연결은 조회되지 않는다") {
+        test("TC-MEMO-TAG-DOMAIN-011 계정과 연결되지 않은 태그를 메모에 연결해도 메모의 연결된 태그로 조회되지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = memo()
+            val otherAccountTag = tag()
+            insertMemo(accountId = accountId, memo = memo)
+            tagTransaction.upsert(accountId = otherAccountId, tagList = listOf(otherAccountTag), tagLinkList = emptyList())
+
+            memoTagTransaction.upsert(
+                accountId = accountId,
+                memoId = memo.id,
+                tagId = otherAccountTag.id,
+                isDeleted = false,
+                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+            )
+
+            dataSource.getTagList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
+        }
+
+        test("TC-MEMO-TAG-INPUT-DOMAIN-001 다른 계정의 연결은 조회되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
@@ -151,6 +174,82 @@ class AccountMemoTagLocalDataSourceImplTest :
             tagTransaction.upsert(accountId = accountId, tagList = listOf(tag.copy(isDeleted = true)), tagLinkList = emptyList())
 
             dataSource.getTagList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
+        }
+
+        test("TC-MEMO-TAG-DOMAIN-017 삭제된 태그의 삭제가 다른 기기에서 받은 내용으로 풀리면 다시 조회된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = memo()
+            val tag = tag()
+            insertMemo(accountId = accountId, memo = memo)
+            connect(accountId = accountId, memoId = memo.id, tag = tag)
+            tagTransaction.upsert(accountId = accountId, tagList = listOf(tag.copy(isDeleted = true)), tagLinkList = emptyList())
+            dataSource.getTagList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
+
+            AccountTagSyncTransactionImpl(database = database).save(
+                accountId = accountId,
+                tagList = listOf(tag.copy(isDeleted = false)),
+                cursor = 1L,
+            )
+
+            dataSource.getTagList(accountId = accountId, memoId = memo.id).first() shouldBe listOf(tag)
+        }
+
+        test("TC-MEMO-TAG-DOMAIN-018 태그의 이모지·제목·설명·컬러를 수정해도 메모와의 연결은 바뀌지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = memo()
+            val tag = tag()
+            insertMemo(accountId = accountId, memo = memo)
+            connect(accountId = accountId, memoId = memo.id, tag = tag)
+            val memoTagList = database.memoTagDao().findByMemoIdList(listOf(memo.id))
+            val newDetail =
+                TagDetailLocalEntity(
+                    emoji = "✈️",
+                    title = "edited-${fixtureMonkey.giveMeOne<Uuid>()}",
+                    description = "edited-${fixtureMonkey.giveMeOne<Uuid>()}",
+                    color = tag.detail.color.inv(),
+                )
+
+            tagTransaction.updateDetail(accountId = accountId, tagId = tag.id, detail = newDetail, updatedAt = instant())
+
+            dataSource
+                .getTagList(accountId = accountId, memoId = memo.id)
+                .first()
+                .map { connectedTag -> connectedTag.id to connectedTag.detail } shouldBe listOf(tag.id to newDetail)
+            database.memoTagDao().findByMemoIdList(listOf(memo.id)) shouldBe memoTagList
+        }
+
+        listOf<Pair<String, Boolean>>(
+            "연결되지 않은 태그 하나를 새로 연결하면" to false,
+            "연결된 태그 하나의 연결을 해제하면" to true,
+        ).forEach { (label, isDeleted) ->
+            test("TC-MEMO-TAG-DATA-012 TC-DATA-SYNC-DOMAIN-001 $label 그 연결만 업로드 대기가 된다") {
+                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val memo = memo().copy(primaryTagId = null)
+                val keptTag = tag()
+                val removedTag = tag()
+                val addedTag = tag()
+                insertMemo(accountId = accountId, memo = memo)
+                connect(accountId = accountId, memoId = memo.id, tag = keptTag)
+                connect(accountId = accountId, memoId = memo.id, tag = removedTag)
+                tagTransaction.upsert(accountId = accountId, tagList = listOf(addedTag), tagLinkList = emptyList())
+                AccountMemoTagSyncTransactionImpl(database = database).clearPending(
+                    accountId = accountId,
+                    memoTagList = database.memoTagDao().findByMemoIdList(listOf(memo.id)),
+                )
+                val syncDataSource = AccountMemoTagSyncLocalDataSourceImpl(database = database)
+                syncDataSource.findPending(accountId = accountId).shouldBeEmpty()
+                val changedTagId = if (isDeleted) removedTag.id else addedTag.id
+
+                memoTagTransaction.upsert(
+                    accountId = accountId,
+                    memoId = memo.id,
+                    tagId = changedTagId,
+                    isDeleted = isDeleted,
+                    updatedAt = instant(),
+                )
+
+                syncDataSource.findPending(accountId = accountId).map { memoTag -> memoTag.tagId } shouldBe listOf(changedTagId)
+            }
         }
 
         test("TC-MEMO-DETAIL-DATA-019 연결된 태그가 완료되어도 조회 결과에 남는다") {
@@ -389,20 +488,22 @@ class AccountMemoTagLocalDataSourceImplTest :
             val emojiTag = tag().withDetail(emoji = "✈️", title = "AlphaTag", description = "")
             val descriptionTag = tag().withDetail(emoji = "", title = "BetaTag", description = "여행 기록")
             val otherTag = tag().withDetail(emoji = "", title = "GammaTag", description = "")
+            val koreanTitleTag = tag().withDetail(emoji = "", title = "여행 기록", description = "")
             insertMemo(accountId = accountId, memo = memo)
             tagTransaction.upsert(
                 accountId = accountId,
-                tagList = listOf(titleTag, emojiTag, descriptionTag, otherTag),
+                tagList = listOf(titleTag, emojiTag, descriptionTag, otherTag, koreanTitleTag),
                 tagLinkList = emptyList(),
             )
 
             dataSource.pageSelectableTag(accountId = accountId, memoId = memo.id, query = "trav").loadPage().data shouldBe listOf(titleTag)
             dataSource.pageSelectableTag(accountId = accountId, memoId = memo.id, query = "✈️").loadPage().data shouldBe listOf(emojiTag)
-            dataSource.pageSelectableTag(accountId = accountId, memoId = memo.id, query = "여행").loadPage().data shouldBe listOf(descriptionTag)
+            dataSource.pageSelectableTag(accountId = accountId, memoId = memo.id, query = "여행").loadPage().data shouldBe listOf(descriptionTag, koreanTitleTag)
+            dataSource.pageSelectableTag(accountId = accountId, memoId = memo.id, query = "업무").loadPage().data shouldBe emptyList()
             dataSource
                 .pageSelectableTag(accountId = accountId, memoId = memo.id, query = "")
                 .loadPage()
-                .data shouldBe listOf(emojiTag, descriptionTag, otherTag, titleTag)
+                .data shouldBe listOf(emojiTag, descriptionTag, otherTag, titleTag, koreanTitleTag)
         }
 
         test("TC-MEMO-TAG-INPUT-DOMAIN-017 검색어를 만족하지 않으면 연결된 완료된 태그도 선택 목록에서 빠진다") {
@@ -452,6 +553,60 @@ class AccountMemoTagLocalDataSourceImplTest :
 
             dataSource.getTagList(accountId = accountId, memoId = memo.id).first() shouldContainExactlyInAnyOrder listOf(tag)
         }
+
+        test("TC-MEMO-TAG-DOMAIN-014 필터를 고르지 않은 메모 목록에서 태그 연결은 노출과 순서를 바꾸지 않는다") {
+            listOf("AAA" to "BBB", "BBB" to "AAA").forEach { (linkedTitle, unlinkedTitle) ->
+                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val linkedMemo = memo().visible().withTitle(title = linkedTitle)
+                val unlinkedMemo = memo().visible().withTitle(title = unlinkedTitle)
+                insertMemo(accountId = accountId, memo = linkedMemo)
+                insertMemo(accountId = accountId, memo = unlinkedMemo)
+                connect(accountId = accountId, memoId = linkedMemo.id, tag = tag())
+
+                val memoList =
+                    database
+                        .accountMemoDao()
+                        .page(accountId = accountId, sort = "title")
+                        .loadAll()
+
+                memoList.map { memo -> memo.id } shouldBe listOf(linkedMemo, unlinkedMemo).sortedBy { memo -> memo.detail.title }.map { memo -> memo.id }
+            }
+        }
+
+        test("TC-MEMO-TAG-DOMAIN-015 태그 필터를 고르지 않은 캘린더에서 태그 연결은 메모 노출을 바꾸지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val start = LocalDateTime(year = 2026, month = 9, day = 25, hour = 9, minute = 0)
+            val endInclusive = LocalDateTime(year = 2026, month = 9, day = 26, hour = 9, minute = 0)
+            val linkedMemo = memo().visible().withPeriod(start = start, endInclusive = endInclusive)
+            val unlinkedMemo = memo().visible().withPeriod(start = start, endInclusive = endInclusive)
+            insertMemo(accountId = accountId, memo = linkedMemo)
+            insertMemo(accountId = accountId, memo = unlinkedMemo)
+            connect(accountId = accountId, memoId = linkedMemo.id, tag = tag())
+
+            val calendarMemoList =
+                database
+                    .accountCalendarMemoDao()
+                    .get(accountId = accountId, start = start.date, endInclusive = endInclusive.date)
+                    .first()
+
+            calendarMemoList.map { memo -> memo.id } shouldContainExactlyInAnyOrder listOf(linkedMemo.id, unlinkedMemo.id)
+        }
+
+        test("TC-MEMO-TAG-DOMAIN-016 연결된 태그의 제목은 메모 검색에 쓰이지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val query = "query-${fixtureMonkey.giveMeOne<Uuid>()}"
+            val memo = memo().visible().let { value -> value.copy(detail = value.detail.copy(title = "memo-title", description = "memo-description")) }
+            insertMemo(accountId = accountId, memo = memo)
+            connect(accountId = accountId, memoId = memo.id, tag = tag().withTitle(title = "tag-$query"))
+
+            val memoList =
+                database
+                    .searchMemoDao()
+                    .page(accountId = accountId, query = query, sort = "title")
+                    .loadAll()
+
+            memoList.shouldBeEmpty()
+        }
     }) {
     public companion object {
         private const val FIRST_TAG_TITLE = "AppleTag"
@@ -481,6 +636,20 @@ class AccountMemoTagLocalDataSourceImplTest :
 
         private fun TagLocalEntity.withTitle(title: String): TagLocalEntity = copy(detail = detail.copy(title = title))
 
+        private fun MemoLocalEntity.visible(): MemoLocalEntity = copy(isFinished = false, isDeleted = false)
+
+        private fun MemoLocalEntity.withTitle(title: String): MemoLocalEntity = copy(detail = detail.copy(title = title))
+
+        private fun MemoLocalEntity.withPeriod(
+            start: LocalDateTime,
+            endInclusive: LocalDateTime,
+        ): MemoLocalEntity = copy(detail = detail.copy(isAllDay = false, start = start, endInclusive = endInclusive))
+
+        private suspend fun <T : Any> PagingSource<Int, T>.loadAll(): List<T> =
+            load(PagingSource.LoadParams.Refresh(key = null, loadSize = 100, placeholdersEnabled = false))
+                .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, T>>()
+                .data
+
         private fun TagLocalEntity.withDetail(
             emoji: String,
             title: String,
@@ -501,6 +670,6 @@ class AccountMemoTagLocalDataSourceImplTest :
             return load(params).shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, TagLocalEntity>>()
         }
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
     }
 }

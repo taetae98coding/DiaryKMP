@@ -84,6 +84,7 @@ class CalendarHomeScaffoldShortcutTest {
                             calendarState = rememberCalendarState(initialYearMonth = minYearMonth),
                         ),
                     onEvent = {},
+                    onCalendarEvent = {},
                 )
             }
         }
@@ -120,7 +121,7 @@ class CalendarHomeScaffoldShortcutTest {
     private fun setCalendarHomeScaffold() {
         composeRule.setContent {
             DiaryTheme {
-                CalendarHomeScaffold(onEvent = {})
+                CalendarHomeScaffold(onEvent = {}, onCalendarEvent = {})
             }
         }
     }

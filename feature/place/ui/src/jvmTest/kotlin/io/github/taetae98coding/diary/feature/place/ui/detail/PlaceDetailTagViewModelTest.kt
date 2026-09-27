@@ -2,6 +2,7 @@
 
 package io.github.taetae98coding.diary.feature.place.ui.detail
 
+import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
@@ -13,6 +14,7 @@ import io.github.taetae98coding.diary.domain.place.usecase.AddPlaceTagUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.GetPlaceTagUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceSelectableTagUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.RemovePlaceTagUseCase
+import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -21,19 +23,24 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlin.time.Instant
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.uuid.Uuid
 
 class PlaceDetailTagViewModelTest : FunSpec() {
@@ -49,6 +56,31 @@ class PlaceDetailTagViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
+        test("TC-ENTITY-TAG-INPUT-FEATURE-033 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val item = tag()
+                val parameter = PagePlaceSelectableTagUseCase.Parameter(placeId = id, query = "")
+                val useCase = mockk<PagePlaceSelectableTagUseCase>()
+                every { useCase(parameter = parameter) } returns flowOf(Result.success(PagingData.from(listOf(item))))
+                val viewModel =
+                    PlaceDetailTagViewModel(
+                        id = id,
+                        pagePlaceSelectableTagUseCase = useCase,
+                        getPlaceTagUseCase = mockk(relaxed = true),
+                        addPlaceTagUseCase = mockk(relaxed = true),
+                        removePlaceTagUseCase = mockk(relaxed = true),
+                    )
+
+                val itemList = flowOf(viewModel.selectableTagPagingData.first()).asSnapshot()
+                viewModel.viewModelScope.cancel()
+                advanceUntilIdle()
+
+                itemList shouldBe listOf(item)
+                verify(exactly = 1) { useCase(parameter = parameter) }
+            }
+        }
+
         test("저장된 연결의 태그를 연결 대상으로 표시한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
@@ -62,7 +94,7 @@ class PlaceDetailTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-FEATURE-033 저장된 연결이 바뀌면 연결 대상 표시도 바뀐다") {
+        test("TC-PLACE-DETAIL-FEATURE-056 저장된 연결이 바뀌면 연결 대상 표시도 바뀐다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val tag = tag()
@@ -83,7 +115,7 @@ class PlaceDetailTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-FEATURE-033 TC-PLACE-DETAIL-FEATURE-038 태그를 연결하면 상세 대상 장소와 그 태그의 연결을 만든다") {
+        test("TC-PLACE-DETAIL-FEATURE-038 태그를 연결하면 상세 대상 장소와 그 태그의 연결을 만든다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
@@ -100,7 +132,7 @@ class PlaceDetailTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-FEATURE-033 TC-PLACE-DETAIL-FEATURE-038 연결을 해제하면 상세 대상 장소와 그 태그의 연결을 해제한다") {
+        test("TC-PLACE-DETAIL-FEATURE-038 연결을 해제하면 상세 대상 장소와 그 태그의 연결을 해제한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
@@ -152,6 +184,7 @@ class PlaceDetailTagViewModelTest : FunSpec() {
             }
         }
         searchTests()
+        restorationTests()
     }
 
     private fun searchTests() {
@@ -203,6 +236,35 @@ class PlaceDetailTagViewModelTest : FunSpec() {
         }
     }
 
+    private fun restorationTests() {
+        test("TC-ENTITY-TAG-INPUT-DOMAIN-017 복원 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
+                val allTagList = List(2) { tag() }
+                val matchedTagList = listOf(allTagList.first())
+                val useCase = mockk<PagePlaceSelectableTagUseCase>()
+                every {
+                    useCase(parameter = PagePlaceSelectableTagUseCase.Parameter(placeId = id, query = ""))
+                } returns flowOf(Result.success(PagingData.from(allTagList)))
+                every {
+                    useCase(parameter = PagePlaceSelectableTagUseCase.Parameter(placeId = id, query = query))
+                } returns flowOf(Result.success(PagingData.from(matchedTagList)))
+                val viewModel = viewModel(id = id, pagePlaceSelectableTagUseCase = useCase, isListOpened = false)
+
+                // 복원된 화면은 목록을 다시 열면서 되살린 검색어를 처음으로 알려 준다.
+                viewModel.tagPagingData.test {
+                    viewModel.updateQuery(query)
+                    runCurrent()
+
+                    flowOf(awaitItem()).asSnapshot() shouldBe matchedTagList
+                    cancelAndIgnoreRemainingEvents()
+                }
+                verify(exactly = 0) { useCase(parameter = PagePlaceSelectableTagUseCase.Parameter(placeId = id, query = "")) }
+            }
+        }
+    }
+
     private fun viewModel(
         id: Uuid,
         tagFlow: Flow<Result<List<Tag>>> = flowOf(Result.success(emptyList())),
@@ -212,6 +274,7 @@ class PlaceDetailTagViewModelTest : FunSpec() {
             mockk<PagePlaceSelectableTagUseCase>().apply {
                 every { this@apply(parameter = any()) } returns flowOf(Result.success(PagingData.empty()))
             },
+        isListOpened: Boolean = true,
     ): PlaceDetailTagViewModel {
         val getPlaceTagUseCase = mockk<GetPlaceTagUseCase>()
         every { getPlaceTagUseCase(parameter = id) } returns tagFlow
@@ -222,7 +285,10 @@ class PlaceDetailTagViewModelTest : FunSpec() {
             getPlaceTagUseCase = getPlaceTagUseCase,
             addPlaceTagUseCase = addPlaceTagUseCase,
             removePlaceTagUseCase = removePlaceTagUseCase,
-        )
+        ).apply {
+            // 화면은 선택 목록을 열 때 검색어를 알려 주므로, 목록이 열린 상태를 만든다.
+            if (isListOpened) updateQuery(query = "")
+        }
     }
 
     public companion object {
@@ -235,8 +301,6 @@ class PlaceDetailTagViewModelTest : FunSpec() {
             fixtureMonkey
                 .giveMeKotlinBuilder<Tag>()
                 .setExp(Tag::isDeleted, false)
-                .setExp(Tag::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Tag::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
                 .sample()
     }
 }

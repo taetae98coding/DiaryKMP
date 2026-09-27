@@ -26,7 +26,7 @@ class FinishTagUseCaseTest :
     BehaviorSpec({
         Given("로그인한 계정과 현재 시각이 준비되어 있다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
@@ -46,7 +46,7 @@ class FinishTagUseCaseTest :
                 )
 
             When("태그를 완료한다") {
-                Then("TC-TAG-DETAIL-DATA-002 현재 계정의 태그를 완료 상태와 동작 시점 수정 시각으로 갱신한다") {
+                Then("TC-TAG-DETAIL-DATA-002 TC-TAG-HOME-DOMAIN-016 현재 계정의 태그를 완료 상태와 동작 시점 수정 시각으로 갱신한다") {
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
 
                     val result = useCase(parameter = tagId)
@@ -98,7 +98,7 @@ class FinishTagUseCaseTest :
                 accountTagRepository.updateFinished(account = account, tagId = any(), isFinished = any(), updatedAt = any())
             } returns 1
             val clock = mockk<Clock>()
-            every { clock.now() } returns Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
             val useCase =
                 FinishTagUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -108,7 +108,7 @@ class FinishTagUseCaseTest :
                 )
 
             When("태그를 완료한다") {
-                Then("태그 갱신 후 동기화를 한 번 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 태그 갱신 후 동기화를 한 번 요청한다") {
                     val result = useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
 
                     result.shouldBeSuccess(1)

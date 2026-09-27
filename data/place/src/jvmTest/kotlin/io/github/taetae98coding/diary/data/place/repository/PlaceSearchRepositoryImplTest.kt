@@ -5,6 +5,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMe
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.google.network.api.datasource.GooglePlaceRemoteDataSource
 import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceLocationBias
+import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceLocationRemoteEntity
 import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceRemoteEntity
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.location.CoordinateCircle
@@ -122,6 +123,37 @@ class PlaceSearchRepositoryImplTest :
             repository.fetch(query = query, bias = null)
 
             coVerify(exactly = 2) { dataSource.search(query = query, locationBias = null) }
+        }
+
+        test("TC-NAVER-PLACE-SEARCH-DATA-006 네이버 응답에서 좌표가 빠진 장소는 좌표를 확인할 수 없는 장소로 받은 순서대로 전달한다") {
+            val query = query()
+            val remoteList =
+                fixtureMonkey
+                    .giveMe<NaverPlaceRemoteEntity>(PLACE_COUNT)
+                    .mapIndexed { index, remote -> remote.copy(title = "장소-$index") }
+            val withoutCoordinate = remoteList[1].copy(mapx = "", mapy = "")
+            val dataSource = mockk<NaverPlaceRemoteDataSource>()
+            coEvery { dataSource.search(query = query) } returns listOf(remoteList[0], withoutCoordinate, remoteList[2])
+            val repository = NaverPlaceSearchRepositoryImpl(naverPlaceRemoteDataSource = dataSource)
+
+            val actual = repository.fetch(query = query)
+
+            actual.map { place -> place.name } shouldBe remoteList.map { remote -> remote.title }
+            actual[1].coordinate.isRepresentable shouldBe false
+        }
+
+        test("TC-GOOGLE-PLACE-SEARCH-DATA-007 Google 응답에서 좌표가 빠진 장소는 좌표를 확인할 수 없는 장소로 받은 순서대로 전달한다") {
+            val query = query()
+            val remoteList = fixtureMonkey.giveMe<GooglePlaceRemoteEntity>(PLACE_COUNT)
+            val withoutCoordinate = remoteList[1].copy(location = GooglePlaceLocationRemoteEntity())
+            val dataSource = mockk<GooglePlaceRemoteDataSource>()
+            coEvery { dataSource.search(query = query, locationBias = null) } returns listOf(remoteList[0], withoutCoordinate, remoteList[2])
+            val repository = GooglePlaceSearchRepositoryImpl(googlePlaceRemoteDataSource = dataSource)
+
+            val actual = repository.fetch(query = query, bias = null)
+
+            actual.map { place -> place.name } shouldBe listOf(remoteList[0], withoutCoordinate, remoteList[2]).map { remote -> remote.displayName.text }
+            actual[1].coordinate.isRepresentable shouldBe false
         }
 
         test("Google 검색 실패를 그대로 전파한다") {

@@ -519,6 +519,31 @@ class WeatherRepositoryImplTest :
             }
         }
 
+        test("TC-WEATHER-FETCH-DOMAIN-026 이전 성공 뒤의 실패는 다음 조회 시점을 미루지 않는다") {
+            val failure = WeatherRepositoryTestException(fixtureMonkey.giveMeOne())
+            val weatherRemoteDataSource = weatherRemoteDataSource()
+            coEvery {
+                weatherRemoteDataSource.getCurrentWeather(any(), any())
+            } returns fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>() andThenThrows failure andThen fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
+            var now = fixtureMonkey.giveMeOne<Instant>()
+            val repository =
+                repository(
+                    ipRemoteDataSource = ipRemoteDataSource(),
+                    weatherRemoteDataSource = weatherRemoteDataSource,
+                    clock = clock { now },
+                )
+
+            repository.fetch()
+            now += 1.hours
+            shouldThrowExactly<WeatherRepositoryTestException> {
+                repository.fetch()
+            } shouldBeSameInstanceAs failure
+            now += 1.minutes
+            repository.fetch()
+
+            coVerify(exactly = 3) { weatherRemoteDataSource.getCurrentWeather(any(), any()) }
+        }
+
         test("TC-WEATHER-FETCH-DOMAIN-022 조회한 동기화가 성공할 때마다 간격 기준 시각이 갱신된다") {
             val weatherRemoteDataSource = weatherRemoteDataSource()
             var now = fixtureMonkey.giveMeOne<Instant>()
@@ -709,6 +734,26 @@ class WeatherRepositoryImplTest :
                 .first() shouldBe currentWeather.toDomain()
         }
 
+        test("TC-WEATHER-FETCH-DATA-029 조회하지 않는 동기화는 현재 위치도 확인하지 않는다") {
+            val ipRemoteDataSource = ipRemoteDataSource()
+            val locationProvider = locationProvider(location = null)
+            var now = fixtureMonkey.giveMeOne<Instant>()
+            val repository =
+                repository(
+                    ipRemoteDataSource = ipRemoteDataSource,
+                    weatherRemoteDataSource = weatherRemoteDataSource(),
+                    locationProvider = locationProvider,
+                    clock = clock { now },
+                )
+            repository.fetch()
+
+            now += 59.minutes
+            repository.fetch()
+
+            coVerify(exactly = 1) { locationProvider.getCurrentLocation() }
+            coVerify(exactly = 1) { ipRemoteDataSource.get() }
+        }
+
         test("TC-WEATHER-FETCH-DATA-025 다시 동기화하면 지역명도 새 결과로 교체한다") {
             val seongnam = fixtureMonkey.giveMeOne<LocationNameRemoteEntity>().copy(name = "Seongnam-si", localNames = mapOf("ko" to "성남시"))
             val yongin = fixtureMonkey.giveMeOne<LocationNameRemoteEntity>().copy(name = "Yongin-si", localNames = mapOf("ko" to "용인시"))
@@ -744,6 +789,46 @@ class WeatherRepositoryImplTest :
                     .first()
                     ?.locationName
                     .orEmpty() shouldBe expected
+            }
+        }
+
+        test("TC-WEATHER-FETCH-DATA-030 다시 동기화해도 새 날씨와 이전 지역명이 섞인 결과는 제공되지 않는다") {
+            val seongnam = fixtureMonkey.giveMeOne<LocationNameRemoteEntity>().copy(name = "Seongnam-si", localNames = mapOf("ko" to "성남시"))
+            val yongin = fixtureMonkey.giveMeOne<LocationNameRemoteEntity>().copy(name = "Yongin-si", localNames = mapOf("ko" to "용인시"))
+            val oldCurrentWeather = fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
+            val oldForecast = fixtureMonkey.giveMeOne<ForecastRemoteEntity>()
+            val newCurrentWeather = fixtureMonkey.giveMeOne<CurrentWeatherRemoteEntity>()
+            val newForecast = fixtureMonkey.giveMeOne<ForecastRemoteEntity>()
+            val weatherRemoteDataSource = weatherRemoteDataSource()
+            coEvery { weatherRemoteDataSource.getCurrentWeather(any(), any()) } returns oldCurrentWeather andThen newCurrentWeather
+            coEvery { weatherRemoteDataSource.getForecast(any(), any()) } returns oldForecast andThen newForecast
+            coEvery { weatherRemoteDataSource.getLocationName(any(), any()) } returns listOf(seongnam) andThen listOf(yongin)
+            val fetchedAt = fixtureMonkey.giveMeOne<Instant>()
+            var now = fetchedAt
+            val repository =
+                repository(
+                    ipRemoteDataSource = ipRemoteDataSource(),
+                    weatherRemoteDataSource = weatherRemoteDataSource,
+                    clock = clock { now },
+                )
+            repository.fetch()
+
+            repository.get().test {
+                val previous = awaitItem().shouldNotBeNull()
+                previous.locationName shouldBe "성남시"
+                previous.weatherList.first() shouldBe oldCurrentWeather.toDomain()
+
+                now = fetchedAt + 1.hours
+                repository.fetch()
+
+                val next = awaitItem().shouldNotBeNull()
+                next.locationName shouldBe "용인시"
+                next.weatherList shouldBe
+                    buildList {
+                        add(newCurrentWeather.toDomain())
+                        addAll(newForecast.list.map { remote -> remote.toDomain() })
+                    }
+                expectNoEvents()
             }
         }
 

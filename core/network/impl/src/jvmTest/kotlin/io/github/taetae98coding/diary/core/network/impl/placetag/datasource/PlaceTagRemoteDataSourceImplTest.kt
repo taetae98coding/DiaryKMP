@@ -127,8 +127,8 @@ class PlaceTagRemoteDataSourceImplTest :
             fixtureMonkey
                 .giveMeKotlinBuilder<PlaceTagRemoteEntity>()
                 .setExp(PlaceTagRemoteEntity::isDeleted, isDeleted)
-                .setExp(PlaceTagRemoteEntity::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(PlaceTagRemoteEntity::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(PlaceTagRemoteEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(PlaceTagRemoteEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
 
         private suspend fun httpResponse(

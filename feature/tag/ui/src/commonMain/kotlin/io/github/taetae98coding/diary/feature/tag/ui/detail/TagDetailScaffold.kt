@@ -113,7 +113,7 @@ private fun TagDetailScaffoldPreview(
             state = state,
             tabFloatingActionButton = { tab ->
                 when (tab) {
-                    TagDetailTab.DETAIL -> TagDetailFormFloatingActionButton(onClick = {}, isVisible = true)
+                    TagDetailTab.DETAIL -> TagDetailFormFloatingActionButton(onClick = {})
                     TagDetailTab.MEMO -> TagDetailMemoFloatingActionButton(onClick = {})
                     TagDetailTab.WEB -> TagDetailWebFloatingActionButton(onClick = {})
                     TagDetailTab.PLACE -> TagDetailPlaceFloatingActionButton(onClick = {})

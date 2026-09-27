@@ -1,7 +1,10 @@
 package io.github.taetae98coding.diary.feature.contact.ui.add
 
+import androidx.compose.runtime.remember
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
@@ -38,6 +41,7 @@ class ContactAddScreenTest {
         composeRule.descriptionInput().assert(hasText(""))
         composeRule.heightInput().assert(hasText(""))
         composeRule.footSizeInput().assert(hasText(""))
+        composeRule.hometownInput().assert(hasText(""))
         composeRule.onNodeWithText(DEFAULT_BIRTHDAY_NOT_SET).assertExists()
         composeRule.phoneNumberRowCount() shouldBe 0
     }
@@ -150,6 +154,24 @@ class ContactAddScreenTest {
     }
 
     @Test
+    fun `TC-CONTACT-ADD-FEATURE-037 키와 신발 사이즈는 입력한 값을 한 번에 지울 수 있다`() {
+        composeRule.setContactAddScreen()
+
+        listOf(
+            composeRule.heightInput() to TYPED_HEIGHT,
+            composeRule.footSizeInput() to TYPED_FOOT_SIZE,
+        ).forEach { (input, typed) ->
+            input.performTextInput(typed)
+            composeRule.waitForIdle()
+
+            composeRule.onNodeWithContentDescription(DEFAULT_CLEAR_TEXT_DESCRIPTION).performClick()
+            composeRule.waitForIdle()
+
+            input.assert(hasText(""))
+        }
+    }
+
+    @Test
     fun `TC-CONTACT-ADD-FEATURE-013 화면에 처음 진입하면 이름 입력에 초점이 있다`() {
         composeRule.setContactAddScreen()
 
@@ -175,6 +197,7 @@ class ContactAddScreenTest {
         composeRule.descriptionInput().performTextInput(TYPED_DESCRIPTION)
         composeRule.heightInput().performTextInput(TYPED_HEIGHT)
         composeRule.footSizeInput().performTextInput(TYPED_FOOT_SIZE)
+        composeRule.hometownInput().performTextInput(TYPED_HOMETOWN)
         composeRule.selectBirthday()
         composeRule.addPhoneNumberRow()
         composeRule.phoneNumberInput().performTextInput(TYPED_FIRST_PHONE_NUMBER)
@@ -189,13 +212,58 @@ class ContactAddScreenTest {
         composeRule.descriptionInput().assert(hasText(TYPED_DESCRIPTION))
         composeRule.heightInput().assert(hasText(TYPED_HEIGHT))
         composeRule.footSizeInput().assert(hasText(TYPED_FOOT_SIZE))
+        composeRule.hometownInput().assert(hasText(TYPED_HOMETOWN))
         composeRule.onNodeWithText(todayDisplayText()).assertExists()
         composeRule.phoneNumberInput().assert(hasText(TYPED_FIRST_PHONE_NUMBER))
         composeRule.phoneNumberInput(row = 1).assert(hasText(TYPED_SECOND_PHONE_NUMBER))
     }
 
     @Test
-    fun `TC-CONTACT-LIST-DETAIL-FEATURE-006 단독으로 표시되면 뒤로가기를 선택해 이전 화면으로 돌아간다`() {
+    fun `TC-CONTACT-ADD-FEATURE-035 메모리 정리 뒤 복원해도 작성 중이던 내용을 모두 복원한다`() {
+        val restorationTester = StateRestorationTester(composeRule)
+        restorationTester.setContent {
+            // 메모리 정리 뒤에는 화면 상태를 들고 있던 객체도 새로 만들어지므로 복원할 때마다 새 인스턴스를 쓴다.
+            val viewModel = remember { screenTestViewModel() }
+
+            ContactAddScreenTestTheme {
+                ContactAddScreen(
+                    navigateUp = {},
+                    componentVisibleProvider = { ContactAddScaffoldComponentVisible() },
+                    viewModel = viewModel,
+                )
+            }
+        }
+        composeRule.nameInput().performTextInput(TYPED_NAME)
+        composeRule.descriptionInput().performTextInput(TYPED_DESCRIPTION)
+        composeRule.heightInput().performTextInput(TYPED_HEIGHT)
+        composeRule.footSizeInput().performTextInput(TYPED_FOOT_SIZE)
+        composeRule.hometownInput().performTextInput(TYPED_HOMETOWN)
+        composeRule.selectBirthday()
+        composeRule.selectBirthdayCalendar(DEFAULT_BIRTHDAY_CALENDAR_LUNAR)
+        composeRule.addPhoneNumberRow()
+        composeRule.phoneNumberInput().performTextInput(TYPED_FIRST_PHONE_NUMBER)
+        composeRule.addPhoneNumberRow()
+        composeRule.phoneNumberInput(row = 1).performTextInput(TYPED_SECOND_PHONE_NUMBER)
+        composeRule.waitForIdle()
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        composeRule.nameInput().assert(hasText(TYPED_NAME))
+        composeRule.descriptionInput().assert(hasText(TYPED_DESCRIPTION))
+        composeRule.heightInput().assert(hasText(TYPED_HEIGHT))
+        composeRule.footSizeInput().assert(hasText(TYPED_FOOT_SIZE))
+        composeRule.hometownInput().assert(hasText(TYPED_HOMETOWN))
+        composeRule.onNodeWithText(todayDisplayText()).assertExists()
+        composeRule.onNodeWithText(DEFAULT_BIRTHDAY_CALENDAR_LUNAR).assertIsSelected()
+        composeRule.onNodeWithText(DEFAULT_BIRTHDAY_CALENDAR_SOLAR).assertIsNotSelected()
+        composeRule.phoneNumberRowCount() shouldBe 2
+        composeRule.phoneNumberInput().assert(hasText(TYPED_FIRST_PHONE_NUMBER))
+        composeRule.phoneNumberInput(row = 1).assert(hasText(TYPED_SECOND_PHONE_NUMBER))
+    }
+
+    @Test
+    fun `TC-CONTACT-ADD-FEATURE-033 TC-CONTACT-LIST-DETAIL-FEATURE-006 단독으로 표시되면 뒤로가기를 선택해 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         composeRule.setContactAddScreen(navigateUp = { navigateUpCount++ })
 
@@ -279,5 +347,9 @@ class ContactAddScreenTest {
         composeRule.onNodeWithText(KOREAN_BIRTHDAY_NOT_SET).assertExists()
         composeRule.onNodeWithText(KOREAN_PHONE_NUMBER_LABEL).assertExists()
         composeRule.onNodeWithContentDescription(KOREAN_ADD_BUTTON_DESCRIPTION).assert(hasClickAction())
+    }
+
+    private companion object {
+        private const val DEFAULT_CLEAR_TEXT_DESCRIPTION = "Clear text"
     }
 }

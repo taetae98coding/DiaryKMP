@@ -60,6 +60,13 @@ compose.desktop {
 
             macOS {
                 iconFile.set(layout.projectDirectory.file("icons/diary.icns"))
+                infoPlist {
+                    extraKeysRawXml =
+                        """
+                        <key>NSCameraUsageDescription</key>
+                        <string>Allow camera access to scan QR codes.</string>
+                        """.trimIndent()
+                }
             }
         }
     }

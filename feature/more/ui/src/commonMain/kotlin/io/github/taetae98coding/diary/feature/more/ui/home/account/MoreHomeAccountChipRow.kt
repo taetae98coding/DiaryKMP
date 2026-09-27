@@ -2,9 +2,11 @@ package io.github.taetae98coding.diary.feature.more.ui.home.account
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import io.github.taetae98coding.diary.compose.core.chip.DiaryAssistChip
 import io.github.taetae98coding.diary.compose.core.icon.SignInIcon
@@ -16,6 +18,8 @@ import io.github.taetae98coding.diary.feature.more.ui.home.MoreHomeScaffoldEvent
 import io.github.taetae98coding.diary.feature.more.ui.more_sign_in_chip_label
 import io.github.taetae98coding.diary.feature.more.ui.more_sign_out_chip_label
 import org.jetbrains.compose.resources.stringResource
+
+internal const val MORE_HOME_ACCOUNT_PLACEHOLDER_CHIP_TEST_TAG: String = "MoreHomeAccountPlaceholderChip"
 
 @Composable
 internal fun MoreHomeAccountChipRow(
@@ -29,7 +33,12 @@ internal fun MoreHomeAccountChipRow(
                 DiaryAssistChip(
                     onClick = {},
                     label = "",
-                    modifier = Modifier.width(MoreHomeAccountCardDefaults.PlaceholderChipWidth),
+                    modifier =
+                        Modifier
+                            .width(MoreHomeAccountCardDefaults.PlaceholderChipWidth)
+                            .testTag(MORE_HOME_ACCOUNT_PLACEHOLDER_CHIP_TEST_TAG),
+                    enabled = false,
+                    border = AssistChipDefaults.assistChipBorder(enabled = false),
                 )
             }
 

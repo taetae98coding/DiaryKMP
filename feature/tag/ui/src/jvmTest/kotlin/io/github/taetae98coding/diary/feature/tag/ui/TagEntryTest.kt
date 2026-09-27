@@ -7,21 +7,29 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
+import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
+import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.emptyFlow
 import kotlin.uuid.Uuid
+
+private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class TagEntryTest :
     FunSpec({
@@ -43,6 +51,26 @@ class TagEntryTest :
             }
         }
 
+        test("TC-TAG-LIST-DETAIL-FEATURE-003 목록에서 태그를 선택하면 그 태그의 상세가 목록과 함께 상세 영역에 놓인다") {
+            val detailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val backStack = NavBackStack<ScreenNavKey>(OtherTopLevelNavKey, TagHomeNavKey)
+
+            backStack.navigateToTagDetail(detailKey.id)
+
+            backStack.toList() shouldContainExactly listOf(OtherTopLevelNavKey, TagHomeNavKey, detailKey)
+            metadataOf(backStack = backStack.toList(), key = detailKey).keys shouldBe detailPaneMetadataKeys
+        }
+
+        test("TC-TAG-LIST-DETAIL-FEATURE-014 태그 상세가 놓인 동안 새 태그 추가를 선택하면 목록을 유지한 채 상세 영역이 태그 추가로 바뀐다") {
+            val detailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val backStack = NavBackStack<ScreenNavKey>(OtherTopLevelNavKey, TagHomeNavKey, detailKey)
+
+            backStack.navigateToTagAdd()
+
+            backStack.toList() shouldContainExactly listOf(OtherTopLevelNavKey, TagHomeNavKey, detailKey, TagAddNavKey())
+            metadataOf(backStack = backStack.toList(), key = TagAddNavKey()).keys shouldBe detailPaneMetadataKeys
+        }
+
         test("TC-TAG-LIST-DETAIL-FEATURE-015 태그 목록에서 진입하지 않은 상세 화면은 목록·상세 배치에 참여하지 않는다") {
             val memoDetailKey = MemoDetailNavKey(id = Uuid.random())
             val tagDetailKey = TagDetailNavKey(id = Uuid.random())
@@ -53,6 +81,11 @@ class TagEntryTest :
                     listOf(OtherTopLevelNavKey, MemoHomeNavKey, TagAddNavKey()) to TagAddNavKey(),
                     listOf(OtherTopLevelNavKey, TagAddNavKey()) to TagAddNavKey(),
                     listOf(OtherTopLevelNavKey, MemoHomeNavKey, memoDetailKey, tagDetailKey) to tagDetailKey,
+                    listOf(OtherTopLevelNavKey, CalendarHomeFilterStandInNavKey, TagAddNavKey()) to TagAddNavKey(),
+                    listOf(OtherTopLevelNavKey, WebDetailNavKey(id = Uuid.random()), TagAddNavKey()) to TagAddNavKey(),
+                    listOf(OtherTopLevelNavKey, PlaceDetailNavKey(id = Uuid.random()), TagAddNavKey()) to TagAddNavKey(),
+                    listOf(OtherTopLevelNavKey, WebDetailNavKey(id = Uuid.random()), tagDetailKey) to tagDetailKey,
+                    listOf(OtherTopLevelNavKey, PlaceDetailNavKey(id = Uuid.random()), tagDetailKey) to tagDetailKey,
                 )
 
             backStackCases.forEach { (backStack, key) ->
@@ -110,4 +143,10 @@ class TagEntryTest :
 private data object OtherTopLevelNavKey : ScreenNavKey {
     override val screenName: String
         get() = "OtherTopLevel"
+}
+
+// 캘린더 홈의 태그 필터를 대신한다. 캘린더 기능 모듈은 이 모듈의 의존이 아니므로 대역을 사용한다.
+private data object CalendarHomeFilterStandInNavKey : ScreenNavKey {
+    override val screenName: String
+        get() = "CalendarHomeFilter"
 }

@@ -1,19 +1,25 @@
 package io.github.taetae98coding.diary.feature.setting.ui.download
 
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.testing.TestLifecycleOwner
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadProxySetting
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flowOf
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -69,27 +75,67 @@ class SettingDownloadScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-DOWNLOAD-FEATURE-012 저장에 성공하면 성공을 알린다`() {
-        val viewModel =
-            viewModel(
-                uiState = SettingDownloadUiState.Consumer(setting = MusicDownloadProxySetting(address = ADDRESS)),
-                effect = SettingDownloadEffect.SaveSucceeded,
-            )
-        setScreen(viewModel = viewModel)
+    fun `TC-SETTING-DOWNLOAD-FEATURE-012 저장에 성공하면 입력을 유지하고 성공을 알린다`() {
+        val uiState = MutableStateFlow<SettingDownloadUiState>(SettingDownloadUiState.Consumer(setting = MusicDownloadProxySetting(address = ADDRESS)))
+        val effect = MutableSharedFlow<SettingDownloadEffect>(extraBufferCapacity = 1)
+        setScreen(viewModel = viewModel(uiState = uiState, effect = effect))
+
+        composeRule.onNodeWithText(ADDRESS).performTextReplacement(OTHER_ADDRESS)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).performClick()
+        composeRule.runOnIdle {
+            uiState.value = SettingDownloadUiState.Consumer(setting = MusicDownloadProxySetting(address = OTHER_ADDRESS))
+            effect.tryEmit(SettingDownloadEffect.SaveSucceeded)
+        }
+        composeRule.waitForIdle()
 
         composeRule.onNodeWithText(DEFAULT_SAVE_SUCCEEDED_MESSAGE).assertExists()
+        composeRule.onNodeWithText(OTHER_ADDRESS).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-SETTING-DOWNLOAD-FEATURE-013 저장에 실패하면 실패를 알린다`() {
-        val viewModel =
-            viewModel(
-                uiState = SettingDownloadUiState.Consumer(setting = MusicDownloadProxySetting(address = ADDRESS)),
-                effect = SettingDownloadEffect.SaveFailed,
-            )
-        setScreen(viewModel = viewModel)
+    fun `TC-SETTING-DOWNLOAD-FEATURE-013 저장에 실패하면 입력을 유지하고 실패를 알린다`() {
+        val uiState = MutableStateFlow<SettingDownloadUiState>(SettingDownloadUiState.Consumer(setting = MusicDownloadProxySetting(address = ADDRESS)))
+        val effect = MutableSharedFlow<SettingDownloadEffect>(extraBufferCapacity = 1)
+        setScreen(viewModel = viewModel(uiState = uiState, effect = effect))
+
+        composeRule.onNodeWithText(ADDRESS).performTextReplacement(OTHER_ADDRESS)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).performClick()
+        composeRule.runOnIdle { effect.tryEmit(SettingDownloadEffect.SaveFailed) }
+        composeRule.waitForIdle()
 
         composeRule.onNodeWithText(DEFAULT_SAVE_FAILED_MESSAGE).assertExists()
+        composeRule.onNodeWithText(OTHER_ADDRESS).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertExists()
+    }
+
+    @Test
+    fun `TC-SETTING-DOWNLOAD-FEATURE-021 다른 앱에 다녀와도 입력 중이던 주소를 유지한다`() {
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        val viewModel = viewModel(SettingDownloadUiState.Consumer(setting = MusicDownloadProxySetting(address = ADDRESS)))
+        composeRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                DiaryTheme {
+                    SettingDownloadScreen(
+                        navigateUp = {},
+                        componentVisibleProvider = { SettingDownloadScaffoldComponentVisible() },
+                        viewModel = viewModel,
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithText(ADDRESS).performTextReplacement(OTHER_ADDRESS)
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(OTHER_ADDRESS).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertExists()
+        verify(exactly = 0) { viewModel.save(setting = any()) }
     }
 
     private fun setScreen(
@@ -113,13 +159,19 @@ class SettingDownloadScreenTest {
         private const val DEFAULT_SAVE_SUCCEEDED_MESSAGE = "Saved."
         private const val DEFAULT_SAVE_FAILED_MESSAGE = "Couldn't save."
 
-        private fun viewModel(
-            uiState: SettingDownloadUiState,
-            effect: SettingDownloadEffect? = null,
-        ): SettingDownloadViewModel =
+        private fun viewModel(uiState: SettingDownloadUiState): SettingDownloadViewModel =
             mockk(relaxed = true) {
                 every { this@mockk.uiState } returns MutableStateFlow(uiState)
-                every { this@mockk.effect } returns if (effect == null) emptyFlow() else flowOf(effect)
+                every { this@mockk.effect } returns emptyFlow()
+            }
+
+        private fun viewModel(
+            uiState: StateFlow<SettingDownloadUiState>,
+            effect: Flow<SettingDownloadEffect>,
+        ): SettingDownloadViewModel =
+            mockk(relaxed = true) {
+                every { this@mockk.uiState } returns uiState
+                every { this@mockk.effect } returns effect
             }
     }
 }

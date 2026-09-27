@@ -42,6 +42,7 @@ internal fun TagDetailMemoContent(
         val memoPagingItems = memoViewModel.memoPagingData.collectAsLazyPagingItems()
         val memoListState = rememberMemoListState()
         val sort by memoViewModel.sort.collectAsStateWithLifecycle()
+        val queryScope by memoViewModel.scope.collectAsStateWithLifecycle()
         val sortSheetState = rememberDialogState()
 
         TagDetailScopeEffect(
@@ -67,6 +68,7 @@ internal fun TagDetailMemoContent(
                 when (event) {
                     is MemoListEvent.ClickMemo -> navigateToMemoDetail(event.id)
                     is MemoListEvent.SwipeFinish -> memoViewModel.finish(id = event.id)
+                    is MemoListEvent.SwipeRestart -> memoViewModel.restart(id = event.id)
                     is MemoListEvent.SwipeDelete -> memoViewModel.delete(id = event.id)
                     is MemoListEvent.Refresh -> syncViewModel.refresh()
                 }
@@ -77,6 +79,7 @@ internal fun TagDetailMemoContent(
             memoPagingItems = memoPagingItems,
             uiStateProvider = { memoListUiState },
             sortProvider = { sort },
+            scopeProvider = { queryScope },
         )
     }
 }

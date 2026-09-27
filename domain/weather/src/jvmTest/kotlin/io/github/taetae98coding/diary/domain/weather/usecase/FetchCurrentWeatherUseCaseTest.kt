@@ -67,7 +67,7 @@ class FetchCurrentWeatherUseCaseTest :
             When("현재 날씨 동기화를 요청한다") {
                 useCase(parameter = Unit)
 
-                Then("TC-WEATHER-FETCH-DOMAIN-016 그 원인을 담은 오류 보고가 한 번 남는다") {
+                Then("TC-WEATHER-FETCH-DOMAIN-016 TC-USECASE-FAILURE-LOGGING-DOMAIN-009 그 원인을 담은 오류 보고가 한 번 남는다") {
                     val report = reportList.single()
 
                     report.throwable shouldBeSameInstanceAs failure

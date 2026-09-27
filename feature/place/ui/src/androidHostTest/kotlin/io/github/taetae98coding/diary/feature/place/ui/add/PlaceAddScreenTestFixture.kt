@@ -10,10 +10,14 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.PagingData
+import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
+import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.core.testing.place.coordinateInFormPrecision
 import io.github.taetae98coding.diary.feature.place.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceAddFormState
@@ -90,6 +94,7 @@ internal fun addTagScreenTestViewModel(tagList: List<Tag> = emptyList()): PlaceA
     every { viewModel.uiState } returns MutableStateFlow(EntityTagInputUiState(tagList = tagList))
     every { viewModel.tagIdSet } returns MutableStateFlow(tagList.map { tag -> tag.id }.toSet())
     every { viewModel.tagPagingData } returns MutableStateFlow(PagingData.from(tagList))
+    every { viewModel.selectableTagPagingData } returns MutableStateFlow(PagingData.from(tagList))
     return viewModel
 }
 
@@ -138,3 +143,5 @@ internal fun ComposeContentTestRule.setPlaceAddScaffoldState(): PlaceFormState {
 
     return state
 }
+
+internal fun FixtureMonkey.mapCoordinateInFormPrecision(): DiaryMapCoordinate = coordinateInFormPrecision().toDiaryMapCoordinate()

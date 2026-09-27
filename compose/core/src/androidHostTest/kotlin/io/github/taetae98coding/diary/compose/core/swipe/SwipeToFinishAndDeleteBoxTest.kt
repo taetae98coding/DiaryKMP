@@ -72,6 +72,40 @@ class SwipeToFinishAndDeleteBoxTest {
     }
 
     @Test
+    fun `TC-SWIPE-TO-FINISH-AND-DELETE-DOMAIN-006 시작 방향 동작 뒤에도 카드가 남으면 원래 모양으로 돌아와 다시 실행할 수 있다`() {
+        var finishCount = 0
+        setSwipeToFinishAndDeleteBox(onFinish = { finishCount += 1 })
+
+        repeat(2) {
+            composeRule.onNodeWithText(CONTENT_TEXT).performTouchInput { swipeRight() }
+            composeRule.waitForIdle()
+            composeRule.mainClock.advanceTimeBy(RESET_WAIT_MILLIS)
+            composeRule.waitForIdle()
+
+            composeRule.onNodeWithText(CONTENT_TEXT).assertIsDisplayed()
+        }
+
+        finishCount shouldBe 2
+    }
+
+    @Test
+    fun `TC-SWIPE-TO-FINISH-AND-DELETE-DOMAIN-006 끝 방향 동작 뒤에도 카드가 남으면 원래 모양으로 돌아와 다시 실행할 수 있다`() {
+        var deleteCount = 0
+        setSwipeToFinishAndDeleteBox(onDelete = { deleteCount += 1 })
+
+        repeat(2) {
+            composeRule.onNodeWithText(CONTENT_TEXT).performTouchInput { swipeLeft() }
+            composeRule.waitForIdle()
+            composeRule.mainClock.advanceTimeBy(RESET_WAIT_MILLIS)
+            composeRule.waitForIdle()
+
+            composeRule.onNodeWithText(CONTENT_TEXT).assertIsDisplayed()
+        }
+
+        deleteCount shouldBe 2
+    }
+
+    @Test
     fun `좌에서 우로 절반을 넘으면 완료 아이콘만 표시한다`() {
         assertActionIconShownAfterHalfSwipe(
             direction = 1f,
@@ -160,6 +194,45 @@ class SwipeToFinishAndDeleteBoxTest {
 
         finishCount shouldBe 1
         composeRule.onNodeWithText(CONTENT_TEXT).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-SWIPE-TO-FINISH-AND-DELETE-DOMAIN-002 실행 취소로 다시 나타난 카드는 실행 전 상태로 표시되고 동작을 다시 실행하지 않는다`() {
+        val key = fixtureMonkey.giveMeOne<Long>()
+        var isShown by mutableStateOf(true)
+        var finishCount = 0
+        var deleteCount = 0
+        composeRule.setContent {
+            DiaryTheme {
+                if (isShown) {
+                    SwipeToFinishAndDeleteBox(
+                        key = key,
+                        onFinish = { finishCount += 1 },
+                        onDelete = { deleteCount += 1 },
+                        finishContentDescription = FINISH_DESCRIPTION,
+                        deleteContentDescription = DELETE_DESCRIPTION,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Content()
+                    }
+                }
+            }
+        }
+        composeRule.onNodeWithText(CONTENT_TEXT).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+        deleteCount shouldBe 1
+
+        // 동작이 반영되면 카드가 목록에서 사라지고, 실행 취소하면 같은 항목의 카드가 다시 나타난다.
+        composeRule.runOnIdle { isShown = false }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { isShown = true }
+        composeRule.waitForIdle()
+
+        finishCount shouldBe 0
+        deleteCount shouldBe 1
+        composeRule.onNodeWithText(CONTENT_TEXT).assertIsDisplayed()
+        composeRule.onNodeWithContentDescription(FINISH_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DELETE_DESCRIPTION).assertDoesNotExist()
     }
 
     // 구현 계약 회귀 테스트: 실행 기준 전 원형 아이콘은 작게, 기준을 넘은 동작 아이콘은 크게 표시되어야 한다.
@@ -261,6 +334,7 @@ class SwipeToFinishAndDeleteBoxTest {
     }
 
     public companion object {
+        private const val RESET_WAIT_MILLIS = 2_000L
         private const val SHORT_SWIPE_START_OFFSET = 1f
         private const val SHORT_SWIPE_END_OFFSET = 21f
         private const val SHORT_SWIPE_DURATION_MILLIS = 1_000L

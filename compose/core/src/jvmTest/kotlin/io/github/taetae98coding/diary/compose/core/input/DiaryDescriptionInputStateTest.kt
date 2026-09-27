@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.compose.core.input
 
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.ui.focus.FocusRequester
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -26,6 +27,19 @@ class DiaryDescriptionInputStateTest :
             state.text.toString() shouldBe newText
         }
 
+        test("입력 페이지이면 focusTarget은 입력 칸의 FocusRequester를 반환한다") {
+            val focusRequester = FocusRequester()
+            val state = diaryDescriptionInputState(page = DiaryDescriptionInputPage.Input, focusRequester = focusRequester)
+
+            state.focusTarget shouldBe focusRequester
+        }
+
+        test("미리보기 페이지이면 focusTarget은 FocusRequester.Default를 반환한다") {
+            val state = diaryDescriptionInputState(page = DiaryDescriptionInputPage.Preview)
+
+            state.focusTarget shouldBe FocusRequester.Default
+        }
+
         test("clearText는 텍스트를 모두 지운다") {
             val state = diaryDescriptionInputState(initialText = fixtureMonkey.giveMeOne<String>())
 
@@ -38,10 +52,15 @@ class DiaryDescriptionInputStateTest :
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
 
-        private fun diaryDescriptionInputState(initialText: String = ""): DiaryDescriptionInputState =
+        private fun diaryDescriptionInputState(
+            initialText: String = "",
+            page: DiaryDescriptionInputPage = DiaryDescriptionInputPage.Input,
+            focusRequester: FocusRequester = FocusRequester(),
+        ): DiaryDescriptionInputState =
             DiaryDescriptionInputState(
                 textFieldState = TextFieldState(initialText = initialText),
-                swipeState = AnchoredDraggableState(initialValue = DiaryDescriptionInputPage.Input),
+                swipeState = AnchoredDraggableState(initialValue = page),
+                focusRequester = focusRequester,
             )
     }
 }

@@ -48,8 +48,8 @@ class LoginHomeScreenTest {
     fun `TC-LOGIN-FEATURE-004 Google 로그인 흐름 시작`() {
         val credential = screenTestFixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
         val viewModel = screenTestViewModel()
-        val googleCredentialsManager = mockk<GoogleCredentialsManager>()
-        val appleCredentialsManager = mockk<AppleCredentialsManager>()
+        val googleCredentialsManager = mockGoogleCredentialsManager()
+        val appleCredentialsManager = mockAppleCredentialsManager()
         coEvery { googleCredentialsManager.signIn() } returns credential
         every { viewModel.signInWithGoogle(credential) } returns Unit
         composeRule.setLoginHomeScreen(
@@ -71,8 +71,8 @@ class LoginHomeScreenTest {
     fun `TC-LOGIN-FEATURE-004 Apple 로그인 흐름 시작`() {
         val credential = screenTestFixtureMonkey.giveMeOne<AppleCredential>()
         val viewModel = screenTestViewModel()
-        val googleCredentialsManager = mockk<GoogleCredentialsManager>()
-        val appleCredentialsManager = mockk<AppleCredentialsManager>()
+        val googleCredentialsManager = mockGoogleCredentialsManager()
+        val appleCredentialsManager = mockAppleCredentialsManager()
         coEvery { appleCredentialsManager.signIn() } returns credential
         every { viewModel.signInWithApple(credential) } returns Unit
         composeRule.setLoginHomeScreen(
@@ -92,7 +92,7 @@ class LoginHomeScreenTest {
 
     @Test
     fun `TC-LOGIN-FEATURE-006 Google 취소는 오류로 안내하지 않는다`() {
-        val googleCredentialsManager = mockk<GoogleCredentialsManager>()
+        val googleCredentialsManager = mockGoogleCredentialsManager()
         coEvery { googleCredentialsManager.signIn() } throws GoogleCredentialsUserCancelException()
         composeRule.setLoginHomeScreen(
             viewModel = screenTestViewModel(),
@@ -111,7 +111,7 @@ class LoginHomeScreenTest {
 
     @Test
     fun `TC-LOGIN-FEATURE-006 Apple 취소는 오류로 안내하지 않는다`() {
-        val appleCredentialsManager = mockk<AppleCredentialsManager>()
+        val appleCredentialsManager = mockAppleCredentialsManager()
         coEvery { appleCredentialsManager.signIn() } throws AppleCredentialsUserCancelException()
         composeRule.setLoginHomeScreen(
             viewModel = screenTestViewModel(),
@@ -134,7 +134,7 @@ class LoginHomeScreenTest {
         val credential = screenTestFixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
         val effect = Channel<LoginHomeEffect>(capacity = Channel.BUFFERED)
         val viewModel = screenTestViewModel(effect = effect.receiveAsFlow())
-        val googleCredentialsManager = mockk<GoogleCredentialsManager>()
+        val googleCredentialsManager = mockGoogleCredentialsManager()
         coEvery { googleCredentialsManager.signIn() } returns credential
         every { viewModel.signInWithGoogle(credential) } answers {
             effect.trySend(LoginHomeEffect.SignInSucceeded).getOrThrow()
@@ -159,7 +159,7 @@ class LoginHomeScreenTest {
         val credential = screenTestFixtureMonkey.giveMeOne<AppleCredential>()
         val effect = Channel<LoginHomeEffect>(capacity = Channel.BUFFERED)
         val viewModel = screenTestViewModel(effect = effect.receiveAsFlow())
-        val appleCredentialsManager = mockk<AppleCredentialsManager>()
+        val appleCredentialsManager = mockAppleCredentialsManager()
         coEvery { appleCredentialsManager.signIn() } returns credential
         every { viewModel.signInWithApple(credential) } answers {
             effect.trySend(LoginHomeEffect.SignInSucceeded).getOrThrow()

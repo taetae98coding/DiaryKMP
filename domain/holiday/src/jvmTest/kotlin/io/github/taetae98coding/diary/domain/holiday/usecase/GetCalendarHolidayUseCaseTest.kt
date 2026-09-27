@@ -22,6 +22,8 @@ private const val INDEPENDENCE_MOVEMENT_DAY_NAME = "삼일절"
 private const val SUBSTITUTE_INDEPENDENCE_MOVEMENT_DAY_NAME = "대체공휴일(삼일절)"
 private const val LUNAR_NEW_YEAR_NAME = "설날"
 private const val SUBSTITUTE_HOLIDAY_NAME = "대체공휴일"
+private const val LIBERATION_DAY_NAME = "광복절"
+private const val NATIONAL_FOUNDATION_DAY_NAME = "개천절"
 
 private val fixtureMonkey: FixtureMonkey =
     diaryFixtureMonkey()
@@ -108,6 +110,24 @@ class GetCalendarHolidayUseCaseTest :
                 Then("이름을 가공하지 않으므로 공백이 다른 이름의 공휴일은 그대로 제공된다") {
                     useCase(parameter = 2025).first().shouldBeSuccess() shouldBe listOf(previousYearHoliday)
                     useCase(parameter = 2026).first().shouldBeSuccess() shouldBe emptyList()
+                }
+            }
+        }
+
+        Given("TC-HOLIDAY-VISIBILITY-DATA-017 연도별 조회가 이름 순이 아닌 순서로 공휴일을 제공하고 그중 하나를 숨김으로 골랐다") {
+            val midsummerDay = holiday(name = MIDSUMMER_DAY_NAME, start = july(year = 2026, day = 15))
+            val constitutionDay = holiday(name = CONSTITUTION_DAY_NAME, start = july(year = 2026, day = 17))
+            val liberationDay = holiday(name = LIBERATION_DAY_NAME, start = LocalDate(year = 2026, month = Month.AUGUST, day = 15))
+            val foundationDay = holiday(name = NATIONAL_FOUNDATION_DAY_NAME, start = LocalDate(year = 2026, month = Month.OCTOBER, day = 3))
+            val useCase =
+                getCalendarHolidayUseCase(
+                    holidayRepository = holidayRepository(2026 to listOf(midsummerDay, constitutionDay, liberationDay, foundationDay)),
+                    hiddenKeySet = setOf(LIBERATION_DAY_NAME),
+                )
+
+            When("2026년의 캘린더용 공휴일을 조회한다") {
+                Then("숨긴 공휴일만 빠지고 연도별 조회 순서 그대로 제공된다") {
+                    useCase(parameter = 2026).first().shouldBeSuccess() shouldBe listOf(midsummerDay, constitutionDay, foundationDay)
                 }
             }
         }

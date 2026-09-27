@@ -48,8 +48,31 @@ class SearchWebUseCaseTest :
                     flowOf(pagingData).asSnapshot() shouldBe webList
                 }
 
-                Then("앞뒤 공백을 뺀 질의로 조회한다") {
+                Then("TC-SEARCH-HOME-DOMAIN-017 앞뒤 공백을 뺀 질의로 조회한다") {
                     val pagingData = useCase(parameter = SearchWebUseCase.Parameter(query = "  $QUERY  ", sort = ListSort.TITLE)).first().shouldBeSuccess()
+
+                    flowOf(pagingData).asSnapshot() shouldBe webList
+                }
+            }
+        }
+
+        Given("로그인하지 않은 게스트 상태이고 질의를 만족하는 웹 항목이 준비되어 있다") {
+            val webList = List(2) { web() }
+            val getAccountUseCase = mockk<GetAccountUseCase>()
+            val searchWebRepository = mockk<SearchWebRepository>()
+            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(Account.Guest))
+            every {
+                searchWebRepository.page(account = Account.Guest, query = QUERY, sort = ListSort.TITLE)
+            } returns flowOf(PagingData.from(webList))
+            val useCase =
+                SearchWebUseCase(
+                    getAccountUseCase = getAccountUseCase,
+                    searchWebRepository = searchWebRepository,
+                )
+
+            When("질의로 웹 항목을 검색한다") {
+                Then("TC-SEARCH-HOME-DOMAIN-015 게스트 계정의 검색 결과를 같은 기준으로 전달한다") {
+                    val pagingData = useCase(parameter = SearchWebUseCase.Parameter(query = QUERY, sort = ListSort.TITLE)).first().shouldBeSuccess()
 
                     flowOf(pagingData).asSnapshot() shouldBe webList
                 }
@@ -111,8 +134,8 @@ class SearchWebUseCaseTest :
             fixtureMonkey
                 .giveMeKotlinBuilder<Web>()
                 .setExp(Web::isDeleted, false)
-                .setExp(Web::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Web::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Web::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Web::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

@@ -52,7 +52,7 @@ class PlaceAddTagInputTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-038 화면이 재생성되어도 고른 태그가 유지된다`() {
+    fun `TC-PLACE-ADD-FEATURE-038 화면이 회전하거나 창 크기가 바뀌어도 입력 내용과 고른 태그가 유지된다`() {
         val tag = placeTestTag(title = SELECTED_TAG_TITLE)
         val tagViewModel = addTagScreenTestViewModel(tagList = listOf(tag))
         val restorationTester = StateRestorationTester(composeRule)
@@ -78,7 +78,9 @@ class PlaceAddTagInputTest {
 
         composeRule.onNodeWithText(TYPED_TITLE).assertExists()
         composeRule.onAllNodes(hasSetTextAction())[DESCRIPTION_INDEX].assert(hasText(TYPED_DESCRIPTION))
+        composeRule.onAllNodes(hasSetTextAction())[ADDRESS_INDEX].assert(hasText(TYPED_ADDRESS))
         composeRule.onAllNodes(hasSetTextAction())[LATITUDE_INDEX].assert(hasText(TYPED_LATITUDE))
+        composeRule.onAllNodes(hasSetTextAction())[LONGITUDE_INDEX].assert(hasText(TYPED_LONGITUDE))
         composeRule.onNodeWithText(SELECTED_TAG_TITLE).assertExists()
     }
 

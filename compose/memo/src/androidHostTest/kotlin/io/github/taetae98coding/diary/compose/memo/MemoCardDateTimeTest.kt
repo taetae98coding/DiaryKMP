@@ -120,10 +120,10 @@ class MemoCardDateTimeTest {
                     fixtureMonkey.giveMeOne<MemoDetail>().copy(dateTime = dateTime),
                 ).setExp(
                     Memo::updatedAt,
-                    Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                    fixtureMonkey.giveMeOne<Instant>(),
                 ).setExp(
                     Memo::createdAt,
-                    Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                    fixtureMonkey.giveMeOne<Instant>(),
                 ).sample()
 
         composeRule.setContent {

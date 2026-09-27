@@ -26,7 +26,7 @@ class MemoTagUseCaseTest :
     BehaviorSpec({
         Given("로그인한 계정과 현재 시각이 준비되어 있다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
@@ -36,7 +36,7 @@ class MemoTagUseCaseTest :
             every { clock.now() } returns now
 
             When("태그를 추가한다") {
-                Then("TC-MEMO-DETAIL-DATA-004 TC-MEMO-DETAIL-DATA-011 현재 계정의 메모에 그 태그의 연결을 만들고 동기화를 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-MEMO-DETAIL-DATA-004 TC-MEMO-DETAIL-DATA-011 현재 계정의 메모에 그 태그의 연결을 만들고 동기화를 요청한다") {
                     val memoId = fixtureMonkey.giveMeOne<Uuid>()
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =
@@ -58,7 +58,7 @@ class MemoTagUseCaseTest :
             }
 
             When("태그를 제거한다") {
-                Then("TC-MEMO-DETAIL-DATA-005 TC-MEMO-DETAIL-DATA-011 현재 계정의 메모에서 그 태그의 연결을 해제하고 동기화를 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-MEMO-DETAIL-DATA-005 TC-MEMO-DETAIL-DATA-011 현재 계정의 메모에서 그 태그의 연결을 해제하고 동기화를 요청한다") {
                     val memoId = fixtureMonkey.giveMeOne<Uuid>()
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =
@@ -80,7 +80,7 @@ class MemoTagUseCaseTest :
             }
 
             When("대표 태그를 지정한다") {
-                Then("TC-MEMO-DETAIL-DATA-008 TC-MEMO-DETAIL-DATA-011 현재 계정의 메모에 그 태그를 대표 태그로 지정하고 동기화를 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-MEMO-DETAIL-DATA-008 TC-MEMO-DETAIL-DATA-011 현재 계정의 메모에 그 태그를 대표 태그로 지정하고 동기화를 요청한다") {
                     val memoId = fixtureMonkey.giveMeOne<Uuid>()
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =
@@ -102,7 +102,7 @@ class MemoTagUseCaseTest :
             }
 
             When("대표 태그 지정을 해제한다") {
-                Then("TC-MEMO-DETAIL-DATA-009 TC-MEMO-DETAIL-DATA-011 현재 계정의 메모에서 대표 태그를 비우고 동기화를 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-MEMO-DETAIL-DATA-009 TC-MEMO-DETAIL-DATA-011 현재 계정의 메모에서 대표 태그를 비우고 동기화를 요청한다") {
                     val memoId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =
                         UnsetMemoPrimaryTagUseCase(
@@ -125,7 +125,7 @@ class MemoTagUseCaseTest :
 
         Given("동기화 요청이 실패하도록 준비되어 있다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))

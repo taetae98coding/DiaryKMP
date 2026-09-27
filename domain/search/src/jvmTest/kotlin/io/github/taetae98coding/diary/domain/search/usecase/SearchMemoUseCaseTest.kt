@@ -48,8 +48,31 @@ class SearchMemoUseCaseTest :
                     flowOf(pagingData).asSnapshot() shouldBe memoList
                 }
 
-                Then("앞뒤 공백을 뺀 질의로 조회한다") {
+                Then("TC-SEARCH-HOME-DOMAIN-017 앞뒤 공백을 뺀 질의로 조회한다") {
                     val pagingData = useCase(parameter = SearchMemoUseCase.Parameter(query = "  $QUERY  ", sort = ListSort.TITLE)).first().shouldBeSuccess()
+
+                    flowOf(pagingData).asSnapshot() shouldBe memoList
+                }
+            }
+        }
+
+        Given("로그인하지 않은 게스트 상태이고 질의를 만족하는 메모가 준비되어 있다") {
+            val memoList = List(2) { memo() }
+            val getAccountUseCase = mockk<GetAccountUseCase>()
+            val searchMemoRepository = mockk<SearchMemoRepository>()
+            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(Account.Guest))
+            every {
+                searchMemoRepository.page(account = Account.Guest, query = QUERY, sort = ListSort.TITLE)
+            } returns flowOf(PagingData.from(memoList))
+            val useCase =
+                SearchMemoUseCase(
+                    getAccountUseCase = getAccountUseCase,
+                    searchMemoRepository = searchMemoRepository,
+                )
+
+            When("질의로 메모를 검색한다") {
+                Then("TC-SEARCH-HOME-DOMAIN-015 게스트 계정의 검색 결과를 같은 기준으로 전달한다") {
+                    val pagingData = useCase(parameter = SearchMemoUseCase.Parameter(query = QUERY, sort = ListSort.TITLE)).first().shouldBeSuccess()
 
                     flowOf(pagingData).asSnapshot() shouldBe memoList
                 }
@@ -111,8 +134,8 @@ class SearchMemoUseCaseTest :
             fixtureMonkey
                 .giveMeKotlinBuilder<Memo>()
                 .setExp(Memo::isDeleted, false)
-                .setExp(Memo::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Memo::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

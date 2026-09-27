@@ -1,11 +1,15 @@
-@file:OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@file:OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalMaterial3Api::class)
 
 package io.github.taetae98coding.diary.feature.memo.ui
 
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
@@ -15,6 +19,7 @@ import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
@@ -22,6 +27,8 @@ import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.datetime.LocalDate
 import kotlin.uuid.Uuid
+
+private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class MemoEntryTest :
     FunSpec({
@@ -45,11 +52,48 @@ class MemoEntryTest :
             }
         }
 
+        test("TC-MEMO-LIST-DETAIL-FEATURE-003 목록에서 메모를 선택하면 그 메모의 상세가 상세 영역에 놓인다") {
+            val selectedId = fixtureMonkey.giveMeOne<Uuid>()
+            val backStack = NavBackStack<ScreenNavKey>(OtherTopLevelNavKey, MemoHomeNavKey)
+
+            backStack.navigateToMemoDetailFromHome(selectedId)
+
+            backStack.last() shouldBe MemoDetailNavKey(id = selectedId)
+            metadataOf(backStack = backStack.toList(), key = backStack.last()).keys shouldBe detailPaneMetadataKeys
+        }
+
+        test("TC-MEMO-LIST-DETAIL-FEATURE-015 상세 영역에 메모 상세가 놓인 동안 목록에서 추가를 실행하면 메모 추가가 상세 영역에 놓인다") {
+            val detailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val backStack = NavBackStack<ScreenNavKey>(OtherTopLevelNavKey, MemoHomeNavKey, detailKey)
+
+            backStack.navigateToMemoAddFromHome()
+
+            backStack.toList() shouldBe listOf(OtherTopLevelNavKey, MemoHomeNavKey, detailKey, MemoAddNavKey())
+            metadataOf(backStack = backStack.toList(), key = backStack.last()).keys shouldBe detailPaneMetadataKeys
+        }
+
+        test("TC-MEMO-LIST-DETAIL-FEATURE-024 필터를 열어도 상세 영역의 화면은 목록·상세 배치의 상세 pane으로 남는다") {
+            val detailKey = MemoDetailNavKey(id = Uuid.random())
+            val addKey = MemoAddNavKey()
+            val backStackCases =
+                listOf(
+                    listOf(OtherTopLevelNavKey, MemoHomeNavKey, detailKey, MemoHomeFilterNavKey) to detailKey,
+                    listOf(OtherTopLevelNavKey, MemoHomeNavKey, addKey, MemoHomeFilterNavKey) to addKey,
+                )
+
+            backStackCases.forEach { (backStack, key) ->
+                metadataOf(backStack = backStack, key = key).keys shouldBe detailPaneMetadataKeys
+                metadataOf(backStack = backStack, key = MemoHomeFilterNavKey).keys shouldBe BottomSheetSceneStrategy.bottomSheet().keys
+            }
+        }
+
         test(
-            "TC-MEMO-LIST-DETAIL-FEATURE-016 TC-TAG-MEMO-FINISHED-LIST-DETAIL-FEATURE-011 " +
+            "TC-MEMO-LIST-DETAIL-FEATURE-016 TC-TAG-MEMO-FINISHED-LIST-DETAIL-FEATURE-011 TC-TAG-DETAIL-MEMO-FEATURE-031 " +
                 "메모 목록이나 완료된 메모 목록에서 진입하지 않은 상세 화면은 목록·상세 배치에 참여하지 않는다",
         ) {
             val detailKey = MemoDetailNavKey(id = Uuid.random())
+            val tagDetailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val tagDetailAddKey = MemoAddNavKey(primaryTagId = tagDetailKey.id)
             val calendarAddKey =
                 MemoAddNavKey(
                     initialDateRange =
@@ -63,6 +107,8 @@ class MemoEntryTest :
                     listOf(OtherTopLevelNavKey, detailKey) to detailKey,
                     listOf(OtherTopLevelNavKey, calendarAddKey) to calendarAddKey,
                     listOf(OtherTopLevelNavKey, MemoHomeNavKey, MemoFinishedListNavKey, detailKey) to detailKey,
+                    listOf(OtherTopLevelNavKey, TagHomeNavKey, tagDetailKey, detailKey) to detailKey,
+                    listOf(OtherTopLevelNavKey, TagHomeNavKey, tagDetailKey, tagDetailAddKey) to tagDetailAddKey,
                 )
 
             backStackCases.forEach { (backStack, key) ->

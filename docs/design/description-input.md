@@ -1,6 +1,6 @@
 # 설명 입력 컴포넌트 디자인
 
-기준 스펙: [설명 입력 컴포넌트 스펙](../spec/description-input.md)
+기준 스펙: [설명 입력 컴포넌트 스펙](../spec/client/description-input.md)
 
 ## 구성
 
@@ -73,3 +73,4 @@ Material 기본 제목 표현은 카드 안 미리보기에 비해 지나치게 
 | --- | --- | --- |
 | 입력 탭 | `입력` | `Input` |
 | 미리보기 탭 | `미리보기` | `Preview` |
+| 지우기 버튼 | `지우기` | `Clear text` |

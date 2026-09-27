@@ -17,6 +17,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,6 +37,7 @@ class TagFinishedListScreenTest {
         val viewModel = mockk<TagFinishedListViewModel>()
         every { viewModel.sort } returns MutableStateFlow(ListSort.TITLE)
         every { viewModel.tagPagingData } returns MutableStateFlow(tagPagingDataOf(emptyList()))
+        every { viewModel.effect } returns emptyFlow()
 
         setTagFinishedListScreen(viewModel)
 
@@ -103,13 +105,15 @@ class TagFinishedListScreenTest {
                     .setExp(Tag::detail, fixtureMonkey.giveMeOne<TagDetail>().copy(emoji = "", title = TAG_TITLE))
                     .setExp(Tag::isFinished, true)
                     .setExp(Tag::isDeleted, false)
-                    .setExp(Tag::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                    .setExp(Tag::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                    .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                    .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
                     .sample()
             val viewModel = mockk<TagFinishedListViewModel>()
             every { viewModel.sort } returns MutableStateFlow(ListSort.TITLE)
 
             every { viewModel.tagPagingData } returns MutableStateFlow(tagPagingDataOf(listOf(tag)))
+
+            every { viewModel.effect } returns emptyFlow()
 
             return ScreenTestEnvironment(
                 tag = tag,

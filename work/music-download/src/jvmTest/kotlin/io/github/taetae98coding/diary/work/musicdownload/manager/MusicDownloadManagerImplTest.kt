@@ -7,12 +7,12 @@ import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadState
 import io.github.taetae98coding.diary.work.musicdownload.scheduler.MusicDownloadWorkScheduler
 import io.github.taetae98coding.diary.work.musicdownload.state.MusicDownloadEventHolder
 import io.github.taetae98coding.diary.work.musicdownload.state.MusicDownloadStateHolder
+import io.github.taetae98coding.diary.work.musicdownload.work.testDownloadTarget
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import kotlin.uuid.Uuid
 
 class MusicDownloadManagerImplTest :
     BehaviorSpec({
@@ -30,19 +30,39 @@ class MusicDownloadManagerImplTest :
             }
         }
 
+        Given("다운로드를 요청하지 않았다") {
+            When("상태와 이벤트를 관찰만 한다") {
+                Then("TC-MUSIC-DOWNLOAD-FEATURE-020 내려받기를 예약하지 않아 준비와 도구 설치가 일어나지 않는다") {
+                    val scheduler = mockk<MusicDownloadWorkScheduler>(relaxed = true)
+                    val manager = manager(scheduler = scheduler)
+
+                    manager.stateMap.test {
+                        awaitItem()
+                        cancelAndIgnoreRemainingEvents()
+                    }
+                    manager.event.test {
+                        expectNoEvents()
+                        cancelAndIgnoreRemainingEvents()
+                    }
+
+                    verify(exactly = 0) { scheduler.download(sort = any()) }
+                }
+            }
+        }
+
         Given("곡의 다운로드 상태가 바뀐다") {
             When("상태를 관찰한다") {
                 Then("작업이 남긴 상태를 그대로 전달한다") {
-                    val id = Uuid.random()
+                    val target = testDownloadTarget()
                     val stateHolder = MusicDownloadStateHolder()
                     val manager = manager(stateHolder = stateHolder)
 
                     manager.stateMap.test {
                         awaitItem() shouldBe emptyMap()
 
-                        stateHolder.update(id = id, state = MusicDownloadState.Running(progress = 0.62F))
+                        stateHolder.update(target = target, state = MusicDownloadState.Running(progress = 0.62F))
 
-                        awaitItem() shouldBe mapOf(id to MusicDownloadState.Running(progress = 0.62F))
+                        awaitItem() shouldBe mapOf(target to MusicDownloadState.Running(progress = 0.62F))
                         cancelAndIgnoreRemainingEvents()
                     }
                 }

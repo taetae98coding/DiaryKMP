@@ -30,6 +30,9 @@ import io.github.taetae98coding.diary.core.database.api.place.transaction.Accoun
 import io.github.taetae98coding.diary.core.database.api.placetag.datasource.AccountPlaceTagSyncLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.placetag.entity.PlaceTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.placetag.transaction.AccountPlaceTagSyncTransaction
+import io.github.taetae98coding.diary.core.database.api.qr.datasource.AccountQrSyncLocalDataSource
+import io.github.taetae98coding.diary.core.database.api.qr.entity.QrLocalEntity
+import io.github.taetae98coding.diary.core.database.api.qr.transaction.AccountQrSyncTransaction
 import io.github.taetae98coding.diary.core.database.api.sync.datasource.SyncCursorLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.tag.datasource.AccountTagSyncLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
@@ -63,6 +66,8 @@ import io.github.taetae98coding.diary.core.network.api.place.datasource.PlaceRem
 import io.github.taetae98coding.diary.core.network.api.place.entity.PlacePullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.placetag.datasource.PlaceTagRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.placetag.entity.PlaceTagPullRemoteEntity
+import io.github.taetae98coding.diary.core.network.api.qr.datasource.QrRemoteDataSource
+import io.github.taetae98coding.diary.core.network.api.qr.entity.QrPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.tag.datasource.TagRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.tag.entity.TagPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.taglink.datasource.TagLinkRemoteDataSource
@@ -71,7 +76,10 @@ import io.github.taetae98coding.diary.core.network.api.web.datasource.WebRemoteD
 import io.github.taetae98coding.diary.core.network.api.web.entity.WebPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.webtag.datasource.WebTagRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.webtag.entity.WebTagPullRemoteEntity
+import io.github.taetae98coding.diary.core.testing.qr.localQr
+import io.github.taetae98coding.diary.core.testing.qr.remoteQr
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.sync.usecase.PrepareSyncUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
@@ -97,11 +105,13 @@ internal val fixtureMonkey: FixtureMonkey =
 internal data class TestContext(
     val accountId: Uuid,
     val getAccountUseCase: GetAccountUseCase,
+    val prepareSyncUseCase: PrepareSyncUseCase,
     val tagSyncLocalDataSource: AccountTagSyncLocalDataSource,
     val placeSyncLocalDataSource: AccountPlaceSyncLocalDataSource,
     val webSyncLocalDataSource: AccountWebSyncLocalDataSource,
     val contactSyncLocalDataSource: AccountContactSyncLocalDataSource,
     val musicSyncLocalDataSource: AccountMusicSyncLocalDataSource,
+    val qrSyncLocalDataSource: AccountQrSyncLocalDataSource,
     val memoSyncLocalDataSource: AccountMemoSyncLocalDataSource,
     val memoTagSyncLocalDataSource: AccountMemoTagSyncLocalDataSource,
     val memoPlaceSyncLocalDataSource: AccountMemoPlaceSyncLocalDataSource,
@@ -124,6 +134,7 @@ internal data class TestContext(
     val accountWebTagSyncTransaction: AccountWebTagSyncTransaction,
     val accountPlaceTagSyncTransaction: AccountPlaceTagSyncTransaction,
     val accountMusicSyncTransaction: AccountMusicSyncTransaction,
+    val accountQrSyncTransaction: AccountQrSyncTransaction,
     val tagRemoteDataSource: TagRemoteDataSource,
     val placeRemoteDataSource: PlaceRemoteDataSource,
     val webRemoteDataSource: WebRemoteDataSource,
@@ -137,6 +148,7 @@ internal data class TestContext(
     val webTagRemoteDataSource: WebTagRemoteDataSource,
     val placeTagRemoteDataSource: PlaceTagRemoteDataSource,
     val musicRemoteDataSource: MusicRemoteDataSource,
+    val qrRemoteDataSource: QrRemoteDataSource,
     val accountSyncTimeLocalDataSource: AccountSyncTimeLocalDataSource,
     val clock: Clock,
     val syncedAt: Instant,
@@ -144,6 +156,7 @@ internal data class TestContext(
     val subject: SyncWorkImpl =
         SyncWorkImpl(
             getAccountUseCase = getAccountUseCase,
+            prepareSyncUseCase = prepareSyncUseCase,
             tagSyncWork =
                 TagSyncWork(
                     accountTagSyncLocalDataSource = tagSyncLocalDataSource,
@@ -178,6 +191,13 @@ internal data class TestContext(
                     syncCursorLocalDataSource = syncCursorLocalDataSource,
                     accountMusicSyncTransaction = accountMusicSyncTransaction,
                     musicRemoteDataSource = musicRemoteDataSource,
+                ),
+            qrSyncWork =
+                QrSyncWork(
+                    accountQrSyncLocalDataSource = qrSyncLocalDataSource,
+                    syncCursorLocalDataSource = syncCursorLocalDataSource,
+                    accountQrSyncTransaction = accountQrSyncTransaction,
+                    qrRemoteDataSource = qrRemoteDataSource,
                 ),
             memoSyncWork =
                 MemoSyncWork(
@@ -274,6 +294,7 @@ internal fun context(
     webTagList: List<WebTagLocalEntity> = emptyList(),
     placeTagList: List<PlaceTagLocalEntity> = emptyList(),
     musicList: List<MusicLocalEntity> = emptyList(),
+    qrList: List<QrLocalEntity> = emptyList(),
 ): TestContext {
     val context = mockedTestContext(accountId = accountId, accountFlow = accountFlow)
 
@@ -291,6 +312,7 @@ internal fun context(
         webTagList = webTagList,
         placeTagList = placeTagList,
         musicList = musicList,
+        qrList = qrList,
     )
     context.stubTransactions()
     context.stubRemoteDataSources()
@@ -309,11 +331,13 @@ private fun mockedTestContext(
     return TestContext(
         accountId = accountId,
         getAccountUseCase = mockk<GetAccountUseCase>().apply { every { this@apply(parameter = Unit) } returns accountFlow },
+        prepareSyncUseCase = mockk<PrepareSyncUseCase>().apply { coEvery { this@apply(parameter = any()) } returns Result.success(Unit) },
         tagSyncLocalDataSource = mockk(),
         placeSyncLocalDataSource = mockk(),
         webSyncLocalDataSource = mockk(),
         contactSyncLocalDataSource = mockk(),
         musicSyncLocalDataSource = mockk(),
+        qrSyncLocalDataSource = mockk(),
         memoSyncLocalDataSource = mockk(),
         memoTagSyncLocalDataSource = mockk(),
         memoPlaceSyncLocalDataSource = mockk(),
@@ -336,6 +360,7 @@ private fun mockedTestContext(
         accountWebTagSyncTransaction = mockk(),
         accountPlaceTagSyncTransaction = mockk(),
         accountMusicSyncTransaction = mockk(),
+        accountQrSyncTransaction = mockk(),
         tagRemoteDataSource = mockk(),
         placeRemoteDataSource = mockk(),
         webRemoteDataSource = mockk(),
@@ -349,6 +374,7 @@ private fun mockedTestContext(
         webTagRemoteDataSource = mockk(),
         placeTagRemoteDataSource = mockk(),
         musicRemoteDataSource = mockk(),
+        qrRemoteDataSource = mockk(),
         accountSyncTimeLocalDataSource = mockk(relaxed = true),
         clock = clock,
         syncedAt = syncedAt,
@@ -369,6 +395,7 @@ private fun TestContext.stubPending(
     webTagList: List<WebTagLocalEntity>,
     placeTagList: List<PlaceTagLocalEntity>,
     musicList: List<MusicLocalEntity>,
+    qrList: List<QrLocalEntity>,
 ) {
     coEvery { tagSyncLocalDataSource.findPending(accountId = accountId) } returns tagList
     coEvery { placeSyncLocalDataSource.findPending(accountId = accountId) } returns placeList
@@ -383,6 +410,7 @@ private fun TestContext.stubPending(
     coEvery { webTagSyncLocalDataSource.findPending(accountId = accountId) } returns webTagList
     coEvery { placeTagSyncLocalDataSource.findPending(accountId = accountId) } returns placeTagList
     coEvery { musicSyncLocalDataSource.findPending(accountId = accountId) } returns musicList
+    coEvery { qrSyncLocalDataSource.findPending(accountId = accountId) } returns qrList
     coEvery { syncCursorLocalDataSource.find(accountId = any(), kind = any()) } returns 0L
 }
 
@@ -418,6 +446,7 @@ private fun TestContext.stubTransactions() {
     coEvery { accountWebTagSyncTransaction.clearPending(any(), any()) } returns Unit
     coEvery { accountPlaceTagSyncTransaction.clearPending(any(), any()) } returns Unit
     coEvery { accountMusicSyncTransaction.clearPending(any(), any()) } returns Unit
+    coEvery { accountQrSyncTransaction.clearPending(any(), any()) } returns Unit
     coEvery { accountTagSyncTransaction.save(any(), any(), any()) } returns Unit
     coEvery { accountPlaceSyncTransaction.save(any(), any(), any()) } returns Unit
     coEvery { accountWebSyncTransaction.save(any(), any(), any()) } returns Unit
@@ -431,6 +460,7 @@ private fun TestContext.stubTransactions() {
     coEvery { accountWebTagSyncTransaction.save(any(), any(), any()) } returns Unit
     coEvery { accountPlaceTagSyncTransaction.save(any(), any(), any()) } returns Unit
     coEvery { accountMusicSyncTransaction.save(any(), any(), any()) } returns Unit
+    coEvery { accountQrSyncTransaction.save(any(), any(), any()) } returns Unit
 }
 
 private fun TestContext.stubRemoteDataSources() {
@@ -447,6 +477,7 @@ private fun TestContext.stubRemoteDataSources() {
     coEvery { webTagRemoteDataSource.push(any()) } returns Unit
     coEvery { placeTagRemoteDataSource.push(any()) } returns Unit
     coEvery { musicRemoteDataSource.push(any()) } returns Unit
+    coEvery { qrRemoteDataSource.push(any()) } returns Unit
     coEvery { tagRemoteDataSource.pull(any()) } returns emptyList()
     coEvery { placeRemoteDataSource.pull(any()) } returns emptyList()
     coEvery { webRemoteDataSource.pull(any()) } returns emptyList()
@@ -460,6 +491,7 @@ private fun TestContext.stubRemoteDataSources() {
     coEvery { webTagRemoteDataSource.pull(any()) } returns emptyList()
     coEvery { placeTagRemoteDataSource.pull(any()) } returns emptyList()
     coEvery { musicRemoteDataSource.pull(any()) } returns emptyList()
+    coEvery { qrRemoteDataSource.pull(any()) } returns emptyList()
 }
 
 internal fun places(size: Int): List<PlaceLocalEntity> = List(size) { place() }
@@ -602,7 +634,7 @@ internal fun recordCrashlyticsLog(): List<CrashlyticsLog> {
     return reportList
 }
 
-private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
 internal fun webTags(size: Int): List<WebTagLocalEntity> = List(size) { webTag() }
 
@@ -644,4 +676,11 @@ internal fun music(): MusicLocalEntity =
 internal fun musicPulls(usnList: List<Long>): List<MusicPullRemoteEntity> =
     usnList.map { usn ->
         MusicPullRemoteEntity(music = music().toRemote(), usn = usn)
+    }
+
+internal fun qrs(size: Int): List<QrLocalEntity> = List(size) { fixtureMonkey.localQr(isDeleted = fixtureMonkey.giveMeOne<Boolean>()) }
+
+internal fun qrPulls(usnList: List<Long>): List<QrPullRemoteEntity> =
+    usnList.map { usn ->
+        QrPullRemoteEntity(qr = fixtureMonkey.remoteQr(isDeleted = fixtureMonkey.giveMeOne<Boolean>()), usn = usn)
     }

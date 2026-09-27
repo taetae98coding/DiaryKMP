@@ -127,8 +127,8 @@ class MemoTagRemoteDataSourceImplTest :
             fixtureMonkey
                 .giveMeKotlinBuilder<MemoTagRemoteEntity>()
                 .setExp(MemoTagRemoteEntity::isDeleted, isDeleted)
-                .setExp(MemoTagRemoteEntity::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(MemoTagRemoteEntity::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(MemoTagRemoteEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(MemoTagRemoteEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
 
         private suspend fun httpResponse(

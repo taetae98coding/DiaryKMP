@@ -1,7 +1,6 @@
 package io.github.taetae98coding.diary.feature.tag.ui.home
 
 import io.github.taetae98coding.diary.core.model.list.ListSort
-import kotlin.uuid.Uuid
 
 internal sealed interface TagHomeScaffoldEvent {
     data object ClickAdd : TagHomeScaffoldEvent
@@ -19,8 +18,4 @@ internal sealed interface TagHomeScaffoldEvent {
     ) : TagHomeScaffoldEvent
 
     data object Refresh : TagHomeScaffoldEvent
-
-    data class ClickTag(
-        val id: Uuid,
-    ) : TagHomeScaffoldEvent
 }

@@ -94,6 +94,16 @@ class AccountMemoPlaceSyncTransactionImplTest :
                 .shouldContainExactlyInAnyOrder(firstPending, secondPending)
         }
 
+        test("TC-DATA-SYNC-DOMAIN-087 로그인한 계정의 업로드 대상에 게스트 상태에서 만든 메모와 장소의 연결은 포함되지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val guestEntity = memoPlace()
+            val accountEntity = memoPlace()
+            insertWithSyncState(accountId = Uuid.NIL, memoPlace = guestEntity, isDirty = true)
+            insertWithSyncState(accountId = accountId, memoPlace = accountEntity, isDirty = true)
+
+            syncDataSource.findPending(accountId = accountId) shouldBe listOf(accountEntity)
+        }
+
         test("TC-DATA-SYNC-DOMAIN-026 업로드한 수정 시각이 그대로면 동기화 완료가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memoPlace = memoPlace()
@@ -164,7 +174,7 @@ class AccountMemoPlaceSyncTransactionImplTest :
             isPending(accountId = accountId, memoPlace = local) shouldBe true
         }
 
-        test("TC-MEMO-PLACE-DATA-008 기기에 없던 연결은 새로 저장되고 동기화 완료로 기록된다") {
+        test("TC-DATA-SYNC-DATA-025 기기에 없던 연결은 새로 저장되고 동기화 완료로 기록된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val remote = memoPlace()
 
@@ -172,6 +182,18 @@ class AccountMemoPlaceSyncTransactionImplTest :
 
             findMemoPlace(memoId = remote.memoId) shouldBe listOf(remote)
             syncDataSource.findPending(accountId = accountId).shouldBeEmpty()
+        }
+
+        test("TC-MEMO-PLACE-DATA-008 서버 수정 시각이 기기보다 늦은 연결은 응답대로 저장되고 내려받기 위치가 갱신된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val local = memoPlace(updatedAt = Instant.fromEpochMilliseconds(1_000))
+            val remote = local.copy(isDeleted = !local.isDeleted, updatedAt = Instant.fromEpochMilliseconds(2_000))
+            insertWithSyncState(accountId, local, isDirty = false)
+
+            transaction.save(accountId = accountId, memoPlaceList = listOf(remote), cursor = 8L)
+
+            findMemoPlace(memoId = local.memoId) shouldBe listOf(remote)
+            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.MEMO_PLACE) shouldBe 8L
         }
 
         test("TC-DATA-SYNC-DATA-026 내려받기 저장이 실패하면 연결과 커서가 모두 반영되지 않는다") {
@@ -213,6 +235,6 @@ class AccountMemoPlaceSyncTransactionImplTest :
                 .setExp(MemoPlaceLocalEntity::createdAt, instant())
                 .sample()
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
     }
 }

@@ -13,6 +13,7 @@ import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.ui.contact.MemoContactAddedResultEffect
 import io.github.taetae98coding.diary.feature.memo.ui.form.MemoFormState
+import io.github.taetae98coding.diary.feature.memo.ui.form.collectMemoFormSelectablePagingItems
 import io.github.taetae98coding.diary.feature.memo.ui.form.handleMemoFormEvent
 import io.github.taetae98coding.diary.feature.memo.ui.form.rememberMemoAddFormState
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiSettingRequiredEffect
@@ -36,7 +37,7 @@ internal fun MemoAddScreen(
     navigateToContactDetail: (Uuid) -> Unit,
     navigateToPlaceAdd: (Coordinate?) -> Unit,
     navigateToPlaceDetail: (Uuid) -> Unit,
-    initialDateRange: MemoAddNavKey.InitialDateRange?,
+    initialDateTime: DiaryDateTimeInputValue?,
     tagAddRequestKey: Uuid,
     componentVisibleProvider: () -> MemoAddScaffoldComponentVisible,
     isStandalone: Boolean,
@@ -49,7 +50,7 @@ internal fun MemoAddScreen(
     geminiViewModel: MemoGeminiViewModel,
     modifier: Modifier = Modifier,
 ) {
-    val scaffoldState = rememberMemoAddFormState(initialDateTime = initialDateRange?.toInitialDateTime())
+    val scaffoldState = rememberMemoAddFormState(initialDateTime = initialDateTime)
     val uiState by addViewModel.uiState.collectAsStateWithLifecycle()
     val tagUiState by tagViewModel.uiState.collectAsStateWithLifecycle()
     val webUiState by webViewModel.uiState.collectAsStateWithLifecycle()
@@ -61,6 +62,7 @@ internal fun MemoAddScreen(
     val webPagingItems = webViewModel.webPagingData.collectAsLazyPagingItems()
     val contactPagingItems = contactViewModel.contactPagingData.collectAsLazyPagingItems()
     val placePagingItems = placeViewModel.placePagingData.collectAsLazyPagingItems()
+    val selectablePagingItems = collectMemoFormSelectablePagingItems(tag = tagViewModel.selectableTagPagingData, web = webViewModel.selectableWebPagingData, contact = contactViewModel.selectableContactPagingData, place = placeViewModel.selectablePlacePagingData)
 
     MemoAddEnterEffect(tagAddRequestKey = tagAddRequestKey, tagViewModel = tagViewModel, webViewModel = webViewModel, contactViewModel = contactViewModel, placeViewModel = placeViewModel, placeMapViewModel = placeMapViewModel)
     MemoAddFormEffect(scaffoldState = scaffoldState, addViewModel = addViewModel, geminiViewModel = geminiViewModel)
@@ -76,10 +78,7 @@ internal fun MemoAddScreen(
             handleMemoFormEvent(
                 event = event,
                 state = scaffoldState,
-                tagPagingItems = tagPagingItems,
-                webPagingItems = webPagingItems,
-                contactPagingItems = contactPagingItems,
-                placePagingItems = placePagingItems,
+                selectablePagingItems = selectablePagingItems,
                 navigateToTagAdd = navigateToTagAdd,
                 navigateToTagDetail = navigateToTagDetail,
                 navigateToWebAdd = navigateToWebAdd,
@@ -140,4 +139,6 @@ private fun MemoAddFormEffect(
     MemoGeminiSettingRequiredEffect(hostState = scaffoldState.hostState, effect = geminiViewModel.effect)
 }
 
-private fun MemoAddNavKey.InitialDateRange.toInitialDateTime(): DiaryDateTimeInputValue = DiaryDateTimeInputValue.AllDay(dateRange = start..endInclusive)
+internal fun MemoAddNavKey.initialDateTime(): DiaryDateTimeInputValue? =
+    initialDateTimeRange?.let { range -> DiaryDateTimeInputValue.DateTime(start = range.start, endInclusive = range.endInclusive) }
+        ?: initialDateRange?.let { range -> DiaryDateTimeInputValue.AllDay(dateRange = range.start..range.endInclusive) }

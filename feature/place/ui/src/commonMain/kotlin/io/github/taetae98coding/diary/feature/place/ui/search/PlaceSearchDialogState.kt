@@ -46,3 +46,10 @@ internal fun rememberPlaceSearchDialogState(
         )
     }
 }
+
+@Composable
+internal fun rememberPlaceSearchDialogState(hostMapState: DiaryMapState): PlaceSearchDialogState =
+    rememberPlaceSearchDialogState(
+        initialProvider = hostMapState.provider,
+        initialCoordinate = hostMapState.coordinate,
+    )

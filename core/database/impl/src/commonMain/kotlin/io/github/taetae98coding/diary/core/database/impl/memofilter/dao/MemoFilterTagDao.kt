@@ -26,6 +26,15 @@ internal interface MemoFilterTagDao : RoomDao<MemoFilterTagLocalEntity> {
 
     @Query(
         """
+        SELECT tag_id
+        FROM memo_filter_tag
+        WHERE account_id = :accountId
+        """,
+    )
+    fun getTagIdList(accountId: Uuid): Flow<List<Uuid>>
+
+    @Query(
+        """
         DELETE FROM memo_filter_tag
         WHERE account_id = :accountId AND tag_id = :tagId
         """,

@@ -3,11 +3,13 @@ package io.github.taetae98coding.diary.feature.tag.ui.home
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.performTouchInput
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
@@ -21,6 +23,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -74,6 +77,15 @@ class TagHomeScreenTest {
     }
 
     @Test
+    fun `상단 바의 검색 버튼을 길게 누르면 접근성 이름과 같은 설명을 표시한다`() {
+        setTagHomeScreen(viewModel = screenTestViewModel())
+
+        composeRule.onNodeWithContentDescription(DEFAULT_SEARCH_BUTTON_DESCRIPTION).performTouchInput { longClick() }
+
+        composeRule.onNodeWithText(DEFAULT_SEARCH_BUTTON_DESCRIPTION).assertExists()
+    }
+
+    @Test
     fun `TC-TAG-ADD-FEATURE-001 태그 추가 버튼을 누르면 태그 추가 화면 전환 행동을 한 번 전달한다`() {
         var navigateToAddCount = 0
         setTagHomeScreen(
@@ -104,12 +116,33 @@ class TagHomeScreenTest {
         navigateToAddCount shouldBe 1
     }
 
+    @Test
+    fun `상세 영역에 태그 추가 화면이 표시되어 추가 버튼을 숨기면 Cmd A 단축키로도 태그 추가 화면을 다시 열지 않는다`() {
+        var navigateToAddCount = 0
+        setTagHomeScreen(
+            viewModel = screenTestViewModel(),
+            navigateToAdd = { navigateToAddCount += 1 },
+            componentVisible = TagHomeScaffoldComponentVisible(isAddButtonVisible = false),
+        )
+
+        composeRule.onRoot().performKeyInput {
+            keyDown(Key.MetaLeft)
+            keyDown(Key.A)
+            keyUp(Key.A)
+            keyUp(Key.MetaLeft)
+        }
+        composeRule.waitForIdle()
+
+        navigateToAddCount shouldBe 0
+    }
+
     private fun setTagHomeScreen(
         viewModel: TagHomeViewModel,
         navigateToAdd: () -> Unit = {},
         navigateToFilter: () -> Unit = {},
         navigateToFinishedList: () -> Unit = {},
         navigateToSearch: () -> Unit = {},
+        componentVisible: TagHomeScaffoldComponentVisible = TagHomeScaffoldComponentVisible(),
     ) {
         composeRule.setContent {
             DiaryTheme {
@@ -122,7 +155,7 @@ class TagHomeScreenTest {
                     gridState = rememberLazyGridState(),
                     tagViewModel = viewModel,
                     syncViewModel = screenTestSyncViewModel(),
-                    componentVisibleProvider = { TagHomeScaffoldComponentVisible() },
+                    componentVisibleProvider = { componentVisible },
                 )
             }
         }
@@ -142,13 +175,15 @@ class TagHomeScreenTest {
                 fixtureMonkey
                     .giveMeKotlinBuilder<Tag>()
                     .setExp(Tag::detail, fixtureMonkey.giveMeOne<TagDetail>().copy(emoji = "", title = TAG_TITLE))
-                    .setExp(Tag::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                    .setExp(Tag::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                    .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                    .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
                     .sample()
             val viewModel = mockk<TagHomeViewModel>()
             every { viewModel.sort } returns MutableStateFlow(ListSort.TITLE)
 
             every { viewModel.tagPagingData } returns MutableStateFlow(tagPagingDataOf(listOf(tag)))
+
+            every { viewModel.effect } returns emptyFlow()
             every { viewModel.filterUiState } returns MutableStateFlow(TagHomeScaffoldFilterUiState())
 
             return viewModel

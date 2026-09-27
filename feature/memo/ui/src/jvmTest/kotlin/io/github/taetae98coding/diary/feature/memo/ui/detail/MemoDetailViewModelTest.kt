@@ -104,6 +104,34 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-MEMO-DETAIL-FEATURE-090 내용을 표시한 뒤 조회가 잠시 끊기면 로딩 상태가 되었다가 다시 내용으로 돌아온다") {
+            runTest(mainDispatcher) {
+                listOf<Result<Memo?>>(
+                    Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())),
+                    Result.success(null),
+                ).forEach { brokenResult ->
+                    val memo = memo()
+                    val resultFlow = MutableSharedFlow<Result<Memo?>>(replay = 1)
+                    val findMemoUseCase = mockk<FindMemoUseCase>()
+                    every { findMemoUseCase(any()) } returns resultFlow
+                    val viewModel = viewModel(findMemoUseCase = findMemoUseCase)
+
+                    viewModel.uiState.test {
+                        awaitItem() shouldBe MemoDetailUiState.Loading
+                        resultFlow.emit(Result.success(memo))
+                        awaitItem().shouldBeInstanceOf<MemoDetailUiState.Content>().id shouldBe memo.id
+
+                        resultFlow.emit(brokenResult)
+                        awaitItem() shouldBe MemoDetailUiState.Loading
+
+                        resultFlow.emit(Result.success(memo))
+                        awaitItem().shouldBeInstanceOf<MemoDetailUiState.Content>().detail shouldBe memo.detail
+                        cancelAndIgnoreRemainingEvents()
+                    }
+                }
+            }
+        }
+
         test("TC-MEMO-DETAIL-FEATURE-001 조회한 메모의 제목, 설명, 컬러를 상태에 채우고 후속 변경도 반영한다") {
             runTest(mainDispatcher) {
                 val memo = memo()
@@ -142,7 +170,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("조회한 메모의 완료 상태를 상태에 채우고 후속 변경도 반영한다") {
+        test("TC-MEMO-DETAIL-FEATURE-073 같은 메모가 다른 경로로 완료되거나 다시 시작되면 저장된 완료 여부를 상태에 반영한다") {
             runTest(mainDispatcher) {
                 val memo = memo().copy(isFinished = false)
                 val finishedMemo = memo.copy(isFinished = true)
@@ -163,6 +191,42 @@ class MemoDetailViewModelTest : FunSpec() {
 
                     resultFlow.emit(Result.success(finishedMemo))
                     (awaitItem() as MemoDetailUiState.Content).isFinished shouldBe true
+
+                    resultFlow.emit(Result.success(memo))
+                    (awaitItem() as MemoDetailUiState.Content).isFinished shouldBe false
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("TC-MEMO-DETAIL-FEATURE-074 같은 메모가 다른 경로로 삭제되어도 화면을 닫지 않고 마지막 저장 내용을 계속 표시한다") {
+            runTest(mainDispatcher) {
+                val memo = memo().copy(isDeleted = false)
+                val deletedMemo = memo.copy(isDeleted = true)
+                val resultFlow = MutableSharedFlow<Result<Memo?>>(replay = 1)
+                val findMemoUseCase = mockk<FindMemoUseCase>()
+                every { findMemoUseCase(any()) } returns resultFlow
+                val viewModel =
+                    viewModel(
+                        id = memo.id,
+                        findMemoUseCase = findMemoUseCase,
+                    )
+
+                viewModel.effect.test {
+                    viewModel.uiState.test {
+                        awaitItem() shouldBe MemoDetailUiState.Loading
+
+                        resultFlow.emit(Result.success(memo))
+                        (awaitItem() as MemoDetailUiState.Content).detail shouldBe memo.detail
+
+                        resultFlow.emit(Result.success(deletedMemo))
+                        advanceUntilIdle()
+
+                        val uiState = viewModel.uiState.value.shouldBeInstanceOf<MemoDetailUiState.Content>()
+                        uiState.detail shouldBe deletedMemo.detail
+                        cancelAndIgnoreRemainingEvents()
+                    }
+                    expectNoEvents()
                     cancelAndIgnoreRemainingEvents()
                 }
             }
@@ -441,6 +505,41 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-MEMO-DETAIL-FEATURE-083 수정 저장에 실패하면 Effect를 보내지 않고 진행 상태를 해제해 다시 수정할 수 있다") {
+            runTest(mainDispatcher) {
+                val memo = memo()
+                val findMemoUseCase = mockk<FindMemoUseCase>()
+                every { findMemoUseCase(parameter = memo.id) } returns flowOf(Result.success(memo))
+                val updateMemoUseCase = mockk<UpdateMemoUseCase>()
+                coEvery { updateMemoUseCase(any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                val viewModel = viewModel(id = memo.id, findMemoUseCase = findMemoUseCase, updateMemoUseCase = updateMemoUseCase)
+                val detail = fixtureMonkey.giveMeOne<MemoDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}")
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe MemoDetailUiState.Loading
+                    runCurrent()
+                    awaitItem().shouldBeInstanceOf<MemoDetailUiState.Content>().isInProgress shouldBe false
+
+                    viewModel.effect.test {
+                        viewModel.update(detail)
+                        advanceUntilIdle()
+
+                        expectNoEvents()
+                    }
+
+                    cancelAndIgnoreRemainingEvents()
+                }
+
+                viewModel.uiState.value
+                    .shouldBeInstanceOf<MemoDetailUiState.Content>()
+                    .isInProgress shouldBe false
+                viewModel.update(detail)
+                advanceUntilIdle()
+
+                coVerify(exactly = 2) { updateMemoUseCase(any()) }
+            }
+        }
+
         test("TC-MEMO-DETAIL-DATA-003 완료를 실행하면 현재 메모의 완료를 요청하고 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
@@ -508,7 +607,7 @@ class MemoDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("삭제에 실패하면 Effect를 보내지 않는다") {
+        test("TC-MEMO-DETAIL-FEATURE-085 삭제에 실패하면 Effect를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val deleteMemoUseCase = mockk<DeleteMemoUseCase>()
                 coEvery { deleteMemoUseCase(any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
@@ -520,6 +619,33 @@ class MemoDetailViewModelTest : FunSpec() {
 
                     expectNoEvents()
                 }
+            }
+        }
+
+        test("TC-MEMO-DETAIL-FEATURE-086 완료와 다시 시작 저장에 실패하면 Effect를 보내지 않고 다시 요청할 수 있다") {
+            runTest(mainDispatcher) {
+                val finishMemoUseCase = mockk<FinishMemoUseCase>()
+                coEvery { finishMemoUseCase(any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                val restartMemoUseCase = mockk<RestartMemoUseCase>()
+                coEvery { restartMemoUseCase(any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                val viewModel = viewModel(finishMemoUseCase = finishMemoUseCase, restartMemoUseCase = restartMemoUseCase)
+
+                viewModel.effect.test {
+                    viewModel.finish()
+                    advanceUntilIdle()
+                    viewModel.restart()
+                    advanceUntilIdle()
+
+                    expectNoEvents()
+                }
+
+                viewModel.finish()
+                advanceUntilIdle()
+                viewModel.restart()
+                advanceUntilIdle()
+
+                coVerify(exactly = 2) { finishMemoUseCase(any()) }
+                coVerify(exactly = 2) { restartMemoUseCase(any()) }
             }
         }
 
@@ -723,8 +849,8 @@ class MemoDetailViewModelTest : FunSpec() {
         private fun memo(): Memo =
             fixtureMonkey
                 .giveMeKotlinBuilder<Memo>()
-                .setExp(Memo::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Memo::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
 
         private fun emptyFindMemoUseCase(): FindMemoUseCase {

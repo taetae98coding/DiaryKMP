@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -16,7 +18,7 @@ import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBar
+import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.web.Web
@@ -30,6 +32,7 @@ internal fun WebHomeScaffold(
     onEvent: (WebHomeScaffoldEvent) -> Unit,
     modifier: Modifier = Modifier,
     sortSheetState: DialogState = rememberDialogState(),
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     webPagingItems: LazyPagingItems<Web> = remember { flowOf(PagingData.empty<Web>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> WebHomeUiState = { WebHomeUiState() },
     sortProvider: () -> ListSort = { ListSort.TITLE },
@@ -38,6 +41,7 @@ internal fun WebHomeScaffold(
     Scaffold(
         modifier = modifier,
         topBar = { WebHomeTopBar(onEvent = onEvent) },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         floatingActionButton = {
             if (componentVisibleProvider().isAddButtonVisible) {
                 FloatingAddButton(
@@ -53,10 +57,11 @@ internal fun WebHomeScaffold(
                     .fillMaxSize()
                     .padding(paddingValues),
         ) {
-            DiaryListSortBar(
+            DiaryListSortBarHost(
                 onClick = { onEvent(WebHomeScaffoldEvent.ClickSort) },
                 modifier = Modifier.fillMaxWidth(),
                 sortProvider = sortProvider,
+                isSortVisibleProvider = { webPagingItems.itemCount > 0 },
             )
 
             WebHomeList(

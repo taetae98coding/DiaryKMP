@@ -34,6 +34,8 @@ internal fun PlaceSearchEffect(
                 bounds = state.mapState.bounds.takeIf { provider == DiaryMapProvider.GOOGLE },
             )
         }.collectLatest { trigger ->
+            // 효과가 막 시작됐는데 검색어가 이미 있으면 화면이 복원되어 검색어가 다시 나타난 것이다.
+            val isRestored = previousProvider == null
             val isProviderChanged = previousProvider != null && previousProvider != trigger.provider
 
             previousProvider = trigger.provider
@@ -43,7 +45,7 @@ internal fun PlaceSearchEffect(
                 return@collectLatest
             }
 
-            if (!isProviderChanged) delay(INPUT_IDLE_DELAY)
+            if (!isRestored && !isProviderChanged) delay(INPUT_IDLE_DELAY)
 
             latestOnSearch(
                 PlaceSearchRequest(

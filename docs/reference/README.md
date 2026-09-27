@@ -41,7 +41,7 @@ Markdown 외 형식도 둘 수 있다. 파일을 추가하면 아래 목록에 �
 
 `compose:map`을 세 층(배치·전환, 상태·계약, SDK 연동)으로 나눠 설명하고, `DiaryMapState`의 상태별 공개 범위와 지도·앱 사이의 두 방향 흐름, 저장·복원 항목을 정리한다. 플랫폼 탭으로 Android·iOS·JVM·wasmJs의 네이버·Google 구현을 나란히 보여주고, 같은 동작을 두 SDK에서 어떻게 얻는지 대조표로 둔다.
 
-제품 관점의 동작과 정책은 [스펙](../spec/diary-map.md)이, 화면 표현은 [디자인](../design/diary-map.md)이 소유한다. 이 자료는 구현 구조만 다루고, 스펙과 어긋나면 이 자료를 고친다.
+제품 관점의 동작과 정책은 [스펙](../spec/client/diary-map.md)이, 화면 표현은 [디자인](../design/diary-map.md)이 소유한다. 이 자료는 구현 구조만 다루고, 스펙과 어긋나면 이 자료를 고친다.
 
 ## Google·Apple 로그인 비교
 
@@ -49,4 +49,4 @@ Markdown 외 형식도 둘 수 있다. 파일을 추가하면 아래 목록에 �
 
 Google 로그인과 Apple 로그인이 `feature:login:ui`, `app:shared`, `core:network`, Supabase Functions의 어느 자리에 어떤 파일로 놓이는지 대조하고, 플랫폼별 외부 의존성과 Android·iOS·JVM·wasmJs에서 인증 결과를 얻는 흐름을 나란히 그린다. Apple만 서버 콜백 함수를 거치는 이유와 콜백 허용 규칙, 콘솔·Supabase·`local.properties` 설정의 차이도 함께 정리한다.
 
-제품 관점의 동작과 정책은 [스펙](../spec/login.md)이, 화면 표현은 [디자인](../design/login.md)이 소유한다. 이 자료는 구현 구조만 다루고, 스펙과 어긋나면 이 자료를 고친다.
+제품 관점의 동작과 정책은 [스펙](../spec/client/login.md)이, 화면 표현은 [디자인](../design/login.md)이 소유한다. 이 자료는 구현 구조만 다루고, 스펙과 어긋나면 이 자료를 고친다.

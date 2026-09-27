@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.web.ui.detail
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -11,6 +12,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.swipeDown
@@ -84,7 +86,7 @@ class WebDetailScreenMemoTest {
 
     @Test
     fun `TC-WEB-DETAIL-MEMO-FEATURE-008 대상 웹 항목의 상태와 무관하게 메모 추가를 시작할 수 있다`() {
-        // 계정과 연결되지 않은 웹 항목는 조회되지 않으므로 화면에서는 조회 전과 같은 상태로 관찰되고, 삭제된 웹 항목는 내용 표시 상태로 관찰된다.
+        // 계정과 연결되지 않은 웹 항목은 조회되지 않으므로 화면에서는 조회 전과 같은 상태로 관찰되고, 삭제된 웹 항목은 내용 표시 상태로 관찰된다.
         val uiStateList = listOf(content(), WebDetailUiState.Loading)
         val uiStateFlow = MutableStateFlow<WebDetailUiState>(uiStateList.first())
         var navigateToMemoAddCount = 0
@@ -187,7 +189,7 @@ class WebDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-DATA-006 TC-WEB-DETAIL-MEMO-FEATURE-017 대상 웹 항목를 조회하지 못해도 메모 목록은 노출 기준대로 표시된다`() {
+    fun `TC-WEB-DETAIL-MEMO-DATA-006 TC-WEB-DETAIL-MEMO-FEATURE-017 대상 웹 항목을 조회하지 못해도 메모 목록은 노출 기준대로 표시된다`() {
         composeRule.setWebDetailMemoScreen(
             viewModel = memoScreenWebViewModel(MutableStateFlow(WebDetailUiState.Loading)),
             memoPagingData = webMemoPagingData(itemList = listOf(MemoListItem.Content(memo = webMemo(title = INDEPENDENT_MEMO_TITLE)))),
@@ -197,6 +199,82 @@ class WebDetailScreenMemoTest {
         waitUntilMemoIsDisplayed(title = INDEPENDENT_MEMO_TITLE)
         composeRule.onNodeWithText(INDEPENDENT_MEMO_TITLE).assertIsDisplayed()
         composeRule.onNodeWithContentDescription(DEFAULT_MEMO_ADD_DESCRIPTION).assertExists()
+    }
+
+    @Test
+    fun `TC-WEB-DETAIL-MEMO-DOMAIN-003 다른 탭에 다녀와도 메모 탭에서 보던 목록 위치가 유지된다`() {
+        val titleList = List(POSITION_MEMO_COUNT) { index -> "$POSITION_MEMO_TITLE_PREFIX${index.toString().padStart(length = 2, padChar = '0')}" }
+        setScreenOnMemoTab(memoPagingData = webMemoPagingData(itemList = titleList.map { title -> MemoListItem.Content(memo = webMemo(title = title)) }))
+        waitUntilMemoIsDisplayed(title = titleList.first())
+        composeRule.onNodeWithTag(WEB_DETAIL_MEMO_LIST_TEST_TAG).performScrollToNode(hasText(titleList.last()))
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(titleList.last()).assertIsDisplayed()
+
+        composeRule.selectWebDetailTab(DEFAULT_FORM_TAB_DESCRIPTION)
+        composeRule.selectWebDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+        waitUntilMemoIsDisplayed(title = titleList.last())
+
+        composeRule.onNodeWithText(titleList.last()).assertIsDisplayed()
+        composeRule.onNodeWithText(titleList.first()).assertIsNotDisplayed()
+    }
+
+    @Test
+    fun `TC-WEB-DETAIL-DOMAIN-047 수정 삭제 웹 페이지 불러오기를 처리하는 중에도 메모 완료와 실행 취소를 요청한다`() {
+        val memo = inProgressSwipeMemo()
+
+        composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeRight() }
+        composeRule.waitForIdle()
+        emitMemoEffect(MemoListEffect.Finished(id = memo.id))
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { memoViewModel().finish(id = memo.id) }
+        verify(exactly = 1) { memoViewModel().restart(id = memo.id) }
+    }
+
+    @Test
+    fun `TC-WEB-DETAIL-DOMAIN-047 수정 삭제 웹 페이지 불러오기를 처리하는 중에도 메모 삭제와 실행 취소를 요청한다`() {
+        val memo = inProgressSwipeMemo()
+
+        composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+        emitMemoEffect(MemoListEffect.Deleted(id = memo.id))
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { memoViewModel().delete(id = memo.id) }
+        verify(exactly = 1) { memoViewModel().restore(id = memo.id) }
+    }
+
+    @Test
+    fun `TC-WEB-DETAIL-MEMO-FEATURE-022 안내가 보이는 동안 다른 탭으로 바꾸면 안내가 닫히고 되돌릴 수 없다`() {
+        val memo = swipeMemo()
+
+        composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+        emitMemoEffect(MemoListEffect.Deleted(id = memo.id))
+        composeRule.onNodeWithText(DEFAULT_DELETED_MESSAGE).assertIsDisplayed()
+
+        composeRule.selectWebDetailTab(DEFAULT_FORM_TAB_DESCRIPTION)
+        composeRule.mainClock.advanceTimeBy(TAB_CHANGE_SETTLE_MILLIS)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_DELETED_MESSAGE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).assertDoesNotExist()
+        verify(exactly = 0) { memoViewModel().restore(id = any()) }
+    }
+
+    // 웹 페이지 불러오기는 화면 fixture가 불러오는 중 상태로 둔다.
+    private fun inProgressSwipeMemo(): Memo {
+        val memo = webMemo(title = SCREEN_MEMO_TITLE)
+        composeRule.setWebDetailMemoScreen(
+            viewModel = memoScreenWebViewModel(MutableStateFlow(content().copy(isUpdateInProgress = true, isDeleteInProgress = true))),
+            memoPagingData = webMemoPagingData(itemList = listOf(MemoListItem.Content(memo = memo))),
+        )
+        composeRule.selectWebDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+        waitUntilMemoIsDisplayed(title = memo.detail.title)
+
+        return memo
     }
 
     private fun swipeMemo(memoTabDescription: String = DEFAULT_MEMO_TAB_DESCRIPTION): Memo {
@@ -250,12 +328,16 @@ class WebDetailScreenMemoTest {
 
     private companion object {
         const val PAGING_ITEMS_TIMEOUT_MILLIS = 5_000L
+        const val POSITION_MEMO_COUNT = 30
+        const val POSITION_MEMO_TITLE_PREFIX = "WebDetailPositionMemo"
         const val CONTACT_NAME = "WebDetailMemoScreenName"
         const val SCREEN_MEMO_TITLE = "WebDetailScreenMemo"
         const val INDEPENDENT_MEMO_TITLE = "WebDetailIndependentMemo"
         const val DEFAULT_FINISHED_MESSAGE = "Memo finished."
         const val KOREAN_DELETED_MESSAGE = "메모가 삭제되었습니다."
         const val DEFAULT_UNDO_ACTION = "Undo"
+        const val DEFAULT_DELETED_MESSAGE = "Memo deleted."
+        const val TAB_CHANGE_SETTLE_MILLIS = 1_000L
         const val KOREAN_UNDO_ACTION = "실행 취소"
 
         fun content(): WebDetailUiState.Content = testContentUiState(detail = testWebDetail(title = CONTACT_NAME))

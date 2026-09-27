@@ -12,8 +12,12 @@ import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalE
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.place.entity.AccountPlaceLocalEntity
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.coEvery
+import io.mockk.every
+import io.mockk.spyk
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -72,6 +76,27 @@ class AccountPlaceTransactionImplTest :
                         isDirty = true,
                     ),
                 )
+        }
+
+        test("TC-DATA-SYNC-DOMAIN-001 장소 추가·수정·삭제·실행 취소는 업로드 대기 상태가 된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val place = place().copy(isDeleted = false)
+            val pending = listOf(AccountPlaceLocalEntity(accountId = accountId, placeId = place.id, isDirty = true))
+
+            transaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = emptyList())
+            findAccountPlaceList() shouldBe pending
+
+            database.accountPlaceDao().upsert(AccountPlaceLocalEntity(accountId = accountId, placeId = place.id, isDirty = false))
+            transaction.updateDetail(accountId = accountId, placeId = place.id, detail = placeDetail(), updatedAt = instant())
+            findAccountPlaceList() shouldBe pending
+
+            database.accountPlaceDao().upsert(AccountPlaceLocalEntity(accountId = accountId, placeId = place.id, isDirty = false))
+            transaction.updateDeleted(accountId = accountId, placeId = place.id, isDeleted = true, updatedAt = instant())
+            findAccountPlaceList() shouldBe pending
+
+            database.accountPlaceDao().upsert(AccountPlaceLocalEntity(accountId = accountId, placeId = place.id, isDirty = false))
+            transaction.updateDeleted(accountId = accountId, placeId = place.id, isDeleted = false, updatedAt = instant())
+            findAccountPlaceList() shouldBe pending
         }
 
         test("TC-PLACE-ADD-DATA-002 TC-PLACE-ADD-DATA-003 제목, 설명, 컬러, 좌표와 미삭제 상태, 추가 시각을 그대로 저장한다") {
@@ -301,6 +326,49 @@ class AccountPlaceTransactionImplTest :
             deleteCount shouldBe 0
             findPlaceList() shouldBe listOf(place)
         }
+
+        test("TC-PLACE-DETAIL-DATA-005 수정이나 삭제의 저장에 실패하면 장소의 내용과 계정 연결이 그대로 남는다") {
+            val actionList: List<suspend (AccountPlaceTransactionImpl, Uuid, Uuid) -> Unit> =
+                listOf(
+                    { failingTransaction, accountId, placeId ->
+                        failingTransaction.updateDetail(
+                            accountId = accountId,
+                            placeId = placeId,
+                            detail = placeDetail(),
+                            updatedAt = instant(),
+                        )
+                    },
+                    { failingTransaction, accountId, placeId ->
+                        failingTransaction.updateDeleted(
+                            accountId = accountId,
+                            placeId = placeId,
+                            isDeleted = true,
+                            updatedAt = instant(),
+                        )
+                    },
+                )
+
+            actionList.forEach { action ->
+                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val place = place().copy(isDeleted = false)
+                transaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = emptyList())
+                val beforePlaceList = findPlaceList()
+                val beforeAccountPlaceList = findAccountPlaceList()
+                val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+                val failingDao = spyk(database.accountPlaceDao())
+                coEvery { failingDao.markPending(accountId = any(), placeId = any()) } throws throwable
+                val failingDatabase = spyk(database)
+                every { failingDatabase.accountPlaceDao() } returns failingDao
+                val failingTransaction = AccountPlaceTransactionImpl(database = failingDatabase)
+
+                shouldThrow<IllegalStateException> {
+                    action(failingTransaction, accountId, place.id)
+                }.message shouldBe throwable.message
+
+                findPlaceList() shouldBe beforePlaceList
+                findAccountPlaceList() shouldBe beforeAccountPlaceList
+            }
+        }
     }) {
     public companion object {
         private val fixtureMonkey: FixtureMonkey =
@@ -321,7 +389,7 @@ class AccountPlaceTransactionImplTest :
                 .setExp(PlaceDetailLocalEntity::longitude, fixtureMonkey.giveMeOne<Long>() % 180 + 0.5)
                 .sample()
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun <T> SQLiteStatement.readAll(read: (SQLiteStatement) -> T): List<T> =
             buildList {

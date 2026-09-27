@@ -35,6 +35,7 @@ public class GetAccountUseCase internal constructor(
                 profileImage = userData.profileImage,
                 email = userData.email,
                 isSessionValid = session is Session.Authenticated,
+                isSessionPending = session is Session.Pending,
             )
         }
 }

@@ -30,7 +30,7 @@ class MemoContactPickerDialogTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-001 목록에 연락처의 제목과 URL, 선택 여부를 함께 표시한다`() {
+    fun `TC-MEMO-CONTACT-INPUT-FEATURE-001 목록에 연락처의 이름과 전화번호, 선택 여부를 함께 표시한다`() {
         val selectedContact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val unselectedContact = testContact(name = SECOND_CONTACT_NAME, phoneNumber = SECOND_CONTACT_PHONE_NUMBER)
         composeRule.setMemoContactPickerDialog(

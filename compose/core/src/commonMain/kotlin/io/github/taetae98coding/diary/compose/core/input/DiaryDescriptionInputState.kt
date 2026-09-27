@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.compose.core.input
 
 import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.snapTo
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -10,14 +11,24 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.focus.FocusRequester
 
 @Stable
 public class DiaryDescriptionInputState internal constructor(
     internal val textFieldState: TextFieldState,
     internal val swipeState: AnchoredDraggableState<DiaryDescriptionInputPage>,
+    internal val focusRequester: FocusRequester,
 ) {
     public val text: CharSequence
         get() = textFieldState.text
+
+    public val focusTarget: FocusRequester
+        get() =
+            if (swipeState.currentValue == DiaryDescriptionInputPage.Input) {
+                focusRequester
+            } else {
+                FocusRequester.Default
+            }
 
     public fun clearText() {
         textFieldState.clearText()
@@ -25,6 +36,11 @@ public class DiaryDescriptionInputState internal constructor(
 
     public fun setText(text: CharSequence) {
         textFieldState.setTextAndPlaceCursorAtEnd(text.toString())
+    }
+
+    public suspend fun reset(text: CharSequence = "") {
+        setText(text)
+        swipeState.snapTo(initialDiaryDescriptionInputPage(text.toString()))
     }
 }
 
@@ -47,10 +63,13 @@ public fun rememberDiaryDescriptionInputState(initialText: String = ""): DiaryDe
             AnchoredDraggableState(initialValue = initialDiaryDescriptionInputPage(initialText))
         }
 
-    return remember(textFieldState, swipeState) {
+    val focusRequester = remember { FocusRequester() }
+
+    return remember(textFieldState, swipeState, focusRequester) {
         DiaryDescriptionInputState(
             textFieldState = textFieldState,
             swipeState = swipeState,
+            focusRequester = focusRequester,
         )
     }
 }

@@ -11,7 +11,9 @@ import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLoca
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memoweb.entity.MemoWebLocalEntity
+import io.github.taetae98coding.diary.core.database.api.web.entity.WebDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
+import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memoweb.entity.AccountMemoWebLocalEntity
@@ -185,16 +187,48 @@ class AccountWebMemoPagingDaoTest :
             pagedIds(accountId = accountId, webId = target.id) shouldBe listOf(activeMemo.id)
         }
 
-        test("TC-WEB-DETAIL-MEMO-DOMAIN-001 대상 웹 항목가 삭제되어도 연결된 미완료 메모는 계속 조회된다") {
-            val accountId = fixtureMonkey.giveMeOne<Uuid>()
-            val target = web(isDeleted = true)
-            val targetMemo = memo()
-            insertWebMemo(accountId, target, targetMemo)
+        test("TC-WEB-DETAIL-MEMO-DOMAIN-001 웹 항목을 삭제하거나 내용을 고치거나 태그 연결을 바꿔도 연결된 미완료 메모는 계속 조회된다") {
+            mapOf<String, suspend (accountId: Uuid, web: WebLocalEntity) -> Unit>(
+                "삭제" to { accountId, web ->
+                    database.accountWebDao().updateDeleted(accountId = accountId, webId = web.id, isDeleted = true, updatedAt = instant())
+                },
+                "내용 수정" to { accountId, web ->
+                    val changed = fixtureMonkey.giveMeOne<WebDetailLocalEntity>()
+                    database.accountWebDao().updateDetail(
+                        accountId = accountId,
+                        webId = web.id,
+                        title = changed.title,
+                        description = changed.description,
+                        url = changed.url,
+                        headerList = changed.headerList,
+                        updatedAt = instant(),
+                    )
+                },
+                "태그 연결 변경" to { _, web ->
+                    database.webTagDao().upsert(
+                        WebTagLocalEntity(
+                            webId = web.id,
+                            tagId = fixtureMonkey.giveMeOne<Uuid>(),
+                            isDeleted = false,
+                            updatedAt = instant(),
+                            createdAt = instant(),
+                        ),
+                    )
+                },
+            ).values.forEach { change ->
+                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val target = web()
+                val targetMemo = memo()
+                insertWebMemo(accountId, target, targetMemo)
+                pagedIds(accountId = accountId, webId = target.id) shouldBe listOf(targetMemo.id)
 
-            pagedIds(accountId = accountId, webId = target.id) shouldBe listOf(targetMemo.id)
+                change(accountId, target)
+
+                pagedIds(accountId = accountId, webId = target.id) shouldBe listOf(targetMemo.id)
+            }
         }
 
-        test("TC-WEB-DETAIL-MEMO-DATA-002 웹 항목별 메모는 기간 없음, 시작 시점, 종료 시점, 제목 순으로 조회한다") {
+        test("TC-WEB-DETAIL-MEMO-DATA-002 웹 항목별 메모는 기간 없음, 종일 여부, 시작 시점, 종료 시점, 제목 순으로 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val target = web()
             val noDateTimeBravoMemo = memo(detail = detail(title = "Bravo", isAllDay = null, start = null, endInclusive = null))
@@ -249,8 +283,30 @@ class AccountWebMemoPagingDaoTest :
                             endInclusive = LocalDateTime(year = 2026, month = 7, day = 20, hour = 0, minute = 0),
                         ),
                 )
+            val multiDayAllDayMemo =
+                memo(
+                    detail =
+                        detail(
+                            title = "Alpha",
+                            isAllDay = true,
+                            start = LocalDateTime(year = 2026, month = 7, day = 19, hour = 0, minute = 0),
+                            endInclusive = LocalDateTime(year = 2026, month = 7, day = 21, hour = 0, minute = 0),
+                        ),
+                )
+            val midnightMemo =
+                memo(
+                    detail =
+                        detail(
+                            title = "Alpha",
+                            isAllDay = false,
+                            start = LocalDateTime(year = 2026, month = 7, day = 19, hour = 0, minute = 0),
+                            endInclusive = LocalDateTime(year = 2026, month = 7, day = 19, hour = 1, minute = 0),
+                        ),
+                )
             listOf(
                 nextDayMemo,
+                midnightMemo,
+                multiDayAllDayMemo,
                 sameDayLateEndMemo,
                 sameDayEarlyEndBravoMemo,
                 sameDayEarlyEndAlphaMemo,
@@ -266,6 +322,8 @@ class AccountWebMemoPagingDaoTest :
                     noDateTimeAlphaMemo.id,
                     noDateTimeBravoMemo.id,
                     allDayMemo.id,
+                    multiDayAllDayMemo.id,
+                    midnightMemo.id,
                     sameDayEarlyEndAlphaMemo.id,
                     sameDayEarlyEndBravoMemo.id,
                     sameDayLateEndMemo.id,
@@ -422,7 +480,7 @@ class AccountWebMemoPagingDaoTest :
                 .setExp(MemoWebLocalEntity::createdAt, instant())
                 .sample()
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun detail(
             isAllDay: Boolean?,

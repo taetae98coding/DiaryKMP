@@ -57,6 +57,32 @@ class MemoDetailScreenTagActionTest {
     }
 
     @Test
+    fun `TC-MEMO-DETAIL-FEATURE-035 태그 선택을 해제해도 수정 버튼이 나타나지 않는다`() {
+        val workTag = testTag(title = WORK_TAG_TITLE)
+
+        composeRule.setMemoDetailTagScreen(tagViewModel = memoDetailTagViewModel(tagList = listOf(workTag), selectedTagList = listOf(workTag)))
+        composeRule.openMemoDetailTagPicker()
+        composeRule.dialogNodeWithText(WORK_TAG_TITLE).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-MEMO-DETAIL-FEATURE-035 대표 태그 지정을 해제해도 수정 버튼이 나타나지 않는다`() {
+        val workTag = testTag(title = WORK_TAG_TITLE)
+
+        composeRule.setMemoDetailTagScreen(
+            tagViewModel = memoDetailTagViewModel(tagList = listOf(workTag), selectedTagList = listOf(workTag), primaryTagId = workTag.id),
+        )
+        composeRule.openMemoDetailTagPicker()
+        composeRule.dialogNodesWithContentDescription(DEFAULT_PRIMARY_UNSET_DESCRIPTION)[0].performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-MEMO-DETAIL-FEATURE-036 태그를 선택해도 안내 스낵바를 표시하지 않는다`() {
         val workTag = testTag(title = WORK_TAG_TITLE)
 
@@ -83,7 +109,8 @@ class MemoDetailScreenTagActionTest {
     @Test
     fun `TC-MEMO-DETAIL-FEATURE-040 완료된 메모에서도 태그를 선택할 수 있다`() {
         val workTag = testTag(title = WORK_TAG_TITLE)
-        val tagViewModel = memoDetailTagViewModel(tagList = listOf(workTag))
+        val tagUiState = MutableStateFlow(MemoTagInputUiState())
+        val tagViewModel = screenTestTagViewModel(uiState = tagUiState, tagPagingDataFlow = MutableStateFlow(tagPagingDataOf(listOf(workTag))))
 
         composeRule.setMemoDetailScreenWithTag(
             uiState = MutableStateFlow(memoDetailUiState(detail = memoDetail(MEMO_TITLE), isFinished = true)),
@@ -91,8 +118,14 @@ class MemoDetailScreenTagActionTest {
         )
         composeRule.openMemoDetailTagPicker()
         composeRule.dialogNodeWithText(WORK_TAG_TITLE).performClick()
+        // 연결이 저장되면 태그 입력은 저장된 연결을 다시 조회해 보여 준다.
+        tagUiState.value = MemoTagInputUiState(selectedTagList = listOf(workTag))
+        composeRule.closeDialogByBack()
+        composeRule.waitForIdle()
 
         verify(exactly = 1) { tagViewModel.selectTag(tagId = workTag.id) }
+        composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_RESTART_BUTTON_DESCRIPTION).assertExists()
     }
 
     @Test

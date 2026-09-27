@@ -160,7 +160,7 @@ class AccountTagRepositoryImplTest :
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val tagId = fixtureMonkey.giveMeOne<Uuid>()
             val detail = fixtureMonkey.giveMeOne<TagDetail>()
-            val updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val updatedAt = fixtureMonkey.giveMeOne<Instant>()
             val localDataSource = mockk<AccountTagLocalDataSource>()
             val transaction = mockk<AccountTagTransaction>()
             coEvery {
@@ -182,15 +182,15 @@ class AccountTagRepositoryImplTest :
         private fun tag(): Tag =
             fixtureMonkey
                 .giveMeKotlinBuilder<Tag>()
-                .setExp(Tag::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Tag::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
 
         private fun localTag(): TagLocalEntity =
             fixtureMonkey
                 .giveMeKotlinBuilder<TagLocalEntity>()
-                .setExp(TagLocalEntity::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(TagLocalEntity::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(TagLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(TagLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
 
         private fun pagingSource(tagList: List<TagLocalEntity>): PagingSource<Int, TagLocalEntity> =

@@ -99,9 +99,8 @@ class GetPlaceListUseCaseTest :
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
-        // FixtureMonkey가 Instant를 생성하지 못하므로 장소는 직접 만든다.
         private fun place(): Place =
             Place(
                 id = Uuid.random(),

@@ -89,8 +89,8 @@ class GetSelectedPlaceUseCaseTest :
         private fun place(): Place =
             fixtureMonkey
                 .giveMeKotlinBuilder<Place>()
-                .setExp(Place::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Place::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Place::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Place::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

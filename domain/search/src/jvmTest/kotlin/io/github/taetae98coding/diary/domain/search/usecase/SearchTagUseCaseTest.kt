@@ -48,8 +48,31 @@ class SearchTagUseCaseTest :
                     flowOf(pagingData).asSnapshot() shouldBe tagList
                 }
 
-                Then("앞뒤 공백을 뺀 질의로 조회한다") {
+                Then("TC-SEARCH-HOME-DOMAIN-017 앞뒤 공백을 뺀 질의로 조회한다") {
                     val pagingData = useCase(parameter = SearchTagUseCase.Parameter(query = "  $QUERY  ", sort = ListSort.TITLE)).first().shouldBeSuccess()
+
+                    flowOf(pagingData).asSnapshot() shouldBe tagList
+                }
+            }
+        }
+
+        Given("로그인하지 않은 게스트 상태이고 질의를 만족하는 태그가 준비되어 있다") {
+            val tagList = List(2) { tag() }
+            val getAccountUseCase = mockk<GetAccountUseCase>()
+            val searchTagRepository = mockk<SearchTagRepository>()
+            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(Account.Guest))
+            every {
+                searchTagRepository.page(account = Account.Guest, query = QUERY, sort = ListSort.TITLE)
+            } returns flowOf(PagingData.from(tagList))
+            val useCase =
+                SearchTagUseCase(
+                    getAccountUseCase = getAccountUseCase,
+                    searchTagRepository = searchTagRepository,
+                )
+
+            When("질의로 태그를 검색한다") {
+                Then("TC-SEARCH-HOME-DOMAIN-015 게스트 계정의 검색 결과를 같은 기준으로 전달한다") {
+                    val pagingData = useCase(parameter = SearchTagUseCase.Parameter(query = QUERY, sort = ListSort.TITLE)).first().shouldBeSuccess()
 
                     flowOf(pagingData).asSnapshot() shouldBe tagList
                 }
@@ -111,8 +134,8 @@ class SearchTagUseCaseTest :
             fixtureMonkey
                 .giveMeKotlinBuilder<Tag>()
                 .setExp(Tag::isDeleted, false)
-                .setExp(Tag::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Tag::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

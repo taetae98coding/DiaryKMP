@@ -18,6 +18,7 @@ internal data class SyncCursorLocalEntity(
     val usn: Long,
 ) {
     companion object {
+        @Suppress("CyclomaticComplexMethod")
         fun column(kind: SyncKind): String =
             when (kind) {
                 SyncKind.MEMO -> "memo"
@@ -26,6 +27,7 @@ internal data class SyncCursorLocalEntity(
                 SyncKind.WEB -> "web"
                 SyncKind.CONTACT -> "contact"
                 SyncKind.MUSIC -> "music"
+                SyncKind.QR -> "qr"
                 SyncKind.MEMO_TAG -> "memo_tag"
                 SyncKind.MEMO_PLACE -> "memo_place"
                 SyncKind.MEMO_WEB -> "memo_web"

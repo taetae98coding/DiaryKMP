@@ -9,10 +9,12 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -61,14 +63,18 @@ class ContactHomeSortTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-013 목록이 비어 있어도 정렬을 고를 수 있다`() {
-        val eventList = mutableListOf<ContactHomeScaffoldEvent>()
-        setContactHomeScaffold(onEvent = eventList::add)
+    fun `TC-CONTACT-HOME-FEATURE-025 목록이 비어 있으면 정렬 컨트롤이 표시되지 않는다`() {
+        setContactHomeScaffold(contactPagingData = contactPagingDataOf(emptyList()))
+
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).assertDoesNotExist()
+    }
 
-        composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).performClick()
+    @Test
+    fun `목록을 처음 준비하느라 연락처가 아직 없으면 정렬 컨트롤을 표시하지 않는다`() {
+        setContactHomeScaffold(contactPagingData = loadingContactPagingData())
 
-        eventList shouldBe listOf(ContactHomeScaffoldEvent.ClickSort)
+        composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
@@ -90,11 +96,12 @@ class ContactHomeSortTest {
     }
 
     private fun setContactHomeScaffold(
+        contactPagingData: PagingData<Contact> = contactPagingDataOf(listOf(testContact(name = CONTACT_NAME))),
         onEvent: (ContactHomeScaffoldEvent) -> Unit = {},
         sortSheetState: DialogState = DialogState(),
         sort: ListSort = ListSort.NAME,
     ) {
-        val contactPagingDataFlow = MutableStateFlow(contactPagingDataOf(emptyList()))
+        val contactPagingDataFlow = MutableStateFlow(contactPagingData)
 
         composeRule.setContent {
             DiaryTheme {
@@ -109,6 +116,7 @@ class ContactHomeSortTest {
     }
 
     private companion object {
+        private const val CONTACT_NAME = "ContactHomeSortName"
         private const val DEFAULT_SORT_DESCRIPTION = "List sort"
         private const val KOREAN_SORT_DESCRIPTION = "목록 정렬"
         private const val DEFAULT_SORT_SHEET_TITLE = "Sort"

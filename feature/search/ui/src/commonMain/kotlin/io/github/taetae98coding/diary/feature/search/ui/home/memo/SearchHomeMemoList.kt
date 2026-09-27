@@ -20,8 +20,10 @@ import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.icon.MemoIcon
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
+import io.github.taetae98coding.diary.compose.core.swipe.SwipeFinishAction
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.memo.MemoCard
+import io.github.taetae98coding.diary.compose.memo.SwipeMemoCard
+import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
@@ -37,6 +39,7 @@ internal const val SEARCH_HOME_MEMO_LIST_TEST_TAG: String = "SearchHomeMemoList"
 @Composable
 internal fun SearchHomeMemoList(
     onEvent: (SearchHomeResultEvent) -> Unit,
+    onMemoListEvent: (MemoListEvent) -> Unit,
     modifier: Modifier = Modifier,
     listState: LazyListState = rememberLazyListState(),
     sortSheetState: DialogState = rememberDialogState(),
@@ -65,13 +68,14 @@ internal fun SearchHomeMemoList(
             ) { index ->
                 val memo = memoPagingItems[index]
 
-                MemoCard(
-                    onClick = { memo?.let { value -> onEvent(SearchHomeResultEvent.ClickResult(id = value.id)) } },
+                SwipeMemoCard(
+                    onEvent = onMemoListEvent,
                     modifier =
                         Modifier
                             .animateItem()
                             .fillMaxWidth(),
                     memo = memo,
+                    finishAction = if (memo?.isFinished == true) SwipeFinishAction.RESTART else SwipeFinishAction.FINISH,
                 )
             }
         }
@@ -104,6 +108,7 @@ private fun SearchHomeMemoListPreview() {
     DiaryTheme {
         SearchHomeMemoList(
             onEvent = {},
+            onMemoListEvent = {},
             modifier = Modifier.fillMaxSize(),
             memoPagingItems = memoPagingData.collectAsLazyPagingItems(),
         )

@@ -1,6 +1,8 @@
 package io.github.taetae98coding.diary.feature.contact.ui.add
 
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -21,11 +23,14 @@ class ContactAddScaffoldTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-008 추가 처리 중 추가 버튼이 진행 표시로 바뀐다`() {
+    fun `TC-CONTACT-ADD-FEATURE-008 추가 처리 중 추가 버튼이 이름을 유지한 채 진행 표시로 바뀐다`() {
         setContactAddScaffold(uiState = ContactAddUiState(isInProgress = true))
 
-        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
-        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).assertDoesNotExist()
+        composeRule
+            .onNode(
+                hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate).and(hasAnyAncestor(hasContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION))),
+                useUnmergedTree = true,
+            ).assertExists()
         composeRule.onNodeWithText(DEFAULT_TITLE).assertExists()
     }
 

@@ -8,11 +8,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.button.NavigateUpButton
+import io.github.taetae98coding.diary.compose.core.button.SearchButton
 import io.github.taetae98coding.diary.compose.core.icon.ListIcon
 import io.github.taetae98coding.diary.compose.core.icon.MapIcon
-import io.github.taetae98coding.diary.compose.core.icon.SearchIcon
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.core.tooltip.DiaryTooltipBox
 import io.github.taetae98coding.diary.feature.place.ui.Res
 import io.github.taetae98coding.diary.feature.place.ui.home.viewmode.PlaceHomeViewMode
 import io.github.taetae98coding.diary.feature.place.ui.home.viewmode.PlaceHomeViewModePreviewParameter
@@ -39,28 +40,41 @@ internal fun PlaceHomeTopBar(
             )
         },
         actions = {
-            IconButton(onClick = { onEvent(PlaceHomeScaffoldEvent.ClickSearch) }) {
-                SearchIcon(
-                    contentDescription = stringResource(Res.string.place_home_search_action_content_description),
-                )
-            }
-            IconButton(onClick = state::toggleViewMode) {
-                DiaryCrossfade(targetState = state.viewMode) { viewMode ->
-                    when (viewMode) {
-                        PlaceHomeViewMode.MAP ->
-                            ListIcon(
-                                contentDescription = stringResource(Res.string.place_home_list_view_mode_button_content_description),
-                            )
-
-                        PlaceHomeViewMode.LIST ->
-                            MapIcon(
-                                contentDescription = stringResource(Res.string.place_home_map_view_mode_button_content_description),
-                            )
-                    }
-                }
-            }
+            SearchButton(
+                onClick = { onEvent(PlaceHomeScaffoldEvent.ClickSearch) },
+                contentDescription = stringResource(Res.string.place_home_search_action_content_description),
+            )
+            ViewModeButton(state = state)
         },
     )
+}
+
+@Composable
+private fun ViewModeButton(state: PlaceHomeScaffoldState) {
+    val viewMode = state.viewMode
+    val contentDescription =
+        when (viewMode) {
+            PlaceHomeViewMode.MAP -> stringResource(Res.string.place_home_list_view_mode_button_content_description)
+            PlaceHomeViewMode.LIST -> stringResource(Res.string.place_home_map_view_mode_button_content_description)
+        }
+
+    DiaryTooltipBox(text = contentDescription) {
+        IconButton(onClick = state::toggleViewMode) {
+            DiaryCrossfade(targetState = viewMode) { targetViewMode ->
+                when (targetViewMode) {
+                    PlaceHomeViewMode.MAP ->
+                        ListIcon(
+                            contentDescription = stringResource(Res.string.place_home_list_view_mode_button_content_description),
+                        )
+
+                    PlaceHomeViewMode.LIST ->
+                        MapIcon(
+                            contentDescription = stringResource(Res.string.place_home_map_view_mode_button_content_description),
+                        )
+                }
+            }
+        }
+    }
 }
 
 @ComponentPreview

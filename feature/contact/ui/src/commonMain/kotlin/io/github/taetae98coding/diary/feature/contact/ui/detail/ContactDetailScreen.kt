@@ -9,7 +9,9 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.ViewModelStoreProvider
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreProvider
+import io.github.taetae98coding.diary.compose.core.snackbar.DismissUndoSnackbarEffect
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.feature.contact.ui.detail.memo.ContactDetailMemoContent
 import io.github.taetae98coding.diary.feature.contact.ui.detail.tab.ContactDetailTab
@@ -41,6 +43,7 @@ internal fun ContactDetailScreen(
         effect = viewModel.effect,
         state = state,
     )
+    DismissUndoSnackbarEffect(keyProvider = { tabState.tab }, hostState = state.hostState)
 
     ContactDetailScaffold(
         onEvent = { event ->
@@ -72,23 +75,42 @@ internal fun ContactDetailScreen(
             )
         },
     ) { tab ->
-        when (tab) {
-            ContactDetailTab.DETAIL ->
-                ContactDetailScaffoldContent(
-                    modifier = Modifier.fillMaxSize(),
-                    state = state,
-                    uiStateProvider = { uiState },
-                )
+        ContactDetailTabContent(
+            tab = tab,
+            id = id,
+            navigateToMemoDetail = navigateToMemoDetail,
+            viewModelStoreProvider = viewModelStoreProvider,
+            state = state,
+            uiStateProvider = { uiState },
+        )
+    }
+}
 
-            ContactDetailTab.MEMO ->
-                ContactDetailMemoContent(
-                    id = id,
-                    viewModelStoreProvider = viewModelStoreProvider,
-                    navigateToMemoDetail = navigateToMemoDetail,
-                    modifier = Modifier.fillMaxSize(),
-                    snackbarHostState = state.hostState,
-                )
-        }
+@Composable
+private fun ContactDetailTabContent(
+    tab: ContactDetailTab,
+    id: Uuid,
+    navigateToMemoDetail: (Uuid) -> Unit,
+    viewModelStoreProvider: ViewModelStoreProvider,
+    state: ContactFormState,
+    uiStateProvider: () -> ContactDetailUiState,
+) {
+    when (tab) {
+        ContactDetailTab.DETAIL ->
+            ContactDetailScaffoldContent(
+                modifier = Modifier.fillMaxSize(),
+                state = state,
+                uiStateProvider = uiStateProvider,
+            )
+
+        ContactDetailTab.MEMO ->
+            ContactDetailMemoContent(
+                id = id,
+                viewModelStoreProvider = viewModelStoreProvider,
+                navigateToMemoDetail = navigateToMemoDetail,
+                modifier = Modifier.fillMaxSize(),
+                snackbarHostState = state.hostState,
+            )
     }
 }
 

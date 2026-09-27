@@ -84,7 +84,7 @@ class UpdateMusicUseCaseTest :
                     coVerify(exactly = 0) { accountMusicRepository.upsert(account = any(), music = any()) }
                 }
 
-                Then("TC-MUSIC-DETAIL-DATA-007 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-MUSIC-DETAIL-DATA-007 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
                     useCase(parameter = UpdateMusicUseCase.Parameter(id = stored.id, detail = detail())).shouldBeSuccess(1)
 
                     coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
@@ -349,6 +349,6 @@ class UpdateMusicUseCaseTest :
                 link = link,
             )
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
     }
 }

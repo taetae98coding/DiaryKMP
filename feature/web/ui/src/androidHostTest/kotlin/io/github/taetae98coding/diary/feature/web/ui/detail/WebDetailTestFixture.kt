@@ -210,6 +210,7 @@ internal fun ComposeContentTestRule.setWebDetailMemoScreen(
     navigateUp: () -> Unit = {},
     navigateToMemoAdd: () -> Unit = {},
     navigateToMemoDetail: (Uuid) -> Unit = {},
+    pageViewModel: WebDetailPageViewModel = memoScreenPageViewModel(),
 ) {
     prepareWebDetailTabViewModels(memoPagingData = memoPagingData, memoListUiState = memoListUiState)
 
@@ -224,7 +225,7 @@ internal fun ComposeContentTestRule.setWebDetailMemoScreen(
                 id = id,
                 tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                 webViewModel = viewModel,
-                pageViewModel = memoScreenPageViewModel(),
+                pageViewModel = pageViewModel,
                 tagViewModel = detailTagScreenTestViewModel(),
             )
         }
@@ -241,8 +242,8 @@ internal fun webMemo(
         .setExp(
             Memo::detail,
             fixtureMonkey.giveMeOne<MemoDetail>().copy(title = title, dateTime = dateTime),
-        ).setExp(Memo::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-        .setExp(Memo::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+        ).setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+        .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
         .sample()
 
 internal fun webMemoPagingData(

@@ -1,0 +1,46 @@
+plugins {
+    alias(libs.plugins.primitive.kmp)
+    alias(libs.plugins.primitive.android.library)
+    alias(libs.plugins.primitive.android.host.test)
+    alias(libs.plugins.primitive.koin)
+    alias(libs.plugins.primitive.kotest)
+}
+
+kotlin {
+    android {
+        androidResources {
+            enable = true
+        }
+    }
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(projects.core.navigation)
+                implementation(projects.domain.account)
+                implementation(projects.domain.file)
+                implementation(projects.library.kotlin)
+            }
+        }
+
+        androidMain {
+            dependencies {
+                implementation(libs.androidx.work.runtime)
+                implementation(libs.koin.androidx.workmanager)
+            }
+        }
+
+        androidHostTest {
+            dependencies {
+                implementation(projects.core.testing)
+                implementation(libs.androidx.work.testing)
+            }
+        }
+
+        jvmTest {
+            dependencies {
+                implementation(projects.core.testing)
+            }
+        }
+    }
+}

@@ -21,17 +21,18 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.height
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.web.Web
-import io.github.taetae98coding.diary.core.model.web.WebDetail
+import io.github.taetae98coding.diary.core.testing.web.web
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 internal const val WIKI_WEB_TITLE = "Wiki"
@@ -45,24 +46,16 @@ internal const val DEFAULT_WEB_PICKER_SEARCH_PLACEHOLDER = "Search webs"
 internal const val DEFAULT_WEB_PICKER_SEARCH_EMPTY_TITLE = "No search results"
 internal const val DEFAULT_WEB_DETAIL_ACTION = "Open web detail"
 
+private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
+
 internal fun testWeb(
     title: String,
     url: String = "https://example.com/${title.lowercase()}",
     isDeleted: Boolean = false,
 ): Web =
-    Web(
-        id = Uuid.random(),
-        detail =
-            WebDetail(
-                title = title,
-                description = "",
-                url = url,
-                headerList = emptyList(),
-            ),
-        isDeleted = isDeleted,
-        updatedAt = Instant.DISTANT_PAST,
-        createdAt = Instant.DISTANT_PAST,
-    )
+    fixtureMonkey.web(isDeleted = isDeleted).let { web ->
+        web.copy(detail = web.detail.copy(title = title, url = url))
+    }
 
 internal fun screenTestWebViewModel(
     uiState: StateFlow<MemoWebInputUiState> = MutableStateFlow(MemoWebInputUiState()),
@@ -71,6 +64,7 @@ internal fun screenTestWebViewModel(
     val viewModel = mockk<MemoWebViewModel>(relaxed = true)
     every { viewModel.uiState } returns uiState
     every { viewModel.webPagingData } returns webPagingDataFlow
+    every { viewModel.selectableWebPagingData } returns webPagingDataFlow
     return viewModel
 }
 

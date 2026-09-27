@@ -8,6 +8,8 @@ import kotlin.uuid.Uuid
 public interface AccountMemoFilterRepository {
     public fun getTagList(account: Account): Flow<List<Tag>>
 
+    public fun getTagIdSet(account: Account): Flow<Set<Uuid>>
+
     public suspend fun upsert(
         account: Account,
         tagId: Uuid,

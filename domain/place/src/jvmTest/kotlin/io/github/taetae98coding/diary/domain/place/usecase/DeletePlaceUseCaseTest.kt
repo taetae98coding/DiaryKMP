@@ -41,7 +41,7 @@ class DeletePlaceUseCaseTest :
                     updatedAt = capture(updatedAtSlot),
                 )
             } returns 1
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val clock = mockk<Clock>()
             every { clock.now() } returns now
             val requestSyncUseCase = requestSyncUseCase()
@@ -54,14 +54,14 @@ class DeletePlaceUseCaseTest :
                 )
 
             When("장소를 삭제한다") {
-                Then("TC-PLACE-DETAIL-DOMAIN-010 삭제 여부와 수정 시각만 바꾼다") {
+                Then("TC-PLACE-DETAIL-DOMAIN-010 TC-PLACE-HOME-DOMAIN-028 삭제 여부와 수정 시각만 바꾼다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     isDeletedSlot.captured shouldBe true
                     updatedAtSlot.captured shouldBe now
                 }
 
-                Then("TC-PLACE-DETAIL-DATA-008 삭제를 서버와 맞추기 위한 동기화를 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-PLACE-DETAIL-DATA-008 TC-PLACE-HOME-DATA-006 삭제를 서버와 맞추기 위한 동기화를 요청한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
@@ -85,7 +85,7 @@ class DeletePlaceUseCaseTest :
                     updatedAt = capture(updatedAtSlot),
                 )
             } returns 1
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val clock = mockk<Clock>()
             every { clock.now() } returns now
             val requestSyncUseCase = mockk<RequestSyncUseCase>()
@@ -170,7 +170,7 @@ class DeletePlaceUseCaseTest :
                 )
 
             When("장소를 삭제한다") {
-                Then("TC-PLACE-DETAIL-DATA-005 저장 실패를 그대로 전달한다") {
+                Then("TC-PLACE-DETAIL-DATA-005 삭제를 성공으로 다루지 않고 저장 실패를 전달한다") {
                     val result = useCase(parameter = Uuid.random())
 
                     result.shouldBeFailure() shouldBeSameInstanceAs throwable

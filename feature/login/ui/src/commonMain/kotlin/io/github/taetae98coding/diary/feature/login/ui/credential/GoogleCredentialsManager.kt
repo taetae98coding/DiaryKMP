@@ -6,6 +6,8 @@ import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
 
 @Stable
 internal interface GoogleCredentialsManager {
+    val isSignInEndDetectable: Boolean
+
     suspend fun signIn(): GoogleCredential
 }
 

@@ -23,8 +23,12 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.encodeToJsonElement
+import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.put
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
@@ -93,6 +97,28 @@ class NaverPlaceRemoteDataSourceImplTest :
             }
         }
 
+        test("TC-NAVER-PLACE-SEARCH-DATA-006: 좌표가 빠진 장소가 섞여 있어도 검색은 실패하지 않고 그 장소를 좌표 없이 받은 순서대로 전달한다") {
+            val places = fixtureMonkey.giveMe<NaverPlaceRemoteEntity>(3)
+            val items =
+                JsonArray(
+                    listOf(
+                        Json.encodeToJsonElement(places[0]),
+                        JsonObject(Json.encodeToJsonElement(places[1]).jsonObject - "mapx" - "mapy"),
+                        JsonObject(Json.encodeToJsonElement(places[2]).jsonObject - "mapy"),
+                    ),
+                )
+            val dataSource = createDataSource(createEngine(content = successContent(items = items, count = places.size)))
+
+            val actual = dataSource.search(query = fixtureMonkey.giveMeOne<String>())
+
+            actual shouldBe
+                listOf(
+                    places[0],
+                    places[1].copy(mapx = "", mapy = ""),
+                    places[2].copy(mapy = ""),
+                )
+        }
+
         test("네이버 지역 검색 주소로 요청한다") {
             val engine = createSuccessEngine(emptyList())
             val dataSource = createDataSource(engine)
@@ -109,22 +135,27 @@ class NaverPlaceRemoteDataSourceImplTest :
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
 
-        private fun createSuccessEngine(places: List<NaverPlaceRemoteEntity>): MockEngine =
+        private fun createSuccessEngine(places: List<NaverPlaceRemoteEntity>): MockEngine = createEngine(content = successContent(items = Json.encodeToJsonElement(places), count = places.size))
+
+        private fun createEngine(content: String): MockEngine =
             MockEngine {
                 respond(
-                    content = successContent(places),
+                    content = content,
                     status = HttpStatusCode.OK,
                     headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
                 )
             }
 
-        private fun successContent(places: List<NaverPlaceRemoteEntity>): String =
+        private fun successContent(
+            items: JsonElement,
+            count: Int,
+        ): String =
             buildJsonObject {
                 put("lastBuildDate", "Mon, 01 Jan 2026 00:00:00 +0900")
-                put("total", places.size)
+                put("total", count)
                 put("start", 1)
-                put("display", places.size)
-                put("items", Json.encodeToJsonElement(places))
+                put("display", count)
+                put("items", items)
             }.toString()
 
         private fun createDataSource(engine: HttpClientEngine): NaverPlaceRemoteDataSource =

@@ -1,14 +1,16 @@
 package io.github.taetae98coding.diary.library.webkit
 
+import io.github.taetae98coding.diary.library.objc.ObjCBlock
+import io.github.taetae98coding.diary.library.objc.ObjCFramework
+import io.github.taetae98coding.diary.library.objc.ObjCRuntime
+import io.github.taetae98coding.diary.library.objc.nsString
+import io.github.taetae98coding.diary.library.objc.send
+import io.github.taetae98coding.diary.library.objc.sendVoid
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.lang.foreign.MemorySegment
-import java.lang.foreign.ValueLayout
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-
-private const val FOUNDATION_PATH = "/System/Library/Frameworks/Foundation.framework/Foundation"
-private const val WEBKIT_PATH = "/System/Library/Frameworks/WebKit.framework/WebKit"
 
 // NSHTTPCookie는 HttpOnly 속성의 공개 상수가 없고 이 키 문자열만 받는다.
 private const val HTTP_ONLY_KEY = "HttpOnly"
@@ -36,7 +38,7 @@ public object WebKitCookieStore {
 
     private fun deleteAllCookiesOnMainThread(continuation: CancellableContinuation<Unit>) {
         try {
-            val dataStore = ObjCRuntime.objcClass("WKWebsiteDataStore").send(ObjCRuntime.selector("defaultDataStore"))
+            val dataStore = webKitClass("WKWebsiteDataStore").send(ObjCRuntime.selector("defaultDataStore"))
             val cookieType = ObjCRuntime.objcClass("NSSet").send(ObjCRuntime.selector("setWithObject:"), webKitString("WKWebsiteDataTypeCookies"))
             val distantPast = ObjCRuntime.objcClass("NSDate").send(ObjCRuntime.selector("distantPast"))
             val completion = ObjCBlock.create { if (continuation.isActive) continuation.resume(Unit) }
@@ -53,8 +55,7 @@ public object WebKitCookieStore {
     ) {
         try {
             val store =
-                ObjCRuntime
-                    .objcClass("WKWebsiteDataStore")
+                webKitClass("WKWebsiteDataStore")
                     .send(ObjCRuntime.selector("defaultDataStore"))
                     .send(ObjCRuntime.selector("httpCookieStore"))
             val nsCookieList = cookieList.mapNotNull { cookie -> cookie.toNsHttpCookie() }
@@ -130,16 +131,6 @@ private fun MemorySegment.setProperty(
     sendVoid(ObjCRuntime.selector("setObject:forKey:"), value, key)
 }
 
-// Foundation과 WebKit이 내보내는 NSString 상수는 포인터 변수라 한 번 더 읽어야 객체가 나온다.
-private fun foundationString(name: String): MemorySegment = frameworkString(frameworkPath = FOUNDATION_PATH, name = name)
+private fun foundationString(name: String): MemorySegment = ObjCFramework.string(frameworkPath = ObjCFramework.FOUNDATION_PATH, name = name)
 
-private fun webKitString(name: String): MemorySegment = frameworkString(frameworkPath = WEBKIT_PATH, name = name)
-
-private fun frameworkString(
-    frameworkPath: String,
-    name: String,
-): MemorySegment =
-    ObjCRuntime
-        .frameworkSymbol(frameworkPath = frameworkPath, name = name)
-        .reinterpret(ValueLayout.ADDRESS.byteSize())
-        .get(ValueLayout.ADDRESS, 0L)
+private fun webKitString(name: String): MemorySegment = ObjCFramework.string(frameworkPath = WEBKIT_PATH, name = name)

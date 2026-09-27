@@ -199,6 +199,16 @@ class AccountCalendarContactBirthdayLocalDataSourceImplTest :
                 contactList.map { contact -> contact.id }.sortedBy { id -> id.toString() }
         }
 
+        test("TC-CALENDAR-CONTACT-BIRTHDAY-DOMAIN-022 즐겨찾기 여부는 생일의 노출과 순서를 바꾸지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val notFavoriteContact = contact(birthday = LocalDate(1990, 7, 8), name = "가").copy(isFavorite = false)
+            val favoriteContact = contact(birthday = LocalDate(1990, 7, 8), name = "나").copy(isFavorite = true)
+
+            upsert(accountId, favoriteContact, notFavoriteContact)
+
+            birthdayContactIdList(accountId = accountId) shouldContainExactly listOf(notFavoriteContact.id, favoriteContact.id)
+        }
+
         test("TC-CALENDAR-CONTACT-BIRTHDAY-DOMAIN-009 같은 표시 대상 기간을 다시 조회해도 순서가 유지된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val contactList = List(3) { index -> contact(birthday = LocalDate(1990, 7, 6 + index)) }
@@ -334,6 +344,22 @@ class AccountCalendarContactBirthdayLocalDataSourceImplTest :
                 }
         }
 
+        test("TC-CALENDAR-CONTACT-BIRTHDAY-DATA-009 표시 대상 기간에 드는 생일을 가진 연락처가 새로 저장되면 결과에 들어온다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val contact = contact(birthday = LocalDate(1990, 7, 8))
+
+            dataSource
+                .get(accountId = accountId, dateRange = RANGE_START..RANGE_END_INCLUSIVE)
+                .test {
+                    awaitItem().shouldBeEmpty()
+
+                    upsert(accountId, contact)
+
+                    awaitItem().map { birthday -> birthday.contactId } shouldBe listOf(contact.id)
+                    cancelAndIgnoreRemainingEvents()
+                }
+        }
+
         test("표시 대상 기간의 시작일과 종료일이 같아도 그날의 생일을 담는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val contact = contact(birthday = LocalDate(1990, 7, 8))
@@ -420,7 +446,7 @@ class AccountCalendarContactBirthdayLocalDataSourceImplTest :
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun contact(
             birthday: LocalDate?,

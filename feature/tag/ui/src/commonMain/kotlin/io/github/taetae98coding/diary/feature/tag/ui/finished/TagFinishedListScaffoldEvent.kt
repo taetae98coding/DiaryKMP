@@ -1,7 +1,6 @@
 package io.github.taetae98coding.diary.feature.tag.ui.finished
 
 import io.github.taetae98coding.diary.core.model.list.ListSort
-import kotlin.uuid.Uuid
 
 internal sealed interface TagFinishedListScaffoldEvent {
     data object ClickNavigateUp : TagFinishedListScaffoldEvent
@@ -13,8 +12,4 @@ internal sealed interface TagFinishedListScaffoldEvent {
     ) : TagFinishedListScaffoldEvent
 
     data object Refresh : TagFinishedListScaffoldEvent
-
-    data class ClickTag(
-        val id: Uuid,
-    ) : TagFinishedListScaffoldEvent
 }

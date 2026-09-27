@@ -11,6 +11,7 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
+import io.github.taetae98coding.diary.compose.calendar.CalendarEvent
 import io.github.taetae98coding.diary.compose.core.dialog.DiaryDatePickerDialogHost
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.shortcut.keyShortcut
@@ -25,6 +26,7 @@ import kotlinx.datetime.yearMonth
 @Composable
 internal fun CalendarHomeScaffold(
     onEvent: (CalendarHomeScaffoldEvent) -> Unit,
+    onCalendarEvent: (CalendarEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: CalendarHomeScaffoldState = rememberCalendarHomeScaffoldState(),
     weatherProvider: () -> CalendarWeatherReport = { CalendarWeatherReport() },
@@ -69,6 +71,7 @@ internal fun CalendarHomeScaffold(
             birthdayProvider = birthdayProvider,
             uiStateProvider = uiStateProvider,
             onEvent = onEvent,
+            onCalendarEvent = onCalendarEvent,
             modifier =
                 Modifier
                     .fillMaxSize()
@@ -100,6 +103,9 @@ private fun KeyEvent.isNextMonthShortcut(): Boolean = type == KeyEventType.KeyDo
 @Composable
 private fun CalendarHomeScaffoldPreview() {
     DiaryTheme {
-        CalendarHomeScaffold(onEvent = {})
+        CalendarHomeScaffold(
+            onEvent = {},
+            onCalendarEvent = {},
+        )
     }
 }

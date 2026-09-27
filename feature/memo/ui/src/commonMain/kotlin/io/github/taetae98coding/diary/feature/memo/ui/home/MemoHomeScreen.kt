@@ -70,12 +70,13 @@ internal fun MemoHomeScreen(
             when (event) {
                 is MemoListEvent.ClickMemo -> navigateToDetail(event.id)
                 is MemoListEvent.SwipeFinish -> memoViewModel.finish(id = event.id)
+                is MemoListEvent.SwipeRestart -> memoViewModel.restart(id = event.id)
                 is MemoListEvent.SwipeDelete -> memoViewModel.delete(id = event.id)
                 is MemoListEvent.Refresh -> syncViewModel.refresh()
             }
         },
         modifier =
-            modifier.keyShortcut { keyEvent ->
+            modifier.keyShortcut(isEnableProvider = { componentVisibleProvider().isAddButtonVisible }) { keyEvent ->
                 if (keyEvent.isAddShortcut()) {
                     navigateToAdd()
                     true

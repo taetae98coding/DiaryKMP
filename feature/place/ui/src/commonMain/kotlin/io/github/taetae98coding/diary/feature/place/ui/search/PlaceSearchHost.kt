@@ -19,11 +19,7 @@ internal fun PlaceSearchHost(
 ) {
     if (!dialogState.isVisible) return
 
-    val state =
-        rememberPlaceSearchDialogState(
-            initialProvider = mapState.provider,
-            initialCoordinate = mapState.coordinate,
-        )
+    val state = rememberPlaceSearchDialogState(hostMapState = mapState)
 
     PlaceSearchEffect(
         state = state,

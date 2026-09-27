@@ -14,16 +14,22 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
+import io.github.taetae98coding.diary.core.model.weather.Weather
+import io.github.taetae98coding.diary.core.model.weather.WeatherCondition
+import io.github.taetae98coding.diary.core.model.weather.WeatherTemperature
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CALENDAR_HOME_WEATHER_ICONS_TEST_TAG
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherViewModel
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -37,6 +43,10 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.math.abs
+import kotlin.time.Instant
+
+private val fixtureMonkey: FixtureMonkey =
+    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
@@ -242,6 +252,35 @@ class CalendarHomeScreenWeatherTest {
         (cloudyLeft < lastSunnyLeft) shouldBe true
     }
 
+    @Test
+    fun `TC-CALENDAR-HOME-FEATURE-097 각 날씨의 아이콘은 대표 상태의 아이콘을 사용한다`() {
+        val weather =
+            CalendarWeather(
+                date = july(day = 15),
+                temperature = CalendarWeatherTemperature.Current(value = 24.3),
+                weatherList =
+                    listOf(
+                        Weather(
+                            dateTime = fixtureMonkey.giveMeOne<Instant>(),
+                            conditionList =
+                                listOf(
+                                    WeatherCondition(description = SUNNY_DESCRIPTION, imageUrl = "https://example.com/weather/sunny.png"),
+                                    WeatherCondition(description = CLOUDY_DESCRIPTION, imageUrl = "https://example.com/weather/cloudy.png"),
+                                ),
+                            temperature = WeatherTemperature(current = 24.3, min = 24.3, max = 24.3),
+                        ),
+                    ),
+            )
+
+        setCalendarHomeScreen(
+            initialYearMonth = JULY_2026,
+            weatherViewModel = weatherViewModel(weatherReportFlow = MutableStateFlow(CalendarWeatherReport(weatherList = listOf(weather)))),
+        )
+
+        composeRule.onNodeWithContentDescription(SUNNY_DESCRIPTION, useUnmergedTree = true).assertExists()
+        composeRule.onNodeWithContentDescription(CLOUDY_DESCRIPTION, useUnmergedTree = true).assertDoesNotExist()
+    }
+
     private fun setCalendarHomeScreen(
         initialYearMonth: YearMonth,
         weatherViewModel: CalendarHomeWeatherViewModel,
@@ -272,6 +311,7 @@ class CalendarHomeScreenWeatherTest {
                     navigateToContactDetail = {},
                     birthdayViewModel = birthdayViewModel(),
                     navigateToFilter = {},
+                    navigateToTimetable = {},
                     state = state,
                     holidayViewModel = holidayViewModel,
                     memoViewModel = memoViewModel,

@@ -122,7 +122,7 @@ class PlaceDetailOpenExternalMapTest {
         composeRule.onNodeWithContentDescription(DEFAULT_OPEN_NAVER_MAP_BUTTON_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
-        composeRule.input(LATITUDE_INDEX).assert(hasText(SAVED_COORDINATE.latitude.toString()))
+        composeRule.input(LATITUDE_INDEX).assert(hasText(SAVED_LATITUDE_TEXT))
         composeRule.onNodeWithContentDescription(DEFAULT_DELETE_BUTTON_DESCRIPTION).assertIsDisplayed()
         composeRule
             .onAllNodes(hasText(DEFAULT_COORDINATE_INVALID_MESSAGE))

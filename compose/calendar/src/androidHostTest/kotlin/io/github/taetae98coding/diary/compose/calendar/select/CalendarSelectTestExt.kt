@@ -9,6 +9,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
 import io.github.taetae98coding.diary.compose.calendar.Calendar
+import io.github.taetae98coding.diary.compose.calendar.CalendarEvent
 import io.github.taetae98coding.diary.compose.calendar.CalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import kotlinx.datetime.LocalDateRange
@@ -30,7 +31,8 @@ internal fun ComposeContentTestRule.setCalendar(
             ) {
                 Calendar(
                     state = calendarState,
-                    onSelect = onSelect,
+                    onEvent = onSelect?.let { onSelect -> { event -> (event as? CalendarEvent.Select)?.let { onSelect(it.dateRange) } } },
+                    isSelectEnabled = onSelect != null,
                 ) {}
             }
         }
@@ -41,6 +43,12 @@ internal fun ComposeContentTestRule.rootWidth(): Float =
     onRoot()
         .fetchSemanticsNode()
         .size.width
+        .toFloat()
+
+internal fun ComposeContentTestRule.rootHeight(): Float =
+    onRoot()
+        .fetchSemanticsNode()
+        .size.height
         .toFloat()
 
 internal fun ComposeContentTestRule.dayCenter(
@@ -73,6 +81,11 @@ internal fun ComposeContentTestRule.performMove(position: Offset) {
 
 internal fun ComposeContentTestRule.performUp() {
     onRoot().performTouchInput { up() }
+    waitForIdle()
+}
+
+internal fun ComposeContentTestRule.performCancel() {
+    onRoot().performTouchInput { cancel() }
     waitForIdle()
 }
 

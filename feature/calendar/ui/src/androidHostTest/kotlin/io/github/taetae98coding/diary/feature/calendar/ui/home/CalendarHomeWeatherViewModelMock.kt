@@ -8,13 +8,17 @@ import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperat
 import io.github.taetae98coding.diary.core.model.weather.Weather
 import io.github.taetae98coding.diary.core.model.weather.WeatherCondition
 import io.github.taetae98coding.diary.core.model.weather.WeatherTemperature
+import io.github.taetae98coding.diary.domain.contact.usecase.GetCalendarContactBirthdayUseCase
+import io.github.taetae98coding.diary.domain.lunar.usecase.FetchLunarUseCase
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherViewModel
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
 import kotlin.time.Instant
 
@@ -43,6 +47,21 @@ internal fun birthdayViewModel(birthdayListFlow: StateFlow<List<CalendarContactB
     mockk<CalendarHomeBirthdayViewModel>().also { viewModel ->
         every { viewModel.fetch(any()) } returns Unit
         every { viewModel.birthdayList } returns birthdayListFlow
+    }
+
+internal fun lunarObservingBirthdayViewModel(fetchLunarUseCase: FetchLunarUseCase): CalendarHomeBirthdayViewModel {
+    val getCalendarContactBirthdayUseCase = mockk<GetCalendarContactBirthdayUseCase>()
+    every { getCalendarContactBirthdayUseCase(parameter = any()) } returns flowOf(Result.success(emptyList()))
+
+    return CalendarHomeBirthdayViewModel(
+        fetchLunarUseCase = fetchLunarUseCase,
+        getCalendarContactBirthdayUseCase = getCalendarContactBirthdayUseCase,
+    )
+}
+
+internal fun fetchLunarUseCase(): FetchLunarUseCase =
+    mockk<FetchLunarUseCase>().also { useCase ->
+        coEvery { useCase(parameter = any()) } returns Result.success(emptyList())
     }
 
 internal fun syncViewModel(isRefreshingFlow: StateFlow<Boolean> = MutableStateFlow(false)): CalendarHomeSyncViewModel =

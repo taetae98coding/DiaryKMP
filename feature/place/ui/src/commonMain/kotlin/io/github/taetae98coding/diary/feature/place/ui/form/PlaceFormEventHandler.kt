@@ -8,7 +8,7 @@ import kotlin.uuid.Uuid
 internal fun handlePlaceFormEvent(
     event: PlaceFormEvent,
     state: PlaceFormState,
-    tagPagingItems: LazyPagingItems<Tag>,
+    selectableTagPagingItems: LazyPagingItems<Tag>,
     navigateToTagAdd: () -> Unit,
     navigateToTagDetail: (Uuid) -> Unit,
 ) {
@@ -16,7 +16,7 @@ internal fun handlePlaceFormEvent(
         is PlaceFormEvent.ClickTag -> navigateToTagDetail(event.id)
 
         is PlaceFormEvent.ClickTagAdd ->
-            if (tagPagingItems.isConfirmedEmpty()) {
+            if (selectableTagPagingItems.isConfirmedEmpty()) {
                 navigateToTagAdd()
             } else {
                 state.tagPickerDialogState.show()

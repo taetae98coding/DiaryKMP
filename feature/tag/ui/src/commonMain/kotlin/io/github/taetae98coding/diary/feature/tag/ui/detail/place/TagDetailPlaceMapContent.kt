@@ -13,6 +13,7 @@ import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.rememberDiaryMapState
 import io.github.taetae98coding.diary.compose.place.PlacePinMarkerEffect
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.feature.tag.ui.previewPlace
 
 @Composable
@@ -23,6 +24,7 @@ internal fun TagDetailPlaceMapContent(
     placeListUiStateProvider: () -> TagDetailPlaceListUiState = { TagDetailPlaceListUiState() },
     isRefreshingProvider: () -> Boolean = { false },
     sortProvider: () -> ListSort = { ListSort.TITLE },
+    scopeProvider: () -> TagScope = { TagScope.SELF },
 ) {
     PlacePinMarkerEffect(
         mapState = mapState,
@@ -43,6 +45,7 @@ internal fun TagDetailPlaceMapContent(
                 placeListUiStateProvider = placeListUiStateProvider,
                 isRefreshingProvider = isRefreshingProvider,
                 sortProvider = sortProvider,
+                scopeProvider = scopeProvider,
             )
         },
         modifier = modifier.fillMaxSize(),

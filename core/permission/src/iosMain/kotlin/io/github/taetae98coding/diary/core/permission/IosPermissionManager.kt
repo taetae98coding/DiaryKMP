@@ -5,11 +5,13 @@ public class IosPermissionManager : PermissionManager() {
         when (permission) {
             Permission.NOTIFICATION -> isNotificationPermissionGranted()
             Permission.LOCATION -> isLocationPermissionGranted()
+            Permission.CAMERA -> isCameraPermissionGranted()
         }
 
     override suspend fun requestPermission(permission: Permission): PermissionResult =
         when (permission) {
             Permission.NOTIFICATION -> requestNotificationPermission()
             Permission.LOCATION -> requestLocationPermission()
+            Permission.CAMERA -> requestCameraPermission()
         }
 }

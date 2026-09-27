@@ -61,20 +61,20 @@ internal fun placePagingDataFlowOf(placeList: List<Place>): MutableStateFlow<Pag
 
 internal fun List<PlaceHomeScaffoldEvent>.withoutMoveMap(): List<PlaceHomeScaffoldEvent> = filterNot { event -> event is PlaceHomeScaffoldEvent.MoveMap }
 
-// FixtureMonkey가 Instant를 생성하지 못하므로 장소는 직접 만든다.
 internal fun viewModeTestPlace(): Place {
+    val id = fixtureMonkey.giveMeOne<Uuid>()
     val detail =
         fixtureMonkey
             .giveMeKotlinBuilder<PlaceDetail>()
-            .setExp(PlaceDetail::title, "제목-${fixtureMonkey.giveMeOne<String>()}")
+            .setExp(PlaceDetail::title, "제목-$id-${fixtureMonkey.giveMeOne<String>()}")
             .sample()
 
     return Place(
-        id = Uuid.random(),
+        id = id,
         detail = detail,
         isDeleted = false,
-        updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
-        createdAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+        updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+        createdAt = fixtureMonkey.giveMeOne<Instant>(),
     )
 }
 

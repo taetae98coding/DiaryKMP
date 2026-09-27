@@ -2,17 +2,22 @@
 
 package io.github.taetae98coding.diary.feature.tag.ui.detail
 
+import androidx.paging.PagingData
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.domain.tag.usecase.AddTagLinkUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.DeleteTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FinishTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.GetLinkedTagUseCase
+import io.github.taetae98coding.diary.domain.tag.usecase.PageTagLinkSelectableTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.RestartTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.UpdateTagUseCase
+import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailLinkViewModel
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -26,6 +31,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
@@ -166,6 +172,56 @@ class TagDetailViewModelTest : FunSpec() {
 
                 coVerify(exactly = 1) { updateTagUseCase(UpdateTagUseCase.Parameter(id = id, detail = firstDetail)) }
                 coVerify(exactly = 0) { updateTagUseCase(UpdateTagUseCase.Parameter(id = id, detail = secondDetail)) }
+
+                completion.complete(Result.success(1))
+                advanceUntilIdle()
+            }
+        }
+
+        test("TC-TAG-DETAIL-DOMAIN-010 수정을 처리하는 중에도 태그를 연결하면 연결된 태그로 조회된다") {
+            runTest(mainDispatcher) {
+                val tag = tag()
+                val toTag = tag()
+                val completion = CompletableDeferred<Result<Int>>()
+                val updateTagUseCase = mockk<UpdateTagUseCase>()
+                coEvery { updateTagUseCase(any()) } coAnswers { completion.await() }
+                val findTagUseCase = mockk<FindTagUseCase>()
+                every { findTagUseCase(any()) } returns flowOf(Result.success(tag))
+                val linkedTagFlow = MutableStateFlow<Result<List<Tag>>>(Result.success(emptyList()))
+                val getLinkedTagUseCase = mockk<GetLinkedTagUseCase>()
+                every { getLinkedTagUseCase(parameter = tag.id) } returns linkedTagFlow
+                val addTagLinkUseCase = mockk<AddTagLinkUseCase>()
+                coEvery { addTagLinkUseCase(parameter = AddTagLinkUseCase.Parameter(fromTagId = tag.id, toTagId = toTag.id)) } coAnswers {
+                    linkedTagFlow.value = Result.success(listOf(toTag))
+                    Result.success(Unit)
+                }
+                val pageTagLinkSelectableTagUseCase = mockk<PageTagLinkSelectableTagUseCase>()
+                every { pageTagLinkSelectableTagUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.empty()))
+                val viewModel = viewModel(id = tag.id, findTagUseCase = findTagUseCase, updateTagUseCase = updateTagUseCase)
+                val linkViewModel =
+                    TagDetailLinkViewModel(
+                        id = tag.id,
+                        pageTagLinkSelectableTagUseCase = pageTagLinkSelectableTagUseCase,
+                        getLinkedTagUseCase = getLinkedTagUseCase,
+                        addTagLinkUseCase = addTagLinkUseCase,
+                        removeTagLinkUseCase = mockk(relaxed = true),
+                    )
+
+                viewModel.uiState.test {
+                    linkViewModel.uiState.test {
+                        awaitItem().linkedTagList shouldBe emptyList()
+                        viewModel.update(tag.detail.copy(title = "edited-${tag.detail.title}"))
+                        runCurrent()
+
+                        linkViewModel.link(tagId = toTag.id)
+                        runCurrent()
+
+                        awaitItem().linkedTagList shouldBe listOf(toTag)
+                        cancelAndIgnoreRemainingEvents()
+                    }
+                    (expectMostRecentItem() as TagDetailUiState.Content).isInProgress shouldBe true
+                    cancelAndIgnoreRemainingEvents()
+                }
 
                 completion.complete(Result.success(1))
                 advanceUntilIdle()
@@ -401,6 +457,36 @@ class TagDetailViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-TAG-DETAIL-FEATURE-069 수정 저장에 실패하면 Effect 없이 진행 상태만 해제하고 다시 수정할 수 있다") {
+            runTest(mainDispatcher) {
+                val tag = tag()
+                val detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}")
+                val findTagUseCase = mockk<FindTagUseCase>()
+                every { findTagUseCase(tag.id) } returns flowOf(Result.success(tag))
+                val updateTagUseCase = mockk<UpdateTagUseCase>()
+                coEvery { updateTagUseCase(any()) } returns Result.failure(IllegalStateException("저장 실패"))
+                val viewModel = viewModel(id = tag.id, findTagUseCase = findTagUseCase, updateTagUseCase = updateTagUseCase)
+
+                viewModel.uiState.test {
+                    viewModel.effect.test {
+                        viewModel.update(detail)
+                        advanceUntilIdle()
+
+                        expectNoEvents()
+
+                        viewModel.update(detail)
+                        advanceUntilIdle()
+
+                        expectNoEvents()
+                    }
+
+                    (expectMostRecentItem() as TagDetailUiState.Content).isInProgress shouldBe false
+                }
+
+                coVerify(exactly = 2) { updateTagUseCase(UpdateTagUseCase.Parameter(id = tag.id, detail = detail)) }
+            }
+        }
+
         test("TC-TAG-DETAIL-FEATURE-010 수정에 성공하면 수정 성공 Effect를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val updateTagUseCase = mockk<UpdateTagUseCase>()
@@ -499,16 +585,17 @@ class TagDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-FEATURE-013 수정에 성공해 저장 제목이 바뀌면 상단 바 제목이 갱신된다") {
+        test("TC-TAG-DETAIL-FEATURE-013 수정에 성공해 저장 이모지와 제목이 바뀌면 화면 제목에 쓰는 저장 내용이 갱신된다") {
             runTest(mainDispatcher) {
-                val tag = tag()
+                val tag = tag().let { value -> value.copy(detail = value.detail.copy(emoji = "\uD83C\uDFC3")) }
                 val newTitle = "new-${fixtureMonkey.giveMeOne<String>()}"
+                val newEmoji = "\uD83C\uDFCA"
                 val resultFlow = MutableSharedFlow<Result<Tag?>>(replay = 1)
                 val findTagUseCase = mockk<FindTagUseCase>()
                 every { findTagUseCase(any()) } returns resultFlow
                 val updateTagUseCase = mockk<UpdateTagUseCase>()
                 coEvery { updateTagUseCase(any()) } coAnswers {
-                    resultFlow.emit(Result.success(tag.copy(detail = tag.detail.copy(title = newTitle))))
+                    resultFlow.emit(Result.success(tag.copy(detail = tag.detail.copy(emoji = newEmoji, title = newTitle))))
                     Result.success(1)
                 }
                 val viewModel =
@@ -522,12 +609,12 @@ class TagDetailViewModelTest : FunSpec() {
                     awaitItem() shouldBe TagDetailUiState.Loading
 
                     resultFlow.emit(Result.success(tag))
-                    (awaitItem() as TagDetailUiState.Content).detail.title shouldBe tag.detail.title
+                    (awaitItem() as TagDetailUiState.Content).detail.emojiWithTitle shouldBe tag.detail.emojiWithTitle
 
-                    viewModel.update(tag.detail.copy(title = newTitle))
+                    viewModel.update(tag.detail.copy(emoji = newEmoji, title = newTitle))
                     advanceUntilIdle()
 
-                    (awaitItem() as TagDetailUiState.Content).detail.title shouldBe newTitle
+                    (awaitItem() as TagDetailUiState.Content).detail.emojiWithTitle shouldBe "$newEmoji $newTitle"
                     cancelAndIgnoreRemainingEvents()
                 }
             }
@@ -541,8 +628,8 @@ class TagDetailViewModelTest : FunSpec() {
         private fun tag(): Tag =
             fixtureMonkey
                 .giveMeKotlinBuilder<Tag>()
-                .setExp(Tag::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Tag::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
 
         private fun emptyFindTagUseCase(): FindTagUseCase {

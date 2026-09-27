@@ -21,16 +21,23 @@ class MemoContactPickerDialogRestorationTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-DOMAIN-013 화면이 재생성되어도 열려 있는 목록의 검색어가 유지된다`() {
-        val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
-        val contactPagingDataFlow = MutableStateFlow(contactPagingDataOf(listOf(contact)))
+    fun `TC-MEMO-CONTACT-INPUT-DOMAIN-013 화면이 회전해도 열려 있는 목록의 검색어와 좁힌 결과가 유지된다`() {
+        val matchedContact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
+        val otherContact = testContact(name = SECOND_CONTACT_NAME, phoneNumber = SECOND_CONTACT_PHONE_NUMBER)
+        val contactPagingDataFlow = MutableStateFlow(contactPagingDataOf(listOf(matchedContact, otherContact)))
         val queryList = mutableListOf<String>()
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
             DiaryTheme {
                 MemoContactPickerDialogHost(
                     dialogState = rememberDialogState(initialVisible = true),
-                    onEvent = { event -> if (event is MemoContactPickerEvent.ChangeQuery) queryList += event.query },
+                    onEvent = { event ->
+                        if (event is MemoContactPickerEvent.ChangeQuery) {
+                            queryList += event.query
+                            val narrowedList = if (event.query.isEmpty()) listOf(matchedContact, otherContact) else listOf(matchedContact)
+                            contactPagingDataFlow.value = contactPagingDataOf(narrowedList)
+                        }
+                    },
                     contactPagingItems = contactPagingDataFlow.collectAsLazyPagingItems(),
                 )
             }
@@ -46,8 +53,9 @@ class MemoContactPickerDialogRestorationTest {
         queryList.count { query -> query.isEmpty() } shouldBe 1
         composeRule.contactDialogNodeWithText(SEARCH_QUERY).assertExists()
         composeRule.awaitContactPickerRows()
-        // 제목은 검색 입력의 값과 겹칠 수 있으므로 목록 항목은 URL로 가려 확인한다.
+        // 이름은 검색 입력의 값과 겹칠 수 있으므로 목록 항목은 전화번호로 가려 확인한다.
         composeRule.contactDialogNodeWithText(FIRST_CONTACT_PHONE_NUMBER).assertExists()
+        composeRule.contactDialogNodeWithText(SECOND_CONTACT_PHONE_NUMBER).assertDoesNotExist()
     }
 
     public companion object {

@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.feature.setting.ui.download
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -71,7 +72,7 @@ class SettingDownloadScaffoldTest {
     fun `TC-SETTING-DOWNLOAD-FEATURE-002 한국어 환경에서 닿을 주소가 없으면 그 사실을 알린다`() {
         setScaffold(uiState = SettingDownloadUiState.Serving(addressList = emptyList()))
 
-        composeRule.onNodeWithText("연결된 네트워크가 없어 다른 기기가 닿을 주소가 없습니다").assertExists()
+        composeRule.onNodeWithText("같은 네트워크의 다른 기기가 닿을 주소가 없습니다").assertExists()
     }
 
     @Test
@@ -174,13 +175,83 @@ class SettingDownloadScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-DOWNLOAD-FEATURE-010 저장하는 동안 저장 동작을 진행 표시로 바꾼다`() {
+    fun `TC-SETTING-DOWNLOAD-FEATURE-010 저장하는 동안 진행 상태를 표시한다`() {
         setScaffold(
             uiState = SettingDownloadUiState.Consumer(setting = MusicDownloadProxySetting.EMPTY, isInProgress = true),
             initialSetting = MusicDownloadProxySetting(address = ADDRESS),
         )
 
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
+    }
+
+    @Test
+    fun `TC-SETTING-DOWNLOAD-DOMAIN-004 저장하는 동안에도 저장된 주소와 같아지면 저장 동작이 사라진다`() {
+        val uiState = mutableStateOf<SettingDownloadUiState>(SettingDownloadUiState.Consumer(setting = MusicDownloadProxySetting.EMPTY, isInProgress = true))
+        composeRule.setContent {
+            DiaryTheme {
+                SettingDownloadScaffold(
+                    onEvent = {},
+                    state = rememberSettingDownloadFormState(initialSetting = MusicDownloadProxySetting(address = ADDRESS)),
+                    uiStateProvider = { uiState.value },
+                )
+            }
+        }
+
+        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
+
+        composeRule.runOnIdle { uiState.value = SettingDownloadUiState.Consumer(setting = MusicDownloadProxySetting(address = ADDRESS), isInProgress = true) }
+        composeRule.waitForIdle()
+
+        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-SETTING-DOWNLOAD-DOMAIN-005 저장하는 동안 입력을 저장된 주소로 되돌리면 저장 동작과 진행 상태가 사라진다`() {
+        val setting = MusicDownloadProxySetting(address = ADDRESS)
+        lateinit var state: SettingDownloadFormState
+        setScaffold(
+            uiState = SettingDownloadUiState.Consumer(setting = setting, isInProgress = true),
+            initialSetting = MusicDownloadProxySetting(address = OTHER_ADDRESS),
+            onState = { state = it },
+        )
+        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
+
+        composeRule.runOnIdle { state.addressState.setTextAndPlaceCursorAtEnd(ADDRESS) }
+        composeRule.waitForIdle()
+
+        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-SETTING-DOWNLOAD-FEATURE-019 화면을 떠났다가 다시 들어오면 저장된 주소로 시작한다`() {
+        val setting = MusicDownloadProxySetting(address = ADDRESS)
+        val isShown = mutableStateOf(true)
+        lateinit var state: SettingDownloadFormState
+        composeRule.setContent {
+            DiaryTheme {
+                if (isShown.value) {
+                    state = rememberSettingDownloadFormState(initialSetting = setting)
+
+                    SettingDownloadScaffold(
+                        onEvent = {},
+                        state = state,
+                        uiStateProvider = { SettingDownloadUiState.Consumer(setting = setting) },
+                    )
+                }
+            }
+        }
+        composeRule.runOnIdle { state.addressState.setTextAndPlaceCursorAtEnd(OTHER_ADDRESS) }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertExists()
+
+        composeRule.runOnIdle { isShown.value = false }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { isShown.value = true }
+        composeRule.waitForIdle()
+
+        editableTexts() shouldBe listOf(ADDRESS)
         composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertDoesNotExist()
     }
 
@@ -225,7 +296,7 @@ class SettingDownloadScaffoldTest {
         private const val DEFAULT_TITLE = "Download Settings"
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
         private const val DEFAULT_THIS_DEVICE_LABEL = "This device's proxy address"
-        private const val DEFAULT_NO_ADDRESS_MESSAGE = "No network connection, so other devices can't reach this device"
+        private const val DEFAULT_NO_ADDRESS_MESSAGE = "No address that other devices on the same network can reach"
         private const val DEFAULT_UNAVAILABLE_MESSAGE = "Couldn't start the proxy. Restart the app."
         private const val DEFAULT_ADDRESS_LABEL = "Proxy address"
         private const val DEFAULT_SAVE_DESCRIPTION = "Save"

@@ -19,6 +19,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,16 +34,16 @@ class DiaryColorInputTest {
 
     @Test
     fun `TC-DIARY-COLOR-INPUT-FEATURE-001 카드에 초기 컬러의 Hex 코드를 표시한다`() {
-        setDiaryColorInput(initialColor = TYPED_COLOR)
+        setDiaryColorInput(initialColor = DOCUMENT_COLOR)
 
-        composeRule.onNode(hasText(TYPED_HEX, substring = true) and hasClickAction()).assertExists()
+        composeRule.onNode(hasText(DOCUMENT_HEX, substring = true) and hasClickAction()).assertExists()
     }
 
     @Test
     fun `TC-DIARY-COLOR-INPUT-FEATURE-009 카드에 초기 컬러의 RGB 값을 둘째 줄에 표시한다`() {
-        setDiaryColorInput(initialColor = TYPED_COLOR)
+        setDiaryColorInput(initialColor = DOCUMENT_COLOR)
 
-        composeRule.onNode(hasText(TYPED_HEX) and hasText(TYPED_RGB) and hasClickAction()).assertExists()
+        composeRule.onNode(hasText(DOCUMENT_HEX) and hasText(DOCUMENT_RGB) and hasClickAction()).assertExists()
     }
 
     @Test
@@ -158,6 +159,31 @@ class DiaryColorInputTest {
         composeRule.onNode(hasSetTextAction()).assert(hasText(TYPED_HEX))
     }
 
+    @Test
+    fun `TC-DIARY-COLOR-INPUT-DOMAIN-005 초기 컬러를 지정하지 않아도 화면이 재생성되면 같은 무작위 컬러가 유지된다`() {
+        val restorationTester = StateRestorationTester(composeRule)
+        restorationTester.setContent {
+            DiaryTheme {
+                Surface {
+                    DiaryColorInput(state = rememberDiaryColorInputState())
+                }
+            }
+        }
+        val hexBefore = displayedHex()
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        displayedHex() shouldBe hexBefore
+    }
+
+    private fun displayedHex(): String =
+        composeRule
+            .onNode(hasHexText() and hasClickAction())
+            .fetchSemanticsNode()
+            .config[SemanticsProperties.Text]
+            .firstNotNullOf { HEX_REGEX.find(it.text)?.value }
+
     private fun setDiaryColorInput(
         restorationTester: StateRestorationTester? = null,
         initialColor: Color,
@@ -191,7 +217,11 @@ class DiaryColorInputTest {
         private const val DEFAULT_RANDOM_DESCRIPTION = "Random color"
         private const val REMOVED_TITLE = "Select Color"
 
+        private const val DOCUMENT_HEX = "#102030"
+        private const val DOCUMENT_RGB = "RGB(16, 32, 48)"
+
         private val TYPED_COLOR = Color(color = 0xFF3A7BD5.toInt())
+        private val DOCUMENT_COLOR = Color(color = 0xFF102030.toInt())
         private val HEX_REGEX = Regex(pattern = "#[0-9A-F]{6}")
 
         private fun hasHexText(): SemanticsMatcher =

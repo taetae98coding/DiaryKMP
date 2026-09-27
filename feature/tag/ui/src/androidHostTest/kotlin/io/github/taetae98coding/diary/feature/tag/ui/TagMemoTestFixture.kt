@@ -13,6 +13,7 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import kotlinx.datetime.LocalDate
 import kotlin.time.Instant
+import kotlin.uuid.Uuid
 
 private val fixtureMonkey: FixtureMonkey =
     diaryFixtureMonkey()
@@ -26,8 +27,8 @@ internal fun tagMemo(
         .setExp(
             Memo::detail,
             fixtureMonkey.giveMeOne<MemoDetail>().copy(title = title, dateTime = dateTime),
-        ).setExp(Memo::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-        .setExp(Memo::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+        ).setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+        .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
         .sample()
 
 internal fun tagMemoPagingData(
@@ -46,3 +47,7 @@ internal fun tagMemoPagingData(
     )
 
 internal fun allDayMemoDateTime(date: LocalDate): MemoDateTime.AllDay = MemoDateTime.AllDay(dateRange = date..date)
+
+internal fun fixtureText(prefix: String): String = prefix + fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)
+
+internal fun fixtureId(): Uuid = fixtureMonkey.giveMeOne<Uuid>()

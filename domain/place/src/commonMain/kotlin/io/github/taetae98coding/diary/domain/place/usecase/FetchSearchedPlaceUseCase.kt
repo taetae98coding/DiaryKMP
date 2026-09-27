@@ -16,16 +16,20 @@ public class FetchSearchedPlaceUseCase internal constructor(
 ) : UseCase<FetchSearchedPlaceUseCase.Parameter, List<SearchedPlace>>() {
     override suspend fun execute(parameter: Parameter): List<SearchedPlace> {
         val query = parameter.query.trim()
+        if (query.isEmpty()) return emptyList()
 
-        return when (parameter.provider) {
-            MapProvider.NAVER -> naverPlaceSearchRepository.fetch(query = query)
+        val placeList =
+            when (parameter.provider) {
+                MapProvider.NAVER -> naverPlaceSearchRepository.fetch(query = query)
 
-            MapProvider.GOOGLE ->
-                googlePlaceSearchRepository.fetch(
-                    query = query,
-                    bias = parameter.bounds?.toPlaceSearchBias(),
-                )
-        }
+                MapProvider.GOOGLE ->
+                    googlePlaceSearchRepository.fetch(
+                        query = query,
+                        bias = parameter.bounds?.toPlaceSearchBias(),
+                    )
+            }
+
+        return placeList.filter { place -> place.coordinate.isRepresentable }
     }
 
     public data class Parameter(

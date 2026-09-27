@@ -5,8 +5,10 @@ import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.model.memo.Memo
+import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.network.api.memo.entity.MemoRemoteEntity
 import io.github.taetae98coding.diary.core.testing.finishedAndDeletedCaseList
+import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 // 대표 태그는 없을 수 있으므로 플래그 조합마다 있는 조건과 없는 조건을 함께 확인한다.
@@ -27,6 +29,13 @@ public fun FixtureMonkey.memo(
         .setExp(Memo::isDeleted, isDeleted)
         .sample()
         .copy(primaryTagId = primaryTagId)
+
+public fun FixtureMonkey.memo(title: String): Memo =
+    giveMeKotlinBuilder<Memo>()
+        .setExp(Memo::detail, giveMeOne<MemoDetail>().copy(title = title, dateTime = null))
+        .setExp(Memo::updatedAt, giveMeOne<Instant>())
+        .setExp(Memo::createdAt, giveMeOne<Instant>())
+        .sample()
 
 public fun FixtureMonkey.localMemo(
     isFinished: Boolean,

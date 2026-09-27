@@ -1,5 +1,9 @@
 package io.github.taetae98coding.diary.compose.core.input
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.SaverScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.test.assertCountEquals
@@ -25,6 +29,7 @@ import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputTestF
 import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputTestFixture.hasRole
 import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputTestFixture.toDefaultDisplayText
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.kotest.matchers.shouldBe
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import org.junit.Rule
@@ -85,6 +90,26 @@ class DiaryDateTimeInputTest {
     }
 
     @Test
+    fun `초기 기간 없이 만든 상태만 처음 켤 때 그날의 오늘을 쓰도록 표시해 둔다`() {
+        val stateList = mutableListOf<DiaryDateTimeInputState>()
+        composeRule.setContent {
+            stateList += rememberDiaryDateTimeInputState()
+            stateList += rememberDiaryDateTimeInputState(initialValue = allDayValue())
+        }
+
+        composeRule.runOnIdle {
+            // 팩토리가 켠 표시는 공개 상태로 드러나지 않으므로 저장 결과로 확인한다. 저장 결과는 키와 값을 번갈아 담은 목록이다.
+            val savedList =
+                stateList.take(2).map { state ->
+                    val saved = with(DiaryDateTimeInputState.Saver) { SaverScope { true }.save(state) } as List<*>
+                    saved.chunked(2).associate { (key, value) -> key to value }
+                }
+
+            savedList.map { saved -> saved[IS_PERIOD_UNSELECTED_KEY] } shouldBe listOf(true, false)
+        }
+    }
+
+    @Test
     fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-004 스위치를 껐다가 다시 켜면 직전 선택값이 복원된다`() {
         setDiaryDateTimeInput(initialValue = dateTimeValue())
 
@@ -100,6 +125,27 @@ class DiaryDateTimeInputTest {
         composeRule.onNodeWithText(START_TIME_TEXT).assertExists()
         composeRule.onNodeWithText(END_DATE_TEXT).assertExists()
         composeRule.onNodeWithText(END_TIME_TEXT).assertExists()
+    }
+
+    @Test
+    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-035 초기 기간이 바뀌면 바뀐 초기 기간으로 처음부터 시작한다`() {
+        var initialValue: DiaryDateTimeInputValue by mutableStateOf(dateTimeValue())
+        composeRule.setContent {
+            DiaryTheme {
+                DiaryDateTimeInput(state = rememberDiaryDateTimeInputState(initialValue = initialValue))
+            }
+        }
+
+        composeRule.onNode(hasRole(Role.Switch)).performClick()
+        composeRule.onNode(hasRole(Role.Switch)).assertIsOff()
+
+        initialValue = allDayValue()
+
+        composeRule.onNode(hasRole(Role.Switch)).assertIsOn()
+        composeRule.onNode(hasRole(Role.Checkbox)).assertIsOn()
+        composeRule.onNodeWithText(START_DATE_TEXT).assertExists()
+        composeRule.onNodeWithText(ALL_DAY_END_DATE_TEXT).assertExists()
+        composeRule.onNodeWithText(START_TIME_TEXT).assertDoesNotExist()
     }
 
     @Test
@@ -128,7 +174,7 @@ class DiaryDateTimeInputTest {
     }
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-032 종일로 전환한 뒤 다시 해제하면 시간이 기본 시각에서 다시 시작한다`() {
+    fun `여러 날짜 기간을 종일로 전환한 뒤 다시 해제하면 두 시각이 모두 기본 시각으로 다시 표시된다`() {
         val defaultTimeText = defaultTimeText()
 
         setDiaryDateTimeInput(initialValue = dateTimeValue())
@@ -170,5 +216,9 @@ class DiaryDateTimeInputTest {
                 DiaryDateTimeInput(state = rememberDiaryDateTimeInputState(initialValue = initialValue))
             }
         }
+    }
+
+    private companion object {
+        private const val IS_PERIOD_UNSELECTED_KEY = "isPeriodUnselected"
     }
 }

@@ -17,7 +17,7 @@ import kotlin.uuid.Uuid
 
 class SyncWorkMusicTest :
     FunSpec({
-        test("TC-DATA-SYNC-DOMAIN-020 곡만 대기하면 곡 요청만 발생한다") {
+        test("곡만 대기하면 곡 요청만 발생한다") {
             val context = context(musicList = musics(size = 1))
 
             context.subject.doWork()
@@ -140,7 +140,7 @@ class SyncWorkMusicTest :
             coVerify(exactly = 3) { context.musicRemoteDataSource.pull(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-024 요청에 전달된 계정의 곡만 조회한다") {
+        test("TC-DATA-SYNC-DOMAIN-024 실행 시점에 확인된 계정의 곡만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val context = context(accountId = accountId)
@@ -164,8 +164,8 @@ class SyncWorkMusicTest :
             fixtureMonkey
                 .giveMeKotlinBuilder<MusicLocalEntity>()
                 .setExp(MusicLocalEntity::isDeleted, isDeleted)
-                .setExp(MusicLocalEntity::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(MusicLocalEntity::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(MusicLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(MusicLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

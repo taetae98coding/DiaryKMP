@@ -33,22 +33,34 @@ internal class CalendarHomeWeatherViewModel(
                 initialValue = CalendarWeatherReport(),
             )
 
+    private var isRefreshPending: Boolean = false
+
     fun fetch() {
+        if (isLoading.value) return
+
         load { fetchCurrentWeatherUseCase(parameter = Unit) }
     }
 
     fun refreshOnLocationPermissionGranted() {
+        if (isLoading.value) {
+            isRefreshPending = true
+            return
+        }
+
         load { refreshCurrentWeatherUseCase(parameter = Unit) }
     }
 
     private fun load(block: suspend () -> Unit) {
-        if (isLoading.value) return
-
         isLoading.value = true
         viewModelScope.launch {
             try {
                 block()
+                while (isRefreshPending) {
+                    isRefreshPending = false
+                    refreshCurrentWeatherUseCase(parameter = Unit)
+                }
             } finally {
+                isRefreshPending = false
                 isLoading.value = false
             }
         }

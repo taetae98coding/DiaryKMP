@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.work.musicdownload.process.CommandRunner
 import io.github.taetae98coding.diary.work.musicdownload.tool.MusicVideoDownloadJobRegistry
 import io.github.taetae98coding.diary.work.musicdownload.tool.findMissingDownloadToolList
 import io.github.taetae98coding.diary.work.musicdownload.work.MUSIC_FILE_DIRECTORY
+import io.github.taetae98coding.diary.work.musicdownload.work.MusicFilePath
 import io.github.taetae98coding.diary.work.musicdownload.work.resolveMusicFilePath
 import io.github.taetae98coding.diary.work.musicdownload.work.toMusicFileName
 import org.koin.core.annotation.Factory
@@ -20,17 +21,26 @@ internal class MusicDownloadProxyHandler(
         if (!videoId.isYoutubeVideoId()) return MusicDownloadProxyResponse.Rejected
 
         val path = appFileLocalDataSource.resolveMusicFilePath(videoId = videoId)
+        val isDownloaded =
+            if (appFileLocalDataSource.exists(directory = MUSIC_FILE_DIRECTORY, name = videoId.toMusicFileName())) {
+                true
+            } else {
+                musicVideoDownloadJobRegistry.join(videoId = videoId, onProgress = {}) ?: download(videoId = videoId, path = path)
+            }
 
-        return when {
-            appFileLocalDataSource.exists(directory = MUSIC_FILE_DIRECTORY, name = videoId.toMusicFileName()) ->
-                MusicDownloadProxyResponse.Completed(path = path.completed)
-
-            commandRunner.findMissingDownloadToolList().isNotEmpty() -> MusicDownloadProxyResponse.Failed
-
-            musicVideoDownloadJobRegistry.download(videoId = videoId, path = path, onProgress = {}) ->
-                MusicDownloadProxyResponse.Completed(path = path.completed)
-
-            else -> MusicDownloadProxyResponse.Failed
+        return if (isDownloaded) {
+            MusicDownloadProxyResponse.Completed(path = path.completed)
+        } else {
+            MusicDownloadProxyResponse.Failed
         }
+    }
+
+    private suspend fun download(
+        videoId: String,
+        path: MusicFilePath,
+    ): Boolean {
+        if (commandRunner.findMissingDownloadToolList().isNotEmpty()) return false
+
+        return musicVideoDownloadJobRegistry.download(videoId = videoId, path = path, onProgress = {})
     }
 }

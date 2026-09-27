@@ -106,7 +106,6 @@ class WebCardTest {
 
         private fun url(): String = "https://example.com/${fixtureMonkey.giveMeOne<Int>()}"
 
-        // FixtureMonkey가 Instant를 생성하지 못하므로 웹 항목은 직접 만든다.
         private fun web(
             title: String,
             description: String,
@@ -124,8 +123,8 @@ class WebCardTest {
                 id = Uuid.random(),
                 detail = detail,
                 isDeleted = false,
-                updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
-                createdAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+                createdAt = fixtureMonkey.giveMeOne<Instant>(),
             )
         }
     }

@@ -1,5 +1,7 @@
 package io.github.taetae98coding.diary.feature.calendar.ui.home
 
+import io.github.taetae98coding.diary.compose.calendar.CalendarEvent
+import io.github.taetae98coding.diary.feature.calendar.api.CalendarTimetableNavKey
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.toDateRange
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
@@ -16,7 +18,6 @@ internal fun handleCalendarHomeEvent(
     weatherViewModel: CalendarHomeWeatherViewModel,
     syncViewModel: CalendarHomeSyncViewModel,
     navigateToMemoDetail: (Uuid) -> Unit,
-    navigateToMemoAdd: (LocalDateRange) -> Unit,
     navigateToContactDetail: (Uuid) -> Unit,
     navigateToFilter: () -> Unit,
 ) {
@@ -39,10 +40,25 @@ internal fun handleCalendarHomeEvent(
                 fromDateTime = event.fromDateTime,
                 toDateRange = event.toDateRange,
             )
+    }
+}
 
-        is CalendarHomeScaffoldEvent.SelectDate -> {
+internal fun handleCalendarHomeCalendarEvent(
+    event: CalendarEvent,
+    state: CalendarHomeScaffoldState,
+    navigateToMemoAdd: (LocalDateRange) -> Unit,
+    navigateToTimetable: (CalendarTimetableNavKey) -> Unit,
+) {
+    when (event) {
+        is CalendarEvent.Select -> {
             state.calendarSelectState.clear()
             navigateToMemoAdd(event.dateRange)
         }
+
+        is CalendarEvent.ClickDate ->
+            navigateToTimetable(CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.DAY, date = event.date))
+
+        is CalendarEvent.ClickWeek ->
+            navigateToTimetable(CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.WEEK, date = event.startDate))
     }
 }

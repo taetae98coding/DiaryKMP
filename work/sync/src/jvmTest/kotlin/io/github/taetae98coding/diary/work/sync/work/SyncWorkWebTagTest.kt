@@ -21,22 +21,25 @@ import kotlin.uuid.Uuid
 
 class SyncWorkWebTagTest :
     FunSpec({
-        test("TC-DATA-SYNC-DOMAIN-019 TC-WEB-TAG-DATA-005 모든 태그 요청이 성공한 뒤 웹·태그 연결 전용 요청을 시작한다") {
+        test("TC-DATA-SYNC-DOMAIN-019 TC-WEB-TAG-DATA-005 모든 태그 요청과 웹 항목 요청이 성공한 뒤 웹·태그 연결 전용 요청을 시작한다") {
             val context =
                 context(
                     tagList = tags(size = 101),
+                    webList = webs(size = 101),
                     webTagList = webTags(size = 101),
                 )
             val requestOrder = mutableListOf<String>()
             coEvery { context.tagRemoteDataSource.push(any()) } coAnswers { requestOrder += "tag" }
+            coEvery { context.webRemoteDataSource.push(any()) } coAnswers { requestOrder += "web" }
             coEvery { context.webTagRemoteDataSource.push(any()) } coAnswers { requestOrder += "webTag" }
 
             context.subject.doWork()
 
-            requestOrder shouldContainExactly listOf("tag", "tag", "webTag", "webTag")
+            requestOrder.takeLast(2) shouldContainExactly listOf("webTag", "webTag")
+            requestOrder.dropLast(2) shouldContainExactlyInAnyOrder listOf("tag", "tag", "web", "web")
         }
 
-        test("TC-DATA-SYNC-DOMAIN-020 웹·태그 연결만 대기하면 웹·태그 연결 요청만 발생한다") {
+        test("웹·태그 연결만 대기하면 웹·태그 연결 요청만 발생한다") {
             val context = context(webTagList = webTags(size = 1))
 
             context.subject.doWork()
@@ -284,7 +287,7 @@ class SyncWorkWebTagTest :
             coVerify(exactly = 0) { context.accountWebTagSyncTransaction.save(any(), any(), any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-024 요청에 전달된 계정의 웹·태그 연결만 조회한다") {
+        test("TC-DATA-SYNC-DOMAIN-024 실행 시점에 확인된 계정의 웹·태그 연결만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val context = context(accountId = accountId)
@@ -308,8 +311,8 @@ class SyncWorkWebTagTest :
             fixtureMonkey
                 .giveMeKotlinBuilder<WebTagLocalEntity>()
                 .setExp(WebTagLocalEntity::isDeleted, isDeleted)
-                .setExp(WebTagLocalEntity::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(WebTagLocalEntity::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(WebTagLocalEntity::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(WebTagLocalEntity::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

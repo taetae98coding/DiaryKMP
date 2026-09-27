@@ -6,6 +6,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import io.github.taetae98coding.diary.compose.core.icon.SearchIcon
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
@@ -18,6 +19,8 @@ public fun DiaryPickerSearchField(
     modifier: Modifier = Modifier,
     state: DiaryPickerSearchFieldState = rememberDiaryPickerSearchFieldState(),
 ) {
+    val softwareKeyboardController = LocalSoftwareKeyboardController.current
+
     ClearTextField(
         modifier = modifier,
         state = state.textFieldState,
@@ -25,6 +28,7 @@ public fun DiaryPickerSearchField(
         placeholder = { Text(text = placeholder) },
         leadingIcon = { SearchIcon() },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+        onKeyboardAction = { softwareKeyboardController?.hide() },
         lineLimits = TextFieldLineLimits.SingleLine,
     )
 }

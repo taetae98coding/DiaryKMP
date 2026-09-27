@@ -25,9 +25,10 @@ import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
-import io.github.taetae98coding.diary.compose.place.PlaceCard
+import io.github.taetae98coding.diary.compose.place.SwipeToDeletePlaceCard
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.place.Place
+import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_place_empty_description
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_place_empty_title
@@ -44,10 +45,12 @@ internal fun TagDetailPlacePagingList(
     placePagingItems: LazyPagingItems<Place> = remember { flowOf(PagingData.empty<Place>()) }.collectAsLazyPagingItems(),
     isRefreshingProvider: () -> Boolean = { false },
     sortProvider: () -> ListSort = { ListSort.TITLE },
+    scopeProvider: () -> TagScope = { TagScope.SELF },
 ) {
     ListQueryScrollEffect(
         staggeredGridState = gridState,
         sortProvider = sortProvider,
+        filterProvider = scopeProvider,
         itemListProvider = { placePagingItems.itemSnapshotList.items },
     )
 
@@ -86,8 +89,9 @@ internal fun TagDetailPlacePagingList(
                 ) { index ->
                     val place = placePagingItems[index]
 
-                    PlaceCard(
+                    SwipeToDeletePlaceCard(
                         onClick = { place?.let { value -> onEvent(TagDetailPlaceContentEvent.ClickPlace(id = value.id)) } },
+                        onDelete = { place?.let { value -> onEvent(TagDetailPlaceContentEvent.DeletePlace(id = value.id)) } },
                         modifier = Modifier.animateItem(),
                         place = place,
                     )

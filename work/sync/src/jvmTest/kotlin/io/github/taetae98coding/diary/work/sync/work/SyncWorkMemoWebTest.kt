@@ -37,7 +37,7 @@ class SyncWorkMemoWebTest :
             requestOrder.dropLast(2) shouldContainExactlyInAnyOrder listOf("web", "web", "memo", "memo")
         }
 
-        test("TC-DATA-SYNC-DOMAIN-020 메모·웹 연결만 대기하면 메모·웹 연결 요청만 발생한다") {
+        test("메모·웹 연결만 대기하면 메모·웹 연결 요청만 발생한다") {
             val context = context(memoWebList = memoWebs(size = 1))
 
             context.subject.doWork()
@@ -120,7 +120,7 @@ class SyncWorkMemoWebTest :
             coVerify(exactly = 0) { context.webRemoteDataSource.pull(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-021 웹 항목 업로드가 실패하면 메모·웹 연결을 시도하지 않는다") {
+        test("TC-DATA-SYNC-DOMAIN-079 웹 항목 업로드가 실패하면 메모·웹 연결을 시도하지 않는다") {
             val context =
                 context(
                     webList = webs(size = 1),
@@ -272,7 +272,7 @@ class SyncWorkMemoWebTest :
             coVerify(exactly = 0) { context.accountMemoWebSyncTransaction.save(any(), any(), any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-024 요청에 전달된 계정의 메모·웹 연결만 조회한다") {
+        test("TC-DATA-SYNC-DOMAIN-024 실행 시점에 확인된 계정의 메모·웹 연결만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val context = context(accountId = accountId)

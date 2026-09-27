@@ -1,11 +1,14 @@
 package io.github.taetae98coding.diary.feature.tag.ui.detail
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -35,6 +38,8 @@ import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.feature.tag.ui.allDayMemoDateTime
 import io.github.taetae98coding.diary.feature.tag.ui.detail.memo.TAG_DETAIL_MEMO_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.tag.ui.detail.memo.TagDetailMemoViewModel
+import io.github.taetae98coding.diary.feature.tag.ui.fixtureId
+import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemoPagingData
 import io.kotest.matchers.shouldBe
@@ -91,15 +96,28 @@ class TagDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-MEMO-FEATURE-027 태그 디테일 탭에서는 Cmd A 단축키를 입력해도 메모 추가 화면으로 이동하지 않는다`() {
+    fun `TC-TAG-DETAIL-MEMO-FEATURE-027 메모 탭이 아닌 탭에서는 메모 추가를 실행할 수 없고 메모 탭으로 전환하면 실행할 수 있다`() {
         var navigateToMemoAddCount = 0
         setTagDetailScreen(navigateToMemoAdd = { navigateToMemoAddCount += 1 })
 
-        composeRule.onRoot().performAddShortcut()
+        listOf(
+            DEFAULT_DETAIL_TAB_DESCRIPTION,
+            DEFAULT_WEB_TAB_DESCRIPTION,
+            DEFAULT_PLACE_TAB_DESCRIPTION,
+        ).forEach { tabDescription ->
+            composeRule.selectTagDetailTab(tabDescription)
 
-        navigateToMemoAddCount shouldBe 0
-        composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).assertDoesNotExist()
-        composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).assertDoesNotExist()
+            composeRule.onRoot().performAddShortcut()
+            composeRule.waitForIdle()
+
+            navigateToMemoAddCount shouldBe 0
+            composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).assertDoesNotExist()
+        }
+
+        composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).performClick()
+
+        navigateToMemoAddCount shouldBe 1
     }
 
     @Test
@@ -135,7 +153,15 @@ class TagDetailScreenMemoTest {
         var navigateToMemoFinishedListCount = 0
         setTagDetailScreen(navigateToMemoFinishedList = { navigateToMemoFinishedListCount += 1 })
 
-        composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).assertDoesNotExist()
+        listOf(
+            DEFAULT_DETAIL_TAB_DESCRIPTION,
+            DEFAULT_WEB_TAB_DESCRIPTION,
+            DEFAULT_PLACE_TAB_DESCRIPTION,
+        ).forEach { tabDescription ->
+            composeRule.selectTagDetailTab(tabDescription)
+
+            composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).assertDoesNotExist()
+        }
 
         composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
         composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).performClick()
@@ -313,6 +339,36 @@ class TagDetailScreenMemoTest {
         }
     }
 
+    @Test
+    fun `TC-TAG-DETAIL-FEATURE-065 메모 카드 위에서 왼쪽으로 밀면 탭은 바뀌지 않고 그 메모가 삭제된다`() {
+        val memo = swipeMemo()
+
+        composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { memoViewModel().delete(id = memo.id) }
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.onNodeWithContentDescription(DEFAULT_WEB_TAB_DESCRIPTION).assertIsNotSelected()
+    }
+
+    @Test
+    fun `TC-TAG-DETAIL-MEMO-FEATURE-034 안내가 보이는 동안 다른 탭으로 바꾸면 안내가 닫히고 되돌릴 수 없다`() {
+        val memo = swipeMemo()
+
+        composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+        emitMemoEffect(MemoListEffect.Deleted(id = memo.id))
+        composeRule.onNodeWithText(DEFAULT_DELETED_MESSAGE).assertIsDisplayed()
+
+        composeRule.selectTagDetailTab(DEFAULT_WEB_TAB_DESCRIPTION)
+        composeRule.mainClock.advanceTimeBy(TAB_CHANGE_SETTLE_MILLIS)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_DELETED_MESSAGE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).assertDoesNotExist()
+        verify(exactly = 0) { memoViewModel().restore(id = any()) }
+    }
+
     private fun swipeMemo(memoTabDescription: String = DEFAULT_MEMO_TAB_DESCRIPTION): Memo {
         val memo = tagMemo(title = SCREEN_MEMO_TITLE)
         setTagDetailScreenOnMemoTab(
@@ -345,15 +401,67 @@ class TagDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-DOMAIN-015 대상 태그를 조회하지 못해도 표시 범위가 메모 목록 조회에 적용된다`() {
+    fun `TC-TAG-DETAIL-DOMAIN-015 대상 태그를 조회하지 못해도 범위를 넓히면 하위 태그의 메모가 메모 탭에 표시된다`() {
+        val childMemo = tagMemo(title = fixtureText(prefix = "ChildTagMemo"))
         composeRule.setTagDetailScreen(viewModel = screenTestViewModel(MutableStateFlow(TagDetailUiState.Loading)))
-        composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
 
+        // 메모 탭이 목록을 받은 뒤에 바뀐 페이지는 화면 스레드의 공용 디스패처를 거쳐야 도착하는데, Robolectric이 테스트 사이에
+        // 그 디스패처에 걸린 예약만 지워 앞선 테스트가 남긴 예약이 있으면 영영 도착하지 않는다. 그래서 범위는 태그 디테일 탭에서
+        // 넓히고, 넓힌 범위의 조회 결과를 준비한 뒤 메모 탭을 열어 목록이 처음 그릴 때부터 하위 태그의 메모를 받게 한다.
         composeRule.onNodeWithContentDescription(DEFAULT_SCOPE_BUTTON_DESCRIPTION).performClick()
         composeRule.onNodeWithText(DEFAULT_CHILD_SCOPE_LABEL).performClick()
         composeRule.waitForIdle()
+        composeRule.runOnIdle {
+            memoPagingDataFlow.value = tagMemoPagingData(itemList = listOf(MemoListItem.Content(memo = childMemo)))
+        }
+        composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
 
-        verify(exactly = 1) { checkNotNull(memoViewModelRef).select(scope = TagScope.CHILD) }
+        verify { checkNotNull(memoViewModelRef).select(scope = TagScope.CHILD) }
+        composeRule.onNodeWithText(childMemo.detail.title).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-TAG-DETAIL-DATA-004 표시 범위를 바꿔도 태그와 연결을 저장하거나 서버에 요청하지 않는다`() {
+        val viewModel = screenTestViewModel(MutableStateFlow(tagDetailUiState(detail = tagDetail(TAG_TITLE))))
+        composeRule.setTagDetailScreen(viewModel = viewModel)
+        composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_SCOPE_BUTTON_DESCRIPTION).performClick()
+        composeRule.onNodeWithText(DEFAULT_DESCENDANT_SCOPE_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { checkNotNull(memoViewModelRef).select(scope = TagScope.DESCENDANT) }
+        verify(exactly = 0) { viewModel.update(detail = any()) }
+        verify(exactly = 0) { viewModel.finish() }
+        verify(exactly = 0) { viewModel.restart() }
+        verify(exactly = 0) { viewModel.delete() }
+        memoSyncViewModelRef?.let { memoSyncViewModel -> verify(exactly = 0) { memoSyncViewModel.refresh() } }
+        linkViewModelRef?.let { linkViewModel ->
+            verify(exactly = 0) { linkViewModel.link(tagId = any()) }
+            verify(exactly = 0) { linkViewModel.unlink(tagId = any()) }
+        }
+        syncViewModelRef?.let { syncViewModel -> verify(exactly = 0) { syncViewModel.refresh() } }
+    }
+
+    @Test
+    fun `TC-TAG-DETAIL-DOMAIN-018 범위를 넓힌 뒤 다른 태그를 선택하면 표시 범위가 이 태그만으로 돌아간다`() {
+        val detailIdState = mutableStateOf(FIRST_TAG_ID)
+        composeRule.setTagDetailScreen(
+            viewModel = screenTestViewModel(MutableStateFlow(tagDetailUiState(detail = tagDetail(TAG_TITLE)))),
+            detailIdState = detailIdState,
+            viewModelFor = { id -> screenTestViewModel(MutableStateFlow(tagDetailUiState(id = id, detail = tagDetail(TAG_TITLE)))) },
+        )
+        composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+        composeRule.onNodeWithContentDescription(DEFAULT_SCOPE_BUTTON_DESCRIPTION).performClick()
+        composeRule.onNodeWithText(DEFAULT_DESCENDANT_SCOPE_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { detailIdState.value = fixtureId() }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(DEFAULT_SCOPE_BUTTON_DESCRIPTION).performClick()
+
+        composeRule.onNodeWithText(DEFAULT_SELF_SCOPE_LABEL).assertIsSelected()
+        composeRule.onNodeWithText(DEFAULT_DESCENDANT_SCOPE_LABEL).assertIsNotSelected()
     }
 
     private fun setTagDetailScreenOnMemoTab(
@@ -406,6 +514,7 @@ class TagDetailScreenMemoTest {
 
     private companion object {
         const val PAGING_ITEMS_TIMEOUT_MILLIS = 5_000L
+        const val TAB_CHANGE_SETTLE_MILLIS = 1_000L
         const val DEFAULT_FINISHED_MESSAGE = "Memo finished."
         const val KOREAN_FINISHED_MESSAGE = "메모가 완료되었습니다."
         const val DEFAULT_DELETED_MESSAGE = "Memo deleted."
@@ -415,6 +524,8 @@ class TagDetailScreenMemoTest {
         const val DEFAULT_ADD_DESCRIPTION = "Add memo"
         const val DEFAULT_SCOPE_BUTTON_DESCRIPTION = "Display scope"
         const val DEFAULT_CHILD_SCOPE_LABEL = "Direct children"
+        const val DEFAULT_SELF_SCOPE_LABEL = "This tag only"
+        const val DEFAULT_DESCENDANT_SCOPE_LABEL = "All descendants"
         const val INDEPENDENT_MEMO_TITLE = "TagDetailIndependentMemo"
         const val DEFAULT_FINISHED_LIST_LABEL = "Finished memos"
         const val DEFAULT_TODAY_HEADER = "Today"

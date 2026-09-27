@@ -50,7 +50,7 @@ class DeleteMusicUseCaseTest :
                 )
 
             When("곡을 삭제한다") {
-                Then("TC-MUSIC-DETAIL-DOMAIN-007 삭제 여부와 삭제 시점만 반영한다") {
+                Then("TC-MUSIC-DETAIL-DOMAIN-007 TC-PLAYLIST-HOME-DOMAIN-005 삭제 여부와 삭제 시점만 반영한다") {
                     useCase(parameter = musicId).shouldBeSuccess(1)
 
                     isDeletedSlot.captured shouldBe true
@@ -60,7 +60,7 @@ class DeleteMusicUseCaseTest :
                     }
                 }
 
-                Then("TC-MUSIC-DETAIL-DATA-007 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-MUSIC-DETAIL-DATA-007 TC-PLAYLIST-HOME-DATA-004 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
                     useCase(parameter = musicId).shouldBeSuccess(1)
 
                     coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
@@ -178,6 +178,6 @@ class DeleteMusicUseCaseTest :
             return useCase
         }
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
     }
 }

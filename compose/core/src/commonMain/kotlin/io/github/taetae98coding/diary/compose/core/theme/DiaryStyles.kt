@@ -8,10 +8,13 @@ import androidx.compose.foundation.style.StyleScope
 import androidx.compose.foundation.style.contentPadding
 import androidx.compose.foundation.style.contentPaddingHorizontal
 import androidx.compose.foundation.style.fillWidth
+import androidx.compose.material3.ShapeDefaults
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 private const val DIMMED_ALPHA = 0.38F
 private val BottomSheetRowMinHeight = 56.dp
+private val QrImageQuietZone = 16.dp
 
 public object DiaryStyles {
     public val bottomSheetTitle: Style =
@@ -42,6 +45,14 @@ public object DiaryStyles {
         Style {
             fillWidth()
             contentPadding(dimens.cardContentPadding)
+        }
+
+    public val qrImage: Style =
+        Style {
+            shape(ShapeDefaults.Medium)
+            clip()
+            background(Color.White)
+            contentPadding(QrImageQuietZone)
         }
 }
 

@@ -7,12 +7,14 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.contact.entity.AccountContactLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.memocontact.entity.AccountMemoContactLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memoplace.entity.AccountMemoPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memotag.entity.AccountMemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memoweb.entity.AccountMemoWebLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.music.entity.AccountMusicLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.place.entity.AccountPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.placetag.entity.AccountPlaceTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.qr.entity.AccountQrLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.taglink.entity.AccountTagLinkLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.web.entity.AccountWebLocalEntity
@@ -47,6 +49,9 @@ private val pendingWriterMap: Map<String, PendingWriter> =
         "곡" to { database, accountId, isDirty ->
             database.accountMusicSyncDao().upsert(AccountMusicLocalEntity(accountId = accountId, musicId = uuid(), isDirty = isDirty))
         },
+        "QR" to { database, accountId, isDirty ->
+            database.accountQrSyncDao().upsert(AccountQrLocalEntity(accountId = accountId, qrId = uuid(), isDirty = isDirty))
+        },
         "메모" to { database, accountId, isDirty ->
             database.accountMemoSyncDao().upsert(AccountMemoLocalEntity(accountId = accountId, memoId = uuid(), isDirty = isDirty))
         },
@@ -63,6 +68,11 @@ private val pendingWriterMap: Map<String, PendingWriter> =
         "메모와 웹 항목의 연결" to { database, accountId, isDirty ->
             database.accountMemoWebSyncDao().upsert(
                 AccountMemoWebLocalEntity(accountId = accountId, memoId = uuid(), webId = uuid(), isDirty = isDirty),
+            )
+        },
+        "메모와 연락처의 연결" to { database, accountId, isDirty ->
+            database.accountMemoContactSyncDao().upsert(
+                AccountMemoContactLocalEntity(accountId = accountId, memoId = uuid(), contactId = uuid(), isDirty = isDirty),
             )
         },
         "태그와 태그의 연결" to { database, accountId, isDirty ->
@@ -84,6 +94,10 @@ private val pendingWriterMap: Map<String, PendingWriter> =
 
 class SyncPendingLocalDataSourceImplTest :
     FunSpec({
+        test("업로드 대기 확인이 동기화 대상 열네 종류를 모두 다룬다") {
+            pendingWriterMap.size shouldBe 14
+        }
+
         lateinit var database: DiaryDatabase
         lateinit var dataSource: SyncPendingLocalDataSourceImpl
 
@@ -100,7 +114,7 @@ class SyncPendingLocalDataSourceImplTest :
             database.close()
         }
 
-        test("TC-MORE-HOME-DOMAIN-007 어느 한 종류만 업로드 대기여도 대기 항목이 있다고 알린다") {
+        test("TC-MORE-HOME-DOMAIN-007 동기화 대상 열네 종류 중 어느 한 종류만 업로드 대기여도 대기 항목이 있다고 알린다") {
             pendingWriterMap.forEach { (kind, write) ->
                 val accountId = uuid()
 

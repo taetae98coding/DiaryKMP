@@ -2,24 +2,33 @@ package io.github.taetae98coding.diary.core.database.impl.placetag.datasource
 
 import androidx.paging.PagingSource
 import androidx.room3.Room
+import androidx.room3.useReaderConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
+import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.placetag.entity.PlaceTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagScopeLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
+import io.github.taetae98coding.diary.core.database.impl.memo.datasource.AccountTagMemoLocalDataSourceImpl
+import io.github.taetae98coding.diary.core.database.impl.memo.transaction.AccountMemoTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.memoplace.transaction.AccountMemoPlaceTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.memotag.datasource.AccountMemoTagLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.place.datasource.AccountPlaceLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.place.datasource.AccountPlaceSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.place.datasource.AccountTagPlaceLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.place.transaction.AccountPlaceSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.place.transaction.AccountPlaceTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.placetag.transaction.AccountPlaceTagSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.placetag.transaction.AccountPlaceTagTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
+import io.github.taetae98coding.diary.core.testing.memo.localMemo
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
@@ -113,6 +122,18 @@ class AccountPlaceTagLocalDataSourceImplTest :
             )
         }
 
+        fun addedPlaceTag(
+            placeId: Uuid,
+            tagId: Uuid,
+        ): PlaceTagLocalEntity =
+            PlaceTagLocalEntity(
+                placeId = placeId,
+                tagId = tagId,
+                isDeleted = false,
+                updatedAt = instant(),
+                createdAt = instant(),
+            )
+
         suspend fun linkedTagList(
             accountId: Uuid,
             placeId: Uuid,
@@ -203,15 +224,19 @@ class AccountPlaceTagLocalDataSourceImplTest :
             linkedTagList(accountId = accountId, placeId = place.id).shouldBeEmpty()
         }
 
-        test("TC-PLACE-TAG-DOMAIN-005 연결은 장소와 태그의 내용을 바꾸지 않는다") {
+        test("TC-PLACE-TAG-DOMAIN-005 연결하거나 해제해도 장소와 태그의 내용은 바뀌지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place()
-            val tag = tag()
+            val baseTag = tag()
+            val tag = baseTag.copy(detail = baseTag.detail.copy(color = place.detail.color.inv()))
             insertPlace(accountId, place)
             insertTag(accountId, tag)
 
             link(accountId = accountId, placeId = place.id, tagId = tag.id)
+            database.accountPlaceDao().find(accountId = accountId, placeId = place.id).first() shouldBe place
+            database.accountTagDao().find(accountId = accountId, tagId = tag.id).first() shouldBe tag
 
+            unlink(accountId = accountId, placeId = place.id, tagId = tag.id)
             database.accountPlaceDao().find(accountId = accountId, placeId = place.id).first() shouldBe place
             database.accountTagDao().find(accountId = accountId, tagId = tag.id).first() shouldBe tag
         }
@@ -257,10 +282,15 @@ class AccountPlaceTagLocalDataSourceImplTest :
             tagTransaction.updateFinished(accountId = accountId, tagId = tag.id, isFinished = true, updatedAt = instant())
             linkedTagIdList(accountId = accountId, placeId = place.id) shouldBe listOf(tag.id)
 
-            tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = true, updatedAt = instant())
+            val deletedAt = instant()
+            tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = true, updatedAt = deletedAt)
             linkedTagList(accountId = accountId, placeId = place.id).shouldBeEmpty()
 
-            tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = false, updatedAt = instant())
+            AccountTagSyncTransactionImpl(database = database).save(
+                accountId = accountId,
+                tagList = listOf(tag.copy(isFinished = true, isDeleted = false, updatedAt = deletedAt)),
+                cursor = fixtureMonkey.giveMeOne<Long>(),
+            )
             linkedTagIdList(accountId = accountId, placeId = place.id) shouldBe listOf(tag.id)
         }
 
@@ -299,6 +329,13 @@ class AccountPlaceTagLocalDataSourceImplTest :
             link(accountId = accountId, placeId = place.id, tagId = tag.id)
 
             tagTransaction.updateFinished(accountId = accountId, tagId = tag.id, isFinished = true, updatedAt = instant())
+
+            database
+                .placeTagDao()
+                .findByPlaceIdList(listOf(place.id))
+                .single()
+                .isDeleted shouldBe false
+
             tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = true, updatedAt = instant())
 
             database
@@ -362,6 +399,48 @@ class AccountPlaceTagLocalDataSourceImplTest :
 
             tagPlaceIdList(accountId = accountId, tagId = firstTag.id).shouldBeEmpty()
             tagPlaceIdList(accountId = accountId, tagId = secondTag.id) shouldBe listOf(place.id)
+        }
+
+        test("TC-PLACE-TAG-DOMAIN-016 장소와 태그를 연결해도 그 장소에 연결된 메모에는 태그가 연결되지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = fixtureMonkey.localMemo(isFinished = false, isDeleted = false, primaryTagId = null)
+            val place = place()
+            val tag = tag()
+            insertPlace(accountId, place)
+            insertTag(accountId, tag)
+            AccountMemoTransactionImpl(database = database).upsert(
+                accountId = accountId,
+                memoList = listOf(memo),
+                memoTagList = emptyList(),
+            )
+            AccountMemoPlaceTransactionImpl(database = database).upsert(
+                accountId = accountId,
+                memoId = memo.id,
+                placeId = place.id,
+                isDeleted = false,
+                updatedAt = instant(),
+            )
+
+            link(accountId = accountId, placeId = place.id, tagId = tag.id)
+
+            AccountMemoTagLocalDataSourceImpl(database = database)
+                .getTagList(accountId = accountId, memoId = memo.id)
+                .first()
+                .shouldBeEmpty()
+            val tagMemoResult =
+                AccountTagMemoLocalDataSourceImpl(database = database)
+                    .page(accountId = accountId, tagId = tag.id, scope = TagScopeLocalEntity.SELF, sort = ListSortLocalEntity.DEFAULT)
+                    .load(
+                        PagingSource.LoadParams.Refresh(
+                            key = null,
+                            loadSize = 100,
+                            placeholdersEnabled = false,
+                        ),
+                    )
+            tagMemoResult
+                .shouldBeInstanceOf<PagingSource.LoadResult.Page<Int, MemoLocalEntity>>()
+                .data
+                .shouldBeEmpty()
         }
 
         test("TC-PLACE-TAG-DATA-003 연결 해제는 같은 장소의 다른 연결을 바꾸지 않는다") {
@@ -480,6 +559,30 @@ class AccountPlaceTagLocalDataSourceImplTest :
             selectableTagIdList(accountId = accountId, placeId = place.id, query = "업무").shouldBeEmpty()
         }
 
+        test("TC-PLACE-ADD-DATA-010 고른 뒤 완료된 태그는 추가한 장소와 연결되어 연결된 태그로 조회된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val place = place()
+            val finishedTag = tag().copy(isFinished = true)
+            insertTag(accountId, finishedTag)
+
+            placeTransaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = listOf(addedPlaceTag(placeId = place.id, tagId = finishedTag.id)))
+
+            linkedTagIdList(accountId = accountId, placeId = place.id) shouldBe listOf(finishedTag.id)
+        }
+
+        test("TC-PLACE-ADD-DATA-010 고른 뒤 삭제된 태그도 추가한 장소와 연결되어 삭제를 되돌리면 연결된 태그로 조회된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val place = place()
+            val deletedTag = tag().copy(isDeleted = true)
+            insertTag(accountId, deletedTag)
+
+            placeTransaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = listOf(addedPlaceTag(placeId = place.id, tagId = deletedTag.id)))
+
+            linkedTagIdList(accountId = accountId, placeId = place.id).shouldBeEmpty()
+            insertTag(accountId, deletedTag.copy(isDeleted = false))
+            linkedTagIdList(accountId = accountId, placeId = place.id) shouldBe listOf(deletedTag.id)
+        }
+
         test("TC-PLACE-TAG-DATA-001 TC-PLACE-ADD-DATA-009 TC-PLACE-ADD-DATA-011 장소 추가와 태그 연결이 하나의 저장 작업으로 반영된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place()
@@ -510,7 +613,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
             tagPlaceIdList(accountId = accountId, tagId = unselectedTag.id).shouldBeEmpty()
         }
 
-        test("TC-PLACE-TAG-DATA-002 저장이 실패하면 장소와 태그 연결이 모두 남지 않는다") {
+        test("TC-PLACE-TAG-DATA-002 TC-PLACE-ADD-DATA-004 저장이 실패하면 장소, 계정 연결과 태그 연결이 모두 남지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place()
             val targetTag = tag()
@@ -539,6 +642,14 @@ class AccountPlaceTagLocalDataSourceImplTest :
             linkedTagIdList(accountId = accountId, placeId = place.id).shouldBeEmpty()
             tagPlaceIdList(accountId = accountId, tagId = targetTag.id).shouldBeEmpty()
             placeDataSource.find(accountId = accountId, placeId = place.id).first().shouldBeNull()
+            listOf("place", "account_place", "place_tag", "account_place_tag").forEach { table ->
+                database.useReaderConnection { transactor ->
+                    transactor.usePrepared("SELECT COUNT(*) FROM $table") { statement ->
+                        statement.step()
+                        statement.getLong(0)
+                    }
+                } shouldBe 0L
+            }
         }
 
         test("TC-PLACE-TAG-DOMAIN-014 TC-PLACE-DETAIL-DATA-015 태그 연결은 장소 목록·지도 핀과 장소 검색 결과를 바꾸지 않는다") {
@@ -623,7 +734,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
                 ?.isDeleted shouldBe true
         }
 
-        test("TC-PLACE-TAG-DATA-004 연결의 업로드 대기 여부가 계정별로 기록된다") {
+        test("TC-PLACE-TAG-DATA-004 TC-DATA-SYNC-DOMAIN-001 연결의 업로드 대기 여부가 계정별로 기록된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place()
@@ -636,6 +747,17 @@ class AccountPlaceTagLocalDataSourceImplTest :
             placeTagSyncDataSource
                 .findPending(accountId = accountId)
                 .map { placeTag -> placeTag.tagId } shouldBe listOf(targetTag.id)
+            placeTagSyncDataSource.findPending(accountId = otherAccountId).shouldBeEmpty()
+
+            AccountPlaceTagSyncTransactionImpl(database = database).clearPending(
+                accountId = accountId,
+                placeTagList = placeTagSyncDataSource.findPending(accountId = accountId),
+            )
+            unlink(accountId = accountId, placeId = place.id, tagId = targetTag.id)
+
+            placeTagSyncDataSource
+                .findPending(accountId = accountId)
+                .map { placeTag -> placeTag.tagId to placeTag.isDeleted } shouldBe listOf(targetTag.id to true)
             placeTagSyncDataSource.findPending(accountId = otherAccountId).shouldBeEmpty()
         }
 
@@ -704,7 +826,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
             longitude: Double,
         ): PlaceLocalEntity = copy(detail = detail.copy(latitude = latitude, longitude = longitude))
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun tag(title: String = "title-${fixtureMonkey.giveMeOne<String>()}"): TagLocalEntity =
             fixtureMonkey

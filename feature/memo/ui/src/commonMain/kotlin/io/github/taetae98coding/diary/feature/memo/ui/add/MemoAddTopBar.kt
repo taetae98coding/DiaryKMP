@@ -8,7 +8,7 @@ import io.github.taetae98coding.diary.compose.core.button.NavigateUpButton
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.memo.ui.Res
-import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiButton
+import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiButtonHost
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiUiState
 import io.github.taetae98coding.diary.feature.memo.ui.memo_add_navigate_up_button_content_description
 import io.github.taetae98coding.diary.feature.memo.ui.memo_add_title
@@ -33,7 +33,7 @@ internal fun MemoAddTopBar(
             }
         },
         actions = {
-            MemoGeminiButton(
+            MemoGeminiButtonHost(
                 onClick = { onEvent(MemoAddScaffoldEvent.ClickGemini) },
                 isVisibleProvider = { geminiUiStateProvider().isButtonVisible },
             )

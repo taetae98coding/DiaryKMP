@@ -6,6 +6,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextReplacement
@@ -64,18 +65,39 @@ class PlaceDetailScreenUpdateTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-009 제목을 비운 채 수정을 실행하면 빈 제목으로 요청한다`() {
+    fun `TC-PLACE-DETAIL-FEATURE-009 제목을 비운 채 수정하면 비운 제목으로 요청하고 화면 제목은 기존 제목으로 남는다`() {
+        assertBlankTitleUpdate(blankTitle = "")
+    }
+
+    @Test
+    fun `TC-PLACE-DETAIL-FEATURE-009 제목을 공백만 남긴 채 수정하면 공백 제목으로 요청하고 화면 제목은 기존 제목으로 남는다`() {
+        assertBlankTitleUpdate(blankTitle = BLANK_TITLE)
+    }
+
+    // 기존 제목을 쓰는 판단은 수정 규칙이 하므로(TC-PLACE-DETAIL-DOMAIN-005), 화면은 입력한 값을 그대로 넘기고 저장 결과를 표시한다.
+    private fun assertBlankTitleUpdate(blankTitle: String) {
         val detail = placeDetail()
-        val viewModel = screenTestViewModel(uiState = MutableStateFlow(content(detail = detail)))
+        val id = Uuid.random()
+        val uiState = MutableStateFlow(content(id = id, detail = detail))
+        val viewModel = screenTestViewModel(uiState = uiState)
+        every { viewModel.update(any()) } answers {
+            uiState.value = content(id = id, detail = detail.copy(description = CHANGED_DESCRIPTION, address = CHANGED_ADDRESS))
+        }
 
         composeRule.setPlaceDetailScreen(viewModel = viewModel)
 
-        composeRule.input(TITLE_INDEX).performTextClearance()
+        composeRule.input(TITLE_INDEX).performTextReplacement(blankTitle)
+        composeRule.input(DESCRIPTION_INDEX).performTextReplacement(CHANGED_DESCRIPTION)
+        composeRule.input(ADDRESS_INDEX).performTextReplacement(CHANGED_ADDRESS)
         composeRule.triggerUpdate()
 
         verify(exactly = 1) {
-            viewModel.update(detail = detail.copy(title = ""))
+            viewModel.update(detail = detail.copy(title = blankTitle, description = CHANGED_DESCRIPTION, address = CHANGED_ADDRESS))
         }
+        composeRule
+            .onAllNodes(hasText(detail.title))
+            .fetchSemanticsNodes()
+            .size shouldBe 1
     }
 
     @Test
@@ -162,9 +184,51 @@ class PlaceDetailScreenUpdateTest {
         composeRule.input(DESCRIPTION_INDEX).assert(hasText(CHANGED_DESCRIPTION))
     }
 
+    @Test
+    fun `TC-PLACE-DETAIL-FEATURE-054 수정 저장에 실패하면 안내 없이 입력을 유지하고 수정 반영을 다시 실행할 수 있다`() {
+        val detail = placeDetail()
+        val id = Uuid.random()
+        val uiState = MutableStateFlow(content(id = id, detail = detail))
+        val viewModel = screenTestViewModel(uiState = uiState)
+        every { viewModel.update(any()) } answers {
+            uiState.value = content(id = id, detail = detail, isUpdateInProgress = true)
+            uiState.value = content(id = id, detail = detail, isUpdateInProgress = false)
+        }
+        var navigateUpCount = 0
+        composeRule.setPlaceDetailScreen(viewModel = viewModel, navigateUp = { navigateUpCount++ })
+
+        composeRule.input(TITLE_INDEX).performTextReplacement(CHANGED_TITLE)
+        composeRule.input(LATITUDE_INDEX).performTextReplacement(CHANGED_LATITUDE)
+        composeRule.input(LONGITUDE_INDEX).performTextReplacement(CHANGED_LONGITUDE)
+        composeRule.triggerUpdate()
+
+        navigateUpCount shouldBe 0
+        composeRule.onNodeWithText(DEFAULT_UPDATE_SUCCEEDED_MESSAGE).assertDoesNotExist()
+        composeRule.input(TITLE_INDEX).assert(hasText(CHANGED_TITLE))
+        composeRule.input(LATITUDE_INDEX).assert(hasText(CHANGED_LATITUDE))
+        composeRule.input(LONGITUDE_INDEX).assert(hasText(CHANGED_LONGITUDE))
+        composeRule
+            .onAllNodes(hasText(detail.title))
+            .fetchSemanticsNodes()
+            .size shouldBe 1
+
+        composeRule.triggerUpdate()
+
+        val changedDetail =
+            detail.copy(
+                title = CHANGED_TITLE,
+                coordinate = Coordinate(latitude = CHANGED_LATITUDE.toDouble(), longitude = CHANGED_LONGITUDE.toDouble()),
+            )
+        verify(exactly = 2) { viewModel.update(detail = changedDetail) }
+    }
+
     private fun ComposeContentTestRule.triggerUpdate() {
         waitForIdle()
         onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).performClick()
         waitForIdle()
+    }
+
+    private companion object {
+        private const val BLANK_TITLE = "   "
     }
 }

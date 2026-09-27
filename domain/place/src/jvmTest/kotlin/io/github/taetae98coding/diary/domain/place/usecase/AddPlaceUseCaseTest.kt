@@ -113,7 +113,7 @@ class AddPlaceUseCaseTest :
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountPlaceRepository = mockk<AccountPlaceRepository>()
             coEvery { accountPlaceRepository.upsert(account = account, place = capture(placeSlot), tagIdSet = any()) } just Runs
-            val now = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+            val now = fixtureMonkey.giveMeOne<Instant>()
             val clock = mockk<Clock>()
             every { clock.now() } returns now
             val useCase =
@@ -225,6 +225,19 @@ class AddPlaceUseCaseTest :
                     }
                 }
             }
+
+            listOf(
+                Coordinate(latitude = 37.1234567, longitude = 127.1234564) to Coordinate(latitude = 37.123457, longitude = 127.123456),
+                Coordinate(latitude = 90.0000004, longitude = -180.0000004) to Coordinate(latitude = 90.0, longitude = -180.0),
+            ).forEach { (coordinate, expected) ->
+                When("소수 여섯째 자리보다 긴 좌표 $coordinate 로 장소를 추가한다") {
+                    Then("TC-PLACE-ADD-DOMAIN-028 여섯째 자리로 반올림한 좌표로 저장한다") {
+                        useCase(parameter = AddPlaceUseCase.Parameter(detail = detail(coordinate = coordinate), tagIdSet = emptySet())).shouldBeSuccess()
+
+                        placeSlot.captured.detail.coordinate shouldBe expected
+                    }
+                }
+            }
         }
 
         Given("장소를 추가할 수 있는 현재 계정이 준비되어 있다") {
@@ -242,7 +255,7 @@ class AddPlaceUseCaseTest :
                 )
 
             When("장소 추가에 성공한다") {
-                Then("TC-PLACE-ADD-DATA-006 추가한 장소를 서버와 맞추기 위한 동기화를 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-PLACE-ADD-DATA-006 추가한 장소를 서버와 맞추기 위한 동기화를 요청한다") {
                     useCase(parameter = AddPlaceUseCase.Parameter(detail = detail(), tagIdSet = emptySet())).shouldBeSuccess()
 
                     coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
@@ -326,7 +339,7 @@ class AddPlaceUseCaseTest :
                 )
 
             When("공백이 아닌 제목과 유효한 좌표로 장소를 추가한다") {
-                Then("TC-PLACE-ADD-DATA-004 저장 실패를 그대로 전달한다") {
+                Then("TC-PLACE-ADD-DATA-004 추가를 성공으로 다루지 않고 저장 실패를 전달한다") {
                     val result = useCase(parameter = AddPlaceUseCase.Parameter(detail = detail(), tagIdSet = emptySet()))
 
                     result.shouldBeFailure() shouldBeSameInstanceAs throwable

@@ -1,27 +1,27 @@
-# DiaryColorInput 테스트 케이스
+# 컬러 입력 컴포넌트 테스트 케이스
 
-기준 스펙: [DiaryColorInput 컴포넌트 스펙](../spec/diary-color-input.md)
+기준 스펙: [컬러 입력 컴포넌트 스펙](../spec/client/diary-color-input.md)
 
 ## feature
 
 ### TC-DIARY-COLOR-INPUT-FEATURE-001: 초기 컬러의 Hex 코드를 확인한다
 
 - 근거: `feature > 선택 컬러 확인`, `domain > 초기 컬러`
-- Given: 초기 컬러가 `#102030`으로 지정되어 DiaryColorInput이 표시되어 있다.
+- Given: 초기 컬러가 `#102030`으로 지정되어 컬러 입력이 표시되어 있다.
 - When: 사용자가 선택 컬러를 확인한다.
 - Then: 초기 컬러의 Hex 코드가 `#102030`으로 표시된다.
 
 ### TC-DIARY-COLOR-INPUT-FEATURE-009: 초기 컬러의 RGB 채널 값을 확인한다
 
 - 근거: `feature > 선택 컬러 확인`, `domain > 컬러 표현`
-- Given: 초기 컬러가 `#102030`으로 지정되어 DiaryColorInput이 표시되어 있다.
+- Given: 초기 컬러가 `#102030`으로 지정되어 컬러 입력이 표시되어 있다.
 - When: 사용자가 선택 컬러를 확인한다.
 - Then: 초기 컬러의 채널 값이 R은 `16`, G는 `32`, B는 `48`로 표시된다.
 
 ### TC-DIARY-COLOR-INPUT-FEATURE-002: 현재 선택 컬러를 기준으로 편집을 시작한다
 
 - 근거: `feature > 컬러 편집`
-- Given: 현재 컬러가 선택된 DiaryColorInput이 표시되어 있다.
+- Given: 현재 컬러가 선택된 컬러 입력이 표시되어 있다.
 - When: 사용자가 컬러 편집을 시작한다.
 - Then: 편집 컬러의 Hex 코드와 R, G, B 각 채널 값이 현재 선택 컬러와 같은 값으로 시작한다.
 
@@ -56,7 +56,7 @@
 ### TC-DIARY-COLOR-INPUT-FEATURE-007: 초기 컬러를 지정하지 않으면 무작위 컬러를 선택한다
 
 - 근거: `feature > 선택 컬러 확인`, `domain > 초기 컬러`
-- Given: 초기 컬러 지정 없이 DiaryColorInput이 표시되어 있다.
+- Given: 초기 컬러 지정 없이 컬러 입력이 표시되어 있다.
 - When: 사용자가 선택 컬러를 확인한다.
 - Then: 무작위로 정해진 선택 컬러의 Hex 코드가 `#RRGGBB` 형식의 대문자로 표시된다.
 
@@ -100,3 +100,10 @@
 - Given: 컬러를 편집하고 있고 편집 컬러를 기존 선택 컬러와 다른 컬러로 바꿨다.
 - When: 시스템에 의해 화면이 재생성된다.
 - Then: 컬러 편집 상태가 유지되고 편집 중이던 컬러의 Hex 코드가 그대로 표시된다.
+
+### TC-DIARY-COLOR-INPUT-DOMAIN-005: 초기 컬러를 지정하지 않아도 화면이 재생성되면 같은 무작위 컬러가 유지된다
+
+- 근거: `domain > 초기 컬러`, `domain > 진행 상태 유지`
+- Given: 초기 컬러 지정 없이 컬러 입력이 표시되어 무작위 컬러가 선택되어 있다.
+- When: 시스템에 의해 화면이 재생성된다.
+- Then: 재생성 전과 같은 Hex 코드가 표시되고 새 무작위 컬러로 바뀌지 않는다.

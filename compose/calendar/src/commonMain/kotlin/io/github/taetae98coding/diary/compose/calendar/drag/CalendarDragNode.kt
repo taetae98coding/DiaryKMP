@@ -41,6 +41,7 @@ internal class CalendarDragNode(
     CompositionLocalConsumerModifierNode,
     GlobalPositionAwareModifierNode {
     private val pointerInputNode = delegate(SuspendingPointerInputModifierNode { detectDrag() })
+    private val interruptNode = delegate(CalendarDragInterruptNode())
 
     private var layoutCoordinates: LayoutCoordinates? = null
     private var session: CalendarDragSession? = null
@@ -84,21 +85,34 @@ internal class CalendarDragNode(
             val down = awaitFirstDown(requireUnconsumed = false)
             val longPress = awaitLongPressOrCancellation(down.id) ?: return@awaitEachGesture
 
+            interruptNode.startSession()
             session = startSession(position = longPress.position)
             drag(position = longPress.position, size = size)
             performHapticFeedback(HapticFeedbackType.LongPress)
             updateEdgeScroll(position = longPress.position, size = size, edgeWidth = edgeWidth)
 
-            val isFinished =
+            val end =
                 awaitDrag(
                     longPress = longPress,
                     edgeWidth = edgeWidth,
                     monthSwipeDistance = monthSwipeDistance,
                 )
+            val endedSession = session
 
             edgeDirection = 0
-            if (isFinished) session?.finish() else session?.cancel()
             session = null
+            when (end) {
+                CalendarDragEnd.Released -> endedSession?.finish()
+
+                CalendarDragEnd.Interrupted ->
+                    if (isMoveSession) {
+                        endedSession?.finish()
+                    } else {
+                        endedSession?.let(interruptNode::interrupt)
+                    }
+
+                CalendarDragEnd.Lost -> endedSession?.cancel()
+            }
         }
     }
 
@@ -106,14 +120,17 @@ internal class CalendarDragNode(
         longPress: PointerInputChange,
         edgeWidth: Float,
         monthSwipeDistance: Float,
-    ): Boolean {
+    ): CalendarDragEnd {
         val monthSwipe = CalendarMonthSwipe(distance = monthSwipeDistance)
         var change = longPress
+        var isInterrupted = false
 
         while (!change.changedToUpIgnoreConsumed()) {
             val event = awaitPointerEvent(pass = PointerEventPass.Initial)
-            val next = event.changes.firstOrNull { it.id == longPress.id } ?: return false
+            val next = event.changes.firstOrNull { it.id == longPress.id } ?: return CalendarDragEnd.Lost
 
+            // 시스템이 제스처를 끊으면 Compose는 이미 소비된 손 뗌 이벤트를 합성해 보낸다.
+            isInterrupted = next.changedToUpIgnoreConsumed() && next.isConsumed
             next.consume()
             if (!next.changedToUpIgnoreConsumed()) {
                 if (drag(position = next.position, size = size)) {
@@ -126,7 +143,7 @@ internal class CalendarDragNode(
             change = next
         }
 
-        return true
+        return if (isInterrupted) CalendarDragEnd.Interrupted else CalendarDragEnd.Released
     }
 
     private fun startSession(position: Offset): CalendarDragSession {
@@ -218,6 +235,12 @@ internal class CalendarDragNode(
     private fun performHapticFeedback(type: HapticFeedbackType) {
         currentValueOf(LocalHapticFeedback).performHapticFeedback(type)
     }
+}
+
+private enum class CalendarDragEnd {
+    Released,
+    Interrupted,
+    Lost,
 }
 
 private class CalendarMonthSwipe(

@@ -58,6 +58,21 @@ class MemoPlacePickerDialogTest {
     }
 
     @Test
+    fun `TC-MEMO-PLACE-CARD-FEATURE-039 다음 장소를 불러오는 동안에도 이미 나타난 장소를 조작할 수 있다`() {
+        val homePlace = testPlace(title = HOME_PLACE_TITLE)
+        val selectedIdList = mutableListOf<Uuid>()
+        composeRule.setMemoPlacePickerDialog(
+            placePagingData = MutableStateFlow(appendingPlacePagingDataOf(listOf(homePlace))),
+            onPlaceSelect = selectedIdList::add,
+        )
+
+        composeRule.placeDialogNodeWithText(HOME_PLACE_TITLE).performClick()
+        composeRule.waitForIdle()
+
+        selectedIdList shouldBe listOf(homePlace.id)
+    }
+
+    @Test
     fun `TC-MEMO-PLACE-CARD-FEATURE-024 나타낼 장소가 없어도 장소 추가 항목을 표시한다`() {
         composeRule.setMemoPlacePickerDialog(placeList = emptyList())
 

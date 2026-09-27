@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.compose.core.textfield
 
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
@@ -36,6 +37,7 @@ public fun ClearTextField(
     leadingIcon: @Composable (() -> Unit)? = null,
     inputTransformation: InputTransformation? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    onKeyboardAction: KeyboardActionHandler? = null,
     lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
     colors: TextFieldColors = TextFieldDefaults.colors().transparentIndicator(),
     clearButtonContentDescription: String = stringResource(Res.string.clear_text_field_button_content_description),
@@ -61,6 +63,7 @@ public fun ClearTextField(
         },
         inputTransformation = inputTransformation,
         keyboardOptions = keyboardOptions,
+        onKeyboardAction = onKeyboardAction,
         lineLimits = lineLimits,
         colors = colors,
     )

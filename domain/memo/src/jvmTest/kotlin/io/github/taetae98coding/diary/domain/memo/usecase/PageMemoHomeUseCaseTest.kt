@@ -82,8 +82,8 @@ class PageMemoHomeUseCaseTest :
         private fun memo(): Memo =
             fixtureMonkey
                 .giveMeKotlinBuilder<Memo>()
-                .setExp(Memo::updatedAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
-                .setExp(Memo::createdAt, Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()))
+                .setExp(Memo::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Memo::createdAt, fixtureMonkey.giveMeOne<Instant>())
                 .sample()
     }
 }

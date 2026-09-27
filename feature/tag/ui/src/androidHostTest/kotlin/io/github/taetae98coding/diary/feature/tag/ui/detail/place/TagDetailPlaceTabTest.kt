@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -22,11 +24,13 @@ import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TA
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.place.PLACE_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.place.Place
+import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityLoadingPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagPlace
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,6 +42,11 @@ import org.robolectric.annotation.Config
 class TagDetailPlaceTabTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun resetUiDispatcher() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-TAG-DETAIL-PLACE-FEATURE-001 대상 태그와 연결된 장소을 목록에 표시한다`() {
@@ -163,20 +172,33 @@ class TagDetailPlaceTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-017 목록의 장소을 좌우로 밀어도 아무 동작을 요청하지 않는다`() {
+    fun `TC-TAG-DETAIL-PLACE-FEATURE-041 목록의 장소 카드를 반대 방향으로 밀면 아무 동작도 요청하지 않는다`() {
         val eventList = mutableListOf<TagDetailPlaceContentEvent>()
         setPlaceTab(
             pagingData = tagEntityPagingData(itemList = listOf(tagPlace(title = FIRST_TITLE))),
             onEvent = eventList::add,
         )
 
-        composeRule.onNodeWithText(FIRST_TITLE).performTouchInput { swipeRight() }
-        composeRule.waitForIdle()
-        composeRule.onNodeWithText(FIRST_TITLE).performTouchInput { swipeLeft() }
+        composeRule.onNode(hasTestTag(PLACE_CARD_TEST_TAG) and hasText(FIRST_TITLE)).performTouchInput { swipeRight() }
         composeRule.waitForIdle()
 
-        eventList.none { event -> event is TagDetailPlaceContentEvent.Refresh } shouldBe true
+        eventList.withoutMoveMap() shouldBe emptyList()
         composeRule.onNodeWithText(FIRST_TITLE).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-TAG-DETAIL-PLACE-FEATURE-038 목록 모드의 장소 카드를 삭제 방향으로 밀면 그 장소의 삭제만 요청한다`() {
+        val place = tagPlace(title = FIRST_TITLE)
+        val eventList = mutableListOf<TagDetailPlaceContentEvent>()
+        setPlaceTab(
+            pagingData = tagEntityPagingData(itemList = listOf(place)),
+            onEvent = eventList::add,
+        )
+
+        composeRule.onNode(hasTestTag(PLACE_CARD_TEST_TAG) and hasText(FIRST_TITLE)).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+
+        eventList.withoutMoveMap() shouldBe listOf(TagDetailPlaceContentEvent.DeletePlace(id = place.id))
     }
 
     private fun setPlaceTab(

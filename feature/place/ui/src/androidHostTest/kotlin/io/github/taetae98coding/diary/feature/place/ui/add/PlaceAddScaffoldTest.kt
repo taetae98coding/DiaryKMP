@@ -1,9 +1,12 @@
 package io.github.taetae98coding.diary.feature.place.ui.add
 
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
@@ -14,9 +17,12 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceAddFormState
 import io.github.taetae98coding.diary.feature.place.ui.search.PlaceSearchUiState
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,6 +40,7 @@ private const val DEFAULT_LONGITUDE_LABEL = "Longitude"
 private const val NEGATIVE_DECIMAL = "-37.5665"
 private const val POSITIVE_DECIMAL = "126.9780"
 private const val TEXT_INPUT_COUNT = 5
+private const val FIRST_INPUT_INDEX = 0
 
 private fun ComposeContentTestRule.setPlaceAddScaffold(
     uiStateProvider: () -> PlaceAddUiState = { PlaceAddUiState() },
@@ -100,6 +107,42 @@ class PlaceAddScaffoldTest {
     }
 
     @Test
+    fun `TC-PLACE-ADD-FEATURE-002 입력한 제목 설명 주소 좌표와 고른 컬러가 그대로 표시된다`() {
+        lateinit var state: PlaceFormState
+        lateinit var coroutineScope: CoroutineScope
+        composeRule.setContent {
+            DiaryTheme {
+                coroutineScope = rememberCoroutineScope()
+                state = rememberPlaceAddFormState(initialColor = Color.Red)
+                PlaceAddScaffold(
+                    state = state,
+                    uiStateProvider = { PlaceAddUiState() },
+                    searchUiStateProvider = { PlaceSearchUiState.Idle },
+                    onEvent = {},
+                    onFormEvent = {},
+                    onSearchEvent = {},
+                    onTagPickerEvent = {},
+                )
+            }
+        }
+        val typedList =
+            listOf(
+                FIRST_INPUT_INDEX to TYPED_TITLE,
+                DESCRIPTION_INDEX to TYPED_DESCRIPTION,
+                ADDRESS_INDEX to TYPED_ADDRESS,
+                LATITUDE_INDEX to NEGATIVE_DECIMAL,
+                LONGITUDE_INDEX to POSITIVE_DECIMAL,
+            )
+
+        typedList.forEach { (index, text) -> composeRule.onAllNodes(hasSetTextAction())[index].performTextInput(text) }
+        composeRule.runOnIdle { coroutineScope.launch { state.colorState.animateTo(color = Color.Blue) } }
+        composeRule.waitForIdle()
+
+        typedList.forEach { (index, text) -> composeRule.onAllNodes(hasSetTextAction())[index].assert(hasText(text)) }
+        composeRule.runOnIdle { state.colorState.color shouldBe Color.Blue }
+    }
+
+    @Test
     fun `TC-PLACE-ADD-FEATURE-003 좌표에 음수와 소수점을 입력할 수 있다`() {
         composeRule.setPlaceAddScaffold()
 
@@ -111,11 +154,14 @@ class PlaceAddScaffoldTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-006 추가 처리 중 추가 버튼이 진행 표시로 바뀐다`() {
+    fun `TC-PLACE-ADD-FEATURE-006 추가 처리 중 추가 버튼이 이름을 유지한 채 진행 표시로 바뀐다`() {
         composeRule.setPlaceAddScaffold(uiStateProvider = { PlaceAddUiState(isInProgress = true) })
 
-        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
-        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).assertDoesNotExist()
+        composeRule
+            .onNode(
+                hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate).and(hasAnyAncestor(hasContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION))),
+                useUnmergedTree = true,
+            ).assertExists()
         composeRule.onNodeWithText(DEFAULT_TITLE).assertExists()
     }
 

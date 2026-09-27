@@ -1,10 +1,10 @@
 # CalendarText 컴포넌트 디자인
 
-기준 스펙: [CalendarText 컴포넌트 스펙](../spec/calendar-text.md)
+기준 스펙: [CalendarText 컴포넌트 스펙](../spec/client/calendar-text.md)
 
 ## 글 표시
 
-글은 한 줄로 표시하고 배경 위에 가운데 정렬한다.
+글은 Material 3의 중간 레이블 글자 스타일로 한 줄에 표시하고 배경 위에 가운데 정렬한다.
 
 배경은 [공통 스타일](./styles.md)의 `캘린더 아이템 모양`으로 모서리를 둥글게 표시하며, 배경과 글 사이에는 글이 배경 경계에 붙지 않을 만큼의 `1dp` 여백을 둔다.
 

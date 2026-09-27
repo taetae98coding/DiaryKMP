@@ -1,6 +1,6 @@
 # TopLevelNavigation 디자인
 
-기준 스펙: [TopLevelNavigation 스펙](../spec/top-level-navigation.md)
+기준 스펙: [TopLevelNavigation 스펙](../spec/client/top-level-navigation.md)
 
 ## 적응형 내비게이션
 

@@ -7,10 +7,14 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
@@ -20,6 +24,7 @@ import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperat
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.search.weatherSearchUri
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -32,6 +37,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+
+private val fixtureMonkey: FixtureMonkey =
+    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
@@ -109,7 +117,7 @@ class CalendarHomeScreenWeatherSearchTest {
     fun `TC-CALENDAR-HOME-FEATURE-071 브라우저를 열지 못해도 화면이 유지되고 별도 안내가 표시되지 않는다`() {
         val uriHandler =
             mockk<UriHandler> {
-                every { openUri(any()) } throws IllegalStateException("브라우저를 열 수 없습니다.")
+                every { openUri(any()) } throws IllegalStateException(fixtureMonkey.giveMeOne<String>())
             }
 
         setCalendarHomeScreen(
@@ -122,6 +130,7 @@ class CalendarHomeScreenWeatherSearchTest {
 
         composeRule.onNodeWithText(CalendarHomeTestFixture.englishTitle(JULY_2026)).assertIsDisplayed()
         composeRule.onNodeWithText(CURRENT_TEMPERATURE_TEXT).assertIsDisplayed()
+        composeRule.onAllNodes(isDialog()).assertCountEquals(0)
     }
 
     @Test
@@ -191,6 +200,7 @@ class CalendarHomeScreenWeatherSearchTest {
                         navigateToContactDetail = {},
                         birthdayViewModel = birthdayViewModel(),
                         navigateToFilter = {},
+                        navigateToTimetable = {},
                         state = state,
                         holidayViewModel = holidayViewModel,
                         memoViewModel = memoViewModel,

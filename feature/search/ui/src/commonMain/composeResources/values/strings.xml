@@ -8,4 +8,8 @@
     <string name="search_home_web_tab_label">Web</string>
     <string name="search_home_empty_title">No search results</string>
     <string name="search_home_empty_description">Try a different search query.</string>
+    <string name="search_home_memo_finished_message">Memo finished.</string>
+    <string name="search_home_memo_restarted_message">Memo restarted.</string>
+    <string name="search_home_memo_deleted_message">Memo deleted.</string>
+    <string name="search_home_undo_action">Undo</string>
 </resources>

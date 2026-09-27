@@ -63,7 +63,7 @@ class WebDetailMemoEmptyTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-014 대상 웹 항목를 조회하지 못해도 빈 상태 안내를 표시한다`() {
+    fun `TC-WEB-DETAIL-MEMO-FEATURE-014 대상 웹 항목을 조회하지 못해도 빈 상태 안내를 표시한다`() {
         setScreenOnMemoTab(memoPagingData = loadedEmptyPagingData(), uiState = WebDetailUiState.Loading)
 
         composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertExists()
@@ -80,7 +80,7 @@ class WebDetailMemoEmptyTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-017 대상 웹 항목를 조회하지 못해도 메모 추가를 실행할 수 있다`() {
+    fun `TC-WEB-DETAIL-MEMO-FEATURE-017 대상 웹 항목을 조회하지 못해도 메모 추가를 실행할 수 있다`() {
         setScreenOnMemoTab(memoPagingData = loadedEmptyPagingData(), uiState = WebDetailUiState.Loading)
 
         composeRule.onNodeWithContentDescription(DEFAULT_MEMO_ADD_DESCRIPTION).assertExists()

@@ -43,7 +43,7 @@ internal fun MusicDetailScreen(
                             ?.detail
                             ?.link
                             ?.takeIf(String::isNotBlank)
-                            ?.let(uriHandler::openUri)
+                            ?.let { link -> runCatching { uriHandler.openUri(link) } }
 
                     is MusicDetailScaffoldEvent.ClickDelete -> viewModel.delete()
                 }

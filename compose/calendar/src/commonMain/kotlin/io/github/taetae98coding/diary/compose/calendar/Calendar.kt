@@ -21,7 +21,10 @@ import kotlinx.datetime.LocalDateRange
 public fun Calendar(
     modifier: Modifier = Modifier,
     state: CalendarState = rememberCalendarState(),
-    onSelect: ((LocalDateRange) -> Unit)? = null,
+    onEvent: ((CalendarEvent) -> Unit)? = null,
+    isSelectEnabled: Boolean = false,
+    isDateClickEnabled: Boolean = false,
+    isWeekClickEnabled: Boolean = false,
     holidayProvider: () -> List<LocalDateRange> = { emptyList() },
     primaryDateProvider: () -> List<LocalDate> = { emptyList() },
     colors: CalendarColor = CalendarDefault.colors(),
@@ -38,12 +41,20 @@ public fun Calendar(
                 Modifier
                     .fillMaxWidth()
                     .weight(1F)
-                    .then(onSelect?.let { Modifier.calendarDrag(state = state, onSelect = it) } ?: Modifier),
+                    .then(
+                        onEvent
+                            ?.takeIf { isSelectEnabled }
+                            ?.let { Modifier.calendarDrag(state = state, onSelect = { dateRange -> it(CalendarEvent.Select(dateRange = dateRange)) }) }
+                            ?: Modifier,
+                    ),
         ) { page ->
             CalendarMonth(
                 yearMonth = page.toYearMonth(),
                 selectState = state.selectState,
                 itemScrollState = state.itemScrollState,
+                onEvent = onEvent,
+                isDateClickEnabled = isDateClickEnabled,
+                isWeekClickEnabled = isWeekClickEnabled,
                 holidayProvider = holidayProvider,
                 primaryDateProvider = primaryDateProvider,
                 colors = colors,

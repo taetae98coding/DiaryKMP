@@ -3,6 +3,8 @@ package io.github.taetae98coding.diary.feature.contact.ui.detail
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -199,6 +201,76 @@ class ContactDetailScreenMemoTest {
         composeRule.onNodeWithContentDescription(DEFAULT_MEMO_ADD_DESCRIPTION).assertExists()
     }
 
+    @Test
+    fun `TC-CONTACT-DETAIL-DOMAIN-016 수정이나 삭제를 처리하는 중에도 메모 완료와 실행 취소를 요청한다`() {
+        val memo = inProgressSwipeMemo()
+
+        composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeRight() }
+        composeRule.waitForIdle()
+        emitMemoEffect(MemoListEffect.Finished(id = memo.id))
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { memoViewModel().finish(id = memo.id) }
+        verify(exactly = 1) { memoViewModel().restart(id = memo.id) }
+    }
+
+    @Test
+    fun `TC-CONTACT-DETAIL-DOMAIN-016 수정이나 삭제를 처리하는 중에도 메모 삭제와 실행 취소를 요청한다`() {
+        val memo = inProgressSwipeMemo()
+
+        composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+        emitMemoEffect(MemoListEffect.Deleted(id = memo.id))
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { memoViewModel().delete(id = memo.id) }
+        verify(exactly = 1) { memoViewModel().restore(id = memo.id) }
+    }
+
+    @Test
+    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-022 안내가 보이는 동안 다른 탭으로 바꾸면 안내가 닫히고 되돌릴 수 없다`() {
+        val memo = swipeMemo()
+
+        composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+        emitMemoEffect(MemoListEffect.Deleted(id = memo.id))
+        composeRule.onNodeWithText(DEFAULT_DELETED_MESSAGE).assertIsDisplayed()
+
+        composeRule.selectContactDetailTab(DEFAULT_DETAIL_TAB_DESCRIPTION)
+        composeRule.mainClock.advanceTimeBy(TAB_CHANGE_SETTLE_MILLIS)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_DELETED_MESSAGE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).assertDoesNotExist()
+        verify(exactly = 0) { memoViewModel().restore(id = any()) }
+    }
+
+    @Test
+    fun `TC-CONTACT-DETAIL-FEATURE-044 메모 카드 위에서 밀면 탭은 바뀌지 않고 그 메모의 카드 동작이 실행된다`() {
+        val memo = swipeMemo()
+
+        composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeRight() }
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { memoViewModel().finish(id = memo.id) }
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.onNodeWithContentDescription(DEFAULT_DETAIL_TAB_DESCRIPTION).assertIsNotSelected()
+    }
+
+    private fun inProgressSwipeMemo(): Memo {
+        val memo = contactMemo(title = SCREEN_MEMO_TITLE)
+        composeRule.setContactDetailScreen(
+            viewModel = screenTestViewModel(MutableStateFlow(content().copy(isUpdateInProgress = true, isDeleteInProgress = true))),
+            memoPagingData = contactMemoPagingData(itemList = listOf(MemoListItem.Content(memo = memo))),
+        )
+        composeRule.selectContactDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+        waitUntilMemoIsDisplayed(title = memo.detail.title)
+
+        return memo
+    }
+
     private fun swipeMemo(memoTabDescription: String = DEFAULT_MEMO_TAB_DESCRIPTION): Memo {
         val memo = contactMemo(title = SCREEN_MEMO_TITLE)
         setScreenOnMemoTab(
@@ -256,6 +328,8 @@ class ContactDetailScreenMemoTest {
         const val DEFAULT_FINISHED_MESSAGE = "Memo finished."
         const val KOREAN_DELETED_MESSAGE = "메모가 삭제되었습니다."
         const val DEFAULT_UNDO_ACTION = "Undo"
+        const val DEFAULT_DELETED_MESSAGE = "Memo deleted."
+        const val TAB_CHANGE_SETTLE_MILLIS = 1_000L
         const val KOREAN_UNDO_ACTION = "실행 취소"
 
         fun content(): ContactDetailUiState.Content = ContactDetailUiState.Content(id = FIRST_CONTACT_ID, detail = testContactDetail(name = CONTACT_NAME))

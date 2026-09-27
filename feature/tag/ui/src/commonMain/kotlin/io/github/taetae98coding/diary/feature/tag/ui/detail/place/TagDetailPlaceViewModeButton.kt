@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.compose.core.icon.ListIcon
 import io.github.taetae98coding.diary.compose.core.icon.MapIcon
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.core.tooltip.DiaryTooltipBox
 import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_place_list_view_mode_button_content_description
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_place_map_view_mode_button_content_description
@@ -21,21 +22,30 @@ internal fun TagDetailPlaceViewModeButton(
     modifier: Modifier = Modifier,
     viewModeProvider: () -> TagDetailPlaceViewMode = { TagDetailPlaceViewMode.LIST },
 ) {
-    IconButton(
-        onClick = onClick,
-        modifier = modifier,
-    ) {
-        DiaryCrossfade(targetState = viewModeProvider()) { viewMode ->
-            when (viewMode) {
-                TagDetailPlaceViewMode.LIST ->
-                    MapIcon(
-                        contentDescription = stringResource(Res.string.tag_detail_place_map_view_mode_button_content_description),
-                    )
+    val viewMode = viewModeProvider()
+    val contentDescription =
+        when (viewMode) {
+            TagDetailPlaceViewMode.LIST -> stringResource(Res.string.tag_detail_place_map_view_mode_button_content_description)
+            TagDetailPlaceViewMode.MAP -> stringResource(Res.string.tag_detail_place_list_view_mode_button_content_description)
+        }
 
-                TagDetailPlaceViewMode.MAP ->
-                    ListIcon(
-                        contentDescription = stringResource(Res.string.tag_detail_place_list_view_mode_button_content_description),
-                    )
+    DiaryTooltipBox(text = contentDescription) {
+        IconButton(
+            onClick = onClick,
+            modifier = modifier,
+        ) {
+            DiaryCrossfade(targetState = viewMode) { targetViewMode ->
+                when (targetViewMode) {
+                    TagDetailPlaceViewMode.LIST ->
+                        MapIcon(
+                            contentDescription = stringResource(Res.string.tag_detail_place_map_view_mode_button_content_description),
+                        )
+
+                    TagDetailPlaceViewMode.MAP ->
+                        ListIcon(
+                            contentDescription = stringResource(Res.string.tag_detail_place_list_view_mode_button_content_description),
+                        )
+                }
             }
         }
     }

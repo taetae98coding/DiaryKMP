@@ -3,6 +3,8 @@ package io.github.taetae98coding.diary.feature.place.ui.home
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -40,6 +42,7 @@ internal fun PlaceHomeScaffold(
     modifier: Modifier = Modifier,
     state: PlaceHomeScaffoldState = rememberPlaceHomeScaffoldState(),
     sortSheetState: DialogState = rememberDialogState(),
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     uiStateProvider: () -> PlaceHomeUiState = { PlaceHomeUiState.Loading },
     placeListUiStateProvider: () -> PlaceHomePlaceListUiState = { PlaceHomePlaceListUiState() },
     placePagingItems: LazyPagingItems<Place> = remember { flowOf(PagingData.empty<Place>()) }.collectAsLazyPagingItems(),
@@ -62,6 +65,7 @@ internal fun PlaceHomeScaffold(
                 state = state,
             )
         },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         floatingActionButton = {
             FloatingAddButton(
                 onClick = {

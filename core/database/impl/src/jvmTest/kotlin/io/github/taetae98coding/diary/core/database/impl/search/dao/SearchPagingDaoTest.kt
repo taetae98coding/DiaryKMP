@@ -376,7 +376,31 @@ class SearchPagingDaoTest :
             memoIdList(accountId) shouldBe listOf(savedMemo.id, addedMemo.id)
         }
 
-        test("다른 계정과 연결된 항목은 어느 유형에서도 결과가 되지 않는다") {
+        test("TC-SEARCH-HOME-DOMAIN-018 질의를 만족하지 않게 바뀌거나 삭제된 항목은 결과에서 사라진다") {
+            val changeList: List<(MemoLocalEntity) -> MemoLocalEntity> =
+                listOf(
+                    { memo -> memo.copy(detail = memo.detail.copy(title = "변경-${fixtureMonkey.giveMeOne<Int>()}", description = "")) },
+                    { memo -> memo.copy(isDeleted = true) },
+                )
+
+            changeList.forEach { change ->
+                val accountId = fixtureMonkey.giveMeOne<Uuid>()
+                val savedMemo = memo(title = "가 $QUERY", description = "")
+                insertMemo(accountId, savedMemo)
+                val pagingSource = database.searchMemoDao().page(accountId = accountId, query = QUERY, sort = ListSortLocalEntity.DEFAULT.queryValue)
+                pagingSource.loadMemoPage().data.map { memo -> memo.id } shouldBe listOf(savedMemo.id)
+
+                val invalidated = CompletableDeferred<Unit>()
+                pagingSource.registerInvalidatedCallback { invalidated.complete(Unit) }
+                insertMemo(accountId, change(savedMemo))
+
+                withTimeout(INVALIDATION_TIMEOUT_MILLIS) { invalidated.await() }
+                pagingSource.invalid.shouldBeTrue()
+                memoIdList(accountId).shouldBeEmpty()
+            }
+        }
+
+        test("TC-SEARCH-HOME-DOMAIN-016 다른 계정과 연결된 항목은 어느 유형에서도 결과가 되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             insertMemo(otherAccountId, memo(title = QUERY))
@@ -535,6 +559,6 @@ class SearchPagingDaoTest :
                 .setExp(MemoTagLocalEntity::createdAt, instant())
                 .sample()
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
     }
 }

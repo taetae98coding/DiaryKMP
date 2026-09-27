@@ -36,10 +36,10 @@ internal fun resultAddress(): String = "주소-${fixtureMonkey.giveMeOne<String>
 
 internal fun resultUrl(): String = "https://example.com/${fixtureMonkey.giveMeOne<String>()}"
 
-// FixtureMonkey가 Instant와 MemoDateTime을 생성하지 못하므로 결과 항목은 직접 만든다.
 internal fun resultMemo(
     title: String = resultTitle(),
     dateTime: MemoDateTime? = null,
+    isFinished: Boolean = false,
 ): Memo {
     val detail =
         fixtureMonkey
@@ -52,7 +52,7 @@ internal fun resultMemo(
         id = Uuid.random(),
         detail = detail,
         primaryTagId = null,
-        isFinished = false,
+        isFinished = isFinished,
         isDeleted = false,
         updatedAt = instant(),
         createdAt = instant(),
@@ -62,6 +62,7 @@ internal fun resultMemo(
 internal fun resultTag(
     emoji: String = "",
     title: String = resultTitle(),
+    isFinished: Boolean = false,
 ): Tag {
     val detail =
         fixtureMonkey
@@ -73,7 +74,7 @@ internal fun resultTag(
     return Tag(
         id = Uuid.random(),
         detail = detail,
-        isFinished = false,
+        isFinished = isFinished,
         isDeleted = false,
         updatedAt = instant(),
         createdAt = instant(),
@@ -147,4 +148,4 @@ internal fun <T : Any> pagingDataOf(itemList: List<T>): PagingData<T> =
             ),
     )
 
-private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()

@@ -163,19 +163,32 @@ class TagDetailWebTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-017 목록의 웹 항목을 좌우로 밀어도 아무 동작을 요청하지 않는다`() {
+    fun `TC-TAG-DETAIL-WEB-FEATURE-021 웹 카드를 삭제 방향으로 밀면 그 웹 항목의 삭제를 전달한다`() {
+        val web = tagWeb(title = FIRST_TITLE)
+        val eventList = mutableListOf<TagDetailWebContentEvent>()
+        setWebTab(
+            pagingData = tagEntityPagingData(itemList = listOf(web)),
+            onEvent = eventList::add,
+        )
+
+        composeRule.onNodeWithTag(WEB_CARD_TEST_TAG).performTouchInput { swipeLeft() }
+        composeRule.waitForIdle()
+
+        eventList shouldBe listOf(TagDetailWebContentEvent.DeleteWeb(id = web.id))
+    }
+
+    @Test
+    fun `TC-TAG-DETAIL-WEB-FEATURE-023 웹 카드를 반대 방향으로 밀면 아무 동작을 요청하지 않는다`() {
         val eventList = mutableListOf<TagDetailWebContentEvent>()
         setWebTab(
             pagingData = tagEntityPagingData(itemList = listOf(tagWeb(title = FIRST_TITLE))),
             onEvent = eventList::add,
         )
 
-        composeRule.onNodeWithText(FIRST_TITLE).performTouchInput { swipeRight() }
-        composeRule.waitForIdle()
-        composeRule.onNodeWithText(FIRST_TITLE).performTouchInput { swipeLeft() }
+        composeRule.onNodeWithTag(WEB_CARD_TEST_TAG).performTouchInput { swipeRight() }
         composeRule.waitForIdle()
 
-        eventList.none { event -> event is TagDetailWebContentEvent.Refresh } shouldBe true
+        eventList shouldBe emptyList()
         composeRule.onNodeWithText(FIRST_TITLE).assertIsDisplayed()
     }
 

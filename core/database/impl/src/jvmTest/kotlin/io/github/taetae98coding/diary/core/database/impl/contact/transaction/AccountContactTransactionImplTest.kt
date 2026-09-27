@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.core.database.impl.contact.transaction
 
 import androidx.room3.Room
 import androidx.room3.useReaderConnection
+import androidx.room3.useWriterConnection
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.navercorp.fixturemonkey.FixtureMonkey
@@ -13,9 +14,13 @@ import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactPh
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.contact.entity.AccountContactLocalEntity
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.spyk
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
 import kotlin.time.Instant
@@ -226,6 +231,66 @@ class AccountContactTransactionImplTest :
 
             findContactList() shouldBe contactList
         }
+
+        test("TC-DATA-SYNC-DOMAIN-001 TC-CONTACT-ADD-DATA-009 연락처 추가·수정·삭제·실행 취소·즐겨찾기 변경은 업로드 대기 상태가 된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val contact = contact().copy(isDeleted = false)
+            val pending = listOf(AccountContactLocalEntity(accountId = accountId, contactId = contact.id, isDirty = true))
+            val changeList: List<suspend () -> Unit> =
+                listOf(
+                    { transaction.updateDetail(accountId = accountId, contactId = contact.id, detail = detail(), updatedAt = instant()) },
+                    { transaction.updateDeleted(accountId = accountId, contactId = contact.id, isDeleted = true, updatedAt = instant()) },
+                    { transaction.updateDeleted(accountId = accountId, contactId = contact.id, isDeleted = false, updatedAt = instant()) },
+                    {
+                        transaction.updateFavorite(
+                            accountId = accountId,
+                            contactId = contact.id,
+                            isFavorite = !contact.isFavorite,
+                            updatedAt = instant(),
+                        )
+                    },
+                )
+
+            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+            findAccountContactList() shouldBe pending
+
+            changeList.forEach { change ->
+                database.useWriterConnection { transactor ->
+                    transactor.usePrepared("UPDATE account_contact SET is_dirty = 0") { statement -> statement.step() }
+                }
+
+                change()
+
+                findAccountContactList() shouldBe pending
+            }
+        }
+
+        test("TC-CONTACT-DETAIL-DOMAIN-018 삭제 상태인 연락처도 즐겨찾기를 바꿀 수 있고 삭제 여부는 그대로 남는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val contact = contact().copy(isFavorite = false, isDeleted = true)
+            val updatedAt = instant()
+            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+
+            transaction.updateFavorite(accountId = accountId, contactId = contact.id, isFavorite = true, updatedAt = updatedAt)
+
+            findContactList() shouldBe listOf(contact.copy(isFavorite = true, updatedAt = updatedAt))
+        }
+
+        test("TC-CONTACT-ADD-DATA-003 저장에 실패하면 연락처와 계정 연결 중 어느 것도 남지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val contact = contact()
+            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val failingDatabase = spyk(database)
+            every { failingDatabase.accountContactDao() } throws throwable
+            val failingTransaction = AccountContactTransactionImpl(database = failingDatabase)
+
+            shouldThrow<IllegalStateException> {
+                failingTransaction.upsert(accountId = accountId, contactList = listOf(contact))
+            }.message shouldBe throwable.message
+
+            findContactList().shouldBeEmpty()
+            findAccountContactList().shouldBeEmpty()
+        }
     }) {
     public companion object {
         private val fixtureMonkey: FixtureMonkey =
@@ -253,7 +318,7 @@ class AccountContactTransactionImplTest :
                 phoneNumberList = listOf(ContactPhoneNumberLocalEntity(number = "010-1234-5678")),
             )
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun <T> SQLiteStatement.readAll(read: (SQLiteStatement) -> T): List<T> =
             buildList {

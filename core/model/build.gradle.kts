@@ -7,6 +7,7 @@ kotlin {
         commonMain {
             dependencies {
                 api(libs.kotlinx.datetime)
+                implementation(projects.library.kotlin)
             }
         }
     }

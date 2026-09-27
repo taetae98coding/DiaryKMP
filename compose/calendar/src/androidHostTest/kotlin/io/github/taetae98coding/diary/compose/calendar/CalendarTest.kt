@@ -141,7 +141,7 @@ class CalendarTest {
     }
 
     @Test
-    fun `animateScrollTo로 지정한 달로 이동한다`() {
+    fun `TC-CALENDAR-FEATURE-013 지정한 다른 해의 달로 이동을 요청하면 그 달의 캘린더가 표시된다`() {
         val state = CalendarState(initialYearMonth = YearMonth(year = 2026, month = Month.JULY))
 
         composeRule.setContent {
@@ -157,7 +157,7 @@ class CalendarTest {
     }
 
     @Test
-    fun `animateScrollTo로 1년 1월로 이동할 수 있다`() {
+    fun `TC-CALENDAR-FEATURE-013 이동 범위의 첫 달로 이동을 요청하면 그 달의 캘린더가 표시된다`() {
         val state = CalendarState(initialYearMonth = YearMonth(year = 2026, month = Month.JULY))
 
         composeRule.setContent {
@@ -169,6 +169,7 @@ class CalendarTest {
         composeRule.waitForIdle()
 
         state.currentYearMonth shouldBe YearMonth(year = 1, month = Month.JANUARY)
+        dayTexts() shouldBe expectedDayTexts(YearMonth(year = 1, month = Month.JANUARY))
     }
 
     private fun setCalendar(initialYearMonth: YearMonth) {

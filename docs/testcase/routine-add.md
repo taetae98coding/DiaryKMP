@@ -1,6 +1,6 @@
 # RoutineAdd 테스트 케이스
 
-기준 스펙: [RoutineAdd 화면 스펙](../spec/routine-add.md)
+기준 스펙: [RoutineAdd 화면 스펙](../spec/client/routine-add.md)
 
 RoutineAdd로 진입하는 케이스는 [RoutineHome 테스트 케이스](./routine-home.md)에서, 제목 입력과 설명 입력 컴포넌트 자체의 케이스는 [설명 입력 컴포넌트 테스트 케이스](./description-input.md)에서, 목록과 함께 표시할 때의 케이스는 [Routine 목록·상세 배치 테스트 케이스](./routine-list-detail.md)에서 다룬다.
 
@@ -40,6 +40,13 @@ RoutineAdd로 진입하는 케이스는 [RoutineHome 테스트 케이스](./rout
 - Given: 제목과 설명을 입력한 RoutineAdd 화면이 표시되어 있다.
 - When: 화면이 재생성된다.
 - Then: 입력 중이던 제목과 설명이 그대로 표시된다.
+
+### TC-ROUTINE-ADD-FEATURE-008: 메모리 정리 뒤 복원해도 작성 중이던 내용을 모두 복원한다
+
+- 근거: `feature > 작성 상태 유지`
+- Given: RoutineAdd 화면에서 제목과 설명을 입력했다.
+- When: 시스템이 앱을 메모리에서 정리한 뒤 화면을 복원한다.
+- Then: 입력한 제목과 설명이 그대로 표시된다.
 
 ### TC-ROUTINE-ADD-FEATURE-006: 앱을 다시 실행해 진입하면 새 입력 상태로 시작한다
 

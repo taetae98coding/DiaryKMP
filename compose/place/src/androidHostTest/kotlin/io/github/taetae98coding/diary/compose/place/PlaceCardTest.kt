@@ -134,7 +134,6 @@ class PlaceCardTest {
 
         private fun address(): String = "주소-${fixtureMonkey.giveMeOne<String>()}"
 
-        // FixtureMonkey가 Instant를 생성하지 못하므로 장소는 직접 만든다.
         private fun place(
             title: String,
             address: String,
@@ -150,8 +149,8 @@ class PlaceCardTest {
                 id = Uuid.random(),
                 detail = detail,
                 isDeleted = false,
-                updatedAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
-                createdAt = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>()),
+                updatedAt = fixtureMonkey.giveMeOne<Instant>(),
+                createdAt = fixtureMonkey.giveMeOne<Instant>(),
             )
         }
     }

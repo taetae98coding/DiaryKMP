@@ -14,6 +14,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -93,10 +94,56 @@ class MoreHomeAccountViewModelTest : FunSpec() {
                 }
             }
         }
+
+        test("TC-MORE-HOME-FEATURE-038 계정 상태나 표시 정보가 바뀌면 별도 조작 없이 바뀐 내용을 표시한다") {
+            runTest(mainDispatcher) {
+                val user = user()
+                val changedUser = user.copy(email = "changed-" + fixtureMonkey.giveMeOne<String>(), profileImage = "changed-" + fixtureMonkey.giveMeOne<String>())
+                val userUiState = MoreHomeAccountUiState.User(profileImage = user.profileImage, email = user.email)
+                val changedUserUiState = MoreHomeAccountUiState.User(profileImage = changedUser.profileImage, email = changedUser.email)
+                val caseList =
+                    listOf(
+                        AccountChangeCase(before = Account.Guest, beforeUiState = MoreHomeAccountUiState.Guest, after = user, afterUiState = userUiState),
+                        AccountChangeCase(before = user, beforeUiState = userUiState, after = Account.Guest, afterUiState = MoreHomeAccountUiState.Guest),
+                        AccountChangeCase(before = user, beforeUiState = userUiState, after = changedUser, afterUiState = changedUserUiState),
+                    )
+
+                caseList.forEach { case ->
+                    val accountFlow = MutableStateFlow(Result.success(case.before))
+                    val getAccountUseCase = mockk<GetAccountUseCase>()
+                    every { getAccountUseCase(Unit) } returns accountFlow
+                    val viewModel = MoreHomeAccountViewModel(getAccountUseCase = getAccountUseCase)
+
+                    viewModel.uiState.test {
+                        awaitItem() shouldBe MoreHomeAccountUiState.Loading
+                        awaitItem() shouldBe case.beforeUiState
+
+                        accountFlow.value = Result.success(case.after)
+
+                        awaitItem() shouldBe case.afterUiState
+                    }
+                }
+            }
+        }
     }
 
     public companion object {
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
+
+        private data class AccountChangeCase(
+            val before: Account,
+            val beforeUiState: MoreHomeAccountUiState,
+            val after: Account,
+            val afterUiState: MoreHomeAccountUiState,
+        )
+
+        private fun user(): Account.User =
+            Account.User(
+                id = fixtureMonkey.giveMeOne<Uuid>(),
+                profileImage = fixtureMonkey.giveMeOne<String>(),
+                email = fixtureMonkey.giveMeOne<String>(),
+                isSessionValid = fixtureMonkey.giveMeOne<Boolean>(),
+            )
     }
 }

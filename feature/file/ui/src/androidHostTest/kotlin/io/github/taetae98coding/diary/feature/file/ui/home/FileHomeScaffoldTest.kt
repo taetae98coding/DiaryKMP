@@ -1,23 +1,56 @@
 package io.github.taetae98coding.diary.feature.file.ui.home
 
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasProgressBarRangeInfo
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToIndex
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeDown
+import androidx.paging.LoadState
+import androidx.paging.LoadStates
+import androidx.paging.PagingData
+import androidx.paging.compose.collectAsLazyPagingItems
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.core.model.file.DiaryFile
+import io.github.taetae98coding.diary.core.testing.file.diaryFile
+import io.github.taetae98coding.diary.feature.file.ui.resetAndroidUiDispatcher
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.flow.flowOf
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.util.TimeZone
+import kotlin.time.Instant
+import kotlin.uuid.Uuid
+
+private val fixtureMonkey: FixtureMonkey =
+    diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
 class FileHomeScaffoldTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     @Config(qualifiers = "ko")
@@ -28,57 +61,247 @@ class FileHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-001 기본 환경에서 상단 바에 제목을 표시한다`() {
+    fun `기본 환경에서 상단 바에 제목을 표시한다`() {
         setFileHomeScaffold()
 
         composeRule.onNodeWithText(DEFAULT_TITLE).assertExists()
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-002 제목과 뒤로가기 외에 선택할 수 있는 동작을 두지 않는다`() {
-        setFileHomeScaffold()
+    @Config(qualifiers = "ko")
+    fun `TC-FILE-HOME-FEATURE-005 게스트 상태에서는 로그인 안내만 표시하고 로그인 이동과 파일 추가를 두지 않는다`() {
+        setFileHomeScaffold(uiState = FileHomeUiState.Guest)
 
+        composeRule.onNodeWithText(KOREAN_GUEST_TITLE).assertExists()
+        composeRule.onNodeWithText(KOREAN_GUEST_DESCRIPTION).assertExists()
+        composeRule.onNodeWithContentDescription(KOREAN_ADD_BUTTON_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithTag(FILE_HOME_LIST_TEST_TAG).assertDoesNotExist()
         composeRule.onAllNodes(hasClickAction()).fetchSemanticsNodes().size shouldBe 1
-        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).assertExists()
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `한국어 환경에서 뒤로가기 접근성 이름을 제공한다`() {
-        setFileHomeScaffold()
+    fun `TC-FILE-HOME-FEATURE-006 계정 상태를 확정하지 않은 동안에는 제목과 뒤로가기만 표시한다`() {
+        setFileHomeScaffold(uiState = FileHomeUiState.Loading, pagingData = PagingData.from(listOf(fixtureMonkey.diaryFile())))
 
-        composeRule.onNodeWithContentDescription(KOREAN_NAVIGATE_UP_DESCRIPTION).assertExists()
+        composeRule.onNodeWithText(KOREAN_TITLE).assertExists()
+        composeRule.onNodeWithText(KOREAN_GUEST_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithTag(FILE_HOME_LIST_TEST_TAG).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(KOREAN_ADD_BUTTON_DESCRIPTION).assertDoesNotExist()
+        composeRule.onAllNodes(hasClickAction()).fetchSemanticsNodes().size shouldBe 1
     }
 
     @Test
-    fun `뒤로가기를 누르면 뒤로가기 이벤트를 한 번 내보낸다`() {
-        var clickNavigateUpCount = 0
-        setFileHomeScaffold(
-            onEvent = { event ->
-                when (event) {
-                    is FileHomeScaffoldEvent.ClickNavigateUp -> clickNavigateUpCount += 1
-                }
-            },
-        )
+    @Config(qualifiers = "ko")
+    fun `TC-FILE-HOME-FEATURE-046 목록의 각 파일에 제목과 파일 이름, 크기, 올린 날짜와 시각을 표시하고 설명은 표시하지 않는다`() {
+        val defaultTimeZone = TimeZone.getDefault()
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul"))
+        try {
+            val createdAt = Instant.parse("2026-09-26T06:05:00Z")
+            val description = "메모"
+            val fileList =
+                listOf(
+                    fixtureMonkey.diaryFile(name = "memo.txt", size = 512).copy(title = "회의록", description = description, createdAt = createdAt),
+                    fixtureMonkey.diaryFile(name = "photo.jpg", size = 1_024).copy(title = "여행 사진", description = description, createdAt = createdAt),
+                    fixtureMonkey.diaryFile(name = "video.mp4", size = 24_536_679).copy(title = "발표 영상", description = description, createdAt = createdAt),
+                )
 
-        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
-        composeRule.waitForIdle()
+            setFileHomeScaffold(uiState = FileHomeUiState.User(accountId = fixtureMonkey.giveMeOne<Uuid>()), pagingData = PagingData.from(fileList))
 
-        clickNavigateUpCount shouldBe 1
-    }
-
-    private fun setFileHomeScaffold(onEvent: (FileHomeScaffoldEvent) -> Unit = {}) {
-        composeRule.setContent {
-            DiaryTheme {
-                FileHomeScaffold(onEvent = onEvent)
+            listOf(
+                Triple("회의록", "memo.txt", "512 B · 2026. 9. 26. 오후 3:05"),
+                Triple("여행 사진", "photo.jpg", "1.0 KB · 2026. 9. 26. 오후 3:05"),
+                Triple("발표 영상", "video.mp4", "23.4 MB · 2026. 9. 26. 오후 3:05"),
+            ).forEach { (title, name, detail) ->
+                composeRule
+                    .onNode(hasText(title).and(hasText(name)).and(hasText("\u00A0· $detail")))
+                    .assertExists()
             }
+            composeRule.onNodeWithText(description, substring = true).assertDoesNotExist()
+        } finally {
+            TimeZone.setDefault(defaultTimeZone)
         }
     }
 
+    @Test
+    @Config(qualifiers = "ko")
+    fun `TC-FILE-HOME-FEATURE-008 목록을 처음 불러오는 동안 불러오는 중임을 표시한다`() {
+        setFileHomeScaffold(
+            uiState = FileHomeUiState.User(accountId = fixtureMonkey.giveMeOne<Uuid>()),
+            pagingData = PagingData.from(emptyList(), sourceLoadStates = loadStates(refresh = LoadState.Loading)),
+        )
+
+        composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate), useUnmergedTree = true).assertExists()
+        composeRule.onNodeWithText(KOREAN_EMPTY_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(KOREAN_LOAD_FAILED_MESSAGE).assertDoesNotExist()
+    }
+
+    @Test
+    @Config(qualifiers = "ko")
+    fun `TC-FILE-HOME-FEATURE-009 처음 불러오기에 실패하면 실패 안내와 다시 시도를 표시한다`() {
+        setFileHomeScaffold(
+            uiState = FileHomeUiState.User(accountId = fixtureMonkey.giveMeOne<Uuid>()),
+            pagingData = PagingData.from(emptyList(), sourceLoadStates = loadStates(refresh = LoadState.Error(IllegalStateException("load")))),
+        )
+
+        composeRule.onNodeWithText(KOREAN_LOAD_FAILED_MESSAGE).assertExists()
+        composeRule.onNodeWithText(KOREAN_RETRY).assertExists()
+        composeRule.onNodeWithText(KOREAN_EMPTY_TITLE).assertDoesNotExist()
+    }
+
+    @Test
+    @Config(qualifiers = "ko")
+    fun `TC-FILE-HOME-FEATURE-011 올린 파일이 하나도 없으면 빈 상태 안내를 표시하고 파일 추가를 그대로 둔다`() {
+        setFileHomeScaffold(
+            uiState = FileHomeUiState.User(accountId = fixtureMonkey.giveMeOne<Uuid>()),
+            pagingData = PagingData.from(emptyList(), sourceLoadStates = loadStates(refresh = LoadState.NotLoading(endOfPaginationReached = true))),
+        )
+
+        composeRule.onNodeWithText(KOREAN_EMPTY_TITLE).assertExists()
+        composeRule.onNodeWithText(KOREAN_EMPTY_DESCRIPTION).assertExists()
+        composeRule.onNodeWithContentDescription(KOREAN_ADD_BUTTON_DESCRIPTION).assertExists()
+    }
+
+    @Test
+    @Config(qualifiers = "ko")
+    fun `TC-FILE-HOME-FEATURE-013 이어서 불러오기에 실패하면 목록 끝에 실패 안내와 다시 시도를 표시하고 파일은 그대로 남는다`() {
+        val fileList = List(PAGE_SIZE) { index -> fixtureMonkey.diaryFile(name = "file-$index.txt") }
+
+        setFileHomeScaffold(
+            uiState = FileHomeUiState.User(accountId = fixtureMonkey.giveMeOne<Uuid>()),
+            pagingData = PagingData.from(fileList, sourceLoadStates = loadStates(append = LoadState.Error(IllegalStateException("load")))),
+        )
+        composeRule.onNodeWithTag(FILE_HOME_LIST_TEST_TAG).performScrollToIndex(PAGE_SIZE)
+
+        composeRule.onNodeWithText(KOREAN_LOAD_MORE_FAILED_MESSAGE).assertExists()
+        composeRule.onNodeWithText(KOREAN_RETRY).assertExists()
+        composeRule.onNodeWithTag(FILE_HOME_LIST_TEST_TAG).performScrollToIndex(0)
+        composeRule.onNodeWithText("file-0.txt").assertExists()
+    }
+
+    @Test
+    fun `TC-FILE-HOME-FEATURE-020 이어서 불러오는 동안 목록 끝에 불러오는 중임을 표시한다`() {
+        val fileList = List(PAGE_SIZE) { index -> fixtureMonkey.diaryFile(name = "file-$index.txt") }
+
+        setFileHomeScaffold(
+            uiState = FileHomeUiState.User(accountId = fixtureMonkey.giveMeOne<Uuid>()),
+            pagingData = PagingData.from(fileList, sourceLoadStates = loadStates(append = LoadState.Loading)),
+        )
+        composeRule.onNodeWithTag(FILE_HOME_LIST_TEST_TAG).performScrollToIndex(PAGE_SIZE)
+
+        composeRule.onNodeWithTag(FILE_HOME_APPEND_LOADING_TEST_TAG).assertExists()
+    }
+
+    @Test
+    fun `TC-FILE-HOME-FEATURE-048 올리는 동안 파일 추가 자리에 진행 중 표시를 둔다`() {
+        setFileHomeScaffold(uiState = FileHomeUiState.User(accountId = fixtureMonkey.giveMeOne<Uuid>()), uploadUiState = FileHomeUploadUiState(isUploading = true))
+
+        composeRule
+            .onNode(
+                hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate).and(hasAnyAncestor(hasContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION))),
+                useUnmergedTree = true,
+            ).assertExists()
+    }
+
+    @Test
+    fun `TC-FILE-HOME-FEATURE-028 파일 목록을 아래로 당기면 새로고침을 요청한다`() {
+        val eventList = mutableListOf<FileHomeScaffoldEvent>()
+
+        setFileHomeScaffold(
+            onEvent = { event -> eventList += event },
+            uiState = FileHomeUiState.User(accountId = fixtureMonkey.giveMeOne<Uuid>()),
+            pagingData = PagingData.from(listOf(fixtureMonkey.diaryFile())),
+        )
+        composeRule.onNodeWithTag(PULL_TO_REFRESH_TEST_TAG).performTouchInput { swipeDown() }
+        composeRule.waitForIdle()
+
+        eventList shouldBe listOf(FileHomeScaffoldEvent.Refresh)
+    }
+
+    @Test
+    @Config(qualifiers = "ko")
+    fun `TC-FILE-HOME-FEATURE-028 새로고침하는 동안 목록 위에 새로고침 진행 표시를 둔다`() {
+        val file = fixtureMonkey.diaryFile()
+
+        setFileHomeScaffold(uiState = FileHomeUiState.User(accountId = fixtureMonkey.giveMeOne<Uuid>()), pagingData = PagingData.from(listOf(file)), isRefreshing = true)
+
+        composeRule.onNodeWithContentDescription(KOREAN_REFRESHING, useUnmergedTree = true).assertExists()
+        composeRule.onNodeWithText(file.name).assertExists()
+    }
+
+    @Test
+    fun `파일 추가와 다시 시도와 뒤로가기를 누르면 각 이벤트를 한 번씩 내보낸다`() {
+        val eventList = mutableListOf<FileHomeScaffoldEvent>()
+
+        setFileHomeScaffold(
+            onEvent = { event -> eventList += event },
+            uiState = FileHomeUiState.User(accountId = fixtureMonkey.giveMeOne<Uuid>()),
+            pagingData = PagingData.from(emptyList(), sourceLoadStates = loadStates(refresh = LoadState.Error(IllegalStateException("load")))),
+        )
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
+        composeRule.onNodeWithText(DEFAULT_RETRY).performClick()
+        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        eventList shouldBe listOf(FileHomeScaffoldEvent.ClickAdd, FileHomeScaffoldEvent.ClickRetry, FileHomeScaffoldEvent.ClickNavigateUp)
+    }
+
+    @Test
+    @Config(qualifiers = "ko")
+    fun `한국어 환경에서 뒤로가기와 파일 추가 접근성 이름을 제공한다`() {
+        setFileHomeScaffold(uiState = FileHomeUiState.User(accountId = fixtureMonkey.giveMeOne<Uuid>()))
+
+        composeRule.onNodeWithContentDescription(KOREAN_NAVIGATE_UP_DESCRIPTION).assertExists()
+        composeRule.onNodeWithContentDescription(KOREAN_ADD_BUTTON_DESCRIPTION).assertExists()
+    }
+
+    private fun setFileHomeScaffold(
+        onEvent: (FileHomeScaffoldEvent) -> Unit = {},
+        uiState: FileHomeUiState = FileHomeUiState.Loading,
+        uploadUiState: FileHomeUploadUiState = FileHomeUploadUiState(),
+        pagingData: PagingData<DiaryFile> = PagingData.empty(),
+        isRefreshing: Boolean = false,
+    ) {
+        composeRule.setContent {
+            DiaryTheme {
+                FileHomeScaffold(
+                    onEvent = onEvent,
+                    filePagingItems = flowOf(pagingData).collectAsLazyPagingItems(),
+                    uiStateProvider = { uiState },
+                    uploadUiStateProvider = { uploadUiState },
+                    isRefreshingProvider = { isRefreshing },
+                )
+            }
+        }
+        composeRule.waitForIdle()
+    }
+
+    private fun loadStates(
+        refresh: LoadState = LoadState.NotLoading(endOfPaginationReached = false),
+        append: LoadState = LoadState.NotLoading(endOfPaginationReached = false),
+    ): LoadStates =
+        LoadStates(
+            refresh = refresh,
+            prepend = LoadState.NotLoading(endOfPaginationReached = true),
+            append = append,
+        )
+
     public companion object {
+        private const val PAGE_SIZE = 20
         private const val KOREAN_TITLE = "파일"
         private const val DEFAULT_TITLE = "Files"
         private const val KOREAN_NAVIGATE_UP_DESCRIPTION = "뒤로가기"
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
+        private const val KOREAN_ADD_BUTTON_DESCRIPTION = "파일 추가"
+        private const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add file"
+        private const val KOREAN_GUEST_TITLE = "로그인이 필요합니다"
+        private const val KOREAN_GUEST_DESCRIPTION = "로그인하면 파일을 올리고 확인할 수 있습니다"
+        private const val KOREAN_EMPTY_TITLE = "아직 올린 파일이 없습니다"
+        private const val KOREAN_EMPTY_DESCRIPTION = "추가 버튼으로 파일을 올릴 수 있습니다"
+        private const val KOREAN_LOAD_FAILED_MESSAGE = "파일을 불러오지 못했습니다"
+        private const val KOREAN_LOAD_MORE_FAILED_MESSAGE = "더 불러오지 못했습니다"
+        private const val KOREAN_RETRY = "다시 시도"
+        private const val DEFAULT_RETRY = "Retry"
+        private const val KOREAN_REFRESHING = "새로고침 중"
     }
 }

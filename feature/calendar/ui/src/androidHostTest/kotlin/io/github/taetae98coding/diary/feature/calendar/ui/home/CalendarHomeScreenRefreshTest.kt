@@ -9,10 +9,12 @@ import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherViewModel
 import io.mockk.clearMocks
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -32,7 +34,7 @@ class CalendarHomeScreenRefreshTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-SYNC-REFRESH-FEATURE-001 TC-SYNC-REFRESH-FEATURE-009 캘린더를 당기면 메모·태그와 공휴일, 날씨를 함께 새로고침한다`() {
+    fun `TC-SYNC-REFRESH-FEATURE-001 캘린더를 당기면 메모·태그와 공휴일, 날씨를 함께 새로고침한다`() {
         val holidayViewModel = holidayViewModel()
         val weatherViewModel = weatherViewModel()
         val syncViewModel = syncViewModel()
@@ -54,12 +56,85 @@ class CalendarHomeScreenRefreshTest {
     }
 
     @Test
-    fun `TC-SYNC-REFRESH-DOMAIN-003 새로고침 대상 중 하나라도 실행 중이면 진행 표시가 나타난다`() {
+    fun `TC-SYNC-REFRESH-FEATURE-009 로그인하지 않은 상태에서 당기면 공휴일과 날씨를 다시 가져오고 그동안 진행을 표시한다`() {
+        val isHolidayFetching = MutableStateFlow(false)
+        val isWeatherLoading = MutableStateFlow(false)
+        val holidayViewModel = holidayViewModel(isFetchingFlow = isHolidayFetching)
+        val weatherViewModel = weatherViewModel(isLoadingFlow = isWeatherLoading)
+        val guestSyncViewModel = syncViewModel(isRefreshingFlow = MutableStateFlow(false))
         setCalendarHomeScreen(
-            holidayViewModel = holidayViewModel(isFetchingFlow = MutableStateFlow(true)),
+            holidayViewModel = holidayViewModel,
+            weatherViewModel = weatherViewModel,
+            syncViewModel = guestSyncViewModel,
         )
+        composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertDoesNotExist()
+        clearMocks(holidayViewModel, weatherViewModel, answers = false)
 
+        composeRule.onNodeWithTag(PULL_TO_REFRESH_TEST_TAG).performTouchInput { swipeDown() }
+        composeRule.waitForIdle()
+        verify(exactly = 1) { holidayViewModel.fetch(yearMonth = JULY_2026) }
+        verify(exactly = 1) { weatherViewModel.fetch() }
+
+        isHolidayFetching.value = true
+        isWeatherLoading.value = true
+        composeRule.waitForIdle()
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
+
+        isHolidayFetching.value = false
+        isWeatherLoading.value = false
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-CALENDAR-HOME-DATA-047 당겨서 새로고침해도 음력 자료를 다시 동기화하지 않는다`() {
+        val fetchLunarUseCase = fetchLunarUseCase()
+        setCalendarHomeScreen(birthdayViewModel = lunarObservingBirthdayViewModel(fetchLunarUseCase = fetchLunarUseCase))
+        composeRule.waitForIdle()
+        coVerify(exactly = 1) { fetchLunarUseCase(parameter = 2026) }
+        clearMocks(fetchLunarUseCase, answers = false)
+
+        composeRule.onNodeWithTag(PULL_TO_REFRESH_TEST_TAG).performTouchInput { swipeDown() }
+        composeRule.waitForIdle()
+
+        coVerify(exactly = 0) { fetchLunarUseCase(parameter = any()) }
+    }
+
+    @Test
+    fun `TC-CALENDAR-HOME-DATA-050 화면에 들어오는 것만으로는 서버에서 연락처를 다시 가져오지 않는다`() {
+        val syncViewModel = syncViewModel()
+        setCalendarHomeScreen(syncViewModel = syncViewModel)
+        composeRule.waitForIdle()
+
+        verify(exactly = 0) { syncViewModel.refresh() }
+    }
+
+    @Test
+    fun `TC-SYNC-REFRESH-DOMAIN-003 새로고침 대상 중 하나라도 실행 중이면 진행 표시가 나타난다`() {
+        val isSyncRefreshing = MutableStateFlow(false)
+        val isHolidayFetching = MutableStateFlow(false)
+        val isWeatherLoading = MutableStateFlow(false)
+        setCalendarHomeScreen(
+            holidayViewModel = holidayViewModel(isFetchingFlow = isHolidayFetching),
+            weatherViewModel = weatherViewModel(isLoadingFlow = isWeatherLoading),
+            syncViewModel = syncViewModel(isRefreshingFlow = isSyncRefreshing),
+        )
+        val caseList =
+            listOf(
+                RunningRefreshTarget(isSyncRefreshing = true, isHolidayFetching = false, isWeatherLoading = false),
+                RunningRefreshTarget(isSyncRefreshing = false, isHolidayFetching = true, isWeatherLoading = false),
+                RunningRefreshTarget(isSyncRefreshing = false, isHolidayFetching = false, isWeatherLoading = true),
+                RunningRefreshTarget(isSyncRefreshing = true, isHolidayFetching = true, isWeatherLoading = true),
+            )
+
+        caseList.forEach { target ->
+            isSyncRefreshing.value = target.isSyncRefreshing
+            isHolidayFetching.value = target.isHolidayFetching
+            isWeatherLoading.value = target.isWeatherLoading
+            composeRule.waitForIdle()
+
+            composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
+        }
     }
 
     @Test
@@ -117,6 +192,7 @@ class CalendarHomeScreenRefreshTest {
         holidayViewModel: CalendarHomeHolidayViewModel = holidayViewModel(),
         weatherViewModel: CalendarHomeWeatherViewModel = weatherViewModel(),
         syncViewModel: CalendarHomeSyncViewModel = syncViewModel(),
+        birthdayViewModel: CalendarHomeBirthdayViewModel = birthdayViewModel(),
     ) {
         val memoViewModel =
             mockk<CalendarHomeMemoViewModel>().also { viewModel ->
@@ -136,8 +212,9 @@ class CalendarHomeScreenRefreshTest {
                     navigateToMemoDetail = {},
                     navigateToMemoAdd = {},
                     navigateToContactDetail = {},
-                    birthdayViewModel = birthdayViewModel(),
+                    birthdayViewModel = birthdayViewModel,
                     navigateToFilter = {},
+                    navigateToTimetable = {},
                     state = state,
                     holidayViewModel = holidayViewModel,
                     memoViewModel = memoViewModel,
@@ -154,3 +231,9 @@ class CalendarHomeScreenRefreshTest {
         val JULY_2026: YearMonth = YearMonth(year = 2026, month = Month.JULY)
     }
 }
+
+private data class RunningRefreshTarget(
+    val isSyncRefreshing: Boolean,
+    val isHolidayFetching: Boolean,
+    val isWeatherLoading: Boolean,
+)

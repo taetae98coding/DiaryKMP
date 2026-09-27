@@ -35,16 +35,9 @@ internal class HolidayHomeYearViewModel(
         combine(fetchState, goldenHolidayGroupListFlow()) { fetchState, result ->
             when (fetchState) {
                 FetchState.NONE, FetchState.IN_PROGRESS -> HolidayHomeYearUiState.Loading
-
                 FetchState.FAILURE -> HolidayHomeYearUiState.Error
-
                 FetchState.NOT_PROVIDED -> HolidayHomeYearUiState.NotProvided
-
-                FetchState.SUCCESS ->
-                    result.fold(
-                        onSuccess = { goldenHolidayGroupList -> HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = goldenHolidayGroupList) },
-                        onFailure = { HolidayHomeYearUiState.Error },
-                    )
+                FetchState.SUCCESS -> HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = result.getOrDefault(emptyList()))
             }
         }.stateIn(
             scope = viewModelScope,

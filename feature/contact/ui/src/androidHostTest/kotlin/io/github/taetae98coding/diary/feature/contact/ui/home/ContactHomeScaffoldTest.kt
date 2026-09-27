@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.contact.ui.home
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -10,6 +11,7 @@ import androidx.compose.ui.test.performClick
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
@@ -78,7 +80,13 @@ class ContactHomeScaffoldTest {
 
     @Test
     fun `TC-CONTACT-LIST-DETAIL-FEATURE-007 상세 영역에 연락처 추가가 놓여도 정렬 컨트롤은 표시된다`() {
-        setContactHomeScaffold(componentVisible = ContactHomeScaffoldComponentVisible(isAddButtonVisible = false))
+        setContactHomeScaffold(
+            contactList = listOf(testContact(name = CONTACT_NAME)),
+            componentVisible = ContactHomeScaffoldComponentVisible(isAddButtonVisible = false),
+        )
+        composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(CONTACT_NAME).fetchSemanticsNodes().isNotEmpty()
+        }
 
         composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).assert(hasClickAction())
     }
@@ -110,10 +118,11 @@ class ContactHomeScaffoldTest {
     }
 
     private fun setContactHomeScaffold(
+        contactList: List<Contact> = emptyList(),
         onEvent: (ContactHomeScaffoldEvent) -> Unit = {},
         componentVisible: ContactHomeScaffoldComponentVisible = ContactHomeScaffoldComponentVisible(),
     ) {
-        val contactPagingDataFlow = MutableStateFlow(contactPagingDataOf(emptyList()))
+        val contactPagingDataFlow = MutableStateFlow(contactPagingDataOf(contactList))
 
         composeRule.setContent {
             DiaryTheme {
@@ -127,6 +136,8 @@ class ContactHomeScaffoldTest {
     }
 
     private companion object {
+        private const val LIST_ITEM_TIMEOUT_MILLIS = 5_000L
+        private const val CONTACT_NAME = "ContactHomeScaffoldName"
         private const val DEFAULT_TITLE = "Contacts"
         private const val KOREAN_TITLE = "연락처"
         private const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add contact"

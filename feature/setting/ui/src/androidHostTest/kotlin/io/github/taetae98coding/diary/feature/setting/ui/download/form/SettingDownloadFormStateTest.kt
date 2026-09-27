@@ -40,7 +40,7 @@ class SettingDownloadFormStateTest {
     }
 
     @Test
-    fun `저장된 주소를 초기 값으로 편집 상태를 만든다`() {
+    fun `TC-SETTING-DOWNLOAD-FEATURE-017 저장된 주소를 초기 값으로 편집 상태를 만든다`() {
         lateinit var state: SettingDownloadFormState
 
         composeRule.setContent {
@@ -51,7 +51,7 @@ class SettingDownloadFormStateTest {
     }
 
     @Test
-    fun `저장된 주소가 바뀌어도 편집 중인 값을 덮어쓰지 않는다`() {
+    fun `TC-SETTING-DOWNLOAD-FEATURE-017 저장된 주소가 바뀌어도 편집 중인 값을 덮어쓰지 않는다`() {
         val storedSetting = mutableStateOf(MusicDownloadProxySetting(address = STORED_ADDRESS))
         lateinit var state: SettingDownloadFormState
 

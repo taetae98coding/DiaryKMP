@@ -10,6 +10,8 @@ import org.koin.core.annotation.Configuration
 import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Module
 import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 
 @Module
 @ComponentScan
@@ -21,9 +23,18 @@ public class JvmCalendarDatabaseModule {
         @CalendarDatabaseDirectory
         databaseDirectory: String,
     ): RoomDatabase.Builder<CalendarDatabase> {
-        val databasePath = applicationSupportDirectory(directoryName = databaseDirectory).resolve(CalendarDatabase.NAME)
+        val databasePath =
+            resolveCalendarDatabasePath(
+                userHome = Paths.get(System.getProperty("user.home")),
+                databaseDirectory = databaseDirectory,
+            )
         databasePath.parent?.let(Files::createDirectories)
 
         return Room.databaseBuilder<CalendarDatabase>(name = databasePath.toAbsolutePath().toString())
     }
 }
+
+internal fun resolveCalendarDatabasePath(
+    userHome: Path,
+    databaseDirectory: String,
+): Path = applicationSupportDirectory(directoryName = databaseDirectory, userHome = userHome).resolve(CalendarDatabase.NAME)

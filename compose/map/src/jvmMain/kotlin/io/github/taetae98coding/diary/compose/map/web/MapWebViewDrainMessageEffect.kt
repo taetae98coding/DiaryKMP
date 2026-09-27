@@ -27,14 +27,28 @@ internal fun MapWebViewDrainMessageEffect(
             webViewPanel
                 .drainIpcMessages()
                 .forEach { message ->
-                    when (val value = message.toMapMessageOrNull()) {
-                        is MapMessage.Ready -> isDocumentReady.value = true
-                        is MapMessage.Camera -> state.moveCamera(value.camera)
-                        is MapMessage.Click -> onSpotClick?.invoke(value.coordinate)
-                        is MapMessage.PinClick -> onPinClick?.invoke(value.id)
-                        null -> Unit
-                    }
+                    state.handleMapMessage(
+                        message = message,
+                        onReady = { isDocumentReady.value = true },
+                        onSpotClick = onSpotClick,
+                        onPinClick = onPinClick,
+                    )
                 }
         }
+    }
+}
+
+internal fun DiaryMapState.handleMapMessage(
+    message: String,
+    onReady: () -> Unit,
+    onSpotClick: ((DiaryMapCoordinate) -> Unit)?,
+    onPinClick: ((Uuid) -> Unit)?,
+) {
+    when (val value = message.toMapMessageOrNull()) {
+        is MapMessage.Ready -> onReady()
+        is MapMessage.Camera -> moveCamera(value.camera)
+        is MapMessage.Click -> onSpotClick?.invoke(value.coordinate)
+        is MapMessage.PinClick -> if (pins.any { pin -> pin.id == value.id }) onPinClick?.invoke(value.id)
+        null -> Unit
     }
 }

@@ -19,7 +19,7 @@ import kotlinx.datetime.LocalDate
 
 class SyncWorkContactTest :
     FunSpec({
-        test("TC-DATA-SYNC-DOMAIN-020 연락처만 대기하면 연락처 요청만 발생한다") {
+        test("연락처만 대기하면 연락처 요청만 발생한다") {
             val context = context(contactList = contacts(size = 1))
 
             context.subject.doWork()
@@ -70,24 +70,28 @@ class SyncWorkContactTest :
             contactRequests shouldContainExactly listOf(100, 100, 1)
         }
 
-        test("TC-DATA-SYNC-DOMAIN-054 연락처가 실패해도 태그와 장소는 끝까지 업로드한다") {
+        test("TC-DATA-SYNC-DOMAIN-054 연락처가 실패해도 태그와 장소와 웹 항목은 끝까지 업로드한다") {
             val context =
                 context(
                     tagList = tags(size = 201),
                     placeList = places(size = 201),
+                    webList = webs(size = 201),
                     contactList = contacts(size = 1),
                 )
             val failure = TestException(fixtureMonkey.giveMeOne())
             val tagRequests = mutableListOf<Int>()
             val placeRequests = mutableListOf<Int>()
+            val webRequests = mutableListOf<Int>()
             coEvery { context.contactRemoteDataSource.push(any()) } throws failure
             coEvery { context.tagRemoteDataSource.push(any()) } answers { tagRequests += firstArg<List<Any>>().size }
             coEvery { context.placeRemoteDataSource.push(any()) } answers { placeRequests += firstArg<List<Any>>().size }
+            coEvery { context.webRemoteDataSource.push(any()) } answers { webRequests += firstArg<List<Any>>().size }
 
             shouldThrowExactly<TestException> { context.subject.doWork() }
 
             tagRequests shouldContainExactly listOf(100, 100, 1)
             placeRequests shouldContainExactly listOf(100, 100, 1)
+            webRequests shouldContainExactly listOf(100, 100, 1)
         }
 
         test("TC-DATA-SYNC-DATA-005 연락처 업로드는 최대 100개씩 나누어 요청한다") {
@@ -163,15 +167,25 @@ class SyncWorkContactTest :
             savedList.single() shouldContainExactly pullList.map { pull -> pull.contact.toLocal() }
         }
 
-        test("TC-DATA-SYNC-DATA-015 연락처 내려받기는 기록된 커서를 사용한다") {
+        test("TC-DATA-SYNC-DATA-016 연락처 내려받기는 기록된 커서로 요청하고 저장한 가장 큰 순번으로 다음 묶음을 요청한다") {
             val context = context()
             val cursor = 42L
+            val pullList = contactPulls(usnList = listOf(50L, 47L))
             coEvery { context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.CONTACT) } returns cursor
-            coEvery { context.contactRemoteDataSource.pull(usn = cursor) } returns emptyList()
+            coEvery { context.contactRemoteDataSource.pull(usn = cursor) } returns pullList
+            coEvery { context.contactRemoteDataSource.pull(usn = 50L) } returns emptyList()
 
             context.subject.doWork()
 
             coVerify(exactly = 1) { context.contactRemoteDataSource.pull(usn = cursor) }
+            coVerify(exactly = 1) {
+                context.accountContactSyncTransaction.save(
+                    context.accountId,
+                    pullList.map { pull -> pull.contact.toLocal() },
+                    50L,
+                )
+            }
+            coVerify(exactly = 1) { context.contactRemoteDataSource.pull(usn = 50L) }
         }
 
         test("TC-DATA-SYNC-DATA-020 연락처 내려받기는 빈 응답을 받을 때까지 반복한다") {

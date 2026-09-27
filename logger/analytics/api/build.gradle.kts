@@ -7,6 +7,7 @@ kotlin {
         commonMain {
             dependencies {
                 api(projects.logger.core)
+                api(libs.kotlinx.serialization.json)
             }
         }
     }

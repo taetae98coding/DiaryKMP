@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -17,7 +19,7 @@ import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBar
+import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
 import io.github.taetae98coding.diary.compose.list.sort.nameListSortList
 import io.github.taetae98coding.diary.core.model.contact.Contact
@@ -34,6 +36,7 @@ internal fun ContactHomeScaffold(
     onEvent: (ContactHomeScaffoldEvent) -> Unit,
     modifier: Modifier = Modifier,
     sortSheetState: DialogState = rememberDialogState(),
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     contactPagingItems: LazyPagingItems<Contact> = remember { flowOf(PagingData.empty<Contact>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> ContactHomeUiState = { ContactHomeUiState() },
     sortProvider: () -> ListSort = { ListSort.NAME },
@@ -48,6 +51,7 @@ internal fun ContactHomeScaffold(
                 navigateUpContentDescription = stringResource(Res.string.contact_navigate_up_button_content_description),
             )
         },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         floatingActionButton = {
             if (componentVisibleProvider().isAddButtonVisible) {
                 FloatingAddButton(
@@ -63,10 +67,11 @@ internal fun ContactHomeScaffold(
                     .fillMaxSize()
                     .padding(paddingValues),
         ) {
-            DiaryListSortBar(
+            DiaryListSortBarHost(
                 onClick = { onEvent(ContactHomeScaffoldEvent.ClickSort) },
                 modifier = Modifier.fillMaxWidth(),
                 sortProvider = sortProvider,
+                isSortVisibleProvider = { contactPagingItems.itemCount > 0 },
             )
 
             ContactHomeList(

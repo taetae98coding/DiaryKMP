@@ -76,6 +76,7 @@ class CalendarHomeScreenHolidayTest {
                     navigateToContactDetail = {},
                     birthdayViewModel = birthdayViewModel(),
                     navigateToFilter = {},
+                    navigateToTimetable = {},
                     state = state,
                     holidayViewModel = holidayViewModel,
                     memoViewModel = memoViewModel(),

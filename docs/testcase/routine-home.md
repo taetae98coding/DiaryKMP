@@ -1,8 +1,8 @@
 # RoutineHome 테스트 케이스
 
-기준 스펙: [RoutineHome 화면 스펙](../spec/routine-home.md)
+기준 스펙: [RoutineHome 화면 스펙](../spec/client/routine-home.md)
 
-빈 상태의 판정과 행동은 [목록 빈 상태 스펙](../spec/list-empty-state.md)에, 당김으로 시작하는 동기화와 진행 표시는 [새로고침 스펙](../spec/sync-refresh.md)에 위임되어 있으며, 이 문서의 케이스는 RoutineHome에서 관찰하는 결과를 기준으로 한다. 공통 내비게이션에서 `루틴` 목적지로 이동하고 뒤로가 기본 목적지로 돌아오는 케이스는 [TopLevelNavigation 테스트 케이스](./top-level-navigation.md)에서, 루틴 추가 화면의 입력 케이스는 [RoutineAdd 테스트 케이스](./routine-add.md)에서, 목록과 상세를 함께 사용할 때의 케이스는 [Routine 목록·상세 배치 테스트 케이스](./routine-list-detail.md)에서, 화면과 무관한 새로고침 공통 규칙의 케이스는 [새로고침 테스트 케이스](./sync-refresh.md)에서 다룬다.
+빈 상태의 판정과 행동은 [목록 빈 상태 스펙](../spec/client/list-empty-state.md)에, 당김으로 시작하는 동기화와 진행 표시는 [새로고침 스펙](../spec/client/sync-refresh.md)에 위임되어 있으며, 이 문서의 케이스는 RoutineHome에서 관찰하는 결과를 기준으로 한다. 공통 내비게이션에서 `루틴` 목적지로 이동하고 뒤로가 기본 목적지로 돌아오는 케이스는 [TopLevelNavigation 테스트 케이스](./top-level-navigation.md)에서, 루틴 추가 화면의 입력 케이스는 [RoutineAdd 테스트 케이스](./routine-add.md)에서, 목록과 상세를 함께 사용할 때의 케이스는 [Routine 목록·상세 배치 테스트 케이스](./routine-list-detail.md)에서, 화면과 무관한 새로고침 공통 규칙의 케이스는 [새로고침 테스트 케이스](./sync-refresh.md)에서 다룬다.
 
 ## feature
 

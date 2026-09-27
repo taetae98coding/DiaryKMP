@@ -27,6 +27,7 @@ import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
 import io.github.taetae98coding.diary.core.model.place.SearchedPlace
+import io.github.taetae98coding.diary.domain.place.toPlacePrecision
 import io.github.taetae98coding.diary.feature.place.ui.decimalOrNaN
 import io.github.taetae98coding.diary.feature.place.ui.toCoordinateText
 import io.github.taetae98coding.diary.library.compose.ui.color.randomColor
@@ -69,6 +70,11 @@ internal class PlaceFormState(
         longitudeState.setTextAndPlaceCursorAtEnd(coordinate.longitude.toCoordinateText())
     }
 
+    fun selectSpotOnMap(coordinate: DiaryMapCoordinate) {
+        setCoordinate(coordinate)
+        mapState.selectSpot(spot)
+    }
+
     fun applySearchedPlace(place: SearchedPlace) {
         setCoordinate(place.coordinate.toDiaryMapCoordinate())
         addressState.setTextAndPlaceCursorAtEnd(place.address)
@@ -82,7 +88,7 @@ internal class PlaceFormState(
         Coordinate(
             latitude = latitudeState.decimalOrNaN(),
             longitude = longitudeState.decimalOrNaN(),
-        )
+        ).toPlacePrecision()
 }
 
 @Composable
@@ -97,7 +103,8 @@ internal fun rememberPlaceAddFormState(
         initialAddress = "",
         initialColor = initialColor,
         defaultProvider = defaultProvider,
-        initialCoordinate = initialCoordinate,
+        initialCoordinate = null,
+        initialMapCoordinate = initialCoordinate,
     )
 
 @Composable
@@ -115,6 +122,10 @@ internal fun rememberPlaceDetailFormState(
             initialDetail.coordinate
                 .takeIf { coordinate -> coordinate.isRepresentable }
                 ?.toDiaryMapCoordinate(),
+        initialMapCoordinate =
+            initialDetail.coordinate
+                .takeIf { coordinate -> coordinate.isRepresentable }
+                ?.toDiaryMapCoordinate(),
     )
 
 @Composable
@@ -125,6 +136,7 @@ private fun rememberPlaceFormState(
     initialColor: Color,
     defaultProvider: MapProvider?,
     initialCoordinate: DiaryMapCoordinate?,
+    initialMapCoordinate: DiaryMapCoordinate?,
 ): PlaceFormState {
     val titleState = rememberDiaryTitleInputState(initialText = initialTitle)
     val descriptionState = rememberDiaryDescriptionInputState(initialText = initialDescription)
@@ -142,7 +154,7 @@ private fun rememberPlaceFormState(
             key(defaultProvider) {
                 rememberDiaryMapState(
                     initialProvider = defaultProvider.toDiaryMapProvider(),
-                    initialCoordinate = initialCoordinate,
+                    initialCoordinate = initialMapCoordinate,
                 )
             }
         }

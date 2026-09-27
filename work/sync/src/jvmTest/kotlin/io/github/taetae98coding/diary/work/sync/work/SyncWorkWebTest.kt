@@ -43,7 +43,7 @@ class SyncWorkWebTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-020 웹 항목만 대기하면 웹 항목 요청만 발생한다") {
+        test("웹 항목만 대기하면 웹 항목 요청만 발생한다") {
             val context = context(webList = webs(size = 1))
 
             context.subject.doWork()

@@ -1,0 +1,5 @@
+<resources>
+    <string name="place_list_deleted_message">Place deleted.</string>
+    <string name="place_list_undo_action">Undo</string>
+    <string name="place_list_delete_content_description">Delete place</string>
+</resources>

@@ -82,6 +82,28 @@ class MemoPlacePickerDialogSearchTest {
     }
 
     @Test
+    fun `TC-MEMO-PLACE-CARD-FEATURE-030 검색어가 있으면 그 검색어로 좁힌 조회 결과만 목록에 나타난다`() {
+        composeRule.setMemoPlacePickerDialog(
+            placeList = listOf(testPlace(title = HOME_PLACE_TITLE)),
+            query = HOME_PLACE_QUERY,
+        )
+
+        composeRule.placeDialogNodeWithText(HOME_PLACE_TITLE).assertExists()
+        composeRule.placeDialogNodeWithText(OFFICE_PLACE_TITLE).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-MEMO-PLACE-CARD-FEATURE-031 검색어가 없으면 대상 전체의 조회 결과가 목록에 나타난다`() {
+        composeRule.setMemoPlacePickerDialog(
+            placeList = listOf(testPlace(title = HOME_PLACE_TITLE), testPlace(title = OFFICE_PLACE_TITLE)),
+            query = "",
+        )
+
+        composeRule.placeDialogNodeWithText(HOME_PLACE_TITLE).assertExists()
+        composeRule.placeDialogNodeWithText(OFFICE_PLACE_TITLE).assertExists()
+    }
+
+    @Test
     fun `TC-MEMO-PLACE-CARD-FEATURE-032 검색어로 좁힌 목록에서도 선택과 해제를 전달한다`() {
         val homePlace = testPlace(title = HOME_PLACE_TITLE)
         val selectedIdList = mutableListOf<Uuid>()

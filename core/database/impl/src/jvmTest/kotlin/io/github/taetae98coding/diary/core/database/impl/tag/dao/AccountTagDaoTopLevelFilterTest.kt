@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.core.database.api.tag.entity.TagDetailLoca
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tagfilter.entity.TagFilterLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
+import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagSyncTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.tag.transaction.AccountTagTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.taglink.transaction.AccountTagLinkTransactionImpl
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -102,7 +103,7 @@ class AccountTagDaoTopLevelFilterTest :
             topLevelTagIdList(accountId = accountId) shouldBe listOf(isolatedTag.id, fromOnlyTag.id)
         }
 
-        test("TC-TAG-HOME-DATA-012 최상위 태그로 좁히지 않으면 향해 오는 연결이 있는 태그도 조회한다") {
+        test("저장되지 않은 태그에서 온 연결은 향해 오는 연결로 세지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val fromTag = tag(title = "alpha")
             val toTag = tag(title = "bravo")
@@ -159,7 +160,7 @@ class AccountTagDaoTopLevelFilterTest :
             topLevelTagIdList(accountId = accountId) shouldBe listOf(alphaTag.id, bravoTag.id, charlieTag.id)
         }
 
-        test("TC-TAG-HOME-DATA-007 연결을 만들면 페이지를 무효화하고 최상위 태그 목록에서 도착 태그를 제외한다") {
+        test("TC-TAG-HOME-DATA-007 연결을 만들면 도착 태그를 최상위 태그 목록에서 제외하고 해제하면 다시 포함한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val fromTag = tag(title = "alpha")
             val toTag = tag(title = "bravo")
@@ -175,6 +176,17 @@ class AccountTagDaoTopLevelFilterTest :
             withTimeout(INVALIDATION_TIMEOUT_MILLIS) { invalidated.await() }
             pagingSource.invalid.shouldBeTrue()
             topLevelTagIdList(accountId = accountId) shouldBe listOf(fromTag.id)
+
+            val linkedPagingSource = topLevelPagingSource(accountId = accountId)
+            linkedPagingSource.pagedTagIdList() shouldBe listOf(fromTag.id)
+            val linkedInvalidated = CompletableDeferred<Unit>()
+            linkedPagingSource.registerInvalidatedCallback { linkedInvalidated.complete(Unit) }
+
+            unlink(accountId = accountId, fromTagId = fromTag.id, toTagId = toTag.id)
+
+            withTimeout(INVALIDATION_TIMEOUT_MILLIS) { linkedInvalidated.await() }
+            linkedPagingSource.invalid.shouldBeTrue()
+            topLevelTagIdList(accountId = accountId) shouldBe listOf(fromTag.id, toTag.id)
         }
 
         test("TC-TAG-LINK-DOMAIN-018 해제한 연결은 향해 오는 연결로 세지 않는다") {
@@ -189,7 +201,7 @@ class AccountTagDaoTopLevelFilterTest :
             topLevelTagIdList(accountId = accountId) shouldBe listOf(fromTag.id, toTag.id)
         }
 
-        test("TC-TAG-LINK-DOMAIN-019 완료된 출발 태그의 연결은 세고 삭제된 출발 태그의 연결은 세지 않는다") {
+        test("TC-TAG-LINK-DOMAIN-019 출발 태그의 상태에 따라 향해 오는 연결을 세는 기준이 달라진다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val fromTag = tag(title = "alpha")
             val toTag = tag(title = "bravo")
@@ -204,7 +216,17 @@ class AccountTagDaoTopLevelFilterTest :
             insertTag(accountId, fromTag.copy(isDeleted = true))
             topLevelTagIdList(accountId = accountId) shouldBe listOf(toTag.id)
 
-            insertTag(accountId, fromTag)
+            AccountTagSyncTransactionImpl(database = database).save(
+                accountId = accountId,
+                tagList = listOf(fromTag),
+                cursor = fixtureMonkey.giveMeOne<Long>(),
+            )
+            topLevelTagIdList(accountId = accountId) shouldBe listOf(fromTag.id)
+
+            tagTransaction.updateDeleted(accountId = accountId, tagId = fromTag.id, isDeleted = true, updatedAt = instant())
+            topLevelTagIdList(accountId = accountId) shouldBe listOf(toTag.id)
+
+            tagTransaction.updateDeleted(accountId = accountId, tagId = fromTag.id, isDeleted = false, updatedAt = instant())
             topLevelTagIdList(accountId = accountId) shouldBe listOf(fromTag.id)
         }
 
@@ -229,7 +251,7 @@ class AccountTagDaoTopLevelFilterTest :
             topLevelTagIdList(accountId = accountId) shouldBe listOf(toTag.id)
         }
 
-        test("TC-TAG-HOME-DATA-012 필터 선택을 켜 두어도 검색과 태그 선택 목록은 좁혀지지 않는다") {
+        test("TC-TAG-HOME-DATA-012 필터 선택을 켜 두어도 검색, 메모·태그 연결·웹 항목·장소의 태그 선택 목록과 태그 필터의 선택할 수 있는 태그는 좁혀지지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val fromTag = tag(title = "alpha")
             val toTag = tag(title = "bravo")
@@ -252,6 +274,35 @@ class AccountTagDaoTopLevelFilterTest :
                 .accountTagLinkDao()
                 .pageSelectableTag(accountId = accountId, fromTagId = fromTag.id, query = "")
                 .pagedTagIdList() shouldBe listOf(toTag.id)
+            database
+                .accountWebTagDao()
+                .pageSelectableTag(accountId = accountId, webId = fixtureMonkey.giveMeOne<Uuid>(), query = "")
+                .pagedTagIdList() shouldBe listOf(fromTag.id, toTag.id)
+            database
+                .accountPlaceTagDao()
+                .pageSelectableTag(accountId = accountId, placeId = fixtureMonkey.giveMeOne<Uuid>(), query = "")
+                .pagedTagIdList() shouldBe listOf(fromTag.id, toTag.id)
+            database
+                .accountTagDao()
+                .page(accountId = accountId, query = "bravo", sort = ListSortLocalEntity.DEFAULT.queryValue)
+                .pagedTagIdList() shouldBe listOf(toTag.id)
+            tagIdList(accountId = accountId) shouldBe listOf(fromTag.id, toTag.id)
+        }
+
+        test("TC-TAG-FINISHED-LIST-DOMAIN-009 최상위 태그 필터를 켜 두어도 완료된 태그 목록은 좁혀지지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val fromTag = tag(title = "alpha").copy(isFinished = true)
+            val toTag = tag(title = "bravo").copy(isFinished = true)
+            insertTag(accountId, fromTag, toTag)
+            link(accountId = accountId, fromTagId = fromTag.id, toTagId = toTag.id)
+            database.accountTagFilterDao().upsert(
+                TagFilterLocalEntity(accountId = accountId, isTopLevelOnly = true),
+            )
+
+            database
+                .accountTagDao()
+                .pageFinished(accountId = accountId, sort = ListSortLocalEntity.DEFAULT.queryValue)
+                .pagedTagIdList() shouldBe listOf(fromTag.id, toTag.id)
         }
 
         test("다른 계정의 연결은 최상위 태그 판정에 쓰지 않는다") {
@@ -279,7 +330,7 @@ class AccountTagDaoTopLevelFilterTest :
                 .data
                 .map { tag -> tag.id }
 
-        private fun instant(): Instant = Instant.fromEpochMilliseconds(fixtureMonkey.giveMeOne<Long>())
+        private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
         private fun tag(title: String): TagLocalEntity =
             fixtureMonkey

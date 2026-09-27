@@ -107,6 +107,29 @@ class HolidayCountrySettingUseCaseTest :
             }
         }
 
+        Given("TC-HOLIDAY-COUNTRY-DOMAIN-006 기기값만 고른 상태이고 기기 지역이 한국인 채로 적용 국가를 계속 조회하고 있다") {
+            val deviceCountryRepository = mockk<DeviceCountryRepository>()
+            every { deviceCountryRepository.find() } returnsMany listOf(HolidayCountry.KOREA, HolidayCountry.UNITED_STATES)
+            val useCase =
+                GetHolidayCountrySettingUseCase(
+                    holidaySettingRepository =
+                        mockk<HolidaySettingRepository>().also { repository ->
+                            every { repository.getCountryOptionSet() } returns MutableStateFlow(setOf(HolidayCountryOption.DEVICE))
+                        },
+                    deviceCountryRepository = deviceCountryRepository,
+                )
+
+            When("고른 선택지는 그대로 둔 채 기기 지역을 미국으로 바꾼다") {
+                Then("이어지는 결과가 제공되지 않아 적용 국가는 한국으로 남는다") {
+                    useCase(parameter = Unit).test {
+                        awaitItem().shouldBeSuccess().countrySet shouldBe setOf(HolidayCountry.KOREA)
+
+                        expectNoEvents()
+                    }
+                }
+            }
+        }
+
         Given("TC-HOLIDAY-COUNTRY-DATA-003 고른 선택지를 조회하고 있다") {
             val optionSetFlow = MutableStateFlow(setOf(HolidayCountryOption.DEVICE))
             val useCase = countrySettingUseCase(optionSetFlow = optionSetFlow, deviceCountry = HolidayCountry.KOREA)
