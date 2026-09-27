@@ -44,14 +44,17 @@ create policy file_delete_own
 
 -- 목록에 보이는 파일은 이 표에 등록된 것뿐이다. 버킷에 내용만 남은 파일은 목록에 나타나지 않는다.
 -- 같은 이름을 여러 번 올릴 수 있으므로 이름에는 유일 제약을 두지 않는다.
+-- 파일마다 사용자가 붙인 제목과 설명을 보관한다.
 create table public.file (
-    id         uuid        primary key,
-    account_id uuid        not null references public.account (id) on delete cascade,
-    name       text        not null check (btrim(name) <> '' and char_length(name) <= 255),
-    mime_type  text        not null,
-    size       bigint      not null check (size >= 0 and size <= 52428800),
-    path       text        not null unique,
-    created_at timestamptz not null default now()
+    id          uuid        primary key,
+    account_id  uuid        not null references public.account (id) on delete cascade,
+    name        text        not null check (btrim(name) <> '' and char_length(name) <= 255),
+    title       text        not null check (btrim(title) <> ''),
+    description text        not null default '',
+    mime_type   text        not null,
+    size        bigint      not null check (size >= 0 and size <= 52428800),
+    path        text        not null unique,
+    created_at  timestamptz not null default now()
 );
 
 create index file_account_id_created_at_id_idx on public.file (account_id, created_at desc, id desc);
@@ -66,7 +69,9 @@ create or replace function public.insert_file(
     file_name text,
     file_mime_type text,
     file_size bigint,
-    file_path text
+    file_path text,
+    file_title text,
+    file_description text
 )
     returns jsonb
     language plpgsql
@@ -86,13 +91,24 @@ begin
         raise exception 'file_path must be inside the account folder.' using errcode = '22023';
     end if;
 
-    insert into public.file (id, account_id, name, mime_type, size, path)
-    values (file_id, current_account_id, file_name, file_mime_type, file_size, file_path)
+    insert into public.file (id, account_id, name, title, description, mime_type, size, path)
+    values (
+        file_id,
+        current_account_id,
+        file_name,
+        file_title,
+        coalesce(file_description, ''),
+        file_mime_type,
+        file_size,
+        file_path
+    )
     returning * into inserted;
 
     return jsonb_build_object(
         'id', inserted.id,
         'name', inserted.name,
+        'title', inserted.title,
+        'description', inserted.description,
         'mimeType', inserted.mime_type,
         'size', inserted.size,
         'createdAt', inserted.created_at
@@ -100,9 +116,9 @@ begin
 end;
 $$;
 
-revoke all on function public.insert_file(uuid, text, text, bigint, text) from public;
-revoke all on function public.insert_file(uuid, text, text, bigint, text) from anon;
-grant execute on function public.insert_file(uuid, text, text, bigint, text) to authenticated;
+revoke all on function public.insert_file(uuid, text, text, bigint, text, text, text) from public;
+revoke all on function public.insert_file(uuid, text, text, bigint, text, text, text) from anon;
+grant execute on function public.insert_file(uuid, text, text, bigint, text, text, text) to authenticated;
 
 -- 마지막으로 받은 파일의 (올린 시각, id)를 기준으로 그다음을 돌려준다. 그 사이에 새 파일이 올라와도
 -- 앞쪽에 쌓일 뿐이라 이미 받은 파일이 다시 오거나 받지 않은 파일이 빠지지 않는다.
@@ -141,6 +157,8 @@ begin
             jsonb_build_object(
                 'id', file.id,
                 'name', file.name,
+                'title', file.title,
+                'description', file.description,
                 'mimeType', file.mime_type,
                 'size', file.size,
                 'createdAt', file.created_at
