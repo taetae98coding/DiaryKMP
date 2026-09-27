@@ -1,15 +1,13 @@
 package io.github.taetae98coding.diary.compose.timetable
 
 import androidx.compose.runtime.Composable
-import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
-import kotlinx.datetime.LocalTime
+import kotlinx.datetime.LocalDateTime
 
 public interface TimetableScope {
     public fun timeItem(
-        date: LocalDate,
-        startTime: LocalTime,
-        endTime: LocalTime,
+        start: LocalDateTime,
+        endInclusive: LocalDateTime,
         key: Any,
         content: @Composable () -> Unit,
     )
@@ -22,9 +20,8 @@ public interface TimetableScope {
 }
 
 internal data class TimetableTimeItem(
-    val date: LocalDate,
-    val startTime: LocalTime,
-    val endTime: LocalTime,
+    val start: LocalDateTime,
+    val endInclusive: LocalDateTime,
     val key: Any,
     val content: @Composable () -> Unit,
 )
@@ -40,13 +37,12 @@ internal class TimetableScopeImpl : TimetableScope {
     val allDayItemList = mutableListOf<TimetableAllDayItem>()
 
     override fun timeItem(
-        date: LocalDate,
-        startTime: LocalTime,
-        endTime: LocalTime,
+        start: LocalDateTime,
+        endInclusive: LocalDateTime,
         key: Any,
         content: @Composable () -> Unit,
     ) {
-        timeItemList += TimetableTimeItem(date = date, startTime = startTime, endTime = endTime, key = key, content = content)
+        timeItemList += TimetableTimeItem(start = start, endInclusive = endInclusive, key = key, content = content)
     }
 
     override fun allDayItem(

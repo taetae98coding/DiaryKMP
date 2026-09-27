@@ -11,7 +11,6 @@ import io.github.taetae98coding.diary.compose.timetable.TimetableScope
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
-import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.isSingleDayDateTime
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.toDateRange
 
 internal fun TimetableScope.calendarTimetableItems(
@@ -40,11 +39,10 @@ private fun TimetableScope.memoItems(
         val color = Color(color = memo.color.toInt())
         val onClick = { onEvent(CalendarTimetableScaffoldEvent.ClickMemo(id = memo.id)) }
 
-        if (dateTime is MemoDateTime.DateTime && dateTime.isSingleDayDateTime()) {
+        if (dateTime is MemoDateTime.DateTime) {
             timeItem(
-                date = dateTime.start.date,
-                startTime = dateTime.start.time,
-                endTime = dateTime.endInclusive.time,
+                start = dateTime.start,
+                endInclusive = dateTime.endInclusive,
                 key = memo.id,
             ) {
                 CalendarTimetableMemoBlock(

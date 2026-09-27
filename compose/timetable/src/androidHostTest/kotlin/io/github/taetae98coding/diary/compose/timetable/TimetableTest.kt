@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.compose.timetable
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -11,15 +12,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
@@ -36,6 +41,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.math.abs
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -240,6 +246,44 @@ class TimetableTest {
     }
 
     @Test
+    fun `TC-TIMETABLE-FEATURE-029 여러 날에 걸친 시각 아이템은 날짜마다 시간대 영역에 표시되고 어느 날짜 부분을 눌러도 같은 아이템이 선택된다`() {
+        var clickCount = 0
+        setTimetable(type = TimetableType.WEEK, date = september(day = 20)) {
+            timeItem(
+                start = LocalDateTime(date = september(day = 21), time = LocalTime(hour = 22, minute = 0)),
+                endInclusive = LocalDateTime(date = september(day = 23), time = LocalTime(hour = 1, minute = 0)),
+                key = NIGHT,
+            ) {
+                Text(text = NIGHT, modifier = Modifier.fillMaxSize().clickable { clickCount += 1 })
+            }
+        }
+        val dayXList =
+            listOf("21", "22", "23").map { day ->
+                composeRule
+                    .onNodeWithText(day)
+                    .fetchSemanticsNode()
+                    .boundsInRoot.center.x
+            }
+        val nightNodes = composeRule.onAllNodesWithText(NIGHT)
+
+        composeRule.onNodeWithTag(TIMETABLE_ALL_DAY_TEST_TAG).assertDoesNotExist()
+        nightNodes.assertCountEquals(3)
+        List(3) { index ->
+            val x =
+                nightNodes[index]
+                    .performScrollTo()
+                    .fetchSemanticsNode()
+                    .boundsInRoot.center.x
+            dayXList.indices.minBy { dayIndex -> abs(dayXList[dayIndex] - x) }
+        } shouldBe listOf(0, 1, 2)
+        nightNodes[0].performScrollTo().performClick()
+        nightNodes[2].performScrollTo().performClick()
+        composeRule.waitForIdle()
+
+        clickCount shouldBe 2
+    }
+
+    @Test
     fun `TC-TIMETABLE-FEATURE-013 여러 날에 걸친 종일 아이템은 어느 날짜 부분을 눌러도 같은 아이템이 선택된다`() {
         var clickCount = 0
         setTimetable(type = TimetableType.WEEK, date = september(day = 20)) {
@@ -346,9 +390,8 @@ private fun TimetableContent(
 
 private fun TimetableScope.meetingItem() {
     timeItem(
-        date = september(day = 23),
-        startTime = LocalTime(hour = 10, minute = 0),
-        endTime = LocalTime(hour = 11, minute = 0),
+        start = LocalDateTime(date = september(day = 23), time = LocalTime(hour = 10, minute = 0)),
+        endInclusive = LocalDateTime(date = september(day = 23), time = LocalTime(hour = 11, minute = 0)),
         key = MEETING,
     ) {
         Text(text = MEETING)
@@ -358,6 +401,7 @@ private fun TimetableScope.meetingItem() {
 private fun september(day: Int): LocalDate = LocalDate(year = 2026, month = 9, day = day)
 
 private const val MEETING = "Meeting"
+private const val NIGHT = "Night"
 private const val VACATION = "Vacation"
 private const val PAST = "Past"
 private const val LAST_HOUR_LABEL = "11 PM"

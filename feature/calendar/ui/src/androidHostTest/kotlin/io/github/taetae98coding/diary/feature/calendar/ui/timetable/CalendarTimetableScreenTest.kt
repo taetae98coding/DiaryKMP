@@ -16,11 +16,13 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeLeft
@@ -110,7 +112,7 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TIMETABLE-FEATURE-008 하루 일정은 시간대 영역에, 그 밖의 메모는 종일 영역에 표시된다`() {
+    fun `TC-CALENDAR-TIMETABLE-FEATURE-029 시각이 있는 기간의 메모는 여러 날에 걸쳐도 시간대 영역에, 종일 기간의 메모는 종일 영역에 표시된다`() {
         val meeting = memo(title = MEETING_TITLE, dateTime = timed(day = 23, startHour = 10, endHour = 11))
         val vacation = memo(title = VACATION_TITLE, dateTime = MemoDateTime.AllDay(dateRange = september(day = 22)..september(day = 24)))
         val trip =
@@ -144,7 +146,7 @@ class CalendarTimetableScreenTest {
             composeRule
                 .onNodeWithText(TRIP_TITLE)
                 .fetchSemanticsNode()
-                .boundsInRoot.bottom <= allDayBottom
+                .boundsInRoot.top >= allDayBottom
         ) shouldBe true
         (
             composeRule
@@ -272,6 +274,34 @@ class CalendarTimetableScreenTest {
         composeRule.waitForIdle()
 
         navigatedIdList shouldBe listOf(vacation.id, vacation.id)
+    }
+
+    @Test
+    fun `TC-CALENDAR-TIMETABLE-FEATURE-030 주간 형식에서 여러 날에 걸친 시각 메모는 어느 날짜 부분을 선택해도 같은 메모로 이동을 요청한다`() {
+        val night =
+            memo(
+                title = NIGHT_TITLE,
+                dateTime =
+                    MemoDateTime.DateTime(
+                        start = LocalDateTime(year = 2026, month = 9, day = 21, hour = 22, minute = 0),
+                        endInclusive = LocalDateTime(year = 2026, month = 9, day = 23, hour = 1, minute = 0),
+                    ),
+            )
+        val navigatedIdList = mutableListOf<Uuid>()
+        setTimetableScreen(
+            type = CalendarTimetableNavKey.Type.WEEK,
+            date = september(day = 20),
+            memoList = listOf(night),
+            navigateToMemoDetail = { navigatedIdList += it },
+        )
+        val nightNodes = composeRule.onAllNodesWithText(NIGHT_TITLE)
+
+        nightNodes.assertCountEquals(3)
+        nightNodes[0].performScrollTo().performClick()
+        nightNodes[2].performScrollTo().performClick()
+        composeRule.waitForIdle()
+
+        navigatedIdList shouldBe listOf(night.id, night.id)
     }
 
     @Test
@@ -537,6 +567,7 @@ private const val SEPTEMBER_2026_TITLE = "September 2026"
 private const val MEETING_TITLE = "Meeting"
 private const val VACATION_TITLE = "Vacation"
 private const val TRIP_TITLE = "Trip"
+private const val NIGHT_TITLE = "Night"
 private const val FILTER_CONTENT_DESCRIPTION = "Filter"
 private const val CHUSEOK = "추석"
 private const val ANNIVERSARY = "Anniversary"

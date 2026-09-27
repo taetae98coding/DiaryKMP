@@ -335,9 +335,8 @@ class TimetableSelectTest {
 
 private fun TimetableScope.meetingItem(onClick: () -> Unit) {
     timeItem(
-        date = september(day = 23),
-        startTime = LocalTime(hour = 10, minute = 0),
-        endTime = LocalTime(hour = 11, minute = 0),
+        start = LocalDateTime(date = september(day = 23), time = LocalTime(hour = 10, minute = 0)),
+        endInclusive = LocalDateTime(date = september(day = 23), time = LocalTime(hour = 11, minute = 0)),
         key = MEETING,
     ) {
         Text(text = MEETING, modifier = Modifier.fillMaxSize().clickable(onClick = onClick))

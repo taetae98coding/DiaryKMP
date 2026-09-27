@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.compose.timetable
 import io.github.taetae98coding.diary.library.kotlinx.datetime.overlaps
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 
 internal const val MINUTES_PER_HOUR: Int = 60
@@ -27,8 +28,7 @@ internal data class TimetablePlacedAllDayItem(
 
 internal fun List<TimetableTimeItem>.placeOn(date: LocalDate): List<TimetablePlacedTimeItem> {
     val spanList =
-        filter { item -> item.date == date }
-            .map { item -> item.span() }
+        mapNotNull { item -> item.spanOn(date = date) }
             .sortedWith(compareBy<TimeSpan> { it.startMinute }.thenByDescending { it.endMinute })
     val result = mutableListOf<TimetablePlacedTimeItem>()
     val cluster = mutableListOf<Pair<TimeSpan, Int>>()
@@ -111,9 +111,14 @@ internal fun List<TimetableAllDayItem>.placeIn(dateRange: LocalDateRange): List<
 internal val LocalTime.minuteOfDay: Int
     get() = hour * MINUTES_PER_HOUR + minute
 
-private fun TimetableTimeItem.span(): TimeSpan {
-    val startMinute = startTime.minuteOfDay
-    val endMinute = maxOf(endTime.minuteOfDay, startMinute + MIN_TIME_ITEM_MINUTES)
+private fun TimetableTimeItem.spanOn(date: LocalDate): TimeSpan? {
+    val isOutside = date < start.date || date > endInclusive.date
+    val endsAtDayStart = date > start.date && endInclusive == LocalDateTime(date = date, time = LocalTime(hour = 0, minute = 0))
+    if (isOutside || endsAtDayStart) return null
+
+    val startMinute = if (date == start.date) start.time.minuteOfDay else 0
+    val dayEndMinute = if (date == endInclusive.date) endInclusive.time.minuteOfDay else MINUTES_PER_DAY
+    val endMinute = maxOf(dayEndMinute, startMinute + MIN_TIME_ITEM_MINUTES)
 
     return if (endMinute > MINUTES_PER_DAY) {
         TimeSpan(item = this, startMinute = MINUTES_PER_DAY - MIN_TIME_ITEM_MINUTES, endMinute = MINUTES_PER_DAY)

@@ -7,6 +7,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlin.uuid.Uuid
 
@@ -113,11 +114,50 @@ class TimetableLayoutTest :
             listOf(timeItem(start = "10:00", end = "11:00")).placeOn(date = date(day = 24)).shouldBeEmpty()
             listOf(allDayItem(start = date(day = 1), end = date(day = 2))).placeIn(dateRange = DATE..DATE).shouldBeEmpty()
         }
+
+        test("TC-TIMETABLE-DOMAIN-018 여러 날에 걸친 시각 아이템은 날짜마다 그 날짜에 해당하는 시간대를 차지한다") {
+            val caseList =
+                listOf(
+                    timeItem(start = dateTime(day = 21, hour = 22), endInclusive = dateTime(day = 23, hour = 1)) to
+                        listOf(minute(hour = 22)..MINUTES_PER_DAY, 0..MINUTES_PER_DAY, 0..minute(hour = 1)),
+                    timeItem(start = dateTime(day = 21, hour = 22), endInclusive = dateTime(day = 22, hour = 0)) to
+                        listOf(minute(hour = 22)..MINUTES_PER_DAY, null, null),
+                    timeItem(start = dateTime(day = 21, hour = 23, minute = 50), endInclusive = dateTime(day = 22, hour = 0, minute = 10)) to
+                        listOf(minute(hour = 23, minute = 30)..MINUTES_PER_DAY, 0..minute(hour = 0, minute = 30), null),
+                )
+
+            caseList.forEach { (item, expected) ->
+                listOf(21, 22, 23).map { day ->
+                    listOf(item).placeOn(date = date(day = day)).singleOrNull()?.let { it.startMinute..it.endMinute }
+                } shouldBe expected
+            }
+        }
+
+        test("TC-TIMETABLE-DOMAIN-019 여러 날에 걸친 시각 아이템은 날짜마다 따로 배치된다") {
+            val a = timeItem(start = dateTime(day = 21, hour = 22), endInclusive = dateTime(day = 22, hour = 10))
+            val b = timeItem(start = dateTime(day = 21, hour = 22, minute = 30), endInclusive = dateTime(day = 21, hour = 23))
+            val c = timeItem(start = dateTime(day = 22, hour = 12), endInclusive = dateTime(day = 22, hour = 13))
+            val itemList = listOf(a, b, c)
+
+            itemList.placement(date = date(day = 21)) shouldBe mapOf(a.key to (0 to 2), b.key to (1 to 2))
+            itemList.placement(date = date(day = 22)) shouldBe mapOf(a.key to (0 to 1), c.key to (0 to 1))
+        }
+
+        test("TC-TIMETABLE-DOMAIN-020 표시 날짜 밖으로 이어지는 시각 아이템은 표시 날짜 안쪽 부분만 놓인다") {
+            val a = timeItem(start = dateTime(day = 26, hour = 22), endInclusive = dateTime(day = 27, hour = 2))
+            val b = timeItem(start = dateTime(day = 19, hour = 20), endInclusive = dateTime(day = 20, hour = 0))
+
+            val placedByDate = (date(day = 20)..date(day = 26)).associateWith { date -> listOf(a, b).placeOn(date = date) }
+
+            placedByDate.filterValues { it.isNotEmpty() }.mapValues { (_, placedList) ->
+                placedList.map { Triple(it.item.key, it.startMinute, it.endMinute) }
+            } shouldBe mapOf(date(day = 26) to listOf(Triple(a.key, minute(hour = 22), MINUTES_PER_DAY)))
+        }
     })
 
 private val DATE = date(day = 23)
 
-private fun List<TimetableTimeItem>.placement(): Map<Any, Pair<Int, Int>> = placeOn(date = DATE).associate { it.item.key to (it.column to it.columnCount) }
+private fun List<TimetableTimeItem>.placement(date: LocalDate = DATE): Map<Any, Pair<Int, Int>> = placeOn(date = date).associate { it.item.key to (it.column to it.columnCount) }
 
 private fun List<TimetableAllDayItem>.rowIn(): Map<Any, Int> = placeIn(dateRange = date(day = 20)..date(day = 26)).associate { it.item.key to it.row }
 
@@ -128,14 +168,28 @@ private fun minute(
 
 private fun date(day: Int): LocalDate = LocalDate(year = 2026, month = 9, day = day)
 
+private fun dateTime(
+    day: Int,
+    hour: Int,
+    minute: Int = 0,
+): LocalDateTime = LocalDateTime(date = date(day = day), time = LocalTime(hour = hour, minute = minute))
+
 private fun timeItem(
     start: String,
     end: String,
 ): TimetableTimeItem =
+    timeItem(
+        start = LocalDateTime(date = DATE, time = LocalTime.parse(start)),
+        endInclusive = LocalDateTime(date = DATE, time = LocalTime.parse(end)),
+    )
+
+private fun timeItem(
+    start: LocalDateTime,
+    endInclusive: LocalDateTime,
+): TimetableTimeItem =
     TimetableTimeItem(
-        date = DATE,
-        startTime = LocalTime.parse(start),
-        endTime = LocalTime.parse(end),
+        start = start,
+        endInclusive = endInclusive,
         key = fixtureMonkey.giveMeOne<Uuid>(),
         content = {},
     )

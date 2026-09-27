@@ -128,7 +128,7 @@ private fun TimetablePreview() {
                 nowProvider = { LocalDateTime(date = date, time = LocalTime(hour = 9, minute = 30)) },
             ) {
                 allDayItem(dateRange = date..date, key = "휴가") { Text(text = "휴가") }
-                timeItem(date = date, startTime = LocalTime(hour = 9, minute = 0), endTime = LocalTime(hour = 10, minute = 30), key = "회의") {
+                timeItem(start = LocalDateTime(date = date, time = LocalTime(hour = 9, minute = 0)), endInclusive = LocalDateTime(date = date, time = LocalTime(hour = 10, minute = 30)), key = "회의") {
                     Text(text = "회의")
                 }
             }

@@ -269,7 +269,11 @@ private fun TimetableGridPreview() {
     val timeItemList =
         remember {
             listOf(
-                TimetableTimeItem(date = date, startTime = LocalTime(hour = 9, minute = 0), endTime = LocalTime(hour = 10, minute = 30), key = "회의") {
+                TimetableTimeItem(
+                    start = LocalDateTime(date = date, time = LocalTime(hour = 9, minute = 0)),
+                    endInclusive = LocalDateTime(date = date, time = LocalTime(hour = 10, minute = 30)),
+                    key = "회의",
+                ) {
                     Text(text = "회의")
                 },
             )
