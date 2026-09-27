@@ -12,7 +12,7 @@
 
 ### 진입
 
-사용자는 메모 목록 화면에서 메모 추가 행동을 선택해 MemoAdd 화면으로 이동한다. TagDetail 메모 탭에서 이동한 경우에는 그 탭의 상세 대상 태그를 선택하고 대표 태그로 지정한 상태로 진입한다. ContactDetail, PlaceDetail 또는 WebDetail 화면의 메모 탭에서 이동한 경우에는 그 탭의 상세 대상 연락처, 장소 또는 웹 항목이 선택된 상태로 진입한다. 캘린더 홈 화면이나 황금연휴 화면에서 기간을 선택해 이동한 경우에는 선택한 기간이 날짜·시간 입력에 입력된 상태로 진입한다.
+사용자는 메모 목록 화면에서 메모 추가 행동을 선택해 MemoAdd 화면으로 이동한다. TagDetail 메모 탭에서 이동한 경우에는 그 탭의 상세 대상 태그를 선택하고 대표 태그로 지정한 상태로 진입한다. ContactDetail, PlaceDetail 또는 WebDetail 화면의 메모 탭에서 이동한 경우에는 그 탭의 상세 대상 연락처, 장소 또는 웹 항목이 선택된 상태로 진입한다. 캘린더 홈 화면, 캘린더 시간표 화면이나 황금연휴 화면에서 기간을 선택해 이동한 경우에는 선택한 기간이 날짜·시간 입력에 입력된 상태로 진입한다.
 
 MemoHome에서 이동한 MemoAdd 화면의 목록 동시 표시와 단독 표시 상태는 [Memo 목록·상세 배치 스펙](./memo-list-detail.md)을, TagDetail 메모 탭에서 이동한 MemoAdd 화면은 [TagDetail 메모 탭 스펙](./tag-detail-memo.md)의 `메모 추가`에 따라, ContactDetail·PlaceDetail·WebDetail 메모 탭에서 이동한 MemoAdd 화면은 [항목 상세 메모 탭 공통 스펙](./entity-detail-memo.md)의 `메모 추가`에 따라 단독으로 표시한다.
 
@@ -124,7 +124,7 @@ PlaceDetail 메모 탭에서 이동한 MemoAdd 화면이 처음 나타나면 그
 
 MemoHome, TagDetail 메모 탭과 ContactDetail·PlaceDetail·WebDetail 메모 탭에서 MemoAdd 화면에 진입하면 기간이 선택되지 않은 상태로 시작한다.
 
-캘린더 홈 화면이나 황금연휴 화면에서 기간을 선택해 진입하면 선택한 기간을 종일 기간의 초기값으로 사용한다. 사용자는 제시된 기간을 자유롭게 바꾸거나 기간 사용을 해제해 기간 없는 메모로 추가할 수 있다.
+캘린더 홈 화면이나 황금연휴 화면에서 기간을 선택해 진입하면 선택한 기간을 종일 기간의 초기값으로 사용한다. 캘린더 시간표 화면에서 진입하면 [CalendarTimetable 화면 스펙](./calendar-timetable.md)의 `기간 선택으로 메모 추가 시작`에 따라 시간대로 고른 기간은 날짜·시간 기간의, 날짜로 고른 기간은 종일 기간의 초기값으로 사용한다. 사용자는 제시된 기간을 자유롭게 바꾸거나 기간 사용을 해제해 기간 없는 메모로 추가할 수 있다.
 
 ### 태그 선택과 메모 추가 성립 조건
 
@@ -136,7 +136,7 @@ MemoAdd 화면에서 선택한 것으로 표시하는 태그는 선택할 수 �
 
 ### 태그 선택의 시작 상태
 
-MemoHome, ContactDetail·PlaceDetail·WebDetail 메모 탭, 캘린더 홈 화면과 황금연휴 화면에서 MemoAdd 화면에 진입하면 선택한 태그와 대표 태그가 없는 상태로 시작한다.
+MemoHome, ContactDetail·PlaceDetail·WebDetail 메모 탭, 캘린더 홈 화면, 캘린더 시간표 화면과 황금연휴 화면에서 MemoAdd 화면에 진입하면 선택한 태그와 대표 태그가 없는 상태로 시작한다.
 
 TagDetail 메모 탭에서 MemoAdd 화면으로 이동할 때는 상세 대상 태그를 선택 태그와 대표 태그의 초기값으로 사용한다.
 
