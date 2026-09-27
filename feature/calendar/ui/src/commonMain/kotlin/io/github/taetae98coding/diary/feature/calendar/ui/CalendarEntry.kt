@@ -7,6 +7,7 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeNavKey
@@ -88,8 +89,23 @@ private fun EntryProviderScope<ScreenNavKey>.calendarTimetableEntry(backStack: N
         CalendarTimetableScreen(
             navigateUp = { backStack.removeLastOrNull() },
             navigateToMemoDetail = { id -> backStack.add(MemoDetailNavKey(id)) },
+            navigateToMemoAdd = { dateTime -> backStack.add(dateTime.toMemoAddNavKey()) },
             state = rememberCalendarTimetableScaffoldState(type = key.type, initialDate = key.date),
-            viewModel = koinViewModel(),
+            memoViewModel = koinViewModel(),
+            holidayViewModel = koinViewModel(),
         )
     }
 }
+
+private fun MemoDateTime.toMemoAddNavKey(): MemoAddNavKey =
+    when (this) {
+        is MemoDateTime.AllDay ->
+            MemoAddNavKey(
+                initialDateRange = MemoAddNavKey.InitialDateRange(start = dateRange.start, endInclusive = dateRange.endInclusive),
+            )
+
+        is MemoDateTime.DateTime ->
+            MemoAddNavKey(
+                initialDateTimeRange = MemoAddNavKey.InitialDateTimeRange(start = start, endInclusive = endInclusive),
+            )
+    }

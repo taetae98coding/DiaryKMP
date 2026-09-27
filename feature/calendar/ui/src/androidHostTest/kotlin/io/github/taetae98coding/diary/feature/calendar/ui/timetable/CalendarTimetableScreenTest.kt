@@ -3,6 +3,8 @@ package io.github.taetae98coding.diary.feature.calendar.ui.timetable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
@@ -28,8 +30,10 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.timetable.TIMETABLE_ALL_DAY_TEST_TAG
+import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
@@ -42,6 +46,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.LocalDateTime
 import org.junit.Before
 import org.junit.Rule
@@ -334,6 +339,120 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
+    fun `TC-CALENDAR-TIMETABLE-FEATURE-024 공휴일 이름은 공휴일 여부와 관계없이 종일 영역에 표시된다`() {
+        val chuseok = holiday(name = CHUSEOK, isHoliday = true, dateRange = september(day = 24)..september(day = 26))
+        val anniversary = holiday(name = ANNIVERSARY, isHoliday = false, dateRange = september(day = 21)..september(day = 21))
+        setTimetableScreen(
+            type = CalendarTimetableNavKey.Type.WEEK,
+            date = september(day = 20),
+            holidayListFlow = MutableStateFlow(listOf(chuseok, anniversary)),
+        )
+
+        val allDayBounds = composeRule.onNodeWithTag(TIMETABLE_ALL_DAY_TEST_TAG).fetchSemanticsNode().boundsInRoot
+
+        listOf(CHUSEOK, ANNIVERSARY).forEach { name ->
+            val bounds = composeRule.onNodeWithText(name).fetchSemanticsNode().boundsInRoot
+
+            (bounds.top >= allDayBounds.top && bounds.bottom <= allDayBounds.bottom) shouldBe true
+        }
+    }
+
+    @Test
+    fun `TC-CALENDAR-TIMETABLE-FEATURE-025 공휴일이 준비되면 별도 조작 없이 이름이 표시된다`() {
+        val holidayListFlow = MutableStateFlow<List<Holiday>>(emptyList())
+        setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = september(day = 25), holidayListFlow = holidayListFlow)
+        composeRule.onNodeWithText(CHUSEOK).assertDoesNotExist()
+
+        holidayListFlow.value = listOf(holiday(name = CHUSEOK, isHoliday = true, dateRange = september(day = 25)..september(day = 25)))
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(CHUSEOK).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-CALENDAR-TIMETABLE-FEATURE-026 공휴일 이름을 선택하면 그 이름의 검색 결과를 브라우저에서 연다`() {
+        val uriHandler = mockk<UriHandler>(relaxed = true)
+        setTimetableScreen(
+            type = CalendarTimetableNavKey.Type.DAY,
+            date = september(day = 25),
+            holidayListFlow = MutableStateFlow(listOf(holiday(name = CHUSEOK, isHoliday = true, dateRange = september(day = 25)..september(day = 25)))),
+            uriHandler = uriHandler,
+        )
+
+        composeRule.onNodeWithText(CHUSEOK).performClick()
+
+        verify(exactly = 1) { uriHandler.openUri("https://search.naver.com/search.naver?query=%EC%B6%94%EC%84%9D") }
+        composeRule.onNodeWithText("25").assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-CALENDAR-TIMETABLE-FEATURE-027 브라우저를 열지 못해도 시간표를 그대로 유지한다`() {
+        val uriHandler = mockk<UriHandler>().also { every { it.openUri(any()) } throws IllegalStateException(fixtureMonkey.giveMeOne<String>()) }
+        setTimetableScreen(
+            type = CalendarTimetableNavKey.Type.DAY,
+            date = september(day = 25),
+            holidayListFlow = MutableStateFlow(listOf(holiday(name = CHUSEOK, isHoliday = true, dateRange = september(day = 25)..september(day = 25)))),
+            uriHandler = uriHandler,
+        )
+
+        composeRule.onNodeWithText(CHUSEOK).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("25").assertIsDisplayed()
+        composeRule.onNodeWithText(CHUSEOK).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-CALENDAR-TIMETABLE-FEATURE-028 기간 선택을 완료하면 고른 기간으로 MemoAdd 화면 이동을 요청한다 - 시간대`() {
+        val requestList = mutableListOf<MemoDateTime>()
+        setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = september(day = 23), navigateToMemoAdd = { requestList += it })
+        val tenY = hourLabelCenterY(label = "10 AM")
+        val hourHeight = hourLabelCenterY(label = "11 AM") - tenY
+        val x =
+            composeRule
+                .onRoot()
+                .fetchSemanticsNode()
+                .size.width * 3F / 4F
+
+        composeRule.onRoot().performTouchInput {
+            down(Offset(x = x, y = tenY + hourHeight / 6F))
+            advanceEventTime(viewConfiguration.longPressTimeoutMillis + LONG_PRESS_MARGIN_MILLIS)
+            moveTo(Offset(x = x, y = tenY + hourHeight * 7F / 6F))
+            up()
+        }
+        composeRule.waitForIdle()
+
+        requestList shouldBe
+            listOf(
+                MemoDateTime.DateTime(
+                    start = LocalDateTime(year = 2026, month = 9, day = 23, hour = 10, minute = 0),
+                    endInclusive = LocalDateTime(year = 2026, month = 9, day = 23, hour = 11, minute = 30),
+                ),
+            )
+    }
+
+    @Test
+    fun `TC-CALENDAR-TIMETABLE-FEATURE-028 기간 선택을 완료하면 고른 기간으로 MemoAdd 화면 이동을 요청한다 - 날짜`() {
+        val requestList = mutableListOf<MemoDateTime>()
+        setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = september(day = 23), navigateToMemoAdd = { requestList += it })
+        val position =
+            composeRule
+                .onNodeWithText("23")
+                .fetchSemanticsNode()
+                .boundsInRoot.center
+
+        composeRule.onRoot().performTouchInput {
+            down(position)
+            advanceEventTime(viewConfiguration.longPressTimeoutMillis + LONG_PRESS_MARGIN_MILLIS)
+            moveBy(Offset.Zero)
+            up()
+        }
+        composeRule.waitForIdle()
+
+        requestList shouldBe listOf(MemoDateTime.AllDay(dateRange = september(day = 23)..september(day = 23)))
+    }
+
+    @Test
     fun `TC-CALENDAR-TIMETABLE-FEATURE-023 시간표를 아래로 당겨도 새로고침이 시작되지 않는다`() {
         setTimetableScreen(type = CalendarTimetableNavKey.Type.DAY, date = september(day = 23))
 
@@ -350,6 +469,9 @@ class CalendarTimetableScreenTest {
         memoListFlow: MutableStateFlow<List<CalendarMemo>> = MutableStateFlow(memoList),
         navigateUp: () -> Unit = {},
         navigateToMemoDetail: (Uuid) -> Unit = {},
+        navigateToMemoAdd: (MemoDateTime) -> Unit = {},
+        holidayListFlow: MutableStateFlow<List<Holiday>> = MutableStateFlow(emptyList()),
+        uriHandler: UriHandler? = null,
         restorationTester: StateRestorationTester? = null,
         onState: (CalendarTimetableScaffoldState) -> Unit = {},
         lifecycleOwner: LifecycleOwner? = null,
@@ -362,13 +484,18 @@ class CalendarTimetableScreenTest {
             val state = rememberCalendarTimetableScaffoldState(type = type, initialDate = date)
             onState(state)
 
-            CompositionLocalProvider(LocalLifecycleOwner provides (lifecycleOwner ?: LocalLifecycleOwner.current)) {
+            CompositionLocalProvider(
+                LocalLifecycleOwner provides (lifecycleOwner ?: LocalLifecycleOwner.current),
+                LocalUriHandler provides (uriHandler ?: LocalUriHandler.current),
+            ) {
                 DiaryTheme {
                     CalendarTimetableScreen(
                         navigateUp = navigateUp,
                         navigateToMemoDetail = navigateToMemoDetail,
+                        navigateToMemoAdd = navigateToMemoAdd,
                         state = state,
-                        viewModel = viewModel,
+                        memoViewModel = viewModel,
+                        holidayViewModel = holidayViewModel(holidayListFlow = holidayListFlow),
                     )
                 }
             }
@@ -382,10 +509,22 @@ class CalendarTimetableScreenTest {
             every { viewModel.memoList } returns memoListFlow
         }
 
+    private fun holidayViewModel(holidayListFlow: MutableStateFlow<List<Holiday>>): CalendarTimetableHolidayViewModel =
+        mockk<CalendarTimetableHolidayViewModel>().also { viewModel ->
+            every { viewModel.fetch(any()) } returns Unit
+            every { viewModel.holidayList } returns holidayListFlow
+        }
+
     private fun swipePageLeft() {
         composeRule.onRoot().performTouchInput { swipeLeft() }
         composeRule.waitForIdle()
     }
+
+    private fun hourLabelCenterY(label: String): Float =
+        composeRule
+            .onNodeWithText(label)
+            .fetchSemanticsNode()
+            .boundsInRoot.center.y
 
     private fun swipePageRight() {
         composeRule.onRoot().performTouchInput { swipeRight() }
@@ -399,6 +538,9 @@ private const val MEETING_TITLE = "Meeting"
 private const val VACATION_TITLE = "Vacation"
 private const val TRIP_TITLE = "Trip"
 private const val FILTER_CONTENT_DESCRIPTION = "Filter"
+private const val CHUSEOK = "추석"
+private const val ANNIVERSARY = "Anniversary"
+private const val LONG_PRESS_MARGIN_MILLIS = 100L
 
 private fun september(day: Int): LocalDate = LocalDate(year = 2026, month = 9, day = day)
 
@@ -416,3 +558,9 @@ private fun memo(
     title: String,
     dateTime: MemoDateTime,
 ): CalendarMemo = fixtureMonkey.calendarMemo(dateTime = dateTime, title = title)
+
+private fun holiday(
+    name: String,
+    isHoliday: Boolean,
+    dateRange: LocalDateRange,
+): Holiday = fixtureMonkey.giveMeOne<Holiday>().copy(name = name, isHoliday = isHoliday, dateRange = dateRange)

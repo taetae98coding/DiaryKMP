@@ -9,6 +9,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import io.github.taetae98coding.diary.compose.timetable.TimetableEvent
+import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.minutes
 import kotlin.uuid.Uuid
@@ -17,16 +19,23 @@ import kotlin.uuid.Uuid
 internal fun CalendarTimetableScreen(
     navigateUp: () -> Unit,
     navigateToMemoDetail: (Uuid) -> Unit,
+    navigateToMemoAdd: (MemoDateTime) -> Unit,
     state: CalendarTimetableScaffoldState,
-    viewModel: CalendarTimetableViewModel,
+    memoViewModel: CalendarTimetableViewModel,
+    holidayViewModel: CalendarTimetableHolidayViewModel,
     modifier: Modifier = Modifier,
 ) {
-    val memoList by viewModel.memoList.collectAsStateWithLifecycle()
+    val memoList by memoViewModel.memoList.collectAsStateWithLifecycle()
+    val holidayList by holidayViewModel.holidayList.collectAsStateWithLifecycle()
 
     UpdateNowEffect(state = state)
     FetchMemoEffect(
         state = state,
-        viewModel = viewModel,
+        memoViewModel = memoViewModel,
+    )
+    FetchHolidayEffect(
+        state = state,
+        holidayViewModel = holidayViewModel,
     )
     CalendarTimetableScaffold(
         onEvent = { event ->
@@ -35,9 +44,16 @@ internal fun CalendarTimetableScreen(
                 is CalendarTimetableScaffoldEvent.ClickMemo -> navigateToMemoDetail(event.id)
             }
         },
+        onTimetableEvent = { event ->
+            when (event) {
+                is TimetableEvent.SelectTime -> navigateToMemoAdd(MemoDateTime.DateTime(start = event.start, endInclusive = event.endInclusive))
+                is TimetableEvent.SelectDate -> navigateToMemoAdd(MemoDateTime.AllDay(dateRange = event.dateRange))
+            }
+        },
         modifier = modifier,
         state = state,
         memoProvider = { memoList },
+        holidayProvider = { holidayList },
     )
 }
 
@@ -58,11 +74,22 @@ private fun UpdateNowEffect(state: CalendarTimetableScaffoldState) {
 @Composable
 private fun FetchMemoEffect(
     state: CalendarTimetableScaffoldState,
-    viewModel: CalendarTimetableViewModel,
+    memoViewModel: CalendarTimetableViewModel,
 ) {
-    LaunchedEffect(state, viewModel) {
+    LaunchedEffect(state, memoViewModel) {
         snapshotFlow { state.timetableState.currentDateRange }
-            .collect { dateRange -> viewModel.fetch(dateRange = dateRange.calendarTimetableFetchDateRange()) }
+            .collect { dateRange -> memoViewModel.fetch(dateRange = dateRange.calendarTimetableFetchDateRange()) }
+    }
+}
+
+@Composable
+private fun FetchHolidayEffect(
+    state: CalendarTimetableScaffoldState,
+    holidayViewModel: CalendarTimetableHolidayViewModel,
+) {
+    LaunchedEffect(state, holidayViewModel) {
+        snapshotFlow { state.timetableState.currentDateRange }
+            .collect { dateRange -> holidayViewModel.fetch(dateRange = dateRange) }
     }
 }
 

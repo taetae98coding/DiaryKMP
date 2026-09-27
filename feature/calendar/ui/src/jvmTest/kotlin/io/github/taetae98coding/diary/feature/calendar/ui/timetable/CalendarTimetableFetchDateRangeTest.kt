@@ -12,6 +12,18 @@ class CalendarTimetableFetchDateRangeTest :
             (date(month = 9, day = 20)..date(month = 9, day = 26)).calendarTimetableFetchDateRange() shouldBe
                 date(month = 9, day = 13)..date(month = 10, day = 3)
         }
+
+        test("TC-CALENDAR-TIMETABLE-DOMAIN-012 공휴일 표시 대상 연도는 조회 기간에 들어가는 날짜의 연도다") {
+            val caseList =
+                listOf(
+                    LocalDate(2026, 7, 15)..LocalDate(2026, 7, 15) to listOf(2026),
+                    LocalDate(2026, 12, 31)..LocalDate(2026, 12, 31) to listOf(2026, 2027),
+                    LocalDate(2026, 1, 1)..LocalDate(2026, 1, 1) to listOf(2025, 2026),
+                    LocalDate(2026, 12, 27)..LocalDate(2027, 1, 2) to listOf(2026, 2027),
+                )
+
+            caseList.forEach { (dateRange, expected) -> dateRange.calendarTimetableHolidayYearList() shouldBe expected }
+        }
     })
 
 private fun date(

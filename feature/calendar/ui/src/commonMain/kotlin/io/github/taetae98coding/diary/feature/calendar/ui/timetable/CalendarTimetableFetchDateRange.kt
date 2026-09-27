@@ -10,3 +10,9 @@ internal fun LocalDateRange.calendarTimetableFetchDateRange(): LocalDateRange {
 
     return start.minus(dayCount, DateTimeUnit.DAY)..endInclusive.plus(dayCount, DateTimeUnit.DAY)
 }
+
+internal fun LocalDateRange.calendarTimetableHolidayYearList(): List<Int> {
+    val fetchDateRange = calendarTimetableFetchDateRange()
+
+    return (fetchDateRange.start.year..fetchDateRange.endInclusive.year).toList()
+}

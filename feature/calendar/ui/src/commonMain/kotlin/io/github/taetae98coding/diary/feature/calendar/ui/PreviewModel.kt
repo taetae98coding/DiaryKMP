@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.feature.calendar.ui
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
+import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.tag.Tag
@@ -53,6 +54,13 @@ internal fun previewCalendarTimedMemo(title: String = "회의"): CalendarMemo =
                 start = LocalDateTime(year = 2026, month = 7, day = 19, hour = 9, minute = 0),
                 endInclusive = LocalDateTime(year = 2026, month = 7, day = 19, hour = 10, minute = 30),
             ),
+    )
+
+internal fun previewHoliday(name: String = "제헌절"): Holiday =
+    Holiday(
+        name = name,
+        isHoliday = true,
+        dateRange = LocalDate(year = 2026, month = 7, day = 17)..LocalDate(year = 2026, month = 7, day = 17),
     )
 
 internal fun previewCalendarContactBirthday(name: String = "홍길동"): CalendarContactBirthday =
