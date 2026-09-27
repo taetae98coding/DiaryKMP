@@ -25,6 +25,7 @@ import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.navigation3.runtime.result.ResultEventBus
+import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputValue
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
@@ -42,6 +43,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.number
@@ -252,7 +255,7 @@ class MemoAddScreenTest {
                     navigateToContactDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
-                    initialDateRange = null,
+                    initialDateTime = null,
                     componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
                     isStandalone = true,
                 )
@@ -283,6 +286,48 @@ class MemoAddScreenInitialDateTimeTest {
     fun `TC-MEMO-ADD-FEATURE-047 캘린더 홈이나 황금연휴 화면에서 기간을 선택해 진입하면 그 기간이 종일 기간으로 입력되어 있다`() {
         val start = LocalDate(year = 2026, month = Month.JULY, day = 14)
         val endInclusive = LocalDate(year = 2026, month = Month.JULY, day = 17)
+        setMemoAddScreen(initialDateTime = MemoAddNavKey(initialDateRange = MemoAddNavKey.InitialDateRange(start = start, endInclusive = endInclusive)).initialDateTime())
+
+        composeRule.onNode(hasRole(Role.Switch)).assertIsOn()
+        composeRule.onNode(hasRole(Role.Checkbox)).assertIsOn()
+        composeRule.onNodeWithText(start.toDefaultDisplayText()).assertExists()
+        composeRule.onNodeWithText(endInclusive.toDefaultDisplayText()).assertExists()
+    }
+
+    @Test
+    fun `TC-MEMO-ADD-FEATURE-072 캘린더 시간표 화면에서 기간을 선택해 진입하면 고른 방법에 맞는 기간이 입력되어 있다 - 시간대 선택`() {
+        val date = LocalDate(year = 2026, month = Month.JULY, day = 14)
+        setMemoAddScreen(
+            initialDateTime =
+                MemoAddNavKey(
+                    initialDateTimeRange =
+                        MemoAddNavKey.InitialDateTimeRange(
+                            start = LocalDateTime(date = date, time = LocalTime(hour = 10, minute = 0)),
+                            endInclusive = LocalDateTime(date = date, time = LocalTime(hour = 11, minute = 30)),
+                        ),
+                ).initialDateTime(),
+        )
+
+        composeRule.onNode(hasRole(Role.Switch)).assertIsOn()
+        composeRule.onNode(hasRole(Role.Checkbox)).assertIsOff()
+        composeRule.onAllNodesWithText(date.toDefaultDisplayText()).assertCountEquals(2)
+        composeRule.onNodeWithText("10:00 AM").assertExists()
+        composeRule.onNodeWithText("11:30 AM").assertExists()
+    }
+
+    @Test
+    fun `TC-MEMO-ADD-FEATURE-072 캘린더 시간표 화면에서 기간을 선택해 진입하면 고른 방법에 맞는 기간이 입력되어 있다 - 날짜 선택`() {
+        val start = LocalDate(year = 2026, month = Month.JULY, day = 14)
+        val endInclusive = LocalDate(year = 2026, month = Month.JULY, day = 17)
+        setMemoAddScreen(initialDateTime = MemoAddNavKey(initialDateRange = MemoAddNavKey.InitialDateRange(start = start, endInclusive = endInclusive)).initialDateTime())
+
+        composeRule.onNode(hasRole(Role.Switch)).assertIsOn()
+        composeRule.onNode(hasRole(Role.Checkbox)).assertIsOn()
+        composeRule.onNodeWithText(start.toDefaultDisplayText()).assertExists()
+        composeRule.onNodeWithText(endInclusive.toDefaultDisplayText()).assertExists()
+    }
+
+    private fun setMemoAddScreen(initialDateTime: DiaryDateTimeInputValue?) {
         composeRule.setContent {
             MemoAddScreenTestTheme {
                 val viewModels = screenTestViewModel()
@@ -305,19 +350,13 @@ class MemoAddScreenInitialDateTimeTest {
                     navigateToContactDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
-                    initialDateRange = MemoAddNavKey.InitialDateRange(start = start, endInclusive = endInclusive),
+                    initialDateTime = initialDateTime,
                     componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
                     isStandalone = true,
                 )
             }
         }
-
         composeRule.waitForIdle()
-
-        composeRule.onNode(hasRole(Role.Switch)).assertIsOn()
-        composeRule.onNode(hasRole(Role.Checkbox)).assertIsOn()
-        composeRule.onNodeWithText(start.toDefaultDisplayText()).assertExists()
-        composeRule.onNodeWithText(endInclusive.toDefaultDisplayText()).assertExists()
     }
 
     public companion object {
@@ -380,7 +419,7 @@ class MemoAddScreenMessageTest {
                     navigateToContactDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
-                    initialDateRange = null,
+                    initialDateTime = null,
                     componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
                     isStandalone = true,
                 )

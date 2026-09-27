@@ -305,7 +305,7 @@ class MemoAddScreenPlaceTest {
                     navigateToContactDetail = {},
                     navigateToPlaceAdd = navigateToPlaceAdd,
                     navigateToPlaceDetail = navigateToPlaceDetail,
-                    initialDateRange = null,
+                    initialDateTime = null,
                     componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
                     isStandalone = true,
                 )

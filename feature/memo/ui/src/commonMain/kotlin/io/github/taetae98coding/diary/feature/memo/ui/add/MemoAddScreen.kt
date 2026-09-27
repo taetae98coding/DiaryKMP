@@ -37,7 +37,7 @@ internal fun MemoAddScreen(
     navigateToContactDetail: (Uuid) -> Unit,
     navigateToPlaceAdd: (Coordinate?) -> Unit,
     navigateToPlaceDetail: (Uuid) -> Unit,
-    initialDateRange: MemoAddNavKey.InitialDateRange?,
+    initialDateTime: DiaryDateTimeInputValue?,
     tagAddRequestKey: Uuid,
     componentVisibleProvider: () -> MemoAddScaffoldComponentVisible,
     isStandalone: Boolean,
@@ -50,7 +50,7 @@ internal fun MemoAddScreen(
     geminiViewModel: MemoGeminiViewModel,
     modifier: Modifier = Modifier,
 ) {
-    val scaffoldState = rememberMemoAddFormState(initialDateTime = initialDateRange?.toInitialDateTime())
+    val scaffoldState = rememberMemoAddFormState(initialDateTime = initialDateTime)
     val uiState by addViewModel.uiState.collectAsStateWithLifecycle()
     val tagUiState by tagViewModel.uiState.collectAsStateWithLifecycle()
     val webUiState by webViewModel.uiState.collectAsStateWithLifecycle()
@@ -139,4 +139,6 @@ private fun MemoAddFormEffect(
     MemoGeminiSettingRequiredEffect(hostState = scaffoldState.hostState, effect = geminiViewModel.effect)
 }
 
-private fun MemoAddNavKey.InitialDateRange.toInitialDateTime(): DiaryDateTimeInputValue = DiaryDateTimeInputValue.AllDay(dateRange = start..endInclusive)
+internal fun MemoAddNavKey.initialDateTime(): DiaryDateTimeInputValue? =
+    initialDateTimeRange?.let { range -> DiaryDateTimeInputValue.DateTime(start = range.start, endInclusive = range.endInclusive) }
+        ?: initialDateRange?.let { range -> DiaryDateTimeInputValue.AllDay(dateRange = range.start..range.endInclusive) }

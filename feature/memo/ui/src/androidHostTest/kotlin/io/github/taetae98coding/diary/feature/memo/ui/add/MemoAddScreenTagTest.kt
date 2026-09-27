@@ -256,7 +256,7 @@ class MemoAddScreenTagTest {
                     navigateToContactDetail = {},
                     navigateToPlaceAdd = navigateToPlaceAdd,
                     navigateToPlaceDetail = navigateToPlaceDetail,
-                    initialDateRange = null,
+                    initialDateTime = null,
                     componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
                     isStandalone = true,
                 )
@@ -396,7 +396,7 @@ class MemoAddScreenTagPickerOpenTest {
                     navigateToContactDetail = {},
                     navigateToPlaceAdd = {},
                     navigateToPlaceDetail = {},
-                    initialDateRange = null,
+                    initialDateTime = null,
                     componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
                     isStandalone = true,
                 )
@@ -552,7 +552,7 @@ class MemoAddScreenTagRequestTest {
                     navigateToContactDetail = {},
                     navigateToPlaceAdd = navigateToPlaceAdd,
                     navigateToPlaceDetail = navigateToPlaceDetail,
-                    initialDateRange = null,
+                    initialDateTime = null,
                     componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
                     isStandalone = true,
                 )

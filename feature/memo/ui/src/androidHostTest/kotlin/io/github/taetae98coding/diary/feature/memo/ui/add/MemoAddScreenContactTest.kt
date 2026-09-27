@@ -88,7 +88,7 @@ private fun ComposeContentTestRule.setMemoAddScreenForContact(
                 navigateToContactDetail = navigateToContactDetail,
                 navigateToPlaceAdd = {},
                 navigateToPlaceDetail = {},
-                initialDateRange = null,
+                initialDateTime = null,
                 componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
                 isStandalone = true,
             )

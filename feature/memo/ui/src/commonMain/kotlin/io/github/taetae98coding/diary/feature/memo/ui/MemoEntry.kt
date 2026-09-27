@@ -26,6 +26,7 @@ import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.api.findMemoDetailPaneListKey
 import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddScreen
+import io.github.taetae98coding.diary.feature.memo.ui.add.initialDateTime
 import io.github.taetae98coding.diary.feature.memo.ui.detail.MemoDetailScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.memo.ui.detail.MemoDetailScreen
 import io.github.taetae98coding.diary.feature.memo.ui.finished.MemoFinishedListScreen
@@ -141,7 +142,7 @@ private fun EntryProviderScope<ScreenNavKey>.memoAddEntry(backStack: NavBackStac
                 )
             },
             navigateToPlaceDetail = { id -> backStack.add(PlaceDetailNavKey(id = id)) },
-            initialDateRange = key.initialDateRange,
+            initialDateTime = key.initialDateTime(),
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = { MemoAddScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
             isStandalone = !isListPaneVisible,
@@ -239,7 +240,7 @@ private fun MemoAddDetailPlaceholder(backStack: NavBackStack<ScreenNavKey>) {
             )
         },
         navigateToPlaceDetail = { id -> backStack.add(PlaceDetailNavKey(id = id)) },
-        initialDateRange = null,
+        initialDateTime = null,
         tagAddRequestKey = tagAddRequestKey,
         componentVisibleProvider = { MemoAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
         isStandalone = false,
