@@ -84,6 +84,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼�
 - [공통 스타일](./styles.md)
 - [필터 Bottom Sheet](./filter-bottom-sheet.md)
 - [FileHome 화면](./file-home.md)
+- [파일 올리기 알림](./file-upload-notification.md)
 - [완료 목록 공통](./finished-list.md)
 - [HolidayHome 화면](./holiday-home.md)
 - [아이콘 버튼 설명](./icon-button-tooltip.md)

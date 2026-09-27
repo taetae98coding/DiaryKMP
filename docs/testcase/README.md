@@ -66,6 +66,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [푸시 알림 수신 등록](./fcm-token.md) | [푸시 알림 수신 등록(client)](../spec/client/fcm-token.md), [푸시 알림 수신 등록(common)](../spec/common/fcm-token.md), [푸시 알림 수신 등록(server)](../spec/server/fcm-token.md) |
 | [FileHome](./file-home.md) | [FileHome 화면](../spec/client/file-home.md) |
 | [파일 보관](./file-storage.md) | [파일 보관(client)](../spec/client/file-storage.md), [파일 보관(common)](../spec/common/file-storage.md), [파일 보관(server)](../spec/server/file-storage.md) |
+| [파일 올리기 알림](./file-upload-notification.md) | [파일 올리기 알림](../spec/client/file-upload-notification.md) |
 | [Gemini 모델 목록 조회](./gemini-model-list.md) | [Gemini 모델 목록 조회](../spec/client/gemini-model-list.md) |
 | [Google 장소 검색](./google-place-search.md) | [Google 장소 검색](../spec/client/google-place-search.md) |
 | [공휴일 국가 설정](./holiday-country.md) | [공휴일 국가 설정](../spec/client/holiday-country.md) |
