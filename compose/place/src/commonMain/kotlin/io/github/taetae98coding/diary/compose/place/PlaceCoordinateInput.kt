@@ -1,4 +1,4 @@
-package io.github.taetae98coding.diary.feature.place.ui
+package io.github.taetae98coding.diary.compose.place
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
@@ -16,7 +16,7 @@ import io.github.taetae98coding.diary.compose.core.textfield.ClearTextField
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 
 @Composable
-internal fun PlaceCoordinateInput(
+public fun PlaceCoordinateInput(
     label: String,
     modifier: Modifier = Modifier,
     state: TextFieldState = rememberTextFieldState(),
