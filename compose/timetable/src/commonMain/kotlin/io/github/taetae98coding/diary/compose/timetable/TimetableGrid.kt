@@ -25,6 +25,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Constraints
+import io.github.taetae98coding.diary.compose.calendar.CalendarDefault
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import kotlinx.datetime.LocalDate
@@ -42,6 +43,7 @@ internal fun TimetableGrid(
     dateRange: LocalDateRange,
     modifier: Modifier = Modifier,
     state: TimetableState = rememberTimetableState(),
+    onEvent: ((TimetableEvent) -> Unit)? = null,
     nowProvider: () -> LocalDateTime? = { null },
     timeItemList: List<TimetableTimeItem> = emptyList(),
 ) {
@@ -73,6 +75,20 @@ internal fun TimetableGrid(
                             val x = dayWidth * index
                             drawLine(color = lineColor, start = Offset(x, 0F), end = Offset(x, size.height))
                         }
+                    }.thenIfNotNull(onEvent) { onEvent ->
+                        timetableSelectDrag(
+                            state = state.selectState,
+                            resolver = { position, size, anchor ->
+                                dateRange.timeSelectionAt(
+                                    position = position,
+                                    size = size,
+                                    visibleTop = scrollState.value.toFloat(),
+                                    visibleBottom = (scrollState.value + scrollState.viewportSize - 1).toFloat(),
+                                    anchor = anchor,
+                                )
+                            },
+                            onEvent = onEvent,
+                        )
                     },
         ) {
             dateRange.forEach { date ->
@@ -82,6 +98,7 @@ internal fun TimetableGrid(
                         Modifier
                             .weight(1F)
                             .fillMaxHeight(),
+                    selectState = state.selectState,
                     nowProvider = nowProvider,
                     timeItemList = timeItemList,
                 )
@@ -165,6 +182,7 @@ private fun hourLabel(hour: Int): String =
 private fun TimetableDayColumn(
     date: LocalDate,
     modifier: Modifier = Modifier,
+    selectState: TimetableSelectState = remember { TimetableSelectState() },
     nowProvider: () -> LocalDateTime? = { null },
     timeItemList: List<TimetableTimeItem> = emptyList(),
 ) {
@@ -181,7 +199,12 @@ private fun TimetableDayColumn(
                 TimetableNowIndicator(modifier = Modifier.testTag(TIMETABLE_NOW_INDICATOR_TEST_TAG))
             }
         },
-        modifier = modifier,
+        modifier =
+            modifier.timetableTimeSelectBackground(
+                date = date,
+                state = selectState,
+                color = CalendarDefault.selectBackgroundColor(),
+            ),
     ) { measurables, constraints ->
         val horizontalSpacing = TimetableDefaults.TimeItemHorizontalSpacing.roundToPx()
         val verticalSpacing = TimetableDefaults.TimeItemVerticalSpacing.roundToPx()

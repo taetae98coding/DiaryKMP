@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Constraints
+import io.github.taetae98coding.diary.compose.calendar.CalendarDefault
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import kotlinx.datetime.LocalDate
@@ -30,11 +31,22 @@ public const val TIMETABLE_ALL_DAY_TEST_TAG: String = "TimetableAllDay"
 internal fun TimetableAllDay(
     dateRange: LocalDateRange,
     modifier: Modifier = Modifier,
+    selectState: TimetableSelectState = remember { TimetableSelectState() },
     itemList: List<TimetablePlacedAllDayItem> = emptyList(),
 ) {
     val spacing = DiaryTheme.dimens.calendarItemSpacing
 
-    Row(modifier = modifier.testTag(TIMETABLE_ALL_DAY_TEST_TAG)) {
+    Row(
+        modifier =
+            modifier
+                .testTag(TIMETABLE_ALL_DAY_TEST_TAG)
+                .timetableDateSelectBackground(
+                    dateRange = dateRange,
+                    startInset = TimetableDefaults.TimeColumnWidth,
+                    state = selectState,
+                    color = CalendarDefault.selectBackgroundColor(),
+                ),
+    ) {
         Spacer(modifier = Modifier.width(TimetableDefaults.TimeColumnWidth))
         Layout(
             content = {
@@ -50,17 +62,7 @@ internal fun TimetableAllDay(
                     .padding(vertical = spacing),
         ) { measurables, constraints ->
             val spacingPx = spacing.roundToPx()
-            val dayCount = dateRange.count()
-            val dayWidth = constraints.maxWidth.toFloat() / dayCount
-            val horizontalBoundList =
-                itemList.map { placed ->
-                    val startIndex = dateRange.start.daysUntil(placed.dateRange.start)
-                    val endIndex = dateRange.start.daysUntil(placed.dateRange.endInclusive) + 1
-                    val left = (dayWidth * startIndex).roundToInt() + edgeInset(index = startIndex, dayCount = dayCount, spacing = spacingPx)
-                    val right = (dayWidth * endIndex).roundToInt() - edgeInset(index = endIndex, dayCount = dayCount, spacing = spacingPx)
-
-                    left to right
-                }
+            val horizontalBoundList = itemList.horizontalBoundList(dateRange = dateRange, width = constraints.maxWidth, spacing = spacingPx)
             val placeableList =
                 itemList.indices.map { index ->
                     val (left, right) = horizontalBoundList[index]
@@ -86,6 +88,24 @@ internal fun TimetableAllDay(
                 }
             }
         }
+    }
+}
+
+private fun List<TimetablePlacedAllDayItem>.horizontalBoundList(
+    dateRange: LocalDateRange,
+    width: Int,
+    spacing: Int,
+): List<Pair<Int, Int>> {
+    val dayCount = dateRange.count()
+    val dayWidth = width.toFloat() / dayCount
+
+    return map { placed ->
+        val startIndex = dateRange.start.daysUntil(placed.dateRange.start)
+        val endIndex = dateRange.start.daysUntil(placed.dateRange.endInclusive) + 1
+        val left = (dayWidth * startIndex).roundToInt() + edgeInset(index = startIndex, dayCount = dayCount, spacing = spacing)
+        val right = (dayWidth * endIndex).roundToInt() - edgeInset(index = endIndex, dayCount = dayCount, spacing = spacing)
+
+        left to right
     }
 }
 

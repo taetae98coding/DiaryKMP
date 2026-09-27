@@ -21,6 +21,8 @@ public class TimetableState internal constructor(
 
     internal var verticalScrollOffset: Int? = initialVerticalScrollOffset
 
+    internal val selectState: TimetableSelectState = TimetableSelectState()
+
     public val currentDateRange: LocalDateRange
         get() = type.dateRangeAt(pagerState.currentPage)
 

@@ -10,11 +10,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import io.github.taetae98coding.diary.compose.calendar.CalendarColor
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefault
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 
@@ -22,7 +24,9 @@ import kotlinx.datetime.LocalTime
 public fun Timetable(
     modifier: Modifier = Modifier,
     state: TimetableState = rememberTimetableState(),
+    onEvent: ((TimetableEvent) -> Unit)? = null,
     nowProvider: () -> LocalDateTime? = { null },
+    holidayProvider: () -> List<LocalDateRange> = { emptyList() },
     colors: CalendarColor = CalendarDefault.colors(),
     content: TimetableScope.() -> Unit,
 ) {
@@ -34,7 +38,9 @@ public fun Timetable(
             page = page,
             modifier = Modifier.fillMaxSize(),
             state = state,
+            onEvent = onEvent,
             nowProvider = nowProvider,
+            holidayProvider = holidayProvider,
             colors = colors,
             content = content,
         )
@@ -46,29 +52,53 @@ private fun TimetablePage(
     page: Int,
     modifier: Modifier = Modifier,
     state: TimetableState = rememberTimetableState(),
+    onEvent: ((TimetableEvent) -> Unit)? = null,
     nowProvider: () -> LocalDateTime? = { null },
+    holidayProvider: () -> List<LocalDateRange> = { emptyList() },
     colors: CalendarColor = CalendarDefault.colors(),
     content: TimetableScope.() -> Unit,
 ) {
     val dateRange = remember(state, page) { state.dateRangeAt(page) }
     val scope = TimetableScopeImpl().apply(content)
     val allDayItemList = scope.allDayItemList.placeIn(dateRange = dateRange)
+    val density = LocalDensity.current
 
     Column(modifier = modifier) {
-        TimetableHeader(
-            dateRange = dateRange,
-            modifier = Modifier.fillMaxWidth(),
-            nowProvider = nowProvider,
-            colors = colors,
-        )
-        HorizontalDivider()
-        if (allDayItemList.isNotEmpty()) {
-            TimetableAllDay(
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .thenIfNotNull(onEvent) { onEvent ->
+                        timetableSelectDrag(
+                            state = state.selectState,
+                            resolver = { position, size, anchor ->
+                                val startInset = if (state.type == TimetableType.WEEK) with(density) { TimetableDefaults.TimeColumnWidth.toPx() } else 0F
+
+                                dateRange.dateSelectionAt(position = position, size = size, startInset = startInset, anchor = anchor)
+                            },
+                            onEvent = onEvent,
+                        )
+                    },
+        ) {
+            TimetableHeader(
                 dateRange = dateRange,
                 modifier = Modifier.fillMaxWidth(),
-                itemList = allDayItemList,
+                type = state.type,
+                selectState = state.selectState,
+                nowProvider = nowProvider,
+                holidayProvider = holidayProvider,
+                colors = colors,
             )
             HorizontalDivider()
+            if (allDayItemList.isNotEmpty()) {
+                TimetableAllDay(
+                    dateRange = dateRange,
+                    modifier = Modifier.fillMaxWidth(),
+                    selectState = state.selectState,
+                    itemList = allDayItemList,
+                )
+                HorizontalDivider()
+            }
         }
         TimetableGrid(
             page = page,
@@ -78,6 +108,7 @@ private fun TimetablePage(
                     .fillMaxWidth()
                     .weight(1F),
             state = state,
+            onEvent = onEvent,
             nowProvider = nowProvider,
             timeItemList = scope.timeItemList,
         )

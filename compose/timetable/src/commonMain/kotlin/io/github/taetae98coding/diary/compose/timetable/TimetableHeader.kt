@@ -23,6 +23,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.calendar.CalendarColor
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefault
 import io.github.taetae98coding.diary.compose.calendar.dayOfWeekColor
@@ -38,21 +39,35 @@ import org.jetbrains.compose.resources.stringArrayResource
 internal fun TimetableHeader(
     dateRange: LocalDateRange,
     modifier: Modifier = Modifier,
+    type: TimetableType = TimetableType.DAY,
+    selectState: TimetableSelectState = remember { TimetableSelectState() },
     nowProvider: () -> LocalDateTime? = { null },
+    holidayProvider: () -> List<LocalDateRange> = { emptyList() },
     colors: CalendarColor = CalendarDefault.colors(),
 ) {
     val defaultContentColor = LocalContentColor.current
     val dayOfWeekTitleList = stringArrayResource(Res.array.timetable_day_of_week_titles)
+    val startInset = if (type == TimetableType.WEEK) TimetableDefaults.TimeColumnWidth else 0.dp
 
-    Row(modifier = modifier) {
-        Spacer(modifier = Modifier.width(TimetableDefaults.TimeColumnWidth))
+    Row(
+        modifier =
+            modifier.timetableDateSelectBackground(
+                dateRange = dateRange,
+                startInset = startInset,
+                state = selectState,
+                color = CalendarDefault.selectBackgroundColor(),
+            ),
+    ) {
+        Spacer(modifier = Modifier.width(startInset))
         dateRange.forEach { date ->
             TimetableHeaderDate(
                 date = date,
                 modifier = Modifier.weight(1F),
                 dayOfWeekTitle = dayOfWeekTitleList.getOrNull(date.dayOfWeek.sundayBasedNumber).orEmpty(),
-                color = colors.dayOfWeekColor(dayOfWeek = date.dayOfWeek, defaultColor = defaultContentColor),
+                defaultColor = defaultContentColor,
+                colors = colors,
                 nowProvider = nowProvider,
+                holidayProvider = holidayProvider,
             )
         }
     }
@@ -63,11 +78,15 @@ private fun TimetableHeaderDate(
     date: LocalDate,
     modifier: Modifier = Modifier,
     dayOfWeekTitle: String = "",
-    color: Color = LocalContentColor.current,
+    defaultColor: Color = LocalContentColor.current,
+    colors: CalendarColor = CalendarDefault.colors(),
     nowProvider: () -> LocalDateTime? = { null },
+    holidayProvider: () -> List<LocalDateRange> = { emptyList() },
 ) {
     val currentNowProvider by rememberUpdatedState(nowProvider)
     val isPrimaryDate by remember(date) { derivedStateOf { currentNowProvider()?.date == date } }
+    val isHoliday = holidayProvider().any { date in it }
+    val color = colors.dayOfWeekColor(dayOfWeek = date.dayOfWeek, defaultColor = defaultColor, isHoliday = isHoliday)
     val primaryColor = DiaryTheme.colorScheme.primary
 
     Column(
@@ -111,7 +130,9 @@ private fun TimetableHeaderPreview() {
             TimetableHeader(
                 dateRange = dateRange,
                 modifier = Modifier.fillMaxWidth(),
+                type = TimetableType.WEEK,
                 nowProvider = { now },
+                holidayProvider = { listOf(now.date..now.date) },
             )
         }
     }
