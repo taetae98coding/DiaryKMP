@@ -1,6 +1,6 @@
 ---
 name: verify-wave
-description: Diary KMP 프로젝트에서 저장소 전체를 검증할 때 사용한다. 이번 작업에서 수정한 코드가 규칙 문서를 어겼는지, 그리고 스펙·테스트 케이스·테스트 코드·구현이 서로 빈틈과 충돌 없이 이어지는지를 별도 세션의 sonnet 모델로 검토하도록 먼저 위임하고, 보고를 기다리는 동안 spotlessApply로 포맷을 적용한 뒤 detekt, dependencyGuard, jvmTest·testAndroidHostTest를 한 번의 명령으로 실행한다. 검토가 찾은 위반과 누락을 고치고, 검토와 수정은 최대 3회만 반복한다. 네 단계가 모두 성공해야 통과한 것으로 본다.
+description: Diary KMP 프로젝트에서 저장소 전체를 검증할 때 사용한다. 이번 작업에서 수정한 코드가 규칙 문서를 어겼는지, 그리고 스펙·테스트 케이스·테스트 코드·구현이 서로 빈틈과 충돌 없이 이어지는지를 별도 세션의 sonnet 모델로 검토하도록 먼저 위임하고, 보고를 기다리는 동안 spotlessApply로 포맷을 적용한 뒤 detekt, dependencyGuard, jvmTest·testAndroidHostTest를 한 번의 명령으로 실행하되, 각 태스크는 변경 파일이 실행 조건에 해당할 때만 실행한다. 검토가 찾은 위반과 누락을 고치고, 검토와 수정은 최대 3회만 반복한다. 실행 대상인 태스크가 모두 성공해야 통과한 것으로 본다.
 ---
 
 # Verify Wave
@@ -12,13 +12,13 @@ description: Diary KMP 프로젝트에서 저장소 전체를 검증할 때 사�
 검토와 Gradle 검증은 서로를 기다리지 않는다. 검토를 먼저 띄우고 결과를 기다리는 동안 Gradle 검증을 진행한다.
 
 1. `검토`의 `대상 선정`과 `검토 위임`까지 수행하고, 보고를 기다리지 않고 다음으로 넘어간다.
-2. Gradle 검증을 순서대로 실행한다.
-   1. `./gradlew spotlessApply`
-   2. `./gradlew detekt dependencyGuard jvmTest testAndroidHostTest --continue`
+2. `Gradle 태스크 선정`으로 실행 대상을 정하고 순서대로 실행한다.
+   1. `./gradlew spotlessApply` (실행 대상일 때)
+   2. `./gradlew <detekt, dependencyGuard, jvmTest testAndroidHostTest 중 실행 대상> --continue`
 3. 검토 보고가 오면 `결과 반영`을 수행한다.
 4. 결과 반영으로 코드를 고쳤으면 Gradle 검증을 다시 실행한다.
 
-`spotlessApply`는 코드를 바꾸므로 단독으로 먼저 실행한다. `detekt`, `dependencyGuard`, 두 테스트 태스크는 서로 독립이라 한 번의 명령으로 함께 실행하고, `--continue`로 하나가 실패해도 나머지 결과까지 모은다.
+`spotlessApply`는 코드를 바꾸므로 단독으로 먼저 실행한다. 나머지 태스크는 서로 독립이라 한 번의 명령으로 함께 실행하고, `--continue`로 하나가 실패해도 나머지 결과까지 모은다.
 
 Gradle 명령끼리는 병렬로 실행하지 않는다. 같은 저장소에서 동시에 실행하면 데몬과 빌드 락을 두고 경합한다.
 
@@ -26,7 +26,20 @@ Gradle 명령끼리는 병렬로 실행하지 않는다. 같은 저장소에서 
 
 `spotlessApply` 실행 뒤 변경사항이 생기면 해당 변경까지 포함해 diff를 다시 확인한다.
 
-실행 시간을 이유로 범위를 줄이거나 태스크를 생략하지 않는다. 일부 모듈만 대상으로 삼지 않는다.
+### Gradle 태스크 선정
+
+변경 파일은 `검토`의 `대상 선정`과 같은 방법으로 모으되, 삭제된 경로와 staged 변경도 포함한다. 태스크마다 다음 중 하나라도 해당하면 실행한다.
+
+| 태스크 | 실행하는 경우 |
+| --- | --- |
+| `spotlessApply` | `.kt`, `.kts` 파일이 바뀌었다 |
+| `detekt` | `.kt` 파일, `config/detekt/**`, `build-logic/**`이 바뀌었다 |
+| `dependencyGuard` | `gradle/libs.versions.toml`이 바뀌었다 |
+| `jvmTest`, `testAndroidHostTest` | 아래 제외 경로가 아닌 파일이 하나라도 바뀌었다 |
+
+테스트 제외 경로는 `docs/**`, `DIARY_AGENTS/**`, `DIARY_AGENTS.md`, `site/**`, `supabase/**`, `iosApp/**`, `config/detekt/**`, `app/*/dependencies/**`, `*.md`다. 이 목록에 없는 경로는 테스트 입력으로 본다.
+
+실행하는 태스크는 저장소 전체를 대상으로 하고 일부 모듈로 좁히지 않는다. 실행 대상이 하나도 없으면 Gradle 검증을 건너뛰고, 건너뛴 태스크를 결과에 남긴다. 결과 반영으로 파일을 고친 뒤에는 고친 파일까지 포함해 다시 선정한다.
 
 ## 검토
 
@@ -148,7 +161,7 @@ Gradle 명령끼리는 병렬로 실행하지 않는다. 같은 저장소에서 
 
 ## 통과 조건
 
-규칙 검토와 추적 검토에서 확인한 문제가 남아 있지 않고 `spotlessApply`와 `detekt dependencyGuard jvmTest testAndroidHostTest --continue`가 모두 성공한 경우에만 검증을 통과한 것으로 본다.
+규칙 검토와 추적 검토에서 확인한 문제가 남아 있지 않고 `Gradle 태스크 선정`으로 정한 태스크가 모두 성공한 경우에만 검증을 통과한 것으로 본다.
 
 로컬 파일 복구 조건에 해당하지 않는 명령이 하나라도 실패하거나 실행할 수 없으면 검증 실패로 보고, 실패한 명령과 핵심 오류를 사용자에게 보고한 뒤 다음 지시를 받는다.
 
