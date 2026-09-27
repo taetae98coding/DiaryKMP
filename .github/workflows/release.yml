@@ -208,7 +208,9 @@ jobs:
           xcode=""
           for app in /Applications/Xcode_27*.app /Applications/Xcode.app; do
             [ -d "$app" ] || continue
-            if DEVELOPER_DIR="$app/Contents/Developer" xcodebuild -version 2>/dev/null | head -1 | grep -q '^Xcode 27'; then
+            # head로 파이프를 먼저 닫으면 xcodebuild가 남은 줄을 쓰다 abort하므로 출력을 모두 받은 뒤 확인한다.
+            version="$(DEVELOPER_DIR="$app/Contents/Developer" xcodebuild -version 2>/dev/null || true)"
+            if [[ "$version" == "Xcode 27"* ]]; then
               xcode="$app"
               break
             fi
