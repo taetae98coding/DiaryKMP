@@ -1,6 +1,6 @@
 # DiaryMap 컴포넌트 스펙
 
-이 문서는 사용자가 지도를 보고 지도 제공자를 네이버 지도와 Google 지도 사이에서 전환할 수 있으며, 지도에서 한 지점을 골라 그 지점을 지도 위에 표시하고, 지도 위에서 자신의 현 위치를 확인하고, 배치한 화면이 전달한 여러 곳을 핀으로 표시하고 그 핀을 골라 배치한 화면에 전달할 수 있는 공용 컴포넌트 DiaryMap의 사용자 관점 동작과 정책을 다룬다. 이 컴포넌트를 어느 화면에 배치할지는 사용하는 화면 스펙에서 다루며, 핀 표시와 핀 선택을 사용하는 PlaceHome과 TagDetail 장소 탭에서의 배치는 [장소 보기 모드 스펙](./place-view-mode.md)에서, 지점 선택을 사용하는 PlaceAdd와 PlaceDetail에서의 배치는 [PlaceAdd 화면 스펙](./place-add.md)과 [PlaceDetail 화면 스펙](./place-detail.md)에서, 지점 선택 없이 핀 표시와 핀 선택만 사용하는 MemoAdd와 MemoDetail의 장소 카드에서의 배치는 [메모 장소 카드 컴포넌트 스펙](./memo-place-card.md)에서 다룬다.
+이 문서는 사용자가 지도를 보고 지도 제공자를 네이버 지도와 Google 지도 사이에서 전환할 수 있으며, 지도에서 한 지점을 골라 그 지점을 지도 위에 표시하고, 지도 위에서 자신의 현 위치를 확인하고, 배치한 화면이 전달한 여러 곳을 핀으로 표시하고 그 핀을 골라 배치한 화면에 전달할 수 있는 공용 컴포넌트 DiaryMap의 사용자 관점 동작과 정책을 다룬다. 이 컴포넌트를 어느 화면에 배치할지는 사용하는 화면 스펙에서 다루며, 핀 표시와 핀 선택을 사용하는 PlaceHome과 TagDetail 장소 탭에서의 배치는 [장소 보기 모드 스펙](./place-view-mode.md)에서, 지점 선택을 사용하는 PlaceAdd, PlaceDetail과 QrAdd 위치 포맷에서의 배치는 [PlaceAdd 화면 스펙](./place-add.md), [PlaceDetail 화면 스펙](./place-detail.md)과 [QrAdd 화면 스펙](./qr-add.md)에서, 지점 선택 없이 핀 표시와 핀 선택만 사용하는 MemoAdd와 MemoDetail의 장소 카드에서의 배치는 [메모 장소 카드 컴포넌트 스펙](./memo-place-card.md)에서 다룬다.
 
 디자인: [DiaryMap 컴포넌트 디자인](../../design/diary-map.md)
 
