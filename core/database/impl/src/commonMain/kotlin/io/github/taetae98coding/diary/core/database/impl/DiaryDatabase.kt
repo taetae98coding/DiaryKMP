@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.core.database.impl
 
+import androidx.room3.AutoMigration
 import androidx.room3.ColumnTypeConverters
 import androidx.room3.ConstructedBy
 import androidx.room3.Database
@@ -142,7 +143,10 @@ import io.github.taetae98coding.diary.library.room3.converter.UuidColumnTypeConv
         AccountQrLocalEntity::class,
         SyncCursorLocalEntity::class,
     ],
-    version = 1,
+    version = 2,
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2),
+    ],
 )
 @ConstructedBy(DiaryDatabaseConstructor::class)
 @ColumnTypeConverters(
