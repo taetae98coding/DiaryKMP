@@ -6,4 +6,6 @@ internal sealed interface FileHomeScaffoldEvent {
     data object ClickAdd : FileHomeScaffoldEvent
 
     data object ClickRetry : FileHomeScaffoldEvent
+
+    data object Refresh : FileHomeScaffoldEvent
 }

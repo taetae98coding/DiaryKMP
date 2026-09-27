@@ -45,21 +45,41 @@ class FileHomeViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-FILE-HOME-FEATURE-006 TC-FILE-HOME-FEATURE-005 계정 상태에 따라 확인 중, 게스트, 사용자 화면을 정한다") {
+        test("TC-FILE-HOME-FEATURE-006 계정 상태를 확정하지 않은 동안에는 본문을 비우는 상태다") {
             runTest(mainDispatcher) {
-                val accountFlow = MutableStateFlow<Result<Account>>(Result.failure(IllegalStateException()))
+                val accountFlow = MutableStateFlow<Result<Account>>(Result.failure(IllegalStateException("account")))
                 val viewModel = viewModel(accountFlow = accountFlow)
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe FileHomeUiState.Loading
+                    expectNoEvents()
+                }
+            }
+        }
 
-                    accountFlow.value = Result.success(Account.Guest)
+        test("TC-FILE-HOME-FEATURE-005 게스트 상태면 로그인 안내 상태다") {
+            runTest(mainDispatcher) {
+                val accountFlow = MutableStateFlow<Result<Account>>(Result.success(Account.Guest))
+                val viewModel = viewModel(accountFlow = accountFlow)
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe FileHomeUiState.Loading
                     awaitItem() shouldBe FileHomeUiState.Guest
+                }
+            }
+        }
 
-                    accountFlow.value = Result.success(fixtureMonkey.giveMeOne<Account.User>())
-                    awaitItem() shouldBe FileHomeUiState.User
+        test("TC-FILE-HOME-DOMAIN-009 계정 상태를 확인하지 못하면 본문을 비우는 상태로 돌아간다") {
+            runTest(mainDispatcher) {
+                val account = fixtureMonkey.giveMeOne<Account.User>()
+                val accountFlow = MutableStateFlow<Result<Account>>(Result.success(account))
+                val viewModel = viewModel(accountFlow = accountFlow)
 
-                    accountFlow.value = Result.failure(IllegalStateException())
+                viewModel.uiState.test {
+                    awaitItem() shouldBe FileHomeUiState.Loading
+                    awaitItem() shouldBe FileHomeUiState.User(accountId = account.id)
+
+                    accountFlow.value = Result.failure(IllegalStateException("account"))
                     awaitItem() shouldBe FileHomeUiState.Loading
                 }
             }
@@ -77,7 +97,7 @@ class FileHomeViewModelTest : FunSpec() {
 
                     viewModel.uiState.test {
                         awaitItem() shouldBe FileHomeUiState.Loading
-                        awaitItem() shouldBe FileHomeUiState.User
+                        awaitItem() shouldBe FileHomeUiState.User(accountId = account.id)
                     }
                 }
             }

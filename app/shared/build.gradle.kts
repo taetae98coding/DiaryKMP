@@ -109,6 +109,7 @@ kotlin {
                 implementation(projects.feature.web.ui)
                 implementation(projects.library.coroutines)
                 implementation(projects.work.chromeSession)
+                implementation(projects.work.fileUpload)
                 implementation(projects.work.musicDownload)
                 implementation(projects.work.sync)
                 implementation(projects.logger.analytics.impl)

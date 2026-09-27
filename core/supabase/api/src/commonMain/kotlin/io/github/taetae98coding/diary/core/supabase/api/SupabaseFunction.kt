@@ -15,6 +15,9 @@ public interface SupabaseFunction {
         headers: Headers = Headers.Empty,
         requestTimeout: Duration? = null,
     ): HttpResponse
+
+    // 기기의 시스템 전송 수단처럼 이 모듈의 HTTP 클라이언트를 거치지 않고 함수를 부를 때 쓸 주소와 인증 헤더를 만든다.
+    public suspend fun createRequest(function: String): SupabaseFunctionRequest
 }
 
 public suspend inline operator fun <reified T : Any> SupabaseFunction.invoke(

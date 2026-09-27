@@ -13,4 +13,10 @@ public interface FileLocalDataSource {
     public suspend fun openSource(uri: FileUri): RawSource
 
     public suspend fun delete(uri: FileUri)
+
+    public suspend fun retain(uri: FileUri)
+
+    public suspend fun release(uri: FileUri)
+
+    public suspend fun deleteLeftoverCopies()
 }

@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onStart
 import org.koin.core.annotation.Factory
 
@@ -32,23 +33,20 @@ public class PageFileUseCase internal constructor(
     private val fileRepository: FileRepository,
 ) : FlowUseCase<Unit, PagingData<DiaryFile>>() {
     // 세션 갱신 여부만 바뀌어도 계정 값이 새로 오므로, 계정이 바뀔 때만 목록을 처음부터 다시 불러온다.
+    // 계정을 확인하지 못한 결과는 계정이 바뀐 것이 아니므로 버려, 이미 불러온 목록을 다시 불러오지 않게 한다.
     override fun execute(parameter: Unit): Flow<Result<PagingData<DiaryFile>>> =
         getAccountUseCase(parameter = Unit)
-            .map { result -> result.map { account -> account as? Account.User } }
-            .distinctUntilChangedBy { result -> result.map { user -> user?.id } }
-            .flatMapLatest { result ->
-                result.fold(
-                    onSuccess = { user ->
-                        if (user == null) {
-                            flowOf(Result.success(PagingData.empty()))
-                        } else {
-                            fileRepository
-                                .page()
-                                .map { pagingData -> Result.success(pagingData) }
-                                .onStart { emit(Result.success(PagingData.empty(sourceLoadStates = LOADING_LOAD_STATES))) }
-                        }
-                    },
-                    onFailure = { throwable -> flowOf(Result.failure(throwable)) },
-                )
+            .mapNotNull { result -> result.getOrNull() }
+            .map { account -> account as? Account.User }
+            .distinctUntilChangedBy { user -> user?.id }
+            .flatMapLatest { user ->
+                if (user == null) {
+                    flowOf(Result.success(PagingData.empty()))
+                } else {
+                    fileRepository
+                        .page()
+                        .map { pagingData -> Result.success(pagingData) }
+                        .onStart { emit(Result.success(PagingData.empty(sourceLoadStates = LOADING_LOAD_STATES))) }
+                }
             }
 }

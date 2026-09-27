@@ -12,10 +12,8 @@ import io.github.taetae98coding.diary.domain.file.repository.FileRepository
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.result.shouldBeFailure
 import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -24,6 +22,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.take
+
+private val fixtureMonkey: FixtureMonkey =
+    diaryFixtureMonkey()
 
 class PageFileUseCaseTest :
     BehaviorSpec({
@@ -134,25 +135,87 @@ class PageFileUseCaseTest :
             }
         }
 
-        Given("계정 조회가 실패한다") {
-            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+        Given("계정 A로 파일 목록을 불러와 표시하고 있다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val fileList = List(2) { fixtureMonkey.giveMeOne<DiaryFile>() }
+            val accountFlow = MutableStateFlow(Result.success<Account>(account))
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
+            every { getAccountUseCase(parameter = Unit) } returns accountFlow
             val fileRepository = mockk<FileRepository>()
+            every { fileRepository.page() } returns flowOf(PagingData.from(fileList))
             val useCase = PageFileUseCase(getAccountUseCase = getAccountUseCase, fileRepository = fileRepository)
 
-            When("파일 목록을 페이지로 조회한다") {
-                Then("실패를 그대로 전달한다") {
-                    useCase(parameter = Unit)
-                        .first()
-                        .shouldBeFailure()
-                        .shouldBeSameInstanceAs(throwable)
+            When("계정 상태를 확인하지 못했다가 다시 계정 A의 사용자로 확인된다") {
+                Then("TC-FILE-HOME-DOMAIN-010 목록을 다시 요청하지 않고 이전에 불러온 목록을 그대로 둔다") {
+                    useCase(parameter = Unit).test {
+                        awaitItem()
+                        flowOf(awaitItem().shouldBeSuccess()).asSnapshot() shouldBe fileList
+
+                        accountFlow.value = Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                        expectNoEvents()
+                        accountFlow.value = Result.success(account)
+
+                        expectNoEvents()
+                        verify(exactly = 1) { fileRepository.page() }
+                        cancelAndIgnoreRemainingEvents()
+                    }
                 }
             }
         }
-    }) {
-    public companion object {
-        private val fixtureMonkey: FixtureMonkey =
-            diaryFixtureMonkey()
-    }
-}
+
+        Given("게스트 상태라 빈 목록을 전달했다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val fileList = List(2) { fixtureMonkey.giveMeOne<DiaryFile>() }
+            val accountFlow = MutableStateFlow(Result.success<Account>(Account.Guest))
+            val getAccountUseCase = mockk<GetAccountUseCase>()
+            every { getAccountUseCase(parameter = Unit) } returns accountFlow
+            val fileRepository = mockk<FileRepository>()
+            every { fileRepository.page() } returns flowOf(PagingData.from(fileList))
+            val useCase = PageFileUseCase(getAccountUseCase = getAccountUseCase, fileRepository = fileRepository)
+
+            When("계정 상태가 사용자로 바뀐다") {
+                Then("TC-FILE-HOME-DOMAIN-011 불러오는 중인 빈 목록 다음에 그 계정의 파일을 처음부터 불러온다") {
+                    useCase(parameter = Unit).test {
+                        flowOf(awaitItem().shouldBeSuccess()).asSnapshot().shouldBeEmpty()
+                        verify(exactly = 0) { fileRepository.page() }
+
+                        accountFlow.value = Result.success(account)
+
+                        flowOf(awaitItem().shouldBeSuccess()).asSnapshot().shouldBeEmpty()
+                        flowOf(awaitItem().shouldBeSuccess()).asSnapshot() shouldBe fileList
+                        verify(exactly = 1) { fileRepository.page() }
+                        cancelAndIgnoreRemainingEvents()
+                    }
+                }
+            }
+        }
+
+        Given("계정 A로 파일 목록을 불러온 뒤 게스트가 되었다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val fileList = List(2) { fixtureMonkey.giveMeOne<DiaryFile>() }
+            val accountFlow = MutableStateFlow(Result.success<Account>(account))
+            val getAccountUseCase = mockk<GetAccountUseCase>()
+            every { getAccountUseCase(parameter = Unit) } returns accountFlow
+            val fileRepository = mockk<FileRepository>()
+            every { fileRepository.page() } returns flowOf(PagingData.from(fileList))
+            val useCase = PageFileUseCase(getAccountUseCase = getAccountUseCase, fileRepository = fileRepository)
+
+            When("다시 계정 A의 사용자가 된다") {
+                Then("TC-FILE-HOME-DOMAIN-015 목록을 처음부터 다시 불러온다") {
+                    useCase(parameter = Unit).test {
+                        awaitItem()
+                        flowOf(awaitItem().shouldBeSuccess()).asSnapshot() shouldBe fileList
+
+                        accountFlow.value = Result.success(Account.Guest)
+                        flowOf(awaitItem().shouldBeSuccess()).asSnapshot().shouldBeEmpty()
+                        accountFlow.value = Result.success(account)
+
+                        flowOf(awaitItem().shouldBeSuccess()).asSnapshot().shouldBeEmpty()
+                        flowOf(awaitItem().shouldBeSuccess()).asSnapshot() shouldBe fileList
+                        verify(exactly = 2) { fileRepository.page() }
+                        cancelAndIgnoreRemainingEvents()
+                    }
+                }
+            }
+        }
+    })

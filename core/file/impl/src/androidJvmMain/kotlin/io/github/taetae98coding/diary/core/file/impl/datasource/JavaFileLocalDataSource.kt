@@ -33,4 +33,11 @@ internal class JavaFileLocalDataSource(
     override suspend fun delete(uri: FileUri) {
         withContext(dispatcher) { uri.toFile().delete() }
     }
+
+    // 데스크톱의 파일 열기 대화상자가 주는 위치는 사용자의 원본이고 따로 붙들 권한도 없다.
+    override suspend fun retain(uri: FileUri): Unit = Unit
+
+    override suspend fun release(uri: FileUri): Unit = Unit
+
+    override suspend fun deleteLeftoverCopies(): Unit = Unit
 }

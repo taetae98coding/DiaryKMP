@@ -22,6 +22,7 @@ private fun EntryProviderScope<ScreenNavKey>.fileHomeEntry(backStack: NavBackSta
             filePicker = rememberFilePicker(onPick = uploadViewModel::upload),
             fileViewModel = koinViewModel(),
             uploadViewModel = uploadViewModel,
+            refreshViewModel = koinViewModel(),
         )
     }
 }

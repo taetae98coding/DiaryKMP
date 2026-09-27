@@ -52,6 +52,20 @@ class JvmFileLocalDataSourceTest :
             shouldThrowAny { dataSource.size(uri = uri) }
         }
 
+        test("TC-FILE-STORAGE-DATA-023 올리려고 고른 원본 파일은 붙들거나 놓거나 남은 사본을 지워도 지우거나 바꾸지 않는다") {
+            val bytes = fileBytes()
+            val uri = fileUri(bytes = bytes)
+            val file = File(URI(uri.value))
+            val dataSource = JvmFileLocalDataSource(dispatcher = Dispatchers.Default)
+
+            dataSource.retain(uri = uri)
+            dataSource.release(uri = uri)
+            dataSource.deleteLeftoverCopies()
+
+            file.exists() shouldBe true
+            file.readBytes() shouldBe bytes
+        }
+
         test("빈 파일은 크기를 0으로 알린다") {
             val dataSource = JvmFileLocalDataSource(dispatcher = Dispatchers.Default)
 

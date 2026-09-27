@@ -11,6 +11,7 @@ import kotlinx.coroutines.CancellationException
 
 internal class FilePagingSource(
     private val fileRemoteDataSource: FileRemoteDataSource,
+    private val firstPage: FileFirstPage = FileFirstPage.NotFetched,
 ) : PagingSource<FileCursorRemoteEntity, DiaryFile>() {
     // 다시 불러오면 새로 올라온 파일이 맨 앞에 오므로 보던 자리가 아니라 언제나 처음부터 불러온다.
     override fun getRefreshKey(state: PagingState<FileCursorRemoteEntity, DiaryFile>): FileCursorRemoteEntity? = null
@@ -18,7 +19,12 @@ internal class FilePagingSource(
     // Paging은 실패를 LoadResult.Error로 받아야 재시도와 오류 상태를 만들 수 있어 예외를 결과로 바꾼다.
     override suspend fun load(params: LoadParams<FileCursorRemoteEntity>): LoadResult<FileCursorRemoteEntity, DiaryFile> =
         try {
-            val fileList = fileRemoteDataSource.fetch(cursor = params.key, size = params.loadSize)
+            val fileList =
+                if (params.key == null && firstPage is FileFirstPage.Fetched) {
+                    firstPage.fileList
+                } else {
+                    fileRemoteDataSource.fetch(cursor = params.key, size = params.loadSize)
+                }
 
             LoadResult.Page(
                 data = fileList.map { file -> file.toDomain() },

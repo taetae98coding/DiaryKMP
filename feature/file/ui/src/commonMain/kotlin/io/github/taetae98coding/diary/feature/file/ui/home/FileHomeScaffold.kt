@@ -24,6 +24,8 @@ import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
 import io.github.taetae98coding.diary.compose.core.icon.FileIcon
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
+import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
+import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.feature.file.ui.Res
@@ -35,6 +37,7 @@ import io.github.taetae98coding.diary.feature.file.ui.file_navigate_up_button_co
 import io.github.taetae98coding.diary.feature.file.ui.previewDiaryFile
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
+import kotlin.uuid.Uuid
 
 @Composable
 internal fun FileHomeScaffold(
@@ -44,6 +47,8 @@ internal fun FileHomeScaffold(
     filePagingItems: LazyPagingItems<DiaryFile> = remember { flowOf(PagingData.empty<DiaryFile>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> FileHomeUiState = { FileHomeUiState.Loading },
     uploadUiStateProvider: () -> FileHomeUploadUiState = { FileHomeUploadUiState() },
+    isRefreshingProvider: () -> Boolean = { false },
+    isAccountChangingProvider: () -> Boolean = { false },
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     Scaffold(
@@ -56,6 +61,7 @@ internal fun FileHomeScaffold(
             )
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        contentWindowInsets = DiaryScaffoldDefaults.contentWindowInsets,
         floatingActionButton = {
             if (uiStateProvider() is FileHomeUiState.User) {
                 FloatingAddButton(
@@ -68,6 +74,7 @@ internal fun FileHomeScaffold(
     ) { paddingValues ->
         DiaryCrossfade(
             targetState = uiStateProvider(),
+            contentKey = { uiState -> uiState::class },
             modifier =
                 Modifier
                     .fillMaxSize()
@@ -79,20 +86,17 @@ internal fun FileHomeScaffold(
                 }
 
                 is FileHomeUiState.Guest -> {
-                    DiaryEmptyBox(
-                        title = stringResource(Res.string.file_home_guest_title),
-                        modifier = Modifier.fillMaxSize(),
-                        description = stringResource(Res.string.file_home_guest_description),
-                        icon = { FileIcon(modifier = Modifier.size(DiaryPlaceholderDefaults.IconSize)) },
-                    )
+                    FileHomeGuestBox(modifier = Modifier.fillMaxSize())
                 }
 
                 is FileHomeUiState.User -> {
-                    FileHomeList(
+                    FileHomeUserBody(
                         onEvent = onEvent,
                         modifier = Modifier.fillMaxSize(),
                         listState = listState,
                         filePagingItems = filePagingItems,
+                        isRefreshingProvider = isRefreshingProvider,
+                        isAccountChangingProvider = isAccountChangingProvider,
                     )
                 }
             }
@@ -100,19 +104,59 @@ internal fun FileHomeScaffold(
     }
 }
 
-private class FileHomeUiStatePreviewParameter : PreviewParameterProvider<FileHomeUiState> {
-    override val values: Sequence<FileHomeUiState> =
+@Composable
+private fun FileHomeGuestBox(modifier: Modifier = Modifier) {
+    DiaryEmptyBox(
+        title = stringResource(Res.string.file_home_guest_title),
+        modifier = modifier,
+        description = stringResource(Res.string.file_home_guest_description),
+        icon = { FileIcon(modifier = Modifier.size(DiaryPlaceholderDefaults.IconSize)) },
+    )
+}
+
+@Composable
+private fun FileHomeUserBody(
+    onEvent: (FileHomeScaffoldEvent) -> Unit,
+    modifier: Modifier = Modifier,
+    listState: LazyListState = rememberLazyListState(),
+    filePagingItems: LazyPagingItems<DiaryFile> = remember { flowOf(PagingData.empty<DiaryFile>()) }.collectAsLazyPagingItems(),
+    isRefreshingProvider: () -> Boolean = { false },
+    isAccountChangingProvider: () -> Boolean = { false },
+) {
+    DiaryPullToRefreshBox(
+        onRefresh = { onEvent(FileHomeScaffoldEvent.Refresh) },
+        modifier = modifier,
+        isRefreshingProvider = isRefreshingProvider,
+    ) {
+        FileHomeList(
+            onEvent = onEvent,
+            modifier = Modifier.fillMaxSize(),
+            listState = listState,
+            filePagingItems = filePagingItems,
+            isAccountChangingProvider = isAccountChangingProvider,
+        )
+    }
+}
+
+private data class FileHomeScaffoldPreviewState(
+    val uiState: FileHomeUiState,
+    val isUploading: Boolean = false,
+)
+
+private class FileHomeScaffoldPreviewStatePreviewParameter : PreviewParameterProvider<FileHomeScaffoldPreviewState> {
+    override val values: Sequence<FileHomeScaffoldPreviewState> =
         sequenceOf(
-            FileHomeUiState.Loading,
-            FileHomeUiState.Guest,
-            FileHomeUiState.User,
+            FileHomeScaffoldPreviewState(uiState = FileHomeUiState.Loading),
+            FileHomeScaffoldPreviewState(uiState = FileHomeUiState.Guest),
+            FileHomeScaffoldPreviewState(uiState = FileHomeUiState.User(accountId = Uuid.NIL)),
+            FileHomeScaffoldPreviewState(uiState = FileHomeUiState.User(accountId = Uuid.NIL), isUploading = true),
         )
 }
 
 @ScreenPreview
 @Composable
 private fun FileHomeScaffoldPreview(
-    @PreviewParameter(FileHomeUiStatePreviewParameter::class) uiState: FileHomeUiState,
+    @PreviewParameter(FileHomeScaffoldPreviewStatePreviewParameter::class) previewState: FileHomeScaffoldPreviewState,
 ) {
     val filePagingData =
         remember {
@@ -130,7 +174,8 @@ private fun FileHomeScaffoldPreview(
         FileHomeScaffold(
             onEvent = {},
             filePagingItems = filePagingData.collectAsLazyPagingItems(),
-            uiStateProvider = { uiState },
+            uiStateProvider = { previewState.uiState },
+            uploadUiStateProvider = { FileHomeUploadUiState(isUploading = previewState.isUploading) },
         )
     }
 }

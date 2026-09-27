@@ -7,5 +7,6 @@ public object StartupInitializer {
         LoggerInitializer.initialize(isDebug = isDebug)
         KoinInitializer.initialize()
         initializeSyncWork()
+        initializeFileUpload()
     }
 }

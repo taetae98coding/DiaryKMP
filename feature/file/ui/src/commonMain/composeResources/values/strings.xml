@@ -8,6 +8,7 @@
     <string name="file_home_empty_description">Use the add button to upload a file</string>
     <string name="file_home_load_failed_message">Couldn't load files</string>
     <string name="file_home_load_more_failed_message">Couldn't load more</string>
+    <string name="file_home_loading_content_description">Loading files</string>
     <string name="file_home_retry">Retry</string>
     <string name="file_home_upload_too_large_message">Only files up to 50 MB can be uploaded.</string>
     <string name="file_home_upload_failed_message">Couldn't upload the file.</string>

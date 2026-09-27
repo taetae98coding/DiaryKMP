@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -23,7 +25,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.paging.LoadState
+import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -42,6 +47,7 @@ import io.github.taetae98coding.diary.feature.file.ui.file_home_empty_descriptio
 import io.github.taetae98coding.diary.feature.file.ui.file_home_empty_title
 import io.github.taetae98coding.diary.feature.file.ui.file_home_load_failed_message
 import io.github.taetae98coding.diary.feature.file.ui.file_home_load_more_failed_message
+import io.github.taetae98coding.diary.feature.file.ui.file_home_loading_content_description
 import io.github.taetae98coding.diary.feature.file.ui.file_home_retry
 import io.github.taetae98coding.diary.feature.file.ui.previewDiaryFile
 import kotlinx.coroutines.flow.flowOf
@@ -63,27 +69,38 @@ internal fun FileHomeList(
     modifier: Modifier = Modifier,
     listState: LazyListState = rememberLazyListState(),
     filePagingItems: LazyPagingItems<DiaryFile> = remember { flowOf(PagingData.empty<DiaryFile>()) }.collectAsLazyPagingItems(),
+    isAccountChangingProvider: () -> Boolean = { false },
 ) {
     DiaryCrossfade(
-        targetState = filePagingItems.content(),
+        targetState = if (isAccountChangingProvider()) FileHomeListContent.LOADING else filePagingItems.content(),
         modifier = modifier,
     ) { content ->
         when (content) {
             FileHomeListContent.LOADING -> {
-                DiaryLoadingBox(modifier = Modifier.fillMaxSize())
+                DiaryLoadingBox(
+                    modifier = Modifier.fillMaxSize(),
+                    contentDescription = stringResource(Res.string.file_home_loading_content_description),
+                )
             }
 
+            // 당겨서 새로고침은 스크롤 가능한 자식의 중첩 스크롤로만 감지하므로 실패와 빈 상태에도 스크롤을 둔다.
             FileHomeListContent.FAILED -> {
                 FileHomeLoadFailed(
                     onRetry = { onEvent(FileHomeScaffoldEvent.ClickRetry) },
-                    modifier = Modifier.fillMaxSize(),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState()),
                 )
             }
 
             FileHomeListContent.EMPTY -> {
                 DiaryEmptyBox(
                     title = stringResource(Res.string.file_home_empty_title),
-                    modifier = Modifier.fillMaxSize(),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState()),
                     description = stringResource(Res.string.file_home_empty_description),
                     icon = { FileIcon(modifier = Modifier.size(DiaryPlaceholderDefaults.IconSize)) },
                 )
@@ -120,10 +137,7 @@ private fun FileHomeLazyColumn(
             filePagingItems[index]?.let { file ->
                 FileListItem(
                     file = file,
-                    modifier =
-                        Modifier
-                            .animateItem()
-                            .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         }
@@ -213,17 +227,49 @@ private fun LazyPagingItems<DiaryFile>.content(): FileHomeListContent =
         else -> FileHomeListContent.EMPTY
     }
 
+private enum class FileHomeListPreviewState {
+    LOADING,
+    FAILED,
+    EMPTY,
+    LIST,
+    APPEND_LOADING,
+    APPEND_FAILED,
+}
+
+private class FileHomeListPreviewStatePreviewParameter : PreviewParameterProvider<FileHomeListPreviewState> {
+    override val values: Sequence<FileHomeListPreviewState> = FileHomeListPreviewState.entries.asSequence()
+}
+
 @ScreenPreview
 @Composable
-private fun FileHomeListPreview() {
-    val fileList =
-        remember {
-            listOf(
-                previewDiaryFile(name = "보고서.pdf", size = 24_536_679),
-                previewDiaryFile(name = "memo.txt", size = 512),
+private fun FileHomeListPreview(
+    @PreviewParameter(FileHomeListPreviewStatePreviewParameter::class) previewState: FileHomeListPreviewState,
+) {
+    val filePagingData =
+        remember(previewState) {
+            val fileList =
+                listOf(
+                    previewDiaryFile(name = "보고서.pdf", size = 24_536_679),
+                    previewDiaryFile(name = "memo.txt", size = 512),
+                )
+
+            flowOf(
+                when (previewState) {
+                    FileHomeListPreviewState.LOADING -> PagingData.empty(sourceLoadStates = previewLoadStates(refresh = LoadState.Loading))
+
+                    FileHomeListPreviewState.FAILED -> PagingData.empty(sourceLoadStates = previewLoadStates(refresh = LoadState.Error(IllegalStateException("Preview load failure"))))
+
+                    FileHomeListPreviewState.EMPTY -> PagingData.empty(sourceLoadStates = previewLoadStates())
+
+                    FileHomeListPreviewState.LIST -> PagingData.from(fileList)
+
+                    FileHomeListPreviewState.APPEND_LOADING -> PagingData.from(fileList, sourceLoadStates = previewLoadStates(append = LoadState.Loading))
+
+                    FileHomeListPreviewState.APPEND_FAILED ->
+                        PagingData.from(fileList, sourceLoadStates = previewLoadStates(append = LoadState.Error(IllegalStateException("Preview load failure"))))
+                },
             )
         }
-    val filePagingData = remember(fileList) { flowOf(PagingData.from(fileList)) }
 
     DiaryTheme {
         Surface {
@@ -235,3 +281,13 @@ private fun FileHomeListPreview() {
         }
     }
 }
+
+private fun previewLoadStates(
+    refresh: LoadState = LoadState.NotLoading(endOfPaginationReached = true),
+    append: LoadState = LoadState.NotLoading(endOfPaginationReached = true),
+): LoadStates =
+    LoadStates(
+        refresh = refresh,
+        prepend = LoadState.NotLoading(endOfPaginationReached = true),
+        append = append,
+    )

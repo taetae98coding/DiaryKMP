@@ -1,0 +1,8 @@
+<resources>
+    <string name="file_upload_notification_channel_name">File uploads</string>
+    <string name="file_upload_notification_channel_description">Shows the progress and result of file uploads.</string>
+    <string name="file_upload_notification_progress_title">Uploading file</string>
+    <string name="file_upload_notification_succeeded_title">File uploaded</string>
+    <string name="file_upload_notification_failed_title">Couldn\'t upload the file</string>
+    <string name="file_upload_notification_too_large_body">Only files up to 50 MB can be uploaded.</string>
+</resources>

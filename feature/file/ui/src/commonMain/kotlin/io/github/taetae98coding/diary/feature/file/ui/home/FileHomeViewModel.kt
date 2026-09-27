@@ -42,6 +42,6 @@ internal class FileHomeViewModel(
     private fun Account.toUiState(): FileHomeUiState =
         when (this) {
             is Account.Guest -> FileHomeUiState.Guest
-            is Account.User -> FileHomeUiState.User
+            is Account.User -> FileHomeUiState.User(accountId = id)
         }
 }
