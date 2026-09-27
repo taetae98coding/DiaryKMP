@@ -2,22 +2,27 @@
 
 ## 주석
 
-주석은 코드에서 유추하기 어려운 것만 남긴다. 이름과 흐름으로 알 수 있는 내용을 다시 적으면 코드가 바뀔 때 주석이 먼저 낡고, 읽는 사람이 코드와 주석을 대조하는 비용만 늘어난다.
-
-다음 경우에만 주석을 쓴다.
+주석은 코드에서 유추하기 어려운 것만 남긴다. 다음 경우에만 쓴다.
 
 - 코드가 왜 그렇게 되어 있는지 코드만으로는 알 수 없는 경우(제약, 우회, 트레이드오프, 그 자리에 있어야 하는 이유)
 - 플랫폼이나 라이브러리의 비직관적 동작에 맞춘 처리
 - 되돌리면 안 되는 결정이라 이력을 남겨야 하는 경우
 
-무엇인지 설명하는 주석이 필요하다고 느껴지면 먼저 이름을 고친다. 이름이 계약을 드러내면 그 주석은 필요 없어진다.
+무엇인지 설명하는 주석이 필요하다고 느껴지면 먼저 이름을 고친다.
 
 다음은 이유를 담고 있어도 주석으로 남기지 않는다.
 
-- 제품 결정. 무엇을 보여 주는지, 실패를 어떻게 다루는지, 어떤 값을 쓰는지처럼 사용자가 관찰하는 결과는 [docs/spec](../../docs/spec/README.md)이, 화면 표현은 [docs/design](../../docs/design/README.md)이 소유한다. 문서에 없으면 `spec-wave`·`design-wave`로 문서에 먼저 적고 주석은 지운다. 주석에 둔 결정은 테스트 케이스와 디자인의 근거가 되지 못하고, 결정이 바뀔 때 문서와 어긋난다.
+- 제품 결정. 사용자가 관찰하는 결과는 [docs/spec](../../docs/spec/README.md)이, 화면 표현은 [docs/design](../../docs/design/README.md)이 소유한다. 문서에 없으면 `spec-wave`·`design-wave`로 문서에 먼저 적고 주석은 지운다.
 - 문서를 가리키기만 하는 주석(`docs/spec/xxx.md가 정한 값`). 문서의 이름과 코드의 식별자를 맞춰 찾을 수 있게 한다.
-- 규칙 문서가 이미 이유를 설명하는 처리. 예: enum 선언 순서 대신 목록이 순서를 소유하는 이유는 아래 `enum 선언 순서` 절이 설명한다. 같은 이유를 여러 파일에 적게 되면 규칙 문서에 한 번 적는다.
+- 규칙 문서가 이미 이유를 설명하는 처리. 같은 이유를 여러 파일에 적게 되면 규칙 문서에 한 번 적는다.
 - 할 일(`TODO`, `FIXME`)을 제외한, 아직 정하지 않았거나 후속 범위라는 메모. 정하지 않은 범위는 스펙이 소유한다.
+
+⚠️ 비권장 예시 — 선언 이름으로 알 수 있는 내용을 KDoc으로 다시 적는다:
+
+```kotlin
+/** 진행을 보고하도록 요청된 동기화가 실행 중인지. */
+public val isProgressReported: Flow<Boolean>
+```
 
 ⚠️ 비권장 예시:
 
@@ -34,32 +39,16 @@ public interface SyncManager {
 }
 ```
 
-✅ 권장 예시:
-
-```kotlin
-public interface SyncManager {
-    public val isProgressReported: Flow<Boolean>
-
-    public fun requestSync(
-        accountId: Uuid,
-        reportsProgress: Boolean,
-    )
-}
-```
-
 ✅ 남기는 주석 예시:
 
 ```kotlin
 // 한 종류가 실패해도 나머지가 끝까지 진행하도록 모두 기다린 뒤 첫 실패를 전달한다.
-private suspend fun List<Deferred<Unit>>.awaitAllCatching() {
-    map { deferred -> deferred.awaitCatching() }
-        .forEach { result -> result.getOrThrow() }
-}
+private suspend fun List<Deferred<Unit>>.awaitAllCatching() { ... }
 ```
 
 ## 숫자 리터럴
 
-**의미 있는 숫자는 이름 있는 상수로 두고, 그 값을 판단하는 책임을 가진 모듈에 둔다.** 값을 쓰는 곳마다 상수를 따로 두면 정책이 바뀔 때 일부만 고쳐지고, 책임이 없는 모듈에 두면 그 모듈이 정책을 알게 된다.
+**의미 있는 숫자는 이름 있는 상수로 두고, 그 값을 판단하는 책임을 가진 모듈에 둔다.** 쓰는 곳마다 따로 두면 정책이 바뀔 때 일부만 고쳐지고, 책임이 없는 모듈에 두면 그 모듈이 정책을 알게 된다.
 
 | 값의 종류 | 예 | 두는 곳 | 문서 |
 | --- | --- | --- | --- |
@@ -70,7 +59,7 @@ private suspend fun List<Deferred<Unit>>.awaitAllCatching() {
 | 데이터 소스 제약 | 외부 API의 최대 건수·반경, 응답 간격, 파일 포맷의 표식 값 | 그 소스를 호출하는 `:core:*`의 구현 | 사용자가 관찰하면 spec |
 | 단위와 표준 | 한 주의 일수, 진법, 비트 마스크 | 쓰는 곳의 이름 있는 상수. 여러 모듈이 쓰면 `library:*` | 없음 |
 
-- 데이터 정책을 domain으로 올리지 않는다. 신선도 기준과 묶음 크기를 domain이 알면 [domain.md](domain.md)의 `sync·fetch·refresh 어휘` 절이 막는 방향으로 계약이 뒤집힌다.
+- 데이터 정책을 domain으로 올리지 않는다. [domain.md](domain.md)의 `sync·fetch·refresh 어휘` 절이 막는 방향으로 계약이 뒤집힌다.
 - 제품 정책과 데이터 계약의 값은 코드에만 두지 않는다. 문서에 없는 값을 발견하면 `spec-wave`로 먼저 적는다.
 - 같은 값을 여러 모듈이 각자 상수로 두지 않는다. 위 표의 한 자리에 두고 가져다 쓴다.
 - Preview와 테스트의 예시 값은 대상이 아니다.
@@ -82,39 +71,26 @@ private suspend fun List<Deferred<Unit>>.awaitAllCatching() {
 private companion object {
     const val PAGE_SIZE: Int = 20
 }
-```
 
-✅ 권장 예시:
-
-```kotlin
-// data:core
-public const val PAGE_SIZE: Int = 20
-```
-
-⚠️ 비권장 예시:
-
-```kotlin
 // core:image:impl
 internal const val JPEG_QUALITY_PERCENT: Int = 90
 ```
 
-✅ 권장 예시:
+✅ 권장 예시 — 저장소마다 `PAGE_SIZE`를 두지 않고 `data:core`에 하나 둔다. 이미지 화질은 `core:image:impl`이 아니라 정책을 정하는 domain이 넘긴다:
 
 ```kotlin
+// data:core
+public const val PAGE_SIZE: Int = 20
+
 // domain:account
 private const val JPEG_QUALITY_PERCENT = 90
 
-userDataRepository.updateProfileImage(
-    uri = parameter.uri,
-    cropRegion = parameter.cropRegion,
-    maxSideLength = MAX_SIDE_LENGTH_PX,
-    jpegQuality = JPEG_QUALITY_PERCENT,
-)
+userDataRepository.updateProfileImage(..., maxSideLength = MAX_SIDE_LENGTH_PX, jpegQuality = JPEG_QUALITY_PERCENT)
 ```
 
 ## 실험적 API Opt-in
 
-실험적 API 사용을 위해 `@OptIn(...)`을 선언할 때는 클래스나 함수에 선언하지 않고, 해당 API를 사용하는 Kotlin 파일 상단에 파일 어노테이션으로 선언한다.
+실험적 API 사용을 위해 `@OptIn(...)`을 선언할 때는 클래스나 함수에 선언하지 않고, 해당 API를 사용하는 Kotlin 파일 상단에 `@file:OptIn(...)`으로 선언한다.
 
 ⚠️ 비권장 예시:
 
@@ -124,14 +100,6 @@ class Example
 
 @OptIn(ExperimentalForeignApi::class)
 fun example() = Unit
-```
-
-✅ 권장 예시:
-
-```kotlin
-@file:OptIn(ExperimentalForeignApi::class)
-
-package io.github.taetae98coding.diary
 ```
 
 ## data class 프로퍼티 접근 지정자
@@ -158,7 +126,7 @@ public data class SupabaseUser(
 
 ## internal 선언 멤버 접근 지정자
 
-explicit API 모드에서도 `internal` 선언의 멤버는 외부에 노출되지 않아 명시적 접근 지정자가 요구되지 않으므로, 상위 선언과 동일한 `internal`을 멤버에 중복 선언하지 않는다.
+explicit API 모드에서도 `internal` 선언의 멤버에는 명시적 접근 지정자가 요구되지 않으므로, 상위 선언과 동일한 `internal`을 멤버에 중복 선언하지 않는다.
 
 ⚠️ 비권장 예시:
 
@@ -178,17 +146,13 @@ internal abstract class DiaryDatabase : RoomDatabase() {
 internal abstract class DiaryDatabase : RoomDatabase() {
     abstract fun memoDao(): MemoDao
 
-    companion object {
-        const val NAME: String = "diary.db"
-    }
+    companion object { ... }
 }
 ```
 
 ## Explicit backing field
 
-내부에서만 변경하고 외부에는 읽기 전용 상위 타입으로 노출하는 프로퍼티는, 비공개 프로퍼티와 공개 프로퍼티를 쌍으로 선언하지 않고 explicit backing field(`field = ...`)로 선언한다. 이름이 하나로 줄어 `mutableXxx`·`_xxx` 같은 접두사 규칙이 필요 없고, 노출 타입과 실제 타입이 한 선언에 함께 드러난다.
-
-클래스 내부에서 프로퍼티를 참조하면 field의 타입으로 해석되므로 변경 함수를 그대로 호출할 수 있고, 외부에서는 선언한 읽기 전용 타입만 보인다.
+내부에서만 변경하고 외부에는 읽기 전용 상위 타입으로 노출하는 프로퍼티는, 비공개 프로퍼티와 공개 프로퍼티를 쌍으로 선언하지 않고 explicit backing field(`field = ...`)로 선언한다.
 
 ⚠️ 비권장 예시:
 
@@ -203,24 +167,15 @@ internal class CalendarHomeWeatherViewModel : ViewModel() {
 ✅ 권장 예시:
 
 ```kotlin
-internal class CalendarHomeWeatherViewModel : ViewModel() {
-    val isLoading: StateFlow<Boolean>
-        field = MutableStateFlow(false)
-}
+val isLoading: StateFlow<Boolean>
+    field = MutableStateFlow(false)
 ```
 
 field의 타입이 프로퍼티 타입의 하위 타입이어야 하므로, `Channel`을 `receiveAsFlow()`로 바꿔 노출하는 경우처럼 변환이 필요한 쌍에는 적용하지 않고 비공개 프로퍼티를 그대로 둔다.
 
-```kotlin
-private val _effect = Channel<TagAddEffect>(Channel.BUFFERED)
-val effect: Flow<TagAddEffect> = _effect.receiveAsFlow()
-```
-
 ## nullable 문자열·컬렉션 대체
 
-`String?`, `List<T>?`, `Set<T>?`, `Map<K, V>?`처럼 빈 값으로 대신할 수 있는 nullable 타입은 `orEmpty()`로 not-null 타입으로 바꿔 다룬다. 이렇게 하면 호출자가 null 검사와 빈 값 검사를 두 번 하지 않고, 빈 값 처리 분기가 한곳에 모인다.
-
-선언하는 프로퍼티와 파라미터의 타입도 not-null로 두고, nullable 값을 받는 경계에서 `orEmpty()`로 변환한다.
+`String?`, `List<T>?`, `Set<T>?`, `Map<K, V>?`처럼 빈 값으로 대신할 수 있는 nullable 타입은 `orEmpty()`로 not-null 타입으로 바꿔 다룬다. 선언하는 프로퍼티와 파라미터의 타입도 not-null로 두고, nullable 값을 받는 경계에서 `orEmpty()`로 변환한다.
 
 ⚠️ 비권장 예시:
 
@@ -245,27 +200,18 @@ internal data class MemoAddUiState(
 private val tagList: StateFlow<List<Tag>> =
     getTagUseCase(parameter = Unit)
         .map { result -> result.getOrNull().orEmpty() }
-        .stateIn(scope = viewModelScope, started = SharingStarted.WhileSubscribed(), initialValue = emptyList())
+        .stateIn(..., initialValue = emptyList())
 ```
 
-null과 빈 값이 서로 다른 의미를 가지는 경우에는 nullable 타입으로 두 의미를 겹쳐 표현하지 않고, 의미를 드러내는 별도 값으로 표현한다. 예를 들어 아직 조회되지 않은 상태와 조회 결과가 비어 있는 상태를 구분해야 하면 목록은 not-null로 두고 조회 완료 여부를 별도 프로퍼티로 표현한다.
-
-✅ 권장 예시:
-
-```kotlin
-internal data class MemoAddUiState(
-    val isTagListLoaded: Boolean = false,
-    val tagList: List<Tag> = emptyList(),
-)
-```
+null과 빈 값이 서로 다른 의미를 가지면 nullable 타입으로 두 의미를 겹쳐 표현하지 않고, 의미를 드러내는 별도 값으로 표현한다. 예: 목록은 not-null로 두고 조회 완료 여부를 `isTagListLoaded: Boolean` 같은 별도 프로퍼티로 둔다.
 
 ## enum 선언 순서
 
-enum의 선언 순서는 계약이 아니라 우연이므로, 프로덕션 코드가 그 순서에 의존하지 않게 둔다. 순서에 의존하면 상수를 재배치하거나 새 상수를 중간에 끼워 넣을 때 컴파일과 기존 테스트가 모두 통과한 채로 화면에 놓이는 순서만 바뀐다.
+enum의 선언 순서는 계약이 아니므로 프로덕션 코드가 그 순서에 의존하지 않게 둔다. 순서에 의존하면 상수를 재배치해도 컴파일과 테스트가 통과한 채 화면의 순서만 바뀐다.
 
-**표시 순서나 인덱스가 필요한 곳에서는 `entries` 순회와 `ordinal`을 쓰지 않고, 순서를 소유하는 `listOf`를 사용하는 모듈에 두고 순회와 인덱스를 그 목록에서 구한다.** 순서는 스펙이나 디자인 문서가 정하고 아래 `순서 단정` 테스트가 그 순서를 지키므로, 목록에 순서의 출처를 주석으로 달지 않는다.
+**표시 순서나 인덱스가 필요한 곳에서는 `entries` 순회와 `ordinal`을 쓰지 않고, 순서를 소유하는 `listOf`를 사용하는 모듈에 두고 순회와 인덱스를 그 목록에서 구한다.** 순서는 스펙이나 디자인 문서가 정하고 `순서 단정` 테스트가 지키므로, 목록에 순서의 출처를 주석으로 달지 않는다.
 
-목록마다 `순서 단정`과 `entries 전체를 한 번씩만 담는지` 두 케이스를 테스트로 둔다. 뒤 케이스가 없으면 새 상수를 목록에 넣는 것을 빠뜨렸을 때 `indexOf`가 `-1`을 돌려주거나 그 상수가 화면에서 사라지는 것을 아무도 알려주지 않는다.
+목록마다 `순서 단정`과 `entries 전체를 한 번씩만 담는지` 두 케이스를 테스트로 둔다. 뒤 케이스가 없으면 새 상수를 목록에 빠뜨려도 알려주는 것이 없다.
 
 ⚠️ 비권장 예시:
 
@@ -281,27 +227,20 @@ PrimaryTabRow(selectedTabIndex = state.type.ordinal) {
 
 ```kotlin
 internal val searchHomeTypeList: List<SearchHomeType> =
-    listOf(
-        SearchHomeType.MEMO,
-        SearchHomeType.TAG,
-        SearchHomeType.PLACE,
-        SearchHomeType.WEB,
-    )
+    listOf(SearchHomeType.MEMO, SearchHomeType.TAG, SearchHomeType.PLACE, SearchHomeType.WEB)
 
 PrimaryTabRow(selectedTabIndex = searchHomeTypeList.indexOf(state.type)) {
-    searchHomeTypeList.forEach { type ->
-        Tab(selected = type == state.type, onClick = { state.select(type) })
-    }
+    searchHomeTypeList.forEach { type -> ... }
 }
 ```
 
-순서와 무관한 곳에서는 `entries`를 그대로 쓴다. 키로 상수를 찾거나(`entries.firstOrNull { it.key == key }`), 모든 상수를 한 번씩 훑는 테스트, 목록 완전성을 비교하는 테스트가 그렇다. `rememberSaveable`의 `Saver`처럼 저장과 복원이 같은 빌드 안에서만 짝을 이루는 곳도 `ordinal`과 `entries[index]`를 그대로 쓴다. 순서를 바꾸면 양쪽이 함께 바뀐다.
+순서와 무관한 곳에서는 `entries`를 그대로 쓴다. 키로 상수를 찾거나(`entries.firstOrNull { it.key == key }`), 모든 상수를 한 번씩 훑는 테스트, 목록 완전성을 비교하는 테스트가 그렇다. `rememberSaveable`의 `Saver`처럼 저장과 복원이 같은 빌드 안에서만 짝을 이루는 곳도 `ordinal`과 `entries[index]`를 그대로 쓴다.
 
 ## enum 상수 이름
 
-**저장하거나 전송하는 값에는 상수 이름을 쓰지 않고, 이름과 계약을 끊는 매핑을 둔다.** 이름 변경은 IDE 리팩터링으로 모든 참조가 함께 바뀌어 컴파일이 통과하므로, 이미 저장된 값이나 상대가 기대하는 포맷만 어긋난다. 컴파일러가 잡아 주지 못하는 종류의 변경이다.
+**저장하거나 전송하는 값에는 상수 이름을 쓰지 않고, 이름과 계약을 끊는 매핑을 둔다.** 이름 변경은 컴파일이 통과한 채 이미 저장된 값이나 상대가 기대하는 포맷만 어긋나게 한다.
 
-대상은 Room 컬럼과 DataStore 값, 네트워크 요청과 응답, 딥링크처럼 앱 밖이나 다음 버전으로 값이 넘어가는 경계다. 명시 문자열 프로퍼티나 `when` 매핑으로 옮기고, `@Serializable` enum을 그 경계로 내보낼 때는 `@SerialName`으로 직렬화 이름을 고정한다. `when` 매핑은 상수를 추가하면 컴파일 오류가 나므로 빠뜨릴 수 없다.
+대상은 Room 컬럼과 DataStore 값, 네트워크 요청과 응답, 딥링크처럼 앱 밖이나 다음 버전으로 값이 넘어가는 경계다. 명시 문자열 프로퍼티나 `when` 매핑으로 옮기고, `@Serializable` enum을 그 경계로 내보낼 때는 `@SerialName`으로 직렬화 이름을 고정한다.
 
 ⚠️ 비권장 예시:
 
@@ -327,15 +266,13 @@ public enum class MapProviderLocalEntity(
 dataStore.updateData { setting -> setting.copy(mapDefaultProvider = provider.persistentValue) }
 ```
 
-경계를 넘지 않는 값에는 `.name`과 `valueOf`를 그대로 쓴다. `rememberSaveable`의 `Saver`가 그렇다. 저장과 복원이 같은 빌드 안에서만 짝을 이루므로 이름을 바꿔도 양쪽이 함께 바뀐다.
+경계를 넘지 않는 값에는 `.name`과 `valueOf`를 그대로 쓴다. `rememberSaveable`의 `Saver`가 그렇다.
 
 ## Dispatcher 주입
 
 **Koin이 만드는 클래스에서 blocking 작업을 코루틴 밖 스레드로 옮길 때 `Dispatchers.IO`·`Dispatchers.Default`를 직접 참조하지 않고, `CoroutineDispatcher`를 생성자로 주입받아 `withContext(dispatcher)`로 쓴다.** `core:*:impl`, `data:*`, `work:*`의 DataSource, Repository, Work, 변환기가 대상이다.
 
-직접 참조하면 테스트가 dispatcher를 바꿔 넣을 수 없고, 어느 dispatcher를 쓸지가 구현 클래스마다 흩어져 플랫폼별로 다르게 정할 수 없다. 예를 들어 파일 읽기는 Android·JVM·iOS에서는 `Dispatchers.IO`로 옮기지만 wasm에는 `IO`가 없어 다른 dispatcher를 써야 한다. 이 선택은 구현 클래스가 아니라 플랫폼 소스셋의 Koin 모듈이 소유한다.
-
-다음 순서로 둔다.
+직접 참조하면 테스트가 dispatcher를 바꿔 넣을 수 없고, wasm처럼 `IO`가 없는 플랫폼에 다른 dispatcher를 줄 수 없다. 이 선택은 플랫폼 소스셋의 Koin 모듈이 소유한다.
 
 1. 모듈의 `impl/di`에 `@Qualifier` 어노테이션을 하나 둔다(`FileDispatcher`, `BrowserCookieDispatcher`, `DiarySettingDispatcher`). 하나의 모듈 안에서는 dispatcher 하나를 공유한다.
 2. 플랫폼 소스셋의 Koin 모듈이 그 qualifier로 `CoroutineDispatcher`를 제공한다. `Dispatchers.IO`는 이 제공 함수에서만 참조한다.
@@ -380,6 +317,6 @@ internal class JvmFileLocalDataSource(
 
 다음은 이 규칙의 대상이 아니다.
 
-- 플랫폼이 특정 스레드를 요구해 `Dispatchers.Main`으로 옮기는 경우. CoreLocation처럼 메인 스레드에서만 부를 수 있는 API가 그렇다. 이 선택은 우회할 수 없는 플랫폼 제약이므로 주입해도 바꿀 수 없다.
+- 플랫폼이 특정 스레드를 요구해 `Dispatchers.Main`으로 옮기는 경우. CoreLocation처럼 메인 스레드에서만 부를 수 있는 API가 그렇다.
 - Koin이 만들지 않는 객체. Composable 안에서 `remember`로 만드는 UI 보조 객체가 그렇다.
 - 콜백을 `suspendCancellableCoroutine`으로 기다리기만 하는 코드. blocking이 없어 옮길 것이 없다.
