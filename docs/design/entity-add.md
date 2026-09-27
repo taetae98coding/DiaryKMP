@@ -7,6 +7,7 @@
 이 문서를 따르는 디자인 문서는 다음과 같다.
 
 - [ContactAdd 화면 디자인](./contact-add.md)
+- [FileAdd 화면 디자인](./file-add.md). 진행과 피드백은 따르지 않는다
 - [MusicAdd 화면 디자인](./music-add.md)
 - [PlaceAdd 화면 디자인](./place-add.md)
 - [QrAdd 화면 디자인](./qr-add.md)

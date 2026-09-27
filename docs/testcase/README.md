@@ -64,6 +64,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [DiaryDateTimeInput](./diary-date-time-input.md) | [날짜·시간 입력 컴포넌트](../spec/client/diary-date-time-input.md) |
 | [DiaryMap](./diary-map.md) | [DiaryMap 컴포넌트](../spec/client/diary-map.md) |
 | [푸시 알림 수신 등록](./fcm-token.md) | [푸시 알림 수신 등록(client)](../spec/client/fcm-token.md), [푸시 알림 수신 등록(common)](../spec/common/fcm-token.md), [푸시 알림 수신 등록(server)](../spec/server/fcm-token.md) |
+| [FileAdd](./file-add.md) | [FileAdd 화면](../spec/client/file-add.md) |
 | [FileHome](./file-home.md) | [FileHome 화면](../spec/client/file-home.md) |
 | [파일 보관](./file-storage.md) | [파일 보관(client)](../spec/client/file-storage.md), [파일 보관(common)](../spec/common/file-storage.md), [파일 보관(server)](../spec/server/file-storage.md) |
 | [파일 올리기 알림](./file-upload-notification.md) | [파일 올리기 알림](../spec/client/file-upload-notification.md) |

@@ -67,6 +67,7 @@ stateDiagram-v2
 | `ContactDetail` | [ContactDetail 화면](./contact-detail.md) |
 | `ContactHome` | [ContactHome 화면](./contact-home.md) |
 | `DDayHome` | [DDayHome 화면](./dday-home.md) |
+| `FileAdd` | [FileAdd 화면](./file-add.md) |
 | `FileHome` | [FileHome 화면](./file-home.md) |
 | `HolidayHome` | [HolidayHome 화면](./holiday-home.md) |
 | `LoginHome` | [Login 화면](./login.md) |

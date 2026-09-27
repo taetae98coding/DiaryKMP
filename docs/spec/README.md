@@ -67,6 +67,7 @@
 | ContactHome 화면 | [client](./client/contact-home.md) | — | — | [ContactHome 디자인](../design/contact-home.md) |
 | DDayHome 화면 | [client](./client/dday-home.md) | — | — | [DDayHome 디자인](../design/dday-home.md) |
 | DiaryMap 컴포넌트 | [client](./client/diary-map.md) | — | — | [DiaryMap 디자인](../design/diary-map.md) |
+| FileAdd 화면 | [client](./client/file-add.md) | — | — | [FileAdd 디자인](../design/file-add.md) |
 | FileHome 화면 | [client](./client/file-home.md) | — | — | [FileHome 디자인](../design/file-home.md) |
 | Gemini 모델 목록 조회 | [client](./client/gemini-model-list.md) | — | — | — |
 | Google 장소 검색 | [client](./client/google-place-search.md) | — | — | — |

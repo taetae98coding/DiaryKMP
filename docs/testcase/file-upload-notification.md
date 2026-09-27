@@ -179,11 +179,38 @@
 - When: 서버가 올리기 요청에 성공을 돌려준다.
 - Then: 올리기가 성공으로 끝나고 성공 결과 알림이 표시된다.
 
+### TC-FILE-UPLOAD-NOTIFICATION-FEATURE-019: FileAdd 화면을 보고 있을 때 올리기가 끝나면 결과 알림을 보내지 않는다
+
+- 근거: `feature > 결과 알림`, `domain > 파일 화면을 보고 있는 상태`
+- Given: Android에서 알림 권한이 허용되어 있고 사용자가 FileHome에서 연 FileAdd 화면을 보고 있는 동안 파일을 올리는 중이다.
+- When: 올리기가 테스트 데이터의 결과로 끝난다.
+- Then: 결과 알림이 표시되지 않는다.
+- 테스트 데이터:
+
+| 결과 |
+| --- |
+| 성공 |
+| 크기 초과로 실패 |
+| 그 밖의 이유로 실패 |
+
+### TC-FILE-UPLOAD-NOTIFICATION-FEATURE-020: FileAdd 화면을 보고 있으면 알림을 선택해도 FileAdd와 적어 둔 내용을 유지한다
+
+- 근거: `feature > 알림에서 앱 열기`
+- Given: 앱이 실행 중이고, 사용자가 FileHome에서 연 FileAdd 화면에 제목 `회의록`을 적어 둔 채 앱의 상태가 테스트 데이터와 같다.
+- When: 사용자가 파일 올리기 알림을 선택한다.
+- Then: FileAdd 화면과 제목 `회의록`이 그대로 유지되고, 뒤로가면 FileHome 화면이 보인다.
+- 테스트 데이터:
+
+| 앱의 상태 |
+| --- |
+| 사용자가 FileAdd 화면을 보고 있다 |
+| 앱이 화면 뒤에 있고 마지막으로 보던 화면이 FileAdd다 |
+
 ## domain
 
 ### TC-FILE-UPLOAD-NOTIFICATION-DOMAIN-001: 앱이 화면 앞에 있고 FileHome을 표시할 때만 FileHome을 보고 있는 것으로 본다
 
-- 근거: `domain > FileHome을 보고 있는 상태`
+- 근거: `domain > 파일 화면을 보고 있는 상태`
 - Given: 앱의 상태가 테스트 데이터와 같다.
 - When: 올리기가 끝나 FileHome을 보고 있는지 판정한다.
 - Then: 테스트 데이터의 판정 결과가 된다.
@@ -195,10 +222,10 @@
 | 예 | `더보기` | 보고 있지 않음 |
 | 아니오 | FileHome | 보고 있지 않음 |
 
-### TC-FILE-UPLOAD-NOTIFICATION-DOMAIN-002: 올리기를 시작할 때가 아니라 끝나는 순간 FileHome을 보고 있는지로 판정한다
+### TC-FILE-UPLOAD-NOTIFICATION-DOMAIN-002: 올리기를 시작할 때가 아니라 끝나는 순간 파일 화면을 보고 있는지로 판정한다
 
-- 근거: `domain > FileHome을 보고 있는 상태`, `feature > 앱을 사용하는 중에 받은 알림`
-- Given: Android에서 알림 권한이 허용되어 있고, 사용자가 FileHome 화면에서 파일 올리기를 시작한 뒤 `더보기` 화면으로 돌아갔다.
+- 근거: `domain > 파일 화면을 보고 있는 상태`, `feature > 앱을 사용하는 중에 받은 알림`
+- Given: Android에서 알림 권한이 허용되어 있고, 사용자가 FileAdd 화면에서 파일 올리기를 시작한 뒤 FileHome을 거쳐 `더보기` 화면으로 돌아갔다.
 - When: 올리기가 성공으로 끝난다.
 - Then: 성공 결과 알림이 표시되고, 앱 화면 안에는 따로 안내가 표시되지 않으며 보고 있던 화면도 바뀌지 않는다.
 
@@ -219,7 +246,7 @@
 
 ### TC-FILE-UPLOAD-NOTIFICATION-DOMAIN-005: 데스크톱 앱과 웹에서 앱이 화면 앞에 있는지를 창과 탭의 상태로 판정한다
 
-- 근거: `domain > FileHome을 보고 있는 상태`
+- 근거: `domain > 파일 화면을 보고 있는 상태`
 - Given: 데스크톱 앱이나 웹에서 FileHome 화면을 표시하고 있고, 창이나 탭의 상태가 테스트 데이터와 같다.
 - When: 올리기가 끝나 FileHome을 보고 있는지 판정한다.
 - Then: 테스트 데이터의 판정 결과가 된다.

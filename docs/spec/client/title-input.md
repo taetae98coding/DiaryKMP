@@ -4,6 +4,7 @@
 
 제목 입력을 쓰는 화면 스펙은 다음과 같다.
 
+- [FileAdd 화면 스펙](./file-add.md)
 - [MemoAdd 화면 스펙](./memo-add.md)
 - [MemoDetail 화면 스펙](./memo-detail.md)
 - [MusicAdd 화면 스펙](./music-add.md)
