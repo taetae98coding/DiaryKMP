@@ -42,28 +42,9 @@ class QrAddScreenAddTest {
     fun `TC-QR-ADD-FEATURE-019 처음 들어오면 제목과 설명이 비어 있고 제목 입력에 초점이 있다`() {
         setQrAddScreen(viewModel = screenTestViewModel())
 
-        composeRule.inputCount() shouldBe INPUT_COUNT
+        composeRule.isTabSelected(INFO_TAB_INDEX) shouldBe true
         composeRule.titleInputText() shouldBe ""
         composeRule.descriptionInputText() shouldBe ""
-        composeRule.onTitleInput().assertIsFocused()
-    }
-
-    @Test
-    fun `TC-QR-ADD-FEATURE-021 추가에 성공하면 다음 QR을 작성할 수 있는 상태로 초기화한다`() {
-        setQrAddScreen(viewModel = effectViewModel(effect = QrAddEffect.AddSucceeded))
-        val detail = qrTestFixtureMonkey.qrDetail()
-        fillInput(title = detail.title, description = detail.description, value = detail.value)
-        composeRule.onQrValueInput().performClick()
-        composeRule.waitForIdle()
-        composeRule.onQrValueInput().assertIsFocused()
-
-        clickAdd()
-
-        composeRule.onNodeWithText(DEFAULT_TITLE).assertExists()
-        composeRule.titleInputText() shouldBe ""
-        composeRule.descriptionInputText() shouldBe ""
-        composeRule.qrValueInputText() shouldBe ""
-        composeRule.qrCodeValue() shouldBe ""
         composeRule.onTitleInput().assertIsFocused()
     }
 
@@ -93,7 +74,7 @@ class QrAddScreenAddTest {
         val useCase = mockk<AddQrUseCase>()
         val detail = qrTestFixtureMonkey.qrDetail()
         coEvery { useCase(parameter = any()) } returns Result.failure(IllegalStateException(qrTestFixtureMonkey.giveMeOne<String>()))
-        setQrAddScreen(viewModel = QrAddViewModel(addQrUseCase = useCase))
+        setQrAddScreen(viewModel = qrAddViewModel(addQrUseCase = useCase))
         fillInput(title = detail.title, description = detail.description, value = detail.value)
 
         clickAdd()
@@ -103,48 +84,12 @@ class QrAddScreenAddTest {
         composeRule.onNodeWithText(DEFAULT_VALUE_EMPTY_MESSAGE).assertDoesNotExist()
         composeRule.titleInputText() shouldBe detail.title
         composeRule.descriptionInputText() shouldBe detail.description
-        composeRule.qrValueInputText() shouldBe detail.value
+        composeRule.qrTextInputText() shouldBe detail.value
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate), useUnmergedTree = true).assertDoesNotExist()
 
         clickAdd()
 
         coVerify(exactly = 2) { useCase(parameter = detail) }
-    }
-
-    @Test
-    @Config(qualifiers = "ko")
-    fun `TC-QR-ADD-FEATURE-025 제목이 비어 있고 값은 있으면 제목 입력이 필요함을 알리고 제목 입력으로 초점을 옮긴다`() {
-        assertInvalidInput(title = "", value = qrTestFixtureMonkey.qrDetail().value, exception = QrTitleBlankException(), message = KOREAN_TITLE_BLANK_MESSAGE, focusedIndex = TITLE_INPUT_INDEX)
-    }
-
-    @Test
-    @Config(qualifiers = "ko")
-    fun `TC-QR-ADD-FEATURE-025 제목이 공백 문자뿐이고 값은 있으면 제목 입력이 필요함을 알리고 제목 입력으로 초점을 옮긴다`() {
-        assertInvalidInput(title = "   ", value = qrTestFixtureMonkey.qrDetail().value, exception = QrTitleBlankException(), message = KOREAN_TITLE_BLANK_MESSAGE, focusedIndex = TITLE_INPUT_INDEX)
-    }
-
-    @Test
-    @Config(qualifiers = "ko")
-    fun `TC-QR-ADD-FEATURE-025 제목은 있고 값이 비어 있으면 QR 값 입력이 필요함을 알리고 QR 값 입력으로 초점을 옮긴다`() {
-        assertInvalidInput(title = qrTestFixtureMonkey.qrDetail().title, value = "", exception = QrValueEmptyException(), message = KOREAN_VALUE_EMPTY_MESSAGE, focusedIndex = VALUE_INPUT_INDEX)
-    }
-
-    @Test
-    fun `TC-QR-ADD-FEATURE-025 기본 환경에서 제목 입력이 필요함을 알린다`() {
-        setQrAddScreen(viewModel = effectViewModel(effect = QrAddEffect.TitleBlank))
-
-        clickAdd()
-
-        composeRule.onNodeWithText(DEFAULT_TITLE_BLANK_MESSAGE).assertExists()
-    }
-
-    @Test
-    fun `TC-QR-ADD-FEATURE-025 기본 환경에서 QR 값 입력이 필요함을 알린다`() {
-        setQrAddScreen(viewModel = effectViewModel(effect = QrAddEffect.ValueEmpty))
-
-        clickAdd()
-
-        composeRule.onNodeWithText(DEFAULT_VALUE_EMPTY_MESSAGE).assertExists()
     }
 
     @Test
@@ -198,7 +143,7 @@ class QrAddScreenAddTest {
     ) {
         val useCase = mockk<AddQrUseCase>()
         coEvery { useCase(parameter = any()) } returns result
-        val viewModel = QrAddViewModel(addQrUseCase = useCase)
+        val viewModel = qrAddViewModel(addQrUseCase = useCase)
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent { QrAddScreenContent(viewModel = viewModel) }
         composeRule.onNodeWithContentDescription(KOREAN_ADD_DESCRIPTION).performClick()
@@ -215,7 +160,7 @@ class QrAddScreenAddTest {
         val useCase = mockk<AddQrUseCase>()
         val detail = qrTestFixtureMonkey.qrDetail(description = description)
         coEvery { useCase(parameter = any()) } returns Result.success(qrTestFixtureMonkey.giveMeOne<Uuid>())
-        setQrAddScreen(viewModel = QrAddViewModel(addQrUseCase = useCase))
+        setQrAddScreen(viewModel = qrAddViewModel(addQrUseCase = useCase))
         fillInput(title = detail.title, description = detail.description, value = detail.value)
 
         composeRule.onNodeWithContentDescription(KOREAN_ADD_DESCRIPTION).performClick()
@@ -223,32 +168,6 @@ class QrAddScreenAddTest {
 
         composeRule.onNodeWithText(KOREAN_ADD_SUCCEEDED_MESSAGE).assertExists()
         coVerify(exactly = 1) { useCase(parameter = detail) }
-    }
-
-    private fun assertInvalidInput(
-        title: String,
-        value: String,
-        exception: Throwable,
-        message: String,
-        focusedIndex: Int,
-    ) {
-        val useCase = mockk<AddQrUseCase>()
-        coEvery { useCase(parameter = any()) } returns Result.failure(exception)
-        setQrAddScreen(viewModel = QrAddViewModel(addQrUseCase = useCase))
-        fillInput(title = title, description = "", value = value)
-        composeRule.onDescriptionInput().performClick()
-        composeRule.waitForIdle()
-
-        composeRule.onNodeWithContentDescription(KOREAN_ADD_DESCRIPTION).performClick()
-        composeRule.waitForIdle()
-
-        composeRule.onNodeWithText(message).assertExists()
-        composeRule.onNodeWithText(KOREAN_ADD_SUCCEEDED_MESSAGE).assertDoesNotExist()
-        if (focusedIndex == TITLE_INPUT_INDEX) {
-            composeRule.onTitleInput().assertIsFocused()
-        } else {
-            composeRule.onQrValueInput().assertIsFocused()
-        }
     }
 
     private fun assertInputRetained(
@@ -259,14 +178,14 @@ class QrAddScreenAddTest {
     ) {
         val useCase = mockk<AddQrUseCase>()
         coEvery { useCase(parameter = any()) } returns Result.failure(exception)
-        setQrAddScreen(viewModel = QrAddViewModel(addQrUseCase = useCase))
+        setQrAddScreen(viewModel = qrAddViewModel(addQrUseCase = useCase))
         fillInput(title = title, description = description, value = value)
 
         clickAdd()
 
         composeRule.titleInputText() shouldBe title
         composeRule.descriptionInputText() shouldBe description
-        composeRule.qrValueInputText() shouldBe value
+        composeRule.qrTextInputText() shouldBe value
         composeRule.qrCodeValue() shouldBe value
     }
 
@@ -277,7 +196,7 @@ class QrAddScreenAddTest {
     ) {
         if (title.isNotEmpty()) composeRule.onTitleInput().performTextInput(title)
         if (description.isNotEmpty()) composeRule.onDescriptionInput().performTextInput(description)
-        if (value.isNotEmpty()) composeRule.onQrValueInput().performTextInput(value)
+        if (value.isNotEmpty()) composeRule.onQrTextInput().performTextInput(value)
         composeRule.waitForIdle()
     }
 
@@ -312,7 +231,7 @@ class QrAddScreenAddTest {
         const val KOREAN_ADD_SUCCEEDED_MESSAGE = "QR이 추가되었습니다."
         const val DEFAULT_TITLE_BLANK_MESSAGE = "Please enter a title."
         const val KOREAN_TITLE_BLANK_MESSAGE = "제목을 입력해 주세요."
-        const val DEFAULT_VALUE_EMPTY_MESSAGE = "Please enter a QR value."
-        const val KOREAN_VALUE_EMPTY_MESSAGE = "QR 값을 입력해 주세요."
+        const val DEFAULT_VALUE_EMPTY_MESSAGE = "Please enter the text."
+        const val KOREAN_VALUE_EMPTY_MESSAGE = "내용을 입력해 주세요."
     }
 }

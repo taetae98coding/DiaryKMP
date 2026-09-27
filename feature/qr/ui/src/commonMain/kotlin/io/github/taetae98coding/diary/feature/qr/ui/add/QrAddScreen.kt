@@ -27,8 +27,8 @@ internal fun QrAddScreen(
     modifier: Modifier = Modifier,
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val state = rememberQrAddFormState()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val state = rememberQrAddFormState(defaultProvider = uiState.defaultProvider)
     val scanStarter = remember(coroutineScope, permissionManager) { QrScanStarter(coroutineScope = coroutineScope, permissionManager = permissionManager) }
     val permissionDeniedMessage = stringResource(Res.string.qr_camera_permission_denied_message)
 
@@ -37,8 +37,9 @@ internal fun QrAddScreen(
         effect = viewModel.effect,
         state = state,
     )
+    ReflectQrCoordinateEffect(state = state.contentState)
     QrScannedResultEffect(
-        state = state.valueState,
+        state = state,
         resultEventBus = resultEventBus,
     )
 
@@ -47,6 +48,10 @@ internal fun QrAddScreen(
             when (event) {
                 is QrAddScaffoldEvent.ClickNavigateUp -> {
                     navigateUp()
+                }
+
+                is QrAddScaffoldEvent.ClickUndo -> {
+                    state.undo()
                 }
 
                 is QrAddScaffoldEvent.ClickScan -> {

@@ -107,7 +107,7 @@ class QrAddScreenTest {
         val detail = qrTestFixtureMonkey.qrDetail(description = "description-${qrTestFixtureMonkey.giveMeOne<String>()}")
         composeRule.onTitleInput().performTextInput(detail.title)
         composeRule.onDescriptionInput().performTextInput(detail.description)
-        composeRule.onQrValueInput().performTextInput(detail.value)
+        composeRule.onQrTextInput().performTextInput(detail.value)
         composeRule.waitForIdle()
 
         composeRule.onNodeWithContentDescription(KOREAN_SCAN_DESCRIPTION).performClick()
@@ -117,7 +117,7 @@ class QrAddScreenTest {
         composeRule.onNodeWithText(KOREAN_PERMISSION_DENIED_MESSAGE).assertExists()
         composeRule.titleInputText() shouldBe detail.title
         composeRule.descriptionInputText() shouldBe detail.description
-        composeRule.qrValueInputText() shouldBe detail.value
+        composeRule.qrTextInputText() shouldBe detail.value
     }
 
     @Test
@@ -275,7 +275,7 @@ class QrAddScreenTest {
         composeRule.waitForIdle()
 
         composeRule
-            .onQrValueInput()
+            .onQrTextInput()
             .fetchSemanticsNode()
             .config[SemanticsProperties.TextSelectionRange] shouldBe TextRange(value.length)
     }

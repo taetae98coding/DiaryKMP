@@ -48,30 +48,36 @@ class QrAddScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-ADD-FEATURE-027 한국어 환경에서 화면에서 할 수 있는 동작은 정해진 입력과 동작뿐이다`() {
+    fun `TC-QR-ADD-FEATURE-050 한국어 환경에서 화면에서 할 수 있는 동작은 정해진 탭, 입력과 동작뿐이다`() {
         setQrAddScaffold()
 
         assertActionList(
             navigateUpDescription = KOREAN_NAVIGATE_UP_DESCRIPTION,
+            tabList = KOREAN_TAB_LIST,
             titleLabel = KOREAN_TITLE_LABEL,
             descriptionLabel = KOREAN_DESCRIPTION_LABEL,
             descriptionTabList = KOREAN_DESCRIPTION_TAB_LIST,
-            valueLabel = KOREAN_VALUE_LABEL,
+            formatLabel = KOREAN_FORMAT_LABEL,
+            textLabel = KOREAN_TEXT_LABEL,
+            undoDescription = KOREAN_UNDO_DESCRIPTION,
             scanDescription = KOREAN_SCAN_DESCRIPTION,
             addDescription = KOREAN_ADD_DESCRIPTION,
         )
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-027 기본 환경에서 화면에서 할 수 있는 동작은 정해진 입력과 동작뿐이다`() {
+    fun `TC-QR-ADD-FEATURE-050 기본 환경에서 화면에서 할 수 있는 동작은 정해진 탭, 입력과 동작뿐이다`() {
         setQrAddScaffold()
 
         assertActionList(
             navigateUpDescription = DEFAULT_NAVIGATE_UP_DESCRIPTION,
+            tabList = DEFAULT_TAB_LIST,
             titleLabel = DEFAULT_TITLE_LABEL,
             descriptionLabel = DEFAULT_DESCRIPTION_LABEL,
             descriptionTabList = DEFAULT_DESCRIPTION_TAB_LIST,
-            valueLabel = DEFAULT_VALUE_LABEL,
+            formatLabel = DEFAULT_FORMAT_LABEL,
+            textLabel = DEFAULT_TEXT_LABEL,
+            undoDescription = DEFAULT_UNDO_DESCRIPTION,
             scanDescription = DEFAULT_SCAN_DESCRIPTION,
             addDescription = DEFAULT_ADD_DESCRIPTION,
         )
@@ -82,7 +88,7 @@ class QrAddScaffoldTest {
     fun `TC-QR-ADD-FEATURE-003 처음 들어오면 값이 비어 있고 QR을 그리지 않는다`() {
         setQrAddScaffold()
 
-        composeRule.qrValueInputText() shouldBe ""
+        composeRule.qrTextInputText() shouldBe ""
         composeRule.qrCodeValue() shouldBe ""
         composeRule.visibleTextList() shouldContainExactlyInAnyOrder KOREAN_VISIBLE_TEXT_LIST
     }
@@ -92,12 +98,12 @@ class QrAddScaffoldTest {
         setQrAddScaffold()
 
         listOf(qrTestFixtureMonkey.qrDetail().value, "안녕하세요", "${qrTestFixtureMonkey.qrDetail().value}\n${qrTestFixtureMonkey.qrDetail().value}").forEach { value ->
-            composeRule.onQrValueInput().performTextClearance()
+            composeRule.onQrTextInput().performTextClearance()
 
-            composeRule.onQrValueInput().performTextInput(value)
+            composeRule.onQrTextInput().performTextInput(value)
             composeRule.waitForIdle()
 
-            composeRule.qrValueInputText() shouldBe value
+            composeRule.qrTextInputText() shouldBe value
             composeRule.qrCodeValue() shouldBe value
         }
     }
@@ -107,10 +113,10 @@ class QrAddScaffoldTest {
         val firstValue = qrTestFixtureMonkey.qrDetail().value
         val addedValue = qrTestFixtureMonkey.qrDetail().value
         setQrAddScaffold()
-        composeRule.onQrValueInput().performTextInput(firstValue)
+        composeRule.onQrTextInput().performTextInput(firstValue)
         composeRule.waitForIdle()
 
-        composeRule.onQrValueInput().performTextInput(addedValue)
+        composeRule.onQrTextInput().performTextInput(addedValue)
         composeRule.waitForIdle()
 
         composeRule.qrCodeValue() shouldBe firstValue + addedValue
@@ -120,10 +126,10 @@ class QrAddScaffoldTest {
     @Config(qualifiers = "ko")
     fun `TC-QR-ADD-FEATURE-006 값을 모두 지우면 QR을 그리지 않는다`() {
         setQrAddScaffold()
-        composeRule.onQrValueInput().performTextInput(qrTestFixtureMonkey.qrDetail().value)
+        composeRule.onQrTextInput().performTextInput(qrTestFixtureMonkey.qrDetail().value)
         composeRule.waitForIdle()
 
-        composeRule.onQrValueInput().performTextClearance()
+        composeRule.onQrTextInput().performTextClearance()
         composeRule.waitForIdle()
 
         composeRule.qrCodeValue() shouldBe ""
@@ -135,13 +141,13 @@ class QrAddScaffoldTest {
     fun `TC-QR-ADD-FEATURE-007 QR 하나에 담을 수 없는 입력은 반영하지 않는다`() {
         val longestValue = "1".repeat(MAX_NUMERIC_LENGTH)
         setQrAddScaffold()
-        composeRule.onQrValueInput().performTextInput(longestValue)
+        composeRule.onQrTextInput().performTextInput(longestValue)
         composeRule.waitForIdle()
 
-        composeRule.onQrValueInput().performTextInput("1")
+        composeRule.onQrTextInput().performTextInput("1")
         composeRule.waitForIdle()
 
-        composeRule.qrValueInputText() shouldBe longestValue
+        composeRule.qrTextInputText() shouldBe longestValue
         composeRule.qrCodeValue() shouldBe longestValue
         composeRule.visibleTextList() shouldContainExactlyInAnyOrder KOREAN_VISIBLE_TEXT_LIST
     }
@@ -150,7 +156,7 @@ class QrAddScaffoldTest {
     fun `TC-QR-ADD-FEATURE-020 제목과 설명을 바꿔도 QR 그림은 QR 값만 담는다`() {
         val value = qrTestFixtureMonkey.qrDetail().value
         setQrAddScaffold()
-        composeRule.onQrValueInput().performTextInput(value)
+        composeRule.onQrTextInput().performTextInput(value)
         composeRule.waitForIdle()
 
         composeRule.onTitleInput().performTextInput(qrTestFixtureMonkey.qrDetail().title)
@@ -183,12 +189,12 @@ class QrAddScaffoldTest {
         setQrAddScaffold()
 
         listOf("  ${qrTestFixtureMonkey.qrDetail().value}  ", " ", "${qrTestFixtureMonkey.qrDetail().value}\n${qrTestFixtureMonkey.qrDetail().value}").forEach { value ->
-            composeRule.onQrValueInput().performTextClearance()
+            composeRule.onQrTextInput().performTextClearance()
 
-            composeRule.onQrValueInput().performTextInput(value)
+            composeRule.onQrTextInput().performTextInput(value)
             composeRule.waitForIdle()
 
-            composeRule.qrValueInputText() shouldBe value
+            composeRule.qrTextInputText() shouldBe value
             composeRule.qrCodeValue() shouldBe value
         }
     }
@@ -260,22 +266,28 @@ class QrAddScaffoldTest {
 
     private fun assertActionList(
         navigateUpDescription: String,
+        tabList: List<String>,
         titleLabel: String,
         descriptionLabel: String,
         descriptionTabList: List<String>,
-        valueLabel: String,
+        formatLabel: String,
+        textLabel: String,
+        undoDescription: String,
         scanDescription: String,
         addDescription: String,
     ) {
-        composeRule.onNode(hasClickAction() and hasContentDescription(navigateUpDescription)).assertExists()
+        val commonActionList = listOf(navigateUpDescription, undoDescription, scanDescription, addDescription) + tabList
+
+        composeRule.selectTab(INFO_TAB_INDEX)
+        composeRule.waitForIdle()
         composeRule.onNode(hasSetTextAction() and hasText(titleLabel)).assertExists()
         composeRule.onNode(hasSetTextAction() and hasText(descriptionLabel)).assertExists()
-        composeRule.onNode(hasSetTextAction() and hasText(valueLabel)).assertExists()
-        composeRule.onNode(hasClickAction() and hasContentDescription(scanDescription)).assertExists()
-        composeRule.onNode(hasClickAction() and hasContentDescription(addDescription)).assertExists()
-        composeRule.inputCount() shouldBe INPUT_COUNT
-        composeRule.actionNameList() shouldContainExactlyInAnyOrder
-            listOf(navigateUpDescription, titleLabel, descriptionLabel, valueLabel, scanDescription, addDescription) + descriptionTabList
+        composeRule.actionNameList() shouldContainExactlyInAnyOrder commonActionList + listOf(titleLabel, descriptionLabel) + descriptionTabList
+
+        composeRule.selectTab(QR_TAB_INDEX)
+        composeRule.waitForIdle()
+        composeRule.onNode(hasSetTextAction() and hasText(textLabel)).assertExists()
+        composeRule.actionNameList() shouldContainExactlyInAnyOrder commonActionList + listOf(formatLabel, textLabel)
     }
 
     public companion object {
@@ -287,14 +299,21 @@ class QrAddScaffoldTest {
         private const val DEFAULT_TITLE_LABEL = "Title"
         private const val KOREAN_DESCRIPTION_LABEL = "설명"
         private const val DEFAULT_DESCRIPTION_LABEL = "Description"
-        private const val KOREAN_VALUE_LABEL = "QR 값"
-        private const val DEFAULT_VALUE_LABEL = "QR value"
+        private const val KOREAN_FORMAT_LABEL = "포맷"
+        private const val DEFAULT_FORMAT_LABEL = "Format"
+        private const val KOREAN_TEXT_LABEL = "내용"
+        private const val DEFAULT_TEXT_LABEL = "Text"
+        private const val KOREAN_FORMAT_TEXT = "텍스트"
+        private val KOREAN_TAB_LIST = listOf("정보", "QR")
+        private val DEFAULT_TAB_LIST = listOf("Info", "QR")
         private const val KOREAN_SCAN_DESCRIPTION = "QR 스캔"
+        private const val KOREAN_UNDO_DESCRIPTION = "되돌리기"
+        private const val DEFAULT_UNDO_DESCRIPTION = "Undo"
         private const val DEFAULT_SCAN_DESCRIPTION = "Scan QR code"
         private const val KOREAN_ADD_DESCRIPTION = "QR 추가"
         private const val DEFAULT_ADD_DESCRIPTION = "Add QR code"
         private val KOREAN_DESCRIPTION_TAB_LIST = listOf("입력", "미리보기")
         private val DEFAULT_DESCRIPTION_TAB_LIST = listOf("Input", "Preview")
-        private val KOREAN_VISIBLE_TEXT_LIST = listOf(KOREAN_TITLE, KOREAN_TITLE_LABEL, KOREAN_DESCRIPTION_LABEL, KOREAN_VALUE_LABEL)
+        private val KOREAN_VISIBLE_TEXT_LIST = listOf(KOREAN_TITLE, KOREAN_FORMAT_LABEL, KOREAN_TEXT_LABEL)
     }
 }

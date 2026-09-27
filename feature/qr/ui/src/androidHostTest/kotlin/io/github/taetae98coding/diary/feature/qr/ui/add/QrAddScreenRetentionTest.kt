@@ -52,7 +52,7 @@ class QrAddScreenRetentionTest {
         }
         composeRule.onTitleInput().performTextInput(title)
         composeRule.onDescriptionInput().performTextInput(description)
-        composeRule.onQrValueInput().performTextInput(value)
+        composeRule.onQrTextInput().performTextInput(value)
         composeRule.waitForIdle()
 
         restorationTester.emulateSavedInstanceStateRestore()
@@ -60,7 +60,7 @@ class QrAddScreenRetentionTest {
 
         composeRule.titleInputText() shouldBe title
         composeRule.descriptionInputText() shouldBe description
-        composeRule.qrValueInputText() shouldBe value
+        composeRule.qrTextInputText() shouldBe value
         composeRule.qrCodeValue() shouldBe value
     }
 }

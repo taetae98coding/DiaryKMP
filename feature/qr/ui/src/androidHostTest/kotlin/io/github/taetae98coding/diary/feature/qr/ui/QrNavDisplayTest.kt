@@ -33,15 +33,22 @@ import io.github.taetae98coding.diary.core.testing.qr.qrDetail
 import io.github.taetae98coding.diary.feature.qr.api.QrAddNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrHomeNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrScanNavKey
+import io.github.taetae98coding.diary.feature.qr.ui.add.INFO_TAB_INDEX
+import io.github.taetae98coding.diary.feature.qr.ui.add.QR_TAB_INDEX
 import io.github.taetae98coding.diary.feature.qr.ui.add.QrAddUiState
 import io.github.taetae98coding.diary.feature.qr.ui.add.QrAddViewModel
 import io.github.taetae98coding.diary.feature.qr.ui.add.descriptionInputText
+import io.github.taetae98coding.diary.feature.qr.ui.add.editableText
+import io.github.taetae98coding.diary.feature.qr.ui.add.isTabSelected
 import io.github.taetae98coding.diary.feature.qr.ui.add.onDescriptionInput
-import io.github.taetae98coding.diary.feature.qr.ui.add.onQrValueInput
+import io.github.taetae98coding.diary.feature.qr.ui.add.onQrFieldInput
+import io.github.taetae98coding.diary.feature.qr.ui.add.onQrTextInput
 import io.github.taetae98coding.diary.feature.qr.ui.add.onTitleInput
 import io.github.taetae98coding.diary.feature.qr.ui.add.qrCodeValue
 import io.github.taetae98coding.diary.feature.qr.ui.add.qrTestFixtureMonkey
-import io.github.taetae98coding.diary.feature.qr.ui.add.qrValueInputText
+import io.github.taetae98coding.diary.feature.qr.ui.add.qrTextInputText
+import io.github.taetae98coding.diary.feature.qr.ui.add.selectFormat
+import io.github.taetae98coding.diary.feature.qr.ui.add.selectTab
 import io.github.taetae98coding.diary.feature.qr.ui.add.titleInputText
 import io.github.taetae98coding.diary.feature.qr.ui.card.QR_CARD_TEST_TAG
 import io.github.taetae98coding.diary.feature.qr.ui.home.QR_HOME_LIST_TEST_TAG
@@ -92,21 +99,28 @@ class QrNavDisplayTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-015 QrScan 화면에서 읽지 않고 돌아오면 입력 값을 그대로 둔다`() {
-        val value = qrTestFixtureMonkey.qrDetail().value
+    fun `TC-QR-ADD-FEATURE-015 QrScan 화면에서 읽지 않고 돌아오면 입력 값과 보고 있던 탭을 그대로 둔다`() {
         setQrNavDisplay()
-        openQrScanWithValue(value = value)
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        composeRule.selectFormat(formatLabel = DEFAULT_FORMAT_LABEL, formatName = "URL")
+        composeRule.onQrFieldInput("URL").performTextInput(URL)
+        composeRule.selectTab(INFO_TAB_INDEX)
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { backStack.add(QrScanNavKey) }
+        composeRule.onNodeWithText(DEFAULT_SCAN_TITLE).assertExists()
 
         composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
         backStack.toList() shouldBe listOf(QrNavDisplayMoreNavKey, QrHomeNavKey, QrAddNavKey)
-        composeRule.qrValueInputText() shouldBe value
-        composeRule.qrCodeValue() shouldBe value
+        composeRule.isTabSelected(INFO_TAB_INDEX) shouldBe true
+        composeRule.qrCodeValue() shouldBe URL
+        composeRule.onQrFieldInput("URL").editableText() shouldBe URL
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-014 QrScan 화면에서 QR을 읽어 돌아오면 입력 값을 읽은 값으로 바꾸고 제목과 설명은 그대로 둔다`() {
+    fun `TC-QR-ADD-FEATURE-057 QrScan 화면에서 텍스트 QR을 읽어 돌아오면 QR 탭과 텍스트 포맷으로 읽은 값을 보여 주고 제목과 설명은 그대로 둔다`() {
         val scannedValue = qrTestFixtureMonkey.qrDetail().value
         val detail = qrTestFixtureMonkey.qrDetail()
         setQrNavDisplay()
@@ -116,7 +130,8 @@ class QrNavDisplayTest {
         composeRule.waitForIdle()
 
         backStack.toList() shouldBe listOf(QrNavDisplayMoreNavKey, QrHomeNavKey, QrAddNavKey)
-        composeRule.qrValueInputText() shouldBe scannedValue
+        composeRule.isTabSelected(QR_TAB_INDEX) shouldBe true
+        composeRule.qrTextInputText() shouldBe scannedValue
         composeRule.qrCodeValue() shouldBe scannedValue
         composeRule.titleInputText() shouldBe detail.title
         composeRule.descriptionInputText() shouldBe detail.description
@@ -133,7 +148,7 @@ class QrNavDisplayTest {
 
         composeRule.onNodeWithText(DEFAULT_SCAN_TITLE).assertDoesNotExist()
         backStack.toList() shouldBe listOf(QrNavDisplayMoreNavKey, QrHomeNavKey, QrAddNavKey)
-        composeRule.qrValueInputText() shouldBe scannedValue
+        composeRule.qrTextInputText() shouldBe scannedValue
     }
 
     @Test
@@ -144,7 +159,7 @@ class QrNavDisplayTest {
         val detail = qrTestFixtureMonkey.qrDetail()
         composeRule.onTitleInput().performTextInput(detail.title)
         composeRule.onDescriptionInput().performTextInput(detail.description)
-        composeRule.onQrValueInput().performTextInput(detail.value)
+        composeRule.onQrTextInput().performTextInput(detail.value)
         composeRule.waitForIdle()
 
         composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
@@ -156,7 +171,7 @@ class QrNavDisplayTest {
         backStack.toList() shouldBe listOf(QrNavDisplayMoreNavKey, QrHomeNavKey, QrAddNavKey)
         composeRule.titleInputText() shouldBe ""
         composeRule.descriptionInputText() shouldBe ""
-        composeRule.qrValueInputText() shouldBe ""
+        composeRule.qrTextInputText() shouldBe ""
         composeRule.qrCodeValue() shouldBe ""
         addViewModelList.forEach { viewModel -> verify(exactly = 0) { viewModel.add(detail = any()) } }
     }
@@ -234,7 +249,7 @@ class QrNavDisplayTest {
         composeRule.waitForIdle()
         if (title.isNotEmpty()) composeRule.onTitleInput().performTextInput(title)
         if (description.isNotEmpty()) composeRule.onDescriptionInput().performTextInput(description)
-        composeRule.onQrValueInput().performTextInput(value)
+        composeRule.onQrTextInput().performTextInput(value)
         composeRule.waitForIdle()
         composeRule.runOnIdle { backStack.add(QrScanNavKey) }
         composeRule.onNodeWithText(DEFAULT_SCAN_TITLE).assertExists()
@@ -303,6 +318,8 @@ class QrNavDisplayTest {
 
     public companion object {
         private const val DEFAULT_ADD_DESCRIPTION = "Add QR code"
+        private const val DEFAULT_FORMAT_LABEL = "Format"
+        private const val URL = "https://a.com"
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
         private const val DEFAULT_SCAN_TITLE = "Scan QR code"
         private const val MORE_CONTENT = "MoreContent"

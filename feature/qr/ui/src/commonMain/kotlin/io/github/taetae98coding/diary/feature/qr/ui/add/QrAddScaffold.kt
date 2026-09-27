@@ -37,6 +37,10 @@ internal fun QrAddScaffold(
                 onNavigateUp = { onEvent(QrAddScaffoldEvent.ClickNavigateUp) },
                 navigateUpContentDescription = stringResource(Res.string.qr_navigate_up_button_content_description),
                 actions = {
+                    QrUndoButton(
+                        onClick = { onEvent(QrAddScaffoldEvent.ClickUndo) },
+                        isEnabledProvider = { state.contentState.canUndo },
+                    )
                     QrScanButton(
                         onClick = { onEvent(QrAddScaffoldEvent.ClickScan) },
                         contentDescription = stringResource(Res.string.qr_scan_button_content_description),
@@ -60,6 +64,7 @@ internal fun QrAddScaffold(
                     .fillMaxSize()
                     .padding(paddingValues),
             state = state,
+            isMapDisplayedProvider = { uiStateProvider().isMapDisplayed },
         )
     }
 }

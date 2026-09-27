@@ -7,10 +7,10 @@ import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScannedResult
 
 @Composable
 internal fun QrScannedResultEffect(
-    state: QrValueInputState,
+    state: QrAddFormState,
     resultEventBus: ResultEventBus,
 ) {
     ResultEffect<QrScannedResult>(resultEventBus = resultEventBus) { result ->
-        state.setText(result.value)
+        state.applyScannedValue(result.value)
     }
 }

@@ -10,12 +10,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.focus.FocusRequester
 
 @Stable
-internal class QrValueInputState(
+internal class QrFieldState(
     val textFieldState: TextFieldState,
     val focusRequester: FocusRequester,
 ) {
-    val text: CharSequence
-        get() = textFieldState.text
+    val text: String
+        get() = textFieldState.text.toString()
 
     fun clearText() {
         textFieldState.clearText()
@@ -31,12 +31,12 @@ internal class QrValueInputState(
 }
 
 @Composable
-internal fun rememberQrValueInputState(): QrValueInputState {
+internal fun rememberQrFieldState(): QrFieldState {
     val textFieldState = rememberTextFieldState()
     val focusRequester = remember { FocusRequester() }
 
     return remember(textFieldState, focusRequester) {
-        QrValueInputState(
+        QrFieldState(
             textFieldState = textFieldState,
             focusRequester = focusRequester,
         )
