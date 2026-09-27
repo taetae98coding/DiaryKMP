@@ -10,6 +10,8 @@ import kotlinx.io.RawSource
 public interface FileRemoteDataSource {
     public suspend fun upload(
         name: String,
+        title: String,
+        description: String,
         mimeType: String,
         contentLength: Long,
         openContent: suspend () -> RawSource,

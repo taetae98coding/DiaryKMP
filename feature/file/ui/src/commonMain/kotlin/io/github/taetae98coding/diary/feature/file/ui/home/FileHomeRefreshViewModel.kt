@@ -31,13 +31,27 @@ internal class FileHomeRefreshViewModel(
         if (job?.isActive == true) return
 
         uiState.update { state -> state.copy(isRefreshing = true) }
-        startRefresh(scrollToTopOnSuccess = FileHomeScrollToTop.None)
+        startRefresh(scrollToTopOnSuccess = FileHomeScrollToTop.None, reportsFailure = true)
     }
 
     fun refreshAfterUpload(firstFileIdBefore: Uuid) {
+        refreshAfterUpload(firstFileIdBefore = firstFileIdBefore, reportsFailure = true)
+    }
+
+    fun refreshAfterUploadOnFileAdd(firstFileIdBefore: Uuid) {
+        refreshAfterUpload(firstFileIdBefore = firstFileIdBefore, reportsFailure = false)
+    }
+
+    private fun refreshAfterUpload(
+        firstFileIdBefore: Uuid,
+        reportsFailure: Boolean,
+    ) {
         job?.cancel()
         uiState.update { state -> state.copy(isRefreshing = false) }
-        startRefresh(scrollToTopOnSuccess = FileHomeScrollToTop.AfterFirstFileChanges(firstFileIdBefore = firstFileIdBefore))
+        startRefresh(
+            scrollToTopOnSuccess = FileHomeScrollToTop.AfterFirstFileChanges(firstFileIdBefore = firstFileIdBefore),
+            reportsFailure = reportsFailure,
+        )
     }
 
     fun cancelRefresh() {
@@ -51,7 +65,10 @@ internal class FileHomeRefreshViewModel(
 
     // 취소된 이전 불러오기가 끝나며 새 불러오기의 진행 표시를 지우지 않도록, 자기 작업이 최신일 때만 정리한다.
     // 곧바로 끝나는 작업도 최신 작업으로 기록된 뒤에 실행되게 시작을 미룬다.
-    private fun startRefresh(scrollToTopOnSuccess: FileHomeScrollToTop) {
+    private fun startRefresh(
+        scrollToTopOnSuccess: FileHomeScrollToTop,
+        reportsFailure: Boolean,
+    ) {
         val current =
             viewModelScope.launch(start = CoroutineStart.LAZY) {
                 try {
@@ -60,7 +77,7 @@ internal class FileHomeRefreshViewModel(
                             if (scrollToTopOnSuccess is FileHomeScrollToTop.AfterFirstFileChanges) {
                                 uiState.update { state -> state.copy(scrollToTop = scrollToTopOnSuccess) }
                             }
-                        }.onFailure { _effect.send(FileHomeRefreshEffect.RefreshFailed) }
+                        }.onFailure { if (reportsFailure) _effect.send(FileHomeRefreshEffect.RefreshFailed) }
                 } finally {
                     if (job === coroutineContext[Job]) uiState.update { state -> state.copy(isRefreshing = false) }
                 }

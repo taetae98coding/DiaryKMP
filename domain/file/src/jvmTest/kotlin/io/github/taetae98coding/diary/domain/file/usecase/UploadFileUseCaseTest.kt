@@ -4,7 +4,9 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
+import io.github.taetae98coding.diary.core.model.file.FileUploadContent
 import io.github.taetae98coding.diary.core.model.file.FileUploadStep
+import io.github.taetae98coding.diary.core.model.file.FileUri
 import io.github.taetae98coding.diary.core.testing.file.fileUploadSource
 import io.github.taetae98coding.diary.core.testing.file.fileUri
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
@@ -44,15 +46,15 @@ class UploadFileUseCaseTest :
             val file = fixtureMonkey.giveMeOne<DiaryFile>()
             val fileRepository = mockk<FileRepository>()
             coEvery { fileRepository.findSource(uri = source.uri) } returns source
-            coEvery { fileRepository.create(source = source, onSent = any()) } answers {
-                secondArg<(Long) -> Unit>().invoke(partialSentBytes)
-                secondArg<(Long) -> Unit>().invoke(source.size)
+            coEvery { fileRepository.create(source = source, title = any(), description = any(), onSent = any()) } answers {
+                arg<(Long) -> Unit>(3).invoke(partialSentBytes)
+                arg<(Long) -> Unit>(3).invoke(source.size)
                 file
             }
             val useCase = useCase(accountFlow = MutableStateFlow(Result.success(account)), fileRepository = fileRepository)
 
             When("그 파일을 올린다") {
-                val resultList = useCase(parameter = UploadFileRequest(uri = source.uri, accountId = account.id)).toList()
+                val resultList = useCase(parameter = UploadFileRequest(content = content(uri = source.uri), accountId = account.id)).toList()
 
                 Then("TC-FILE-STORAGE-DOMAIN-011 시작, 보낸 양, 보관한 파일을 차례로 알린다") {
                     resultList.map { result -> result.getOrThrow() } shouldBe
@@ -79,17 +81,17 @@ class UploadFileUseCaseTest :
                         val file = fixtureMonkey.giveMeOne<DiaryFile>()
                         val fileRepository = mockk<FileRepository>()
                         coEvery { fileRepository.findSource(uri = source.uri) } returns source
-                        coEvery { fileRepository.create(source = source, onSent = any()) } returns file
+                        coEvery { fileRepository.create(source = source, title = any(), description = any(), onSent = any()) } returns file
                         val useCase = useCase(accountFlow = MutableStateFlow(Result.success(account)), fileRepository = fileRepository)
 
-                        val last = useCase(parameter = UploadFileRequest(uri = source.uri, accountId = account.id)).toList().last()
+                        val last = useCase(parameter = UploadFileRequest(content = content(uri = source.uri), accountId = account.id)).toList().last()
 
                         if (isUploaded) {
                             last.getOrThrow() shouldBe FileUploadStep.Completed(source = source, file = file)
-                            coVerify(exactly = 1) { fileRepository.create(source = source, onSent = any()) }
+                            coVerify(exactly = 1) { fileRepository.create(source = source, title = any(), description = any(), onSent = any()) }
                         } else {
                             last.shouldBeFailure().shouldBeInstanceOf<FileTooLargeException>()
-                            coVerify(exactly = 0) { fileRepository.create(source = any(), onSent = any()) }
+                            coVerify(exactly = 0) { fileRepository.create(source = any(), title = any(), description = any(), onSent = any()) }
                         }
                     }
                 }
@@ -105,14 +107,14 @@ class UploadFileUseCaseTest :
             val useCase = useCase(accountFlow = MutableStateFlow(Result.success(account)), fileRepository = fileRepository)
 
             When("그 파일을 올린다") {
-                val resultList = useCase(parameter = UploadFileRequest(uri = uri, accountId = account.id)).toList()
+                val resultList = useCase(parameter = UploadFileRequest(content = content(uri = uri), accountId = account.id)).toList()
 
                 Then("TC-FILE-STORAGE-DOMAIN-003 서버에 요청하지 않고 크기 초과가 아닌 실패로 끝난다") {
                     // 채널 흐름을 건너며 코루틴이 예외를 복제할 수 있으므로 같은 종류와 내용인지로 확인한다.
                     val failure = resultList.last().shouldBeFailure()
                     failure.shouldNotBeInstanceOf<FileTooLargeException>()
                     failure.shouldBeInstanceOf<IllegalStateException>().message shouldBe exception.message
-                    coVerify(exactly = 0) { fileRepository.create(source = any(), onSent = any()) }
+                    coVerify(exactly = 0) { fileRepository.create(source = any(), title = any(), description = any(), onSent = any()) }
                 }
             }
         }
@@ -123,11 +125,11 @@ class UploadFileUseCaseTest :
             val exception = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val fileRepository = mockk<FileRepository>()
             coEvery { fileRepository.findSource(uri = source.uri) } returns source
-            coEvery { fileRepository.create(source = source, onSent = any()) } throws exception
+            coEvery { fileRepository.create(source = source, title = any(), description = any(), onSent = any()) } throws exception
             val useCase = useCase(accountFlow = MutableStateFlow(Result.success(account)), fileRepository = fileRepository)
 
             When("그 파일을 올린다") {
-                val resultList = useCase(parameter = UploadFileRequest(uri = source.uri, accountId = account.id)).toList()
+                val resultList = useCase(parameter = UploadFileRequest(content = content(uri = source.uri), accountId = account.id)).toList()
 
                 Then("TC-FILE-STORAGE-DOMAIN-008 크기 초과가 아닌 실패로 끝난다") {
                     // 채널 흐름을 건너며 코루틴이 예외를 복제할 수 있으므로 같은 종류와 내용인지로 확인한다.
@@ -149,7 +151,7 @@ class UploadFileUseCaseTest :
                             val source = fixtureMonkey.fileUploadSource()
                             val fileRepository = mockk<FileRepository>()
                             coEvery { fileRepository.findSource(uri = source.uri) } returns source
-                            coEvery { fileRepository.create(source = source, onSent = any()) } coAnswers {
+                            coEvery { fileRepository.create(source = source, title = any(), description = any(), onSent = any()) } coAnswers {
                                 try {
                                     awaitCancellation()
                                 } finally {
@@ -158,7 +160,7 @@ class UploadFileUseCaseTest :
                             }
                             val useCase = useCase(accountFlow = accountFlow, fileRepository = fileRepository)
 
-                            val result = async { useCase(parameter = UploadFileRequest(uri = source.uri, accountId = account.id)).toList() }
+                            val result = async { useCase(parameter = UploadFileRequest(content = content(uri = source.uri), accountId = account.id)).toList() }
                             runCurrent()
                             accountFlow.value = Result.success(changedAccount)
 
@@ -185,10 +187,10 @@ class UploadFileUseCaseTest :
                             val completion = CompletableDeferred<DiaryFile>()
                             val fileRepository = mockk<FileRepository>()
                             coEvery { fileRepository.findSource(uri = source.uri) } returns source
-                            coEvery { fileRepository.create(source = source, onSent = any()) } coAnswers { completion.await() }
+                            coEvery { fileRepository.create(source = source, title = any(), description = any(), onSent = any()) } coAnswers { completion.await() }
                             val useCase = useCase(accountFlow = accountFlow, fileRepository = fileRepository)
 
-                            val result = async { useCase(parameter = UploadFileRequest(uri = source.uri, accountId = account.id)).toList() }
+                            val result = async { useCase(parameter = UploadFileRequest(content = content(uri = source.uri), accountId = account.id)).toList() }
                             runCurrent()
                             accountFlow.value = change(account)
                             runCurrent()
@@ -208,16 +210,60 @@ class UploadFileUseCaseTest :
             val useCase = useCase(accountFlow = MutableStateFlow(Result.success(Account.Guest)), fileRepository = fileRepository)
 
             When("그 계정으로 올리기를 시작한다") {
-                val resultList = useCase(parameter = UploadFileRequest(uri = source.uri, accountId = fixtureMonkey.giveMeOne<Uuid>())).toList()
+                val resultList = useCase(parameter = UploadFileRequest(content = content(uri = source.uri), accountId = fixtureMonkey.giveMeOne<Uuid>())).toList()
 
                 Then("TC-FILE-STORAGE-DOMAIN-010 서버에 보내지 않고 곧바로 중단한다") {
                     resultList.last().shouldBeFailure().shouldBeInstanceOf<FileUploadAccountChangedException>()
-                    coVerify(exactly = 0) { fileRepository.create(source = any(), onSent = any()) }
+                    coVerify(exactly = 0) { fileRepository.create(source = any(), title = any(), description = any(), onSent = any()) }
+                }
+            }
+        }
+
+        Given("사용자가 제목과 설명을 적어 파일 올리기를 시작했다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val source = fixtureMonkey.fileUploadSource()
+            val content = content(uri = source.uri)
+            val file = fixtureMonkey.giveMeOne<DiaryFile>()
+            val fileRepository = mockk<FileRepository>()
+            coEvery { fileRepository.findSource(uri = source.uri) } returns source
+            coEvery { fileRepository.create(source = source, title = content.title, description = content.description, onSent = any()) } returns file
+            val useCase = useCase(accountFlow = MutableStateFlow(Result.success(account)), fileRepository = fileRepository)
+
+            When("그 파일을 올린다") {
+                val last = useCase(parameter = UploadFileRequest(content = content, accountId = account.id)).toList().last()
+
+                Then("TC-FILE-STORAGE-DOMAIN-016 적은 제목과 설명을 그대로 함께 올린다") {
+                    last.getOrThrow() shouldBe FileUploadStep.Completed(source = source, file = file)
+                    coVerify(exactly = 1) { fileRepository.create(source = source, title = content.title, description = content.description, onSent = any()) }
+                }
+            }
+        }
+
+        Given("고를 때 1,024바이트였던 파일이 올리기를 시작할 때는 52,428,801바이트다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val source = fixtureMonkey.fileUploadSource(size = MAX_SIZE + 1)
+            val fileRepository = mockk<FileRepository>()
+            coEvery { fileRepository.findSource(uri = source.uri) } returns source
+            val useCase = useCase(accountFlow = MutableStateFlow(Result.success(account)), fileRepository = fileRepository)
+
+            When("그 파일을 올린다") {
+                val last = useCase(parameter = UploadFileRequest(content = content(uri = source.uri), accountId = account.id)).toList().last()
+
+                Then("TC-FILE-ADD-DOMAIN-001 다시 확인해 서버에 요청하지 않고 크기 초과로 실패한다") {
+                    last.shouldBeFailure().shouldBeInstanceOf<FileTooLargeException>()
+                    coVerify(exactly = 0) { fileRepository.create(source = any(), title = any(), description = any(), onSent = any()) }
                 }
             }
         }
     }) {
     public companion object {
+        private fun content(uri: FileUri): FileUploadContent =
+            FileUploadContent(
+                uri = uri,
+                title = "title-${fixtureMonkey.giveMeOne<String>()}",
+                description = fixtureMonkey.giveMeOne<String>(),
+            )
+
         private fun useCase(
             accountFlow: MutableStateFlow<Result<Account>>,
             fileRepository: FileRepository,

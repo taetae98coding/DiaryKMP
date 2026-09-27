@@ -6,6 +6,8 @@ import kotlin.uuid.Uuid
 public data class DiaryFile(
     val id: Uuid,
     val name: String,
+    val title: String,
+    val description: String,
     val mimeType: String,
     val size: Long,
     val createdAt: Instant,

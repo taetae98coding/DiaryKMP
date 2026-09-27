@@ -7,12 +7,15 @@ import kotlin.uuid.Uuid
 private const val PREVIEW_CREATED_AT_EPOCH_SECONDS = 1_790_000_000L
 
 internal fun previewDiaryFile(
+    title: String,
     name: String,
     size: Long,
 ): DiaryFile =
     DiaryFile(
         id = Uuid.random(),
         name = name,
+        title = title,
+        description = "",
         mimeType = "application/octet-stream",
         size = size,
         createdAt = Instant.fromEpochSeconds(PREVIEW_CREATED_AT_EPOCH_SECONDS),

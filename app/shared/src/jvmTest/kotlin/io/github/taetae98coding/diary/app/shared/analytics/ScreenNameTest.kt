@@ -14,6 +14,7 @@ import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
 import io.github.taetae98coding.diary.feature.dday.api.DDayHomeNavKey
+import io.github.taetae98coding.diary.feature.file.api.FileAddNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileHomeNavKey
 import io.github.taetae98coding.diary.feature.holiday.api.HolidayHomeNavKey
 import io.github.taetae98coding.diary.feature.login.api.LoginHomeNavKey
@@ -142,6 +143,7 @@ class ScreenNameTest :
                 ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "ContactDetail",
                 ContactHomeNavKey to "ContactHome",
                 DDayHomeNavKey to "DDayHome",
+                FileAddNavKey to "FileAdd",
                 FileHomeNavKey to "FileHome",
                 HolidayHomeNavKey to "HolidayHome",
                 LoginHomeNavKey to "LoginHome",

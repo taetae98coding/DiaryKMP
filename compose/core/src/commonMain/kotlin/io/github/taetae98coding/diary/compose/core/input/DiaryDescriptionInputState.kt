@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.compose.core.input
 
 import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.snapTo
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -35,6 +36,11 @@ public class DiaryDescriptionInputState internal constructor(
 
     public fun setText(text: CharSequence) {
         textFieldState.setTextAndPlaceCursorAtEnd(text.toString())
+    }
+
+    public suspend fun reset(text: CharSequence = "") {
+        setText(text)
+        swipeState.snapTo(initialDiaryDescriptionInputPage(text.toString()))
     }
 }
 

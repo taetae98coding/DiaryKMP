@@ -12,10 +12,12 @@ import androidx.work.testing.WorkManagerTestInitHelper
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
-import io.github.taetae98coding.diary.core.testing.file.fileUri
+import io.github.taetae98coding.diary.core.testing.file.fileUploadContent
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.work.fileupload.text.FileUploadText
 import io.github.taetae98coding.diary.work.fileupload.work.FileUploadRequest
 import io.github.taetae98coding.diary.work.fileupload.work.FileUploadWork
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -31,6 +33,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
+import java.io.File
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
@@ -61,9 +64,23 @@ class AndroidFileUploadWorkSchedulerTest {
     }
 
     @Test
+    fun `TC-FILE-STORAGE-DOMAIN-016 맡긴 파일의 제목과 설명을 그대로 담아 올리기를 실행하고 끝나면 기기에 둔 제목과 설명을 지운다`() {
+        runBlocking {
+            val scheduler = AndroidFileUploadWorkScheduler(context = context, fileUploadTextStore = fileUploadTextStore(context = context))
+            val request = request()
+
+            scheduler.upload(request = request)
+            awaitFinished()
+
+            coVerify(exactly = 1) { fileUploadWork.doWork(request = request, onStep = any()) }
+            textFileList().shouldBeEmpty()
+        }
+    }
+
+    @Test
     fun `TC-FILE-STORAGE-DATA-021 연결 조건 없이 요청하자 곧바로 올리기를 시작한다`() {
         runBlocking {
-            val scheduler = AndroidFileUploadWorkScheduler(context = context)
+            val scheduler = AndroidFileUploadWorkScheduler(context = context, fileUploadTextStore = fileUploadTextStore(context = context))
             val request = request()
 
             scheduler.upload(request = request)
@@ -81,7 +98,7 @@ class AndroidFileUploadWorkSchedulerTest {
         runBlocking {
             val pending = CompletableDeferred<Unit>()
             coEvery { fileUploadWork.doWork(request = any(), onStep = any()) } coAnswers { pending.await() }
-            val scheduler = AndroidFileUploadWorkScheduler(context = context)
+            val scheduler = AndroidFileUploadWorkScheduler(context = context, fileUploadTextStore = fileUploadTextStore(context = context))
             val first = request()
             val second = request()
 
@@ -100,7 +117,7 @@ class AndroidFileUploadWorkSchedulerTest {
     fun `TC-FILE-STORAGE-DATA-021 연결 문제로 올리지 못하면 다시 시도하지 않고 실패로 끝나 올리는 파일이 없는 상태가 된다`() {
         runBlocking {
             coEvery { fileUploadWork.doWork(request = any(), onStep = any()) } throws IOException(fixtureMonkey.giveMeOne<String>())
-            val scheduler = AndroidFileUploadWorkScheduler(context = context)
+            val scheduler = AndroidFileUploadWorkScheduler(context = context, fileUploadTextStore = fileUploadTextStore(context = context))
 
             scheduler.upload(request = request())
             awaitFinished()
@@ -114,7 +131,7 @@ class AndroidFileUploadWorkSchedulerTest {
     @Test
     fun `앞선 올리기가 끝난 뒤에는 새 파일을 올린다`() {
         runBlocking {
-            val scheduler = AndroidFileUploadWorkScheduler(context = context)
+            val scheduler = AndroidFileUploadWorkScheduler(context = context, fileUploadTextStore = fileUploadTextStore(context = context))
             val first = request()
             val second = request()
 
@@ -131,7 +148,7 @@ class AndroidFileUploadWorkSchedulerTest {
     fun `TC-FILE-STORAGE-DOMAIN-014 로그아웃하면 올리는 중인 올리기를 취소하고 붙들고 있던 파일을 돌려준다`() {
         runBlocking {
             coEvery { fileUploadWork.doWork(request = any(), onStep = any()) } coAnswers { awaitCancellation() }
-            val scheduler = AndroidFileUploadWorkScheduler(context = context)
+            val scheduler = AndroidFileUploadWorkScheduler(context = context, fileUploadTextStore = fileUploadTextStore(context = context))
             val request = request()
 
             scheduler.upload(request = request)
@@ -139,7 +156,8 @@ class AndroidFileUploadWorkSchedulerTest {
             val cancelledUriList = scheduler.cancel()
             awaitFinished()
 
-            cancelledUriList shouldBe listOf(request.uri)
+            cancelledUriList shouldBe listOf(request.content.uri)
+            textFileList().shouldBeEmpty()
             workInfoList().single().state shouldBe WorkInfo.State.CANCELLED
             scheduler.state.first() shouldBe FileUploadState.Idle
         }
@@ -148,16 +166,18 @@ class AndroidFileUploadWorkSchedulerTest {
     @Test
     fun `TC-FILE-STORAGE-DOMAIN-015 다시 올릴 예정인 올리기는 로그아웃하면 실행되지 않고 취소된다`() {
         runBlocking {
-            val scheduler = AndroidFileUploadWorkScheduler(context = context)
+            val scheduler = AndroidFileUploadWorkScheduler(context = context, fileUploadTextStore = fileUploadTextStore(context = context))
             val request = request()
+            val textId = fileUploadTextStore(context = context).write(text = FileUploadText(title = request.content.title, description = request.content.description))
             WorkManager
                 .getInstance(context)
                 .enqueueUniqueWork(
                     AndroidFileUploadWorkScheduler.FILE_UPLOAD_WORK_NAME,
                     ExistingWorkPolicy.KEEP,
                     OneTimeWorkRequestBuilder<FileUploadWorker>()
-                        .setInputData(request.toData())
-                        .addTag(request.uri.toFileUploadTag())
+                        .setInputData(request.toData(textId = textId))
+                        .addTag(request.content.uri.toFileUploadTag())
+                        .addTag(textId.toFileUploadTextTag())
                         .setInitialDelay(1, TimeUnit.HOURS)
                         .build(),
                 ).result
@@ -166,13 +186,16 @@ class AndroidFileUploadWorkSchedulerTest {
             val cancelledUriList = scheduler.cancel()
             awaitFinished()
 
-            cancelledUriList shouldBe listOf(request.uri)
+            cancelledUriList shouldBe listOf(request.content.uri)
+            textFileList().shouldBeEmpty()
             workInfoList().single().state shouldBe WorkInfo.State.CANCELLED
             coVerify(exactly = 0) { fileUploadWork.doWork(request = any(), onStep = any()) }
         }
     }
 
-    private fun request(): FileUploadRequest = FileUploadRequest(uri = fixtureMonkey.fileUri(), accountId = fixtureMonkey.giveMeOne<Uuid>())
+    private fun request(): FileUploadRequest = FileUploadRequest(content = fixtureMonkey.fileUploadContent(), accountId = fixtureMonkey.giveMeOne<Uuid>())
+
+    private fun textFileList(): List<File> = File(context.noBackupFilesDir, "file-upload-text").listFiles().orEmpty().toList()
 
     private suspend fun awaitFinished() {
         withTimeout(AWAIT_TIMEOUT) {

@@ -3,17 +3,20 @@ package io.github.taetae98coding.diary.work.fileupload.manager
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.core.model.file.FileScreen
 import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
+import io.github.taetae98coding.diary.core.testing.file.fileUploadContent
 import io.github.taetae98coding.diary.core.testing.file.fileUri
 import io.github.taetae98coding.diary.domain.file.repository.FileRepository
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.github.taetae98coding.diary.work.fileupload.scheduler.FileUploadWorkScheduler
-import io.github.taetae98coding.diary.work.fileupload.state.FileHomeViewingHolder
+import io.github.taetae98coding.diary.work.fileupload.state.FileScreenViewingHolder
 import io.github.taetae98coding.diary.work.fileupload.state.FileUploadEventHolder
 import io.github.taetae98coding.diary.work.fileupload.work.FileUploadRequest
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -31,17 +34,17 @@ class FileUploadManagerImplTest :
     BehaviorSpec({
         Given("올리는 중인 파일이 없다") {
             When("파일 올리기를 요청한다") {
-                Then("고른 파일을 읽을 권한을 붙든 뒤 올리기를 맡긴다") {
+                Then("TC-FILE-STORAGE-DOMAIN-016 고른 파일을 읽을 권한을 붙든 뒤 제목과 설명을 담아 올리기를 맡긴다") {
                     runTest {
                         val fixture = ManagerFixture(isUploading = false)
-                        val uri = fixtureMonkey.fileUri()
+                        val content = fixtureMonkey.fileUploadContent()
                         val accountId = fixtureMonkey.giveMeOne<Uuid>()
 
-                        fixture.manager.requestUpload(uri = uri, accountId = accountId)
+                        fixture.manager.requestUpload(content = content, accountId = accountId)
 
                         coVerifyOrder {
-                            fixture.fileRepository.addUploadSource(uri = uri)
-                            fixture.scheduler.upload(request = FileUploadRequest(uri = uri, accountId = accountId))
+                            fixture.fileRepository.addUploadSource(uri = content.uri)
+                            fixture.scheduler.upload(request = FileUploadRequest(content = content, accountId = accountId))
                         }
                     }
                 }
@@ -53,10 +56,10 @@ class FileUploadManagerImplTest :
                 Then("TC-FILE-STORAGE-DATA-022 올리기를 맡기지 않고 실패를 전달한다") {
                     runTest {
                         val fixture = ManagerFixture(isUploading = false)
-                        val uri = fixtureMonkey.fileUri()
-                        coEvery { fixture.fileRepository.addUploadSource(uri = uri) } throws SecurityException(fixtureMonkey.giveMeOne<String>())
+                        val content = fixtureMonkey.fileUploadContent()
+                        coEvery { fixture.fileRepository.addUploadSource(uri = content.uri) } throws SecurityException(fixtureMonkey.giveMeOne<String>())
 
-                        shouldThrow<SecurityException> { fixture.manager.requestUpload(uri = uri, accountId = fixtureMonkey.giveMeOne<Uuid>()) }
+                        shouldThrow<SecurityException> { fixture.manager.requestUpload(content = content, accountId = fixtureMonkey.giveMeOne<Uuid>()) }
 
                         coVerify(exactly = 0) { fixture.scheduler.upload(request = any()) }
                     }
@@ -70,7 +73,7 @@ class FileUploadManagerImplTest :
                     runTest {
                         val fixture = ManagerFixture(isUploading = true)
 
-                        fixture.manager.requestUpload(uri = fixtureMonkey.fileUri(), accountId = fixtureMonkey.giveMeOne<Uuid>())
+                        fixture.manager.requestUpload(content = fixtureMonkey.fileUploadContent(), accountId = fixtureMonkey.giveMeOne<Uuid>())
 
                         coVerify(exactly = 0) { fixture.fileRepository.addUploadSource(uri = any()) }
                         coVerify(exactly = 0) { fixture.scheduler.upload(request = any()) }
@@ -79,16 +82,20 @@ class FileUploadManagerImplTest :
             }
         }
 
-        Given("FileHome을 보는지 알린다") {
-            When("보고 있음과 보고 있지 않음을 차례로 알린다") {
-                Then("보고 있는 상태가 그대로 바뀐다") {
+        Given("파일 화면을 보는지 알린다") {
+            When("화면마다 보기 시작과 멈춤을 차례로 알린다") {
+                Then("보고 있는 화면이 그대로 바뀐다") {
                     val fixture = ManagerFixture(isUploading = false)
 
-                    fixture.manager.setFileHomeViewing(isViewing = true)
-                    fixture.viewingHolder.isViewing shouldBe true
+                    fixture.manager.startViewing(screen = FileScreen.HOME)
+                    fixture.viewingHolder.viewingScreen shouldBe FileScreen.HOME
 
-                    fixture.manager.setFileHomeViewing(isViewing = false)
-                    fixture.viewingHolder.isViewing shouldBe false
+                    fixture.manager.startViewing(screen = FileScreen.ADD)
+                    fixture.manager.stopViewing(screen = FileScreen.HOME)
+                    fixture.viewingHolder.viewingScreen shouldBe FileScreen.ADD
+
+                    fixture.manager.stopViewing(screen = FileScreen.ADD)
+                    fixture.viewingHolder.viewingScreen.shouldBeNull()
                 }
             }
         }
@@ -120,10 +127,12 @@ class FileUploadManagerImplTest :
                         val event = FileUploadEvent.Succeeded(fileId = fixtureMonkey.giveMeOne<Uuid>())
 
                         fixture.manager.state.first() shouldBe state
-                        fixture.manager.event.test {
-                            fixture.eventHolder.send(event = event)
+                        FileScreen.entries.forEach { screen ->
+                            fixture.manager.getEvent(screen = screen).test {
+                                fixture.eventHolder.send(screen = screen, event = event)
 
-                            awaitItem() shouldBe event
+                                awaitItem() shouldBe event
+                            }
                         }
                     }
                 }
@@ -148,12 +157,12 @@ private class ManagerFixture(
             coEvery { deleteContinuedUpload() } returns Unit
         }
     val eventHolder = FileUploadEventHolder()
-    val viewingHolder = FileHomeViewingHolder()
+    val viewingHolder = FileScreenViewingHolder()
     val manager =
         FileUploadManagerImpl(
             fileUploadWorkScheduler = scheduler,
             fileRepository = fileRepository,
             fileUploadEventHolder = eventHolder,
-            fileHomeViewingHolder = viewingHolder,
+            fileScreenViewingHolder = viewingHolder,
         )
 }

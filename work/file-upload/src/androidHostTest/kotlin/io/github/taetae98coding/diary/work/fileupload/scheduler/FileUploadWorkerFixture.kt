@@ -4,9 +4,11 @@ import android.content.Context
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import io.github.taetae98coding.diary.work.fileupload.report.AndroidFileUploadNotifier
+import io.github.taetae98coding.diary.work.fileupload.text.FileUploadTextStore
 import io.github.taetae98coding.diary.work.fileupload.work.FileUploadWork
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.Dispatchers
 
 internal fun mockFileUploadWorkerFactory(fileUploadWork: FileUploadWork): WorkerFactory =
     mockk {
@@ -24,4 +26,7 @@ private fun worker(
         parameters = parameters,
         fileUploadWork = fileUploadWork,
         androidFileUploadNotifier = AndroidFileUploadNotifier(context = context),
+        fileUploadTextStore = fileUploadTextStore(context = context),
     )
+
+internal fun fileUploadTextStore(context: Context): FileUploadTextStore = FileUploadTextStore(context = context, dispatcher = Dispatchers.IO)

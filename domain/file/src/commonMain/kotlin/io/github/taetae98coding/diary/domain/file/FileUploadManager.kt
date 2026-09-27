@@ -1,22 +1,25 @@
 package io.github.taetae98coding.diary.domain.file
 
+import io.github.taetae98coding.diary.core.model.file.FileScreen
+import io.github.taetae98coding.diary.core.model.file.FileUploadContent
 import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
-import io.github.taetae98coding.diary.core.model.file.FileUri
 import kotlinx.coroutines.flow.Flow
 import kotlin.uuid.Uuid
 
 public interface FileUploadManager {
     public val state: Flow<FileUploadState>
 
-    public val event: Flow<FileUploadEvent>
+    public fun getEvent(screen: FileScreen): Flow<FileUploadEvent>
 
     public suspend fun requestUpload(
-        uri: FileUri,
+        content: FileUploadContent,
         accountId: Uuid,
     )
 
     public suspend fun cancelUpload()
 
-    public fun setFileHomeViewing(isViewing: Boolean)
+    public fun startViewing(screen: FileScreen)
+
+    public fun stopViewing(screen: FileScreen)
 }

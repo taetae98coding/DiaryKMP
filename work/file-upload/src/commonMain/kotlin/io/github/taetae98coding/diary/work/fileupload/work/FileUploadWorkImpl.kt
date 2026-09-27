@@ -43,7 +43,7 @@ internal class FileUploadWorkImpl(
     ) {
         var name = ""
 
-        uploadFileUseCase(parameter = UploadFileRequest(uri = request.uri, accountId = request.accountId)).collect { result ->
+        uploadFileUseCase(parameter = UploadFileRequest(content = request.content, accountId = request.accountId)).collect { result ->
             val step =
                 result.getOrElse { throwable ->
                     throwable.toFileUploadResult(name = name)?.let(fileUploadResultReporter::report)
@@ -60,7 +60,7 @@ internal class FileUploadWorkImpl(
     }
 
     private suspend fun removeUploadSource(request: FileUploadRequest) {
-        withContext(NonCancellable) { fileRepository.removeUploadSource(uri = request.uri) }
+        withContext(NonCancellable) { fileRepository.removeUploadSource(uri = request.content.uri) }
     }
 
     private fun Throwable.toFileUploadResult(name: String): FileUploadResult? =

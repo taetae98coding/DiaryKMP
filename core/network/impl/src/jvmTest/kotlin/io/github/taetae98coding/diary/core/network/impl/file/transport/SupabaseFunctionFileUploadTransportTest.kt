@@ -26,7 +26,6 @@ import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.OutgoingContent
-import io.ktor.http.decodeURLQueryComponent
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.ByteChannel
@@ -52,75 +51,84 @@ private const val CONTENT_BYTES = 20_000
 class SupabaseFunctionFileUploadTransportTest :
     FunSpec({
         test("TC-FILE-STORAGE-DATA-005 고른 파일의 내용과 크기를 그대로 보내고 서버가 돌려준 파일 정보를 돌려준다") {
-            // 한 번에 보내는 덩어리보다 크게 만들어 보낸 양이 여러 번 알려지게 한다.
-            val bytes =
-                generateSequence { "chunk-${fixtureMonkey.giveMeOne<String>()}" }
-                    .flatMap { value -> value.encodeToByteArray().asSequence() }
-                    .take(CONTENT_BYTES)
-                    .toList()
-                    .toByteArray()
+            val bytes = contentBytes()
             val response = fixtureMonkey.giveMeOne<FileRemoteEntity>()
             val bodySlot = slot<Any>()
-            val supabaseFunction = mockk<SupabaseFunction>()
-            coEvery {
-                supabaseFunction(
-                    function = "v1-file-upload",
-                    body = capture(bodySlot),
-                    typeInfo = any(),
-                    headers = any(),
-                    requestTimeout = any(),
-                )
-            } returns httpResponse(body = Json.encodeToString(response))
+            val supabaseFunction = uploadFunction(bodySlot = bodySlot, response = response)
             val sentBytesList = mutableListOf<Long>()
             val transport = SupabaseFunctionFileUploadTransport(supabaseFunction = supabaseFunction)
 
-            val mimeType = mimeType()
             val actual =
                 transport.upload(
                     name = fileName(),
-                    mimeType = mimeType,
+                    title = title(),
+                    description = description(),
+                    mimeType = mimeType(),
                     contentLength = bytes.size.toLong(),
                     openContent = { Buffer().apply { write(bytes) } },
                     onSent = { sentBytes -> sentBytesList += sentBytes },
                 )
 
             val content = bodySlot.captured.shouldBeInstanceOf<OutgoingContent.WriteChannelContent>()
-            content.contentType shouldBe ContentType.parse(mimeType)
-            content.contentLength shouldBe bytes.size.toLong()
-            content.writtenBytes() shouldBe bytes
+            val written = content.writtenBytes()
+            val parts = written.parseMultipart(boundary = content.boundary())
+            parts.getValue("file").body shouldBe bytes
+            content.contentLength shouldBe written.size.toLong()
             sentBytesList.last() shouldBe bytes.size.toLong()
             sentBytesList.zipWithNext().all { (before, after) -> before <= after } shouldBe true
             actual shouldBe response
         }
 
-        test("TC-FILE-STORAGE-DOMAIN-002 파일 이름을 헤더에 실을 수 있게 인코딩하고 형식을 함께 보낸다") {
+        test("TC-FILE-STORAGE-DOMAIN-002 파일 이름과 형식을 본문에 담아 보내고 헤더에는 이름을 싣지 않는다") {
             val name = "보고서 ${fixtureMonkey.giveMeOne<String>()}.pdf"
             val headersSlot = slot<Headers>()
             val bodySlot = slot<Any>()
-            val supabaseFunction = mockk<SupabaseFunction>()
-            coEvery {
-                supabaseFunction(
-                    function = "v1-file-upload",
-                    body = capture(bodySlot),
-                    typeInfo = any(),
-                    headers = capture(headersSlot),
-                    requestTimeout = any(),
-                )
-            } returns httpResponse(body = Json.encodeToString(fixtureMonkey.giveMeOne<FileRemoteEntity>()))
+            val supabaseFunction = uploadFunction(bodySlot = bodySlot, headersSlot = headersSlot)
             val transport = SupabaseFunctionFileUploadTransport(supabaseFunction = supabaseFunction)
 
             transport.upload(
                 name = name,
+                title = title(),
+                description = description(),
                 mimeType = "application/pdf",
                 contentLength = 0,
                 openContent = { Buffer() },
                 onSent = {},
             )
 
-            val encodedName = headersSlot.captured["X-File-Name"].shouldNotBeNull()
-            encodedName.all { char -> char.code < 128 } shouldBe true
-            encodedName.decodeURLQueryComponent() shouldBe name
-            bodySlot.captured.shouldBeInstanceOf<OutgoingContent.WriteChannelContent>().contentType shouldBe ContentType.Application.Pdf
+            val content = bodySlot.captured.shouldBeInstanceOf<OutgoingContent.WriteChannelContent>()
+            val parts = content.writtenBytes().parseMultipart(boundary = content.boundary())
+            content.contentType.shouldNotBeNull().match(ContentType.MultiPart.FormData) shouldBe true
+            parts.getValue("name").body.decodeToString() shouldBe name
+            parts.getValue("file").headers["content-type"] shouldBe "application/pdf"
+            parts.getValue("file").body.size shouldBe 0
+            if (headersSlot.isCaptured) headersSlot.captured["X-File-Name"].shouldBeNull()
+        }
+
+        test("TC-FILE-STORAGE-DOMAIN-016 사용자가 적은 제목과 설명을 그대로 함께 보낸다") {
+            listOf(
+                "회의록" to "첫 줄\n둘째 줄",
+                " 앞뒤 공백 " to "",
+                "가".repeat(1_000) to "나".repeat(10_000),
+            ).forEach { (title, description) ->
+                val bodySlot = slot<Any>()
+                val transport = SupabaseFunctionFileUploadTransport(supabaseFunction = uploadFunction(bodySlot = bodySlot))
+
+                transport.upload(
+                    name = fileName(),
+                    title = title,
+                    description = description,
+                    mimeType = mimeType(),
+                    contentLength = 0,
+                    openContent = { Buffer() },
+                    onSent = {},
+                )
+
+                val content = bodySlot.captured.shouldBeInstanceOf<OutgoingContent.WriteChannelContent>()
+                val parts = content.writtenBytes().parseMultipart(boundary = content.boundary())
+                parts.getValue("title").body.decodeToString() shouldBe title
+                parts.getValue("description").body.decodeToString() shouldBe description
+            }
         }
 
         test("TC-FILE-STORAGE-DATA-013 올리기 요청에는 시간 제한을 두지 않는다") {
@@ -143,6 +151,8 @@ class SupabaseFunctionFileUploadTransportTest :
 
             transport.upload(
                 name = fileName(),
+                title = title(),
+                description = description(),
                 mimeType = mimeType(),
                 contentLength = 0,
                 openContent = { Buffer() },
@@ -166,7 +176,15 @@ class SupabaseFunctionFileUploadTransportTest :
             val transport = SupabaseFunctionFileUploadTransport(supabaseFunction = supabaseFunction)
 
             shouldThrow<FileTooLargeRemoteException> {
-                transport.upload(name = fileName(), mimeType = mimeType(), contentLength = 0, openContent = { Buffer() }, onSent = {})
+                transport.upload(
+                    name = fileName(),
+                    title = title(),
+                    description = description(),
+                    mimeType = mimeType(),
+                    contentLength = 0,
+                    openContent = { Buffer() },
+                    onSent = {},
+                )
             }
         }
 
@@ -187,7 +205,15 @@ class SupabaseFunctionFileUploadTransportTest :
 
                 val actual =
                     shouldThrow<SupabaseFunctionException> {
-                        transport.upload(name = fileName(), mimeType = mimeType(), contentLength = 0, openContent = { Buffer() }, onSent = {})
+                        transport.upload(
+                            name = fileName(),
+                            title = title(),
+                            description = description(),
+                            mimeType = mimeType(),
+                            contentLength = 0,
+                            openContent = { Buffer() },
+                            onSent = {},
+                        )
                     }
 
                 actual shouldBeSameInstanceAs exception
@@ -203,7 +229,35 @@ class SupabaseFunctionFileUploadTransportTest :
         }
     })
 
-private suspend fun OutgoingContent.WriteChannelContent.writtenBytes(): ByteArray {
+private suspend fun uploadFunction(
+    bodySlot: io.mockk.CapturingSlot<Any>,
+    headersSlot: io.mockk.CapturingSlot<Headers> = slot(),
+    response: FileRemoteEntity = fixtureMonkey.giveMeOne<FileRemoteEntity>(),
+): SupabaseFunction {
+    val httpResponse = httpResponse(body = Json.encodeToString(response))
+    val supabaseFunction = mockk<SupabaseFunction>()
+
+    coEvery {
+        supabaseFunction(
+            function = "v1-file-upload",
+            body = capture(bodySlot),
+            typeInfo = any(),
+            headers = capture(headersSlot),
+            requestTimeout = any(),
+        )
+    } returns httpResponse
+
+    return supabaseFunction
+}
+
+internal class MultipartPart(
+    val headers: Map<String, String>,
+    val body: ByteArray,
+)
+
+internal fun OutgoingContent.WriteChannelContent.boundary(): String = contentType.shouldNotBeNull().parameter("boundary").shouldNotBeNull()
+
+internal suspend fun OutgoingContent.WriteChannelContent.writtenBytes(): ByteArray {
     val channel = ByteChannel(autoFlush = true)
 
     writeTo(channel)
@@ -211,6 +265,40 @@ private suspend fun OutgoingContent.WriteChannelContent.writtenBytes(): ByteArra
 
     return channel.readRemaining().readByteArray()
 }
+
+// 본문을 바이트 그대로 나눠, 파일 내용에 줄바꿈이나 대시가 섞여 있어도 경계로만 자른다.
+internal fun ByteArray.parseMultipart(boundary: String): Map<String, MultipartPart> {
+    val delimiter = "\r\n--$boundary".encodeToByteArray()
+    val body = "\r\n".encodeToByteArray() + this
+    val headerEnd = "\r\n\r\n".encodeToByteArray()
+    val parts = mutableMapOf<String, MultipartPart>()
+    var start = body.indexOf(delimiter, from = 0) + delimiter.size
+
+    while (true) {
+        if (body.copyOfRange(start, start + 2).decodeToString() == "--") break
+
+        val partStart = start + 2
+        val next = body.indexOf(delimiter, from = partStart)
+        val headerIndex = body.indexOf(headerEnd, from = partStart)
+        val headers =
+            body
+                .copyOfRange(partStart, headerIndex)
+                .decodeToString()
+                .split("\r\n")
+                .associate { line -> line.substringBefore(":").trim().lowercase() to line.substringAfter(":").trim() }
+        val name = headers.getValue("content-disposition").substringAfter("name=\"").substringBefore("\"")
+
+        parts[name] = MultipartPart(headers = headers, body = body.copyOfRange(headerIndex + headerEnd.size, next))
+        start = next + delimiter.size
+    }
+
+    return parts
+}
+
+private fun ByteArray.indexOf(
+    target: ByteArray,
+    from: Int,
+): Int = (from..size - target.size).first { index -> target.indices.all { offset -> this[index + offset] == target[offset] } }
 
 private suspend fun httpResponse(body: String): HttpResponse {
     val client =
@@ -231,6 +319,18 @@ private suspend fun httpResponse(body: String): HttpResponse {
     return client.get("/")
 }
 
+// 파일 내용에 경계 구분에 쓰이는 줄바꿈과 대시를 섞어, 내용이 경계로 오인되지 않는지도 함께 확인한다.
+private fun contentBytes(): ByteArray =
+    generateSequence { "\r\n--chunk-${fixtureMonkey.giveMeOne<String>()}" }
+        .flatMap { value -> value.encodeToByteArray().asSequence() }
+        .take(CONTENT_BYTES)
+        .toList()
+        .toByteArray()
+
 private fun fileName(): String = "file-${fixtureMonkey.giveMeOne<Int>()}.txt"
+
+private fun title(): String = "title-${fixtureMonkey.giveMeOne<String>()}"
+
+private fun description(): String = fixtureMonkey.giveMeOne<String>()
 
 private fun mimeType(): String = "application/x-${fixtureMonkey.giveMeOne<Int>().absoluteValue}"

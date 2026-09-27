@@ -104,7 +104,7 @@ class FileRepositoryImplTest :
                 val exception = shouldThrow<Exception> { repository.findSource(uri = uri) }
 
                 exception.shouldNotBeInstanceOf<FileTooLargeException>()
-                coVerify(exactly = 0) { fileRemoteDataSource.upload(name = any(), mimeType = any(), contentLength = any(), openContent = any(), onSent = any()) }
+                coVerify(exactly = 0) { fileRemoteDataSource.upload(name = any(), title = any(), description = any(), mimeType = any(), contentLength = any(), openContent = any(), onSent = any()) }
             }
         }
 
@@ -115,14 +115,16 @@ class FileRepositoryImplTest :
             coEvery { fileLocalDataSource.openSource(uri = source.uri) } throws exception
             val fileRemoteDataSource = mockk<FileRemoteDataSource>()
             coEvery {
-                fileRemoteDataSource.upload(name = any(), mimeType = any(), contentLength = any(), openContent = any(), onSent = any())
-            } coAnswers { arg<suspend () -> RawSource>(3).invoke().close().let { remoteFile() } }
+                fileRemoteDataSource.upload(name = any(), title = any(), description = any(), mimeType = any(), contentLength = any(), openContent = any(), onSent = any())
+            } coAnswers { arg<suspend () -> RawSource>(5).invoke().close().let { remoteFile() } }
             val repository = FileRepositoryImpl(fileLocalDataSource = fileLocalDataSource, fileRemoteDataSource = fileRemoteDataSource, filePagingSourceHolder = mockk(relaxed = true))
 
-            shouldThrow<IllegalStateException> { repository.create(source = source, onSent = {}) } shouldBeSameInstanceAs exception
+            shouldThrow<IllegalStateException> { repository.create(source = source, title = fixtureMonkey.giveMeOne<String>(), description = fixtureMonkey.giveMeOne<String>(), onSent = {}) } shouldBeSameInstanceAs exception
         }
 
-        test("TC-FILE-STORAGE-DATA-005 고른 위치의 내용과 크기를 그대로 올리고 보낸 양과 서버가 돌려준 파일 정보를 전달한다") {
+        test("TC-FILE-STORAGE-DATA-005 고른 위치의 내용과 크기를 제목, 설명과 함께 그대로 올리고 보낸 양과 서버가 돌려준 파일 정보를 전달한다") {
+            val title = "title-${fixtureMonkey.giveMeOne<String>()}"
+            val description = fixtureMonkey.giveMeOne<String>()
             val bytes = "file-${fixtureMonkey.giveMeOne<String>()}".encodeToByteArray()
             val source = fixtureMonkey.fileUploadSource(size = bytes.size.toLong())
             val fileLocalDataSource = fileLocalDataSource(uri = source.uri, size = source.size)
@@ -134,6 +136,8 @@ class FileRepositoryImplTest :
             coEvery {
                 fileRemoteDataSource.upload(
                     name = source.name,
+                    title = title,
+                    description = description,
                     mimeType = source.mimeType,
                     contentLength = source.size,
                     openContent = capture(openContentSlot),
@@ -146,12 +150,14 @@ class FileRepositoryImplTest :
             val sentBytesList = mutableListOf<Long>()
             val repository = FileRepositoryImpl(fileLocalDataSource = fileLocalDataSource, fileRemoteDataSource = fileRemoteDataSource, filePagingSourceHolder = mockk(relaxed = true))
 
-            val actual = repository.create(source = source) { sentBytes -> sentBytesList += sentBytes }
+            val actual = repository.create(source = source, title = title, description = description) { sentBytes -> sentBytesList += sentBytes }
 
             openContentSlot.captured().buffered().use { rawSource -> rawSource.readByteArray() } shouldBe bytes
             sentBytesList shouldBe listOf(source.size)
             actual.id shouldBe remoteFile.id
             actual.name shouldBe remoteFile.name
+            actual.title shouldBe remoteFile.title
+            actual.description shouldBe remoteFile.description
             actual.mimeType shouldBe remoteFile.mimeType
             actual.size shouldBe remoteFile.size
             actual.createdAt shouldBe remoteFile.createdAt
@@ -162,12 +168,12 @@ class FileRepositoryImplTest :
             val otherException = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val fileRemoteDataSource = mockk<FileRemoteDataSource>()
             coEvery {
-                fileRemoteDataSource.upload(name = any(), mimeType = any(), contentLength = any(), openContent = any(), onSent = any())
+                fileRemoteDataSource.upload(name = any(), title = any(), description = any(), mimeType = any(), contentLength = any(), openContent = any(), onSent = any())
             } throws FileTooLargeRemoteException(message = fixtureMonkey.giveMeOne<String>()) andThenThrows otherException
             val repository = FileRepositoryImpl(fileLocalDataSource = fileLocalDataSource(uri = source.uri), fileRemoteDataSource = fileRemoteDataSource, filePagingSourceHolder = mockk(relaxed = true))
 
-            shouldThrow<FileTooLargeException> { repository.create(source = source, onSent = {}) }
-            shouldThrow<IllegalStateException> { repository.create(source = source, onSent = {}) } shouldBeSameInstanceAs otherException
+            shouldThrow<FileTooLargeException> { repository.create(source = source, title = fixtureMonkey.giveMeOne<String>(), description = fixtureMonkey.giveMeOne<String>(), onSent = {}) }
+            shouldThrow<IllegalStateException> { repository.create(source = source, title = fixtureMonkey.giveMeOne<String>(), description = fixtureMonkey.giveMeOne<String>(), onSent = {}) } shouldBeSameInstanceAs otherException
         }
 
         test("고른 파일의 읽기 권한을 붙들고 놓는 일은 기기의 파일 보관 수단에 맡긴다") {
@@ -224,6 +230,18 @@ class FileRepositoryImplTest :
 
             snapshot.map { file -> file.id } shouldBe fileList.map { file -> file.id }
             coVerify(exactly = 1) { fileRemoteDataSource.fetch(cursor = any(), size = any()) }
+        }
+
+        test("TC-FILE-STORAGE-DATA-027 목록의 파일 정보에 서버가 돌려준 제목과 설명이 담긴다") {
+            val remoteFile = remoteFile()
+            val fileRemoteDataSource = mockk<FileRemoteDataSource>()
+            coEvery { fileRemoteDataSource.fetch(cursor = null, size = 20) } returns listOf(remoteFile)
+            val repository = FileRepositoryImpl(fileLocalDataSource = mockk(), fileRemoteDataSource = fileRemoteDataSource, filePagingSourceHolder = FilePagingSourceHolder(fileRemoteDataSource = fileRemoteDataSource))
+
+            val snapshot = repository.page().asSnapshot()
+
+            snapshot.single().title shouldBe remoteFile.title
+            snapshot.single().description shouldBe remoteFile.description
         }
 
         test("TC-FILE-STORAGE-DATA-002 목록의 끝에 다가가면 받은 마지막 파일의 올린 시각과 식별자를 기준으로 20개를 이어서 요청한다") {

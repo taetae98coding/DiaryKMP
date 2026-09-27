@@ -7,6 +7,10 @@ public sealed interface FileUploadEvent {
         val fileId: Uuid,
     ) : FileUploadEvent
 
+    public data class SucceededOnFileAdd(
+        val fileId: Uuid,
+    ) : FileUploadEvent
+
     public data object TooLarge : FileUploadEvent
 
     public data object Failed : FileUploadEvent

@@ -15,5 +15,13 @@
     <string name="file_size_byte">%1$s B</string>
     <string name="file_size_kilobyte">%1$s KB</string>
     <string name="file_size_megabyte">%1$s MB</string>
-    <string name="file_item_supporting_format">%1$s · %2$s %3$s</string>
+    <string name="file_item_supporting_detail_format">&#160;· %1$s · %2$s %3$s</string>
+    <string name="file_add_title">Add File</string>
+    <string name="file_add_upload_button_content_description">Upload file</string>
+    <string name="file_add_no_file_selected">No file selected</string>
+    <string name="file_add_choose_file">Choose file</string>
+    <string name="file_add_title_blank_message">Please enter a title.</string>
+    <string name="file_add_file_not_selected_message">Please choose a file.</string>
+    <string name="file_add_file_unreadable_message">Couldn't read the file.</string>
+    <string name="file_add_upload_succeeded_message">File uploaded.</string>
 </resources>

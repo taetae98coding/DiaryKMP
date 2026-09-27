@@ -78,6 +78,6 @@ internal class CoroutineFileUploadWorkScheduler(
 
         job?.cancel()
 
-        return listOfNotNull(activeRequest?.uri)
+        return listOfNotNull(activeRequest?.content?.uri)
     }
 }

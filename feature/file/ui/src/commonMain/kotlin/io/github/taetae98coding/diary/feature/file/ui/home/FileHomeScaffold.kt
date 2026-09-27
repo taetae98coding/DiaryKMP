@@ -163,8 +163,8 @@ private fun FileHomeScaffoldPreview(
             flowOf(
                 PagingData.from(
                     listOf(
-                        previewDiaryFile(name = "보고서.pdf", size = 24_536_679),
-                        previewDiaryFile(name = "memo.txt", size = 512),
+                        previewDiaryFile(title = "분기 보고서", name = "보고서.pdf", size = 24_536_679),
+                        previewDiaryFile(title = "회의록", name = "memo.txt", size = 512),
                     ),
                 ),
             )

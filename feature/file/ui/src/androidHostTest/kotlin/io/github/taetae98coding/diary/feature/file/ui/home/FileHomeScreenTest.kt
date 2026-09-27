@@ -7,6 +7,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsActions
@@ -41,20 +42,17 @@ import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
+import io.github.taetae98coding.diary.core.model.file.FileScreen
 import io.github.taetae98coding.diary.core.model.file.FileUploadEvent
 import io.github.taetae98coding.diary.core.model.file.FileUploadState
-import io.github.taetae98coding.diary.core.model.file.FileUri
 import io.github.taetae98coding.diary.core.testing.file.diaryFile
-import io.github.taetae98coding.diary.core.testing.file.fileUri
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadEventUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadStateUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.PageFileUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.RefreshFileUseCase
-import io.github.taetae98coding.diary.domain.file.usecase.RequestFileUploadUseCase
-import io.github.taetae98coding.diary.domain.file.usecase.StartViewingFileHomeUseCase
-import io.github.taetae98coding.diary.domain.file.usecase.StopViewingFileHomeUseCase
-import io.github.taetae98coding.diary.feature.file.ui.picker.FilePicker
+import io.github.taetae98coding.diary.domain.file.usecase.StartViewingFileScreenUseCase
+import io.github.taetae98coding.diary.domain.file.usecase.StopViewingFileScreenUseCase
 import io.github.taetae98coding.diary.feature.file.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.booleans.shouldBeFalse
@@ -65,7 +63,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -98,6 +95,8 @@ private val fixtureMonkey: FixtureMonkey =
 class FileHomeScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    private var lastUpload: FileUploadMocks? = null
 
     @Before
     fun setUp() {
@@ -208,58 +207,104 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-015 처음 불러오는 중에 파일 추가를 선택하면 파일 선택 도구를 연다`() {
+    fun `TC-FILE-HOME-FEATURE-047 처음 불러오는 중에 파일 추가를 선택하면 FileAdd로 이동한다`() {
         val server = server()
         coEvery { server(0) } coAnswers { awaitCancellation() }
 
-        assertAddOpensPicker(server = server)
+        assertAddNavigatesToFileAdd(server = server)
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-015 처음 불러오기에 실패했을 때 파일 추가를 선택하면 파일 선택 도구를 연다`() {
+    fun `TC-FILE-HOME-FEATURE-047 처음 불러오기에 실패했을 때 파일 추가를 선택하면 FileAdd로 이동한다`() {
         val server = server()
         coEvery { server(0) } throws failure()
 
-        assertAddOpensPicker(server = server)
+        assertAddNavigatesToFileAdd(server = server)
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-015 빈 상태에서 파일 추가를 선택하면 파일 선택 도구를 연다`() {
-        assertAddOpensPicker(server = server(pageList = listOf(emptyList())))
+    fun `TC-FILE-HOME-FEATURE-047 빈 상태에서 파일 추가를 선택하면 FileAdd로 이동한다`() {
+        assertAddNavigatesToFileAdd(server = server(pageList = listOf(emptyList())))
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-015 파일 목록이 표시될 때 파일 추가를 선택하면 파일 선택 도구를 연다`() {
-        assertAddOpensPicker(server = server(pageList = listOf(listOf(fixtureMonkey.diaryFile()))))
+    fun `TC-FILE-HOME-FEATURE-047 파일 목록이 표시될 때 파일 추가를 선택하면 FileAdd로 이동한다`() {
+        assertAddNavigatesToFileAdd(server = server(pageList = listOf(listOf(fixtureMonkey.diaryFile()))))
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-016 파일을 고르지 않고 취소하면 아무것도 올리지 않는다`() {
-        val file = fixtureMonkey.diaryFile()
-        val upload = FileUploadMocks()
-
-        val screen = setFileHomeScreen(server = server(pageList = listOf(listOf(file))), pickedUri = null, upload = upload)
+    fun `TC-FILE-HOME-FEATURE-048 올리는 중에는 파일 추가 자리에 진행 중 표시를 보이고 FileAdd로 이동하지 않는다`() {
+        val screen = setFileHomeScreen(server = server(pageList = listOf(listOf(fixtureMonkey.diaryFile()))))
+        startUpload()
         clickAdd()
 
-        verify(exactly = 1) { screen.filePicker.open() }
-        coVerify(exactly = 0) { upload.requestFileUploadUseCase(parameter = any()) }
-        uploadProgress().assertDoesNotExist()
-        composeRule.onNodeWithText(UPLOAD_FAILED_MESSAGE).assertDoesNotExist()
-        composeRule.onNodeWithText(file.name).assertExists()
-    }
-
-    @Test
-    fun `TC-FILE-HOME-FEATURE-017 파일을 고르면 곧바로 올리고 올리는 동안 다시 추가할 수 없다`() {
-        val uri = fixtureMonkey.fileUri()
-        val upload = FileUploadMocks()
-
-        val screen = setFileHomeScreen(server = server(pageList = listOf(listOf(fixtureMonkey.diaryFile()))), pickedUri = uri, upload = upload)
-        clickAdd()
-        clickAdd()
-
-        coVerify(exactly = 1) { upload.requestFileUploadUseCase(parameter = uri) }
-        verify(exactly = 1) { screen.filePicker.open() }
         uploadProgress().assertExists()
+        screen.navigateToAddCount shouldBe 0
+    }
+
+    @Test
+    fun `TC-FILE-HOME-FEATURE-049 FileAdd를 보는 동안 올리기에 성공하면 목록을 다시 불러오고 돌아왔을 때 처음부터 보인다`() {
+        val fileList = fileList(count = 30)
+        val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
+        val server = server()
+        coEvery { server(0) } returns fileList.take(PAGE_SIZE) andThen (listOf(uploaded) + fileList).take(PAGE_SIZE)
+        coEvery { server(1) } returns fileList.drop(PAGE_SIZE)
+        val upload = FileUploadMocks()
+        var isFileHomeVisible by mutableStateOf(true)
+        val screen = fileHomeScreen(server = server, upload = upload)
+
+        setBehindFileAddContent(screen = screen, isFileHomeVisibleProvider = { isFileHomeVisible })
+        scrollListTo(index = PAGE_SIZE - 1)
+        composeRule.runOnIdle { isFileHomeVisible = false }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { upload.finish(event = FileUploadEvent.SucceededOnFileAdd(fileId = uploaded.id)) }
+        composeRule.runOnIdle { isFileHomeVisible = true }
+        composeRule.waitForIdle()
+
+        coVerify(exactly = 2) { server(0) }
+        composeRule.onNodeWithText(uploaded.name).assertIsDisplayed()
+        assertAbove(upper = uploaded, lower = fileList.first())
+        composeRule.onNodeWithText(UPLOAD_FAILED_MESSAGE).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-FILE-HOME-FEATURE-050 FileAdd를 보는 동안 다시 불러오기에 실패하면 돌아왔을 때 이전 목록만 보이고 안내는 없다`() {
+        val file = fixtureMonkey.diaryFile()
+        val server = server()
+        coEvery { server(0) } returns listOf(file) andThenThrows failure()
+        val upload = FileUploadMocks()
+        var isFileHomeVisible by mutableStateOf(true)
+        val screen = fileHomeScreen(server = server, upload = upload)
+
+        setBehindFileAddContent(screen = screen, isFileHomeVisibleProvider = { isFileHomeVisible })
+        composeRule.runOnIdle { isFileHomeVisible = false }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { upload.finish(event = FileUploadEvent.SucceededOnFileAdd(fileId = fixtureMonkey.giveMeOne<Uuid>())) }
+        composeRule.runOnIdle { isFileHomeVisible = true }
+        composeRule.waitForIdle()
+
+        coVerify(exactly = 2) { server(0) }
+        composeRule.onNodeWithText(file.name).assertExists()
+        composeRule.onNodeWithText(LOAD_FAILED_MESSAGE).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-FILE-HOME-FEATURE-051 FileAdd에서 돌아오면 목록을 다시 불러오지 않고 보던 자리를 유지한다`() {
+        val fileList = fileList(count = 30)
+        val server = server(pageList = fileList.chunked(PAGE_SIZE))
+        var isFileHomeVisible by mutableStateOf(true)
+        val screen = fileHomeScreen(server = server)
+
+        setBehindFileAddContent(screen = screen, isFileHomeVisibleProvider = { isFileHomeVisible })
+        scrollListTo(index = PAGE_SIZE - 1)
+        composeRule.runOnIdle { isFileHomeVisible = false }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { isFileHomeVisible = true }
+        composeRule.waitForIdle()
+
+        coVerify(exactly = 1) { server(0) }
+        composeRule.onNodeWithText(fileList[PAGE_SIZE - 1].name).assertIsDisplayed()
+        composeRule.onNodeWithText(fileList.first().name).assertDoesNotExist()
     }
 
     @Test
@@ -284,17 +329,18 @@ class FileHomeScreenTest {
         val upload = FileUploadMocks()
 
         val screen = setFileHomeScreen(server = server, upload = upload)
-        clickAdd()
+        startUpload()
         composeRule.runOnIdle { upload.finish(event = FileUploadEvent.TooLarge) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(UPLOAD_TOO_LARGE_MESSAGE).assertExists()
         uploadProgress().assertDoesNotExist()
-        clickAdd()
+        startUpload()
         composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Failed) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(UPLOAD_FAILED_MESSAGE).assertExists()
 
-        verify(exactly = 2) { screen.filePicker.open() }
+        clickAdd()
+        screen.navigateToAddCount shouldBe 1
         coVerify(exactly = 1) { server(0) }
         composeRule.onNodeWithText(file.name).assertExists()
         uploadProgress().assertDoesNotExist()
@@ -305,7 +351,7 @@ class FileHomeScreenTest {
         val fileList = fileList(count = 30)
 
         setFileHomeScreen(server = server(pageList = fileList.chunked(PAGE_SIZE)))
-        clickAdd()
+        startUpload()
         scrollListTo(index = PAGE_SIZE - 1)
         scrollListTo(index = fileList.lastIndex)
 
@@ -323,7 +369,7 @@ class FileHomeScreenTest {
 
         setFileHomeScreen(server = server, upload = upload)
         scrollListTo(index = PAGE_SIZE - 1)
-        clickAdd()
+        startUpload()
         composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = fixtureMonkey.giveMeOne<Uuid>())) }
         composeRule.waitForIdle()
 
@@ -358,7 +404,7 @@ class FileHomeScreenTest {
         val upload = FileUploadMocks()
 
         val screen = setFileHomeScreen(accountFlow = accountFlow, upload = upload)
-        clickAdd()
+        startUpload()
         uploadProgress().assertExists()
         composeRule.runOnIdle {
             accountFlow.value = Result.success(fixtureMonkey.giveMeOne<Account.User>())
@@ -370,7 +416,7 @@ class FileHomeScreenTest {
         composeRule.onNodeWithText(UPLOAD_FAILED_MESSAGE).assertDoesNotExist()
         composeRule.onNodeWithText(UPLOAD_TOO_LARGE_MESSAGE).assertDoesNotExist()
         clickAdd()
-        verify(exactly = 2) { screen.filePicker.open() }
+        screen.navigateToAddCount shouldBe 1
     }
 
     @Test
@@ -379,7 +425,7 @@ class FileHomeScreenTest {
         val upload = FileUploadMocks()
 
         setFileHomeScreen(accountFlow = accountFlow, upload = upload)
-        clickAdd()
+        startUpload()
         uploadProgress().assertExists()
         composeRule.runOnIdle {
             accountFlow.value = Result.success(Account.Guest)
@@ -399,7 +445,7 @@ class FileHomeScreenTest {
         val upload = FileUploadMocks()
 
         setFileHomeScreen(upload = upload, navigateUp = { navigateUpCount += 1 })
-        clickAdd()
+        startUpload()
         uploadProgress().assertExists()
         composeRule.onNodeWithContentDescription(NAVIGATE_UP_DESCRIPTION).performClick()
         composeRule.waitForIdle()
@@ -417,7 +463,7 @@ class FileHomeScreenTest {
         val upload = FileUploadMocks()
 
         setFileHomeScreen(server = server, upload = upload)
-        clickAdd()
+        startUpload()
         composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = added.id)) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(RETRY).performClick()
@@ -508,7 +554,7 @@ class FileHomeScreenTest {
         uploadProgress().assertExists()
         clickAdd()
 
-        verify(exactly = 0) { screen.filePicker.open() }
+        screen.navigateToAddCount shouldBe 0
     }
 
     @Test
@@ -541,7 +587,7 @@ class FileHomeScreenTest {
         val upload = FileUploadMocks()
 
         setFileHomeScreen(server = server, upload = upload)
-        clickAdd()
+        startUpload()
         composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = uploaded.id)) }
         composeRule.waitForIdle()
 
@@ -564,7 +610,7 @@ class FileHomeScreenTest {
         composeRule.waitForIdle()
 
         navigateUpCount shouldBe 0
-        verify(exactly = 0) { screen.filePicker.open() }
+        screen.navigateToAddCount shouldBe 0
         composeRule.onNodeWithText(file.name).assertExists()
     }
 
@@ -686,7 +732,7 @@ class FileHomeScreenTest {
 
         tester.setContent { screen.Content() }
         composeRule.waitForIdle()
-        clickAdd()
+        startUpload()
         tester.emulateSavedInstanceStateRestore()
         composeRule.waitForIdle()
         uploadProgress().assertExists()
@@ -713,7 +759,7 @@ class FileHomeScreenTest {
             }
         }
         composeRule.waitForIdle()
-        clickAdd()
+        startUpload()
         composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
         composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
         composeRule.waitForIdle()
@@ -732,7 +778,7 @@ class FileHomeScreenTest {
         val upload = FileUploadMocks()
 
         setFileHomeScreen(server = server(pageList = listOf(listOf(file))), accountFlow = accountFlow, upload = upload)
-        clickAdd()
+        startUpload()
         composeRule.runOnIdle { accountFlow.value = Result.failure(failure()) }
         composeRule.waitForIdle()
 
@@ -791,7 +837,7 @@ class FileHomeScreenTest {
 
         tester.setContent { screen.Content() }
         composeRule.waitForIdle()
-        clickAdd()
+        startUpload()
         composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Failed) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(UPLOAD_FAILED_MESSAGE).assertExists()
@@ -815,7 +861,7 @@ class FileHomeScreenTest {
         }
         composeRule.mainClock.advanceTimeByFrame()
         composeRule.waitForIdle()
-        clickAdd()
+        startUpload()
         composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Failed) }
         composeRule.mainClock.advanceTimeByFrame()
         composeRule.waitForIdle()
@@ -883,20 +929,20 @@ class FileHomeScreenTest {
             }
         }
         composeRule.waitForIdle()
-        coVerify(exactly = 1) { upload.startViewingFileHomeUseCase(parameter = Unit) }
-        coVerify(exactly = 0) { upload.stopViewingFileHomeUseCase(parameter = Unit) }
+        coVerify(exactly = 1) { upload.startViewingFileScreenUseCase(parameter = FileScreen.HOME) }
+        coVerify(exactly = 0) { upload.stopViewingFileScreenUseCase(parameter = FileScreen.HOME) }
 
         composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
         composeRule.waitForIdle()
-        coVerify(exactly = 1) { upload.stopViewingFileHomeUseCase(parameter = Unit) }
+        coVerify(exactly = 1) { upload.stopViewingFileScreenUseCase(parameter = FileScreen.HOME) }
 
         composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
         composeRule.waitForIdle()
-        coVerify(exactly = 2) { upload.startViewingFileHomeUseCase(parameter = Unit) }
+        coVerify(exactly = 2) { upload.startViewingFileScreenUseCase(parameter = FileScreen.HOME) }
 
         composeRule.runOnIdle { isShown = false }
         composeRule.waitForIdle()
-        coVerify(exactly = 2) { upload.stopViewingFileHomeUseCase(parameter = Unit) }
+        coVerify(exactly = 2) { upload.stopViewingFileScreenUseCase(parameter = FileScreen.HOME) }
     }
 
     private fun assertUploadSucceededReturnsToTop(
@@ -914,7 +960,7 @@ class FileHomeScreenTest {
         setFileHomeScreen(server = server, upload = upload)
         scrollListTo(index = PAGE_SIZE - 1)
         composeRule.onNodeWithText(fileList.first().name).assertDoesNotExist()
-        clickAdd()
+        startUpload()
         composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = uploaded.id)) }
         composeRule.waitForIdle()
 
@@ -947,7 +993,7 @@ class FileHomeScreenTest {
         val upload = FileUploadMocks()
 
         setFileHomeScreen(server = server, upload = upload)
-        clickAdd()
+        startUpload()
         composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = uploaded.id)) }
         composeRule.waitForIdle()
         bodyProgress().assertExists()
@@ -986,7 +1032,7 @@ class FileHomeScreenTest {
         composeRule.setContent { key(screen) { screen.Content() } }
         composeRule.waitForIdle()
         scrollListTo(index = PAGE_SIZE - 1)
-        if (isUploading) clickAdd()
+        if (isUploading) startUpload()
         composeRule.runOnIdle { screen = fileHomeScreen(server = secondServer, upload = upload) }
         composeRule.waitForIdle()
 
@@ -995,12 +1041,12 @@ class FileHomeScreenTest {
         if (isUploading) uploadProgress().assertExists() else uploadProgress().assertDoesNotExist()
     }
 
-    private fun assertAddOpensPicker(server: suspend (Int) -> List<DiaryFile>) {
-        val screen = setFileHomeScreen(server = server, pickedUri = null)
+    private fun assertAddNavigatesToFileAdd(server: suspend (Int) -> List<DiaryFile>) {
+        val screen = setFileHomeScreen(server = server)
 
         clickAdd()
 
-        verify(exactly = 1) { screen.filePicker.open() }
+        screen.navigateToAddCount shouldBe 1
     }
 
     private fun assertPullFromBlankBody(
@@ -1077,7 +1123,7 @@ class FileHomeScreenTest {
         scrollListTo(index = PAGE_SIZE - 1)
         scrollListTo(index = fileList.lastIndex)
         composeRule.onNodeWithText(fileList.first().name).assertDoesNotExist()
-        clickAdd()
+        startUpload()
         composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = uploaded.id)) }
         composeRule.waitForIdle()
 
@@ -1102,22 +1148,6 @@ class FileHomeScreenTest {
         composeRule.waitForIdle()
 
         coVerify(exactly = 3) { server(0) }
-    }
-
-    @Test
-    fun `TC-FILE-HOME-FEATURE-041 Android에서 붙들어 둘 수 없는 파일을 고르면 올리지 못했다고 알린다`() {
-        val file = fixtureMonkey.diaryFile()
-        val upload = FileUploadMocks()
-        coEvery { upload.requestFileUploadUseCase(parameter = any()) } returns Result.failure(SecurityException(fixtureMonkey.giveMeOne<String>()))
-
-        val screen = setFileHomeScreen(server = server(pageList = listOf(listOf(file))), upload = upload)
-        clickAdd()
-
-        composeRule.onNodeWithText(UPLOAD_FAILED_MESSAGE).assertExists()
-        uploadProgress().assertDoesNotExist()
-        composeRule.onNodeWithText(file.name).assertExists()
-        clickAdd()
-        verify(exactly = 2) { screen.filePicker.open() }
     }
 
     @Test
@@ -1272,7 +1302,7 @@ class FileHomeScreenTest {
         val upload = FileUploadMocks()
 
         setFileHomeScreen(server = server(pageList = listOf(fileList(count = 1))), accountFlow = accountFlow, upload = upload)
-        clickAdd()
+        startUpload()
         composeRule.runOnIdle { accountFlow.value = Result.failure(failure()) }
         composeRule.waitForIdle()
         composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Failed) }
@@ -1292,7 +1322,7 @@ class FileHomeScreenTest {
         val upload = FileUploadMocks()
 
         setFileHomeScreen(server = server, accountFlow = accountFlow, upload = upload)
-        clickAdd()
+        startUpload()
         composeRule.runOnIdle { accountFlow.value = Result.failure(failure()) }
         composeRule.waitForIdle()
         composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = uploaded.id)) }
@@ -1345,7 +1375,7 @@ class FileHomeScreenTest {
         val upload = FileUploadMocks()
 
         setFileHomeScreen(server = server, upload = upload)
-        clickAdd()
+        startUpload()
         composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = uploaded.id)) }
         composeRule.waitForIdle()
         pull()
@@ -1380,7 +1410,7 @@ class FileHomeScreenTest {
         val upload = FileUploadMocks()
 
         setFileHomeScreen(server = server, accountFlow = accountFlow, upload = upload)
-        clickAdd()
+        startUpload()
         composeRule.runOnIdle { accountFlow.value = Result.failure(failure()) }
         composeRule.waitForIdle()
         composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = uploaded.id)) }
@@ -1404,7 +1434,7 @@ class FileHomeScreenTest {
 
         setFileHomeScreen(server = server, accountFlow = accountFlow, upload = upload)
         composeRule.onNodeWithText(EMPTY_TITLE).assertExists()
-        clickAdd()
+        startUpload()
         composeRule.runOnIdle { accountFlow.value = Result.failure(failure()) }
         composeRule.waitForIdle()
         composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = uploaded.id)) }
@@ -1477,7 +1507,7 @@ class FileHomeScreenTest {
         composeRule.waitForIdle()
         scrollListTo(index = PAGE_SIZE - 1)
         scrollListTo(index = fileList.lastIndex)
-        clickAdd()
+        startUpload()
         composeRule.runOnIdle { upload.finish(event = FileUploadEvent.Succeeded(fileId = uploaded.id)) }
         composeRule.waitForIdle()
         tester.emulateSavedInstanceStateRestore()
@@ -1494,7 +1524,6 @@ class FileHomeScreenTest {
         paging: MutableStateFlow<Flow<PagingData<DiaryFile>>> = MutableStateFlow(pagerFlow(server = server)),
         accountFlow: MutableStateFlow<Result<Account>> = MutableStateFlow(Result.success(fixtureMonkey.giveMeOne<Account.User>())),
         navigateUp: () -> Unit = {},
-        pickedUri: FileUri? = fixtureMonkey.fileUri(),
         upload: FileUploadMocks = FileUploadMocks(),
     ): FileHomeTestScreen {
         val screen =
@@ -1503,7 +1532,6 @@ class FileHomeScreenTest {
                 paging = paging,
                 accountFlow = accountFlow,
                 navigateUp = navigateUp,
-                pickedUri = pickedUri,
                 upload = upload,
             )
 
@@ -1518,18 +1546,16 @@ class FileHomeScreenTest {
         paging: MutableStateFlow<Flow<PagingData<DiaryFile>>> = MutableStateFlow(pagerFlow(server = server)),
         accountFlow: MutableStateFlow<Result<Account>> = MutableStateFlow(Result.success(fixtureMonkey.giveMeOne<Account.User>())),
         navigateUp: () -> Unit = {},
-        pickedUri: FileUri? = fixtureMonkey.fileUri(),
         upload: FileUploadMocks = FileUploadMocks(),
     ): FileHomeTestScreen {
         val getAccountUseCase = mockk<GetAccountUseCase>()
         every { getAccountUseCase(parameter = Unit) } returns accountFlow
         val uploadViewModel = upload.viewModel()
-        val filePicker = mockk<FilePicker>()
-        every { filePicker.open() } answers { pickedUri?.let(uploadViewModel::upload) }
+
+        lastUpload = upload
 
         return FileHomeTestScreen(
             navigateUp = navigateUp,
-            filePicker = filePicker,
             fileViewModel =
                 FileHomeViewModel(
                     getAccountUseCase = getAccountUseCase,
@@ -1538,6 +1564,21 @@ class FileHomeScreenTest {
             uploadViewModel = uploadViewModel,
             refreshViewModel = FileHomeRefreshViewModel(refreshFileUseCase = refreshFileUseCase(server = server, paging = paging)),
         )
+    }
+
+    // FileAdd가 위에 열리면 FileHome은 화면에서 내려가지만, 내비게이션이 저장해 둔 상태로 돌아온다.
+    private fun setBehindFileAddContent(
+        screen: FileHomeTestScreen,
+        isFileHomeVisibleProvider: () -> Boolean,
+    ) {
+        composeRule.setContent {
+            val holder = rememberSaveableStateHolder()
+
+            if (isFileHomeVisibleProvider()) {
+                holder.SaveableStateProvider(key = FILE_HOME_KEY) { screen.Content() }
+            }
+        }
+        composeRule.waitForIdle()
     }
 
     private fun assertAbove(
@@ -1552,6 +1593,12 @@ class FileHomeScreenTest {
 
     private fun clickAdd() {
         composeRule.onNodeWithContentDescription(ADD_BUTTON_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+    }
+
+    // 올리기는 FileAdd에서 시작하므로, 이 화면의 테스트는 올리기가 시작된 상태를 직접 만든다.
+    private fun startUpload() {
+        composeRule.runOnIdle { checkNotNull(lastUpload).start() }
         composeRule.waitForIdle()
     }
 
@@ -1575,6 +1622,7 @@ class FileHomeScreenTest {
 
     private companion object {
         private const val TITLE = "파일"
+        private const val FILE_HOME_KEY = "FileHome"
         private const val NAVIGATE_UP_DESCRIPTION = "뒤로가기"
         private const val UPLOADED_FILE_NAME = "uploaded.txt"
         private const val ADDED_FILE_NAME = "added.txt"
@@ -1594,17 +1642,19 @@ class FileHomeScreenTest {
 
 private class FileHomeTestScreen(
     val navigateUp: () -> Unit,
-    val filePicker: FilePicker,
     val fileViewModel: FileHomeViewModel,
     val uploadViewModel: FileHomeUploadViewModel,
     val refreshViewModel: FileHomeRefreshViewModel,
 ) {
+    var navigateToAddCount: Int = 0
+        private set
+
     @Composable
     fun Content() {
         DiaryTheme {
             FileHomeScreen(
                 navigateUp = navigateUp,
-                filePicker = filePicker,
+                navigateToAdd = { navigateToAddCount += 1 },
                 fileViewModel = fileViewModel,
                 uploadViewModel = uploadViewModel,
                 refreshViewModel = refreshViewModel,
@@ -1618,14 +1668,6 @@ private class FileUploadMocks {
     val state = MutableStateFlow<FileUploadState>(FileUploadState.Idle)
     private val eventChannel = Channel<FileUploadEvent>(Channel.UNLIMITED)
 
-    val requestFileUploadUseCase: RequestFileUploadUseCase =
-        mockk<RequestFileUploadUseCase>().also { useCase ->
-            coEvery { useCase(parameter = any()) } coAnswers {
-                state.value = FileUploadState.Uploading(percent = null)
-                Result.success(Unit)
-            }
-        }
-
     private val getFileUploadStateUseCase: GetFileUploadStateUseCase =
         mockk<GetFileUploadStateUseCase>().also { useCase ->
             every { useCase(parameter = Unit) } returns state.map { value -> Result.success(value) }
@@ -1633,18 +1675,22 @@ private class FileUploadMocks {
 
     private val getFileUploadEventUseCase: GetFileUploadEventUseCase =
         mockk<GetFileUploadEventUseCase>().also { useCase ->
-            every { useCase(parameter = Unit) } returns eventChannel.receiveAsFlow().map { event -> Result.success(event) }
+            every { useCase(parameter = FileScreen.HOME) } returns eventChannel.receiveAsFlow().map { event -> Result.success(event) }
         }
 
-    val startViewingFileHomeUseCase: StartViewingFileHomeUseCase =
-        mockk<StartViewingFileHomeUseCase>().also { useCase ->
-            coEvery { useCase(parameter = Unit) } returns Result.success(Unit)
+    val startViewingFileScreenUseCase: StartViewingFileScreenUseCase =
+        mockk<StartViewingFileScreenUseCase>().also { useCase ->
+            coEvery { useCase(parameter = any()) } returns Result.success(Unit)
         }
 
-    val stopViewingFileHomeUseCase: StopViewingFileHomeUseCase =
-        mockk<StopViewingFileHomeUseCase>().also { useCase ->
-            coEvery { useCase(parameter = Unit) } returns Result.success(Unit)
+    val stopViewingFileScreenUseCase: StopViewingFileScreenUseCase =
+        mockk<StopViewingFileScreenUseCase>().also { useCase ->
+            coEvery { useCase(parameter = any()) } returns Result.success(Unit)
         }
+
+    fun start() {
+        state.value = FileUploadState.Uploading(percent = null)
+    }
 
     fun finish(event: FileUploadEvent) {
         state.value = FileUploadState.Idle
@@ -1657,9 +1703,8 @@ private class FileUploadMocks {
 
     fun viewModel(): FileHomeUploadViewModel =
         FileHomeUploadViewModel(
-            requestFileUploadUseCase = requestFileUploadUseCase,
-            startViewingFileHomeUseCase = startViewingFileHomeUseCase,
-            stopViewingFileHomeUseCase = stopViewingFileHomeUseCase,
+            startViewingFileScreenUseCase = startViewingFileScreenUseCase,
+            stopViewingFileScreenUseCase = stopViewingFileScreenUseCase,
             getFileUploadStateUseCase = getFileUploadStateUseCase,
             getFileUploadEventUseCase = getFileUploadEventUseCase,
         )

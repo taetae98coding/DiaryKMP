@@ -10,7 +10,6 @@ import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunction
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunctionRequest
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.encodeURLParameter
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
@@ -23,7 +22,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.io.RawSource
@@ -100,25 +98,43 @@ internal class BackgroundSessionFileUploadTransport(
 
     override suspend fun upload(
         name: String,
+        title: String,
+        description: String,
         mimeType: String,
         contentLength: Long,
         openContent: suspend () -> RawSource,
         onSent: (sentBytes: Long) -> Unit,
     ): FileRemoteEntity {
         val path = Path(uploadDirectoryPath(), Uuid.random().toString())
+        val multipart =
+            FileUploadMultipart(
+                name = name,
+                title = title,
+                description = description,
+                mimeType = mimeType,
+                contentLength = contentLength,
+            )
         var isTaskStarted = false
 
         // 전송을 시작한 뒤에는 전송이 끝날 때 사본을 지우므로, 그 전에 실패하거나 취소된 경우에만 여기서 지운다.
         try {
-            copyToUploadFile(path = path, openContent = openContent)
-            val request = supabaseFunction.createRequest(function = UPLOAD_FILE_FUNCTION).toUploadRequest(name = name, mimeType = mimeType)
+            copyToUploadFile(path = path, multipart = multipart, openContent = openContent)
+            val request = supabaseFunction.createRequest(function = UPLOAD_FILE_FUNCTION).toUploadRequest(multipart = multipart)
 
             return withContext(Dispatchers.Main) {
                 suspendCancellableCoroutine { continuation ->
                     val task = session.uploadTaskWithRequest(request = request, fromFile = NSURL.fileURLWithPath(path.toString()))
 
-                    task.taskDescription = uploadTaskJson.encodeToString(UploadTaskDescription(name = name, path = path.toString()))
-                    pendingUploadMap[task.taskIdentifier] = PendingUpload(continuation = continuation, onSent = onSent)
+                    task.taskDescription =
+                        uploadTaskJson.encodeToString(
+                            UploadTaskDescription(
+                                name = name,
+                                path = path.toString(),
+                                headBytes = multipart.head.size.toLong(),
+                                contentLength = contentLength,
+                            ),
+                        )
+                    pendingUploadMap[task.taskIdentifier] = PendingUpload(continuation = continuation, onSent = { totalSentBytes -> onSent(multipart.contentSentBytes(totalSentBytes)) })
                     continuation.invokeOnCancellation { task.cancel() }
                     task.resume()
                     isTaskStarted = true
@@ -152,11 +168,16 @@ internal class BackgroundSessionFileUploadTransport(
 
     private suspend fun copyToUploadFile(
         path: Path,
+        multipart: FileUploadMultipart,
         openContent: suspend () -> RawSource,
     ) {
         withContext(dispatcher) {
             path.parent?.let(SystemFileSystem::createDirectories)
-            openContent().use { source -> SystemFileSystem.sink(path).buffered().use { sink -> sink.transferFrom(source) } }
+            SystemFileSystem.sink(path).buffered().use { sink ->
+                sink.write(multipart.head)
+                openContent().use { source -> sink.transferFrom(source) }
+                sink.write(multipart.tail)
+            }
         }
     }
 
@@ -169,12 +190,7 @@ internal class BackgroundSessionFileUploadTransport(
                     .firstOrNull { task -> task.taskIdentifier !in pendingUploadMap }
 
             if (task != null) {
-                continuedUpload.value =
-                    ContinuedFileUploadRemoteEntity(
-                        name = task.uploadTaskDescription()?.name.orEmpty(),
-                        contentLength = task.countOfBytesExpectedToSend,
-                        sentBytes = task.countOfBytesSent,
-                    )
+                continuedUpload.value = task.toContinuedUpload(totalSentBytes = task.countOfBytesSent, totalLength = task.countOfBytesExpectedToSend)
             }
         }
     }
@@ -189,10 +205,7 @@ internal class BackgroundSessionFileUploadTransport(
         if (pendingUpload != null) {
             pendingUpload.onSent(sentBytes)
         } else {
-            continuedUpload.update { upload ->
-                upload?.copy(sentBytes = sentBytes)
-                    ?: ContinuedFileUploadRemoteEntity(name = task.uploadTaskDescription()?.name.orEmpty(), contentLength = contentLength, sentBytes = sentBytes)
-            }
+            continuedUpload.value = task.toContinuedUpload(totalSentBytes = sentBytes, totalLength = contentLength)
         }
     }
 
@@ -303,24 +316,37 @@ private fun Result<FileRemoteEntity>.toContinuedResult(name: String): ContinuedF
 // 이 앱이 만든 전송은 언제나 설명을 남기므로, 설명을 읽지 못하는 전송은 이름과 사본의 위치를 모르는 것으로 두고 전송 결과는 그대로 다룬다.
 private fun NSURLSessionTask.uploadTaskDescription(): UploadTaskDescription? = taskDescription?.let { value -> runCatching { uploadTaskJson.decodeFromString<UploadTaskDescription>(value) }.getOrNull() }
 
+// 앞선 버전이 시작한 전송은 파일 내용만 보냈으므로 앞부분이 없고, 파일 크기는 전송 수단이 알려 준 전체 크기와 같다.
 @Serializable
 private data class UploadTaskDescription(
     val name: String,
     val path: String,
+    val headBytes: Long = 0,
+    val contentLength: Long? = null,
 )
+
+private fun NSURLSessionTask.toContinuedUpload(
+    totalSentBytes: Long,
+    totalLength: Long,
+): ContinuedFileUploadRemoteEntity {
+    val description = uploadTaskDescription()
+    val contentLength = description?.contentLength ?: totalLength
+    val headBytes = description?.headBytes ?: 0
+
+    return ContinuedFileUploadRemoteEntity(
+        name = description?.name.orEmpty(),
+        contentLength = contentLength,
+        sentBytes = (totalSentBytes - headBytes).coerceIn(0, contentLength),
+    )
+}
 
 private val uploadTaskJson = Json { ignoreUnknownKeys = true }
 
-private fun SupabaseFunctionRequest.toUploadRequest(
-    name: String,
-    mimeType: String,
-): NSMutableURLRequest =
+private fun SupabaseFunctionRequest.toUploadRequest(multipart: FileUploadMultipart): NSMutableURLRequest =
     NSMutableURLRequest(uRL = checkNotNull(NSURL.URLWithString(url)) { "Function url is invalid." }).apply {
         setHTTPMethod("POST")
         headers.forEach { (key, value) -> setValue(value, forHTTPHeaderField = key) }
-        setValue(mimeType, forHTTPHeaderField = HttpHeaders.ContentType)
-        // 헤더에는 ASCII만 실을 수 있어 파일 이름을 퍼센트 인코딩한다.
-        setValue(name.encodeURLParameter(), forHTTPHeaderField = FILE_NAME_HEADER)
+        setValue(multipart.contentType.toString(), forHTTPHeaderField = HttpHeaders.ContentType)
     }
 
 private fun uploadDirectoryPath(): String {

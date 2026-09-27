@@ -5,6 +5,7 @@ import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasProgressBarRangeInfo
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -92,28 +93,31 @@ class FileHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-FILE-HOME-FEATURE-007 목록의 각 파일에 이름, 크기, 올린 날짜와 시각을 표시한다`() {
+    fun `TC-FILE-HOME-FEATURE-046 목록의 각 파일에 제목과 파일 이름, 크기, 올린 날짜와 시각을 표시하고 설명은 표시하지 않는다`() {
         val defaultTimeZone = TimeZone.getDefault()
         TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul"))
         try {
             val createdAt = Instant.parse("2026-09-26T06:05:00Z")
+            val description = "메모"
             val fileList =
                 listOf(
-                    fixtureMonkey.diaryFile(name = "memo.txt", size = 512).copy(createdAt = createdAt),
-                    fixtureMonkey.diaryFile(name = "photo.jpg", size = 1_024).copy(createdAt = createdAt),
-                    fixtureMonkey.diaryFile(name = "video.mp4", size = 24_536_679).copy(createdAt = createdAt),
+                    fixtureMonkey.diaryFile(name = "memo.txt", size = 512).copy(title = "회의록", description = description, createdAt = createdAt),
+                    fixtureMonkey.diaryFile(name = "photo.jpg", size = 1_024).copy(title = "여행 사진", description = description, createdAt = createdAt),
+                    fixtureMonkey.diaryFile(name = "video.mp4", size = 24_536_679).copy(title = "발표 영상", description = description, createdAt = createdAt),
                 )
 
             setFileHomeScaffold(uiState = FileHomeUiState.User(accountId = fixtureMonkey.giveMeOne<Uuid>()), pagingData = PagingData.from(fileList))
 
-            mapOf(
-                "memo.txt" to "512 B · 2026. 9. 26. 오후 3:05",
-                "photo.jpg" to "1.0 KB · 2026. 9. 26. 오후 3:05",
-                "video.mp4" to "23.4 MB · 2026. 9. 26. 오후 3:05",
-            ).forEach { (name, supportingText) ->
-                composeRule.onNodeWithText(name).assertExists()
-                composeRule.onNodeWithText(supportingText).assertExists()
+            listOf(
+                Triple("회의록", "memo.txt", "512 B · 2026. 9. 26. 오후 3:05"),
+                Triple("여행 사진", "photo.jpg", "1.0 KB · 2026. 9. 26. 오후 3:05"),
+                Triple("발표 영상", "video.mp4", "23.4 MB · 2026. 9. 26. 오후 3:05"),
+            ).forEach { (title, name, detail) ->
+                composeRule
+                    .onNode(hasText(title).and(hasText(name)).and(hasText("\u00A0· $detail")))
+                    .assertExists()
             }
+            composeRule.onNodeWithText(description, substring = true).assertDoesNotExist()
         } finally {
             TimeZone.setDefault(defaultTimeZone)
         }
@@ -189,7 +193,7 @@ class FileHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-017 올리는 동안 파일 추가 자리에 진행 중 표시를 둔다`() {
+    fun `TC-FILE-HOME-FEATURE-048 올리는 동안 파일 추가 자리에 진행 중 표시를 둔다`() {
         setFileHomeScaffold(uiState = FileHomeUiState.User(accountId = fixtureMonkey.giveMeOne<Uuid>()), uploadUiState = FileHomeUploadUiState(isUploading = true))
 
         composeRule

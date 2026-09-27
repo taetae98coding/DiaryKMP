@@ -22,6 +22,8 @@ internal class FileRemoteDataSourceImpl(
 ) : FileRemoteDataSource {
     override suspend fun upload(
         name: String,
+        title: String,
+        description: String,
         mimeType: String,
         contentLength: Long,
         openContent: suspend () -> RawSource,
@@ -29,6 +31,8 @@ internal class FileRemoteDataSourceImpl(
     ): FileRemoteEntity =
         fileUploadTransport.upload(
             name = name,
+            title = title,
+            description = description,
             mimeType = mimeType,
             contentLength = contentLength,
             openContent = openContent,

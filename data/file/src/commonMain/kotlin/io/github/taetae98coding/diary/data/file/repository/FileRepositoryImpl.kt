@@ -77,12 +77,16 @@ internal class FileRepositoryImpl(
 
     override suspend fun create(
         source: FileUploadSource,
+        title: String,
+        description: String,
         onSent: (sentBytes: Long) -> Unit,
     ): DiaryFile =
         try {
             fileRemoteDataSource
                 .upload(
                     name = source.name,
+                    title = title,
+                    description = description,
                     mimeType = source.mimeType,
                     contentLength = source.size,
                     openContent = { fileLocalDataSource.openSource(uri = source.uri) },

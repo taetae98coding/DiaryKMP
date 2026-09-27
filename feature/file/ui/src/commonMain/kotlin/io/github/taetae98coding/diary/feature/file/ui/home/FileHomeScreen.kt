@@ -27,7 +27,6 @@ import io.github.taetae98coding.diary.feature.file.ui.file_home_load_failed_mess
 import io.github.taetae98coding.diary.feature.file.ui.file_home_retry
 import io.github.taetae98coding.diary.feature.file.ui.file_home_upload_failed_message
 import io.github.taetae98coding.diary.feature.file.ui.file_home_upload_too_large_message
-import io.github.taetae98coding.diary.feature.file.ui.picker.FilePicker
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -42,7 +41,7 @@ import kotlin.uuid.Uuid
 @Composable
 internal fun FileHomeScreen(
     navigateUp: () -> Unit,
-    filePicker: FilePicker,
+    navigateToAdd: () -> Unit,
     fileViewModel: FileHomeViewModel,
     uploadViewModel: FileHomeUploadViewModel,
     refreshViewModel: FileHomeRefreshViewModel,
@@ -86,7 +85,7 @@ internal fun FileHomeScreen(
 
                 is FileHomeScaffoldEvent.ClickAdd -> {
                     if (!uploadUiState.isUploading) {
-                        filePicker.open()
+                        navigateToAdd()
                     }
                 }
 
@@ -129,6 +128,7 @@ private fun FileHomeEffect(
         filePagingItems = filePagingItems,
         snackbarHostState = snackbarHostState,
         refreshAfterUpload = refreshViewModel::refreshAfterUpload,
+        refreshAfterUploadOnFileAdd = refreshViewModel::refreshAfterUploadOnFileAdd,
     )
 
     RefreshFailedEffect(
@@ -169,6 +169,7 @@ private fun UploadFileEffect(
     filePagingItems: LazyPagingItems<DiaryFile>,
     snackbarHostState: SnackbarHostState,
     refreshAfterUpload: (firstFileIdBefore: Uuid) -> Unit,
+    refreshAfterUploadOnFileAdd: (firstFileIdBefore: Uuid) -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val tooLargeMessage = stringResource(Res.string.file_home_upload_too_large_message)
@@ -177,13 +178,11 @@ private fun UploadFileEffect(
     CollectEffect(effect) { value ->
         when (value) {
             is FileHomeUploadEffect.UploadSucceeded -> {
-                val firstFile = filePagingItems.takeIf { items -> items.itemCount > 0 }?.peek(index = 0)
+                filePagingItems.refreshAfterUpload(refreshList = refreshAfterUpload)
+            }
 
-                if (firstFile != null && filePagingItems.loadState.refresh !is LoadState.Loading) {
-                    refreshAfterUpload(firstFile.id)
-                } else {
-                    filePagingItems.refresh()
-                }
+            is FileHomeUploadEffect.UploadSucceededOnFileAdd -> {
+                filePagingItems.refreshAfterUpload(refreshList = refreshAfterUploadOnFileAdd)
             }
 
             is FileHomeUploadEffect.UploadTooLarge -> {
@@ -194,6 +193,16 @@ private fun UploadFileEffect(
                 coroutineScope.launch { snackbarHostState.showImmediate(message = failedMessage) }
             }
         }
+    }
+}
+
+private fun LazyPagingItems<DiaryFile>.refreshAfterUpload(refreshList: (firstFileIdBefore: Uuid) -> Unit) {
+    val firstFile = takeIf { items -> items.itemCount > 0 }?.peek(index = 0)
+
+    if (firstFile != null && loadState.refresh !is LoadState.Loading) {
+        refreshList(firstFile.id)
+    } else {
+        refresh()
     }
 }
 

@@ -182,5 +182,40 @@ class FileHomeRefreshViewModelTest : FunSpec() {
                 response.complete(Result.success(Unit))
             }
         }
+
+        test("TC-FILE-HOME-FEATURE-049 FileAdd를 보는 동안 올리기에 성공하면 진행 표시 없이 다시 불러와 처음으로 돌아갈 준비를 한다") {
+            runTest(mainDispatcher) {
+                val firstFileIdBefore = fixtureMonkey.giveMeOne<Uuid>()
+                val useCase = mockk<RefreshFileUseCase>()
+                coEvery { useCase(parameter = Unit) } returns Result.success(Unit)
+                val viewModel = FileHomeRefreshViewModel(refreshFileUseCase = useCase)
+
+                viewModel.refreshAfterUploadOnFileAdd(firstFileIdBefore = firstFileIdBefore)
+                runCurrent()
+
+                coVerify(exactly = 1) { useCase(parameter = Unit) }
+                viewModel.uiState.value shouldBe
+                    FileHomeRefreshUiState(
+                        isRefreshing = false,
+                        scrollToTop = FileHomeScrollToTop.AfterFirstFileChanges(firstFileIdBefore = firstFileIdBefore),
+                    )
+            }
+        }
+
+        test("TC-FILE-HOME-FEATURE-050 FileAdd를 보는 동안 성공한 올리기 뒤 다시 불러오기에 실패해도 알리지 않는다") {
+            runTest(mainDispatcher) {
+                val useCase = mockk<RefreshFileUseCase>()
+                coEvery { useCase(parameter = Unit) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                val viewModel = FileHomeRefreshViewModel(refreshFileUseCase = useCase)
+
+                viewModel.effect.test {
+                    viewModel.refreshAfterUploadOnFileAdd(firstFileIdBefore = fixtureMonkey.giveMeOne<Uuid>())
+                    runCurrent()
+
+                    expectNoEvents()
+                }
+                viewModel.uiState.value.scrollToTop shouldBe FileHomeScrollToTop.None
+            }
+        }
     }
 }

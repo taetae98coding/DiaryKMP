@@ -17,6 +17,8 @@ public interface FileRepository {
 
     public suspend fun create(
         source: FileUploadSource,
+        title: String,
+        description: String,
         onSent: (sentBytes: Long) -> Unit,
     ): DiaryFile
 

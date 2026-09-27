@@ -41,8 +41,10 @@ private val fixtureMonkey: FixtureMonkey =
 
 class FileRemoteDataSourceImplTest :
     FunSpec({
-        test("고른 파일의 이름, 형식, 크기, 내용과 보낸 양을 플랫폼의 전송 수단에 그대로 넘기고 그 결과를 돌려준다") {
+        test("고른 파일의 이름, 제목, 설명, 형식, 크기, 내용과 보낸 양을 플랫폼의 전송 수단에 그대로 넘기고 그 결과를 돌려준다") {
             val name = fixtureMonkey.giveMeOne<String>()
+            val title = fixtureMonkey.giveMeOne<String>()
+            val description = fixtureMonkey.giveMeOne<String>()
             val mimeType = fixtureMonkey.giveMeOne<String>()
             val contentLength = fixtureMonkey.giveMeOne<Long>()
             val response = fixtureMonkey.giveMeOne<FileRemoteEntity>()
@@ -51,13 +53,15 @@ class FileRemoteDataSourceImplTest :
             val onSent: (Long) -> Unit = {}
             val transport = mockk<FileUploadTransport>()
             coEvery {
-                transport.upload(name = name, mimeType = mimeType, contentLength = contentLength, openContent = openContent, onSent = onSent)
+                transport.upload(name = name, title = title, description = description, mimeType = mimeType, contentLength = contentLength, openContent = openContent, onSent = onSent)
             } returns response
             val dataSource = FileRemoteDataSourceImpl(supabaseFunction = mockk(), fileUploadTransport = transport)
 
             val actual =
                 dataSource.upload(
                     name = name,
+                    title = title,
+                    description = description,
                     mimeType = mimeType,
                     contentLength = contentLength,
                     openContent = openContent,

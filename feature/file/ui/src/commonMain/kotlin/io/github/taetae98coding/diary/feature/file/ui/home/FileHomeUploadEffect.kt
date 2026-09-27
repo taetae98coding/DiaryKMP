@@ -7,6 +7,10 @@ internal sealed interface FileHomeUploadEffect {
         val id: Uuid,
     ) : FileHomeUploadEffect
 
+    data class UploadSucceededOnFileAdd(
+        val id: Uuid,
+    ) : FileHomeUploadEffect
+
     data object UploadTooLarge : FileHomeUploadEffect
 
     data object UploadFailed : FileHomeUploadEffect

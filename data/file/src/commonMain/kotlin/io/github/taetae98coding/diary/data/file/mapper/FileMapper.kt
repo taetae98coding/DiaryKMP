@@ -12,6 +12,8 @@ internal fun FileRemoteEntity.toDomain(): DiaryFile =
     DiaryFile(
         id = id,
         name = name,
+        title = title,
+        description = description,
         mimeType = mimeType,
         size = size,
         createdAt = createdAt,

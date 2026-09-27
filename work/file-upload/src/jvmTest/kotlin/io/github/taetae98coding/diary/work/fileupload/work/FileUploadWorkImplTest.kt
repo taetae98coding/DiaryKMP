@@ -6,8 +6,8 @@ import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.core.model.file.FileUploadSource
 import io.github.taetae98coding.diary.core.model.file.FileUploadStep
 import io.github.taetae98coding.diary.core.testing.file.diaryFile
+import io.github.taetae98coding.diary.core.testing.file.fileUploadContent
 import io.github.taetae98coding.diary.core.testing.file.fileUploadSource
-import io.github.taetae98coding.diary.core.testing.file.fileUri
 import io.github.taetae98coding.diary.domain.file.exception.FileTooLargeException
 import io.github.taetae98coding.diary.domain.file.exception.FileUnreadableException
 import io.github.taetae98coding.diary.domain.file.exception.FileUploadAccountChangedException
@@ -60,7 +60,7 @@ class FileUploadWorkImplTest :
 
                         receivedStepList shouldBe stepList
                         verify(exactly = 1) { fixture.reporter.report(result = FileUploadResult.Succeeded(name = source.name, fileId = file.id)) }
-                        coVerify(exactly = 1) { fixture.fileRepository.removeUploadSource(uri = fixture.request.uri) }
+                        coVerify(exactly = 1) { fixture.fileRepository.removeUploadSource(uri = fixture.request.content.uri) }
                     }
                 }
             }
@@ -78,7 +78,7 @@ class FileUploadWorkImplTest :
 
                         thrown shouldBeSameInstanceAs exception
                         verify(exactly = 1) { fixture.reporter.report(result = FileUploadResult.TooLarge) }
-                        coVerify(exactly = 1) { fixture.fileRepository.removeUploadSource(uri = fixture.request.uri) }
+                        coVerify(exactly = 1) { fixture.fileRepository.removeUploadSource(uri = fixture.request.content.uri) }
                     }
                 }
             }
@@ -147,7 +147,7 @@ class FileUploadWorkImplTest :
 
                             runCatching { fixture.work.doWork(request = fixture.request) {} }
 
-                            coVerify(exactly = 1) { fixture.fileRepository.removeUploadSource(uri = fixture.request.uri) }
+                            coVerify(exactly = 1) { fixture.fileRepository.removeUploadSource(uri = fixture.request.content.uri) }
                         }
                     }
                 }
@@ -164,7 +164,7 @@ class FileUploadWorkImplTest :
                         shouldThrow<IllegalStateException> { fixture.work.doWork(request = fixture.request) {} }
 
                         verify(exactly = 1) { fixture.reporter.report(result = FileUploadResult.Failed(name = "")) }
-                        coVerify(exactly = 1) { fixture.fileRepository.removeUploadSource(uri = fixture.request.uri) }
+                        coVerify(exactly = 1) { fixture.fileRepository.removeUploadSource(uri = fixture.request.content.uri) }
                     }
                 }
             }
@@ -180,7 +180,7 @@ class FileUploadWorkImplTest :
                         shouldThrow<FileUploadAccountChangedException> { fixture.work.doWork(request = fixture.request) {} }
 
                         verify(exactly = 0) { fixture.reporter.report(result = any()) }
-                        coVerify(exactly = 1) { fixture.fileRepository.removeUploadSource(uri = fixture.request.uri) }
+                        coVerify(exactly = 1) { fixture.fileRepository.removeUploadSource(uri = fixture.request.content.uri) }
                     }
                 }
             }
@@ -207,7 +207,7 @@ class FileUploadWorkImplTest :
     })
 
 private class WorkFixture {
-    val request = FileUploadRequest(uri = fixtureMonkey.fileUri(), accountId = fixtureMonkey.giveMeOne<Uuid>())
+    val request = FileUploadRequest(content = fixtureMonkey.fileUploadContent(), accountId = fixtureMonkey.giveMeOne<Uuid>())
     val uploadFileUseCase = mockk<UploadFileUseCase>()
     val fileRepository =
         mockk<FileRepository> {
@@ -224,9 +224,9 @@ private class WorkFixture {
             fileUploadResultReporter = reporter,
         )
 
-    fun source(): FileUploadSource = fixtureMonkey.fileUploadSource().copy(uri = request.uri)
+    fun source(): FileUploadSource = fixtureMonkey.fileUploadSource().copy(uri = request.content.uri)
 
     fun emit(flow: Flow<Result<FileUploadStep>>) {
-        every { uploadFileUseCase(parameter = UploadFileRequest(uri = request.uri, accountId = request.accountId)) } returns flow
+        every { uploadFileUseCase(parameter = UploadFileRequest(content = request.content, accountId = request.accountId)) } returns flow
     }
 }

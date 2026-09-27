@@ -9,6 +9,8 @@ import kotlin.uuid.Uuid
 public data class FileRemoteEntity(
     @SerialName("id") val id: Uuid,
     @SerialName("name") val name: String,
+    @SerialName("title") val title: String,
+    @SerialName("description") val description: String,
     @SerialName("mimeType") val mimeType: String,
     @SerialName("size") val size: Long,
     @SerialName("createdAt") val createdAt: Instant,

@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelReselectEvent
 import io.github.taetae98coding.diary.core.navigation.ScreenDeepLink
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.feature.file.api.FileAddNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrHomeNavKey
@@ -49,6 +50,25 @@ class AppStateDeepLinkTest :
             appState.backStack.toList() shouldBe initialBackStack
             appState.backStack.removeLastOrNull()
             appState.backStack.last() shouldBe TopLevelNavigation.More.key
+        }
+
+        test("TC-FILE-UPLOAD-NOTIFICATION-FEATURE-020 FileHome에서 연 FileAdd를 보고 있으면 알림을 선택해도 FileAdd를 유지하고 뒤로가면 FileHome이 보인다") {
+            val initialBackStack = listOf(TopLevelNavigation.Calendar.key, TopLevelNavigation.More.key, FileHomeNavKey, FileAddNavKey)
+            val appState = createAppState(*initialBackStack.toTypedArray())
+
+            appState.openDeepLink(deepLink = ScreenDeepLink.FILE_HOME)
+
+            appState.backStack.toList() shouldBe initialBackStack
+            appState.backStack.removeLastOrNull()
+            appState.backStack.last() shouldBe FileHomeNavKey
+        }
+
+        test("TC-FILE-UPLOAD-NOTIFICATION-FEATURE-008 FileHome 위가 아닌 곳에 열린 FileAdd는 다른 화면처럼 닫고 FileHome을 연다") {
+            val appState = createAppState(TopLevelNavigation.Calendar.key, TopLevelNavigation.More.key, FileAddNavKey)
+
+            appState.openDeepLink(deepLink = ScreenDeepLink.FILE_HOME)
+
+            appState.backStack.toList() shouldBe listOf(TopLevelNavigation.Calendar.key, TopLevelNavigation.More.key, FileHomeNavKey)
         }
 
         test("알 수 없는 주소는 보던 화면을 그대로 둔다") {
