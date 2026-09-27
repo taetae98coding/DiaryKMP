@@ -12,6 +12,7 @@ public data class DiaryDimens(
     val itemSpacing: Dp,
     val componentSpacing: Dp,
     val chipAreaHeight: Dp,
+    val fixedMapHeight: Dp,
     val pickerListHeight: Dp,
     val pickerDialogEdgePadding: Dp,
     val pickerDialogTitleBottomPadding: Dp,

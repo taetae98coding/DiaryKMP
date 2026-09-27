@@ -27,7 +27,7 @@ internal fun MemoPlaceCard(
     Card(modifier = modifier) {
         MemoPlaceMapBox(
             onPinClick = onPlaceClick,
-            modifier = Modifier.height(MemoPlaceCardDefaults.MapHeight),
+            modifier = Modifier.height(DiaryTheme.dimens.fixedMapHeight),
             mapState = mapState,
             placeListProvider = { uiStateProvider().placeUiState.selectedPlaceList },
         )

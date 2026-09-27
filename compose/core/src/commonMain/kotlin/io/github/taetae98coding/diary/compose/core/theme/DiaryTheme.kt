@@ -46,6 +46,7 @@ public fun DiaryTheme(
             itemSpacing = 8.dp,
             componentSpacing = 12.dp,
             chipAreaHeight = 150.dp,
+            fixedMapHeight = 240.dp,
             pickerListHeight = 288.dp,
             pickerDialogEdgePadding = 24.dp,
             pickerDialogTitleBottomPadding = 16.dp,
