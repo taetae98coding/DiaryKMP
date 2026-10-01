@@ -78,7 +78,7 @@ ViewModel의 `init` 블록에서 UseCase 호출이나 Flow collect 같은 작업
 
 **아래 계층이 멱등한 연산을 위임받는 시작 함수에는 가드를 두지 않는다.** ViewModel 플래그를 더하면 같은 보장이 두 곳으로 갈라지고, 아래 계층의 멱등성이 깨져도 ViewModel 테스트가 회귀를 알려주지 못한다. 예: 주기 동기화 예약은 실행 수단이 예약을 하나로 유지하므로([work.md](work.md)의 `예약은 하나로 유지한다`) `AppSyncViewModel.schedulePeriodicSync()`는 요청을 삼키지 않고 UseCase를 그대로 호출한다.
 
-지속 관찰하는 상태는 `init`에서 collect하는 대신 `stateIn(started = SharingStarted.WhileSubscribed(...))`처럼 구독자가 있을 때만 collect되는 형태로 노출한다.
+지속 관찰하는 상태는 `init`에서 collect하는 대신 `stateIn(started = SharingStarted.WhileUiSubscribed)`처럼 구독자가 있을 때만 collect되는 형태로 노출한다. `replay` 만료를 따로 정해야 하는 `shareIn`에서만 `SharingStarted.WhileSubscribed(...)`를 직접 쓴다.
 
 ⚠️ 비권장 예시:
 

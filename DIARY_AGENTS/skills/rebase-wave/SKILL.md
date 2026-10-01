@@ -26,6 +26,8 @@ description: Diary KMP 프로젝트에서 사용자가 리베이스, 대상 브�
 
 `git rebase --autostash <대상 브랜치>`를 실행한다. 커밋되지 않은 변경은 autostash가 리베이스 전에 stash하고 리베이스가 끝나면 되돌려 놓는다.
 
+리베이스 전 `git stash list --format='%H'`를 기록하고, 복원 충돌 뒤 새로 생긴 autostash 항목의 SHA를 그 차이로 찾는다.
+
 컨플릭이 아닌 이유로 실패하면 `git rebase --abort`로 되돌리고 실패한 명령과 핵심 오류를 보고한 뒤 지시를 받는다.
 
 리베이스 대상 커밋의 메시지와 작성자는 바꾸지 않는다. 커밋을 합치거나 나누지 않는다.
@@ -51,7 +53,7 @@ description: Diary KMP 프로젝트에서 사용자가 리베이스, 대상 브�
 
 해결한 파일을 `git add`로 표시하고 `git rebase --continue`로 진행한다. 리베이스는 커밋마다 멈출 수 있으므로 모든 단계가 끝날 때까지 같은 절차를 반복하고, 단계별로 어떤 파일을 어떻게 해결했는지 기록해 리포트에 쓴다.
 
-autostash 복원에서 충돌하면 리베이스 자체는 이미 끝난 상태이고 stash가 남아 있다. 같은 원칙으로 해결하되 `git rebase --continue`를 쓰지 않고, 해결한 파일을 작업 트리에 그대로 둔 뒤 남은 stash 항목을 `git stash drop`으로 정리한다. 이때 커밋을 만들지 않는다.
+autostash 복원에서 충돌하면 리베이스 자체는 이미 끝난 상태이고 stash가 남아 있다. 같은 원칙으로 해결하되 `git rebase --continue`를 쓰지 않고, 해결한 파일을 작업 트리에 그대로 둔 뒤 남은 stash 항목을 정리한다. stash 스택은 다른 worktree와 공유되므로 인자 없는 `git stash drop`을 쓰지 않고, 리베이스 전 기록과 비교해 찾은 autostash 항목의 SHA로 `git stash list --format='%H %gd'`에서 그 항목의 현재 `stash@{n}`을 drop 직전에 다시 확인한 뒤 그 항목만 drop한다. 이때 커밋을 만들지 않는다.
 
 어떤 커밋이 대상 브랜치에 이미 반영돼 빈 커밋이 되면 `git rebase --skip`을 임의로 실행하지 않고 해당 커밋과 상황을 보고한 뒤 지시를 받는다.
 

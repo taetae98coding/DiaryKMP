@@ -34,7 +34,7 @@ Gradle 명령끼리는 병렬로 실행하지 않는다. 같은 저장소에서 
 | --- | --- |
 | `spotlessApply` | `.kt`, `.kts` 파일이 바뀌었다 |
 | `detekt` | `.kt` 파일, `config/detekt/**`, `build-logic/**`이 바뀌었다 |
-| `dependencyGuard` | `gradle/libs.versions.toml`이 바뀌었다 |
+| `dependencyGuard` | `gradle/libs.versions.toml`, `settings.gradle.kts`, `**/build.gradle.kts`, `build-logic/**`이 바뀌었다 |
 | `jvmTest`, `testAndroidHostTest` | 아래 제외 경로가 아닌 파일이 하나라도 바뀌었다 |
 
 테스트 제외 경로는 `docs/**`, `DIARY_AGENTS/**`, `DIARY_AGENTS.md`, `site/**`, `supabase/**`, `iosApp/**`, `config/detekt/**`, `app/*/dependencies/**`, `*.md`다. 이 목록에 없는 경로는 테스트 입력으로 본다.
