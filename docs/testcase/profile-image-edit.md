@@ -20,6 +20,7 @@ stateDiagram-v2
     Uploading --> [*]: 성공 · TC-PROFILE-IMAGE-EDIT-FEATURE-006
     Unreadable --> Ready: 읽을 수 있는 사진 선택 · TC-PROFILE-IMAGE-EDIT-FEATURE-009
     Ready --> Ready: 다른 사진 선택 · TC-PROFILE-IMAGE-EDIT-FEATURE-003
+    Ready --> Ready: 같은 사진 선택 · TC-PROFILE-IMAGE-EDIT-FEATURE-015
 ```
 
 ### TC-PROFILE-IMAGE-EDIT-FEATURE-001: 진입하면 사진이 없는 상태로 시작하고 반영을 실행할 수 없다
@@ -56,6 +57,13 @@ stateDiagram-v2
 - Given: 읽을 수 있는 사진이 표시되어 있고 사용자가 남길 영역을 처음 상태와 다르게 옮겼으며, 사진 선택 도구가 열려 있다.
 - When: 사용자가 읽을 수 있는 다른 사진을 고른 뒤 반영을 실행한다.
 - Then: 새 사진이 표시되고, 반영 요청에는 새 사진의 위치와 새 사진 기준 처음 상태의 남길 영역이 담긴다.
+
+### TC-PROFILE-IMAGE-EDIT-FEATURE-015: 같은 사진을 다시 고르면 처음 상태의 영역으로 다시 표시된다
+
+- 근거: `feature > 사진 고르기`
+- Given: 읽을 수 있는 사진이 표시되어 있고 사용자가 남길 영역을 처음 상태와 다르게 옮겼으며, 사진 선택 도구가 열려 있다.
+- When: 사용자가 보고 있는 사진과 같은 사진을 고른 뒤 반영을 실행한다.
+- Then: 그 사진이 표시되고 반영을 실행할 수 있으며, 반영 요청에는 그 사진의 위치와 처음 상태의 남길 영역이 담긴다.
 
 ### TC-PROFILE-IMAGE-EDIT-FEATURE-004: 사진 선택을 취소하면 보고 있던 사진과 영역을 유지한다
 

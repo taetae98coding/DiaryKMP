@@ -11,6 +11,7 @@
 - 입력한 값이 있을 때만 입력 끝 쪽에 두는 지우기 버튼
 - 입력 내용이 저장 내용과 다를 때만 두는 떠 있는 수정 버튼
 - 선택한 탭에 따라 바뀌는 떠 있는 버튼
+- 저장된 링크가 있을 때만 상단 바에 두는 외부로 열기 버튼
 
 화면에 늘 있는 버튼에는 적용하지 않는다. 상단 바의 동작 버튼과 목록 화면의 떠 있는 추가 버튼이 그렇다. 늘 같은 자리에 있는 버튼에 나타나는 전환을 주면 화면에 들어올 때마다 버튼이 뒤늦게 도착한 것처럼 보인다.
 
@@ -54,4 +55,4 @@
 ## 이 문서를 따르는 디자인
 
 - [검색 입력](./search-input.md), [PlaceSearch 다이얼로그](./place-search-dialog.md), [태그 선택 입력 공통](./tag-select-input.md)과 [메모 태그 입력 컴포넌트](./memo-tag-input.md)의 선택 목록 검색, [제목 입력](./title-input.md), [설명 입력 컴포넌트](./description-input.md), [메모 Gemini 작성 도우미](./memo-gemini.md)의 요청 입력, [MusicAdd 화면](./music-add.md), [PlaceAdd 화면](./place-add.md), [WebAdd 화면](./web-add.md), [ContactAdd 화면](./contact-add.md)의 지우기 버튼
-- [MemoDetail 화면](./memo-detail.md), [PlaceDetail 화면](./place-detail.md), [TagDetail 화면](./tag-detail.md), [WebDetail 화면](./web-detail.md), [ContactDetail 화면](./contact-detail.md)의 수정 버튼과 탭에 따라 바뀌는 떠 있는 버튼, [SettingGemini 화면](./setting-gemini.md)과 [SettingDownload 화면](./setting-download.md)의 저장 버튼, [ProfileImageEdit 화면](./profile-image-edit.md)의 완료 버튼
+- [MemoDetail 화면](./memo-detail.md), [PlaceDetail 화면](./place-detail.md), [TagDetail 화면](./tag-detail.md), [WebDetail 화면](./web-detail.md), [ContactDetail 화면](./contact-detail.md)의 수정 버튼과 탭에 따라 바뀌는 떠 있는 버튼, [MusicDetail 화면](./music-detail.md)의 수정 버튼과 외부로 열기 버튼, [SettingGemini 화면](./setting-gemini.md)과 [SettingDownload 화면](./setting-download.md)의 저장 버튼, [ProfileImageEdit 화면](./profile-image-edit.md)의 완료 버튼

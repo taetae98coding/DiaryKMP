@@ -6,7 +6,7 @@
 
 MemoHome 목록에서 진입하면 넓은 화면에서는 메모 목록과 MemoDetail 화면을 좌우로 함께 표시하고, 좁은 화면에서는 MemoDetail 화면만 표시한다. 함께 표시할 때의 배치와 버튼 노출은 [Memo 목록·상세 배치 디자인](./memo-list-detail.md)을 따른다.
 
-TagDetail 메모 탭, ContactDetail·PlaceDetail·WebDetail 메모 탭, MemoFinishedList, SearchHome이나 캘린더 홈에서 진입하면 창 너비와 관계없이 MemoDetail 화면만 단독으로 표시한다. TagMemoFinishedList에서 진입하면 넓은 화면에서는 그 목록과 MemoDetail 화면을 좌우로 함께 표시하고, 좁은 화면에서는 MemoDetail 화면만 표시하며, 함께 표시할 때의 배치와 버튼 노출은 [TagMemoFinishedList 목록·상세 배치 디자인](./tag-memo-finished-list-detail.md)을 따른다.
+TagDetail 메모 탭, ContactDetail·PlaceDetail·WebDetail 메모 탭, MemoFinishedList, SearchHome, 캘린더 홈이나 캘린더 시간표에서 진입하면 창 너비와 관계없이 MemoDetail 화면만 단독으로 표시한다. TagMemoFinishedList에서 진입하면 넓은 화면에서는 그 목록과 MemoDetail 화면을 좌우로 함께 표시하고, 좁은 화면에서는 MemoDetail 화면만 표시하며, 함께 표시할 때의 배치와 버튼 노출은 [TagMemoFinishedList 목록·상세 배치 디자인](./tag-memo-finished-list-detail.md)을 따른다.
 
 화면 상단에는 메모 제목을 표시하는 상단 바를 둔다. MemoDetail 화면을 단독으로 표시할 때 상단 바에 뒤로가기 버튼을 표시한다.
 
@@ -60,7 +60,7 @@ TagDetail 메모 탭, ContactDetail·PlaceDetail·WebDetail 메모 탭, MemoFini
 
 ## 완료·다시 시작·삭제
 
-완료 상태 전환 버튼은 완료 여부와 관계없이 방패에 체크가 들어간 같은 완료 아이콘을 쓰는 토글 버튼이다. 완료되지 않은 메모에서는 버튼을 켜지지 않은 상태로, 완료된 메모에서는 켜진 상태로 강조해 표시한다. 완료 또는 다시 시작을 처리하는 동안 해당 버튼의 아이콘을 진행 표시로 바꾼다.
+완료 상태 전환 버튼은 완료 여부와 관계없이 톱니 모양 배지에 체크가 들어간 같은 완료 아이콘을 쓰는 토글 버튼이다. 완료되지 않은 메모에서는 버튼을 켜지지 않은 상태로, 완료된 메모에서는 켜진 상태로 강조해 표시한다. 완료 또는 다시 시작을 처리하는 동안 해당 버튼의 아이콘을 진행 표시로 바꾼다.
 
 완료나 다시 시작에 성공해도 스낵바를 표시하지 않고, 버튼의 표시와 접근성 이름이 바뀌는 것으로 결과를 알린다.
 

@@ -12,6 +12,7 @@
 | --- | --- |
 | [검색어 일치 판정](./search-match.md) | 입력한 검색어를 목록에 반영 |
 | [PlaceAdd 화면](./place-add.md) | 직접 입력한 좌표를 지도에 반영 |
+| [PlaceDetail 화면](./place-detail.md) | 직접 입력한 좌표를 지도에 반영 |
 | [QrAdd 화면](./qr-add.md) | 위치 포맷에서 직접 입력한 좌표를 지도에 반영 |
 | [장소 검색 다이얼로그 컴포넌트](./place-search-dialog.md) | 입력한 검색어와 지도의 보이는 영역을 외부 장소 검색에 반영 |
 

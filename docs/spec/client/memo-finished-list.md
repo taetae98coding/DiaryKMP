@@ -2,7 +2,7 @@
 
 이 문서는 사용자가 MemoHome 목록에서 완료된 메모를 모아 확인하는 MemoFinishedList 화면 가운데 이 화면에만 해당하는 부분을 다룬다. 진입과 이동, 내용 갱신, 새로고침, 불러오기 실패, 빈 상태, 추가 미제공, 상세 확인, 정렬 선택, 노출 기준과 실행 경계의 공통 규칙은 [완료 목록 공통 스펙](./finished-list.md)을 따른다. 이 화면의 짝이 되는 목록은 [MemoHome 목록](./memo-home.md)이다.
 
-메모 카드의 내용, 기간 표시, 정렬과 날짜 그룹은 [MemoHome 목록 스펙](./memo-home.md)을 따르고, 완료·다시 시작·삭제의 상태 전이도 같은 문서를 따른다. 완료·삭제 상호작용의 공통 규칙은 [SwipeToFinishAndDelete 컴포넌트 스펙](./swipe-to-finish-and-delete.md)을, 상세 확인은 [MemoDetail 화면 스펙](./memo-detail.md)을 따른다. 태그 하나에 연결된 완료된 메모만 모아 확인하는 화면은 [TagMemoFinishedList 화면 스펙](./tag-memo-finished-list.md)에서 다룬다.
+메모 카드의 내용, 기간 표시, 정렬과 날짜 그룹은 [MemoHome 목록 스펙](./memo-home.md)을 따르고, 다시 시작과 삭제의 상태 전이는 이 문서의 `domain > 다시 시작과 삭제의 상태 전이`가 정한다. 완료·삭제 상호작용의 공통 규칙은 [SwipeToFinishAndDelete 컴포넌트 스펙](./swipe-to-finish-and-delete.md)을, 상세 확인은 [MemoDetail 화면 스펙](./memo-detail.md)을 따른다. 태그 하나에 연결된 완료된 메모만 모아 확인하는 화면은 [TagMemoFinishedList 화면 스펙](./tag-memo-finished-list.md)에서 다룬다.
 
 디자인: [MemoFinishedList 화면 디자인](../../design/memo-finished-list.md)
 

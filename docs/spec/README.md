@@ -123,7 +123,7 @@
 | 검색어 일치 판정 | [client](./client/search-match.md) | — | — | — |
 | 계정 조회 | [client](./client/account.md) | — | — | — |
 | 곡 다운로드 | [client](./client/music-download.md) | — | — | [PlaylistHome 디자인](../design/playlist-home.md) |
-| 곡 다운로드 프록시 | [client](./client/music-download-proxy.md) | — | — | — |
+| 곡 다운로드 프록시 | [client](./client/music-download-proxy.md) | — | — | [SettingDownload 디자인](../design/setting-download.md) |
 | 공휴일 국가 설정 | [client](./client/holiday-country.md) | — | — | — |
 | 공휴일 노출 설정 | [client](./client/holiday-visibility.md) | — | — | — |
 | 공휴일 동기화 | [client](./client/holiday-fetch.md) | — | — | — |

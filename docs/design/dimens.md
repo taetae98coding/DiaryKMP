@@ -25,6 +25,7 @@
 | 컬러 원형 표시 간격 | `12dp` | 카드에서 컬러 원형 표시와 옆에 놓인 글 묶음 사이 |
 | 캘린더 아이템 간격 | `2dp` | 캘린더 한 주의 아이템 영역과 Timetable 종일 영역의 가장자리 안쪽 여백, 아이템 사이 가로세로 간격 |
 | 진행 표시 크기 | `24dp` | 버튼이나 아이콘 자리에서 동작이 진행 중임을 알리는 원형 진행 표시의 지름 |
+| 플로팅 액션 버튼 아래 여백 | `88dp` | 플로팅 액션 버튼이 떠 있는 동안 목록과 격자 내용의 아래쪽 여백 |
 
 ## 사용 기준
 
@@ -54,4 +55,58 @@ Bottom Sheet의 제목과 내용은 `Bottom Sheet 가로 여백`으로 좌우를
 
 버튼이나 아이콘 자리에서 동작이 진행 중임을 알릴 때는 아이콘 자리를 원형 진행 표시로 바꾸고 `진행 표시 크기`로 그린다. 아이콘과 같은 크기라 전환해도 자리가 흔들리지 않는다.
 
+플로팅 액션 버튼을 표시하는 화면의 목록과 격자는 버튼이 보이는 동안 내용 아래쪽에 `화면 세로 여백` 대신 `플로팅 액션 버튼 아래 여백`을 둔다. Material 3 기본 플로팅 액션 버튼의 높이 `56dp`, 버튼과 화면 가장자리 사이 `16dp`, `화면 세로 여백`을 더한 값이라, 끝까지 스크롤하면 마지막 항목이 버튼 위쪽에 놓여 가리지 않는다. 버튼을 감춘 동안에는 `화면 세로 여백`으로 되돌린다.
+
 여기에 없는 크기가 필요하면 그 값을 쓰는 디자인 문서에서 정하고, 두 곳 이상에서 같은 값을 쓰게 되면 이 문서로 옮긴다.
+
+## 이 문서를 참조하는 문서
+
+- [CalendarWeekOfMonth 컴포넌트](./calendar-week-of-month.md)
+- [칩 이름 표시](./chip.md)
+- [ContactAdd 화면](./contact-add.md)
+- [ContactDetail 화면](./contact-detail.md)
+- [ContactHome 화면](./contact-home.md)
+- [설명 입력 컴포넌트](./description-input.md)
+- [DiaryColorInput 컴포넌트](./diary-color-input.md)
+- [DiaryDateTimeInput 컴포넌트](./diary-date-time-input.md)
+- [항목 추가 화면 공통](./entity-add.md)
+- [항목 상세 메모 탭 공통](./entity-detail-memo.md)
+- [FileAdd 화면](./file-add.md)
+- [FileHome 화면](./file-home.md)
+- [HolidayHome 화면](./holiday-home.md)
+- [목록 빈 상태](./list-empty-state.md)
+- [목록 정렬](./list-sort.md)
+- [Login 화면](./login.md)
+- [메모 본문 배치](./memo-form.md)
+- [메모 Gemini 작성 도우미](./memo-gemini.md)
+- [MemoHome 목록](./memo-home.md)
+- [메모 장소 카드 컴포넌트](./memo-place-card.md)
+- [메모 웹 입력 컴포넌트](./memo-web-input.md)
+- [MoreHome 화면](./more-home.md)
+- [MusicAdd 화면](./music-add.md)
+- [MusicDetail 화면](./music-detail.md)
+- [선택 목록 항목](./picker-row.md)
+- [PlaceAdd 화면](./place-add.md)
+- [장소 검색 다이얼로그](./place-search-dialog.md)
+- [장소 보기 모드](./place-view-mode.md)
+- [PlaylistHome 화면](./playlist-home.md)
+- [ProfileImageEdit 화면](./profile-image-edit.md)
+- [QrAdd 화면](./qr-add.md)
+- [QrHome 화면](./qr-home.md)
+- [RoutineAdd 화면](./routine-add.md)
+- [SearchHome 화면](./search-home.md)
+- [SettingBrowser 화면](./setting-browser.md)
+- [SettingDownload 화면](./setting-download.md)
+- [SettingGemini 화면](./setting-gemini.md)
+- [SettingHoliday 화면](./setting-holiday.md)
+- [SettingMap 화면](./setting-map.md)
+- [공통 스타일](./styles.md)
+- [TagAdd 화면](./tag-add.md)
+- [TagDetail 메모 탭](./tag-detail-memo.md)
+- [TagDetail 화면](./tag-detail.md)
+- [태그 필터](./tag-filter.md)
+- [TagHome 목록](./tag-home.md)
+- [태그 선택 입력 공통](./tag-select-input.md)
+- [Timetable 컴포넌트](./timetable.md)
+- [WebDetail 화면](./web-detail.md)
+- [WebHome 화면](./web-home.md)

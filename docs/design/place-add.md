@@ -110,6 +110,7 @@ flowchart LR
 | 주소 입력 이름 | `주소` | `Address` |
 | 위도 입력 이름 | `위도` | `Latitude` |
 | 경도 입력 이름 | `경도` | `Longitude` |
+| 주소·위도·경도 지우기 버튼 접근성 이름 | `지우기` | `Clear text` |
 | 지도 영역 접근성 이름 | `장소 위치 지도` | `Place location map` |
 | 추가 성공 안내 | `장소가 추가되었습니다.` | `Place added.` |
 | 제목 미입력 안내 | `제목을 입력해 주세요.` | `Please enter a title.` |
