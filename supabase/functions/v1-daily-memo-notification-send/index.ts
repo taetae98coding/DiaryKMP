@@ -30,7 +30,6 @@ serve(async (request) => {
   }
 
   const fcm = await FcmClient.create();
-  const now = new Date();
   let sent = 0;
   let failed = 0;
   let removed = 0;
@@ -49,7 +48,7 @@ serve(async (request) => {
         due.language,
         toContent(memoError ? null : memos.map((memo: { title: string }) => memo.title)),
       );
-      const result = await fcm.send(buildFcmMessage(due.token, text, new Date(due.expires_at), now));
+      const result = await fcm.send(buildFcmMessage(due.token, text, new Date(due.expires_at), new Date()));
 
       switch (result.status) {
         case "sent":
