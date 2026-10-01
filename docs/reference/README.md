@@ -10,9 +10,9 @@ Markdown 외 형식도 둘 수 있다. 파일을 추가하면 아래 목록에 �
 | --- | --- | --- | --- | --- |
 | [FlexBox 정렬 3형제](flexbox-alignment.html) | HTML | Compose Multiplatform `1.12.0` | 2026-08-27 | `justifyContent`, `alignItems`, `alignContent`의 차이를 값을 바꿔 가며 확인하는 인터랙티브 문서 |
 | [M3 Expressive 컴포넌트 조사](m3-expressive-component.md) | Markdown | `org.jetbrains.compose.material3:material3` `1.12.0-alpha03` | 2026-08-24 | 저장소가 쓰는 Material 3 버전에서 호출할 수 있는 컴포넌트 목록과 채택·미채택 이유 |
-| [Compose Styles API 조사](compose-styles.md) | Markdown | `org.jetbrains.compose.foundation:foundation` `1.12.0` · `material3` `1.12.0-alpha03` | 2026-09-19 | Styles API로 할 수 있는 것과 이 버전에서 되지 않는 것, 저장소의 채택·미채택 이유 |
-| [DiaryMap 구조](diary-map-architecture.html) | HTML | `compose:map` 모듈 · 커밋 `2796dc33` | 2026-08-24 | `DiaryMapState`의 상태 관리와 네이버·Google 지도가 Android·iOS·JVM·wasmJs에 붙는 방식 |
-| [Google·Apple 로그인 비교](login-provider-comparison.html) | HTML | `feature:login:ui` 모듈 · 커밋 `d17675ee` 위 `appleLogin` 작업 트리 | 2026-09-24 | 두 로그인 수단의 모듈·파일 분포, 플랫폼별 의존성, 인증 결과를 얻는 흐름도와 서버·외부 설정의 차이 |
+| [Compose Styles API 조사](compose-styles.md) | Markdown | `org.jetbrains.compose.foundation:foundation` `1.12.0` · `material3` `1.12.0-alpha03` | 2026-09-28 | Styles API로 할 수 있는 것과 이 버전에서 되지 않는 것, 저장소의 채택·미채택 이유 |
+| [DiaryMap 구조](diary-map-architecture.html) | HTML | `compose:map` 모듈 · 커밋 `4c2b4569` | 2026-09-28 | `DiaryMapState`의 상태 관리와 네이버·Google 지도가 Android·iOS·JVM·wasmJs에 붙는 방식, 현재 위치 표시와 JVM 웹뷰의 다이얼로그·팝업 가림 처리 |
+| [Google·Apple 로그인 비교](login-provider-comparison.html) | HTML | `feature:login:ui` 모듈 · 커밋 `4c2b4569` | 2026-09-28 | 두 로그인 수단의 모듈·파일 분포, 플랫폼별 의존성, 인증 결과를 얻는 흐름도, 흐름의 끝을 알 수 있는지에 따른 진행 중 막기와 서버·외부 설정의 차이 |
 
 ## 최신 상태 유지
 
