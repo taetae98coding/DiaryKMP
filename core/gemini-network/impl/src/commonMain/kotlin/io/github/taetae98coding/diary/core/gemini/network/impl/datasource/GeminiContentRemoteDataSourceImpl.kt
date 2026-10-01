@@ -53,7 +53,7 @@ internal class GeminiContentRemoteDataSourceImpl(
                         )
                     }.body<GenerateContentResponseRemoteEntity>()
             } catch (cause: ResponseException) {
-                throw cause.toGeminiExceptionOrNull() ?: cause
+                throw cause.toGeminiExceptionOrNull(json = json) ?: cause
             }
 
         return response.toStructuredContent()

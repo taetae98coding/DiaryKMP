@@ -5,7 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
-import io.github.taetae98coding.diary.compose.calendar.CalendarDefault
+import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.calendar.text.CalendarText
 import io.github.taetae98coding.diary.compose.timetable.TimetableScope
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
@@ -60,7 +60,7 @@ private fun TimetableScope.memoItems(
                     text = memo.title,
                     modifier =
                         Modifier
-                            .clip(CalendarDefault.itemShape)
+                            .clip(CalendarDefaults.itemShape)
                             .clickable(role = Role.Button, onClick = onClick),
                     color = color,
                 )
@@ -84,7 +84,7 @@ private fun TimetableScope.holidayItems(
                 text = holiday.name,
                 modifier =
                     Modifier
-                        .clip(CalendarDefault.itemShape)
+                        .clip(CalendarDefaults.itemShape)
                         .clickable(role = Role.Button) { onHolidayClick(holiday) },
                 color = if (holiday.isHoliday) holidayNameColor else nonHolidayNameColor,
             )

@@ -184,6 +184,55 @@ class MoveMemoUseCaseTest :
             }
         }
 
+        Given("동기화 요청이 실패하도록 준비되어 있다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val memoId = fixtureMonkey.giveMeOne<Uuid>()
+            val storedMemo = memo(id = memoId, isDeleted = false)
+            val getAccountUseCase = mockk<GetAccountUseCase>()
+            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            val requestSyncUseCase = mockk<RequestSyncUseCase>()
+            coEvery { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) } returns
+                Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+            val findMemoUseCase = mockk<FindMemoUseCase>()
+            every { findMemoUseCase(parameter = memoId) } returns flowOf(Result.success(storedMemo))
+            val accountMemoRepository = mockk<AccountMemoRepository>()
+            coEvery {
+                accountMemoRepository.updateDetail(account = account, memoId = memoId, detail = any(), updatedAt = any())
+            } returns 1
+            val clock = mockk<Clock>()
+            every { clock.now() } returns fixtureMonkey.giveMeOne<Instant>()
+            val useCase =
+                MoveMemoUseCase(
+                    getAccountUseCase = getAccountUseCase,
+                    findMemoUseCase = findMemoUseCase,
+                    requestSyncUseCase = requestSyncUseCase,
+                    accountMemoRepository = accountMemoRepository,
+                    clock = clock,
+                )
+
+            When("새 날짜 범위로 이동한다") {
+                Then("TC-CALENDAR-MEMO-MOVE-DATA-004 옮긴 기간만 한 번 저장되고 이전 기간으로 되돌리지 않는다") {
+                    val dateTime = MemoDateTime.AllDay(dateRange = july(day = 14)..july(day = 16))
+                    val dateRange = july(day = 21)..july(day = 23)
+
+                    val result = useCase(parameter = MoveMemoUseCase.Parameter(id = memoId, fromDateTime = dateTime, toDateRange = dateRange))
+
+                    result.shouldBeSuccess(Unit)
+                    coVerify(exactly = 1) {
+                        accountMemoRepository.updateDetail(
+                            account = account,
+                            memoId = memoId,
+                            detail = storedMemo.detail.copy(dateTime = MemoDateTime.AllDay(dateRange = dateRange)),
+                            updatedAt = any(),
+                        )
+                    }
+                    coVerify(exactly = 1) {
+                        accountMemoRepository.updateDetail(account = any(), memoId = any(), detail = any(), updatedAt = any())
+                    }
+                }
+            }
+        }
+
         Given("대상 메모가 삭제되어 있다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val memoId = fixtureMonkey.giveMeOne<Uuid>()

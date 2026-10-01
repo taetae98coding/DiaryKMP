@@ -10,7 +10,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.Tag
-import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.contact.screenTestContactViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceInputUiState
@@ -48,7 +48,7 @@ internal fun ComposeContentTestRule.setMemoDetailScreenWithTag(
     setContent {
         MemoDetailScreenTestTheme {
             MemoDetailScreen(
-                tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                addRequestKey = TEST_ADD_REQUEST_KEY,
                 detailViewModel = screenTestViewModel(uiState = uiState),
                 tagViewModel = tagViewModel,
                 webViewModel = screenTestWebViewModel(),

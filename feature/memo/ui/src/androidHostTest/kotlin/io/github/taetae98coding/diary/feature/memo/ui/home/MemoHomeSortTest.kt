@@ -8,6 +8,7 @@ import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasStateDescription
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
@@ -109,6 +110,52 @@ class MemoHomeSortTest {
 
         eventList shouldBe listOf(MemoHomeScaffoldEvent.SelectSort(sort = ListSort.RECENTLY_UPDATED))
         sortSheetState.isVisible shouldBe false
+    }
+
+    @Test
+    fun `TC-MEMO-HOME-FEATURE-049 제목순을 고르면 목록이 제목 오름차순으로 바뀌고 정렬 컨트롤이 제목순을 알린다`() {
+        assertSortSelection(sort = ListSort.TITLE, sortLabel = DEFAULT_TITLE_SORT)
+    }
+
+    @Test
+    fun `TC-MEMO-HOME-FEATURE-050 최근 수정순을 고르면 목록이 수정 시각 내림차순으로 바뀐다`() {
+        assertSortSelection(sort = ListSort.RECENTLY_UPDATED, sortLabel = DEFAULT_RECENTLY_UPDATED_SORT)
+    }
+
+    private fun assertSortSelection(
+        sort: ListSort,
+        sortLabel: String,
+    ) {
+        val titlePrefix = "SortMemo${fixtureMonkey.giveMeOne<Int>()}"
+        val earlierMemo = fixtureMonkey.memo(title = "${titlePrefix}A")
+        val laterMemo = fixtureMonkey.memo(title = "${titlePrefix}B")
+        val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
+        every { pageMemoHomeUseCase(parameter = ListSort.DEFAULT) } returns flowOf(Result.success(PagingData.from(listOf(laterMemo, earlierMemo))))
+        every { pageMemoHomeUseCase(parameter = sort) } returns flowOf(Result.success(PagingData.from(listOf(earlierMemo, laterMemo))))
+        val viewModel = realViewModel(pageMemoHomeUseCase = pageMemoHomeUseCase, existence = MemoExistenceFilter())
+        composeRule.setContent {
+            DiaryTheme {
+                MemoHomeScreen(
+                    navigateToAdd = {},
+                    navigateToDetail = {},
+                    navigateToFilter = {},
+                    navigateToFinishedList = {},
+                    navigateToSearch = {},
+                    componentVisibleProvider = { MemoHomeScaffoldComponentVisible() },
+                    listState = rememberLazyListState(),
+                    memoViewModel = viewModel,
+                    syncViewModel = screenTestSyncViewModel(),
+                )
+            }
+        }
+        waitUntilAbove(upperTitle = laterMemo.detail.title, lowerTitle = earlierMemo.detail.title)
+
+        composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).performClick()
+        composeRule.onNodeWithText(sortLabel).performClick()
+        waitUntilAbove(upperTitle = earlierMemo.detail.title, lowerTitle = laterMemo.detail.title)
+
+        composeRule.onNodeWithText(DEFAULT_SORT_SHEET_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).assert(hasText(sortLabel))
     }
 
     @Test

@@ -3,6 +3,10 @@ package io.github.taetae98coding.diary.compose.calendar
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -42,7 +46,7 @@ class CalendarClickTest {
             }
         }
 
-        composeRule.onNodeWithContentDescription(JULY_15_DESCRIPTION).performClick()
+        composeRule.onNodeWithContentDescription(JULY_15_DESCRIPTION).assert(isButton).performClick()
 
         clickedDateList shouldBe listOf(july(day = 15))
     }
@@ -60,7 +64,7 @@ class CalendarClickTest {
             }
         }
 
-        composeRule.onNodeWithContentDescription(WEEK_OF_JULY_12_DESCRIPTION).performClick()
+        composeRule.onNodeWithContentDescription(WEEK_OF_JULY_12_DESCRIPTION).assert(isButton).performClick()
 
         clickedWeekList shouldBe listOf(july(day = 12))
     }
@@ -76,6 +80,43 @@ class CalendarClickTest {
         composeRule.onAllNodesWithContentDescription(JULY_15_DESCRIPTION).assertCountEquals(0)
         composeRule.onAllNodesWithContentDescription(WEEK_OF_JULY_12_DESCRIPTION).assertCountEquals(0)
         composeRule.onAllNodes(hasClickAction()).assertCountEquals(0)
+    }
+
+    @Test
+    fun `TC-CALENDAR-FEATURE-022 이벤트를 받는 화면도 날짜 누름과 주 누름을 사용하지 않으면 날짜 칸과 주를 버튼으로 알리지 않는다`() {
+        val eventList = mutableListOf<CalendarEvent>()
+        composeRule.setContent {
+            DiaryTheme {
+                Calendar(
+                    state = rememberCalendarState(initialYearMonth = JULY_2026),
+                    onEvent = { eventList += it },
+                ) {}
+            }
+        }
+
+        composeRule.onAllNodesWithContentDescription(JULY_15_DESCRIPTION).assertCountEquals(0)
+        composeRule.onAllNodesWithContentDescription(WEEK_OF_JULY_12_DESCRIPTION).assertCountEquals(0)
+        composeRule.onAllNodes(hasClickAction()).assertCountEquals(0)
+        composeRule.onNodeWithText("15").performClick()
+        eventList shouldBe emptyList()
+    }
+
+    @Test
+    @Config(sdk = [36], qualifiers = "ko")
+    fun `날짜 칸과 주는 한국어 접근성 이름을 가진 버튼으로 알린다`() {
+        composeRule.setContent {
+            DiaryTheme {
+                Calendar(
+                    state = rememberCalendarState(initialYearMonth = JULY_2026),
+                    onEvent = {},
+                    isDateClickEnabled = true,
+                    isWeekClickEnabled = true,
+                ) {}
+            }
+        }
+
+        composeRule.onNodeWithContentDescription(KOREAN_JULY_15_DESCRIPTION).assert(isButton)
+        composeRule.onNodeWithContentDescription(KOREAN_WEEK_OF_JULY_12_DESCRIPTION).assert(isButton)
     }
 
     @Test
@@ -153,5 +194,8 @@ class CalendarClickTest {
         const val ITEM_TEXT = "Item"
         const val JULY_15_DESCRIPTION = "July 15"
         const val WEEK_OF_JULY_12_DESCRIPTION = "Week of July 12"
+        const val KOREAN_JULY_15_DESCRIPTION = "7월 15일"
+        const val KOREAN_WEEK_OF_JULY_12_DESCRIPTION = "7월 12일 주"
+        val isButton = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button)
     }
 }

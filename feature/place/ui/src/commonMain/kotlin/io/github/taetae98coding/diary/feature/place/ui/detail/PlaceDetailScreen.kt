@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.place.ui.detail
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -136,16 +137,17 @@ private fun TabFloatingActionButton(
     isUpdateVisible: Boolean = false,
     isUpdateInProgressProvider: () -> Boolean = { false },
 ) {
-    when (tab) {
-        PlaceDetailTab.DETAIL ->
-            DiaryScaleVisibility(visible = isUpdateVisible) {
-                PlaceDetailUpdateFloatingActionButton(
-                    onClick = onUpdate,
-                    isInProgressProvider = isUpdateInProgressProvider,
-                )
-            }
+    Box {
+        DiaryScaleVisibility(visible = tab == PlaceDetailTab.DETAIL && isUpdateVisible) {
+            PlaceDetailUpdateFloatingActionButton(
+                onClick = onUpdate,
+                isInProgressProvider = isUpdateInProgressProvider,
+            )
+        }
 
-        PlaceDetailTab.MEMO -> PlaceDetailMemoFloatingActionButton(onClick = onMemoAdd)
+        DiaryScaleVisibility(visible = tab == PlaceDetailTab.MEMO) {
+            PlaceDetailMemoFloatingActionButton(onClick = onMemoAdd)
+        }
     }
 }
 

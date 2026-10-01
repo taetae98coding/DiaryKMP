@@ -5,3 +5,5 @@ import kotlin.uuid.Uuid
 public data class ContactAddedResult(
     val id: Uuid,
 )
+
+public fun contactAddedResultKey(requestKey: Uuid): String = "${ContactAddedResult::class}:$requestKey"

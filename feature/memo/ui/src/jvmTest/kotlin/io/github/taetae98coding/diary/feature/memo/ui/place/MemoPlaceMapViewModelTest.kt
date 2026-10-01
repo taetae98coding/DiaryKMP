@@ -12,10 +12,12 @@ import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProvid
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -68,7 +70,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
             }
         }
 
-        test("현재 위치를 확인하기 전에는 지도 로딩 상태를 유지한다") {
+        test("TC-MEMO-PLACE-CARD-DOMAIN-013 현재 위치를 확인하기 전에는 지도 로딩 상태를 유지하고 확인이 끝나면 지도를 제공한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(defaultMapProvider = flowOf(Result.success(MapProvider.NAVER)))
 
@@ -76,6 +78,9 @@ class MemoPlaceMapViewModelTest : FunSpec() {
                     awaitItem() shouldBe MemoPlaceMapUiState.Loading
                     advanceUntilIdle()
                     expectNoEvents()
+
+                    viewModel.fetchCurrentLocation()
+                    awaitItem().shouldBeInstanceOf<MemoPlaceMapUiState.Loaded>()
                 }
             }
         }
@@ -184,6 +189,45 @@ class MemoPlaceMapViewModelTest : FunSpec() {
                         awaitItem() shouldBe MemoPlaceMapUiState.Loaded(provider = MapProvider.NAVER, currentCoordinate = afterCoordinate)
                     }
                 }
+            }
+        }
+
+        test("TC-MEMO-PLACE-CARD-DOMAIN-032 메모리 정리 뒤 복원한 화면은 현재 위치를 다시 확인하고 확인이 끝날 때까지 지도 로딩 상태를 유지한다") {
+            runTest(mainDispatcher) {
+                val restoredCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
+                val restoredLocation = CompletableDeferred<Result<Coordinate>>()
+                val fetchCurrentLocationUseCase = mockk<FetchCurrentLocationUseCase>()
+                coEvery { fetchCurrentLocationUseCase(parameter = Unit) } returns
+                    Result.success(fixtureMonkey.giveMeOne<Coordinate>()) coAndThen { restoredLocation.await() }
+
+                viewModel(
+                    defaultMapProvider = flowOf(Result.success(MapProvider.NAVER)),
+                    fetchCurrentLocationUseCase = fetchCurrentLocationUseCase,
+                ).also { viewModel ->
+                    viewModel.uiState.test {
+                        awaitItem() shouldBe MemoPlaceMapUiState.Loading
+                        viewModel.fetchCurrentLocation()
+                        awaitItem().shouldBeInstanceOf<MemoPlaceMapUiState.Loaded>()
+                    }
+                }
+
+                // 확인 결과는 저장해 두지 않으므로 메모리 정리 뒤 복원된 화면은 새 상태 홀더로 시작한다.
+                viewModel(
+                    defaultMapProvider = flowOf(Result.success(MapProvider.NAVER)),
+                    fetchCurrentLocationUseCase = fetchCurrentLocationUseCase,
+                ).also { viewModel ->
+                    viewModel.uiState.test {
+                        awaitItem() shouldBe MemoPlaceMapUiState.Loading
+                        viewModel.fetchCurrentLocation()
+                        advanceUntilIdle()
+                        expectNoEvents()
+
+                        restoredLocation.complete(Result.success(restoredCoordinate))
+                        awaitItem() shouldBe MemoPlaceMapUiState.Loaded(provider = MapProvider.NAVER, currentCoordinate = restoredCoordinate)
+                    }
+                }
+
+                coVerify(exactly = 2) { fetchCurrentLocationUseCase(parameter = Unit) }
             }
         }
 

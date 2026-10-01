@@ -27,6 +27,17 @@ internal fun refreshingWebPagingData(): PagingData<Web> =
             ),
     )
 
+internal fun refreshFailedWebPagingData(): PagingData<Web> =
+    PagingData.from(
+        data = emptyList(),
+        sourceLoadStates =
+            LoadStates(
+                refresh = LoadState.Error(IllegalStateException("refresh failed")),
+                prepend = LoadState.NotLoading(endOfPaginationReached = false),
+                append = LoadState.NotLoading(endOfPaginationReached = false),
+            ),
+    )
+
 internal fun appendingWebPagingDataOf(webList: List<Web>): PagingData<Web> =
     PagingData.from(
         data = webList,

@@ -276,6 +276,20 @@ class AccountCalendarContactBirthdayLocalDataSourceImplTest :
                 )
         }
 
+        test("TC-CALENDAR-CONTACT-BIRTHDAY-DATA-011 여러 연도를 넘는 표시 대상 기간은 사이에 있는 연도의 생일도 함께 담는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val contact = contact(birthday = LocalDate(1990, 7, 10))
+
+            upsert(accountId, contact)
+
+            birthdayList(
+                accountId = accountId,
+                start = LocalDate(2024, 12, 1),
+                endInclusive = LocalDate(2026, 1, 31),
+            ).map { birthday -> birthday.contactId to birthday.birthdayDate } shouldContainExactly
+                listOf(contact.id to LocalDate(2025, 7, 10))
+        }
+
         test("TC-CALENDAR-CONTACT-BIRTHDAY-DATA-002 생일이 지워지면 결과에서 빠진다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val contact = contact(birthday = LocalDate(1990, 7, 8))

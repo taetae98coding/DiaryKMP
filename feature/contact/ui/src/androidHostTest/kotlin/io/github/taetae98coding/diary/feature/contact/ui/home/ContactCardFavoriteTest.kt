@@ -1,6 +1,11 @@
 package io.github.taetae98coding.diary.feature.contact.ui.home
 
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -30,6 +35,20 @@ class ContactCardFavoriteTest {
         setContactHomeList(contactList = listOf(favorite, other))
 
         composeRule.onAllNodesWithContentDescription(FAVORITE_CONTENT_DESCRIPTION).assertCountEquals(1)
+    }
+
+    @Test
+    fun `TC-CONTACT-HOME-FEATURE-023 즐겨찾기 표시는 카드와 하나로 합쳐져 카드의 접근성 이름 맨 앞에 온다`() {
+        val favorite = testContact(name = FAVORITE_CONTACT_NAME, phoneNumberList = listOf(CONTACT_PHONE_NUMBER), isFavorite = true)
+
+        setContactHomeList(contactList = listOf(favorite))
+
+        composeRule
+            .onNodeWithContentDescription(FAVORITE_CONTENT_DESCRIPTION)
+            .assert(hasTestTag(CONTACT_CARD_TEST_TAG))
+            .assert(hasText(FAVORITE_CONTACT_NAME))
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.ContentDescription, listOf(FAVORITE_CONTENT_DESCRIPTION)))
+            .assert(SemanticsMatcher("이름보다 앞선 텍스트가 없음") { node -> node.config[SemanticsProperties.Text].first().text == FAVORITE_CONTACT_NAME })
     }
 
     @Test

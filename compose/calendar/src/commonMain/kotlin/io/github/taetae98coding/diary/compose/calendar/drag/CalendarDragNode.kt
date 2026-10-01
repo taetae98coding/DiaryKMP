@@ -20,7 +20,6 @@ import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.calendar.move.CalendarItemMoveState
 import io.github.taetae98coding.diary.compose.calendar.move.startDragSession
 import io.github.taetae98coding.diary.compose.calendar.select.CalendarSelectDragSession
@@ -64,7 +63,7 @@ internal class CalendarDragNode(
 
         if (this.selectState !== selectState || this.moveState !== moveState) {
             edgeDirection = 0
-            session?.cancel()
+            session?.endWithoutRelease(isMoveSession = isMoveSession)
             session = null
             isMoveSession = false
             this.selectState = selectState
@@ -78,8 +77,8 @@ internal class CalendarDragNode(
     }
 
     private suspend fun PointerInputScope.detectDrag() {
-        val edgeWidth = EdgeScrollWidth.toPx()
-        val monthSwipeDistance = MonthSwipeDistance.toPx()
+        val edgeWidth = CalendarDragDefaults.EdgeScrollWidth.toPx()
+        val monthSwipeDistance = CalendarDragDefaults.MonthSwipeDistance.toPx()
 
         awaitEachGesture {
             val down = awaitFirstDown(requireUnconsumed = false)
@@ -111,7 +110,7 @@ internal class CalendarDragNode(
                         endedSession?.let(interruptNode::interrupt)
                     }
 
-                CalendarDragEnd.Lost -> endedSession?.cancel()
+                CalendarDragEnd.Lost -> endedSession?.endWithoutRelease(isMoveSession = isMoveSession)
             }
         }
     }
@@ -274,5 +273,11 @@ private class CalendarMonthSwipe(
 
 private const val PREVIOUS_MONTH_DIRECTION = -1
 private const val NEXT_MONTH_DIRECTION = 1
-private val EdgeScrollWidth = 24.dp
-private val MonthSwipeDistance = 48.dp
+
+private fun CalendarDragSession.endWithoutRelease(isMoveSession: Boolean) {
+    if (isMoveSession) {
+        finish()
+    } else {
+        cancel()
+    }
+}

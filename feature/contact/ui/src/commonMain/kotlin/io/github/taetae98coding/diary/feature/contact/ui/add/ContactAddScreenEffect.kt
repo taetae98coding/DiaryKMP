@@ -8,6 +8,7 @@ import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.feature.contact.api.ContactAddedResult
+import io.github.taetae98coding.diary.feature.contact.api.contactAddedResultKey
 import io.github.taetae98coding.diary.feature.contact.ui.Res
 import io.github.taetae98coding.diary.feature.contact.ui.contact_add_name_blank_message
 import io.github.taetae98coding.diary.feature.contact.ui.contact_add_phone_number_blank_message
@@ -18,9 +19,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
+import kotlin.uuid.Uuid
 
 @Composable
 internal fun ContactAddScreenEffect(
+    addedResultRequestKey: Uuid?,
     effect: Flow<ContactAddEffect> = emptyFlow(),
     state: ContactFormState = rememberContactAddFormState(),
     resultEventBus: ResultEventBus = LocalResultEventBus.current,
@@ -33,7 +36,9 @@ internal fun ContactAddScreenEffect(
     CollectEffect(effect) { value ->
         when (value) {
             is ContactAddEffect.AddSucceeded -> {
-                resultEventBus.sendResult<ContactAddedResult>(result = ContactAddedResult(id = value.id))
+                addedResultRequestKey?.let { requestKey ->
+                    resultEventBus.sendResult(resultKey = contactAddedResultKey(requestKey = requestKey), result = ContactAddedResult(id = value.id))
+                }
                 state.nameState.clearText()
                 state.descriptionState.clearText()
                 state.heightState.clearText()

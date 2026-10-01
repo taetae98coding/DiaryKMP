@@ -1,15 +1,12 @@
 package io.github.taetae98coding.diary.feature.web.ui.detail.memo
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -50,43 +47,32 @@ internal fun WebDetailMemoTab(
     uiStateProvider: () -> MemoListUiState = { MemoListUiState() },
     sortProvider: () -> ListSort = { ListSort.DEFAULT },
 ) {
-    Box(modifier = modifier) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            DiaryListSortBarHost(
-                onClick = { onEvent(WebDetailMemoContentEvent.ClickSort) },
-                modifier = Modifier.fillMaxWidth(),
-                sortProvider = sortProvider,
-                isSortVisibleProvider = { memoPagingItems.itemCount > 0 },
-            )
-            MemoList(
-                onEvent = onMemoListEvent,
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .weight(1F),
-                state = state,
-                memoPagingItems = memoPagingItems,
-                uiStateProvider = uiStateProvider,
-                sortProvider = sortProvider,
-                listTestTag = WEB_DETAIL_MEMO_LIST_TEST_TAG,
-                empty = {
-                    DiaryEmptyBox(
-                        title = stringResource(Res.string.web_detail_memo_empty_title),
-                        description = stringResource(Res.string.web_detail_memo_empty_description),
-                        icon = { MemoIcon(modifier = Modifier.size(DiaryPlaceholderDefaults.IconSize)) },
-                    )
-                },
-            )
-        }
-
-        Box(
+    Column(modifier = modifier) {
+        DiaryListSortBarHost(
+            onClick = { onEvent(WebDetailMemoContentEvent.ClickSort) },
+            modifier = Modifier.fillMaxWidth(),
+            sortProvider = sortProvider,
+            isSortVisibleProvider = { memoPagingItems.itemCount > 0 },
+        )
+        MemoList(
+            onEvent = onMemoListEvent,
             modifier =
                 Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(DiaryTheme.dimens.screenPaddingValues),
-        ) {
-            WebDetailMemoFloatingActionButton(onClick = { onEvent(WebDetailMemoContentEvent.ClickAdd) })
-        }
+                    .fillMaxWidth()
+                    .weight(1F),
+            state = state,
+            memoPagingItems = memoPagingItems,
+            uiStateProvider = uiStateProvider,
+            sortProvider = sortProvider,
+            listTestTag = WEB_DETAIL_MEMO_LIST_TEST_TAG,
+            empty = {
+                DiaryEmptyBox(
+                    title = stringResource(Res.string.web_detail_memo_empty_title),
+                    description = stringResource(Res.string.web_detail_memo_empty_description),
+                    icon = { MemoIcon(modifier = Modifier.size(DiaryPlaceholderDefaults.IconSize)) },
+                )
+            },
+        )
     }
 
     DiaryListSortBottomSheetHost(

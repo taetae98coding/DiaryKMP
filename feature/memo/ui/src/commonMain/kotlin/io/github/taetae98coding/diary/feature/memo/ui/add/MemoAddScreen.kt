@@ -38,7 +38,7 @@ internal fun MemoAddScreen(
     navigateToPlaceAdd: (Coordinate?) -> Unit,
     navigateToPlaceDetail: (Uuid) -> Unit,
     initialDateTime: DiaryDateTimeInputValue?,
-    tagAddRequestKey: Uuid,
+    addRequestKey: Uuid,
     componentVisibleProvider: () -> MemoAddScaffoldComponentVisible,
     isStandalone: Boolean,
     addViewModel: MemoAddViewModel,
@@ -64,8 +64,8 @@ internal fun MemoAddScreen(
     val placePagingItems = placeViewModel.placePagingData.collectAsLazyPagingItems()
     val selectablePagingItems = collectMemoFormSelectablePagingItems(tag = tagViewModel.selectableTagPagingData, web = webViewModel.selectableWebPagingData, contact = contactViewModel.selectableContactPagingData, place = placeViewModel.selectablePlacePagingData)
 
-    MemoAddEnterEffect(tagAddRequestKey = tagAddRequestKey, tagViewModel = tagViewModel, webViewModel = webViewModel, contactViewModel = contactViewModel, placeViewModel = placeViewModel, placeMapViewModel = placeMapViewModel)
-    MemoAddFormEffect(scaffoldState = scaffoldState, addViewModel = addViewModel, geminiViewModel = geminiViewModel)
+    MemoAddEnterEffect(addRequestKey = addRequestKey, tagViewModel = tagViewModel, webViewModel = webViewModel, contactViewModel = contactViewModel, placeViewModel = placeViewModel, placeMapViewModel = placeMapViewModel)
+    MemoAddFormEffect(scaffoldState = scaffoldState, isStandalone = isStandalone, addViewModel = addViewModel, geminiViewModel = geminiViewModel)
 
     MemoAddScaffold(
         state = scaffoldState,
@@ -111,7 +111,7 @@ internal fun MemoAddScreen(
 
 @Composable
 private fun MemoAddEnterEffect(
-    tagAddRequestKey: Uuid,
+    addRequestKey: Uuid,
     tagViewModel: MemoAddTagViewModel,
     webViewModel: MemoAddWebViewModel,
     contactViewModel: MemoAddContactViewModel,
@@ -122,19 +122,22 @@ private fun MemoAddEnterEffect(
         placeMapViewModel.fetchCurrentLocation()
     }
 
-    MemoTagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::selectTag)
-    MemoWebAddedResultEffect(onWebAdded = webViewModel::selectWeb)
-    MemoContactAddedResultEffect(onContactAdded = contactViewModel::selectContact)
-    MemoPlaceAddedResultEffect(onPlaceAdded = placeViewModel::selectPlace)
+    MemoTagAddedResultEffect(requestKey = addRequestKey, onTagAdded = tagViewModel::selectTag)
+    MemoWebAddedResultEffect(requestKey = addRequestKey, onWebAdded = webViewModel::selectWeb)
+    MemoContactAddedResultEffect(requestKey = addRequestKey, onContactAdded = contactViewModel::selectContact)
+    MemoPlaceAddedResultEffect(requestKey = addRequestKey, onPlaceAdded = placeViewModel::selectPlace)
 }
 
 @Composable
 private fun MemoAddFormEffect(
     scaffoldState: MemoFormState,
+    isStandalone: Boolean,
     addViewModel: MemoAddViewModel,
     geminiViewModel: MemoGeminiViewModel,
 ) {
-    DiaryTitleInputFocusEffect(state = scaffoldState.titleState)
+    if (isStandalone) {
+        DiaryTitleInputFocusEffect(state = scaffoldState.titleState)
+    }
     MemoAddScreenEffect(effect = addViewModel.effect, scaffoldState = scaffoldState)
     MemoGeminiSettingRequiredEffect(hostState = scaffoldState.hostState, effect = geminiViewModel.effect)
 }

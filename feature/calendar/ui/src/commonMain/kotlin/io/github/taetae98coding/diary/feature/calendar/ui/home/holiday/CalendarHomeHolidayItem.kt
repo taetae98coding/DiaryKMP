@@ -2,8 +2,10 @@ package io.github.taetae98coding.diary.feature.calendar.ui.home.holiday
 
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
+import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.calendar.grid.CalendarWeekOfMonthGridGroupScope
 import io.github.taetae98coding.diary.compose.calendar.text.CalendarText
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
@@ -24,6 +26,7 @@ internal fun CalendarWeekOfMonthGridGroupScope.holidayItem(
                 modifier =
                     Modifier
                         .animateItem()
+                        .clip(CalendarDefaults.itemShape)
                         .clickable(role = Role.Button) { onHolidayClick(holiday) },
                 color = if (holiday.isHoliday) holidayNameColor else nonHolidayNameColor,
             )

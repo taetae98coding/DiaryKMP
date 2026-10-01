@@ -102,6 +102,33 @@ class FetchMemoDraftUseCaseTest :
             }
         }
 
+        Given("생성 결과의 제목에 줄바꿈이 있다") {
+            When("메모 초안을 조회하면") {
+                Then("TC-MEMO-GEMINI-DOMAIN-005: 줄바꿈을 공백으로 바꾼 한 줄 제목을 전달한다") {
+                    listOf(
+                        "주간\n회고" to "주간 회고",
+                        "주간\r\n회고" to "주간 회고",
+                        "주간\r회고" to "주간 회고",
+                        "주간\n\n회고" to "주간  회고",
+                        "\n\n" to "",
+                    ).forEach { (title, expected) ->
+                        val useCase = createUseCase(draft = MemoDraft(title = title, description = "설명", dateTime = null))
+
+                        useCase(parameter = emptyParameter()).shouldBeSuccess().title shouldBe expected
+                    }
+                }
+            }
+
+            When("설명에도 줄바꿈이 있으면") {
+                Then("설명의 줄바꿈은 그대로 전달한다") {
+                    val description = "첫 줄\n둘째 줄"
+                    val useCase = createUseCase(draft = MemoDraft(title = "제목", description = description, dateTime = null))
+
+                    useCase(parameter = emptyParameter()).shouldBeSuccess().description shouldBe description
+                }
+            }
+        }
+
         Given("생성 결과의 기간 시작이 종료보다 늦다") {
             When("메모 초안을 조회하면") {
                 Then("TC-MEMO-GEMINI-DOMAIN-003: 기간이 없는 결과로 전달한다") {

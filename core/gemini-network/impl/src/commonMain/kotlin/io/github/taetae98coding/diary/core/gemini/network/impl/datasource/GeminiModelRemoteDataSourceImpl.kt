@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.core.gemini.network.impl.datasource
 import io.github.taetae98coding.diary.core.gemini.network.api.datasource.GeminiModelRemoteDataSource
 import io.github.taetae98coding.diary.core.gemini.network.api.entity.GeminiModelRemoteEntity
 import io.github.taetae98coding.diary.core.gemini.network.impl.di.GeminiHttpClient
+import io.github.taetae98coding.diary.core.gemini.network.impl.di.GeminiJson
 import io.github.taetae98coding.diary.core.gemini.network.impl.entity.ListModelsResponseRemoteEntity
 import io.github.taetae98coding.diary.core.gemini.network.impl.toGeminiExceptionOrNull
 import io.ktor.client.HttpClient
@@ -11,12 +12,15 @@ import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
+import kotlinx.serialization.json.Json
 import org.koin.core.annotation.Factory
 
 @Factory
 internal class GeminiModelRemoteDataSourceImpl(
     @GeminiHttpClient
     private val httpClient: HttpClient,
+    @GeminiJson
+    private val json: Json,
 ) : GeminiModelRemoteDataSource {
     override suspend fun getAvailableModel(apiKey: String): List<GeminiModelRemoteEntity> {
         val response =
@@ -27,7 +31,7 @@ internal class GeminiModelRemoteDataSourceImpl(
                         parameter(PAGE_SIZE_PARAMETER, MAX_PAGE_SIZE)
                     }.body<ListModelsResponseRemoteEntity>()
             } catch (cause: ResponseException) {
-                throw cause.toGeminiExceptionOrNull() ?: cause
+                throw cause.toGeminiExceptionOrNull(json = json) ?: cause
             }
 
         return response.models.filter { model -> model.isAvailable() }

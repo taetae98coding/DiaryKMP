@@ -10,7 +10,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
-import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.contact.screenTestContactViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.DEFAULT_PLACE_SELECT_LABEL
@@ -149,7 +149,7 @@ class MemoDetailScreenPlaceTest {
     private fun MemoDetailScreenWithPlace(placeViewModel: MemoPlaceViewModel) {
         MemoDetailScreenTestTheme {
             MemoDetailScreen(
-                tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                addRequestKey = TEST_ADD_REQUEST_KEY,
                 detailViewModel = screenTestViewModel(uiState = MutableStateFlow(memoDetailUiState(detail = memoDetail(MEMO_TITLE)))),
                 tagViewModel = screenTestTagViewModel(),
                 webViewModel = screenTestWebViewModel(),

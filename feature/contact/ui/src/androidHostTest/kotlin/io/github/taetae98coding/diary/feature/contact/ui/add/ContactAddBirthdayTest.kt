@@ -137,6 +137,7 @@ class ContactAddBirthdayTest {
         restorationTester.setContent {
             ContactAddScreenTestTheme {
                 ContactAddScreen(
+                    addedResultRequestKey = null,
                     navigateUp = {},
                     componentVisibleProvider = { ContactAddScaffoldComponentVisible() },
                     viewModel = viewModel,

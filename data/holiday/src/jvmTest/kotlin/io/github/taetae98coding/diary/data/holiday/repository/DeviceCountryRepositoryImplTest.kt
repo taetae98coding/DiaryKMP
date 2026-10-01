@@ -26,4 +26,23 @@ class DeviceCountryRepositoryImplTest :
                 Locale.setDefault(original)
             }
         }
+
+        test("TC-HOLIDAY-COUNTRY-DOMAIN-007 언어 설정에 적힌 지역으로 적용 국가를 정한다") {
+            val original = Locale.getDefault()
+
+            try {
+                mapOf(
+                    "ko-KR" to HolidayCountry.KOREA,
+                    "en-US" to HolidayCountry.UNITED_STATES,
+                    "ja-JP" to null,
+                    "ko" to null,
+                ).forEach { (languageTag, expected) ->
+                    Locale.setDefault(Locale.forLanguageTag(languageTag))
+
+                    DeviceCountryRepositoryImpl().find() shouldBe expected
+                }
+            } finally {
+                Locale.setDefault(original)
+            }
+        }
     })

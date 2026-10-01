@@ -140,7 +140,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("동기화가 실행되는 동안 진행 중임을 알린다") {
+        test("TC-SYNC-REFRESH-DOMAIN-007 공휴일 동기화가 실행되는 동안 진행 중임을 알린다") {
             runTest(mainDispatcher) {
                 val year = fixtureMonkey.giveMeOne<Int>().toPositiveYear()
                 val completion = CompletableDeferred<Result<List<Holiday>>>()

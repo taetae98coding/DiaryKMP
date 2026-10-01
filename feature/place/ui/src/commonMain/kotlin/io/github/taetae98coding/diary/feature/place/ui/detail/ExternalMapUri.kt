@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.feature.place.ui.detail
 
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
+import io.github.taetae98coding.diary.domain.place.toPlaceCoordinateText
 import io.github.taetae98coding.diary.library.kotlin.text.encodeUriComponent
 
 private const val NAVER_MAP_WEB_URI = "https://map.naver.com/"
@@ -39,7 +40,7 @@ internal fun naverMapAppUri(
     title: String,
     appName: String,
 ): String {
-    val location = "lat=${coordinate.latitude}&lng=${coordinate.longitude}"
+    val location = "lat=${coordinate.latitudeText}&lng=${coordinate.longitudeText}"
     val caller = "appname=${appName.encodeUriComponent()}"
 
     return if (title.isBlank()) {
@@ -55,7 +56,7 @@ internal fun googleMapAppUri(
     title: String,
     address: String,
 ): String {
-    val center = "${coordinate.latitude},${coordinate.longitude}"
+    val center = "${coordinate.latitudeText},${coordinate.longitudeText}"
     val query = googleMapQuery(title = title, address = address)
 
     return if (query.isBlank()) {
@@ -69,7 +70,7 @@ private fun naverMapWebUri(
     coordinate: DiaryMapCoordinate,
     title: String,
 ): String {
-    val location = "$NAVER_MAP_WEB_URI?lng=${coordinate.longitude}&lat=${coordinate.latitude}"
+    val location = "$NAVER_MAP_WEB_URI?lng=${coordinate.longitudeText}&lat=${coordinate.latitudeText}"
 
     return if (title.isBlank()) location else "$location&title=${title.encodeUriComponent()}"
 }
@@ -83,9 +84,9 @@ private fun googleMapWebUri(
     val query = googleMapQuery(title = title, address = address)
 
     return if (query.isBlank()) {
-        "$GOOGLE_MAP_WEB_SEARCH_URI?api=1&query=${coordinate.latitude}$ENCODED_COMMA${coordinate.longitude}"
+        "$GOOGLE_MAP_WEB_SEARCH_URI?api=1&query=${coordinate.latitudeText}$ENCODED_COMMA${coordinate.longitudeText}"
     } else {
-        "$GOOGLE_MAP_WEB_SEARCH_URI${query.encodeUriComponent()}/@${coordinate.latitude},${coordinate.longitude},${EXTERNAL_MAP_ZOOM}z"
+        "$GOOGLE_MAP_WEB_SEARCH_URI${query.encodeUriComponent()}/@${coordinate.latitudeText},${coordinate.longitudeText},${EXTERNAL_MAP_ZOOM}z"
     }
 }
 
@@ -96,3 +97,9 @@ private fun googleMapQuery(
     listOf(title, address)
         .filter { value -> value.isNotBlank() }
         .joinToString(separator = " ")
+
+private val DiaryMapCoordinate.latitudeText: String
+    get() = latitude.toPlaceCoordinateText()
+
+private val DiaryMapCoordinate.longitudeText: String
+    get() = longitude.toPlaceCoordinateText()

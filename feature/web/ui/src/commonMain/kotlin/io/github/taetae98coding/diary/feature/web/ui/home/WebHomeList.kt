@@ -11,6 +11,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -44,12 +45,14 @@ internal fun WebHomeList(
     gridState: LazyGridState = rememberLazyGridState(),
     webPagingItems: LazyPagingItems<Web> = remember { flowOf(PagingData.empty<Web>()) }.collectAsLazyPagingItems(),
     isRefreshingProvider: () -> Boolean = { false },
+    isAddButtonVisibleProvider: () -> Boolean = { false },
     sortProvider: () -> ListSort = { ListSort.TITLE },
 ) {
     ListQueryScrollEffect(
         gridState = gridState,
         sortProvider = sortProvider,
         itemListProvider = { webPagingItems.itemSnapshotList.items },
+        isRefreshingProvider = { webPagingItems.loadState.refresh is LoadState.Loading },
     )
 
     DiaryCrossfade(
@@ -79,6 +82,7 @@ internal fun WebHomeList(
                 modifier = Modifier.fillMaxSize(),
                 state = gridState,
                 isRefreshingProvider = isRefreshingProvider,
+                bottomPadding = if (isAddButtonVisibleProvider()) DiaryTheme.dimens.floatingActionButtonClearance else DiaryTheme.dimens.screenVerticalPadding,
                 listTestTag = WEB_HOME_LIST_TEST_TAG,
             ) {
                 items(

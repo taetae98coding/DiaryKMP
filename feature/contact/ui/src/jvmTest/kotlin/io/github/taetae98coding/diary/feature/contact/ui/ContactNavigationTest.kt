@@ -20,9 +20,9 @@ class ContactNavigationTest :
             val detailCases =
                 listOf(
                     emptyList(),
-                    listOf(ContactAddNavKey),
+                    listOf(ContactAddNavKey()),
                     listOf(ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
-                    listOf(ContactAddNavKey, ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
+                    listOf(ContactAddNavKey(), ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
                 )
 
             detailCases.forEach { detailKeyList ->
@@ -37,9 +37,9 @@ class ContactNavigationTest :
         test("TC-CONTACT-LIST-DETAIL-FEATURE-016 목록에서 연락처를 선택하면 목록 위에 쌓인 상세와 연락처 추가를 모두 걷어내고 그 상세로 바꾼다") {
             val detailCases =
                 listOf(
-                    listOf(ContactAddNavKey),
-                    listOf(ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()), ContactAddNavKey),
-                    listOf(ContactAddNavKey, ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()), ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
+                    listOf(ContactAddNavKey()),
+                    listOf(ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()), ContactAddNavKey()),
+                    listOf(ContactAddNavKey(), ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()), ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
                 )
 
             detailCases.forEach { detailKeyList ->

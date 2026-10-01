@@ -54,6 +54,37 @@ class MemoHomeFilterScrollTest {
     }
 
     @Test
+    fun `TC-MEMO-HOME-FEATURE-059 좁힌 결과가 바꾸기 전과 같아도 그 결과가 놓이면 처음부터 다시 보고 그 뒤 갱신에서는 자리를 유지한다`() {
+        val environment = setScrolledMemoHome()
+        val itemList = environment.memoList.map { memo -> MemoListItem.Content(memo = memo) }
+
+        composeRule.runOnIdle {
+            environment.filterUiStateFlow.value = MemoHomeScaffoldFilterUiState(existence = MemoExistenceFilter(place = MemoFilterExistence.EXIST))
+            environment.pagingDataFlow.value = memoPagingDataOf(itemList = itemList, isRefreshing = true)
+        }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { environment.pagingDataFlow.value = memoPagingDataOf(itemList = itemList, isRefreshing = false) }
+        composeRule.waitForIdle()
+
+        composeRule
+            .onNodeWithText(
+                environment.memoList
+                    .first()
+                    .detail.title,
+            ).assertIsDisplayed()
+
+        composeRule.onNodeWithTag(MEMO_HOME_LIST_TEST_TAG).performScrollToIndex(SCROLLED_INDEX)
+        composeRule.waitForIdle()
+        val addedMemo = addedMemo()
+        composeRule.runOnIdle {
+            environment.pagingDataFlow.value = memoPagingDataOf((environment.memoList + addedMemo).map { memo -> MemoListItem.Content(memo = memo) })
+        }
+        composeRule.waitForIdle()
+
+        assertPositionKept(environment)
+    }
+
+    @Test
     fun `TC-MEMO-HOME-FEATURE-060 선택되어 있지 않은 태그를 선택하면 목록을 처음부터 다시 본다`() {
         val tagId = fixtureMonkey.giveMeOne<Uuid>()
         val environment = setScrolledMemoHome()
@@ -99,6 +130,60 @@ class MemoHomeFilterScrollTest {
         }
         composeRule.waitForIdle()
 
+        composeRule.onNodeWithText(environment.memoList[SCROLLED_INDEX].detail.title).assertIsDisplayed()
+        composeRule
+            .onNodeWithText(
+                environment.memoList
+                    .first()
+                    .detail.title,
+            ).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-MEMO-HOME-FEATURE-081 좁힌 결과가 놓이기 전에는 목록 위치를 유지한다`() {
+        val environment = setScrolledMemoHome()
+
+        composeRule.runOnIdle {
+            environment.filterUiStateFlow.value = MemoHomeScaffoldFilterUiState(existence = MemoExistenceFilter(place = MemoFilterExistence.EXIST))
+        }
+        composeRule.waitForIdle()
+
+        assertPositionKept(environment)
+    }
+
+    @Test
+    fun `TC-MEMO-HOME-FEATURE-082 필터를 바꾸지 않은 목록 갱신에서는 목록 위치를 유지한다`() {
+        val environment = setScrolledMemoHome()
+        val addedMemo = addedMemo()
+
+        composeRule.runOnIdle {
+            environment.pagingDataFlow.value = memoPagingDataOf((environment.memoList + addedMemo).map { memo -> MemoListItem.Content(memo = memo) })
+        }
+        composeRule.waitForIdle()
+
+        assertPositionKept(environment)
+    }
+
+    @Test
+    fun `TC-MEMO-HOME-FEATURE-083 저장된 필터를 불러오기 전에 이동한 목록 위치는 필터를 불러온 뒤 목록이 갱신되어도 유지한다`() {
+        val environment = setScrolledMemoHome(filterUiState = MemoHomeScaffoldFilterUiState(isLoaded = false))
+        val addedMemo = addedMemo()
+
+        composeRule.runOnIdle {
+            environment.filterUiStateFlow.value = MemoHomeScaffoldFilterUiState(existence = MemoExistenceFilter(place = MemoFilterExistence.EXIST))
+        }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle {
+            environment.pagingDataFlow.value = memoPagingDataOf((environment.memoList + addedMemo).map { memo -> MemoListItem.Content(memo = memo) })
+        }
+        composeRule.waitForIdle()
+
+        assertPositionKept(environment)
+    }
+
+    private fun addedMemo(): Memo = fixtureMonkey.memo(title = "$TITLE_PREFIX${fixtureMonkey.giveMeOne<Int>()}Added")
+
+    private fun assertPositionKept(environment: Environment) {
         composeRule.onNodeWithText(environment.memoList[SCROLLED_INDEX].detail.title).assertIsDisplayed()
         composeRule
             .onNodeWithText(

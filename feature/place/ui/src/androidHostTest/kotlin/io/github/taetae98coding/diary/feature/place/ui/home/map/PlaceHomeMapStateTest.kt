@@ -17,6 +17,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -31,7 +32,7 @@ class PlaceHomeMapStateTest {
 
         composeRule.setContent {
             // 기본 지도를 고르지 않으면 설정은 네이버 지도를 제공한다.
-            placeHomeState = rememberPlaceHomeMapState(uiState = PlaceHomeUiState.Loaded(defaultProvider = MapProvider.NAVER))
+            placeHomeState = rememberPlaceHomeMapState(uiState = loaded(defaultProvider = MapProvider.NAVER))
             defaultState = rememberDiaryMapState()
         }
 
@@ -52,7 +53,7 @@ class PlaceHomeMapStateTest {
         composeRule.setContent {
             providerList.forEach { (provider, _) ->
                 key(provider) {
-                    stateList += rememberPlaceHomeMapState(uiState = PlaceHomeUiState.Loaded(defaultProvider = provider))
+                    stateList += rememberPlaceHomeMapState(uiState = loaded(defaultProvider = provider))
                 }
             }
         }
@@ -66,7 +67,7 @@ class PlaceHomeMapStateTest {
 
     @Test
     fun `TC-PLACE-HOME-FEATURE-013 화면이 표시된 뒤 기본 지도가 바뀌면 바뀐 지도로 새로 시작한다`() {
-        var uiState: PlaceHomeUiState by mutableStateOf(PlaceHomeUiState.Loaded(defaultProvider = MapProvider.NAVER))
+        var uiState: PlaceHomeUiState by mutableStateOf(loaded(defaultProvider = MapProvider.NAVER))
         lateinit var state: DiaryMapState
 
         composeRule.setContent {
@@ -76,12 +77,18 @@ class PlaceHomeMapStateTest {
         composeRule.runOnIdle {
             state.provider shouldBe DiaryMapProvider.NAVER
             naverState = state
-            uiState = PlaceHomeUiState.Loaded(defaultProvider = MapProvider.GOOGLE)
+            uiState = loaded(defaultProvider = MapProvider.GOOGLE)
         }
 
         composeRule.runOnIdle {
             state.provider shouldBe DiaryMapProvider.GOOGLE
             state shouldNotBe naverState
         }
+    }
+
+    private companion object {
+        private val currentLocationFetchId: Uuid = Uuid.random()
+
+        private fun loaded(defaultProvider: MapProvider): PlaceHomeUiState = PlaceHomeUiState.Loaded(defaultProvider = defaultProvider, initialCoordinate = null, currentLocationFetchId = currentLocationFetchId)
     }
 }

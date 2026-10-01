@@ -10,6 +10,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -44,6 +45,7 @@ internal fun PlaylistHomeList(
     gridState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     musicPagingItems: LazyPagingItems<Music> = remember { flowOf(PagingData.empty<Music>()) }.collectAsLazyPagingItems(),
     isRefreshingProvider: () -> Boolean = { false },
+    isAddButtonVisibleProvider: () -> Boolean = { false },
     sortProvider: () -> ListSort = { ListSort.TITLE },
     downloadStateProvider: (Music) -> MusicDownloadState? = { null },
 ) {
@@ -51,6 +53,7 @@ internal fun PlaylistHomeList(
         staggeredGridState = gridState,
         sortProvider = sortProvider,
         itemListProvider = { musicPagingItems.itemSnapshotList.items },
+        isRefreshingProvider = { musicPagingItems.loadState.refresh is LoadState.Loading },
     )
 
     DiaryCrossfade(
@@ -80,6 +83,7 @@ internal fun PlaylistHomeList(
                 modifier = Modifier.fillMaxSize(),
                 state = gridState,
                 isRefreshingProvider = isRefreshingProvider,
+                bottomPadding = if (isAddButtonVisibleProvider()) DiaryTheme.dimens.floatingActionButtonClearance else DiaryTheme.dimens.screenVerticalPadding,
                 listTestTag = PLAYLIST_HOME_LIST_TEST_TAG,
             ) {
                 items(

@@ -84,6 +84,21 @@ class PlaceAddTagAddTest {
     }
 
     @Test
+    fun `TC-ENTITY-TAG-INPUT-FEATURE-034 목록의 대상을 처음 불러오지 못하면 태그 추가 항목이 목록을 연다`() {
+        var tagAddCount = 0
+        setPlaceAddScreen(
+            tagPagingData = MutableStateFlow(refreshFailedTagPagingData()),
+            navigateToTagAdd = { tagAddCount += 1 },
+        )
+
+        composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        tagAddCount shouldBe 0
+        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
+    }
+
+    @Test
     fun `TC-ENTITY-TAG-INPUT-FEATURE-027 목록의 태그 추가 항목을 누르면 목록이 닫히고 TagAdd 이동을 요청한다`() {
         var tagAddCount = 0
         setPlaceAddScreen(tagList = listOf(placeTestTag(title = WORK_TAG_TITLE)), navigateToTagAdd = { tagAddCount += 1 })
@@ -231,6 +246,7 @@ class PlaceAddTagAddTest {
         composeRule.setContent {
             PlaceAddScreenTestTheme(resultEventBus = resultEventBus) {
                 PlaceAddScreen(
+                    addedResultRequestKey = null,
                     navigateUp = {},
                     navigateToTagAdd = navigateToTagAdd,
                     navigateToTagDetail = {},
@@ -270,6 +286,17 @@ class PlaceAddTagAddTest {
                 sourceLoadStates =
                     LoadStates(
                         refresh = LoadState.Loading,
+                        prepend = LoadState.NotLoading(endOfPaginationReached = false),
+                        append = LoadState.NotLoading(endOfPaginationReached = false),
+                    ),
+            )
+
+        fun refreshFailedTagPagingData(): PagingData<Tag> =
+            PagingData.from(
+                data = emptyList(),
+                sourceLoadStates =
+                    LoadStates(
+                        refresh = LoadState.Error(IllegalStateException("refresh failed")),
                         prepend = LoadState.NotLoading(endOfPaginationReached = false),
                         append = LoadState.NotLoading(endOfPaginationReached = false),
                     ),

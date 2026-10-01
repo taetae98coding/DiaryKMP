@@ -22,6 +22,7 @@ import io.github.taetae98coding.diary.compose.calendar.textItem
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth
 import org.junit.Rule
@@ -57,10 +58,24 @@ class CalendarWeekOfMonthItemScrollTest {
 
     @Test
     fun `TC-CALENDAR-WEEK-OF-MONTH-DOMAIN-001 되돌리기 요청이 없으면 위쪽에 생긴 아이템은 바로 보이지 않는다`() {
+        assertLeadingGroupStaysHidden(filledItemStart = july(day = 5), filledItemEndInclusive = july(day = 11))
+    }
+
+    @Test
+    fun `TC-CALENDAR-WEEK-OF-MONTH-DOMAIN-001 첫 줄의 아이템이 주 중간에서 시작해도 위쪽에 생긴 아이템은 바로 보이지 않는다`() {
+        assertLeadingGroupStaysHidden(filledItemStart = july(day = 7), filledItemEndInclusive = july(day = 8))
+    }
+
+    private fun assertLeadingGroupStaysHidden(
+        filledItemStart: LocalDate,
+        filledItemEndInclusive: LocalDate,
+    ) {
         val hasLeadingGroupFlow = MutableStateFlow(false)
         setCalendarWeekOfMonth(
             itemScrollState = CalendarItemScrollState(),
             hasLeadingGroupFlow = hasLeadingGroupFlow,
+            filledItemStart = filledItemStart,
+            filledItemEndInclusive = filledItemEndInclusive,
         )
         composeRule.onNodeWithText(FIRST_ITEM_TEXT).assertIsDisplayed()
 
@@ -95,6 +110,8 @@ class CalendarWeekOfMonthItemScrollTest {
     private fun setCalendarWeekOfMonth(
         itemScrollState: CalendarItemScrollState,
         hasLeadingGroupFlow: MutableStateFlow<Boolean>,
+        filledItemStart: LocalDate = july(day = 5),
+        filledItemEndInclusive: LocalDate = july(day = 11),
     ) {
         composeRule.setContent {
             val hasLeadingGroup by hasLeadingGroupFlow.collectAsStateWithLifecycle()
@@ -123,8 +140,8 @@ class CalendarWeekOfMonthItemScrollTest {
                         repeat(FILLED_ITEM_COUNT) { index ->
                             textItem(
                                 text = filledItemText(index = index),
-                                start = july(day = 5),
-                                endInclusive = july(day = 11),
+                                start = filledItemStart,
+                                endInclusive = filledItemEndInclusive,
                             )
                         }
                     }

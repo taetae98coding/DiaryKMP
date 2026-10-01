@@ -6,14 +6,20 @@ import io.kotest.matchers.shouldBe
 
 class ColorContrastExtTest : FunSpec() {
     init {
-        test("어두운 컬러 위에는 흰색을 올린다") {
+        test("흰색과의 대비가 더 큰 컬러 위에는 흰색을 올린다") {
             Color.Black.contentColor() shouldBe Color.White
             Color(color = 0xFF102030.toInt()).contentColor() shouldBe Color.White
+            Color(color = 0xFF595959.toInt()).contentColor() shouldBe Color.White
         }
 
-        test("밝은 컬러 위에는 검은색을 올린다") {
+        test("검은색과의 대비가 더 큰 컬러 위에는 검은색을 올린다") {
             Color.White.contentColor() shouldBe Color.Black
             Color(color = 0xFFF0E8D0.toInt()).contentColor() shouldBe Color.Black
+        }
+
+        test("상대 휘도가 0.5보다 낮아도 검은색과의 대비가 더 크면 검은색을 올린다") {
+            Color(color = 0xFF808080.toInt()).contentColor() shouldBe Color.Black
+            Color(color = 0xFFE53935.toInt()).contentColor() shouldBe Color.Black
         }
     }
 }

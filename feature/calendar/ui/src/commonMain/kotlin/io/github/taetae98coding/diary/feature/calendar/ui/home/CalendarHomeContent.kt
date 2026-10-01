@@ -7,7 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import io.github.taetae98coding.diary.compose.calendar.Calendar
-import io.github.taetae98coding.diary.compose.calendar.CalendarDefault
+import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.calendar.CalendarEvent
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
@@ -36,9 +36,9 @@ internal fun CalendarHomeContent(
     birthdayProvider: () -> List<CalendarContactBirthday> = { emptyList() },
     uiStateProvider: () -> CalendarHomeScaffoldUiState = { CalendarHomeScaffoldUiState() },
 ) {
-    val calendarColors = CalendarDefault.colors()
-    val nonHolidayNameColor = CalendarHomeDefault.nonHolidayNameColor()
-    val birthdayColor = CalendarHomeDefault.birthdayColor()
+    val calendarColors = CalendarDefaults.colors()
+    val nonHolidayNameColor = CalendarHomeDefaults.nonHolidayNameColor()
+    val birthdayColor = CalendarHomeDefaults.birthdayColor()
     val uriHandler = LocalUriHandler.current
 
     DiaryPullToRefreshBox(

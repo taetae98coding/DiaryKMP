@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.feature.tag.ui.link
 
 import androidx.activity.ComponentDialog
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.height
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
@@ -113,6 +115,17 @@ internal fun appendFailedTagPagingDataOf(tagList: List<Tag>): PagingData<Tag> =
             ),
     )
 
+internal fun refreshFailedTagPagingData(): PagingData<Tag> =
+    PagingData.from(
+        data = emptyList(),
+        sourceLoadStates =
+            LoadStates(
+                refresh = LoadState.Error(IllegalStateException("refresh failed")),
+                prepend = LoadState.NotLoading(endOfPaginationReached = false),
+                append = LoadState.NotLoading(endOfPaginationReached = false),
+            ),
+    )
+
 internal fun ComposeContentTestRule.setTagLinkInput(
     uiState: TagLinkInputUiState = TagLinkInputUiState(),
     onTagClick: (Uuid) -> Unit = {},
@@ -163,12 +176,17 @@ internal fun ComposeContentTestRule.setTagLinkPickerDialog(
     onClickAdd: () -> Unit = {},
     onLink: (Uuid) -> Unit = {},
     onUnlink: (Uuid) -> Unit = {},
+    onTagPagingItems: (LazyPagingItems<Tag>) -> Unit = {},
 ) {
     setContent {
         DiaryTheme {
+            val tagPagingItems = remember(tagPagingDataFlow) { tagPagingDataFlow }.collectAsLazyPagingItems()
+
+            SideEffect { onTagPagingItems(tagPagingItems) }
+
             TagLinkPickerDialog(
                 searchFieldState = rememberDiaryPickerSearchFieldState(initialText = query),
-                tagPagingItems = remember(tagPagingDataFlow) { tagPagingDataFlow }.collectAsLazyPagingItems(),
+                tagPagingItems = tagPagingItems,
                 uiStateProvider = { uiState },
                 onDismissRequest = onDismissRequest,
                 onEvent = { event ->
@@ -242,6 +260,15 @@ internal fun ComposeContentTestRule.awaitTagLinkPickerRow(title: String) {
 internal fun ComposeContentTestRule.awaitTagLinkPickerRowGone(title: String) {
     awaitTagLinkPicker(description = "$title 항목이 목록에서 사라지지 않았다") {
         onAllNodes(hasText(title) and hasAnyAncestor(isDialog())).fetchSemanticsNodes().isEmpty()
+    }
+}
+
+/**
+ * 목록이 비어 있는 동안에는 화면에 드러나는 변화가 없으므로 첫 조회의 결과가 목록에 전달될 때까지 기다린다.
+ */
+internal fun ComposeContentTestRule.awaitTagLinkPickerRefreshSettled(tagPagingItemsProvider: () -> LazyPagingItems<Tag>?) {
+    awaitTagLinkPicker(description = "첫 조회의 결과가 목록에 전달되지 않았다") {
+        tagPagingItemsProvider()?.loadState?.refresh?.let { refresh -> refresh !is LoadState.Loading } == true
     }
 }
 

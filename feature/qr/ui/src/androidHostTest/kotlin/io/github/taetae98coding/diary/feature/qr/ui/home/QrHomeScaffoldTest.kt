@@ -9,10 +9,12 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.paging.PagingData
@@ -230,6 +232,28 @@ class QrHomeScaffoldTest {
         eventList shouldBe listOf(QrHomeScaffoldEvent.ClickNavigateUp)
     }
 
+    @Test
+    fun `끝까지 스크롤하면 마지막 QR 카드가 추가 버튼 위에 놓인다`() {
+        val qrList = List(SCROLL_QR_COUNT) { testQr() }
+        setQrHomeScaffold(pagingData = qrPagingDataOf(qrList))
+
+        composeRule.onNodeWithTag(QR_HOME_LIST_TEST_TAG).performScrollToIndex(qrList.lastIndex)
+        composeRule.waitForIdle()
+
+        val lastCardBottom =
+            composeRule
+                .onAllNodesWithTag(QR_CARD_TEST_TAG)
+                .fetchSemanticsNodes()
+                .maxOf { node -> node.boundsInRoot.bottom }
+        val addButtonTop =
+            composeRule
+                .onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION)
+                .fetchSemanticsNode()
+                .boundsInRoot
+                .top
+        (lastCardBottom <= addButtonTop) shouldBe true
+    }
+
     private fun assertRefreshRequested(pagingData: PagingData<Qr>) {
         val eventList = mutableListOf<QrHomeScaffoldEvent>()
         setQrHomeScaffold(pagingData = pagingData, onEvent = eventList::add)
@@ -273,5 +297,6 @@ class QrHomeScaffoldTest {
         const val DEFAULT_EMPTY_TITLE = "No QR codes yet"
         const val DEFAULT_EMPTY_DESCRIPTION = "Use the add button to create a QR code."
         const val DEFAULT_REFRESHING_DESCRIPTION = "Refreshing"
+        const val SCROLL_QR_COUNT = 20
     }
 }

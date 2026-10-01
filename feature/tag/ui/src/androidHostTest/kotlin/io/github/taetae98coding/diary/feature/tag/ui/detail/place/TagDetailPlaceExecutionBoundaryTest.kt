@@ -123,16 +123,34 @@ class TagDetailPlaceExecutionBoundaryTest {
 
     @Test
     fun `TC-TAG-DETAIL-PLACE-DOMAIN-012 시스템이 앱을 종료했다가 되살려도 지도 모드를 유지하고 새로 확인한 위치에서 지도를 시작한다`() {
-        val beforeCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
+        assertRestoreStartsAtFetchedLocation(beforeCoordinate = fixtureMonkey.giveMeOne<Coordinate>(), afterCoordinate = fixtureMonkey.giveMeOne<Coordinate>())
+    }
+
+    @Test
+    fun `TC-TAG-DETAIL-PLACE-DOMAIN-012 되살아난 뒤 이전과 같은 위치를 확인해도 옮겨 두었던 위치는 이어지지 않는다`() {
+        val coordinate = fixtureMonkey.giveMeOne<Coordinate>()
+
+        assertRestoreStartsAtFetchedLocation(beforeCoordinate = coordinate, afterCoordinate = coordinate)
+    }
+
+    @Test
+    fun `TC-TAG-DETAIL-PLACE-DOMAIN-012 되살아나기 전과 뒤 모두 위치를 확인하지 못해도 옮겨 두었던 위치는 이어지지 않는다`() {
+        assertRestoreStartsAtFetchedLocation(beforeCoordinate = null, afterCoordinate = null)
+    }
+
+    private fun assertRestoreStartsAtFetchedLocation(
+        beforeCoordinate: Coordinate?,
+        afterCoordinate: Coordinate?,
+    ) {
         val movedCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
-        val afterCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
         val beforeFetch = fetchCurrentLocationUseCase(beforeCoordinate)
         val afterFetch = fetchCurrentLocationUseCase(afterCoordinate)
         val restorationTester = StateRestorationTester(composeRule)
         var mapViewModel = mapViewModel(beforeFetch)
         restorationTester.setContent { PlaceTab(mapViewModel = mapViewModel) }
         selectMapMode()
-        composeRule.runOnIdle { mapState.coordinate shouldBe beforeCoordinate.toDiaryMapCoordinate() }
+        val initialMapCoordinate = composeRule.runOnIdle { mapState.coordinate }
+        beforeCoordinate?.let { composeRule.runOnIdle { initialMapCoordinate shouldBe it.toDiaryMapCoordinate() } }
         composeRule.runOnIdle { mapState.moveTo(movedCoordinate.toDiaryMapCoordinate()) }
 
         mapViewModel = mapViewModel(afterFetch)
@@ -141,7 +159,7 @@ class TagDetailPlaceExecutionBoundaryTest {
 
         composeRule.runOnIdle {
             placeState.viewMode shouldBe TagDetailPlaceViewMode.MAP
-            mapState.coordinate shouldBe afterCoordinate.toDiaryMapCoordinate()
+            mapState.coordinate shouldBe (afterCoordinate?.toDiaryMapCoordinate() ?: initialMapCoordinate)
         }
         coVerify(exactly = 1) { beforeFetch(parameter = Unit) }
         coVerify(exactly = 1) { afterFetch(parameter = Unit) }
@@ -155,7 +173,7 @@ class TagDetailPlaceExecutionBoundaryTest {
     ) {
         val uiState by mapViewModel.uiState.collectAsState()
         placeState = state
-        TagDetailPlaceFetchCurrentLocationEffect(mapViewModel = mapViewModel, state = state)
+        TagDetailPlaceFetchCurrentLocationEffect(placeMapViewModel = mapViewModel, state = state)
         mapState = rememberTagDetailPlaceMapState(uiState = uiState)
     }
 
@@ -171,9 +189,9 @@ class TagDetailPlaceExecutionBoundaryTest {
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
 
-        private fun fetchCurrentLocationUseCase(coordinate: Coordinate): FetchCurrentLocationUseCase {
+        private fun fetchCurrentLocationUseCase(coordinate: Coordinate?): FetchCurrentLocationUseCase {
             val useCase = mockk<FetchCurrentLocationUseCase>()
-            coEvery { useCase(parameter = Unit) } returns Result.success(coordinate)
+            coEvery { useCase(parameter = Unit) } returns (coordinate?.let { Result.success(it) } ?: Result.failure(IllegalStateException("location error")))
 
             return useCase
         }

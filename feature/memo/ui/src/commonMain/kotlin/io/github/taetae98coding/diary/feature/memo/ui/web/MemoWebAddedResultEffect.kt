@@ -5,14 +5,19 @@ import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEffect
 import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.feature.web.api.WebAddedResult
+import io.github.taetae98coding.diary.feature.web.api.webAddedResultKey
 import kotlin.uuid.Uuid
 
 @Composable
 internal fun MemoWebAddedResultEffect(
+    requestKey: Uuid,
     onWebAdded: (Uuid) -> Unit,
     resultEventBus: ResultEventBus = LocalResultEventBus.current,
 ) {
-    ResultEffect<WebAddedResult>(resultEventBus = resultEventBus) { result ->
+    ResultEffect<WebAddedResult>(
+        resultKey = webAddedResultKey(requestKey = requestKey),
+        resultEventBus = resultEventBus,
+    ) { result ->
         onWebAdded(result.id)
     }
 }

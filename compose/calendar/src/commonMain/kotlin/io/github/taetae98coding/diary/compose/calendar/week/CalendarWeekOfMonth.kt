@@ -13,7 +13,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.calendar.CalendarColor
-import io.github.taetae98coding.diary.compose.calendar.CalendarDefault
+import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.calendar.CalendarEvent
 import io.github.taetae98coding.diary.compose.calendar.calendarClick
 import io.github.taetae98coding.diary.compose.calendar.calendarWeekContentDescription
@@ -45,7 +45,7 @@ public fun CalendarWeekOfMonth(
     isWeekClickEnabled: Boolean = false,
     holidayProvider: () -> List<LocalDateRange> = { emptyList() },
     primaryDateProvider: () -> List<LocalDate> = { emptyList() },
-    colors: CalendarColor = CalendarDefault.colors(),
+    colors: CalendarColor = CalendarDefaults.colors(),
     content: CalendarWeekOfMonthGridScope.() -> Unit,
 ) {
     Column(
@@ -54,7 +54,7 @@ public fun CalendarWeekOfMonth(
                 yearMonth = yearMonth,
                 weekOfMonth = weekOfMonth,
                 state = selectState,
-                color = CalendarDefault.selectBackgroundColor(),
+                color = CalendarDefaults.selectBackgroundColor(),
             ),
     ) {
         HorizontalDivider()

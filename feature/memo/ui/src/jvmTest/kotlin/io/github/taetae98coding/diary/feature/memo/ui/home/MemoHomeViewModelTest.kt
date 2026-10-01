@@ -223,7 +223,7 @@ class MemoHomeViewModelTest : FunSpec() {
                     )
 
                 viewModel.filterUiState.test {
-                    awaitItem() shouldBe MemoHomeScaffoldFilterUiState()
+                    awaitItem() shouldBe MemoHomeScaffoldFilterUiState(isLoaded = false)
                     advanceUntilIdle()
                     awaitItem() shouldBe MemoHomeScaffoldFilterUiState(selectedTagIdSet = selectedTagList.map { tag -> tag.id }.toSet())
                     cancelAndIgnoreRemainingEvents()
@@ -271,12 +271,12 @@ class MemoHomeViewModelTest : FunSpec() {
                 viewModel.filterUiState.test {
                     awaitItem()
                     advanceUntilIdle()
-                    expectMostRecentItem().listQueryFilter.storedTagIdSet shouldBe setOf(firstTagId)
+                    expectMostRecentItem().listQueryFilter?.storedTagIdSet shouldBe setOf(firstTagId)
 
                     tagIdSetFlow.value = Result.success(setOf(firstTagId, secondTagId))
                     advanceUntilIdle()
 
-                    awaitItem().listQueryFilter.storedTagIdSet shouldBe setOf(firstTagId, secondTagId)
+                    awaitItem().listQueryFilter?.storedTagIdSet shouldBe setOf(firstTagId, secondTagId)
                     cancelAndIgnoreRemainingEvents()
                 }
             }
@@ -293,8 +293,9 @@ class MemoHomeViewModelTest : FunSpec() {
                     )
 
                 viewModel.filterUiState.test {
-                    awaitItem() shouldBe MemoHomeScaffoldFilterUiState()
+                    awaitItem() shouldBe MemoHomeScaffoldFilterUiState(isLoaded = false)
                     advanceUntilIdle()
+                    awaitItem() shouldBe MemoHomeScaffoldFilterUiState()
                     expectNoEvents()
                 }
             }
@@ -315,7 +316,7 @@ class MemoHomeViewModelTest : FunSpec() {
                     )
 
                 viewModel.filterUiState.test {
-                    awaitItem() shouldBe MemoHomeScaffoldFilterUiState()
+                    awaitItem() shouldBe MemoHomeScaffoldFilterUiState(isLoaded = false)
                     advanceUntilIdle()
                     awaitItem() shouldBe MemoHomeScaffoldFilterUiState(existence = MemoExistenceFilter(date = MemoFilterExistence.EXIST))
                     cancelAndIgnoreRemainingEvents()
@@ -335,8 +336,9 @@ class MemoHomeViewModelTest : FunSpec() {
                     )
 
                 viewModel.filterUiState.test {
-                    awaitItem() shouldBe MemoHomeScaffoldFilterUiState()
+                    awaitItem() shouldBe MemoHomeScaffoldFilterUiState(isLoaded = false)
                     advanceUntilIdle()
+                    awaitItem() shouldBe MemoHomeScaffoldFilterUiState()
                     expectNoEvents()
                 }
             }

@@ -12,8 +12,10 @@ import io.github.taetae98coding.diary.work.sync.work.SyncWork
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -126,6 +128,28 @@ class AndroidSyncWorkSchedulerTest {
     }
 
     @Test
+    fun `TC-SYNC-REFRESH-DOMAIN-005 TC-SYNC-REFRESH-DOMAIN-009 실행 중에 다시 요청해도 남은 작업이 없는 상태를 거치지 않고 이어진 작업이 끝나야 끝난다`() {
+        runBlocking {
+            val firstWorkGate = CompletableDeferred<Unit>()
+            coEvery { syncWork.doWork() } coAnswers {
+                executeCount++
+                if (executeCount == 1) firstWorkGate.await()
+            }
+            val manager = AndroidSyncWorkScheduler(context = context)
+            manager.sync()
+            connectNetwork()
+            withTimeout(TIMEOUT_MILLIS) { manager.state.first { state -> state == SyncWorkState.RUNNING } }
+
+            manager.sync()
+
+            manager.state.first() shouldBe SyncWorkState.PENDING
+            connectNetwork()
+            withTimeout(TIMEOUT_MILLIS) { manager.state.first { state -> state == SyncWorkState.NONE } }
+            executeCount shouldBe 2
+        }
+    }
+
+    @Test
     fun `요청한 동기화 작업이 없으면 남은 작업이 없는 상태다`() {
         runBlocking {
             val manager = AndroidSyncWorkScheduler(context = context)
@@ -148,4 +172,8 @@ class AndroidSyncWorkSchedulerTest {
             .getWorkInfosForUniqueWork(AndroidSyncWorkScheduler.SYNC_WORK_NAME)
             .get()
             .filterNot { workInfo -> workInfo.state == WorkInfo.State.CANCELLED }
+
+    private companion object {
+        const val TIMEOUT_MILLIS = 5_000L
+    }
 }

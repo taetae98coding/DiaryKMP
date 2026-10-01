@@ -118,7 +118,7 @@ class TagMemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-012 이 화면에는 완료된 메모 확인 버튼을 표시하지 않는다`() {
+    fun `이 화면에는 완료된 메모 확인 버튼을 표시하지 않는다`() {
         setTagMemoFinishedListScaffold()
 
         composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).assertDoesNotExist()

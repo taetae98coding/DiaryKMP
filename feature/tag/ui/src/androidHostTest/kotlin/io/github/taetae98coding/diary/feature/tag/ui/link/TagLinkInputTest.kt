@@ -1,8 +1,13 @@
 package io.github.taetae98coding.diary.feature.tag.ui.link
 
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasScrollAction
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
@@ -11,6 +16,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
+import kotlin.math.roundToInt
 import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
@@ -45,6 +52,22 @@ class TagLinkInputTest {
 
         composeRule.onNodeWithText(RENAMED_TAG_TITLE).assertDoesNotExist()
         composeRule.onNodeWithText("$EMOJI $RENAMED_TAG_TITLE").assertExists()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `연결한 태그의 컬러가 바뀌면 칩의 컬러 표시에 반영된다`() {
+        val tag = testTag(title = WORK_TAG_TITLE)
+        val originalColor = Color(tag.detail.color)
+        val changedColor = Color(CHANGED_TAG_COLOR)
+        val setTagList = composeRule.setTagLinkInputWithLink()
+        setTagList(listOf(tag))
+        composeRule.chipContainsColor(text = WORK_TAG_TITLE, color = originalColor) shouldBe true
+
+        setTagList(listOf(tag.copy(detail = tag.detail.copy(color = CHANGED_TAG_COLOR))))
+
+        composeRule.chipContainsColor(text = WORK_TAG_TITLE, color = changedColor) shouldBe true
+        composeRule.chipContainsColor(text = WORK_TAG_TITLE, color = originalColor) shouldBe false
     }
 
     @Test
@@ -141,5 +164,19 @@ class TagLinkInputTest {
         private const val EMOJI: String = "💼"
         private const val SCROLL_TAG_COUNT: Int = 20
         private const val SCROLL_TAG_TITLE_PREFIX: String = "TagLinkScroll"
+    }
+}
+
+private const val CHANGED_TAG_COLOR: Long = 0xFFE53935
+
+private fun ComposeContentTestRule.chipContainsColor(
+    text: String,
+    color: Color,
+): Boolean {
+    val bounds = onNodeWithText(text).fetchSemanticsNode().boundsInRoot
+    val pixelMap = onRoot().captureToImage().toPixelMap()
+
+    return (bounds.left.roundToInt() until bounds.right.roundToInt()).any { x ->
+        (bounds.top.roundToInt() until bounds.bottom.roundToInt()).any { y -> pixelMap[x, y] == color }
     }
 }

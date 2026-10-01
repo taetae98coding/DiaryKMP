@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.github.taetae98coding.diary.compose.calendar.CalendarDefault
+import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.library.compose.ui.color.contentColor
@@ -31,7 +31,7 @@ internal fun CalendarTimetableMemoBlock(
         modifier =
             modifier
                 .styleable {
-                    shape(CalendarDefault.itemShape)
+                    shape(CalendarDefaults.itemShape)
                     clip()
                     background(color)
                 }.clickable(role = Role.Button, onClick = onClick)

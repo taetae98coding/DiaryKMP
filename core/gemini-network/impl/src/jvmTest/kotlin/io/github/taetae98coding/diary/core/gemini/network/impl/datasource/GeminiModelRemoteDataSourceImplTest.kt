@@ -4,7 +4,9 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.gemini.network.api.GeminiException
 import io.github.taetae98coding.diary.core.gemini.network.api.datasource.GeminiModelRemoteDataSource
+import io.github.taetae98coding.diary.core.gemini.network.impl.API_KEY_INVALID_REASON
 import io.github.taetae98coding.diary.core.gemini.network.impl.GeminiNetworkTestKoinApplication
+import io.github.taetae98coding.diary.core.gemini.network.impl.badRequestEngine
 import io.github.taetae98coding.diary.core.gemini.network.impl.di.GeminiHttpClientEngine
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
@@ -15,6 +17,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldEndWith
 import io.kotest.matchers.string.shouldStartWith
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.matchers.types.shouldNotBeInstanceOf
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -152,8 +155,12 @@ class GeminiModelRemoteDataSourceImplTest :
 
         test("TC-GEMINI-MODEL-LIST-DATA-005: 인증 정보가 유효하지 않은 실패를 구분해 알린다") {
             val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
-            listOf(HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden).forEach { status ->
-                val dataSource = createDataSource(MockEngine { respondError(status) })
+            listOf(
+                MockEngine { respondError(HttpStatusCode.Unauthorized) },
+                MockEngine { respondError(HttpStatusCode.Forbidden) },
+                badRequestEngine(reason = API_KEY_INVALID_REASON),
+            ).forEach { engine ->
+                val dataSource = createDataSource(engine)
 
                 val actual = shouldThrow<GeminiException.InvalidApiKey> { dataSource.getAvailableModel(apiKey = apiKey) }
 
@@ -164,18 +171,19 @@ class GeminiModelRemoteDataSourceImplTest :
         test("TC-GEMINI-MODEL-LIST-DATA-006: 그 밖의 실패를 실패로 알린다") {
             val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
             listOf(
-                HttpStatusCode.BadRequest,
-                HttpStatusCode.TooManyRequests,
-                HttpStatusCode.InternalServerError,
-            ).forEach { status ->
-                val dataSource = createDataSource(MockEngine { respondError(status) })
+                MockEngine { respondError(HttpStatusCode.BadRequest) },
+                badRequestEngine(reason = OTHER_BAD_REQUEST_REASON),
+                MockEngine { respondError(HttpStatusCode.TooManyRequests) },
+                MockEngine { respondError(HttpStatusCode.InternalServerError) },
+            ).forEach { engine ->
+                val dataSource = createDataSource(engine)
 
-                shouldThrow<ResponseException> { dataSource.getAvailableModel(apiKey = apiKey) }
+                shouldThrow<ResponseException> { dataSource.getAvailableModel(apiKey = apiKey) }.shouldNotBeInstanceOf<GeminiException.InvalidApiKey>()
             }
 
             val brokenDataSource = createDataSource(createEngine(content = "{"))
 
-            shouldThrow<Throwable> { brokenDataSource.getAvailableModel(apiKey = apiKey) }
+            shouldThrow<Throwable> { brokenDataSource.getAvailableModel(apiKey = apiKey) }.shouldNotBeInstanceOf<GeminiException.InvalidApiKey>()
         }
 
         test("TC-GEMINI-MODEL-LIST-DATA-007: 조회할 때마다 새로 조회한다") {
@@ -219,6 +227,8 @@ class GeminiModelRemoteDataSourceImplTest :
     }) {
     private companion object {
         private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
+
+        private const val OTHER_BAD_REQUEST_REASON = "INVALID_ARGUMENT"
 
         private fun modelName(): String = "models/gemini-${fixtureMonkey.giveMeOne<Uuid>()}"
 

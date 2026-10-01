@@ -36,6 +36,6 @@ internal fun NavBackStack<ScreenNavKey>.navigateToTagAddFromMemoHomeFilter() {
     add(TagAddNavKey())
 }
 
-internal fun NavBackStack<ScreenNavKey>.navigateToWebAddFromMemoWebInput() {
-    add(WebAddNavKey())
+internal fun NavBackStack<ScreenNavKey>.navigateToWebAddFromMemoWebInput(requestKey: Uuid) {
+    add(WebAddNavKey(requestKey = requestKey))
 }

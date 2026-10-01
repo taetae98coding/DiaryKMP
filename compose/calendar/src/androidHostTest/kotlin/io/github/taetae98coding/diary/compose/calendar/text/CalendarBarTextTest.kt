@@ -51,6 +51,7 @@ class CalendarBarTextTest {
 
         val textLayoutResult = composeRule.onNodeWithText(LONG_TEXT).textLayoutResult()
 
+        textLayoutResult.lineCount shouldBe 1
         val lastLineIndex = textLayoutResult.lineCount - 1
         (0..lastLineIndex).none { lineIndex -> textLayoutResult.isLineEllipsized(lineIndex) } shouldBe true
         textLayoutResult.getLineEnd(lineIndex = lastLineIndex, visibleEnd = false) shouldBe LONG_TEXT.length

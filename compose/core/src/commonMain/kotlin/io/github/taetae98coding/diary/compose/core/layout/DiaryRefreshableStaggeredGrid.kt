@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.compose.core.layout
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
@@ -30,6 +32,7 @@ public fun DiaryRefreshableStaggeredGrid(
     modifier: Modifier = Modifier,
     state: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     isRefreshingProvider: () -> Boolean = { false },
+    bottomPadding: Dp = DiaryTheme.dimens.screenVerticalPadding,
     listTestTag: String = DIARY_REFRESHABLE_STAGGERED_GRID_TEST_TAG,
     content: LazyStaggeredGridScope.() -> Unit,
 ) {
@@ -45,7 +48,13 @@ public fun DiaryRefreshableStaggeredGrid(
                     .fillMaxSize()
                     .testTag(listTestTag),
             state = state,
-            contentPadding = DiaryTheme.dimens.screenPaddingValues,
+            contentPadding =
+                PaddingValues(
+                    start = DiaryTheme.dimens.screenHorizontalPadding,
+                    top = DiaryTheme.dimens.screenVerticalPadding,
+                    end = DiaryTheme.dimens.screenHorizontalPadding,
+                    bottom = bottomPadding,
+                ),
             verticalItemSpacing = DiaryTheme.dimens.itemSpacing,
             horizontalArrangement = Arrangement.spacedBy(DiaryTheme.dimens.itemSpacing),
             content = content,

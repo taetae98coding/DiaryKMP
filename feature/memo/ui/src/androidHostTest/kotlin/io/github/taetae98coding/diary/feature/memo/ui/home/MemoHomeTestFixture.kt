@@ -26,3 +26,15 @@ internal fun loadingMemoPagingData(): PagingData<MemoListItem> =
                 append = LoadState.NotLoading(endOfPaginationReached = false),
             ),
     )
+
+internal fun memoPagingDataOf(
+    itemList: List<MemoListItem>,
+    isRefreshing: Boolean,
+): PagingData<MemoListItem> {
+    val loaded = LoadState.NotLoading(endOfPaginationReached = true)
+
+    return PagingData.from(
+        data = itemList,
+        sourceLoadStates = LoadStates(refresh = if (isRefreshing) LoadState.Loading else loaded, prepend = loaded, append = loaded),
+    )
+}

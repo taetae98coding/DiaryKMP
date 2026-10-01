@@ -49,7 +49,10 @@ internal fun WebDetailViewModeBar(
                 modifier = Modifier.size(ButtonDefaults.IconSize),
             )
             Spacer(modifier = Modifier.width(WebDetailViewModeBarDefaults.LabelSpacing))
-            Text(text = stringResource(webDetailViewModeLabel(viewMode = viewMode)))
+            Text(
+                text = stringResource(webDetailViewModeLabel(viewMode = viewMode)),
+                maxLines = WebDetailViewModeBarDefaults.LABEL_MAX_LINES,
+            )
             Spacer(modifier = Modifier.width(WebDetailViewModeBarDefaults.LabelSpacing))
             DropDownIcon(modifier = Modifier.size(ButtonDefaults.IconSize))
         }

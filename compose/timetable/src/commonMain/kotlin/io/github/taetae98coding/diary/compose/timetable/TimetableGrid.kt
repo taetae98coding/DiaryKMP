@@ -25,7 +25,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Constraints
-import io.github.taetae98coding.diary.compose.calendar.CalendarDefault
+import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import kotlinx.datetime.LocalDate
@@ -203,7 +203,7 @@ private fun TimetableDayColumn(
             modifier.timetableTimeSelectBackground(
                 date = date,
                 state = selectState,
-                color = CalendarDefault.selectBackgroundColor(),
+                color = CalendarDefaults.selectBackgroundColor(),
             ),
     ) { measurables, constraints ->
         val horizontalSpacing = TimetableDefaults.TimeItemHorizontalSpacing.roundToPx()

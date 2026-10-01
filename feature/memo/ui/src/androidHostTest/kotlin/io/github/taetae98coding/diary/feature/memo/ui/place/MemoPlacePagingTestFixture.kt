@@ -27,6 +27,17 @@ internal fun refreshingPlacePagingData(): PagingData<Place> =
             ),
     )
 
+internal fun refreshFailedPlacePagingData(): PagingData<Place> =
+    PagingData.from(
+        data = emptyList(),
+        sourceLoadStates =
+            LoadStates(
+                refresh = LoadState.Error(IllegalStateException("refresh failed")),
+                prepend = LoadState.NotLoading(endOfPaginationReached = false),
+                append = LoadState.NotLoading(endOfPaginationReached = false),
+            ),
+    )
+
 internal fun appendFailedPlacePagingDataOf(placeList: List<Place>): PagingData<Place> =
     PagingData.from(
         data = placeList,

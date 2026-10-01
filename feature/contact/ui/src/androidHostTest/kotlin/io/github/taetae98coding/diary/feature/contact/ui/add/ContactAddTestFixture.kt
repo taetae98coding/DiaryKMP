@@ -105,6 +105,7 @@ internal fun ComposeContentTestRule.setContactAddScreen(
     setContent {
         ContactAddScreenTestTheme(resultEventBus = resultEventBus) {
             ContactAddScreen(
+                addedResultRequestKey = null,
                 navigateUp = navigateUp,
                 componentVisibleProvider = { componentVisible },
                 viewModel = viewModel,

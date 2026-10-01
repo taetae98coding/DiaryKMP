@@ -11,6 +11,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -18,6 +19,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.time.Duration.Companion.hours
 
 private val PERIOD = 4.hours
+private val SYNC_DURATION = 1.hours
 
 class CoroutinePeriodicSyncWorkSchedulerTest :
     BehaviorSpec({
@@ -139,6 +141,38 @@ class CoroutinePeriodicSyncWorkSchedulerTest :
                         executeCount shouldBe 1
 
                         advanceTimeBy(PERIOD)
+                        runCurrent()
+                        executeCount shouldBe 2
+                    }
+                }
+            }
+        }
+
+        Given("동기화가 끝나는 데 시간이 걸리는 주기 동기화가 예약되어 있다") {
+            When("주기가 돌아와 주기 동기화가 실행되고 끝난다") {
+                Then("TC-DATA-SYNC-DOMAIN-091 끝난 시점부터 다음 주기를 센다") {
+                    runTest {
+                        var executeCount = 0
+                        val syncWork = mockk<SyncWork>()
+                        coEvery { syncWork.doWork() } coAnswers {
+                            executeCount++
+                            delay(SYNC_DURATION)
+                        }
+                        val scheduler =
+                            CoroutinePeriodicSyncWorkScheduler(
+                                syncWork = syncWork,
+                                scope = backgroundScope,
+                            )
+                        scheduler.schedule(period = PERIOD)
+                        advanceTimeBy(PERIOD)
+                        runCurrent()
+                        executeCount shouldBe 1
+
+                        advanceTimeBy(PERIOD)
+                        runCurrent()
+                        executeCount shouldBe 1
+
+                        advanceTimeBy(SYNC_DURATION)
                         runCurrent()
                         executeCount shouldBe 2
                     }

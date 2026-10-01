@@ -5,6 +5,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.navigation3.runtime.result.ResultEventBus
+import androidx.paging.PagingData
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailLinkViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.link.DEFAULT_PICKER_TAG_ADD
@@ -15,6 +16,8 @@ import io.github.taetae98coding.diary.feature.tag.ui.link.TagLinkInputUiState
 import io.github.taetae98coding.diary.feature.tag.ui.link.WORK_TAG_TITLE
 import io.github.taetae98coding.diary.feature.tag.ui.link.awaitTagLinkPickerRows
 import io.github.taetae98coding.diary.feature.tag.ui.link.dialogNodeWithText
+import io.github.taetae98coding.diary.feature.tag.ui.link.refreshFailedTagPagingData
+import io.github.taetae98coding.diary.feature.tag.ui.link.refreshingTagPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.link.tagPagingDataOf
 import io.github.taetae98coding.diary.feature.tag.ui.link.testTag
 import io.github.taetae98coding.diary.feature.tag.ui.sendTagAddedResult
@@ -181,6 +184,36 @@ class TagDetailScreenLinkTest {
     }
 
     @Test
+    fun `TC-TAG-LINK-INPUT-FEATURE-025 목록의 대상을 확인하는 중에는 태그 연결 칩이 목록을 연다`() {
+        var tagAddCount = 0
+        setTagDetailScreen(
+            tagPagingData = refreshingTagPagingData(),
+            navigateToTagAdd = { tagAddCount += 1 },
+        )
+
+        composeRule.onNodeWithText(DEFAULT_TAG_LINK_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        tagAddCount shouldBe 0
+        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
+    }
+
+    @Test
+    fun `TC-TAG-LINK-INPUT-FEATURE-034 목록의 대상을 처음 불러오지 못하면 태그 연결 칩이 목록을 연다`() {
+        var tagAddCount = 0
+        setTagDetailScreen(
+            tagPagingData = refreshFailedTagPagingData(),
+            navigateToTagAdd = { tagAddCount += 1 },
+        )
+
+        composeRule.onNodeWithText(DEFAULT_TAG_LINK_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        tagAddCount shouldBe 0
+        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
+    }
+
+    @Test
     fun `TC-TAG-LINK-INPUT-DOMAIN-011 연결할 수 있는 태그가 없어도 목록 대상이 있으면 목록이 열린다`() {
         val finishedTag = testTag(title = EXERCISE_TAG_TITLE, isFinished = true)
         var tagAddCount = 0
@@ -231,6 +264,7 @@ class TagDetailScreenLinkTest {
             MutableStateFlow(tagDetailUiState(id = FIRST_TAG_ID, detail = tagDetail(TAG_TITLE))),
         linkUiState: TagLinkInputUiState = TagLinkInputUiState(),
         selectableTagList: List<Tag> = emptyList(),
+        tagPagingData: PagingData<Tag> = tagPagingDataOf(selectableTagList),
         navigateToDetail: (Uuid) -> Unit = {},
         navigateToTagAdd: () -> Unit = {},
         resultEventBus: ResultEventBus = ResultEventBus(),
@@ -238,7 +272,7 @@ class TagDetailScreenLinkTest {
         composeRule.setTagDetailScreen(
             viewModel = screenTestViewModel(uiState = uiState),
             linkUiState = linkUiState,
-            tagPagingData = tagPagingDataOf(selectableTagList),
+            tagPagingData = tagPagingData,
             navigateToDetail = navigateToDetail,
             navigateToTagAdd = navigateToTagAdd,
             resultEventBus = resultEventBus,

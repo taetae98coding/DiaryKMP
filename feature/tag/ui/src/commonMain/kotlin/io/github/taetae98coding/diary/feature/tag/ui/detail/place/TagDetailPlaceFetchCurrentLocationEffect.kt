@@ -7,12 +7,12 @@ import kotlinx.coroutines.flow.filter
 
 @Composable
 internal fun TagDetailPlaceFetchCurrentLocationEffect(
-    mapViewModel: TagDetailPlaceMapViewModel,
+    placeMapViewModel: TagDetailPlaceMapViewModel,
     state: TagDetailPlaceState = rememberTagDetailPlaceState(),
 ) {
-    LaunchedEffect(state, mapViewModel) {
+    LaunchedEffect(state, placeMapViewModel) {
         snapshotFlow { state.viewMode }
             .filter { viewMode -> viewMode == TagDetailPlaceViewMode.MAP }
-            .collect { mapViewModel.fetchCurrentLocation() }
+            .collect { placeMapViewModel.fetchCurrentLocation() }
     }
 }

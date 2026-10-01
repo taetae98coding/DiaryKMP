@@ -27,6 +27,7 @@ class WebAddTagInputTest {
         composeRule.setContent {
             WebAddScreenTestTheme {
                 WebAddScreen(
+                    addedResultRequestKey = null,
                     navigateToTagAdd = {},
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                     navigateUp = {},
@@ -57,6 +58,7 @@ class WebAddTagInputTest {
         restorationTester.setContent {
             WebAddScreenTestTheme {
                 WebAddScreen(
+                    addedResultRequestKey = null,
                     navigateToTagAdd = {},
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                     navigateUp = {},

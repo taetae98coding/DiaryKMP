@@ -34,8 +34,7 @@ class SettingMapDefaultProviderSectionTest {
         setSettingMapDefaultProviderSection()
 
         composeRule.onNodeWithText("기본 지도").assertExists()
-        composeRule.onNodeWithText("네이버").assertExists()
-        composeRule.onNodeWithText("Google").assertExists()
+        assertDisplayedAbove(upperLabel = "네이버", lowerLabel = "Google")
     }
 
     @Test
@@ -43,8 +42,7 @@ class SettingMapDefaultProviderSectionTest {
         setSettingMapDefaultProviderSection()
 
         composeRule.onNodeWithText(DEFAULT_DEFAULT_PROVIDER_LABEL).assertExists()
-        composeRule.onNodeWithText(DEFAULT_NAVER_LABEL).assertExists()
-        composeRule.onNodeWithText(DEFAULT_GOOGLE_LABEL).assertExists()
+        assertDisplayedAbove(upperLabel = DEFAULT_NAVER_LABEL, lowerLabel = DEFAULT_GOOGLE_LABEL)
     }
 
     @Test
@@ -82,14 +80,6 @@ class SettingMapDefaultProviderSectionTest {
     }
 
     @Test
-    fun `네이버 지도 줄을 Google 지도 줄보다 위에 표시한다`() {
-        setSettingMapDefaultProviderSection()
-
-        composeRule.onNodeWithText(DEFAULT_NAVER_LABEL).getUnclippedBoundsInRoot().top shouldBeLessThan
-            composeRule.onNodeWithText(DEFAULT_GOOGLE_LABEL).getUnclippedBoundsInRoot().top
-    }
-
-    @Test
     fun `TC-SETTING-MAP-FEATURE-008 선택되어 있지 않은 줄을 선택하면 그 지도를 기본 지도로 요청한다`() {
         val selectedProviders = mutableListOf<MapProvider>()
         setSettingMapDefaultProviderSection(onSelect = { provider -> selectedProviders.add(provider) })
@@ -112,6 +102,14 @@ class SettingMapDefaultProviderSectionTest {
                 )
             }
         }
+    }
+
+    private fun assertDisplayedAbove(
+        upperLabel: String,
+        lowerLabel: String,
+    ) {
+        composeRule.onNodeWithText(upperLabel).getUnclippedBoundsInRoot().top shouldBeLessThan
+            composeRule.onNodeWithText(lowerLabel).getUnclippedBoundsInRoot().top
     }
 
     private fun displayedTexts(): List<String> =

@@ -56,6 +56,7 @@ class PlaceAddScreenRetentionTest {
         restorationTester.setContent {
             PlaceAddScreenTestTheme {
                 PlaceAddScreen(
+                    addedResultRequestKey = null,
                     navigateToTagAdd = {},
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                     navigateUp = {},

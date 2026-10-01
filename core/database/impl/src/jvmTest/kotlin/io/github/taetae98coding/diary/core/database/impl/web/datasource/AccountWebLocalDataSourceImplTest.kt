@@ -221,6 +221,19 @@ class AccountWebLocalDataSourceImplTest :
             recentlyUpdatedSorted.toSet() shouldBe titleSorted.toSet()
         }
 
+        test("TC-MEMO-WEB-INPUT-DOMAIN-018 고른 웹 항목은 고른 순서와 관계없이 제목 오름차순으로 조회된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val firstWeb = web(title = FIRST_WEB_TITLE)
+            val middleWeb = web(title = MIDDLE_WEB_TITLE)
+            val lastWeb = web(title = LAST_WEB_TITLE)
+            webTransaction.upsert(accountId = accountId, webList = listOf(middleWeb, lastWeb, firstWeb), webTagList = emptyList())
+
+            dataSource
+                .get(accountId = accountId, webIdSet = linkedSetOf(lastWeb.id, firstWeb.id, middleWeb.id))
+                .first()
+                .map { web -> web.id } shouldBe listOf(firstWeb.id, middleWeb.id, lastWeb.id)
+        }
+
         test("정렬을 고르지 않은 기본 순서는 제목순과 같다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstWeb = web(title = FIRST_WEB_TITLE)

@@ -64,7 +64,10 @@ internal fun CalendarWeekOfMonthLazyVerticalGrid(
                 list.forEach { item ->
                     val prefixSpan = cursor.daysUntil(item.dateRange.start)
                     if (prefixSpan > 0) {
-                        item(span = { GridItemSpan(prefixSpan) }) { }
+                        item(
+                            key = item.key?.let { PREFIX_SPACER_KEY to it },
+                            span = { GridItemSpan(prefixSpan) },
+                        ) { }
                     }
                     item(
                         key = item.key,
@@ -76,11 +79,18 @@ internal fun CalendarWeekOfMonthLazyVerticalGrid(
                 }
                 val postfixSpan = cursor.daysUntil(dateRange.endInclusive) + 1
                 if (postfixSpan > 0) {
-                    item(span = { GridItemSpan(postfixSpan) }) { }
+                    item(
+                        key = list.last().key?.let { POSTFIX_SPACER_KEY to it },
+                        span = { GridItemSpan(postfixSpan) },
+                    ) { }
                 }
             }
     }
 }
+
+// 첫 칸이 빈 칸인 줄에서도 스크롤 위치가 유지되도록 빈 칸에도 옆 아이템에서 만든 고정 키를 준다.
+private const val PREFIX_SPACER_KEY = "CalendarWeekOfMonthPrefixSpacer"
+private const val POSTFIX_SPACER_KEY = "CalendarWeekOfMonthPostfixSpacer"
 
 @ComponentPreview
 @Composable

@@ -12,6 +12,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.ViewModelStoreProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
+import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
@@ -62,6 +63,7 @@ internal fun SearchHomeMemoContent(
             listState = listState,
             sortProvider = { sort },
             itemListProvider = { memoPagingItems.itemSnapshotList.items },
+            isRefreshingProvider = { memoPagingItems.loadState.refresh is LoadState.Loading },
         )
         SearchHomeMemoList(
             onEvent = { event ->

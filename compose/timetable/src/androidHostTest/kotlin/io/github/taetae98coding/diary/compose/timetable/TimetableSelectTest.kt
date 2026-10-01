@@ -181,6 +181,36 @@ class TimetableSelectTest {
     }
 
     @Test
+    fun `TC-TIMETABLE-FEATURE-030 날짜 선택을 시간대 영역으로 끌어도 날짜 선택으로 유지된다`() {
+        setTimetable(type = TimetableType.WEEK, date = september(day = 20))
+
+        performLongPress(dayCenter(day = 22))
+        performMoveTo(timePosition(hour = 10, minute = 10, day = 24))
+        performUp()
+
+        eventList shouldBe listOf(TimetableEvent.SelectDate(dateRange = september(day = 22)..september(day = 24)))
+    }
+
+    @Test
+    fun `TC-TIMETABLE-FEATURE-031 주간 형식에서 선택 기간은 표시 중인 주를 넘지 않는다`() {
+        val state = TimetableState(type = TimetableType.WEEK, initialDate = september(day = 20))
+        setTimetable(state = state)
+        val start = dayCenter(day = 24)
+        val rootWidth =
+            composeRule
+                .onRoot()
+                .fetchSemanticsNode()
+                .size.width
+
+        performLongPress(start)
+        performMoveTo(start.copy(x = rootWidth + OUTSIDE_DRAG_DISTANCE_PX))
+        performUp()
+
+        eventList shouldBe listOf(TimetableEvent.SelectDate(dateRange = september(day = 24)..september(day = 26)))
+        composeRule.runOnIdle { state.currentDateRange shouldBe september(day = 20)..september(day = 26) }
+    }
+
+    @Test
     fun `TC-TIMETABLE-FEATURE-026 선택하는 동안 시스템이 조작을 중단하면 그 시점의 기간이 전달된다`() {
         setTimetable()
 
@@ -359,3 +389,4 @@ private fun september(
 private const val MEETING = "Meeting"
 private const val VACATION = "Vacation"
 private const val LONG_PRESS_MARGIN_MILLIS = 100L
+private const val OUTSIDE_DRAG_DISTANCE_PX = 200F

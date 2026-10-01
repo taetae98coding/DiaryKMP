@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextOverflow
 import io.github.taetae98coding.diary.compose.core.color.DiaryColorIndicator
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
@@ -35,6 +36,7 @@ public fun DiaryPickerRow(
     Row(
         modifier =
             modifier
+                .then(if (enabled) Modifier else Modifier.clearAndSetSemantics {})
                 .clip(CircleShape)
                 .toggleable(
                     value = isSelected,

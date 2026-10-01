@@ -7,8 +7,10 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -189,6 +191,27 @@ class PlaylistHomeScaffoldTest {
         eventList shouldBe listOf(PlaylistHomeScaffoldEvent.ClickNavigateUp)
     }
 
+    @Test
+    fun `추가 버튼이 보이는 동안 끝까지 스크롤하면 마지막 곡 카드가 추가 버튼 위에 놓인다`() {
+        val musicList = List(SCROLL_MUSIC_COUNT) { index -> testMusic(title = "$FIRST_TITLE-$index") }
+        setPlaylistHomeScaffold(musicList = musicList)
+
+        composeRule.onNodeWithTag(PLAYLIST_HOME_LIST_TEST_TAG).performScrollToIndex(musicList.lastIndex)
+
+        val lastCardBottom =
+            composeRule
+                .onAllNodesWithTag(MUSIC_CARD_TEST_TAG)
+                .fetchSemanticsNodes()
+                .maxOf { node -> node.boundsInRoot.bottom }
+        val addButtonTop =
+            composeRule
+                .onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION)
+                .fetchSemanticsNode()
+                .boundsInRoot
+                .top
+        (lastCardBottom <= addButtonTop) shouldBe true
+    }
+
     private fun setPlaylistHomeScaffold(
         musicList: List<Music> = emptyList(),
         onEvent: (PlaylistHomeScaffoldEvent) -> Unit = {},
@@ -218,5 +241,6 @@ class PlaylistHomeScaffoldTest {
         private const val FIRST_ARTIST = "AlphaArtist"
         private const val SECOND_TITLE = "BravoMusic"
         private const val SECOND_ARTIST = "BravoArtist"
+        private const val SCROLL_MUSIC_COUNT = 20
     }
 }

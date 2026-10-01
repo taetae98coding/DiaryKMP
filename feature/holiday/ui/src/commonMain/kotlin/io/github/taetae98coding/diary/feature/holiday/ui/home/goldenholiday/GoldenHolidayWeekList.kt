@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.calendar.CalendarColor
-import io.github.taetae98coding.diary.compose.calendar.CalendarDefault
+import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.calendar.select.calendarWeekSelectDrag
 import io.github.taetae98coding.diary.compose.calendar.select.rememberCalendarSelectState
 import io.github.taetae98coding.diary.compose.calendar.week.CalendarWeekOfMonth
@@ -27,7 +27,7 @@ internal fun GoldenHolidayWeekList(
     goldenHoliday: GoldenHoliday,
     onSelectDate: (LocalDateRange) -> Unit,
     modifier: Modifier = Modifier,
-    colors: CalendarColor = CalendarDefault.colors(),
+    colors: CalendarColor = CalendarDefaults.colors(),
 ) {
     val annualLeaveLabel = stringResource(Res.string.holiday_annual_leave_item_label)
     val annualLeaveColor = DiaryTheme.colorScheme.primary

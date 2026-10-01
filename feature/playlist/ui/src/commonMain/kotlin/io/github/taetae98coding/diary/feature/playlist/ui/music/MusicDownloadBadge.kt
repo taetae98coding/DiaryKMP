@@ -43,7 +43,7 @@ internal fun MusicDownloadBadge(
                     testTag = MUSIC_DOWNLOAD_BADGE_TEST_TAG
                 },
         shape = CircleShape,
-        color = DiaryTheme.colorScheme.surfaceContainerHighest,
+        color = DiaryTheme.colorScheme.surfaceDim,
         contentColor = if (state is MusicDownloadState.Failed) DiaryTheme.colorScheme.error else DiaryTheme.colorScheme.onSurface,
     ) {
         Box(

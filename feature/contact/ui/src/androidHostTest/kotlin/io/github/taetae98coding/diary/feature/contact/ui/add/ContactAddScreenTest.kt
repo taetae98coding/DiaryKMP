@@ -154,6 +154,38 @@ class ContactAddScreenTest {
     }
 
     @Test
+    fun `TC-CONTACT-ADD-FEATURE-038 키는 전각 숫자를 반영하지 않는다`() {
+        composeRule.setContactAddScreen()
+
+        listOf(
+            "１７５" to "",
+            "17５.５" to "17.",
+        ).forEach { (typed, expected) ->
+            composeRule.heightInput().performTextClearance()
+            composeRule.heightInput().performTextInput(typed)
+            composeRule.waitForIdle()
+
+            composeRule.heightInput().assert(hasText(expected))
+        }
+    }
+
+    @Test
+    fun `TC-CONTACT-ADD-FEATURE-038 신발 사이즈는 전각 숫자를 반영하지 않는다`() {
+        composeRule.setContactAddScreen()
+
+        listOf(
+            "２５０" to "",
+            "2５0" to "20",
+        ).forEach { (typed, expected) ->
+            composeRule.footSizeInput().performTextClearance()
+            composeRule.footSizeInput().performTextInput(typed)
+            composeRule.waitForIdle()
+
+            composeRule.footSizeInput().assert(hasText(expected))
+        }
+    }
+
+    @Test
     fun `TC-CONTACT-ADD-FEATURE-037 키와 신발 사이즈는 입력한 값을 한 번에 지울 수 있다`() {
         composeRule.setContactAddScreen()
 
@@ -187,6 +219,7 @@ class ContactAddScreenTest {
         restorationTester.setContent {
             ContactAddScreenTestTheme {
                 ContactAddScreen(
+                    addedResultRequestKey = null,
                     navigateUp = {},
                     componentVisibleProvider = { ContactAddScaffoldComponentVisible() },
                     viewModel = viewModel,
@@ -227,6 +260,7 @@ class ContactAddScreenTest {
 
             ContactAddScreenTestTheme {
                 ContactAddScreen(
+                    addedResultRequestKey = null,
                     navigateUp = {},
                     componentVisibleProvider = { ContactAddScaffoldComponentVisible() },
                     viewModel = viewModel,

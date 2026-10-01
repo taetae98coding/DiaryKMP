@@ -75,6 +75,7 @@ private fun EntryProviderScope<ScreenNavKey>.placeAddEntry(backStack: NavBackSta
             navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
             navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
             tagAddRequestKey = tagAddRequestKey,
+            addedResultRequestKey = key.requestKey,
             initialCoordinate = key.toCoordinateOrNull(),
             addViewModel = koinViewModel(),
             searchViewModel = koinViewModel(),

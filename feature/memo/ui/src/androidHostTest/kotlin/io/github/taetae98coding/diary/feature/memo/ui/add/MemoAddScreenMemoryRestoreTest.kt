@@ -5,14 +5,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
-import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.contact.testContact
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
-import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PRIMARY_TAG_DESCRIPTION
+import io.github.taetae98coding.diary.feature.memo.ui.tag.hasPrimaryTagState
 import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.github.taetae98coding.diary.feature.memo.ui.web.testWeb
 import io.kotest.matchers.shouldBe
@@ -46,7 +45,7 @@ class MemoAddScreenMemoryRestoreTest {
 
         composeRule.onNodeWithText(TARGET_TAG_TITLE).assertExists()
         composeRule.onNodeWithText(OTHER_TAG_TITLE).assertDoesNotExist()
-        composeRule.onAllNodesWithContentDescription(DEFAULT_PRIMARY_TAG_DESCRIPTION).assertCountEquals(1)
+        composeRule.onAllNodes(hasPrimaryTagState()).assertCountEquals(1)
         viewModelsList
             .last()
             .tagViewModel.selection.value.primaryTagId shouldBe targetTag.id
@@ -126,7 +125,7 @@ class MemoAddScreenMemoryRestoreTest {
 @Composable
 private fun MemoryRestoreTestMemoAddScreen(viewModels: MemoAddScreenViewModels) {
     MemoAddScreen(
-        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+        addRequestKey = TEST_ADD_REQUEST_KEY,
         addViewModel = viewModels.viewModel,
         tagViewModel = viewModels.tagViewModel,
         webViewModel = viewModels.webViewModel,

@@ -44,7 +44,7 @@ internal object ContactFootSizeInputTransformation : InputTransformation {
         val originalLength = length
         val sanitized =
             asCharSequence()
-                .filter { char -> char.isDigit() }
+                .filter { char -> char in DIGIT_RANGE }
                 .take(MAX_DIGIT_COUNT)
                 .toString()
         if (sanitized.contentEquals(asCharSequence())) return
@@ -53,10 +53,13 @@ internal object ContactFootSizeInputTransformation : InputTransformation {
     }
 }
 
-// 입력이 정해진 자리 수의 숫자만 남기므로 비어 있지 않은 값은 항상 정수로 읽을 수 있다.
+// 입력이 정해진 자리 수의 0~9 숫자만 남기므로 비어 있지 않은 값은 항상 정수로 읽을 수 있다.
 internal fun TextFieldState.footSizeOrNull(): Length? = text.toString().toIntOrNull()?.millimeter
 
 private const val MAX_DIGIT_COUNT = 3
+
+// Char.isDigit은 전각 숫자 같은 유니코드 숫자도 받지만 toIntOrNull은 0~9만 읽으므로 범위로 거른다.
+private val DIGIT_RANGE = '0'..'9'
 
 @ComponentPreview
 @Composable

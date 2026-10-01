@@ -60,6 +60,7 @@ public fun DiaryTheme(
             colorIndicatorSpacing = 12.dp,
             calendarItemSpacing = 2.dp,
             inProgressIndicatorSize = 24.dp,
+            floatingActionButtonClearance = 88.dp,
         )
 
     CompositionLocalProvider(LocalDiaryDimens provides dimens) {

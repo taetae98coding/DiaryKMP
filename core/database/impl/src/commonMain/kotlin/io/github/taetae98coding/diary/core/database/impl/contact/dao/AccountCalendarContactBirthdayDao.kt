@@ -16,10 +16,11 @@ internal interface AccountCalendarContactBirthdayDao {
     // 달력 구분이 NULL인 행은 구분 컬럼이 생기기 전에 저장된 생일이라 기본값인 양력으로 다룬다.
     @Query(
         """
-        WITH target_year(year) AS (
+        WITH RECURSIVE target_year(year) AS (
             SELECT CAST(strftime('%Y', date(:start)) AS INTEGER)
-            UNION
-            SELECT CAST(strftime('%Y', date(:endInclusive)) AS INTEGER)
+            UNION ALL
+            SELECT year + 1 FROM target_year
+            WHERE year < CAST(strftime('%Y', date(:endInclusive)) AS INTEGER)
         ),
         birthday_occurrence AS (
             SELECT contact.id AS contact_id, contact.name AS name,

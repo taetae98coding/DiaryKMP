@@ -56,6 +56,7 @@ internal fun QrHomeScaffold(
                     .padding(paddingValues),
             qrPagingItems = qrPagingItems,
             isRefreshingProvider = { uiStateProvider().isRefreshing },
+            bottomPadding = DiaryTheme.dimens.floatingActionButtonClearance,
         )
     }
 }

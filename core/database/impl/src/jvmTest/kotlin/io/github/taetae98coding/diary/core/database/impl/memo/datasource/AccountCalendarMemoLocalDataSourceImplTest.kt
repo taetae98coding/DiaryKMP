@@ -616,16 +616,18 @@ class AccountCalendarMemoLocalDataSourceImplTest :
             calendarMemoIdList(accountId = accountId) shouldContainExactlyInAnyOrder listOf(tagMemo.id, noTagMemo.id)
         }
 
-        test("TC-CALENDAR-HOME-DOMAIN-003 필터와 일치하면 완료된 메모도 조회하고 삭제된 메모는 조회하지 않는다") {
+        test("TC-CALENDAR-HOME-DOMAIN-003 필터와 일치하면 완료된 메모도 조회하고 삭제된 메모와 기간이 없는 메모는 조회하지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag().copy(isFinished = false, isDeleted = false)
             tagTransaction.upsert(accountId = accountId, tagList = listOf(tag), tagLinkList = emptyList())
             val activeMemo = overlappingMemo().copy(isFinished = false)
             val finishedMemo = overlappingMemo().copy(isFinished = true)
             val deletedMemo = overlappingMemo().copy(isDeleted = true)
+            val noDateTimeMemo = memo(detail = detail(isAllDay = null, start = null, endInclusive = null))
             upsertWithTag(accountId, activeMemo, tag.id)
             upsertWithTag(accountId, finishedMemo, tag.id)
             upsertWithTag(accountId, deletedMemo, tag.id)
+            upsertWithTag(accountId, noDateTimeMemo, tag.id)
 
             selectFilterTag(accountId = accountId, tagId = tag.id)
 

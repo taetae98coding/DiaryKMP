@@ -101,7 +101,6 @@ internal fun WebDetailScreen(
             WebDetailMemoContent(
                 id = id,
                 viewModelStoreProvider = viewModelStoreProvider,
-                navigateToMemoAdd = navigateToMemoAdd,
                 navigateToMemoDetail = navigateToMemoDetail,
                 modifier = Modifier.fillMaxSize(),
                 snackbarHostState = formState.hostState,

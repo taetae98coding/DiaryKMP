@@ -42,13 +42,13 @@ internal class TagHomeViewModel(
     private val deleteTagUseCase: DeleteTagUseCase,
     private val restoreTagUseCase: RestoreTagUseCase,
 ) : ViewModel() {
-    val filterUiState: StateFlow<TagHomeScaffoldFilterUiState> =
+    val filterUiState: StateFlow<TagHomeScaffoldFilterUiState?> =
         getTopLevelTagFilterUseCase(parameter = Unit)
             .map { result -> TagHomeScaffoldFilterUiState(isApplied = result.getOrDefault(false)) }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileUiSubscribed,
-                initialValue = TagHomeScaffoldFilterUiState(),
+                initialValue = null,
             )
 
     val sort: StateFlow<ListSort>

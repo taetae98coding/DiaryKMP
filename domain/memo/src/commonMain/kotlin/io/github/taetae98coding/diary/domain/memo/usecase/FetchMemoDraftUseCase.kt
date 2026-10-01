@@ -38,7 +38,7 @@ public class FetchMemoDraftUseCase internal constructor(
 
     private fun MemoDraft.toUsable(): MemoDraft =
         MemoDraft(
-            title = title.takeUnless { it.isBlank() }.orEmpty(),
+            title = title.replace(LINE_BREAK, " ").takeUnless { it.isBlank() }.orEmpty(),
             description = description.takeUnless { it.isBlank() }.orEmpty(),
             dateTime = dateTime?.takeIf { it.isUsable() },
         )
@@ -55,4 +55,8 @@ public class FetchMemoDraftUseCase internal constructor(
         val description: String,
         val dateTime: MemoDateTime?,
     )
+
+    private companion object {
+        val LINE_BREAK: Regex = Regex("\r\n|\r|\n")
+    }
 }

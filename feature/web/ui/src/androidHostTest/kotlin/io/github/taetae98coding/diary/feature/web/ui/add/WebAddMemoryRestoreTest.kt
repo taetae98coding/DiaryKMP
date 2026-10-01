@@ -68,6 +68,7 @@ class WebAddMemoryRestoreTest {
 
             WebAddScreenTestTheme {
                 WebAddScreen(
+                    addedResultRequestKey = null,
                     navigateToTagAdd = {},
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                     navigateUp = {},

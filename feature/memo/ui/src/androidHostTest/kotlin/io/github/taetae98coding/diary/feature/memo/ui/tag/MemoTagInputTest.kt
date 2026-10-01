@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.feature.memo.ui.tag
 
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasScrollAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -22,7 +23,7 @@ class MemoTagInputTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `선택한 태그를 칩으로 표시하고 대표 태그 칩에 접근성 이름을 제공한다`() {
+    fun `선택한 태그를 칩으로 표시하고 대표 태그 칩은 태그 이름에 더해 대표 태그 상태 설명을 제공한다`() {
         val primaryTag = testTag(title = WORK_TAG_TITLE)
         val otherTag = testTag(title = EXERCISE_TAG_TITLE)
 
@@ -30,9 +31,9 @@ class MemoTagInputTest {
             uiState = MemoTagInputUiState(selectedTagList = listOf(primaryTag, otherTag), primaryTagId = primaryTag.id),
         )
 
-        composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
-        composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertExists()
-        composeRule.onNodeWithContentDescription(DEFAULT_PRIMARY_TAG_DESCRIPTION).assertExists()
+        composeRule.onNode(hasPrimaryTagState()).assert(hasText(WORK_TAG_TITLE))
+        composeRule.onNode(hasText(EXERCISE_TAG_TITLE)).assert(!hasPrimaryTagState())
+        composeRule.onNodeWithContentDescription(DEFAULT_PRIMARY_TAG_STATE_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
@@ -49,7 +50,7 @@ class MemoTagInputTest {
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertDoesNotExist()
         composeRule.onNodeWithText("$RENAMED_TAG_EMOJI $RENAMED_TAG_TITLE").assertExists()
         composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertExists()
-        composeRule.onNodeWithContentDescription(DEFAULT_PRIMARY_TAG_DESCRIPTION).assertExists()
+        composeRule.onNode(hasPrimaryTagState()).assertExists()
     }
 
     @Test
@@ -125,7 +126,7 @@ class MemoTagInputTest {
             onAddClick = { addClickCount += 1 },
         )
 
-        composeRule.onNodeWithContentDescription(DEFAULT_PRIMARY_TAG_DESCRIPTION).performClick()
+        composeRule.onNode(hasPrimaryTagState()).performClick()
 
         addClickCount shouldBe 0
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()

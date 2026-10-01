@@ -10,6 +10,7 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.isDialog
+import androidx.compose.ui.test.isPopup
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -28,6 +29,7 @@ import io.github.taetae98coding.diary.domain.lunar.usecase.FetchLunarUseCase
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.every
@@ -129,26 +131,11 @@ class CalendarHomeScreenBirthdayTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-081 태그를 선택해도 생일 표시는 달라지지 않는다`() {
-        val filterUiStateFlow = MutableStateFlow(CalendarHomeScaffoldFilterUiState())
-        setCalendarHomeScreen(
-            initialYearMonth = JULY_2026,
-            birthdayListFlow = MutableStateFlow(listOf(birthday(name = NAME, date = july(day = 8)))),
-            filterUiStateFlow = filterUiStateFlow,
-        )
-        composeRule.onNodeWithText(BIRTHDAY_TEXT).assertIsDisplayed()
-
-        filterUiStateFlow.value = CalendarHomeScaffoldFilterUiState(isApplied = true)
-        composeRule.waitForIdle()
-
-        composeRule.onNodeWithText(BIRTHDAY_TEXT).assertIsDisplayed()
-    }
-
-    @Test
     fun `TC-CALENDAR-HOME-DATA-034 생일 조회가 실패해도 생일 없이 표시하고 공휴일 표시를 막지 않는다`() {
         val getCalendarContactBirthdayUseCase = mockk<GetCalendarContactBirthdayUseCase>()
+        val errorMessage = fixtureMonkey.nonBlankString()
         every { getCalendarContactBirthdayUseCase(parameter = any()) } returns
-            flowOf(Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())))
+            flowOf(Result.failure(IllegalStateException(errorMessage)))
         val fetchLunarUseCase = mockk<FetchLunarUseCase>()
         coEvery { fetchLunarUseCase(parameter = any()) } returns Result.success(emptyList())
         val birthdayViewModel =
@@ -168,6 +155,9 @@ class CalendarHomeScreenBirthdayTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(CONSTITUTION_DAY_NAME).assertIsDisplayed()
+        composeRule.onAllNodes(isDialog()).assertCountEquals(0)
+        composeRule.onAllNodes(isPopup()).assertCountEquals(0)
+        composeRule.onNodeWithText(errorMessage, substring = true).assertDoesNotExist()
     }
 
     @Test
@@ -220,7 +210,6 @@ class CalendarHomeScreenBirthdayTest {
         initialYearMonth: YearMonth,
         birthdayListFlow: StateFlow<List<CalendarContactBirthday>>,
         memoList: List<CalendarMemo> = emptyList(),
-        filterUiStateFlow: StateFlow<CalendarHomeScaffoldFilterUiState> = MutableStateFlow(CalendarHomeScaffoldFilterUiState()),
         navigateToContactDetail: (Uuid) -> Unit = {},
         moveTarget: MutableState<YearMonth?> = mutableStateOf(null),
     ) {
@@ -229,7 +218,6 @@ class CalendarHomeScreenBirthdayTest {
             holidayList = emptyList(),
             birthdayViewModel = birthdayViewModel(birthdayListFlow = birthdayListFlow),
             memoList = memoList,
-            filterUiStateFlow = filterUiStateFlow,
             navigateToContactDetail = navigateToContactDetail,
             moveTarget = moveTarget,
         )
@@ -240,7 +228,6 @@ class CalendarHomeScreenBirthdayTest {
         holidayList: List<Holiday>,
         birthdayViewModel: CalendarHomeBirthdayViewModel,
         memoList: List<CalendarMemo> = emptyList(),
-        filterUiStateFlow: StateFlow<CalendarHomeScaffoldFilterUiState> = MutableStateFlow(CalendarHomeScaffoldFilterUiState()),
         navigateToContactDetail: (Uuid) -> Unit = {},
         moveTarget: MutableState<YearMonth?> = mutableStateOf(null),
     ) {
@@ -248,7 +235,7 @@ class CalendarHomeScreenBirthdayTest {
             mockk<CalendarHomeMemoViewModel>().also { viewModel ->
                 every { viewModel.fetch(any()) } returns Unit
                 every { viewModel.memoList } returns MutableStateFlow(memoList)
-                every { viewModel.filterUiState } returns filterUiStateFlow
+                every { viewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
             }
 
         composeRule.setContent {

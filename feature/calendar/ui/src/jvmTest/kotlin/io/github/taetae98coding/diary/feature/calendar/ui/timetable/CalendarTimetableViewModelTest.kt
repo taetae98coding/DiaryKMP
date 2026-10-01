@@ -67,18 +67,26 @@ class CalendarTimetableViewModelTest : FunSpec() {
 
         test("TC-CALENDAR-TIMETABLE-DOMAIN-011 메모 조회에 실패하면 메모 없이 표시한다") {
             runTest(mainDispatcher) {
-                val dateRange = date(day = 22)..date(day = 24)
-                val useCase = getCalendarMemoUseCase(dateRange to Result.failure(IllegalStateException()))
+                val firstRange = date(day = 22)..date(day = 24)
+                val secondRange = date(day = 23)..date(day = 25)
+                val firstList = listOf(memo())
+                val useCase =
+                    getCalendarMemoUseCase(
+                        firstRange to Result.success(firstList),
+                        secondRange to Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())),
+                    )
                 val viewModel = CalendarTimetableViewModel(getCalendarMemoUseCase = useCase)
 
                 viewModel.memoList.test {
                     awaitItem() shouldBe emptyList()
-                    viewModel.fetch(dateRange = dateRange)
-                    mainDispatcher.scheduler.advanceUntilIdle()
-                    expectNoEvents()
+                    viewModel.fetch(dateRange = firstRange)
+                    awaitItem() shouldBe firstList
+
+                    viewModel.fetch(dateRange = secondRange)
+                    awaitItem() shouldBe emptyList()
                 }
 
-                verify(exactly = 1) { useCase(parameter = dateRange) }
+                verify(exactly = 1) { useCase(parameter = secondRange) }
             }
         }
 

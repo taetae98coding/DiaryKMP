@@ -10,7 +10,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import io.github.taetae98coding.diary.compose.calendar.CalendarDefault
+import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.holiday.GoldenHolidayGroup
@@ -24,7 +24,7 @@ internal fun GoldenHolidayList(
     groupList: List<GoldenHolidayGroup> = emptyList(),
     contentPadding: PaddingValues = DiaryTheme.dimens.screenPaddingValues,
 ) {
-    val colors = CalendarDefault.colors()
+    val colors = CalendarDefaults.colors()
 
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Adaptive(GoldenHolidayListDefaults.MinColumnWidth),

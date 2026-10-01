@@ -16,7 +16,7 @@ class ContactListDetailPaneTest :
                 listOf(
                     listOf(ContactHomeNavKey),
                     listOf(OtherScreenNavKey, ContactHomeNavKey),
-                    listOf(OtherScreenNavKey, ContactHomeNavKey, ContactAddNavKey),
+                    listOf(OtherScreenNavKey, ContactHomeNavKey, ContactAddNavKey()),
                 )
 
             backStackCases.forEach { backStack ->
@@ -28,7 +28,7 @@ class ContactListDetailPaneTest :
             val backStackCases =
                 listOf(
                     listOf(OtherScreenNavKey, ContactHomeNavKey, ContactDetailNavKey(id = Uuid.random())),
-                    listOf(OtherScreenNavKey, ContactHomeNavKey, ContactAddNavKey, ContactDetailNavKey(id = Uuid.random())),
+                    listOf(OtherScreenNavKey, ContactHomeNavKey, ContactAddNavKey(), ContactDetailNavKey(id = Uuid.random())),
                 )
 
             backStackCases.forEach { backStack ->
@@ -41,8 +41,8 @@ class ContactListDetailPaneTest :
                 listOf(
                     emptyList(),
                     listOf(OtherScreenNavKey),
-                    listOf(OtherScreenNavKey, ContactAddNavKey),
-                    listOf(ContactHomeNavKey, OtherScreenNavKey, ContactAddNavKey),
+                    listOf(OtherScreenNavKey, ContactAddNavKey()),
+                    listOf(ContactHomeNavKey, OtherScreenNavKey, ContactAddNavKey()),
                 )
 
             backStackCases.forEach { backStack ->

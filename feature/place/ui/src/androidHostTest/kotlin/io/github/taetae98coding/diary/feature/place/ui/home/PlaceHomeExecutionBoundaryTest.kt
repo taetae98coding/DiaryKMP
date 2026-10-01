@@ -44,6 +44,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
@@ -201,6 +202,33 @@ class PlaceHomeExecutionBoundaryTest {
         composeRule.runOnIdle { mapState.coordinate shouldBe afterCoordinate.toDiaryMapCoordinate() }
     }
 
+    @Test
+    fun `TC-PLACE-HOME-DOMAIN-031 되살아난 뒤 이전과 같은 위치를 확인해도 옮겨 두었던 위치는 이어지지 않는다`() {
+        assertMovedCameraIsNotRestored(coordinate = fixtureMonkey.giveMeOne<Coordinate>())
+    }
+
+    @Test
+    fun `TC-PLACE-HOME-DOMAIN-031 되살아나기 전과 뒤 모두 위치를 확인하지 못해도 옮겨 두었던 위치는 이어지지 않는다`() {
+        assertMovedCameraIsNotRestored(coordinate = null)
+    }
+
+    private fun assertMovedCameraIsNotRestored(coordinate: Coordinate?) {
+        val movedCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
+        val restorationTester = StateRestorationTester(composeRule)
+        var uiState by mutableStateOf(loaded(coordinate))
+        lateinit var mapState: DiaryMapState
+        restorationTester.setContent { mapState = rememberPlaceHomeMapState(uiState = uiState) }
+        val initialMapCoordinate = composeRule.runOnIdle { mapState.coordinate }
+        composeRule.runOnIdle { mapState.moveTo(movedCoordinate.toDiaryMapCoordinate()) }
+
+        uiState = PlaceHomeUiState.Loading
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.runOnIdle { uiState = loaded(coordinate) }
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { mapState.coordinate shouldBe initialMapCoordinate }
+    }
+
     @Composable
     private fun PlaceHomeTestScreen(mapViewModel: PlaceHomeMapViewModel) {
         DiaryTheme {
@@ -235,7 +263,7 @@ class PlaceHomeExecutionBoundaryTest {
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
 
-        private fun loaded(coordinate: Coordinate): PlaceHomeUiState = PlaceHomeUiState.Loaded(defaultProvider = MapProvider.NAVER, initialCoordinate = coordinate)
+        private fun loaded(coordinate: Coordinate?): PlaceHomeUiState = PlaceHomeUiState.Loaded(defaultProvider = MapProvider.NAVER, initialCoordinate = coordinate, currentLocationFetchId = Uuid.random())
 
         private fun fetchCurrentLocationUseCase(coordinate: Coordinate): FetchCurrentLocationUseCase {
             val useCase = mockk<FetchCurrentLocationUseCase>()

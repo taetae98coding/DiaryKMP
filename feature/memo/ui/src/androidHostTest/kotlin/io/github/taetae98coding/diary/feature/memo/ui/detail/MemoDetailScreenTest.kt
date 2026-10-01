@@ -29,7 +29,8 @@ import androidx.navigation3.runtime.result.ResultEffect
 import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
-import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.memo.ui.add.colorHexText
 import io.github.taetae98coding.diary.feature.memo.ui.contact.screenTestContactViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
@@ -67,13 +68,15 @@ class MemoDetailScreenTest {
 
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertExists()
 
-        uiState.value = memoDetailUiState(detail = memoDetail(MEMO_TITLE))
+        uiState.value = memoDetailUiState(detail = memoDetail(MEMO_TITLE).copy(description = MEMO_DESCRIPTION, color = MEMO_COLOR))
 
         composeRule.waitForIdle()
 
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertDoesNotExist()
         composeRule.onAllNodes(hasSetTextAction()).onFirst().assert(hasText(MEMO_TITLE))
         composeRule.onAllNodesWithText(MEMO_TITLE).assertCountEquals(2)
+        composeRule.waitUntil(timeoutMillis = MARKDOWN_TIMEOUT_MILLIS) { composeRule.onAllNodesWithText(MEMO_DESCRIPTION).fetchSemanticsNodes().isNotEmpty() }
+        composeRule.colorHexText() shouldBe MEMO_COLOR_HEX
     }
 
     @Test
@@ -119,11 +122,11 @@ class MemoDetailScreenTest {
     @Test
     fun `TC-MEMO-DETAIL-FEATURE-007 화면 재생성 후에도 수정 중이던 내용이 유지된다`() {
         val restorationTester = StateRestorationTester(composeRule)
-        val viewModel = titleLoadedViewModel()
+        val viewModel = screenTestViewModel(uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE).copy(description = MEMO_DESCRIPTION))))
         restorationTester.setContent {
             MemoDetailScreenTestTheme {
                 MemoDetailScreen(
-                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    addRequestKey = TEST_ADD_REQUEST_KEY,
                     detailViewModel = viewModel,
                     tagViewModel = screenTestTagViewModel(),
                     webViewModel = screenTestWebViewModel(),
@@ -149,6 +152,9 @@ class MemoDetailScreenTest {
         composeRule.waitForIdle()
 
         composeRule.onAllNodes(hasSetTextAction()).onFirst().performTextInput(EDIT_SUFFIX)
+        composeRule.onNodeWithContentDescription(DEFAULT_INPUT_TAB_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        composeRule.onAllNodes(hasSetTextAction())[1].performTextInput(EDIT_SUFFIX)
         composeRule.waitForIdle()
 
         restorationTester.emulateSavedInstanceStateRestore()
@@ -156,6 +162,7 @@ class MemoDetailScreenTest {
 
         composeRule.onAllNodes(hasSetTextAction()).onFirst().assert(hasText(MEMO_TITLE + EDIT_SUFFIX))
         composeRule.onAllNodesWithText(MEMO_TITLE).assertCountEquals(1)
+        composeRule.onAllNodes(hasSetTextAction())[1].assert(hasText(MEMO_DESCRIPTION + EDIT_SUFFIX))
     }
 
     @Test
@@ -165,7 +172,7 @@ class MemoDetailScreenTest {
         restorationTester.setContent {
             MemoDetailScreenTestTheme {
                 MemoDetailScreen(
-                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    addRequestKey = TEST_ADD_REQUEST_KEY,
                     detailViewModel = titleLoadedViewModel(),
                     tagViewModel = screenTestTagViewModel(),
                     webViewModel = screenTestWebViewModel(),
@@ -290,7 +297,7 @@ class MemoDetailScreenTest {
         composeRule.setContent {
             MemoDetailScreenTestTheme {
                 MemoDetailScreen(
-                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    addRequestKey = TEST_ADD_REQUEST_KEY,
                     detailViewModel = viewModel,
                     tagViewModel = screenTestTagViewModel(),
                     webViewModel = screenTestWebViewModel(),
@@ -317,6 +324,11 @@ class MemoDetailScreenTest {
 
     public companion object {
         private const val REMOVED_DEFAULT_TITLE = "Memo"
+        private const val MEMO_DESCRIPTION = "MemoDetailDescription"
+        private const val MEMO_COLOR = 0xFF3A7BD5
+        private const val MEMO_COLOR_HEX = "#3A7BD5"
+        private const val MARKDOWN_TIMEOUT_MILLIS = 5_000L
+        private const val DEFAULT_INPUT_TAB_DESCRIPTION = "Input"
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
         private const val SECOND_MEMO_TITLE = "SecondMemoDetailTitle"
         private const val CHANGED_MEMO_TITLE = "ChangedMemoDetailTitle"
@@ -419,7 +431,7 @@ class MemoDetailScreenDateTimeTest {
         composeRule.setContent {
             MemoDetailScreenTestTheme {
                 MemoDetailScreen(
-                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    addRequestKey = TEST_ADD_REQUEST_KEY,
                     detailViewModel = viewModel,
                     tagViewModel = screenTestTagViewModel(),
                     webViewModel = screenTestWebViewModel(),
@@ -602,7 +614,7 @@ class MemoDetailScreenActionTest {
         composeRule.setContent {
             MemoDetailScreenTestTheme {
                 MemoDetailScreen(
-                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    addRequestKey = TEST_ADD_REQUEST_KEY,
                     detailViewModel = viewModel,
                     tagViewModel = screenTestTagViewModel(),
                     webViewModel = screenTestWebViewModel(),
@@ -684,7 +696,7 @@ class MemoDetailScreenActionTest {
         composeRule.setContent {
             MemoDetailScreenTestTheme {
                 MemoDetailScreen(
-                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    addRequestKey = TEST_ADD_REQUEST_KEY,
                     detailViewModel = viewModel,
                     tagViewModel = screenTestTagViewModel(),
                     webViewModel = screenTestWebViewModel(),
@@ -766,7 +778,7 @@ class MemoDetailScreenCopiedResultTest {
         composeRule.setContent {
             MemoDetailScreenTestTheme(resultEventBus = resultEventBus) {
                 MemoDetailScreen(
-                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    addRequestKey = TEST_ADD_REQUEST_KEY,
                     detailViewModel = screenTestViewModel(uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE)))),
                     tagViewModel = screenTestTagViewModel(),
                     webViewModel = screenTestWebViewModel(),
@@ -857,7 +869,7 @@ class MemoDetailScreenMessageTest {
         composeRule.setContent {
             MemoDetailScreenTestTheme {
                 MemoDetailScreen(
-                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    addRequestKey = TEST_ADD_REQUEST_KEY,
                     detailViewModel = titleLoadedViewModel(),
                     tagViewModel = screenTestTagViewModel(),
                     webViewModel = screenTestWebViewModel(),
@@ -896,7 +908,7 @@ class MemoDetailScreenMessageTest {
         composeRule.setContent {
             MemoDetailScreenTestTheme {
                 MemoDetailScreen(
-                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    addRequestKey = TEST_ADD_REQUEST_KEY,
                     detailViewModel = viewModel,
                     tagViewModel = screenTestTagViewModel(),
                     webViewModel = screenTestWebViewModel(),

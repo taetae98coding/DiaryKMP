@@ -3,6 +3,13 @@ package io.github.taetae98coding.diary.core.supabase.impl
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.auth.Auth
+import io.github.jan.supabase.auth.MemorySessionManager
+import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.minimalConfig
+import io.github.jan.supabase.auth.user.UserSession
+import io.github.jan.supabase.createSupabaseClient
+import io.github.jan.supabase.functions.Functions
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseFunctionException
 import io.github.taetae98coding.diary.core.supabase.impl.di.SupabaseHttpClientEngine
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -17,15 +24,19 @@ import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.respondOk
 import io.ktor.client.plugins.HttpTimeoutCapability
 import io.ktor.client.plugins.HttpTimeoutConfig
+import io.ktor.client.request.HttpRequestData
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.ByteArrayContent
+import io.ktor.http.content.TextContent
 import io.ktor.util.reflect.typeInfo
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.koin.plugin.module.dsl.koinApplication
@@ -116,6 +127,42 @@ class SupabaseFunctionImplTest :
                 }
                 client.close()
             }
+        }
+
+        test("로그인했으면 세션의 접근 정보로 인증하고 본문을 JSON으로 보낸다") {
+            var request: HttpRequestData? = null
+            val client =
+                createSupabaseClient(
+                    supabaseUrl = "https://example.supabase.co",
+                    supabaseKey = "test-key",
+                ) {
+                    httpEngine =
+                        MockEngine { data ->
+                            request = data
+                            respondOk()
+                        }
+                    install(Auth) {
+                        minimalConfig()
+                        sessionManager = MemorySessionManager()
+                    }
+                    install(Functions)
+                }
+            client.auth.awaitInitialization()
+            client.auth.importSession(
+                session = UserSession(accessToken = "access-token", refreshToken = "refresh-token", expiresIn = 3600, tokenType = "bearer"),
+                autoRefresh = false,
+            )
+            val function = SupabaseFunctionImpl(client = client)
+
+            function(
+                function = functionName(),
+                body = JsonObject(mapOf("token" to JsonPrimitive("token-a"))),
+                typeInfo = typeInfo<JsonObject>(),
+            )
+
+            request?.headers?.get(HttpHeaders.Authorization) shouldBe "Bearer access-token"
+            (request?.body as? TextContent)?.text shouldBe """{"token":"token-a"}"""
+            client.close()
         }
 
         test("로그인하지 않았으면 함수 주소와 프로젝트 키로 인증하는 헤더를 만든다") {

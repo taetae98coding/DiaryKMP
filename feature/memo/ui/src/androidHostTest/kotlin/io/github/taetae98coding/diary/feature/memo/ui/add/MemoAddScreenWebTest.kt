@@ -1,8 +1,12 @@
 package io.github.taetae98coding.diary.feature.memo.ui.add
 
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.isDialog
+import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onFirst
@@ -15,12 +19,14 @@ import androidx.compose.ui.test.performTextInput
 import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
-import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.closeDialogByBack
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
+import io.github.taetae98coding.diary.feature.memo.ui.sendWebAddedResult
 import io.github.taetae98coding.diary.feature.memo.ui.web.DEFAULT_WEB_PICKER_ADD_LABEL
+import io.github.taetae98coding.diary.feature.memo.ui.web.DEFAULT_WEB_PICKER_SEARCH_EMPTY_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.web.DEFAULT_WEB_PICKER_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.web.DEFAULT_WEB_SELECT_LABEL
 import io.github.taetae98coding.diary.feature.memo.ui.web.DOCS_WEB_TITLE
@@ -28,11 +34,12 @@ import io.github.taetae98coding.diary.feature.memo.ui.web.DOCS_WEB_URL
 import io.github.taetae98coding.diary.feature.memo.ui.web.WIKI_WEB_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.web.WIKI_WEB_URL
 import io.github.taetae98coding.diary.feature.memo.ui.web.awaitWebPickerRows
+import io.github.taetae98coding.diary.feature.memo.ui.web.refreshFailedWebPagingData
 import io.github.taetae98coding.diary.feature.memo.ui.web.refreshingWebPagingData
 import io.github.taetae98coding.diary.feature.memo.ui.web.testWeb
 import io.github.taetae98coding.diary.feature.memo.ui.web.webDialogNodeWithText
+import io.github.taetae98coding.diary.feature.memo.ui.web.webPagingDataOf
 import io.github.taetae98coding.diary.feature.memo.ui.web.webPickerList
-import io.github.taetae98coding.diary.feature.web.api.WebAddedResult
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -53,8 +60,11 @@ private const val WEB_TEST_ADD_BUTTON_DESCRIPTION: String = "Add memo"
 private const val WEB_TEST_PICKER_TITLE_PREFIX: String = "MemoWebPicker"
 private const val WEB_TEST_PICKER_COUNT: Int = 30
 
-private fun ResultEventBus.sendWebAddedResult(web: Web) {
-    sendResult<WebAddedResult>(result = WebAddedResult(id = web.id))
+private fun ResultEventBus.sendWebAddedResult(
+    web: Web,
+    requestKey: Uuid = TEST_ADD_REQUEST_KEY,
+) {
+    sendWebAddedResult(id = web.id, requestKey = requestKey)
 }
 
 private fun ComposeContentTestRule.openWebPicker() {
@@ -71,7 +81,7 @@ private fun ComposeContentTestRule.setMemoAddScreenForWeb(
     setContent {
         MemoAddScreenTestTheme(resultEventBus = resultEventBus) {
             MemoAddScreen(
-                tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                addRequestKey = TEST_ADD_REQUEST_KEY,
                 addViewModel = viewModels.viewModel,
                 tagViewModel = viewModels.tagViewModel,
                 webViewModel = viewModels.webViewModel,
@@ -150,6 +160,34 @@ class MemoAddScreenWebTest {
 
         webAddCount shouldBe 0
         composeRule.onNodeWithText(DEFAULT_WEB_PICKER_TITLE).assertExists()
+    }
+
+    @Test
+    fun `TC-MEMO-WEB-INPUT-FEATURE-032 목록의 대상을 처음 불러오지 못하면 추가 항목이 목록을 연다`() {
+        var webAddCount = 0
+        composeRule.setMemoAddScreenForWeb(
+            viewModels = screenTestViewModel(webPagingData = MutableStateFlow(refreshFailedWebPagingData())),
+            navigateToWebAdd = { webAddCount += 1 },
+        )
+
+        composeRule.openWebPicker()
+
+        webAddCount shouldBe 0
+        composeRule.onNodeWithText(DEFAULT_WEB_PICKER_TITLE).assertExists()
+    }
+
+    @Test
+    fun `TC-MEMO-WEB-INPUT-FEATURE-005 확인 중에 연 목록이 대상 없음으로 확정되면 목록 영역이 비어 있는 채로 유지된다`() {
+        val webPagingData = MutableStateFlow(refreshingWebPagingData())
+        composeRule.setMemoAddScreenForWeb(viewModels = screenTestViewModel(webPagingData = webPagingData))
+        composeRule.openWebPicker()
+
+        webPagingData.value = webPagingDataOf(emptyList())
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_WEB_PICKER_TITLE).assertExists()
+        composeRule.webDialogNodeWithText(DEFAULT_WEB_PICKER_SEARCH_EMPTY_TITLE).assertDoesNotExist()
+        composeRule.onAllNodes(isToggleable() and hasAnyAncestor(isDialog())).assertCountEquals(0)
     }
 
     @Test
@@ -360,6 +398,21 @@ class MemoAddScreenWebAddedResultTest {
 
         composeRule.onNodeWithText(DEFAULT_WEB_PICKER_TITLE).assertDoesNotExist()
         composeRule.onNodeWithText(DOCS_WEB_TITLE).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-MEMO-WEB-INPUT-DOMAIN-019 이 입력에서 이동하지 않은 WebAdd 화면의 웹 항목은 자동 선택되지 않는다`() {
+        val addedWeb = testWeb(title = DOCS_WEB_TITLE, url = DOCS_WEB_URL)
+        val resultEventBus = ResultEventBus()
+        composeRule.setMemoAddScreenForWeb(
+            viewModels = screenTestRealViewModel(webList = listOf(addedWeb)),
+            resultEventBus = resultEventBus,
+        )
+
+        resultEventBus.sendWebAddedResult(addedWeb, requestKey = OTHER_ADD_REQUEST_KEY)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DOCS_WEB_TITLE).assertDoesNotExist()
     }
 
     private fun ComposeContentTestRule.selectWeb(title: String) {

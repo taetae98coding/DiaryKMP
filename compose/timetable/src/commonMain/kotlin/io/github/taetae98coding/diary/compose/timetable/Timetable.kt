@@ -12,7 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import io.github.taetae98coding.diary.compose.calendar.CalendarColor
-import io.github.taetae98coding.diary.compose.calendar.CalendarDefault
+import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import kotlinx.datetime.LocalDate
@@ -27,7 +27,7 @@ public fun Timetable(
     onEvent: ((TimetableEvent) -> Unit)? = null,
     nowProvider: () -> LocalDateTime? = { null },
     holidayProvider: () -> List<LocalDateRange> = { emptyList() },
-    colors: CalendarColor = CalendarDefault.colors(),
+    colors: CalendarColor = CalendarDefaults.colors(),
     content: TimetableScope.() -> Unit,
 ) {
     HorizontalPager(
@@ -55,7 +55,7 @@ private fun TimetablePage(
     onEvent: ((TimetableEvent) -> Unit)? = null,
     nowProvider: () -> LocalDateTime? = { null },
     holidayProvider: () -> List<LocalDateRange> = { emptyList() },
-    colors: CalendarColor = CalendarDefault.colors(),
+    colors: CalendarColor = CalendarDefaults.colors(),
     content: TimetableScope.() -> Unit,
 ) {
     val dateRange = remember(state, page) { state.dateRangeAt(page) }
@@ -94,6 +94,7 @@ private fun TimetablePage(
                 TimetableAllDay(
                     dateRange = dateRange,
                     modifier = Modifier.fillMaxWidth(),
+                    type = state.type,
                     selectState = state.selectState,
                     itemList = allDayItemList,
                 )

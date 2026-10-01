@@ -17,7 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Constraints
-import io.github.taetae98coding.diary.compose.calendar.CalendarDefault
+import androidx.compose.ui.unit.dp
+import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import kotlinx.datetime.LocalDate
@@ -31,10 +32,12 @@ public const val TIMETABLE_ALL_DAY_TEST_TAG: String = "TimetableAllDay"
 internal fun TimetableAllDay(
     dateRange: LocalDateRange,
     modifier: Modifier = Modifier,
+    type: TimetableType = TimetableType.WEEK,
     selectState: TimetableSelectState = remember { TimetableSelectState() },
     itemList: List<TimetablePlacedAllDayItem> = emptyList(),
 ) {
     val spacing = DiaryTheme.dimens.calendarItemSpacing
+    val startInset = if (type == TimetableType.WEEK) TimetableDefaults.TimeColumnWidth else 0.dp
 
     Row(
         modifier =
@@ -42,9 +45,9 @@ internal fun TimetableAllDay(
                 .testTag(TIMETABLE_ALL_DAY_TEST_TAG)
                 .timetableDateSelectBackground(
                     dateRange = dateRange,
-                    startInset = TimetableDefaults.TimeColumnWidth,
+                    startInset = startInset,
                     state = selectState,
-                    color = CalendarDefault.selectBackgroundColor(),
+                    color = CalendarDefaults.selectBackgroundColor(),
                 ),
     ) {
         Spacer(modifier = Modifier.width(TimetableDefaults.TimeColumnWidth))

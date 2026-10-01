@@ -4,28 +4,29 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.navigation3.runtime.result.ResultEventBus
-import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.closeDialogByBack
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.memo.ui.sendTagAddedResult
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PICKER_TAG_ADD
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PICKER_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PRIMARY_SET_DESCRIPTION
-import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PRIMARY_TAG_DESCRIPTION
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_TAG_SELECT_LABEL
 import io.github.taetae98coding.diary.feature.memo.ui.tag.EXERCISE_TAG_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.tag.WORK_TAG_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.tag.awaitTagPickerRows
 import io.github.taetae98coding.diary.feature.memo.ui.tag.dialogNodeWithText
 import io.github.taetae98coding.diary.feature.memo.ui.tag.dialogNodesWithContentDescription
+import io.github.taetae98coding.diary.feature.memo.ui.tag.hasPrimaryTagState
 import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.kotest.matchers.shouldBe
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,7 +35,7 @@ import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
 
 internal const val FIRST_ADDED_TAG_TITLE: String = "MemoTagFirstAdded"
-internal val OTHER_TAG_ADD_REQUEST_KEY: Uuid = Uuid.parse("10000000-0000-0000-0000-000000000002")
+internal val OTHER_ADD_REQUEST_KEY: Uuid = Uuid.parse("10000000-0000-0000-0000-000000000002")
 internal const val SECOND_ADDED_TAG_TITLE: String = "MemoTagSecondAdded"
 
 internal fun ComposeContentTestRule.openTagPicker() {
@@ -50,7 +51,7 @@ internal fun ComposeContentTestRule.setMemoAddScreenForTagAdd(
     setContent {
         MemoAddScreenTestTheme(resultEventBus = resultEventBus) {
             MemoAddScreen(
-                tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                addRequestKey = TEST_ADD_REQUEST_KEY,
                 addViewModel = viewModels.viewModel,
                 tagViewModel = viewModels.tagViewModel,
                 webViewModel = viewModels.webViewModel,
@@ -80,6 +81,11 @@ internal fun ComposeContentTestRule.setMemoAddScreenForTagAdd(
 class MemoAddScreenTagAddTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-MEMO-TAG-INPUT-FEATURE-033 목록의 태그 추가 항목을 누르면 목록이 닫히고 TagAdd 이동을 요청한다`() {
@@ -119,7 +125,7 @@ class MemoAddScreenTagAddTest {
         tagAddCount shouldBe 1
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
         composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertExists()
-        composeRule.onAllNodesWithContentDescription(DEFAULT_PRIMARY_TAG_DESCRIPTION).assertCountEquals(1)
+        composeRule.onAllNodes(hasPrimaryTagState()).assertCountEquals(1)
     }
 
     @Test
@@ -209,7 +215,7 @@ class MemoAddScreenTagAddedResultTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertExists()
-        composeRule.onAllNodesWithContentDescription(DEFAULT_PRIMARY_TAG_DESCRIPTION).assertCountEquals(0)
+        composeRule.onAllNodes(hasPrimaryTagState()).assertCountEquals(0)
     }
 
     @Test
@@ -228,7 +234,7 @@ class MemoAddScreenTagAddedResultTest {
 
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
         composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertExists()
-        composeRule.onAllNodesWithContentDescription(DEFAULT_PRIMARY_TAG_DESCRIPTION).assertCountEquals(1)
+        composeRule.onAllNodes(hasPrimaryTagState()).assertCountEquals(1)
     }
 
     @Test
@@ -259,7 +265,7 @@ class MemoAddScreenTagAddedResultTest {
             resultEventBus = resultEventBus,
         )
 
-        resultEventBus.sendTagAddedResult(id = addedTag.id, requestKey = OTHER_TAG_ADD_REQUEST_KEY)
+        resultEventBus.sendTagAddedResult(id = addedTag.id, requestKey = OTHER_ADD_REQUEST_KEY)
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertDoesNotExist()

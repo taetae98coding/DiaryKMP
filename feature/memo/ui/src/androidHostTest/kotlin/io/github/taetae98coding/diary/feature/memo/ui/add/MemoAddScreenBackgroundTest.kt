@@ -7,18 +7,17 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onFirst
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.lifecycle.Lifecycle
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
-import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PRIMARY_TAG_DESCRIPTION
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_TAG_SELECT_LABEL
+import io.github.taetae98coding.diary.feature.memo.ui.tag.hasPrimaryTagState
 import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import org.junit.Rule
@@ -58,7 +57,7 @@ class MemoAddScreenBackgroundTest {
         composeRule.onAllNodes(hasSetTextAction())[1].assert(hasText(description))
         composeRule.onNodeWithText(DEFAULT_TAG_SELECT_LABEL).performScrollTo()
         composeRule.onNodeWithText(tagTitle).assertExists()
-        composeRule.onNodeWithContentDescription(DEFAULT_PRIMARY_TAG_DESCRIPTION).assertExists()
+        composeRule.onNode(hasPrimaryTagState()).assertExists()
     }
 
     private companion object {
@@ -69,7 +68,7 @@ class MemoAddScreenBackgroundTest {
 @Composable
 private fun BackgroundTestMemoAddScreen(viewModels: MemoAddScreenViewModels) {
     MemoAddScreen(
-        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+        addRequestKey = TEST_ADD_REQUEST_KEY,
         addViewModel = viewModels.viewModel,
         tagViewModel = viewModels.tagViewModel,
         webViewModel = viewModels.webViewModel,
