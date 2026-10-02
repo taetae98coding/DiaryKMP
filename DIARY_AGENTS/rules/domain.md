@@ -100,7 +100,7 @@ public class RequestSyncWithProgressUseCase internal constructor(...)
 ✅ 권장 예시:
 
 ```kotlin
-public enum class SyncTrigger { USER_REQUESTED, ACCOUNT_CONFIRMED, ACCOUNT_UPDATED, DATA_CHANGED }
+public enum class SyncTrigger { USER_REQUESTED, ACCOUNT_CONFIRMED, DATA_CHANGED }
 
 public class RequestSyncUseCase internal constructor(
     private val syncManager: SyncManager,

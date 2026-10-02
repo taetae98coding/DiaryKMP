@@ -20,12 +20,14 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flowOf
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -40,56 +42,51 @@ class SyncEffectTest {
 
     @Test
     fun `TC-DATA-SYNC-DOMAIN-032 TC-SYNC-REFRESH-FEATURE-003 Android와 iOS에서 앱이 다시 화면에 보이게 되면 진행을 표시할 동기화를 다시 요청한다`() {
-        val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
-        val accountFlow = MutableStateFlow<Account>(account)
-        val requestSync = mockk<(SyncTrigger) -> Unit>(relaxed = true)
-        val lifecycleOwner = setSyncEffect(accountFlow, requestSync)
+        val accountIdFlow = MutableStateFlow<Uuid?>(fixtureMonkey.giveMeOne<Uuid>())
+        val requestSync = mockk<() -> Unit>(relaxed = true)
+        val lifecycleOwner = setSyncEffect(accountIdFlow, requestSync)
 
         composeRule.runOnIdle {
-            verify(exactly = 1) { requestSync(any()) }
+            verify(exactly = 1) { requestSync() }
         }
 
         composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
         composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.STARTED }
 
         composeRule.runOnIdle {
-            verify(exactly = 2) { requestSync(SyncTrigger.ACCOUNT_CONFIRMED) }
+            verify(exactly = 2) { requestSync() }
         }
     }
 
     @Test
     fun `TC-DATA-SYNC-DOMAIN-035 Android와 iOS에서 앱이 화면에서 보이지 않는 동안에는 동기화를 요청하지 않는다`() {
-        val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
-        val otherAccount = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
-        val accountFlow = MutableStateFlow<Account>(Account.Guest)
-        val requestSync = mockk<(SyncTrigger) -> Unit>(relaxed = true)
-        setSyncEffect(accountFlow, requestSync, initialState = Lifecycle.State.CREATED)
+        val accountIdFlow = MutableStateFlow<Uuid?>(null)
+        val requestSync = mockk<() -> Unit>(relaxed = true)
+        setSyncEffect(accountIdFlow, requestSync, initialState = Lifecycle.State.CREATED)
 
-        composeRule.runOnIdle { accountFlow.value = account }
-        composeRule.runOnIdle { accountFlow.value = otherAccount }
+        composeRule.runOnIdle { accountIdFlow.value = fixtureMonkey.giveMeOne<Uuid>() }
+        composeRule.runOnIdle { accountIdFlow.value = fixtureMonkey.giveMeOne<Uuid>() }
 
         composeRule.runOnIdle {
-            verify(exactly = 0) { requestSync(any()) }
+            verify(exactly = 0) { requestSync() }
         }
     }
 
     @Test
     fun `TC-DATA-SYNC-DOMAIN-086 Android와 iOS에서 보이지 않는 동안 바뀐 계정은 다시 보이게 될 때 동기화를 한 번 요청한다`() {
-        val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
-        val otherAccount = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
-        val accountFlow = MutableStateFlow<Account>(Account.Guest)
-        val requestSync = mockk<(SyncTrigger) -> Unit>(relaxed = true)
-        val lifecycleOwner = setSyncEffect(accountFlow, requestSync, initialState = Lifecycle.State.CREATED)
+        val accountIdFlow = MutableStateFlow<Uuid?>(null)
+        val requestSync = mockk<() -> Unit>(relaxed = true)
+        val lifecycleOwner = setSyncEffect(accountIdFlow, requestSync, initialState = Lifecycle.State.CREATED)
 
-        composeRule.runOnIdle { accountFlow.value = account }
-        composeRule.runOnIdle { accountFlow.value = otherAccount }
+        composeRule.runOnIdle { accountIdFlow.value = fixtureMonkey.giveMeOne<Uuid>() }
+        composeRule.runOnIdle { accountIdFlow.value = fixtureMonkey.giveMeOne<Uuid>() }
         composeRule.runOnIdle {
-            verify(exactly = 0) { requestSync(any()) }
+            verify(exactly = 0) { requestSync() }
             lifecycleOwner.currentState = Lifecycle.State.STARTED
         }
 
         composeRule.runOnIdle {
-            verify(exactly = 1) { requestSync(any()) }
+            verify(exactly = 1) { requestSync() }
         }
     }
 
@@ -104,7 +101,6 @@ class SyncEffectTest {
             AppSyncViewModel(
                 getAccountUseCase = getAccountUseCase,
                 requestSyncUseCase = requestSyncUseCase,
-                schedulePeriodicSyncUseCase = mockk(relaxed = true),
             )
         val restorationTester = StateRestorationTester(composeRule)
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.STARTED)
@@ -113,8 +109,7 @@ class SyncEffectTest {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 SyncEffect(
                     requestSync = viewModel::requestSync,
-                    schedulePeriodicSync = viewModel::schedulePeriodicSync,
-                    account = viewModel.account,
+                    authenticatedAccountId = viewModel.authenticatedAccountId,
                 )
             }
         }
@@ -131,50 +126,22 @@ class SyncEffectTest {
 
     @Test
     fun `Android와 iOS에서는 포커스를 잃고 다시 얻는 것은 계기가 아니다`() {
-        val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
-        val accountFlow = MutableStateFlow<Account>(account)
-        val requestSync = mockk<(SyncTrigger) -> Unit>(relaxed = true)
-        val lifecycleOwner = setSyncEffect(accountFlow, requestSync, initialState = Lifecycle.State.RESUMED)
+        val accountIdFlow = MutableStateFlow<Uuid?>(fixtureMonkey.giveMeOne<Uuid>())
+        val requestSync = mockk<() -> Unit>(relaxed = true)
+        val lifecycleOwner = setSyncEffect(accountIdFlow, requestSync, initialState = Lifecycle.State.RESUMED)
 
         composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.STARTED }
         composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
 
         composeRule.runOnIdle {
-            verify(exactly = 1) { requestSync(any()) }
-        }
-    }
-
-    @Test
-    fun `TC-DATA-SYNC-DOMAIN-056 앱이 인증된 사용자 계정을 확인하면 주기 동기화를 예약한다`() {
-        val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
-        val accountFlow = MutableStateFlow<Account>(account)
-        val schedulePeriodicSync = mockk<() -> Unit>(relaxed = true)
-        setSyncEffect(accountFlow, mockk(relaxed = true), schedulePeriodicSync = schedulePeriodicSync)
-
-        composeRule.runOnIdle {
-            verify(exactly = 1) { schedulePeriodicSync() }
-        }
-    }
-
-    @Test
-    fun `TC-DATA-SYNC-DOMAIN-059 로그아웃되어 계정이 바뀌면 주기 동기화 예약을 다시 정한다`() {
-        val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
-        val accountFlow = MutableStateFlow<Account>(account)
-        val schedulePeriodicSync = mockk<() -> Unit>(relaxed = true)
-        setSyncEffect(accountFlow, mockk(relaxed = true), schedulePeriodicSync = schedulePeriodicSync)
-
-        composeRule.runOnIdle { accountFlow.value = Account.Guest }
-
-        composeRule.runOnIdle {
-            verify(exactly = 2) { schedulePeriodicSync() }
+            verify(exactly = 1) { requestSync() }
         }
     }
 
     private fun setSyncEffect(
-        accountFlow: MutableStateFlow<Account>,
-        requestSync: (SyncTrigger) -> Unit,
+        accountIdFlow: MutableStateFlow<Uuid?>,
+        requestSync: () -> Unit,
         initialState: Lifecycle.State = Lifecycle.State.STARTED,
-        schedulePeriodicSync: () -> Unit = mockk(relaxed = true),
     ): TestLifecycleOwner {
         val lifecycleOwner = TestLifecycleOwner(initialState)
 
@@ -182,8 +149,7 @@ class SyncEffectTest {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 SyncEffect(
                     requestSync = requestSync,
-                    schedulePeriodicSync = schedulePeriodicSync,
-                    account = accountFlow,
+                    authenticatedAccountId = accountIdFlow.filterNotNull(),
                 )
             }
         }

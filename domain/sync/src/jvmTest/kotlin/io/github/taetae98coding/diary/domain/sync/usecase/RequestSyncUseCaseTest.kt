@@ -71,33 +71,17 @@ class RequestSyncUseCaseTest :
                 }
             }
 
-            When("같은 계정의 정보만 바뀌어 동기화를 요청한다") {
-                Then("TC-SYNC-REFRESH-FEATURE-012 진행을 보고하지 않는 동기화가 한 번 요청된다") {
+            When("진행 표시 중에 진행을 표시하지 않는 계기로 동기화를 요청한다") {
+                Then("TC-SYNC-REFRESH-DOMAIN-005 메모나 태그 변경 계기는 진행 보고를 새로 요청하지 않고 동기화만 한 번 요청한다") {
                     val syncManager = mockk<SyncManager>(relaxed = true)
                     val useCase =
                         requestSyncUseCase(getAccountUseCase = getAccountUseCase, syncManager = syncManager)
 
-                    val result = useCase(parameter = SyncTrigger.ACCOUNT_UPDATED)
+                    val result = useCase(parameter = SyncTrigger.DATA_CHANGED)
 
                     result.shouldBeSuccess(Unit)
                     verify(exactly = 1) { syncManager.requestSync(reportsProgress = false) }
-                }
-            }
-
-            When("진행 표시 중에 진행을 표시하지 않는 계기로 동기화를 요청한다") {
-                // 계기: 메모나 태그 변경, 같은 계정의 정보만 바뀜
-                listOf(SyncTrigger.DATA_CHANGED, SyncTrigger.ACCOUNT_UPDATED).forEach { trigger ->
-                    Then("TC-SYNC-REFRESH-DOMAIN-005 $trigger 계기는 진행 보고를 새로 요청하지 않고 동기화만 한 번 요청한다") {
-                        val syncManager = mockk<SyncManager>(relaxed = true)
-                        val useCase =
-                            requestSyncUseCase(getAccountUseCase = getAccountUseCase, syncManager = syncManager)
-
-                        val result = useCase(parameter = trigger)
-
-                        result.shouldBeSuccess(Unit)
-                        verify(exactly = 1) { syncManager.requestSync(reportsProgress = false) }
-                        verify(exactly = 0) { syncManager.requestSync(reportsProgress = true) }
-                    }
+                    verify(exactly = 0) { syncManager.requestSync(reportsProgress = true) }
                 }
             }
         }

@@ -25,6 +25,6 @@ public class RequestSyncUseCase internal constructor(
     private fun SyncTrigger.reportsProgress(): Boolean =
         when (this) {
             SyncTrigger.USER_REQUESTED, SyncTrigger.ACCOUNT_CONFIRMED -> true
-            SyncTrigger.ACCOUNT_UPDATED, SyncTrigger.DATA_CHANGED -> false
+            SyncTrigger.DATA_CHANGED -> false
         }
 }
