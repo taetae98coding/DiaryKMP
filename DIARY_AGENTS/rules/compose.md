@@ -377,6 +377,7 @@ ViewModel이 노출하는 one-shot Effect(`Flow<XxxEffect>`)를 UI에서 수집�
 
 - Effect 수집 로직은 화면 컴포저블 본문에 두지 않고, 의도가 드러나는 이름의 별도 컴포저블 함수로 분리한다.
 - Effect를 수집할 때는 `compose:core`의 `CollectEffect(effect) { value -> ... }`를 쓴다. 라이프사이클 인지 수집은 `CollectEffect`가 소유하므로 `flowWithLifecycle`을 직접 이어 붙이지 않는다.
+- 값이 바뀔 때 작업을 실행하는 트리거 `StateFlow`([viewmodel.md](viewmodel.md)의 `노출하는 Flow`)도 `CollectEffect`로 수집한다. 넘기는 Flow가 바뀌면 수집을 다시 시작하므로 `filterIsInstance()` 같은 연산자를 컴포저블 본문에서 이어 붙이지 않고 `onEffect`에서 UiState를 구분한다.
 
 ✅ 권장 예시:
 
