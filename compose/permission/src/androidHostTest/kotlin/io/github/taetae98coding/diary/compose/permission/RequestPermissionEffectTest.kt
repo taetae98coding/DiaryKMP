@@ -25,7 +25,6 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
-import androidx.core.app.ActivityOptionsCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
@@ -41,6 +40,7 @@ import io.mockk.just
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.spyk
+import io.mockk.verify
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -57,7 +57,7 @@ class RequestPermissionEffectTest {
 
     @Test
     fun `TC-NOTIFICATION-PERMISSION-FEATURE-001 알림 권한이 허용되어 있지 않으면 앱 시작 시 시스템 알림 권한 요청이 시작된다`() {
-        val registry = PermissionResultRegistry(result = notificationResult(isGranted = false))
+        val registry = permissionResultRegistry(result = notificationResult(isGranted = false))
 
         setRequestPermissionEffect(permission = Permission.NOTIFICATION, registry = registry)
         composeRule.waitForIdle()
@@ -67,7 +67,7 @@ class RequestPermissionEffectTest {
 
     @Test
     fun `TC-NOTIFICATION-PERMISSION-DOMAIN-006 Android에서는 하나의 알림 권한만 요청한다`() {
-        val registry = PermissionResultRegistry(result = notificationResult(isGranted = false))
+        val registry = permissionResultRegistry(result = notificationResult(isGranted = false))
 
         setRequestPermissionEffect(permission = Permission.NOTIFICATION, registry = registry)
         composeRule.waitForIdle()
@@ -78,7 +78,7 @@ class RequestPermissionEffectTest {
     @Test
     fun `TC-NOTIFICATION-PERMISSION-FEATURE-002 알림 권한이 이미 허용되어 있으면 요청이 시작되지 않는다`() {
         shadowOf(RuntimeEnvironment.getApplication()).grantPermissions(Manifest.permission.POST_NOTIFICATIONS)
-        val registry = PermissionResultRegistry(result = notificationResult(isGranted = true))
+        val registry = permissionResultRegistry(result = notificationResult(isGranted = true))
         val resultList = mutableListOf<PermissionResult>()
 
         setRequestPermissionEffect(
@@ -94,7 +94,7 @@ class RequestPermissionEffectTest {
 
     @Test
     fun `TC-NOTIFICATION-PERMISSION-FEATURE-003 요청을 허용해도 앱 화면이 유지되고 별도 안내가 표시되지 않는다`() {
-        val registry = PermissionResultRegistry(result = notificationResult(isGranted = true))
+        val registry = permissionResultRegistry(result = notificationResult(isGranted = true))
         val resultList = mutableListOf<PermissionResult>()
 
         setRequestPermissionEffect(
@@ -111,7 +111,7 @@ class RequestPermissionEffectTest {
 
     @Test
     fun `TC-NOTIFICATION-PERMISSION-FEATURE-003 요청을 거부해도 앱 화면이 유지되고 별도 안내가 표시되지 않는다`() {
-        val registry = PermissionResultRegistry(result = notificationResult(isGranted = false))
+        val registry = permissionResultRegistry(result = notificationResult(isGranted = false))
         val resultList = mutableListOf<PermissionResult>()
 
         setRequestPermissionEffect(
@@ -128,7 +128,7 @@ class RequestPermissionEffectTest {
 
     @Test
     fun `TC-NOTIFICATION-PERMISSION-DOMAIN-002 앱 안에서 다른 화면으로 이동해도 요청 조건을 다시 확인하지 않는다`() {
-        val registry = PermissionResultRegistry(result = notificationResult(isGranted = false))
+        val registry = permissionResultRegistry(result = notificationResult(isGranted = false))
         var currentScreen by mutableStateOf(FIRST_SCREEN)
 
         // 알림 권한은 앱 화면이 시작될 때 요청하므로, 요청 지점은 그대로 두고 그 안에 보이는 화면만 바꾼다.
@@ -155,7 +155,7 @@ class RequestPermissionEffectTest {
 
     @Test
     fun `TC-NOTIFICATION-PERMISSION-DOMAIN-002 앱이 백그라운드에 갔다가 돌아와도 요청 조건을 다시 확인하지 않는다`() {
-        val registry = PermissionResultRegistry(result = notificationResult(isGranted = false))
+        val registry = permissionResultRegistry(result = notificationResult(isGranted = false))
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.STARTED)
 
         setRequestPermissionEffect(
@@ -174,7 +174,7 @@ class RequestPermissionEffectTest {
 
     @Test
     fun `TC-NOTIFICATION-PERMISSION-DOMAIN-002 화면 회전처럼 앱 화면이 재생성되어도 요청 조건을 다시 확인하지 않는다`() {
-        val registry = PermissionResultRegistry(result = notificationResult(isGranted = false))
+        val registry = permissionResultRegistry(result = notificationResult(isGranted = false))
 
         emulateConfigurationChange { RequestPermissionContent(permission = Permission.NOTIFICATION, registry = registry) }
 
@@ -183,7 +183,7 @@ class RequestPermissionEffectTest {
 
     @Test
     fun `TC-NOTIFICATION-PERMISSION-DOMAIN-008 시스템이 앱을 정리했다가 다시 만들면 요청 조건을 다시 확인한다`() {
-        val registry = PermissionResultRegistry(result = notificationResult(isGranted = false))
+        val registry = permissionResultRegistry(result = notificationResult(isGranted = false))
 
         emulateProcessRecreation { RequestPermissionContent(permission = Permission.NOTIFICATION, registry = registry) }
 
@@ -192,7 +192,7 @@ class RequestPermissionEffectTest {
 
     @Test
     fun `TC-LOCATION-PERMISSION-DOMAIN-002 화면이 다시 구성되어도 요청 조건을 다시 확인하지 않는다`() {
-        val registry = PermissionResultRegistry(result = locationResult(isFineGranted = false, isCoarseGranted = false))
+        val registry = permissionResultRegistry(result = locationResult(isFineGranted = false, isCoarseGranted = false))
         val recomposeCount = mutableIntStateOf(0)
 
         setRequestPermissionEffect(
@@ -210,7 +210,7 @@ class RequestPermissionEffectTest {
 
     @Test
     fun `TC-LOCATION-PERMISSION-DOMAIN-002 다른 화면으로 이동했다가 복귀해도 요청 조건을 다시 확인하지 않는다`() {
-        val registry = PermissionResultRegistry(result = locationResult(isFineGranted = false, isCoarseGranted = false))
+        val registry = permissionResultRegistry(result = locationResult(isFineGranted = false, isCoarseGranted = false))
         var isScreenVisible by mutableStateOf(true)
 
         val store = ManagedRetainedValuesStore()
@@ -239,7 +239,7 @@ class RequestPermissionEffectTest {
 
     @Test
     fun `TC-LOCATION-PERMISSION-DOMAIN-002 앱이 백그라운드에 갔다가 돌아와도 요청 조건을 다시 확인하지 않는다`() {
-        val registry = PermissionResultRegistry(result = locationResult(isFineGranted = false, isCoarseGranted = false))
+        val registry = permissionResultRegistry(result = locationResult(isFineGranted = false, isCoarseGranted = false))
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.STARTED)
 
         setRequestPermissionEffect(
@@ -258,7 +258,7 @@ class RequestPermissionEffectTest {
 
     @Test
     fun `TC-LOCATION-PERMISSION-DOMAIN-002 화면 회전처럼 화면이 재생성되어도 요청 조건을 다시 확인하지 않는다`() {
-        val registry = PermissionResultRegistry(result = locationResult(isFineGranted = false, isCoarseGranted = false))
+        val registry = permissionResultRegistry(result = locationResult(isFineGranted = false, isCoarseGranted = false))
 
         emulateConfigurationChange { RequestPermissionContent(permission = Permission.LOCATION, registry = registry) }
 
@@ -267,7 +267,7 @@ class RequestPermissionEffectTest {
 
     @Test
     fun `TC-LOCATION-PERMISSION-DOMAIN-014 시스템이 앱을 정리했다가 다시 만들면 요청 조건을 다시 확인한다`() {
-        val registry = PermissionResultRegistry(result = locationResult(isFineGranted = false, isCoarseGranted = false))
+        val registry = permissionResultRegistry(result = locationResult(isFineGranted = false, isCoarseGranted = false))
 
         emulateProcessRecreation { RequestPermissionContent(permission = Permission.LOCATION, registry = registry) }
 
@@ -276,7 +276,7 @@ class RequestPermissionEffectTest {
 
     @Test
     fun `TC-LOCATION-PERMISSION-DOMAIN-007 Android에서는 정확한 위치 사용 권한을 포함해 요청한다`() {
-        val registry = PermissionResultRegistry(result = locationResult(isFineGranted = false, isCoarseGranted = false))
+        val registry = permissionResultRegistry(result = locationResult(isFineGranted = false, isCoarseGranted = false))
 
         setRequestPermissionEffect(permission = Permission.LOCATION, registry = registry)
         composeRule.waitForIdle()
@@ -286,7 +286,7 @@ class RequestPermissionEffectTest {
 
     @Test
     fun `대략적인 위치만 허용해도 허용으로 처리한다`() {
-        val registry = PermissionResultRegistry(result = locationResult(isFineGranted = false, isCoarseGranted = true))
+        val registry = permissionResultRegistry(result = locationResult(isFineGranted = false, isCoarseGranted = true))
         val resultList = mutableListOf<PermissionResult>()
 
         setRequestPermissionEffect(
@@ -304,7 +304,7 @@ class RequestPermissionEffectTest {
         val application = RuntimeEnvironment.getApplication()
         shadowOf(application.packageManager).setSystemFeature(PackageManager.FEATURE_CAMERA_ANY, false)
         application.getSystemService(CameraManager::class.java).cameraIdList.shouldBeEmpty()
-        val registry = PermissionResultRegistry(result = cameraResult(isGranted = true))
+        val registry = permissionResultRegistry(result = cameraResult(isGranted = true))
         val resultList = mutableListOf<PermissionResult>()
 
         setRequestPermissionEffect(
@@ -426,27 +426,20 @@ class RequestPermissionEffectTest {
         }
     }
 
-    private class PermissionResultRegistry(
-        private val result: Map<String, Boolean>,
-    ) : ActivityResultRegistry() {
-        val launchedPermissionList = mutableListOf<List<String>>()
+    private fun permissionResultRegistry(result: Map<String, Boolean>): ActivityResultRegistry {
+        val registry = spyk<ActivityResultRegistry>()
 
-        override fun <I, O> onLaunch(
-            requestCode: Int,
-            contract: ActivityResultContract<I, O>,
-            input: I,
-            options: ActivityOptionsCompat?,
-        ) {
-            launchedPermissionList += (input as Array<*>).map { permission -> permission.toString() }
-
+        every { registry.onLaunch(any(), any<ActivityResultContract<Any?, Any?>>(), any(), any()) } answers {
             // 실제 시스템은 허용 응답과 함께 권한 상태도 바꾸므로 조회 결과가 응답을 따라가게 한다.
             val grantedList = result.filterValues { isGranted -> isGranted }.keys
             if (grantedList.isNotEmpty()) {
                 shadowOf(RuntimeEnvironment.getApplication()).grantPermissions(*grantedList.toTypedArray())
             }
 
-            dispatchResult(requestCode, result)
+            registry.dispatchResult(firstArg(), result)
         }
+
+        return registry
     }
 
     companion object {
@@ -469,3 +462,11 @@ class RequestPermissionEffectTest {
         )
     }
 }
+
+private val ActivityResultRegistry.launchedPermissionList: List<List<String>>
+    get() {
+        val inputList = mutableListOf<Array<String>>()
+        verify(atLeast = 0) { onLaunch(any(), any<ActivityResultContract<Array<String>, Map<String, Boolean>>>(), capture(inputList), any()) }
+
+        return inputList.map(Array<String>::toList)
+    }
