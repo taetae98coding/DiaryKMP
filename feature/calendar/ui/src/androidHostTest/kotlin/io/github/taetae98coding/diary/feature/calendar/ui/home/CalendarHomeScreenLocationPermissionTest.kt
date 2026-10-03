@@ -11,7 +11,6 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import androidx.core.app.ActivityOptionsCompat
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
@@ -28,6 +27,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.spyk
 import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -50,7 +50,7 @@ class CalendarHomeScreenLocationPermissionTest {
 
     @Test
     fun `TC-LOCATION-PERMISSION-FEATURE-001 위치 권한이 허용되어 있지 않으면 캘린더 홈 화면 진입 시 시스템 위치 권한 요청이 시작된다`() {
-        val registry = PermissionResultRegistry(result = DENIED_RESULT)
+        val registry = permissionResultRegistry(result = DENIED_RESULT)
 
         setCalendarHomeScreen(
             registry = registry,
@@ -64,7 +64,7 @@ class CalendarHomeScreenLocationPermissionTest {
     @Test
     fun `TC-LOCATION-PERMISSION-FEATURE-002 위치 권한이 이미 허용되어 있으면 요청이 시작되지 않는다`() {
         shadowOf(RuntimeEnvironment.getApplication()).grantPermissions(Manifest.permission.ACCESS_FINE_LOCATION)
-        val registry = PermissionResultRegistry(result = GRANTED_RESULT)
+        val registry = permissionResultRegistry(result = GRANTED_RESULT)
         val weatherViewModel = weatherViewModel()
 
         setCalendarHomeScreen(
@@ -79,7 +79,7 @@ class CalendarHomeScreenLocationPermissionTest {
 
     @Test
     fun `TC-LOCATION-PERMISSION-FEATURE-003 요청을 허용해도 캘린더 홈 화면이 유지되고 별도 안내가 표시되지 않는다`() {
-        val registry = PermissionResultRegistry(result = GRANTED_RESULT)
+        val registry = permissionResultRegistry(result = GRANTED_RESULT)
 
         setCalendarHomeScreen(
             registry = registry,
@@ -94,7 +94,7 @@ class CalendarHomeScreenLocationPermissionTest {
 
     @Test
     fun `TC-LOCATION-PERMISSION-FEATURE-003 요청을 거부해도 캘린더 홈 화면이 유지되고 별도 안내가 표시되지 않는다`() {
-        val registry = PermissionResultRegistry(result = DENIED_RESULT)
+        val registry = permissionResultRegistry(result = DENIED_RESULT)
 
         setCalendarHomeScreen(
             registry = registry,
@@ -109,7 +109,7 @@ class CalendarHomeScreenLocationPermissionTest {
 
     @Test
     fun `TC-CALENDAR-HOME-DATA-025 위치 권한 요청에서 정확한 위치를 허용하면 현재 위치의 날씨를 다시 동기화한다`() {
-        val registry = PermissionResultRegistry(result = GRANTED_RESULT)
+        val registry = permissionResultRegistry(result = GRANTED_RESULT)
         val weatherViewModel = weatherViewModel()
 
         setCalendarHomeScreen(
@@ -123,7 +123,7 @@ class CalendarHomeScreenLocationPermissionTest {
 
     @Test
     fun `TC-CALENDAR-HOME-DATA-025 위치 권한 요청에서 대략적인 위치만 허용해도 현재 위치의 날씨를 다시 동기화한다`() {
-        val registry = PermissionResultRegistry(result = COARSE_ONLY_GRANTED_RESULT)
+        val registry = permissionResultRegistry(result = COARSE_ONLY_GRANTED_RESULT)
         val weatherViewModel = weatherViewModel()
 
         setCalendarHomeScreen(
@@ -138,7 +138,7 @@ class CalendarHomeScreenLocationPermissionTest {
     @Test
     fun `TC-CALENDAR-HOME-DATA-037 위치 권한이 이미 허용되어 있으면 권한을 계기로 날씨를 다시 동기화하지 않는다`() {
         shadowOf(RuntimeEnvironment.getApplication()).grantPermissions(Manifest.permission.ACCESS_FINE_LOCATION)
-        val registry = PermissionResultRegistry(result = GRANTED_RESULT)
+        val registry = permissionResultRegistry(result = GRANTED_RESULT)
         val weatherViewModel = weatherViewModel()
 
         setCalendarHomeScreen(
@@ -152,7 +152,7 @@ class CalendarHomeScreenLocationPermissionTest {
 
     @Test
     fun `TC-CALENDAR-HOME-DATA-026 위치 권한 요청을 거부하면 날씨를 다시 동기화하지 않는다`() {
-        val registry = PermissionResultRegistry(result = DENIED_RESULT)
+        val registry = permissionResultRegistry(result = DENIED_RESULT)
         val weatherViewModel = weatherViewModel()
 
         setCalendarHomeScreen(
@@ -182,7 +182,7 @@ class CalendarHomeScreenLocationPermissionTest {
                 refreshCurrentWeatherUseCase = refreshCurrentWeatherUseCase,
                 getCurrentCalendarWeatherUseCase = getCurrentCalendarWeatherUseCase,
             )
-        val registry = PermissionResultRegistry(result = GRANTED_RESULT)
+        val registry = permissionResultRegistry(result = GRANTED_RESULT)
 
         setCalendarHomeScreen(
             registry = registry,
@@ -248,20 +248,14 @@ class CalendarHomeScreenLocationPermissionTest {
         }
     }
 
-    private class PermissionResultRegistry(
-        private val result: Map<String, Boolean>,
-    ) : ActivityResultRegistry() {
-        val launchedPermissionList = mutableListOf<List<String>>()
+    private fun permissionResultRegistry(result: Map<String, Boolean>): ActivityResultRegistry {
+        val registry = spyk<ActivityResultRegistry>()
 
-        override fun <I, O> onLaunch(
-            requestCode: Int,
-            contract: ActivityResultContract<I, O>,
-            input: I,
-            options: ActivityOptionsCompat?,
-        ) {
-            launchedPermissionList += (input as Array<*>).map { permission -> permission.toString() }
-            dispatchResult(requestCode, result)
+        every { registry.onLaunch(any(), any<ActivityResultContract<Any?, Any?>>(), any(), any()) } answers {
+            registry.dispatchResult(firstArg(), result)
         }
+
+        return registry
     }
 
     companion object {
@@ -283,3 +277,11 @@ class CalendarHomeScreenLocationPermissionTest {
             )
     }
 }
+
+private val ActivityResultRegistry.launchedPermissionList: List<List<String>>
+    get() {
+        val inputList = mutableListOf<Array<String>>()
+        verify(atLeast = 0) { onLaunch(any(), any<ActivityResultContract<Array<String>, Map<String, Boolean>>>(), capture(inputList), any()) }
+
+        return inputList.map(Array<String>::toList)
+    }
