@@ -10,7 +10,7 @@
 | 기준 버전 | foundation `1.12.0`, material3 `1.12.0-alpha03` |
 | 확인 방법 | 배포된 `commonMain` 소스의 공개 선언과 KDoc, `ComposeFoundationFlags` |
 | 최초 조사 | 2026-09-19 |
-| 최종 확인 | 2026-09-19 |
+| 최종 확인 | 2026-09-28 |
 
 버전 값은 `gradle/libs.versions.toml`의 `jetbrainsCompose`와 `jetbrainsComposeMaterial3`가 소유한다. 이 문서의 값이 다르면 카탈로그를 기준으로 다시 조사한다. 기준 버전과 최종 확인을 적는 이유는 [참고 자료](README.md)가 소유한다.
 
@@ -71,9 +71,11 @@ Styles API는 `@ExperimentalFoundationStyleApi`가 붙은 실험적 API다. 별�
 | 공통 스타일 | 코드 | 쓰는 곳 |
 | --- | --- | --- |
 | Bottom Sheet 제목, 내용, 영역, 선택 줄 | `DiaryStyles.bottomSheetTitle`, `bottomSheetContent`, `bottomSheetSection`, `bottomSheetRow` | 정렬 선택, 태그 필터, MemoHome 필터, TagHome 필터, WebDetail 표시 방식, TagDetail 표시 범위 Bottom Sheet |
-| 카드 내용 | `DiaryStyles.cardContent` | 메모·태그·장소·웹·연락처·곡 카드, SettingHoliday 항목, SettingGemini 모델 줄 |
+| 카드 내용 | `DiaryStyles.cardContent` | 메모·태그·장소·웹·연락처·곡·QR 카드, HolidayHome 황금연휴 카드, SettingHoliday 항목, SettingGemini 모델 줄 |
 | 흐림 | `StyleScope.dimmed()` | 비활성 태그 필터 영역, 이동 중 캘린더 메모 조각 |
-| 캘린더 아이템 모양 | `CalendarDefault.itemShape` (`Shape`) | CalendarText 배경, 이동 고스트 그림자 |
+| QR 그림 | `DiaryStyles.qrImage` | QrAdd의 QR 그림, QrHome의 QR 카드 그림 |
+| 선택 배경 | `CalendarDefaults.selectBackgroundColor()` (`Color`) | 캘린더 날짜 선택 표시, 시간표 기간 선택 표시 |
+| 캘린더 아이템 모양 | `CalendarDefaults.itemShape` (`Shape`) | CalendarText 배경, 이동 고스트 그림자, 시간표 메모 블록 |
 
 컴포넌트 하나에만 속하는 표현은 그 컴포넌트 안에서 `Modifier.styleable { }`로 선언한다.
 
@@ -82,6 +84,8 @@ Styles API는 `@ExperimentalFoundationStyleApi`가 붙은 실험적 API다. 별�
 | `CalendarText` | 모양, 클립, 배경, 안쪽 여백 | 시각 속성 세 개가 한 노드에 모여 있어 Style 한 블록으로 읽힌다 |
 | `CalendarBarText`의 색상 바 | 모양, 배경 | 같은 이유. 너비와 높이 채움은 intrinsic 측정에 보고되도록 Modifier로 남긴다 |
 | `CalendarDayOfMonthText`의 원형 배경 | 모양, 배경 | 같은 이유 |
+| `TimetableHeader` 기준 날짜 원형 배경 | 모양, 배경 | 같은 이유. 크기는 Modifier로 남긴다 |
+| `CalendarTimetableMemoBlock` | 모양, 클립, 배경 | `CalendarText`와 같은 이유 |
 | `DiaryColorIndicator` | 모양, 배경 | 같은 이유. 크기는 intrinsic 측정에 보고되도록 Modifier로 남긴다 |
 | `DiaryColorInput`, `ColorPickerPreview` | 상태가 움직이는 배경색 | `drawBehind { drawRect(state.color) }`가 하던 그리기 단계 읽기를 `background(state.color)` 선언으로 대신한다 |
 | `TagFilterFlexBox` | 비활성일 때 흐림 | `MutableStyleState.isEnabled`와 `disabled { dimmed() }`로 상태 기반 표현을 선언한다 |
