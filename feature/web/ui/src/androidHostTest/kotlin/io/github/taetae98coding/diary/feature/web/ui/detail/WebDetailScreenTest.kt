@@ -16,7 +16,7 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.web.DiaryWebSession
-import io.github.taetae98coding.diary.compose.web.LocalDiaryWebSession
+import io.github.taetae98coding.diary.compose.web.SingletonDiaryWebSession
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.receiveAsFlow
+import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,6 +45,11 @@ import org.robolectric.annotation.Config
 class WebDetailScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @After
+    fun resetWebSession() {
+        SingletonDiaryWebSession.set(DiaryWebSession())
+    }
 
     @Test
     fun `TC-WEB-DETAIL-FEATURE-037 URL 방식으로 시작하면 웹 페이지 불러오기를 시작하지 않는다`() {
@@ -396,9 +402,10 @@ class WebDetailScreenTest {
         navigateUp: () -> Unit = {},
         webSession: DiaryWebSession = DiaryWebSession(),
     ) {
+        SingletonDiaryWebSession.set(webSession)
         composeRule.setContent {
             WebDetailScreenTestTheme {
-                CompositionLocalProvider(LocalUriHandler provides uriHandler, LocalDiaryWebSession provides webSession) {
+                CompositionLocalProvider(LocalUriHandler provides uriHandler) {
                     WebDetailScreen(
                         navigateToMemoAdd = {},
                         navigateToMemoDetail = {},

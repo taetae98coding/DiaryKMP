@@ -27,7 +27,7 @@ public fun DiaryWebView(
     modifier: Modifier = Modifier,
     sessionImportFailureState: DiaryWebSessionImportFailureState = rememberDiaryWebSessionImportFailureState(),
 ) {
-    val session = LocalDiaryWebSession.current
+    val session = SingletonDiaryWebSession.get()
 
     SessionImportFailedEffect(
         failureId = session.failureId,
