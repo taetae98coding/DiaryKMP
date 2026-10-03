@@ -12,6 +12,8 @@
 - 구현 방향에 명확한 trade-off가 있는 경우. 주요 선택지의 장단점을 함께 설명한다.
 - 스펙, 디자인, 테스트 케이스에 공백이나 충돌이 있는 경우. 추정으로 메우지 않는다.
 
+보고 형식은 [confirm.md](DIARY_AGENTS/confirm.md)를 따른다.
+
 ## 작업 iterator
 
 사용자가 작업을 지시하면 별도 확인 없이 다음 순서로 진행한다. 각 단계는 앞 단계의 산출물이 확정된 뒤에 시작한다.
@@ -44,7 +46,7 @@
 | Composable, UI Event·Effect, 레이아웃 | [compose.md](DIARY_AGENTS/rules/compose.md) |
 | ViewModel | [viewmodel.md](DIARY_AGENTS/rules/viewmodel.md) |
 | `:domain:*`의 UseCase와 Repository 인터페이스 | [domain.md](DIARY_AGENTS/rules/domain.md) |
-| `:data:*`, `:work:*`, `:notification`과 DataSource | [data.md](DIARY_AGENTS/rules/data.md) |
+| `:core:*`, `:data:*`, `:work:*`의 DataSource·Repository 구현·매퍼 | [data.md](DIARY_AGENTS/rules/data.md) |
 | Room Entity, DAO, `@Query` | [room.md](DIARY_AGENTS/rules/room.md) |
 | `CoroutineWorker`·`WorkRequest`, `BGTaskScheduler`, 코루틴 예약기 | [work.md](DIARY_AGENTS/rules/work.md) |
 | `build.gradle.kts`와 버전 카탈로그 | [gradle.md](DIARY_AGENTS/rules/gradle.md) |

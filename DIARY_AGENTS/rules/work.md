@@ -55,7 +55,7 @@ override suspend fun doWork(): Result =
 
 ## 제약은 스펙의 플랫폼 표를 그대로 옮긴다
 
-`Constraints`와 `BGTaskRequest`의 조건에는 스펙이 플랫폼별 실행 조건으로 정한 것만 둔다. 동기화는 Android `NetworkType.CONNECTED`, iOS `requiresNetworkConnectivity`이고, 알림 예약은 제약이 없다. 충전 중, 유휴 상태처럼 스펙에 없는 제약을 편의로 붙이지 않는다.
+`Constraints`와 `BGTaskRequest`의 조건에는 스펙이 플랫폼별 실행 조건으로 정한 것만 둔다. 동기화는 Android `NetworkType.CONNECTED`, iOS `requiresNetworkConnectivity`이다. 충전 중, 유휴 상태처럼 스펙에 없는 제약을 편의로 붙이지 않는다.
 
 즉시 동기화는 `setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)`로 넣는다. 스펙의 `즉시 실행 요청`이 요청이 사라지는 경우는 없다고 정했으므로 `DROP_WORK_REQUEST`는 쓰지 않는다. 주기 작업에는 즉시 실행을 요청하지 않는다.
 
@@ -67,7 +67,9 @@ override suspend fun doWork(): Result =
 - `expirationHandler`에서 실행 중인 `Job`을 취소하고 실패로 완료를 알린다. 만료까지 완료를 알리지 않으면 시스템이 앱을 종료할 수 있다.
 - 제출이 거절되는 환경(시뮬레이터)은 실패로 다루지 않고 다음 계기에서 다시 예약한다.
 
-## JVM 데스크톱·웹 코루틴 예약기
+## 코루틴 예약기
+
+즉시 실행 예약기는 Android 외 모든 플랫폼(iOS 포함), 주기 예약기는 JVM 데스크톱·웹에서 쓴다.
 
 - 작업마다 전용 `CoroutineScope`를 Koin `@Single`로 둔다. `SupervisorJob`과 빈 `CoroutineExceptionHandler`를 붙여 한 작업의 실패가 다른 작업이나 앱을 죽이지 않게 한다. 화면 수명과 무관해야 하므로 ViewModel의 스코프를 쓰지 않는다.
 - 주기 예약기는 한 주기의 실패를 잡고 다음 주기를 계속 기다린다. 스펙이 주기 동기화가 실패해도 예약은 해제되지 않는다고 정했다.

@@ -3,6 +3,7 @@
 ## core와 data, work의 책임 경계
 
 - `core:*`는 저장소·네트워크·플랫폼 기능을 호출할 수 있는 상태로 만들어 주기까지만 한다. DAO, HttpClient, 위치 제공자, FCM 토큰 제공자가 여기 속한다.
+  - 예외로, 플랫폼이 메시징 서비스로 전달한 원격 알림을 표시하는 일은 `core:fcm:impl`이 함께 소유한다. 메시지를 받는 서비스(`FcmMessagingService`), 알림 채널(`DailyMemoNotificationChannel`), 표시(`RemoteNotificationPresenter`)가 여기 있다. 서비스가 플랫폼에서 메시지를 받는 즉시 알림을 그려야 하고 domain 계약이나 저장소를 거치지 않기 때문이다. 앱이 작업 진행을 알리는 알림처럼 기기에서 만드는 알림은 그 작업을 소유한 `work:*`에 둔다.
 - `data:*`는 그 DataSource들을 조합해 domain이 선언한 Repository·Manager 계약을 구현한다. 어떤 종류를 어떤 순서로 주고받는지, 몇 개씩 나눠 보내는지, 커서를 언제 전진시키는지는 data가 소유한다.
 - `work:*`는 백그라운드 작업 하나를 기능 단위로 소유한다. domain 계약 구현, 작업 내용, 그 작업을 플랫폼이 깨우는 수단을 한 모듈에 둔다.
 
