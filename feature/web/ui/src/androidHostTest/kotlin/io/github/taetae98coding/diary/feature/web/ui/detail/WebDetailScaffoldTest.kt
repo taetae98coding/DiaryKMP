@@ -2,7 +2,6 @@ package io.github.taetae98coding.diary.feature.web.ui.detail
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -35,7 +34,7 @@ import androidx.compose.ui.test.withKeyDown
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.web.DIARY_WEB_VIEW_TEST_TAG
 import io.github.taetae98coding.diary.compose.web.DiaryWebSession
-import io.github.taetae98coding.diary.compose.web.LocalDiaryWebSession
+import io.github.taetae98coding.diary.compose.web.SingletonDiaryWebSession
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.feature.web.ui.detail.memo.WebDetailMemoTab
@@ -45,6 +44,7 @@ import io.github.taetae98coding.diary.feature.web.ui.detail.tab.WebDetailTab
 import io.github.taetae98coding.diary.feature.web.ui.detail.viewmode.WebDetailViewMode
 import io.github.taetae98coding.diary.feature.web.ui.form.rememberWebDetailFormState
 import io.kotest.matchers.shouldBe
+import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,6 +56,11 @@ import org.robolectric.annotation.Config
 class WebDetailScaffoldTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @After
+    fun resetWebSession() {
+        SingletonDiaryWebSession.set(DiaryWebSession())
+    }
 
     @Test
     fun `TC-WEB-DETAIL-FEATURE-001 TC-WEB-DETAIL-FEATURE-058 조회 중에는 제목과 본문 영역을 표시하지 않고 탭 줄은 표시한다`() {
@@ -524,17 +529,16 @@ class WebDetailScaffoldTest {
         val eventList = mutableListOf<WebDetailScaffoldEvent>()
         val uiState = testContentUiState()
 
+        SingletonDiaryWebSession.set(DiaryWebSession(failureId = 1))
         restorationTester.setContent {
-            CompositionLocalProvider(LocalDiaryWebSession provides DiaryWebSession(failureId = 1)) {
-                WebDetailScaffoldUnderTest(
-                    uiState = uiState,
-                    pageUiState = WebDetailPageUiState.Loading,
-                    detail = uiState.detail,
-                    initialTab = WebDetailTab.PAGE,
-                    initialViewMode = WebDetailViewMode.URL,
-                    onEvent = eventList::add,
-                )
-            }
+            WebDetailScaffoldUnderTest(
+                uiState = uiState,
+                pageUiState = WebDetailPageUiState.Loading,
+                detail = uiState.detail,
+                initialTab = WebDetailTab.PAGE,
+                initialViewMode = WebDetailViewMode.URL,
+                onEvent = eventList::add,
+            )
         }
         composeRule.waitForIdle()
 
@@ -546,23 +550,21 @@ class WebDetailScaffoldTest {
 
     @Test
     fun `TC-WEB-DETAIL-FEATURE-066 응답 본문 방식에서는 가져오기가 시작되어도 표시가 바뀌지 않고 URL 방식으로 바꾸면 진행 상태를 거친다`() {
-        var session by mutableStateOf(DiaryWebSession(importCount = 1))
+        SingletonDiaryWebSession.set(DiaryWebSession(importCount = 1))
         val uiState = testContentUiState()
         composeRule.setContent {
-            CompositionLocalProvider(LocalDiaryWebSession provides session) {
-                WebDetailScaffoldUnderTest(
-                    uiState = uiState,
-                    pageUiState = WebDetailPageUiState.Failure,
-                    detail = uiState.detail,
-                    initialTab = WebDetailTab.PAGE,
-                    initialViewMode = WebDetailViewMode.RESPONSE,
-                    onEvent = {},
-                )
-            }
+            WebDetailScaffoldUnderTest(
+                uiState = uiState,
+                pageUiState = WebDetailPageUiState.Failure,
+                detail = uiState.detail,
+                initialTab = WebDetailTab.PAGE,
+                initialViewMode = WebDetailViewMode.RESPONSE,
+                onEvent = {},
+            )
         }
         composeRule.onNodeWithTag(WEB_DETAIL_PAGE_FAILURE_TEST_TAG).assertExists()
 
-        composeRule.runOnIdle { session = DiaryWebSession(isPreparing = true, importCount = 1) }
+        composeRule.runOnIdle { SingletonDiaryWebSession.set(DiaryWebSession(isPreparing = true, importCount = 1)) }
         composeRule.waitForIdle()
 
         composeRule.onNodeWithTag(WEB_DETAIL_PAGE_FAILURE_TEST_TAG).assertExists()
@@ -708,17 +710,16 @@ class WebDetailScaffoldTest {
         session: DiaryWebSession = DiaryWebSession(),
         onEvent: (WebDetailScaffoldEvent) -> Unit = {},
     ) {
+        SingletonDiaryWebSession.set(session)
         composeRule.setContent {
-            CompositionLocalProvider(LocalDiaryWebSession provides session) {
-                WebDetailScaffoldUnderTest(
-                    uiState = uiState,
-                    pageUiState = pageUiState,
-                    detail = detail,
-                    initialTab = initialTab,
-                    initialViewMode = initialViewMode,
-                    onEvent = onEvent,
-                )
-            }
+            WebDetailScaffoldUnderTest(
+                uiState = uiState,
+                pageUiState = pageUiState,
+                detail = detail,
+                initialTab = initialTab,
+                initialViewMode = initialViewMode,
+                onEvent = onEvent,
+            )
         }
     }
 
