@@ -4,17 +4,16 @@ import androidx.compose.runtime.Composable
 import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlin.uuid.Uuid
 
 @Composable
 internal fun SyncEffect(
     requestSync: () -> Unit,
-    authenticatedAccountId: Flow<Uuid> = emptyFlow(),
+    uiState: Flow<AppSyncUiState> = emptyFlow(),
 ) {
     CollectEffect(
-        effect = authenticatedAccountId,
+        effect = uiState,
         minActiveState = syncMinActiveState,
-    ) {
-        requestSync()
+    ) { value ->
+        if (value is AppSyncUiState.Authenticated) requestSync()
     }
 }

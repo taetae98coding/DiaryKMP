@@ -22,6 +22,7 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -53,7 +54,7 @@ class AppSyncViewModelTest : FunSpec() {
                 val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
                 val viewModel = viewModel(accountFlow = flowOf(Result.success(account)))
 
-                viewModel.authenticatedAccountId.test {
+                viewModel.uiState.authenticatedAccountId().test {
                     awaitItem() shouldBe account.id
                     expectNoEvents()
                 }
@@ -66,7 +67,7 @@ class AppSyncViewModelTest : FunSpec() {
                 val accountFlow = MutableStateFlow<Account>(Account.Guest)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
-                viewModel.authenticatedAccountId.test {
+                viewModel.uiState.authenticatedAccountId().test {
                     expectNoEvents()
                     accountFlow.value = account
                     awaitItem() shouldBe account.id
@@ -81,7 +82,7 @@ class AppSyncViewModelTest : FunSpec() {
                 val accountFlow = MutableStateFlow<Account>(account)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
-                viewModel.authenticatedAccountId.test {
+                viewModel.uiState.authenticatedAccountId().test {
                     awaitItem() shouldBe account.id
                     accountFlow.value = Account.Guest
                     runCurrent()
@@ -100,7 +101,7 @@ class AppSyncViewModelTest : FunSpec() {
                 val accountFlow = MutableStateFlow<Account>(account)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
-                viewModel.authenticatedAccountId.test {
+                viewModel.uiState.authenticatedAccountId().test {
                     expectNoEvents()
                     accountFlow.value = refreshedAccount
                     awaitItem() shouldBe refreshedAccount.id
@@ -116,7 +117,7 @@ class AppSyncViewModelTest : FunSpec() {
                 val accountFlow = MutableStateFlow<Account>(account)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
-                viewModel.authenticatedAccountId.test {
+                viewModel.uiState.authenticatedAccountId().test {
                     awaitItem() shouldBe account.id
                     accountFlow.value = otherAccount
                     awaitItem() shouldBe otherAccount.id
@@ -131,7 +132,7 @@ class AppSyncViewModelTest : FunSpec() {
                 val accountFlow = MutableSharedFlow<Account>(replay = 1)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
-                viewModel.authenticatedAccountId.test {
+                viewModel.uiState.authenticatedAccountId().test {
                     accountFlow.emit(account)
                     awaitItem() shouldBe account.id
                     accountFlow.emit(account)
@@ -151,7 +152,7 @@ class AppSyncViewModelTest : FunSpec() {
                     val accountFlow = MutableStateFlow<Account>(account)
                     val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
-                    viewModel.authenticatedAccountId.test {
+                    viewModel.uiState.authenticatedAccountId().test {
                         awaitItem() shouldBe account.id
                         accountFlow.value = invalidate(account)
                         runCurrent()
@@ -174,7 +175,7 @@ class AppSyncViewModelTest : FunSpec() {
                     val accountFlow = MutableStateFlow<Account>(account)
                     val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
-                    viewModel.authenticatedAccountId.test {
+                    viewModel.uiState.authenticatedAccountId().test {
                         awaitItem() shouldBe account.id
                         accountFlow.value = change(account)
                         expectNoEvents()
@@ -189,7 +190,7 @@ class AppSyncViewModelTest : FunSpec() {
                 val accountFlow = MutableStateFlow(Result.failure<Account>(IllegalStateException("account error")))
                 val viewModel = viewModel(accountFlow = accountFlow)
 
-                viewModel.authenticatedAccountId.test {
+                viewModel.uiState.authenticatedAccountId().test {
                     expectNoEvents()
                     accountFlow.value = Result.success(account)
                     awaitItem() shouldBe account.id
@@ -204,17 +205,37 @@ class AppSyncViewModelTest : FunSpec() {
                 val accountFlow = MutableStateFlow<Account>(account)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
-                val firstJob = launch { viewModel.authenticatedAccountId.collect { } }
+                val firstJob = launch { viewModel.uiState.authenticatedAccountId().collect { } }
                 advanceUntilIdle()
                 firstJob.cancelAndJoin()
                 advanceTimeBy(STOP_TIMEOUT_ELAPSED_MILLIS)
 
                 val accountIdList = mutableListOf<Uuid>()
-                val secondJob = launch { viewModel.authenticatedAccountId.collect { value -> accountIdList.add(value) } }
+                val secondJob = launch { viewModel.uiState.authenticatedAccountId().collect { value -> accountIdList.add(value) } }
                 advanceUntilIdle()
                 secondJob.cancelAndJoin()
 
                 accountIdList shouldBe listOf(account.id)
+            }
+        }
+
+        test("계정을 확인하기 전에는 확인 중이고 인증된 계정이 아니면 인증되지 않은 상태다") {
+            runTest(mainDispatcher) {
+                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                val accountFlow = MutableStateFlow(Result.failure<Account>(IllegalStateException("account error")))
+                val viewModel = viewModel(accountFlow = accountFlow)
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe AppSyncUiState.Loading
+                    accountFlow.value = Result.success(Account.Guest)
+                    awaitItem() shouldBe AppSyncUiState.Unauthenticated
+                    accountFlow.value = Result.success(account.copy(isSessionValid = false))
+                    runCurrent()
+                    expectNoEvents()
+                    accountFlow.value = Result.success(account)
+                    awaitItem() shouldBe AppSyncUiState.Authenticated(accountId = account.id)
+                    expectNoEvents()
+                }
             }
         }
 
@@ -252,5 +273,7 @@ class AppSyncViewModelTest : FunSpec() {
         }
 
         private fun Flow<Account>.toResultFlow(): Flow<Result<Account>> = map { account -> Result.success(account) }
+
+        private fun Flow<AppSyncUiState>.authenticatedAccountId(): Flow<Uuid> = filterIsInstance<AppSyncUiState.Authenticated>().map { uiState -> uiState.accountId }
     }
 }
