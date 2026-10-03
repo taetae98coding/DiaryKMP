@@ -16,30 +16,33 @@ private val fixtureMonkey: FixtureMonkey =
 
 class ReconcileFileUploadUseCaseTest :
     BehaviorSpec({
-        Given("계정 상태가 게스트가 되었다") {
+        Given("게스트가 확인되었다") {
             val fileUploadManager = mockk<FileUploadManager>()
-            coEvery { fileUploadManager.cancelUpload() } returns Unit
+            coEvery { fileUploadManager.cancelUpload(exceptAccountId = any()) } returns Unit
             val useCase = ReconcileFileUploadUseCase(fileUploadManager = fileUploadManager)
 
             When("그 계정 상태를 반영한다") {
                 val result = useCase(parameter = Account.Guest)
 
-                Then("TC-FILE-STORAGE-DOMAIN-014 올리는 중이거나 다시 올릴 예정인 올리기를 모두 취소한다") {
+                Then("TC-FILE-STORAGE-DOMAIN-017 어느 계정의 올리기도 남기지 않고 모두 취소한다") {
                     result.shouldBeSuccess()
-                    coVerify(exactly = 1) { fileUploadManager.cancelUpload() }
+                    coVerify(exactly = 1) { fileUploadManager.cancelUpload(exceptAccountId = null) }
                 }
             }
         }
 
-        Given("계정 상태가 사용자다") {
+        Given("사용자가 확인되었다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
             val fileUploadManager = mockk<FileUploadManager>()
+            coEvery { fileUploadManager.cancelUpload(exceptAccountId = any()) } returns Unit
             val useCase = ReconcileFileUploadUseCase(fileUploadManager = fileUploadManager)
 
             When("그 계정 상태를 반영한다") {
-                useCase(parameter = fixtureMonkey.giveMeOne<Account.User>())
+                val result = useCase(parameter = account)
 
-                Then("TC-FILE-STORAGE-DOMAIN-014 올리기를 취소하지 않는다") {
-                    coVerify(exactly = 0) { fileUploadManager.cancelUpload() }
+                Then("TC-FILE-STORAGE-DOMAIN-017 그 계정이 시작한 올리기만 남기고 다른 계정의 올리기를 취소한다") {
+                    result.shouldBeSuccess()
+                    coVerify(exactly = 1) { fileUploadManager.cancelUpload(exceptAccountId = account.id) }
                 }
             }
         }

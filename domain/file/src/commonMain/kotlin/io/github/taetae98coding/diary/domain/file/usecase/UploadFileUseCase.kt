@@ -46,6 +46,7 @@ public class UploadFileUseCase internal constructor(
                     source = source,
                     title = parameter.content.title,
                     description = parameter.content.description,
+                    accountId = parameter.accountId,
                 ) { sentBytes ->
                     trySend(Result.success(FileUploadStep.Sent(source = source, sentBytes = sentBytes)))
                 }

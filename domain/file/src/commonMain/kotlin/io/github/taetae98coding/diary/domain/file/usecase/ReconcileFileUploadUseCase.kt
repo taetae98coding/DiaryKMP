@@ -10,8 +10,9 @@ public class ReconcileFileUploadUseCase internal constructor(
     private val fileUploadManager: FileUploadManager,
 ) : UseCase<Account, Unit>() {
     override suspend fun execute(parameter: Account) {
-        if (parameter is Account.Guest) {
-            fileUploadManager.cancelUpload()
+        when (parameter) {
+            Account.Guest -> fileUploadManager.cancelUpload(exceptAccountId = null)
+            is Account.User -> fileUploadManager.cancelUpload(exceptAccountId = parameter.id)
         }
     }
 }

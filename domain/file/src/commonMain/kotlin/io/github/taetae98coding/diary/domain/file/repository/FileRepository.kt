@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.core.model.file.FileUploadSource
 import io.github.taetae98coding.diary.core.model.file.FileUri
 import kotlinx.coroutines.flow.Flow
+import kotlin.uuid.Uuid
 
 public interface FileRepository {
     public fun page(): Flow<PagingData<DiaryFile>>
@@ -19,6 +20,7 @@ public interface FileRepository {
         source: FileUploadSource,
         title: String,
         description: String,
+        accountId: Uuid,
         onSent: (sentBytes: Long) -> Unit,
     ): DiaryFile
 
@@ -32,5 +34,5 @@ public interface FileRepository {
 
     public fun getContinuedUploadResult(): Flow<ContinuedFileUploadResult>
 
-    public suspend fun deleteContinuedUpload()
+    public suspend fun deleteContinuedUpload(exceptAccountId: Uuid?)
 }

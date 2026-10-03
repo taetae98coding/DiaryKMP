@@ -21,6 +21,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Factory
+import kotlin.uuid.Uuid
 
 private const val UNKNOWN_MIME_TYPE = "application/octet-stream"
 
@@ -79,6 +80,7 @@ internal class FileRepositoryImpl(
         source: FileUploadSource,
         title: String,
         description: String,
+        accountId: Uuid,
         onSent: (sentBytes: Long) -> Unit,
     ): DiaryFile =
         try {
@@ -89,6 +91,7 @@ internal class FileRepositoryImpl(
                     description = description,
                     mimeType = source.mimeType,
                     contentLength = source.size,
+                    accountId = accountId,
                     openContent = { fileLocalDataSource.openSource(uri = source.uri) },
                     onSent = onSent,
                 ).toDomain()
@@ -118,7 +121,7 @@ internal class FileRepositoryImpl(
             .getContinuedUploadResult()
             .map { result -> result.toDomain() }
 
-    override suspend fun deleteContinuedUpload() {
-        fileRemoteDataSource.cancelContinuedUpload()
+    override suspend fun deleteContinuedUpload(exceptAccountId: Uuid?) {
+        fileRemoteDataSource.cancelContinuedUpload(exceptAccountId = exceptAccountId)
     }
 }

@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.Single
+import kotlin.uuid.Uuid
 
 @Single
 internal class CoroutineFileUploadWorkScheduler(
@@ -73,11 +74,15 @@ internal class CoroutineFileUploadWorkScheduler(
             }
     }
 
-    override suspend fun cancel(): List<FileUri> {
-        val activeRequest = request.takeIf { job?.isActive == true }
+    override suspend fun cancel(exceptAccountId: Uuid?): List<FileUri> {
+        val activeRequest =
+            request
+                .takeIf { job?.isActive == true }
+                ?.takeUnless { request -> request.accountId == exceptAccountId }
+                ?: return emptyList()
 
         job?.cancel()
 
-        return listOfNotNull(activeRequest?.content?.uri)
+        return listOf(activeRequest.content.uri)
     }
 }
