@@ -14,9 +14,9 @@
 
 사용자는 MemoHome 목록, MemoFinishedList 화면, TagDetail 메모 탭, TagMemoFinishedList 화면, ContactDetail·PlaceDetail·WebDetail 화면의 메모 탭 또는 SearchHome 화면의 메모 검색 결과에서 메모를 선택해 그 메모의 MemoDetail 화면으로 이동한다.
 
-캘린더 홈 화면에서 캘린더에 표시된 메모 제목을 선택해서도 같은 메모의 MemoDetail 화면으로 이동하며, 이때의 선택과 배치는 [CalendarHome 스펙](./calendar-home.md)의 메모 선택을 따른다.
+캘린더 홈 화면에서 캘린더에 표시된 메모 제목을 선택해서도 같은 메모의 MemoDetail 화면으로 이동하며, 이때의 선택과 배치는 [CalendarHome 스펙](./calendar-home.md)의 메모 선택을 따른다. 캘린더 시간표 화면에서 표시된 메모를 선택해도 같은 메모의 MemoDetail 화면으로 이동하며, 이때의 선택은 [CalendarTimetable 화면 스펙](./calendar-timetable.md)의 `메모 선택`을 따른다.
 
-MemoHome 목록에서 진입한 MemoDetail 화면의 목록 동시 표시와 단독 표시 상태는 [Memo 목록·상세 배치 스펙](./memo-list-detail.md)을, TagDetail 메모 탭에서 진입한 MemoDetail 화면은 [TagDetail 메모 탭 스펙](./tag-detail-memo.md)의 `메모 상세 확인`에 따라, ContactDetail·PlaceDetail·WebDetail 메모 탭에서 진입한 MemoDetail 화면은 [항목 상세 메모 탭 공통 스펙](./entity-detail-memo.md)의 `메모 상세 확인`에 따라 단독으로 표시하고, TagMemoFinishedList 화면에서 진입한 MemoDetail 화면의 상태는 [TagMemoFinishedList 목록·상세 배치 스펙](./tag-memo-finished-list-detail.md)을 따른다. MemoFinishedList 화면, SearchHome 화면과 캘린더 홈 화면에서 진입한 MemoDetail 화면은 목록과 함께 표시하지 않고 단독으로 표시한다.
+MemoHome 목록에서 진입한 MemoDetail 화면의 목록 동시 표시와 단독 표시 상태는 [Memo 목록·상세 배치 스펙](./memo-list-detail.md)을, TagDetail 메모 탭에서 진입한 MemoDetail 화면은 [TagDetail 메모 탭 스펙](./tag-detail-memo.md)의 `메모 상세 확인`에 따라, ContactDetail·PlaceDetail·WebDetail 메모 탭에서 진입한 MemoDetail 화면은 [항목 상세 메모 탭 공통 스펙](./entity-detail-memo.md)의 `메모 상세 확인`에 따라 단독으로 표시하고, TagMemoFinishedList 화면에서 진입한 MemoDetail 화면의 상태는 [TagMemoFinishedList 목록·상세 배치 스펙](./tag-memo-finished-list-detail.md)을 따른다. MemoFinishedList 화면, SearchHome 화면, 캘린더 홈 화면과 캘린더 시간표 화면에서 진입한 MemoDetail 화면은 목록과 함께 표시하지 않고 단독으로 표시한다.
 
 ### 첫진입 시 내용 표시
 

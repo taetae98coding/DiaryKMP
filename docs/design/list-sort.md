@@ -9,21 +9,21 @@
 ## 이 문서를 참조하는 문서
 
 - [TagHome 목록 디자인](./tag-home.md)
-- [TagFinishedList 화면 디자인](./tag-finished-list.md)
+- [완료 목록 공통 디자인](./finished-list.md)
 - [TagDetail 화면 디자인](./tag-detail.md)
 - [TagDetail 메모 탭 디자인](./tag-detail-memo.md)
 - [TagDetail 웹 탭 디자인](./tag-detail-web.md)
 - [TagDetail 장소 탭 디자인](./tag-detail-place.md)
 - [장소 보기 모드 디자인](./place-view-mode.md)
-- [TagMemoFinishedList 화면 디자인](./tag-memo-finished-list.md)
 - [항목 상세 메모 탭 공통 디자인](./entity-detail-memo.md)
 - [목록 진입 버튼 디자인](./list-entry-button.md)
 - [MemoHome 목록 디자인](./memo-home.md)
-- [MemoFinishedList 화면 디자인](./memo-finished-list.md)
-- [PlaceHome 화면 디자인](./place-home.md)
 - [WebHome 화면 디자인](./web-home.md)
 - [ContactHome 화면 디자인](./contact-home.md)
+- [Contact 목록·상세 배치 디자인](./contact-list-detail.md)
+- [WebDetail 화면 디자인](./web-detail.md)
 - [PlaylistHome 화면 디자인](./playlist-home.md)
+- [Playlist 목록·상세 배치 디자인](./playlist-list-detail.md)
 - [SearchHome 화면 디자인](./search-home.md)
 
 ## 정렬 줄
@@ -103,7 +103,7 @@ TagDetail 장소 탭의 정렬 줄은 같은 보기 모드를 쓰면서도 장�
 
 ## 전환
 
-정렬을 바꾸면 목록은 새 순서의 처음부터 다시 표시한다. 항목이 자리를 옮기는 이동 애니메이션은 두지 않고, 목록을 준비하는 동안의 표시는 [페이지 조회 목록의 자리 표시 디자인](./paged-list-placeholder.md)을 따른다.
+정렬을 바꾸면 목록은 새 순서의 첫 항목에 곧바로 놓이며, 그 자리로 옮겨 가는 스크롤 애니메이션은 두지 않는다. 새 순서에서도 남는 카드는 기본 항목 이동 애니메이션으로 새 자리로 옮긴다. 목록을 준비하는 동안의 표시는 [페이지 조회 목록의 자리 표시 디자인](./paged-list-placeholder.md)을 따른다.
 
 컨트롤의 아이콘과 이름은 새 정렬의 것으로 곧바로 바뀌며, 바뀌는 동안 컨트롤의 폭이 달라지는 것은 그대로 둔다.
 

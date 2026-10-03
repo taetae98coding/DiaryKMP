@@ -33,7 +33,7 @@
 ```mermaid
 flowchart TD
     Click["추가 항목 누름"] --> Ready{"목록의 대상을<br/>확인했는가"}
-    Ready -- "아니오 · TC-MEMO-WEB-INPUT-FEATURE-004" --> Open["웹 선택 목록 열기"]
+    Ready -- "아니오 · TC-MEMO-WEB-INPUT-FEATURE-004 · TC-MEMO-WEB-INPUT-FEATURE-032" --> Open["웹 선택 목록 열기"]
     Ready -- 예 --> Any{"선택할 수 있는 웹 항목이<br/>하나라도 있는가"}
     Any -- "예 · TC-MEMO-WEB-INPUT-FEATURE-001" --> Open
     Any -- "아니오 · TC-MEMO-WEB-INPUT-FEATURE-003" --> Move["WebAdd 화면으로 이동"]
@@ -59,6 +59,13 @@ flowchart TD
 - Given: 웹 선택 목록에 나타낼 웹 항목의 확인이 아직 끝나지 않도록 제어되어 있다.
 - When: 사용자가 웹 입력의 추가 항목을 누른다.
 - Then: 웹 선택 목록이 열리고 WebAdd 화면 이동은 요청되지 않는다.
+
+### TC-MEMO-WEB-INPUT-FEATURE-032: 목록의 대상을 처음 불러오지 못하면 추가 항목이 목록을 연다
+
+- 근거: `domain > 추가 항목의 동작 판정`
+- Given: 선택할 수 있는 웹 항목의 첫 조회가 실패하도록 제어되어 있고, 그 조회가 실패로 끝났다.
+- When: 사용자가 웹 입력의 추가 항목을 누른다.
+- Then: 웹 선택 목록이 열리고 WebAdd 화면으로의 이동이 요청되지 않는다.
 
 ### TC-MEMO-WEB-INPUT-FEATURE-005: 확인 중에 연 목록이 대상 없음으로 확정되면 목록 영역이 비어 있는 채로 유지된다
 
@@ -307,6 +314,13 @@ flowchart TD
 - When: 그 웹 항목이 삭제된 상태로 바뀐다.
 - Then: 그 웹 항목이 웹 입력의 칩 영역에서 사라진다.
 
+### TC-MEMO-WEB-INPUT-DOMAIN-018: 웹 입력의 웹 항목은 고른 순서와 관계없이 제목 오름차순으로 표시된다
+
+- 근거: `domain > 선택한 것으로 표시하는 웹 항목`, `domain > 선택할 수 있는 웹 항목`
+- Given: 제목이 서로 다른 웹 항목 여러 개가 있다.
+- When: 사용자가 그 웹 항목들을 제목 오름차순이 아닌 순서로 골라 웹 입력에 표시한다.
+- Then: 웹 입력에는 고른 순서가 아니라 제목 오름차순으로 웹 항목이 나타난다.
+
 ### TC-MEMO-WEB-INPUT-DOMAIN-006: 웹 항목이 복구되면 유지되어 있던 선택이 다시 나타난다
 
 - 근거: `domain > 선택한 것으로 표시하는 웹 항목`
@@ -362,6 +376,13 @@ flowchart TD
 - Given: WebAdd 화면에서 추가한 웹 항목이 돌아온 뒤 자동 선택되었다.
 - When: 사용자가 그 웹 항목의 선택을 해제한다.
 - Then: 그 웹 항목은 선택되지 않은 상태로 유지되고 다시 자동 선택되지 않는다.
+
+### TC-MEMO-WEB-INPUT-DOMAIN-019: 이 입력에서 이동하지 않은 WebAdd 화면의 웹 항목은 자동 선택되지 않는다
+
+- 근거: `domain > 추가한 웹 항목의 자동 선택`
+- Given: 사용자가 이 웹 입력이 아닌 곳에서 WebAdd 화면을 열어 웹 항목을 추가했다.
+- When: 사용자가 웹 입력이 있는 화면을 확인한다.
+- Then: 추가한 웹 항목은 선택한 것으로 표시되지 않는다.
 
 ### TC-MEMO-WEB-INPUT-DOMAIN-014: 상세 대상 메모가 바뀌면 열려 있던 목록과 검색어를 유지하지 않는다
 

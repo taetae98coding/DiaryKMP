@@ -250,7 +250,7 @@ TagDetail 웹·장소 탭, PlaceHome, WebHome, ContactHome, PlaylistHome, QrHome
 
 - 근거: `domain > 새로고침 계기`
 - Given: CalendarHome이 표시되어 있고 진행 중인 공휴일·날씨 동기화가 없다.
-- When: 화면이 표시되거나 표시 중인 달이 바뀌어 공휴일 동기화 또는 날씨 동기화가 시작되고 실행된다.
+- When: 화면이 표시되거나 표시 중인 달이 바뀌어 공휴일 동기화가 시작되거나, 화면이 표시되어 날씨 동기화가 시작되고 실행된다.
 - Then: 진행 표시가 나타난다.
 
 ### TC-SYNC-REFRESH-DOMAIN-015: 위치 권한 허용으로 시작한 날씨 동기화도 끝날 때까지 진행을 표시한다

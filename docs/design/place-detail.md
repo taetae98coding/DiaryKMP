@@ -125,6 +125,7 @@ stateDiagram-v2
     Changed --> Unchanged: 입력이 저장 내용과 같아짐, 크기 전환
     Changed --> Updating: 수정 실행
     Updating --> Unchanged: 수정 성공, 성공 안내
+    Updating --> Changed: 제목을 비운 채 수정 성공
     Updating --> Changed: 좌표 오류, 좌표 안내
     Unchanged --> Deleting: 삭제 실행
     Changed --> Deleting: 삭제 실행

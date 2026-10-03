@@ -37,7 +37,7 @@
 ```mermaid
 flowchart TD
     Click["추가 항목 누름"] --> Ready{"목록의 대상을<br/>확인했는가"}
-    Ready -- "아니오 · TC-MEMO-TAG-INPUT-FEATURE-030" --> Open["태그 선택 목록 열기"]
+    Ready -- "아니오 · TC-MEMO-TAG-INPUT-FEATURE-030 · TC-MEMO-TAG-INPUT-FEATURE-048" --> Open["태그 선택 목록 열기"]
     Ready -- 예 --> Any{"나타낼 태그가<br/>하나라도 있는가"}
     Any -- "예 · TC-MEMO-TAG-INPUT-FEATURE-003 · TC-MEMO-TAG-INPUT-DOMAIN-012" --> Open
     Any -- "아니오 · TC-MEMO-TAG-INPUT-FEATURE-029 · TC-MEMO-TAG-INPUT-FEATURE-047" --> Move["TagAdd 화면으로 이동"]
@@ -61,6 +61,13 @@ flowchart TD
 
 - 근거: `domain > 추가 항목의 동작 판정`
 - Given: 태그 선택 목록에 나타낼 태그의 확인이 아직 끝나지 않도록 제어되어 있다.
+- When: 사용자가 태그 입력의 추가 항목을 누른다.
+- Then: 태그 선택 목록이 열리고 TagAdd 화면 이동은 요청되지 않는다.
+
+### TC-MEMO-TAG-INPUT-FEATURE-048: 목록의 대상을 처음 불러오지 못하면 추가 항목이 목록을 연다
+
+- 근거: `domain > 추가 항목의 동작 판정`
+- Given: 태그 선택 목록에 나타낼 태그의 첫 조회가 실패하도록 제어되어 있고, 그 조회가 실패로 끝났다.
 - When: 사용자가 태그 입력의 추가 항목을 누른다.
 - Then: 태그 선택 목록이 열리고 TagAdd 화면 이동은 요청되지 않는다.
 
