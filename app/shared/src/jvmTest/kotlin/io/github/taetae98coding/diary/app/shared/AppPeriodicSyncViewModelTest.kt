@@ -19,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -49,7 +50,7 @@ class AppPeriodicSyncViewModelTest : FunSpec() {
                 val accountFlow = MutableStateFlow<Account>(account)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
-                viewModel.account.test {
+                viewModel.uiState.confirmedAccount().test {
                     awaitItem() shouldBe account
                     accountFlow.value = pendingAccount
                     awaitItem() shouldBe pendingAccount
@@ -67,7 +68,7 @@ class AppPeriodicSyncViewModelTest : FunSpec() {
                 val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
                 val viewModel = viewModel(accountFlow = flowOf(Result.success(account), Result.success(account)))
 
-                viewModel.account.test {
+                viewModel.uiState.confirmedAccount().test {
                     awaitItem() shouldBe account
                     expectNoEvents()
                 }
@@ -78,7 +79,7 @@ class AppPeriodicSyncViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(accountFlow = flowOf(Result.failure(IllegalStateException("account error"))))
 
-                viewModel.account.test {
+                viewModel.uiState.confirmedAccount().test {
                     expectNoEvents()
                 }
             }
@@ -116,5 +117,7 @@ class AppPeriodicSyncViewModelTest : FunSpec() {
         }
 
         private fun Flow<Account>.toResultFlow(): Flow<Result<Account>> = map { account -> Result.success(account) }
+
+        private fun Flow<AppPeriodicSyncUiState>.confirmedAccount(): Flow<Account> = filterIsInstance<AppPeriodicSyncUiState.Confirmed>().map { uiState -> uiState.account }
     }
 }

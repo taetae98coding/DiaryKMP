@@ -40,19 +40,19 @@ public fun App(modifier: Modifier = Modifier) {
     )
     SyncEffect(
         requestSync = syncViewModel::requestSync,
-        authenticatedAccountId = syncViewModel.authenticatedAccountId,
+        uiState = syncViewModel.uiState,
     )
     SchedulePeriodicSyncEffect(
         schedulePeriodicSync = periodicSyncViewModel::schedulePeriodicSync,
-        account = periodicSyncViewModel.account,
+        uiState = periodicSyncViewModel.uiState,
     )
     SubmitFcmTokenEffect(
         submit = fcmTokenViewModel::submit,
-        account = fcmTokenViewModel.account,
+        uiState = fcmTokenViewModel.uiState,
     )
     ReconcileFileUploadEffect(
         reconcile = fileUploadViewModel::reconcile,
-        account = fileUploadViewModel.account,
+        uiState = fileUploadViewModel.uiState,
     )
     ChromeSessionImportEffect(requestImport = chromeSessionViewModel::requestImport)
     PlayIntegrityLogEffect(log = playIntegrityViewModel::log)

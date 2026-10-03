@@ -15,11 +15,14 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 
@@ -52,9 +55,21 @@ class AppFileUploadViewModelTest : FunSpec() {
                             ),
                     )
 
-                viewModel.account.test {
+                viewModel.uiState.confirmedAccount().test {
                     awaitItem() shouldBe user
                     awaitItem() shouldBe Account.Guest
+                    expectNoEvents()
+                }
+            }
+        }
+
+        test("계정을 확인하기 전에는 확인 중 상태다") {
+            runTest(mainDispatcher) {
+                val viewModel = viewModel(accountFlow = flowOf(Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))))
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe AppFileUploadUiState.Loading
+                    runCurrent()
                     expectNoEvents()
                 }
             }
@@ -86,4 +101,6 @@ class AppFileUploadViewModelTest : FunSpec() {
             reconcileFileUploadUseCase = reconcileFileUploadUseCase,
         )
     }
+
+    private fun Flow<AppFileUploadUiState>.confirmedAccount(): Flow<Account> = filterIsInstance<AppFileUploadUiState.Confirmed>().map { uiState -> uiState.account }
 }

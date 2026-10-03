@@ -2,15 +2,14 @@ package io.github.taetae98coding.diary.app.shared
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.sync.usecase.SchedulePeriodicSyncUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 
@@ -19,18 +18,18 @@ internal class AppPeriodicSyncViewModel(
     getAccountUseCase: GetAccountUseCase,
     private val schedulePeriodicSyncUseCase: SchedulePeriodicSyncUseCase,
 ) : ViewModel() {
-    val account: Flow<Account> =
+    val uiState: StateFlow<AppPeriodicSyncUiState> =
         getAccountUseCase(parameter = Unit)
             .mapNotNull { result -> result.getOrNull() }
-            .distinctUntilChanged()
-            .shareIn(
+            .map { account -> AppPeriodicSyncUiState.Confirmed(account = account) }
+            .stateIn(
                 scope = viewModelScope,
                 started =
                     SharingStarted.WhileSubscribed(
                         stopTimeoutMillis = UI_STOP_TIMEOUT_MILLIS,
                         replayExpirationMillis = 0,
                     ),
-                replay = 1,
+                initialValue = AppPeriodicSyncUiState.Loading,
             )
 
     fun schedulePeriodicSync() {
