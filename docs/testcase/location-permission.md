@@ -72,12 +72,13 @@ flowchart TD
   | 화면 재구성 |
   | 다른 화면으로 이동했다가 복귀 |
   | 앱이 백그라운드에 갔다가 복귀 |
+  | 화면 회전처럼 화면이 재생성됨 |
 
-### TC-LOCATION-PERMISSION-DOMAIN-003: 캘린더 홈 화면이 처음부터 다시 시작되면 요청 조건을 다시 확인한다
+### TC-LOCATION-PERMISSION-DOMAIN-014: 시스템이 앱을 정리했다가 다시 만들면 요청 조건을 다시 확인한다
 
 - 근거: `domain > 요청 지점`
 - Given: 위치 권한이 아직 허용되어 있지 않고, 캘린더 홈 화면이 진입되어 시스템 위치 권한 요청이 한 번 시작되었다.
-- When: 캘린더 홈 화면이 재생성되어 처음부터 다시 시작된다.
+- When: 다른 앱에 다녀오는 동안 시스템이 앱을 정리했다가 다시 만든다.
 - Then: 시스템 위치 권한 요청이 다시 한 번 시작된다.
 
 ### TC-LOCATION-PERMISSION-DOMAIN-004: 위치 권한이 이미 허용되어 있는지 확인할 수 없으면 요청 없이 거부로 처리한다
@@ -168,3 +169,7 @@ flowchart TD
 - When: 사용자가 캘린더 홈 화면이 아닌 곳에서 지도를 보거나, 앱이 현재 위치를 확인한다.
 - Then: 시스템 위치 권한 요청이 시작되지 않는다.
 - 작성하지 않는 이유: 현재 위치 확인은 화면 없이 수행되어 권한 요청을 대신 받는 대체물을 연결할 자리가 없고, PlaceHome의 지도와 DiaryMap은 지도 제공자의 실제 지도 표시 요소가 필요해 지도를 표시한 화면을 구성할 수 없다. 같은 결과를 각 기능에서 다루는 [현재 위치 확인 테스트 케이스](current-location.md)의 TC-CURRENT-LOCATION-DOMAIN-005, [PlaceHome 테스트 케이스](place-home.md)의 TC-PLACE-HOME-DOMAIN-005, [DiaryMap 테스트 케이스](diary-map.md)의 TC-DIARY-MAP-DOMAIN-040도 같은 이유로 미작성이다. 화면 밖에서 시작되는 시스템 권한 요청을 관찰하거나 지도 표시 요소를 대체할 수 있는 테스트 환경이 제공되면 자동화한다.
+
+## 작성하지 않는 케이스
+
+- 캘린더 홈 화면이 재생성되면 요청 조건을 다시 확인한다던 TC-LOCATION-PERMISSION-DOMAIN-003은 화면 회전 같은 재생성에는 다시 확인하지 않도록 바뀌어 폐기하고, 회전은 TC-LOCATION-PERMISSION-DOMAIN-002의 행으로, 시스템이 앱을 정리했다가 다시 만드는 경우는 TC-LOCATION-PERMISSION-DOMAIN-014로 대체했다.

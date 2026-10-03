@@ -14,6 +14,8 @@ import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.retain.LocalRetainedValuesStoreProvider
+import androidx.compose.runtime.retain.ManagedRetainedValuesStore
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertCountEquals
@@ -171,17 +173,19 @@ class RequestPermissionEffectTest {
     }
 
     @Test
-    fun `TC-NOTIFICATION-PERMISSION-DOMAIN-003 앱 화면이 처음부터 다시 시작되면 요청 조건을 다시 확인한다`() {
+    fun `TC-NOTIFICATION-PERMISSION-DOMAIN-002 화면 회전처럼 앱 화면이 재생성되어도 요청 조건을 다시 확인하지 않는다`() {
         val registry = PermissionResultRegistry(result = notificationResult(isGranted = false))
-        val restorationTester = StateRestorationTester(composeRule)
 
-        restorationTester.setContent {
-            RequestPermissionContent(permission = Permission.NOTIFICATION, registry = registry)
-        }
-        composeRule.waitForIdle()
+        emulateConfigurationChange { RequestPermissionContent(permission = Permission.NOTIFICATION, registry = registry) }
 
-        restorationTester.emulateSavedInstanceStateRestore()
-        composeRule.waitForIdle()
+        registry.launchedPermissionList shouldHaveSize 1
+    }
+
+    @Test
+    fun `TC-NOTIFICATION-PERMISSION-DOMAIN-008 시스템이 앱을 정리했다가 다시 만들면 요청 조건을 다시 확인한다`() {
+        val registry = PermissionResultRegistry(result = notificationResult(isGranted = false))
+
+        emulateProcessRecreation { RequestPermissionContent(permission = Permission.NOTIFICATION, registry = registry) }
 
         registry.launchedPermissionList shouldHaveSize 2
     }
@@ -209,12 +213,14 @@ class RequestPermissionEffectTest {
         val registry = PermissionResultRegistry(result = locationResult(isFineGranted = false, isCoarseGranted = false))
         var isScreenVisible by mutableStateOf(true)
 
-        // 내비게이션처럼 떠난 화면은 composition에서 내리되 저장 상태는 보관하고, 화면 전체를 담는 자리에 요청 기록을 둔다.
-        composeRule.setContent {
-            CompositionLocalProvider(LocalPermissionRequestHistory provides rememberPermissionRequestHistory()) {
-                val saveableStateHolder = rememberSaveableStateHolder()
+        val store = ManagedRetainedValuesStore()
 
-                if (isScreenVisible) {
+        // 내비게이션처럼 떠난 화면은 composition에서 내리되, back stack에 남은 화면의 저장 상태와 retain 값은 보관한다.
+        composeRule.setContent {
+            val saveableStateHolder = rememberSaveableStateHolder()
+
+            if (isScreenVisible) {
+                LocalRetainedValuesStoreProvider(store = store) {
                     saveableStateHolder.SaveableStateProvider(key = SCREEN_KEY) {
                         RequestPermissionContent(permission = Permission.LOCATION, registry = registry)
                     }
@@ -251,17 +257,19 @@ class RequestPermissionEffectTest {
     }
 
     @Test
-    fun `TC-LOCATION-PERMISSION-DOMAIN-003 화면이 처음부터 다시 시작되면 요청 조건을 다시 확인한다`() {
+    fun `TC-LOCATION-PERMISSION-DOMAIN-002 화면 회전처럼 화면이 재생성되어도 요청 조건을 다시 확인하지 않는다`() {
         val registry = PermissionResultRegistry(result = locationResult(isFineGranted = false, isCoarseGranted = false))
-        val restorationTester = StateRestorationTester(composeRule)
 
-        restorationTester.setContent {
-            RequestPermissionContent(permission = Permission.LOCATION, registry = registry)
-        }
-        composeRule.waitForIdle()
+        emulateConfigurationChange { RequestPermissionContent(permission = Permission.LOCATION, registry = registry) }
 
-        restorationTester.emulateSavedInstanceStateRestore()
-        composeRule.waitForIdle()
+        registry.launchedPermissionList shouldHaveSize 1
+    }
+
+    @Test
+    fun `TC-LOCATION-PERMISSION-DOMAIN-014 시스템이 앱을 정리했다가 다시 만들면 요청 조건을 다시 확인한다`() {
+        val registry = PermissionResultRegistry(result = locationResult(isFineGranted = false, isCoarseGranted = false))
+
+        emulateProcessRecreation { RequestPermissionContent(permission = Permission.LOCATION, registry = registry) }
 
         registry.launchedPermissionList shouldHaveSize 2
     }
@@ -350,6 +358,31 @@ class RequestPermissionEffectTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(GRANTED_CONTENT + true).assertIsDisplayed()
+    }
+
+    // Android는 설정 변경 동안 저장 상태와 retain 값을 함께 보관한다.
+    private fun emulateConfigurationChange(content: @Composable () -> Unit) {
+        val restorationTester = StateRestorationTester(composeRule)
+        val store = ManagedRetainedValuesStore()
+
+        restorationTester.setContent {
+            LocalRetainedValuesStoreProvider(store = store, content = content)
+        }
+        composeRule.waitForIdle()
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+    }
+
+    // 프로세스가 다시 만들어지면 저장 상태만 복원되고 retain 값은 남지 않는다.
+    private fun emulateProcessRecreation(content: @Composable () -> Unit) {
+        val restorationTester = StateRestorationTester(composeRule)
+
+        restorationTester.setContent(content)
+        composeRule.waitForIdle()
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
     }
 
     private fun setRequestPermissionEffect(
