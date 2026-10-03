@@ -35,25 +35,27 @@ import kotlinx.io.Buffer
 import kotlinx.io.RawSource
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlin.uuid.Uuid
 
 private val fixtureMonkey: FixtureMonkey =
     diaryFixtureMonkey()
 
 class FileRemoteDataSourceImplTest :
     FunSpec({
-        test("고른 파일의 이름, 제목, 설명, 형식, 크기, 내용과 보낸 양을 플랫폼의 전송 수단에 그대로 넘기고 그 결과를 돌려준다") {
+        test("고른 파일의 이름, 제목, 설명, 형식, 크기, 시작한 계정, 내용과 보낸 양을 플랫폼의 전송 수단에 그대로 넘기고 그 결과를 돌려준다") {
             val name = fixtureMonkey.giveMeOne<String>()
             val title = fixtureMonkey.giveMeOne<String>()
             val description = fixtureMonkey.giveMeOne<String>()
             val mimeType = fixtureMonkey.giveMeOne<String>()
             val contentLength = fixtureMonkey.giveMeOne<Long>()
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val response = fixtureMonkey.giveMeOne<FileRemoteEntity>()
             val source = Buffer()
             val openContent: suspend () -> RawSource = { source }
             val onSent: (Long) -> Unit = {}
             val transport = mockk<FileUploadTransport>()
             coEvery {
-                transport.upload(name = name, title = title, description = description, mimeType = mimeType, contentLength = contentLength, openContent = openContent, onSent = onSent)
+                transport.upload(name = name, title = title, description = description, mimeType = mimeType, contentLength = contentLength, accountId = accountId, openContent = openContent, onSent = onSent)
             } returns response
             val dataSource = FileRemoteDataSourceImpl(supabaseFunction = mockk(), fileUploadTransport = transport)
 
@@ -64,6 +66,7 @@ class FileRemoteDataSourceImplTest :
                     description = description,
                     mimeType = mimeType,
                     contentLength = contentLength,
+                    accountId = accountId,
                     openContent = openContent,
                     onSent = onSent,
                 )
@@ -87,9 +90,10 @@ class FileRemoteDataSourceImplTest :
                 awaitItem() shouldBe result
                 awaitComplete()
             }
-            dataSource.cancelContinuedUpload()
+            val exceptAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            dataSource.cancelContinuedUpload(exceptAccountId = exceptAccountId)
 
-            coVerify(exactly = 1) { transport.cancelContinuedUpload() }
+            coVerify(exactly = 1) { transport.cancelContinuedUpload(exceptAccountId = exceptAccountId) }
         }
 
         test("TC-FILE-STORAGE-DATA-001 처음 불러올 때 마지막 파일 없이 가져올 개수를 보내고 돌려받은 목록을 읽는다") {

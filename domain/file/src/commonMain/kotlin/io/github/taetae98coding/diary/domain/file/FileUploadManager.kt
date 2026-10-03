@@ -17,7 +17,7 @@ public interface FileUploadManager {
         accountId: Uuid,
     )
 
-    public suspend fun cancelUpload()
+    public suspend fun cancelUpload(exceptAccountId: Uuid?)
 
     public fun startViewing(screen: FileScreen)
 

@@ -53,6 +53,7 @@ import platform.Foundation.setHTTPMethod
 import platform.Foundation.setValue
 import platform.darwin.NSObject
 import platform.posix.memcpy
+import kotlin.coroutines.resume
 import kotlin.uuid.Uuid
 
 private const val FILE_UPLOAD_SESSION_IDENTIFIER: String = "io.github.taetae98coding.diary.fileUpload"
@@ -102,6 +103,7 @@ internal class BackgroundSessionFileUploadTransport(
         description: String,
         mimeType: String,
         contentLength: Long,
+        accountId: Uuid,
         openContent: suspend () -> RawSource,
         onSent: (sentBytes: Long) -> Unit,
     ): FileRemoteEntity {
@@ -132,6 +134,7 @@ internal class BackgroundSessionFileUploadTransport(
                                 path = path.toString(),
                                 headBytes = multipart.head.size.toLong(),
                                 contentLength = contentLength,
+                                accountId = accountId.toString(),
                             ),
                         )
                     pendingUploadMap[task.taskIdentifier] = PendingUpload(continuation = continuation, onSent = { totalSentBytes -> onSent(multipart.contentSentBytes(totalSentBytes)) })
@@ -153,18 +156,26 @@ internal class BackgroundSessionFileUploadTransport(
 
     override fun getContinuedUploadResult(): Flow<ContinuedFileUploadResultRemoteEntity> = continuedUploadResult.receiveAsFlow()
 
-    override suspend fun cancelContinuedUpload() {
+    override suspend fun cancelContinuedUpload(exceptAccountId: Uuid?) {
         withContext(Dispatchers.Main) {
-            session.getTasksWithCompletionHandler { _, uploadTaskList, _ ->
-                uploadTaskList
-                    .orEmpty()
-                    .filterIsInstance<NSURLSessionTask>()
-                    .filter { task -> task.taskIdentifier !in pendingUploadMap }
-                    .forEach { task -> task.cancel() }
+            val continuedTaskList = getUploadTaskList().filter { task -> task.taskIdentifier !in pendingUploadMap }
+            val keptTask = continuedTaskList.firstOrNull { task -> exceptAccountId != null && task.uploadTaskDescription()?.accountId == exceptAccountId.toString() }
+
+            continuedTaskList
+                .filterNot { task -> task == keptTask }
+                .forEach { task -> task.cancel() }
+            if (keptTask == null) {
+                continuedUpload.value = null
             }
-            continuedUpload.value = null
         }
     }
+
+    private suspend fun getUploadTaskList(): List<NSURLSessionTask> =
+        suspendCancellableCoroutine { continuation ->
+            session.getTasksWithCompletionHandler { _, uploadTaskList, _ ->
+                continuation.resume(uploadTaskList.orEmpty().filterIsInstance<NSURLSessionTask>())
+            }
+        }
 
     private suspend fun copyToUploadFile(
         path: Path,
@@ -317,12 +328,14 @@ private fun Result<FileRemoteEntity>.toContinuedResult(name: String): ContinuedF
 private fun NSURLSessionTask.uploadTaskDescription(): UploadTaskDescription? = taskDescription?.let { value -> runCatching { uploadTaskJson.decodeFromString<UploadTaskDescription>(value) }.getOrNull() }
 
 // 앞선 버전이 시작한 전송은 파일 내용만 보냈으므로 앞부분이 없고, 파일 크기는 전송 수단이 알려 준 전체 크기와 같다.
+// 시작한 계정도 남기지 않았으므로, 계정이 없는 전송은 어느 계정의 것도 아닌 것으로 본다.
 @Serializable
 private data class UploadTaskDescription(
     val name: String,
     val path: String,
     val headBytes: Long = 0,
     val contentLength: Long? = null,
+    val accountId: String? = null,
 )
 
 private fun NSURLSessionTask.toContinuedUpload(

@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Factory
+import kotlin.uuid.Uuid
 
 @Factory
 internal class AndroidFileUploadWorkScheduler(
@@ -41,21 +42,23 @@ internal class AndroidFileUploadWorkScheduler(
                     .setInputData(request.toData(textId = textId))
                     .addTag(request.content.uri.toFileUploadTag())
                     .addTag(textId.toFileUploadTextTag())
+                    .addTag(request.accountId.toFileUploadAccountTag())
                     .build(),
             )
     }
 
-    // WorkInfo는 입력 값을 보여 주지 않으므로, 취소할 때 놓을 파일과 지울 제목·설명을 태그로 찾는다.
-    override suspend fun cancel(): List<FileUri> {
+    // WorkInfo는 입력 값을 보여 주지 않으므로, 시작한 계정과 취소할 때 놓을 파일, 지울 제목·설명을 태그로 찾는다.
+    override suspend fun cancel(exceptAccountId: Uuid?): List<FileUri> {
         val workManager = WorkManager.getInstance(context)
-        val tagList =
+        val workInfoList =
             workManager
                 .getWorkInfosForUniqueWorkFlow(FILE_UPLOAD_WORK_NAME)
                 .first()
                 .filterNot { workInfo -> workInfo.state.isFinished }
-                .flatMap { workInfo -> workInfo.tags }
+                .filterNot { workInfo -> exceptAccountId != null && workInfo.accountId() == exceptAccountId }
+        val tagList = workInfoList.flatMap { workInfo -> workInfo.tags }
 
-        workManager.cancelUniqueWork(FILE_UPLOAD_WORK_NAME)
+        workInfoList.forEach { workInfo -> workManager.cancelWorkById(workInfo.id) }
         tagList
             .mapNotNull { tag -> tag.toFileUploadTextIdOrNull() }
             .forEach { textId -> fileUploadTextStore.delete(id = textId) }
@@ -85,3 +88,13 @@ private const val TEXT_TAG_PREFIX: String = "fileUploadText:"
 internal fun String.toFileUploadTextTag(): String = "$TEXT_TAG_PREFIX$this"
 
 private fun String.toFileUploadTextIdOrNull(): String? = if (startsWith(TEXT_TAG_PREFIX)) removePrefix(TEXT_TAG_PREFIX) else null
+
+// 앞선 버전이 넣은 작업에는 계정 태그가 없으므로, 계정을 알 수 없는 작업은 어느 계정의 것도 아닌 것으로 본다.
+private const val ACCOUNT_TAG_PREFIX: String = "fileUploadAccount:"
+
+internal fun Uuid.toFileUploadAccountTag(): String = "$ACCOUNT_TAG_PREFIX$this"
+
+private fun WorkInfo.accountId(): Uuid? =
+    tags
+        .firstOrNull { tag -> tag.startsWith(ACCOUNT_TAG_PREFIX) }
+        ?.let { tag -> Uuid.parseOrNull(tag.removePrefix(ACCOUNT_TAG_PREFIX)) }

@@ -4,6 +4,7 @@ import io.github.taetae98coding.diary.core.model.file.FileUploadState
 import io.github.taetae98coding.diary.core.model.file.FileUri
 import io.github.taetae98coding.diary.work.fileupload.work.FileUploadRequest
 import kotlinx.coroutines.flow.Flow
+import kotlin.uuid.Uuid
 
 internal interface FileUploadWorkScheduler {
     val state: Flow<FileUploadState>
@@ -12,5 +13,5 @@ internal interface FileUploadWorkScheduler {
 
     suspend fun upload(request: FileUploadRequest)
 
-    suspend fun cancel(): List<FileUri>
+    suspend fun cancel(exceptAccountId: Uuid?): List<FileUri>
 }

@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.io.RawSource
 import kotlin.time.Duration
+import kotlin.uuid.Uuid
 
 // 앱이 살아 있는 동안에만 보내므로, 앞선 실행에서 이어지는 올리기는 없다.
 internal class SupabaseFunctionFileUploadTransport(
@@ -25,6 +26,7 @@ internal class SupabaseFunctionFileUploadTransport(
         description: String,
         mimeType: String,
         contentLength: Long,
+        accountId: Uuid,
         openContent: suspend () -> RawSource,
         onSent: (sentBytes: Long) -> Unit,
     ): FileRemoteEntity =
@@ -58,5 +60,5 @@ internal class SupabaseFunctionFileUploadTransport(
 
     override fun getContinuedUploadResult(): Flow<ContinuedFileUploadResultRemoteEntity> = emptyFlow()
 
-    override suspend fun cancelContinuedUpload(): Unit = Unit
+    override suspend fun cancelContinuedUpload(exceptAccountId: Uuid?): Unit = Unit
 }

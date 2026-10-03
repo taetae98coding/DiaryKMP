@@ -38,9 +38,9 @@ internal class FileUploadManagerImpl(
     }
 
     // 취소로 끝난 작업은 시스템이 다시 실행할 수도 있어 붙들어 둔 파일을 스스로 놓지 않으므로, 취소를 요청한 여기서 놓는다.
-    override suspend fun cancelUpload() {
-        fileUploadWorkScheduler.cancel().forEach { uri -> fileRepository.removeUploadSource(uri = uri) }
-        fileRepository.deleteContinuedUpload()
+    override suspend fun cancelUpload(exceptAccountId: Uuid?) {
+        fileUploadWorkScheduler.cancel(exceptAccountId = exceptAccountId).forEach { uri -> fileRepository.removeUploadSource(uri = uri) }
+        fileRepository.deleteContinuedUpload(exceptAccountId = exceptAccountId)
     }
 
     override fun startViewing(screen: FileScreen) {

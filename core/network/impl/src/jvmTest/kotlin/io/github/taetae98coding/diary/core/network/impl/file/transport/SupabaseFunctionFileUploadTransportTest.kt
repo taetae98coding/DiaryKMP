@@ -41,6 +41,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlin.math.absoluteValue
 import kotlin.time.Duration
+import kotlin.uuid.Uuid
 
 private val fixtureMonkey: FixtureMonkey =
     diaryFixtureMonkey()
@@ -65,6 +66,7 @@ class SupabaseFunctionFileUploadTransportTest :
                     description = description(),
                     mimeType = mimeType(),
                     contentLength = bytes.size.toLong(),
+                    accountId = fixtureMonkey.giveMeOne<Uuid>(),
                     openContent = { Buffer().apply { write(bytes) } },
                     onSent = { sentBytes -> sentBytesList += sentBytes },
                 )
@@ -92,6 +94,7 @@ class SupabaseFunctionFileUploadTransportTest :
                 description = description(),
                 mimeType = "application/pdf",
                 contentLength = 0,
+                accountId = fixtureMonkey.giveMeOne<Uuid>(),
                 openContent = { Buffer() },
                 onSent = {},
             )
@@ -120,6 +123,7 @@ class SupabaseFunctionFileUploadTransportTest :
                     description = description,
                     mimeType = mimeType(),
                     contentLength = 0,
+                    accountId = fixtureMonkey.giveMeOne<Uuid>(),
                     openContent = { Buffer() },
                     onSent = {},
                 )
@@ -155,6 +159,7 @@ class SupabaseFunctionFileUploadTransportTest :
                 description = description(),
                 mimeType = mimeType(),
                 contentLength = 0,
+                accountId = fixtureMonkey.giveMeOne<Uuid>(),
                 openContent = { Buffer() },
                 onSent = {},
             )
@@ -182,6 +187,7 @@ class SupabaseFunctionFileUploadTransportTest :
                     description = description(),
                     mimeType = mimeType(),
                     contentLength = 0,
+                    accountId = fixtureMonkey.giveMeOne<Uuid>(),
                     openContent = { Buffer() },
                     onSent = {},
                 )
@@ -211,6 +217,7 @@ class SupabaseFunctionFileUploadTransportTest :
                             description = description(),
                             mimeType = mimeType(),
                             contentLength = 0,
+                            accountId = fixtureMonkey.giveMeOne<Uuid>(),
                             openContent = { Buffer() },
                             onSent = {},
                         )
@@ -225,7 +232,7 @@ class SupabaseFunctionFileUploadTransportTest :
 
             transport.getContinuedUpload().first().shouldBeNull()
             transport.getContinuedUploadResult().toList().shouldBeEmpty()
-            transport.cancelContinuedUpload()
+            transport.cancelContinuedUpload(exceptAccountId = fixtureMonkey.giveMeOne<Uuid>())
         }
     })
 
