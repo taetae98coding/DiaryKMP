@@ -59,9 +59,7 @@ private fun FileAddAccountEffect(
     accountViewModel: FileAddAccountViewModel,
     navigateUp: () -> Unit,
 ) {
-    CollectEffect(accountViewModel.effect) { value ->
-        when (value) {
-            is FileAddAccountEffect.BecameGuest -> navigateUp()
-        }
+    CollectEffect(accountViewModel.uiState) { uiState ->
+        if (uiState.isGuest) navigateUp()
     }
 }
