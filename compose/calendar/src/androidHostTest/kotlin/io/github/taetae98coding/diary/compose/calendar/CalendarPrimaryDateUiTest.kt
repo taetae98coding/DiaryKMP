@@ -194,7 +194,7 @@ class CalendarPrimaryDateUiTest {
                         yearMonth = yearMonth,
                         weekOfMonth = weekOfMonth,
                         primaryDateProvider = { primaryDateList },
-                        colors = colors ?: CalendarDefault.colors(),
+                        colors = colors ?: CalendarDefaults.colors(),
                     ) {}
                 }
             }

@@ -18,6 +18,7 @@ import io.ktor.http.headersOf
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.slot
+import kotlinx.serialization.json.Json
 
 class FcmTokenRemoteDataSourceImplTest :
     FunSpec({
@@ -33,6 +34,7 @@ class FcmTokenRemoteDataSourceImplTest :
             dataSource.upsert(fcmToken = fcmToken)
 
             bodySlot.captured shouldBe fcmToken
+            Json.encodeToString(FcmTokenRemoteEntity.serializer(), fcmToken) shouldBe """{"token":"token-a","timeZone":"Asia/Seoul","language":"ko-KR"}"""
         }
 
         test("TC-FCM-TOKEN-DATA-002 해제 제출은 토큰만 담아 v1-fcm-token-submit로 보낸다") {
@@ -47,6 +49,8 @@ class FcmTokenRemoteDataSourceImplTest :
             dataSource.upsert(fcmToken = fcmToken)
 
             bodySlot.captured shouldBe FcmTokenRemoteEntity(token = "token-a", timeZone = null, language = null)
+            // 함수 호출은 기본값을 담지 않는 설정으로 본문을 만들므로, 비어 있는 시간대와 언어는 본문에서 빠진다.
+            Json.encodeToString(FcmTokenRemoteEntity.serializer(), bodySlot.captured as FcmTokenRemoteEntity) shouldBe """{"token":"token-a"}"""
         }
 
         test("TC-FCM-TOKEN-DOMAIN-016 요청이 실패하면 실패를 그대로 전달한다") {

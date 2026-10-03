@@ -5,9 +5,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import io.github.taetae98coding.diary.compose.core.chip.DiaryAssistChip
 import io.github.taetae98coding.diary.compose.core.color.DiaryColorIndicator
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
@@ -15,7 +15,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.memo.ui.Res
 import io.github.taetae98coding.diary.feature.memo.ui.memo_tag_detail_action
-import io.github.taetae98coding.diary.feature.memo.ui.memo_tag_primary_content_description
+import io.github.taetae98coding.diary.feature.memo.ui.memo_tag_primary_state_description
 import io.github.taetae98coding.diary.feature.memo.ui.previewTag
 import io.github.taetae98coding.diary.library.compose.ui.color.contentColor
 import io.github.taetae98coding.diary.library.compose.ui.color.toColor
@@ -29,7 +29,7 @@ internal fun MemoTagChip(
     isPrimary: Boolean = false,
 ) {
     val color = tag.detail.color.toColor()
-    val primaryContentDescription = stringResource(Res.string.memo_tag_primary_content_description)
+    val primaryStateDescription = stringResource(Res.string.memo_tag_primary_state_description)
     val detailActionLabel = stringResource(Res.string.memo_tag_detail_action)
     val leadingIcon: (@Composable () -> Unit)? =
         if (isPrimary) {
@@ -45,7 +45,7 @@ internal fun MemoTagChip(
             modifier.semantics {
                 // 칩의 클릭 동작은 유지하고 이름만 덧붙이도록 action을 비워 둔다.
                 onClick(label = detailActionLabel, action = null)
-                if (isPrimary) contentDescription = primaryContentDescription
+                if (isPrimary) stateDescription = primaryStateDescription
             },
         leadingIcon = leadingIcon,
         colors =

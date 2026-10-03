@@ -16,6 +16,7 @@ import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.feature.place.api.PlaceAddedResult
+import io.github.taetae98coding.diary.feature.place.api.placeAddedResultKey
 import io.github.taetae98coding.diary.feature.place.ui.Res
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.handlePlaceFormEvent
@@ -40,6 +41,7 @@ internal fun PlaceAddScreen(
     navigateToTagAdd: () -> Unit,
     navigateToTagDetail: (Uuid) -> Unit,
     tagAddRequestKey: Uuid,
+    addedResultRequestKey: Uuid?,
     initialCoordinate: Coordinate?,
     addViewModel: PlaceAddViewModel,
     searchViewModel: PlaceSearchViewModel,
@@ -63,6 +65,7 @@ internal fun PlaceAddScreen(
         onTagAdded = tagViewModel::add,
     )
     AddEffect(
+        addedResultRequestKey = addedResultRequestKey,
         effect = addViewModel.effect,
         scaffoldState = scaffoldState,
     )
@@ -151,6 +154,7 @@ private fun handlePlaceAddTagPickerEvent(
 
 @Composable
 internal fun AddEffect(
+    addedResultRequestKey: Uuid?,
     resultEventBus: ResultEventBus = LocalResultEventBus.current,
     effect: Flow<PlaceAddEffect> = emptyFlow(),
     scaffoldState: PlaceFormState = rememberPlaceAddFormState(),
@@ -163,7 +167,9 @@ internal fun AddEffect(
     CollectEffect(effect) { value ->
         when (value) {
             is PlaceAddEffect.AddSucceeded -> {
-                resultEventBus.sendResult<PlaceAddedResult>(result = PlaceAddedResult(id = value.id))
+                addedResultRequestKey?.let { requestKey ->
+                    resultEventBus.sendResult(resultKey = placeAddedResultKey(requestKey = requestKey), result = PlaceAddedResult(id = value.id))
+                }
                 scaffoldState.titleState.clearText()
                 scaffoldState.descriptionState.clearText()
                 scaffoldState.addressState.clearText()

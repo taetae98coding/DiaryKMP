@@ -88,7 +88,7 @@ class TagDetailTabTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-DETAIL-FEATURE-037 한국어 환경 탭 접근성 이름을 표시한다`() {
+    fun `한국어 환경 탭 접근성 이름을 표시한다`() {
         setTagDetailScaffold()
 
         composeRule.onNodeWithContentDescription(KOREAN_DETAIL_TAB_DESCRIPTION).assert(hasClickAction())

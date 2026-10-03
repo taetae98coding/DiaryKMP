@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.calendar.ui.home
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.saveable.SaveableStateRegistry
@@ -207,11 +208,14 @@ class CalendarHomeScreenMoveTest {
     fun `TC-CALENDAR-MEMO-MOVE-FEATURE-006 이동을 시작한 날짜와 같은 날짜에서 완료하면 메모가 바뀌지 않는다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         setCalendarHomeScreen(memoListFlow = MutableStateFlow(listOf(memo)))
+        val boundsBeforeMove = composeRule.onNodeWithText(MEETING_TITLE).fetchSemanticsNode().boundsInRoot
 
         performLongPress(memoPressPosition(title = MEETING_TITLE, day = 15))
         performUp()
 
         movedList shouldBe emptyList()
+        composeRule.onAllNodesWithText(MEETING_TITLE).assertCountEquals(1)
+        composeRule.onNodeWithText(MEETING_TITLE).fetchSemanticsNode().boundsInRoot shouldBe boundsBeforeMove
     }
 
     @Test
@@ -233,6 +237,29 @@ class CalendarHomeScreenMoveTest {
             ?.moveState
             ?.moving
             .shouldBeNull()
+    }
+
+    @Test
+    fun `TC-CALENDAR-MEMO-MOVE-FEATURE-011 이동 중 캘린더 상태가 새로 만들어져 이동이 끝나도 그 시점의 기간이 반영된다`() {
+        val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
+        var calendarStateGeneration by mutableStateOf(0)
+        var capturedState: CalendarHomeScaffoldState? = null
+        setCalendarHomeScreen(
+            memoListFlow = MutableStateFlow(listOf(memo)),
+            calendarStateGeneration = { calendarStateGeneration },
+            onState = { capturedState = it },
+        )
+
+        performLongPress(memoPressPosition(title = MEETING_TITLE, day = 15))
+        performMoveTo(dayCenter(day = 22))
+        val movingState = capturedState?.calendarState?.moveState
+        composeRule.runOnIdle { calendarStateGeneration++ }
+        composeRule.waitForIdle()
+
+        movedList shouldBe listOf(Triple(memo.id, memo.dateTime, july(day = 21)..july(day = 23)))
+        movingState?.moving.shouldBeNull()
+        performUp()
+        movedList shouldBe listOf(Triple(memo.id, memo.dateTime, july(day = 21)..july(day = 23)))
     }
 
     @Test
@@ -762,6 +789,21 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
+    fun `이동 중에 메모 표시가 갱신되어도 고스트 아이템은 이동을 시작한 시점의 구성을 유지한다`() {
+        val memo = memo(title = TRIP_TITLE, start = july(day = 15), endInclusive = july(day = 22))
+        val memoListFlow = MutableStateFlow(listOf(memo))
+        setCalendarHomeScreen(memoListFlow = memoListFlow)
+
+        performLongPress(memoPressPosition(title = TRIP_TITLE, day = 16))
+        composeRule.runOnIdle { memoListFlow.value = emptyList() }
+        composeRule.waitForIdle()
+
+        composeRule.onAllNodesWithText(TRIP_TITLE).assertCountEquals(GHOST_COUNT)
+        performUp()
+        composeRule.onAllNodesWithText(TRIP_TITLE).assertCountEquals(0)
+    }
+
+    @Test
     fun `TC-CALENDAR-MEMO-MOVE-FEATURE-014 공휴일 이름 위에서 길게 누르면 날짜 기간 선택이 시작되고 검색 결과는 열리지 않는다`() {
         val uriHandler = mockk<UriHandler>(relaxed = true)
         val memoAddList = mutableListOf<LocalDateRange>()
@@ -902,6 +944,7 @@ class CalendarHomeScreenMoveTest {
         memoViewModel: CalendarHomeMemoViewModel? = null,
         saveableStateRegistry: SaveableStateRegistry? = null,
         isShown: () -> Boolean = { true },
+        calendarStateGeneration: () -> Int = { 0 },
         onState: (CalendarHomeScaffoldState) -> Unit = {},
     ) {
         val holidayViewModel = holidayViewModel(holidayListFlow = MutableStateFlow(holidayList))
@@ -928,6 +971,7 @@ class CalendarHomeScreenMoveTest {
                     hapticFeedback = hapticFeedback,
                     uriHandler = uriHandler,
                     isShown = isShown,
+                    calendarStateGeneration = calendarStateGeneration,
                     onState = onState,
                 ) { state ->
                     CalendarHomeScreen(
@@ -955,13 +999,12 @@ class CalendarHomeScreenMoveTest {
         hapticFeedback: HapticFeedback?,
         uriHandler: UriHandler?,
         isShown: () -> Boolean,
+        calendarStateGeneration: () -> Int,
         onState: (CalendarHomeScaffoldState) -> Unit,
         content: @Composable (CalendarHomeScaffoldState) -> Unit,
     ) {
-        val state =
-            rememberCalendarHomeScaffoldState(
-                calendarState = rememberCalendarState(initialYearMonth = initialYearMonth),
-            )
+        val calendarState = key(calendarStateGeneration()) { rememberCalendarState(initialYearMonth = initialYearMonth) }
+        val state = rememberCalendarHomeScaffoldState(calendarState = calendarState)
         onState(state)
 
         DiaryTheme {

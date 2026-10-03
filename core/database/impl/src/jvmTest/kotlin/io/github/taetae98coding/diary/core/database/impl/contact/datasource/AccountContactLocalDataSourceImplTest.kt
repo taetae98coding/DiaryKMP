@@ -15,6 +15,7 @@ import io.github.taetae98coding.diary.core.database.impl.contact.transaction.Acc
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.flow.first
 import kotlinx.datetime.LocalDate
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -148,6 +149,19 @@ class AccountContactLocalDataSourceImplTest :
 
             page(accountId = accountId, sort = ListSortLocalEntity.NAME) shouldBe listOf(nameFirst, nameLast)
             page(accountId = accountId, sort = ListSortLocalEntity.RECENTLY_UPDATED) shouldBe listOf(nameLast, nameFirst)
+        }
+
+        test("TC-MEMO-CONTACT-INPUT-DOMAIN-019 고른 연락처는 고른 순서와 관계없이 이름 오름차순으로 조회된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val first = contact(name = FIRST_NAME)
+            val middle = contact(name = MIDDLE_NAME, isFavorite = true, updatedAt = NEW_INSTANT)
+            val last = contact(name = LAST_NAME)
+            transaction.upsert(accountId = accountId, contactList = listOf(middle, last, first))
+
+            dataSource
+                .get(accountId = accountId, contactIdSet = linkedSetOf(last.id, first.id, middle.id))
+                .first()
+                .map { contact -> contact.id } shouldBe listOf(first.id, middle.id, last.id)
         }
 
         test("TC-CONTACT-ADD-DATA-008 고향을 비우면 비어 있는 값으로 저장한다") {

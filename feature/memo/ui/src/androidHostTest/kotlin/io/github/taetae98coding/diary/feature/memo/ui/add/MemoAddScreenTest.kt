@@ -13,6 +13,7 @@ import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -28,7 +29,7 @@ import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.core.input.DiaryDateTimeInputValue
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
-import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -69,6 +70,35 @@ class MemoAddScreenTest {
         composeRule.waitForIdle()
 
         composeRule.onAllNodes(hasSetTextAction()).onFirst().assertIsFocused()
+    }
+
+    @Test
+    fun `TC-MEMO-LIST-DETAIL-FEATURE-026 목록과 함께 표시되는 메모 추가는 진입할 때 입력 초점을 두지 않는다`() {
+        setMemoAddScreen(viewModels = screenTestViewModel(), isStandalone = false)
+
+        composeRule.waitForIdle()
+
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().assertIsNotFocused()
+        composeRule.onAllNodes(hasSetTextAction())[1].assertIsNotFocused()
+    }
+
+    @Test
+    fun `TC-MEMO-ADD-FEATURE-073 설명을 미리보기로 보던 중 추가에 성공하면 설명 입력 상태로 돌아간다`() {
+        val effect = Channel<MemoAddEffect>(capacity = Channel.BUFFERED)
+        val viewModels = screenTestViewModel(effect = effect.receiveAsFlow())
+        every { viewModels.viewModel.add(detail = any(), tagSelection = any(), webIdSet = any(), contactIdSet = any(), placeIdSet = any()) } answers { effect.trySend(MemoAddEffect.AddSucceeded).getOrThrow() }
+        setMemoAddScreen(viewModels = viewModels)
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().performTextInput(TYPED_TITLE)
+        composeRule.onAllNodes(hasSetTextAction())[1].performTextInput(TYPED_DESCRIPTION)
+        composeRule.onNodeWithContentDescription(DEFAULT_PREVIEW_TAB_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(DEFAULT_PREVIEW_TAB_DESCRIPTION).assertIsSelected()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_INPUT_TAB_DESCRIPTION).assertIsSelected()
+        composeRule.onAllNodes(hasSetTextAction())[1].assert(hasText(""))
     }
 
     @Test
@@ -234,11 +264,12 @@ class MemoAddScreenTest {
     private fun setMemoAddScreen(
         viewModels: MemoAddScreenViewModels,
         navigateUp: () -> Unit = {},
+        isStandalone: Boolean = true,
     ) {
         composeRule.setContent {
             MemoAddScreenTestTheme {
                 MemoAddScreen(
-                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    addRequestKey = TEST_ADD_REQUEST_KEY,
                     addViewModel = viewModels.viewModel,
                     tagViewModel = viewModels.tagViewModel,
                     webViewModel = viewModels.webViewModel,
@@ -257,7 +288,7 @@ class MemoAddScreenTest {
                     navigateToPlaceDetail = {},
                     initialDateTime = null,
                     componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
-                    isStandalone = true,
+                    isStandalone = isStandalone,
                 )
             }
         }
@@ -269,6 +300,8 @@ class MemoAddScreenTest {
         private const val WHITESPACE_TITLE = "   "
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
         private const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add memo"
+        private const val DEFAULT_INPUT_TAB_DESCRIPTION = "Input"
+        private const val DEFAULT_PREVIEW_TAB_DESCRIPTION = "Preview"
         private const val DEFAULT_START_LABEL = "Start"
         private const val DEFAULT_END_LABEL = "End"
 
@@ -333,7 +366,7 @@ class MemoAddScreenInitialDateTimeTest {
                 val viewModels = screenTestViewModel()
 
                 MemoAddScreen(
-                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    addRequestKey = TEST_ADD_REQUEST_KEY,
                     addViewModel = viewModels.viewModel,
                     tagViewModel = viewModels.tagViewModel,
                     webViewModel = viewModels.webViewModel,
@@ -402,7 +435,7 @@ class MemoAddScreenMessageTest {
         composeRule.setContent {
             MemoAddScreenTestTheme {
                 MemoAddScreen(
-                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    addRequestKey = TEST_ADD_REQUEST_KEY,
                     addViewModel = viewModels.viewModel,
                     tagViewModel = viewModels.tagViewModel,
                     webViewModel = viewModels.webViewModel,

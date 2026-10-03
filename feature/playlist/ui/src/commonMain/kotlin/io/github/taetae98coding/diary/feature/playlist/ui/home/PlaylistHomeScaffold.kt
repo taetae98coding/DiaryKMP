@@ -87,6 +87,7 @@ internal fun PlaylistHomeScaffold(
                 modifier = Modifier.fillMaxSize(),
                 musicPagingItems = musicPagingItems,
                 isRefreshingProvider = { uiStateProvider().isRefreshing },
+                isAddButtonVisibleProvider = { componentVisibleProvider().isAddButtonVisible },
                 sortProvider = sortProvider,
                 downloadStateProvider = { music -> downloadUiStateProvider().stateOf(music = music) },
             )

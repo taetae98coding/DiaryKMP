@@ -28,7 +28,7 @@ internal fun MemoAddScreenEffect(
         when (value) {
             is MemoAddEffect.AddSucceeded -> {
                 scaffoldState.titleState.clearText()
-                scaffoldState.descriptionState.clearText()
+                coroutineScope.launch { scaffoldState.descriptionState.reset() }
                 scaffoldState.titleState.requestFocus()
                 coroutineScope.launch { scaffoldState.colorState.animateTo(color = randomColor()) }
                 coroutineScope.launch { scaffoldState.hostState.showImmediate(message = addSucceededMessage) }

@@ -15,11 +15,12 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.readValue
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.withContext
+import org.koin.compose.koinInject
+import org.koin.core.qualifier.named
 import platform.AVFoundation.AVCaptureConnection
 import platform.AVFoundation.AVCaptureDevice
 import platform.AVFoundation.AVCaptureDeviceInput
@@ -47,6 +48,7 @@ internal actual fun QrScanCameraPreview(
     onDetect: (String) -> Unit,
     modifier: Modifier,
 ) {
+    val dispatcher = koinInject<CoroutineDispatcher>(qualifier = named<QrScanCameraDispatcher>())
     val lifecycleOwner = LocalLifecycleOwner.current
     val currentOnDetect by rememberUpdatedState(onDetect)
     // 출력은 대리 객체를 약하게 참조하므로 화면이 살아 있는 동안 여기서 붙잡아 둔다.
@@ -56,13 +58,13 @@ internal actual fun QrScanCameraPreview(
 
     if (session != null) {
         // startRunning과 stopRunning은 끝날 때까지 호출한 스레드를 막으므로 메인 스레드 밖에서 부른다.
-        LaunchedEffect(session, lifecycleOwner) {
+        LaunchedEffect(session, lifecycleOwner, dispatcher) {
             lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 try {
-                    withContext(Dispatchers.IO) { session.startRunning() }
+                    withContext(dispatcher) { session.startRunning() }
                     awaitCancellation()
                 } finally {
-                    withContext(NonCancellable + Dispatchers.IO) { session.stopRunning() }
+                    withContext(NonCancellable + dispatcher) { session.stopRunning() }
                 }
             }
         }

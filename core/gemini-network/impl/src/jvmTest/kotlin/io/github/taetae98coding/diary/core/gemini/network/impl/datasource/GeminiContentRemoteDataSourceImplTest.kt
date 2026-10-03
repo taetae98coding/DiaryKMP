@@ -4,13 +4,16 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.gemini.network.api.GeminiException
 import io.github.taetae98coding.diary.core.gemini.network.api.datasource.GeminiContentRemoteDataSource
+import io.github.taetae98coding.diary.core.gemini.network.impl.API_KEY_INVALID_REASON
 import io.github.taetae98coding.diary.core.gemini.network.impl.GeminiNetworkTestKoinApplication
+import io.github.taetae98coding.diary.core.gemini.network.impl.badRequestEngine
 import io.github.taetae98coding.diary.core.gemini.network.impl.di.GeminiHttpClientEngine
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -126,7 +129,7 @@ class GeminiContentRemoteDataSourceImplTest :
             actual["title"]!!.jsonPrimitive.content shouldBe head + tail
         }
 
-        test("TC-MEMO-GEMINI-DATA-005: 구조를 지키지 않은 응답을 인증 실패와 구분해 알린다") {
+        test("TC-MEMO-GEMINI-DATA-005: 구조화된 형태가 아닌 응답을 인증 실패와 구분해 알린다") {
             val request = request()
             listOf(
                 generateContentResponse(""),
@@ -147,23 +150,31 @@ class GeminiContentRemoteDataSourceImplTest :
 
         test("인증 정보가 유효하지 않은 실패를 구분해 알린다") {
             val request = request()
-            listOf(HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden).forEach { status ->
-                val dataSource = createDataSource(MockEngine { respondError(status) })
+            listOf(
+                MockEngine { respondError(HttpStatusCode.Unauthorized) },
+                MockEngine { respondError(HttpStatusCode.Forbidden) },
+                badRequestEngine(reason = API_KEY_INVALID_REASON),
+            ).forEach { engine ->
+                val dataSource = createDataSource(engine)
 
-                shouldThrow<GeminiException.InvalidApiKey> {
-                    dataSource.generate(request = request)
-                }
+                val actual =
+                    shouldThrow<GeminiException.InvalidApiKey> {
+                        dataSource.generate(request = request)
+                    }
+
+                actual.cause.shouldBeInstanceOf<ResponseException>()
             }
         }
 
         test("TC-MEMO-GEMINI-DATA-006: 그 밖의 실패를 실패로 알린다") {
             val request = request()
             listOf(
-                HttpStatusCode.BadRequest,
-                HttpStatusCode.TooManyRequests,
-                HttpStatusCode.InternalServerError,
-            ).forEach { status ->
-                val dataSource = createDataSource(MockEngine { respondError(status) })
+                MockEngine { respondError(HttpStatusCode.BadRequest) },
+                badRequestEngine(reason = OTHER_BAD_REQUEST_REASON),
+                MockEngine { respondError(HttpStatusCode.TooManyRequests) },
+                MockEngine { respondError(HttpStatusCode.InternalServerError) },
+            ).forEach { engine ->
+                val dataSource = createDataSource(engine)
 
                 shouldThrow<ResponseException> {
                     dataSource.generate(request = request)
@@ -175,6 +186,8 @@ class GeminiContentRemoteDataSourceImplTest :
         private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
         private val json = Json
+
+        private const val OTHER_BAD_REQUEST_REASON = "INVALID_ARGUMENT"
 
         private val SCHEMA: JsonObject =
             buildJsonObject {

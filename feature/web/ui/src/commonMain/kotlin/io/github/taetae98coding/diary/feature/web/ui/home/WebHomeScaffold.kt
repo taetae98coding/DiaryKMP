@@ -69,6 +69,7 @@ internal fun WebHomeScaffold(
                 modifier = Modifier.fillMaxSize(),
                 webPagingItems = webPagingItems,
                 isRefreshingProvider = { uiStateProvider().isRefreshing },
+                isAddButtonVisibleProvider = { componentVisibleProvider().isAddButtonVisible },
                 sortProvider = sortProvider,
             )
         }

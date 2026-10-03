@@ -27,7 +27,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
-import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.closeDialogByBack
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.DEFAULT_PLACE_PICKER_TITLE
@@ -37,6 +37,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.MEMO_PLACE_PICKER_LI
 import io.github.taetae98coding.diary.feature.memo.ui.place.OFFICE_PLACE_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.place.placeDialogNodeWithText
 import io.github.taetae98coding.diary.feature.memo.ui.place.placePagingDataOf
+import io.github.taetae98coding.diary.feature.memo.ui.place.refreshFailedPlacePagingData
 import io.github.taetae98coding.diary.feature.memo.ui.place.refreshingPlacePagingData
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
@@ -103,6 +104,20 @@ class MemoAddScreenPlaceTest {
         var placeAddCount = 0
         setMemoAddScreen(
             viewModels = screenTestRealViewModel(placePagingDataFlow = MutableStateFlow(refreshingPlacePagingData())),
+            navigateToPlaceAdd = { placeAddCount += 1 },
+        )
+
+        composeRule.openPlacePicker()
+
+        composeRule.placeDialogNodeWithText(DEFAULT_PLACE_PICKER_TITLE).assertExists()
+        placeAddCount shouldBe 0
+    }
+
+    @Test
+    fun `TC-MEMO-PLACE-CARD-FEATURE-043 목록의 대상을 처음 불러오지 못하면 추가 항목이 목록을 연다`() {
+        var placeAddCount = 0
+        setMemoAddScreen(
+            viewModels = screenTestRealViewModel(placePagingDataFlow = MutableStateFlow(refreshFailedPlacePagingData())),
             navigateToPlaceAdd = { placeAddCount += 1 },
         )
 
@@ -288,7 +303,7 @@ class MemoAddScreenPlaceTest {
         composeRule.setContent {
             MemoAddScreenTestTheme {
                 MemoAddScreen(
-                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    addRequestKey = TEST_ADD_REQUEST_KEY,
                     addViewModel = viewModels.viewModel,
                     tagViewModel = viewModels.tagViewModel,
                     webViewModel = viewModels.webViewModel,

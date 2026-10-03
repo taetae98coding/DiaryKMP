@@ -27,10 +27,12 @@ import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.receiveAsFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -230,17 +232,22 @@ class WebDetailScreenTest {
     @Test
     fun `TC-WEB-DETAIL-FEATURE-026 수정에 성공하면 입력을 유지하고 성공 안내를 표시한다`() {
         val detail = testWebDetail()
+        val effect = Channel<WebDetailEffect>(capacity = Channel.UNLIMITED)
         val webViewModel =
             webViewModel(
                 uiState = testContentUiState(detail = detail),
-                effect = flowOf(WebDetailEffect.UpdateSucceeded),
+                effect = effect.receiveAsFlow(),
             )
 
         setWebDetailScreen(webViewModel = webViewModel)
         composeRule.selectFormTab()
+        composeRule.titleInput().performTextReplacement(TYPED_TITLE)
+        composeRule.waitForIdle()
+        effect.trySend(WebDetailEffect.UpdateSucceeded)
 
         composeRule.awaitText(DEFAULT_UPDATE_SUCCEEDED_MESSAGE)
-        composeRule.titleInput().assert(hasText(detail.title))
+        composeRule.onAllNodesWithText(DEFAULT_UPDATE_SUCCEEDED_MESSAGE).fetchSemanticsNodes().size shouldBe 1
+        composeRule.titleInput().assert(hasText(TYPED_TITLE))
         composeRule.urlInput().assert(hasText(detail.url))
     }
 
@@ -332,7 +339,42 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-049 TC-WEB-DETAIL-FEATURE-054 로그인 정보를 가져오지 못했다고 알리면 안내를 표시하고 웹 표시 수단이 주소를 연다`() {
+    fun `TC-WEB-DETAIL-FEATURE-072 시스템이 앱을 정리했다가 다시 만들면 응답 본문 방식을 유지하고 새로 불러온다`() {
+        val restorationTester = StateRestorationTester(composeRule)
+        val firstPageViewModel = pageViewModel(pageUiState = WebDetailPageUiState.Content(page = testWebPage()))
+        val recreatedPageViewModel = pageViewModel()
+        var pageViewModel = firstPageViewModel
+
+        restorationTester.setContent {
+            WebDetailScreenTestTheme {
+                WebDetailScreen(
+                    navigateToMemoAdd = {},
+                    navigateToMemoDetail = {},
+                    id = FIRST_WEB_ID,
+                    navigateToTagAdd = {},
+                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    navigateUp = {},
+                    webViewModel = webViewModel(),
+                    pageViewModel = pageViewModel,
+                    navigateToTagDetail = {},
+                    tagViewModel = detailTagScreenTestViewModel(),
+                )
+            }
+        }
+        composeRule.selectViewMode(label = DEFAULT_RESPONSE_VIEW_MODE_LABEL)
+        composeRule.waitForIdle()
+
+        // 시스템이 앱을 정리하면 ViewModel도 새로 만들어지므로, 복원되는 컴포지션에만 새 ViewModel을 넘긴다.
+        pageViewModel = recreatedPageViewModel
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_RESPONSE_VIEW_MODE_LABEL).assertExists()
+        verify(exactly = 1) { recreatedPageViewModel.load() }
+    }
+
+    @Test
+    fun `TC-WEB-DETAIL-FEATURE-054 들어왔을 때 마지막 가져오기 결과가 실패였으면 안내를 한 번 표시하고 웹 표시 수단이 주소를 연다`() {
         val uiState = testContentUiState()
 
         setWebDetailScreen(
@@ -341,6 +383,7 @@ class WebDetailScreenTest {
         )
 
         composeRule.awaitText(DEFAULT_CHROME_SESSION_IMPORT_FAILED_MESSAGE)
+        composeRule.onAllNodesWithText(DEFAULT_CHROME_SESSION_IMPORT_FAILED_MESSAGE).fetchSemanticsNodes().size shouldBe 1
         composeRule.onNodeWithContentDescription(DEFAULT_PAGE_DESCRIPTION).assertExists()
         composeRule.onNodeWithText(DEFAULT_RETRY_BUTTON).assertDoesNotExist()
     }

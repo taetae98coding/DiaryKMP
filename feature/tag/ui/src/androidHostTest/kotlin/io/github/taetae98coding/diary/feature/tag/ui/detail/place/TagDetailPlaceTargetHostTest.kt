@@ -77,7 +77,7 @@ class TagDetailPlaceTargetHostTest {
                 placeMapViewModel = mapViewModel,
             ) { state, placeMapState ->
                 placeState = state
-                TagDetailPlaceFetchCurrentLocationEffect(mapViewModel = mapViewModel, state = state)
+                TagDetailPlaceFetchCurrentLocationEffect(placeMapViewModel = mapViewModel, state = state)
                 if (isPlaceTabSelected) {
                     mapState = placeMapState
                 }
@@ -133,7 +133,7 @@ class TagDetailPlaceTargetHostTest {
                 placeState = state
                 mapState = placeMapState
                 targetMarker = rememberSaveable { Uuid.random() }
-                TagDetailPlaceFetchCurrentLocationEffect(mapViewModel = mapViewModel, state = state)
+                TagDetailPlaceFetchCurrentLocationEffect(placeMapViewModel = mapViewModel, state = state)
             }
         }
         composeRule.waitForIdle()

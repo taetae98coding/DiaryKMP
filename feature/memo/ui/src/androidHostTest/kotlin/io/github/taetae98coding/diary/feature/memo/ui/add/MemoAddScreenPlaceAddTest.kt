@@ -10,7 +10,7 @@ import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.Place
-import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.closeDialogByBack
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.DEFAULT_PLACE_PICKER_PLACE_ADD
@@ -22,7 +22,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.placeDialogNodeWithT
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
-import io.github.taetae98coding.diary.feature.place.api.PlaceAddedResult
+import io.github.taetae98coding.diary.feature.memo.ui.sendPlaceAddedResult
 import io.kotest.matchers.shouldBe
 import org.junit.Before
 import org.junit.Rule
@@ -30,6 +30,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -76,6 +77,21 @@ class MemoAddScreenPlaceAddTest {
 
         composeRule.onNodeWithText(HOME_PLACE_TITLE).assertExists()
         composeRule.onNodeWithText(OFFICE_PLACE_TITLE).assertExists()
+    }
+
+    @Test
+    fun `TC-MEMO-PLACE-CARD-DOMAIN-034 이 카드에서 이동하지 않은 PlaceAdd 화면의 장소는 자동 선택되지 않는다`() {
+        val addedPlace = testPlace(title = OFFICE_PLACE_TITLE)
+        val resultEventBus = ResultEventBus()
+        setMemoAddScreen(
+            viewModels = screenTestRealViewModel(placeList = listOf(addedPlace)),
+            resultEventBus = resultEventBus,
+        )
+
+        resultEventBus.sendPlaceAddedResult(addedPlace, requestKey = OTHER_ADD_REQUEST_KEY)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(OFFICE_PLACE_TITLE).assertDoesNotExist()
     }
 
     @Test
@@ -170,8 +186,11 @@ class MemoAddScreenPlaceAddTest {
         passedCoordinate shouldBe null
     }
 
-    private fun ResultEventBus.sendPlaceAddedResult(place: Place) {
-        sendResult<PlaceAddedResult>(result = PlaceAddedResult(id = place.id))
+    private fun ResultEventBus.sendPlaceAddedResult(
+        place: Place,
+        requestKey: Uuid = TEST_ADD_REQUEST_KEY,
+    ) {
+        sendPlaceAddedResult(id = place.id, requestKey = requestKey)
     }
 
     private fun ComposeContentTestRule.openPlacePicker() {
@@ -193,7 +212,7 @@ class MemoAddScreenPlaceAddTest {
         composeRule.setContent {
             MemoAddScreenTestTheme(resultEventBus = resultEventBus) {
                 MemoAddScreen(
-                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    addRequestKey = TEST_ADD_REQUEST_KEY,
                     addViewModel = viewModels.viewModel,
                     tagViewModel = viewModels.tagViewModel,
                     webViewModel = viewModels.webViewModel,

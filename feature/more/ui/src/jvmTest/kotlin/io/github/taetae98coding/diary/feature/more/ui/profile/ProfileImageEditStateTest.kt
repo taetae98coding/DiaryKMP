@@ -106,7 +106,7 @@ class ProfileImageEditStateTest :
         test("TC-PROFILE-IMAGE-EDIT-FEATURE-003 다른 사진으로 바꾸면 불러오는 상태로 돌아가고 영역이 처음 상태로 돌아간다") {
             val state = readyState(width = 400, height = 200)
             state.transform(pan = Offset(x = -FrameSize.width, y = 0F), zoomChange = 2F, centroid = FrameSize.center(), frameSize = FrameSize)
-            val newUri = FileUri("content://photo/${fixtureMonkey.giveMeOne<String>()}")
+            val newUri = FileUri("${state.uri.shouldNotBeNull().value}-other")
 
             state.changePhoto(uri = newUri)
 
@@ -117,6 +117,17 @@ class ProfileImageEditStateTest :
             state.zoom shouldBe ProfileImageEditState.MIN_ZOOM
             state.centerX shouldBe 0.5F
             state.centerY shouldBe 0.5F
+        }
+
+        test("TC-PROFILE-IMAGE-EDIT-FEATURE-015 같은 사진을 다시 고르면 읽은 사진을 그대로 두고 영역만 처음 상태로 돌아간다") {
+            val state = readyState(width = 400, height = 200)
+            val ready = state.photo
+            state.transform(pan = Offset(x = -FrameSize.width, y = 0F), zoomChange = 2F, centroid = FrameSize.center(), frameSize = FrameSize)
+
+            state.changePhoto(uri = state.uri.shouldNotBeNull())
+
+            state.photo shouldBe ready
+            state.cropRegion().shouldNotBeNull().shouldBeCloseTo(ImageCropRegion(left = 0.25F, top = 0F, right = 0.75F, bottom = 1F))
         }
 
         test("사진을 읽지 못하면 반영할 영역이 없다") {

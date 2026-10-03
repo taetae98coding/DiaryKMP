@@ -14,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -52,6 +53,7 @@ public fun MemoList(
         sortProvider = sortProvider,
         filterProvider = filterProvider,
         itemListProvider = { memoPagingItems.itemSnapshotList.items },
+        isRefreshingProvider = { memoPagingItems.loadState.refresh is LoadState.Loading },
     )
 
     DiaryPullToRefreshBox(

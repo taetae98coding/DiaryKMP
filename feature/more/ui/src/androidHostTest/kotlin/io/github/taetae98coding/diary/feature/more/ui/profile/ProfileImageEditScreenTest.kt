@@ -146,6 +146,23 @@ class ProfileImageEditScreenTest {
     }
 
     @Test
+    fun `TC-PROFILE-IMAGE-EDIT-FEATURE-015 같은 사진을 다시 고르면 처음 상태의 영역으로 다시 표시된다`() {
+        val viewModel = screenTestViewModel()
+        setProfileImageEditScreen(viewModel = viewModel, photoPicker = screenTestPhotoPicker(LANDSCAPE_URI, LANDSCAPE_URI))
+        choosePhoto()
+        awaitReady()
+        composeRule.onNodeWithContentDescription(DEFAULT_PHOTO_DESCRIPTION).performTouchInput { swipeLeft() }
+
+        choosePhoto()
+        awaitReady()
+        composeRule.onNodeWithContentDescription(DEFAULT_PHOTO_DESCRIPTION).assertIsDisplayed()
+        composeRule.onNodeWithContentDescription(DEFAULT_APPLY_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        capturedRegions(viewModel = viewModel, uri = FileUri(LANDSCAPE_URI)).single().shouldBeCloseTo(LANDSCAPE_INITIAL_REGION)
+    }
+
+    @Test
     fun `TC-PROFILE-IMAGE-EDIT-FEATURE-004 사진 선택을 취소하면 보고 있던 사진과 영역을 유지한다`() {
         val viewModel = screenTestViewModel()
         setProfileImageEditScreen(viewModel = viewModel, photoPicker = screenTestPhotoPicker(LANDSCAPE_URI, null))

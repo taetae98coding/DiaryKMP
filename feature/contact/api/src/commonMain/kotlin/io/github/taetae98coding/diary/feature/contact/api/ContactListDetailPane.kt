@@ -12,7 +12,7 @@ public fun List<ScreenNavKey>.isContactListDetailPane(key: ScreenNavKey): Boolea
 public fun List<ScreenNavKey>.isContactAddOnDetailPane(): Boolean {
     val key = lastOrNull() ?: return false
 
-    return key == ContactHomeNavKey || (key == ContactAddNavKey && isContactListDetailPane(key))
+    return key == ContactHomeNavKey || (key is ContactAddNavKey && isContactListDetailPane(key))
 }
 
 private fun ScreenNavKey.isContactDetailPaneKey(): Boolean = this is ContactAddNavKey || this is ContactDetailNavKey

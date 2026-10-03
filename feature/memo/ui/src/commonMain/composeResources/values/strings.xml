@@ -39,7 +39,7 @@
     <string name="memo_tag_picker_search_empty_title">No search results</string>
     <string name="memo_tag_picker_search_empty_description">Try a different search query.</string>
     <string name="memo_tag_add_action">Add tag</string>
-    <string name="memo_tag_primary_content_description">Primary tag</string>
+    <string name="memo_tag_primary_state_description">Primary tag</string>
     <string name="memo_tag_primary_set_button_content_description">Set as primary tag</string>
     <string name="memo_tag_primary_unset_button_content_description">Unset primary tag</string>
     <string name="memo_web_select_label">Select web</string>

@@ -13,6 +13,8 @@ import io.github.taetae98coding.diary.feature.place.ui.home.PlaceHomeUiState
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -29,6 +31,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlin.uuid.Uuid
 
 class PlaceHomeMapViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -64,10 +67,10 @@ class PlaceHomeMapViewModelTest : FunSpec() {
                 viewModel.uiState.test {
                     awaitItem() shouldBe PlaceHomeUiState.Loading
                     viewModel.fetchCurrentLocation()
-                    awaitItem() shouldBe PlaceHomeUiState.Loaded(defaultProvider = MapProvider.NAVER, initialCoordinate = null)
+                    awaitItem().shouldBeLoaded(defaultProvider = MapProvider.NAVER, initialCoordinate = null)
 
                     providerFlow.value = Result.success(MapProvider.GOOGLE)
-                    awaitItem() shouldBe PlaceHomeUiState.Loaded(defaultProvider = MapProvider.GOOGLE, initialCoordinate = null)
+                    awaitItem().shouldBeLoaded(defaultProvider = MapProvider.GOOGLE, initialCoordinate = null)
                 }
             }
         }
@@ -80,7 +83,7 @@ class PlaceHomeMapViewModelTest : FunSpec() {
                     viewModel.uiState.test {
                         awaitItem() shouldBe PlaceHomeUiState.Loading
                         viewModel.fetchCurrentLocation()
-                        awaitItem() shouldBe PlaceHomeUiState.Loaded(defaultProvider = provider, initialCoordinate = null)
+                        awaitItem().shouldBeLoaded(defaultProvider = provider, initialCoordinate = null)
                     }
                 }
             }
@@ -126,8 +129,7 @@ class PlaceHomeMapViewModelTest : FunSpec() {
                     viewModel.uiState.test {
                         awaitItem() shouldBe PlaceHomeUiState.Loading
                         viewModel.fetchCurrentLocation()
-                        awaitItem() shouldBe
-                            PlaceHomeUiState.Loaded(defaultProvider = MapProvider.NAVER, initialCoordinate = coordinate)
+                        awaitItem().shouldBeLoaded(defaultProvider = MapProvider.NAVER, initialCoordinate = coordinate)
                     }
                 }
             }
@@ -144,8 +146,7 @@ class PlaceHomeMapViewModelTest : FunSpec() {
                 viewModel.uiState.test {
                     awaitItem() shouldBe PlaceHomeUiState.Loading
                     viewModel.fetchCurrentLocation()
-                    awaitItem() shouldBe
-                        PlaceHomeUiState.Loaded(defaultProvider = MapProvider.NAVER, initialCoordinate = null)
+                    awaitItem().shouldBeLoaded(defaultProvider = MapProvider.NAVER, initialCoordinate = null)
                 }
             }
         }
@@ -163,8 +164,7 @@ class PlaceHomeMapViewModelTest : FunSpec() {
                 viewModel.uiState.test {
                     awaitItem() shouldBe PlaceHomeUiState.Loading
                     viewModel.fetchCurrentLocation()
-                    awaitItem() shouldBe
-                        PlaceHomeUiState.Loaded(defaultProvider = MapProvider.NAVER, initialCoordinate = coordinate)
+                    awaitItem().shouldBeLoaded(defaultProvider = MapProvider.NAVER, initialCoordinate = coordinate)
 
                     repeat(REPEAT_COUNT) { viewModel.fetchCurrentLocation() }
                     advanceUntilIdle()
@@ -190,8 +190,7 @@ class PlaceHomeMapViewModelTest : FunSpec() {
                     viewModel.uiState.test {
                         awaitItem() shouldBe PlaceHomeUiState.Loading
                         viewModel.fetchCurrentLocation()
-                        awaitItem() shouldBe
-                            PlaceHomeUiState.Loaded(defaultProvider = MapProvider.NAVER, initialCoordinate = beforeCoordinate)
+                        awaitItem().shouldBeLoaded(defaultProvider = MapProvider.NAVER, initialCoordinate = beforeCoordinate)
                     }
                 }
 
@@ -202,8 +201,7 @@ class PlaceHomeMapViewModelTest : FunSpec() {
                     viewModel.uiState.test {
                         awaitItem() shouldBe PlaceHomeUiState.Loading
                         viewModel.fetchCurrentLocation()
-                        awaitItem() shouldBe
-                            PlaceHomeUiState.Loaded(defaultProvider = MapProvider.NAVER, initialCoordinate = afterCoordinate)
+                        awaitItem().shouldBeLoaded(defaultProvider = MapProvider.NAVER, initialCoordinate = afterCoordinate)
                     }
                 }
             }
@@ -217,11 +215,57 @@ class PlaceHomeMapViewModelTest : FunSpec() {
                 viewModel.uiState.test {
                     awaitItem() shouldBe PlaceHomeUiState.Loading
                     viewModel.fetchCurrentLocation()
-                    awaitItem() shouldBe PlaceHomeUiState.Loaded(defaultProvider = MapProvider.NAVER, initialCoordinate = null)
+                    awaitItem().shouldBeLoaded(defaultProvider = MapProvider.NAVER, initialCoordinate = null)
 
                     storedProvider.value = Result.success(MapProvider.GOOGLE)
 
-                    awaitItem() shouldBe PlaceHomeUiState.Loaded(defaultProvider = MapProvider.GOOGLE, initialCoordinate = null)
+                    awaitItem().shouldBeLoaded(defaultProvider = MapProvider.GOOGLE, initialCoordinate = null)
+                }
+            }
+        }
+        test("기본 지도가 바뀌어도 같은 현재 위치 확인 결과로 제공한다") {
+            runTest(mainDispatcher) {
+                val storedProvider = MutableStateFlow(Result.success(MapProvider.NAVER))
+                val viewModel = viewModel(defaultMapProvider = storedProvider)
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe PlaceHomeUiState.Loading
+                    viewModel.fetchCurrentLocation()
+                    val before = awaitItem().shouldBeLoaded(defaultProvider = MapProvider.NAVER, initialCoordinate = null)
+
+                    storedProvider.value = Result.success(MapProvider.GOOGLE)
+
+                    val after = awaitItem().shouldBeLoaded(defaultProvider = MapProvider.GOOGLE, initialCoordinate = null)
+                    after.currentLocationFetchId shouldBe before.currentLocationFetchId
+                }
+            }
+        }
+
+        test("새 화면이 같은 위치를 확인해도 이전 화면과 다른 확인 결과로 제공한다") {
+            listOf(
+                Result.success(fixtureMonkey.giveMeOne<Coordinate>()),
+                Result.failure(IllegalStateException("location error")),
+            ).forEach { currentLocation ->
+                runTest(mainDispatcher) {
+                    val fetchIdList = mutableListOf<Uuid>()
+                    repeat(2) {
+                        val viewModel =
+                            viewModel(
+                                defaultMapProvider = flowOf(Result.success(MapProvider.NAVER)),
+                                currentLocation = currentLocation,
+                            )
+
+                        viewModel.uiState.test {
+                            awaitItem() shouldBe PlaceHomeUiState.Loading
+                            viewModel.fetchCurrentLocation()
+                            fetchIdList +=
+                                awaitItem()
+                                    .shouldBeLoaded(defaultProvider = MapProvider.NAVER, initialCoordinate = currentLocation.getOrNull())
+                                    .currentLocationFetchId
+                        }
+                    }
+
+                    fetchIdList[0] shouldNotBe fetchIdList[1]
                 }
             }
         }
@@ -232,6 +276,17 @@ class PlaceHomeMapViewModelTest : FunSpec() {
 
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
+
+        private fun PlaceHomeUiState.shouldBeLoaded(
+            defaultProvider: MapProvider,
+            initialCoordinate: Coordinate?,
+        ): PlaceHomeUiState.Loaded {
+            val loaded = shouldBeInstanceOf<PlaceHomeUiState.Loaded>()
+            loaded.defaultProvider shouldBe defaultProvider
+            loaded.initialCoordinate shouldBe initialCoordinate
+
+            return loaded
+        }
 
         private fun fetchCurrentLocationUseCase(currentLocation: Result<Coordinate>): FetchCurrentLocationUseCase {
             val useCase = mockk<FetchCurrentLocationUseCase>()

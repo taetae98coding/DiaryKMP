@@ -85,8 +85,7 @@ private fun EntryProviderScope<ScreenNavKey>.memoHomeEntry(
             navigateToSearch = backStack::navigateToSearchFromMemoHome,
             navigateToDetail = { id -> backStack.navigateToMemoDetailFromHome(id) },
             componentVisibleProvider = {
-                val isMemoDetailVisible = backStack.lastOrNull() is MemoDetailNavKey
-                val isAddPaneVisible = isDetailPaneVisible && !isMemoDetailVisible
+                val isAddPaneVisible = isDetailPaneVisible && !backStack.isMemoDetailOnDetailPane()
 
                 MemoHomeScaffoldComponentVisible(isAddButtonVisible = !isAddPaneVisible)
             },
@@ -123,27 +122,28 @@ private fun EntryProviderScope<ScreenNavKey>.memoAddEntry(backStack: NavBackStac
         metadata = { key -> backStack.memoListDetailPaneMetadata(key) },
     ) { key ->
         val isListPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.List)
-        val tagAddRequestKey = rememberResultRequestKey()
+        val addRequestKey = rememberResultRequestKey()
 
         MemoAddScreen(
             navigateUp = { backStack.removeLastOrNull() },
-            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = addRequestKey)) },
             navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id)) },
-            navigateToWebAdd = backStack::navigateToWebAddFromMemoWebInput,
+            navigateToWebAdd = { backStack.navigateToWebAddFromMemoWebInput(requestKey = addRequestKey) },
             navigateToWebDetail = { id -> backStack.add(WebDetailNavKey(id = id)) },
-            navigateToContactAdd = { backStack.add(ContactAddNavKey) },
+            navigateToContactAdd = { backStack.add(ContactAddNavKey(requestKey = addRequestKey)) },
             navigateToContactDetail = { id -> backStack.add(ContactDetailNavKey(id = id)) },
             navigateToPlaceAdd = { coordinate ->
                 backStack.add(
                     PlaceAddNavKey(
                         latitude = coordinate?.latitude,
                         longitude = coordinate?.longitude,
+                        requestKey = addRequestKey,
                     ),
                 )
             },
             navigateToPlaceDetail = { id -> backStack.add(PlaceDetailNavKey(id = id)) },
             initialDateTime = key.initialDateTime(),
-            tagAddRequestKey = tagAddRequestKey,
+            addRequestKey = addRequestKey,
             componentVisibleProvider = { MemoAddScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
             isStandalone = !isListPaneVisible,
             addViewModel = koinViewModel(),
@@ -162,27 +162,28 @@ private fun EntryProviderScope<ScreenNavKey>.memoDetailEntry(backStack: NavBackS
         metadata = { key -> backStack.memoListDetailPaneMetadata(key) },
     ) { key ->
         val isListPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.List)
-        val tagAddRequestKey = rememberResultRequestKey()
+        val addRequestKey = rememberResultRequestKey()
 
         MemoDetailScreen(
             navigateUp = { backStack.removeLastOrNull() },
             navigateToCopiedMemo = { id -> backStack.navigateToCopiedMemo(id) },
-            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+            navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = addRequestKey)) },
             navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id)) },
-            navigateToWebAdd = backStack::navigateToWebAddFromMemoWebInput,
+            navigateToWebAdd = { backStack.navigateToWebAddFromMemoWebInput(requestKey = addRequestKey) },
             navigateToWebDetail = { id -> backStack.add(WebDetailNavKey(id = id)) },
-            navigateToContactAdd = { backStack.add(ContactAddNavKey) },
+            navigateToContactAdd = { backStack.add(ContactAddNavKey(requestKey = addRequestKey)) },
             navigateToContactDetail = { id -> backStack.add(ContactDetailNavKey(id = id)) },
             navigateToPlaceAdd = { coordinate ->
                 backStack.add(
                     PlaceAddNavKey(
                         latitude = coordinate?.latitude,
                         longitude = coordinate?.longitude,
+                        requestKey = addRequestKey,
                     ),
                 )
             },
             navigateToPlaceDetail = { id -> backStack.add(PlaceDetailNavKey(id = id)) },
-            tagAddRequestKey = tagAddRequestKey,
+            addRequestKey = addRequestKey,
             componentVisibleProvider = { MemoDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
             isStandalone = !isListPaneVisible,
             detailViewModel = koinViewModel { parametersOf(key.id) },
@@ -214,6 +215,8 @@ internal fun memoHomeListPaneMetadata(backStack: NavBackStack<ScreenNavKey>): Ma
         },
     ) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION)
 
+internal fun List<ScreenNavKey>.isMemoDetailOnDetailPane(): Boolean = lastOrNull { key -> key != MemoHomeFilterNavKey } is MemoDetailNavKey
+
 internal fun List<ScreenNavKey>.memoDetailPaneSceneKey(key: ScreenNavKey): ScreenNavKey? =
     findMemoDetailPaneListKey(key) { belowKey ->
         belowKey == MemoHomeNavKey || belowKey is TagMemoFinishedListNavKey
@@ -221,27 +224,28 @@ internal fun List<ScreenNavKey>.memoDetailPaneSceneKey(key: ScreenNavKey): Scree
 
 @Composable
 private fun MemoAddDetailPlaceholder(backStack: NavBackStack<ScreenNavKey>) {
-    val tagAddRequestKey = rememberResultRequestKey()
+    val addRequestKey = rememberResultRequestKey()
 
     MemoAddScreen(
         navigateUp = {},
-        navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = tagAddRequestKey)) },
+        navigateToTagAdd = { backStack.add(TagAddNavKey(requestKey = addRequestKey)) },
         navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id)) },
-        navigateToWebAdd = backStack::navigateToWebAddFromMemoWebInput,
+        navigateToWebAdd = { backStack.navigateToWebAddFromMemoWebInput(requestKey = addRequestKey) },
         navigateToWebDetail = { id -> backStack.add(WebDetailNavKey(id = id)) },
-        navigateToContactAdd = { backStack.add(ContactAddNavKey) },
+        navigateToContactAdd = { backStack.add(ContactAddNavKey(requestKey = addRequestKey)) },
         navigateToContactDetail = { id -> backStack.add(ContactDetailNavKey(id = id)) },
         navigateToPlaceAdd = { coordinate ->
             backStack.add(
                 PlaceAddNavKey(
                     latitude = coordinate?.latitude,
                     longitude = coordinate?.longitude,
+                    requestKey = addRequestKey,
                 ),
             )
         },
         navigateToPlaceDetail = { id -> backStack.add(PlaceDetailNavKey(id = id)) },
         initialDateTime = null,
-        tagAddRequestKey = tagAddRequestKey,
+        addRequestKey = addRequestKey,
         componentVisibleProvider = { MemoAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
         isStandalone = false,
         addViewModel = koinViewModel(),

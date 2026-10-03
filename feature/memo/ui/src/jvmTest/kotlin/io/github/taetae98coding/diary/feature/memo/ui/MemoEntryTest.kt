@@ -87,6 +87,25 @@ class MemoEntryTest :
             }
         }
 
+        test("TC-MEMO-LIST-DETAIL-FEATURE-025 필터를 열어도 목록의 메모 추가 제공 여부는 상세 영역에 놓인 화면을 따른다") {
+            val detailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val addKey = MemoAddNavKey()
+            val backStackCases =
+                listOf(
+                    listOf(OtherTopLevelNavKey, MemoHomeNavKey, detailKey) to true,
+                    listOf(OtherTopLevelNavKey, MemoHomeNavKey, detailKey, MemoHomeFilterNavKey) to true,
+                    listOf(OtherTopLevelNavKey, MemoHomeNavKey, addKey, detailKey, MemoHomeFilterNavKey) to true,
+                    listOf(OtherTopLevelNavKey, MemoHomeNavKey) to false,
+                    listOf(OtherTopLevelNavKey, MemoHomeNavKey, MemoHomeFilterNavKey) to false,
+                    listOf(OtherTopLevelNavKey, MemoHomeNavKey, addKey, MemoHomeFilterNavKey) to false,
+                    listOf(OtherTopLevelNavKey, MemoHomeNavKey, detailKey, addKey, MemoHomeFilterNavKey) to false,
+                )
+
+            backStackCases.forEach { (backStack, isMemoDetailOnDetailPane) ->
+                backStack.isMemoDetailOnDetailPane() shouldBe isMemoDetailOnDetailPane
+            }
+        }
+
         test(
             "TC-MEMO-LIST-DETAIL-FEATURE-016 TC-TAG-MEMO-FINISHED-LIST-DETAIL-FEATURE-011 TC-TAG-DETAIL-MEMO-FEATURE-031 " +
                 "메모 목록이나 완료된 메모 목록에서 진입하지 않은 상세 화면은 목록·상세 배치에 참여하지 않는다",
@@ -106,6 +125,7 @@ class MemoEntryTest :
                 listOf(
                     listOf(OtherTopLevelNavKey, detailKey) to detailKey,
                     listOf(OtherTopLevelNavKey, calendarAddKey) to calendarAddKey,
+                    listOf(OtherTopLevelNavKey, CalendarTimetableStandInNavKey, detailKey) to detailKey,
                     listOf(OtherTopLevelNavKey, MemoHomeNavKey, MemoFinishedListNavKey, detailKey) to detailKey,
                     listOf(OtherTopLevelNavKey, TagHomeNavKey, tagDetailKey, detailKey) to detailKey,
                     listOf(OtherTopLevelNavKey, TagHomeNavKey, tagDetailKey, tagDetailAddKey) to tagDetailAddKey,
@@ -192,4 +212,9 @@ class MemoEntryTest :
 private data object OtherTopLevelNavKey : ScreenNavKey {
     override val screenName: String
         get() = "OtherTopLevel"
+}
+
+private data object CalendarTimetableStandInNavKey : ScreenNavKey {
+    override val screenName: String
+        get() = "CalendarTimetableStandIn"
 }

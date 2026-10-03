@@ -87,8 +87,7 @@ private fun EntryProviderScope<ScreenNavKey>.tagHomeEntry(
                 backStack.add(SearchHomeNavKey(initialType = SearchHomeType.TAG))
             },
             componentVisibleProvider = {
-                val isTagDetailVisible = backStack.lastOrNull() is TagDetailNavKey
-                val isAddPaneVisible = isDetailPaneVisible && !isTagDetailVisible
+                val isAddPaneVisible = isDetailPaneVisible && !backStack.isTagDetailOnDetailPane()
 
                 TagHomeScaffoldComponentVisible(isAddButtonVisible = !isAddPaneVisible)
             },

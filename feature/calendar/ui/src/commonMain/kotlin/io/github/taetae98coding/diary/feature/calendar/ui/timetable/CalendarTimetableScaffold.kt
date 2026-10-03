@@ -15,7 +15,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import io.github.taetae98coding.diary.compose.calendar.CalendarDefault
+import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.shortcut.keyShortcut
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -24,7 +24,7 @@ import io.github.taetae98coding.diary.compose.timetable.TimetableEvent
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarTimetableNavKey
-import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeDefault
+import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeDefaults
 import io.github.taetae98coding.diary.feature.calendar.ui.home.search.openHolidaySearch
 import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarMemo
 import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarTimedMemo
@@ -42,8 +42,8 @@ internal fun CalendarTimetableScaffold(
     holidayProvider: () -> List<Holiday> = { emptyList() },
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val calendarColors = CalendarDefault.colors()
-    val nonHolidayNameColor = CalendarHomeDefault.nonHolidayNameColor()
+    val calendarColors = CalendarDefaults.colors()
+    val nonHolidayNameColor = CalendarHomeDefaults.nonHolidayNameColor()
     val uriHandler = LocalUriHandler.current
 
     Scaffold(

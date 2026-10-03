@@ -18,6 +18,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import org.junit.Rule
 import org.junit.Test
@@ -36,6 +37,19 @@ class LoginHomeScreenTest {
         var navigateUpCount = 0
         composeRule.setLoginHomeScreen(
             viewModel = screenTestViewModel(),
+            navigateUp = { navigateUpCount += 1 },
+        )
+
+        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
+
+        navigateUpCount shouldBe 1
+    }
+
+    @Test
+    fun `TC-LOGIN-FEATURE-014 앱 로그인 처리 중에도 이전 화면으로 돌아갈 수 있다`() {
+        var navigateUpCount = 0
+        composeRule.setLoginHomeScreen(
+            viewModel = screenTestViewModel(uiState = MutableStateFlow(LoginHomeUiState(isInProgress = true))),
             navigateUp = { navigateUpCount += 1 },
         )
 

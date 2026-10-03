@@ -59,7 +59,7 @@ internal fun TagDetailPlaceContent(
         )
 
         TagDetailPlaceFetchCurrentLocationEffect(
-            mapViewModel = mapViewModel,
+            placeMapViewModel = mapViewModel,
             state = state,
         )
 

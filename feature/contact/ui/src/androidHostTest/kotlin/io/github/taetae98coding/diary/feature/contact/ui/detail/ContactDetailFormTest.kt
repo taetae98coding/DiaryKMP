@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.contact.ui.detail
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.assertIsNotSelected
@@ -13,6 +14,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
@@ -20,6 +22,7 @@ import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.measure.Length.Companion.centimeter
 import io.github.taetae98coding.diary.core.model.measure.Length.Companion.millimeter
+import io.github.taetae98coding.diary.feature.contact.ui.add.heightInput
 import io.github.taetae98coding.diary.feature.contact.ui.form.ContactFormState
 import io.github.taetae98coding.diary.feature.contact.ui.form.rememberContactDetailFormState
 import io.kotest.matchers.shouldBe
@@ -57,6 +60,30 @@ class ContactDetailFormTest {
         composeRule.onNodeWithText(FOOT_SIZE_TEXT).assertExists()
         composeRule.onNodeWithText(BIRTHDAY_TEXT).assertExists()
         composeRule.onNode(hasText(CONTACT_HOMETOWN) and hasSetTextAction()).assertExists()
+    }
+
+    @Test
+    fun `TC-CONTACT-DETAIL-FEATURE-049 소수점 아래가 0인 저장된 키는 정수로 표시한다`() {
+        setContactDetailScaffold(detail = testContactDetail(name = CONTACT_NAME, height = 175.0.centimeter))
+
+        composeRule.heightInput().assert(hasText("175"))
+    }
+
+    @Test
+    fun `TC-CONTACT-DETAIL-FEATURE-049 소수점 아래가 있는 저장된 키는 소수점 아래 한 자리까지 표시한다`() {
+        setContactDetailScaffold(detail = testContactDetail(name = CONTACT_NAME, height = 175.5.centimeter))
+
+        composeRule.heightInput().assert(hasText("175.5"))
+    }
+
+    @Test
+    fun `정수로 표시된 키 뒤에 소수점 아래 한 자리를 이어 입력할 수 있다`() {
+        setContactDetailScaffold(detail = testContactDetail(name = CONTACT_NAME, height = 175.0.centimeter))
+
+        composeRule.heightInput().performTextInput(".5")
+        composeRule.waitForIdle()
+
+        composeRule.heightInput().assert(hasText("175.5"))
     }
 
     @Test

@@ -7,8 +7,10 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -200,6 +202,30 @@ class WebHomeScaffoldTest {
         composeRule.onNodeWithContentDescription(DEFAULT_SEARCH_BUTTON_DESCRIPTION).assert(hasClickAction())
     }
 
+    @Test
+    fun `추가 버튼이 보이는 동안 끝까지 스크롤하면 마지막 웹 카드가 추가 버튼 위에 놓인다`() {
+        val webList =
+            List(SCROLL_WEB_COUNT) { index ->
+                testWeb(title = "$FIRST_TITLE-$index", url = "$FIRST_URL/$index")
+            }
+        setWebHomeScaffold(webList = webList)
+
+        composeRule.onNodeWithTag(WEB_HOME_LIST_TEST_TAG).performScrollToIndex(webList.lastIndex)
+
+        val lastCardBottom =
+            composeRule
+                .onAllNodesWithTag(WEB_CARD_TEST_TAG)
+                .fetchSemanticsNodes()
+                .maxOf { node -> node.boundsInRoot.bottom }
+        val addButtonTop =
+            composeRule
+                .onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION)
+                .fetchSemanticsNode()
+                .boundsInRoot
+                .top
+        (lastCardBottom <= addButtonTop) shouldBe true
+    }
+
     private fun setWebHomeScaffold(
         webList: List<Web> = emptyList(),
         onEvent: (WebHomeScaffoldEvent) -> Unit = {},
@@ -225,6 +251,7 @@ class WebHomeScaffoldTest {
         private const val SECOND_URL = "https://second.example.com"
         private const val DESCRIPTION = "WebDescription"
         private const val GRID_WEB_COUNT = 3
+        private const val SCROLL_WEB_COUNT = 20
         private const val DEFAULT_TITLE = "Web"
         private const val KOREAN_TITLE = "웹"
         private const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add web"

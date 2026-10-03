@@ -155,7 +155,7 @@ class PlaceAddFormEffectTest {
                         initialCoordinate = fixtureMonkey.mapCoordinateInFormPrecision(),
                     )
                 ReflectCoordinateEffect(state = state)
-                AddEffect(effect = effect, scaffoldState = state)
+                AddEffect(addedResultRequestKey = null, effect = effect, scaffoldState = state)
             }
         }
         composeRule.waitForIdle()

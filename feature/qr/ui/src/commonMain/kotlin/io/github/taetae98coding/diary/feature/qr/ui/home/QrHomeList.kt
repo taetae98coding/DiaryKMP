@@ -10,6 +10,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -41,6 +42,7 @@ internal fun QrHomeList(
     gridState: LazyGridState = rememberLazyGridState(),
     qrPagingItems: LazyPagingItems<Qr> = remember { flowOf(PagingData.empty<Qr>()) }.collectAsLazyPagingItems(),
     isRefreshingProvider: () -> Boolean = { false },
+    bottomPadding: Dp = DiaryTheme.dimens.screenVerticalPadding,
 ) {
     DiaryCrossfade(
         targetState = qrPagingItems.isLoadedEmpty(),
@@ -69,6 +71,7 @@ internal fun QrHomeList(
                 modifier = Modifier.fillMaxSize(),
                 state = gridState,
                 isRefreshingProvider = isRefreshingProvider,
+                bottomPadding = bottomPadding,
                 listTestTag = QR_HOME_LIST_TEST_TAG,
             ) {
                 items(

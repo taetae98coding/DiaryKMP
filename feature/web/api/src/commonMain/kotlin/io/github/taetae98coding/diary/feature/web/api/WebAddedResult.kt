@@ -5,3 +5,5 @@ import kotlin.uuid.Uuid
 public data class WebAddedResult(
     val id: Uuid,
 )
+
+public fun webAddedResultKey(requestKey: Uuid): String = "${WebAddedResult::class}:$requestKey"

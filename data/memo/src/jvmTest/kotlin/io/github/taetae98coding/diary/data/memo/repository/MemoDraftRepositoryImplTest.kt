@@ -22,6 +22,7 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
 
 private val json = Json
@@ -167,7 +168,7 @@ class MemoDraftRepositoryImplTest :
                 )
         }
 
-        test("기간을 읽을 수 없으면 기간 없는 초안으로 전달한다") {
+        test("TC-MEMO-GEMINI-DATA-009: 기간을 알아볼 수 없으면 기간 없는 초안으로 전달한다") {
             listOf(
                 buildJsonObject { put("title", "제목") },
                 buildJsonObject {
@@ -194,11 +195,23 @@ class MemoDraftRepositoryImplTest :
             }
         }
 
-        test("제목과 설명이 없으면 빈 값으로 전달한다") {
-            val actual = fetchDraft(content = JsonObject(emptyMap()))
+        test("TC-MEMO-GEMINI-DATA-009: 제목과 설명을 알아볼 수 없으면 빈 값으로 전달한다") {
+            listOf(
+                JsonObject(emptyMap()),
+                buildJsonObject {
+                    put("title", 1)
+                    put("description", true)
+                },
+                buildJsonObject {
+                    putJsonObject("title") {}
+                    putJsonArray("description") {}
+                },
+            ).forEach { content ->
+                val actual = fetchDraft(content = content)
 
-            actual.title shouldBe ""
-            actual.description shouldBe ""
+                actual.title shouldBe ""
+                actual.description shouldBe ""
+            }
         }
 
         test("인증 실패를 화면이 구분할 수 있는 도메인 실패로 바꿔 알린다") {
@@ -214,7 +227,7 @@ class MemoDraftRepositoryImplTest :
             shouldThrow<GeminiApiKeyInvalidException> { repository.fetch(setting = setting, request = request) }.cause shouldBe cause
         }
 
-        test("TC-MEMO-GEMINI-DATA-005: 구조를 지키지 않은 응답의 실패는 인증 실패로 바꾸지 않는다") {
+        test("TC-MEMO-GEMINI-DATA-005: 구조화된 형태가 아닌 응답의 실패는 인증 실패로 바꾸지 않는다") {
             val cause = GeminiException.InvalidContent(cause = IllegalStateException("not json"))
             val repository =
                 MemoDraftRepositoryImpl(

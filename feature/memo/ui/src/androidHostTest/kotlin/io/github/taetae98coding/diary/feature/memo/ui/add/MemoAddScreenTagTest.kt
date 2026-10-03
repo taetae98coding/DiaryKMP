@@ -8,7 +8,6 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -20,7 +19,7 @@ import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
-import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.closeDialogByBack
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
@@ -28,7 +27,6 @@ import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PICKER_TAG_ADD
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PICKER_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PRIMARY_SET_DESCRIPTION
-import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PRIMARY_TAG_DESCRIPTION
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_PRIMARY_UNSET_DESCRIPTION
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_TAG_SELECT_LABEL
 import io.github.taetae98coding.diary.feature.memo.ui.tag.EXERCISE_TAG_TITLE
@@ -36,6 +34,8 @@ import io.github.taetae98coding.diary.feature.memo.ui.tag.WORK_TAG_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.tag.awaitTagPickerRows
 import io.github.taetae98coding.diary.feature.memo.ui.tag.dialogNodeWithText
 import io.github.taetae98coding.diary.feature.memo.ui.tag.dialogNodesWithContentDescription
+import io.github.taetae98coding.diary.feature.memo.ui.tag.hasPrimaryTagState
+import io.github.taetae98coding.diary.feature.memo.ui.tag.refreshFailedTagPagingData
 import io.github.taetae98coding.diary.feature.memo.ui.tag.refreshingTagPagingData
 import io.github.taetae98coding.diary.feature.memo.ui.tag.tagPagingDataOf
 import io.github.taetae98coding.diary.feature.memo.ui.tag.tagPickerList
@@ -78,7 +78,7 @@ class MemoAddScreenTagTest {
         composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertDoesNotExist()
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
         composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertExists()
-        composeRule.onNodeWithContentDescription(DEFAULT_PRIMARY_TAG_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNode(hasPrimaryTagState()).assertDoesNotExist()
     }
 
     @Test
@@ -106,7 +106,7 @@ class MemoAddScreenTagTest {
         composeRule.closeDialogByBack()
 
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
-        composeRule.onNodeWithContentDescription(DEFAULT_PRIMARY_TAG_DESCRIPTION).assertExists()
+        composeRule.onNode(hasPrimaryTagState()).assertExists()
     }
 
     @Test
@@ -121,7 +121,7 @@ class MemoAddScreenTagTest {
         composeRule.closeDialogByBack()
 
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
-        composeRule.onNodeWithContentDescription(DEFAULT_PRIMARY_TAG_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNode(hasPrimaryTagState()).assertDoesNotExist()
     }
 
     @Test
@@ -137,7 +137,7 @@ class MemoAddScreenTagTest {
 
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
         composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertExists()
-        composeRule.onAllNodesWithContentDescription(DEFAULT_PRIMARY_TAG_DESCRIPTION).assertCountEquals(1)
+        composeRule.onAllNodes(hasPrimaryTagState()).assertCountEquals(1)
     }
 
     @Test
@@ -152,7 +152,7 @@ class MemoAddScreenTagTest {
         composeRule.closeDialogByBack()
 
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertDoesNotExist()
-        composeRule.onNodeWithContentDescription(DEFAULT_PRIMARY_TAG_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNode(hasPrimaryTagState()).assertDoesNotExist()
     }
 
     @Test
@@ -187,7 +187,7 @@ class MemoAddScreenTagTest {
         composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertDoesNotExist()
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
         composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertExists()
-        composeRule.onAllNodesWithContentDescription(DEFAULT_PRIMARY_TAG_DESCRIPTION).assertCountEquals(1)
+        composeRule.onAllNodes(hasPrimaryTagState()).assertCountEquals(1)
     }
 
     @Test
@@ -205,7 +205,7 @@ class MemoAddScreenTagTest {
         composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertDoesNotExist()
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
         composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertExists()
-        composeRule.onAllNodesWithContentDescription(DEFAULT_PRIMARY_TAG_DESCRIPTION).assertCountEquals(1)
+        composeRule.onAllNodes(hasPrimaryTagState()).assertCountEquals(1)
     }
 
     @Test
@@ -218,7 +218,7 @@ class MemoAddScreenTagTest {
         composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertDoesNotExist()
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
         composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertExists()
-        composeRule.onAllNodesWithContentDescription(DEFAULT_PRIMARY_TAG_DESCRIPTION).assertCountEquals(1)
+        composeRule.onAllNodes(hasPrimaryTagState()).assertCountEquals(1)
     }
 
     private fun selectWorkTagAndPrimaryExerciseTag() {
@@ -239,7 +239,7 @@ class MemoAddScreenTagTest {
         composeRule.setContent {
             MemoAddScreenTestTheme {
                 MemoAddScreen(
-                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    addRequestKey = TEST_ADD_REQUEST_KEY,
                     addViewModel = viewModels.viewModel,
                     tagViewModel = viewModels.tagViewModel,
                     webViewModel = viewModels.webViewModel,
@@ -344,6 +344,21 @@ class MemoAddScreenTagPickerOpenTest {
     }
 
     @Test
+    fun `TC-MEMO-TAG-INPUT-FEATURE-048 목록의 대상을 처음 불러오지 못하면 추가 항목이 목록을 연다`() {
+        var tagAddCount = 0
+        setMemoAddScreen(
+            viewModels = screenTestRealViewModel(tagPagingDataFlow = MutableStateFlow(refreshFailedTagPagingData())),
+            navigateToTagAdd = { tagAddCount += 1 },
+        )
+
+        composeRule.onNodeWithText(DEFAULT_TAG_SELECT_LABEL).performScrollTo().performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
+        tagAddCount shouldBe 0
+    }
+
+    @Test
     fun `TC-MEMO-TAG-INPUT-FEATURE-030 목록의 대상을 확인하는 중에는 추가 항목이 목록을 연다`() {
         var tagAddCount = 0
         setMemoAddScreen(
@@ -379,7 +394,7 @@ class MemoAddScreenTagPickerOpenTest {
         composeRule.setContent {
             MemoAddScreenTestTheme {
                 MemoAddScreen(
-                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    addRequestKey = TEST_ADD_REQUEST_KEY,
                     addViewModel = viewModels.viewModel,
                     tagViewModel = viewModels.tagViewModel,
                     webViewModel = viewModels.webViewModel,
@@ -435,7 +450,7 @@ class MemoAddScreenTagRequestTest {
 
         composeRule.onNodeWithText(DEFAULT_TAG_SELECT_LABEL).performScrollTo()
         composeRule.onNodeWithText(INITIAL_PRIMARY_TAG_TITLE).assertExists()
-        composeRule.onNodeWithContentDescription(DEFAULT_PRIMARY_TAG_DESCRIPTION).assertExists()
+        composeRule.onNode(hasPrimaryTagState()).assertExists()
     }
 
     @Test
@@ -489,7 +504,7 @@ class MemoAddScreenTagRequestTest {
 
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
         composeRule.onNodeWithText(EXERCISE_TAG_TITLE).assertExists()
-        composeRule.onNodeWithContentDescription(DEFAULT_PRIMARY_TAG_DESCRIPTION).assertExists()
+        composeRule.onNode(hasPrimaryTagState()).assertExists()
     }
 
     @Test
@@ -535,7 +550,7 @@ class MemoAddScreenTagRequestTest {
         composeRule.setContent {
             MemoAddScreenTestTheme {
                 MemoAddScreen(
-                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    addRequestKey = TEST_ADD_REQUEST_KEY,
                     addViewModel = viewModels.viewModel,
                     tagViewModel = viewModels.tagViewModel,
                     webViewModel = viewModels.webViewModel,

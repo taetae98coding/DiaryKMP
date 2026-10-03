@@ -57,7 +57,7 @@ internal fun TagHomeScaffold(
     gridState: LazyGridState = rememberLazyGridState(),
     tagPagingItems: LazyPagingItems<Tag> = remember { flowOf(PagingData.empty<Tag>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> TagHomeUiState = { TagHomeUiState() },
-    filterUiStateProvider: () -> TagHomeScaffoldFilterUiState = { TagHomeScaffoldFilterUiState() },
+    filterUiStateProvider: () -> TagHomeScaffoldFilterUiState? = { TagHomeScaffoldFilterUiState() },
     sortProvider: () -> ListSort = { ListSort.TITLE },
     componentVisibleProvider: () -> TagHomeScaffoldComponentVisible = { TagHomeScaffoldComponentVisible() },
 ) {
@@ -66,7 +66,7 @@ internal fun TagHomeScaffold(
         topBar = {
             TagHomeTopBar(
                 onEvent = onEvent,
-                filterUiStateProvider = filterUiStateProvider,
+                filterUiStateProvider = { filterUiStateProvider() ?: TagHomeScaffoldFilterUiState() },
             )
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -108,7 +108,7 @@ internal fun TagHomeScaffold(
                 sortProvider = sortProvider,
                 filterProvider = filterUiStateProvider,
                 listTestTag = TAG_HOME_LIST_TEST_TAG,
-                empty = { Empty(isFilterAppliedProvider = { filterUiStateProvider().isApplied }) },
+                empty = { Empty(isFilterAppliedProvider = { filterUiStateProvider()?.isApplied == true }) },
             )
         }
     }

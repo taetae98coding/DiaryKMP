@@ -102,7 +102,7 @@ class ContactDetailMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("연락처별 메모 최초 조회가 실패하면 PagingData를 내보내지 않아 초기 빈 목록을 유지한다") {
+        test("TC-CONTACT-DETAIL-MEMO-FEATURE-003 연락처별 메모 최초 조회가 실패하면 조회가 끝난 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val contactId = fixtureMonkey.giveMeOne<Uuid>()
                 val pageContactMemoUseCase = mockk<PageContactMemoUseCase>()
@@ -112,14 +112,17 @@ class ContactDetailMemoViewModelTest : FunSpec() {
 
                 viewModel.memoPagingData.test {
                     advanceUntilIdle()
+                    val itemList = flowOf(awaitItem()).asSnapshot()
                     expectNoEvents()
+
+                    itemList shouldBe emptyList()
                 }
                 viewModel.viewModelScope.cancel()
                 advanceUntilIdle()
             }
         }
 
-        test("연락처별 메모 조회가 성공한 뒤 실패하면 마지막 성공 목록을 유지한다") {
+        test("TC-CONTACT-DETAIL-MEMO-FEATURE-003 연락처별 메모 조회가 성공한 뒤 실패하면 마지막 성공 목록을 유지한다") {
             runTest(mainDispatcher) {
                 val contactId = fixtureMonkey.giveMeOne<Uuid>()
                 val memo = memo()

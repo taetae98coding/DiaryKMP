@@ -9,6 +9,7 @@ import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -17,9 +18,13 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.height
+import androidx.paging.compose.LazyPagingItems
+import io.github.taetae98coding.diary.compose.core.dialog.DIARY_PICKER_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,9 +56,17 @@ class TagLinkPickerDialogTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-006 나타낼 태그가 없으면 목록 영역을 비워 둔다`() {
-        composeRule.setTagLinkPickerDialog(tagList = emptyList())
+    fun `TC-TAG-LINK-INPUT-FEATURE-006 확인 중에 연 목록이 대상 없음으로 확정되면 목록 영역이 비어 있는 채로 유지된다`() {
+        val tagPagingDataFlow = MutableStateFlow(refreshingTagPagingData())
+        var tagPagingItems: LazyPagingItems<Tag>? = null
+        composeRule.setTagLinkPickerDialog(
+            tagPagingDataFlow = tagPagingDataFlow,
+            onTagPagingItems = { items -> tagPagingItems = items },
+        )
         composeRule.waitForIdle()
+
+        tagPagingDataFlow.value = tagPagingDataOf(emptyList())
+        composeRule.awaitTagLinkPickerRefreshSettled { tagPagingItems }
 
         composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
         composeRule
@@ -61,6 +74,7 @@ class TagLinkPickerDialogTest {
             .fetchSemanticsNode()
             .children
             .shouldBeEmpty()
+        composeRule.onNode(hasTestTag(DIARY_PICKER_EMPTY_BOX_TEST_TAG)).assertDoesNotExist()
     }
 
     @Test
@@ -167,6 +181,24 @@ class TagLinkPickerDialogTest {
         composeRule.dialogNodeWithText(EXERCISE_TAG_TITLE).assertExists()
         // 오류 안내나 재시도 항목이 없으므로 목록 항목 수는 준비된 태그 수와 같다.
         composeRule.pickerRows().assertCountEquals(2)
+    }
+
+    @Test
+    fun `TC-TAG-LINK-INPUT-FEATURE-015 첫 조회에 실패하면 목록 영역이 비어 있고 오류 안내가 표시되지 않는다`() {
+        var tagPagingItems: LazyPagingItems<Tag>? = null
+        composeRule.setTagLinkPickerDialog(
+            tagPagingData = refreshFailedTagPagingData(),
+            onTagPagingItems = { items -> tagPagingItems = items },
+        )
+        composeRule.awaitTagLinkPickerRefreshSettled { tagPagingItems }
+
+        composeRule
+            .tagLinkPickerList()
+            .fetchSemanticsNode()
+            .children
+            .shouldBeEmpty()
+        composeRule.pickerRows().assertCountEquals(0)
+        composeRule.onNode(hasTestTag(DIARY_PICKER_EMPTY_BOX_TEST_TAG)).assertDoesNotExist()
     }
 
     @Test

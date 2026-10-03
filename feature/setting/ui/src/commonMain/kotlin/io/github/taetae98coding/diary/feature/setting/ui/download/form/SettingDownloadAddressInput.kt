@@ -12,6 +12,9 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -30,12 +33,14 @@ internal fun SettingDownloadAddressInput(
     state: SettingDownloadFormState = rememberSettingDownloadFormState(),
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
+    val description = stringResource(Res.string.setting_download_proxy_address_description)
 
     Column(modifier = modifier) {
         Card(modifier = Modifier.fillMaxWidth()) {
             TextField(
                 state = state.addressState,
-                modifier = Modifier.fillMaxWidth(),
+                // 입력은 자식 시맨틱을 자기 노드로 합치므로 카드 밖 보조 문구는 입력 노드에 옮겨 달아 라벨과 함께 읽히게 한다.
+                modifier = Modifier.fillMaxWidth().semantics { contentDescription = description },
                 label = { Text(text = stringResource(Res.string.setting_download_proxy_address_label)) },
                 placeholder = { Text(text = stringResource(Res.string.setting_download_proxy_address_placeholder)) },
                 keyboardOptions =
@@ -51,7 +56,8 @@ internal fun SettingDownloadAddressInput(
             )
         }
         Text(
-            text = stringResource(Res.string.setting_download_proxy_address_description),
+            text = description,
+            modifier = Modifier.clearAndSetSemantics {},
             color = DiaryTheme.colorScheme.onSurfaceVariant,
             style = DiaryTheme.typography.bodySmall,
         )

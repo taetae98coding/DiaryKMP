@@ -40,7 +40,7 @@ internal fun MusicThumbnail(
     ) {
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = DiaryTheme.colorScheme.surfaceContainerHighest,
+            color = DiaryTheme.colorScheme.surfaceDim,
         ) {}
 
         if (state is AsyncImagePainter.State.Success) {

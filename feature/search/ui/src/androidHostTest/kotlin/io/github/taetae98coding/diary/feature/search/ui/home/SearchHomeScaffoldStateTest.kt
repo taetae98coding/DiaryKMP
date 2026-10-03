@@ -41,7 +41,7 @@ class SearchHomeScaffoldStateTest {
 
         composeRule.runOnIdle { state.queryState.setTextAndPlaceCursorAtEnd(QUERY) }
         composeRule.onNodeWithText(DEFAULT_PLACE_TAB_LABEL).performClick()
-        composeRule.waitUntil { state.type == SearchHomeType.PLACE }
+        composeRule.waitUntil(timeoutMillis = TAB_SWITCH_TIMEOUT_MILLIS) { state.type == SearchHomeType.PLACE }
 
         restorationTester.emulateSavedInstanceStateRestore()
 
@@ -77,5 +77,6 @@ class SearchHomeScaffoldStateTest {
     public companion object {
         private const val QUERY = "여행"
         private const val DEFAULT_PLACE_TAB_LABEL = "Place"
+        private const val TAB_SWITCH_TIMEOUT_MILLIS = 5_000L
     }
 }

@@ -119,7 +119,7 @@ class AccountMemoWebLocalDataSourceImplTest :
             loadSelectableWeb(accountId = accountId).shouldBeEmpty()
         }
 
-        test("TC-MEMO-DETAIL-DATA-030 TC-MEMO-WEB-DOMAIN-011 조회한 웹 항목은 제목 오름차순으로 정렬된다") {
+        test("TC-MEMO-DETAIL-DATA-030 TC-MEMO-WEB-DOMAIN-011 TC-MEMO-WEB-INPUT-DOMAIN-018 조회한 웹 항목은 연결한 순서와 관계없이 제목 오름차순으로 정렬된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val lastWeb = web(title = LAST_WEB_TITLE)

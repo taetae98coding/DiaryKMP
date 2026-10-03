@@ -1,10 +1,12 @@
 package io.github.taetae98coding.diary.feature.web.ui.detail
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -12,13 +14,18 @@ import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
+import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleVisibility
+import io.github.taetae98coding.diary.compose.core.button.FloatingCheckButton
 import io.github.taetae98coding.diary.compose.core.layout.isCompactWidth
 import io.github.taetae98coding.diary.compose.core.loading.DiaryLoadingBox
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
+import io.github.taetae98coding.diary.feature.web.ui.Res
+import io.github.taetae98coding.diary.feature.web.ui.detail.memo.WebDetailMemoFloatingActionButton
 import io.github.taetae98coding.diary.feature.web.ui.detail.memo.WebDetailMemoTab
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPage
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
@@ -30,6 +37,8 @@ import io.github.taetae98coding.diary.feature.web.ui.form.WebFormState
 import io.github.taetae98coding.diary.feature.web.ui.form.rememberWebDetailFormState
 import io.github.taetae98coding.diary.feature.web.ui.previewWebDetail
 import io.github.taetae98coding.diary.feature.web.ui.previewWebPage
+import io.github.taetae98coding.diary.feature.web.ui.web_detail_update_button_content_description
+import org.jetbrains.compose.resources.stringResource
 import kotlin.uuid.Uuid
 
 private const val MEMO_CONTENT_STATE_KEY: String = "WebDetailMemoContent"
@@ -107,36 +116,49 @@ private fun CompactContent(
             state = state,
         )
 
-        DiaryCrossfade(
-            targetState = state.tab,
+        Box(
             modifier =
                 Modifier
                     .fillMaxWidth()
                     .weight(1F),
-        ) { tab ->
-            when (tab) {
-                WebDetailTab.FORM ->
-                    FormArea(
-                        onEvent = onEvent,
-                        onFormEvent = onFormEvent,
-                        modifier = Modifier.fillMaxSize(),
-                        formState = formState,
-                        isChangedProvider = isChangedProvider,
-                        uiStateProvider = uiStateProvider,
-                        tagUiStateProvider = tagUiStateProvider,
-                    )
+        ) {
+            DiaryCrossfade(
+                targetState = state.tab,
+                modifier = Modifier.fillMaxSize(),
+            ) { tab ->
+                when (tab) {
+                    WebDetailTab.FORM ->
+                        FormArea(
+                            onFormEvent = onFormEvent,
+                            modifier = Modifier.fillMaxSize(),
+                            formState = formState,
+                            uiStateProvider = uiStateProvider,
+                            tagUiStateProvider = tagUiStateProvider,
+                        )
 
-                WebDetailTab.PAGE ->
-                    PageArea(
-                        onEvent = onEvent,
-                        modifier = Modifier.fillMaxSize(),
-                        state = state,
-                        uiStateProvider = uiStateProvider,
-                        pageUiStateProvider = pageUiStateProvider,
-                    )
+                    WebDetailTab.PAGE ->
+                        PageArea(
+                            onEvent = onEvent,
+                            modifier = Modifier.fillMaxSize(),
+                            state = state,
+                            uiStateProvider = uiStateProvider,
+                            pageUiStateProvider = pageUiStateProvider,
+                        )
 
-                WebDetailTab.MEMO -> memoContent()
+                    WebDetailTab.MEMO -> memoContent()
+                }
             }
+
+            TabFloatingActionButton(
+                onEvent = onEvent,
+                tabProvider = { state.tab },
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(DiaryTheme.dimens.screenPaddingValues),
+                isChangedProvider = isChangedProvider,
+                uiStateProvider = uiStateProvider,
+            )
         }
     }
 }
@@ -169,31 +191,20 @@ private fun WideContent(
                 selectedTabProvider = { state.startTab },
             )
 
-            DiaryCrossfade(
-                targetState = state.startTab,
+            StartTabArea(
+                onEvent = onEvent,
+                onFormEvent = onFormEvent,
                 modifier =
                     Modifier
                         .fillMaxWidth()
                         .weight(1F),
-            ) { tab ->
-                when (tab) {
-                    WebDetailTab.FORM ->
-                        FormArea(
-                            onEvent = onEvent,
-                            onFormEvent = onFormEvent,
-                            modifier = Modifier.fillMaxSize(),
-                            formState = formState,
-                            isChangedProvider = isChangedProvider,
-                            uiStateProvider = uiStateProvider,
-                            tagUiStateProvider = tagUiStateProvider,
-                        )
-
-                    WebDetailTab.MEMO -> memoContent()
-
-                    // 시작 쪽 탭은 수정 폼과 메모만 가지므로 웹 페이지 탭은 이 자리에 오지 않는다.
-                    WebDetailTab.PAGE -> Unit
-                }
-            }
+                state = state,
+                formState = formState,
+                isChangedProvider = isChangedProvider,
+                uiStateProvider = uiStateProvider,
+                tagUiStateProvider = tagUiStateProvider,
+                memoContent = memoContent,
+            )
         }
         PageArea(
             onEvent = onEvent,
@@ -210,12 +221,57 @@ private fun WideContent(
 
 // 조회 중과 내용 표시 사이에서만 전환한다. 내용이 갱신될 때마다 전환하면 입력 영역의 스크롤 위치가 처음으로 돌아간다.
 @Composable
-private fun FormArea(
+private fun StartTabArea(
     onEvent: (WebDetailScaffoldEvent) -> Unit,
     onFormEvent: (WebFormEvent) -> Unit,
     modifier: Modifier,
+    state: WebDetailScaffoldState,
     formState: WebFormState,
     isChangedProvider: () -> Boolean,
+    uiStateProvider: () -> WebDetailUiState,
+    tagUiStateProvider: () -> EntityTagInputUiState,
+    memoContent: @Composable () -> Unit,
+) {
+    Box(modifier = modifier) {
+        DiaryCrossfade(
+            targetState = state.startTab,
+            modifier = Modifier.fillMaxSize(),
+        ) { tab ->
+            when (tab) {
+                WebDetailTab.FORM ->
+                    FormArea(
+                        onFormEvent = onFormEvent,
+                        modifier = Modifier.fillMaxSize(),
+                        formState = formState,
+                        uiStateProvider = uiStateProvider,
+                        tagUiStateProvider = tagUiStateProvider,
+                    )
+
+                WebDetailTab.MEMO -> memoContent()
+
+                // 시작 쪽 탭은 수정 폼과 메모만 가지므로 웹 페이지 탭은 이 자리에 오지 않는다.
+                WebDetailTab.PAGE -> Unit
+            }
+        }
+
+        TabFloatingActionButton(
+            onEvent = onEvent,
+            tabProvider = { state.startTab },
+            modifier =
+                Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(DiaryTheme.dimens.screenPaddingValues),
+            isChangedProvider = isChangedProvider,
+            uiStateProvider = uiStateProvider,
+        )
+    }
+}
+
+@Composable
+private fun FormArea(
+    onFormEvent: (WebFormEvent) -> Unit,
+    modifier: Modifier,
+    formState: WebFormState,
     uiStateProvider: () -> WebDetailUiState,
     tagUiStateProvider: () -> EntityTagInputUiState,
 ) {
@@ -225,12 +281,9 @@ private fun FormArea(
     ) { isContent ->
         if (isContent) {
             WebDetailForm(
-                onEvent = onEvent,
                 onFormEvent = onFormEvent,
                 modifier = Modifier.fillMaxSize(),
                 state = formState,
-                isChangedProvider = isChangedProvider,
-                uiStateProvider = uiStateProvider,
                 tagUiStateProvider = tagUiStateProvider,
             )
         } else {
@@ -261,6 +314,31 @@ private fun PageArea(
             )
         } else {
             DiaryLoadingBox(modifier = Modifier.fillMaxSize())
+        }
+    }
+}
+
+@Composable
+private fun TabFloatingActionButton(
+    onEvent: (WebDetailScaffoldEvent) -> Unit,
+    tabProvider: () -> WebDetailTab,
+    modifier: Modifier,
+    isChangedProvider: () -> Boolean,
+    uiStateProvider: () -> WebDetailUiState,
+) {
+    val tab = tabProvider()
+
+    Box(modifier = modifier) {
+        DiaryScaleVisibility(visible = tab == WebDetailTab.FORM && isChangedProvider()) {
+            FloatingCheckButton(
+                onClick = { onEvent(WebDetailScaffoldEvent.ClickUpdate) },
+                contentDescription = stringResource(Res.string.web_detail_update_button_content_description),
+                isInProgressProvider = { (uiStateProvider() as? WebDetailUiState.Content)?.isUpdateInProgress == true },
+            )
+        }
+
+        DiaryScaleVisibility(visible = tab == WebDetailTab.MEMO) {
+            WebDetailMemoFloatingActionButton(onClick = { onEvent(WebDetailScaffoldEvent.ClickMemoAdd) })
         }
     }
 }

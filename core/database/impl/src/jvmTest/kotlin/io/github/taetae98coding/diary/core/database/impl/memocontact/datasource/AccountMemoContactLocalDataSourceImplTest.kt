@@ -117,7 +117,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             loadSelectableContact(accountId = accountId).shouldBeEmpty()
         }
 
-        test("TC-MEMO-DETAIL-DATA-047 TC-MEMO-CONTACT-DOMAIN-011 조회한 연락처는 이름 오름차순으로 정렬된다") {
+        test("TC-MEMO-DETAIL-DATA-047 TC-MEMO-CONTACT-DOMAIN-011 TC-MEMO-CONTACT-INPUT-DOMAIN-019 조회한 연락처는 연결한 순서와 관계없이 이름 오름차순으로 정렬된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val lastContact = contact(name = LAST_CONTACT_NAME)

@@ -26,6 +26,7 @@ import io.github.taetae98coding.diary.feature.tag.ui.link.WORK_TAG_TITLE
 import io.github.taetae98coding.diary.feature.tag.ui.link.awaitTagLinkPickerRows
 import io.github.taetae98coding.diary.feature.tag.ui.link.closeDialogByBack
 import io.github.taetae98coding.diary.feature.tag.ui.link.dialogNodeWithText
+import io.github.taetae98coding.diary.feature.tag.ui.link.refreshFailedTagPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.link.refreshingTagPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.link.tagPagingDataOf
 import io.github.taetae98coding.diary.feature.tag.ui.link.testTag
@@ -83,6 +84,21 @@ class TagAddScreenTagAddTest {
         var tagAddCount = 0
         setTagAddScreen(
             tagPagingData = MutableStateFlow(refreshingTagPagingData()),
+            navigateToTagAdd = { tagAddCount += 1 },
+        )
+
+        composeRule.onNodeWithText(DEFAULT_TAG_LINK_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        tagAddCount shouldBe 0
+        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
+    }
+
+    @Test
+    fun `TC-TAG-LINK-INPUT-FEATURE-034 목록의 대상을 처음 불러오지 못하면 태그 연결 칩이 목록을 연다`() {
+        var tagAddCount = 0
+        setTagAddScreen(
+            tagPagingData = MutableStateFlow(refreshFailedTagPagingData()),
             navigateToTagAdd = { tagAddCount += 1 },
         )
 

@@ -13,6 +13,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -59,6 +60,7 @@ internal fun TagDetailWebTab(
         sortProvider = sortProvider,
         filterProvider = scopeProvider,
         itemListProvider = { webPagingItems.itemSnapshotList.items },
+        isRefreshingProvider = { webPagingItems.loadState.refresh is LoadState.Loading },
     )
 
     Column(modifier = modifier) {

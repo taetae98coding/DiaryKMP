@@ -7,6 +7,7 @@ import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.feature.web.api.WebAddedResult
+import io.github.taetae98coding.diary.feature.web.api.webAddedResultKey
 import io.github.taetae98coding.diary.feature.web.ui.Res
 import io.github.taetae98coding.diary.feature.web.ui.form.WebFormState
 import io.github.taetae98coding.diary.feature.web.ui.form.rememberWebAddFormState
@@ -18,9 +19,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
+import kotlin.uuid.Uuid
 
 @Composable
 internal fun WebAddScreenEffect(
+    addedResultRequestKey: Uuid?,
     effect: Flow<WebAddEffect> = emptyFlow(),
     state: WebFormState = rememberWebAddFormState(),
     resultEventBus: ResultEventBus = LocalResultEventBus.current,
@@ -34,7 +37,9 @@ internal fun WebAddScreenEffect(
     CollectEffect(effect) { value ->
         when (value) {
             is WebAddEffect.AddSucceeded -> {
-                resultEventBus.sendResult<WebAddedResult>(result = WebAddedResult(id = value.id))
+                addedResultRequestKey?.let { requestKey ->
+                    resultEventBus.sendResult(resultKey = webAddedResultKey(requestKey = requestKey), result = WebAddedResult(id = value.id))
+                }
                 state.titleState.clearText()
                 state.descriptionState.clearText()
                 state.urlState.clearText()

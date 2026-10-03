@@ -6,7 +6,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.style.ExperimentalFoundationStyleApi
 import androidx.compose.foundation.style.styleable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
+import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.calendar.grid.CalendarWeekOfMonthGridGroupScope
 import io.github.taetae98coding.diary.compose.calendar.move.CalendarItemMoveState
 import io.github.taetae98coding.diary.compose.calendar.move.calendarMoveItem
@@ -45,7 +47,8 @@ internal fun CalendarWeekOfMonthGridGroupScope.memoItem(
                                     ),
                                 )
                             },
-                        ).clickable(role = Role.Button) { onEvent(CalendarHomeScaffoldEvent.ClickMemo(id = memo.id)) },
+                        ).clip(CalendarDefaults.itemShape)
+                        .clickable(role = Role.Button) { onEvent(CalendarHomeScaffoldEvent.ClickMemo(id = memo.id)) },
             )
         }
     }

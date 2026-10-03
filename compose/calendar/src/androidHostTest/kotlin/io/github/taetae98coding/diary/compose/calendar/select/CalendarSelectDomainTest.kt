@@ -4,6 +4,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performTouchInput
 import io.github.taetae98coding.diary.compose.calendar.CalendarState
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
@@ -58,6 +60,20 @@ class CalendarSelectDomainTest {
     }
 
     @Test
+    fun `TC-CALENDAR-SELECT-DOMAIN-003 이벤트를 받는 화면도 날짜 선택을 사용하지 않으면 선택된 기간이 생기지 않는다`() {
+        val calendarState = CalendarState(initialYearMonth = JULY_2026)
+        val selectedList = mutableListOf<LocalDateRange>()
+        composeRule.setCalendar(calendarState = calendarState, onSelect = { selectedList += it }, isSelectEnabled = false)
+
+        composeRule.performLongPress(composeRule.dayCenter(day = 15))
+        composeRule.performMoveTo(composeRule.dayCenter(day = 17))
+        composeRule.performUp()
+
+        calendarState.selectState.dateRange.shouldBeNull()
+        selectedList shouldBe emptyList()
+    }
+
+    @Test
     fun `TC-CALENDAR-SELECT-DOMAIN-004 가장자리 영역 밖에서는 선택 드래그로 달이 이동하지 않는다`() {
         val calendarState = CalendarState(initialYearMonth = JULY_2026)
         composeRule.setCalendar(calendarState = calendarState)
@@ -68,6 +84,28 @@ class CalendarSelectDomainTest {
 
         calendarState.currentYearMonth shouldBe JULY_2026
         composeRule.performUp()
+    }
+
+    @Test
+    fun `TC-CALENDAR-SELECT-DOMAIN-013 가장자리 영역 안에서 선택을 시작하면 곧바로 달 이동이 시작된다`() {
+        val calendarState = CalendarState(initialYearMonth = JULY_2026)
+        composeRule.setCalendar(calendarState = calendarState)
+        val start = Offset(x = composeRule.rootWidth() - 1F, y = composeRule.dayCenter(day = 18).y)
+
+        // 가장자리에서 길게 누르면 달 이동이 곧바로 반복되어 idle 상태가 되지 않으므로, 클록을 직접 진행해 길게 누르기를 인식시킨다.
+        composeRule.mainClock.autoAdvance = false
+        var longPressTimeoutMillis = 0L
+        composeRule.onRoot().performTouchInput {
+            down(start)
+            longPressTimeoutMillis = viewConfiguration.longPressTimeoutMillis
+        }
+        composeRule.mainClock.advanceTimeBy(longPressTimeoutMillis + LONG_PRESS_MARGIN_MILLIS)
+
+        // 8월 2026 화면에서 포인터 위치(셋째 주 토요일)의 날짜는 8월 15일이다.
+        composeRule.advanceTimeUntil {
+            calendarState.currentYearMonth == AUGUST_2026 && calendarState.selectState.dateRange == july(day = 18)..august(day = 15)
+        }
+        composeRule.performUpAndSettle()
     }
 
     @Test

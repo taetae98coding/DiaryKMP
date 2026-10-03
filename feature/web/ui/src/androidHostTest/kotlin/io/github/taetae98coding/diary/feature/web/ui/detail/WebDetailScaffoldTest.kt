@@ -482,6 +482,43 @@ class WebDetailScaffoldTest {
     }
 
     @Test
+    fun `TC-WEB-DETAIL-FEATURE-070 응답 본문 방식을 보는 동안 실패하면 URL 방식으로 바꿀 때 한 번 알린다`() {
+        val eventList = mutableListOf<WebDetailScaffoldEvent>()
+
+        setWebDetailScaffold(
+            pageUiState = WebDetailPageUiState.Failure,
+            initialViewMode = WebDetailViewMode.RESPONSE,
+            session = DiaryWebSession(failureId = 1),
+            onEvent = eventList::add,
+        )
+        composeRule.waitForIdle()
+
+        eventList.count { event -> event == WebDetailScaffoldEvent.SessionImportFailed } shouldBe 0
+
+        composeRule.selectViewMode(label = DEFAULT_URL_VIEW_MODE_LABEL)
+
+        eventList.count { event -> event == WebDetailScaffoldEvent.SessionImportFailed } shouldBe 1
+    }
+
+    @Test
+    fun `TC-WEB-DETAIL-FEATURE-070 웹 정보 수정 탭을 보는 동안 실패하면 웹 페이지 탭을 고를 때 한 번 알린다`() {
+        val eventList = mutableListOf<WebDetailScaffoldEvent>()
+
+        setWebDetailScaffold(
+            initialTab = WebDetailTab.FORM,
+            session = DiaryWebSession(failureId = 1),
+            onEvent = eventList::add,
+        )
+        composeRule.waitForIdle()
+
+        eventList.count { event -> event == WebDetailScaffoldEvent.SessionImportFailed } shouldBe 0
+
+        composeRule.selectPageTab()
+
+        eventList.count { event -> event == WebDetailScaffoldEvent.SessionImportFailed } shouldBe 1
+    }
+
+    @Test
     fun `TC-WEB-DETAIL-DOMAIN-044 화면이 재생성되어도 이미 알린 가져오기 실패를 다시 알리지 않는다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val eventList = mutableListOf<WebDetailScaffoldEvent>()

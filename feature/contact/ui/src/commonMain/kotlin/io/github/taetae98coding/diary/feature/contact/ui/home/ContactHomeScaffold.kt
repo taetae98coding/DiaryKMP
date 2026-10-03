@@ -79,6 +79,7 @@ internal fun ContactHomeScaffold(
                 modifier = Modifier.fillMaxSize(),
                 contactPagingItems = contactPagingItems,
                 isRefreshingProvider = { uiStateProvider().isRefreshing },
+                isAddButtonVisibleProvider = { componentVisibleProvider().isAddButtonVisible },
                 sortProvider = sortProvider,
             )
         }

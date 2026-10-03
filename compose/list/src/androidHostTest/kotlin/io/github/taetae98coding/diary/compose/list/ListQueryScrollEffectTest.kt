@@ -88,7 +88,7 @@ class ListQueryScrollEffectTest {
     @Test
     fun `필터를 바꾸고 좁힌 목록이 도착하면 맨 위에서 다시 시작한다`() {
         val itemList = mutableStateOf(defaultItemList())
-        val filter = mutableStateOf(false)
+        val filter = mutableStateOf<Boolean?>(false)
         val listState = setList(sort = mutableStateOf(ListSort.TITLE), itemList = itemList, filter = filter)
 
         scrollToLast { listState.firstVisibleItemIndex }
@@ -102,7 +102,7 @@ class ListQueryScrollEffectTest {
     @Test
     fun `필터를 바꿔도 좁힌 목록이 도착하기 전에는 자리를 유지한다`() {
         val itemList = mutableStateOf(defaultItemList())
-        val filter = mutableStateOf(false)
+        val filter = mutableStateOf<Boolean?>(false)
         val listState = setList(sort = mutableStateOf(ListSort.TITLE), itemList = itemList, filter = filter)
 
         scrollToLast { listState.firstVisibleItemIndex }
@@ -116,7 +116,7 @@ class ListQueryScrollEffectTest {
     @Test
     fun `필터가 그대로면 목록이 바뀌어도 자리를 유지한다`() {
         val itemList = mutableStateOf(defaultItemList())
-        val filter = mutableStateOf(true)
+        val filter = mutableStateOf<Boolean?>(true)
         val listState = setList(sort = mutableStateOf(ListSort.TITLE), itemList = itemList, filter = filter)
 
         scrollToLast { listState.firstVisibleItemIndex }
@@ -125,6 +125,35 @@ class ListQueryScrollEffectTest {
         narrow(itemList = itemList)
 
         listState.firstVisibleItemIndex shouldBeGreaterThan 0
+    }
+
+    @Test
+    fun `불러오기 전이던 필터를 처음 불러오면 목록이 바뀌어도 자리를 유지한다`() {
+        val itemList = mutableStateOf(defaultItemList())
+        val filter = mutableStateOf<Boolean?>(null)
+        val listState = setList(sort = mutableStateOf(ListSort.TITLE), itemList = itemList, filter = filter)
+
+        scrollToLast { listState.firstVisibleItemIndex }
+
+        switchFilter(filter = filter, value = true)
+        narrow(itemList = itemList)
+
+        listState.firstVisibleItemIndex shouldBeGreaterThan 0
+    }
+
+    @Test
+    fun `불러오기 전이던 필터를 처음 불러온 뒤 바꾸면 좁힌 목록이 도착할 때 맨 위에서 다시 시작한다`() {
+        val itemList = mutableStateOf(defaultItemList())
+        val filter = mutableStateOf<Boolean?>(null)
+        val listState = setList(sort = mutableStateOf(ListSort.TITLE), itemList = itemList, filter = filter)
+        switchFilter(filter = filter, value = false)
+
+        scrollToLast { listState.firstVisibleItemIndex }
+
+        switchFilter(filter = filter, value = true)
+        narrow(itemList = itemList)
+
+        listState.firstVisibleItemIndex shouldBe 0
     }
 
     @Test
@@ -155,6 +184,53 @@ class ListQueryScrollEffectTest {
         staggeredGridState.firstVisibleItemIndex shouldBe 0
     }
 
+    @Test
+    fun `필터를 바꾼 뒤 조회가 끝나 같은 목록이 놓이면 맨 위에서 다시 시작한다`() {
+        val itemList = mutableStateOf(defaultItemList())
+        val filter = mutableStateOf<Boolean?>(false)
+        val isRefreshing = mutableStateOf(false)
+        val listState = setList(sort = mutableStateOf(ListSort.TITLE), itemList = itemList, filter = filter, isRefreshing = isRefreshing)
+
+        scrollToLast { listState.firstVisibleItemIndex }
+
+        switchFilter(filter = filter, value = true)
+        refresh(isRefreshing = isRefreshing)
+
+        listState.firstVisibleItemIndex shouldBe 0
+    }
+
+    @Test
+    fun `필터를 바꾼 조회가 같은 목록으로 끝난 뒤에는 목록이 바뀌어도 자리를 유지한다`() {
+        val itemList = mutableStateOf(defaultItemList())
+        val filter = mutableStateOf<Boolean?>(false)
+        val isRefreshing = mutableStateOf(false)
+        val listState = setList(sort = mutableStateOf(ListSort.TITLE), itemList = itemList, filter = filter, isRefreshing = isRefreshing)
+        switchFilter(filter = filter, value = true)
+        refresh(isRefreshing = isRefreshing)
+
+        scrollToLast { listState.firstVisibleItemIndex }
+        reorder(itemList = itemList)
+
+        listState.firstVisibleItemIndex shouldBeGreaterThan 0
+    }
+
+    @Test
+    fun `필터를 바꾼 뒤 조회가 끝나기 전에는 자리를 유지한다`() {
+        val itemList = mutableStateOf(defaultItemList())
+        val filter = mutableStateOf<Boolean?>(false)
+        val isRefreshing = mutableStateOf(false)
+        val listState = setList(sort = mutableStateOf(ListSort.TITLE), itemList = itemList, filter = filter, isRefreshing = isRefreshing)
+
+        scrollToLast { listState.firstVisibleItemIndex }
+        val scrolledIndex = listState.firstVisibleItemIndex
+
+        switchFilter(filter = filter, value = true)
+        composeRule.runOnIdle { isRefreshing.value = true }
+        composeRule.waitForIdle()
+
+        listState.firstVisibleItemIndex shouldBe scrolledIndex
+    }
+
     private fun scrollToLast(firstVisibleItemIndexProvider: () -> Int) {
         composeRule.onNodeWithTag(LIST_TEST_TAG).performScrollToIndex(ITEM_COUNT - 1)
         composeRule.waitForIdle()
@@ -177,10 +253,18 @@ class ListQueryScrollEffectTest {
     }
 
     private fun switchFilter(
-        filter: MutableState<Boolean>,
+        filter: MutableState<Boolean?>,
         value: Boolean,
     ) {
         composeRule.runOnIdle { filter.value = value }
+        composeRule.waitForIdle()
+    }
+
+    // 바꾼 조건의 조회가 시작됐다가 끝나는 것을 만든다.
+    private fun refresh(isRefreshing: MutableState<Boolean>) {
+        composeRule.runOnIdle { isRefreshing.value = true }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { isRefreshing.value = false }
         composeRule.waitForIdle()
     }
 
@@ -193,7 +277,8 @@ class ListQueryScrollEffectTest {
     private fun setList(
         sort: MutableState<ListSort>,
         itemList: MutableState<List<Int>>,
-        filter: MutableState<Boolean> = mutableStateOf(false),
+        filter: MutableState<Boolean?> = mutableStateOf(false),
+        isRefreshing: MutableState<Boolean> = mutableStateOf(false),
     ): LazyListState {
         lateinit var listState: LazyListState
 
@@ -202,6 +287,7 @@ class ListQueryScrollEffectTest {
                 val currentSort by sort
                 val currentFilter by filter
                 val currentItemList by itemList
+                val currentIsRefreshing by isRefreshing
 
                 listState = rememberLazyListState()
 
@@ -210,6 +296,7 @@ class ListQueryScrollEffectTest {
                     sortProvider = { currentSort },
                     filterProvider = { currentFilter },
                     itemListProvider = { currentItemList },
+                    isRefreshingProvider = { currentIsRefreshing },
                 )
                 LazyColumn(
                     modifier =

@@ -111,6 +111,25 @@ class QrAddLocationTest {
     }
 
     @Test
+    fun `TC-QR-ADD-FEATURE-062 위치 좌표를 담은 QR 값에서 위치 포맷을 고르면 반영을 기다린 뒤 지점과 지도가 그 좌표로 옮겨진다`() {
+        composeRule.mainClock.autoAdvance = false
+        val state = setContentState()
+        composeRule.write { state().fieldState(QrTextField.TEXT).setText("geo:37.5,127") }
+        composeRule.mainClock.advanceTimeBy(REFLECT_DELAY_MILLIS * 2)
+
+        composeRule.write { state().selectFormat(QrFormat.LOCATION) }
+        composeRule.mainClock.advanceTimeBy(REFLECT_DELAY_MILLIS / 2)
+        composeRule.runOnIdle { state().mapState.spot.shouldBeNull() }
+        composeRule.mainClock.advanceTimeBy(REFLECT_DELAY_MILLIS)
+
+        val expected = DiaryMapCoordinate(latitude = 37.5, longitude = 127.0)
+        composeRule.runOnIdle {
+            state().mapState.spot shouldBe expected
+            state().mapState.coordinate shouldBe expected
+        }
+    }
+
+    @Test
     fun `TC-QR-ADD-FEATURE-042 기본 지도를 확인하지 못하면 지도 없이 좌표를 입력해 위치 QR을 추가한다`() {
         val eventList = mutableListOf<QrAddScaffoldEvent>()
         var state: QrAddFormState? = null
@@ -224,6 +243,12 @@ class QrAddLocationTest {
     }
 
     private fun setLocationState(defaultProvider: MapProvider = MapProvider.NAVER): () -> QrContentFormState {
+        val state = setContentState(defaultProvider = defaultProvider)
+        composeRule.write { state().selectFormat(QrFormat.LOCATION) }
+        return state
+    }
+
+    private fun setContentState(defaultProvider: MapProvider = MapProvider.NAVER): () -> QrContentFormState {
         var state: QrContentFormState? = null
         composeRule.setContent {
             val contentState = rememberQrContentFormState(defaultProvider = defaultProvider)
@@ -231,7 +256,6 @@ class QrAddLocationTest {
             ReflectQrCoordinateEffect(state = contentState)
             WriteQrFieldsEffect(state = contentState)
         }
-        composeRule.write { checkNotNull(state).selectFormat(QrFormat.LOCATION) }
         return { checkNotNull(state) }
     }
 

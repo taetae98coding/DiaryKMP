@@ -6,6 +6,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.feature.place.ui.home.DEFAULT_LIST_VIEW_MODE_DESCRIPTION
 import io.github.taetae98coding.diary.feature.place.ui.home.DEFAULT_MAP_PROVIDER_DESCRIPTION
@@ -27,6 +28,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
@@ -57,18 +59,21 @@ class PlaceHomeViewModeTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-038 목록 모드에서 다시 전환하면 목록 모드의 목록이 사라진다`() {
+    fun `TC-PLACE-HOME-FEATURE-038 목록 모드에서 다시 전환하면 목록이 사라지고 지도 모드의 본문으로 돌아온다`() {
         val place = viewModeTestPlace()
         setPlaceHomeScaffold(
             state = PlaceHomeScaffoldState(initialViewMode = PlaceHomeViewMode.LIST),
+            uiState = PlaceHomeUiState.Loaded(defaultProvider = MapProvider.GOOGLE, initialCoordinate = null, currentLocationFetchId = Uuid.random()),
             placeList = listOf(place),
         )
         composeRule.onNodeWithText(place.detail.title).assertIsDisplayed()
+        composeRule.onNodeWithContentDescription(DEFAULT_MAP_PROVIDER_DESCRIPTION).assertDoesNotExist()
 
         composeRule.onNodeWithContentDescription(DEFAULT_MAP_VIEW_MODE_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(place.detail.title).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_MAP_PROVIDER_DESCRIPTION).assertIsDisplayed()
     }
 
     @Test
@@ -125,6 +130,7 @@ class PlaceHomeViewModeTest {
 
     private fun setPlaceHomeScaffold(
         state: PlaceHomeScaffoldState = PlaceHomeScaffoldState(),
+        uiState: PlaceHomeUiState = PlaceHomeUiState.Loading,
         placeList: List<Place> = emptyList(),
         onEvent: (PlaceHomeScaffoldEvent) -> Unit = {},
     ) {
@@ -134,7 +140,7 @@ class PlaceHomeViewModeTest {
             ViewModeTestPlaceHomeScaffold(
                 onEvent = onEvent,
                 state = state,
-                uiState = PlaceHomeUiState.Loading,
+                uiState = uiState,
                 placePagingDataFlow = placePagingDataFlow,
             )
         }

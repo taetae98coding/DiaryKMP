@@ -37,15 +37,30 @@ class PlaylistNavigationTest :
             backStack shouldContainExactly listOf(MoreHomeStubNavKey, PlaylistHomeNavKey, second)
         }
 
-        test("곡 상세가 놓여 있지 않으면 곡 상세를 이어서 놓는다") {
-            val detail = MusicDetailNavKey(id = Uuid.random())
-            listOf(emptyList(), listOf<ScreenNavKey>(MusicAddNavKey)).forEach { detailKeyList ->
+        test("TC-PLAYLIST-LIST-DETAIL-FEATURE-016 목록에서 곡을 선택하면 목록 위에 쌓인 상세와 곡 추가를 모두 걷어내고 그 상세로 바꾼다") {
+            val detailCases =
+                listOf(
+                    listOf(MusicAddNavKey),
+                    listOf(MusicDetailNavKey(id = Uuid.random()), MusicAddNavKey),
+                )
+
+            detailCases.forEach { detailKeyList ->
+                val selected = MusicDetailNavKey(id = Uuid.random())
                 val backStack = playlistBackStack(detailKeyList = detailKeyList)
 
-                backStack.navigateToMusicDetail(id = detail.id)
+                backStack.navigateToMusicDetail(id = selected.id)
 
-                backStack shouldContainExactly listOf(MoreHomeStubNavKey, PlaylistHomeNavKey) + detailKeyList + detail
+                backStack shouldContainExactly listOf(MoreHomeStubNavKey, PlaylistHomeNavKey, selected)
             }
+        }
+
+        test("상세 영역에 곡 상세가 없으면 목록에서 선택한 곡 상세를 이어서 놓는다") {
+            val detail = MusicDetailNavKey(id = Uuid.random())
+            val backStack = playlistBackStack(detailKeyList = emptyList())
+
+            backStack.navigateToMusicDetail(id = detail.id)
+
+            backStack shouldContainExactly listOf(MoreHomeStubNavKey, PlaylistHomeNavKey, detail)
         }
 
         test("곡 목록이 없는 전환 이력에서는 곡 목록 뒤로가기 동작이 전환 이력을 바꾸지 않는다") {

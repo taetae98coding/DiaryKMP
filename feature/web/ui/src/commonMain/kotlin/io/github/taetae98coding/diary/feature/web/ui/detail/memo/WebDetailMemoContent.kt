@@ -25,7 +25,6 @@ import kotlin.uuid.Uuid
 internal fun WebDetailMemoContent(
     id: Uuid,
     viewModelStoreProvider: ViewModelStoreProvider,
-    navigateToMemoAdd: () -> Unit,
     navigateToMemoDetail: (Uuid) -> Unit,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
@@ -51,7 +50,6 @@ internal fun WebDetailMemoContent(
         WebDetailMemoTab(
             onEvent = { event ->
                 when (event) {
-                    is WebDetailMemoContentEvent.ClickAdd -> navigateToMemoAdd()
                     is WebDetailMemoContentEvent.ClickSort -> sortSheetState.show()
                     is WebDetailMemoContentEvent.SelectSort -> memoViewModel.select(sort = event.sort)
                 }

@@ -64,7 +64,7 @@ internal class MemoHomeViewModel(
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileUiSubscribed,
-            initialValue = MemoHomeScaffoldFilterUiState(),
+            initialValue = MemoHomeScaffoldFilterUiState(isLoaded = false),
         )
 
     val sort: StateFlow<ListSort>

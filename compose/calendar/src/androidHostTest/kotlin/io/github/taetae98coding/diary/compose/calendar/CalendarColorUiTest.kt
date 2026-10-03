@@ -44,7 +44,7 @@ class CalendarColorUiTest {
     fun `밝은 테마 기본 색상을 제공한다`() {
         var colors: CalendarColor? = null
         composeRule.setContent {
-            colors = CalendarDefault.colors(darkTheme = false)
+            colors = CalendarDefaults.colors(darkTheme = false)
         }
 
         composeRule.runOnIdle {
@@ -60,7 +60,7 @@ class CalendarColorUiTest {
     fun `어두운 테마 기본 색상을 제공한다`() {
         var colors: CalendarColor? = null
         composeRule.setContent {
-            colors = CalendarDefault.colors(darkTheme = true)
+            colors = CalendarDefaults.colors(darkTheme = true)
         }
 
         composeRule.runOnIdle {

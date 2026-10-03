@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.feature.tag.ui.detail.place
 
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -33,6 +34,7 @@ internal fun TagDetailPlaceViewModeButton(
         IconButton(
             onClick = onClick,
             modifier = modifier,
+            colors = IconButtonDefaults.iconButtonColors(contentColor = DiaryTheme.colorScheme.primary),
         ) {
             DiaryCrossfade(targetState = viewMode) { targetViewMode ->
                 when (targetViewMode) {

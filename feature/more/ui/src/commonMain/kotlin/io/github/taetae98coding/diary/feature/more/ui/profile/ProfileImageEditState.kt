@@ -48,9 +48,12 @@ internal class ProfileImageEditState(
 
     val isReady: Boolean get() = photo is ProfileImageEditPhoto.Ready
 
+    // 같은 사진을 다시 고르면 이미지 요청이 같아 다시 읽지 않으므로, 읽은 결과를 그대로 두고 영역만 되돌린다.
     fun changePhoto(uri: FileUri) {
-        this.uri = uri
-        photo = ProfileImageEditPhoto.Loading
+        if (uri != this.uri) {
+            this.uri = uri
+            photo = ProfileImageEditPhoto.Loading
+        }
         zoom = MIN_ZOOM
         centerX = HALF
         centerY = HALF

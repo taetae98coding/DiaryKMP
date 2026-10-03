@@ -2,9 +2,11 @@ package io.github.taetae98coding.diary.feature.calendar.ui.home
 
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.isNotDisplayed
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
@@ -13,12 +15,10 @@ import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeTestFixture.DEFAULT_CANCEL
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeTestFixture.englishTitle
-import kotlinx.datetime.DateTimeUnit
+import io.kotest.matchers.shouldBe
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.YearMonth
-import kotlinx.datetime.minus
-import kotlinx.datetime.plus
 import kotlinx.datetime.todayIn
 import kotlinx.datetime.yearMonth
 import org.junit.Rule
@@ -36,13 +36,7 @@ class CalendarHomeScaffoldShortcutTest {
 
     @Test
     fun `TC-CALENDAR-HOME-FEATURE-010 왼쪽 방향키를 누르면 이전 달로 이동한다`() {
-        val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
-        val previousYearMonth =
-            today.yearMonth.firstDay
-                .minus(1, DateTimeUnit.MONTH)
-                .yearMonth
-
-        setCalendarHomeScaffold()
+        setCalendarHomeScaffold(initialYearMonth = JULY_2026)
 
         composeRule.onRoot().performKeyInput {
             keyDown(Key.DirectionLeft)
@@ -50,18 +44,14 @@ class CalendarHomeScaffoldShortcutTest {
         }
         composeRule.waitForIdle()
 
-        composeRule.onNodeWithText(englishTitle(previousYearMonth)).assertIsDisplayed()
+        composeRule.onNodeWithText(englishTitle(YearMonth(year = 2026, month = Month.JUNE))).assertIsDisplayed()
+        composeRule.onNodeWithContentDescription(JUNE_15_DESCRIPTION).assertIsDisplayed()
+        composeRule.onNodeWithContentDescription(JULY_15_DESCRIPTION).isNotDisplayed() shouldBe true
     }
 
     @Test
     fun `TC-CALENDAR-HOME-FEATURE-011 오른쪽 방향키를 누르면 다음 달로 이동한다`() {
-        val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
-        val nextYearMonth =
-            today.yearMonth.firstDay
-                .plus(1, DateTimeUnit.MONTH)
-                .yearMonth
-
-        setCalendarHomeScaffold()
+        setCalendarHomeScaffold(initialYearMonth = JULY_2026)
 
         composeRule.onRoot().performKeyInput {
             keyDown(Key.DirectionRight)
@@ -69,7 +59,9 @@ class CalendarHomeScaffoldShortcutTest {
         }
         composeRule.waitForIdle()
 
-        composeRule.onNodeWithText(englishTitle(nextYearMonth)).assertIsDisplayed()
+        composeRule.onNodeWithText(englishTitle(YearMonth(year = 2026, month = Month.AUGUST))).assertIsDisplayed()
+        composeRule.onNodeWithContentDescription(AUGUST_15_DESCRIPTION).assertIsDisplayed()
+        composeRule.onNodeWithContentDescription(JULY_15_DESCRIPTION).isNotDisplayed() shouldBe true
     }
 
     @Test
@@ -96,6 +88,7 @@ class CalendarHomeScaffoldShortcutTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(englishTitle(minYearMonth)).assertIsDisplayed()
+        composeRule.onNodeWithContentDescription(JANUARY_15_DESCRIPTION).assertIsDisplayed()
     }
 
     @Test
@@ -124,5 +117,28 @@ class CalendarHomeScaffoldShortcutTest {
                 CalendarHomeScaffold(onEvent = {}, onCalendarEvent = {})
             }
         }
+    }
+
+    private fun setCalendarHomeScaffold(initialYearMonth: YearMonth) {
+        composeRule.setContent {
+            DiaryTheme {
+                CalendarHomeScaffold(
+                    state =
+                        rememberCalendarHomeScaffoldState(
+                            calendarState = rememberCalendarState(initialYearMonth = initialYearMonth),
+                        ),
+                    onEvent = {},
+                    onCalendarEvent = {},
+                )
+            }
+        }
+    }
+
+    companion object {
+        private const val JANUARY_15_DESCRIPTION = "January 15"
+        private const val JUNE_15_DESCRIPTION = "June 15"
+        private const val JULY_15_DESCRIPTION = "July 15"
+        private const val AUGUST_15_DESCRIPTION = "August 15"
+        private val JULY_2026 = YearMonth(year = 2026, month = Month.JULY)
     }
 }

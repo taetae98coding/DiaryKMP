@@ -98,6 +98,37 @@ class ContactDetailScreenEditTest {
     }
 
     @Test
+    fun `TC-CONTACT-DETAIL-FEATURE-019 재생성 직후 다시 조회하는 동안에도 바꾼 입력을 잃지 않는다`() {
+        val stored = storedDetail()
+        val input = editedInput()
+        val restoredUiState = MutableStateFlow<ContactDetailUiState>(ContactDetailUiState.Loading)
+        var viewModel = screenTestViewModel(uiState = MutableStateFlow(ContactDetailUiState.Content(id = FIRST_CONTACT_ID, detail = stored)))
+        val restorationTester = StateRestorationTester(composeRule)
+        prepareContactDetailTabViewModels()
+        restorationTester.setContent {
+            ContactDetailScreenTestHost {
+                ContactDetailScreen(
+                    navigateUp = {},
+                    navigateToMemoAdd = {},
+                    navigateToMemoDetail = {},
+                    id = FIRST_CONTACT_ID,
+                    componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
+                    viewModel = viewModel,
+                )
+            }
+        }
+        composeRule.editAll(input = input)
+
+        viewModel = screenTestViewModel(uiState = restoredUiState)
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { restoredUiState.value = ContactDetailUiState.Content(id = FIRST_CONTACT_ID, detail = stored) }
+        composeRule.waitForIdle()
+
+        composeRule.assertEdited(input = input)
+    }
+
+    @Test
     fun `TC-CONTACT-DETAIL-FEATURE-020 화면을 떠난 뒤 같은 연락처에 다시 들어오면 저장된 내용으로 다시 시작한다`() {
         val stored = storedDetail()
         val input = editedInput()

@@ -12,6 +12,8 @@ import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProvid
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -27,6 +29,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlin.uuid.Uuid
 
 class TagDetailPlaceMapViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -87,7 +90,7 @@ class TagDetailPlaceMapViewModelTest : FunSpec() {
                     viewModel.uiState.test {
                         awaitItem() shouldBe TagDetailPlaceUiState.Loading
                         viewModel.fetchCurrentLocation()
-                        awaitItem() shouldBe TagDetailPlaceUiState.Loaded(defaultProvider = provider, initialCoordinate = null)
+                        awaitItem().shouldBeLoaded(defaultProvider = provider, initialCoordinate = null)
                     }
                 }
             }
@@ -105,8 +108,7 @@ class TagDetailPlaceMapViewModelTest : FunSpec() {
                 viewModel.uiState.test {
                     awaitItem() shouldBe TagDetailPlaceUiState.Loading
                     viewModel.fetchCurrentLocation()
-                    awaitItem() shouldBe
-                        TagDetailPlaceUiState.Loaded(defaultProvider = MapProvider.NAVER, initialCoordinate = coordinate)
+                    awaitItem().shouldBeLoaded(defaultProvider = MapProvider.NAVER, initialCoordinate = coordinate)
                 }
             }
         }
@@ -122,8 +124,7 @@ class TagDetailPlaceMapViewModelTest : FunSpec() {
                 viewModel.uiState.test {
                     awaitItem() shouldBe TagDetailPlaceUiState.Loading
                     viewModel.fetchCurrentLocation()
-                    awaitItem() shouldBe
-                        TagDetailPlaceUiState.Loaded(defaultProvider = MapProvider.NAVER, initialCoordinate = null)
+                    awaitItem().shouldBeLoaded(defaultProvider = MapProvider.NAVER, initialCoordinate = null)
                 }
             }
         }
@@ -141,8 +142,7 @@ class TagDetailPlaceMapViewModelTest : FunSpec() {
                 viewModel.uiState.test {
                     awaitItem() shouldBe TagDetailPlaceUiState.Loading
                     viewModel.fetchCurrentLocation()
-                    awaitItem() shouldBe
-                        TagDetailPlaceUiState.Loaded(defaultProvider = MapProvider.NAVER, initialCoordinate = coordinate)
+                    awaitItem().shouldBeLoaded(defaultProvider = MapProvider.NAVER, initialCoordinate = coordinate)
 
                     repeat(REPEAT_COUNT) { viewModel.fetchCurrentLocation() }
                     advanceUntilIdle()
@@ -171,10 +171,34 @@ class TagDetailPlaceMapViewModelTest : FunSpec() {
                     viewModel.uiState.test {
                         awaitItem() shouldBe TagDetailPlaceUiState.Loading
                         viewModel.fetchCurrentLocation()
-                        awaitItem() shouldBe
-                            TagDetailPlaceUiState.Loaded(defaultProvider = MapProvider.NAVER, initialCoordinate = expected)
+                        awaitItem().shouldBeLoaded(defaultProvider = MapProvider.NAVER, initialCoordinate = expected)
                     }
                 }
+            }
+        }
+
+        test("새 화면에서 확인한 결과는 좌표가 같아도 이전 화면과 다른 확인으로 구분한다") {
+            runTest(mainDispatcher) {
+                val coordinate = fixtureMonkey.giveMeOne<Coordinate>()
+                val fetchIdList =
+                    List(size = 2) {
+                        val viewModel =
+                            viewModel(
+                                defaultMapProvider = flowOf(Result.success(MapProvider.NAVER)),
+                                currentLocation = Result.success(coordinate),
+                            )
+                        var fetchId: Uuid? = null
+
+                        viewModel.uiState.test {
+                            awaitItem() shouldBe TagDetailPlaceUiState.Loading
+                            viewModel.fetchCurrentLocation()
+                            fetchId = awaitItem().shouldBeLoaded(defaultProvider = MapProvider.NAVER, initialCoordinate = coordinate).currentLocationFetchId
+                        }
+
+                        fetchId
+                    }
+
+                fetchIdList[0] shouldNotBe fetchIdList[1]
             }
         }
     }
@@ -184,6 +208,17 @@ class TagDetailPlaceMapViewModelTest : FunSpec() {
 
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
+
+        private fun TagDetailPlaceUiState.shouldBeLoaded(
+            defaultProvider: MapProvider,
+            initialCoordinate: Coordinate?,
+        ): TagDetailPlaceUiState.Loaded {
+            val loaded = shouldBeInstanceOf<TagDetailPlaceUiState.Loaded>()
+            loaded.defaultProvider shouldBe defaultProvider
+            loaded.initialCoordinate shouldBe initialCoordinate
+
+            return loaded
+        }
 
         private fun fetchCurrentLocationUseCase(currentLocation: Result<Coordinate>): FetchCurrentLocationUseCase {
             val useCase = mockk<FetchCurrentLocationUseCase>()

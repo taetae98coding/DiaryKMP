@@ -49,8 +49,7 @@ private fun rememberContactFormState(initialDetail: ContactDetail): ContactFormS
         rememberTextFieldState(
             initialText =
                 initialDetail.height
-                    ?.inCentimeter
-                    ?.toString()
+                    ?.toHeightText()
                     .orEmpty(),
         )
     val footSizeState =

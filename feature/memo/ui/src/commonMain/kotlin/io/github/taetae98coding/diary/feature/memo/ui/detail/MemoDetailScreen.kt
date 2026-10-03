@@ -45,7 +45,7 @@ internal fun MemoDetailScreen(
     navigateToContactDetail: (Uuid) -> Unit,
     navigateToPlaceAdd: (Coordinate?) -> Unit,
     navigateToPlaceDetail: (Uuid) -> Unit,
-    tagAddRequestKey: Uuid,
+    addRequestKey: Uuid,
     componentVisibleProvider: () -> MemoDetailScaffoldComponentVisible,
     isStandalone: Boolean,
     detailViewModel: MemoDetailViewModel,
@@ -71,7 +71,7 @@ internal fun MemoDetailScreen(
     val selectablePagingItems = collectMemoFormSelectablePagingItems(tag = tagViewModel.selectableTagPagingData, web = webViewModel.selectableWebPagingData, contact = contactViewModel.selectableContactPagingData, place = placeViewModel.selectablePlacePagingData)
     val shownContent = rememberShownMemoDetailContent(uiState = uiState)
 
-    MemoDetailEnterEffect(targetId = shownContent?.id, tagAddRequestKey = tagAddRequestKey, tagViewModel = tagViewModel, webViewModel = webViewModel, contactViewModel = contactViewModel, placeViewModel = placeViewModel, placeMapViewModel = placeMapViewModel, geminiViewModel = geminiViewModel)
+    MemoDetailEnterEffect(targetId = shownContent?.id, addRequestKey = addRequestKey, tagViewModel = tagViewModel, webViewModel = webViewModel, contactViewModel = contactViewModel, placeViewModel = placeViewModel, placeMapViewModel = placeMapViewModel, geminiViewModel = geminiViewModel)
 
     key(shownContent?.id) {
         val scaffoldState = rememberMemoDetailFormState(initialDetail = shownContent?.detail ?: MemoDetail.EMPTY)
@@ -152,7 +152,7 @@ private fun MemoDetailTargetEffect(
 @Composable
 private fun MemoDetailEnterEffect(
     targetId: Uuid?,
-    tagAddRequestKey: Uuid,
+    addRequestKey: Uuid,
     tagViewModel: MemoTagViewModel,
     webViewModel: MemoWebViewModel,
     contactViewModel: MemoContactViewModel,
@@ -167,10 +167,10 @@ private fun MemoDetailEnterEffect(
     }
 
     MemoTagAddedResultEffect(
-        requestKey = tagAddRequestKey,
+        requestKey = addRequestKey,
         onTagAdded = tagViewModel::selectTag,
     )
-    MemoWebAddedResultEffect(onWebAdded = webViewModel::selectWeb)
-    MemoContactAddedResultEffect(onContactAdded = contactViewModel::selectContact)
-    MemoPlaceAddedResultEffect(onPlaceAdded = placeViewModel::selectPlace)
+    MemoWebAddedResultEffect(requestKey = addRequestKey, onWebAdded = webViewModel::selectWeb)
+    MemoContactAddedResultEffect(requestKey = addRequestKey, onContactAdded = contactViewModel::selectContact)
+    MemoPlaceAddedResultEffect(requestKey = addRequestKey, onPlaceAdded = placeViewModel::selectPlace)
 }

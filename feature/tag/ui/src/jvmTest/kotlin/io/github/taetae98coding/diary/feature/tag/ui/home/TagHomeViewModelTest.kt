@@ -106,8 +106,19 @@ class TagHomeViewModelTest : FunSpec() {
                 val viewModel = viewModel(getTopLevelTagFilterUseCase = getTopLevelTagFilterUseCase(flowOf(Result.success(true))))
 
                 viewModel.filterUiState.test {
-                    awaitItem() shouldBe TagHomeScaffoldFilterUiState()
+                    awaitItem() shouldBe null
                     awaitItem() shouldBe TagHomeScaffoldFilterUiState(isApplied = true)
+                }
+            }
+        }
+
+        test("필터 선택을 불러오기 전에는 필터 상태를 노출하지 않는다") {
+            runTest(mainDispatcher) {
+                val viewModel = viewModel(getTopLevelTagFilterUseCase = getTopLevelTagFilterUseCase(emptyFlow()))
+
+                viewModel.filterUiState.test {
+                    awaitItem() shouldBe null
+                    expectNoEvents()
                 }
             }
         }
@@ -121,7 +132,7 @@ class TagHomeViewModelTest : FunSpec() {
                     )
 
                 viewModel.filterUiState.test {
-                    awaitItem() shouldBe TagHomeScaffoldFilterUiState()
+                    awaitItem() shouldBe null
                     awaitItem() shouldBe TagHomeScaffoldFilterUiState(isApplied = true)
 
                     isTopLevelOnly.value = false
@@ -139,6 +150,7 @@ class TagHomeViewModelTest : FunSpec() {
                     )
 
                 viewModel.filterUiState.test {
+                    awaitItem() shouldBe null
                     awaitItem() shouldBe TagHomeScaffoldFilterUiState()
                     expectNoEvents()
                 }

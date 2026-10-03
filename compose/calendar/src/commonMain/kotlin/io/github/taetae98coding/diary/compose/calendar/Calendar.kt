@@ -27,7 +27,7 @@ public fun Calendar(
     isWeekClickEnabled: Boolean = false,
     holidayProvider: () -> List<LocalDateRange> = { emptyList() },
     primaryDateProvider: () -> List<LocalDate> = { emptyList() },
-    colors: CalendarColor = CalendarDefault.colors(),
+    colors: CalendarColor = CalendarDefaults.colors(),
     content: CalendarWeekOfMonthGridScope.() -> Unit,
 ) {
     Column(modifier = modifier) {

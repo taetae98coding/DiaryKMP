@@ -5,6 +5,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleFadeVisibility
 import io.github.taetae98coding.diary.compose.core.button.DeleteButton
 import io.github.taetae98coding.diary.compose.core.button.NavigateUpButton
 import io.github.taetae98coding.diary.compose.core.button.OpenInNewButton
@@ -51,7 +52,7 @@ internal fun MusicDetailTopBar(
             val uiState = uiStateProvider()
 
             if (uiState is MusicDetailUiState.Content) {
-                if (uiState.detail.link.isNotBlank()) {
+                DiaryScaleFadeVisibility(visible = uiState.detail.link.isNotBlank()) {
                     OpenInNewButton(
                         onClick = { onEvent(MusicDetailScaffoldEvent.ClickOpenInNew) },
                         contentDescription = stringResource(Res.string.music_detail_open_in_new_button_content_description),

@@ -1,12 +1,17 @@
 package io.github.taetae98coding.diary.feature.tag.ui.finished
 
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
@@ -17,6 +22,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.TAG_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.tag.TAG_COLOR_INDICATOR_TEST_TAG
 import io.github.taetae98coding.diary.compose.tag.list.TagListEvent
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
@@ -30,6 +36,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
+import kotlin.math.roundToInt
 import kotlin.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
@@ -51,6 +59,29 @@ class TagFinishedListScaffoldTest {
         composeRule.onNodeWithText("$EMOJI $FIRST_TITLE").assertExists()
         composeRule.onNodeWithText("$EMOJI $SECOND_TITLE").assertExists()
         composeRule.onAllNodesWithTag(TAG_CARD_TEST_TAG).assertCountEquals(2)
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `목록의 태그 카드에 저장된 컬러를 표시한다`() {
+        val colorArgb = fixtureMonkey.giveMeOne<Int>() or 0xFF000000.toInt()
+        val tag = tag(title = FIRST_TITLE, emoji = EMOJI, color = colorArgb.toLong())
+
+        setTagFinishedListScaffold(tagList = listOf(tag))
+
+        val indicatorBounds =
+            composeRule
+                .onNodeWithTag(
+                    testTag = TAG_COLOR_INDICATOR_TEST_TAG,
+                    useUnmergedTree = true,
+                ).fetchSemanticsNode()
+                .boundsInRoot
+        val pixelMap = composeRule.onRoot().captureToImage().toPixelMap()
+
+        pixelMap[
+            indicatorBounds.center.x.roundToInt(),
+            indicatorBounds.center.y.roundToInt(),
+        ] shouldBe Color(colorArgb)
     }
 
     @Test
@@ -170,10 +201,11 @@ class TagFinishedListScaffoldTest {
         private fun tag(
             title: String,
             emoji: String = "",
+            color: Long = fixtureMonkey.giveMeOne(),
         ): Tag =
             fixtureMonkey
                 .giveMeKotlinBuilder<Tag>()
-                .setExp(Tag::detail, fixtureMonkey.giveMeOne<TagDetail>().copy(emoji = emoji, title = title))
+                .setExp(Tag::detail, fixtureMonkey.giveMeOne<TagDetail>().copy(emoji = emoji, title = title, color = color))
                 .setExp(Tag::isFinished, true)
                 .setExp(Tag::isDeleted, false)
                 .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())

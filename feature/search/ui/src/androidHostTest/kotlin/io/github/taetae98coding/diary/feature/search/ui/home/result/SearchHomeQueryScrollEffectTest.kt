@@ -44,6 +44,21 @@ class SearchHomeQueryScrollEffectTest {
     }
 
     @Test
+    fun `TC-SEARCH-HOME-FEATURE-049 앞뒤 공백만 바꾼 질의도 결과 목록이 맨 위에서 다시 시작한다`() {
+        val query = mutableStateOf(QUERY)
+        val listState = setMemoListWithScrollEffect(query = query)
+
+        listOf("$QUERY ", " $QUERY ").forEach { spacedQuery ->
+            scrollToLast(listState = listState)
+
+            composeRule.runOnIdle { query.value = spacedQuery }
+            composeRule.waitForIdle()
+
+            listState.firstVisibleItemIndex shouldBe 0
+        }
+    }
+
+    @Test
     fun `반영된 질의가 같은 값으로 다시 반영되어도 목록 자리를 유지한다`() {
         val query = mutableStateOf(QUERY)
         val listState = setMemoListWithScrollEffect(query = query)

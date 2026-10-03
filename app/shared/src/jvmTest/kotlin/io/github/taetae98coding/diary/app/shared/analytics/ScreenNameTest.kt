@@ -139,7 +139,7 @@ class ScreenNameTest :
                 CalendarHomeFilterNavKey to "CalendarHomeFilter",
                 CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.DAY, date = fixtureMonkey.giveMeOne<LocalDate>()) to "CalendarTimetable",
                 ChecklistHomeNavKey to "ChecklistHome",
-                ContactAddNavKey to "ContactAdd",
+                ContactAddNavKey() to "ContactAdd",
                 ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "ContactDetail",
                 ContactHomeNavKey to "ContactHome",
                 DDayHomeNavKey to "DDayHome",
