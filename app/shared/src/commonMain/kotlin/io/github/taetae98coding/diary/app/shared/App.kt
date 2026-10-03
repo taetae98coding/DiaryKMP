@@ -25,6 +25,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 public fun App(modifier: Modifier = Modifier) {
     val syncViewModel = koinViewModel<AppSyncViewModel>()
+    val periodicSyncViewModel = koinViewModel<AppPeriodicSyncViewModel>()
     val fcmTokenViewModel = koinViewModel<AppFcmTokenViewModel>()
     val chromeSessionViewModel = koinViewModel<AppChromeSessionViewModel>()
     val playIntegrityViewModel = koinViewModel<AppPlayIntegrityViewModel>()
@@ -39,8 +40,11 @@ public fun App(modifier: Modifier = Modifier) {
     )
     SyncEffect(
         requestSync = syncViewModel::requestSync,
-        schedulePeriodicSync = syncViewModel::schedulePeriodicSync,
-        account = syncViewModel.account,
+        authenticatedAccountId = syncViewModel.authenticatedAccountId,
+    )
+    SchedulePeriodicSyncEffect(
+        schedulePeriodicSync = periodicSyncViewModel::schedulePeriodicSync,
+        account = periodicSyncViewModel.account,
     )
     SubmitFcmTokenEffect(
         submit = fcmTokenViewModel::submit,

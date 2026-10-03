@@ -9,7 +9,6 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
-import io.github.taetae98coding.diary.domain.sync.usecase.SchedulePeriodicSyncUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -31,8 +30,10 @@ import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlin.uuid.Uuid
 
 class AppSyncViewModelTest : FunSpec() {
     private lateinit var mainDispatcher: TestDispatcher
@@ -52,8 +53,8 @@ class AppSyncViewModelTest : FunSpec() {
                 val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
                 val viewModel = viewModel(accountFlow = flowOf(Result.success(account)))
 
-                viewModel.account.test {
-                    awaitItem() shouldBe account
+                viewModel.authenticatedAccountId.test {
+                    awaitItem() shouldBe account.id
                     expectNoEvents()
                 }
             }
@@ -65,26 +66,44 @@ class AppSyncViewModelTest : FunSpec() {
                 val accountFlow = MutableStateFlow<Account>(Account.Guest)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
-                viewModel.account.test {
-                    awaitItem() shouldBe Account.Guest
+                viewModel.authenticatedAccountId.test {
+                    expectNoEvents()
                     accountFlow.value = account
-                    awaitItem() shouldBe account
+                    awaitItem() shouldBe account.id
                     expectNoEvents()
                 }
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-031 로그인 세션의 인증 여부가 확인되면 동기화 계기가 발생한다") {
+        test("TC-DATA-SYNC-DOMAIN-011 TC-SYNC-REFRESH-FEATURE-003 로그아웃한 뒤 같은 계정으로 다시 로그인하면 동기화 계기가 다시 발생한다") {
             runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = false)
-                val refreshedAccount = account.copy(isSessionValid = true)
+                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
                 val accountFlow = MutableStateFlow<Account>(account)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
-                viewModel.account.test {
-                    awaitItem() shouldBe account
+                viewModel.authenticatedAccountId.test {
+                    awaitItem() shouldBe account.id
+                    accountFlow.value = Account.Guest
+                    runCurrent()
+                    expectNoEvents()
+                    accountFlow.value = account
+                    awaitItem() shouldBe account.id
+                    expectNoEvents()
+                }
+            }
+        }
+
+        test("TC-DATA-SYNC-DOMAIN-031 로그인 세션의 인증 여부가 확인되기 전에는 동기화 계기가 발생하지 않고 확인된 뒤 발생한다") {
+            runTest(mainDispatcher) {
+                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = false, isSessionPending = true)
+                val refreshedAccount = account.copy(isSessionValid = true, isSessionPending = false)
+                val accountFlow = MutableStateFlow<Account>(account)
+                val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
+
+                viewModel.authenticatedAccountId.test {
+                    expectNoEvents()
                     accountFlow.value = refreshedAccount
-                    awaitItem() shouldBe refreshedAccount
+                    awaitItem() shouldBe refreshedAccount.id
                     expectNoEvents()
                 }
             }
@@ -97,10 +116,10 @@ class AppSyncViewModelTest : FunSpec() {
                 val accountFlow = MutableStateFlow<Account>(account)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
-                viewModel.account.test {
-                    awaitItem() shouldBe account
+                viewModel.authenticatedAccountId.test {
+                    awaitItem() shouldBe account.id
                     accountFlow.value = otherAccount
-                    awaitItem() shouldBe otherAccount
+                    awaitItem() shouldBe otherAccount.id
                     expectNoEvents()
                 }
             }
@@ -112,9 +131,9 @@ class AppSyncViewModelTest : FunSpec() {
                 val accountFlow = MutableSharedFlow<Account>(replay = 1)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
-                viewModel.account.test {
+                viewModel.authenticatedAccountId.test {
                     accountFlow.emit(account)
-                    awaitItem() shouldBe account
+                    awaitItem() shouldBe account.id
                     accountFlow.emit(account)
                     accountFlow.emit(account)
                     expectNoEvents()
@@ -123,40 +142,43 @@ class AppSyncViewModelTest : FunSpec() {
         }
 
         listOf<Pair<String, (Account.User) -> Account.User>>(
-            "이메일" to { account -> account.copy(email = "changed-${account.email}") },
-            "프로필 이미지" to { account -> account.copy(profileImage = "changed-${account.profileImage}") },
-        ).forEach { (label, change) ->
-            test("TC-DATA-SYNC-DOMAIN-081 같은 계정의 $label 이 바뀌면 동기화 계기가 다시 발생한다") {
+            "세션 확인 중" to { account -> account.copy(isSessionValid = false, isSessionPending = true) },
+            "인증되지 않은 것으로 확인됨" to { account -> account.copy(isSessionValid = false, isSessionPending = false) },
+        ).forEach { (label, invalidate) ->
+            test("TC-DATA-SYNC-DOMAIN-092 TC-SYNC-REFRESH-FEATURE-003 같은 계정의 로그인 세션이 $label 상태였다가 다시 인증되면 동기화 계기가 다시 발생한다") {
                 runTest(mainDispatcher) {
-                    val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
-                    val changedAccount = change(account)
+                    val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true, isSessionPending = false)
                     val accountFlow = MutableStateFlow<Account>(account)
                     val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
-                    viewModel.account.test {
-                        awaitItem() shouldBe account
-                        accountFlow.value = changedAccount
-                        awaitItem() shouldBe changedAccount
+                    viewModel.authenticatedAccountId.test {
+                        awaitItem() shouldBe account.id
+                        accountFlow.value = invalidate(account)
+                        runCurrent()
+                        expectNoEvents()
+                        accountFlow.value = account
+                        awaitItem() shouldBe account.id
                         expectNoEvents()
                     }
                 }
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-081 같은 계정의 로그인 세션이 인증되지 않았다가 다시 인증되면 동기화 계기가 다시 발생한다") {
-            runTest(mainDispatcher) {
-                val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true, isSessionPending = false)
-                val invalidAccount = account.copy(isSessionValid = false)
-                val accountFlow = MutableStateFlow<Account>(account)
-                val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
+        listOf<Pair<String, (Account.User) -> Account.User>>(
+            "이메일" to { account -> account.copy(email = "changed-${account.email}") },
+            "프로필 이미지" to { account -> account.copy(profileImage = "changed-${account.profileImage}") },
+        ).forEach { (label, change) ->
+            test("TC-DATA-SYNC-DOMAIN-093 같은 계정의 $label 만 바뀌면 동기화 계기가 발생하지 않는다") {
+                runTest(mainDispatcher) {
+                    val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+                    val accountFlow = MutableStateFlow<Account>(account)
+                    val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
-                viewModel.account.test {
-                    awaitItem() shouldBe account
-                    accountFlow.value = invalidAccount
-                    awaitItem() shouldBe invalidAccount
-                    accountFlow.value = account
-                    awaitItem() shouldBe account
-                    expectNoEvents()
+                    viewModel.authenticatedAccountId.test {
+                        awaitItem() shouldBe account.id
+                        accountFlow.value = change(account)
+                        expectNoEvents()
+                    }
                 }
             }
         }
@@ -167,10 +189,10 @@ class AppSyncViewModelTest : FunSpec() {
                 val accountFlow = MutableStateFlow(Result.failure<Account>(IllegalStateException("account error")))
                 val viewModel = viewModel(accountFlow = accountFlow)
 
-                viewModel.account.test {
+                viewModel.authenticatedAccountId.test {
                     expectNoEvents()
                     accountFlow.value = Result.success(account)
-                    awaitItem() shouldBe account
+                    awaitItem() shouldBe account.id
                     expectNoEvents()
                 }
             }
@@ -182,48 +204,30 @@ class AppSyncViewModelTest : FunSpec() {
                 val accountFlow = MutableStateFlow<Account>(account)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
-                val firstJob = launch { viewModel.account.collect { } }
+                val firstJob = launch { viewModel.authenticatedAccountId.collect { } }
                 advanceUntilIdle()
                 firstJob.cancelAndJoin()
                 advanceTimeBy(STOP_TIMEOUT_ELAPSED_MILLIS)
 
-                val accountList = mutableListOf<Account>()
-                val secondJob = launch { viewModel.account.collect { value -> accountList.add(value) } }
+                val accountIdList = mutableListOf<Uuid>()
+                val secondJob = launch { viewModel.authenticatedAccountId.collect { value -> accountIdList.add(value) } }
                 advanceUntilIdle()
                 secondJob.cancelAndJoin()
 
-                accountList shouldBe listOf(account)
+                accountIdList shouldBe listOf(account.id)
             }
         }
 
-        listOf(
-            "TC-SYNC-REFRESH-FEATURE-003" to SyncTrigger.ACCOUNT_CONFIRMED,
-            "TC-SYNC-REFRESH-FEATURE-012" to SyncTrigger.ACCOUNT_UPDATED,
-        ).forEach { (caseId, trigger) ->
-            test("$caseId $trigger 계기를 그대로 동기화 요청에 전달한다") {
-                runTest(mainDispatcher) {
-                    val requestSyncUseCase = mockk<RequestSyncUseCase>()
-                    coEvery { requestSyncUseCase(parameter = trigger) } returns Result.success(Unit)
-                    val viewModel = viewModel(requestSyncUseCase = requestSyncUseCase)
-
-                    viewModel.requestSync(trigger = trigger)
-                    advanceUntilIdle()
-
-                    coVerify(exactly = 1) { requestSyncUseCase(parameter = trigger) }
-                }
-            }
-        }
-
-        test("TC-DATA-SYNC-DOMAIN-056 동기화 계기가 발생하면 주기 동기화를 예약한다") {
+        test("TC-SYNC-REFRESH-FEATURE-003 동기화를 요청하면 계정 확인 계기로 요청한다") {
             runTest(mainDispatcher) {
-                val schedulePeriodicSyncUseCase = mockk<SchedulePeriodicSyncUseCase>()
-                coEvery { schedulePeriodicSyncUseCase(parameter = Unit) } returns Result.success(Unit)
-                val viewModel = viewModel(schedulePeriodicSyncUseCase = schedulePeriodicSyncUseCase)
+                val requestSyncUseCase = mockk<RequestSyncUseCase>()
+                coEvery { requestSyncUseCase(parameter = SyncTrigger.ACCOUNT_CONFIRMED) } returns Result.success(Unit)
+                val viewModel = viewModel(requestSyncUseCase = requestSyncUseCase)
 
-                viewModel.schedulePeriodicSync()
+                viewModel.requestSync()
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { schedulePeriodicSyncUseCase(parameter = Unit) }
+                coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.ACCOUNT_CONFIRMED) }
             }
         }
     }
@@ -237,7 +241,6 @@ class AppSyncViewModelTest : FunSpec() {
         private fun viewModel(
             accountFlow: Flow<Result<Account>> = flowOf(Result.success(Account.Guest)),
             requestSyncUseCase: RequestSyncUseCase = mockk(relaxed = true),
-            schedulePeriodicSyncUseCase: SchedulePeriodicSyncUseCase = mockk(relaxed = true),
         ): AppSyncViewModel {
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns accountFlow
@@ -245,7 +248,6 @@ class AppSyncViewModelTest : FunSpec() {
             return AppSyncViewModel(
                 getAccountUseCase = getAccountUseCase,
                 requestSyncUseCase = requestSyncUseCase,
-                schedulePeriodicSyncUseCase = schedulePeriodicSyncUseCase,
             )
         }
 
