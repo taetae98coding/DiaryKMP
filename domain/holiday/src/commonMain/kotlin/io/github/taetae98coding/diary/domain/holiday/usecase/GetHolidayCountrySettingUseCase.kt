@@ -1,7 +1,7 @@
 package io.github.taetae98coding.diary.domain.holiday.usecase
 
+import io.github.taetae98coding.diary.core.model.holiday.HolidayCountrySetting
 import io.github.taetae98coding.diary.domain.core.FlowUseCase
-import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountrySetting
 import io.github.taetae98coding.diary.domain.holiday.repository.DeviceCountryRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
 import kotlinx.coroutines.flow.Flow
@@ -20,7 +20,7 @@ public class GetHolidayCountrySettingUseCase internal constructor(
                 Result.success(
                     HolidayCountrySetting(
                         selectedOptionSet = selectedOptionSet,
-                        deviceCountry = deviceCountryRepository.find(),
+                        deviceCountry = deviceCountryRepository.read(),
                     ),
                 )
             }

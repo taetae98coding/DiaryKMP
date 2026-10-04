@@ -10,6 +10,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.playlist.Music
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
@@ -69,7 +70,7 @@ class PlaylistHomeScaffoldRefreshTest {
                 PlaylistHomeScaffold(
                     onEvent = onEvent,
                     musicPagingItems = musicPagingDataFlow.collectAsLazyPagingItems(),
-                    uiStateProvider = { PlaylistHomeUiState(isRefreshing = isRefreshingProvider()) },
+                    syncUiStateProvider = { SyncRefreshUiState(isRefreshing = isRefreshingProvider()) },
                 )
             }
         }

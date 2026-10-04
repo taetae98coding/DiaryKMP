@@ -66,9 +66,9 @@ class MemoExistenceFilterRepositoryImplTest :
             coEvery { localDataSource.upsertHasPlace(hasPlace = any()) } just Runs
             val repository = MemoExistenceFilterRepositoryImpl(memoExistenceFilterLocalDataSource = localDataSource)
 
-            repository.updateDate(existence = MemoFilterExistence.EXIST)
-            repository.updateTag(existence = MemoFilterExistence.NOT_EXIST)
-            repository.updatePlace(existence = MemoFilterExistence.ALL)
+            repository.upsertDate(existence = MemoFilterExistence.EXIST)
+            repository.upsertTag(existence = MemoFilterExistence.NOT_EXIST)
+            repository.upsertPlace(existence = MemoFilterExistence.ALL)
 
             coVerify(exactly = 1) { localDataSource.upsertHasDate(hasDate = true) }
             coVerify(exactly = 1) { localDataSource.upsertHasTag(hasTag = false) }

@@ -28,15 +28,32 @@ internal class TagHomeFilterViewModel(
                 initialValue = TagHomeFilterUiState(),
             )
 
+    private var isEnableTopLevelOnlyInProgress = false
+    private var isDisableTopLevelOnlyInProgress = false
+
     fun enableTopLevelOnly() {
+        if (isEnableTopLevelOnlyInProgress) return
+        isEnableTopLevelOnlyInProgress = true
+
         viewModelScope.launch {
-            enableTopLevelTagFilterUseCase(parameter = Unit)
+            try {
+                enableTopLevelTagFilterUseCase(parameter = Unit)
+            } finally {
+                isEnableTopLevelOnlyInProgress = false
+            }
         }
     }
 
     fun disableTopLevelOnly() {
+        if (isDisableTopLevelOnlyInProgress) return
+        isDisableTopLevelOnlyInProgress = true
+
         viewModelScope.launch {
-            disableTopLevelTagFilterUseCase(parameter = Unit)
+            try {
+                disableTopLevelTagFilterUseCase(parameter = Unit)
+            } finally {
+                isDisableTopLevelOnlyInProgress = false
+            }
         }
     }
 }

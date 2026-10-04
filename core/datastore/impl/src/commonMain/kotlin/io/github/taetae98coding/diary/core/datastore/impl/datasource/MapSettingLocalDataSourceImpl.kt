@@ -19,7 +19,7 @@ internal class MapSettingLocalDataSourceImpl(
             .data
             .map { setting -> MapProviderLocalEntity.fromPersistentValue(setting.defaultProvider) }
 
-    override suspend fun setDefaultProvider(provider: MapProviderLocalEntity) {
+    override suspend fun upsertDefaultProvider(provider: MapProviderLocalEntity) {
         dataStore.updateData { setting -> setting.copy(defaultProvider = provider.persistentValue) }
     }
 }

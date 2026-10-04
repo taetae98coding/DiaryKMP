@@ -56,7 +56,7 @@ internal fun SettingDownloadScaffold(
                 isNavigateUpVisibleProvider = { componentVisibleProvider().isNavigateUpButtonVisible },
             )
         },
-        snackbarHost = { SnackbarHost(hostState = state.hostState) },
+        snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },
         floatingActionButton = {
             DiaryScaleVisibility(visible = isChanged) {
                 FloatingCheckButton(

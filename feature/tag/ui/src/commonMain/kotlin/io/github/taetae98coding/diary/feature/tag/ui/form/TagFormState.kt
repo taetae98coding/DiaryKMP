@@ -26,7 +26,7 @@ internal class TagFormState(
     val titleState: DiaryTitleInputState,
     val descriptionState: DiaryDescriptionInputState,
     val colorState: DiaryColorInputState,
-    val hostState: SnackbarHostState,
+    val snackbarHostState: SnackbarHostState,
     val linkPickerDialogState: DialogState,
 ) {
     val detail: TagDetail
@@ -68,16 +68,16 @@ private fun rememberTagFormState(
     val titleState = rememberDiaryTitleInputState(initialText = initialTitle)
     val descriptionState = rememberDiaryDescriptionInputState(initialText = initialDescription)
     val colorState = rememberDiaryColorInputState(initialColor = initialColor)
-    val hostState = remember { SnackbarHostState() }
+    val snackbarHostState = remember { SnackbarHostState() }
     val linkPickerDialogState = rememberDialogState()
 
-    return remember(emojiState, titleState, descriptionState, colorState, hostState, linkPickerDialogState) {
+    return remember(emojiState, titleState, descriptionState, colorState, snackbarHostState, linkPickerDialogState) {
         TagFormState(
             emojiState = emojiState,
             titleState = titleState,
             descriptionState = descriptionState,
             colorState = colorState,
-            hostState = hostState,
+            snackbarHostState = snackbarHostState,
             linkPickerDialogState = linkPickerDialogState,
         )
     }

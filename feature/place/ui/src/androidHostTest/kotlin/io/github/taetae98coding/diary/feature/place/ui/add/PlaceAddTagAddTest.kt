@@ -309,24 +309,24 @@ class PlaceAddTagAddTest {
             tagList: List<Tag>,
             tagPagingData: MutableStateFlow<PagingData<Tag>>,
         ): PlaceAddTagViewModel {
-            val tagIdSet = MutableStateFlow(emptySet<Uuid>())
+            val tagIdSet = MutableStateFlow(PlaceAddTagSelectionUiState())
             val uiState = MutableStateFlow(EntityTagInputUiState())
 
             fun reflect() {
-                uiState.value = EntityTagInputUiState(tagList = tagList.filter { tag -> tag.id in tagIdSet.value })
+                uiState.value = EntityTagInputUiState(tagList = tagList.filter { tag -> tag.id in tagIdSet.value.tagIdSet })
             }
 
             return mockk<PlaceAddTagViewModel>(relaxed = true).apply {
                 every { this@apply.uiState } returns uiState
                 every { this@apply.tagPagingData } returns tagPagingData
                 every { this@apply.selectableTagPagingData } returns tagPagingData
-                every { this@apply.tagIdSet } returns tagIdSet
+                every { this@apply.selectionUiState } returns tagIdSet
                 every { add(id = any()) } answers {
-                    tagIdSet.value += firstArg<Uuid>()
+                    tagIdSet.value = tagIdSet.value.copy(tagIdSet = tagIdSet.value.tagIdSet + firstArg<Uuid>())
                     reflect()
                 }
                 every { remove(id = any()) } answers {
-                    tagIdSet.value -= firstArg<Uuid>()
+                    tagIdSet.value = tagIdSet.value.copy(tagIdSet = tagIdSet.value.tagIdSet - firstArg<Uuid>())
                     reflect()
                 }
             }

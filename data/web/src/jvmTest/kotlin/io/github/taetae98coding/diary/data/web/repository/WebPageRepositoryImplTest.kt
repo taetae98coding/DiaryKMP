@@ -4,9 +4,9 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.core.model.web.WebPage
-import io.github.taetae98coding.diary.core.webnetwork.api.datasource.WebPageRemoteDataSource
-import io.github.taetae98coding.diary.core.webnetwork.api.entity.WebPageHeaderRemoteEntity
-import io.github.taetae98coding.diary.core.webnetwork.api.entity.WebPageRemoteEntity
+import io.github.taetae98coding.diary.core.web.network.api.datasource.WebPageRemoteDataSource
+import io.github.taetae98coding.diary.core.web.network.api.entity.WebPageHeaderRemoteEntity
+import io.github.taetae98coding.diary.core.web.network.api.entity.WebPageRemoteEntity
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec

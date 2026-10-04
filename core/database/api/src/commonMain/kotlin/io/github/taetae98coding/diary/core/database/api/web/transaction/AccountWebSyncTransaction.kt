@@ -9,7 +9,7 @@ public interface AccountWebSyncTransaction {
         webList: List<WebLocalEntity>,
     )
 
-    public suspend fun save(
+    public suspend fun upsert(
         accountId: Uuid,
         webList: List<WebLocalEntity>,
         cursor: Long,

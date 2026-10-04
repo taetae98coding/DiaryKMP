@@ -24,6 +24,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.filter.TagFilterEvent
 import io.github.taetae98coding.diary.compose.tag.filter.TagFilterFlexBox
 import io.github.taetae98coding.diary.compose.tag.filter.TagFilterTitleRow
+import io.github.taetae98coding.diary.compose.tag.previewTag
 import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
 import io.github.taetae98coding.diary.core.model.tag.Tag
@@ -31,7 +32,6 @@ import io.github.taetae98coding.diary.feature.memo.ui.Res
 import io.github.taetae98coding.diary.feature.memo.ui.memo_home_filter_tag_inactive_description
 import io.github.taetae98coding.diary.feature.memo.ui.memo_home_filter_tag_title
 import io.github.taetae98coding.diary.feature.memo.ui.memo_home_filter_title
-import io.github.taetae98coding.diary.feature.memo.ui.previewTag
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
 

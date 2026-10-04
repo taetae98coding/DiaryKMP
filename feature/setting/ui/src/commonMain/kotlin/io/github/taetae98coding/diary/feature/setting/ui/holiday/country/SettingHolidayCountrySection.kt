@@ -10,8 +10,8 @@ import io.github.taetae98coding.diary.compose.core.listitem.DiarySegmentedListIt
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
-import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountryOption
-import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountrySetting
+import io.github.taetae98coding.diary.core.model.holiday.HolidayCountryOption
+import io.github.taetae98coding.diary.core.model.holiday.HolidayCountrySetting
 import io.github.taetae98coding.diary.feature.setting.ui.Res
 import io.github.taetae98coding.diary.feature.setting.ui.previewHolidayCountrySetting
 import io.github.taetae98coding.diary.feature.setting.ui.setting_holiday_country_device

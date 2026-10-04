@@ -1,7 +1,7 @@
 package io.github.taetae98coding.diary.data.browser.repository
 
 import app.cash.turbine.test
-import io.github.taetae98coding.diary.core.browsercookie.api.datasource.ChromeCookieLocalDataSource
+import io.github.taetae98coding.diary.core.browser.cookie.api.datasource.ChromeCookieLocalDataSource
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.BrowserSettingLocalDataSource
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
@@ -92,7 +92,7 @@ private fun repository(directoryFlow: MutableStateFlow<String>): ChromeSessionIm
         browserSettingLocalDataSource =
             mockk<BrowserSettingLocalDataSource> {
                 every { getChromeSessionProfileDirectory() } returns directoryFlow
-                coEvery { setChromeSessionProfileDirectory(directory = any()) } coAnswers {
+                coEvery { upsertChromeSessionProfileDirectory(directory = any()) } coAnswers {
                     directoryFlow.value = firstArg()
                 }
             },

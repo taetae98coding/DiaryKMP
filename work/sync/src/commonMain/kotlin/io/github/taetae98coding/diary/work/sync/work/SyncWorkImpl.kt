@@ -40,14 +40,15 @@ internal class SyncWorkImpl(
 ) : SyncWork {
     override suspend fun doWork() {
         try {
-            val accountId =
-                when (val account = awaitConfirmedAccount()) {
+            val account =
+                when (val confirmedAccount = awaitConfirmedAccount()) {
                     is Account.Guest -> return
-                    is Account.User -> account.id
+                    is Account.User -> confirmedAccount
                 }
+            val accountId = account.id
 
             // 플랫폼마다 다른 주기 예약기가 요청 경로를 거치지 않고 이 작업을 바로 실행하므로 준비를 요청 시점이 아니라 여기서 한다.
-            prepareSyncUseCase(parameter = accountId).getOrThrow()
+            prepareSyncUseCase(parameter = account).getOrThrow()
             push(accountId = accountId)
             pull(accountId = accountId)
             accountSyncTimeLocalDataSource.upsert(accountId = accountId, syncedAt = clock.now())

@@ -20,7 +20,7 @@ class DeviceCountryRepositoryImplTest :
                 ).forEach { (locale, expected) ->
                     Locale.setDefault(locale)
 
-                    DeviceCountryRepositoryImpl().find() shouldBe expected
+                    DeviceCountryRepositoryImpl().read() shouldBe expected
                 }
             } finally {
                 Locale.setDefault(original)
@@ -39,7 +39,7 @@ class DeviceCountryRepositoryImplTest :
                 ).forEach { (languageTag, expected) ->
                     Locale.setDefault(Locale.forLanguageTag(languageTag))
 
-                    DeviceCountryRepositoryImpl().find() shouldBe expected
+                    DeviceCountryRepositoryImpl().read() shouldBe expected
                 }
             } finally {
                 Locale.setDefault(original)

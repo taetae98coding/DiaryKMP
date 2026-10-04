@@ -1,8 +1,10 @@
 package io.github.taetae98coding.diary.compose.timetable
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntSize
@@ -85,6 +87,9 @@ internal class TimetableSelectState {
         selection = null
     }
 }
+
+@Composable
+internal fun rememberTimetableSelectState(): TimetableSelectState = remember { TimetableSelectState() }
 
 private fun timeOfMinute(minuteOfDay: Int): LocalTime =
     if (minuteOfDay >= MINUTES_PER_DAY) {

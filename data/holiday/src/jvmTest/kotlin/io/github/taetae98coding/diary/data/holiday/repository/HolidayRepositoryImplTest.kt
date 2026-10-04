@@ -11,7 +11,7 @@ import io.github.taetae98coding.diary.core.calendar.network.api.datasource.Holid
 import io.github.taetae98coding.diary.core.calendar.network.api.entity.HolidayCountryRemoteEntity
 import io.github.taetae98coding.diary.core.calendar.network.api.entity.HolidayRemoteEntity
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
-import io.github.taetae98coding.diary.data.holiday.datasource.HolidayDirtyDataSource
+import io.github.taetae98coding.diary.data.holiday.cache.HolidayFetchedKeySet
 import io.github.taetae98coding.diary.data.holiday.mapper.toDomain
 import io.github.taetae98coding.diary.data.holiday.mapper.toLocal
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -55,7 +55,7 @@ class HolidayRepositoryImplTest :
                     holidayRemoteDataSource = remoteDataSource,
                     holidayLocalDataSource = localDataSource,
                     holidayTransaction = transaction,
-                    holidayDirtyDataSource = HolidayDirtyDataSource(),
+                    holidayFetchedKeySet = HolidayFetchedKeySet(),
                 )
 
             repository.fetch(country = HolidayCountry.KOREA, year = year) shouldBe expectedHolidayList.map { local -> local.toDomain() }
@@ -89,7 +89,7 @@ class HolidayRepositoryImplTest :
                     holidayRemoteDataSource = remoteDataSource,
                     holidayLocalDataSource = localDataSource,
                     holidayTransaction = transaction,
-                    holidayDirtyDataSource = HolidayDirtyDataSource(),
+                    holidayFetchedKeySet = HolidayFetchedKeySet(),
                 )
 
             repository.fetch(country = HolidayCountry.KOREA, year = year) shouldBe emptyList()
@@ -110,7 +110,7 @@ class HolidayRepositoryImplTest :
                     holidayRemoteDataSource = remoteDataSource,
                     holidayLocalDataSource = localDataSource,
                     holidayTransaction = transaction,
-                    holidayDirtyDataSource = HolidayDirtyDataSource(),
+                    holidayFetchedKeySet = HolidayFetchedKeySet(),
                 )
 
             repository.fetch(country = HolidayCountry.KOREA, year = year)
@@ -135,7 +135,7 @@ class HolidayRepositoryImplTest :
                     holidayRemoteDataSource = remoteDataSource,
                     holidayLocalDataSource = localDataSource,
                     holidayTransaction = transaction,
-                    holidayDirtyDataSource = HolidayDirtyDataSource(),
+                    holidayFetchedKeySet = HolidayFetchedKeySet(),
                 )
 
             repository.fetch(country = HolidayCountry.KOREA, year = year)
@@ -156,7 +156,7 @@ class HolidayRepositoryImplTest :
                     holidayRemoteDataSource = remoteDataSource,
                     holidayLocalDataSource = localDataSource,
                     holidayTransaction = transaction,
-                    holidayDirtyDataSource = HolidayDirtyDataSource(),
+                    holidayFetchedKeySet = HolidayFetchedKeySet(),
                 )
 
             val actual =
@@ -189,7 +189,7 @@ class HolidayRepositoryImplTest :
                     holidayRemoteDataSource = remoteDataSource,
                     holidayLocalDataSource = localDataSource,
                     holidayTransaction = transaction,
-                    holidayDirtyDataSource = HolidayDirtyDataSource(),
+                    holidayFetchedKeySet = HolidayFetchedKeySet(),
                 )
 
             val actual =
@@ -221,7 +221,7 @@ class HolidayRepositoryImplTest :
                     holidayRemoteDataSource = remoteDataSource,
                     holidayLocalDataSource = localDataSource,
                     holidayTransaction = transaction,
-                    holidayDirtyDataSource = HolidayDirtyDataSource(),
+                    holidayFetchedKeySet = HolidayFetchedKeySet(),
                 )
 
             repository.fetch(country = HolidayCountry.KOREA, year = year)
@@ -257,7 +257,7 @@ class HolidayRepositoryImplTest :
                     holidayRemoteDataSource = remoteDataSource,
                     holidayLocalDataSource = localDataSource,
                     holidayTransaction = transaction,
-                    holidayDirtyDataSource = HolidayDirtyDataSource(),
+                    holidayFetchedKeySet = HolidayFetchedKeySet(),
                 )
             previousRepository.fetch(country = HolidayCountry.KOREA, year = year)
 
@@ -267,7 +267,7 @@ class HolidayRepositoryImplTest :
                     holidayRemoteDataSource = remoteDataSource,
                     holidayLocalDataSource = localDataSource,
                     holidayTransaction = transaction,
-                    holidayDirtyDataSource = HolidayDirtyDataSource(),
+                    holidayFetchedKeySet = HolidayFetchedKeySet(),
                 )
             repository.fetch(country = HolidayCountry.KOREA, year = year)
 
@@ -295,7 +295,7 @@ class HolidayRepositoryImplTest :
                     holidayRemoteDataSource = remoteDataSource,
                     holidayLocalDataSource = localDataSource,
                     holidayTransaction = transaction,
-                    holidayDirtyDataSource = HolidayDirtyDataSource(),
+                    holidayFetchedKeySet = HolidayFetchedKeySet(),
                 )
 
             shouldThrowExactly<TestException> {
@@ -334,7 +334,7 @@ class HolidayRepositoryImplTest :
                     holidayRemoteDataSource = remoteDataSource,
                     holidayLocalDataSource = localDataSource,
                     holidayTransaction = transaction,
-                    holidayDirtyDataSource = HolidayDirtyDataSource(),
+                    holidayFetchedKeySet = HolidayFetchedKeySet(),
                 )
 
             shouldThrowExactly<TestException> {
@@ -366,7 +366,7 @@ class HolidayRepositoryImplTest :
                     holidayRemoteDataSource = remoteDataSource,
                     holidayLocalDataSource = localDataSource,
                     holidayTransaction = transaction,
-                    holidayDirtyDataSource = HolidayDirtyDataSource(),
+                    holidayFetchedKeySet = HolidayFetchedKeySet(),
                 )
 
             repository.fetch(country = HolidayCountry.KOREA, year = year)
@@ -391,19 +391,19 @@ class HolidayRepositoryImplTest :
             every { localDataSource.get(countrySet = setOf(HolidayCountryLocalEntity.KOREA), year = year) } returns flowOf(remoteHolidayList.map { remote -> remote.toLocal(country = HolidayCountry.KOREA, year = year) })
             val transaction = mockk<HolidayTransaction>()
             coEvery { transaction.upsert(country = HolidayCountryLocalEntity.KOREA, year = year, holidayList = any()) } just Runs
-            val dirtyDataSource = HolidayDirtyDataSource()
+            val fetchedKeySet = HolidayFetchedKeySet()
 
             HolidayRepositoryImpl(
                 holidayRemoteDataSource = remoteDataSource,
                 holidayLocalDataSource = localDataSource,
                 holidayTransaction = transaction,
-                holidayDirtyDataSource = dirtyDataSource,
+                holidayFetchedKeySet = fetchedKeySet,
             ).fetch(country = HolidayCountry.KOREA, year = year)
             HolidayRepositoryImpl(
                 holidayRemoteDataSource = remoteDataSource,
                 holidayLocalDataSource = localDataSource,
                 holidayTransaction = transaction,
-                holidayDirtyDataSource = dirtyDataSource,
+                holidayFetchedKeySet = fetchedKeySet,
             ).fetch(country = HolidayCountry.KOREA, year = year)
 
             coVerify(exactly = 1) { remoteDataSource.get(country = HolidayCountryRemoteEntity.KOREA, year = year) }
@@ -420,7 +420,7 @@ class HolidayRepositoryImplTest :
                     holidayRemoteDataSource = mockk(),
                     holidayLocalDataSource = localDataSource,
                     holidayTransaction = mockk(),
-                    holidayDirtyDataSource = HolidayDirtyDataSource(),
+                    holidayFetchedKeySet = HolidayFetchedKeySet(),
                 )
 
             repository.get(countrySet = setOf(HolidayCountry.KOREA)).test {
@@ -438,7 +438,7 @@ class HolidayRepositoryImplTest :
                     holidayRemoteDataSource = mockk(),
                     holidayLocalDataSource = localDataSource,
                     holidayTransaction = mockk(),
-                    holidayDirtyDataSource = HolidayDirtyDataSource(),
+                    holidayFetchedKeySet = HolidayFetchedKeySet(),
                 )
 
             repository.get(countrySet = setOf(HolidayCountry.KOREA)).test {
@@ -457,7 +457,7 @@ class HolidayRepositoryImplTest :
                     holidayRemoteDataSource = mockk(),
                     holidayLocalDataSource = localDataSource,
                     holidayTransaction = transaction,
-                    holidayDirtyDataSource = HolidayDirtyDataSource(),
+                    holidayFetchedKeySet = HolidayFetchedKeySet(),
                 )
 
             repository.get(countrySet = setOf(HolidayCountry.KOREA), year = year).test {
@@ -476,7 +476,7 @@ class HolidayRepositoryImplTest :
                     holidayRemoteDataSource = mockk(),
                     holidayLocalDataSource = localDataSource,
                     holidayTransaction = transaction,
-                    holidayDirtyDataSource = HolidayDirtyDataSource(),
+                    holidayFetchedKeySet = HolidayFetchedKeySet(),
                 )
 
             repository.get(countrySet = setOf(HolidayCountry.KOREA), year = year).test {
@@ -499,7 +499,7 @@ class HolidayRepositoryImplTest :
                         holidayRemoteDataSource = remoteDataSource,
                         holidayLocalDataSource = mockk(),
                         holidayTransaction = transaction,
-                        holidayDirtyDataSource = HolidayDirtyDataSource(),
+                        holidayFetchedKeySet = HolidayFetchedKeySet(),
                     )
 
                 repository.fetch(country = country, year = year)
@@ -522,7 +522,7 @@ class HolidayRepositoryImplTest :
                     holidayRemoteDataSource = remoteDataSource,
                     holidayLocalDataSource = mockk(),
                     holidayTransaction = transaction,
-                    holidayDirtyDataSource = HolidayDirtyDataSource(),
+                    holidayFetchedKeySet = HolidayFetchedKeySet(),
                 )
 
             repository.fetch(country = HolidayCountry.KOREA, year = year)
@@ -555,7 +555,7 @@ class HolidayRepositoryImplTest :
                     holidayRemoteDataSource = remoteDataSource,
                     holidayLocalDataSource = mockk(),
                     holidayTransaction = transaction,
-                    holidayDirtyDataSource = HolidayDirtyDataSource(),
+                    holidayFetchedKeySet = HolidayFetchedKeySet(),
                 )
 
             repository.fetch(country = HolidayCountry.KOREA, year = year)
@@ -588,7 +588,7 @@ class HolidayRepositoryImplTest :
                     holidayRemoteDataSource = mockk(),
                     holidayLocalDataSource = localDataSource,
                     holidayTransaction = mockk(),
-                    holidayDirtyDataSource = HolidayDirtyDataSource(),
+                    holidayFetchedKeySet = HolidayFetchedKeySet(),
                 )
             val countrySet = setOf(HolidayCountry.KOREA, HolidayCountry.UNITED_STATES)
 

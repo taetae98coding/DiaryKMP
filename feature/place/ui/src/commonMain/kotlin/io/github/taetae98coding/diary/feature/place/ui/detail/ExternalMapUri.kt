@@ -2,7 +2,7 @@ package io.github.taetae98coding.diary.feature.place.ui.detail
 
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
-import io.github.taetae98coding.diary.domain.place.toPlaceCoordinateText
+import io.github.taetae98coding.diary.core.model.place.toPlaceCoordinateText
 import io.github.taetae98coding.diary.library.kotlin.text.encodeUriComponent
 
 private const val NAVER_MAP_WEB_URI = "https://map.naver.com/"

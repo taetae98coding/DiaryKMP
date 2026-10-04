@@ -10,10 +10,10 @@ import io.github.taetae98coding.diary.compose.core.chip.DiaryAddChip
 import io.github.taetae98coding.diary.compose.core.layout.DiaryChipFlexBox
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.tag.previewTag
 import io.github.taetae98coding.diary.feature.memo.ui.Res
 import io.github.taetae98coding.diary.feature.memo.ui.memo_tag_select_action
 import io.github.taetae98coding.diary.feature.memo.ui.memo_tag_select_label
-import io.github.taetae98coding.diary.feature.memo.ui.previewTag
 import org.jetbrains.compose.resources.stringResource
 import kotlin.uuid.Uuid
 

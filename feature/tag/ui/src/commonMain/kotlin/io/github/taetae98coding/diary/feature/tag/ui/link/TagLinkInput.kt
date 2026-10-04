@@ -8,7 +8,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.feature.tag.ui.previewTag
+import io.github.taetae98coding.diary.compose.tag.previewTag
 import kotlin.uuid.Uuid
 
 @Composable

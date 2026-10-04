@@ -86,12 +86,12 @@ class AppFcmTokenViewModelTest : FunSpec() {
 
                 viewModel.uiState.confirmedAccount().test {
                     awaitItem() shouldBe account
-                    viewModel.submit()
+                    viewModel.submit(account)
                     advanceUntilIdle()
 
                     accountFlow.value = Account.Guest
                     awaitItem() shouldBe Account.Guest
-                    viewModel.submit()
+                    viewModel.submit(Account.Guest)
                     advanceUntilIdle()
                     expectNoEvents()
                 }
@@ -237,10 +237,43 @@ class AppFcmTokenViewModelTest : FunSpec() {
                 coEvery { submitFcmTokenUseCase(parameter = Unit) } returns Result.success(Unit)
                 val viewModel = viewModel(submitFcmTokenUseCase = submitFcmTokenUseCase)
 
-                viewModel.submit()
+                viewModel.submit(Account.Guest)
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { submitFcmTokenUseCase(parameter = Unit) }
+            }
+        }
+
+        test("진행 중인 제출과 다른 계정의 제출 요청은 기다리지 않고 바로 제출 UseCase를 실행한다") {
+            runTest(mainDispatcher) {
+                val submitFcmTokenUseCase = mockk<SubmitFcmTokenUseCase>()
+                coEvery { submitFcmTokenUseCase(parameter = Unit) } coAnswers { awaitCancellation() }
+                val viewModel = viewModel(submitFcmTokenUseCase = submitFcmTokenUseCase)
+
+                viewModel.submit(Account.Guest)
+                viewModel.submit(fixtureMonkey.giveMeOne<Account.User>())
+                advanceUntilIdle()
+
+                coVerify(exactly = 2) { submitFcmTokenUseCase(parameter = Unit) }
+            }
+        }
+
+        test("토큰 제출 요청이 반복되어도 진행 중에는 제출 UseCase를 한 번만 실행하고 끝나면 다시 제출할 수 있다") {
+            runTest(mainDispatcher) {
+                val submitFcmTokenUseCase = mockk<SubmitFcmTokenUseCase>()
+                coEvery { submitFcmTokenUseCase(parameter = Unit) } returns Result.success(Unit)
+                val viewModel = viewModel(submitFcmTokenUseCase = submitFcmTokenUseCase)
+
+                viewModel.submit(Account.Guest)
+                viewModel.submit(Account.Guest)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { submitFcmTokenUseCase(parameter = Unit) }
+
+                viewModel.submit(Account.Guest)
+                advanceUntilIdle()
+
+                coVerify(exactly = 2) { submitFcmTokenUseCase(parameter = Unit) }
             }
         }
     }

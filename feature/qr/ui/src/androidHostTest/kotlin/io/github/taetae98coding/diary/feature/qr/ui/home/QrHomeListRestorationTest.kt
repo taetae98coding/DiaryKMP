@@ -13,6 +13,7 @@ import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.qr.Qr
+import io.github.taetae98coding.diary.feature.qr.ui.refreshableList
 import io.github.taetae98coding.diary.feature.qr.ui.resetAndroidUiDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
@@ -47,7 +48,7 @@ class QrHomeListRestorationTest {
                 )
             }
         }
-        composeRule.onNodeWithTag(QR_HOME_LIST_TEST_TAG).performScrollToIndex(RESTORATION_SCROLL_INDEX)
+        composeRule.refreshableList().performScrollToIndex(RESTORATION_SCROLL_INDEX)
         composeRule.onNodeWithText(qrList[RESTORATION_SCROLL_INDEX].detail.title).assertIsDisplayed()
         composeRule.onNodeWithText(qrList.first().detail.title).assertDoesNotExist()
 
@@ -73,7 +74,7 @@ class QrHomeListRestorationTest {
                 }
             }
         }
-        composeRule.onNodeWithTag(QR_HOME_LIST_TEST_TAG).performScrollToIndex(RESTORATION_SCROLL_INDEX)
+        composeRule.refreshableList().performScrollToIndex(RESTORATION_SCROLL_INDEX)
         composeRule.onNodeWithText(qrList[RESTORATION_SCROLL_INDEX].detail.title).assertIsDisplayed()
 
         composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }

@@ -4,11 +4,11 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.FileUploadContent
 import io.github.taetae98coding.diary.core.model.file.FileUri
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.account.usecase.requireAccount
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.file.FileUploadManager
 import io.github.taetae98coding.diary.domain.file.exception.FileNotSelectedException
 import io.github.taetae98coding.diary.domain.file.exception.FileTitleBlankException
-import kotlinx.coroutines.flow.first
 import org.koin.core.annotation.Factory
 
 @Factory
@@ -20,7 +20,7 @@ public class RequestFileUploadUseCase internal constructor(
         if (parameter.title.isBlank()) throw FileTitleBlankException()
 
         val uri = parameter.uri ?: throw FileNotSelectedException()
-        val account = getAccountUseCase(parameter = Unit).first().getOrThrow()
+        val account = getAccountUseCase.requireAccount()
 
         check(account is Account.User) { "Only a signed-in account can upload a file." }
 

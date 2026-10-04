@@ -28,7 +28,7 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-public fun DiaryListSortBottomSheetContent(
+internal fun DiaryListSortBottomSheetContent(
     onSelect: (ListSort) -> Unit,
     modifier: Modifier = Modifier,
     sortList: List<ListSort> = listSortList,

@@ -33,7 +33,7 @@ internal class SettingGeminiViewModel(
             isInProgress,
         ) { result, isInProgress ->
             result.fold(
-                onSuccess = { setting -> SettingGeminiUiState.Loaded(setting = setting, isInProgress = isInProgress) },
+                onSuccess = { setting -> SettingGeminiUiState.Content(setting = setting, isInProgress = isInProgress) },
                 onFailure = { SettingGeminiUiState.Loading },
             )
         }.stateIn(

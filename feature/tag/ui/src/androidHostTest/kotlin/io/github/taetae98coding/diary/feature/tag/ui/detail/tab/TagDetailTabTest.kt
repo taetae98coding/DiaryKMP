@@ -10,6 +10,7 @@ import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
@@ -45,8 +46,6 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.colorHexText
 import io.github.taetae98coding.diary.feature.tag.ui.detail.descriptionInput
 import io.github.taetae98coding.diary.feature.tag.ui.detail.emojiInput
 import io.github.taetae98coding.diary.feature.tag.ui.detail.inputEmoji
-import io.github.taetae98coding.diary.feature.tag.ui.detail.memo.TAG_DETAIL_MEMO_LIST_TEST_TAG
-import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TAG_DETAIL_PLACE_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.tag.ui.detail.prepareTagDetailTabViewModels
 import io.github.taetae98coding.diary.feature.tag.ui.detail.screenTestViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.selectTagDetailTab
@@ -54,9 +53,9 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.setTagDetailScreen
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.titleInput
-import io.github.taetae98coding.diary.feature.tag.ui.detail.web.TAG_DETAIL_WEB_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureId
 import io.github.taetae98coding.diary.feature.tag.ui.form.rememberTagDetailFormState
+import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagPlace
 import io.github.taetae98coding.diary.feature.tag.ui.tagWeb
@@ -81,9 +80,7 @@ class TagDetailTabTest {
 
         composeRule.onNodeWithContentDescription(DEFAULT_DETAIL_TAB_DESCRIPTION).assertIsSelected()
         composeRule.titleInput().assertExists()
-        composeRule.onNodeWithTag(TAG_DETAIL_MEMO_LIST_TEST_TAG).assertDoesNotExist()
-        composeRule.onNodeWithTag(TAG_DETAIL_WEB_LIST_TEST_TAG).assertDoesNotExist()
-        composeRule.onNodeWithTag(TAG_DETAIL_PLACE_LIST_TEST_TAG).assertDoesNotExist()
+        composeRule.refreshableList().assertDoesNotExist()
     }
 
     @Test
@@ -104,7 +101,9 @@ class TagDetailTabTest {
         selectTab(DEFAULT_MEMO_TAB_DESCRIPTION)
 
         composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
-        composeRule.onNodeWithTag(TAG_DETAIL_MEMO_LIST_TEST_TAG).assertExists()
+        composeRule.refreshableList().assertExists()
+        composeRule.onNodeWithText(WEB_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(PLACE_TITLE).assertDoesNotExist()
     }
 
     @Test
@@ -114,8 +113,8 @@ class TagDetailTabTest {
         selectTab(DEFAULT_WEB_TAB_DESCRIPTION)
 
         composeRule.onNodeWithContentDescription(DEFAULT_WEB_TAB_DESCRIPTION).assertIsSelected()
-        composeRule.onNodeWithTag(TAG_DETAIL_WEB_LIST_TEST_TAG).assertExists()
-        composeRule.onNodeWithTag(TAG_DETAIL_MEMO_LIST_TEST_TAG).assertDoesNotExist()
+        composeRule.refreshableList().assertExists()
+        composeRule.onNodeWithText(PLACE_TITLE).assertDoesNotExist()
     }
 
     @Test
@@ -125,8 +124,8 @@ class TagDetailTabTest {
         selectTab(DEFAULT_PLACE_TAB_DESCRIPTION)
 
         composeRule.onNodeWithContentDescription(DEFAULT_PLACE_TAB_DESCRIPTION).assertIsSelected()
-        composeRule.onNodeWithTag(TAG_DETAIL_PLACE_LIST_TEST_TAG).assertExists()
-        composeRule.onNodeWithTag(TAG_DETAIL_WEB_LIST_TEST_TAG).assertDoesNotExist()
+        composeRule.refreshableList().assertExists()
+        composeRule.onNodeWithText(WEB_TITLE).assertDoesNotExist()
     }
 
     @Test
@@ -137,8 +136,8 @@ class TagDetailTabTest {
         selectTab(DEFAULT_PLACE_TAB_DESCRIPTION)
 
         composeRule.onNodeWithContentDescription(DEFAULT_PLACE_TAB_DESCRIPTION).assertIsSelected()
-        composeRule.onNodeWithTag(TAG_DETAIL_PLACE_LIST_TEST_TAG).assertExists()
-        composeRule.onNodeWithTag(TAG_DETAIL_MEMO_LIST_TEST_TAG).assertDoesNotExist()
+        composeRule.refreshableList().assertExists()
+        composeRule.onNodeWithText(WEB_TITLE).assertDoesNotExist()
     }
 
     @Test
@@ -149,7 +148,7 @@ class TagDetailTabTest {
         selectTab(DEFAULT_DETAIL_TAB_DESCRIPTION)
 
         composeRule.onNodeWithContentDescription(DEFAULT_DETAIL_TAB_DESCRIPTION).assertIsSelected()
-        composeRule.onNodeWithTag(TAG_DETAIL_MEMO_LIST_TEST_TAG).assertDoesNotExist()
+        composeRule.refreshableList().assertDoesNotExist()
         composeRule.titleInput().assertExists()
     }
 
@@ -161,7 +160,7 @@ class TagDetailTabTest {
         selectTab(DEFAULT_DETAIL_TAB_DESCRIPTION)
 
         composeRule.onNodeWithContentDescription(DEFAULT_DETAIL_TAB_DESCRIPTION).assertIsSelected()
-        composeRule.onNodeWithTag(TAG_DETAIL_PLACE_LIST_TEST_TAG).assertDoesNotExist()
+        composeRule.refreshableList().assertDoesNotExist()
         composeRule.titleInput().assertExists()
     }
 
@@ -201,7 +200,7 @@ class TagDetailTabTest {
         selectTab(DEFAULT_MEMO_TAB_DESCRIPTION)
 
         composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
-        composeRule.onNodeWithTag(TAG_DETAIL_MEMO_LIST_TEST_TAG).assertExists()
+        composeRule.refreshableList().assertExists()
     }
 
     @Test
@@ -211,7 +210,7 @@ class TagDetailTabTest {
         selectTab(DEFAULT_WEB_TAB_DESCRIPTION)
 
         composeRule.onNodeWithContentDescription(DEFAULT_WEB_TAB_DESCRIPTION).assertIsSelected()
-        composeRule.onNodeWithTag(TAG_DETAIL_WEB_LIST_TEST_TAG).assertExists()
+        composeRule.refreshableList().assertExists()
     }
 
     @Test
@@ -221,7 +220,7 @@ class TagDetailTabTest {
         selectTab(DEFAULT_PLACE_TAB_DESCRIPTION)
 
         composeRule.onNodeWithContentDescription(DEFAULT_PLACE_TAB_DESCRIPTION).assertIsSelected()
-        composeRule.onNodeWithTag(TAG_DETAIL_PLACE_LIST_TEST_TAG).assertExists()
+        composeRule.refreshableList().assertExists()
     }
 
     @Test
@@ -275,15 +274,15 @@ class TagDetailTabTest {
     fun `TC-TAG-DETAIL-FEATURE-060 완료된 태그의 TagDetail 화면에서도 네 탭을 모두 사용할 수 있다`() {
         setTagDetailScaffold(uiStateProvider = { tagDetailUiState(detail = tagDetail(TAG_TITLE), isFinished = true) })
 
-        mapOf(
-            DEFAULT_MEMO_TAB_DESCRIPTION to TAG_DETAIL_MEMO_LIST_TEST_TAG,
-            DEFAULT_WEB_TAB_DESCRIPTION to TAG_DETAIL_WEB_LIST_TEST_TAG,
-            DEFAULT_PLACE_TAB_DESCRIPTION to TAG_DETAIL_PLACE_LIST_TEST_TAG,
-        ).forEach { (tabDescription, listTestTag) ->
+        listOf(
+            DEFAULT_MEMO_TAB_DESCRIPTION,
+            DEFAULT_WEB_TAB_DESCRIPTION,
+            DEFAULT_PLACE_TAB_DESCRIPTION,
+        ).forEach { tabDescription ->
             selectTab(tabDescription)
 
             composeRule.onNodeWithContentDescription(tabDescription).assertIsSelected()
-            composeRule.onNodeWithTag(listTestTag).assertExists()
+            composeRule.refreshableList().assertExists()
         }
 
         selectTab(DEFAULT_DETAIL_TAB_DESCRIPTION)

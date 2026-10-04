@@ -71,7 +71,8 @@ class TagAddLinkViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem().linkedTagList.shouldBeEmpty()
-                    viewModel.linkedTagIdSet.value.shouldBeEmpty()
+                    viewModel.selectionUiState.value.linkedTagIdSet
+                        .shouldBeEmpty()
                 }
             }
         }
@@ -87,7 +88,7 @@ class TagAddLinkViewModelTest : FunSpec() {
                     viewModel.link(id = tag.id)
 
                     awaitItem().linkedTagList shouldBe listOf(tag)
-                    viewModel.linkedTagIdSet.value shouldBe setOf(tag.id)
+                    viewModel.selectionUiState.value.linkedTagIdSet shouldBe setOf(tag.id)
                 }
             }
         }
@@ -110,7 +111,7 @@ class TagAddLinkViewModelTest : FunSpec() {
                     viewModel.unlink(id = firstTag.id)
 
                     awaitItem().linkedTagList shouldBe listOf(secondTag)
-                    viewModel.linkedTagIdSet.value shouldBe setOf(secondTag.id)
+                    viewModel.selectionUiState.value.linkedTagIdSet shouldBe setOf(secondTag.id)
                 }
             }
         }
@@ -128,7 +129,8 @@ class TagAddLinkViewModelTest : FunSpec() {
                     viewModel.clear()
 
                     awaitItem().linkedTagList.shouldBeEmpty()
-                    viewModel.linkedTagIdSet.value.shouldBeEmpty()
+                    viewModel.selectionUiState.value.linkedTagIdSet
+                        .shouldBeEmpty()
                 }
             }
         }
@@ -200,7 +202,7 @@ class TagAddLinkViewModelTest : FunSpec() {
                     selectableTagList.value = emptyList()
 
                     awaitItem().linkedTagList.shouldBeEmpty()
-                    viewModel.linkedTagIdSet.value shouldBe setOf(tag.id)
+                    viewModel.selectionUiState.value.linkedTagIdSet shouldBe setOf(tag.id)
                 }
             }
         }

@@ -1,9 +1,10 @@
 package io.github.taetae98coding.diary.domain.holiday.usecase
 
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
-import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountryOption
+import io.github.taetae98coding.diary.core.model.holiday.HolidayCountryOption
 import io.github.taetae98coding.diary.domain.holiday.repository.DeviceCountryRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
@@ -29,6 +30,6 @@ internal fun countrySettingUseCase(
             },
         deviceCountryRepository =
             mockk<DeviceCountryRepository>().also { repository ->
-                every { repository.find() } returns deviceCountry
+                coEvery { repository.read() } returns deviceCountry
             },
     )

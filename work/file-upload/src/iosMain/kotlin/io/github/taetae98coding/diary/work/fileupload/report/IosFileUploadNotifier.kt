@@ -1,9 +1,8 @@
 package io.github.taetae98coding.diary.work.fileupload.report
 
 import io.github.taetae98coding.diary.core.navigation.ScreenDeepLink
+import io.github.taetae98coding.diary.library.locale.DeviceLocale
 import org.koin.core.annotation.Factory
-import platform.Foundation.NSLocale
-import platform.Foundation.preferredLanguages
 import platform.UserNotifications.UNMutableNotificationContent
 import platform.UserNotifications.UNNotificationRequest
 import platform.UserNotifications.UNUserNotificationCenter
@@ -31,7 +30,7 @@ internal class IosFileUploadNotifier : FileUploadNotifier {
         UNUserNotificationCenter.currentNotificationCenter().addNotificationRequest(request = request, withCompletionHandler = null)
     }
 
-    private fun isKorean(): Boolean = (NSLocale.preferredLanguages.firstOrNull() as? String)?.startsWith(KOREAN_LANGUAGE_PREFIX) == true
+    private fun isKorean(): Boolean = DeviceLocale.currentLanguageTag().startsWith(KOREAN_LANGUAGE_PREFIX)
 
     private fun FileUploadResult.title(text: FileUploadNotificationText): String =
         when (this) {

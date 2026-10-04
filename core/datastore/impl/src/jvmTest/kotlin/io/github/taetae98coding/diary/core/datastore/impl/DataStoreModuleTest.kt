@@ -33,10 +33,10 @@ class DataStoreModuleTest :
             val proxyDataSource = koin.get<MusicDownloadProxySettingLocalDataSource>()
             val geminiSetting = GeminiSettingLocalEntity(apiKey = "storedApiKey", model = "models/gemini-flash", systemPrompt = "지시문")
 
-            mapDataSource.setDefaultProvider(provider = MapProviderLocalEntity.GOOGLE)
+            mapDataSource.upsertDefaultProvider(provider = MapProviderLocalEntity.GOOGLE)
             holidayDataSource.addHiddenKey(key = "초복")
             geminiDataSource.upsert(setting = geminiSetting)
-            browserDataSource.setChromeSessionProfileDirectory(directory = "Profile 1")
+            browserDataSource.upsertChromeSessionProfileDirectory(directory = "Profile 1")
             proxyDataSource.upsertAddress(address = "http://192.168.0.10:27180")
 
             mapDataSource.getDefaultProvider().first() shouldBe MapProviderLocalEntity.GOOGLE
@@ -59,7 +59,7 @@ class DataStoreModuleTest :
             val directory = createTempDirectory("diary-setting")
             val koin = createKoin(directory)
 
-            koin.get<MapSettingLocalDataSource>().setDefaultProvider(provider = MapProviderLocalEntity.NAVER)
+            koin.get<MapSettingLocalDataSource>().upsertDefaultProvider(provider = MapProviderLocalEntity.NAVER)
 
             directory.listDirectoryEntries().map { path -> path.name } shouldBe listOf(DataStoreModule.MAP_SETTING_NAME)
         }

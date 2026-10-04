@@ -24,21 +24,36 @@ internal class MoreHomeSignOutViewModel(
             MoreHomeSignOutUiState(isConfirmVisible = savedStateHandle[KEY_IS_CONFIRM_VISIBLE] ?: false),
         )
 
+    private var isInProgress = false
+
     fun signOut() {
+        if (isInProgress) return
+        isInProgress = true
+
         viewModelScope.launch {
-            if (findSyncPendingUseCase(parameter = Unit).first().getOrDefault(false)) {
-                updateConfirmVisible(isConfirmVisible = true)
-            } else {
-                signOutUseCase(parameter = Unit)
+            try {
+                if (findSyncPendingUseCase(parameter = Unit).first().getOrDefault(false)) {
+                    updateConfirmVisible(isConfirmVisible = true)
+                } else {
+                    signOutUseCase(parameter = Unit)
+                }
+            } finally {
+                isInProgress = false
             }
         }
     }
 
     fun confirmSignOut() {
+        if (isInProgress) return
+        isInProgress = true
         updateConfirmVisible(isConfirmVisible = false)
 
         viewModelScope.launch {
-            signOutUseCase(parameter = Unit)
+            try {
+                signOutUseCase(parameter = Unit)
+            } finally {
+                isInProgress = false
+            }
         }
     }
 

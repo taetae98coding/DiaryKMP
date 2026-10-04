@@ -89,6 +89,6 @@ class PlaceHomeMapStateTest {
     private companion object {
         private val currentLocationFetchId: Uuid = Uuid.random()
 
-        private fun loaded(defaultProvider: MapProvider): PlaceHomeUiState = PlaceHomeUiState.Loaded(defaultProvider = defaultProvider, initialCoordinate = null, currentLocationFetchId = currentLocationFetchId)
+        private fun loaded(defaultProvider: MapProvider): PlaceHomeUiState = PlaceHomeUiState.Content(defaultProvider = defaultProvider, initialCoordinate = null, currentLocationFetchId = currentLocationFetchId)
     }
 }

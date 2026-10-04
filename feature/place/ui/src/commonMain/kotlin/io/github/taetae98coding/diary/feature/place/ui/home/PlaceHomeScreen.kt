@@ -12,6 +12,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.place.PlaceListUndoSnackbarEffect
 import io.github.taetae98coding.diary.core.model.location.Coordinate
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceHomePlaceListViewModel
 import io.github.taetae98coding.diary.feature.place.ui.home.map.PlaceHomeMapViewModel
 import kotlin.uuid.Uuid
@@ -24,14 +25,14 @@ internal fun PlaceHomeScreen(
     navigateToSearch: () -> Unit,
     mapViewModel: PlaceHomeMapViewModel,
     placeListViewModel: PlaceHomePlaceListViewModel,
-    syncViewModel: PlaceHomeSyncViewModel,
+    syncViewModel: SyncRefreshViewModel,
     modifier: Modifier = Modifier,
 ) {
     val uiState by mapViewModel.uiState.collectAsStateWithLifecycle()
     val placeListUiState by placeListViewModel.placeListUiState.collectAsStateWithLifecycle()
     val placePagingItems = placeListViewModel.placePagingData.collectAsLazyPagingItems()
     val syncUiState by syncViewModel.uiState.collectAsStateWithLifecycle()
-    val sort by placeListViewModel.sort.collectAsStateWithLifecycle()
+    val sortUiState by placeListViewModel.sortUiState.collectAsStateWithLifecycle()
     val sortSheetState = rememberDialogState()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -50,7 +51,7 @@ internal fun PlaceHomeScreen(
         syncUiStateProvider = { syncUiState },
         sortSheetState = sortSheetState,
         snackbarHostState = snackbarHostState,
-        sortProvider = { sort },
+        sortProvider = { sortUiState.sort },
         onEvent = { event ->
             when (event) {
                 is PlaceHomeScaffoldEvent.ClickNavigateUp -> navigateUp()

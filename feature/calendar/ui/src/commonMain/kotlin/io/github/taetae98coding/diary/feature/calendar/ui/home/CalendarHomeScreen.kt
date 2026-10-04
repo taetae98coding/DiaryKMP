@@ -1,28 +1,17 @@
 package io.github.taetae98coding.diary.feature.calendar.ui.home
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.taetae98coding.diary.compose.permission.RequestPermissionEffect
-import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
-import io.github.taetae98coding.diary.core.permission.Permission
 import io.github.taetae98coding.diary.core.permission.PermissionManager
-import io.github.taetae98coding.diary.core.permission.PermissionResult
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarTimetableNavKey
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherViewModel
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import kotlinx.datetime.LocalDateRange
-import org.koin.compose.viewmodel.koinViewModel
 import kotlin.uuid.Uuid
 
 @Composable
@@ -38,24 +27,22 @@ internal fun CalendarHomeScreen(
     memoViewModel: CalendarHomeMemoViewModel,
     birthdayViewModel: CalendarHomeBirthdayViewModel,
     weatherViewModel: CalendarHomeWeatherViewModel,
-    syncViewModel: CalendarHomeSyncViewModel,
+    syncViewModel: SyncRefreshViewModel,
     modifier: Modifier = Modifier,
 ) {
-    val holidayList by holidayViewModel.holidayList.collectAsStateWithLifecycle()
-    val memoList by memoViewModel.memoList.collectAsStateWithLifecycle()
-    val birthdayList by birthdayViewModel.birthdayList.collectAsStateWithLifecycle()
+    val holidayUiState by holidayViewModel.uiState.collectAsStateWithLifecycle()
+    val memoUiState by memoViewModel.uiState.collectAsStateWithLifecycle()
+    val birthdayUiState by birthdayViewModel.uiState.collectAsStateWithLifecycle()
     val filterUiState by memoViewModel.filterUiState.collectAsStateWithLifecycle()
-    val weatherReport by weatherViewModel.weatherReport.collectAsStateWithLifecycle()
-    val isSyncRefreshing by syncViewModel.isRefreshing.collectAsStateWithLifecycle()
-    val isHolidayFetching by holidayViewModel.isFetching.collectAsStateWithLifecycle()
-    val isWeatherLoading by weatherViewModel.isLoading.collectAsStateWithLifecycle()
+    val weatherUiState by weatherViewModel.uiState.collectAsStateWithLifecycle()
+    val syncUiState by syncViewModel.uiState.collectAsStateWithLifecycle()
 
     UpdateTodayEffect(state = state)
     FetchHolidayEffect(
         state = state,
         holidayViewModel = holidayViewModel,
     )
-    FetchMemoEffect(
+    SelectMemoEffect(
         state = state,
         memoViewModel = memoViewModel,
     )
@@ -75,14 +62,14 @@ internal fun CalendarHomeScreen(
     CalendarHomeScaffold(
         modifier = modifier,
         state = state,
-        weatherProvider = { weatherReport },
-        holidayProvider = { holidayList },
-        memoProvider = { memoList },
-        birthdayProvider = { birthdayList },
+        weatherUiStateProvider = { weatherUiState },
+        holidayUiStateProvider = { holidayUiState },
+        memoUiStateProvider = { memoUiState },
+        birthdayUiStateProvider = { birthdayUiState },
         filterUiStateProvider = { filterUiState },
         uiStateProvider = {
             CalendarHomeScaffoldUiState(
-                isRefreshing = isSyncRefreshing || isHolidayFetching || isWeatherLoading,
+                isRefreshing = syncUiState.isRefreshing || holidayUiState.isFetching || weatherUiState.isLoading,
             )
         },
         onEvent = { event ->
@@ -100,92 +87,4 @@ internal fun CalendarHomeScreen(
         },
         onCalendarEvent = { event -> handleCalendarHomeCalendarEvent(event = event, state = state, navigateToMemoAdd = navigateToMemoAdd, navigateToTimetable = navigateToTimetable) },
     )
-}
-
-@Composable
-private fun UpdateTodayEffect(state: CalendarHomeScaffoldState = rememberCalendarHomeScaffoldState()) {
-    LifecycleEventEffect(Lifecycle.Event.ON_START) {
-        state.updateToday()
-    }
-}
-
-@Composable
-private fun FetchHolidayEffect(
-    holidayViewModel: CalendarHomeHolidayViewModel,
-    state: CalendarHomeScaffoldState = rememberCalendarHomeScaffoldState(),
-) {
-    LaunchedEffect(state, holidayViewModel) {
-        snapshotFlow { state.calendarState.currentYearMonth }
-            .collect { yearMonth ->
-                holidayViewModel.fetch(yearMonth = yearMonth)
-            }
-    }
-}
-
-@Composable
-private fun FetchWeatherEffect(weatherViewModel: CalendarHomeWeatherViewModel) {
-    LifecycleEventEffect(Lifecycle.Event.ON_START) {
-        weatherViewModel.fetch()
-    }
-}
-
-@Composable
-private fun ScrollItemToTopOnFirstWeatherEffect(
-    weatherViewModel: CalendarHomeWeatherViewModel,
-    state: CalendarHomeScaffoldState = rememberCalendarHomeScaffoldState(),
-) {
-    LaunchedEffect(state, weatherViewModel) {
-        val hasWeatherFlow =
-            weatherViewModel
-                .weatherReport
-                .map { report -> report.weatherList.isNotEmpty() }
-                .distinctUntilChanged()
-
-        if (hasWeatherFlow.first()) return@LaunchedEffect
-
-        hasWeatherFlow.first { hasWeather -> hasWeather }
-        state.calendarState.itemScrollState.scrollToTop()
-    }
-}
-
-@Composable
-private fun RequestLocationPermissionEffect(
-    weatherViewModel: CalendarHomeWeatherViewModel,
-    permissionManager: PermissionManager = rememberPermissionManager(),
-) {
-    RequestPermissionEffect(
-        permission = Permission.LOCATION,
-        onResult = { result ->
-            if (result == PermissionResult.GRANTED) {
-                weatherViewModel.refreshOnLocationPermissionGranted()
-            }
-        },
-        permissionManager = permissionManager,
-    )
-}
-
-@Composable
-private fun FetchMemoEffect(
-    memoViewModel: CalendarHomeMemoViewModel,
-    state: CalendarHomeScaffoldState = rememberCalendarHomeScaffoldState(),
-) {
-    LaunchedEffect(state, memoViewModel) {
-        snapshotFlow { state.calendarState.currentYearMonth }
-            .collect { yearMonth ->
-                memoViewModel.fetch(yearMonth = yearMonth)
-            }
-    }
-}
-
-@Composable
-private fun FetchBirthdayEffect(
-    birthdayViewModel: CalendarHomeBirthdayViewModel,
-    state: CalendarHomeScaffoldState = rememberCalendarHomeScaffoldState(),
-) {
-    LaunchedEffect(state, birthdayViewModel) {
-        snapshotFlow { state.calendarState.currentYearMonth }
-            .collect { yearMonth ->
-                birthdayViewModel.fetch(yearMonth = yearMonth)
-            }
-    }
 }

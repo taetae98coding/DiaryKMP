@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Constraints
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
+import io.github.taetae98coding.diary.compose.core.format.NOON_HOUR
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import kotlinx.datetime.LocalDate
@@ -35,7 +36,7 @@ import kotlinx.datetime.LocalTime
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 
-public const val TIMETABLE_NOW_INDICATOR_TEST_TAG: String = "TimetableNowIndicator"
+internal const val TIMETABLE_NOW_INDICATOR_TEST_TAG: String = "TimetableNowIndicator"
 
 @Composable
 internal fun TimetableGrid(
@@ -182,7 +183,7 @@ private fun hourLabel(hour: Int): String =
 private fun TimetableDayColumn(
     date: LocalDate,
     modifier: Modifier = Modifier,
-    selectState: TimetableSelectState = remember { TimetableSelectState() },
+    selectState: TimetableSelectState = rememberTimetableSelectState(),
     nowProvider: () -> LocalDateTime? = { null },
     timeItemList: List<TimetableTimeItem> = emptyList(),
 ) {
@@ -259,8 +260,6 @@ private fun TimetableNowIndicator(modifier: Modifier = Modifier) {
             },
     )
 }
-
-private const val NOON_HOUR = 12
 
 @ScreenPreview
 @Composable

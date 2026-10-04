@@ -3,8 +3,8 @@ package io.github.taetae98coding.diary.feature.setting.ui.browser
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.browser.ChromeProfile
-import io.github.taetae98coding.diary.domain.browser.usecase.FindChromeProfileListUseCase
 import io.github.taetae98coding.diary.domain.browser.usecase.GetChromeSessionProfileDirectoryUseCase
+import io.github.taetae98coding.diary.domain.browser.usecase.ReadChromeProfileListUseCase
 import io.github.taetae98coding.diary.domain.browser.usecase.SelectChromeSessionProfileUseCase
 import io.github.taetae98coding.diary.domain.browser.usecase.UnselectChromeSessionProfileUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
@@ -19,20 +19,20 @@ import org.koin.core.annotation.KoinViewModel
 @KoinViewModel
 internal class SettingBrowserViewModel(
     getChromeSessionProfileDirectoryUseCase: GetChromeSessionProfileDirectoryUseCase,
-    findChromeProfileListUseCase: FindChromeProfileListUseCase,
+    readChromeProfileListUseCase: ReadChromeProfileListUseCase,
     private val selectChromeSessionProfileUseCase: SelectChromeSessionProfileUseCase,
     private val unselectChromeSessionProfileUseCase: UnselectChromeSessionProfileUseCase,
 ) : ViewModel() {
     val uiState: StateFlow<SettingBrowserUiState> =
         combine(
             getChromeSessionProfileDirectoryUseCase(parameter = Unit),
-            flow { emit(findChromeProfileListUseCase(parameter = Unit)) },
+            flow { emit(readChromeProfileListUseCase(parameter = Unit)) },
         ) { directoryResult, profileListResult ->
             val profileList = profileListResult.getOrDefault(emptyList())
 
             directoryResult.fold(
                 onSuccess = { directory ->
-                    SettingBrowserUiState.Loaded(
+                    SettingBrowserUiState.Content(
                         profileList = profileList,
                         selectedProfileDirectory = directory.takeIf { selected -> profileList.isListed(directory = selected) }.orEmpty(),
                         isProfileListUnavailable = profileListResult.isFailure,
@@ -56,14 +56,14 @@ internal class SettingBrowserViewModel(
     }
 
     fun unselectProfile() {
-        if ((uiState.value as? SettingBrowserUiState.Loaded)?.hasStoredProfile == false) return
+        if ((uiState.value as? SettingBrowserUiState.Content)?.hasStoredProfile == false) return
 
         viewModelScope.launch {
             unselectChromeSessionProfileUseCase(parameter = Unit)
         }
     }
 
-    private fun isSelected(directory: String): Boolean = (uiState.value as? SettingBrowserUiState.Loaded)?.selectedProfileDirectory == directory
+    private fun isSelected(directory: String): Boolean = (uiState.value as? SettingBrowserUiState.Content)?.selectedProfileDirectory == directory
 
     private fun List<ChromeProfile>.isListed(directory: String): Boolean = any { profile -> profile.directory == directory }
 }

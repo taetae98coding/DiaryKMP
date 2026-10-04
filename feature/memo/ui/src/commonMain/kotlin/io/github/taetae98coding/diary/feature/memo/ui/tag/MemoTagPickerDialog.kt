@@ -1,29 +1,18 @@
 package io.github.taetae98coding.diary.feature.memo.ui.tag
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
-import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerAddButton
-import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerDialog
-import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerEmptyBox
-import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerSearchField
+import io.github.taetae98coding.diary.compose.core.dialog.DiaryPagingPickerDialog
+import io.github.taetae98coding.diary.compose.core.dialog.DiaryPagingPickerText
 import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerSearchFieldState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
-import io.github.taetae98coding.diary.compose.core.effect.RequestFocusEffect
-import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.tag.previewTag
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.memo.ui.Res
 import io.github.taetae98coding.diary.feature.memo.ui.memo_tag_add_action
@@ -32,7 +21,6 @@ import io.github.taetae98coding.diary.feature.memo.ui.memo_tag_picker_search_emp
 import io.github.taetae98coding.diary.feature.memo.ui.memo_tag_picker_search_empty_title
 import io.github.taetae98coding.diary.feature.memo.ui.memo_tag_picker_search_placeholder
 import io.github.taetae98coding.diary.feature.memo.ui.memo_tag_picker_title
-import io.github.taetae98coding.diary.feature.memo.ui.previewTag
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
 
@@ -45,53 +33,33 @@ internal fun MemoTagPickerDialog(
     tagPagingItems: LazyPagingItems<Tag> = remember { flowOf(PagingData.empty<Tag>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> MemoTagInputUiState = { MemoTagInputUiState() },
 ) {
-    DiaryPickerDialog(
-        title = stringResource(Res.string.memo_tag_picker_title),
+    DiaryPagingPickerDialog(
+        text =
+            DiaryPagingPickerText(
+                title = stringResource(Res.string.memo_tag_picker_title),
+                searchPlaceholder = stringResource(Res.string.memo_tag_picker_search_placeholder),
+                searchEmptyTitle = stringResource(Res.string.memo_tag_picker_search_empty_title),
+                searchEmptyDescription = stringResource(Res.string.memo_tag_picker_search_empty_description),
+                addLabel = stringResource(Res.string.memo_tag_picker_add_label),
+                addActionLabel = stringResource(Res.string.memo_tag_add_action),
+            ),
+        onAddClick = { onEvent(MemoTagPickerEvent.ClickAdd) },
         onDismissRequest = onDismissRequest,
+        itemKey = { tag -> tag.id },
         modifier = modifier,
-    ) {
-        RequestFocusEffect(focusRequester = searchFieldState.focusRequester)
+        searchFieldState = searchFieldState,
+        pagingItems = tagPagingItems,
+        isSearchFocusRequested = true,
+    ) { tag, itemModifier ->
+        val uiState = uiStateProvider()
 
-        val isSearchEmpty by remember(searchFieldState, tagPagingItems) {
-            derivedStateOf { searchFieldState.textFieldState.text.isNotBlank() && tagPagingItems.isLoadedEmpty() }
-        }
-
-        Column(modifier = Modifier.fillMaxWidth()) {
-            DiaryPickerSearchField(
-                placeholder = stringResource(Res.string.memo_tag_picker_search_placeholder),
-                modifier = Modifier.fillMaxWidth(),
-                state = searchFieldState,
-            )
-            Spacer(modifier = Modifier.height(DiaryTheme.dimens.componentSpacing))
-            DiaryCrossfade(
-                targetState = isSearchEmpty,
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .weight(weight = 1F, fill = false)
-                        .height(DiaryTheme.dimens.pickerListHeight),
-            ) { isEmpty ->
-                if (isEmpty) {
-                    DiaryPickerEmptyBox(
-                        title = stringResource(Res.string.memo_tag_picker_search_empty_title),
-                        description = stringResource(Res.string.memo_tag_picker_search_empty_description),
-                    )
-                } else {
-                    MemoTagPickerList(
-                        onEvent = onEvent,
-                        tagPagingItems = tagPagingItems,
-                        uiStateProvider = uiStateProvider,
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
-            }
-            DiaryPickerAddButton(
-                onClick = { onEvent(MemoTagPickerEvent.ClickAdd) },
-                label = stringResource(Res.string.memo_tag_picker_add_label),
-                actionLabel = stringResource(Res.string.memo_tag_add_action),
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
+        MemoTagPickerRow(
+            onEvent = onEvent,
+            tag = tag,
+            isSelected = tag != null && uiState.selectedTagList.any { selectedTag -> selectedTag.id == tag.id },
+            isPrimary = tag != null && tag.id == uiState.primaryTagId,
+            modifier = itemModifier,
+        )
     }
 }
 

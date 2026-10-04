@@ -10,6 +10,6 @@ public class SetMemoDateExistenceFilterUseCase internal constructor(
     private val memoExistenceFilterRepository: MemoExistenceFilterRepository,
 ) : UseCase<MemoFilterExistence, Unit>() {
     override suspend fun execute(parameter: MemoFilterExistence) {
-        memoExistenceFilterRepository.updateDate(existence = parameter)
+        memoExistenceFilterRepository.upsertDate(existence = parameter)
     }
 }

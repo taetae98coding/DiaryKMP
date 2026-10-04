@@ -23,18 +23,19 @@ import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerDialogHost
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
 import io.github.taetae98coding.diary.feature.place.ui.PREVIEW_PLACE_DETAIL
 import io.github.taetae98coding.diary.feature.place.ui.Res
 import io.github.taetae98coding.diary.feature.place.ui.detail.memo.PlaceDetailMemoFloatingActionButton
-import io.github.taetae98coding.diary.feature.place.ui.detail.memo.PlaceDetailMemoTab
 import io.github.taetae98coding.diary.feature.place.ui.detail.tab.PlaceDetailTab
 import io.github.taetae98coding.diary.feature.place.ui.detail.tab.PlaceDetailTabRow
 import io.github.taetae98coding.diary.feature.place.ui.detail.tab.PlaceDetailTabState
 import io.github.taetae98coding.diary.feature.place.ui.detail.tab.rememberPlaceDetailTabState
-import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormEvent
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.ReflectCoordinateEffect
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceDetailFormState
+import io.github.taetae98coding.diary.feature.place.ui.place_detail_memo_empty_description
+import io.github.taetae98coding.diary.feature.place.ui.place_detail_memo_empty_title
 import io.github.taetae98coding.diary.feature.place.ui.place_detail_update_button_content_description
 import io.github.taetae98coding.diary.feature.place.ui.search.PlaceSearchEvent
 import io.github.taetae98coding.diary.feature.place.ui.search.PlaceSearchHost
@@ -76,7 +77,7 @@ internal fun PlaceDetailScaffold(
                 mapProviderProvider = { state.mapState.provider },
             )
         },
-        snackbarHost = { SnackbarHost(hostState = state.hostState) },
+        snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },
         floatingActionButton = { tabFloatingActionButton(tabState.tab) },
         contentWindowInsets = DiaryScaffoldDefaults.contentWindowInsets,
     ) { paddingValues ->
@@ -172,7 +173,7 @@ private fun PlaceDetailScaffoldPreview(
                         uiStateProvider = { uiState },
                     )
 
-                PlaceDetailTab.MEMO -> PlaceDetailMemoTab(onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
+                PlaceDetailTab.MEMO -> EntityDetailMemoTab(emptyTitle = stringResource(Res.string.place_detail_memo_empty_title), emptyDescription = stringResource(Res.string.place_detail_memo_empty_description), onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
             }
         }
     }

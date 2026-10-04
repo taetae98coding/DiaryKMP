@@ -17,7 +17,6 @@ import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
-import io.github.taetae98coding.diary.compose.memo.list.MemoListUiState
 import io.github.taetae98coding.diary.compose.place.PlaceListEffect
 import io.github.taetae98coding.diary.compose.web.WebListEffect
 import io.github.taetae98coding.diary.core.model.list.ListSort
@@ -26,14 +25,17 @@ import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.core.model.web.Web
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailLinkViewModel
-import io.github.taetae98coding.diary.feature.tag.ui.detail.memo.TagDetailMemoSyncViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.memo.TagDetailMemoViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceListUiState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceMapViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceUiState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceViewModel
+import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeUiState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.web.TagDetailWebViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.link.TagLinkInputUiState
 import io.mockk.every
@@ -50,7 +52,6 @@ import kotlin.uuid.Uuid
 internal val linkUiStateFlow = MutableStateFlow(TagLinkInputUiState())
 internal val linkTagPagingDataFlow = MutableStateFlow(PagingData.empty<Tag>())
 internal val memoPagingDataFlow = MutableStateFlow(PagingData.empty<MemoListItem>())
-internal val memoListUiStateFlow = MutableStateFlow(MemoListUiState())
 internal val memoEffectFlow = MutableSharedFlow<MemoListEffect>(extraBufferCapacity = EFFECT_BUFFER_CAPACITY)
 internal val webPagingDataFlow = MutableStateFlow(PagingData.empty<Web>())
 internal val webEffectFlow = MutableSharedFlow<WebListEffect>(extraBufferCapacity = EFFECT_BUFFER_CAPACITY)
@@ -58,7 +59,7 @@ internal val placePagingDataFlow = MutableStateFlow(PagingData.empty<Place>())
 internal val placeListUiStateFlow = MutableStateFlow(TagDetailPlaceListUiState())
 internal val placeEffectFlow = MutableSharedFlow<PlaceListEffect>(extraBufferCapacity = EFFECT_BUFFER_CAPACITY)
 internal val placeMapUiStateFlow = MutableStateFlow<TagDetailPlaceUiState>(TagDetailPlaceUiState.Loading)
-internal val isRefreshingFlow = MutableStateFlow(false)
+internal val syncUiStateFlow = MutableStateFlow(SyncRefreshUiState())
 
 // 탭이 Koin으로 얻는 ViewModel은 호출 검증을 위해 테스트가 참조할 수 있어야 한다.
 internal var linkViewModelRef: TagDetailLinkViewModel? = null
@@ -67,8 +68,9 @@ internal var linkViewModelRef: TagDetailLinkViewModel? = null
 internal var memoViewModelRef: TagDetailMemoViewModel? = null
     private set
 
-internal var memoSyncViewModelRef: TagDetailMemoSyncViewModel? = null
-    private set
+// 탭이 같은 SyncRefreshViewModel 타입을 쓰므로 메모 탭의 참조도 같은 대역이다.
+internal val memoSyncViewModelRef: SyncRefreshViewModel?
+    get() = syncViewModelRef
 
 internal var webViewModelRef: TagDetailWebViewModel? = null
     private set
@@ -79,7 +81,7 @@ internal var placeViewModelRef: TagDetailPlaceViewModel? = null
 internal var placeMapViewModelRef: TagDetailPlaceMapViewModel? = null
     private set
 
-internal var syncViewModelRef: TagDetailSyncViewModel? = null
+internal var syncViewModelRef: SyncRefreshViewModel? = null
     private set
 
 private const val EFFECT_BUFFER_CAPACITY = 8
@@ -98,23 +100,18 @@ internal val tagDetailTabViewModelModule =
             mockk<TagDetailMemoViewModel>(relaxed = true)
                 .apply {
                     every { memoPagingData } returns memoPagingDataFlow
-                    every { sort } returns MutableStateFlow(ListSort.DEFAULT)
-                    every { scope } returns MutableStateFlow(TagScope.SELF)
+                    every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
+                    every { scopeUiState } returns MutableStateFlow(TagDetailScopeUiState())
                     every { effect } returns memoEffectFlow
                 }.also { memoViewModelRef = it }
-        }
-        factory {
-            mockk<TagDetailMemoSyncViewModel>(relaxed = true)
-                .apply { every { uiState } returns memoListUiStateFlow }
-                .also { memoSyncViewModelRef = it }
         }
         factory {
             mockk<TagDetailWebViewModel>(relaxed = true)
                 .apply {
                     every { webPagingData } returns webPagingDataFlow
                     every { effect } returns webEffectFlow
-                    every { sort } returns MutableStateFlow(ListSort.TITLE)
-                    every { scope } returns MutableStateFlow(TagScope.SELF)
+                    every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
+                    every { scopeUiState } returns MutableStateFlow(TagDetailScopeUiState())
                 }.also { webViewModelRef = it }
         }
         factory {
@@ -123,8 +120,8 @@ internal val tagDetailTabViewModelModule =
                     every { placePagingData } returns placePagingDataFlow
                     every { placeListUiState } returns placeListUiStateFlow
                     every { effect } returns placeEffectFlow
-                    every { sort } returns MutableStateFlow(ListSort.TITLE)
-                    every { scope } returns MutableStateFlow(TagScope.SELF)
+                    every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
+                    every { scopeUiState } returns MutableStateFlow(TagDetailScopeUiState())
                 }.also { placeViewModelRef = it }
         }
         factory {
@@ -133,9 +130,10 @@ internal val tagDetailTabViewModelModule =
                 .also { placeMapViewModelRef = it }
         }
         factory {
-            mockk<TagDetailSyncViewModel>(relaxed = true)
-                .apply { every { isRefreshing } returns isRefreshingFlow }
-                .also { syncViewModelRef = it }
+            syncViewModelRef
+                ?: mockk<SyncRefreshViewModel>(relaxed = true)
+                    .apply { every { uiState } returns syncUiStateFlow }
+                    .also { syncViewModelRef = it }
         }
     }
 
@@ -149,7 +147,7 @@ internal fun ComposeContentTestRule.setTagDetailScreen(
     linkUiState: TagLinkInputUiState = TagLinkInputUiState(),
     tagPagingData: PagingData<Tag> = PagingData.empty(),
     memoPagingData: PagingData<MemoListItem> = PagingData.empty(),
-    memoListUiState: MemoListUiState = MemoListUiState(),
+    memoListUiState: SyncRefreshUiState = SyncRefreshUiState(),
     webPagingData: PagingData<Web> = PagingData.empty(),
     placePagingData: PagingData<Place> = PagingData.empty(),
     componentVisible: TagDetailScaffoldComponentVisible = TagDetailScaffoldComponentVisible(),
@@ -202,7 +200,7 @@ internal fun prepareTagDetailTabViewModels(
     linkUiState: TagLinkInputUiState = TagLinkInputUiState(),
     tagPagingData: PagingData<Tag> = PagingData.empty(),
     memoPagingData: PagingData<MemoListItem> = PagingData.empty(),
-    memoListUiState: MemoListUiState = MemoListUiState(),
+    memoListUiState: SyncRefreshUiState = SyncRefreshUiState(),
     webPagingData: PagingData<Web> = PagingData.empty(),
     placePagingData: PagingData<Place> = PagingData.empty(),
     isRefreshing: Boolean = false,
@@ -210,15 +208,13 @@ internal fun prepareTagDetailTabViewModels(
     linkUiStateFlow.value = linkUiState
     linkTagPagingDataFlow.value = tagPagingData
     memoPagingDataFlow.value = memoPagingData
-    memoListUiStateFlow.value = memoListUiState
     webPagingDataFlow.value = webPagingData
     placePagingDataFlow.value = placePagingData
     placeListUiStateFlow.value = TagDetailPlaceListUiState()
     placeMapUiStateFlow.value = TagDetailPlaceUiState.Loading
-    isRefreshingFlow.value = isRefreshing
+    syncUiStateFlow.value = if (isRefreshing) SyncRefreshUiState(isRefreshing = true) else memoListUiState
     linkViewModelRef = null
     memoViewModelRef = null
-    memoSyncViewModelRef = null
     webViewModelRef = null
     placeViewModelRef = null
     placeMapViewModelRef = null

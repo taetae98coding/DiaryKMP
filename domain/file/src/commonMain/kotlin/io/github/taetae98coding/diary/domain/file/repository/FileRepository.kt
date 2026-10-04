@@ -14,7 +14,7 @@ public interface FileRepository {
 
     public suspend fun refresh()
 
-    public suspend fun findSource(uri: FileUri): FileUploadSource
+    public suspend fun readSource(uri: FileUri): FileUploadSource
 
     public suspend fun create(
         source: FileUploadSource,

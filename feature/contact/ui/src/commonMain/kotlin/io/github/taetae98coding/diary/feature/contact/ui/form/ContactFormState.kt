@@ -20,7 +20,7 @@ internal class ContactFormState(
     val birthdayState: ContactBirthdayInputState,
     val hometownState: TextFieldState,
     val phoneNumberState: ContactPhoneNumberInputState,
-    val hostState: SnackbarHostState,
+    val snackbarHostState: SnackbarHostState,
 ) {
     val detail: ContactDetail
         get() =
@@ -66,9 +66,9 @@ private fun rememberContactFormState(initialDetail: ContactDetail): ContactFormS
         rememberContactPhoneNumberInputState(
             initialRowList = initialDetail.phoneNumberList.map { phoneNumber -> ContactPhoneNumberRowState(initialNumber = phoneNumber.number) },
         )
-    val hostState = remember { SnackbarHostState() }
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    return remember(nameState, descriptionState, heightState, footSizeState, birthdayState, hometownState, phoneNumberState, hostState) {
+    return remember(nameState, descriptionState, heightState, footSizeState, birthdayState, hometownState, phoneNumberState, snackbarHostState) {
         ContactFormState(
             nameState = nameState,
             descriptionState = descriptionState,
@@ -77,7 +77,7 @@ private fun rememberContactFormState(initialDetail: ContactDetail): ContactFormS
             birthdayState = birthdayState,
             hometownState = hometownState,
             phoneNumberState = phoneNumberState,
-            hostState = hostState,
+            snackbarHostState = snackbarHostState,
         )
     }
 }

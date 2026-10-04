@@ -36,8 +36,6 @@ import io.github.taetae98coding.diary.feature.playlist.ui.previewMusic
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
 
-internal const val PLAYLIST_HOME_LIST_TEST_TAG: String = "PlaylistHomeList"
-
 @Composable
 internal fun PlaylistHomeList(
     onEvent: (PlaylistHomeScaffoldEvent) -> Unit,
@@ -84,7 +82,6 @@ internal fun PlaylistHomeList(
                 state = gridState,
                 isRefreshingProvider = isRefreshingProvider,
                 bottomPadding = if (isAddButtonVisibleProvider()) DiaryTheme.dimens.floatingActionButtonClearance else DiaryTheme.dimens.screenVerticalPadding,
-                listTestTag = PLAYLIST_HOME_LIST_TEST_TAG,
             ) {
                 items(
                     count = musicPagingItems.itemCount,

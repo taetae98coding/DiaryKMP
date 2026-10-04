@@ -9,7 +9,7 @@ public interface AccountMemoTagSyncTransaction {
         memoTagList: List<MemoTagLocalEntity>,
     )
 
-    public suspend fun save(
+    public suspend fun upsert(
         accountId: Uuid,
         memoTagList: List<MemoTagLocalEntity>,
         cursor: Long,

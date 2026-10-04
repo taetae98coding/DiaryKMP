@@ -11,7 +11,7 @@ import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadProxySett
 @Stable
 internal class SettingDownloadFormState(
     val addressState: TextFieldState,
-    val hostState: SnackbarHostState,
+    val snackbarHostState: SnackbarHostState,
 ) {
     val setting: MusicDownloadProxySetting
         get() = MusicDownloadProxySetting(address = addressState.text.toString())
@@ -20,12 +20,12 @@ internal class SettingDownloadFormState(
 @Composable
 internal fun rememberSettingDownloadFormState(initialSetting: MusicDownloadProxySetting = MusicDownloadProxySetting.EMPTY): SettingDownloadFormState {
     val addressState = rememberTextFieldState(initialText = initialSetting.address)
-    val hostState = remember { SnackbarHostState() }
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    return remember(addressState, hostState) {
+    return remember(addressState, snackbarHostState) {
         SettingDownloadFormState(
             addressState = addressState,
-            hostState = hostState,
+            snackbarHostState = snackbarHostState,
         )
     }
 }

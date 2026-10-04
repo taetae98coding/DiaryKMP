@@ -26,8 +26,8 @@ internal const val PIN_MARKER_VIEWPORT_SIZE: Float = 24F
 internal val PinMarkerImageVector: ImageVector by lazy {
     ImageVector
         .Builder(
-            defaultWidth = DiaryMapPinMarkerDefaults.SIZE_DP.dp,
-            defaultHeight = DiaryMapPinMarkerDefaults.SIZE_DP.dp,
+            defaultWidth = DiaryMapPinMarkerDefaults.Size,
+            defaultHeight = DiaryMapPinMarkerDefaults.Size,
             viewportWidth = PIN_MARKER_VIEWPORT_SIZE,
             viewportHeight = PIN_MARKER_VIEWPORT_SIZE,
         ).addPath(

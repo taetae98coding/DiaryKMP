@@ -163,7 +163,7 @@ class TagHomeScaffoldFilterTest {
                     onTagListEvent = onTagListEvent,
                     tagPagingItems = tagPagingDataFlow.collectAsLazyPagingItems(),
                     onEvent = onEvent,
-                    filterUiStateProvider = { TagHomeScaffoldFilterUiState(isApplied = isFilterApplied) },
+                    filterUiStateProvider = { TagHomeScaffoldFilterUiState(isLoaded = true, isApplied = isFilterApplied) },
                 )
             }
         }

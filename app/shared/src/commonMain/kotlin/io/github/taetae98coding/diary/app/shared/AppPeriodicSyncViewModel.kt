@@ -32,9 +32,18 @@ internal class AppPeriodicSyncViewModel(
                 initialValue = AppPeriodicSyncUiState.Loading,
             )
 
+    private var isScheduling = false
+
     fun schedulePeriodicSync() {
+        if (isScheduling) return
+        isScheduling = true
+
         viewModelScope.launch {
-            schedulePeriodicSyncUseCase(parameter = Unit)
+            try {
+                schedulePeriodicSyncUseCase(parameter = Unit)
+            } finally {
+                isScheduling = false
+            }
         }
     }
 }

@@ -4,6 +4,7 @@ import io.github.taetae98coding.diary.core.google.network.impl.GooglePlacesConfi
 import io.github.taetae98coding.diary.core.naver.network.impl.NaverOpenApiConfig
 import io.github.taetae98coding.diary.core.supabase.impl.SupabaseConfig
 import io.github.taetae98coding.diary.core.weather.network.impl.OpenWeatherApiConfig
+import io.github.taetae98coding.diary.feature.login.ui.credential.AppleCredentialsConfig
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Configuration
 import org.koin.core.annotation.Factory
@@ -33,6 +34,9 @@ internal class AppModule {
             clientId = BuildKonfig.NAVER_OPEN_API_CLIENT_ID,
             clientSecret = BuildKonfig.NAVER_OPEN_API_CLIENT_SECRET,
         )
+
+    @Factory
+    fun providesAppleCredentialsConfig(): AppleCredentialsConfig = appleCredentialsConfig(clientId = BuildKonfig.APPLE_CREDENTIALS_CLIENT_ID)
 
     @Factory
     fun providesClock(): Clock = Clock.System

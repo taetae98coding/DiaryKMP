@@ -17,7 +17,7 @@ import io.github.taetae98coding.diary.compose.tag.previewTag
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import kotlinx.coroutines.flow.flowOf
 
-public const val ENTITY_TAG_PICKER_LIST_TEST_TAG: String = "EntityTagPickerList"
+internal const val ENTITY_TAG_PICKER_LIST_TEST_TAG: String = "EntityTagPickerList"
 
 @Composable
 internal fun EntityTagPickerList(

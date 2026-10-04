@@ -63,7 +63,7 @@ class PlaceHomeViewModeTest {
         val place = viewModeTestPlace()
         setPlaceHomeScaffold(
             state = PlaceHomeScaffoldState(initialViewMode = PlaceHomeViewMode.LIST),
-            uiState = PlaceHomeUiState.Loaded(defaultProvider = MapProvider.GOOGLE, initialCoordinate = null, currentLocationFetchId = Uuid.random()),
+            uiState = PlaceHomeUiState.Content(defaultProvider = MapProvider.GOOGLE, initialCoordinate = null, currentLocationFetchId = Uuid.random()),
             placeList = listOf(place),
         )
         composeRule.onNodeWithText(place.detail.title).assertIsDisplayed()

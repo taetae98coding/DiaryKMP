@@ -26,10 +26,12 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.testing.qr.qr
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.qr.ui.add.actionNameList
 import io.github.taetae98coding.diary.feature.qr.ui.add.qrTestFixtureMonkey
 import io.github.taetae98coding.diary.feature.qr.ui.add.visibleTextList
 import io.github.taetae98coding.diary.feature.qr.ui.card.QR_CARD_TEST_TAG
+import io.github.taetae98coding.diary.feature.qr.ui.refreshableList
 import io.github.taetae98coding.diary.feature.qr.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
@@ -200,7 +202,7 @@ class QrHomeScaffoldTest {
         val isRefreshing = mutableStateOf(true)
         setQrHomeScaffold(
             pagingData = qrPagingDataOf(listOf(testQr())),
-            uiStateProvider = { QrHomeUiState(isRefreshing = isRefreshing.value) },
+            uiStateProvider = { SyncRefreshUiState(isRefreshing = isRefreshing.value) },
         )
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
 
@@ -237,7 +239,7 @@ class QrHomeScaffoldTest {
         val qrList = List(SCROLL_QR_COUNT) { testQr() }
         setQrHomeScaffold(pagingData = qrPagingDataOf(qrList))
 
-        composeRule.onNodeWithTag(QR_HOME_LIST_TEST_TAG).performScrollToIndex(qrList.lastIndex)
+        composeRule.refreshableList().performScrollToIndex(qrList.lastIndex)
         composeRule.waitForIdle()
 
         val lastCardBottom =
@@ -268,7 +270,7 @@ class QrHomeScaffoldTest {
         pagingData: PagingData<Qr> = qrPagingDataOf(emptyList()),
         onEvent: (QrHomeScaffoldEvent) -> Unit = {},
         snackbarHostState: SnackbarHostState = SnackbarHostState(),
-        uiStateProvider: () -> QrHomeUiState = { QrHomeUiState() },
+        uiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
     ) {
         val qrPagingDataFlow = MutableStateFlow(pagingData)
 

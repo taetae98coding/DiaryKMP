@@ -251,6 +251,25 @@ class AppSyncViewModelTest : FunSpec() {
                 coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.ACCOUNT_CONFIRMED) }
             }
         }
+
+        test("동기화 요청이 반복되어도 진행 중에는 요청 UseCase를 한 번만 실행하고 끝나면 다시 요청할 수 있다") {
+            runTest(mainDispatcher) {
+                val requestSyncUseCase = mockk<RequestSyncUseCase>()
+                coEvery { requestSyncUseCase(parameter = SyncTrigger.ACCOUNT_CONFIRMED) } returns Result.success(Unit)
+                val viewModel = viewModel(requestSyncUseCase = requestSyncUseCase)
+
+                viewModel.requestSync()
+                viewModel.requestSync()
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.ACCOUNT_CONFIRMED) }
+
+                viewModel.requestSync()
+                advanceUntilIdle()
+
+                coVerify(exactly = 2) { requestSyncUseCase(parameter = SyncTrigger.ACCOUNT_CONFIRMED) }
+            }
+        }
     }
 
     public companion object {

@@ -18,7 +18,7 @@ import io.github.taetae98coding.diary.compose.tag.tag_filter_unselect_all_label
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-public fun TagFilterUnselectAllButton(
+internal fun TagFilterUnselectAllButton(
     onEvent: (TagFilterEvent) -> Unit,
     modifier: Modifier = Modifier,
     isEnabled: Boolean = false,

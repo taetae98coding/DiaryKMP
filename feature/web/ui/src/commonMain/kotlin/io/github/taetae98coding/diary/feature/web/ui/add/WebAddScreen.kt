@@ -49,7 +49,7 @@ internal fun WebAddScreen(
                 is WebAddScaffoldEvent.ClickAdd ->
                     addViewModel.add(
                         detail = state.detail,
-                        tagIdSet = tagViewModel.tagIdSet.value,
+                        tagIdSet = tagViewModel.tagSelectionUiState.value.tagIdSet,
                     )
             }
         },

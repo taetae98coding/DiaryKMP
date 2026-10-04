@@ -5,7 +5,7 @@ import io.github.taetae98coding.diary.core.model.map.MapProvider
 internal sealed interface SettingMapUiState {
     data object Loading : SettingMapUiState
 
-    data class Loaded(
+    data class Content(
         val defaultProvider: MapProvider,
     ) : SettingMapUiState
 }

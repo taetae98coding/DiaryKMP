@@ -9,11 +9,13 @@ import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
+import io.github.taetae98coding.diary.feature.memo.api.navigateToMemoDetail
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
+import io.github.taetae98coding.diary.feature.tag.api.navigateToTagAddFromFilter
 import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
@@ -42,7 +44,7 @@ class MemoNavigationTest :
                         detailKeyList.filterNot { key -> key == previousDetailKey } +
                         MemoDetailNavKey(id = selectedId)
 
-                backStack.navigateToMemoDetailFromHome(selectedId)
+                backStack.navigateToMemoDetail(selectedId)
 
                 backStack shouldContainExactly expected
             }
@@ -126,7 +128,7 @@ class MemoNavigationTest :
             val detailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
             val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, detailKey, MemoHomeFilterNavKey)
 
-            backStack.navigateToTagAddFromMemoHomeFilter()
+            backStack.navigateToTagAddFromFilter()
 
             backStack shouldContainExactly listOf(MemoHomeNavKey, detailKey, TagAddNavKey())
         }
@@ -135,7 +137,7 @@ class MemoNavigationTest :
             val detailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
             val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, detailKey, MemoHomeFilterNavKey)
 
-            backStack.navigateToTagAddFromMemoHomeFilter()
+            backStack.navigateToTagAddFromFilter()
             val tagAddKey = backStack.last() as TagAddNavKey
             backStack.removeLastOrNull()
 

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package io.github.taetae98coding.diary.feature.search.ui.home
 
 import androidx.paging.PagingData
@@ -12,9 +14,16 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
+import io.github.taetae98coding.diary.feature.search.ui.home.SearchHomeResultUiState
+import io.github.taetae98coding.diary.feature.search.ui.home.SearchHomeResultViewModel
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -67,3 +76,13 @@ internal fun searchWeb(title: String): Web =
 private fun instant(): Instant = fixtureMonkey.giveMeOne<Instant>()
 
 internal fun searchId(): Uuid = fixtureMonkey.giveMeOne()
+
+// uiState는 구독하는 동안에만 갱신되므로, 잠시 구독해 지금 값을 읽는다.
+internal fun TestScope.currentUiState(viewModel: SearchHomeResultViewModel<*>): SearchHomeResultUiState {
+    val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
+    advanceUntilIdle()
+    val uiState = viewModel.uiState.value
+    job.cancel()
+
+    return uiState
+}

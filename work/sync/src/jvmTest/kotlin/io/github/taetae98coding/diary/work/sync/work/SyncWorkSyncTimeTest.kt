@@ -26,7 +26,7 @@ class SyncWorkSyncTimeTest :
         test("TC-DATA-SYNC-DOMAIN-078 업로드가 실패하면 마지막 동기화 시각을 갱신하지 않는다") {
             runTest {
                 val context = context()
-                coEvery { context.tagSyncLocalDataSource.findPending(accountId = context.accountId) } throws TestException("push")
+                coEvery { context.tagSyncLocalDataSource.readPendingList(accountId = context.accountId) } throws TestException("push")
 
                 shouldThrow<TestException> { context.subject.doWork() }
 
@@ -58,10 +58,10 @@ class SyncWorkSyncTimeTest :
                 context.subject.doWork()
                 context.subject.doWork()
 
-                coVerify(exactly = 2) { context.prepareSyncUseCase(parameter = context.accountId) }
+                coVerify(exactly = 2) { context.prepareSyncUseCase(parameter = match { account -> account.id == context.accountId }) }
                 coVerifyOrder {
-                    context.prepareSyncUseCase(parameter = context.accountId)
-                    context.tagSyncLocalDataSource.findPending(accountId = context.accountId)
+                    context.prepareSyncUseCase(parameter = match { account -> account.id == context.accountId })
+                    context.tagSyncLocalDataSource.readPendingList(accountId = context.accountId)
                 }
             }
         }
@@ -73,7 +73,7 @@ class SyncWorkSyncTimeTest :
                 context.subject.doWork()
 
                 coVerifyOrder {
-                    context.prepareSyncUseCase(parameter = context.accountId)
+                    context.prepareSyncUseCase(parameter = match { account -> account.id == context.accountId })
                     context.tagRemoteDataSource.pull(usn = any())
                     context.accountSyncTimeLocalDataSource.upsert(accountId = context.accountId, syncedAt = context.syncedAt)
                 }
@@ -83,11 +83,11 @@ class SyncWorkSyncTimeTest :
         test("강제 전체 재동기화 판단이 실패하면 업로드하지 않고 동기화가 실패한다") {
             runTest {
                 val context = context()
-                coEvery { context.prepareSyncUseCase(parameter = context.accountId) } returns Result.failure(TestException("prepare"))
+                coEvery { context.prepareSyncUseCase(parameter = match { account -> account.id == context.accountId }) } returns Result.failure(TestException("prepare"))
 
                 shouldThrow<TestException> { context.subject.doWork() }
 
-                coVerify(exactly = 0) { context.tagSyncLocalDataSource.findPending(accountId = any()) }
+                coVerify(exactly = 0) { context.tagSyncLocalDataSource.readPendingList(accountId = any()) }
                 coVerify(exactly = 0) {
                     context.accountSyncTimeLocalDataSource.upsert(accountId = any(), syncedAt = any())
                 }

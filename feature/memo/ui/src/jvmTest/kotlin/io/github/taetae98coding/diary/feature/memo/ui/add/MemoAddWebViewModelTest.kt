@@ -119,7 +119,7 @@ class MemoAddWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-WEB-INPUT-FEATURE-020 웹 선택 목록 페이지 조회에 실패해도 선택 상태는 그대로 표시한다") {
+        test("웹 선택 목록 페이지 조회에 실패해도 선택 상태는 그대로 표시한다") {
             runTest(mainDispatcher) {
                 val web = web()
                 val viewModel =
@@ -325,7 +325,7 @@ class MemoAddWebViewModelTest : FunSpec() {
                     cancelAndIgnoreRemainingEvents()
                 }
 
-                viewModel.webIdSet.value shouldBe setOf(remainingWeb.id, deletedWeb.id)
+                viewModel.selectionUiState.value.webIdSet shouldBe setOf(remainingWeb.id, deletedWeb.id)
             }
         }
 
@@ -345,7 +345,8 @@ class MemoAddWebViewModelTest : FunSpec() {
                     cancelAndIgnoreRemainingEvents()
                 }
 
-                viewModel.webIdSet.value.shouldBeEmpty()
+                viewModel.selectionUiState.value.webIdSet
+                    .shouldBeEmpty()
             }
         }
 

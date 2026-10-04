@@ -1,12 +1,11 @@
 plugins {
-    alias(libs.plugins.convention.compose)
+    alias(libs.plugins.convention.compose.component)
 }
 
 kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(projects.compose.core)
                 implementation(projects.compose.list)
                 api(projects.core.model)
                 implementation(projects.library.composeUi)

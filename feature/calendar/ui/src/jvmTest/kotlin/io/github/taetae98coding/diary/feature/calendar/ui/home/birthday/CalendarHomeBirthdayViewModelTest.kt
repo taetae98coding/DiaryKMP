@@ -62,9 +62,9 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
 
                 viewModel.fetch(YearMonth(year = 2026, month = Month.JULY))
 
-                viewModel.birthdayList.test {
-                    awaitItem() shouldBe emptyList()
-                    awaitItem() shouldBe birthdayList
+                viewModel.uiState.test {
+                    awaitItem() shouldBe CalendarHomeBirthdayUiState()
+                    awaitItem() shouldBe CalendarHomeBirthdayUiState(birthdayList = birthdayList)
                 }
 
                 verify(exactly = 1) { useCase(parameter = expectedDateRange) }
@@ -87,8 +87,8 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
 
                     viewModel.fetch(yearMonth)
 
-                    viewModel.birthdayList.test {
-                        awaitItem() shouldBe emptyList()
+                    viewModel.uiState.test {
+                        awaitItem() shouldBe CalendarHomeBirthdayUiState()
                         advanceUntilIdle()
                     }
 
@@ -114,13 +114,13 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
 
                 viewModel.fetch(YearMonth(year = 2026, month = Month.JULY))
 
-                viewModel.birthdayList.test {
-                    awaitItem() shouldBe emptyList()
-                    awaitItem() shouldBe listOf(mayBirthday)
+                viewModel.uiState.test {
+                    awaitItem() shouldBe CalendarHomeBirthdayUiState()
+                    awaitItem() shouldBe CalendarHomeBirthdayUiState(birthdayList = listOf(mayBirthday))
 
                     viewModel.fetch(YearMonth(year = 2026, month = Month.SEPTEMBER))
 
-                    awaitItem() shouldBe listOf(novemberBirthday)
+                    awaitItem() shouldBe CalendarHomeBirthdayUiState(birthdayList = listOf(novemberBirthday))
                 }
             }
         }
@@ -134,8 +134,8 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
 
                 viewModel.fetch(YearMonth(year = 2026, month = Month.JULY))
 
-                viewModel.birthdayList.test {
-                    awaitItem() shouldBe emptyList()
+                viewModel.uiState.test {
+                    awaitItem() shouldBe CalendarHomeBirthdayUiState()
                     advanceUntilIdle()
                     expectNoEvents()
                 }
@@ -150,8 +150,8 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
 
                 viewModel.fetch(yearMonth)
 
-                viewModel.birthdayList.test {
-                    awaitItem() shouldBe emptyList()
+                viewModel.uiState.test {
+                    awaitItem() shouldBe CalendarHomeBirthdayUiState()
                     advanceUntilIdle()
 
                     viewModel.fetch(yearMonth)
@@ -221,6 +221,25 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-CALENDAR-HOME-DATA-055 같은 달의 음력 자료 동기화가 진행 중일 때 다시 지정하면 새로 요청하지 않는다") {
+            runTest(mainDispatcher) {
+                val fetchLunarUseCase = mockk<FetchLunarUseCase>()
+                coEvery { fetchLunarUseCase(parameter = any()) } coAnswers { awaitCancellation() }
+                val viewModel = CalendarHomeBirthdayViewModel(fetchLunarUseCase = fetchLunarUseCase, getCalendarContactBirthdayUseCase = getCalendarContactBirthdayUseCase())
+
+                val date = fixtureMonkey.giveMeOne<LocalDate>()
+                val yearMonth = YearMonth(year = date.year, month = date.month)
+
+                viewModel.fetch(yearMonth)
+                advanceUntilIdle()
+                viewModel.fetch(yearMonth)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { fetchLunarUseCase(parameter = yearMonth.year) }
+                viewModel.viewModelScope.cancel()
+            }
+        }
+
         test("TC-CALENDAR-HOME-DATA-040 음력 자료 동기화가 실패해도 생일 조회는 그대로 제공한다") {
             runTest(mainDispatcher) {
                 val birthdayList = listOf(birthday())
@@ -234,9 +253,9 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
 
                 viewModel.fetch(YearMonth(year = 2026, month = Month.JULY))
 
-                viewModel.birthdayList.test {
-                    awaitItem() shouldBe emptyList()
-                    awaitItem() shouldBe birthdayList
+                viewModel.uiState.test {
+                    awaitItem() shouldBe CalendarHomeBirthdayUiState()
+                    awaitItem() shouldBe CalendarHomeBirthdayUiState(birthdayList = birthdayList)
                 }
             }
         }
@@ -252,13 +271,13 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
 
                 viewModel.fetch(YearMonth(year = 2026, month = Month.JULY))
 
-                viewModel.birthdayList.test {
-                    awaitItem() shouldBe emptyList()
-                    awaitItem() shouldBe listOf(birthday)
+                viewModel.uiState.test {
+                    awaitItem() shouldBe CalendarHomeBirthdayUiState()
+                    awaitItem() shouldBe CalendarHomeBirthdayUiState(birthdayList = listOf(birthday))
 
                     birthdayFlow.value = listOf(changedBirthday)
 
-                    awaitItem() shouldBe listOf(changedBirthday)
+                    awaitItem() shouldBe CalendarHomeBirthdayUiState(birthdayList = listOf(changedBirthday))
                 }
             }
         }

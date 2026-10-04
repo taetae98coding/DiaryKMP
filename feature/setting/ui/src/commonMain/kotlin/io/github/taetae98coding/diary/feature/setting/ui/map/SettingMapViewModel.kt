@@ -22,7 +22,7 @@ internal class SettingMapViewModel(
         getDefaultMapProviderUseCase(parameter = Unit)
             .map { result ->
                 result.fold(
-                    onSuccess = { provider -> SettingMapUiState.Loaded(defaultProvider = provider) },
+                    onSuccess = { provider -> SettingMapUiState.Content(defaultProvider = provider) },
                     onFailure = { SettingMapUiState.Loading },
                 )
             }.stateIn(
@@ -34,7 +34,7 @@ internal class SettingMapViewModel(
     fun selectDefaultProvider(provider: MapProvider) {
         val uiState = uiState.value
 
-        if (uiState is SettingMapUiState.Loaded && uiState.defaultProvider == provider) return
+        if (uiState is SettingMapUiState.Content && uiState.defaultProvider == provider) return
 
         viewModelScope.launch {
             setDefaultMapProviderUseCase(parameter = provider)

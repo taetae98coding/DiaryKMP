@@ -6,7 +6,7 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.contact.datasource.AccountContactLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.contact.datasource.AccountContactSyncLocalDataSourceImpl
@@ -68,7 +68,7 @@ class AccountContactSyncTransactionImplTest :
         suspend fun isPending(
             accountId: Uuid,
             contactId: Uuid,
-        ): Boolean = syncDataSource.findPending(accountId = accountId).any { contact -> contact.id == contactId }
+        ): Boolean = syncDataSource.readPendingList(accountId = accountId).any { contact -> contact.id == contactId }
 
         test("TC-DATA-SYNC-DOMAIN-087 로그인한 계정의 업로드 대상에 게스트 상태에서 만든 연락처는 포함되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
@@ -77,7 +77,7 @@ class AccountContactSyncTransactionImplTest :
             insertWithSyncState(accountId = Uuid.NIL, contact = guestEntity, isDirty = true)
             insertWithSyncState(accountId = accountId, contact = accountEntity, isDirty = true)
 
-            syncDataSource.findPending(accountId = accountId) shouldBe listOf(accountEntity)
+            syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(accountEntity)
         }
 
         test("TC-DATA-SYNC-DOMAIN-026 업로드한 수정 시각이 그대로면 동기화 완료가 된다") {
@@ -87,7 +87,7 @@ class AccountContactSyncTransactionImplTest :
 
             transaction.clearPending(accountId = accountId, contactList = listOf(contact))
 
-            syncDataSource.findPending(accountId = accountId).shouldBeEmpty()
+            syncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
 
         test("TC-DATA-SYNC-DOMAIN-027 업로드 중 수정 시각이 바뀐 연락처는 업로드 대기로 남는다") {
@@ -117,7 +117,7 @@ class AccountContactSyncTransactionImplTest :
                     )
                 insertWithSyncState(accountId = accountId, contact = localContact, isDirty = false)
 
-                transaction.save(accountId = accountId, contactList = listOf(remoteContact), cursor = 5L)
+                transaction.upsert(accountId = accountId, contactList = listOf(remoteContact), cursor = 5L)
 
                 dataSource.find(accountId = accountId, contactId = localContact.id).first() shouldBe remoteContact
             }
@@ -133,10 +133,10 @@ class AccountContactSyncTransactionImplTest :
                 )
             insertWithSyncState(accountId = accountId, contact = localContact, isDirty = true)
 
-            transaction.save(accountId = accountId, contactList = listOf(remoteContact), cursor = 5L)
+            transaction.upsert(accountId = accountId, contactList = listOf(remoteContact), cursor = 5L)
 
             dataSource.find(accountId = accountId, contactId = localContact.id).first() shouldBe localContact
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.CONTACT) shouldBe 5L
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.CONTACT) shouldBe 5L
         }
 
         listOf(
@@ -150,7 +150,7 @@ class AccountContactSyncTransactionImplTest :
                 val remoteContact = localContact.copy(detail = contact().detail, updatedAt = remoteUpdatedAt)
                 insertWithSyncState(accountId = accountId, contact = localContact, isDirty = true)
 
-                transaction.save(accountId = accountId, contactList = listOf(remoteContact), cursor = 5L)
+                transaction.upsert(accountId = accountId, contactList = listOf(remoteContact), cursor = 5L)
 
                 isPending(accountId = accountId, contactId = localContact.id) shouldBe true
             }
@@ -164,11 +164,11 @@ class AccountContactSyncTransactionImplTest :
             val failingTransaction = AccountContactSyncTransactionImpl(database = failingDatabase)
 
             shouldThrowExactly<ContactSyncTestException> {
-                failingTransaction.save(accountId = accountId, contactList = listOf(remoteContact), cursor = 5L)
+                failingTransaction.upsert(accountId = accountId, contactList = listOf(remoteContact), cursor = 5L)
             }
 
             dataSource.find(accountId = accountId, contactId = remoteContact.id).first().shouldBeNull()
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.CONTACT) shouldBe 0L
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.CONTACT) shouldBe 0L
         }
 
         test("TC-DATA-SYNC-DATA-025 기기에 없던 연락처는 계정과 연결되어 새로 저장되고 동기화 완료로 기록된다") {
@@ -183,11 +183,11 @@ class AccountContactSyncTransactionImplTest :
                         isDeleted = false,
                     )
 
-                transaction.save(accountId = accountId, contactList = listOf(remote), cursor = cursor)
+                transaction.upsert(accountId = accountId, contactList = listOf(remote), cursor = cursor)
 
                 dataSource.find(accountId = accountId, contactId = remote.id).first() shouldBe remote
-                syncDataSource.findPending(accountId = accountId).shouldBeEmpty()
-                syncCursorDataSource.find(accountId = accountId, kind = SyncKind.CONTACT) shouldBe cursor
+                syncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
+                syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.CONTACT) shouldBe cursor
             }
         }
     }) {

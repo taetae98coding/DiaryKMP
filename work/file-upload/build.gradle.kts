@@ -1,9 +1,6 @@
 plugins {
-    alias(libs.plugins.primitive.kmp)
-    alias(libs.plugins.primitive.android.library)
+    alias(libs.plugins.convention.work)
     alias(libs.plugins.primitive.android.host.test)
-    alias(libs.plugins.primitive.koin)
-    alias(libs.plugins.primitive.kotest)
 }
 
 kotlin {
@@ -19,7 +16,9 @@ kotlin {
                 implementation(projects.core.navigation)
                 implementation(projects.domain.account)
                 implementation(projects.domain.file)
+                implementation(projects.library.coroutines)
                 implementation(projects.library.kotlin)
+                implementation(projects.library.locale)
             }
         }
 

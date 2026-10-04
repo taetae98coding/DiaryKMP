@@ -10,5 +10,5 @@ import kotlin.uuid.Uuid
 internal class AccountQrSyncLocalDataSourceImpl(
     private val database: DiaryDatabase,
 ) : AccountQrSyncLocalDataSource {
-    override suspend fun findPending(accountId: Uuid): List<QrLocalEntity> = database.accountQrSyncDao().findPending(accountId = accountId)
+    override suspend fun readPendingList(accountId: Uuid): List<QrLocalEntity> = database.accountQrSyncDao().findPending(accountId = accountId)
 }

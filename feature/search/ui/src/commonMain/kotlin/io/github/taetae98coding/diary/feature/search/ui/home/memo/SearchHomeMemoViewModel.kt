@@ -1,23 +1,15 @@
 package io.github.taetae98coding.diary.feature.search.ui.home.memo
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
-import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.domain.memo.usecase.DeleteMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.FinishMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestartMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
 import io.github.taetae98coding.diary.domain.search.usecase.SearchMemoUseCase
-import io.github.taetae98coding.diary.feature.search.ui.home.SearchHomeQueryInput
+import io.github.taetae98coding.diary.feature.search.ui.home.SearchHomeResultViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 import kotlin.uuid.Uuid
 
@@ -28,58 +20,37 @@ internal class SearchHomeMemoViewModel(
     private val restartMemoUseCase: RestartMemoUseCase,
     private val deleteMemoUseCase: DeleteMemoUseCase,
     private val restoreMemoUseCase: RestoreMemoUseCase,
-) : ViewModel() {
-    private val query = SearchHomeQueryInput(scope = viewModelScope)
-
-    val appliedQuery: StateFlow<String> = query.appliedQuery
-
-    val sort: StateFlow<ListSort>
-        field = MutableStateFlow(ListSort.TITLE)
-
-    val pagingData: Flow<PagingData<Memo>> =
-        query.pagingData(sort = sort) { value, sortValue ->
-            searchMemoUseCase(parameter = SearchMemoUseCase.Parameter(query = value, sort = sortValue))
-                .map { result -> result.getOrElse { PagingData.empty() } }
-        }
-
+) : SearchHomeResultViewModel<Memo>(
+        search = { query, sort ->
+            searchMemoUseCase(parameter = SearchMemoUseCase.Parameter(query = query, sort = sort))
+        },
+    ) {
     private val _effect = Channel<SearchHomeMemoEffect>(Channel.BUFFERED)
     val effect: Flow<SearchHomeMemoEffect> = _effect.receiveAsFlow()
 
-    fun showQuery(query: String) {
-        this.query.show(query = query)
-    }
-
-    fun updateQuery(query: String) {
-        this.query.update(query = query)
-    }
-
-    fun select(sort: ListSort) {
-        this.sort.value = sort
-    }
-
     fun finish(id: Uuid) {
-        viewModelScope.launch {
+        launchOnce(id = id) {
             finishMemoUseCase(parameter = id)
                 .onSuccess { _effect.send(SearchHomeMemoEffect.Finished(id = id)) }
         }
     }
 
     fun restart(id: Uuid) {
-        viewModelScope.launch {
+        launchOnce(id = id) {
             restartMemoUseCase(parameter = id)
                 .onSuccess { _effect.send(SearchHomeMemoEffect.Restarted(id = id)) }
         }
     }
 
     fun delete(id: Uuid) {
-        viewModelScope.launch {
+        launchOnce(id = id) {
             deleteMemoUseCase(parameter = id)
                 .onSuccess { _effect.send(SearchHomeMemoEffect.Deleted(id = id)) }
         }
     }
 
     fun undo(effect: SearchHomeMemoEffect) {
-        viewModelScope.launch {
+        launchOnce(id = effect.targetId()) {
             when (effect) {
                 is SearchHomeMemoEffect.Finished -> restartMemoUseCase(parameter = effect.id)
                 is SearchHomeMemoEffect.Restarted -> finishMemoUseCase(parameter = effect.id)
@@ -87,4 +58,11 @@ internal class SearchHomeMemoViewModel(
             }
         }
     }
+
+    private fun SearchHomeMemoEffect.targetId(): Uuid =
+        when (this) {
+            is SearchHomeMemoEffect.Finished -> id
+            is SearchHomeMemoEffect.Restarted -> id
+            is SearchHomeMemoEffect.Deleted -> id
+        }
 }

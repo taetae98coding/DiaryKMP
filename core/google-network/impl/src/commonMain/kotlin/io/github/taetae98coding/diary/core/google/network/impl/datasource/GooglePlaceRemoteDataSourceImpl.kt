@@ -1,14 +1,14 @@
 package io.github.taetae98coding.diary.core.google.network.impl.datasource
 
 import io.github.taetae98coding.diary.core.google.network.api.datasource.GooglePlaceRemoteDataSource
-import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceLocationBias
+import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceLocationBiasRemoteEntity
 import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceRemoteEntity
 import io.github.taetae98coding.diary.core.google.network.impl.di.GoogleHttpClient
-import io.github.taetae98coding.diary.core.google.network.impl.entity.GooglePlaceCircleRequestEntity
-import io.github.taetae98coding.diary.core.google.network.impl.entity.GooglePlaceLatLngRequestEntity
-import io.github.taetae98coding.diary.core.google.network.impl.entity.GooglePlaceLocationBiasRequestEntity
-import io.github.taetae98coding.diary.core.google.network.impl.entity.GooglePlaceSearchRequestEntity
-import io.github.taetae98coding.diary.core.google.network.impl.entity.GooglePlaceSearchResponseEntity
+import io.github.taetae98coding.diary.core.google.network.impl.entity.GooglePlaceCircleRequestRemoteEntity
+import io.github.taetae98coding.diary.core.google.network.impl.entity.GooglePlaceLatLngRequestRemoteEntity
+import io.github.taetae98coding.diary.core.google.network.impl.entity.GooglePlaceLocationBiasRequestRemoteEntity
+import io.github.taetae98coding.diary.core.google.network.impl.entity.GooglePlaceSearchRequestRemoteEntity
+import io.github.taetae98coding.diary.core.google.network.impl.entity.GooglePlaceSearchResponseRemoteEntity
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.header
@@ -23,28 +23,28 @@ internal class GooglePlaceRemoteDataSourceImpl(
 ) : GooglePlaceRemoteDataSource {
     override suspend fun search(
         query: String,
-        locationBias: GooglePlaceLocationBias?,
+        locationBias: GooglePlaceLocationBiasRemoteEntity?,
     ): List<GooglePlaceRemoteEntity> =
         httpClient
             .post(SEARCH_TEXT_PATH) {
                 header(FIELD_MASK_HEADER, FIELD_MASK)
                 setBody(
-                    GooglePlaceSearchRequestEntity(
+                    GooglePlaceSearchRequestRemoteEntity(
                         textQuery = query,
                         languageCode = LANGUAGE_CODE,
                         pageSize = MAX_PAGE_SIZE,
                         locationBias = locationBias?.toRequestEntity(),
                     ),
                 )
-            }.body<GooglePlaceSearchResponseEntity>()
+            }.body<GooglePlaceSearchResponseRemoteEntity>()
             .places
 
-    private fun GooglePlaceLocationBias.toRequestEntity(): GooglePlaceLocationBiasRequestEntity =
-        GooglePlaceLocationBiasRequestEntity(
+    private fun GooglePlaceLocationBiasRemoteEntity.toRequestEntity(): GooglePlaceLocationBiasRequestRemoteEntity =
+        GooglePlaceLocationBiasRequestRemoteEntity(
             circle =
-                GooglePlaceCircleRequestEntity(
+                GooglePlaceCircleRequestRemoteEntity(
                     center =
-                        GooglePlaceLatLngRequestEntity(
+                        GooglePlaceLatLngRequestRemoteEntity(
                             latitude = latitude,
                             longitude = longitude,
                         ),

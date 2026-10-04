@@ -4,8 +4,8 @@ import io.github.taetae98coding.diary.core.model.browser.ChromeProfile
 import io.github.taetae98coding.diary.core.model.browser.ChromeSessionImportState
 import io.github.taetae98coding.diary.domain.browser.ChromeSessionImportManager
 import io.github.taetae98coding.diary.domain.browser.repository.InAppBrowserCookieRepository
-import io.github.taetae98coding.diary.domain.browser.usecase.FindChromeSessionImportProfileUseCase
 import io.github.taetae98coding.diary.domain.browser.usecase.ImportChromeSessionUseCase
+import io.github.taetae98coding.diary.domain.browser.usecase.ReadChromeSessionImportProfileUseCase
 import io.github.taetae98coding.diary.work.chrome.session.di.ChromeSessionScope
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -19,7 +19,7 @@ import org.koin.core.annotation.Single
 
 @Single
 internal class ChromeSessionImportManagerImpl(
-    private val findChromeSessionImportProfileUseCase: FindChromeSessionImportProfileUseCase,
+    private val readChromeSessionImportProfileUseCase: ReadChromeSessionImportProfileUseCase,
     private val importChromeSessionUseCase: ImportChromeSessionUseCase,
     private val inAppBrowserCookieRepository: InAppBrowserCookieRepository,
     @param:ChromeSessionScope private val scope: CoroutineScope,
@@ -42,7 +42,7 @@ internal class ChromeSessionImportManagerImpl(
     private suspend fun run(clearsBefore: Boolean) {
         if (clearsBefore && !clear()) return
 
-        findChromeSessionImportProfileUseCase(parameter = Unit)
+        readChromeSessionImportProfileUseCase(parameter = Unit)
             .fold(
                 onSuccess = { profile -> import(profile = profile) },
                 onFailure = { throwable ->

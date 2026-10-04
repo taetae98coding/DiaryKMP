@@ -23,7 +23,7 @@ import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Instant
 
 @Composable
-public fun DiaryDatePickerDialog(
+internal fun DiaryDatePickerDialog(
     initialDate: LocalDate,
     onDismissRequest: () -> Unit,
     onConfirm: (LocalDate) -> Unit,

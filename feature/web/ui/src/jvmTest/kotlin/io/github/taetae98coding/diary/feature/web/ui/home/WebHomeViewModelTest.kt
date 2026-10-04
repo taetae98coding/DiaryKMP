@@ -15,6 +15,7 @@ import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.domain.web.usecase.DeleteWebUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.PageWebUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.RestoreWebUseCase
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -94,7 +95,7 @@ class WebHomeViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(pageWebUseCase = pageWebUseCase(webListFlow = flowOf(Result.success(emptyList()))))
 
-                viewModel.sort.value shouldBe ListSort.TITLE
+                viewModel.sortUiState.value shouldBe ListSortUiState(sort = ListSort.TITLE)
             }
         }
 
@@ -114,7 +115,7 @@ class WebHomeViewModelTest : FunSpec() {
                     viewModel.select(sort = ListSort.RECENTLY_UPDATED)
 
                     flowOf(awaitItem()).asSnapshot() shouldBe recentlyUpdatedWebList
-                    viewModel.sort.value shouldBe ListSort.RECENTLY_UPDATED
+                    viewModel.sortUiState.value shouldBe ListSortUiState(sort = ListSort.RECENTLY_UPDATED)
                     cancelAndIgnoreRemainingEvents()
                 }
             }
@@ -135,7 +136,7 @@ class WebHomeViewModelTest : FunSpec() {
                     expectNoEvents()
                     cancelAndIgnoreRemainingEvents()
                 }
-                viewModel.sort.value shouldBe ListSort.TITLE
+                viewModel.sortUiState.value shouldBe ListSortUiState(sort = ListSort.TITLE)
                 coVerify(exactly = 1) { pageWebUseCase(parameter = ListSort.TITLE) }
             }
         }
@@ -216,6 +217,30 @@ class WebHomeViewModelTest : FunSpec() {
                 viewModel.restore(id = id)
                 advanceUntilIdle()
 
+                coVerify(exactly = 1) { restoreWebUseCase(parameter = id) }
+            }
+        }
+        test("TC-WEB-HOME-FEATURE-026 같은 웹 항목의 삭제나 실행 취소가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val deleteWebUseCase = mockk<DeleteWebUseCase>()
+                coEvery { deleteWebUseCase(parameter = id) } returns Result.success(1)
+                val restoreWebUseCase = mockk<RestoreWebUseCase>()
+                coEvery { restoreWebUseCase(parameter = id) } returns Result.success(1)
+                val viewModel =
+                    viewModel(
+                        pageWebUseCase = pageWebUseCase(webListFlow = flowOf(Result.success(emptyList()))),
+                        deleteWebUseCase = deleteWebUseCase,
+                        restoreWebUseCase = restoreWebUseCase,
+                    )
+
+                viewModel.delete(id = id)
+                viewModel.delete(id = id)
+                viewModel.restore(id = id)
+                viewModel.restore(id = id)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { deleteWebUseCase(parameter = id) }
                 coVerify(exactly = 1) { restoreWebUseCase(parameter = id) }
             }
         }

@@ -1,29 +1,18 @@
 package io.github.taetae98coding.diary.feature.memo.ui.place
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
-import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerAddButton
-import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerDialog
-import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerEmptyBox
-import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerSearchField
+import io.github.taetae98coding.diary.compose.core.dialog.DiaryPagingPickerDialog
+import io.github.taetae98coding.diary.compose.core.dialog.DiaryPagingPickerText
 import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerSearchFieldState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
-import io.github.taetae98coding.diary.compose.core.effect.RequestFocusEffect
-import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.place.previewPlace
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.feature.memo.ui.Res
@@ -33,7 +22,6 @@ import io.github.taetae98coding.diary.feature.memo.ui.memo_place_picker_search_e
 import io.github.taetae98coding.diary.feature.memo.ui.memo_place_picker_search_empty_title
 import io.github.taetae98coding.diary.feature.memo.ui.memo_place_picker_search_placeholder
 import io.github.taetae98coding.diary.feature.memo.ui.memo_place_picker_title
-import io.github.taetae98coding.diary.feature.memo.ui.previewPlace
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
 
@@ -43,57 +31,34 @@ internal fun MemoPlacePickerDialog(
     onEvent: (MemoPlacePickerEvent) -> Unit,
     modifier: Modifier = Modifier,
     searchFieldState: DiaryPickerSearchFieldState = rememberDiaryPickerSearchFieldState(),
-    uiStateProvider: () -> MemoPlaceInputUiState = { MemoPlaceInputUiState() },
     placePagingItems: LazyPagingItems<Place> = remember { flowOf(PagingData.empty<Place>()) }.collectAsLazyPagingItems(),
+    uiStateProvider: () -> MemoPlaceInputUiState = { MemoPlaceInputUiState() },
     coordinateProvider: () -> Coordinate? = { null },
 ) {
-    DiaryPickerDialog(
-        title = stringResource(Res.string.memo_place_picker_title),
+    DiaryPagingPickerDialog(
+        text =
+            DiaryPagingPickerText(
+                title = stringResource(Res.string.memo_place_picker_title),
+                searchPlaceholder = stringResource(Res.string.memo_place_picker_search_placeholder),
+                searchEmptyTitle = stringResource(Res.string.memo_place_picker_search_empty_title),
+                searchEmptyDescription = stringResource(Res.string.memo_place_picker_search_empty_description),
+                addLabel = stringResource(Res.string.memo_place_picker_add_label),
+                addActionLabel = stringResource(Res.string.memo_place_add_action),
+            ),
+        onAddClick = { onEvent(MemoPlacePickerEvent.ClickAdd(coordinate = coordinateProvider())) },
         onDismissRequest = onDismissRequest,
+        itemKey = { place -> place.id },
         modifier = modifier,
-    ) {
-        RequestFocusEffect(focusRequester = searchFieldState.focusRequester)
-
-        val isSearchEmpty by remember(searchFieldState, placePagingItems) {
-            derivedStateOf { searchFieldState.textFieldState.text.isNotBlank() && placePagingItems.isLoadedEmpty() }
-        }
-
-        Column(modifier = Modifier.fillMaxWidth()) {
-            DiaryPickerSearchField(
-                placeholder = stringResource(Res.string.memo_place_picker_search_placeholder),
-                modifier = Modifier.fillMaxWidth(),
-                state = searchFieldState,
-            )
-            Spacer(modifier = Modifier.height(DiaryTheme.dimens.componentSpacing))
-            DiaryCrossfade(
-                targetState = isSearchEmpty,
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .weight(weight = 1F, fill = false)
-                        .height(DiaryTheme.dimens.pickerListHeight),
-            ) { isEmpty ->
-                if (isEmpty) {
-                    DiaryPickerEmptyBox(
-                        title = stringResource(Res.string.memo_place_picker_search_empty_title),
-                        description = stringResource(Res.string.memo_place_picker_search_empty_description),
-                    )
-                } else {
-                    MemoPlacePickerList(
-                        onEvent = onEvent,
-                        selectedPlaceListProvider = { uiStateProvider().selectedPlaceList },
-                        placePagingItems = placePagingItems,
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
-            }
-            DiaryPickerAddButton(
-                onClick = { onEvent(MemoPlacePickerEvent.ClickAdd(coordinate = coordinateProvider())) },
-                label = stringResource(Res.string.memo_place_picker_add_label),
-                actionLabel = stringResource(Res.string.memo_place_add_action),
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
+        searchFieldState = searchFieldState,
+        pagingItems = placePagingItems,
+        isSearchFocusRequested = true,
+    ) { place, itemModifier ->
+        MemoPlacePickerRow(
+            onEvent = onEvent,
+            modifier = itemModifier,
+            place = place,
+            isSelected = place != null && uiStateProvider().selectedPlaceList.any { selectedPlace -> selectedPlace.id == place.id },
+        )
     }
 }
 
@@ -107,8 +72,8 @@ private fun MemoPlacePickerDialogPreview() {
         MemoPlacePickerDialog(
             onDismissRequest = {},
             onEvent = {},
-            uiStateProvider = { MemoPlaceInputUiState(isSelectedPlaceLoaded = true, selectedPlaceList = placeList) },
             placePagingItems = placePagingData.collectAsLazyPagingItems(),
+            uiStateProvider = { MemoPlaceInputUiState(isSelectedPlaceLoaded = true, selectedPlaceList = placeList) },
         )
     }
 }

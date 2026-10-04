@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.domain.web.usecase
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.account.usecase.requireAccount
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
@@ -10,7 +11,6 @@ import io.github.taetae98coding.diary.domain.web.exception.WebHeaderNameBlankExc
 import io.github.taetae98coding.diary.domain.web.exception.WebTitleBlankException
 import io.github.taetae98coding.diary.domain.web.exception.WebUrlBlankException
 import io.github.taetae98coding.diary.domain.web.repository.AccountWebRepository
-import kotlinx.coroutines.flow.first
 import org.koin.core.annotation.Factory
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
@@ -25,7 +25,7 @@ public class AddWebUseCase internal constructor(
     override suspend fun execute(parameter: Parameter): Uuid {
         parameter.detail.blankException()?.let { exception -> throw exception }
 
-        val account = getAccountUseCase(parameter = Unit).first().getOrThrow()
+        val account = getAccountUseCase.requireAccount()
         val now = clock.now()
         val web =
             Web(

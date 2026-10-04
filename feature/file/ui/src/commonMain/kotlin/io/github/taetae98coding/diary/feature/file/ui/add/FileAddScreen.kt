@@ -13,17 +13,17 @@ import io.github.taetae98coding.diary.feature.file.ui.picker.FilePicker
 internal fun FileAddScreen(
     navigateUp: () -> Unit,
     filePicker: FilePicker,
-    viewModel: FileAddViewModel,
+    uploadViewModel: FileAddViewModel,
     accountViewModel: FileAddAccountViewModel,
     modifier: Modifier = Modifier,
 ) {
     val state = rememberFileAddFormState()
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by uploadViewModel.uiState.collectAsStateWithLifecycle()
 
     DiaryTitleInputFocusEffect(state = state.titleState)
-    FileAddViewingEffect(viewModel = viewModel)
+    FileAddViewingEffect(uploadViewModel = uploadViewModel)
     FileAddScreenEffect(
-        effect = viewModel.effect,
+        effect = uploadViewModel.effect,
         state = state,
     )
     FileAddAccountEffect(
@@ -35,7 +35,7 @@ internal fun FileAddScreen(
         onEvent = { event ->
             when (event) {
                 is FileAddScaffoldEvent.ClickNavigateUp -> navigateUp()
-                is FileAddScaffoldEvent.ClickUpload -> viewModel.upload(title = state.title, description = state.description)
+                is FileAddScaffoldEvent.ClickUpload -> uploadViewModel.upload(title = state.title, description = state.description)
                 is FileAddScaffoldEvent.ClickChooseFile -> filePicker.open()
             }
         },
@@ -46,11 +46,11 @@ internal fun FileAddScreen(
 }
 
 @Composable
-private fun FileAddViewingEffect(viewModel: FileAddViewModel) {
-    LifecycleStartEffect(viewModel) {
-        viewModel.startViewing()
+private fun FileAddViewingEffect(uploadViewModel: FileAddViewModel) {
+    LifecycleStartEffect(uploadViewModel) {
+        uploadViewModel.startViewing()
 
-        onStopOrDispose { viewModel.stopViewing() }
+        onStopOrDispose { uploadViewModel.stopViewing() }
     }
 }
 

@@ -1,12 +1,12 @@
 package io.github.taetae98coding.diary.core.database.impl.memocontact.transaction
 
-import androidx.room3.withWriteTransaction
 import io.github.taetae98coding.diary.core.database.api.memocontact.entity.MemoContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memocontact.transaction.AccountMemoContactSyncTransaction
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.memocontact.entity.AccountMemoContactLocalEntity
-import io.github.taetae98coding.diary.core.database.impl.sync.entity.SyncCursorLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.sync.transaction.clearPendingEach
+import io.github.taetae98coding.diary.core.database.impl.sync.transaction.upsertPulled
 import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
@@ -18,53 +18,47 @@ internal class AccountMemoContactSyncTransactionImpl(
         accountId: Uuid,
         memoContactList: List<MemoContactLocalEntity>,
     ) {
-        database.withWriteTransaction {
-            memoContactList.forEach { memoContact ->
-                database.accountMemoContactSyncDao().clearPending(
-                    accountId = accountId,
-                    memoId = memoContact.memoId,
-                    contactId = memoContact.contactId,
-                    updatedAt = memoContact.updatedAt,
-                )
-            }
+        database.clearPendingEach(memoContactList) { memoContact ->
+            database.accountMemoContactSyncDao().clearPending(
+                accountId = accountId,
+                memoId = memoContact.memoId,
+                contactId = memoContact.contactId,
+                updatedAt = memoContact.updatedAt,
+            )
         }
     }
 
-    override suspend fun save(
+    override suspend fun upsert(
         accountId: Uuid,
         memoContactList: List<MemoContactLocalEntity>,
         cursor: Long,
     ) {
-        database.withWriteTransaction {
-            val localMemoContactMap =
+        database.upsertPulled(
+            accountId = accountId,
+            kind = SyncKindLocalEntity.MEMO_CONTACT,
+            cursor = cursor,
+            pulledList = memoContactList,
+            keyOf = { memoContact -> memoContact.memoId to memoContact.contactId },
+            updatedAtOf = { memoContact -> memoContact.updatedAt },
+            readLocalUpdatedAtMap = { pulledList ->
                 database
                     .memoContactDao()
-                    .findByMemoIdList(memoContactList.map { memoContact -> memoContact.memoId }.distinct())
-                    .associateBy { memoContact -> memoContact.memoId to memoContact.contactId }
-
-            database.memoContactDao().upsert(
-                memoContactList.filter { memoContact ->
-                    val localUpdatedAt = localMemoContactMap[memoContact.memoId to memoContact.contactId]?.updatedAt
-                    localUpdatedAt == null || memoContact.updatedAt >= localUpdatedAt
-                },
-            )
-            database.accountMemoContactSyncDao().insertIgnore(
-                memoContactList.map { memoContact ->
-                    AccountMemoContactLocalEntity(
-                        accountId = accountId,
-                        memoId = memoContact.memoId,
-                        contactId = memoContact.contactId,
-                        isDirty = false,
-                    )
-                },
-            )
-            database.syncCursorDao().upsert(
-                SyncCursorLocalEntity(
-                    accountId = accountId,
-                    kind = SyncCursorLocalEntity.column(kind = SyncKind.MEMO_CONTACT),
-                    usn = cursor,
-                ),
-            )
-        }
+                    .findByMemoIdList(pulledList.map { memoContact -> memoContact.memoId }.distinct())
+                    .associate { memoContact -> (memoContact.memoId to memoContact.contactId) to memoContact.updatedAt }
+            },
+            upsert = { upsertList -> database.memoContactDao().upsert(upsertList) },
+            insertIgnoreAccount = { pulledList ->
+                database.accountMemoContactSyncDao().insertIgnore(
+                    pulledList.map { memoContact ->
+                        AccountMemoContactLocalEntity(
+                            accountId = accountId,
+                            memoId = memoContact.memoId,
+                            contactId = memoContact.contactId,
+                            isDirty = false,
+                        )
+                    },
+                )
+            },
+        )
     }
 }

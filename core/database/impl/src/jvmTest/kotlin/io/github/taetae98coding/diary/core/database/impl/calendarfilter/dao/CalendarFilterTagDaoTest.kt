@@ -269,7 +269,7 @@ class CalendarFilterTagDaoTest :
 
             database.selectedTagIdList(accountId = accountId).shouldBeEmpty()
 
-            AccountTagSyncTransactionImpl(database = database).save(
+            AccountTagSyncTransactionImpl(database = database).upsert(
                 accountId = accountId,
                 tagList = listOf(tag.copy(isDeleted = false)),
                 cursor = fixtureMonkey.giveMeOne<Long>(),

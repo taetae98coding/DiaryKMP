@@ -136,18 +136,18 @@ class TagAddScreenLinkTest {
     fun `TC-TAG-ADD-FEATURE-010 제목 미입력으로 추가를 실행해도 고른 연결은 유지된다`() {
         val effect = Channel<TagAddEffect>(capacity = Channel.BUFFERED)
         val viewModel = screenTestViewModel(effect = effect.receiveAsFlow())
-        val linkedTagIdSet = MutableStateFlow(emptySet<Uuid>())
+        val selectionUiState = MutableStateFlow(TagAddLinkSelectionUiState())
         val tag = testTag(title = WORK_TAG_TITLE)
         every { viewModel.add(any(), any()) } answers {
             effect.trySend(TagAddEffect.TitleBlank).getOrThrow()
         }
-        setTagAddScreen(viewModel = viewModel, tagList = listOf(tag), linkedTagIdSet = linkedTagIdSet)
+        setTagAddScreen(viewModel = viewModel, tagList = listOf(tag), selectionUiState = selectionUiState)
         linkWorkTag()
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
-        linkedTagIdSet.value shouldBe setOf(tag.id)
+        selectionUiState.value.linkedTagIdSet shouldBe setOf(tag.id)
         composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
     }
 
@@ -155,20 +155,20 @@ class TagAddScreenLinkTest {
     fun `TC-TAG-ADD-FEATURE-020 추가에 성공하면 고른 연결의 식별자도 비운다`() {
         val effect = Channel<TagAddEffect>(capacity = Channel.BUFFERED)
         val viewModel = screenTestViewModel(effect = effect.receiveAsFlow())
-        val linkedTagIdSet = MutableStateFlow(emptySet<Uuid>())
+        val selectionUiState = MutableStateFlow(TagAddLinkSelectionUiState())
         val tag = testTag(title = WORK_TAG_TITLE)
         every { viewModel.add(any(), any()) } answers {
             effect.trySend(TagAddEffect.AddSucceeded(id = Uuid.random())).getOrThrow()
         }
-        setTagAddScreen(viewModel = viewModel, tagList = listOf(tag), linkedTagIdSet = linkedTagIdSet)
+        setTagAddScreen(viewModel = viewModel, tagList = listOf(tag), selectionUiState = selectionUiState)
         linkWorkTag()
 
-        linkedTagIdSet.value shouldBe setOf(tag.id)
+        selectionUiState.value.linkedTagIdSet shouldBe setOf(tag.id)
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
-        linkedTagIdSet.value.shouldBeEmpty()
+        selectionUiState.value.linkedTagIdSet.shouldBeEmpty()
     }
 
     @Test
@@ -256,11 +256,11 @@ class TagAddScreenLinkTest {
     private fun setTagAddScreen(
         viewModel: TagAddViewModel = screenTestViewModel(),
         tagList: List<Tag> = emptyList(),
-        linkedTagIdSet: MutableStateFlow<Set<Uuid>> = MutableStateFlow(emptySet()),
+        selectionUiState: MutableStateFlow<TagAddLinkSelectionUiState> = MutableStateFlow(TagAddLinkSelectionUiState()),
         navigateToDetail: (Uuid) -> Unit = {},
         navigateToTagAdd: () -> Unit = {},
     ) {
-        val linkViewModel = linkViewModel(tagList = tagList, linkedTagIdSet = linkedTagIdSet)
+        val linkViewModel = linkViewModel(tagList = tagList, selectionUiState = selectionUiState)
 
         composeRule.setContent {
             TagAddScreenTestTheme {
@@ -290,30 +290,30 @@ class TagAddScreenLinkTest {
          */
         private fun linkViewModel(
             tagList: List<Tag>,
-            linkedTagIdSet: MutableStateFlow<Set<Uuid>> = MutableStateFlow(emptySet()),
+            selectionUiState: MutableStateFlow<TagAddLinkSelectionUiState> = MutableStateFlow(TagAddLinkSelectionUiState()),
         ): TagAddLinkViewModel {
             val uiState = MutableStateFlow(TagLinkInputUiState())
             val tagPagingData = MutableStateFlow(tagPagingDataOf(tagList))
 
             fun reflect() {
-                uiState.value = TagLinkInputUiState(linkedTagList = tagList.filter { tag -> tag.id in linkedTagIdSet.value })
+                uiState.value = TagLinkInputUiState(linkedTagList = tagList.filter { tag -> tag.id in selectionUiState.value.linkedTagIdSet })
             }
 
             val viewModel = mockk<TagAddLinkViewModel>(relaxed = true)
             every { viewModel.uiState } returns uiState
             every { viewModel.tagPagingData } returns tagPagingData
             every { viewModel.selectableTagPagingData } returns tagPagingData
-            every { viewModel.linkedTagIdSet } returns linkedTagIdSet
+            every { viewModel.selectionUiState } returns selectionUiState
             every { viewModel.link(any()) } answers {
-                linkedTagIdSet.value = linkedTagIdSet.value + firstArg<Uuid>()
+                selectionUiState.value = selectionUiState.value.copy(linkedTagIdSet = selectionUiState.value.linkedTagIdSet + firstArg<Uuid>())
                 reflect()
             }
             every { viewModel.unlink(any()) } answers {
-                linkedTagIdSet.value = linkedTagIdSet.value - firstArg<Uuid>()
+                selectionUiState.value = selectionUiState.value.copy(linkedTagIdSet = selectionUiState.value.linkedTagIdSet - firstArg<Uuid>())
                 reflect()
             }
             every { viewModel.clear() } answers {
-                linkedTagIdSet.value = emptySet()
+                selectionUiState.value = TagAddLinkSelectionUiState()
                 reflect()
             }
 

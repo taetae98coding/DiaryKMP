@@ -4,5 +4,5 @@ import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntit
 import kotlin.uuid.Uuid
 
 public interface AccountTagSyncLocalDataSource {
-    public suspend fun findPending(accountId: Uuid): List<TagLocalEntity>
+    public suspend fun readPendingList(accountId: Uuid): List<TagLocalEntity>
 }

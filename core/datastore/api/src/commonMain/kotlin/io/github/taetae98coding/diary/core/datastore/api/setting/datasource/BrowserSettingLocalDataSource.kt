@@ -5,5 +5,5 @@ import kotlinx.coroutines.flow.Flow
 public interface BrowserSettingLocalDataSource {
     public fun getChromeSessionProfileDirectory(): Flow<String>
 
-    public suspend fun setChromeSessionProfileDirectory(directory: String)
+    public suspend fun upsertChromeSessionProfileDirectory(directory: String)
 }

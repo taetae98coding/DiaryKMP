@@ -8,6 +8,9 @@ kotlin {
         commonMain {
             dependencies {
                 api(ktorLibs.client.core)
+                api(ktorLibs.serialization.kotlinx.json)
+
+                implementation(ktorLibs.client.contentNegotiation)
             }
         }
 

@@ -1,9 +1,6 @@
 package io.github.taetae98coding.diary.data.playlist.repository
 
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.map
 import io.github.taetae98coding.diary.core.database.api.music.datasource.AccountMusicLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.music.transaction.AccountMusicTransaction
 import io.github.taetae98coding.diary.core.model.account.Account
@@ -11,7 +8,7 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
-import io.github.taetae98coding.diary.data.core.paging.PAGE_SIZE
+import io.github.taetae98coding.diary.data.core.paging.pagingFlow
 import io.github.taetae98coding.diary.data.playlist.mapper.toDomain
 import io.github.taetae98coding.diary.data.playlist.mapper.toLocal
 import io.github.taetae98coding.diary.domain.playlist.repository.AccountMusicRepository
@@ -30,24 +27,22 @@ internal class AccountMusicRepositoryImpl(
         account: Account,
         sort: ListSort,
     ): Flow<PagingData<Music>> =
-        Pager(
-            config = PagingConfig(pageSize = PAGE_SIZE),
+        pagingFlow(
             pagingSourceFactory = {
                 accountMusicLocalDataSource.page(
                     accountId = account.id,
                     sort = sort.toLocal(),
                 )
             },
-        ).flow.map { pagingData ->
-            pagingData.map { local -> local.toDomain() }
-        }
+            transform = { local -> local.toDomain() },
+        )
 
-    override suspend fun findList(
+    override suspend fun readList(
         account: Account,
         sort: ListSort,
     ): List<Music> =
         accountMusicLocalDataSource
-            .findList(
+            .readList(
                 accountId = account.id,
                 sort = sort.toLocal(),
             ).map { local -> local.toDomain() }

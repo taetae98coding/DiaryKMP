@@ -1,15 +1,12 @@
 package io.github.taetae98coding.diary.data.memo.repository
 
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.map
 import io.github.taetae98coding.diary.core.database.api.memotag.datasource.AccountMemoTagLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.memotag.transaction.AccountMemoTagTransaction
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.tag.Tag
-import io.github.taetae98coding.diary.data.core.paging.PAGE_SIZE
-import io.github.taetae98coding.diary.data.tag.mapper.toDomain
+import io.github.taetae98coding.diary.data.core.mapper.toDomain
+import io.github.taetae98coding.diary.data.core.paging.pagingFlow
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoTagRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -37,8 +34,7 @@ internal class AccountMemoTagRepositoryImpl(
         memoId: Uuid,
         query: String,
     ): Flow<PagingData<Tag>> =
-        Pager(
-            config = PagingConfig(pageSize = PAGE_SIZE),
+        pagingFlow(
             pagingSourceFactory = {
                 accountMemoTagLocalDataSource.pageSelectableTag(
                     accountId = account.id,
@@ -46,16 +42,15 @@ internal class AccountMemoTagRepositoryImpl(
                     query = query,
                 )
             },
-        ).flow.map { pagingData ->
-            pagingData.map { local -> local.toDomain() }
-        }
+            transform = { local -> local.toDomain() },
+        )
 
-    override suspend fun findTagIdSet(
+    override suspend fun readTagIdSet(
         account: Account,
         memoId: Uuid,
     ): Set<Uuid> =
         accountMemoTagLocalDataSource
-            .findTagIdList(
+            .readTagIdList(
                 accountId = account.id,
                 memoId = memoId,
             ).toSet()

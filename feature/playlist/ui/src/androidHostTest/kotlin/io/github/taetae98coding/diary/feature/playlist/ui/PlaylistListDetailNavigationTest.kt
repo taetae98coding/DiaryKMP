@@ -38,9 +38,10 @@ import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetail
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.playlist.api.MusicAddNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicDetailNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.PlaylistHomeNavKey
@@ -56,7 +57,6 @@ import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailView
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.testMusicDetail
 import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeDownloadUiState
 import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeDownloadViewModel
-import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeSyncViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeUiState
 import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.home.musicPagingDataOf
@@ -400,13 +400,13 @@ class PlaylistListDetailNavigationTest {
             factory<PlaylistHomeViewModel> {
                 mockk<PlaylistHomeViewModel>(relaxed = true) {
                     every { musicPagingData } returns MutableStateFlow(musicPagingDataOf(musicList))
-                    every { sort } returns MutableStateFlow(ListSort.TITLE)
+                    every { uiState } returns MutableStateFlow(PlaylistHomeUiState())
                     every { effect } returns emptyFlow()
                 }.also { viewModel -> homeViewModelList += viewModel }
             }
-            factory<PlaylistHomeSyncViewModel> {
+            factory<SyncRefreshViewModel> {
                 mockk(relaxed = true) {
-                    every { uiState } returns MutableStateFlow(PlaylistHomeUiState())
+                    every { uiState } returns MutableStateFlow(SyncRefreshUiState())
                 }
             }
             factory<PlaylistHomeDownloadViewModel> {

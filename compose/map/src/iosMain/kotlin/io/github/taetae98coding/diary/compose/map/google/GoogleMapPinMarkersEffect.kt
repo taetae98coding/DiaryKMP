@@ -90,16 +90,16 @@ private fun GMSMarker.applyPinAppearance(
     val label =
         UILabel().apply {
             text = pin.label
-            font = UIFont.systemFontOfSize(DiaryMapPinMarkerDefaults.LABEL_FONT_SIZE_SP.toDouble())
+            font = UIFont.systemFontOfSize(DiaryMapPinMarkerDefaults.LabelFontSize.value.toDouble())
             textColor = UIColor.blackColor
             backgroundColor = UIColor.whiteColor.colorWithAlphaComponent(DiaryMapPinMarkerDefaults.LABEL_BACKGROUND_ALPHA.toDouble())
             textAlignment = NSTextAlignmentCenter
-            layer.cornerRadius = DiaryMapPinMarkerDefaults.LABEL_CORNER_RADIUS_DP.toDouble()
+            layer.cornerRadius = DiaryMapPinMarkerDefaults.LabelCornerRadius.value.toDouble()
             clipsToBounds = true
             sizeToFit()
         }
-    val labelWidth = label.frame.useContents { size.width } + DiaryMapPinMarkerDefaults.LABEL_HORIZONTAL_PADDING_DP * 2
-    val labelHeight = DiaryMapPinMarkerDefaults.LABEL_HEIGHT_DP.toDouble()
+    val labelWidth = label.frame.useContents { size.width } + DiaryMapPinMarkerDefaults.LabelHorizontalPadding.value * 2
+    val labelHeight = DiaryMapPinMarkerDefaults.LabelHeight.value.toDouble()
     val width = maxOf(imageWidth, labelWidth)
     val height = imageHeight + labelHeight
     val container = UIView(frame = CGRectMake(0.0, 0.0, width, height))

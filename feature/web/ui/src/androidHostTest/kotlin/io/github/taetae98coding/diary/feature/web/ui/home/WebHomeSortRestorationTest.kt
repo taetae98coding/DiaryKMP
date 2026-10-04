@@ -19,6 +19,10 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.domain.web.usecase.DeleteWebUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.PageWebUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.RestoreWebUseCase
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
+import io.github.taetae98coding.diary.feature.web.ui.refreshableList
 import io.github.taetae98coding.diary.feature.web.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
@@ -62,8 +66,8 @@ class WebHomeSortRestorationTest {
                 deleteWebUseCase = mockk<DeleteWebUseCase>(),
                 restoreWebUseCase = mockk<RestoreWebUseCase>(),
             )
-        val syncViewModel = mockk<WebHomeSyncViewModel>()
-        every { syncViewModel.uiState } returns MutableStateFlow(WebHomeUiState())
+        val syncViewModel = mockk<SyncRefreshViewModel>()
+        every { syncViewModel.uiState } returns MutableStateFlow(SyncRefreshUiState())
         justRun { syncViewModel.refresh() }
         val restorationTester = StateRestorationTester(composeRule)
 
@@ -88,7 +92,7 @@ class WebHomeSortRestorationTest {
         restorationTester.emulateSavedInstanceStateRestore()
         waitUntilTitleExists(first.detail.title)
 
-        viewModel.sort.value shouldBe ListSort.RECENTLY_UPDATED
+        viewModel.sortUiState.value shouldBe ListSortUiState(sort = ListSort.RECENTLY_UPDATED)
         composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).assertExists()
         cardTitleList() shouldBe listOf(second.detail.title, first.detail.title)
     }
@@ -100,8 +104,8 @@ class WebHomeSortRestorationTest {
         val pageWebUseCase = mockk<PageWebUseCase>()
         every { pageWebUseCase(parameter = ListSort.TITLE) } returns flowOf(Result.success(webPagingDataOf(titleOrderList)))
         every { pageWebUseCase(parameter = ListSort.RECENTLY_UPDATED) } returns flowOf(Result.success(webPagingDataOf(recentOrderList)))
-        val syncViewModel = mockk<WebHomeSyncViewModel>()
-        every { syncViewModel.uiState } returns MutableStateFlow(WebHomeUiState())
+        val syncViewModel = mockk<SyncRefreshViewModel>()
+        every { syncViewModel.uiState } returns MutableStateFlow(SyncRefreshUiState())
         justRun { syncViewModel.refresh() }
         var viewModel = webHomeViewModel(pageWebUseCase = pageWebUseCase)
         val restorationTester = StateRestorationTester(composeRule)
@@ -123,7 +127,7 @@ class WebHomeSortRestorationTest {
         composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).performClick()
         composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).performClick()
         waitUntilTitleExists(recentOrderList.first().detail.title)
-        composeRule.onNodeWithTag(WEB_HOME_LIST_TEST_TAG).performScrollToIndex(RESTORATION_SCROLL_INDEX)
+        composeRule.refreshableList().performScrollToIndex(RESTORATION_SCROLL_INDEX)
         composeRule.onNodeWithText(recentOrderList[RESTORATION_SCROLL_INDEX].detail.title).assertIsDisplayed()
 
         // 시스템이 앱을 정리하면 화면 상태를 보관하던 객체도 사라지므로, 되살린 화면에는 새로 만든 객체를 준다.
@@ -131,7 +135,7 @@ class WebHomeSortRestorationTest {
         restorationTester.emulateSavedInstanceStateRestore()
         waitUntilTitleExists(titleOrderList[RESTORATION_SCROLL_INDEX].detail.title)
 
-        viewModel.sort.value shouldBe ListSort.TITLE
+        viewModel.sortUiState.value shouldBe ListSortUiState(sort = ListSort.TITLE)
         composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).assertDoesNotExist()
         composeRule.onNodeWithText(titleOrderList[RESTORATION_SCROLL_INDEX].detail.title).assertIsDisplayed()
         composeRule.onNodeWithText(titleOrderList.first().detail.title).assertDoesNotExist()

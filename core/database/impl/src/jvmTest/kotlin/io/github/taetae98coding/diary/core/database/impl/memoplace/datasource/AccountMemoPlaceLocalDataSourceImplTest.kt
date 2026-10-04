@@ -115,7 +115,7 @@ class AccountMemoPlaceLocalDataSourceImplTest :
                 memoPlaceList = emptyList(),
             )
 
-            syncTransaction.save(
+            syncTransaction.upsert(
                 accountId = accountId,
                 memoPlaceList = listOf(memoPlace(memoId = memo.id, placeId = missingPlaceId)),
                 cursor = 1L,
@@ -131,7 +131,7 @@ class AccountMemoPlaceLocalDataSourceImplTest :
             val place = place()
             placeTransaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = emptyList())
 
-            syncTransaction.save(
+            syncTransaction.upsert(
                 accountId = accountId,
                 memoPlaceList = listOf(memoPlace(memoId = missingMemoId, placeId = place.id)),
                 cursor = 1L,
@@ -146,7 +146,7 @@ class AccountMemoPlaceLocalDataSourceImplTest :
             val memo = memo()
             val place = place()
             placeTransaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = emptyList())
-            syncTransaction.save(
+            syncTransaction.upsert(
                 accountId = accountId,
                 memoPlaceList = listOf(memoPlace(memoId = memo.id, placeId = place.id)),
                 cursor = 1L,
@@ -236,7 +236,7 @@ class AccountMemoPlaceLocalDataSourceImplTest :
             placeTransaction.upsert(accountId = accountId, placeList = listOf(place.copy(isDeleted = true)), placeTagList = emptyList())
             dataSource.getPlaceList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
 
-            AccountPlaceSyncTransactionImpl(database = database).save(
+            AccountPlaceSyncTransactionImpl(database = database).upsert(
                 accountId = accountId,
                 placeList = listOf(place.copy(isDeleted = false)),
                 cursor = 1L,

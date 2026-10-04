@@ -142,7 +142,7 @@ private fun MemoDetailTargetEffect(
     navigateToCopiedMemo: (Uuid) -> Unit,
 ) {
     MemoDetailScreenEffect(effect = detailViewModel.effect, scaffoldState = scaffoldState, navigateUp = navigateUp, navigateToCopiedMemo = navigateToCopiedMemo)
-    MemoGeminiSettingRequiredEffect(hostState = scaffoldState.hostState, effect = geminiViewModel.effect)
+    MemoGeminiSettingRequiredEffect(snackbarHostState = scaffoldState.snackbarHostState, effect = geminiViewModel.effect)
 
     if (id != null) {
         MemoCopiedResultEffect(id = id, scaffoldState = scaffoldState)

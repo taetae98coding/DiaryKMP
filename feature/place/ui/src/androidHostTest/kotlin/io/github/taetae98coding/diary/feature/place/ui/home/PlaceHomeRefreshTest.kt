@@ -27,8 +27,9 @@ import io.github.taetae98coding.diary.domain.place.usecase.GetPlaceListUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceHomeUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
-import io.github.taetae98coding.diary.domain.sync.usecase.GetProgressReportedUseCase
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceHomePlaceListUiState
 import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceHomePlaceListViewModel
 import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceList
@@ -42,10 +43,13 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -86,17 +90,23 @@ class PlaceHomeRefreshTest {
     fun `TC-PLACE-HOME-FEATURE-033 새로고침이 실패해도 표시 중인 장소는 유지되고 실패 안내가 없다`() {
         val basePlace = viewModeTestPlace()
         val place = basePlace.copy(detail = basePlace.detail.copy(title = "RefreshPlace${basePlace.id.toHexString()}"))
-        val progressFlow = MutableStateFlow(Result.success(false))
+        val syncUiState = MutableStateFlow(SyncRefreshUiState())
         val syncGate = CompletableDeferred<Unit>()
         val requestSyncUseCase = mockk<RequestSyncUseCase>()
         coEvery { requestSyncUseCase(parameter = SyncTrigger.USER_REQUESTED) } coAnswers {
-            progressFlow.value = Result.success(true)
             syncGate.await()
-            progressFlow.value = Result.success(false)
             Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
         }
-        val getProgressReportedUseCase = mockk<GetProgressReportedUseCase>()
-        every { getProgressReportedUseCase(parameter = Unit) } returns progressFlow
+        val syncViewModel = mockk<SyncRefreshViewModel>(relaxed = true)
+        every { syncViewModel.uiState } returns syncUiState
+        every { syncViewModel.refresh() } answers {
+            CoroutineScope(Dispatchers.Default).launch {
+                syncUiState.value = SyncRefreshUiState(isRefreshing = true)
+                requestSyncUseCase(parameter = SyncTrigger.USER_REQUESTED)
+                syncUiState.value = SyncRefreshUiState(isRefreshing = false)
+            }
+            Unit
+        }
         val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
         // Robolectric은 지도 SDK의 뷰를 불러오지 못하므로 기본 지도를 확인하지 못한 채로 두어 지도를 그리지 않는다.
         every { getDefaultMapProviderUseCase(parameter = Unit) } returns emptyFlow()
@@ -120,11 +130,7 @@ class PlaceHomeRefreshTest {
                     deletePlaceUseCase = mockk(),
                     restorePlaceUseCase = mockk(),
                 ),
-            syncViewModel =
-                PlaceHomeSyncViewModel(
-                    getProgressReportedUseCase = getProgressReportedUseCase,
-                    requestSyncUseCase = requestSyncUseCase,
-                ),
+            syncViewModel = syncViewModel,
         )
         composeRule.onNodeWithContentDescription(DEFAULT_LIST_VIEW_MODE_DESCRIPTION).performClick()
         composeRule.waitUntil(timeoutMillis = TIMEOUT_MILLIS) { exists(hasText(place.detail.title)) }
@@ -145,7 +151,7 @@ class PlaceHomeRefreshTest {
     private fun setPlaceHomeScreen(
         mapViewModel: PlaceHomeMapViewModel,
         placeListViewModel: PlaceHomePlaceListViewModel,
-        syncViewModel: PlaceHomeSyncViewModel,
+        syncViewModel: SyncRefreshViewModel,
     ) {
         composeRule.setContent {
             DiaryTheme {

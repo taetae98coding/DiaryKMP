@@ -2,10 +2,10 @@ package io.github.taetae98coding.diary.domain.sync.usecase
 
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.account.usecase.requireAccount
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.sync.SyncManager
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
-import kotlinx.coroutines.flow.first
 import org.koin.core.annotation.Factory
 
 @Factory
@@ -14,7 +14,7 @@ public class RequestSyncUseCase internal constructor(
     private val syncManager: SyncManager,
 ) : UseCase<SyncTrigger, Unit>() {
     override suspend fun execute(parameter: SyncTrigger) {
-        val account = getAccountUseCase(parameter = Unit).first().getOrThrow()
+        val account = getAccountUseCase.requireAccount()
 
         if (account !is Account.User) return
         if (!account.isSessionValid) return

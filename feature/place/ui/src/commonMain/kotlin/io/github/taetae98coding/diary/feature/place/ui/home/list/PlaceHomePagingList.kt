@@ -28,18 +28,17 @@ import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefr
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
-import io.github.taetae98coding.diary.compose.place.SwipeToDeletePlaceCard
+import io.github.taetae98coding.diary.compose.place.PlaceListEvent
+import io.github.taetae98coding.diary.compose.place.SwipePlaceCard
+import io.github.taetae98coding.diary.compose.place.previewPlace
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.feature.place.ui.Res
 import io.github.taetae98coding.diary.feature.place.ui.home.PlaceHomeScaffoldEvent
 import io.github.taetae98coding.diary.feature.place.ui.place_home_list_empty_description
 import io.github.taetae98coding.diary.feature.place.ui.place_home_list_empty_title
-import io.github.taetae98coding.diary.feature.place.ui.previewPlace
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
-
-internal const val PLACE_HOME_PAGING_LIST_TEST_TAG: String = "PlaceHomePagingList"
 
 @Composable
 internal fun PlaceHomePagingList(
@@ -110,7 +109,6 @@ private fun PlaceHomePagingGrid(
         modifier = Modifier.fillMaxSize(),
         state = gridState,
         isRefreshingProvider = isRefreshingProvider,
-        listTestTag = PLACE_HOME_PAGING_LIST_TEST_TAG,
     ) {
         items(
             count = placePagingItems.itemCount,
@@ -118,9 +116,13 @@ private fun PlaceHomePagingGrid(
         ) { index ->
             val place = placePagingItems[index]
 
-            SwipeToDeletePlaceCard(
-                onClick = { place?.let { value -> onEvent(PlaceHomeScaffoldEvent.ClickPlace(id = value.id)) } },
-                onDelete = { place?.let { value -> onEvent(PlaceHomeScaffoldEvent.DeletePlace(id = value.id)) } },
+            SwipePlaceCard(
+                onEvent = { event ->
+                    when (event) {
+                        is PlaceListEvent.ClickPlace -> onEvent(PlaceHomeScaffoldEvent.ClickPlace(id = event.id))
+                        is PlaceListEvent.SwipeDelete -> onEvent(PlaceHomeScaffoldEvent.DeletePlace(id = event.id))
+                    }
+                },
                 modifier =
                     Modifier
                         .animateItem()

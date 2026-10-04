@@ -16,6 +16,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.web.WEB_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.web.Web
+import io.github.taetae98coding.diary.feature.web.ui.refreshableList
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
@@ -210,7 +211,7 @@ class WebHomeScaffoldTest {
             }
         setWebHomeScaffold(webList = webList)
 
-        composeRule.onNodeWithTag(WEB_HOME_LIST_TEST_TAG).performScrollToIndex(webList.lastIndex)
+        composeRule.refreshableList().performScrollToIndex(webList.lastIndex)
 
         val lastCardBottom =
             composeRule

@@ -24,11 +24,11 @@ import io.github.taetae98coding.diary.compose.core.swipe.SwipeFinishAction
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.SwipeTagCard
 import io.github.taetae98coding.diary.compose.tag.list.TagListEvent
+import io.github.taetae98coding.diary.compose.tag.previewTag
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeResult
 import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeResultEvent
-import io.github.taetae98coding.diary.feature.search.ui.previewTag
 import kotlinx.coroutines.flow.flowOf
 
 internal const val SEARCH_HOME_TAG_LIST_TEST_TAG: String = "SearchHomeTagList"

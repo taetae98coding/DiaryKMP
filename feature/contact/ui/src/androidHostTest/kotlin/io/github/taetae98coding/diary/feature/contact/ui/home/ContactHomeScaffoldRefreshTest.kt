@@ -10,6 +10,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
@@ -80,7 +81,7 @@ class ContactHomeScaffoldRefreshTest {
                 ContactHomeScaffold(
                     onEvent = onEvent,
                     contactPagingItems = contactPagingDataFlow.collectAsLazyPagingItems(),
-                    uiStateProvider = { ContactHomeUiState(isRefreshing = isRefreshingProvider()) },
+                    uiStateProvider = { SyncRefreshUiState(isRefreshing = isRefreshingProvider()) },
                 )
             }
         }

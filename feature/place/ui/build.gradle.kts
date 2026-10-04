@@ -7,7 +7,6 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.compose.list)
-                implementation(libs.jetbrains.lifecycle.viewmodel.compose)
                 implementation(projects.compose.memo)
                 implementation(projects.compose.place)
                 implementation(projects.compose.tag)
@@ -17,6 +16,7 @@ kotlin {
                 implementation(projects.domain.setting)
                 implementation(projects.domain.sync)
                 implementation(projects.domain.tag)
+                implementation(projects.feature.core)
                 implementation(projects.feature.memo.api)
                 implementation(projects.feature.place.api)
                 implementation(projects.feature.search.api)
@@ -28,7 +28,6 @@ kotlin {
 
         androidHostTest {
             dependencies {
-                implementation(libs.androidx.lifecycle.runtime.testing)
                 implementation(libs.androidx.paging.testing)
                 implementation(projects.core.testing)
             }

@@ -39,6 +39,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarFilterUseCa
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.MoveMemoUseCase
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.toDateRange
+import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.toDateRange
 import io.github.taetae98coding.diary.feature.calendar.ui.resetAndroidUiDispatcher
@@ -953,8 +954,8 @@ class CalendarHomeScreenMoveTest {
             weatherViewModel(weatherReportFlow = MutableStateFlow(CalendarWeatherReport(weatherList = weatherList)))
         val mockMemoViewModel =
             memoViewModel ?: mockk<CalendarHomeMemoViewModel>().also { viewModel ->
-                every { viewModel.fetch(any()) } returns Unit
-                every { viewModel.memoList } returns memoListFlow
+                every { viewModel.select(any()) } returns Unit
+                every { viewModel.uiState } returns memoListFlow.mapState { memoList -> CalendarHomeMemoUiState(memoList = memoList) }
                 every { viewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
                 every { viewModel.move(id = any(), fromDateTime = any(), toDateRange = any()) } answers {
                     movedList += Triple(firstArg(), secondArg(), thirdArg())

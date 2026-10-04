@@ -22,7 +22,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.InjectedParam
@@ -45,14 +44,14 @@ internal class WebDetailTagViewModel(
             .debounceReportedSearchQuery()
             .flatMapLatest { value ->
                 pageWebSelectableTagUseCase(parameter = PageWebSelectableTagUseCase.Parameter(webId = id, query = value))
-            }.mapNotNull { result -> result.getOrNull() }
+            }.map { result -> result.getOrElse { PagingData.empty() } }
             .cachedIn(viewModelScope)
 
     val selectableTagPagingData: Flow<PagingData<Tag>> =
         flowOf("")
             .flatMapLatest { value ->
                 pageWebSelectableTagUseCase(parameter = PageWebSelectableTagUseCase.Parameter(webId = id, query = value))
-            }.mapNotNull { result -> result.getOrNull() }
+            }.map { result -> result.getOrElse { PagingData.empty() } }
             .cachedIn(viewModelScope)
 
     val uiState: StateFlow<EntityTagInputUiState> =
@@ -64,19 +63,34 @@ internal class WebDetailTagViewModel(
                 initialValue = EntityTagInputUiState(),
             )
 
+    private val addingTagIdSet = mutableSetOf<Uuid>()
+    private val removingTagIdSet = mutableSetOf<Uuid>()
+
     fun updateQuery(query: String) {
         this.query.value = query
     }
 
     fun add(tagId: Uuid) {
+        if (!addingTagIdSet.add(tagId)) return
+
         viewModelScope.launch {
-            addWebTagUseCase(parameter = AddWebTagUseCase.Parameter(webId = id, tagId = tagId))
+            try {
+                addWebTagUseCase(parameter = AddWebTagUseCase.Parameter(webId = id, tagId = tagId))
+            } finally {
+                addingTagIdSet.remove(tagId)
+            }
         }
     }
 
     fun remove(tagId: Uuid) {
+        if (!removingTagIdSet.add(tagId)) return
+
         viewModelScope.launch {
-            removeWebTagUseCase(parameter = RemoveWebTagUseCase.Parameter(webId = id, tagId = tagId))
+            try {
+                removeWebTagUseCase(parameter = RemoveWebTagUseCase.Parameter(webId = id, tagId = tagId))
+            } finally {
+                removingTagIdSet.remove(tagId)
+            }
         }
     }
 }

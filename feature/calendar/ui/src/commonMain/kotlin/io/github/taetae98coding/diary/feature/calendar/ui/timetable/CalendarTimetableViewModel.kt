@@ -4,7 +4,6 @@ package io.github.taetae98coding.diary.feature.calendar.ui.timetable
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarMemoUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -24,7 +23,7 @@ internal class CalendarTimetableViewModel(
 ) : ViewModel() {
     private val dateRange = MutableStateFlow<LocalDateRange?>(null)
 
-    val memoList: StateFlow<List<CalendarMemo>> =
+    val uiState: StateFlow<CalendarTimetableMemoUiState> =
         dateRange
             .flatMapLatest { dateRange ->
                 if (dateRange == null) {
@@ -33,13 +32,14 @@ internal class CalendarTimetableViewModel(
                     getCalendarMemoUseCase(parameter = dateRange)
                         .map { result -> result.getOrDefault(emptyList()) }
                 }
-            }.stateIn(
+            }.map { memoList -> CalendarTimetableMemoUiState(memoList = memoList) }
+            .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileUiSubscribed,
-                initialValue = emptyList(),
+                initialValue = CalendarTimetableMemoUiState(),
             )
 
-    fun fetch(dateRange: LocalDateRange) {
+    fun select(dateRange: LocalDateRange) {
         this.dateRange.value = dateRange
     }
 }

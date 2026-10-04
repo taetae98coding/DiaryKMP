@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.domain.memo.usecase
 
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.account.usecase.requireAccount
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
@@ -26,7 +27,7 @@ public class MoveMemoUseCase internal constructor(
 
         if (memo == null || memo.isDeleted) return
 
-        val account = getAccountUseCase(parameter = Unit).first().getOrThrow()
+        val account = getAccountUseCase.requireAccount()
 
         accountMemoRepository.updateDetail(
             account = account,

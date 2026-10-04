@@ -33,7 +33,7 @@ internal fun TimetableAllDay(
     dateRange: LocalDateRange,
     modifier: Modifier = Modifier,
     type: TimetableType = TimetableType.WEEK,
-    selectState: TimetableSelectState = remember { TimetableSelectState() },
+    selectState: TimetableSelectState = rememberTimetableSelectState(),
     itemList: List<TimetablePlacedAllDayItem> = emptyList(),
 ) {
     val spacing = DiaryTheme.dimens.calendarItemSpacing

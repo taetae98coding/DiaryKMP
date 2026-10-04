@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -29,12 +28,11 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.flowWithLifecycle
 import coil3.compose.AsyncImagePainter
 import coil3.compose.LocalPlatformContext
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
+import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
 import io.github.taetae98coding.diary.compose.core.icon.BrokenImageIcon
 import io.github.taetae98coding.diary.compose.core.icon.PhotoIcon
@@ -116,29 +114,23 @@ private fun LoadPhotoEffect(
     painter: AsyncImagePainter,
     state: ProfileImageEditState,
 ) {
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    // Coil은 사진이 없는 null 모델도 오류로 알리므로, 고른 사진이 있을 때만 읽기 결과를 반영한다.
+    CollectEffect(effect = painter.state) { value ->
+        if (state.uri == null) return@CollectEffect
 
-    LaunchedEffect(painter, state, lifecycle) {
-        // Coil은 사진이 없는 null 모델도 오류로 알리므로, 고른 사진이 있을 때만 읽기 결과를 반영한다.
-        painter.state
-            .flowWithLifecycle(lifecycle)
-            .collect { value ->
-                if (state.uri == null) return@collect
+        when (value) {
+            is AsyncImagePainter.State.Empty -> Unit
 
-                when (value) {
-                    is AsyncImagePainter.State.Empty -> Unit
+            is AsyncImagePainter.State.Loading -> state.onPhotoLoading()
 
-                    is AsyncImagePainter.State.Loading -> state.onPhotoLoading()
+            is AsyncImagePainter.State.Success -> {
+                val size = value.painter.intrinsicSize
 
-                    is AsyncImagePainter.State.Success -> {
-                        val size = value.painter.intrinsicSize
-
-                        state.onPhotoLoaded(width = size.width.toInt(), height = size.height.toInt())
-                    }
-
-                    is AsyncImagePainter.State.Error -> state.onPhotoUnreadable()
-                }
+                state.onPhotoLoaded(width = size.width.toInt(), height = size.height.toInt())
             }
+
+            is AsyncImagePainter.State.Error -> state.onPhotoUnreadable()
+        }
     }
 }
 

@@ -1,9 +1,6 @@
 plugins {
-    alias(libs.plugins.primitive.kmp)
-    alias(libs.plugins.primitive.android.library)
+    alias(libs.plugins.convention.work)
     alias(libs.plugins.primitive.android.host.test)
-    alias(libs.plugins.primitive.koin)
-    alias(libs.plugins.primitive.kotest)
 }
 
 kotlin {
@@ -15,6 +12,7 @@ kotlin {
                 implementation(projects.core.network.api)
                 implementation(projects.domain.account)
                 implementation(projects.domain.sync)
+                implementation(projects.library.coroutines)
                 implementation(projects.logger.crashlytics.api)
             }
         }

@@ -1,6 +1,5 @@
 package io.github.taetae98coding.diary.feature.tag.ui.finished
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.assertCountEquals
@@ -26,6 +25,7 @@ import io.github.taetae98coding.diary.compose.tag.TAG_COLOR_INDICATOR_TEST_TAG
 import io.github.taetae98coding.diary.compose.tag.list.TagListEvent
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -169,7 +169,7 @@ class TagFinishedListScaffoldTest {
 
     private fun setTagFinishedListScaffold(
         tagList: List<Tag> = emptyList(),
-        uiState: TagFinishedListUiState = TagFinishedListUiState(),
+        uiState: SyncRefreshUiState = SyncRefreshUiState(),
         onEvent: (TagFinishedListScaffoldEvent) -> Unit = {},
         onTagListEvent: (TagListEvent) -> Unit = {},
     ) {

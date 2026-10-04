@@ -12,6 +12,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.feature.web.ui.refreshableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
@@ -42,7 +43,7 @@ class WebHomeListRestorationTest {
                 )
             }
         }
-        composeRule.onNodeWithTag(WEB_HOME_LIST_TEST_TAG).performScrollToIndex(RESTORATION_SCROLL_INDEX)
+        composeRule.refreshableList().performScrollToIndex(RESTORATION_SCROLL_INDEX)
         composeRule.onNodeWithText(webList[RESTORATION_SCROLL_INDEX].detail.title).assertIsDisplayed()
         composeRule.onNodeWithText(webList.first().detail.title).assertDoesNotExist()
 
@@ -71,7 +72,7 @@ class WebHomeListRestorationTest {
                 }
             }
         }
-        composeRule.onNodeWithTag(WEB_HOME_LIST_TEST_TAG).performScrollToIndex(RESTORATION_SCROLL_INDEX)
+        composeRule.refreshableList().performScrollToIndex(RESTORATION_SCROLL_INDEX)
         composeRule.onNodeWithText(webList[RESTORATION_SCROLL_INDEX].detail.title).assertIsDisplayed()
 
         composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }

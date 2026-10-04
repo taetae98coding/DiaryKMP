@@ -29,7 +29,7 @@ public const val MEMO_COLOR_INDICATOR_TEST_TAG: String = "MemoColorIndicator"
 public const val MEMO_DATE_TIME_TEST_TAG: String = "MemoDateTime"
 
 @Composable
-public fun MemoCard(
+internal fun MemoCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     memo: Memo? = null,

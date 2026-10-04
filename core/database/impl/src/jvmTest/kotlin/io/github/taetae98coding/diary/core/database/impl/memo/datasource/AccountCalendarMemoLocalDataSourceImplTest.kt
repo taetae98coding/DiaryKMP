@@ -381,7 +381,7 @@ class AccountCalendarMemoLocalDataSourceImplTest :
             calendarMemoFlow(accountId = accountId).test {
                 awaitUntil { calendarMemoList -> calendarMemoList.single().color == memo.detail.color }
 
-                AccountTagSyncTransactionImpl(database = database).save(
+                AccountTagSyncTransactionImpl(database = database).upsert(
                     accountId = accountId,
                     tagList = listOf(tag.copy(isDeleted = false)),
                     cursor = fixtureMonkey.giveMeOne<Long>(),

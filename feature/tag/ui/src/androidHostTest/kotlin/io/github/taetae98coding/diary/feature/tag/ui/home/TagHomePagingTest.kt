@@ -4,7 +4,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.AndroidUiDispatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollToIndex
@@ -17,6 +16,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
+import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import org.junit.Before
 import org.junit.Rule
@@ -91,7 +91,7 @@ class TagHomePagingTest {
     }
 
     private fun scrollToLast(tagList: List<Tag>) {
-        composeRule.onNodeWithTag(TAG_HOME_LIST_TEST_TAG).performScrollToIndex(tagList.lastIndex)
+        composeRule.refreshableList().performScrollToIndex(tagList.lastIndex)
         composeRule.waitForIdle()
     }
 

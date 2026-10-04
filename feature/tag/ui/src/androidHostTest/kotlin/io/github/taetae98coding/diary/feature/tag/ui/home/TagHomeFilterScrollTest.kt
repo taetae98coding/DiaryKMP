@@ -21,6 +21,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
+import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -91,7 +92,7 @@ class TagHomeFilterScrollTest {
                     onTagListEvent = {},
                     tagPagingItems = tagPagingItems,
                     onEvent = {},
-                    filterUiStateProvider = { TagHomeScaffoldFilterUiState(isApplied = currentIsApplied) },
+                    filterUiStateProvider = { TagHomeScaffoldFilterUiState(isLoaded = true, isApplied = currentIsApplied) },
                 )
             }
         }
@@ -153,12 +154,12 @@ class TagHomeFilterScrollTest {
     @Test
     fun `TC-TAG-HOME-FEATURE-052 저장된 필터를 불러오기 전에 이동한 목록 위치는 필터를 불러온 뒤 목록이 갱신되어도 유지한다`() {
         val allTagList = tagList(ALL_TAG_COUNT)
-        val filterUiState = mutableStateOf<TagHomeScaffoldFilterUiState?>(null)
+        val filterUiState = mutableStateOf(TagHomeScaffoldFilterUiState())
         val tagListState = mutableStateOf(allTagList)
         setTagHomeScaffoldWithResult(filterUiStateProvider = { filterUiState.value }, tagListState = tagListState)
         scrollToLast(tagList = allTagList)
 
-        composeRule.runOnIdle { filterUiState.value = TagHomeScaffoldFilterUiState(isApplied = true) }
+        composeRule.runOnIdle { filterUiState.value = TagHomeScaffoldFilterUiState(isLoaded = true, isApplied = true) }
         composeRule.waitForIdle()
         composeRule.runOnIdle { tagListState.value = allTagList + tag(title = fixtureText(prefix = TITLE_PREFIX)) }
         composeRule.waitForIdle()
@@ -168,7 +169,7 @@ class TagHomeFilterScrollTest {
     }
 
     private fun scrollToLast(tagList: List<Tag>) {
-        composeRule.onNodeWithTag(TAG_HOME_LIST_TEST_TAG).performScrollToIndex(tagList.lastIndex)
+        composeRule.refreshableList().performScrollToIndex(tagList.lastIndex)
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(tagList.first().title()).assertDoesNotExist()
@@ -195,7 +196,7 @@ class TagHomeFilterScrollTest {
                     onTagListEvent = {},
                     tagPagingItems = tagPagingData.collectAsLazyPagingItems(),
                     onEvent = {},
-                    filterUiStateProvider = { TagHomeScaffoldFilterUiState(isApplied = currentIsApplied) },
+                    filterUiStateProvider = { TagHomeScaffoldFilterUiState(isLoaded = true, isApplied = currentIsApplied) },
                 )
             }
         }
@@ -207,13 +208,13 @@ class TagHomeFilterScrollTest {
         tagListState: MutableState<List<Tag>>,
     ) {
         setTagHomeScaffoldWithResult(
-            filterUiStateProvider = { TagHomeScaffoldFilterUiState(isApplied = isApplied.value) },
+            filterUiStateProvider = { TagHomeScaffoldFilterUiState(isLoaded = true, isApplied = isApplied.value) },
             tagListState = tagListState,
         )
     }
 
     private fun setTagHomeScaffoldWithResult(
-        filterUiStateProvider: () -> TagHomeScaffoldFilterUiState?,
+        filterUiStateProvider: () -> TagHomeScaffoldFilterUiState,
         tagListState: MutableState<List<Tag>>,
     ) {
         composeRule.setContent {

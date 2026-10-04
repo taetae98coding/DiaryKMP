@@ -4,13 +4,12 @@ import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.unit.dp
+import io.github.taetae98coding.diary.compose.core.dialog.DIARY_PAGING_PICKER_LIST_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.dialog.DIARY_PICKER_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.feature.memo.ui.place.HOME_PLACE_QUERY
 import io.github.taetae98coding.diary.feature.memo.ui.place.HOME_PLACE_TITLE
-import io.github.taetae98coding.diary.feature.memo.ui.place.MEMO_PLACE_PICKER_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.memo.ui.place.setMemoPlacePickerDialog
 import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
-import io.github.taetae98coding.diary.feature.memo.ui.tag.MEMO_TAG_PICKER_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.memo.ui.tag.WORK_TAG_QUERY
 import io.github.taetae98coding.diary.feature.memo.ui.tag.WORK_TAG_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.tag.awaitTagPickerRows
@@ -34,7 +33,7 @@ class MemoPickerDialogSizeTest {
         composeRule.setMemoTagPickerDialog(tagList = listOf(testTag(title = WORK_TAG_TITLE)))
         composeRule.awaitTagPickerRows()
 
-        composeRule.onNode(hasTestTag(MEMO_TAG_PICKER_LIST_TEST_TAG)).assertHeightIsEqualTo(PICKER_LIST_HEIGHT)
+        composeRule.onNode(hasTestTag(DIARY_PAGING_PICKER_LIST_TEST_TAG)).assertHeightIsEqualTo(PICKER_LIST_HEIGHT)
     }
 
     @Test
@@ -42,7 +41,7 @@ class MemoPickerDialogSizeTest {
         composeRule.setMemoTagPickerDialog(tagList = List(ROW_COUNT_OVER_AREA) { index -> testTag(title = "$WORK_TAG_TITLE$index") })
         composeRule.awaitTagPickerRows()
 
-        composeRule.onNode(hasTestTag(MEMO_TAG_PICKER_LIST_TEST_TAG)).assertHeightIsEqualTo(PICKER_LIST_HEIGHT)
+        composeRule.onNode(hasTestTag(DIARY_PAGING_PICKER_LIST_TEST_TAG)).assertHeightIsEqualTo(PICKER_LIST_HEIGHT)
     }
 
     @Test
@@ -60,7 +59,7 @@ class MemoPickerDialogSizeTest {
         composeRule.setMemoPlacePickerDialog(placeList = listOf(testPlace(title = HOME_PLACE_TITLE)))
         composeRule.waitForIdle()
 
-        composeRule.onNode(hasTestTag(MEMO_PLACE_PICKER_LIST_TEST_TAG)).assertHeightIsEqualTo(PICKER_LIST_HEIGHT)
+        composeRule.onNode(hasTestTag(DIARY_PAGING_PICKER_LIST_TEST_TAG)).assertHeightIsEqualTo(PICKER_LIST_HEIGHT)
     }
 
     @Test

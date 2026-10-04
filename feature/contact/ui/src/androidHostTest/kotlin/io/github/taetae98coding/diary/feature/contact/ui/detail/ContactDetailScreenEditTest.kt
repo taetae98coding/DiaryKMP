@@ -42,7 +42,7 @@ import io.github.taetae98coding.diary.feature.contact.ui.add.hometownInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.nameInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.phoneNumberInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.phoneNumberRowCount
-import io.github.taetae98coding.diary.feature.contact.ui.detail.memo.CONTACT_DETAIL_MEMO_LIST_TEST_TAG
+import io.github.taetae98coding.diary.feature.contact.ui.refreshableList
 import io.github.taetae98coding.diary.feature.contact.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
@@ -281,7 +281,7 @@ class ContactDetailScreenEditTest {
         )
         composeRule.selectContactDetailTab(contentDescription = DEFAULT_MEMO_TAB_DESCRIPTION)
         composeRule.waitUntil { composeRule.onAllNodesWithText(titleList.first()).fetchSemanticsNodes().isNotEmpty() }
-        composeRule.onNodeWithTag(CONTACT_DETAIL_MEMO_LIST_TEST_TAG).performScrollToNode(hasText(titleList.last()))
+        composeRule.refreshableList().performScrollToNode(hasText(titleList.last()))
         composeRule.waitForIdle()
         composeRule.onNodeWithText(titleList.last()).assertIsDisplayed()
 

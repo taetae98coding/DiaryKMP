@@ -358,28 +358,28 @@ class TagAddScreenTagAddTest {
             tagList: List<Tag>,
             tagPagingData: MutableStateFlow<PagingData<Tag>>,
         ): TagAddLinkViewModel {
-            val linkedTagIdSet = MutableStateFlow(emptySet<Uuid>())
+            val selectionUiState = MutableStateFlow(TagAddLinkSelectionUiState())
             val uiState = MutableStateFlow(TagLinkInputUiState())
 
             fun reflect() {
-                uiState.value = TagLinkInputUiState(linkedTagList = tagList.filter { tag -> tag.id in linkedTagIdSet.value })
+                uiState.value = TagLinkInputUiState(linkedTagList = tagList.filter { tag -> tag.id in selectionUiState.value.linkedTagIdSet })
             }
 
             return mockk<TagAddLinkViewModel>(relaxed = true).apply {
                 every { this@apply.uiState } returns uiState
                 every { this@apply.tagPagingData } returns tagPagingData
                 every { this@apply.selectableTagPagingData } returns tagPagingData
-                every { this@apply.linkedTagIdSet } returns linkedTagIdSet
+                every { this@apply.selectionUiState } returns selectionUiState
                 every { link(id = any()) } answers {
-                    linkedTagIdSet.value += firstArg<Uuid>()
+                    selectionUiState.value = selectionUiState.value.copy(linkedTagIdSet = selectionUiState.value.linkedTagIdSet + firstArg<Uuid>())
                     reflect()
                 }
                 every { unlink(id = any()) } answers {
-                    linkedTagIdSet.value -= firstArg<Uuid>()
+                    selectionUiState.value = selectionUiState.value.copy(linkedTagIdSet = selectionUiState.value.linkedTagIdSet - firstArg<Uuid>())
                     reflect()
                 }
                 every { clear() } answers {
-                    linkedTagIdSet.value = emptySet()
+                    selectionUiState.value = TagAddLinkSelectionUiState()
                     reflect()
                 }
             }

@@ -5,7 +5,7 @@ import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
 internal sealed interface SettingGeminiUiState {
     data object Loading : SettingGeminiUiState
 
-    data class Loaded(
+    data class Content(
         val setting: GeminiSetting,
         val isInProgress: Boolean = false,
     ) : SettingGeminiUiState

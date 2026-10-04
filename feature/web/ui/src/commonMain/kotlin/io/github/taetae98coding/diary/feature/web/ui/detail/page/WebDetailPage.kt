@@ -28,6 +28,7 @@ import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderD
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.web.DiaryWebView
+import io.github.taetae98coding.diary.compose.web.previewWebPage
 import io.github.taetae98coding.diary.feature.web.ui.Res
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScaffoldEvent
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScaffoldState
@@ -35,7 +36,6 @@ import io.github.taetae98coding.diary.feature.web.ui.detail.rememberWebDetailSca
 import io.github.taetae98coding.diary.feature.web.ui.detail.viewmode.WebDetailViewMode
 import io.github.taetae98coding.diary.feature.web.ui.detail.viewmode.WebDetailViewModeBar
 import io.github.taetae98coding.diary.feature.web.ui.previewWebDetail
-import io.github.taetae98coding.diary.feature.web.ui.previewWebPage
 import io.github.taetae98coding.diary.feature.web.ui.web_detail_page_content_description
 import io.github.taetae98coding.diary.feature.web.ui.web_detail_page_failure_description
 import io.github.taetae98coding.diary.feature.web.ui.web_detail_page_failure_title

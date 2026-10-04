@@ -9,7 +9,7 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
-import io.github.taetae98coding.diary.domain.search.repository.SearchTagRepository
+import io.github.taetae98coding.diary.domain.search.repository.AccountSearchTagRepository
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -30,15 +30,15 @@ class SearchTagUseCaseTest :
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val tagList = List(2) { tag() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            val searchTagRepository = mockk<SearchTagRepository>()
+            val accountSearchTagRepository = mockk<AccountSearchTagRepository>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             every {
-                searchTagRepository.page(account = account, query = QUERY, sort = ListSort.TITLE)
+                accountSearchTagRepository.page(account = account, query = QUERY, sort = ListSort.TITLE)
             } returns flowOf(PagingData.from(tagList))
             val useCase =
                 SearchTagUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    searchTagRepository = searchTagRepository,
+                    accountSearchTagRepository = accountSearchTagRepository,
                 )
 
             When("질의로 태그를 검색한다") {
@@ -59,15 +59,15 @@ class SearchTagUseCaseTest :
         Given("로그인하지 않은 게스트 상태이고 질의를 만족하는 태그가 준비되어 있다") {
             val tagList = List(2) { tag() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            val searchTagRepository = mockk<SearchTagRepository>()
+            val accountSearchTagRepository = mockk<AccountSearchTagRepository>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(Account.Guest))
             every {
-                searchTagRepository.page(account = Account.Guest, query = QUERY, sort = ListSort.TITLE)
+                accountSearchTagRepository.page(account = Account.Guest, query = QUERY, sort = ListSort.TITLE)
             } returns flowOf(PagingData.from(tagList))
             val useCase =
                 SearchTagUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    searchTagRepository = searchTagRepository,
+                    accountSearchTagRepository = accountSearchTagRepository,
                 )
 
             When("질의로 태그를 검색한다") {
@@ -81,11 +81,11 @@ class SearchTagUseCaseTest :
 
         Given("빈 질의가 준비되어 있다") {
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            val searchTagRepository = mockk<SearchTagRepository>()
+            val accountSearchTagRepository = mockk<AccountSearchTagRepository>()
             val useCase =
                 SearchTagUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    searchTagRepository = searchTagRepository,
+                    accountSearchTagRepository = accountSearchTagRepository,
                 )
 
             When("빈 질의로 태그를 검색한다") {
@@ -96,7 +96,7 @@ class SearchTagUseCaseTest :
                         flowOf(pagingData).asSnapshot().shouldBeEmpty()
                     }
 
-                    verify(exactly = 0) { searchTagRepository.page(account = any(), query = any(), sort = any()) }
+                    verify(exactly = 0) { accountSearchTagRepository.page(account = any(), query = any(), sort = any()) }
                 }
             }
         }
@@ -104,12 +104,12 @@ class SearchTagUseCaseTest :
         Given("계정 조회에 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            val searchTagRepository = mockk<SearchTagRepository>(relaxed = true)
+            val accountSearchTagRepository = mockk<AccountSearchTagRepository>(relaxed = true)
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val useCase =
                 SearchTagUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    searchTagRepository = searchTagRepository,
+                    accountSearchTagRepository = accountSearchTagRepository,
                 )
 
             When("질의로 태그를 검색한다") {
@@ -119,7 +119,7 @@ class SearchTagUseCaseTest :
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
 
-                    verify(exactly = 0) { searchTagRepository.page(account = any(), query = any(), sort = any()) }
+                    verify(exactly = 0) { accountSearchTagRepository.page(account = any(), query = any(), sort = any()) }
                 }
             }
         }

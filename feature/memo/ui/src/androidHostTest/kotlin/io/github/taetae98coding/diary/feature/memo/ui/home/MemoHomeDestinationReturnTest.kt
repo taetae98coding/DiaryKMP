@@ -38,8 +38,11 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.ui.memoEntry
+import io.github.taetae98coding.diary.feature.memo.ui.refreshableList
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
@@ -92,7 +95,7 @@ class MemoHomeDestinationReturnTest {
         composeRule.runOnIdle { memoViewModelList.last().select(sort = ListSort.TITLE) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(TITLE_SORT_LABEL).assertIsDisplayed()
-        composeRule.onNodeWithTag(MEMO_HOME_LIST_TEST_TAG).performScrollToIndex(itemList.lastIndex)
+        composeRule.refreshableList().performScrollToIndex(itemList.lastIndex)
         composeRule.waitForIdle()
         composeRule.onAllNodesWithText(memoTitle(index = 0)).fetchSemanticsNodes().isEmpty() shouldBe true
 
@@ -116,17 +119,17 @@ class MemoHomeDestinationReturnTest {
         val viewModelModule =
             module {
                 factory<MemoHomeViewModel> {
-                    val sort = MutableStateFlow(ListSort.DEFAULT)
+                    val sort = MutableStateFlow(ListSortUiState())
 
                     mockk<MemoHomeViewModel>(relaxed = true) {
-                        every { this@mockk.sort } returns sort
-                        every { select(sort = any()) } answers { sort.value = firstArg() }
+                        every { this@mockk.sortUiState } returns sort
+                        every { select(sort = any()) } answers { sort.value = ListSortUiState(sort = firstArg()) }
                         every { memoPagingData } returns MutableStateFlow(memoPagingDataOf(itemList = itemList))
                         every { filterUiState } returns storedFilterUiState
                         every { effect } returns emptyFlow()
                     }.also { viewModel -> memoViewModelList += viewModel }
                 }
-                factory<MemoHomeSyncViewModel> { screenTestSyncViewModel() }
+                factory<SyncRefreshViewModel> { screenTestSyncViewModel() }
             }
 
         composeRule.setContent {

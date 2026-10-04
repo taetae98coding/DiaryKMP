@@ -7,7 +7,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.feature.login.ui.Res
 import io.github.taetae98coding.diary.feature.login.ui.credential.AppleCredentialsException
@@ -16,14 +15,9 @@ import io.github.taetae98coding.diary.feature.login.ui.credential.AppleCredentia
 import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsException
 import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsManager
 import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsUserCancelException
-import io.github.taetae98coding.diary.feature.login.ui.credential.rememberAppleCredentialsManager
-import io.github.taetae98coding.diary.feature.login.ui.credential.rememberGoogleCredentialsManager
 import io.github.taetae98coding.diary.feature.login.ui.login_sign_in_failed_message
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 internal fun LoginHomeScreen(
@@ -35,14 +29,14 @@ internal fun LoginHomeScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val platformSignInState = rememberLoginPlatformSignInState()
-    val hostState = remember { SnackbarHostState() }
+    val snackbarHostState = remember { SnackbarHostState() }
     val signInFailedMessage = stringResource(Res.string.login_sign_in_failed_message)
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    SignInEffect(
+    LoginHomeScreenEffect(
         effect = viewModel.effect,
         navigateUp = navigateUp,
-        hostState = hostState,
+        snackbarHostState = snackbarHostState,
     )
 
     LoginHomeScaffold(
@@ -58,7 +52,7 @@ internal fun LoginHomeScreen(
                             platformSignInState = platformSignInState,
                             viewModel = viewModel,
                             credentialsManager = googleCredentialsManager,
-                            hostState = hostState,
+                            snackbarHostState = snackbarHostState,
                             signInFailedMessage = signInFailedMessage,
                         )
                     }
@@ -70,7 +64,7 @@ internal fun LoginHomeScreen(
                             platformSignInState = platformSignInState,
                             viewModel = viewModel,
                             credentialsManager = appleCredentialsManager,
-                            hostState = hostState,
+                            snackbarHostState = snackbarHostState,
                             signInFailedMessage = signInFailedMessage,
                         )
                     }
@@ -80,7 +74,7 @@ internal fun LoginHomeScreen(
         modifier = modifier,
         uiStateProvider = { uiState },
         platformSignInState = platformSignInState,
-        hostState = hostState,
+        snackbarHostState = snackbarHostState,
     )
 }
 
@@ -88,7 +82,7 @@ private suspend fun requestGoogleSignIn(
     platformSignInState: LoginPlatformSignInState,
     viewModel: LoginHomeViewModel,
     credentialsManager: GoogleCredentialsManager,
-    hostState: SnackbarHostState,
+    snackbarHostState: SnackbarHostState,
     signInFailedMessage: String,
 ) {
     if (viewModel.uiState.value.isInProgress) return
@@ -101,7 +95,7 @@ private suspend fun requestGoogleSignIn(
         viewModel.signInWithGoogle(credential = credential)
     } catch (_: GoogleCredentialsUserCancelException) {
     } catch (_: GoogleCredentialsException) {
-        hostState.showImmediate(message = signInFailedMessage)
+        snackbarHostState.showImmediate(message = signInFailedMessage)
     }
 }
 
@@ -109,7 +103,7 @@ private suspend fun requestAppleSignIn(
     platformSignInState: LoginPlatformSignInState,
     viewModel: LoginHomeViewModel,
     credentialsManager: AppleCredentialsManager,
-    hostState: SnackbarHostState,
+    snackbarHostState: SnackbarHostState,
     signInFailedMessage: String,
 ) {
     if (viewModel.uiState.value.isInProgress) return
@@ -122,27 +116,6 @@ private suspend fun requestAppleSignIn(
         viewModel.signInWithApple(credential = credential)
     } catch (_: AppleCredentialsUserCancelException) {
     } catch (_: AppleCredentialsException) {
-        hostState.showImmediate(message = signInFailedMessage)
-    }
-}
-
-@Composable
-private fun SignInEffect(
-    navigateUp: () -> Unit,
-    effect: Flow<LoginHomeEffect> = emptyFlow(),
-    hostState: SnackbarHostState = remember { SnackbarHostState() },
-) {
-    val signInFailedMessage = stringResource(Res.string.login_sign_in_failed_message)
-
-    CollectEffect(effect) { value ->
-        when (value) {
-            is LoginHomeEffect.SignInSucceeded -> {
-                navigateUp()
-            }
-
-            is LoginHomeEffect.SignInFailed -> {
-                hostState.showImmediate(message = signInFailedMessage)
-            }
-        }
+        snackbarHostState.showImmediate(message = signInFailedMessage)
     }
 }

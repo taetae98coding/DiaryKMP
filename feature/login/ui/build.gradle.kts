@@ -8,7 +8,7 @@ plugins {
 
 kotlin {
     swiftPMDependencies {
-        iosMinimumDeploymentTarget.set("26.5")
+        iosMinimumDeploymentTarget.set(libs.versions.iosDeploymentTarget.get())
 
         swiftPackage(
             url = url("https://github.com/google/GoogleSignIn-iOS.git"),
@@ -37,7 +37,6 @@ kotlin {
         androidHostTest {
             dependencies {
                 implementation(projects.logger.core)
-                implementation(libs.androidx.lifecycle.runtime.testing)
                 implementation(libs.kotlinx.coroutines.test)
             }
         }

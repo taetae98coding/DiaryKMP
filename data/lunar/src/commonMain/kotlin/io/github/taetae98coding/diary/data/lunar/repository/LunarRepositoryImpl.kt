@@ -4,7 +4,7 @@ import io.github.taetae98coding.diary.core.calendar.database.api.datasource.Luna
 import io.github.taetae98coding.diary.core.calendar.database.api.transaction.LunarTransaction
 import io.github.taetae98coding.diary.core.calendar.network.api.datasource.LunarRemoteDataSource
 import io.github.taetae98coding.diary.core.model.lunar.LunarDate
-import io.github.taetae98coding.diary.data.lunar.datasource.LunarDirtyDataSource
+import io.github.taetae98coding.diary.data.lunar.cache.LunarFetchedYearSet
 import io.github.taetae98coding.diary.data.lunar.mapper.toDomain
 import io.github.taetae98coding.diary.data.lunar.mapper.toLocal
 import io.github.taetae98coding.diary.domain.lunar.repository.LunarRepository
@@ -21,10 +21,10 @@ internal class LunarRepositoryImpl(
     private val lunarRemoteDataSource: LunarRemoteDataSource,
     private val lunarLocalDataSource: LunarLocalDataSource,
     private val lunarTransaction: LunarTransaction,
-    private val lunarDirtyDataSource: LunarDirtyDataSource,
+    private val lunarFetchedYearSet: LunarFetchedYearSet,
 ) : LunarRepository {
     override suspend fun fetch(year: Int): List<LunarDate> {
-        if (!lunarDirtyDataSource.isDirty(year = year)) return get(dateRange = year.solarDateRange()).first()
+        if (lunarFetchedYearSet.isFetched(key = year)) return get(dateRange = year.solarDateRange()).first()
 
         val lunarDateList =
             lunarRemoteDataSource
@@ -36,7 +36,7 @@ internal class LunarRepositoryImpl(
             lunarDateList = lunarDateList,
         )
 
-        lunarDirtyDataSource.clean(year = year)
+        lunarFetchedYearSet.add(key = year)
 
         return lunarDateList.map { local -> local.toDomain() }
     }

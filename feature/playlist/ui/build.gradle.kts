@@ -8,7 +8,7 @@ kotlin {
             dependencies {
                 implementation(projects.compose.list)
                 implementation(projects.domain.playlist)
-                implementation(projects.domain.sync)
+                implementation(projects.feature.core)
                 implementation(projects.feature.playlist.api)
 
                 implementation(libs.coil.compose)

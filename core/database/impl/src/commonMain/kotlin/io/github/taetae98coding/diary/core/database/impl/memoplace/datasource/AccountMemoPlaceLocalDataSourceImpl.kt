@@ -20,7 +20,7 @@ internal class AccountMemoPlaceLocalDataSourceImpl(
             memoId = memoId,
         )
 
-    override suspend fun findPlaceIdList(
+    override suspend fun readPlaceIdList(
         accountId: Uuid,
         memoId: Uuid,
     ): List<Uuid> =

@@ -224,7 +224,7 @@ class MemoWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-WEB-INPUT-FEATURE-020 웹 선택 목록 조회에 실패하면 선택 상태만 그대로 표시한다") {
+        test("웹 선택 목록 조회에 실패하면 선택 상태만 그대로 표시한다") {
             runTest(mainDispatcher) {
                 val connectedWeb = web()
                 val viewModel =
@@ -329,6 +329,26 @@ class MemoWebViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-MEMO-WEB-INPUT-FEATURE-033 검색어를 바꿔 다시 조회하다 실패하면 이전 웹 항목을 남기지 않고 빈 목록을 노출한다") {
+            runTest(mainDispatcher) {
+                val webList = List(2) { web() }
+                val pageMemoSelectableWebUseCase = mockk<PageMemoSelectableWebUseCase>()
+                every { pageMemoSelectableWebUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(webList)))
+                every { pageMemoSelectableWebUseCase(parameter = SEARCH_QUERY) } returns flowOf(Result.failure(IllegalStateException()))
+                val viewModel = viewModel(pageMemoSelectableWebUseCase = pageMemoSelectableWebUseCase)
+
+                viewModel.webPagingData.test {
+                    flowOf(awaitItem()).asSnapshot() shouldBe webList
+
+                    viewModel.updateQuery(SEARCH_QUERY)
+                    advanceUntilIdle()
+
+                    flowOf(awaitItem()).asSnapshot() shouldBe emptyList()
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
         test("TC-MEMO-WEB-INPUT-DOMAIN-011 검색어를 바꿔도 웹 입력에 표시하는 웹 항목은 그대로다") {
             runTest(mainDispatcher) {
                 val connectedWebList = List(2) { web() }
@@ -345,6 +365,25 @@ class MemoWebViewModelTest : FunSpec() {
                     expectNoEvents()
                     cancelAndIgnoreRemainingEvents()
                 }
+            }
+        }
+
+        test("같은 Web 선택이나 선택 해제가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val webId = fixtureMonkey.giveMeOne<Uuid>()
+                val addMemoWebUseCase = mockk<AddMemoWebUseCase>(relaxed = true)
+                val removeMemoWebUseCase = mockk<RemoveMemoWebUseCase>(relaxed = true)
+                val viewModel = viewModel(id = id, addMemoWebUseCase = addMemoWebUseCase, removeMemoWebUseCase = removeMemoWebUseCase)
+
+                viewModel.selectWeb(webId = webId)
+                viewModel.selectWeb(webId = webId)
+                viewModel.unselectWeb(webId = webId)
+                viewModel.unselectWeb(webId = webId)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { addMemoWebUseCase(parameter = AddMemoWebUseCase.Parameter(memoId = id, webId = webId)) }
+                coVerify(exactly = 1) { removeMemoWebUseCase(parameter = RemoveMemoWebUseCase.Parameter(memoId = id, webId = webId)) }
             }
         }
     }

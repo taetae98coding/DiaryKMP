@@ -6,21 +6,22 @@ import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
-internal fun previewTag(
+public fun previewTag(
     emoji: String,
     title: String,
     color: Long,
+    description: String = "태그 설명",
 ): Tag =
     Tag(
         id = Uuid.random(),
-        detail = TagDetail(emoji = emoji, title = title, description = "", color = color),
+        detail = TagDetail(emoji = emoji, title = title, description = description, color = color),
         isFinished = false,
         isDeleted = false,
         updatedAt = Instant.DISTANT_PAST,
         createdAt = Instant.DISTANT_PAST,
     )
 
-internal class TagListPreviewParameter : PreviewParameterProvider<List<Tag>> {
+public class TagListPreviewParameter : PreviewParameterProvider<List<Tag>> {
     override val values: Sequence<List<Tag>> =
         sequenceOf(
             emptyList(),

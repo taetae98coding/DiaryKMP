@@ -45,21 +45,21 @@ internal fun WebAddScreenEffect(
                 state.urlState.clearText()
                 state.headerState.clear()
                 state.titleState.requestFocus()
-                coroutineScope.launch { state.hostState.showImmediate(message = addSucceededMessage) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = addSucceededMessage) }
             }
 
             is WebAddEffect.TitleBlank -> {
                 state.titleState.requestFocus()
-                coroutineScope.launch { state.hostState.showImmediate(message = titleBlankMessage) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = titleBlankMessage) }
             }
 
             is WebAddEffect.UrlBlank -> {
                 state.urlState.requestFocus()
-                coroutineScope.launch { state.hostState.showImmediate(message = urlBlankMessage) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = urlBlankMessage) }
             }
 
             is WebAddEffect.HeaderNameBlank -> {
-                coroutineScope.launch { state.hostState.showImmediate(message = headerNameBlankMessage) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = headerNameBlankMessage) }
             }
         }
     }

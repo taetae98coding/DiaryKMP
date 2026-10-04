@@ -185,7 +185,7 @@ class AccountMemoTagLocalDataSourceImplTest :
             tagTransaction.upsert(accountId = accountId, tagList = listOf(tag.copy(isDeleted = true)), tagLinkList = emptyList())
             dataSource.getTagList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
 
-            AccountTagSyncTransactionImpl(database = database).save(
+            AccountTagSyncTransactionImpl(database = database).upsert(
                 accountId = accountId,
                 tagList = listOf(tag.copy(isDeleted = false)),
                 cursor = 1L,
@@ -237,7 +237,7 @@ class AccountMemoTagLocalDataSourceImplTest :
                     memoTagList = database.memoTagDao().findByMemoIdList(listOf(memo.id)),
                 )
                 val syncDataSource = AccountMemoTagSyncLocalDataSourceImpl(database = database)
-                syncDataSource.findPending(accountId = accountId).shouldBeEmpty()
+                syncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
                 val changedTagId = if (isDeleted) removedTag.id else addedTag.id
 
                 memoTagTransaction.upsert(
@@ -248,7 +248,7 @@ class AccountMemoTagLocalDataSourceImplTest :
                     updatedAt = instant(),
                 )
 
-                syncDataSource.findPending(accountId = accountId).map { memoTag -> memoTag.tagId } shouldBe listOf(changedTagId)
+                syncDataSource.readPendingList(accountId = accountId).map { memoTag -> memoTag.tagId } shouldBe listOf(changedTagId)
             }
         }
 
@@ -291,7 +291,7 @@ class AccountMemoTagLocalDataSourceImplTest :
             connect(accountId = accountId, memoId = memo.id, tag = firstTag)
             connect(accountId = accountId, memoId = memo.id, tag = secondTag)
 
-            dataSource.findTagIdList(accountId = accountId, memoId = memo.id) shouldContainExactlyInAnyOrder listOf(firstTag.id, secondTag.id)
+            dataSource.readTagIdList(accountId = accountId, memoId = memo.id) shouldContainExactlyInAnyOrder listOf(firstTag.id, secondTag.id)
         }
 
         test("TC-MEMO-DETAIL-DATA-015 해제된 연결의 태그 id는 조회되지 않는다") {
@@ -309,7 +309,7 @@ class AccountMemoTagLocalDataSourceImplTest :
                 updatedAt = instant(),
             )
 
-            dataSource.findTagIdList(accountId = accountId, memoId = memo.id).shouldBeEmpty()
+            dataSource.readTagIdList(accountId = accountId, memoId = memo.id).shouldBeEmpty()
         }
 
         listOf(
@@ -325,7 +325,7 @@ class AccountMemoTagLocalDataSourceImplTest :
 
                 tagTransaction.upsert(accountId = accountId, tagList = listOf(change(tag)), tagLinkList = emptyList())
 
-                dataSource.findTagIdList(accountId = accountId, memoId = memo.id) shouldContainExactlyInAnyOrder listOf(tag.id)
+                dataSource.readTagIdList(accountId = accountId, memoId = memo.id) shouldContainExactlyInAnyOrder listOf(tag.id)
             }
         }
 
@@ -336,7 +336,7 @@ class AccountMemoTagLocalDataSourceImplTest :
             insertMemo(accountId = accountId, memo = memo)
             connect(accountId = accountId, memoId = memo.id, tag = tag())
 
-            dataSource.findTagIdList(accountId = otherAccountId, memoId = memo.id).shouldBeEmpty()
+            dataSource.readTagIdList(accountId = otherAccountId, memoId = memo.id).shouldBeEmpty()
         }
 
         test("다른 메모의 연결은 태그 id로 조회되지 않는다") {
@@ -347,7 +347,7 @@ class AccountMemoTagLocalDataSourceImplTest :
             insertMemo(accountId = accountId, memo = otherMemo)
             connect(accountId = accountId, memoId = otherMemo.id, tag = tag())
 
-            dataSource.findTagIdList(accountId = accountId, memoId = memo.id).shouldBeEmpty()
+            dataSource.readTagIdList(accountId = accountId, memoId = memo.id).shouldBeEmpty()
         }
 
         test("TC-MEMO-TAG-INPUT-DOMAIN-009 TC-MEMO-DETAIL-FEATURE-051 선택 목록에는 선택할 수 있는 태그와 연결된 완료된 태그가 함께 담긴다") {

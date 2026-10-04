@@ -4,7 +4,7 @@ import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
-import io.github.taetae98coding.diary.logger.crashlytics.api.CrashlyticsLog
+import io.github.taetae98coding.diary.logger.crashlytics.api.logCrashlyticsFailure
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
 import org.koin.core.annotation.Factory
@@ -24,7 +24,7 @@ public class FetchHolidayUseCase internal constructor(
     }
 
     override fun onFailure(throwable: Throwable) {
-        DiaryLogger.log(log = CrashlyticsLog(message = "${this::class.simpleName.orEmpty()} 실패", throwable = throwable))
+        DiaryLogger.logCrashlyticsFailure(source = this, throwable = throwable)
     }
 }
 

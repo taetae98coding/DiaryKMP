@@ -3,16 +3,16 @@
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 plugins {
-    alias(libs.plugins.convention.compose)
+    alias(libs.plugins.convention.compose.component)
 }
 
 kotlin {
     swiftPMDependencies {
-        iosMinimumDeploymentTarget.set("26.5")
+        iosMinimumDeploymentTarget.set(libs.versions.iosDeploymentTarget.get())
 
         swiftPackage(
             url = url("https://github.com/navermaps/SPM-NMapsMap.git"),
-            version = exact("3.24.0"),
+            version = exact(libs.versions.naverMap.get()),
             products = listOf(product("NMapsMap")),
         )
 
@@ -26,7 +26,6 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(projects.compose.core)
                 implementation(projects.compose.permission)
             }
         }

@@ -30,6 +30,7 @@ internal class HolidayHomeYearViewModel(
 ) : ViewModel() {
     private val annualLeaveCount = MutableStateFlow(MIN_ANNUAL_LEAVE_COUNT)
     private val fetchState = MutableStateFlow(FetchState.NONE)
+    private var isFetching = false
 
     val uiState: StateFlow<HolidayHomeYearUiState> =
         combine(fetchState, goldenHolidayGroupListFlow()) { fetchState, result ->
@@ -37,7 +38,7 @@ internal class HolidayHomeYearViewModel(
                 FetchState.NONE, FetchState.IN_PROGRESS -> HolidayHomeYearUiState.Loading
                 FetchState.FAILURE -> HolidayHomeYearUiState.Error
                 FetchState.NOT_PROVIDED -> HolidayHomeYearUiState.NotProvided
-                FetchState.SUCCESS -> HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = result.getOrDefault(emptyList()))
+                FetchState.SUCCESS -> HolidayHomeYearUiState.Content(goldenHolidayGroupList = result.getOrDefault(emptyList()))
             }
         }.stateIn(
             scope = viewModelScope,
@@ -46,17 +47,25 @@ internal class HolidayHomeYearViewModel(
         )
 
     fun fetch() {
+        // 화면에 다시 드러날 때마다 다시 동기화하지만, 진행 중인 동기화가 있으면 겹쳐 시작하지 않는다.
+        if (isFetching) return
+        isFetching = true
+
         if (fetchState.value != FetchState.SUCCESS) {
             fetchState.value = FetchState.IN_PROGRESS
         }
 
         viewModelScope.launch {
-            val resultMap =
-                year
-                    .goldenHolidaySourceYearList()
-                    .associateWith { targetYear -> fetchHolidayUseCase(parameter = targetYear) }
+            try {
+                val resultMap =
+                    year
+                        .goldenHolidaySourceYearList()
+                        .associateWith { targetYear -> fetchHolidayUseCase(parameter = targetYear) }
 
-            fetchState.value = fetchState(resultMap = resultMap)
+                fetchState.value = fetchState(resultMap = resultMap)
+            } finally {
+                isFetching = false
+            }
         }
     }
 

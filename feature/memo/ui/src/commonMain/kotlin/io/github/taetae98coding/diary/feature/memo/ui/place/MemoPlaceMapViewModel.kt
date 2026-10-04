@@ -31,7 +31,7 @@ internal class MemoPlaceMapViewModel(
             if (provider == null || currentLocationState !is CurrentLocationState.Finished) {
                 MemoPlaceMapUiState.Loading
             } else {
-                MemoPlaceMapUiState.Loaded(
+                MemoPlaceMapUiState.Content(
                     provider = provider,
                     currentCoordinate = currentLocationState.coordinate,
                 )

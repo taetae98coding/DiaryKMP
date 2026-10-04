@@ -50,7 +50,7 @@ internal fun MusicDetailScaffold(
                 componentVisibleProvider = componentVisibleProvider,
             )
         },
-        snackbarHost = { SnackbarHost(hostState = state.hostState) },
+        snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },
         floatingActionButton = {
             DiaryScaleVisibility(visible = isChanged) {
                 FloatingCheckButton(

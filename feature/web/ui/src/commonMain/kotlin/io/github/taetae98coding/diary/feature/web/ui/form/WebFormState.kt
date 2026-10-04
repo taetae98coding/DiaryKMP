@@ -19,7 +19,7 @@ internal class WebFormState(
     val descriptionState: DiaryDescriptionInputState,
     val urlState: WebUrlInputState,
     val headerState: WebHeaderInputState,
-    val hostState: SnackbarHostState,
+    val snackbarHostState: SnackbarHostState,
     val tagPickerDialogState: DialogState,
 ) {
     val detail: WebDetail
@@ -47,16 +47,16 @@ private fun rememberWebFormState(initialDetail: WebDetail): WebFormState {
         rememberWebHeaderInputState(
             initialRowList = initialDetail.headerList.map { header -> WebHeaderRowState(initialName = header.name, initialValue = header.value) },
         )
-    val hostState = remember { SnackbarHostState() }
+    val snackbarHostState = remember { SnackbarHostState() }
     val tagPickerDialogState = rememberDialogState()
 
-    return remember(titleState, descriptionState, urlState, headerState, hostState, tagPickerDialogState) {
+    return remember(titleState, descriptionState, urlState, headerState, snackbarHostState, tagPickerDialogState) {
         WebFormState(
             titleState = titleState,
             descriptionState = descriptionState,
             urlState = urlState,
             headerState = headerState,
-            hostState = hostState,
+            snackbarHostState = snackbarHostState,
             tagPickerDialogState = tagPickerDialogState,
         )
     }

@@ -8,11 +8,10 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollToIndex
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
-import io.github.taetae98coding.diary.feature.tag.ui.detail.memo.TAG_DETAIL_MEMO_LIST_TEST_TAG
-import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TAG_DETAIL_PLACE_LIST_TEST_TAG
-import io.github.taetae98coding.diary.feature.tag.ui.detail.web.TAG_DETAIL_WEB_LIST_TEST_TAG
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureId
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
+import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemoPagingData
@@ -43,10 +42,9 @@ class TagDetailTargetChangeTest {
         composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
 
         chooseSortAndScroll(
-            sortFlow = requireNotNull(memoViewModelRef).sort,
+            sortFlow = requireNotNull(memoViewModelRef).sortUiState,
             chosenSort = ListSort.TITLE,
             chosenLabel = DEFAULT_TITLE_LABEL,
-            listTestTag = TAG_DETAIL_MEMO_LIST_TEST_TAG,
             titleList = titleList,
         )
         changeTarget()
@@ -64,10 +62,9 @@ class TagDetailTargetChangeTest {
         composeRule.selectTagDetailTab(DEFAULT_WEB_TAB_DESCRIPTION)
 
         chooseSortAndScroll(
-            sortFlow = requireNotNull(webViewModelRef).sort,
+            sortFlow = requireNotNull(webViewModelRef).sortUiState,
             chosenSort = ListSort.RECENTLY_UPDATED,
             chosenLabel = DEFAULT_RECENTLY_UPDATED_LABEL,
-            listTestTag = TAG_DETAIL_WEB_LIST_TEST_TAG,
             titleList = titleList,
         )
         changeTarget()
@@ -85,10 +82,9 @@ class TagDetailTargetChangeTest {
         composeRule.selectTagDetailTab(DEFAULT_PLACE_TAB_DESCRIPTION)
 
         chooseSortAndScroll(
-            sortFlow = requireNotNull(placeViewModelRef).sort,
+            sortFlow = requireNotNull(placeViewModelRef).sortUiState,
             chosenSort = ListSort.RECENTLY_UPDATED,
             chosenLabel = DEFAULT_RECENTLY_UPDATED_LABEL,
-            listTestTag = TAG_DETAIL_PLACE_LIST_TEST_TAG,
             titleList = titleList,
         )
         changeTarget()
@@ -103,16 +99,15 @@ class TagDetailTargetChangeTest {
         sortFlow: Any,
         chosenSort: ListSort,
         chosenLabel: String,
-        listTestTag: String,
         titleList: List<String>,
     ) {
         @Suppress("UNCHECKED_CAST")
-        val mutableSortFlow = sortFlow as MutableStateFlow<ListSort>
-        composeRule.runOnIdle { mutableSortFlow.value = chosenSort }
+        val mutableSortFlow = sortFlow as MutableStateFlow<ListSortUiState>
+        composeRule.runOnIdle { mutableSortFlow.value = ListSortUiState(sort = chosenSort) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(chosenLabel).assertIsDisplayed()
 
-        composeRule.onNodeWithTag(listTestTag).performScrollToIndex(SCROLLED_INDEX)
+        composeRule.refreshableList().performScrollToIndex(SCROLLED_INDEX)
         composeRule.waitForIdle()
         isDisplayed(titleList.first()).shouldBeFalse()
     }

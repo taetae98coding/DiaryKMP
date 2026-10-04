@@ -13,7 +13,7 @@ import io.github.taetae98coding.diary.compose.core.input.rememberDiaryTitleInput
 internal class FileAddFormState(
     val titleState: DiaryTitleInputState,
     val descriptionState: DiaryDescriptionInputState,
-    val hostState: SnackbarHostState,
+    val snackbarHostState: SnackbarHostState,
 ) {
     val title: String
         get() = titleState.text.toString()
@@ -31,13 +31,13 @@ internal class FileAddFormState(
 internal fun rememberFileAddFormState(): FileAddFormState {
     val titleState = rememberDiaryTitleInputState()
     val descriptionState = rememberDiaryDescriptionInputState()
-    val hostState = remember { SnackbarHostState() }
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    return remember(titleState, descriptionState, hostState) {
+    return remember(titleState, descriptionState, snackbarHostState) {
         FileAddFormState(
             titleState = titleState,
             descriptionState = descriptionState,
-            hostState = hostState,
+            snackbarHostState = snackbarHostState,
         )
     }
 }

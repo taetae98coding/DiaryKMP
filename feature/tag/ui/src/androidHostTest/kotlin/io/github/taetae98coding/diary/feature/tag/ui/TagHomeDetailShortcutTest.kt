@@ -13,6 +13,7 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyInput
 import androidx.paging.PagingData
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_DETAIL_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_MEMO_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_PLACE_TAB_DESCRIPTION
@@ -182,10 +183,10 @@ class TagHomeDetailShortcutTest {
 
     private fun tagHomeViewModel(): TagHomeViewModel {
         val viewModel = mockk<TagHomeViewModel>()
-        every { viewModel.sort } returns MutableStateFlow(ListSort.TITLE)
+        every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
         every { viewModel.tagPagingData } returns MutableStateFlow(PagingData.empty())
         every { viewModel.effect } returns emptyFlow()
-        every { viewModel.filterUiState } returns MutableStateFlow(TagHomeScaffoldFilterUiState())
+        every { viewModel.filterUiState } returns MutableStateFlow(TagHomeScaffoldFilterUiState(isLoaded = true))
         return viewModel
     }
 }

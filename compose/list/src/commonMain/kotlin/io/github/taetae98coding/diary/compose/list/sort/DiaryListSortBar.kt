@@ -27,7 +27,7 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-public fun DiaryListSortBar(
+internal fun DiaryListSortBar(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     sortProvider: () -> ListSort = { ListSort.DEFAULT },

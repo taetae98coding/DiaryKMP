@@ -77,13 +77,12 @@ class MemoPlaceViewModelTest : FunSpec() {
                 viewModel.uiState.test {
                     awaitItem() shouldBe MemoPlaceInputUiState()
                     advanceUntilIdle()
-                    expectNoEvents()
                     cancelAndIgnoreRemainingEvents()
                 }
             }
         }
 
-        test("장소 목록 페이지 조회에 실패하면 없는 것으로 확정할 목록을 전달하지 않고 선택 상태는 그대로 표시한다") {
+        test("장소 목록 페이지 조회에 실패하면 빈 목록을 노출하고 선택 상태는 그대로 표시한다") {
             runTest(mainDispatcher) {
                 val connectedPlace = place()
                 val viewModel =
@@ -94,7 +93,7 @@ class MemoPlaceViewModelTest : FunSpec() {
 
                 viewModel.placePagingData.test {
                     advanceUntilIdle()
-                    expectNoEvents()
+                    flowOf(expectMostRecentItem()).asSnapshot() shouldBe emptyList()
                     cancelAndIgnoreRemainingEvents()
                 }
 
@@ -308,6 +307,7 @@ class MemoPlaceViewModelTest : FunSpec() {
             }
         }
         searchTests()
+        searchStateTests()
     }
 
     private fun searchTests() {
@@ -332,6 +332,28 @@ class MemoPlaceViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-MEMO-PLACE-CARD-DATA-006 검색어를 바꿔 다시 조회하다 실패하면 이전 장소을 남기지 않고 빈 목록을 노출한다") {
+            runTest(mainDispatcher) {
+                val placeList = List(2) { place() }
+                val pagePlaceUseCase = mockk<PagePlaceUseCase>()
+                every { pagePlaceUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(placeList)))
+                every { pagePlaceUseCase(parameter = SEARCH_QUERY) } returns flowOf(Result.failure(IllegalStateException()))
+                val viewModel = viewModel(pagePlaceUseCase = pagePlaceUseCase)
+
+                viewModel.placePagingData.test {
+                    flowOf(awaitItem()).asSnapshot() shouldBe placeList
+
+                    viewModel.updateQuery(SEARCH_QUERY)
+                    advanceUntilIdle()
+
+                    flowOf(awaitItem()).asSnapshot() shouldBe emptyList()
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+    }
+
+    private fun searchStateTests() {
         test("TC-MEMO-PLACE-CARD-DOMAIN-022 검색어를 바꿔도 카드에 노출하는 장소는 그대로다") {
             runTest(mainDispatcher) {
                 val connectedPlaceList = List(2) { place() }
@@ -349,6 +371,25 @@ class MemoPlaceViewModelTest : FunSpec() {
                     expectNoEvents()
                     cancelAndIgnoreRemainingEvents()
                 }
+            }
+        }
+
+        test("TC-MEMO-DETAIL-DOMAIN-015 같은 Place 선택이나 선택 해제가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val placeId = fixtureMonkey.giveMeOne<Uuid>()
+                val addMemoPlaceUseCase = mockk<AddMemoPlaceUseCase>(relaxed = true)
+                val removeMemoPlaceUseCase = mockk<RemoveMemoPlaceUseCase>(relaxed = true)
+                val viewModel = viewModel(id = id, addMemoPlaceUseCase = addMemoPlaceUseCase, removeMemoPlaceUseCase = removeMemoPlaceUseCase)
+
+                viewModel.selectPlace(placeId = placeId)
+                viewModel.selectPlace(placeId = placeId)
+                viewModel.unselectPlace(placeId = placeId)
+                viewModel.unselectPlace(placeId = placeId)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { addMemoPlaceUseCase(parameter = AddMemoPlaceUseCase.Parameter(memoId = id, placeId = placeId)) }
+                coVerify(exactly = 1) { removeMemoPlaceUseCase(parameter = RemoveMemoPlaceUseCase.Parameter(memoId = id, placeId = placeId)) }
             }
         }
     }

@@ -28,6 +28,7 @@ import io.github.taetae98coding.diary.feature.contact.ui.Res
 import io.github.taetae98coding.diary.feature.contact.ui.contact_home_add_button_content_description
 import io.github.taetae98coding.diary.feature.contact.ui.contact_home_title
 import io.github.taetae98coding.diary.feature.contact.ui.contact_navigate_up_button_content_description
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
 
@@ -38,7 +39,7 @@ internal fun ContactHomeScaffold(
     sortSheetState: DialogState = rememberDialogState(),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     contactPagingItems: LazyPagingItems<Contact> = remember { flowOf(PagingData.empty<Contact>()) }.collectAsLazyPagingItems(),
-    uiStateProvider: () -> ContactHomeUiState = { ContactHomeUiState() },
+    uiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
     sortProvider: () -> ListSort = { ListSort.NAME },
     componentVisibleProvider: () -> ContactHomeScaffoldComponentVisible = { ContactHomeScaffoldComponentVisible() },
 ) {

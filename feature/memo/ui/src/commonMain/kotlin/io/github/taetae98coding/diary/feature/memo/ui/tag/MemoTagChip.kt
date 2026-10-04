@@ -12,11 +12,11 @@ import io.github.taetae98coding.diary.compose.core.chip.DiaryAssistChip
 import io.github.taetae98coding.diary.compose.core.color.DiaryColorIndicator
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.tag.previewTag
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.memo.ui.Res
 import io.github.taetae98coding.diary.feature.memo.ui.memo_tag_detail_action
 import io.github.taetae98coding.diary.feature.memo.ui.memo_tag_primary_state_description
-import io.github.taetae98coding.diary.feature.memo.ui.previewTag
 import io.github.taetae98coding.diary.library.compose.ui.color.contentColor
 import io.github.taetae98coding.diary.library.compose.ui.color.toColor
 import org.jetbrains.compose.resources.stringResource

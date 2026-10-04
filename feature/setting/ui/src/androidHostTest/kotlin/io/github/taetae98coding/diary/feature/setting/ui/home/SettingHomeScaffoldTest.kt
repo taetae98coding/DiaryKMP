@@ -100,7 +100,7 @@ class SettingHomeScaffoldTest {
     fun `TC-SETTING-HOME-FEATURE-011 브라우저 항목을 제공하지 않는 환경에서는 그 항목을 표시하지 않는다`() {
         setSettingHomeScaffold(
             uiState =
-                SettingHomeUiState.Loaded(
+                SettingHomeUiState.Content(
                     itemList = listOf(SettingHomeItem.HOLIDAY, SettingHomeItem.MAP, SettingHomeItem.GEMINI, SettingHomeItem.DOWNLOAD),
                 ),
         )
@@ -112,7 +112,7 @@ class SettingHomeScaffoldTest {
     @Test
     fun `TC-SETTING-HOME-FEATURE-014 다운로드 항목을 제공하지 않는 환경에서는 그 항목을 표시하지 않는다`() {
         setSettingHomeScaffold(
-            uiState = SettingHomeUiState.Loaded(itemList = listOf(SettingHomeItem.HOLIDAY, SettingHomeItem.MAP, SettingHomeItem.GEMINI)),
+            uiState = SettingHomeUiState.Content(itemList = listOf(SettingHomeItem.HOLIDAY, SettingHomeItem.MAP, SettingHomeItem.GEMINI)),
         )
 
         composeRule.onNodeWithText(DEFAULT_BROWSER_ITEM_LABEL).assertDoesNotExist()
@@ -130,7 +130,7 @@ class SettingHomeScaffoldTest {
     }
 
     private fun setSettingHomeScaffold(
-        uiState: SettingHomeUiState = SettingHomeUiState.Loaded(itemList = settingHomeItemList),
+        uiState: SettingHomeUiState = SettingHomeUiState.Content(itemList = settingHomeItemList),
         onEvent: (SettingHomeScaffoldEvent) -> Unit = {},
     ) {
         composeRule.setContent {

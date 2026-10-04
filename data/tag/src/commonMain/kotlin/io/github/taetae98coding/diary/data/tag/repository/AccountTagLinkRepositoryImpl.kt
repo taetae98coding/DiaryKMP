@@ -1,15 +1,12 @@
 package io.github.taetae98coding.diary.data.tag.repository
 
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.map
 import io.github.taetae98coding.diary.core.database.api.taglink.datasource.AccountTagLinkLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.taglink.transaction.AccountTagLinkTransaction
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.tag.Tag
-import io.github.taetae98coding.diary.data.core.paging.PAGE_SIZE
-import io.github.taetae98coding.diary.data.tag.mapper.toDomain
+import io.github.taetae98coding.diary.data.core.mapper.toDomain
+import io.github.taetae98coding.diary.data.core.paging.pagingFlow
 import io.github.taetae98coding.diary.domain.tag.repository.AccountTagLinkRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -37,8 +34,7 @@ internal class AccountTagLinkRepositoryImpl(
         fromTagId: Uuid,
         query: String,
     ): Flow<PagingData<Tag>> =
-        Pager(
-            config = PagingConfig(pageSize = PAGE_SIZE),
+        pagingFlow(
             pagingSourceFactory = {
                 accountTagLinkLocalDataSource.pageSelectableTag(
                     accountId = account.id,
@@ -46,9 +42,8 @@ internal class AccountTagLinkRepositoryImpl(
                     query = query,
                 )
             },
-        ).flow.map { pagingData ->
-            pagingData.map { local -> local.toDomain() }
-        }
+            transform = { local -> local.toDomain() },
+        )
 
     override suspend fun upsert(
         account: Account,

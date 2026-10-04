@@ -2,7 +2,7 @@ package io.github.taetae98coding.diary.work.sync.work
 
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.taglink.entity.TagLinkLocalEntity
 import io.github.taetae98coding.diary.core.network.api.taglink.entity.TagLinkRemoteEntity
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
@@ -131,7 +131,7 @@ class SyncWorkTagLinkTest :
                 context.subject.doWork()
             }
 
-            coVerify(exactly = 0) { context.tagLinkSyncLocalDataSource.findPending(any()) }
+            coVerify(exactly = 0) { context.tagLinkSyncLocalDataSource.readPendingList(any()) }
             coVerify(exactly = 0) { context.tagLinkRemoteDataSource.push(any()) }
         }
 
@@ -184,7 +184,7 @@ class SyncWorkTagLinkTest :
             val context = context()
             val firstPullList = tagLinkPulls(usnList = listOf(4L, 6L))
             val secondPullList = tagLinkPulls(usnList = listOf(9L))
-            coEvery { context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.TAG_LINK) } returns 2L
+            coEvery { context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.TAG_LINK) } returns 2L
             coEvery { context.tagLinkRemoteDataSource.pull(usn = 2L) } returns firstPullList
             coEvery { context.tagLinkRemoteDataSource.pull(usn = 6L) } returns secondPullList
             coEvery { context.tagLinkRemoteDataSource.pull(usn = 9L) } returns emptyList()
@@ -192,14 +192,14 @@ class SyncWorkTagLinkTest :
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.accountTagLinkSyncTransaction.save(
+                context.accountTagLinkSyncTransaction.upsert(
                     accountId = context.accountId,
                     tagLinkList = firstPullList.map { pull -> pull.tagLink.toLocal() },
                     cursor = 6L,
                 )
             }
             coVerify(exactly = 1) {
-                context.accountTagLinkSyncTransaction.save(
+                context.accountTagLinkSyncTransaction.upsert(
                     accountId = context.accountId,
                     tagLinkList = secondPullList.map { pull -> pull.tagLink.toLocal() },
                     cursor = 9L,
@@ -268,20 +268,20 @@ class SyncWorkTagLinkTest :
 
             actual.message shouldBe failure.message
             coVerify(exactly = 1) {
-                context.accountTagSyncTransaction.save(
+                context.accountTagSyncTransaction.upsert(
                     accountId = context.accountId,
                     tagList = tagPullList.map { pull -> pull.tag.toLocal() },
                     cursor = 3L,
                 )
             }
             coVerify(exactly = 1) {
-                context.accountMemoSyncTransaction.save(
+                context.accountMemoSyncTransaction.upsert(
                     accountId = context.accountId,
                     memoList = memoPullList.map { pull -> pull.memo.toLocal() },
                     cursor = 4L,
                 )
             }
-            coVerify(exactly = 0) { context.accountTagLinkSyncTransaction.save(any(), any(), any()) }
+            coVerify(exactly = 0) { context.accountTagLinkSyncTransaction.upsert(any(), any(), any()) }
         }
 
         test("TC-DATA-SYNC-DOMAIN-024 실행 시점에 확인된 계정의 태그 연결만 조회한다") {
@@ -289,16 +289,16 @@ class SyncWorkTagLinkTest :
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val context = context(accountId = accountId)
             coEvery {
-                context.tagLinkSyncLocalDataSource.findPending(accountId = otherAccountId)
+                context.tagLinkSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             } returns tagLinks(size = 1)
 
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.tagLinkSyncLocalDataSource.findPending(accountId = accountId)
+                context.tagLinkSyncLocalDataSource.readPendingList(accountId = accountId)
             }
             coVerify(exactly = 0) {
-                context.tagLinkSyncLocalDataSource.findPending(accountId = otherAccountId)
+                context.tagLinkSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             }
             coVerify(exactly = 0) { context.tagLinkRemoteDataSource.push(any()) }
         }

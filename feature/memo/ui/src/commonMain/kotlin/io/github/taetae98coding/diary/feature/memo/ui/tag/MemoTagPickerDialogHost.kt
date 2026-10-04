@@ -6,13 +6,12 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
+import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerDialogHost
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
-import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
-import io.github.taetae98coding.diary.compose.core.effect.DiarySearchQueryEffect
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.tag.previewTag
 import io.github.taetae98coding.diary.core.model.tag.Tag
-import io.github.taetae98coding.diary.feature.memo.ui.previewTag
 import kotlinx.coroutines.flow.flowOf
 
 @Composable
@@ -22,30 +21,21 @@ internal fun MemoTagPickerDialogHost(
     tagPagingItems: LazyPagingItems<Tag> = remember { flowOf(PagingData.empty<Tag>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> MemoTagInputUiState = { MemoTagInputUiState() },
 ) {
-    if (!dialogState.isVisible) return
-
-    val searchFieldState = rememberDiaryPickerSearchFieldState()
-
-    val hide = {
-        onEvent(MemoTagPickerEvent.ChangeQuery(query = ""))
-        dialogState.hide()
-    }
-
-    DiarySearchQueryEffect(
-        queryState = searchFieldState.textFieldState,
+    DiaryPickerDialogHost(
+        dialogState = dialogState,
         onQueryChange = { query -> onEvent(MemoTagPickerEvent.ChangeQuery(query = query)) },
-    )
-
-    MemoTagPickerDialog(
-        onDismissRequest = hide,
-        onEvent = { event ->
-            if (event is MemoTagPickerEvent.ClickAdd) hide()
-            onEvent(event)
-        },
-        searchFieldState = searchFieldState,
-        tagPagingItems = tagPagingItems,
-        uiStateProvider = uiStateProvider,
-    )
+    ) { searchFieldState, hide ->
+        MemoTagPickerDialog(
+            onDismissRequest = hide,
+            onEvent = { event ->
+                if (event is MemoTagPickerEvent.ClickAdd) hide()
+                onEvent(event)
+            },
+            searchFieldState = searchFieldState,
+            tagPagingItems = tagPagingItems,
+            uiStateProvider = uiStateProvider,
+        )
+    }
 }
 
 @ScreenPreview

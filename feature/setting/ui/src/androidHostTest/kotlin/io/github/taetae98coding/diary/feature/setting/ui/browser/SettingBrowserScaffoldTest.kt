@@ -139,7 +139,7 @@ class SettingBrowserScaffoldTest {
 
     @Test
     fun `TC-SETTING-BROWSER-FEATURE-008 Chrome 프로필이 없으면 선택 안 함만 선택된 상태로 제공한다`() {
-        setSettingBrowserScaffold(uiState = SettingBrowserUiState.Loaded(profileList = emptyList(), selectedProfileDirectory = ""))
+        setSettingBrowserScaffold(uiState = SettingBrowserUiState.Content(profileList = emptyList(), selectedProfileDirectory = ""))
 
         composeRule.onNodeWithText(DEFAULT_LABEL).assertExists()
         composeRule.onNodeWithText(DEFAULT_NONE_LABEL).assertIsSelected()
@@ -150,7 +150,7 @@ class SettingBrowserScaffoldTest {
     fun `TC-SETTING-BROWSER-FEATURE-009 프로필 목록을 읽지 못하면 선택 안 함과 조회 실패 안내를 제공한다`() {
         val eventList = mutableListOf<SettingBrowserScaffoldEvent>()
         setSettingBrowserScaffold(
-            uiState = SettingBrowserUiState.Loaded(profileList = emptyList(), selectedProfileDirectory = "", isProfileListUnavailable = true),
+            uiState = SettingBrowserUiState.Content(profileList = emptyList(), selectedProfileDirectory = "", isProfileListUnavailable = true),
             onEvent = eventList::add,
         )
 
@@ -169,7 +169,7 @@ class SettingBrowserScaffoldTest {
     @Config(qualifiers = "ko")
     fun `TC-SETTING-BROWSER-FEATURE-009 한국어 환경에서 조회 실패 안내를 표시한다`() {
         setSettingBrowserScaffold(
-            uiState = SettingBrowserUiState.Loaded(profileList = emptyList(), selectedProfileDirectory = "", isProfileListUnavailable = true),
+            uiState = SettingBrowserUiState.Content(profileList = emptyList(), selectedProfileDirectory = "", isProfileListUnavailable = true),
         )
 
         composeRule.onNodeWithText("Chrome 프로필을 조회할 수 없습니다").assertExists()
@@ -218,8 +218,8 @@ class SettingBrowserScaffoldTest {
         private fun loaded(
             profileList: List<ChromeProfile> = fixtureMonkey.chromeProfileList(size = 2),
             selectedProfileDirectory: String,
-        ): SettingBrowserUiState.Loaded =
-            SettingBrowserUiState.Loaded(
+        ): SettingBrowserUiState.Content =
+            SettingBrowserUiState.Content(
                 profileList = profileList,
                 selectedProfileDirectory = selectedProfileDirectory,
             )

@@ -17,7 +17,7 @@ public interface AccountMemoTagLocalDataSource {
         query: String,
     ): PagingSource<Int, TagLocalEntity>
 
-    public suspend fun findTagIdList(
+    public suspend fun readTagIdList(
         accountId: Uuid,
         memoId: Uuid,
     ): List<Uuid>

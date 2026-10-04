@@ -14,7 +14,7 @@ internal class AccountSyncTimeLocalDataSourceImpl(
     @SyncTimeDataStore
     private val dataStore: DataStore<SyncTimeData>,
 ) : AccountSyncTimeLocalDataSource {
-    override suspend fun find(accountId: Uuid): Instant? =
+    override suspend fun read(accountId: Uuid): Instant? =
         dataStore
             .data
             .first()

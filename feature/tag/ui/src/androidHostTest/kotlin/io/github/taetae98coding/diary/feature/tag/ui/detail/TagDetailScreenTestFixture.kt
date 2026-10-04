@@ -28,13 +28,16 @@ import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.model.web.Web
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
+import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailFormTab
-import io.github.taetae98coding.diary.feature.tag.ui.detail.memo.TagDetailMemoTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.TagDetailTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.web.TagDetailWebTab
 import io.github.taetae98coding.diary.feature.tag.ui.form.TagFormState
 import io.github.taetae98coding.diary.feature.tag.ui.form.rememberTagDetailFormState
+import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_memo_empty_description
+import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_memo_empty_title
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
@@ -42,6 +45,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+import org.jetbrains.compose.resources.stringResource
 import kotlin.uuid.Uuid
 
 internal const val TAG_TITLE = "TagDetailTitle"
@@ -157,7 +161,9 @@ internal fun TagDetailTestTabContent(
             )
 
         TagDetailTab.MEMO ->
-            TagDetailMemoTab(
+            EntityDetailMemoTab(
+                emptyTitle = stringResource(Res.string.tag_detail_memo_empty_title),
+                emptyDescription = stringResource(Res.string.tag_detail_memo_empty_description),
                 onEvent = {},
                 onMemoListEvent = {},
                 modifier = Modifier.fillMaxSize(),

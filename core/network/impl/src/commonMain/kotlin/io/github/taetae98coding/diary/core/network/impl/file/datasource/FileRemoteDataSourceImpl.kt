@@ -42,7 +42,7 @@ internal class FileRemoteDataSourceImpl(
             onSent = onSent,
         )
 
-    override suspend fun fetch(
+    override suspend fun readList(
         cursor: FileCursorRemoteEntity?,
         size: Int,
     ): List<FileRemoteEntity> =

@@ -43,7 +43,7 @@ internal fun SettingGeminiScaffold(
 ) {
     val isChanged by remember(state) {
         derivedStateOf {
-            val loaded = uiStateProvider() as? SettingGeminiUiState.Loaded
+            val loaded = uiStateProvider() as? SettingGeminiUiState.Content
             loaded != null && state.setting != loaded.setting
         }
     }
@@ -58,13 +58,13 @@ internal fun SettingGeminiScaffold(
                 isNavigateUpVisibleProvider = { componentVisibleProvider().isNavigateUpButtonVisible },
             )
         },
-        snackbarHost = { SnackbarHost(hostState = state.hostState) },
+        snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },
         floatingActionButton = {
             DiaryScaleVisibility(visible = isChanged) {
                 FloatingCheckButton(
                     onClick = { onEvent(SettingGeminiScaffoldEvent.ClickSave) },
                     contentDescription = stringResource(Res.string.setting_gemini_save_button_content_description),
-                    isInProgressProvider = { (uiStateProvider() as? SettingGeminiUiState.Loaded)?.isInProgress == true },
+                    isInProgressProvider = { (uiStateProvider() as? SettingGeminiUiState.Content)?.isInProgress == true },
                 )
             }
         },
@@ -73,7 +73,7 @@ internal fun SettingGeminiScaffold(
         when (uiStateProvider()) {
             is SettingGeminiUiState.Loading -> Unit
 
-            is SettingGeminiUiState.Loaded ->
+            is SettingGeminiUiState.Content ->
                 SettingGeminiForm(
                     onEvent = onEvent,
                     modifier =
@@ -113,8 +113,8 @@ private class SettingGeminiUiStatePreviewParameter : PreviewParameterProvider<Se
     override val values: Sequence<SettingGeminiUiState> =
         sequenceOf(
             SettingGeminiUiState.Loading,
-            SettingGeminiUiState.Loaded(setting = previewGeminiSetting()),
-            SettingGeminiUiState.Loaded(setting = GeminiSetting.EMPTY),
-            SettingGeminiUiState.Loaded(setting = GeminiSetting.EMPTY, isInProgress = true),
+            SettingGeminiUiState.Content(setting = previewGeminiSetting()),
+            SettingGeminiUiState.Content(setting = GeminiSetting.EMPTY),
+            SettingGeminiUiState.Content(setting = GeminiSetting.EMPTY, isInProgress = true),
         )
 }

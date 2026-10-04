@@ -10,5 +10,5 @@ import kotlin.uuid.Uuid
 internal class AccountMusicSyncLocalDataSourceImpl(
     private val database: DiaryDatabase,
 ) : AccountMusicSyncLocalDataSource {
-    override suspend fun findPending(accountId: Uuid): List<MusicLocalEntity> = database.accountMusicSyncDao().findPending(accountId = accountId)
+    override suspend fun readPendingList(accountId: Uuid): List<MusicLocalEntity> = database.accountMusicSyncDao().findPending(accountId = accountId)
 }

@@ -5,7 +5,7 @@ import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.sync.datasource.SyncCursorLocalDataSourceImpl
@@ -79,7 +79,7 @@ class AccountWebTagSyncTransactionImplTest :
             accountId: Uuid,
         ): Boolean =
             syncDataSource
-                .findPending(accountId = accountId)
+                .readPendingList(accountId = accountId)
                 .any { pending -> pending.webId == webTag.webId && pending.tagId == webTag.tagId }
 
         test("TC-WEB-TAG-DATA-004 해제된 연결도 포함해 현재 계정의 업로드 대기 연결만 조회한다") {
@@ -95,7 +95,7 @@ class AccountWebTagSyncTransactionImplTest :
             insertWithSyncState(otherAccountId, otherAccountPending, isDirty = true)
 
             syncDataSource
-                .findPending(accountId = accountId)
+                .readPendingList(accountId = accountId)
                 .shouldContainExactlyInAnyOrder(firstPending, secondPending)
         }
 
@@ -106,7 +106,7 @@ class AccountWebTagSyncTransactionImplTest :
             insertWithSyncState(accountId = Uuid.NIL, webTag = guestEntity, isDirty = true)
             insertWithSyncState(accountId = accountId, webTag = accountEntity, isDirty = true)
 
-            syncDataSource.findPending(accountId = accountId) shouldBe listOf(accountEntity)
+            syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(accountEntity)
         }
 
         test("TC-DATA-SYNC-DOMAIN-026 업로드한 수정 시각이 그대로면 동기화 완료가 된다") {
@@ -116,7 +116,7 @@ class AccountWebTagSyncTransactionImplTest :
 
             transaction.clearPending(accountId = accountId, webTagList = listOf(webTag))
 
-            syncDataSource.findPending(accountId = accountId).shouldBeEmpty()
+            syncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
 
         test("TC-DATA-SYNC-DOMAIN-027 업로드 중 수정 시각이 바뀐 연결은 업로드 대기로 남는다") {
@@ -127,7 +127,7 @@ class AccountWebTagSyncTransactionImplTest :
 
             transaction.clearPending(accountId = accountId, webTagList = listOf(pushed))
 
-            syncDataSource.findPending(accountId = accountId) shouldBe listOf(changed)
+            syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(changed)
         }
 
         test("대기 해제는 요청한 계정의 연결만 바꾼다") {
@@ -146,27 +146,27 @@ class AccountWebTagSyncTransactionImplTest :
         test("TC-DATA-SYNC-DATA-016 TC-DATA-SYNC-DATA-017 기록된 순번이 없으면 기본 커서를 사용하고 저장이 끝나면 커서가 기록된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.WEB_TAG) shouldBe 0L
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.WEB_TAG) shouldBe 0L
 
-            transaction.save(accountId = otherAccountId, webTagList = listOf(webTag()), cursor = 9L)
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.WEB_TAG) shouldBe 0L
+            transaction.upsert(accountId = otherAccountId, webTagList = listOf(webTag()), cursor = 9L)
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.WEB_TAG) shouldBe 0L
 
-            transaction.save(accountId = accountId, webTagList = listOf(webTag()), cursor = 3L)
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.WEB_TAG) shouldBe 3L
+            transaction.upsert(accountId = accountId, webTagList = listOf(webTag()), cursor = 3L)
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.WEB_TAG) shouldBe 3L
 
-            transaction.save(accountId = accountId, webTagList = listOf(webTag()), cursor = 11L)
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.WEB_TAG) shouldBe 11L
+            transaction.upsert(accountId = accountId, webTagList = listOf(webTag()), cursor = 11L)
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.WEB_TAG) shouldBe 11L
         }
 
         test("TC-DATA-SYNC-DATA-028 웹 항목과 태그의 연결의 내려받기 위치는 다른 종류와 따로 기록된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
 
-            transaction.save(accountId = accountId, webTagList = listOf(webTag()), cursor = 7L)
+            transaction.upsert(accountId = accountId, webTagList = listOf(webTag()), cursor = 7L)
 
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.WEB_TAG) shouldBe 7L
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.WEB) shouldBe 0L
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.TAG) shouldBe 0L
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.PLACE_TAG) shouldBe 0L
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.WEB_TAG) shouldBe 7L
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.WEB) shouldBe 0L
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.TAG) shouldBe 0L
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.PLACE_TAG) shouldBe 0L
         }
 
         listOf(
@@ -179,7 +179,7 @@ class AccountWebTagSyncTransactionImplTest :
                 val remote = local.copy(isDeleted = !local.isDeleted, updatedAt = remoteUpdatedAt)
                 insertWithSyncState(accountId, local, isDirty = false)
 
-                transaction.save(accountId = accountId, webTagList = listOf(remote), cursor = 5L)
+                transaction.upsert(accountId = accountId, webTagList = listOf(remote), cursor = 5L)
 
                 findWebTag(webId = local.webId, tagId = local.tagId) shouldBe remote
             }
@@ -191,21 +191,21 @@ class AccountWebTagSyncTransactionImplTest :
             val remote = local.copy(isDeleted = !local.isDeleted, updatedAt = Instant.fromEpochMilliseconds(1_000))
             insertWithSyncState(accountId, local, isDirty = true)
 
-            transaction.save(accountId = accountId, webTagList = listOf(remote), cursor = 5L)
+            transaction.upsert(accountId = accountId, webTagList = listOf(remote), cursor = 5L)
 
             findWebTag(webId = local.webId, tagId = local.tagId) shouldBe local
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.WEB_TAG) shouldBe 5L
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.WEB_TAG) shouldBe 5L
         }
 
         test("TC-DATA-SYNC-DATA-025 TC-WEB-TAG-DATA-007 기기에 없던 연결은 새로 저장되고 동기화 완료로 기록된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val remote = webTag()
 
-            transaction.save(accountId = accountId, webTagList = listOf(remote), cursor = 5L)
+            transaction.upsert(accountId = accountId, webTagList = listOf(remote), cursor = 5L)
 
             findWebTag(webId = remote.webId, tagId = remote.tagId) shouldBe remote
-            syncDataSource.findPending(accountId = accountId).shouldBeEmpty()
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.WEB_TAG) shouldBe 5L
+            syncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.WEB_TAG) shouldBe 5L
         }
 
         test("TC-DATA-SYNC-DATA-024 내려받기 저장은 이미 있는 연결의 대기 여부를 덮어쓰지 않는다") {
@@ -215,7 +215,7 @@ class AccountWebTagSyncTransactionImplTest :
             insertWithSyncState(accountId, pending, isDirty = true)
             insertWithSyncState(accountId, synced, isDirty = false)
 
-            transaction.save(
+            transaction.upsert(
                 accountId = accountId,
                 webTagList = listOf(pending, synced),
                 cursor = 5L,
@@ -233,7 +233,7 @@ class AccountWebTagSyncTransactionImplTest :
             val remoteOfNew = webTag(webId = webId, updatedAt = Instant.fromEpochMilliseconds(1_000))
             insertWithSyncState(accountId, local, isDirty = true)
 
-            transaction.save(
+            transaction.upsert(
                 accountId = accountId,
                 webTagList = listOf(remoteOfLocal, remoteOfNew),
                 cursor = 5L,
@@ -251,11 +251,11 @@ class AccountWebTagSyncTransactionImplTest :
             val failingTransaction = AccountWebTagSyncTransactionImpl(database = failingDatabase)
 
             shouldThrowExactly<WebTagSyncTestException> {
-                failingTransaction.save(accountId = accountId, webTagList = listOf(remote), cursor = 5L)
+                failingTransaction.upsert(accountId = accountId, webTagList = listOf(remote), cursor = 5L)
             }
 
             findWebTag(webId = remote.webId, tagId = remote.tagId).shouldBeNull()
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.WEB_TAG) shouldBe 0L
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.WEB_TAG) shouldBe 0L
         }
     }) {
     public companion object {

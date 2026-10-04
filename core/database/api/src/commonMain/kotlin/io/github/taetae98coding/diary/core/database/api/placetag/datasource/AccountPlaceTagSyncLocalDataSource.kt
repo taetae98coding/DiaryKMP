@@ -4,5 +4,5 @@ import io.github.taetae98coding.diary.core.database.api.placetag.entity.PlaceTag
 import kotlin.uuid.Uuid
 
 public interface AccountPlaceTagSyncLocalDataSource {
-    public suspend fun findPending(accountId: Uuid): List<PlaceTagLocalEntity>
+    public suspend fun readPendingList(accountId: Uuid): List<PlaceTagLocalEntity>
 }

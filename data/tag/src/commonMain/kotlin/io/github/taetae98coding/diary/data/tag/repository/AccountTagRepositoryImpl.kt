@@ -1,9 +1,6 @@
 package io.github.taetae98coding.diary.data.tag.repository
 
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.map
 import io.github.taetae98coding.diary.core.database.api.tag.datasource.AccountTagLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.tag.transaction.AccountTagTransaction
 import io.github.taetae98coding.diary.core.database.api.taglink.entity.TagLinkLocalEntity
@@ -11,10 +8,9 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.data.core.mapper.toDomain
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
-import io.github.taetae98coding.diary.data.core.paging.PAGE_SIZE
-import io.github.taetae98coding.diary.data.tag.mapper.toDomain
-import io.github.taetae98coding.diary.data.tag.mapper.toLocal
+import io.github.taetae98coding.diary.data.core.paging.pagingFlow
 import io.github.taetae98coding.diary.domain.tag.repository.AccountTagRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -42,8 +38,7 @@ internal class AccountTagRepositoryImpl(
         query: String,
         sort: ListSort,
     ): Flow<PagingData<Tag>> =
-        Pager(
-            config = PagingConfig(pageSize = PAGE_SIZE),
+        pagingFlow(
             pagingSourceFactory = {
                 accountTagLocalDataSource.page(
                     accountId = account.id,
@@ -51,41 +46,36 @@ internal class AccountTagRepositoryImpl(
                     sort = sort.toLocal(),
                 )
             },
-        ).flow.map { pagingData ->
-            pagingData.map { local -> local.toDomain() }
-        }
+            transform = { local -> local.toDomain() },
+        )
 
     override fun pageTopLevel(
         account: Account,
         sort: ListSort,
     ): Flow<PagingData<Tag>> =
-        Pager(
-            config = PagingConfig(pageSize = PAGE_SIZE),
+        pagingFlow(
             pagingSourceFactory = {
                 accountTagLocalDataSource.pageTopLevel(
                     accountId = account.id,
                     sort = sort.toLocal(),
                 )
             },
-        ).flow.map { pagingData ->
-            pagingData.map { local -> local.toDomain() }
-        }
+            transform = { local -> local.toDomain() },
+        )
 
     override fun pageFinished(
         account: Account,
         sort: ListSort,
     ): Flow<PagingData<Tag>> =
-        Pager(
-            config = PagingConfig(pageSize = PAGE_SIZE),
+        pagingFlow(
             pagingSourceFactory = {
                 accountTagLocalDataSource.pageFinished(
                     accountId = account.id,
                     sort = sort.toLocal(),
                 )
             },
-        ).flow.map { pagingData ->
-            pagingData.map { local -> local.toDomain() }
-        }
+            transform = { local -> local.toDomain() },
+        )
 
     override fun find(
         account: Account,

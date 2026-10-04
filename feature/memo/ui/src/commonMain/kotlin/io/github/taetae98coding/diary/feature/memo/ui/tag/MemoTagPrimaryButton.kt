@@ -9,11 +9,11 @@ import io.github.taetae98coding.diary.compose.core.icon.StarBorderIcon
 import io.github.taetae98coding.diary.compose.core.icon.StarIcon
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.tag.previewTag
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.memo.ui.Res
 import io.github.taetae98coding.diary.feature.memo.ui.memo_tag_primary_set_button_content_description
 import io.github.taetae98coding.diary.feature.memo.ui.memo_tag_primary_unset_button_content_description
-import io.github.taetae98coding.diary.feature.memo.ui.previewTag
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

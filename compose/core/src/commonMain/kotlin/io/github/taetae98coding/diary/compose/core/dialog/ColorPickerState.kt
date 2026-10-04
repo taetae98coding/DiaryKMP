@@ -22,13 +22,13 @@ private const val GREEN_SHIFT = 8
 private const val CHANNEL_MASK = 0xFF
 
 @Stable
-public class ColorPickerState internal constructor(
-    internal val redSliderState: SliderState,
-    internal val greenSliderState: SliderState,
-    internal val blueSliderState: SliderState,
-    internal val hexTextFieldState: TextFieldState,
+internal class ColorPickerState(
+    val redSliderState: SliderState,
+    val greenSliderState: SliderState,
+    val blueSliderState: SliderState,
+    val hexTextFieldState: TextFieldState,
 ) {
-    public val color: Color
+    val color: Color
         get() =
             Color(
                 red = redSliderState.value.roundToInt(),
@@ -36,15 +36,15 @@ public class ColorPickerState internal constructor(
                 blue = blueSliderState.value.roundToInt(),
             )
 
-    internal var isAnimating: Boolean = false
+    var isAnimating: Boolean = false
         private set
 
-    internal var targetColor: Color? = null
+    var targetColor: Color? = null
         private set
 
     private val animationMutatorMutex = MutatorMutex()
 
-    internal suspend fun animateColorTo(value: Color) {
+    suspend fun animateColorTo(value: Color) {
         animationMutatorMutex.mutate {
             isAnimating = true
             targetColor = value
@@ -72,7 +72,7 @@ private suspend fun SliderState.animateTo(target: Float) {
 }
 
 @Composable
-public fun rememberColorPickerState(initialColor: Color): ColorPickerState {
+internal fun rememberColorPickerState(initialColor: Color): ColorPickerState {
     val argb = initialColor.toArgb()
     val redSliderState = rememberSliderState(value = (argb shr RED_SHIFT and CHANNEL_MASK).toFloat(), valueRange = 0F..CHANNEL_MAX.toFloat())
     val greenSliderState = rememberSliderState(value = (argb shr GREEN_SHIFT and CHANNEL_MASK).toFloat(), valueRange = 0F..CHANNEL_MAX.toFloat())

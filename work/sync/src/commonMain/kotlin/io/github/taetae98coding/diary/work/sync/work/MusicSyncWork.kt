@@ -2,7 +2,7 @@ package io.github.taetae98coding.diary.work.sync.work
 
 import io.github.taetae98coding.diary.core.database.api.music.datasource.AccountMusicSyncLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.music.transaction.AccountMusicSyncTransaction
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.datasource.SyncCursorLocalDataSource
 import io.github.taetae98coding.diary.core.network.api.music.datasource.MusicRemoteDataSource
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
@@ -18,36 +18,26 @@ internal class MusicSyncWork(
     private val musicRemoteDataSource: MusicRemoteDataSource,
 ) {
     suspend fun push(accountId: Uuid) {
-        val musicList = accountMusicSyncLocalDataSource.findPending(accountId = accountId)
-
-        musicList.chunked(PUSH_CHUNK_SIZE).forEach { chunk ->
-            musicRemoteDataSource.push(musicList = chunk.map { music -> music.toRemote() })
-            accountMusicSyncTransaction.clearPending(accountId = accountId, musicList = chunk)
-        }
+        pushPending(
+            pendingList = accountMusicSyncLocalDataSource.readPendingList(accountId = accountId),
+            push = { chunk -> musicRemoteDataSource.push(musicList = chunk.map { music -> music.toRemote() }) },
+            clearPending = { chunk -> accountMusicSyncTransaction.clearPending(accountId = accountId, musicList = chunk) },
+        )
     }
 
     suspend fun pull(accountId: Uuid) {
-        var cursor =
-            syncCursorLocalDataSource.find(
-                accountId = accountId,
-                kind = SyncKind.MUSIC,
-            )
-        var hasNext = true
-
-        while (hasNext) {
-            val pullList = musicRemoteDataSource.pull(usn = cursor)
-            val nextCursor = pullList.maxOfOrNull { pull -> pull.usn }
-
-            if (nextCursor == null || nextCursor <= cursor) {
-                hasNext = false
-            } else {
-                accountMusicSyncTransaction.save(
+        syncCursorLocalDataSource.pullUntilExhausted(
+            accountId = accountId,
+            kind = SyncKindLocalEntity.MUSIC,
+            pull = { cursor -> musicRemoteDataSource.pull(usn = cursor) },
+            usn = { pull -> pull.usn },
+            upsert = { pullList, cursor ->
+                accountMusicSyncTransaction.upsert(
                     accountId = accountId,
                     musicList = pullList.map { pull -> pull.music.toLocal() },
-                    cursor = nextCursor,
+                    cursor = cursor,
                 )
-                cursor = nextCursor
-            }
-        }
+            },
+        )
     }
 }

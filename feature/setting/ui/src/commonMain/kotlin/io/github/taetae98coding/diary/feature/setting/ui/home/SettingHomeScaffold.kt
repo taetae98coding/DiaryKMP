@@ -46,7 +46,7 @@ internal fun SettingHomeScaffold(
             when (val uiState = uiStateProvider()) {
                 is SettingHomeUiState.Loading -> Unit
 
-                is SettingHomeUiState.Loaded -> {
+                is SettingHomeUiState.Content -> {
                     itemsIndexed(
                         items = uiState.itemList,
                         key = { _, item -> item.name },
@@ -72,7 +72,7 @@ private fun SettingHomeScaffoldPreview() {
     DiaryTheme {
         SettingHomeScaffold(
             onEvent = {},
-            uiStateProvider = { SettingHomeUiState.Loaded(itemList = settingHomeItemList) },
+            uiStateProvider = { SettingHomeUiState.Content(itemList = settingHomeItemList) },
         )
     }
 }

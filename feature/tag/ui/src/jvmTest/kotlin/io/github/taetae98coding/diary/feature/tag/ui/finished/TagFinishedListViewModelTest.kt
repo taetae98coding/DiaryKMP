@@ -4,6 +4,7 @@ package io.github.taetae98coding.diary.feature.tag.ui.finished
 
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.testing.ErrorRecovery
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
@@ -18,6 +19,7 @@ import io.github.taetae98coding.diary.domain.tag.usecase.FinishTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageFinishedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.RestartTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.RestoreTagUseCase
+import io.github.taetae98coding.diary.feature.tag.ui.appendFailingPagingData
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -30,6 +32,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
@@ -65,23 +68,37 @@ class TagFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-FINISHED-LIST-FEATURE-020 완료된 태그 페이지 조회가 성공한 뒤 실패하면 마지막으로 불러온 태그를 그대로 노출한다") {
+        test("TC-TAG-FINISHED-LIST-FEATURE-020 이어서 불러오기에 실패해도 이미 불러온 완료 태그를 그대로 노출한다") {
             runTest(mainDispatcher) {
                 val tagList = listOf(tag(title = fixtureMonkey.giveMeOne()), tag(title = fixtureMonkey.giveMeOne()))
-                val viewModel =
-                    viewModel(
-                        pageFinishedTagUseCase =
-                            pageFinishedTagUseCase(
-                                tagListFlow = flowOf(Result.success(tagList), Result.failure(IllegalStateException())),
-                            ),
-                    )
+                val pageFinishedTagUseCase = mockk<PageFinishedTagUseCase>()
+                every { pageFinishedTagUseCase(parameter = ListSort.TITLE) } returns
+                    appendFailingPagingData(firstPage = tagList).map { pagingData -> Result.success(pagingData) }
+                val viewModel = viewModel(pageFinishedTagUseCase = pageFinishedTagUseCase)
+
+                val itemList =
+                    flowOf(viewModel.tagPagingData.first()).asSnapshot(onError = { ErrorRecovery.RETURN_CURRENT_SNAPSHOT }) {
+                        appendScrollWhile { true }
+                    }
+
+                itemList shouldBe tagList
+            }
+        }
+
+        test("TC-TAG-FINISHED-LIST-FEATURE-020 완료된 태그 페이지를 다시 조회하다 실패하면 이전 태그를 남기지 않고 빈 페이지를 노출한다") {
+            runTest(mainDispatcher) {
+                val tagList = listOf(tag(title = fixtureMonkey.giveMeOne()), tag(title = fixtureMonkey.giveMeOne()))
+                val tagListFlow = MutableStateFlow(Result.success(tagList))
+                val viewModel = viewModel(pageFinishedTagUseCase = pageFinishedTagUseCase(tagListFlow = tagListFlow))
 
                 viewModel.tagPagingData.test {
                     advanceUntilIdle()
-                    val itemList = flowOf(awaitItem()).asSnapshot()
-                    expectNoEvents()
+                    flowOf(awaitItem()).asSnapshot() shouldBe tagList
 
-                    itemList shouldBe tagList
+                    tagListFlow.value = Result.failure(IllegalStateException())
+                    advanceUntilIdle()
+
+                    flowOf(awaitItem()).asSnapshot() shouldBe emptyList()
                 }
                 viewModel.viewModelScope.cancel()
                 advanceUntilIdle()

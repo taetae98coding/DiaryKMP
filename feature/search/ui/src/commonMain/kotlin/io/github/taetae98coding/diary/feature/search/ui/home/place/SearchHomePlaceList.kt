@@ -21,13 +21,14 @@ import io.github.taetae98coding.diary.compose.core.icon.PlaceIcon
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.place.SwipeToDeletePlaceCard
+import io.github.taetae98coding.diary.compose.place.PlaceListEvent
+import io.github.taetae98coding.diary.compose.place.SwipePlaceCard
+import io.github.taetae98coding.diary.compose.place.previewPlace
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeResult
 import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeResultEvent
 import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeResultItemEvent
-import io.github.taetae98coding.diary.feature.search.ui.previewPlace
 import kotlinx.coroutines.flow.flowOf
 
 internal const val SEARCH_HOME_PLACE_LIST_TEST_TAG: String = "SearchHomePlaceList"
@@ -64,9 +65,13 @@ internal fun SearchHomePlaceList(
             ) { index ->
                 val place = placePagingItems[index]
 
-                SwipeToDeletePlaceCard(
-                    onClick = { place?.let { value -> onItemEvent(SearchHomeResultItemEvent.Click(id = value.id)) } },
-                    onDelete = { place?.let { value -> onItemEvent(SearchHomeResultItemEvent.SwipeDelete(id = value.id)) } },
+                SwipePlaceCard(
+                    onEvent = { event ->
+                        when (event) {
+                            is PlaceListEvent.ClickPlace -> onItemEvent(SearchHomeResultItemEvent.Click(id = event.id))
+                            is PlaceListEvent.SwipeDelete -> onItemEvent(SearchHomeResultItemEvent.SwipeDelete(id = event.id))
+                        }
+                    },
                     modifier =
                         Modifier
                             .animateItem()

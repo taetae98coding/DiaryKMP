@@ -15,7 +15,7 @@ import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 
 @Composable
-public fun <T> DiaryScaleCrossfade(
+internal fun <T> DiaryScaleCrossfade(
     targetState: T,
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.Center,

@@ -37,7 +37,14 @@ internal class FeatureUiConventionPlugin : Plugin<Project> {
                     dependencies {
                         implementation(project(":compose:core"))
                         implementation(project(":library:coroutines"))
+                        implementation(library("jetbrains.lifecycle.viewmodel.compose"))
                         implementation(library("koin.compose.viewmodel"))
+                    }
+                }
+
+                getByName("androidHostTest") {
+                    dependencies {
+                        implementation(library("androidx.lifecycle.runtime.testing"))
                     }
                 }
             }

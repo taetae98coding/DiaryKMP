@@ -1,7 +1,7 @@
 package io.github.taetae98coding.diary.work.sync.work
 
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.network.api.memo.entity.MemoPullRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.memo.entity.MemoRemoteEntity
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
@@ -44,8 +44,8 @@ class SyncWorkMemoPrimaryTagTest :
 
             coVerify(exactly = 1) {
                 context.memoRemoteDataSource.push(listOf(pendingMemo.toRemote()))
-                context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.MEMO)
-                context.accountMemoSyncTransaction.save(
+                context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.MEMO)
+                context.accountMemoSyncTransaction.upsert(
                     accountId = context.accountId,
                     memoList = listOf(pulledMemo.toRemote().toLocal()),
                     cursor = 1L,

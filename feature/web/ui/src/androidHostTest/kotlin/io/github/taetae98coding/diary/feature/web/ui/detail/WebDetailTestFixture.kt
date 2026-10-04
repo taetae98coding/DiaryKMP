@@ -25,7 +25,6 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
-import io.github.taetae98coding.diary.compose.memo.list.MemoListUiState
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
@@ -33,9 +32,11 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.core.model.web.WebPage
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestViewModel
-import io.github.taetae98coding.diary.feature.web.ui.detail.memo.WebDetailMemoSyncViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.memo.WebDetailMemoViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageViewModel
@@ -75,13 +76,13 @@ private const val EFFECT_BUFFER_CAPACITY = 8
 
 // KoinApplication에 넘긴 모듈은 첫 테스트의 것이 이어서 쓰이므로, 메모 탭이 얻는 값은 모듈이 붙잡는 이 흐름들로 테스트마다 바꾼다.
 internal val memoPagingDataFlow = MutableStateFlow(PagingData.empty<MemoListItem>())
-internal val memoListUiStateFlow = MutableStateFlow(MemoListUiState())
+internal val memoListUiStateFlow = MutableStateFlow(SyncRefreshUiState())
 internal val memoEffectFlow = MutableSharedFlow<MemoListEffect>(extraBufferCapacity = EFFECT_BUFFER_CAPACITY)
 
 internal var memoViewModelRef: WebDetailMemoViewModel? = null
     private set
 
-internal var memoSyncViewModelRef: WebDetailMemoSyncViewModel? = null
+internal var memoSyncViewModelRef: SyncRefreshViewModel? = null
     private set
 
 private val webDetailTabViewModelModule =
@@ -90,12 +91,12 @@ private val webDetailTabViewModelModule =
             mockk<WebDetailMemoViewModel>(relaxed = true)
                 .apply {
                     every { memoPagingData } returns memoPagingDataFlow
-                    every { sort } returns MutableStateFlow(ListSort.DEFAULT)
+                    every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
                     every { effect } returns memoEffectFlow
                 }.also { memoViewModelRef = it }
         }
         factory {
-            mockk<WebDetailMemoSyncViewModel>(relaxed = true)
+            mockk<SyncRefreshViewModel>(relaxed = true)
                 .apply { every { uiState } returns memoListUiStateFlow }
                 .also { memoSyncViewModelRef = it }
         }
@@ -103,7 +104,7 @@ private val webDetailTabViewModelModule =
 
 internal fun prepareWebDetailTabViewModels(
     memoPagingData: PagingData<MemoListItem> = PagingData.empty(),
-    memoListUiState: MemoListUiState = MemoListUiState(),
+    memoListUiState: SyncRefreshUiState = SyncRefreshUiState(),
 ) {
     memoPagingDataFlow.value = memoPagingData
     memoListUiStateFlow.value = memoListUiState
@@ -206,7 +207,7 @@ internal fun ComposeContentTestRule.setWebDetailMemoScreen(
     viewModel: WebDetailViewModel,
     id: Uuid = FIRST_WEB_ID,
     memoPagingData: PagingData<MemoListItem> = PagingData.empty(),
-    memoListUiState: MemoListUiState = MemoListUiState(),
+    memoListUiState: SyncRefreshUiState = SyncRefreshUiState(),
     navigateUp: () -> Unit = {},
     navigateToMemoAdd: () -> Unit = {},
     navigateToMemoDetail: (Uuid) -> Unit = {},

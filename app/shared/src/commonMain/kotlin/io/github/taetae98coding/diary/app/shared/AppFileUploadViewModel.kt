@@ -33,9 +33,17 @@ internal class AppFileUploadViewModel(
                 initialValue = AppFileUploadUiState.Loading,
             )
 
+    private val reconcilingAccountSet = mutableSetOf<Account>()
+
     fun reconcile(account: Account) {
+        if (!reconcilingAccountSet.add(account)) return
+
         viewModelScope.launch {
-            reconcileFileUploadUseCase(parameter = account)
+            try {
+                reconcileFileUploadUseCase(parameter = account)
+            } finally {
+                reconcilingAccountSet.remove(account)
+            }
         }
     }
 }

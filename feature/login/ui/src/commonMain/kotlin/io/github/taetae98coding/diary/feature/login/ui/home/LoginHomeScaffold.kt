@@ -28,7 +28,7 @@ internal fun LoginHomeScaffold(
     modifier: Modifier = Modifier,
     uiStateProvider: () -> LoginHomeUiState = { LoginHomeUiState() },
     platformSignInState: LoginPlatformSignInState = rememberLoginPlatformSignInState(),
-    hostState: SnackbarHostState = remember { SnackbarHostState() },
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     Scaffold(
         modifier = modifier,
@@ -39,7 +39,7 @@ internal fun LoginHomeScaffold(
                 navigateUpContentDescription = stringResource(Res.string.login_navigate_up_button_content_description),
             )
         },
-        snackbarHost = { SnackbarHost(hostState = hostState) },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
     ) { paddingValues ->
         DiaryCrossfade(
             targetState = uiStateProvider().isInProgress || platformSignInState.isInProgress,

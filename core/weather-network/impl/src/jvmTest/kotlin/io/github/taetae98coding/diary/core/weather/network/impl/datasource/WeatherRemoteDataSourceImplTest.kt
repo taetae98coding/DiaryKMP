@@ -9,12 +9,14 @@ import io.github.taetae98coding.diary.core.weather.network.api.entity.ForecastWe
 import io.github.taetae98coding.diary.core.weather.network.api.entity.LocationNameRemoteEntity
 import io.github.taetae98coding.diary.core.weather.network.impl.WeatherNetworkTestKoinApplication
 import io.github.taetae98coding.diary.core.weather.network.impl.WeatherNetworkTestKoinModule
-import io.github.taetae98coding.diary.core.weather.network.impl.di.WeatherHttpClientEngine
+import io.github.taetae98coding.diary.core.weather.network.impl.createWeatherHttpClient
+import io.github.taetae98coding.diary.core.weather.network.impl.di.WeatherHttpClient
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldStartWith
+import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -238,7 +240,7 @@ class WeatherRemoteDataSourceImplTest :
             koinApplication<WeatherNetworkTestKoinApplication> {
                 modules(
                     module {
-                        single<HttpClientEngine>(qualifier = named<WeatherHttpClientEngine>()) { engine }
+                        single<HttpClient>(qualifier = named<WeatherHttpClient>()) { createWeatherHttpClient(config = get(), engine = engine) }
                     },
                 )
             }.koin.get()

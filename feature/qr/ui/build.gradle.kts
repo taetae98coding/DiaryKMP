@@ -8,10 +8,9 @@ kotlin {
             dependencies {
                 implementation(projects.compose.permission)
                 implementation(projects.compose.place)
-                implementation(projects.domain.place)
                 implementation(projects.domain.qr)
                 implementation(projects.domain.setting)
-                implementation(projects.domain.sync)
+                implementation(projects.feature.core)
                 implementation(projects.feature.qr.api)
                 implementation(projects.library.kotlin)
                 implementation(libs.qrose)
@@ -37,7 +36,6 @@ kotlin {
         androidHostTest {
             dependencies {
                 implementation(projects.core.testing)
-                implementation(libs.androidx.lifecycle.runtime.testing)
             }
         }
 

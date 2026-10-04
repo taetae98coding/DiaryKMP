@@ -3,7 +3,6 @@ package io.github.taetae98coding.diary.core.datastore.impl
 import androidx.datastore.core.CorruptionException
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.core.datastore.api.setting.entity.GeminiSettingLocalEntity
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.MapProviderLocalEntity
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrowExactly
@@ -46,9 +45,9 @@ class SettingSerializerTest :
         test("Gemini 설정을 왕복 변환한다") {
             val settings =
                 listOf(
-                    GeminiSettingLocalEntity(),
-                    GeminiSettingLocalEntity(apiKey = "storedApiKey", model = "models/gemini-flash", systemPrompt = "첫 줄\n둘째 줄"),
-                    GeminiSettingLocalEntity(systemPrompt = "지시문만 있는 설정"),
+                    GeminiSettingData(),
+                    GeminiSettingData(apiKey = "storedApiKey", model = "models/gemini-flash", systemPrompt = "첫 줄\n둘째 줄"),
+                    GeminiSettingData(systemPrompt = "지시문만 있는 설정"),
                 )
 
             settings.forEach { setting ->
@@ -56,18 +55,30 @@ class SettingSerializerTest :
             }
         }
 
+        test("Gemini 설정은 이전 버전이 저장한 항목 이름 그대로 읽고 쓴다") {
+            val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
+            val apiKey = "key${fixtureMonkey.giveMeOne<Int>()}"
+            val model = "model${fixtureMonkey.giveMeOne<Int>()}"
+            val systemPrompt = "prompt${fixtureMonkey.giveMeOne<Int>()}"
+            val storedText = """{"apiKey":"$apiKey","model":"$model","systemPrompt":"$systemPrompt"}"""
+
+            GeminiSettingSerializer.readText(storedText) shouldBe GeminiSettingData(apiKey = apiKey, model = model, systemPrompt = systemPrompt)
+            GeminiSettingSerializer.writeText(GeminiSettingData(apiKey = apiKey, model = model, systemPrompt = systemPrompt)) shouldBe storedText
+            GeminiSettingSerializer.writeText(GeminiSettingData()) shouldBe "{}"
+        }
+
         test("저장된 항목이 없으면 기본 설정을 제공한다") {
             MapSettingSerializer.readText("{}") shouldBe MapSettingData()
             HolidaySettingSerializer.readText("{}") shouldBe HolidaySettingData()
             HolidaySettingSerializer.readText("{}").countryOptionSet shouldBe setOf("device")
-            GeminiSettingSerializer.readText("{}") shouldBe GeminiSettingLocalEntity()
+            GeminiSettingSerializer.readText("{}") shouldBe GeminiSettingData()
         }
 
         test("모르는 설정 항목이 있어도 아는 항목을 읽는다") {
             MapSettingSerializer.readText("""{"defaultProvider":"google","unknownSetting":true}""") shouldBe
                 MapSettingData(defaultProvider = "google")
             GeminiSettingSerializer.readText("""{"apiKey":"key","unknownSetting":true}""") shouldBe
-                GeminiSettingLocalEntity(apiKey = "key")
+                GeminiSettingData(apiKey = "key")
         }
 
         test("각 설정은 다른 역할의 항목을 읽지 않는다") {
@@ -75,7 +86,7 @@ class SettingSerializerTest :
 
             MapSettingSerializer.readText(mixed) shouldBe MapSettingData(defaultProvider = "google")
             HolidaySettingSerializer.readText(mixed) shouldBe HolidaySettingData(hiddenKeySet = setOf("초복"))
-            GeminiSettingSerializer.readText(mixed) shouldBe GeminiSettingLocalEntity(apiKey = "key")
+            GeminiSettingSerializer.readText(mixed) shouldBe GeminiSettingData(apiKey = "key")
         }
 
         test("계정별 마지막 동기화 시각을 왕복 변환한다") {
@@ -120,3 +131,5 @@ private suspend fun <T> SettingSerializer<T>.roundTrip(setting: T): T {
 }
 
 private suspend fun <T> SettingSerializer<T>.readText(text: String): T = readFrom(Buffer().apply { writeUtf8(text) })
+
+private suspend fun <T> SettingSerializer<T>.writeText(setting: T): String = Buffer().also { buffer -> writeTo(setting, buffer) }.readUtf8()

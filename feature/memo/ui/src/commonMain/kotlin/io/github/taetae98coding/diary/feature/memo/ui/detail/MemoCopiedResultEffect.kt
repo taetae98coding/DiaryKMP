@@ -27,7 +27,7 @@ internal fun MemoCopiedResultEffect(
         resultKey = resultKey,
         resultEventBus = resultEventBus,
     ) {
-        scaffoldState.hostState.showImmediate(message = copySucceededMessage)
+        scaffoldState.snackbarHostState.showImmediate(message = copySucceededMessage)
     }
 
     DisposableEffect(resultEventBus, resultKey) {

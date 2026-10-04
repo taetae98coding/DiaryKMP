@@ -73,7 +73,7 @@ internal fun TagDetailPlaceTab(
                     when (uiState) {
                         is TagDetailPlaceUiState.Loading -> Unit
 
-                        is TagDetailPlaceUiState.Loaded ->
+                        is TagDetailPlaceUiState.Content ->
                             TagDetailPlaceMapContent(
                                 onEvent = onEvent,
                                 modifier = Modifier.fillMaxSize(),

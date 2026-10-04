@@ -36,7 +36,7 @@ internal fun FileAddScaffold(
                 navigateUpContentDescription = stringResource(Res.string.file_navigate_up_button_content_description),
             )
         },
-        snackbarHost = { SnackbarHost(hostState = state.hostState) },
+        snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },
         floatingActionButton = {
             FloatingUploadButton(
                 onClick = { onEvent(FileAddScaffoldEvent.ClickUpload) },

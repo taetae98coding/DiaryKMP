@@ -21,13 +21,14 @@ import io.github.taetae98coding.diary.compose.core.icon.WebIcon
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.web.SwipeToDeleteWebCard
+import io.github.taetae98coding.diary.compose.web.SwipeWebCard
+import io.github.taetae98coding.diary.compose.web.WebListEvent
+import io.github.taetae98coding.diary.compose.web.previewWeb
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeResult
 import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeResultEvent
 import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeResultItemEvent
-import io.github.taetae98coding.diary.feature.search.ui.previewWeb
 import kotlinx.coroutines.flow.flowOf
 
 internal const val SEARCH_HOME_WEB_LIST_TEST_TAG: String = "SearchHomeWebList"
@@ -64,9 +65,13 @@ internal fun SearchHomeWebList(
             ) { index ->
                 val web = webPagingItems[index]
 
-                SwipeToDeleteWebCard(
-                    onClick = { web?.let { value -> onItemEvent(SearchHomeResultItemEvent.Click(id = value.id)) } },
-                    onDelete = { web?.let { value -> onItemEvent(SearchHomeResultItemEvent.SwipeDelete(id = value.id)) } },
+                SwipeWebCard(
+                    onEvent = { event ->
+                        when (event) {
+                            is WebListEvent.ClickWeb -> onItemEvent(SearchHomeResultItemEvent.Click(id = event.id))
+                            is WebListEvent.SwipeDelete -> onItemEvent(SearchHomeResultItemEvent.SwipeDelete(id = event.id))
+                        }
+                    },
                     modifier =
                         Modifier
                             .animateItem()

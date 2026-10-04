@@ -9,6 +9,8 @@ import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
+import io.mockk.mockk
+import io.mockk.verify
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 
@@ -59,6 +61,31 @@ class ConsoleDiaryLoggerDelegateTest :
                         }
 
                     output shouldContain "[Diary] $log"
+                }
+            }
+        }
+
+        Given("기록하는 자리를 주입한 콘솔 기록 수단이 있다") {
+            val print = mockk<(String, String, Throwable?) -> Unit>(relaxed = true)
+            val delegate = ConsoleDiaryLoggerDelegate(print = print)
+
+            When("콘솔 로그를 전달한다") {
+                Then("지정한 태그, 메시지, 오류 정보가 그대로 기록하는 자리로 전달된다") {
+                    val log = ConsoleLog(tag = fixtureMonkey.giveMeOne<String>(), message = fixtureMonkey.giveMeOne<String>(), throwable = IllegalStateException())
+
+                    delegate.log(log = log)
+
+                    verify(exactly = 1) { print(log.tag, log.message, log.throwable) }
+                }
+            }
+
+            When("콘솔 로그가 아닌 종류의 로그를 전달한다") {
+                Then("기본 태그와 로그 문자열이 오류 정보 없이 기록하는 자리로 전달된다") {
+                    val log = OtherLog(value = fixtureMonkey.giveMeOne<Int>())
+
+                    delegate.log(log = log)
+
+                    verify(exactly = 1) { print("Diary", log.toString(), null) }
                 }
             }
         }

@@ -14,4 +14,6 @@ internal sealed interface FileHomeUploadEffect {
     data object UploadTooLarge : FileHomeUploadEffect
 
     data object UploadFailed : FileHomeUploadEffect
+
+    data object NavigateToAdd : FileHomeUploadEffect
 }

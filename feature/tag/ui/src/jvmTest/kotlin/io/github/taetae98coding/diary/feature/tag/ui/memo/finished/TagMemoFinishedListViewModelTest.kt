@@ -4,6 +4,7 @@ package io.github.taetae98coding.diary.feature.tag.ui.memo.finished
 
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.testing.ErrorRecovery
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
@@ -21,6 +22,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.PageFinishedTagMemoUse
 import io.github.taetae98coding.diary.domain.memo.usecase.RestartMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
+import io.github.taetae98coding.diary.feature.tag.ui.appendFailingPagingData
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -36,6 +38,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -188,24 +191,42 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-MEMO-FINISHED-LIST-FEATURE-009 태그별 완료 메모 조회가 성공한 뒤 실패하면 마지막 성공 목록을 유지한다") {
+        test("TC-TAG-MEMO-FINISHED-LIST-FEATURE-009 태그별 완료 메모 조회가 이어서 불러오기에 실패해도 이미 불러온 목록을 그대로 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val memo = memo()
                 val pageFinishedTagMemoUseCase = mockk<PageFinishedTagMemoUseCase>()
                 every { pageFinishedTagMemoUseCase(parameter = PageFinishedTagMemoUseCase.Parameter(tagId = tagId, sort = ListSort.DEFAULT)) } returns
-                    flowOf(
-                        Result.success(PagingData.from(listOf(memo))),
-                        Result.failure(IllegalStateException()),
-                    )
+                    appendFailingPagingData(firstPage = listOf(memo)).map { pagingData -> Result.success(pagingData) }
+                val viewModel = viewModel(tagId = tagId, pageFinishedTagMemoUseCase = pageFinishedTagMemoUseCase)
+
+                val itemList =
+                    flowOf(viewModel.memoPagingData.first()).asSnapshot(onError = { ErrorRecovery.RETURN_CURRENT_SNAPSHOT }) {
+                        appendScrollWhile { true }
+                    }
+
+                itemList.filterIsInstance<MemoListItem.Content>().map { it.memo } shouldBe listOf(memo)
+            }
+        }
+
+        test("TC-TAG-MEMO-FINISHED-LIST-FEATURE-009 태그별 완료 메모 조회가 다시 조회하다 실패하면 이전 목록을 남기지 않고 빈 목록을 노출한다") {
+            runTest(mainDispatcher) {
+                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val memo = memo()
+                val pageFinishedTagMemoUseCase = mockk<PageFinishedTagMemoUseCase>()
+                val resultFlow = MutableStateFlow<Result<PagingData<Memo>>>(Result.success(PagingData.from(listOf(memo))))
+                every { pageFinishedTagMemoUseCase(parameter = PageFinishedTagMemoUseCase.Parameter(tagId = tagId, sort = ListSort.DEFAULT)) } returns resultFlow
                 val viewModel = viewModel(tagId = tagId, pageFinishedTagMemoUseCase = pageFinishedTagMemoUseCase)
 
                 viewModel.memoPagingData.test {
                     advanceUntilIdle()
-                    val itemList = flowOf(awaitItem()).asSnapshot()
-                    expectNoEvents()
+                    flowOf(awaitItem()).asSnapshot().filterIsInstance<MemoListItem.Content>().map { it.memo } shouldBe listOf(memo)
 
-                    itemList.filterIsInstance<MemoListItem.Content>().map { it.memo } shouldBe listOf(memo)
+                    resultFlow.value = Result.failure(IllegalStateException())
+                    advanceUntilIdle()
+
+                    flowOf(awaitItem()).asSnapshot() shouldBe emptyList()
+                    expectNoEvents()
                 }
                 viewModel.viewModelScope.cancel()
                 advanceUntilIdle()

@@ -14,9 +14,9 @@ import io.github.taetae98coding.diary.domain.file.exception.FileNotSelectedExcep
 import io.github.taetae98coding.diary.domain.file.exception.FileTitleBlankException
 import io.github.taetae98coding.diary.domain.file.exception.FileTooLargeException
 import io.github.taetae98coding.diary.domain.file.exception.FileUnreadableException
-import io.github.taetae98coding.diary.domain.file.usecase.FindFileUploadSourceUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadEventUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadStateUseCase
+import io.github.taetae98coding.diary.domain.file.usecase.ReadFileUploadSourceUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.RequestFileUploadUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.StartViewingFileScreenUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.StopViewingFileScreenUseCase
@@ -77,9 +77,9 @@ class FileAddViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val uri = fixtureMonkey.fileUri()
                 val source = fixtureMonkey.fileUploadSource().copy(uri = uri)
-                val findUseCase = mockk<FindFileUploadSourceUseCase>()
-                coEvery { findUseCase(parameter = uri) } returns Result.success(source)
-                val viewModel = viewModel(findUseCase = findUseCase)
+                val readUseCase = mockk<ReadFileUploadSourceUseCase>()
+                coEvery { readUseCase(parameter = uri) } returns Result.success(source)
+                val viewModel = viewModel(readUseCase = readUseCase)
 
                 backgroundScope.launch { viewModel.uiState.collect {} }
                 viewModel.select(uri = uri)
@@ -93,10 +93,10 @@ class FileAddViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val first = fixtureMonkey.fileUploadSource()
                 val second = fixtureMonkey.fileUploadSource()
-                val findUseCase = mockk<FindFileUploadSourceUseCase>()
-                coEvery { findUseCase(parameter = first.uri) } returns Result.success(first)
-                coEvery { findUseCase(parameter = second.uri) } returns Result.success(second)
-                val viewModel = viewModel(findUseCase = findUseCase)
+                val readUseCase = mockk<ReadFileUploadSourceUseCase>()
+                coEvery { readUseCase(parameter = first.uri) } returns Result.success(first)
+                coEvery { readUseCase(parameter = second.uri) } returns Result.success(second)
+                val viewModel = viewModel(readUseCase = readUseCase)
 
                 backgroundScope.launch { viewModel.uiState.collect {} }
                 viewModel.select(uri = first.uri)
@@ -111,9 +111,9 @@ class FileAddViewModelTest : FunSpec() {
         test("TC-FILE-ADD-FEATURE-005 고를 수 없는 파일을 고르면 이유를 알리고 이전에 고른 파일을 둔다") {
             runTest(mainDispatcher) {
                 val previous = fixtureMonkey.fileUploadSource()
-                val findUseCase = mockk<FindFileUploadSourceUseCase>()
-                coEvery { findUseCase(parameter = previous.uri) } returns Result.success(previous)
-                val viewModel = viewModel(findUseCase = findUseCase)
+                val readUseCase = mockk<ReadFileUploadSourceUseCase>()
+                coEvery { readUseCase(parameter = previous.uri) } returns Result.success(previous)
+                val viewModel = viewModel(readUseCase = readUseCase)
 
                 backgroundScope.launch { viewModel.uiState.collect {} }
                 viewModel.select(uri = previous.uri)
@@ -125,7 +125,7 @@ class FileAddViewModelTest : FunSpec() {
                         FileTooLargeException() to FileAddEffect.FileTooLarge,
                     ).forEach { (exception, effect) ->
                         val uri = fixtureMonkey.fileUri()
-                        coEvery { findUseCase(parameter = uri) } returns Result.failure(exception)
+                        coEvery { readUseCase(parameter = uri) } returns Result.failure(exception)
 
                         viewModel.select(uri = uri)
                         advanceUntilIdle()
@@ -141,10 +141,10 @@ class FileAddViewModelTest : FunSpec() {
         test("TC-FILE-ADD-FEATURE-006 TC-FILE-ADD-FEATURE-007 TC-FILE-ADD-FEATURE-008 올리기 성립 조건을 어기면 이유를 알리고 고른 파일을 둔다") {
             runTest(mainDispatcher) {
                 val source = fixtureMonkey.fileUploadSource()
-                val findUseCase = mockk<FindFileUploadSourceUseCase>()
-                coEvery { findUseCase(parameter = source.uri) } returns Result.success(source)
+                val readUseCase = mockk<ReadFileUploadSourceUseCase>()
+                coEvery { readUseCase(parameter = source.uri) } returns Result.success(source)
                 val requestUseCase = mockk<RequestFileUploadUseCase>()
-                val viewModel = viewModel(findUseCase = findUseCase, requestUseCase = requestUseCase)
+                val viewModel = viewModel(readUseCase = readUseCase, requestUseCase = requestUseCase)
 
                 backgroundScope.launch { viewModel.uiState.collect {} }
                 viewModel.select(uri = source.uri)
@@ -173,11 +173,11 @@ class FileAddViewModelTest : FunSpec() {
                 val source = fixtureMonkey.fileUploadSource()
                 val title = "title-${fixtureMonkey.giveMeOne<String>()}"
                 val description = fixtureMonkey.giveMeOne<String>()
-                val findUseCase = mockk<FindFileUploadSourceUseCase>()
-                coEvery { findUseCase(parameter = source.uri) } returns Result.success(source)
+                val readUseCase = mockk<ReadFileUploadSourceUseCase>()
+                coEvery { readUseCase(parameter = source.uri) } returns Result.success(source)
                 val requestUseCase = mockk<RequestFileUploadUseCase>()
                 coEvery { requestUseCase(parameter = any()) } returns Result.success(Unit)
-                val viewModel = viewModel(findUseCase = findUseCase, requestUseCase = requestUseCase)
+                val viewModel = viewModel(readUseCase = readUseCase, requestUseCase = requestUseCase)
 
                 backgroundScope.launch { viewModel.uiState.collect {} }
                 viewModel.select(uri = source.uri)
@@ -260,11 +260,11 @@ class FileAddViewModelTest : FunSpec() {
         test("TC-FILE-ADD-FEATURE-012 올리는 중에도 파일을 고를 수 있다") {
             runTest(mainDispatcher) {
                 val source = fixtureMonkey.fileUploadSource()
-                val findUseCase = mockk<FindFileUploadSourceUseCase>()
-                coEvery { findUseCase(parameter = source.uri) } returns Result.success(source)
+                val readUseCase = mockk<ReadFileUploadSourceUseCase>()
+                coEvery { readUseCase(parameter = source.uri) } returns Result.success(source)
                 val viewModel =
                     viewModel(
-                        findUseCase = findUseCase,
+                        readUseCase = readUseCase,
                         stateFlow = MutableStateFlow(Result.success(FileUploadState.Uploading(percent = null))),
                     )
 
@@ -279,10 +279,10 @@ class FileAddViewModelTest : FunSpec() {
         test("TC-FILE-ADD-FEATURE-013 화면을 보는 동안 끝난 올리기의 결과를 알리고 고른 파일은 둔다") {
             runTest(mainDispatcher) {
                 val source = fixtureMonkey.fileUploadSource()
-                val findUseCase = mockk<FindFileUploadSourceUseCase>()
-                coEvery { findUseCase(parameter = source.uri) } returns Result.success(source)
+                val readUseCase = mockk<ReadFileUploadSourceUseCase>()
+                coEvery { readUseCase(parameter = source.uri) } returns Result.success(source)
                 val eventChannel = Channel<Result<FileUploadEvent>>(Channel.UNLIMITED)
-                val viewModel = viewModel(findUseCase = findUseCase, eventChannel = eventChannel)
+                val viewModel = viewModel(readUseCase = readUseCase, eventChannel = eventChannel)
 
                 backgroundScope.launch { viewModel.uiState.collect {} }
                 viewModel.select(uri = source.uri)
@@ -319,11 +319,11 @@ class FileAddViewModelTest : FunSpec() {
         test("TC-FILE-ADD-FEATURE-016 TC-FILE-ADD-FEATURE-018 올리기를 맡기지 못하면 올리지 못했다고 알리고 고른 파일을 둔다") {
             runTest(mainDispatcher) {
                 val source = fixtureMonkey.fileUploadSource()
-                val findUseCase = mockk<FindFileUploadSourceUseCase>()
-                coEvery { findUseCase(parameter = source.uri) } returns Result.success(source)
+                val readUseCase = mockk<ReadFileUploadSourceUseCase>()
+                coEvery { readUseCase(parameter = source.uri) } returns Result.success(source)
                 val requestUseCase = mockk<RequestFileUploadUseCase>()
                 coEvery { requestUseCase(parameter = any()) } returns Result.failure(SecurityException(fixtureMonkey.giveMeOne<String>()))
-                val viewModel = viewModel(findUseCase = findUseCase, requestUseCase = requestUseCase)
+                val viewModel = viewModel(readUseCase = readUseCase, requestUseCase = requestUseCase)
 
                 backgroundScope.launch { viewModel.uiState.collect {} }
                 viewModel.select(uri = source.uri)
@@ -358,10 +358,46 @@ class FileAddViewModelTest : FunSpec() {
                 coVerify(exactly = 1) { stopUseCase(parameter = FileScreen.ADD) }
             }
         }
+
+        test("이미 보고 있거나 보고 있지 않을 때 다시 알리면 UseCase를 다시 실행하지 않는다") {
+            runTest(mainDispatcher) {
+                val startUseCase = mockk<StartViewingFileScreenUseCase>()
+                coEvery { startUseCase(parameter = FileScreen.ADD) } returns Result.success(Unit)
+                val stopUseCase = mockk<StopViewingFileScreenUseCase>()
+                coEvery { stopUseCase(parameter = FileScreen.ADD) } returns Result.success(Unit)
+                val viewModel = viewModel(startUseCase = startUseCase, stopUseCase = stopUseCase)
+
+                viewModel.stopViewing()
+                viewModel.startViewing()
+                viewModel.startViewing()
+                advanceUntilIdle()
+                viewModel.stopViewing()
+                viewModel.stopViewing()
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { startUseCase(parameter = FileScreen.ADD) }
+                coVerify(exactly = 1) { stopUseCase(parameter = FileScreen.ADD) }
+            }
+        }
+
+        test("같은 파일을 읽는 중에 다시 고르면 한 번만 읽는다") {
+            runTest(mainDispatcher) {
+                val source = fixtureMonkey.fileUploadSource()
+                val readUseCase = mockk<ReadFileUploadSourceUseCase>()
+                coEvery { readUseCase(parameter = source.uri) } returns Result.success(source)
+                val viewModel = viewModel(readUseCase = readUseCase)
+
+                viewModel.select(uri = source.uri)
+                viewModel.select(uri = source.uri)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { readUseCase(parameter = source.uri) }
+            }
+        }
     }
 
     private fun viewModel(
-        findUseCase: FindFileUploadSourceUseCase = mockk(),
+        readUseCase: ReadFileUploadSourceUseCase = mockk(),
         requestUseCase: RequestFileUploadUseCase = mockk<RequestFileUploadUseCase>().also { useCase -> coEvery { useCase(parameter = any()) } returns Result.success(Unit) },
         stateFlow: MutableStateFlow<Result<FileUploadState>> = MutableStateFlow(Result.success(FileUploadState.Idle)),
         eventChannel: Channel<Result<FileUploadEvent>> = Channel(Channel.UNLIMITED),
@@ -374,7 +410,7 @@ class FileAddViewModelTest : FunSpec() {
         every { getEventUseCase(parameter = FileScreen.ADD) } returns eventChannel.receiveAsFlow()
 
         return FileAddViewModel(
-            findFileUploadSourceUseCase = findUseCase,
+            readFileUploadSourceUseCase = readUseCase,
             requestFileUploadUseCase = requestUseCase,
             startViewingFileScreenUseCase = startUseCase,
             stopViewingFileScreenUseCase = stopUseCase,

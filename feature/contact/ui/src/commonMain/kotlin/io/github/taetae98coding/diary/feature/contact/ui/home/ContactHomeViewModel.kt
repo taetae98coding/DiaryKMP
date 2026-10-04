@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.domain.contact.usecase.DeleteContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.PageContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.RestoreContactUseCase
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -29,32 +30,47 @@ internal class ContactHomeViewModel(
     private val deleteContactUseCase: DeleteContactUseCase,
     private val restoreContactUseCase: RestoreContactUseCase,
 ) : ViewModel() {
-    val sort: StateFlow<ListSort>
-        field = MutableStateFlow(ListSort.NAME)
+    val sortUiState: StateFlow<ListSortUiState>
+        field = MutableStateFlow(ListSortUiState(sort = ListSort.NAME))
 
     val contactPagingData: Flow<PagingData<Contact>> =
-        sort
-            .flatMapLatest { value -> pageContactUseCase(parameter = value) }
+        sortUiState
+            .flatMapLatest { (sort) -> pageContactUseCase(parameter = sort) }
             .map { result -> result.getOrElse { PagingData.empty() } }
             .cachedIn(viewModelScope)
 
     private val _effect = Channel<ContactHomeEffect>(Channel.BUFFERED)
     val effect: Flow<ContactHomeEffect> = _effect.receiveAsFlow()
 
+    private val deletingIdSet = mutableSetOf<Uuid>()
+    private val restoringIdSet = mutableSetOf<Uuid>()
+
     fun select(sort: ListSort) {
-        this.sort.value = sort
+        sortUiState.value = ListSortUiState(sort = sort)
     }
 
     fun delete(id: Uuid) {
+        if (!deletingIdSet.add(id)) return
+
         viewModelScope.launch {
-            deleteContactUseCase(parameter = id)
-                .onSuccess { _effect.send(ContactHomeEffect.Deleted(id = id)) }
+            try {
+                deleteContactUseCase(parameter = id)
+                    .onSuccess { _effect.send(ContactHomeEffect.Deleted(id = id)) }
+            } finally {
+                deletingIdSet.remove(id)
+            }
         }
     }
 
     fun restore(id: Uuid) {
+        if (!restoringIdSet.add(id)) return
+
         viewModelScope.launch {
-            restoreContactUseCase(parameter = id)
+            try {
+                restoreContactUseCase(parameter = id)
+            } finally {
+                restoringIdSet.remove(id)
+            }
         }
     }
 }

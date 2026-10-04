@@ -48,7 +48,7 @@ internal fun SettingBrowserScaffold(
             when (val uiState = uiStateProvider()) {
                 is SettingBrowserUiState.Loading -> Unit
 
-                is SettingBrowserUiState.Loaded -> {
+                is SettingBrowserUiState.Content -> {
                     item(key = CHROME_PROFILE_GROUP_KEY) {
                         SettingBrowserChromeProfileSection(
                             onSelect = { directory -> onEvent(SettingBrowserScaffoldEvent.SelectProfile(directory = directory)) },
@@ -74,7 +74,7 @@ private fun SettingBrowserScaffoldPreview() {
         SettingBrowserScaffold(
             onEvent = {},
             uiStateProvider = {
-                SettingBrowserUiState.Loaded(
+                SettingBrowserUiState.Content(
                     profileList = previewChromeProfileList(),
                     selectedProfileDirectory = previewChromeProfileList().first().directory,
                 )

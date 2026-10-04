@@ -119,7 +119,7 @@ class MemoAddContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-CONTACT-INPUT-FEATURE-020 연락처 선택 목록 페이지 조회에 실패해도 선택 상태는 그대로 표시한다") {
+        test("연락처 선택 목록 페이지 조회에 실패해도 선택 상태는 그대로 표시한다") {
             runTest(mainDispatcher) {
                 val contact = contact()
                 val viewModel =
@@ -325,7 +325,7 @@ class MemoAddContactViewModelTest : FunSpec() {
                     cancelAndIgnoreRemainingEvents()
                 }
 
-                viewModel.contactIdSet.value shouldBe setOf(remainingContact.id, deletedContact.id)
+                viewModel.selectionUiState.value.contactIdSet shouldBe setOf(remainingContact.id, deletedContact.id)
             }
         }
 
@@ -345,7 +345,8 @@ class MemoAddContactViewModelTest : FunSpec() {
                     cancelAndIgnoreRemainingEvents()
                 }
 
-                viewModel.contactIdSet.value.shouldBeEmpty()
+                viewModel.selectionUiState.value.contactIdSet
+                    .shouldBeEmpty()
             }
         }
 

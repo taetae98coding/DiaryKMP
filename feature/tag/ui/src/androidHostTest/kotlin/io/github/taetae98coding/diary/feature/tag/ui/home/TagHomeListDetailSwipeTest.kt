@@ -27,6 +27,7 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.ui.TAG_HOME_CONTENT_KEY
@@ -95,8 +96,8 @@ class TagHomeListDetailSwipeTest {
         val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagDetailNavKey(id = opened.id))
         val effectChannel = Channel<TagListEffect>(capacity = Channel.BUFFERED)
         val viewModel = mockk<TagHomeViewModel>()
-        every { viewModel.filterUiState } returns MutableStateFlow(TagHomeScaffoldFilterUiState())
-        every { viewModel.sort } returns MutableStateFlow(ListSort.TITLE)
+        every { viewModel.filterUiState } returns MutableStateFlow(TagHomeScaffoldFilterUiState(isLoaded = true))
+        every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
         every { viewModel.tagPagingData } returns MutableStateFlow(tagPagingDataOf(listOf(opened, other)))
         every { viewModel.effect } returns effectChannel.receiveAsFlow()
         every { viewModel.finish(id = any()) } answers {

@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.app.shared
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.account.usecase.SubmitFcmTokenUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
@@ -32,9 +33,17 @@ internal class AppFcmTokenViewModel(
                 initialValue = AppFcmTokenUiState.Loading,
             )
 
-    fun submit() {
+    private val submittingAccountSet = mutableSetOf<Account>()
+
+    fun submit(account: Account) {
+        if (!submittingAccountSet.add(account)) return
+
         viewModelScope.launch {
-            submitFcmTokenUseCase(parameter = Unit)
+            try {
+                submitFcmTokenUseCase(parameter = Unit)
+            } finally {
+                submittingAccountSet.remove(account)
+            }
         }
     }
 }

@@ -26,10 +26,10 @@ import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.library.compose.ui.color.toColor
 
 public const val PLACE_CARD_TEST_TAG: String = "PlaceCard"
-public const val PLACE_CARD_COLOR_INDICATOR_TEST_TAG: String = "PlaceCardColorIndicator"
+internal const val PLACE_CARD_COLOR_INDICATOR_TEST_TAG: String = "PlaceCardColorIndicator"
 
 @Composable
-public fun PlaceCard(
+internal fun PlaceCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     place: Place? = null,

@@ -224,7 +224,7 @@ class MemoContactViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-CONTACT-INPUT-FEATURE-020 연락처 선택 목록 조회에 실패하면 선택 상태만 그대로 표시한다") {
+        test("연락처 선택 목록 조회에 실패하면 선택 상태만 그대로 표시한다") {
             runTest(mainDispatcher) {
                 val connectedContact = contact()
                 val viewModel =
@@ -329,6 +329,26 @@ class MemoContactViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-MEMO-CONTACT-INPUT-FEATURE-033 검색어를 바꿔 다시 조회하다 실패하면 이전 연락처을 남기지 않고 빈 목록을 노출한다") {
+            runTest(mainDispatcher) {
+                val contactList = List(2) { contact() }
+                val pageMemoSelectableContactUseCase = mockk<PageMemoSelectableContactUseCase>()
+                every { pageMemoSelectableContactUseCase(parameter = "") } returns flowOf(Result.success(PagingData.from(contactList)))
+                every { pageMemoSelectableContactUseCase(parameter = SEARCH_QUERY) } returns flowOf(Result.failure(IllegalStateException()))
+                val viewModel = viewModel(pageMemoSelectableContactUseCase = pageMemoSelectableContactUseCase)
+
+                viewModel.contactPagingData.test {
+                    flowOf(awaitItem()).asSnapshot() shouldBe contactList
+
+                    viewModel.updateQuery(SEARCH_QUERY)
+                    advanceUntilIdle()
+
+                    flowOf(awaitItem()).asSnapshot() shouldBe emptyList()
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
         test("TC-MEMO-CONTACT-INPUT-DOMAIN-012 검색어를 바꿔도 연락처 입력에 표시하는 연락처는 그대로다") {
             runTest(mainDispatcher) {
                 val connectedContactList = List(2) { contact() }
@@ -345,6 +365,25 @@ class MemoContactViewModelTest : FunSpec() {
                     expectNoEvents()
                     cancelAndIgnoreRemainingEvents()
                 }
+            }
+        }
+
+        test("같은 Contact 선택이나 선택 해제가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val contactId = fixtureMonkey.giveMeOne<Uuid>()
+                val addMemoContactUseCase = mockk<AddMemoContactUseCase>(relaxed = true)
+                val removeMemoContactUseCase = mockk<RemoveMemoContactUseCase>(relaxed = true)
+                val viewModel = viewModel(id = id, addMemoContactUseCase = addMemoContactUseCase, removeMemoContactUseCase = removeMemoContactUseCase)
+
+                viewModel.selectContact(contactId = contactId)
+                viewModel.selectContact(contactId = contactId)
+                viewModel.unselectContact(contactId = contactId)
+                viewModel.unselectContact(contactId = contactId)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { addMemoContactUseCase(parameter = AddMemoContactUseCase.Parameter(memoId = id, contactId = contactId)) }
+                coVerify(exactly = 1) { removeMemoContactUseCase(parameter = RemoveMemoContactUseCase.Parameter(memoId = id, contactId = contactId)) }
             }
         }
     }

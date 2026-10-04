@@ -9,7 +9,7 @@ public interface AccountQrSyncTransaction {
         qrList: List<QrLocalEntity>,
     )
 
-    public suspend fun save(
+    public suspend fun upsert(
         accountId: Uuid,
         qrList: List<QrLocalEntity>,
         cursor: Long,

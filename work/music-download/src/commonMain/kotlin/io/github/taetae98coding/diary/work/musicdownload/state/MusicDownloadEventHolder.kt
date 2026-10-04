@@ -8,11 +8,11 @@ import org.koin.core.annotation.Single
 
 @Single
 internal class MusicDownloadEventHolder {
-    private val _event = Channel<MusicDownloadEvent>(Channel.BUFFERED)
+    private val channel = Channel<MusicDownloadEvent>(Channel.BUFFERED)
 
-    val event: Flow<MusicDownloadEvent> = _event.receiveAsFlow()
+    val event: Flow<MusicDownloadEvent> = channel.receiveAsFlow()
 
     fun send(event: MusicDownloadEvent) {
-        _event.trySend(event)
+        channel.trySend(event)
     }
 }

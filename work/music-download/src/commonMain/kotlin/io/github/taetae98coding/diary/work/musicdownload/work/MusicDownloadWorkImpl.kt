@@ -5,7 +5,7 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadEvent
 import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadState
 import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadTarget
-import io.github.taetae98coding.diary.domain.playlist.usecase.FindMusicDownloadTargetUseCase
+import io.github.taetae98coding.diary.domain.playlist.usecase.ReadMusicDownloadTargetUseCase
 import io.github.taetae98coding.diary.logger.console.api.ConsoleLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger
 import io.github.taetae98coding.diary.work.musicdownload.state.MusicDownloadEventHolder
@@ -20,14 +20,14 @@ import org.koin.core.annotation.Factory
 internal class MusicDownloadWorkImpl(
     private val downloadToolPreparer: DownloadToolPreparer,
     private val musicDownloader: MusicDownloader,
-    private val findMusicDownloadTargetUseCase: FindMusicDownloadTargetUseCase,
+    private val readMusicDownloadTargetUseCase: ReadMusicDownloadTargetUseCase,
     private val appFileLocalDataSource: AppFileLocalDataSource,
     private val musicDownloadStateHolder: MusicDownloadStateHolder,
     private val musicDownloadEventHolder: MusicDownloadEventHolder,
 ) : MusicDownloadWork {
     override suspend fun doWork(sort: ListSort) {
         if (!prepare()) return
-        val targetList = findMusicDownloadTargetUseCase(parameter = sort).getOrThrow()
+        val targetList = readMusicDownloadTargetUseCase(parameter = sort).getOrThrow()
 
         musicDownloadStateHolder.submitPending(targetList = targetList)
 

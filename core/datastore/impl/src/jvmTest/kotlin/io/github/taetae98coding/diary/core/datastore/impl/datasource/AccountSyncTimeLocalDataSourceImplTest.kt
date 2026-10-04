@@ -21,7 +21,7 @@ class AccountSyncTimeLocalDataSourceImplTest :
         test("기록이 없는 계정은 마지막 동기화 시각이 없다") {
             val dataSource = AccountSyncTimeLocalDataSourceImpl(dataStore = mockDataStore(MutableStateFlow(SyncTimeData())))
 
-            dataSource.find(accountId = fixtureMonkey.giveMeOne()).shouldBeNull()
+            dataSource.read(accountId = fixtureMonkey.giveMeOne()).shouldBeNull()
         }
 
         test("기록한 계정의 마지막 동기화 시각을 그대로 제공한다") {
@@ -32,7 +32,7 @@ class AccountSyncTimeLocalDataSourceImplTest :
 
             dataSource.upsert(accountId = accountId, syncedAt = syncedAt)
 
-            dataSource.find(accountId = accountId) shouldBe syncedAt
+            dataSource.read(accountId = accountId) shouldBe syncedAt
             coVerify(exactly = 1) { dataStore.updateData(any()) }
         }
 
@@ -44,7 +44,7 @@ class AccountSyncTimeLocalDataSourceImplTest :
             dataSource.upsert(accountId = accountId, syncedAt = fixtureMonkey.giveMeOne())
             dataSource.upsert(accountId = accountId, syncedAt = syncedAt)
 
-            dataSource.find(accountId = accountId) shouldBe syncedAt
+            dataSource.read(accountId = accountId) shouldBe syncedAt
         }
 
         test("한 계정을 기록해도 다른 계정의 마지막 동기화 시각은 그대로 남는다") {
@@ -56,7 +56,7 @@ class AccountSyncTimeLocalDataSourceImplTest :
             dataSource.upsert(accountId = otherAccountId, syncedAt = otherSyncedAt)
             dataSource.upsert(accountId = accountId, syncedAt = fixtureMonkey.giveMeOne())
 
-            dataSource.find(accountId = otherAccountId) shouldBe otherSyncedAt
+            dataSource.read(accountId = otherAccountId) shouldBe otherSyncedAt
         }
     }) {
     public companion object {

@@ -3,11 +3,11 @@ package io.github.taetae98coding.diary.core.file.impl
 import io.github.taetae98coding.diary.core.file.impl.di.AppFileDirectory
 import io.github.taetae98coding.diary.core.file.impl.di.AppFileDirectoryName
 import io.github.taetae98coding.diary.library.applicationsupport.applicationSupportDirectory
+import io.github.taetae98coding.diary.library.applicationsupport.userHomeDirectory
 import org.koin.core.annotation.Configuration
 import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Module
 import java.nio.file.Path
-import java.nio.file.Paths
 
 @Module
 @Configuration
@@ -18,7 +18,7 @@ public class JvmFileModule {
         @AppFileDirectoryName
         directoryName: String,
     ): String =
-        resolveAppFileDirectory(userHome = Paths.get(System.getProperty("user.home")), directoryName = directoryName)
+        resolveAppFileDirectory(userHome = userHomeDirectory(), directoryName = directoryName)
             .toAbsolutePath()
             .toString()
 }

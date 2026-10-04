@@ -1,7 +1,7 @@
 package io.github.taetae98coding.diary.work.sync.work
 
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.network.api.qr.entity.QrRemoteEntity
 import io.github.taetae98coding.diary.core.testing.qr.localQr
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
@@ -146,7 +146,7 @@ class SyncWorkQrTest :
             val context = context()
             val firstPullList = qrPulls(usnList = listOf(4L, 6L))
             val secondPullList = qrPulls(usnList = listOf(9L))
-            coEvery { context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.QR) } returns 2L
+            coEvery { context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.QR) } returns 2L
             coEvery { context.qrRemoteDataSource.pull(usn = 2L) } returns firstPullList
             coEvery { context.qrRemoteDataSource.pull(usn = 6L) } returns secondPullList
             coEvery { context.qrRemoteDataSource.pull(usn = 9L) } returns emptyList()
@@ -154,14 +154,14 @@ class SyncWorkQrTest :
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.accountQrSyncTransaction.save(
+                context.accountQrSyncTransaction.upsert(
                     accountId = context.accountId,
                     qrList = firstPullList.map { pull -> pull.qr.toLocal() },
                     cursor = 6L,
                 )
             }
             coVerify(exactly = 1) {
-                context.accountQrSyncTransaction.save(
+                context.accountQrSyncTransaction.upsert(
                     accountId = context.accountId,
                     qrList = secondPullList.map { pull -> pull.qr.toLocal() },
                     cursor = 9L,
@@ -175,16 +175,16 @@ class SyncWorkQrTest :
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val context = context(accountId = accountId)
             coEvery {
-                context.qrSyncLocalDataSource.findPending(accountId = otherAccountId)
+                context.qrSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             } returns qrs(size = 1)
 
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.qrSyncLocalDataSource.findPending(accountId = accountId)
+                context.qrSyncLocalDataSource.readPendingList(accountId = accountId)
             }
             coVerify(exactly = 0) {
-                context.qrSyncLocalDataSource.findPending(accountId = otherAccountId)
+                context.qrSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             }
             coVerify(exactly = 0) { context.qrRemoteDataSource.push(any()) }
         }

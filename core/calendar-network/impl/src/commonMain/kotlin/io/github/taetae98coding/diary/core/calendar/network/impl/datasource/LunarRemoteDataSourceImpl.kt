@@ -15,10 +15,10 @@ private const val LUNAR_COUNTRY_PATH_SEGMENT = "kr"
 @Factory
 internal class LunarRemoteDataSourceImpl(
     @CalendarHttpClient
-    private val client: HttpClient,
+    private val httpClient: HttpClient,
 ) : LunarRemoteDataSource {
     override suspend fun get(year: Int): List<LunarDateRemoteEntity> {
-        val response = client.get("lunar/$LUNAR_COUNTRY_PATH_SEGMENT/$year.json")
+        val response = httpClient.get("lunar/$LUNAR_COUNTRY_PATH_SEGMENT/$year.json")
 
         return if (response.status == HttpStatusCode.NotFound) {
             emptyList()

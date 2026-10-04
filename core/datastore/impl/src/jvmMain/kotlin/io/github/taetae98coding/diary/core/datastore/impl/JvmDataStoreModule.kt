@@ -2,12 +2,12 @@ package io.github.taetae98coding.diary.core.datastore.impl
 
 import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDirectory
 import io.github.taetae98coding.diary.library.applicationsupport.applicationSupportDirectory
+import io.github.taetae98coding.diary.library.applicationsupport.userHomeDirectory
 import org.koin.core.annotation.Configuration
 import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Module
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
 
 @Module
 @Configuration
@@ -19,7 +19,7 @@ public class JvmDataStoreModule {
     ): SettingPathResolver {
         val directory =
             resolveSettingDirectory(
-                userHome = Paths.get(System.getProperty("user.home")),
+                userHome = userHomeDirectory(),
                 settingDirectory = settingDirectory,
             )
         Files.createDirectories(directory)

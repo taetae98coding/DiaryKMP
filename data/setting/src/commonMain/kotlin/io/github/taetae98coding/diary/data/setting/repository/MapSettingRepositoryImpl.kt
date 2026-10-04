@@ -19,6 +19,6 @@ internal class MapSettingRepositoryImpl(
             .map { local -> local?.toDomain() ?: MapProvider.DEFAULT }
 
     override suspend fun setDefaultProvider(provider: MapProvider) {
-        mapSettingLocalDataSource.setDefaultProvider(provider = provider.toLocal())
+        mapSettingLocalDataSource.upsertDefaultProvider(provider = provider.toLocal())
     }
 }

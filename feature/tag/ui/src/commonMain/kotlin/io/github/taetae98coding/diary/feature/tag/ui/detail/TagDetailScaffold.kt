@@ -14,10 +14,11 @@ import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
+import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailFormFloatingActionButton
 import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailFormTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.memo.TagDetailMemoFloatingActionButton
-import io.github.taetae98coding.diary.feature.tag.ui.detail.memo.TagDetailMemoTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceFloatingActionButton
 import io.github.taetae98coding.diary.feature.tag.ui.detail.place.TagDetailPlaceTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeBottomSheetHost
@@ -31,6 +32,9 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.web.TagDetailWebFloa
 import io.github.taetae98coding.diary.feature.tag.ui.detail.web.TagDetailWebTab
 import io.github.taetae98coding.diary.feature.tag.ui.form.TagFormState
 import io.github.taetae98coding.diary.feature.tag.ui.form.rememberTagDetailFormState
+import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_memo_empty_description
+import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_memo_empty_title
+import org.jetbrains.compose.resources.stringResource
 import kotlin.uuid.Uuid
 
 @Composable
@@ -55,7 +59,7 @@ internal fun TagDetailScaffold(
                 isScopeAppliedProvider = { scopeState.isApplied },
             )
         },
-        snackbarHost = { SnackbarHost(hostState = state.hostState) },
+        snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },
         floatingActionButton = { tabFloatingActionButton(tabState.tab) },
         contentWindowInsets = DiaryScaffoldDefaults.contentWindowInsets,
     ) { paddingValues ->
@@ -129,7 +133,7 @@ private fun TagDetailScaffoldPreview(
                         state = state,
                     )
 
-                TagDetailTab.MEMO -> TagDetailMemoTab(onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
+                TagDetailTab.MEMO -> EntityDetailMemoTab(emptyTitle = stringResource(Res.string.tag_detail_memo_empty_title), emptyDescription = stringResource(Res.string.tag_detail_memo_empty_description), onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
 
                 TagDetailTab.WEB -> TagDetailWebTab(onEvent = {}, modifier = Modifier.fillMaxSize())
 

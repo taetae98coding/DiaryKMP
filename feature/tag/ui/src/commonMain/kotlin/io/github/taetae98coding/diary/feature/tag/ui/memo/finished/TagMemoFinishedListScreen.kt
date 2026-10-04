@@ -12,6 +12,7 @@ import io.github.taetae98coding.diary.compose.core.snackbar.UndoSnackbarEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.compose.memo.list.UpdateMemoListTodayEffect
 import io.github.taetae98coding.diary.compose.memo.list.rememberMemoListState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.tag_memo_finished_list_deleted_message
 import io.github.taetae98coding.diary.feature.tag.ui.tag_memo_finished_list_restarted_message
@@ -26,7 +27,7 @@ internal fun TagMemoFinishedListScreen(
     navigateUp: () -> Unit,
     navigateToMemoDetail: (Uuid) -> Unit,
     memoViewModel: TagMemoFinishedListViewModel,
-    syncViewModel: TagMemoFinishedListSyncViewModel,
+    syncViewModel: SyncRefreshViewModel,
     modifier: Modifier = Modifier,
 ) {
     val memoListState = rememberMemoListState()
@@ -34,7 +35,7 @@ internal fun TagMemoFinishedListScreen(
     val uiState by memoViewModel.uiState.collectAsStateWithLifecycle()
     val memoPagingItems = memoViewModel.memoPagingData.collectAsLazyPagingItems()
     val memoListUiState by syncViewModel.uiState.collectAsStateWithLifecycle()
-    val sort by memoViewModel.sort.collectAsStateWithLifecycle()
+    val sortUiState by memoViewModel.sortUiState.collectAsStateWithLifecycle()
     val sortSheetState = rememberDialogState()
 
     UpdateMemoListTodayEffect(state = memoListState)
@@ -67,9 +68,9 @@ internal fun TagMemoFinishedListScreen(
             }
         },
         modifier = modifier,
-        memoListUiStateProvider = { memoListUiState },
+        syncUiStateProvider = { memoListUiState },
         uiStateProvider = { uiState },
-        sortProvider = { sort },
+        sortProvider = { sortUiState.sort },
     )
 }
 

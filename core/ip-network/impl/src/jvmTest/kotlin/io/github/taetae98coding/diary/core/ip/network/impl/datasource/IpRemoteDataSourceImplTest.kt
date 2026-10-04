@@ -1,0 +1,97 @@
+package io.github.taetae98coding.diary.core.ip.network.impl.datasource
+
+import io.github.taetae98coding.diary.core.ip.network.api.datasource.IpRemoteDataSource
+import io.github.taetae98coding.diary.core.ip.network.api.entity.IpRemoteEntity
+import io.github.taetae98coding.diary.core.ip.network.impl.IpNetworkTestKoinApplication
+import io.github.taetae98coding.diary.core.ip.network.impl.createIpHttpClient
+import io.github.taetae98coding.diary.core.ip.network.impl.di.IpHttpClient
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.client.plugins.ResponseException
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
+import org.koin.core.qualifier.named
+import org.koin.dsl.module
+import org.koin.plugin.module.dsl.koinApplication
+
+class IpRemoteDataSourceImplTest :
+    FunSpec({
+        test("TC-CURRENT-LOCATION-DATA-002 ip-api 응답 JSON의 위경도를 그대로 제공한다") {
+            val engine = createMockEngine()
+            val dataSource = createDataSource(engine)
+
+            val actual = dataSource.get()
+
+            actual shouldBe
+                IpRemoteEntity(
+                    latitude = 99.9999,
+                    longitude = 999.999,
+                )
+        }
+
+        test("TC-CURRENT-LOCATION-DATA-001 공인 IP 기준 위치를 외부 서비스에 한 번 조회한다") {
+            val engine = createMockEngine()
+            val dataSource = createDataSource(engine)
+
+            dataSource.get()
+
+            engine.requestHistory.size shouldBe 1
+            engine.requestHistory
+                .single()
+                .url.host shouldBe "ip-api.com"
+        }
+
+        test("공인 IP 기준 위치 조회는 위경도 필드만 요청한다") {
+            val engine = createMockEngine()
+            val dataSource = createDataSource(engine)
+
+            dataSource.get()
+
+            engine.requestHistory
+                .single()
+                .url
+                .toString() shouldBe "http://ip-api.com/json?fields=192"
+        }
+
+        test("공인 IP 기준 위치 조회가 2xx가 아닌 응답을 받으면 실패를 전파한다") {
+            val engine =
+                MockEngine {
+                    respond(
+                        content = "",
+                        status = HttpStatusCode.TooManyRequests,
+                    )
+                }
+            val dataSource = createDataSource(engine)
+
+            shouldThrow<ResponseException> { dataSource.get() }
+        }
+    }) {
+    public companion object {
+        private fun createMockEngine(): MockEngine =
+            MockEngine {
+                respond(
+                    content = readResource("ip-api-response.json"),
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                )
+            }
+
+        private fun createDataSource(engine: HttpClientEngine): IpRemoteDataSource =
+            koinApplication<IpNetworkTestKoinApplication> {
+                modules(
+                    module {
+                        single<HttpClient>(qualifier = named<IpHttpClient>()) { createIpHttpClient(engine = engine) }
+                    },
+                )
+            }.koin.get()
+
+        private fun readResource(name: String): String = checkNotNull(IpRemoteDataSourceImplTest::class.java.classLoader.getResource(name)).readText()
+    }
+}

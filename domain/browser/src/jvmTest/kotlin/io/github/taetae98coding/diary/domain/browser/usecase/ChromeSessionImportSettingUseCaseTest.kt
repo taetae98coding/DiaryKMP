@@ -152,10 +152,10 @@ class ChromeSessionImportSettingUseCaseTest :
         Given("Chrome 프로필 목록을 읽을 수 있다") {
             val profileList = List(2) { fixtureMonkey.giveMeOne<ChromeProfile>() }
             val repository = mockk<ChromeProfileRepository>()
-            coEvery { repository.findAll() } returns profileList
+            coEvery { repository.readProfileList() } returns profileList
 
             When("고를 수 있는 프로필을 조회한다") {
-                val result = FindChromeProfileListUseCase(chromeProfileRepository = repository)(parameter = Unit)
+                val result = ReadChromeProfileListUseCase(chromeProfileRepository = repository)(parameter = Unit)
 
                 Then("읽은 목록을 그 순서대로 전달한다") {
                     result shouldBe Result.success(profileList)
@@ -165,10 +165,10 @@ class ChromeSessionImportSettingUseCaseTest :
 
         Given("Chrome 프로필 목록을 읽을 수 없다") {
             val repository = mockk<ChromeProfileRepository>()
-            coEvery { repository.findAll() } throws IllegalStateException("read failed")
+            coEvery { repository.readProfileList() } throws IllegalStateException("read failed")
 
             When("고를 수 있는 프로필을 조회한다") {
-                val result = FindChromeProfileListUseCase(chromeProfileRepository = repository)(parameter = Unit)
+                val result = ReadChromeProfileListUseCase(chromeProfileRepository = repository)(parameter = Unit)
 
                 Then("TC-CHROME-SESSION-IMPORT-DOMAIN-013 실패를 그대로 전달한다") {
                     result.shouldBeFailure()
@@ -182,7 +182,7 @@ class ChromeSessionImportSettingUseCaseTest :
                 every { repository.isSupported } returns isSupported
 
                 When("제공 여부가 $isSupported 인 환경에서 제공 여부를 조회한다") {
-                    val result = FindChromeSessionImportSupportUseCase(chromeSessionImportSettingRepository = repository)(parameter = Unit)
+                    val result = ReadChromeSessionImportSupportUseCase(chromeSessionImportSettingRepository = repository)(parameter = Unit)
 
                     Then("그 제공 여부가 성공으로 전달된다") {
                         result shouldBe Result.success(isSupported)

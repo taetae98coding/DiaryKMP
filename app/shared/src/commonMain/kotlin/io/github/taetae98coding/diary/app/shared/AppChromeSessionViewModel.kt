@@ -37,9 +37,18 @@ internal class AppChromeSessionViewModel(
                 initialValue = DiaryWebSession(),
             )
 
+    private var isRequesting = false
+
     fun requestImport() {
+        if (isRequesting) return
+        isRequesting = true
+
         viewModelScope.launch {
-            requestChromeSessionImportUseCase(parameter = Unit)
+            try {
+                requestChromeSessionImportUseCase(parameter = Unit)
+            } finally {
+                isRequesting = false
+            }
         }
     }
 }

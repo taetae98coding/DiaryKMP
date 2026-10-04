@@ -41,7 +41,7 @@ class ImportChromeSessionUseCaseTest :
                 listOf("mail.example.com", ".example.com", "other.example.org", ".google.com", "accounts.google.com")
                     .map { domain -> cookie(domain = domain, expiresAt = null) }
             val chromeCookieRepository = mockk<ChromeCookieRepository>()
-            coEvery { chromeCookieRepository.findAll(profileDirectory = profile.directory) } returns cookieList
+            coEvery { chromeCookieRepository.readCookieList(profileDirectory = profile.directory) } returns cookieList
             val inAppBrowserCookieRepository = relaxedInAppRepository()
             val useCase = useCase(chromeCookieRepository, inAppBrowserCookieRepository)
 
@@ -50,7 +50,7 @@ class ImportChromeSessionUseCaseTest :
 
                 Then("TC-CHROME-SESSION-IMPORT-DOMAIN-012 TC-CHROME-SESSION-IMPORT-DOMAIN-015 고른 프로필 전체의 쿠키를 요청하고 모두 넘긴다") {
                     result.shouldBeSuccess()
-                    coVerify(exactly = 1) { chromeCookieRepository.findAll(profileDirectory = profile.directory) }
+                    coVerify(exactly = 1) { chromeCookieRepository.readCookieList(profileDirectory = profile.directory) }
                     coVerify(exactly = 1) { inAppBrowserCookieRepository.upsert(cookieList = cookieList) }
                 }
             }
@@ -61,7 +61,7 @@ class ImportChromeSessionUseCaseTest :
             val alive = cookie(domain = "example.com", expiresAt = now + 1.hours)
             val session = cookie(domain = "example.com", expiresAt = null)
             val chromeCookieRepository = mockk<ChromeCookieRepository>()
-            coEvery { chromeCookieRepository.findAll(any()) } returns listOf(expired, alive, session)
+            coEvery { chromeCookieRepository.readCookieList(any()) } returns listOf(expired, alive, session)
             val inAppBrowserCookieRepository = relaxedInAppRepository()
             val useCase = useCase(chromeCookieRepository, inAppBrowserCookieRepository)
 
@@ -77,7 +77,7 @@ class ImportChromeSessionUseCaseTest :
         Given("쿠키가 모든 속성을 가진다") {
             val cookie = fixtureMonkey.giveMeKotlinBuilder<BrowserCookie>().setExp(BrowserCookie::expiresAt, now + 1.hours).sample()
             val chromeCookieRepository = mockk<ChromeCookieRepository>()
-            coEvery { chromeCookieRepository.findAll(any()) } returns listOf(cookie)
+            coEvery { chromeCookieRepository.readCookieList(any()) } returns listOf(cookie)
             val inAppBrowserCookieRepository = mockk<InAppBrowserCookieRepository>()
             val delivered = slot<List<BrowserCookie>>()
             coEvery { inAppBrowserCookieRepository.upsert(cookieList = capture(delivered)) } just runs
@@ -94,7 +94,7 @@ class ImportChromeSessionUseCaseTest :
 
         Given("프로필에 쿠키가 하나도 없다") {
             val chromeCookieRepository = mockk<ChromeCookieRepository>()
-            coEvery { chromeCookieRepository.findAll(any()) } returns emptyList()
+            coEvery { chromeCookieRepository.readCookieList(any()) } returns emptyList()
             val inAppBrowserCookieRepository = mockk<InAppBrowserCookieRepository>()
             val useCase = useCase(chromeCookieRepository, inAppBrowserCookieRepository)
 
@@ -110,7 +110,7 @@ class ImportChromeSessionUseCaseTest :
 
         Given("Chrome 쿠키 저장소를 읽을 수 없다") {
             val chromeCookieRepository = mockk<ChromeCookieRepository>()
-            coEvery { chromeCookieRepository.findAll(any()) } throws IllegalStateException("cookie store unreadable")
+            coEvery { chromeCookieRepository.readCookieList(any()) } throws IllegalStateException("cookie store unreadable")
             val inAppBrowserCookieRepository = mockk<InAppBrowserCookieRepository>()
             val useCase = useCase(chromeCookieRepository, inAppBrowserCookieRepository)
 
@@ -126,7 +126,7 @@ class ImportChromeSessionUseCaseTest :
 
         Given("앱 안 웹 표시 수단에 넘기지 못한다") {
             val chromeCookieRepository = mockk<ChromeCookieRepository>()
-            coEvery { chromeCookieRepository.findAll(any()) } returns listOf(cookie(domain = "example.com", expiresAt = null))
+            coEvery { chromeCookieRepository.readCookieList(any()) } returns listOf(cookie(domain = "example.com", expiresAt = null))
             val inAppBrowserCookieRepository = mockk<InAppBrowserCookieRepository>()
             coEvery { inAppBrowserCookieRepository.upsert(any()) } throws IllegalStateException("store failed")
             val useCase = useCase(chromeCookieRepository, inAppBrowserCookieRepository)

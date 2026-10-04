@@ -50,14 +50,14 @@ class CalendarTimetableViewModelTest : FunSpec() {
                 val useCase = getCalendarMemoUseCase(firstRange to Result.success(firstList), secondRange to Result.success(secondList))
                 val viewModel = CalendarTimetableViewModel(getCalendarMemoUseCase = useCase)
 
-                viewModel.memoList.test {
-                    awaitItem() shouldBe emptyList()
+                viewModel.uiState.test {
+                    awaitItem() shouldBe CalendarTimetableMemoUiState()
 
-                    viewModel.fetch(dateRange = (date(day = 23)..date(day = 23)).calendarTimetableFetchDateRange())
-                    awaitItem() shouldBe firstList
+                    viewModel.select(dateRange = (date(day = 23)..date(day = 23)).calendarTimetableFetchDateRange())
+                    awaitItem() shouldBe CalendarTimetableMemoUiState(memoList = firstList)
 
-                    viewModel.fetch(dateRange = (date(day = 24)..date(day = 24)).calendarTimetableFetchDateRange())
-                    awaitItem() shouldBe secondList
+                    viewModel.select(dateRange = (date(day = 24)..date(day = 24)).calendarTimetableFetchDateRange())
+                    awaitItem() shouldBe CalendarTimetableMemoUiState(memoList = secondList)
                 }
 
                 verify(exactly = 1) { useCase(parameter = firstRange) }
@@ -77,13 +77,13 @@ class CalendarTimetableViewModelTest : FunSpec() {
                     )
                 val viewModel = CalendarTimetableViewModel(getCalendarMemoUseCase = useCase)
 
-                viewModel.memoList.test {
-                    awaitItem() shouldBe emptyList()
-                    viewModel.fetch(dateRange = firstRange)
-                    awaitItem() shouldBe firstList
+                viewModel.uiState.test {
+                    awaitItem() shouldBe CalendarTimetableMemoUiState()
+                    viewModel.select(dateRange = firstRange)
+                    awaitItem() shouldBe CalendarTimetableMemoUiState(memoList = firstList)
 
-                    viewModel.fetch(dateRange = secondRange)
-                    awaitItem() shouldBe emptyList()
+                    viewModel.select(dateRange = secondRange)
+                    awaitItem() shouldBe CalendarTimetableMemoUiState()
                 }
 
                 verify(exactly = 1) { useCase(parameter = secondRange) }
@@ -97,11 +97,11 @@ class CalendarTimetableViewModelTest : FunSpec() {
                 val useCase = getCalendarMemoUseCase(dateRange to Result.success(memoList))
                 val viewModel = CalendarTimetableViewModel(getCalendarMemoUseCase = useCase)
 
-                viewModel.memoList.test {
-                    awaitItem() shouldBe emptyList()
-                    viewModel.fetch(dateRange = dateRange)
-                    awaitItem() shouldBe memoList
-                    viewModel.fetch(dateRange = dateRange)
+                viewModel.uiState.test {
+                    awaitItem() shouldBe CalendarTimetableMemoUiState()
+                    viewModel.select(dateRange = dateRange)
+                    awaitItem() shouldBe CalendarTimetableMemoUiState(memoList = memoList)
+                    viewModel.select(dateRange = dateRange)
                     mainDispatcher.scheduler.advanceUntilIdle()
                     expectNoEvents()
                 }

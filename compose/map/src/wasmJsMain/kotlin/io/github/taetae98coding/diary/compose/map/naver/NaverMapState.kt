@@ -3,27 +3,7 @@
 package io.github.taetae98coding.diary.compose.map.naver
 
 import io.github.taetae98coding.diary.compose.map.provider.label
-import org.w3c.dom.HTMLElement
-
-internal external interface NaverMapState : JsAny {
-    fun attach(element: HTMLElement)
-
-    fun release(element: HTMLElement)
-
-    fun showSpot(
-        latitude: Double,
-        longitude: Double,
-    )
-
-    fun clearSpot()
-
-    fun setPins(pinsJson: String)
-
-    fun moveTo(
-        latitude: Double,
-        longitude: Double,
-    )
-}
+import io.github.taetae98coding.diary.compose.map.web.WebMapState
 
 internal fun naverMapOptions(): JsAny =
     js(
@@ -49,7 +29,7 @@ internal fun naverMapOptions(): JsAny =
 
 // js 본문은 하나의 문자열이어서 나눌 수 없으므로 함수 길이 검사에서 제외한다.
 @Suppress("UnusedParameter", "LongMethod")
-internal fun NaverMapState(
+internal fun naverMapState(
     options: JsAny,
     pinMarkerJson: String,
     isSpotSelectable: Boolean,
@@ -65,7 +45,7 @@ internal fun NaverMapState(
     ) -> Unit,
     onSpot: (latitude: Double, longitude: Double) -> Unit,
     onPin: (id: String) -> Unit,
-): NaverMapState =
+): WebMapState =
     js(
         """
         (() => {

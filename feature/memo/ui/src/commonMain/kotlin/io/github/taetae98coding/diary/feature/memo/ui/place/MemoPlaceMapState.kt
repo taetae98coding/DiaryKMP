@@ -13,7 +13,7 @@ internal fun rememberMemoPlaceMapState(uiState: MemoPlaceCardUiState): DiaryMapS
     val mapUiState = uiState.mapUiState
     val placeUiState = uiState.placeUiState
 
-    if (mapUiState !is MemoPlaceMapUiState.Loaded || !placeUiState.isSelectedPlaceLoaded) return null
+    if (mapUiState !is MemoPlaceMapUiState.Content || !placeUiState.isSelectedPlaceLoaded) return null
 
     val initialCoordinate =
         remember {

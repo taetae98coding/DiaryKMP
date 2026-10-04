@@ -32,7 +32,7 @@ internal class AccountMemoTagLocalDataSourceImpl(
             query = query,
         )
 
-    override suspend fun findTagIdList(
+    override suspend fun readTagIdList(
         accountId: Uuid,
         memoId: Uuid,
     ): List<Uuid> =

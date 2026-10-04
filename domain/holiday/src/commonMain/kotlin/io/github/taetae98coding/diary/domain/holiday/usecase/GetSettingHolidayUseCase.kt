@@ -2,8 +2,8 @@
 
 package io.github.taetae98coding.diary.domain.holiday.usecase
 
+import io.github.taetae98coding.diary.core.model.holiday.HolidaySetting
 import io.github.taetae98coding.diary.domain.core.FlowUseCase
-import io.github.taetae98coding.diary.domain.holiday.model.HolidaySetting
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi

@@ -21,7 +21,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.place.PLACE_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.TagScope
-import io.github.taetae98coding.diary.feature.tag.ui.detail.isRefreshingFlow
+import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.tagPlace
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -128,7 +128,7 @@ class TagDetailPlaceBoundsListTest {
             onEvent = eventList::add,
         )
 
-        composeRule.onNodeWithTag(TAG_DETAIL_PLACE_BOUNDS_LIST_TEST_TAG).performTouchInput { swipeDown() }
+        composeRule.refreshableList().performTouchInput { swipeDown() }
         composeRule.waitForIdle()
 
         eventList shouldBe listOf(TagDetailPlaceContentEvent.Refresh)
@@ -191,7 +191,7 @@ class TagDetailPlaceBoundsListTest {
     }
 
     private fun scrollToLast(placeList: List<Place>) {
-        composeRule.onNodeWithTag(TAG_DETAIL_PLACE_BOUNDS_LIST_TEST_TAG).performScrollToIndex(placeList.lastIndex)
+        composeRule.refreshableList().performScrollToIndex(placeList.lastIndex)
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(placeList.first().detail.title).assertDoesNotExist()

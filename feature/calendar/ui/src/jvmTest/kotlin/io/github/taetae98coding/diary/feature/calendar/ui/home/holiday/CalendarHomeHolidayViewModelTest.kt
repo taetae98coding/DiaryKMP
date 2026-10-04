@@ -21,7 +21,9 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -147,16 +149,18 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
                 val useCase = mockk<FetchHolidayUseCase>()
                 coEvery { useCase(parameter = year) } coAnswers { completion.await() }
                 val viewModel = holidayViewModel(fetchHolidayUseCase = useCase)
-                viewModel.isFetching.value shouldBe false
+                backgroundScope.launch { viewModel.uiState.collect {} }
+                runCurrent()
+                viewModel.uiState.value.isFetching shouldBe false
 
                 viewModel.fetch(YearMonth(year = year, month = Month.JULY))
                 advanceUntilIdle()
-                viewModel.isFetching.value shouldBe true
+                viewModel.uiState.value.isFetching shouldBe true
 
                 completion.complete(Result.success(emptyList()))
                 advanceUntilIdle()
 
-                viewModel.isFetching.value shouldBe false
+                viewModel.uiState.value.isFetching shouldBe false
             }
         }
 
@@ -216,7 +220,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
 
                 viewModel.fetch(YearMonth(year = year, month = Month.JULY))
 
-                viewModel.holidayList.test {
+                viewModel.holidayListFlow().test {
                     awaitItem() shouldBe emptyList()
                     awaitItem() shouldBe listOf(oneDayHoliday, multipleDayHoliday)
                 }
@@ -251,7 +255,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
 
                     viewModel.fetch(YearMonth(year = year, month = month))
 
-                    viewModel.holidayList.test {
+                    viewModel.holidayListFlow().test {
                         awaitItem() shouldBe emptyList()
                         awaitItem() shouldBe expectedHolidayList
                     }
@@ -272,7 +276,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
 
                 viewModel.fetch(YearMonth(year = year, month = Month.JULY))
 
-                viewModel.holidayList.test {
+                viewModel.holidayListFlow().test {
                     awaitItem() shouldBe emptyList()
                     awaitItem() shouldBe listOf(anniversary, holiday)
                 }
@@ -296,7 +300,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
 
                 viewModel.fetch(YearMonth(year = year, month = Month.JULY))
 
-                viewModel.holidayList.test {
+                viewModel.holidayListFlow().test {
                     awaitItem() shouldBe emptyList()
                     awaitItem() shouldBe listOf(holiday)
 
@@ -328,7 +332,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
 
                 viewModel.fetch(YearMonth(year = year, month = Month.JULY))
 
-                viewModel.holidayList.test {
+                viewModel.holidayListFlow().test {
                     awaitItem() shouldBe emptyList()
                     awaitItem() shouldBe listOf(holiday)
 
@@ -355,7 +359,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
 
                 viewModel.fetch(YearMonth(year = year, month = Month.JULY))
 
-                viewModel.holidayList.test {
+                viewModel.holidayListFlow().test {
                     awaitItem() shouldBe emptyList()
                     awaitItem() shouldBe listOf(holiday)
 
@@ -365,7 +369,9 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
                     expectNoEvents()
                 }
 
-                viewModel.holidayList.value shouldBe listOf(holiday)
+                backgroundScope.launch { viewModel.uiState.collect {} }
+                runCurrent()
+                viewModel.uiState.value.holidayList shouldBe listOf(holiday)
             }
         }
 
@@ -382,7 +388,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
 
                 viewModel.fetch(YearMonth(year = year, month = Month.JULY))
 
-                viewModel.holidayList.test {
+                viewModel.holidayListFlow().test {
                     awaitItem() shouldBe emptyList()
                     awaitItem() shouldBe listOf(holiday)
 
@@ -407,7 +413,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
 
                     viewModel.fetch(YearMonth(year = year, month = Month.JULY))
 
-                    viewModel.holidayList.test {
+                    viewModel.holidayListFlow().test {
                         awaitItem() shouldBe emptyList()
                         advanceUntilIdle()
                         expectNoEvents()
@@ -435,17 +441,17 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
                     }
                     val viewModel = holidayViewModel(getCalendarHolidayUseCase = getCalendarHolidayUseCase)
                     viewModel.fetch(YearMonth(year = year, month = Month.JULY))
-                    val shownJob = backgroundScope.launch { viewModel.holidayList.collect {} }
+                    val shownJob = backgroundScope.launch { viewModel.uiState.collect {} }
                     advanceUntilIdle()
-                    viewModel.holidayList.value shouldBe listOf(koreaHoliday)
+                    viewModel.uiState.value.holidayList shouldBe listOf(koreaHoliday)
 
                     shownJob.cancel()
                     isKoreaRegion = false
                     advanceTimeBy(hiddenMillis)
-                    backgroundScope.launch { viewModel.holidayList.collect {} }
+                    backgroundScope.launch { viewModel.uiState.collect {} }
                     runCurrent()
 
-                    viewModel.holidayList.value shouldBe listOf(if (isRegionChangeShown) unitedStatesHoliday else koreaHoliday)
+                    viewModel.uiState.value.holidayList shouldBe listOf(if (isRegionChangeShown) unitedStatesHoliday else koreaHoliday)
                 }
             }
         }
@@ -465,7 +471,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
 
                 viewModel.fetch(YearMonth(year = year, month = Month.JANUARY))
 
-                viewModel.holidayList.test {
+                viewModel.holidayListFlow().test {
                     awaitItem() shouldBe emptyList()
                     awaitItem() shouldBe listOf(holiday)
                 }
@@ -473,6 +479,8 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
         }
     }
 }
+
+private fun CalendarHomeHolidayViewModel.holidayListFlow(): Flow<List<Holiday>> = uiState.map { uiState -> uiState.holidayList }.distinctUntilChanged()
 
 private fun holidayViewModel(
     fetchHolidayUseCase: FetchHolidayUseCase = successfulFetchHolidayUseCase(),

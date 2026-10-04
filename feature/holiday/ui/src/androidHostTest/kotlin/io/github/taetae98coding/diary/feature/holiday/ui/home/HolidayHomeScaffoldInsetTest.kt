@@ -121,8 +121,8 @@ class HolidayHomeScaffoldInsetTest {
         composeRule.waitForIdle()
     }
 
-    private fun loadedUiState(): HolidayHomeYearUiState.Loaded =
-        HolidayHomeYearUiState.Loaded(
+    private fun loadedUiState(): HolidayHomeYearUiState.Content =
+        HolidayHomeYearUiState.Content(
             goldenHolidayGroupList =
                 List(GROUP_COUNT) { index ->
                     val start = february(day = index * 3 + 1)

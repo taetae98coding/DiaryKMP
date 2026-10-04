@@ -25,10 +25,10 @@ internal fun handleMemoAddEvent(
         is MemoAddScaffoldEvent.ClickAdd ->
             addViewModel.add(
                 detail = scaffoldState.detail,
-                tagSelection = tagViewModel.selection.value,
-                webIdSet = webViewModel.webIdSet.value,
-                contactIdSet = contactViewModel.contactIdSet.value,
-                placeIdSet = placeViewModel.placeIdSet.value,
+                tagSelection = tagViewModel.selectionUiState.value,
+                webIdSet = webViewModel.selectionUiState.value.webIdSet,
+                contactIdSet = contactViewModel.selectionUiState.value.contactIdSet,
+                placeIdSet = placeViewModel.selectionUiState.value.placeIdSet,
             )
 
         is MemoAddScaffoldEvent.ClickGemini -> geminiViewModel.open()

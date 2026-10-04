@@ -21,7 +21,7 @@ import io.github.taetae98coding.diary.core.model.web.Web
 public const val WEB_CARD_TEST_TAG: String = "WebCard"
 
 @Composable
-public fun WebCard(
+internal fun WebCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     web: Web? = null,

@@ -9,7 +9,7 @@ public interface AccountMemoWebSyncTransaction {
         memoWebList: List<MemoWebLocalEntity>,
     )
 
-    public suspend fun save(
+    public suspend fun upsert(
         accountId: Uuid,
         memoWebList: List<MemoWebLocalEntity>,
         cursor: Long,

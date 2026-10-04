@@ -20,7 +20,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.Month
 import kotlinx.datetime.YearMonth
 import org.koin.core.annotation.KoinViewModel
@@ -32,19 +31,25 @@ internal class CalendarHomeHolidayViewModel(
 ) : ViewModel() {
     private val yearMonth = MutableStateFlow<YearMonth?>(null)
 
-    val isFetching: StateFlow<Boolean>
-        field = MutableStateFlow(false)
+    private val isFetching = MutableStateFlow(false)
 
-    val holidayList: StateFlow<List<Holiday>> =
-        yearMonth
-            .map { yearMonth -> yearMonth?.holidayYearList().orEmpty() }
-            .distinctUntilChanged()
-            .flatMapLatest { yearList -> getHolidayList(yearList = yearList) }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileUiSubscribed,
-                initialValue = emptyList(),
+    val uiState: StateFlow<CalendarHomeHolidayUiState> =
+        combine(
+            yearMonth
+                .map { yearMonth -> yearMonth?.holidayYearList().orEmpty() }
+                .distinctUntilChanged()
+                .flatMapLatest { yearList -> getHolidayList(yearList = yearList) },
+            isFetching,
+        ) { holidayList, isFetching ->
+            CalendarHomeHolidayUiState(
+                holidayList = holidayList,
+                isFetching = isFetching,
             )
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileUiSubscribed,
+            initialValue = CalendarHomeHolidayUiState(),
+        )
 
     fun fetch(yearMonth: YearMonth) {
         this.yearMonth.value = yearMonth

@@ -1,12 +1,12 @@
 package io.github.taetae98coding.diary.core.database.impl.placetag.transaction
 
-import androidx.room3.withWriteTransaction
 import io.github.taetae98coding.diary.core.database.api.placetag.entity.PlaceTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.placetag.transaction.AccountPlaceTagSyncTransaction
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.placetag.entity.AccountPlaceTagLocalEntity
-import io.github.taetae98coding.diary.core.database.impl.sync.entity.SyncCursorLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.sync.transaction.clearPendingEach
+import io.github.taetae98coding.diary.core.database.impl.sync.transaction.upsertPulled
 import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
@@ -18,53 +18,47 @@ internal class AccountPlaceTagSyncTransactionImpl(
         accountId: Uuid,
         placeTagList: List<PlaceTagLocalEntity>,
     ) {
-        database.withWriteTransaction {
-            placeTagList.forEach { placeTag ->
-                database.accountPlaceTagSyncDao().clearPending(
-                    accountId = accountId,
-                    placeId = placeTag.placeId,
-                    tagId = placeTag.tagId,
-                    updatedAt = placeTag.updatedAt,
-                )
-            }
+        database.clearPendingEach(placeTagList) { placeTag ->
+            database.accountPlaceTagSyncDao().clearPending(
+                accountId = accountId,
+                placeId = placeTag.placeId,
+                tagId = placeTag.tagId,
+                updatedAt = placeTag.updatedAt,
+            )
         }
     }
 
-    override suspend fun save(
+    override suspend fun upsert(
         accountId: Uuid,
         placeTagList: List<PlaceTagLocalEntity>,
         cursor: Long,
     ) {
-        database.withWriteTransaction {
-            val localPlaceTagMap =
+        database.upsertPulled(
+            accountId = accountId,
+            kind = SyncKindLocalEntity.PLACE_TAG,
+            cursor = cursor,
+            pulledList = placeTagList,
+            keyOf = { placeTag -> placeTag.placeId to placeTag.tagId },
+            updatedAtOf = { placeTag -> placeTag.updatedAt },
+            readLocalUpdatedAtMap = { pulledList ->
                 database
                     .placeTagDao()
-                    .findByPlaceIdList(placeTagList.map { placeTag -> placeTag.placeId }.distinct())
-                    .associateBy { placeTag -> placeTag.placeId to placeTag.tagId }
-
-            database.placeTagDao().upsert(
-                placeTagList.filter { placeTag ->
-                    val localUpdatedAt = localPlaceTagMap[placeTag.placeId to placeTag.tagId]?.updatedAt
-                    localUpdatedAt == null || placeTag.updatedAt >= localUpdatedAt
-                },
-            )
-            database.accountPlaceTagSyncDao().insertIgnore(
-                placeTagList.map { placeTag ->
-                    AccountPlaceTagLocalEntity(
-                        accountId = accountId,
-                        placeId = placeTag.placeId,
-                        tagId = placeTag.tagId,
-                        isDirty = false,
-                    )
-                },
-            )
-            database.syncCursorDao().upsert(
-                SyncCursorLocalEntity(
-                    accountId = accountId,
-                    kind = SyncCursorLocalEntity.column(kind = SyncKind.PLACE_TAG),
-                    usn = cursor,
-                ),
-            )
-        }
+                    .findByPlaceIdList(pulledList.map { placeTag -> placeTag.placeId }.distinct())
+                    .associate { placeTag -> (placeTag.placeId to placeTag.tagId) to placeTag.updatedAt }
+            },
+            upsert = { upsertList -> database.placeTagDao().upsert(upsertList) },
+            insertIgnoreAccount = { pulledList ->
+                database.accountPlaceTagSyncDao().insertIgnore(
+                    pulledList.map { placeTag ->
+                        AccountPlaceTagLocalEntity(
+                            accountId = accountId,
+                            placeId = placeTag.placeId,
+                            tagId = placeTag.tagId,
+                            isDirty = false,
+                        )
+                    },
+                )
+            },
+        )
     }
 }

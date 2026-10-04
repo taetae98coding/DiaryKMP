@@ -2,8 +2,8 @@ package io.github.taetae98coding.diary.data.location.repository
 
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.core.ipnetwork.api.datasource.IpRemoteDataSource
-import io.github.taetae98coding.diary.core.ipnetwork.api.entity.IpRemoteEntity
+import io.github.taetae98coding.diary.core.ip.network.api.datasource.IpRemoteDataSource
+import io.github.taetae98coding.diary.core.ip.network.api.entity.IpRemoteEntity
 import io.github.taetae98coding.diary.core.location.api.Location
 import io.github.taetae98coding.diary.core.location.api.LocationProvider
 import io.github.taetae98coding.diary.core.model.location.Coordinate

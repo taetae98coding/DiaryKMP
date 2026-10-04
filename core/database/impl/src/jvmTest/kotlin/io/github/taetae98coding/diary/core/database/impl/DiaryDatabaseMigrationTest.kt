@@ -10,7 +10,7 @@ import androidx.sqlite.execSQL
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memo.datasource.AccountMemoSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.qr.transaction.AccountQrTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.qr.transaction.findQrList
@@ -76,8 +76,8 @@ class DiaryDatabaseMigrationTest :
                     .setDriver(BundledSQLiteDriver())
                     .build()
             try {
-                AccountMemoSyncLocalDataSourceImpl(database = database).findPending(accountId = accountId) shouldBe listOf(memo)
-                SyncCursorLocalDataSourceImpl(database = database).find(accountId = accountId, kind = SyncKind.MEMO) shouldBe usn
+                AccountMemoSyncLocalDataSourceImpl(database = database).readPendingList(accountId = accountId) shouldBe listOf(memo)
+                SyncCursorLocalDataSourceImpl(database = database).read(accountId = accountId, kind = SyncKindLocalEntity.MEMO) shouldBe usn
 
                 AccountQrTransactionImpl(database = database).upsert(accountId = accountId, qrList = listOf(qr))
                 database.findQrList() shouldBe listOf(qr)

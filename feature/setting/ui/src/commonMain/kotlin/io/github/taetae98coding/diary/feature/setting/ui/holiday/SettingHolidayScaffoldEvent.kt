@@ -1,6 +1,6 @@
 package io.github.taetae98coding.diary.feature.setting.ui.holiday
 
-import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountryOption
+import io.github.taetae98coding.diary.core.model.holiday.HolidayCountryOption
 
 internal sealed interface SettingHolidayScaffoldEvent {
     data object ClickNavigateUp : SettingHolidayScaffoldEvent

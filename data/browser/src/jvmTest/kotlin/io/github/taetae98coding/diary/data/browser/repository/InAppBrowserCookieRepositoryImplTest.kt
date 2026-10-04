@@ -2,7 +2,7 @@ package io.github.taetae98coding.diary.data.browser.repository
 
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMe
-import io.github.taetae98coding.diary.core.browsercookie.api.datasource.InAppBrowserCookieLocalDataSource
+import io.github.taetae98coding.diary.core.browser.cookie.api.datasource.InAppBrowserCookieLocalDataSource
 import io.github.taetae98coding.diary.core.model.browser.BrowserCookie
 import io.github.taetae98coding.diary.data.browser.mapper.toLocal
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey

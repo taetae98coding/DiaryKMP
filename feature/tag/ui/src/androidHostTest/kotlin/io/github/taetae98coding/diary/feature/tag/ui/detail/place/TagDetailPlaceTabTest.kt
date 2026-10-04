@@ -24,6 +24,7 @@ import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TA
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.place.PLACE_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.place.Place
+import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityLoadingPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
@@ -54,7 +55,7 @@ class TagDetailPlaceTabTest {
         val secondPlace = tagPlace(title = SECOND_TITLE)
         setPlaceTab(pagingData = tagEntityPagingData(itemList = listOf(firstPlace, secondPlace)))
 
-        composeRule.onNodeWithTag(TAG_DETAIL_PLACE_LIST_TEST_TAG).assertExists()
+        composeRule.refreshableList().assertExists()
         composeRule.onAllNodesWithTag(PLACE_CARD_TEST_TAG).assertCountEquals(2)
         composeRule.onNodeWithText(FIRST_TITLE).assertIsDisplayed()
         composeRule.onNodeWithText(SECOND_TITLE).assertIsDisplayed()
@@ -111,7 +112,7 @@ class TagDetailPlaceTabTest {
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
         composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertExists()
         composeRule.onNodeWithText(DEFAULT_EMPTY_DESCRIPTION).assertExists()
-        composeRule.onNodeWithTag(TAG_DETAIL_PLACE_LIST_TEST_TAG).assertDoesNotExist()
+        composeRule.refreshableList().assertDoesNotExist()
     }
 
     @Test
@@ -138,7 +139,7 @@ class TagDetailPlaceTabTest {
             onEvent = eventList::add,
         )
 
-        composeRule.onNodeWithTag(TAG_DETAIL_PLACE_LIST_TEST_TAG).performTouchInput { swipeDown() }
+        composeRule.refreshableList().performTouchInput { swipeDown() }
         composeRule.waitForIdle()
 
         eventList.withoutMoveMap() shouldBe listOf(TagDetailPlaceContentEvent.Refresh)

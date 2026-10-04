@@ -52,7 +52,6 @@ import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetail
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.memo.list.MemoListUiState
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
@@ -82,16 +81,15 @@ import io.github.taetae98coding.diary.feature.contact.ui.detail.ContactDetailUiS
 import io.github.taetae98coding.diary.feature.contact.ui.detail.ContactDetailViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.detail.DEFAULT_MEMO_ADD_DESCRIPTION
 import io.github.taetae98coding.diary.feature.contact.ui.detail.DEFAULT_MEMO_TAB_DESCRIPTION
-import io.github.taetae98coding.diary.feature.contact.ui.detail.memo.ContactDetailMemoSyncViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.detail.memo.ContactDetailMemoViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.detail.selectContactDetailTab
 import io.github.taetae98coding.diary.feature.contact.ui.home.CONTACT_CARD_TEST_TAG
-import io.github.taetae98coding.diary.feature.contact.ui.home.CONTACT_HOME_LIST_TEST_TAG
-import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeSyncViewModel
-import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeUiState
 import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.home.contactPagingDataOf
 import io.github.taetae98coding.diary.feature.contact.ui.home.testContact
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -512,7 +510,7 @@ class ContactListDetailPlaceholderTest {
     private fun positionContactList(): List<Contact> = List(POSITION_CONTACT_COUNT) { index -> testContact(name = "position-${index.toString().padStart(length = 2, padChar = '0')}-${fixtureMonkey.giveMeOne<Int>()}") }
 
     private fun scrollToPositionContact(contactList: List<Contact>) {
-        composeRule.onNodeWithTag(CONTACT_HOME_LIST_TEST_TAG).performScrollToIndex(POSITION_SCROLL_INDEX)
+        composeRule.refreshableList().performScrollToIndex(POSITION_SCROLL_INDEX)
         composeRule.waitForIdle()
         assertPositionContactDisplayed(contactList)
     }
@@ -675,13 +673,13 @@ class ContactListDetailPlaceholderTest {
                 mockk<ContactHomeViewModel>(relaxed = true)
                     .apply {
                         every { contactPagingData } returns MutableStateFlow(contactPagingDataOf(homeContactList))
-                        every { sort } returns MutableStateFlow(ListSort.NAME)
+                        every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.NAME))
                         every { effect } returns emptyFlow()
                     }.also { viewModel -> homeViewModelList += viewModel }
             }
             factory {
-                mockk<ContactHomeSyncViewModel>(relaxed = true).apply {
-                    every { uiState } returns MutableStateFlow(ContactHomeUiState())
+                mockk<SyncRefreshViewModel>(relaxed = true).apply {
+                    every { uiState } returns MutableStateFlow(SyncRefreshUiState())
                 }
             }
             factory { parameters ->
@@ -699,13 +697,13 @@ class ContactListDetailPlaceholderTest {
             factory {
                 mockk<ContactDetailMemoViewModel>(relaxed = true).apply {
                     every { memoPagingData } returns flowOf(PagingData.empty())
-                    every { sort } returns MutableStateFlow(ListSort.DEFAULT)
+                    every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
                     every { effect } returns emptyFlow()
                 }
             }
             factory {
-                mockk<ContactDetailMemoSyncViewModel>(relaxed = true).apply {
-                    every { uiState } returns MutableStateFlow(MemoListUiState())
+                mockk<SyncRefreshViewModel>(relaxed = true).apply {
+                    every { uiState } returns MutableStateFlow(SyncRefreshUiState())
                 }
             }
         }

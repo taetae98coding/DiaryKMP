@@ -1,21 +1,16 @@
 package io.github.taetae98coding.diary.data.memo.repository
 
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.map
 import io.github.taetae98coding.diary.core.database.api.memo.datasource.AccountTagMemoLocalDataSource
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.tag.TagScope
+import io.github.taetae98coding.diary.data.core.mapper.toDomain
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
-import io.github.taetae98coding.diary.data.core.paging.PAGE_SIZE
-import io.github.taetae98coding.diary.data.memo.mapper.toDomain
-import io.github.taetae98coding.diary.data.tag.mapper.toLocal
+import io.github.taetae98coding.diary.data.core.paging.pagingFlow
 import io.github.taetae98coding.diary.domain.memo.repository.AccountTagMemoRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
@@ -29,8 +24,7 @@ internal class AccountTagMemoRepositoryImpl(
         scope: TagScope,
         sort: ListSort,
     ): Flow<PagingData<Memo>> =
-        Pager(
-            config = PagingConfig(pageSize = PAGE_SIZE),
+        pagingFlow(
             pagingSourceFactory = {
                 accountTagMemoLocalDataSource.page(
                     accountId = account.id,
@@ -39,17 +33,15 @@ internal class AccountTagMemoRepositoryImpl(
                     sort = sort.toLocal(),
                 )
             },
-        ).flow.map { pagingData ->
-            pagingData.map { local -> local.toDomain() }
-        }
+            transform = { local -> local.toDomain() },
+        )
 
     override fun pageFinished(
         account: Account,
         tagId: Uuid,
         sort: ListSort,
     ): Flow<PagingData<Memo>> =
-        Pager(
-            config = PagingConfig(pageSize = PAGE_SIZE),
+        pagingFlow(
             pagingSourceFactory = {
                 accountTagMemoLocalDataSource.pageFinished(
                     accountId = account.id,
@@ -57,7 +49,6 @@ internal class AccountTagMemoRepositoryImpl(
                     sort = sort.toLocal(),
                 )
             },
-        ).flow.map { pagingData ->
-            pagingData.map { local -> local.toDomain() }
-        }
+            transform = { local -> local.toDomain() },
+        )
 }

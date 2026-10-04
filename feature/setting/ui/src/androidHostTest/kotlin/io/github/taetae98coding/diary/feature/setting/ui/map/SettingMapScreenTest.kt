@@ -26,7 +26,7 @@ class SettingMapScreenTest {
     @Test
     fun `TC-SETTING-MAP-FEATURE-003 뒤로가기 동작을 선택하면 이전 화면으로 돌아가고 기본 지도는 그대로 둔다`() {
         var navigateUpCount = 0
-        val viewModel = screenTestViewModel(SettingMapUiState.Loaded(defaultProvider = MapProvider.NAVER))
+        val viewModel = screenTestViewModel(SettingMapUiState.Content(defaultProvider = MapProvider.NAVER))
         setSettingMapScreen(
             viewModel = viewModel,
             navigateUp = { navigateUpCount += 1 },
@@ -42,7 +42,7 @@ class SettingMapScreenTest {
     @Test
     fun `TC-SETTING-MAP-FEATURE-008 선택되어 있지 않은 줄을 선택하면 기본 지도가 저장된다`() {
         var navigateUpCount = 0
-        val viewModel = screenTestViewModel(SettingMapUiState.Loaded(defaultProvider = MapProvider.NAVER))
+        val viewModel = screenTestViewModel(SettingMapUiState.Content(defaultProvider = MapProvider.NAVER))
         every { viewModel.selectDefaultProvider(any()) } returns Unit
         setSettingMapScreen(
             viewModel = viewModel,

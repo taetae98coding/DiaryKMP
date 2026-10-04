@@ -297,6 +297,50 @@ class MemoHomeFilterViewModelTest : FunSpec() {
                 coVerify(exactly = 0) { setMemoPlaceExistenceFilterUseCase(parameter = any()) }
             }
         }
+
+        test("같은 필터 변경이 진행 중일 때 다시 요청하면 한 번만 실행한다") {
+            runTest(mainDispatcher) {
+                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val selectMemoFilterTagUseCase = mockk<SelectMemoFilterTagUseCase>()
+                coEvery { selectMemoFilterTagUseCase(parameter = tagId) } returns Result.success(Unit)
+                val unselectMemoFilterTagUseCase = mockk<UnselectMemoFilterTagUseCase>()
+                coEvery { unselectMemoFilterTagUseCase(parameter = tagId) } returns Result.success(Unit)
+                val unselectAllMemoFilterTagUseCase = mockk<UnselectAllMemoFilterTagUseCase>()
+                coEvery { unselectAllMemoFilterTagUseCase(parameter = Unit) } returns Result.success(Unit)
+                val setMemoDateExistenceFilterUseCase = mockk<SetMemoDateExistenceFilterUseCase>()
+                coEvery { setMemoDateExistenceFilterUseCase(parameter = MemoFilterExistence.EXIST) } returns Result.success(Unit)
+                val setMemoTagExistenceFilterUseCase = mockk<SetMemoTagExistenceFilterUseCase>()
+                coEvery { setMemoTagExistenceFilterUseCase(parameter = MemoFilterExistence.EXIST) } returns Result.success(Unit)
+                val setMemoPlaceExistenceFilterUseCase = mockk<SetMemoPlaceExistenceFilterUseCase>()
+                coEvery { setMemoPlaceExistenceFilterUseCase(parameter = MemoFilterExistence.EXIST) } returns Result.success(Unit)
+                val viewModel =
+                    viewModel(
+                        selectMemoFilterTagUseCase = selectMemoFilterTagUseCase,
+                        unselectMemoFilterTagUseCase = unselectMemoFilterTagUseCase,
+                        unselectAllMemoFilterTagUseCase = unselectAllMemoFilterTagUseCase,
+                        setMemoDateExistenceFilterUseCase = setMemoDateExistenceFilterUseCase,
+                        setMemoTagExistenceFilterUseCase = setMemoTagExistenceFilterUseCase,
+                        setMemoPlaceExistenceFilterUseCase = setMemoPlaceExistenceFilterUseCase,
+                    )
+
+                repeat(2) {
+                    viewModel.selectTag(id = tagId)
+                    viewModel.unselectTag(id = tagId)
+                    viewModel.unselectAllTag()
+                    viewModel.setDateExistence(existence = MemoFilterExistence.EXIST)
+                    viewModel.setTagExistence(existence = MemoFilterExistence.EXIST)
+                    viewModel.setPlaceExistence(existence = MemoFilterExistence.EXIST)
+                }
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { selectMemoFilterTagUseCase(parameter = tagId) }
+                coVerify(exactly = 1) { unselectMemoFilterTagUseCase(parameter = tagId) }
+                coVerify(exactly = 1) { unselectAllMemoFilterTagUseCase(parameter = Unit) }
+                coVerify(exactly = 1) { setMemoDateExistenceFilterUseCase(parameter = MemoFilterExistence.EXIST) }
+                coVerify(exactly = 1) { setMemoTagExistenceFilterUseCase(parameter = MemoFilterExistence.EXIST) }
+                coVerify(exactly = 1) { setMemoPlaceExistenceFilterUseCase(parameter = MemoFilterExistence.EXIST) }
+            }
+        }
     }
 
     companion object {

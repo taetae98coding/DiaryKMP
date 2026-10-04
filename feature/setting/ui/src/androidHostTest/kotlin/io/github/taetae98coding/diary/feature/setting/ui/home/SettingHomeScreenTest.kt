@@ -83,7 +83,7 @@ class SettingHomeScreenTest {
         navigateToGemini: () -> Unit = {},
         navigateToBrowser: () -> Unit = {},
         navigateToDownload: () -> Unit = {},
-        viewModel: SettingHomeViewModel = screenTestViewModel(SettingHomeUiState.Loaded(itemList = settingHomeItemList)),
+        viewModel: SettingHomeViewModel = screenTestViewModel(SettingHomeUiState.Content(itemList = settingHomeItemList)),
     ) {
         composeRule.setContent {
             DiaryTheme {

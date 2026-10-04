@@ -14,7 +14,6 @@ import io.github.taetae98coding.diary.domain.web.usecase.AddWebTagUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.GetWebTagUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.PageWebSelectableTagUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.RemoveWebTagUseCase
-import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -34,13 +33,11 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
-import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.uuid.Uuid
 
 class WebDetailTagViewModelTest : FunSpec() {
@@ -181,6 +178,32 @@ class WebDetailTagViewModelTest : FunSpec() {
                         parameter = RemoveWebTagUseCase.Parameter(webId = id, tagId = firstTagId),
                     )
                 }
+            }
+        }
+
+        test("TC-WEB-DETAIL-DOMAIN-038 같은 태그의 연결이나 해제가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val addWebTagUseCase = mockk<AddWebTagUseCase>()
+                coEvery { addWebTagUseCase(parameter = any()) } returns Result.success(Unit)
+                val removeWebTagUseCase = mockk<RemoveWebTagUseCase>()
+                coEvery { removeWebTagUseCase(parameter = any()) } returns Result.success(Unit)
+                val viewModel =
+                    viewModel(
+                        id = id,
+                        addWebTagUseCase = addWebTagUseCase,
+                        removeWebTagUseCase = removeWebTagUseCase,
+                    )
+
+                viewModel.add(tagId = tagId)
+                viewModel.add(tagId = tagId)
+                viewModel.remove(tagId = tagId)
+                viewModel.remove(tagId = tagId)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { addWebTagUseCase(parameter = any()) }
+                coVerify(exactly = 1) { removeWebTagUseCase(parameter = any()) }
             }
         }
 

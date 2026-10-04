@@ -94,7 +94,7 @@ class AccountMemoTransactionImplTest :
             memoId: Uuid,
         ) {
             syncDataSource
-                .findPending(accountId = accountId)
+                .readPendingList(accountId = accountId)
                 .any { memo -> memo.id == memoId } shouldBe true
         }
 
@@ -174,7 +174,7 @@ class AccountMemoTransactionImplTest :
             transaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
             transaction.upsert(accountId = accountId, memoList = listOf(changedMemo), memoTagList = emptyList())
 
-            syncDataSource.findPending(accountId = accountId) shouldBe listOf(changedMemo)
+            syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(changedMemo)
         }
 
         listOf(
@@ -539,7 +539,7 @@ class AccountMemoTransactionImplTest :
 
             findMemo(accountId = accountId, memoId = memo.id).shouldBeNull()
             database.memoTagDao().findByMemoIdList(listOf(memo.id)).shouldBeEmpty()
-            syncDataSource.findPending(accountId = accountId).shouldBeEmpty()
+            syncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
 
         test("TC-MEMO-TAG-DATA-004 저장된 연결은 업로드 대기 상태가 된다") {
@@ -555,7 +555,7 @@ class AccountMemoTransactionImplTest :
             )
 
             memoTagSyncDataSource
-                .findPending(accountId = accountId)
+                .readPendingList(accountId = accountId)
                 .map { memoTag -> memoTag.tagId } shouldBe listOf(tagId)
         }
 
@@ -591,7 +591,7 @@ class AccountMemoTransactionImplTest :
             memoTagTransaction.upsert(accountId = accountId, memoId = memo.id, tagId = tagId, isDeleted = false, updatedAt = instant())
 
             memoTagSyncDataSource
-                .findPending(accountId = accountId)
+                .readPendingList(accountId = accountId)
                 .map { memoTag -> memoTag.tagId } shouldBe listOf(tagId)
         }
 

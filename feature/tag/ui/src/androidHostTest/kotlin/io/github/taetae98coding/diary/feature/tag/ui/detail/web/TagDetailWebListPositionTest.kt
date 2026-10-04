@@ -15,6 +15,7 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.setTagDetailScreen
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
+import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagWeb
 import io.kotest.matchers.booleans.shouldBeFalse
@@ -39,7 +40,7 @@ class TagDetailWebListPositionTest {
             webPagingData = tagEntityPagingData(itemList = webList),
         )
         composeRule.selectTagDetailTab(DEFAULT_WEB_TAB_DESCRIPTION)
-        composeRule.onNodeWithTag(TAG_DETAIL_WEB_LIST_TEST_TAG).performScrollToIndex(SCROLLED_INDEX)
+        composeRule.refreshableList().performScrollToIndex(SCROLLED_INDEX)
         composeRule.waitForIdle()
 
         composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)

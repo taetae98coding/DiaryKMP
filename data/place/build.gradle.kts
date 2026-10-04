@@ -10,7 +10,6 @@ kotlin {
                 implementation(projects.core.googleNetwork.api)
                 implementation(projects.core.naverNetwork.api)
                 implementation(projects.data.core)
-                implementation(projects.data.tag)
                 implementation(projects.domain.place)
             }
         }

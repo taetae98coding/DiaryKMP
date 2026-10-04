@@ -5,12 +5,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.loading.DiaryLoadingBox
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.web.WebPage
+import kotlinx.coroutines.flow.filterNot
+import kotlinx.coroutines.flow.filterNotNull
 
 public const val DIARY_WEB_VIEW_TEST_TAG: String = "DiaryWebView"
 
@@ -30,7 +33,6 @@ public fun DiaryWebView(
     val session = SingletonDiaryWebSession.get()
 
     SessionImportFailedEffect(
-        failureId = session.failureId,
         onSessionImportFailed = onSessionImportFailed,
         state = sessionImportFailureState,
     )
@@ -58,17 +60,19 @@ internal expect fun DiaryUrlWebView(
 
 @Composable
 private fun SessionImportFailedEffect(
-    failureId: Int?,
     onSessionImportFailed: () -> Unit,
     state: DiaryWebSessionImportFailureState,
 ) {
     val latestOnSessionImportFailed by rememberUpdatedState(onSessionImportFailed)
 
-    LaunchedEffect(failureId, state) {
-        if (failureId != null && !state.isNotified(failureId)) {
-            state.markNotified(failureId)
-            latestOnSessionImportFailed()
-        }
+    LaunchedEffect(state) {
+        snapshotFlow { SingletonDiaryWebSession.get().failureId }
+            .filterNotNull()
+            .filterNot { failureId -> state.isNotified(failureId) }
+            .collect { failureId ->
+                state.markNotified(failureId)
+                latestOnSessionImportFailed()
+            }
     }
 }
 

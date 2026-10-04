@@ -14,6 +14,7 @@ import io.github.taetae98coding.diary.domain.place.usecase.DeletePlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.GetPlaceListUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceHomeUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.RestorePlaceUseCase
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -40,11 +41,11 @@ internal class PlaceHomePlaceListViewModel(
 ) : ViewModel() {
     private val visibleBounds = MutableStateFlow<CoordinateBounds?>(null)
 
-    val sort: StateFlow<ListSort>
-        field = MutableStateFlow(ListSort.TITLE)
+    val sortUiState: StateFlow<ListSortUiState>
+        field = MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
 
     val placeListUiState: StateFlow<PlaceHomePlaceListUiState> =
-        combine(visibleBounds, sort) { bounds, value -> bounds to value }
+        combine(visibleBounds, sortUiState) { bounds, (value) -> bounds to value }
             .flatMapLatest { (bounds, value) ->
                 if (bounds == null) {
                     flowOf(PlaceHomePlaceListUiState())
@@ -64,32 +65,47 @@ internal class PlaceHomePlaceListViewModel(
             )
 
     val placePagingData: Flow<PagingData<Place>> =
-        sort
-            .flatMapLatest { value -> pagePlaceHomeUseCase(parameter = value) }
+        sortUiState
+            .flatMapLatest { (value) -> pagePlaceHomeUseCase(parameter = value) }
             .map { result -> result.getOrElse { PagingData.empty() } }
             .cachedIn(viewModelScope)
 
     private val _effect = Channel<PlaceListEffect>(Channel.BUFFERED)
     val effect: Flow<PlaceListEffect> = _effect.receiveAsFlow()
 
+    private val inProgressDeleteIdSet = mutableSetOf<Uuid>()
+    private val inProgressRestoreIdSet = mutableSetOf<Uuid>()
+
     fun updateVisibleBounds(bounds: CoordinateBounds?) {
         visibleBounds.value = bounds
     }
 
     fun select(sort: ListSort) {
-        this.sort.value = sort
+        sortUiState.value = ListSortUiState(sort = sort)
     }
 
     fun delete(id: Uuid) {
+        if (!inProgressDeleteIdSet.add(id)) return
+
         viewModelScope.launch {
-            deletePlaceUseCase(parameter = id)
-                .onSuccess { _effect.send(PlaceListEffect.Deleted(id = id)) }
+            try {
+                deletePlaceUseCase(parameter = id)
+                    .onSuccess { _effect.send(PlaceListEffect.Deleted(id = id)) }
+            } finally {
+                inProgressDeleteIdSet.remove(id)
+            }
         }
     }
 
     fun restore(id: Uuid) {
+        if (!inProgressRestoreIdSet.add(id)) return
+
         viewModelScope.launch {
-            restorePlaceUseCase(parameter = id)
+            try {
+                restorePlaceUseCase(parameter = id)
+            } finally {
+                inProgressRestoreIdSet.remove(id)
+            }
         }
     }
 }

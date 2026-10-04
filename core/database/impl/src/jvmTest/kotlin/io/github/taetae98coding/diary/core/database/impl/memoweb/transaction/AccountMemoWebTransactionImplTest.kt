@@ -110,13 +110,13 @@ class AccountMemoWebTransactionImplTest :
 
         suspend fun findPendingWebIdList(accountId: Uuid): List<Uuid> =
             syncDataSource
-                .findPending(accountId = accountId)
+                .readPendingList(accountId = accountId)
                 .map { memoWeb -> memoWeb.webId }
 
         suspend fun clearAllPending(accountId: Uuid) {
             syncTransaction.clearPending(
                 accountId = accountId,
-                memoWebList = syncDataSource.findPending(accountId = accountId),
+                memoWebList = syncDataSource.readPendingList(accountId = accountId),
             )
         }
 
@@ -468,7 +468,7 @@ class AccountMemoWebTransactionImplTest :
             database.memoTagDao().findByMemoIdList(listOf(memo.id)).shouldBeEmpty()
             database.memoPlaceDao().findByMemoIdList(listOf(memo.id)).shouldBeEmpty()
             findMemoWebList(memoId = memo.id).shouldBeEmpty()
-            memoSyncDataSource.findPending(accountId = accountId).shouldBeEmpty()
+            memoSyncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
 
         test("TC-MEMO-WEB-DATA-003 같은 연결을 다른 수정 시각으로 저장하면 마지막 내용으로 덮어쓴다") {
@@ -540,7 +540,7 @@ class AccountMemoWebTransactionImplTest :
             val copy = memo().copy(updatedAt = copiedAt, createdAt = copiedAt)
             val sourceWebIdSet =
                 dataSource
-                    .findWebIdList(accountId = accountId, memoId = source.id)
+                    .readWebIdList(accountId = accountId, memoId = source.id)
                     .toSet()
             memoTransaction.upsert(
                 accountId = accountId,
@@ -583,7 +583,7 @@ class AccountMemoWebTransactionImplTest :
             val copy = memo().copy(updatedAt = copiedAt, createdAt = copiedAt)
             val sourceWebIdSet =
                 dataSource
-                    .findWebIdList(accountId = accountId, memoId = source.id)
+                    .readWebIdList(accountId = accountId, memoId = source.id)
                     .toSet()
             memoTransaction.upsert(
                 accountId = accountId,

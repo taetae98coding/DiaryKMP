@@ -27,11 +27,11 @@ internal fun ContactDetailScreenEffect(
     CollectEffect(effect) { value ->
         when (value) {
             is ContactDetailEffect.UpdateSucceeded -> {
-                coroutineScope.launch { state.hostState.showImmediate(message = updateSucceededMessage) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = updateSucceededMessage) }
             }
 
             is ContactDetailEffect.PhoneNumberBlank -> {
-                coroutineScope.launch { state.hostState.showImmediate(message = phoneNumberBlankMessage) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = phoneNumberBlankMessage) }
             }
 
             is ContactDetailEffect.DeleteSucceeded -> navigateUp()

@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.domain.tag.usecase
 
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.account.usecase.requireAccount
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
@@ -20,7 +21,7 @@ public class UpdateTagUseCase internal constructor(
     private val clock: Clock,
 ) : UseCase<UpdateTagUseCase.Parameter, Int>() {
     override suspend fun execute(parameter: Parameter): Int {
-        val account = getAccountUseCase(parameter = Unit).first().getOrThrow()
+        val account = getAccountUseCase.requireAccount()
         val detail =
             parameter.detail.copy(
                 title =

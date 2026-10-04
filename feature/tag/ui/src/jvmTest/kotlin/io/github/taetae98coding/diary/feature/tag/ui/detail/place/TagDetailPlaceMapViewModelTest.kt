@@ -212,8 +212,8 @@ class TagDetailPlaceMapViewModelTest : FunSpec() {
         private fun TagDetailPlaceUiState.shouldBeLoaded(
             defaultProvider: MapProvider,
             initialCoordinate: Coordinate?,
-        ): TagDetailPlaceUiState.Loaded {
-            val loaded = shouldBeInstanceOf<TagDetailPlaceUiState.Loaded>()
+        ): TagDetailPlaceUiState.Content {
+            val loaded = shouldBeInstanceOf<TagDetailPlaceUiState.Content>()
             loaded.defaultProvider shouldBe defaultProvider
             loaded.initialCoordinate shouldBe initialCoordinate
 

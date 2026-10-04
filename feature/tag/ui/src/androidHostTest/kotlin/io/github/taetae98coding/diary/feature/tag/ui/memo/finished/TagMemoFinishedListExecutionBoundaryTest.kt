@@ -28,6 +28,7 @@ import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureId
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
+import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
 import io.mockk.every
@@ -140,7 +141,7 @@ class TagMemoFinishedListExecutionBoundaryTest {
     }
 
     private fun scrollList(memoList: List<Memo>) {
-        composeRule.onNodeWithTag(TAG_MEMO_FINISHED_LIST_TEST_TAG).performScrollToIndex(SCROLL_INDEX)
+        composeRule.refreshableList().performScrollToIndex(SCROLL_INDEX)
         composeRule.waitForIdle()
         assertScrolledPosition(memoList = memoList)
     }

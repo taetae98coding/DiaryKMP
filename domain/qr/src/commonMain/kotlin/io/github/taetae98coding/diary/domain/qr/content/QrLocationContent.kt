@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.domain.qr.content
 
 import io.github.taetae98coding.diary.core.model.location.Coordinate
-import io.github.taetae98coding.diary.domain.place.toPlaceCoordinateOrNaN
-import io.github.taetae98coding.diary.domain.place.toPlaceCoordinateText
-import io.github.taetae98coding.diary.domain.place.toPlacePrecision
+import io.github.taetae98coding.diary.core.model.place.toPlaceCoordinateOrNaN
+import io.github.taetae98coding.diary.core.model.place.toPlaceCoordinateText
+import io.github.taetae98coding.diary.core.model.place.toPlacePrecision
 
 public val QrContent.Location.coordinate: Coordinate?
     get() {

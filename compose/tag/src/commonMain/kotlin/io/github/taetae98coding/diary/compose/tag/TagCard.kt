@@ -22,7 +22,7 @@ public const val TAG_CARD_TEST_TAG: String = "TagCard"
 public const val TAG_COLOR_INDICATOR_TEST_TAG: String = DIARY_COLOR_TITLE_INDICATOR_TEST_TAG
 
 @Composable
-public fun TagCard(
+internal fun TagCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     tag: Tag? = null,

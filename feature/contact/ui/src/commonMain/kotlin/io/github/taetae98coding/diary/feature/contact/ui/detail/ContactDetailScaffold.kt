@@ -12,13 +12,17 @@ import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
-import io.github.taetae98coding.diary.feature.contact.ui.detail.memo.ContactDetailMemoTab
+import io.github.taetae98coding.diary.feature.contact.ui.Res
+import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_memo_empty_description
+import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_memo_empty_title
 import io.github.taetae98coding.diary.feature.contact.ui.detail.tab.ContactDetailTab
 import io.github.taetae98coding.diary.feature.contact.ui.detail.tab.ContactDetailTabRow
 import io.github.taetae98coding.diary.feature.contact.ui.detail.tab.ContactDetailTabState
 import io.github.taetae98coding.diary.feature.contact.ui.detail.tab.rememberContactDetailTabState
 import io.github.taetae98coding.diary.feature.contact.ui.form.ContactFormState
 import io.github.taetae98coding.diary.feature.contact.ui.form.rememberContactDetailFormState
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
+import org.jetbrains.compose.resources.stringResource
 import kotlin.uuid.Uuid
 
 @Composable
@@ -41,7 +45,7 @@ internal fun ContactDetailScaffold(
                 componentVisibleProvider = componentVisibleProvider,
             )
         },
-        snackbarHost = { SnackbarHost(hostState = state.hostState) },
+        snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },
         floatingActionButton = { tabFloatingActionButton(tabState.tab) },
         contentWindowInsets = DiaryScaffoldDefaults.contentWindowInsets,
     ) { paddingValues ->
@@ -94,7 +98,7 @@ private fun ContactDetailScaffoldPreview() {
                         uiStateProvider = { uiState },
                     )
 
-                ContactDetailTab.MEMO -> ContactDetailMemoTab(onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
+                ContactDetailTab.MEMO -> EntityDetailMemoTab(emptyTitle = stringResource(Res.string.contact_detail_memo_empty_title), emptyDescription = stringResource(Res.string.contact_detail_memo_empty_description), onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
             }
         }
     }

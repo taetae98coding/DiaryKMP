@@ -2,7 +2,6 @@ package io.github.taetae98coding.diary.core.datastore.impl
 
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.okio.OkioSerializer
-import io.github.taetae98coding.diary.core.datastore.api.setting.entity.GeminiSettingLocalEntity
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -56,10 +55,10 @@ internal val SyncTimeSerializer: SettingSerializer<SyncTimeData> =
         defaultValue = SyncTimeData(),
     )
 
-internal val GeminiSettingSerializer: SettingSerializer<GeminiSettingLocalEntity> =
+internal val GeminiSettingSerializer: SettingSerializer<GeminiSettingData> =
     SettingSerializer(
-        serializer = GeminiSettingLocalEntity.serializer(),
-        defaultValue = GeminiSettingLocalEntity(),
+        serializer = GeminiSettingData.serializer(),
+        defaultValue = GeminiSettingData(),
     )
 
 internal val MusicDownloadProxySettingSerializer: SettingSerializer<MusicDownloadProxySettingData> =

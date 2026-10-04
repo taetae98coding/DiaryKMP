@@ -4,7 +4,7 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMe
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.google.network.api.datasource.GooglePlaceRemoteDataSource
-import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceLocationBias
+import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceLocationBiasRemoteEntity
 import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceLocationRemoteEntity
 import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceRemoteEntity
 import io.github.taetae98coding.diary.core.model.location.Coordinate
@@ -90,7 +90,7 @@ class PlaceSearchRepositoryImplTest :
                 dataSource.search(
                     query = query,
                     locationBias =
-                        GooglePlaceLocationBias(
+                        GooglePlaceLocationBiasRemoteEntity(
                             latitude = bias.center.latitude,
                             longitude = bias.center.longitude,
                             radiusMeters = bias.radiusMeters,

@@ -184,7 +184,7 @@ class AccountQrLocalDataSourceImplTest :
             val downloadedDeletedQr = qr().copy(isDeleted = true)
 
             assertPageInvalidated(accountId = accountId, expected = listOf(firstQr, downloadedQr, lastQr)) {
-                qrSyncTransaction.save(accountId = accountId, qrList = listOf(downloadedDeletedQr, downloadedQr), cursor = 1L)
+                qrSyncTransaction.upsert(accountId = accountId, qrList = listOf(downloadedDeletedQr, downloadedQr), cursor = 1L)
             }
         }
 

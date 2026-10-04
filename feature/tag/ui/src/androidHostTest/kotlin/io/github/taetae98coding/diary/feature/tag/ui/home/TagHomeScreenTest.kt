@@ -17,6 +17,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
@@ -179,12 +180,12 @@ class TagHomeScreenTest {
                     .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
                     .sample()
             val viewModel = mockk<TagHomeViewModel>()
-            every { viewModel.sort } returns MutableStateFlow(ListSort.TITLE)
+            every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
 
             every { viewModel.tagPagingData } returns MutableStateFlow(tagPagingDataOf(listOf(tag)))
 
             every { viewModel.effect } returns emptyFlow()
-            every { viewModel.filterUiState } returns MutableStateFlow(TagHomeScaffoldFilterUiState())
+            every { viewModel.filterUiState } returns MutableStateFlow(TagHomeScaffoldFilterUiState(isLoaded = true))
 
             return viewModel
         }

@@ -139,6 +139,25 @@ class AppChromeSessionViewModelTest : FunSpec() {
                 }
             }
         }
+
+        test("가져오기 요청이 반복되어도 진행 중에는 요청 UseCase를 한 번만 실행하고 끝나면 다시 요청할 수 있다") {
+            runTest(mainDispatcher) {
+                val useCase = mockk<RequestChromeSessionImportUseCase>()
+                coEvery { useCase(Unit) } returns Result.success(Unit)
+                val viewModel = viewModel(importState = MutableStateFlow(ChromeSessionImportState.IDLE), requestUseCase = useCase)
+
+                viewModel.requestImport()
+                viewModel.requestImport()
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { useCase(Unit) }
+
+                viewModel.requestImport()
+                advanceUntilIdle()
+
+                coVerify(exactly = 2) { useCase(Unit) }
+            }
+        }
     }
 
     private fun viewModel(

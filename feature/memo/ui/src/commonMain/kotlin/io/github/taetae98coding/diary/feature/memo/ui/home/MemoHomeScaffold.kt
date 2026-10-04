@@ -36,11 +36,11 @@ import io.github.taetae98coding.diary.compose.memo.list.MemoList
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.compose.memo.list.MemoListState
-import io.github.taetae98coding.diary.compose.memo.list.MemoListUiState
 import io.github.taetae98coding.diary.compose.memo.list.rememberMemoListState
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.memo.ui.Res
 import io.github.taetae98coding.diary.feature.memo.ui.memo_home_add_button_content_description
 import io.github.taetae98coding.diary.feature.memo.ui.memo_home_empty_description
@@ -50,8 +50,6 @@ import io.github.taetae98coding.diary.feature.memo.ui.memo_home_filtered_empty_t
 import io.github.taetae98coding.diary.feature.memo.ui.memo_home_finished_list_action_label
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
-
-internal const val MEMO_HOME_LIST_TEST_TAG: String = "MemoHomeList"
 
 @Composable
 internal fun MemoHomeScaffold(
@@ -64,7 +62,7 @@ internal fun MemoHomeScaffold(
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     memoPagingItems: LazyPagingItems<MemoListItem> = remember { flowOf(PagingData.empty<MemoListItem>()) }.collectAsLazyPagingItems(),
     filterUiStateProvider: () -> MemoHomeScaffoldFilterUiState = { MemoHomeScaffoldFilterUiState() },
-    memoListUiStateProvider: () -> MemoListUiState = { MemoListUiState() },
+    syncUiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
     sortProvider: () -> ListSort = { ListSort.DEFAULT },
     componentVisibleProvider: () -> MemoHomeScaffoldComponentVisible = { MemoHomeScaffoldComponentVisible() },
 ) {
@@ -111,10 +109,9 @@ internal fun MemoHomeScaffold(
                 listState = listState,
                 memoPagingItems = memoPagingItems,
                 modifier = Modifier.fillMaxSize(),
-                uiStateProvider = memoListUiStateProvider,
+                isRefreshingProvider = { syncUiStateProvider().isRefreshing },
                 sortProvider = sortProvider,
                 filterProvider = { filterUiStateProvider().listQueryFilter },
-                listTestTag = MEMO_HOME_LIST_TEST_TAG,
                 empty = { Empty(isFilterAppliedProvider = { filterUiStateProvider().isApplied }) },
             )
         }

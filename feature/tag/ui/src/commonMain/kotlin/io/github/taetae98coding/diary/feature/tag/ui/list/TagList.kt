@@ -30,12 +30,10 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.compose.tag.SwipeTagCard
 import io.github.taetae98coding.diary.compose.tag.list.TagListEvent
+import io.github.taetae98coding.diary.compose.tag.previewTag
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
-import io.github.taetae98coding.diary.feature.tag.ui.previewTag
 import kotlinx.coroutines.flow.flowOf
-
-internal const val TAG_LIST_TEST_TAG: String = "TagList"
 
 @Composable
 internal fun TagList(
@@ -48,7 +46,6 @@ internal fun TagList(
     isRefreshingProvider: () -> Boolean = { false },
     sortProvider: () -> ListSort = { ListSort.TITLE },
     filterProvider: () -> Any? = { Unit },
-    listTestTag: String = TAG_LIST_TEST_TAG,
     empty: @Composable () -> Unit,
 ) {
     ListQueryScrollEffect(
@@ -86,7 +83,6 @@ internal fun TagList(
                 modifier = Modifier.fillMaxSize(),
                 state = gridState,
                 isRefreshingProvider = isRefreshingProvider,
-                listTestTag = listTestTag,
             ) {
                 items(
                     count = tagPagingItems.itemCount,

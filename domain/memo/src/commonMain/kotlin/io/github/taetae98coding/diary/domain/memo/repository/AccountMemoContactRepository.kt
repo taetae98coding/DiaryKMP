@@ -18,7 +18,7 @@ public interface AccountMemoContactRepository {
         query: String,
     ): Flow<PagingData<Contact>>
 
-    public suspend fun findContactIdSet(
+    public suspend fun readContactIdSet(
         account: Account,
         memoId: Uuid,
     ): Set<Uuid>

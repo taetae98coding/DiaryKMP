@@ -18,7 +18,7 @@ public interface AccountMemoWebRepository {
         query: String,
     ): Flow<PagingData<Web>>
 
-    public suspend fun findWebIdSet(
+    public suspend fun readWebIdSet(
         account: Account,
         memoId: Uuid,
     ): Set<Uuid>

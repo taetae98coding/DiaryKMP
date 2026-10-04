@@ -20,10 +20,12 @@ import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDate
@@ -113,7 +115,9 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
 
                 coVerify(exactly = 1) { useCase(parameter = Unit) }
                 coVerify(exactly = 1) { fetchCurrentWeatherUseCase(parameter = Unit) }
-                viewModel.isLoading.value shouldBe false
+                backgroundScope.launch { viewModel.uiState.collect {} }
+                runCurrent()
+                viewModel.uiState.value.isLoading shouldBe false
             }
         }
 
@@ -171,12 +175,14 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
 
                 viewModel.refreshOnLocationPermissionGranted()
                 advanceUntilIdle()
-                viewModel.isLoading.value shouldBe true
+                backgroundScope.launch { viewModel.uiState.collect {} }
+                runCurrent()
+                viewModel.uiState.value.isLoading shouldBe true
 
                 completion.complete(Result.success(Unit))
                 advanceUntilIdle()
 
-                viewModel.isLoading.value shouldBe false
+                viewModel.uiState.value.isLoading shouldBe false
             }
         }
 
@@ -200,12 +206,14 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
                 fetchCompletion.complete(Result.success(Unit))
                 advanceUntilIdle()
                 coVerify(exactly = 1) { refreshCurrentWeatherUseCase(parameter = Unit) }
-                viewModel.isLoading.value shouldBe true
+                backgroundScope.launch { viewModel.uiState.collect {} }
+                runCurrent()
+                viewModel.uiState.value.isLoading shouldBe true
 
                 refreshCompletion.complete(Result.success(Unit))
                 advanceUntilIdle()
 
-                viewModel.isLoading.value shouldBe false
+                viewModel.uiState.value.isLoading shouldBe false
             }
         }
 
@@ -215,16 +223,18 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
                 val useCase = mockk<FetchCurrentWeatherUseCase>()
                 coEvery { useCase(parameter = Unit) } coAnswers { completion.await() }
                 val viewModel = weatherViewModel(fetchCurrentWeatherUseCase = useCase)
-                viewModel.isLoading.value shouldBe false
+                backgroundScope.launch { viewModel.uiState.collect {} }
+                runCurrent()
+                viewModel.uiState.value.isLoading shouldBe false
 
                 viewModel.fetch()
                 advanceUntilIdle()
-                viewModel.isLoading.value shouldBe true
+                viewModel.uiState.value.isLoading shouldBe true
 
                 completion.complete(Result.success(Unit))
                 advanceUntilIdle()
 
-                viewModel.isLoading.value shouldBe false
+                viewModel.uiState.value.isLoading shouldBe false
             }
         }
 
@@ -267,9 +277,9 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
                             getCurrentCalendarWeatherUseCase(Result.success(CalendarWeatherReport(weatherList = listOf(calendarWeather)))),
                     )
 
-                viewModel.weatherReport.test {
-                    awaitItem().weatherList shouldBe emptyList()
-                    awaitItem().weatherList shouldBe listOf(calendarWeather)
+                viewModel.uiState.test {
+                    awaitItem().weatherReport.weatherList shouldBe emptyList()
+                    awaitItem().weatherReport.weatherList shouldBe listOf(calendarWeather)
                 }
             }
         }
@@ -285,8 +295,8 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
                 results.forEach { result ->
                     val viewModel = weatherViewModel(getCurrentCalendarWeatherUseCase = getCurrentCalendarWeatherUseCase(result))
 
-                    viewModel.weatherReport.test {
-                        awaitItem() shouldBe CalendarWeatherReport()
+                    viewModel.uiState.test {
+                        awaitItem().weatherReport shouldBe CalendarWeatherReport()
                         advanceUntilIdle()
                         expectNoEvents()
                     }
@@ -303,9 +313,9 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
                             getCurrentCalendarWeatherUseCase(Result.success(CalendarWeatherReport(locationName = locationName))),
                     )
 
-                viewModel.weatherReport.test {
-                    awaitItem().locationName shouldBe ""
-                    awaitItem().locationName shouldBe locationName
+                viewModel.uiState.test {
+                    awaitItem().weatherReport.locationName shouldBe ""
+                    awaitItem().weatherReport.locationName shouldBe locationName
                 }
             }
         }

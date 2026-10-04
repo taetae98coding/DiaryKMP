@@ -1,12 +1,12 @@
 package io.github.taetae98coding.diary.core.database.impl.place.transaction
 
-import androidx.room3.withWriteTransaction
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.transaction.AccountPlaceSyncTransaction
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.place.entity.AccountPlaceLocalEntity
-import io.github.taetae98coding.diary.core.database.impl.sync.entity.SyncCursorLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.sync.transaction.clearPendingEach
+import io.github.taetae98coding.diary.core.database.impl.sync.transaction.upsertPulled
 import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
 
@@ -18,46 +18,40 @@ internal class AccountPlaceSyncTransactionImpl(
         accountId: Uuid,
         placeList: List<PlaceLocalEntity>,
     ) {
-        database.withWriteTransaction {
-            placeList.forEach { place ->
-                database.accountPlaceSyncDao().clearPending(
-                    accountId = accountId,
-                    placeId = place.id,
-                    updatedAt = place.updatedAt,
-                )
-            }
+        database.clearPendingEach(placeList) { place ->
+            database.accountPlaceSyncDao().clearPending(
+                accountId = accountId,
+                placeId = place.id,
+                updatedAt = place.updatedAt,
+            )
         }
     }
 
-    override suspend fun save(
+    override suspend fun upsert(
         accountId: Uuid,
         placeList: List<PlaceLocalEntity>,
         cursor: Long,
     ) {
-        database.withWriteTransaction {
-            val localUpdatedAtMap = database.placeDao().findUpdatedAt(placeList.map { place -> place.id })
-            database.placeDao().upsert(
-                placeList.filter { place ->
-                    val localUpdatedAt = localUpdatedAtMap[place.id]
-                    localUpdatedAt == null || place.updatedAt >= localUpdatedAt
-                },
-            )
-            database.accountPlaceSyncDao().insertIgnore(
-                placeList.map { place ->
-                    AccountPlaceLocalEntity(
-                        accountId = accountId,
-                        placeId = place.id,
-                        isDirty = false,
-                    )
-                },
-            )
-            database.syncCursorDao().upsert(
-                SyncCursorLocalEntity(
-                    accountId = accountId,
-                    kind = SyncCursorLocalEntity.column(kind = SyncKind.PLACE),
-                    usn = cursor,
-                ),
-            )
-        }
+        database.upsertPulled(
+            accountId = accountId,
+            kind = SyncKindLocalEntity.PLACE,
+            cursor = cursor,
+            pulledList = placeList,
+            keyOf = { place -> place.id },
+            updatedAtOf = { place -> place.updatedAt },
+            readLocalUpdatedAtMap = { pulledList -> database.placeDao().findUpdatedAt(pulledList.map { place -> place.id }) },
+            upsert = { upsertList -> database.placeDao().upsert(upsertList) },
+            insertIgnoreAccount = { pulledList ->
+                database.accountPlaceSyncDao().insertIgnore(
+                    pulledList.map { place ->
+                        AccountPlaceLocalEntity(
+                            accountId = accountId,
+                            placeId = place.id,
+                            isDirty = false,
+                        )
+                    },
+                )
+            },
+        )
     }
 }

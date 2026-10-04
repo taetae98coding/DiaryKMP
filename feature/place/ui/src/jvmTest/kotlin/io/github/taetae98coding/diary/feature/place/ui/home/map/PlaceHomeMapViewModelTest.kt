@@ -280,8 +280,8 @@ class PlaceHomeMapViewModelTest : FunSpec() {
         private fun PlaceHomeUiState.shouldBeLoaded(
             defaultProvider: MapProvider,
             initialCoordinate: Coordinate?,
-        ): PlaceHomeUiState.Loaded {
-            val loaded = shouldBeInstanceOf<PlaceHomeUiState.Loaded>()
+        ): PlaceHomeUiState.Content {
+            val loaded = shouldBeInstanceOf<PlaceHomeUiState.Content>()
             loaded.defaultProvider shouldBe defaultProvider
             loaded.initialCoordinate shouldBe initialCoordinate
 

@@ -4,5 +4,5 @@ import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalE
 import kotlin.uuid.Uuid
 
 public interface AccountPlaceSyncLocalDataSource {
-    public suspend fun findPending(accountId: Uuid): List<PlaceLocalEntity>
+    public suspend fun readPendingList(accountId: Uuid): List<PlaceLocalEntity>
 }

@@ -48,7 +48,7 @@ internal fun SettingMapScaffold(
             when (val uiState = uiStateProvider()) {
                 is SettingMapUiState.Loading -> Unit
 
-                is SettingMapUiState.Loaded -> {
+                is SettingMapUiState.Content -> {
                     item(key = DEFAULT_PROVIDER_GROUP_KEY) {
                         SettingMapDefaultProviderSection(
                             defaultProvider = uiState.defaultProvider,
@@ -70,7 +70,7 @@ internal fun SettingMapScaffold(
 private fun SettingMapScaffoldPreview() {
     DiaryTheme {
         SettingMapScaffold(
-            uiStateProvider = { SettingMapUiState.Loaded(defaultProvider = MapProvider.NAVER) },
+            uiStateProvider = { SettingMapUiState.Content(defaultProvider = MapProvider.NAVER) },
             onEvent = {},
         )
     }

@@ -36,6 +36,21 @@ internal class PlaylistHomeDownloadViewModel(
                 initialValue = PlaylistHomeDownloadUiState(),
             )
 
+    private var isRequesting = false
+
+    fun download(sort: ListSort) {
+        if (isRequesting) return
+        isRequesting = true
+
+        viewModelScope.launch {
+            try {
+                requestMusicDownloadUseCase(parameter = sort)
+            } finally {
+                isRequesting = false
+            }
+        }
+    }
+
     private fun MusicDownloadEvent.toEffect(): PlaylistHomeDownloadEffect =
         when (this) {
             MusicDownloadEvent.TOOL_NOT_INSTALLED -> PlaylistHomeDownloadEffect.ToolNotInstalled
@@ -43,10 +58,4 @@ internal class PlaylistHomeDownloadViewModel(
             MusicDownloadEvent.PROXY_NOT_CONFIGURED -> PlaylistHomeDownloadEffect.ProxyNotConfigured
             MusicDownloadEvent.PROXY_UNREACHABLE -> PlaylistHomeDownloadEffect.ProxyUnreachable
         }
-
-    fun download(sort: ListSort) {
-        viewModelScope.launch {
-            requestMusicDownloadUseCase(parameter = sort)
-        }
-    }
 }

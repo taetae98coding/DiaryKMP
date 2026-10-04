@@ -13,7 +13,7 @@ import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.web.WebListUndoSnackbarEffect
-import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailSyncViewModel
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeEffect
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.TagDetailTab
@@ -34,11 +34,11 @@ internal fun TagDetailWebContent(
 
     CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
         val webViewModel = koinViewModel<TagDetailWebViewModel> { parametersOf(id) }
-        val syncViewModel = koinViewModel<TagDetailSyncViewModel>()
-        val isRefreshing by syncViewModel.isRefreshing.collectAsStateWithLifecycle()
+        val syncViewModel = koinViewModel<SyncRefreshViewModel>()
+        val syncUiState by syncViewModel.uiState.collectAsStateWithLifecycle()
         val webPagingItems = webViewModel.webPagingData.collectAsLazyPagingItems()
-        val sort by webViewModel.sort.collectAsStateWithLifecycle()
-        val queryScope by webViewModel.scope.collectAsStateWithLifecycle()
+        val sortUiState by webViewModel.sortUiState.collectAsStateWithLifecycle()
+        val scopeUiState by webViewModel.scopeUiState.collectAsStateWithLifecycle()
         val sortSheetState = rememberDialogState()
 
         WebListUndoSnackbarEffect(
@@ -65,9 +65,9 @@ internal fun TagDetailWebContent(
             modifier = modifier,
             sortSheetState = sortSheetState,
             webPagingItems = webPagingItems,
-            isRefreshingProvider = { isRefreshing },
-            sortProvider = { sort },
-            scopeProvider = { queryScope },
+            isRefreshingProvider = { syncUiState.isRefreshing },
+            sortProvider = { sortUiState.sort },
+            scopeProvider = { scopeUiState.scope },
         )
     }
 }

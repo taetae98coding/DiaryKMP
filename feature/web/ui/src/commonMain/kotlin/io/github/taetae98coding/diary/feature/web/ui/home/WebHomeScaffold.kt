@@ -22,6 +22,7 @@ import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.web.Web
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.web.ui.Res
 import io.github.taetae98coding.diary.feature.web.ui.web_home_add_button_content_description
 import kotlinx.coroutines.flow.flowOf
@@ -34,7 +35,7 @@ internal fun WebHomeScaffold(
     sortSheetState: DialogState = rememberDialogState(),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     webPagingItems: LazyPagingItems<Web> = remember { flowOf(PagingData.empty<Web>()) }.collectAsLazyPagingItems(),
-    uiStateProvider: () -> WebHomeUiState = { WebHomeUiState() },
+    uiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
     sortProvider: () -> ListSort = { ListSort.TITLE },
     componentVisibleProvider: () -> WebHomeScaffoldComponentVisible = { WebHomeScaffoldComponentVisible() },
 ) {

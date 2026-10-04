@@ -32,7 +32,8 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
-import io.github.taetae98coding.diary.compose.web.SwipeToDeleteWebCard
+import io.github.taetae98coding.diary.compose.web.SwipeWebCard
+import io.github.taetae98coding.diary.compose.web.WebListEvent
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.core.model.web.Web
@@ -41,8 +42,6 @@ import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_web_empty_descri
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_web_empty_title
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
-
-internal const val TAG_DETAIL_WEB_LIST_TEST_TAG: String = "TagDetailWebList"
 
 @Composable
 internal fun TagDetailWebTab(
@@ -86,7 +85,6 @@ internal fun TagDetailWebTab(
                     modifier = Modifier.fillMaxSize(),
                     state = gridState,
                     isRefreshingProvider = isRefreshingProvider,
-                    listTestTag = TAG_DETAIL_WEB_LIST_TEST_TAG,
                 ) {
                     items(
                         count = webPagingItems.itemCount,
@@ -94,9 +92,13 @@ internal fun TagDetailWebTab(
                     ) { index ->
                         val web = webPagingItems[index]
 
-                        SwipeToDeleteWebCard(
-                            onClick = { web?.let { value -> onEvent(TagDetailWebContentEvent.ClickWeb(id = value.id)) } },
-                            onDelete = { web?.let { value -> onEvent(TagDetailWebContentEvent.DeleteWeb(id = value.id)) } },
+                        SwipeWebCard(
+                            onEvent = { event ->
+                                when (event) {
+                                    is WebListEvent.ClickWeb -> onEvent(TagDetailWebContentEvent.ClickWeb(id = event.id))
+                                    is WebListEvent.SwipeDelete -> onEvent(TagDetailWebContentEvent.DeleteWeb(id = event.id))
+                                }
+                            },
                             modifier =
                                 Modifier
                                     .animateItem()

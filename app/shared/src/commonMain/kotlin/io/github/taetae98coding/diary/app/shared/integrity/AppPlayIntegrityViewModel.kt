@@ -10,9 +10,18 @@ import org.koin.core.annotation.KoinViewModel
 internal class AppPlayIntegrityViewModel(
     private val logPlayIntegrityUseCase: LogPlayIntegrityUseCase,
 ) : ViewModel() {
+    private var isLogging = false
+
     fun log() {
+        if (isLogging) return
+        isLogging = true
+
         viewModelScope.launch {
-            logPlayIntegrityUseCase(parameter = Unit)
+            try {
+                logPlayIntegrityUseCase(parameter = Unit)
+            } finally {
+                isLogging = false
+            }
         }
     }
 }

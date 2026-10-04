@@ -29,6 +29,7 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureId
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
+import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagPlace
 import io.kotest.matchers.shouldBe
@@ -184,7 +185,7 @@ class TagDetailPlaceScreenTest {
             composeRule.selectTagDetailTab(tabDescription)
 
             composeRule.onNodeWithContentDescription(DEFAULT_SHOW_LIST_DESCRIPTION).assertDoesNotExist()
-            composeRule.onNodeWithTag(TAG_DETAIL_PLACE_BOUNDS_LIST_TEST_TAG).assertDoesNotExist()
+            composeRule.refreshableList().assertDoesNotExist()
         }
 
         composeRule.selectTagDetailTab(DEFAULT_PLACE_TAB_DESCRIPTION)

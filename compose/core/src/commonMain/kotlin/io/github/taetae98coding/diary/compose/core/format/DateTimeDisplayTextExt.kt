@@ -13,7 +13,7 @@ import kotlinx.datetime.number
 import org.jetbrains.compose.resources.stringArrayResource
 import org.jetbrains.compose.resources.stringResource
 
-private const val NOON_HOUR = 12
+public const val NOON_HOUR: Int = 12
 private const val MINUTE_LENGTH = 2
 
 @Composable

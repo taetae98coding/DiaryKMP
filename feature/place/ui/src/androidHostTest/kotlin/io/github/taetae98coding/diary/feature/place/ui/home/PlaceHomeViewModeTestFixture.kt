@@ -11,6 +11,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.time.Instant
@@ -41,7 +42,7 @@ internal fun ViewModeTestPlaceHomeScaffold(
             state = state,
             uiStateProvider = { uiState },
             placePagingItems = placePagingDataFlow.collectAsLazyPagingItems(),
-            syncUiStateProvider = { PlaceHomeSyncUiState(isRefreshing = isRefreshing) },
+            syncUiStateProvider = { SyncRefreshUiState(isRefreshing = isRefreshing) },
         )
     }
 }

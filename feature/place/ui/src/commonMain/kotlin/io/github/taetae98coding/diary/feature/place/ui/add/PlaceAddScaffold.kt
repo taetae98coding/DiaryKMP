@@ -78,7 +78,7 @@ internal fun PlaceAddScaffold(
                 },
             )
         },
-        snackbarHost = { SnackbarHost(hostState = state.hostState) },
+        snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },
         floatingActionButton = {
             FloatingAddButton(
                 onClick = { onEvent(PlaceAddScaffoldEvent.ClickAdd) },

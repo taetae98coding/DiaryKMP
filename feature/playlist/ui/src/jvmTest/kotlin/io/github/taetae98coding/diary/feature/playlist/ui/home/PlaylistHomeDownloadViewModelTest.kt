@@ -16,6 +16,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -55,6 +56,25 @@ class PlaylistHomeDownloadViewModelTest : FunSpec() {
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { requestMusicDownloadUseCase(parameter = ListSort.RECENTLY_UPDATED) }
+            }
+        }
+
+        test("다운로드 요청을 진행하는 중에 다시 선택하면 요청을 한 번만 보낸다") {
+            runTest(mainDispatcher) {
+                val gate = CompletableDeferred<Unit>()
+                val requestMusicDownloadUseCase = mockk<RequestMusicDownloadUseCase>()
+                coEvery { requestMusicDownloadUseCase(parameter = any()) } coAnswers {
+                    gate.await()
+                    Result.success(Unit)
+                }
+                val viewModel = viewModel(requestMusicDownloadUseCase = requestMusicDownloadUseCase)
+
+                viewModel.download(sort = ListSort.TITLE)
+                viewModel.download(sort = ListSort.TITLE)
+                gate.complete(Unit)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { requestMusicDownloadUseCase(parameter = any()) }
             }
         }
 

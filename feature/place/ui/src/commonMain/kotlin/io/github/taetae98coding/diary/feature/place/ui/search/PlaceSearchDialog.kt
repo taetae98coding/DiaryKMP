@@ -95,7 +95,7 @@ private fun PlaceSearchDialogPreview() {
             state = rememberPlaceSearchDialogState(initialProvider = DiaryMapProvider.NAVER),
             onSelect = {},
             onDismissRequest = {},
-            uiStateProvider = { PlaceSearchUiState.Loaded(placeList = placeList) },
+            uiStateProvider = { PlaceSearchUiState.Content(placeList = placeList) },
         )
     }
 }

@@ -48,7 +48,7 @@ class MemoAddScreenMemoryRestoreTest {
         composeRule.onAllNodes(hasPrimaryTagState()).assertCountEquals(1)
         viewModelsList
             .last()
-            .tagViewModel.selection.value.primaryTagId shouldBe targetTag.id
+            .tagViewModel.selectionUiState.value.primaryTagId shouldBe targetTag.id
     }
 
     @Test

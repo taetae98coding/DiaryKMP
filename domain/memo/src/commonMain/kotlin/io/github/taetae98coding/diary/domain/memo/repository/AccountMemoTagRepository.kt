@@ -19,7 +19,7 @@ public interface AccountMemoTagRepository {
         query: String,
     ): Flow<PagingData<Tag>>
 
-    public suspend fun findTagIdSet(
+    public suspend fun readTagIdSet(
         account: Account,
         memoId: Uuid,
     ): Set<Uuid>

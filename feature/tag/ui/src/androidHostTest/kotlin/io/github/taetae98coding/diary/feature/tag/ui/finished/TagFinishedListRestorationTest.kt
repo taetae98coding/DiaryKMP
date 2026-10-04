@@ -17,8 +17,10 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
+import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.mockk.every
 import io.mockk.mockk
@@ -41,10 +43,10 @@ class TagFinishedListRestorationTest {
     fun `TC-TAG-FINISHED-LIST-DOMAIN-010 화면이 재생성되어도 정렬 선택과 보던 자리가 그대로다`() {
         val titlePrefix = fixtureText(prefix = "FinishedTag")
         val tagList = List(TAG_COUNT) { index -> finishedTag(title = "${titlePrefix}Index$index") }
-        val sortFlow = MutableStateFlow(ListSort.TITLE)
+        val sortFlow = MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
         val viewModel = mockk<TagFinishedListViewModel>(relaxed = true)
-        every { viewModel.sort } returns sortFlow
-        every { viewModel.select(sort = any()) } answers { sortFlow.value = firstArg() }
+        every { viewModel.sortUiState } returns sortFlow
+        every { viewModel.select(sort = any()) } answers { sortFlow.value = ListSortUiState(sort = firstArg()) }
         every { viewModel.tagPagingData } returns MutableStateFlow(tagPagingDataOf(tagList))
         every { viewModel.effect } returns emptyFlow()
         val restorationTester = StateRestorationTester(composeRule)
@@ -66,7 +68,7 @@ class TagFinishedListRestorationTest {
         composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
             composeRule.onAllNodesWithText(DEFAULT_SORT_SHEET_TITLE).fetchSemanticsNodes().isEmpty()
         }
-        composeRule.onNodeWithTag(TAG_FINISHED_LIST_TEST_TAG).performScrollToIndex(SCROLL_INDEX)
+        composeRule.refreshableList().performScrollToIndex(SCROLL_INDEX)
         composeRule.onNodeWithText(tagList[SCROLL_INDEX].detail.title).assertIsDisplayed()
         composeRule.onNodeWithText(tagList.first().detail.title).assertDoesNotExist()
 
@@ -104,7 +106,7 @@ class TagFinishedListRestorationTest {
         composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
             composeRule.onAllNodesWithText(DEFAULT_SORT_SHEET_TITLE).fetchSemanticsNodes().isEmpty()
         }
-        composeRule.onNodeWithTag(TAG_FINISHED_LIST_TEST_TAG).performScrollToIndex(SCROLL_INDEX)
+        composeRule.refreshableList().performScrollToIndex(SCROLL_INDEX)
         composeRule.onNodeWithText(tagList[SCROLL_INDEX].detail.title).assertIsDisplayed()
         nextViewModel = sortableViewModel(tagList = tagList)
 
@@ -118,10 +120,10 @@ class TagFinishedListRestorationTest {
     }
 
     private fun sortableViewModel(tagList: List<Tag>): TagFinishedListViewModel {
-        val sortFlow = MutableStateFlow(ListSort.TITLE)
+        val sortFlow = MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
         val viewModel = mockk<TagFinishedListViewModel>(relaxed = true)
-        every { viewModel.sort } returns sortFlow
-        every { viewModel.select(sort = any()) } answers { sortFlow.value = firstArg() }
+        every { viewModel.sortUiState } returns sortFlow
+        every { viewModel.select(sort = any()) } answers { sortFlow.value = ListSortUiState(sort = firstArg()) }
         every { viewModel.tagPagingData } returns MutableStateFlow(tagPagingDataOf(tagList))
         every { viewModel.effect } returns emptyFlow()
 

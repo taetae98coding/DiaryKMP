@@ -38,13 +38,13 @@ internal class LoginHomeViewModel(
         if (uiState.value.isInProgress) return
 
         viewModelScope.launch {
-            uiState.update { it.copy(isInProgress = true) }
+            uiState.update { state -> state.copy(isInProgress = true) }
             try {
                 request()
                     .onSuccess { _effect.send(LoginHomeEffect.SignInSucceeded) }
                     .onFailure { _effect.send(LoginHomeEffect.SignInFailed) }
             } finally {
-                uiState.update { it.copy(isInProgress = false) }
+                uiState.update { state -> state.copy(isInProgress = false) }
             }
         }
     }

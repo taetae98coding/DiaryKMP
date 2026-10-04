@@ -14,7 +14,9 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
+import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -41,7 +43,7 @@ class TagHomeScreenReselectTest {
         val reselectEvent = reselectEvent()
         setTagHomeScreen(reselectEvent = reselectEvent)
 
-        composeRule.onNodeWithTag(TAG_HOME_LIST_TEST_TAG).performScrollToIndex(LAST_INDEX)
+        composeRule.refreshableList().performScrollToIndex(LAST_INDEX)
         composeRule.waitForIdle()
         composeRule.onAllNodesWithText(tagTitle(index = 0)).fetchSemanticsNodes().isEmpty() shouldBe true
 
@@ -114,10 +116,10 @@ class TagHomeScreenReselectTest {
                 }
             val viewModel = mockk<TagHomeViewModel>()
 
-            every { viewModel.sort } returns MutableStateFlow(ListSort.TITLE)
+            every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
             every { viewModel.tagPagingData } returns MutableStateFlow(tagPagingDataOf(tagList))
             every { viewModel.effect } returns emptyFlow()
-            every { viewModel.filterUiState } returns MutableStateFlow(TagHomeScaffoldFilterUiState())
+            every { viewModel.filterUiState } returns MutableStateFlow(TagHomeScaffoldFilterUiState(isLoaded = true))
 
             return viewModel
         }

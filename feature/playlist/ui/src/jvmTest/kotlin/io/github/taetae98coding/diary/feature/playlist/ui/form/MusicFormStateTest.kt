@@ -159,7 +159,7 @@ class MusicFormStateTest :
                         textFieldState = TextFieldState(initialText = link),
                         focusRequester = FocusRequester(),
                     ),
-                hostState = SnackbarHostState(),
+                snackbarHostState = SnackbarHostState(),
             )
     }
 }

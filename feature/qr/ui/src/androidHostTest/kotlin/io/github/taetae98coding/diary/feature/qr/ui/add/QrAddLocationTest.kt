@@ -14,8 +14,15 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.core.model.map.MapProvider
-import io.github.taetae98coding.diary.domain.place.toPlaceCoordinateText
+import io.github.taetae98coding.diary.core.model.place.toPlaceCoordinateText
 import io.github.taetae98coding.diary.domain.qr.content.QrFormat
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddFormState
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrContentFormState
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrTextField
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.ReflectQrCoordinateEffect
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.WriteQrFieldsEffect
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrAddFormState
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrContentFormState
 import io.kotest.assertions.withClue
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe

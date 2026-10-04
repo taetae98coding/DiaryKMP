@@ -174,16 +174,16 @@ class AccountPlaceLocalDataSourceImplTest :
             dataSource.get(accountId = accountId, south = 0.0, north = 30.0, west = 0.0, east = 30.0, sort = ListSortLocalEntity.DEFAULT).test {
                 awaitItem() shouldBe listOf(place)
 
-                syncTransaction.save(accountId = accountId, placeList = listOf(renamedPlace), cursor = 1L)
+                syncTransaction.upsert(accountId = accountId, placeList = listOf(renamedPlace), cursor = 1L)
                 awaitItem() shouldBe listOf(renamedPlace)
 
-                syncTransaction.save(accountId = accountId, placeList = listOf(addedPlace), cursor = 2L)
+                syncTransaction.upsert(accountId = accountId, placeList = listOf(addedPlace), cursor = 2L)
                 awaitItem() shouldBe listOf(renamedPlace, addedPlace)
 
-                syncTransaction.save(accountId = accountId, placeList = listOf(movedPlace), cursor = 3L)
+                syncTransaction.upsert(accountId = accountId, placeList = listOf(movedPlace), cursor = 3L)
                 awaitItem() shouldBe listOf(addedPlace)
 
-                syncTransaction.save(
+                syncTransaction.upsert(
                     accountId = accountId,
                     placeList = listOf(addedPlace.copy(isDeleted = true, updatedAt = Instant.fromEpochMilliseconds(3_000))),
                     cursor = 4L,

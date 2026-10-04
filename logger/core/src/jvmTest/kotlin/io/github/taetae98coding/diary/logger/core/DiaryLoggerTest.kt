@@ -7,9 +7,15 @@ import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
+import java.util.concurrent.TimeUnit
 
 class DiaryLoggerTest :
     BehaviorSpec({
@@ -126,6 +132,46 @@ class DiaryLoggerTest :
                     logList.forEach { log -> DiaryLogger.log(log = log) }
 
                     recording.logList.shouldContainExactly(logList)
+                }
+            }
+        }
+
+        Given("여러 스레드가 기록 수단 등록과 로그 전달을 동시에 수행한다") {
+            When("등록과 전달이 서로 겹친다") {
+                Then("전달은 오류 없이 완료되고 등록한 모든 수단에 등록 이후 전달된 로그가 남는다") {
+                    val threadCount = 4
+                    val repeatCount = 50
+                    val executor = Executors.newFixedThreadPool(threadCount)
+                    val start = CountDownLatch(1)
+                    val received = ConcurrentHashMap.newKeySet<DiaryLoggerDelegate>()
+                    val delegateList =
+                        List(size = threadCount * repeatCount) {
+                            mockk<DiaryLoggerDelegate>().also { delegate ->
+                                every { delegate.log(log = any()) } answers { received += delegate }
+                            }
+                        }
+
+                    try {
+                        val futureList: List<Future<*>> =
+                            delegateList.chunked(repeatCount).map { chunk ->
+                                executor.submit {
+                                    start.await()
+                                    chunk.forEach { delegate ->
+                                        DiaryLogger.add(delegate = delegate)
+                                        DiaryLogger.log(log = FirstLog(value = fixtureMonkey.giveMeOne<Int>()))
+                                    }
+                                }
+                            }
+                        start.countDown()
+
+                        shouldNotThrowAny {
+                            futureList.forEach { future -> future.get(10, TimeUnit.SECONDS) }
+                        }
+                    } finally {
+                        executor.shutdownNow()
+                    }
+
+                    received.shouldContainExactlyInAnyOrder(delegateList)
                 }
             }
         }

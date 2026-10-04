@@ -28,6 +28,7 @@ import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheet
 import io.github.taetae98coding.diary.compose.tag.list.TagListEvent
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.list.TagList
 import io.github.taetae98coding.diary.feature.tag.ui.tag_finished_list_empty_title
@@ -35,8 +36,6 @@ import io.github.taetae98coding.diary.feature.tag.ui.tag_finished_list_navigate_
 import io.github.taetae98coding.diary.feature.tag.ui.tag_finished_list_title
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
-
-internal const val TAG_FINISHED_LIST_TEST_TAG: String = "TagFinishedList"
 
 @Composable
 internal fun TagFinishedListScaffold(
@@ -46,7 +45,7 @@ internal fun TagFinishedListScaffold(
     sortSheetState: DialogState = rememberDialogState(),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     tagPagingItems: LazyPagingItems<Tag> = remember { flowOf(PagingData.empty<Tag>()) }.collectAsLazyPagingItems(),
-    uiStateProvider: () -> TagFinishedListUiState = { TagFinishedListUiState() },
+    uiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
     sortProvider: () -> ListSort = { ListSort.TITLE },
 ) {
     Scaffold(
@@ -81,7 +80,6 @@ internal fun TagFinishedListScaffold(
                 finishAction = SwipeFinishAction.RESTART,
                 isRefreshingProvider = { uiStateProvider().isRefreshing },
                 sortProvider = sortProvider,
-                listTestTag = TAG_FINISHED_LIST_TEST_TAG,
                 empty = {
                     DiaryEmptyBox(
                         title = stringResource(Res.string.tag_finished_list_empty_title),

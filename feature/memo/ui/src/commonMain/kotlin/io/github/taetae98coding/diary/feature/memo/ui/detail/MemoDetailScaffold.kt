@@ -87,7 +87,7 @@ internal fun MemoDetailScaffold(
                 geminiUiStateProvider = geminiUiStateProvider,
             )
         },
-        snackbarHost = { SnackbarHost(hostState = state.hostState) },
+        snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },
         floatingActionButton = {
             DiaryScaleVisibility(visible = isChanged) {
                 MemoDetailUpdateButton(

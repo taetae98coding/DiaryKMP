@@ -1,6 +1,6 @@
 package io.github.taetae98coding.diary.data.location.repository
 
-import io.github.taetae98coding.diary.core.ipnetwork.api.datasource.IpRemoteDataSource
+import io.github.taetae98coding.diary.core.ip.network.api.datasource.IpRemoteDataSource
 import io.github.taetae98coding.diary.core.location.api.LocationProvider
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.domain.location.repository.LocationRepository

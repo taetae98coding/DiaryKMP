@@ -7,6 +7,7 @@ import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.place.api.PlaceAddedResult
 import io.github.taetae98coding.diary.feature.place.api.placeAddedResultKey
+import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceAddFormState
 import io.github.taetae98coding.diary.feature.place.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
@@ -63,7 +64,12 @@ class PlaceAddedResultRequestKeyTest {
         val receivedList = mutableListOf<Pair<Uuid, Uuid>>()
         composeRule.setContent {
             DiaryTheme {
-                AddEffect(addedResultRequestKey = addedResultRequestKey, resultEventBus = resultEventBus, effect = effect.receiveAsFlow())
+                PlaceAddScreenEffect(
+                    addedResultRequestKey = addedResultRequestKey,
+                    effect = effect.receiveAsFlow(),
+                    scaffoldState = rememberPlaceAddFormState(),
+                    resultEventBus = resultEventBus,
+                )
                 listenedRequestKeyList.forEach { requestKey ->
                     AddedResultListener(requestKey = requestKey, resultEventBus = resultEventBus) { id -> receivedList += requestKey to id }
                 }

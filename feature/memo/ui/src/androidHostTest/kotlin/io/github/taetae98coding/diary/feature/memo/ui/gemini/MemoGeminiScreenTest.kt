@@ -68,7 +68,7 @@ class MemoGeminiScreenTest {
         composeRule.waitForIdle()
         geminiUiState.value = MemoGeminiUiState(step = MemoGeminiStep.RESULT, draft = createDraft())
         composeRule.waitForIdle()
-        val tagSelection = composeRule.runOnIdle { viewModels.tagViewModel.selection.value }
+        val tagSelection = composeRule.runOnIdle { viewModels.tagViewModel.selectionUiState.value }
 
         listOf(TITLE_LABEL, DESCRIPTION_LABEL, DATE_TIME_LABEL).forEach { label ->
             composeRule.onNodeWithContentDescription("Apply $label").performClick()
@@ -76,11 +76,11 @@ class MemoGeminiScreenTest {
         }
 
         composeRule.runOnIdle {
-            viewModels.tagViewModel.selection.value shouldBe tagSelection
-            viewModels.tagViewModel.selection.value.primaryTagId shouldBe tag.id
-            viewModels.webViewModel.webIdSet.value shouldBe setOf(web.id)
-            viewModels.contactViewModel.contactIdSet.value shouldBe setOf(contact.id)
-            viewModels.placeViewModel.placeIdSet.value shouldBe setOf(place.id)
+            viewModels.tagViewModel.selectionUiState.value shouldBe tagSelection
+            viewModels.tagViewModel.selectionUiState.value.primaryTagId shouldBe tag.id
+            viewModels.webViewModel.selectionUiState.value.webIdSet shouldBe setOf(web.id)
+            viewModels.contactViewModel.selectionUiState.value.contactIdSet shouldBe setOf(contact.id)
+            viewModels.placeViewModel.selectionUiState.value.placeIdSet shouldBe setOf(place.id)
         }
         verify(exactly = 3) { geminiViewModel.markApplied(any()) }
     }

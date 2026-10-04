@@ -31,13 +31,13 @@ internal class ProfileImageEditViewModel(
         if (uiState.value.isInProgress) return
 
         viewModelScope.launch {
-            uiState.update { it.copy(isInProgress = true) }
+            uiState.update { state -> state.copy(isInProgress = true) }
             try {
                 changeProfileImageUseCase(parameter = ChangeProfileImageUseCase.Parameter(uri = uri, cropRegion = cropRegion))
                     .onSuccess { _effect.send(ProfileImageEditEffect.ChangeSucceeded) }
                     .onFailure { _effect.send(ProfileImageEditEffect.ChangeFailed) }
             } finally {
-                uiState.update { it.copy(isInProgress = false) }
+                uiState.update { state -> state.copy(isInProgress = false) }
             }
         }
     }

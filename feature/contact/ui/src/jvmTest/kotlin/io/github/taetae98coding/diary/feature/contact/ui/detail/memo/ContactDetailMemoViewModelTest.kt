@@ -19,6 +19,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.FinishMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageContactMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestartMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -30,7 +31,6 @@ import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
@@ -77,7 +77,7 @@ class ContactDetailMemoViewModelTest : FunSpec() {
                     viewModel.viewModelScope.cancel()
                     advanceUntilIdle()
 
-                    viewModel.sort.value shouldBe sort
+                    viewModel.sortUiState.value shouldBe ListSortUiState(sort = sort)
                     itemList.filterIsInstance<MemoListItem.Content>().map { it.memo } shouldBe listOf(memo)
                     verify(exactly = 1) { pageContactMemoUseCase(parameter = PageContactMemoUseCase.Parameter(contactId = contactId, sort = sort)) }
                 }
@@ -122,24 +122,25 @@ class ContactDetailMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-MEMO-FEATURE-003 연락처별 메모 조회가 성공한 뒤 실패하면 마지막 성공 목록을 유지한다") {
+        test("TC-CONTACT-DETAIL-MEMO-FEATURE-003 연락처별 메모 조회가 성공한 뒤 다시 조회가 실패하면 이전 목록을 남기지 않고 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val contactId = fixtureMonkey.giveMeOne<Uuid>()
                 val memo = memo()
+                val resultFlow = MutableStateFlow<Result<PagingData<Memo>>>(Result.success(PagingData.from(listOf(memo))))
                 val pageContactMemoUseCase = mockk<PageContactMemoUseCase>()
                 every { pageContactMemoUseCase(parameter = PageContactMemoUseCase.Parameter(contactId = contactId, sort = ListSort.DEFAULT)) } returns
-                    flowOf(
-                        Result.success(PagingData.from(listOf(memo))),
-                        Result.failure(IllegalStateException()),
-                    )
+                    resultFlow
                 val viewModel = viewModel(contactId = contactId, pageContactMemoUseCase = pageContactMemoUseCase)
 
                 viewModel.memoPagingData.test {
                     advanceUntilIdle()
-                    val itemList = flowOf(awaitItem()).asSnapshot()
-                    expectNoEvents()
+                    val firstItemList = flowOf(expectMostRecentItem()).asSnapshot()
+                    resultFlow.value = Result.failure(IllegalStateException())
+                    advanceUntilIdle()
+                    val secondItemList = flowOf(expectMostRecentItem()).asSnapshot()
 
-                    itemList.filterIsInstance<MemoListItem.Content>().map { it.memo } shouldBe listOf(memo)
+                    firstItemList.filterIsInstance<MemoListItem.Content>().map { it.memo } shouldBe listOf(memo)
+                    secondItemList shouldBe emptyList()
                 }
                 viewModel.viewModelScope.cancel()
                 advanceUntilIdle()

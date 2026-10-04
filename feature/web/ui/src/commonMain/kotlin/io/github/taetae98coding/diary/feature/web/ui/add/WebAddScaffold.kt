@@ -55,7 +55,7 @@ internal fun WebAddScaffold(
                 isNavigateUpVisibleProvider = { componentVisibleProvider().isNavigateUpButtonVisible },
             )
         },
-        snackbarHost = { SnackbarHost(hostState = state.hostState) },
+        snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },
         floatingActionButton = {
             FloatingAddButton(
                 onClick = { onEvent(WebAddScaffoldEvent.ClickAdd) },

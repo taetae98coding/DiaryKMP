@@ -4,5 +4,5 @@ import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLo
 import kotlin.uuid.Uuid
 
 public interface AccountMemoTagSyncLocalDataSource {
-    public suspend fun findPending(accountId: Uuid): List<MemoTagLocalEntity>
+    public suspend fun readPendingList(accountId: Uuid): List<MemoTagLocalEntity>
 }

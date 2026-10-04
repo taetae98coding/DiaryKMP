@@ -12,10 +12,10 @@ import io.github.taetae98coding.diary.compose.map.DiaryMap
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.rememberDiaryMapState
 import io.github.taetae98coding.diary.compose.place.PlacePinMarkerEffect
+import io.github.taetae98coding.diary.compose.place.previewPlace
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceHomePlaceListUiState
 import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceList
-import io.github.taetae98coding.diary.feature.place.ui.previewPlace
 
 @Composable
 internal fun PlaceHomeContent(

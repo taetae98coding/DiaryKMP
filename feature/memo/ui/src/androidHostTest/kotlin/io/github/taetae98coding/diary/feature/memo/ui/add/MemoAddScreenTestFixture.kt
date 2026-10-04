@@ -24,7 +24,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.contact.contactPagingDataO
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.placePagingDataOf
 import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagInputUiState
-import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagSelection
+import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagSelectionUiState
 import io.github.taetae98coding.diary.feature.memo.ui.tag.tagPagingDataOf
 import io.github.taetae98coding.diary.feature.memo.ui.web.MemoWebInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.web.webPagingDataOf
@@ -78,25 +78,25 @@ internal fun screenTestViewModel(
 
     val tagViewModel = mockk<MemoAddTagViewModel>(relaxed = true)
     every { tagViewModel.uiState } returns MutableStateFlow(MemoTagInputUiState())
-    every { tagViewModel.selection } returns MutableStateFlow(MemoTagSelection())
+    every { tagViewModel.selectionUiState } returns MutableStateFlow(MemoTagSelectionUiState())
     every { tagViewModel.tagPagingData } returns tagPagingData
     every { tagViewModel.selectableTagPagingData } returns tagPagingData
 
     val webViewModel = mockk<MemoAddWebViewModel>(relaxed = true)
     every { webViewModel.uiState } returns MutableStateFlow(MemoWebInputUiState())
-    every { webViewModel.webIdSet } returns MutableStateFlow(emptySet())
+    every { webViewModel.selectionUiState } returns MutableStateFlow(MemoAddWebSelectionUiState())
     every { webViewModel.webPagingData } returns webPagingData
     every { webViewModel.selectableWebPagingData } returns webPagingData
 
     val contactViewModel = mockk<MemoAddContactViewModel>(relaxed = true)
     every { contactViewModel.uiState } returns MutableStateFlow(MemoContactInputUiState())
-    every { contactViewModel.contactIdSet } returns MutableStateFlow(emptySet())
+    every { contactViewModel.selectionUiState } returns MutableStateFlow(MemoAddContactSelectionUiState())
     every { contactViewModel.contactPagingData } returns contactPagingData
     every { contactViewModel.selectableContactPagingData } returns contactPagingData
 
     val placeViewModel = mockk<MemoAddPlaceViewModel>(relaxed = true)
     every { placeViewModel.uiState } returns MutableStateFlow(MemoPlaceInputUiState())
-    every { placeViewModel.placeIdSet } returns MutableStateFlow(emptySet())
+    every { placeViewModel.selectionUiState } returns MutableStateFlow(MemoAddPlaceSelectionUiState())
     every { placeViewModel.placePagingData } returns placePagingData
     every { placeViewModel.selectablePlacePagingData } returns placePagingData
 

@@ -51,7 +51,7 @@ class SettingGeminiViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingGeminiUiState.Loading
-                    awaitItem() shouldBe SettingGeminiUiState.Loaded(setting = setting)
+                    awaitItem() shouldBe SettingGeminiUiState.Content(setting = setting)
                 }
             }
         }
@@ -62,7 +62,7 @@ class SettingGeminiViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingGeminiUiState.Loading
-                    awaitItem() shouldBe SettingGeminiUiState.Loaded(setting = GeminiSetting.EMPTY)
+                    awaitItem() shouldBe SettingGeminiUiState.Content(setting = GeminiSetting.EMPTY)
                 }
             }
         }
@@ -100,7 +100,7 @@ class SettingGeminiViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingGeminiUiState.Loading
-                    awaitItem() shouldBe SettingGeminiUiState.Loaded(setting = GeminiSetting.EMPTY)
+                    awaitItem() shouldBe SettingGeminiUiState.Content(setting = GeminiSetting.EMPTY)
 
                     viewModel.save(setting = target)
                     advanceUntilIdle()
@@ -170,17 +170,17 @@ class SettingGeminiViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingGeminiUiState.Loading
-                    awaitItem() shouldBe SettingGeminiUiState.Loaded(setting = GeminiSetting.EMPTY)
+                    awaitItem() shouldBe SettingGeminiUiState.Content(setting = GeminiSetting.EMPTY)
 
                     viewModel.save(setting = GeminiSetting.EMPTY)
                     advanceUntilIdle()
 
-                    awaitItem() shouldBe SettingGeminiUiState.Loaded(setting = GeminiSetting.EMPTY, isInProgress = true)
+                    awaitItem() shouldBe SettingGeminiUiState.Content(setting = GeminiSetting.EMPTY, isInProgress = true)
 
                     completion.complete(Result.success(Unit))
                     advanceUntilIdle()
 
-                    awaitItem() shouldBe SettingGeminiUiState.Loaded(setting = GeminiSetting.EMPTY, isInProgress = false)
+                    awaitItem() shouldBe SettingGeminiUiState.Content(setting = GeminiSetting.EMPTY, isInProgress = false)
                 }
             }
         }
@@ -198,7 +198,7 @@ class SettingGeminiViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingGeminiUiState.Loading
-                    awaitItem() shouldBe SettingGeminiUiState.Loaded(setting = GeminiSetting.EMPTY)
+                    awaitItem() shouldBe SettingGeminiUiState.Content(setting = GeminiSetting.EMPTY)
 
                     viewModel.save(setting = GeminiSetting.EMPTY)
                     advanceUntilIdle()

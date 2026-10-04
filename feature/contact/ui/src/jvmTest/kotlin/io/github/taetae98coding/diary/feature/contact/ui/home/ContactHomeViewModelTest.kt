@@ -14,6 +14,7 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.domain.contact.usecase.DeleteContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.PageContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.RestoreContactUseCase
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -112,7 +113,7 @@ class ContactHomeViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(pageContactUseCase = pageContactUseCase(contactListFlow = flowOf(Result.success(emptyList()))))
 
-                viewModel.sort.value shouldBe ListSort.NAME
+                viewModel.sortUiState.value shouldBe ListSortUiState(sort = ListSort.NAME)
             }
         }
 
@@ -132,7 +133,7 @@ class ContactHomeViewModelTest : FunSpec() {
                     viewModel.select(sort = ListSort.RECENTLY_UPDATED)
 
                     flowOf(awaitItem()).asSnapshot() shouldBe recentlyUpdatedContactList
-                    viewModel.sort.value shouldBe ListSort.RECENTLY_UPDATED
+                    viewModel.sortUiState.value shouldBe ListSortUiState(sort = ListSort.RECENTLY_UPDATED)
                     cancelAndIgnoreRemainingEvents()
                 }
             }
@@ -214,6 +215,30 @@ class ContactHomeViewModelTest : FunSpec() {
                 viewModel.restore(id = id)
                 advanceUntilIdle()
 
+                coVerify(exactly = 1) { restoreContactUseCase(parameter = id) }
+            }
+        }
+        test("TC-CONTACT-HOME-FEATURE-026 같은 연락처의 삭제나 실행 취소가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val deleteContactUseCase = mockk<DeleteContactUseCase>()
+                coEvery { deleteContactUseCase(parameter = id) } returns Result.success(1)
+                val restoreContactUseCase = mockk<RestoreContactUseCase>()
+                coEvery { restoreContactUseCase(parameter = id) } returns Result.success(1)
+                val viewModel =
+                    viewModel(
+                        pageContactUseCase = pageContactUseCase(contactListFlow = flowOf(Result.success(emptyList()))),
+                        deleteContactUseCase = deleteContactUseCase,
+                        restoreContactUseCase = restoreContactUseCase,
+                    )
+
+                viewModel.delete(id = id)
+                viewModel.delete(id = id)
+                viewModel.restore(id = id)
+                viewModel.restore(id = id)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { deleteContactUseCase(parameter = id) }
                 coVerify(exactly = 1) { restoreContactUseCase(parameter = id) }
             }
         }

@@ -18,6 +18,8 @@ import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.memo.ui.refreshableList
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -45,7 +47,7 @@ class MemoHomeScreenReselectTest {
         val reselectEvent = reselectEvent()
         setMemoHomeScreen(reselectEvent = reselectEvent)
 
-        composeRule.onNodeWithTag(MEMO_HOME_LIST_TEST_TAG).performScrollToIndex(LAST_INDEX)
+        composeRule.refreshableList().performScrollToIndex(LAST_INDEX)
         composeRule.waitForIdle()
         composeRule.onAllNodesWithText(memoTitle(index = 0)).fetchSemanticsNodes().isEmpty() shouldBe true
 
@@ -75,7 +77,7 @@ class MemoHomeScreenReselectTest {
             viewModel = viewModel,
         )
 
-        composeRule.onNodeWithTag(MEMO_HOME_LIST_TEST_TAG).performScrollToIndex(LAST_INDEX)
+        composeRule.refreshableList().performScrollToIndex(LAST_INDEX)
         composeRule.waitForIdle()
 
         reselectEvent.tryEmit(Unit)
@@ -148,7 +150,7 @@ class MemoHomeScreenReselectTest {
                 }
             val viewModel = mockk<MemoHomeViewModel>()
 
-            every { viewModel.sort } returns MutableStateFlow(ListSort.TITLE)
+            every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
             every { viewModel.memoPagingData } returns MutableStateFlow(memoPagingDataOf(itemList = itemList))
             every {
                 viewModel.filterUiState

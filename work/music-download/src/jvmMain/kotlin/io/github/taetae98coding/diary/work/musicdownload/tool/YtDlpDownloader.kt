@@ -5,10 +5,9 @@ import io.github.taetae98coding.diary.work.musicdownload.di.MusicDownloadDispatc
 import io.github.taetae98coding.diary.work.musicdownload.process.CommandRunner
 import io.github.taetae98coding.diary.work.musicdownload.process.SUCCESS_EXIT_CODE
 import io.github.taetae98coding.diary.work.musicdownload.work.MusicFilePath
+import io.github.taetae98coding.diary.work.musicdownload.work.complete
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import kotlinx.io.files.Path
-import kotlinx.io.files.SystemFileSystem
 import org.koin.core.annotation.Factory
 
 @Factory
@@ -51,16 +50,4 @@ internal class YtDlpDownloader(
 
         return withContext(dispatcher) { path.complete(isDownloaded = exitCode == SUCCESS_EXIT_CODE) }
     }
-}
-
-private fun MusicFilePath.complete(isDownloaded: Boolean): Boolean {
-    val downloadingPath = Path(downloading)
-
-    if (isDownloaded && SystemFileSystem.exists(downloadingPath)) {
-        SystemFileSystem.atomicMove(source = downloadingPath, destination = Path(completed))
-        return true
-    }
-
-    SystemFileSystem.delete(path = downloadingPath, mustExist = false)
-    return false
 }

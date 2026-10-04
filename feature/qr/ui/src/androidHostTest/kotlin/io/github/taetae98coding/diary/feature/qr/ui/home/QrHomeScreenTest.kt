@@ -14,6 +14,8 @@ import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TA
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.qr.Qr
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.qr.ui.card.QR_CARD_TEST_TAG
 import io.github.taetae98coding.diary.feature.qr.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
@@ -135,8 +137,8 @@ class QrHomeScreenTest {
         val qrViewModel = mockk<QrHomeViewModel>(relaxed = true)
         every { qrViewModel.qrPagingData } returns pagingDataFlow
         every { qrViewModel.effect } returns emptyFlow()
-        val syncViewModel = mockk<QrHomeSyncViewModel>()
-        every { syncViewModel.uiState } returns MutableStateFlow(QrHomeUiState())
+        val syncViewModel = mockk<SyncRefreshViewModel>()
+        every { syncViewModel.uiState } returns MutableStateFlow(SyncRefreshUiState())
         justRun { syncViewModel.refresh() }
 
         composeRule.setContent {
@@ -155,7 +157,7 @@ class QrHomeScreenTest {
     }
 
     private class Environment(
-        val syncViewModel: QrHomeSyncViewModel,
+        val syncViewModel: SyncRefreshViewModel,
     )
 
     private companion object {

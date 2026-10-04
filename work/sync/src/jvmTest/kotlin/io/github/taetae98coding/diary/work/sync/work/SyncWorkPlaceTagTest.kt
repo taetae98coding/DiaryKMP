@@ -3,7 +3,7 @@ package io.github.taetae98coding.diary.work.sync.work
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.placetag.entity.PlaceTagLocalEntity
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.network.api.placetag.entity.PlaceTagRemoteEntity
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
 import io.github.taetae98coding.diary.work.sync.mapper.toRemote
@@ -134,7 +134,7 @@ class SyncWorkPlaceTagTest :
                 context.subject.doWork()
             }
 
-            coVerify(exactly = 0) { context.placeTagSyncLocalDataSource.findPending(any()) }
+            coVerify(exactly = 0) { context.placeTagSyncLocalDataSource.readPendingList(any()) }
             coVerify(exactly = 0) { context.placeTagRemoteDataSource.push(any()) }
         }
 
@@ -187,7 +187,7 @@ class SyncWorkPlaceTagTest :
             val context = context()
             val firstPullList = placeTagPulls(usnList = listOf(4L, 6L))
             val secondPullList = placeTagPulls(usnList = listOf(9L))
-            coEvery { context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.PLACE_TAG) } returns 2L
+            coEvery { context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.PLACE_TAG) } returns 2L
             coEvery { context.placeTagRemoteDataSource.pull(usn = 2L) } returns firstPullList
             coEvery { context.placeTagRemoteDataSource.pull(usn = 6L) } returns secondPullList
             coEvery { context.placeTagRemoteDataSource.pull(usn = 9L) } returns emptyList()
@@ -195,14 +195,14 @@ class SyncWorkPlaceTagTest :
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.accountPlaceTagSyncTransaction.save(
+                context.accountPlaceTagSyncTransaction.upsert(
                     accountId = context.accountId,
                     placeTagList = firstPullList.map { pull -> pull.placeTag.toLocal() },
                     cursor = 6L,
                 )
             }
             coVerify(exactly = 1) {
-                context.accountPlaceTagSyncTransaction.save(
+                context.accountPlaceTagSyncTransaction.upsert(
                     accountId = context.accountId,
                     placeTagList = secondPullList.map { pull -> pull.placeTag.toLocal() },
                     cursor = 9L,
@@ -271,20 +271,20 @@ class SyncWorkPlaceTagTest :
 
             actual.message shouldBe failure.message
             coVerify(exactly = 1) {
-                context.accountTagSyncTransaction.save(
+                context.accountTagSyncTransaction.upsert(
                     accountId = context.accountId,
                     tagList = tagPullList.map { pull -> pull.tag.toLocal() },
                     cursor = 3L,
                 )
             }
             coVerify(exactly = 1) {
-                context.accountMemoSyncTransaction.save(
+                context.accountMemoSyncTransaction.upsert(
                     accountId = context.accountId,
                     memoList = memoPullList.map { pull -> pull.memo.toLocal() },
                     cursor = 4L,
                 )
             }
-            coVerify(exactly = 0) { context.accountPlaceTagSyncTransaction.save(any(), any(), any()) }
+            coVerify(exactly = 0) { context.accountPlaceTagSyncTransaction.upsert(any(), any(), any()) }
         }
 
         test("TC-DATA-SYNC-DOMAIN-024 실행 시점에 확인된 계정의 장소·태그 연결만 조회한다") {
@@ -292,16 +292,16 @@ class SyncWorkPlaceTagTest :
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val context = context(accountId = accountId)
             coEvery {
-                context.placeTagSyncLocalDataSource.findPending(accountId = otherAccountId)
+                context.placeTagSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             } returns placeTags(size = 1)
 
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.placeTagSyncLocalDataSource.findPending(accountId = accountId)
+                context.placeTagSyncLocalDataSource.readPendingList(accountId = accountId)
             }
             coVerify(exactly = 0) {
-                context.placeTagSyncLocalDataSource.findPending(accountId = otherAccountId)
+                context.placeTagSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             }
             coVerify(exactly = 0) { context.placeTagRemoteDataSource.push(any()) }
         }

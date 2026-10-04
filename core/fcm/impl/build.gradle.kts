@@ -3,11 +3,8 @@
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 plugins {
-    alias(libs.plugins.primitive.kmp)
-    alias(libs.plugins.primitive.android.library)
+    alias(libs.plugins.convention.core.impl)
     alias(libs.plugins.primitive.android.host.test)
-    alias(libs.plugins.primitive.koin)
-    alias(libs.plugins.primitive.kotest)
 }
 
 kotlin {
@@ -18,21 +15,15 @@ kotlin {
     }
 
     swiftPMDependencies {
-        iosMinimumDeploymentTarget.set("26.5")
+        iosMinimumDeploymentTarget.set(libs.versions.iosDeploymentTarget.get())
         swiftPackage(
             url = url("https://github.com/firebase/firebase-ios-sdk.git"),
-            version = exact("12.19.1"),
+            version = exact(libs.versions.firebaseIos.get()),
             products = listOf(product("FirebaseMessaging")),
         )
     }
 
     sourceSets {
-        commonMain {
-            dependencies {
-                implementation(projects.core.fcm.api)
-            }
-        }
-
         iosMain {
             dependencies {
                 implementation(libs.kotlinx.coroutines.core)

@@ -3,7 +3,6 @@ package io.github.taetae98coding.diary.core.datastore.impl
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.Storage
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
-import io.github.taetae98coding.diary.core.datastore.api.setting.entity.GeminiSettingLocalEntity
 import io.github.taetae98coding.diary.core.datastore.impl.di.BrowserSettingDataStore
 import io.github.taetae98coding.diary.core.datastore.impl.di.BrowserSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDispatcher
@@ -50,10 +49,10 @@ public class DataStoreModule {
     @GeminiSettingDataStore
     internal fun providesGeminiSettingDataStore(
         @GeminiSettingStorage
-        storage: Storage<GeminiSettingLocalEntity>,
+        storage: Storage<GeminiSettingData>,
         @DiarySettingDispatcher
         dispatcher: CoroutineDispatcher,
-    ): DataStore<GeminiSettingLocalEntity> = createSettingDataStore(storage = storage, dispatcher = dispatcher, serializer = GeminiSettingSerializer)
+    ): DataStore<GeminiSettingData> = createSettingDataStore(storage = storage, dispatcher = dispatcher, serializer = GeminiSettingSerializer)
 
     @Single
     @BrowserSettingDataStore

@@ -35,8 +35,11 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
+import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntry
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -70,7 +73,7 @@ class TagHomeDestinationReturnTest {
 
     // 필터 선택은 기기에 저장되어 화면을 다시 만들어도 이어지므로, ViewModel이 바뀌어도 같은 저장값을 읽게 한다.
     private val storedFilterUiState =
-        MutableStateFlow(TagHomeScaffoldFilterUiState(isApplied = true))
+        MutableStateFlow(TagHomeScaffoldFilterUiState(isLoaded = true, isApplied = true))
 
     // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로, 앞선 테스트가 남긴 전역 Koin도 시작 전에 정리한다.
     @Before
@@ -91,7 +94,7 @@ class TagHomeDestinationReturnTest {
         composeRule.runOnIdle { tagViewModelList.last().select(sort = ListSort.RECENTLY_UPDATED) }
         composeRule.waitForIdle()
         composeRule.onNodeWithText(RECENTLY_UPDATED_SORT_LABEL).assertIsDisplayed()
-        composeRule.onNodeWithTag(TAG_HOME_LIST_TEST_TAG).performScrollToIndex(tagList.lastIndex)
+        composeRule.refreshableList().performScrollToIndex(tagList.lastIndex)
         composeRule.waitForIdle()
         composeRule.onAllNodesWithText(tagTitle(index = 0)).fetchSemanticsNodes().isEmpty() shouldBe true
 
@@ -115,17 +118,17 @@ class TagHomeDestinationReturnTest {
         val viewModelModule =
             module {
                 factory<TagHomeViewModel> {
-                    val sort = MutableStateFlow(ListSort.TITLE)
+                    val sort = MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
 
                     mockk<TagHomeViewModel>(relaxed = true) {
-                        every { this@mockk.sort } returns sort
-                        every { select(sort = any()) } answers { sort.value = firstArg() }
+                        every { this@mockk.sortUiState } returns sort
+                        every { select(sort = any()) } answers { sort.value = ListSortUiState(sort = firstArg()) }
                         every { tagPagingData } returns MutableStateFlow(tagPagingDataOf(tagList))
                         every { filterUiState } returns storedFilterUiState
                         every { effect } returns emptyFlow()
                     }.also { viewModel -> tagViewModelList += viewModel }
                 }
-                factory<TagHomeSyncViewModel> { screenTestSyncViewModel() }
+                factory<SyncRefreshViewModel> { screenTestSyncViewModel() }
             }
 
         composeRule.setContent {

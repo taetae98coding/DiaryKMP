@@ -4,5 +4,5 @@ import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLoca
 import kotlin.uuid.Uuid
 
 public interface AccountWebTagSyncLocalDataSource {
-    public suspend fun findPending(accountId: Uuid): List<WebTagLocalEntity>
+    public suspend fun readPendingList(accountId: Uuid): List<WebTagLocalEntity>
 }

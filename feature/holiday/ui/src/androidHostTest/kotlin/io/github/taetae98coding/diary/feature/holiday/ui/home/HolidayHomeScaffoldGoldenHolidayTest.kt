@@ -146,7 +146,7 @@ class HolidayHomeScaffoldGoldenHolidayTest {
 
     private fun setGoldenHoliday(optionList: List<GoldenHoliday>) {
         val uiState =
-            HolidayHomeYearUiState.Loaded(
+            HolidayHomeYearUiState.Content(
                 goldenHolidayGroupList = listOf(goldenHolidayGroup(optionList = optionList)),
             )
 

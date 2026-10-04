@@ -7,12 +7,19 @@ import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.getByType
 import java.util.Properties
 
-internal fun Project.library(alias: String): Provider<MinimalExternalModuleDependency> =
+internal fun Project.library(alias: String): Provider<MinimalExternalModuleDependency> = catalogLibrary(catalog = "libs", alias = alias)
+
+internal fun Project.ktorLibrary(alias: String): Provider<MinimalExternalModuleDependency> = catalogLibrary(catalog = "ktorLibs", alias = alias)
+
+private fun Project.catalogLibrary(
+    catalog: String,
+    alias: String,
+): Provider<MinimalExternalModuleDependency> =
     extensions
         .getByType<VersionCatalogsExtension>()
-        .named("libs")
+        .named(catalog)
         .findLibrary(alias)
-        .orElseThrow { IllegalArgumentException("Version catalog library not found: $alias") }
+        .orElseThrow { IllegalArgumentException("Version catalog library not found: $catalog.$alias") }
 
 public fun Project.namespace(): String = "${BuildLogic.NAMESPACE}.${path.removePrefix(":").replace(':', '.').replace('-', '.')}"
 

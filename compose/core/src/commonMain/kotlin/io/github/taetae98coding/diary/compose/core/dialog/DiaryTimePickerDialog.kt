@@ -21,7 +21,7 @@ import kotlinx.datetime.LocalTime
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-public fun DiaryTimePickerDialog(
+internal fun DiaryTimePickerDialog(
     initialTime: LocalTime,
     onDismissRequest: () -> Unit,
     onConfirm: (LocalTime) -> Unit,

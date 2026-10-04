@@ -10,6 +10,8 @@ import io.github.taetae98coding.diary.compose.core.icon.QrIcon
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.qr.ui.Res
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddFormState
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrAddFormState
 import io.github.taetae98coding.diary.feature.qr.ui.qr_add_info_tab_content_description
 import io.github.taetae98coding.diary.feature.qr.ui.qr_add_qr_tab_content_description
 import org.jetbrains.compose.resources.stringResource

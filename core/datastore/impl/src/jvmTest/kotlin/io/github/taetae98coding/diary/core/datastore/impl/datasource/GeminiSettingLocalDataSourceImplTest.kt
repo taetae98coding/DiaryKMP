@@ -5,6 +5,7 @@ import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.GeminiSettingLocalEntity
+import io.github.taetae98coding.diary.core.datastore.impl.GeminiSettingData
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
@@ -23,13 +24,13 @@ private val fixtureMonkey: FixtureMonkey =
 class GeminiSettingLocalDataSourceImplTest :
     FunSpec({
         test("보관된 것이 없으면 비어 있는 설정을 제공한다") {
-            val dataSource = GeminiSettingLocalDataSourceImpl(dataStore = mockDataStore(MutableStateFlow(GeminiSettingLocalEntity())))
+            val dataSource = GeminiSettingLocalDataSourceImpl(dataStore = mockDataStore(MutableStateFlow(GeminiSettingData())))
 
             dataSource.get().first() shouldBe GeminiSettingLocalEntity(apiKey = "", model = "", systemPrompt = "")
         }
 
         test("보관된 설정을 그대로 제공한다") {
-            val stored = fixtureMonkey.giveMeOne<GeminiSettingLocalEntity>()
+            val stored = fixtureMonkey.giveMeOne<GeminiSettingData>()
             val dataSource = GeminiSettingLocalDataSourceImpl(dataStore = mockDataStore(MutableStateFlow(stored)))
 
             dataSource.get().first() shouldBe
@@ -41,7 +42,7 @@ class GeminiSettingLocalDataSourceImplTest :
         }
 
         test("보관된 설정이 바뀌면 바뀐 설정을 이어서 제공한다") {
-            val settingFlow = MutableStateFlow(GeminiSettingLocalEntity())
+            val settingFlow = MutableStateFlow(GeminiSettingData())
             val dataSource = GeminiSettingLocalDataSourceImpl(dataStore = mockDataStore(settingFlow))
             val entity = fixtureMonkey.giveMeOne<GeminiSettingLocalEntity>()
 
@@ -50,12 +51,12 @@ class GeminiSettingLocalDataSourceImplTest :
 
                 dataSource.upsert(setting = entity)
 
-                awaitItem() shouldBe entity
+                awaitItem() shouldBe GeminiSettingLocalEntity(apiKey = entity.apiKey, model = entity.model, systemPrompt = entity.systemPrompt)
             }
         }
 
         test("세 값을 DataStore의 한 번의 갱신으로 저장한다") {
-            val settingFlow = MutableStateFlow(fixtureMonkey.giveMeOne<GeminiSettingLocalEntity>())
+            val settingFlow = MutableStateFlow(fixtureMonkey.giveMeOne<GeminiSettingData>())
             val dataStore = mockDataStore(settingFlow)
             val dataSource = GeminiSettingLocalDataSourceImpl(dataStore = dataStore)
             val entity = fixtureMonkey.giveMeOne<GeminiSettingLocalEntity>()
@@ -64,7 +65,7 @@ class GeminiSettingLocalDataSourceImplTest :
 
             coVerify(exactly = 1) { dataStore.updateData(any()) }
             settingFlow.value shouldBe
-                GeminiSettingLocalEntity(
+                GeminiSettingData(
                     apiKey = entity.apiKey,
                     model = entity.model,
                     systemPrompt = entity.systemPrompt,
@@ -72,18 +73,18 @@ class GeminiSettingLocalDataSourceImplTest :
         }
 
         test("세 값이 모두 비어 있어도 저장한다") {
-            val settingFlow = MutableStateFlow(fixtureMonkey.giveMeOne<GeminiSettingLocalEntity>())
+            val settingFlow = MutableStateFlow(fixtureMonkey.giveMeOne<GeminiSettingData>())
             val dataSource = GeminiSettingLocalDataSourceImpl(dataStore = mockDataStore(settingFlow))
 
             dataSource.upsert(setting = GeminiSettingLocalEntity(apiKey = "", model = "", systemPrompt = ""))
 
-            settingFlow.value shouldBe GeminiSettingLocalEntity()
+            settingFlow.value shouldBe GeminiSettingData()
         }
 
         test("저장에 실패하면 실패를 그대로 알린다") {
             val failure = IllegalStateException("write failed")
             val dataStore =
-                mockk<DataStore<GeminiSettingLocalEntity>> {
+                mockk<DataStore<GeminiSettingData>> {
                     coEvery { updateData(any()) } throws failure
                 }
             val dataSource = GeminiSettingLocalDataSourceImpl(dataStore = dataStore)
@@ -97,11 +98,11 @@ class GeminiSettingLocalDataSourceImplTest :
         }
     })
 
-private fun mockDataStore(settingFlow: MutableStateFlow<GeminiSettingLocalEntity>): DataStore<GeminiSettingLocalEntity> =
-    mockk<DataStore<GeminiSettingLocalEntity>>().also { dataStore ->
+private fun mockDataStore(settingFlow: MutableStateFlow<GeminiSettingData>): DataStore<GeminiSettingData> =
+    mockk<DataStore<GeminiSettingData>>().also { dataStore ->
         every { dataStore.data } returns settingFlow
         coEvery { dataStore.updateData(any()) } coAnswers {
-            val updated = firstArg<suspend (GeminiSettingLocalEntity) -> GeminiSettingLocalEntity>().invoke(settingFlow.value)
+            val updated = firstArg<suspend (GeminiSettingData) -> GeminiSettingData>().invoke(settingFlow.value)
 
             settingFlow.value = updated
             updated

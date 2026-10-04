@@ -144,6 +144,27 @@ class TagHomeFilterViewModelTest : FunSpec() {
                 coVerify(exactly = 1) { disableTopLevelTagFilterUseCase(parameter = Unit) }
             }
         }
+
+        test("최상위 태그만 보기 설정이 진행 중일 때 다시 요청하면 한 번만 실행한다") {
+            runTest(mainDispatcher) {
+                val enableTopLevelTagFilterUseCase = enableTopLevelTagFilterUseCase()
+                val disableTopLevelTagFilterUseCase = disableTopLevelTagFilterUseCase()
+                val viewModel =
+                    viewModel(
+                        enableTopLevelTagFilterUseCase = enableTopLevelTagFilterUseCase,
+                        disableTopLevelTagFilterUseCase = disableTopLevelTagFilterUseCase,
+                    )
+
+                viewModel.enableTopLevelOnly()
+                viewModel.enableTopLevelOnly()
+                viewModel.disableTopLevelOnly()
+                viewModel.disableTopLevelOnly()
+                runCurrent()
+
+                coVerify(exactly = 1) { enableTopLevelTagFilterUseCase(parameter = Unit) }
+                coVerify(exactly = 1) { disableTopLevelTagFilterUseCase(parameter = Unit) }
+            }
+        }
     }
 
     public companion object {

@@ -7,7 +7,7 @@ import io.github.taetae98coding.diary.compose.core.preview.IconPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 
 @Composable
-public fun NavigateUpIcon(
+internal fun NavigateUpIcon(
     modifier: Modifier = Modifier,
     contentDescription: String? = null,
 ) {

@@ -26,8 +26,11 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
+import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
@@ -76,7 +79,7 @@ class TagHomeExecutionBoundaryTest {
             screenTestViewModel(
                 tagList = tagList,
                 sort = ListSort.RECENTLY_UPDATED,
-                filterUiState = TagHomeScaffoldFilterUiState(isApplied = true),
+                filterUiState = TagHomeScaffoldFilterUiState(isLoaded = true, isApplied = true),
             )
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent { Home(viewModel = viewModel) }
@@ -95,7 +98,7 @@ class TagHomeExecutionBoundaryTest {
     @Test
     fun `TC-TAG-HOME-DOMAIN-020 시스템이 앱을 정리한 뒤 다시 만들면 필터 선택은 이어지고 정렬은 처음으로 돌아가며 보던 위치는 다시 보인다`() {
         val tagList = tagList()
-        val filterUiState = TagHomeScaffoldFilterUiState(isApplied = true)
+        val filterUiState = TagHomeScaffoldFilterUiState(isLoaded = true, isApplied = true)
         var nextViewModel = screenTestViewModel(tagList = tagList, sort = ListSort.RECENTLY_UPDATED, filterUiState = filterUiState)
         val restorationTester = StateRestorationTester(composeRule)
         // 시스템이 앱을 정리하면 정렬을 들고 있던 ViewModel도 사라지므로, 복원으로 컴포지션을 다시 만들 때만 새 ViewModel을 받게 한다.
@@ -186,7 +189,7 @@ class TagHomeExecutionBoundaryTest {
     private fun Home(
         viewModel: TagHomeViewModel,
         navigateToDetail: (Uuid) -> Unit = {},
-        syncViewModel: TagHomeSyncViewModel = screenTestSyncViewModel(),
+        syncViewModel: SyncRefreshViewModel = screenTestSyncViewModel(),
     ) {
         DiaryTheme {
             TagHomeScreen(
@@ -205,7 +208,7 @@ class TagHomeExecutionBoundaryTest {
 
     private fun scrollList() {
         composeRule.waitForIdle()
-        composeRule.onNodeWithTag(TAG_HOME_LIST_TEST_TAG).performScrollToIndex(SCROLLED_INDEX)
+        composeRule.refreshableList().performScrollToIndex(SCROLLED_INDEX)
         composeRule.waitForIdle()
     }
 
@@ -217,10 +220,10 @@ class TagHomeExecutionBoundaryTest {
     private fun screenTestViewModel(
         tagList: List<Tag>,
         sort: ListSort = ListSort.TITLE,
-        filterUiState: TagHomeScaffoldFilterUiState = TagHomeScaffoldFilterUiState(),
+        filterUiState: TagHomeScaffoldFilterUiState = TagHomeScaffoldFilterUiState(isLoaded = true),
     ): TagHomeViewModel {
         val viewModel = mockk<TagHomeViewModel>(relaxed = true)
-        every { viewModel.sort } returns MutableStateFlow(sort)
+        every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = sort))
         every { viewModel.tagPagingData } returns MutableStateFlow(tagPagingDataOf(tagList))
         every { viewModel.effect } returns emptyFlow()
         every { viewModel.filterUiState } returns MutableStateFlow(filterUiState)

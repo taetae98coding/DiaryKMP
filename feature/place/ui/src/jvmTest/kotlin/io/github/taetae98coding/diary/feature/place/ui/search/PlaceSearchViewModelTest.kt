@@ -56,7 +56,7 @@ class PlaceSearchViewModelTest : FunSpec() {
                     viewModel.search(request = request)
                     advanceUntilIdle()
 
-                    awaitItem() shouldBe PlaceSearchUiState.Loaded(placeList = placeList)
+                    awaitItem() shouldBe PlaceSearchUiState.Content(placeList = placeList)
                     expectNoEvents()
                 }
             }
@@ -95,7 +95,7 @@ class PlaceSearchViewModelTest : FunSpec() {
 
                     viewModel.search(request = request)
                     advanceUntilIdle()
-                    awaitItem() shouldBe PlaceSearchUiState.Loaded(placeList = placeList)
+                    awaitItem() shouldBe PlaceSearchUiState.Content(placeList = placeList)
 
                     viewModel.clear()
                     advanceUntilIdle()
@@ -123,7 +123,7 @@ class PlaceSearchViewModelTest : FunSpec() {
 
                     viewModel.search(request = firstRequest)
                     advanceUntilIdle()
-                    awaitItem() shouldBe PlaceSearchUiState.Loaded(placeList = firstList)
+                    awaitItem() shouldBe PlaceSearchUiState.Content(placeList = firstList)
 
                     viewModel.search(request = secondRequest)
                     runCurrent()
@@ -133,7 +133,7 @@ class PlaceSearchViewModelTest : FunSpec() {
                     completion.complete(Result.success(secondList))
                     advanceUntilIdle()
 
-                    awaitItem() shouldBe PlaceSearchUiState.Loaded(placeList = secondList)
+                    awaitItem() shouldBe PlaceSearchUiState.Content(placeList = secondList)
                 }
             }
         }
@@ -158,7 +158,7 @@ class PlaceSearchViewModelTest : FunSpec() {
                     viewModel.search(request = secondRequest)
                     advanceUntilIdle()
 
-                    awaitItem() shouldBe PlaceSearchUiState.Loaded(placeList = latestList)
+                    awaitItem() shouldBe PlaceSearchUiState.Content(placeList = latestList)
 
                     lateCompletion.complete(Result.success(lateList))
                     advanceUntilIdle()
@@ -185,7 +185,7 @@ class PlaceSearchViewModelTest : FunSpec() {
 
                     viewModel.search(request = naverRequest)
                     advanceUntilIdle()
-                    awaitItem() shouldBe PlaceSearchUiState.Loaded(placeList = naverList)
+                    awaitItem() shouldBe PlaceSearchUiState.Content(placeList = naverList)
 
                     viewModel.search(request = googleRequest)
                     runCurrent()
@@ -195,7 +195,7 @@ class PlaceSearchViewModelTest : FunSpec() {
                     completion.complete(Result.success(googleList))
                     advanceUntilIdle()
 
-                    awaitItem() shouldBe PlaceSearchUiState.Loaded(placeList = googleList)
+                    awaitItem() shouldBe PlaceSearchUiState.Content(placeList = googleList)
                 }
             }
         }
@@ -222,7 +222,7 @@ class PlaceSearchViewModelTest : FunSpec() {
                     advanceUntilIdle()
 
                     awaitItem() shouldBe PlaceSearchUiState.Idle
-                    awaitItem() shouldBe PlaceSearchUiState.Loaded(placeList = googleList)
+                    awaitItem() shouldBe PlaceSearchUiState.Content(placeList = googleList)
                 }
             }
         }
@@ -243,7 +243,7 @@ class PlaceSearchViewModelTest : FunSpec() {
 
                     viewModel.search(request = firstRequest)
                     advanceUntilIdle()
-                    awaitItem() shouldBe PlaceSearchUiState.Loaded(placeList = firstList)
+                    awaitItem() shouldBe PlaceSearchUiState.Content(placeList = firstList)
 
                     viewModel.search(request = secondRequest)
                     runCurrent()
@@ -293,14 +293,14 @@ class PlaceSearchViewModelTest : FunSpec() {
                     viewModel.search(request = request)
                     advanceUntilIdle()
 
-                    awaitItem() shouldBe PlaceSearchUiState.Loaded(placeList = placeList)
+                    awaitItem() shouldBe PlaceSearchUiState.Content(placeList = placeList)
                 }
 
                 // 화면이 백그라운드에 있는 동안 상태 구독이 끊기는 시간보다 오래 머문다.
                 advanceTimeBy(BACKGROUND_DURATION)
 
                 viewModel.uiState.test {
-                    awaitItem() shouldBe PlaceSearchUiState.Loaded(placeList = placeList)
+                    awaitItem() shouldBe PlaceSearchUiState.Content(placeList = placeList)
                     advanceUntilIdle()
                     expectNoEvents()
                 }
@@ -322,7 +322,7 @@ class PlaceSearchViewModelTest : FunSpec() {
                     viewModel.search(request = request)
                     advanceUntilIdle()
 
-                    awaitItem() shouldBe PlaceSearchUiState.Loaded(placeList = emptyList())
+                    awaitItem() shouldBe PlaceSearchUiState.Content(placeList = emptyList())
                 }
 
                 coVerify(exactly = 1) {

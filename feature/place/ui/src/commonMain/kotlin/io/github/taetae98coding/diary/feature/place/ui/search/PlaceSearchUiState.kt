@@ -5,7 +5,7 @@ import io.github.taetae98coding.diary.core.model.place.SearchedPlace
 internal sealed interface PlaceSearchUiState {
     data object Idle : PlaceSearchUiState
 
-    data class Loaded(
+    data class Content(
         val placeList: List<SearchedPlace> = emptyList(),
     ) : PlaceSearchUiState
 

@@ -21,10 +21,11 @@ import com.navercorp.fixturemonkey.kotlin.setExp
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
-import io.github.taetae98coding.diary.compose.memo.list.MemoListUiState
 import io.github.taetae98coding.diary.compose.memo.list.rememberMemoListState
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.memo.ui.refreshableList
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,7 +50,7 @@ class MemoHomeScaffoldRefreshTest {
             onMemoListEvent = { event -> eventList += event },
         )
 
-        composeRule.onNodeWithTag(MEMO_HOME_LIST_TEST_TAG).performTouchInput { swipeDown() }
+        composeRule.refreshableList().performTouchInput { swipeDown() }
         composeRule.waitForIdle()
 
         eventList shouldBe listOf(MemoListEvent.Refresh)
@@ -57,7 +58,7 @@ class MemoHomeScaffoldRefreshTest {
 
     @Test
     fun `TC-SYNC-REFRESH-FEATURE-002 진행 표시 상태이면 진행 표시가 나타난다`() {
-        setMemoHomeScaffold(memoListUiStateProvider = { MemoListUiState(isRefreshing = true) })
+        setMemoHomeScaffold(syncUiStateProvider = { SyncRefreshUiState(isRefreshing = true) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
     }
@@ -65,14 +66,14 @@ class MemoHomeScaffoldRefreshTest {
     @Test
     @Config(qualifiers = "ko-rKR-w411dp-h891dp")
     fun `TC-SYNC-REFRESH-FEATURE-002 한국어 환경에서 진행 표시에 새로고침 중 이름을 제공한다`() {
-        setMemoHomeScaffold(memoListUiStateProvider = { MemoListUiState(isRefreshing = true) })
+        setMemoHomeScaffold(syncUiStateProvider = { SyncRefreshUiState(isRefreshing = true) })
 
         composeRule.onNodeWithContentDescription(KOREAN_REFRESHING_DESCRIPTION).assertExists()
     }
 
     @Test
     fun `TC-SYNC-REFRESH-FEATURE-004 진행 표시 상태가 아니면 진행 표시가 나타나지 않는다`() {
-        setMemoHomeScaffold(memoListUiStateProvider = { MemoListUiState(isRefreshing = false) })
+        setMemoHomeScaffold(syncUiStateProvider = { SyncRefreshUiState(isRefreshing = false) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertDoesNotExist()
     }
@@ -83,7 +84,7 @@ class MemoHomeScaffoldRefreshTest {
         val snackbarHostState = SnackbarHostState()
         setMemoHomeScaffold(
             itemList = listOf(MemoListItem.Content(memo = memo(title = FIRST_TITLE))),
-            memoListUiStateProvider = { MemoListUiState(isRefreshing = isRefreshing.value) },
+            syncUiStateProvider = { SyncRefreshUiState(isRefreshing = isRefreshing.value) },
             snackbarHostState = snackbarHostState,
         )
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
@@ -103,7 +104,7 @@ class MemoHomeScaffoldRefreshTest {
         val memo = memo(title = FIRST_TITLE)
         setMemoHomeScaffold(
             itemList = listOf(MemoListItem.Content(memo = memo)),
-            memoListUiStateProvider = { MemoListUiState(isRefreshing = true) },
+            syncUiStateProvider = { SyncRefreshUiState(isRefreshing = true) },
             onMemoListEvent = { event -> eventList += event },
         )
 
@@ -120,7 +121,7 @@ class MemoHomeScaffoldRefreshTest {
         val deleteMemo = memo(title = SECOND_TITLE)
         setMemoHomeScaffold(
             itemList = listOf(MemoListItem.Content(memo = finishMemo), MemoListItem.Content(memo = deleteMemo)),
-            memoListUiStateProvider = { MemoListUiState(isRefreshing = true) },
+            syncUiStateProvider = { SyncRefreshUiState(isRefreshing = true) },
             onMemoListEvent = { event -> eventList += event },
         )
 
@@ -138,7 +139,7 @@ class MemoHomeScaffoldRefreshTest {
 
     private fun setMemoHomeScaffold(
         itemList: List<MemoListItem> = emptyList(),
-        memoListUiStateProvider: () -> MemoListUiState = { MemoListUiState() },
+        syncUiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
         onMemoListEvent: (MemoListEvent) -> Unit = {},
         snackbarHostState: SnackbarHostState? = null,
     ) {
@@ -152,7 +153,7 @@ class MemoHomeScaffoldRefreshTest {
                     memoPagingItems = memoPagingData.collectAsLazyPagingItems(),
                     onEvent = {},
                     onMemoListEvent = onMemoListEvent,
-                    memoListUiStateProvider = memoListUiStateProvider,
+                    syncUiStateProvider = syncUiStateProvider,
                 )
             }
         }

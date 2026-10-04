@@ -16,7 +16,7 @@ public interface AccountMemoContactLocalDataSource {
         query: String,
     ): PagingSource<Int, ContactLocalEntity>
 
-    public suspend fun findContactIdList(
+    public suspend fun readContactIdList(
         accountId: Uuid,
         memoId: Uuid,
     ): List<Uuid>

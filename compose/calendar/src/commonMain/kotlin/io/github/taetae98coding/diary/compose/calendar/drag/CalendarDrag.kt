@@ -13,7 +13,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.YearMonth
 
-public fun Modifier.calendarDrag(
+internal fun Modifier.calendarDrag(
     state: CalendarState,
     onSelect: (LocalDateRange) -> Unit,
 ): Modifier = this then CalendarDragElement(state = state, onSelect = onSelect)

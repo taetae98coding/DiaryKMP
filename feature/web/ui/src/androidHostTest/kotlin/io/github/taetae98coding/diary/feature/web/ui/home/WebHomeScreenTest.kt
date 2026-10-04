@@ -14,6 +14,9 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.web.WEB_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.web.Web
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.justRun
@@ -101,7 +104,7 @@ class WebHomeScreenTest {
 
     @Test
     fun `TC-WEB-HOME-FEATURE-015 동기화가 진행 중이면 진행 표시가 나타난다`() {
-        setWebHomeScreen(syncViewModel = syncViewModel(uiState = WebHomeUiState(isRefreshing = true)))
+        setWebHomeScreen(syncViewModel = syncViewModel(uiState = SyncRefreshUiState(isRefreshing = true)))
 
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
     }
@@ -113,10 +116,10 @@ class WebHomeScreenTest {
         navigateToAdd: () -> Unit = {},
         navigateToDetail: (Uuid) -> Unit = {},
         componentVisible: WebHomeScaffoldComponentVisible = WebHomeScaffoldComponentVisible(),
-        syncViewModel: WebHomeSyncViewModel = syncViewModel(),
+        syncViewModel: SyncRefreshViewModel = syncViewModel(),
     ) {
         val webViewModel = mockk<WebHomeViewModel>()
-        every { webViewModel.sort } returns MutableStateFlow(ListSort.TITLE)
+        every { webViewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
         every { webViewModel.webPagingData } returns MutableStateFlow(webPagingDataOf(webList))
         every { webViewModel.effect } returns emptyFlow()
 
@@ -143,8 +146,8 @@ class WebHomeScreenTest {
         private const val DEFAULT_SEARCH_BUTTON_DESCRIPTION = "Search"
         private const val DEFAULT_REFRESHING_DESCRIPTION = "Refreshing"
 
-        private fun syncViewModel(uiState: WebHomeUiState = WebHomeUiState()): WebHomeSyncViewModel {
-            val viewModel = mockk<WebHomeSyncViewModel>()
+        private fun syncViewModel(uiState: SyncRefreshUiState = SyncRefreshUiState()): SyncRefreshViewModel {
+            val viewModel = mockk<SyncRefreshViewModel>()
             every { viewModel.uiState } returns MutableStateFlow(uiState)
             justRun { viewModel.refresh() }
 

@@ -138,26 +138,3 @@ private fun EntryProviderScope<ScreenNavKey>.settingDownloadEntry(backStack: Nav
         )
     }
 }
-
-private val settingDetailNavKeySet: Set<ScreenNavKey> =
-    setOf(SettingHolidayNavKey, SettingMapNavKey, SettingGeminiNavKey, SettingBrowserNavKey, SettingDownloadNavKey)
-
-internal fun NavBackStack<ScreenNavKey>.navigateToSettingDetail(destination: ScreenNavKey) {
-    require(destination in settingDetailNavKeySet)
-    if (lastOrNull() == destination) return
-
-    if (lastOrNull() in settingDetailNavKeySet) {
-        removeLastOrNull()
-    }
-
-    add(destination)
-}
-
-internal fun NavBackStack<ScreenNavKey>.navigateUpFromSettingHome() {
-    val settingHomeIndex = indexOfLast { key -> key == SettingHomeNavKey }
-    if (settingHomeIndex < 0) return
-
-    repeat(size - settingHomeIndex) {
-        removeLastOrNull()
-    }
-}
