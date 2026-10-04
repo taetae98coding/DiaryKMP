@@ -10,5 +10,5 @@ import kotlin.uuid.Uuid
 internal class AccountTagSyncLocalDataSourceImpl(
     private val database: DiaryDatabase,
 ) : AccountTagSyncLocalDataSource {
-    override suspend fun findPending(accountId: Uuid): List<TagLocalEntity> = database.accountTagSyncDao().findPending(accountId = accountId)
+    override suspend fun readPendingList(accountId: Uuid): List<TagLocalEntity> = database.accountTagSyncDao().findPending(accountId = accountId)
 }

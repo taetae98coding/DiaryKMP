@@ -75,7 +75,7 @@ class PlaceAddFormEffectTest {
         }
         composeRule.runOnIdle {
             state()
-                .hostState.currentSnackbarData
+                .snackbarHostState.currentSnackbarData
                 ?.visuals
                 ?.message shouldBe DEFAULT_ADD_SUCCEEDED_MESSAGE
         }
@@ -155,7 +155,7 @@ class PlaceAddFormEffectTest {
                         initialCoordinate = fixtureMonkey.mapCoordinateInFormPrecision(),
                     )
                 ReflectCoordinateEffect(state = state)
-                AddEffect(addedResultRequestKey = null, effect = effect, scaffoldState = state)
+                PlaceAddScreenEffect(addedResultRequestKey = null, effect = effect, scaffoldState = state)
             }
         }
         composeRule.waitForIdle()

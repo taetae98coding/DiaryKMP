@@ -37,55 +37,55 @@ class SubmitFcmTokenEffectTest {
 
     @Test
     fun `TC-FCM-TOKEN-DOMAIN-005 앱이 시작되어 계정이 확인되면 토큰 제출을 요청한다`() {
-        val submit = mockk<() -> Unit>(relaxed = true)
+        val submit = mockk<(Account) -> Unit>(relaxed = true)
         setSubmitFcmTokenEffect(MutableStateFlow<AppFcmTokenUiState>(AppFcmTokenUiState.Confirmed(account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true))), submit)
 
         composeRule.runOnIdle {
-            verify(exactly = 1) { submit() }
+            verify(exactly = 1) { submit(any()) }
         }
     }
 
     @Test
     fun `TC-FCM-TOKEN-DOMAIN-005 앱이 다시 화면에 보이게 되면 토큰 제출을 다시 요청한다`() {
-        val submit = mockk<() -> Unit>(relaxed = true)
+        val submit = mockk<(Account) -> Unit>(relaxed = true)
         val lifecycleOwner = setSubmitFcmTokenEffect(MutableStateFlow<AppFcmTokenUiState>(AppFcmTokenUiState.Confirmed(account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true))), submit)
 
         composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
         composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.STARTED }
 
         composeRule.runOnIdle {
-            verify(exactly = 2) { submit() }
+            verify(exactly = 2) { submit(any()) }
         }
     }
 
     @Test
     fun `앱이 화면에서 보이지 않는 동안에는 토큰 제출을 요청하지 않는다`() {
         val uiStateFlow = MutableStateFlow<AppFcmTokenUiState>(AppFcmTokenUiState.Confirmed(account = Account.Guest))
-        val submit = mockk<() -> Unit>(relaxed = true)
+        val submit = mockk<(Account) -> Unit>(relaxed = true)
         setSubmitFcmTokenEffect(uiStateFlow, submit, initialState = Lifecycle.State.CREATED)
 
         composeRule.runOnIdle { uiStateFlow.value = AppFcmTokenUiState.Confirmed(account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)) }
 
         composeRule.runOnIdle {
-            verify(exactly = 0) { submit() }
+            verify(exactly = 0) { submit(any()) }
         }
     }
 
     @Test
     fun `TC-FCM-TOKEN-DOMAIN-028 백그라운드에 있는 동안 바뀐 계정은 다시 활성 상태가 될 때 한 번 제출한다`() {
         val uiStateFlow = MutableStateFlow<AppFcmTokenUiState>(AppFcmTokenUiState.Confirmed(account = Account.Guest))
-        val submit = mockk<() -> Unit>(relaxed = true)
+        val submit = mockk<(Account) -> Unit>(relaxed = true)
         val lifecycleOwner = setSubmitFcmTokenEffect(uiStateFlow, submit, initialState = Lifecycle.State.CREATED)
 
         composeRule.runOnIdle { uiStateFlow.value = AppFcmTokenUiState.Confirmed(account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)) }
         composeRule.runOnIdle { uiStateFlow.value = AppFcmTokenUiState.Confirmed(account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)) }
         composeRule.runOnIdle {
-            verify(exactly = 0) { submit() }
+            verify(exactly = 0) { submit(any()) }
             lifecycleOwner.currentState = Lifecycle.State.STARTED
         }
 
         composeRule.runOnIdle {
-            verify(exactly = 1) { submit() }
+            verify(exactly = 1) { submit(any()) }
         }
     }
 
@@ -125,17 +125,17 @@ class SubmitFcmTokenEffectTest {
 
     @Test
     fun `앱이 화면에 보이더라도 계정이 확인되기 전에는 토큰 제출을 요청하지 않는다`() {
-        val submit = mockk<() -> Unit>(relaxed = true)
+        val submit = mockk<(Account) -> Unit>(relaxed = true)
         setSubmitFcmTokenEffect(MutableStateFlow<AppFcmTokenUiState>(AppFcmTokenUiState.Loading), submit)
 
         composeRule.runOnIdle {
-            verify(exactly = 0) { submit() }
+            verify(exactly = 0) { submit(any()) }
         }
     }
 
     private fun setSubmitFcmTokenEffect(
         uiStateFlow: MutableStateFlow<AppFcmTokenUiState>,
-        submit: () -> Unit,
+        submit: (Account) -> Unit,
         initialState: Lifecycle.State = Lifecycle.State.STARTED,
     ): TestLifecycleOwner {
         val lifecycleOwner = TestLifecycleOwner(initialState)

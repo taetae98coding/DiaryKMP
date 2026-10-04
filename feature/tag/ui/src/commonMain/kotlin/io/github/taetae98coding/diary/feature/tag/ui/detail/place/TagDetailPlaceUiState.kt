@@ -7,7 +7,7 @@ import kotlin.uuid.Uuid
 internal sealed interface TagDetailPlaceUiState {
     data object Loading : TagDetailPlaceUiState
 
-    data class Loaded(
+    data class Content(
         val defaultProvider: MapProvider,
         val initialCoordinate: Coordinate?,
         val currentLocationFetchId: Uuid,

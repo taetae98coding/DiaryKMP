@@ -33,15 +33,22 @@ import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTabEvent
+import io.github.taetae98coding.diary.feature.place.ui.Res
 import io.github.taetae98coding.diary.feature.place.ui.detail.allDayMemoDateTime
 import io.github.taetae98coding.diary.feature.place.ui.detail.placeMemo
 import io.github.taetae98coding.diary.feature.place.ui.detail.placeMemoPagingData
+import io.github.taetae98coding.diary.feature.place.ui.place_detail_memo_empty_description
+import io.github.taetae98coding.diary.feature.place.ui.place_detail_memo_empty_title
+import io.github.taetae98coding.diary.feature.place.ui.refreshableList
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.ints.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
+import org.jetbrains.compose.resources.stringResource
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -64,13 +71,13 @@ class PlaceDetailMemoTabTest {
 
     @Test
     fun `TC-PLACE-DETAIL-MEMO-FEATURE-024 정렬 컨트롤을 누르면 정렬 선택 요청을 전달한다`() {
-        val eventList = mutableListOf<PlaceDetailMemoContentEvent>()
+        val eventList = mutableListOf<EntityDetailMemoTabEvent>()
         setMemoTab(pagingData = placeMemoPagingData(itemList = listOf(MemoListItem.Content(memo = placeMemo(title = SORT_MEMO_TITLE)))), onEvent = eventList::add)
         waitUntilMemoIsDisplayed(title = SORT_MEMO_TITLE)
 
         composeRule.onNodeWithText(DEFAULT_SORT_LABEL).performClick()
 
-        eventList.shouldContainExactly(PlaceDetailMemoContentEvent.ClickSort)
+        eventList.shouldContainExactly(EntityDetailMemoTabEvent.ClickSort)
     }
 
     @Test
@@ -245,7 +252,9 @@ class PlaceDetailMemoTabTest {
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
             DiaryTheme {
-                PlaceDetailMemoTab(
+                EntityDetailMemoTab(
+                    emptyTitle = stringResource(Res.string.place_detail_memo_empty_title),
+                    emptyDescription = stringResource(Res.string.place_detail_memo_empty_description),
                     onEvent = {},
                     onMemoListEvent = {},
                     modifier = Modifier.fillMaxSize(),
@@ -254,7 +263,7 @@ class PlaceDetailMemoTabTest {
             }
         }
         waitUntilMemoIsDisplayed(title = titleList.first())
-        composeRule.onNodeWithTag(PLACE_DETAIL_MEMO_LIST_TEST_TAG).performScrollToNode(hasText(titleList.last()))
+        composeRule.refreshableList().performScrollToNode(hasText(titleList.last()))
         composeRule.waitForIdle()
         composeRule.onNodeWithText(titleList.last()).assertIsDisplayed()
 
@@ -281,7 +290,7 @@ class PlaceDetailMemoTabTest {
         label: String,
         sort: ListSort,
     ) {
-        val eventList = mutableListOf<PlaceDetailMemoContentEvent>()
+        val eventList = mutableListOf<EntityDetailMemoTabEvent>()
         val sortSheetState = DialogState(isVisible = true)
         setMemoTab(
             pagingData = placeMemoPagingData(itemList = listOf(MemoListItem.Content(memo = placeMemo(title = SORT_MEMO_TITLE)))),
@@ -292,13 +301,13 @@ class PlaceDetailMemoTabTest {
         composeRule.onNodeWithText(label).performClick()
         composeRule.waitForIdle()
 
-        eventList.shouldContainExactly(PlaceDetailMemoContentEvent.SelectSort(sort = sort))
+        eventList.shouldContainExactly(EntityDetailMemoTabEvent.SelectSort(sort = sort))
         sortSheetState.isVisible shouldBe false
     }
 
     private fun setMemoTab(
         pagingData: PagingData<MemoListItem> = PagingData.empty(),
-        onEvent: (PlaceDetailMemoContentEvent) -> Unit = {},
+        onEvent: (EntityDetailMemoTabEvent) -> Unit = {},
         onMemoListEvent: (MemoListEvent) -> Unit = {},
         sort: ListSort = ListSort.DEFAULT,
         sortSheetState: DialogState = DialogState(),
@@ -307,7 +316,9 @@ class PlaceDetailMemoTabTest {
 
         composeRule.setContent {
             DiaryTheme {
-                PlaceDetailMemoTab(
+                EntityDetailMemoTab(
+                    emptyTitle = stringResource(Res.string.place_detail_memo_empty_title),
+                    emptyDescription = stringResource(Res.string.place_detail_memo_empty_description),
                     onEvent = onEvent,
                     onMemoListEvent = onMemoListEvent,
                     modifier = Modifier.fillMaxSize(),

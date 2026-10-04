@@ -306,7 +306,7 @@ class SettingListDetailNavigationTest {
         module {
             factory<SettingHomeViewModel> {
                 mockk(relaxed = true) {
-                    every { uiState } returns MutableStateFlow(SettingHomeUiState.Loaded(itemList = settingHomeItemList))
+                    every { uiState } returns MutableStateFlow(SettingHomeUiState.Content(itemList = settingHomeItemList))
                 }
             }
             factory<SettingHolidayViewModel> {
@@ -339,7 +339,7 @@ class SettingListDetailNavigationTest {
             }
             factory<SettingMapViewModel> {
                 mockk(relaxed = true) {
-                    every { uiState } returns MutableStateFlow(SettingMapUiState.Loaded(defaultProvider = MapProvider.NAVER))
+                    every { uiState } returns MutableStateFlow(SettingMapUiState.Content(defaultProvider = MapProvider.NAVER))
                 }
             }
         }

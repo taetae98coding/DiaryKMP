@@ -1,26 +1,26 @@
 package io.github.taetae98coding.diary.domain.sync.usecase
 
+import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.core.UseCase
-import io.github.taetae98coding.diary.domain.sync.AccountSyncDataRepository
-import io.github.taetae98coding.diary.domain.sync.AccountSyncTimeRepository
 import io.github.taetae98coding.diary.domain.sync.SYNC_RESET_THRESHOLD
+import io.github.taetae98coding.diary.domain.sync.repository.AccountSyncDataRepository
+import io.github.taetae98coding.diary.domain.sync.repository.AccountSyncTimeRepository
 import org.koin.core.annotation.Factory
 import kotlin.time.Clock
-import kotlin.uuid.Uuid
 
 @Factory
 public class PrepareSyncUseCase internal constructor(
     private val accountSyncTimeRepository: AccountSyncTimeRepository,
     private val accountSyncDataRepository: AccountSyncDataRepository,
     private val clock: Clock,
-) : UseCase<Uuid, Unit>() {
-    override suspend fun execute(parameter: Uuid) {
+) : UseCase<Account, Unit>() {
+    override suspend fun execute(parameter: Account) {
         val now = clock.now()
-        val syncedAt = accountSyncTimeRepository.find(accountId = parameter) ?: return
+        val syncedAt = accountSyncTimeRepository.read(account = parameter) ?: return
 
         if (now - syncedAt < SYNC_RESET_THRESHOLD) return
 
-        accountSyncDataRepository.delete(accountId = parameter)
-        accountSyncTimeRepository.upsert(accountId = parameter, syncedAt = now)
+        accountSyncDataRepository.delete(account = parameter)
+        accountSyncTimeRepository.upsert(account = parameter, syncedAt = now)
     }
 }

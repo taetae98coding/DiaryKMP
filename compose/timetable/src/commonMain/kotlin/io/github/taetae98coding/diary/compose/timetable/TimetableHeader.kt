@@ -40,7 +40,7 @@ internal fun TimetableHeader(
     dateRange: LocalDateRange,
     modifier: Modifier = Modifier,
     type: TimetableType = TimetableType.DAY,
-    selectState: TimetableSelectState = remember { TimetableSelectState() },
+    selectState: TimetableSelectState = rememberTimetableSelectState(),
     nowProvider: () -> LocalDateTime? = { null },
     holidayProvider: () -> List<LocalDateRange> = { emptyList() },
     colors: CalendarColor = CalendarDefaults.colors(),

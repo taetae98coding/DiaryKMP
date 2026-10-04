@@ -112,7 +112,7 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
                 advanceUntilIdle()
 
                 memoAdd.assertOnlyTargetSelected(key = key)
-                memoAdd.place.placeIdSet.value shouldBe setOf(target.id)
+                memoAdd.place.selectionUiState.value.placeIdSet shouldBe setOf(target.id)
             }
         }
 
@@ -184,7 +184,7 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
                 advanceUntilIdle()
 
                 memoAdd.assertOnlyTargetSelected(key = key)
-                memoAdd.web.webIdSet.value shouldBe setOf(target.id)
+                memoAdd.web.selectionUiState.value.webIdSet shouldBe setOf(target.id)
             }
         }
 
@@ -256,7 +256,7 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
                 advanceUntilIdle()
 
                 memoAdd.assertOnlyTargetSelected(key = key)
-                memoAdd.contact.contactIdSet.value shouldBe setOf(target.id)
+                memoAdd.contact.selectionUiState.value.contactIdSet shouldBe setOf(target.id)
             }
         }
 
@@ -357,10 +357,10 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
         fun save() {
             add.add(
                 detail = fixtureMonkey.giveMeOne<MemoDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}"),
-                tagSelection = tag.selection.value,
-                webIdSet = web.webIdSet.value,
-                contactIdSet = contact.contactIdSet.value,
-                placeIdSet = place.placeIdSet.value,
+                tagSelection = tag.selectionUiState.value,
+                webIdSet = web.selectionUiState.value.webIdSet,
+                contactIdSet = contact.selectionUiState.value.contactIdSet,
+                placeIdSet = place.selectionUiState.value.placeIdSet,
             )
         }
 
@@ -369,10 +369,10 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
                 .shouldBeEmpty()
             tag.uiState.value.primaryTagId
                 .shouldBeNull()
-            tag.selection.value.tagIdSet
+            tag.selectionUiState.value.tagIdSet
                 .shouldBeEmpty()
             key.initialDateRange.shouldBeNull()
-            listOf(place.placeIdSet.value, web.webIdSet.value, contact.contactIdSet.value).sumOf { idSet -> idSet.size } shouldBe 1
+            listOf(place.selectionUiState.value.placeIdSet, web.selectionUiState.value.webIdSet, contact.selectionUiState.value.contactIdSet).sumOf { idSet -> idSet.size } shouldBe 1
         }
     }
 

@@ -2,7 +2,7 @@ package io.github.taetae98coding.diary.data.weather.usecase
 
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.core.ipnetwork.api.datasource.IpRemoteDataSource
+import io.github.taetae98coding.diary.core.ip.network.api.datasource.IpRemoteDataSource
 import io.github.taetae98coding.diary.core.location.api.LocationProvider
 import io.github.taetae98coding.diary.core.weather.network.api.datasource.WeatherRemoteDataSource
 import io.github.taetae98coding.diary.data.weather.WeatherDataTestKoinApplication

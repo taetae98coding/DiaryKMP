@@ -1,7 +1,5 @@
 package io.github.taetae98coding.diary.compose.core.layout
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,16 +13,11 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-
-public const val DIARY_REFRESHABLE_STAGGERED_GRID_TEST_TAG: String = "DiaryRefreshableStaggeredGrid"
-
-private const val COLUMN_COUNT = 2
 
 @Composable
 public fun DiaryRefreshableStaggeredGrid(
@@ -33,7 +26,6 @@ public fun DiaryRefreshableStaggeredGrid(
     state: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     isRefreshingProvider: () -> Boolean = { false },
     bottomPadding: Dp = DiaryTheme.dimens.screenVerticalPadding,
-    listTestTag: String = DIARY_REFRESHABLE_STAGGERED_GRID_TEST_TAG,
     content: LazyStaggeredGridScope.() -> Unit,
 ) {
     DiaryPullToRefreshBox(
@@ -42,21 +34,12 @@ public fun DiaryRefreshableStaggeredGrid(
         modifier = modifier,
     ) {
         LazyVerticalStaggeredGrid(
-            columns = StaggeredGridCells.Fixed(COLUMN_COUNT),
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .testTag(listTestTag),
+            columns = StaggeredGridCells.Fixed(DiaryRefreshableGridDefaults.COLUMN_COUNT),
+            modifier = Modifier.fillMaxSize(),
             state = state,
-            contentPadding =
-                PaddingValues(
-                    start = DiaryTheme.dimens.screenHorizontalPadding,
-                    top = DiaryTheme.dimens.screenVerticalPadding,
-                    end = DiaryTheme.dimens.screenHorizontalPadding,
-                    bottom = bottomPadding,
-                ),
+            contentPadding = DiaryRefreshableGridDefaults.contentPadding(bottomPadding = bottomPadding),
             verticalItemSpacing = DiaryTheme.dimens.itemSpacing,
-            horizontalArrangement = Arrangement.spacedBy(DiaryTheme.dimens.itemSpacing),
+            horizontalArrangement = DiaryRefreshableGridDefaults.ItemArrangement,
             content = content,
         )
     }

@@ -336,7 +336,7 @@ class MoreHomeSignOutViewModelTest : FunSpec() {
         }
 
         listOf(true, false).forEach { hasPending ->
-            test("TC-MORE-HOME-FEATURE-040 업로드 대기 항목이 ${if (hasPending) "있을" else "없을"} 때 처리 중 다시 선택하면 선택할 때마다 같은 기준으로 처리한다") {
+            test("TC-MORE-HOME-FEATURE-040 업로드 대기 항목이 ${if (hasPending) "있을" else "없을"} 때 처리 중 다시 선택해도 진행 중인 처리만 이어진다") {
                 runTest(mainDispatcher) {
                     val pendingFlow = MutableSharedFlow<Result<Boolean>>(replay = 1)
                     val findSyncPendingUseCase = mockk<FindSyncPendingUseCase>()
@@ -355,9 +355,9 @@ class MoreHomeSignOutViewModelTest : FunSpec() {
                     pendingFlow.emit(Result.success(hasPending))
                     advanceUntilIdle()
 
-                    verify(exactly = 2) { findSyncPendingUseCase(Unit) }
+                    verify(exactly = 1) { findSyncPendingUseCase(Unit) }
                     viewModel.uiState.value shouldBe MoreHomeSignOutUiState(isConfirmVisible = hasPending)
-                    coVerify(exactly = if (hasPending) 0 else 2) { signOutUseCase(Unit) }
+                    coVerify(exactly = if (hasPending) 0 else 1) { signOutUseCase(Unit) }
                 }
             }
         }

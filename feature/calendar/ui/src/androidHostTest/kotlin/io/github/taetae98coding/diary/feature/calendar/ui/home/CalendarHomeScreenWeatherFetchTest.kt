@@ -19,7 +19,9 @@ import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.domain.weather.usecase.FetchCurrentWeatherUseCase
 import io.github.taetae98coding.diary.domain.weather.usecase.GetCurrentCalendarWeatherUseCase
 import io.github.taetae98coding.diary.domain.weather.usecase.RefreshCurrentWeatherUseCase
+import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
+import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherViewModel
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -114,13 +116,12 @@ class CalendarHomeScreenWeatherFetchTest {
         val holidayViewModel =
             mockk<CalendarHomeHolidayViewModel>().also { viewModel ->
                 every { viewModel.fetch(any()) } returns Unit
-                every { viewModel.holidayList } returns MutableStateFlow(holidayList)
-                every { viewModel.isFetching } returns MutableStateFlow(false)
+                every { viewModel.uiState } returns MutableStateFlow(CalendarHomeHolidayUiState(holidayList = holidayList))
             }
         val memoViewModel =
             mockk<CalendarHomeMemoViewModel>().also { viewModel ->
-                every { viewModel.fetch(any()) } returns Unit
-                every { viewModel.memoList } returns MutableStateFlow(emptyList())
+                every { viewModel.select(any()) } returns Unit
+                every { viewModel.uiState } returns MutableStateFlow(CalendarHomeMemoUiState())
                 every { viewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
             }
 

@@ -1,6 +1,6 @@
 package io.github.taetae98coding.diary.feature.setting.ui.holiday.country
 
-import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountryOption
+import io.github.taetae98coding.diary.core.model.holiday.HolidayCountryOption
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe

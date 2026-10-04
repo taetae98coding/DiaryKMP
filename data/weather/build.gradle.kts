@@ -6,15 +6,17 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(projects.core.ipNetwork.api)
-                implementation(projects.core.location.api)
                 implementation(projects.core.weatherNetwork.api)
+                implementation(projects.domain.location)
                 implementation(projects.domain.weather)
             }
         }
 
         jvmTest {
             dependencies {
+                implementation(projects.core.ipNetwork.api)
+                implementation(projects.core.location.api)
+                implementation(projects.data.location)
                 implementation(projects.logger.crashlytics.api)
             }
         }

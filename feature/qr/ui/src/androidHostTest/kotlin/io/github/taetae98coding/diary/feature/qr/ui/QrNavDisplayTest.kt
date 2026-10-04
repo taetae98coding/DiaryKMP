@@ -30,6 +30,8 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.qr.api.QrAddNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrHomeNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrScanNavKey
@@ -51,9 +53,6 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.selectFormat
 import io.github.taetae98coding.diary.feature.qr.ui.add.selectTab
 import io.github.taetae98coding.diary.feature.qr.ui.add.titleInputText
 import io.github.taetae98coding.diary.feature.qr.ui.card.QR_CARD_TEST_TAG
-import io.github.taetae98coding.diary.feature.qr.ui.home.QR_HOME_LIST_TEST_TAG
-import io.github.taetae98coding.diary.feature.qr.ui.home.QrHomeSyncViewModel
-import io.github.taetae98coding.diary.feature.qr.ui.home.QrHomeUiState
 import io.github.taetae98coding.diary.feature.qr.ui.home.QrHomeViewModel
 import io.github.taetae98coding.diary.feature.qr.ui.home.qrPagingDataOf
 import io.github.taetae98coding.diary.feature.qr.ui.home.testQr
@@ -184,7 +183,7 @@ class QrNavDisplayTest {
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).performClick()
         composeRule.waitForIdle()
-        composeRule.onNodeWithTag(QR_HOME_LIST_TEST_TAG).assertDoesNotExist()
+        composeRule.refreshableList().assertDoesNotExist()
         pressBack()
 
         assertPositionQrDisplayed(qrList)
@@ -219,7 +218,7 @@ class QrNavDisplayTest {
 
     private fun scrollToPositionQr(qrList: List<Qr>) {
         waitUntilQrIsDisplayed(qrList.first())
-        composeRule.onNodeWithTag(QR_HOME_LIST_TEST_TAG).performScrollToIndex(POSITION_SCROLL_INDEX)
+        composeRule.refreshableList().performScrollToIndex(POSITION_SCROLL_INDEX)
         composeRule.waitForIdle()
         assertPositionQrDisplayed(qrList)
     }
@@ -303,8 +302,8 @@ class QrNavDisplayTest {
                 }
             }
             factory {
-                mockk<QrHomeSyncViewModel>(relaxed = true).apply {
-                    every { uiState } returns MutableStateFlow(QrHomeUiState())
+                mockk<SyncRefreshViewModel>(relaxed = true).apply {
+                    every { uiState } returns MutableStateFlow(SyncRefreshUiState())
                 }
             }
             factory {

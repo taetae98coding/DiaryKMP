@@ -3,8 +3,8 @@ package io.github.taetae98coding.diary.data.playlist.repository
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.playlist.YoutubeVideo
-import io.github.taetae98coding.diary.core.youtubenetwork.api.datasource.YoutubeVideoRemoteDataSource
-import io.github.taetae98coding.diary.core.youtubenetwork.api.entity.YoutubeVideoRemoteEntity
+import io.github.taetae98coding.diary.core.youtube.network.api.datasource.YoutubeVideoRemoteDataSource
+import io.github.taetae98coding.diary.core.youtube.network.api.entity.YoutubeVideoRemoteEntity
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
@@ -24,7 +24,7 @@ class YoutubeVideoRepositoryImplTest :
         test("TC-MUSIC-ADD-DATA-008 입력한 링크로 영상 정보를 조회해 제목과 채널 이름을 전달한다") {
             val remote = fixtureMonkey.giveMeOne<YoutubeVideoRemoteEntity>()
             val remoteDataSource = mockk<YoutubeVideoRemoteDataSource>()
-            coEvery { remoteDataSource.fetch(link = YOUTUBE_LINK) } returns remote
+            coEvery { remoteDataSource.read(link = YOUTUBE_LINK) } returns remote
             val repository = YoutubeVideoRepositoryImpl(youtubeVideoRemoteDataSource = remoteDataSource)
 
             val actual = repository.fetch(link = YOUTUBE_LINK)
@@ -34,13 +34,13 @@ class YoutubeVideoRepositoryImplTest :
                     title = remote.title,
                     channelName = remote.authorName,
                 )
-            coVerify(exactly = 1) { remoteDataSource.fetch(link = YOUTUBE_LINK) }
+            coVerify(exactly = 1) { remoteDataSource.read(link = YOUTUBE_LINK) }
         }
 
         test("TC-MUSIC-ADD-DATA-009 조회 실패를 그대로 전파한다") {
             val throwable = IllegalStateException("fetch-${fixtureMonkey.giveMeOne<String>()}")
             val remoteDataSource = mockk<YoutubeVideoRemoteDataSource>()
-            coEvery { remoteDataSource.fetch(link = any()) } throws throwable
+            coEvery { remoteDataSource.read(link = any()) } throws throwable
             val repository = YoutubeVideoRepositoryImpl(youtubeVideoRemoteDataSource = remoteDataSource)
 
             val actual = shouldThrow<IllegalStateException> { repository.fetch(link = YOUTUBE_LINK) }

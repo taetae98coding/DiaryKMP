@@ -6,22 +6,13 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
 import io.github.taetae98coding.diary.feature.setting.ui.Res
-import io.github.taetae98coding.diary.feature.setting.ui.gemini.form.SettingGeminiFormState
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.form.rememberSettingGeminiFormState
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.model.SettingGeminiModelDialogEvent
-import io.github.taetae98coding.diary.feature.setting.ui.gemini.model.SettingGeminiModelFailure
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.model.SettingGeminiModelViewModel
 import io.github.taetae98coding.diary.feature.setting.ui.setting_gemini_api_key_blank_message
-import io.github.taetae98coding.diary.feature.setting.ui.setting_gemini_model_fetch_failed_message
-import io.github.taetae98coding.diary.feature.setting.ui.setting_gemini_model_invalid_api_key_message
-import io.github.taetae98coding.diary.feature.setting.ui.setting_gemini_save_failed_message
-import io.github.taetae98coding.diary.feature.setting.ui.setting_gemini_save_succeeded_message
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 
@@ -35,19 +26,16 @@ internal fun SettingGeminiScreen(
 ) {
     val uiState by settingViewModel.uiState.collectAsStateWithLifecycle()
     val modelUiState by modelViewModel.uiState.collectAsStateWithLifecycle()
-    val loaded = uiState as? SettingGeminiUiState.Loaded
+    val loaded = uiState as? SettingGeminiUiState.Content
 
     val formState = key(loaded != null) { rememberSettingGeminiFormState(initialSetting = loaded?.setting ?: GeminiSetting.EMPTY) }
     val coroutineScope = rememberCoroutineScope()
     val apiKeyBlankMessage = stringResource(Res.string.setting_gemini_api_key_blank_message)
 
-    SaveEffect(
+    SettingGeminiScreenEffect(
         state = formState,
         effect = settingViewModel.effect,
-    )
-    ModelFailureEffect(
-        state = formState,
-        effect = modelViewModel.effect,
+        modelEffect = modelViewModel.effect,
     )
 
     SettingGeminiScaffold(
@@ -64,7 +52,7 @@ internal fun SettingGeminiScreen(
                         }
 
                         formState.apiKey.isBlank() -> {
-                            coroutineScope.launch { formState.hostState.showImmediate(message = apiKeyBlankMessage) }
+                            coroutineScope.launch { formState.snackbarHostState.showImmediate(message = apiKeyBlankMessage) }
                         }
 
                         else -> {
@@ -83,7 +71,7 @@ internal fun SettingGeminiScreen(
             when (event) {
                 is SettingGeminiModelDialogEvent.ClickReload -> {
                     if (formState.apiKey.isBlank()) {
-                        coroutineScope.launch { formState.hostState.showImmediate(message = apiKeyBlankMessage) }
+                        coroutineScope.launch { formState.snackbarHostState.showImmediate(message = apiKeyBlankMessage) }
                     } else {
                         modelViewModel.fetch(apiKey = formState.apiKey)
                     }
@@ -98,44 +86,4 @@ internal fun SettingGeminiScreen(
         modelUiStateProvider = { modelUiState },
         componentVisibleProvider = componentVisibleProvider,
     )
-}
-
-@Composable
-private fun SaveEffect(
-    state: SettingGeminiFormState,
-    effect: Flow<SettingGeminiEffect> = emptyFlow(),
-) {
-    val coroutineScope = rememberCoroutineScope()
-    val saveSucceededMessage = stringResource(Res.string.setting_gemini_save_succeeded_message)
-    val saveFailedMessage = stringResource(Res.string.setting_gemini_save_failed_message)
-
-    CollectEffect(effect) { value ->
-        val message =
-            when (value) {
-                is SettingGeminiEffect.SaveSucceeded -> saveSucceededMessage
-                is SettingGeminiEffect.SaveFailed -> saveFailedMessage
-            }
-
-        coroutineScope.launch { state.hostState.showImmediate(message = message) }
-    }
-}
-
-@Composable
-private fun ModelFailureEffect(
-    state: SettingGeminiFormState,
-    effect: Flow<SettingGeminiModelFailure> = emptyFlow(),
-) {
-    val coroutineScope = rememberCoroutineScope()
-    val invalidApiKeyMessage = stringResource(Res.string.setting_gemini_model_invalid_api_key_message)
-    val fetchFailedMessage = stringResource(Res.string.setting_gemini_model_fetch_failed_message)
-
-    CollectEffect(effect) { failure ->
-        val message =
-            when (failure) {
-                SettingGeminiModelFailure.INVALID_API_KEY -> invalidApiKeyMessage
-                SettingGeminiModelFailure.UNKNOWN -> fetchFailedMessage
-            }
-
-        coroutineScope.launch { state.hostState.showImmediate(message = message) }
-    }
 }

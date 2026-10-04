@@ -116,13 +116,13 @@ class AccountMemoContactTransactionImplTest :
 
         suspend fun findPendingContactIdList(accountId: Uuid): List<Uuid> =
             syncDataSource
-                .findPending(accountId = accountId)
+                .readPendingList(accountId = accountId)
                 .map { memoContact -> memoContact.contactId }
 
         suspend fun clearAllPending(accountId: Uuid) {
             syncTransaction.clearPending(
                 accountId = accountId,
-                memoContactList = syncDataSource.findPending(accountId = accountId),
+                memoContactList = syncDataSource.readPendingList(accountId = accountId),
             )
         }
 
@@ -526,7 +526,7 @@ class AccountMemoContactTransactionImplTest :
             database.memoPlaceDao().findByMemoIdList(listOf(memo.id)).shouldBeEmpty()
             database.memoWebDao().findByMemoIdList(listOf(memo.id)).shouldBeEmpty()
             findMemoContactList(memoId = memo.id).shouldBeEmpty()
-            memoSyncDataSource.findPending(accountId = accountId).shouldBeEmpty()
+            memoSyncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
 
         test("TC-MEMO-CONTACT-DATA-003 같은 연결을 다른 수정 시각으로 저장하면 마지막 내용으로 덮어쓴다") {
@@ -598,7 +598,7 @@ class AccountMemoContactTransactionImplTest :
             val copy = memo().copy(updatedAt = copiedAt, createdAt = copiedAt)
             val sourceContactIdSet =
                 dataSource
-                    .findContactIdList(accountId = accountId, memoId = source.id)
+                    .readContactIdList(accountId = accountId, memoId = source.id)
                     .toSet()
             memoTransaction.upsert(
                 accountId = accountId,
@@ -654,7 +654,7 @@ class AccountMemoContactTransactionImplTest :
             val copy = memo().copy(updatedAt = copiedAt, createdAt = copiedAt)
             val sourceContactIdSet =
                 dataSource
-                    .findContactIdList(accountId = accountId, memoId = source.id)
+                    .readContactIdList(accountId = accountId, memoId = source.id)
                     .toSet()
             memoTransaction.upsert(
                 accountId = accountId,
@@ -691,7 +691,7 @@ class AccountMemoContactTransactionImplTest :
                 memoTagList = emptyList(),
                 memoContactList =
                     dataSource
-                        .findContactIdList(accountId = accountId, memoId = source.id)
+                        .readContactIdList(accountId = accountId, memoId = source.id)
                         .map { contactId ->
                             MemoContactLocalEntity(
                                 memoId = copy.id,

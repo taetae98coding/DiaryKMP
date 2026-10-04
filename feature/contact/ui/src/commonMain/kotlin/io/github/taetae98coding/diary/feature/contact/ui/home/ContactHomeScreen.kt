@@ -12,8 +12,7 @@ import io.github.taetae98coding.diary.compose.core.snackbar.UndoSnackbarEffect
 import io.github.taetae98coding.diary.feature.contact.ui.Res
 import io.github.taetae98coding.diary.feature.contact.ui.contact_home_deleted_message
 import io.github.taetae98coding.diary.feature.contact.ui.contact_home_undo_action
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import org.jetbrains.compose.resources.stringResource
 import kotlin.uuid.Uuid
 
@@ -24,17 +23,23 @@ internal fun ContactHomeScreen(
     navigateToDetail: (Uuid) -> Unit,
     componentVisibleProvider: () -> ContactHomeScaffoldComponentVisible,
     contactViewModel: ContactHomeViewModel,
-    syncViewModel: ContactHomeSyncViewModel,
+    syncViewModel: SyncRefreshViewModel,
     modifier: Modifier = Modifier,
 ) {
     val contactPagingItems = contactViewModel.contactPagingData.collectAsLazyPagingItems()
     val uiState by syncViewModel.uiState.collectAsStateWithLifecycle()
-    val sort by contactViewModel.sort.collectAsStateWithLifecycle()
+    val sortUiState by contactViewModel.sortUiState.collectAsStateWithLifecycle()
     val sortSheetState = rememberDialogState()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    ContactHomeUndoSnackbarEffect(
-        onRestore = contactViewModel::restore,
+    UndoSnackbarEffect(
+        actionLabel = stringResource(Res.string.contact_home_undo_action),
+        message = stringResource(Res.string.contact_home_deleted_message),
+        onUndo = { value ->
+            when (value) {
+                is ContactHomeEffect.Deleted -> contactViewModel.restore(id = value.id)
+            }
+        },
         effect = contactViewModel.effect,
         snackbarHostState = snackbarHostState,
     )
@@ -56,32 +61,7 @@ internal fun ContactHomeScreen(
         snackbarHostState = snackbarHostState,
         contactPagingItems = contactPagingItems,
         uiStateProvider = { uiState },
-        sortProvider = { sort },
+        sortProvider = { sortUiState.sort },
         componentVisibleProvider = componentVisibleProvider,
-    )
-}
-
-@Composable
-private fun ContactHomeUndoSnackbarEffect(
-    onRestore: (Uuid) -> Unit,
-    effect: Flow<ContactHomeEffect> = emptyFlow(),
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-) {
-    val deletedMessage = stringResource(Res.string.contact_home_deleted_message)
-
-    UndoSnackbarEffect(
-        effect = effect,
-        hostState = snackbarHostState,
-        actionLabel = stringResource(Res.string.contact_home_undo_action),
-        message = { value ->
-            when (value) {
-                is ContactHomeEffect.Deleted -> deletedMessage
-            }
-        },
-        onUndo = { value ->
-            when (value) {
-                is ContactHomeEffect.Deleted -> onRestore(value.id)
-            }
-        },
     )
 }

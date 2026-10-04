@@ -22,6 +22,7 @@ import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TA
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.web.WEB_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.web.Web
+import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityLoadingPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagWeb
@@ -45,7 +46,7 @@ class TagDetailWebTabTest {
         val secondWeb = tagWeb(title = SECOND_TITLE)
         setWebTab(pagingData = tagEntityPagingData(itemList = listOf(firstWeb, secondWeb)))
 
-        composeRule.onNodeWithTag(TAG_DETAIL_WEB_LIST_TEST_TAG).assertExists()
+        composeRule.refreshableList().assertExists()
         composeRule.onAllNodesWithTag(WEB_CARD_TEST_TAG).assertCountEquals(2)
         composeRule.onNodeWithText(FIRST_TITLE).assertIsDisplayed()
         composeRule.onNodeWithText(SECOND_TITLE).assertIsDisplayed()
@@ -102,7 +103,7 @@ class TagDetailWebTabTest {
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
         composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertExists()
         composeRule.onNodeWithText(DEFAULT_EMPTY_DESCRIPTION).assertExists()
-        composeRule.onNodeWithTag(TAG_DETAIL_WEB_LIST_TEST_TAG).assertDoesNotExist()
+        composeRule.refreshableList().assertDoesNotExist()
     }
 
     @Test
@@ -129,7 +130,7 @@ class TagDetailWebTabTest {
             onEvent = eventList::add,
         )
 
-        composeRule.onNodeWithTag(TAG_DETAIL_WEB_LIST_TEST_TAG).performTouchInput { swipeDown() }
+        composeRule.refreshableList().performTouchInput { swipeDown() }
         composeRule.waitForIdle()
 
         eventList shouldBe listOf(TagDetailWebContentEvent.Refresh)

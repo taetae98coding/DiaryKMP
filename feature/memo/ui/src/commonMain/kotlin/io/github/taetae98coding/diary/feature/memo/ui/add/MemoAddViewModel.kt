@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.domain.memo.exception.MemoTitleBlankException
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
-import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagSelection
+import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagSelectionUiState
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +28,7 @@ internal class MemoAddViewModel(
 
     fun add(
         detail: MemoDetail,
-        tagSelection: MemoTagSelection,
+        tagSelection: MemoTagSelectionUiState,
         webIdSet: Set<Uuid>,
         contactIdSet: Set<Uuid>,
         placeIdSet: Set<Uuid>,

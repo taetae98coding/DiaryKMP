@@ -6,6 +6,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
+import io.github.taetae98coding.diary.feature.memo.api.navigateToMemoDetail
 import io.github.taetae98coding.diary.feature.place.api.PlaceAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
@@ -53,7 +54,7 @@ class TagNavigationTest :
 
             openCases.forEach { memoIdList ->
                 val backStack = tagMemoFinishedListBackStack(tagId = tagId, finishedDetailKeyList = emptyList())
-                memoIdList.forEach { memoId -> backStack.navigateToMemoDetailFromTagMemoFinishedList(memoId) }
+                memoIdList.forEach { memoId -> backStack.navigateToMemoDetail(memoId) }
 
                 backStack.navigateUpFromTagMemoFinishedList()
                 backStack.add(TagMemoFinishedListNavKey(tagId = tagId))
@@ -72,7 +73,7 @@ class TagNavigationTest :
             val memoId = fixtureMonkey.giveMeOne<Uuid>()
             val backStack = tagMemoFinishedListBackStack(tagId = tagId, finishedDetailKeyList = emptyList())
 
-            backStack.navigateToMemoDetailFromTagMemoFinishedList(memoId)
+            backStack.navigateToMemoDetail(memoId)
 
             backStack.toList() shouldContainExactly
                 listOf(
@@ -92,7 +93,7 @@ class TagNavigationTest :
                     finishedDetailKeyList = listOf(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
                 )
 
-            backStack.navigateToMemoDetailFromTagMemoFinishedList(selectedId)
+            backStack.navigateToMemoDetail(selectedId)
 
             backStack.toList() shouldContainExactly
                 listOf(
@@ -113,7 +114,7 @@ class TagNavigationTest :
 
             openCases.forEach { memoIdList ->
                 val backStack = tagMemoFinishedListBackStack(tagId = tagId, finishedDetailKeyList = emptyList())
-                memoIdList.forEach { memoId -> backStack.navigateToMemoDetailFromTagMemoFinishedList(memoId) }
+                memoIdList.forEach { memoId -> backStack.navigateToMemoDetail(memoId) }
 
                 backStack.removeLastOrNull()
 

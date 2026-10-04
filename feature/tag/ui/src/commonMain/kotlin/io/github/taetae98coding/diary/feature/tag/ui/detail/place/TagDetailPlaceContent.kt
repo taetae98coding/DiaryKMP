@@ -14,7 +14,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.place.PlaceListUndoSnackbarEffect
-import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailSyncViewModel
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeEffect
 import io.github.taetae98coding.diary.feature.tag.ui.detail.scope.TagDetailScopeState
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tab.TagDetailTab
@@ -38,13 +38,13 @@ internal fun TagDetailPlaceContent(
 
     CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
         val placeViewModel = koinViewModel<TagDetailPlaceViewModel> { parametersOf(id) }
-        val syncViewModel = koinViewModel<TagDetailSyncViewModel>()
-        val isRefreshing by syncViewModel.isRefreshing.collectAsStateWithLifecycle()
+        val syncViewModel = koinViewModel<SyncRefreshViewModel>()
+        val syncUiState by syncViewModel.uiState.collectAsStateWithLifecycle()
         val uiState by mapViewModel.uiState.collectAsStateWithLifecycle()
         val placeListUiState by placeViewModel.placeListUiState.collectAsStateWithLifecycle()
         val placePagingItems = placeViewModel.placePagingData.collectAsLazyPagingItems()
-        val sort by placeViewModel.sort.collectAsStateWithLifecycle()
-        val queryScope by placeViewModel.scope.collectAsStateWithLifecycle()
+        val sortUiState by placeViewModel.sortUiState.collectAsStateWithLifecycle()
+        val scopeUiState by placeViewModel.scopeUiState.collectAsStateWithLifecycle()
         val sortSheetState = rememberDialogState()
 
         PlaceListUndoSnackbarEffect(
@@ -89,9 +89,9 @@ internal fun TagDetailPlaceContent(
             uiStateProvider = { uiState },
             placeListUiStateProvider = { placeListUiState },
             placePagingItems = placePagingItems,
-            isRefreshingProvider = { isRefreshing },
-            sortProvider = { sort },
-            scopeProvider = { queryScope },
+            isRefreshingProvider = { syncUiState.isRefreshing },
+            sortProvider = { sortUiState.sort },
+            scopeProvider = { scopeUiState.scope },
         )
     }
 }

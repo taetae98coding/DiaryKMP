@@ -13,11 +13,11 @@ internal fun pinMarkerToScriptValue(): String =
     buildString {
         append("""{ "path": "$PIN_MARKER_PATH_DATA",""")
         append(""" "viewport": $PIN_MARKER_VIEWPORT_SIZE,""")
-        append(""" "size": ${DiaryMapPinMarkerDefaults.SIZE_DP},""")
-        append(""" "labelHeight": ${DiaryMapPinMarkerDefaults.LABEL_HEIGHT_DP},""")
-        append(""" "labelFontSize": ${DiaryMapPinMarkerDefaults.LABEL_FONT_SIZE_SP},""")
-        append(""" "labelHorizontalPadding": ${DiaryMapPinMarkerDefaults.LABEL_HORIZONTAL_PADDING_DP},""")
-        append(""" "labelCornerRadius": ${DiaryMapPinMarkerDefaults.LABEL_CORNER_RADIUS_DP},""")
+        append(""" "size": ${DiaryMapPinMarkerDefaults.Size.value},""")
+        append(""" "labelHeight": ${DiaryMapPinMarkerDefaults.LabelHeight.value},""")
+        append(""" "labelFontSize": ${DiaryMapPinMarkerDefaults.LabelFontSize.value},""")
+        append(""" "labelHorizontalPadding": ${DiaryMapPinMarkerDefaults.LabelHorizontalPadding.value},""")
+        append(""" "labelCornerRadius": ${DiaryMapPinMarkerDefaults.LabelCornerRadius.value},""")
         append(""" "labelBackgroundAlpha": ${DiaryMapPinMarkerDefaults.LABEL_BACKGROUND_ALPHA} }""")
     }
 

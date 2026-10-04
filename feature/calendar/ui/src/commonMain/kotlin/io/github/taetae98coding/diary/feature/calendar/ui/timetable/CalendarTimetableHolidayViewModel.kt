@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateRange
@@ -29,13 +30,14 @@ internal class CalendarTimetableHolidayViewModel(
     private val yearList = MutableStateFlow<List<Int>>(emptyList())
     private var isFetching = false
 
-    val holidayList: StateFlow<List<Holiday>> =
+    val uiState: StateFlow<CalendarTimetableHolidayUiState> =
         yearList
             .flatMapLatest { yearList -> getHolidayList(yearList = yearList) }
+            .map { holidayList -> CalendarTimetableHolidayUiState(holidayList = holidayList) }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileUiSubscribed,
-                initialValue = emptyList(),
+                initialValue = CalendarTimetableHolidayUiState(),
             )
 
     fun fetch(dateRange: LocalDateRange) {

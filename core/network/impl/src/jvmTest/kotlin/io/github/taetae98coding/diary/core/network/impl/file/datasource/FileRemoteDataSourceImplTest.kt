@@ -112,7 +112,7 @@ class FileRemoteDataSourceImplTest :
             } returns httpResponse(body = Json.encodeToString(FileListResponseRemoteEntity(fileList = fileList)))
             val dataSource = FileRemoteDataSourceImpl(supabaseFunction = supabaseFunction, fileUploadTransport = mockk())
 
-            val actual = dataSource.fetch(cursor = null, size = size)
+            val actual = dataSource.readList(cursor = null, size = size)
 
             requestSlot.captured shouldBe FileListRequestRemoteEntity(cursor = null, size = size)
             actual shouldBe fileList
@@ -133,7 +133,7 @@ class FileRemoteDataSourceImplTest :
             } returns httpResponse(body = Json.encodeToString(FileListResponseRemoteEntity(fileList = emptyList())))
             val dataSource = FileRemoteDataSourceImpl(supabaseFunction = supabaseFunction, fileUploadTransport = mockk())
 
-            dataSource.fetch(cursor = cursor, size = 20)
+            dataSource.readList(cursor = cursor, size = 20)
 
             requestSlot.captured shouldBe FileListRequestRemoteEntity(cursor = cursor, size = 20)
         }

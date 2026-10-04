@@ -9,7 +9,7 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
-import io.github.taetae98coding.diary.domain.search.repository.SearchPlaceRepository
+import io.github.taetae98coding.diary.domain.search.repository.AccountSearchPlaceRepository
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -30,15 +30,15 @@ class SearchPlaceUseCaseTest :
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val placeList = List(2) { place() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            val searchPlaceRepository = mockk<SearchPlaceRepository>()
+            val accountSearchPlaceRepository = mockk<AccountSearchPlaceRepository>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             every {
-                searchPlaceRepository.page(account = account, query = QUERY, sort = ListSort.TITLE)
+                accountSearchPlaceRepository.page(account = account, query = QUERY, sort = ListSort.TITLE)
             } returns flowOf(PagingData.from(placeList))
             val useCase =
                 SearchPlaceUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    searchPlaceRepository = searchPlaceRepository,
+                    accountSearchPlaceRepository = accountSearchPlaceRepository,
                 )
 
             When("질의로 장소를 검색한다") {
@@ -59,15 +59,15 @@ class SearchPlaceUseCaseTest :
         Given("로그인하지 않은 게스트 상태이고 질의를 만족하는 장소가 준비되어 있다") {
             val placeList = List(2) { place() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            val searchPlaceRepository = mockk<SearchPlaceRepository>()
+            val accountSearchPlaceRepository = mockk<AccountSearchPlaceRepository>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(Account.Guest))
             every {
-                searchPlaceRepository.page(account = Account.Guest, query = QUERY, sort = ListSort.TITLE)
+                accountSearchPlaceRepository.page(account = Account.Guest, query = QUERY, sort = ListSort.TITLE)
             } returns flowOf(PagingData.from(placeList))
             val useCase =
                 SearchPlaceUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    searchPlaceRepository = searchPlaceRepository,
+                    accountSearchPlaceRepository = accountSearchPlaceRepository,
                 )
 
             When("질의로 장소를 검색한다") {
@@ -81,11 +81,11 @@ class SearchPlaceUseCaseTest :
 
         Given("빈 질의가 준비되어 있다") {
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            val searchPlaceRepository = mockk<SearchPlaceRepository>()
+            val accountSearchPlaceRepository = mockk<AccountSearchPlaceRepository>()
             val useCase =
                 SearchPlaceUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    searchPlaceRepository = searchPlaceRepository,
+                    accountSearchPlaceRepository = accountSearchPlaceRepository,
                 )
 
             When("빈 질의로 장소를 검색한다") {
@@ -96,7 +96,7 @@ class SearchPlaceUseCaseTest :
                         flowOf(pagingData).asSnapshot().shouldBeEmpty()
                     }
 
-                    verify(exactly = 0) { searchPlaceRepository.page(account = any(), query = any(), sort = any()) }
+                    verify(exactly = 0) { accountSearchPlaceRepository.page(account = any(), query = any(), sort = any()) }
                 }
             }
         }
@@ -104,12 +104,12 @@ class SearchPlaceUseCaseTest :
         Given("계정 조회에 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            val searchPlaceRepository = mockk<SearchPlaceRepository>(relaxed = true)
+            val accountSearchPlaceRepository = mockk<AccountSearchPlaceRepository>(relaxed = true)
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val useCase =
                 SearchPlaceUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    searchPlaceRepository = searchPlaceRepository,
+                    accountSearchPlaceRepository = accountSearchPlaceRepository,
                 )
 
             When("질의로 장소를 검색한다") {
@@ -119,7 +119,7 @@ class SearchPlaceUseCaseTest :
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
 
-                    verify(exactly = 0) { searchPlaceRepository.page(account = any(), query = any(), sort = any()) }
+                    verify(exactly = 0) { accountSearchPlaceRepository.page(account = any(), query = any(), sort = any()) }
                 }
             }
         }

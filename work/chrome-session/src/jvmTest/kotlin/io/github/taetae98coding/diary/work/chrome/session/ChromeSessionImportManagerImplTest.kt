@@ -8,8 +8,8 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.browser.ChromeProfile
 import io.github.taetae98coding.diary.core.model.browser.ChromeSessionImportState
 import io.github.taetae98coding.diary.domain.browser.repository.InAppBrowserCookieRepository
-import io.github.taetae98coding.diary.domain.browser.usecase.FindChromeSessionImportProfileUseCase
 import io.github.taetae98coding.diary.domain.browser.usecase.ImportChromeSessionUseCase
+import io.github.taetae98coding.diary.domain.browser.usecase.ReadChromeSessionImportProfileUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -52,10 +52,10 @@ class ChromeSessionImportManagerImplTest :
 
         test("TC-CHROME-SESSION-IMPORT-DOMAIN-014 프로필 목록을 읽지 못하면 가져오지 않고 실패가 된다") {
             runTest {
-                val findUseCase = mockk<FindChromeSessionImportProfileUseCase>()
-                coEvery { findUseCase(Unit) } returns Result.failure(IllegalStateException("local state unreadable"))
+                val readUseCase = mockk<ReadChromeSessionImportProfileUseCase>()
+                coEvery { readUseCase(Unit) } returns Result.failure(IllegalStateException("local state unreadable"))
                 val importUseCase = importUseCase()
-                val manager = manager(scope = backgroundScope, findUseCase = findUseCase, importUseCase = importUseCase)
+                val manager = manager(scope = backgroundScope, readUseCase = readUseCase, importUseCase = importUseCase)
 
                 manager.state.test {
                     awaitItem() shouldBe ChromeSessionImportState.IDLE
@@ -117,11 +117,11 @@ class ChromeSessionImportManagerImplTest :
             runTest {
                 val profileA = fixtureMonkey.giveMeOne<ChromeProfile>()
                 val profileB = fixtureMonkey.giveMeOne<ChromeProfile>().copy(directory = "other-" + profileA.directory)
-                val findUseCase = mockk<FindChromeSessionImportProfileUseCase>()
-                coEvery { findUseCase(Unit) } returnsMany listOf(Result.success(profileA), Result.success(profileB))
+                val readUseCase = mockk<ReadChromeSessionImportProfileUseCase>()
+                coEvery { readUseCase(Unit) } returnsMany listOf(Result.success(profileA), Result.success(profileB))
                 val importUseCase = importUseCase()
                 val repository = repository()
-                val manager = manager(scope = backgroundScope, findUseCase = findUseCase, importUseCase = importUseCase, repository = repository)
+                val manager = manager(scope = backgroundScope, readUseCase = readUseCase, importUseCase = importUseCase, repository = repository)
 
                 manager.state.test {
                     awaitItem() shouldBe ChromeSessionImportState.IDLE
@@ -149,12 +149,12 @@ class ChromeSessionImportManagerImplTest :
             runTest {
                 val profileA = fixtureMonkey.giveMeOne<ChromeProfile>()
                 listOf(Result.success(Unit), Result.failure(IllegalStateException("import failed"))).forEach { firstResult ->
-                    val findUseCase = mockk<FindChromeSessionImportProfileUseCase>()
-                    coEvery { findUseCase(Unit) } returnsMany listOf(Result.success(profileA), Result.success(null))
+                    val readUseCase = mockk<ReadChromeSessionImportProfileUseCase>()
+                    coEvery { readUseCase(Unit) } returnsMany listOf(Result.success(profileA), Result.success(null))
                     val importUseCase = mockk<ImportChromeSessionUseCase>()
                     coEvery { importUseCase(profileA) } returns firstResult
                     val repository = repository()
-                    val manager = manager(scope = backgroundScope, findUseCase = findUseCase, importUseCase = importUseCase, repository = repository)
+                    val manager = manager(scope = backgroundScope, readUseCase = readUseCase, importUseCase = importUseCase, repository = repository)
 
                     manager.state.test {
                         awaitItem() shouldBe ChromeSessionImportState.IDLE
@@ -205,12 +205,12 @@ class ChromeSessionImportManagerImplTest :
             runTest {
                 val profileA = fixtureMonkey.giveMeOne<ChromeProfile>()
                 val pending = CompletableDeferred<Result<Unit>>()
-                val findUseCase = mockk<FindChromeSessionImportProfileUseCase>()
-                coEvery { findUseCase(Unit) } returnsMany listOf(Result.success(profileA), Result.success(null))
+                val readUseCase = mockk<ReadChromeSessionImportProfileUseCase>()
+                coEvery { readUseCase(Unit) } returnsMany listOf(Result.success(profileA), Result.success(null))
                 val importUseCase = mockk<ImportChromeSessionUseCase>()
                 coEvery { importUseCase(profileA) } coAnswers { pending.await() }
                 val repository = repository()
-                val manager = manager(scope = backgroundScope, findUseCase = findUseCase, importUseCase = importUseCase, repository = repository)
+                val manager = manager(scope = backgroundScope, readUseCase = readUseCase, importUseCase = importUseCase, repository = repository)
 
                 manager.state.test {
                     awaitItem() shouldBe ChromeSessionImportState.IDLE
@@ -234,12 +234,12 @@ class ChromeSessionImportManagerImplTest :
             runTest {
                 val profileA = fixtureMonkey.giveMeOne<ChromeProfile>()
                 val pending = CompletableDeferred<Result<Unit>>()
-                val findUseCase = mockk<FindChromeSessionImportProfileUseCase>()
-                coEvery { findUseCase(Unit) } returnsMany listOf(Result.success(profileA), Result.success(profileA), Result.success(null))
+                val readUseCase = mockk<ReadChromeSessionImportProfileUseCase>()
+                coEvery { readUseCase(Unit) } returnsMany listOf(Result.success(profileA), Result.success(profileA), Result.success(null))
                 var callCount = 0
                 val importUseCase = mockk<ImportChromeSessionUseCase>()
                 coEvery { importUseCase(profileA) } coAnswers { if (callCount++ == 0) Result.success(Unit) else pending.await() }
-                val manager = manager(scope = backgroundScope, findUseCase = findUseCase, importUseCase = importUseCase)
+                val manager = manager(scope = backgroundScope, readUseCase = readUseCase, importUseCase = importUseCase)
 
                 manager.state.test {
                     awaitItem() shouldBe ChromeSessionImportState.IDLE
@@ -261,12 +261,12 @@ class ChromeSessionImportManagerImplTest :
             runTest {
                 val profileA = fixtureMonkey.giveMeOne<ChromeProfile>()
                 val profileB = fixtureMonkey.giveMeOne<ChromeProfile>().copy(directory = "other-" + profileA.directory)
-                val findUseCase = mockk<FindChromeSessionImportProfileUseCase>()
-                coEvery { findUseCase(Unit) } returns Result.success(profileB)
+                val readUseCase = mockk<ReadChromeSessionImportProfileUseCase>()
+                coEvery { readUseCase(Unit) } returns Result.success(profileB)
                 val importUseCase = importUseCase()
                 val repository = mockk<InAppBrowserCookieRepository>()
                 coEvery { repository.deleteAll() } throws IllegalStateException("clear failed")
-                val manager = manager(scope = backgroundScope, findUseCase = findUseCase, importUseCase = importUseCase, repository = repository)
+                val manager = manager(scope = backgroundScope, readUseCase = readUseCase, importUseCase = importUseCase, repository = repository)
 
                 manager.state.test {
                     awaitItem() shouldBe ChromeSessionImportState.IDLE
@@ -276,19 +276,19 @@ class ChromeSessionImportManagerImplTest :
                     awaitItem() shouldBe ChromeSessionImportState.FAILED
                 }
 
-                coVerify(exactly = 0) { findUseCase(Unit) }
+                coVerify(exactly = 0) { readUseCase(Unit) }
                 coVerify(exactly = 0) { importUseCase(any()) }
             }
         }
 
         test("TC-CHROME-SESSION-IMPORT-DOMAIN-022 선택 안 함으로 되돌릴 때 지우기에 실패하면 실패가 된다") {
             runTest {
-                val findUseCase = mockk<FindChromeSessionImportProfileUseCase>()
-                coEvery { findUseCase(Unit) } returns Result.success(null)
+                val readUseCase = mockk<ReadChromeSessionImportProfileUseCase>()
+                coEvery { readUseCase(Unit) } returns Result.success(null)
                 val importUseCase = importUseCase()
                 val repository = mockk<InAppBrowserCookieRepository>()
                 coEvery { repository.deleteAll() } throws IllegalStateException("clear failed")
-                val manager = manager(scope = backgroundScope, findUseCase = findUseCase, importUseCase = importUseCase, repository = repository)
+                val manager = manager(scope = backgroundScope, readUseCase = readUseCase, importUseCase = importUseCase, repository = repository)
 
                 manager.state.test {
                     awaitItem() shouldBe ChromeSessionImportState.IDLE
@@ -336,20 +336,20 @@ private fun manager(
     importUseCase: ImportChromeSessionUseCase = importUseCase(),
     repository: InAppBrowserCookieRepository = repository(),
 ): ChromeSessionImportManagerImpl {
-    val findUseCase = mockk<FindChromeSessionImportProfileUseCase>()
-    coEvery { findUseCase(Unit) } returns Result.success(profile)
+    val readUseCase = mockk<ReadChromeSessionImportProfileUseCase>()
+    coEvery { readUseCase(Unit) } returns Result.success(profile)
 
-    return manager(scope = scope, findUseCase = findUseCase, importUseCase = importUseCase, repository = repository)
+    return manager(scope = scope, readUseCase = readUseCase, importUseCase = importUseCase, repository = repository)
 }
 
 private fun manager(
     scope: CoroutineScope,
-    findUseCase: FindChromeSessionImportProfileUseCase,
+    readUseCase: ReadChromeSessionImportProfileUseCase,
     importUseCase: ImportChromeSessionUseCase = importUseCase(),
     repository: InAppBrowserCookieRepository = repository(),
 ): ChromeSessionImportManagerImpl =
     ChromeSessionImportManagerImpl(
-        findChromeSessionImportProfileUseCase = findUseCase,
+        readChromeSessionImportProfileUseCase = readUseCase,
         importChromeSessionUseCase = importUseCase,
         inAppBrowserCookieRepository = repository,
         scope = scope,

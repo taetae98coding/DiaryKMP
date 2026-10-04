@@ -13,8 +13,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.feature.tag.ui.TEST_TAG_ADD_REQUEST_KEY
-import io.github.taetae98coding.diary.feature.tag.ui.detail.memo.TAG_DETAIL_MEMO_LIST_TEST_TAG
-import io.github.taetae98coding.diary.feature.tag.ui.detail.web.TAG_DETAIL_WEB_LIST_TEST_TAG
+import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemoPagingData
@@ -51,7 +50,7 @@ class TagDetailReturnTest {
         returnToTagDetail()
 
         composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
-        composeRule.onNodeWithTag(TAG_DETAIL_MEMO_LIST_TEST_TAG).assertExists()
+        composeRule.refreshableList().assertExists()
     }
 
     @Test
@@ -97,7 +96,7 @@ class TagDetailReturnTest {
         returnToTagDetail()
 
         composeRule.onNodeWithContentDescription(DEFAULT_WEB_TAB_DESCRIPTION).assertIsSelected()
-        composeRule.onNodeWithTag(TAG_DETAIL_WEB_LIST_TEST_TAG).assertExists()
+        composeRule.refreshableList().assertExists()
     }
 
     // 웹 상세는 삭제에 성공하면 뒤로가기와 같은 닫기를 부른다(TC-WEB-DETAIL-FEATURE-020, WebDetailScreenTest).

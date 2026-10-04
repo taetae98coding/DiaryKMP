@@ -23,20 +23,24 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
-import io.github.taetae98coding.diary.compose.memo.list.MemoListUiState
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
-import io.github.taetae98coding.diary.feature.contact.ui.detail.memo.ContactDetailMemoSyncViewModel
-import io.github.taetae98coding.diary.feature.contact.ui.detail.memo.ContactDetailMemoTab
+import io.github.taetae98coding.diary.feature.contact.ui.Res
+import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_memo_empty_description
+import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_memo_empty_title
 import io.github.taetae98coding.diary.feature.contact.ui.detail.memo.ContactDetailMemoViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.detail.tab.ContactDetailTab
 import io.github.taetae98coding.diary.feature.contact.ui.detail.tab.ContactDetailTabState
 import io.github.taetae98coding.diary.feature.contact.ui.detail.tab.rememberContactDetailTabState
 import io.github.taetae98coding.diary.feature.contact.ui.form.ContactFormState
 import io.github.taetae98coding.diary.feature.contact.ui.form.rememberContactDetailFormState
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.mockk.every
 import io.mockk.justRun
@@ -48,6 +52,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.KoinApplication
 import org.koin.dsl.koinConfiguration
 import org.koin.dsl.module
@@ -70,13 +75,13 @@ private val fixtureMonkey: FixtureMonkey =
 
 // KoinApplication에 넘긴 모듈은 첫 테스트의 것이 이어서 쓰이므로, 메모 탭이 얻는 값은 모듈이 붙잡는 이 흐름들로 테스트마다 바꾼다.
 internal val memoPagingDataFlow = MutableStateFlow(PagingData.empty<MemoListItem>())
-internal val memoListUiStateFlow = MutableStateFlow(MemoListUiState())
+internal val memoListUiStateFlow = MutableStateFlow(SyncRefreshUiState())
 internal val memoEffectFlow = MutableSharedFlow<MemoListEffect>(extraBufferCapacity = EFFECT_BUFFER_CAPACITY)
 
 internal var memoViewModelRef: ContactDetailMemoViewModel? = null
     private set
 
-internal var memoSyncViewModelRef: ContactDetailMemoSyncViewModel? = null
+internal var memoSyncViewModelRef: SyncRefreshViewModel? = null
     private set
 
 private val contactDetailTabViewModelModule =
@@ -85,12 +90,12 @@ private val contactDetailTabViewModelModule =
             mockk<ContactDetailMemoViewModel>(relaxed = true)
                 .apply {
                     every { memoPagingData } returns memoPagingDataFlow
-                    every { sort } returns MutableStateFlow(ListSort.DEFAULT)
+                    every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
                     every { effect } returns memoEffectFlow
                 }.also { memoViewModelRef = it }
         }
         factory {
-            mockk<ContactDetailMemoSyncViewModel>(relaxed = true)
+            mockk<SyncRefreshViewModel>(relaxed = true)
                 .apply { every { uiState } returns memoListUiStateFlow }
                 .also { memoSyncViewModelRef = it }
         }
@@ -98,7 +103,7 @@ private val contactDetailTabViewModelModule =
 
 internal fun prepareContactDetailTabViewModels(
     memoPagingData: PagingData<MemoListItem> = PagingData.empty(),
-    memoListUiState: MemoListUiState = MemoListUiState(),
+    memoListUiState: SyncRefreshUiState = SyncRefreshUiState(),
 ) {
     memoPagingDataFlow.value = memoPagingData
     memoListUiStateFlow.value = memoListUiState
@@ -141,7 +146,7 @@ internal fun ComposeContentTestRule.setContactDetailScreen(
     viewModel: ContactDetailViewModel,
     id: Uuid = FIRST_CONTACT_ID,
     memoPagingData: PagingData<MemoListItem> = PagingData.empty(),
-    memoListUiState: MemoListUiState = MemoListUiState(),
+    memoListUiState: SyncRefreshUiState = SyncRefreshUiState(),
     componentVisible: ContactDetailScaffoldComponentVisible = ContactDetailScaffoldComponentVisible(),
     navigateUp: () -> Unit = {},
     navigateToMemoAdd: () -> Unit = {},
@@ -211,7 +216,9 @@ internal fun ContactDetailTestScaffold(
                 )
 
             ContactDetailTab.MEMO ->
-                ContactDetailMemoTab(
+                EntityDetailMemoTab(
+                    emptyTitle = stringResource(Res.string.contact_detail_memo_empty_title),
+                    emptyDescription = stringResource(Res.string.contact_detail_memo_empty_description),
                     onEvent = {},
                     onMemoListEvent = {},
                     modifier = Modifier.fillMaxSize(),

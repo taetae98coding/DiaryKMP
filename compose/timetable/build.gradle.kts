@@ -1,5 +1,5 @@
 plugins {
-    alias(libs.plugins.convention.compose)
+    alias(libs.plugins.convention.compose.component)
 }
 
 kotlin {
@@ -7,7 +7,6 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.compose.calendar)
-                implementation(projects.compose.core)
                 implementation(projects.library.kotlinxDatetime)
             }
         }

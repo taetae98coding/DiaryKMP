@@ -9,7 +9,9 @@ import androidx.compose.ui.test.swipeLeft
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeTestFixture.englishTitle
+import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
+import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.mockk.every
 import io.mockk.mockk
@@ -69,12 +71,11 @@ class CalendarHomeScreenReselectTest {
     private fun setCalendarHomeScreen(reselectEvent: MutableSharedFlow<Unit>) {
         val holidayViewModel = mockk<CalendarHomeHolidayViewModel>()
         every { holidayViewModel.fetch(any()) } returns Unit
-        every { holidayViewModel.holidayList } returns MutableStateFlow(emptyList())
-        every { holidayViewModel.isFetching } returns MutableStateFlow(false)
+        every { holidayViewModel.uiState } returns MutableStateFlow(CalendarHomeHolidayUiState())
 
         val memoViewModel = mockk<CalendarHomeMemoViewModel>()
-        every { memoViewModel.fetch(any()) } returns Unit
-        every { memoViewModel.memoList } returns MutableStateFlow(emptyList())
+        every { memoViewModel.select(any()) } returns Unit
+        every { memoViewModel.uiState } returns MutableStateFlow(CalendarHomeMemoUiState())
         every { memoViewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
 
         composeRule.setContent {

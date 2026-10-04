@@ -99,7 +99,9 @@ class WebAddMemoryRestoreTest {
         composeRule.onNodeWithText(OTHER_TAG_TITLE).assertDoesNotExist()
         expectedTitleListAfterRestore.forEach { title -> composeRule.onNodeWithText(title).assertExists() }
         composeRule.runOnIdle {
-            tagViewModelList.last().tagIdSet.value shouldBe setOfNotNull(initialTag?.id)
+            tagViewModelList
+                .last()
+                .tagSelectionUiState.value.tagIdSet shouldBe setOfNotNull(initialTag?.id)
         }
     }
 

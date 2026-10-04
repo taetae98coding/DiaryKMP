@@ -5,7 +5,6 @@ import io.github.taetae98coding.diary.core.database.impl.di.DiaryDatabaseDirecto
 import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDirectory
 import io.github.taetae98coding.diary.core.file.impl.di.AppFileDirectoryName
 import io.github.taetae98coding.diary.feature.file.ui.picker.FilePickerDispatcher
-import io.github.taetae98coding.diary.feature.login.ui.credential.AppleCredentialsConfig
 import io.github.taetae98coding.diary.feature.login.ui.credential.CredentialsDispatcher
 import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsClientId
 import io.github.taetae98coding.diary.feature.more.ui.photo.PhotoPickerDispatcher
@@ -54,7 +53,4 @@ internal class JvmAppModule {
     @Factory
     @QrScanCameraDispatcher
     fun providesQrScanCameraDispatcher(): CoroutineDispatcher = Dispatchers.IO
-
-    @Factory
-    fun providesAppleCredentialsConfig(): AppleCredentialsConfig = appleCredentialsConfig(clientId = BuildKonfig.APPLE_CREDENTIALS_CLIENT_ID)
 }

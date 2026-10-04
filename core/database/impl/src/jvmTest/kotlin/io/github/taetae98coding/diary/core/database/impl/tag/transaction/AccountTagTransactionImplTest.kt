@@ -63,7 +63,7 @@ class AccountTagTransactionImplTest :
             tagId: Uuid,
         ) {
             syncDataSource
-                .findPending(accountId = accountId)
+                .readPendingList(accountId = accountId)
                 .any { tag -> tag.id == tagId } shouldBe true
         }
 
@@ -110,9 +110,9 @@ class AccountTagTransactionImplTest :
 
             transaction.upsert(accountId = accountId, tagList = listOf(newTag), tagLinkList = listOf(link))
 
-            syncDataSource.findPending(accountId = accountId) shouldBe listOf(newTag)
+            syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(newTag)
             AccountTagLinkSyncLocalDataSourceImpl(database = database)
-                .findPending(accountId = accountId)
+                .readPendingList(accountId = accountId)
                 .map { pending -> pending.fromTagId to pending.toTagId } shouldBe listOf(newTag.id to toTag.id)
         }
 
@@ -124,7 +124,7 @@ class AccountTagTransactionImplTest :
             transaction.upsert(accountId = accountId, tagList = listOf(tag), tagLinkList = emptyList())
             transaction.upsert(accountId = accountId, tagList = listOf(changedTag), tagLinkList = emptyList())
 
-            syncDataSource.findPending(accountId = accountId) shouldBe listOf(changedTag)
+            syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(changedTag)
         }
     }) {
     public companion object {

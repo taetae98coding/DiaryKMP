@@ -10,19 +10,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.ViewModelStoreProvider
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreProvider
 import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleVisibility
-import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import io.github.taetae98coding.diary.compose.core.snackbar.DismissUndoSnackbarEffect
-import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
-import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailFormContent
 import io.github.taetae98coding.diary.feature.tag.ui.detail.form.TagDetailFormFloatingActionButton
 import io.github.taetae98coding.diary.feature.tag.ui.detail.memo.TagDetailMemoContent
@@ -41,11 +37,6 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.web.TagDetailWebCont
 import io.github.taetae98coding.diary.feature.tag.ui.detail.web.TagDetailWebFloatingActionButton
 import io.github.taetae98coding.diary.feature.tag.ui.form.TagFormState
 import io.github.taetae98coding.diary.feature.tag.ui.form.rememberTagDetailFormState
-import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_update_succeeded_message
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.stringResource
 import kotlin.uuid.Uuid
 
 @Composable
@@ -72,16 +63,19 @@ internal fun TagDetailScreen(
         placeMapViewModel = placeMapViewModel,
     ) { placeState, placeMapState ->
         TagDetailScreenContent(
-            navigateUp = navigateUp,
-            navigateToTagAdd = navigateToTagAdd,
-            navigateToDetail = navigateToDetail,
-            navigateToMemoAdd = navigateToMemoAdd,
-            navigateToMemoDetail = navigateToMemoDetail,
-            navigateToMemoFinishedList = navigateToMemoFinishedList,
-            navigateToWebAdd = navigateToWebAdd,
-            navigateToWebDetail = navigateToWebDetail,
-            navigateToPlaceAdd = navigateToPlaceAdd,
-            navigateToPlaceDetail = navigateToPlaceDetail,
+            navigation =
+                TagDetailNavigation(
+                    navigateUp = navigateUp,
+                    navigateToTagAdd = navigateToTagAdd,
+                    navigateToDetail = navigateToDetail,
+                    navigateToMemoAdd = navigateToMemoAdd,
+                    navigateToMemoDetail = navigateToMemoDetail,
+                    navigateToMemoFinishedList = navigateToMemoFinishedList,
+                    navigateToWebAdd = navigateToWebAdd,
+                    navigateToWebDetail = navigateToWebDetail,
+                    navigateToPlaceAdd = navigateToPlaceAdd,
+                    navigateToPlaceDetail = navigateToPlaceDetail,
+                ),
             id = id,
             tagAddRequestKey = tagAddRequestKey,
             componentVisibleProvider = componentVisibleProvider,
@@ -96,16 +90,7 @@ internal fun TagDetailScreen(
 
 @Composable
 private fun TagDetailScreenContent(
-    navigateUp: () -> Unit,
-    navigateToTagAdd: () -> Unit,
-    navigateToDetail: (Uuid) -> Unit,
-    navigateToMemoAdd: () -> Unit,
-    navigateToMemoDetail: (Uuid) -> Unit,
-    navigateToMemoFinishedList: () -> Unit,
-    navigateToWebAdd: () -> Unit,
-    navigateToWebDetail: (Uuid) -> Unit,
-    navigateToPlaceAdd: (Coordinate?) -> Unit,
-    navigateToPlaceDetail: (Uuid) -> Unit,
+    navigation: TagDetailNavigation,
     id: Uuid,
     tagAddRequestKey: Uuid,
     componentVisibleProvider: () -> TagDetailScaffoldComponentVisible,
@@ -125,17 +110,17 @@ private fun TagDetailScreenContent(
 
     val isUpdateEnabled by rememberIsUpdateEnabled(scaffoldState = scaffoldState, uiStateProvider = { uiState })
 
-    TagDetailScreenEffect(effect = detailViewModel.effect, scaffoldState = scaffoldState, navigateUp = navigateUp)
-    DismissUndoSnackbarEffect(keyProvider = { tabState.tab }, hostState = scaffoldState.hostState)
+    TagDetailScreenEffect(effect = detailViewModel.effect, scaffoldState = scaffoldState, navigateUp = navigation.navigateUp)
+    DismissUndoSnackbarEffect(keyProvider = { tabState.tab }, hostState = scaffoldState.snackbarHostState)
 
     TagDetailScaffold(
-        onEvent = { event -> handleTagDetailScaffoldEvent(event = event, viewModel = detailViewModel, scopeState = scopeState, navigateUp = navigateUp) },
+        onEvent = { event -> handleTagDetailScaffoldEvent(event = event, viewModel = detailViewModel, scopeState = scopeState, navigateUp = navigation.navigateUp) },
         modifier =
             modifier.tagDetailTabShortcut(
                 onUpdate = { detailViewModel.update(detail = scaffoldState.detail) },
-                onMemoAdd = navigateToMemoAdd,
-                onWebAdd = navigateToWebAdd,
-                onPlaceAdd = { navigateToPlaceAdd(placeState.addCoordinate) },
+                onMemoAdd = navigation.navigateToMemoAdd,
+                onWebAdd = navigation.navigateToWebAdd,
+                onPlaceAdd = { navigation.navigateToPlaceAdd(placeState.addCoordinate) },
                 state = tabState,
                 isUpdateEnabledProvider = { isUpdateEnabled },
             ),
@@ -148,9 +133,9 @@ private fun TagDetailScreenContent(
             TabFloatingActionButton(
                 tab = tab,
                 onUpdate = { detailViewModel.update(detail = scaffoldState.detail) },
-                onMemoAdd = navigateToMemoAdd,
-                onWebAdd = navigateToWebAdd,
-                onPlaceAdd = { navigateToPlaceAdd(placeState.addCoordinate) },
+                onMemoAdd = navigation.navigateToMemoAdd,
+                onWebAdd = navigation.navigateToWebAdd,
+                onPlaceAdd = { navigation.navigateToPlaceAdd(placeState.addCoordinate) },
                 isUpdateVisible = isUpdateEnabled,
                 isUpdateInProgressProvider = { content?.isInProgress == true },
             )
@@ -160,12 +145,7 @@ private fun TagDetailScreenContent(
             tab = tab,
             id = id,
             viewModelStoreProvider = viewModelStoreProvider,
-            navigateToTagAdd = navigateToTagAdd,
-            navigateToDetail = navigateToDetail,
-            navigateToMemoDetail = navigateToMemoDetail,
-            navigateToMemoFinishedList = navigateToMemoFinishedList,
-            navigateToWebDetail = navigateToWebDetail,
-            navigateToPlaceDetail = navigateToPlaceDetail,
+            navigation = navigation,
             tagAddRequestKey = tagAddRequestKey,
             placeState = placeState,
             placeMapViewModel = placeMapViewModel,
@@ -228,27 +208,22 @@ private fun TabContent(
     tab: TagDetailTab,
     id: Uuid,
     viewModelStoreProvider: ViewModelStoreProvider,
-    navigateToTagAdd: () -> Unit,
-    navigateToDetail: (Uuid) -> Unit,
-    navigateToMemoDetail: (Uuid) -> Unit,
-    navigateToMemoFinishedList: () -> Unit,
-    navigateToWebDetail: (Uuid) -> Unit,
-    navigateToPlaceDetail: (Uuid) -> Unit,
+    navigation: TagDetailNavigation,
     tagAddRequestKey: Uuid,
     placeState: TagDetailPlaceState,
     placeMapViewModel: TagDetailPlaceMapViewModel,
     placeMapState: DiaryMapState,
     scopeState: TagDetailScopeState,
-    uiStateProvider: () -> TagDetailUiState = { TagDetailUiState.Loading },
-    state: TagFormState = rememberTagDetailFormState(initialDetail = TagDetail.EMPTY),
+    uiStateProvider: () -> TagDetailUiState,
+    state: TagFormState,
 ) {
     when (tab) {
         TagDetailTab.DETAIL ->
             TagDetailFormContent(
                 id = id,
                 viewModelStoreProvider = viewModelStoreProvider,
-                navigateToTagAdd = navigateToTagAdd,
-                navigateToDetail = navigateToDetail,
+                navigateToTagAdd = navigation.navigateToTagAdd,
+                navigateToDetail = navigation.navigateToDetail,
                 tagAddRequestKey = tagAddRequestKey,
                 modifier = Modifier.fillMaxSize(),
                 uiStateProvider = uiStateProvider,
@@ -259,54 +234,34 @@ private fun TabContent(
             TagDetailMemoContent(
                 id = id,
                 viewModelStoreProvider = viewModelStoreProvider,
-                navigateToMemoDetail = navigateToMemoDetail,
-                navigateToMemoFinishedList = navigateToMemoFinishedList,
+                navigateToMemoDetail = navigation.navigateToMemoDetail,
+                navigateToMemoFinishedList = navigation.navigateToMemoFinishedList,
                 scopeState = scopeState,
                 modifier = Modifier.fillMaxSize(),
-                snackbarHostState = state.hostState,
+                snackbarHostState = state.snackbarHostState,
             )
 
         TagDetailTab.WEB ->
             TagDetailWebContent(
                 id = id,
                 viewModelStoreProvider = viewModelStoreProvider,
-                navigateToWebDetail = navigateToWebDetail,
+                navigateToWebDetail = navigation.navigateToWebDetail,
                 scopeState = scopeState,
                 modifier = Modifier.fillMaxSize(),
-                snackbarHostState = state.hostState,
+                snackbarHostState = state.snackbarHostState,
             )
 
         TagDetailTab.PLACE ->
             TagDetailPlaceContent(
                 id = id,
                 viewModelStoreProvider = viewModelStoreProvider,
-                navigateToPlaceDetail = navigateToPlaceDetail,
+                navigateToPlaceDetail = navigation.navigateToPlaceDetail,
                 state = placeState,
                 mapViewModel = placeMapViewModel,
                 mapState = placeMapState,
                 scopeState = scopeState,
                 modifier = Modifier.fillMaxSize(),
-                snackbarHostState = state.hostState,
+                snackbarHostState = state.snackbarHostState,
             )
-    }
-}
-
-@Composable
-private fun TagDetailScreenEffect(
-    navigateUp: () -> Unit,
-    effect: Flow<TagDetailEffect> = emptyFlow(),
-    scaffoldState: TagFormState = rememberTagDetailFormState(initialDetail = TagDetail.EMPTY),
-) {
-    val coroutineScope = rememberCoroutineScope()
-    val updateSucceededMessage = stringResource(Res.string.tag_detail_update_succeeded_message)
-
-    CollectEffect(effect) { value ->
-        when (value) {
-            is TagDetailEffect.UpdateSucceeded -> {
-                coroutineScope.launch { scaffoldState.hostState.showImmediate(message = updateSucceededMessage) }
-            }
-
-            is TagDetailEffect.DeleteSucceeded -> navigateUp()
-        }
     }
 }

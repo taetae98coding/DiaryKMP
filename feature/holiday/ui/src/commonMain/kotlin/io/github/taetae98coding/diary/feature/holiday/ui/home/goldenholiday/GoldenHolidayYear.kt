@@ -46,7 +46,7 @@ internal fun GoldenHolidayYear(
             is HolidayHomeYearUiState.NotProvided ->
                 GoldenHolidayNotProvidedDescription(modifier = Modifier.fillMaxSize().padding(contentPadding))
 
-            is HolidayHomeYearUiState.Loaded ->
+            is HolidayHomeYearUiState.Content ->
                 GoldenHolidayList(
                     groupList = uiState.goldenHolidayGroupList,
                     onEvent = onEvent,
@@ -66,7 +66,7 @@ private fun GoldenHolidayYearPreview() {
         GoldenHolidayYear(
             onEvent = {},
             modifier = Modifier.fillMaxSize(),
-            uiStateProvider = { HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = groupList) },
+            uiStateProvider = { HolidayHomeYearUiState.Content(goldenHolidayGroupList = groupList) },
         )
     }
 }

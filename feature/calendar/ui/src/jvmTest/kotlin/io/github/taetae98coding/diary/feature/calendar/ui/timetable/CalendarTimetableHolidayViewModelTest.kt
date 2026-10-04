@@ -51,12 +51,12 @@ class CalendarTimetableHolidayViewModelTest : FunSpec() {
                 every { getUseCase(parameter = 2027) } returns flowOf(Result.success(listOf(newYear)))
                 val viewModel = CalendarTimetableHolidayViewModel(fetchHolidayUseCase = successfulFetchHolidayUseCase(), getCalendarHolidayUseCase = getUseCase)
 
-                viewModel.holidayList.test {
-                    awaitItem() shouldBe emptyList()
+                viewModel.uiState.test {
+                    awaitItem() shouldBe CalendarTimetableHolidayUiState()
 
                     viewModel.fetch(dateRange = day(year = 2026, month = 12, day = 31))
 
-                    awaitItem() shouldBe listOf(newYear)
+                    awaitItem() shouldBe CalendarTimetableHolidayUiState(holidayList = listOf(newYear))
                 }
             }
         }
@@ -89,15 +89,15 @@ class CalendarTimetableHolidayViewModelTest : FunSpec() {
                 every { getUseCase(parameter = 2027) } returns flowOf(Result.success(listOf(holiday2027)))
                 val viewModel = CalendarTimetableHolidayViewModel(fetchHolidayUseCase = fetchUseCase, getCalendarHolidayUseCase = getUseCase)
 
-                viewModel.holidayList.test {
-                    awaitItem() shouldBe emptyList()
+                viewModel.uiState.test {
+                    awaitItem() shouldBe CalendarTimetableHolidayUiState()
                     viewModel.fetch(dateRange = day(year = 2026, month = 7, day = 15))
                     advanceUntilIdle()
 
                     viewModel.fetch(dateRange = day(year = 2027, month = 7, day = 15))
                     advanceUntilIdle()
 
-                    expectMostRecentItem() shouldBe listOf(holiday2027)
+                    expectMostRecentItem() shouldBe CalendarTimetableHolidayUiState(holidayList = listOf(holiday2027))
                     coVerify(exactly = 0) { fetchUseCase(parameter = 2027) }
                     pending.complete(Result.success(emptyList()))
                 }

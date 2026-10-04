@@ -10,5 +10,5 @@ import kotlin.uuid.Uuid
 internal class AccountWebSyncLocalDataSourceImpl(
     private val database: DiaryDatabase,
 ) : AccountWebSyncLocalDataSource {
-    override suspend fun findPending(accountId: Uuid): List<WebLocalEntity> = database.accountWebSyncDao().findPending(accountId = accountId)
+    override suspend fun readPendingList(accountId: Uuid): List<WebLocalEntity> = database.accountWebSyncDao().findPending(accountId = accountId)
 }

@@ -3,6 +3,7 @@
 package io.github.taetae98coding.diary.feature.place.ui.home.list
 
 import androidx.paging.PagingData
+import androidx.paging.testing.ErrorRecovery
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
@@ -16,6 +17,8 @@ import io.github.taetae98coding.diary.domain.place.usecase.DeletePlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.GetPlaceListUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceHomeUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.RestorePlaceUseCase
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.place.ui.appendFailingPagingData
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -317,6 +320,26 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
             }
         }
 
+        test("같은 장소의 삭제나 실행 취소가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val deletePlaceUseCase = mockk<DeletePlaceUseCase>()
+                coEvery { deletePlaceUseCase(parameter = id) } returns Result.success(1)
+                val restorePlaceUseCase = mockk<RestorePlaceUseCase>()
+                coEvery { restorePlaceUseCase(parameter = id) } returns Result.success(1)
+                val viewModel = viewModel(deletePlaceUseCase = deletePlaceUseCase, restorePlaceUseCase = restorePlaceUseCase)
+
+                viewModel.delete(id = id)
+                viewModel.delete(id = id)
+                viewModel.restore(id = id)
+                viewModel.restore(id = id)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { deletePlaceUseCase(parameter = id) }
+                coVerify(exactly = 1) { restorePlaceUseCase(parameter = id) }
+            }
+        }
+
         test("TC-PLACE-HOME-DOMAIN-030 실행 취소를 저장하지 못하면 별도 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
@@ -369,7 +392,49 @@ class PlaceHomePlaceListViewModelTest : FunSpec() {
                     cancelAndIgnoreRemainingEvents()
                 }
                 flowOf(viewModel.placePagingData.first()).asSnapshot() shouldBe recentlyUpdatedPlaceList
-                viewModel.sort.value shouldBe ListSort.RECENTLY_UPDATED
+                viewModel.sortUiState.value shouldBe ListSortUiState(sort = ListSort.RECENTLY_UPDATED)
+            }
+        }
+
+        test("TC-PLACE-HOME-FEATURE-067 목록 모드에서 처음 조회에 실패하면 빈 목록을 노출한다") {
+            runTest(mainDispatcher) {
+                val viewModel = viewModel(placePagingFlow = flowOf(Result.failure(IllegalStateException())))
+
+                flowOf(viewModel.placePagingData.first()).asSnapshot().shouldBeEmpty()
+            }
+        }
+
+        test("TC-PLACE-HOME-FEATURE-067 목록 모드에서 추가 조회에 실패해도 이미 표시된 장소를 유지한다") {
+            runTest(mainDispatcher) {
+                val placeList = placeList(PLACE_COUNT)
+                val viewModel = viewModel(placePagingFlow = appendFailingPagingData(firstPage = placeList).map { pagingData -> Result.success(pagingData) })
+
+                val itemList =
+                    flowOf(viewModel.placePagingData.first()).asSnapshot(onError = { ErrorRecovery.RETURN_CURRENT_SNAPSHOT }) {
+                        appendScrollWhile { true }
+                    }
+
+                itemList shouldBe placeList
+            }
+        }
+
+        test("TC-PLACE-HOME-FEATURE-067 목록 모드에서 다시 조회에 실패하면 이전 장소를 남기지 않고 빈 목록을 노출한다") {
+            runTest(mainDispatcher) {
+                val viewModel =
+                    viewModel(
+                        placePagingFlow =
+                            flowOf(
+                                Result.success(PagingData.from(placeList(PLACE_COUNT))),
+                                Result.failure(IllegalStateException()),
+                            ),
+                    )
+
+                viewModel.placePagingData.test {
+                    advanceUntilIdle()
+
+                    flowOf(expectMostRecentItem()).asSnapshot().shouldBeEmpty()
+                    cancelAndIgnoreRemainingEvents()
+                }
             }
         }
     }

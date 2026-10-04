@@ -7,7 +7,7 @@ import org.koin.core.annotation.Factory
 
 @Factory
 internal class DeviceCountryRepositoryImpl : DeviceCountryRepository {
-    override fun find(): HolidayCountry? =
+    override suspend fun read(): HolidayCountry? =
         when (DeviceLocale.currentRegionCode()) {
             KOREA_REGION_CODE -> HolidayCountry.KOREA
             UNITED_STATES_REGION_CODE -> HolidayCountry.UNITED_STATES

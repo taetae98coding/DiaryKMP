@@ -28,7 +28,6 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flowOf
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -92,7 +91,7 @@ internal fun ComposeContentTestRule.currentColorHex(): String =
 internal fun addTagScreenTestViewModel(tagList: List<Tag> = emptyList()): PlaceAddTagViewModel {
     val viewModel = mockk<PlaceAddTagViewModel>(relaxed = true)
     every { viewModel.uiState } returns MutableStateFlow(EntityTagInputUiState(tagList = tagList))
-    every { viewModel.tagIdSet } returns MutableStateFlow(tagList.map { tag -> tag.id }.toSet())
+    every { viewModel.selectionUiState } returns MutableStateFlow(PlaceAddTagSelectionUiState(tagIdSet = tagList.map { tag -> tag.id }.toSet()))
     every { viewModel.tagPagingData } returns MutableStateFlow(PagingData.from(tagList))
     every { viewModel.selectableTagPagingData } returns MutableStateFlow(PagingData.from(tagList))
     return viewModel

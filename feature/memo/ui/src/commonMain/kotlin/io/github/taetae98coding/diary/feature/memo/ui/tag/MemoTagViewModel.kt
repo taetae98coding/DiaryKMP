@@ -5,7 +5,6 @@ package io.github.taetae98coding.diary.feature.memo.ui.tag
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
-import androidx.paging.cachedIn
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoTagUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.FindMemoUseCase
@@ -14,18 +13,14 @@ import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoSelectableTagU
 import io.github.taetae98coding.diary.domain.memo.usecase.RemoveMemoTagUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.SetMemoPrimaryTagUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.UnsetMemoPrimaryTagUseCase
+import io.github.taetae98coding.diary.feature.memo.ui.picker.MemoSelectablePaging
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
-import io.github.taetae98coding.diary.library.coroutines.flow.debounceReportedSearchQuery
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.InjectedParam
@@ -43,23 +38,12 @@ internal class MemoTagViewModel(
     private val setMemoPrimaryTagUseCase: SetMemoPrimaryTagUseCase,
     private val unsetMemoPrimaryTagUseCase: UnsetMemoPrimaryTagUseCase,
 ) : ViewModel() {
-    // 화면이 검색어를 알려 주기 전에는 조회하지 않는다. 기준은 debounceReportedSearchQuery를 따른다.
-    private val query = MutableStateFlow<String?>(null)
+    private val selectablePaging =
+        MemoSelectablePaging(scope = viewModelScope) { query -> pageMemoSelectableTagUseCase(parameter = PageMemoSelectableTagUseCase.Parameter(memoId = id, query = query)) }
 
-    val tagPagingData: Flow<PagingData<Tag>> =
-        query
-            .debounceReportedSearchQuery()
-            .flatMapLatest { value ->
-                pageMemoSelectableTagUseCase(parameter = PageMemoSelectableTagUseCase.Parameter(memoId = id, query = value))
-            }.mapNotNull { result -> result.getOrNull() }
-            .cachedIn(viewModelScope)
+    val tagPagingData: Flow<PagingData<Tag>> = selectablePaging.pagingData
 
-    val selectableTagPagingData: Flow<PagingData<Tag>> =
-        flowOf("")
-            .flatMapLatest { value ->
-                pageMemoSelectableTagUseCase(parameter = PageMemoSelectableTagUseCase.Parameter(memoId = id, query = value))
-            }.mapNotNull { result -> result.getOrNull() }
-            .cachedIn(viewModelScope)
+    val selectableTagPagingData: Flow<PagingData<Tag>> = selectablePaging.selectablePagingData
 
     val uiState: StateFlow<MemoTagInputUiState> =
         combine(
@@ -78,31 +62,61 @@ internal class MemoTagViewModel(
             initialValue = MemoTagInputUiState(),
         )
 
+    private val inProgressSelectTagSet = mutableSetOf<Uuid>()
+    private val inProgressUnselectTagSet = mutableSetOf<Uuid>()
+    private val inProgressSelectPrimaryTagSet = mutableSetOf<Uuid>()
+    private var isUnselectPrimaryTagInProgress = false
+
     fun updateQuery(query: String) {
-        this.query.value = query
+        selectablePaging.updateQuery(query)
     }
 
     fun selectTag(tagId: Uuid) {
+        if (!inProgressSelectTagSet.add(tagId)) return
+
         viewModelScope.launch {
-            addMemoTagUseCase(parameter = AddMemoTagUseCase.Parameter(memoId = id, tagId = tagId))
+            try {
+                addMemoTagUseCase(parameter = AddMemoTagUseCase.Parameter(memoId = id, tagId = tagId))
+            } finally {
+                inProgressSelectTagSet.remove(tagId)
+            }
         }
     }
 
     fun unselectTag(tagId: Uuid) {
+        if (!inProgressUnselectTagSet.add(tagId)) return
+
         viewModelScope.launch {
-            removeMemoTagUseCase(parameter = RemoveMemoTagUseCase.Parameter(memoId = id, tagId = tagId))
+            try {
+                removeMemoTagUseCase(parameter = RemoveMemoTagUseCase.Parameter(memoId = id, tagId = tagId))
+            } finally {
+                inProgressUnselectTagSet.remove(tagId)
+            }
         }
     }
 
     fun selectPrimaryTag(tagId: Uuid) {
+        if (!inProgressSelectPrimaryTagSet.add(tagId)) return
+
         viewModelScope.launch {
-            setMemoPrimaryTagUseCase(parameter = SetMemoPrimaryTagUseCase.Parameter(memoId = id, tagId = tagId))
+            try {
+                setMemoPrimaryTagUseCase(parameter = SetMemoPrimaryTagUseCase.Parameter(memoId = id, tagId = tagId))
+            } finally {
+                inProgressSelectPrimaryTagSet.remove(tagId)
+            }
         }
     }
 
     fun unselectPrimaryTag() {
+        if (isUnselectPrimaryTagInProgress) return
+        isUnselectPrimaryTagInProgress = true
+
         viewModelScope.launch {
-            unsetMemoPrimaryTagUseCase(parameter = id)
+            try {
+                unsetMemoPrimaryTagUseCase(parameter = id)
+            } finally {
+                isUnselectPrimaryTagInProgress = false
+            }
         }
     }
 }

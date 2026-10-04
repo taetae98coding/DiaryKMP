@@ -33,7 +33,7 @@ internal class PlaceHomeMapViewModel(
             if (provider == null || currentLocationState !is CurrentLocationState.Finished) {
                 PlaceHomeUiState.Loading
             } else {
-                PlaceHomeUiState.Loaded(
+                PlaceHomeUiState.Content(
                     defaultProvider = provider,
                     initialCoordinate = currentLocationState.coordinate,
                     currentLocationFetchId = currentLocationState.fetchId,

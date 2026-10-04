@@ -25,7 +25,7 @@ private class SyncKindCase(
     val push: suspend MockKMatcherScope.(TestContext) -> Unit,
     val pull: suspend MockKMatcherScope.(TestContext, Long) -> List<Any>,
     val clearPending: suspend MockKMatcherScope.(TestContext) -> Unit,
-    val save: suspend MockKMatcherScope.(TestContext) -> Unit,
+    val upsert: suspend MockKMatcherScope.(TestContext) -> Unit,
     val pulls: (List<Long>) -> Pair<List<Any>, List<Any>>,
 )
 
@@ -54,7 +54,7 @@ private val kindCaseList: List<SyncKindCase> =
             push = { context -> context.tagRemoteDataSource.push(any()) },
             pull = { context, usn -> context.tagRemoteDataSource.pull(usn = usn) },
             clearPending = { context -> context.accountTagSyncTransaction.clearPending(any(), any()) },
-            save = { context -> context.accountTagSyncTransaction.save(any(), any(), any()) },
+            upsert = { context -> context.accountTagSyncTransaction.upsert(any(), any(), any()) },
             pulls = { usnList -> tagPulls(usnList = usnList).let { pullList -> pullList to pullList.map { pull -> pull.tag.toLocal() } } },
         ),
         SyncKindCase(
@@ -62,7 +62,7 @@ private val kindCaseList: List<SyncKindCase> =
             push = { context -> context.placeRemoteDataSource.push(any()) },
             pull = { context, usn -> context.placeRemoteDataSource.pull(usn = usn) },
             clearPending = { context -> context.accountPlaceSyncTransaction.clearPending(any(), any()) },
-            save = { context -> context.accountPlaceSyncTransaction.save(any(), any(), any()) },
+            upsert = { context -> context.accountPlaceSyncTransaction.upsert(any(), any(), any()) },
             pulls = { usnList -> placePulls(usnList = usnList).let { pullList -> pullList to pullList.map { pull -> pull.place.toLocal() } } },
         ),
         SyncKindCase(
@@ -70,7 +70,7 @@ private val kindCaseList: List<SyncKindCase> =
             push = { context -> context.webRemoteDataSource.push(any()) },
             pull = { context, usn -> context.webRemoteDataSource.pull(usn = usn) },
             clearPending = { context -> context.accountWebSyncTransaction.clearPending(any(), any()) },
-            save = { context -> context.accountWebSyncTransaction.save(any(), any(), any()) },
+            upsert = { context -> context.accountWebSyncTransaction.upsert(any(), any(), any()) },
             pulls = { usnList -> webPulls(usnList = usnList).let { pullList -> pullList to pullList.map { pull -> pull.web.toLocal() } } },
         ),
         SyncKindCase(
@@ -78,7 +78,7 @@ private val kindCaseList: List<SyncKindCase> =
             push = { context -> context.contactRemoteDataSource.push(any()) },
             pull = { context, usn -> context.contactRemoteDataSource.pull(usn = usn) },
             clearPending = { context -> context.accountContactSyncTransaction.clearPending(any(), any()) },
-            save = { context -> context.accountContactSyncTransaction.save(any(), any(), any()) },
+            upsert = { context -> context.accountContactSyncTransaction.upsert(any(), any(), any()) },
             pulls = { usnList -> contactPulls(usnList = usnList).let { pullList -> pullList to pullList.map { pull -> pull.contact.toLocal() } } },
         ),
         SyncKindCase(
@@ -86,7 +86,7 @@ private val kindCaseList: List<SyncKindCase> =
             push = { context -> context.musicRemoteDataSource.push(any()) },
             pull = { context, usn -> context.musicRemoteDataSource.pull(usn = usn) },
             clearPending = { context -> context.accountMusicSyncTransaction.clearPending(any(), any()) },
-            save = { context -> context.accountMusicSyncTransaction.save(any(), any(), any()) },
+            upsert = { context -> context.accountMusicSyncTransaction.upsert(any(), any(), any()) },
             pulls = { usnList -> musicPulls(usnList = usnList).let { pullList -> pullList to pullList.map { pull -> pull.music.toLocal() } } },
         ),
         SyncKindCase(
@@ -94,7 +94,7 @@ private val kindCaseList: List<SyncKindCase> =
             push = { context -> context.qrRemoteDataSource.push(any()) },
             pull = { context, usn -> context.qrRemoteDataSource.pull(usn = usn) },
             clearPending = { context -> context.accountQrSyncTransaction.clearPending(any(), any()) },
-            save = { context -> context.accountQrSyncTransaction.save(any(), any(), any()) },
+            upsert = { context -> context.accountQrSyncTransaction.upsert(any(), any(), any()) },
             pulls = { usnList -> qrPulls(usnList = usnList).let { pullList -> pullList to pullList.map { pull -> pull.qr.toLocal() } } },
         ),
         SyncKindCase(
@@ -102,7 +102,7 @@ private val kindCaseList: List<SyncKindCase> =
             push = { context -> context.memoRemoteDataSource.push(any()) },
             pull = { context, usn -> context.memoRemoteDataSource.pull(usn = usn) },
             clearPending = { context -> context.accountMemoSyncTransaction.clearPending(any(), any()) },
-            save = { context -> context.accountMemoSyncTransaction.save(any(), any(), any()) },
+            upsert = { context -> context.accountMemoSyncTransaction.upsert(any(), any(), any()) },
             pulls = { usnList -> memoPulls(usnList = usnList).let { pullList -> pullList to pullList.map { pull -> pull.memo.toLocal() } } },
         ),
         SyncKindCase(
@@ -110,7 +110,7 @@ private val kindCaseList: List<SyncKindCase> =
             push = { context -> context.memoTagRemoteDataSource.push(any()) },
             pull = { context, usn -> context.memoTagRemoteDataSource.pull(usn = usn) },
             clearPending = { context -> context.accountMemoTagSyncTransaction.clearPending(any(), any()) },
-            save = { context -> context.accountMemoTagSyncTransaction.save(any(), any(), any()) },
+            upsert = { context -> context.accountMemoTagSyncTransaction.upsert(any(), any(), any()) },
             pulls = { usnList -> memoTagPulls(usnList = usnList).let { pullList -> pullList to pullList.map { pull -> pull.memoTag.toLocal() } } },
         ),
         SyncKindCase(
@@ -118,7 +118,7 @@ private val kindCaseList: List<SyncKindCase> =
             push = { context -> context.memoPlaceRemoteDataSource.push(any()) },
             pull = { context, usn -> context.memoPlaceRemoteDataSource.pull(usn = usn) },
             clearPending = { context -> context.accountMemoPlaceSyncTransaction.clearPending(any(), any()) },
-            save = { context -> context.accountMemoPlaceSyncTransaction.save(any(), any(), any()) },
+            upsert = { context -> context.accountMemoPlaceSyncTransaction.upsert(any(), any(), any()) },
             pulls = { usnList -> memoPlacePulls(usnList = usnList).let { pullList -> pullList to pullList.map { pull -> pull.memoPlace.toLocal() } } },
         ),
         SyncKindCase(
@@ -126,7 +126,7 @@ private val kindCaseList: List<SyncKindCase> =
             push = { context -> context.memoWebRemoteDataSource.push(any()) },
             pull = { context, usn -> context.memoWebRemoteDataSource.pull(usn = usn) },
             clearPending = { context -> context.accountMemoWebSyncTransaction.clearPending(any(), any()) },
-            save = { context -> context.accountMemoWebSyncTransaction.save(any(), any(), any()) },
+            upsert = { context -> context.accountMemoWebSyncTransaction.upsert(any(), any(), any()) },
             pulls = { usnList -> memoWebPulls(usnList = usnList).let { pullList -> pullList to pullList.map { pull -> pull.memoWeb.toLocal() } } },
         ),
         SyncKindCase(
@@ -134,7 +134,7 @@ private val kindCaseList: List<SyncKindCase> =
             push = { context -> context.memoContactRemoteDataSource.push(any()) },
             pull = { context, usn -> context.memoContactRemoteDataSource.pull(usn = usn) },
             clearPending = { context -> context.accountMemoContactSyncTransaction.clearPending(any(), any()) },
-            save = { context -> context.accountMemoContactSyncTransaction.save(any(), any(), any()) },
+            upsert = { context -> context.accountMemoContactSyncTransaction.upsert(any(), any(), any()) },
             pulls = { usnList ->
                 memoContactPulls(usnList = usnList).let { pullList -> pullList to pullList.map { pull -> pull.memoContact.toLocal() } }
             },
@@ -144,7 +144,7 @@ private val kindCaseList: List<SyncKindCase> =
             push = { context -> context.tagLinkRemoteDataSource.push(any()) },
             pull = { context, usn -> context.tagLinkRemoteDataSource.pull(usn = usn) },
             clearPending = { context -> context.accountTagLinkSyncTransaction.clearPending(any(), any()) },
-            save = { context -> context.accountTagLinkSyncTransaction.save(any(), any(), any()) },
+            upsert = { context -> context.accountTagLinkSyncTransaction.upsert(any(), any(), any()) },
             pulls = { usnList -> tagLinkPulls(usnList = usnList).let { pullList -> pullList to pullList.map { pull -> pull.tagLink.toLocal() } } },
         ),
         SyncKindCase(
@@ -152,7 +152,7 @@ private val kindCaseList: List<SyncKindCase> =
             push = { context -> context.webTagRemoteDataSource.push(any()) },
             pull = { context, usn -> context.webTagRemoteDataSource.pull(usn = usn) },
             clearPending = { context -> context.accountWebTagSyncTransaction.clearPending(any(), any()) },
-            save = { context -> context.accountWebTagSyncTransaction.save(any(), any(), any()) },
+            upsert = { context -> context.accountWebTagSyncTransaction.upsert(any(), any(), any()) },
             pulls = { usnList -> webTagPulls(usnList = usnList).let { pullList -> pullList to pullList.map { pull -> pull.webTag.toLocal() } } },
         ),
         SyncKindCase(
@@ -160,7 +160,7 @@ private val kindCaseList: List<SyncKindCase> =
             push = { context -> context.placeTagRemoteDataSource.push(any()) },
             pull = { context, usn -> context.placeTagRemoteDataSource.pull(usn = usn) },
             clearPending = { context -> context.accountPlaceTagSyncTransaction.clearPending(any(), any()) },
-            save = { context -> context.accountPlaceTagSyncTransaction.save(any(), any(), any()) },
+            upsert = { context -> context.accountPlaceTagSyncTransaction.upsert(any(), any(), any()) },
             pulls = { usnList -> placeTagPulls(usnList = usnList).let { pullList -> pullList to pullList.map { pull -> pull.placeTag.toLocal() } } },
         ),
     )
@@ -405,7 +405,7 @@ class SyncWorkKindTest :
 
                 actual.message shouldBe failure.message
                 coVerify(exactly = 0) { kindCase.clearPending(this, context) }
-                coVerify(exactly = 0) { kindCase.save(this, context) }
+                coVerify(exactly = 0) { kindCase.upsert(this, context) }
                 context.verifyNoPull()
             }
 
@@ -423,7 +423,7 @@ class SyncWorkKindTest :
                 val savedList = mutableListOf<Pair<List<Any>, Long>>()
                 coEvery { kindCase.pull(this, context, 0L) } returns pullList
                 coEvery { kindCase.pull(this, context, 9L) } returns emptyList()
-                coEvery { kindCase.save(this, context) } coAnswers {
+                coEvery { kindCase.upsert(this, context) } coAnswers {
                     savedList += secondArg<List<Any>>() to thirdArg<Long>()
                 }
 
@@ -474,7 +474,7 @@ class SyncWorkKindTest :
                     }
                 val savedMap = otherKindCaseList.associate { other -> other.label to mutableListOf<Pair<List<Any>, Long>>() }
                 otherKindCaseList.forEach { other ->
-                    coEvery { other.save(this, context) } coAnswers {
+                    coEvery { other.upsert(this, context) } coAnswers {
                         savedMap.getValue(other.label) += secondArg<List<Any>>() to thirdArg<Long>()
                     }
                 }
@@ -482,7 +482,7 @@ class SyncWorkKindTest :
                 shouldThrowExactly<TestException> { context.subject.doWork() }
 
                 savedMap shouldBe expectedSaveMap
-                coVerify(exactly = 0) { kindCase.save(this, context) }
+                coVerify(exactly = 0) { kindCase.upsert(this, context) }
             }
 
             test("TC-DATA-SYNC-DOMAIN-040 ${kindCase.label} 내려받기가 실패하면 나머지 종류의 내려받기가 끝난 뒤 동기화가 실패한다") {

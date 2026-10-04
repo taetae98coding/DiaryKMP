@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.drop
 @Composable
 internal fun SearchHomeQueryScrollEffect(
     listState: LazyListState,
-    queryProvider: () -> String = { "" },
+    queryProvider: () -> String,
 ) {
     val latestQueryProvider by rememberUpdatedState(queryProvider)
 

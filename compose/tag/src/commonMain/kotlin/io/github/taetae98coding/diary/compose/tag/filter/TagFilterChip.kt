@@ -16,7 +16,7 @@ import io.github.taetae98coding.diary.library.compose.ui.color.contentColor
 import io.github.taetae98coding.diary.library.compose.ui.color.toColor
 
 @Composable
-public fun TagFilterChip(
+internal fun TagFilterChip(
     tag: Tag,
     onEvent: (TagFilterEvent) -> Unit,
     modifier: Modifier = Modifier,

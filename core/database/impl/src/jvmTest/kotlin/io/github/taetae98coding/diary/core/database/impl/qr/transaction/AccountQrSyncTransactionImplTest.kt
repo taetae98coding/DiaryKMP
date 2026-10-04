@@ -7,7 +7,7 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrLocalEntity
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.qr.datasource.AccountQrSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.qr.entity.AccountQrLocalEntity
@@ -61,7 +61,7 @@ class AccountQrSyncTransactionImplTest :
         suspend fun isPending(
             accountId: Uuid,
             qrId: Uuid,
-        ): Boolean = syncDataSource.findPending(accountId = accountId).any { qr -> qr.id == qrId }
+        ): Boolean = syncDataSource.readPendingList(accountId = accountId).any { qr -> qr.id == qrId }
 
         test("TC-DATA-SYNC-DOMAIN-087 로그인한 계정의 업로드 대상에 게스트 상태에서 만든 QR은 포함되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
@@ -70,14 +70,14 @@ class AccountQrSyncTransactionImplTest :
             insertWithSyncState(accountId = Uuid.NIL, qr = guestEntity, isDirty = true)
             insertWithSyncState(accountId = accountId, qr = accountEntity, isDirty = true)
 
-            syncDataSource.findPending(accountId = accountId) shouldBe listOf(accountEntity)
+            syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(accountEntity)
         }
 
         test("업로드 대기가 아닌 QR은 업로드 대상에 포함되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             insertWithSyncState(accountId = accountId, qr = fixtureMonkey.localQr(isDeleted = false), isDirty = false)
 
-            syncDataSource.findPending(accountId = accountId).shouldBeEmpty()
+            syncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
 
         test("TC-QR-ADD-DATA-003 추가한 QR은 계정의 업로드 대기로 기록된다") {
@@ -86,7 +86,7 @@ class AccountQrSyncTransactionImplTest :
 
             AccountQrTransactionImpl(database = database).upsert(accountId = accountId, qrList = listOf(qr))
 
-            syncDataSource.findPending(accountId = accountId) shouldBe listOf(qr)
+            syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(qr)
         }
 
         listOf(
@@ -106,7 +106,7 @@ class AccountQrSyncTransactionImplTest :
                     updatedAt = updatedAt,
                 ) shouldBe 1
 
-                syncDataSource.findPending(accountId = accountId) shouldBe listOf(qr.copy(isDeleted = isDeleted, updatedAt = updatedAt))
+                syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(qr.copy(isDeleted = isDeleted, updatedAt = updatedAt))
             }
         }
 
@@ -117,7 +117,7 @@ class AccountQrSyncTransactionImplTest :
 
             transaction.clearPending(accountId = accountId, qrList = listOf(qr))
 
-            syncDataSource.findPending(accountId = accountId).shouldBeEmpty()
+            syncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
 
         test("TC-DATA-SYNC-DOMAIN-027 업로드 중 수정 시각이 바뀐 QR은 업로드 대기로 남는다") {
@@ -128,7 +128,7 @@ class AccountQrSyncTransactionImplTest :
 
             transaction.clearPending(accountId = accountId, qrList = listOf(pushedQr))
 
-            syncDataSource.findPending(accountId = accountId) shouldBe listOf(changedQr)
+            syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(changedQr)
         }
 
         listOf(
@@ -146,7 +146,7 @@ class AccountQrSyncTransactionImplTest :
                     )
                 insertWithSyncState(accountId = accountId, qr = localQr, isDirty = false)
 
-                transaction.save(accountId = accountId, qrList = listOf(remoteQr), cursor = 5L)
+                transaction.upsert(accountId = accountId, qrList = listOf(remoteQr), cursor = 5L)
 
                 database.findQrList() shouldBe listOf(remoteQr)
             }
@@ -162,10 +162,10 @@ class AccountQrSyncTransactionImplTest :
                 )
             insertWithSyncState(accountId = accountId, qr = localQr, isDirty = true)
 
-            transaction.save(accountId = accountId, qrList = listOf(remoteQr), cursor = 5L)
+            transaction.upsert(accountId = accountId, qrList = listOf(remoteQr), cursor = 5L)
 
             database.findQrList() shouldBe listOf(localQr)
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.QR) shouldBe 5L
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.QR) shouldBe 5L
         }
 
         listOf(
@@ -183,7 +183,7 @@ class AccountQrSyncTransactionImplTest :
                     )
                 insertWithSyncState(accountId = accountId, qr = localQr, isDirty = true)
 
-                transaction.save(accountId = accountId, qrList = listOf(remoteQr), cursor = 5L)
+                transaction.upsert(accountId = accountId, qrList = listOf(remoteQr), cursor = 5L)
 
                 isPending(accountId = accountId, qrId = localQr.id) shouldBe true
             }
@@ -197,33 +197,33 @@ class AccountQrSyncTransactionImplTest :
             val failingTransaction = AccountQrSyncTransactionImpl(database = failingDatabase)
 
             shouldThrowExactly<QrSyncTestException> {
-                failingTransaction.save(accountId = accountId, qrList = listOf(remoteQr), cursor = 5L)
+                failingTransaction.upsert(accountId = accountId, qrList = listOf(remoteQr), cursor = 5L)
             }
 
             database.findQrList().shouldBeEmpty()
             database.findAccountQrList().shouldBeEmpty()
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.QR) shouldBe 0L
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.QR) shouldBe 0L
         }
 
         test("TC-DATA-SYNC-DATA-025 기기에 없던 QR은 계정과 연결되어 새로 저장되고 동기화 완료로 기록된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val remote = fixtureMonkey.localQr(isDeleted = false)
 
-            transaction.save(accountId = accountId, qrList = listOf(remote), cursor = 5L)
+            transaction.upsert(accountId = accountId, qrList = listOf(remote), cursor = 5L)
 
             database.findQrList() shouldBe listOf(remote)
             database.findAccountQrList() shouldBe listOf(AccountQrLocalEntity(accountId = accountId, qrId = remote.id, isDirty = false))
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.QR) shouldBe 5L
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.QR) shouldBe 5L
         }
 
         test("QR 커서는 다른 종류의 커서와 따로 기록된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
 
-            transaction.save(accountId = accountId, qrList = listOf(fixtureMonkey.localQr(isDeleted = false)), cursor = 5L)
+            transaction.upsert(accountId = accountId, qrList = listOf(fixtureMonkey.localQr(isDeleted = false)), cursor = 5L)
 
-            SyncKind.entries
-                .filter { kind -> kind != SyncKind.QR }
-                .forEach { kind -> syncCursorDataSource.find(accountId = accountId, kind = kind) shouldBe 0L }
+            SyncKindLocalEntity.entries
+                .filter { kind -> kind != SyncKindLocalEntity.QR }
+                .forEach { kind -> syncCursorDataSource.read(accountId = accountId, kind = kind) shouldBe 0L }
         }
     }) {
     public companion object {

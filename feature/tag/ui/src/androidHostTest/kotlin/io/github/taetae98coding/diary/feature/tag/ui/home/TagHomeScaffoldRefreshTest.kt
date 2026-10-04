@@ -15,6 +15,7 @@ import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
@@ -85,7 +86,7 @@ class TagHomeScaffoldRefreshTest {
                     onTagListEvent = {},
                     tagPagingItems = tagPagingDataFlow.collectAsLazyPagingItems(),
                     onEvent = onEvent,
-                    uiStateProvider = { TagHomeUiState(isRefreshing = isRefreshingProvider()) },
+                    uiStateProvider = { SyncRefreshUiState(isRefreshing = isRefreshingProvider()) },
                 )
             }
         }

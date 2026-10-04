@@ -133,7 +133,7 @@ private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 private fun mockMapSettingLocalDataSource(providerFlow: MutableStateFlow<MapProviderLocalEntity?>): MapSettingLocalDataSource =
     mockk {
         every { getDefaultProvider() } returns providerFlow
-        coEvery { setDefaultProvider(any()) } coAnswers {
+        coEvery { upsertDefaultProvider(any()) } coAnswers {
             providerFlow.value = firstArg()
         }
     }

@@ -20,7 +20,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import org.koin.core.annotation.InjectedParam
@@ -33,8 +32,8 @@ internal class WebAddTagViewModel(
     pageTagUseCase: PageTagUseCase,
     getSelectedTagUseCase: GetSelectedTagUseCase,
 ) : ViewModel() {
-    val tagIdSet: StateFlow<Set<Uuid>>
-        field = MutableStateFlow(setOfNotNull(initialTagId))
+    val tagSelectionUiState: StateFlow<WebAddTagSelectionUiState>
+        field = MutableStateFlow(WebAddTagSelectionUiState(tagIdSet = setOfNotNull(initialTagId)))
 
     // 화면이 검색어를 알려 주기 전에는 조회하지 않는다. 기준은 debounceReportedSearchQuery를 따른다.
     private val query = MutableStateFlow<String?>(null)
@@ -43,18 +42,18 @@ internal class WebAddTagViewModel(
         query
             .debounceReportedSearchQuery()
             .flatMapLatest { value -> pageTagUseCase(parameter = value) }
-            .mapNotNull { result -> result.getOrNull() }
+            .map { result -> result.getOrElse { PagingData.empty() } }
             .cachedIn(viewModelScope)
 
     val selectableTagPagingData: Flow<PagingData<Tag>> =
         flowOf("")
             .flatMapLatest { value -> pageTagUseCase(parameter = value) }
-            .mapNotNull { result -> result.getOrNull() }
+            .map { result -> result.getOrElse { PagingData.empty() } }
             .cachedIn(viewModelScope)
 
     val uiState: StateFlow<EntityTagInputUiState> =
-        tagIdSet
-            .flatMapLatest { idSet -> getSelectedTagUseCase(parameter = idSet) }
+        tagSelectionUiState
+            .flatMapLatest { (idSet) -> getSelectedTagUseCase(parameter = idSet) }
             .map { result -> EntityTagInputUiState(tagList = result.getOrNull().orEmpty()) }
             .stateIn(
                 scope = viewModelScope,
@@ -67,10 +66,10 @@ internal class WebAddTagViewModel(
     }
 
     fun add(id: Uuid) {
-        tagIdSet.update { value -> value + id }
+        tagSelectionUiState.update { value -> value.copy(tagIdSet = value.tagIdSet + id) }
     }
 
     fun remove(id: Uuid) {
-        tagIdSet.update { value -> value - id }
+        tagSelectionUiState.update { value -> value.copy(tagIdSet = value.tagIdSet - id) }
     }
 }

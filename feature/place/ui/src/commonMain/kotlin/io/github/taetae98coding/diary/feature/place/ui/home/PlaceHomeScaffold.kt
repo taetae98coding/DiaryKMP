@@ -20,10 +20,12 @@ import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.place.previewPlace
 import io.github.taetae98coding.diary.compose.place.toCoordinate
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.Place
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.place.ui.Res
 import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceHomePagingList
 import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceHomePlaceListUiState
@@ -32,7 +34,6 @@ import io.github.taetae98coding.diary.feature.place.ui.home.map.rememberPlaceHom
 import io.github.taetae98coding.diary.feature.place.ui.home.viewmode.PlaceHomeViewMode
 import io.github.taetae98coding.diary.feature.place.ui.home.viewmode.PlaceHomeViewModePreviewParameter
 import io.github.taetae98coding.diary.feature.place.ui.place_home_add_button_content_description
-import io.github.taetae98coding.diary.feature.place.ui.previewPlace
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
 import kotlin.uuid.Uuid
@@ -47,7 +48,7 @@ internal fun PlaceHomeScaffold(
     uiStateProvider: () -> PlaceHomeUiState = { PlaceHomeUiState.Loading },
     placeListUiStateProvider: () -> PlaceHomePlaceListUiState = { PlaceHomePlaceListUiState() },
     placePagingItems: LazyPagingItems<Place> = remember { flowOf(PagingData.empty<Place>()) }.collectAsLazyPagingItems(),
-    syncUiStateProvider: () -> PlaceHomeSyncUiState = { PlaceHomeSyncUiState() },
+    syncUiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
     sortProvider: () -> ListSort = { ListSort.TITLE },
 ) {
     val uiState = uiStateProvider()
@@ -114,7 +115,7 @@ private fun Body(
     state: PlaceHomeScaffoldState = rememberPlaceHomeScaffoldState(),
     placeListUiStateProvider: () -> PlaceHomePlaceListUiState = { PlaceHomePlaceListUiState() },
     placePagingItems: LazyPagingItems<Place> = remember { flowOf(PagingData.empty<Place>()) }.collectAsLazyPagingItems(),
-    syncUiStateProvider: () -> PlaceHomeSyncUiState = { PlaceHomeSyncUiState() },
+    syncUiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
     sortProvider: () -> ListSort = { ListSort.TITLE },
 ) {
     DiaryCrossfade(
@@ -126,7 +127,7 @@ private fun Body(
                 when (uiState) {
                     is PlaceHomeUiState.Loading -> Unit
 
-                    is PlaceHomeUiState.Loaded ->
+                    is PlaceHomeUiState.Content ->
                         PlaceHomeContent(
                             onEvent = onEvent,
                             mapState = mapState,
@@ -159,7 +160,7 @@ private fun PlaceHomeScaffoldPreview(
         PlaceHomeScaffold(
             onEvent = {},
             state = PlaceHomeScaffoldState(initialViewMode = viewMode),
-            uiStateProvider = { PlaceHomeUiState.Loaded(defaultProvider = MapProvider.NAVER, initialCoordinate = null, currentLocationFetchId = Uuid.NIL) },
+            uiStateProvider = { PlaceHomeUiState.Content(defaultProvider = MapProvider.NAVER, initialCoordinate = null, currentLocationFetchId = Uuid.NIL) },
             placeListUiStateProvider = { PlaceHomePlaceListUiState(isLoaded = true, placeList = placeList) },
             placePagingItems = placePagingData.collectAsLazyPagingItems(),
         )

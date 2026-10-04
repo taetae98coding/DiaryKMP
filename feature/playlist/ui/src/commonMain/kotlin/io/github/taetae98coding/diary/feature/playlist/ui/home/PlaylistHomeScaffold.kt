@@ -22,8 +22,8 @@ import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
-import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.playlist.ui.Res
 import io.github.taetae98coding.diary.feature.playlist.ui.playlist_home_add_button_content_description
 import io.github.taetae98coding.diary.feature.playlist.ui.playlist_home_download_button_content_description
@@ -38,8 +38,8 @@ internal fun PlaylistHomeScaffold(
     modifier: Modifier = Modifier,
     sortSheetState: DialogState = rememberDialogState(),
     musicPagingItems: LazyPagingItems<Music> = remember { flowOf(PagingData.empty<Music>()) }.collectAsLazyPagingItems(),
+    syncUiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
     uiStateProvider: () -> PlaylistHomeUiState = { PlaylistHomeUiState() },
-    sortProvider: () -> ListSort = { ListSort.TITLE },
     downloadUiStateProvider: () -> PlaylistHomeDownloadUiState = { PlaylistHomeDownloadUiState() },
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     componentVisibleProvider: () -> PlaylistHomeScaffoldComponentVisible = { PlaylistHomeScaffoldComponentVisible() },
@@ -78,7 +78,7 @@ internal fun PlaylistHomeScaffold(
             DiaryListSortBarHost(
                 onClick = { onEvent(PlaylistHomeScaffoldEvent.ClickSort) },
                 modifier = Modifier.fillMaxWidth(),
-                sortProvider = sortProvider,
+                sortProvider = { uiStateProvider().sort },
                 isSortVisibleProvider = { musicPagingItems.itemCount > 0 },
             )
 
@@ -86,9 +86,9 @@ internal fun PlaylistHomeScaffold(
                 onEvent = onEvent,
                 modifier = Modifier.fillMaxSize(),
                 musicPagingItems = musicPagingItems,
-                isRefreshingProvider = { uiStateProvider().isRefreshing },
+                isRefreshingProvider = { syncUiStateProvider().isRefreshing },
                 isAddButtonVisibleProvider = { componentVisibleProvider().isAddButtonVisible },
-                sortProvider = sortProvider,
+                sortProvider = { uiStateProvider().sort },
                 downloadStateProvider = { music -> downloadUiStateProvider().stateOf(music = music) },
             )
         }
@@ -97,7 +97,7 @@ internal fun PlaylistHomeScaffold(
     DiaryListSortBottomSheetHost(
         onSelect = { sort -> onEvent(PlaylistHomeScaffoldEvent.SelectSort(sort = sort)) },
         state = sortSheetState,
-        sortProvider = sortProvider,
+        sortProvider = { uiStateProvider().sort },
     )
 }
 

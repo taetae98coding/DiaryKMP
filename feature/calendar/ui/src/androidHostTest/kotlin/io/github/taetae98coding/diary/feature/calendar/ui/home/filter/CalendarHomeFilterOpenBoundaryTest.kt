@@ -26,18 +26,22 @@ import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrateg
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
-import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeNavKey
 import io.github.taetae98coding.diary.feature.calendar.ui.calendarEntry
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeScaffoldFilterUiState
-import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeSyncViewModel
+import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayViewModel
+import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
+import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
+import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.resetAndroidUiDispatcher
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -161,30 +165,28 @@ class CalendarHomeFilterOpenBoundaryTest {
             // 다시 만들 때 앞선 ViewModel이 정리되므로 정리 호출에도 답하도록 느슨한 mock으로 둔다.
             factory<CalendarHomeHolidayViewModel> {
                 mockk<CalendarHomeHolidayViewModel>(relaxed = true) {
-                    every { holidayList } returns MutableStateFlow(emptyList())
-                    every { isFetching } returns MutableStateFlow(false)
+                    every { uiState } returns MutableStateFlow(CalendarHomeHolidayUiState())
                 }
             }
             factory<CalendarHomeMemoViewModel> {
                 mockk<CalendarHomeMemoViewModel>(relaxed = true) {
-                    every { memoList } returns MutableStateFlow(emptyList())
+                    every { uiState } returns MutableStateFlow(CalendarHomeMemoUiState())
                     every { filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState(isApplied = true))
                 }
             }
             factory<CalendarHomeBirthdayViewModel> {
                 mockk<CalendarHomeBirthdayViewModel>(relaxed = true) {
-                    every { birthdayList } returns MutableStateFlow(emptyList())
+                    every { uiState } returns MutableStateFlow(CalendarHomeBirthdayUiState())
                 }
             }
             factory<CalendarHomeWeatherViewModel> {
                 mockk<CalendarHomeWeatherViewModel>(relaxed = true) {
-                    every { weatherReport } returns MutableStateFlow(CalendarWeatherReport())
-                    every { isLoading } returns MutableStateFlow(false)
+                    every { uiState } returns MutableStateFlow(CalendarHomeWeatherUiState())
                 }
             }
-            factory<CalendarHomeSyncViewModel> {
-                mockk<CalendarHomeSyncViewModel>(relaxed = true) {
-                    every { isRefreshing } returns MutableStateFlow(false)
+            factory<SyncRefreshViewModel> {
+                mockk<SyncRefreshViewModel>(relaxed = true) {
+                    every { uiState } returns MutableStateFlow(SyncRefreshUiState())
                 }
             }
             factory<CalendarHomeFilterViewModel> {

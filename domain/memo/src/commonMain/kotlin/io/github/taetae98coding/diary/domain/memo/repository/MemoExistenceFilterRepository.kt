@@ -7,9 +7,9 @@ import kotlinx.coroutines.flow.Flow
 public interface MemoExistenceFilterRepository {
     public fun get(): Flow<MemoExistenceFilter>
 
-    public suspend fun updateDate(existence: MemoFilterExistence)
+    public suspend fun upsertDate(existence: MemoFilterExistence)
 
-    public suspend fun updateTag(existence: MemoFilterExistence)
+    public suspend fun upsertTag(existence: MemoFilterExistence)
 
-    public suspend fun updatePlace(existence: MemoFilterExistence)
+    public suspend fun upsertPlace(existence: MemoFilterExistence)
 }

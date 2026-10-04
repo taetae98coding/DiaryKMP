@@ -4,5 +4,5 @@ import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLo
 import kotlin.uuid.Uuid
 
 public interface AccountContactSyncLocalDataSource {
-    public suspend fun findPending(accountId: Uuid): List<ContactLocalEntity>
+    public suspend fun readPendingList(accountId: Uuid): List<ContactLocalEntity>
 }

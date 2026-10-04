@@ -24,6 +24,7 @@ import io.github.taetae98coding.diary.feature.memo.api.MemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.api.findMemoDetailPaneListKey
+import io.github.taetae98coding.diary.feature.memo.api.navigateToMemoDetail
 import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddScreen
 import io.github.taetae98coding.diary.feature.memo.ui.add.initialDateTime
@@ -34,12 +35,12 @@ import io.github.taetae98coding.diary.feature.memo.ui.home.MemoHomeScaffoldCompo
 import io.github.taetae98coding.diary.feature.memo.ui.home.MemoHomeScreen
 import io.github.taetae98coding.diary.feature.memo.ui.home.ScrollToFirstMemoOnReselectEffect
 import io.github.taetae98coding.diary.feature.memo.ui.home.filter.MemoHomeFilterContent
-import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagViewModel
 import io.github.taetae98coding.diary.feature.place.api.PlaceAddNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
+import io.github.taetae98coding.diary.feature.tag.api.navigateToTagAddFromFilter
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import kotlinx.coroutines.flow.Flow
 import org.koin.compose.viewmodel.koinViewModel
@@ -83,7 +84,7 @@ private fun EntryProviderScope<ScreenNavKey>.memoHomeEntry(
                 backStack.add(MemoFinishedListNavKey)
             },
             navigateToSearch = backStack::navigateToSearchFromMemoHome,
-            navigateToDetail = { id -> backStack.navigateToMemoDetailFromHome(id) },
+            navigateToDetail = { id -> backStack.navigateToMemoDetail(id) },
             componentVisibleProvider = {
                 val isAddPaneVisible = isDetailPaneVisible && !backStack.isMemoDetailOnDetailPane()
 
@@ -101,7 +102,7 @@ private fun EntryProviderScope<ScreenNavKey>.memoHomeFilterEntry(backStack: NavB
         metadata = BottomSheetSceneStrategy.bottomSheet(),
     ) {
         MemoHomeFilterContent(
-            navigateToTagAdd = { backStack.navigateToTagAddFromMemoHomeFilter() },
+            navigateToTagAdd = backStack::navigateToTagAddFromFilter,
         )
     }
 }

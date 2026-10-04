@@ -23,8 +23,8 @@ import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.memo.Memo
-import io.github.taetae98coding.diary.feature.contact.ui.detail.memo.CONTACT_DETAIL_MEMO_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.contact.ui.detail.memo.ContactDetailMemoViewModel
+import io.github.taetae98coding.diary.feature.contact.ui.refreshableList
 import io.kotest.matchers.shouldBe
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -182,7 +182,7 @@ class ContactDetailScreenMemoTest {
         setScreenOnMemoTab(memoPagingData = contactMemoPagingData(itemList = listOf(MemoListItem.Content(memo = contactMemo(title = SCREEN_MEMO_TITLE)))))
         waitUntilMemoIsDisplayed(title = SCREEN_MEMO_TITLE)
 
-        composeRule.onNodeWithTag(CONTACT_DETAIL_MEMO_LIST_TEST_TAG).performTouchInput { swipeDown() }
+        composeRule.refreshableList().performTouchInput { swipeDown() }
         composeRule.waitForIdle()
 
         verify(exactly = 1) { requireNotNull(memoSyncViewModelRef).refresh() }

@@ -8,6 +8,10 @@ import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.domain.qr.content.QrFormat
 import io.github.taetae98coding.diary.feature.qr.ui.Res
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddFormState
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.format
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrAddFormState
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.requestFocusFirstField
 import io.github.taetae98coding.diary.feature.qr.ui.qr_add_succeeded_message
 import io.github.taetae98coding.diary.feature.qr.ui.qr_add_title_blank_message
 import io.github.taetae98coding.diary.feature.qr.ui.qr_contact_name_empty_message
@@ -42,14 +46,14 @@ internal fun QrAddScreenEffect(
                 state.scrollState.scrollTo(0)
                 awaitTabComposed()
                 state.titleState.requestFocus()
-                coroutineScope.launch { state.hostState.showImmediate(message = addSucceededMessage) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = addSucceededMessage) }
             }
 
             is QrAddEffect.TitleBlank -> {
                 state.tab = QrAddTab.INFO
                 awaitTabComposed()
                 state.titleState.requestFocus()
-                coroutineScope.launch { state.hostState.showImmediate(message = titleBlankMessage) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = titleBlankMessage) }
             }
 
             is QrAddEffect.ValueEmpty -> {
@@ -58,7 +62,7 @@ internal fun QrAddScreenEffect(
                 state.tab = QrAddTab.QR
                 awaitTabComposed()
                 state.contentState.requestFocusFirstField()
-                coroutineScope.launch { state.hostState.showImmediate(message = message) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = message) }
             }
         }
     }

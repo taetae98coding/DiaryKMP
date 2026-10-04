@@ -7,7 +7,7 @@ import io.github.taetae98coding.diary.core.file.api.datasource.AppFileLocalDataS
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadState
 import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadTarget
-import io.github.taetae98coding.diary.domain.playlist.usecase.FindMusicDownloadTargetUseCase
+import io.github.taetae98coding.diary.domain.playlist.usecase.ReadMusicDownloadTargetUseCase
 import io.github.taetae98coding.diary.work.musicdownload.state.MusicDownloadEventHolder
 import io.github.taetae98coding.diary.work.musicdownload.state.MusicDownloadStateHolder
 import io.github.taetae98coding.diary.work.musicdownload.tool.DownloadToolPrepareResult
@@ -159,7 +159,7 @@ class CoroutineMusicDownloadWorkSchedulerTest :
                         val targetList = listOf(testDownloadTarget(), testDownloadTarget(), testDownloadTarget())
                         val gate = CompletableDeferred<Unit>()
                         val downloadedList = mutableListOf<MusicDownloadTarget>()
-                        val findTargetUseCase = findTargetUseCase(result = Result.success(targetList))
+                        val readTargetUseCase = readTargetUseCase(result = Result.success(targetList))
                         val downloader = mockk<MusicDownloader>()
                         coEvery { downloader.download(target = any(), path = any(), onProgress = any()) } coAnswers
                             {
@@ -170,7 +170,7 @@ class CoroutineMusicDownloadWorkSchedulerTest :
                             }
                         val scheduler =
                             scheduler(
-                                work = realWork(findMusicDownloadTargetUseCase = findTargetUseCase, musicDownloader = downloader),
+                                work = realWork(readMusicDownloadTargetUseCase = readTargetUseCase, musicDownloader = downloader),
                                 scope = this,
                             )
 
@@ -182,8 +182,8 @@ class CoroutineMusicDownloadWorkSchedulerTest :
                         advanceUntilIdle()
 
                         downloadedList shouldContainExactly targetList
-                        coVerify(exactly = 1) { findTargetUseCase(parameter = any()) }
-                        coVerify(exactly = 0) { findTargetUseCase(parameter = ListSort.RECENTLY_UPDATED) }
+                        coVerify(exactly = 1) { readTargetUseCase(parameter = any()) }
+                        coVerify(exactly = 0) { readTargetUseCase(parameter = ListSort.RECENTLY_UPDATED) }
                     }
                 }
             }
@@ -196,8 +196,8 @@ class CoroutineMusicDownloadWorkSchedulerTest :
                         val targetA = testDownloadTarget()
                         val targetB = testDownloadTarget().copy(id = targetA.id)
                         val gate = CompletableDeferred<Unit>()
-                        val findTargetUseCase = mockk<FindMusicDownloadTargetUseCase>()
-                        coEvery { findTargetUseCase(parameter = any()) } returnsMany listOf(Result.success(listOf(targetA)), Result.success(listOf(targetB)))
+                        val readTargetUseCase = mockk<ReadMusicDownloadTargetUseCase>()
+                        coEvery { readTargetUseCase(parameter = any()) } returnsMany listOf(Result.success(listOf(targetA)), Result.success(listOf(targetB)))
                         val downloader = mockk<MusicDownloader>()
                         coEvery { downloader.download(target = any(), path = any(), onProgress = any()) } coAnswers
                             {
@@ -206,7 +206,7 @@ class CoroutineMusicDownloadWorkSchedulerTest :
                             }
                         val scheduler =
                             scheduler(
-                                work = realWork(findMusicDownloadTargetUseCase = findTargetUseCase, musicDownloader = downloader),
+                                work = realWork(readMusicDownloadTargetUseCase = readTargetUseCase, musicDownloader = downloader),
                                 scope = this,
                             )
 
@@ -217,7 +217,7 @@ class CoroutineMusicDownloadWorkSchedulerTest :
                         gate.complete(Unit)
                         advanceUntilIdle()
 
-                        coVerify(exactly = 1) { findTargetUseCase(parameter = any()) }
+                        coVerify(exactly = 1) { readTargetUseCase(parameter = any()) }
                         coVerify(exactly = 1) { downloader.download(target = targetA, path = any(), onProgress = any()) }
                         coVerify(exactly = 0) { downloader.download(target = targetB, path = any(), onProgress = any()) }
                     }
@@ -243,7 +243,7 @@ class CoroutineMusicDownloadWorkSchedulerTest :
                                 work =
                                     realWork(
                                         downloadToolPreparer = preparer,
-                                        findMusicDownloadTargetUseCase = findTargetUseCase(result = Result.success(listOf(target))),
+                                        readMusicDownloadTargetUseCase = readTargetUseCase(result = Result.success(listOf(target))),
                                         musicDownloader = downloader,
                                     ),
                                 scope = this,
@@ -269,7 +269,7 @@ class CoroutineMusicDownloadWorkSchedulerTest :
                     runTest {
                         val stateHolder = MusicDownloadStateHolder()
                         val eventHolder = MusicDownloadEventHolder()
-                        val findTargetUseCase = findTargetUseCase(result = Result.failure(IllegalStateException("account unavailable")))
+                        val readTargetUseCase = readTargetUseCase(result = Result.failure(IllegalStateException("account unavailable")))
                         val downloader = succeedingDownloader()
                         // 실행 수단은 실패를 전용 스코프의 핸들러에 맡기므로 테스트 스코프가 아닌 그런 스코프에 예약한다.
                         val scope = CoroutineScope(SupervisorJob() + StandardTestDispatcher(testScheduler) + CoroutineExceptionHandler { _, _ -> })
@@ -277,7 +277,7 @@ class CoroutineMusicDownloadWorkSchedulerTest :
                             scheduler(
                                 work =
                                     realWork(
-                                        findMusicDownloadTargetUseCase = findTargetUseCase,
+                                        readMusicDownloadTargetUseCase = readTargetUseCase,
                                         musicDownloader = downloader,
                                         musicDownloadStateHolder = stateHolder,
                                         musicDownloadEventHolder = eventHolder,
@@ -298,15 +298,15 @@ class CoroutineMusicDownloadWorkSchedulerTest :
                         scheduler.download(sort = ListSort.TITLE)
                         advanceUntilIdle()
 
-                        coVerify(exactly = 2) { findTargetUseCase(parameter = ListSort.TITLE) }
+                        coVerify(exactly = 2) { readTargetUseCase(parameter = ListSort.TITLE) }
                     }
                 }
             }
         }
     }) {
     public companion object {
-        private fun findTargetUseCase(result: Result<List<MusicDownloadTarget>>): FindMusicDownloadTargetUseCase {
-            val useCase = mockk<FindMusicDownloadTargetUseCase>()
+        private fun readTargetUseCase(result: Result<List<MusicDownloadTarget>>): ReadMusicDownloadTargetUseCase {
+            val useCase = mockk<ReadMusicDownloadTargetUseCase>()
             coEvery { useCase(parameter = any()) } returns result
             return useCase
         }
@@ -318,7 +318,7 @@ class CoroutineMusicDownloadWorkSchedulerTest :
         }
 
         private fun realWork(
-            findMusicDownloadTargetUseCase: FindMusicDownloadTargetUseCase,
+            readMusicDownloadTargetUseCase: ReadMusicDownloadTargetUseCase,
             musicDownloader: MusicDownloader,
             downloadToolPreparer: DownloadToolPreparer =
                 mockk<DownloadToolPreparer>().apply {
@@ -335,7 +335,7 @@ class CoroutineMusicDownloadWorkSchedulerTest :
             return MusicDownloadWorkImpl(
                 downloadToolPreparer = downloadToolPreparer,
                 musicDownloader = musicDownloader,
-                findMusicDownloadTargetUseCase = findMusicDownloadTargetUseCase,
+                readMusicDownloadTargetUseCase = readMusicDownloadTargetUseCase,
                 appFileLocalDataSource = fileDataSource,
                 musicDownloadStateHolder = musicDownloadStateHolder,
                 musicDownloadEventHolder = musicDownloadEventHolder,

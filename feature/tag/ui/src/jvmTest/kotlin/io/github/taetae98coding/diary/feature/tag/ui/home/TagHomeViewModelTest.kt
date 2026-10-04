@@ -4,6 +4,7 @@ package io.github.taetae98coding.diary.feature.tag.ui.home
 
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.testing.ErrorRecovery
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
@@ -19,6 +20,7 @@ import io.github.taetae98coding.diary.domain.tag.usecase.GetTopLevelTagFilterUse
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagHomeUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.RestartTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.RestoreTagUseCase
+import io.github.taetae98coding.diary.feature.tag.ui.appendFailingPagingData
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -67,23 +69,37 @@ class TagHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-HOME-FEATURE-038 태그 페이지 조회가 성공한 뒤 실패하면 마지막으로 불러온 태그를 그대로 노출한다") {
+        test("TC-TAG-HOME-FEATURE-038 이어서 불러오기에 실패해도 이미 불러온 태그를 그대로 노출한다") {
             runTest(mainDispatcher) {
                 val tagList = listOf(tag(title = fixtureMonkey.giveMeOne()), tag(title = fixtureMonkey.giveMeOne()))
-                val viewModel =
-                    viewModel(
-                        pageTagHomeUseCase =
-                            pageTagHomeUseCase(
-                                tagListFlow = flowOf(Result.success(tagList), Result.failure(IllegalStateException())),
-                            ),
-                    )
+                val pageTagHomeUseCase = mockk<PageTagHomeUseCase>()
+                every { pageTagHomeUseCase(parameter = ListSort.TITLE) } returns
+                    appendFailingPagingData(firstPage = tagList).map { pagingData -> Result.success(pagingData) }
+                val viewModel = viewModel(pageTagHomeUseCase = pageTagHomeUseCase)
+
+                val itemList =
+                    flowOf(viewModel.tagPagingData.first()).asSnapshot(onError = { ErrorRecovery.RETURN_CURRENT_SNAPSHOT }) {
+                        appendScrollWhile { true }
+                    }
+
+                itemList shouldBe tagList
+            }
+        }
+
+        test("TC-TAG-HOME-FEATURE-053 태그 페이지를 다시 조회하다 실패하면 이전 태그를 남기지 않고 빈 페이지를 노출한다") {
+            runTest(mainDispatcher) {
+                val tagList = listOf(tag(title = fixtureMonkey.giveMeOne()), tag(title = fixtureMonkey.giveMeOne()))
+                val tagListFlow = MutableStateFlow(Result.success(tagList))
+                val viewModel = viewModel(pageTagHomeUseCase = pageTagHomeUseCase(tagListFlow = tagListFlow))
 
                 viewModel.tagPagingData.test {
                     advanceUntilIdle()
-                    val itemList = flowOf(awaitItem()).asSnapshot()
-                    expectNoEvents()
+                    flowOf(awaitItem()).asSnapshot() shouldBe tagList
 
-                    itemList shouldBe tagList
+                    tagListFlow.value = Result.failure(IllegalStateException())
+                    advanceUntilIdle()
+
+                    flowOf(awaitItem()).asSnapshot().shouldBeEmpty()
                 }
                 viewModel.viewModelScope.cancel()
                 advanceUntilIdle()
@@ -106,18 +122,18 @@ class TagHomeViewModelTest : FunSpec() {
                 val viewModel = viewModel(getTopLevelTagFilterUseCase = getTopLevelTagFilterUseCase(flowOf(Result.success(true))))
 
                 viewModel.filterUiState.test {
-                    awaitItem() shouldBe null
-                    awaitItem() shouldBe TagHomeScaffoldFilterUiState(isApplied = true)
+                    awaitItem() shouldBe TagHomeScaffoldFilterUiState()
+                    awaitItem() shouldBe TagHomeScaffoldFilterUiState(isLoaded = true, isApplied = true)
                 }
             }
         }
 
-        test("필터 선택을 불러오기 전에는 필터 상태를 노출하지 않는다") {
+        test("필터 선택을 불러오기 전에는 불러오지 않은 필터 상태를 노출한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(getTopLevelTagFilterUseCase = getTopLevelTagFilterUseCase(emptyFlow()))
 
                 viewModel.filterUiState.test {
-                    awaitItem() shouldBe null
+                    awaitItem() shouldBe TagHomeScaffoldFilterUiState()
                     expectNoEvents()
                 }
             }
@@ -132,12 +148,12 @@ class TagHomeViewModelTest : FunSpec() {
                     )
 
                 viewModel.filterUiState.test {
-                    awaitItem() shouldBe null
-                    awaitItem() shouldBe TagHomeScaffoldFilterUiState(isApplied = true)
+                    awaitItem() shouldBe TagHomeScaffoldFilterUiState()
+                    awaitItem() shouldBe TagHomeScaffoldFilterUiState(isLoaded = true, isApplied = true)
 
                     isTopLevelOnly.value = false
 
-                    awaitItem() shouldBe TagHomeScaffoldFilterUiState(isApplied = false)
+                    awaitItem() shouldBe TagHomeScaffoldFilterUiState(isLoaded = true, isApplied = false)
                 }
             }
         }
@@ -150,8 +166,8 @@ class TagHomeViewModelTest : FunSpec() {
                     )
 
                 viewModel.filterUiState.test {
-                    awaitItem() shouldBe null
                     awaitItem() shouldBe TagHomeScaffoldFilterUiState()
+                    awaitItem() shouldBe TagHomeScaffoldFilterUiState(isLoaded = true)
                     expectNoEvents()
                 }
             }

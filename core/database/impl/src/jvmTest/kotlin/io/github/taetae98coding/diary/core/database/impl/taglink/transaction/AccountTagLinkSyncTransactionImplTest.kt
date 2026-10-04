@@ -5,7 +5,7 @@ import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.taglink.entity.TagLinkLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.sync.datasource.SyncCursorLocalDataSourceImpl
@@ -79,7 +79,7 @@ class AccountTagLinkSyncTransactionImplTest :
             accountId: Uuid,
         ): Boolean =
             syncDataSource
-                .findPending(accountId = accountId)
+                .readPendingList(accountId = accountId)
                 .any { pending -> pending.fromTagId == tagLink.fromTagId && pending.toTagId == tagLink.toTagId }
 
         test("TC-TAG-LINK-DATA-003 TC-DATA-SYNC-DOMAIN-001 그 계정에서 연결하거나 해제한 연결은 그 계정의 업로드 대기로만 조회된다") {
@@ -107,10 +107,10 @@ class AccountTagLinkSyncTransactionImplTest :
             )
 
             syncDataSource
-                .findPending(accountId = accountId)
+                .readPendingList(accountId = accountId)
                 .map { pending -> pending.fromTagId to pending.toTagId }
                 .shouldContainExactlyInAnyOrder(linked.fromTagId to linked.toTagId, released.fromTagId to released.toTagId)
-            syncDataSource.findPending(accountId = otherAccountId).shouldBeEmpty()
+            syncDataSource.readPendingList(accountId = otherAccountId).shouldBeEmpty()
         }
 
         test("해제된 연결도 포함해 현재 계정의 업로드 대기 연결만 조회한다") {
@@ -126,7 +126,7 @@ class AccountTagLinkSyncTransactionImplTest :
             insertWithSyncState(otherAccountId, otherAccountPending, isDirty = true)
 
             syncDataSource
-                .findPending(accountId = accountId)
+                .readPendingList(accountId = accountId)
                 .shouldContainExactlyInAnyOrder(firstPending, secondPending)
         }
 
@@ -137,7 +137,7 @@ class AccountTagLinkSyncTransactionImplTest :
             insertWithSyncState(accountId = Uuid.NIL, tagLink = guestEntity, isDirty = true)
             insertWithSyncState(accountId = accountId, tagLink = accountEntity, isDirty = true)
 
-            syncDataSource.findPending(accountId = accountId) shouldBe listOf(accountEntity)
+            syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(accountEntity)
         }
 
         test("TC-DATA-SYNC-DOMAIN-026 업로드한 수정 시각이 그대로면 동기화 완료가 된다") {
@@ -147,7 +147,7 @@ class AccountTagLinkSyncTransactionImplTest :
 
             transaction.clearPending(accountId = accountId, tagLinkList = listOf(tagLink))
 
-            syncDataSource.findPending(accountId = accountId).shouldBeEmpty()
+            syncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
 
         test("TC-DATA-SYNC-DOMAIN-027 업로드 중 수정 시각이 바뀐 연결은 업로드 대기로 남는다") {
@@ -158,7 +158,7 @@ class AccountTagLinkSyncTransactionImplTest :
 
             transaction.clearPending(accountId = accountId, tagLinkList = listOf(pushed))
 
-            syncDataSource.findPending(accountId = accountId) shouldBe listOf(changed)
+            syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(changed)
         }
 
         test("대기 해제는 요청한 계정의 연결만 바꾼다") {
@@ -177,26 +177,26 @@ class AccountTagLinkSyncTransactionImplTest :
         test("TC-DATA-SYNC-DATA-016 TC-DATA-SYNC-DATA-017 기록된 순번이 없으면 기본 커서를 사용하고 저장이 끝나면 커서가 기록된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.TAG_LINK) shouldBe 0L
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.TAG_LINK) shouldBe 0L
 
-            transaction.save(accountId = otherAccountId, tagLinkList = listOf(tagLink()), cursor = 9L)
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.TAG_LINK) shouldBe 0L
+            transaction.upsert(accountId = otherAccountId, tagLinkList = listOf(tagLink()), cursor = 9L)
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.TAG_LINK) shouldBe 0L
 
-            transaction.save(accountId = accountId, tagLinkList = listOf(tagLink()), cursor = 3L)
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.TAG_LINK) shouldBe 3L
+            transaction.upsert(accountId = accountId, tagLinkList = listOf(tagLink()), cursor = 3L)
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.TAG_LINK) shouldBe 3L
 
-            transaction.save(accountId = accountId, tagLinkList = listOf(tagLink()), cursor = 11L)
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.TAG_LINK) shouldBe 11L
+            transaction.upsert(accountId = accountId, tagLinkList = listOf(tagLink()), cursor = 11L)
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.TAG_LINK) shouldBe 11L
         }
 
         test("TC-DATA-SYNC-DATA-028 태그 연결의 내려받기 위치는 다른 종류와 따로 기록된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
 
-            transaction.save(accountId = accountId, tagLinkList = listOf(tagLink()), cursor = 7L)
+            transaction.upsert(accountId = accountId, tagLinkList = listOf(tagLink()), cursor = 7L)
 
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.TAG_LINK) shouldBe 7L
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.TAG) shouldBe 0L
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.MEMO_TAG) shouldBe 0L
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.TAG_LINK) shouldBe 7L
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.TAG) shouldBe 0L
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.MEMO_TAG) shouldBe 0L
         }
 
         listOf(
@@ -209,7 +209,7 @@ class AccountTagLinkSyncTransactionImplTest :
                 val remote = local.copy(isDeleted = !local.isDeleted, updatedAt = remoteUpdatedAt)
                 insertWithSyncState(accountId, local, isDirty = false)
 
-                transaction.save(accountId = accountId, tagLinkList = listOf(remote), cursor = 5L)
+                transaction.upsert(accountId = accountId, tagLinkList = listOf(remote), cursor = 5L)
 
                 findTagLink(fromTagId = local.fromTagId, toTagId = local.toTagId) shouldBe remote
             }
@@ -221,21 +221,21 @@ class AccountTagLinkSyncTransactionImplTest :
             val remote = local.copy(isDeleted = !local.isDeleted, updatedAt = Instant.fromEpochMilliseconds(1_000))
             insertWithSyncState(accountId, local, isDirty = true)
 
-            transaction.save(accountId = accountId, tagLinkList = listOf(remote), cursor = 5L)
+            transaction.upsert(accountId = accountId, tagLinkList = listOf(remote), cursor = 5L)
 
             findTagLink(fromTagId = local.fromTagId, toTagId = local.toTagId) shouldBe local
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.TAG_LINK) shouldBe 5L
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.TAG_LINK) shouldBe 5L
         }
 
         test("TC-DATA-SYNC-DATA-025 TC-TAG-LINK-DATA-006 기기에 없던 연결은 새로 저장되고 동기화 완료로 기록된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val remote = tagLink()
 
-            transaction.save(accountId = accountId, tagLinkList = listOf(remote), cursor = 5L)
+            transaction.upsert(accountId = accountId, tagLinkList = listOf(remote), cursor = 5L)
 
             findTagLink(fromTagId = remote.fromTagId, toTagId = remote.toTagId) shouldBe remote
-            syncDataSource.findPending(accountId = accountId).shouldBeEmpty()
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.TAG_LINK) shouldBe 5L
+            syncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.TAG_LINK) shouldBe 5L
         }
 
         test("TC-DATA-SYNC-DATA-024 내려받기 저장은 이미 있는 연결의 대기 여부를 덮어쓰지 않는다") {
@@ -245,7 +245,7 @@ class AccountTagLinkSyncTransactionImplTest :
             insertWithSyncState(accountId, pending, isDirty = true)
             insertWithSyncState(accountId, synced, isDirty = false)
 
-            transaction.save(
+            transaction.upsert(
                 accountId = accountId,
                 tagLinkList = listOf(pending, synced),
                 cursor = 5L,
@@ -263,7 +263,7 @@ class AccountTagLinkSyncTransactionImplTest :
             val remoteOfNew = tagLink(fromTagId = fromTagId, updatedAt = Instant.fromEpochMilliseconds(1_000))
             insertWithSyncState(accountId, local, isDirty = true)
 
-            transaction.save(
+            transaction.upsert(
                 accountId = accountId,
                 tagLinkList = listOf(remoteOfLocal, remoteOfNew),
                 cursor = 5L,
@@ -281,11 +281,11 @@ class AccountTagLinkSyncTransactionImplTest :
             val failingTransaction = AccountTagLinkSyncTransactionImpl(database = failingDatabase)
 
             shouldThrowExactly<TagLinkSyncTestException> {
-                failingTransaction.save(accountId = accountId, tagLinkList = listOf(remote), cursor = 5L)
+                failingTransaction.upsert(accountId = accountId, tagLinkList = listOf(remote), cursor = 5L)
             }
 
             findTagLink(fromTagId = remote.fromTagId, toTagId = remote.toTagId).shouldBeNull()
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.TAG_LINK) shouldBe 0L
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.TAG_LINK) shouldBe 0L
         }
     }) {
     public companion object {

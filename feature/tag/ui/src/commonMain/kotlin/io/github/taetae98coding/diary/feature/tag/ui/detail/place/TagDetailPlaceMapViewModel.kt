@@ -32,7 +32,7 @@ internal class TagDetailPlaceMapViewModel(
             if (provider == null || currentLocationState !is CurrentLocationState.Finished) {
                 TagDetailPlaceUiState.Loading
             } else {
-                TagDetailPlaceUiState.Loaded(
+                TagDetailPlaceUiState.Content(
                     defaultProvider = provider,
                     initialCoordinate = currentLocationState.coordinate,
                     currentLocationFetchId = currentLocationState.fetchId,

@@ -18,7 +18,7 @@ internal class BrowserSettingLocalDataSourceImpl(
             .data
             .map { setting -> setting.chromeSessionProfileDirectory }
 
-    override suspend fun setChromeSessionProfileDirectory(directory: String) {
+    override suspend fun upsertChromeSessionProfileDirectory(directory: String) {
         dataStore.updateData { setting -> setting.copy(chromeSessionProfileDirectory = directory) }
     }
 }

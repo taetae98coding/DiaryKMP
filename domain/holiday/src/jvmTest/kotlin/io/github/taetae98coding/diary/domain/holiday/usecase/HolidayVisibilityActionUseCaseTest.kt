@@ -3,7 +3,7 @@ package io.github.taetae98coding.diary.domain.holiday.usecase
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
-import io.github.taetae98coding.diary.domain.holiday.model.HolidaySetting
+import io.github.taetae98coding.diary.core.model.holiday.HolidaySetting
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -170,7 +170,7 @@ class HolidayVisibilityActionUseCaseTest :
             val repository = mockk<HolidaySettingRepository>()
             coEvery { repository.submitHiddenKeySet(hiddenKeySet = keySet) } just Runs
             val useCase =
-                DeselectAllHolidayUseCase(
+                UnselectAllHolidayUseCase(
                     getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(),
                     holidayRepository = holidayRepository,
                     holidaySettingRepository = repository,
@@ -253,7 +253,7 @@ class HolidayVisibilityActionUseCaseTest :
                                 "전체 선택" to suspend { SelectAllHolidayUseCase(holidaySettingRepository = repository)(parameter = Unit) },
                                 "전체 해제" to
                                     suspend {
-                                        DeselectAllHolidayUseCase(
+                                        UnselectAllHolidayUseCase(
                                             getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(),
                                             holidayRepository = holidayRepository,
                                             holidaySettingRepository = repository,
@@ -290,7 +290,7 @@ class HolidayVisibilityActionUseCaseTest :
                     holidaySettingRepository = repository,
                 )
             val deselectAllUseCase =
-                DeselectAllHolidayUseCase(
+                UnselectAllHolidayUseCase(
                     getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(),
                     holidayRepository = holidayRepository,
                     holidaySettingRepository = repository,
@@ -352,7 +352,7 @@ class HolidayVisibilityActionUseCaseTest :
                 }
             val repository = mockk<HolidaySettingRepository>(relaxed = true)
             val deselectAllUseCase =
-                DeselectAllHolidayUseCase(
+                UnselectAllHolidayUseCase(
                     getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(),
                     holidayRepository = holidayRepository,
                     holidaySettingRepository = repository,
@@ -409,7 +409,7 @@ class HolidayVisibilityActionUseCaseTest :
                     holidaySettingRepository = repository,
                 )
             val deselectAllUseCase =
-                DeselectAllHolidayUseCase(
+                UnselectAllHolidayUseCase(
                     getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(),
                     holidayRepository = holidayRepository,
                     holidaySettingRepository = repository,

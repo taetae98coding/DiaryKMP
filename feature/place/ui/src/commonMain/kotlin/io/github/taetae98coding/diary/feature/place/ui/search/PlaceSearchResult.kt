@@ -41,7 +41,7 @@ internal fun PlaceSearchResult(
                 modifier = modifier,
             )
 
-        is PlaceSearchUiState.Loaded ->
+        is PlaceSearchUiState.Content ->
             if (uiState.placeList.isEmpty()) {
                 PlaceSearchMessage(
                     message = stringResource(Res.string.place_search_empty_message),
@@ -83,7 +83,7 @@ private fun PlaceSearchResultPreview() {
             PlaceSearchResult(
                 state = rememberPlaceSearchDialogState(initialProvider = DiaryMapProvider.NAVER),
                 onSelect = {},
-                uiStateProvider = { PlaceSearchUiState.Loaded(placeList = placeList) },
+                uiStateProvider = { PlaceSearchUiState.Content(placeList = placeList) },
             )
         }
     }

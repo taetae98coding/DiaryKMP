@@ -17,14 +17,12 @@ import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreProvider
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleVisibility
-import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import io.github.taetae98coding.diary.compose.core.snackbar.DismissUndoSnackbarEffect
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
-import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
+import io.github.taetae98coding.diary.core.model.place.toPlacePrecision
 import io.github.taetae98coding.diary.core.model.tag.Tag
-import io.github.taetae98coding.diary.domain.place.toPlacePrecision
 import io.github.taetae98coding.diary.feature.place.ui.Res
 import io.github.taetae98coding.diary.feature.place.ui.detail.memo.PlaceDetailMemoContent
 import io.github.taetae98coding.diary.feature.place.ui.detail.memo.PlaceDetailMemoFloatingActionButton
@@ -35,12 +33,8 @@ import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.handlePlaceFormEvent
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceDetailFormState
 import io.github.taetae98coding.diary.feature.place.ui.place_coordinate_invalid_message
-import io.github.taetae98coding.diary.feature.place.ui.place_detail_update_succeeded_message
-import io.github.taetae98coding.diary.feature.place.ui.search.PlaceSearchEvent
 import io.github.taetae98coding.diary.feature.place.ui.search.PlaceSearchViewModel
 import io.github.taetae98coding.diary.feature.place.ui.tag.PlaceTagAddedResultEffect
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import kotlin.uuid.Uuid
@@ -73,7 +67,7 @@ internal fun PlaceDetailScreen(
 
     PlaceTagAddedResultEffect(requestKey = tagAddRequestKey, onTagAdded = tagViewModel::add)
     PlaceDetailScreenEffect(effect = detailViewModel.effect, scaffoldState = scaffoldState, navigateUp = navigateUp)
-    DismissUndoSnackbarEffect(keyProvider = { tabState.tab }, hostState = scaffoldState.hostState)
+    DismissUndoSnackbarEffect(keyProvider = { tabState.tab }, hostState = scaffoldState.snackbarHostState)
 
     PlaceDetailScaffold(
         state = scaffoldState,
@@ -188,47 +182,8 @@ private fun TabContent(
                 viewModelStoreProvider = viewModelStoreProvider,
                 navigateToMemoDetail = navigateToMemoDetail,
                 modifier = Modifier.fillMaxSize(),
-                snackbarHostState = state.hostState,
+                snackbarHostState = state.snackbarHostState,
             )
-    }
-}
-
-private fun handlePlaceDetailScaffoldEvent(
-    event: PlaceDetailScaffoldEvent,
-    detailViewModel: PlaceDetailViewModel,
-    scaffoldState: PlaceFormState,
-    openExternalMap: () -> Unit,
-    navigateUp: () -> Unit,
-) {
-    when (event) {
-        is PlaceDetailScaffoldEvent.ClickNavigateUp -> navigateUp()
-        is PlaceDetailScaffoldEvent.ClickUpdate -> detailViewModel.update(detail = scaffoldState.detail)
-        is PlaceDetailScaffoldEvent.ClickDelete -> detailViewModel.delete()
-        is PlaceDetailScaffoldEvent.ClickSearch -> scaffoldState.searchDialogState.show()
-        is PlaceDetailScaffoldEvent.ClickOpenExternalMap -> openExternalMap()
-    }
-}
-
-private fun PlaceSearchViewModel.handleSearchEvent(
-    event: PlaceSearchEvent,
-    scaffoldState: PlaceFormState,
-) {
-    when (event) {
-        is PlaceSearchEvent.Search -> search(request = event.request)
-        is PlaceSearchEvent.ClearSearch -> clear()
-        is PlaceSearchEvent.Select -> scaffoldState.applySearchedPlace(event.place)
-    }
-}
-
-private fun PlaceDetailTagViewModel.handleTagPickerEvent(
-    event: EntityTagPickerEvent,
-    navigateToTagAdd: () -> Unit,
-) {
-    when (event) {
-        is EntityTagPickerEvent.ClickAdd -> navigateToTagAdd()
-        is EntityTagPickerEvent.Add -> add(tagId = event.id)
-        is EntityTagPickerEvent.Remove -> remove(tagId = event.id)
-        is EntityTagPickerEvent.ChangeQuery -> updateQuery(query = event.query)
     }
 }
 
@@ -247,7 +202,7 @@ private fun rememberOpenExternalMap(
             val coordinate = scaffoldState.spot
 
             if (coordinate == null) {
-                coroutineScope.launch { scaffoldState.hostState.showImmediate(message = coordinateInvalidMessage) }
+                coroutineScope.launch { scaffoldState.snackbarHostState.showImmediate(message = coordinateInvalidMessage) }
             } else {
                 externalMapOpener.open(
                     provider = scaffoldState.mapState.provider,
@@ -256,31 +211,6 @@ private fun rememberOpenExternalMap(
                     address = scaffoldState.detail.address,
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun PlaceDetailScreenEffect(
-    scaffoldState: PlaceFormState,
-    navigateUp: () -> Unit,
-    effect: Flow<PlaceDetailEffect> = emptyFlow(),
-) {
-    val coroutineScope = rememberCoroutineScope()
-    val updateSucceededMessage = stringResource(Res.string.place_detail_update_succeeded_message)
-    val coordinateInvalidMessage = stringResource(Res.string.place_coordinate_invalid_message)
-
-    CollectEffect(effect) { value ->
-        when (value) {
-            is PlaceDetailEffect.UpdateSucceeded -> {
-                coroutineScope.launch { scaffoldState.hostState.showImmediate(message = updateSucceededMessage) }
-            }
-
-            is PlaceDetailEffect.CoordinateInvalid -> {
-                coroutineScope.launch { scaffoldState.hostState.showImmediate(message = coordinateInvalidMessage) }
-            }
-
-            is PlaceDetailEffect.DeleteSucceeded -> navigateUp()
         }
     }
 }

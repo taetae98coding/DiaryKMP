@@ -63,39 +63,83 @@ internal class MemoHomeFilterViewModel(
             initialValue = MemoHomeFilterUiState(),
         )
 
+    private val inProgressSelectTagSet = mutableSetOf<Uuid>()
+    private val inProgressUnselectTagSet = mutableSetOf<Uuid>()
+    private var isUnselectAllTagInProgress = false
+    private val inProgressSetDateExistenceSet = mutableSetOf<MemoFilterExistence>()
+    private val inProgressSetTagExistenceSet = mutableSetOf<MemoFilterExistence>()
+    private val inProgressSetPlaceExistenceSet = mutableSetOf<MemoFilterExistence>()
+
     fun selectTag(id: Uuid) {
+        if (!inProgressSelectTagSet.add(id)) return
+
         viewModelScope.launch {
-            selectMemoFilterTagUseCase(parameter = id)
+            try {
+                selectMemoFilterTagUseCase(parameter = id)
+            } finally {
+                inProgressSelectTagSet.remove(id)
+            }
         }
     }
 
     fun unselectTag(id: Uuid) {
+        if (!inProgressUnselectTagSet.add(id)) return
+
         viewModelScope.launch {
-            unselectMemoFilterTagUseCase(parameter = id)
+            try {
+                unselectMemoFilterTagUseCase(parameter = id)
+            } finally {
+                inProgressUnselectTagSet.remove(id)
+            }
         }
     }
 
     fun unselectAllTag() {
+        if (isUnselectAllTagInProgress) return
+        isUnselectAllTagInProgress = true
+
         viewModelScope.launch {
-            unselectAllMemoFilterTagUseCase(parameter = Unit)
+            try {
+                unselectAllMemoFilterTagUseCase(parameter = Unit)
+            } finally {
+                isUnselectAllTagInProgress = false
+            }
         }
     }
 
     fun setDateExistence(existence: MemoFilterExistence) {
+        if (!inProgressSetDateExistenceSet.add(existence)) return
+
         viewModelScope.launch {
-            setMemoDateExistenceFilterUseCase(parameter = existence)
+            try {
+                setMemoDateExistenceFilterUseCase(parameter = existence)
+            } finally {
+                inProgressSetDateExistenceSet.remove(existence)
+            }
         }
     }
 
     fun setTagExistence(existence: MemoFilterExistence) {
+        if (!inProgressSetTagExistenceSet.add(existence)) return
+
         viewModelScope.launch {
-            setMemoTagExistenceFilterUseCase(parameter = existence)
+            try {
+                setMemoTagExistenceFilterUseCase(parameter = existence)
+            } finally {
+                inProgressSetTagExistenceSet.remove(existence)
+            }
         }
     }
 
     fun setPlaceExistence(existence: MemoFilterExistence) {
+        if (!inProgressSetPlaceExistenceSet.add(existence)) return
+
         viewModelScope.launch {
-            setMemoPlaceExistenceFilterUseCase(parameter = existence)
+            try {
+                setMemoPlaceExistenceFilterUseCase(parameter = existence)
+            } finally {
+                inProgressSetPlaceExistenceSet.remove(existence)
+            }
         }
     }
 }

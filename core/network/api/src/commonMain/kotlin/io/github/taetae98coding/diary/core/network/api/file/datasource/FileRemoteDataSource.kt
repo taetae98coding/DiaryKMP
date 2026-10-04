@@ -20,7 +20,7 @@ public interface FileRemoteDataSource {
         onSent: (sentBytes: Long) -> Unit,
     ): FileRemoteEntity
 
-    public suspend fun fetch(
+    public suspend fun readList(
         cursor: FileCursorRemoteEntity?,
         size: Int,
     ): List<FileRemoteEntity>

@@ -4,6 +4,7 @@ package io.github.taetae98coding.diary.feature.tag.ui.detail.place
 
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.testing.ErrorRecovery
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
@@ -18,6 +19,7 @@ import io.github.taetae98coding.diary.domain.place.usecase.DeletePlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.GetTagPlaceListUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PageTagPlaceUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.RestorePlaceUseCase
+import io.github.taetae98coding.diary.feature.tag.ui.appendFailingPagingData
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -27,10 +29,14 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -393,24 +399,85 @@ class TagDetailPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-PLACE-FEATURE-004 조회가 성공한 뒤 실패하면 마지막으로 불러온 장소를 그대로 노출한다") {
+        test("TC-TAG-DETAIL-PLACE-FEATURE-004 이어서 불러오기에 실패해도 이미 불러온 장소를 그대로 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val placeList = List(2) { item() }
                 val pageTagPlaceUseCase = mockk<PageTagPlaceUseCase>()
                 every { pageTagPlaceUseCase(parameter = PageTagPlaceUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, sort = ListSort.TITLE)) } returns
-                    flowOf(Result.success(PagingData.from(placeList)), Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())))
+                    appendFailingPagingData(firstPage = placeList).map { pagingData -> Result.success(pagingData) }
+                val viewModel = viewModel(tagId = tagId, pageTagPlaceUseCase = pageTagPlaceUseCase)
+
+                val itemList =
+                    flowOf(viewModel.placePagingData.first()).asSnapshot(onError = { ErrorRecovery.RETURN_CURRENT_SNAPSHOT }) {
+                        appendScrollWhile { true }
+                    }
+
+                itemList shouldBe placeList
+            }
+        }
+
+        test("TC-TAG-DETAIL-PLACE-FEATURE-004 조회가 성공한 뒤 다시 조회하다 실패하면 이전 장소를 남기지 않고 빈 목록을 노출한다") {
+            runTest(mainDispatcher) {
+                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val placeList = List(2) { item() }
+                val pageTagPlaceUseCase = mockk<PageTagPlaceUseCase>()
+                val resultFlow = MutableStateFlow<Result<PagingData<Place>>>(Result.success(PagingData.from(placeList)))
+                every { pageTagPlaceUseCase(parameter = PageTagPlaceUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, sort = ListSort.TITLE)) } returns resultFlow
                 val viewModel = viewModel(tagId = tagId, pageTagPlaceUseCase = pageTagPlaceUseCase)
 
                 viewModel.placePagingData.test {
                     advanceUntilIdle()
-                    val itemList = flowOf(awaitItem()).asSnapshot()
-                    expectNoEvents()
+                    flowOf(awaitItem()).asSnapshot() shouldBe placeList
 
-                    itemList shouldBe placeList
+                    resultFlow.value = Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                    advanceUntilIdle()
+
+                    flowOf(awaitItem()).asSnapshot() shouldBe emptyList()
+                    expectNoEvents()
                 }
                 viewModel.viewModelScope.cancel()
                 advanceUntilIdle()
+            }
+        }
+
+        test("삭제를 처리하는 동안 같은 장소의 삭제를 다시 요청해도 삭제 UseCase는 한 번만 호출한다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val gate = CompletableDeferred<Unit>()
+                val deletePlaceUseCase = mockk<DeletePlaceUseCase>()
+                coEvery { deletePlaceUseCase(parameter = id) } coAnswers {
+                    gate.await()
+                    Result.success(1)
+                }
+                val viewModel = viewModel(tagId = fixtureMonkey.giveMeOne<Uuid>(), deletePlaceUseCase = deletePlaceUseCase)
+
+                viewModel.delete(id = id)
+                viewModel.delete(id = id)
+                gate.complete(Unit)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { deletePlaceUseCase(parameter = id) }
+            }
+        }
+
+        test("복구를 처리하는 동안 같은 장소의 복구를 다시 요청해도 복구 UseCase는 한 번만 호출한다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val gate = CompletableDeferred<Unit>()
+                val restorePlaceUseCase = mockk<RestorePlaceUseCase>()
+                coEvery { restorePlaceUseCase(parameter = id) } coAnswers {
+                    gate.await()
+                    Result.success(1)
+                }
+                val viewModel = viewModel(tagId = fixtureMonkey.giveMeOne<Uuid>(), restorePlaceUseCase = restorePlaceUseCase)
+
+                viewModel.restore(id = id)
+                viewModel.restore(id = id)
+                gate.complete(Unit)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { restorePlaceUseCase(parameter = id) }
             }
         }
 

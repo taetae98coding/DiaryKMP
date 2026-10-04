@@ -2,7 +2,7 @@ package io.github.taetae98coding.diary.compose.list.sort
 
 import io.github.taetae98coding.diary.core.model.list.ListSort
 
-public val listSortList: List<ListSort> =
+internal val listSortList: List<ListSort> =
     listOf(
         ListSort.TITLE,
         ListSort.RECENTLY_UPDATED,

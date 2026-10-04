@@ -26,6 +26,7 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.setTagDetailScreen
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
+import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagPlace
 import io.kotest.matchers.booleans.shouldBeFalse
@@ -157,7 +158,7 @@ class TagDetailPlaceListPositionTest {
 
     private fun scrollList() {
         composeRule.waitForIdle()
-        composeRule.onNodeWithTag(TAG_DETAIL_PLACE_LIST_TEST_TAG).performScrollToIndex(SCROLLED_INDEX)
+        composeRule.refreshableList().performScrollToIndex(SCROLLED_INDEX)
         composeRule.waitForIdle()
     }
 

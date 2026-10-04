@@ -54,13 +54,13 @@ internal fun screenTestViewModel(effect: Flow<TagAddEffect> = emptyFlow()): TagA
 internal fun screenTestLinkViewModel(
     uiState: StateFlow<TagLinkInputUiState> = MutableStateFlow(TagLinkInputUiState()),
     tagPagingData: Flow<PagingData<Tag>> = flowOf(PagingData.empty()),
-    linkedTagIdSet: StateFlow<Set<Uuid>> = MutableStateFlow(emptySet()),
+    selectionUiState: StateFlow<TagAddLinkSelectionUiState> = MutableStateFlow(TagAddLinkSelectionUiState()),
 ): TagAddLinkViewModel {
     val viewModel = mockk<TagAddLinkViewModel>(relaxed = true)
     every { viewModel.uiState } returns uiState
     every { viewModel.tagPagingData } returns tagPagingData
     every { viewModel.selectableTagPagingData } returns tagPagingData
-    every { viewModel.linkedTagIdSet } returns linkedTagIdSet
+    every { viewModel.selectionUiState } returns selectionUiState
     return viewModel
 }
 

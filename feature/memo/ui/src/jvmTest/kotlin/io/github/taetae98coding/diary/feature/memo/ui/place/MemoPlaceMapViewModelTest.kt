@@ -80,7 +80,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
                     expectNoEvents()
 
                     viewModel.fetchCurrentLocation()
-                    awaitItem().shouldBeInstanceOf<MemoPlaceMapUiState.Loaded>()
+                    awaitItem().shouldBeInstanceOf<MemoPlaceMapUiState.Content>()
                 }
             }
         }
@@ -93,7 +93,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
                     viewModel.uiState.test {
                         awaitItem() shouldBe MemoPlaceMapUiState.Loading
                         viewModel.fetchCurrentLocation()
-                        awaitItem() shouldBe MemoPlaceMapUiState.Loaded(provider = provider, currentCoordinate = null)
+                        awaitItem() shouldBe MemoPlaceMapUiState.Content(provider = provider, currentCoordinate = null)
                     }
                 }
             }
@@ -114,7 +114,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
                     viewModel.uiState.test {
                         awaitItem() shouldBe MemoPlaceMapUiState.Loading
                         viewModel.fetchCurrentLocation()
-                        awaitItem() shouldBe MemoPlaceMapUiState.Loaded(provider = MapProvider.NAVER, currentCoordinate = coordinate)
+                        awaitItem() shouldBe MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, currentCoordinate = coordinate)
                     }
                 }
             }
@@ -131,7 +131,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
                 viewModel.uiState.test {
                     awaitItem() shouldBe MemoPlaceMapUiState.Loading
                     viewModel.fetchCurrentLocation()
-                    awaitItem() shouldBe MemoPlaceMapUiState.Loaded(provider = MapProvider.NAVER, currentCoordinate = null)
+                    awaitItem() shouldBe MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, currentCoordinate = null)
                 }
             }
         }
@@ -149,7 +149,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
                 viewModel.uiState.test {
                     awaitItem() shouldBe MemoPlaceMapUiState.Loading
                     viewModel.fetchCurrentLocation()
-                    awaitItem() shouldBe MemoPlaceMapUiState.Loaded(provider = MapProvider.NAVER, currentCoordinate = coordinate)
+                    awaitItem() shouldBe MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, currentCoordinate = coordinate)
 
                     repeat(REPEAT_COUNT) { viewModel.fetchCurrentLocation() }
                     advanceUntilIdle()
@@ -175,7 +175,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
                     viewModel.uiState.test {
                         awaitItem() shouldBe MemoPlaceMapUiState.Loading
                         viewModel.fetchCurrentLocation()
-                        awaitItem() shouldBe MemoPlaceMapUiState.Loaded(provider = MapProvider.NAVER, currentCoordinate = beforeCoordinate)
+                        awaitItem() shouldBe MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, currentCoordinate = beforeCoordinate)
                     }
                 }
 
@@ -186,7 +186,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
                     viewModel.uiState.test {
                         awaitItem() shouldBe MemoPlaceMapUiState.Loading
                         viewModel.fetchCurrentLocation()
-                        awaitItem() shouldBe MemoPlaceMapUiState.Loaded(provider = MapProvider.NAVER, currentCoordinate = afterCoordinate)
+                        awaitItem() shouldBe MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, currentCoordinate = afterCoordinate)
                     }
                 }
             }
@@ -207,7 +207,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
                     viewModel.uiState.test {
                         awaitItem() shouldBe MemoPlaceMapUiState.Loading
                         viewModel.fetchCurrentLocation()
-                        awaitItem().shouldBeInstanceOf<MemoPlaceMapUiState.Loaded>()
+                        awaitItem().shouldBeInstanceOf<MemoPlaceMapUiState.Content>()
                     }
                 }
 
@@ -223,7 +223,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
                         expectNoEvents()
 
                         restoredLocation.complete(Result.success(restoredCoordinate))
-                        awaitItem() shouldBe MemoPlaceMapUiState.Loaded(provider = MapProvider.NAVER, currentCoordinate = restoredCoordinate)
+                        awaitItem() shouldBe MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, currentCoordinate = restoredCoordinate)
                     }
                 }
 
@@ -239,11 +239,11 @@ class MemoPlaceMapViewModelTest : FunSpec() {
                 viewModel.uiState.test {
                     awaitItem() shouldBe MemoPlaceMapUiState.Loading
                     viewModel.fetchCurrentLocation()
-                    awaitItem() shouldBe MemoPlaceMapUiState.Loaded(provider = MapProvider.NAVER, currentCoordinate = null)
+                    awaitItem() shouldBe MemoPlaceMapUiState.Content(provider = MapProvider.NAVER, currentCoordinate = null)
 
                     storedProvider.value = Result.success(MapProvider.GOOGLE)
 
-                    awaitItem() shouldBe MemoPlaceMapUiState.Loaded(provider = MapProvider.GOOGLE, currentCoordinate = null)
+                    awaitItem() shouldBe MemoPlaceMapUiState.Content(provider = MapProvider.GOOGLE, currentCoordinate = null)
                 }
             }
         }

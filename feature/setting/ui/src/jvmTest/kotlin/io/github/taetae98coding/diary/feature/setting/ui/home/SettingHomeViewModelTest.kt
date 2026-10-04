@@ -3,8 +3,8 @@
 package io.github.taetae98coding.diary.feature.setting.ui.home
 
 import app.cash.turbine.test
-import io.github.taetae98coding.diary.domain.browser.usecase.FindChromeSessionImportSupportUseCase
-import io.github.taetae98coding.diary.domain.playlist.usecase.FindMusicDownloadSupportUseCase
+import io.github.taetae98coding.diary.domain.browser.usecase.ReadChromeSessionImportSupportUseCase
+import io.github.taetae98coding.diary.domain.playlist.usecase.ReadMusicDownloadSupportUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -51,7 +51,7 @@ class SettingHomeViewModelTest : FunSpec() {
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Loading
                     awaitItem() shouldBe
-                        SettingHomeUiState.Loaded(
+                        SettingHomeUiState.Content(
                             itemList =
                                 listOf(
                                     SettingHomeItem.HOLIDAY,
@@ -72,7 +72,7 @@ class SettingHomeViewModelTest : FunSpec() {
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Loading
                     awaitItem() shouldBe
-                        SettingHomeUiState.Loaded(
+                        SettingHomeUiState.Content(
                             itemList = listOf(SettingHomeItem.HOLIDAY, SettingHomeItem.MAP, SettingHomeItem.GEMINI, SettingHomeItem.DOWNLOAD),
                         )
                 }
@@ -86,7 +86,7 @@ class SettingHomeViewModelTest : FunSpec() {
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Loading
                     awaitItem() shouldBe
-                        SettingHomeUiState.Loaded(
+                        SettingHomeUiState.Content(
                             itemList = listOf(SettingHomeItem.HOLIDAY, SettingHomeItem.MAP, SettingHomeItem.GEMINI),
                         )
                 }
@@ -96,14 +96,14 @@ class SettingHomeViewModelTest : FunSpec() {
         test("TC-SETTING-HOME-FEATURE-012 제공하는 항목을 확인하기 전에는 확인 중 상태를 유지한다") {
             runTest(mainDispatcher) {
                 val pending = CompletableDeferred<Result<Boolean>>()
-                val chromeUseCase = mockk<FindChromeSessionImportSupportUseCase>()
+                val chromeUseCase = mockk<ReadChromeSessionImportSupportUseCase>()
                 coEvery { chromeUseCase(Unit) } coAnswers { pending.await() }
-                val downloadUseCase = mockk<FindMusicDownloadSupportUseCase>()
+                val downloadUseCase = mockk<ReadMusicDownloadSupportUseCase>()
                 coEvery { downloadUseCase(Unit) } returns Result.success(true)
                 val viewModel =
                     SettingHomeViewModel(
-                        findChromeSessionImportSupportUseCase = chromeUseCase,
-                        findMusicDownloadSupportUseCase = downloadUseCase,
+                        readChromeSessionImportSupportUseCase = chromeUseCase,
+                        readMusicDownloadSupportUseCase = downloadUseCase,
                     )
 
                 viewModel.uiState.test {
@@ -141,7 +141,7 @@ class SettingHomeViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Loading
-                    awaitItem() shouldBe SettingHomeUiState.Loaded(itemList = fullItemList)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList)
                     advanceTimeBy(UI_STOP_TIMEOUT_MILLIS * 2)
                     advanceUntilIdle()
                     expectNoEvents()
@@ -155,12 +155,12 @@ class SettingHomeViewModelTest : FunSpec() {
 
                 viewModel(downloadUseCase = downloadUseCase).uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Loading
-                    awaitItem() shouldBe SettingHomeUiState.Loaded(itemList = fullItemList)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList)
                 }
 
                 viewModel(downloadUseCase = downloadUseCase).uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Loading
-                    awaitItem() shouldBe SettingHomeUiState.Loaded(itemList = fullItemList - SettingHomeItem.DOWNLOAD)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList - SettingHomeItem.DOWNLOAD)
                 }
                 coVerify(exactly = 2) { downloadUseCase(Unit) }
             }
@@ -173,13 +173,13 @@ class SettingHomeViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Loading
-                    awaitItem() shouldBe SettingHomeUiState.Loaded(itemList = fullItemList)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList)
                 }
                 advanceTimeBy(UI_STOP_TIMEOUT_MILLIS + 1)
 
                 viewModel.uiState.test {
-                    awaitItem() shouldBe SettingHomeUiState.Loaded(itemList = fullItemList)
-                    awaitItem() shouldBe SettingHomeUiState.Loaded(itemList = fullItemList - SettingHomeItem.DOWNLOAD)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList - SettingHomeItem.DOWNLOAD)
                 }
             }
         }
@@ -191,12 +191,12 @@ class SettingHomeViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Loading
-                    awaitItem() shouldBe SettingHomeUiState.Loaded(itemList = fullItemList)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList)
                 }
                 advanceTimeBy(UI_STOP_TIMEOUT_MILLIS - 1)
 
                 viewModel.uiState.test {
-                    awaitItem() shouldBe SettingHomeUiState.Loaded(itemList = fullItemList)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList)
                     advanceUntilIdle()
                     expectNoEvents()
                 }
@@ -210,12 +210,12 @@ class SettingHomeViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Loading
-                    awaitItem() shouldBe SettingHomeUiState.Loaded(itemList = fullItemList)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList)
                 }
                 advanceTimeBy(UI_STOP_TIMEOUT_MILLIS - 1)
 
                 viewModel.uiState.test {
-                    awaitItem() shouldBe SettingHomeUiState.Loaded(itemList = fullItemList)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList)
                     advanceUntilIdle()
                     expectNoEvents()
                 }
@@ -230,13 +230,13 @@ class SettingHomeViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Loading
-                    awaitItem() shouldBe SettingHomeUiState.Loaded(itemList = fullItemList)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList)
                 }
                 advanceTimeBy(UI_STOP_TIMEOUT_MILLIS + 1)
 
                 viewModel.uiState.test {
-                    awaitItem() shouldBe SettingHomeUiState.Loaded(itemList = fullItemList)
-                    awaitItem() shouldBe SettingHomeUiState.Loaded(itemList = fullItemList - SettingHomeItem.DOWNLOAD)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList - SettingHomeItem.DOWNLOAD)
                 }
             }
         }
@@ -248,7 +248,7 @@ class SettingHomeViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Loading
-                    awaitItem() shouldBe SettingHomeUiState.Loaded(itemList = fullItemList)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList)
                     advanceTimeBy(UI_STOP_TIMEOUT_MILLIS + 1)
                     advanceUntilIdle()
                     expectNoEvents()
@@ -261,19 +261,19 @@ class SettingHomeViewModelTest : FunSpec() {
     private fun downloadUseCaseReturning(
         first: Result<Boolean>,
         next: Result<Boolean>,
-    ): FindMusicDownloadSupportUseCase {
-        val downloadUseCase = mockk<FindMusicDownloadSupportUseCase>()
+    ): ReadMusicDownloadSupportUseCase {
+        val downloadUseCase = mockk<ReadMusicDownloadSupportUseCase>()
         coEvery { downloadUseCase(Unit) } returnsMany listOf(first, next)
         return downloadUseCase
     }
 
-    private fun viewModel(downloadUseCase: FindMusicDownloadSupportUseCase): SettingHomeViewModel {
-        val chromeUseCase = mockk<FindChromeSessionImportSupportUseCase>()
+    private fun viewModel(downloadUseCase: ReadMusicDownloadSupportUseCase): SettingHomeViewModel {
+        val chromeUseCase = mockk<ReadChromeSessionImportSupportUseCase>()
         coEvery { chromeUseCase(Unit) } returns Result.success(true)
 
         return SettingHomeViewModel(
-            findChromeSessionImportSupportUseCase = chromeUseCase,
-            findMusicDownloadSupportUseCase = downloadUseCase,
+            readChromeSessionImportSupportUseCase = chromeUseCase,
+            readMusicDownloadSupportUseCase = downloadUseCase,
         )
     }
 
@@ -281,14 +281,14 @@ class SettingHomeViewModelTest : FunSpec() {
         chromeResult: Result<Boolean>,
         downloadResult: Result<Boolean>,
     ): SettingHomeViewModel {
-        val chromeUseCase = mockk<FindChromeSessionImportSupportUseCase>()
+        val chromeUseCase = mockk<ReadChromeSessionImportSupportUseCase>()
         coEvery { chromeUseCase(Unit) } returns chromeResult
-        val downloadUseCase = mockk<FindMusicDownloadSupportUseCase>()
+        val downloadUseCase = mockk<ReadMusicDownloadSupportUseCase>()
         coEvery { downloadUseCase(Unit) } returns downloadResult
 
         return SettingHomeViewModel(
-            findChromeSessionImportSupportUseCase = chromeUseCase,
-            findMusicDownloadSupportUseCase = downloadUseCase,
+            readChromeSessionImportSupportUseCase = chromeUseCase,
+            readMusicDownloadSupportUseCase = downloadUseCase,
         )
     }
 }

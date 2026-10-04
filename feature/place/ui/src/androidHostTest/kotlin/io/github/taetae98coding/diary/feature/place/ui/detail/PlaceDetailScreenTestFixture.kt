@@ -22,15 +22,15 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
-import io.github.taetae98coding.diary.compose.memo.list.MemoListUiState
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.location.Coordinate
-import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.place.ui.TEST_TAG_ADD_REQUEST_KEY
-import io.github.taetae98coding.diary.feature.place.ui.detail.memo.PlaceDetailMemoSyncViewModel
 import io.github.taetae98coding.diary.feature.place.ui.detail.memo.PlaceDetailMemoViewModel
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceDetailFormState
@@ -45,7 +45,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flowOf
 import org.koin.compose.KoinApplication
 import org.koin.dsl.koinConfiguration
 import org.koin.dsl.module
@@ -65,13 +64,13 @@ private const val EFFECT_BUFFER_CAPACITY = 8
 
 // KoinApplication에 넘긴 모듈은 첫 테스트의 것이 이어서 쓰이므로, 메모 탭이 얻는 값은 모듈이 붙잡는 이 흐름들로 테스트마다 바꾼다.
 internal val memoPagingDataFlow = MutableStateFlow(PagingData.empty<MemoListItem>())
-internal val memoListUiStateFlow = MutableStateFlow(MemoListUiState())
+internal val memoListUiStateFlow = MutableStateFlow(SyncRefreshUiState())
 internal val memoEffectFlow = MutableSharedFlow<MemoListEffect>(extraBufferCapacity = EFFECT_BUFFER_CAPACITY)
 
 internal var memoViewModelRef: PlaceDetailMemoViewModel? = null
     private set
 
-internal var memoSyncViewModelRef: PlaceDetailMemoSyncViewModel? = null
+internal var memoSyncViewModelRef: SyncRefreshViewModel? = null
     private set
 
 private val placeDetailTabViewModelModule =
@@ -80,12 +79,12 @@ private val placeDetailTabViewModelModule =
             mockk<PlaceDetailMemoViewModel>(relaxed = true)
                 .apply {
                     every { memoPagingData } returns memoPagingDataFlow
-                    every { sort } returns MutableStateFlow(ListSort.DEFAULT)
+                    every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
                     every { effect } returns memoEffectFlow
                 }.also { memoViewModelRef = it }
         }
         factory {
-            mockk<PlaceDetailMemoSyncViewModel>(relaxed = true)
+            mockk<SyncRefreshViewModel>(relaxed = true)
                 .apply { every { uiState } returns memoListUiStateFlow }
                 .also { memoSyncViewModelRef = it }
         }
@@ -93,7 +92,7 @@ private val placeDetailTabViewModelModule =
 
 internal fun preparePlaceDetailTabViewModels(
     memoPagingData: PagingData<MemoListItem> = PagingData.empty(),
-    memoListUiState: MemoListUiState = MemoListUiState(),
+    memoListUiState: SyncRefreshUiState = SyncRefreshUiState(),
 ) {
     memoPagingDataFlow.value = memoPagingData
     memoListUiStateFlow.value = memoListUiState
@@ -207,7 +206,7 @@ internal fun ComposeContentTestRule.setPlaceDetailScreen(
     navigateToMemoAdd: () -> Unit = {},
     navigateToMemoDetail: (Uuid) -> Unit = {},
     memoPagingData: PagingData<MemoListItem> = PagingData.empty(),
-    memoListUiState: MemoListUiState = MemoListUiState(),
+    memoListUiState: SyncRefreshUiState = SyncRefreshUiState(),
     searchViewModel: PlaceSearchViewModel = searchScreenTestViewModel(),
     tagViewModel: PlaceDetailTagViewModel = detailTagScreenTestViewModel(),
     uriHandler: UriHandler = mockk(relaxed = true),

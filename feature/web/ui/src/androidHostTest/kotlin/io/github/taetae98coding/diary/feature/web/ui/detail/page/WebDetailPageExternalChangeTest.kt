@@ -18,18 +18,22 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.web.DiaryWebSession
 import io.github.taetae98coding.diary.compose.web.SingletonDiaryWebSession
 import io.github.taetae98coding.diary.core.model.web.WebHeader
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
+import io.github.taetae98coding.diary.feature.web.ui.Res
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScaffold
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailUiState
-import io.github.taetae98coding.diary.feature.web.ui.detail.memo.WebDetailMemoTab
 import io.github.taetae98coding.diary.feature.web.ui.detail.rememberWebDetailScaffoldState
 import io.github.taetae98coding.diary.feature.web.ui.detail.tab.WebDetailTab
 import io.github.taetae98coding.diary.feature.web.ui.detail.testContentUiState
 import io.github.taetae98coding.diary.feature.web.ui.detail.testWebDetail
 import io.github.taetae98coding.diary.feature.web.ui.detail.viewmode.WebDetailViewMode
 import io.github.taetae98coding.diary.feature.web.ui.form.rememberWebDetailFormState
+import io.github.taetae98coding.diary.feature.web.ui.web_detail_memo_empty_description
+import io.github.taetae98coding.diary.feature.web.ui.web_detail_memo_empty_title
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import org.jetbrains.compose.resources.stringResource
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
@@ -68,7 +72,7 @@ class WebDetailPageExternalChangeTest {
                     onFormEvent = {},
                     onTagPickerEvent = {},
                 ) {
-                    WebDetailMemoTab(onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
+                    EntityDetailMemoTab(emptyTitle = stringResource(Res.string.web_detail_memo_empty_title), emptyDescription = stringResource(Res.string.web_detail_memo_empty_description), onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
                 }
             }
         }
@@ -101,7 +105,7 @@ class WebDetailPageExternalChangeTest {
                     onFormEvent = {},
                     onTagPickerEvent = {},
                 ) {
-                    WebDetailMemoTab(onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
+                    EntityDetailMemoTab(emptyTitle = stringResource(Res.string.web_detail_memo_empty_title), emptyDescription = stringResource(Res.string.web_detail_memo_empty_description), onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
                 }
             }
         }

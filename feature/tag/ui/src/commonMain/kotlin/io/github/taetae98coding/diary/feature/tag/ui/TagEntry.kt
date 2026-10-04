@@ -19,6 +19,7 @@ import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
+import io.github.taetae98coding.diary.feature.memo.api.navigateToMemoDetail
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
@@ -200,7 +201,7 @@ private fun EntryProviderScope<ScreenNavKey>.tagMemoFinishedListEntry(backStack:
     ) { key ->
         TagMemoFinishedListScreen(
             navigateUp = backStack::navigateUpFromTagMemoFinishedList,
-            navigateToMemoDetail = backStack::navigateToMemoDetailFromTagMemoFinishedList,
+            navigateToMemoDetail = backStack::navigateToMemoDetail,
             memoViewModel = koinViewModel { parametersOf(key.tagId) },
             syncViewModel = koinViewModel(),
         )

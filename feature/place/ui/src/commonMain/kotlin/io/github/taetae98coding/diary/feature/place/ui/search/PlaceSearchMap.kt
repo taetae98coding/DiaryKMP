@@ -71,7 +71,7 @@ private fun SearchedPlace.toDiaryMapPin(color: Color): DiaryMapPin =
     )
 
 internal val PlaceSearchUiState.placeList: List<SearchedPlace>
-    get() = (this as? PlaceSearchUiState.Loaded)?.placeList.orEmpty()
+    get() = (this as? PlaceSearchUiState.Content)?.placeList.orEmpty()
 
 @ScreenPreview
 @Composable

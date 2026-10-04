@@ -7,7 +7,9 @@ import io.github.taetae98coding.diary.core.gemini.network.api.datasource.GeminiM
 import io.github.taetae98coding.diary.core.gemini.network.impl.API_KEY_INVALID_REASON
 import io.github.taetae98coding.diary.core.gemini.network.impl.GeminiNetworkTestKoinApplication
 import io.github.taetae98coding.diary.core.gemini.network.impl.badRequestEngine
-import io.github.taetae98coding.diary.core.gemini.network.impl.di.GeminiHttpClientEngine
+import io.github.taetae98coding.diary.core.gemini.network.impl.createGeminiHttpClient
+import io.github.taetae98coding.diary.core.gemini.network.impl.di.GeminiHttpClient
+import io.github.taetae98coding.diary.core.gemini.network.impl.di.GeminiJson
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
@@ -18,6 +20,7 @@ import io.kotest.matchers.string.shouldEndWith
 import io.kotest.matchers.string.shouldStartWith
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldNotBeInstanceOf
+import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -266,7 +269,7 @@ class GeminiModelRemoteDataSourceImplTest :
             koinApplication<GeminiNetworkTestKoinApplication> {
                 modules(
                     module {
-                        single<HttpClientEngine>(qualifier = named<GeminiHttpClientEngine>()) { engine }
+                        single<HttpClient>(qualifier = named<GeminiHttpClient>()) { createGeminiHttpClient(json = get(named<GeminiJson>()), engine = engine) }
                     },
                 )
             }.koin.get()

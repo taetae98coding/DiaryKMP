@@ -4,7 +4,7 @@ import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
-import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountryOption
+import io.github.taetae98coding.diary.core.model.holiday.HolidayCountryOption
 import io.github.taetae98coding.diary.domain.holiday.repository.DeviceCountryRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -86,7 +86,7 @@ class HolidayCountrySettingUseCaseTest :
 
         Given("TC-HOLIDAY-COUNTRY-DOMAIN-003 기기값만 고른 상태이고 기기 지역이 한국이다") {
             val deviceCountryRepository = mockk<DeviceCountryRepository>()
-            every { deviceCountryRepository.find() } returnsMany listOf(HolidayCountry.KOREA, HolidayCountry.UNITED_STATES)
+            coEvery { deviceCountryRepository.read() } returnsMany listOf(HolidayCountry.KOREA, HolidayCountry.UNITED_STATES)
             val useCase =
                 GetHolidayCountrySettingUseCase(
                     holidaySettingRepository =
@@ -109,7 +109,7 @@ class HolidayCountrySettingUseCaseTest :
 
         Given("TC-HOLIDAY-COUNTRY-DOMAIN-006 기기값만 고른 상태이고 기기 지역이 한국인 채로 적용 국가를 계속 조회하고 있다") {
             val deviceCountryRepository = mockk<DeviceCountryRepository>()
-            every { deviceCountryRepository.find() } returnsMany listOf(HolidayCountry.KOREA, HolidayCountry.UNITED_STATES)
+            coEvery { deviceCountryRepository.read() } returnsMany listOf(HolidayCountry.KOREA, HolidayCountry.UNITED_STATES)
             val useCase =
                 GetHolidayCountrySettingUseCase(
                     holidaySettingRepository =

@@ -12,7 +12,7 @@ import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.Holi
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.HolidayCountryOptionLocalEntity
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
 import io.github.taetae98coding.diary.data.holiday.HolidayDataTestKoinApplication
-import io.github.taetae98coding.diary.data.holiday.datasource.HolidayDirtyDataSource
+import io.github.taetae98coding.diary.data.holiday.cache.HolidayFetchedKeySet
 import io.github.taetae98coding.diary.data.holiday.mapper.toDomain
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
@@ -228,7 +228,7 @@ private fun holidayVisibilityTestContext(
             holidayRemoteDataSource = holidayRemoteDataSource,
             holidayLocalDataSource = holidayLocalDataSource,
             holidayTransaction = holidayTransaction,
-            holidayDirtyDataSource = HolidayDirtyDataSource(),
+            holidayFetchedKeySet = HolidayFetchedKeySet(),
         )
     val hiddenKeySetFlow = MutableStateFlow(hiddenKeySet)
     val settingLocalDataSource =

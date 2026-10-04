@@ -20,6 +20,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -113,6 +114,46 @@ class QrHomeViewModelTest : FunSpec() {
 
                     expectNoEvents()
                 }
+            }
+        }
+
+        test("같은 QR의 삭제를 진행하는 중에 다시 삭제하면 삭제를 한 번만 요청한다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val gate = CompletableDeferred<Unit>()
+                val deleteQrUseCase = mockk<DeleteQrUseCase>()
+                coEvery { deleteQrUseCase(parameter = id) } coAnswers {
+                    gate.await()
+                    Result.success(1)
+                }
+                val viewModel = viewModel(deleteQrUseCase = deleteQrUseCase)
+
+                viewModel.delete(id = id)
+                viewModel.delete(id = id)
+                gate.complete(Unit)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { deleteQrUseCase(parameter = id) }
+            }
+        }
+
+        test("같은 QR의 실행 취소를 진행하는 중에 다시 실행 취소하면 한 번만 요청한다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val gate = CompletableDeferred<Unit>()
+                val restoreQrUseCase = mockk<RestoreQrUseCase>()
+                coEvery { restoreQrUseCase(parameter = id) } coAnswers {
+                    gate.await()
+                    Result.success(1)
+                }
+                val viewModel = viewModel(restoreQrUseCase = restoreQrUseCase)
+
+                viewModel.restore(id = id)
+                viewModel.restore(id = id)
+                gate.complete(Unit)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { restoreQrUseCase(parameter = id) }
             }
         }
 

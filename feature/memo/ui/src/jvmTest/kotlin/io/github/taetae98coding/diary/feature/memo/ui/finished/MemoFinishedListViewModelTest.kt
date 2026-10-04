@@ -3,6 +3,7 @@
 package io.github.taetae98coding.diary.feature.memo.ui.finished
 
 import androidx.paging.PagingData
+import androidx.paging.testing.ErrorRecovery
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
@@ -16,6 +17,8 @@ import io.github.taetae98coding.diary.domain.memo.usecase.FinishMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageFinishedMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestartMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.memo.ui.appendFailingPagingData
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -27,10 +30,10 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -210,7 +213,7 @@ class MemoFinishedListViewModelTest : FunSpec() {
                         cancelAndIgnoreRemainingEvents()
                     }
 
-                    viewModel.sort.value shouldBe sort
+                    viewModel.sortUiState.value shouldBe ListSortUiState(sort = sort)
                     verify(exactly = 1) { pageFinishedMemoUseCase(parameter = sort) }
                 }
             }
@@ -244,14 +247,51 @@ class MemoFinishedListViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-FINISHED-LIST-DATA-005 완료된 메모 목록 조회에 실패하면 빈 PagingData를 노출한다") {
+        test("TC-MEMO-FINISHED-LIST-DATA-005 최초 조회에 실패하면 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val pageFinishedMemoUseCase = mockk<PageFinishedMemoUseCase>()
                 every { pageFinishedMemoUseCase(parameter = ListSort.DEFAULT) } returns flowOf(Result.failure(IllegalStateException()))
                 val viewModel = viewModel(pageFinishedMemoUseCase = pageFinishedMemoUseCase)
 
                 viewModel.memoPagingData.test {
-                    awaitItem()
+                    flowOf(awaitItem()).asSnapshot() shouldBe emptyList()
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("TC-MEMO-FINISHED-LIST-DATA-005 추가 조회에 실패해도 이미 표시된 메모를 유지한다") {
+            runTest(mainDispatcher) {
+                val memoList = listOf(fixtureMonkey.giveMeOne<Memo>(), fixtureMonkey.giveMeOne<Memo>())
+                val pageFinishedMemoUseCase = mockk<PageFinishedMemoUseCase>()
+                every { pageFinishedMemoUseCase(parameter = ListSort.DEFAULT) } returns
+                    appendFailingPagingData(firstPage = memoList).map { pagingData -> Result.success(pagingData) }
+                val viewModel = viewModel(pageFinishedMemoUseCase = pageFinishedMemoUseCase)
+
+                val itemList =
+                    flowOf(viewModel.memoPagingData.first()).asSnapshot(onError = { ErrorRecovery.RETURN_CURRENT_SNAPSHOT }) {
+                        appendScrollWhile { true }
+                    }
+
+                itemList.filterIsInstance<MemoListItem.Content>().map { item -> item.memo } shouldBe memoList
+            }
+        }
+
+        test("TC-MEMO-FINISHED-LIST-DATA-005 다시 조회에 실패하면 이전 메모를 남기지 않고 빈 목록을 노출한다") {
+            runTest(mainDispatcher) {
+                val memo = fixtureMonkey.giveMeOne<Memo>()
+                val pageFinishedMemoUseCase = mockk<PageFinishedMemoUseCase>()
+                every { pageFinishedMemoUseCase(parameter = ListSort.DEFAULT) } returns
+                    flowOf(
+                        Result.success(PagingData.from(listOf(memo))),
+                        Result.failure(IllegalStateException()),
+                    )
+                val viewModel = viewModel(pageFinishedMemoUseCase = pageFinishedMemoUseCase)
+
+                viewModel.memoPagingData.test {
+                    advanceUntilIdle()
+
+                    flowOf(expectMostRecentItem()).asSnapshot() shouldBe emptyList()
                     cancelAndIgnoreRemainingEvents()
                 }
             }

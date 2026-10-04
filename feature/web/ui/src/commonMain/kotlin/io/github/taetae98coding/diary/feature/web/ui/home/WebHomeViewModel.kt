@@ -12,6 +12,7 @@ import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.domain.web.usecase.DeleteWebUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.PageWebUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.RestoreWebUseCase
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -30,32 +31,47 @@ internal class WebHomeViewModel(
     private val deleteWebUseCase: DeleteWebUseCase,
     private val restoreWebUseCase: RestoreWebUseCase,
 ) : ViewModel() {
-    val sort: StateFlow<ListSort>
-        field = MutableStateFlow(ListSort.TITLE)
+    val sortUiState: StateFlow<ListSortUiState>
+        field = MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
 
     val webPagingData: Flow<PagingData<Web>> =
-        sort
-            .flatMapLatest { value -> pageWebUseCase(parameter = value) }
+        sortUiState
+            .flatMapLatest { (sort) -> pageWebUseCase(parameter = sort) }
             .map { result -> result.getOrElse { PagingData.empty() } }
             .cachedIn(viewModelScope)
 
     private val _effect = Channel<WebListEffect>(Channel.BUFFERED)
     val effect: Flow<WebListEffect> = _effect.receiveAsFlow()
 
+    private val deletingIdSet = mutableSetOf<Uuid>()
+    private val restoringIdSet = mutableSetOf<Uuid>()
+
     fun select(sort: ListSort) {
-        this.sort.value = sort
+        sortUiState.value = ListSortUiState(sort = sort)
     }
 
     fun delete(id: Uuid) {
+        if (!deletingIdSet.add(id)) return
+
         viewModelScope.launch {
-            deleteWebUseCase(parameter = id)
-                .onSuccess { _effect.send(WebListEffect.Deleted(id = id)) }
+            try {
+                deleteWebUseCase(parameter = id)
+                    .onSuccess { _effect.send(WebListEffect.Deleted(id = id)) }
+            } finally {
+                deletingIdSet.remove(id)
+            }
         }
     }
 
     fun restore(id: Uuid) {
+        if (!restoringIdSet.add(id)) return
+
         viewModelScope.launch {
-            restoreWebUseCase(parameter = id)
+            try {
+                restoreWebUseCase(parameter = id)
+            } finally {
+                restoringIdSet.remove(id)
+            }
         }
     }
 }

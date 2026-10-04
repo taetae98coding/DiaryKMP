@@ -405,7 +405,7 @@ class SearchHomeScreenTest {
         composeRule.onNodeWithText(QUERY).assertExists()
         composeRule.onNodeWithText(TAG_TAB_LABEL).assertIsSelected()
         composeRule.onNodeWithText(tag.detail.title).assertIsDisplayed()
-        searchTagViewModelRef?.appliedQuery?.value shouldBe QUERY
+        searchTagViewModelRef?.uiState?.value?.appliedQuery shouldBe QUERY
     }
 
     @Test
@@ -429,7 +429,7 @@ class SearchHomeScreenTest {
         composeRule.onNodeWithText(QUERY).assertExists()
         composeRule.onNodeWithText(PLACE_TAB_LABEL).assertIsSelected()
         composeRule.onNodeWithText(place.detail.title).assertIsDisplayed()
-        searchPlaceViewModelRef?.appliedQuery?.value shouldBe QUERY
+        searchPlaceViewModelRef?.uiState?.value?.appliedQuery shouldBe QUERY
     }
 
     @Test
@@ -450,7 +450,7 @@ class SearchHomeScreenTest {
         val placeViewModel = searchPlaceViewModelRef.shouldNotBeNull()
         (placeViewModel === placeViewModelBeforeRestore) shouldBe false
         verify(exactly = 1) { placeViewModel.showQuery(QUERY) }
-        placeViewModel.appliedQuery.value shouldBe QUERY
+        placeViewModel.uiState.value.appliedQuery shouldBe QUERY
         composeRule.onNodeWithText(QUERY).assertExists()
         composeRule.onNodeWithText(PLACE_TAB_LABEL).assertIsSelected()
         composeRule.onNodeWithText(place.detail.title).assertIsDisplayed()

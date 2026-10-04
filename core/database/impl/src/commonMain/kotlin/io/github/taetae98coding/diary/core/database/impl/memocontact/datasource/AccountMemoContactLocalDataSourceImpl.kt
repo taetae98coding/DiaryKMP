@@ -30,7 +30,7 @@ internal class AccountMemoContactLocalDataSourceImpl(
             query = query,
         )
 
-    override suspend fun findContactIdList(
+    override suspend fun readContactIdList(
         accountId: Uuid,
         memoId: Uuid,
     ): List<Uuid> =

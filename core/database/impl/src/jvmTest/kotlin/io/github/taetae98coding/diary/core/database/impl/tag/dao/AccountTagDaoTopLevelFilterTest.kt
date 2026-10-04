@@ -216,7 +216,7 @@ class AccountTagDaoTopLevelFilterTest :
             insertTag(accountId, fromTag.copy(isDeleted = true))
             topLevelTagIdList(accountId = accountId) shouldBe listOf(toTag.id)
 
-            AccountTagSyncTransactionImpl(database = database).save(
+            AccountTagSyncTransactionImpl(database = database).upsert(
                 accountId = accountId,
                 tagList = listOf(fromTag),
                 cursor = fixtureMonkey.giveMeOne<Long>(),

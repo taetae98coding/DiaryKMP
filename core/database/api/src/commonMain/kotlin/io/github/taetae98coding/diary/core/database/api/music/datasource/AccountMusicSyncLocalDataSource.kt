@@ -4,5 +4,5 @@ import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalE
 import kotlin.uuid.Uuid
 
 public interface AccountMusicSyncLocalDataSource {
-    public suspend fun findPending(accountId: Uuid): List<MusicLocalEntity>
+    public suspend fun readPendingList(accountId: Uuid): List<MusicLocalEntity>
 }

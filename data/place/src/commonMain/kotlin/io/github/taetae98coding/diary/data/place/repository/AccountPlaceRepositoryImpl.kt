@@ -1,9 +1,6 @@
 package io.github.taetae98coding.diary.data.place.repository
 
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.map
 import io.github.taetae98coding.diary.core.database.api.place.datasource.AccountPlaceLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.place.transaction.AccountPlaceTransaction
 import io.github.taetae98coding.diary.core.database.api.placetag.entity.PlaceTagLocalEntity
@@ -12,10 +9,9 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.location.CoordinateBounds
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
+import io.github.taetae98coding.diary.data.core.mapper.toDomain
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
-import io.github.taetae98coding.diary.data.core.paging.PAGE_SIZE
-import io.github.taetae98coding.diary.data.place.mapper.toDomain
-import io.github.taetae98coding.diary.data.place.mapper.toLocal
+import io.github.taetae98coding.diary.data.core.paging.pagingFlow
 import io.github.taetae98coding.diary.domain.place.repository.AccountPlaceRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -33,8 +29,7 @@ internal class AccountPlaceRepositoryImpl(
         query: String,
         sort: ListSort,
     ): Flow<PagingData<Place>> =
-        Pager(
-            config = PagingConfig(pageSize = PAGE_SIZE),
+        pagingFlow(
             pagingSourceFactory = {
                 accountPlaceLocalDataSource.page(
                     accountId = account.id,
@@ -42,9 +37,8 @@ internal class AccountPlaceRepositoryImpl(
                     sort = sort.toLocal(),
                 )
             },
-        ).flow.map { pagingData ->
-            pagingData.map { local -> local.toDomain() }
-        }
+            transform = { local -> local.toDomain() },
+        )
 
     override fun get(
         account: Account,

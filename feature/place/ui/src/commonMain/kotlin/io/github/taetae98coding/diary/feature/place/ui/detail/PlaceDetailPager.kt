@@ -7,13 +7,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
 import io.github.taetae98coding.diary.feature.place.ui.PREVIEW_PLACE_DETAIL
-import io.github.taetae98coding.diary.feature.place.ui.detail.memo.PlaceDetailMemoTab
+import io.github.taetae98coding.diary.feature.place.ui.Res
 import io.github.taetae98coding.diary.feature.place.ui.detail.tab.PlaceDetailTab
 import io.github.taetae98coding.diary.feature.place.ui.detail.tab.PlaceDetailTabState
 import io.github.taetae98coding.diary.feature.place.ui.detail.tab.placeDetailTabList
 import io.github.taetae98coding.diary.feature.place.ui.detail.tab.rememberPlaceDetailTabState
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceDetailFormState
+import io.github.taetae98coding.diary.feature.place.ui.place_detail_memo_empty_description
+import io.github.taetae98coding.diary.feature.place.ui.place_detail_memo_empty_title
+import org.jetbrains.compose.resources.stringResource
 
 internal const val PLACE_DETAIL_PAGER_TEST_TAG: String = "PlaceDetailPager"
 
@@ -46,7 +50,7 @@ private fun PlaceDetailPagerPreview() {
                         modifier = Modifier.fillMaxSize(),
                     )
 
-                PlaceDetailTab.MEMO -> PlaceDetailMemoTab(onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
+                PlaceDetailTab.MEMO -> EntityDetailMemoTab(emptyTitle = stringResource(Res.string.place_detail_memo_empty_title), emptyDescription = stringResource(Res.string.place_detail_memo_empty_description), onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
             }
         }
     }

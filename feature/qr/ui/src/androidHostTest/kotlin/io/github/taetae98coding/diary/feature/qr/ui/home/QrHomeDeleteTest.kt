@@ -18,7 +18,8 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.domain.qr.usecase.DeleteQrUseCase
 import io.github.taetae98coding.diary.domain.qr.usecase.PageQrUseCase
-import io.github.taetae98coding.diary.domain.qr.usecase.RestoreQrUseCase
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.qr.ui.add.qrTestFixtureMonkey
 import io.github.taetae98coding.diary.feature.qr.ui.card.QR_CARD_TEST_TAG
 import io.github.taetae98coding.diary.feature.qr.ui.resetAndroidUiDispatcher
@@ -221,8 +222,8 @@ class QrHomeDeleteTest {
         isShownProvider: () -> Boolean = { true },
         onNavigate: () -> Unit = {},
     ) {
-        val syncViewModel = mockk<QrHomeSyncViewModel>()
-        every { syncViewModel.uiState } returns MutableStateFlow(QrHomeUiState())
+        val syncViewModel = mockk<SyncRefreshViewModel>()
+        every { syncViewModel.uiState } returns MutableStateFlow(SyncRefreshUiState())
         justRun { syncViewModel.refresh() }
 
         composeRule.setContent {

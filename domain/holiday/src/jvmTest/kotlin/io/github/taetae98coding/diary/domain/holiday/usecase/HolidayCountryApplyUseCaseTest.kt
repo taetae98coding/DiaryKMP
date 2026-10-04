@@ -5,7 +5,7 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
-import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountryOption
+import io.github.taetae98coding.diary.core.model.holiday.HolidayCountryOption
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -267,7 +267,7 @@ class HolidayCountryApplyUseCaseTest :
                 val submitted = slot<Set<String>>()
                 coEvery { repository.submitHiddenKeySet(hiddenKeySet = capture(submitted)) } returns Unit
 
-                DeselectAllHolidayUseCase(
+                UnselectAllHolidayUseCase(
                     getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(),
                     holidayRepository = holidayRepository(holidayMap = holidayMap),
                     holidaySettingRepository = repository,

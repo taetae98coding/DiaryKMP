@@ -24,12 +24,12 @@ import io.github.taetae98coding.diary.compose.core.swipe.SwipeFinishAction
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.SwipeMemoCard
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
+import io.github.taetae98coding.diary.compose.memo.previewMemo
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeResult
 import io.github.taetae98coding.diary.feature.search.ui.home.result.SearchHomeResultEvent
-import io.github.taetae98coding.diary.feature.search.ui.previewMemo
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month

@@ -11,7 +11,7 @@ public fun TextFieldColors.transparentIndicator(): TextFieldColors =
         errorIndicatorColor = Color.Transparent,
     )
 
-public fun TextFieldColors.transparentContainer(): TextFieldColors =
+internal fun TextFieldColors.transparentContainer(): TextFieldColors =
     copy(
         focusedContainerColor = Color.Transparent,
         unfocusedContainerColor = Color.Transparent,

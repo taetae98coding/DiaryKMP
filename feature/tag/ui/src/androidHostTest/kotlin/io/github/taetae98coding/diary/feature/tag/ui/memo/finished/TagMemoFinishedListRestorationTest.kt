@@ -12,9 +12,10 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
-import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
+import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemoPagingData
 import io.mockk.every
@@ -37,11 +38,11 @@ class TagMemoFinishedListRestorationTest {
     fun `TC-TAG-MEMO-FINISHED-LIST-DOMAIN-006 화면이 재생성되어도 정렬 선택과 보던 자리가 그대로다`() {
         val titlePrefix = fixtureText(prefix = "FinishedMemo")
         val memoList = List(MEMO_COUNT) { index -> tagMemo(title = "${titlePrefix}Index$index") }
-        val sortFlow = MutableStateFlow(ListSort.DEFAULT)
+        val sortFlow = MutableStateFlow(ListSortUiState())
         val viewModel = mockk<TagMemoFinishedListViewModel>(relaxed = true)
         every { viewModel.uiState } returns MutableStateFlow(TagMemoFinishedListUiState())
-        every { viewModel.sort } returns sortFlow
-        every { viewModel.select(sort = any()) } answers { sortFlow.value = firstArg() }
+        every { viewModel.sortUiState } returns sortFlow
+        every { viewModel.select(sort = any()) } answers { sortFlow.value = ListSortUiState(sort = firstArg()) }
         every { viewModel.memoPagingData } returns
             MutableStateFlow(tagMemoPagingData(itemList = memoList.map { memo -> MemoListItem.Content(memo = memo) }))
         every { viewModel.effect } returns emptyFlow()
@@ -64,7 +65,7 @@ class TagMemoFinishedListRestorationTest {
         composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
             composeRule.onAllNodesWithText(DEFAULT_SORT_SHEET_TITLE).fetchSemanticsNodes().isEmpty()
         }
-        composeRule.onNodeWithTag(TAG_MEMO_FINISHED_LIST_TEST_TAG).performScrollToIndex(SCROLL_INDEX)
+        composeRule.refreshableList().performScrollToIndex(SCROLL_INDEX)
         composeRule.onNodeWithText(memoList[SCROLL_INDEX].detail.title).assertIsDisplayed()
         composeRule.onNodeWithText(memoList.first().detail.title).assertDoesNotExist()
 
@@ -102,7 +103,7 @@ class TagMemoFinishedListRestorationTest {
         composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
             composeRule.onAllNodesWithText(DEFAULT_SORT_SHEET_TITLE).fetchSemanticsNodes().isEmpty()
         }
-        composeRule.onNodeWithTag(TAG_MEMO_FINISHED_LIST_TEST_TAG).performScrollToIndex(SCROLL_INDEX)
+        composeRule.refreshableList().performScrollToIndex(SCROLL_INDEX)
         composeRule.onNodeWithText(memoList[SCROLL_INDEX].detail.title).assertIsDisplayed()
         nextViewModel = sortableViewModel(memoList = memoList)
 
@@ -116,11 +117,11 @@ class TagMemoFinishedListRestorationTest {
     }
 
     private fun sortableViewModel(memoList: List<Memo>): TagMemoFinishedListViewModel {
-        val sortFlow = MutableStateFlow(ListSort.DEFAULT)
+        val sortFlow = MutableStateFlow(ListSortUiState())
         val viewModel = mockk<TagMemoFinishedListViewModel>(relaxed = true)
         every { viewModel.uiState } returns MutableStateFlow(TagMemoFinishedListUiState())
-        every { viewModel.sort } returns sortFlow
-        every { viewModel.select(sort = any()) } answers { sortFlow.value = firstArg() }
+        every { viewModel.sortUiState } returns sortFlow
+        every { viewModel.select(sort = any()) } answers { sortFlow.value = ListSortUiState(sort = firstArg()) }
         every { viewModel.memoPagingData } returns
             MutableStateFlow(tagMemoPagingData(itemList = memoList.map { memo -> MemoListItem.Content(memo = memo) }))
         every { viewModel.effect } returns emptyFlow()

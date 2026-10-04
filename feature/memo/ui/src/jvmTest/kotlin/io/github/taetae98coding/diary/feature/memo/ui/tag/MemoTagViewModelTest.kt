@@ -4,6 +4,7 @@ package io.github.taetae98coding.diary.feature.memo.ui.tag
 
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.testing.ErrorRecovery
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
@@ -18,10 +19,10 @@ import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoSelectableTagU
 import io.github.taetae98coding.diary.domain.memo.usecase.RemoveMemoTagUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.SetMemoPrimaryTagUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.UnsetMemoPrimaryTagUseCase
+import io.github.taetae98coding.diary.feature.memo.ui.appendFailingPagingData
 import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -205,7 +206,23 @@ class MemoTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-TAG-INPUT-FEATURE-026 태그 선택 목록 조회가 실패하면 마지막 목록을 유지한다") {
+        test("TC-MEMO-TAG-INPUT-FEATURE-026 태그 선택 목록의 이어서 불러오기가 실패해도 이미 나타난 태그를 유지한다") {
+            runTest(mainDispatcher) {
+                val tagList = listOf(tag(), tag())
+                val useCase = mockk<PageMemoSelectableTagUseCase>()
+                every { useCase(any()) } returns appendFailingPagingData(firstPage = tagList).map { pagingData -> Result.success(pagingData) }
+                val viewModel = viewModel(pageMemoSelectableTagUseCase = useCase)
+
+                val itemList =
+                    flowOf(viewModel.tagPagingData.first()).asSnapshot(onError = { ErrorRecovery.RETURN_CURRENT_SNAPSHOT }) {
+                        appendScrollWhile { true }
+                    }
+
+                itemList shouldBe tagList
+            }
+        }
+
+        test("태그 선택 목록을 다시 조회하다 실패하면 이전 태그를 남기지 않고 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val tagList = listOf(tag(), tag())
                 val viewModel =
@@ -220,8 +237,7 @@ class MemoTagViewModelTest : FunSpec() {
                 viewModel.tagPagingData.test {
                     advanceUntilIdle()
 
-                    flowOf(awaitItem()).asSnapshot() shouldBe tagList
-                    expectNoEvents()
+                    flowOf(expectMostRecentItem()).asSnapshot() shouldBe emptyList()
                     cancelAndIgnoreRemainingEvents()
                 }
             }
@@ -428,6 +444,7 @@ class MemoTagViewModelTest : FunSpec() {
         searchTests()
         applyDelayTests()
         blankQueryTests()
+        duplicateRequestTests()
     }
 
     private fun searchTests() {
@@ -544,6 +561,40 @@ class MemoTagViewModelTest : FunSpec() {
                     expectNoEvents()
                     cancelAndIgnoreRemainingEvents()
                 }
+            }
+        }
+    }
+
+    private fun duplicateRequestTests() {
+        test("같은 태그 선택, 선택 해제, 대표 태그 지정이 진행 중일 때 다시 요청하면 한 번만 실행한다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val addMemoTagUseCase = mockk<AddMemoTagUseCase>(relaxed = true)
+                val removeMemoTagUseCase = mockk<RemoveMemoTagUseCase>(relaxed = true)
+                val setMemoPrimaryTagUseCase = mockk<SetMemoPrimaryTagUseCase>(relaxed = true)
+                val unsetMemoPrimaryTagUseCase = mockk<UnsetMemoPrimaryTagUseCase>(relaxed = true)
+                val viewModel =
+                    viewModel(
+                        id = id,
+                        addMemoTagUseCase = addMemoTagUseCase,
+                        removeMemoTagUseCase = removeMemoTagUseCase,
+                        setMemoPrimaryTagUseCase = setMemoPrimaryTagUseCase,
+                        unsetMemoPrimaryTagUseCase = unsetMemoPrimaryTagUseCase,
+                    )
+
+                repeat(2) {
+                    viewModel.selectTag(tagId = tagId)
+                    viewModel.unselectTag(tagId = tagId)
+                    viewModel.selectPrimaryTag(tagId = tagId)
+                    viewModel.unselectPrimaryTag()
+                }
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { addMemoTagUseCase(parameter = AddMemoTagUseCase.Parameter(memoId = id, tagId = tagId)) }
+                coVerify(exactly = 1) { removeMemoTagUseCase(parameter = RemoveMemoTagUseCase.Parameter(memoId = id, tagId = tagId)) }
+                coVerify(exactly = 1) { setMemoPrimaryTagUseCase(parameter = SetMemoPrimaryTagUseCase.Parameter(memoId = id, tagId = tagId)) }
+                coVerify(exactly = 1) { unsetMemoPrimaryTagUseCase(parameter = id) }
             }
         }
     }

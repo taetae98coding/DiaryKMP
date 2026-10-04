@@ -10,9 +10,9 @@ import io.github.taetae98coding.diary.compose.core.chip.DiaryAssistChip
 import io.github.taetae98coding.diary.compose.core.color.DiaryColorIndicator
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.tag.previewTag
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.tag.ui.Res
-import io.github.taetae98coding.diary.feature.tag.ui.previewTag
 import io.github.taetae98coding.diary.feature.tag.ui.tag_link_detail_action
 import io.github.taetae98coding.diary.library.compose.ui.color.toColor
 import org.jetbrains.compose.resources.stringResource

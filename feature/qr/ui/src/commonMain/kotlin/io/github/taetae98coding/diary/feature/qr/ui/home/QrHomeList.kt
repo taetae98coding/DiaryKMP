@@ -33,8 +33,6 @@ import io.github.taetae98coding.diary.feature.qr.ui.qr_home_empty_title
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
 
-internal const val QR_HOME_LIST_TEST_TAG: String = "QrHomeList"
-
 @Composable
 internal fun QrHomeList(
     onEvent: (QrHomeScaffoldEvent) -> Unit,
@@ -72,7 +70,6 @@ internal fun QrHomeList(
                 state = gridState,
                 isRefreshingProvider = isRefreshingProvider,
                 bottomPadding = bottomPadding,
-                listTestTag = QR_HOME_LIST_TEST_TAG,
             ) {
                 items(
                     count = qrPagingItems.itemCount,

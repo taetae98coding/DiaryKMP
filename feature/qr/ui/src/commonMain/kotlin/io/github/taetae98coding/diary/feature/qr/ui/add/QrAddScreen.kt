@@ -11,6 +11,8 @@ import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInputFocusEff
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.core.permission.PermissionManager
 import io.github.taetae98coding.diary.feature.qr.ui.Res
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.ReflectQrCoordinateEffect
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrAddFormState
 import io.github.taetae98coding.diary.feature.qr.ui.qr_camera_permission_denied_message
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -57,7 +59,7 @@ internal fun QrAddScreen(
                 is QrAddScaffoldEvent.ClickScan -> {
                     scanStarter.startIfIdle(
                         onGranted = navigateToScan,
-                        onDenied = { coroutineScope.launch { state.hostState.showImmediate(message = permissionDeniedMessage) } },
+                        onDenied = { coroutineScope.launch { state.snackbarHostState.showImmediate(message = permissionDeniedMessage) } },
                     )
                 }
 

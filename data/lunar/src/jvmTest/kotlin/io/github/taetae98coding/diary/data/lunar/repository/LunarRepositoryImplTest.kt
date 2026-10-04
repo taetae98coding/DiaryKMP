@@ -7,7 +7,7 @@ import io.github.taetae98coding.diary.core.calendar.database.api.entity.LunarDat
 import io.github.taetae98coding.diary.core.calendar.database.api.transaction.LunarTransaction
 import io.github.taetae98coding.diary.core.calendar.network.api.datasource.LunarRemoteDataSource
 import io.github.taetae98coding.diary.core.calendar.network.api.entity.LunarDateRemoteEntity
-import io.github.taetae98coding.diary.data.lunar.datasource.LunarDirtyDataSource
+import io.github.taetae98coding.diary.data.lunar.cache.LunarFetchedYearSet
 import io.github.taetae98coding.diary.data.lunar.mapper.toDomain
 import io.github.taetae98coding.diary.data.lunar.mapper.toLocal
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -217,7 +217,7 @@ private fun repository(
         lunarRemoteDataSource = remoteDataSource,
         lunarLocalDataSource = localDataSource,
         lunarTransaction = transaction,
-        lunarDirtyDataSource = LunarDirtyDataSource(),
+        lunarFetchedYearSet = LunarFetchedYearSet(),
     )
 
 private fun solarYear(): Int = fixtureMonkey.giveMeOne<Int>().mod(SOLAR_YEAR_SPAN) + MIN_SOLAR_YEAR

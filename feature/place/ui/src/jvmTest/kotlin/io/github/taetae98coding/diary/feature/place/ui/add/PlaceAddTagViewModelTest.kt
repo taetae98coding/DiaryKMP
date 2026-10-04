@@ -12,7 +12,6 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
-import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -29,13 +28,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
-import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.uuid.Uuid
 
 class PlaceAddTagViewModelTest : FunSpec() {
@@ -71,7 +68,8 @@ class PlaceAddTagViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(initialTagId = null)
 
-                viewModel.tagIdSet.value.shouldBeEmpty()
+                viewModel.selectionUiState.value.tagIdSet
+                    .shouldBeEmpty()
             }
         }
 
@@ -90,7 +88,7 @@ class PlaceAddTagViewModelTest : FunSpec() {
                 viewModel.add(id = tag.id)
                 advanceUntilIdle()
 
-                viewModel.tagIdSet.value shouldBe setOf(tag.id)
+                viewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id)
                 viewModel.uiState.test {
                     advanceUntilIdle()
                     expectMostRecentItem().tagList shouldBe listOf(tag)
@@ -118,7 +116,7 @@ class PlaceAddTagViewModelTest : FunSpec() {
                 viewModel.remove(id = firstTag.id)
                 advanceUntilIdle()
 
-                viewModel.tagIdSet.value shouldBe setOf(secondTag.id)
+                viewModel.selectionUiState.value.tagIdSet shouldBe setOf(secondTag.id)
             }
         }
 
@@ -127,7 +125,7 @@ class PlaceAddTagViewModelTest : FunSpec() {
                 val tag = tag()
                 val viewModel = viewModel(initialTagId = tag.id, selectedTagList = listOf(tag))
 
-                viewModel.tagIdSet.value shouldBe setOf(tag.id)
+                viewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id)
 
                 viewModel.uiState.test {
                     awaitItem().tagList.shouldBeEmpty()
@@ -141,7 +139,7 @@ class PlaceAddTagViewModelTest : FunSpec() {
                 val tag = tag()
                 val viewModel = viewModel(initialTagId = tag.id, selectedTagList = emptyList())
 
-                viewModel.tagIdSet.value shouldBe setOf(tag.id)
+                viewModel.selectionUiState.value.tagIdSet shouldBe setOf(tag.id)
 
                 viewModel.uiState.test {
                     advanceUntilIdle()

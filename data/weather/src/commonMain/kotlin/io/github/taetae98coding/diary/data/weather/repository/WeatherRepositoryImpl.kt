@@ -1,12 +1,12 @@
 package io.github.taetae98coding.diary.data.weather.repository
 
-import io.github.taetae98coding.diary.core.ipnetwork.api.datasource.IpRemoteDataSource
-import io.github.taetae98coding.diary.core.location.api.LocationProvider
 import io.github.taetae98coding.diary.core.model.weather.WeatherReport
 import io.github.taetae98coding.diary.core.weather.network.api.datasource.WeatherRemoteDataSource
-import io.github.taetae98coding.diary.data.weather.datasource.WeatherLocalDataSource
+import io.github.taetae98coding.diary.data.weather.cache.WeatherReportCache
 import io.github.taetae98coding.diary.data.weather.mapper.toDomain
 import io.github.taetae98coding.diary.data.weather.mapper.toLocationName
+import io.github.taetae98coding.diary.data.weather.mapper.toWeatherReport
+import io.github.taetae98coding.diary.domain.location.repository.LocationRepository
 import io.github.taetae98coding.diary.domain.weather.repository.WeatherRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
@@ -22,10 +22,9 @@ private val FETCH_INTERVAL: Duration = 1.hours
 
 @Factory
 internal class WeatherRepositoryImpl(
-    private val locationProvider: LocationProvider,
-    private val ipRemoteDataSource: IpRemoteDataSource,
+    private val locationRepository: LocationRepository,
     private val weatherRemoteDataSource: WeatherRemoteDataSource,
-    private val weatherLocalDataSource: WeatherLocalDataSource,
+    private val weatherReportCache: WeatherReportCache,
     private val clock: Clock,
 ) : WeatherRepository {
     override suspend fun fetch() {
@@ -35,7 +34,7 @@ internal class WeatherRepositoryImpl(
     }
 
     override suspend fun refresh() {
-        val location = getLocation()
+        val location = locationRepository.fetch()
 
         coroutineScope {
             val currentWeather =
@@ -67,7 +66,7 @@ internal class WeatherRepositoryImpl(
                     }
                 }
 
-            weatherLocalDataSource.update(
+            weatherReportCache.update(
                 weatherList =
                     buildList {
                         add(currentWeather.await().toDomain())
@@ -79,33 +78,11 @@ internal class WeatherRepositoryImpl(
         }
     }
 
-    override fun get(): Flow<WeatherReport?> = weatherLocalDataSource.get().map { storedWeather -> storedWeather.toWeatherReport() }
+    override fun get(): Flow<WeatherReport?> = weatherReportCache.get().map { storedWeather -> storedWeather.toWeatherReport(forecastInterval = weatherRemoteDataSource.forecastInterval) }
 
     private fun isIntervalElapsed(): Boolean {
-        val fetchedAt = weatherLocalDataSource.getFetchedAt() ?: return true
+        val fetchedAt = weatherReportCache.getFetchedAt() ?: return true
 
         return FETCH_INTERVAL <= clock.now() - fetchedAt
     }
-
-    private fun WeatherLocalDataSource.StoredWeather.toWeatherReport(): WeatherReport? {
-        if (weatherList.isEmpty()) return null
-
-        return WeatherReport(
-            weatherList = weatherList,
-            coverage =
-                weatherList.minOf { weather -> weather.dateTime }..<weatherList.maxOf { weather -> weather.dateTime } + weatherRemoteDataSource.forecastInterval,
-            locationName = locationName,
-        )
-    }
-
-    private suspend fun getLocation(): Location =
-        locationProvider
-            .getCurrentLocation()
-            ?.let { deviceLocation -> Location(latitude = deviceLocation.latitude, longitude = deviceLocation.longitude) }
-            ?: ipRemoteDataSource.get().let { entity -> Location(latitude = entity.latitude, longitude = entity.longitude) }
-
-    private data class Location(
-        val latitude: Double,
-        val longitude: Double,
-    )
 }

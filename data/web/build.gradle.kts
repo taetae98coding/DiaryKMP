@@ -9,7 +9,6 @@ kotlin {
                 implementation(projects.core.database.api)
                 implementation(projects.core.webNetwork.api)
                 implementation(projects.data.core)
-                implementation(projects.data.tag)
                 implementation(projects.domain.web)
             }
         }

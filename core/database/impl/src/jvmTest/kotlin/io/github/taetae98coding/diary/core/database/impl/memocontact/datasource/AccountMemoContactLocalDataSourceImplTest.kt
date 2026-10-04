@@ -148,7 +148,7 @@ class AccountMemoContactLocalDataSourceImplTest :
                 memoContactList = emptyList(),
             )
 
-            syncTransaction.save(
+            syncTransaction.upsert(
                 accountId = accountId,
                 memoContactList = listOf(memoContact(memoId = memo.id, contactId = missingContactId)),
                 cursor = 1L,
@@ -164,7 +164,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             val contact = contact()
             contactTransaction.upsert(accountId = accountId, contactList = listOf(contact))
 
-            syncTransaction.save(
+            syncTransaction.upsert(
                 accountId = accountId,
                 memoContactList = listOf(memoContact(memoId = missingMemoId, contactId = contact.id)),
                 cursor = 1L,
@@ -179,7 +179,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             val memo = memo()
             val contact = contact()
             contactTransaction.upsert(accountId = accountId, contactList = listOf(contact))
-            syncTransaction.save(
+            syncTransaction.upsert(
                 accountId = accountId,
                 memoContactList = listOf(memoContact(memoId = memo.id, contactId = contact.id)),
                 cursor = 1L,
@@ -231,7 +231,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             contactTransaction.upsert(accountId = accountId, contactList = listOf(contact.copy(isDeleted = true)))
             dataSource.getContactList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
 
-            AccountContactSyncTransactionImpl(database = database).save(
+            AccountContactSyncTransactionImpl(database = database).upsert(
                 accountId = accountId,
                 contactList = listOf(contact.copy(isDeleted = false)),
                 cursor = 1L,

@@ -42,6 +42,7 @@ import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarTimetableNavKey
+import io.github.taetae98coding.diary.feature.calendar.ui.home.mapState
 import io.github.taetae98coding.diary.feature.calendar.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
@@ -369,11 +370,11 @@ class CalendarTimetableScreenTest {
             date = september(day = 23),
             viewModel = viewModel,
         )
-        verify(exactly = 1) { viewModel.fetch(dateRange = september(day = 22)..september(day = 24)) }
+        verify(exactly = 1) { viewModel.select(dateRange = september(day = 22)..september(day = 24)) }
 
         swipePageLeft()
 
-        verify(exactly = 1) { viewModel.fetch(dateRange = september(day = 23)..september(day = 25)) }
+        verify(exactly = 1) { viewModel.select(dateRange = september(day = 23)..september(day = 25)) }
     }
 
     @Test
@@ -547,14 +548,14 @@ class CalendarTimetableScreenTest {
 
     private fun timetableViewModel(memoListFlow: MutableStateFlow<List<CalendarMemo>>): CalendarTimetableViewModel =
         mockk<CalendarTimetableViewModel>().also { viewModel ->
-            every { viewModel.fetch(any()) } returns Unit
-            every { viewModel.memoList } returns memoListFlow
+            every { viewModel.select(any()) } returns Unit
+            every { viewModel.uiState } returns memoListFlow.mapState { memoList -> CalendarTimetableMemoUiState(memoList = memoList) }
         }
 
     private fun holidayViewModel(holidayListFlow: MutableStateFlow<List<Holiday>>): CalendarTimetableHolidayViewModel =
         mockk<CalendarTimetableHolidayViewModel>().also { viewModel ->
             every { viewModel.fetch(any()) } returns Unit
-            every { viewModel.holidayList } returns holidayListFlow
+            every { viewModel.uiState } returns holidayListFlow.mapState { holidayList -> CalendarTimetableHolidayUiState(holidayList = holidayList) }
         }
 
     private fun assertWeekColumnOrder(dayList: List<Int>) {

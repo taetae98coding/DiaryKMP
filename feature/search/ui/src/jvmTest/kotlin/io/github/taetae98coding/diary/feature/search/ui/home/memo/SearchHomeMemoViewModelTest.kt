@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.domain.search.usecase.SearchMemoUseCase
 import io.github.taetae98coding.diary.feature.search.ui.home.OTHER_QUERY
 import io.github.taetae98coding.diary.feature.search.ui.home.QUERY
+import io.github.taetae98coding.diary.feature.search.ui.home.currentUiState
 import io.github.taetae98coding.diary.feature.search.ui.home.failurePagingDataFlow
 import io.github.taetae98coding.diary.feature.search.ui.home.searchMemo
 import io.github.taetae98coding.diary.feature.search.ui.home.successPagingDataFlowOf
@@ -23,8 +24,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
@@ -131,7 +134,7 @@ class SearchHomeMemoViewModelTest : FunSpec() {
                     viewModel.updateQuery(BLANK_QUERY)
                     runCurrent()
 
-                    viewModel.appliedQuery.value shouldBe BLANK_QUERY
+                    currentUiState(viewModel).appliedQuery shouldBe BLANK_QUERY
                     flowOf(awaitItem()).asSnapshot().shouldBeEmpty()
 
                     cancelAndIgnoreRemainingEvents()
@@ -148,7 +151,7 @@ class SearchHomeMemoViewModelTest : FunSpec() {
                     viewModel.showQuery(OTHER_QUERY)
                     runCurrent()
 
-                    viewModel.appliedQuery.value shouldBe OTHER_QUERY
+                    currentUiState(viewModel).appliedQuery shouldBe OTHER_QUERY
                     flowOf(awaitItem()).asSnapshot() shouldBe memoList
 
                     cancelAndIgnoreRemainingEvents()
@@ -183,7 +186,7 @@ class SearchHomeMemoViewModelTest : FunSpec() {
                 viewModel.pagingData.test {
                     runCurrent()
 
-                    viewModel.appliedQuery.value shouldBe OTHER_QUERY
+                    currentUiState(viewModel).appliedQuery shouldBe OTHER_QUERY
                     flowOf(awaitItem()).asSnapshot() shouldBe otherMemoList
 
                     cancelAndIgnoreRemainingEvents()
@@ -241,7 +244,7 @@ class SearchHomeMemoViewModelTest : FunSpec() {
                 val viewModel = viewModel(searchMemoUseCase(queryToMemoList = emptyMap()), isQueryShown = false)
                 backgroundScope.launch { viewModel.pagingData.collect {} }
 
-                viewModel.appliedQuery.test {
+                viewModel.uiState.map { uiState -> uiState.appliedQuery }.distinctUntilChanged().test {
                     awaitItem() shouldBe ""
                     viewModel.showQuery(QUERY)
                     runCurrent()

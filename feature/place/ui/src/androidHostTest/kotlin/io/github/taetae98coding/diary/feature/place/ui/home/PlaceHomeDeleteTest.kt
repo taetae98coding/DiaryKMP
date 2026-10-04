@@ -23,8 +23,10 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.domain.location.usecase.FetchCurrentLocationUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
-import io.github.taetae98coding.diary.domain.sync.usecase.GetProgressReportedUseCase
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceHomePlaceListUiState
 import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceHomePlaceListViewModel
 import io.github.taetae98coding.diary.feature.place.ui.home.map.PlaceHomeMapViewModel
@@ -187,7 +189,7 @@ class PlaceHomeDeleteTest {
         val second = viewModeTestPlace()
         val effectChannel = Channel<PlaceListEffect>(capacity = Channel.BUFFERED)
         val viewModel = mockk<PlaceHomePlaceListViewModel>()
-        every { viewModel.sort } returns MutableStateFlow(ListSort.TITLE)
+        every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
         every { viewModel.placeListUiState } returns MutableStateFlow(PlaceHomePlaceListUiState())
         every { viewModel.placePagingData } returns placePagingDataFlowOf(listOf(first, second))
         every { viewModel.effect } returns effectChannel.receiveAsFlow()
@@ -253,14 +255,11 @@ class PlaceHomeDeleteTest {
             )
         }
 
-        private fun syncViewModel(): PlaceHomeSyncViewModel {
-            val getProgressReportedUseCase = mockk<GetProgressReportedUseCase>()
-            every { getProgressReportedUseCase(parameter = Unit) } returns flowOf(Result.success(false))
+        private fun syncViewModel(): SyncRefreshViewModel {
+            val viewModel = mockk<SyncRefreshViewModel>(relaxed = true)
+            every { viewModel.uiState } returns MutableStateFlow(SyncRefreshUiState())
 
-            return PlaceHomeSyncViewModel(
-                getProgressReportedUseCase = getProgressReportedUseCase,
-                requestSyncUseCase = mockk<RequestSyncUseCase>(relaxed = true),
-            )
+            return viewModel
         }
     }
 }

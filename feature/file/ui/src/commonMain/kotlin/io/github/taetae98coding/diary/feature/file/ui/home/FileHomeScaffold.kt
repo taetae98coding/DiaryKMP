@@ -48,7 +48,6 @@ internal fun FileHomeScaffold(
     uiStateProvider: () -> FileHomeUiState = { FileHomeUiState.Loading },
     uploadUiStateProvider: () -> FileHomeUploadUiState = { FileHomeUploadUiState() },
     isRefreshingProvider: () -> Boolean = { false },
-    isAccountChangingProvider: () -> Boolean = { false },
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     Scaffold(
@@ -96,7 +95,7 @@ internal fun FileHomeScaffold(
                         listState = listState,
                         filePagingItems = filePagingItems,
                         isRefreshingProvider = isRefreshingProvider,
-                        isAccountChangingProvider = isAccountChangingProvider,
+                        isAccountChangingProvider = { (uiStateProvider() as? FileHomeUiState.User)?.isAccountChanging == true },
                     )
                 }
             }

@@ -1,11 +1,16 @@
 package io.github.taetae98coding.diary.compose.map
 
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
 internal object DiaryMapPinMarkerDefaults {
-    const val SIZE_DP: Float = 32F
-    const val LABEL_HEIGHT_DP: Float = 16F
-    const val LABEL_FONT_SIZE_SP: Float = 12F
-    const val LABEL_LINE_HEIGHT_SP: Float = 16F
-    const val LABEL_HORIZONTAL_PADDING_DP: Float = 2F
-    const val LABEL_CORNER_RADIUS_DP: Float = 2F
+    val Size: Dp = 32.dp
+    val LabelHeight: Dp = 16.dp
+    val LabelFontSize: TextUnit = 12.sp
+    val LabelLineHeight: TextUnit = 16.sp
+    val LabelHorizontalPadding: Dp = 2.dp
+    val LabelCornerRadius: Dp = 2.dp
     const val LABEL_BACKGROUND_ALPHA: Float = 0.8F
 }

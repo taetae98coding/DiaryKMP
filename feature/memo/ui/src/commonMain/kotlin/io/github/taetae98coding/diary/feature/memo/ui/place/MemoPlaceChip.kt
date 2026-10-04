@@ -10,10 +10,10 @@ import io.github.taetae98coding.diary.compose.core.chip.DiaryAssistChip
 import io.github.taetae98coding.diary.compose.core.color.DiaryColorIndicator
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.place.previewPlace
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.feature.memo.ui.Res
 import io.github.taetae98coding.diary.feature.memo.ui.memo_place_show_on_map_action
-import io.github.taetae98coding.diary.feature.memo.ui.previewPlace
 import io.github.taetae98coding.diary.library.compose.ui.color.toColor
 import org.jetbrains.compose.resources.stringResource
 

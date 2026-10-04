@@ -4,7 +4,7 @@ import io.github.taetae98coding.diary.core.database.api.memoplace.datasource.Acc
 import io.github.taetae98coding.diary.core.database.api.memoplace.transaction.AccountMemoPlaceTransaction
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.place.Place
-import io.github.taetae98coding.diary.data.place.mapper.toDomain
+import io.github.taetae98coding.diary.data.core.mapper.toDomain
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoPlaceRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -27,12 +27,12 @@ internal class AccountMemoPlaceRepositoryImpl(
                 memoId = memoId,
             ).map { localList -> localList.map { local -> local.toDomain() } }
 
-    override suspend fun findPlaceIdSet(
+    override suspend fun readPlaceIdSet(
         account: Account,
         memoId: Uuid,
     ): Set<Uuid> =
         accountMemoPlaceLocalDataSource
-            .findPlaceIdList(
+            .readPlaceIdList(
                 accountId = account.id,
                 memoId = memoId,
             ).toSet()

@@ -1,7 +1,7 @@
 package io.github.taetae98coding.diary.work.sync.work
 
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.network.api.memo.entity.MemoRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.memoplace.entity.MemoPlaceRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.memotag.entity.MemoTagRemoteEntity
@@ -158,7 +158,7 @@ class SyncWorkPlaceTest :
 
             actual.message shouldBe failure.message
             placeRequests.map { request -> request.size } shouldContainExactly listOf(100, 100)
-            coVerify(exactly = 0) { context.memoPlaceSyncLocalDataSource.findPending(any()) }
+            coVerify(exactly = 0) { context.memoPlaceSyncLocalDataSource.readPendingList(any()) }
             coVerify(exactly = 0) { context.memoPlaceRemoteDataSource.push(any()) }
             coVerify(exactly = 1) { context.tagRemoteDataSource.push(any()) }
             coVerify(exactly = 1) { context.memoRemoteDataSource.push(any()) }
@@ -316,14 +316,14 @@ class SyncWorkPlaceTest :
             }
 
             coVerify(exactly = 1) {
-                context.accountMemoPlaceSyncTransaction.save(
+                context.accountMemoPlaceSyncTransaction.upsert(
                     accountId = context.accountId,
                     memoPlaceList = firstPullList.map { pull -> pull.memoPlace.toLocal() },
                     cursor = 2L,
                 )
             }
             coVerify(exactly = 1) {
-                context.accountMemoPlaceSyncTransaction.save(
+                context.accountMemoPlaceSyncTransaction.upsert(
                     accountId = context.accountId,
                     memoPlaceList = secondPullList.map { pull -> pull.memoPlace.toLocal() },
                     cursor = 5L,
@@ -358,9 +358,9 @@ class SyncWorkPlaceTest :
 
         test("TC-DATA-SYNC-DATA-017 장소와 메모·장소 연결은 각각 기록된 순번으로 내려받기를 시작한다") {
             val context = context()
-            coEvery { context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.PLACE) } returns 9L
+            coEvery { context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.PLACE) } returns 9L
             coEvery {
-                context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.MEMO_PLACE)
+                context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.MEMO_PLACE)
             } returns 14L
 
             context.subject.doWork()
@@ -373,9 +373,9 @@ class SyncWorkPlaceTest :
             val context = context()
             val placePullList = placePulls(usnList = listOf(7L))
             val memoPlacePullList = memoPlacePulls(usnList = listOf(11L))
-            coEvery { context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.PLACE) } returns 3L
+            coEvery { context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.PLACE) } returns 3L
             coEvery {
-                context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.MEMO_PLACE)
+                context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.MEMO_PLACE)
             } returns 4L
             coEvery { context.placeRemoteDataSource.pull(usn = 3L) } returns placePullList
             coEvery { context.placeRemoteDataSource.pull(usn = 7L) } returns emptyList()
@@ -385,14 +385,14 @@ class SyncWorkPlaceTest :
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.accountPlaceSyncTransaction.save(
+                context.accountPlaceSyncTransaction.upsert(
                     accountId = context.accountId,
                     placeList = placePullList.map { pull -> pull.place.toLocal() },
                     cursor = 7L,
                 )
             }
             coVerify(exactly = 1) {
-                context.accountMemoPlaceSyncTransaction.save(
+                context.accountMemoPlaceSyncTransaction.upsert(
                     accountId = context.accountId,
                     memoPlaceList = memoPlacePullList.map { pull -> pull.memoPlace.toLocal() },
                     cursor = 11L,

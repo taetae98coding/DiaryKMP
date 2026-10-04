@@ -21,7 +21,9 @@ import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.memo.ui.home.memoPagingDataOf
+import io.github.taetae98coding.diary.feature.memo.ui.refreshableList
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -109,7 +111,7 @@ class MemoFinishedListExecutionBoundaryTest {
         composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
             composeRule.onAllNodesWithText(memoList.first().detail.title).fetchSemanticsNodes().isNotEmpty()
         }
-        composeRule.onNodeWithTag(MEMO_FINISHED_LIST_TEST_TAG).performScrollToIndex(SCROLLED_INDEX)
+        composeRule.refreshableList().performScrollToIndex(SCROLLED_INDEX)
         composeRule.waitForIdle()
     }
 
@@ -123,7 +125,7 @@ class MemoFinishedListExecutionBoundaryTest {
         sort: ListSort = ListSort.DEFAULT,
     ): MemoFinishedListViewModel {
         val viewModel = mockk<MemoFinishedListViewModel>(relaxed = true)
-        every { viewModel.sort } returns MutableStateFlow(sort)
+        every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = sort))
         every { viewModel.memoPagingData } returns MutableStateFlow(memoPagingDataOf(memoList.map { memo -> MemoListItem.Content(memo = memo) }))
         every { viewModel.effect } returns emptyFlow()
         return viewModel

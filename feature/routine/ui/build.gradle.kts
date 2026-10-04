@@ -6,7 +6,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(projects.domain.sync)
+                implementation(projects.feature.core)
                 implementation(projects.feature.routine.api)
             }
         }

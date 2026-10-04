@@ -10,9 +10,9 @@ import io.github.taetae98coding.diary.core.model.file.FileUri
 import io.github.taetae98coding.diary.domain.file.exception.FileNotSelectedException
 import io.github.taetae98coding.diary.domain.file.exception.FileTitleBlankException
 import io.github.taetae98coding.diary.domain.file.exception.FileTooLargeException
-import io.github.taetae98coding.diary.domain.file.usecase.FindFileUploadSourceUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadEventUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadStateUseCase
+import io.github.taetae98coding.diary.domain.file.usecase.ReadFileUploadSourceUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.RequestFileUploadUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.StartViewingFileScreenUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.StopViewingFileScreenUseCase
@@ -34,7 +34,7 @@ import org.koin.core.annotation.KoinViewModel
 // 고른 파일은 화면이 다시 만들어져도 남아야 하지만, 앱이 다시 시작되면 다시 읽을 수 있다고 보장할 수 없어 ViewModel에만 둔다.
 @KoinViewModel
 internal class FileAddViewModel(
-    private val findFileUploadSourceUseCase: FindFileUploadSourceUseCase,
+    private val readFileUploadSourceUseCase: ReadFileUploadSourceUseCase,
     private val requestFileUploadUseCase: RequestFileUploadUseCase,
     private val startViewingFileScreenUseCase: StartViewingFileScreenUseCase,
     private val stopViewingFileScreenUseCase: StopViewingFileScreenUseCase,
@@ -65,13 +65,22 @@ internal class FileAddViewModel(
             getFileUploadEventUseCase(parameter = FileScreen.ADD).mapNotNull { result -> result.getOrNull()?.toEffect() },
         )
 
+    private val inProgressSelectUriSet = mutableSetOf<FileUri>()
+    private var isViewing = false
+
     fun select(uri: FileUri) {
+        if (!inProgressSelectUriSet.add(uri)) return
+
         viewModelScope.launch {
-            findFileUploadSourceUseCase(parameter = uri)
-                .onSuccess { source -> selectedFile.value = source }
-                .onFailure { throwable ->
-                    _effect.send(if (throwable is FileTooLargeException) FileAddEffect.FileTooLarge else FileAddEffect.FileUnreadable)
-                }
+            try {
+                readFileUploadSourceUseCase(parameter = uri)
+                    .onSuccess { source -> selectedFile.value = source }
+                    .onFailure { throwable ->
+                        _effect.send(if (throwable is FileTooLargeException) FileAddEffect.FileTooLarge else FileAddEffect.FileUnreadable)
+                    }
+            } finally {
+                inProgressSelectUriSet.remove(uri)
+            }
         }
     }
 
@@ -102,10 +111,16 @@ internal class FileAddViewModel(
     }
 
     fun startViewing() {
+        if (isViewing) return
+        isViewing = true
+
         viewModelScope.launch { startViewingFileScreenUseCase(parameter = FileScreen.ADD) }
     }
 
     fun stopViewing() {
+        if (!isViewing) return
+        isViewing = false
+
         viewModelScope.launch { stopViewingFileScreenUseCase(parameter = FileScreen.ADD) }
     }
 

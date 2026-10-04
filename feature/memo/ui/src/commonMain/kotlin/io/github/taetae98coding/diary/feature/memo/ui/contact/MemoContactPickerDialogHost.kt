@@ -6,9 +6,8 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
+import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerDialogHost
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
-import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
-import io.github.taetae98coding.diary.compose.core.effect.DiarySearchQueryEffect
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.Contact
@@ -22,30 +21,21 @@ internal fun MemoContactPickerDialogHost(
     contactPagingItems: LazyPagingItems<Contact> = remember { flowOf(PagingData.empty<Contact>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> MemoContactInputUiState = { MemoContactInputUiState() },
 ) {
-    if (!dialogState.isVisible) return
-
-    val searchFieldState = rememberDiaryPickerSearchFieldState()
-
-    val hide = {
-        onEvent(MemoContactPickerEvent.ChangeQuery(query = ""))
-        dialogState.hide()
-    }
-
-    DiarySearchQueryEffect(
-        queryState = searchFieldState.textFieldState,
+    DiaryPickerDialogHost(
+        dialogState = dialogState,
         onQueryChange = { query -> onEvent(MemoContactPickerEvent.ChangeQuery(query = query)) },
-    )
-
-    MemoContactPickerDialog(
-        onDismissRequest = hide,
-        onEvent = { event ->
-            if (event is MemoContactPickerEvent.ClickAdd) hide()
-            onEvent(event)
-        },
-        searchFieldState = searchFieldState,
-        contactPagingItems = contactPagingItems,
-        uiStateProvider = uiStateProvider,
-    )
+    ) { searchFieldState, hide ->
+        MemoContactPickerDialog(
+            onDismissRequest = hide,
+            onEvent = { event ->
+                if (event is MemoContactPickerEvent.ClickAdd) hide()
+                onEvent(event)
+            },
+            searchFieldState = searchFieldState,
+            contactPagingItems = contactPagingItems,
+            uiStateProvider = uiStateProvider,
+        )
+    }
 }
 
 @ScreenPreview
@@ -56,7 +46,7 @@ private fun MemoContactPickerDialogHostPreview() {
 
     DiaryTheme {
         MemoContactPickerDialogHost(
-            dialogState = rememberDialogState().apply { show() },
+            dialogState = rememberDialogState(initialVisible = true),
             onEvent = {},
             contactPagingItems = contactPagingData.collectAsLazyPagingItems(),
             uiStateProvider = { MemoContactInputUiState(selectedContactList = contactList) },

@@ -18,6 +18,9 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.feature.contact.ui.resetAndroidUiDispatcher
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.justRun
@@ -174,15 +177,15 @@ class ContactHomeDeleteTest {
         val second = testContact(name = SECOND_NAME)
         val effectChannel = Channel<ContactHomeEffect>(capacity = Channel.BUFFERED)
         val viewModel = mockk<ContactHomeViewModel>()
-        every { viewModel.sort } returns MutableStateFlow(ListSort.NAME)
+        every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.NAME))
         every { viewModel.contactPagingData } returns MutableStateFlow(contactPagingDataOf(listOf(first, second)))
         every { viewModel.effect } returns effectChannel.receiveAsFlow()
         every { viewModel.delete(id = any()) } answers {
             effectChannel.trySend(ContactHomeEffect.Deleted(id = firstArg())).getOrThrow()
         }
         justRun { viewModel.restore(id = any()) }
-        val syncViewModel = mockk<ContactHomeSyncViewModel>()
-        every { syncViewModel.uiState } returns MutableStateFlow(ContactHomeUiState())
+        val syncViewModel = mockk<SyncRefreshViewModel>()
+        every { syncViewModel.uiState } returns MutableStateFlow(SyncRefreshUiState())
         justRun { syncViewModel.refresh() }
 
         composeRule.setContent {

@@ -9,7 +9,7 @@ public interface AccountWebTagSyncTransaction {
         webTagList: List<WebTagLocalEntity>,
     )
 
-    public suspend fun save(
+    public suspend fun upsert(
         accountId: Uuid,
         webTagList: List<WebTagLocalEntity>,
         cursor: Long,

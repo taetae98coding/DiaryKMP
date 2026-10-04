@@ -8,8 +8,8 @@ import androidx.compose.ui.graphics.Color
 import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerRow
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.tag.previewTag
 import io.github.taetae98coding.diary.core.model.tag.Tag
-import io.github.taetae98coding.diary.feature.tag.ui.previewTag
 import io.github.taetae98coding.diary.library.compose.ui.color.toColor
 
 @Composable

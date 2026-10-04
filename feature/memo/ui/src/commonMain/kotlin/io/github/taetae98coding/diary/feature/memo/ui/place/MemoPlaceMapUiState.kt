@@ -6,7 +6,7 @@ import io.github.taetae98coding.diary.core.model.map.MapProvider
 internal sealed interface MemoPlaceMapUiState {
     data object Loading : MemoPlaceMapUiState
 
-    data class Loaded(
+    data class Content(
         val provider: MapProvider,
         val currentCoordinate: Coordinate?,
     ) : MemoPlaceMapUiState

@@ -30,17 +30,15 @@ import io.github.taetae98coding.diary.compose.memo.list.MemoList
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.compose.memo.list.MemoListState
-import io.github.taetae98coding.diary.compose.memo.list.MemoListUiState
 import io.github.taetae98coding.diary.compose.memo.list.rememberMemoListState
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.memo.ui.Res
 import io.github.taetae98coding.diary.feature.memo.ui.memo_finished_list_empty_title
 import io.github.taetae98coding.diary.feature.memo.ui.memo_finished_list_navigate_up_button_content_description
 import io.github.taetae98coding.diary.feature.memo.ui.memo_finished_list_title
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
-
-internal const val MEMO_FINISHED_LIST_TEST_TAG: String = "MemoFinishedList"
 
 @Composable
 internal fun MemoFinishedListScaffold(
@@ -51,7 +49,7 @@ internal fun MemoFinishedListScaffold(
     sortSheetState: DialogState = rememberDialogState(),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     memoPagingItems: LazyPagingItems<MemoListItem> = remember { flowOf(PagingData.empty<MemoListItem>()) }.collectAsLazyPagingItems(),
-    memoListUiStateProvider: () -> MemoListUiState = { MemoListUiState() },
+    syncUiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
     sortProvider: () -> ListSort = { ListSort.DEFAULT },
 ) {
     Scaffold(
@@ -83,9 +81,8 @@ internal fun MemoFinishedListScaffold(
                 state = memoListState,
                 memoPagingItems = memoPagingItems,
                 modifier = Modifier.fillMaxSize(),
-                uiStateProvider = memoListUiStateProvider,
+                isRefreshingProvider = { syncUiStateProvider().isRefreshing },
                 sortProvider = sortProvider,
-                listTestTag = MEMO_FINISHED_LIST_TEST_TAG,
                 finishAction = SwipeFinishAction.RESTART,
                 empty = {
                     DiaryEmptyBox(

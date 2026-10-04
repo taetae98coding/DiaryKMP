@@ -49,21 +49,44 @@ internal class CalendarHomeFilterViewModel(
                 initialValue = CalendarHomeFilterUiState(),
             )
 
+    private val inProgressSelectTagSet = mutableSetOf<Uuid>()
+    private val inProgressUnselectTagSet = mutableSetOf<Uuid>()
+    private var isUnselectAllTagInProgress = false
+
     fun selectTag(id: Uuid) {
+        if (!inProgressSelectTagSet.add(id)) return
+
         viewModelScope.launch {
-            selectCalendarFilterTagUseCase(parameter = id)
+            try {
+                selectCalendarFilterTagUseCase(parameter = id)
+            } finally {
+                inProgressSelectTagSet.remove(id)
+            }
         }
     }
 
     fun unselectTag(id: Uuid) {
+        if (!inProgressUnselectTagSet.add(id)) return
+
         viewModelScope.launch {
-            unselectCalendarFilterTagUseCase(parameter = id)
+            try {
+                unselectCalendarFilterTagUseCase(parameter = id)
+            } finally {
+                inProgressUnselectTagSet.remove(id)
+            }
         }
     }
 
     fun unselectAllTag() {
+        if (isUnselectAllTagInProgress) return
+        isUnselectAllTagInProgress = true
+
         viewModelScope.launch {
-            unselectAllCalendarFilterTagUseCase(parameter = Unit)
+            try {
+                unselectAllCalendarFilterTagUseCase(parameter = Unit)
+            } finally {
+                isUnselectAllTagInProgress = false
+            }
         }
     }
 }

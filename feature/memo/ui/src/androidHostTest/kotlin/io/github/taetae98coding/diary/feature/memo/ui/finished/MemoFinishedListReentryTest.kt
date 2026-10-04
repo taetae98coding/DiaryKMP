@@ -35,13 +35,15 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.ui.home.MemoHomeScaffoldFilterUiState
-import io.github.taetae98coding.diary.feature.memo.ui.home.MemoHomeSyncViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.home.MemoHomeViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.home.memoPagingDataOf
 import io.github.taetae98coding.diary.feature.memo.ui.memoEntry
+import io.github.taetae98coding.diary.feature.memo.ui.refreshableList
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
@@ -93,7 +95,7 @@ class MemoFinishedListReentryTest {
             composeRule.onAllNodesWithText(SORT_SHEET_TITLE).fetchSemanticsNodes().isEmpty()
         }
         composeRule.onNodeWithText(TITLE_SORT).assertIsDisplayed()
-        composeRule.onNodeWithTag(MEMO_FINISHED_LIST_TEST_TAG).performScrollToIndex(itemList.lastIndex)
+        composeRule.refreshableList().performScrollToIndex(itemList.lastIndex)
         composeRule.waitForIdle()
         composeRule.onAllNodesWithText(memoTitle(index = 0)).fetchSemanticsNodes().isEmpty() shouldBe true
 
@@ -114,26 +116,26 @@ class MemoFinishedListReentryTest {
     private fun viewModelModule(itemList: List<MemoListItem>) =
         module {
             factory<MemoFinishedListViewModel> {
-                val sort = MutableStateFlow(ListSort.DEFAULT)
+                val sort = MutableStateFlow(ListSortUiState())
 
                 mockk<MemoFinishedListViewModel>(relaxed = true) {
-                    every { this@mockk.sort } returns sort
-                    every { select(sort = any()) } answers { sort.value = firstArg() }
+                    every { this@mockk.sortUiState } returns sort
+                    every { select(sort = any()) } answers { sort.value = ListSortUiState(sort = firstArg()) }
                     every { memoPagingData } returns MutableStateFlow(memoPagingDataOf(itemList = itemList))
                     every { effect } returns emptyFlow()
                 }.also { viewModel -> finishedViewModelList += viewModel }
             }
-            factory<MemoFinishedListSyncViewModel> { screenTestSyncViewModel() }
+            factory<SyncRefreshViewModel> { screenTestSyncViewModel() }
             factory<MemoHomeViewModel> {
                 mockk<MemoHomeViewModel>(relaxed = true) {
-                    every { sort } returns MutableStateFlow(ListSort.DEFAULT)
+                    every { sortUiState } returns MutableStateFlow(ListSortUiState())
                     every { memoPagingData } returns
                         MutableStateFlow(memoPagingDataOf(itemList = listOf(MemoListItem.Content(memo = finishedMemo(title = MEMO_HOME_MARKER_TITLE)))))
                     every { filterUiState } returns MutableStateFlow(MemoHomeScaffoldFilterUiState())
                     every { effect } returns emptyFlow()
                 }
             }
-            factory<MemoHomeSyncViewModel> { homeScreenTestSyncViewModel() }
+            factory<SyncRefreshViewModel> { homeScreenTestSyncViewModel() }
         }
 
     private fun setMemoNavDisplay(itemList: List<MemoListItem>) {

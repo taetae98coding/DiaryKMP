@@ -9,7 +9,7 @@ public interface AccountMemoPlaceSyncTransaction {
         memoPlaceList: List<MemoPlaceLocalEntity>,
     )
 
-    public suspend fun save(
+    public suspend fun upsert(
         accountId: Uuid,
         memoPlaceList: List<MemoPlaceLocalEntity>,
         cursor: Long,

@@ -37,13 +37,15 @@ import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetail
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.memo.list.MemoListUiState
 import io.github.taetae98coding.diary.compose.web.WEB_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
@@ -57,15 +59,11 @@ import io.github.taetae98coding.diary.feature.web.ui.add.WebAddViewModel
 import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.DEFAULT_MEMO_ADD_DESCRIPTION
 import io.github.taetae98coding.diary.feature.web.ui.detail.DEFAULT_MEMO_TAB_DESCRIPTION
-import io.github.taetae98coding.diary.feature.web.ui.detail.memo.WebDetailMemoSyncViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.memo.WebDetailMemoViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.memoScreenPageViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.memoScreenWebViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.selectWebDetailTab
 import io.github.taetae98coding.diary.feature.web.ui.detail.testContentUiState
-import io.github.taetae98coding.diary.feature.web.ui.home.WEB_HOME_LIST_TEST_TAG
-import io.github.taetae98coding.diary.feature.web.ui.home.WebHomeSyncViewModel
-import io.github.taetae98coding.diary.feature.web.ui.home.WebHomeUiState
 import io.github.taetae98coding.diary.feature.web.ui.home.WebHomeViewModel
 import io.github.taetae98coding.diary.feature.web.ui.home.testWeb
 import io.github.taetae98coding.diary.feature.web.ui.home.webPagingDataOf
@@ -199,7 +197,7 @@ class WebNavDisplayTest {
 
         navigate(webList)
         composeRule.waitForIdle()
-        composeRule.onNodeWithTag(WEB_HOME_LIST_TEST_TAG).assertDoesNotExist()
+        composeRule.refreshableList().assertDoesNotExist()
         pressBack()
 
         assertPositionWebDisplayed(webList)
@@ -216,7 +214,7 @@ class WebNavDisplayTest {
 
     private fun scrollToPositionWeb(webList: List<Web>) {
         waitUntilWebIsDisplayed(webList.first())
-        composeRule.onNodeWithTag(WEB_HOME_LIST_TEST_TAG).performScrollToIndex(POSITION_SCROLL_INDEX)
+        composeRule.refreshableList().performScrollToIndex(POSITION_SCROLL_INDEX)
         composeRule.waitForIdle()
         assertPositionWebDisplayed(webList)
     }
@@ -296,13 +294,13 @@ class WebNavDisplayTest {
             factory {
                 mockk<WebHomeViewModel>(relaxed = true).apply {
                     every { webPagingData } returns MutableStateFlow(webPagingDataOf(homeWebList))
-                    every { sort } returns MutableStateFlow(ListSort.TITLE)
+                    every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
                     every { effect } returns emptyFlow()
                 }
             }
             factory {
-                mockk<WebHomeSyncViewModel>(relaxed = true).apply {
-                    every { uiState } returns MutableStateFlow(WebHomeUiState())
+                mockk<SyncRefreshViewModel>(relaxed = true).apply {
+                    every { uiState } returns MutableStateFlow(SyncRefreshUiState())
                 }
             }
             factory {
@@ -321,13 +319,13 @@ class WebNavDisplayTest {
             factory {
                 mockk<WebDetailMemoViewModel>(relaxed = true).apply {
                     every { memoPagingData } returns flowOf(PagingData.empty())
-                    every { sort } returns MutableStateFlow(ListSort.DEFAULT)
+                    every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
                     every { effect } returns emptyFlow()
                 }
             }
             factory {
-                mockk<WebDetailMemoSyncViewModel>(relaxed = true).apply {
-                    every { uiState } returns MutableStateFlow(MemoListUiState())
+                mockk<SyncRefreshViewModel>(relaxed = true).apply {
+                    every { uiState } returns MutableStateFlow(SyncRefreshUiState())
                 }
             }
         }

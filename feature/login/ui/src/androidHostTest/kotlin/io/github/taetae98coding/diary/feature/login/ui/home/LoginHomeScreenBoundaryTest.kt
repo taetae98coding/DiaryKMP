@@ -12,10 +12,8 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.authentication.AppleCredential
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
 import io.github.taetae98coding.diary.feature.login.ui.credential.AppleCredentialsException
-import io.github.taetae98coding.diary.feature.login.ui.credential.AppleCredentialsManager
 import io.github.taetae98coding.diary.feature.login.ui.credential.AppleCredentialsUserCancelException
 import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsException
-import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsManager
 import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsUserCancelException
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLogger

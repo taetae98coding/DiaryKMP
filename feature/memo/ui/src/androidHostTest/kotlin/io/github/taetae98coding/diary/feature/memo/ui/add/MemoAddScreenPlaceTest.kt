@@ -21,11 +21,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
-import androidx.navigation3.runtime.result.ResultEventBus
-import androidx.paging.PagingData
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.core.dialog.DIARY_PAGING_PICKER_LIST_TEST_TAG
 import io.github.taetae98coding.diary.core.model.location.Coordinate
-import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.closeDialogByBack
@@ -33,7 +30,6 @@ import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiVie
 import io.github.taetae98coding.diary.feature.memo.ui.place.DEFAULT_PLACE_PICKER_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.place.DEFAULT_PLACE_SELECT_LABEL
 import io.github.taetae98coding.diary.feature.memo.ui.place.HOME_PLACE_TITLE
-import io.github.taetae98coding.diary.feature.memo.ui.place.MEMO_PLACE_PICKER_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.memo.ui.place.OFFICE_PLACE_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.place.placeDialogNodeWithText
 import io.github.taetae98coding.diary.feature.memo.ui.place.placePagingDataOf
@@ -46,7 +42,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
 import org.junit.Rule
@@ -252,7 +247,7 @@ class MemoAddScreenPlaceTest {
 
         composeRule.openPlacePicker()
         composeRule.awaitPlacePickerRows()
-        composeRule.onNode(hasTestTag(MEMO_PLACE_PICKER_LIST_TEST_TAG)).performScrollToIndex(placeList.lastIndex)
+        composeRule.onNode(hasTestTag(DIARY_PAGING_PICKER_LIST_TEST_TAG)).performScrollToIndex(placeList.lastIndex)
         composeRule.waitForIdle()
         composeRule.placeDialogNodeWithText(placeList.first().detail.title).assertIsNotDisplayed()
 
@@ -269,7 +264,7 @@ class MemoAddScreenPlaceTest {
     private fun ComposeContentTestRule.awaitPlacePickerRows() {
         repeat(PICKER_WAIT_ATTEMPT_COUNT) {
             waitForIdle()
-            if (onNode(hasTestTag(MEMO_PLACE_PICKER_LIST_TEST_TAG)).fetchSemanticsNode().children.isNotEmpty()) return
+            if (onNode(hasTestTag(DIARY_PAGING_PICKER_LIST_TEST_TAG)).fetchSemanticsNode().children.isNotEmpty()) return
             mainClock.advanceTimeByFrame()
             @Suppress("ForbiddenMethodCall")
             Thread.sleep(PICKER_WAIT_INTERVAL_MILLIS)

@@ -7,7 +7,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
-import io.github.taetae98coding.diary.feature.tag.ui.detail.memo.TAG_DETAIL_MEMO_LIST_TEST_TAG
+import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemoPagingData
 import io.mockk.verify
@@ -42,7 +42,7 @@ class TagDetailFormRefreshTest {
 
         // 같은 화면에서 메모 탭을 당기면 새로고침이 요청되므로, 위의 결과는 당김이 관찰되지 않아서가 아니다.
         composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
-        composeRule.onNodeWithTag(TAG_DETAIL_MEMO_LIST_TEST_TAG).performTouchInput { swipeDown() }
+        composeRule.refreshableList().performTouchInput { swipeDown() }
         composeRule.waitForIdle()
 
         verify(exactly = 1) { requireNotNull(memoSyncViewModelRef).refresh() }

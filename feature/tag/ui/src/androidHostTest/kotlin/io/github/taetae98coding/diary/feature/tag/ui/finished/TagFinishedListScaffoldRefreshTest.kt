@@ -13,6 +13,7 @@ import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
@@ -46,21 +47,21 @@ class TagFinishedListScaffoldRefreshTest {
 
     @Test
     fun `TC-SYNC-REFRESH-FEATURE-002 진행 표시 상태이면 진행 표시가 나타난다`() {
-        setTagFinishedListScaffold(uiState = TagFinishedListUiState(isRefreshing = true))
+        setTagFinishedListScaffold(uiState = SyncRefreshUiState(isRefreshing = true))
 
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
     }
 
     @Test
     fun `TC-SYNC-REFRESH-FEATURE-004 진행 표시 상태가 아니면 진행 표시가 나타나지 않는다`() {
-        setTagFinishedListScaffold(uiState = TagFinishedListUiState(isRefreshing = false))
+        setTagFinishedListScaffold(uiState = SyncRefreshUiState(isRefreshing = false))
 
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertDoesNotExist()
     }
 
     private fun setTagFinishedListScaffold(
         tagList: List<Tag> = emptyList(),
-        uiState: TagFinishedListUiState = TagFinishedListUiState(),
+        uiState: SyncRefreshUiState = SyncRefreshUiState(),
         onEvent: (TagFinishedListScaffoldEvent) -> Unit = {},
     ) {
         val tagPagingDataFlow = MutableStateFlow(tagPagingDataOf(tagList))

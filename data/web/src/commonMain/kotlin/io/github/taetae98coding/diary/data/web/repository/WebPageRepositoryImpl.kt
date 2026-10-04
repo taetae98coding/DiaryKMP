@@ -2,7 +2,7 @@ package io.github.taetae98coding.diary.data.web.repository
 
 import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.core.model.web.WebPage
-import io.github.taetae98coding.diary.core.webnetwork.api.datasource.WebPageRemoteDataSource
+import io.github.taetae98coding.diary.core.web.network.api.datasource.WebPageRemoteDataSource
 import io.github.taetae98coding.diary.data.web.mapper.toDomain
 import io.github.taetae98coding.diary.data.web.mapper.toRemote
 import io.github.taetae98coding.diary.domain.web.repository.WebPageRepository

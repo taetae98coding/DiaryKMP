@@ -16,9 +16,9 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
-import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountryOption
-import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountrySetting
-import io.github.taetae98coding.diary.domain.holiday.model.HolidaySetting
+import io.github.taetae98coding.diary.core.model.holiday.HolidayCountryOption
+import io.github.taetae98coding.diary.core.model.holiday.HolidayCountrySetting
+import io.github.taetae98coding.diary.core.model.holiday.HolidaySetting
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.mockk.every
 import io.mockk.mockk
@@ -88,8 +88,8 @@ internal fun holidayCountrySetting(
 internal fun loadedUiState(
     holidaySettingList: List<HolidaySetting>,
     countrySetting: HolidayCountrySetting = holidayCountrySetting(),
-): SettingHolidayUiState.Loaded =
-    SettingHolidayUiState.Loaded(
+): SettingHolidayUiState.Content =
+    SettingHolidayUiState.Content(
         countrySetting = countrySetting,
         holidaySettingList = holidaySettingList,
     )

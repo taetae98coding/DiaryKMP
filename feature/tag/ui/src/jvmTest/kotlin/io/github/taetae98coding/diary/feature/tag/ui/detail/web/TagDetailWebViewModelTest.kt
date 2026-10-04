@@ -4,6 +4,7 @@ package io.github.taetae98coding.diary.feature.tag.ui.detail.web
 
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.testing.ErrorRecovery
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
@@ -16,6 +17,7 @@ import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.domain.web.usecase.DeleteWebUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.PageTagWebUseCase
 import io.github.taetae98coding.diary.domain.web.usecase.RestoreWebUseCase
+import io.github.taetae98coding.diary.feature.tag.ui.appendFailingPagingData
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -25,10 +27,14 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -130,24 +136,85 @@ class TagDetailWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-WEB-FEATURE-004 조회가 성공한 뒤 실패하면 마지막으로 불러온 웹 항목을 그대로 노출한다") {
+        test("TC-TAG-DETAIL-WEB-FEATURE-004 이어서 불러오기에 실패해도 이미 불러온 웹 항목을 그대로 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val webList = List(2) { item() }
                 val pageTagWebUseCase = mockk<PageTagWebUseCase>()
                 every { pageTagWebUseCase(parameter = PageTagWebUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, sort = ListSort.TITLE)) } returns
-                    flowOf(Result.success(PagingData.from(webList)), Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())))
+                    appendFailingPagingData(firstPage = webList).map { pagingData -> Result.success(pagingData) }
+                val viewModel = TagDetailWebViewModel(tagId = tagId, pageTagWebUseCase = pageTagWebUseCase, deleteWebUseCase = mockk(), restoreWebUseCase = mockk())
+
+                val itemList =
+                    flowOf(viewModel.webPagingData.first()).asSnapshot(onError = { ErrorRecovery.RETURN_CURRENT_SNAPSHOT }) {
+                        appendScrollWhile { true }
+                    }
+
+                itemList shouldBe webList
+            }
+        }
+
+        test("TC-TAG-DETAIL-WEB-FEATURE-004 조회가 성공한 뒤 다시 조회하다 실패하면 이전 웹 항목을 남기지 않고 빈 목록을 노출한다") {
+            runTest(mainDispatcher) {
+                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val webList = List(2) { item() }
+                val pageTagWebUseCase = mockk<PageTagWebUseCase>()
+                val resultFlow = MutableStateFlow<Result<PagingData<Web>>>(Result.success(PagingData.from(webList)))
+                every { pageTagWebUseCase(parameter = PageTagWebUseCase.Parameter(tagId = tagId, scope = TagScope.SELF, sort = ListSort.TITLE)) } returns resultFlow
                 val viewModel = TagDetailWebViewModel(tagId = tagId, pageTagWebUseCase = pageTagWebUseCase, deleteWebUseCase = mockk(), restoreWebUseCase = mockk())
 
                 viewModel.webPagingData.test {
                     advanceUntilIdle()
-                    val itemList = flowOf(awaitItem()).asSnapshot()
-                    expectNoEvents()
+                    flowOf(awaitItem()).asSnapshot() shouldBe webList
 
-                    itemList shouldBe webList
+                    resultFlow.value = Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
+                    advanceUntilIdle()
+
+                    flowOf(awaitItem()).asSnapshot().shouldBeEmpty()
+                    expectNoEvents()
                 }
                 viewModel.viewModelScope.cancel()
                 advanceUntilIdle()
+            }
+        }
+
+        test("삭제를 처리하는 동안 같은 웹 항목의 삭제를 다시 요청해도 삭제 UseCase는 한 번만 호출한다") {
+            runTest(mainDispatcher) {
+                val webId = fixtureMonkey.giveMeOne<Uuid>()
+                val gate = CompletableDeferred<Unit>()
+                val deleteWebUseCase = mockk<DeleteWebUseCase>()
+                coEvery { deleteWebUseCase(parameter = webId) } coAnswers {
+                    gate.await()
+                    Result.success(1)
+                }
+                val viewModel = TagDetailWebViewModel(tagId = fixtureMonkey.giveMeOne<Uuid>(), pageTagWebUseCase = mockk(), deleteWebUseCase = deleteWebUseCase, restoreWebUseCase = mockk())
+
+                viewModel.delete(id = webId)
+                viewModel.delete(id = webId)
+                gate.complete(Unit)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { deleteWebUseCase(parameter = webId) }
+            }
+        }
+
+        test("복구를 처리하는 동안 같은 웹 항목의 복구를 다시 요청해도 복구 UseCase는 한 번만 호출한다") {
+            runTest(mainDispatcher) {
+                val webId = fixtureMonkey.giveMeOne<Uuid>()
+                val gate = CompletableDeferred<Unit>()
+                val restoreWebUseCase = mockk<RestoreWebUseCase>()
+                coEvery { restoreWebUseCase(parameter = webId) } coAnswers {
+                    gate.await()
+                    Result.success(1)
+                }
+                val viewModel = TagDetailWebViewModel(tagId = fixtureMonkey.giveMeOne<Uuid>(), pageTagWebUseCase = mockk(), deleteWebUseCase = mockk(), restoreWebUseCase = restoreWebUseCase)
+
+                viewModel.restore(id = webId)
+                viewModel.restore(id = webId)
+                gate.complete(Unit)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { restoreWebUseCase(parameter = webId) }
             }
         }
 

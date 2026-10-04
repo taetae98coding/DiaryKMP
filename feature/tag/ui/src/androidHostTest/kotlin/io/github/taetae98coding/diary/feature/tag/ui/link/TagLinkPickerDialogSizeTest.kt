@@ -4,6 +4,7 @@ import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.unit.dp
+import io.github.taetae98coding.diary.compose.core.dialog.DIARY_PAGING_PICKER_LIST_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.dialog.DIARY_PICKER_EMPTY_BOX_TEST_TAG
 import org.junit.Rule
 import org.junit.Test
@@ -23,7 +24,7 @@ class TagLinkPickerDialogSizeTest {
         composeRule.setTagLinkPickerDialog(tagList = listOf(testTag(title = WORK_TAG_TITLE)))
         composeRule.awaitTagLinkPickerRows()
 
-        composeRule.onNode(hasTestTag(TAG_LINK_PICKER_LIST_TEST_TAG)).assertHeightIsEqualTo(PICKER_LIST_HEIGHT)
+        composeRule.onNode(hasTestTag(DIARY_PAGING_PICKER_LIST_TEST_TAG)).assertHeightIsEqualTo(PICKER_LIST_HEIGHT)
     }
 
     @Test
@@ -31,7 +32,7 @@ class TagLinkPickerDialogSizeTest {
         composeRule.setTagLinkPickerDialog(tagList = List(ROW_COUNT_OVER_AREA) { index -> testTag(title = "$WORK_TAG_TITLE$index") })
         composeRule.awaitTagLinkPickerRows()
 
-        composeRule.onNode(hasTestTag(TAG_LINK_PICKER_LIST_TEST_TAG)).assertHeightIsEqualTo(PICKER_LIST_HEIGHT)
+        composeRule.onNode(hasTestTag(DIARY_PAGING_PICKER_LIST_TEST_TAG)).assertHeightIsEqualTo(PICKER_LIST_HEIGHT)
     }
 
     @Test

@@ -4,6 +4,7 @@ package io.github.taetae98coding.diary.feature.memo.ui.add
 
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.testing.ErrorRecovery
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
@@ -12,7 +13,8 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
-import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagSelection
+import io.github.taetae98coding.diary.feature.memo.ui.appendFailingPagingData
+import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagSelectionUiState
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -316,7 +318,23 @@ class MemoAddTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-TAG-INPUT-FEATURE-026 태그 선택 목록 조회가 실패하면 마지막 목록을 유지한다") {
+        test("TC-MEMO-TAG-INPUT-FEATURE-026 태그 선택 목록의 이어서 불러오기가 실패해도 이미 나타난 태그를 유지한다") {
+            runTest(mainDispatcher) {
+                val tagList = listOf(tag(), tag())
+                val useCase = mockk<PageTagUseCase>()
+                every { useCase(any()) } returns appendFailingPagingData(firstPage = tagList).map { pagingData -> Result.success(pagingData) }
+                val viewModel = viewModel(pageTagUseCase = useCase)
+
+                val itemList =
+                    flowOf(viewModel.tagPagingData.first()).asSnapshot(onError = { ErrorRecovery.RETURN_CURRENT_SNAPSHOT }) {
+                        appendScrollWhile { true }
+                    }
+
+                itemList shouldBe tagList
+            }
+        }
+
+        test("태그 선택 목록을 다시 조회하다 실패하면 이전 태그를 남기지 않고 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val tagList = listOf(tag(), tag())
                 val viewModel =
@@ -331,8 +349,7 @@ class MemoAddTagViewModelTest : FunSpec() {
                 viewModel.tagPagingData.test {
                     advanceUntilIdle()
 
-                    flowOf(awaitItem()).asSnapshot() shouldBe tagList
-                    expectNoEvents()
+                    flowOf(expectMostRecentItem()).asSnapshot() shouldBe emptyList()
                     cancelAndIgnoreRemainingEvents()
                 }
             }
@@ -380,8 +397,8 @@ class MemoAddTagViewModelTest : FunSpec() {
                     cancelAndIgnoreRemainingEvents()
                 }
 
-                viewModel.selection.value shouldBe
-                    MemoTagSelection(
+                viewModel.selectionUiState.value shouldBe
+                    MemoTagSelectionUiState(
                         tagIdSet = setOf(selectableTag.id, unselectableTag.id),
                         primaryTagId = unselectableTag.id,
                     )
@@ -407,7 +424,7 @@ class MemoAddTagViewModelTest : FunSpec() {
                     cancelAndIgnoreRemainingEvents()
                 }
 
-                viewModel.selection.value shouldBe MemoTagSelection(tagIdSet = setOf(tagB.id), primaryTagId = tagB.id)
+                viewModel.selectionUiState.value shouldBe MemoTagSelectionUiState(tagIdSet = setOf(tagB.id), primaryTagId = tagB.id)
             }
         }
 

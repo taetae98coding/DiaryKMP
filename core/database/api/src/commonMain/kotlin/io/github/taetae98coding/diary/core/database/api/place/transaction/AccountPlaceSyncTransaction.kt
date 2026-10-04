@@ -9,7 +9,7 @@ public interface AccountPlaceSyncTransaction {
         placeList: List<PlaceLocalEntity>,
     )
 
-    public suspend fun save(
+    public suspend fun upsert(
         accountId: Uuid,
         placeList: List<PlaceLocalEntity>,
         cursor: Long,

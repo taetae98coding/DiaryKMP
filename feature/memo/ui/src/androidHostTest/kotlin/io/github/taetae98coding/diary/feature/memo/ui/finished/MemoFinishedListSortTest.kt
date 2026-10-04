@@ -27,7 +27,9 @@ import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.memo.ui.home.memoPagingDataOf
+import io.github.taetae98coding.diary.feature.memo.ui.refreshableList
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -112,10 +114,10 @@ class MemoFinishedListSortTest {
             List(RESTORATION_MEMO_COUNT) { index ->
                 memo(title = "완료 메모-${index.toString().padStart(length = 2, padChar = '0')}")
             }
-        val sortFlow = MutableStateFlow(ListSort.DEFAULT)
+        val sortFlow = MutableStateFlow(ListSortUiState())
         val viewModel = mockk<MemoFinishedListViewModel>(relaxed = true)
-        every { viewModel.sort } returns sortFlow
-        every { viewModel.select(sort = any()) } answers { sortFlow.value = firstArg() }
+        every { viewModel.sortUiState } returns sortFlow
+        every { viewModel.select(sort = any()) } answers { sortFlow.value = ListSortUiState(sort = firstArg()) }
         every { viewModel.memoPagingData } returns
             MutableStateFlow(memoPagingDataOf(memoList.map { memo -> MemoListItem.Content(memo = memo) }))
         every { viewModel.effect } returns emptyFlow()
@@ -139,7 +141,7 @@ class MemoFinishedListSortTest {
         composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
             composeRule.onAllNodesWithText(DEFAULT_SORT_SHEET_TITLE).fetchSemanticsNodes().isEmpty()
         }
-        composeRule.onNodeWithTag(MEMO_FINISHED_LIST_TEST_TAG).performScrollToIndex(RESTORATION_SCROLL_INDEX)
+        composeRule.refreshableList().performScrollToIndex(RESTORATION_SCROLL_INDEX)
         composeRule.onNodeWithText(memoList[RESTORATION_SCROLL_INDEX].detail.title).assertIsDisplayed()
         composeRule.onNodeWithText(memoList.first().detail.title).assertDoesNotExist()
 
@@ -180,7 +182,7 @@ class MemoFinishedListSortTest {
         composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
             composeRule.onAllNodesWithText(DEFAULT_SORT_SHEET_TITLE).fetchSemanticsNodes().isEmpty()
         }
-        composeRule.onNodeWithTag(MEMO_FINISHED_LIST_TEST_TAG).performScrollToIndex(RESTORATION_SCROLL_INDEX)
+        composeRule.refreshableList().performScrollToIndex(RESTORATION_SCROLL_INDEX)
         composeRule.onNodeWithText(memoList[RESTORATION_SCROLL_INDEX].detail.title).assertIsDisplayed()
         nextViewModel = restorationViewModel(memoList = memoList)
 
@@ -196,10 +198,10 @@ class MemoFinishedListSortTest {
     }
 
     private fun restorationViewModel(memoList: List<Memo>): MemoFinishedListViewModel {
-        val sortFlow = MutableStateFlow(ListSort.DEFAULT)
+        val sortFlow = MutableStateFlow(ListSortUiState())
         val viewModel = mockk<MemoFinishedListViewModel>(relaxed = true)
-        every { viewModel.sort } returns sortFlow
-        every { viewModel.select(sort = any()) } answers { sortFlow.value = firstArg() }
+        every { viewModel.sortUiState } returns sortFlow
+        every { viewModel.select(sort = any()) } answers { sortFlow.value = ListSortUiState(sort = firstArg()) }
         every { viewModel.memoPagingData } returns
             MutableStateFlow(memoPagingDataOf(memoList.map { memo -> MemoListItem.Content(memo = memo) }))
         every { viewModel.effect } returns emptyFlow()

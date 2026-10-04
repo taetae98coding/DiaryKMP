@@ -11,9 +11,9 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.shortcut.isAddShortcut
 import io.github.taetae98coding.diary.compose.core.shortcut.keyShortcut
-import io.github.taetae98coding.diary.compose.tag.list.TagListEffect
 import io.github.taetae98coding.diary.compose.tag.list.TagListEvent
 import io.github.taetae98coding.diary.compose.tag.list.TagListUndoSnackbarEffect
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import kotlin.uuid.Uuid
 
 @Composable
@@ -26,18 +26,20 @@ internal fun TagHomeScreen(
     componentVisibleProvider: () -> TagHomeScaffoldComponentVisible,
     gridState: LazyGridState,
     tagViewModel: TagHomeViewModel,
-    syncViewModel: TagHomeSyncViewModel,
+    syncViewModel: SyncRefreshViewModel,
     modifier: Modifier = Modifier,
 ) {
     val uiState by syncViewModel.uiState.collectAsStateWithLifecycle()
     val filterUiState by tagViewModel.filterUiState.collectAsStateWithLifecycle()
     val tagPagingItems = tagViewModel.tagPagingData.collectAsLazyPagingItems()
-    val sort by tagViewModel.sort.collectAsStateWithLifecycle()
+    val sortUiState by tagViewModel.sortUiState.collectAsStateWithLifecycle()
     val sortSheetState = rememberDialogState()
     val snackbarHostState = remember { SnackbarHostState() }
 
     TagListUndoSnackbarEffect(
-        onUndo = { effect -> handleTagListUndo(effect = effect, tagViewModel = tagViewModel) },
+        onRestart = { id -> tagViewModel.restart(id = id) },
+        onFinish = { id -> tagViewModel.finish(id = id) },
+        onRestore = { id -> tagViewModel.restore(id = id) },
         effect = tagViewModel.effect,
         snackbarHostState = snackbarHostState,
     )
@@ -72,7 +74,7 @@ internal fun TagHomeScreen(
             },
         uiStateProvider = { uiState },
         filterUiStateProvider = { filterUiState },
-        sortProvider = { sort },
+        sortProvider = { sortUiState.sort },
         componentVisibleProvider = componentVisibleProvider,
     )
 }
@@ -87,16 +89,5 @@ private fun handleTagListEvent(
         is TagListEvent.SwipeFinish -> tagViewModel.finish(id = event.id)
         is TagListEvent.SwipeRestart -> tagViewModel.restart(id = event.id)
         is TagListEvent.SwipeDelete -> tagViewModel.delete(id = event.id)
-    }
-}
-
-private fun handleTagListUndo(
-    effect: TagListEffect,
-    tagViewModel: TagHomeViewModel,
-) {
-    when (effect) {
-        is TagListEffect.Finished -> tagViewModel.restart(id = effect.id)
-        is TagListEffect.Restarted -> tagViewModel.finish(id = effect.id)
-        is TagListEffect.Deleted -> tagViewModel.restore(id = effect.id)
     }
 }

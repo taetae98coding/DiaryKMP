@@ -6,12 +6,13 @@ import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.google.network.api.datasource.GooglePlaceRemoteDataSource
 import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceDisplayNameRemoteEntity
-import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceLocationBias
+import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceLocationBiasRemoteEntity
 import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceLocationRemoteEntity
 import io.github.taetae98coding.diary.core.google.network.api.entity.GooglePlaceRemoteEntity
 import io.github.taetae98coding.diary.core.google.network.impl.GoogleNetworkTestKoinApplication
 import io.github.taetae98coding.diary.core.google.network.impl.GoogleNetworkTestKoinModule
-import io.github.taetae98coding.diary.core.google.network.impl.di.GoogleHttpClientEngine
+import io.github.taetae98coding.diary.core.google.network.impl.createGoogleHttpClient
+import io.github.taetae98coding.diary.core.google.network.impl.di.GoogleHttpClient
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
@@ -19,6 +20,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.doubles.shouldBeNaN
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldStartWith
+import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -276,10 +278,10 @@ class GooglePlaceRemoteDataSourceImplTest :
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
 
-        private fun locationBias(radiusMeters: Double): GooglePlaceLocationBias =
+        private fun locationBias(radiusMeters: Double): GooglePlaceLocationBiasRemoteEntity =
             fixtureMonkey
-                .giveMeKotlinBuilder<GooglePlaceLocationBias>()
-                .setExp(GooglePlaceLocationBias::radiusMeters, radiusMeters)
+                .giveMeKotlinBuilder<GooglePlaceLocationBiasRemoteEntity>()
+                .setExp(GooglePlaceLocationBiasRemoteEntity::radiusMeters, radiusMeters)
                 .sample()
 
         private fun HttpRequestData.jsonBody(): JsonObject = Json.parseToJsonElement((body as TextContent).text).jsonObject
@@ -304,7 +306,7 @@ class GooglePlaceRemoteDataSourceImplTest :
             koinApplication<GoogleNetworkTestKoinApplication> {
                 modules(
                     module {
-                        single<HttpClientEngine>(qualifier = named<GoogleHttpClientEngine>()) { engine }
+                        single<HttpClient>(qualifier = named<GoogleHttpClient>()) { createGoogleHttpClient(config = get(), engine = engine) }
                     },
                 )
             }.koin.get()

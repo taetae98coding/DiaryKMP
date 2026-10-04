@@ -9,7 +9,7 @@ public interface AccountTagSyncTransaction {
         tagList: List<TagLocalEntity>,
     )
 
-    public suspend fun save(
+    public suspend fun upsert(
         accountId: Uuid,
         tagList: List<TagLocalEntity>,
         cursor: Long,

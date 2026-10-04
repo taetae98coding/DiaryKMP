@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.domain.memo.usecase
 
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.account.usecase.requireAccount
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoRepository
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
@@ -20,7 +21,7 @@ public class UpdateMemoUseCase internal constructor(
     private val clock: Clock,
 ) : UseCase<UpdateMemoUseCase.Parameter, Int>() {
     override suspend fun execute(parameter: Parameter): Int {
-        val account = getAccountUseCase(parameter = Unit).first().getOrThrow()
+        val account = getAccountUseCase.requireAccount()
         val detail =
             parameter.detail.copy(
                 title =

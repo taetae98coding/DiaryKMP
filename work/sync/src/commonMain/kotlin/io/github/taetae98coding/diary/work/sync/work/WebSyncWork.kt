@@ -1,6 +1,6 @@
 package io.github.taetae98coding.diary.work.sync.work
 
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.datasource.SyncCursorLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.web.datasource.AccountWebSyncLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.web.transaction.AccountWebSyncTransaction
@@ -18,36 +18,26 @@ internal class WebSyncWork(
     private val webRemoteDataSource: WebRemoteDataSource,
 ) {
     suspend fun push(accountId: Uuid) {
-        val webList = accountWebSyncLocalDataSource.findPending(accountId = accountId)
-
-        webList.chunked(PUSH_CHUNK_SIZE).forEach { chunk ->
-            webRemoteDataSource.push(webList = chunk.map { web -> web.toRemote() })
-            accountWebSyncTransaction.clearPending(accountId = accountId, webList = chunk)
-        }
+        pushPending(
+            pendingList = accountWebSyncLocalDataSource.readPendingList(accountId = accountId),
+            push = { chunk -> webRemoteDataSource.push(webList = chunk.map { web -> web.toRemote() }) },
+            clearPending = { chunk -> accountWebSyncTransaction.clearPending(accountId = accountId, webList = chunk) },
+        )
     }
 
     suspend fun pull(accountId: Uuid) {
-        var cursor =
-            syncCursorLocalDataSource.find(
-                accountId = accountId,
-                kind = SyncKind.WEB,
-            )
-        var hasNext = true
-
-        while (hasNext) {
-            val pullList = webRemoteDataSource.pull(usn = cursor)
-            val nextCursor = pullList.maxOfOrNull { pull -> pull.usn }
-
-            if (nextCursor == null || nextCursor <= cursor) {
-                hasNext = false
-            } else {
-                accountWebSyncTransaction.save(
+        syncCursorLocalDataSource.pullUntilExhausted(
+            accountId = accountId,
+            kind = SyncKindLocalEntity.WEB,
+            pull = { cursor -> webRemoteDataSource.pull(usn = cursor) },
+            usn = { pull -> pull.usn },
+            upsert = { pullList, cursor ->
+                accountWebSyncTransaction.upsert(
                     accountId = accountId,
                     webList = pullList.map { pull -> pull.web.toLocal() },
-                    cursor = nextCursor,
+                    cursor = cursor,
                 )
-                cursor = nextCursor
-            }
-        }
+            },
+        )
     }
 }

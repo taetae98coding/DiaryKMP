@@ -34,6 +34,7 @@ import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheet
 import io.github.taetae98coding.diary.compose.tag.list.TagListEvent
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.list.TagList
 import io.github.taetae98coding.diary.feature.tag.ui.tag_home_add_button_content_description
@@ -45,8 +46,6 @@ import io.github.taetae98coding.diary.feature.tag.ui.tag_home_finished_list_acti
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
 
-internal const val TAG_HOME_LIST_TEST_TAG: String = "TagHomeList"
-
 @Composable
 internal fun TagHomeScaffold(
     onEvent: (TagHomeScaffoldEvent) -> Unit,
@@ -56,8 +55,8 @@ internal fun TagHomeScaffold(
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     gridState: LazyGridState = rememberLazyGridState(),
     tagPagingItems: LazyPagingItems<Tag> = remember { flowOf(PagingData.empty<Tag>()) }.collectAsLazyPagingItems(),
-    uiStateProvider: () -> TagHomeUiState = { TagHomeUiState() },
-    filterUiStateProvider: () -> TagHomeScaffoldFilterUiState? = { TagHomeScaffoldFilterUiState() },
+    uiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
+    filterUiStateProvider: () -> TagHomeScaffoldFilterUiState = { TagHomeScaffoldFilterUiState() },
     sortProvider: () -> ListSort = { ListSort.TITLE },
     componentVisibleProvider: () -> TagHomeScaffoldComponentVisible = { TagHomeScaffoldComponentVisible() },
 ) {
@@ -66,7 +65,7 @@ internal fun TagHomeScaffold(
         topBar = {
             TagHomeTopBar(
                 onEvent = onEvent,
-                filterUiStateProvider = { filterUiStateProvider() ?: TagHomeScaffoldFilterUiState() },
+                filterUiStateProvider = filterUiStateProvider,
             )
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -106,9 +105,8 @@ internal fun TagHomeScaffold(
                 modifier = Modifier.fillMaxSize(),
                 isRefreshingProvider = { uiStateProvider().isRefreshing },
                 sortProvider = sortProvider,
-                filterProvider = filterUiStateProvider,
-                listTestTag = TAG_HOME_LIST_TEST_TAG,
-                empty = { Empty(isFilterAppliedProvider = { filterUiStateProvider()?.isApplied == true }) },
+                filterProvider = { filterUiStateProvider().takeIf(TagHomeScaffoldFilterUiState::isLoaded) },
+                empty = { Empty(isFilterAppliedProvider = { filterUiStateProvider().isApplied }) },
             )
         }
     }
@@ -154,7 +152,7 @@ private fun TagHomeScaffoldPreview(
         TagHomeScaffold(
             onEvent = {},
             onTagListEvent = {},
-            filterUiStateProvider = { TagHomeScaffoldFilterUiState(isApplied = isFilterApplied) },
+            filterUiStateProvider = { TagHomeScaffoldFilterUiState(isLoaded = true, isApplied = isFilterApplied) },
         )
     }
 }

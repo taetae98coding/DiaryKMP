@@ -74,7 +74,7 @@ private fun SettingHolidayBody(
                         contentDescription = stringResource(Res.string.setting_holiday_loading_content_description),
                     )
 
-                is SettingHolidayUiState.Loaded ->
+                is SettingHolidayUiState.Content ->
                     HolidaySettingContent(
                         onEvent = onEvent,
                         modifier = Modifier.fillMaxSize(),
@@ -103,7 +103,7 @@ private class SettingHolidayUiStatePreviewParameter : PreviewParameterProvider<S
     override val values: Sequence<SettingHolidayUiState> =
         sequenceOf(
             SettingHolidayUiState.Loading,
-            SettingHolidayUiState.Loaded(countrySetting = previewHolidayCountrySetting(), holidaySettingList = previewHolidaySettingList()),
+            SettingHolidayUiState.Content(countrySetting = previewHolidayCountrySetting(), holidaySettingList = previewHolidaySettingList()),
         )
 }
 

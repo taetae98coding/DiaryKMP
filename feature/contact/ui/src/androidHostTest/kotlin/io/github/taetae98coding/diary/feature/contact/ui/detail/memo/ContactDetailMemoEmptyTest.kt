@@ -14,6 +14,9 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
+import io.github.taetae98coding.diary.feature.contact.ui.Res
+import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_memo_empty_description
+import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_memo_empty_title
 import io.github.taetae98coding.diary.feature.contact.ui.detail.ContactDetailUiState
 import io.github.taetae98coding.diary.feature.contact.ui.detail.DEFAULT_MEMO_ADD_DESCRIPTION
 import io.github.taetae98coding.diary.feature.contact.ui.detail.DEFAULT_MEMO_TAB_DESCRIPTION
@@ -22,8 +25,10 @@ import io.github.taetae98coding.diary.feature.contact.ui.detail.screenTestViewMo
 import io.github.taetae98coding.diary.feature.contact.ui.detail.selectContactDetailTab
 import io.github.taetae98coding.diary.feature.contact.ui.detail.setContactDetailScreen
 import io.github.taetae98coding.diary.feature.contact.ui.detail.testContactDetail
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.jetbrains.compose.resources.stringResource
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -90,7 +95,9 @@ class ContactDetailMemoEmptyTest {
 
         composeRule.setContent {
             DiaryTheme {
-                ContactDetailMemoTab(
+                EntityDetailMemoTab(
+                    emptyTitle = stringResource(Res.string.contact_detail_memo_empty_title),
+                    emptyDescription = stringResource(Res.string.contact_detail_memo_empty_description),
                     onEvent = {},
                     onMemoListEvent = {},
                     modifier = Modifier.fillMaxSize(),

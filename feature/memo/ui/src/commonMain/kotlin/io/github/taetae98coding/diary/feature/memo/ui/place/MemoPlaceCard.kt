@@ -12,8 +12,8 @@ import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.place.previewPlace
 import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
-import io.github.taetae98coding.diary.feature.memo.ui.previewPlace
 import kotlin.uuid.Uuid
 
 @Composable

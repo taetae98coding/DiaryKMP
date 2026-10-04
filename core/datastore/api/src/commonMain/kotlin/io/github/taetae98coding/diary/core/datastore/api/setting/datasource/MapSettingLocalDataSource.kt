@@ -6,5 +6,5 @@ import kotlinx.coroutines.flow.Flow
 public interface MapSettingLocalDataSource {
     public fun getDefaultProvider(): Flow<MapProviderLocalEntity?>
 
-    public suspend fun setDefaultProvider(provider: MapProviderLocalEntity)
+    public suspend fun upsertDefaultProvider(provider: MapProviderLocalEntity)
 }

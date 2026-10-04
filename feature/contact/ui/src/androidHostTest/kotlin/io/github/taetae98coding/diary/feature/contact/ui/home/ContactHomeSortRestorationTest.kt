@@ -16,7 +16,11 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.domain.contact.usecase.DeleteContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.PageContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.RestoreContactUseCase
+import io.github.taetae98coding.diary.feature.contact.ui.refreshableList
 import io.github.taetae98coding.diary.feature.contact.ui.resetAndroidUiDispatcher
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -55,8 +59,8 @@ class ContactHomeSortRestorationTest {
         val pageContactUseCase = mockk<PageContactUseCase>()
         every { pageContactUseCase(parameter = ListSort.NAME) } returns flowOf(Result.success(contactPagingDataOf(nameOrderList)))
         every { pageContactUseCase(parameter = ListSort.RECENTLY_UPDATED) } returns flowOf(Result.success(contactPagingDataOf(recentOrderList)))
-        val syncViewModel = mockk<ContactHomeSyncViewModel>()
-        every { syncViewModel.uiState } returns MutableStateFlow(ContactHomeUiState())
+        val syncViewModel = mockk<SyncRefreshViewModel>()
+        every { syncViewModel.uiState } returns MutableStateFlow(SyncRefreshUiState())
         justRun { syncViewModel.refresh() }
         var viewModel = contactHomeViewModel(pageContactUseCase = pageContactUseCase)
         val restorationTester = StateRestorationTester(composeRule)
@@ -77,7 +81,7 @@ class ContactHomeSortRestorationTest {
         composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).performClick()
         composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).performClick()
         waitUntilNameExists(recentOrderList.first().detail.name)
-        composeRule.onNodeWithTag(CONTACT_HOME_LIST_TEST_TAG).performScrollToIndex(RESTORATION_SCROLL_INDEX)
+        composeRule.refreshableList().performScrollToIndex(RESTORATION_SCROLL_INDEX)
         composeRule.onNodeWithText(recentOrderList[RESTORATION_SCROLL_INDEX].detail.name).assertIsDisplayed()
 
         // 시스템이 앱을 정리하면 화면 상태를 보관하던 객체도 사라지므로, 되살린 화면에는 새로 만든 객체를 준다.
@@ -85,7 +89,7 @@ class ContactHomeSortRestorationTest {
         restorationTester.emulateSavedInstanceStateRestore()
         waitUntilNameExists(nameOrderList[RESTORATION_SCROLL_INDEX].detail.name)
 
-        viewModel.sort.value shouldBe ListSort.NAME
+        viewModel.sortUiState.value shouldBe ListSortUiState(sort = ListSort.NAME)
         composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).assertDoesNotExist()
         composeRule.onNodeWithText(nameOrderList[RESTORATION_SCROLL_INDEX].detail.name).assertIsDisplayed()
         composeRule.onNodeWithText(nameOrderList.first().detail.name).assertDoesNotExist()

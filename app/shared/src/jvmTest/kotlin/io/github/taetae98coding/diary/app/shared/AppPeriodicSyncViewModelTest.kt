@@ -97,6 +97,25 @@ class AppPeriodicSyncViewModelTest : FunSpec() {
                 coVerify(exactly = 1) { schedulePeriodicSyncUseCase(parameter = Unit) }
             }
         }
+
+        test("주기 동기화 예약이 진행 중일 때 다시 요청하면 예약 UseCase를 한 번만 실행하고, 끝난 뒤 다시 요청하면 다시 실행한다") {
+            runTest(mainDispatcher) {
+                val schedulePeriodicSyncUseCase = mockk<SchedulePeriodicSyncUseCase>()
+                coEvery { schedulePeriodicSyncUseCase(parameter = Unit) } returns Result.success(Unit)
+                val viewModel = viewModel(schedulePeriodicSyncUseCase = schedulePeriodicSyncUseCase)
+
+                viewModel.schedulePeriodicSync()
+                viewModel.schedulePeriodicSync()
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { schedulePeriodicSyncUseCase(parameter = Unit) }
+
+                viewModel.schedulePeriodicSync()
+                advanceUntilIdle()
+
+                coVerify(exactly = 2) { schedulePeriodicSyncUseCase(parameter = Unit) }
+            }
+        }
     }
 
     public companion object {

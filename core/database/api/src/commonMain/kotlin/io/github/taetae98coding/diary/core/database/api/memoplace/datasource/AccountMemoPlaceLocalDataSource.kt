@@ -10,7 +10,7 @@ public interface AccountMemoPlaceLocalDataSource {
         memoId: Uuid,
     ): Flow<List<PlaceLocalEntity>>
 
-    public suspend fun findPlaceIdList(
+    public suspend fun readPlaceIdList(
         accountId: Uuid,
         memoId: Uuid,
     ): List<Uuid>

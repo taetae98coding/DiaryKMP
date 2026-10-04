@@ -26,7 +26,8 @@ import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
-import io.github.taetae98coding.diary.compose.place.SwipeToDeletePlaceCard
+import io.github.taetae98coding.diary.compose.place.PlaceListEvent
+import io.github.taetae98coding.diary.compose.place.SwipePlaceCard
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.TagScope
@@ -35,8 +36,6 @@ import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_place_empty_desc
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_place_empty_title
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
-
-internal const val TAG_DETAIL_PLACE_LIST_TEST_TAG: String = "TagDetailPlaceList"
 
 @Composable
 internal fun TagDetailPlacePagingList(
@@ -83,7 +82,6 @@ internal fun TagDetailPlacePagingList(
                 modifier = Modifier.fillMaxSize(),
                 state = gridState,
                 isRefreshingProvider = isRefreshingProvider,
-                listTestTag = TAG_DETAIL_PLACE_LIST_TEST_TAG,
             ) {
                 items(
                     count = placePagingItems.itemCount,
@@ -91,9 +89,13 @@ internal fun TagDetailPlacePagingList(
                 ) { index ->
                     val place = placePagingItems[index]
 
-                    SwipeToDeletePlaceCard(
-                        onClick = { place?.let { value -> onEvent(TagDetailPlaceContentEvent.ClickPlace(id = value.id)) } },
-                        onDelete = { place?.let { value -> onEvent(TagDetailPlaceContentEvent.DeletePlace(id = value.id)) } },
+                    SwipePlaceCard(
+                        onEvent = { event ->
+                            when (event) {
+                                is PlaceListEvent.ClickPlace -> onEvent(TagDetailPlaceContentEvent.ClickPlace(id = event.id))
+                                is PlaceListEvent.SwipeDelete -> onEvent(TagDetailPlaceContentEvent.DeletePlace(id = event.id))
+                            }
+                        },
                         modifier = Modifier.animateItem(),
                         place = place,
                     )

@@ -12,12 +12,12 @@ import io.github.taetae98coding.diary.compose.core.layout.DiaryChipFlexBox
 import io.github.taetae98coding.diary.compose.core.layout.DiaryScrollableChipFlexBox
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.place.previewPlace
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.feature.memo.ui.Res
 import io.github.taetae98coding.diary.feature.memo.ui.memo_place_select_action
 import io.github.taetae98coding.diary.feature.memo.ui.memo_place_select_label
-import io.github.taetae98coding.diary.feature.memo.ui.previewPlace
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

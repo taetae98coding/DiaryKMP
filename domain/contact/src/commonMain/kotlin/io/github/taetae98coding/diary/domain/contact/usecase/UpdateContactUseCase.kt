@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.domain.contact.usecase
 
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.account.usecase.requireAccount
 import io.github.taetae98coding.diary.domain.contact.exception.ContactPhoneNumberBlankException
 import io.github.taetae98coding.diary.domain.contact.repository.AccountContactRepository
 import io.github.taetae98coding.diary.domain.core.UseCase
@@ -25,7 +26,7 @@ public class UpdateContactUseCase internal constructor(
             throw ContactPhoneNumberBlankException()
         }
 
-        val account = getAccountUseCase(parameter = Unit).first().getOrThrow()
+        val account = getAccountUseCase.requireAccount()
         val detail = parameter.detail.withStoredNameForBlank(id = parameter.id)
 
         val updatedCount =

@@ -4,7 +4,6 @@ package io.github.taetae98coding.diary.feature.calendar.ui.home.birthday
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
 import io.github.taetae98coding.diary.domain.contact.usecase.GetCalendarContactBirthdayUseCase
 import io.github.taetae98coding.diary.domain.lunar.usecase.FetchLunarUseCase
 import io.github.taetae98coding.diary.feature.calendar.ui.home.calendarHomeFetchDateRange
@@ -28,8 +27,9 @@ internal class CalendarHomeBirthdayViewModel(
     private val getCalendarContactBirthdayUseCase: GetCalendarContactBirthdayUseCase,
 ) : ViewModel() {
     private val yearMonth = MutableStateFlow<YearMonth?>(null)
+    private val fetchingYearMonthSet = mutableSetOf<YearMonth>()
 
-    val birthdayList: StateFlow<List<CalendarContactBirthday>> =
+    val uiState: StateFlow<CalendarHomeBirthdayUiState> =
         yearMonth
             .map { yearMonth -> yearMonth?.calendarHomeFetchDateRange() }
             .distinctUntilChanged()
@@ -40,21 +40,28 @@ internal class CalendarHomeBirthdayViewModel(
                     getCalendarContactBirthdayUseCase(parameter = dateRange)
                         .map { result -> result.getOrDefault(emptyList()) }
                 }
-            }.stateIn(
+            }.map { birthdayList -> CalendarHomeBirthdayUiState(birthdayList = birthdayList) }
+            .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileUiSubscribed,
-                initialValue = emptyList(),
+                initialValue = CalendarHomeBirthdayUiState(),
             )
 
     fun fetch(yearMonth: YearMonth) {
         this.yearMonth.value = yearMonth
 
-        // 이미 받아온 연도는 저장소가 원격 조회를 생략하므로 다시 요청해도 새 작업이 시작되지 않는다.
-        viewModelScope.launch {
-            val dateRange = yearMonth.calendarHomeFetchDateRange()
+        // 같은 달의 동기화가 진행 중이면 다시 시작하지 않고, 다른 달이면 진행 중이어도 새로 요청한다.
+        if (!fetchingYearMonthSet.add(yearMonth)) return
 
-            for (year in dateRange.start.year..dateRange.endInclusive.year) {
-                fetchLunarUseCase(parameter = year)
+        viewModelScope.launch {
+            try {
+                val dateRange = yearMonth.calendarHomeFetchDateRange()
+
+                for (year in dateRange.start.year..dateRange.endInclusive.year) {
+                    fetchLunarUseCase(parameter = year)
+                }
+            } finally {
+                fetchingYearMonthSet.remove(yearMonth)
             }
         }
     }

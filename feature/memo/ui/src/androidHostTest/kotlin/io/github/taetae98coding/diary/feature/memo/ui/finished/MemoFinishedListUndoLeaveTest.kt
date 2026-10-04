@@ -13,6 +13,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.memo.ui.home.memoPagingDataOf
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.mockk.every
@@ -40,7 +41,7 @@ class MemoFinishedListUndoLeaveTest {
         val memo = baseMemo.copy(detail = baseMemo.detail.copy(title = MEMO_TITLE, dateTime = null))
         val effectChannel = Channel<MemoFinishedListEffect>(capacity = Channel.BUFFERED)
         val viewModel = mockk<MemoFinishedListViewModel>()
-        every { viewModel.sort } returns MutableStateFlow(ListSort.DEFAULT)
+        every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
         every { viewModel.memoPagingData } returns MutableStateFlow(memoPagingDataOf(listOf(MemoListItem.Content(memo = memo))))
         every { viewModel.effect } returns effectChannel.receiveAsFlow()
         every { viewModel.restart(id = memo.id) } answers { effectChannel.trySend(MemoFinishedListEffect.Restarted(id = memo.id)).getOrThrow() }

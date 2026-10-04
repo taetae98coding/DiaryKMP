@@ -47,16 +47,16 @@ internal fun ContactAddScreenEffect(
                 state.hometownState.clearText()
                 state.phoneNumberState.clear()
                 state.nameState.requestFocus()
-                coroutineScope.launch { state.hostState.showImmediate(message = addSucceededMessage) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = addSucceededMessage) }
             }
 
             is ContactAddEffect.NameBlank -> {
                 state.nameState.requestFocus()
-                coroutineScope.launch { state.hostState.showImmediate(message = nameBlankMessage) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = nameBlankMessage) }
             }
 
             is ContactAddEffect.PhoneNumberBlank -> {
-                coroutineScope.launch { state.hostState.showImmediate(message = phoneNumberBlankMessage) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = phoneNumberBlankMessage) }
             }
         }
     }

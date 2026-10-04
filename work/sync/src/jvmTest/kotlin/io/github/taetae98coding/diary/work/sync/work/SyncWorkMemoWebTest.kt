@@ -1,7 +1,7 @@
 package io.github.taetae98coding.diary.work.sync.work
 
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.network.api.memoweb.entity.MemoWebRemoteEntity
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
 import io.github.taetae98coding.diary.work.sync.mapper.toRemote
@@ -133,7 +133,7 @@ class SyncWorkMemoWebTest :
                 context.subject.doWork()
             }
 
-            coVerify(exactly = 0) { context.memoWebSyncLocalDataSource.findPending(any()) }
+            coVerify(exactly = 0) { context.memoWebSyncLocalDataSource.readPendingList(any()) }
             coVerify(exactly = 0) { context.memoWebRemoteDataSource.push(any()) }
         }
 
@@ -151,7 +151,7 @@ class SyncWorkMemoWebTest :
                 context.subject.doWork()
             }
 
-            coVerify(exactly = 0) { context.memoWebSyncLocalDataSource.findPending(any()) }
+            coVerify(exactly = 0) { context.memoWebSyncLocalDataSource.readPendingList(any()) }
             coVerify(exactly = 0) { context.memoWebRemoteDataSource.push(any()) }
         }
 
@@ -184,7 +184,7 @@ class SyncWorkMemoWebTest :
             val context = context()
             val firstPullList = memoWebPulls(usnList = listOf(4L, 6L))
             val secondPullList = memoWebPulls(usnList = listOf(9L))
-            coEvery { context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.MEMO_WEB) } returns 2L
+            coEvery { context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.MEMO_WEB) } returns 2L
             coEvery { context.memoWebRemoteDataSource.pull(usn = 2L) } returns firstPullList
             coEvery { context.memoWebRemoteDataSource.pull(usn = 6L) } returns secondPullList
             coEvery { context.memoWebRemoteDataSource.pull(usn = 9L) } returns emptyList()
@@ -192,14 +192,14 @@ class SyncWorkMemoWebTest :
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.accountMemoWebSyncTransaction.save(
+                context.accountMemoWebSyncTransaction.upsert(
                     accountId = context.accountId,
                     memoWebList = firstPullList.map { pull -> pull.memoWeb.toLocal() },
                     cursor = 6L,
                 )
             }
             coVerify(exactly = 1) {
-                context.accountMemoWebSyncTransaction.save(
+                context.accountMemoWebSyncTransaction.upsert(
                     accountId = context.accountId,
                     memoWebList = secondPullList.map { pull -> pull.memoWeb.toLocal() },
                     cursor = 9L,
@@ -256,20 +256,20 @@ class SyncWorkMemoWebTest :
 
             actual.message shouldBe failure.message
             coVerify(exactly = 1) {
-                context.accountWebSyncTransaction.save(
+                context.accountWebSyncTransaction.upsert(
                     accountId = context.accountId,
                     webList = webPullList.map { pull -> pull.web.toLocal() },
                     cursor = 3L,
                 )
             }
             coVerify(exactly = 1) {
-                context.accountMemoSyncTransaction.save(
+                context.accountMemoSyncTransaction.upsert(
                     accountId = context.accountId,
                     memoList = memoPullList.map { pull -> pull.memo.toLocal() },
                     cursor = 4L,
                 )
             }
-            coVerify(exactly = 0) { context.accountMemoWebSyncTransaction.save(any(), any(), any()) }
+            coVerify(exactly = 0) { context.accountMemoWebSyncTransaction.upsert(any(), any(), any()) }
         }
 
         test("TC-DATA-SYNC-DOMAIN-024 실행 시점에 확인된 계정의 메모·웹 연결만 조회한다") {
@@ -277,16 +277,16 @@ class SyncWorkMemoWebTest :
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val context = context(accountId = accountId)
             coEvery {
-                context.memoWebSyncLocalDataSource.findPending(accountId = otherAccountId)
+                context.memoWebSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             } returns memoWebs(size = 1)
 
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.memoWebSyncLocalDataSource.findPending(accountId = accountId)
+                context.memoWebSyncLocalDataSource.readPendingList(accountId = accountId)
             }
             coVerify(exactly = 0) {
-                context.memoWebSyncLocalDataSource.findPending(accountId = otherAccountId)
+                context.memoWebSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             }
         }
     })

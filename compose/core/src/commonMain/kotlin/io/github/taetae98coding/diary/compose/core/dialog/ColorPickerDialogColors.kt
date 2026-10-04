@@ -4,7 +4,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 
 @Immutable
-public data class ColorPickerDialogColors(
+internal data class ColorPickerDialogColors(
     val redLabelColor: Color,
     val greenLabelColor: Color,
     val blueLabelColor: Color,

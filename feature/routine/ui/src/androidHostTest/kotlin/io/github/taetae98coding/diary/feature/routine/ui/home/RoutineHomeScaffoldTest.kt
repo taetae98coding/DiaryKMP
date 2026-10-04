@@ -12,6 +12,7 @@ import androidx.compose.ui.test.swipeDown
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
@@ -68,7 +69,7 @@ class RoutineHomeScaffoldTest {
 
     @Test
     fun `TC-ROUTINE-HOME-FEATURE-005 새로고침이 진행되는 동안에도 빈 상태 안내를 유지한다`() {
-        setRoutineHomeScaffold(uiStateProvider = { RoutineHomeUiState(isRefreshing = true) })
+        setRoutineHomeScaffold(uiStateProvider = { SyncRefreshUiState(isRefreshing = true) })
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
         composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertExists()
@@ -90,7 +91,7 @@ class RoutineHomeScaffoldTest {
 
     private fun setRoutineHomeScaffold(
         onEvent: (RoutineHomeScaffoldEvent) -> Unit = {},
-        uiStateProvider: () -> RoutineHomeUiState = { RoutineHomeUiState() },
+        uiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
         componentVisibleProvider: () -> RoutineHomeScaffoldComponentVisible = { RoutineHomeScaffoldComponentVisible() },
     ) {
         composeRule.setContent {

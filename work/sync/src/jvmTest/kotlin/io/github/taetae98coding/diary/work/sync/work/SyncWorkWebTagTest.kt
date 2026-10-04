@@ -2,7 +2,7 @@ package io.github.taetae98coding.diary.work.sync.work
 
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLocalEntity
 import io.github.taetae98coding.diary.core.network.api.webtag.entity.WebTagRemoteEntity
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
@@ -134,7 +134,7 @@ class SyncWorkWebTagTest :
                 context.subject.doWork()
             }
 
-            coVerify(exactly = 0) { context.webTagSyncLocalDataSource.findPending(any()) }
+            coVerify(exactly = 0) { context.webTagSyncLocalDataSource.readPendingList(any()) }
             coVerify(exactly = 0) { context.webTagRemoteDataSource.push(any()) }
         }
 
@@ -187,7 +187,7 @@ class SyncWorkWebTagTest :
             val context = context()
             val firstPullList = webTagPulls(usnList = listOf(4L, 6L))
             val secondPullList = webTagPulls(usnList = listOf(9L))
-            coEvery { context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.WEB_TAG) } returns 2L
+            coEvery { context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.WEB_TAG) } returns 2L
             coEvery { context.webTagRemoteDataSource.pull(usn = 2L) } returns firstPullList
             coEvery { context.webTagRemoteDataSource.pull(usn = 6L) } returns secondPullList
             coEvery { context.webTagRemoteDataSource.pull(usn = 9L) } returns emptyList()
@@ -195,14 +195,14 @@ class SyncWorkWebTagTest :
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.accountWebTagSyncTransaction.save(
+                context.accountWebTagSyncTransaction.upsert(
                     accountId = context.accountId,
                     webTagList = firstPullList.map { pull -> pull.webTag.toLocal() },
                     cursor = 6L,
                 )
             }
             coVerify(exactly = 1) {
-                context.accountWebTagSyncTransaction.save(
+                context.accountWebTagSyncTransaction.upsert(
                     accountId = context.accountId,
                     webTagList = secondPullList.map { pull -> pull.webTag.toLocal() },
                     cursor = 9L,
@@ -271,20 +271,20 @@ class SyncWorkWebTagTest :
 
             actual.message shouldBe failure.message
             coVerify(exactly = 1) {
-                context.accountTagSyncTransaction.save(
+                context.accountTagSyncTransaction.upsert(
                     accountId = context.accountId,
                     tagList = tagPullList.map { pull -> pull.tag.toLocal() },
                     cursor = 3L,
                 )
             }
             coVerify(exactly = 1) {
-                context.accountMemoSyncTransaction.save(
+                context.accountMemoSyncTransaction.upsert(
                     accountId = context.accountId,
                     memoList = memoPullList.map { pull -> pull.memo.toLocal() },
                     cursor = 4L,
                 )
             }
-            coVerify(exactly = 0) { context.accountWebTagSyncTransaction.save(any(), any(), any()) }
+            coVerify(exactly = 0) { context.accountWebTagSyncTransaction.upsert(any(), any(), any()) }
         }
 
         test("TC-DATA-SYNC-DOMAIN-024 실행 시점에 확인된 계정의 웹·태그 연결만 조회한다") {
@@ -292,16 +292,16 @@ class SyncWorkWebTagTest :
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val context = context(accountId = accountId)
             coEvery {
-                context.webTagSyncLocalDataSource.findPending(accountId = otherAccountId)
+                context.webTagSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             } returns webTags(size = 1)
 
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.webTagSyncLocalDataSource.findPending(accountId = accountId)
+                context.webTagSyncLocalDataSource.readPendingList(accountId = accountId)
             }
             coVerify(exactly = 0) {
-                context.webTagSyncLocalDataSource.findPending(accountId = otherAccountId)
+                context.webTagSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             }
             coVerify(exactly = 0) { context.webTagRemoteDataSource.push(any()) }
         }

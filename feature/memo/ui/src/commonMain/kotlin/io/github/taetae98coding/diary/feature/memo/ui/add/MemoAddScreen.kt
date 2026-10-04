@@ -139,7 +139,7 @@ private fun MemoAddFormEffect(
         DiaryTitleInputFocusEffect(state = scaffoldState.titleState)
     }
     MemoAddScreenEffect(effect = addViewModel.effect, scaffoldState = scaffoldState)
-    MemoGeminiSettingRequiredEffect(hostState = scaffoldState.hostState, effect = geminiViewModel.effect)
+    MemoGeminiSettingRequiredEffect(snackbarHostState = scaffoldState.snackbarHostState, effect = geminiViewModel.effect)
 }
 
 internal fun MemoAddNavKey.initialDateTime(): DiaryDateTimeInputValue? =

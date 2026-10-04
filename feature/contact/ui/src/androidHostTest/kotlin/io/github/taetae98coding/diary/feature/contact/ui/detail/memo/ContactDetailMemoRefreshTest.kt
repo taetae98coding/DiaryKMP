@@ -13,11 +13,17 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
-import io.github.taetae98coding.diary.compose.memo.list.MemoListUiState
+import io.github.taetae98coding.diary.feature.contact.ui.Res
+import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_memo_empty_description
+import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_memo_empty_title
 import io.github.taetae98coding.diary.feature.contact.ui.detail.contactMemo
 import io.github.taetae98coding.diary.feature.contact.ui.detail.contactMemoPagingData
+import io.github.taetae98coding.diary.feature.contact.ui.refreshableList
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.jetbrains.compose.resources.stringResource
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,7 +44,7 @@ class ContactDetailMemoRefreshTest {
             onMemoListEvent = { event -> eventList += event },
         )
 
-        composeRule.onNodeWithTag(CONTACT_DETAIL_MEMO_LIST_TEST_TAG).performTouchInput { swipeDown() }
+        composeRule.refreshableList().performTouchInput { swipeDown() }
         composeRule.waitForIdle()
 
         eventList shouldBe listOf(MemoListEvent.Refresh)
@@ -46,7 +52,7 @@ class ContactDetailMemoRefreshTest {
 
     @Test
     fun `TC-SYNC-REFRESH-FEATURE-002 진행 표시 상태이면 진행 표시가 나타난다`() {
-        setMemoTab(memoListUiStateProvider = { MemoListUiState(isRefreshing = true) })
+        setMemoTab(syncUiStateProvider = { SyncRefreshUiState(isRefreshing = true) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
     }
@@ -54,7 +60,7 @@ class ContactDetailMemoRefreshTest {
     @Test
     fun `TC-SYNC-REFRESH-FEATURE-005 동기화가 끝나면 진행 표시가 사라진다`() {
         val isRefreshing = mutableStateOf(true)
-        setMemoTab(memoListUiStateProvider = { MemoListUiState(isRefreshing = isRefreshing.value) })
+        setMemoTab(syncUiStateProvider = { SyncRefreshUiState(isRefreshing = isRefreshing.value) })
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
 
         composeRule.runOnIdle { isRefreshing.value = false }
@@ -65,19 +71,21 @@ class ContactDetailMemoRefreshTest {
 
     private fun setMemoTab(
         pagingData: PagingData<MemoListItem> = PagingData.empty(),
-        memoListUiStateProvider: () -> MemoListUiState = { MemoListUiState() },
+        syncUiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
         onMemoListEvent: (MemoListEvent) -> Unit = {},
     ) {
         val pagingDataFlow = MutableStateFlow(pagingData)
 
         composeRule.setContent {
             DiaryTheme {
-                ContactDetailMemoTab(
+                EntityDetailMemoTab(
+                    emptyTitle = stringResource(Res.string.contact_detail_memo_empty_title),
+                    emptyDescription = stringResource(Res.string.contact_detail_memo_empty_description),
                     onEvent = {},
                     onMemoListEvent = onMemoListEvent,
                     modifier = Modifier.fillMaxSize(),
                     memoPagingItems = pagingDataFlow.collectAsLazyPagingItems(),
-                    uiStateProvider = memoListUiStateProvider,
+                    syncUiStateProvider = syncUiStateProvider,
                 )
             }
         }

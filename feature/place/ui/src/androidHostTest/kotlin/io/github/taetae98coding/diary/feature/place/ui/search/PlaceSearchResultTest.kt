@@ -31,7 +31,7 @@ class PlaceSearchResultTest {
         val placeAddress = randomText(prefix = PLACE_ADDRESS_PREFIX)
         val place = searchedPlace(name = placeName, address = placeAddress)
 
-        composeRule.setPlaceSearchContent(uiStateProvider = { PlaceSearchUiState.Loaded(placeList = listOf(place)) })
+        composeRule.setPlaceSearchContent(uiStateProvider = { PlaceSearchUiState.Content(placeList = listOf(place)) })
 
         composeRule.waitForIdle()
 
@@ -51,7 +51,7 @@ class PlaceSearchResultTest {
         val first = searchedPlace(name = firstPlaceName, address = placeAddress)
         val second = searchedPlace(name = secondPlaceName, address = placeAddress)
 
-        composeRule.setPlaceSearchContent(uiStateProvider = { PlaceSearchUiState.Loaded(placeList = listOf(first, second)) })
+        composeRule.setPlaceSearchContent(uiStateProvider = { PlaceSearchUiState.Content(placeList = listOf(first, second)) })
 
         composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(query)
         composeRule.waitForIdle()
@@ -69,7 +69,7 @@ class PlaceSearchResultTest {
         val placeAddress = randomText(prefix = PLACE_ADDRESS_PREFIX)
         val place = searchedPlace(name = placeName, address = placeAddress)
 
-        composeRule.setPlaceSearchContent(uiStateProvider = { PlaceSearchUiState.Loaded(placeList = listOf(place)) })
+        composeRule.setPlaceSearchContent(uiStateProvider = { PlaceSearchUiState.Content(placeList = listOf(place)) })
 
         composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(query)
         composeRule.waitForIdle()
@@ -81,7 +81,7 @@ class PlaceSearchResultTest {
     @Test
     fun `TC-PLACE-SEARCH-DIALOG-FEATURE-006 결과가 없으면 결과 없음 안내가 표시된다`() {
         val query = randomText(prefix = QUERY_PREFIX)
-        composeRule.setPlaceSearchContent(uiStateProvider = { PlaceSearchUiState.Loaded() })
+        composeRule.setPlaceSearchContent(uiStateProvider = { PlaceSearchUiState.Content() })
 
         composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(query)
         composeRule.waitForIdle()
@@ -99,7 +99,7 @@ class PlaceSearchResultTest {
         val placeName = randomText(prefix = PLACE_NAME_PREFIX)
         val placeAddress = randomText(prefix = PLACE_ADDRESS_PREFIX)
         val place = searchedPlace(name = placeName, address = placeAddress)
-        val uiState = mutableStateOf<PlaceSearchUiState>(PlaceSearchUiState.Loaded(placeList = listOf(place)))
+        val uiState = mutableStateOf<PlaceSearchUiState>(PlaceSearchUiState.Content(placeList = listOf(place)))
 
         composeRule.setPlaceSearchContent(uiStateProvider = { uiState.value })
 
@@ -122,7 +122,7 @@ class PlaceSearchResultTest {
         val placeAddress = randomText(prefix = PLACE_ADDRESS_PREFIX)
         val place = searchedPlace(name = placeName, address = placeAddress)
 
-        composeRule.setPlaceSearchContent(uiStateProvider = { PlaceSearchUiState.Loaded(placeList = listOf(place)) })
+        composeRule.setPlaceSearchContent(uiStateProvider = { PlaceSearchUiState.Content(placeList = listOf(place)) })
 
         composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).performTextInput(query)
         composeRule.waitForIdle()
@@ -146,7 +146,7 @@ class PlaceSearchResultTest {
         var selected: SearchedPlace? = null
 
         composeRule.setPlaceSearchContent(
-            uiStateProvider = { PlaceSearchUiState.Loaded(placeList = listOf(place)) },
+            uiStateProvider = { PlaceSearchUiState.Content(placeList = listOf(place)) },
             onSelect = { value -> selected = value },
         )
 

@@ -8,7 +8,7 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebHeaderLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
@@ -88,7 +88,7 @@ class AccountWebSyncTransactionImplTest :
         suspend fun isPending(
             accountId: Uuid,
             webId: Uuid,
-        ): Boolean = syncDataSource.findPending(accountId = accountId).any { web -> web.id == webId }
+        ): Boolean = syncDataSource.readPendingList(accountId = accountId).any { web -> web.id == webId }
 
         test("TC-WEB-ADD-DATA-005 현재 계정의 업로드 대기 웹 항목만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
@@ -103,7 +103,7 @@ class AccountWebSyncTransactionImplTest :
             insertWithSyncState(otherAccountId, otherAccountWeb, isDirty = true)
 
             syncDataSource
-                .findPending(accountId = accountId)
+                .readPendingList(accountId = accountId)
                 .shouldContainExactlyInAnyOrder(firstPendingWeb, secondPendingWeb)
         }
 
@@ -123,7 +123,7 @@ class AccountWebSyncTransactionImplTest :
             insertWithSyncState(accountId = Uuid.NIL, web = guestEntity, isDirty = true)
             insertWithSyncState(accountId = accountId, web = accountEntity, isDirty = true)
 
-            syncDataSource.findPending(accountId = accountId) shouldBe listOf(accountEntity)
+            syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(accountEntity)
         }
 
         test("TC-DATA-SYNC-DOMAIN-026 업로드한 수정 시각이 그대로면 동기화 완료가 된다") {
@@ -133,7 +133,7 @@ class AccountWebSyncTransactionImplTest :
 
             transaction.clearPending(accountId = accountId, webList = listOf(web))
 
-            syncDataSource.findPending(accountId = accountId).shouldBeEmpty()
+            syncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
 
         test("TC-DATA-SYNC-DOMAIN-027 업로드 중 수정 시각이 바뀐 웹 항목은 업로드 대기로 남는다") {
@@ -144,7 +144,7 @@ class AccountWebSyncTransactionImplTest :
 
             transaction.clearPending(accountId = accountId, webList = listOf(pushedWeb))
 
-            syncDataSource.findPending(accountId = accountId) shouldBe listOf(changedWeb)
+            syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(changedWeb)
         }
 
         test("TC-DATA-SYNC-DATA-016 내려받기 저장이 끝나면 서버 변경 순번이 커서로 기록된다") {
@@ -152,29 +152,29 @@ class AccountWebSyncTransactionImplTest :
             val firstCursor = 3L
             val secondCursor = 11L
 
-            transaction.save(accountId = accountId, webList = listOf(web()), cursor = firstCursor)
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.WEB) shouldBe firstCursor
+            transaction.upsert(accountId = accountId, webList = listOf(web()), cursor = firstCursor)
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.WEB) shouldBe firstCursor
 
-            transaction.save(accountId = accountId, webList = listOf(web()), cursor = secondCursor)
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.WEB) shouldBe secondCursor
+            transaction.upsert(accountId = accountId, webList = listOf(web()), cursor = secondCursor)
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.WEB) shouldBe secondCursor
         }
 
         test("TC-DATA-SYNC-DATA-017 기록된 순번이 없으면 기본 커서를 사용한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
-            transaction.save(accountId = otherAccountId, webList = listOf(web()), cursor = 9L)
+            transaction.upsert(accountId = otherAccountId, webList = listOf(web()), cursor = 9L)
 
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.WEB) shouldBe 0L
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.WEB) shouldBe 0L
         }
 
         test("TC-DATA-SYNC-DATA-028 웹 항목의 내려받기 위치는 다른 종류와 따로 기록된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
 
-            transaction.save(accountId = accountId, webList = listOf(web()), cursor = 7L)
+            transaction.upsert(accountId = accountId, webList = listOf(web()), cursor = 7L)
 
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.WEB) shouldBe 7L
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.PLACE) shouldBe 0L
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.TAG) shouldBe 0L
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.WEB) shouldBe 7L
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.PLACE) shouldBe 0L
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.TAG) shouldBe 0L
         }
 
         listOf(
@@ -191,7 +191,7 @@ class AccountWebSyncTransactionImplTest :
                     )
                 insertWithSyncState(accountId, localWeb, isDirty = false)
 
-                transaction.save(accountId = accountId, webList = listOf(remoteWeb), cursor = 5L)
+                transaction.upsert(accountId = accountId, webList = listOf(remoteWeb), cursor = 5L)
 
                 findWeb(webId = localWeb.id) shouldBe remoteWeb
             }
@@ -225,7 +225,7 @@ class AccountWebSyncTransactionImplTest :
                 )
             insertWithSyncState(accountId, localWeb, isDirty = false)
 
-            transaction.save(accountId = accountId, webList = listOf(remoteWeb), cursor = 5L)
+            transaction.upsert(accountId = accountId, webList = listOf(remoteWeb), cursor = 5L)
 
             findWeb(webId = localWeb.id)?.detail?.headerList shouldBe remoteHeaderList
         }
@@ -241,10 +241,10 @@ class AccountWebSyncTransactionImplTest :
             insertWithSyncState(accountId, localWeb, isDirty = true)
             val cursor = 5L
 
-            transaction.save(accountId = accountId, webList = listOf(remoteWeb), cursor = cursor)
+            transaction.upsert(accountId = accountId, webList = listOf(remoteWeb), cursor = cursor)
 
             findWeb(webId = localWeb.id) shouldBe localWeb
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.WEB) shouldBe cursor
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.WEB) shouldBe cursor
         }
 
         listOf(
@@ -258,7 +258,7 @@ class AccountWebSyncTransactionImplTest :
                 val remoteWeb = localWeb.copy(detail = detail(), updatedAt = remoteUpdatedAt)
                 insertWithSyncState(accountId, localWeb, isDirty = true)
 
-                transaction.save(accountId = accountId, webList = listOf(remoteWeb), cursor = 5L)
+                transaction.upsert(accountId = accountId, webList = listOf(remoteWeb), cursor = 5L)
 
                 isPending(accountId = accountId, webId = localWeb.id) shouldBe true
             }
@@ -268,10 +268,10 @@ class AccountWebSyncTransactionImplTest :
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val remoteWeb = web()
 
-            transaction.save(accountId = accountId, webList = listOf(remoteWeb), cursor = 5L)
+            transaction.upsert(accountId = accountId, webList = listOf(remoteWeb), cursor = 5L)
 
             findWeb(webId = remoteWeb.id) shouldBe remoteWeb
-            syncDataSource.findPending(accountId = accountId).shouldBeEmpty()
+            syncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
 
         test("TC-DATA-SYNC-DATA-026 내려받기 저장이 실패하면 웹 항목과 커서가 모두 반영되지 않는다") {
@@ -282,11 +282,11 @@ class AccountWebSyncTransactionImplTest :
             val failingTransaction = AccountWebSyncTransactionImpl(database = failingDatabase)
 
             shouldThrowExactly<WebSyncTestException> {
-                failingTransaction.save(accountId = accountId, webList = listOf(remoteWeb), cursor = 5L)
+                failingTransaction.upsert(accountId = accountId, webList = listOf(remoteWeb), cursor = 5L)
             }
 
             findWeb(webId = remoteWeb.id).shouldBeNull()
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.WEB) shouldBe 0L
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.WEB) shouldBe 0L
         }
 
         test("TC-DATA-SYNC-DATA-027 업로드한 웹 항목이 같은 내용으로 다시 내려와도 기기 내용은 그대로다") {
@@ -294,7 +294,7 @@ class AccountWebSyncTransactionImplTest :
             val web = web()
             insertWithSyncState(accountId, web, isDirty = false)
 
-            transaction.save(accountId = accountId, webList = listOf(web), cursor = 5L)
+            transaction.upsert(accountId = accountId, webList = listOf(web), cursor = 5L)
 
             findWeb(webId = web.id) shouldBe web
         }

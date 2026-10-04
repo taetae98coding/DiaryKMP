@@ -21,10 +21,16 @@ import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
+import io.github.taetae98coding.diary.feature.web.ui.Res
 import io.github.taetae98coding.diary.feature.web.ui.detail.webMemo
 import io.github.taetae98coding.diary.feature.web.ui.detail.webMemoPagingData
+import io.github.taetae98coding.diary.feature.web.ui.refreshableList
 import io.github.taetae98coding.diary.feature.web.ui.resetAndroidUiDispatcher
+import io.github.taetae98coding.diary.feature.web.ui.web_detail_memo_empty_description
+import io.github.taetae98coding.diary.feature.web.ui.web_detail_memo_empty_title
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.jetbrains.compose.resources.stringResource
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -96,7 +102,9 @@ class WebDetailMemoListPositionTest {
     @Composable
     private fun MemoTab(pagingDataFlow: MutableStateFlow<PagingData<MemoListItem>>) {
         DiaryTheme {
-            WebDetailMemoTab(
+            EntityDetailMemoTab(
+                emptyTitle = stringResource(Res.string.web_detail_memo_empty_title),
+                emptyDescription = stringResource(Res.string.web_detail_memo_empty_description),
                 onEvent = {},
                 onMemoListEvent = {},
                 modifier = Modifier.fillMaxSize(),
@@ -107,7 +115,7 @@ class WebDetailMemoListPositionTest {
 
     private fun scrollToLast(titleList: List<String>) {
         waitUntilMemoIsDisplayed(title = titleList.first())
-        composeRule.onNodeWithTag(WEB_DETAIL_MEMO_LIST_TEST_TAG).performScrollToNode(hasText(titleList.last()))
+        composeRule.refreshableList().performScrollToNode(hasText(titleList.last()))
         composeRule.waitForIdle()
         composeRule.onNodeWithText(titleList.last()).assertIsDisplayed()
     }

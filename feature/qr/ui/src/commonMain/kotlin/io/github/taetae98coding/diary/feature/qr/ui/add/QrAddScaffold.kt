@@ -16,6 +16,10 @@ import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefault
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.qr.ui.Res
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddForm
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddFormState
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrUndoButton
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrAddFormState
 import io.github.taetae98coding.diary.feature.qr.ui.qr_add_button_content_description
 import io.github.taetae98coding.diary.feature.qr.ui.qr_add_title
 import io.github.taetae98coding.diary.feature.qr.ui.qr_navigate_up_button_content_description
@@ -48,7 +52,7 @@ internal fun QrAddScaffold(
                 },
             )
         },
-        snackbarHost = { SnackbarHost(hostState = state.hostState) },
+        snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },
         floatingActionButton = {
             FloatingAddButton(
                 onClick = { onEvent(QrAddScaffoldEvent.ClickAdd) },

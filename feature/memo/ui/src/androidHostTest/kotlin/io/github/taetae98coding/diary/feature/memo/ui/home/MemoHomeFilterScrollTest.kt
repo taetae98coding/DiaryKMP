@@ -17,6 +17,8 @@ import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
 import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.memo.ui.refreshableList
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.mockk.every
@@ -73,7 +75,7 @@ class MemoHomeFilterScrollTest {
                     .detail.title,
             ).assertIsDisplayed()
 
-        composeRule.onNodeWithTag(MEMO_HOME_LIST_TEST_TAG).performScrollToIndex(SCROLLED_INDEX)
+        composeRule.refreshableList().performScrollToIndex(SCROLLED_INDEX)
         composeRule.waitForIdle()
         val addedMemo = addedMemo()
         composeRule.runOnIdle {
@@ -198,7 +200,7 @@ class MemoHomeFilterScrollTest {
         val filterUiStateFlow = MutableStateFlow(filterUiState)
         val pagingDataFlow = MutableStateFlow(memoPagingDataOf(memoList.map { memo -> MemoListItem.Content(memo = memo) }))
         val viewModel = mockk<MemoHomeViewModel>(relaxed = true)
-        every { viewModel.sort } returns MutableStateFlow(ListSort.DEFAULT)
+        every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
         every { viewModel.memoPagingData } returns pagingDataFlow
         every { viewModel.filterUiState } returns filterUiStateFlow
         every { viewModel.effect } returns emptyFlow()
@@ -220,7 +222,7 @@ class MemoHomeFilterScrollTest {
         composeRule.waitUntil(timeoutMillis = TIMEOUT_MILLIS) {
             composeRule.onAllNodesWithText(memoList.first().detail.title).fetchSemanticsNodes().isNotEmpty()
         }
-        composeRule.onNodeWithTag(MEMO_HOME_LIST_TEST_TAG).performScrollToIndex(SCROLLED_INDEX)
+        composeRule.refreshableList().performScrollToIndex(SCROLLED_INDEX)
         composeRule.waitForIdle()
         composeRule.onNodeWithText(memoList[SCROLLED_INDEX].detail.title).assertIsDisplayed()
         composeRule.onNodeWithText(memoList.first().detail.title).assertDoesNotExist()

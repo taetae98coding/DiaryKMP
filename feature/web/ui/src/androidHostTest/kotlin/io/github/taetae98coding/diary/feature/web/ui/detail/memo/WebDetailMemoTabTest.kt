@@ -42,6 +42,9 @@ import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTabEvent
+import io.github.taetae98coding.diary.feature.web.ui.Res
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScaffoldContent
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScaffoldState
 import io.github.taetae98coding.diary.feature.web.ui.detail.allDayMemoDateTime
@@ -49,7 +52,10 @@ import io.github.taetae98coding.diary.feature.web.ui.detail.tab.WebDetailTab
 import io.github.taetae98coding.diary.feature.web.ui.detail.viewmode.WebDetailViewMode
 import io.github.taetae98coding.diary.feature.web.ui.detail.webMemo
 import io.github.taetae98coding.diary.feature.web.ui.detail.webMemoPagingData
+import io.github.taetae98coding.diary.feature.web.ui.refreshableList
 import io.github.taetae98coding.diary.feature.web.ui.resetAndroidUiDispatcher
+import io.github.taetae98coding.diary.feature.web.ui.web_detail_memo_empty_description
+import io.github.taetae98coding.diary.feature.web.ui.web_detail_memo_empty_title
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.ints.shouldBeLessThan
 import io.kotest.matchers.shouldBe
@@ -58,6 +64,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
+import org.jetbrains.compose.resources.stringResource
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -86,13 +93,13 @@ class WebDetailMemoTabTest {
 
     @Test
     fun `TC-WEB-DETAIL-MEMO-FEATURE-024 정렬 컨트롤을 누르면 정렬 선택 요청을 전달한다`() {
-        val eventList = mutableListOf<WebDetailMemoContentEvent>()
+        val eventList = mutableListOf<EntityDetailMemoTabEvent>()
         setMemoTab(pagingData = webMemoPagingData(itemList = listOf(MemoListItem.Content(memo = webMemo(title = SORT_MEMO_TITLE)))), onEvent = eventList::add)
         waitUntilMemoIsDisplayed(title = SORT_MEMO_TITLE)
 
         composeRule.onNodeWithText(DEFAULT_SORT_LABEL).performClick()
 
-        eventList.shouldContainExactly(WebDetailMemoContentEvent.ClickSort)
+        eventList.shouldContainExactly(EntityDetailMemoTabEvent.ClickSort)
     }
 
     @Test
@@ -267,7 +274,9 @@ class WebDetailMemoTabTest {
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
             DiaryTheme {
-                WebDetailMemoTab(
+                EntityDetailMemoTab(
+                    emptyTitle = stringResource(Res.string.web_detail_memo_empty_title),
+                    emptyDescription = stringResource(Res.string.web_detail_memo_empty_description),
                     onEvent = {},
                     onMemoListEvent = {},
                     modifier = Modifier.fillMaxSize(),
@@ -276,7 +285,7 @@ class WebDetailMemoTabTest {
             }
         }
         waitUntilMemoIsDisplayed(title = titleList.first())
-        composeRule.onNodeWithTag(WEB_DETAIL_MEMO_LIST_TEST_TAG).performScrollToNode(hasText(titleList.last()))
+        composeRule.refreshableList().performScrollToNode(hasText(titleList.last()))
         composeRule.waitForIdle()
         composeRule.onNodeWithText(titleList.last()).assertIsDisplayed()
 
@@ -305,7 +314,9 @@ class WebDetailMemoTabTest {
                         modifier = Modifier.fillMaxSize(),
                         state = scaffoldState,
                         memoContent = {
-                            WebDetailMemoTab(
+                            EntityDetailMemoTab(
+                                emptyTitle = stringResource(Res.string.web_detail_memo_empty_title),
+                                emptyDescription = stringResource(Res.string.web_detail_memo_empty_description),
                                 onEvent = {},
                                 onMemoListEvent = {},
                                 modifier = Modifier.fillMaxSize(),
@@ -317,7 +328,7 @@ class WebDetailMemoTabTest {
             }
         }
         waitUntilMemoIsDisplayed(title = titleList.first())
-        composeRule.onNodeWithTag(WEB_DETAIL_MEMO_LIST_TEST_TAG).performScrollToNode(hasText(titleList.last()))
+        composeRule.refreshableList().performScrollToNode(hasText(titleList.last()))
         composeRule.waitForIdle()
         composeRule.onNodeWithText(titleList.last()).assertIsDisplayed()
 
@@ -339,7 +350,9 @@ class WebDetailMemoTabTest {
             // 앱을 다시 실행하면 이전 실행의 화면 상태가 남지 않으므로, 저장 상태까지 새로 만드는 구성으로 재현한다.
             key(launchCount) {
                 DiaryTheme {
-                    WebDetailMemoTab(
+                    EntityDetailMemoTab(
+                        emptyTitle = stringResource(Res.string.web_detail_memo_empty_title),
+                        emptyDescription = stringResource(Res.string.web_detail_memo_empty_description),
                         onEvent = {},
                         onMemoListEvent = {},
                         modifier = Modifier.fillMaxSize(),
@@ -349,7 +362,7 @@ class WebDetailMemoTabTest {
             }
         }
         waitUntilMemoIsDisplayed(title = titleList.first())
-        composeRule.onNodeWithTag(WEB_DETAIL_MEMO_LIST_TEST_TAG).performScrollToNode(hasText(titleList.last()))
+        composeRule.refreshableList().performScrollToNode(hasText(titleList.last()))
         composeRule.waitForIdle()
         composeRule.onNodeWithText(titleList.last()).assertIsDisplayed()
 
@@ -366,7 +379,7 @@ class WebDetailMemoTabTest {
         label: String,
         sort: ListSort,
     ) {
-        val eventList = mutableListOf<WebDetailMemoContentEvent>()
+        val eventList = mutableListOf<EntityDetailMemoTabEvent>()
         val sortSheetState = DialogState(isVisible = true)
         setMemoTab(
             pagingData = webMemoPagingData(itemList = listOf(MemoListItem.Content(memo = webMemo(title = SORT_MEMO_TITLE)))),
@@ -377,13 +390,13 @@ class WebDetailMemoTabTest {
         composeRule.onNodeWithText(label).performClick()
         composeRule.waitForIdle()
 
-        eventList.shouldContainExactly(WebDetailMemoContentEvent.SelectSort(sort = sort))
+        eventList.shouldContainExactly(EntityDetailMemoTabEvent.SelectSort(sort = sort))
         sortSheetState.isVisible shouldBe false
     }
 
     private fun setMemoTab(
         pagingData: PagingData<MemoListItem> = PagingData.empty(),
-        onEvent: (WebDetailMemoContentEvent) -> Unit = {},
+        onEvent: (EntityDetailMemoTabEvent) -> Unit = {},
         onMemoListEvent: (MemoListEvent) -> Unit = {},
         sort: ListSort = ListSort.DEFAULT,
         sortSheetState: DialogState = DialogState(),
@@ -392,7 +405,9 @@ class WebDetailMemoTabTest {
 
         composeRule.setContent {
             DiaryTheme {
-                WebDetailMemoTab(
+                EntityDetailMemoTab(
+                    emptyTitle = stringResource(Res.string.web_detail_memo_empty_title),
+                    emptyDescription = stringResource(Res.string.web_detail_memo_empty_description),
                     onEvent = onEvent,
                     onMemoListEvent = onMemoListEvent,
                     modifier = Modifier.fillMaxSize(),

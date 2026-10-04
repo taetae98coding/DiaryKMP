@@ -6,21 +6,19 @@ import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.feature.playlist.ui.Res
 import io.github.taetae98coding.diary.feature.playlist.ui.form.MusicFormState
-import io.github.taetae98coding.diary.feature.playlist.ui.form.rememberMusicDetailFormState
 import io.github.taetae98coding.diary.feature.playlist.ui.music_add_link_blank_message
 import io.github.taetae98coding.diary.feature.playlist.ui.music_add_link_fetch_failed_message
 import io.github.taetae98coding.diary.feature.playlist.ui.music_add_link_not_youtube_message
 import io.github.taetae98coding.diary.feature.playlist.ui.music_detail_update_succeeded_message
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun MusicDetailScreenEffect(
     navigateUp: () -> Unit,
-    effect: Flow<MusicDetailEffect> = emptyFlow(),
-    state: MusicFormState = rememberMusicDetailFormState(),
+    effect: Flow<MusicDetailEffect>,
+    state: MusicFormState,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val updateSucceededMessage = stringResource(Res.string.music_detail_update_succeeded_message)
@@ -31,17 +29,17 @@ internal fun MusicDetailScreenEffect(
     CollectEffect(effect) { value ->
         when (value) {
             is MusicDetailEffect.UpdateSucceeded -> {
-                coroutineScope.launch { state.hostState.showImmediate(message = updateSucceededMessage) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = updateSucceededMessage) }
             }
 
             is MusicDetailEffect.LinkBlank -> {
                 state.linkState.requestFocus()
-                coroutineScope.launch { state.hostState.showImmediate(message = linkBlankMessage) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = linkBlankMessage) }
             }
 
             is MusicDetailEffect.LinkNotYoutube -> {
                 state.linkState.requestFocus()
-                coroutineScope.launch { state.hostState.showImmediate(message = linkNotYoutubeMessage) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = linkNotYoutubeMessage) }
             }
 
             is MusicDetailEffect.LinkFetched -> {
@@ -53,7 +51,7 @@ internal fun MusicDetailScreenEffect(
             }
 
             is MusicDetailEffect.LinkFetchFailed -> {
-                coroutineScope.launch { state.hostState.showImmediate(message = linkFetchFailedMessage) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = linkFetchFailedMessage) }
             }
 
             is MusicDetailEffect.DeleteSucceeded -> navigateUp()

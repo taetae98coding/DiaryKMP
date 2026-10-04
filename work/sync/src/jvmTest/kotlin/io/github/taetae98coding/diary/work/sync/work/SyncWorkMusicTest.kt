@@ -3,7 +3,7 @@ package io.github.taetae98coding.diary.work.sync.work
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalEntity
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.network.api.music.entity.MusicRemoteEntity
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
 import io.github.taetae98coding.diary.work.sync.mapper.toRemote
@@ -116,7 +116,7 @@ class SyncWorkMusicTest :
             val context = context()
             val firstPullList = musicPulls(usnList = listOf(4L, 6L))
             val secondPullList = musicPulls(usnList = listOf(9L))
-            coEvery { context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.MUSIC) } returns 2L
+            coEvery { context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.MUSIC) } returns 2L
             coEvery { context.musicRemoteDataSource.pull(usn = 2L) } returns firstPullList
             coEvery { context.musicRemoteDataSource.pull(usn = 6L) } returns secondPullList
             coEvery { context.musicRemoteDataSource.pull(usn = 9L) } returns emptyList()
@@ -124,14 +124,14 @@ class SyncWorkMusicTest :
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.accountMusicSyncTransaction.save(
+                context.accountMusicSyncTransaction.upsert(
                     accountId = context.accountId,
                     musicList = firstPullList.map { pull -> pull.music.toLocal() },
                     cursor = 6L,
                 )
             }
             coVerify(exactly = 1) {
-                context.accountMusicSyncTransaction.save(
+                context.accountMusicSyncTransaction.upsert(
                     accountId = context.accountId,
                     musicList = secondPullList.map { pull -> pull.music.toLocal() },
                     cursor = 9L,
@@ -145,16 +145,16 @@ class SyncWorkMusicTest :
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val context = context(accountId = accountId)
             coEvery {
-                context.musicSyncLocalDataSource.findPending(accountId = otherAccountId)
+                context.musicSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             } returns musics(size = 1)
 
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.musicSyncLocalDataSource.findPending(accountId = accountId)
+                context.musicSyncLocalDataSource.readPendingList(accountId = accountId)
             }
             coVerify(exactly = 0) {
-                context.musicSyncLocalDataSource.findPending(accountId = otherAccountId)
+                context.musicSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             }
             coVerify(exactly = 0) { context.musicRemoteDataSource.push(any()) }
         }

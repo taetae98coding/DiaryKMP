@@ -13,8 +13,9 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
-import io.github.taetae98coding.diary.compose.memo.list.MemoListUiState
 import io.github.taetae98coding.diary.compose.memo.list.rememberMemoListState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemoPagingData
 import io.kotest.matchers.shouldBe
@@ -39,7 +40,7 @@ class TagMemoFinishedListScaffoldRefreshTest {
             onMemoListEvent = { event -> eventList += event },
         )
 
-        composeRule.onNodeWithTag(TAG_MEMO_FINISHED_LIST_TEST_TAG).performTouchInput { swipeDown() }
+        composeRule.refreshableList().performTouchInput { swipeDown() }
         composeRule.waitForIdle()
 
         eventList shouldBe listOf(MemoListEvent.Refresh)
@@ -47,14 +48,14 @@ class TagMemoFinishedListScaffoldRefreshTest {
 
     @Test
     fun `TC-SYNC-REFRESH-FEATURE-002 진행 표시 상태이면 진행 표시가 나타난다`() {
-        setTagMemoFinishedListScaffold(memoListUiStateProvider = { MemoListUiState(isRefreshing = true) })
+        setTagMemoFinishedListScaffold(syncUiStateProvider = { SyncRefreshUiState(isRefreshing = true) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
     }
 
     @Test
     fun `TC-SYNC-REFRESH-FEATURE-004 진행 표시 상태가 아니면 진행 표시가 나타나지 않는다`() {
-        setTagMemoFinishedListScaffold(memoListUiStateProvider = { MemoListUiState(isRefreshing = false) })
+        setTagMemoFinishedListScaffold(syncUiStateProvider = { SyncRefreshUiState(isRefreshing = false) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertDoesNotExist()
     }
@@ -62,7 +63,7 @@ class TagMemoFinishedListScaffoldRefreshTest {
     @Test
     fun `TC-SYNC-REFRESH-FEATURE-005 동기화가 끝나면 진행 표시가 사라진다`() {
         val isRefreshing = mutableStateOf(true)
-        setTagMemoFinishedListScaffold(memoListUiStateProvider = { MemoListUiState(isRefreshing = isRefreshing.value) })
+        setTagMemoFinishedListScaffold(syncUiStateProvider = { SyncRefreshUiState(isRefreshing = isRefreshing.value) })
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
 
         composeRule.runOnIdle { isRefreshing.value = false }
@@ -73,7 +74,7 @@ class TagMemoFinishedListScaffoldRefreshTest {
 
     private fun setTagMemoFinishedListScaffold(
         pagingData: PagingData<MemoListItem> = PagingData.empty(),
-        memoListUiStateProvider: () -> MemoListUiState = { MemoListUiState() },
+        syncUiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
         onMemoListEvent: (MemoListEvent) -> Unit = {},
     ) {
         val pagingDataFlow = MutableStateFlow(pagingData)
@@ -86,7 +87,7 @@ class TagMemoFinishedListScaffoldRefreshTest {
                     memoPagingItems = pagingDataFlow.collectAsLazyPagingItems(),
                     onEvent = {},
                     onMemoListEvent = onMemoListEvent,
-                    memoListUiStateProvider = memoListUiStateProvider,
+                    syncUiStateProvider = syncUiStateProvider,
                 )
             }
         }

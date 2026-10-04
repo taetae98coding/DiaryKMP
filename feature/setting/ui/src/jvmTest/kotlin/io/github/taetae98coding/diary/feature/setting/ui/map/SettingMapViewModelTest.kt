@@ -68,7 +68,7 @@ class SettingMapViewModelTest : FunSpec() {
 
                     viewModel.uiState.test {
                         awaitItem() shouldBe SettingMapUiState.Loading
-                        awaitItem() shouldBe SettingMapUiState.Loaded(defaultProvider = provider)
+                        awaitItem() shouldBe SettingMapUiState.Content(defaultProvider = provider)
                     }
                 }
             }
@@ -92,12 +92,12 @@ class SettingMapViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingMapUiState.Loading
-                    awaitItem() shouldBe SettingMapUiState.Loaded(defaultProvider = MapProvider.NAVER)
+                    awaitItem() shouldBe SettingMapUiState.Content(defaultProvider = MapProvider.NAVER)
 
                     viewModel.selectDefaultProvider(provider = MapProvider.GOOGLE)
                     advanceUntilIdle()
 
-                    awaitItem() shouldBe SettingMapUiState.Loaded(defaultProvider = MapProvider.GOOGLE)
+                    awaitItem() shouldBe SettingMapUiState.Content(defaultProvider = MapProvider.GOOGLE)
                 }
 
                 coVerify(exactly = 1) { setDefaultMapProviderUseCase(MapProvider.GOOGLE) }
@@ -117,7 +117,7 @@ class SettingMapViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingMapUiState.Loading
-                    awaitItem() shouldBe SettingMapUiState.Loaded(defaultProvider = MapProvider.NAVER)
+                    awaitItem() shouldBe SettingMapUiState.Content(defaultProvider = MapProvider.NAVER)
 
                     viewModel.selectDefaultProvider(provider = MapProvider.NAVER)
                     advanceUntilIdle()
@@ -143,7 +143,7 @@ class SettingMapViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingMapUiState.Loading
-                    awaitItem() shouldBe SettingMapUiState.Loaded(defaultProvider = MapProvider.NAVER)
+                    awaitItem() shouldBe SettingMapUiState.Content(defaultProvider = MapProvider.NAVER)
 
                     viewModel.selectDefaultProvider(provider = MapProvider.GOOGLE)
                     advanceUntilIdle()

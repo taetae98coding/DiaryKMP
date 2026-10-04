@@ -30,8 +30,6 @@ import io.github.taetae98coding.diary.feature.contact.ui.previewContact
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
 
-internal const val CONTACT_HOME_LIST_TEST_TAG: String = "ContactHomeList"
-
 @Composable
 internal fun ContactHomeList(
     onEvent: (ContactHomeScaffoldEvent) -> Unit,
@@ -74,7 +72,6 @@ internal fun ContactHomeList(
                 state = gridState,
                 isRefreshingProvider = isRefreshingProvider,
                 bottomPadding = if (isAddButtonVisibleProvider()) DiaryTheme.dimens.floatingActionButtonClearance else DiaryTheme.dimens.screenVerticalPadding,
-                listTestTag = CONTACT_HOME_LIST_TEST_TAG,
             ) {
                 items(
                     count = contactPagingItems.itemCount,

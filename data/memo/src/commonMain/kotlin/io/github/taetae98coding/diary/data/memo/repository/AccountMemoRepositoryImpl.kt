@@ -1,9 +1,6 @@
 package io.github.taetae98coding.diary.data.memo.repository
 
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.map
 import io.github.taetae98coding.diary.core.database.api.memo.datasource.AccountMemoLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.memo.transaction.AccountMemoTransaction
 import io.github.taetae98coding.diary.core.database.api.memocontact.entity.MemoContactLocalEntity
@@ -14,10 +11,9 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
+import io.github.taetae98coding.diary.data.core.mapper.toDomain
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
-import io.github.taetae98coding.diary.data.core.paging.PAGE_SIZE
-import io.github.taetae98coding.diary.data.memo.mapper.toDomain
-import io.github.taetae98coding.diary.data.memo.mapper.toLocal
+import io.github.taetae98coding.diary.data.core.paging.pagingFlow
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -34,33 +30,29 @@ internal class AccountMemoRepositoryImpl(
         account: Account,
         sort: ListSort,
     ): Flow<PagingData<Memo>> =
-        Pager(
-            config = PagingConfig(pageSize = PAGE_SIZE),
+        pagingFlow(
             pagingSourceFactory = {
                 accountMemoLocalDataSource.page(
                     accountId = account.id,
                     sort = sort.toLocal(),
                 )
             },
-        ).flow.map { pagingData ->
-            pagingData.map { local -> local.toDomain() }
-        }
+            transform = { local -> local.toDomain() },
+        )
 
     override fun pageFinished(
         account: Account,
         sort: ListSort,
     ): Flow<PagingData<Memo>> =
-        Pager(
-            config = PagingConfig(pageSize = PAGE_SIZE),
+        pagingFlow(
             pagingSourceFactory = {
                 accountMemoLocalDataSource.pageFinished(
                     accountId = account.id,
                     sort = sort.toLocal(),
                 )
             },
-        ).flow.map { pagingData ->
-            pagingData.map { local -> local.toDomain() }
-        }
+            transform = { local -> local.toDomain() },
+        )
 
     override fun find(
         account: Account,

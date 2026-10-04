@@ -21,8 +21,6 @@ import io.github.taetae98coding.diary.compose.core.shortcut.keyShortcut
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.timetable.Timetable
 import io.github.taetae98coding.diary.compose.timetable.TimetableEvent
-import io.github.taetae98coding.diary.core.model.holiday.Holiday
-import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarTimetableNavKey
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeDefaults
 import io.github.taetae98coding.diary.feature.calendar.ui.home.search.openHolidaySearch
@@ -38,8 +36,8 @@ internal fun CalendarTimetableScaffold(
     onTimetableEvent: (TimetableEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: CalendarTimetableScaffoldState = rememberCalendarTimetableScaffoldState(),
-    memoProvider: () -> List<CalendarMemo> = { emptyList() },
-    holidayProvider: () -> List<Holiday> = { emptyList() },
+    memoUiStateProvider: () -> CalendarTimetableMemoUiState = { CalendarTimetableMemoUiState() },
+    holidayUiStateProvider: () -> CalendarTimetableHolidayUiState = { CalendarTimetableHolidayUiState() },
 ) {
     val coroutineScope = rememberCoroutineScope()
     val calendarColors = CalendarDefaults.colors()
@@ -79,15 +77,16 @@ internal fun CalendarTimetableScaffold(
             onEvent = onTimetableEvent,
             nowProvider = { state.now },
             holidayProvider = {
-                holidayProvider()
+                holidayUiStateProvider()
+                    .holidayList
                     .filter { it.isHoliday }
                     .map { it.dateRange }
             },
             colors = calendarColors,
         ) {
             calendarTimetableItems(
-                memoProvider = memoProvider,
-                holidayProvider = holidayProvider,
+                memoProvider = { memoUiStateProvider().memoList },
+                holidayProvider = { holidayUiStateProvider().holidayList },
                 holidayNameColor = calendarColors.sundayAndHolidayColor,
                 nonHolidayNameColor = nonHolidayNameColor,
                 onEvent = onEvent,
@@ -110,16 +109,16 @@ private class CalendarTimetableTypePreviewParameter : PreviewParameterProvider<C
 private fun CalendarTimetableScaffoldPreview(
     @PreviewParameter(CalendarTimetableTypePreviewParameter::class) type: CalendarTimetableNavKey.Type,
 ) {
-    val memoList = remember { listOf(previewCalendarMemo(), previewCalendarTimedMemo()) }
-    val holidayList = remember { listOf(previewHoliday()) }
+    val memoUiState = remember { CalendarTimetableMemoUiState(memoList = listOf(previewCalendarMemo(), previewCalendarTimedMemo())) }
+    val holidayUiState = remember { CalendarTimetableHolidayUiState(holidayList = listOf(previewHoliday())) }
 
     DiaryTheme {
         CalendarTimetableScaffold(
             onEvent = {},
             onTimetableEvent = {},
             state = rememberCalendarTimetableScaffoldState(type = type, initialDate = LocalDate(year = 2026, month = 7, day = 19)),
-            memoProvider = { memoList },
-            holidayProvider = { holidayList },
+            memoUiStateProvider = { memoUiState },
+            holidayUiStateProvider = { holidayUiState },
         )
     }
 }

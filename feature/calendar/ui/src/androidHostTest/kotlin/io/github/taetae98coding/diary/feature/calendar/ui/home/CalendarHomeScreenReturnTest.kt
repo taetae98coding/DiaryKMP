@@ -21,6 +21,7 @@ import io.github.taetae98coding.diary.compose.permission.rememberPermissionManag
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
+import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherViewModel
 import io.mockk.clearMocks
@@ -175,8 +176,8 @@ class CalendarHomeScreenReturnTest {
     ): ReturnableScreen {
         val memoViewModel =
             mockk<CalendarHomeMemoViewModel>().also { viewModel ->
-                every { viewModel.fetch(any()) } returns Unit
-                every { viewModel.memoList } returns MutableStateFlow(emptyList())
+                every { viewModel.select(any()) } returns Unit
+                every { viewModel.uiState } returns MutableStateFlow(CalendarHomeMemoUiState())
                 every { viewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
             }
         val syncViewModel = syncViewModel()

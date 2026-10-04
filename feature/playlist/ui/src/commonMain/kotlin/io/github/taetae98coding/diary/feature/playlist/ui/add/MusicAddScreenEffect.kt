@@ -6,21 +6,19 @@ import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.feature.playlist.ui.Res
 import io.github.taetae98coding.diary.feature.playlist.ui.form.MusicFormState
-import io.github.taetae98coding.diary.feature.playlist.ui.form.rememberMusicAddFormState
 import io.github.taetae98coding.diary.feature.playlist.ui.music_add_link_blank_message
 import io.github.taetae98coding.diary.feature.playlist.ui.music_add_link_fetch_failed_message
 import io.github.taetae98coding.diary.feature.playlist.ui.music_add_link_not_youtube_message
 import io.github.taetae98coding.diary.feature.playlist.ui.music_add_succeeded_message
 import io.github.taetae98coding.diary.feature.playlist.ui.music_add_title_blank_message
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun MusicAddScreenEffect(
-    effect: Flow<MusicAddEffect> = emptyFlow(),
-    state: MusicFormState = rememberMusicAddFormState(),
+    effect: Flow<MusicAddEffect>,
+    state: MusicFormState,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val addSucceededMessage = stringResource(Res.string.music_add_succeeded_message)
@@ -34,22 +32,22 @@ internal fun MusicAddScreenEffect(
             is MusicAddEffect.AddSucceeded -> {
                 state.clearText()
                 state.titleState.requestFocus()
-                coroutineScope.launch { state.hostState.showImmediate(message = addSucceededMessage) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = addSucceededMessage) }
             }
 
             is MusicAddEffect.LinkBlank -> {
                 state.linkState.requestFocus()
-                coroutineScope.launch { state.hostState.showImmediate(message = linkBlankMessage) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = linkBlankMessage) }
             }
 
             is MusicAddEffect.LinkNotYoutube -> {
                 state.linkState.requestFocus()
-                coroutineScope.launch { state.hostState.showImmediate(message = linkNotYoutubeMessage) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = linkNotYoutubeMessage) }
             }
 
             is MusicAddEffect.TitleBlank -> {
                 state.titleState.requestFocus()
-                coroutineScope.launch { state.hostState.showImmediate(message = titleBlankMessage) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = titleBlankMessage) }
             }
 
             is MusicAddEffect.LinkFetched -> {
@@ -61,7 +59,7 @@ internal fun MusicAddScreenEffect(
             }
 
             is MusicAddEffect.LinkFetchFailed -> {
-                coroutineScope.launch { state.hostState.showImmediate(message = linkFetchFailedMessage) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = linkFetchFailedMessage) }
             }
         }
     }

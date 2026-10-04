@@ -35,9 +35,18 @@ internal class AppSyncViewModel(
                 initialValue = AppSyncUiState.Loading,
             )
 
+    private var isRequesting = false
+
     fun requestSync() {
+        if (isRequesting) return
+        isRequesting = true
+
         viewModelScope.launch {
-            requestSyncUseCase(parameter = SyncTrigger.ACCOUNT_CONFIRMED)
+            try {
+                requestSyncUseCase(parameter = SyncTrigger.ACCOUNT_CONFIRMED)
+            } finally {
+                isRequesting = false
+            }
         }
     }
 

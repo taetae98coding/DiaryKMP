@@ -14,7 +14,6 @@ import io.github.taetae98coding.diary.domain.tag.usecase.AddTagLinkUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetLinkedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagLinkSelectableTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.RemoveTagLinkUseCase
-import io.github.taetae98coding.diary.library.coroutines.flow.INPUT_IDLE_DELAY
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -34,13 +33,11 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
-import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -172,7 +169,9 @@ class TagDetailLinkViewModelTest : FunSpec() {
                     expectMostRecentItem().linkedTagList shouldBe listOf(linkedTag)
 
                     viewModel.link(tagId = otherTagId)
+                    advanceUntilIdle()
                     viewModel.unlink(tagId = linkedTag.id)
+                    advanceUntilIdle()
                     viewModel.link(tagId = otherTagId)
                     advanceUntilIdle()
 
@@ -223,6 +222,32 @@ class TagDetailLinkViewModelTest : FunSpec() {
                 }
             }
         }
+        test("같은 태그의 연결이나 해제가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val toTagId = fixtureMonkey.giveMeOne<Uuid>()
+                val addTagLinkUseCase = mockk<AddTagLinkUseCase>()
+                coEvery { addTagLinkUseCase(parameter = any()) } returns Result.success(Unit)
+                val removeTagLinkUseCase = mockk<RemoveTagLinkUseCase>()
+                coEvery { removeTagLinkUseCase(parameter = any()) } returns Result.success(Unit)
+                val viewModel =
+                    viewModel(
+                        id = id,
+                        addTagLinkUseCase = addTagLinkUseCase,
+                        removeTagLinkUseCase = removeTagLinkUseCase,
+                    )
+
+                viewModel.link(tagId = toTagId)
+                viewModel.link(tagId = toTagId)
+                viewModel.unlink(tagId = toTagId)
+                viewModel.unlink(tagId = toTagId)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { addTagLinkUseCase(parameter = AddTagLinkUseCase.Parameter(fromTagId = id, toTagId = toTagId)) }
+                coVerify(exactly = 1) { removeTagLinkUseCase(parameter = RemoveTagLinkUseCase.Parameter(fromTagId = id, toTagId = toTagId)) }
+            }
+        }
+
         searchTests()
         restorationTests()
     }

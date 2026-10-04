@@ -18,6 +18,9 @@ import io.github.taetae98coding.diary.compose.web.WEB_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.web.WebListEffect
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.web.Web
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.justRun
@@ -146,15 +149,15 @@ class WebHomeDeleteTest {
         val second = testWeb(title = SECOND_TITLE)
         val effectChannel = Channel<WebListEffect>(capacity = Channel.BUFFERED)
         val viewModel = mockk<WebHomeViewModel>()
-        every { viewModel.sort } returns MutableStateFlow(ListSort.TITLE)
+        every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
         every { viewModel.webPagingData } returns MutableStateFlow(webPagingDataOf(listOf(first, second)))
         every { viewModel.effect } returns effectChannel.receiveAsFlow()
         every { viewModel.delete(id = any()) } answers {
             effectChannel.trySend(WebListEffect.Deleted(id = firstArg())).getOrThrow()
         }
         justRun { viewModel.restore(id = any()) }
-        val syncViewModel = mockk<WebHomeSyncViewModel>()
-        every { syncViewModel.uiState } returns MutableStateFlow(WebHomeUiState())
+        val syncViewModel = mockk<SyncRefreshViewModel>()
+        every { syncViewModel.uiState } returns MutableStateFlow(SyncRefreshUiState())
         justRun { syncViewModel.refresh() }
 
         composeRule.setContent {

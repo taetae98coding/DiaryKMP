@@ -24,6 +24,7 @@ import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
+import io.github.taetae98coding.diary.feature.search.ui.home.SearchHomeResultUiState
 import io.github.taetae98coding.diary.feature.search.ui.home.memo.SearchHomeMemoEffect
 import io.github.taetae98coding.diary.feature.search.ui.home.memo.SearchHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.search.ui.home.place.SearchHomePlaceViewModel
@@ -31,9 +32,15 @@ import io.github.taetae98coding.diary.feature.search.ui.home.tag.SearchHomeTagVi
 import io.github.taetae98coding.diary.feature.search.ui.home.web.SearchHomeWebViewModel
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import org.koin.compose.KoinApplication
 import org.koin.dsl.koinConfiguration
 import org.koin.dsl.module
@@ -51,6 +58,11 @@ private const val SEARCH_HOME_ENTRY_KEY = "SearchHome"
 
 private val appliedQueryFlow = MutableStateFlow("")
 private var isQueryApplied = true
+
+// 화면은 uiState만 읽으므로, 고른 정렬과 반영된 질의를 합친 값을 바로 갱신되는 StateFlow로 만든다.
+private fun fakeUiState(sortFlow: StateFlow<ListSort>): StateFlow<SearchHomeResultUiState> =
+    combine(sortFlow, appliedQueryFlow) { sort, appliedQuery -> SearchHomeResultUiState(sort = sort, appliedQuery = appliedQuery) }
+        .stateIn(CoroutineScope(Dispatchers.Unconfined), SharingStarted.Eagerly, SearchHomeResultUiState())
 
 private var memoEffectChannel = Channel<SearchHomeMemoEffect>(Channel.BUFFERED)
 private var tagEffectChannel = Channel<TagListEffect>(Channel.BUFFERED)
@@ -71,9 +83,8 @@ private val searchHomeViewModelModule =
         factory {
             mockk<SearchHomeMemoViewModel>(relaxed = true).apply {
                 every { pagingData } returns memoPagingDataFlow
-                every { appliedQuery } returns appliedQueryFlow
                 val sortFlow = MutableStateFlow(ListSort.TITLE)
-                every { sort } returns sortFlow
+                every { uiState } returns fakeUiState(sortFlow)
                 every { select(sort = any()) } answers { sortFlow.value = firstArg() }
                 every { updateQuery(any()) } answers { if (isQueryApplied) appliedQueryFlow.value = firstArg() }
                 every { showQuery(any()) } answers { appliedQueryFlow.value = firstArg() }
@@ -87,9 +98,8 @@ private val searchHomeViewModelModule =
         factory {
             mockk<SearchHomeTagViewModel>(relaxed = true).apply {
                 every { pagingData } returns tagPagingDataFlow
-                every { appliedQuery } returns appliedQueryFlow
                 val sortFlow = MutableStateFlow(ListSort.TITLE)
-                every { sort } returns sortFlow
+                every { uiState } returns fakeUiState(sortFlow)
                 every { select(sort = any()) } answers { sortFlow.value = firstArg() }
                 every { updateQuery(any()) } answers { if (isQueryApplied) appliedQueryFlow.value = firstArg() }
                 every { showQuery(any()) } answers { appliedQueryFlow.value = firstArg() }
@@ -103,9 +113,8 @@ private val searchHomeViewModelModule =
         factory {
             mockk<SearchHomePlaceViewModel>(relaxed = true).apply {
                 every { pagingData } returns placePagingDataFlow
-                every { appliedQuery } returns appliedQueryFlow
                 val sortFlow = MutableStateFlow(ListSort.TITLE)
-                every { sort } returns sortFlow
+                every { uiState } returns fakeUiState(sortFlow)
                 every { select(sort = any()) } answers { sortFlow.value = firstArg() }
                 every { updateQuery(any()) } answers { if (isQueryApplied) appliedQueryFlow.value = firstArg() }
                 every { showQuery(any()) } answers { appliedQueryFlow.value = firstArg() }
@@ -117,9 +126,8 @@ private val searchHomeViewModelModule =
         factory {
             mockk<SearchHomeWebViewModel>(relaxed = true).apply {
                 every { pagingData } returns webPagingDataFlow
-                every { appliedQuery } returns appliedQueryFlow
                 val sortFlow = MutableStateFlow(ListSort.TITLE)
-                every { sort } returns sortFlow
+                every { uiState } returns fakeUiState(sortFlow)
                 every { select(sort = any()) } answers { sortFlow.value = firstArg() }
                 every { updateQuery(any()) } answers { if (isQueryApplied) appliedQueryFlow.value = firstArg() }
                 every { showQuery(any()) } answers { appliedQueryFlow.value = firstArg() }

@@ -43,7 +43,7 @@ internal fun ContactDetailScreen(
         effect = viewModel.effect,
         state = state,
     )
-    DismissUndoSnackbarEffect(keyProvider = { tabState.tab }, hostState = state.hostState)
+    DismissUndoSnackbarEffect(keyProvider = { tabState.tab }, hostState = state.snackbarHostState)
 
     ContactDetailScaffold(
         onEvent = { event ->
@@ -109,7 +109,7 @@ private fun ContactDetailTabContent(
                 viewModelStoreProvider = viewModelStoreProvider,
                 navigateToMemoDetail = navigateToMemoDetail,
                 modifier = Modifier.fillMaxSize(),
-                snackbarHostState = state.hostState,
+                snackbarHostState = state.snackbarHostState,
             )
     }
 }

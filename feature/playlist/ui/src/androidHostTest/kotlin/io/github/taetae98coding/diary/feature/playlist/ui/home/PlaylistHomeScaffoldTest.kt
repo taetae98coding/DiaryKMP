@@ -16,6 +16,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.feature.playlist.ui.music.MUSIC_CARD_TEST_TAG
+import io.github.taetae98coding.diary.feature.playlist.ui.refreshableList
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
@@ -196,7 +197,7 @@ class PlaylistHomeScaffoldTest {
         val musicList = List(SCROLL_MUSIC_COUNT) { index -> testMusic(title = "$FIRST_TITLE-$index") }
         setPlaylistHomeScaffold(musicList = musicList)
 
-        composeRule.onNodeWithTag(PLAYLIST_HOME_LIST_TEST_TAG).performScrollToIndex(musicList.lastIndex)
+        composeRule.refreshableList().performScrollToIndex(musicList.lastIndex)
 
         val lastCardBottom =
             composeRule

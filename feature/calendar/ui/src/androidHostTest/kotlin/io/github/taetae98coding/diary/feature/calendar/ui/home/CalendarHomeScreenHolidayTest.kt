@@ -7,7 +7,9 @@ import androidx.compose.ui.test.swipeLeft
 import io.github.taetae98coding.diary.compose.calendar.rememberCalendarState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
+import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
+import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.mockk.every
 import io.mockk.mockk
@@ -91,14 +93,13 @@ class CalendarHomeScreenHolidayTest {
     private fun holidayViewModel(): CalendarHomeHolidayViewModel =
         mockk<CalendarHomeHolidayViewModel>().also { viewModel ->
             every { viewModel.fetch(any()) } returns Unit
-            every { viewModel.holidayList } returns MutableStateFlow(emptyList())
-            every { viewModel.isFetching } returns MutableStateFlow(false)
+            every { viewModel.uiState } returns MutableStateFlow(CalendarHomeHolidayUiState())
         }
 
     private fun memoViewModel(): CalendarHomeMemoViewModel =
         mockk<CalendarHomeMemoViewModel>().also { viewModel ->
-            every { viewModel.fetch(any()) } returns Unit
-            every { viewModel.memoList } returns MutableStateFlow(emptyList())
+            every { viewModel.select(any()) } returns Unit
+            every { viewModel.uiState } returns MutableStateFlow(CalendarHomeMemoUiState())
             every { viewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
         }
 }

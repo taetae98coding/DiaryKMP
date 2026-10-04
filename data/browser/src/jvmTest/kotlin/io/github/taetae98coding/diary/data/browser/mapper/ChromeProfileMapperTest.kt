@@ -2,7 +2,7 @@ package io.github.taetae98coding.diary.data.browser.mapper
 
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.core.browsercookie.api.entity.ChromeProfileLocalEntity
+import io.github.taetae98coding.diary.core.browser.cookie.api.entity.ChromeProfileLocalEntity
 import io.github.taetae98coding.diary.core.model.browser.ChromeProfile
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec

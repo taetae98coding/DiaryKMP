@@ -16,6 +16,7 @@ import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.qr.Qr
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.qr.ui.Res
 import io.github.taetae98coding.diary.feature.qr.ui.qr_add_button_content_description
 import io.github.taetae98coding.diary.feature.qr.ui.qr_home_title
@@ -29,7 +30,7 @@ internal fun QrHomeScaffold(
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     qrPagingItems: LazyPagingItems<Qr> = remember { flowOf(PagingData.empty<Qr>()) }.collectAsLazyPagingItems(),
-    uiStateProvider: () -> QrHomeUiState = { QrHomeUiState() },
+    uiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
 ) {
     Scaffold(
         modifier = modifier,

@@ -7,7 +7,7 @@ import kotlin.uuid.Uuid
 internal sealed interface PlaceHomeUiState {
     data object Loading : PlaceHomeUiState
 
-    data class Loaded(
+    data class Content(
         val defaultProvider: MapProvider,
         val initialCoordinate: Coordinate?,
         val currentLocationFetchId: Uuid,

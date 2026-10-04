@@ -12,6 +12,7 @@ import io.github.taetae98coding.diary.compose.core.snackbar.UndoSnackbarEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.compose.memo.list.UpdateMemoListTodayEffect
 import io.github.taetae98coding.diary.compose.memo.list.rememberMemoListState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.Res
 import io.github.taetae98coding.diary.feature.memo.ui.memo_finished_list_deleted_message
 import io.github.taetae98coding.diary.feature.memo.ui.memo_finished_list_restarted_message
@@ -19,7 +20,6 @@ import io.github.taetae98coding.diary.feature.memo.ui.memo_finished_list_undo_ac
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
 import kotlin.uuid.Uuid
 
 @Composable
@@ -27,14 +27,14 @@ internal fun MemoFinishedListScreen(
     navigateUp: () -> Unit,
     navigateToDetail: (Uuid) -> Unit,
     memoViewModel: MemoFinishedListViewModel,
-    syncViewModel: MemoFinishedListSyncViewModel,
+    syncViewModel: SyncRefreshViewModel,
     modifier: Modifier = Modifier,
 ) {
     val memoListState = rememberMemoListState()
     val snackbarHostState = remember { SnackbarHostState() }
     val memoPagingItems = memoViewModel.memoPagingData.collectAsLazyPagingItems()
     val memoListUiState by syncViewModel.uiState.collectAsStateWithLifecycle()
-    val sort by memoViewModel.sort.collectAsStateWithLifecycle()
+    val sortUiState by memoViewModel.sortUiState.collectAsStateWithLifecycle()
     val sortSheetState = rememberDialogState()
 
     UpdateMemoListTodayEffect(state = memoListState)
@@ -50,8 +50,8 @@ internal fun MemoFinishedListScreen(
         sortSheetState = sortSheetState,
         snackbarHostState = snackbarHostState,
         memoPagingItems = memoPagingItems,
-        memoListUiStateProvider = { memoListUiState },
-        sortProvider = { sort },
+        syncUiStateProvider = { memoListUiState },
+        sortProvider = { sortUiState.sort },
         onEvent = { event ->
             when (event) {
                 is MemoFinishedListScaffoldEvent.ClickNavigateUp -> navigateUp()

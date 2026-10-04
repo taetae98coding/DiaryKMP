@@ -8,7 +8,7 @@ import io.github.taetae98coding.diary.compose.list.list_sort_title_label
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import org.jetbrains.compose.resources.StringResource
 
-public fun listSortLabel(sort: ListSort): StringResource =
+internal fun listSortLabel(sort: ListSort): StringResource =
     when (sort) {
         ListSort.DEFAULT -> Res.string.list_sort_default_label
         ListSort.TITLE -> Res.string.list_sort_title_label

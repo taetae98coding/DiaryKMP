@@ -140,7 +140,7 @@ class AccountMemoWebLocalDataSourceImplTest :
                 memoWebList = emptyList(),
             )
 
-            syncTransaction.save(
+            syncTransaction.upsert(
                 accountId = accountId,
                 memoWebList = listOf(memoWeb(memoId = memo.id, webId = missingWebId)),
                 cursor = 1L,
@@ -156,7 +156,7 @@ class AccountMemoWebLocalDataSourceImplTest :
             val web = web()
             webTransaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
 
-            syncTransaction.save(
+            syncTransaction.upsert(
                 accountId = accountId,
                 memoWebList = listOf(memoWeb(memoId = missingMemoId, webId = web.id)),
                 cursor = 1L,
@@ -171,7 +171,7 @@ class AccountMemoWebLocalDataSourceImplTest :
             val memo = memo()
             val web = web()
             webTransaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
-            syncTransaction.save(
+            syncTransaction.upsert(
                 accountId = accountId,
                 memoWebList = listOf(memoWeb(memoId = memo.id, webId = web.id)),
                 cursor = 1L,
@@ -261,7 +261,7 @@ class AccountMemoWebLocalDataSourceImplTest :
             webTransaction.upsert(accountId = accountId, webList = listOf(web.copy(isDeleted = true)), webTagList = emptyList())
             dataSource.getWebList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
 
-            AccountWebSyncTransactionImpl(database = database).save(
+            AccountWebSyncTransactionImpl(database = database).upsert(
                 accountId = accountId,
                 webList = listOf(web.copy(isDeleted = false)),
                 cursor = 1L,

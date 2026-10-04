@@ -13,10 +13,10 @@ import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
-import io.github.taetae98coding.diary.compose.memo.list.MemoListUiState
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.memo.ui.home.memoPagingDataOf
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -51,7 +51,7 @@ class MemoFinishedListScreenTest {
     @Test
     fun `TC-MEMO-FINISHED-LIST-FEATURE-007 완료된 메모가 하나도 없어도 화면을 사용할 수 있다`() {
         val viewModel = mockk<MemoFinishedListViewModel>()
-        every { viewModel.sort } returns MutableStateFlow(ListSort.DEFAULT)
+        every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
         every { viewModel.memoPagingData } returns MutableStateFlow(memoPagingDataOf(emptyList()))
         every { viewModel.effect } returns Channel<MemoFinishedListEffect>(capacity = Channel.BUFFERED).receiveAsFlow()
 
@@ -276,7 +276,7 @@ class MemoFinishedListScreenTest {
                     .sample()
             val effectChannel = Channel<MemoFinishedListEffect>(capacity = Channel.BUFFERED)
             val viewModel = mockk<MemoFinishedListViewModel>()
-            every { viewModel.sort } returns MutableStateFlow(ListSort.DEFAULT)
+            every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
 
             val pagingFlow = MutableStateFlow(memoPagingDataOf(listOf(MemoListItem.Content(memo = memo))))
             every { viewModel.memoPagingData } returns pagingFlow

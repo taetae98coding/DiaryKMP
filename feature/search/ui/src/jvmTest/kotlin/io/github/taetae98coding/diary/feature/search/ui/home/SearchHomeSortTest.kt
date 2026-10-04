@@ -25,7 +25,6 @@ import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -76,8 +75,8 @@ class SearchHomeSortTest : FunSpec() {
                     cancelAndIgnoreRemainingEvents()
                 }
 
-                memoViewModel.sort.value shouldBe ListSort.RECENTLY_UPDATED
-                tagViewModel.sort.value shouldBe ListSort.TITLE
+                currentUiState(memoViewModel).sort shouldBe ListSort.RECENTLY_UPDATED
+                currentUiState(tagViewModel).sort shouldBe ListSort.TITLE
                 verify(exactly = 1) { searchMemoUseCase(parameter = SearchMemoUseCase.Parameter(query = "", sort = ListSort.RECENTLY_UPDATED)) }
                 verify(exactly = 0) { searchTagUseCase(parameter = SearchTagUseCase.Parameter(query = "", sort = ListSort.RECENTLY_UPDATED)) }
             }
@@ -107,7 +106,7 @@ class SearchHomeSortTest : FunSpec() {
                     cancelAndIgnoreRemainingEvents()
                 }
 
-                viewModel.sort.value shouldBe ListSort.RECENTLY_UPDATED
+                currentUiState(viewModel).sort shouldBe ListSort.RECENTLY_UPDATED
                 verify(exactly = 1) { searchMemoUseCase(parameter = SearchMemoUseCase.Parameter(query = QUERY, sort = ListSort.RECENTLY_UPDATED)) }
                 verify(exactly = 1) { searchMemoUseCase(parameter = SearchMemoUseCase.Parameter(query = OTHER_QUERY, sort = ListSort.RECENTLY_UPDATED)) }
                 verify(exactly = 0) { searchMemoUseCase(parameter = SearchMemoUseCase.Parameter(query = OTHER_QUERY, sort = ListSort.TITLE)) }
@@ -124,22 +123,22 @@ class SearchHomeSortTest : FunSpec() {
                     listOf(
                         {
                             SearchHomeMemoViewModel(searchMemoUseCase, mockk(), mockk(), mockk(), mockk()).let { viewModel ->
-                                SortTarget(viewModel.sort, viewModel::select, viewModel::showQuery, viewModel.pagingData)
+                                SortTarget(viewModel, viewModel::select, viewModel::showQuery, viewModel.pagingData)
                             }
                         },
                         {
                             SearchHomeTagViewModel(searchTagUseCase, mockk(), mockk(), mockk(), mockk()).let { viewModel ->
-                                SortTarget(viewModel.sort, viewModel::select, viewModel::showQuery, viewModel.pagingData)
+                                SortTarget(viewModel, viewModel::select, viewModel::showQuery, viewModel.pagingData)
                             }
                         },
                         {
                             SearchHomePlaceViewModel(searchPlaceUseCase, mockk(), mockk()).let { viewModel ->
-                                SortTarget(viewModel.sort, viewModel::select, viewModel::showQuery, viewModel.pagingData)
+                                SortTarget(viewModel, viewModel::select, viewModel::showQuery, viewModel.pagingData)
                             }
                         },
                         {
                             SearchHomeWebViewModel(searchWebUseCase, mockk(), mockk()).let { viewModel ->
-                                SortTarget(viewModel.sort, viewModel::select, viewModel::showQuery, viewModel.pagingData)
+                                SortTarget(viewModel, viewModel::select, viewModel::showQuery, viewModel.pagingData)
                             }
                         },
                     )
@@ -153,7 +152,7 @@ class SearchHomeSortTest : FunSpec() {
                         advanceUntilIdle()
                         cancelAndIgnoreRemainingEvents()
                     }
-                    beforeRestore.sort.value shouldBe ListSort.RECENTLY_UPDATED
+                    currentUiState(beforeRestore.viewModel).sort shouldBe ListSort.RECENTLY_UPDATED
 
                     val restored = createTarget()
                     restored.showQuery(QUERY)
@@ -162,7 +161,7 @@ class SearchHomeSortTest : FunSpec() {
                         cancelAndIgnoreRemainingEvents()
                     }
 
-                    restored.sort.value shouldBe ListSort.TITLE
+                    currentUiState(restored.viewModel).sort shouldBe ListSort.TITLE
                 }
 
                 verify(exactly = 2) { searchMemoUseCase(parameter = SearchMemoUseCase.Parameter(query = QUERY, sort = ListSort.TITLE)) }
@@ -174,7 +173,7 @@ class SearchHomeSortTest : FunSpec() {
     }
 
     private class SortTarget(
-        val sort: StateFlow<ListSort>,
+        val viewModel: SearchHomeResultViewModel<*>,
         val select: (ListSort) -> Unit,
         val showQuery: (String) -> Unit,
         val pagingData: Flow<PagingData<*>>,

@@ -19,7 +19,7 @@ import org.jetbrains.compose.resources.stringResource
 public const val MEMO_DATE_HEADER_TEST_TAG: String = "MemoDateHeader"
 
 @Composable
-public fun MemoDateHeader(
+internal fun MemoDateHeader(
     date: LocalDate,
     modifier: Modifier = Modifier,
     state: MemoListState = rememberMemoListState(),

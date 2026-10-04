@@ -16,6 +16,7 @@ import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
+import io.github.taetae98coding.diary.feature.memo.api.navigateToMemoDetail
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
@@ -56,7 +57,7 @@ class MemoEntryTest :
             val selectedId = fixtureMonkey.giveMeOne<Uuid>()
             val backStack = NavBackStack<ScreenNavKey>(OtherTopLevelNavKey, MemoHomeNavKey)
 
-            backStack.navigateToMemoDetailFromHome(selectedId)
+            backStack.navigateToMemoDetail(selectedId)
 
             backStack.last() shouldBe MemoDetailNavKey(id = selectedId)
             metadataOf(backStack = backStack.toList(), key = backStack.last()).keys shouldBe detailPaneMetadataKeys
