@@ -35,16 +35,18 @@
 
 | 변환 | 소유 모듈 | 예 |
 | --- | --- | --- |
-| 로컬 엔티티 ↔ 모델 | 그 Repository를 구현하는 `data:*` | `data:tag`의 `TagLocalEntity.toDomain()` |
+| 로컬 엔티티 ↔ 모델 | 그 Repository를 구현하는 `data:*` | `data:memo`의 `MemoExistenceFilterLocalEntity.toDomain()` |
 | 로컬 엔티티 ↔ 원격 엔티티 | 그 교환을 수행하는 `work:sync` | `work:sync`의 `TagLocalEntity.toRemote()` |
 | 외부 API 응답 → 모델 | 그 API를 호출하는 `data:*` | `data:place`의 `NaverPlaceRemoteEntity.toDomain()` |
-| 여러 `data:*`가 함께 쓰는 변환 | `data:core` | `ListSort.toLocal()` |
+| 여러 `data:*`가 함께 쓰는 변환 | `data:core` | `ListSort.toLocal()`, `TagLocalEntity.toDomain()` |
 
 다른 `data:*`가 쓰는 매퍼만 `public`으로 두고, 그 모듈 안에서만 쓰는 매퍼는 `internal`로 둔다.
 
 ### DataSource 연산 이름
 
-`core:*`의 DataSource·Transaction은 저장소나 원격에 쓰는 연산을 `upsert`로 부른다. 행 하나를 넣거나 갱신하는 연산과 집합 전체를 교체하는 연산이 모두 여기 속한다.
+`core:*`의 DataSource·Transaction은 읽는 연산을 [domain.md](domain.md)의 `UseCase·Repository 네이밍`과 같은 기준으로 부른다. 관찰하면 `get`·`find`(`Flow`), 페이징이면 `page`, 한 번 읽고 끝나면 `read`(`suspend`)다. `find`를 `suspend`로 선언하지 않는다.
+
+저장소나 원격에 쓰는 연산은 `upsert`로 부른다. 행 하나를 넣거나 갱신하는 연산과 집합 전체를 교체하는 연산이 모두 여기 속한다.
 
 Repository가 집합 전체 교체를 `submitXxx`([domain.md](domain.md)의 `UseCase·Repository 네이밍`)로 선언하면, 구현하는 `data:*`는 DataSource의 `upsertXxx`로 옮긴다. DataSource나 Transaction에 `submit`을 쓰지 않는다.
 
