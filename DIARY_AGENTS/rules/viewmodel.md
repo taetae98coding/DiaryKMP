@@ -135,15 +135,24 @@ internal fun SyncEffect(requestSync: () -> Unit, uiState: Flow<AppSyncUiState> =
 }
 ```
 
+## 페이징 조회 실패
+
+`Flow<Result<PagingData<T>>>`의 실패는 ViewModel이 `PagingData.empty()`로 바꾼다. 마지막 성공 목록을 붙잡아 두지 않는다(`runningFold`·`filterNotNull`·`mapNotNull`로 실패를 건너뛰지 않는다).
+
+이어서 불러오기의 실패는 `PagingSource`가 `LoadResult.Error`로 돌려주고 Paging이 이미 불러온 항목을 유지하므로 ViewModel이 관여하지 않는다. ViewModel에 실패로 도달하는 것은 계정 조회처럼 페이징 원천 자체의 실패다.
+
+```kotlin
+val memoPagingData: Flow<PagingData<Memo>> =
+    pageMemoUseCase(parameter = sort)
+        .map { result -> result.getOrElse { PagingData.empty() } }
+        .cachedIn(viewModelScope)
+```
+
 ## ViewModel 시작 트리거
 
 ViewModel의 `init` 블록에서 UseCase 호출이나 Flow collect 같은 작업을 시작하지 않는다. `init`은 화면 라이프사이클과 무관하게 실행되어 시작 시점을 제어할 수 없고, 테스트에서 준비와 실행을 나눌 수 없다.
 
-작업 시작은 항상 UI에서 트리거한다. 상황에 맞게 `LaunchedEffect`, `LifecycleEventEffect`·`LifecycleStartEffect`·`LifecycleResumeEffect` 같은 lifecycle 효과, retain effect를 사용한다. 트리거는 재진입마다 반복 호출될 수 있으므로 ViewModel의 시작 함수는 이미 시작했거나 끝난 작업을 다시 시작하지 않게 만든다.
-
-**재시작을 막는 판단은 그 작업을 소유한 곳에 하나만 둔다.** 시작 함수를 다시 부르면 작업이 실제로 다시 시작되는 경우에만 ViewModel이 상태로 막는다. 원격을 다시 호출하는 조회가 그렇다.
-
-**아래 계층이 멱등한 연산을 위임받는 시작 함수에는 가드를 두지 않는다.** ViewModel 플래그를 더하면 같은 보장이 두 곳으로 갈라지고, 아래 계층의 멱등성이 깨져도 ViewModel 테스트가 회귀를 알려주지 못한다. 예: 주기 동기화 예약은 실행 수단이 예약을 하나로 유지하므로([work.md](work.md)의 `예약은 하나로 유지한다`) `AppPeriodicSyncViewModel.schedulePeriodicSync()`는 요청을 삼키지 않고 UseCase를 그대로 호출한다.
+작업 시작은 항상 UI에서 트리거한다. 상황에 맞게 `LaunchedEffect`, `LifecycleEventEffect`·`LifecycleStartEffect`·`LifecycleResumeEffect` 같은 lifecycle 효과, retain effect를 사용한다. 트리거는 재진입마다 반복 호출될 수 있으므로 시작 함수에는 `UseCase 호출 가드`를 둔다.
 
 지속 관찰하는 상태는 `init`에서 collect하는 대신 `stateIn(started = SharingStarted.WhileUiSubscribed)`처럼 구독자가 있을 때만 collect되는 형태로 노출한다. 구독이 끊긴 뒤 값을 초기값으로 되돌려야 하는 `stateIn`에서만 `SharingStarted.WhileSubscribed(..., replayExpirationMillis = 0)`을 직접 쓴다.
 
@@ -173,6 +182,52 @@ internal class HolidayHomeYearViewModel(...) : ViewModel() {
 private fun FetchHolidayEffect(viewModel: HolidayHomeYearViewModel) {
     LifecycleEventEffect(Lifecycle.Event.ON_START) {
         viewModel.fetch()
+    }
+}
+```
+
+## UseCase 호출 가드
+
+**UseCase를 호출하는 ViewModel 함수는 예외 없이 중복 실행을 막는 가드를 둔다.** 조회(`fetch`·`refresh`), 저장, 삭제, 예약 요청 모두 대상이다. 화면 재진입, 연속 클릭, 재구성으로 같은 함수가 다시 불릴 수 있고, 아래 계층이 멱등한지는 ViewModel이 기대지 않는다.
+
+가드는 함수 첫 줄에서 판단하고 해당하면 바로 반환한다. 판단 수단은 다음 중 그 함수에 맞는 것을 고른다.
+
+- UiState나 진행 상태가 이미 그 작업의 상태를 담고 있으면 그 값을 확인한다. 예: `if (fetchState.value != FetchState.NONE) return`
+- 진행 중 여부만 필요하면 `Boolean` 상태를 둔다. 예: `if (isInProgress.value) return`을 두고 `try`/`finally`로 해제한다.
+- 한 번만 실행하면 되는 시작 함수는 시작 여부를 `Boolean`으로 기억한다.
+- 대상마다 따로 막아야 하면 진행 중인 대상의 집합을 둔다. 예: 메모별 완료·삭제.
+
+가드 플래그는 ViewModel 안에서만 바꾸고, 화면에 보여야 하면 UiState로 노출한다.
+
+계기마다 다시 실행되어야 하는 함수(앱 복귀, 계정 변경마다 부르는 예약·동기화 요청)는 한 번 실행했다는 사실을 영구히 기억하지 않는다. 진행 중에만 막고 끝나면 다시 받는다. 영구 플래그는 다음 계기의 요청까지 삼킨다.
+
+⚠️ 비권장 예시:
+
+```kotlin
+internal class AppSyncViewModel(...) : ViewModel() {
+    fun requestSync(trigger: SyncTrigger) {
+        viewModelScope.launch { requestSyncUseCase(parameter = trigger) }
+    }
+}
+```
+
+✅ 권장 예시:
+
+```kotlin
+internal class AppSyncViewModel(...) : ViewModel() {
+    private var isRequesting = false
+
+    fun requestSync(trigger: SyncTrigger) {
+        if (isRequesting) return
+        isRequesting = true
+
+        viewModelScope.launch {
+            try {
+                requestSyncUseCase(parameter = trigger)
+            } finally {
+                isRequesting = false
+            }
+        }
     }
 }
 ```

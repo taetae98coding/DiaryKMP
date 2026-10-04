@@ -46,7 +46,7 @@ override suspend fun doWork(): Result =
 
 ## 예약은 하나로 유지한다
 
-같은 작업의 예약은 어느 플랫폼에서든 하나만 남는다. 앱 시작, 계정 확인, 설정 변경 같은 계기마다 다시 예약해도 예약이 늘거나 실행 시각이 앞당겨지지 않아야 한다. ViewModel이 예약 요청을 삼키지 않는 근거이므로([viewmodel.md](viewmodel.md)의 `ViewModel 시작 트리거`) 실행 수단이 이를 보장한다.
+같은 작업의 예약은 어느 플랫폼에서든 하나만 남는다. 앱 시작, 계정 확인, 설정 변경 같은 계기마다 다시 예약해도 예약이 늘거나 실행 시각이 앞당겨지지 않아야 한다. ViewModel의 가드([viewmodel.md](viewmodel.md)의 `UseCase 호출 가드`)는 한 ViewModel 안의 중복 호출만 막으므로, 앱을 다시 시작하거나 다른 화면이 같은 예약을 요청하는 경우는 실행 수단이 보장한다.
 
 - `WorkRequest`는 모두 고유 이름으로 넣는다. 이름은 그 모듈의 상수로 두고, 주기 작업과 즉시 작업은 서로 다른 이름을 쓴다. 스펙이 주기 동기화와 다른 계기의 동기화가 서로 취소하지 않는다고 정했기 때문이다.
 - 즉시 실행의 정책은 진행 중에 들어온 새 요청을 스펙이 어떻게 다루는지로 고른다. 진행 중인 작업을 취소하고 새로 시작하면(동기화의 취소 후 재시작) `ExistingWorkPolicy.REPLACE`, 진행 중인 작업을 두고 새 요청을 버리면(파일 올리기의 한 번에 한 파일) `ExistingWorkPolicy.KEEP`으로 넣는다.
@@ -69,7 +69,7 @@ override suspend fun doWork(): Result =
 
 ## 코루틴 예약기
 
-즉시 실행 예약기는 Android 외 모든 플랫폼(iOS 포함), 주기 예약기는 JVM 데스크톱·웹에서 쓴다.
+즉시 실행 예약기는 Android 외 모든 플랫폼(iOS 포함)에서 쓴다. Android에서도 스펙이 앱이 화면 앞에 있는 동안만 진행을 보장하도록 정한 작업은 `WorkManager` 대신 즉시 실행 예약기를 쓴다. 예: `work:music-download`([음악 다운로드](../../docs/spec/client/music-download.md)의 `진행 유지 범위`). 주기 예약기는 JVM 데스크톱·웹에서 쓴다.
 
 - 작업마다 전용 `CoroutineScope`를 Koin `@Single`로 둔다. `SupervisorJob`과 빈 `CoroutineExceptionHandler`를 붙여 한 작업의 실패가 다른 작업이나 앱을 죽이지 않게 한다. 화면 수명과 무관해야 하므로 ViewModel의 스코프를 쓰지 않는다.
 - 주기 예약기는 한 주기의 실패를 잡고 다음 주기를 계속 기다린다. 스펙이 주기 동기화가 실패해도 예약은 해제되지 않는다고 정했다.
