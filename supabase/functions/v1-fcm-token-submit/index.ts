@@ -1,13 +1,11 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { fcmTokenSubmitRequestSchema } from "../_shared/fcm-token.ts";
 import { HttpError, servePost } from "../_shared/http.ts";
-import { createUserClient } from "../_shared/supabase.ts";
+import { createPublicClient, createUserClient } from "../_shared/supabase.ts";
 
 servePost(fcmTokenSubmitRequestSchema, async (payload, request) => {
-  const client = createUserClient(request);
-
   if (payload.timeZone != null && payload.language != null) {
-    const { error } = await client.rpc("register_fcm_token", {
+    const { error } = await createUserClient(request).rpc("register_fcm_token", {
       token: payload.token,
       time_zone: payload.timeZone,
       language: payload.language,
@@ -21,7 +19,8 @@ servePost(fcmTokenSubmitRequestSchema, async (payload, request) => {
     return {};
   }
 
-  const { error } = await client.rpc("unregister_fcm_token", { token: payload.token });
+  // 해제는 게스트가 세션 없이 보내므로 Authorization을 요구하지 않는다.
+  const { error } = await createPublicClient(request).rpc("unregister_fcm_token", { token: payload.token });
 
   if (error) {
     console.error("unregister_fcm_token failed", error);

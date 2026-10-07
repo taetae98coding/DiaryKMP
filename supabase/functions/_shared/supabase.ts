@@ -22,6 +22,24 @@ export function createUserClient(request: Request) {
   });
 }
 
+// 세션 없이 프로젝트 키만으로 부르는 요청용이다. 게스트 앱은 세션이 없어 Authorization 없이 apikey만 보낸다.
+export function createPublicClient(request: Request) {
+  const url = Deno.env.get("SUPABASE_URL");
+  const apiKey = request.headers.get("apikey");
+
+  if (!url || !apiKey) {
+    throw new HttpError(401, "unauthorized");
+  }
+
+  return createClient(url, apiKey, {
+    auth: {
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+      persistSession: false,
+    },
+  });
+}
+
 export async function requireUserId(client: SupabaseClient, request: Request): Promise<string> {
   const accessToken = request.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
 
