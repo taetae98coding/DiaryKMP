@@ -7,6 +7,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.GeminiSettingLocalEntity
 import io.github.taetae98coding.diary.core.datastore.impl.GeminiSettingData
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -44,7 +45,7 @@ class GeminiSettingLocalDataSourceImplTest :
         test("보관된 설정이 바뀌면 바뀐 설정을 이어서 제공한다") {
             val settingFlow = MutableStateFlow(GeminiSettingData())
             val dataSource = GeminiSettingLocalDataSourceImpl(dataStore = mockDataStore(settingFlow))
-            val entity = fixtureMonkey.giveMeOne<GeminiSettingLocalEntity>()
+            val entity = fixtureMonkey.giveMeOne<GeminiSettingLocalEntity>().copy(apiKey = fixtureMonkey.nonBlankString())
 
             dataSource.get().test {
                 awaitItem() shouldBe GeminiSettingLocalEntity(apiKey = "", model = "", systemPrompt = "")

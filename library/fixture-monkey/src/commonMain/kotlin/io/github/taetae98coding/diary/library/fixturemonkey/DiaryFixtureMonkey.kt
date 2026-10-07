@@ -8,6 +8,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMeBuilder
 import net.jqwik.api.Arbitraries
 import net.jqwik.api.Arbitrary
 import kotlin.time.Instant
+import kotlin.uuid.Uuid
 
 // 1970-01-01부터 2100-01-01까지. 저장과 직렬화를 거쳐도 뜻이 남는 범위다.
 private const val MIN_EPOCH_SECONDS = 0L
@@ -24,6 +25,7 @@ public fun diaryFixtureMonkeyBuilder(): FixtureMonkeyBuilder =
         .plugin(KotlinPlugin())
         .plugin(KotlinxDateTimePlugin())
         .registerInstant()
+        .registerUuid()
 
 public fun diaryFixtureMonkey(): FixtureMonkey = diaryFixtureMonkeyBuilder().build()
 
@@ -66,6 +68,21 @@ private fun FixtureMonkeyBuilder.registerInstant(): FixtureMonkeyBuilder =
                 .between(MIN_EPOCH_SECONDS, MAX_EPOCH_SECONDS)
                 .map(Instant::fromEpochSeconds)
         val builder: ArbitraryBuilder<Instant> = fixtureMonkey.giveMeBuilder<Instant>().set("$", instant)
+
+        builder
+    }
+
+/**
+ * [Uuid]를 [Uuid.random]으로 만든다.
+ *
+ * FixtureMonkey가 [Uuid]를 직접 만들면 0 근처에 몰린 두 Long으로 채워 `00000000-0000-006b-…` 같은 값이 나오고,
+ * 서로 다른 식별자를 기대한 두 값이 실제보다 훨씬 자주 같아진다. 저장소 전체 실행 한 번에 약 0.5%의 확률로
+ * 어떤 테스트의 식별자가 겹친다.
+ */
+private fun FixtureMonkeyBuilder.registerUuid(): FixtureMonkeyBuilder =
+    register(Uuid::class.java) { fixtureMonkey: FixtureMonkey ->
+        val uuid: Arbitrary<Uuid> = Arbitraries.create { Uuid.random() }
+        val builder: ArbitraryBuilder<Uuid> = fixtureMonkey.giveMeBuilder<Uuid>().set("$", uuid)
 
         builder
     }

@@ -6,12 +6,14 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import com.navercorp.fixturemonkey.kotlin.setExp
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveAtLeastSize
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeGreaterThanOrEqualTo
 import io.kotest.matchers.comparables.shouldBeLessThanOrEqualTo
 import io.kotest.matchers.shouldBe
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import kotlin.time.Instant
+import kotlin.uuid.Uuid
 
 private const val SAMPLE_COUNT = 1_000
 private const val MIN_DISTINCT_COUNT = 100
@@ -65,6 +67,26 @@ class DiaryFixtureMonkeyTest :
             }
         }
 
+        test("Uuid를 담은 타입의 Uuid도 겹치지 않게 만든다") {
+            val uuidList = List(SAMPLE_COUNT) { fixtureMonkey.giveMeOne<UuidHolder>().uuid }
+
+            uuidList.distinct() shouldHaveSize SAMPLE_COUNT
+        }
+
+        test("고정한 Uuid는 그대로 유지한다") {
+            val uuid = Uuid.random()
+
+            repeat(SAMPLE_COUNT) {
+                val holder =
+                    fixtureMonkey
+                        .giveMeKotlinBuilder<UuidHolder>()
+                        .setExp(UuidHolder::uuid, uuid)
+                        .sample()
+
+                holder.uuid shouldBe uuid
+            }
+        }
+
         test("nonBlankString은 비어 있지도 공백만 있지도 않은 문자열을 만든다") {
             repeat(SAMPLE_COUNT) {
                 fixtureMonkey.nonBlankString().isNotBlank() shouldBe true
@@ -112,4 +134,8 @@ internal data class DateRangeHolder(
 
 internal data class InstantHolder(
     val instant: Instant,
+)
+
+internal data class UuidHolder(
+    val uuid: Uuid,
 )

@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.core.testing.place.coordinateInFormPrecisi
 import io.github.taetae98coding.diary.domain.place.repository.GooglePlaceSearchRepository
 import io.github.taetae98coding.diary.domain.place.repository.NaverPlaceSearchRepository
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.doubles.plusOrMinus
 import io.kotest.matchers.nulls.shouldBeNull
@@ -332,7 +333,8 @@ class FetchSearchedPlaceUseCaseTest :
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
 
-        private fun query(): String = "검색어-${fixtureMonkey.giveMeOne<String>()}"
+        // 끝에 공백 문자가 뽑히면 검색어를 다듬은 값과 달라지므로 다듬어도 그대로인 검색어를 만든다.
+        private fun query(): String = "검색어-${fixtureMonkey.nonBlankString().trim()}"
 
         private fun searchedPlace(): SearchedPlace =
             fixtureMonkey

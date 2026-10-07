@@ -24,6 +24,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.FindTagUseCase
 import io.github.taetae98coding.diary.feature.tag.ui.appendFailingPagingData
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
@@ -378,6 +379,8 @@ class TagMemoFinishedListViewModelTest : FunSpec() {
             .giveMeKotlinBuilder<Tag>()
             .setExp(Tag::isFinished, isFinished)
             .setExp(Tag::isDeleted, isDeleted)
+            // 이모지와 제목이 모두 비면 화면 상태가 초깃값과 같아져 새 상태가 전달되지 않는다.
+            .setExp(Tag::detail, tagDetail(emoji = fixtureMonkey.giveMeOne(), title = fixtureMonkey.nonBlankString()))
             .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
             .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
             .sample()

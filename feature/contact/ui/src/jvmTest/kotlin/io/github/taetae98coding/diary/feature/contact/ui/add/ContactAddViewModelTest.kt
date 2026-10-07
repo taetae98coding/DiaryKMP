@@ -46,8 +46,8 @@ class ContactAddViewModelTest : FunSpec() {
 
         test("TC-CONTACT-ADD-DOMAIN-008 추가 처리 중 전달된 추가 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
-                val firstDetail = detail()
-                val secondDetail = detail()
+                val firstDetail = detail(name = "first-${fixtureMonkey.giveMeOne<String>()}")
+                val secondDetail = detail(name = "second-${fixtureMonkey.giveMeOne<String>()}")
                 val completion = CompletableDeferred<Result<Uuid>>()
                 val useCase = mockk<AddContactUseCase>()
                 coEvery { useCase(any()) } coAnswers { completion.await() }
@@ -180,8 +180,8 @@ class ContactAddViewModelTest : FunSpec() {
 
         test("추가가 취소되면 진행 상태를 해제하고 다시 추가할 수 있다") {
             runTest(mainDispatcher) {
-                val firstDetail = detail()
-                val secondDetail = detail()
+                val firstDetail = detail(name = "first-${fixtureMonkey.giveMeOne<String>()}")
+                val secondDetail = detail(name = "second-${fixtureMonkey.giveMeOne<String>()}")
                 val useCase = mockk<AddContactUseCase>()
                 coEvery { useCase(AddContactUseCase.Parameter(detail = firstDetail)) } throws CancellationException()
                 coEvery { useCase(AddContactUseCase.Parameter(detail = secondDetail)) } returns Result.success(fixtureMonkey.giveMeOne<Uuid>())
