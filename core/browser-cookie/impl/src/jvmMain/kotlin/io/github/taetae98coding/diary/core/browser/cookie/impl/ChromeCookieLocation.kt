@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.core.browser.cookie.impl
 import io.github.taetae98coding.diary.library.applicationsupport.applicationSupportDirectory
 import io.github.taetae98coding.diary.library.applicationsupport.userHomeDirectory
 import java.nio.file.Path
+import kotlin.io.path.Path
 
 private const val CHROME_DIRECTORY_NAME = "Google/Chrome"
 private const val COOKIES_FILE_NAME = "Cookies"
@@ -12,6 +13,7 @@ private const val MAC_OS_NAME_KEYWORD = "mac"
 internal data class ChromeCookieLocation(
     val isSupported: Boolean,
     val userDataDirectory: Path,
+    val snapshotParentDirectory: Path,
 ) {
     val localStatePath: Path
         get() = userDataDirectory.resolve(LOCAL_STATE_FILE_NAME)
@@ -26,6 +28,7 @@ internal data class ChromeCookieLocation(
             ChromeCookieLocation(
                 isSupported = osName.lowercase().contains(MAC_OS_NAME_KEYWORD),
                 userDataDirectory = applicationSupportDirectory(directoryName = CHROME_DIRECTORY_NAME, userHome = userHome),
+                snapshotParentDirectory = Path(System.getProperty("java.io.tmpdir")),
             )
     }
 }

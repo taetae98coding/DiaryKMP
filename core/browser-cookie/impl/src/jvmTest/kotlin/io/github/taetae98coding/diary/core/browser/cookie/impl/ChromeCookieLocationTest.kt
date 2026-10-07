@@ -27,4 +27,9 @@ class ChromeCookieLocationTest :
                 Paths.get("/Users/user/Library/Application Support/Google/Chrome/Profile 1/Cookies")
             location.localStatePath shouldBe Paths.get("/Users/user/Library/Application Support/Google/Chrome/Local State")
         }
+
+        test("쿠키 저장소의 복사본은 시스템 임시 폴더 아래에 만든다") {
+            ChromeCookieLocation.current(osName = "Mac OS X", userHome = Paths.get("/Users/user")).snapshotParentDirectory shouldBe
+                Paths.get(System.getProperty("java.io.tmpdir"))
+        }
     })

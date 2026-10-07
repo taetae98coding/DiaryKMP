@@ -6,9 +6,13 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.Dispatchers
 import java.nio.file.Path
+import java.nio.file.Paths
 import kotlin.io.path.createDirectory
 import kotlin.io.path.createTempDirectory
 import kotlin.io.path.writeText
+
+// 프로필 목록은 쿠키 저장소를 복사하지 않으므로 복사본 위치를 쓰지 않는다.
+private val UNUSED_SNAPSHOT_PARENT_DIRECTORY: Path = Paths.get("/nonexistent")
 
 class ChromeProfileLocalDataSourceImplTest :
     FunSpec({
@@ -38,7 +42,7 @@ class ChromeProfileLocalDataSourceImplTest :
         test("TC-CHROME-SESSION-IMPORT-DATA-011 프로필 정보 파일이 없으면 실패로 알린다") {
             val dataSource =
                 ChromeProfileLocalDataSourceImpl(
-                    location = ChromeCookieLocation(isSupported = true, userDataDirectory = createTempDirectory("diary-chrome-missing")),
+                    location = ChromeCookieLocation(isSupported = true, userDataDirectory = createTempDirectory("diary-chrome-missing"), snapshotParentDirectory = UNUSED_SNAPSHOT_PARENT_DIRECTORY),
                     dispatcher = Dispatchers.Default,
                 )
 
@@ -51,7 +55,7 @@ class ChromeProfileLocalDataSourceImplTest :
             userDataDirectory.resolve("Local State").createDirectory()
             val dataSource =
                 ChromeProfileLocalDataSourceImpl(
-                    location = ChromeCookieLocation(isSupported = true, userDataDirectory = userDataDirectory),
+                    location = ChromeCookieLocation(isSupported = true, userDataDirectory = userDataDirectory, snapshotParentDirectory = UNUSED_SNAPSHOT_PARENT_DIRECTORY),
                     dispatcher = Dispatchers.Default,
                 )
 
@@ -71,7 +75,7 @@ private fun dataSource(localState: String): ChromeProfileLocalDataSourceImpl {
     userDataDirectory.resolve("Local State").writeText(localState)
 
     return ChromeProfileLocalDataSourceImpl(
-        location = ChromeCookieLocation(isSupported = true, userDataDirectory = userDataDirectory),
+        location = ChromeCookieLocation(isSupported = true, userDataDirectory = userDataDirectory, snapshotParentDirectory = UNUSED_SNAPSHOT_PARENT_DIRECTORY),
         dispatcher = Dispatchers.Default,
     )
 }

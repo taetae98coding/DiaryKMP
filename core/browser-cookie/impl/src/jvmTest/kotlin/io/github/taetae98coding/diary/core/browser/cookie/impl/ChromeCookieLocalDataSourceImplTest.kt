@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalPathApi::class)
+
 package io.github.taetae98coding.diary.core.browser.cookie.impl
 
 import com.navercorp.fixturemonkey.FixtureMonkey
@@ -7,6 +9,7 @@ import io.github.taetae98coding.diary.core.browser.cookie.api.entity.BrowserCook
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
@@ -15,25 +18,35 @@ import kotlinx.coroutines.Dispatchers
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.createTempDirectory
+import kotlin.io.path.deleteRecursively
 import kotlin.io.path.listDirectoryEntries
-import kotlin.io.path.name
 import kotlin.io.path.readBytes
 import kotlin.time.Instant
 
 private val fixtureMonkey: FixtureMonkey =
     diaryFixtureMonkey()
 
-private const val SNAPSHOT_DIRECTORY_PREFIX = "diary-chrome-cookies"
 private const val PROFILE_DIRECTORY = "Default"
 
 class ChromeCookieLocalDataSourceImplTest :
     FunSpec({
+        lateinit var snapshotParentDirectory: Path
+
+        beforeTest {
+            snapshotParentDirectory = createTempDirectory("diary-chrome-snapshot-test")
+        }
+
+        afterTest {
+            snapshotParentDirectory.deleteRecursively()
+        }
+
         test("TC-CHROME-SESSION-IMPORT-DATA-001 암호화된 쿠키 값을 풀어 제공한다") {
             val key = randomAesKey()
             val value = "value-${fixtureMonkey.giveMeOne<String>()}"
             val database = createDatabase(ChromeCookieTestRow(hostKey = ".example.com", name = "session", encryptedValue = encryptChromeCookieValue(value, ".example.com", key)))
-            val dataSource = dataSource(userDataDirectory = database, key = key)
+            val dataSource = dataSource(snapshotParentDirectory = snapshotParentDirectory, userDataDirectory = database, key = key)
 
             val cookieList = dataSource.readCookieList(profileDirectory = PROFILE_DIRECTORY)
 
@@ -42,7 +55,7 @@ class ChromeCookieLocalDataSourceImplTest :
 
         test("TC-CHROME-SESSION-IMPORT-DATA-013 암호화되지 않은 쿠키 값은 그대로 제공하고 키체인을 읽지 않는다") {
             val database = createDatabase(ChromeCookieTestRow(hostKey = "example.com", name = "plain", value = "plain-value"))
-            val dataSource = dataSource(userDataDirectory = database, keyProvider = { error("keychain must not be read") })
+            val dataSource = dataSource(snapshotParentDirectory = snapshotParentDirectory, userDataDirectory = database, keyProvider = { error("keychain must not be read") })
 
             dataSource.readCookieList(profileDirectory = PROFILE_DIRECTORY).map { cookie -> cookie.value } shouldBe listOf("plain-value")
         }
@@ -55,7 +68,7 @@ class ChromeCookieLocalDataSourceImplTest :
                     ChromeCookieTestRow(hostKey = ".example.com", name = "domain", encryptedValue = encryptChromeCookieValue("2", ".example.com", key)),
                     ChromeCookieTestRow(hostKey = "other.example.org", name = "other", encryptedValue = encryptChromeCookieValue("3", "other.example.org", key)),
                 )
-            val dataSource = dataSource(userDataDirectory = database, key = key)
+            val dataSource = dataSource(snapshotParentDirectory = snapshotParentDirectory, userDataDirectory = database, key = key)
 
             val cookieList = dataSource.readCookieList(profileDirectory = PROFILE_DIRECTORY)
 
@@ -75,7 +88,7 @@ class ChromeCookieLocalDataSourceImplTest :
                         topFrameSiteKey = "https://top.example.org",
                     ),
                 )
-            val dataSource = dataSource(userDataDirectory = database, key = key)
+            val dataSource = dataSource(snapshotParentDirectory = snapshotParentDirectory, userDataDirectory = database, key = key)
 
             dataSource.readCookieList(profileDirectory = PROFILE_DIRECTORY).map { cookie -> cookie.name } shouldBe listOf("normal")
         }
@@ -100,7 +113,7 @@ class ChromeCookieLocalDataSourceImplTest :
                         .map { (row, _) -> row.copy(encryptedValue = encryptChromeCookieValue(row.name, row.hostKey, key)) }
                         .toTypedArray(),
                 )
-            val dataSource = dataSource(userDataDirectory = database, key = key)
+            val dataSource = dataSource(snapshotParentDirectory = snapshotParentDirectory, userDataDirectory = database, key = key)
 
             val cookieList = dataSource.readCookieList(profileDirectory = PROFILE_DIRECTORY)
 
@@ -126,7 +139,7 @@ class ChromeCookieLocalDataSourceImplTest :
                     ChromeCookieTestRow(hostKey = ".example.com", name = "valid", encryptedValue = encryptChromeCookieValue("1", ".example.com", key)),
                     ChromeCookieTestRow(hostKey = ".example.com", name = "moved", encryptedValue = encryptChromeCookieValue("2", ".other.com", key)),
                 )
-            val dataSource = dataSource(userDataDirectory = database, key = key)
+            val dataSource = dataSource(snapshotParentDirectory = snapshotParentDirectory, userDataDirectory = database, key = key)
 
             dataSource.readCookieList(profileDirectory = PROFILE_DIRECTORY).map { cookie -> cookie.name } shouldBe listOf("valid")
         }
@@ -138,7 +151,7 @@ class ChromeCookieLocalDataSourceImplTest :
                     ChromeCookieTestRow(hostKey = ".example.com", name = "legacy", encryptedValue = encryptChromeCookieValue("1", ".example.com", key, withDomainHash = false)),
                     version = CHROME_DATABASE_VERSION - 1,
                 )
-            val dataSource = dataSource(userDataDirectory = database, key = key)
+            val dataSource = dataSource(snapshotParentDirectory = snapshotParentDirectory, userDataDirectory = database, key = key)
 
             dataSource.readCookieList(profileDirectory = PROFILE_DIRECTORY).map { cookie -> cookie.value } shouldBe listOf("1")
         }
@@ -146,7 +159,7 @@ class ChromeCookieLocalDataSourceImplTest :
         test("TC-CHROME-SESSION-IMPORT-DATA-005 암호화 키를 얻지 못하면 실패로 알린다") {
             val key = randomAesKey()
             val database = createDatabase(ChromeCookieTestRow(hostKey = ".example.com", name = "session", encryptedValue = encryptChromeCookieValue("1", ".example.com", key)))
-            val dataSource = dataSource(userDataDirectory = database, keyProvider = { error("keychain denied") })
+            val dataSource = dataSource(snapshotParentDirectory = snapshotParentDirectory, userDataDirectory = database, keyProvider = { error("keychain denied") })
 
             shouldThrow<IllegalStateException> {
                 dataSource.readCookieList(profileDirectory = PROFILE_DIRECTORY)
@@ -154,7 +167,7 @@ class ChromeCookieLocalDataSourceImplTest :
         }
 
         test("TC-CHROME-SESSION-IMPORT-DATA-006 쿠키 저장소가 없으면 실패로 알린다") {
-            val dataSource = dataSource(userDataDirectory = createTempDirectory("diary-missing"), key = randomAesKey())
+            val dataSource = dataSource(snapshotParentDirectory = snapshotParentDirectory, userDataDirectory = createTempDirectory("diary-missing"), key = randomAesKey())
 
             shouldThrow<IllegalStateException> {
                 dataSource.readCookieList(profileDirectory = PROFILE_DIRECTORY)
@@ -165,12 +178,11 @@ class ChromeCookieLocalDataSourceImplTest :
             val key = randomAesKey()
             val database = createDatabase(ChromeCookieTestRow(hostKey = ".example.com", name = "session", encryptedValue = encryptChromeCookieValue("1", ".example.com", key)))
             val originalBytes = database.resolve(PROFILE_DIRECTORY).resolve("Cookies").readBytes()
-            val snapshotCountBefore = snapshotDirectoryCount()
-            val dataSource = dataSource(userDataDirectory = database, key = key)
+            val dataSource = dataSource(snapshotParentDirectory = snapshotParentDirectory, userDataDirectory = database, key = key)
 
             dataSource.readCookieList(profileDirectory = PROFILE_DIRECTORY) shouldHaveSize 1
 
-            snapshotDirectoryCount() shouldBe snapshotCountBefore
+            snapshotParentDirectory.listDirectoryEntries().shouldBeEmpty()
             database.resolve(PROFILE_DIRECTORY).resolve("Cookies").readBytes() shouldBe originalBytes
         }
 
@@ -178,7 +190,7 @@ class ChromeCookieLocalDataSourceImplTest :
             listOf(true, false).forEach { isSupported ->
                 val dataSource =
                     ChromeCookieLocalDataSourceImpl(
-                        location = ChromeCookieLocation(isSupported = isSupported, userDataDirectory = Paths.get("/nonexistent")),
+                        location = ChromeCookieLocation(isSupported = isSupported, userDataDirectory = Paths.get("/nonexistent"), snapshotParentDirectory = snapshotParentDirectory),
                         keyProvider = { randomAesKey() },
                         dispatcher = Dispatchers.Default,
                     )
@@ -192,14 +204,14 @@ class ChromeCookieLocalDataSourceImplTest :
             val otherPath = userDataDirectory.resolve("Profile 1").resolve("Cookies")
             Files.createDirectories(otherPath.parent)
             createChromeCookieDatabase(path = otherPath, rowList = listOf(ChromeCookieTestRow(hostKey = "example.com", name = "other", value = "2")))
-            val dataSource = dataSource(userDataDirectory = userDataDirectory, key = randomAesKey())
+            val dataSource = dataSource(snapshotParentDirectory = snapshotParentDirectory, userDataDirectory = userDataDirectory, key = randomAesKey())
 
             dataSource.readCookieList(profileDirectory = "Profile 1").map { cookie -> cookie.name } shouldBe listOf("other")
         }
 
         test("만료 시각이 없는 쿠키는 만료 시각 없음으로 제공한다") {
             val database = createDatabase(ChromeCookieTestRow(hostKey = "example.com", name = "session", value = "1", expiresAt = null))
-            val dataSource = dataSource(userDataDirectory = database, key = randomAesKey())
+            val dataSource = dataSource(snapshotParentDirectory = snapshotParentDirectory, userDataDirectory = database, key = randomAesKey())
 
             dataSource
                 .readCookieList(profileDirectory = PROFILE_DIRECTORY)
@@ -224,22 +236,18 @@ private fun createDatabase(
 }
 
 private fun dataSource(
+    snapshotParentDirectory: Path,
     userDataDirectory: Path,
     key: ByteArray,
-): ChromeCookieLocalDataSourceImpl = dataSource(userDataDirectory = userDataDirectory, keyProvider = { key })
+): ChromeCookieLocalDataSourceImpl = dataSource(snapshotParentDirectory = snapshotParentDirectory, userDataDirectory = userDataDirectory, keyProvider = { key })
 
 private fun dataSource(
+    snapshotParentDirectory: Path,
     userDataDirectory: Path,
     keyProvider: ChromeCookieKeyProvider,
 ): ChromeCookieLocalDataSourceImpl =
     ChromeCookieLocalDataSourceImpl(
-        location = ChromeCookieLocation(isSupported = true, userDataDirectory = userDataDirectory),
+        location = ChromeCookieLocation(isSupported = true, userDataDirectory = userDataDirectory, snapshotParentDirectory = snapshotParentDirectory),
         keyProvider = keyProvider,
         dispatcher = Dispatchers.Default,
     )
-
-private fun snapshotDirectoryCount(): Int =
-    Paths
-        .get(System.getProperty("java.io.tmpdir"))
-        .listDirectoryEntries()
-        .count { path -> path.name.startsWith(SNAPSHOT_DIRECTORY_PREFIX) && Files.isDirectory(path) }

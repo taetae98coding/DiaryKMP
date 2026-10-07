@@ -26,10 +26,13 @@ internal class ChromeCookieSnapshot private constructor(
     }
 
     companion object {
-        fun create(cookiesPath: Path): ChromeCookieSnapshot {
+        fun create(
+            cookiesPath: Path,
+            parentDirectory: Path,
+        ): ChromeCookieSnapshot {
             check(cookiesPath.exists()) { "Chrome cookies database does not exist: $cookiesPath" }
 
-            val directory = Files.createTempDirectory(SNAPSHOT_DIRECTORY_PREFIX)
+            val directory = Files.createTempDirectory(parentDirectory, SNAPSHOT_DIRECTORY_PREFIX)
             val databasePath = directory.resolve(cookiesPath.name)
 
             try {

@@ -48,7 +48,11 @@ internal class ChromeCookieLocalDataSourceImpl(
     override suspend fun readCookieList(profileDirectory: String): List<BrowserCookieLocalEntity> {
         val (databaseVersion, rowList) =
             withContext(dispatcher) {
-                val snapshot = ChromeCookieSnapshot.create(cookiesPath = location.cookiesPath(profileDirectory = profileDirectory))
+                val snapshot =
+                    ChromeCookieSnapshot.create(
+                        cookiesPath = location.cookiesPath(profileDirectory = profileDirectory),
+                        parentDirectory = location.snapshotParentDirectory,
+                    )
 
                 try {
                     BundledSQLiteDriver().open(snapshot.databasePath.toString()).use { connection ->
