@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.compose.calendar.CalendarState
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.shouldBe
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
@@ -42,9 +43,12 @@ class CalendarHomeScaffoldStateTest :
                     datePickerDialogState = DialogState(),
                 )
 
+            // 갱신하는 순간과 기대값을 구하는 순간 사이에 자정이 지날 수 있어 앞뒤의 오늘을 모두 허용한다.
+            val todayBefore = Clock.System.todayIn(TimeZone.currentSystemDefault())
             state.updateToday()
+            val todayAfter = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
-            state.today shouldBe Clock.System.todayIn(TimeZone.currentSystemDefault())
+            state.today shouldBeIn listOf(todayBefore, todayAfter)
         }
 
         test("showDatePicker는 현재 표시 중인 달의 1일로 날짜 선택 다이얼로그를 표시한다") {
