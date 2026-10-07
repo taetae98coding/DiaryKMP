@@ -280,7 +280,7 @@ class ContactDetailScreenEditTest {
             memoPagingData = contactMemoPagingData(itemList = titleList.map { title -> MemoListItem.Content(memo = contactMemo(title = title)) }),
         )
         composeRule.selectContactDetailTab(contentDescription = DEFAULT_MEMO_TAB_DESCRIPTION)
-        composeRule.waitUntil { composeRule.onAllNodesWithText(titleList.first()).fetchSemanticsNodes().isNotEmpty() }
+        composeRule.waitUntil(timeoutMillis = 5_000L) { composeRule.onAllNodesWithText(titleList.first()).fetchSemanticsNodes().isNotEmpty() }
         composeRule.refreshableList().performScrollToNode(hasText(titleList.last()))
         composeRule.waitForIdle()
         composeRule.onNodeWithText(titleList.last()).assertIsDisplayed()

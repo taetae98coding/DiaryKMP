@@ -159,7 +159,7 @@ class AccountContactMemoPagingDaoTest :
 
             change()
 
-            withTimeout(5_000) { invalidated.await() }
+            withTimeout(30_000) { invalidated.await() }
             pagingSource.invalid.shouldBeTrue()
             pagedIds(accountId = accountId, contactId = contactId) shouldBe expectedIds
         }

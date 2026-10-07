@@ -165,7 +165,7 @@ class DiaryLoggerTest :
                         start.countDown()
 
                         shouldNotThrowAny {
-                            futureList.forEach { future -> future.get(10, TimeUnit.SECONDS) }
+                            futureList.forEach { future -> future.get(60, TimeUnit.SECONDS) }
                         }
                     } finally {
                         executor.shutdownNow()

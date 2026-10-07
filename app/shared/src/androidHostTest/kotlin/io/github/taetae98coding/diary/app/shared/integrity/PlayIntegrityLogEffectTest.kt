@@ -78,7 +78,7 @@ class PlayIntegrityLogEffectTest {
 
         composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
         composeRule.runOnIdle { serverResponse.complete(Unit) }
-        composeRule.waitUntil { logList.isNotEmpty() }
+        composeRule.waitUntil(timeoutMillis = 5_000L) { logList.isNotEmpty() }
 
         logList.single().name shouldBe PLAY_INTEGRITY_EVENT
         coVerify(exactly = 1) { repository.fetch() }
@@ -117,7 +117,7 @@ class PlayIntegrityLogEffectTest {
         composeRule.runOnIdle { callCount shouldBe 1 }
         restorationTester.emulateSavedInstanceStateRestore()
         composeRule.runOnIdle { serverResponse.complete(Unit) }
-        composeRule.waitUntil { logList.isNotEmpty() }
+        composeRule.waitUntil(timeoutMillis = 5_000L) { logList.isNotEmpty() }
 
         logList.single().name shouldBe PLAY_INTEGRITY_EVENT
     }

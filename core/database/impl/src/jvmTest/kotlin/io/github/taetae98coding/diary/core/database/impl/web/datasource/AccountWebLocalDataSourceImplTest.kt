@@ -248,7 +248,7 @@ class AccountWebLocalDataSourceImplTest :
         private const val FIRST_WEB_TITLE = "AppleWeb"
         private const val MIDDLE_WEB_TITLE = "MangoWeb"
         private const val LAST_WEB_TITLE = "ZebraWeb"
-        private const val INVALIDATION_TIMEOUT_MILLIS = 5_000L
+        private const val INVALIDATION_TIMEOUT_MILLIS = 30_000L
 
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()

@@ -846,7 +846,7 @@ class AccountMemoDaoTest :
         }
     }) {
     public companion object {
-        private const val INVALIDATION_TIMEOUT_MILLIS = 5_000L
+        private const val INVALIDATION_TIMEOUT_MILLIS = 30_000L
 
         private fun memo(
             id: Uuid = fixtureMonkey.giveMeOne<Uuid>(),

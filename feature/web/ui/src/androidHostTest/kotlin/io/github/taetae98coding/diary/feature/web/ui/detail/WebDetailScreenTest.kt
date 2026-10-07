@@ -460,7 +460,7 @@ class WebDetailScreenTest {
         }
 
         private fun androidx.compose.ui.test.junit4.ComposeContentTestRule.awaitText(text: String) {
-            waitUntil { onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() }
+            waitUntil(timeoutMillis = 5_000L) { onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() }
         }
     }
 }

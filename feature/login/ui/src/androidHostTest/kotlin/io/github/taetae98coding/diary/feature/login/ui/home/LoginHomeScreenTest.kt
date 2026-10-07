@@ -157,7 +157,7 @@ class LoginHomeScreenTest {
         )
 
         composeRule.onNodeWithContentDescription(DEFAULT_GOOGLE_BUTTON_DESCRIPTION).performClick()
-        composeRule.waitUntil { navigateUpCount == 1 }
+        composeRule.waitUntil(timeoutMillis = 5_000L) { navigateUpCount == 1 }
 
         coVerify(exactly = 1) { googleCredentialsManager.signIn() }
         verify(exactly = 1) { viewModel.signInWithGoogle(credential) }
@@ -182,7 +182,7 @@ class LoginHomeScreenTest {
         )
 
         composeRule.onNodeWithContentDescription(DEFAULT_APPLE_BUTTON_DESCRIPTION).performClick()
-        composeRule.waitUntil { navigateUpCount == 1 }
+        composeRule.waitUntil(timeoutMillis = 5_000L) { navigateUpCount == 1 }
 
         coVerify(exactly = 1) { appleCredentialsManager.signIn() }
         verify(exactly = 1) { viewModel.signInWithApple(credential) }

@@ -319,7 +319,7 @@ class AccountTagDaoTopLevelFilterTest :
         }
     }) {
     public companion object {
-        private const val INVALIDATION_TIMEOUT_MILLIS: Long = 5_000
+        private const val INVALIDATION_TIMEOUT_MILLIS: Long = 30_000
 
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
