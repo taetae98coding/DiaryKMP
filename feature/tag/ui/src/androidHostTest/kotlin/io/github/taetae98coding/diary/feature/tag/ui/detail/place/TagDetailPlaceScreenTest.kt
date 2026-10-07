@@ -30,11 +30,13 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureId
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
+import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagPlace
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldNotBeSameInstanceAs
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -47,6 +49,11 @@ import kotlin.uuid.Uuid
 class TagDetailPlaceScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-TAG-DETAIL-PLACE-FEATURE-006 대상 태그의 상태와 무관하게 장소 추가를 시작할 수 있다`() {

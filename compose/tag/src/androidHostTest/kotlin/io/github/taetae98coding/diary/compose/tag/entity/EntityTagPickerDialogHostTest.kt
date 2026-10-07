@@ -24,8 +24,10 @@ import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.tag.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,6 +40,11 @@ import kotlin.uuid.Uuid
 class EntityTagPickerDialogHostTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-ENTITY-TAG-INPUT-FEATURE-004 나타낼 태그가 있을 때 태그 추가 항목을 누르면 태그 선택 목록이 열린다`() {

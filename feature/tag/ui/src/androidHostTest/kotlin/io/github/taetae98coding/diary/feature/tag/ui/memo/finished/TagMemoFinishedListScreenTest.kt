@@ -24,6 +24,7 @@ import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.tag.ui.allDayMemoDateTime
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
+import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemoPagingData
 import io.kotest.matchers.shouldBe
@@ -35,6 +36,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,6 +51,11 @@ import java.util.TimeZone as JavaTimeZone
 class TagMemoFinishedListScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-010 완료된 메모가 하나도 없어도 화면을 사용할 수 있다`() {
