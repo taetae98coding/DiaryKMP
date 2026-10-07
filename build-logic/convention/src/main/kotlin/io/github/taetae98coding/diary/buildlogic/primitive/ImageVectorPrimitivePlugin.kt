@@ -16,6 +16,7 @@ internal class ImageVectorPrimitivePlugin : Plugin<Project> {
                     iconDirectory.set(layout.projectDirectory.dir("icons"))
                     packageName.set("${namespace()}.icon")
                     objectName.set("DiaryIcons")
+                    publicIconNames.convention(emptySet())
                     outputDirectory.set(layout.buildDirectory.dir("generated/imageVector"))
                 }
 

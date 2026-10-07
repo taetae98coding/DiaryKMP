@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.buildlogic.imagevector
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
@@ -25,6 +26,9 @@ public abstract class GenerateImageVectorTask : DefaultTask() {
 
     @get:Input
     public abstract val objectName: Property<String>
+
+    @get:Input
+    public abstract val publicIconNames: SetProperty<String>
 
     @get:OutputDirectory
     public abstract val outputDirectory: DirectoryProperty
@@ -51,15 +55,21 @@ public abstract class GenerateImageVectorTask : DefaultTask() {
 
         require(drawables.isNotEmpty()) { "no vector drawables in ${iconDirectory.get().asFile}" }
 
+        val publicIconNames = publicIconNames.get()
+        val unknownIconNames = publicIconNames - drawables.map { drawable -> drawable.nameWithoutExtension }.toSet()
+
+        require(unknownIconNames.isEmpty()) { "no vector drawables for public icons: $unknownIconNames" }
+
         packageDirectory
             .resolve("$objectName.kt")
             .writeText(objectSource(packageName, objectName))
 
         drawables.forEach { drawable ->
             val vector = VectorDrawable.parse(drawable)
+            val visibility = if (drawable.nameWithoutExtension in publicIconNames) "public" else "internal"
             packageDirectory
                 .resolve("${vector.name}.kt")
-                .writeText(vector.toSource(packageName, objectName))
+                .writeText(vector.toSource(packageName, objectName, visibility))
         }
     }
 
@@ -71,7 +81,7 @@ public abstract class GenerateImageVectorTask : DefaultTask() {
             appendLine(HEADER)
             appendLine("package $packageName")
             appendLine()
-            appendLine("internal object $objectName")
+            appendLine("public object $objectName")
         }
 
     private data class VectorDrawable(
@@ -86,9 +96,10 @@ public abstract class GenerateImageVectorTask : DefaultTask() {
         fun toSource(
             packageName: String,
             objectName: String,
+            visibility: String,
         ): String =
             buildString {
-                val body = bodySource(objectName)
+                val body = bodySource(objectName, visibility)
                 appendLine(HEADER)
                 appendLine("package $packageName")
                 appendLine()
@@ -99,9 +110,12 @@ public abstract class GenerateImageVectorTask : DefaultTask() {
                 append(body)
             }
 
-        private fun bodySource(objectName: String): String =
+        private fun bodySource(
+            objectName: String,
+            visibility: String,
+        ): String =
             buildString {
-                appendLine("internal val $objectName.$name: ImageVector")
+                appendLine("$visibility val $objectName.$name: ImageVector")
                 appendLine("    get() = ${name.replaceFirstChar(Char::lowercaseChar)}ImageVector")
                 appendLine()
                 appendLine("private val ${name.replaceFirstChar(Char::lowercaseChar)}ImageVector: ImageVector by lazy {")
