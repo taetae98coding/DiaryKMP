@@ -40,6 +40,13 @@ kotlin {
             }
         }
 
+        iosMain {
+            dependencies {
+                implementation(libs.koin.annotations)
+                implementation(libs.koin.compose.viewmodel)
+            }
+        }
+
         jvmMain {
             dependencies {
                 implementation(projects.library.webkit)
