@@ -49,6 +49,7 @@
 | `:core:*`, `:data:*`, `:work:*`의 DataSource·Repository 구현·매퍼 | [data.md](DIARY_AGENTS/rules/data.md) |
 | Room Entity, DAO, `@Query` | [room.md](DIARY_AGENTS/rules/room.md) |
 | `CoroutineWorker`·`WorkRequest`, `BGTaskScheduler`, 코루틴 예약기 | [work.md](DIARY_AGENTS/rules/work.md) |
+| `withContext`, `CoroutineDispatcher` 주입, 블로킹 작업(파일·프로세스·이미지·큰 계산·동기 시스템 호출) | [main-safety.md](DIARY_AGENTS/rules/main-safety.md) |
 | `build.gradle.kts`와 버전 카탈로그 | [gradle.md](DIARY_AGENTS/rules/gradle.md) |
 | `supabase/migrations`, `supabase/functions` | [supabase.md](DIARY_AGENTS/rules/supabase.md) |
 
