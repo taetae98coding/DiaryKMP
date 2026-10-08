@@ -14,9 +14,12 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.Month
@@ -46,16 +49,18 @@ class GetGoldenHolidayUseCaseHolidaySourceTest :
 
             When("2026년의 황금연휴를 조회한다") {
                 Then("앞뒤 년도 공휴일까지 이어 붙인 황금연휴가 나오고 그 밖의 년도는 조회하지 않는다") {
-                    goldenHolidayUseCase(repository)(parameter = parameter(year = 2026)).test {
-                        val optionList = awaitItem().shouldBeSuccess().flatMap { group -> group.optionList }
+                    runTest {
+                        goldenHolidayUseCase(holidayRepository = repository, dispatcher = StandardTestDispatcher(testScheduler))(parameter = parameter(year = 2026)).test {
+                            val optionList = awaitItem().shouldBeSuccess().flatMap { group -> group.optionList }
 
-                        optionList.first().dateRange.start shouldBe date(year = 2025, month = Month.DECEMBER, day = 31)
-                        optionList.last().dateRange.endInclusive shouldBe date(year = 2027, month = Month.JANUARY, day = 3)
-                        awaitComplete()
+                            optionList.first().dateRange.start shouldBe date(year = 2025, month = Month.DECEMBER, day = 31)
+                            optionList.last().dateRange.endInclusive shouldBe date(year = 2027, month = Month.JANUARY, day = 3)
+                            awaitComplete()
+                        }
+
+                        verify(exactly = 0) { repository.get(countrySet = KOREA_COUNTRY_SET, year = 2024) }
+                        verify(exactly = 0) { repository.get(countrySet = KOREA_COUNTRY_SET, year = 2028) }
                     }
-
-                    verify(exactly = 0) { repository.get(countrySet = KOREA_COUNTRY_SET, year = 2024) }
-                    verify(exactly = 0) { repository.get(countrySet = KOREA_COUNTRY_SET, year = 2028) }
                 }
             }
         }
@@ -69,18 +74,20 @@ class GetGoldenHolidayUseCaseHolidaySourceTest :
 
             When("2026년의 황금연휴를 계속 조회한다") {
                 Then("바뀐 공휴일로 다시 계산한 황금연휴를 이어서 제공한다") {
-                    goldenHolidayUseCase(repository)(parameter = parameter(year = YEAR)).test {
-                        awaitItem()
-                            .shouldBeSuccess()
-                            .singleOption()
-                            .dateRange.start shouldBe february(day = 6)
+                    runTest {
+                        goldenHolidayUseCase(holidayRepository = repository, dispatcher = StandardTestDispatcher(testScheduler))(parameter = parameter(year = YEAR)).test {
+                            awaitItem()
+                                .shouldBeSuccess()
+                                .singleOption()
+                                .dateRange.start shouldBe february(day = 6)
 
-                        holidayFlow.value = listOf(holiday(start = february(day = 13)))
+                            holidayFlow.value = listOf(holiday(start = february(day = 13)))
 
-                        awaitItem()
-                            .shouldBeSuccess()
-                            .singleOption()
-                            .dateRange.start shouldBe february(day = 13)
+                            awaitItem()
+                                .shouldBeSuccess()
+                                .singleOption()
+                                .dateRange.start shouldBe february(day = 13)
+                        }
                     }
                 }
             }
@@ -94,10 +101,12 @@ class GetGoldenHolidayUseCaseHolidaySourceTest :
 
             When("2026년의 황금연휴를 조회한다") {
                 Then("오류 없이 빈 황금연휴 목록이 나온다") {
-                    listOf(emptyRepository, failedRepository).forEach { repository ->
-                        goldenHolidayUseCase(repository)(parameter = parameter(year = YEAR)).test {
-                            awaitItem().shouldBeSuccess() shouldBe emptyList()
-                            awaitComplete()
+                    runTest {
+                        listOf(emptyRepository, failedRepository).forEach { repository ->
+                            goldenHolidayUseCase(holidayRepository = repository, dispatcher = StandardTestDispatcher(testScheduler))(parameter = parameter(year = YEAR)).test {
+                                awaitItem().shouldBeSuccess() shouldBe emptyList()
+                                awaitComplete()
+                            }
                         }
                     }
                 }
@@ -114,9 +123,11 @@ class GetGoldenHolidayUseCaseHolidaySourceTest :
 
             When("2026년의 황금연휴를 조회한다") {
                 Then("실패하지 않은 년도의 공휴일로 만든 황금연휴가 나온다") {
-                    goldenHolidayUseCase(repository)(parameter = parameter(year = YEAR)).test {
-                        awaitItem().shouldBeSuccess().singleOption().dateRange shouldBe february(day = 6)..february(day = 8)
-                        awaitComplete()
+                    runTest {
+                        goldenHolidayUseCase(holidayRepository = repository, dispatcher = StandardTestDispatcher(testScheduler))(parameter = parameter(year = YEAR)).test {
+                            awaitItem().shouldBeSuccess().singleOption().dateRange shouldBe february(day = 6)..february(day = 8)
+                            awaitComplete()
+                        }
                     }
                 }
             }
@@ -127,9 +138,13 @@ private const val YEAR = 2026
 
 private fun List<GoldenHolidayGroup>.singleOption(): GoldenHoliday = single().optionList.single()
 
-private fun goldenHolidayUseCase(holidayRepository: HolidayRepository): GetGoldenHolidayUseCase =
+private fun goldenHolidayUseCase(
+    holidayRepository: HolidayRepository,
+    dispatcher: CoroutineDispatcher,
+): GetGoldenHolidayUseCase =
     GetGoldenHolidayUseCase(
         getHolidayUseCase = GetHolidayUseCase(getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(), holidayRepository = holidayRepository),
+        dispatcher = dispatcher,
     )
 
 private fun parameter(year: Int): GetGoldenHolidayUseCase.Parameter = GetGoldenHolidayUseCase.Parameter(year = year, annualLeaveCount = 0)

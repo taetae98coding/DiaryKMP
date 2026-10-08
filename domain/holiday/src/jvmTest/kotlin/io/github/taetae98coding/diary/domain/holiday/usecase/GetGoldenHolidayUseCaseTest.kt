@@ -12,8 +12,11 @@ import io.kotest.matchers.result.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.Month
@@ -400,7 +403,7 @@ class GetGoldenHolidayUseCaseTest :
     })
 
 // 대안이 하나뿐인 규칙 검증에서는 각 항목의 유일한 대안을 그대로 본다.
-private suspend fun goldenHolidayList(
+private fun goldenHolidayList(
     year: Int = 2026,
     annualLeaveCount: Int,
     holidayList: List<Holiday>,
@@ -408,19 +411,31 @@ private suspend fun goldenHolidayList(
     goldenHolidayGroupList(year = year, annualLeaveCount = annualLeaveCount, holidayList = holidayList)
         .map { group -> group.optionList.single() }
 
-private suspend fun goldenHolidayGroupList(
+private fun goldenHolidayGroupList(
     year: Int = 2026,
     annualLeaveCount: Int,
     holidayList: List<Holiday>,
-): List<GoldenHolidayGroup> =
-    getGoldenHolidayUseCase(holidayRepository = holidayRepository(holidayList = holidayList))(
-        parameter = GetGoldenHolidayUseCase.Parameter(year = year, annualLeaveCount = annualLeaveCount),
-    ).first()
-        .shouldBeSuccess()
+): List<GoldenHolidayGroup> {
+    lateinit var groupList: List<GoldenHolidayGroup>
 
-private fun getGoldenHolidayUseCase(holidayRepository: HolidayRepository): GetGoldenHolidayUseCase =
+    runTest {
+        groupList =
+            getGoldenHolidayUseCase(holidayRepository = holidayRepository(holidayList = holidayList), dispatcher = StandardTestDispatcher(testScheduler))(
+                parameter = GetGoldenHolidayUseCase.Parameter(year = year, annualLeaveCount = annualLeaveCount),
+            ).first()
+                .shouldBeSuccess()
+    }
+
+    return groupList
+}
+
+private fun getGoldenHolidayUseCase(
+    holidayRepository: HolidayRepository,
+    dispatcher: CoroutineDispatcher,
+): GetGoldenHolidayUseCase =
     GetGoldenHolidayUseCase(
         getHolidayUseCase = GetHolidayUseCase(getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(), holidayRepository = holidayRepository),
+        dispatcher = dispatcher,
     )
 
 private fun holidayRepository(holidayList: List<Holiday>): HolidayRepository =
