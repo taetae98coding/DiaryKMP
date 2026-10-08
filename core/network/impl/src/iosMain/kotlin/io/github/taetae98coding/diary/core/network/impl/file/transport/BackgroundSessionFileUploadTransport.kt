@@ -14,12 +14,14 @@ import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.io.RawSource
@@ -29,7 +31,6 @@ import kotlinx.io.files.SystemFileSystem
 import platform.Foundation.NSCachesDirectory
 import platform.Foundation.NSData
 import platform.Foundation.NSError
-import platform.Foundation.NSFileManager
 import platform.Foundation.NSMutableData
 import platform.Foundation.NSMutableURLRequest
 import platform.Foundation.NSOperationQueue
@@ -55,6 +56,7 @@ private const val UPLOAD_DIRECTORY_NAME: String = "file-upload"
 internal class BackgroundSessionFileUploadTransport(
     private val supabaseFunction: SupabaseFunction,
     private val dispatcher: CoroutineDispatcher,
+    private val scope: CoroutineScope,
 ) : FileUploadTransport {
     // 전송 수단은 이벤트를 메인 큐로 전달하므로, 아래 상태는 메인 큐에서만 읽고 쓴다.
     private val pendingUploadMap = mutableMapOf<ULong, PendingUpload>()
@@ -227,7 +229,8 @@ internal class BackgroundSessionFileUploadTransport(
                 .orEmpty()
         val result = task.toResult(error = error, responseBody = responseBody)
 
-        description?.path?.let { path -> NSFileManager.defaultManager.removeItemAtPath(path, error = null) }
+        // 완료 이벤트는 메인 큐로 오므로 사본 지우기는 앱이 살아 있는 동안 이어지는 범위에서 메인 밖으로 옮긴다. 지우지 못해도 올리기 결과는 이미 정해졌으므로 실패는 무시한다.
+        description?.path?.let { path -> scope.launch { withContext(dispatcher) { runCatching { SystemFileSystem.delete(Path(path), mustExist = false) } } } }
 
         val pendingUpload = pendingUploadMap.remove(task.taskIdentifier)
 

@@ -4,10 +4,11 @@ package io.github.taetae98coding.diary.core.location.impl
 
 import io.github.taetae98coding.diary.core.location.api.Location
 import io.github.taetae98coding.diary.core.location.api.LocationProvider
+import io.github.taetae98coding.diary.core.location.impl.di.LocationDispatcher
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
 import kotlinx.coroutines.CancellableContinuation
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Factory
@@ -20,23 +21,27 @@ import platform.darwin.NSObject
 import kotlin.coroutines.resume
 
 @Factory
-internal class IosLocationProvider : LocationProvider {
-    // CLLocationManager는 델리게이트 콜백을 생성한 스레드의 런 루프로 전달하므로 메인 스레드에서 사용한다.
-    override suspend fun getCurrentLocation(): Location? =
-        withContext(Dispatchers.Main) {
-            val locationManager = CLLocationManager()
+internal class IosLocationProvider(
+    @LocationDispatcher private val dispatcher: CoroutineDispatcher,
+) : LocationProvider {
+    override suspend fun getCurrentLocation(): Location? {
+        // 마지막 위치는 위치 서비스에 동기로 물어 권한이 정해지지 않았을 때 메인 스레드를 멈추게 하므로 dispatcher에서 읽는다.
+        val lastLocation = withContext(dispatcher) { CLLocationManager().location }
 
-            locationManager.location?.let { lastLocation ->
-                return@withContext lastLocation.coordinate.useContents { Location(latitude = latitude, longitude = longitude) }
-            }
-
-            suspendCancellableCoroutine<Location?> { continuation ->
-                val delegate = LocationDelegate(locationManager = locationManager, continuation = continuation)
-
-                delegate.request()
-                continuation.invokeOnCancellation { delegate.cancel() }
-            }
+        if (lastLocation != null) {
+            return lastLocation.coordinate.useContents { Location(latitude = latitude, longitude = longitude) }
         }
+
+        // CLLocationManager는 델리게이트 콜백을 생성한 스레드의 런 루프로 전달하므로, 런 루프가 있는 호출한 스레드에서 만든다.
+        val locationManager = CLLocationManager()
+
+        return suspendCancellableCoroutine { continuation ->
+            val delegate = LocationDelegate(locationManager = locationManager, continuation = continuation)
+
+            delegate.request()
+            continuation.invokeOnCancellation { delegate.cancel() }
+        }
+    }
 
     private class LocationDelegate(
         private val locationManager: CLLocationManager,
