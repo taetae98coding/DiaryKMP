@@ -33,6 +33,7 @@ kotlin {
             dependencies {
                 implementation(projects.core.testing)
                 implementation(libs.androidx.work.testing)
+                implementation(libs.kotlinx.coroutines.test)
             }
         }
 
