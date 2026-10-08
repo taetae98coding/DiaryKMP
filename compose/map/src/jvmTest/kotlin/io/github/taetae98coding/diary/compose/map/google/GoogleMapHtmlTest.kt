@@ -1,12 +1,14 @@
 package io.github.taetae98coding.diary.compose.map.google
 
 import io.github.taetae98coding.diary.compose.map.DiaryMapCamera
+import io.github.taetae98coding.diary.compose.map.web.MapHttpServer
 import io.github.taetae98coding.diary.compose.map.web.use
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
+import io.mockk.mockk
 import java.net.HttpURLConnection
 import java.net.URI
 
@@ -15,8 +17,9 @@ class GoogleMapHtmlTest :
         test("TC-DIARY-MAP-DOMAIN-007: 유효한 인증 정보로 지도 영역 전체를 사용하는 지도를 기기 안에서만 제공한다") {
             val apiKey = "test-key_123"
 
-            requireNotNull(GoogleMapHttpServer.start(apiKey = apiKey, camera = null)).use { server ->
-                val uri = URI(server.url)
+            MapHttpServer(naverMapResourceLoader = mockk()).use { server ->
+                val page = server.register(html = requireNotNull(createGoogleMapHtml(apiKey = apiKey, camera = null)))
+                val uri = URI(page.url)
                 val html =
                     uri
                         .toURL()
@@ -123,27 +126,17 @@ class GoogleMapHtmlTest :
 
             apiKeys.forEach { apiKey ->
                 createGoogleMapHtml(apiKey = apiKey, camera = null).shouldBeNull()
-                GoogleMapHttpServer.start(apiKey = apiKey, camera = null).shouldBeNull()
             }
         }
 
-        test("시스템 프로퍼티의 인증 정보로 지도 서버를 시작한다") {
+        test("시스템 프로퍼티의 인증 정보로 지도 문서를 만든다") {
             val propertyName = "io.github.taetae98coding.diary.googleMapApiKey"
             val originalValue = System.getProperty(propertyName)
 
             try {
                 System.setProperty(propertyName, "test-key_123")
 
-                requireNotNull(GoogleMapHttpServer.start(camera = null)).use { server ->
-                    val html =
-                        URI(server.url)
-                            .toURL()
-                            .openStream()
-                            .bufferedReader()
-                            .use { it.readText() }
-
-                    html shouldContain "key=test-key_123"
-                }
+                requireNotNull(createGoogleMapHtml(camera = null)) shouldContain "key=test-key_123"
             } finally {
                 if (originalValue == null) {
                     System.clearProperty(propertyName)
@@ -160,12 +153,13 @@ class GoogleMapHtmlTest :
         }
 
         test("정의되지 않거나 허용되지 않은 HTTP 요청을 거절한다") {
-            requireNotNull(GoogleMapHttpServer.start(apiKey = "test-key_123", camera = null)).use { server ->
-                val root = URI(server.url)
+            MapHttpServer(naverMapResourceLoader = mockk()).use { server ->
+                val page = server.register(html = requireNotNull(createGoogleMapHtml(apiKey = "test-key_123", camera = null)))
+                val pageUri = URI(page.url)
                 val requests =
                     listOf(
-                        Triple(root.resolve("/unknown"), "GET", HttpURLConnection.HTTP_NOT_FOUND),
-                        Triple(root, "POST", HttpURLConnection.HTTP_BAD_METHOD),
+                        Triple(pageUri.resolve("/unknown"), "GET", HttpURLConnection.HTTP_NOT_FOUND),
+                        Triple(pageUri, "POST", HttpURLConnection.HTTP_BAD_METHOD),
                     )
 
                 requests.forEach { (uri, method, expectedStatus) ->

@@ -150,6 +150,7 @@ kotlin {
 
         jvmMain {
             dependencies {
+                implementation(projects.compose.map)
                 runtimeOnly(libs.kotlinx.coroutines.swing)
             }
         }

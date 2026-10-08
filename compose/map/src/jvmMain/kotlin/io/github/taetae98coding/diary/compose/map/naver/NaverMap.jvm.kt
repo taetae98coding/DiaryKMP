@@ -15,8 +15,8 @@ internal actual fun NaverMap(
     onPinClick: ((Uuid) -> Unit)?,
 ) {
     WebMap(
-        startHttpServer = { camera, spot, isSpotSelectable, pins, isPinSelectable ->
-            NaverMapHttpServer.start(
+        createHtml = { camera, spot, isSpotSelectable, pins, isPinSelectable ->
+            createNaverMapHtml(
                 camera = camera,
                 spot = spot,
                 isSpotSelectable = isSpotSelectable,

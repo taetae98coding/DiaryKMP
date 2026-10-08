@@ -15,8 +15,8 @@ internal actual fun GoogleMap(
     onPinClick: ((Uuid) -> Unit)?,
 ) {
     WebMap(
-        startHttpServer = { camera, spot, isSpotSelectable, pins, isPinSelectable ->
-            GoogleMapHttpServer.start(
+        createHtml = { camera, spot, isSpotSelectable, pins, isPinSelectable ->
+            createGoogleMapHtml(
                 camera = camera,
                 spot = spot,
                 isSpotSelectable = isSpotSelectable,

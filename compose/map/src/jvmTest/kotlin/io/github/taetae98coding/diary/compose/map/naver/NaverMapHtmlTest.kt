@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.compose.map.naver
 
 import io.github.taetae98coding.diary.compose.map.DiaryMapCamera
+import io.github.taetae98coding.diary.compose.map.web.MapHttpServer
 import io.github.taetae98coding.diary.compose.map.web.use
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
@@ -9,6 +10,9 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import io.ktor.http.Url
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import java.net.HttpURLConnection
 import java.net.URI
 import java.net.URLEncoder
@@ -129,29 +133,14 @@ class NaverMapHtmlTest :
             createNaverMapHtml(ncpKeyId = """"><script>alert("invalid")</script>""", camera = null).shouldBeNull()
         }
 
-        test("TC-DIARY-MAP-DOMAIN-008: 인증 정보가 유효하지 않으면 지도 서버를 시작하지 않는다") {
-            listOf("", " ", """"><script>alert("invalid")</script>""").forEach { ncpKeyId ->
-                NaverMapHttpServer.start(ncpKeyId = ncpKeyId, camera = null).shouldBeNull()
-            }
-        }
-
-        test("시스템 프로퍼티의 인증 정보로 지도 서버를 시작한다") {
+        test("시스템 프로퍼티의 인증 정보로 지도 문서를 만든다") {
             val propertyName = "io.github.taetae98coding.diary.naverMapNcpKeyId"
             val originalValue = System.getProperty(propertyName)
 
             try {
                 System.setProperty(propertyName, "test-key_123")
 
-                requireNotNull(NaverMapHttpServer.start(camera = null)).use { server ->
-                    val html =
-                        URI(server.url)
-                            .toURL()
-                            .openStream()
-                            .bufferedReader()
-                            .use { it.readText() }
-
-                    html shouldContain "ncpKeyId=test-key_123"
-                }
+                requireNotNull(createNaverMapHtml(camera = null)) shouldContain "ncpKeyId=test-key_123"
             } finally {
                 if (originalValue == null) {
                     System.clearProperty(propertyName)
@@ -166,86 +155,73 @@ class NaverMapHtmlTest :
             val sdk = "Naver Maps SDK"
             val proxyUrl = "http://nrbe.pstatic.net/styles/basic.json?callback=test"
             val proxiedResource = "Naver Maps resource"
-            var loadedProxyUrl: String? = null
+            val resourceLoader = mockk<NaverMapResourceLoader>()
+            every { resourceLoader.loadSdk() } returns sdk
+            every { resourceLoader.loadProxy(proxyUrl) } returns proxiedResource
 
-            NaverMapHttpServer
-                .start(
-                    html = html,
-                    naverMapsSdkLoader = { sdk },
-                    naverMapsProxyLoader = { url ->
-                        loadedProxyUrl = url
-                        proxiedResource
-                    },
-                ).use { server ->
-                    val uri = URI(server.url)
-                    val servedHtml =
-                        uri
-                            .toURL()
-                            .openStream()
-                            .bufferedReader()
-                            .use { it.readText() }
-                    val servedSdk =
-                        uri.resolve("/naver-maps.js").toURL().openStream().bufferedReader().use {
-                            it.readText()
-                        }
-                    val servedProxy =
-                        uri
-                            .resolve("/naver-proxy?url=${URLEncoder.encode(proxyUrl, Charsets.UTF_8)}")
-                            .toURL()
-                            .openStream()
-                            .bufferedReader()
-                            .use { it.readText() }
+            MapHttpServer(naverMapResourceLoader = resourceLoader).use { server ->
+                val uri = URI(server.register(html = html).url)
+                val servedHtml =
+                    uri
+                        .toURL()
+                        .openStream()
+                        .bufferedReader()
+                        .use { it.readText() }
+                val servedSdk =
+                    uri.resolve("/naver-maps.js").toURL().openStream().bufferedReader().use {
+                        it.readText()
+                    }
+                val servedProxy =
+                    uri
+                        .resolve("/naver-proxy?url=${URLEncoder.encode(proxyUrl, Charsets.UTF_8)}")
+                        .toURL()
+                        .openStream()
+                        .bufferedReader()
+                        .use { it.readText() }
 
-                    uri.scheme shouldBe "http"
-                    uri.host shouldBe "localhost"
-                    servedHtml shouldBe html
-                    servedSdk shouldBe sdk
-                    servedProxy shouldBe proxiedResource
-                    loadedProxyUrl shouldBe proxyUrl
-                }
+                uri.scheme shouldBe "http"
+                uri.host shouldBe "localhost"
+                servedHtml shouldBe html
+                servedSdk shouldBe sdk
+                servedProxy shouldBe proxiedResource
+                verify(exactly = 1) { resourceLoader.loadProxy(proxyUrl) }
+            }
         }
 
         test("정의되지 않거나 허용되지 않은 HTTP 요청을 거절한다") {
-            NaverMapHttpServer
-                .start(
-                    html = "",
-                    naverMapsSdkLoader = { "" },
-                    naverMapsProxyLoader = { "" },
-                ).use { server ->
-                    val root = URI(server.url)
-                    val requests =
-                        listOf(
-                            Triple(root.resolve("/unknown"), "GET", HttpURLConnection.HTTP_NOT_FOUND),
-                            Triple(root, "POST", HttpURLConnection.HTTP_BAD_METHOD),
-                        )
+            MapHttpServer(naverMapResourceLoader = mockk()).use { server ->
+                val pageUri = URI(server.register(html = "").url)
+                val requests =
+                    listOf(
+                        Triple(pageUri.resolve("/unknown"), "GET", HttpURLConnection.HTTP_NOT_FOUND),
+                        Triple(pageUri, "POST", HttpURLConnection.HTTP_BAD_METHOD),
+                    )
 
-                    requests.forEach { (uri, method, expectedStatus) ->
-                        val connection = uri.toURL().openConnection() as HttpURLConnection
-                        connection.requestMethod = method
+                requests.forEach { (uri, method, expectedStatus) ->
+                    val connection = uri.toURL().openConnection() as HttpURLConnection
+                    connection.requestMethod = method
 
-                        connection.responseCode shouldBe expectedStatus
-                        connection.disconnect()
-                    }
+                    connection.responseCode shouldBe expectedStatus
+                    connection.disconnect()
                 }
+            }
         }
 
         test("지도 리소스를 불러오지 못하면 잘못된 게이트웨이로 응답한다") {
-            NaverMapHttpServer
-                .start(
-                    html = "",
-                    naverMapsSdkLoader = { error("SDK unavailable") },
-                    naverMapsProxyLoader = { "" },
-                ).use { server ->
-                    val connection =
-                        URI(server.url)
-                            .resolve("/naver-maps.js")
-                            .toURL()
-                            .openConnection() as HttpURLConnection
+            val resourceLoader = mockk<NaverMapResourceLoader>()
+            every { resourceLoader.loadSdk() } throws IllegalStateException("SDK unavailable")
 
-                    connection.responseCode shouldBe HttpURLConnection.HTTP_BAD_GATEWAY
-                    connection.getHeaderField("Cache-Control") shouldBe "no-store"
-                    connection.disconnect()
-                }
+            MapHttpServer(naverMapResourceLoader = resourceLoader).use { server ->
+                val connection =
+                    URI(server.register(html = "").url)
+                        .resolve("/naver-maps.js")
+                        .toURL()
+                        .openConnection() as HttpURLConnection
+
+                connection.responseCode shouldBe HttpURLConnection.HTTP_BAD_GATEWAY
+                connection.getHeaderField("Cache-Control") shouldBe "no-store"
+                connection.disconnect()
+            }
         }
 
         test("SDK의 JSONP 요청을 localhost 프록시로 변경하고 HTTPS 리소스를 사용한다") {
