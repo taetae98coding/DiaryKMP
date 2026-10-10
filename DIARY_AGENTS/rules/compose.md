@@ -798,7 +798,7 @@ internal object CalendarHomeYearMonthTitleDefaults {
 - 스타일은 `Rounded`, 나머지 축은 기본값(Weight 400, Grade 0, Optical size 24)으로 둔 Android XML을 `compose/core/icons/<symbol_name>.xml`로 둔다. 파일 이름은 옛 Material Icons 이름(`clear`, `place`, `error_outline`)이 아니라 Material Symbols의 현재 이름(`close`, `location_on`, `error`)을 쓴다.
 - Fill 축은 기본값 0으로 둔다. 선택·활성 상태를 채운 모양으로 구분하는 짝의 채운 쪽(즐겨찾기 별)과 채운 도형 자체가 뜻인 아이콘(swipe 자리표시 원)만 Fill 1을 쓰고, 파일 이름 끝에 `_fill`을 붙인다(`star.xml`과 `star_fill.xml`).
 - `:compose:core`의 `generateImageVector` 태스크가 드로어블마다 `DiaryIcons.<PascalCase 이름>`을 생성한다. 생성된 파일은 고치지 않고 드로어블을 고친다. 좌우 반전은 드로어블의 `android:autoMirrored`를 따르고 코드에서 따로 정하지 않는다.
-- `DiaryIcons`는 `compose:core` 안에서만 쓴다. 화면과 컴포넌트는 `compose:core`의 `XxxIcon` 컴포저블을 쓴다. 컴포저블 이름은 화면이 부르는 뜻으로 짓고, 심벌과 뜻이 같으면 심벌 이름을 그대로 쓴다(`SearchIcon`), 다르면 뜻을 쓴다(`arrow_back`을 감싸는 `NavigateUpIcon`).
+- 화면과 컴포넌트는 `compose:core`의 `XxxIcon` 컴포저블을 쓴다. `DiaryIcons`의 아이콘은 기본으로 `internal`로 생성되어 `compose:core` 안에서만 쓰인다. 다른 모듈이 벡터 자체를 넘겨야 할 때만(예: iOS `UITab`이 `UIImage`를 요구하는 탭 아이콘) 그 드로어블 이름을 `compose/core/build.gradle.kts`의 `publicIconNames`에 추가해 `public`으로 생성한다. 컴포저블 이름은 화면이 부르는 뜻으로 짓고, 심벌과 뜻이 같으면 심벌 이름을 그대로 쓴다(`SearchIcon`), 다르면 뜻을 쓴다(`arrow_back`을 감싸는 `NavigateUpIcon`).
 - Google, Apple처럼 브랜드 가이드가 모양과 색을 정하는 로고만 `ImageVector.Builder`로 Kotlin에서 직접 그린다. 그 외 아이콘을 Kotlin으로 직접 그리거나 `composeResources/drawable`에 두지 않는다.
 
 ⚠️ 비권장 예시:
