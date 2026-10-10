@@ -42,6 +42,7 @@ description: Diary KMP 프로젝트에서 사용자가 유닛 테스트 코드 �
 - `androidHostTest`의 assertion도 JUnit4 대신 Kotest assertions(`shouldBe` 등)를 쓴다.
 - Flow 검증은 Turbine(`flow.test { ... }`)을 쓴다. one-shot Effect는 `awaitItem()`으로 수신을, `expectNoEvents()`로 추가 발행이 없음을 검증한다.
 - UseCase 테스트는 Kotest `BehaviorSpec`의 Given/When/Then으로 작성한다.
+- `Pager`가 만든 흐름을 `asSnapshot`으로 검증하는 테스트는 `runTest` 안에서 실행한다. paging-testing 3.5.1의 `asSnapshot`과 그 안의 `refresh`·`scrollTo`·`appendScrollWhile`은 로딩이 끝났는지를 상태가 1ms 동안 바뀌지 않는지(`debounce`)로 판단한다. `runTest` 밖에서는 이 1ms가 실제 시간이라, 부하가 걸리면 새 세대나 다음 페이지가 도착하기 전에 대기가 끝나 이전 목록을 돌려주고 전체 실행에서만 간헐적으로 실패한다. `FileRepositoryImplTest`의 다시 불러오기 테스트가 이렇게 실패했다. `runTest` 안에서는 1ms가 가상 시간이라 밀린 작업을 모두 처리한 뒤에야 대기가 끝난다. 라이브러리가 시간 대신 세대 완료를 기다리게 바뀌면 이 규칙과 `runTest` 감싸기를 지워도 된다. `flowOf(PagingData.from(list))`처럼 한 세대뿐인 정적 데이터는 대상이 아니다.
 
 ## Mock
 
