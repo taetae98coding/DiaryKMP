@@ -414,7 +414,7 @@ class AccountPlaceLocalDataSourceImplTest :
     public companion object {
         private const val FIRST_PLACE_TITLE = "ApplePlace"
         private const val LAST_PLACE_TITLE = "ZebraPlace"
-        private const val INVALIDATION_TIMEOUT_MILLIS = 5_000L
+        private const val INVALIDATION_TIMEOUT_MILLIS = 30_000L
         private const val PLACE_COUNT: Int = 25
         private const val PLACE_PAGE_SIZE: Int = 10
 

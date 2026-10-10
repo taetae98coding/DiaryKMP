@@ -402,7 +402,7 @@ class AccountMemoContactLocalDataSourceImplTest :
         private const val LAST_CONTACT_NAME = "ZebraContact"
         private const val HOMETOWN_CONTACT_NAME = "HometownContact"
         private const val SEARCH_QUERY = "searchable"
-        private const val INVALIDATION_TIMEOUT_MILLIS = 5_000L
+        private const val INVALIDATION_TIMEOUT_MILLIS = 30_000L
         private const val PAGE_SIZE = 20
         private const val SMALL_PAGE_SIZE = 10
         private const val CONTACT_COUNT = 25

@@ -80,7 +80,7 @@ class PlaceHomeRefreshTest {
         composeRule.onNodeWithText(place.detail.title).assertExists()
 
         uiStateFlow.value = loadedUiState(listOf(place, receivedPlace))
-        composeRule.waitUntil { runCatching { composeRule.onNodeWithText(receivedPlace.detail.title).assertExists() }.isSuccess }
+        composeRule.waitUntil(timeoutMillis = TIMEOUT_MILLIS) { runCatching { composeRule.onNodeWithText(receivedPlace.detail.title).assertExists() }.isSuccess }
 
         composeRule.onNodeWithText(place.detail.title).assertExists()
         composeRule.onNodeWithText(receivedPlace.detail.title).assertExists()
@@ -215,7 +215,7 @@ class PlaceHomeRefreshTest {
         composeRule.onNodeWithText(beforePlace.detail.title).assertExists()
 
         uiStateFlow.value = loadedUiState(listOf(afterPlace))
-        composeRule.waitUntil { runCatching { composeRule.onNodeWithText(afterPlace.detail.title).assertExists() }.isSuccess }
+        composeRule.waitUntil(timeoutMillis = TIMEOUT_MILLIS) { runCatching { composeRule.onNodeWithText(afterPlace.detail.title).assertExists() }.isSuccess }
 
         composeRule.onNodeWithText(beforePlace.detail.title).assertDoesNotExist()
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()

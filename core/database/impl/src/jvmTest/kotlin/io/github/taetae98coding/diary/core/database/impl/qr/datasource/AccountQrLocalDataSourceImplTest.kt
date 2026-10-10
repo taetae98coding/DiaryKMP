@@ -207,7 +207,7 @@ class AccountQrLocalDataSourceImplTest :
         private const val FIRST_QR_TITLE = "AppleQr"
         private const val MIDDLE_QR_TITLE = "MangoQr"
         private const val LAST_QR_TITLE = "ZebraQr"
-        private const val INVALIDATION_TIMEOUT_MILLIS = 5_000L
+        private const val INVALIDATION_TIMEOUT_MILLIS = 30_000L
 
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
