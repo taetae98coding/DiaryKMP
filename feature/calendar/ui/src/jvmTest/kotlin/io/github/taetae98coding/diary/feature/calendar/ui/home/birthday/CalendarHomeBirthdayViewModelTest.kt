@@ -235,7 +235,8 @@ class CalendarHomeBirthdayViewModelTest : FunSpec() {
                 viewModel.fetch(yearMonth)
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { fetchLunarUseCase(parameter = yearMonth.year) }
+                // 첫 연도의 동기화가 끝나지 않으므로, 조회 기간이 앞 연도에 걸치는 달도 요청은 한 번뿐이다.
+                coVerify(exactly = 1) { fetchLunarUseCase(parameter = any()) }
                 viewModel.viewModelScope.cancel()
             }
         }
