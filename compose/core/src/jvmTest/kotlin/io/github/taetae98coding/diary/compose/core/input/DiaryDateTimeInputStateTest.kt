@@ -5,6 +5,7 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -519,10 +520,12 @@ class DiaryDateTimeInputStateTest : FunSpec() {
 
             val saved = with(DiaryDateTimeInputState.Saver) { SaverScope { true }.save(state) }
             val restored = checkNotNull(DiaryDateTimeInputState.Saver.restore(checkNotNull(saved)))
+            // 켜는 순간과 기대값을 구하는 순간 사이에 자정이 지날 수 있어 앞뒤의 오늘을 모두 허용한다.
+            val todayBefore = Clock.System.todayIn(TimeZone.currentSystemDefault())
             restored.hasDateTime = true
-            val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+            val todayAfter = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
-            restored.value shouldBe DiaryDateTimeInputValue.AllDay(dateRange = today..today)
+            restored.value shouldBeIn listOf(todayBefore, todayAfter).map { today -> DiaryDateTimeInputValue.AllDay(dateRange = today..today) }
         }
 
         test("기본 시각은 30분 단위로 올린다") {
