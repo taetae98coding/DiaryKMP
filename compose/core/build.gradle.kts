@@ -1,12 +1,5 @@
-import io.github.taetae98coding.diary.buildlogic.imagevector.GenerateImageVectorTask
-
 plugins {
     alias(libs.plugins.convention.compose)
-    alias(libs.plugins.primitive.image.vector)
-}
-
-tasks.named<GenerateImageVectorTask>("generateImageVector") {
-    publicIconNames.addAll("article", "more_horiz", "repeat", "tag", "today")
 }
 
 kotlin {
