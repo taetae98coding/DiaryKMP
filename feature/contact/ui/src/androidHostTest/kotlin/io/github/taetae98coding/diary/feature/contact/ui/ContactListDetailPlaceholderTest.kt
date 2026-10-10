@@ -306,8 +306,8 @@ class ContactListDetailPlaceholderTest {
 
     @Test
     fun `TC-CONTACT-LIST-DETAIL-FEATURE-013 상세가 놓인 동안 다른 연락처를 고르면 상세를 쌓지 않고 바꾼다`() {
-        val first = listedContact()
-        val second = listedContact()
+        val first = listedContact(prefix = "first")
+        val second = listedContact(prefix = "second")
         setContactNavDisplay(contactList = listOf(first, second))
         composeRule.onNode(contactCard(first)).performClick()
         composeRule.waitForIdle()
@@ -364,8 +364,8 @@ class ContactListDetailPlaceholderTest {
 
     @Test
     fun `TC-CONTACT-LIST-DETAIL-FEATURE-016 상세에서 연 연락처 추가가 놓인 동안 다른 연락처를 고르면 추가를 걷어내고 그 상세로 바꾼다`() {
-        val first = listedContact()
-        val second = listedContact()
+        val first = listedContact(prefix = "first")
+        val second = listedContact(prefix = "second")
         val typedName = placeholderInput().name
         setContactNavDisplay(contactList = listOf(first, second))
         composeRule.onNode(contactCard(first)).performClick()
@@ -743,7 +743,7 @@ class ContactListDetailPlaceholderTest {
 
         fun contactCard(contact: Contact): SemanticsMatcher = hasTestTag(CONTACT_CARD_TEST_TAG) and hasText(contact.detail.name)
 
-        fun listedContact(): Contact = testContact(name = "list-${fixtureMonkey.giveMeOne<String>()}")
+        fun listedContact(prefix: String = "list"): Contact = testContact(name = "$prefix-${fixtureMonkey.giveMeOne<String>()}")
 
         fun placeholderInput(): PlaceholderInput =
             PlaceholderInput(

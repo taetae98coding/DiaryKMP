@@ -112,7 +112,7 @@ class PlaceSearchViewModelTest : FunSpec() {
                 val secondList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
                 val completion = CompletableDeferred<Result<List<SearchedPlace>>>()
                 val firstRequest = searchRequest()
-                val secondRequest = searchRequest()
+                val secondRequest = firstRequest.copy(query = "${firstRequest.query}-2")
                 val fetchSearchedPlaceUseCase = mockk<FetchSearchedPlaceUseCase>()
                 coEvery { fetchSearchedPlaceUseCase(firstRequest.toParameter()) } returns Result.success(firstList)
                 coEvery { fetchSearchedPlaceUseCase(secondRequest.toParameter()) } coAnswers { completion.await() }

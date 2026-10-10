@@ -240,4 +240,5 @@ private fun FixtureMonkey.giveMeCalendarColor(): CalendarColor =
         saturdayColor = giveMeColor(),
     )
 
-private fun FixtureMonkey.giveMeColor(): Color = Color(color = giveMeOne<Int>())
+// 강조한 날의 글자색인 onPrimary가 밝은 테마에서 흰색이라, 흰색이 뽑히면 강조 여부를 색으로 가릴 수 없다.
+private fun FixtureMonkey.giveMeColor(): Color = generateSequence { Color(color = giveMeOne<Int>()) }.first { color -> color != Color.White }

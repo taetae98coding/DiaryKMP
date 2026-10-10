@@ -112,7 +112,7 @@ class TagCardTest {
             .giveMeKotlinBuilder<Tag>()
             .setExp(
                 Tag::detail,
-                fixtureMonkey.giveMeOne<TagDetail>().copy(color = colorArgb.toLong()),
+                fixtureMonkey.giveMeOne<TagDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}", color = colorArgb.toLong()),
             ).setExp(
                 Tag::updatedAt,
                 fixtureMonkey.giveMeOne<Instant>(),
