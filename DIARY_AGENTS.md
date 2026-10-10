@@ -50,6 +50,7 @@
 | Room Entity, DAO, `@Query` | [room.md](DIARY_AGENTS/rules/room.md) |
 | `CoroutineWorker`·`WorkRequest`, `BGTaskScheduler`, 코루틴 예약기 | [work.md](DIARY_AGENTS/rules/work.md) |
 | `build.gradle.kts`와 버전 카탈로그 | [gradle.md](DIARY_AGENTS/rules/gradle.md) |
+| `supabase/migrations`, `supabase/functions` | [supabase.md](DIARY_AGENTS/rules/supabase.md) |
 
 ## 제품 문서
 
