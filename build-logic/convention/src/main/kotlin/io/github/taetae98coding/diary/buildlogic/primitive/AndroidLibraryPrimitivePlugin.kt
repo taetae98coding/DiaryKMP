@@ -69,6 +69,12 @@ internal class AndroidLibraryPrimitivePlugin : Plugin<Project> {
                         }
                     }
 
+                    group("nonIos") {
+                        withCompilations { it.target.platformType == KotlinPlatformType.androidJvm }
+                        withJvm()
+                        withWasmJs()
+                    }
+
                     group("nonJvm") {
                         withCompilations { it.target.platformType == KotlinPlatformType.androidJvm }
                         withWasmJs()
