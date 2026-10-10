@@ -16,10 +16,12 @@ import androidx.compose.ui.unit.height
 import androidx.paging.compose.LazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.DIARY_PICKER_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.tag.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,6 +34,11 @@ import kotlin.uuid.Uuid
 class EntityTagPickerDialogTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-ENTITY-TAG-INPUT-FEATURE-005 목록에 나타나는 태그와 연결 여부를 표시한다`() {

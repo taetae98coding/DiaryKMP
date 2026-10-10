@@ -1,7 +1,6 @@
 package io.github.taetae98coding.diary.feature.tag.ui.home
 
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.AndroidUiDispatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -17,6 +16,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.tag.tag
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
+import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import org.junit.Before
 import org.junit.Rule
@@ -24,7 +24,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlin.coroutines.ContinuationInterceptor
 
 private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
@@ -37,17 +36,8 @@ class TagHomePagingTest {
     val composeRule = createComposeRule()
 
     @Before
-    fun resetUiDispatcher() {
-        val dispatcher = AndroidUiDispatcher.Main[ContinuationInterceptor] as AndroidUiDispatcher
-        val type = AndroidUiDispatcher::class.java
-        val lock = type.getDeclaredField("lock").apply { isAccessible = true }.get(dispatcher)
-
-        synchronized(lock) {
-            (type.getDeclaredField("toRunTrampolined").apply { isAccessible = true }.get(dispatcher) as MutableCollection<*>).clear()
-            (type.getDeclaredField("toRunOnFrame").apply { isAccessible = true }.get(dispatcher) as MutableCollection<*>).clear()
-            type.getDeclaredField("scheduledTrampolineDispatch").apply { isAccessible = true }.setBoolean(dispatcher, false)
-            type.getDeclaredField("scheduledFrameDispatch").apply { isAccessible = true }.setBoolean(dispatcher, false)
-        }
+    fun setUp() {
+        resetAndroidUiDispatcher()
     }
 
     @Test

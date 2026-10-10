@@ -37,11 +37,13 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.webEffectFlow
 import io.github.taetae98coding.diary.feature.tag.ui.detail.webPagingDataFlow
 import io.github.taetae98coding.diary.feature.tag.ui.detail.webViewModelRef
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureId
+import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagWeb
 import io.kotest.matchers.shouldBe
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,6 +56,11 @@ import kotlin.uuid.Uuid
 class TagDetailWebScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-TAG-DETAIL-WEB-FEATURE-006 대상 태그의 상태와 무관하게 웹 항목 추가를 시작할 수 있다`() {
