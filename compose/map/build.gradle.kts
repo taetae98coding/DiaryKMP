@@ -18,7 +18,7 @@ kotlin {
 
         swiftPackage(
             url = url("https://github.com/googlemaps/ios-maps-sdk.git"),
-            version = exact("11.1.0"),
+            version = exact("11.2.0"),
             products = listOf(product("GoogleMaps")),
         )
     }
