@@ -19,6 +19,8 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
+import androidx.navigation3.runtime.result.rememberResultEventBus
+import androidx.navigation3.runtime.result.rememberResultEventBusNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import io.github.taetae98coding.diary.app.shared.AppState
 import io.github.taetae98coding.diary.app.shared.rememberAppState
@@ -54,12 +56,10 @@ internal fun AppNavigation(
     appState: AppState = rememberAppState(),
 ) {
     // 목록·상세 배치의 상세 placeholder는 NavEntry가 아니어서 entry decorator가 감싸지 않는다.
-    // placeholder에 놓인 화면도 진입점과 같은 버스로 결과를 주고받도록 NavDisplay 위에서 제공한다.
+    // entry는 decorator가 결과 버스를 제공하고, placeholder에 놓인 화면도 같은 버스로 결과를 주고받도록 NavDisplay 위에서 한 번 더 제공한다.
     // 같은 이유로 placeholder의 저장 상태와 ViewModel이 목록 entry의 수명을 따르도록 placeholder 전용 저장소를 제공하고, 목록 entry가 빠질 때 decorator가 비운다.
     // FIXME placeholder를 decorate하지 않는 것은 navigation3의 제약이라 라이브러리에서 고쳐져야 한다. 등록된 이슈는 아직 없다.
-    // navigation3 1.2.0-alpha05가 rememberResultEventBusNavEntryDecorator에 버스를 넘기는 오버로드를 추가했으므로(b/516995400),
-    // 그 버전을 담은 뒤에는 decorator에 이 버스를 넘겨 여기의 제공을 placeholder 몫으로만 남긴다.
-    val resultEventBus = remember { ResultEventBus() }
+    val resultEventBus = rememberResultEventBus()
     val placeholderStateHolder = rememberListDetailPlaceholderStateHolder()
 
     CompositionLocalProvider(
@@ -79,7 +79,7 @@ internal fun AppNavigation(
                         },
                     ),
                 ),
-            entryDecorators = rememberAppNavEntryDecorators(placeholderStateHolder = placeholderStateHolder),
+            entryDecorators = rememberAppNavEntryDecorators(placeholderStateHolder, resultEventBus),
             transitionSpec = { DiaryFadeContentTransform },
             popTransitionSpec = { DiaryFadeContentTransform },
             predictivePopTransitionSpec = { DiaryFadeContentTransform },
@@ -121,11 +121,15 @@ internal fun AppNavigation(
 }
 
 @Composable
-private fun rememberAppNavEntryDecorators(placeholderStateHolder: ListDetailPlaceholderStateHolder): List<NavEntryDecorator<ScreenNavKey>> =
+private fun rememberAppNavEntryDecorators(
+    placeholderStateHolder: ListDetailPlaceholderStateHolder,
+    resultEventBus: ResultEventBus,
+): List<NavEntryDecorator<ScreenNavKey>> =
     listOf(
         rememberSaveableStateHolderNavEntryDecorator(),
         rememberViewModelStoreNavEntryDecorator(),
         rememberRetainedValuesStoreNavEntryDecorator(),
+        rememberResultEventBusNavEntryDecorator(resultEventBus),
         rememberListDetailPlaceholderNavEntryDecorator(placeholderStateHolder),
     )
 
