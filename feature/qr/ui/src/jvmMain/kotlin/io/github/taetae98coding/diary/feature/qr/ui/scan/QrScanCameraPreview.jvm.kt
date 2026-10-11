@@ -62,7 +62,6 @@ internal actual fun QrScanCameraPreview(
         SwingPanel(
             factory = { previewPanel },
             modifier = Modifier.fillMaxSize(),
-            background = QrScanCameraPreviewDefaults.EmptyColor,
         )
     }
 }
