@@ -11,21 +11,21 @@ import kotlin.uuid.Uuid
 
 @Composable
 internal fun WebMap(
-    startHttpServer: suspend (
+    createHtml: (
         camera: DiaryMapCamera?,
         spot: DiaryMapCoordinate?,
         isSpotSelectable: Boolean,
         pins: List<DiaryMapPin>,
         isPinSelectable: Boolean,
-    ) -> MapHttpServer?,
+    ) -> String?,
     modifier: Modifier = Modifier,
     state: DiaryMapState = rememberDiaryMapState(),
     onSpotClick: ((DiaryMapCoordinate) -> Unit)? = null,
     onPinClick: ((Uuid) -> Unit)? = null,
 ) {
     MapWebView(
-        startHttpServer = {
-            startHttpServer(
+        createHtml = {
+            createHtml(
                 state.camera,
                 state.spot,
                 onSpotClick != null,

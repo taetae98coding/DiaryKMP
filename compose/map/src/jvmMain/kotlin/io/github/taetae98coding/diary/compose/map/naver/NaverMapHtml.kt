@@ -26,73 +26,40 @@ import io.ktor.server.request.requireQueryParameter
 import io.ktor.server.response.header
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
+import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import java.net.URLConnection
 
-internal object NaverMapHttpServer {
-    suspend fun start(
-        camera: DiaryMapCamera?,
-        spot: DiaryMapCoordinate? = null,
-        isSpotSelectable: Boolean = false,
-        pins: List<DiaryMapPin> = emptyList(),
-        isPinSelectable: Boolean = false,
-    ): MapHttpServer? =
-        start(
-            ncpKeyId =
-                System
-                    .getProperty(NAVER_MAP_NCP_KEY_ID_PROPERTY)
-                    .orEmpty(),
-            camera = camera,
-            spot = spot,
-            isSpotSelectable = isSpotSelectable,
-            pins = pins,
-            isPinSelectable = isPinSelectable,
-        )
+internal fun createNaverMapHtml(
+    camera: DiaryMapCamera?,
+    spot: DiaryMapCoordinate? = null,
+    isSpotSelectable: Boolean = false,
+    pins: List<DiaryMapPin> = emptyList(),
+    isPinSelectable: Boolean = false,
+): String? =
+    createNaverMapHtml(
+        ncpKeyId = naverMapNcpKeyId(),
+        camera = camera,
+        spot = spot,
+        isSpotSelectable = isSpotSelectable,
+        pins = pins,
+        isPinSelectable = isPinSelectable,
+    )
 
-    suspend fun start(
-        ncpKeyId: String,
-        camera: DiaryMapCamera?,
-        spot: DiaryMapCoordinate? = null,
-        isSpotSelectable: Boolean = false,
-        pins: List<DiaryMapPin> = emptyList(),
-        isPinSelectable: Boolean = false,
-    ): MapHttpServer? {
-        val html =
-            createNaverMapHtml(
-                ncpKeyId = ncpKeyId,
-                camera = camera,
-                spot = spot,
-                isSpotSelectable = isSpotSelectable,
-                pins = pins,
-                isPinSelectable = isPinSelectable,
-            ) ?: return null
-        val resourceLoader = NaverMapResourceLoader(ncpKeyId)
-        return start(
-            html = html,
-            naverMapsSdkLoader = resourceLoader::loadSdk,
-            naverMapsProxyLoader = resourceLoader::loadProxy,
-        )
+internal fun naverMapNcpKeyId(): String =
+    System
+        .getProperty(NAVER_MAP_NCP_KEY_ID_PROPERTY)
+        .orEmpty()
+
+internal fun Route.installNaverMapRoutes(resourceLoader: NaverMapResourceLoader) {
+    get(NAVER_MAPS_SDK_PATH) {
+        call.respondJavaScript(resourceLoader::loadSdk)
     }
-
-    suspend fun start(
-        html: String,
-        naverMapsSdkLoader: () -> String,
-        naverMapsProxyLoader: (String) -> String,
-    ): MapHttpServer =
-        MapHttpServer.start {
-            get("/") {
-                call.response.header(HttpHeaders.CacheControl, "no-store")
-                call.respondText(html, ContentType.Text.Html)
-            }
-            get(NAVER_MAPS_SDK_PATH) {
-                call.respondJavaScript(naverMapsSdkLoader)
-            }
-            get(NAVER_MAPS_PROXY_PATH) {
-                call.respondJavaScript {
-                    naverMapsProxyLoader(call.requireQueryParameter(PROXY_URL_PARAMETER))
-                }
-            }
+    get(NAVER_MAPS_PROXY_PATH) {
+        call.respondJavaScript {
+            resourceLoader.loadProxy(call.requireQueryParameter(PROXY_URL_PARAMETER))
         }
+    }
 }
 
 internal fun createNaverMapHtml(
@@ -222,7 +189,7 @@ private const val HTTP_PORT = 80
 private const val HTTPS_PORT = 443
 private val NCP_KEY_ID_PATTERN = Regex("[A-Za-z0-9_-]+")
 private val NAVER_MAP_HTML_TEMPLATE: String by lazy {
-    checkNotNull(NaverMapHttpServer::class.java.getResourceAsStream("/naver-map.html"))
+    checkNotNull(MapHttpServer::class.java.getResourceAsStream("/naver-map.html"))
         .bufferedReader()
         .use { it.readText() }
 }
