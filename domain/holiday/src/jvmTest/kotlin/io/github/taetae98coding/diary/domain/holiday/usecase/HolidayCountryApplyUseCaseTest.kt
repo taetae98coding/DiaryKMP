@@ -24,6 +24,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 
@@ -310,17 +312,20 @@ class HolidayCountryApplyUseCaseTest :
 
             When("적용 국가별로 2026년의 황금연휴를 조회한다") {
                 Then("적용 국가의 공휴일을 합쳐 판단한 황금연휴가 나온다") {
-                    caseList.forEach { (optionSet, dateRange) ->
-                        GetGoldenHolidayUseCase(
-                            getHolidayUseCase =
-                                GetHolidayUseCase(
-                                    getHolidayCountrySettingUseCase = countrySettingUseCase(optionSet = optionSet),
-                                    holidayRepository = holidayRepository(holidayMap = holidayMap),
-                                ),
-                        )(parameter = GetGoldenHolidayUseCase.Parameter(year = 2026, annualLeaveCount = 0))
-                            .first()
-                            .shouldBeSuccess()
-                            .map { group -> group.optionList.single().dateRange } shouldBe listOf(dateRange)
+                    runTest {
+                        caseList.forEach { (optionSet, dateRange) ->
+                            GetGoldenHolidayUseCase(
+                                getHolidayUseCase =
+                                    GetHolidayUseCase(
+                                        getHolidayCountrySettingUseCase = countrySettingUseCase(optionSet = optionSet),
+                                        holidayRepository = holidayRepository(holidayMap = holidayMap),
+                                    ),
+                                dispatcher = StandardTestDispatcher(testScheduler),
+                            )(parameter = GetGoldenHolidayUseCase.Parameter(year = 2026, annualLeaveCount = 0))
+                                .first()
+                                .shouldBeSuccess()
+                                .map { group -> group.optionList.single().dateRange } shouldBe listOf(dateRange)
+                        }
                     }
                 }
             }
@@ -333,32 +338,36 @@ class HolidayCountryApplyUseCaseTest :
                     HolidayCountry.UNITED_STATES to listOf(holiday(name = "united-states-day", isHoliday = true, date = may(day = 1))),
                 )
             val optionSetFlow = MutableStateFlow(setOf(HolidayCountryOption.KOREA))
-            val useCase =
-                GetGoldenHolidayUseCase(
-                    getHolidayUseCase =
-                        GetHolidayUseCase(
-                            getHolidayCountrySettingUseCase = countrySettingUseCase(optionSetFlow = optionSetFlow),
-                            holidayRepository = holidayRepository(holidayMap = holidayMap),
-                        ),
-                )
 
             When("국가 설정이 바뀌어 적용 국가가 한국과 미국이 된다") {
                 Then("바뀐 적용 국가의 공휴일로 다시 계산한 황금연휴를 이어서 제공한다") {
-                    useCase(parameter = GetGoldenHolidayUseCase.Parameter(year = 2026, annualLeaveCount = 0)).test {
-                        awaitItem()
-                            .shouldBeSuccess()
-                            .map { group -> group.optionList.single().dateRange } shouldBe listOf(may(day = 2)..may(day = 4))
+                    runTest {
+                        val useCase =
+                            GetGoldenHolidayUseCase(
+                                getHolidayUseCase =
+                                    GetHolidayUseCase(
+                                        getHolidayCountrySettingUseCase = countrySettingUseCase(optionSetFlow = optionSetFlow),
+                                        holidayRepository = holidayRepository(holidayMap = holidayMap),
+                                    ),
+                                dispatcher = StandardTestDispatcher(testScheduler),
+                            )
 
-                        optionSetFlow.value = BOTH_OPTION_SET
+                        useCase(parameter = GetGoldenHolidayUseCase.Parameter(year = 2026, annualLeaveCount = 0)).test {
+                            awaitItem()
+                                .shouldBeSuccess()
+                                .map { group -> group.optionList.single().dateRange } shouldBe listOf(may(day = 2)..may(day = 4))
 
-                        // 대상 년도마다 국가 설정을 따로 받아 합치므로 바뀐 결과 앞뒤에 같은 결과가 더 올 수 있다.
-                        val expected = listOf(may(day = 1)..may(day = 4))
-                        var actual: List<LocalDateRange>
-                        do {
-                            actual = awaitItem().shouldBeSuccess().map { group -> group.optionList.single().dateRange }
-                        } while (actual != expected)
-                        actual shouldBe expected
-                        cancelAndIgnoreRemainingEvents()
+                            optionSetFlow.value = BOTH_OPTION_SET
+
+                            // 대상 년도마다 국가 설정을 따로 받아 합치므로 바뀐 결과 앞뒤에 같은 결과가 더 올 수 있다.
+                            val expected = listOf(may(day = 1)..may(day = 4))
+                            var actual: List<LocalDateRange>
+                            do {
+                                actual = awaitItem().shouldBeSuccess().map { group -> group.optionList.single().dateRange }
+                            } while (actual != expected)
+                            actual shouldBe expected
+                            cancelAndIgnoreRemainingEvents()
+                        }
                     }
                 }
             }
