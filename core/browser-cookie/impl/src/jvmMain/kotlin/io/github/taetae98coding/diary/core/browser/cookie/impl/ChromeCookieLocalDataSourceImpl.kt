@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.core.browser.cookie.api.entity.BrowserCook
 import io.github.taetae98coding.diary.core.browser.cookie.api.entity.BrowserCookieSameSiteLocalEntity
 import io.github.taetae98coding.diary.core.browser.cookie.impl.di.BrowserCookieDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Factory
 import kotlin.time.Instant
@@ -65,7 +66,12 @@ internal class ChromeCookieLocalDataSourceImpl(
 
         val key = if (rowList.any { row -> row.encryptedValue.isNotEmpty() }) keyProvider.getKey() else null
 
-        return rowList.mapNotNull { row -> row.toEntity(databaseVersion = databaseVersion, key = key) }
+        return withContext(dispatcher) {
+            rowList.mapNotNull { row ->
+                ensureActive()
+                row.toEntity(databaseVersion = databaseVersion, key = key)
+            }
+        }
     }
 
     private fun SQLiteConnection.readDatabaseVersion(): Long =

@@ -11,6 +11,12 @@ kotlin {
             }
         }
 
+        iosMain {
+            dependencies {
+                implementation(projects.library.coroutines)
+            }
+        }
+
         jvmTest {
             dependencies {
                 implementation(projects.core.testing)

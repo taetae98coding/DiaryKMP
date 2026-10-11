@@ -35,27 +35,26 @@ internal class KeychainChromeCookieKeyProvider(
 
     override suspend fun getKey(): ByteArray =
         mutex.withLock {
-            key ?: deriveKey(password = readPassword()).also { derived -> key = derived }
+            key ?: withContext(dispatcher) { deriveKey(password = readPassword()) }.also { derived -> key = derived }
         }
 
-    private suspend fun readPassword(): String =
-        withContext(dispatcher) {
-            val process =
-                ProcessBuilder("security", "find-generic-password", "-s", KEYCHAIN_SERVICE, "-a", KEYCHAIN_ACCOUNT, "-w")
-                    .start()
+    private fun readPassword(): String {
+        val process =
+            ProcessBuilder("security", "find-generic-password", "-s", KEYCHAIN_SERVICE, "-a", KEYCHAIN_ACCOUNT, "-w")
+                .start()
 
-            if (!process.waitFor(KEYCHAIN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
-                process.destroyForcibly()
-                error("Timed out while reading $KEYCHAIN_SERVICE from the keychain.")
-            }
-
-            check(process.exitValue() == 0) { "security exited with ${process.exitValue()} while reading $KEYCHAIN_SERVICE." }
-
-            process.inputStream
-                .bufferedReader()
-                .use { reader -> reader.readText() }
-                .trim()
+        if (!process.waitFor(KEYCHAIN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+            process.destroyForcibly()
+            error("Timed out while reading $KEYCHAIN_SERVICE from the keychain.")
         }
+
+        check(process.exitValue() == 0) { "security exited with ${process.exitValue()} while reading $KEYCHAIN_SERVICE." }
+
+        return process.inputStream
+            .bufferedReader()
+            .use { reader -> reader.readText() }
+            .trim()
+    }
 
     private fun deriveKey(password: String): ByteArray =
         SecretKeyFactory
