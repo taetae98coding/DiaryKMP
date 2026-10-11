@@ -78,7 +78,7 @@ function stepRequest(id, requestData) {
 }
 
 function closeRequest(id, requestData) {
-    if (requestData.statementId) {
+    if (requestData.statementId != null) {
         const statement = statements.get(requestData.statementId);
         if (!statement) {
             postMessage({'id': id, error: "Invalid statement ID: " + requestData.statementId});
@@ -92,7 +92,7 @@ function closeRequest(id, requestData) {
         }
     }
 
-    if (requestData.databaseId) {
+    if (requestData.databaseId != null) {
         const database = databases.get(requestData.databaseId);
         if (!database) {
             postMessage({'id': id, error: "Invalid database ID: " + requestData.databaseId});
