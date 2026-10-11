@@ -53,13 +53,19 @@ flowchart TD
 
 | 값 | 가져오는 곳 |
 | --- | --- |
-| 푸시 알림 수신 정보 | 기기가 Firebase에서 받아 둔 값 |
+| 푸시 알림 수신 정보 | 앱이 이 앱 설치를 Firebase에 알림 받을 기기로 등록하고 받은 설치 식별 정보 |
 | 시간대 | 기기 설정의 현재 시간대 |
 | 언어 | 기기 설정의 현재 언어 |
 
 시간대와 언어는 사용자가 앱 안에서 고르는 값이 아니라 기기 설정에서 오는 값이다. 앱은 이 값을 바꾸는 수단을 제공하지 않는다. 기기의 시간대나 언어가 바뀐 것은 그 자체로 계기가 아니며, 바뀐 뒤 처음 오는 계기의 등록에 새 값이 담긴다. 따라서 앱을 열지 않은 채 시간대를 바꾸면 다음에 앱을 열기 전까지 서버는 이전 시간대를 가진다.
 
+수신 정보의 방식은 [푸시 알림 수신 등록 스펙(common)](../common/fcm-token.md)의 `푸시 알림 수신 정보`를 따른다. 앱은 등록과 해제 모두 설치 식별 정보로 제출하고, 이전 방식 수신 정보는 제출하지 않는다.
+
+앱은 제출할 때마다 먼저 이 앱 설치를 Firebase에 알림 받을 기기로 등록하고, 등록이 끝난 뒤의 설치 식별 정보를 제출한다. Firebase 등록에 실패한 것은 제출 실패이며 `실패 처리`를 따른다.
+
 Firebase가 수신 정보를 새로 발급하면 새 값은 다음 계기의 제출에 담긴다. 해제에는 수신 정보만 담는다.
+
+이전 버전 앱에서 업데이트한 기기는 업데이트 뒤 첫 계기에 설치 식별 정보를 제출한다. 업데이트 전에 등록한 이전 방식 수신 정보는 앱이 다시 알 수 없으므로 앱이 해제하지 않고, 설치 식별 정보가 등록될 때 서버가 지운다. 그 기준은 [푸시 알림 수신 등록 스펙(server)](../server/fcm-token.md)의 `이전 방식 등록의 정리`를 따른다. 업데이트한 뒤 첫 등록 전에 로그아웃하면 해제할 수 있는 등록이 없으므로, 이전 방식 등록이 서버에 남아 [일일 메모 알림 스펙(server)](../server/daily-memo-notification.md)의 `오래 남은 수신 정보의 정리`에 따라 지워진다.
 
 제출 시점에 기기가 아직 수신 정보를 받지 못했으면 그 계기에는 제출하지 않고 다음 계기에 제출한다. 수신 정보를 받아 오는 데 실패한 것은 제출 실패이며 `실패 처리`를 따른다.
 
@@ -111,4 +117,5 @@ Firebase가 수신 정보를 새로 발급하면 새 값은 다음 계기의 제
 ## 참고
 
 - [Firebase Cloud Messaging: Android 등록 토큰 관리](https://firebase.google.com/docs/cloud-messaging/manage-tokens)
-- [Firebase Cloud Messaging: Apple 플랫폼에서 등록 토큰 액세스](https://firebase.google.com/docs/cloud-messaging/ios/client#access_the_registration_token)
+- [Firebase Cloud Messaging: Android 클라이언트 설정 - Firebase 설치 ID 액세스](https://firebase.google.com/docs/cloud-messaging/android/client)
+- [Firebase Cloud Messaging: Apple 플랫폼 클라이언트 설정 - Firebase 설치 ID 액세스](https://firebase.google.com/docs/cloud-messaging/ios/client)
