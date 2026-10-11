@@ -12,6 +12,7 @@ public data class ContactDetailRemoteEntity(
     @SerialName("footSizeMillimeter") val footSizeMillimeter: Int?,
     @SerialName("birthday") val birthday: LocalDate?,
     @SerialName("birthdayCalendar") val birthdayCalendar: ContactBirthdayCalendarRemoteEntity?,
+    @SerialName("birthYear") val birthYear: Int?,
     @SerialName("hometown") val hometown: String,
     @SerialName("phoneNumberList") val phoneNumberList: List<ContactPhoneNumberRemoteEntity>,
 )

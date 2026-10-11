@@ -51,6 +51,7 @@ internal class AccountContactTransactionImpl(
                 footSizeMillimeter = detail.footSizeMillimeter,
                 birthday = detail.birthday,
                 birthdayCalendar = detail.birthdayCalendar,
+                birthYear = detail.birthYear,
                 hometown = detail.hometown,
                 phoneNumberList = detail.phoneNumberList,
                 updatedAt = updatedAt,

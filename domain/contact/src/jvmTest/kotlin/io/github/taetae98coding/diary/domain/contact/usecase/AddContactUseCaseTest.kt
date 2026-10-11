@@ -219,6 +219,8 @@ class AddContactUseCaseTest :
                         .shouldBeNull()
                     contactSlot.captured.detail.birthday
                         .shouldBeNull()
+                    contactSlot.captured.detail.birthYear
+                        .shouldBeNull()
                     contactSlot.captured.detail.hometown shouldBe ""
                 }
 
@@ -254,6 +256,34 @@ class AddContactUseCaseTest :
 
                     contactSlot.captured.detail.birthday
                         ?.date shouldBe date
+                }
+
+                Then("TC-CONTACT-ADD-DOMAIN-019 생일 없이 입력한 태어난 연도를 그대로 저장한다") {
+                    useCase(parameter = AddContactUseCase.Parameter(detail = detail(birthYear = 1990))).shouldBeSuccess()
+
+                    contactSlot.captured.detail.birthYear shouldBe 1990
+                    contactSlot.captured.detail.birthday
+                        .shouldBeNull()
+                }
+
+                Then("TC-CONTACT-ADD-DOMAIN-020 생일을 고르면 태어난 연도를 생일의 연도로 저장한다") {
+                    listOf(
+                        ContactBirthday(date = LocalDate(year = 1990, month = 5, day = 5), calendar = ContactBirthdayCalendar.SOLAR),
+                        ContactBirthday(date = LocalDate(year = 1990, month = 12, day = 20), calendar = ContactBirthdayCalendar.LUNAR),
+                    ).forEach { birthday ->
+                        // 생일과 다른 연도가 함께 넘어와도 생일의 연도가 기록되는지 확인한다.
+                        useCase(parameter = AddContactUseCase.Parameter(detail = detail(birthday = birthday, birthYear = 1985))).shouldBeSuccess()
+
+                        contactSlot.captured.detail.birthYear shouldBe 1990
+                    }
+                }
+
+                Then("TC-CONTACT-ADD-DOMAIN-021 태어난 연도는 크기를 검사하지 않고 그대로 저장한다") {
+                    listOf(2999, 990, 0).forEach { birthYear ->
+                        useCase(parameter = AddContactUseCase.Parameter(detail = detail(birthYear = birthYear))).shouldBeSuccess()
+
+                        contactSlot.captured.detail.birthYear shouldBe birthYear
+                    }
                 }
 
                 Then("TC-CONTACT-ADD-DOMAIN-015 생일을 고르지 않으면 달력 구분도 없는 값으로 저장한다") {
@@ -409,6 +439,7 @@ class AddContactUseCaseTest :
             height: Length? = null,
             footSize: Length? = null,
             birthday: ContactBirthday? = null,
+            birthYear: Int? = birthday?.date?.year,
             hometown: String = "",
             phoneNumberList: List<ContactPhoneNumber> = emptyList(),
         ): ContactDetail =
@@ -418,6 +449,7 @@ class AddContactUseCaseTest :
                 height = height,
                 footSize = footSize,
                 birthday = birthday,
+                birthYear = birthYear,
                 hometown = hometown,
                 phoneNumberList = phoneNumberList,
             )

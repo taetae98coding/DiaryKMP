@@ -5,6 +5,8 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
@@ -14,6 +16,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -22,6 +25,7 @@ import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.measure.Length.Companion.centimeter
 import io.github.taetae98coding.diary.core.model.measure.Length.Companion.millimeter
+import io.github.taetae98coding.diary.feature.contact.ui.add.birthYearInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.heightInput
 import io.github.taetae98coding.diary.feature.contact.ui.form.ContactFormState
 import io.github.taetae98coding.diary.feature.contact.ui.form.rememberContactDetailFormState
@@ -60,6 +64,41 @@ class ContactDetailFormTest {
         composeRule.onNodeWithText(FOOT_SIZE_TEXT).assertExists()
         composeRule.onNodeWithText(BIRTHDAY_TEXT).assertExists()
         composeRule.onNode(hasText(CONTACT_HOMETOWN) and hasSetTextAction()).assertExists()
+    }
+
+    @Test
+    fun `TC-CONTACT-DETAIL-FEATURE-050 저장된 생일이 있으면 생일의 연도를 바꿀 수 없게 채운다`() {
+        setContactDetailScaffold(detail = birthdayDetail(calendar = ContactBirthdayCalendar.SOLAR))
+
+        composeRule.birthYearInput().assert(hasText("1994"))
+        composeRule.birthYearInput().assertIsNotEnabled()
+    }
+
+    @Test
+    fun `TC-CONTACT-DETAIL-FEATURE-050 생일 없이 저장된 태어난 연도는 바꿀 수 있게 채운다`() {
+        setContactDetailScaffold(detail = testContactDetail(name = CONTACT_NAME, birthYear = 1990))
+
+        composeRule.birthYearInput().assert(hasText("1990"))
+        composeRule.birthYearInput().assertIsEnabled()
+    }
+
+    @Test
+    fun `TC-CONTACT-DETAIL-FEATURE-050 생일과 태어난 연도가 없으면 태어난 연도를 바꿀 수 있게 비워 둔다`() {
+        setContactDetailScaffold(detail = testContactDetail(name = CONTACT_NAME))
+
+        composeRule.birthYearInput().assert(hasText(""))
+        composeRule.birthYearInput().assertIsEnabled()
+    }
+
+    @Test
+    fun `TC-CONTACT-DETAIL-FEATURE-052 저장된 생일을 지우면 태어난 연도도 지워지고 입력할 수 있다`() {
+        setContactDetailScaffold(detail = birthdayDetail(calendar = ContactBirthdayCalendar.SOLAR))
+
+        composeRule.onNodeWithContentDescription(BIRTHDAY_CLEAR_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.birthYearInput().assert(hasText(""))
+        composeRule.birthYearInput().assertIsEnabled()
     }
 
     @Test
@@ -275,6 +314,7 @@ class ContactDetailFormTest {
         private const val SECOND_NUMBER_DESCRIPTION = "Number 2"
         private const val THIRD_NUMBER_DESCRIPTION = "Number 3"
         private const val DEFAULT_BIRTHDAY_NOT_SET = "Not set"
+        private const val BIRTHDAY_CLEAR_DESCRIPTION = "Clear birthday"
         private const val BIRTHDAY_CALENDAR_DESCRIPTION = "Birthday calendar"
         private const val BIRTHDAY_CALENDAR_SOLAR = "Solar"
         private const val BIRTHDAY_CALENDAR_LUNAR = "Lunar"

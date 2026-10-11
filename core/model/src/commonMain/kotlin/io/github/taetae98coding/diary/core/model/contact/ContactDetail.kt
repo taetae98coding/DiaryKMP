@@ -8,6 +8,7 @@ public data class ContactDetail(
     val height: Length?,
     val footSize: Length?,
     val birthday: ContactBirthday?,
+    val birthYear: Int?,
     val hometown: String,
     val phoneNumberList: List<ContactPhoneNumber>,
 ) {
@@ -19,6 +20,7 @@ public data class ContactDetail(
                 height = null,
                 footSize = null,
                 birthday = null,
+                birthYear = null,
                 hometown = "",
                 phoneNumberList = emptyList(),
             )

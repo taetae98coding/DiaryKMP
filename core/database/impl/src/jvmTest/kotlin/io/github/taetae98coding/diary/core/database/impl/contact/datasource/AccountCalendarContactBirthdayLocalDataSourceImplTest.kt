@@ -85,12 +85,13 @@ class AccountCalendarContactBirthdayLocalDataSourceImplTest :
                 contactList.filter { (_, isIncluded) -> isIncluded }.map { (contact, _) -> contact.id }
         }
 
-        test("TC-CALENDAR-CONTACT-BIRTHDAY-DOMAIN-002 생일이 없는 연락처는 표시하지 않는다") {
+        test("TC-CALENDAR-CONTACT-BIRTHDAY-DOMAIN-002 생일이 없는 연락처는 태어난 연도가 있어도 표시하지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val noBirthdayContact = contact(birthday = null)
+            val birthYearOnlyContact = contact(birthday = null, birthYear = RANGE_START.year)
             val birthdayContact = contact(birthday = LocalDate(1990, 7, 8))
 
-            upsert(accountId, noBirthdayContact, birthdayContact)
+            upsert(accountId, noBirthdayContact, birthYearOnlyContact, birthdayContact)
 
             birthdayContactIdList(accountId = accountId) shouldBe listOf(birthdayContact.id)
         }
@@ -466,6 +467,7 @@ class AccountCalendarContactBirthdayLocalDataSourceImplTest :
             birthday: LocalDate?,
             name: String = fixtureMonkey.giveMeOne<String>(),
             birthdayCalendar: ContactBirthdayCalendarLocalEntity? = ContactBirthdayCalendarLocalEntity.SOLAR,
+            birthYear: Int? = birthday?.year,
         ): ContactLocalEntity =
             fixtureMonkey
                 .giveMeKotlinBuilder<ContactLocalEntity>()
@@ -480,6 +482,7 @@ class AccountCalendarContactBirthdayLocalDataSourceImplTest :
                                 name = name,
                                 birthday = birthday,
                                 birthdayCalendar = birthday?.let { birthdayCalendar },
+                                birthYear = birthYear,
                             ),
                     )
                 }

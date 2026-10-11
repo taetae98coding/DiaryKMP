@@ -15,6 +15,8 @@
     <string name="contact_birthday_calendar_content_description">생일 달력</string>
     <string name="contact_birthday_calendar_solar">양력</string>
     <string name="contact_birthday_calendar_lunar">음력</string>
+    <string name="contact_birth_year_input_label">태어난 연도</string>
+    <string name="contact_birth_year_from_birthday">생일에서 가져온 연도입니다.</string>
     <string name="contact_hometown_input_label">고향</string>
     <string name="contact_phone_number_input_label">전화번호</string>
     <string name="contact_phone_number_number_input_label">번호</string>
@@ -25,6 +27,7 @@
     <string name="contact_add_name_blank_message">이름을 입력해 주세요.</string>
     <string name="contact_add_phone_number_blank_message">전화번호를 입력해 주세요.</string>
     <string name="contact_home_birthday_lunar">음력 %1$s</string>
+    <string name="contact_home_birth_year">%1$d년생</string>
     <string name="contact_home_favorite_content_description">즐겨찾기</string>
     <string name="contact_detail_favorite_button_content_description">즐겨찾기에 추가</string>
     <string name="contact_detail_unfavorite_button_content_description">즐겨찾기에서 제거</string>

@@ -27,7 +27,7 @@ public class UpdateContactUseCase internal constructor(
         }
 
         val account = getAccountUseCase.requireAccount()
-        val detail = parameter.detail.withStoredNameForBlank(id = parameter.id)
+        val detail = parameter.detail.withStoredNameForBlank(id = parameter.id).withBirthYearOfBirthday()
 
         val updatedCount =
             accountContactRepository.updateDetail(

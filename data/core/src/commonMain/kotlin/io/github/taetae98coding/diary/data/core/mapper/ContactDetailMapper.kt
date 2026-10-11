@@ -16,6 +16,7 @@ public fun ContactDetail.toLocal(): ContactDetailLocalEntity =
         footSizeMillimeter = footSize?.inWholeMillimeter,
         birthday = birthday?.date,
         birthdayCalendar = birthday?.calendar?.toLocal(),
+        birthYear = birthday?.date?.year ?: birthYear,
         hometown = hometown,
         phoneNumberList = phoneNumberList.map { phoneNumber -> phoneNumber.toLocal() },
     )
@@ -27,6 +28,7 @@ public fun ContactDetailLocalEntity.toDomain(): ContactDetail =
         height = heightCentimeter?.centimeter,
         footSize = footSizeMillimeter?.millimeter,
         birthday = birthday?.let { date -> ContactBirthday(date = date, calendar = birthdayCalendar.toDomainOrSolar()) },
+        birthYear = birthday?.year ?: birthYear,
         hometown = hometown,
         phoneNumberList = phoneNumberList.map { phoneNumber -> phoneNumber.toDomain() },
     )

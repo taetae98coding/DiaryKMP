@@ -31,6 +31,7 @@ class ContactAddScreenEffectTest {
         composeRule.descriptionInput().assert(hasText(""))
         composeRule.heightInput().assert(hasText(""))
         composeRule.footSizeInput().assert(hasText(""))
+        composeRule.birthYearInput().assert(hasText(""))
         composeRule.hometownInput().assert(hasText(""))
         composeRule.onNodeWithText(DEFAULT_BIRTHDAY_NOT_SET).assertExists()
         composeRule.phoneNumberRowCount() shouldBe 0
@@ -68,6 +69,7 @@ class ContactAddScreenEffectTest {
         composeRule.footSizeInput().assert(hasText(TYPED_FOOT_SIZE))
         composeRule.hometownInput().assert(hasText(TYPED_HOMETOWN))
         composeRule.onNodeWithText(todayDisplayText()).assertExists()
+        composeRule.birthYearInput().assert(hasText(today().year.toString()))
         composeRule.phoneNumberRowCount() shouldBe 2
         composeRule.phoneNumberInput().assert(hasText(TYPED_FIRST_PHONE_NUMBER))
         composeRule.phoneNumberInput(row = 1).assert(hasText(TYPED_SECOND_PHONE_NUMBER))

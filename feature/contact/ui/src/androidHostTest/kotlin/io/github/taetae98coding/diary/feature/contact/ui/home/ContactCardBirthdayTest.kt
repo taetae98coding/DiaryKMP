@@ -43,11 +43,35 @@ class ContactCardBirthdayTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-021 생일이 없는 연락처는 생일을 표시하지 않는다`() {
+    fun `TC-CONTACT-HOME-FEATURE-021 생일과 태어난 연도가 없는 연락처는 생일을 표시하지 않는다`() {
         setContactCard(contact = testContact(name = CONTACT_NAME, phoneNumberList = listOf(CONTACT_PHONE_NUMBER)))
 
         composeRule.onNodeWithText(BIRTHDAY_TEXT).assertDoesNotExist()
         composeRule.onNodeWithText(LUNAR_BIRTHDAY_TEXT).assertDoesNotExist()
+        composeRule.onNodeWithText(BIRTH_YEAR_TEXT).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-CONTACT-HOME-FEATURE-037 생일 없이 태어난 연도만 있으면 그 해에 태어났다는 문구를 표시한다`() {
+        setContactCard(contact = birthYearContact())
+
+        composeRule.onNodeWithText(BIRTH_YEAR_TEXT).assertExists()
+        composeRule.onNodeWithText(LUNAR_BIRTH_YEAR_TEXT).assertDoesNotExist()
+    }
+
+    @Test
+    @Config(qualifiers = "ko")
+    fun `TC-CONTACT-HOME-FEATURE-037 한국어 환경에서 태어난 연도를 한국어 문구로 표시한다`() {
+        setContactCard(contact = birthYearContact())
+
+        composeRule.onNodeWithText(KOREAN_BIRTH_YEAR_TEXT).assertExists()
+    }
+
+    @Test
+    fun `TC-CONTACT-HOME-FEATURE-038 생일이 있는 연락처는 태어난 연도를 따로 표시하지 않는다`() {
+        setContactCard(contact = birthdayContact(calendar = ContactBirthdayCalendar.SOLAR))
+
+        composeRule.onNodeWithText(BIRTH_YEAR_TEXT).assertDoesNotExist()
     }
 
     @Test
@@ -63,6 +87,13 @@ class ContactCardBirthdayTest {
             name = CONTACT_NAME,
             phoneNumberList = listOf(CONTACT_PHONE_NUMBER),
             birthday = ContactBirthday(date = BIRTHDAY_DATE, calendar = calendar),
+        )
+
+    private fun birthYearContact(): Contact =
+        testContact(
+            name = CONTACT_NAME,
+            phoneNumberList = listOf(CONTACT_PHONE_NUMBER),
+            birthYear = BIRTHDAY_DATE.year,
         )
 
     private fun setContactCard(contact: Contact) {
@@ -88,5 +119,9 @@ class ContactCardBirthdayTest {
         private const val LUNAR_CONVERTED_BIRTHDAY_TEXT = "Lunar Mar 30, 1990"
 
         private const val KOREAN_LUNAR_BIRTHDAY_TEXT = "음력 1990. 3. 4."
+
+        private const val BIRTH_YEAR_TEXT = "Born 1990"
+        private const val LUNAR_BIRTH_YEAR_TEXT = "Lunar $BIRTH_YEAR_TEXT"
+        private const val KOREAN_BIRTH_YEAR_TEXT = "1990년생"
     }
 }

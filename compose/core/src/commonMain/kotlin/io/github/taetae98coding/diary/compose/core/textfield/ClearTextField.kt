@@ -31,6 +31,7 @@ import org.jetbrains.compose.resources.stringResource
 public fun ClearTextField(
     modifier: Modifier = Modifier,
     state: TextFieldState = rememberTextFieldState(),
+    enabled: Boolean = true,
     focusRequester: FocusRequester = remember { FocusRequester() },
     label: @Composable (TextFieldLabelScope.() -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
@@ -47,11 +48,12 @@ public fun ClearTextField(
     TextField(
         state = state,
         modifier = modifier.focusRequester(focusRequester),
+        enabled = enabled,
         label = label,
         placeholder = placeholder,
         leadingIcon = leadingIcon,
         trailingIcon = {
-            DiaryScaleFadeVisibility(visible = hasText) {
+            DiaryScaleFadeVisibility(visible = enabled && hasText) {
                 ClearButton(
                     onClick = {
                         state.clearText()

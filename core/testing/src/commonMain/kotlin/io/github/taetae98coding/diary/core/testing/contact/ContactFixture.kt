@@ -82,6 +82,8 @@ public fun FixtureMonkey.contactDetailCase(
     val heightCentimeter = if (hasMeasure) randomInt(bound = 2000) / 10.0 else null
     val footSizeMillimeter = if (hasMeasure) randomInt(bound = 500) else null
     val birthday = calendarCase?.let { date() }
+    // 생일이 있으면 태어난 연도는 그 생일의 연도이고, 생일이 없으면 다른 선택 값과 함께 태어난 연도만 있는 경우를 만든다.
+    val birthYear = birthday?.year ?: if (hasMeasure) randomInt(bound = 3000) else null
 
     return ContactDetailCase(
         domain =
@@ -91,6 +93,7 @@ public fun FixtureMonkey.contactDetailCase(
                 height = heightCentimeter?.centimeter,
                 footSize = footSizeMillimeter?.millimeter,
                 birthday = calendarCase?.let { case -> ContactBirthday(date = requireNotNull(birthday), calendar = case.domain) },
+                birthYear = birthYear,
                 hometown = hometown,
                 phoneNumberList = numberList.map { number -> ContactPhoneNumber(number = number) },
             ),
@@ -102,6 +105,7 @@ public fun FixtureMonkey.contactDetailCase(
                 footSizeMillimeter = footSizeMillimeter,
                 birthday = birthday,
                 birthdayCalendar = calendarCase?.local,
+                birthYear = birthYear,
                 hometown = hometown,
                 phoneNumberList = numberList.map { number -> ContactPhoneNumberLocalEntity(number = number) },
             ),
@@ -113,6 +117,7 @@ public fun FixtureMonkey.contactDetailCase(
                 footSizeMillimeter = footSizeMillimeter,
                 birthday = birthday,
                 birthdayCalendar = calendarCase?.remote,
+                birthYear = birthYear,
                 hometown = hometown,
                 phoneNumberList = numberList.map { number -> ContactPhoneNumberRemoteEntity(number = number) },
             ),

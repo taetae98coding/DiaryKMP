@@ -24,6 +24,17 @@ class ContactDetailMapperTest :
             }
         }
 
+        test("생일과 다른 태어난 연도를 가진 모델은 생일의 연도로 저장한다") {
+            fixtureMonkey.contactDetailCaseList().filter { case -> case.domain.birthday != null }.forEach { case ->
+                val birthYear = checkNotNull(case.domain.birthday).date.year
+
+                case.domain
+                    .copy(birthYear = birthYear + 1)
+                    .toLocal()
+                    .birthYear shouldBe birthYear
+            }
+        }
+
         test("domain to local to domain") {
             fixtureMonkey.contactDetailCaseList().forEach { case ->
                 case.domain.toLocal().toDomain() shouldBe case.domain
