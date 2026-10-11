@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.work.musicdownload
 import io.github.taetae98coding.diary.library.coroutines.scope.workCoroutineScope
 import io.github.taetae98coding.diary.work.musicdownload.di.MusicDownloadScope
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Configuration
 import org.koin.core.annotation.Module
@@ -14,5 +15,5 @@ import org.koin.core.annotation.Single
 public class WorkMusicDownloadModule {
     @Single
     @MusicDownloadScope
-    internal fun providesMusicDownloadCoroutineScope(): CoroutineScope = workCoroutineScope()
+    internal fun providesMusicDownloadCoroutineScope(): CoroutineScope = workCoroutineScope(dispatcher = Dispatchers.Default)
 }
