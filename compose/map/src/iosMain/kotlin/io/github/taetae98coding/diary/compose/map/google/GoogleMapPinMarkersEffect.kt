@@ -10,10 +10,10 @@ import androidx.compose.runtime.snapshotFlow
 import io.github.taetae98coding.diary.compose.map.DiaryMapPin
 import io.github.taetae98coding.diary.compose.map.DiaryMapPinMarkerDefaults
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
-import io.github.taetae98coding.diary.compose.map.createPinMarkerImage
 import io.github.taetae98coding.diary.compose.map.isFinite
 import io.github.taetae98coding.diary.compose.map.provider.label
 import io.github.taetae98coding.diary.compose.map.rememberDiaryMapState
+import io.github.taetae98coding.diary.compose.map.rememberPinMarkerImageFactory
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
 import platform.CoreGraphics.CGPointMake
@@ -22,6 +22,7 @@ import platform.CoreLocation.CLLocationCoordinate2DMake
 import platform.UIKit.NSTextAlignmentCenter
 import platform.UIKit.UIColor
 import platform.UIKit.UIFont
+import platform.UIKit.UIImage
 import platform.UIKit.UIImageView
 import platform.UIKit.UILabel
 import platform.UIKit.UIView
@@ -37,6 +38,7 @@ internal fun GoogleMapPinMarkersEffect(
     state: DiaryMapState = rememberDiaryMapState(),
     isPinSelectable: Boolean = false,
 ) {
+    val pinMarkerImageFactory = rememberPinMarkerImageFactory()
     val markers = remember { mutableListOf<GMSMarker>() }
 
     DisposableEffect(markers) {
@@ -45,16 +47,23 @@ internal fun GoogleMapPinMarkersEffect(
         }
     }
 
-    LaunchedEffect(mapView, markers, state, isPinSelectable, density) {
+    LaunchedEffect(mapView, markers, state, isPinSelectable, density, pinMarkerImageFactory) {
         snapshotFlow { state.pins }
             .collect { pins ->
+                val finitePins = pins.filter { pin -> pin.isFinite }
+                val imageByColor =
+                    if (mapView == null) {
+                        emptyMap()
+                    } else {
+                        pinMarkerImageFactory.create(colorList = finitePins.map { pin -> pin.color }, density = density)
+                    }
+
                 markers.forEach { marker -> marker.map = null }
                 markers.clear()
 
                 if (mapView == null) return@collect
 
-                pins
-                    .filter { pin -> pin.isFinite }
+                finitePins
                     .forEach { pin ->
                         markers +=
                             GMSMarker().apply {
@@ -66,7 +75,7 @@ internal fun GoogleMapPinMarkersEffect(
                                 )
                                 tappable = isPinSelectable
                                 userData = pin.id.toString()
-                                applyPinAppearance(pin = pin, density = density)
+                                applyPinAppearance(pin = pin, image = imageByColor[pin.color])
                                 map = mapView
                             }
                     }
@@ -76,9 +85,10 @@ internal fun GoogleMapPinMarkersEffect(
 
 private fun GMSMarker.applyPinAppearance(
     pin: DiaryMapPin,
-    density: Float,
+    image: UIImage?,
 ) {
-    val image = createPinMarkerImage(color = pin.color, density = density) ?: return
+    if (image == null) return
+
     val (imageWidth, imageHeight) = image.size.useContents { width to height }
     val imageView = UIImageView(image = image)
 

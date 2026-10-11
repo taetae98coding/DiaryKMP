@@ -6,7 +6,9 @@ import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInsta
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.runInterruptible
+import kotlinx.coroutines.withContext
 import org.koin.compose.koinInject
 import org.koin.core.qualifier.named
 import kotlin.coroutines.cancellation.CancellationException
@@ -52,7 +54,8 @@ private class JvmGoogleCredentialsManager(
         } catch (throwable: Throwable) {
             throw throwable.toGoogleCredentialsException()
         } finally {
-            receiver.stop()
+            // 받는 서버를 멈추며 서버 스레드가 끝나기를 기다리므로, 취소되었더라도 dispatcher에서 끝까지 멈춘다.
+            withContext(NonCancellable + coroutineDispatcher) { receiver.stop() }
         }
     }
 
