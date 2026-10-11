@@ -26,7 +26,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
             GMSServices.provideAPIKey(googleMapApiKey)
         }
 
-        // FCM 토큰은 APNs 기기 토큰이 있어야 발급되는데, APNs 등록과 그 토큰 전달은 앱 델리게이트로만 할 수 있다.
+        // FCM 설치 ID 등록은 APNs 기기 토큰이 있어야 알림으로 이어지는데, APNs 등록과 그 토큰 전달은 앱 델리게이트로만 할 수 있다.
         application.registerForRemoteNotifications()
         UNUserNotificationCenter.current().delegate = self
 
