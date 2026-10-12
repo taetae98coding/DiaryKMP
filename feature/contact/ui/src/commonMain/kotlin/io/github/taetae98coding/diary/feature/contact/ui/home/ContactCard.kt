@@ -25,7 +25,9 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
+import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.feature.contact.ui.Res
+import io.github.taetae98coding.diary.feature.contact.ui.contact_home_birth_year
 import io.github.taetae98coding.diary.feature.contact.ui.contact_home_birthday_lunar
 import io.github.taetae98coding.diary.feature.contact.ui.contact_home_favorite_content_description
 import io.github.taetae98coding.diary.feature.contact.ui.previewContact
@@ -67,11 +69,11 @@ internal fun ContactCard(
                 )
             }
 
-            val birthday = contact?.detail?.birthday
+            val birthText = contact?.detail?.toBirthText()
 
-            if (birthday != null) {
+            if (birthText != null) {
                 Text(
-                    text = birthday.toDisplayText(),
+                    text = birthText,
                     modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
                     maxLines = 1,
                     style = DiaryTheme.typography.bodySmall,
@@ -109,6 +111,18 @@ private fun ContactCardNameRow(
 }
 
 @Composable
+private fun ContactDetail.toBirthText(): String? {
+    val birthday = birthday
+    val birthYear = birthYear
+
+    return when {
+        birthday != null -> birthday.toDisplayText()
+        birthYear != null -> stringResource(Res.string.contact_home_birth_year, birthYear)
+        else -> null
+    }
+}
+
+@Composable
 private fun ContactBirthday.toDisplayText(): String =
     when (calendar) {
         ContactBirthdayCalendar.SOLAR -> date.toDisplayText()
@@ -133,6 +147,7 @@ private class ContactCardPreviewParameter : PreviewParameterProvider<Contact?> {
                 birthday = ContactBirthday(date = LocalDate(1990, 3, 4), calendar = ContactBirthdayCalendar.LUNAR),
             ),
             previewContact(name = "박민수", phoneNumberList = listOf("010-9876-5432")),
+            previewContact(name = "최지우", phoneNumberList = emptyList(), birthYear = 1990),
             null,
         )
 }

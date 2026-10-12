@@ -22,6 +22,7 @@ internal fun previewContact(
                 height = null,
                 footSize = null,
                 birthday = null,
+                birthYear = null,
                 hometown = "",
                 phoneNumberList = listOf(ContactPhoneNumber(number = phoneNumber)),
             ),

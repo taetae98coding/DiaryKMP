@@ -147,6 +147,27 @@ class UpdateContactUseCaseTest :
                     detailSlot.captured.birthday shouldBe ContactBirthday(date = date, calendar = ContactBirthdayCalendar.LUNAR)
                 }
 
+                Then("TC-CONTACT-DETAIL-DOMAIN-021 수정한 태어난 연도가 반영된다") {
+                    listOf(
+                        detail(birthYear = 1991) to 1991,
+                        detail(birthYear = null) to null,
+                        detail(birthday = ContactBirthday(date = LocalDate(1992, 3, 1), calendar = ContactBirthdayCalendar.SOLAR)) to 1992,
+                        detail(birthday = null) to null,
+                    ).forEach { (detail, expected) ->
+                        useCase(parameter = UpdateContactUseCase.Parameter(id = stored.id, detail = detail)).shouldBeSuccess(1)
+
+                        detailSlot.captured.birthYear shouldBe expected
+                    }
+                }
+
+                Then("생일과 다른 태어난 연도로 수정하면 생일의 연도로 반영한다") {
+                    val birthday = ContactBirthday(date = LocalDate(1992, 3, 1), calendar = ContactBirthdayCalendar.LUNAR)
+
+                    useCase(parameter = UpdateContactUseCase.Parameter(id = stored.id, detail = detail(birthday = birthday, birthYear = 1985))).shouldBeSuccess(1)
+
+                    detailSlot.captured.birthYear shouldBe 1992
+                }
+
                 Then("TC-CONTACT-DETAIL-DOMAIN-008 수정은 삭제 여부와 생성 시각과 계정 연결을 바꾸지 않는다") {
                     useCase(parameter = UpdateContactUseCase.Parameter(id = stored.id, detail = detail())).shouldBeSuccess(1)
 
@@ -409,6 +430,7 @@ class UpdateContactUseCaseTest :
             height: io.github.taetae98coding.diary.core.model.measure.Length? = null,
             footSize: io.github.taetae98coding.diary.core.model.measure.Length? = null,
             birthday: ContactBirthday? = null,
+            birthYear: Int? = birthday?.date?.year,
             hometown: String = "",
             phoneNumberList: List<ContactPhoneNumber> = emptyList(),
         ): ContactDetail =
@@ -418,6 +440,7 @@ class UpdateContactUseCaseTest :
                 height = height,
                 footSize = footSize,
                 birthday = birthday,
+                birthYear = birthYear,
                 hometown = hometown,
                 phoneNumberList = phoneNumberList,
             )

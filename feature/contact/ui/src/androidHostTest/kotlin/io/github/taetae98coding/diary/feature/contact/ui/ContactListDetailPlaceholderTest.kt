@@ -65,6 +65,7 @@ import io.github.taetae98coding.diary.feature.contact.ui.add.TYPED_FIRST_PHONE_N
 import io.github.taetae98coding.diary.feature.contact.ui.add.TYPED_FOOT_SIZE
 import io.github.taetae98coding.diary.feature.contact.ui.add.TYPED_HEIGHT
 import io.github.taetae98coding.diary.feature.contact.ui.add.addPhoneNumberRow
+import io.github.taetae98coding.diary.feature.contact.ui.add.birthYearInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.descriptionInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.effectViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.add.footSizeInput
@@ -75,6 +76,7 @@ import io.github.taetae98coding.diary.feature.contact.ui.add.nameInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.phoneNumberInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.screenTestViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.add.selectBirthday
+import io.github.taetae98coding.diary.feature.contact.ui.add.today
 import io.github.taetae98coding.diary.feature.contact.ui.add.todayDisplayText
 import io.github.taetae98coding.diary.feature.contact.ui.detail.ContactDetailEffect
 import io.github.taetae98coding.diary.feature.contact.ui.detail.ContactDetailUiState
@@ -156,6 +158,7 @@ class ContactListDetailPlaceholderTest {
         composeRule.descriptionInput().assert(hasText(""))
         composeRule.heightInput().assert(hasText(""))
         composeRule.footSizeInput().assert(hasText(""))
+        composeRule.birthYearInput().assert(hasText(""))
         composeRule.hometownInput().assert(hasText(""))
         composeRule.inputCount() shouldBe INPUT_COUNT_WITHOUT_PHONE_NUMBER
         composeRule.onAllNodesWithText(DEFAULT_BIRTHDAY_NOT_SET).onFirst().assertExists()
@@ -538,6 +541,7 @@ class ContactListDetailPlaceholderTest {
         descriptionInput().assert(hasText(""))
         heightInput().assert(hasText(""))
         footSizeInput().assert(hasText(""))
+        birthYearInput().assert(hasText(""))
         hometownInput().assert(hasText(""))
         onAllNodesWithText(DEFAULT_BIRTHDAY_NOT_SET).onFirst().assertExists()
     }
@@ -563,6 +567,7 @@ class ContactListDetailPlaceholderTest {
         composeRule.hometownInput().assert(hasText(input.hometown))
         composeRule.phoneNumberInput().assert(hasText(TYPED_FIRST_PHONE_NUMBER))
         composeRule.onAllNodesWithText(todayDisplayText()).onFirst().assertExists()
+        composeRule.birthYearInput().assert(hasText(today().year.toString()))
         viewModelList shouldHaveSize 1
     }
 

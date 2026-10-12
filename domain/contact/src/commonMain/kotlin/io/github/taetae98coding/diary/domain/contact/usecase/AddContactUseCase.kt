@@ -29,7 +29,7 @@ public class AddContactUseCase internal constructor(
         val contact =
             Contact(
                 id = Uuid.random(),
-                detail = parameter.detail,
+                detail = parameter.detail.withBirthYearOfBirthday(),
                 isFavorite = false,
                 isDeleted = false,
                 updatedAt = now,

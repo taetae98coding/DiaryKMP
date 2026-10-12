@@ -54,6 +54,7 @@ internal fun testContact(
     phoneNumberList: List<String> = emptyList(),
     description: String = "설명-${fixtureMonkey.giveMeOne<String>()}",
     birthday: ContactBirthday? = null,
+    birthYear: Int? = birthday?.date?.year,
     hometown: String = "",
     isFavorite: Boolean = false,
 ): Contact =
@@ -66,6 +67,7 @@ internal fun testContact(
                 height = null,
                 footSize = null,
                 birthday = birthday,
+                birthYear = birthYear,
                 hometown = hometown,
                 phoneNumberList = phoneNumberList.map { number -> ContactPhoneNumber(number = number) },
             ),

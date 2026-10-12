@@ -1,5 +1,9 @@
 package io.github.taetae98coding.diary.feature.contact.ui.form
 
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -16,14 +20,28 @@ import kotlinx.datetime.LocalDate
 @Stable
 internal class ContactBirthdayInputState(
     birthday: ContactBirthday?,
+    val birthYearState: TextFieldState =
+        TextFieldState(
+            initialText =
+                birthday
+                    ?.date
+                    ?.year
+                    ?.toString()
+                    .orEmpty(),
+        ),
 ) {
     val pickerDialogState: DialogState = DialogState()
 
     var birthday: ContactBirthday? by mutableStateOf(birthday)
         private set
 
+    // 입력이 네 자리의 0~9 숫자만 남기므로 비어 있지 않은 값은 항상 정수로 읽을 수 있다.
+    val birthYear: Int?
+        get() = birthYearState.text.toString().toIntOrNull()
+
     fun selectDate(date: LocalDate) {
         birthday = ContactBirthday(date = date, calendar = birthday?.calendar ?: ContactBirthdayCalendar.SOLAR)
+        birthYearState.setTextAndPlaceCursorAtEnd(date.year.toString())
     }
 
     fun selectCalendar(calendar: ContactBirthdayCalendar) {
@@ -32,10 +50,15 @@ internal class ContactBirthdayInputState(
 
     fun clear() {
         birthday = null
+        birthYearState.clearText()
     }
 
     companion object {
-        val Saver: Saver<ContactBirthdayInputState, Any> =
+        private const val DATE_KEY = "date"
+        private const val CALENDAR_KEY = "calendar"
+
+        // 태어난 연도 입력은 자기 상태를 따로 저장하므로, 복원할 때 이미 복원된 그 상태를 다시 연결한다.
+        fun saver(birthYearState: TextFieldState): Saver<ContactBirthdayInputState, Any> =
             mapSaver(
                 save = { state ->
                     mapOf(
@@ -57,20 +80,24 @@ internal class ContactBirthdayInputState(
                                     calendar = ContactBirthdayCalendar.valueOf(calendarName),
                                 )
                             },
+                        birthYearState = birthYearState,
                     )
                 },
             )
-
-        private const val DATE_KEY = "date"
-        private const val CALENDAR_KEY = "calendar"
     }
 }
 
 @Composable
-internal fun rememberContactBirthdayInputState(initialBirthday: ContactBirthday? = null): ContactBirthdayInputState =
-    rememberSaveable(saver = ContactBirthdayInputState.Saver) {
-        ContactBirthdayInputState(birthday = initialBirthday)
+internal fun rememberContactBirthdayInputState(
+    initialBirthday: ContactBirthday? = null,
+    initialBirthYear: Int? = initialBirthday?.date?.year,
+): ContactBirthdayInputState {
+    val birthYearState = rememberTextFieldState(initialText = initialBirthYear?.toString().orEmpty())
+
+    return rememberSaveable(birthYearState, saver = ContactBirthdayInputState.saver(birthYearState = birthYearState)) {
+        ContactBirthdayInputState(birthday = initialBirthday, birthYearState = birthYearState)
     }
+}
 
 internal fun LocalDate?.toEpochDayOrUnset(): Long = this?.toEpochDays() ?: UNSET_EPOCH_DAY
 

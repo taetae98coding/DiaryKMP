@@ -48,7 +48,7 @@ class AccountContactTransactionImplTest :
             database.useReaderConnection { transactor ->
                 transactor.usePrepared(
                     """
-                    SELECT id, name, description, height_centimeter, foot_size_millimeter, birthday, birthday_calendar,
+                    SELECT id, name, description, height_centimeter, foot_size_millimeter, birthday, birthday_calendar, birth_year,
                         hometown, phone_number_list, is_favorite, is_deleted, updated_at, created_at
                     FROM contact
                     ORDER BY id ASC
@@ -122,6 +122,18 @@ class AccountContactTransactionImplTest :
             transaction.upsert(accountId = accountId, contactList = listOf(contact))
 
             findContactList().single().detail.phoneNumberList shouldBe emptyList()
+        }
+
+        test("TC-CONTACT-ADD-DATA-013 생일 없이 저장한 태어난 연도를 그대로 함께 조회한다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val contact =
+                contact().let { contact ->
+                    contact.copy(detail = contact.detail.copy(birthday = null, birthdayCalendar = null, birthYear = fixtureMonkey.giveMeOne<LocalDate>().year))
+                }
+
+            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+
+            findContactList().single().detail shouldBe contact.detail
         }
 
         test("TC-CONTACT-ADD-DATA-004 키, 신발 사이즈, 생일을 저장한 값 그대로 함께 조회한다") {
@@ -265,6 +277,22 @@ class AccountContactTransactionImplTest :
             }
         }
 
+        test("TC-CONTACT-DETAIL-DATA-015 수정한 태어난 연도를 기기에 저장한다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val birthYear = fixtureMonkey.giveMeOne<LocalDate>().year
+            val contact =
+                contact().let { contact ->
+                    contact.copy(detail = contact.detail.copy(birthday = null, birthdayCalendar = null, birthYear = birthYear))
+                }
+            val updatedDetail = contact.detail.copy(birthYear = birthYear + 1)
+            val updatedAt = instant()
+            transaction.upsert(accountId = accountId, contactList = listOf(contact))
+
+            transaction.updateDetail(accountId = accountId, contactId = contact.id, detail = updatedDetail, updatedAt = updatedAt)
+
+            findContactList().single().detail.birthYear shouldBe birthYear + 1
+        }
+
         test("TC-CONTACT-DETAIL-DOMAIN-018 삭제 상태인 연락처도 즐겨찾기를 바꿀 수 있고 삭제 여부는 그대로 남는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val contact = contact().copy(isFavorite = false, isDeleted = true)
@@ -314,6 +342,7 @@ class AccountContactTransactionImplTest :
                 footSizeMillimeter = 250,
                 birthday = LocalDate(year = 1998, month = 5, day = 12),
                 birthdayCalendar = ContactBirthdayCalendarLocalEntity.SOLAR,
+                birthYear = 1998,
                 hometown = "hometown-${fixtureMonkey.giveMeOne<String>()}",
                 phoneNumberList = listOf(ContactPhoneNumberLocalEntity(number = "010-1234-5678")),
             )
@@ -338,13 +367,14 @@ class AccountContactTransactionImplTest :
                         footSizeMillimeter = if (isNull(4)) null else getInt(4),
                         birthday = if (isNull(5)) null else LocalDate.parse(getText(5)),
                         birthdayCalendar = if (isNull(6)) null else ContactBirthdayCalendarLocalEntity.fromPersistentValue(getText(6)),
-                        hometown = getText(7),
-                        phoneNumberList = Json.decodeFromString(getText(8)),
+                        birthYear = if (isNull(7)) null else getInt(7),
+                        hometown = getText(8),
+                        phoneNumberList = Json.decodeFromString(getText(9)),
                     ),
-                isFavorite = getBoolean(9),
-                isDeleted = getBoolean(10),
-                updatedAt = Instant.fromEpochMilliseconds(getLong(11)),
-                createdAt = Instant.fromEpochMilliseconds(getLong(12)),
+                isFavorite = getBoolean(10),
+                isDeleted = getBoolean(11),
+                updatedAt = Instant.fromEpochMilliseconds(getLong(12)),
+                createdAt = Instant.fromEpochMilliseconds(getLong(13)),
             )
 
         private fun SQLiteStatement.toAccountContact(): AccountContactLocalEntity =

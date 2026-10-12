@@ -41,6 +41,7 @@ class ContactAddScreenTest {
         composeRule.descriptionInput().assert(hasText(""))
         composeRule.heightInput().assert(hasText(""))
         composeRule.footSizeInput().assert(hasText(""))
+        composeRule.birthYearInput().assert(hasText(""))
         composeRule.hometownInput().assert(hasText(""))
         composeRule.onNodeWithText(DEFAULT_BIRTHDAY_NOT_SET).assertExists()
         composeRule.phoneNumberRowCount() shouldBe 0
@@ -247,8 +248,33 @@ class ContactAddScreenTest {
         composeRule.footSizeInput().assert(hasText(TYPED_FOOT_SIZE))
         composeRule.hometownInput().assert(hasText(TYPED_HOMETOWN))
         composeRule.onNodeWithText(todayDisplayText()).assertExists()
+        composeRule.birthYearInput().assert(hasText(today().year.toString()))
         composeRule.phoneNumberInput().assert(hasText(TYPED_FIRST_PHONE_NUMBER))
         composeRule.phoneNumberInput(row = 1).assert(hasText(TYPED_SECOND_PHONE_NUMBER))
+    }
+
+    @Test
+    fun `TC-CONTACT-ADD-FEATURE-046 생일 없이 입력한 태어난 연도는 화면이 재생성되어도 유지된다`() {
+        val viewModel = screenTestViewModel()
+        val restorationTester = StateRestorationTester(composeRule)
+        restorationTester.setContent {
+            ContactAddScreenTestTheme {
+                ContactAddScreen(
+                    addedResultRequestKey = null,
+                    navigateUp = {},
+                    componentVisibleProvider = { ContactAddScaffoldComponentVisible() },
+                    viewModel = viewModel,
+                )
+            }
+        }
+        composeRule.birthYearInput().performTextInput(TYPED_BIRTH_YEAR)
+        composeRule.waitForIdle()
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        composeRule.birthYearInput().assert(hasText(TYPED_BIRTH_YEAR))
+        composeRule.onNodeWithText(DEFAULT_BIRTHDAY_NOT_SET).assertExists()
     }
 
     @Test
@@ -289,6 +315,7 @@ class ContactAddScreenTest {
         composeRule.footSizeInput().assert(hasText(TYPED_FOOT_SIZE))
         composeRule.hometownInput().assert(hasText(TYPED_HOMETOWN))
         composeRule.onNodeWithText(todayDisplayText()).assertExists()
+        composeRule.birthYearInput().assert(hasText(today().year.toString()))
         composeRule.onNodeWithText(DEFAULT_BIRTHDAY_CALENDAR_LUNAR).assertIsSelected()
         composeRule.onNodeWithText(DEFAULT_BIRTHDAY_CALENDAR_SOLAR).assertIsNotSelected()
         composeRule.phoneNumberRowCount() shouldBe 2
@@ -322,6 +349,7 @@ class ContactAddScreenTest {
         composeRule.descriptionInput().performTextInput(TYPED_DESCRIPTION)
         composeRule.heightInput().performTextInput(TYPED_HEIGHT)
         composeRule.footSizeInput().performTextInput(TYPED_FOOT_SIZE)
+        composeRule.birthYearInput().performTextInput(TYPED_BIRTH_YEAR)
         composeRule.hometownInput().performTextInput(TYPED_HOMETOWN)
         composeRule.addPhoneNumberRow()
         composeRule.phoneNumberInput().performTextInput(TYPED_FIRST_PHONE_NUMBER)
@@ -337,6 +365,7 @@ class ContactAddScreenTest {
                         description = TYPED_DESCRIPTION,
                         height = TYPED_HEIGHT.toDouble().centimeter,
                         footSize = TYPED_FOOT_SIZE.toInt().millimeter,
+                        birthYear = TYPED_BIRTH_YEAR.toInt(),
                         hometown = TYPED_HOMETOWN,
                         phoneNumberList =
                             listOf(
@@ -357,12 +386,14 @@ class ContactAddScreenTest {
         composeRule.onNodeWithText(DEFAULT_HEIGHT_LABEL).assertExists()
         composeRule.onNodeWithText(DEFAULT_FOOT_SIZE_LABEL).assertExists()
         composeRule.onNodeWithText(DEFAULT_BIRTHDAY_LABEL).assertExists()
+        composeRule.onNodeWithText(DEFAULT_BIRTH_YEAR_LABEL).assertExists()
         composeRule.onNodeWithText(DEFAULT_HOMETOWN_LABEL).assertExists()
         composeRule.onNodeWithText(DEFAULT_BIRTHDAY_NOT_SET).assertExists()
         composeRule.selectBirthday()
         composeRule.onNodeWithContentDescription(DEFAULT_BIRTHDAY_CALENDAR_DESCRIPTION).assertExists()
         composeRule.onNodeWithText(DEFAULT_BIRTHDAY_CALENDAR_SOLAR).assertExists()
         composeRule.onNodeWithText(DEFAULT_BIRTHDAY_CALENDAR_LUNAR).assertExists()
+        composeRule.onNodeWithText(DEFAULT_BIRTH_YEAR_FROM_BIRTHDAY).assertExists()
         composeRule.onNodeWithText(DEFAULT_PHONE_NUMBER_LABEL).assertExists()
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).assert(hasClickAction())
     }
@@ -377,6 +408,7 @@ class ContactAddScreenTest {
         composeRule.onNodeWithText(KOREAN_HEIGHT_LABEL).assertExists()
         composeRule.onNodeWithText(KOREAN_FOOT_SIZE_LABEL).assertExists()
         composeRule.onNodeWithText(KOREAN_BIRTHDAY_LABEL).assertExists()
+        composeRule.onNodeWithText(KOREAN_BIRTH_YEAR_LABEL).assertExists()
         composeRule.onNodeWithText(KOREAN_HOMETOWN_LABEL).assertExists()
         composeRule.onNodeWithText(KOREAN_BIRTHDAY_NOT_SET).assertExists()
         composeRule.onNodeWithText(KOREAN_PHONE_NUMBER_LABEL).assertExists()

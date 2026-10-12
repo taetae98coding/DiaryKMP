@@ -2,13 +2,16 @@ package io.github.taetae98coding.diary.feature.contact.ui.add
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
-import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
@@ -31,15 +34,17 @@ internal const val NAME_INPUT_INDEX = 0
 internal const val DESCRIPTION_INPUT_INDEX = 1
 internal const val HEIGHT_INPUT_INDEX = 2
 internal const val FOOT_SIZE_INPUT_INDEX = 3
-internal const val HOMETOWN_INPUT_INDEX = 4
-internal const val PHONE_NUMBER_INPUT_INDEX = 5
-internal const val INPUT_COUNT_WITHOUT_PHONE_NUMBER = 5
+internal const val BIRTH_YEAR_INPUT_INDEX = 4
+internal const val HOMETOWN_INPUT_INDEX = 5
+internal const val PHONE_NUMBER_INPUT_INDEX = 6
+internal const val INPUT_COUNT_WITHOUT_PHONE_NUMBER = 6
 
 internal const val TYPED_NAME = "ContactName"
 internal const val TYPED_DESCRIPTION = "ContactDescription"
 internal const val TYPED_HEIGHT = "175.5"
 internal const val TYPED_FOOT_SIZE = "250"
 internal const val TYPED_HOMETOWN = "강원도 춘천시"
+internal const val TYPED_BIRTH_YEAR = "1990"
 internal const val TYPED_FIRST_PHONE_NUMBER = "010-1234-5678"
 internal const val TYPED_SECOND_PHONE_NUMBER = "02-987-6543"
 
@@ -53,6 +58,8 @@ internal const val DEFAULT_BIRTHDAY_CLEAR_DESCRIPTION = "Clear birthday"
 internal const val DEFAULT_BIRTHDAY_CALENDAR_DESCRIPTION = "Birthday calendar"
 internal const val DEFAULT_BIRTHDAY_CALENDAR_SOLAR = "Solar"
 internal const val DEFAULT_BIRTHDAY_CALENDAR_LUNAR = "Lunar"
+internal const val DEFAULT_BIRTH_YEAR_LABEL = "Birth year"
+internal const val DEFAULT_BIRTH_YEAR_FROM_BIRTHDAY = "Taken from the birthday."
 internal const val DEFAULT_HOMETOWN_LABEL = "Hometown"
 internal const val DEFAULT_PHONE_NUMBER_LABEL = "Phone numbers"
 internal const val DEFAULT_PHONE_NUMBER_ADD_BUTTON_DESCRIPTION = "Add phone number"
@@ -71,6 +78,7 @@ internal const val KOREAN_HEIGHT_LABEL = "키 (cm)"
 internal const val KOREAN_FOOT_SIZE_LABEL = "신발 사이즈 (mm)"
 internal const val KOREAN_BIRTHDAY_LABEL = "생일"
 internal const val KOREAN_BIRTHDAY_NOT_SET = "선택 안 함"
+internal const val KOREAN_BIRTH_YEAR_LABEL = "태어난 연도"
 internal const val KOREAN_HOMETOWN_LABEL = "고향"
 internal const val KOREAN_PHONE_NUMBER_LABEL = "전화번호"
 internal const val KOREAN_PHONE_NUMBER_ADD_BUTTON_DESCRIPTION = "전화번호 추가"
@@ -127,29 +135,35 @@ internal fun ContactAddScreenTestTheme(
     }
 }
 
-internal fun ComposeContentTestRule.nameInput(): SemanticsNodeInteraction = onAllNodes(hasSetTextAction())[NAME_INPUT_INDEX]
+// 생일을 고른 동안 태어난 연도 입력은 비활성이라 글자를 넣는 동작이 없으므로, 입력의 순서는 사용 여부와 무관한 편집 글자로 센다.
+private fun isTextInput(): SemanticsMatcher = SemanticsMatcher.keyIsDefined(SemanticsProperties.EditableText)
 
-internal fun ComposeContentTestRule.descriptionInput(): SemanticsNodeInteraction = onAllNodes(hasSetTextAction())[DESCRIPTION_INPUT_INDEX]
+internal fun ComposeContentTestRule.nameInput(): SemanticsNodeInteraction = onAllNodes(isTextInput())[NAME_INPUT_INDEX]
 
-internal fun ComposeContentTestRule.heightInput(): SemanticsNodeInteraction = onAllNodes(hasSetTextAction())[HEIGHT_INPUT_INDEX]
+internal fun ComposeContentTestRule.descriptionInput(): SemanticsNodeInteraction = onAllNodes(isTextInput())[DESCRIPTION_INPUT_INDEX]
 
-internal fun ComposeContentTestRule.footSizeInput(): SemanticsNodeInteraction = onAllNodes(hasSetTextAction())[FOOT_SIZE_INPUT_INDEX]
+internal fun ComposeContentTestRule.heightInput(): SemanticsNodeInteraction = onAllNodes(isTextInput())[HEIGHT_INPUT_INDEX]
 
-internal fun ComposeContentTestRule.hometownInput(): SemanticsNodeInteraction = onAllNodes(hasSetTextAction())[HOMETOWN_INPUT_INDEX]
+internal fun ComposeContentTestRule.footSizeInput(): SemanticsNodeInteraction = onAllNodes(isTextInput())[FOOT_SIZE_INPUT_INDEX]
 
-internal fun ComposeContentTestRule.phoneNumberInput(row: Int = 0): SemanticsNodeInteraction = onAllNodes(hasSetTextAction())[PHONE_NUMBER_INPUT_INDEX + row]
+internal fun ComposeContentTestRule.birthYearInput(): SemanticsNodeInteraction = onAllNodes(isTextInput())[BIRTH_YEAR_INPUT_INDEX]
 
-internal fun ComposeContentTestRule.inputCount(): Int = onAllNodes(hasSetTextAction()).fetchSemanticsNodes().size
+internal fun ComposeContentTestRule.hometownInput(): SemanticsNodeInteraction = onAllNodes(isTextInput())[HOMETOWN_INPUT_INDEX]
+
+internal fun ComposeContentTestRule.phoneNumberInput(row: Int = 0): SemanticsNodeInteraction = onAllNodes(isTextInput())[PHONE_NUMBER_INPUT_INDEX + row]
+
+internal fun ComposeContentTestRule.inputCount(): Int = onAllNodes(isTextInput()).fetchSemanticsNodes().size
 
 internal fun ComposeContentTestRule.phoneNumberRowCount(): Int = onAllNodesWithContentDescription(DEFAULT_PHONE_NUMBER_REMOVE_BUTTON_DESCRIPTION).fetchSemanticsNodes().size
 
 internal fun ComposeContentTestRule.addPhoneNumberRow() {
-    onNodeWithContentDescription(DEFAULT_PHONE_NUMBER_ADD_BUTTON_DESCRIPTION).performClick()
+    // 입력이 늘어 전화번호 영역이 화면 아래 끝에 놓이면 떠 있는 추가 버튼이 그 위를 덮으므로, 누르는 위치와 무관한 클릭 동작으로 누른다.
+    onNodeWithContentDescription(DEFAULT_PHONE_NUMBER_ADD_BUTTON_DESCRIPTION).performSemanticsAction(SemanticsActions.OnClick)
     waitForIdle()
 }
 
 internal fun ComposeContentTestRule.removePhoneNumberRow(row: Int = 0) {
-    onAllNodesWithContentDescription(DEFAULT_PHONE_NUMBER_REMOVE_BUTTON_DESCRIPTION)[row].performClick()
+    onAllNodesWithContentDescription(DEFAULT_PHONE_NUMBER_REMOVE_BUTTON_DESCRIPTION)[row].performSemanticsAction(SemanticsActions.OnClick)
     waitForIdle()
 }
 

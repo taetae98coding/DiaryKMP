@@ -93,7 +93,7 @@ class AccountContactLocalDataSourceImplTest :
             page(accountId = accountId, sort = ListSortLocalEntity.NAME) shouldBe listOf(favorite)
         }
 
-        test("TC-CONTACT-HOME-DATA-006 TC-CONTACT-ADD-DATA-007 생일과 달력 구분, 고향, 즐겨찾기 여부가 함께 조회된다") {
+        test("TC-CONTACT-HOME-DATA-006 TC-CONTACT-ADD-DATA-007 생일과 달력 구분, 태어난 연도, 고향, 즐겨찾기 여부가 함께 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val stored =
                 contact(name = FIRST_NAME, isFavorite = true).let { contact ->
@@ -102,6 +102,7 @@ class AccountContactLocalDataSourceImplTest :
                             contact.detail.copy(
                                 birthday = BIRTHDAY,
                                 birthdayCalendar = ContactBirthdayCalendarLocalEntity.LUNAR,
+                                birthYear = BIRTHDAY.year,
                                 hometown = HOMETOWN,
                             ),
                     )
@@ -208,6 +209,7 @@ class AccountContactLocalDataSourceImplTest :
                         footSizeMillimeter = null,
                         birthday = null,
                         birthdayCalendar = null,
+                        birthYear = null,
                         hometown = "hometown-${fixtureMonkey.giveMeOne<String>()}",
                         phoneNumberList = listOf(ContactPhoneNumberLocalEntity(number = "010-1234-5678")),
                     ),

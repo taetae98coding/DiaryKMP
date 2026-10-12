@@ -130,15 +130,17 @@ class SyncWorkContactTest :
         }
 
         listOf(
-            "양력 생일" to ContactBirthdayCalendarLocalEntity.SOLAR,
-            "음력 생일" to ContactBirthdayCalendarLocalEntity.LUNAR,
-            "생일 없음" to null,
-        ).forEach { (label, birthdayCalendar) ->
-            test("TC-DATA-SYNC-DATA-034 $label 연락처의 업로드에는 생일의 날짜와 달력 구분이 함께 담긴다") {
+            Triple("양력 생일", ContactBirthdayCalendarLocalEntity.SOLAR, false),
+            Triple("음력 생일", ContactBirthdayCalendarLocalEntity.LUNAR, false),
+            Triple("생일 없이 태어난 연도만 있는", null, true),
+            Triple("생일과 태어난 연도가 모두 없는", null, false),
+        ).forEach { (label, birthdayCalendar, hasBirthYearOnly) ->
+            test("TC-DATA-SYNC-DATA-034 $label 연락처의 업로드에는 생일의 날짜와 달력 구분, 태어난 연도가 함께 담긴다") {
                 val birthday = birthdayCalendar?.let { fixtureMonkey.giveMeOne<LocalDate>() }
+                val birthYear = birthday?.year ?: if (hasBirthYearOnly) fixtureMonkey.giveMeOne<LocalDate>().year else null
                 val stored =
                     contact().let { value ->
-                        value.copy(detail = value.detail.copy(birthday = birthday, birthdayCalendar = birthdayCalendar))
+                        value.copy(detail = value.detail.copy(birthday = birthday, birthdayCalendar = birthdayCalendar, birthYear = birthYear))
                     }
                 val context = context(contactList = listOf(stored))
                 val requestList = mutableListOf<List<ContactRemoteEntity>>()
@@ -149,6 +151,7 @@ class SyncWorkContactTest :
                 val detail = requestList.single().single().detail
                 detail.birthday shouldBe birthday
                 detail.birthdayCalendar shouldBe birthdayCalendar?.toRemote()
+                detail.birthYear shouldBe birthYear
             }
         }
 

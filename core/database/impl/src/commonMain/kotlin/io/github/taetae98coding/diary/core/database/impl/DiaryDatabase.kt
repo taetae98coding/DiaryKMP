@@ -59,6 +59,7 @@ import io.github.taetae98coding.diary.core.database.impl.memoweb.dao.AccountMemo
 import io.github.taetae98coding.diary.core.database.impl.memoweb.dao.AccountMemoWebSyncDao
 import io.github.taetae98coding.diary.core.database.impl.memoweb.dao.MemoWebDao
 import io.github.taetae98coding.diary.core.database.impl.memoweb.entity.AccountMemoWebLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.migration.ContactBirthYearAutoMigrationSpec
 import io.github.taetae98coding.diary.core.database.impl.music.dao.AccountMusicDao
 import io.github.taetae98coding.diary.core.database.impl.music.dao.AccountMusicSyncDao
 import io.github.taetae98coding.diary.core.database.impl.music.dao.MusicDao
@@ -143,9 +144,10 @@ import io.github.taetae98coding.diary.library.room3.converter.UuidColumnTypeConv
         AccountQrLocalEntity::class,
         SyncCursorLocalEntity::class,
     ],
-    version = 2,
+    version = 3,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
+        AutoMigration(from = 2, to = 3, spec = ContactBirthYearAutoMigrationSpec::class),
     ],
 )
 @ConstructedBy(DiaryDatabaseConstructor::class)

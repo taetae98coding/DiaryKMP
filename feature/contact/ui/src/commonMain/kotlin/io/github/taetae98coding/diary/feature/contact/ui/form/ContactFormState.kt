@@ -30,6 +30,7 @@ internal class ContactFormState(
                 height = heightState.heightOrNull(),
                 footSize = footSizeState.footSizeOrNull(),
                 birthday = birthdayState.birthday,
+                birthYear = birthdayState.birthYear,
                 hometown = hometownState.text.toString(),
                 phoneNumberList = phoneNumberState.rowList.map { row -> ContactPhoneNumber(number = row.number) },
             )
@@ -60,7 +61,11 @@ private fun rememberContactFormState(initialDetail: ContactDetail): ContactFormS
                     ?.toString()
                     .orEmpty(),
         )
-    val birthdayState = rememberContactBirthdayInputState(initialBirthday = initialDetail.birthday)
+    val birthdayState =
+        rememberContactBirthdayInputState(
+            initialBirthday = initialDetail.birthday,
+            initialBirthYear = initialDetail.birthYear,
+        )
     val hometownState = rememberTextFieldState(initialText = initialDetail.hometown)
     val phoneNumberState =
         rememberContactPhoneNumberInputState(
