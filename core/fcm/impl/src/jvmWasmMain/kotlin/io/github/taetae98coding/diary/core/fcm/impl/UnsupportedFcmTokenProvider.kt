@@ -5,5 +5,5 @@ import org.koin.core.annotation.Factory
 
 @Factory
 internal class UnsupportedFcmTokenProvider : FcmTokenProvider {
-    override suspend fun getToken(): String? = null
+    override suspend fun getInstallationId(): String? = null
 }
