@@ -4,8 +4,10 @@ import { fetchGoogleAccessToken, readFirebaseServiceAccount } from "./google-ser
 
 const FCM_SCOPE = "https://www.googleapis.com/auth/firebase.messaging";
 
-export interface FcmMessage {
-  token: string;
+// 메시지 대상은 설치 ID(fid)나 이전 방식의 등록 토큰(token) 중 하나만 담는다.
+export type FcmTarget = { fid: string; token?: never } | { token: string; fid?: never };
+
+export type FcmMessage = FcmTarget & {
   notification: { title: string; body?: string };
   android: {
     collapse_key: string;
@@ -15,7 +17,7 @@ export interface FcmMessage {
   apns: {
     headers: Record<string, string>;
   };
-}
+};
 
 export type FcmSendResult =
   | { status: "sent" }
@@ -63,8 +65,8 @@ export class FcmClient {
   }
 }
 
-// FCM은 지워진 토큰을 404 UNREGISTERED로, 형식이 틀린 토큰을 400 INVALID_ARGUMENT로 답한다.
-// 둘 다 이 토큰으로는 다시 보낼 수 없다는 뜻이므로 서버에서 지울 대상으로 본다.
+// FCM은 지워진 대상을 404 UNREGISTERED로, 형식이 틀린 대상을 400 INVALID_ARGUMENT로 답한다.
+// 둘 다 이 대상으로는 다시 보낼 수 없다는 뜻이므로 서버에서 지울 대상으로 본다.
 function isInvalidTokenError(status: number, body: unknown): boolean {
   const errorCode = fcmErrorCode(body);
   if (status === 404 && errorCode === "UNREGISTERED") return true;
