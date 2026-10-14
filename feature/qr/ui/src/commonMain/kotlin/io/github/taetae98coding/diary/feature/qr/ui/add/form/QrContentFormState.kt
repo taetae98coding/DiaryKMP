@@ -210,51 +210,56 @@ internal fun QrContentFormState.requestFocusFirstField() {
 }
 
 private fun QrContentFormState.applyFields(content: QrContent) {
-    fun setFields(vararg fieldList: Pair<QrTextField, String>) {
-        fieldList.forEach { (field, text) -> fieldState(field).setText(text) }
-    }
+    content.fieldTextMap().forEach { (field, text) -> fieldState(field).setText(text) }
 
     when (content) {
-        is QrContent.Text -> Unit
-
-        is QrContent.Url -> setFields(QrTextField.URL to content.url)
-
-        is QrContent.Contact ->
-            setFields(
-                QrTextField.CONTACT_NAME to content.name,
-                QrTextField.CONTACT_PHONE_NUMBER to content.phoneNumber,
-                QrTextField.CONTACT_EMAIL to content.email,
-                QrTextField.CONTACT_COMPANY to content.company,
-                QrTextField.CONTACT_ADDRESS to content.address,
-                QrTextField.CONTACT_WEBSITE to content.website,
-            )
-
         is QrContent.Wifi -> {
-            setFields(QrTextField.WIFI_SSID to content.ssid, QrTextField.WIFI_PASSWORD to content.password)
             wifiSecurity = content.security
             isWifiHidden = content.isHidden
         }
 
-        is QrContent.Location -> setFields(QrTextField.LATITUDE to content.latitude, QrTextField.LONGITUDE to content.longitude)
-
-        is QrContent.Email ->
-            setFields(QrTextField.EMAIL_TO to content.to, QrTextField.EMAIL_SUBJECT to content.subject, QrTextField.EMAIL_BODY to content.body)
-
-        is QrContent.Phone -> setFields(QrTextField.PHONE_NUMBER to content.phoneNumber)
-
-        is QrContent.Sms -> setFields(QrTextField.SMS_PHONE_NUMBER to content.phoneNumber, QrTextField.SMS_MESSAGE to content.message)
-
         is QrContent.Event -> {
-            setFields(
-                QrTextField.EVENT_TITLE to content.title,
-                QrTextField.EVENT_LOCATION to content.location,
-                QrTextField.EVENT_DESCRIPTION to content.description,
-            )
             val period = content.period
             if (period == null) eventPeriodState.hasDateTime = false else eventPeriodState.select(period.toDiaryDateTimeInputValue())
         }
+
+        else -> Unit
     }
 }
+
+private fun QrContent.fieldTextMap(): Map<QrTextField, String> =
+    when (this) {
+        is QrContent.Text -> emptyMap()
+
+        is QrContent.Url -> mapOf(QrTextField.URL to url)
+
+        is QrContent.Contact ->
+            mapOf(
+                QrTextField.CONTACT_NAME to name,
+                QrTextField.CONTACT_PHONE_NUMBER to phoneNumber,
+                QrTextField.CONTACT_EMAIL to email,
+                QrTextField.CONTACT_COMPANY to company,
+                QrTextField.CONTACT_ADDRESS to address,
+                QrTextField.CONTACT_WEBSITE to website,
+            )
+
+        is QrContent.Wifi -> mapOf(QrTextField.WIFI_SSID to ssid, QrTextField.WIFI_PASSWORD to password)
+
+        is QrContent.Location -> mapOf(QrTextField.LATITUDE to latitude, QrTextField.LONGITUDE to longitude)
+
+        is QrContent.Email -> mapOf(QrTextField.EMAIL_TO to to, QrTextField.EMAIL_SUBJECT to subject, QrTextField.EMAIL_BODY to body)
+
+        is QrContent.Phone -> mapOf(QrTextField.PHONE_NUMBER to phoneNumber)
+
+        is QrContent.Sms -> mapOf(QrTextField.SMS_PHONE_NUMBER to phoneNumber, QrTextField.SMS_MESSAGE to message)
+
+        is QrContent.Event ->
+            mapOf(
+                QrTextField.EVENT_TITLE to title,
+                QrTextField.EVENT_LOCATION to location,
+                QrTextField.EVENT_DESCRIPTION to description,
+            )
+    }
 
 private fun emptyContent(
     format: QrFormat,
@@ -274,15 +279,25 @@ private fun emptyContent(
 
 @Composable
 internal fun rememberQrContentFormState(
+    initialValue: String = "",
     defaultProvider: MapProvider? = null,
     clock: Clock = Clock.System,
 ): QrContentFormState {
-    val formatState = rememberSaveable(stateSaver = QrFormatSaver) { mutableStateOf(QrFormat.TEXT) }
-    val wifiSecurityState = rememberSaveable(stateSaver = QrWifiSecuritySaver) { mutableStateOf(QrWifiSecurity.WPA) }
-    val isWifiHiddenState = rememberSaveable { mutableStateOf(false) }
-    val fieldStateMap = QrTextField.entries.associateWith { field -> key(field) { rememberQrFieldState() } }
+    // 일정 기간 입력 상태가 초기값을 키로 삼으므로, 이후에 들어온 값으로 바뀌어 입력 상태가 새로 만들어지지 않도록 처음 값을 고정한다.
+    val filledValue = rememberSaveable { initialValue }
+    val initialFormat = remember(filledValue) { detectQrFormat(filledValue) }
+    val initialContent = remember(initialFormat, filledValue, clock) { initialFormat.readContent(filledValue) ?: emptyContent(format = initialFormat, clock = clock) }
+    val initialFieldTextMap = remember(initialContent, filledValue) { initialContent.fieldTextMap() + (QrTextField.TEXT to filledValue) }
+    val initialWifi = initialContent as? QrContent.Wifi
+    val formatState = rememberSaveable(stateSaver = QrFormatSaver) { mutableStateOf(initialFormat) }
+    val wifiSecurityState = rememberSaveable(stateSaver = QrWifiSecuritySaver) { mutableStateOf(initialWifi?.security ?: QrWifiSecurity.WPA) }
+    val isWifiHiddenState = rememberSaveable { mutableStateOf(initialWifi?.isHidden ?: false) }
+    val fieldStateMap = QrTextField.entries.associateWith { field -> key(field) { rememberQrFieldState(initialText = initialFieldTextMap[field].orEmpty()) } }
     val undoRecordList = rememberSaveable(saver = QrUndoRecordListSaver) { mutableListOf<QrUndoRecord>().toMutableStateList() }
-    val initialEventPeriod = remember(clock) { clock.todayEventPeriod().toDiaryDateTimeInputValue() }
+    val initialEventPeriod =
+        remember(initialContent, clock) {
+            if (initialContent is QrContent.Event) initialContent.period?.toDiaryDateTimeInputValue() else clock.todayEventPeriod().toDiaryDateTimeInputValue()
+        }
     val eventPeriodState = rememberDiaryDateTimeInputState(initialValue = initialEventPeriod)
     val mapState =
         if (defaultProvider == null) {

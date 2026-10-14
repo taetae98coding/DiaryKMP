@@ -31,8 +31,8 @@ internal class QrFieldState(
 }
 
 @Composable
-internal fun rememberQrFieldState(): QrFieldState {
-    val textFieldState = rememberTextFieldState()
+internal fun rememberQrFieldState(initialText: String = ""): QrFieldState {
+    val textFieldState = rememberTextFieldState(initialText = initialText)
     val focusRequester = remember { FocusRequester() }
 
     return remember(textFieldState, focusRequester) {

@@ -32,6 +32,7 @@ import io.github.taetae98coding.diary.feature.playlist.api.MusicAddNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicDetailNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.PlaylistHomeNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrAddNavKey
+import io.github.taetae98coding.diary.feature.qr.api.QrDetailNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrHomeNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrScanNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineAddNavKey
@@ -104,6 +105,7 @@ class ScreenNameTest :
                     MemoAddNavKey(primaryTagId = id),
                     PlaceDetailNavKey(id = id),
                     PlaceAddNavKey(initialTagId = id),
+                    QrDetailNavKey(id = id),
                     TagAddNavKey(requestKey = id),
                     TagDetailNavKey(id = id),
                     TagMemoFinishedListNavKey(tagId = id),
@@ -161,6 +163,7 @@ class ScreenNameTest :
                 PlaylistHomeNavKey to "PlaylistHome",
                 ProfileImageEditNavKey to "ProfileImageEdit",
                 QrAddNavKey to "QrAdd",
+                QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "QrDetail",
                 QrHomeNavKey to "QrHome",
                 QrScanNavKey to "QrScan",
                 RoutineAddNavKey to "RoutineAdd",
@@ -193,6 +196,7 @@ class ScreenNameTest :
                 MusicDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to MusicDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
                 PlaceDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to PlaceDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
                 PlaceAddNavKey(initialTagId = fixtureMonkey.giveMeOne<Uuid>()) to PlaceAddNavKey(),
+                QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
                 TagAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()) to TagAddNavKey(),
                 TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
                 TagMemoFinishedListNavKey(tagId = fixtureMonkey.giveMeOne<Uuid>()) to TagMemoFinishedListNavKey(tagId = fixtureMonkey.giveMeOne<Uuid>()),

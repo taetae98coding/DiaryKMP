@@ -9,6 +9,10 @@ internal sealed interface QrHomeScaffoldEvent {
 
     data object Refresh : QrHomeScaffoldEvent
 
+    data class ClickQr(
+        val id: Uuid,
+    ) : QrHomeScaffoldEvent
+
     data class DeleteQr(
         val id: Uuid,
     ) : QrHomeScaffoldEvent

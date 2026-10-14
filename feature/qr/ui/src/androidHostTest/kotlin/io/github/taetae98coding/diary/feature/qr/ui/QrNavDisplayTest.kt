@@ -7,6 +7,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
@@ -17,6 +18,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
@@ -33,6 +35,7 @@ import io.github.taetae98coding.diary.core.testing.qr.qrDetail
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.qr.api.QrAddNavKey
+import io.github.taetae98coding.diary.feature.qr.api.QrDetailNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrHomeNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrScanNavKey
 import io.github.taetae98coding.diary.feature.qr.ui.add.INFO_TAB_INDEX
@@ -53,6 +56,9 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.selectFormat
 import io.github.taetae98coding.diary.feature.qr.ui.add.selectTab
 import io.github.taetae98coding.diary.feature.qr.ui.add.titleInputText
 import io.github.taetae98coding.diary.feature.qr.ui.card.QR_CARD_TEST_TAG
+import io.github.taetae98coding.diary.feature.qr.ui.detail.QrDetailEffect
+import io.github.taetae98coding.diary.feature.qr.ui.detail.QrDetailUiState
+import io.github.taetae98coding.diary.feature.qr.ui.detail.QrDetailViewModel
 import io.github.taetae98coding.diary.feature.qr.ui.home.QrHomeViewModel
 import io.github.taetae98coding.diary.feature.qr.ui.home.qrPagingDataOf
 import io.github.taetae98coding.diary.feature.qr.ui.home.testQr
@@ -60,8 +66,10 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -73,6 +81,7 @@ import org.koin.dsl.koinConfiguration
 import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.uuid.Uuid
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w480dp-h1200dp")
@@ -83,6 +92,8 @@ class QrNavDisplayTest {
     private val backStack = NavBackStack<ScreenNavKey>(QrNavDisplayMoreNavKey, QrHomeNavKey)
     private val resultEventBus = ResultEventBus()
     private val addViewModelList = mutableListOf<QrAddViewModel>()
+    private val detailViewModelList = mutableListOf<QrDetailViewModel>()
+    private var detailEffect: QrDetailEffect? = null
     private var homeQrList: List<Qr> = emptyList()
 
     // KoinApplication 컴포저블은 전역 Koin이 남아 있으면 새 모듈 선언을 무시하고 재사용하므로 테스트 앞뒤로 전역 Koin을 정리한다.
@@ -187,6 +198,120 @@ class QrNavDisplayTest {
         pressBack()
 
         assertPositionQrDisplayed(qrList)
+    }
+
+    @Test
+    fun `TC-QR-HOME-DOMAIN-013 QR 상세로 이동한 뒤 뒤로가도 보던 목록 위치를 유지한다`() {
+        val qrList = positionQrList()
+        setQrNavDisplay(qrList = qrList)
+        scrollToPositionQr(qrList)
+
+        composeRule.onNode(qrCard(qrList[POSITION_SCROLL_INDEX])).performClick()
+        composeRule.waitForIdle()
+        composeRule.refreshableList().assertDoesNotExist()
+        pressBack()
+
+        assertPositionQrDisplayed(qrList)
+    }
+
+    @Test
+    fun `TC-QR-HOME-FEATURE-034 목록의 QR을 선택하면 그 QR의 QrDetail 화면으로 이동한다`() {
+        val qrList = listOf(testQr(), testQr())
+        setQrNavDisplay(qrList = qrList)
+        waitUntilQrIsDisplayed(qrList.last())
+
+        composeRule.onNode(qrCard(qrList.last())).performClick()
+        composeRule.waitForIdle()
+
+        backStack.toList() shouldBe listOf(QrNavDisplayMoreNavKey, QrHomeNavKey, QrDetailNavKey(id = qrList.last().id))
+        composeRule.titleInputText() shouldBe qrList.last().detail.title
+    }
+
+    @Test
+    fun `TC-QR-DETAIL-FEATURE-020 TC-QR-DETAIL-FEATURE-021 뒤로가기로 떠났다가 다시 선택하면 수정하지 않은 저장된 내용으로 다시 시작한다`() {
+        val qr = testQr()
+        setQrNavDisplay(qrList = listOf(qr))
+        waitUntilQrIsDisplayed(qr)
+        composeRule.onNode(qrCard(qr)).performClick()
+        composeRule.waitForIdle()
+        composeRule.onTitleInput().performTextInput("2")
+        composeRule.onQrTextInput().performTextInput("3")
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        backStack.toList() shouldBe listOf(QrNavDisplayMoreNavKey, QrHomeNavKey)
+        composeRule.onNode(qrCard(qr)).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.isTabSelected(INFO_TAB_INDEX) shouldBe true
+        composeRule.titleInputText() shouldBe qr.detail.title
+        composeRule.qrCodeValue() shouldBe qr.detail.value
+        composeRule.onNodeWithContentDescription(DEFAULT_UNDO_DESCRIPTION).assertIsNotEnabled()
+        detailViewModelList.forEach { viewModel -> verify(exactly = 0) { viewModel.update(detail = any()) } }
+    }
+
+    @Test
+    fun `TC-QR-DETAIL-FEATURE-012 TC-QR-SCAN-FEATURE-007 QrDetail에서 QrScan으로 이동해 QR을 읽어 돌아오면 QR 값을 바꾼다`() {
+        val qr = testQr()
+        val scannedValue = "https://example.com/scanned"
+        setQrNavDisplay(qrList = listOf(qr))
+        waitUntilQrIsDisplayed(qr)
+        composeRule.onNode(qrCard(qr)).performClick()
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { backStack.add(QrScanNavKey) }
+        composeRule.onNodeWithText(DEFAULT_SCAN_TITLE).assertExists()
+
+        composeRule.runOnIdle { backStack.navigateUpWithQrScannedValue(resultEventBus = resultEventBus, value = scannedValue) }
+        composeRule.waitForIdle()
+
+        backStack.toList() shouldBe listOf(QrNavDisplayMoreNavKey, QrHomeNavKey, QrDetailNavKey(id = qr.id))
+        composeRule.isTabSelected(QR_TAB_INDEX) shouldBe true
+        composeRule.qrCodeValue() shouldBe scannedValue
+        composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_DESCRIPTION).assertExists()
+    }
+
+    @Test
+    fun `TC-QR-DETAIL-FEATURE-027 TC-QR-SCAN-FEATURE-006 QrScan 화면에서 읽지 않고 돌아오면 QrDetail의 입력, 포맷과 탭을 그대로 둔다`() {
+        val qr = testQr()
+        val editedTitle = "edited-" + qr.detail.title
+        setQrNavDisplay(qrList = listOf(qr))
+        waitUntilQrIsDisplayed(qr)
+        composeRule.onNode(qrCard(qr)).performClick()
+        composeRule.waitForIdle()
+        composeRule.onTitleInput().performTextReplacement(editedTitle)
+        composeRule.selectFormat(formatLabel = DEFAULT_FORMAT_LABEL, formatName = "URL")
+        composeRule.onQrFieldInput("URL").performTextReplacement(URL)
+        composeRule.selectTab(INFO_TAB_INDEX)
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { backStack.add(QrScanNavKey) }
+        composeRule.onNodeWithText(DEFAULT_SCAN_TITLE).assertExists()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        backStack.toList() shouldBe listOf(QrNavDisplayMoreNavKey, QrHomeNavKey, QrDetailNavKey(id = qr.id))
+        composeRule.isTabSelected(INFO_TAB_INDEX) shouldBe true
+        composeRule.titleInputText() shouldBe editedTitle
+        composeRule.qrCodeValue() shouldBe URL
+        composeRule.onQrFieldInput("URL").editableText() shouldBe URL
+    }
+
+    @Test
+    fun `TC-QR-DETAIL-FEATURE-028 상세에서 삭제한 QR에는 QrHome의 삭제 안내와 실행 취소를 표시하지 않는다`() {
+        val qr = testQr()
+        detailEffect = QrDetailEffect.DeleteSucceeded
+        setQrNavDisplay(qrList = listOf(qr))
+        waitUntilQrIsDisplayed(qr)
+        composeRule.onNode(qrCard(qr)).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_DELETE_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        backStack.toList() shouldBe listOf(QrNavDisplayMoreNavKey, QrHomeNavKey)
+        composeRule.onNodeWithText(DEFAULT_DELETED_MESSAGE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_UNDO_ACTION).assertDoesNotExist()
     }
 
     @Test
@@ -306,6 +431,17 @@ class QrNavDisplayTest {
                     every { uiState } returns MutableStateFlow(SyncRefreshUiState())
                 }
             }
+            factory { parameters ->
+                val id = parameters.get<Uuid>()
+                val qr = homeQrList.first { qr -> qr.id == id }
+                mockk<QrDetailViewModel>(relaxed = true)
+                    .apply {
+                        val effectChannel = Channel<QrDetailEffect>(capacity = Channel.BUFFERED)
+                        every { uiState } returns MutableStateFlow(QrDetailUiState.Content(id = qr.id, detail = qr.detail))
+                        every { effect } returns effectChannel.receiveAsFlow()
+                        every { delete() } answers { detailEffect?.let(effectChannel::trySend) }
+                    }.also(detailViewModelList::add)
+            }
             factory {
                 mockk<QrAddViewModel>(relaxed = true)
                     .apply {
@@ -321,6 +457,11 @@ class QrNavDisplayTest {
         private const val URL = "https://a.com"
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
         private const val DEFAULT_SCAN_TITLE = "Scan QR code"
+        private const val DEFAULT_UPDATE_DESCRIPTION = "Update QR code"
+        private const val DEFAULT_DELETE_DESCRIPTION = "Delete QR code"
+        private const val DEFAULT_DELETED_MESSAGE = "QR code deleted."
+        private const val DEFAULT_UNDO_ACTION = "Undo"
+        private const val DEFAULT_UNDO_DESCRIPTION = "Undo"
         private const val MORE_CONTENT = "MoreContent"
         private const val POSITION_QR_COUNT = 30
         private const val POSITION_SCROLL_INDEX = 25

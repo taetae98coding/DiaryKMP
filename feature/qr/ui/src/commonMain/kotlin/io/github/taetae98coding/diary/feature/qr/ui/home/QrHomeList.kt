@@ -78,6 +78,7 @@ internal fun QrHomeList(
                     val qr = qrPagingItems[index]
 
                     SwipeToDeleteQrCard(
+                        onClick = { qr?.let { value -> onEvent(QrHomeScaffoldEvent.ClickQr(id = value.id)) } },
                         onDelete = { qr?.let { value -> onEvent(QrHomeScaffoldEvent.DeleteQr(id = value.id)) } },
                         modifier =
                             Modifier

@@ -69,12 +69,12 @@ internal fun QrAddScreenEffect(
 }
 
 // 탭을 바꾼 직후에는 새 탭의 입력이 아직 구성되지 않아 초점을 받을 수 없으므로, 바뀐 탭이 그려진 다음 프레임까지 기다린다.
-private suspend fun awaitTabComposed() {
+internal suspend fun awaitTabComposed() {
     Snapshot.sendApplyNotifications()
     withFrameNanos { }
 }
 
-private val QrFormat.emptyMessage: StringResource
+internal val QrFormat.emptyMessage: StringResource
     get() =
         when (this) {
             QrFormat.TEXT -> Res.string.qr_text_empty_message

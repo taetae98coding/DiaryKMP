@@ -137,6 +137,27 @@ class QrAddLocationTest {
     }
 
     @Test
+    fun `TC-QR-DETAIL-FEATURE-030 저장된 위치 QR로 시작하면 반영을 기다린 뒤 지점과 지도가 그 좌표로 옮겨진다`() {
+        composeRule.mainClock.autoAdvance = false
+        var state: QrContentFormState? = null
+        composeRule.setContent {
+            val contentState = rememberQrContentFormState(initialValue = "geo:37.5665,126.978", defaultProvider = MapProvider.NAVER)
+            state = contentState
+            ReflectQrCoordinateEffect(state = contentState)
+            WriteQrFieldsEffect(state = contentState)
+        }
+
+        composeRule.mainClock.advanceTimeBy(REFLECT_DELAY_MILLIS * 2)
+
+        val expected = DiaryMapCoordinate(latitude = 37.5665, longitude = 126.978)
+        composeRule.runOnIdle {
+            checkNotNull(state).format shouldBe QrFormat.LOCATION
+            checkNotNull(state).mapState.spot shouldBe expected
+            checkNotNull(state).mapState.coordinate shouldBe expected
+        }
+    }
+
+    @Test
     fun `TC-QR-ADD-FEATURE-042 기본 지도를 확인하지 못하면 지도 없이 좌표를 입력해 위치 QR을 추가한다`() {
         val eventList = mutableListOf<QrAddScaffoldEvent>()
         var state: QrAddFormState? = null

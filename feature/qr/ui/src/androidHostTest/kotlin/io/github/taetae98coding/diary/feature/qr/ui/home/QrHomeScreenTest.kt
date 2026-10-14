@@ -146,6 +146,7 @@ class QrHomeScreenTest {
                 QrHomeScreen(
                     navigateUp = navigateUp,
                     navigateToAdd = navigateToAdd,
+                    navigateToDetail = {},
                     qrViewModel = qrViewModel,
                     syncViewModel = syncViewModel,
                 )

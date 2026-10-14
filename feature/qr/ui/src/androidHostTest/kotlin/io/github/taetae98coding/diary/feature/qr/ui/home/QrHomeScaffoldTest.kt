@@ -101,7 +101,7 @@ class QrHomeScaffoldTest {
 
         composeRule.visibleTextList() shouldContainExactlyInAnyOrder listOf(KOREAN_TITLE, qr.detail.title)
         composeRule.qrCodeValueList() shouldBe listOf(qr.detail.value)
-        composeRule.actionNameList() shouldContainExactlyInAnyOrder listOf(KOREAN_NAVIGATE_UP_DESCRIPTION, KOREAN_ADD_DESCRIPTION)
+        composeRule.actionNameList() shouldContainExactlyInAnyOrder listOf(KOREAN_NAVIGATE_UP_DESCRIPTION, KOREAN_ADD_DESCRIPTION, qr.detail.title)
     }
 
     @Test
@@ -119,25 +119,15 @@ class QrHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-018 목록의 QR을 선택해도 아무 일도 일어나지 않는다`() {
+    fun `TC-QR-HOME-FEATURE-034 목록의 QR을 선택하면 그 QR의 상세로 이동하는 이벤트를 한 번 내보낸다`() {
         val eventList = mutableListOf<QrHomeScaffoldEvent>()
-        val snackbarHostState = SnackbarHostState()
-        val qr = testQr()
-        setQrHomeScaffold(pagingData = qrPagingDataOf(listOf(qr)), onEvent = eventList::add, snackbarHostState = snackbarHostState)
+        val qrList = listOf(testQr(), testQr())
+        setQrHomeScaffold(pagingData = qrPagingDataOf(qrList), onEvent = eventList::add)
 
-        composeRule.onNode(hasTestTag(QR_CARD_TEST_TAG) and hasText(qr.detail.title)).performClick()
+        composeRule.onNode(hasTestTag(QR_CARD_TEST_TAG) and hasText(qrList.last().detail.title)).performClick()
         composeRule.waitForIdle()
 
-        eventList shouldBe emptyList()
-        composeRule.onNode(hasTestTag(QR_CARD_TEST_TAG) and hasText(qr.detail.title)).assertExists()
-        composeRule.runOnIdle { snackbarHostState.currentSnackbarData shouldBe null }
-    }
-
-    @Test
-    fun `QR 카드는 누를 수 있는 요소로 두지 않는다`() {
-        setQrHomeScaffold(pagingData = qrPagingDataOf(listOf(testQr())))
-
-        composeRule.onNode(hasTestTag(QR_CARD_TEST_TAG) and hasClickAction()).assertDoesNotExist()
+        eventList shouldBe listOf(QrHomeScaffoldEvent.ClickQr(id = qrList.last().id))
     }
 
     @Test

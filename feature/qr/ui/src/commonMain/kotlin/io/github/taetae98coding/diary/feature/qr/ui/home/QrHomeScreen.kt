@@ -8,11 +8,13 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
+import kotlin.uuid.Uuid
 
 @Composable
 internal fun QrHomeScreen(
     navigateUp: () -> Unit,
     navigateToAdd: () -> Unit,
+    navigateToDetail: (Uuid) -> Unit,
     qrViewModel: QrHomeViewModel,
     syncViewModel: SyncRefreshViewModel,
     modifier: Modifier = Modifier,
@@ -33,6 +35,7 @@ internal fun QrHomeScreen(
                 is QrHomeScaffoldEvent.ClickNavigateUp -> navigateUp()
                 is QrHomeScaffoldEvent.ClickAdd -> navigateToAdd()
                 is QrHomeScaffoldEvent.Refresh -> syncViewModel.refresh()
+                is QrHomeScaffoldEvent.ClickQr -> navigateToDetail(event.id)
                 is QrHomeScaffoldEvent.DeleteQr -> qrViewModel.delete(id = event.id)
             }
         },
