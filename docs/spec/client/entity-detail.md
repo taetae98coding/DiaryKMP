@@ -8,6 +8,7 @@
 - [MemoDetail 화면 스펙](./memo-detail.md)
 - [MusicDetail 화면 스펙](./music-detail.md)
 - [PlaceDetail 화면 스펙](./place-detail.md)
+- [QrDetail 화면 스펙](./qr-detail.md)
 - [TagDetail 화면 스펙](./tag-detail.md)
 - [WebDetail 화면 스펙](./web-detail.md)
 
