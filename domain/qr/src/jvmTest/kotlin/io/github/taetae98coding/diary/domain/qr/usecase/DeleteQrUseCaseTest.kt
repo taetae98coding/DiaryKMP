@@ -54,7 +54,7 @@ class DeleteQrUseCaseTest :
                 )
 
             When("QR을 삭제한다") {
-                Then("TC-QR-HOME-DOMAIN-009 삭제 여부를 삭제로 바꾸고 수정 시각을 갱신한다") {
+                Then("TC-QR-HOME-DOMAIN-009 TC-QR-DETAIL-DOMAIN-005 삭제 여부를 삭제로 바꾸고 수정 시각을 갱신한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     isDeletedSlot.captured shouldBe true
@@ -88,7 +88,7 @@ class DeleteQrUseCaseTest :
                 )
 
             When("QR을 삭제한다") {
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-QR-HOME-DATA-004 기기에 저장한 뒤 서버와 맞추기 위한 동기화를 한 번 요청한다") {
+                Then("TC-SYNC-REFRESH-FEATURE-004 TC-QR-HOME-DATA-004 TC-QR-DETAIL-DATA-003 기기에 저장한 뒤 서버와 맞추기 위한 동기화를 한 번 요청한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
@@ -137,7 +137,7 @@ class DeleteQrUseCaseTest :
                 )
 
             When("QR을 삭제한다") {
-                Then("TC-QR-HOME-DATA-005 게스트 계정 기준으로 기기에 반영한다") {
+                Then("TC-QR-HOME-DATA-005 TC-QR-DETAIL-DATA-004 게스트 계정 기준으로 기기에 반영한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     coVerify(exactly = 1) {
@@ -192,7 +192,7 @@ class DeleteQrUseCaseTest :
                 )
 
             When("QR을 삭제한다") {
-                Then("실패를 그대로 전달하고 동기화를 요청하지 않는다") {
+                Then("TC-QR-DETAIL-DATA-002 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
                     useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
