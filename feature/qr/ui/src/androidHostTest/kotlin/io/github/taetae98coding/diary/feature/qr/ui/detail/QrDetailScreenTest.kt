@@ -145,7 +145,7 @@ class QrDetailScreenTest {
 
     @Test
     fun `TC-QR-DETAIL-FEATURE-005 화면에는 정해진 탭, 입력과 동작만 둔다`() {
-        setScreen()
+        setScreen(detail = qrTestFixtureMonkey.qrDetail(value = HELLO))
         composeRule.onTitleInput().performTextInput(APPENDED_TEXT)
         composeRule.waitForIdle()
 

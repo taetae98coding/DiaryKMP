@@ -20,6 +20,7 @@ import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefault
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.qr.QrDetail
+import io.github.taetae98coding.diary.domain.qr.content.QrAction
 import io.github.taetae98coding.diary.feature.qr.ui.Res
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddForm
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddFormState
@@ -36,6 +37,7 @@ internal fun QrDetailScaffold(
     modifier: Modifier = Modifier,
     state: QrAddFormState = rememberQrAddFormState(),
     uiStateProvider: () -> QrDetailUiState = { QrDetailUiState.Loading },
+    actionProvider: () -> QrAction? = { null },
 ) {
     val isChanged by remember(state) {
         derivedStateOf {
@@ -51,6 +53,7 @@ internal fun QrDetailScaffold(
                 onEvent = onEvent,
                 state = state,
                 uiStateProvider = uiStateProvider,
+                actionProvider = actionProvider,
             )
         },
         snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },
