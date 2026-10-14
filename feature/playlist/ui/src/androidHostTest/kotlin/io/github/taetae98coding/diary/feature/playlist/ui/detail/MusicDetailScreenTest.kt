@@ -301,7 +301,7 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-030 앱 밖에서 열지 못해도 화면과 입력을 유지한다`() {
+    fun `TC-MUSIC-DETAIL-FEATURE-034 앱 밖에서 열지 못하면 화면을 유지하고 링크를 열지 못했다고 알린다`() {
         var navigateUpCount = 0
         val uriHandler =
             mockk<UriHandler> {
@@ -310,15 +310,13 @@ class MusicDetailScreenTest {
         setMusicDetailScreen(uiState = contentUiState(), navigateUp = { navigateUpCount += 1 }, uriHandler = uriHandler)
         composeRule.titleInput().performTextReplacement(EDITING_TITLE)
         composeRule.waitForIdle()
-        val textListBeforeOpen = composeRule.visibleTextList()
 
         composeRule.onNodeWithContentDescription(DEFAULT_OPEN_IN_NEW_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
         verify(exactly = 1) { uriHandler.openUri(STORED_LINK) }
         navigateUpCount shouldBe 0
-        // 스낵바나 다른 안내가 나타나면 화면의 글이 늘어나므로, 열기 전과 같은지로 안내가 없음을 확인한다.
-        composeRule.visibleTextList() shouldBe textListBeforeOpen
+        composeRule.onNodeWithText("Couldn't open the link.").assertExists()
         composeRule.titleInput().assert(hasText(EDITING_TITLE))
         composeRule.onNodeWithContentDescription(DEFAULT_OPEN_IN_NEW_DESCRIPTION).assertExists()
     }

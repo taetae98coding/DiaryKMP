@@ -23,4 +23,5 @@
         <item>December</item>
     </string-array>
     <string name="calendar_timetable_navigate_up_content_description">Navigate up</string>
+    <string name="calendar_search_open_failed_message">Couldn't open the search results.</string>
 </resources>

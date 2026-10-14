@@ -23,4 +23,5 @@
         <item>12월</item>
     </string-array>
     <string name="calendar_timetable_navigate_up_content_description">뒤로가기</string>
+    <string name="calendar_search_open_failed_message">검색 결과를 열지 못했습니다.</string>
 </resources>

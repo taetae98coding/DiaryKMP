@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.calendar.ui.home
 
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -21,6 +22,7 @@ import kotlin.time.Clock
 internal class CalendarHomeScaffoldState(
     val calendarState: CalendarState,
     val datePickerDialogState: DialogState,
+    val snackbarHostState: SnackbarHostState,
 ) {
     val calendarSelectState: CalendarSelectState
         get() = calendarState.selectState
@@ -53,10 +55,14 @@ internal class CalendarHomeScaffoldState(
 internal fun rememberCalendarHomeScaffoldState(
     calendarState: CalendarState = rememberCalendarState(),
     datePickerDialogState: DialogState = rememberDialogState(),
-): CalendarHomeScaffoldState =
-    remember(calendarState, datePickerDialogState) {
+): CalendarHomeScaffoldState {
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    return remember(calendarState, datePickerDialogState, snackbarHostState) {
         CalendarHomeScaffoldState(
             calendarState = calendarState,
             datePickerDialogState = datePickerDialogState,
+            snackbarHostState = snackbarHostState,
         )
     }
+}

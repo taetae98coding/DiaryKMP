@@ -39,4 +39,5 @@
     <string name="web_detail_view_mode_response_label">응답 본문 방식</string>
     <string name="web_detail_open_in_new_button_content_description">외부로 열기</string>
     <string name="web_detail_delete_button_content_description">웹 삭제</string>
+    <string name="web_detail_open_failed_message">링크를 열지 못했습니다.</string>
 </resources>

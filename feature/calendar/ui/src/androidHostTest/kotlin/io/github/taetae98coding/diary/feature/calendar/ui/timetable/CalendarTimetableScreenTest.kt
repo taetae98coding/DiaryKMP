@@ -425,7 +425,7 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TIMETABLE-FEATURE-027 브라우저를 열지 못해도 시간표를 그대로 유지한다`() {
+    fun `TC-CALENDAR-TIMETABLE-FEATURE-031 브라우저를 열지 못하면 시간표를 유지하고 검색 결과를 열지 못했다고 알린다`() {
         val errorMessage = fixtureMonkey.nonBlankString()
         val uriHandler = mockk<UriHandler>().also { every { it.openUri(any()) } throws IllegalStateException(errorMessage) }
         setTimetableScreen(
@@ -443,6 +443,7 @@ class CalendarTimetableScreenTest {
         composeRule.onAllNodes(isDialog()).assertCountEquals(0)
         composeRule.onAllNodes(isPopup()).assertCountEquals(0)
         composeRule.onNodeWithText(errorMessage, substring = true).assertDoesNotExist()
+        composeRule.onNodeWithText("Couldn't open the search results.").assertIsDisplayed()
     }
 
     @Test

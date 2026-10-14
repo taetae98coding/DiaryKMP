@@ -5,6 +5,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
+import io.github.taetae98coding.diary.compose.core.uri.tryOpenUri
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 
@@ -45,9 +46,4 @@ private fun externalMapUriList(
     }
 }
 
-// Android는 여는 방법이 없는 주소를 예외로 알린다.
-private fun UriHandler.openFirstAvailable(uriList: List<String>) {
-    for (uri in uriList) {
-        if (runCatching { openUri(uri) }.isSuccess) return
-    }
-}
+private fun UriHandler.openFirstAvailable(uriList: List<String>): Boolean = uriList.any(::tryOpenUri)
