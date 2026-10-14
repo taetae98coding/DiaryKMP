@@ -34,7 +34,7 @@
 - 근거: `feature > 조회 상태`
 - Given: QR 조회가 아직 끝나지 않았다.
 - When: 사용자가 QrDetail 화면을 확인한다.
-- Then: 조회 중 상태가 표시되고, 입력, 탭, 되돌리기, QR 스캔 시작, 수정과 삭제를 선택할 수 없다. 뒤로가기는 선택할 수 있다.
+- Then: 조회 중 상태가 표시되고, 입력, 탭, 되돌리기, QR 스캔 시작, QR 실행, 수정과 삭제를 선택할 수 없다. 뒤로가기는 선택할 수 있다.
 
 ### TC-QR-DETAIL-FEATURE-004: 조회할 수 없으면 조회 중 상태를 유지한다
 
@@ -53,9 +53,9 @@
 ### TC-QR-DETAIL-FEATURE-005: 화면에는 정해진 탭, 입력과 동작만 둔다
 
 - 근거: `feature > 화면 내용`
-- Given: 저장된 QR의 QrDetail 화면에 내용이 표시되어 있고, 입력이 저장 내용과 다르다.
+- Given: 실행할 내용이 없는 QR 값 `hello`가 저장된 QR의 QrDetail 화면에 내용이 표시되어 있고, 입력이 저장 내용과 다르다.
 - When: 사용자가 화면을 확인한다.
-- Then: 화면에는 화면 제목, 뒤로가기, 삭제, 되돌리기, QR 그림, 정보 탭과 QR 탭, QR 스캔 시작과 수정만 있고, 정보 탭에는 제목 입력과 설명 입력이, QR 탭에는 포맷 선택과 선택한 포맷의 입력이 있다. 태그 입력은 없다.
+- Then: 화면에는 화면 제목, 뒤로가기, 삭제, 되돌리기, QR 그림, 정보 탭과 QR 탭, QR 스캔 시작과 수정만 있고, 정보 탭에는 제목 입력과 설명 입력이, QR 탭에는 포맷 선택과 선택한 포맷의 입력이 있다. 태그 입력은 없다. QR 실행은 실행할 내용이 있을 때만 두므로 이 화면에는 없다.
 
 ### TC-QR-DETAIL-FEATURE-006: 입력이 저장된 내용과 다를 때만 수정 동작을 제공한다
 
@@ -286,6 +286,106 @@
 - When: 그 QR의 QrDetail 화면이 표시되고 QR 탭으로 바꾼 뒤 입력을 멈춘 것으로 보는 시간이 지난다.
 - Then: 위치 포맷의 지도에 위도 `37.5665`, 경도 `126.978`의 지점이 표시되고 지도가 그 곳으로 옮겨진다.
 
+### TC-QR-DETAIL-FEATURE-031: 실행할 내용이 있으면 그 동작의 QR 실행 버튼을 둔다
+
+- 근거: `feature > 화면 내용`, `feature > QR 실행`, `domain > QR 실행 대상`
+- Given: Android에서 테스트 데이터의 QR 값이 저장된 QR의 QrDetail 화면에 내용이 표시되어 있다.
+- When: 사용자가 상단 바를 확인한다.
+- Then: 테스트 데이터의 이름을 가진 QR 실행 버튼이 하나 표시된다. 정보 탭과 QR 탭 어느 쪽을 보고 있어도 같은 버튼이 표시된다.
+- 테스트 데이터:
+
+  | QR 값 | 버튼 이름 |
+  | --- | --- |
+  | `https://example.com` | `브라우저에서 열기` |
+  | `tel:010-1234-5678` | `전화 걸기` |
+  | `mailto:a@example.com` | `메일 쓰기` |
+  | `SMSTO:010:hi` | `문자 보내기` |
+  | `geo:37.5665,126.978` | `지도에서 보기` |
+  | `BEGIN:VCARD` 줄, `FN:홍길동` 줄, `END:VCARD` 줄 | `연락처에 추가` |
+  | `BEGIN:VEVENT` 줄, `SUMMARY:회의` 줄, `END:VEVENT` 줄 | `캘린더에 추가` |
+  | `WIFI:T:WPA;S:home;P:password;;` | `Wi-Fi 연결` |
+
+### TC-QR-DETAIL-FEATURE-032: 실행할 내용이 없으면 QR 실행 버튼을 두지 않는다
+
+- 근거: `feature > QR 실행`, `domain > 환경별 실행 방법`
+- Given: Android에서 테스트 데이터의 QR 값이 저장된 QR의 QrDetail 화면에 내용이 표시되어 있다.
+- When: 사용자가 상단 바를 확인한다.
+- Then: QR 실행 버튼이 표시되지 않고, 되돌리기, QR 스캔과 삭제 버튼은 그대로 표시된다.
+- 테스트 데이터:
+
+  | QR 값 | 이유 |
+  | --- | --- |
+  | `hello` | 텍스트 포맷 |
+  | `WIFI:T:WEP;S:home;P:12345;;` | Android는 WEP 네트워크를 받지 않음 |
+
+### TC-QR-DETAIL-FEATURE-033: QR 값을 고치면 반영하지 않아도 QR 실행 버튼이 바로 바뀐다
+
+- 근거: `feature > QR 실행`, `domain > QR 실행 대상`
+- Given: Android에서 QR 값 `hello`가 저장된 QR의 QrDetail 화면에서 QR 탭의 텍스트 포맷이 선택되어 있다.
+- When: 사용자가 텍스트 포맷의 내용을 `https://example.com`으로 바꾸고, 이어서 `tel:010`으로 바꾼 뒤, 마지막으로 `memo`로 바꾼다.
+- Then: `https://example.com`일 때 `브라우저에서 열기` 버튼이, `tel:010`일 때 `전화 걸기` 버튼이 표시되고, `memo`일 때는 QR 실행 버튼이 표시되지 않는다. 선택한 포맷은 줄곧 텍스트이고 수정은 반영되지 않는다.
+
+### TC-QR-DETAIL-FEATURE-034: QR 실행을 선택하면 입력 중인 내용을 그 동작으로 앱 밖에 넘긴다
+
+- 근거: `feature > QR 실행`, `domain > QR 실행 대상`, `domain > 환경별 실행 방법`
+- Given: Android에서 테스트 데이터의 QR 값이 저장된 QR의 QrDetail 화면에 내용이 표시되어 있고, 그 내용을 받을 앱이 기기에 있다.
+- When: 사용자가 QR 실행 버튼을 선택한다.
+- Then: 테스트 데이터의 요청이 앱 밖으로 한 번 넘어가고, 실행 실패 안내는 표시되지 않는다.
+- 테스트 데이터:
+
+  | QR 값 | 앱 밖에 넘기는 요청 |
+  | --- | --- |
+  | `https://example.com/a?b=1` | 웹 주소 `https://example.com/a?b=1` 열기 |
+  | `tel:010-1234-5678` | 번호 `010-1234-5678`이 입력된 전화 화면 열기 |
+  | `mailto:a@example.com?subject=Hi&body=Hello%20there` | 받는 사람 `a@example.com`, 제목 `Hi`, 본문 `Hello there`인 새 메일 |
+  | `SMSTO:010:hi` | 받는 번호 `010`, 메시지 `hi`인 새 문자 |
+  | `geo:37.5665,126.978` | 좌표 `37.5665,126.978`을 지도에서 열기 |
+  | `BEGIN:VCARD` 줄, `FN:홍길동` 줄, `TEL:010` 줄, `EMAIL:a@example.com` 줄, `ORG:회사` 줄, `ADR:;;세종대로;서울;;;` 줄, `URL:https://example.com` 줄, `END:VCARD` 줄 | 이름 `홍길동`, 전화번호 `010`, 이메일 `a@example.com`, 회사 `회사`, 주소 `세종대로 서울`, 웹사이트 `https://example.com`인 새 연락처 |
+  | `BEGIN:VEVENT` 줄, `SUMMARY:회의` 줄, `DTSTART;VALUE=DATE:20261014` 줄, `DTEND;VALUE=DATE:20261016` 줄, `LOCATION:회의실` 줄, `DESCRIPTION:안건` 줄, `END:VEVENT` 줄 | 제목 `회의`, 2026년 10월 14일부터 15일까지 종일, 장소 `회의실`, 설명 `안건`인 새 일정 |
+  | `WIFI:T:WPA;S:home;P:password;H:true;;` | 네트워크 이름 `home`, WPA2 비밀번호 `password`, 숨겨진 네트워크인 네트워크 저장 확인 |
+  | `WIFI:S:cafe;;` | 네트워크 이름 `cafe`, 비밀번호 없는 네트워크 저장 확인 |
+
+### TC-QR-DETAIL-FEATURE-035: 앱 밖에 넘기지 못하면 화면에 머무르고 실행 실패를 알린다
+
+- 근거: `feature > QR 실행`
+- Given: Android에서 QR 값 `hello`가 저장된 QR의 QrDetail 화면에서 URL 포맷의 주소를 `https://example.com`으로 새로 써 되돌리기 기록이 남아 있고 QR 탭을 보고 있다. 기기에 그 내용을 받을 앱이 없다.
+- When: 사용자가 `브라우저에서 열기` 버튼을 선택한다.
+- Then: 앱이 멈추지 않고 QrDetail 화면에 머무르며 `QR을 실행하지 못했습니다.` 안내가 표시된다. 화면 제목, QR 탭, URL 포맷과 주소 입력은 그대로이고, 되돌리기를 선택하면 텍스트 포맷의 `hello`로 돌아간다.
+
+### TC-QR-DETAIL-FEATURE-036: QR 실행은 입력과 저장된 QR을 바꾸지 않는다
+
+- 근거: `feature > QR 실행`
+- Given: Android에서 QR 값 `hello`가 저장된 QR의 QrDetail 화면에서 URL 포맷의 주소를 `https://example.com`으로 새로 써 되돌리기 기록이 남아 있고 QR 탭을 보고 있다.
+- When: 사용자가 `브라우저에서 열기` 버튼을 선택한다.
+- Then: 웹 주소 `https://example.com`이 넘어가고, QR 탭과 URL 포맷이 선택된 채 주소 입력이 그대로이며 수정 동작이 계속 제공된다. 저장된 QR은 수정되지 않고, 되돌리기를 선택하면 텍스트 포맷의 `hello`로 돌아간다.
+
+### TC-QR-DETAIL-FEATURE-037: QR 실행 실패 안내는 화면이 재생성되면 다시 표시하지 않는다
+
+- 근거: `feature > 진행 상태 유지`
+- Given: 앱 밖에 넘기지 못해 `QR을 실행하지 못했습니다.` 안내가 표시되어 있다.
+- When: 화면이 재생성된다.
+- Then: 안내가 다시 표시되지 않는다.
+
+### TC-QR-DETAIL-FEATURE-038: 수정이나 삭제를 처리하는 동안에도 QR 실행을 선택할 수 있다
+
+- 근거: `feature > QR 실행`, `domain > 요청 제한`
+- Given: Android에서 QR 값 `https://example.com`이 저장된 QR의 QrDetail 화면에서 테스트 데이터의 요청을 처리하고 있다.
+- When: 사용자가 `브라우저에서 열기` 버튼을 선택한다.
+- Then: 웹 주소 `https://example.com`이 앱 밖으로 넘어간다.
+- 테스트 데이터:
+
+  | 처리 중인 요청 |
+  | --- |
+  | 수정 |
+  | 삭제 |
+
+### TC-QR-DETAIL-FEATURE-039: 기기가 받지 않는 Wi-Fi 비밀번호면 실행 실패를 알린다
+
+- 근거: `feature > QR 실행`, `domain > 환경별 실행 방법`
+- Given: Android에서 비밀번호에 한글이 들어간 QR 값 `WIFI:T:WPA;S:home;P:비밀번호12345;;`가 저장된 QR의 QrDetail 화면에 내용이 표시되어 있다.
+- When: 사용자가 `Wi-Fi 연결` 버튼을 선택한다.
+- Then: 앱 밖으로 아무것도 넘어가지 않고, QrDetail 화면에 머무르며 `QR을 실행하지 못했습니다.` 안내가 표시된다.
+
 ## domain
 
 ### TC-QR-DETAIL-DOMAIN-001: 삭제 상태인 QR도 상세 대상으로 조회한다
@@ -364,6 +464,95 @@
   | 화면이 재생성됨 |
   | 시스템이 앱을 되살리며 이 화면을 다시 보여 줌 |
 
+### TC-QR-DETAIL-DOMAIN-008: QR 값의 포맷과 내용으로 실행 동작을 정한다
+
+- 근거: `domain > QR 실행 대상`
+- Given: 테스트 데이터의 QR 값이 있다.
+- When: 그 QR 값의 실행 동작을 정한다.
+- Then: 테스트 데이터의 실행 동작이 정해진다.
+- 테스트 데이터:
+
+  | QR 값 | 실행 동작 |
+  | --- | --- |
+  | `https://example.com` | 웹 주소 열기 |
+  | `HTTP://EXAMPLE.COM` | 웹 주소 열기 |
+  | `tel:010` | 전화 걸기 |
+  | `mailto:a@example.com` | 메일 쓰기 |
+  | `mailto:?subject=Hi` | 메일 쓰기 |
+  | `SMSTO:010:hi` | 문자 보내기 |
+  | `sms:010?body=hi` | 문자 보내기 |
+  | `geo:37.5665,126.978` | 지도에서 보기 |
+  | `BEGIN:VCARD` 줄, `EMAIL:a@example.com` 줄, `END:VCARD` 줄 | 연락처에 추가 |
+  | `BEGIN:VEVENT` 줄, `DTSTART;VALUE=DATE:20261014` 줄, `END:VEVENT` 줄 | 캘린더에 추가 |
+  | `WIFI:T:WEP;S:home;P:12345;;` | Wi-Fi 연결 |
+  | `WIFI:S:cafe;;` | Wi-Fi 연결 |
+
+### TC-QR-DETAIL-DOMAIN-009: 실행할 수 있는 조건을 만족하지 않으면 실행 동작이 없다
+
+- 근거: `domain > QR 실행 대상`
+- Given: 테스트 데이터의 QR 값이 있다.
+- When: 그 QR 값의 실행 동작을 정한다.
+- Then: 실행 동작이 없다.
+- 테스트 데이터:
+
+  | QR 값 | 이유 |
+  | --- | --- |
+  | 빈 값 | 텍스트 포맷 |
+  | `hello` | 텍스트 포맷 |
+  | ` https://example.com` | 앞에 공백이 있어 텍스트 포맷 |
+  | `tel:` | 전화번호가 없음 |
+  | `tel:   ` | 전화번호가 공백뿐 |
+  | `mailto:` | 받는 사람, 제목, 본문이 모두 없음 |
+  | `SMSTO::hi` | 전화번호가 없음 |
+  | `geo:91,0` | 위도가 유효 범위를 벗어남 |
+  | `geo:abc,127` | 위도를 읽을 수 없음 |
+  | `BEGIN:VCARD` 줄, `VERSION:3.0` 줄, `END:VCARD` 줄 | 연락처 입력이 모두 없음 |
+  | `BEGIN:VEVENT` 줄, `END:VEVENT` 줄 | 일정 입력이 모두 없고 기간도 없음 |
+  | `WIFI:T:WPA;P:password;;` | 네트워크 이름이 없음 |
+
+### TC-QR-DETAIL-DOMAIN-010: 넘기는 글자 값은 앞뒤 공백을 지우고 Wi-Fi 이름과 비밀번호는 그대로 둔다
+
+- 근거: `domain > QR 실행 대상`
+- Given: 테스트 데이터의 QR 값이 있다.
+- When: 그 QR 값의 실행 내용을 정한다.
+- Then: 넘기는 값이 테스트 데이터와 같다.
+- 테스트 데이터:
+
+  | QR 값 | 넘기는 값 |
+  | --- | --- |
+  | `SMSTO: 010 : hi ` | 받는 번호 `010`, 메시지 `hi` |
+  | `WIFI:S: home ;P: pass word ;;` | 네트워크 이름 ` home `, 비밀번호 ` pass word ` |
+
+### TC-QR-DETAIL-DOMAIN-011: 일정의 기간은 QR 값의 시간대 표기로 해석한다
+
+- 근거: `domain > QR 실행 대상`
+- Given: 기기의 현지 시간대가 `Asia/Seoul`이고, 일정 QR 값의 `DTSTART`와 `DTEND` 줄이 테스트 데이터와 같다.
+- When: 그 QR 값의 실행 내용을 정한다.
+- Then: 넘기는 일정의 기간이 테스트 데이터의 결과와 같다.
+- 테스트 데이터:
+
+  | `DTSTART`와 `DTEND` 줄 | 넘기는 기간 |
+  | --- | --- |
+  | `DTSTART:20261014T090000Z`, `DTEND:20261014T100000Z` | 세계 표준시 2026-10-14 09:00부터 10:00까지 |
+  | `DTSTART;TZID=America/New_York:20261014T090000`, `DTEND;TZID=America/New_York:20261014T100000` | 뉴욕 시각 2026-10-14 09:00부터 10:00까지 |
+  | `DTSTART:20261014T090000`, `DTEND:20261014T100000` | 서울 시각 2026-10-14 09:00부터 10:00까지 |
+  | `DTSTART;TZID=Unknown/Zone:20261014T090000`, `DTEND;TZID=Unknown/Zone:20261014T100000` | 서울 시각 2026-10-14 09:00부터 10:00까지 |
+  | `DTSTART;VALUE=DATE:20261014`, `DTEND;VALUE=DATE:20261016` | 2026-10-14부터 2026-10-15까지 종일 |
+  | 두 줄 모두 없음, `SUMMARY:회의` 줄은 있음 | 기간 없음 |
+
+### TC-QR-DETAIL-DOMAIN-012: 일정 파일은 달력 묶음으로 감싸 담는다
+
+- 근거: `domain > 환경별 실행 방법`
+- Given: 테스트 데이터의 일정 QR 값이 있다.
+- When: 그 QR 값으로 일정 파일의 내용을 만든다.
+- Then: 파일 내용이 테스트 데이터의 결과와 같다.
+- 테스트 데이터:
+
+  | QR 값 | 파일 내용 |
+  | --- | --- |
+  | `BEGIN:VEVENT`, `SUMMARY:회의`, `END:VEVENT`를 CR LF로 이은 값 | `BEGIN:VCALENDAR`, `VERSION:2.0`, QR 값의 세 줄, `END:VCALENDAR`를 CR LF로 이은 값 |
+  | `BEGIN:VCALENDAR`, `BEGIN:VEVENT`, `SUMMARY:회의`, `END:VEVENT`, `END:VCALENDAR`를 CR LF로 이은 값 | QR 값 그대로 |
+
 ## data
 
 ### TC-QR-DETAIL-DATA-001: 수정과 삭제는 현재 계정과 연결된 대상 QR에만 반영한다
@@ -430,3 +619,5 @@
 - 백그라운드에 다녀온 뒤 입력한 내용이 유지되는 결과는 따로 작성하지 않는다. 앱이 백그라운드에 다녀오는 동안 이 화면은 그대로 남아 있어 다녀오기 전과 후를 구분할 관찰 결과가 없고, 시스템이 그사이 앱을 정리한 경우는 TC-QR-DETAIL-DOMAIN-007이 확인한다.
 - 수정한 제목과 QR 값이 QrHome 목록의 자리와 QR 그림에 반영되는 결과(`data > 결과의 표시`)는 [QrHome 테스트 케이스](./qr-home.md)의 TC-QR-HOME-DOMAIN-008이 같은 저장 변경으로 확인한다.
 - QR 그림의 색과 배치, 수정 버튼과 삭제 버튼의 자리는 화면의 색상과 배치를 확인해야 하므로 작성하지 않는다.
+- QR 실행으로 앱 밖에서 실제로 열리는 앱과 그 앱에서의 결과(전화 연결, 연락처·일정·네트워크 저장, 사용자의 취소)는 기기의 다른 앱과 시스템 동작이라 작성하지 않는다. 다른 앱을 함께 조작하는 기기 단위 테스트 환경이 마련되면 작성한다. 앱이 넘기는 요청은 TC-QR-DETAIL-FEATURE-034가 확인한다.
+- iOS, 데스크톱 앱, 웹의 실행 방법(`domain > 환경별 실행 방법`)은 그 플랫폼의 시스템이나 브라우저가 실제로 열고 결과를 알려 줘야 판정할 수 있어 작성하지 않는다. iOS·데스크톱 앱·웹에서 앱 밖 열기 요청을 가로채 확인하는 테스트 환경이 마련되면 작성한다. 플랫폼과 무관한 판정은 TC-QR-DETAIL-DOMAIN-008부터 012까지가 확인한다.
