@@ -4,7 +4,7 @@
 
 이 문서에서 `data > 저장 실패`, `data > 태그 연결의 저장`, `data > 태그 입력의 조회` 절과 `feature > 내용 수정`의 저장 실패 결과는 [항목 상세 화면 공통 스펙](../spec/client/entity-detail.md)이 소유한다. 나머지 케이스의 절은 기준 스펙이 소유한다.
 
-PlaceHome의 목록이나 지도 핀에서 장소를 선택해 PlaceDetail로 이동하는 케이스는 [PlaceHome 테스트 케이스](./place-home.md)에서 다룬다. 지도 표시, 지도 제공자 전환, 지점 선택과 핀 선택 자체의 케이스는 [DiaryMap 테스트 케이스](./diary-map.md)에서 다룬다. 좌표를 지도에서 고르고 직접 입력한 값이 지도에 반영되는 규칙 자체의 케이스는 [PlaceAdd 테스트 케이스](./place-add.md)에서 다룬다. 설명과 컬러 입력 자체의 케이스는 [설명 입력 테스트 케이스](./description-input.md)와 [컬러 입력 컴포넌트 테스트 케이스](./diary-color-input.md)에서 다룬다.
+PlaceHome의 목록 모드 목록, 지도 모드의 핀과 지도 가운데에 있는 장소의 목록 항목에서 PlaceDetail로 이동하는 케이스는 [PlaceHome 테스트 케이스](./place-home.md)에서 다룬다. 지도 표시, 지도 제공자 전환, 지점 선택과 핀 선택 자체의 케이스는 [DiaryMap 테스트 케이스](./diary-map.md)에서 다룬다. 좌표를 지도에서 고르고 직접 입력한 값이 지도에 반영되는 규칙 자체의 케이스는 [PlaceAdd 테스트 케이스](./place-add.md)에서 다룬다. 설명과 컬러 입력 자체의 케이스는 [설명 입력 테스트 케이스](./description-input.md)와 [컬러 입력 컴포넌트 테스트 케이스](./diary-color-input.md)에서 다룬다.
 
 태그 입력의 표시와 조작, 태그 선택 목록의 케이스는 [항목 태그 입력 컴포넌트 테스트 케이스](./entity-tag-input.md)에서 다룬다. 이 문서에는 PlaceDetail 화면에서만 다른 표시 기준과 반영 시점의 케이스만 둔다.
 
