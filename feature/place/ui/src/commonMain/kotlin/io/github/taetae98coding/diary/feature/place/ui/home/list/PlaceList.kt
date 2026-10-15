@@ -22,20 +22,25 @@ import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefr
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
+import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.map.rememberDiaryMapState
 import io.github.taetae98coding.diary.compose.place.PlaceListEvent
 import io.github.taetae98coding.diary.compose.place.SwipePlaceCard
+import io.github.taetae98coding.diary.compose.place.moveToOrSelect
 import io.github.taetae98coding.diary.compose.place.previewPlace
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.feature.place.ui.Res
 import io.github.taetae98coding.diary.feature.place.ui.home.PlaceHomeScaffoldEvent
 import io.github.taetae98coding.diary.feature.place.ui.place_home_map_empty_description
 import io.github.taetae98coding.diary.feature.place.ui.place_home_map_empty_title
+import io.github.taetae98coding.diary.feature.place.ui.place_show_on_map_action
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun PlaceList(
     onEvent: (PlaceHomeScaffoldEvent) -> Unit,
     modifier: Modifier = Modifier,
+    mapState: DiaryMapState = rememberDiaryMapState(),
     gridState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     placeListUiStateProvider: () -> PlaceHomePlaceListUiState = { PlaceHomePlaceListUiState() },
     isRefreshingProvider: () -> Boolean = { false },
@@ -48,6 +53,7 @@ internal fun PlaceList(
     )
 
     val uiState = placeListUiStateProvider()
+    val showOnMapActionLabel = stringResource(Res.string.place_show_on_map_action)
 
     Column(modifier = modifier) {
         DiaryListSortBarHost(
@@ -81,11 +87,16 @@ internal fun PlaceList(
                         SwipePlaceCard(
                             onEvent = { event ->
                                 when (event) {
-                                    is PlaceListEvent.ClickPlace -> onEvent(PlaceHomeScaffoldEvent.ClickPlace(id = event.id))
+                                    is PlaceListEvent.ClickPlace ->
+                                        mapState.moveToOrSelect(coordinate = place.detail.coordinate) {
+                                            onEvent(PlaceHomeScaffoldEvent.ClickPlace(id = event.id))
+                                        }
+
                                     is PlaceListEvent.SwipeDelete -> onEvent(PlaceHomeScaffoldEvent.DeletePlace(id = event.id))
                                 }
                             },
                             place = place,
+                            onClickLabel = showOnMapActionLabel,
                         )
                     }
                 }

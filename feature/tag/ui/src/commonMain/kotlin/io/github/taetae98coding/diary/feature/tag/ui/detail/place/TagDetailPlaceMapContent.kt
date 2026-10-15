@@ -41,6 +41,7 @@ internal fun TagDetailPlaceMapContent(
         secondary = {
             TagDetailPlaceBoundsList(
                 onEvent = onEvent,
+                mapState = mapState,
                 modifier = Modifier.fillMaxSize(),
                 placeListUiStateProvider = placeListUiStateProvider,
                 isRefreshingProvider = isRefreshingProvider,

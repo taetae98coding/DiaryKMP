@@ -23,6 +23,11 @@ internal fun PlaceSearchEffect(
     val latestOnClear by rememberUpdatedState(onClear)
 
     LaunchedEffect(state) {
+        snapshotFlow { state.mapState.bounds }
+            .collect { bounds -> state.updateSearchBounds(bounds = bounds, center = state.mapState.coordinate) }
+    }
+
+    LaunchedEffect(state) {
         var previousProvider: DiaryMapProvider? = null
 
         snapshotFlow {
@@ -31,7 +36,7 @@ internal fun PlaceSearchEffect(
             PlaceSearchTrigger(
                 query = state.query,
                 provider = provider,
-                bounds = state.mapState.bounds.takeIf { provider == DiaryMapProvider.GOOGLE },
+                searchBounds = state.searchBounds.takeIf { provider == DiaryMapProvider.GOOGLE },
             )
         }.collectLatest { trigger ->
             // 효과가 막 시작됐는데 검색어가 이미 있으면 화면이 복원되어 검색어가 다시 나타난 것이다.
@@ -51,7 +56,11 @@ internal fun PlaceSearchEffect(
                 PlaceSearchRequest(
                     query = trigger.query,
                     provider = trigger.provider.toMapProvider(),
-                    bounds = trigger.bounds?.toCoordinateBounds(),
+                    // 목록의 장소로 옮긴 영역은 다시 검색을 일으키지 않을 뿐, 검색할 때는 사용자가 지금 보고 있는 영역을 기준으로 삼는다.
+                    bounds =
+                        state.mapState.bounds
+                            .takeIf { trigger.provider == DiaryMapProvider.GOOGLE }
+                            ?.toCoordinateBounds(),
                 ),
             )
         }
@@ -61,5 +70,5 @@ internal fun PlaceSearchEffect(
 private data class PlaceSearchTrigger(
     val query: String,
     val provider: DiaryMapProvider,
-    val bounds: DiaryMapBounds?,
+    val searchBounds: DiaryMapBounds?,
 )

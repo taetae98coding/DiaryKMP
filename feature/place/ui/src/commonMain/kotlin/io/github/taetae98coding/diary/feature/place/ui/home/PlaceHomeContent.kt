@@ -40,10 +40,11 @@ internal fun PlaceHomeContent(
         },
         secondary = {
             PlaceList(
+                onEvent = onEvent,
+                mapState = mapState,
                 placeListUiStateProvider = placeListUiStateProvider,
                 isRefreshingProvider = isRefreshingProvider,
                 sortProvider = sortProvider,
-                onEvent = onEvent,
             )
         },
         modifier = modifier.fillMaxSize(),

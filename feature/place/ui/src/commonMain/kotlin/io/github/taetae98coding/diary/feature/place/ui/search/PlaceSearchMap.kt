@@ -1,14 +1,12 @@
 package io.github.taetae98coding.diary.feature.place.ui.search
 
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
@@ -51,22 +49,21 @@ private fun ReflectPinEffect(
     state: PlaceSearchDialogState,
     placeListProvider: () -> List<SearchedPlace> = { emptyList() },
 ) {
-    val color = MaterialTheme.colorScheme.primary
     val latestPlaceListProvider by rememberUpdatedState(placeListProvider)
 
-    LaunchedEffect(state, color) {
+    LaunchedEffect(state) {
         snapshotFlow { latestPlaceListProvider() }
             .collect { placeList ->
-                state.mapState.updatePins(placeList.map { place -> place.toDiaryMapPin(color = color) })
+                state.mapState.updatePins(placeList.map { place -> place.toDiaryMapPin() })
             }
     }
 }
 
-private fun SearchedPlace.toDiaryMapPin(color: Color): DiaryMapPin =
+private fun SearchedPlace.toDiaryMapPin(): DiaryMapPin =
     DiaryMapPin(
         id = id,
         coordinate = coordinate.toDiaryMapCoordinate(),
-        color = color,
+        color = resultColor,
         label = name,
     )
 
