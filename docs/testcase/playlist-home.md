@@ -4,6 +4,8 @@
 
 목록이 나타나는 순서와 아직 준비되지 않은 자리를 다루는 규칙은 [페이지 조회 목록의 자리 표시 스펙](../spec/client/paged-list-placeholder.md)에, 빈 상태의 판정과 행동은 [목록 빈 상태 스펙](../spec/client/list-empty-state.md)에, 당김으로 시작하는 동기화와 진행 표시는 [새로고침 스펙](../spec/client/sync-refresh.md)에, 정렬 선택과 반영은 [목록 정렬 스펙](../spec/client/list-sort.md)에 위임되어 있으며, 이 문서의 케이스는 PlaylistHome에서 관찰하는 결과를 기준으로 한다. `더보기`에서 PlaylistHome으로 이동하는 케이스는 [MoreHome 테스트 케이스](./more-home.md)에서, 곡을 작성해 추가하는 케이스는 [MusicAdd 테스트 케이스](./music-add.md)에서, 선택한 곡을 확인하고 수정하고 삭제하는 케이스는 [MusicDetail 테스트 케이스](./music-detail.md)에서, 곡 목록과 상세 영역을 함께 표시할 때의 케이스는 [Playlist 목록·상세 배치 테스트 케이스](./playlist-list-detail.md)에서, 곡을 서버와 맞추는 케이스는 [데이터 동기화 테스트 케이스](./data-sync.md)에서, 화면과 무관한 새로고침 공통 규칙의 케이스는 [새로고침 테스트 케이스](./sync-refresh.md)에서, 목록의 곡을 기기에 내려받는 케이스는 [곡 다운로드 테스트 케이스](./music-download.md)에서, 카드를 미는 상호작용 자체의 케이스는 [SwipeToFinishAndDelete 테스트 케이스](./swipe-to-finish-and-delete.md)에서 다룬다.
 
+추가 단축키 케이스의 `근거`가 가리키는 절은 공통 규칙을 [목록 추가 단축키 스펙](../spec/client/list-add-shortcut.md)에 위임한다.
+
 ## feature
 
 ### TC-PLAYLIST-HOME-FEATURE-001: 상단 바에 화면 제목을 표시한다
@@ -60,6 +62,13 @@
 | --- |
 | 곡이 있음 |
 | 곡이 없어 빈 상태 안내가 표시됨 |
+
+### TC-PLAYLIST-HOME-FEATURE-034: 추가 단축키를 누르면 MusicAdd로 이동한다
+
+- 근거: `feature > 곡 추가로 이동`
+- Given: 물리 키보드를 사용할 수 있고 PlaylistHome 화면이 표시되어 있다.
+- When: 사용자가 추가 단축키를 누른다.
+- Then: MusicAdd 화면으로 한 번 이동한다.
 
 ### TC-PLAYLIST-HOME-FEATURE-007: 빈 상태에서도 곡 추가와 당겨서 새로고침을 실행할 수 있다
 

@@ -148,6 +148,7 @@
 | 메모 태그 | [client](./client/memo-tag.md) | [common](./common/memo-tag.md) | — | — |
 | 메모 태그 입력 컴포넌트 | [client](./client/memo-tag-input.md) | — | — | [메모 태그 입력 디자인](../design/memo-tag-input.md) |
 | 목록 빈 상태 | [client](./client/list-empty-state.md) | — | — | [목록 빈 상태 디자인](../design/list-empty-state.md) |
+| 목록 추가 단축키 | [client](./client/list-add-shortcut.md) | — | — | [목록 추가 단축키 디자인](../design/list-add-shortcut.md) |
 | 목록 정렬 | [client](./client/list-sort.md) | — | — | [목록 정렬 디자인](../design/list-sort.md) |
 | 목록 필터 반영 | [client](./client/list-filter.md) | — | — | [필터 Bottom Sheet 디자인](../design/filter-bottom-sheet.md) |
 | 목록·상세 배치 공통 | [client](./client/list-detail-pane.md) | — | — | [목록·상세 배치 공통 디자인](../design/list-detail-pane.md) |

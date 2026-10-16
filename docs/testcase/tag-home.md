@@ -10,6 +10,8 @@
 
 카드를 미는 상호작용 자체의 케이스는 [SwipeToFinishAndDelete 테스트 케이스](./swipe-to-finish-and-delete.md)에서 다룬다. 완료·삭제의 안내와 실행 취소 케이스의 `근거`가 가리키는 절은 공통 규칙을 [MemoHome 목록 스펙](../spec/client/memo-home.md)의 `안내와 실행 취소`에 위임한다. 태그를 완료하거나 삭제해도 연결이 해제되지 않는 케이스는 [태그 연결 테스트 케이스](./tag-link.md)의 `TC-TAG-LINK-DOMAIN-012`가 갖는다.
 
+추가 단축키 케이스의 `근거`가 가리키는 절은 공통 규칙을 [목록 추가 단축키 스펙](../spec/client/list-add-shortcut.md)에 위임한다.
+
 ## feature
 
 ### TC-TAG-HOME-FEATURE-001: 목록에 태그 이모지, 제목과 컬러를 표시한다
@@ -139,6 +141,13 @@
 - Given: TagHome 목록에 빈 상태 안내가 표시되어 있다.
 - When: 사용자가 화면에서 실행할 수 있는 동작을 확인한다.
 - Then: 태그 추가 동작과 완료된 태그 확인 동작이 모두 제공된다.
+
+### TC-TAG-HOME-FEATURE-054: 추가 단축키를 누르면 TagAdd로 이동한다
+
+- 근거: `feature > 태그 추가로 이동`
+- Given: 물리 키보드를 사용할 수 있고 TagHome 목록만 표시되어 있다.
+- When: 사용자가 추가 단축키를 누른다.
+- Then: TagAdd 화면으로 한 번 이동한다.
 
 ### TC-TAG-HOME-FEATURE-027: 필터를 열면 최상위 태그만 보기의 현재 상태가 표시된다
 

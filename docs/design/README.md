@@ -20,6 +20,8 @@
 
 사용자가 목록의 정렬 기준을 고르는 정렬 줄과 정렬 선택 Bottom Sheet의 구조와 문구는 [목록 정렬](./list-sort.md)이 소유한다. 각 문서는 그 화면에서 정렬 줄을 두는 자리만 남긴다.
 
+목록 화면에서 항목 추가를 실행하는 키보드 단축키의 키 조합과 처리 조건은 [목록 추가 단축키](./list-add-shortcut.md)가 소유한다. 각 문서는 그 화면에서 단축키가 실행하는 추가만 남긴다.
+
 아이콘만 표시하는 공통 버튼에 이름을 알려 주는 설명 표시는 [아이콘 버튼 설명](./icon-button-tooltip.md)이 소유한다. 각 문서는 그 버튼의 자리와 접근성 이름만 남긴다.
 
 칩 하나가 이름을 표시하는 방식과 칩 하나가 차지할 수 있는 최대 폭은 [칩 이름 표시](./chip.md)가 소유한다. 각 문서는 그 칩에 무엇을 표시하는지와 색, 조작, 접근성 이름 문구만 남긴다.
@@ -91,6 +93,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼�
 - [아이콘 버튼 설명](./icon-button-tooltip.md)
 - [목록·상세 배치 공통](./list-detail-pane.md)
 - [목록 빈 상태](./list-empty-state.md)
+- [목록 추가 단축키](./list-add-shortcut.md)
 - [목록 정렬](./list-sort.md)
 - [목록 진입 버튼](./list-entry-button.md)
 - [항목 태그 입력 컴포넌트](./entity-tag-input.md)
