@@ -9,8 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
-import io.github.taetae98coding.diary.compose.core.shortcut.isAddShortcut
-import io.github.taetae98coding.diary.compose.core.shortcut.keyShortcut
+import io.github.taetae98coding.diary.compose.core.shortcut.addShortcut
 import io.github.taetae98coding.diary.compose.tag.list.TagListEvent
 import io.github.taetae98coding.diary.compose.tag.list.TagListUndoSnackbarEffect
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
@@ -64,14 +63,7 @@ internal fun TagHomeScreen(
             handleTagListEvent(event = event, navigateToDetail = navigateToDetail, tagViewModel = tagViewModel)
         },
         modifier =
-            modifier.keyShortcut(isEnableProvider = { componentVisibleProvider().isAddButtonVisible }) { keyEvent ->
-                if (keyEvent.isAddShortcut()) {
-                    navigateToAdd()
-                    true
-                } else {
-                    false
-                }
-            },
+            modifier.addShortcut(isEnabledProvider = { componentVisibleProvider().isAddButtonVisible }, onAdd = navigateToAdd),
         uiStateProvider = { uiState },
         filterUiStateProvider = { filterUiState },
         sortProvider = { sortUiState.sort },

@@ -17,6 +17,7 @@ import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
+import io.github.taetae98coding.diary.compose.core.shortcut.addShortcut
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
@@ -40,7 +41,7 @@ internal fun WebHomeScaffold(
     componentVisibleProvider: () -> WebHomeScaffoldComponentVisible = { WebHomeScaffoldComponentVisible() },
 ) {
     Scaffold(
-        modifier = modifier,
+        modifier = modifier.addShortcut(isEnabledProvider = { componentVisibleProvider().isAddButtonVisible }) { onEvent(WebHomeScaffoldEvent.ClickAdd) },
         topBar = { WebHomeTopBar(onEvent = onEvent) },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         floatingActionButton = {

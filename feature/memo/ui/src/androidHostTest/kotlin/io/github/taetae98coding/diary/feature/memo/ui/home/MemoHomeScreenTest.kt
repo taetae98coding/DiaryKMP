@@ -244,7 +244,7 @@ class MemoHomeScreenTest {
     }
 
     @Test
-    fun `Cmd A 단축키를 입력하면 메모 추가 화면으로 한 번 이동한다`() {
+    fun `TC-MEMO-HOME-FEATURE-084 Cmd A 단축키를 입력하면 메모 추가 화면으로 한 번 이동한다`() {
         val environment = screenTestEnvironment()
         var navigateToAddCount = 0
         setMemoHomeScreen(

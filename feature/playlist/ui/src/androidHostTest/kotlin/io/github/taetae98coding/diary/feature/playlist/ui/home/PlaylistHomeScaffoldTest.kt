@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.playlist.ui.home
 
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasClickAction
@@ -9,7 +10,9 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -211,6 +214,53 @@ class PlaylistHomeScaffoldTest {
                 .boundsInRoot
                 .top
         (lastCardBottom <= addButtonTop) shouldBe true
+    }
+
+    @Test
+    fun `TC-PLAYLIST-HOME-FEATURE-034 Cmd A 단축키를 입력하면 곡 추가 이벤트를 한 번 내보낸다`() {
+        val eventList = mutableListOf<PlaylistHomeScaffoldEvent>()
+        setPlaylistHomeScaffold(onEvent = eventList::add)
+
+        performAddShortcut()
+
+        eventList shouldBe listOf(PlaylistHomeScaffoldEvent.ClickAdd)
+    }
+
+    @Test
+    fun `TC-PLAYLIST-LIST-DETAIL-FEATURE-003 상세 영역에 곡 추가가 놓이면 Cmd A 단축키로도 곡 추가 이벤트를 내보내지 않는다`() {
+        val eventList = mutableListOf<PlaylistHomeScaffoldEvent>()
+        setPlaylistHomeScaffold(
+            onEvent = eventList::add,
+            componentVisible = PlaylistHomeScaffoldComponentVisible(isAddButtonVisible = false),
+        )
+
+        performAddShortcut()
+
+        eventList shouldBe emptyList()
+    }
+
+    @Test
+    fun `A 키만 누르면 곡 추가 이벤트를 내보내지 않는다`() {
+        val eventList = mutableListOf<PlaylistHomeScaffoldEvent>()
+        setPlaylistHomeScaffold(onEvent = eventList::add)
+
+        composeRule.onRoot().performKeyInput {
+            keyDown(Key.A)
+            keyUp(Key.A)
+        }
+        composeRule.waitForIdle()
+
+        eventList shouldBe emptyList()
+    }
+
+    private fun performAddShortcut() {
+        composeRule.onRoot().performKeyInput {
+            keyDown(Key.MetaLeft)
+            keyDown(Key.A)
+            keyUp(Key.A)
+            keyUp(Key.MetaLeft)
+        }
+        composeRule.waitForIdle()
     }
 
     private fun setPlaylistHomeScaffold(

@@ -17,6 +17,7 @@ import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
+import io.github.taetae98coding.diary.compose.core.shortcut.addShortcut
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
@@ -59,8 +60,18 @@ internal fun PlaceHomeScaffold(
         onEvent = onEvent,
     )
 
+    val onAdd = {
+        val coordinate =
+            when (state.viewMode) {
+                PlaceHomeViewMode.MAP -> mapState.coordinate?.toCoordinate()
+                PlaceHomeViewMode.LIST -> null
+            }
+
+        onEvent(PlaceHomeScaffoldEvent.ClickAdd(coordinate = coordinate))
+    }
+
     Scaffold(
-        modifier = modifier,
+        modifier = modifier.addShortcut(onAdd = onAdd),
         topBar = {
             PlaceHomeTopBar(
                 onEvent = onEvent,
@@ -70,15 +81,7 @@ internal fun PlaceHomeScaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         floatingActionButton = {
             FloatingAddButton(
-                onClick = {
-                    val coordinate =
-                        when (state.viewMode) {
-                            PlaceHomeViewMode.MAP -> mapState.coordinate?.toCoordinate()
-                            PlaceHomeViewMode.LIST -> null
-                        }
-
-                    onEvent(PlaceHomeScaffoldEvent.ClickAdd(coordinate = coordinate))
-                },
+                onClick = onAdd,
                 contentDescription = stringResource(Res.string.place_home_add_button_content_description),
             )
         },

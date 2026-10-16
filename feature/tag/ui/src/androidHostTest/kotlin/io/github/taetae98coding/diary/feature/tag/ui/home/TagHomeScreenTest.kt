@@ -100,7 +100,7 @@ class TagHomeScreenTest {
     }
 
     @Test
-    fun `Cmd A 단축키를 입력하면 태그 추가 화면 전환 행동을 한 번 전달한다`() {
+    fun `TC-TAG-HOME-FEATURE-054 Cmd A 단축키를 입력하면 태그 추가 화면 전환 행동을 한 번 전달한다`() {
         var navigateToAddCount = 0
         setTagHomeScreen(
             viewModel = screenTestViewModel(),
@@ -118,7 +118,7 @@ class TagHomeScreenTest {
     }
 
     @Test
-    fun `상세 영역에 태그 추가 화면이 표시되어 추가 버튼을 숨기면 Cmd A 단축키로도 태그 추가 화면을 다시 열지 않는다`() {
+    fun `TC-TAG-LIST-DETAIL-FEATURE-022 상세 영역에 태그 추가 화면이 표시되어 추가 버튼을 숨기면 Cmd A 단축키로도 태그 추가 화면을 다시 열지 않는다`() {
         var navigateToAddCount = 0
         setTagHomeScreen(
             viewModel = screenTestViewModel(),

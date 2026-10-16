@@ -1,12 +1,15 @@
 package io.github.taetae98coding.diary.feature.place.ui.home.viewmode
 
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
@@ -87,6 +90,26 @@ class PlaceHomeListViewModeTest {
         composeRule.waitForIdle()
 
         eventList.withoutMoveMap() shouldBe listOf(PlaceHomeScaffoldEvent.ClickAdd(coordinate = null))
+    }
+
+    @Test
+    fun `TC-PLACE-HOME-FEATURE-071 목록 모드에서 Cmd A 단축키를 입력하면 지도 위치 없이 장소 추가를 한 번 요청한다`() {
+        val eventList = mutableListOf<PlaceHomeScaffoldEvent>()
+        setListViewModePlaceHomeScaffold(onEvent = { event -> eventList += event })
+
+        performAddShortcut()
+
+        eventList.withoutMoveMap() shouldBe listOf(PlaceHomeScaffoldEvent.ClickAdd(coordinate = null))
+    }
+
+    private fun performAddShortcut() {
+        composeRule.onRoot().performKeyInput {
+            keyDown(Key.MetaLeft)
+            keyDown(Key.A)
+            keyUp(Key.A)
+            keyUp(Key.MetaLeft)
+        }
+        composeRule.waitForIdle()
     }
 
     private fun setListViewModePlaceHomeScaffold(
