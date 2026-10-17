@@ -5,11 +5,13 @@ import io.github.taetae98coding.diary.core.database.api.qr.datasource.AccountQrL
 import io.github.taetae98coding.diary.core.database.api.qr.transaction.AccountQrTransaction
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.qr.Qr
+import io.github.taetae98coding.diary.core.model.qr.QrDetail
 import io.github.taetae98coding.diary.data.core.paging.pagingFlow
 import io.github.taetae98coding.diary.data.qr.mapper.toDomain
 import io.github.taetae98coding.diary.data.qr.mapper.toLocal
 import io.github.taetae98coding.diary.domain.qr.repository.AccountQrRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Factory
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -25,6 +27,16 @@ internal class AccountQrRepositoryImpl(
             transform = { local -> local.toDomain() },
         )
 
+    override fun find(
+        account: Account,
+        qrId: Uuid,
+    ): Flow<Qr?> =
+        accountQrLocalDataSource
+            .find(
+                accountId = account.id,
+                qrId = qrId,
+            ).map { local -> local?.toDomain() }
+
     override suspend fun upsert(
         account: Account,
         qr: Qr,
@@ -34,6 +46,19 @@ internal class AccountQrRepositoryImpl(
             qrList = listOf(qr.toLocal()),
         )
     }
+
+    override suspend fun updateDetail(
+        account: Account,
+        qrId: Uuid,
+        detail: QrDetail,
+        updatedAt: Instant,
+    ): Int =
+        accountQrTransaction.updateDetail(
+            accountId = account.id,
+            qrId = qrId,
+            detail = detail.toLocal(),
+            updatedAt = updatedAt,
+        )
 
     override suspend fun updateDeleted(
         account: Account,

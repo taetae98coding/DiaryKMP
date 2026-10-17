@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.domain.qr.repository
 import androidx.paging.PagingData
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.qr.Qr
+import io.github.taetae98coding.diary.core.model.qr.QrDetail
 import kotlinx.coroutines.flow.Flow
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -10,10 +11,22 @@ import kotlin.uuid.Uuid
 public interface AccountQrRepository {
     public fun page(account: Account): Flow<PagingData<Qr>>
 
+    public fun find(
+        account: Account,
+        qrId: Uuid,
+    ): Flow<Qr?>
+
     public suspend fun upsert(
         account: Account,
         qr: Qr,
     )
+
+    public suspend fun updateDetail(
+        account: Account,
+        qrId: Uuid,
+        detail: QrDetail,
+        updatedAt: Instant,
+    ): Int
 
     public suspend fun updateDeleted(
         account: Account,

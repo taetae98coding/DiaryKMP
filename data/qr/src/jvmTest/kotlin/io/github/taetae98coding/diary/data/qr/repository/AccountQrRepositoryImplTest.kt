@@ -13,11 +13,13 @@ import io.github.taetae98coding.diary.core.database.api.qr.transaction.AccountQr
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.testing.qr.localQr
 import io.github.taetae98coding.diary.core.testing.qr.qr
+import io.github.taetae98coding.diary.core.testing.qr.qrDetail
 import io.github.taetae98coding.diary.data.qr.mapper.toDomain
 import io.github.taetae98coding.diary.data.qr.mapper.toLocal
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.mockk.Runs
@@ -30,6 +32,7 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -74,6 +77,51 @@ class AccountQrRepositoryImplTest :
             val repository = AccountQrRepositoryImpl(accountQrLocalDataSource = localDataSource, accountQrTransaction = transaction)
 
             repository.page(account = account).first().items() shouldBe localQrList.map { local -> local.toDomain() }
+        }
+
+        test("TC-QR-DETAIL-DOMAIN-001 QR 찾기는 현재 계정의 로컬 QR을 도메인 모델로 변환해 전달한다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val localQr = fixtureMonkey.localQr(isDeleted = true)
+            val localDataSource = mockk<AccountQrLocalDataSource>()
+            every { localDataSource.find(accountId = account.id, qrId = localQr.id) } returns flowOf(localQr)
+            val repository = AccountQrRepositoryImpl(accountQrLocalDataSource = localDataSource, accountQrTransaction = mockk())
+
+            repository.find(account = account, qrId = localQr.id).first() shouldBe localQr.toDomain()
+        }
+
+        test("TC-QR-DETAIL-DATA-005 QR 찾기는 기기에 저장된 QR만 조회하고 내려받아 저장하지 않는다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val localQr = fixtureMonkey.localQr(isDeleted = false)
+            val localDataSource = mockk<AccountQrLocalDataSource>()
+            val transaction = mockk<AccountQrTransaction>()
+            every { localDataSource.find(accountId = account.id, qrId = localQr.id) } returns flowOf(localQr)
+            val repository = AccountQrRepositoryImpl(accountQrLocalDataSource = localDataSource, accountQrTransaction = transaction)
+
+            repository.find(account = account, qrId = localQr.id).first()
+
+            coVerify(exactly = 0) { transaction.upsert(accountId = any(), qrList = any()) }
+        }
+
+        test("찾는 QR이 기기에 없으면 없음을 전달한다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val id = fixtureMonkey.giveMeOne<Uuid>()
+            val localDataSource = mockk<AccountQrLocalDataSource>()
+            every { localDataSource.find(accountId = account.id, qrId = id) } returns flowOf(null)
+            val repository = AccountQrRepositoryImpl(accountQrLocalDataSource = localDataSource, accountQrTransaction = mockk())
+
+            repository.find(account = account, qrId = id).first().shouldBeNull()
+        }
+
+        test("TC-QR-DETAIL-DOMAIN-003 수정 요청은 내용과 수정 시각을 현재 계정 기준의 로컬 모델로 반영한다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val id = fixtureMonkey.giveMeOne<Uuid>()
+            val detail = fixtureMonkey.qrDetail()
+            val updatedAt = fixtureMonkey.giveMeOne<Instant>()
+            val transaction = mockk<AccountQrTransaction>()
+            coEvery { transaction.updateDetail(accountId = account.id, qrId = id, detail = detail.toLocal(), updatedAt = updatedAt) } returns 1
+            val repository = AccountQrRepositoryImpl(accountQrLocalDataSource = mockk(), accountQrTransaction = transaction)
+
+            repository.updateDetail(account = account, qrId = id, detail = detail, updatedAt = updatedAt) shouldBe 1
         }
 
         listOf(true, false).forEach { isDeleted ->
