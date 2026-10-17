@@ -1,8 +1,10 @@
 package io.github.taetae98coding.diary.feature.qr.ui.detail
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -15,6 +17,7 @@ import io.github.taetae98coding.diary.feature.qr.ui.add.QrScannedResultEffect
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.ReflectQrCoordinateEffect
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrAddFormState
 import io.github.taetae98coding.diary.feature.qr.ui.add.rememberQrScanStarter
+import io.github.taetae98coding.diary.feature.qr.ui.detail.action.rememberQrActionController
 import io.github.taetae98coding.diary.feature.qr.ui.qr_camera_permission_denied_message
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -33,6 +36,7 @@ internal fun QrDetailScreen(
     val content = uiState as? QrDetailUiState.Content
     val scanStarter = rememberQrScanStarter(permissionManager = permissionManager)
     val permissionDeniedMessage = stringResource(Res.string.qr_camera_permission_denied_message)
+    val actionController = rememberQrActionController()
 
     key(content?.id) {
         val state =
@@ -46,6 +50,10 @@ internal fun QrDetailScreen(
             effect = viewModel.effect,
             state = state,
         )
+        val action by remember(state, actionController) {
+            derivedStateOf { actionController.actionOf(qrValue = state.contentState.qrValue) }
+        }
+
         ReflectQrCoordinateEffect(state = state.contentState)
         QrScannedResultEffect(
             state = state,
@@ -57,6 +65,10 @@ internal fun QrDetailScreen(
                 when (event) {
                     is QrDetailScaffoldEvent.ClickNavigateUp -> {
                         navigateUp()
+                    }
+
+                    is QrDetailScaffoldEvent.ClickAction -> {
+                        coroutineScope.launch { actionController.launch(action = event.action, snackbarHostState = state.snackbarHostState) }
                     }
 
                     is QrDetailScaffoldEvent.ClickUndo -> {
@@ -82,6 +94,7 @@ internal fun QrDetailScreen(
             modifier = modifier,
             state = state,
             uiStateProvider = { uiState },
+            actionProvider = { action },
         )
     }
 }

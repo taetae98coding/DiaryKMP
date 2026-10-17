@@ -10,10 +10,12 @@ import io.github.taetae98coding.diary.compose.core.button.NavigateUpButton
 import io.github.taetae98coding.diary.compose.core.button.QrScanButton
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.domain.qr.content.QrAction
 import io.github.taetae98coding.diary.feature.qr.ui.Res
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddFormState
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrUndoButton
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrAddFormState
+import io.github.taetae98coding.diary.feature.qr.ui.detail.action.QrActionButton
 import io.github.taetae98coding.diary.feature.qr.ui.previewQr
 import io.github.taetae98coding.diary.feature.qr.ui.qr_detail_delete_button_content_description
 import io.github.taetae98coding.diary.feature.qr.ui.qr_navigate_up_button_content_description
@@ -27,6 +29,7 @@ internal fun QrDetailTopBar(
     modifier: Modifier = Modifier,
     state: QrAddFormState = rememberQrAddFormState(),
     uiStateProvider: () -> QrDetailUiState = { QrDetailUiState.Loading },
+    actionProvider: () -> QrAction? = { null },
 ) {
     TopAppBar(
         // 제목과 액션은 서로 다른 자리이므로 각 슬롯에서 상태를 읽어, 한쪽이 바뀔 때 다른 쪽까지 다시 그리지 않는다.
@@ -52,6 +55,12 @@ internal fun QrDetailTopBar(
             val uiState = uiStateProvider()
 
             if (uiState is QrDetailUiState.Content) {
+                actionProvider()?.let { action ->
+                    QrActionButton(
+                        action = action,
+                        onClick = { onEvent(QrDetailScaffoldEvent.ClickAction(action = action)) },
+                    )
+                }
                 QrUndoButton(
                     onClick = { onEvent(QrDetailScaffoldEvent.ClickUndo) },
                     isEnabledProvider = { state.contentState.canUndo },

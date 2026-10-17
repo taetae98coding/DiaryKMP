@@ -9,6 +9,7 @@ import io.github.taetae98coding.diary.feature.file.ui.picker.FilePickerDispatche
 import io.github.taetae98coding.diary.feature.login.ui.credential.CredentialsDispatcher
 import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsClientId
 import io.github.taetae98coding.diary.feature.more.ui.photo.PhotoPickerDispatcher
+import io.github.taetae98coding.diary.feature.qr.ui.detail.action.QrActionDispatcher
 import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScanCameraDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -58,4 +59,8 @@ internal class JvmAppModule {
     @Factory
     @QrScanCameraDispatcher
     fun providesQrScanCameraDispatcher(): CoroutineDispatcher = Dispatchers.IO
+
+    @Factory
+    @QrActionDispatcher
+    fun providesQrActionDispatcher(): CoroutineDispatcher = Dispatchers.IO
 }

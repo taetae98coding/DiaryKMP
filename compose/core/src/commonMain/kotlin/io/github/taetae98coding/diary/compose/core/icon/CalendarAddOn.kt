@@ -1,0 +1,106 @@
+package io.github.taetae98coding.diary.compose.core.icon
+
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.unit.dp
+
+internal val DiaryIcons.CalendarAddOn: ImageVector by lazy {
+    ImageVector
+        .Builder(
+            name = "DiaryIcons.CalendarAddOn",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 960.0f,
+            viewportHeight = 960.0f,
+        ).apply {
+            path(fill = SolidColor(Color.Black)) {
+                moveTo(680.0f, 760.0f)
+                lineTo(600.0f, 760.0f)
+                quadTo(583.0f, 760.0f, 571.5f, 748.5f)
+                quadTo(560.0f, 737.0f, 560.0f, 720.0f)
+                quadTo(560.0f, 703.0f, 571.5f, 691.5f)
+                quadTo(583.0f, 680.0f, 600.0f, 680.0f)
+                lineTo(680.0f, 680.0f)
+                lineTo(680.0f, 600.0f)
+                quadTo(680.0f, 583.0f, 691.5f, 571.5f)
+                quadTo(703.0f, 560.0f, 720.0f, 560.0f)
+                quadTo(737.0f, 560.0f, 748.5f, 571.5f)
+                quadTo(760.0f, 583.0f, 760.0f, 600.0f)
+                lineTo(760.0f, 680.0f)
+                lineTo(840.0f, 680.0f)
+                quadTo(857.0f, 680.0f, 868.5f, 691.5f)
+                quadTo(880.0f, 703.0f, 880.0f, 720.0f)
+                quadTo(880.0f, 737.0f, 868.5f, 748.5f)
+                quadTo(857.0f, 760.0f, 840.0f, 760.0f)
+                lineTo(760.0f, 760.0f)
+                lineTo(760.0f, 840.0f)
+                quadTo(760.0f, 857.0f, 748.5f, 868.5f)
+                quadTo(737.0f, 880.0f, 720.0f, 880.0f)
+                quadTo(703.0f, 880.0f, 691.5f, 868.5f)
+                quadTo(680.0f, 857.0f, 680.0f, 840.0f)
+                lineTo(680.0f, 760.0f)
+                close()
+                moveTo(200.0f, 800.0f)
+                quadTo(167.0f, 800.0f, 143.5f, 776.5f)
+                quadTo(120.0f, 753.0f, 120.0f, 720.0f)
+                lineTo(120.0f, 240.0f)
+                quadTo(120.0f, 207.0f, 143.5f, 183.5f)
+                quadTo(167.0f, 160.0f, 200.0f, 160.0f)
+                lineTo(240.0f, 160.0f)
+                lineTo(240.0f, 120.0f)
+                quadTo(240.0f, 103.0f, 251.5f, 91.5f)
+                quadTo(263.0f, 80.0f, 280.0f, 80.0f)
+                quadTo(297.0f, 80.0f, 308.5f, 91.5f)
+                quadTo(320.0f, 103.0f, 320.0f, 120.0f)
+                lineTo(320.0f, 160.0f)
+                lineTo(560.0f, 160.0f)
+                lineTo(560.0f, 120.0f)
+                quadTo(560.0f, 103.0f, 571.5f, 91.5f)
+                quadTo(583.0f, 80.0f, 600.0f, 80.0f)
+                quadTo(617.0f, 80.0f, 628.5f, 91.5f)
+                quadTo(640.0f, 103.0f, 640.0f, 120.0f)
+                lineTo(640.0f, 160.0f)
+                lineTo(680.0f, 160.0f)
+                quadTo(713.0f, 160.0f, 736.5f, 183.5f)
+                quadTo(760.0f, 207.0f, 760.0f, 240.0f)
+                lineTo(760.0f, 440.0f)
+                quadTo(760.0f, 457.0f, 748.5f, 468.5f)
+                quadTo(737.0f, 480.0f, 720.0f, 480.0f)
+                quadTo(703.0f, 480.0f, 691.5f, 468.5f)
+                quadTo(680.0f, 457.0f, 680.0f, 440.0f)
+                lineTo(680.0f, 400.0f)
+                lineTo(200.0f, 400.0f)
+                lineTo(200.0f, 720.0f)
+                quadTo(200.0f, 720.0f, 200.0f, 720.0f)
+                quadTo(200.0f, 720.0f, 200.0f, 720.0f)
+                lineTo(440.0f, 720.0f)
+                quadTo(457.0f, 720.0f, 468.5f, 731.5f)
+                quadTo(480.0f, 743.0f, 480.0f, 760.0f)
+                quadTo(480.0f, 777.0f, 468.5f, 788.5f)
+                quadTo(457.0f, 800.0f, 440.0f, 800.0f)
+                lineTo(200.0f, 800.0f)
+                close()
+                moveTo(200.0f, 320.0f)
+                lineTo(680.0f, 320.0f)
+                lineTo(680.0f, 240.0f)
+                quadTo(680.0f, 240.0f, 680.0f, 240.0f)
+                quadTo(680.0f, 240.0f, 680.0f, 240.0f)
+                lineTo(200.0f, 240.0f)
+                quadTo(200.0f, 240.0f, 200.0f, 240.0f)
+                quadTo(200.0f, 240.0f, 200.0f, 240.0f)
+                lineTo(200.0f, 320.0f)
+                close()
+                moveTo(200.0f, 320.0f)
+                lineTo(200.0f, 240.0f)
+                quadTo(200.0f, 240.0f, 200.0f, 240.0f)
+                quadTo(200.0f, 240.0f, 200.0f, 240.0f)
+                lineTo(200.0f, 240.0f)
+                quadTo(200.0f, 240.0f, 200.0f, 240.0f)
+                quadTo(200.0f, 240.0f, 200.0f, 240.0f)
+                lineTo(200.0f, 320.0f)
+                close()
+            }
+        }.build()
+}
