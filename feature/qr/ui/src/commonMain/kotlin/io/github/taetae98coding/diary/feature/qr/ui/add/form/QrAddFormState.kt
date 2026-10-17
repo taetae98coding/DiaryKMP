@@ -57,11 +57,14 @@ internal class QrAddFormState(
 }
 
 @Composable
-internal fun rememberQrAddFormState(defaultProvider: MapProvider? = null): QrAddFormState {
+internal fun rememberQrAddFormState(
+    initialDetail: QrDetail = QrDetail.EMPTY,
+    defaultProvider: MapProvider? = null,
+): QrAddFormState {
     val tabState = rememberSaveable(stateSaver = QrAddTabSaver) { mutableStateOf(QrAddTab.INFO) }
-    val titleState = rememberDiaryTitleInputState()
-    val descriptionState = rememberDiaryDescriptionInputState()
-    val contentState = rememberQrContentFormState(defaultProvider = defaultProvider)
+    val titleState = rememberDiaryTitleInputState(initialText = initialDetail.title)
+    val descriptionState = rememberDiaryDescriptionInputState(initialText = initialDetail.description)
+    val contentState = rememberQrContentFormState(initialValue = initialDetail.value, defaultProvider = defaultProvider)
     val scrollState = rememberScrollState()
     val snackbarHostState = remember { SnackbarHostState() }
 

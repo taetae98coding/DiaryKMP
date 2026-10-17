@@ -7,11 +7,14 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.qr.Qr
+import io.github.taetae98coding.diary.core.testing.qr.qr
+import io.github.taetae98coding.diary.feature.qr.ui.add.qrTestFixtureMonkey
 import io.github.taetae98coding.diary.feature.qr.ui.home.qrCodeValueList
 import io.github.taetae98coding.diary.feature.qr.ui.home.testQr
 import io.kotest.matchers.collections.shouldContainExactly
@@ -88,13 +91,37 @@ class SwipeToDeleteQrCardTest {
             .map { text -> text.text } shouldBe listOf(qr.detail.title)
     }
 
+    @Test
+    fun `TC-QR-HOME-FEATURE-035 아직 준비되지 않은 자리는 선택해도 이동하지 않는다`() {
+        var clickCount = 0
+        setCard(qr = null, onClick = { clickCount += 1 })
+
+        composeRule.onNodeWithTag(QR_CARD_TEST_TAG).performClick()
+        composeRule.waitForIdle()
+
+        clickCount shouldBe 0
+    }
+
+    @Test
+    fun `준비된 QR 카드를 누르면 선택 동작을 한 번 실행한다`() {
+        var clickCount = 0
+        setCard(qr = qrTestFixtureMonkey.qr(isDeleted = false), onClick = { clickCount += 1 })
+
+        composeRule.onNodeWithTag(QR_CARD_TEST_TAG).performClick()
+        composeRule.waitForIdle()
+
+        clickCount shouldBe 1
+    }
+
     private fun setCard(
         qr: Qr?,
+        onClick: () -> Unit = {},
         onDelete: () -> Unit = {},
     ) {
         composeRule.setContent {
             DiaryTheme {
                 SwipeToDeleteQrCard(
+                    onClick = onClick,
                     onDelete = onDelete,
                     modifier = Modifier.fillMaxWidth(),
                     qr = qr,

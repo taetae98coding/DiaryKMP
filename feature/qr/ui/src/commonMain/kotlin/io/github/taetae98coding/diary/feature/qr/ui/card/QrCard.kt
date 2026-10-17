@@ -14,7 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
@@ -27,14 +26,14 @@ internal const val QR_CARD_TEST_TAG: String = "QrCard"
 
 @Composable
 internal fun QrCard(
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
     qr: Qr? = null,
 ) {
     Card(
-        modifier =
-            modifier
-                .testTag(QR_CARD_TEST_TAG)
-                .semantics(mergeDescendants = true) {},
+        onClick = onClick,
+        modifier = modifier.testTag(QR_CARD_TEST_TAG),
+        enabled = qr != null,
     ) {
         Column(
             modifier = Modifier.styleable(style = DiaryTheme.styles.cardContent),
@@ -71,6 +70,9 @@ private fun QrCardPreview(
     @PreviewParameter(QrCardPreviewParameter::class) qr: Qr?,
 ) {
     DiaryTheme {
-        QrCard(qr = qr)
+        QrCard(
+            onClick = {},
+            qr = qr,
+        )
     }
 }

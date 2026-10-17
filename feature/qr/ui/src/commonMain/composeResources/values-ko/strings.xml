@@ -10,6 +10,10 @@
     <string name="qr_add_title">QR 추가</string>
     <string name="qr_add_succeeded_message">QR이 추가되었습니다.</string>
     <string name="qr_add_title_blank_message">제목을 입력해 주세요.</string>
+    <string name="qr_detail_delete_button_content_description">QR 삭제</string>
+    <string name="qr_detail_update_button_content_description">QR 수정</string>
+    <string name="qr_detail_update_succeeded_message">QR이 수정되었습니다.</string>
+    <string name="qr_detail_loading_content_description">QR 불러오는 중</string>
     <string name="qr_scan_button_content_description">QR 스캔</string>
     <string name="qr_camera_permission_denied_message">카메라 권한을 허용해야 QR을 스캔할 수 있습니다.</string>
     <string name="qr_scan_title">QR 스캔</string>

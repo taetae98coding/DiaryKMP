@@ -10,6 +10,10 @@
     <string name="qr_add_title">Add QR code</string>
     <string name="qr_add_succeeded_message">QR code added.</string>
     <string name="qr_add_title_blank_message">Please enter a title.</string>
+    <string name="qr_detail_delete_button_content_description">Delete QR code</string>
+    <string name="qr_detail_update_button_content_description">Update QR code</string>
+    <string name="qr_detail_update_succeeded_message">QR code updated.</string>
+    <string name="qr_detail_loading_content_description">Loading QR code</string>
     <string name="qr_scan_button_content_description">Scan QR code</string>
     <string name="qr_camera_permission_denied_message">Allow camera access to scan QR codes.</string>
     <string name="qr_scan_title">Scan QR code</string>

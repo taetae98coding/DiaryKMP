@@ -232,6 +232,7 @@ class QrHomeDeleteTest {
                     QrHomeScreen(
                         navigateUp = onNavigate,
                         navigateToAdd = onNavigate,
+                        navigateToDetail = { onNavigate() },
                         qrViewModel = viewModel,
                         syncViewModel = syncViewModel,
                     )
