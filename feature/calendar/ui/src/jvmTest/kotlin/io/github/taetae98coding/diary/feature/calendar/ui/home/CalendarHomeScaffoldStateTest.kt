@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.calendar.ui.home
 
+import androidx.compose.material3.SnackbarHostState
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.calendar.CalendarState
@@ -21,6 +22,7 @@ class CalendarHomeScaffoldStateTest :
                 CalendarHomeScaffoldState(
                     calendarState = CalendarState(initialYearMonth = fixtureMonkey.giveMeYearMonth()),
                     datePickerDialogState = DialogState(),
+                    snackbarHostState = SnackbarHostState(),
                 )
 
             state.isDatePickerVisible shouldBe false
@@ -31,6 +33,7 @@ class CalendarHomeScaffoldStateTest :
                 CalendarHomeScaffoldState(
                     calendarState = CalendarState(initialYearMonth = fixtureMonkey.giveMeYearMonth()),
                     datePickerDialogState = DialogState(),
+                    snackbarHostState = SnackbarHostState(),
                 )
 
             state.today shouldBe null
@@ -41,6 +44,7 @@ class CalendarHomeScaffoldStateTest :
                 CalendarHomeScaffoldState(
                     calendarState = CalendarState(initialYearMonth = fixtureMonkey.giveMeYearMonth()),
                     datePickerDialogState = DialogState(),
+                    snackbarHostState = SnackbarHostState(),
                 )
 
             // 갱신하는 순간과 기대값을 구하는 순간 사이에 자정이 지날 수 있어 앞뒤의 오늘을 모두 허용한다.
@@ -57,6 +61,7 @@ class CalendarHomeScaffoldStateTest :
                 CalendarHomeScaffoldState(
                     calendarState = CalendarState(initialYearMonth = yearMonth),
                     datePickerDialogState = DialogState(),
+                    snackbarHostState = SnackbarHostState(),
                 )
 
             state.showDatePicker()

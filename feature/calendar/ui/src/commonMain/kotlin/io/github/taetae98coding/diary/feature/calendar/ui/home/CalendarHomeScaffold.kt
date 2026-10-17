@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.calendar.ui.home
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -62,6 +63,7 @@ internal fun CalendarHomeScaffold(
                 onEvent = onEvent,
             )
         },
+        snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },
     ) { paddingValues ->
         CalendarHomeContent(
             state = state,

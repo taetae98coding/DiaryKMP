@@ -36,4 +36,5 @@
     <string name="place_search_map_content_description">Place search map</string>
     <string name="place_search_empty_message">No search results</string>
     <string name="place_search_failed_message">Couldn't search for places</string>
+    <string name="place_detail_open_external_map_failed_message">Couldn't open the map.</string>
 </resources>

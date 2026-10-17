@@ -33,6 +33,7 @@ import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.handlePlaceFormEvent
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceDetailFormState
 import io.github.taetae98coding.diary.feature.place.ui.place_coordinate_invalid_message
+import io.github.taetae98coding.diary.feature.place.ui.place_detail_open_external_map_failed_message
 import io.github.taetae98coding.diary.feature.place.ui.search.PlaceSearchViewModel
 import io.github.taetae98coding.diary.feature.place.ui.tag.PlaceTagAddedResultEffect
 import kotlinx.coroutines.launch
@@ -195,21 +196,27 @@ private fun rememberOpenExternalMap(
     val externalMapOpener = rememberExternalMapOpener()
     val coroutineScope = rememberCoroutineScope()
     val coordinateInvalidMessage = stringResource(Res.string.place_coordinate_invalid_message)
+    val openFailedMessage = stringResource(Res.string.place_detail_open_external_map_failed_message)
     val latestSavedTitleProvider by rememberUpdatedState(savedTitleProvider)
 
-    return remember(scaffoldState, externalMapOpener, coroutineScope, coordinateInvalidMessage) {
+    return remember(scaffoldState, externalMapOpener, coroutineScope, coordinateInvalidMessage, openFailedMessage) {
         {
             val coordinate = scaffoldState.spot
 
             if (coordinate == null) {
                 coroutineScope.launch { scaffoldState.snackbarHostState.showImmediate(message = coordinateInvalidMessage) }
             } else {
-                externalMapOpener.open(
-                    provider = scaffoldState.mapState.provider,
-                    coordinate = coordinate,
-                    title = externalMapTitle(inputTitle = scaffoldState.detail.title, savedTitle = latestSavedTitleProvider()),
-                    address = scaffoldState.detail.address,
-                )
+                coroutineScope.launch {
+                    val isOpened =
+                        externalMapOpener.open(
+                            provider = scaffoldState.mapState.provider,
+                            coordinate = coordinate,
+                            title = externalMapTitle(inputTitle = scaffoldState.detail.title, savedTitle = latestSavedTitleProvider()),
+                            address = scaffoldState.detail.address,
+                        )
+
+                    if (!isOpened) scaffoldState.snackbarHostState.showImmediate(message = openFailedMessage)
+                }
             }
         }
     }

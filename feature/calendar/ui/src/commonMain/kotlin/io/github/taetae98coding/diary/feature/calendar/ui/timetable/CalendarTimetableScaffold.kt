@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.calendar.ui.timetable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -12,7 +13,6 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
@@ -23,7 +23,7 @@ import io.github.taetae98coding.diary.compose.timetable.Timetable
 import io.github.taetae98coding.diary.compose.timetable.TimetableEvent
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarTimetableNavKey
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeDefaults
-import io.github.taetae98coding.diary.feature.calendar.ui.home.search.openHolidaySearch
+import io.github.taetae98coding.diary.feature.calendar.ui.home.search.rememberCalendarSearchOpener
 import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarMemo
 import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarTimedMemo
 import io.github.taetae98coding.diary.feature.calendar.ui.previewHoliday
@@ -42,7 +42,7 @@ internal fun CalendarTimetableScaffold(
     val coroutineScope = rememberCoroutineScope()
     val calendarColors = CalendarDefaults.colors()
     val nonHolidayNameColor = CalendarHomeDefaults.nonHolidayNameColor()
-    val uriHandler = LocalUriHandler.current
+    val searchOpener = rememberCalendarSearchOpener(snackbarHostState = state.snackbarHostState)
 
     Scaffold(
         modifier =
@@ -67,6 +67,7 @@ internal fun CalendarTimetableScaffold(
                 state = state,
             )
         },
+        snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },
     ) { paddingValues ->
         Timetable(
             modifier =
@@ -90,7 +91,7 @@ internal fun CalendarTimetableScaffold(
                 holidayNameColor = calendarColors.sundayAndHolidayColor,
                 nonHolidayNameColor = nonHolidayNameColor,
                 onEvent = onEvent,
-                onHolidayClick = { holiday -> uriHandler.openHolidaySearch(name = holiday.name) },
+                onHolidayClick = { holiday -> searchOpener.openHolidaySearch(name = holiday.name) },
             )
         }
     }

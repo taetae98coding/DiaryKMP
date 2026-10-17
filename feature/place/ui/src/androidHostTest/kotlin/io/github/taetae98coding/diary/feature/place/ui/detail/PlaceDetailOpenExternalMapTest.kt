@@ -107,7 +107,7 @@ class PlaceDetailOpenExternalMapTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-035 지도 앱과 웹 지도를 모두 열지 못해도 화면을 유지하고 알리지 않는다`() {
+    fun `TC-PLACE-DETAIL-FEATURE-060 지도 앱과 웹 지도를 모두 열지 못하면 화면을 유지하고 지도를 열지 못했다고 알린다`() {
         val uriHandler =
             mockk<UriHandler> {
                 every { openUri(any()) } throws IllegalArgumentException("외부 지도를 열 수 없습니다.")
@@ -128,6 +128,7 @@ class PlaceDetailOpenExternalMapTest {
             .onAllNodes(hasText(DEFAULT_COORDINATE_INVALID_MESSAGE))
             .fetchSemanticsNodes()
             .size shouldBe 0
+        composeRule.onNodeWithText("Couldn't open the map.").assertIsDisplayed()
     }
 
     @Test
@@ -158,6 +159,7 @@ class PlaceDetailOpenExternalMapTest {
                 uriHandler.openUri(webUri)
             }
         }
+        composeRule.onNodeWithText("Couldn't open the map.").assertDoesNotExist()
     }
 
     @Test

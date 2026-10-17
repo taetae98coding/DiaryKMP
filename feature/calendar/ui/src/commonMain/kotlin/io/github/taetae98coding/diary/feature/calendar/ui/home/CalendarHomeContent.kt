@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalUriHandler
 import io.github.taetae98coding.diary.compose.calendar.Calendar
 import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.calendar.CalendarEvent
@@ -18,8 +17,7 @@ import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.Calendar
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMoveGhost
-import io.github.taetae98coding.diary.feature.calendar.ui.home.search.openHolidaySearch
-import io.github.taetae98coding.diary.feature.calendar.ui.home.search.openWeatherSearch
+import io.github.taetae98coding.diary.feature.calendar.ui.home.search.rememberCalendarSearchOpener
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarContactBirthday
 import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarMemo
@@ -40,7 +38,7 @@ internal fun CalendarHomeContent(
     val calendarColors = CalendarDefaults.colors()
     val nonHolidayNameColor = CalendarHomeDefaults.nonHolidayNameColor()
     val birthdayColor = CalendarHomeDefaults.birthdayColor()
-    val uriHandler = LocalUriHandler.current
+    val searchOpener = rememberCalendarSearchOpener(snackbarHostState = state.snackbarHostState)
 
     DiaryPullToRefreshBox(
         isRefreshingProvider = { uiStateProvider().isRefreshing },
@@ -74,8 +72,8 @@ internal fun CalendarHomeContent(
                         memoProvider = { memoUiStateProvider().memoList },
                         birthdayProvider = { birthdayUiStateProvider().birthdayList },
                         birthdayColor = birthdayColor,
-                        onWeatherClick = { uriHandler.openWeatherSearch(locationName = weatherUiStateProvider().weatherReport.locationName) },
-                        onHolidayClick = { holiday -> uriHandler.openHolidaySearch(name = holiday.name) },
+                        onWeatherClick = { searchOpener.openWeatherSearch(locationName = weatherUiStateProvider().weatherReport.locationName) },
+                        onHolidayClick = { holiday -> searchOpener.openHolidaySearch(name = holiday.name) },
                         onEvent = onEvent,
                     )
                 }

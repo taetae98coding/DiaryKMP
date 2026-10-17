@@ -17,6 +17,7 @@ import androidx.compose.ui.test.performTextReplacement
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.web.DiaryWebSession
 import io.github.taetae98coding.diary.compose.web.SingletonDiaryWebSession
+import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.feature.web.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.web.ui.add.detailTagScreenTestViewModel
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
@@ -143,8 +144,8 @@ class WebDetailScreenTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-017 앱 밖에서 열지 못해도 화면을 유지하고 알리지 않는다`() {
-        val detail = testWebDetail()
+    fun `TC-WEB-DETAIL-FEATURE-073 앱 밖에서 열지 못하면 화면을 유지하고 링크를 열지 못했다고 알린다`() {
+        val detail = testWebDetail(headerList = listOf(WebHeader(name = TYPED_HEADER_NAME, value = "header-value")))
         val uriHandler =
             mockk<UriHandler> {
                 every { openUri(any()) } throws IllegalStateException("브라우저를 열 수 없습니다.")
@@ -154,8 +155,14 @@ class WebDetailScreenTest {
         composeRule.onNodeWithContentDescription(DEFAULT_OPEN_IN_NEW_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
-        composeRule.onNodeWithText(detail.title).assertExists()
+        composeRule.onNodeWithText("Couldn't open the link.").assertExists()
         composeRule.onNodeWithContentDescription(DEFAULT_OPEN_IN_NEW_DESCRIPTION).assertExists()
+        composeRule.selectFormTab()
+        composeRule.titleInput().assert(hasText(detail.title))
+        composeRule.descriptionInput().assert(hasText(detail.description))
+        composeRule.urlInput().assert(hasText(detail.url))
+        composeRule.headerNameInput().assert(hasText(TYPED_HEADER_NAME))
+        composeRule.headerValueInput().assert(hasText("header-value"))
     }
 
     @Test
