@@ -29,9 +29,15 @@
 ### TC-QR-SCAN-FEATURE-006: 뒤로가기를 선택하면 값을 넘기지 않고 이전 화면으로 돌아간다
 
 - 근거: `feature > 뒤로가기`
-- Given: 사용자가 QrAdd 화면에서 QrScan 화면으로 들어와 있다.
+- Given: 사용자가 테스트 데이터의 화면에서 QrScan 화면으로 들어와 있다.
 - When: 사용자가 뒤로가기를 선택한다.
-- Then: 이전 화면으로 돌아가는 동작이 한 번 실행되고, QrAdd 화면에 넘기는 값은 없다.
+- Then: 진입한 화면으로 돌아가는 동작이 한 번 실행되고, 그 화면에 넘기는 값은 없다.
+- 테스트 데이터:
+
+  | 진입한 화면 |
+  | --- |
+  | QrAdd |
+  | QrDetail |
 
 ### TC-QR-SCAN-FEATURE-009: 화면이 보이는 동안 환경별로 정한 카메라 모습을 실시간으로 보여 준다
 
@@ -59,9 +65,15 @@
 ### TC-QR-SCAN-FEATURE-007: QR을 읽으면 읽은 값을 넘기고 이전 화면으로 돌아간다
 
 - 근거: `feature > QR 읽기`
-- Given: QrScan 화면이 표시되어 있다.
+- Given: 사용자가 테스트 데이터의 화면에서 QrScan 화면으로 들어와 있다.
 - When: 카메라가 값 `https://example.com`을 담은 QR을 읽는다.
-- Then: QrAdd 화면에 `https://example.com`을 넘기는 동작과 이전 화면으로 돌아가는 동작이 각각 한 번 실행된다.
+- Then: 진입한 화면에 `https://example.com`을 넘기는 동작과 그 화면으로 돌아가는 동작이 각각 한 번 실행된다.
+- 테스트 데이터:
+
+  | 진입한 화면 |
+  | --- |
+  | QrAdd |
+  | QrDetail |
 
 ### TC-QR-SCAN-FEATURE-008: QR을 읽기 전에는 화면에 머무른다
 
