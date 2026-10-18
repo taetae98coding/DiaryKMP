@@ -13,6 +13,7 @@ import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLoca
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.contact.transaction.AccountContactTransactionImpl
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.first
@@ -43,9 +44,12 @@ class AccountContactLocalDataSourceImplTest :
         suspend fun page(
             accountId: Uuid,
             sort: ListSortLocalEntity,
+            hasBirthday: Boolean? = null,
+            hasBirthYear: Boolean? = null,
+            hasPhoneNumber: Boolean? = null,
         ): List<ContactLocalEntity> {
             val page =
-                dataSource.page(accountId = accountId, sort = sort).load(
+                dataSource.page(accountId = accountId, sort = sort, hasBirthday = hasBirthday, hasBirthYear = hasBirthYear, hasPhoneNumber = hasPhoneNumber).load(
                     PagingSource.LoadParams.Refresh(
                         key = null,
                         loadSize = PAGE_SIZE,
@@ -165,6 +169,109 @@ class AccountContactLocalDataSourceImplTest :
                 .map { contact -> contact.id } shouldBe listOf(first.id, middle.id, last.id)
         }
 
+        test("TC-CONTACT-HOME-DOMAIN-017 각 축은 정해진 기준으로 연락처의 유무를 판정한다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val solarBirthday = contact(name = FIRST_NAME, phoneNumberList = emptyList()).withBirthday(calendar = ContactBirthdayCalendarLocalEntity.SOLAR)
+            val lunarBirthday = contact(name = ANOTHER_NAME, phoneNumberList = emptyList()).withBirthday(calendar = ContactBirthdayCalendarLocalEntity.LUNAR)
+            val birthYearOnly = contact(name = MIDDLE_NAME, phoneNumberList = listOf(phoneNumber())).let { contact -> contact.copy(detail = contact.detail.copy(birthYear = fixtureMonkey.giveMeOne<Int>())) }
+            val multiplePhoneNumber = contact(name = LAST_NAME, phoneNumberList = listOf(phoneNumber(), phoneNumber()))
+            transaction.upsert(accountId = accountId, contactList = listOf(solarBirthday, lunarBirthday, birthYearOnly, multiplePhoneNumber))
+
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasBirthday = true) shouldBe listOf(solarBirthday, lunarBirthday)
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasBirthday = false) shouldBe listOf(birthYearOnly, multiplePhoneNumber)
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasPhoneNumber = true) shouldBe listOf(birthYearOnly, multiplePhoneNumber)
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasPhoneNumber = false) shouldBe listOf(solarBirthday, lunarBirthday)
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasBirthYear = true) shouldBe listOf(solarBirthday, lunarBirthday, birthYearOnly)
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasBirthYear = false) shouldBe listOf(multiplePhoneNumber)
+        }
+
+        test("TC-CONTACT-HOME-DOMAIN-018 전체가 아닌 축이 여럿이면 그 축을 모두 함께 만족하는 연락처만 노출한다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val both = contact(name = FIRST_NAME, phoneNumberList = listOf(phoneNumber())).withBirthday()
+            val birthdayOnly = contact(name = ANOTHER_NAME, phoneNumberList = emptyList()).withBirthday()
+            val birthYearOnly =
+                contact(name = MIDDLE_NAME, phoneNumberList = emptyList()).let { contact ->
+                    contact.copy(detail = contact.detail.copy(birthYear = fixtureMonkey.giveMeOne<Int>()))
+                }
+            val phoneNumberOnly = contact(name = LAST_NAME, phoneNumberList = listOf(phoneNumber()))
+            val neither = contact(name = FIRST_NAME, phoneNumberList = emptyList())
+            transaction.upsert(accountId = accountId, contactList = listOf(both, birthdayOnly, birthYearOnly, phoneNumberOnly, neither))
+
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasBirthday = true, hasPhoneNumber = false) shouldBe listOf(birthdayOnly)
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasBirthday = false, hasBirthYear = true) shouldBe listOf(birthYearOnly)
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasBirthYear = false, hasPhoneNumber = true) shouldBe listOf(phoneNumberOnly)
+        }
+
+        test("TC-CONTACT-HOME-DOMAIN-019 유무 필터는 즐겨찾기 우선과 정렬 순서를 바꾸지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val recentFavorite = contact(name = LAST_NAME, isFavorite = true, updatedAt = NEW_INSTANT)
+            val oldFavorite = contact(name = FIRST_NAME, isFavorite = true, updatedAt = OLD_INSTANT)
+            val recentOther = contact(name = MIDDLE_NAME, updatedAt = NEW_INSTANT)
+            val oldOther = contact(name = ANOTHER_NAME, updatedAt = OLD_INSTANT)
+            val withoutPhoneNumber = contact(name = FIRST_NAME, isFavorite = true, updatedAt = NEW_INSTANT, phoneNumberList = emptyList())
+            transaction.upsert(accountId = accountId, contactList = listOf(recentFavorite, oldFavorite, recentOther, oldOther, withoutPhoneNumber))
+
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasPhoneNumber = true) shouldBe
+                listOf(oldFavorite, recentFavorite, oldOther, recentOther)
+            page(accountId = accountId, sort = ListSortLocalEntity.RECENTLY_UPDATED, hasPhoneNumber = true) shouldBe
+                listOf(recentFavorite, oldFavorite, recentOther, oldOther)
+        }
+
+        test("TC-CONTACT-HOME-DOMAIN-023 필터를 적용한 동안 전화번호가 바뀌어 판정이 달라지면 목록에서 사라지거나 나타난다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val withPhoneNumber = contact(name = FIRST_NAME)
+            val withoutPhoneNumber = contact(name = LAST_NAME, phoneNumberList = emptyList())
+            transaction.upsert(accountId = accountId, contactList = listOf(withPhoneNumber, withoutPhoneNumber))
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasPhoneNumber = true) shouldBe listOf(withPhoneNumber)
+
+            val cleared = withPhoneNumber.copy(detail = withPhoneNumber.detail.copy(phoneNumberList = emptyList()))
+            val added = withoutPhoneNumber.copy(detail = withoutPhoneNumber.detail.copy(phoneNumberList = listOf(phoneNumber())))
+            transaction.upsert(accountId = accountId, contactList = listOf(cleared, added))
+
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasPhoneNumber = true) shouldBe listOf(added)
+        }
+
+        test("TC-CONTACT-HOME-DOMAIN-023 필터를 적용한 동안 생일이 바뀌어 판정이 달라지면 목록에서 사라지거나 나타난다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val withBirthday = contact(name = FIRST_NAME).withBirthday()
+            val withoutBirthday = contact(name = LAST_NAME)
+            transaction.upsert(accountId = accountId, contactList = listOf(withBirthday, withoutBirthday))
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasBirthday = true) shouldBe listOf(withBirthday)
+
+            val cleared = withBirthday.copy(detail = withBirthday.detail.copy(birthday = null, birthdayCalendar = null, birthYear = null))
+            val added = withoutBirthday.withBirthday()
+            transaction.upsert(accountId = accountId, contactList = listOf(cleared, added))
+
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasBirthday = true) shouldBe listOf(added)
+        }
+
+        test("TC-CONTACT-HOME-DOMAIN-023 필터를 적용한 동안 태어난 연도가 바뀌어 판정이 달라지면 목록에서 사라지거나 나타난다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val withBirthYear = contact(name = FIRST_NAME).let { contact -> contact.copy(detail = contact.detail.copy(birthYear = fixtureMonkey.giveMeOne<Int>())) }
+            val withoutBirthYear = contact(name = LAST_NAME)
+            transaction.upsert(accountId = accountId, contactList = listOf(withBirthYear, withoutBirthYear))
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasBirthYear = true) shouldBe listOf(withBirthYear)
+
+            val cleared = withBirthYear.copy(detail = withBirthYear.detail.copy(birthYear = null))
+            val added = withoutBirthYear.copy(detail = withoutBirthYear.detail.copy(birthYear = fixtureMonkey.giveMeOne<Int>()))
+            transaction.upsert(accountId = accountId, contactList = listOf(cleared, added))
+
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasBirthYear = true) shouldBe listOf(added)
+        }
+
+        test("TC-CONTACT-HOME-DOMAIN-024 필터를 적용한 동안 조건에 맞지 않는 연락처를 저장하면 목록에 나타나지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val shown = contact(name = FIRST_NAME)
+            transaction.upsert(accountId = accountId, contactList = listOf(shown))
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasBirthday = false) shouldBe listOf(shown)
+
+            val withBirthday = contact(name = MIDDLE_NAME).withBirthday()
+            val withoutBirthday = contact(name = LAST_NAME)
+            transaction.upsert(accountId = accountId, contactList = listOf(withBirthday, withoutBirthday))
+
+            page(accountId = accountId, sort = ListSortLocalEntity.NAME, hasBirthday = false) shouldBe listOf(shown, withoutBirthday)
+        }
+
         test("TC-CONTACT-ADD-DATA-008 고향을 비우면 비어 있는 값으로 저장한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val stored =
@@ -198,6 +305,7 @@ class AccountContactLocalDataSourceImplTest :
             name: String,
             isFavorite: Boolean = false,
             updatedAt: Instant = OLD_INSTANT,
+            phoneNumberList: List<ContactPhoneNumberLocalEntity> = listOf(phoneNumber()),
         ): ContactLocalEntity =
             ContactLocalEntity(
                 id = fixtureMonkey.giveMeOne<Uuid>(),
@@ -211,12 +319,16 @@ class AccountContactLocalDataSourceImplTest :
                         birthdayCalendar = null,
                         birthYear = null,
                         hometown = "hometown-${fixtureMonkey.giveMeOne<String>()}",
-                        phoneNumberList = listOf(ContactPhoneNumberLocalEntity(number = "010-1234-5678")),
+                        phoneNumberList = phoneNumberList,
                     ),
                 isFavorite = isFavorite,
                 isDeleted = false,
                 updatedAt = updatedAt,
                 createdAt = OLD_INSTANT,
             )
+
+        private fun phoneNumber(): ContactPhoneNumberLocalEntity = ContactPhoneNumberLocalEntity(number = fixtureMonkey.nonBlankString())
+
+        private fun ContactLocalEntity.withBirthday(calendar: ContactBirthdayCalendarLocalEntity = ContactBirthdayCalendarLocalEntity.SOLAR): ContactLocalEntity = copy(detail = detail.copy(birthday = BIRTHDAY, birthdayCalendar = calendar, birthYear = BIRTHDAY.year))
     }
 }

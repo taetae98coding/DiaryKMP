@@ -16,10 +16,16 @@ internal class AccountContactLocalDataSourceImpl(
     override fun page(
         accountId: Uuid,
         sort: ListSortLocalEntity,
+        hasBirthday: Boolean?,
+        hasBirthYear: Boolean?,
+        hasPhoneNumber: Boolean?,
     ): PagingSource<Int, ContactLocalEntity> =
         database.accountContactDao().page(
             accountId = accountId,
             sort = sort.queryValue,
+            hasBirthday = hasBirthday,
+            hasBirthYear = hasBirthYear,
+            hasPhoneNumber = hasPhoneNumber,
         )
 
     override fun get(

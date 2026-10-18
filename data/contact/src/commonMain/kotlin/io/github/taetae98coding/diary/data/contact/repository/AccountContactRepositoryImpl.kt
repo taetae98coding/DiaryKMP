@@ -6,7 +6,9 @@ import io.github.taetae98coding.diary.core.database.api.contact.transaction.Acco
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
+import io.github.taetae98coding.diary.core.model.contact.ContactFilter
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.data.contact.mapper.toLocal
 import io.github.taetae98coding.diary.data.core.mapper.toDomain
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
 import io.github.taetae98coding.diary.data.core.paging.pagingFlow
@@ -25,12 +27,16 @@ internal class AccountContactRepositoryImpl(
     override fun page(
         account: Account,
         sort: ListSort,
+        filter: ContactFilter,
     ): Flow<PagingData<Contact>> =
         pagingFlow(
             pagingSourceFactory = {
                 accountContactLocalDataSource.page(
                     accountId = account.id,
                     sort = sort.toLocal(),
+                    hasBirthday = filter.birthday.toLocal(),
+                    hasBirthYear = filter.birthYear.toLocal(),
+                    hasPhoneNumber = filter.phoneNumber.toLocal(),
                 )
             },
             transform = { local -> local.toDomain() },

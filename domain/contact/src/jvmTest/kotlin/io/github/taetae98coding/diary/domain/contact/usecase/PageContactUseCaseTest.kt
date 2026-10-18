@@ -7,6 +7,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactFilter
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.contact.repository.AccountContactRepository
@@ -30,7 +31,8 @@ class PageContactUseCaseTest :
             val getAccountUseCase = mockk<GetAccountUseCase>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             val accountContactRepository = mockk<AccountContactRepository>()
-            every { accountContactRepository.page(account = account, sort = ListSort.NAME) } returns flowOf(PagingData.from(contactList))
+            val filter = fixtureMonkey.giveMeOne<ContactFilter>()
+            every { accountContactRepository.page(account = account, sort = ListSort.NAME, filter = filter) } returns flowOf(PagingData.from(contactList))
             val useCase =
                 PageContactUseCase(
                     getAccountUseCase = getAccountUseCase,
@@ -38,8 +40,8 @@ class PageContactUseCaseTest :
                 )
 
             When("연락처 목록을 페이지로 조회한다") {
-                Then("TC-CONTACT-HOME-DOMAIN-001 TC-CONTACT-HOME-DATA-001 현재 계정의 연락처를 페이지로 전달한다") {
-                    val pagingData = useCase(parameter = ListSort.NAME).first().shouldBeSuccess()
+                Then("TC-CONTACT-HOME-DOMAIN-001 TC-CONTACT-HOME-DATA-001 TC-CONTACT-HOME-DATA-011 현재 계정의 연락처를 고른 정렬과 유무 필터로 페이지 조회해 전달한다") {
+                    val pagingData = useCase(parameter = PageContactUseCase.Parameter(sort = ListSort.NAME, filter = filter)).first().shouldBeSuccess()
 
                     flowOf(pagingData).asSnapshot() shouldBe contactList
                 }
@@ -59,7 +61,7 @@ class PageContactUseCaseTest :
 
             When("연락처 목록을 페이지로 조회한다") {
                 Then("TC-CONTACT-HOME-DOMAIN-002 실패를 그대로 전달한다") {
-                    useCase(parameter = ListSort.NAME)
+                    useCase(parameter = PageContactUseCase.Parameter(sort = ListSort.NAME, filter = ContactFilter()))
                         .first()
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)

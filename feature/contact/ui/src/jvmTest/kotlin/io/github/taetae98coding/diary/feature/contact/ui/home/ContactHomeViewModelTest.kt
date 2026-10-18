@@ -10,6 +10,8 @@ import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
+import io.github.taetae98coding.diary.core.model.contact.ContactFilter
+import io.github.taetae98coding.diary.core.model.contact.ContactFilterExistence
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.domain.contact.usecase.DeleteContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.PageContactUseCase
@@ -122,8 +124,8 @@ class ContactHomeViewModelTest : FunSpec() {
                 val nameContactList = listOf(contact(), contact())
                 val recentlyUpdatedContactList = listOf(contact(), contact())
                 val pageContactUseCase = mockk<PageContactUseCase>()
-                every { pageContactUseCase(parameter = ListSort.NAME) } returns flowOf(Result.success(PagingData.from(nameContactList)))
-                every { pageContactUseCase(parameter = ListSort.RECENTLY_UPDATED) } returns
+                every { pageContactUseCase(parameter = PageContactUseCase.Parameter(sort = ListSort.NAME, filter = ContactFilter())) } returns flowOf(Result.success(PagingData.from(nameContactList)))
+                every { pageContactUseCase(parameter = PageContactUseCase.Parameter(sort = ListSort.RECENTLY_UPDATED, filter = ContactFilter())) } returns
                     flowOf(Result.success(PagingData.from(recentlyUpdatedContactList)))
                 val viewModel = viewModel(pageContactUseCase = pageContactUseCase)
 
@@ -136,6 +138,121 @@ class ContactHomeViewModelTest : FunSpec() {
                     viewModel.sortUiState.value shouldBe ListSortUiState(sort = ListSort.RECENTLY_UPDATED)
                     cancelAndIgnoreRemainingEvents()
                 }
+            }
+        }
+
+        test("TC-CONTACT-HOME-FEATURE-040 처음에는 두 축이 모두 전체이고 거르지 않는 조건으로 조회한다") {
+            runTest(mainDispatcher) {
+                val contactList = listOf(contact(), contact())
+                val viewModel = viewModel(pageContactUseCase = pageContactUseCase(contactListFlow = flowOf(Result.success(contactList))))
+
+                viewModel.filterUiState.value shouldBe ContactHomeFilterUiState(filter = ContactFilter(birthday = ContactFilterExistence.ALL, birthYear = ContactFilterExistence.ALL, phoneNumber = ContactFilterExistence.ALL))
+                viewModel.filterUiState.value.isApplied shouldBe false
+                flowOf(viewModel.contactPagingData.first()).asSnapshot() shouldBe contactList
+            }
+        }
+
+        test("TC-CONTACT-HOME-DATA-011 유무 필터를 바꾸면 바뀐 기준으로 목록을 다시 조회한다") {
+            runTest(mainDispatcher) {
+                val allContactList = listOf(contact(), contact())
+                val birthdayContactList = listOf(contact())
+                val phoneNumberContactList = listOf(contact())
+                val birthdayFilter = ContactFilter(birthday = ContactFilterExistence.EXIST)
+                val bothFilter = birthdayFilter.copy(phoneNumber = ContactFilterExistence.NOT_EXIST)
+                val allAxisFilter = bothFilter.copy(birthYear = ContactFilterExistence.NOT_EXIST)
+                val allAxisContactList = listOf(contact())
+                val pageContactUseCase = mockk<PageContactUseCase>()
+                every { pageContactUseCase(parameter = PageContactUseCase.Parameter(sort = ListSort.NAME, filter = ContactFilter())) } returns
+                    flowOf(Result.success(PagingData.from(allContactList)))
+                every { pageContactUseCase(parameter = PageContactUseCase.Parameter(sort = ListSort.NAME, filter = birthdayFilter)) } returns
+                    flowOf(Result.success(PagingData.from(birthdayContactList)))
+                every { pageContactUseCase(parameter = PageContactUseCase.Parameter(sort = ListSort.NAME, filter = bothFilter)) } returns
+                    flowOf(Result.success(PagingData.from(phoneNumberContactList)))
+                every { pageContactUseCase(parameter = PageContactUseCase.Parameter(sort = ListSort.NAME, filter = allAxisFilter)) } returns
+                    flowOf(Result.success(PagingData.from(allAxisContactList)))
+                val viewModel = viewModel(pageContactUseCase = pageContactUseCase)
+
+                viewModel.contactPagingData.test {
+                    flowOf(awaitItem()).asSnapshot() shouldBe allContactList
+
+                    viewModel.setBirthdayExistence(existence = ContactFilterExistence.EXIST)
+
+                    flowOf(awaitItem()).asSnapshot() shouldBe birthdayContactList
+                    viewModel.filterUiState.value shouldBe ContactHomeFilterUiState(filter = birthdayFilter)
+
+                    viewModel.setPhoneNumberExistence(existence = ContactFilterExistence.NOT_EXIST)
+
+                    flowOf(awaitItem()).asSnapshot() shouldBe phoneNumberContactList
+                    viewModel.filterUiState.value shouldBe ContactHomeFilterUiState(filter = bothFilter)
+
+                    viewModel.setBirthYearExistence(existence = ContactFilterExistence.NOT_EXIST)
+
+                    flowOf(awaitItem()).asSnapshot() shouldBe allAxisContactList
+                    viewModel.filterUiState.value shouldBe ContactHomeFilterUiState(filter = allAxisFilter)
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("유무 필터를 바꿔도 고른 정렬은 그대로 조회 조건에 남는다") {
+            runTest(mainDispatcher) {
+                val contactList = listOf(contact())
+                val filter = ContactFilter(phoneNumber = ContactFilterExistence.EXIST)
+                val pageContactUseCase = mockk<PageContactUseCase>()
+                every { pageContactUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.empty()))
+                every { pageContactUseCase(parameter = PageContactUseCase.Parameter(sort = ListSort.RECENTLY_UPDATED, filter = filter)) } returns
+                    flowOf(Result.success(PagingData.from(contactList)))
+                val viewModel = viewModel(pageContactUseCase = pageContactUseCase)
+
+                viewModel.select(sort = ListSort.RECENTLY_UPDATED)
+                viewModel.setPhoneNumberExistence(existence = ContactFilterExistence.EXIST)
+
+                flowOf(viewModel.contactPagingData.first()).asSnapshot() shouldBe contactList
+            }
+        }
+
+        test("TC-CONTACT-HOME-DOMAIN-020 현재 사용자 계정이 바뀌어 목록이 다시 조회되어도 유무 필터 선택을 유지한다") {
+            runTest(mainDispatcher) {
+                val filter = ContactFilter(birthday = ContactFilterExistence.EXIST)
+                val beforeAccountContactList = listOf(contact())
+                val afterAccountContactList = listOf(contact())
+                val accountContactListFlow = MutableStateFlow(beforeAccountContactList)
+                val pageContactUseCase = mockk<PageContactUseCase>()
+                every { pageContactUseCase(parameter = any()) } returns flowOf(Result.success(PagingData.empty()))
+                every { pageContactUseCase(parameter = PageContactUseCase.Parameter(sort = ListSort.NAME, filter = filter)) } returns
+                    accountContactListFlow.map { contactList -> Result.success(PagingData.from(contactList)) }
+                val viewModel = viewModel(pageContactUseCase = pageContactUseCase)
+                viewModel.setBirthdayExistence(existence = ContactFilterExistence.EXIST)
+
+                viewModel.contactPagingData.test {
+                    flowOf(awaitItem()).asSnapshot() shouldBe beforeAccountContactList
+
+                    accountContactListFlow.value = afterAccountContactList
+
+                    flowOf(awaitItem()).asSnapshot() shouldBe afterAccountContactList
+                    viewModel.filterUiState.value shouldBe ContactHomeFilterUiState(filter = filter)
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("TC-CONTACT-HOME-FEATURE-044 축 중 하나라도 전체가 아니면 필터가 적용된 상태다") {
+            runTest(mainDispatcher) {
+                val viewModel = viewModel(pageContactUseCase = pageContactUseCase(contactListFlow = flowOf(Result.success(emptyList()))))
+
+                viewModel.setBirthdayExistence(existence = ContactFilterExistence.EXIST)
+                viewModel.filterUiState.value.isApplied shouldBe true
+
+                viewModel.setBirthdayExistence(existence = ContactFilterExistence.ALL)
+                viewModel.filterUiState.value.isApplied shouldBe false
+
+                viewModel.setPhoneNumberExistence(existence = ContactFilterExistence.NOT_EXIST)
+                viewModel.filterUiState.value.isApplied shouldBe true
+
+                viewModel.setPhoneNumberExistence(existence = ContactFilterExistence.ALL)
+                viewModel.setBirthYearExistence(existence = ContactFilterExistence.EXIST)
+                viewModel.filterUiState.value.isApplied shouldBe true
+                viewModel.filterUiState.value.filter shouldBe ContactFilter(birthYear = ContactFilterExistence.EXIST)
             }
         }
 
@@ -261,7 +378,7 @@ class ContactHomeViewModelTest : FunSpec() {
 
         private fun pageContactUseCase(contactListFlow: Flow<Result<List<Contact>>>): PageContactUseCase {
             val pageContactUseCase = mockk<PageContactUseCase>()
-            every { pageContactUseCase(parameter = ListSort.NAME) } returns
+            every { pageContactUseCase(parameter = PageContactUseCase.Parameter(sort = ListSort.NAME, filter = ContactFilter())) } returns
                 contactListFlow.map { result -> result.map { contactList -> PagingData.from(contactList) } }
 
             return pageContactUseCase

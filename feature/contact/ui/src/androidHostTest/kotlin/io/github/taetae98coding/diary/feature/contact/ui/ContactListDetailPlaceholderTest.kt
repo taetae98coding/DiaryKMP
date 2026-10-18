@@ -10,6 +10,7 @@ import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
@@ -53,6 +54,7 @@ import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlace
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.core.model.contact.ContactFilterExistence
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
@@ -86,6 +88,7 @@ import io.github.taetae98coding.diary.feature.contact.ui.detail.DEFAULT_MEMO_TAB
 import io.github.taetae98coding.diary.feature.contact.ui.detail.memo.ContactDetailMemoViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.detail.selectContactDetailTab
 import io.github.taetae98coding.diary.feature.contact.ui.home.CONTACT_CARD_TEST_TAG
+import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeFilterUiState
 import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.home.contactPagingDataOf
 import io.github.taetae98coding.diary.feature.contact.ui.home.testContact
@@ -105,6 +108,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -464,6 +468,109 @@ class ContactListDetailPlaceholderTest {
         composeRule.onNode(contactCard(contactList[POSITION_SCROLL_INDEX])).assertDoesNotExist()
     }
 
+    @Test
+    @Config(qualifiers = "w400dp-h800dp")
+    fun `TC-CONTACT-HOME-DOMAIN-020 연락처 상세로 이동한 뒤 뒤로가도 유무 필터 선택을 유지한다`() {
+        val contactList = listOf(listedContact())
+        setContactNavDisplay(contactList = contactList)
+        selectBirthdayWithFilter()
+
+        composeRule.onNode(contactCard(contactList.first())).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(detailContent(id = contactList.first().id)).assertIsDisplayed()
+        pressBack()
+
+        homeViewModelList.size shouldBe 1
+        homeViewModelList
+            .single()
+            .filterUiState.value.filter.birthday shouldBe ContactFilterExistence.EXIST
+        composeRule.onNode(hasStateDescription(DEFAULT_FILTER_APPLIED_DESCRIPTION)).assertIsDisplayed()
+    }
+
+    @Test
+    @Config(qualifiers = "w400dp-h800dp")
+    fun `TC-CONTACT-HOME-DOMAIN-020 연락처 추가로 이동한 뒤 뒤로가도 유무 필터 선택을 유지한다`() {
+        setContactNavDisplay(contactList = listOf(listedContact()))
+        selectBirthdayWithFilter()
+
+        composeRule.clickListAddButton()
+        composeRule.nameInput().assertIsDisplayed()
+        pressBack()
+
+        homeViewModelList.size shouldBe 1
+        composeRule.onNode(hasStateDescription(DEFAULT_FILTER_APPLIED_DESCRIPTION)).assertIsDisplayed()
+    }
+
+    @Test
+    @Config(qualifiers = "w400dp-h800dp")
+    fun `TC-CONTACT-HOME-DOMAIN-020 다른 앱에 다녀와도 유무 필터 선택을 유지한다`() {
+        setContactNavDisplay(contactList = listOf(listedContact()))
+        selectBirthdayWithFilter()
+
+        composeRule.activityRule.scenario.moveToState(Lifecycle.State.CREATED)
+        composeRule.waitForIdle()
+        composeRule.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
+        composeRule.waitForIdle()
+
+        homeViewModelList.size shouldBe 1
+        composeRule.onNode(hasStateDescription(DEFAULT_FILTER_APPLIED_DESCRIPTION)).assertIsDisplayed()
+    }
+
+    // 필터 선택은 기기에 남기지 않으므로, 앱을 다시 실행한 화면은 저장된 상태 없이 새로 그린 화면과 같다.
+    @Test
+    @Config(qualifiers = "w400dp-h800dp")
+    fun `TC-CONTACT-HOME-DOMAIN-021 앱을 다시 실행해 진입하면 유무 필터가 처음 상태다`() {
+        setContactNavDisplay(contactList = listOf(listedContact()))
+
+        homeViewModelList.single().filterUiState.value shouldBe ContactHomeFilterUiState()
+        composeRule.onNode(hasStateDescription(DEFAULT_FILTER_APPLIED_DESCRIPTION)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-CONTACT-LIST-DETAIL-FEATURE-017 상세가 놓인 동안 필터를 열어도 상세 영역의 화면은 바뀌지 않는다`() {
+        val contact = listedContact()
+        setContactNavDisplay(contactList = listOf(contact))
+        composeRule.onNode(contactCard(contact)).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_FILTER_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_FILTER_TITLE).assertIsDisplayed()
+        composeRule.onNodeWithText(detailContent(id = contact.id)).assertExists()
+        backStack.toList() shouldBe listOf(MoreNavKey, ContactHomeNavKey, ContactDetailNavKey(id = contact.id))
+    }
+
+    @Test
+    fun `TC-CONTACT-HOME-FEATURE-051 목록과 상세를 함께 보는 동안 필터를 바꿔도 상세 영역은 그대로 남는다`() {
+        val contact = listedContact()
+        setContactNavDisplay(contactList = listOf(contact))
+        composeRule.onNode(contactCard(contact)).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(detailContent(id = contact.id)).assertIsDisplayed()
+
+        selectBirthdayWithFilter()
+
+        composeRule.onNodeWithText(detailContent(id = contact.id)).assertIsDisplayed()
+        backStack.toList() shouldBe listOf(MoreNavKey, ContactHomeNavKey, ContactDetailNavKey(id = contact.id))
+    }
+
+    @Test
+    @Config(qualifiers = "w400dp-h800dp")
+    fun `TC-CONTACT-HOME-DOMAIN-021 더보기로 나갔다 다시 진입하면 유무 필터가 처음 상태로 돌아간다`() {
+        setContactNavDisplay(contactList = listOf(listedContact()))
+        selectBirthdayWithFilter()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(MORE_CONTENT).assertIsDisplayed()
+        composeRule.runOnIdle { backStack.add(ContactHomeNavKey) }
+        composeRule.waitForIdle()
+
+        homeViewModelList.last().filterUiState.value shouldBe ContactHomeFilterUiState()
+        composeRule.onNode(hasStateDescription(DEFAULT_FILTER_APPLIED_DESCRIPTION)).assertDoesNotExist()
+    }
+
     // 목록 위치는 기기에 남기지 않으므로, 앱을 다시 실행한 화면은 저장된 상태 없이 새로 그린 화면과 같다.
     @Test
     @Config(qualifiers = "w400dp-h800dp")
@@ -522,6 +629,13 @@ class ContactListDetailPlaceholderTest {
         composeRule.onNode(contactCard(contactList[POSITION_SCROLL_INDEX])).assertIsDisplayed()
         composeRule.onNode(contactCard(contactList.first())).assertDoesNotExist()
     }
+
+    private fun selectBirthdayWithFilter() {
+        composeRule.runOnIdle { homeViewModelList.last().setBirthdayExistence(existence = ContactFilterExistence.EXIST) }
+        composeRule.onNode(hasStateDescription(DEFAULT_FILTER_APPLIED_DESCRIPTION)).assertIsDisplayed()
+    }
+
+    private fun hasStateDescription(value: String): SemanticsMatcher = SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, value)
 
     private fun pressBack() {
         composeRule.runOnIdle { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
@@ -675,10 +789,15 @@ class ContactListDetailPlaceholderTest {
         module {
             factory { contactAddViewModelFactory().also { viewModel -> viewModelList += viewModel } }
             factory {
+                val filterState = MutableStateFlow(ContactHomeFilterUiState())
                 mockk<ContactHomeViewModel>(relaxed = true)
                     .apply {
                         every { contactPagingData } returns MutableStateFlow(contactPagingDataOf(homeContactList))
                         every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.NAME))
+                        every { filterUiState } returns filterState
+                        every { setBirthdayExistence(existence = any()) } answers {
+                            filterState.update { uiState -> uiState.copy(filter = uiState.filter.copy(birthday = firstArg())) }
+                        }
                         every { effect } returns emptyFlow()
                     }.also { viewModel -> homeViewModelList += viewModel }
             }
@@ -739,6 +858,9 @@ class ContactListDetailPlaceholderTest {
         const val DEFAULT_ADD_CONTACT_DESCRIPTION = "Add contact"
         const val DEFAULT_ADD_SUCCEEDED_MESSAGE = "Contact added."
         const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
+        const val DEFAULT_FILTER_APPLIED_DESCRIPTION = "Filter applied"
+        const val DEFAULT_FILTER_DESCRIPTION = "Filter"
+        const val DEFAULT_FILTER_TITLE = "Filter"
         const val DEFAULT_DELETE_CONTACT_DESCRIPTION = "Delete contact"
         const val POSITION_CONTACT_COUNT = 30
         const val POSITION_SCROLL_INDEX = 25

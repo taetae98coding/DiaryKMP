@@ -127,6 +127,7 @@ class ContactHomeScreenTest {
         val contactViewModel = mockk<ContactHomeViewModel>()
         val sort = MutableStateFlow(ListSortUiState(sort = ListSort.NAME))
         every { contactViewModel.sortUiState } returns sort
+        every { contactViewModel.filterUiState } returns MutableStateFlow(ContactHomeFilterUiState())
         every { contactViewModel.contactPagingData } returns MutableStateFlow(contactPagingDataOf(contactList))
         every { contactViewModel.select(sort = any()) } answers { sort.value = ListSortUiState(sort = firstArg()) }
         every { contactViewModel.effect } returns emptyFlow()

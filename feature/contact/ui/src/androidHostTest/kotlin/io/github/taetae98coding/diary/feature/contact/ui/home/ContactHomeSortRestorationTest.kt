@@ -12,6 +12,7 @@ import androidx.compose.ui.test.performScrollToIndex
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.core.model.contact.ContactFilter
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.domain.contact.usecase.DeleteContactUseCase
 import io.github.taetae98coding.diary.domain.contact.usecase.PageContactUseCase
@@ -57,8 +58,10 @@ class ContactHomeSortRestorationTest {
             }
         val recentOrderList = nameOrderList.reversed()
         val pageContactUseCase = mockk<PageContactUseCase>()
-        every { pageContactUseCase(parameter = ListSort.NAME) } returns flowOf(Result.success(contactPagingDataOf(nameOrderList)))
-        every { pageContactUseCase(parameter = ListSort.RECENTLY_UPDATED) } returns flowOf(Result.success(contactPagingDataOf(recentOrderList)))
+        every { pageContactUseCase(parameter = PageContactUseCase.Parameter(sort = ListSort.NAME, filter = ContactFilter())) } returns
+            flowOf(Result.success(contactPagingDataOf(nameOrderList)))
+        every { pageContactUseCase(parameter = PageContactUseCase.Parameter(sort = ListSort.RECENTLY_UPDATED, filter = ContactFilter())) } returns
+            flowOf(Result.success(contactPagingDataOf(recentOrderList)))
         val syncViewModel = mockk<SyncRefreshViewModel>()
         every { syncViewModel.uiState } returns MutableStateFlow(SyncRefreshUiState())
         justRun { syncViewModel.refresh() }

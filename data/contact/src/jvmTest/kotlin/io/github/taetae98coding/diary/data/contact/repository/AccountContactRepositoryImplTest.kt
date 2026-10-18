@@ -17,6 +17,8 @@ import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthday
 import io.github.taetae98coding.diary.core.model.contact.ContactBirthdayCalendar
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
+import io.github.taetae98coding.diary.core.model.contact.ContactFilter
+import io.github.taetae98coding.diary.core.model.contact.ContactFilterExistence
 import io.github.taetae98coding.diary.core.model.contact.ContactPhoneNumber
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.testing.contact.contactDetailCaseWithoutBirthdayCalendar
@@ -80,10 +82,10 @@ class AccountContactRepositoryImplTest :
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val localContactList = List(2) { localContact() }
             val localDataSource = mockk<AccountContactLocalDataSource>()
-            every { localDataSource.page(accountId = account.id, sort = ListSortLocalEntity.NAME) } returns pagingSource(localContactList)
+            every { localDataSource.page(accountId = account.id, sort = ListSortLocalEntity.NAME, hasBirthday = null, hasBirthYear = null, hasPhoneNumber = null) } returns pagingSource(localContactList)
             val repository = repository(localDataSource = localDataSource)
 
-            repository.page(account = account, sort = ListSort.NAME).first().items() shouldBe
+            repository.page(account = account, sort = ListSort.NAME, filter = ContactFilter()).first().items() shouldBe
                 localContactList.map { local -> local.toDomain() }
         }
 
@@ -97,12 +99,12 @@ class AccountContactRepositoryImplTest :
                 )
             val stored = contact().let { value -> value.copy(detail = value.detail.copy(phoneNumberList = phoneNumberList)) }
             val localDataSource = mockk<AccountContactLocalDataSource>()
-            every { localDataSource.page(accountId = account.id, sort = ListSortLocalEntity.NAME) } returns
+            every { localDataSource.page(accountId = account.id, sort = ListSortLocalEntity.NAME, hasBirthday = null, hasBirthYear = null, hasPhoneNumber = null) } returns
                 pagingSource(listOf(stored.toLocal()))
             val repository = repository(localDataSource = localDataSource)
 
             repository
-                .page(account = account, sort = ListSort.NAME)
+                .page(account = account, sort = ListSort.NAME, filter = ContactFilter())
                 .first()
                 .items()
                 .single()
@@ -112,26 +114,60 @@ class AccountContactRepositoryImplTest :
         test("TC-CONTACT-HOME-DATA-005 선택한 정렬을 로컬 조회 조건으로 넘긴다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val localDataSource = mockk<AccountContactLocalDataSource>()
-            every { localDataSource.page(accountId = account.id, sort = any()) } returns pagingSource(emptyList())
+            every { localDataSource.page(accountId = account.id, sort = any(), hasBirthday = any(), hasBirthYear = any(), hasPhoneNumber = any()) } returns pagingSource(emptyList())
             val repository = repository(localDataSource = localDataSource)
 
-            repository.page(account = account, sort = ListSort.RECENTLY_UPDATED).first().items()
+            repository.page(account = account, sort = ListSort.RECENTLY_UPDATED, filter = ContactFilter()).first().items()
 
             coVerify(exactly = 1) {
-                localDataSource.page(accountId = account.id, sort = ListSortLocalEntity.RECENTLY_UPDATED)
+                localDataSource.page(accountId = account.id, sort = ListSortLocalEntity.RECENTLY_UPDATED, hasBirthday = null, hasBirthYear = null, hasPhoneNumber = null)
             }
         }
 
         test("각 정렬은 같은 로컬 조회 조건으로 전달된다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val localDataSource = mockk<AccountContactLocalDataSource>()
-            every { localDataSource.page(accountId = account.id, sort = any()) } returns pagingSource(emptyList())
+            every { localDataSource.page(accountId = account.id, sort = any(), hasBirthday = any(), hasBirthYear = any(), hasPhoneNumber = any()) } returns pagingSource(emptyList())
             val repository = repository(localDataSource = localDataSource)
 
             ListSort.entries.forEach { sort ->
-                repository.page(account = account, sort = sort).first().items()
+                repository.page(account = account, sort = sort, filter = ContactFilter()).first().items()
 
-                coVerify(exactly = 1) { localDataSource.page(accountId = account.id, sort = sort.toLocal()) }
+                coVerify(exactly = 1) { localDataSource.page(accountId = account.id, sort = sort.toLocal(), hasBirthday = null, hasBirthYear = null, hasPhoneNumber = null) }
+            }
+        }
+
+        test("TC-CONTACT-HOME-DATA-011 유무 필터의 각 축을 로컬 조회 조건으로 넘긴다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val localDataSource = mockk<AccountContactLocalDataSource>()
+            every { localDataSource.page(accountId = account.id, sort = any(), hasBirthday = any(), hasBirthYear = any(), hasPhoneNumber = any()) } returns pagingSource(emptyList())
+            val repository = repository(localDataSource = localDataSource)
+            val expectedList =
+                listOf(
+                    ContactFilterExistence.ALL to null,
+                    ContactFilterExistence.EXIST to true,
+                    ContactFilterExistence.NOT_EXIST to false,
+                )
+
+            expectedList.forEach { (birthday, hasBirthday) ->
+                expectedList.forEach { (birthYear, hasBirthYear) ->
+                    expectedList.forEach { (phoneNumber, hasPhoneNumber) ->
+                        repository
+                            .page(account = account, sort = ListSort.NAME, filter = ContactFilter(birthday = birthday, birthYear = birthYear, phoneNumber = phoneNumber))
+                            .first()
+                            .items()
+
+                        coVerify(exactly = 1) {
+                            localDataSource.page(
+                                accountId = account.id,
+                                sort = ListSortLocalEntity.NAME,
+                                hasBirthday = hasBirthday,
+                                hasBirthYear = hasBirthYear,
+                                hasPhoneNumber = hasPhoneNumber,
+                            )
+                        }
+                    }
+                }
             }
         }
 

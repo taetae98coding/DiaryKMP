@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -39,10 +37,12 @@ internal fun ContactHomeList(
     isRefreshingProvider: () -> Boolean = { false },
     isAddButtonVisibleProvider: () -> Boolean = { false },
     sortProvider: () -> ListSort = { ListSort.NAME },
+    filterUiStateProvider: () -> ContactHomeFilterUiState = { ContactHomeFilterUiState() },
 ) {
     ListQueryScrollEffect(
         staggeredGridState = gridState,
         sortProvider = sortProvider,
+        filterProvider = { filterUiStateProvider().filter },
         itemListProvider = { contactPagingItems.itemSnapshotList.items },
         isRefreshingProvider = { contactPagingItems.loadState.refresh is LoadState.Loading },
     )
@@ -58,11 +58,8 @@ internal fun ContactHomeList(
                 modifier = Modifier.fillMaxSize(),
             ) {
                 ContactHomeEmpty(
-                    // 빈 상태에서도 당겨서 새로고침할 수 있도록 중첩 스크롤을 전달한다.
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState()),
+                    modifier = Modifier.fillMaxSize(),
+                    isFilterAppliedProvider = { filterUiStateProvider().isApplied },
                 )
             }
         } else {

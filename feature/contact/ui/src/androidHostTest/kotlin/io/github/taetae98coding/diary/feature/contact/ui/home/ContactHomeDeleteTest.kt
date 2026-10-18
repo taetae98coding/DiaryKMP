@@ -178,6 +178,7 @@ class ContactHomeDeleteTest {
         val effectChannel = Channel<ContactHomeEffect>(capacity = Channel.BUFFERED)
         val viewModel = mockk<ContactHomeViewModel>()
         every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.NAME))
+        every { viewModel.filterUiState } returns MutableStateFlow(ContactHomeFilterUiState())
         every { viewModel.contactPagingData } returns MutableStateFlow(contactPagingDataOf(listOf(first, second)))
         every { viewModel.effect } returns effectChannel.receiveAsFlow()
         every { viewModel.delete(id = any()) } answers {

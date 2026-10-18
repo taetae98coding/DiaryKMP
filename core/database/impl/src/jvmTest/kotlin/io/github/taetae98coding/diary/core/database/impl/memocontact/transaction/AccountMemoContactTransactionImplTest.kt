@@ -352,7 +352,7 @@ class AccountMemoContactTransactionImplTest :
                 val contactList =
                     database
                         .accountContactDao()
-                        .page(accountId = accountId, sort = "name")
+                        .page(accountId = accountId, sort = "name", hasBirthday = null, hasBirthYear = null, hasPhoneNumber = null)
                         .loadAll()
 
                 contactList.map { contact -> contact.id } shouldBe listOf(linkedContact, unlinkedContact).sortedBy { contact -> contact.detail.name }.map { contact -> contact.id }
