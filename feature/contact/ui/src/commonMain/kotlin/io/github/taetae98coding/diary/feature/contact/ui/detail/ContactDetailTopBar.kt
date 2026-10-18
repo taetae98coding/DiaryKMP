@@ -3,10 +3,7 @@ package io.github.taetae98coding.diary.feature.contact.ui.detail
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarAction
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarNavigateUp
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarTitle
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
@@ -32,43 +29,36 @@ internal fun ContactDetailTopBar(
     val deleteContentDescription = stringResource(Res.string.contact_detail_delete_button_content_description)
 
     DiaryTopBar(
-        modifier = modifier,
-        title =
+        title = {
             if (uiState is ContactDetailUiState.Content) {
-                DiaryTopBarTitle.Text(text = uiState.detail.name, isMarquee = true)
-            } else {
-                null
-            },
-        navigateUp =
+                Title(text = uiState.detail.name, isMarquee = true)
+            }
+        },
+        modifier = modifier,
+        navigationIcon = {
             if (componentVisibleProvider().isNavigateUpButtonVisible) {
-                DiaryTopBarNavigateUp(
-                    contentDescription = navigateUpContentDescription,
+                NavigateUp(
                     onClick = { onEvent(ContactDetailScaffoldEvent.ClickNavigateUp) },
+                    contentDescription = navigateUpContentDescription,
                 )
-            } else {
-                null
-            },
-        actions =
-            buildList {
-                if (uiState is ContactDetailUiState.Content) {
-                    add(
-                        DiaryTopBarAction.Icon(
-                            icon = if (uiState.isFavorite) DiaryTopBarIcon.STAR_FILL else DiaryTopBarIcon.STAR,
-                            contentDescription = if (uiState.isFavorite) unfavoriteContentDescription else favoriteContentDescription,
-                            onClick = { onEvent(ContactDetailScaffoldEvent.ClickFavorite) },
-                            isInProgress = uiState.isFavoriteInProgress,
-                        ),
-                    )
-                    add(
-                        DiaryTopBarAction.Icon(
-                            icon = DiaryTopBarIcon.DELETE,
-                            contentDescription = deleteContentDescription,
-                            onClick = { onEvent(ContactDetailScaffoldEvent.ClickDelete) },
-                            isInProgress = uiState.isDeleteInProgress,
-                        ),
-                    )
-                }
-            },
+            }
+        },
+        actions = {
+            if (uiState is ContactDetailUiState.Content) {
+                IconAction(
+                    icon = if (uiState.isFavorite) DiaryTopBarIcon.STAR_FILL else DiaryTopBarIcon.STAR,
+                    contentDescription = if (uiState.isFavorite) unfavoriteContentDescription else favoriteContentDescription,
+                    onClick = { onEvent(ContactDetailScaffoldEvent.ClickFavorite) },
+                    isInProgress = uiState.isFavoriteInProgress,
+                )
+                IconAction(
+                    icon = DiaryTopBarIcon.DELETE,
+                    contentDescription = deleteContentDescription,
+                    onClick = { onEvent(ContactDetailScaffoldEvent.ClickDelete) },
+                    isInProgress = uiState.isDeleteInProgress,
+                )
+            }
+        },
     )
 }
 

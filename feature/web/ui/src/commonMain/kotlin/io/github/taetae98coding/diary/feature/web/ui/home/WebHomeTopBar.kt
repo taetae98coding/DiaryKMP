@@ -3,10 +3,7 @@ package io.github.taetae98coding.diary.feature.web.ui.home
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarAction
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarNavigateUp
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarTitle
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.web.ui.Res
@@ -25,21 +22,21 @@ internal fun WebHomeTopBar(
     val searchContentDescription = stringResource(Res.string.web_home_search_action_content_description)
 
     DiaryTopBar(
+        title = { Title(text = title) },
         modifier = modifier,
-        title = DiaryTopBarTitle.Text(text = title),
-        navigateUp =
-            DiaryTopBarNavigateUp(
-                contentDescription = navigateUpContentDescription,
+        navigationIcon = {
+            NavigateUp(
                 onClick = { onEvent(WebHomeScaffoldEvent.ClickNavigateUp) },
-            ),
-        actions =
-            listOf(
-                DiaryTopBarAction.Icon(
-                    icon = DiaryTopBarIcon.SEARCH,
-                    contentDescription = searchContentDescription,
-                    onClick = { onEvent(WebHomeScaffoldEvent.ClickSearch) },
-                ),
-            ),
+                contentDescription = navigateUpContentDescription,
+            )
+        },
+        actions = {
+            IconAction(
+                icon = DiaryTopBarIcon.SEARCH,
+                contentDescription = searchContentDescription,
+                onClick = { onEvent(WebHomeScaffoldEvent.ClickSearch) },
+            )
+        },
     )
 }
 

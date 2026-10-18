@@ -3,10 +3,8 @@ package io.github.taetae98coding.diary.feature.tag.ui.detail
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarAction
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarActionScope
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarNavigateUp
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarTitle
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
@@ -35,49 +33,47 @@ internal fun TagDetailTopBar(
     val scopeAppliedStateDescription = stringResource(Res.string.tag_detail_scope_applied_state_description)
 
     DiaryTopBar(
+        title = {
+            if (uiState is TagDetailUiState.Content) {
+                Title(text = uiState.detail.emojiWithTitle, isMarquee = true)
+            }
+        },
         modifier = modifier,
-        title = (uiState as? TagDetailUiState.Content)?.let { DiaryTopBarTitle.Text(text = it.detail.emojiWithTitle, isMarquee = true) },
-        navigateUp =
+        navigationIcon = {
             if (componentVisibleProvider().isNavigateUpButtonVisible) {
-                DiaryTopBarNavigateUp(
-                    contentDescription = navigateUpContentDescription,
+                NavigateUp(
                     onClick = { onEvent(TagDetailScaffoldEvent.ClickNavigateUp) },
+                    contentDescription = navigateUpContentDescription,
                 )
-            } else {
-                null
-            },
-        actions =
-            buildList {
-                if (uiState is TagDetailUiState.Content) {
-                    add(tagDetailFinishAction(content = uiState, onEvent = onEvent))
-                    add(
-                        DiaryTopBarAction.Icon(
-                            icon = DiaryTopBarIcon.DELETE,
-                            contentDescription = deleteContentDescription,
-                            onClick = { onEvent(TagDetailScaffoldEvent.ClickDelete) },
-                            isInProgress = uiState.isDeleteInProgress,
-                        ),
-                    )
-                }
-                add(
-                    DiaryTopBarAction.Applied(
-                        icon = DiaryTopBarIcon.FILTER,
-                        contentDescription = scopeContentDescription,
-                        isApplied = isScopeAppliedProvider(),
-                        appliedStateDescription = scopeAppliedStateDescription,
-                        onClick = { onEvent(TagDetailScaffoldEvent.ClickScope) },
-                    ),
+            }
+        },
+        actions = {
+            if (uiState is TagDetailUiState.Content) {
+                TagDetailFinishAction(content = uiState, onEvent = onEvent)
+                IconAction(
+                    icon = DiaryTopBarIcon.DELETE,
+                    contentDescription = deleteContentDescription,
+                    onClick = { onEvent(TagDetailScaffoldEvent.ClickDelete) },
+                    isInProgress = uiState.isDeleteInProgress,
                 )
-            },
+            }
+            AppliedAction(
+                icon = DiaryTopBarIcon.FILTER,
+                contentDescription = scopeContentDescription,
+                isApplied = isScopeAppliedProvider(),
+                appliedStateDescription = scopeAppliedStateDescription,
+                onClick = { onEvent(TagDetailScaffoldEvent.ClickScope) },
+            )
+        },
     )
 }
 
 @Composable
-private fun tagDetailFinishAction(
+private fun DiaryTopBarActionScope.TagDetailFinishAction(
     content: TagDetailUiState.Content,
     onEvent: (TagDetailScaffoldEvent) -> Unit,
-): DiaryTopBarAction =
-    DiaryTopBarAction.Toggle(
+) {
+    ToggleAction(
         icon = DiaryTopBarIcon.FINISH,
         contentDescription =
             if (content.isFinished) {
@@ -95,6 +91,7 @@ private fun tagDetailFinishAction(
         },
         isInProgress = content.isFinishInProgress,
     )
+}
 
 @ComponentPreview
 @Composable

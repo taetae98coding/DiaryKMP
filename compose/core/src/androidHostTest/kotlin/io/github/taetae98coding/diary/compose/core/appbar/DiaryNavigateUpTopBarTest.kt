@@ -72,7 +72,7 @@ class DiaryNavigateUpTopBarTest {
                     title = TITLE,
                     onNavigateUp = {},
                     navigateUpContentDescription = NAVIGATE_UP,
-                    actions = listOf(DiaryTopBarAction.Icon(icon = DiaryTopBarIcon.SEARCH, contentDescription = ACTION, onClick = {})),
+                    actions = { IconAction(icon = DiaryTopBarIcon.SEARCH, contentDescription = ACTION, onClick = {}) },
                 )
             }
         }

@@ -3,10 +3,7 @@ package io.github.taetae98coding.diary.feature.place.ui.detail
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarAction
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarNavigateUp
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarTitle
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
@@ -34,47 +31,40 @@ internal fun PlaceDetailTopBar(
     val deleteContentDescription = stringResource(Res.string.place_detail_delete_button_content_description)
 
     DiaryTopBar(
-        modifier = modifier,
-        title =
+        title = {
             if (uiState is PlaceDetailUiState.Content) {
-                DiaryTopBarTitle.Text(text = uiState.detail.title, isMarquee = true)
-            } else {
-                null
-            },
-        navigateUp =
-            DiaryTopBarNavigateUp(
-                contentDescription = navigateUpContentDescription,
+                Title(text = uiState.detail.title, isMarquee = true)
+            }
+        },
+        modifier = modifier,
+        navigationIcon = {
+            NavigateUp(
                 onClick = { onEvent(PlaceDetailScaffoldEvent.ClickNavigateUp) },
-            ),
-        actions =
-            buildList {
-                if (uiState is PlaceDetailUiState.Content) {
-                    add(
-                        DiaryTopBarAction.Icon(
-                            icon = DiaryTopBarIcon.OPEN_IN_NEW,
-                            contentDescription = openExternalMapContentDescription,
-                            onClick = { onEvent(PlaceDetailScaffoldEvent.ClickOpenExternalMap) },
-                        ),
-                    )
-                    if (uiState.isMapDisplayed) {
-                        add(
-                            DiaryTopBarAction.Icon(
-                                icon = DiaryTopBarIcon.SEARCH,
-                                contentDescription = searchContentDescription,
-                                onClick = { onEvent(PlaceDetailScaffoldEvent.ClickSearch) },
-                            ),
-                        )
-                    }
-                    add(
-                        DiaryTopBarAction.Icon(
-                            icon = DiaryTopBarIcon.DELETE,
-                            contentDescription = deleteContentDescription,
-                            onClick = { onEvent(PlaceDetailScaffoldEvent.ClickDelete) },
-                            isInProgress = uiState.isDeleteInProgress,
-                        ),
+                contentDescription = navigateUpContentDescription,
+            )
+        },
+        actions = {
+            if (uiState is PlaceDetailUiState.Content) {
+                IconAction(
+                    icon = DiaryTopBarIcon.OPEN_IN_NEW,
+                    contentDescription = openExternalMapContentDescription,
+                    onClick = { onEvent(PlaceDetailScaffoldEvent.ClickOpenExternalMap) },
+                )
+                if (uiState.isMapDisplayed) {
+                    IconAction(
+                        icon = DiaryTopBarIcon.SEARCH,
+                        contentDescription = searchContentDescription,
+                        onClick = { onEvent(PlaceDetailScaffoldEvent.ClickSearch) },
                     )
                 }
-            },
+                IconAction(
+                    icon = DiaryTopBarIcon.DELETE,
+                    contentDescription = deleteContentDescription,
+                    onClick = { onEvent(PlaceDetailScaffoldEvent.ClickDelete) },
+                    isInProgress = uiState.isDeleteInProgress,
+                )
+            }
+        },
     )
 }
 

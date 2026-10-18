@@ -3,8 +3,6 @@ package io.github.taetae98coding.diary.feature.holiday.ui.home
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarNavigateUp
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarTitle
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.holiday.ui.Res
@@ -22,14 +20,15 @@ internal fun HolidayHomeTopBar(
     val navigateUpContentDescription = stringResource(Res.string.holiday_navigate_up_button_content_description)
 
     DiaryTopBar(
+        title = { Title(text = title) },
         modifier = modifier,
-        title = DiaryTopBarTitle.Text(text = title),
-        navigateUp =
-            DiaryTopBarNavigateUp(
-                contentDescription = navigateUpContentDescription,
-                onClick = { onEvent(HolidayHomeScaffoldEvent.ClickNavigateUp) },
-            ),
         isTitleCentered = true,
+        navigationIcon = {
+            NavigateUp(
+                onClick = { onEvent(HolidayHomeScaffoldEvent.ClickNavigateUp) },
+                contentDescription = navigateUpContentDescription,
+            )
+        },
     )
 }
 

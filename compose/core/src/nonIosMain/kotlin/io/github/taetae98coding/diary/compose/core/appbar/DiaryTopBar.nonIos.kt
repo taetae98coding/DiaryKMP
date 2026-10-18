@@ -5,17 +5,17 @@ import androidx.compose.ui.Modifier
 
 @Composable
 public actual fun DiaryTopBar(
+    title: @Composable DiaryTopBarTitleScope.() -> Unit,
     modifier: Modifier,
-    title: DiaryTopBarTitle?,
-    navigateUp: DiaryTopBarNavigateUp?,
-    actions: List<DiaryTopBarAction>,
     isTitleCentered: Boolean,
+    navigationIcon: @Composable DiaryTopBarNavigationIconScope.() -> Unit,
+    actions: @Composable DiaryTopBarActionScope.() -> Unit,
 ) {
     MaterialDiaryTopBar(
-        modifier = modifier,
         title = title,
-        navigateUp = navigateUp,
-        actions = actions,
+        modifier = modifier,
         isTitleCentered = isTitleCentered,
+        navigationIcon = navigationIcon,
+        actions = actions,
     )
 }

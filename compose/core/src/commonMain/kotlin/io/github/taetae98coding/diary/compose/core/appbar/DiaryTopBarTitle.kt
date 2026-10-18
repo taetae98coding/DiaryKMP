@@ -5,16 +5,16 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.focus.FocusRequester
 
-public sealed interface DiaryTopBarTitle {
+internal sealed interface DiaryTopBarTitle {
     @Immutable
-    public data class Text(
+    data class Text(
         val text: String,
-        val subtitle: String? = null,
-        val isMarquee: Boolean = false,
+        val subtitle: String?,
+        val isMarquee: Boolean,
     ) : DiaryTopBarTitle
 
     @Immutable
-    public data class Button(
+    data class Button(
         val text: String,
         val isExpanded: Boolean,
         val expandContentDescription: String,
@@ -23,9 +23,9 @@ public sealed interface DiaryTopBarTitle {
     ) : DiaryTopBarTitle
 
     @Stable
-    public class Search(
-        public val state: TextFieldState,
-        public val placeholder: String,
-        public val focusRequester: FocusRequester,
+    class Search(
+        val state: TextFieldState,
+        val placeholder: String,
+        val focusRequester: FocusRequester,
     ) : DiaryTopBarTitle
 }

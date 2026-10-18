@@ -50,14 +50,14 @@ class DiaryTopBarTest {
         composeRule.setContent {
             DiaryTheme {
                 DiaryTopBar(
-                    actions =
-                        listOf(
-                            DiaryTopBarAction.Icon(
-                                icon = DiaryTopBarIcon.DELETE,
-                                contentDescription = contentDescription,
-                                onClick = { clickCount += 1 },
-                            ),
-                        ),
+                    title = {},
+                    actions = {
+                        IconAction(
+                            icon = DiaryTopBarIcon.DELETE,
+                            contentDescription = contentDescription,
+                            onClick = { clickCount += 1 },
+                        )
+                    },
                 )
             }
         }
@@ -74,15 +74,15 @@ class DiaryTopBarTest {
         composeRule.setContent {
             DiaryTheme {
                 DiaryTopBar(
-                    actions =
-                        listOf(
-                            DiaryTopBarAction.Icon(
-                                icon = DiaryTopBarIcon.DELETE,
-                                contentDescription = contentDescription,
-                                onClick = {},
-                                isInProgress = true,
-                            ),
-                        ),
+                    title = {},
+                    actions = {
+                        IconAction(
+                            icon = DiaryTopBarIcon.DELETE,
+                            contentDescription = contentDescription,
+                            onClick = {},
+                            isInProgress = true,
+                        )
+                    },
                 )
             }
         }
@@ -101,15 +101,15 @@ class DiaryTopBarTest {
         composeRule.setContent {
             DiaryTheme {
                 DiaryTopBar(
-                    actions =
-                        listOf(
-                            DiaryTopBarAction.Icon(
-                                icon = DiaryTopBarIcon.UNDO,
-                                contentDescription = contentDescription,
-                                onClick = {},
-                                isEnabled = isEnabled,
-                            ),
-                        ),
+                    title = {},
+                    actions = {
+                        IconAction(
+                            icon = DiaryTopBarIcon.UNDO,
+                            contentDescription = contentDescription,
+                            onClick = {},
+                            isEnabled = isEnabled,
+                        )
+                    },
                 )
             }
         }
@@ -128,15 +128,15 @@ class DiaryTopBarTest {
         composeRule.setContent {
             DiaryTheme {
                 DiaryTopBar(
-                    actions =
-                        listOf(
-                            DiaryTopBarAction.Icon(
-                                icon = DiaryTopBarIcon.OPEN_IN_NEW,
-                                contentDescription = contentDescription,
-                                onClick = {},
-                                isVisible = isVisible,
-                            ),
-                        ),
+                    title = {},
+                    actions = {
+                        IconAction(
+                            icon = DiaryTopBarIcon.OPEN_IN_NEW,
+                            contentDescription = contentDescription,
+                            onClick = {},
+                            isVisible = isVisible,
+                        )
+                    },
                 )
             }
         }
@@ -155,15 +155,15 @@ class DiaryTopBarTest {
         composeRule.setContent {
             DiaryTheme {
                 DiaryTopBar(
-                    actions =
-                        listOf(
-                            DiaryTopBarAction.Toggle(
-                                icon = DiaryTopBarIcon.FINISH,
-                                contentDescription = contentDescription,
-                                isChecked = isChecked,
-                                onClick = {},
-                            ),
-                        ),
+                    title = {},
+                    actions = {
+                        ToggleAction(
+                            icon = DiaryTopBarIcon.FINISH,
+                            contentDescription = contentDescription,
+                            isChecked = isChecked,
+                            onClick = {},
+                        )
+                    },
                 )
             }
         }
@@ -183,16 +183,16 @@ class DiaryTopBarTest {
         composeRule.setContent {
             DiaryTheme {
                 DiaryTopBar(
-                    actions =
-                        listOf(
-                            DiaryTopBarAction.Applied(
-                                icon = DiaryTopBarIcon.FILTER,
-                                contentDescription = contentDescription,
-                                isApplied = isApplied,
-                                appliedStateDescription = appliedStateDescription,
-                                onClick = {},
-                            ),
-                        ),
+                    title = {},
+                    actions = {
+                        AppliedAction(
+                            icon = DiaryTopBarIcon.FILTER,
+                            contentDescription = contentDescription,
+                            isApplied = isApplied,
+                            appliedStateDescription = appliedStateDescription,
+                            onClick = {},
+                        )
+                    },
                 )
             }
         }
@@ -214,14 +214,14 @@ class DiaryTopBarTest {
         composeRule.setContent {
             DiaryTheme {
                 DiaryTopBar(
-                    actions =
-                        listOf(
-                            DiaryTopBarAction.Text(
-                                text = text,
-                                contentDescription = contentDescription,
-                                onClick = { clickCount += 1 },
-                            ),
-                        ),
+                    title = {},
+                    actions = {
+                        TextAction(
+                            text = text,
+                            contentDescription = contentDescription,
+                            onClick = { clickCount += 1 },
+                        )
+                    },
                 )
             }
         }
@@ -239,7 +239,7 @@ class DiaryTopBarTest {
         val subtitle = fixtureMonkey.nonBlankString()
         composeRule.setContent {
             DiaryTheme {
-                DiaryTopBar(title = DiaryTopBarTitle.Text(text = title, subtitle = subtitle, isMarquee = true))
+                DiaryTopBar(title = { Title(text = title, subtitle = subtitle, isMarquee = true) })
             }
         }
 
@@ -257,14 +257,15 @@ class DiaryTopBarTest {
         composeRule.setContent {
             DiaryTheme {
                 DiaryTopBar(
-                    title =
-                        DiaryTopBarTitle.Button(
+                    title = {
+                        TitleButton(
                             text = title,
                             isExpanded = isExpanded,
                             expandContentDescription = expandContentDescription,
                             collapseContentDescription = collapseContentDescription,
                             onClick = { clickCount += 1 },
-                        ),
+                        )
+                    },
                 )
             }
         }
@@ -284,13 +285,16 @@ class DiaryTopBarTest {
         val state = TextFieldState()
         composeRule.setContent {
             DiaryTheme {
+                val focusRequester = remember { FocusRequester() }
+
                 DiaryTopBar(
-                    title =
-                        DiaryTopBarTitle.Search(
+                    title = {
+                        SearchTitle(
                             state = state,
                             placeholder = placeholder,
-                            focusRequester = remember { FocusRequester() },
-                        ),
+                            focusRequester = focusRequester,
+                        )
+                    },
                 )
             }
         }

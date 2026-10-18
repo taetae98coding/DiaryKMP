@@ -3,9 +3,7 @@ package io.github.taetae98coding.diary.feature.tag.ui.home
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarAction
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarTitle
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.tag.ui.Res
@@ -28,23 +26,22 @@ internal fun TagHomeTopBar(
     val filterAppliedStateDescription = stringResource(Res.string.tag_home_filter_applied_state_description)
 
     DiaryTopBar(
+        title = { Title(text = title) },
         modifier = modifier,
-        title = DiaryTopBarTitle.Text(text = title),
-        actions =
-            listOf(
-                DiaryTopBarAction.Icon(
-                    icon = DiaryTopBarIcon.SEARCH,
-                    contentDescription = searchContentDescription,
-                    onClick = { onEvent(TagHomeScaffoldEvent.ClickSearch) },
-                ),
-                DiaryTopBarAction.Applied(
-                    icon = DiaryTopBarIcon.FILTER,
-                    contentDescription = filterContentDescription,
-                    isApplied = filterUiState.isApplied,
-                    appliedStateDescription = filterAppliedStateDescription,
-                    onClick = { onEvent(TagHomeScaffoldEvent.ClickFilter) },
-                ),
-            ),
+        actions = {
+            IconAction(
+                icon = DiaryTopBarIcon.SEARCH,
+                contentDescription = searchContentDescription,
+                onClick = { onEvent(TagHomeScaffoldEvent.ClickSearch) },
+            )
+            AppliedAction(
+                icon = DiaryTopBarIcon.FILTER,
+                contentDescription = filterContentDescription,
+                isApplied = filterUiState.isApplied,
+                appliedStateDescription = filterAppliedStateDescription,
+                onClick = { onEvent(TagHomeScaffoldEvent.ClickFilter) },
+            )
+        },
     )
 }
 

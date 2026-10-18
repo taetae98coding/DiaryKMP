@@ -10,7 +10,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
-import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarTitle
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
 import io.github.taetae98coding.diary.compose.core.icon.RoutineIcon
@@ -73,8 +72,8 @@ private fun TopBar(modifier: Modifier = Modifier) {
     val title = stringResource(Res.string.routine_home_title)
 
     DiaryTopBar(
+        title = { Title(text = title) },
         modifier = modifier,
-        title = DiaryTopBarTitle.Text(text = title),
     )
 }
 
