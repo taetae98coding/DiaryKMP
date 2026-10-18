@@ -22,6 +22,8 @@
 
 목록 화면에서 항목 추가를 실행하는 키보드 단축키의 키 조합과 처리 조건은 [목록 추가 단축키](./list-add-shortcut.md)가 소유한다. 각 문서는 그 화면에서 단축키가 실행하는 추가만 남긴다.
 
+모든 화면의 상단 바가 플랫폼마다 그려지는 표현과 상단 바에 둘 수 있는 제목·동작 버튼의 종류는 [상단 바](./top-bar.md)가 소유한다. 각 화면 문서는 그 화면의 상단 바에 두는 제목과 버튼, 순서, 조건과 문구만 남긴다.
+
 아이콘만 표시하는 공통 버튼에 이름을 알려 주는 설명 표시는 [아이콘 버튼 설명](./icon-button-tooltip.md)이 소유한다. 각 문서는 그 버튼의 자리와 접근성 이름만 남긴다.
 
 칩 하나가 이름을 표시하는 방식과 칩 하나가 차지할 수 있는 최대 폭은 [칩 이름 표시](./chip.md)가 소유한다. 각 문서는 그 칩에 무엇을 표시하는지와 색, 조작, 접근성 이름 문구만 남긴다.
@@ -158,6 +160,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼�
 - [TagMemoFinishedList 화면](./tag-memo-finished-list.md)
 - [TagMemoFinishedList 목록·상세 배치](./tag-memo-finished-list-detail.md)
 - [Timetable 컴포넌트](./timetable.md)
+- [상단 바](./top-bar.md)
 - [TopLevelNavigation](./top-level-navigation.md)
 - [WebAdd 화면](./web-add.md)
 - [WebDetail 화면](./web-detail.md)
