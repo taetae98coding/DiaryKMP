@@ -87,7 +87,8 @@
 | PlaceHome 지도 모드의 장소 목록 | 지도 아이콘 |
 | PlaceHome 목록 모드의 장소 목록 | 장소 아이콘 |
 | WebHome 웹 목록 | 웹 아이콘 |
-| ContactHome 연락처 목록 | 연락처 아이콘 |
+| ContactHome 연락처 목록, 좁히지 않은 상태 | 연락처 아이콘 |
+| ContactHome 연락처 목록, 좁힌 상태 | 필터 아이콘 |
 | PlaylistHome 곡 목록 | 플레이리스트 아이콘 |
 | QrHome QR 목록 | QR 아이콘 |
 | SearchHome 메모 검색 결과 목록 | 메모 아이콘 |
@@ -101,7 +102,7 @@ SearchHome의 네 목록은 문구가 같으므로 아이콘이 지금 어느 �
 
 완료 아이콘은 [TagHome 목록 디자인](./tag-home.md)과 [MemoHome 목록 디자인](./memo-home.md)의 완료 스와이프가 쓰는 완료 아이콘과 같고, 필터 아이콘은 [필터 Bottom Sheet 디자인](./filter-bottom-sheet.md)의 필터 버튼과 같은 아이콘이다. 지도 아이콘은 [장소 보기 모드 디자인](./place-view-mode.md)의 목록 모드 전환 컨트롤과 `더보기`의 장소 메뉴에서 쓰는 아이콘과 같고, 장소 아이콘은 위치 표시 핀 모양 아이콘이다. 웹 아이콘은 [WebHome 화면 디자인](./web-home.md)이 웹을 가리킬 때 쓰는 아이콘과 같고, 연락처 아이콘은 [ContactHome 화면 디자인](./contact-home.md)이 연락처를 가리킬 때 쓰는 아이콘과 같다. 플레이리스트 아이콘은 [MoreHome 화면 디자인](./more-home.md)의 `플레이리스트` 바로가기 항목이 쓰는 아이콘과 같다.
 
-MemoHome 목록과 TagHome 목록에서 좁힌 상태와 좁히지 않은 상태 사이의 전환도 `전환`의 교차 페이드를 따른다.
+MemoHome 목록, TagHome 목록과 ContactHome 연락처 목록에서 좁힌 상태와 좁히지 않은 상태 사이의 전환도 `전환`의 교차 페이드를 따른다.
 
 ## 문구
 
@@ -142,8 +143,10 @@ MemoHome 목록과 TagHome 목록에서 좁힌 상태와 좁히지 않은 상태
 | RoutineHome 루틴 목록 | 보조 | `추가 버튼으로 새 루틴을 만들 수 있습니다` | `Use the add button to create a routine.` |
 | WebHome 웹 목록 | 제목 | `아직 웹이 없습니다` | `No webs yet` |
 | WebHome 웹 목록 | 보조 | `추가 버튼으로 새 웹을 만들 수 있습니다` | `Use the add button to create a web.` |
-| ContactHome 연락처 목록 | 제목 | `아직 연락처가 없습니다` | `No contacts yet` |
-| ContactHome 연락처 목록 | 보조 | `추가 버튼으로 새 연락처를 만들 수 있습니다` | `Use the add button to create a contact.` |
+| ContactHome 연락처 목록, 좁히지 않은 상태 | 제목 | `아직 연락처가 없습니다` | `No contacts yet` |
+| ContactHome 연락처 목록, 좁히지 않은 상태 | 보조 | `추가 버튼으로 새 연락처를 만들 수 있습니다` | `Use the add button to create a contact.` |
+| ContactHome 연락처 목록, 좁힌 상태 | 제목 | `조건에 맞는 연락처가 없습니다` | `No contacts match the filter` |
+| ContactHome 연락처 목록, 좁힌 상태 | 보조 | `필터를 바꾸면 다른 연락처를 볼 수 있습니다` | `Change the filter to see other contacts.` |
 | PlaylistHome 곡 목록 | 제목 | `아직 곡이 없습니다` | `No music yet` |
 | PlaylistHome 곡 목록 | 보조 | `추가 버튼으로 새 곡을 담을 수 있습니다` | `Use the add button to add music.` |
 | QrHome QR 목록 | 제목 | `아직 QR이 없습니다` | `No QR codes yet` |

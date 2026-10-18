@@ -1,6 +1,6 @@
 # 필터 Bottom Sheet 디자인
 
-기준 스펙: [태그 필터 스펙](../spec/client/tag-filter.md), [목록 필터 반영 스펙](../spec/client/list-filter.md), [MemoHome 목록 스펙](../spec/client/memo-home.md), [CalendarHome 화면 스펙](../spec/client/calendar-home.md), [TagHome 목록 스펙](../spec/client/tag-home.md), [TagDetail 화면 스펙](../spec/client/tag-detail.md)
+기준 스펙: [태그 필터 스펙](../spec/client/tag-filter.md), [목록 필터 반영 스펙](../spec/client/list-filter.md), [MemoHome 목록 스펙](../spec/client/memo-home.md), [CalendarHome 화면 스펙](../spec/client/calendar-home.md), [TagHome 목록 스펙](../spec/client/tag-home.md), [TagDetail 화면 스펙](../spec/client/tag-detail.md), [ContactHome 화면 스펙](../spec/client/contact-home.md)
 
 이 문서는 화면에서 필터를 여는 버튼의 표현과 필터 Bottom Sheet의 공통 구조, 항목 줄의 누름 표현, 닫는 조작, 적응형 배치, 바꾼 필터가 아래 화면에 반영될 때의 전환을 소유한다.
 
@@ -10,6 +10,7 @@ Bottom Sheet 안에 어떤 필터를 어떤 순서로 담는지, 각 필터의 �
 
 - [태그 필터 디자인](./tag-filter.md)
 - [MemoHome 목록 디자인](./memo-home.md)
+- [ContactHome 화면 디자인](./contact-home.md)
 - [CalendarHome 디자인](./calendar-home.md)
 - [TagHome 목록 디자인](./tag-home.md)
 - [TagDetail 화면 디자인](./tag-detail.md)
