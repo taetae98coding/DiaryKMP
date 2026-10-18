@@ -8,6 +8,7 @@ import androidx.paging.PagingSource
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.contact.datasource.AccountContactLocalDataSource
+import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactBirthdayCalendarLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.transaction.AccountContactTransaction
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
@@ -19,8 +20,7 @@ import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.contact.ContactPhoneNumber
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.testing.contact.contactDetailCaseWithoutBirthdayCalendar
-import io.github.taetae98coding.diary.data.contact.mapper.toDomain
-import io.github.taetae98coding.diary.data.contact.mapper.toLocal
+import io.github.taetae98coding.diary.data.core.mapper.toDomain
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
@@ -40,6 +40,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -194,6 +195,28 @@ class AccountContactRepositoryImplTest :
                     ?.birthday
 
             birthday shouldBe ContactBirthday(date = checkNotNull(case.local.birthday), calendar = ContactBirthdayCalendar.SOLAR)
+        }
+
+        test("TC-CONTACT-ADD-DATA-014 생일과 다른 태어난 연도가 저장되어 있으면 생일의 연도로 조회한다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val stored = localContact()
+            val birthday = fixtureMonkey.giveMeOne<LocalDate>()
+            val local =
+                stored.copy(
+                    detail = stored.detail.copy(birthday = birthday, birthdayCalendar = ContactBirthdayCalendarLocalEntity.SOLAR, birthYear = birthday.year + 1),
+                )
+            val localDataSource = mockk<AccountContactLocalDataSource>()
+            every { localDataSource.find(accountId = account.id, contactId = local.id) } returns flowOf(local)
+            val repository = repository(localDataSource = localDataSource)
+
+            val detail =
+                repository
+                    .find(account = account, contactId = local.id)
+                    .first()
+                    ?.detail
+
+            detail?.birthday shouldBe ContactBirthday(date = birthday, calendar = ContactBirthdayCalendar.SOLAR)
+            detail?.birthYear shouldBe birthday.year
         }
 
         test("TC-CONTACT-DETAIL-DATA-002 조회되는 로컬 연락처가 없으면 없음을 전달한다") {

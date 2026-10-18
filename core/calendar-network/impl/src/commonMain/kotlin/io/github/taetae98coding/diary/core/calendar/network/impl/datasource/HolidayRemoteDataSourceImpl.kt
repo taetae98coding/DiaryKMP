@@ -13,13 +13,13 @@ import org.koin.core.annotation.Factory
 @Factory
 internal class HolidayRemoteDataSourceImpl(
     @CalendarHttpClient
-    private val client: HttpClient,
+    private val httpClient: HttpClient,
 ) : HolidayRemoteDataSource {
     override suspend fun get(
         country: HolidayCountryRemoteEntity,
         year: Int,
     ): List<HolidayRemoteEntity> {
-        val response = client.get("holiday/${country.pathSegment}/$year.json")
+        val response = httpClient.get("holiday/${country.pathSegment}/$year.json")
 
         return if (response.status == HttpStatusCode.NotFound) {
             emptyList()

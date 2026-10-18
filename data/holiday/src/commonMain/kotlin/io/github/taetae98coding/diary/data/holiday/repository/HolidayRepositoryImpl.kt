@@ -5,7 +5,7 @@ import io.github.taetae98coding.diary.core.calendar.database.api.transaction.Hol
 import io.github.taetae98coding.diary.core.calendar.network.api.datasource.HolidayRemoteDataSource
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
-import io.github.taetae98coding.diary.data.holiday.datasource.HolidayDirtyDataSource
+import io.github.taetae98coding.diary.data.holiday.cache.HolidayFetchedKeySet
 import io.github.taetae98coding.diary.data.holiday.mapper.toDomain
 import io.github.taetae98coding.diary.data.holiday.mapper.toLocal
 import io.github.taetae98coding.diary.data.holiday.mapper.toRemote
@@ -20,13 +20,13 @@ internal class HolidayRepositoryImpl(
     private val holidayRemoteDataSource: HolidayRemoteDataSource,
     private val holidayLocalDataSource: HolidayLocalDataSource,
     private val holidayTransaction: HolidayTransaction,
-    private val holidayDirtyDataSource: HolidayDirtyDataSource,
+    private val holidayFetchedKeySet: HolidayFetchedKeySet,
 ) : HolidayRepository {
     override suspend fun fetch(
         country: HolidayCountry,
         year: Int,
     ): List<Holiday> {
-        if (!holidayDirtyDataSource.isDirty(country = country, year = year)) return get(countrySet = setOf(country), year = year).first()
+        if (holidayFetchedKeySet.isFetched(key = country to year)) return get(countrySet = setOf(country), year = year).first()
 
         val holidayList =
             holidayRemoteDataSource
@@ -39,7 +39,7 @@ internal class HolidayRepositoryImpl(
             holidayList = holidayList,
         )
 
-        holidayDirtyDataSource.clean(country = country, year = year)
+        holidayFetchedKeySet.add(key = country to year)
 
         return holidayList.map { local -> local.toDomain() }
     }

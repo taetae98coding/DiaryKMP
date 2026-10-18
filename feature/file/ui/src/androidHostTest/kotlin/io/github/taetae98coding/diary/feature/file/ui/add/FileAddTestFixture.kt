@@ -6,7 +6,6 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
@@ -20,9 +19,9 @@ import io.github.taetae98coding.diary.core.model.file.FileUri
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.file.exception.FileNotSelectedException
 import io.github.taetae98coding.diary.domain.file.exception.FileTitleBlankException
-import io.github.taetae98coding.diary.domain.file.usecase.FindFileUploadSourceUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadEventUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadStateUseCase
+import io.github.taetae98coding.diary.domain.file.usecase.ReadFileUploadSourceUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.RequestFileUploadUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.StartViewingFileScreenUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.StopViewingFileScreenUseCase
@@ -73,8 +72,8 @@ internal class FileAddMocks {
         }
     }
 
-    val findUseCase: FindFileUploadSourceUseCase =
-        mockk<FindFileUploadSourceUseCase>().also { useCase ->
+    val readUseCase: ReadFileUploadSourceUseCase =
+        mockk<ReadFileUploadSourceUseCase>().also { useCase ->
             coEvery { useCase(parameter = any()) } answers { sourceMap.getValue(firstArg()) }
         }
 
@@ -111,7 +110,7 @@ internal class FileAddMocks {
         every { getEventUseCase(parameter = FileScreen.ADD) } returns eventChannel.receiveAsFlow().map { event -> Result.success(event) }
 
         return FileAddViewModel(
-            findFileUploadSourceUseCase = findUseCase,
+            readFileUploadSourceUseCase = readUseCase,
             requestFileUploadUseCase = requestUseCase,
             startViewingFileScreenUseCase = mockk<StartViewingFileScreenUseCase>(relaxed = true),
             stopViewingFileScreenUseCase = mockk<StopViewingFileScreenUseCase>(relaxed = true),
@@ -150,7 +149,7 @@ internal class FileAddTestScreen(
             FileAddScreen(
                 navigateUp = { navigateUpCount += 1 },
                 filePicker = picker,
-                viewModel = viewModel,
+                uploadViewModel = viewModel,
                 accountViewModel = accountViewModel,
             )
         }

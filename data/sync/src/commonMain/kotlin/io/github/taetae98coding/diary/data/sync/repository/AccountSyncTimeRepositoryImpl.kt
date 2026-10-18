@@ -1,21 +1,21 @@
 package io.github.taetae98coding.diary.data.sync.repository
 
 import io.github.taetae98coding.diary.core.datastore.api.sync.datasource.AccountSyncTimeLocalDataSource
-import io.github.taetae98coding.diary.domain.sync.AccountSyncTimeRepository
+import io.github.taetae98coding.diary.core.model.account.Account
+import io.github.taetae98coding.diary.domain.sync.repository.AccountSyncTimeRepository
 import org.koin.core.annotation.Factory
 import kotlin.time.Instant
-import kotlin.uuid.Uuid
 
 @Factory
 internal class AccountSyncTimeRepositoryImpl(
     private val accountSyncTimeLocalDataSource: AccountSyncTimeLocalDataSource,
 ) : AccountSyncTimeRepository {
-    override suspend fun find(accountId: Uuid): Instant? = accountSyncTimeLocalDataSource.find(accountId = accountId)
+    override suspend fun read(account: Account): Instant? = accountSyncTimeLocalDataSource.read(accountId = account.id)
 
     override suspend fun upsert(
-        accountId: Uuid,
+        account: Account,
         syncedAt: Instant,
     ) {
-        accountSyncTimeLocalDataSource.upsert(accountId = accountId, syncedAt = syncedAt)
+        accountSyncTimeLocalDataSource.upsert(accountId = account.id, syncedAt = syncedAt)
     }
 }

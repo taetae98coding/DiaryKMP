@@ -21,10 +21,16 @@ import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
+import io.github.taetae98coding.diary.feature.contact.ui.Res
+import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_memo_empty_description
+import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_memo_empty_title
 import io.github.taetae98coding.diary.feature.contact.ui.detail.contactMemo
 import io.github.taetae98coding.diary.feature.contact.ui.detail.contactMemoPagingData
+import io.github.taetae98coding.diary.feature.contact.ui.refreshableList
 import io.github.taetae98coding.diary.feature.contact.ui.resetAndroidUiDispatcher
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.jetbrains.compose.resources.stringResource
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -96,7 +102,9 @@ class ContactDetailMemoListPositionTest {
     @Composable
     private fun MemoTab(pagingDataFlow: MutableStateFlow<PagingData<MemoListItem>>) {
         DiaryTheme {
-            ContactDetailMemoTab(
+            EntityDetailMemoTab(
+                emptyTitle = stringResource(Res.string.contact_detail_memo_empty_title),
+                emptyDescription = stringResource(Res.string.contact_detail_memo_empty_description),
                 onEvent = {},
                 onMemoListEvent = {},
                 modifier = Modifier.fillMaxSize(),
@@ -107,7 +115,7 @@ class ContactDetailMemoListPositionTest {
 
     private fun scrollToLast(titleList: List<String>) {
         waitUntilMemoIsDisplayed(title = titleList.first())
-        composeRule.onNodeWithTag(CONTACT_DETAIL_MEMO_LIST_TEST_TAG).performScrollToNode(hasText(titleList.last()))
+        composeRule.refreshableList().performScrollToNode(hasText(titleList.last()))
         composeRule.waitForIdle()
         composeRule.onNodeWithText(titleList.last()).assertIsDisplayed()
     }

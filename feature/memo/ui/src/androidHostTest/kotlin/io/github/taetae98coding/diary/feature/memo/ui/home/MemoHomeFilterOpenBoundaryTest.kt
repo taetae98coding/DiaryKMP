@@ -39,6 +39,8 @@ import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.ui.home.filter.MemoHomeFilterUiState
@@ -182,13 +184,13 @@ class MemoHomeFilterOpenBoundaryTest {
         module {
             factory<MemoHomeViewModel> {
                 mockk<MemoHomeViewModel>(relaxed = true) {
-                    every { sort } returns MutableStateFlow(ListSort.DEFAULT)
+                    every { sortUiState } returns MutableStateFlow(ListSortUiState())
                     every { memoPagingData } returns MutableStateFlow(memoPagingDataOf(itemList = emptyList()))
                     every { filterUiState } returns MutableStateFlow(MemoHomeScaffoldFilterUiState(existence = storedExistence()))
                     every { effect } returns emptyFlow()
                 }
             }
-            factory<MemoHomeSyncViewModel> { screenTestSyncViewModel() }
+            factory<SyncRefreshViewModel> { screenTestSyncViewModel() }
             factory<MemoHomeFilterViewModel> {
                 // 필터 선택은 기기에 저장되어 있으므로 새로 만든 ViewModel도 같은 선택을 읽는다.
                 mockk<MemoHomeFilterViewModel>(relaxed = true) {

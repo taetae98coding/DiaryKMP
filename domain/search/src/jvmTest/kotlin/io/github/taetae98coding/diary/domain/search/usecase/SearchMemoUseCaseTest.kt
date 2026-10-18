@@ -9,7 +9,7 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
-import io.github.taetae98coding.diary.domain.search.repository.SearchMemoRepository
+import io.github.taetae98coding.diary.domain.search.repository.AccountSearchMemoRepository
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -30,15 +30,15 @@ class SearchMemoUseCaseTest :
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val memoList = List(2) { memo() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            val searchMemoRepository = mockk<SearchMemoRepository>()
+            val accountSearchMemoRepository = mockk<AccountSearchMemoRepository>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
             every {
-                searchMemoRepository.page(account = account, query = QUERY, sort = ListSort.TITLE)
+                accountSearchMemoRepository.page(account = account, query = QUERY, sort = ListSort.TITLE)
             } returns flowOf(PagingData.from(memoList))
             val useCase =
                 SearchMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    searchMemoRepository = searchMemoRepository,
+                    accountSearchMemoRepository = accountSearchMemoRepository,
                 )
 
             When("질의로 메모를 검색한다") {
@@ -59,15 +59,15 @@ class SearchMemoUseCaseTest :
         Given("로그인하지 않은 게스트 상태이고 질의를 만족하는 메모가 준비되어 있다") {
             val memoList = List(2) { memo() }
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            val searchMemoRepository = mockk<SearchMemoRepository>()
+            val accountSearchMemoRepository = mockk<AccountSearchMemoRepository>()
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(Account.Guest))
             every {
-                searchMemoRepository.page(account = Account.Guest, query = QUERY, sort = ListSort.TITLE)
+                accountSearchMemoRepository.page(account = Account.Guest, query = QUERY, sort = ListSort.TITLE)
             } returns flowOf(PagingData.from(memoList))
             val useCase =
                 SearchMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    searchMemoRepository = searchMemoRepository,
+                    accountSearchMemoRepository = accountSearchMemoRepository,
                 )
 
             When("질의로 메모를 검색한다") {
@@ -81,11 +81,11 @@ class SearchMemoUseCaseTest :
 
         Given("빈 질의가 준비되어 있다") {
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            val searchMemoRepository = mockk<SearchMemoRepository>()
+            val accountSearchMemoRepository = mockk<AccountSearchMemoRepository>()
             val useCase =
                 SearchMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    searchMemoRepository = searchMemoRepository,
+                    accountSearchMemoRepository = accountSearchMemoRepository,
                 )
 
             When("빈 질의로 메모를 검색한다") {
@@ -96,7 +96,7 @@ class SearchMemoUseCaseTest :
                         flowOf(pagingData).asSnapshot().shouldBeEmpty()
                     }
 
-                    verify(exactly = 0) { searchMemoRepository.page(account = any(), query = any(), sort = any()) }
+                    verify(exactly = 0) { accountSearchMemoRepository.page(account = any(), query = any(), sort = any()) }
                 }
             }
         }
@@ -104,12 +104,12 @@ class SearchMemoUseCaseTest :
         Given("계정 조회에 실패하도록 준비되어 있다") {
             val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val getAccountUseCase = mockk<GetAccountUseCase>()
-            val searchMemoRepository = mockk<SearchMemoRepository>(relaxed = true)
+            val accountSearchMemoRepository = mockk<AccountSearchMemoRepository>(relaxed = true)
             every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.failure(throwable))
             val useCase =
                 SearchMemoUseCase(
                     getAccountUseCase = getAccountUseCase,
-                    searchMemoRepository = searchMemoRepository,
+                    accountSearchMemoRepository = accountSearchMemoRepository,
                 )
 
             When("질의로 메모를 검색한다") {
@@ -119,7 +119,7 @@ class SearchMemoUseCaseTest :
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
 
-                    verify(exactly = 0) { searchMemoRepository.page(account = any(), query = any(), sort = any()) }
+                    verify(exactly = 0) { accountSearchMemoRepository.page(account = any(), query = any(), sort = any()) }
                 }
             }
         }

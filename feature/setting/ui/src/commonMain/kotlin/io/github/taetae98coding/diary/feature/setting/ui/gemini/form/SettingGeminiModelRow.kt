@@ -15,10 +15,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.icon.NextIcon
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -46,7 +46,7 @@ internal fun SettingGeminiModelRow(
         Row(
             modifier =
                 Modifier
-                    .clickable(onClick = onClick)
+                    .clickable(role = Role.Button, onClick = onClick)
                     .styleable(style = DiaryTheme.styles.cardContent)
                     .clearAndSetSemantics {
                         contentDescription = if (isMissingFromLoadedList) "$label, $value, $missingMessage" else "$label, $value"

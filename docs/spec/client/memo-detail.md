@@ -14,9 +14,9 @@
 
 사용자는 MemoHome 목록, MemoFinishedList 화면, TagDetail 메모 탭, TagMemoFinishedList 화면, ContactDetail·PlaceDetail·WebDetail 화면의 메모 탭 또는 SearchHome 화면의 메모 검색 결과에서 메모를 선택해 그 메모의 MemoDetail 화면으로 이동한다.
 
-캘린더 홈 화면에서 캘린더에 표시된 메모 제목을 선택해서도 같은 메모의 MemoDetail 화면으로 이동하며, 이때의 선택과 배치는 [CalendarHome 스펙](./calendar-home.md)의 메모 선택을 따른다.
+캘린더 홈 화면에서 캘린더에 표시된 메모 제목을 선택해서도 같은 메모의 MemoDetail 화면으로 이동하며, 이때의 선택과 배치는 [CalendarHome 스펙](./calendar-home.md)의 메모 선택을 따른다. 캘린더 시간표 화면에서 표시된 메모를 선택해도 같은 메모의 MemoDetail 화면으로 이동하며, 이때의 선택은 [CalendarTimetable 화면 스펙](./calendar-timetable.md)의 `메모 선택`을 따른다.
 
-MemoHome 목록에서 진입한 MemoDetail 화면의 목록 동시 표시와 단독 표시 상태는 [Memo 목록·상세 배치 스펙](./memo-list-detail.md)을, TagDetail 메모 탭에서 진입한 MemoDetail 화면은 [TagDetail 메모 탭 스펙](./tag-detail-memo.md)의 `메모 상세 확인`에 따라, ContactDetail·PlaceDetail·WebDetail 메모 탭에서 진입한 MemoDetail 화면은 [항목 상세 메모 탭 공통 스펙](./entity-detail-memo.md)의 `메모 상세 확인`에 따라 단독으로 표시하고, TagMemoFinishedList 화면에서 진입한 MemoDetail 화면의 상태는 [TagMemoFinishedList 목록·상세 배치 스펙](./tag-memo-finished-list-detail.md)을 따른다. MemoFinishedList 화면, SearchHome 화면과 캘린더 홈 화면에서 진입한 MemoDetail 화면은 목록과 함께 표시하지 않고 단독으로 표시한다.
+MemoHome 목록에서 진입한 MemoDetail 화면의 목록 동시 표시와 단독 표시 상태는 [Memo 목록·상세 배치 스펙](./memo-list-detail.md)을, TagDetail 메모 탭에서 진입한 MemoDetail 화면은 [TagDetail 메모 탭 스펙](./tag-detail-memo.md)의 `메모 상세 확인`에 따라, ContactDetail·PlaceDetail·WebDetail 메모 탭에서 진입한 MemoDetail 화면은 [항목 상세 메모 탭 공통 스펙](./entity-detail-memo.md)의 `메모 상세 확인`에 따라 단독으로 표시하고, TagMemoFinishedList 화면에서 진입한 MemoDetail 화면의 상태는 [TagMemoFinishedList 목록·상세 배치 스펙](./tag-memo-finished-list-detail.md)을 따른다. MemoFinishedList 화면, SearchHome 화면, 캘린더 홈 화면과 캘린더 시간표 화면에서 진입한 MemoDetail 화면은 목록과 함께 표시하지 않고 단독으로 표시한다.
 
 ### 첫진입 시 내용 표시
 
@@ -330,7 +330,7 @@ MemoDetail 화면은 목록에서 선택한 메모 하나를 대상으로 하며
 
 Gemini 작성 도우미의 생성은 이들과 다른 종류의 동작이므로 서로의 요청을 제한하지 않으며, 생성의 요청 제한은 [메모 Gemini 작성 도우미 스펙](./memo-gemini.md)의 `요청 제한`을 따른다.
 
-태그 연결과 대표 태그 변경, 웹 연결 변경, 연락처 연결 변경, 장소 연결 변경에는 이 제한을 두지 않는다. 각 조작은 사용자가 고른 태그나 웹 항목이나 연락처나 장소를 대상으로 하는 서로 다른 요청이므로 중복 실행으로 보지 않으며, 사용자는 여러 태그와 웹 항목과 연락처와 장소를 이어서 바꿀 수 있다.
+태그 연결과 대표 태그 변경, 웹 연결 변경, 연락처 연결 변경, 장소 연결 변경에는 이 제한을 두지 않는다. 각 조작은 사용자가 고른 태그나 웹 항목이나 연락처나 장소를 대상으로 하는 서로 다른 요청이므로 중복 실행으로 보지 않으며, 사용자는 여러 태그와 웹 항목과 연락처와 장소를 이어서 바꿀 수 있다. 같은 대상에 대한 같은 요청이 처리 중이면 그 요청은 다시 처리하지 않는다.
 
 ### 진행 상태 유지
 

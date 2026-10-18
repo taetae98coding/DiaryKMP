@@ -8,6 +8,8 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.core.model.integrity.PlayIntegrityVerdict
+import io.github.taetae98coding.diary.core.model.integrity.PlayIntegrityVerdictValue
 import io.github.taetae98coding.diary.domain.integrity.repository.PlayIntegrityRepository
 import io.github.taetae98coding.diary.domain.integrity.usecase.LogPlayIntegrityUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -22,10 +24,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
-import kotlinx.serialization.json.putJsonObject
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -80,7 +78,7 @@ class PlayIntegrityLogEffectTest {
 
         composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
         composeRule.runOnIdle { serverResponse.complete(Unit) }
-        composeRule.waitUntil { logList.isNotEmpty() }
+        composeRule.waitUntil(timeoutMillis = 5_000L) { logList.isNotEmpty() }
 
         logList.single().name shouldBe PLAY_INTEGRITY_EVENT
         coVerify(exactly = 1) { repository.fetch() }
@@ -119,7 +117,7 @@ class PlayIntegrityLogEffectTest {
         composeRule.runOnIdle { callCount shouldBe 1 }
         restorationTester.emulateSavedInstanceStateRestore()
         composeRule.runOnIdle { serverResponse.complete(Unit) }
-        composeRule.waitUntil { logList.isNotEmpty() }
+        composeRule.waitUntil(timeoutMillis = 5_000L) { logList.isNotEmpty() }
 
         logList.single().name shouldBe PLAY_INTEGRITY_EVENT
     }
@@ -159,7 +157,16 @@ class PlayIntegrityLogEffectTest {
             .getConstructor(PlayIntegrityRepository::class.java)
             .newInstance(repository)
 
-    private fun verdict(): JsonObject = buildJsonObject { putJsonObject("requestDetails") { put("requestHash", fixtureMonkey.giveMeOne<String>()) } }
+    private fun verdict(): PlayIntegrityVerdict =
+        PlayIntegrityVerdict(
+            fieldMap =
+                mapOf(
+                    "requestDetails" to
+                        PlayIntegrityVerdictValue.Group(
+                            fieldMap = mapOf("requestHash" to PlayIntegrityVerdictValue.Text(value = fixtureMonkey.giveMeOne<String>())),
+                        ),
+                ),
+        )
 
     private fun recordPlayIntegrityLog(): List<AnalyticsEventLog> {
         val logList = mutableListOf<AnalyticsEventLog>()

@@ -10,6 +10,6 @@ public class SetMemoTagExistenceFilterUseCase internal constructor(
     private val memoExistenceFilterRepository: MemoExistenceFilterRepository,
 ) : UseCase<MemoFilterExistence, Unit>() {
     override suspend fun execute(parameter: MemoFilterExistence) {
-        memoExistenceFilterRepository.updateTag(existence = parameter)
+        memoExistenceFilterRepository.upsertTag(existence = parameter)
     }
 }

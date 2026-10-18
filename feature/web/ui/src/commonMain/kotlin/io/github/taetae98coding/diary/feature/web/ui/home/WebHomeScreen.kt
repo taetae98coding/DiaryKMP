@@ -9,6 +9,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.web.WebListUndoSnackbarEffect
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import kotlin.uuid.Uuid
 
 @Composable
@@ -19,12 +20,12 @@ internal fun WebHomeScreen(
     navigateToDetail: (Uuid) -> Unit,
     componentVisibleProvider: () -> WebHomeScaffoldComponentVisible,
     webViewModel: WebHomeViewModel,
-    syncViewModel: WebHomeSyncViewModel,
+    syncViewModel: SyncRefreshViewModel,
     modifier: Modifier = Modifier,
 ) {
     val webPagingItems = webViewModel.webPagingData.collectAsLazyPagingItems()
     val uiState by syncViewModel.uiState.collectAsStateWithLifecycle()
-    val sort by webViewModel.sort.collectAsStateWithLifecycle()
+    val sortUiState by webViewModel.sortUiState.collectAsStateWithLifecycle()
     val sortSheetState = rememberDialogState()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -52,7 +53,7 @@ internal fun WebHomeScreen(
         snackbarHostState = snackbarHostState,
         webPagingItems = webPagingItems,
         uiStateProvider = { uiState },
-        sortProvider = { sort },
+        sortProvider = { sortUiState.sort },
         componentVisibleProvider = componentVisibleProvider,
     )
 }

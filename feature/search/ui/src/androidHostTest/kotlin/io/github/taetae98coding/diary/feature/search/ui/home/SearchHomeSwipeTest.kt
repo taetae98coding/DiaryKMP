@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -364,7 +365,7 @@ class SearchHomeSwipeTest {
         composeRule.setSearchHomeScreen(memoList = listOf(memo))
 
         swipeCard(testTag = MEMO_CARD_TEST_TAG, title = memo.detail.title, isRight = false)
-        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).performTextInput(QUERY)
+        composeRule.onNode(hasSetTextAction()).performTextInput(QUERY)
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(DEFAULT_MEMO_DELETED).assertIsDisplayed()

@@ -1,8 +1,5 @@
 plugins {
-    alias(libs.plugins.primitive.kmp)
-    alias(libs.plugins.primitive.android.library)
-    alias(libs.plugins.primitive.koin)
-    alias(libs.plugins.primitive.kotest)
+    alias(libs.plugins.convention.work)
 }
 
 kotlin {
@@ -10,6 +7,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.domain.browser)
+                implementation(projects.library.coroutines)
             }
         }
     }

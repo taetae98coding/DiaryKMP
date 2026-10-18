@@ -10,6 +10,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -29,8 +30,6 @@ import io.github.taetae98coding.diary.feature.contact.ui.previewContact
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
 
-internal const val CONTACT_HOME_LIST_TEST_TAG: String = "ContactHomeList"
-
 @Composable
 internal fun ContactHomeList(
     onEvent: (ContactHomeScaffoldEvent) -> Unit,
@@ -38,12 +37,14 @@ internal fun ContactHomeList(
     gridState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     contactPagingItems: LazyPagingItems<Contact> = remember { flowOf(PagingData.empty<Contact>()) }.collectAsLazyPagingItems(),
     isRefreshingProvider: () -> Boolean = { false },
+    isAddButtonVisibleProvider: () -> Boolean = { false },
     sortProvider: () -> ListSort = { ListSort.NAME },
 ) {
     ListQueryScrollEffect(
         staggeredGridState = gridState,
         sortProvider = sortProvider,
         itemListProvider = { contactPagingItems.itemSnapshotList.items },
+        isRefreshingProvider = { contactPagingItems.loadState.refresh is LoadState.Loading },
     )
 
     DiaryCrossfade(
@@ -70,7 +71,7 @@ internal fun ContactHomeList(
                 modifier = Modifier.fillMaxSize(),
                 state = gridState,
                 isRefreshingProvider = isRefreshingProvider,
-                listTestTag = CONTACT_HOME_LIST_TEST_TAG,
+                bottomPadding = if (isAddButtonVisibleProvider()) DiaryTheme.dimens.floatingActionButtonClearance else DiaryTheme.dimens.screenVerticalPadding,
             ) {
                 items(
                     count = contactPagingItems.itemCount,

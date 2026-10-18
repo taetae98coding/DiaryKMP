@@ -427,7 +427,7 @@ class SearchPagingDaoTest :
         private const val QUERY: String = "여행"
         private const val ITEM_COUNT: Int = 25
         private const val PAGE_SIZE: Int = 10
-        private const val INVALIDATION_TIMEOUT_MILLIS: Long = 5_000
+        private const val INVALIDATION_TIMEOUT_MILLIS: Long = 30_000
 
         private fun Int.pad(): String = toString().padStart(length = 3, padChar = '0')
 

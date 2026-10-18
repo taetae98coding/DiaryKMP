@@ -12,8 +12,8 @@ internal fun rememberTagDetailPlaceMapState(uiState: TagDetailPlaceUiState): Dia
     when (uiState) {
         is TagDetailPlaceUiState.Loading -> rememberDiaryMapState()
 
-        is TagDetailPlaceUiState.Loaded ->
-            key(uiState.defaultProvider, uiState.initialCoordinate) {
+        is TagDetailPlaceUiState.Content ->
+            key(uiState.defaultProvider, uiState.currentLocationFetchId) {
                 rememberDiaryMapState(
                     initialProvider = uiState.defaultProvider.toDiaryMapProvider(),
                     initialCoordinate = uiState.initialCoordinate?.toDiaryMapCoordinate(),

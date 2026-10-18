@@ -99,7 +99,7 @@ class SettingBrowserScreenTest {
         ): SettingBrowserViewModel {
             val viewModel = mockk<SettingBrowserViewModel>()
             every { viewModel.uiState } returns
-                MutableStateFlow(SettingBrowserUiState.Loaded(profileList = listOf(profile), selectedProfileDirectory = selectedProfileDirectory))
+                MutableStateFlow(SettingBrowserUiState.Content(profileList = listOf(profile), selectedProfileDirectory = selectedProfileDirectory))
             justRun { viewModel.selectProfile(directory = any()) }
             justRun { viewModel.unselectProfile() }
             return viewModel

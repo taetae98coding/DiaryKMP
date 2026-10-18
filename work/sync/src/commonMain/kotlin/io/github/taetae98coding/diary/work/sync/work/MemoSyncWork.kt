@@ -2,7 +2,7 @@ package io.github.taetae98coding.diary.work.sync.work
 
 import io.github.taetae98coding.diary.core.database.api.memo.datasource.AccountMemoSyncLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.memo.transaction.AccountMemoSyncTransaction
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.datasource.SyncCursorLocalDataSource
 import io.github.taetae98coding.diary.core.network.api.memo.datasource.MemoRemoteDataSource
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
@@ -18,36 +18,26 @@ internal class MemoSyncWork(
     private val memoRemoteDataSource: MemoRemoteDataSource,
 ) {
     suspend fun push(accountId: Uuid) {
-        val memoList = accountMemoSyncLocalDataSource.findPending(accountId = accountId)
-
-        memoList.chunked(PUSH_CHUNK_SIZE).forEach { chunk ->
-            memoRemoteDataSource.push(memoList = chunk.map { memo -> memo.toRemote() })
-            accountMemoSyncTransaction.clearPending(accountId = accountId, memoList = chunk)
-        }
+        pushPending(
+            pendingList = accountMemoSyncLocalDataSource.readPendingList(accountId = accountId),
+            push = { chunk -> memoRemoteDataSource.push(memoList = chunk.map { memo -> memo.toRemote() }) },
+            clearPending = { chunk -> accountMemoSyncTransaction.clearPending(accountId = accountId, memoList = chunk) },
+        )
     }
 
     suspend fun pull(accountId: Uuid) {
-        var cursor =
-            syncCursorLocalDataSource.find(
-                accountId = accountId,
-                kind = SyncKind.MEMO,
-            )
-        var hasNext = true
-
-        while (hasNext) {
-            val pullList = memoRemoteDataSource.pull(usn = cursor)
-            val nextCursor = pullList.maxOfOrNull { pull -> pull.usn }
-
-            if (nextCursor == null || nextCursor <= cursor) {
-                hasNext = false
-            } else {
-                accountMemoSyncTransaction.save(
+        syncCursorLocalDataSource.pullUntilExhausted(
+            accountId = accountId,
+            kind = SyncKindLocalEntity.MEMO,
+            pull = { cursor -> memoRemoteDataSource.pull(usn = cursor) },
+            usn = { pull -> pull.usn },
+            upsert = { pullList, cursor ->
+                accountMemoSyncTransaction.upsert(
                     accountId = accountId,
                     memoList = pullList.map { pull -> pull.memo.toLocal() },
-                    cursor = nextCursor,
+                    cursor = cursor,
                 )
-                cursor = nextCursor
-            }
-        }
+            },
+        )
     }
 }

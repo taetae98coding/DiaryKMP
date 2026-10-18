@@ -49,7 +49,7 @@ class SettingDetailScaffoldTest {
         composeRule.setContent {
             DiaryTheme {
                 SettingMapScaffold(
-                    uiStateProvider = { SettingMapUiState.Loaded(defaultProvider = MapProvider.NAVER) },
+                    uiStateProvider = { SettingMapUiState.Content(defaultProvider = MapProvider.NAVER) },
                     onEvent = {},
                     componentVisibleProvider = {
                         SettingMapScaffoldComponentVisible(isNavigateUpButtonVisible = false)
@@ -67,7 +67,7 @@ class SettingDetailScaffoldTest {
         composeRule.setContent {
             DiaryTheme {
                 SettingBrowserScaffold(
-                    uiStateProvider = { SettingBrowserUiState.Loaded(profileList = emptyList(), selectedProfileDirectory = "") },
+                    uiStateProvider = { SettingBrowserUiState.Content(profileList = emptyList(), selectedProfileDirectory = "") },
                     onEvent = {},
                     componentVisibleProvider = {
                         SettingBrowserScaffoldComponentVisible(isNavigateUpButtonVisible = false)

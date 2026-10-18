@@ -27,6 +27,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -117,7 +118,10 @@ class PlaylistHomeViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(pageMusicUseCase = pageMusicUseCase(musicListFlow = flowOf(Result.success(emptyList()))))
 
-                viewModel.sort.value shouldBe ListSort.TITLE
+                viewModel.uiState.test {
+                    awaitItem() shouldBe PlaylistHomeUiState(sort = ListSort.TITLE)
+                    cancelAndIgnoreRemainingEvents()
+                }
             }
         }
 
@@ -131,13 +135,17 @@ class PlaylistHomeViewModelTest : FunSpec() {
                     flowOf(Result.success(PagingData.from(recentlyUpdatedMusicList)))
                 val viewModel = viewModel(pageMusicUseCase = pageMusicUseCase)
 
-                viewModel.musicPagingData.test {
-                    flowOf(awaitItem()).asSnapshot() shouldBe titleMusicList
+                viewModel.uiState.test {
+                    awaitItem() shouldBe PlaylistHomeUiState(sort = ListSort.TITLE)
 
                     viewModel.select(sort = ListSort.RECENTLY_UPDATED)
+                    advanceUntilIdle()
 
+                    awaitItem() shouldBe PlaylistHomeUiState(sort = ListSort.RECENTLY_UPDATED)
+                    cancelAndIgnoreRemainingEvents()
+                }
+                viewModel.musicPagingData.test {
                     flowOf(awaitItem()).asSnapshot() shouldBe recentlyUpdatedMusicList
-                    viewModel.sort.value shouldBe ListSort.RECENTLY_UPDATED
                     cancelAndIgnoreRemainingEvents()
                 }
             }
@@ -247,6 +255,54 @@ class PlaylistHomeViewModelTest : FunSpec() {
                 coVerify(exactly = 1) { deleteMusicUseCase(parameter = music.id) }
                 coVerify(exactly = 1) { restoreMusicUseCase(parameter = music.id) }
                 coVerify(exactly = 0) { requestMusicDownloadUseCase(parameter = any()) }
+            }
+        }
+
+        test("같은 곡의 삭제를 진행하는 중에 다시 삭제하면 삭제를 한 번만 요청한다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val gate = CompletableDeferred<Unit>()
+                val deleteMusicUseCase = mockk<DeleteMusicUseCase>()
+                coEvery { deleteMusicUseCase(parameter = id) } coAnswers {
+                    gate.await()
+                    Result.success(1)
+                }
+                val viewModel =
+                    viewModel(
+                        pageMusicUseCase = pageMusicUseCase(musicListFlow = flowOf(Result.success(emptyList()))),
+                        deleteMusicUseCase = deleteMusicUseCase,
+                    )
+
+                viewModel.delete(id = id)
+                viewModel.delete(id = id)
+                gate.complete(Unit)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { deleteMusicUseCase(parameter = id) }
+            }
+        }
+
+        test("같은 곡의 실행 취소를 진행하는 중에 다시 실행 취소하면 한 번만 요청한다") {
+            runTest(mainDispatcher) {
+                val id = fixtureMonkey.giveMeOne<Uuid>()
+                val gate = CompletableDeferred<Unit>()
+                val restoreMusicUseCase = mockk<RestoreMusicUseCase>()
+                coEvery { restoreMusicUseCase(parameter = id) } coAnswers {
+                    gate.await()
+                    Result.success(1)
+                }
+                val viewModel =
+                    viewModel(
+                        pageMusicUseCase = pageMusicUseCase(musicListFlow = flowOf(Result.success(emptyList()))),
+                        restoreMusicUseCase = restoreMusicUseCase,
+                    )
+
+                viewModel.restore(id = id)
+                viewModel.restore(id = id)
+                gate.complete(Unit)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { restoreMusicUseCase(parameter = id) }
             }
         }
 

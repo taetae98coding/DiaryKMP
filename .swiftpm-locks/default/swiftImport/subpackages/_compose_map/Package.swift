@@ -19,7 +19,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/googlemaps/ios-maps-sdk.git",
-      exact: "11.1.0"
+      exact: "11.2.0"
     )
   ],
   targets: [

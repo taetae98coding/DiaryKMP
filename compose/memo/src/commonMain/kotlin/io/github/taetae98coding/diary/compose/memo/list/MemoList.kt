@@ -13,7 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -31,8 +31,6 @@ import io.github.taetae98coding.diary.compose.memo.previewMemo
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import kotlinx.coroutines.flow.flowOf
 
-public const val MEMO_LIST_TEST_TAG: String = "MemoList"
-
 @Composable
 public fun MemoList(
     onEvent: (MemoListEvent) -> Unit,
@@ -40,10 +38,9 @@ public fun MemoList(
     state: MemoListState = rememberMemoListState(),
     listState: LazyListState = rememberLazyListState(),
     memoPagingItems: LazyPagingItems<MemoListItem> = remember { flowOf(PagingData.empty<MemoListItem>()) }.collectAsLazyPagingItems(),
-    uiStateProvider: () -> MemoListUiState = { MemoListUiState() },
+    isRefreshingProvider: () -> Boolean = { false },
     sortProvider: () -> ListSort = { ListSort.DEFAULT },
     filterProvider: () -> Any? = { Unit },
-    listTestTag: String = MEMO_LIST_TEST_TAG,
     finishAction: SwipeFinishAction = SwipeFinishAction.FINISH,
     empty: @Composable () -> Unit,
 ) {
@@ -52,10 +49,11 @@ public fun MemoList(
         sortProvider = sortProvider,
         filterProvider = filterProvider,
         itemListProvider = { memoPagingItems.itemSnapshotList.items },
+        isRefreshingProvider = { memoPagingItems.loadState.refresh is LoadState.Loading },
     )
 
     DiaryPullToRefreshBox(
-        isRefreshingProvider = { uiStateProvider().isRefreshing },
+        isRefreshingProvider = isRefreshingProvider,
         onRefresh = { onEvent(MemoListEvent.Refresh) },
         modifier = modifier,
     ) {
@@ -76,10 +74,7 @@ public fun MemoList(
                 }
             } else {
                 LazyColumn(
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .testTag(listTestTag),
+                    modifier = Modifier.fillMaxSize(),
                     state = listState,
                     contentPadding = DiaryTheme.dimens.screenPaddingValues,
                     verticalArrangement = Arrangement.spacedBy(DiaryTheme.dimens.itemSpacing),

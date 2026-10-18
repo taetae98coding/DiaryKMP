@@ -2,6 +2,8 @@ package io.github.taetae98coding.diary.domain.integrity.usecase
 
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.core.model.integrity.PlayIntegrityVerdict
+import io.github.taetae98coding.diary.core.model.integrity.PlayIntegrityVerdictValue
 import io.github.taetae98coding.diary.domain.integrity.repository.PlayIntegrityRepository
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.github.taetae98coding.diary.logger.analytics.api.AnalyticsEventLog
@@ -18,14 +20,8 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.buildJsonArray
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
-import kotlinx.serialization.json.putJsonArray
-import kotlinx.serialization.json.putJsonObject
 
 private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
@@ -35,29 +31,33 @@ class LogPlayIntegrityUseCaseTest :
             val value = List(12) { fixtureMonkey.giveMeOne<String>() }
             val sdkVersion = fixtureMonkey.giveMeOne<Int>()
             val verdict =
-                buildJsonObject {
-                    putJsonObject("requestDetails") {
-                        put("requestPackageName", value[0])
-                        put("requestHash", value[1])
-                        put("timestampMillis", value[2])
-                    }
-                    putJsonObject("appIntegrity") {
-                        put("appRecognitionVerdict", value[3])
-                        put("packageName", value[4])
-                        putJsonArray("certificateSha256Digest") { add(JsonPrimitive(value[5])) }
-                        put("versionCode", value[6])
-                    }
-                    putJsonObject("deviceIntegrity") {
-                        putJsonArray("deviceRecognitionVerdict") { add(JsonPrimitive(value[7])) }
-                        putJsonObject("deviceAttributes") { put("sdkVersion", sdkVersion) }
-                        putJsonObject("recentDeviceActivity") { put("deviceActivityLevel", value[8]) }
-                    }
-                    putJsonObject("accountDetails") { put("appLicensingVerdict", value[9]) }
-                    putJsonObject("environmentDetails") {
-                        putJsonObject("appAccessRiskVerdict") { putJsonArray("appsDetected") { add(JsonPrimitive(value[10])) } }
-                        put("playProtectVerdict", value[11])
-                    }
-                }
+                verdict(
+                    "requestDetails" to
+                        group(
+                            "requestPackageName" to text(value[0]),
+                            "requestHash" to text(value[1]),
+                            "timestampMillis" to text(value[2]),
+                        ),
+                    "appIntegrity" to
+                        group(
+                            "appRecognitionVerdict" to text(value[3]),
+                            "packageName" to text(value[4]),
+                            "certificateSha256Digest" to valueList(text(value[5])),
+                            "versionCode" to text(value[6]),
+                        ),
+                    "deviceIntegrity" to
+                        group(
+                            "deviceRecognitionVerdict" to valueList(text(value[7])),
+                            "deviceAttributes" to group("sdkVersion" to PlayIntegrityVerdictValue.Number(value = sdkVersion)),
+                            "recentDeviceActivity" to group("deviceActivityLevel" to text(value[8])),
+                        ),
+                    "accountDetails" to group("appLicensingVerdict" to text(value[9])),
+                    "environmentDetails" to
+                        group(
+                            "appAccessRiskVerdict" to group("appsDetected" to valueList(text(value[10]))),
+                            "playProtectVerdict" to text(value[11]),
+                        ),
+                )
             val logList = recordLog()
 
             When("판정을 확인한다") {
@@ -95,15 +95,17 @@ class LogPlayIntegrityUseCaseTest :
             val recallWriteDate = fixtureMonkey.giveMeOne<Int>()
             val appRecognitionVerdict = fixtureMonkey.giveMeOne<String>()
             val verdict =
-                buildJsonObject {
-                    putJsonObject("appIntegrity") { put("appRecognitionVerdict", appRecognitionVerdict) }
-                    putJsonObject("deviceIntegrity") {
-                        putJsonObject("deviceRecall") {
-                            putJsonObject("values") { put("flag", recallValue) }
-                            putJsonObject("writeDates") { put("flag", recallWriteDate) }
-                        }
-                    }
-                }
+                verdict(
+                    "appIntegrity" to group("appRecognitionVerdict" to text(appRecognitionVerdict)),
+                    "deviceIntegrity" to
+                        group(
+                            "deviceRecall" to
+                                group(
+                                    "values" to group("flag" to PlayIntegrityVerdictValue.Flag(value = recallValue)),
+                                    "writeDates" to group("flag" to PlayIntegrityVerdictValue.Number(value = recallWriteDate)),
+                                ),
+                        ),
+                )
             val logList = recordLog()
 
             When("판정을 확인한다") {
@@ -125,11 +127,9 @@ class LogPlayIntegrityUseCaseTest :
         Given("판정 결과에 여러 값을 가진 필드가 있다") {
             val valueList = List(2) { "value${fixtureMonkey.giveMeOne<Int>()}" }
             val verdict =
-                buildJsonObject {
-                    putJsonObject("deviceIntegrity") {
-                        put("deviceRecognitionVerdict", buildJsonArray { valueList.forEach { value -> add(JsonPrimitive(value)) } })
-                    }
-                }
+                verdict(
+                    "deviceIntegrity" to group("deviceRecognitionVerdict" to valueList(*valueList.map { value -> text(value) }.toTypedArray())),
+                )
             val logList = recordLog()
 
             When("판정을 확인한다") {
@@ -146,12 +146,12 @@ class LogPlayIntegrityUseCaseTest :
             val number = fixtureMonkey.giveMeOne<Long>()
             val text = fixtureMonkey.giveMeOne<Long>().toString()
             val verdict =
-                buildJsonObject {
-                    put("number", number)
-                    put("text", text)
-                    put("yes", true)
-                    put("no", false)
-                }
+                verdict(
+                    "number" to PlayIntegrityVerdictValue.Number(value = number),
+                    "text" to text(text),
+                    "yes" to PlayIntegrityVerdictValue.Flag(value = true),
+                    "no" to PlayIntegrityVerdictValue.Flag(value = false),
+                )
             val logList = recordLog()
 
             When("판정을 확인한다") {
@@ -175,10 +175,10 @@ class LogPlayIntegrityUseCaseTest :
             val appRecognitionVerdict = fixtureMonkey.giveMeOne<String>()
             val deviceIntegrityList =
                 listOf(
-                    buildJsonObject { putJsonArray("deviceRecognitionVerdict") {} },
-                    buildJsonObject {},
-                    buildJsonObject { putJsonObject("deviceAttributes") {} },
-                    buildJsonObject { put("deviceRecognitionVerdict", JsonNull) },
+                    group("deviceRecognitionVerdict" to valueList()),
+                    group(),
+                    group("deviceAttributes" to group()),
+                    group("deviceRecognitionVerdict" to PlayIntegrityVerdictValue.Null),
                 )
 
             When("판정을 확인한다") {
@@ -186,10 +186,10 @@ class LogPlayIntegrityUseCaseTest :
                     deviceIntegrityList.forEach { deviceIntegrity ->
                         val logList = recordLog()
                         val verdict =
-                            buildJsonObject {
-                                putJsonObject("appIntegrity") { put("appRecognitionVerdict", appRecognitionVerdict) }
-                                put("deviceIntegrity", deviceIntegrity)
-                            }
+                            verdict(
+                                "appIntegrity" to group("appRecognitionVerdict" to text(appRecognitionVerdict)),
+                                "deviceIntegrity" to deviceIntegrity,
+                            )
 
                         useCase(verdict = verdict)(parameter = Unit)
 
@@ -202,7 +202,7 @@ class LogPlayIntegrityUseCaseTest :
 
         Given("판정 결과에 알려지지 않은 새 필드가 있다") {
             val newValue = fixtureMonkey.giveMeOne<String>()
-            val verdict = buildJsonObject { putJsonObject("environmentDetails") { put("newVerdict", newValue) } }
+            val verdict = verdict("environmentDetails" to group("newVerdict" to text(newValue)))
             val logList = recordLog()
 
             When("판정을 확인한다") {
@@ -244,12 +244,20 @@ class LogPlayIntegrityUseCaseTest :
         }
     }) {
     private companion object {
-        fun useCase(verdict: JsonObject?): LogPlayIntegrityUseCase {
+        fun useCase(verdict: PlayIntegrityVerdict?): LogPlayIntegrityUseCase {
             val repository = mockk<PlayIntegrityRepository>()
             coEvery { repository.fetch() } returns verdict
 
             return LogPlayIntegrityUseCase(playIntegrityRepository = repository)
         }
+
+        fun verdict(vararg field: Pair<String, PlayIntegrityVerdictValue>): PlayIntegrityVerdict = PlayIntegrityVerdict(fieldMap = mapOf(*field))
+
+        fun group(vararg field: Pair<String, PlayIntegrityVerdictValue>): PlayIntegrityVerdictValue.Group = PlayIntegrityVerdictValue.Group(fieldMap = mapOf(*field))
+
+        fun valueList(vararg value: PlayIntegrityVerdictValue): PlayIntegrityVerdictValue.ValueList = PlayIntegrityVerdictValue.ValueList(valueList = value.toList())
+
+        fun text(value: String): PlayIntegrityVerdictValue.Text = PlayIntegrityVerdictValue.Text(value = value)
 
         fun recordLog(): List<DiaryLog> {
             val logList = mutableListOf<DiaryLog>()

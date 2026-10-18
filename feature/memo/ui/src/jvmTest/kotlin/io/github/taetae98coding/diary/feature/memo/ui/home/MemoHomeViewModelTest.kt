@@ -3,6 +3,7 @@
 package io.github.taetae98coding.diary.feature.memo.ui.home
 
 import androidx.paging.PagingData
+import androidx.paging.testing.ErrorRecovery
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
@@ -25,6 +26,8 @@ import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoHomeUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestartMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.RestoreMemoUseCase
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.memo.ui.appendFailingPagingData
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -39,7 +42,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -223,7 +228,7 @@ class MemoHomeViewModelTest : FunSpec() {
                     )
 
                 viewModel.filterUiState.test {
-                    awaitItem() shouldBe MemoHomeScaffoldFilterUiState()
+                    awaitItem() shouldBe MemoHomeScaffoldFilterUiState(isLoaded = false)
                     advanceUntilIdle()
                     awaitItem() shouldBe MemoHomeScaffoldFilterUiState(selectedTagIdSet = selectedTagList.map { tag -> tag.id }.toSet())
                     cancelAndIgnoreRemainingEvents()
@@ -271,12 +276,12 @@ class MemoHomeViewModelTest : FunSpec() {
                 viewModel.filterUiState.test {
                     awaitItem()
                     advanceUntilIdle()
-                    expectMostRecentItem().listQueryFilter.storedTagIdSet shouldBe setOf(firstTagId)
+                    expectMostRecentItem().listQueryFilter?.storedTagIdSet shouldBe setOf(firstTagId)
 
                     tagIdSetFlow.value = Result.success(setOf(firstTagId, secondTagId))
                     advanceUntilIdle()
 
-                    awaitItem().listQueryFilter.storedTagIdSet shouldBe setOf(firstTagId, secondTagId)
+                    awaitItem().listQueryFilter?.storedTagIdSet shouldBe setOf(firstTagId, secondTagId)
                     cancelAndIgnoreRemainingEvents()
                 }
             }
@@ -293,8 +298,9 @@ class MemoHomeViewModelTest : FunSpec() {
                     )
 
                 viewModel.filterUiState.test {
-                    awaitItem() shouldBe MemoHomeScaffoldFilterUiState()
+                    awaitItem() shouldBe MemoHomeScaffoldFilterUiState(isLoaded = false)
                     advanceUntilIdle()
+                    awaitItem() shouldBe MemoHomeScaffoldFilterUiState()
                     expectNoEvents()
                 }
             }
@@ -315,7 +321,7 @@ class MemoHomeViewModelTest : FunSpec() {
                     )
 
                 viewModel.filterUiState.test {
-                    awaitItem() shouldBe MemoHomeScaffoldFilterUiState()
+                    awaitItem() shouldBe MemoHomeScaffoldFilterUiState(isLoaded = false)
                     advanceUntilIdle()
                     awaitItem() shouldBe MemoHomeScaffoldFilterUiState(existence = MemoExistenceFilter(date = MemoFilterExistence.EXIST))
                     cancelAndIgnoreRemainingEvents()
@@ -335,8 +341,9 @@ class MemoHomeViewModelTest : FunSpec() {
                     )
 
                 viewModel.filterUiState.test {
-                    awaitItem() shouldBe MemoHomeScaffoldFilterUiState()
+                    awaitItem() shouldBe MemoHomeScaffoldFilterUiState(isLoaded = false)
                     advanceUntilIdle()
+                    awaitItem() shouldBe MemoHomeScaffoldFilterUiState()
                     expectNoEvents()
                 }
             }
@@ -346,7 +353,7 @@ class MemoHomeViewModelTest : FunSpec() {
             runTest(mainDispatcher) {
                 val viewModel = viewModel()
 
-                viewModel.sort.value shouldBe ListSort.DEFAULT
+                viewModel.sortUiState.value shouldBe ListSortUiState(sort = ListSort.DEFAULT)
             }
         }
 
@@ -366,7 +373,7 @@ class MemoHomeViewModelTest : FunSpec() {
                     cancelAndIgnoreRemainingEvents()
                 }
 
-                viewModel.sort.value shouldBe ListSort.TITLE
+                viewModel.sortUiState.value shouldBe ListSortUiState(sort = ListSort.TITLE)
                 verify(exactly = 1) { pageMemoHomeUseCase(parameter = ListSort.TITLE) }
             }
         }
@@ -392,7 +399,7 @@ class MemoHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("MemoHome 목록 조회에 실패하면 빈 PagingData를 노출한다") {
+        test("TC-MEMO-HOME-FEATURE-071 처음 불러오기에 실패하면 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
                 every { pageMemoHomeUseCase(parameter = ListSort.DEFAULT) } returns
@@ -400,7 +407,44 @@ class MemoHomeViewModelTest : FunSpec() {
                 val viewModel = viewModel(pageMemoHomeUseCase = pageMemoHomeUseCase)
 
                 viewModel.memoPagingData.test {
-                    awaitItem()
+                    flowOf(awaitItem()).asSnapshot() shouldBe emptyList()
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
+        test("TC-MEMO-HOME-FEATURE-071 이어서 불러오기에 실패해도 앞서 불러온 메모를 유지한다") {
+            runTest(mainDispatcher) {
+                val memoList = listOf(fixtureMonkey.giveMeOne<Memo>(), fixtureMonkey.giveMeOne<Memo>())
+                val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
+                every { pageMemoHomeUseCase(parameter = ListSort.DEFAULT) } returns
+                    appendFailingPagingData(firstPage = memoList).map { pagingData -> Result.success(pagingData) }
+                val viewModel = viewModel(pageMemoHomeUseCase = pageMemoHomeUseCase)
+
+                val itemList =
+                    flowOf(viewModel.memoPagingData.first()).asSnapshot(onError = { ErrorRecovery.RETURN_CURRENT_SNAPSHOT }) {
+                        appendScrollWhile { true }
+                    }
+
+                itemList.filterIsInstance<MemoListItem.Content>().map { item -> item.memo } shouldBe memoList
+            }
+        }
+
+        test("TC-MEMO-HOME-FEATURE-071 메모가 보이는 목록을 다시 불러오다 실패하면 앞서 보이던 메모를 남기지 않고 빈 목록을 노출한다") {
+            runTest(mainDispatcher) {
+                val memo = fixtureMonkey.giveMeOne<Memo>()
+                val pageMemoHomeUseCase = mockk<PageMemoHomeUseCase>()
+                every { pageMemoHomeUseCase(parameter = ListSort.DEFAULT) } returns
+                    flowOf(
+                        Result.success(PagingData.from(listOf(memo))),
+                        Result.failure(IllegalStateException()),
+                    )
+                val viewModel = viewModel(pageMemoHomeUseCase = pageMemoHomeUseCase)
+
+                viewModel.memoPagingData.test {
+                    advanceUntilIdle()
+
+                    flowOf(expectMostRecentItem()).asSnapshot() shouldBe emptyList()
                     cancelAndIgnoreRemainingEvents()
                 }
             }

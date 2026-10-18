@@ -9,7 +9,9 @@ import kotlinx.coroutines.flow.emptyFlow
 @Composable
 internal fun ReconcileFileUploadEffect(
     reconcile: (Account) -> Unit,
-    account: Flow<Account> = emptyFlow(),
+    uiState: Flow<AppFileUploadUiState> = emptyFlow(),
 ) {
-    CollectEffect(effect = account) { value -> reconcile(value) }
+    CollectEffect(effect = uiState) { value ->
+        if (value is AppFileUploadUiState.Confirmed) reconcile(value.account)
+    }
 }

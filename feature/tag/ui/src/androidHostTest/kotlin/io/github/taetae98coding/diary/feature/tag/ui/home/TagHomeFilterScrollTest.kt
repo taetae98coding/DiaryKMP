@@ -9,6 +9,8 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollToIndex
+import androidx.paging.LoadState
+import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.navercorp.fixturemonkey.FixtureMonkey
@@ -19,6 +21,7 @@ import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
+import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -75,6 +78,46 @@ class TagHomeFilterScrollTest {
     }
 
     @Test
+    fun `TC-TAG-HOME-FEATURE-034 필터를 켠 결과가 바꾸기 전과 같아도 그 결과가 놓이면 목록을 처음부터 다시 보고 그 뒤 갱신에서는 자리를 유지한다`() {
+        val allTagList = tagList(ALL_TAG_COUNT)
+        val isApplied = mutableStateOf(false)
+        val resultState = mutableStateOf(allTagList to false)
+        composeRule.setContent {
+            DiaryTheme {
+                val currentIsApplied by isApplied
+                val (currentTagList, isRefreshing) = resultState.value
+                val tagPagingItems = remember(currentTagList, isRefreshing) { MutableStateFlow(tagResultPagingData(tagList = currentTagList, isRefreshing = isRefreshing)) }.collectAsLazyPagingItems()
+
+                TagHomeScaffold(
+                    onTagListEvent = {},
+                    tagPagingItems = tagPagingItems,
+                    onEvent = {},
+                    filterUiStateProvider = { TagHomeScaffoldFilterUiState(isLoaded = true, isApplied = currentIsApplied) },
+                )
+            }
+        }
+        composeRule.waitForIdle()
+        scrollToLast(tagList = allTagList)
+
+        composeRule.runOnIdle {
+            isApplied.value = true
+            resultState.value = allTagList to true
+        }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { resultState.value = allTagList to false }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(allTagList.first().title()).assertIsDisplayed()
+
+        scrollToLast(tagList = allTagList)
+        composeRule.runOnIdle { resultState.value = allTagList + tag(title = fixtureText(prefix = TITLE_PREFIX)) to false }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(allTagList.first().title()).assertDoesNotExist()
+        composeRule.onNodeWithText(allTagList.last().title()).assertIsDisplayed()
+    }
+
+    @Test
     fun `TC-TAG-HOME-FEATURE-034 필터를 끄면 전체 결과가 놓일 때 목록을 처음부터 다시 본다`() {
         val allTagList = tagList(ALL_TAG_COUNT)
         val narrowedTagList = allTagList.take(NARROWED_TAG_COUNT)
@@ -108,8 +151,25 @@ class TagHomeFilterScrollTest {
         composeRule.onNodeWithText(allTagList.last().title()).assertIsDisplayed()
     }
 
+    @Test
+    fun `TC-TAG-HOME-FEATURE-052 저장된 필터를 불러오기 전에 이동한 목록 위치는 필터를 불러온 뒤 목록이 갱신되어도 유지한다`() {
+        val allTagList = tagList(ALL_TAG_COUNT)
+        val filterUiState = mutableStateOf(TagHomeScaffoldFilterUiState())
+        val tagListState = mutableStateOf(allTagList)
+        setTagHomeScaffoldWithResult(filterUiStateProvider = { filterUiState.value }, tagListState = tagListState)
+        scrollToLast(tagList = allTagList)
+
+        composeRule.runOnIdle { filterUiState.value = TagHomeScaffoldFilterUiState(isLoaded = true, isApplied = true) }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { tagListState.value = allTagList + tag(title = fixtureText(prefix = TITLE_PREFIX)) }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(allTagList.first().title()).assertDoesNotExist()
+        composeRule.onNodeWithText(allTagList.last().title()).assertIsDisplayed()
+    }
+
     private fun scrollToLast(tagList: List<Tag>) {
-        composeRule.onNodeWithTag(TAG_HOME_LIST_TEST_TAG).performScrollToIndex(tagList.lastIndex)
+        composeRule.refreshableList().performScrollToIndex(tagList.lastIndex)
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(tagList.first().title()).assertDoesNotExist()
@@ -136,7 +196,7 @@ class TagHomeFilterScrollTest {
                     onTagListEvent = {},
                     tagPagingItems = tagPagingData.collectAsLazyPagingItems(),
                     onEvent = {},
-                    filterUiStateProvider = { TagHomeScaffoldFilterUiState(isApplied = currentIsApplied) },
+                    filterUiStateProvider = { TagHomeScaffoldFilterUiState(isLoaded = true, isApplied = currentIsApplied) },
                 )
             }
         }
@@ -147,9 +207,19 @@ class TagHomeFilterScrollTest {
         isApplied: MutableState<Boolean>,
         tagListState: MutableState<List<Tag>>,
     ) {
+        setTagHomeScaffoldWithResult(
+            filterUiStateProvider = { TagHomeScaffoldFilterUiState(isLoaded = true, isApplied = isApplied.value) },
+            tagListState = tagListState,
+        )
+    }
+
+    private fun setTagHomeScaffoldWithResult(
+        filterUiStateProvider: () -> TagHomeScaffoldFilterUiState,
+        tagListState: MutableState<List<Tag>>,
+    ) {
         composeRule.setContent {
             DiaryTheme {
-                val currentIsApplied by isApplied
+                val currentFilterUiState = filterUiStateProvider()
                 val currentTagList by tagListState
                 // 같은 목록에 이어서 넘긴 조회 결과는 화면 스레드의 공용 디스패처를 거쳐야 도착해 결과가 일정하지 않다.
                 // 결과마다 새 목록을 만들어 목록이 처음 그릴 때 그 결과를 받게 한다.
@@ -159,7 +229,7 @@ class TagHomeFilterScrollTest {
                     onTagListEvent = {},
                     tagPagingItems = tagPagingItems,
                     onEvent = {},
-                    filterUiStateProvider = { TagHomeScaffoldFilterUiState(isApplied = currentIsApplied) },
+                    filterUiStateProvider = { currentFilterUiState },
                 )
             }
         }
@@ -175,6 +245,18 @@ class TagHomeFilterScrollTest {
             diaryFixtureMonkey()
 
         private fun Tag.title(): String = detail.title
+
+        private fun tagResultPagingData(
+            tagList: List<Tag>,
+            isRefreshing: Boolean,
+        ): PagingData<Tag> {
+            val loaded = LoadState.NotLoading(endOfPaginationReached = true)
+
+            return PagingData.from(
+                data = tagList,
+                sourceLoadStates = LoadStates(refresh = if (isRefreshing) LoadState.Loading else loaded, prepend = loaded, append = loaded),
+            )
+        }
 
         private fun tagList(count: Int): List<Tag> {
             val titlePrefix = fixtureText(prefix = TITLE_PREFIX)

@@ -24,6 +24,7 @@ import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
 import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarTimetableNavKey
+import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.search.holidaySearchUri
 import io.github.taetae98coding.diary.feature.calendar.ui.home.search.weatherSearchUri
@@ -217,8 +218,8 @@ class CalendarHomeScreenTimetableTest {
 
     private fun memoViewModel(memoList: List<CalendarMemo>): CalendarHomeMemoViewModel =
         mockk<CalendarHomeMemoViewModel>().also { viewModel ->
-            every { viewModel.fetch(any()) } returns Unit
-            every { viewModel.memoList } returns MutableStateFlow(memoList)
+            every { viewModel.select(any()) } returns Unit
+            every { viewModel.uiState } returns MutableStateFlow(CalendarHomeMemoUiState(memoList = memoList))
             every { viewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
             every { viewModel.move(any(), any(), any()) } returns Unit
         }

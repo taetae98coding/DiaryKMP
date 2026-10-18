@@ -7,8 +7,8 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.browser.ChromeProfile
 import io.github.taetae98coding.diary.core.testing.browser.chromeProfileList
-import io.github.taetae98coding.diary.domain.browser.usecase.FindChromeProfileListUseCase
 import io.github.taetae98coding.diary.domain.browser.usecase.GetChromeSessionProfileDirectoryUseCase
+import io.github.taetae98coding.diary.domain.browser.usecase.ReadChromeProfileListUseCase
 import io.github.taetae98coding.diary.domain.browser.usecase.SelectChromeSessionProfileUseCase
 import io.github.taetae98coding.diary.domain.browser.usecase.UnselectChromeSessionProfileUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
@@ -86,7 +86,7 @@ class SettingBrowserViewModelTest : FunSpec() {
 
                     viewModel.uiState.test {
                         awaitItem() shouldBe SettingBrowserUiState.Loading
-                        awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = profileList, selectedProfileDirectory = directory)
+                        awaitItem() shouldBe SettingBrowserUiState.Content(profileList = profileList, selectedProfileDirectory = directory)
                     }
                 }
             }
@@ -98,7 +98,7 @@ class SettingBrowserViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingBrowserUiState.Loading
-                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = emptyList(), selectedProfileDirectory = "")
+                    awaitItem() shouldBe SettingBrowserUiState.Content(profileList = emptyList(), selectedProfileDirectory = "")
                 }
             }
         }
@@ -118,7 +118,7 @@ class SettingBrowserViewModelTest : FunSpec() {
                     viewModel.uiState.test {
                         awaitItem() shouldBe SettingBrowserUiState.Loading
                         awaitItem() shouldBe
-                            SettingBrowserUiState.Loaded(
+                            SettingBrowserUiState.Content(
                                 profileList = emptyList(),
                                 selectedProfileDirectory = "",
                                 isProfileListUnavailable = true,
@@ -137,7 +137,7 @@ class SettingBrowserViewModelTest : FunSpec() {
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingBrowserUiState.Loading
                     awaitItem() shouldBe
-                        SettingBrowserUiState.Loaded(profileList = listOf(profileA), selectedProfileDirectory = "", hasStoredProfile = true)
+                        SettingBrowserUiState.Content(profileList = listOf(profileA), selectedProfileDirectory = "", hasStoredProfile = true)
                 }
             }
         }
@@ -164,12 +164,12 @@ class SettingBrowserViewModelTest : FunSpec() {
 
                     viewModel.uiState.test {
                         awaitItem() shouldBe SettingBrowserUiState.Loading
-                        (awaitItem() as SettingBrowserUiState.Loaded).selectedProfileDirectory shouldBe ""
+                        (awaitItem() as SettingBrowserUiState.Content).selectedProfileDirectory shouldBe ""
 
                         viewModel.unselectProfile()
                         advanceUntilIdle()
 
-                        (awaitItem() as SettingBrowserUiState.Loaded).hasStoredProfile shouldBe false
+                        (awaitItem() as SettingBrowserUiState.Content).hasStoredProfile shouldBe false
                     }
 
                     coVerify(exactly = 1) { unselectUseCase(Unit) }
@@ -187,7 +187,7 @@ class SettingBrowserViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingBrowserUiState.Loading
-                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = profileList, selectedProfileDirectory = "")
+                    awaitItem() shouldBe SettingBrowserUiState.Content(profileList = profileList, selectedProfileDirectory = "")
 
                     viewModel.unselectProfile()
                     advanceUntilIdle()
@@ -203,29 +203,29 @@ class SettingBrowserViewModelTest : FunSpec() {
             val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
             val profileList = listOf(profileA, profileB)
             runTest(mainDispatcher) {
-                val findProfileListUseCase = profileListUseCaseReturning(listOf(profileA), profileList)
+                val readProfileListUseCase = profileListUseCaseReturning(listOf(profileA), profileList)
                 val getDirectoryUseCase = mockk<GetChromeSessionProfileDirectoryUseCase>()
                 every { getDirectoryUseCase(Unit) } returns flowOf(Result.success(profileB.directory))
 
                 SettingBrowserViewModel(
                     getChromeSessionProfileDirectoryUseCase = getDirectoryUseCase,
-                    findChromeProfileListUseCase = findProfileListUseCase,
+                    readChromeProfileListUseCase = readProfileListUseCase,
                     selectChromeSessionProfileUseCase = mockk(),
                     unselectChromeSessionProfileUseCase = mockk(),
                 ).uiState.test {
                     awaitItem() shouldBe SettingBrowserUiState.Loading
                     awaitItem() shouldBe
-                        SettingBrowserUiState.Loaded(profileList = listOf(profileA), selectedProfileDirectory = "", hasStoredProfile = true)
+                        SettingBrowserUiState.Content(profileList = listOf(profileA), selectedProfileDirectory = "", hasStoredProfile = true)
                 }
 
                 SettingBrowserViewModel(
                     getChromeSessionProfileDirectoryUseCase = getDirectoryUseCase,
-                    findChromeProfileListUseCase = findProfileListUseCase,
+                    readChromeProfileListUseCase = readProfileListUseCase,
                     selectChromeSessionProfileUseCase = mockk(),
                     unselectChromeSessionProfileUseCase = mockk(),
                 ).uiState.test {
                     awaitItem() shouldBe SettingBrowserUiState.Loading
-                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = profileList, selectedProfileDirectory = profileB.directory)
+                    awaitItem() shouldBe SettingBrowserUiState.Content(profileList = profileList, selectedProfileDirectory = profileB.directory)
                 }
             }
         }
@@ -244,12 +244,12 @@ class SettingBrowserViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingBrowserUiState.Loading
-                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = profileList, selectedProfileDirectory = "")
+                    awaitItem() shouldBe SettingBrowserUiState.Content(profileList = profileList, selectedProfileDirectory = "")
 
                     viewModel.selectProfile(directory = profileA.directory)
                     advanceUntilIdle()
 
-                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = profileList, selectedProfileDirectory = profileA.directory)
+                    awaitItem() shouldBe SettingBrowserUiState.Content(profileList = profileList, selectedProfileDirectory = profileA.directory)
                 }
 
                 coVerify(exactly = 1) { selectUseCase(profileA.directory) }
@@ -270,12 +270,12 @@ class SettingBrowserViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingBrowserUiState.Loading
-                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = profileList, selectedProfileDirectory = profileA.directory)
+                    awaitItem() shouldBe SettingBrowserUiState.Content(profileList = profileList, selectedProfileDirectory = profileA.directory)
 
                     viewModel.selectProfile(directory = profileB.directory)
                     advanceUntilIdle()
 
-                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = profileList, selectedProfileDirectory = profileB.directory)
+                    awaitItem() shouldBe SettingBrowserUiState.Content(profileList = profileList, selectedProfileDirectory = profileB.directory)
                 }
 
                 coVerify(exactly = 1) { selectUseCase(profileB.directory) }
@@ -297,12 +297,12 @@ class SettingBrowserViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingBrowserUiState.Loading
-                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = profileList, selectedProfileDirectory = profileB.directory)
+                    awaitItem() shouldBe SettingBrowserUiState.Content(profileList = profileList, selectedProfileDirectory = profileB.directory)
 
                     viewModel.unselectProfile()
                     advanceUntilIdle()
 
-                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = profileList, selectedProfileDirectory = "")
+                    awaitItem() shouldBe SettingBrowserUiState.Content(profileList = profileList, selectedProfileDirectory = "")
                 }
 
                 coVerify(exactly = 1) { unselectUseCase(Unit) }
@@ -325,7 +325,7 @@ class SettingBrowserViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingBrowserUiState.Loading
-                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = profileList, selectedProfileDirectory = profileA.directory)
+                    awaitItem() shouldBe SettingBrowserUiState.Content(profileList = profileList, selectedProfileDirectory = profileA.directory)
 
                     viewModel.selectProfile(directory = profileA.directory)
                     advanceUntilIdle()
@@ -348,7 +348,7 @@ class SettingBrowserViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingBrowserUiState.Loading
-                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = profileList, selectedProfileDirectory = "")
+                    awaitItem() shouldBe SettingBrowserUiState.Content(profileList = profileList, selectedProfileDirectory = "")
 
                     viewModel.selectProfile(directory = profileA.directory)
                     advanceUntilIdle()
@@ -362,12 +362,12 @@ class SettingBrowserViewModelTest : FunSpec() {
             val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
             val profileList = listOf(profileA, profileB)
             runTest(mainDispatcher) {
-                val findProfileListUseCase = profileListUseCaseReturning(profileList, listOf(profileA))
-                val viewModel = refreshViewModel(findProfileListUseCase = findProfileListUseCase)
+                val readProfileListUseCase = profileListUseCaseReturning(profileList, listOf(profileA))
+                val viewModel = refreshViewModel(readProfileListUseCase = readProfileListUseCase)
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingBrowserUiState.Loading
-                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = profileList, selectedProfileDirectory = "")
+                    awaitItem() shouldBe SettingBrowserUiState.Content(profileList = profileList, selectedProfileDirectory = "")
                     advanceTimeBy(UI_STOP_TIMEOUT_MILLIS * 2)
                     advanceUntilIdle()
                     expectNoEvents()
@@ -379,16 +379,16 @@ class SettingBrowserViewModelTest : FunSpec() {
             val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
             val profileList = listOf(profileA, profileB)
             runTest(mainDispatcher) {
-                val findProfileListUseCase = profileListUseCaseReturning(profileList, listOf(profileA))
+                val readProfileListUseCase = profileListUseCaseReturning(profileList, listOf(profileA))
 
-                refreshViewModel(findProfileListUseCase = findProfileListUseCase).uiState.test {
+                refreshViewModel(readProfileListUseCase = readProfileListUseCase).uiState.test {
                     awaitItem() shouldBe SettingBrowserUiState.Loading
-                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = profileList, selectedProfileDirectory = "")
+                    awaitItem() shouldBe SettingBrowserUiState.Content(profileList = profileList, selectedProfileDirectory = "")
                 }
 
-                refreshViewModel(findProfileListUseCase = findProfileListUseCase).uiState.test {
+                refreshViewModel(readProfileListUseCase = readProfileListUseCase).uiState.test {
                     awaitItem() shouldBe SettingBrowserUiState.Loading
-                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = listOf(profileA), selectedProfileDirectory = "")
+                    awaitItem() shouldBe SettingBrowserUiState.Content(profileList = listOf(profileA), selectedProfileDirectory = "")
                 }
             }
         }
@@ -397,18 +397,18 @@ class SettingBrowserViewModelTest : FunSpec() {
             val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
             val profileList = listOf(profileA, profileB)
             runTest(mainDispatcher) {
-                val findProfileListUseCase = profileListUseCaseReturning(profileList, listOf(profileA))
-                val viewModel = refreshViewModel(findProfileListUseCase = findProfileListUseCase)
+                val readProfileListUseCase = profileListUseCaseReturning(profileList, listOf(profileA))
+                val viewModel = refreshViewModel(readProfileListUseCase = readProfileListUseCase)
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingBrowserUiState.Loading
-                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = profileList, selectedProfileDirectory = "")
+                    awaitItem() shouldBe SettingBrowserUiState.Content(profileList = profileList, selectedProfileDirectory = "")
                 }
                 advanceTimeBy(UI_STOP_TIMEOUT_MILLIS + 1)
 
                 viewModel.uiState.test {
-                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = profileList, selectedProfileDirectory = "")
-                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = listOf(profileA), selectedProfileDirectory = "")
+                    awaitItem() shouldBe SettingBrowserUiState.Content(profileList = profileList, selectedProfileDirectory = "")
+                    awaitItem() shouldBe SettingBrowserUiState.Content(profileList = listOf(profileA), selectedProfileDirectory = "")
                 }
             }
         }
@@ -417,21 +417,21 @@ class SettingBrowserViewModelTest : FunSpec() {
             val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
             val profileList = listOf(profileA, profileB)
             runTest(mainDispatcher) {
-                val findProfileListUseCase = profileListUseCaseReturning(profileList, listOf(profileA))
-                val viewModel = refreshViewModel(findProfileListUseCase = findProfileListUseCase)
+                val readProfileListUseCase = profileListUseCaseReturning(profileList, listOf(profileA))
+                val viewModel = refreshViewModel(readProfileListUseCase = readProfileListUseCase)
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingBrowserUiState.Loading
-                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = profileList, selectedProfileDirectory = "")
+                    awaitItem() shouldBe SettingBrowserUiState.Content(profileList = profileList, selectedProfileDirectory = "")
                 }
                 advanceTimeBy(UI_STOP_TIMEOUT_MILLIS - 1)
 
                 viewModel.uiState.test {
-                    awaitItem() shouldBe SettingBrowserUiState.Loaded(profileList = profileList, selectedProfileDirectory = "")
+                    awaitItem() shouldBe SettingBrowserUiState.Content(profileList = profileList, selectedProfileDirectory = "")
                     advanceUntilIdle()
                     expectNoEvents()
                 }
-                coVerify(exactly = 1) { findProfileListUseCase(Unit) }
+                coVerify(exactly = 1) { readProfileListUseCase(Unit) }
             }
         }
     }
@@ -439,19 +439,19 @@ class SettingBrowserViewModelTest : FunSpec() {
     private fun profileListUseCaseReturning(
         first: List<ChromeProfile>,
         next: List<ChromeProfile>,
-    ): FindChromeProfileListUseCase {
-        val findProfileListUseCase = mockk<FindChromeProfileListUseCase>()
-        coEvery { findProfileListUseCase(Unit) } returnsMany listOf(Result.success(first), Result.success(next))
-        return findProfileListUseCase
+    ): ReadChromeProfileListUseCase {
+        val readProfileListUseCase = mockk<ReadChromeProfileListUseCase>()
+        coEvery { readProfileListUseCase(Unit) } returnsMany listOf(Result.success(first), Result.success(next))
+        return readProfileListUseCase
     }
 
-    private fun refreshViewModel(findProfileListUseCase: FindChromeProfileListUseCase): SettingBrowserViewModel {
+    private fun refreshViewModel(readProfileListUseCase: ReadChromeProfileListUseCase): SettingBrowserViewModel {
         val getDirectoryUseCase = mockk<GetChromeSessionProfileDirectoryUseCase>()
         every { getDirectoryUseCase(Unit) } returns flowOf(Result.success(""))
 
         return SettingBrowserViewModel(
             getChromeSessionProfileDirectoryUseCase = getDirectoryUseCase,
-            findChromeProfileListUseCase = findProfileListUseCase,
+            readChromeProfileListUseCase = readProfileListUseCase,
             selectChromeSessionProfileUseCase = mockk(),
             unselectChromeSessionProfileUseCase = mockk(),
         )
@@ -466,12 +466,12 @@ class SettingBrowserViewModelTest : FunSpec() {
     ): SettingBrowserViewModel {
         val getDirectoryUseCase = mockk<GetChromeSessionProfileDirectoryUseCase>()
         every { getDirectoryUseCase(Unit) } returns directoryFlow
-        val findProfileListUseCase = mockk<FindChromeProfileListUseCase>()
-        coEvery { findProfileListUseCase(Unit) } returns profileListResult
+        val readProfileListUseCase = mockk<ReadChromeProfileListUseCase>()
+        coEvery { readProfileListUseCase(Unit) } returns profileListResult
 
         return SettingBrowserViewModel(
             getChromeSessionProfileDirectoryUseCase = getDirectoryUseCase,
-            findChromeProfileListUseCase = findProfileListUseCase,
+            readChromeProfileListUseCase = readProfileListUseCase,
             selectChromeSessionProfileUseCase = selectUseCase,
             unselectChromeSessionProfileUseCase = unselectUseCase,
         )

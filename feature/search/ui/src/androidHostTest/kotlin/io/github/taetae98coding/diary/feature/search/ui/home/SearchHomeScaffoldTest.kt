@@ -7,9 +7,9 @@ import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -113,7 +113,7 @@ class SearchHomeScaffoldTest {
     fun `TC-SEARCH-HOME-FEATURE-007 유형을 바꿔도 질의가 유지된다`() {
         setSearchHomeScaffold()
 
-        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).performTextInput(QUERY)
+        composeRule.onNode(hasSetTextAction()).performTextInput(QUERY)
         composeRule.onNodeWithText(DEFAULT_TAG_TAB_LABEL).performClick()
         composeRule.waitForIdle()
 
@@ -134,12 +134,12 @@ class SearchHomeScaffoldTest {
     fun `지우기 버튼을 누르면 검색어를 지우고 초점을 검색어 입력에 남긴다`() {
         setSearchHomeScaffold()
 
-        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).performTextInput(QUERY)
+        composeRule.onNode(hasSetTextAction()).performTextInput(QUERY)
         composeRule.onNodeWithContentDescription(DEFAULT_CLEAR_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).assertExists()
-        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).assertIsFocused()
+        composeRule.onNode(hasSetTextAction()).assertIsFocused()
     }
 
     @Test

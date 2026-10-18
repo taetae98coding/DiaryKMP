@@ -34,6 +34,17 @@ class DailyMemoNotificationChannelTest {
     }
 
     @Test
+    @Config(qualifiers = "ko")
+    fun `TC-DAILY-MEMO-NOTIFICATION-DOMAIN-031 한국어 기기에서는 일일 메모 알림 채널이 한국어 디자인 문구를 갖고 만들어진다`() {
+        context.createDailyMemoNotificationChannel()
+
+        val channel = notificationManager().getNotificationChannel(DAILY_MEMO_NOTIFICATION_CHANNEL_ID)
+
+        channel.name shouldBe "일일 메모 알림"
+        channel.description shouldBe "매일 아침 오늘의 메모를 확인하도록 안내합니다."
+    }
+
+    @Test
     fun `TC-DAILY-MEMO-NOTIFICATION-DOMAIN-031 앱 시작 초기화가 채널을 만들고 다시 실행해도 채널은 하나만 남는다`() {
         val initializer = FcmNotificationChannelInitializer()
 

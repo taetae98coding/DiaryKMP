@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import io.github.taetae98coding.diary.compose.core.animation.DiaryScaleVisibility
 import io.github.taetae98coding.diary.compose.core.button.FloatingCheckButton
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
@@ -49,9 +50,9 @@ internal fun MusicDetailScaffold(
                 componentVisibleProvider = componentVisibleProvider,
             )
         },
-        snackbarHost = { SnackbarHost(hostState = state.hostState) },
+        snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },
         floatingActionButton = {
-            if (isChanged) {
+            DiaryScaleVisibility(visible = isChanged) {
                 FloatingCheckButton(
                     onClick = { onEvent(MusicDetailScaffoldEvent.ClickUpdate) },
                     contentDescription = stringResource(Res.string.music_detail_update_button_content_description),

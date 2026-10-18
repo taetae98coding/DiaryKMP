@@ -20,11 +20,15 @@
 
 사용자가 목록의 정렬 기준을 고르는 정렬 줄과 정렬 선택 Bottom Sheet의 구조와 문구는 [목록 정렬](./list-sort.md)이 소유한다. 각 문서는 그 화면에서 정렬 줄을 두는 자리만 남긴다.
 
+목록 화면에서 항목 추가를 실행하는 키보드 단축키의 키 조합과 처리 조건은 [목록 추가 단축키](./list-add-shortcut.md)가 소유한다. 각 문서는 그 화면에서 단축키가 실행하는 추가만 남긴다.
+
+모든 화면의 상단 바가 플랫폼마다 그려지는 표현과 상단 바에 둘 수 있는 제목·동작 버튼의 종류는 [상단 바](./top-bar.md)가 소유한다. 각 화면 문서는 그 화면의 상단 바에 두는 제목과 버튼, 순서, 조건과 문구만 남긴다.
+
 아이콘만 표시하는 공통 버튼에 이름을 알려 주는 설명 표시는 [아이콘 버튼 설명](./icon-button-tooltip.md)이 소유한다. 각 문서는 그 버튼의 자리와 접근성 이름만 남긴다.
 
 칩 하나가 이름을 표시하는 방식과 칩 하나가 차지할 수 있는 최대 폭은 [칩 이름 표시](./chip.md)가 소유한다. 각 문서는 그 칩에 무엇을 표시하는지와 색, 조작, 접근성 이름 문구만 남긴다.
 
-대화상자로 여는 선택 목록에서 항목 하나의 해부구조, 글자와 간격, 조작, 접근성은 [선택 목록 항목](./picker-row.md)이 소유한다. 각 문서는 그 목록의 항목에 컬러 원형 표시, 보조 줄, 끝 쪽 버튼을 두는지와 그 내용만 남긴다.
+태그·연락처·웹·장소 같은 항목 선택 입력이 대화상자로 여는 선택 목록에서 항목 하나의 해부구조, 글자와 간격, 조작, 접근성은 [선택 목록 항목](./picker-row.md)이 소유한다. 각 문서는 그 목록의 항목에 컬러 원형 표시, 보조 줄, 끝 쪽 버튼을 두는지와 그 내용만 남긴다. SettingGemini의 모델 선택처럼 하나만 고르는 라디오 버튼 목록은 이 문서를 따르지 않고 그 화면의 디자인 문서가 항목 표현을 소유한다.
 
 목록 위 정렬 줄의 끝 쪽에서 짝이 되는 다른 목록으로 이동하는 진입 버튼의 해부구조와 조작, 접근성은 [목록 진입 버튼](./list-entry-button.md)이 소유한다. 각 문서는 그 버튼이 어느 목록으로 이동하는지와 라벨 문구만 남긴다.
 
@@ -91,6 +95,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼�
 - [아이콘 버튼 설명](./icon-button-tooltip.md)
 - [목록·상세 배치 공통](./list-detail-pane.md)
 - [목록 빈 상태](./list-empty-state.md)
+- [목록 추가 단축키](./list-add-shortcut.md)
 - [목록 정렬](./list-sort.md)
 - [목록 진입 버튼](./list-entry-button.md)
 - [항목 태그 입력 컴포넌트](./entity-tag-input.md)
@@ -121,6 +126,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼�
 - [Playlist 목록·상세 배치](./playlist-list-detail.md)
 - [ProfileImageEdit 화면](./profile-image-edit.md)
 - [QrAdd 화면](./qr-add.md)
+- [QrDetail 화면](./qr-detail.md)
 - [QrHome 화면](./qr-home.md)
 - [QrScan 화면](./qr-scan.md)
 - [RoutineAdd 화면](./routine-add.md)
@@ -154,6 +160,7 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼�
 - [TagMemoFinishedList 화면](./tag-memo-finished-list.md)
 - [TagMemoFinishedList 목록·상세 배치](./tag-memo-finished-list-detail.md)
 - [Timetable 컴포넌트](./timetable.md)
+- [상단 바](./top-bar.md)
 - [TopLevelNavigation](./top-level-navigation.md)
 - [WebAdd 화면](./web-add.md)
 - [WebDetail 화면](./web-detail.md)

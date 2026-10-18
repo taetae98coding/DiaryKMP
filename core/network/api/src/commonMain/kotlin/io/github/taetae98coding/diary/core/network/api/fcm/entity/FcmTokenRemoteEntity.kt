@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 public data class FcmTokenRemoteEntity(
-    @SerialName("token") val token: String,
+    @SerialName("installationId") val installationId: String,
     @SerialName("timeZone") val timeZone: String? = null,
     @SerialName("language") val language: String? = null,
 )

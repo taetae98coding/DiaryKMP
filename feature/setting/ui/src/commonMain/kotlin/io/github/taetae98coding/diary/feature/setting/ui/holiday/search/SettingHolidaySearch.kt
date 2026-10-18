@@ -2,7 +2,7 @@ package io.github.taetae98coding.diary.feature.setting.ui.holiday.search
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import io.github.taetae98coding.diary.domain.holiday.model.HolidaySetting
+import io.github.taetae98coding.diary.core.model.holiday.HolidaySetting
 
 internal fun matchesSettingHolidaySearch(
     query: String,

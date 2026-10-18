@@ -30,6 +30,8 @@ import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.test.swipeUp
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.kotest.matchers.collections.shouldBeStrictlyIncreasing
+import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -64,7 +66,8 @@ class TimetableTest {
         setTimetable(type = TimetableType.WEEK, date = LocalDate(year = 2026, month = 10, day = 1))
 
         listOf(27, 28, 29, 30, 1, 2, 3).forEach { day -> composeRule.onNodeWithText(day.toString()).assertIsDisplayed() }
-        listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat").forEach { title -> composeRule.onNodeWithText(title).assertIsDisplayed() }
+        WEEKDAY_TITLE_LIST.forEach { title -> composeRule.onNodeWithText(title).assertIsDisplayed() }
+        assertWeekColumnOrder(dayList = listOf(27, 28, 29, 30, 1, 2, 3))
         composeRule.onNodeWithText("26").assertDoesNotExist()
     }
 
@@ -362,6 +365,28 @@ class TimetableTest {
         composeRule.waitForIdle()
     }
 
+    private fun assertWeekColumnOrder(dayList: List<Int>) {
+        val weekdayCenterList =
+            WEEKDAY_TITLE_LIST.map { title ->
+                composeRule
+                    .onNodeWithText(title)
+                    .fetchSemanticsNode()
+                    .boundsInRoot.center
+            }
+        val dayCenterList =
+            dayList.map { day ->
+                composeRule
+                    .onNodeWithText(day.toString())
+                    .fetchSemanticsNode()
+                    .boundsInRoot.center
+            }
+
+        weekdayCenterList.map { center -> center.x }.shouldBeStrictlyIncreasing()
+        weekdayCenterList.zip(dayCenterList).forEach { (weekdayCenter, dayCenter) ->
+            abs(weekdayCenter.x - dayCenter.x) shouldBeLessThan COLUMN_ALIGNMENT_TOLERANCE_PX
+        }
+    }
+
     private fun swipePageLeft() {
         composeRule.onRoot().performTouchInput { swipeLeft() }
         composeRule.waitForIdle()
@@ -399,6 +424,9 @@ private fun TimetableScope.meetingItem() {
 }
 
 private fun september(day: Int): LocalDate = LocalDate(year = 2026, month = 9, day = day)
+
+private val WEEKDAY_TITLE_LIST = listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
+private const val COLUMN_ALIGNMENT_TOLERANCE_PX = 1F
 
 private const val MEETING = "Meeting"
 private const val NIGHT = "Night"

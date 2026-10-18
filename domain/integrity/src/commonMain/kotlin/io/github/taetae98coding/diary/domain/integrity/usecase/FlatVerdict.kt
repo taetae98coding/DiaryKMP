@@ -1,11 +1,12 @@
 package io.github.taetae98coding.diary.domain.integrity.usecase
 
+import io.github.taetae98coding.diary.core.model.integrity.PlayIntegrityVerdict
+import io.github.taetae98coding.diary.core.model.integrity.PlayIntegrityVerdictValue
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.booleanOrNull
 
 private const val LIST_SEPARATOR = ","
 private const val NAME_SEPARATOR = "_"
@@ -15,8 +16,11 @@ private class VerdictField(
     val value: JsonPrimitive,
 )
 
-internal fun JsonObject.toFlatVerdict(): JsonObject {
-    val fieldList = buildList { collectField(path = emptyList(), element = this@toFlatVerdict) }
+internal fun PlayIntegrityVerdict.toFlatVerdict(): JsonObject {
+    val fieldList =
+        buildList {
+            fieldMap.forEach { (key, value) -> collectField(path = listOf(key), value = value) }
+        }
     val nameList = fieldList.map { field -> field.path }.toUniqueNameList()
 
     return JsonObject(nameList.zip(fieldList) { name, field -> name to field.value }.toMap())
@@ -24,23 +28,34 @@ internal fun JsonObject.toFlatVerdict(): JsonObject {
 
 private fun MutableList<VerdictField>.collectField(
     path: List<String>,
-    element: JsonElement,
+    value: PlayIntegrityVerdictValue,
 ) {
-    when (element) {
-        is JsonObject -> element.forEach { (key, value) -> collectField(path = path + key, element = value) }
-        is JsonArray -> if (element.isNotEmpty()) add(VerdictField(path = path, value = element.joinToPrimitive()))
-        is JsonNull -> Unit
-        is JsonPrimitive -> add(VerdictField(path = path, value = element.toVerdictPrimitive()))
+    when (value) {
+        is PlayIntegrityVerdictValue.Group -> value.fieldMap.forEach { (key, child) -> collectField(path = path + key, value = child) }
+        is PlayIntegrityVerdictValue.ValueList -> if (value.valueList.isNotEmpty()) add(VerdictField(path = path, value = value.joinToPrimitive()))
+        is PlayIntegrityVerdictValue.Null -> Unit
+        is PlayIntegrityVerdictValue.Text -> add(VerdictField(path = path, value = JsonPrimitive(value.value)))
+        is PlayIntegrityVerdictValue.Number -> add(VerdictField(path = path, value = JsonPrimitive(value.value)))
+        is PlayIntegrityVerdictValue.Flag -> add(VerdictField(path = path, value = JsonPrimitive(value.value.toString())))
     }
 }
 
-private fun JsonArray.joinToPrimitive(): JsonPrimitive = JsonPrimitive(joinToString(separator = LIST_SEPARATOR) { element -> (element as? JsonPrimitive)?.content ?: element.toString() })
+private fun PlayIntegrityVerdictValue.ValueList.joinToPrimitive(): JsonPrimitive =
+    JsonPrimitive(
+        valueList.joinToString(separator = LIST_SEPARATOR) { value ->
+            val element = value.toJsonElement()
+            (element as? JsonPrimitive)?.content ?: element.toString()
+        },
+    )
 
-private fun JsonPrimitive.toVerdictPrimitive(): JsonPrimitive =
-    if (!isString && booleanOrNull != null) {
-        JsonPrimitive(content)
-    } else {
-        this
+private fun PlayIntegrityVerdictValue.toJsonElement(): JsonElement =
+    when (this) {
+        is PlayIntegrityVerdictValue.Group -> JsonObject(fieldMap.mapValues { (_, value) -> value.toJsonElement() })
+        is PlayIntegrityVerdictValue.ValueList -> JsonArray(valueList.map { value -> value.toJsonElement() })
+        is PlayIntegrityVerdictValue.Null -> JsonNull
+        is PlayIntegrityVerdictValue.Text -> JsonPrimitive(value)
+        is PlayIntegrityVerdictValue.Number -> JsonPrimitive(value)
+        is PlayIntegrityVerdictValue.Flag -> JsonPrimitive(value)
     }
 
 private fun List<List<String>>.toUniqueNameList(): List<String> {

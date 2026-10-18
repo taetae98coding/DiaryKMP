@@ -38,9 +38,10 @@ import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetail
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.playlist.api.MusicAddNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicDetailNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.PlaylistHomeNavKey
@@ -56,7 +57,6 @@ import io.github.taetae98coding.diary.feature.playlist.ui.detail.MusicDetailView
 import io.github.taetae98coding.diary.feature.playlist.ui.detail.testMusicDetail
 import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeDownloadUiState
 import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeDownloadViewModel
-import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeSyncViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeUiState
 import io.github.taetae98coding.diary.feature.playlist.ui.home.PlaylistHomeViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.home.musicPagingDataOf
@@ -242,6 +242,31 @@ class PlaylistListDetailNavigationTest {
     }
 
     @Test
+    fun `TC-PLAYLIST-LIST-DETAIL-FEATURE-016 곡 상세 위에서 연 곡 추가가 놓인 동안 다른 곡을 고르면 추가를 걷어내고 그 상세로 바꾼다`() {
+        val first = testMusic(title = "a-${listedMusicTitle()}")
+        val second = testMusic(title = "b-${listedMusicTitle()}")
+        val typedTitle = "typed-title-${fixtureMonkey.giveMeOne<Int>()}"
+        setPlaylistNavDisplay(musicList = listOf(first, second))
+        openAddOnDetail(music = first)
+        composeRule.titleInput().performTextInput(typedTitle)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(second.detail.title).performClick()
+        composeRule.waitForIdle()
+
+        backStack.toList() shouldBe listOf(NavigationTestMoreNavKey, PlaylistHomeNavKey, MusicDetailNavKey(id = second.id))
+
+        pressBack()
+
+        backStack.toList() shouldBe listOf(NavigationTestMoreNavKey, PlaylistHomeNavKey)
+        composeRule.onNodeWithContentDescription(DEFAULT_DELETE_MUSIC_DESCRIPTION).assertDoesNotExist()
+        composeRule.onNodeWithText(typedTitle).assertDoesNotExist()
+        composeRule.titleInput().assert(hasText(""))
+        composeRule.artistInput().assert(hasText(""))
+        composeRule.linkInput().assert(hasText(""))
+    }
+
+    @Test
     fun `TC-PLAYLIST-HOME-FEATURE-033 상세에 열린 곡을 목록에서 밀어 삭제해도 상세 영역은 그 곡의 상세로 남는다`() {
         val music = testMusic(title = listedMusicTitle())
         setPlaylistNavDisplay(music = music)
@@ -375,13 +400,13 @@ class PlaylistListDetailNavigationTest {
             factory<PlaylistHomeViewModel> {
                 mockk<PlaylistHomeViewModel>(relaxed = true) {
                     every { musicPagingData } returns MutableStateFlow(musicPagingDataOf(musicList))
-                    every { sort } returns MutableStateFlow(ListSort.TITLE)
+                    every { uiState } returns MutableStateFlow(PlaylistHomeUiState())
                     every { effect } returns emptyFlow()
                 }.also { viewModel -> homeViewModelList += viewModel }
             }
-            factory<PlaylistHomeSyncViewModel> {
+            factory<SyncRefreshViewModel> {
                 mockk(relaxed = true) {
-                    every { uiState } returns MutableStateFlow(PlaylistHomeUiState())
+                    every { uiState } returns MutableStateFlow(SyncRefreshUiState())
                 }
             }
             factory<PlaylistHomeDownloadViewModel> {

@@ -22,6 +22,7 @@ import io.github.taetae98coding.diary.core.database.api.tag.entity.TagScopeLocal
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.contact.datasource.AccountCalendarContactBirthdayLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.contact.transaction.AccountContactTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.memo.datasource.AccountCalendarMemoLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.memo.datasource.AccountMemoSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.memo.transaction.AccountMemoTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.memocontact.datasource.AccountMemoContactLocalDataSourceImpl
@@ -40,6 +41,8 @@ import io.mockk.every
 import io.mockk.spyk
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -113,13 +116,13 @@ class AccountMemoContactTransactionImplTest :
 
         suspend fun findPendingContactIdList(accountId: Uuid): List<Uuid> =
             syncDataSource
-                .findPending(accountId = accountId)
+                .readPendingList(accountId = accountId)
                 .map { memoContact -> memoContact.contactId }
 
         suspend fun clearAllPending(accountId: Uuid) {
             syncTransaction.clearPending(
                 accountId = accountId,
-                memoContactList = syncDataSource.findPending(accountId = accountId),
+                memoContactList = syncDataSource.readPendingList(accountId = accountId),
             )
         }
 
@@ -372,6 +375,37 @@ class AccountMemoContactTransactionImplTest :
             birthdayList.map { birthday -> birthday.contactId } shouldContainExactlyInAnyOrder listOf(linkedContact.id, unlinkedContact.id)
         }
 
+        test("TC-MEMO-CONTACT-DOMAIN-020 연결된 메모와 연락처는 서로의 날짜에 나타나지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val memo = memo().visible().withAllDayPeriod(start = MEMO_PERIOD_START, endInclusive = MEMO_PERIOD_END_INCLUSIVE)
+            val contact = contact().withBirthday(date = BIRTHDAY_DATE)
+            insertMemoWithContactList(accountId = accountId, memo = memo, contactList = listOf(contact))
+            val calendarMemoDataSource = AccountCalendarMemoLocalDataSourceImpl(database = database)
+            val birthdayDataSource = AccountCalendarContactBirthdayLocalDataSourceImpl(database = database)
+
+            val memoIdListOnBirthday =
+                calendarMemoDataSource
+                    .get(accountId = accountId, dateRange = BIRTHDAY_IN_MEMO_YEAR..BIRTHDAY_IN_MEMO_YEAR)
+                    .first()
+                    .map { calendarMemo -> calendarMemo.id }
+            val contactIdListInMemoPeriod =
+                birthdayDataSource
+                    .get(accountId = accountId, dateRange = MEMO_PERIOD_START..MEMO_PERIOD_END_INCLUSIVE)
+                    .first()
+                    .map { birthday -> birthday.contactId }
+
+            memoIdListOnBirthday.shouldBeEmpty()
+            contactIdListInMemoPeriod.shouldBeEmpty()
+            calendarMemoDataSource
+                .get(accountId = accountId, dateRange = MEMO_PERIOD_START..MEMO_PERIOD_END_INCLUSIVE)
+                .first()
+                .map { calendarMemo -> calendarMemo.id } shouldBe listOf(memo.id)
+            birthdayDataSource
+                .get(accountId = accountId, dateRange = BIRTHDAY_IN_MEMO_YEAR..BIRTHDAY_IN_MEMO_YEAR)
+                .first()
+                .map { birthday -> birthday.contactId } shouldBe listOf(contact.id)
+        }
+
         test("TC-MEMO-CONTACT-DOMAIN-016 연락처 연결은 태그로 메모를 조회한 결과를 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo().visible().copy(primaryTagId = null)
@@ -492,7 +526,7 @@ class AccountMemoContactTransactionImplTest :
             database.memoPlaceDao().findByMemoIdList(listOf(memo.id)).shouldBeEmpty()
             database.memoWebDao().findByMemoIdList(listOf(memo.id)).shouldBeEmpty()
             findMemoContactList(memoId = memo.id).shouldBeEmpty()
-            memoSyncDataSource.findPending(accountId = accountId).shouldBeEmpty()
+            memoSyncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
 
         test("TC-MEMO-CONTACT-DATA-003 같은 연결을 다른 수정 시각으로 저장하면 마지막 내용으로 덮어쓴다") {
@@ -564,7 +598,7 @@ class AccountMemoContactTransactionImplTest :
             val copy = memo().copy(updatedAt = copiedAt, createdAt = copiedAt)
             val sourceContactIdSet =
                 dataSource
-                    .findContactIdList(accountId = accountId, memoId = source.id)
+                    .readContactIdList(accountId = accountId, memoId = source.id)
                     .toSet()
             memoTransaction.upsert(
                 accountId = accountId,
@@ -620,7 +654,7 @@ class AccountMemoContactTransactionImplTest :
             val copy = memo().copy(updatedAt = copiedAt, createdAt = copiedAt)
             val sourceContactIdSet =
                 dataSource
-                    .findContactIdList(accountId = accountId, memoId = source.id)
+                    .readContactIdList(accountId = accountId, memoId = source.id)
                     .toSet()
             memoTransaction.upsert(
                 accountId = accountId,
@@ -657,7 +691,7 @@ class AccountMemoContactTransactionImplTest :
                 memoTagList = emptyList(),
                 memoContactList =
                     dataSource
-                        .findContactIdList(accountId = accountId, memoId = source.id)
+                        .readContactIdList(accountId = accountId, memoId = source.id)
                         .map { contactId ->
                             MemoContactLocalEntity(
                                 memoId = copy.id,
@@ -692,6 +726,9 @@ class AccountMemoContactTransactionImplTest :
     }) {
     public companion object {
         private val BIRTHDAY_DATE = LocalDate(year = 1990, month = 3, day = 4)
+        private val BIRTHDAY_IN_MEMO_YEAR = LocalDate(year = 2026, month = 3, day = 4)
+        private val MEMO_PERIOD_START = LocalDate(year = 2026, month = 7, day = 1)
+        private val MEMO_PERIOD_END_INCLUSIVE = LocalDate(year = 2026, month = 7, day = 2)
 
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()
@@ -725,6 +762,19 @@ class AccountMemoContactTransactionImplTest :
         private fun ContactLocalEntity.withBirthday(date: LocalDate): ContactLocalEntity = copy(detail = detail.copy(birthday = date, birthdayCalendar = ContactBirthdayCalendarLocalEntity.SOLAR))
 
         private fun MemoLocalEntity.withTitle(title: String): MemoLocalEntity = copy(detail = detail.copy(title = title))
+
+        private fun MemoLocalEntity.withAllDayPeriod(
+            start: LocalDate,
+            endInclusive: LocalDate,
+        ): MemoLocalEntity =
+            copy(
+                detail =
+                    detail.copy(
+                        isAllDay = true,
+                        start = LocalDateTime(date = start, time = LocalTime(hour = 0, minute = 0)),
+                        endInclusive = LocalDateTime(date = endInclusive, time = LocalTime(hour = 0, minute = 0)),
+                    ),
+            )
 
         // 목록 조회는 완료되지 않고 삭제되지 않은 메모만 노출하므로, 노출 기준을 검증하는 메모는 두 상태를 고정한다.
         private fun MemoLocalEntity.visible(): MemoLocalEntity = copy(isFinished = false, isDeleted = false)

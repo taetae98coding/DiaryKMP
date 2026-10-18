@@ -17,7 +17,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.calendar.CalendarColor
-import io.github.taetae98coding.diary.compose.calendar.CalendarDefault
+import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.holiday.GoldenHolidayGroup
@@ -29,7 +29,7 @@ internal fun GoldenHolidayItem(
     group: GoldenHolidayGroup,
     onSelectDate: (LocalDateRange) -> Unit,
     modifier: Modifier = Modifier,
-    colors: CalendarColor = CalendarDefault.colors(),
+    colors: CalendarColor = CalendarDefaults.colors(),
 ) {
     var optionIndex by rememberSaveable(group) { mutableIntStateOf(0) }
     val goldenHoliday = group.optionList[optionIndex]

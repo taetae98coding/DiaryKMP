@@ -1,18 +1,11 @@
 package io.github.taetae98coding.diary.feature.calendar.ui.timetable
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.repeatOnLifecycle
 import io.github.taetae98coding.diary.compose.timetable.TimetableEvent
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
-import kotlinx.coroutines.delay
-import kotlin.time.Duration.Companion.minutes
 import kotlin.uuid.Uuid
 
 @Composable
@@ -25,11 +18,11 @@ internal fun CalendarTimetableScreen(
     holidayViewModel: CalendarTimetableHolidayViewModel,
     modifier: Modifier = Modifier,
 ) {
-    val memoList by memoViewModel.memoList.collectAsStateWithLifecycle()
-    val holidayList by holidayViewModel.holidayList.collectAsStateWithLifecycle()
+    val memoUiState by memoViewModel.uiState.collectAsStateWithLifecycle()
+    val holidayUiState by holidayViewModel.uiState.collectAsStateWithLifecycle()
 
     UpdateNowEffect(state = state)
-    FetchMemoEffect(
+    SelectMemoEffect(
         state = state,
         memoViewModel = memoViewModel,
     )
@@ -52,45 +45,7 @@ internal fun CalendarTimetableScreen(
         },
         modifier = modifier,
         state = state,
-        memoProvider = { memoList },
-        holidayProvider = { holidayList },
+        memoUiStateProvider = { memoUiState },
+        holidayUiStateProvider = { holidayUiState },
     )
 }
-
-@Composable
-private fun UpdateNowEffect(state: CalendarTimetableScaffoldState) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-
-    LaunchedEffect(state, lifecycleOwner) {
-        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            while (true) {
-                state.updateNow()
-                delay(NowUpdateInterval)
-            }
-        }
-    }
-}
-
-@Composable
-private fun FetchMemoEffect(
-    state: CalendarTimetableScaffoldState,
-    memoViewModel: CalendarTimetableViewModel,
-) {
-    LaunchedEffect(state, memoViewModel) {
-        snapshotFlow { state.timetableState.currentDateRange }
-            .collect { dateRange -> memoViewModel.fetch(dateRange = dateRange.calendarTimetableFetchDateRange()) }
-    }
-}
-
-@Composable
-private fun FetchHolidayEffect(
-    state: CalendarTimetableScaffoldState,
-    holidayViewModel: CalendarTimetableHolidayViewModel,
-) {
-    LaunchedEffect(state, holidayViewModel) {
-        snapshotFlow { state.timetableState.currentDateRange }
-            .collect { dateRange -> holidayViewModel.fetch(dateRange = dateRange) }
-    }
-}
-
-private val NowUpdateInterval = 1.minutes

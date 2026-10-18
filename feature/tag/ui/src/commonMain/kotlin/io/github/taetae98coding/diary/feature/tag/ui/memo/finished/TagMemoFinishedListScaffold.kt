@@ -1,26 +1,22 @@
-@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
-
 package io.github.taetae98coding.diary.feature.tag.ui.memo.finished
 
-import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import io.github.taetae98coding.diary.compose.core.button.NavigateUpButton
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarNavigateUp
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarTitle
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
@@ -36,17 +32,15 @@ import io.github.taetae98coding.diary.compose.memo.list.MemoList
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.compose.memo.list.MemoListState
-import io.github.taetae98coding.diary.compose.memo.list.MemoListUiState
 import io.github.taetae98coding.diary.compose.memo.list.rememberMemoListState
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.tag_memo_finished_list_empty_title
 import io.github.taetae98coding.diary.feature.tag.ui.tag_memo_finished_list_navigate_up_button_content_description
 import io.github.taetae98coding.diary.feature.tag.ui.tag_memo_finished_list_subtitle
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
-
-internal const val TAG_MEMO_FINISHED_LIST_TEST_TAG: String = "TagMemoFinishedList"
 
 @Composable
 internal fun TagMemoFinishedListScaffold(
@@ -57,7 +51,7 @@ internal fun TagMemoFinishedListScaffold(
     sortSheetState: DialogState = rememberDialogState(),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     memoPagingItems: LazyPagingItems<MemoListItem> = remember { flowOf(PagingData.empty<MemoListItem>()) }.collectAsLazyPagingItems(),
-    memoListUiStateProvider: () -> MemoListUiState = { MemoListUiState() },
+    syncUiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
     uiStateProvider: () -> TagMemoFinishedListUiState = { TagMemoFinishedListUiState() },
     sortProvider: () -> ListSort = { ListSort.DEFAULT },
 ) {
@@ -89,9 +83,8 @@ internal fun TagMemoFinishedListScaffold(
                 state = memoListState,
                 memoPagingItems = memoPagingItems,
                 modifier = Modifier.fillMaxSize(),
-                uiStateProvider = memoListUiStateProvider,
+                isRefreshingProvider = { syncUiStateProvider().isRefreshing },
                 sortProvider = sortProvider,
-                listTestTag = TAG_MEMO_FINISHED_LIST_TEST_TAG,
                 finishAction = SwipeFinishAction.RESTART,
                 empty = {
                     DiaryEmptyBox(
@@ -117,27 +110,22 @@ private fun TopBar(
     modifier: Modifier = Modifier,
     uiStateProvider: () -> TagMemoFinishedListUiState = { TagMemoFinishedListUiState() },
 ) {
-    TopAppBar(
-        title = {
-            Text(
-                text = uiStateProvider().title,
-                modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
-                maxLines = 1,
-            )
-        },
-        subtitle = {
-            Text(
-                text = stringResource(Res.string.tag_memo_finished_list_subtitle),
-                maxLines = 1,
-            )
-        },
+    val subtitle = stringResource(Res.string.tag_memo_finished_list_subtitle)
+    val navigateUpContentDescription = stringResource(Res.string.tag_memo_finished_list_navigate_up_button_content_description)
+
+    DiaryTopBar(
         modifier = modifier,
-        navigationIcon = {
-            NavigateUpButton(
+        title =
+            DiaryTopBarTitle.Text(
+                text = uiStateProvider().title,
+                subtitle = subtitle,
+                isMarquee = true,
+            ),
+        navigateUp =
+            DiaryTopBarNavigateUp(
+                contentDescription = navigateUpContentDescription,
                 onClick = { onEvent(TagMemoFinishedListScaffoldEvent.ClickNavigateUp) },
-                contentDescription = stringResource(Res.string.tag_memo_finished_list_navigate_up_button_content_description),
-            )
-        },
+            ),
     )
 }
 

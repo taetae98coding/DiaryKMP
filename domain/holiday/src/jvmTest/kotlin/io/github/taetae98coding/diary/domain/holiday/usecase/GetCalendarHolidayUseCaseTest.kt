@@ -13,6 +13,8 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
 
@@ -141,24 +143,28 @@ class GetCalendarHolidayUseCaseTest :
                     holidayRepository = holidayRepository,
                     hiddenKeySet = setOf(LUNAR_NEW_YEAR_NAME),
                 )
-            val goldenHolidayUseCase =
-                GetGoldenHolidayUseCase(
-                    getHolidayUseCase = GetHolidayUseCase(getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(), holidayRepository = holidayRepository),
-                )
 
             When("캘린더용 공휴일과 황금연휴를 각각 조회한다") {
                 Then("캘린더용 공휴일에는 제공되지 않지만 황금연휴에는 그대로 사용된다") {
-                    calendarHolidayUseCase(parameter = 2026).first().shouldBeSuccess() shouldBe emptyList()
+                    runTest {
+                        val goldenHolidayUseCase =
+                            GetGoldenHolidayUseCase(
+                                getHolidayUseCase = GetHolidayUseCase(getHolidayCountrySettingUseCase = koreaCountrySettingUseCase(), holidayRepository = holidayRepository),
+                                dispatcher = StandardTestDispatcher(testScheduler),
+                            )
 
-                    val goldenHolidayGroupList =
-                        goldenHolidayUseCase(
-                            parameter = GetGoldenHolidayUseCase.Parameter(year = 2026, annualLeaveCount = 0),
-                        ).first()
-                            .shouldBeSuccess()
+                        calendarHolidayUseCase(parameter = 2026).first().shouldBeSuccess() shouldBe emptyList()
 
-                    goldenHolidayGroupList
-                        .flatMap { group -> group.optionList }
-                        .flatMap { option -> option.holidayList } shouldBe listOf(lunarNewYear)
+                        val goldenHolidayGroupList =
+                            goldenHolidayUseCase(
+                                parameter = GetGoldenHolidayUseCase.Parameter(year = 2026, annualLeaveCount = 0),
+                            ).first()
+                                .shouldBeSuccess()
+
+                        goldenHolidayGroupList
+                            .flatMap { group -> group.optionList }
+                            .flatMap { option -> option.holidayList } shouldBe listOf(lunarNewYear)
+                    }
                 }
             }
         }

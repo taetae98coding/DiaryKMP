@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -21,17 +22,23 @@ internal class CalendarHomeWeatherViewModel(
     private val refreshCurrentWeatherUseCase: RefreshCurrentWeatherUseCase,
     private val getCurrentCalendarWeatherUseCase: GetCurrentCalendarWeatherUseCase,
 ) : ViewModel() {
-    val isLoading: StateFlow<Boolean>
-        field = MutableStateFlow(false)
+    private val isLoading = MutableStateFlow(false)
 
-    val weatherReport: StateFlow<CalendarWeatherReport> =
-        getCurrentCalendarWeatherUseCase(parameter = Unit)
-            .map { result -> result.getOrDefault(CalendarWeatherReport()) }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileUiSubscribed,
-                initialValue = CalendarWeatherReport(),
+    val uiState: StateFlow<CalendarHomeWeatherUiState> =
+        combine(
+            getCurrentCalendarWeatherUseCase(parameter = Unit)
+                .map { result -> result.getOrDefault(CalendarWeatherReport()) },
+            isLoading,
+        ) { weatherReport, isLoading ->
+            CalendarHomeWeatherUiState(
+                weatherReport = weatherReport,
+                isLoading = isLoading,
             )
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileUiSubscribed,
+            initialValue = CalendarHomeWeatherUiState(),
+        )
 
     private var isRefreshPending: Boolean = false
 

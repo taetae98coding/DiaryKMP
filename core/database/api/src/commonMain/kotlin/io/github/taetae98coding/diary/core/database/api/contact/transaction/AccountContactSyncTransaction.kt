@@ -9,7 +9,7 @@ public interface AccountContactSyncTransaction {
         contactList: List<ContactLocalEntity>,
     )
 
-    public suspend fun save(
+    public suspend fun upsert(
         accountId: Uuid,
         contactList: List<ContactLocalEntity>,
         cursor: Long,

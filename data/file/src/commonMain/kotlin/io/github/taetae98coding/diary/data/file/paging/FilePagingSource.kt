@@ -23,7 +23,7 @@ internal class FilePagingSource(
                 if (params.key == null && firstPage is FileFirstPage.Fetched) {
                     firstPage.fileList
                 } else {
-                    fileRemoteDataSource.fetch(cursor = params.key, size = params.loadSize)
+                    fileRemoteDataSource.readList(cursor = params.key, size = params.loadSize)
                 }
 
             LoadResult.Page(

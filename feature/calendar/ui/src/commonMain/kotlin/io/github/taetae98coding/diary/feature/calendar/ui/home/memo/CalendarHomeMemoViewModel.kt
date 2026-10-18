@@ -4,13 +4,11 @@ package io.github.taetae98coding.diary.feature.calendar.ui.home.memo
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetCalendarMemoUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.MoveMemoUseCase
 import io.github.taetae98coding.diary.feature.calendar.ui.home.CalendarHomeScaffoldFilterUiState
-import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.toDateRange
 import io.github.taetae98coding.diary.feature.calendar.ui.home.calendarHomeFetchDateRange
 import io.github.taetae98coding.diary.library.coroutines.flow.WhileUiSubscribed
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -35,6 +33,7 @@ internal class CalendarHomeMemoViewModel(
     private val moveMemoUseCase: MoveMemoUseCase,
 ) : ViewModel() {
     private val yearMonth = MutableStateFlow<YearMonth?>(null)
+    private val movingIdSet = mutableSetOf<Uuid>()
 
     val filterUiState: StateFlow<CalendarHomeScaffoldFilterUiState> =
         getCalendarFilterUseCase(parameter = Unit)
@@ -48,7 +47,7 @@ internal class CalendarHomeMemoViewModel(
                 initialValue = CalendarHomeScaffoldFilterUiState(),
             )
 
-    val memoList: StateFlow<List<CalendarMemo>> =
+    val uiState: StateFlow<CalendarHomeMemoUiState> =
         yearMonth
             .map { yearMonth -> yearMonth?.calendarHomeFetchDateRange() }
             .distinctUntilChanged()
@@ -59,13 +58,14 @@ internal class CalendarHomeMemoViewModel(
                     getCalendarMemoUseCase(parameter = dateRange)
                         .map { result -> result.getOrDefault(emptyList()) }
                 }
-            }.stateIn(
+            }.map { memoList -> CalendarHomeMemoUiState(memoList = memoList) }
+            .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileUiSubscribed,
-                initialValue = emptyList(),
+                initialValue = CalendarHomeMemoUiState(),
             )
 
-    fun fetch(yearMonth: YearMonth) {
+    fun select(yearMonth: YearMonth) {
         this.yearMonth.value = yearMonth
     }
 
@@ -74,15 +74,21 @@ internal class CalendarHomeMemoViewModel(
         fromDateTime: MemoDateTime,
         toDateRange: LocalDateRange,
     ) {
+        if (!movingIdSet.add(id)) return
+
         viewModelScope.launch {
-            moveMemoUseCase(
-                parameter =
-                    MoveMemoUseCase.Parameter(
-                        id = id,
-                        fromDateTime = fromDateTime,
-                        toDateRange = toDateRange,
-                    ),
-            )
+            try {
+                moveMemoUseCase(
+                    parameter =
+                        MoveMemoUseCase.Parameter(
+                            id = id,
+                            fromDateTime = fromDateTime,
+                            toDateRange = toDateRange,
+                        ),
+                )
+            } finally {
+                movingIdSet.remove(id)
+            }
         }
     }
 }

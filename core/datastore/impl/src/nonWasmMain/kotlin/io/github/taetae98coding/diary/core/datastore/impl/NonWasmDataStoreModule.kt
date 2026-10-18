@@ -2,7 +2,6 @@ package io.github.taetae98coding.diary.core.datastore.impl
 
 import androidx.datastore.core.Storage
 import androidx.datastore.core.okio.OkioStorage
-import io.github.taetae98coding.diary.core.datastore.api.setting.entity.GeminiSettingLocalEntity
 import io.github.taetae98coding.diary.core.datastore.impl.di.BrowserSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDispatcher
 import io.github.taetae98coding.diary.core.datastore.impl.di.GeminiSettingStorage
@@ -47,7 +46,7 @@ public class NonWasmDataStoreModule {
 
     @Single
     @GeminiSettingStorage
-    internal fun providesGeminiSettingStorage(pathResolver: SettingPathResolver): Storage<GeminiSettingLocalEntity> =
+    internal fun providesGeminiSettingStorage(pathResolver: SettingPathResolver): Storage<GeminiSettingData> =
         createSettingStorage(
             pathResolver = pathResolver,
             serializer = GeminiSettingSerializer,

@@ -6,7 +6,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.network.api.memo.datasource.MemoRemoteDataSource
@@ -95,7 +95,7 @@ class SyncWorkTest :
 
             actual.message shouldBe failure.message
             tagRequests.map { request -> request.size } shouldContainExactly listOf(100, 100)
-            coVerify(exactly = 0) { context.memoSyncLocalDataSource.findPending(any()) }
+            coVerify(exactly = 0) { context.memoSyncLocalDataSource.readPendingList(any()) }
             coVerify(exactly = 0) { context.memoRemoteDataSource.push(any()) }
         }
 
@@ -124,25 +124,25 @@ class SyncWorkTest :
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val context = context(accountId = accountId)
             coEvery {
-                context.tagSyncLocalDataSource.findPending(accountId = otherAccountId)
+                context.tagSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             } returns tags(size = 1)
             coEvery {
-                context.memoSyncLocalDataSource.findPending(accountId = otherAccountId)
+                context.memoSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             } returns memos(size = 1)
 
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.tagSyncLocalDataSource.findPending(accountId = accountId)
+                context.tagSyncLocalDataSource.readPendingList(accountId = accountId)
             }
             coVerify(exactly = 1) {
-                context.memoSyncLocalDataSource.findPending(accountId = accountId)
+                context.memoSyncLocalDataSource.readPendingList(accountId = accountId)
             }
             coVerify(exactly = 0) {
-                context.tagSyncLocalDataSource.findPending(accountId = otherAccountId)
+                context.tagSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             }
             coVerify(exactly = 0) {
-                context.memoSyncLocalDataSource.findPending(accountId = otherAccountId)
+                context.memoSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             }
             coVerify(exactly = 0) { context.tagRemoteDataSource.push(any()) }
             coVerify(exactly = 0) { context.memoRemoteDataSource.push(any()) }
@@ -161,13 +161,13 @@ class SyncWorkTest :
                         ).drop(1),
                 )
             coEvery {
-                context.tagSyncLocalDataSource.findPending(accountId = firstAccountId)
+                context.tagSyncLocalDataSource.readPendingList(accountId = firstAccountId)
             } returns tags(size = 1)
 
             context.subject.doWork()
 
-            coVerify(exactly = 1) { context.tagSyncLocalDataSource.findPending(accountId = secondAccountId) }
-            coVerify(exactly = 0) { context.tagSyncLocalDataSource.findPending(accountId = firstAccountId) }
+            coVerify(exactly = 1) { context.tagSyncLocalDataSource.readPendingList(accountId = secondAccountId) }
+            coVerify(exactly = 0) { context.tagSyncLocalDataSource.readPendingList(accountId = firstAccountId) }
             coVerify(exactly = 0) { context.tagRemoteDataSource.push(any()) }
         }
 
@@ -182,7 +182,7 @@ class SyncWorkTest :
 
             context.subject.doWork()
 
-            coVerify(exactly = 0) { context.tagSyncLocalDataSource.findPending(accountId = any()) }
+            coVerify(exactly = 0) { context.tagSyncLocalDataSource.readPendingList(accountId = any()) }
             coVerify(exactly = 0) { context.tagRemoteDataSource.push(any()) }
             coVerify(exactly = 0) { context.tagRemoteDataSource.pull(any()) }
             reportList.shouldBeEmpty()
@@ -203,13 +203,13 @@ class SyncWorkTest :
                     runCurrent()
 
                     job.isCompleted shouldBe false
-                    coVerify(exactly = 0) { context.tagSyncLocalDataSource.findPending(accountId = any()) }
+                    coVerify(exactly = 0) { context.tagSyncLocalDataSource.readPendingList(accountId = any()) }
                     coVerify(exactly = 0) { context.tagRemoteDataSource.push(any()) }
 
                     accountFlow.emit(Result.success(sessionValidUser(accountId = accountId)))
                     job.join()
 
-                    coVerify(exactly = 1) { context.tagSyncLocalDataSource.findPending(accountId = accountId) }
+                    coVerify(exactly = 1) { context.tagSyncLocalDataSource.readPendingList(accountId = accountId) }
                     coVerify(exactly = 1) { context.tagRemoteDataSource.push(any()) }
                 }
             }
@@ -276,14 +276,14 @@ class SyncWorkTest :
             }
 
             coVerify(exactly = 1) {
-                context.accountMemoSyncTransaction.save(
+                context.accountMemoSyncTransaction.upsert(
                     accountId = context.accountId,
                     memoList = firstMemoPullList.map { pull -> pull.memo.toLocal() },
                     cursor = 2L,
                 )
             }
             coVerify(exactly = 1) {
-                context.accountMemoSyncTransaction.save(
+                context.accountMemoSyncTransaction.upsert(
                     accountId = context.accountId,
                     memoList = secondMemoPullList.map { pull -> pull.memo.toLocal() },
                     cursor = 5L,
@@ -307,14 +307,14 @@ class SyncWorkTest :
             }
 
             coVerify(exactly = 1) {
-                context.accountTagSyncTransaction.save(
+                context.accountTagSyncTransaction.upsert(
                     accountId = context.accountId,
                     tagList = firstTagPullList.map { pull -> pull.tag.toLocal() },
                     cursor = 3L,
                 )
             }
             coVerify(exactly = 1) {
-                context.accountTagSyncTransaction.save(
+                context.accountTagSyncTransaction.upsert(
                     accountId = context.accountId,
                     tagList = secondTagPullList.map { pull -> pull.tag.toLocal() },
                     cursor = 6L,
@@ -426,7 +426,7 @@ class SyncWorkTest :
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.accountTagSyncTransaction.save(
+                context.accountTagSyncTransaction.upsert(
                     accountId = context.accountId,
                     tagList = tagPullList.map { pull -> pull.tag.toLocal() },
                     cursor = 9L,
@@ -437,8 +437,8 @@ class SyncWorkTest :
 
         test("TC-DATA-SYNC-DATA-017 기록된 순번을 첫 내려받기 요청에 사용한다") {
             val context = context()
-            coEvery { context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.TAG) } returns 0L
-            coEvery { context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.MEMO) } returns 12L
+            coEvery { context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.TAG) } returns 0L
+            coEvery { context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.MEMO) } returns 12L
 
             context.subject.doWork()
 
@@ -458,7 +458,7 @@ class SyncWorkTest :
             coVerify(exactly = 1) { context.tagRemoteDataSource.pull(usn = 5L) }
             coVerify(exactly = 2) { context.tagRemoteDataSource.pull(any()) }
             coVerify(exactly = 1) {
-                context.accountTagSyncTransaction.save(
+                context.accountTagSyncTransaction.upsert(
                     accountId = context.accountId,
                     tagList = tagPullList.map { pull -> pull.tag.toLocal() },
                     cursor = 5L,
@@ -469,7 +469,7 @@ class SyncWorkTest :
         test("TC-DATA-SYNC-DATA-021 내려받기가 실패하면 저장하지 않고 마지막 순번으로 다시 요청한다") {
             val context = context()
             val failure = TestException(fixtureMonkey.giveMeOne())
-            coEvery { context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.TAG) } returns 8L
+            coEvery { context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.TAG) } returns 8L
             coEvery { context.tagRemoteDataSource.pull(usn = 8L) } throws failure
 
             shouldThrowExactly<TestException> {
@@ -477,7 +477,7 @@ class SyncWorkTest :
             }
 
             coVerify(exactly = 0) {
-                context.accountTagSyncTransaction.save(any(), any(), any())
+                context.accountTagSyncTransaction.upsert(any(), any(), any())
             }
 
             shouldThrowExactly<TestException> {
@@ -496,7 +496,7 @@ class SyncWorkTest :
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.accountMemoSyncTransaction.save(
+                context.accountMemoSyncTransaction.upsert(
                     accountId = context.accountId,
                     memoList = memoPullList.map { pull -> pull.memo.toLocal() },
                     cursor = 2L,
@@ -519,13 +519,13 @@ class SyncWorkTest :
             actual.message shouldBe failure.message
             tagList shouldBe originalTagList
             coVerify(exactly = 1) {
-                context.tagSyncLocalDataSource.findPending(accountId = context.accountId)
+                context.tagSyncLocalDataSource.readPendingList(accountId = context.accountId)
             }
             coVerify(exactly = 1) {
                 context.tagRemoteDataSource.push(tagList = tagList.map { tag -> tag.toRemote() })
             }
             coVerify(exactly = 0) { context.accountTagSyncTransaction.clearPending(any(), any()) }
-            coVerify(exactly = 0) { context.memoSyncLocalDataSource.findPending(any()) }
+            coVerify(exactly = 0) { context.memoSyncLocalDataSource.readPendingList(any()) }
             confirmVerified(
                 context.tagSyncLocalDataSource,
                 context.memoSyncLocalDataSource,
@@ -550,10 +550,10 @@ class SyncWorkTest :
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.tagSyncLocalDataSource.findPending(accountId = context.accountId)
+                context.tagSyncLocalDataSource.readPendingList(accountId = context.accountId)
             }
             coVerify(exactly = 1) {
-                context.memoSyncLocalDataSource.findPending(accountId = context.accountId)
+                context.memoSyncLocalDataSource.readPendingList(accountId = context.accountId)
             }
             tagRequests.flatten() shouldContainExactly tagList.map { tag -> tag.toRemote() }
             memoRequests.flatten() shouldContainExactly memoList.map { memo -> memo.toRemote() }
@@ -623,8 +623,8 @@ class SyncWorkTest :
             val context = context()
             val tagPullList = tagPulls(usnList = listOf(7L))
             val memoPullList = memoPulls(usnList = listOf(11L))
-            coEvery { context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.TAG) } returns 3L
-            coEvery { context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.MEMO) } returns 4L
+            coEvery { context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.TAG) } returns 3L
+            coEvery { context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.MEMO) } returns 4L
             coEvery { context.tagRemoteDataSource.pull(usn = 3L) } returns tagPullList
             coEvery { context.tagRemoteDataSource.pull(usn = 7L) } returns emptyList()
             coEvery { context.memoRemoteDataSource.pull(usn = 4L) } returns memoPullList
@@ -633,14 +633,14 @@ class SyncWorkTest :
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.accountTagSyncTransaction.save(
+                context.accountTagSyncTransaction.upsert(
                     accountId = context.accountId,
                     tagList = tagPullList.map { pull -> pull.tag.toLocal() },
                     cursor = 7L,
                 )
             }
             coVerify(exactly = 1) {
-                context.accountMemoSyncTransaction.save(
+                context.accountMemoSyncTransaction.upsert(
                     accountId = context.accountId,
                     memoList = memoPullList.map { pull -> pull.memo.toLocal() },
                     cursor = 11L,
@@ -665,7 +665,7 @@ class SyncWorkTest :
 
         test("응답의 순번이 커서보다 크지 않으면 같은 묶음을 다시 요청하지 않는다") {
             val context = context()
-            coEvery { context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.TAG) } returns 5L
+            coEvery { context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.TAG) } returns 5L
             coEvery { context.tagRemoteDataSource.pull(usn = 5L) } returns tagPulls(usnList = listOf(5L))
 
             context.subject.doWork()

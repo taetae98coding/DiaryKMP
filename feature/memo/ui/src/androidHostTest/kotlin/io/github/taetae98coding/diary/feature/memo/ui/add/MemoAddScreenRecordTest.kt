@@ -14,7 +14,7 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.memo.MemoDraft
 import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
-import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.closeDialogByBack
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiStep
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiUiState
@@ -160,7 +160,7 @@ class MemoAddScreenRecordTest {
         composeRule.setContent {
             MemoAddScreenTestTheme {
                 MemoAddScreen(
-                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    addRequestKey = TEST_ADD_REQUEST_KEY,
                     addViewModel = viewModels.viewModel,
                     tagViewModel = viewModels.tagViewModel,
                     webViewModel = viewModels.webViewModel,

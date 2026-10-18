@@ -2,9 +2,8 @@ package io.github.taetae98coding.diary.compose.map.web
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.SwingPanel
@@ -15,43 +14,35 @@ import io.github.taetae98coding.diary.compose.map.rememberDiaryMapState
 import io.github.taetae98coding.diary.library.webkit.WebKitWebViewPanel
 import io.github.taetae98coding.diary.library.webkit.hideWhileCoveredByOverlay
 import io.github.taetae98coding.diary.library.webkit.webKitWebViewOverlayId
-import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.withContext
+import org.koin.compose.koinInject
 import kotlin.uuid.Uuid
 
 @Composable
 internal fun MapWebView(
-    startHttpServer: suspend () -> MapHttpServer?,
+    createHtml: () -> String?,
     modifier: Modifier = Modifier,
     state: DiaryMapState = rememberDiaryMapState(),
     onSpotClick: ((DiaryMapCoordinate) -> Unit)? = null,
     onPinClick: ((Uuid) -> Unit)? = null,
 ) {
-    val httpServer by produceState<MapHttpServer?>(initialValue = null) {
-        // 기동 중 화면 이탈로 취소되면 시작된 서버를 닫을 수 없으므로 기동은 취소 없이 끝까지 실행한다.
-        val server = withContext(NonCancellable) { startHttpServer() } ?: return@produceState
-        value = server
-        try {
-            awaitCancellation()
-        } finally {
-            withContext(NonCancellable) {
-                server.close()
-            }
-        }
+    val httpServer = koinInject<MapHttpServer>()
+    // 지도 문서에는 처음 그릴 때의 위치와 핀을 담고, 이후 바뀐 상태는 스크립트로 전달한다.
+    val page = remember(httpServer) { createHtml()?.let(httpServer::register) }
+
+    DisposableEffect(page) {
+        onDispose { page?.close() }
     }
 
-    val server = httpServer
-    if (server == null) {
+    if (page == null) {
         Box(modifier = modifier)
         return
     }
 
     val webViewPanel =
-        remember(server) {
+        remember(page) {
             WebKitWebViewPanel().apply {
-                loadUrl(url = server.url)
+                loadUrl(url = page.url)
             }
         }
     val isDocumentReady = remember(webViewPanel) { MutableStateFlow(false) }

@@ -16,7 +16,7 @@ import io.github.taetae98coding.diary.core.database.api.music.entity.MusicLocalE
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.api.placetag.entity.PlaceTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrLocalEntity
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.datasource.SyncCursorLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.tag.entity.TagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.tagfilter.entity.TagFilterLocalEntity
@@ -267,11 +267,11 @@ class AccountDataTransactionImplTest :
             database.memoFilterTagDao().upsert(MemoFilterTagLocalEntity(accountId = accountId, tagId = entity.tagId))
             database.calendarFilterTagDao().upsert(CalendarFilterTagLocalEntity(accountId = accountId, tagId = entity.tagId))
 
-            SyncKind.entries.forEach { kind ->
+            SyncKindLocalEntity.entries.forEach { kind ->
                 database.syncCursorDao().upsert(
                     SyncCursorLocalEntity(
                         accountId = accountId,
-                        kind = SyncCursorLocalEntity.column(kind = kind),
+                        kind = kind.persistentValue,
                         usn = fixtureMonkey.giveMeOne<Long>(),
                     ),
                 )
@@ -354,9 +354,9 @@ class AccountDataTransactionImplTest :
 
             transaction.delete(accountId = accountId)
 
-            SyncKind.entries.forEach { kind ->
+            SyncKindLocalEntity.entries.forEach { kind ->
                 withClue(kind.name) {
-                    syncCursorLocalDataSource.find(accountId = accountId, kind = kind) shouldBe SyncCursorLocalDataSource.DEFAULT_USN
+                    syncCursorLocalDataSource.read(accountId = accountId, kind = kind) shouldBe SyncCursorLocalDataSource.DEFAULT_USN
                 }
             }
         }

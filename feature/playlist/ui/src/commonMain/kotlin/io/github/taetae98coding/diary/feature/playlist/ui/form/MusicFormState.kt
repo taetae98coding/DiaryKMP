@@ -16,7 +16,7 @@ internal class MusicFormState(
     val titleState: DiaryTitleInputState,
     val artistState: MusicArtistInputState,
     val linkState: MusicLinkInputState,
-    val hostState: SnackbarHostState,
+    val snackbarHostState: SnackbarHostState,
 ) {
     // 링크는 글자마다 바뀌지만 썸네일은 영상 ID가 바뀔 때만 바뀌므로 파생 값으로 줄인다.
     val thumbnail: String by derivedStateOf { link.toYoutubeVideoThumbnailOrNull().orEmpty() }
@@ -61,14 +61,14 @@ private fun rememberMusicFormState(initialDetail: MusicDetail): MusicFormState {
     val titleState = rememberDiaryTitleInputState(initialText = initialDetail.title)
     val artistState = rememberMusicArtistInputState(initialText = initialDetail.artist)
     val linkState = rememberMusicLinkInputState(initialText = initialDetail.link)
-    val hostState = remember { SnackbarHostState() }
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    return remember(titleState, artistState, linkState, hostState) {
+    return remember(titleState, artistState, linkState, snackbarHostState) {
         MusicFormState(
             titleState = titleState,
             artistState = artistState,
             linkState = linkState,
-            hostState = hostState,
+            snackbarHostState = snackbarHostState,
         )
     }
 }

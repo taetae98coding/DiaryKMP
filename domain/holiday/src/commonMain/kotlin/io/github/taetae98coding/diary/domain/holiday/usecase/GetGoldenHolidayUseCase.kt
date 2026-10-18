@@ -3,9 +3,12 @@ package io.github.taetae98coding.diary.domain.holiday.usecase
 import io.github.taetae98coding.diary.core.model.holiday.GoldenHolidayGroup
 import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.domain.core.FlowUseCase
+import io.github.taetae98coding.diary.domain.holiday.di.HolidayDispatcher
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -16,17 +19,22 @@ import org.koin.core.annotation.Factory
 @Factory
 public class GetGoldenHolidayUseCase internal constructor(
     private val getHolidayUseCase: GetHolidayUseCase,
+    @HolidayDispatcher private val dispatcher: CoroutineDispatcher,
 ) : FlowUseCase<GetGoldenHolidayUseCase.Parameter, List<GoldenHolidayGroup>>() {
     override fun execute(parameter: Parameter): Flow<Result<List<GoldenHolidayGroup>>> =
         holidayListFlow(year = parameter.year)
             .map { holidayList ->
-                Result.success(
-                    goldenHolidayGroupList(
-                        year = parameter.year,
-                        annualLeaveCount = parameter.annualLeaveCount,
-                        holidayList = holidayList,
-                    ),
-                )
+                // 3년치 날짜와 연차 조합을 모두 비교하므로, 연차 수가 바뀔 때마다 모으는 메인 스레드에서 계산하지 않는다.
+                val groupList =
+                    withContext(dispatcher) {
+                        goldenHolidayGroupList(
+                            year = parameter.year,
+                            annualLeaveCount = parameter.annualLeaveCount,
+                            holidayList = holidayList,
+                        )
+                    }
+
+                Result.success(groupList)
             }
 
     private fun holidayListFlow(year: Int): Flow<List<Holiday>> =

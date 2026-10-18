@@ -34,6 +34,7 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.memo.MemoExistenceFilter
 import io.github.taetae98coding.diary.core.model.memo.MemoFilterExistence
+import io.github.taetae98coding.diary.feature.memo.ui.refreshableList
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -211,7 +212,7 @@ class MemoHomeScaffoldTest {
 
         composeRule.onNodeWithText("${SCROLL_TITLE_PREFIX}0").assertIsDisplayed()
 
-        composeRule.onNodeWithTag(MEMO_HOME_LIST_TEST_TAG).performScrollToIndex(SCROLL_MEMO_COUNT)
+        composeRule.refreshableList().performScrollToIndex(SCROLL_MEMO_COUNT)
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText("${SCROLL_TITLE_PREFIX}0").assertDoesNotExist()

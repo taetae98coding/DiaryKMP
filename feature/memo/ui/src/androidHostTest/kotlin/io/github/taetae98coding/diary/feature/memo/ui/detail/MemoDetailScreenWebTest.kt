@@ -8,11 +8,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
-import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.PagingData
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.web.Web
-import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.closeDialogByBack
 import io.github.taetae98coding.diary.feature.memo.ui.contact.screenTestContactViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
@@ -252,7 +250,7 @@ class MemoDetailScreenWebTest {
         restorationTester.setContent {
             MemoDetailScreenTestTheme {
                 MemoDetailScreen(
-                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    addRequestKey = TEST_ADD_REQUEST_KEY,
                     detailViewModel = screenTestViewModel(uiState = MutableStateFlow(memoDetailUiState(detail = memoDetail(MEMO_TITLE)))),
                     tagViewModel = screenTestTagViewModel(),
                     webViewModel = webViewModel,
@@ -293,7 +291,7 @@ class MemoDetailScreenWebTest {
         setContent {
             MemoDetailScreenTestTheme {
                 MemoDetailScreen(
-                    tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                    addRequestKey = TEST_ADD_REQUEST_KEY,
                     detailViewModel = screenTestViewModel(uiState = detailUiState),
                     tagViewModel = screenTestTagViewModel(),
                     webViewModel = webViewModel,

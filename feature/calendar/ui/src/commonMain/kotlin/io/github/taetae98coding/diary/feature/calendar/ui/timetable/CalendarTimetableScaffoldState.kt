@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.calendar.ui.timetable
 
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -20,6 +21,7 @@ import kotlin.time.Clock
 @Stable
 internal class CalendarTimetableScaffoldState(
     val timetableState: TimetableState,
+    val snackbarHostState: SnackbarHostState,
 ) {
     var now: LocalDateTime? by mutableStateOf(null)
         private set
@@ -34,7 +36,13 @@ internal fun rememberCalendarTimetableScaffoldState(
     type: CalendarTimetableNavKey.Type = CalendarTimetableNavKey.Type.DAY,
     initialDate: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault()),
     timetableState: TimetableState = rememberTimetableState(type = type.toTimetableType(), initialDate = initialDate),
-): CalendarTimetableScaffoldState = remember(timetableState) { CalendarTimetableScaffoldState(timetableState = timetableState) }
+): CalendarTimetableScaffoldState {
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    return remember(timetableState, snackbarHostState) {
+        CalendarTimetableScaffoldState(timetableState = timetableState, snackbarHostState = snackbarHostState)
+    }
+}
 
 private fun CalendarTimetableNavKey.Type.toTimetableType(): TimetableType =
     when (this) {

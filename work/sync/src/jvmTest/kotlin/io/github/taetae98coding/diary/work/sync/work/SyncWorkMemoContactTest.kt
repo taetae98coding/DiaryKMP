@@ -1,7 +1,7 @@
 package io.github.taetae98coding.diary.work.sync.work
 
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.network.api.memocontact.entity.MemoContactRemoteEntity
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
 import io.github.taetae98coding.diary.work.sync.mapper.toRemote
@@ -133,7 +133,7 @@ class SyncWorkMemoContactTest :
                 context.subject.doWork()
             }
 
-            coVerify(exactly = 0) { context.memoContactSyncLocalDataSource.findPending(any()) }
+            coVerify(exactly = 0) { context.memoContactSyncLocalDataSource.readPendingList(any()) }
             coVerify(exactly = 0) { context.memoContactRemoteDataSource.push(any()) }
         }
 
@@ -151,7 +151,7 @@ class SyncWorkMemoContactTest :
                 context.subject.doWork()
             }
 
-            coVerify(exactly = 0) { context.memoContactSyncLocalDataSource.findPending(any()) }
+            coVerify(exactly = 0) { context.memoContactSyncLocalDataSource.readPendingList(any()) }
             coVerify(exactly = 0) { context.memoContactRemoteDataSource.push(any()) }
         }
 
@@ -184,7 +184,7 @@ class SyncWorkMemoContactTest :
             val context = context()
             val firstPullList = memoContactPulls(usnList = listOf(4L, 6L))
             val secondPullList = memoContactPulls(usnList = listOf(9L))
-            coEvery { context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.MEMO_CONTACT) } returns 2L
+            coEvery { context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.MEMO_CONTACT) } returns 2L
             coEvery { context.memoContactRemoteDataSource.pull(usn = 2L) } returns firstPullList
             coEvery { context.memoContactRemoteDataSource.pull(usn = 6L) } returns secondPullList
             coEvery { context.memoContactRemoteDataSource.pull(usn = 9L) } returns emptyList()
@@ -192,14 +192,14 @@ class SyncWorkMemoContactTest :
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.accountMemoContactSyncTransaction.save(
+                context.accountMemoContactSyncTransaction.upsert(
                     accountId = context.accountId,
                     memoContactList = firstPullList.map { pull -> pull.memoContact.toLocal() },
                     cursor = 6L,
                 )
             }
             coVerify(exactly = 1) {
-                context.accountMemoContactSyncTransaction.save(
+                context.accountMemoContactSyncTransaction.upsert(
                     accountId = context.accountId,
                     memoContactList = secondPullList.map { pull -> pull.memoContact.toLocal() },
                     cursor = 9L,
@@ -256,20 +256,20 @@ class SyncWorkMemoContactTest :
 
             actual.message shouldBe failure.message
             coVerify(exactly = 1) {
-                context.accountContactSyncTransaction.save(
+                context.accountContactSyncTransaction.upsert(
                     accountId = context.accountId,
                     contactList = contactPullList.map { pull -> pull.contact.toLocal() },
                     cursor = 3L,
                 )
             }
             coVerify(exactly = 1) {
-                context.accountMemoSyncTransaction.save(
+                context.accountMemoSyncTransaction.upsert(
                     accountId = context.accountId,
                     memoList = memoPullList.map { pull -> pull.memo.toLocal() },
                     cursor = 4L,
                 )
             }
-            coVerify(exactly = 0) { context.accountMemoContactSyncTransaction.save(any(), any(), any()) }
+            coVerify(exactly = 0) { context.accountMemoContactSyncTransaction.upsert(any(), any(), any()) }
         }
 
         test("TC-DATA-SYNC-DOMAIN-024 실행 시점에 확인된 계정의 메모·연락처 연결만 조회한다") {
@@ -277,16 +277,16 @@ class SyncWorkMemoContactTest :
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val context = context(accountId = accountId)
             coEvery {
-                context.memoContactSyncLocalDataSource.findPending(accountId = otherAccountId)
+                context.memoContactSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             } returns memoContacts(size = 1)
 
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.memoContactSyncLocalDataSource.findPending(accountId = accountId)
+                context.memoContactSyncLocalDataSource.readPendingList(accountId = accountId)
             }
             coVerify(exactly = 0) {
-                context.memoContactSyncLocalDataSource.findPending(accountId = otherAccountId)
+                context.memoContactSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             }
         }
     })

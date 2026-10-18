@@ -3,11 +3,12 @@ package io.github.taetae98coding.diary.feature.memo.ui.web
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import io.github.taetae98coding.diary.compose.core.dialog.DIARY_PAGING_PICKER_LIST_TEST_TAG
 
 private const val WEB_PICKER_WAIT_ATTEMPT_COUNT: Int = 500
 private const val WEB_PICKER_WAIT_INTERVAL_MILLIS: Long = 10
 
-internal fun ComposeContentTestRule.webPickerList(): SemanticsNodeInteraction = onNode(hasTestTag(MEMO_WEB_PICKER_LIST_TEST_TAG))
+internal fun ComposeContentTestRule.webPickerList(): SemanticsNodeInteraction = onNode(hasTestTag(DIARY_PAGING_PICKER_LIST_TEST_TAG))
 
 /**
  * 선택 목록은 페이지 단위로 준비되므로 첫 페이지가 목록에 나타날 때까지 프레임을 진행시킨다.

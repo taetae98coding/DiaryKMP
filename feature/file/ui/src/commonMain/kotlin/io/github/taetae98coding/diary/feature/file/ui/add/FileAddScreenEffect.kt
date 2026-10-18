@@ -12,14 +12,13 @@ import io.github.taetae98coding.diary.feature.file.ui.file_add_upload_succeeded_
 import io.github.taetae98coding.diary.feature.file.ui.file_home_upload_failed_message
 import io.github.taetae98coding.diary.feature.file.ui.file_home_upload_too_large_message
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun FileAddScreenEffect(
-    effect: Flow<FileAddEffect> = emptyFlow(),
-    state: FileAddFormState = rememberFileAddFormState(),
+    effect: Flow<FileAddEffect>,
+    state: FileAddFormState,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val titleBlankMessage = stringResource(Res.string.file_add_title_blank_message)
@@ -38,27 +37,27 @@ internal fun FileAddScreenEffect(
 
             is FileAddEffect.TitleBlank -> {
                 state.titleState.requestFocus()
-                coroutineScope.launch { state.hostState.showImmediate(message = titleBlankMessage) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = titleBlankMessage) }
             }
 
             is FileAddEffect.FileNotSelected -> {
-                coroutineScope.launch { state.hostState.showImmediate(message = fileNotSelectedMessage) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = fileNotSelectedMessage) }
             }
 
             is FileAddEffect.FileUnreadable -> {
-                coroutineScope.launch { state.hostState.showImmediate(message = fileUnreadableMessage) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = fileUnreadableMessage) }
             }
 
             is FileAddEffect.FileTooLarge -> {
-                coroutineScope.launch { state.hostState.showImmediate(message = tooLargeMessage) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = tooLargeMessage) }
             }
 
             is FileAddEffect.UploadSucceeded -> {
-                coroutineScope.launch { state.hostState.showImmediate(message = succeededMessage) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = succeededMessage) }
             }
 
             is FileAddEffect.UploadFailed -> {
-                coroutineScope.launch { state.hostState.showImmediate(message = failedMessage) }
+                coroutineScope.launch { state.snackbarHostState.showImmediate(message = failedMessage) }
             }
         }
     }

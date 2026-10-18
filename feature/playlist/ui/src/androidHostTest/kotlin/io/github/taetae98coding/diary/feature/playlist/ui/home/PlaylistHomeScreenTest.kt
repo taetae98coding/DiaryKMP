@@ -10,11 +10,12 @@ import androidx.compose.ui.test.swipeDown
 import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
 import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadState
 import io.github.taetae98coding.diary.domain.playlist.usecase.GetMusicDownloadEventUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.GetMusicDownloadStateUseCase
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.justRun
@@ -130,7 +131,7 @@ class PlaylistHomeScreenTest {
         navigateToAdd: () -> Unit = {},
         navigateToDetail: (Uuid) -> Unit = {},
         componentVisible: PlaylistHomeScaffoldComponentVisible = PlaylistHomeScaffoldComponentVisible(),
-        syncViewModel: PlaylistHomeSyncViewModel = syncViewModel(),
+        syncViewModel: SyncRefreshViewModel = syncViewModel(),
         downloadViewModel: PlaylistHomeDownloadViewModel = downloadViewModel(),
     ) {
         setPlaylistHomeScreen(
@@ -150,12 +151,12 @@ class PlaylistHomeScreenTest {
         navigateToAdd: () -> Unit = {},
         navigateToDetail: (Uuid) -> Unit = {},
         componentVisible: PlaylistHomeScaffoldComponentVisible = PlaylistHomeScaffoldComponentVisible(),
-        syncViewModel: PlaylistHomeSyncViewModel = syncViewModel(),
+        syncViewModel: SyncRefreshViewModel = syncViewModel(),
         downloadViewModel: PlaylistHomeDownloadViewModel = downloadViewModel(),
     ) {
         val musicViewModel = mockk<PlaylistHomeViewModel>(relaxed = true)
         every { musicViewModel.musicPagingData } returns musicPagingDataFlow
-        every { musicViewModel.sort } returns MutableStateFlow(ListSort.TITLE)
+        every { musicViewModel.uiState } returns MutableStateFlow(PlaylistHomeUiState())
         every { musicViewModel.effect } returns emptyFlow()
 
         composeRule.setContent {
@@ -181,9 +182,9 @@ class PlaylistHomeScreenTest {
         return viewModel
     }
 
-    private fun syncViewModel(): PlaylistHomeSyncViewModel {
-        val viewModel = mockk<PlaylistHomeSyncViewModel>()
-        every { viewModel.uiState } returns MutableStateFlow(PlaylistHomeUiState())
+    private fun syncViewModel(): SyncRefreshViewModel {
+        val viewModel = mockk<SyncRefreshViewModel>()
+        every { viewModel.uiState } returns MutableStateFlow(SyncRefreshUiState())
         justRun { viewModel.refresh() }
         return viewModel
     }

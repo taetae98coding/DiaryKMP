@@ -46,7 +46,6 @@ import io.github.taetae98coding.diary.feature.place.ui.detail.PlaceDetailScreenT
 import io.github.taetae98coding.diary.feature.place.ui.detail.PlaceDetailUiState
 import io.github.taetae98coding.diary.feature.place.ui.detail.content
 import io.github.taetae98coding.diary.feature.place.ui.detail.detailTagScreenTestViewModel
-import io.github.taetae98coding.diary.feature.place.ui.detail.memo.PLACE_DETAIL_MEMO_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.place.ui.detail.placeDetail
 import io.github.taetae98coding.diary.feature.place.ui.detail.placeMemo
 import io.github.taetae98coding.diary.feature.place.ui.detail.placeMemoPagingData
@@ -57,6 +56,7 @@ import io.github.taetae98coding.diary.feature.place.ui.detail.selectPlaceDetailT
 import io.github.taetae98coding.diary.feature.place.ui.detail.setPlaceDetailScreen
 import io.github.taetae98coding.diary.feature.place.ui.form.PlaceFormState
 import io.github.taetae98coding.diary.feature.place.ui.form.rememberPlaceDetailFormState
+import io.github.taetae98coding.diary.feature.place.ui.refreshableList
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.shouldBe
@@ -169,7 +169,7 @@ class PlaceDetailTabTest {
         composeRule.selectPlaceDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
         waitUntilMemoListExists(memoTitle = memoTitleList.first())
 
-        composeRule.onNodeWithTag(PLACE_DETAIL_MEMO_LIST_TEST_TAG).performScrollToNode(hasText(memoTitleList.last()))
+        composeRule.refreshableList().performScrollToNode(hasText(memoTitleList.last()))
         composeRule.waitForIdle()
         isDisplayed(memoTitleList.first()).shouldBeFalse()
 

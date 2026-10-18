@@ -22,6 +22,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -66,11 +67,11 @@ class CalendarHomeMemoViewModelTest : FunSpec() {
                 val useCase = getCalendarMemoUseCase(expectedDateRange to Result.success(memoList))
                 val viewModel = memoViewModel(getCalendarMemoUseCase = useCase)
 
-                viewModel.fetch(YearMonth(year = 2026, month = Month.JULY))
+                viewModel.select(YearMonth(year = 2026, month = Month.JULY))
 
-                viewModel.memoList.test {
-                    awaitItem() shouldBe emptyList()
-                    awaitItem() shouldBe memoList
+                viewModel.uiState.test {
+                    awaitItem() shouldBe CalendarHomeMemoUiState()
+                    awaitItem() shouldBe CalendarHomeMemoUiState(memoList = memoList)
                 }
 
                 verify(exactly = 1) { useCase(parameter = expectedDateRange) }
@@ -91,10 +92,10 @@ class CalendarHomeMemoViewModelTest : FunSpec() {
                     val useCase = getCalendarMemoUseCase(expectedDateRange to Result.success(emptyList()))
                     val viewModel = memoViewModel(getCalendarMemoUseCase = useCase)
 
-                    viewModel.fetch(yearMonth)
+                    viewModel.select(yearMonth)
 
-                    viewModel.memoList.test {
-                        awaitItem() shouldBe emptyList()
+                    viewModel.uiState.test {
+                        awaitItem() shouldBe CalendarHomeMemoUiState()
                         advanceUntilIdle()
                     }
 
@@ -118,15 +119,15 @@ class CalendarHomeMemoViewModelTest : FunSpec() {
                     )
                 val viewModel = memoViewModel(getCalendarMemoUseCase = useCase)
 
-                viewModel.fetch(YearMonth(year = 2026, month = Month.JULY))
+                viewModel.select(YearMonth(year = 2026, month = Month.JULY))
 
-                viewModel.memoList.test {
-                    awaitItem() shouldBe emptyList()
-                    awaitItem() shouldBe listOf(mayMemo)
+                viewModel.uiState.test {
+                    awaitItem() shouldBe CalendarHomeMemoUiState()
+                    awaitItem() shouldBe CalendarHomeMemoUiState(memoList = listOf(mayMemo))
 
-                    viewModel.fetch(YearMonth(year = 2026, month = Month.SEPTEMBER))
+                    viewModel.select(YearMonth(year = 2026, month = Month.SEPTEMBER))
 
-                    awaitItem() shouldBe listOf(novemberMemo)
+                    awaitItem() shouldBe CalendarHomeMemoUiState(memoList = listOf(novemberMemo))
                 }
             }
         }
@@ -138,10 +139,10 @@ class CalendarHomeMemoViewModelTest : FunSpec() {
                     flowOf(Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())))
                 val viewModel = memoViewModel(getCalendarMemoUseCase = useCase)
 
-                viewModel.fetch(YearMonth(year = 2026, month = Month.JULY))
+                viewModel.select(YearMonth(year = 2026, month = Month.JULY))
 
-                viewModel.memoList.test {
-                    awaitItem() shouldBe emptyList()
+                viewModel.uiState.test {
+                    awaitItem() shouldBe CalendarHomeMemoUiState()
                     advanceUntilIdle()
                     expectNoEvents()
                 }
@@ -154,13 +155,13 @@ class CalendarHomeMemoViewModelTest : FunSpec() {
                 val useCase = getCalendarMemoUseCase()
                 val viewModel = memoViewModel(getCalendarMemoUseCase = useCase)
 
-                viewModel.fetch(yearMonth)
+                viewModel.select(yearMonth)
 
-                viewModel.memoList.test {
-                    awaitItem() shouldBe emptyList()
+                viewModel.uiState.test {
+                    awaitItem() shouldBe CalendarHomeMemoUiState()
                     advanceUntilIdle()
 
-                    viewModel.fetch(yearMonth)
+                    viewModel.select(yearMonth)
                     advanceUntilIdle()
 
                     expectNoEvents()
@@ -246,6 +247,27 @@ class CalendarHomeMemoViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-CALENDAR-MEMO-MOVE-FEATURE-017 같은 메모의 이동이 진행 중일 때 다시 이동하면 MoveMemoUseCase를 한 번만 호출한다") {
+            runTest(mainDispatcher) {
+                val completion = CompletableDeferred<Result<Unit>>()
+                val moveMemoUseCase = mockk<MoveMemoUseCase>()
+                coEvery { moveMemoUseCase(parameter = any()) } coAnswers { completion.await() }
+                val viewModel = memoViewModel(moveMemoUseCase = moveMemoUseCase)
+                val id = Uuid.random()
+                val dateTime = fixtureMonkey.giveMeOne<MemoDateTime.AllDay>()
+                val dateRange = fixtureMonkey.giveMeOne<LocalDateRange>()
+
+                viewModel.move(id = id, fromDateTime = dateTime, toDateRange = dateRange)
+                viewModel.move(id = id, fromDateTime = dateTime, toDateRange = dateRange)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { moveMemoUseCase(parameter = any()) }
+
+                completion.complete(Result.success(Unit))
+                advanceUntilIdle()
+            }
+        }
+
         test("저장된 메모가 바뀌면 조작 없이 표시할 메모가 갱신된다") {
             runTest(mainDispatcher) {
                 val memo = memo()
@@ -256,15 +278,15 @@ class CalendarHomeMemoViewModelTest : FunSpec() {
                     memoFlow.map { memoList -> Result.success(memoList) }
                 val viewModel = memoViewModel(getCalendarMemoUseCase = useCase)
 
-                viewModel.fetch(YearMonth(year = 2026, month = Month.JULY))
+                viewModel.select(YearMonth(year = 2026, month = Month.JULY))
 
-                viewModel.memoList.test {
-                    awaitItem() shouldBe emptyList()
-                    awaitItem() shouldBe listOf(memo)
+                viewModel.uiState.test {
+                    awaitItem() shouldBe CalendarHomeMemoUiState()
+                    awaitItem() shouldBe CalendarHomeMemoUiState(memoList = listOf(memo))
 
                     memoFlow.value = listOf(changedMemo)
 
-                    awaitItem() shouldBe listOf(changedMemo)
+                    awaitItem() shouldBe CalendarHomeMemoUiState(memoList = listOf(changedMemo))
                 }
             }
         }

@@ -160,13 +160,13 @@ class MemoAddPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("장소 선택 목록 페이지 조회에 실패하면 없는 것으로 확정할 목록을 전달하지 않는다") {
+        test("장소 선택 목록 페이지 조회에 실패하면 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(placePagingFlow = flowOf(Result.failure(IllegalStateException("place error"))))
 
                 viewModel.placePagingData.test {
                     advanceUntilIdle()
-                    expectNoEvents()
+                    flowOf(expectMostRecentItem()).asSnapshot() shouldBe emptyList()
                     cancelAndIgnoreRemainingEvents()
                 }
                 viewModel.viewModelScope.cancel()
@@ -343,7 +343,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
                     cancelAndIgnoreRemainingEvents()
                 }
 
-                viewModel.placeIdSet.value shouldBe setOf(remainingPlace.id, deletedPlace.id)
+                viewModel.selectionUiState.value.placeIdSet shouldBe setOf(remainingPlace.id, deletedPlace.id)
             }
         }
 
@@ -361,7 +361,7 @@ class MemoAddPlaceViewModelTest : FunSpec() {
                     cancelAndIgnoreRemainingEvents()
                 }
 
-                viewModel.placeIdSet.value shouldBe setOf(selectablePlace.id, unselectablePlace.id)
+                viewModel.selectionUiState.value.placeIdSet shouldBe setOf(selectablePlace.id, unselectablePlace.id)
             }
         }
         searchTests()

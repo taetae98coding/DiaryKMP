@@ -11,7 +11,9 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
+import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
+import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.mockk.every
 import io.mockk.mockk
@@ -114,13 +116,12 @@ internal fun ComposeContentTestRule.setCalendarHomeWeatherGroupScreen(
     val holidayViewModel =
         mockk<CalendarHomeHolidayViewModel>().also { viewModel ->
             every { viewModel.fetch(any()) } returns Unit
-            every { viewModel.holidayList } returns MutableStateFlow(holidayList)
-            every { viewModel.isFetching } returns MutableStateFlow(false)
+            every { viewModel.uiState } returns MutableStateFlow(CalendarHomeHolidayUiState(holidayList = holidayList))
         }
     val memoViewModel =
         mockk<CalendarHomeMemoViewModel>().also { viewModel ->
-            every { viewModel.fetch(any()) } returns Unit
-            every { viewModel.memoList } returns memoListFlow
+            every { viewModel.select(any()) } returns Unit
+            every { viewModel.uiState } returns memoListFlow.mapState { memoList -> CalendarHomeMemoUiState(memoList = memoList) }
             every { viewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
         }
 

@@ -14,7 +14,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun MemoGeminiSettingRequiredEffect(
-    hostState: SnackbarHostState,
+    snackbarHostState: SnackbarHostState,
     effect: Flow<MemoGeminiEffect> = emptyFlow(),
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -23,7 +23,7 @@ internal fun MemoGeminiSettingRequiredEffect(
     CollectEffect(effect) { value ->
         when (value) {
             is MemoGeminiEffect.SettingRequired -> {
-                coroutineScope.launch { hostState.showImmediate(message = settingRequiredMessage) }
+                coroutineScope.launch { snackbarHostState.showImmediate(message = settingRequiredMessage) }
             }
         }
     }

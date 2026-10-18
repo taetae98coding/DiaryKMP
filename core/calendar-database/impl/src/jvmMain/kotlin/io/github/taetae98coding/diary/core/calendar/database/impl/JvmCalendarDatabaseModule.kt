@@ -5,16 +5,14 @@ import androidx.room3.RoomDatabase
 import io.github.taetae98coding.diary.core.calendar.database.impl.di.CalendarDatabaseBuilder
 import io.github.taetae98coding.diary.core.calendar.database.impl.di.CalendarDatabaseDirectory
 import io.github.taetae98coding.diary.library.applicationsupport.applicationSupportDirectory
-import org.koin.core.annotation.ComponentScan
+import io.github.taetae98coding.diary.library.applicationsupport.userHomeDirectory
 import org.koin.core.annotation.Configuration
 import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Module
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
 
 @Module
-@ComponentScan
 @Configuration
 public class JvmCalendarDatabaseModule {
     @Factory
@@ -25,7 +23,7 @@ public class JvmCalendarDatabaseModule {
     ): RoomDatabase.Builder<CalendarDatabase> {
         val databasePath =
             resolveCalendarDatabasePath(
-                userHome = Paths.get(System.getProperty("user.home")),
+                userHome = userHomeDirectory(),
                 databaseDirectory = databaseDirectory,
             )
         databasePath.parent?.let(Files::createDirectories)

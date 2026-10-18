@@ -16,8 +16,8 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.location.CoordinateBounds
 import io.github.taetae98coding.diary.core.model.place.Place
-import io.github.taetae98coding.diary.data.place.mapper.toDomain
-import io.github.taetae98coding.diary.data.place.mapper.toLocal
+import io.github.taetae98coding.diary.data.core.mapper.toDomain
+import io.github.taetae98coding.diary.data.core.mapper.toLocal
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec

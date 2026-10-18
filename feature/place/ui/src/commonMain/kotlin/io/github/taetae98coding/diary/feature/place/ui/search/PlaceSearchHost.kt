@@ -49,7 +49,7 @@ private fun PlaceSearchHostPreview() {
     DiaryTheme {
         PlaceSearchHost(
             onEvent = {},
-            uiStateProvider = { PlaceSearchUiState.Loaded(placeList = placeList) },
+            uiStateProvider = { PlaceSearchUiState.Content(placeList = placeList) },
             dialogState = rememberDialogState().apply { show() },
         )
     }

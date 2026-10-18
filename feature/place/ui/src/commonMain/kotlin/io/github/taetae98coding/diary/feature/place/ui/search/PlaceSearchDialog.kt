@@ -66,8 +66,8 @@ internal fun PlaceSearchDialog(
                 }
                 PlaceSearchResult(
                     state = state,
-                    uiStateProvider = uiStateProvider,
                     onSelect = onSelect,
+                    uiStateProvider = uiStateProvider,
                     modifier =
                         Modifier
                             .fillMaxWidth()
@@ -95,7 +95,7 @@ private fun PlaceSearchDialogPreview() {
             state = rememberPlaceSearchDialogState(initialProvider = DiaryMapProvider.NAVER),
             onSelect = {},
             onDismissRequest = {},
-            uiStateProvider = { PlaceSearchUiState.Loaded(placeList = placeList) },
+            uiStateProvider = { PlaceSearchUiState.Content(placeList = placeList) },
         )
     }
 }

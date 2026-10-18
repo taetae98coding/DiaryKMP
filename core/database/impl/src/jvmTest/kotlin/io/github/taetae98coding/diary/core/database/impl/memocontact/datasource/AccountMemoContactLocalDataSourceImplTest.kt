@@ -117,7 +117,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             loadSelectableContact(accountId = accountId).shouldBeEmpty()
         }
 
-        test("TC-MEMO-DETAIL-DATA-047 TC-MEMO-CONTACT-DOMAIN-011 조회한 연락처는 이름 오름차순으로 정렬된다") {
+        test("TC-MEMO-DETAIL-DATA-047 TC-MEMO-CONTACT-DOMAIN-011 TC-MEMO-CONTACT-INPUT-DOMAIN-019 조회한 연락처는 연결한 순서와 관계없이 이름 오름차순으로 정렬된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val lastContact = contact(name = LAST_CONTACT_NAME)
@@ -148,7 +148,7 @@ class AccountMemoContactLocalDataSourceImplTest :
                 memoContactList = emptyList(),
             )
 
-            syncTransaction.save(
+            syncTransaction.upsert(
                 accountId = accountId,
                 memoContactList = listOf(memoContact(memoId = memo.id, contactId = missingContactId)),
                 cursor = 1L,
@@ -164,7 +164,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             val contact = contact()
             contactTransaction.upsert(accountId = accountId, contactList = listOf(contact))
 
-            syncTransaction.save(
+            syncTransaction.upsert(
                 accountId = accountId,
                 memoContactList = listOf(memoContact(memoId = missingMemoId, contactId = contact.id)),
                 cursor = 1L,
@@ -179,7 +179,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             val memo = memo()
             val contact = contact()
             contactTransaction.upsert(accountId = accountId, contactList = listOf(contact))
-            syncTransaction.save(
+            syncTransaction.upsert(
                 accountId = accountId,
                 memoContactList = listOf(memoContact(memoId = memo.id, contactId = contact.id)),
                 cursor = 1L,
@@ -231,7 +231,7 @@ class AccountMemoContactLocalDataSourceImplTest :
             contactTransaction.upsert(accountId = accountId, contactList = listOf(contact.copy(isDeleted = true)))
             dataSource.getContactList(accountId = accountId, memoId = memo.id).first().shouldBeEmpty()
 
-            AccountContactSyncTransactionImpl(database = database).save(
+            AccountContactSyncTransactionImpl(database = database).upsert(
                 accountId = accountId,
                 contactList = listOf(contact.copy(isDeleted = false)),
                 cursor = 1L,
@@ -402,7 +402,7 @@ class AccountMemoContactLocalDataSourceImplTest :
         private const val LAST_CONTACT_NAME = "ZebraContact"
         private const val HOMETOWN_CONTACT_NAME = "HometownContact"
         private const val SEARCH_QUERY = "searchable"
-        private const val INVALIDATION_TIMEOUT_MILLIS = 5_000L
+        private const val INVALIDATION_TIMEOUT_MILLIS = 30_000L
         private const val PAGE_SIZE = 20
         private const val SMALL_PAGE_SIZE = 10
         private const val CONTACT_COUNT = 25

@@ -103,6 +103,24 @@ class FileHomeViewModelTest : FunSpec() {
             }
         }
 
+        test("계정이 바뀌는 중임을 표시하고 끝나면 해제한다") {
+            runTest(mainDispatcher) {
+                val account = fixtureMonkey.giveMeOne<Account.User>()
+                val viewModel = viewModel(accountFlow = MutableStateFlow(Result.success(account)))
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe FileHomeUiState.Loading
+                    awaitItem() shouldBe FileHomeUiState.User(accountId = account.id)
+
+                    viewModel.startAccountChange()
+                    awaitItem() shouldBe FileHomeUiState.User(accountId = account.id, isAccountChanging = true)
+
+                    viewModel.finishAccountChange()
+                    awaitItem() shouldBe FileHomeUiState.User(accountId = account.id, isAccountChanging = false)
+                }
+            }
+        }
+
         test("조회한 파일을 페이지로 전달한다") {
             runTest(mainDispatcher) {
                 val fileList = List(2) { fixtureMonkey.giveMeOne<DiaryFile>() }

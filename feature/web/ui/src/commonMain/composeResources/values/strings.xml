@@ -39,4 +39,5 @@
     <string name="web_detail_view_mode_response_label">Response body mode</string>
     <string name="web_detail_open_in_new_button_content_description">Open externally</string>
     <string name="web_detail_delete_button_content_description">Delete web</string>
+    <string name="web_detail_open_failed_message">Couldn't open the link.</string>
 </resources>

@@ -14,6 +14,9 @@ import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.justRun
@@ -108,7 +111,7 @@ class ContactHomeScreenTest {
 
     @Test
     fun `TC-CONTACT-HOME-FEATURE-019 동기화가 진행 중이면 진행 표시가 나타난다`() {
-        setContactHomeScreen(syncViewModel = syncViewModel(uiState = ContactHomeUiState(isRefreshing = true)))
+        setContactHomeScreen(syncViewModel = syncViewModel(uiState = SyncRefreshUiState(isRefreshing = true)))
 
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
     }
@@ -119,13 +122,13 @@ class ContactHomeScreenTest {
         navigateToAdd: () -> Unit = {},
         navigateToDetail: (Uuid) -> Unit = {},
         componentVisible: ContactHomeScaffoldComponentVisible = ContactHomeScaffoldComponentVisible(),
-        syncViewModel: ContactHomeSyncViewModel = syncViewModel(),
+        syncViewModel: SyncRefreshViewModel = syncViewModel(),
     ) {
         val contactViewModel = mockk<ContactHomeViewModel>()
-        val sort = MutableStateFlow(ListSort.NAME)
-        every { contactViewModel.sort } returns sort
+        val sort = MutableStateFlow(ListSortUiState(sort = ListSort.NAME))
+        every { contactViewModel.sortUiState } returns sort
         every { contactViewModel.contactPagingData } returns MutableStateFlow(contactPagingDataOf(contactList))
-        every { contactViewModel.select(sort = any()) } answers { sort.value = firstArg() }
+        every { contactViewModel.select(sort = any()) } answers { sort.value = ListSortUiState(sort = firstArg()) }
         every { contactViewModel.effect } returns emptyFlow()
 
         composeRule.setContent {
@@ -153,8 +156,8 @@ class ContactHomeScreenTest {
         private const val DEFAULT_RECENTLY_UPDATED_SORT = "Recently updated"
         private const val DEFAULT_REFRESHING_DESCRIPTION = "Refreshing"
 
-        private fun syncViewModel(uiState: ContactHomeUiState = ContactHomeUiState()): ContactHomeSyncViewModel {
-            val viewModel = mockk<ContactHomeSyncViewModel>()
+        private fun syncViewModel(uiState: SyncRefreshUiState = SyncRefreshUiState()): SyncRefreshViewModel {
+            val viewModel = mockk<SyncRefreshViewModel>()
             every { viewModel.uiState } returns MutableStateFlow(uiState)
             justRun { viewModel.refresh() }
 

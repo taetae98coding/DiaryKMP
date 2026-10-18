@@ -41,7 +41,9 @@ class PlaceAddTagMemoryRestoreTest {
 
         composeRule.onNodeWithText(TARGET_TAG_TITLE).assertExists()
         composeRule.onNodeWithText(OTHER_TAG_TITLE).assertDoesNotExist()
-        viewModelList.last().tagIdSet.value shouldBe setOf(targetTag.id)
+        viewModelList
+            .last()
+            .selectionUiState.value.tagIdSet shouldBe setOf(targetTag.id)
     }
 
     @Test
@@ -55,7 +57,9 @@ class PlaceAddTagMemoryRestoreTest {
         restore(viewModelList)
 
         composeRule.onNodeWithText(OTHER_TAG_TITLE).assertDoesNotExist()
-        viewModelList.last().tagIdSet.value shouldBe emptySet()
+        viewModelList
+            .last()
+            .selectionUiState.value.tagIdSet shouldBe emptySet()
     }
 
     // 메모리 정리 뒤에는 태그 선택을 들고 있던 상태 객체도 새로 만들어지므로, 복원할 때마다 같은 진입 경로의 새 인스턴스를 쓴다.
@@ -71,6 +75,7 @@ class PlaceAddTagMemoryRestoreTest {
 
             PlaceAddScreenTestTheme {
                 PlaceAddScreen(
+                    addedResultRequestKey = null,
                     navigateToTagAdd = {},
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                     navigateUp = {},

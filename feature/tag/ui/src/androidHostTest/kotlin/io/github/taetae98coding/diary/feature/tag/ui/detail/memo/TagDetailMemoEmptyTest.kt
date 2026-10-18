@@ -11,10 +11,13 @@ import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.core.button.ListEntryButton
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
+import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.detail.DEFAULT_MEMO_TAB_DESCRIPTION
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TAG_TITLE
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailUiState
@@ -23,8 +26,12 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.selectTagDetailTab
 import io.github.taetae98coding.diary.feature.tag.ui.detail.setTagDetailScreen
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
+import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_memo_empty_description
+import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_memo_empty_title
+import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_memo_finished_list_action_label
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.jetbrains.compose.resources.stringResource
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -87,12 +94,12 @@ class TagDetailMemoEmptyTest {
 
     @Test
     fun `TC-TAG-DETAIL-MEMO-FEATURE-026 빈 상태에서도 완료된 메모 확인을 실행할 수 있다`() {
-        val eventList = mutableListOf<TagDetailMemoContentEvent>()
-        setMemoTab(pagingData = loadedEmptyPagingData(), onEvent = eventList::add)
+        var finishedListClickCount = 0
+        setMemoTab(pagingData = loadedEmptyPagingData(), onFinishedListClick = { finishedListClickCount += 1 })
 
         composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_BUTTON_LABEL).performClick()
 
-        eventList shouldBe listOf(TagDetailMemoContentEvent.ClickFinishedList)
+        finishedListClickCount shouldBe 1
     }
 
     @Test
@@ -108,18 +115,26 @@ class TagDetailMemoEmptyTest {
 
     private fun setMemoTab(
         pagingData: PagingData<MemoListItem>,
-        onEvent: (TagDetailMemoContentEvent) -> Unit = {},
+        onFinishedListClick: () -> Unit = {},
         onMemoListEvent: (MemoListEvent) -> Unit = {},
     ) {
         val pagingDataFlow = MutableStateFlow(pagingData)
 
         composeRule.setContent {
             DiaryTheme {
-                TagDetailMemoTab(
-                    onEvent = onEvent,
+                EntityDetailMemoTab(
+                    emptyTitle = stringResource(Res.string.tag_detail_memo_empty_title),
+                    emptyDescription = stringResource(Res.string.tag_detail_memo_empty_description),
+                    onEvent = {},
                     onMemoListEvent = onMemoListEvent,
                     modifier = Modifier.fillMaxSize(),
                     memoPagingItems = pagingDataFlow.collectAsLazyPagingItems(),
+                    trailing = {
+                        ListEntryButton(
+                            onClick = onFinishedListClick,
+                            label = stringResource(Res.string.tag_detail_memo_finished_list_action_label),
+                        )
+                    },
                 )
             }
         }

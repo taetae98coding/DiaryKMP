@@ -25,7 +25,7 @@ internal fun placeAddFormState(initialMapCoordinate: DiaryMapCoordinate?): Place
         latitudeState = TextFieldState(),
         longitudeState = TextFieldState(),
         colorState = DiaryColorInputState(initialColor = randomColor()),
-        hostState = SnackbarHostState(),
+        snackbarHostState = SnackbarHostState(),
         mapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER, initialCoordinate = initialMapCoordinate),
         searchDialogState = DialogState(),
         tagPickerDialogState = DialogState(),

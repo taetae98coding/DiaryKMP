@@ -10,6 +10,10 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="dailyMemo" />
+        <!-- 기기를 등록 토큰 대신 Firebase 설치 ID로 FCM에 등록한다. 켜면 토큰 API는 쓸 수 없고 register()만 쓸 수 있다. -->
+        <meta-data
+            android:name="firebase_messaging_installation_id_enabled"
+            android:value="true" />
 
         <provider
             android:name="androidx.startup.InitializationProvider"

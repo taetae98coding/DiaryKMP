@@ -10,6 +10,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.web.Web
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
@@ -69,7 +70,7 @@ class WebHomeScaffoldRefreshTest {
                 WebHomeScaffold(
                     onEvent = onEvent,
                     webPagingItems = webPagingDataFlow.collectAsLazyPagingItems(),
-                    uiStateProvider = { WebHomeUiState(isRefreshing = isRefreshingProvider()) },
+                    uiStateProvider = { SyncRefreshUiState(isRefreshing = isRefreshingProvider()) },
                 )
             }
         }

@@ -2,7 +2,6 @@ package io.github.taetae98coding.diary.core.datastore.impl
 
 import androidx.datastore.core.Storage
 import androidx.datastore.core.okio.WebLocalStorage
-import io.github.taetae98coding.diary.core.datastore.api.setting.entity.GeminiSettingLocalEntity
 import io.github.taetae98coding.diary.core.datastore.impl.di.BrowserSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDispatcher
 import io.github.taetae98coding.diary.core.datastore.impl.di.GeminiSettingStorage
@@ -42,7 +41,7 @@ public class WasmDataStoreModule {
 
     @Single
     @GeminiSettingStorage
-    internal fun providesGeminiSettingStorage(): Storage<GeminiSettingLocalEntity> =
+    internal fun providesGeminiSettingStorage(): Storage<GeminiSettingData> =
         WebLocalStorage(
             serializer = GeminiSettingSerializer,
             name = DataStoreModule.GEMINI_SETTING_NAME,

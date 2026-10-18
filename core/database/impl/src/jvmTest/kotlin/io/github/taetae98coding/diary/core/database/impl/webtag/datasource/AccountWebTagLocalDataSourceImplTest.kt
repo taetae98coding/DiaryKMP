@@ -261,7 +261,7 @@ class AccountWebTagLocalDataSourceImplTest :
             tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = true, updatedAt = deletedAt)
             linkedTagList(accountId = accountId, webId = web.id).shouldBeEmpty()
 
-            AccountTagSyncTransactionImpl(database = database).save(
+            AccountTagSyncTransactionImpl(database = database).upsert(
                 accountId = accountId,
                 tagList = listOf(tag.copy(isFinished = true, isDeleted = false, updatedAt = deletedAt)),
                 cursor = fixtureMonkey.giveMeOne<Long>(),
@@ -669,9 +669,9 @@ class AccountWebTagLocalDataSourceImplTest :
 
             link(accountId = accountId, webId = web.id, tagId = targetTag.id)
 
-            webSyncDataSource.findPending(accountId = accountId).shouldBeEmpty()
+            webSyncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
             webTagSyncDataSource
-                .findPending(accountId = accountId)
+                .readPendingList(accountId = accountId)
                 .map { webTag -> webTag.tagId } shouldBe listOf(targetTag.id)
         }
 
@@ -732,20 +732,20 @@ class AccountWebTagLocalDataSourceImplTest :
             link(accountId = accountId, webId = web.id, tagId = targetTag.id)
 
             webTagSyncDataSource
-                .findPending(accountId = accountId)
+                .readPendingList(accountId = accountId)
                 .map { webTag -> webTag.tagId } shouldBe listOf(targetTag.id)
-            webTagSyncDataSource.findPending(accountId = otherAccountId).shouldBeEmpty()
+            webTagSyncDataSource.readPendingList(accountId = otherAccountId).shouldBeEmpty()
 
             AccountWebTagSyncTransactionImpl(database = database).clearPending(
                 accountId = accountId,
-                webTagList = webTagSyncDataSource.findPending(accountId = accountId),
+                webTagList = webTagSyncDataSource.readPendingList(accountId = accountId),
             )
             unlink(accountId = accountId, webId = web.id, tagId = targetTag.id)
 
             webTagSyncDataSource
-                .findPending(accountId = accountId)
+                .readPendingList(accountId = accountId)
                 .map { webTag -> webTag.tagId to webTag.isDeleted } shouldBe listOf(targetTag.id to true)
-            webTagSyncDataSource.findPending(accountId = otherAccountId).shouldBeEmpty()
+            webTagSyncDataSource.readPendingList(accountId = otherAccountId).shouldBeEmpty()
         }
 
         test("TC-ENTITY-TAG-INPUT-DATA-002 TC-WEB-DETAIL-DATA-017 연결된 태그는 페이지로 나누지 않고 조회한다") {

@@ -23,11 +23,13 @@ import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.memo.Memo
-import io.github.taetae98coding.diary.feature.web.ui.detail.memo.WEB_DETAIL_MEMO_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.web.ui.detail.memo.WebDetailMemoViewModel
+import io.github.taetae98coding.diary.feature.web.ui.refreshableList
+import io.github.taetae98coding.diary.feature.web.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,6 +42,11 @@ import kotlin.uuid.Uuid
 class WebDetailScreenMemoTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-WEB-DETAIL-MEMO-FEATURE-009 메모 추가 버튼을 선택하면 MemoAdd 이동을 요청한다`() {
@@ -182,7 +189,7 @@ class WebDetailScreenMemoTest {
         setScreenOnMemoTab(memoPagingData = webMemoPagingData(itemList = listOf(MemoListItem.Content(memo = webMemo(title = SCREEN_MEMO_TITLE)))))
         waitUntilMemoIsDisplayed(title = SCREEN_MEMO_TITLE)
 
-        composeRule.onNodeWithTag(WEB_DETAIL_MEMO_LIST_TEST_TAG).performTouchInput { swipeDown() }
+        composeRule.refreshableList().performTouchInput { swipeDown() }
         composeRule.waitForIdle()
 
         verify(exactly = 1) { requireNotNull(memoSyncViewModelRef).refresh() }
@@ -206,7 +213,7 @@ class WebDetailScreenMemoTest {
         val titleList = List(POSITION_MEMO_COUNT) { index -> "$POSITION_MEMO_TITLE_PREFIX${index.toString().padStart(length = 2, padChar = '0')}" }
         setScreenOnMemoTab(memoPagingData = webMemoPagingData(itemList = titleList.map { title -> MemoListItem.Content(memo = webMemo(title = title)) }))
         waitUntilMemoIsDisplayed(title = titleList.first())
-        composeRule.onNodeWithTag(WEB_DETAIL_MEMO_LIST_TEST_TAG).performScrollToNode(hasText(titleList.last()))
+        composeRule.refreshableList().performScrollToNode(hasText(titleList.last()))
         composeRule.waitForIdle()
         composeRule.onNodeWithText(titleList.last()).assertIsDisplayed()
 

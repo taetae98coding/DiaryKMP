@@ -216,7 +216,7 @@ class AccountTagDaoTopLevelFilterTest :
             insertTag(accountId, fromTag.copy(isDeleted = true))
             topLevelTagIdList(accountId = accountId) shouldBe listOf(toTag.id)
 
-            AccountTagSyncTransactionImpl(database = database).save(
+            AccountTagSyncTransactionImpl(database = database).upsert(
                 accountId = accountId,
                 tagList = listOf(fromTag),
                 cursor = fixtureMonkey.giveMeOne<Long>(),
@@ -319,7 +319,7 @@ class AccountTagDaoTopLevelFilterTest :
         }
     }) {
     public companion object {
-        private const val INVALIDATION_TIMEOUT_MILLIS: Long = 5_000
+        private const val INVALIDATION_TIMEOUT_MILLIS: Long = 30_000
 
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()

@@ -21,10 +21,10 @@ import io.github.taetae98coding.diary.feature.place.ui.home.DEFAULT_LIST_VIEW_MO
 import io.github.taetae98coding.diary.feature.place.ui.home.DEFAULT_MAP_VIEW_MODE_DESCRIPTION
 import io.github.taetae98coding.diary.feature.place.ui.home.PlaceHomeUiState
 import io.github.taetae98coding.diary.feature.place.ui.home.ViewModeTestPlaceHomeScaffold
-import io.github.taetae98coding.diary.feature.place.ui.home.list.PLACE_HOME_PAGING_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.place.ui.home.placePagingDataFlowOf
 import io.github.taetae98coding.diary.feature.place.ui.home.rememberPlaceHomeScaffoldState
 import io.github.taetae98coding.diary.feature.place.ui.home.viewModeTestPlace
+import io.github.taetae98coding.diary.feature.place.ui.refreshableList
 import io.github.taetae98coding.diary.feature.place.ui.resetAndroidUiDispatcher
 import io.kotest.assertions.withClue
 import io.kotest.matchers.booleans.shouldBeFalse
@@ -134,7 +134,7 @@ class PlaceHomeListPositionTest {
         composeRule.waitForIdle()
         composeRule.onNodeWithContentDescription(DEFAULT_LIST_VIEW_MODE_DESCRIPTION).performClick()
         composeRule.waitForIdle()
-        composeRule.onNodeWithTag(PLACE_HOME_PAGING_LIST_TEST_TAG).performScrollToIndex(SCROLLED_INDEX)
+        composeRule.refreshableList().performScrollToIndex(SCROLLED_INDEX)
         composeRule.waitForIdle()
     }
 

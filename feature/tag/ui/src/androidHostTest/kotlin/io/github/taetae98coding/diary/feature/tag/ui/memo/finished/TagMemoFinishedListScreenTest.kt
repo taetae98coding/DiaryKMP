@@ -21,8 +21,10 @@ import io.github.taetae98coding.diary.compose.memo.MEMO_DATE_HEADER_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.tag.ui.allDayMemoDateTime
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
+import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemoPagingData
 import io.kotest.matchers.shouldBe
@@ -34,6 +36,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,10 +52,15 @@ class TagMemoFinishedListScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
 
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
+
     @Test
     fun `TC-TAG-MEMO-FINISHED-LIST-FEATURE-010 완료된 메모가 하나도 없어도 화면을 사용할 수 있다`() {
         val viewModel = mockk<TagMemoFinishedListViewModel>()
-        every { viewModel.sort } returns MutableStateFlow(ListSort.DEFAULT)
+        every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
         every { viewModel.memoPagingData } returns MutableStateFlow(tagMemoPagingData(itemList = emptyList()))
         every { viewModel.effect } returns Channel<TagMemoFinishedListEffect>(capacity = Channel.BUFFERED).receiveAsFlow()
         setTagMemoFinishedListScreen(
@@ -194,7 +202,7 @@ class TagMemoFinishedListScreenTest {
             val secondTodayMemo = tagMemo(title = fixtureText(prefix = "SecondTodayMemo"), dateTime = allDayMemoDateTime(secondToday))
             val viewModel = mockk<TagMemoFinishedListViewModel>(relaxed = true)
             every { viewModel.uiState } returns MutableStateFlow(TagMemoFinishedListUiState())
-            every { viewModel.sort } returns MutableStateFlow(ListSort.DEFAULT)
+            every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
             every { viewModel.memoPagingData } returns
                 MutableStateFlow(
                     tagMemoPagingData(
@@ -290,7 +298,7 @@ class TagMemoFinishedListScreenTest {
             )
         val effectChannel = Channel<TagMemoFinishedListEffect>(capacity = Channel.BUFFERED)
         val viewModel = mockk<TagMemoFinishedListViewModel>()
-        every { viewModel.sort } returns MutableStateFlow(ListSort.DEFAULT)
+        every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
 
         every { viewModel.memoPagingData } returns pagingData
         every { viewModel.effect } returns effectChannel.receiveAsFlow()

@@ -8,6 +8,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
@@ -34,14 +35,14 @@ class RoutineHomeScaffoldRefreshTest {
 
     @Test
     fun `TC-SYNC-REFRESH-FEATURE-002 진행 표시 상태이면 진행 표시가 나타난다`() {
-        setRoutineHomeScaffold(uiStateProvider = { RoutineHomeUiState(isRefreshing = true) })
+        setRoutineHomeScaffold(uiStateProvider = { SyncRefreshUiState(isRefreshing = true) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
     }
 
     @Test
     fun `TC-SYNC-REFRESH-FEATURE-004 진행 표시 상태가 아니면 진행 표시가 나타나지 않는다`() {
-        setRoutineHomeScaffold(uiStateProvider = { RoutineHomeUiState(isRefreshing = false) })
+        setRoutineHomeScaffold(uiStateProvider = { SyncRefreshUiState(isRefreshing = false) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertDoesNotExist()
     }
@@ -49,7 +50,7 @@ class RoutineHomeScaffoldRefreshTest {
     @Test
     fun `TC-SYNC-REFRESH-FEATURE-005 동기화가 끝나면 진행 표시가 사라진다`() {
         val isRefreshing = mutableStateOf(true)
-        setRoutineHomeScaffold(uiStateProvider = { RoutineHomeUiState(isRefreshing = isRefreshing.value) })
+        setRoutineHomeScaffold(uiStateProvider = { SyncRefreshUiState(isRefreshing = isRefreshing.value) })
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
 
         composeRule.runOnIdle { isRefreshing.value = false }
@@ -59,7 +60,7 @@ class RoutineHomeScaffoldRefreshTest {
     }
 
     private fun setRoutineHomeScaffold(
-        uiStateProvider: () -> RoutineHomeUiState = { RoutineHomeUiState() },
+        uiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
         onEvent: (RoutineHomeScaffoldEvent) -> Unit = {},
     ) {
         composeRule.setContent {

@@ -22,7 +22,11 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.MEMO_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
+import io.github.taetae98coding.diary.feature.web.ui.Res
 import io.github.taetae98coding.diary.feature.web.ui.detail.webMemo
+import io.github.taetae98coding.diary.feature.web.ui.web_detail_memo_empty_description
+import io.github.taetae98coding.diary.feature.web.ui.web_detail_memo_empty_title
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
@@ -35,6 +39,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import org.jetbrains.compose.resources.stringResource
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
@@ -67,7 +72,9 @@ class WebDetailMemoPlaceholderTest {
 
         composeRule.setContent {
             DiaryTheme {
-                WebDetailMemoTab(
+                EntityDetailMemoTab(
+                    emptyTitle = stringResource(Res.string.web_detail_memo_empty_title),
+                    emptyDescription = stringResource(Res.string.web_detail_memo_empty_description),
                     onEvent = {},
                     onMemoListEvent = eventList::add,
                     modifier = Modifier.fillMaxSize(),

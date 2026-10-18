@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.domain.memo.usecase
 
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.account.usecase.requireAccount
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoContactRepository
 import io.github.taetae98coding.diary.domain.memo.repository.AccountMemoPlaceRepository
@@ -28,26 +29,26 @@ public class CopyMemoUseCase internal constructor(
     private val clock: Clock,
 ) : UseCase<Uuid, Uuid>() {
     override suspend fun execute(parameter: Uuid): Uuid {
-        val account = getAccountUseCase(parameter = Unit).first().getOrThrow()
+        val account = getAccountUseCase.requireAccount()
         val source = requireNotNull(findMemoUseCase(parameter).first().getOrThrow())
         val now = clock.now()
         val tagIdSet =
-            accountMemoTagRepository.findTagIdSet(
+            accountMemoTagRepository.readTagIdSet(
                 account = account,
                 memoId = source.id,
             ) + setOfNotNull(source.primaryTagId)
         val webIdSet =
-            accountMemoWebRepository.findWebIdSet(
+            accountMemoWebRepository.readWebIdSet(
                 account = account,
                 memoId = source.id,
             )
         val contactIdSet =
-            accountMemoContactRepository.findContactIdSet(
+            accountMemoContactRepository.readContactIdSet(
                 account = account,
                 memoId = source.id,
             )
         val placeIdSet =
-            accountMemoPlaceRepository.findPlaceIdSet(
+            accountMemoPlaceRepository.readPlaceIdSet(
                 account = account,
                 memoId = source.id,
             )

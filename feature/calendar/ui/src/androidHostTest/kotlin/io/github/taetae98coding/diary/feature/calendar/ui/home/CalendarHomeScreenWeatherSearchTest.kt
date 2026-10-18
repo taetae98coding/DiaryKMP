@@ -21,7 +21,9 @@ import io.github.taetae98coding.diary.compose.permission.rememberPermissionManag
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeather
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherTemperature
+import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayViewModel
+import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.search.weatherSearchUri
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -114,7 +116,7 @@ class CalendarHomeScreenWeatherSearchTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-071 브라우저를 열지 못해도 화면이 유지되고 별도 안내가 표시되지 않는다`() {
+    fun `TC-CALENDAR-HOME-FEATURE-111 날씨 선택에서 브라우저를 열지 못하면 화면이 유지되고 검색 결과를 열지 못했다고 알린다`() {
         val uriHandler =
             mockk<UriHandler> {
                 every { openUri(any()) } throws IllegalStateException(fixtureMonkey.giveMeOne<String>())
@@ -127,10 +129,12 @@ class CalendarHomeScreenWeatherSearchTest {
         )
 
         composeRule.onNodeWithText(CURRENT_TEMPERATURE_TEXT).performClick()
+        composeRule.waitForIdle()
 
         composeRule.onNodeWithText(CalendarHomeTestFixture.englishTitle(JULY_2026)).assertIsDisplayed()
         composeRule.onNodeWithText(CURRENT_TEMPERATURE_TEXT).assertIsDisplayed()
         composeRule.onAllNodes(isDialog()).assertCountEquals(0)
+        composeRule.onNodeWithText("Couldn't open the search results.").assertIsDisplayed()
     }
 
     @Test
@@ -176,13 +180,12 @@ class CalendarHomeScreenWeatherSearchTest {
         val holidayViewModel =
             mockk<CalendarHomeHolidayViewModel>().also { viewModel ->
                 every { viewModel.fetch(any()) } returns Unit
-                every { viewModel.holidayList } returns MutableStateFlow(emptyList())
-                every { viewModel.isFetching } returns MutableStateFlow(false)
+                every { viewModel.uiState } returns MutableStateFlow(CalendarHomeHolidayUiState())
             }
         val memoViewModel =
             mockk<CalendarHomeMemoViewModel>().also { viewModel ->
-                every { viewModel.fetch(any()) } returns Unit
-                every { viewModel.memoList } returns MutableStateFlow(emptyList())
+                every { viewModel.select(any()) } returns Unit
+                every { viewModel.uiState } returns MutableStateFlow(CalendarHomeMemoUiState())
                 every { viewModel.filterUiState } returns MutableStateFlow(CalendarHomeScaffoldFilterUiState())
             }
 

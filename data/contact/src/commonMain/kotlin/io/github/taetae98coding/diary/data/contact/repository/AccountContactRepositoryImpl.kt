@@ -1,19 +1,15 @@
 package io.github.taetae98coding.diary.data.contact.repository
 
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.map
 import io.github.taetae98coding.diary.core.database.api.contact.datasource.AccountContactLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.contact.transaction.AccountContactTransaction
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.core.model.list.ListSort
-import io.github.taetae98coding.diary.data.contact.mapper.toDomain
-import io.github.taetae98coding.diary.data.contact.mapper.toLocal
+import io.github.taetae98coding.diary.data.core.mapper.toDomain
 import io.github.taetae98coding.diary.data.core.mapper.toLocal
-import io.github.taetae98coding.diary.data.core.paging.PAGE_SIZE
+import io.github.taetae98coding.diary.data.core.paging.pagingFlow
 import io.github.taetae98coding.diary.domain.contact.repository.AccountContactRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -30,17 +26,15 @@ internal class AccountContactRepositoryImpl(
         account: Account,
         sort: ListSort,
     ): Flow<PagingData<Contact>> =
-        Pager(
-            config = PagingConfig(pageSize = PAGE_SIZE),
+        pagingFlow(
             pagingSourceFactory = {
                 accountContactLocalDataSource.page(
                     accountId = account.id,
                     sort = sort.toLocal(),
                 )
             },
-        ).flow.map { pagingData ->
-            pagingData.map { local -> local.toDomain() }
-        }
+            transform = { local -> local.toDomain() },
+        )
 
     override fun get(
         account: Account,

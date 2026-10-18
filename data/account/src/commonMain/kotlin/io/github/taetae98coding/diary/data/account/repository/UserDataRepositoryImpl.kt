@@ -8,7 +8,8 @@ import io.github.taetae98coding.diary.core.model.image.ImageCropRegion
 import io.github.taetae98coding.diary.core.model.image.ImageFormat
 import io.github.taetae98coding.diary.core.network.api.profile.datasource.ProfileImageRemoteDataSource
 import io.github.taetae98coding.diary.core.supabase.api.SupabaseAuth
-import io.github.taetae98coding.diary.core.supabase.api.SupabaseUser
+import io.github.taetae98coding.diary.data.account.mapper.toMimeType
+import io.github.taetae98coding.diary.data.account.mapper.toUserData
 import io.github.taetae98coding.diary.domain.account.repository.UserDataRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -46,16 +47,4 @@ internal class UserDataRepositoryImpl(
     override suspend fun refresh() {
         supabaseAuth.retrieveUserForCurrentSession()
     }
-
-    private fun ImageFormat.toMimeType(): String =
-        when (this) {
-            ImageFormat.JPEG -> "image/jpeg"
-        }
-
-    private fun SupabaseUser.toUserData(): UserData =
-        UserData(
-            id = id,
-            email = email,
-            profileImage = profileImage,
-        )
 }

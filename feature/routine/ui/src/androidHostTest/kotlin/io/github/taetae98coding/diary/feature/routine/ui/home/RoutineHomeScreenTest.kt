@@ -1,6 +1,5 @@
 package io.github.taetae98coding.diary.feature.routine.ui.home
 
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -8,10 +7,13 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -71,15 +73,15 @@ class RoutineHomeScreenTest {
         navigateToAdd: () -> Unit = {},
         componentVisible: RoutineHomeScaffoldComponentVisible = RoutineHomeScaffoldComponentVisible(),
     ) {
-        val viewModel = mockk<RoutineHomeViewModel>()
-        every { viewModel.uiState } returns MutableStateFlow(RoutineHomeUiState())
+        val viewModel = mockk<SyncRefreshViewModel>()
+        every { viewModel.uiState } returns MutableStateFlow(SyncRefreshUiState())
 
         composeRule.setContent {
             DiaryTheme {
                 RoutineHomeScreen(
                     navigateToAdd = navigateToAdd,
                     componentVisibleProvider = { componentVisible },
-                    scrollState = rememberScrollState(),
+                    homeReselectEvent = emptyFlow(),
                     viewModel = viewModel,
                 )
             }

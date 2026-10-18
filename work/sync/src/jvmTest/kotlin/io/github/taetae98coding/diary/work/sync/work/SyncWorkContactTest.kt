@@ -3,7 +3,7 @@ package io.github.taetae98coding.diary.work.sync.work
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactBirthdayCalendarLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactPhoneNumberLocalEntity
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.network.api.contact.entity.ContactRemoteEntity
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
 import io.github.taetae98coding.diary.work.sync.mapper.toRemote
@@ -130,15 +130,17 @@ class SyncWorkContactTest :
         }
 
         listOf(
-            "양력 생일" to ContactBirthdayCalendarLocalEntity.SOLAR,
-            "음력 생일" to ContactBirthdayCalendarLocalEntity.LUNAR,
-            "생일 없음" to null,
-        ).forEach { (label, birthdayCalendar) ->
-            test("TC-DATA-SYNC-DATA-034 $label 연락처의 업로드에는 생일의 날짜와 달력 구분이 함께 담긴다") {
+            Triple("양력 생일", ContactBirthdayCalendarLocalEntity.SOLAR, false),
+            Triple("음력 생일", ContactBirthdayCalendarLocalEntity.LUNAR, false),
+            Triple("생일 없이 태어난 연도만 있는", null, true),
+            Triple("생일과 태어난 연도가 모두 없는", null, false),
+        ).forEach { (label, birthdayCalendar, hasBirthYearOnly) ->
+            test("TC-DATA-SYNC-DATA-034 $label 연락처의 업로드에는 생일의 날짜와 달력 구분, 태어난 연도가 함께 담긴다") {
                 val birthday = birthdayCalendar?.let { fixtureMonkey.giveMeOne<LocalDate>() }
+                val birthYear = birthday?.year ?: if (hasBirthYearOnly) fixtureMonkey.giveMeOne<LocalDate>().year else null
                 val stored =
                     contact().let { value ->
-                        value.copy(detail = value.detail.copy(birthday = birthday, birthdayCalendar = birthdayCalendar))
+                        value.copy(detail = value.detail.copy(birthday = birthday, birthdayCalendar = birthdayCalendar, birthYear = birthYear))
                     }
                 val context = context(contactList = listOf(stored))
                 val requestList = mutableListOf<List<ContactRemoteEntity>>()
@@ -149,6 +151,7 @@ class SyncWorkContactTest :
                 val detail = requestList.single().single().detail
                 detail.birthday shouldBe birthday
                 detail.birthdayCalendar shouldBe birthdayCalendar?.toRemote()
+                detail.birthYear shouldBe birthYear
             }
         }
 
@@ -158,7 +161,7 @@ class SyncWorkContactTest :
             coEvery { context.contactRemoteDataSource.pull(usn = 0L) } returns pullList
             coEvery { context.contactRemoteDataSource.pull(usn = 1L) } returns emptyList()
             val savedList = mutableListOf<List<Any>>()
-            coEvery { context.accountContactSyncTransaction.save(any(), any(), any()) } answers {
+            coEvery { context.accountContactSyncTransaction.upsert(any(), any(), any()) } answers {
                 savedList += secondArg<List<Any>>()
             }
 
@@ -171,7 +174,7 @@ class SyncWorkContactTest :
             val context = context()
             val cursor = 42L
             val pullList = contactPulls(usnList = listOf(50L, 47L))
-            coEvery { context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.CONTACT) } returns cursor
+            coEvery { context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.CONTACT) } returns cursor
             coEvery { context.contactRemoteDataSource.pull(usn = cursor) } returns pullList
             coEvery { context.contactRemoteDataSource.pull(usn = 50L) } returns emptyList()
 
@@ -179,7 +182,7 @@ class SyncWorkContactTest :
 
             coVerify(exactly = 1) { context.contactRemoteDataSource.pull(usn = cursor) }
             coVerify(exactly = 1) {
-                context.accountContactSyncTransaction.save(
+                context.accountContactSyncTransaction.upsert(
                     context.accountId,
                     pullList.map { pull -> pull.contact.toLocal() },
                     50L,
@@ -199,8 +202,8 @@ class SyncWorkContactTest :
             coVerify(exactly = 1) { context.contactRemoteDataSource.pull(usn = 0L) }
             coVerify(exactly = 1) { context.contactRemoteDataSource.pull(usn = 2L) }
             coVerify(exactly = 1) { context.contactRemoteDataSource.pull(usn = 3L) }
-            coVerify(exactly = 1) { context.accountContactSyncTransaction.save(context.accountId, any(), 2L) }
-            coVerify(exactly = 1) { context.accountContactSyncTransaction.save(context.accountId, any(), 3L) }
+            coVerify(exactly = 1) { context.accountContactSyncTransaction.upsert(context.accountId, any(), 2L) }
+            coVerify(exactly = 1) { context.accountContactSyncTransaction.upsert(context.accountId, any(), 3L) }
         }
 
         test("TC-DATA-SYNC-DOMAIN-040 연락처 내려받기가 실패하면 동기화가 실패한다") {

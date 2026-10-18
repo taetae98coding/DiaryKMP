@@ -9,12 +9,12 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
-import io.github.taetae98coding.diary.compose.core.shortcut.isAddShortcut
-import io.github.taetae98coding.diary.compose.core.shortcut.keyShortcut
+import io.github.taetae98coding.diary.compose.core.shortcut.addShortcut
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.compose.memo.list.MemoListUndoSnackbarEffect
 import io.github.taetae98coding.diary.compose.memo.list.UpdateMemoListTodayEffect
 import io.github.taetae98coding.diary.compose.memo.list.rememberMemoListState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import kotlin.uuid.Uuid
 
 @Composable
@@ -27,7 +27,7 @@ internal fun MemoHomeScreen(
     componentVisibleProvider: () -> MemoHomeScaffoldComponentVisible,
     listState: LazyListState,
     memoViewModel: MemoHomeViewModel,
-    syncViewModel: MemoHomeSyncViewModel,
+    syncViewModel: SyncRefreshViewModel,
     modifier: Modifier = Modifier,
 ) {
     val memoListState = rememberMemoListState()
@@ -35,7 +35,7 @@ internal fun MemoHomeScreen(
     val memoPagingItems = memoViewModel.memoPagingData.collectAsLazyPagingItems()
     val filterUiState by memoViewModel.filterUiState.collectAsStateWithLifecycle()
     val memoListUiState by syncViewModel.uiState.collectAsStateWithLifecycle()
-    val sort by memoViewModel.sort.collectAsStateWithLifecycle()
+    val sortUiState by memoViewModel.sortUiState.collectAsStateWithLifecycle()
     val sortSheetState = rememberDialogState()
 
     UpdateMemoListTodayEffect(state = memoListState)
@@ -53,8 +53,8 @@ internal fun MemoHomeScreen(
         snackbarHostState = snackbarHostState,
         memoPagingItems = memoPagingItems,
         filterUiStateProvider = { filterUiState },
-        memoListUiStateProvider = { memoListUiState },
-        sortProvider = { sort },
+        syncUiStateProvider = { memoListUiState },
+        sortProvider = { sortUiState.sort },
         componentVisibleProvider = componentVisibleProvider,
         onEvent = { event ->
             when (event) {
@@ -76,13 +76,6 @@ internal fun MemoHomeScreen(
             }
         },
         modifier =
-            modifier.keyShortcut(isEnableProvider = { componentVisibleProvider().isAddButtonVisible }) { keyEvent ->
-                if (keyEvent.isAddShortcut()) {
-                    navigateToAdd()
-                    true
-                } else {
-                    false
-                }
-            },
+            modifier.addShortcut(isEnabledProvider = { componentVisibleProvider().isAddButtonVisible }, onAdd = navigateToAdd),
     )
 }

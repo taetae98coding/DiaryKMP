@@ -25,7 +25,7 @@ class BrowserSettingLocalDataSourceImplTest :
             listOf(PROFILE_DIRECTORY, "").forEach { directory ->
                 val dataSource = BrowserSettingLocalDataSourceImpl(dataStore = mockDataStore(MutableStateFlow(BrowserSettingData())))
 
-                dataSource.setChromeSessionProfileDirectory(directory = directory)
+                dataSource.upsertChromeSessionProfileDirectory(directory = directory)
 
                 dataSource.getChromeSessionProfileDirectory().first() shouldBe directory
             }
@@ -38,7 +38,7 @@ class BrowserSettingLocalDataSourceImplTest :
             dataSource.getChromeSessionProfileDirectory().test {
                 awaitItem() shouldBe ""
 
-                dataSource.setChromeSessionProfileDirectory(directory = PROFILE_DIRECTORY)
+                dataSource.upsertChromeSessionProfileDirectory(directory = PROFILE_DIRECTORY)
 
                 awaitItem() shouldBe PROFILE_DIRECTORY
             }

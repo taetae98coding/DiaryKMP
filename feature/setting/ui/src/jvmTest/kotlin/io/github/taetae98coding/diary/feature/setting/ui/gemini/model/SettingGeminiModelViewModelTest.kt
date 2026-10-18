@@ -197,8 +197,8 @@ class SettingGeminiModelViewModelTest : FunSpec() {
         test("TC-SETTING-GEMINI-FEATURE-011 조회에 실패해도 받아 둔 목록을 유지한다") {
             val failureCases =
                 listOf(
-                    GeminiApiKeyInvalidException() to SettingGeminiModelFailure.INVALID_API_KEY,
-                    IllegalStateException("server error") to SettingGeminiModelFailure.UNKNOWN,
+                    GeminiApiKeyInvalidException() to SettingGeminiModelEffect.InvalidApiKey,
+                    IllegalStateException("server error") to SettingGeminiModelEffect.FetchFailed,
                 )
 
             failureCases.forEach { (throwable, expected) ->

@@ -22,7 +22,7 @@ internal class AccountMusicLocalDataSourceImpl(
             sort = sort.queryValue,
         )
 
-    override suspend fun findList(
+    override suspend fun readList(
         accountId: Uuid,
         sort: ListSortLocalEntity,
     ): List<MusicLocalEntity> =

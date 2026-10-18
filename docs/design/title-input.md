@@ -13,6 +13,7 @@
 - [PlaceAdd 화면 디자인](./place-add.md)
 - [PlaceDetail 화면 디자인](./place-detail.md)
 - [QrAdd 화면 디자인](./qr-add.md)
+- [QrDetail 화면 디자인](./qr-detail.md)
 - [RoutineAdd 화면 디자인](./routine-add.md)
 - [TagAdd 화면 디자인](./tag-add.md)
 - [TagDetail 화면 디자인](./tag-detail.md)

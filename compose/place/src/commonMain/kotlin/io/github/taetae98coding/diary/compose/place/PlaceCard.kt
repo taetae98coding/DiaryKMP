@@ -17,6 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import io.github.taetae98coding.diary.compose.core.color.DiaryColorIndicator
 import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
@@ -26,17 +28,21 @@ import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.library.compose.ui.color.toColor
 
 public const val PLACE_CARD_TEST_TAG: String = "PlaceCard"
-public const val PLACE_CARD_COLOR_INDICATOR_TEST_TAG: String = "PlaceCardColorIndicator"
+internal const val PLACE_CARD_COLOR_INDICATOR_TEST_TAG: String = "PlaceCardColorIndicator"
 
 @Composable
-public fun PlaceCard(
+internal fun PlaceCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     place: Place? = null,
+    onClickLabel: String? = null,
 ) {
     Card(
         onClick = onClick,
-        modifier = modifier.testTag(PLACE_CARD_TEST_TAG),
+        modifier =
+            modifier
+                .testTag(PLACE_CARD_TEST_TAG)
+                .semantics { onClickLabel?.let { label -> onClick(label = label, action = null) } },
         enabled = place != null,
     ) {
         Row(

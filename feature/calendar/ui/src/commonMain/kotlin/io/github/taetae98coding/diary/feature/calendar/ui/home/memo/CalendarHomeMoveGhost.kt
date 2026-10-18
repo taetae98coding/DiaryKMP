@@ -14,7 +14,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.round
-import io.github.taetae98coding.diary.compose.calendar.CalendarDefault
+import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.calendar.move.CalendarItemMoveState
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -28,7 +28,7 @@ internal fun CalendarHomeMoveGhost(
     memoProvider: () -> List<CalendarMemo> = { emptyList() },
 ) {
     val moving = moveState.moving ?: return
-    val memo = memoProvider().firstOrNull { it.id == moving.key } ?: return
+    val memo = remember(moving) { memoProvider().firstOrNull { it.id == moving.key } } ?: return
     val density = LocalDensity.current
     val coordinatesState = remember { mutableStateOf<LayoutCoordinates?>(null) }
 
@@ -49,7 +49,7 @@ internal fun CalendarHomeMoveGhost(
 
                             coordinates.windowToLocal(pieceBounds.topLeft + dragDelta).round()
                         }.size(with(density) { pieceBounds.size.toDpSize() })
-                        .shadow(elevation = CalendarHomeMoveGhostDefaults.Elevation, shape = CalendarDefault.itemShape),
+                        .shadow(elevation = CalendarHomeMoveGhostDefaults.Elevation, shape = CalendarDefaults.itemShape),
             )
         }
     }

@@ -11,7 +11,6 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.place.ui.TEST_TAG_ADD_REQUEST_KEY
 import io.mockk.every
 import io.mockk.verify
@@ -56,6 +55,7 @@ class PlaceAddScreenRetentionTest {
         restorationTester.setContent {
             PlaceAddScreenTestTheme {
                 PlaceAddScreen(
+                    addedResultRequestKey = null,
                     navigateToTagAdd = {},
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                     navigateUp = {},

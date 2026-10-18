@@ -110,13 +110,13 @@ class AccountMemoPlaceTransactionImplTest :
 
         suspend fun findPendingPlaceIdList(accountId: Uuid): List<Uuid> =
             syncDataSource
-                .findPending(accountId = accountId)
+                .readPendingList(accountId = accountId)
                 .map { memoPlace -> memoPlace.placeId }
 
         suspend fun clearAllPending(accountId: Uuid) {
             syncTransaction.clearPending(
                 accountId = accountId,
-                memoPlaceList = syncDataSource.findPending(accountId = accountId),
+                memoPlaceList = syncDataSource.readPendingList(accountId = accountId),
             )
         }
 
@@ -359,7 +359,7 @@ class AccountMemoPlaceTransactionImplTest :
             findMemo(accountId = accountId, memoId = memo.id).shouldBeNull()
             database.memoTagDao().findByMemoIdList(listOf(memo.id)).shouldBeEmpty()
             findMemoPlaceList(memoId = memo.id).shouldBeEmpty()
-            syncDataSource.findPending(accountId = accountId).shouldBeEmpty()
+            syncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
 
         test("TC-MEMO-PLACE-DATA-003 같은 연결을 다른 수정 시각으로 저장하면 마지막 내용으로 덮어쓴다") {
@@ -426,7 +426,7 @@ class AccountMemoPlaceTransactionImplTest :
         ): Set<Uuid> {
             val sourcePlaceIdSet =
                 dataSource
-                    .findPlaceIdList(accountId = accountId, memoId = sourceId)
+                    .readPlaceIdList(accountId = accountId, memoId = sourceId)
                     .toSet()
             memoTransaction.upsert(
                 accountId = accountId,

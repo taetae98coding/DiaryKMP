@@ -18,6 +18,7 @@ internal fun WebAddScreen(
     navigateToTagAdd: () -> Unit,
     navigateToTagDetail: (Uuid) -> Unit,
     tagAddRequestKey: Uuid,
+    addedResultRequestKey: Uuid?,
     componentVisibleProvider: () -> WebAddScaffoldComponentVisible,
     addViewModel: WebAddViewModel,
     tagViewModel: WebAddTagViewModel,
@@ -35,6 +36,7 @@ internal fun WebAddScreen(
         onTagAdded = tagViewModel::add,
     )
     WebAddScreenEffect(
+        addedResultRequestKey = addedResultRequestKey,
         effect = addViewModel.effect,
         state = state,
     )
@@ -47,7 +49,7 @@ internal fun WebAddScreen(
                 is WebAddScaffoldEvent.ClickAdd ->
                     addViewModel.add(
                         detail = state.detail,
-                        tagIdSet = tagViewModel.tagIdSet.value,
+                        tagIdSet = tagViewModel.tagSelectionUiState.value.tagIdSet,
                     )
             }
         },

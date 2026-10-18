@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
+import kotlin.uuid.Uuid
 
 @KoinViewModel
 internal class PlaceHomeMapViewModel(
@@ -32,9 +33,10 @@ internal class PlaceHomeMapViewModel(
             if (provider == null || currentLocationState !is CurrentLocationState.Finished) {
                 PlaceHomeUiState.Loading
             } else {
-                PlaceHomeUiState.Loaded(
+                PlaceHomeUiState.Content(
                     defaultProvider = provider,
                     initialCoordinate = currentLocationState.coordinate,
+                    currentLocationFetchId = currentLocationState.fetchId,
                 )
             }
         }.stateIn(
@@ -51,7 +53,7 @@ internal class PlaceHomeMapViewModel(
         viewModelScope.launch {
             val coordinate = fetchCurrentLocationUseCase(parameter = Unit).getOrNull()
 
-            currentLocationState.value = CurrentLocationState.Finished(coordinate = coordinate)
+            currentLocationState.value = CurrentLocationState.Finished(coordinate = coordinate, fetchId = Uuid.random())
         }
     }
 }
@@ -63,5 +65,6 @@ private sealed interface CurrentLocationState {
 
     data class Finished(
         val coordinate: Coordinate?,
+        val fetchId: Uuid,
     ) : CurrentLocationState
 }

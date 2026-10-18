@@ -35,10 +35,12 @@ import io.mockk.mockk
 import io.mockk.slot
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
 import kotlinx.io.Buffer
 import kotlinx.io.RawSource
 import kotlinx.io.buffered
 import kotlinx.io.readByteArray
+import kotlin.uuid.Uuid
 
 private val fixtureMonkey: FixtureMonkey =
     diaryFixtureMonkey()
@@ -60,7 +62,7 @@ class FileRepositoryImplTest :
                         filePagingSourceHolder = mockk(relaxed = true),
                     )
 
-                repository.findSource(uri = uri) shouldBe FileUploadSource(uri = uri, name = name, mimeType = sourceMimeType, size = size)
+                repository.readSource(uri = uri) shouldBe FileUploadSource(uri = uri, name = name, mimeType = sourceMimeType, size = size)
             }
         }
 
@@ -74,10 +76,10 @@ class FileRepositoryImplTest :
             coEvery { nameUnreadable.name(uri = uri) } throws IllegalStateException(fixtureMonkey.giveMeOne<String>())
 
             shouldThrow<FileUnreadableException> {
-                FileRepositoryImpl(fileLocalDataSource = sizeUnreadable, fileRemoteDataSource = mockk(), filePagingSourceHolder = mockk(relaxed = true)).findSource(uri = uri)
+                FileRepositoryImpl(fileLocalDataSource = sizeUnreadable, fileRemoteDataSource = mockk(), filePagingSourceHolder = mockk(relaxed = true)).readSource(uri = uri)
             }.name shouldBe name
             shouldThrow<FileUnreadableException> {
-                FileRepositoryImpl(fileLocalDataSource = nameUnreadable, fileRemoteDataSource = mockk(), filePagingSourceHolder = mockk(relaxed = true)).findSource(uri = uri)
+                FileRepositoryImpl(fileLocalDataSource = nameUnreadable, fileRemoteDataSource = mockk(), filePagingSourceHolder = mockk(relaxed = true)).readSource(uri = uri)
             }.name shouldBe ""
         }
 
@@ -101,10 +103,10 @@ class FileRepositoryImplTest :
                 val fileRemoteDataSource = mockk<FileRemoteDataSource>()
                 val repository = FileRepositoryImpl(fileLocalDataSource = fileLocalDataSource, fileRemoteDataSource = fileRemoteDataSource, filePagingSourceHolder = mockk(relaxed = true))
 
-                val exception = shouldThrow<Exception> { repository.findSource(uri = uri) }
+                val exception = shouldThrow<Exception> { repository.readSource(uri = uri) }
 
                 exception.shouldNotBeInstanceOf<FileTooLargeException>()
-                coVerify(exactly = 0) { fileRemoteDataSource.upload(name = any(), title = any(), description = any(), mimeType = any(), contentLength = any(), openContent = any(), onSent = any()) }
+                coVerify(exactly = 0) { fileRemoteDataSource.upload(name = any(), title = any(), description = any(), mimeType = any(), contentLength = any(), accountId = any(), openContent = any(), onSent = any()) }
             }
         }
 
@@ -115,16 +117,17 @@ class FileRepositoryImplTest :
             coEvery { fileLocalDataSource.openSource(uri = source.uri) } throws exception
             val fileRemoteDataSource = mockk<FileRemoteDataSource>()
             coEvery {
-                fileRemoteDataSource.upload(name = any(), title = any(), description = any(), mimeType = any(), contentLength = any(), openContent = any(), onSent = any())
-            } coAnswers { arg<suspend () -> RawSource>(5).invoke().close().let { remoteFile() } }
+                fileRemoteDataSource.upload(name = any(), title = any(), description = any(), mimeType = any(), contentLength = any(), accountId = any(), openContent = any(), onSent = any())
+            } coAnswers { arg<suspend () -> RawSource>(6).invoke().close().let { remoteFile() } }
             val repository = FileRepositoryImpl(fileLocalDataSource = fileLocalDataSource, fileRemoteDataSource = fileRemoteDataSource, filePagingSourceHolder = mockk(relaxed = true))
 
-            shouldThrow<IllegalStateException> { repository.create(source = source, title = fixtureMonkey.giveMeOne<String>(), description = fixtureMonkey.giveMeOne<String>(), onSent = {}) } shouldBeSameInstanceAs exception
+            shouldThrow<IllegalStateException> { repository.create(source = source, title = fixtureMonkey.giveMeOne<String>(), description = fixtureMonkey.giveMeOne<String>(), accountId = fixtureMonkey.giveMeOne<Uuid>(), onSent = {}) } shouldBeSameInstanceAs exception
         }
 
         test("TC-FILE-STORAGE-DATA-005 고른 위치의 내용과 크기를 제목, 설명과 함께 그대로 올리고 보낸 양과 서버가 돌려준 파일 정보를 전달한다") {
             val title = "title-${fixtureMonkey.giveMeOne<String>()}"
             val description = fixtureMonkey.giveMeOne<String>()
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val bytes = "file-${fixtureMonkey.giveMeOne<String>()}".encodeToByteArray()
             val source = fixtureMonkey.fileUploadSource(size = bytes.size.toLong())
             val fileLocalDataSource = fileLocalDataSource(uri = source.uri, size = source.size)
@@ -140,6 +143,7 @@ class FileRepositoryImplTest :
                     description = description,
                     mimeType = source.mimeType,
                     contentLength = source.size,
+                    accountId = accountId,
                     openContent = capture(openContentSlot),
                     onSent = capture(onSentSlot),
                 )
@@ -150,7 +154,7 @@ class FileRepositoryImplTest :
             val sentBytesList = mutableListOf<Long>()
             val repository = FileRepositoryImpl(fileLocalDataSource = fileLocalDataSource, fileRemoteDataSource = fileRemoteDataSource, filePagingSourceHolder = mockk(relaxed = true))
 
-            val actual = repository.create(source = source, title = title, description = description) { sentBytes -> sentBytesList += sentBytes }
+            val actual = repository.create(source = source, title = title, description = description, accountId = accountId) { sentBytes -> sentBytesList += sentBytes }
 
             openContentSlot.captured().buffered().use { rawSource -> rawSource.readByteArray() } shouldBe bytes
             sentBytesList shouldBe listOf(source.size)
@@ -168,12 +172,12 @@ class FileRepositoryImplTest :
             val otherException = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val fileRemoteDataSource = mockk<FileRemoteDataSource>()
             coEvery {
-                fileRemoteDataSource.upload(name = any(), title = any(), description = any(), mimeType = any(), contentLength = any(), openContent = any(), onSent = any())
+                fileRemoteDataSource.upload(name = any(), title = any(), description = any(), mimeType = any(), contentLength = any(), accountId = any(), openContent = any(), onSent = any())
             } throws FileTooLargeRemoteException(message = fixtureMonkey.giveMeOne<String>()) andThenThrows otherException
             val repository = FileRepositoryImpl(fileLocalDataSource = fileLocalDataSource(uri = source.uri), fileRemoteDataSource = fileRemoteDataSource, filePagingSourceHolder = mockk(relaxed = true))
 
-            shouldThrow<FileTooLargeException> { repository.create(source = source, title = fixtureMonkey.giveMeOne<String>(), description = fixtureMonkey.giveMeOne<String>(), onSent = {}) }
-            shouldThrow<IllegalStateException> { repository.create(source = source, title = fixtureMonkey.giveMeOne<String>(), description = fixtureMonkey.giveMeOne<String>(), onSent = {}) } shouldBeSameInstanceAs otherException
+            shouldThrow<FileTooLargeException> { repository.create(source = source, title = fixtureMonkey.giveMeOne<String>(), description = fixtureMonkey.giveMeOne<String>(), accountId = fixtureMonkey.giveMeOne<Uuid>(), onSent = {}) }
+            shouldThrow<IllegalStateException> { repository.create(source = source, title = fixtureMonkey.giveMeOne<String>(), description = fixtureMonkey.giveMeOne<String>(), accountId = fixtureMonkey.giveMeOne<Uuid>(), onSent = {}) } shouldBeSameInstanceAs otherException
         }
 
         test("고른 파일의 읽기 권한을 붙들고 놓는 일은 기기의 파일 보관 수단에 맡긴다") {
@@ -215,128 +219,145 @@ class FileRepositoryImplTest :
                 awaitItem() shouldBe ContinuedFileUploadResult.Failed(name = name)
                 awaitComplete()
             }
-            repository.deleteContinuedUpload()
+            val exceptAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            repository.deleteContinuedUpload(exceptAccountId = exceptAccountId)
 
-            coVerify(exactly = 1) { fileRemoteDataSource.cancelContinuedUpload() }
+            coVerify(exactly = 1) { fileRemoteDataSource.cancelContinuedUpload(exceptAccountId = exceptAccountId) }
         }
 
         test("TC-FILE-STORAGE-DATA-001 목록을 처음 불러올 때 마지막 파일 없이 20개를 한 번 요청한다") {
-            val fileList = List(3) { remoteFile() }
-            val fileRemoteDataSource = mockk<FileRemoteDataSource>()
-            coEvery { fileRemoteDataSource.fetch(cursor = null, size = 20) } returns fileList
-            val repository = FileRepositoryImpl(fileLocalDataSource = mockk(), fileRemoteDataSource = fileRemoteDataSource, filePagingSourceHolder = FilePagingSourceHolder(fileRemoteDataSource = fileRemoteDataSource))
+            runTest {
+                val fileList = List(3) { remoteFile() }
+                val fileRemoteDataSource = mockk<FileRemoteDataSource>()
+                coEvery { fileRemoteDataSource.readList(cursor = null, size = 20) } returns fileList
+                val repository = FileRepositoryImpl(fileLocalDataSource = mockk(), fileRemoteDataSource = fileRemoteDataSource, filePagingSourceHolder = FilePagingSourceHolder(fileRemoteDataSource = fileRemoteDataSource))
 
-            val snapshot = repository.page().asSnapshot()
+                val snapshot = repository.page().asSnapshot()
 
-            snapshot.map { file -> file.id } shouldBe fileList.map { file -> file.id }
-            coVerify(exactly = 1) { fileRemoteDataSource.fetch(cursor = any(), size = any()) }
+                snapshot.map { file -> file.id } shouldBe fileList.map { file -> file.id }
+                coVerify(exactly = 1) { fileRemoteDataSource.readList(cursor = any(), size = any()) }
+            }
         }
 
         test("TC-FILE-STORAGE-DATA-027 목록의 파일 정보에 서버가 돌려준 제목과 설명이 담긴다") {
-            val remoteFile = remoteFile()
-            val fileRemoteDataSource = mockk<FileRemoteDataSource>()
-            coEvery { fileRemoteDataSource.fetch(cursor = null, size = 20) } returns listOf(remoteFile)
-            val repository = FileRepositoryImpl(fileLocalDataSource = mockk(), fileRemoteDataSource = fileRemoteDataSource, filePagingSourceHolder = FilePagingSourceHolder(fileRemoteDataSource = fileRemoteDataSource))
+            runTest {
+                val remoteFile = remoteFile()
+                val fileRemoteDataSource = mockk<FileRemoteDataSource>()
+                coEvery { fileRemoteDataSource.readList(cursor = null, size = 20) } returns listOf(remoteFile)
+                val repository = FileRepositoryImpl(fileLocalDataSource = mockk(), fileRemoteDataSource = fileRemoteDataSource, filePagingSourceHolder = FilePagingSourceHolder(fileRemoteDataSource = fileRemoteDataSource))
 
-            val snapshot = repository.page().asSnapshot()
+                val snapshot = repository.page().asSnapshot()
 
-            snapshot.single().title shouldBe remoteFile.title
-            snapshot.single().description shouldBe remoteFile.description
+                snapshot.single().title shouldBe remoteFile.title
+                snapshot.single().description shouldBe remoteFile.description
+            }
         }
 
         test("TC-FILE-STORAGE-DATA-002 목록의 끝에 다가가면 받은 마지막 파일의 올린 시각과 식별자를 기준으로 20개를 이어서 요청한다") {
-            val firstPage = List(20) { remoteFile() }
-            val fileRemoteDataSource = mockk<FileRemoteDataSource>()
-            coEvery { fileRemoteDataSource.fetch(cursor = null, size = 20) } returns firstPage
-            coEvery { fileRemoteDataSource.fetch(cursor = match { cursor -> cursor != null }, size = any()) } returns emptyList()
-            val repository = FileRepositoryImpl(fileLocalDataSource = mockk(), fileRemoteDataSource = fileRemoteDataSource, filePagingSourceHolder = FilePagingSourceHolder(fileRemoteDataSource = fileRemoteDataSource))
+            runTest {
+                val firstPage = List(20) { remoteFile() }
+                val fileRemoteDataSource = mockk<FileRemoteDataSource>()
+                coEvery { fileRemoteDataSource.readList(cursor = null, size = 20) } returns firstPage
+                coEvery { fileRemoteDataSource.readList(cursor = match { cursor -> cursor != null }, size = any()) } returns emptyList()
+                val repository = FileRepositoryImpl(fileLocalDataSource = mockk(), fileRemoteDataSource = fileRemoteDataSource, filePagingSourceHolder = FilePagingSourceHolder(fileRemoteDataSource = fileRemoteDataSource))
 
-            repository.page().asSnapshot { scrollTo(index = firstPage.lastIndex) }
+                repository.page().asSnapshot { scrollTo(index = firstPage.lastIndex) }
 
-            coVerify(exactly = 1) {
-                fileRemoteDataSource.fetch(cursor = FileCursorRemoteEntity(createdAt = firstPage.last().createdAt, id = firstPage.last().id), size = 20)
+                coVerify(exactly = 1) {
+                    fileRemoteDataSource.readList(cursor = FileCursorRemoteEntity(createdAt = firstPage.last().createdAt, id = firstPage.last().id), size = 20)
+                }
             }
         }
 
         test("다시 불러오기는 첫 페이지를 받은 뒤 그 페이지로 목록을 새로 시작하고 첫 페이지를 다시 요청하지 않는다") {
-            val firstPage = List(3) { remoteFile() }
-            val refreshedPage = List(3) { remoteFile() }
-            val fileRemoteDataSource = mockk<FileRemoteDataSource>()
-            coEvery { fileRemoteDataSource.fetch(cursor = null, size = 20) } returns firstPage andThen refreshedPage
-            val repository = FileRepositoryImpl(fileLocalDataSource = mockk(), fileRemoteDataSource = fileRemoteDataSource, filePagingSourceHolder = FilePagingSourceHolder(fileRemoteDataSource = fileRemoteDataSource))
+            runTest {
+                val firstPage = List(3) { remoteFile() }
+                val refreshedPage = List(3) { remoteFile() }
+                val fileRemoteDataSource = mockk<FileRemoteDataSource>()
+                coEvery { fileRemoteDataSource.readList(cursor = null, size = 20) } returns firstPage andThen refreshedPage
+                val repository = FileRepositoryImpl(fileLocalDataSource = mockk(), fileRemoteDataSource = fileRemoteDataSource, filePagingSourceHolder = FilePagingSourceHolder(fileRemoteDataSource = fileRemoteDataSource))
 
-            val snapshot = repository.page().asSnapshot { repository.refresh() }
+                val snapshot = repository.page().asSnapshot { repository.refresh() }
 
-            snapshot.map { file -> file.id } shouldBe refreshedPage.map { file -> file.id }
-            coVerify(exactly = 2) { fileRemoteDataSource.fetch(cursor = null, size = 20) }
+                snapshot.map { file -> file.id } shouldBe refreshedPage.map { file -> file.id }
+                coVerify(exactly = 2) { fileRemoteDataSource.readList(cursor = null, size = 20) }
+            }
         }
 
         test("TC-FILE-HOME-FEATURE-023 다시 불러오기에 실패하면 실패를 전달하고 이전 목록을 그대로 둔다") {
-            val firstPage = List(3) { remoteFile() }
-            val exception = IllegalStateException(fixtureMonkey.giveMeOne<String>())
-            val fileRemoteDataSource = mockk<FileRemoteDataSource>()
-            coEvery { fileRemoteDataSource.fetch(cursor = null, size = 20) } returns firstPage andThenThrows exception
-            val repository = FileRepositoryImpl(fileLocalDataSource = mockk(), fileRemoteDataSource = fileRemoteDataSource, filePagingSourceHolder = FilePagingSourceHolder(fileRemoteDataSource = fileRemoteDataSource))
+            runTest {
+                val firstPage = List(3) { remoteFile() }
+                val exception = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+                val fileRemoteDataSource = mockk<FileRemoteDataSource>()
+                coEvery { fileRemoteDataSource.readList(cursor = null, size = 20) } returns firstPage andThenThrows exception
+                val repository = FileRepositoryImpl(fileLocalDataSource = mockk(), fileRemoteDataSource = fileRemoteDataSource, filePagingSourceHolder = FilePagingSourceHolder(fileRemoteDataSource = fileRemoteDataSource))
 
-            val snapshot =
-                repository.page().asSnapshot {
-                    shouldThrow<IllegalStateException> { repository.refresh() }.message shouldBe exception.message
-                }
+                val snapshot =
+                    repository.page().asSnapshot {
+                        shouldThrow<IllegalStateException> { repository.refresh() }.message shouldBe exception.message
+                    }
 
-            snapshot.map { file -> file.id } shouldBe firstPage.map { file -> file.id }
-            coVerify(exactly = 2) { fileRemoteDataSource.fetch(cursor = null, size = 20) }
+                snapshot.map { file -> file.id } shouldBe firstPage.map { file -> file.id }
+                coVerify(exactly = 2) { fileRemoteDataSource.readList(cursor = null, size = 20) }
+            }
         }
 
         test("TC-FILE-HOME-FEATURE-038 다시 불러오기로 받은 20개의 끝에 이르면 받은 마지막 파일을 기준으로 20개를 이어서 요청한다") {
-            val firstPage = List(20) { remoteFile() }
-            val refreshedPage = List(20) { remoteFile() }
-            val fileRemoteDataSource = mockk<FileRemoteDataSource>()
-            coEvery { fileRemoteDataSource.fetch(cursor = null, size = 20) } returns firstPage andThen refreshedPage
-            coEvery { fileRemoteDataSource.fetch(cursor = match { cursor -> cursor != null }, size = any()) } returns emptyList()
-            val repository = FileRepositoryImpl(fileLocalDataSource = mockk(), fileRemoteDataSource = fileRemoteDataSource, filePagingSourceHolder = FilePagingSourceHolder(fileRemoteDataSource = fileRemoteDataSource))
+            runTest {
+                val firstPage = List(20) { remoteFile() }
+                val refreshedPage = List(20) { remoteFile() }
+                val fileRemoteDataSource = mockk<FileRemoteDataSource>()
+                coEvery { fileRemoteDataSource.readList(cursor = null, size = 20) } returns firstPage andThen refreshedPage
+                coEvery { fileRemoteDataSource.readList(cursor = match { cursor -> cursor != null }, size = any()) } returns emptyList()
+                val repository = FileRepositoryImpl(fileLocalDataSource = mockk(), fileRemoteDataSource = fileRemoteDataSource, filePagingSourceHolder = FilePagingSourceHolder(fileRemoteDataSource = fileRemoteDataSource))
 
-            repository.page().asSnapshot {
-                repository.refresh()
-                scrollTo(index = refreshedPage.lastIndex)
-            }
+                repository.page().asSnapshot {
+                    repository.refresh()
+                    scrollTo(index = refreshedPage.lastIndex)
+                }
 
-            coVerify(exactly = 1) {
-                fileRemoteDataSource.fetch(cursor = FileCursorRemoteEntity(createdAt = refreshedPage.last().createdAt, id = refreshedPage.last().id), size = 20)
+                coVerify(exactly = 1) {
+                    fileRemoteDataSource.readList(cursor = FileCursorRemoteEntity(createdAt = refreshedPage.last().createdAt, id = refreshedPage.last().id), size = 20)
+                }
             }
         }
 
         test("TC-FILE-HOME-FEATURE-043 다시 불러오는 동안 다른 계정의 목록으로 바뀌면 받은 첫 페이지를 새 목록에 넣지 않는다") {
-            val pageA = List(3) { remoteFile() }
-            val lateA = List(3) { remoteFile() }
-            val pageB = List(3) { remoteFile() }
-            val fileRemoteDataSource = mockk<FileRemoteDataSource>()
-            val repository = FileRepositoryImpl(fileLocalDataSource = mockk(), fileRemoteDataSource = fileRemoteDataSource, filePagingSourceHolder = FilePagingSourceHolder(fileRemoteDataSource = fileRemoteDataSource))
-            lateinit var pagingB: Flow<PagingData<DiaryFile>>
-            coEvery { fileRemoteDataSource.fetch(cursor = null, size = 20) } returns pageA andThenAnswer {
-                pagingB = repository.page()
-                lateA
-            } andThen pageB
+            runTest {
+                val pageA = List(3) { remoteFile() }
+                val lateA = List(3) { remoteFile() }
+                val pageB = List(3) { remoteFile() }
+                val fileRemoteDataSource = mockk<FileRemoteDataSource>()
+                val repository = FileRepositoryImpl(fileLocalDataSource = mockk(), fileRemoteDataSource = fileRemoteDataSource, filePagingSourceHolder = FilePagingSourceHolder(fileRemoteDataSource = fileRemoteDataSource))
+                lateinit var pagingB: Flow<PagingData<DiaryFile>>
+                coEvery { fileRemoteDataSource.readList(cursor = null, size = 20) } returns pageA andThenAnswer {
+                    pagingB = repository.page()
+                    lateA
+                } andThen pageB
 
-            repository.page().asSnapshot()
-            repository.refresh()
-            val snapshotB = pagingB.asSnapshot()
+                repository.page().asSnapshot()
+                repository.refresh()
+                val snapshotB = pagingB.asSnapshot()
 
-            snapshotB.map { file -> file.id } shouldBe pageB.map { file -> file.id }
+                snapshotB.map { file -> file.id } shouldBe pageB.map { file -> file.id }
+            }
         }
 
         test("받은 첫 페이지는 새로 만든 목록의 첫 불러오기에 쓰이지 않는다") {
-            val pageA = List(3) { remoteFile() }
-            val refreshed = List(3) { remoteFile() }
-            val pageB = List(3) { remoteFile() }
-            val fileRemoteDataSource = mockk<FileRemoteDataSource>()
-            coEvery { fileRemoteDataSource.fetch(cursor = null, size = 20) } returns pageA andThen refreshed andThen pageB
-            val repository = FileRepositoryImpl(fileLocalDataSource = mockk(), fileRemoteDataSource = fileRemoteDataSource, filePagingSourceHolder = FilePagingSourceHolder(fileRemoteDataSource = fileRemoteDataSource))
+            runTest {
+                val pageA = List(3) { remoteFile() }
+                val refreshed = List(3) { remoteFile() }
+                val pageB = List(3) { remoteFile() }
+                val fileRemoteDataSource = mockk<FileRemoteDataSource>()
+                coEvery { fileRemoteDataSource.readList(cursor = null, size = 20) } returns pageA andThen refreshed andThen pageB
+                val repository = FileRepositoryImpl(fileLocalDataSource = mockk(), fileRemoteDataSource = fileRemoteDataSource, filePagingSourceHolder = FilePagingSourceHolder(fileRemoteDataSource = fileRemoteDataSource))
 
-            repository.page().asSnapshot()
-            repository.refresh()
-            val snapshotB = repository.page().asSnapshot()
+                repository.page().asSnapshot()
+                repository.refresh()
+                val snapshotB = repository.page().asSnapshot()
 
-            snapshotB.map { file -> file.id } shouldBe pageB.map { file -> file.id }
+                snapshotB.map { file -> file.id } shouldBe pageB.map { file -> file.id }
+            }
         }
     }) {
     public companion object {

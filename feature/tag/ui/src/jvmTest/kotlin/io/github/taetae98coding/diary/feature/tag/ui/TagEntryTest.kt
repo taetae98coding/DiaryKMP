@@ -33,6 +33,24 @@ private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class TagEntryTest :
     FunSpec({
+        test("TC-TAG-LIST-DETAIL-FEATURE-021 필터를 열어도 목록의 태그 추가 제공 여부는 상세 영역에 놓인 화면을 따른다") {
+            val detailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val backStackCases =
+                listOf(
+                    listOf(OtherTopLevelNavKey, TagHomeNavKey, detailKey) to true,
+                    listOf(OtherTopLevelNavKey, TagHomeNavKey, detailKey, TagHomeFilterNavKey) to true,
+                    listOf(OtherTopLevelNavKey, TagHomeNavKey, TagAddNavKey(), detailKey, TagHomeFilterNavKey) to true,
+                    listOf(OtherTopLevelNavKey, TagHomeNavKey) to false,
+                    listOf(OtherTopLevelNavKey, TagHomeNavKey, TagHomeFilterNavKey) to false,
+                    listOf(OtherTopLevelNavKey, TagHomeNavKey, TagAddNavKey(), TagHomeFilterNavKey) to false,
+                    listOf(OtherTopLevelNavKey, TagHomeNavKey, detailKey, TagAddNavKey(), TagHomeFilterNavKey) to false,
+                )
+
+            backStackCases.forEach { (backStack, isTagDetailOnDetailPane) ->
+                backStack.isTagDetailOnDetailPane() shouldBe isTagDetailOnDetailPane
+            }
+        }
+
         test("TC-TAG-LIST-DETAIL-FEATURE-016 태그 목록에서 이어 진입한 상세 화면은 목록·상세 배치의 상세 pane이다") {
             val detailKey = TagDetailNavKey(id = Uuid.random())
             val backStackCases =

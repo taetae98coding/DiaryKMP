@@ -7,6 +7,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
@@ -271,7 +272,7 @@ class SearchHomeScreenTest {
     fun `TC-SEARCH-HOME-FEATURE-021 화면에 들어오면 검색어 입력에 초점을 맞춘다`() {
         composeRule.setSearchHomeScreen()
 
-        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).assertIsFocused()
+        composeRule.onNode(hasSetTextAction()).assertIsFocused()
     }
 
     @Test
@@ -302,9 +303,9 @@ class SearchHomeScreenTest {
         composeRule.onNodeWithText(memoList.last().detail.title).assertIsDisplayed()
 
         setSearchQueryApplied(isApplied = false)
-        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).performTextInput(extraText)
+        composeRule.onNode(hasSetTextAction()).performTextInput(extraText)
         composeRule.waitForIdle()
-        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).performTextReplacement(QUERY)
+        composeRule.onNode(hasSetTextAction()).performTextReplacement(QUERY)
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(memoList.last().detail.title).assertIsDisplayed()
@@ -349,9 +350,9 @@ class SearchHomeScreenTest {
         composeRule.waitForIdle()
         composeRule.onNodeWithText(memoList.first().detail.title).assertDoesNotExist()
 
-        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).performTextInput("추가-${fixtureMonkey.giveMeOne<String>()}")
+        composeRule.onNode(hasSetTextAction()).performTextInput("추가-${fixtureMonkey.giveMeOne<String>()}")
         composeRule.waitForIdle()
-        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).performTextReplacement(QUERY)
+        composeRule.onNode(hasSetTextAction()).performTextReplacement(QUERY)
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(memoList.first().detail.title).assertIsDisplayed()
@@ -368,7 +369,7 @@ class SearchHomeScreenTest {
             isShownProvider = { isShown },
         )
         inputQuery()
-        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).assertIsFocused()
+        composeRule.onNode(hasSetTextAction()).assertIsFocused()
 
         composeRule.onNodeWithText(memo.detail.title).performClick()
         composeRule.waitForIdle()
@@ -376,7 +377,7 @@ class SearchHomeScreenTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(memo.detail.title).assertIsDisplayed()
-        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).assertIsNotFocused()
+        composeRule.onNode(hasSetTextAction()).assertIsNotFocused()
     }
 
     @Test
@@ -405,7 +406,7 @@ class SearchHomeScreenTest {
         composeRule.onNodeWithText(QUERY).assertExists()
         composeRule.onNodeWithText(TAG_TAB_LABEL).assertIsSelected()
         composeRule.onNodeWithText(tag.detail.title).assertIsDisplayed()
-        searchTagViewModelRef?.appliedQuery?.value shouldBe QUERY
+        searchTagViewModelRef?.uiState?.value?.appliedQuery shouldBe QUERY
     }
 
     @Test
@@ -429,7 +430,7 @@ class SearchHomeScreenTest {
         composeRule.onNodeWithText(QUERY).assertExists()
         composeRule.onNodeWithText(PLACE_TAB_LABEL).assertIsSelected()
         composeRule.onNodeWithText(place.detail.title).assertIsDisplayed()
-        searchPlaceViewModelRef?.appliedQuery?.value shouldBe QUERY
+        searchPlaceViewModelRef?.uiState?.value?.appliedQuery shouldBe QUERY
     }
 
     @Test
@@ -450,7 +451,7 @@ class SearchHomeScreenTest {
         val placeViewModel = searchPlaceViewModelRef.shouldNotBeNull()
         (placeViewModel === placeViewModelBeforeRestore) shouldBe false
         verify(exactly = 1) { placeViewModel.showQuery(QUERY) }
-        placeViewModel.appliedQuery.value shouldBe QUERY
+        placeViewModel.uiState.value.appliedQuery shouldBe QUERY
         composeRule.onNodeWithText(QUERY).assertExists()
         composeRule.onNodeWithText(PLACE_TAB_LABEL).assertIsSelected()
         composeRule.onNodeWithText(place.detail.title).assertIsDisplayed()
@@ -486,7 +487,7 @@ class SearchHomeScreenTest {
     }
 
     private fun inputQuery() {
-        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).performTextInput(QUERY)
+        composeRule.onNode(hasSetTextAction()).performTextInput(QUERY)
         composeRule.waitForIdle()
     }
 

@@ -26,6 +26,7 @@ import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderD
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
+import io.github.taetae98coding.diary.compose.core.shortcut.addShortcut
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.feature.file.ui.Res
@@ -48,11 +49,13 @@ internal fun FileHomeScaffold(
     uiStateProvider: () -> FileHomeUiState = { FileHomeUiState.Loading },
     uploadUiStateProvider: () -> FileHomeUploadUiState = { FileHomeUploadUiState() },
     isRefreshingProvider: () -> Boolean = { false },
-    isAccountChangingProvider: () -> Boolean = { false },
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     Scaffold(
-        modifier = modifier,
+        modifier =
+            modifier.addShortcut(
+                isEnabledProvider = { uiStateProvider() is FileHomeUiState.User && !uploadUiStateProvider().isUploading },
+            ) { onEvent(FileHomeScaffoldEvent.ClickAdd) },
         topBar = {
             DiaryNavigateUpTopBar(
                 title = stringResource(Res.string.file_home_title),
@@ -96,7 +99,7 @@ internal fun FileHomeScaffold(
                         listState = listState,
                         filePagingItems = filePagingItems,
                         isRefreshingProvider = isRefreshingProvider,
-                        isAccountChangingProvider = isAccountChangingProvider,
+                        isAccountChangingProvider = { (uiStateProvider() as? FileHomeUiState.User)?.isAccountChanging == true },
                     )
                 }
             }

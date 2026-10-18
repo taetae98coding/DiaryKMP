@@ -39,6 +39,7 @@ class ContactPushRequestRemoteEntityTest :
                     "footSizeMillimeter",
                     "birthday",
                     "birthdayCalendar",
+                    "birthYear",
                     "hometown",
                     "phoneNumberList",
                 )

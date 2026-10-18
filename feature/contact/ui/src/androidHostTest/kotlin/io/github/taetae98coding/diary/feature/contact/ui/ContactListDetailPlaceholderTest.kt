@@ -52,7 +52,6 @@ import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetail
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.memo.list.MemoListUiState
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
@@ -66,6 +65,7 @@ import io.github.taetae98coding.diary.feature.contact.ui.add.TYPED_FIRST_PHONE_N
 import io.github.taetae98coding.diary.feature.contact.ui.add.TYPED_FOOT_SIZE
 import io.github.taetae98coding.diary.feature.contact.ui.add.TYPED_HEIGHT
 import io.github.taetae98coding.diary.feature.contact.ui.add.addPhoneNumberRow
+import io.github.taetae98coding.diary.feature.contact.ui.add.birthYearInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.descriptionInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.effectViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.add.footSizeInput
@@ -76,22 +76,22 @@ import io.github.taetae98coding.diary.feature.contact.ui.add.nameInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.phoneNumberInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.screenTestViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.add.selectBirthday
+import io.github.taetae98coding.diary.feature.contact.ui.add.today
 import io.github.taetae98coding.diary.feature.contact.ui.add.todayDisplayText
 import io.github.taetae98coding.diary.feature.contact.ui.detail.ContactDetailEffect
 import io.github.taetae98coding.diary.feature.contact.ui.detail.ContactDetailUiState
 import io.github.taetae98coding.diary.feature.contact.ui.detail.ContactDetailViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.detail.DEFAULT_MEMO_ADD_DESCRIPTION
 import io.github.taetae98coding.diary.feature.contact.ui.detail.DEFAULT_MEMO_TAB_DESCRIPTION
-import io.github.taetae98coding.diary.feature.contact.ui.detail.memo.ContactDetailMemoSyncViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.detail.memo.ContactDetailMemoViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.detail.selectContactDetailTab
 import io.github.taetae98coding.diary.feature.contact.ui.home.CONTACT_CARD_TEST_TAG
-import io.github.taetae98coding.diary.feature.contact.ui.home.CONTACT_HOME_LIST_TEST_TAG
-import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeSyncViewModel
-import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeUiState
 import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.home.contactPagingDataOf
 import io.github.taetae98coding.diary.feature.contact.ui.home.testContact
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -158,6 +158,7 @@ class ContactListDetailPlaceholderTest {
         composeRule.descriptionInput().assert(hasText(""))
         composeRule.heightInput().assert(hasText(""))
         composeRule.footSizeInput().assert(hasText(""))
+        composeRule.birthYearInput().assert(hasText(""))
         composeRule.hometownInput().assert(hasText(""))
         composeRule.inputCount() shouldBe INPUT_COUNT_WITHOUT_PHONE_NUMBER
         composeRule.onAllNodesWithText(DEFAULT_BIRTHDAY_NOT_SET).onFirst().assertExists()
@@ -308,8 +309,8 @@ class ContactListDetailPlaceholderTest {
 
     @Test
     fun `TC-CONTACT-LIST-DETAIL-FEATURE-013 상세가 놓인 동안 다른 연락처를 고르면 상세를 쌓지 않고 바꾼다`() {
-        val first = listedContact()
-        val second = listedContact()
+        val first = listedContact(prefix = "first")
+        val second = listedContact(prefix = "second")
         setContactNavDisplay(contactList = listOf(first, second))
         composeRule.onNode(contactCard(first)).performClick()
         composeRule.waitForIdle()
@@ -366,8 +367,8 @@ class ContactListDetailPlaceholderTest {
 
     @Test
     fun `TC-CONTACT-LIST-DETAIL-FEATURE-016 상세에서 연 연락처 추가가 놓인 동안 다른 연락처를 고르면 추가를 걷어내고 그 상세로 바꾼다`() {
-        val first = listedContact()
-        val second = listedContact()
+        val first = listedContact(prefix = "first")
+        val second = listedContact(prefix = "second")
         val typedName = placeholderInput().name
         setContactNavDisplay(contactList = listOf(first, second))
         composeRule.onNode(contactCard(first)).performClick()
@@ -512,7 +513,7 @@ class ContactListDetailPlaceholderTest {
     private fun positionContactList(): List<Contact> = List(POSITION_CONTACT_COUNT) { index -> testContact(name = "position-${index.toString().padStart(length = 2, padChar = '0')}-${fixtureMonkey.giveMeOne<Int>()}") }
 
     private fun scrollToPositionContact(contactList: List<Contact>) {
-        composeRule.onNodeWithTag(CONTACT_HOME_LIST_TEST_TAG).performScrollToIndex(POSITION_SCROLL_INDEX)
+        composeRule.refreshableList().performScrollToIndex(POSITION_SCROLL_INDEX)
         composeRule.waitForIdle()
         assertPositionContactDisplayed(contactList)
     }
@@ -540,6 +541,7 @@ class ContactListDetailPlaceholderTest {
         descriptionInput().assert(hasText(""))
         heightInput().assert(hasText(""))
         footSizeInput().assert(hasText(""))
+        birthYearInput().assert(hasText(""))
         hometownInput().assert(hasText(""))
         onAllNodesWithText(DEFAULT_BIRTHDAY_NOT_SET).onFirst().assertExists()
     }
@@ -565,6 +567,7 @@ class ContactListDetailPlaceholderTest {
         composeRule.hometownInput().assert(hasText(input.hometown))
         composeRule.phoneNumberInput().assert(hasText(TYPED_FIRST_PHONE_NUMBER))
         composeRule.onAllNodesWithText(todayDisplayText()).onFirst().assertExists()
+        composeRule.birthYearInput().assert(hasText(today().year.toString()))
         viewModelList shouldHaveSize 1
     }
 
@@ -675,13 +678,13 @@ class ContactListDetailPlaceholderTest {
                 mockk<ContactHomeViewModel>(relaxed = true)
                     .apply {
                         every { contactPagingData } returns MutableStateFlow(contactPagingDataOf(homeContactList))
-                        every { sort } returns MutableStateFlow(ListSort.NAME)
+                        every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.NAME))
                         every { effect } returns emptyFlow()
                     }.also { viewModel -> homeViewModelList += viewModel }
             }
             factory {
-                mockk<ContactHomeSyncViewModel>(relaxed = true).apply {
-                    every { uiState } returns MutableStateFlow(ContactHomeUiState())
+                mockk<SyncRefreshViewModel>(relaxed = true).apply {
+                    every { uiState } returns MutableStateFlow(SyncRefreshUiState())
                 }
             }
             factory { parameters ->
@@ -699,13 +702,13 @@ class ContactListDetailPlaceholderTest {
             factory {
                 mockk<ContactDetailMemoViewModel>(relaxed = true).apply {
                     every { memoPagingData } returns flowOf(PagingData.empty())
-                    every { sort } returns MutableStateFlow(ListSort.DEFAULT)
+                    every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
                     every { effect } returns emptyFlow()
                 }
             }
             factory {
-                mockk<ContactDetailMemoSyncViewModel>(relaxed = true).apply {
-                    every { uiState } returns MutableStateFlow(MemoListUiState())
+                mockk<SyncRefreshViewModel>(relaxed = true).apply {
+                    every { uiState } returns MutableStateFlow(SyncRefreshUiState())
                 }
             }
         }
@@ -745,7 +748,7 @@ class ContactListDetailPlaceholderTest {
 
         fun contactCard(contact: Contact): SemanticsMatcher = hasTestTag(CONTACT_CARD_TEST_TAG) and hasText(contact.detail.name)
 
-        fun listedContact(): Contact = testContact(name = "list-${fixtureMonkey.giveMeOne<String>()}")
+        fun listedContact(prefix: String = "list"): Contact = testContact(name = "$prefix-${fixtureMonkey.giveMeOne<String>()}")
 
         fun placeholderInput(): PlaceholderInput =
             PlaceholderInput(

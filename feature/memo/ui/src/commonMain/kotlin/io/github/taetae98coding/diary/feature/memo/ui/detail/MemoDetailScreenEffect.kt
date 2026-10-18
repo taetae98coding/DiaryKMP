@@ -31,7 +31,7 @@ internal fun MemoDetailScreenEffect(
     CollectEffect(effect) { value ->
         when (value) {
             is MemoDetailEffect.UpdateSucceeded -> {
-                coroutineScope.launch { scaffoldState.hostState.showImmediate(message = updateSucceededMessage) }
+                coroutineScope.launch { scaffoldState.snackbarHostState.showImmediate(message = updateSucceededMessage) }
             }
 
             is MemoDetailEffect.CopySucceeded -> {

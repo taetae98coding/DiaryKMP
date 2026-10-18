@@ -14,16 +14,18 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
-import io.github.taetae98coding.diary.compose.core.button.DownloadButton
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarAction
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
+import io.github.taetae98coding.diary.compose.core.shortcut.addShortcut
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBarHost
 import io.github.taetae98coding.diary.compose.list.sort.DiaryListSortBottomSheetHost
-import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.playlist.ui.Res
 import io.github.taetae98coding.diary.feature.playlist.ui.playlist_home_add_button_content_description
 import io.github.taetae98coding.diary.feature.playlist.ui.playlist_home_download_button_content_description
@@ -38,27 +40,32 @@ internal fun PlaylistHomeScaffold(
     modifier: Modifier = Modifier,
     sortSheetState: DialogState = rememberDialogState(),
     musicPagingItems: LazyPagingItems<Music> = remember { flowOf(PagingData.empty<Music>()) }.collectAsLazyPagingItems(),
+    syncUiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
     uiStateProvider: () -> PlaylistHomeUiState = { PlaylistHomeUiState() },
-    sortProvider: () -> ListSort = { ListSort.TITLE },
     downloadUiStateProvider: () -> PlaylistHomeDownloadUiState = { PlaylistHomeDownloadUiState() },
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     componentVisibleProvider: () -> PlaylistHomeScaffoldComponentVisible = { PlaylistHomeScaffoldComponentVisible() },
 ) {
     Scaffold(
-        modifier = modifier,
+        modifier = modifier.addShortcut(isEnabledProvider = { componentVisibleProvider().isAddButtonVisible }) { onEvent(PlaylistHomeScaffoldEvent.ClickAdd) },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
+            val downloadContentDescription = stringResource(Res.string.playlist_home_download_button_content_description)
+
             DiaryNavigateUpTopBar(
                 title = stringResource(Res.string.playlist_home_title),
                 onNavigateUp = { onEvent(PlaylistHomeScaffoldEvent.ClickNavigateUp) },
                 navigateUpContentDescription = stringResource(Res.string.playlist_navigate_up_button_content_description),
-            ) {
-                DownloadButton(
-                    onClick = { onEvent(PlaylistHomeScaffoldEvent.ClickDownload) },
-                    contentDescription = stringResource(Res.string.playlist_home_download_button_content_description),
-                    isInProgressProvider = { downloadUiStateProvider().isDownloading },
-                )
-            }
+                actions =
+                    listOf(
+                        DiaryTopBarAction.Icon(
+                            icon = DiaryTopBarIcon.DOWNLOAD,
+                            contentDescription = downloadContentDescription,
+                            onClick = { onEvent(PlaylistHomeScaffoldEvent.ClickDownload) },
+                            isInProgress = downloadUiStateProvider().isDownloading,
+                        ),
+                    ),
+            )
         },
         floatingActionButton = {
             if (componentVisibleProvider().isAddButtonVisible) {
@@ -78,7 +85,7 @@ internal fun PlaylistHomeScaffold(
             DiaryListSortBarHost(
                 onClick = { onEvent(PlaylistHomeScaffoldEvent.ClickSort) },
                 modifier = Modifier.fillMaxWidth(),
-                sortProvider = sortProvider,
+                sortProvider = { uiStateProvider().sort },
                 isSortVisibleProvider = { musicPagingItems.itemCount > 0 },
             )
 
@@ -86,8 +93,9 @@ internal fun PlaylistHomeScaffold(
                 onEvent = onEvent,
                 modifier = Modifier.fillMaxSize(),
                 musicPagingItems = musicPagingItems,
-                isRefreshingProvider = { uiStateProvider().isRefreshing },
-                sortProvider = sortProvider,
+                isRefreshingProvider = { syncUiStateProvider().isRefreshing },
+                isAddButtonVisibleProvider = { componentVisibleProvider().isAddButtonVisible },
+                sortProvider = { uiStateProvider().sort },
                 downloadStateProvider = { music -> downloadUiStateProvider().stateOf(music = music) },
             )
         }
@@ -96,7 +104,7 @@ internal fun PlaylistHomeScaffold(
     DiaryListSortBottomSheetHost(
         onSelect = { sort -> onEvent(PlaylistHomeScaffoldEvent.SelectSort(sort = sort)) },
         state = sortSheetState,
-        sortProvider = sortProvider,
+        sortProvider = { uiStateProvider().sort },
     )
 }
 

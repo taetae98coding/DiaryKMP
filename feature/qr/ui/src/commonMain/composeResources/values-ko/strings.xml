@@ -10,6 +10,10 @@
     <string name="qr_add_title">QR 추가</string>
     <string name="qr_add_succeeded_message">QR이 추가되었습니다.</string>
     <string name="qr_add_title_blank_message">제목을 입력해 주세요.</string>
+    <string name="qr_detail_delete_button_content_description">QR 삭제</string>
+    <string name="qr_detail_update_button_content_description">QR 수정</string>
+    <string name="qr_detail_update_succeeded_message">QR이 수정되었습니다.</string>
+    <string name="qr_detail_loading_content_description">QR 불러오는 중</string>
     <string name="qr_scan_button_content_description">QR 스캔</string>
     <string name="qr_camera_permission_denied_message">카메라 권한을 허용해야 QR을 스캔할 수 있습니다.</string>
     <string name="qr_scan_title">QR 스캔</string>
@@ -57,4 +61,13 @@
     <string name="qr_phone_number_empty_message">전화번호를 입력해 주세요.</string>
     <string name="qr_event_title_empty_message">일정 제목을 입력해 주세요.</string>
     <string name="qr_undo_button_content_description">되돌리기</string>
+    <string name="qr_action_open_url_button_content_description">브라우저에서 열기</string>
+    <string name="qr_action_call_button_content_description">전화 걸기</string>
+    <string name="qr_action_send_email_button_content_description">메일 쓰기</string>
+    <string name="qr_action_send_sms_button_content_description">문자 보내기</string>
+    <string name="qr_action_show_location_button_content_description">지도에서 보기</string>
+    <string name="qr_action_add_contact_button_content_description">연락처에 추가</string>
+    <string name="qr_action_add_event_button_content_description">캘린더에 추가</string>
+    <string name="qr_action_join_wifi_button_content_description">Wi-Fi 연결</string>
+    <string name="qr_action_failed_message">QR을 실행하지 못했습니다.</string>
 </resources>

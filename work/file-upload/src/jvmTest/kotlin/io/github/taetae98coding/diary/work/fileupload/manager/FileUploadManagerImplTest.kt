@@ -101,18 +101,19 @@ class FileUploadManagerImplTest :
         }
 
         Given("올리는 중이거나 다시 올릴 예정인 파일이 있다") {
-            When("로그아웃해 올리기를 취소한다") {
-                Then("TC-FILE-STORAGE-DOMAIN-014 취소한 올리기가 붙들고 있던 파일을 놓고 시스템이 이어 올리던 올리기도 취소한다") {
+            When("확인된 계정이 아닌 다른 계정의 올리기를 취소한다") {
+                Then("TC-FILE-STORAGE-DOMAIN-017 취소한 올리기가 붙들고 있던 파일을 놓고 시스템이 이어 올리던 다른 계정의 올리기도 취소한다") {
                     runTest {
                         val fixture = ManagerFixture(isUploading = true)
                         val uri = fixtureMonkey.fileUri()
-                        coEvery { fixture.scheduler.cancel() } returns listOf(uri)
+                        val exceptAccountId = fixtureMonkey.giveMeOne<Uuid>()
+                        coEvery { fixture.scheduler.cancel(exceptAccountId = exceptAccountId) } returns listOf(uri)
 
-                        fixture.manager.cancelUpload()
+                        fixture.manager.cancelUpload(exceptAccountId = exceptAccountId)
 
-                        coVerify(exactly = 1) { fixture.scheduler.cancel() }
+                        coVerify(exactly = 1) { fixture.scheduler.cancel(exceptAccountId = exceptAccountId) }
                         coVerify(exactly = 1) { fixture.fileRepository.removeUploadSource(uri = uri) }
-                        coVerify(exactly = 1) { fixture.fileRepository.deleteContinuedUpload() }
+                        coVerify(exactly = 1) { fixture.fileRepository.deleteContinuedUpload(exceptAccountId = exceptAccountId) }
                     }
                 }
             }
@@ -154,7 +155,7 @@ private class ManagerFixture(
         mockk<FileRepository> {
             coEvery { addUploadSource(uri = any()) } returns Unit
             coEvery { removeUploadSource(uri = any()) } returns Unit
-            coEvery { deleteContinuedUpload() } returns Unit
+            coEvery { deleteContinuedUpload(exceptAccountId = any()) } returns Unit
         }
     val eventHolder = FileUploadEventHolder()
     val viewingHolder = FileScreenViewingHolder()

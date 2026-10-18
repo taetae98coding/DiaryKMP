@@ -1,6 +1,8 @@
 package io.github.taetae98coding.diary.work.musicdownload.work
 
 import io.github.taetae98coding.diary.core.file.api.datasource.AppFileLocalDataSource
+import kotlinx.io.files.Path
+import kotlinx.io.files.SystemFileSystem
 
 internal const val MUSIC_FILE_DIRECTORY: String = "music"
 
@@ -19,3 +21,15 @@ internal suspend fun AppFileLocalDataSource.resolveMusicFilePath(videoId: String
         downloading = resolve(directory = MUSIC_FILE_DIRECTORY, name = videoId.toMusicDownloadingFileName()),
         completed = resolve(directory = MUSIC_FILE_DIRECTORY, name = videoId.toMusicFileName()),
     )
+
+internal fun MusicFilePath.complete(isDownloaded: Boolean): Boolean {
+    val downloadingPath = Path(downloading)
+
+    if (isDownloaded && SystemFileSystem.exists(downloadingPath)) {
+        SystemFileSystem.atomicMove(source = downloadingPath, destination = Path(completed))
+        return true
+    }
+
+    SystemFileSystem.delete(path = downloadingPath, mustExist = false)
+    return false
+}

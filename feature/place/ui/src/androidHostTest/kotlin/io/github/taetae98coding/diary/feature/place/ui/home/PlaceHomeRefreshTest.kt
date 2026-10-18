@@ -21,14 +21,18 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
+import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.domain.location.usecase.FetchCurrentLocationUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.GetPlaceListUseCase
 import io.github.taetae98coding.diary.domain.place.usecase.PagePlaceHomeUseCase
 import io.github.taetae98coding.diary.domain.setting.usecase.GetDefaultMapProviderUseCase
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
-import io.github.taetae98coding.diary.domain.sync.usecase.GetProgressReportedUseCase
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceHomePlaceListUiState
 import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceHomePlaceListViewModel
 import io.github.taetae98coding.diary.feature.place.ui.home.list.PlaceList
@@ -42,10 +46,13 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -76,7 +83,7 @@ class PlaceHomeRefreshTest {
         composeRule.onNodeWithText(place.detail.title).assertExists()
 
         uiStateFlow.value = loadedUiState(listOf(place, receivedPlace))
-        composeRule.waitUntil { runCatching { composeRule.onNodeWithText(receivedPlace.detail.title).assertExists() }.isSuccess }
+        composeRule.waitUntil(timeoutMillis = TIMEOUT_MILLIS) { runCatching { composeRule.onNodeWithText(receivedPlace.detail.title).assertExists() }.isSuccess }
 
         composeRule.onNodeWithText(place.detail.title).assertExists()
         composeRule.onNodeWithText(receivedPlace.detail.title).assertExists()
@@ -86,17 +93,23 @@ class PlaceHomeRefreshTest {
     fun `TC-PLACE-HOME-FEATURE-033 새로고침이 실패해도 표시 중인 장소는 유지되고 실패 안내가 없다`() {
         val basePlace = viewModeTestPlace()
         val place = basePlace.copy(detail = basePlace.detail.copy(title = "RefreshPlace${basePlace.id.toHexString()}"))
-        val progressFlow = MutableStateFlow(Result.success(false))
+        val syncUiState = MutableStateFlow(SyncRefreshUiState())
         val syncGate = CompletableDeferred<Unit>()
         val requestSyncUseCase = mockk<RequestSyncUseCase>()
         coEvery { requestSyncUseCase(parameter = SyncTrigger.USER_REQUESTED) } coAnswers {
-            progressFlow.value = Result.success(true)
             syncGate.await()
-            progressFlow.value = Result.success(false)
             Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
         }
-        val getProgressReportedUseCase = mockk<GetProgressReportedUseCase>()
-        every { getProgressReportedUseCase(parameter = Unit) } returns progressFlow
+        val syncViewModel = mockk<SyncRefreshViewModel>(relaxed = true)
+        every { syncViewModel.uiState } returns syncUiState
+        every { syncViewModel.refresh() } answers {
+            CoroutineScope(Dispatchers.Default).launch {
+                syncUiState.value = SyncRefreshUiState(isRefreshing = true)
+                requestSyncUseCase(parameter = SyncTrigger.USER_REQUESTED)
+                syncUiState.value = SyncRefreshUiState(isRefreshing = false)
+            }
+            Unit
+        }
         val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
         // Robolectric은 지도 SDK의 뷰를 불러오지 못하므로 기본 지도를 확인하지 못한 채로 두어 지도를 그리지 않는다.
         every { getDefaultMapProviderUseCase(parameter = Unit) } returns emptyFlow()
@@ -120,11 +133,7 @@ class PlaceHomeRefreshTest {
                     deletePlaceUseCase = mockk(),
                     restorePlaceUseCase = mockk(),
                 ),
-            syncViewModel =
-                PlaceHomeSyncViewModel(
-                    getProgressReportedUseCase = getProgressReportedUseCase,
-                    requestSyncUseCase = requestSyncUseCase,
-                ),
+            syncViewModel = syncViewModel,
         )
         composeRule.onNodeWithContentDescription(DEFAULT_LIST_VIEW_MODE_DESCRIPTION).performClick()
         composeRule.waitUntil(timeoutMillis = TIMEOUT_MILLIS) { exists(hasText(place.detail.title)) }
@@ -145,7 +154,7 @@ class PlaceHomeRefreshTest {
     private fun setPlaceHomeScreen(
         mapViewModel: PlaceHomeMapViewModel,
         placeListViewModel: PlaceHomePlaceListViewModel,
-        syncViewModel: PlaceHomeSyncViewModel,
+        syncViewModel: SyncRefreshViewModel,
     ) {
         composeRule.setContent {
             DiaryTheme {
@@ -165,15 +174,55 @@ class PlaceHomeRefreshTest {
     private fun exists(matcher: SemanticsMatcher): Boolean = composeRule.onAllNodes(matcher).fetchSemanticsNodes().isNotEmpty()
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-034 진행 표시 중에도 목록의 장소를 선택할 수 있다`() {
+    fun `TC-PLACE-HOME-FEATURE-034 진행 표시 중에도 지도 모드의 목록에서 장소를 눌러 지도를 옮길 수 있다`() {
+        val place = viewModeTestPlace()
+        val mapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
+        setPlaceList(
+            uiStateFlow = MutableStateFlow(loadedUiState(listOf(place))),
+            isRefreshingFlow = MutableStateFlow(true),
+            mapState = mapState,
+        )
+
+        composeRule.onNodeWithText(place.detail.title).performClick()
+        composeRule.waitForIdle()
+
+        mapState.coordinate shouldBe place.detail.coordinate.toDiaryMapCoordinate()
+    }
+
+    @Test
+    fun `TC-PLACE-HOME-FEATURE-034 진행 표시 중에도 지도 모드의 목록에서 지도 가운데에 있는 장소를 눌러 상세로 이동할 수 있다`() {
         val place = viewModeTestPlace()
         val eventList = mutableListOf<PlaceHomeScaffoldEvent>()
+        val mapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
+        mapState.moveTo(place.detail.coordinate.toDiaryMapCoordinate())
         setPlaceList(
             uiStateFlow = MutableStateFlow(loadedUiState(listOf(place))),
             isRefreshingFlow = MutableStateFlow(true),
             onEvent = eventList::add,
+            mapState = mapState,
         )
 
+        composeRule.onNodeWithText(place.detail.title).performClick()
+        composeRule.waitForIdle()
+
+        eventList.withoutMoveMap() shouldBe listOf(PlaceHomeScaffoldEvent.ClickPlace(id = place.id))
+    }
+
+    @Test
+    fun `TC-PLACE-HOME-FEATURE-034 진행 표시 중에도 목록 모드의 목록에서 장소를 선택해 상세로 이동할 수 있다`() {
+        val place = viewModeTestPlace()
+        val eventList = mutableListOf<PlaceHomeScaffoldEvent>()
+        composeRule.setContent {
+            ViewModeTestPlaceHomeScaffold(
+                onEvent = eventList::add,
+                state = PlaceHomeScaffoldState(initialViewMode = PlaceHomeViewMode.LIST),
+                uiState = PlaceHomeUiState.Loading,
+                placePagingDataFlow = placePagingDataFlowOf(listOf(place)),
+                isRefreshing = true,
+            )
+        }
+
+        composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
         composeRule.onNodeWithText(place.detail.title).performClick()
         composeRule.waitForIdle()
 
@@ -209,7 +258,7 @@ class PlaceHomeRefreshTest {
         composeRule.onNodeWithText(beforePlace.detail.title).assertExists()
 
         uiStateFlow.value = loadedUiState(listOf(afterPlace))
-        composeRule.waitUntil { runCatching { composeRule.onNodeWithText(afterPlace.detail.title).assertExists() }.isSuccess }
+        composeRule.waitUntil(timeoutMillis = TIMEOUT_MILLIS) { runCatching { composeRule.onNodeWithText(afterPlace.detail.title).assertExists() }.isSuccess }
 
         composeRule.onNodeWithText(beforePlace.detail.title).assertDoesNotExist()
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
@@ -219,6 +268,7 @@ class PlaceHomeRefreshTest {
         uiStateFlow: MutableStateFlow<PlaceHomePlaceListUiState>,
         isRefreshingFlow: MutableStateFlow<Boolean>,
         onEvent: (PlaceHomeScaffoldEvent) -> Unit = {},
+        mapState: DiaryMapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER),
     ) {
         composeRule.setContent {
             DiaryTheme {
@@ -227,6 +277,7 @@ class PlaceHomeRefreshTest {
 
                 PlaceList(
                     onEvent = onEvent,
+                    mapState = mapState,
                     placeListUiStateProvider = { uiState },
                     isRefreshingProvider = { isRefreshing },
                 )

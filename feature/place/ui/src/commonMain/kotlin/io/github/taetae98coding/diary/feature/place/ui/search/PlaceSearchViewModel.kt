@@ -34,7 +34,7 @@ internal class PlaceSearchViewModel(
             viewModelScope.launch {
                 uiState.value =
                     fetchSearchedPlaceUseCase(parameter = request.toParameter()).fold(
-                        onSuccess = { placeList -> PlaceSearchUiState.Loaded(placeList = placeList) },
+                        onSuccess = { placeList -> PlaceSearchUiState.Content(placeList = placeList) },
                         onFailure = { PlaceSearchUiState.Failed },
                     )
             }

@@ -27,6 +27,9 @@ import io.github.taetae98coding.diary.domain.qr.content.QrFormat
 import io.github.taetae98coding.diary.domain.qr.exception.QrTitleBlankException
 import io.github.taetae98coding.diary.domain.qr.exception.QrValueEmptyException
 import io.github.taetae98coding.diary.domain.qr.usecase.AddQrUseCase
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddFormState
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.format
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrAddFormState
 import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScannedResult
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe

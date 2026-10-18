@@ -27,7 +27,7 @@ import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.map.MapProvider
 import io.github.taetae98coding.diary.core.model.place.PlaceDetail
 import io.github.taetae98coding.diary.core.model.place.SearchedPlace
-import io.github.taetae98coding.diary.domain.place.toPlacePrecision
+import io.github.taetae98coding.diary.core.model.place.toPlacePrecision
 import io.github.taetae98coding.diary.feature.place.ui.decimalOrNaN
 import io.github.taetae98coding.diary.feature.place.ui.toCoordinateText
 import io.github.taetae98coding.diary.library.compose.ui.color.randomColor
@@ -42,7 +42,7 @@ internal class PlaceFormState(
     val latitudeState: TextFieldState,
     val longitudeState: TextFieldState,
     val colorState: DiaryColorInputState,
-    val hostState: SnackbarHostState,
+    val snackbarHostState: SnackbarHostState,
     val mapState: DiaryMapState,
     val searchDialogState: DialogState,
     val tagPickerDialogState: DialogState,
@@ -144,7 +144,7 @@ private fun rememberPlaceFormState(
     val latitudeState = rememberTextFieldState(initialText = initialCoordinate?.latitude?.toCoordinateText().orEmpty())
     val longitudeState = rememberTextFieldState(initialText = initialCoordinate?.longitude?.toCoordinateText().orEmpty())
     val colorState = rememberDiaryColorInputState(initialColor = initialColor)
-    val hostState = remember { SnackbarHostState() }
+    val snackbarHostState = remember { SnackbarHostState() }
     val searchDialogState = rememberDialogState()
     val tagPickerDialogState = rememberDialogState()
     val mapState =
@@ -166,7 +166,7 @@ private fun rememberPlaceFormState(
         latitudeState,
         longitudeState,
         colorState,
-        hostState,
+        snackbarHostState,
         mapState,
         searchDialogState,
         tagPickerDialogState,
@@ -178,7 +178,7 @@ private fun rememberPlaceFormState(
             latitudeState = latitudeState,
             longitudeState = longitudeState,
             colorState = colorState,
-            hostState = hostState,
+            snackbarHostState = snackbarHostState,
             mapState = mapState,
             searchDialogState = searchDialogState,
             tagPickerDialogState = tagPickerDialogState,

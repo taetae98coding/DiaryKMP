@@ -84,7 +84,7 @@ class MemoTagPickerDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-017 대표 태그로 지정된 태그만 대표 지정 해제 버튼을 제공한다`() {
+    fun `대표 태그로 지정된 태그만 대표 지정 해제 버튼을 제공한다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
         composeRule.setMemoTagPickerDialog(
             tagList = tagList,

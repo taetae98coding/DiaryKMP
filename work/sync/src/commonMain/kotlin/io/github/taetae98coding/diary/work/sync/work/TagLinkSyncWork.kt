@@ -1,6 +1,6 @@
 package io.github.taetae98coding.diary.work.sync.work
 
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.datasource.SyncCursorLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.taglink.datasource.AccountTagLinkSyncLocalDataSource
 import io.github.taetae98coding.diary.core.database.api.taglink.transaction.AccountTagLinkSyncTransaction
@@ -18,36 +18,26 @@ internal class TagLinkSyncWork(
     private val tagLinkRemoteDataSource: TagLinkRemoteDataSource,
 ) {
     suspend fun push(accountId: Uuid) {
-        val tagLinkList = accountTagLinkSyncLocalDataSource.findPending(accountId = accountId)
-
-        tagLinkList.chunked(PUSH_CHUNK_SIZE).forEach { chunk ->
-            tagLinkRemoteDataSource.push(tagLinkList = chunk.map { tagLink -> tagLink.toRemote() })
-            accountTagLinkSyncTransaction.clearPending(accountId = accountId, tagLinkList = chunk)
-        }
+        pushPending(
+            pendingList = accountTagLinkSyncLocalDataSource.readPendingList(accountId = accountId),
+            push = { chunk -> tagLinkRemoteDataSource.push(tagLinkList = chunk.map { tagLink -> tagLink.toRemote() }) },
+            clearPending = { chunk -> accountTagLinkSyncTransaction.clearPending(accountId = accountId, tagLinkList = chunk) },
+        )
     }
 
     suspend fun pull(accountId: Uuid) {
-        var cursor =
-            syncCursorLocalDataSource.find(
-                accountId = accountId,
-                kind = SyncKind.TAG_LINK,
-            )
-        var hasNext = true
-
-        while (hasNext) {
-            val pullList = tagLinkRemoteDataSource.pull(usn = cursor)
-            val nextCursor = pullList.maxOfOrNull { pull -> pull.usn }
-
-            if (nextCursor == null || nextCursor <= cursor) {
-                hasNext = false
-            } else {
-                accountTagLinkSyncTransaction.save(
+        syncCursorLocalDataSource.pullUntilExhausted(
+            accountId = accountId,
+            kind = SyncKindLocalEntity.TAG_LINK,
+            pull = { cursor -> tagLinkRemoteDataSource.pull(usn = cursor) },
+            usn = { pull -> pull.usn },
+            upsert = { pullList, cursor ->
+                accountTagLinkSyncTransaction.upsert(
                     accountId = accountId,
                     tagLinkList = pullList.map { pull -> pull.tagLink.toLocal() },
-                    cursor = nextCursor,
+                    cursor = cursor,
                 )
-                cursor = nextCursor
-            }
-        }
+            },
+        )
     }
 }

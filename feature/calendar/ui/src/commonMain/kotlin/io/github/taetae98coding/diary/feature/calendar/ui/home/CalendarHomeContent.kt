@@ -5,21 +5,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalUriHandler
 import io.github.taetae98coding.diary.compose.calendar.Calendar
-import io.github.taetae98coding.diary.compose.calendar.CalendarDefault
+import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.calendar.CalendarEvent
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.PullToRefreshGestureBox
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
-import io.github.taetae98coding.diary.core.model.holiday.Holiday
-import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
+import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayUiState
+import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
+import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMoveGhost
-import io.github.taetae98coding.diary.feature.calendar.ui.home.search.openHolidaySearch
-import io.github.taetae98coding.diary.feature.calendar.ui.home.search.openWeatherSearch
+import io.github.taetae98coding.diary.feature.calendar.ui.home.search.rememberCalendarSearchOpener
+import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherUiState
 import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarContactBirthday
 import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarMemo
 import io.github.taetae98coding.diary.feature.calendar.ui.previewCalendarWeather
@@ -30,16 +29,16 @@ internal fun CalendarHomeContent(
     onCalendarEvent: (CalendarEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: CalendarHomeScaffoldState = rememberCalendarHomeScaffoldState(),
-    weatherProvider: () -> CalendarWeatherReport = { CalendarWeatherReport() },
-    holidayProvider: () -> List<Holiday> = { emptyList() },
-    memoProvider: () -> List<CalendarMemo> = { emptyList() },
-    birthdayProvider: () -> List<CalendarContactBirthday> = { emptyList() },
+    weatherUiStateProvider: () -> CalendarHomeWeatherUiState = { CalendarHomeWeatherUiState() },
+    holidayUiStateProvider: () -> CalendarHomeHolidayUiState = { CalendarHomeHolidayUiState() },
+    memoUiStateProvider: () -> CalendarHomeMemoUiState = { CalendarHomeMemoUiState() },
+    birthdayUiStateProvider: () -> CalendarHomeBirthdayUiState = { CalendarHomeBirthdayUiState() },
     uiStateProvider: () -> CalendarHomeScaffoldUiState = { CalendarHomeScaffoldUiState() },
 ) {
-    val calendarColors = CalendarDefault.colors()
-    val nonHolidayNameColor = CalendarHomeDefault.nonHolidayNameColor()
-    val birthdayColor = CalendarHomeDefault.birthdayColor()
-    val uriHandler = LocalUriHandler.current
+    val calendarColors = CalendarDefaults.colors()
+    val nonHolidayNameColor = CalendarHomeDefaults.nonHolidayNameColor()
+    val birthdayColor = CalendarHomeDefaults.birthdayColor()
+    val searchOpener = rememberCalendarSearchOpener(snackbarHostState = state.snackbarHostState)
 
     DiaryPullToRefreshBox(
         isRefreshingProvider = { uiStateProvider().isRefreshing },
@@ -56,7 +55,8 @@ internal fun CalendarHomeContent(
                     isDateClickEnabled = true,
                     isWeekClickEnabled = true,
                     holidayProvider = {
-                        holidayProvider()
+                        holidayUiStateProvider()
+                            .holidayList
                             .filter { it.isHoliday }
                             .map { it.dateRange }
                     },
@@ -65,21 +65,21 @@ internal fun CalendarHomeContent(
                 ) {
                     calendarHomeItems(
                         moveState = state.calendarState.moveState,
-                        weatherProvider = { weatherProvider().weatherList },
-                        holidayProvider = holidayProvider,
+                        weatherProvider = { weatherUiStateProvider().weatherReport.weatherList },
+                        holidayProvider = { holidayUiStateProvider().holidayList },
                         holidayNameColor = calendarColors.sundayAndHolidayColor,
                         nonHolidayNameColor = nonHolidayNameColor,
-                        memoProvider = memoProvider,
-                        birthdayProvider = birthdayProvider,
+                        memoProvider = { memoUiStateProvider().memoList },
+                        birthdayProvider = { birthdayUiStateProvider().birthdayList },
                         birthdayColor = birthdayColor,
-                        onWeatherClick = { uriHandler.openWeatherSearch(locationName = weatherProvider().locationName) },
-                        onHolidayClick = { holiday -> uriHandler.openHolidaySearch(name = holiday.name) },
+                        onWeatherClick = { searchOpener.openWeatherSearch(locationName = weatherUiStateProvider().weatherReport.locationName) },
+                        onHolidayClick = { holiday -> searchOpener.openHolidaySearch(name = holiday.name) },
                         onEvent = onEvent,
                     )
                 }
                 CalendarHomeMoveGhost(
                     moveState = state.calendarState.moveState,
-                    memoProvider = memoProvider,
+                    memoProvider = { memoUiStateProvider().memoList },
                 )
             }
         }
@@ -89,18 +89,18 @@ internal fun CalendarHomeContent(
 @ScreenPreview
 @Composable
 private fun CalendarHomeContentPreview() {
-    val weatherReport = remember { CalendarWeatherReport(weatherList = listOf(previewCalendarWeather())) }
-    val memoList = remember { listOf(previewCalendarMemo()) }
-    val birthdayList = remember { listOf(previewCalendarContactBirthday()) }
+    val weatherUiState = remember { CalendarHomeWeatherUiState(weatherReport = CalendarWeatherReport(weatherList = listOf(previewCalendarWeather()))) }
+    val memoUiState = remember { CalendarHomeMemoUiState(memoList = listOf(previewCalendarMemo())) }
+    val birthdayUiState = remember { CalendarHomeBirthdayUiState(birthdayList = listOf(previewCalendarContactBirthday())) }
 
     DiaryTheme {
         CalendarHomeContent(
             onEvent = {},
             onCalendarEvent = {},
             modifier = Modifier.fillMaxSize(),
-            weatherProvider = { weatherReport },
-            memoProvider = { memoList },
-            birthdayProvider = { birthdayList },
+            weatherUiStateProvider = { weatherUiState },
+            memoUiStateProvider = { memoUiState },
+            birthdayUiStateProvider = { birthdayUiState },
         )
     }
 }

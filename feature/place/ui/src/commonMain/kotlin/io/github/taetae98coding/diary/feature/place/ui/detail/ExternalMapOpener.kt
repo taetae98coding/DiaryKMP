@@ -7,12 +7,12 @@ import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 
 @Stable
 internal fun interface ExternalMapOpener {
-    fun open(
+    suspend fun open(
         provider: DiaryMapProvider,
         coordinate: DiaryMapCoordinate,
         title: String,
         address: String,
-    )
+    ): Boolean
 }
 
 @Composable

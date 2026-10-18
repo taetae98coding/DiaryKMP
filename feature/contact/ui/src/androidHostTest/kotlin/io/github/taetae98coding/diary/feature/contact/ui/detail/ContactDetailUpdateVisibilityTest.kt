@@ -56,6 +56,11 @@ class ContactDetailUpdateVisibilityTest {
     }
 
     @Test
+    fun `TC-CONTACT-DETAIL-FEATURE-051 태어난 연도만 바꿔도 수정 동작을 제공한다`() {
+        assertUpdateVisible(detail = testContactDetail(birthYear = 1990)) { birthdayState.birthYearState.setTextAndPlaceCursorAtEnd("1991") }
+    }
+
+    @Test
     fun `TC-CONTACT-DETAIL-FEATURE-006 고향을 바꾸면 수정 동작을 제공한다`() {
         assertUpdateVisible { detail -> hometownState.setTextAndPlaceCursorAtEnd("${detail.hometown}-${fixtureMonkey.giveMeOne<String>()}") }
     }
@@ -105,8 +110,10 @@ class ContactDetailUpdateVisibilityTest {
         composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assertDoesNotExist()
     }
 
-    private fun assertUpdateVisible(change: ContactFormState.(ContactDetail) -> Unit) {
-        val detail = storedDetail()
+    private fun assertUpdateVisible(
+        detail: ContactDetail = storedDetail(),
+        change: ContactFormState.(ContactDetail) -> Unit,
+    ) {
         lateinit var state: ContactFormState
         setScaffold(detail = detail) { value -> state = value }
         composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assertDoesNotExist()

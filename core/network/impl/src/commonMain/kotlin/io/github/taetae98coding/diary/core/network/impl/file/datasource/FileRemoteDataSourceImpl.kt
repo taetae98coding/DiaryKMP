@@ -14,6 +14,7 @@ import io.ktor.client.call.body
 import kotlinx.coroutines.flow.Flow
 import kotlinx.io.RawSource
 import org.koin.core.annotation.Factory
+import kotlin.uuid.Uuid
 
 @Factory
 internal class FileRemoteDataSourceImpl(
@@ -26,6 +27,7 @@ internal class FileRemoteDataSourceImpl(
         description: String,
         mimeType: String,
         contentLength: Long,
+        accountId: Uuid,
         openContent: suspend () -> RawSource,
         onSent: (sentBytes: Long) -> Unit,
     ): FileRemoteEntity =
@@ -35,11 +37,12 @@ internal class FileRemoteDataSourceImpl(
             description = description,
             mimeType = mimeType,
             contentLength = contentLength,
+            accountId = accountId,
             openContent = openContent,
             onSent = onSent,
         )
 
-    override suspend fun fetch(
+    override suspend fun readList(
         cursor: FileCursorRemoteEntity?,
         size: Int,
     ): List<FileRemoteEntity> =
@@ -52,8 +55,8 @@ internal class FileRemoteDataSourceImpl(
 
     override fun getContinuedUploadResult(): Flow<ContinuedFileUploadResultRemoteEntity> = fileUploadTransport.getContinuedUploadResult()
 
-    override suspend fun cancelContinuedUpload() {
-        fileUploadTransport.cancelContinuedUpload()
+    override suspend fun cancelContinuedUpload(exceptAccountId: Uuid?) {
+        fileUploadTransport.cancelContinuedUpload(exceptAccountId = exceptAccountId)
     }
 
     private companion object {

@@ -3,7 +3,7 @@ package io.github.taetae98coding.diary.core.naver.network.impl.datasource
 import io.github.taetae98coding.diary.core.naver.network.api.datasource.NaverPlaceRemoteDataSource
 import io.github.taetae98coding.diary.core.naver.network.api.entity.NaverPlaceRemoteEntity
 import io.github.taetae98coding.diary.core.naver.network.impl.di.NaverHttpClient
-import io.github.taetae98coding.diary.core.naver.network.impl.entity.NaverPlaceSearchResponseEntity
+import io.github.taetae98coding.diary.core.naver.network.impl.entity.NaverPlaceSearchResponseRemoteEntity
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -20,7 +20,7 @@ internal class NaverPlaceRemoteDataSourceImpl(
             .get("v1/search/local.json") {
                 parameter("query", query)
                 parameter("display", MAX_DISPLAY)
-            }.body<NaverPlaceSearchResponseEntity>()
+            }.body<NaverPlaceSearchResponseRemoteEntity>()
             .items
 
     companion object {

@@ -4,6 +4,8 @@
 
 목록이 나타나는 순서와 아직 준비되지 않은 자리를 다루는 규칙은 [페이지 조회 목록의 자리 표시 스펙](../spec/client/paged-list-placeholder.md)에, 빈 상태의 판정과 행동은 [목록 빈 상태 스펙](../spec/client/list-empty-state.md)에, 정렬 기준의 선택과 반영은 [목록 정렬 스펙](../spec/client/list-sort.md)에, 당김으로 시작하는 동기화와 진행 표시는 [새로고침 스펙](../spec/client/sync-refresh.md)에 위임되어 있으며, 이 문서의 케이스는 ContactHome에서 관찰하는 결과를 기준으로 한다. `더보기`에서 ContactHome으로 이동하는 케이스는 [MoreHome 테스트 케이스](./more-home.md)에서, 연락처를 작성해 추가하는 케이스는 [ContactAdd 테스트 케이스](./contact-add.md)에서, 선택한 연락처의 상세를 확인하고 수정하고 삭제하는 케이스는 [ContactDetail 테스트 케이스](./contact-detail.md)에서, 목록과 상세를 함께 쓰는 배치의 케이스는 [Contact 목록·상세 배치 테스트 케이스](./contact-list-detail.md)에서, 연락처를 서버와 맞추는 케이스는 [데이터 동기화 테스트 케이스](./data-sync.md)에서, 화면과 무관한 새로고침 공통 규칙의 케이스는 [새로고침 테스트 케이스](./sync-refresh.md)에서 다룬다. 카드를 미는 상호작용 자체의 케이스는 [SwipeToFinishAndDelete 테스트 케이스](./swipe-to-finish-and-delete.md)에서 다룬다.
 
+추가 단축키 케이스의 `근거`가 가리키는 절은 공통 규칙을 [목록 추가 단축키 스펙](../spec/client/list-add-shortcut.md)에 위임한다.
+
 ## feature
 
 ### TC-CONTACT-HOME-FEATURE-001: 계정에 저장된 연락처를 목록으로 표시한다
@@ -32,7 +34,7 @@
 - 근거: `feature > 연락처 목록`
 - Given: 현재 계정에 설명, 키, 신발 사이즈, 고향이 모두 있는 연락처가 있다.
 - When: ContactHome 화면이 표시된다.
-- Then: 그 연락처에는 이름과 전화번호, 생일만 표시되고 설명·키·신발 사이즈·고향은 표시되지 않는다.
+- Then: 그 연락처에는 이름과 전화번호, 생일 또는 태어난 연도만 표시되고 설명·키·신발 사이즈·고향은 표시되지 않는다.
 
 ### TC-CONTACT-HOME-FEATURE-020: 생일이 있는 연락처는 생일을 표시한다
 
@@ -47,10 +49,10 @@
 | 양력 | 없음 |
 | 음력 | 있음 |
 
-### TC-CONTACT-HOME-FEATURE-021: 생일이 없는 연락처는 생일 자리를 두지 않는다
+### TC-CONTACT-HOME-FEATURE-021: 생일과 태어난 연도가 없는 연락처는 생일 자리를 두지 않는다
 
 - 근거: `feature > 연락처 목록`
-- Given: 현재 계정에 생일이 없는 연락처가 있다.
+- Given: 현재 계정에 생일과 태어난 연도가 모두 없는 연락처가 있다.
 - When: ContactHome 화면이 표시된다.
 - Then: 그 연락처에는 생일이 표시되지 않는다.
 
@@ -60,6 +62,20 @@
 - Given: 현재 계정에 음력 달력 구분으로 저장된 생일을 가진 연락처가 있다.
 - When: ContactHome 화면이 표시된다.
 - Then: 저장된 연·월·일이 그대로 표시되고 양력으로 환산된 다른 날짜가 표시되지 않는다.
+
+### TC-CONTACT-HOME-FEATURE-037: 생일 없이 태어난 연도만 있는 연락처는 생일 자리에 태어난 연도를 표시한다
+
+- 근거: `feature > 연락처 목록`
+- Given: 현재 계정에 생일 없이 태어난 연도 1990을 가진 연락처가 있다.
+- When: ContactHome 화면이 표시된다.
+- Then: 그 연락처의 생일 자리에 1990년에 태어났다는 문구가 표시되고 음력임을 알리는 문구는 표시되지 않는다.
+
+### TC-CONTACT-HOME-FEATURE-038: 생일이 있는 연락처는 태어난 연도를 따로 표시하지 않는다
+
+- 근거: `feature > 연락처 목록`
+- Given: 현재 계정에 1990년 3월 4일 생일을 가진 연락처가 있다.
+- When: ContactHome 화면이 표시된다.
+- Then: 그 연락처에는 생일만 표시되고 1990년에 태어났다는 문구는 표시되지 않는다.
 
 ### TC-CONTACT-HOME-FEATURE-023: 즐겨찾기인 연락처만 즐겨찾기 표시를 가진다
 
@@ -115,6 +131,13 @@
 | --- |
 | 연락처가 있음 |
 | 연락처가 없어 빈 상태 안내가 표시됨 |
+
+### TC-CONTACT-HOME-FEATURE-039: 추가 단축키를 누르면 ContactAdd로 이동한다
+
+- 근거: `feature > 연락처 추가로 이동`
+- Given: 물리 키보드를 사용할 수 있고 ContactHome 화면이 표시되어 있다.
+- When: 사용자가 추가 단축키를 누른다.
+- Then: ContactAdd 화면으로 한 번 이동한다.
 
 ### TC-CONTACT-HOME-FEATURE-010: 목록 위에 현재 정렬을 표시한다
 
@@ -434,12 +457,12 @@
 - When: 연락처 목록을 조회한다.
 - Then: 그 연락처의 전화번호가 저장한 순서 그대로 함께 조회된다.
 
-### TC-CONTACT-HOME-DATA-006: 생일과 달력 구분, 즐겨찾기 여부가 함께 조회된다
+### TC-CONTACT-HOME-DATA-006: 생일과 달력 구분, 태어난 연도, 즐겨찾기 여부가 함께 조회된다
 
 - 근거: `data > 목록 조회`
-- Given: 생일과 달력 구분이 저장되어 있고 즐겨찾기인 연락처가 저장되어 있다.
+- Given: 생일과 달력 구분, 태어난 연도가 저장되어 있고 즐겨찾기인 연락처가 저장되어 있다.
 - When: 연락처 목록을 조회한다.
-- Then: 그 연락처의 생일, 달력 구분, 즐겨찾기 여부가 저장된 값 그대로 함께 조회된다.
+- Then: 그 연락처의 생일, 달력 구분, 태어난 연도, 즐겨찾기 여부가 저장된 값 그대로 함께 조회된다.
 
 ### TC-CONTACT-HOME-DATA-007: 즐겨찾기 우선을 조회 조건으로 넘겨 정렬된 순서로 조회한다
 

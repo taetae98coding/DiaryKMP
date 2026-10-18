@@ -9,7 +9,7 @@ public interface AccountMusicSyncTransaction {
         musicList: List<MusicLocalEntity>,
     )
 
-    public suspend fun save(
+    public suspend fun upsert(
         accountId: Uuid,
         musicList: List<MusicLocalEntity>,
         cursor: Long,

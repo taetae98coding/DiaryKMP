@@ -67,10 +67,10 @@ class SettingMapScaffoldTest {
 
     @Test
     fun `TC-SETTING-MAP-FEATURE-012 본문에 지도를 표시하지 않는다`() {
-        val uiState = mutableStateOf<SettingMapUiState>(SettingMapUiState.Loaded(defaultProvider = MapProvider.NAVER))
+        val uiState = mutableStateOf<SettingMapUiState>(SettingMapUiState.Content(defaultProvider = MapProvider.NAVER))
         setSettingMapScaffold(uiStateProvider = { uiState.value })
 
-        composeRule.runOnIdle { uiState.value = SettingMapUiState.Loaded(defaultProvider = MapProvider.GOOGLE) }
+        composeRule.runOnIdle { uiState.value = SettingMapUiState.Content(defaultProvider = MapProvider.GOOGLE) }
 
         composeRule.onNodeWithContentDescription(DEFAULT_MAP_PROVIDER_DESCRIPTION).assertDoesNotExist()
         displayedTexts() shouldContainExactlyInAnyOrder
@@ -83,7 +83,7 @@ class SettingMapScaffoldTest {
     }
 
     private fun setSettingMapScaffold(
-        uiStateProvider: () -> SettingMapUiState = { SettingMapUiState.Loaded(defaultProvider = MapProvider.NAVER) },
+        uiStateProvider: () -> SettingMapUiState = { SettingMapUiState.Content(defaultProvider = MapProvider.NAVER) },
         onEvent: (SettingMapScaffoldEvent) -> Unit = {},
     ) {
         composeRule.setContent {

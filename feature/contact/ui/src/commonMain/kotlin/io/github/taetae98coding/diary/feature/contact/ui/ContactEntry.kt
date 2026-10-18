@@ -42,7 +42,7 @@ internal fun EntryProviderScope<ScreenNavKey>.contactHomeEntry(backStack: NavBac
 
         ContactHomeScreen(
             navigateUp = backStack::navigateUpFromContactHome,
-            navigateToAdd = { backStack.add(ContactAddNavKey) },
+            navigateToAdd = { backStack.add(ContactAddNavKey()) },
             navigateToDetail = { id -> backStack.navigateToContactDetail(id) },
             componentVisibleProvider = { ContactHomeScaffoldComponentVisible(isAddButtonVisible = !isDetailPaneVisible || !backStack.isContactAddOnDetailPane()) },
             contactViewModel = koinViewModel(),
@@ -60,6 +60,7 @@ internal fun contactHomeListPaneMetadata(): Map<String, Any> =
             ListDetailPlaceholderStateProvider(listContentKey = CONTACT_HOME_CONTENT_KEY) {
                 ContactAddScreen(
                     navigateUp = {},
+                    addedResultRequestKey = null,
                     componentVisibleProvider = { ContactAddScaffoldComponentVisible(isNavigateUpButtonVisible = false) },
                     viewModel = koinViewModel(),
                 )
@@ -70,11 +71,12 @@ internal fun contactHomeListPaneMetadata(): Map<String, Any> =
 internal fun EntryProviderScope<ScreenNavKey>.contactAddEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<ContactAddNavKey>(
         metadata = { key -> backStack.contactListDetailPaneMetadata(key) },
-    ) {
+    ) { key ->
         val isListPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.List)
 
         ContactAddScreen(
             navigateUp = backStack::removeLastOrNull,
+            addedResultRequestKey = key.requestKey,
             componentVisibleProvider = { ContactAddScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
             viewModel = koinViewModel(),
         )

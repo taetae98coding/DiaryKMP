@@ -1,11 +1,11 @@
 package io.github.taetae98coding.diary.core.database.impl.webtag.transaction
 
-import androidx.room3.withWriteTransaction
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.webtag.transaction.AccountWebTagSyncTransaction
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
-import io.github.taetae98coding.diary.core.database.impl.sync.entity.SyncCursorLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.sync.transaction.clearPendingEach
+import io.github.taetae98coding.diary.core.database.impl.sync.transaction.upsertPulled
 import io.github.taetae98coding.diary.core.database.impl.webtag.entity.AccountWebTagLocalEntity
 import org.koin.core.annotation.Factory
 import kotlin.uuid.Uuid
@@ -18,53 +18,47 @@ internal class AccountWebTagSyncTransactionImpl(
         accountId: Uuid,
         webTagList: List<WebTagLocalEntity>,
     ) {
-        database.withWriteTransaction {
-            webTagList.forEach { webTag ->
-                database.accountWebTagSyncDao().clearPending(
-                    accountId = accountId,
-                    webId = webTag.webId,
-                    tagId = webTag.tagId,
-                    updatedAt = webTag.updatedAt,
-                )
-            }
+        database.clearPendingEach(webTagList) { webTag ->
+            database.accountWebTagSyncDao().clearPending(
+                accountId = accountId,
+                webId = webTag.webId,
+                tagId = webTag.tagId,
+                updatedAt = webTag.updatedAt,
+            )
         }
     }
 
-    override suspend fun save(
+    override suspend fun upsert(
         accountId: Uuid,
         webTagList: List<WebTagLocalEntity>,
         cursor: Long,
     ) {
-        database.withWriteTransaction {
-            val localWebTagMap =
+        database.upsertPulled(
+            accountId = accountId,
+            kind = SyncKindLocalEntity.WEB_TAG,
+            cursor = cursor,
+            pulledList = webTagList,
+            keyOf = { webTag -> webTag.webId to webTag.tagId },
+            updatedAtOf = { webTag -> webTag.updatedAt },
+            readLocalUpdatedAtMap = { pulledList ->
                 database
                     .webTagDao()
-                    .findByWebIdList(webTagList.map { webTag -> webTag.webId }.distinct())
-                    .associateBy { webTag -> webTag.webId to webTag.tagId }
-
-            database.webTagDao().upsert(
-                webTagList.filter { webTag ->
-                    val localUpdatedAt = localWebTagMap[webTag.webId to webTag.tagId]?.updatedAt
-                    localUpdatedAt == null || webTag.updatedAt >= localUpdatedAt
-                },
-            )
-            database.accountWebTagSyncDao().insertIgnore(
-                webTagList.map { webTag ->
-                    AccountWebTagLocalEntity(
-                        accountId = accountId,
-                        webId = webTag.webId,
-                        tagId = webTag.tagId,
-                        isDirty = false,
-                    )
-                },
-            )
-            database.syncCursorDao().upsert(
-                SyncCursorLocalEntity(
-                    accountId = accountId,
-                    kind = SyncCursorLocalEntity.column(kind = SyncKind.WEB_TAG),
-                    usn = cursor,
-                ),
-            )
-        }
+                    .findByWebIdList(pulledList.map { webTag -> webTag.webId }.distinct())
+                    .associate { webTag -> (webTag.webId to webTag.tagId) to webTag.updatedAt }
+            },
+            upsert = { upsertList -> database.webTagDao().upsert(upsertList) },
+            insertIgnoreAccount = { pulledList ->
+                database.accountWebTagSyncDao().insertIgnore(
+                    pulledList.map { webTag ->
+                        AccountWebTagLocalEntity(
+                            accountId = accountId,
+                            webId = webTag.webId,
+                            tagId = webTag.tagId,
+                            isDirty = false,
+                        )
+                    },
+                )
+            },
+        )
     }
 }

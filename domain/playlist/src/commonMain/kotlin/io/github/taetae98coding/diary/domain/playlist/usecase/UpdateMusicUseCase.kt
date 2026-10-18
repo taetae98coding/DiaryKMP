@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.domain.playlist.usecase
 
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.account.usecase.requireAccount
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.playlist.link.toOptionalYoutubeVideoLinkOrThrow
 import io.github.taetae98coding.diary.domain.playlist.repository.AccountMusicRepository
@@ -22,7 +23,7 @@ public class UpdateMusicUseCase internal constructor(
 ) : UseCase<UpdateMusicUseCase.Parameter, Int>() {
     override suspend fun execute(parameter: Parameter): Int {
         val detail = parameter.detail.validated(id = parameter.id)
-        val account = getAccountUseCase(parameter = Unit).first().getOrThrow()
+        val account = getAccountUseCase.requireAccount()
 
         val updatedCount =
             accountMusicRepository.updateDetail(

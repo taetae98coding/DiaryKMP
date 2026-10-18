@@ -30,12 +30,12 @@ private fun EntryProviderScope<ScreenNavKey>.fileHomeEntry(backStack: NavBackSta
 
 private fun EntryProviderScope<ScreenNavKey>.fileAddEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<FileAddNavKey> {
-        val viewModel = koinViewModel<FileAddViewModel>()
+        val uploadViewModel = koinViewModel<FileAddViewModel>()
 
         FileAddScreen(
             navigateUp = backStack::removeLastOrNull,
-            filePicker = rememberFilePicker(onPick = viewModel::select),
-            viewModel = viewModel,
+            filePicker = rememberFilePicker(onPick = uploadViewModel::select),
+            uploadViewModel = uploadViewModel,
             accountViewModel = koinViewModel(),
         )
     }

@@ -4,7 +4,7 @@
 
 앱이 언제 동기화하고 어떤 순서로 올리고 내려받는지, 실패와 재시도, 로그인·로그아웃 때 기기 자료를 어떻게 다루는지는 [데이터 동기화 앱 스펙](../client/data-sync.md)이, 서버가 요청을 확인하고 저장하고 접근을 제한하고 내려줄 범위를 정하는 규칙은 [데이터 동기화 서버 스펙](../server/data-sync.md)이 소유한다.
 
-메모와 태그의 생성·수정·완료·삭제 자체의 규칙은 [MemoAdd 화면 스펙](../client/memo-add.md), [MemoDetail 화면 스펙](../client/memo-detail.md), [MemoHome 목록 스펙](../client/memo-home.md), [TagAdd 화면 스펙](../client/tag-add.md), [TagDetail 화면 스펙](../client/tag-detail.md)을, 장소의 추가·수정·삭제 자체의 규칙은 [PlaceAdd 화면 스펙](../client/place-add.md)과 [PlaceDetail 화면 스펙](../client/place-detail.md)을, 웹 항목의 추가·수정·삭제 자체의 규칙은 [WebAdd 화면 스펙](../client/web-add.md)과 [WebDetail 화면 스펙](../client/web-detail.md)을, 연락처의 추가·수정·삭제 자체의 규칙은 [ContactAdd 화면 스펙](../client/contact-add.md)과 [ContactDetail 화면 스펙](../client/contact-detail.md)을, 곡의 추가·수정·삭제 자체의 규칙은 [MusicAdd 화면 스펙](../client/music-add.md)과 [MusicDetail 화면 스펙](../client/music-detail.md)을, QR의 추가·삭제 자체의 규칙은 [QrAdd 화면 스펙](../client/qr-add.md)과 [QrHome 화면 스펙](../client/qr-home.md)을 따른다. 연결의 공통 성질은 [항목 연결 공통 스펙](./entity-link.md)을, 메모와 태그의 연결 규칙은 [메모 태그 스펙](./memo-tag.md)을, 메모와 장소의 연결 규칙은 [메모 장소 스펙](./memo-place.md)을, 메모와 웹 항목의 연결 규칙은 [메모 웹 스펙](./memo-web.md)을, 메모와 연락처의 연결 규칙은 [메모 연락처 스펙](./memo-contact.md)을, 태그와 태그의 연결 규칙은 [태그 연결 스펙](./tag-link.md)을, 웹 항목과 태그의 연결 규칙은 [웹 태그 스펙](./web-tag.md)을, 장소와 태그의 연결 규칙은 [장소 태그 스펙](./place-tag.md)을, 메모가 가지는 대표 태그의 규칙은 [메모 대표 태그 스펙](./memo-primary-tag.md)을 따른다.
+메모와 태그의 생성·수정·완료·삭제 자체의 규칙은 [MemoAdd 화면 스펙](../client/memo-add.md), [MemoDetail 화면 스펙](../client/memo-detail.md), [MemoHome 목록 스펙](../client/memo-home.md), [TagAdd 화면 스펙](../client/tag-add.md), [TagDetail 화면 스펙](../client/tag-detail.md)을, 장소의 추가·수정·삭제 자체의 규칙은 [PlaceAdd 화면 스펙](../client/place-add.md)과 [PlaceDetail 화면 스펙](../client/place-detail.md)을, 웹 항목의 추가·수정·삭제 자체의 규칙은 [WebAdd 화면 스펙](../client/web-add.md)과 [WebDetail 화면 스펙](../client/web-detail.md)을, 연락처의 추가·수정·삭제 자체의 규칙은 [ContactAdd 화면 스펙](../client/contact-add.md)과 [ContactDetail 화면 스펙](../client/contact-detail.md)을, 곡의 추가·수정·삭제 자체의 규칙은 [MusicAdd 화면 스펙](../client/music-add.md)과 [MusicDetail 화면 스펙](../client/music-detail.md)을, QR의 추가·수정·삭제 자체의 규칙은 [QrAdd 화면 스펙](../client/qr-add.md), [QrDetail 화면 스펙](../client/qr-detail.md)과 [QrHome 화면 스펙](../client/qr-home.md)을 따른다. 연결의 공통 성질은 [항목 연결 공통 스펙](./entity-link.md)을, 메모와 태그의 연결 규칙은 [메모 태그 스펙](./memo-tag.md)을, 메모와 장소의 연결 규칙은 [메모 장소 스펙](./memo-place.md)을, 메모와 웹 항목의 연결 규칙은 [메모 웹 스펙](./memo-web.md)을, 메모와 연락처의 연결 규칙은 [메모 연락처 스펙](./memo-contact.md)을, 태그와 태그의 연결 규칙은 [태그 연결 스펙](./tag-link.md)을, 웹 항목과 태그의 연결 규칙은 [웹 태그 스펙](./web-tag.md)을, 장소와 태그의 연결 규칙은 [장소 태그 스펙](./place-tag.md)을, 메모가 가지는 대표 태그의 규칙은 [메모 대표 태그 스펙](./memo-primary-tag.md)을 따른다.
 
 동기화는 화면 없이 진행되므로 이 문서에서는 `feature` 영역을 생략한다. 사용자가 동기화를 직접 요청하는 조작과 진행을 알리는 기준은 [새로고침 스펙](../client/sync-refresh.md)에서 다룬다.
 
@@ -69,14 +69,16 @@
 | 메모 | 제목, 설명, 컬러, 기간, 대표 태그, 완료 여부, 삭제 여부 |
 | 장소 | 제목, 설명, 컬러, 위도, 경도, 주소, 삭제 여부 |
 | 웹 항목 | 제목, 설명, URL, 요청 헤더 목록(이름과 값), 삭제 여부 |
-| 연락처 | 이름, 설명, 키, 신발 사이즈, 생일과 양력·음력 구분, 고향, 전화번호 목록, 즐겨찾기 여부, 삭제 여부 |
+| 연락처 | 이름, 설명, 키, 신발 사이즈, 생일과 양력·음력 구분, 태어난 연도, 고향, 전화번호 목록, 즐겨찾기 여부, 삭제 여부 |
 | 곡 | 링크, 제목, 가수, 썸네일, 삭제 여부 |
 | QR | 제목, 설명, QR 값, 삭제 여부 |
 | 연결 | 연결이 잇는 두 항목, 해제 여부. 태그와 태그의 연결은 출발 태그와 도착 태그를 구분한다 |
 
+곡의 썸네일은 이전 버전과의 호환을 위해 주고받기만 하고, 앱은 곡의 내용으로 쓰지 않는다. 앱의 기준은 [MusicAdd 화면 스펙](../client/music-add.md)의 `곡 생성과 저장`을 따른다.
+
 모든 종류는 위 정보와 함께 항목을 가리키는 고유 식별 정보, 생성 시각과 수정 시각을 담는다.
 
-메모의 기간은 하루 종일 여부, 시작, 끝 세 값이 모두 있거나 모두 없어야 하며, 시작은 끝보다 늦을 수 없다. 대표 태그가 없는 메모는 대표 태그를 비워서 보낸다. 연락처의 생일과 양력·음력 구분은 함께 있거나 함께 없어야 한다. 이 값들을 서버가 확인하는 기준은 [데이터 동기화 서버 스펙](../server/data-sync.md)의 `요청 확인`을 따른다.
+메모의 기간은 하루 종일 여부, 시작, 끝 세 값이 모두 있거나 모두 없어야 하며, 시작은 끝보다 늦을 수 없다. 대표 태그가 없는 메모는 대표 태그를 비워서 보낸다. 연락처의 생일과 양력·음력 구분은 함께 있거나 함께 없어야 하고, 생일이 있으면 태어난 연도는 생일의 연도와 같아야 한다. 생일이 없으면 태어난 연도는 있거나 없을 수 있다. 태어난 연도가 생기기 전 버전의 앱이 태어난 연도 없이 주고받는 이전 형식은 [데이터 동기화 서버 스펙](../server/data-sync.md)의 `이전 형식의 연락처 요청`을 따른다. 이 값들을 서버가 확인하는 기준은 [데이터 동기화 서버 스펙](../server/data-sync.md)의 `요청 확인`을 따른다.
 
 웹 항목의 요청 헤더 목록과 연락처의 전화번호 목록은 사용자가 배치한 순서 그대로 전체를 담으며, 받는 쪽은 받은 목록으로 기존 목록을 통째로 바꾼다.
 

@@ -2,10 +2,12 @@ package io.github.taetae98coding.diary.feature.calendar.ui.home.birthday
 
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import io.github.taetae98coding.diary.compose.calendar.CalendarDefaults
 import io.github.taetae98coding.diary.compose.calendar.grid.CalendarWeekOfMonthGridGroupScope
 import io.github.taetae98coding.diary.compose.calendar.text.CalendarText
 import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
@@ -32,6 +34,7 @@ internal fun CalendarWeekOfMonthGridGroupScope.birthdayItem(
                 modifier =
                     Modifier
                         .animateItem()
+                        .clip(CalendarDefaults.itemShape)
                         .clickable(role = Role.Button) { onBirthdayClick(birthday) }
                         .semantics { contentDescription = name },
                 color = birthdayColor,

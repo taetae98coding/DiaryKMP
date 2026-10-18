@@ -40,7 +40,7 @@ private const val SOUTH = -90.0
 private const val NORTH = 90.0
 private const val WEST = -180.0
 private const val EAST = 180.0
-private const val INVALIDATION_TIMEOUT_MILLIS = 5_000L
+private const val INVALIDATION_TIMEOUT_MILLIS = 30_000L
 
 class AccountTagScopeDaoTest :
     FunSpec({

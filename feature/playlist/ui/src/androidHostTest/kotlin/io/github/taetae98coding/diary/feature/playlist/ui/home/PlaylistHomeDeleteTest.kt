@@ -14,8 +14,9 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.Music
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.music.MUSIC_CARD_TEST_TAG
 import io.github.taetae98coding.diary.feature.playlist.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
@@ -180,15 +181,15 @@ class PlaylistHomeDeleteTest {
         val second = testMusic(title = SECOND_TITLE)
         val effectChannel = Channel<PlaylistHomeEffect>(capacity = Channel.BUFFERED)
         val viewModel = mockk<PlaylistHomeViewModel>()
-        every { viewModel.sort } returns MutableStateFlow(ListSort.TITLE)
+        every { viewModel.uiState } returns MutableStateFlow(PlaylistHomeUiState())
         every { viewModel.musicPagingData } returns MutableStateFlow(musicPagingDataOf(listOf(first, second)))
         every { viewModel.effect } returns effectChannel.receiveAsFlow()
         every { viewModel.delete(id = any()) } answers {
             effectChannel.trySend(PlaylistHomeEffect.Deleted(id = firstArg())).getOrThrow()
         }
         justRun { viewModel.restore(id = any()) }
-        val syncViewModel = mockk<PlaylistHomeSyncViewModel>()
-        every { syncViewModel.uiState } returns MutableStateFlow(PlaylistHomeUiState())
+        val syncViewModel = mockk<SyncRefreshViewModel>()
+        every { syncViewModel.uiState } returns MutableStateFlow(SyncRefreshUiState())
         justRun { syncViewModel.refresh() }
         val downloadEffectChannel = Channel<PlaylistHomeDownloadEffect>(capacity = Channel.BUFFERED)
         val downloadViewModel = mockk<PlaylistHomeDownloadViewModel>()

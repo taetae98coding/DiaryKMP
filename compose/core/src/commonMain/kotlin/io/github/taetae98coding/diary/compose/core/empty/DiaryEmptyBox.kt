@@ -9,6 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import io.github.taetae98coding.diary.compose.core.icon.MemoIcon
@@ -30,7 +32,7 @@ public fun DiaryEmptyBox(
         icon = icon,
         message = {
             Column(
-                modifier = Modifier.semantics(mergeDescendants = true) {},
+                modifier = Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(DiaryTheme.dimens.itemSpacing),
             ) {

@@ -4,5 +4,5 @@ import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntit
 import kotlin.uuid.Uuid
 
 public interface AccountWebSyncLocalDataSource {
-    public suspend fun findPending(accountId: Uuid): List<WebLocalEntity>
+    public suspend fun readPendingList(accountId: Uuid): List<WebLocalEntity>
 }

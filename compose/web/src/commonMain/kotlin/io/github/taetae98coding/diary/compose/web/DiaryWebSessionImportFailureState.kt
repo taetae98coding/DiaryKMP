@@ -34,7 +34,7 @@ public class DiaryWebSessionImportFailureState(
 }
 
 @Composable
-public fun rememberDiaryWebSessionImportFailureState(): DiaryWebSessionImportFailureState =
+internal fun rememberDiaryWebSessionImportFailureState(): DiaryWebSessionImportFailureState =
     rememberSaveable(saver = DiaryWebSessionImportFailureState.Saver) {
         DiaryWebSessionImportFailureState()
     }

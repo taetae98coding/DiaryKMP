@@ -16,7 +16,6 @@ import io.github.taetae98coding.diary.feature.memo.ui.form.rememberMemoAddFormSt
 import io.github.taetae98coding.diary.feature.memo.ui.place.DEFAULT_MAP_DESCRIPTION
 import io.github.taetae98coding.diary.feature.memo.ui.tag.tagPagingDataOf
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flowOf
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

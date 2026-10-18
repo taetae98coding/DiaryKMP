@@ -7,7 +7,7 @@ import io.github.taetae98coding.diary.compose.core.preview.IconPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 
 @Composable
-public fun QrScanIcon(
+internal fun QrScanIcon(
     modifier: Modifier = Modifier,
     contentDescription: String? = null,
 ) {

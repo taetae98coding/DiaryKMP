@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.feature.qr.ui.home
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
@@ -9,10 +10,14 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.paging.PagingData
@@ -24,10 +29,12 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.core.testing.qr.qr
 import io.github.taetae98coding.diary.core.testing.qr.qrDetail
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.qr.ui.add.actionNameList
 import io.github.taetae98coding.diary.feature.qr.ui.add.qrTestFixtureMonkey
 import io.github.taetae98coding.diary.feature.qr.ui.add.visibleTextList
 import io.github.taetae98coding.diary.feature.qr.ui.card.QR_CARD_TEST_TAG
+import io.github.taetae98coding.diary.feature.qr.ui.refreshableList
 import io.github.taetae98coding.diary.feature.qr.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
@@ -97,7 +104,7 @@ class QrHomeScaffoldTest {
 
         composeRule.visibleTextList() shouldContainExactlyInAnyOrder listOf(KOREAN_TITLE, qr.detail.title)
         composeRule.qrCodeValueList() shouldBe listOf(qr.detail.value)
-        composeRule.actionNameList() shouldContainExactlyInAnyOrder listOf(KOREAN_NAVIGATE_UP_DESCRIPTION, KOREAN_ADD_DESCRIPTION)
+        composeRule.actionNameList() shouldContainExactlyInAnyOrder listOf(KOREAN_NAVIGATE_UP_DESCRIPTION, KOREAN_ADD_DESCRIPTION, qr.detail.title)
     }
 
     @Test
@@ -115,25 +122,15 @@ class QrHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-018 목록의 QR을 선택해도 아무 일도 일어나지 않는다`() {
+    fun `TC-QR-HOME-FEATURE-034 목록의 QR을 선택하면 그 QR의 상세로 이동하는 이벤트를 한 번 내보낸다`() {
         val eventList = mutableListOf<QrHomeScaffoldEvent>()
-        val snackbarHostState = SnackbarHostState()
-        val qr = testQr()
-        setQrHomeScaffold(pagingData = qrPagingDataOf(listOf(qr)), onEvent = eventList::add, snackbarHostState = snackbarHostState)
+        val qrList = listOf(testQr(), testQr())
+        setQrHomeScaffold(pagingData = qrPagingDataOf(qrList), onEvent = eventList::add)
 
-        composeRule.onNode(hasTestTag(QR_CARD_TEST_TAG) and hasText(qr.detail.title)).performClick()
+        composeRule.onNode(hasTestTag(QR_CARD_TEST_TAG) and hasText(qrList.last().detail.title)).performClick()
         composeRule.waitForIdle()
 
-        eventList shouldBe emptyList()
-        composeRule.onNode(hasTestTag(QR_CARD_TEST_TAG) and hasText(qr.detail.title)).assertExists()
-        composeRule.runOnIdle { snackbarHostState.currentSnackbarData shouldBe null }
-    }
-
-    @Test
-    fun `QR 카드는 누를 수 있는 요소로 두지 않는다`() {
-        setQrHomeScaffold(pagingData = qrPagingDataOf(listOf(testQr())))
-
-        composeRule.onNode(hasTestTag(QR_CARD_TEST_TAG) and hasClickAction()).assertDoesNotExist()
+        eventList shouldBe listOf(QrHomeScaffoldEvent.ClickQr(id = qrList.last().id))
     }
 
     @Test
@@ -198,7 +195,7 @@ class QrHomeScaffoldTest {
         val isRefreshing = mutableStateOf(true)
         setQrHomeScaffold(
             pagingData = qrPagingDataOf(listOf(testQr())),
-            uiStateProvider = { QrHomeUiState(isRefreshing = isRefreshing.value) },
+            uiStateProvider = { SyncRefreshUiState(isRefreshing = isRefreshing.value) },
         )
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
 
@@ -230,6 +227,28 @@ class QrHomeScaffoldTest {
         eventList shouldBe listOf(QrHomeScaffoldEvent.ClickNavigateUp)
     }
 
+    @Test
+    fun `끝까지 스크롤하면 마지막 QR 카드가 추가 버튼 위에 놓인다`() {
+        val qrList = List(SCROLL_QR_COUNT) { testQr() }
+        setQrHomeScaffold(pagingData = qrPagingDataOf(qrList))
+
+        composeRule.refreshableList().performScrollToIndex(qrList.lastIndex)
+        composeRule.waitForIdle()
+
+        val lastCardBottom =
+            composeRule
+                .onAllNodesWithTag(QR_CARD_TEST_TAG)
+                .fetchSemanticsNodes()
+                .maxOf { node -> node.boundsInRoot.bottom }
+        val addButtonTop =
+            composeRule
+                .onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION)
+                .fetchSemanticsNode()
+                .boundsInRoot
+                .top
+        (lastCardBottom <= addButtonTop) shouldBe true
+    }
+
     private fun assertRefreshRequested(pagingData: PagingData<Qr>) {
         val eventList = mutableListOf<QrHomeScaffoldEvent>()
         setQrHomeScaffold(pagingData = pagingData, onEvent = eventList::add)
@@ -240,11 +259,31 @@ class QrHomeScaffoldTest {
         eventList shouldBe listOf(QrHomeScaffoldEvent.Refresh)
     }
 
+    @Test
+    fun `TC-QR-HOME-FEATURE-036 Cmd A 단축키를 입력하면 QR 추가 이벤트를 한 번 내보낸다`() {
+        val eventList = mutableListOf<QrHomeScaffoldEvent>()
+        setQrHomeScaffold(onEvent = eventList::add)
+
+        performAddShortcut()
+
+        eventList shouldBe listOf(QrHomeScaffoldEvent.ClickAdd)
+    }
+
+    private fun performAddShortcut() {
+        composeRule.onRoot().performKeyInput {
+            keyDown(Key.MetaLeft)
+            keyDown(Key.A)
+            keyUp(Key.A)
+            keyUp(Key.MetaLeft)
+        }
+        composeRule.waitForIdle()
+    }
+
     private fun setQrHomeScaffold(
         pagingData: PagingData<Qr> = qrPagingDataOf(emptyList()),
         onEvent: (QrHomeScaffoldEvent) -> Unit = {},
         snackbarHostState: SnackbarHostState = SnackbarHostState(),
-        uiStateProvider: () -> QrHomeUiState = { QrHomeUiState() },
+        uiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
     ) {
         val qrPagingDataFlow = MutableStateFlow(pagingData)
 
@@ -273,5 +312,6 @@ class QrHomeScaffoldTest {
         const val DEFAULT_EMPTY_TITLE = "No QR codes yet"
         const val DEFAULT_EMPTY_DESCRIPTION = "Use the add button to create a QR code."
         const val DEFAULT_REFRESHING_DESCRIPTION = "Refreshing"
+        const val SCROLL_QR_COUNT = 20
     }
 }

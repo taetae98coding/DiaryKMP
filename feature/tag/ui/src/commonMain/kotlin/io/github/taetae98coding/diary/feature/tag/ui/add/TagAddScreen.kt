@@ -2,30 +2,14 @@ package io.github.taetae98coding.diary.feature.tag.ui.add
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation3.runtime.result.LocalResultEventBus
-import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.compose.collectAsLazyPagingItems
-import io.github.taetae98coding.diary.compose.core.effect.CollectEffect
 import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInputFocusEffect
 import io.github.taetae98coding.diary.compose.core.paging.isConfirmedEmpty
-import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
-import io.github.taetae98coding.diary.feature.tag.api.TagAddedResult
-import io.github.taetae98coding.diary.feature.tag.api.tagAddedResultKey
-import io.github.taetae98coding.diary.feature.tag.ui.Res
-import io.github.taetae98coding.diary.feature.tag.ui.form.TagFormState
 import io.github.taetae98coding.diary.feature.tag.ui.form.rememberTagAddFormState
 import io.github.taetae98coding.diary.feature.tag.ui.link.TagLinkAddedResultEffect
 import io.github.taetae98coding.diary.feature.tag.ui.link.TagLinkPickerEvent
-import io.github.taetae98coding.diary.feature.tag.ui.tag_add_succeeded_message
-import io.github.taetae98coding.diary.feature.tag.ui.tag_add_title_blank_message
-import io.github.taetae98coding.diary.library.compose.ui.color.randomColor
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.stringResource
 import kotlin.uuid.Uuid
 
 @Composable
@@ -51,7 +35,7 @@ internal fun TagAddScreen(
         requestKey = tagAddRequestKey,
         onTagAdded = linkViewModel::link,
     )
-    AddEffect(
+    TagAddScreenEffect(
         effect = addViewModel.effect,
         scaffoldState = scaffoldState,
         clearLink = linkViewModel::clear,
@@ -70,7 +54,7 @@ internal fun TagAddScreen(
                 is TagAddScaffoldEvent.ClickAdd ->
                     addViewModel.add(
                         detail = scaffoldState.detail,
-                        linkedTagIdSet = linkViewModel.linkedTagIdSet.value,
+                        linkedTagIdSet = linkViewModel.selectionUiState.value.linkedTagIdSet,
                     )
 
                 is TagAddScaffoldEvent.ClickLink -> navigateToDetail(event.id)
@@ -94,39 +78,4 @@ internal fun TagAddScreen(
         modifier = modifier,
         componentVisibleProvider = componentVisibleProvider,
     )
-}
-
-@Composable
-private fun AddEffect(
-    clearLink: () -> Unit,
-    addedResultRequestKey: Uuid?,
-    resultEventBus: ResultEventBus = LocalResultEventBus.current,
-    effect: Flow<TagAddEffect> = emptyFlow(),
-    scaffoldState: TagFormState = rememberTagAddFormState(),
-) {
-    val coroutineScope = rememberCoroutineScope()
-    val addSucceededMessage = stringResource(Res.string.tag_add_succeeded_message)
-    val titleBlankMessage = stringResource(Res.string.tag_add_title_blank_message)
-
-    CollectEffect(effect) { value ->
-        when (value) {
-            is TagAddEffect.AddSucceeded -> {
-                addedResultRequestKey?.let { requestKey ->
-                    resultEventBus.sendResult(resultKey = tagAddedResultKey(requestKey = requestKey), result = TagAddedResult(id = value.id))
-                }
-                scaffoldState.emojiState.clearText()
-                scaffoldState.titleState.clearText()
-                scaffoldState.descriptionState.clearText()
-                scaffoldState.titleState.requestFocus()
-                clearLink()
-                coroutineScope.launch { scaffoldState.colorState.animateTo(color = randomColor()) }
-                coroutineScope.launch { scaffoldState.hostState.showImmediate(message = addSucceededMessage) }
-            }
-
-            is TagAddEffect.TitleBlank -> {
-                scaffoldState.titleState.requestFocus()
-                coroutineScope.launch { scaffoldState.hostState.showImmediate(message = titleBlankMessage) }
-            }
-        }
-    }
 }

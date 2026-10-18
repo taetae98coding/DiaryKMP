@@ -5,12 +5,12 @@ import androidx.compose.ui.unit.dp
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-public object SwipeToFinishAndDeleteBoxDefaults {
-    public val StatusIconSize: Dp = 32.dp
+internal object SwipeToFinishAndDeleteBoxDefaults {
+    val StatusIconSize: Dp = 32.dp
 
-    public val CircleIconSize: Dp = 16.dp
+    val CircleIconSize: Dp = 16.dp
 
-    public val StatusIconHorizontalPadding: Dp = 16.dp
+    val StatusIconHorizontalPadding: Dp = 16.dp
 
-    public val DismissedResetDelay: Duration = 1.seconds
+    val DismissedResetDelay: Duration = 1.seconds
 }

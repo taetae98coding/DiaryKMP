@@ -30,16 +30,30 @@ internal class QrHomeViewModel(
     private val _effect = Channel<QrHomeEffect>(Channel.BUFFERED)
     val effect: Flow<QrHomeEffect> = _effect.receiveAsFlow()
 
+    private val inProgressIds = mutableSetOf<Uuid>()
+
     fun delete(id: Uuid) {
+        if (!inProgressIds.add(id)) return
+
         viewModelScope.launch {
-            deleteQrUseCase(parameter = id)
-                .onSuccess { _effect.send(QrHomeEffect.Deleted(id = id)) }
+            try {
+                deleteQrUseCase(parameter = id)
+                    .onSuccess { _effect.send(QrHomeEffect.Deleted(id = id)) }
+            } finally {
+                inProgressIds.remove(id)
+            }
         }
     }
 
     fun restore(id: Uuid) {
+        if (!inProgressIds.add(id)) return
+
         viewModelScope.launch {
-            restoreQrUseCase(parameter = id)
+            try {
+                restoreQrUseCase(parameter = id)
+            } finally {
+                inProgressIds.remove(id)
+            }
         }
     }
 }

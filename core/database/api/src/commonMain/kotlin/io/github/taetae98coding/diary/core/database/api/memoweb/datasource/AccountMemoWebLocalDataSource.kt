@@ -16,7 +16,7 @@ public interface AccountMemoWebLocalDataSource {
         query: String,
     ): PagingSource<Int, WebLocalEntity>
 
-    public suspend fun findWebIdList(
+    public suspend fun readWebIdList(
         accountId: Uuid,
         memoId: Uuid,
     ): List<Uuid>

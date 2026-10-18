@@ -8,7 +8,6 @@ import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.model.memo.MemoDraft
 import io.github.taetae98coding.diary.domain.memo.usecase.FetchMemoDraftUseCase
 import io.github.taetae98coding.diary.domain.setting.exception.GeminiApiKeyInvalidException
-import io.github.taetae98coding.diary.domain.setting.usecase.GetGeminiSettingUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

@@ -397,21 +397,21 @@ private fun TestContext.stubPending(
     musicList: List<MusicLocalEntity>,
     qrList: List<QrLocalEntity>,
 ) {
-    coEvery { tagSyncLocalDataSource.findPending(accountId = accountId) } returns tagList
-    coEvery { placeSyncLocalDataSource.findPending(accountId = accountId) } returns placeList
-    coEvery { webSyncLocalDataSource.findPending(accountId = accountId) } returns webList
-    coEvery { contactSyncLocalDataSource.findPending(accountId = accountId) } returns contactList
-    coEvery { memoSyncLocalDataSource.findPending(accountId = accountId) } returns memoList
-    coEvery { memoTagSyncLocalDataSource.findPending(accountId = accountId) } returns memoTagList
-    coEvery { memoPlaceSyncLocalDataSource.findPending(accountId = accountId) } returns memoPlaceList
-    coEvery { memoWebSyncLocalDataSource.findPending(accountId = accountId) } returns memoWebList
-    coEvery { memoContactSyncLocalDataSource.findPending(accountId = accountId) } returns memoContactList
-    coEvery { tagLinkSyncLocalDataSource.findPending(accountId = accountId) } returns tagLinkList
-    coEvery { webTagSyncLocalDataSource.findPending(accountId = accountId) } returns webTagList
-    coEvery { placeTagSyncLocalDataSource.findPending(accountId = accountId) } returns placeTagList
-    coEvery { musicSyncLocalDataSource.findPending(accountId = accountId) } returns musicList
-    coEvery { qrSyncLocalDataSource.findPending(accountId = accountId) } returns qrList
-    coEvery { syncCursorLocalDataSource.find(accountId = any(), kind = any()) } returns 0L
+    coEvery { tagSyncLocalDataSource.readPendingList(accountId = accountId) } returns tagList
+    coEvery { placeSyncLocalDataSource.readPendingList(accountId = accountId) } returns placeList
+    coEvery { webSyncLocalDataSource.readPendingList(accountId = accountId) } returns webList
+    coEvery { contactSyncLocalDataSource.readPendingList(accountId = accountId) } returns contactList
+    coEvery { memoSyncLocalDataSource.readPendingList(accountId = accountId) } returns memoList
+    coEvery { memoTagSyncLocalDataSource.readPendingList(accountId = accountId) } returns memoTagList
+    coEvery { memoPlaceSyncLocalDataSource.readPendingList(accountId = accountId) } returns memoPlaceList
+    coEvery { memoWebSyncLocalDataSource.readPendingList(accountId = accountId) } returns memoWebList
+    coEvery { memoContactSyncLocalDataSource.readPendingList(accountId = accountId) } returns memoContactList
+    coEvery { tagLinkSyncLocalDataSource.readPendingList(accountId = accountId) } returns tagLinkList
+    coEvery { webTagSyncLocalDataSource.readPendingList(accountId = accountId) } returns webTagList
+    coEvery { placeTagSyncLocalDataSource.readPendingList(accountId = accountId) } returns placeTagList
+    coEvery { musicSyncLocalDataSource.readPendingList(accountId = accountId) } returns musicList
+    coEvery { qrSyncLocalDataSource.readPendingList(accountId = accountId) } returns qrList
+    coEvery { syncCursorLocalDataSource.read(accountId = any(), kind = any()) } returns 0L
 }
 
 internal fun tags(size: Int): List<TagLocalEntity> = List(size) { tag() }
@@ -447,20 +447,20 @@ private fun TestContext.stubTransactions() {
     coEvery { accountPlaceTagSyncTransaction.clearPending(any(), any()) } returns Unit
     coEvery { accountMusicSyncTransaction.clearPending(any(), any()) } returns Unit
     coEvery { accountQrSyncTransaction.clearPending(any(), any()) } returns Unit
-    coEvery { accountTagSyncTransaction.save(any(), any(), any()) } returns Unit
-    coEvery { accountPlaceSyncTransaction.save(any(), any(), any()) } returns Unit
-    coEvery { accountWebSyncTransaction.save(any(), any(), any()) } returns Unit
-    coEvery { accountContactSyncTransaction.save(any(), any(), any()) } returns Unit
-    coEvery { accountMemoSyncTransaction.save(any(), any(), any()) } returns Unit
-    coEvery { accountMemoTagSyncTransaction.save(any(), any(), any()) } returns Unit
-    coEvery { accountMemoPlaceSyncTransaction.save(any(), any(), any()) } returns Unit
-    coEvery { accountMemoWebSyncTransaction.save(any(), any(), any()) } returns Unit
-    coEvery { accountMemoContactSyncTransaction.save(any(), any(), any()) } returns Unit
-    coEvery { accountTagLinkSyncTransaction.save(any(), any(), any()) } returns Unit
-    coEvery { accountWebTagSyncTransaction.save(any(), any(), any()) } returns Unit
-    coEvery { accountPlaceTagSyncTransaction.save(any(), any(), any()) } returns Unit
-    coEvery { accountMusicSyncTransaction.save(any(), any(), any()) } returns Unit
-    coEvery { accountQrSyncTransaction.save(any(), any(), any()) } returns Unit
+    coEvery { accountTagSyncTransaction.upsert(any(), any(), any()) } returns Unit
+    coEvery { accountPlaceSyncTransaction.upsert(any(), any(), any()) } returns Unit
+    coEvery { accountWebSyncTransaction.upsert(any(), any(), any()) } returns Unit
+    coEvery { accountContactSyncTransaction.upsert(any(), any(), any()) } returns Unit
+    coEvery { accountMemoSyncTransaction.upsert(any(), any(), any()) } returns Unit
+    coEvery { accountMemoTagSyncTransaction.upsert(any(), any(), any()) } returns Unit
+    coEvery { accountMemoPlaceSyncTransaction.upsert(any(), any(), any()) } returns Unit
+    coEvery { accountMemoWebSyncTransaction.upsert(any(), any(), any()) } returns Unit
+    coEvery { accountMemoContactSyncTransaction.upsert(any(), any(), any()) } returns Unit
+    coEvery { accountTagLinkSyncTransaction.upsert(any(), any(), any()) } returns Unit
+    coEvery { accountWebTagSyncTransaction.upsert(any(), any(), any()) } returns Unit
+    coEvery { accountPlaceTagSyncTransaction.upsert(any(), any(), any()) } returns Unit
+    coEvery { accountMusicSyncTransaction.upsert(any(), any(), any()) } returns Unit
+    coEvery { accountQrSyncTransaction.upsert(any(), any(), any()) } returns Unit
 }
 
 private fun TestContext.stubRemoteDataSources() {

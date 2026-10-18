@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.contact.ui.detail
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -24,24 +25,18 @@ internal fun ContactDetailTabFloatingActionButton(
     isUpdateVisible: Boolean = false,
     isUpdateInProgressProvider: () -> Boolean = { false },
 ) {
-    when (tab) {
-        ContactDetailTab.DETAIL ->
-            DiaryScaleVisibility(
-                visible = isUpdateVisible,
-                modifier = modifier,
-            ) {
-                FloatingCheckButton(
-                    onClick = onUpdate,
-                    contentDescription = stringResource(Res.string.contact_detail_update_button_content_description),
-                    isInProgressProvider = isUpdateInProgressProvider,
-                )
-            }
-
-        ContactDetailTab.MEMO ->
-            ContactDetailMemoFloatingActionButton(
-                onClick = onMemoAdd,
-                modifier = modifier,
+    Box(modifier = modifier) {
+        DiaryScaleVisibility(visible = tab == ContactDetailTab.DETAIL && isUpdateVisible) {
+            FloatingCheckButton(
+                onClick = onUpdate,
+                contentDescription = stringResource(Res.string.contact_detail_update_button_content_description),
+                isInProgressProvider = isUpdateInProgressProvider,
             )
+        }
+
+        DiaryScaleVisibility(visible = tab == ContactDetailTab.MEMO) {
+            ContactDetailMemoFloatingActionButton(onClick = onMemoAdd)
+        }
     }
 }
 

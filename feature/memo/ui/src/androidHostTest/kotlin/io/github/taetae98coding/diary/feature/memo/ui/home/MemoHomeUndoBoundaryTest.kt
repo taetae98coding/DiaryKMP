@@ -18,6 +18,7 @@ import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.testing.memo.memo
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.mockk.every
@@ -110,7 +111,7 @@ class MemoHomeUndoBoundaryTest {
     private fun viewModel(memo: Memo): MemoHomeViewModel {
         val effectChannel = Channel<MemoListEffect>(capacity = Channel.BUFFERED)
         val viewModel = mockk<MemoHomeViewModel>()
-        every { viewModel.sort } returns MutableStateFlow(ListSort.DEFAULT)
+        every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
         every { viewModel.memoPagingData } returns MutableStateFlow(memoPagingDataOf(listOf(MemoListItem.Content(memo = memo))))
         every { viewModel.filterUiState } returns MutableStateFlow(MemoHomeScaffoldFilterUiState())
         every { viewModel.effect } returns effectChannel.receiveAsFlow()

@@ -1,7 +1,7 @@
 package io.github.taetae98coding.diary.data.browser.mapper
 
-import io.github.taetae98coding.diary.core.browsercookie.api.entity.BrowserCookieLocalEntity
-import io.github.taetae98coding.diary.core.browsercookie.api.entity.BrowserCookieSameSiteLocalEntity
+import io.github.taetae98coding.diary.core.browser.cookie.api.entity.BrowserCookieLocalEntity
+import io.github.taetae98coding.diary.core.browser.cookie.api.entity.BrowserCookieSameSiteLocalEntity
 import io.github.taetae98coding.diary.core.model.browser.BrowserCookie
 import io.github.taetae98coding.diary.core.model.browser.BrowserCookieSameSite
 

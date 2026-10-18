@@ -8,7 +8,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.place.datasource.AccountPlaceSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.place.entity.AccountPlaceLocalEntity
@@ -79,7 +79,7 @@ class AccountPlaceSyncTransactionImplTest :
         suspend fun isPending(
             accountId: Uuid,
             placeId: Uuid,
-        ): Boolean = syncDataSource.findPending(accountId = accountId).any { place -> place.id == placeId }
+        ): Boolean = syncDataSource.readPendingList(accountId = accountId).any { place -> place.id == placeId }
 
         test("TC-PLACE-ADD-DATA-005 현재 계정의 업로드 대기 장소만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
@@ -94,7 +94,7 @@ class AccountPlaceSyncTransactionImplTest :
             insertWithSyncState(otherAccountId, otherAccountPlace, isDirty = true)
 
             syncDataSource
-                .findPending(accountId = accountId)
+                .readPendingList(accountId = accountId)
                 .shouldContainExactlyInAnyOrder(firstPendingPlace, secondPendingPlace)
         }
 
@@ -105,7 +105,7 @@ class AccountPlaceSyncTransactionImplTest :
             insertWithSyncState(accountId = Uuid.NIL, place = guestEntity, isDirty = true)
             insertWithSyncState(accountId = accountId, place = accountEntity, isDirty = true)
 
-            syncDataSource.findPending(accountId = accountId) shouldBe listOf(accountEntity)
+            syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(accountEntity)
         }
 
         test("TC-DATA-SYNC-DOMAIN-026 업로드한 수정 시각이 그대로면 동기화 완료가 된다") {
@@ -115,7 +115,7 @@ class AccountPlaceSyncTransactionImplTest :
 
             transaction.clearPending(accountId = accountId, placeList = listOf(place))
 
-            syncDataSource.findPending(accountId = accountId).shouldBeEmpty()
+            syncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
 
         test("TC-DATA-SYNC-DOMAIN-027 업로드 중 수정 시각이 바뀐 장소는 업로드 대기로 남는다") {
@@ -126,14 +126,14 @@ class AccountPlaceSyncTransactionImplTest :
 
             transaction.clearPending(accountId = accountId, placeList = listOf(pushedPlace))
 
-            syncDataSource.findPending(accountId = accountId) shouldBe listOf(changedPlace)
+            syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(changedPlace)
         }
 
         test("TC-DATA-SYNC-DOMAIN-030 장소가 업로드 대기가 되어도 내려받기 위치는 유지된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place(updatedAt = Instant.fromEpochMilliseconds(1_000))
             val cursor = 7L
-            transaction.save(accountId = accountId, placeList = listOf(place), cursor = cursor)
+            transaction.upsert(accountId = accountId, placeList = listOf(place), cursor = cursor)
 
             accountTransaction.updateDetail(
                 accountId = accountId,
@@ -143,13 +143,13 @@ class AccountPlaceSyncTransactionImplTest :
             )
 
             isPending(accountId = accountId, placeId = place.id) shouldBe true
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.PLACE) shouldBe cursor
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.PLACE) shouldBe cursor
         }
 
         test("TC-PLACE-DETAIL-DATA-008 장소를 삭제하면 업로드 대기가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place(updatedAt = Instant.fromEpochMilliseconds(1_000))
-            transaction.save(accountId = accountId, placeList = listOf(place), cursor = 3L)
+            transaction.upsert(accountId = accountId, placeList = listOf(place), cursor = 3L)
 
             accountTransaction.updateDeleted(
                 accountId = accountId,
@@ -166,19 +166,19 @@ class AccountPlaceSyncTransactionImplTest :
             val firstCursor = 3L
             val secondCursor = 11L
 
-            transaction.save(accountId = accountId, placeList = listOf(place()), cursor = firstCursor)
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.PLACE) shouldBe firstCursor
+            transaction.upsert(accountId = accountId, placeList = listOf(place()), cursor = firstCursor)
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.PLACE) shouldBe firstCursor
 
-            transaction.save(accountId = accountId, placeList = listOf(place()), cursor = secondCursor)
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.PLACE) shouldBe secondCursor
+            transaction.upsert(accountId = accountId, placeList = listOf(place()), cursor = secondCursor)
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.PLACE) shouldBe secondCursor
         }
 
         test("TC-DATA-SYNC-DATA-017 기록된 순번이 없으면 기본 커서를 사용한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
-            transaction.save(accountId = otherAccountId, placeList = listOf(place()), cursor = 9L)
+            transaction.upsert(accountId = otherAccountId, placeList = listOf(place()), cursor = 9L)
 
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.PLACE) shouldBe 0L
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.PLACE) shouldBe 0L
         }
 
         listOf(
@@ -195,7 +195,7 @@ class AccountPlaceSyncTransactionImplTest :
                     )
                 insertWithSyncState(accountId, localPlace, isDirty = false)
 
-                transaction.save(accountId = accountId, placeList = listOf(remotePlace), cursor = 5L)
+                transaction.upsert(accountId = accountId, placeList = listOf(remotePlace), cursor = 5L)
 
                 findPlace(accountId = accountId, placeId = localPlace.id) shouldBe remotePlace
             }
@@ -212,10 +212,10 @@ class AccountPlaceSyncTransactionImplTest :
             insertWithSyncState(accountId, localPlace, isDirty = true)
             val cursor = 5L
 
-            transaction.save(accountId = accountId, placeList = listOf(remotePlace), cursor = cursor)
+            transaction.upsert(accountId = accountId, placeList = listOf(remotePlace), cursor = cursor)
 
             findPlace(accountId = accountId, placeId = localPlace.id) shouldBe localPlace
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.PLACE) shouldBe cursor
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.PLACE) shouldBe cursor
         }
 
         listOf(
@@ -229,7 +229,7 @@ class AccountPlaceSyncTransactionImplTest :
                 val remotePlace = localPlace.copy(detail = detail(), updatedAt = remoteUpdatedAt)
                 insertWithSyncState(accountId, localPlace, isDirty = true)
 
-                transaction.save(accountId = accountId, placeList = listOf(remotePlace), cursor = 5L)
+                transaction.upsert(accountId = accountId, placeList = listOf(remotePlace), cursor = 5L)
 
                 isPending(accountId = accountId, placeId = localPlace.id) shouldBe true
             }
@@ -239,10 +239,10 @@ class AccountPlaceSyncTransactionImplTest :
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val remotePlace = place()
 
-            transaction.save(accountId = accountId, placeList = listOf(remotePlace), cursor = 5L)
+            transaction.upsert(accountId = accountId, placeList = listOf(remotePlace), cursor = 5L)
 
             findPlace(accountId = accountId, placeId = remotePlace.id) shouldBe remotePlace
-            syncDataSource.findPending(accountId = accountId).shouldBeEmpty()
+            syncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
 
         test("TC-DATA-SYNC-DATA-026 내려받기 저장이 실패하면 장소와 커서가 모두 반영되지 않는다") {
@@ -253,11 +253,11 @@ class AccountPlaceSyncTransactionImplTest :
             val failingTransaction = AccountPlaceSyncTransactionImpl(database = failingDatabase)
 
             shouldThrowExactly<PlaceSyncTestException> {
-                failingTransaction.save(accountId = accountId, placeList = listOf(remotePlace), cursor = 5L)
+                failingTransaction.upsert(accountId = accountId, placeList = listOf(remotePlace), cursor = 5L)
             }
 
             findPlace(accountId = accountId, placeId = remotePlace.id).shouldBeNull()
-            syncCursorDataSource.find(accountId = accountId, kind = SyncKind.PLACE) shouldBe 0L
+            syncCursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.PLACE) shouldBe 0L
         }
 
         test("TC-DATA-SYNC-DATA-027 업로드한 장소가 같은 내용으로 다시 내려와도 기기 내용은 그대로다") {
@@ -265,7 +265,7 @@ class AccountPlaceSyncTransactionImplTest :
             val place = place()
             insertWithSyncState(accountId, place, isDirty = false)
 
-            transaction.save(accountId = accountId, placeList = listOf(place), cursor = 5L)
+            transaction.upsert(accountId = accountId, placeList = listOf(place), cursor = 5L)
 
             findPlace(accountId = accountId, placeId = place.id) shouldBe place
         }

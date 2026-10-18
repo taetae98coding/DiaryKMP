@@ -11,6 +11,7 @@ internal fun previewContact(
     name: String,
     phoneNumberList: List<String>,
     birthday: ContactBirthday? = null,
+    birthYear: Int? = birthday?.date?.year,
     hometown: String = "",
     isFavorite: Boolean = false,
 ): Contact =
@@ -23,6 +24,7 @@ internal fun previewContact(
                 height = null,
                 footSize = null,
                 birthday = birthday,
+                birthYear = birthYear,
                 hometown = hometown,
                 phoneNumberList = phoneNumberList.map { number -> ContactPhoneNumber(number = number) },
             ),

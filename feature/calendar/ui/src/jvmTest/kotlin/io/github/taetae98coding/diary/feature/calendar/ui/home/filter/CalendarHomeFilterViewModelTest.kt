@@ -284,6 +284,44 @@ class CalendarHomeFilterViewModelTest : FunSpec() {
                 }
             }
         }
+
+        test("같은 태그의 선택이나 선택 해제가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
+            runTest(mainDispatcher) {
+                val tagId = fixtureMonkey.giveMeOne<Uuid>()
+                val selectCalendarFilterTagUseCase = mockk<SelectCalendarFilterTagUseCase>()
+                coEvery { selectCalendarFilterTagUseCase(parameter = tagId) } returns Result.success(Unit)
+                val unselectCalendarFilterTagUseCase = mockk<UnselectCalendarFilterTagUseCase>()
+                coEvery { unselectCalendarFilterTagUseCase(parameter = tagId) } returns Result.success(Unit)
+                val viewModel =
+                    viewModel(
+                        selectCalendarFilterTagUseCase = selectCalendarFilterTagUseCase,
+                        unselectCalendarFilterTagUseCase = unselectCalendarFilterTagUseCase,
+                    )
+
+                viewModel.selectTag(id = tagId)
+                viewModel.selectTag(id = tagId)
+                viewModel.unselectTag(id = tagId)
+                viewModel.unselectTag(id = tagId)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { selectCalendarFilterTagUseCase(parameter = tagId) }
+                coVerify(exactly = 1) { unselectCalendarFilterTagUseCase(parameter = tagId) }
+            }
+        }
+
+        test("태그 선택 전체 해제가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
+            runTest(mainDispatcher) {
+                val unselectAllCalendarFilterTagUseCase = mockk<UnselectAllCalendarFilterTagUseCase>()
+                coEvery { unselectAllCalendarFilterTagUseCase(parameter = Unit) } returns Result.success(Unit)
+                val viewModel = viewModel(unselectAllCalendarFilterTagUseCase = unselectAllCalendarFilterTagUseCase)
+
+                viewModel.unselectAllTag()
+                viewModel.unselectAllTag()
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { unselectAllCalendarFilterTagUseCase(parameter = Unit) }
+            }
+        }
     }
 
     companion object {

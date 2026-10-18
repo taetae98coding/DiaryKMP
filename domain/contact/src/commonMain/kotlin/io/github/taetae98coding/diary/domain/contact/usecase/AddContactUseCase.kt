@@ -3,13 +3,13 @@ package io.github.taetae98coding.diary.domain.contact.usecase
 import io.github.taetae98coding.diary.core.model.contact.Contact
 import io.github.taetae98coding.diary.core.model.contact.ContactDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.account.usecase.requireAccount
 import io.github.taetae98coding.diary.domain.contact.exception.ContactNameBlankException
 import io.github.taetae98coding.diary.domain.contact.exception.ContactPhoneNumberBlankException
 import io.github.taetae98coding.diary.domain.contact.repository.AccountContactRepository
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
-import kotlinx.coroutines.flow.first
 import org.koin.core.annotation.Factory
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
@@ -24,12 +24,12 @@ public class AddContactUseCase internal constructor(
     override suspend fun execute(parameter: Parameter): Uuid {
         parameter.detail.blankException()?.let { exception -> throw exception }
 
-        val account = getAccountUseCase(parameter = Unit).first().getOrThrow()
+        val account = getAccountUseCase.requireAccount()
         val now = clock.now()
         val contact =
             Contact(
                 id = Uuid.random(),
-                detail = parameter.detail,
+                detail = parameter.detail.withBirthYearOfBirthday(),
                 isFavorite = false,
                 isDeleted = false,
                 updatedAt = now,

@@ -15,11 +15,14 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 
@@ -38,7 +41,7 @@ class AppFileUploadViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("확인된 계정 상태를 바뀔 때마다 한 번씩 전달하고 확인하지 못한 동안은 전달하지 않는다") {
+        test("TC-FILE-STORAGE-DOMAIN-017 확인된 계정 상태를 바뀔 때마다 한 번씩 전달하고 확인하지 못한 동안은 전달하지 않는다") {
             runTest(mainDispatcher) {
                 val user = fixtureMonkey.giveMeOne<Account.User>()
                 val viewModel =
@@ -52,9 +55,21 @@ class AppFileUploadViewModelTest : FunSpec() {
                             ),
                     )
 
-                viewModel.account.test {
+                viewModel.uiState.confirmedAccount().test {
                     awaitItem() shouldBe user
                     awaitItem() shouldBe Account.Guest
+                    expectNoEvents()
+                }
+            }
+        }
+
+        test("계정을 확인하기 전에는 확인 중 상태다") {
+            runTest(mainDispatcher) {
+                val viewModel = viewModel(accountFlow = flowOf(Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))))
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe AppFileUploadUiState.Loading
+                    runCurrent()
                     expectNoEvents()
                 }
             }
@@ -72,6 +87,23 @@ class AppFileUploadViewModelTest : FunSpec() {
                 coVerify(exactly = 1) { reconcileFileUploadUseCase(parameter = Account.Guest) }
             }
         }
+
+        test("같은 계정으로 올리기 맞춤이 반복되어도 진행 중에는 UseCase를 한 번만 실행하고 다른 계정은 따로 실행한다") {
+            runTest(mainDispatcher) {
+                val user = fixtureMonkey.giveMeOne<Account.User>()
+                val reconcileFileUploadUseCase = mockk<ReconcileFileUploadUseCase>()
+                coEvery { reconcileFileUploadUseCase(parameter = any()) } returns Result.success(Unit)
+                val viewModel = viewModel(accountFlow = flowOf(), reconcileFileUploadUseCase = reconcileFileUploadUseCase)
+
+                viewModel.reconcile(account = user)
+                viewModel.reconcile(account = user)
+                viewModel.reconcile(account = Account.Guest)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { reconcileFileUploadUseCase(parameter = user) }
+                coVerify(exactly = 1) { reconcileFileUploadUseCase(parameter = Account.Guest) }
+            }
+        }
     }
 
     private fun viewModel(
@@ -86,4 +118,6 @@ class AppFileUploadViewModelTest : FunSpec() {
             reconcileFileUploadUseCase = reconcileFileUploadUseCase,
         )
     }
+
+    private fun Flow<AppFileUploadUiState>.confirmedAccount(): Flow<Account> = filterIsInstance<AppFileUploadUiState.Confirmed>().map { uiState -> uiState.account }
 }

@@ -286,7 +286,7 @@ class AccountPlaceTagLocalDataSourceImplTest :
             tagTransaction.updateDeleted(accountId = accountId, tagId = tag.id, isDeleted = true, updatedAt = deletedAt)
             linkedTagList(accountId = accountId, placeId = place.id).shouldBeEmpty()
 
-            AccountTagSyncTransactionImpl(database = database).save(
+            AccountTagSyncTransactionImpl(database = database).upsert(
                 accountId = accountId,
                 tagList = listOf(tag.copy(isFinished = true, isDeleted = false, updatedAt = deletedAt)),
                 cursor = fixtureMonkey.giveMeOne<Long>(),
@@ -682,9 +682,9 @@ class AccountPlaceTagLocalDataSourceImplTest :
 
             link(accountId = accountId, placeId = place.id, tagId = targetTag.id)
 
-            placeSyncDataSource.findPending(accountId = accountId).shouldBeEmpty()
+            placeSyncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
             placeTagSyncDataSource
-                .findPending(accountId = accountId)
+                .readPendingList(accountId = accountId)
                 .map { placeTag -> placeTag.tagId } shouldBe listOf(targetTag.id)
         }
 
@@ -745,20 +745,20 @@ class AccountPlaceTagLocalDataSourceImplTest :
             link(accountId = accountId, placeId = place.id, tagId = targetTag.id)
 
             placeTagSyncDataSource
-                .findPending(accountId = accountId)
+                .readPendingList(accountId = accountId)
                 .map { placeTag -> placeTag.tagId } shouldBe listOf(targetTag.id)
-            placeTagSyncDataSource.findPending(accountId = otherAccountId).shouldBeEmpty()
+            placeTagSyncDataSource.readPendingList(accountId = otherAccountId).shouldBeEmpty()
 
             AccountPlaceTagSyncTransactionImpl(database = database).clearPending(
                 accountId = accountId,
-                placeTagList = placeTagSyncDataSource.findPending(accountId = accountId),
+                placeTagList = placeTagSyncDataSource.readPendingList(accountId = accountId),
             )
             unlink(accountId = accountId, placeId = place.id, tagId = targetTag.id)
 
             placeTagSyncDataSource
-                .findPending(accountId = accountId)
+                .readPendingList(accountId = accountId)
                 .map { placeTag -> placeTag.tagId to placeTag.isDeleted } shouldBe listOf(targetTag.id to true)
-            placeTagSyncDataSource.findPending(accountId = otherAccountId).shouldBeEmpty()
+            placeTagSyncDataSource.readPendingList(accountId = otherAccountId).shouldBeEmpty()
         }
 
         test("TC-PLACE-DETAIL-DATA-011 연결된 태그는 페이지로 나누지 않고 조회한다") {

@@ -19,6 +19,7 @@ import io.github.taetae98coding.diary.compose.tag.list.TagListEffect
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.testing.tag.tag
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
 import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -187,7 +188,7 @@ class TagFinishedListSwipeTest {
         val second = fixtureMonkey.tag(title = SECOND_TITLE, isFinished = true)
         val effectChannel = Channel<TagListEffect>(capacity = Channel.BUFFERED)
         val viewModel = mockk<TagFinishedListViewModel>()
-        every { viewModel.sort } returns MutableStateFlow(ListSort.TITLE)
+        every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
         every { viewModel.tagPagingData } returns MutableStateFlow(tagPagingDataOf(listOf(first, second)))
         every { viewModel.effect } returns effectChannel.receiveAsFlow()
         every { viewModel.restart(id = any()) } answers {

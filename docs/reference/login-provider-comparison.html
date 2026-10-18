@@ -121,8 +121,8 @@
   <header>
     <h1>Google 로그인과 Apple 로그인 비교</h1>
     <p class="meta">
-      <b>기준</b> 커밋 <code>d17675ee</code> 위의 <code>appleLogin</code> 작업 트리(Android·JVM·wasmJs Apple 로그인 추가 직후) ·
-      <b>최종 확인</b> 2026-09-24
+      <b>기준</b> 커밋 <code>4c2b4569</code> ·
+      <b>최종 확인</b> 2026-09-28
     </p>
     <p class="note">
       제품 관점의 행위와 정책은 <a href="../spec/login.md">Login 스펙</a>이, 화면 표현은 <a href="../design/login.md">Login 디자인</a>이 소유한다.
@@ -177,6 +177,10 @@
             <td>iOS <code>ASAuthorizationErrorCanceled</code>, 웹 흐름 공통 <code>user_cancelled_authorize</code>, Android는 브라우저 탭을 닫고 돌아오면 취소, wasm은 팝업 닫힘 감시</td>
           </tr>
           <tr>
+            <td>흐름의 끝을 알 수 있는지(<code>isSignInEndDetectable</code>)</td>
+            <td colspan="2"><span class="tag common">공통</span> Android·iOS·wasm은 <code>true</code>, JVM은 <code>false</code>. JVM은 브라우저 창을 응답 없이 닫아도 앱이 알 수 없어서, 진행 표시로 버튼을 막지 않고 다시 선택하면 새 흐름을 연다.</td>
+          </tr>
+          <tr>
             <td>CSRF·재전송 방어</td>
             <td>nonce(SHA-256 해시를 요청에, 원본을 서버에), JVM은 PKCE S256</td>
             <td>nonce(같은 방식) + <code>state</code>(시도마다 새 토큰, 응답의 state가 다르면 인증 결과로 받지 않음)</td>
@@ -197,13 +201,15 @@
         <tbody>
           <tr>
             <td><code>commonMain</code></td>
-            <td><code>GoogleCredentialsManager</code>(expect), <code>GoogleCredentialsException</code>, <code>GoogleCredentialsUserCancelException</code></td>
-            <td><code>AppleCredentialsManager</code>(expect), <code>AppleCredentialsException</code>(+ <code>toAppleCredentialsFailure</code>), <code>AppleCredentialsUserCancelException</code>,
+            <td><code>GoogleCredentialsManager</code>(<code>isSignInEndDetectable</code>, <code>signIn()</code> + expect 팩토리), <code>GoogleCredentialsException</code>, <code>GoogleCredentialsUserCancelException</code></td>
+            <td><code>AppleCredentialsManager</code>(<code>isSignInEndDetectable</code>, <code>signIn()</code> + expect 팩토리), <code>AppleCredentialsException</code>(+ <code>toAppleCredentialsFailure</code>), <code>AppleCredentialsUserCancelException</code>,
               <b>웹 흐름 공통</b>: <code>AppleCredentialsConfig</code>, <code>AppleWebSignInRequestFactory</code>, <code>AppleWebSignInRequest</code>, <code>AppleWebSignInResponse</code>, <code>AppleWebSignInState</code>, <code>UrlQueryComponentEncoding</code></td>
           </tr>
           <tr>
             <td>공유</td>
-            <td colspan="2"><span class="tag common">공통</span> <code>CredentialsNonce</code>(SHA-256 hex) — 두 수단이 같은 nonce 해시를 쓴다. 화면 배선은 <code>LoginHomeScreen</code>의 <code>requestGoogleSignIn</code> / <code>requestAppleSignIn</code>이 같은 모양으로 예외를 취소·실패로 나눈다.</td>
+            <td colspan="2"><span class="tag common">공통</span> <code>CredentialsNonce</code>(SHA-256 hex) — 두 수단이 같은 nonce 해시를 쓴다. 화면 배선은 <code>LoginHomeScreen</code>의 <code>requestGoogleSignIn</code> / <code>requestAppleSignIn</code>이 같은 모양으로 예외를 취소·실패로 나눈다.
+              두 요청은 <code>LoginPlatformSignInState</code>를 함께 거친다. 끝을 알 수 있는 흐름이면 진행 중 표시(<code>isInProgress</code>)를 켜고 그동안의 새 요청을 받지 않으며, 끝을 알 수 없는 흐름(JVM)이면 여러 흐름을 열어 두되 먼저 받아들인 결과 하나만 쓰고 그 뒤에 끝난 흐름의 결과·취소·실패는 버린다.
+              <code>LoginHomeScaffold</code>는 앱 로그인 처리 중이거나 이 진행 중 표시가 켜져 있으면 로딩을, 아니면 <code>LoginSignInButtonRow</code>(두 버튼)를 보인다.</td>
           </tr>
           <tr>
             <td><code>androidMain</code></td>
@@ -375,7 +381,7 @@
       <div class="step app"><b>앱</b>결과 페이지 응답 후 state 검증 → <code>AppleCredential</code></div><div class="arrow">→</div>
       <div class="step server"><b>v1-session-apple-id-token</b></div>
     </div>
-    <p class="note">Google은 code를 서버가 client secret으로 교환해야 하므로 서버에 비밀이 있고, Apple은 <code>id_token</code>을 앱이 직접 받아 서버에 비밀이 없다. 두 수단 모두 브라우저 창을 응답 없이 닫으면 취소를 감지하지 못한다(스펙이 허용하는 예외).</p>
+    <p class="note">Google은 code를 서버가 client secret으로 교환해야 하므로 서버에 비밀이 있고, Apple은 <code>id_token</code>을 앱이 직접 받아 서버에 비밀이 없다. 두 수단 모두 브라우저 창을 응답 없이 닫으면 취소를 감지하지 못하므로(스펙이 허용하는 예외) <code>isSignInEndDetectable = false</code>로 두어, 버튼을 막지 않고 먼저 도착한 결과 하나만 받는다.</p>
 
     <div class="platform">wasmJs</div>
     <h4><span class="tag google">Google</span> GIS 팝업 → authorization code</h4>
@@ -457,6 +463,8 @@
           <tr><td>수신기</td><td>Jetty <code>LocalServerReceiver</code>는 라이브러리 — 테스트 없음</td><td><code>AppleSignInLoopbackReceiverTest</code>(TC-LOGIN-DATA-013, 실제 HTTP 요청)</td></tr>
           <tr><td>취소 감지</td><td>SDK 예외 매핑 — <code>LoginHomeScreenTest</code>가 화면 수준에서 검증</td><td><code>AndroidAppleCredentialsManagerTest</code>(TC-LOGIN-FEATURE-022·023, <code>TestLifecycleOwner</code>)</td></tr>
           <tr><td>화면·ViewModel·Repository</td><td colspan="2"><span class="tag common">공통</span> <code>LoginHomeScreenTest</code>, <code>LoginHomeViewModelTest</code>, <code>SessionRepositoryImplTest</code>, <code>SignInWith…UseCaseTest</code>가 두 수단을 테스트 데이터로 함께 순회한다.</td></tr>
+          <tr><td>진행 중 막기·먼저 받은 결과</td><td colspan="2"><span class="tag common">공통</span> <code>LoginHomePlatformSignInScreenTest</code>(TC-LOGIN-FEATURE-010·030~036)가 두 <code>isSignInEndDetectable</code> 값으로 화면 수준을, <code>LoginPlatformSignInStateTest</code>(구현 계약, TC ID 없음)가 상태 객체를 검증한다.</td></tr>
+          <tr><td>경계·실패 안내·배치</td><td colspan="2"><span class="tag common">공통</span> <code>LoginHomeScreenBoundaryTest</code>(TC-LOGIN-FEATURE-021·025·028·029, 재생성·오류 보고), <code>LoginHomeSignInFailureScreenTest</code>(TC-LOGIN-FEATURE-007, TC-LOGIN-DATA-005), <code>LoginHomeScaffoldTest</code>(TC-LOGIN-FEATURE-014·020)</td></tr>
         </tbody>
       </table>
     </div>

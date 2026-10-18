@@ -124,6 +124,42 @@ class FileHomeUploadViewModelTest : FunSpec() {
             }
         }
 
+        test("올리는 중이 아니면 파일 추가 요청이 FileAdd 이동으로 이어진다") {
+            runTest(mainDispatcher) {
+                val viewModel = viewModel()
+
+                viewModel.uiState.test {
+                    awaitItem().isUploading.shouldBeFalse()
+                    cancelAndIgnoreRemainingEvents()
+                }
+                viewModel.effect.test {
+                    viewModel.requestAdd()
+
+                    awaitItem() shouldBe FileHomeUploadEffect.NavigateToAdd
+                    expectNoEvents()
+                }
+            }
+        }
+
+        test("TC-FILE-HOME-FEATURE-048 올리는 중에는 파일 추가를 요청해도 FileAdd로 이동하지 않는다") {
+            runTest(mainDispatcher) {
+                val stateFlow = MutableStateFlow<Result<FileUploadState>>(Result.success(FileUploadState.Uploading(percent = fixtureMonkey.giveMeOne<Int>())))
+                val viewModel = viewModel(stateFlow = stateFlow)
+
+                viewModel.uiState.test {
+                    awaitItem()
+                    awaitItem().isUploading.shouldBeTrue()
+
+                    viewModel.effect.test {
+                        viewModel.requestAdd()
+
+                        expectNoEvents()
+                    }
+                    cancelAndIgnoreRemainingEvents()
+                }
+            }
+        }
+
         test("화면을 보기 시작하고 그만 보는 것을 알린다") {
             runTest(mainDispatcher) {
                 val startUseCase = mockk<StartViewingFileScreenUseCase>()
@@ -139,6 +175,27 @@ class FileHomeUploadViewModelTest : FunSpec() {
 
                 viewModel.stopViewing()
                 advanceUntilIdle()
+                coVerify(exactly = 1) { stopUseCase(parameter = FileScreen.HOME) }
+            }
+        }
+
+        test("이미 보고 있거나 보고 있지 않을 때 다시 알리면 UseCase를 다시 실행하지 않는다") {
+            runTest(mainDispatcher) {
+                val startUseCase = mockk<StartViewingFileScreenUseCase>()
+                coEvery { startUseCase(parameter = FileScreen.HOME) } returns Result.success(Unit)
+                val stopUseCase = mockk<StopViewingFileScreenUseCase>()
+                coEvery { stopUseCase(parameter = FileScreen.HOME) } returns Result.success(Unit)
+                val viewModel = viewModel(startUseCase = startUseCase, stopUseCase = stopUseCase)
+
+                viewModel.stopViewing()
+                viewModel.startViewing()
+                viewModel.startViewing()
+                advanceUntilIdle()
+                viewModel.stopViewing()
+                viewModel.stopViewing()
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { startUseCase(parameter = FileScreen.HOME) }
                 coVerify(exactly = 1) { stopUseCase(parameter = FileScreen.HOME) }
             }
         }

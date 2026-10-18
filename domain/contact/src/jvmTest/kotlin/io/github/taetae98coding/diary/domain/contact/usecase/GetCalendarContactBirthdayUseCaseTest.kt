@@ -420,6 +420,42 @@ class GetCalendarContactBirthdayUseCaseTest :
             }
         }
 
+        Given("TC-CALENDAR-CONTACT-BIRTHDAY-DATA-012: 음력 자료를 처음에는 읽지 못하고 그 뒤에는 읽을 수 있는 상태로 같은 기간의 결과를 계속 관찰하고 있다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val dateRange = LocalDate(2026, 8, 17)..LocalDate(2026, 8, 23)
+            val lunarBirthday = lunarContactBirthday(birthday = LocalDate(1990, 7, 8))
+            val solarBirthdayFlow = MutableStateFlow<List<CalendarContactBirthday>>(emptyList())
+            val getAccountUseCase = mockk<GetAccountUseCase>()
+            every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+            val repository = mockk<AccountCalendarContactBirthdayRepository>()
+            every { repository.get(account = account, dateRange = dateRange) } returns solarBirthdayFlow
+            every { repository.getLunar(account = account) } returns flowOf(listOf(lunarBirthday))
+            val lunarRepository = mockk<LunarRepository>()
+            every { lunarRepository.get(dateRange = dateRange) } returnsMany
+                listOf(
+                    flow { throw IllegalStateException(fixtureMonkey.giveMeOne<String>()) },
+                    flowOf(lunarDateList(start = LocalDate(2026, 8, 17), endInclusive = LocalDate(2026, 8, 23), lunarYear = 2026, month = 7, firstDay = 5)),
+                )
+            val useCase = useCase(getAccountUseCase = getAccountUseCase, repository = repository, lunarRepository = lunarRepository)
+
+            When("조회를 다시 요청하지 않은 상태에서 양력 생일 연락처가 새로 저장된다") {
+                Then("새 연락처의 생일만 담기고 음력 생일은 여전히 빠진 결과가 전달된다") {
+                    val solarBirthday = calendarContactBirthday(date = LocalDate(2026, 8, 21))
+
+                    useCase(parameter = dateRange).test {
+                        awaitItem().shouldBeSuccess() shouldBe emptyList()
+
+                        solarBirthdayFlow.value = listOf(solarBirthday)
+
+                        awaitItem().shouldBeSuccess() shouldBe listOf(solarBirthday)
+                        cancelAndIgnoreRemainingEvents()
+                    }
+
+                    verify(exactly = 1) { lunarRepository.get(dateRange = dateRange) }
+                }
+            }
+        }
+
         Given("TC-CALENDAR-CONTACT-BIRTHDAY-DATA-007: 음력 생일 연락처가 저장되어 있다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val dateRange = dateRange()

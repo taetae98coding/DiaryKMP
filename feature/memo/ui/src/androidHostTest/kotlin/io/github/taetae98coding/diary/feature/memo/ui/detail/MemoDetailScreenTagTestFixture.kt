@@ -4,13 +4,11 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.PagingData
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.Tag
-import io.github.taetae98coding.diary.feature.memo.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.contact.screenTestContactViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceInputUiState
@@ -25,7 +23,6 @@ import io.github.taetae98coding.diary.feature.memo.ui.web.screenTestWebViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flowOf
 import kotlin.uuid.Uuid
 
 internal const val DEFAULT_UPDATE_SUCCEEDED_MESSAGE = "Memo updated."
@@ -48,7 +45,7 @@ internal fun ComposeContentTestRule.setMemoDetailScreenWithTag(
     setContent {
         MemoDetailScreenTestTheme {
             MemoDetailScreen(
-                tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                addRequestKey = TEST_ADD_REQUEST_KEY,
                 detailViewModel = screenTestViewModel(uiState = uiState),
                 tagViewModel = tagViewModel,
                 webViewModel = screenTestWebViewModel(),

@@ -11,7 +11,7 @@ internal sealed interface HolidayHomeYearUiState {
 
     data object NotProvided : HolidayHomeYearUiState
 
-    data class Loaded(
+    data class Content(
         val goldenHolidayGroupList: List<GoldenHolidayGroup> = emptyList(),
     ) : HolidayHomeYearUiState
 }

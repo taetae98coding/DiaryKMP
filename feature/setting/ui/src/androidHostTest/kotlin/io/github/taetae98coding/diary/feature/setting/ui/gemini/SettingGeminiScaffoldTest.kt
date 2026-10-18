@@ -90,7 +90,7 @@ class SettingGeminiScaffoldTest {
                 model = MODEL_ID,
                 systemPrompt = STORED_SYSTEM_PROMPT,
             )
-        setScaffold(uiState = SettingGeminiUiState.Loaded(setting = setting), initialSetting = setting)
+        setScaffold(uiState = SettingGeminiUiState.Content(setting = setting), initialSetting = setting)
 
         composeRule.onNodeWithText(DEFAULT_API_KEY_LABEL).assertExists()
         composeRule.modelRow().assertContentDescriptionContains(MODEL_ID, substring = true)
@@ -99,7 +99,7 @@ class SettingGeminiScaffoldTest {
 
     @Test
     fun `TC-SETTING-GEMINI-FEATURE-002 저장된 설정이 없으면 비어 있는 상태로 표시한다`() {
-        setScaffold(uiState = SettingGeminiUiState.Loaded(setting = GeminiSetting.EMPTY))
+        setScaffold(uiState = SettingGeminiUiState.Content(setting = GeminiSetting.EMPTY))
 
         composeRule.modelRow().assertContentDescriptionContains(DEFAULT_MODEL_UNSELECTED, substring = true)
         composeRule.onNodeWithText(DEFAULT_SYSTEM_PROMPT_LABEL).assertExists()
@@ -116,7 +116,7 @@ class SettingGeminiScaffoldTest {
     @Test
     fun `TC-SETTING-GEMINI-FEATURE-013 목록을 받아 오기 전에는 목록에 없는 모델 안내를 표시하지 않는다`() {
         val setting = GeminiSetting.EMPTY.copy(model = MODEL_ID)
-        setScaffold(uiState = SettingGeminiUiState.Loaded(setting = setting), initialSetting = setting)
+        setScaffold(uiState = SettingGeminiUiState.Content(setting = setting), initialSetting = setting)
 
         val description = composeRule.modelRowDescription()
         description.contains(MODEL_ID) shouldBe true
@@ -127,7 +127,7 @@ class SettingGeminiScaffoldTest {
     fun `TC-SETTING-GEMINI-FEATURE-012 목록에 없는 모델을 알리되 선택은 유지한다`() {
         val setting = GeminiSetting.EMPTY.copy(model = REMOVED_MODEL_ID)
         setScaffold(
-            uiState = SettingGeminiUiState.Loaded(setting = setting),
+            uiState = SettingGeminiUiState.Content(setting = setting),
             initialSetting = setting,
             modelUiState =
                 SettingGeminiModelUiState(
@@ -145,7 +145,7 @@ class SettingGeminiScaffoldTest {
     fun `목록에 있는 모델이면 목록에 없다는 안내를 표시하지 않는다`() {
         val setting = GeminiSetting.EMPTY.copy(model = MODEL_ID)
         setScaffold(
-            uiState = SettingGeminiUiState.Loaded(setting = setting),
+            uiState = SettingGeminiUiState.Content(setting = setting),
             initialSetting = setting,
             modelUiState =
                 SettingGeminiModelUiState(
@@ -159,7 +159,7 @@ class SettingGeminiScaffoldTest {
 
     @Test
     fun `API 키 입력의 동작 키를 누르면 시스템 프롬프트 입력으로 초점을 옮긴다`() {
-        setScaffold(uiState = SettingGeminiUiState.Loaded(setting = GeminiSetting.EMPTY))
+        setScaffold(uiState = SettingGeminiUiState.Content(setting = GeminiSetting.EMPTY))
 
         val textFields = composeRule.onAllNodes(hasSetTextAction())
         textFields[0].performClick()
@@ -173,7 +173,7 @@ class SettingGeminiScaffoldTest {
     @Test
     fun `TC-SETTING-GEMINI-FEATURE-016 저장하는 동안 진행 상태를 표시한다`() {
         setScaffold(
-            uiState = SettingGeminiUiState.Loaded(setting = GeminiSetting.EMPTY, isInProgress = true),
+            uiState = SettingGeminiUiState.Content(setting = GeminiSetting.EMPTY, isInProgress = true),
             initialSetting = GeminiSetting.EMPTY.copy(apiKey = STORED_API_KEY),
         )
 
@@ -183,7 +183,7 @@ class SettingGeminiScaffoldTest {
     @Test
     fun `TC-SETTING-GEMINI-FEATURE-024 편집 값이 저장된 설정과 같으면 저장 동작을 제공하지 않는다`() {
         val setting = GeminiSetting(apiKey = STORED_API_KEY, model = MODEL_ID, systemPrompt = STORED_SYSTEM_PROMPT)
-        setScaffold(uiState = SettingGeminiUiState.Loaded(setting = setting), initialSetting = setting)
+        setScaffold(uiState = SettingGeminiUiState.Content(setting = setting), initialSetting = setting)
 
         composeRule.onNodeWithText(DEFAULT_API_KEY_LABEL).assertExists()
         composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertDoesNotExist()
@@ -191,7 +191,7 @@ class SettingGeminiScaffoldTest {
 
     @Test
     fun `TC-SETTING-GEMINI-FEATURE-024 저장한 적이 없고 아무것도 입력하지 않으면 저장 동작을 제공하지 않는다`() {
-        setScaffold(uiState = SettingGeminiUiState.Loaded(setting = GeminiSetting.EMPTY), initialSetting = GeminiSetting.EMPTY)
+        setScaffold(uiState = SettingGeminiUiState.Content(setting = GeminiSetting.EMPTY), initialSetting = GeminiSetting.EMPTY)
 
         composeRule.onNodeWithText(DEFAULT_API_KEY_LABEL).assertExists()
         composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertDoesNotExist()
@@ -206,7 +206,7 @@ class SettingGeminiScaffoldTest {
             .joinToString(separator = " ")
 
     private fun setScaffold(
-        uiState: SettingGeminiUiState = SettingGeminiUiState.Loaded(setting = GeminiSetting.EMPTY),
+        uiState: SettingGeminiUiState = SettingGeminiUiState.Content(setting = GeminiSetting.EMPTY),
         initialSetting: GeminiSetting = GeminiSetting.EMPTY,
         modelUiState: SettingGeminiModelUiState = SettingGeminiModelUiState(),
         onEvent: (SettingGeminiScaffoldEvent) -> Unit = {},

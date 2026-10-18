@@ -695,7 +695,7 @@ function diagnose(s, horiz) {
   if (lines.length <= 1)
     push(true, 'alignContent', `줄이 ${lines.length}개라 무효입니다. 줄 묶음을 옮기려면 2줄 이상이어야 합니다.`);
   else if (s.crossAuto && horiz)
-    push(true, 'alignContent', 'cross 크기가 콘텐츠에 맞춰져 여유 공간이 0입니다 → 무효. <b>태그 필터 시트와 태그 입력이 이 상태이고, 이때 Center를 주면 rc01에서 첫 줄이 줄 간격 합의 절반만큼 위로 잘립니다.</b>');
+    push(true, 'alignContent', 'cross 크기가 콘텐츠에 맞춰져 여유 공간이 0입니다 → 무효. <b>태그 필터 시트가 이 상태이고, 이때 Center를 주면 rc01에서 첫 줄이 줄 간격 합의 절반만큼 위로 잘립니다.</b>');
   else if (crossFree <= 2)
     push(true, 'alignContent', `cross 여유 공간이 ${crossFree}px뿐이라 효과가 거의 없습니다. cross 크기를 키워 보세요.`);
   else
@@ -728,7 +728,8 @@ function writeCode(s) {
 
 const PRESETS = {
   flowrow:  { direction:'row', wrap:'wrap', justifyContent:'flex-start', alignItems:'flex-start', alignContent:'flex-start', crossAuto:true,  varyHeight:false, crossSize:220 },
-  // 태그 필터 시트와 태그 입력은 둘 다 DiaryFlexBox를 verticalScroll 안에 두므로 설정이 같습니다.
+  // 태그 필터 시트는 DiaryFlexBox를 verticalScroll 안에 두고, 칩 입력은 DiaryChipFlexBox(heightIn(min = 150dp))로 칩이 늘면 함께 커집니다.
+  // 영역 안에서 스크롤하는 것은 DiaryScrollableChipFlexBox뿐입니다. 셋 다 정렬은 DiaryFlexBox의 설정이라 같습니다.
   diaryflexbox: { direction:'row', wrap:'wrap', justifyContent:'center', alignItems:'center', alignContent:'flex-start', crossAuto:true, varyHeight:false, crossSize:220 },
   centerbug:    { direction:'row', wrap:'wrap', justifyContent:'center', alignItems:'center', alignContent:'center',     crossAuto:true, varyHeight:false, crossSize:220 },
   column:   { direction:'column', wrap:'wrap', justifyContent:'center', alignItems:'center', alignContent:'center', crossAuto:false, varyHeight:true, crossSize:300 },

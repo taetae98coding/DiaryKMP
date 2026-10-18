@@ -1,6 +1,6 @@
 package io.github.taetae98coding.diary.data.browser.repository
 
-import io.github.taetae98coding.diary.core.browsercookie.api.datasource.ChromeCookieLocalDataSource
+import io.github.taetae98coding.diary.core.browser.cookie.api.datasource.ChromeCookieLocalDataSource
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.BrowserSettingLocalDataSource
 import io.github.taetae98coding.diary.domain.browser.repository.ChromeSessionImportSettingRepository
 import kotlinx.coroutines.flow.Flow
@@ -17,10 +17,10 @@ internal class ChromeSessionImportSettingRepositoryImpl(
     override fun getProfileDirectory(): Flow<String> = browserSettingLocalDataSource.getChromeSessionProfileDirectory()
 
     override suspend fun setProfileDirectory(directory: String) {
-        browserSettingLocalDataSource.setChromeSessionProfileDirectory(directory = directory)
+        browserSettingLocalDataSource.upsertChromeSessionProfileDirectory(directory = directory)
     }
 
     override suspend fun unsetProfileDirectory() {
-        browserSettingLocalDataSource.setChromeSessionProfileDirectory(directory = "")
+        browserSettingLocalDataSource.upsertChromeSessionProfileDirectory(directory = "")
     }
 }

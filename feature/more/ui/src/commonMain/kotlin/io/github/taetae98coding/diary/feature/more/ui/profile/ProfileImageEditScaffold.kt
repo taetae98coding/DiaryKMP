@@ -44,7 +44,7 @@ internal fun ProfileImageEditScaffold(
     modifier: Modifier = Modifier,
     state: ProfileImageEditState = rememberProfileImageEditState(),
     uiStateProvider: () -> ProfileImageEditUiState = { ProfileImageEditUiState() },
-    hostState: SnackbarHostState = remember { SnackbarHostState() },
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     Scaffold(
         modifier =
@@ -58,7 +58,7 @@ internal fun ProfileImageEditScaffold(
                 navigateUpContentDescription = stringResource(Res.string.more_profile_image_edit_navigate_up_button_content_description),
             )
         },
-        snackbarHost = { SnackbarHost(hostState = hostState) },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         floatingActionButton = {
             DiaryScaleVisibility(visible = state.isReady) {
                 FloatingCheckButton(

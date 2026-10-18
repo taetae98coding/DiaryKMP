@@ -4,6 +4,7 @@ import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadTarget
 import io.github.taetae98coding.diary.domain.setting.repository.MusicDownloadProxySettingRepository
 import io.github.taetae98coding.diary.work.musicdownload.tool.MusicDownloader
 import io.github.taetae98coding.diary.work.musicdownload.work.MusicFilePath
+import io.github.taetae98coding.diary.work.musicdownload.work.complete
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.onDownload
 import io.ktor.client.request.prepareGet
@@ -78,16 +79,4 @@ private suspend fun ByteReadChannel.writeTo(path: String): Long {
     }
 
     return written
-}
-
-private fun MusicFilePath.complete(isDownloaded: Boolean): Boolean {
-    val downloadingPath = Path(downloading)
-
-    if (isDownloaded && SystemFileSystem.exists(downloadingPath)) {
-        SystemFileSystem.atomicMove(source = downloadingPath, destination = Path(completed))
-        return true
-    }
-
-    SystemFileSystem.delete(path = downloadingPath, mustExist = false)
-    return false
 }

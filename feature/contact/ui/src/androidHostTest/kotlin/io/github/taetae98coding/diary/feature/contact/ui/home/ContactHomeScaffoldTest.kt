@@ -1,17 +1,23 @@
 package io.github.taetae98coding.diary.feature.contact.ui.home
 
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.contact.Contact
+import io.github.taetae98coding.diary.feature.contact.ui.refreshableList
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
@@ -117,6 +123,77 @@ class ContactHomeScaffoldTest {
         composeRule.onNodeWithContentDescription(DEFAULT_SEARCH_BUTTON_DESCRIPTION).assertDoesNotExist()
     }
 
+    @Test
+    fun `추가 버튼이 보이는 동안 끝까지 스크롤하면 마지막 연락처 카드가 추가 버튼 위에 놓인다`() {
+        val contactList = List(SCROLL_CONTACT_COUNT) { index -> testContact(name = "$CONTACT_NAME-$index") }
+        setContactHomeScaffold(contactList = contactList)
+        composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithTag(CONTACT_CARD_TEST_TAG).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        composeRule.refreshableList().performScrollToIndex(contactList.lastIndex)
+
+        val lastCardBottom =
+            composeRule
+                .onAllNodesWithTag(CONTACT_CARD_TEST_TAG)
+                .fetchSemanticsNodes()
+                .maxOf { node -> node.boundsInRoot.bottom }
+        val addButtonTop =
+            composeRule
+                .onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION)
+                .fetchSemanticsNode()
+                .boundsInRoot
+                .top
+        (lastCardBottom <= addButtonTop) shouldBe true
+    }
+
+    @Test
+    fun `TC-CONTACT-HOME-FEATURE-039 Cmd A 단축키를 입력하면 연락처 추가 이벤트를 한 번 내보낸다`() {
+        val eventList = mutableListOf<ContactHomeScaffoldEvent>()
+        setContactHomeScaffold(onEvent = eventList::add)
+
+        performAddShortcut()
+
+        eventList shouldBe listOf(ContactHomeScaffoldEvent.ClickAdd)
+    }
+
+    @Test
+    fun `TC-CONTACT-LIST-DETAIL-FEATURE-003 상세 영역에 연락처 추가가 놓이면 Cmd A 단축키로도 연락처 추가 이벤트를 내보내지 않는다`() {
+        val eventList = mutableListOf<ContactHomeScaffoldEvent>()
+        setContactHomeScaffold(
+            onEvent = eventList::add,
+            componentVisible = ContactHomeScaffoldComponentVisible(isAddButtonVisible = false),
+        )
+
+        performAddShortcut()
+
+        eventList shouldBe emptyList()
+    }
+
+    @Test
+    fun `A 키만 누르면 연락처 추가 이벤트를 내보내지 않는다`() {
+        val eventList = mutableListOf<ContactHomeScaffoldEvent>()
+        setContactHomeScaffold(onEvent = eventList::add)
+
+        composeRule.onRoot().performKeyInput {
+            keyDown(Key.A)
+            keyUp(Key.A)
+        }
+        composeRule.waitForIdle()
+
+        eventList shouldBe emptyList()
+    }
+
+    private fun performAddShortcut() {
+        composeRule.onRoot().performKeyInput {
+            keyDown(Key.MetaLeft)
+            keyDown(Key.A)
+            keyUp(Key.A)
+            keyUp(Key.MetaLeft)
+        }
+        composeRule.waitForIdle()
+    }
+
     private fun setContactHomeScaffold(
         contactList: List<Contact> = emptyList(),
         onEvent: (ContactHomeScaffoldEvent) -> Unit = {},
@@ -137,6 +214,7 @@ class ContactHomeScaffoldTest {
 
     private companion object {
         private const val LIST_ITEM_TIMEOUT_MILLIS = 5_000L
+        private const val SCROLL_CONTACT_COUNT = 20
         private const val CONTACT_NAME = "ContactHomeScaffoldName"
         private const val DEFAULT_TITLE = "Contacts"
         private const val KOREAN_TITLE = "연락처"

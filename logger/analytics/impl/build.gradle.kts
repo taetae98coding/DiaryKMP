@@ -10,11 +10,11 @@ plugins {
 
 kotlin {
     swiftPMDependencies {
-        iosMinimumDeploymentTarget.set("26.5")
+        iosMinimumDeploymentTarget.set(libs.versions.iosDeploymentTarget.get())
 
         swiftPackage(
             url = url("https://github.com/firebase/firebase-ios-sdk.git"),
-            version = exact("12.19.1"),
+            version = exact(libs.versions.firebaseIos.get()),
             products = listOf(product("FirebaseAnalytics")),
         )
     }

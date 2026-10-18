@@ -14,6 +14,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun SwipeToDeleteQrCard(
+    onClick: () -> Unit,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier,
     qr: Qr? = null,
@@ -26,6 +27,7 @@ internal fun SwipeToDeleteQrCard(
         gesturesEnabled = qr != null,
     ) {
         QrCard(
+            onClick = onClick,
             modifier = Modifier.fillMaxWidth(),
             qr = qr,
         )
@@ -37,6 +39,7 @@ internal fun SwipeToDeleteQrCard(
 private fun SwipeToDeleteQrCardPreview() {
     DiaryTheme {
         SwipeToDeleteQrCard(
+            onClick = {},
             onDelete = {},
             qr = previewQr(title = "회사 출입"),
         )

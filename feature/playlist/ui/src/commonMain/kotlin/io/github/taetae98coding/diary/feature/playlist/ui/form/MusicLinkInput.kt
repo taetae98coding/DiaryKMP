@@ -63,7 +63,7 @@ internal fun MusicLinkInput(
                 modifier = Modifier.padding(horizontal = MusicLinkInputDefaults.FetchButtonHorizontalPadding, vertical = MusicLinkInputDefaults.FetchButtonVerticalPadding),
                 isFetchInProgressProvider = isFetchInProgressProvider,
             )
-            ThumbnailPreview(thumbnailProvider = thumbnailProvider)
+            MusicLinkThumbnail(thumbnailProvider = thumbnailProvider)
         }
     }
 }
@@ -91,7 +91,7 @@ private fun FetchButton(
 }
 
 @Composable
-private fun ThumbnailPreview(
+private fun MusicLinkThumbnail(
     modifier: Modifier = Modifier,
     thumbnailProvider: () -> String = { "" },
 ) {

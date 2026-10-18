@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -48,7 +49,7 @@ internal const val KOREAN_PICKER_TITLE: String = KOREAN_TAG_SELECT_LABEL
 internal const val KOREAN_PICKER_TAG_ADD: String = "태그 추가"
 internal const val DEFAULT_PICKER_TAG_ADD: String = "Add tag"
 internal const val DEFAULT_CONFIRM: String = "Confirm"
-internal const val DEFAULT_PRIMARY_TAG_DESCRIPTION: String = "Primary tag"
+internal const val DEFAULT_PRIMARY_TAG_STATE_DESCRIPTION: String = "Primary tag"
 internal const val DEFAULT_PRIMARY_SET_DESCRIPTION: String = "Set as primary tag"
 internal const val DEFAULT_PRIMARY_UNSET_DESCRIPTION: String = "Unset primary tag"
 internal const val KOREAN_PRIMARY_SET_DESCRIPTION: String = "대표 태그 지정"
@@ -198,3 +199,5 @@ internal fun ComposeContentTestRule.dialogNodeWithText(text: String): SemanticsN
 internal fun ComposeContentTestRule.dialogNodesWithContentDescription(contentDescription: String): SemanticsNodeInteractionCollection = onAllNodes(hasContentDescription(contentDescription) and hasAnyAncestor(isDialog()))
 
 internal fun ComposeContentTestRule.memoTagInputHeight(): Dp = onNodeWithTag(MEMO_TAG_INPUT_TAG).getUnclippedBoundsInRoot().height
+
+internal fun hasPrimaryTagState(): SemanticsMatcher = SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, DEFAULT_PRIMARY_TAG_STATE_DESCRIPTION)

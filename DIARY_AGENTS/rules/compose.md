@@ -147,7 +147,7 @@ modifier.calendarSelectBackground(
     yearMonth = yearMonth,
     weekOfMonth = weekOfMonth,
     dateRange = selectState.dateRange,
-    color = CalendarDefault.selectBackgroundColor(),
+    color = CalendarDefaults.selectBackgroundColor(),
 )
 
 internal fun Modifier.calendarSelectBackground(
@@ -293,7 +293,7 @@ Screen 컴포저블이 받는 ViewModel 파라미터의 이름은 개수에 따�
 - **하나만 받으면 `viewModel`로 둔다.**
 - **둘 이상 받으면 각각 그 ViewModel이 맡은 관심사를 이름으로 둔다**(`memoViewModel`, `syncViewModel`, `placeMapViewModel`). 화면 이름은 접두사로 붙이지 않는다.
 
-Screen 안의 private Effect 컴포저블은 ViewModel을 하나만 받더라도 화면이 여러 ViewModel을 쓰면 관심사 이름을 그대로 쓴다(`FetchCurrentLocationEffect(placeMapViewModel: MemoPlaceMapViewModel)`).
+Screen 안의 private Effect 컴포저블은 ViewModel을 하나만 받더라도 화면이 여러 ViewModel을 쓰면 관심사 이름을 그대로 쓴다(`FetchCurrentLocationEffect(mapViewModel: PlaceHomeMapViewModel)`).
 
 ## UI Event 전달
 
@@ -376,26 +376,21 @@ MemoAddScaffold(
 ViewModel이 노출하는 one-shot Effect(`Flow<XxxEffect>`)를 UI에서 수집할 때는 다음을 따른다.
 
 - Effect 수집 로직은 화면 컴포저블 본문에 두지 않고, 의도가 드러나는 이름의 별도 컴포저블 함수로 분리한다.
-- Effect를 collect할 때는 `flowWithLifecycle`을 사용해 라이프사이클을 인지하며 수집한다.
+- Effect를 수집할 때는 `compose:core`의 `CollectEffect(effect) { value -> ... }`를 쓴다. 라이프사이클 인지 수집은 `CollectEffect`가 소유하므로 `flowWithLifecycle`을 직접 이어 붙이지 않는다.
+- 값이 바뀔 때 작업을 실행하는 트리거 `StateFlow`([viewmodel.md](viewmodel.md)의 `노출하는 Flow`)도 `CollectEffect`로 수집한다. 넘기는 Flow가 바뀌면 수집을 다시 시작하므로 `filterIsInstance()` 같은 연산자를 컴포저블 본문에서 이어 붙이지 않고 `onEffect`에서 UiState를 구분한다.
 
 ✅ 권장 예시:
 
 ```kotlin
 @Composable
 private fun SignInEffect(
-    effect: Flow<LoginHomeEffect>,
     navigateUp: () -> Unit,
+    effect: Flow<LoginHomeEffect> = emptyFlow(),
 ) {
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
-
-    LaunchedEffect(effect, lifecycle) {
-        effect
-            .flowWithLifecycle(lifecycle)
-            .collect { value ->
-                when (value) {
-                    is LoginHomeEffect.SignInSucceeded -> navigateUp()
-                }
-            }
+    CollectEffect(effect) { value ->
+        when (value) {
+            is LoginHomeEffect.SignInSucceeded -> navigateUp()
+        }
     }
 }
 ```
@@ -435,7 +430,7 @@ Content를 빼는 것은 다음 둘을 모두 만족할 때만이다. 하나라�
 - 두 개 이상의 값이 함께 달라지면 Provider 타입을 `Pair`로 두지 않고 의미가 드러나는 `private data class`로 묶는다.
 - 공급한 값에서 파생되는 나머지 인자는 Preview 본문에서 계산한다.
 
-Provider의 `values`에 넣을 도메인 모델은 Preview마다 새로 만들지 않고 모듈의 `PreviewModel.kt`에 `previewXxx()` 팩토리로 두고 함께 쓴다.
+Provider의 `values`에 넣을 도메인 모델은 Preview마다 새로 만들지 않고 모듈의 Preview 팩토리 파일에 `previewXxx()` 팩토리로 두고 함께 쓴다. 파일 이름은 `feature:*:ui` 모듈은 `PreviewModel.kt`, `compose:*` 모듈은 `Preview<모듈명>.kt`(예: `PreviewMemo.kt`)다.
 
 ⚠️ 비권장 예시:
 
@@ -590,45 +585,45 @@ Layout(
 }
 ```
 
-## 시스템 영역 회피는 Scaffold inset과 WindowInsetsRulers로 나눈다
+## 시스템 영역 회피는 Scaffold inset이 맡는다
 
-**화면 단위의 시스템 영역 회피는 `Scaffold`의 `contentWindowInsets`와 `innerPadding`이 맡는다.** `innerPadding`에는 상단·하단 바 높이가, `contentWindowInsets`에는 떠 있는 버튼과 스낵바 자리가 들어 있어 rulers로 바꾸면 빠진다.
+**화면 단위의 시스템 영역 회피는 `Scaffold`의 `contentWindowInsets`와 `innerPadding`이 맡는다.** `innerPadding`에는 상단·하단 바 높이가, `contentWindowInsets`에는 떠 있는 버튼과 스낵바 자리가 들어 있다.
 
-**`Scaffold` 슬롯 안에서 영역 일부만 따로 피해야 하면 `WindowInsets`를 다시 읽지 않고 `Modifier.fitInside(WindowInsetsRulers.Xxx.current)`를 쓴다.** 예: 소프트 키보드가 열릴 때 결과 영역만 줄이고 상단 바와 탭 행은 그대로 두는 경우. `imePadding()`처럼 inset을 다시 읽으면 조상이 소비하지 않은 시스템 내비게이션 바 높이가 한 번 더 빠진다. 여러 영역을 함께 피할 때는 `WindowInsetsRulers.innermostOf(...)`로 묶는다.
+**소프트 키보드를 여는 입력이 있는 화면은 `contentWindowInsets`에 `DiaryScaffoldDefaults.contentWindowInsets`를 넘겨 본문 전체를 키보드 위로 줄인다.** `ScaffoldDefaults.contentWindowInsets`는 키보드를 포함하지 않는다. 떠 있는 버튼, `FloatingActionButtonMenu`, `snackbarHost` 슬롯의 스낵바도 본문과 함께 키보드 위로 올라간다. 슬롯 안에서 `imePadding()`처럼 inset을 다시 읽지 않는다. 조상이 소비하지 않은 시스템 내비게이션 바 높이가 한 번 더 빠진다.
+
+**`Modifier.fitInside(WindowInsetsRulers.Xxx.current)`는 본문 일부만 시스템 영역을 피하고 나머지는 그대로 두어야 할 때만 쓴다.** 예: 소프트 키보드가 열릴 때 결과 영역만 줄이고 상단 바와 탭 행은 키보드와 관계없이 제자리에 두는 경우. 여러 영역을 함께 피할 때는 `WindowInsetsRulers.innermostOf(...)`로 묶고, 붙이는 노드는 `fillMaxSize`나 `weight`처럼 앞선 modifier나 부모가 크기를 정한 자리에 둔다.
 
 - 판단 기준: https://developer.android.com/develop/ui/compose/system/evaluate-rulers
 
-rulers는 배치 단계에서만 값을 주므로 다음에는 쓰지 않고 `WindowInsets`나 `innerPadding`을 쓴다.
+rulers는 배치 단계에서만 값을 주므로 다음을 품는 영역에는 쓰지 않고 `DiaryScaffoldDefaults.contentWindowInsets`나 `innerPadding`을 쓴다.
 
 | 대상 | 이유 |
 | --- | --- |
 | lazy 목록의 `contentPadding`처럼 측정에 필요한 여백 | 측정 단계에서는 rulers 값을 읽을 수 없다 |
 | `verticalScroll`, lazy 목록의 항목처럼 높이가 제한되지 않은 자리 | `fitInside`는 크기가 정해진 제약에서만 영역에 맞춘다 |
-| Material 3 `FloatingActionButtonMenu`를 자손으로 두는 영역 | 메뉴를 펼칠 때 새 항목과 닫기 버튼이 배치되지 않아 누를 수 없다(`SettingHoliday`에서 확인). `DiaryScaffoldDefaults.contentWindowInsets`로 본문 전체를 키보드 위로 줄인다 |
-| 나중에 나타나 높이가 커지는 스낵바를 자손으로 두는 영역 | 스낵바가 커진 뒤 다시 배치되지 않아 화면 밖에 놓인다(`SearchHome`에서 확인). 스낵바는 `Scaffold`의 `snackbarHost` 슬롯에 두고 `DiaryScaffoldDefaults.contentWindowInsets`로 본문과 함께 줄인다 |
-
-`fitInside`를 붙이는 노드는 `fillMaxSize`나 `weight`처럼 앞선 modifier나 부모가 크기를 정한 자리에 둔다.
+| Material 3 `FloatingActionButtonMenu`를 자손으로 두는 영역 | 메뉴를 펼칠 때 새 항목과 닫기 버튼이 배치되지 않아 누를 수 없다(`SettingHoliday`에서 확인) |
+| 나중에 나타나 높이가 커지는 스낵바를 자손으로 두는 영역 | 스낵바가 커진 뒤 다시 배치되지 않아 화면 밖에 놓인다(`SearchHome`에서 확인). 스낵바는 `Scaffold`의 `snackbarHost` 슬롯에 둔다 |
 
 Robolectric 테스트에서는 `ViewCompat.dispatchApplyWindowInsets`를 `LocalView.current.rootView`에 보내 `WindowInsets`와 rulers를 함께 갱신한다. rulers의 inset은 `AndroidComposeView`의 부모가 받는다.
 
 ⚠️ 비권장 예시:
 
 ```kotlin
-ResultPager(
+Scaffold(topBar = { ... }) { innerPadding ->
     // 조상이 소비하지 않은 시스템 내비게이션 바 높이까지 한 번 더 빠진다.
-    modifier = Modifier.weight(1f).imePadding(),
-)
+    Content(modifier = Modifier.padding(innerPadding).imePadding())
+}
 ```
 
 ✅ 권장 예시:
 
 ```kotlin
-ResultPager(
-    modifier =
-        Modifier
-            .weight(1f)
-            .fitInside(WindowInsetsRulers.Ime.current),
-)
+Scaffold(
+    topBar = { ... },
+    contentWindowInsets = DiaryScaffoldDefaults.contentWindowInsets,
+) { innerPadding ->
+    Content(modifier = Modifier.padding(innerPadding))
+}
 ```
 
 ## 자주 바뀌는 state의 파생 값
@@ -701,7 +696,7 @@ Style로 옮기는 것은 모양, 배경, 테두리, 안쪽·바깥 여백, 투�
 
 **상태에 따라 달라지는 시각 속성은 `MutableStyleState`와 상태 블록으로 선언한다.** 활성 여부는 `rememberUpdatedStyleState(interactionSource) { it.isEnabled = enabled }`로 넘기고 `disabled { }` 안에 비활성 표현을 둔다. 누름·호버·초점 표현이 필요하면 같은 `InteractionSource`를 `clickable`과 `rememberUpdatedStyleState`에 함께 넘긴다. 상태 사이의 전환은 디자인 문서가 정한 경우에만 `animate { }`로 감싼다.
 
-**[공통 스타일](../../docs/design/styles.md)이 이름 붙인 묶음은 `compose:core`의 `DiaryStyles`에 같은 이름의 `Style` 값으로 두고, 호출부는 숫자를 다시 적지 않고 `DiaryTheme.styles`로 그 값을 쓴다.** 묶음이 [공통 여백과 간격](../../docs/design/dimens.md)의 값을 쓰면 `DiaryDimens`에 같은 이름의 값을 두고 `Style { }` 안에서 `LocalDiaryDimens.currentValue`로 읽는다. 여러 상태 블록 안에서 되풀이되는 묶음(`흐림`)은 `StyleScope` 확장 함수로 두고, `Shape`처럼 Style로 담을 수 없는 값은 `컴포넌트 디자인 값은 XxxDefaults`를 따른다. 코드가 두 곳 이상에서 같은 시각 속성을 반복하게 되면 코드에 상수를 늘리지 않고 `design-wave`로 문서에 이름을 붙인 뒤 여기로 옮긴다.
+**[공통 스타일](../../docs/design/styles.md)이 이름 붙인 묶음은 `compose:core`의 `DiaryStyles`에 같은 이름의 `Style` 값으로 두고, 호출부는 숫자를 다시 적지 않고 `DiaryTheme.styles`로 그 값을 쓴다.** 묶음이 [공통 여백과 간격](../../docs/design/dimens.md)의 값을 쓰면 `DiaryDimens`에 같은 이름의 값을 두고 `Style { }` 안에서 `LocalDiaryDimens.currentValue`로 읽는다. 여러 상태 블록 안에서 되풀이되는 묶음(`흐림`)은 `StyleScope` 확장 함수로 둔다. 예외로, 묶음이 `Shape`나 `Color` 하나라 `Style` 값으로 담을 수 없으면 `DiaryStyles`에 두지 않고 그 묶음을 쓰는 컴포넌트 모듈의 `XxxDefaults`에 두며 `컴포넌트 디자인 값은 XxxDefaults`를 따른다. `선택 배경`은 `CalendarDefaults.selectBackgroundColor()`와 `SELECT_BACKGROUND_ALPHA`, `캘린더 아이템 모양`은 `CalendarDefaults.itemShape`가 그 예다. 코드가 두 곳 이상에서 같은 시각 속성을 반복하게 되면 코드에 상수를 늘리지 않고 `design-wave`로 문서에 이름을 붙인 뒤 여기로 옮긴다.
 
 **컴포넌트에 `style: Style` 파라미터는 다른 모양을 요구하는 두 번째 호출자가 생길 때 연다.** 기본값은 `Style`로 두고, 컴포넌트 안에서 `Modifier.styleable(styleState, 기본 Style, style)`처럼 기본 Style 뒤에 붙여 호출자가 속성 단위로 덮어쓰게 한다.
 
@@ -796,15 +791,36 @@ internal object CalendarHomeYearMonthTitleDefaults {
 }
 ```
 
-## 아이콘은 Material Symbols Rounded 드로어블에서 생성한다
+## 아이콘은 Material Symbols Rounded를 Kotlin `ImageVector`로 옮긴다
 
-**아이콘은 [Google Fonts의 Material Symbols](https://fonts.google.com/icons)에서 `Rounded` 스타일로 내려받은 벡터 드로어블을 원본으로 두고, 빌드가 그 드로어블에서 생성한 `ImageVector`를 `compose:core`의 아이콘 컴포저블이 감싼다.** Material Icons 라이브러리(`material-icons-core`, `material-icons-extended`)는 더 이상 유지되지 않으므로 의존하지 않는다.
+**아이콘은 [Google Fonts의 Material Symbols](https://fonts.google.com/icons)에서 `Rounded` 스타일로 내려받은 Android XML을 `compose:core`의 `DiaryIcons.<PascalCase 이름>` Kotlin 파일로 옮겨 두고, `compose:core`의 아이콘 컴포저블이 감싼다.** Material Icons 라이브러리(`material-icons-core`, `material-icons-extended`)는 더 이상 유지되지 않으므로 의존하지 않는다. `composeResources/drawable`에 두지 않는다. 리소스는 실행 중에 XML을 읽어 파싱하고, 웹에서는 비동기로 읽혀 첫 프레임에 아이콘이 빌 수 있다.
 
-- 스타일은 `Rounded`, 나머지 축은 기본값(Weight 400, Grade 0, Optical size 24)으로 둔 Android XML을 `compose/core/icons/<symbol_name>.xml`로 둔다. 파일 이름은 옛 Material Icons 이름(`clear`, `place`, `error_outline`)이 아니라 Material Symbols의 현재 이름(`close`, `location_on`, `error`)을 쓴다.
-- Fill 축은 기본값 0으로 둔다. 선택·활성 상태를 채운 모양으로 구분하는 짝의 채운 쪽(즐겨찾기 별)과 채운 도형 자체가 뜻인 아이콘(swipe 자리표시 원)만 Fill 1을 쓰고, 파일 이름 끝에 `_fill`을 붙인다(`star.xml`과 `star_fill.xml`).
-- `:compose:core`의 `generateImageVector` 태스크가 드로어블마다 `DiaryIcons.<PascalCase 이름>`을 생성한다. 생성된 파일은 고치지 않고 드로어블을 고친다. 좌우 반전은 드로어블의 `android:autoMirrored`를 따르고 코드에서 따로 정하지 않는다.
-- `DiaryIcons`는 `compose:core` 안에서만 쓴다. 화면과 컴포넌트는 `compose:core`의 `XxxIcon` 컴포저블을 쓴다. 컴포저블 이름은 화면이 부르는 뜻으로 짓고, 심벌과 뜻이 같으면 심벌 이름을 그대로 쓴다(`SearchIcon`), 다르면 뜻을 쓴다(`arrow_back`을 감싸는 `NavigateUpIcon`).
-- Google, Apple처럼 브랜드 가이드가 모양과 색을 정하는 로고만 `ImageVector.Builder`로 Kotlin에서 직접 그린다. 그 외 아이콘을 Kotlin으로 직접 그리거나 `composeResources/drawable`에 두지 않는다.
+- 스타일은 `Rounded`, 나머지 축은 기본값(Weight 400, Grade 0, Optical size 24)으로 둔 XML을 받는다. 파일과 프로퍼티 이름은 옛 Material Icons 이름(`clear`, `place`, `error_outline`)이 아니라 Material Symbols의 현재 이름(`close`, `location_on`, `error`)을 PascalCase로 쓴다(`location_on` → `DiaryIcons.LocationOn`, `LocationOn.kt`).
+- Fill 축은 기본값 0으로 둔다. 선택·활성 상태를 채운 모양으로 구분하는 짝의 채운 쪽(즐겨찾기 별)과 채운 도형 자체가 뜻인 아이콘(swipe 자리표시 원)만 Fill 1을 쓰고, 이름 끝에 `Fill`을 붙인다(`Star`와 `StarFill`).
+- XML의 `width`·`height`·`viewport*`·`autoMirrored`는 `ImageVector.Builder` 인자로, `pathData`는 `path { moveTo(...) }` DSL 호출로 옮긴다. 실행 중에 문자열을 파싱하지 않도록 `addPathNodes`나 `PathParser`를 쓰지 않는다. `fillColor`는 `Icon`이 tint로 덮어쓰므로 `SolidColor(Color.Black)`로 둔다. XML은 옮긴 뒤 저장소에 남기지 않는다.
+- 벡터는 처음 읽을 때 한 번만 만들도록 `by lazy`로 선언한다.
+- 화면과 컴포넌트는 `compose:core`의 `XxxIcon` 컴포저블을 쓴다. `DiaryIcons`의 아이콘은 기본으로 `internal`로 두어 `compose:core` 안에서만 쓰인다. 다른 모듈이 벡터 자체를 넘겨야 할 때만(예: iOS `UITab`이 `UIImage`를 요구하는 탭 아이콘) 그 프로퍼티를 `public`으로 둔다. 컴포저블 이름은 화면이 부르는 뜻으로 짓고, 심벌과 뜻이 같으면 심벌 이름을 그대로 쓴다(`SearchIcon`), 다르면 뜻을 쓴다(`arrow_back`을 감싸는 `NavigateUpIcon`).
+- Google, Apple처럼 브랜드 가이드가 모양과 색을 정하는 로고는 Material Symbols가 아니므로 각 `XxxIcon` 파일 안에서 `ImageVector.Builder`로 직접 그린다.
+
+```kotlin
+internal val DiaryIcons.ArrowBack: ImageVector by lazy {
+    ImageVector
+        .Builder(
+            name = "DiaryIcons.ArrowBack",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 960.0f,
+            viewportHeight = 960.0f,
+            autoMirror = true,
+        ).apply {
+            path(fill = SolidColor(Color.Black)) {
+                moveTo(313.0f, 520.0f)
+                // ...
+                close()
+            }
+        }.build()
+}
+```
 
 ⚠️ 비권장 예시:
 

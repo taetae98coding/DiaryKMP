@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
+import kotlin.uuid.Uuid
 
 @KoinViewModel
 internal class TagDetailPlaceMapViewModel(
@@ -31,9 +32,10 @@ internal class TagDetailPlaceMapViewModel(
             if (provider == null || currentLocationState !is CurrentLocationState.Finished) {
                 TagDetailPlaceUiState.Loading
             } else {
-                TagDetailPlaceUiState.Loaded(
+                TagDetailPlaceUiState.Content(
                     defaultProvider = provider,
                     initialCoordinate = currentLocationState.coordinate,
+                    currentLocationFetchId = currentLocationState.fetchId,
                 )
             }
         }.stateIn(
@@ -50,7 +52,7 @@ internal class TagDetailPlaceMapViewModel(
         viewModelScope.launch {
             val coordinate = fetchCurrentLocationUseCase(parameter = Unit).getOrNull()
 
-            currentLocationState.value = CurrentLocationState.Finished(coordinate = coordinate)
+            currentLocationState.value = CurrentLocationState.Finished(coordinate = coordinate, fetchId = Uuid.random())
         }
     }
 }
@@ -62,5 +64,6 @@ private sealed interface CurrentLocationState {
 
     data class Finished(
         val coordinate: Coordinate?,
+        val fetchId: Uuid,
     ) : CurrentLocationState
 }

@@ -103,7 +103,7 @@ internal fun ComposeContentTestRule.fillAllInput() {
 internal fun addTagScreenTestViewModel(tagList: List<Tag> = emptyList()): WebAddTagViewModel {
     val viewModel = mockk<WebAddTagViewModel>(relaxed = true)
     every { viewModel.uiState } returns MutableStateFlow(EntityTagInputUiState(tagList = tagList))
-    every { viewModel.tagIdSet } returns MutableStateFlow(tagList.map { tag -> tag.id }.toSet())
+    every { viewModel.tagSelectionUiState } returns MutableStateFlow(WebAddTagSelectionUiState(tagIdSet = tagList.map { tag -> tag.id }.toSet()))
     every { viewModel.tagPagingData } returns flowOf(PagingData.from(tagList))
     every { viewModel.selectableTagPagingData } returns flowOf(PagingData.from(tagList))
     return viewModel

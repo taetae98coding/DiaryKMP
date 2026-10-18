@@ -3,13 +3,14 @@ package io.github.taetae98coding.diary.feature.playlist.ui.home
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -17,7 +18,7 @@ import androidx.paging.compose.itemKey
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
 import io.github.taetae98coding.diary.compose.core.icon.PlaylistIcon
-import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableGrid
+import io.github.taetae98coding.diary.compose.core.layout.DiaryRefreshableStaggeredGrid
 import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
 import io.github.taetae98coding.diary.compose.core.placeholder.DiaryPlaceholderDefaults
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
@@ -35,22 +36,22 @@ import io.github.taetae98coding.diary.feature.playlist.ui.previewMusic
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
 
-internal const val PLAYLIST_HOME_LIST_TEST_TAG: String = "PlaylistHomeList"
-
 @Composable
 internal fun PlaylistHomeList(
     onEvent: (PlaylistHomeScaffoldEvent) -> Unit,
     modifier: Modifier = Modifier,
-    gridState: LazyGridState = rememberLazyGridState(),
+    gridState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     musicPagingItems: LazyPagingItems<Music> = remember { flowOf(PagingData.empty<Music>()) }.collectAsLazyPagingItems(),
     isRefreshingProvider: () -> Boolean = { false },
+    isAddButtonVisibleProvider: () -> Boolean = { false },
     sortProvider: () -> ListSort = { ListSort.TITLE },
     downloadStateProvider: (Music) -> MusicDownloadState? = { null },
 ) {
     ListQueryScrollEffect(
-        gridState = gridState,
+        staggeredGridState = gridState,
         sortProvider = sortProvider,
         itemListProvider = { musicPagingItems.itemSnapshotList.items },
+        isRefreshingProvider = { musicPagingItems.loadState.refresh is LoadState.Loading },
     )
 
     DiaryCrossfade(
@@ -75,12 +76,12 @@ internal fun PlaylistHomeList(
                 )
             }
         } else {
-            DiaryRefreshableGrid(
+            DiaryRefreshableStaggeredGrid(
                 onRefresh = { onEvent(PlaylistHomeScaffoldEvent.Refresh) },
                 modifier = Modifier.fillMaxSize(),
                 state = gridState,
                 isRefreshingProvider = isRefreshingProvider,
-                listTestTag = PLAYLIST_HOME_LIST_TEST_TAG,
+                bottomPadding = if (isAddButtonVisibleProvider()) DiaryTheme.dimens.floatingActionButtonClearance else DiaryTheme.dimens.screenVerticalPadding,
             ) {
                 items(
                     count = musicPagingItems.itemCount,

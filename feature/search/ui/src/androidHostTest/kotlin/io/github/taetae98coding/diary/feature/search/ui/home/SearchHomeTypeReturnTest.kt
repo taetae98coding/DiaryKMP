@@ -3,9 +3,9 @@ package io.github.taetae98coding.diary.feature.search.ui.home
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
@@ -76,7 +76,7 @@ class SearchHomeTypeReturnTest {
         composeRule.onNodeWithText(memo.detail.title).assertIsDisplayed()
 
         composeRule.selectSearchHomeTab(WEB_TAB_LABEL)
-        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).performTextClearance()
+        composeRule.onNode(hasSetTextAction()).performTextClearance()
         inputQuery(OTHER_QUERY)
         composeRule.selectSearchHomeTab(MEMO_TAB_LABEL)
 
@@ -104,7 +104,7 @@ class SearchHomeTypeReturnTest {
     }
 
     private fun inputQuery(query: String) {
-        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).performTextInput(query)
+        composeRule.onNode(hasSetTextAction()).performTextInput(query)
         // 입력을 멈춘 뒤의 반영까지 기다린다.
         composeRule.mainClock.advanceTimeBy(QUERY_IDLE_WAIT_MILLIS)
         ShadowLooper.idleMainLooper(QUERY_IDLE_WAIT_MILLIS, TimeUnit.MILLISECONDS)

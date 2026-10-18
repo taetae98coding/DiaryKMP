@@ -42,7 +42,7 @@ import io.github.taetae98coding.diary.feature.contact.ui.add.hometownInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.nameInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.phoneNumberInput
 import io.github.taetae98coding.diary.feature.contact.ui.add.phoneNumberRowCount
-import io.github.taetae98coding.diary.feature.contact.ui.detail.memo.CONTACT_DETAIL_MEMO_LIST_TEST_TAG
+import io.github.taetae98coding.diary.feature.contact.ui.refreshableList
 import io.github.taetae98coding.diary.feature.contact.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
@@ -92,6 +92,37 @@ class ContactDetailScreenEditTest {
         composeRule.editAll(input = input)
 
         restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        composeRule.assertEdited(input = input)
+    }
+
+    @Test
+    fun `TC-CONTACT-DETAIL-FEATURE-019 재생성 직후 다시 조회하는 동안에도 바꾼 입력을 잃지 않는다`() {
+        val stored = storedDetail()
+        val input = editedInput()
+        val restoredUiState = MutableStateFlow<ContactDetailUiState>(ContactDetailUiState.Loading)
+        var viewModel = screenTestViewModel(uiState = MutableStateFlow(ContactDetailUiState.Content(id = FIRST_CONTACT_ID, detail = stored)))
+        val restorationTester = StateRestorationTester(composeRule)
+        prepareContactDetailTabViewModels()
+        restorationTester.setContent {
+            ContactDetailScreenTestHost {
+                ContactDetailScreen(
+                    navigateUp = {},
+                    navigateToMemoAdd = {},
+                    navigateToMemoDetail = {},
+                    id = FIRST_CONTACT_ID,
+                    componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
+                    viewModel = viewModel,
+                )
+            }
+        }
+        composeRule.editAll(input = input)
+
+        viewModel = screenTestViewModel(uiState = restoredUiState)
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { restoredUiState.value = ContactDetailUiState.Content(id = FIRST_CONTACT_ID, detail = stored) }
         composeRule.waitForIdle()
 
         composeRule.assertEdited(input = input)
@@ -249,8 +280,8 @@ class ContactDetailScreenEditTest {
             memoPagingData = contactMemoPagingData(itemList = titleList.map { title -> MemoListItem.Content(memo = contactMemo(title = title)) }),
         )
         composeRule.selectContactDetailTab(contentDescription = DEFAULT_MEMO_TAB_DESCRIPTION)
-        composeRule.waitUntil { composeRule.onAllNodesWithText(titleList.first()).fetchSemanticsNodes().isNotEmpty() }
-        composeRule.onNodeWithTag(CONTACT_DETAIL_MEMO_LIST_TEST_TAG).performScrollToNode(hasText(titleList.last()))
+        composeRule.waitUntil(timeoutMillis = 5_000L) { composeRule.onAllNodesWithText(titleList.first()).fetchSemanticsNodes().isNotEmpty() }
+        composeRule.refreshableList().performScrollToNode(hasText(titleList.last()))
         composeRule.waitForIdle()
         composeRule.onNodeWithText(titleList.last()).assertIsDisplayed()
 

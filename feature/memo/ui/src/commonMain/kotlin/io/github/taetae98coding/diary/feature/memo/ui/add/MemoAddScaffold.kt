@@ -84,7 +84,7 @@ internal fun MemoAddScaffold(
                 geminiUiStateProvider = geminiUiStateProvider,
             )
         },
-        snackbarHost = { SnackbarHost(hostState = state.hostState) },
+        snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },
         floatingActionButton = {
             FloatingAddButton(
                 onClick = { onEvent(MemoAddScaffoldEvent.ClickAdd) },

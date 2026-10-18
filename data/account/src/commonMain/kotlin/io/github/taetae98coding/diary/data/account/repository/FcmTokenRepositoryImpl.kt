@@ -14,12 +14,12 @@ internal class FcmTokenRepositoryImpl(
     private val fcmTokenRemoteDataSource: FcmTokenRemoteDataSource,
 ) : FcmTokenRepository {
     override suspend fun upsert() {
-        val token = fcmTokenProvider.getToken() ?: return
+        val installationId = fcmTokenProvider.getInstallationId() ?: return
 
         fcmTokenRemoteDataSource.upsert(
             fcmToken =
                 FcmTokenRemoteEntity(
-                    token = token,
+                    installationId = installationId,
                     timeZone = TimeZone.currentSystemDefault().id,
                     language = DeviceLocale.currentLanguageTag(),
                 ),
@@ -27,8 +27,8 @@ internal class FcmTokenRepositoryImpl(
     }
 
     override suspend fun delete() {
-        val token = fcmTokenProvider.getToken() ?: return
+        val installationId = fcmTokenProvider.getInstallationId() ?: return
 
-        fcmTokenRemoteDataSource.upsert(fcmToken = FcmTokenRemoteEntity(token = token))
+        fcmTokenRemoteDataSource.upsert(fcmToken = FcmTokenRemoteEntity(installationId = installationId))
     }
 }

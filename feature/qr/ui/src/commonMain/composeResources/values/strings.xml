@@ -10,6 +10,10 @@
     <string name="qr_add_title">Add QR code</string>
     <string name="qr_add_succeeded_message">QR code added.</string>
     <string name="qr_add_title_blank_message">Please enter a title.</string>
+    <string name="qr_detail_delete_button_content_description">Delete QR code</string>
+    <string name="qr_detail_update_button_content_description">Update QR code</string>
+    <string name="qr_detail_update_succeeded_message">QR code updated.</string>
+    <string name="qr_detail_loading_content_description">Loading QR code</string>
     <string name="qr_scan_button_content_description">Scan QR code</string>
     <string name="qr_camera_permission_denied_message">Allow camera access to scan QR codes.</string>
     <string name="qr_scan_title">Scan QR code</string>
@@ -57,4 +61,13 @@
     <string name="qr_phone_number_empty_message">Please enter a phone number.</string>
     <string name="qr_event_title_empty_message">Please enter an event title.</string>
     <string name="qr_undo_button_content_description">Undo</string>
+    <string name="qr_action_open_url_button_content_description">Open in browser</string>
+    <string name="qr_action_call_button_content_description">Call</string>
+    <string name="qr_action_send_email_button_content_description">Write email</string>
+    <string name="qr_action_send_sms_button_content_description">Send message</string>
+    <string name="qr_action_show_location_button_content_description">Show on map</string>
+    <string name="qr_action_add_contact_button_content_description">Add to contacts</string>
+    <string name="qr_action_add_event_button_content_description">Add to calendar</string>
+    <string name="qr_action_join_wifi_button_content_description">Connect to Wi-Fi</string>
+    <string name="qr_action_failed_message">Couldn't open the QR code.</string>
 </resources>

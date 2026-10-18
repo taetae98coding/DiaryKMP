@@ -10,7 +10,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.list.ListSort
 
 @Composable
-public fun ListSortIcon(
+internal fun ListSortIcon(
     sort: ListSort,
     modifier: Modifier = Modifier,
 ) {

@@ -27,6 +27,17 @@ internal fun refreshingTagPagingData(): PagingData<Tag> =
             ),
     )
 
+internal fun refreshFailedTagPagingData(): PagingData<Tag> =
+    PagingData.from(
+        data = emptyList(),
+        sourceLoadStates =
+            LoadStates(
+                refresh = LoadState.Error(IllegalStateException("refresh failed")),
+                prepend = LoadState.NotLoading(endOfPaginationReached = false),
+                append = LoadState.NotLoading(endOfPaginationReached = false),
+            ),
+    )
+
 internal fun appendingTagPagingDataOf(tagList: List<Tag>): PagingData<Tag> =
     PagingData.from(
         data = tagList,

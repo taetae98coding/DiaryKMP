@@ -10,7 +10,7 @@ import androidx.sqlite.execSQL
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memo.datasource.AccountMemoSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.qr.transaction.AccountQrTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.qr.transaction.findQrList
@@ -25,6 +25,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.deleteRecursively
+import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
@@ -68,7 +69,7 @@ class DiaryDatabaseMigrationTest :
                 connection.insertPendingMemo(accountId = accountId, memo = memo)
                 connection.insertMemoCursor(accountId = accountId, usn = usn)
             }
-            helper.runMigrationsAndValidate(version = 2).close()
+            helper.runMigrationsAndValidate(version = 3).close()
 
             val database =
                 Room
@@ -76,8 +77,8 @@ class DiaryDatabaseMigrationTest :
                     .setDriver(BundledSQLiteDriver())
                     .build()
             try {
-                AccountMemoSyncLocalDataSourceImpl(database = database).findPending(accountId = accountId) shouldBe listOf(memo)
-                SyncCursorLocalDataSourceImpl(database = database).find(accountId = accountId, kind = SyncKind.MEMO) shouldBe usn
+                AccountMemoSyncLocalDataSourceImpl(database = database).readPendingList(accountId = accountId) shouldBe listOf(memo)
+                SyncCursorLocalDataSourceImpl(database = database).read(accountId = accountId, kind = SyncKindLocalEntity.MEMO) shouldBe usn
 
                 AccountQrTransactionImpl(database = database).upsert(accountId = accountId, qrList = listOf(qr))
                 database.findQrList() shouldBe listOf(qr)
@@ -85,7 +86,76 @@ class DiaryDatabaseMigrationTest :
                 database.close()
             }
         }
+
+        test("TC-CONTACT-ADD-DATA-016 앱을 업데이트하면 연락처만 처음부터 다시 내려받는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            // 지워진 위치는 기본값 0으로 읽히므로, 지워지지 않았을 때 구분되도록 0보다 큰 값을 둔다.
+            val contactUsn = fixtureMonkey.giveMeOne<Long>().coerceAtLeast(1L)
+            val memoUsn = fixtureMonkey.giveMeOne<Long>()
+
+            helper.createDatabase(version = 2).use { connection ->
+                connection.execSQL("INSERT INTO sync_cursor (account_id, kind, usn) VALUES ('$accountId', 'contact', $contactUsn)")
+                connection.insertMemoCursor(accountId = accountId, usn = memoUsn)
+            }
+            helper.runMigrationsAndValidate(version = 3).close()
+
+            val database =
+                Room
+                    .databaseBuilder<DiaryDatabase>(name = databasePath.toString())
+                    .setDriver(BundledSQLiteDriver())
+                    .build()
+            try {
+                val cursorDataSource = SyncCursorLocalDataSourceImpl(database = database)
+                cursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.CONTACT) shouldBe 0L
+                cursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.MEMO) shouldBe memoUsn
+            } finally {
+                database.close()
+            }
+        }
+
+        test("TC-CONTACT-ADD-DATA-015 앱을 업데이트하면 기존 연락처의 태어난 연도를 생일의 연도로 채운다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val birthdayContactId = fixtureMonkey.giveMeOne<Uuid>()
+            val noBirthdayContactId = fixtureMonkey.giveMeOne<Uuid>()
+            val updatedAt = fixtureMonkey.giveMeOne<Instant>().toEpochMilliseconds()
+
+            helper.createDatabase(version = 2).use { connection ->
+                connection.execSQL(
+                    "INSERT INTO contact (id, name, birthday, birthday_calendar, updated_at) VALUES ('$birthdayContactId', 'birthday', '1990-12-20', 'lunar', $updatedAt)",
+                )
+                connection.execSQL("INSERT INTO contact (id, name, updated_at) VALUES ('$noBirthdayContactId', 'no birthday', $updatedAt)")
+                listOf(birthdayContactId, noBirthdayContactId).forEach { contactId ->
+                    connection.execSQL("INSERT INTO account_contact (account_id, contact_id, is_dirty) VALUES ('$accountId', '$contactId', 0)")
+                }
+            }
+
+            helper.runMigrationsAndValidate(version = 3).use { connection ->
+                connection.readBirthYear(contactId = birthdayContactId) shouldBe 1990
+                connection.readBirthYear(contactId = noBirthdayContactId) shouldBe null
+                listOf(birthdayContactId, noBirthdayContactId).forEach { contactId ->
+                    connection.readLong(sql = "SELECT updated_at FROM contact WHERE id = ?", contactId = contactId) shouldBe updatedAt
+                    connection.readLong(sql = "SELECT is_dirty FROM account_contact WHERE contact_id = ?", contactId = contactId) shouldBe 0
+                }
+            }
+        }
     })
+
+private fun SQLiteConnection.readLong(
+    sql: String,
+    contactId: Uuid,
+): Long =
+    prepare(sql).use { statement ->
+        statement.bindText(1, contactId.toString())
+        statement.step()
+        statement.getLong(0)
+    }
+
+private fun SQLiteConnection.readBirthYear(contactId: Uuid): Long? =
+    prepare("SELECT birth_year FROM contact WHERE id = ?").use { statement ->
+        statement.bindText(1, contactId.toString())
+        statement.step()
+        if (statement.isNull(0)) null else statement.getLong(0)
+    }
 
 private fun SQLiteConnection.insertPendingMemo(
     accountId: Uuid,

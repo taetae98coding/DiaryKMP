@@ -33,4 +33,5 @@
     <string name="playlist_home_deleted_message">Song deleted.</string>
     <string name="playlist_home_undo_action">Undo</string>
     <string name="playlist_home_delete_content_description">Delete song</string>
+    <string name="music_detail_open_failed_message">Couldn't open the link.</string>
 </resources>

@@ -1,14 +1,12 @@
 package io.github.taetae98coding.diary.feature.place.ui.detail
 
-import androidx.compose.foundation.basicMarquee
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import io.github.taetae98coding.diary.compose.core.button.DeleteButton
-import io.github.taetae98coding.diary.compose.core.button.NavigateUpButton
-import io.github.taetae98coding.diary.compose.core.button.OpenInNewButton
-import io.github.taetae98coding.diary.compose.core.button.SearchButton
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarAction
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarNavigateUp
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarTitle
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
@@ -30,43 +28,53 @@ internal fun PlaceDetailTopBar(
     mapProviderProvider: () -> DiaryMapProvider = { DiaryMapProvider.NAVER },
 ) {
     val uiState = uiStateProvider()
+    val navigateUpContentDescription = stringResource(Res.string.place_navigate_up_button_content_description)
+    val openExternalMapContentDescription = mapProviderProvider().openExternalMapContentDescription()
+    val searchContentDescription = stringResource(Res.string.place_search_button_content_description)
+    val deleteContentDescription = stringResource(Res.string.place_detail_delete_button_content_description)
 
-    TopAppBar(
-        title = {
-            if (uiState is PlaceDetailUiState.Content) {
-                Text(
-                    text = uiState.detail.title,
-                    modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
-                    maxLines = 1,
-                )
-            }
-        },
+    DiaryTopBar(
         modifier = modifier,
-        navigationIcon = {
-            NavigateUpButton(
-                onClick = { onEvent(PlaceDetailScaffoldEvent.ClickNavigateUp) },
-                contentDescription = stringResource(Res.string.place_navigate_up_button_content_description),
-            )
-        },
-        actions = {
+        title =
             if (uiState is PlaceDetailUiState.Content) {
-                OpenInNewButton(
-                    onClick = { onEvent(PlaceDetailScaffoldEvent.ClickOpenExternalMap) },
-                    contentDescription = mapProviderProvider().openExternalMapContentDescription(),
-                )
-                if (uiState.isMapDisplayed) {
-                    SearchButton(
-                        onClick = { onEvent(PlaceDetailScaffoldEvent.ClickSearch) },
-                        contentDescription = stringResource(Res.string.place_search_button_content_description),
+                DiaryTopBarTitle.Text(text = uiState.detail.title, isMarquee = true)
+            } else {
+                null
+            },
+        navigateUp =
+            DiaryTopBarNavigateUp(
+                contentDescription = navigateUpContentDescription,
+                onClick = { onEvent(PlaceDetailScaffoldEvent.ClickNavigateUp) },
+            ),
+        actions =
+            buildList {
+                if (uiState is PlaceDetailUiState.Content) {
+                    add(
+                        DiaryTopBarAction.Icon(
+                            icon = DiaryTopBarIcon.OPEN_IN_NEW,
+                            contentDescription = openExternalMapContentDescription,
+                            onClick = { onEvent(PlaceDetailScaffoldEvent.ClickOpenExternalMap) },
+                        ),
+                    )
+                    if (uiState.isMapDisplayed) {
+                        add(
+                            DiaryTopBarAction.Icon(
+                                icon = DiaryTopBarIcon.SEARCH,
+                                contentDescription = searchContentDescription,
+                                onClick = { onEvent(PlaceDetailScaffoldEvent.ClickSearch) },
+                            ),
+                        )
+                    }
+                    add(
+                        DiaryTopBarAction.Icon(
+                            icon = DiaryTopBarIcon.DELETE,
+                            contentDescription = deleteContentDescription,
+                            onClick = { onEvent(PlaceDetailScaffoldEvent.ClickDelete) },
+                            isInProgress = uiState.isDeleteInProgress,
+                        ),
                     )
                 }
-                DeleteButton(
-                    onClick = { onEvent(PlaceDetailScaffoldEvent.ClickDelete) },
-                    contentDescription = stringResource(Res.string.place_detail_delete_button_content_description),
-                    isInProgressProvider = { uiState.isDeleteInProgress },
-                )
-            }
-        },
+            },
     )
 }
 

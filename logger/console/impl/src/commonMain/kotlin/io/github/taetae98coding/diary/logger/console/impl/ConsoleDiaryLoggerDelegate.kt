@@ -5,12 +5,16 @@ import io.github.taetae98coding.diary.logger.console.api.DEFAULT_CONSOLE_TAG
 import io.github.taetae98coding.diary.logger.core.DiaryLog
 import io.github.taetae98coding.diary.logger.core.DiaryLoggerDelegate
 
-public class ConsoleDiaryLoggerDelegate : DiaryLoggerDelegate {
+public class ConsoleDiaryLoggerDelegate internal constructor(
+    private val print: (tag: String, message: String, throwable: Throwable?) -> Unit,
+) : DiaryLoggerDelegate {
+    public constructor() : this(print = ::printLog)
+
     override fun log(log: DiaryLog) {
         if (log is ConsoleLog) {
-            printLog(tag = log.tag, message = log.message, throwable = log.throwable)
+            print(log.tag, log.message, log.throwable)
         } else {
-            printLog(tag = DEFAULT_CONSOLE_TAG, message = log.toString(), throwable = null)
+            print(DEFAULT_CONSOLE_TAG, log.toString(), null)
         }
     }
 }

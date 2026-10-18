@@ -6,7 +6,7 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadEvent
 import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadState
 import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadTarget
-import io.github.taetae98coding.diary.domain.playlist.usecase.FindMusicDownloadTargetUseCase
+import io.github.taetae98coding.diary.domain.playlist.usecase.ReadMusicDownloadTargetUseCase
 import io.github.taetae98coding.diary.work.musicdownload.state.MusicDownloadEventHolder
 import io.github.taetae98coding.diary.work.musicdownload.state.MusicDownloadStateHolder
 import io.github.taetae98coding.diary.work.musicdownload.tool.DownloadToolPrepareResult
@@ -113,16 +113,16 @@ class MusicDownloadWorkImplTest :
 
                 Then("TC-MUSIC-DOWNLOAD-DOMAIN-011 대상 곡을 조회하지 않는다") {
                     caseList.forEach { (result, _) ->
-                        val findMusicDownloadTargetUseCase = mockk<FindMusicDownloadTargetUseCase>()
+                        val readMusicDownloadTargetUseCase = mockk<ReadMusicDownloadTargetUseCase>()
                         val work =
                             work(
                                 downloadToolPreparer = preparer(result = result),
-                                findMusicDownloadTargetUseCase = findMusicDownloadTargetUseCase,
+                                readMusicDownloadTargetUseCase = readMusicDownloadTargetUseCase,
                             )
 
                         work.doWork(sort = ListSort.TITLE)
 
-                        coVerify(exactly = 0) { findMusicDownloadTargetUseCase(parameter = any()) }
+                        coVerify(exactly = 0) { readMusicDownloadTargetUseCase(parameter = any()) }
                     }
                 }
             }
@@ -325,12 +325,12 @@ class MusicDownloadWorkImplTest :
                     val relinkedTargetList = listOf(relinked)
                     val sameVideoTargetList = listOf(sameVideo)
                     val targetListInRunOrder = listOf(downloadedTargetList, deletedTargetList, relinkedTargetList, sameVideoTargetList)
-                    val findMusicDownloadTargetUseCase = mockk<FindMusicDownloadTargetUseCase>()
-                    coEvery { findMusicDownloadTargetUseCase(parameter = any()) } returnsMany
+                    val readMusicDownloadTargetUseCase = mockk<ReadMusicDownloadTargetUseCase>()
+                    coEvery { readMusicDownloadTargetUseCase(parameter = any()) } returnsMany
                         targetListInRunOrder.map { targetList -> Result.success(targetList) }
                     val work =
                         work(
-                            findMusicDownloadTargetUseCase = findMusicDownloadTargetUseCase,
+                            readMusicDownloadTargetUseCase = readMusicDownloadTargetUseCase,
                             musicDownloader = downloader,
                             appFileLocalDataSource = fileDataSource,
                             musicDownloadStateHolder = holder,
@@ -612,8 +612,8 @@ class MusicDownloadWorkImplTest :
                     val added = testDownloadTarget()
                     val holder = MusicDownloadStateHolder()
                     val targetList = mutableListOf(target)
-                    val findMusicDownloadTargetUseCase = mockk<FindMusicDownloadTargetUseCase>()
-                    coEvery { findMusicDownloadTargetUseCase(parameter = any()) } returns Result.success(targetList.toList())
+                    val readMusicDownloadTargetUseCase = mockk<ReadMusicDownloadTargetUseCase>()
+                    coEvery { readMusicDownloadTargetUseCase(parameter = any()) } returns Result.success(targetList.toList())
                     val downloader = mockk<MusicDownloader>()
                     coEvery { downloader.download(target = any(), path = any(), onProgress = any()) } coAnswers
                         {
@@ -623,7 +623,7 @@ class MusicDownloadWorkImplTest :
 
                     val work =
                         work(
-                            findMusicDownloadTargetUseCase = findMusicDownloadTargetUseCase,
+                            readMusicDownloadTargetUseCase = readMusicDownloadTargetUseCase,
                             musicDownloader = downloader,
                             musicDownloadStateHolder = holder,
                         )
@@ -653,15 +653,15 @@ class MusicDownloadWorkImplTest :
         Given("다운로드가 끝난 곡이 있다") {
             When("다운로드가 완료되면") {
                 Then("TC-MUSIC-DOWNLOAD-DATA-007 곡을 업로드 대기 상태로 만들지 않는다") {
-                    val findMusicDownloadTargetUseCase = mockk<FindMusicDownloadTargetUseCase>()
-                    coEvery { findMusicDownloadTargetUseCase(parameter = any()) } returns Result.success(listOf(testDownloadTarget()))
-                    val work = work(findMusicDownloadTargetUseCase = findMusicDownloadTargetUseCase)
+                    val readMusicDownloadTargetUseCase = mockk<ReadMusicDownloadTargetUseCase>()
+                    coEvery { readMusicDownloadTargetUseCase(parameter = any()) } returns Result.success(listOf(testDownloadTarget()))
+                    val work = work(readMusicDownloadTargetUseCase = readMusicDownloadTargetUseCase)
 
                     work.doWork(sort = ListSort.TITLE)
 
                     // 곡을 읽는 것 말고는 곡에 어떤 조작도 하지 않는다.
-                    coVerify(exactly = 1) { findMusicDownloadTargetUseCase(parameter = ListSort.TITLE) }
-                    confirmVerified(findMusicDownloadTargetUseCase)
+                    coVerify(exactly = 1) { readMusicDownloadTargetUseCase(parameter = ListSort.TITLE) }
+                    confirmVerified(readMusicDownloadTargetUseCase)
                 }
             }
         }
@@ -700,8 +700,8 @@ private fun fileDataSource(exists: Boolean): AppFileLocalDataSource {
 private fun work(
     targetList: List<MusicDownloadTarget> = listOf(testDownloadTarget()),
     downloadToolPreparer: DownloadToolPreparer = preparer(),
-    findMusicDownloadTargetUseCase: FindMusicDownloadTargetUseCase =
-        mockk<FindMusicDownloadTargetUseCase>().apply {
+    readMusicDownloadTargetUseCase: ReadMusicDownloadTargetUseCase =
+        mockk<ReadMusicDownloadTargetUseCase>().apply {
             coEvery { this@apply(parameter = any()) } returns Result.success(targetList)
         },
     musicDownloader: MusicDownloader = succeedingDownloader(),
@@ -712,7 +712,7 @@ private fun work(
     MusicDownloadWorkImpl(
         downloadToolPreparer = downloadToolPreparer,
         musicDownloader = musicDownloader,
-        findMusicDownloadTargetUseCase = findMusicDownloadTargetUseCase,
+        readMusicDownloadTargetUseCase = readMusicDownloadTargetUseCase,
         appFileLocalDataSource = appFileLocalDataSource,
         musicDownloadStateHolder = musicDownloadStateHolder,
         musicDownloadEventHolder = musicDownloadEventHolder,

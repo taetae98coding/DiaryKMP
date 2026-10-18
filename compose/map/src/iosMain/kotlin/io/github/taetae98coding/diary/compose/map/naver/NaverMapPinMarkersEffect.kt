@@ -7,11 +7,11 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
+import io.github.taetae98coding.diary.compose.core.graphics.toUIColor
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.map.isFinite
 import io.github.taetae98coding.diary.compose.map.provider.label
 import io.github.taetae98coding.diary.compose.map.rememberDiaryMapState
-import io.github.taetae98coding.diary.compose.map.toUIColor
 import kotlinx.cinterop.ExperimentalForeignApi
 import swiftPMImport.DiaryKmp.compose.compose.map.NMFMapView
 import swiftPMImport.DiaryKmp.compose.compose.map.NMFMarker

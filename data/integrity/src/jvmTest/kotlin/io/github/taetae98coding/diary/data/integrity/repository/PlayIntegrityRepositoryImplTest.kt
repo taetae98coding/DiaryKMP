@@ -4,6 +4,8 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.integrity.api.PlayIntegrityToken
 import io.github.taetae98coding.diary.core.integrity.api.PlayIntegrityTokenProvider
+import io.github.taetae98coding.diary.core.model.integrity.PlayIntegrityVerdict
+import io.github.taetae98coding.diary.core.model.integrity.PlayIntegrityVerdictValue
 import io.github.taetae98coding.diary.core.network.api.integrity.datasource.PlayIntegrityRemoteDataSource
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrowExactly
@@ -15,6 +17,8 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
@@ -40,14 +44,66 @@ class PlayIntegrityRepositoryImplTest :
 
         test("TC-PLAY-INTEGRITY-LOGGING-DATA-001 발급받은 토큰과 패키지 이름으로 요청해 받은 판정 결과를 그대로 돌려준다") {
             val token = fixtureMonkey.giveMeOne<PlayIntegrityToken>()
-            val verdict = verdict()
+            val appRecognitionVerdict = fixtureMonkey.giveMeOne<String>()
+            val verdict = verdict(appRecognitionVerdict = appRecognitionVerdict)
             val tokenProvider = mockk<PlayIntegrityTokenProvider>()
             coEvery { tokenProvider.getToken(requestHash = any()) } returns token
             val remoteDataSource = mockk<PlayIntegrityRemoteDataSource>()
             coEvery { remoteDataSource.decode(token = token.token, packageName = token.packageName) } returns verdict
             val repository = PlayIntegrityRepositoryImpl(playIntegrityTokenProvider = tokenProvider, playIntegrityRemoteDataSource = remoteDataSource)
 
-            repository.fetch() shouldBe verdict
+            repository.fetch() shouldBe
+                PlayIntegrityVerdict(
+                    fieldMap =
+                        mapOf(
+                            "appIntegrity" to
+                                PlayIntegrityVerdictValue.Group(
+                                    fieldMap = mapOf("appRecognitionVerdict" to PlayIntegrityVerdictValue.Text(value = appRecognitionVerdict)),
+                                ),
+                        ),
+                )
+        }
+
+        test("판정 결과의 문자열, 숫자, 참·거짓, null, 목록, 겹친 필드를 종류를 지켜 옮긴다") {
+            val text = fixtureMonkey.giveMeOne<Long>().toString()
+            val integer = fixtureMonkey.giveMeOne<Long>()
+            val decimal = fixtureMonkey.giveMeOne<Int>() + 0.5
+            val flag = fixtureMonkey.giveMeOne<Boolean>()
+            val listValue = fixtureMonkey.giveMeOne<String>()
+            val token = fixtureMonkey.giveMeOne<PlayIntegrityToken>()
+            val tokenProvider = mockk<PlayIntegrityTokenProvider>()
+            coEvery { tokenProvider.getToken(requestHash = any()) } returns token
+            val remoteDataSource = mockk<PlayIntegrityRemoteDataSource>()
+            coEvery { remoteDataSource.decode(token = any(), packageName = any()) } returns
+                JsonObject(
+                    mapOf(
+                        "text" to JsonPrimitive(text),
+                        "integer" to JsonPrimitive(integer),
+                        "decimal" to JsonPrimitive(decimal),
+                        "flag" to JsonPrimitive(flag),
+                        "null" to JsonNull,
+                        "list" to JsonArray(listOf(JsonPrimitive(listValue))),
+                        "group" to JsonObject(mapOf("empty" to JsonObject(emptyMap()))),
+                    ),
+                )
+            val repository = PlayIntegrityRepositoryImpl(playIntegrityTokenProvider = tokenProvider, playIntegrityRemoteDataSource = remoteDataSource)
+
+            repository.fetch() shouldBe
+                PlayIntegrityVerdict(
+                    fieldMap =
+                        mapOf(
+                            "text" to PlayIntegrityVerdictValue.Text(value = text),
+                            "integer" to PlayIntegrityVerdictValue.Number(value = integer),
+                            "decimal" to PlayIntegrityVerdictValue.Number(value = decimal),
+                            "flag" to PlayIntegrityVerdictValue.Flag(value = flag),
+                            "null" to PlayIntegrityVerdictValue.Null,
+                            "list" to PlayIntegrityVerdictValue.ValueList(valueList = listOf(PlayIntegrityVerdictValue.Text(value = listValue))),
+                            "group" to
+                                PlayIntegrityVerdictValue.Group(
+                                    fieldMap = mapOf("empty" to PlayIntegrityVerdictValue.Group(fieldMap = emptyMap())),
+                                ),
+                        ),
+                )
         }
 
         test("TC-PLAY-INTEGRITY-LOGGING-DOMAIN-007 Play Integrity를 제공하지 않는 플랫폼에서는 서버에 요청하지 않는다") {
@@ -72,6 +128,6 @@ class PlayIntegrityRepositoryImplTest :
         }
     }) {
     private companion object {
-        fun verdict(): JsonObject = JsonObject(mapOf("appIntegrity" to JsonObject(mapOf("appRecognitionVerdict" to JsonPrimitive(fixtureMonkey.giveMeOne<String>())))))
+        fun verdict(appRecognitionVerdict: String = fixtureMonkey.giveMeOne<String>()): JsonObject = JsonObject(mapOf("appIntegrity" to JsonObject(mapOf("appRecognitionVerdict" to JsonPrimitive(appRecognitionVerdict)))))
     }
 }

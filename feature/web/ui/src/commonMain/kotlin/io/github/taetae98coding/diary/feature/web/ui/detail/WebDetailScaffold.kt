@@ -15,15 +15,16 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.layout.isCompactWidth
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
-import io.github.taetae98coding.diary.compose.core.shortcut.isAddShortcut
-import io.github.taetae98coding.diary.compose.core.shortcut.keyShortcut
+import io.github.taetae98coding.diary.compose.core.shortcut.addShortcut
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerDialogHost
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagPickerEvent
+import io.github.taetae98coding.diary.compose.web.previewWebPage
 import io.github.taetae98coding.diary.core.model.tag.Tag
-import io.github.taetae98coding.diary.feature.web.ui.detail.memo.WebDetailMemoTab
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
+import io.github.taetae98coding.diary.feature.web.ui.Res
 import io.github.taetae98coding.diary.feature.web.ui.detail.page.WebDetailPageUiState
 import io.github.taetae98coding.diary.feature.web.ui.detail.tab.WebDetailTab
 import io.github.taetae98coding.diary.feature.web.ui.detail.viewmode.WebDetailViewModeBottomSheetHost
@@ -31,8 +32,10 @@ import io.github.taetae98coding.diary.feature.web.ui.form.WebFormEvent
 import io.github.taetae98coding.diary.feature.web.ui.form.WebFormState
 import io.github.taetae98coding.diary.feature.web.ui.form.rememberWebDetailFormState
 import io.github.taetae98coding.diary.feature.web.ui.previewWebDetail
-import io.github.taetae98coding.diary.feature.web.ui.previewWebPage
+import io.github.taetae98coding.diary.feature.web.ui.web_detail_memo_empty_description
+import io.github.taetae98coding.diary.feature.web.ui.web_detail_memo_empty_title
 import kotlinx.coroutines.flow.flowOf
+import org.jetbrains.compose.resources.stringResource
 import kotlin.uuid.Uuid
 
 @Composable
@@ -62,21 +65,14 @@ internal fun WebDetailScaffold(
         modifier =
             modifier
                 .submitShortcut(isEnabledProvider = { isChanged && state.isFormVisible(isCompactWidth) }) { onEvent(WebDetailScaffoldEvent.ClickUpdate) }
-                .keyShortcut(isEnableProvider = { state.tab == WebDetailTab.MEMO }) { keyEvent ->
-                    if (keyEvent.isAddShortcut()) {
-                        onEvent(WebDetailScaffoldEvent.ClickMemoAdd)
-                        true
-                    } else {
-                        false
-                    }
-                },
+                .addShortcut(isEnabledProvider = { state.tab == WebDetailTab.MEMO }) { onEvent(WebDetailScaffoldEvent.ClickMemoAdd) },
         topBar = {
             WebDetailTopBar(
                 onEvent = onEvent,
                 uiStateProvider = uiStateProvider,
             )
         },
-        snackbarHost = { SnackbarHost(hostState = formState.hostState) },
+        snackbarHost = { SnackbarHost(hostState = formState.snackbarHostState) },
         contentWindowInsets = DiaryScaffoldDefaults.contentWindowInsets,
     ) { paddingValues ->
         WebDetailScaffoldContent(
@@ -121,7 +117,7 @@ private fun WebDetailScaffoldPreview() {
             uiStateProvider = { WebDetailUiState.Content(id = Uuid.NIL, detail = previewWebDetail()) },
             pageUiStateProvider = { WebDetailPageUiState.Content(page = previewWebPage()) },
         ) {
-            WebDetailMemoTab(onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
+            EntityDetailMemoTab(emptyTitle = stringResource(Res.string.web_detail_memo_empty_title), emptyDescription = stringResource(Res.string.web_detail_memo_empty_description), onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
         }
     }
 }

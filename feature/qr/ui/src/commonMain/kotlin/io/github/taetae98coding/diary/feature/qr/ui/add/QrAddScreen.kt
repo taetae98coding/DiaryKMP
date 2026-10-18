@@ -2,7 +2,6 @@ package io.github.taetae98coding.diary.feature.qr.ui.add
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -11,9 +10,9 @@ import io.github.taetae98coding.diary.compose.core.input.DiaryTitleInputFocusEff
 import io.github.taetae98coding.diary.compose.core.snackbar.showImmediate
 import io.github.taetae98coding.diary.core.permission.PermissionManager
 import io.github.taetae98coding.diary.feature.qr.ui.Res
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.ReflectQrCoordinateEffect
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrAddFormState
 import io.github.taetae98coding.diary.feature.qr.ui.qr_camera_permission_denied_message
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 
@@ -29,7 +28,7 @@ internal fun QrAddScreen(
     val coroutineScope = rememberCoroutineScope()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val state = rememberQrAddFormState(defaultProvider = uiState.defaultProvider)
-    val scanStarter = remember(coroutineScope, permissionManager) { QrScanStarter(coroutineScope = coroutineScope, permissionManager = permissionManager) }
+    val scanStarter = rememberQrScanStarter(permissionManager = permissionManager)
     val permissionDeniedMessage = stringResource(Res.string.qr_camera_permission_denied_message)
 
     DiaryTitleInputFocusEffect(state = state.titleState)
@@ -57,7 +56,7 @@ internal fun QrAddScreen(
                 is QrAddScaffoldEvent.ClickScan -> {
                     scanStarter.startIfIdle(
                         onGranted = navigateToScan,
-                        onDenied = { coroutineScope.launch { state.hostState.showImmediate(message = permissionDeniedMessage) } },
+                        onDenied = { coroutineScope.launch { state.snackbarHostState.showImmediate(message = permissionDeniedMessage) } },
                     )
                 }
 
@@ -70,27 +69,4 @@ internal fun QrAddScreen(
         state = state,
         uiStateProvider = { uiState },
     )
-}
-
-private class QrScanStarter(
-    private val coroutineScope: CoroutineScope,
-    private val permissionManager: PermissionManager,
-) {
-    private var job: Job? = null
-
-    fun startIfIdle(
-        onGranted: () -> Unit,
-        onDenied: () -> Unit,
-    ) {
-        if (job?.isActive == true) return
-
-        job =
-            coroutineScope.launch {
-                startQrScan(
-                    permissionManager = permissionManager,
-                    onGranted = onGranted,
-                    onDenied = onDenied,
-                )
-            }
-    }
 }

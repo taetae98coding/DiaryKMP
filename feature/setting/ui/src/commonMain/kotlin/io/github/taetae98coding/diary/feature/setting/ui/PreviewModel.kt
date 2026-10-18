@@ -3,10 +3,10 @@ package io.github.taetae98coding.diary.feature.setting.ui
 import io.github.taetae98coding.diary.core.model.browser.ChromeProfile
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
+import io.github.taetae98coding.diary.core.model.holiday.HolidayCountryOption
+import io.github.taetae98coding.diary.core.model.holiday.HolidayCountrySetting
+import io.github.taetae98coding.diary.core.model.holiday.HolidaySetting
 import io.github.taetae98coding.diary.core.model.playlist.MusicDownloadProxySetting
-import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountryOption
-import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountrySetting
-import io.github.taetae98coding.diary.domain.holiday.model.HolidaySetting
 
 internal fun previewHolidaySettingList(): List<HolidaySetting> =
     listOf(

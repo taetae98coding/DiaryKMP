@@ -1,23 +1,30 @@
 package io.github.taetae98coding.diary.work.musicdownload.proxy
 
+import io.github.taetae98coding.diary.work.musicdownload.di.MusicDownloadDispatcher
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Factory
 import java.net.Inet4Address
 import java.net.InetAddress
 import java.net.NetworkInterface
 
 internal fun interface NetworkAddressSource {
-    fun findAddressList(): List<InetAddress>
+    suspend fun findAddressList(): List<InetAddress>
 }
 
 @Factory
-internal class NetworkInterfaceAddressSource : NetworkAddressSource {
-    override fun findAddressList(): List<InetAddress> =
-        NetworkInterface
-            .getNetworkInterfaces()
-            ?.toList()
-            .orEmpty()
-            .filter { networkInterface -> networkInterface.isUp && !networkInterface.isLoopback }
-            .flatMap { networkInterface -> networkInterface.inetAddresses.toList() }
+internal class NetworkInterfaceAddressSource(
+    @param:MusicDownloadDispatcher private val dispatcher: CoroutineDispatcher,
+) : NetworkAddressSource {
+    override suspend fun findAddressList(): List<InetAddress> =
+        withContext(dispatcher) {
+            NetworkInterface
+                .getNetworkInterfaces()
+                ?.toList()
+                .orEmpty()
+                .filter { networkInterface -> networkInterface.isUp && !networkInterface.isLoopback }
+                .flatMap { networkInterface -> networkInterface.inetAddresses.toList() }
+        }
 }
 
 internal fun List<InetAddress>.toMusicDownloadProxyAddressList(port: Int): List<String> =

@@ -16,13 +16,14 @@ import kotlinx.datetime.LocalDateRange
 
 internal const val WAIT_TIMEOUT_MILLIS = 10_000L
 internal const val IDLE_WAIT_MILLIS = 5_000L
-private const val LONG_PRESS_MARGIN_MILLIS = 100L
+internal const val LONG_PRESS_MARGIN_MILLIS = 100L
 private const val FRAME_MILLIS = 16L
 
 internal fun ComposeContentTestRule.setCalendar(
     calendarState: CalendarState = CalendarState(initialYearMonth = JULY_2026),
     onSelect: ((LocalDateRange) -> Unit)? = {},
     hapticFeedback: HapticFeedback? = null,
+    isSelectEnabled: Boolean = onSelect != null,
 ) {
     setContent {
         DiaryTheme {
@@ -32,7 +33,7 @@ internal fun ComposeContentTestRule.setCalendar(
                 Calendar(
                     state = calendarState,
                     onEvent = onSelect?.let { onSelect -> { event -> (event as? CalendarEvent.Select)?.let { onSelect(it.dateRange) } } },
-                    isSelectEnabled = onSelect != null,
+                    isSelectEnabled = isSelectEnabled,
                 ) {}
             }
         }

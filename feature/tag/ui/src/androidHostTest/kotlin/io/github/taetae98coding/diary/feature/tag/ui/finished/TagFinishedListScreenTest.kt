@@ -11,6 +11,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
@@ -35,7 +36,7 @@ class TagFinishedListScreenTest {
     @Test
     fun `TC-TAG-FINISHED-LIST-FEATURE-006 완료된 태그가 하나도 없어도 화면을 사용할 수 있다`() {
         val viewModel = mockk<TagFinishedListViewModel>()
-        every { viewModel.sort } returns MutableStateFlow(ListSort.TITLE)
+        every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
         every { viewModel.tagPagingData } returns MutableStateFlow(tagPagingDataOf(emptyList()))
         every { viewModel.effect } returns emptyFlow()
 
@@ -109,7 +110,7 @@ class TagFinishedListScreenTest {
                     .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
                     .sample()
             val viewModel = mockk<TagFinishedListViewModel>()
-            every { viewModel.sort } returns MutableStateFlow(ListSort.TITLE)
+            every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
 
             every { viewModel.tagPagingData } returns MutableStateFlow(tagPagingDataOf(listOf(tag)))
 

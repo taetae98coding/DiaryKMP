@@ -67,6 +67,29 @@ class FlowUseCaseTest :
             }
         }
 
+        Given("콘솔 기록 수단이 등록되어 있고 지속 관찰하는 작업이 지켜보던 작업의 실패를 그대로 전달하도록 준비되어 있다") {
+            val recording = recordingDelegate()
+            DiaryLogger.add(delegate = recording.delegate)
+
+            When("바깥 작업을 관찰한다") {
+                Then("TC-USECASE-FAILURE-LOGGING-DOMAIN-014 실패는 결과로 전달되고 안쪽 작업 이름의 실패 로그 하나만 남는다") {
+                    val failure = IllegalStateException("failure-" + fixtureMonkey.giveMeOne<String>())
+                    val useCase = RelayingFlowUseCase(inner = FailingFlowUseCase(throwable = failure))
+
+                    useCase(parameter = fixtureMonkey.giveMeOne<String>()).test {
+                        awaitItem().shouldBeFailure() shouldBeSameInstanceAs failure
+                        awaitComplete()
+                    }
+
+                    recording.logList.shouldHaveSize(1)
+                    recording.logList
+                        .single()
+                        .shouldBeInstanceOf<ConsoleLog>()
+                        .tag shouldBe "FailingFlowUseCase"
+                }
+            }
+        }
+
         Given("콘솔 기록 수단이 등록되어 있고 지속 관찰하는 작업이 실패를 반복하도록 준비되어 있다") {
             val recording = recordingDelegate()
             DiaryLogger.add(delegate = recording.delegate)
@@ -154,4 +177,10 @@ private class AwaitCancellationFlowUseCase : FlowUseCase<String, String>() {
             emit(Result.success(parameter))
             awaitCancellation()
         }
+}
+
+private class RelayingFlowUseCase(
+    private val inner: FlowUseCase<String, String>,
+) : FlowUseCase<String, String>() {
+    override fun execute(parameter: String): Flow<Result<String>> = inner(parameter = parameter)
 }

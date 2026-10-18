@@ -30,7 +30,7 @@ internal class AccountMemoWebLocalDataSourceImpl(
             query = query,
         )
 
-    override suspend fun findWebIdList(
+    override suspend fun readWebIdList(
         accountId: Uuid,
         memoId: Uuid,
     ): List<Uuid> =

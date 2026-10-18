@@ -12,10 +12,13 @@ import io.github.taetae98coding.diary.compose.tag.tag_list_undo_action
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import org.jetbrains.compose.resources.stringResource
+import kotlin.uuid.Uuid
 
 @Composable
 public fun TagListUndoSnackbarEffect(
-    onUndo: (TagListEffect) -> Unit,
+    onRestart: (Uuid) -> Unit,
+    onFinish: (Uuid) -> Unit,
+    onRestore: (Uuid) -> Unit,
     effect: Flow<TagListEffect> = emptyFlow(),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
@@ -34,6 +37,12 @@ public fun TagListUndoSnackbarEffect(
                 is TagListEffect.Deleted -> deletedMessage
             }
         },
-        onUndo = onUndo,
+        onUndo = { value ->
+            when (value) {
+                is TagListEffect.Finished -> onRestart(value.id)
+                is TagListEffect.Restarted -> onFinish(value.id)
+                is TagListEffect.Deleted -> onRestore(value.id)
+            }
+        },
     )
 }

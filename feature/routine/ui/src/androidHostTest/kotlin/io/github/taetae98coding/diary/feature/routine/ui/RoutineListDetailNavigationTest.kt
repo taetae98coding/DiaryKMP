@@ -23,10 +23,10 @@ import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlace
 import io.github.taetae98coding.diary.compose.core.scene.rememberListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.routine.api.RoutineAddNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineHomeNavKey
-import io.github.taetae98coding.diary.feature.routine.ui.home.RoutineHomeUiState
-import io.github.taetae98coding.diary.feature.routine.ui.home.RoutineHomeViewModel
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -87,9 +87,9 @@ class RoutineListDetailNavigationTest {
     private fun setRoutineNavDisplay() {
         val viewModelModule =
             module {
-                factory<RoutineHomeViewModel> {
-                    mockk<RoutineHomeViewModel>(relaxed = true) {
-                        every { uiState } returns MutableStateFlow(RoutineHomeUiState())
+                factory<SyncRefreshViewModel> {
+                    mockk<SyncRefreshViewModel>(relaxed = true) {
+                        every { uiState } returns MutableStateFlow(SyncRefreshUiState())
                     }
                 }
             }

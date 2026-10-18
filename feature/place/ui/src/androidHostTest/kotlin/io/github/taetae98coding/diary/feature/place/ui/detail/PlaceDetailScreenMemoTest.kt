@@ -21,11 +21,13 @@ import androidx.paging.PagingData
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEffect
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.memo.Memo
-import io.github.taetae98coding.diary.feature.place.ui.detail.memo.PLACE_DETAIL_MEMO_LIST_TEST_TAG
 import io.github.taetae98coding.diary.feature.place.ui.detail.memo.PlaceDetailMemoViewModel
+import io.github.taetae98coding.diary.feature.place.ui.refreshableList
+import io.github.taetae98coding.diary.feature.place.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,6 +40,11 @@ import kotlin.uuid.Uuid
 class PlaceDetailScreenMemoTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-PLACE-DETAIL-MEMO-FEATURE-009 메모 추가 버튼을 선택하면 MemoAdd 이동을 요청한다`() {
@@ -198,7 +205,7 @@ class PlaceDetailScreenMemoTest {
         setScreenOnMemoTab(memoPagingData = placeMemoPagingData(itemList = listOf(MemoListItem.Content(memo = placeMemo(title = SCREEN_MEMO_TITLE)))))
         waitUntilMemoIsDisplayed(title = SCREEN_MEMO_TITLE)
 
-        composeRule.onNodeWithTag(PLACE_DETAIL_MEMO_LIST_TEST_TAG).performTouchInput { swipeDown() }
+        composeRule.refreshableList().performTouchInput { swipeDown() }
         composeRule.waitForIdle()
 
         verify(exactly = 1) { requireNotNull(memoSyncViewModelRef).refresh() }

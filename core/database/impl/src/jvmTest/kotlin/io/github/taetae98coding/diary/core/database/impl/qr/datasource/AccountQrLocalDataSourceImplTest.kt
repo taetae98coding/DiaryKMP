@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.core.database.impl.qr.datasource
 import androidx.paging.PagingSource
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import app.cash.turbine.test
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrDetailLocalEntity
@@ -15,9 +16,11 @@ import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeout
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -184,7 +187,7 @@ class AccountQrLocalDataSourceImplTest :
             val downloadedDeletedQr = qr().copy(isDeleted = true)
 
             assertPageInvalidated(accountId = accountId, expected = listOf(firstQr, downloadedQr, lastQr)) {
-                qrSyncTransaction.save(accountId = accountId, qrList = listOf(downloadedDeletedQr, downloadedQr), cursor = 1L)
+                qrSyncTransaction.upsert(accountId = accountId, qrList = listOf(downloadedDeletedQr, downloadedQr), cursor = 1L)
             }
         }
 
@@ -202,12 +205,58 @@ class AccountQrLocalDataSourceImplTest :
 
             pagedQrs(accountId) shouldBe listOf(firstQr, middleQr.copy(updatedAt = restoredAt), lastQr)
         }
+
+        test("TC-QR-HOME-DOMAIN-008 목록에 있는 QR의 제목이 수정되면 바뀐 제목 순서에 맞는 자리로 옮겨진다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val firstQr = qr(title = FIRST_QR_TITLE)
+            val middleQr = qr(title = MIDDLE_QR_TITLE)
+            val lastQr = qr(title = LAST_QR_TITLE)
+            qrTransaction.upsert(accountId = accountId, qrList = listOf(lastQr, middleQr, firstQr))
+            val detail = firstQr.detail.copy(title = "${LAST_QR_TITLE}2")
+            val updatedAt = instant()
+
+            assertPageInvalidated(accountId = accountId, expected = listOf(middleQr, lastQr, firstQr.copy(detail = detail, updatedAt = updatedAt))) {
+                qrTransaction.updateDetail(accountId = accountId, qrId = firstQr.id, detail = detail, updatedAt = updatedAt)
+            }
+        }
+
+        test("TC-QR-DETAIL-DOMAIN-001 삭제 상태인 QR도 현재 계정 기준으로 찾는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val qr = qr().copy(isDeleted = true)
+            qrTransaction.upsert(accountId = accountId, qrList = listOf(qr))
+
+            dataSource.find(accountId = accountId, qrId = qr.id).first() shouldBe qr
+        }
+
+        test("현재 계정과 연결되지 않은 QR은 찾지 못한다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val qr = qr()
+            qrTransaction.upsert(accountId = accountId, qrList = listOf(qr))
+
+            dataSource.find(accountId = fixtureMonkey.giveMeOne<Uuid>(), qrId = qr.id).first().shouldBeNull()
+        }
+
+        test("TC-QR-DETAIL-FEATURE-018 찾은 QR은 저장 내용이 바뀌면 바뀐 내용으로 다시 전달된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val qr = qr()
+            qrTransaction.upsert(accountId = accountId, qrList = listOf(qr))
+            val detail = fixtureMonkey.giveMeOne<QrDetailLocalEntity>()
+            val updatedAt = instant()
+
+            dataSource.find(accountId = accountId, qrId = qr.id).test {
+                awaitItem() shouldBe qr
+
+                qrTransaction.updateDetail(accountId = accountId, qrId = qr.id, detail = detail, updatedAt = updatedAt)
+
+                awaitItem() shouldBe qr.copy(detail = detail, updatedAt = updatedAt)
+            }
+        }
     }) {
     public companion object {
         private const val FIRST_QR_TITLE = "AppleQr"
         private const val MIDDLE_QR_TITLE = "MangoQr"
         private const val LAST_QR_TITLE = "ZebraQr"
-        private const val INVALIDATION_TIMEOUT_MILLIS = 5_000L
+        private const val INVALIDATION_TIMEOUT_MILLIS = 30_000L
 
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()

@@ -57,7 +57,7 @@ class HolidayHomeScaffoldYearTest {
     @Test
     fun `TC-HOLIDAY-HOME-FEATURE-017 년도를 이동해도 연차 개수는 유지된다`() {
         val state = HolidayHomeScaffoldState(initialYear = YEAR, initialAnnualLeaveCount = 0)
-        setHolidayHomeScaffold(state = state, uiStateFor = { _ -> HolidayHomeYearUiState.Loaded() })
+        setHolidayHomeScaffold(state = state, uiStateFor = { _ -> HolidayHomeYearUiState.Content() })
 
         repeat(2) { composeRule.onNodeWithContentDescription(DEFAULT_INCREASE_DESCRIPTION).performClick() }
         composeRule.onNodeWithText("2").assertExists()
@@ -71,7 +71,7 @@ class HolidayHomeScaffoldYearTest {
     @Test
     fun `TC-HOLIDAY-HOME-DOMAIN-013 1년보다 이전 년도로는 이동할 수 없다`() {
         val state = HolidayHomeScaffoldState(initialYear = FIRST_YEAR, initialAnnualLeaveCount = 0)
-        setHolidayHomeScaffold(state = state, uiStateFor = { _ -> HolidayHomeYearUiState.Loaded() })
+        setHolidayHomeScaffold(state = state, uiStateFor = { _ -> HolidayHomeYearUiState.Content() })
 
         composeRule.onNodeWithText("1").assertExists()
 
@@ -126,9 +126,9 @@ class HolidayHomeScaffoldYearTest {
         private const val SUMMARY_AND_ONE_WEEK_COUNT = 2
 
         private fun goldenHolidayUiState(year: Int): HolidayHomeYearUiState {
-            val holiday = yearHoliday(year = year) ?: return HolidayHomeYearUiState.Loaded()
+            val holiday = yearHoliday(year = year) ?: return HolidayHomeYearUiState.Content()
 
-            return HolidayHomeYearUiState.Loaded(
+            return HolidayHomeYearUiState.Content(
                 goldenHolidayGroupList =
                     listOf(
                         goldenHolidayGroup(

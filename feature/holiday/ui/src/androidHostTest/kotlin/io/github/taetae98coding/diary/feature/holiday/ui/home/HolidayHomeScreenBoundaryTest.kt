@@ -170,7 +170,7 @@ class HolidayHomeScreenBoundaryTest {
                     state = state,
                     yearContent = { _, _ ->
                         GoldenHolidayYear(
-                            uiStateProvider = { HolidayHomeYearUiState.Loaded() },
+                            uiStateProvider = { HolidayHomeYearUiState.Content() },
                             onEvent = {},
                             modifier = Modifier.fillMaxSize(),
                         )
@@ -193,7 +193,7 @@ class HolidayHomeScreenBoundaryTest {
 
     @Test
     fun `TC-HOLIDAY-HOME-FEATURE-051 화면이 재생성되어도 고른 대안이 유지된다`() {
-        val uiState = HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = listOf(twoOptionGroup(year = YEAR, firstStartDay = 7)))
+        val uiState = HolidayHomeYearUiState.Content(goldenHolidayGroupList = listOf(twoOptionGroup(year = YEAR, firstStartDay = 7)))
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
             DiaryTheme {

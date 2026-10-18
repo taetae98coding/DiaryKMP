@@ -2,23 +2,35 @@
 
 기준 스펙: [카메라 권한 요청 스펙](../spec/client/camera-permission.md)
 
-모든 권한이 공유하는 요청 기준, 요청 결과는 [권한 요청 공통 스펙](../spec/client/permission.md)이 소유하고, 카메라 권한에 적용된 결과를 이 문서가 확인한다. 요청 결과에 따라 QrAdd 화면에서 보이는 결과는 [QrAdd 테스트 케이스](./qr-add.md)가 확인한다.
+모든 권한이 공유하는 요청 기준, 요청 결과는 [권한 요청 공통 스펙](../spec/client/permission.md)이 소유하고, 카메라 권한에 적용된 결과를 이 문서가 확인한다. 요청 결과에 따라 QrAdd 화면과 QrDetail 화면에서 보이는 결과는 [QrAdd 테스트 케이스](./qr-add.md)와 [QrDetail 테스트 케이스](./qr-detail.md)가 확인한다.
 
 ## feature
 
 ### TC-CAMERA-PERMISSION-FEATURE-001: 카메라 권한이 허용되어 있지 않으면 QR 스캔 시작 시 시스템 카메라 권한 요청이 시작된다
 
 - 근거: `feature > QR 스캔 시작 시 카메라 권한 요청`
-- Given: 카메라 권한 요청을 제공하는 환경에서 카메라 권한이 허용되어 있지 않고, QrAdd 화면이 표시되어 있다.
+- Given: 카메라 권한 요청을 제공하는 환경에서 카메라 권한이 허용되어 있지 않고, 테스트 데이터의 화면이 표시되어 있다.
 - When: 사용자가 QR 스캔 시작을 선택한다.
 - Then: 시스템 카메라 권한 요청이 한 번 시작된다.
+- 테스트 데이터:
+
+  | 화면 |
+  | --- |
+  | QrAdd |
+  | QrDetail |
 
 ### TC-CAMERA-PERMISSION-FEATURE-002: 카메라 권한이 이미 허용되어 있으면 요청이 시작되지 않는다
 
 - 근거: [권한 요청 공통 스펙의 요청 기준](../spec/client/permission.md#요청-기준)
-- Given: 카메라 권한 요청을 제공하는 환경에서 카메라 권한이 이미 허용되어 있고, QrAdd 화면이 표시되어 있다.
+- Given: 카메라 권한 요청을 제공하는 환경에서 카메라 권한이 이미 허용되어 있고, 테스트 데이터의 화면이 표시되어 있다.
 - When: 사용자가 QR 스캔 시작을 선택한다.
 - Then: 시스템 카메라 권한 요청이 시작되지 않는다.
+- 테스트 데이터:
+
+  | 화면 |
+  | --- |
+  | QrAdd |
+  | QrDetail |
 
 ## domain
 
@@ -26,10 +38,16 @@
 
 - 근거: `domain > 요청 지점`
 - Given: 카메라 권한 요청을 제공하는 환경에서 카메라 권한이 허용되어 있지 않고, 사용자가 QR 스캔 시작을 선택해 시작된 요청을 거부했다.
-- When: 사용자가 같은 QrAdd 화면에서 QR 스캔 시작을 다시 선택한다.
+- When: 사용자가 같은 화면에서 QR 스캔 시작을 다시 선택한다.
 - Then: 시스템 카메라 권한 요청이 다시 한 번 시작된다.
+- 테스트 데이터:
 
-### TC-CAMERA-PERMISSION-DOMAIN-002: QrAdd 화면이나 QrScan 화면이 표시되는 것만으로는 요청하지 않는다
+  | 화면 |
+  | --- |
+  | QrAdd |
+  | QrDetail |
+
+### TC-CAMERA-PERMISSION-DOMAIN-002: QrAdd, QrDetail, QrScan 화면이 표시되는 것만으로는 요청하지 않는다
 
 - 근거: `domain > 요청 지점`
 - Given: 카메라 권한 요청을 제공하는 환경에서 카메라 권한이 허용되어 있지 않다.
@@ -40,6 +58,7 @@
   | 화면 |
   | --- |
   | QrAdd |
+  | QrDetail |
   | QrScan |
 
 ### TC-CAMERA-PERMISSION-DOMAIN-005: 데스크톱 앱에서도 시스템 카메라 권한 요청을 시작한다

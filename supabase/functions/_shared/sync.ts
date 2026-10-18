@@ -131,7 +131,8 @@ export const qrPushRequestSchema = z.object({
   ),
 });
 
-export const contactPushRequestSchema = z.object({
+// 태어난 연도가 생기기 전 버전의 앱이 보내는 형식이다. 태어난 연도는 서버가 생일에서 정한다.
+export const contactPushRequestSchemaV1 = z.object({
   contactList: z.array(
     z.object({
       id: z.string().uuid(),
@@ -157,6 +158,43 @@ export const contactPushRequestSchema = z.object({
         .refine(
           (detail) => (detail.birthday === null) === (detail.birthdayCalendar === null),
           { message: "birthday and birthdayCalendar must be set together." },
+        ),
+    }),
+  ),
+});
+
+// 태어난 연도를 담는 현재 앱의 형식이다.
+export const contactPushRequestSchemaV2 = z.object({
+  contactList: z.array(
+    z.object({
+      id: z.string().uuid(),
+      isFavorite: z.boolean(),
+      isDeleted: z.boolean(),
+      updatedAt: z.string().datetime({ offset: true }),
+      createdAt: z.string().datetime({ offset: true }),
+      detail: z
+        .object({
+          name: z.string(),
+          description: z.string(),
+          heightCentimeter: z.number().nullable(),
+          footSizeMillimeter: z.number().int().nullable(),
+          birthday: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
+          birthdayCalendar: z.enum(["solar", "lunar"]).nullable(),
+          birthYear: z.number().int().nullable(),
+          hometown: z.string(),
+          phoneNumberList: z.array(
+            z.object({
+              number: z.string(),
+            }),
+          ),
+        })
+        .refine(
+          (detail) => (detail.birthday === null) === (detail.birthdayCalendar === null),
+          { message: "birthday and birthdayCalendar must be set together." },
+        )
+        .refine(
+          (detail) => detail.birthday === null || detail.birthYear === Number(detail.birthday.slice(0, 4)),
+          { message: "birthYear must be the year of birthday." },
         ),
     }),
   ),

@@ -12,10 +12,10 @@ import io.github.taetae98coding.diary.core.calendar.network.api.entity.HolidayRe
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.HolidaySettingLocalDataSource
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.HolidayCountryOptionLocalEntity
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
+import io.github.taetae98coding.diary.core.model.holiday.HolidayCountryOption
 import io.github.taetae98coding.diary.data.holiday.HolidayDataTestKoinApplication
 import io.github.taetae98coding.diary.data.holiday.mapper.toDomain
 import io.github.taetae98coding.diary.data.holiday.mapper.toLocal
-import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountryOption
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidayRepository
 import io.github.taetae98coding.diary.domain.holiday.usecase.FetchHolidayUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.ToggleHolidayCountryOptionUseCase

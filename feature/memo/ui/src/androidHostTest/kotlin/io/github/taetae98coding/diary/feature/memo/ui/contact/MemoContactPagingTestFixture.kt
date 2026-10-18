@@ -27,6 +27,17 @@ internal fun refreshingContactPagingData(): PagingData<Contact> =
             ),
     )
 
+internal fun refreshFailedContactPagingData(): PagingData<Contact> =
+    PagingData.from(
+        data = emptyList(),
+        sourceLoadStates =
+            LoadStates(
+                refresh = LoadState.Error(IllegalStateException("refresh failed")),
+                prepend = LoadState.NotLoading(endOfPaginationReached = false),
+                append = LoadState.NotLoading(endOfPaginationReached = false),
+            ),
+    )
+
 internal fun appendingContactPagingDataOf(contactList: List<Contact>): PagingData<Contact> =
     PagingData.from(
         data = contactList,

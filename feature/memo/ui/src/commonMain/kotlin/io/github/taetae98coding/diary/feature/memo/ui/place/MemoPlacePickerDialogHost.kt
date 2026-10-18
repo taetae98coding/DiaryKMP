@@ -6,49 +6,39 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
+import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerDialogHost
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
-import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
-import io.github.taetae98coding.diary.compose.core.effect.DiarySearchQueryEffect
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.place.previewPlace
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.Place
-import io.github.taetae98coding.diary.feature.memo.ui.previewPlace
 import kotlinx.coroutines.flow.flowOf
 
 @Composable
 internal fun MemoPlacePickerDialogHost(
     dialogState: DialogState,
     onEvent: (MemoPlacePickerEvent) -> Unit,
-    uiStateProvider: () -> MemoPlaceInputUiState = { MemoPlaceInputUiState() },
     placePagingItems: LazyPagingItems<Place> = remember { flowOf(PagingData.empty<Place>()) }.collectAsLazyPagingItems(),
+    uiStateProvider: () -> MemoPlaceInputUiState = { MemoPlaceInputUiState() },
     coordinateProvider: () -> Coordinate? = { null },
 ) {
-    if (!dialogState.isVisible) return
-
-    val searchFieldState = rememberDiaryPickerSearchFieldState()
-
-    val hide = {
-        onEvent(MemoPlacePickerEvent.ChangeQuery(query = ""))
-        dialogState.hide()
-    }
-
-    DiarySearchQueryEffect(
-        queryState = searchFieldState.textFieldState,
+    DiaryPickerDialogHost(
+        dialogState = dialogState,
         onQueryChange = { query -> onEvent(MemoPlacePickerEvent.ChangeQuery(query = query)) },
-    )
-
-    MemoPlacePickerDialog(
-        onDismissRequest = hide,
-        onEvent = { event ->
-            if (event is MemoPlacePickerEvent.ClickAdd) hide()
-            onEvent(event)
-        },
-        searchFieldState = searchFieldState,
-        uiStateProvider = uiStateProvider,
-        placePagingItems = placePagingItems,
-        coordinateProvider = coordinateProvider,
-    )
+    ) { searchFieldState, hide ->
+        MemoPlacePickerDialog(
+            onDismissRequest = hide,
+            onEvent = { event ->
+                if (event is MemoPlacePickerEvent.ClickAdd) hide()
+                onEvent(event)
+            },
+            searchFieldState = searchFieldState,
+            placePagingItems = placePagingItems,
+            uiStateProvider = uiStateProvider,
+            coordinateProvider = coordinateProvider,
+        )
+    }
 }
 
 @ScreenPreview
@@ -59,10 +49,10 @@ private fun MemoPlacePickerDialogHostPreview() {
 
     DiaryTheme {
         MemoPlacePickerDialogHost(
-            dialogState = rememberDialogState().apply { show() },
+            dialogState = rememberDialogState(initialVisible = true),
             onEvent = {},
-            uiStateProvider = { MemoPlaceInputUiState(isSelectedPlaceLoaded = true, selectedPlaceList = placeList) },
             placePagingItems = placePagingData.collectAsLazyPagingItems(),
+            uiStateProvider = { MemoPlaceInputUiState(isSelectedPlaceLoaded = true, selectedPlaceList = placeList) },
         )
     }
 }

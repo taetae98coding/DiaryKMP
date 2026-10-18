@@ -32,10 +32,6 @@ gradlePlugin {
             id = "io.github.taetae98coding.diary.primitive.android.library"
             implementationClass = "io.github.taetae98coding.diary.buildlogic.primitive.AndroidLibraryPrimitivePlugin"
         }
-        register("primitiveImageVector") {
-            id = "io.github.taetae98coding.diary.primitive.image.vector"
-            implementationClass = "io.github.taetae98coding.diary.buildlogic.primitive.ImageVectorPrimitivePlugin"
-        }
         register("primitiveCompose") {
             id = "io.github.taetae98coding.diary.primitive.compose"
             implementationClass = "io.github.taetae98coding.diary.buildlogic.primitive.ComposePrimitivePlugin"
@@ -68,6 +64,18 @@ gradlePlugin {
             id = "io.github.taetae98coding.diary.convention.compose"
             implementationClass = "io.github.taetae98coding.diary.buildlogic.convention.ComposeConventionPlugin"
         }
+        register("conventionComposeComponent") {
+            id = "io.github.taetae98coding.diary.convention.compose.component"
+            implementationClass = "io.github.taetae98coding.diary.buildlogic.convention.ComposeComponentConventionPlugin"
+        }
+        register("conventionCoreImpl") {
+            id = "io.github.taetae98coding.diary.convention.core.impl"
+            implementationClass = "io.github.taetae98coding.diary.buildlogic.convention.CoreImplConventionPlugin"
+        }
+        register("conventionCoreNetwork") {
+            id = "io.github.taetae98coding.diary.convention.core.network"
+            implementationClass = "io.github.taetae98coding.diary.buildlogic.convention.CoreNetworkConventionPlugin"
+        }
         register("conventionData") {
             id = "io.github.taetae98coding.diary.convention.data"
             implementationClass = "io.github.taetae98coding.diary.buildlogic.convention.DataConventionPlugin"
@@ -83,6 +91,10 @@ gradlePlugin {
         register("conventionFeatureUi") {
             id = "io.github.taetae98coding.diary.convention.feature.ui"
             implementationClass = "io.github.taetae98coding.diary.buildlogic.convention.FeatureUiConventionPlugin"
+        }
+        register("conventionWork") {
+            id = "io.github.taetae98coding.diary.convention.work"
+            implementationClass = "io.github.taetae98coding.diary.buildlogic.convention.WorkConventionPlugin"
         }
     }
 }

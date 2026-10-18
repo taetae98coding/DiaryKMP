@@ -6,7 +6,7 @@ import io.github.taetae98coding.diary.core.model.web.WebPage
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
-internal fun previewWeb(
+public fun previewWeb(
     title: String,
     url: String,
 ): Web =
@@ -24,7 +24,7 @@ internal fun previewWeb(
         createdAt = Instant.DISTANT_PAST,
     )
 
-internal fun previewWebPage(): WebPage =
+public fun previewWebPage(): WebPage =
     WebPage(
         baseUrl = "https://developer.android.com",
         body = "<html><body><h1>웹 페이지</h1></body></html>",

@@ -22,6 +22,7 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -53,7 +54,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
                 val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
                 val viewModel = viewModel(accountFlow = flowOf(Result.success(account)))
 
-                viewModel.account.test {
+                viewModel.uiState.confirmedAccount().test {
                     awaitItem() shouldBe account
                     expectNoEvents()
                 }
@@ -66,7 +67,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
                 val accountFlow = MutableStateFlow<Account>(Account.Guest)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
-                viewModel.account.test {
+                viewModel.uiState.confirmedAccount().test {
                     awaitItem() shouldBe Account.Guest
                     accountFlow.value = account
                     awaitItem() shouldBe account
@@ -83,14 +84,14 @@ class AppFcmTokenViewModelTest : FunSpec() {
                 coEvery { submitFcmTokenUseCase(parameter = Unit) } coAnswers { awaitCancellation() }
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow(), submitFcmTokenUseCase = submitFcmTokenUseCase)
 
-                viewModel.account.test {
+                viewModel.uiState.confirmedAccount().test {
                     awaitItem() shouldBe account
-                    viewModel.submit()
+                    viewModel.submit(account)
                     advanceUntilIdle()
 
                     accountFlow.value = Account.Guest
                     awaitItem() shouldBe Account.Guest
-                    viewModel.submit()
+                    viewModel.submit(Account.Guest)
                     advanceUntilIdle()
                     expectNoEvents()
                 }
@@ -106,7 +107,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
                 val accountFlow = MutableStateFlow<Account>(account)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
-                viewModel.account.test {
+                viewModel.uiState.confirmedAccount().test {
                     awaitItem() shouldBe account
                     accountFlow.value = validAccount
                     awaitItem() shouldBe validAccount
@@ -127,7 +128,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
                         val accountFlow = MutableStateFlow<Account>(account)
                         val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
-                        viewModel.account.test {
+                        viewModel.uiState.confirmedAccount().test {
                             awaitItem() shouldBe account
                             accountFlow.value = changedAccount
                             awaitItem() shouldBe changedAccount
@@ -144,12 +145,12 @@ class AppFcmTokenViewModelTest : FunSpec() {
                 val accountFlow = MutableStateFlow<Account>(account)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
-                val firstJob = launch { viewModel.account.collect { } }
+                val firstJob = launch { viewModel.uiState.confirmedAccount().collect { } }
                 advanceUntilIdle()
                 firstJob.cancelAndJoin()
 
                 val accountList = mutableListOf<Account>()
-                val secondJob = launch { viewModel.account.collect { value -> accountList.add(value) } }
+                val secondJob = launch { viewModel.uiState.confirmedAccount().collect { value -> accountList.add(value) } }
                 advanceUntilIdle()
                 secondJob.cancelAndJoin()
 
@@ -164,7 +165,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
                 val accountFlow = MutableStateFlow<Account>(account)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
-                viewModel.account.test {
+                viewModel.uiState.confirmedAccount().test {
                     awaitItem() shouldBe account
                     accountFlow.value = otherAccount
                     awaitItem() shouldBe otherAccount
@@ -180,7 +181,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
                 val accountFlow = MutableSharedFlow<Account>(replay = 1).apply { tryEmit(account) }
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
-                viewModel.account.test {
+                viewModel.uiState.confirmedAccount().test {
                     awaitItem() shouldBe account
                     accountFlow.emit(account.copy())
                     expectNoEvents()
@@ -197,7 +198,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
                     val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
                     val viewModel = viewModel(accountFlow = flowOf(Result.success(account)))
 
-                    viewModel.account.test {
+                    viewModel.uiState.confirmedAccount().test {
                         awaitItem() shouldBe account
                         TimeZone.setDefault(TimeZone.getTimeZone("America/New_York"))
                         Locale.setDefault(Locale.US)
@@ -216,13 +217,13 @@ class AppFcmTokenViewModelTest : FunSpec() {
                 val accountFlow = MutableStateFlow<Account>(account)
                 val viewModel = viewModel(accountFlow = accountFlow.toResultFlow())
 
-                val firstJob = launch { viewModel.account.collect { } }
+                val firstJob = launch { viewModel.uiState.confirmedAccount().collect { } }
                 advanceUntilIdle()
                 firstJob.cancelAndJoin()
                 advanceTimeBy(STOP_TIMEOUT_ELAPSED_MILLIS)
 
                 val accountList = mutableListOf<Account>()
-                val secondJob = launch { viewModel.account.collect { value -> accountList.add(value) } }
+                val secondJob = launch { viewModel.uiState.confirmedAccount().collect { value -> accountList.add(value) } }
                 advanceUntilIdle()
                 secondJob.cancelAndJoin()
 
@@ -236,10 +237,43 @@ class AppFcmTokenViewModelTest : FunSpec() {
                 coEvery { submitFcmTokenUseCase(parameter = Unit) } returns Result.success(Unit)
                 val viewModel = viewModel(submitFcmTokenUseCase = submitFcmTokenUseCase)
 
-                viewModel.submit()
+                viewModel.submit(Account.Guest)
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { submitFcmTokenUseCase(parameter = Unit) }
+            }
+        }
+
+        test("진행 중인 제출과 다른 계정의 제출 요청은 기다리지 않고 바로 제출 UseCase를 실행한다") {
+            runTest(mainDispatcher) {
+                val submitFcmTokenUseCase = mockk<SubmitFcmTokenUseCase>()
+                coEvery { submitFcmTokenUseCase(parameter = Unit) } coAnswers { awaitCancellation() }
+                val viewModel = viewModel(submitFcmTokenUseCase = submitFcmTokenUseCase)
+
+                viewModel.submit(Account.Guest)
+                viewModel.submit(fixtureMonkey.giveMeOne<Account.User>())
+                advanceUntilIdle()
+
+                coVerify(exactly = 2) { submitFcmTokenUseCase(parameter = Unit) }
+            }
+        }
+
+        test("토큰 제출 요청이 반복되어도 진행 중에는 제출 UseCase를 한 번만 실행하고 끝나면 다시 제출할 수 있다") {
+            runTest(mainDispatcher) {
+                val submitFcmTokenUseCase = mockk<SubmitFcmTokenUseCase>()
+                coEvery { submitFcmTokenUseCase(parameter = Unit) } returns Result.success(Unit)
+                val viewModel = viewModel(submitFcmTokenUseCase = submitFcmTokenUseCase)
+
+                viewModel.submit(Account.Guest)
+                viewModel.submit(Account.Guest)
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { submitFcmTokenUseCase(parameter = Unit) }
+
+                viewModel.submit(Account.Guest)
+                advanceUntilIdle()
+
+                coVerify(exactly = 2) { submitFcmTokenUseCase(parameter = Unit) }
             }
         }
     }
@@ -264,5 +298,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
         }
 
         private fun Flow<Account>.toResultFlow(): Flow<Result<Account>> = map { account -> Result.success(account) }
+
+        private fun Flow<AppFcmTokenUiState>.confirmedAccount(): Flow<Account> = filterIsInstance<AppFcmTokenUiState.Confirmed>().map { uiState -> uiState.account }
     }
 }

@@ -5,12 +5,15 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
+import io.github.taetae98coding.diary.core.model.holiday.Holiday
 import io.github.taetae98coding.diary.domain.holiday.usecase.FetchHolidayUseCase
 import io.github.taetae98coding.diary.domain.holiday.usecase.GetGoldenHolidayUseCase
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.DEFAULT_ERROR_DESCRIPTION
+import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.DEFAULT_LOADING_DESCRIPTION
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.DEFAULT_NOT_PROVIDED_DESCRIPTION
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.YEAR
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.february
@@ -18,8 +21,10 @@ import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFix
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.goldenHolidayGroup
 import io.github.taetae98coding.diary.feature.holiday.ui.home.HolidayHomeTestFixture.holiday
 import io.kotest.matchers.shouldBe
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
@@ -123,6 +128,27 @@ class HolidayHomeScreenSelectTest {
         composeRule.performUp()
 
         navigatedDateRangeList shouldBe listOf(february(day = 6)..february(day = 13))
+    }
+
+    @Test
+    fun `TC-HOLIDAY-HOME-FEATURE-039 로딩 표시가 나타난 년도에서는 기간 선택이 시작되지 않는다`() {
+        val completion = CompletableDeferred<Result<List<Holiday>>>()
+        val navigatedDateRangeList = mutableListOf<LocalDateRange>()
+        setHolidayHomeScreen(
+            fetchHolidayUseCase =
+                mockk<FetchHolidayUseCase>().also { useCase ->
+                    coEvery { useCase(parameter = any()) } coAnswers { completion.await() }
+                },
+            navigateToMemoAdd = { navigatedDateRangeList += it },
+        )
+        composeRule.onNodeWithContentDescription(DEFAULT_LOADING_DESCRIPTION).assertExists()
+
+        composeRule.performLongPress(composeRule.rootCenter())
+        composeRule.performUp()
+
+        navigatedDateRangeList shouldBe emptyList()
+        completion.complete(Result.success(providedHolidayList()))
+        composeRule.waitForIdle()
     }
 
     @Test

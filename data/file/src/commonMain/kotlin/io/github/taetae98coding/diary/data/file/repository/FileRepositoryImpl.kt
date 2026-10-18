@@ -21,6 +21,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Factory
+import kotlin.uuid.Uuid
 
 private const val UNKNOWN_MIME_TYPE = "application/octet-stream"
 
@@ -44,13 +45,13 @@ internal class FileRepositoryImpl(
     // 받는 동안 다른 계정의 목록으로 바뀌었으면, 받은 첫 페이지는 지금 목록의 것이 아니므로 버린다.
     override suspend fun refresh() {
         val list = filePagingSourceHolder.latestList() ?: return
-        val firstPage = fileRemoteDataSource.fetch(cursor = null, size = PAGE_SIZE)
+        val firstPage = fileRemoteDataSource.readList(cursor = null, size = PAGE_SIZE)
 
         if (filePagingSourceHolder.isLatest(list = list)) list.invalidate(firstPage = firstPage)
     }
 
     // 이름을 읽은 뒤 나머지 정보를 읽지 못해도 실패에 이름을 실어, 호출자가 어느 파일이 실패했는지 알 수 있게 한다.
-    override suspend fun findSource(uri: FileUri): FileUploadSource {
+    override suspend fun readSource(uri: FileUri): FileUploadSource {
         val name = readSourceInfo(name = "") { fileLocalDataSource.name(uri = uri) }
 
         return readSourceInfo(name = name) {
@@ -79,6 +80,7 @@ internal class FileRepositoryImpl(
         source: FileUploadSource,
         title: String,
         description: String,
+        accountId: Uuid,
         onSent: (sentBytes: Long) -> Unit,
     ): DiaryFile =
         try {
@@ -89,6 +91,7 @@ internal class FileRepositoryImpl(
                     description = description,
                     mimeType = source.mimeType,
                     contentLength = source.size,
+                    accountId = accountId,
                     openContent = { fileLocalDataSource.openSource(uri = source.uri) },
                     onSent = onSent,
                 ).toDomain()
@@ -118,7 +121,7 @@ internal class FileRepositoryImpl(
             .getContinuedUploadResult()
             .map { result -> result.toDomain() }
 
-    override suspend fun deleteContinuedUpload() {
-        fileRemoteDataSource.cancelContinuedUpload()
+    override suspend fun deleteContinuedUpload(exceptAccountId: Uuid?) {
+        fileRemoteDataSource.cancelContinuedUpload(exceptAccountId = exceptAccountId)
     }
 }

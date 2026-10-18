@@ -137,7 +137,7 @@ class MemoPlaceCardTest {
         val uiState =
             MemoPlaceCardUiState(
                 mapUiState =
-                    MemoPlaceMapUiState.Loaded(
+                    MemoPlaceMapUiState.Content(
                         provider = MapProvider.NAVER,
                         currentCoordinate = null,
                     ),

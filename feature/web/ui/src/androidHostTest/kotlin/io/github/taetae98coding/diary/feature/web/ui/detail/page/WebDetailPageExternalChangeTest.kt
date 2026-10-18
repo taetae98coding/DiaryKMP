@@ -5,7 +5,6 @@ import android.view.ViewGroup
 import android.webkit.WebView
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -17,20 +16,25 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.web.DiaryWebSession
-import io.github.taetae98coding.diary.compose.web.LocalDiaryWebSession
+import io.github.taetae98coding.diary.compose.web.SingletonDiaryWebSession
 import io.github.taetae98coding.diary.core.model.web.WebHeader
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
+import io.github.taetae98coding.diary.feature.web.ui.Res
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScaffold
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailUiState
-import io.github.taetae98coding.diary.feature.web.ui.detail.memo.WebDetailMemoTab
 import io.github.taetae98coding.diary.feature.web.ui.detail.rememberWebDetailScaffoldState
 import io.github.taetae98coding.diary.feature.web.ui.detail.tab.WebDetailTab
 import io.github.taetae98coding.diary.feature.web.ui.detail.testContentUiState
 import io.github.taetae98coding.diary.feature.web.ui.detail.testWebDetail
 import io.github.taetae98coding.diary.feature.web.ui.detail.viewmode.WebDetailViewMode
 import io.github.taetae98coding.diary.feature.web.ui.form.rememberWebDetailFormState
+import io.github.taetae98coding.diary.feature.web.ui.web_detail_memo_empty_description
+import io.github.taetae98coding.diary.feature.web.ui.web_detail_memo_empty_title
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import org.jetbrains.compose.resources.stringResource
+import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,6 +49,11 @@ private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 class WebDetailPageExternalChangeTest {
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
+
+    @After
+    fun resetWebSession() {
+        SingletonDiaryWebSession.set(DiaryWebSession())
+    }
 
     @Test
     fun `TC-WEB-DETAIL-DOMAIN-007 URL 방식에서 다른 경로에서 URL과 요청 헤더가 바뀌면 웹 표시 수단이 새 URL을 연다`() {
@@ -63,7 +72,7 @@ class WebDetailPageExternalChangeTest {
                     onFormEvent = {},
                     onTagPickerEvent = {},
                 ) {
-                    WebDetailMemoTab(onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
+                    EntityDetailMemoTab(emptyTitle = stringResource(Res.string.web_detail_memo_empty_title), emptyDescription = stringResource(Res.string.web_detail_memo_empty_description), onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
                 }
             }
         }
@@ -82,22 +91,21 @@ class WebDetailPageExternalChangeTest {
     fun `TC-WEB-DETAIL-FEATURE-055 수정으로 URL이 바뀌어도 로그인 정보를 다시 가져오지 않고 새 주소를 연다`() {
         val initial = testContentUiState(detail = testWebDetail(url = INITIAL_URL))
         var uiState: WebDetailUiState by mutableStateOf(initial)
+        SingletonDiaryWebSession.set(DiaryWebSession(importCount = IMPORTED_COUNT))
         composeRule.setContent {
-            CompositionLocalProvider(LocalDiaryWebSession provides DiaryWebSession(importCount = IMPORTED_COUNT)) {
-                DiaryTheme {
-                    val state = rememberWebDetailScaffoldState(initialTab = WebDetailTab.PAGE, initialViewMode = WebDetailViewMode.URL)
+            DiaryTheme {
+                val state = rememberWebDetailScaffoldState(initialTab = WebDetailTab.PAGE, initialViewMode = WebDetailViewMode.URL)
 
-                    WebDetailScaffold(
-                        onEvent = {},
-                        state = state,
-                        formState = rememberWebDetailFormState(initialDetail = initial.detail),
-                        uiStateProvider = { uiState },
-                        pageUiStateProvider = { WebDetailPageUiState.Loading },
-                        onFormEvent = {},
-                        onTagPickerEvent = {},
-                    ) {
-                        WebDetailMemoTab(onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
-                    }
+                WebDetailScaffold(
+                    onEvent = {},
+                    state = state,
+                    formState = rememberWebDetailFormState(initialDetail = initial.detail),
+                    uiStateProvider = { uiState },
+                    pageUiStateProvider = { WebDetailPageUiState.Loading },
+                    onFormEvent = {},
+                    onTagPickerEvent = {},
+                ) {
+                    EntityDetailMemoTab(emptyTitle = stringResource(Res.string.web_detail_memo_empty_title), emptyDescription = stringResource(Res.string.web_detail_memo_empty_description), onEvent = {}, onMemoListEvent = {}, modifier = Modifier.fillMaxSize())
                 }
             }
         }

@@ -3,8 +3,6 @@ package io.github.taetae98coding.diary.feature.more.ui.home
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.taetae98coding.diary.feature.more.ui.home.account.MoreHomeAccountViewModel
 import io.github.taetae98coding.diary.feature.more.ui.home.menu.MoreHomeMenu
@@ -34,7 +32,7 @@ internal fun MoreHomeScreen(
     val accountUiState by accountViewModel.uiState.collectAsStateWithLifecycle()
     val signOutUiState by signOutViewModel.uiState.collectAsStateWithLifecycle()
 
-    RefreshUserDataEffect(refreshViewModel = refreshViewModel)
+    MoreHomeScreenEffect(refreshViewModel = refreshViewModel)
 
     MoreHomeScaffold(
         accountUiStateProvider = { accountUiState },
@@ -84,13 +82,6 @@ internal fun MoreHomeScreen(
         },
         modifier = modifier,
     )
-}
-
-@Composable
-private fun RefreshUserDataEffect(refreshViewModel: MoreHomeRefreshViewModel) {
-    LifecycleEventEffect(Lifecycle.Event.ON_START) {
-        refreshViewModel.refresh()
-    }
 }
 
 private fun navigateToMenu(

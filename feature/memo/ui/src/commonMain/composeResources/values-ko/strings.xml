@@ -39,7 +39,7 @@
     <string name="memo_tag_picker_search_empty_title">검색 결과가 없습니다</string>
     <string name="memo_tag_picker_search_empty_description">다른 검색어로 찾아보세요</string>
     <string name="memo_tag_add_action">태그 추가</string>
-    <string name="memo_tag_primary_content_description">대표 태그</string>
+    <string name="memo_tag_primary_state_description">대표 태그</string>
     <string name="memo_tag_primary_set_button_content_description">대표 태그 지정</string>
     <string name="memo_tag_primary_unset_button_content_description">대표 태그 지정 해제</string>
     <string name="memo_web_select_label">웹 선택</string>

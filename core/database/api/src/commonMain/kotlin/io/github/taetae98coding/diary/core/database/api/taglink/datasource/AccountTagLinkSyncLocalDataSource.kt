@@ -4,5 +4,5 @@ import io.github.taetae98coding.diary.core.database.api.taglink.entity.TagLinkLo
 import kotlin.uuid.Uuid
 
 public interface AccountTagLinkSyncLocalDataSource {
-    public suspend fun findPending(accountId: Uuid): List<TagLinkLocalEntity>
+    public suspend fun readPendingList(accountId: Uuid): List<TagLinkLocalEntity>
 }

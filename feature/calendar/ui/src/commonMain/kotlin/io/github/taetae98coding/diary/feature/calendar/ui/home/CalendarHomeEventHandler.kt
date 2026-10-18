@@ -7,6 +7,7 @@ import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarH
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoViewModel
 import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.toDateRange
 import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherViewModel
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import kotlinx.datetime.LocalDateRange
 import kotlin.uuid.Uuid
 
@@ -16,7 +17,7 @@ internal fun handleCalendarHomeEvent(
     holidayViewModel: CalendarHomeHolidayViewModel,
     memoViewModel: CalendarHomeMemoViewModel,
     weatherViewModel: CalendarHomeWeatherViewModel,
-    syncViewModel: CalendarHomeSyncViewModel,
+    syncViewModel: SyncRefreshViewModel,
     navigateToMemoDetail: (Uuid) -> Unit,
     navigateToContactDetail: (Uuid) -> Unit,
     navigateToFilter: () -> Unit,

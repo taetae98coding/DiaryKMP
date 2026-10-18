@@ -34,6 +34,8 @@ import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoExistenceFilter
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterTagIdUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoHomeUseCase
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.memo.ui.refreshableList
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
@@ -82,7 +84,7 @@ class MemoHomeExecutionBoundaryTest {
         restorationTester.emulateSavedInstanceStateRestore()
         composeRule.waitForIdle()
 
-        viewModel.sort.value shouldBe ListSort.RECENTLY_UPDATED
+        viewModel.sortUiState.value shouldBe ListSortUiState(sort = ListSort.RECENTLY_UPDATED)
         composeRule
             .onNodeWithContentDescription(DEFAULT_FILTER_BUTTON_DESCRIPTION)
             .assert(hasStateDescription(DEFAULT_FILTER_APPLIED_STATE_DESCRIPTION))
@@ -183,7 +185,7 @@ class MemoHomeExecutionBoundaryTest {
 
     private fun scrollList(memoList: List<Memo>) {
         waitUntilMemoIsDisplayed(memoList)
-        composeRule.onNodeWithTag(MEMO_HOME_LIST_TEST_TAG).performScrollToIndex(SCROLLED_INDEX)
+        composeRule.refreshableList().performScrollToIndex(SCROLLED_INDEX)
         composeRule.waitForIdle()
     }
 
@@ -223,7 +225,7 @@ class MemoHomeExecutionBoundaryTest {
         filterUiState: MemoHomeScaffoldFilterUiState = MemoHomeScaffoldFilterUiState(),
     ): MemoHomeViewModel {
         val viewModel = mockk<MemoHomeViewModel>(relaxed = true)
-        every { viewModel.sort } returns MutableStateFlow(sort)
+        every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = sort))
         every { viewModel.memoPagingData } returns MutableStateFlow(memoPagingDataOf(memoList.map { memo -> MemoListItem.Content(memo = memo) }))
         every { viewModel.filterUiState } returns MutableStateFlow(filterUiState)
         every { viewModel.effect } returns emptyFlow()

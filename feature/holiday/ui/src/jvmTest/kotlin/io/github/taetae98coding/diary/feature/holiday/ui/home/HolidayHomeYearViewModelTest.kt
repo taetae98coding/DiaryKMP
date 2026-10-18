@@ -122,6 +122,25 @@ class HolidayHomeYearViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-HOLIDAY-HOME-DATA-016 동기화가 진행 중일 때 다시 요청하면 새 동기화를 시작하지 않는다") {
+            runTest(mainDispatcher) {
+                val year = randomYear()
+                val completion = CompletableDeferred<Result<List<Holiday>>>()
+                val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
+                coEvery { fetchHolidayUseCase(parameter = any()) } coAnswers { completion.await() }
+                val viewModel = holidayHomeYearViewModel(year = year, fetchHolidayUseCase = fetchHolidayUseCase)
+
+                viewModel.fetch()
+                viewModel.fetch()
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { fetchHolidayUseCase(parameter = year - 1) }
+
+                completion.complete(Result.success(providedHolidayList()))
+                advanceUntilIdle()
+            }
+        }
+
         test("TC-HOLIDAY-HOME-DATA-012 년도가 다시 화면에 드러나면 동기화를 다시 요청한다") {
             runTest(mainDispatcher) {
                 val year = randomYear()
@@ -170,7 +189,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe HolidayHomeYearUiState.Loading
-                    awaitItem() shouldBe HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = listOf(goldenHolidayGroup))
+                    awaitItem() shouldBe HolidayHomeYearUiState.Content(goldenHolidayGroupList = listOf(goldenHolidayGroup))
                 }
             }
         }
@@ -228,7 +247,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe HolidayHomeYearUiState.Loading
-                    awaitItem() shouldBe HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = listOf(goldenHolidayGroup))
+                    awaitItem() shouldBe HolidayHomeYearUiState.Content(goldenHolidayGroupList = listOf(goldenHolidayGroup))
                 }
             }
         }
@@ -280,7 +299,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
                     viewModel.fetch()
 
                     awaitItem() shouldBe HolidayHomeYearUiState.Loading
-                    awaitItem() shouldBe HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = listOf(goldenHolidayGroup))
+                    awaitItem() shouldBe HolidayHomeYearUiState.Content(goldenHolidayGroupList = listOf(goldenHolidayGroup))
                 }
             }
         }
@@ -314,7 +333,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
                     viewModel.fetch()
 
                     awaitItem() shouldBe HolidayHomeYearUiState.Loading
-                    awaitItem() shouldBe HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = listOf(goldenHolidayGroup))
+                    awaitItem() shouldBe HolidayHomeYearUiState.Content(goldenHolidayGroupList = listOf(goldenHolidayGroup))
                 }
 
                 coVerify(exactly = 2) { fetchHolidayUseCase(parameter = year - 1) }
@@ -341,7 +360,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe HolidayHomeYearUiState.Loading
-                    awaitItem() shouldBe HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = listOf(goldenHolidayGroup))
+                    awaitItem() shouldBe HolidayHomeYearUiState.Content(goldenHolidayGroupList = listOf(goldenHolidayGroup))
 
                     coEvery { fetchHolidayUseCase(parameter = any()) } coAnswers { completion.await() }
                     viewModel.fetch()
@@ -370,11 +389,11 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe HolidayHomeYearUiState.Loading
-                    awaitItem() shouldBe HolidayHomeYearUiState.Loaded()
+                    awaitItem() shouldBe HolidayHomeYearUiState.Content()
 
                     viewModel.updateAnnualLeaveCount(annualLeaveCount = 1)
 
-                    awaitItem() shouldBe HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = listOf(goldenHolidayGroup))
+                    awaitItem() shouldBe HolidayHomeYearUiState.Content(goldenHolidayGroupList = listOf(goldenHolidayGroup))
                 }
             }
         }
@@ -393,11 +412,11 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe HolidayHomeYearUiState.Loading
-                    awaitItem() shouldBe HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = listOf(goldenHolidayGroup))
+                    awaitItem() shouldBe HolidayHomeYearUiState.Content(goldenHolidayGroupList = listOf(goldenHolidayGroup))
 
                     goldenHolidayGroupFlow.value = listOf(changedGoldenHolidayGroup)
 
-                    awaitItem() shouldBe HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = listOf(changedGoldenHolidayGroup))
+                    awaitItem() shouldBe HolidayHomeYearUiState.Content(goldenHolidayGroupList = listOf(changedGoldenHolidayGroup))
                 }
             }
         }
@@ -413,7 +432,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe HolidayHomeYearUiState.Loading
-                    awaitItem() shouldBe HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = emptyList())
+                    awaitItem() shouldBe HolidayHomeYearUiState.Content(goldenHolidayGroupList = emptyList())
                 }
             }
         }
@@ -428,14 +447,14 @@ class HolidayHomeYearViewModelTest : FunSpec() {
                 viewModel.fetch()
                 viewModel.uiState.test {
                     awaitItem() shouldBe HolidayHomeYearUiState.Loading
-                    awaitItem() shouldBe HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = previousRegionList)
+                    awaitItem() shouldBe HolidayHomeYearUiState.Content(goldenHolidayGroupList = previousRegionList)
                 }
 
                 advanceTimeBy(UI_STOP_TIMEOUT_MILLIS - 1)
                 viewModel.fetch()
 
                 viewModel.uiState.test {
-                    awaitItem() shouldBe HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = previousRegionList)
+                    awaitItem() shouldBe HolidayHomeYearUiState.Content(goldenHolidayGroupList = previousRegionList)
 
                     advanceUntilIdle()
                     expectNoEvents()
@@ -453,15 +472,15 @@ class HolidayHomeYearViewModelTest : FunSpec() {
                 viewModel.fetch()
                 viewModel.uiState.test {
                     awaitItem() shouldBe HolidayHomeYearUiState.Loading
-                    awaitItem() shouldBe HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = previousRegionList)
+                    awaitItem() shouldBe HolidayHomeYearUiState.Content(goldenHolidayGroupList = previousRegionList)
                 }
 
                 advanceTimeBy(UI_STOP_TIMEOUT_MILLIS + 1)
                 viewModel.fetch()
 
                 viewModel.uiState.test {
-                    awaitItem() shouldBe HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = previousRegionList)
-                    awaitItem() shouldBe HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = changedRegionList)
+                    awaitItem() shouldBe HolidayHomeYearUiState.Content(goldenHolidayGroupList = previousRegionList)
+                    awaitItem() shouldBe HolidayHomeYearUiState.Content(goldenHolidayGroupList = changedRegionList)
                 }
             }
         }
@@ -482,7 +501,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
                 viewModel.fetch()
                 viewModel.uiState.test {
                     awaitItem() shouldBe HolidayHomeYearUiState.Loading
-                    awaitItem() shouldBe HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = previousRegionList)
+                    awaitItem() shouldBe HolidayHomeYearUiState.Content(goldenHolidayGroupList = previousRegionList)
                 }
 
                 isRegionChanged = true
@@ -490,7 +509,7 @@ class HolidayHomeYearViewModelTest : FunSpec() {
                 viewModel.fetch()
 
                 viewModel.uiState.test {
-                    awaitItem() shouldBe HolidayHomeYearUiState.Loaded(goldenHolidayGroupList = previousRegionList)
+                    awaitItem() shouldBe HolidayHomeYearUiState.Content(goldenHolidayGroupList = previousRegionList)
                     awaitItem() shouldBe HolidayHomeYearUiState.NotProvided
                 }
             }

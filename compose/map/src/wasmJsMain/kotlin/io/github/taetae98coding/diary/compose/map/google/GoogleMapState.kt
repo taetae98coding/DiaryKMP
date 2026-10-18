@@ -3,27 +3,7 @@
 package io.github.taetae98coding.diary.compose.map.google
 
 import io.github.taetae98coding.diary.compose.map.provider.label
-import org.w3c.dom.HTMLElement
-
-internal external interface GoogleMapState : JsAny {
-    fun attach(element: HTMLElement)
-
-    fun release(element: HTMLElement)
-
-    fun showSpot(
-        latitude: Double,
-        longitude: Double,
-    )
-
-    fun clearSpot()
-
-    fun setPins(pinsJson: String)
-
-    fun moveTo(
-        latitude: Double,
-        longitude: Double,
-    )
-}
+import io.github.taetae98coding.diary.compose.map.web.WebMapState
 
 internal fun googleMapOptions(): JsAny =
     js(
@@ -44,7 +24,7 @@ internal fun googleMapOptions(): JsAny =
     )
 
 @Suppress("UnusedParameter", "LongMethod")
-internal fun GoogleMapState(
+internal fun googleMapState(
     options: JsAny,
     pinMarkerJson: String,
     isSpotSelectable: Boolean,
@@ -60,7 +40,7 @@ internal fun GoogleMapState(
     ) -> Unit,
     onSpot: (latitude: Double, longitude: Double) -> Unit,
     onPin: (id: String) -> Unit,
-): GoogleMapState =
+): WebMapState =
     js(
         """
         (() => {

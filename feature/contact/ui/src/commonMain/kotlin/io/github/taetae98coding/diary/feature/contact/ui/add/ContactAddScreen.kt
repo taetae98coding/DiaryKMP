@@ -6,10 +6,12 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.taetae98coding.diary.compose.core.effect.RequestFocusEffect
 import io.github.taetae98coding.diary.feature.contact.ui.form.rememberContactAddFormState
+import kotlin.uuid.Uuid
 
 @Composable
 internal fun ContactAddScreen(
     navigateUp: () -> Unit,
+    addedResultRequestKey: Uuid?,
     componentVisibleProvider: () -> ContactAddScaffoldComponentVisible,
     viewModel: ContactAddViewModel,
     modifier: Modifier = Modifier,
@@ -19,6 +21,7 @@ internal fun ContactAddScreen(
 
     RequestFocusEffect(focusRequester = state.nameState.focusRequester)
     ContactAddScreenEffect(
+        addedResultRequestKey = addedResultRequestKey,
         effect = viewModel.effect,
         state = state,
     )

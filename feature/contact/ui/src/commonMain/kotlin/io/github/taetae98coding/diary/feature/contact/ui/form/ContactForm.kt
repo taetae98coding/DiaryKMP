@@ -35,6 +35,10 @@ internal fun ContactForm(
             state = state.birthdayState,
             modifier = Modifier.fillMaxWidth(),
         )
+        ContactBirthYearInput(
+            state = state.birthdayState,
+            modifier = Modifier.fillMaxWidth(),
+        )
         ContactHometownInput(
             state = state.hometownState,
             modifier = Modifier.fillMaxWidth(),

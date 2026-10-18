@@ -1,10 +1,10 @@
 package io.github.taetae98coding.diary.feature.holiday.ui.home
 
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import io.github.taetae98coding.diary.compose.core.button.NavigateUpButton
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarNavigateUp
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarTitle
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.holiday.ui.Res
@@ -18,15 +18,18 @@ internal fun HolidayHomeTopBar(
     modifier: Modifier = Modifier,
     state: HolidayHomeScaffoldState = rememberHolidayHomeScaffoldState(),
 ) {
-    CenterAlignedTopAppBar(
-        title = { Text(text = stringResource(Res.string.holiday_home_year_title, state.year.toString())) },
+    val title = stringResource(Res.string.holiday_home_year_title, state.year.toString())
+    val navigateUpContentDescription = stringResource(Res.string.holiday_navigate_up_button_content_description)
+
+    DiaryTopBar(
         modifier = modifier,
-        navigationIcon = {
-            NavigateUpButton(
+        title = DiaryTopBarTitle.Text(text = title),
+        navigateUp =
+            DiaryTopBarNavigateUp(
+                contentDescription = navigateUpContentDescription,
                 onClick = { onEvent(HolidayHomeScaffoldEvent.ClickNavigateUp) },
-                contentDescription = stringResource(Res.string.holiday_navigate_up_button_content_description),
-            )
-        },
+            ),
+        isTitleCentered = true,
     )
 }
 

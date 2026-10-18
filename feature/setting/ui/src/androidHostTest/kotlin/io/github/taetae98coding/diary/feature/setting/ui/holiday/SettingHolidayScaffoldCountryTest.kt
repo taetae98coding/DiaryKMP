@@ -16,7 +16,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
-import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountryOption
+import io.github.taetae98coding.diary.core.model.holiday.HolidayCountryOption
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import org.junit.Rule

@@ -3,6 +3,10 @@ package io.github.taetae98coding.diary.feature.tag.ui.detail.place
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
@@ -18,10 +22,13 @@ import androidx.compose.ui.test.swipeLeft
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.compose.place.PLACE_CARD_TEST_TAG
+import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.TagScope
-import io.github.taetae98coding.diary.feature.tag.ui.detail.isRefreshingFlow
+import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
 import io.github.taetae98coding.diary.feature.tag.ui.tagPlace
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,17 +59,49 @@ class TagDetailPlaceBoundsListTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-005 지도 모드의 목록에서 장소를 선택하면 그 장소의 상세 이동을 요청한다`() {
+    fun `TC-TAG-DETAIL-PLACE-FEATURE-050 지도 모드의 목록에서 지도 가운데에 있지 않은 장소를 누르면 그 장소의 좌표로 지도를 옮기고 상세 이동은 요청하지 않는다`() {
         val place = tagPlace(title = FIRST_TITLE)
         val eventList = mutableListOf<TagDetailPlaceContentEvent>()
+        val mapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
         setBoundsList(
             MutableStateFlow(TagDetailPlaceListUiState(isLoaded = true, placeList = listOf(place))),
             onEvent = eventList::add,
+            mapState = mapState,
         )
 
         composeRule.onNodeWithText(FIRST_TITLE).performClick()
+        composeRule.waitForIdle()
+
+        mapState.coordinate shouldBe place.detail.coordinate.toDiaryMapCoordinate()
+        eventList shouldBe emptyList()
+    }
+
+    @Test
+    fun `TC-TAG-DETAIL-PLACE-FEATURE-052 지도 모드에서 지도 가운데에 있는 장소를 목록에서 누르면 그 장소의 상세 이동을 요청한다`() {
+        val place = tagPlace(title = FIRST_TITLE)
+        val eventList = mutableListOf<TagDetailPlaceContentEvent>()
+        val mapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
+        mapState.moveTo(place.detail.coordinate.toDiaryMapCoordinate())
+        setBoundsList(
+            MutableStateFlow(TagDetailPlaceListUiState(isLoaded = true, placeList = listOf(place))),
+            onEvent = eventList::add,
+            mapState = mapState,
+        )
+
+        composeRule.onNodeWithText(FIRST_TITLE).performClick()
+        composeRule.waitForIdle()
 
         eventList shouldBe listOf(TagDetailPlaceContentEvent.ClickPlace(id = place.id))
+        mapState.coordinate shouldBe place.detail.coordinate.toDiaryMapCoordinate()
+    }
+
+    @Test
+    fun `지도 모드의 장소 카드에는 지도에서 위치를 보여 준다는 동작 접근성 이름을 제공한다`() {
+        setBoundsList(MutableStateFlow(TagDetailPlaceListUiState(isLoaded = true, placeList = listOf(tagPlace(title = FIRST_TITLE)))))
+
+        composeRule
+            .onNode(hasTestTag(PLACE_CARD_TEST_TAG) and hasText(FIRST_TITLE))
+            .assert(SemanticsMatcher("OnClick label") { node -> node.config.getOrNull(SemanticsActions.OnClick)?.label == DEFAULT_SHOW_ON_MAP_ACTION })
     }
 
     @Test
@@ -128,7 +167,7 @@ class TagDetailPlaceBoundsListTest {
             onEvent = eventList::add,
         )
 
-        composeRule.onNodeWithTag(TAG_DETAIL_PLACE_BOUNDS_LIST_TEST_TAG).performTouchInput { swipeDown() }
+        composeRule.refreshableList().performTouchInput { swipeDown() }
         composeRule.waitForIdle()
 
         eventList shouldBe listOf(TagDetailPlaceContentEvent.Refresh)
@@ -191,7 +230,7 @@ class TagDetailPlaceBoundsListTest {
     }
 
     private fun scrollToLast(placeList: List<Place>) {
-        composeRule.onNodeWithTag(TAG_DETAIL_PLACE_BOUNDS_LIST_TEST_TAG).performScrollToIndex(placeList.lastIndex)
+        composeRule.refreshableList().performScrollToIndex(placeList.lastIndex)
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(placeList.first().detail.title).assertDoesNotExist()
@@ -202,6 +241,7 @@ class TagDetailPlaceBoundsListTest {
         isRefreshingFlow: MutableStateFlow<Boolean> = MutableStateFlow(false),
         scopeFlow: MutableStateFlow<TagScope> = MutableStateFlow(TagScope.SELF),
         onEvent: (TagDetailPlaceContentEvent) -> Unit = {},
+        mapState: DiaryMapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER),
     ) {
         composeRule.setContent {
             val uiState by uiStateFlow.collectAsStateWithLifecycle()
@@ -211,6 +251,7 @@ class TagDetailPlaceBoundsListTest {
             DiaryTheme {
                 TagDetailPlaceBoundsList(
                     onEvent = onEvent,
+                    mapState = mapState,
                     modifier = Modifier.fillMaxSize(),
                     placeListUiStateProvider = { uiState },
                     isRefreshingProvider = { isRefreshing },
@@ -222,6 +263,7 @@ class TagDetailPlaceBoundsListTest {
 
     private companion object {
         const val FIRST_TITLE = "AlphaBoundsPlace"
+        const val DEFAULT_SHOW_ON_MAP_ACTION = "Show location on map"
         const val DEFAULT_MAP_EMPTY_TITLE = "No places in this area"
         const val DEFAULT_MAP_EMPTY_DESCRIPTION = "Move the map to see other places."
         const val KOREAN_MAP_EMPTY_TITLE = "이 지역에 장소가 없습니다"

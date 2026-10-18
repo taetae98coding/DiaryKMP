@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.height
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
+import io.github.taetae98coding.diary.compose.core.button.ListEntryButton
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.MEMO_COLOR_INDICATOR_TEST_TAG
@@ -30,9 +31,14 @@ import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
+import io.github.taetae98coding.diary.feature.tag.ui.Res
 import io.github.taetae98coding.diary.feature.tag.ui.allDayMemoDateTime
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemoPagingData
+import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_memo_empty_description
+import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_memo_empty_title
+import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_memo_finished_list_action_label
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.comparables.shouldBeLessThanOrEqualTo
 import io.kotest.matchers.ints.shouldBeLessThan
@@ -40,6 +46,7 @@ import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
+import org.jetbrains.compose.resources.stringResource
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -69,12 +76,12 @@ class TagDetailMemoTabTest {
 
     @Test
     fun `TC-TAG-DETAIL-MEMO-FEATURE-025 완료된 메모 확인 버튼을 선택하면 완료된 메모 목록 이동을 요청한다`() {
-        val eventList = mutableListOf<TagDetailMemoContentEvent>()
-        setTagDetailMemoTab(onEvent = eventList::add)
+        var finishedListClickCount = 0
+        setTagDetailMemoTab(onFinishedListClick = { finishedListClickCount += 1 })
 
         composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).performClick()
 
-        eventList.shouldContainExactly(TagDetailMemoContentEvent.ClickFinishedList)
+        finishedListClickCount shouldBe 1
     }
 
     @Test
@@ -242,7 +249,7 @@ class TagDetailMemoTabTest {
 
     private fun setTagDetailMemoTab(
         pagingData: PagingData<MemoListItem> = PagingData.empty(),
-        onEvent: (TagDetailMemoContentEvent) -> Unit = {},
+        onFinishedListClick: () -> Unit = {},
         onMemoListEvent: (MemoListEvent) -> Unit = {},
         sort: ListSort = ListSort.DEFAULT,
     ) {
@@ -250,11 +257,19 @@ class TagDetailMemoTabTest {
 
         composeRule.setContent {
             DiaryTheme {
-                TagDetailMemoTab(
-                    onEvent = onEvent,
+                EntityDetailMemoTab(
+                    emptyTitle = stringResource(Res.string.tag_detail_memo_empty_title),
+                    emptyDescription = stringResource(Res.string.tag_detail_memo_empty_description),
+                    onEvent = {},
                     onMemoListEvent = onMemoListEvent,
                     modifier = Modifier.fillMaxSize(),
                     memoPagingItems = pagingDataFlow.collectAsLazyPagingItems(),
+                    trailing = {
+                        ListEntryButton(
+                            onClick = onFinishedListClick,
+                            label = stringResource(Res.string.tag_detail_memo_finished_list_action_label),
+                        )
+                    },
                     sortProvider = { sort },
                 )
             }

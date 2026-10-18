@@ -1,7 +1,7 @@
 package io.github.taetae98coding.diary.work.sync.work
 
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebHeaderLocalEntity
 import io.github.taetae98coding.diary.core.network.api.web.entity.WebRemoteEntity
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
@@ -254,7 +254,7 @@ class SyncWorkWebTest :
 
         test("TC-DATA-SYNC-DATA-017 웹 항목은 기록된 순번으로 내려받기를 시작한다") {
             val context = context()
-            coEvery { context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.WEB) } returns 9L
+            coEvery { context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.WEB) } returns 9L
 
             context.subject.doWork()
 
@@ -265,8 +265,8 @@ class SyncWorkWebTest :
             val context = context()
             val webPullList = webPulls(usnList = listOf(7L))
             val tagPullList = tagPulls(usnList = listOf(11L))
-            coEvery { context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.WEB) } returns 3L
-            coEvery { context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.TAG) } returns 4L
+            coEvery { context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.WEB) } returns 3L
+            coEvery { context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.TAG) } returns 4L
             coEvery { context.webRemoteDataSource.pull(usn = 3L) } returns webPullList
             coEvery { context.webRemoteDataSource.pull(usn = 7L) } returns emptyList()
             coEvery { context.tagRemoteDataSource.pull(usn = 4L) } returns tagPullList
@@ -275,7 +275,7 @@ class SyncWorkWebTest :
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.accountWebSyncTransaction.save(
+                context.accountWebSyncTransaction.upsert(
                     accountId = context.accountId,
                     webList = webPullList.map { pull -> pull.web.toLocal() },
                     cursor = 7L,
@@ -295,7 +295,7 @@ class SyncWorkWebTest :
             coVerify(exactly = 1) { context.webRemoteDataSource.pull(usn = 0L) }
             coVerify(exactly = 1) { context.webRemoteDataSource.pull(usn = 2L) }
             coVerify(exactly = 1) {
-                context.accountWebSyncTransaction.save(
+                context.accountWebSyncTransaction.upsert(
                     accountId = context.accountId,
                     webList = firstPullList.map { pull -> pull.web.toLocal() },
                     cursor = 2L,

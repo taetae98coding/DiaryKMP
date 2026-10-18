@@ -20,7 +20,7 @@ internal class ContactFormState(
     val birthdayState: ContactBirthdayInputState,
     val hometownState: TextFieldState,
     val phoneNumberState: ContactPhoneNumberInputState,
-    val hostState: SnackbarHostState,
+    val snackbarHostState: SnackbarHostState,
 ) {
     val detail: ContactDetail
         get() =
@@ -30,6 +30,7 @@ internal class ContactFormState(
                 height = heightState.heightOrNull(),
                 footSize = footSizeState.footSizeOrNull(),
                 birthday = birthdayState.birthday,
+                birthYear = birthdayState.birthYear,
                 hometown = hometownState.text.toString(),
                 phoneNumberList = phoneNumberState.rowList.map { row -> ContactPhoneNumber(number = row.number) },
             )
@@ -49,8 +50,7 @@ private fun rememberContactFormState(initialDetail: ContactDetail): ContactFormS
         rememberTextFieldState(
             initialText =
                 initialDetail.height
-                    ?.inCentimeter
-                    ?.toString()
+                    ?.toHeightText()
                     .orEmpty(),
         )
     val footSizeState =
@@ -61,15 +61,19 @@ private fun rememberContactFormState(initialDetail: ContactDetail): ContactFormS
                     ?.toString()
                     .orEmpty(),
         )
-    val birthdayState = rememberContactBirthdayInputState(initialBirthday = initialDetail.birthday)
+    val birthdayState =
+        rememberContactBirthdayInputState(
+            initialBirthday = initialDetail.birthday,
+            initialBirthYear = initialDetail.birthYear,
+        )
     val hometownState = rememberTextFieldState(initialText = initialDetail.hometown)
     val phoneNumberState =
         rememberContactPhoneNumberInputState(
             initialRowList = initialDetail.phoneNumberList.map { phoneNumber -> ContactPhoneNumberRowState(initialNumber = phoneNumber.number) },
         )
-    val hostState = remember { SnackbarHostState() }
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    return remember(nameState, descriptionState, heightState, footSizeState, birthdayState, hometownState, phoneNumberState, hostState) {
+    return remember(nameState, descriptionState, heightState, footSizeState, birthdayState, hometownState, phoneNumberState, snackbarHostState) {
         ContactFormState(
             nameState = nameState,
             descriptionState = descriptionState,
@@ -78,7 +82,7 @@ private fun rememberContactFormState(initialDetail: ContactDetail): ContactFormS
             birthdayState = birthdayState,
             hometownState = hometownState,
             phoneNumberState = phoneNumberState,
-            hostState = hostState,
+            snackbarHostState = snackbarHostState,
         )
     }
 }

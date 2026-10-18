@@ -1,6 +1,6 @@
 package io.github.taetae98coding.diary.domain.holiday.repository
 
-import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountryOption
+import io.github.taetae98coding.diary.core.model.holiday.HolidayCountryOption
 import kotlinx.coroutines.flow.Flow
 
 public interface HolidaySettingRepository {

@@ -14,8 +14,15 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMapCoordinate
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
 import io.github.taetae98coding.diary.core.model.map.MapProvider
-import io.github.taetae98coding.diary.domain.place.toPlaceCoordinateText
+import io.github.taetae98coding.diary.core.model.place.toPlaceCoordinateText
 import io.github.taetae98coding.diary.domain.qr.content.QrFormat
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddFormState
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrContentFormState
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrTextField
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.ReflectQrCoordinateEffect
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.WriteQrFieldsEffect
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrAddFormState
+import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrContentFormState
 import io.kotest.assertions.withClue
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
@@ -107,6 +114,46 @@ class QrAddLocationTest {
                     state().mapState.coordinate shouldBe cameraBefore
                 }
             }
+        }
+    }
+
+    @Test
+    fun `TC-QR-ADD-FEATURE-062 위치 좌표를 담은 QR 값에서 위치 포맷을 고르면 반영을 기다린 뒤 지점과 지도가 그 좌표로 옮겨진다`() {
+        composeRule.mainClock.autoAdvance = false
+        val state = setContentState()
+        composeRule.write { state().fieldState(QrTextField.TEXT).setText("geo:37.5,127") }
+        composeRule.mainClock.advanceTimeBy(REFLECT_DELAY_MILLIS * 2)
+
+        composeRule.write { state().selectFormat(QrFormat.LOCATION) }
+        composeRule.mainClock.advanceTimeBy(REFLECT_DELAY_MILLIS / 2)
+        composeRule.runOnIdle { state().mapState.spot.shouldBeNull() }
+        composeRule.mainClock.advanceTimeBy(REFLECT_DELAY_MILLIS)
+
+        val expected = DiaryMapCoordinate(latitude = 37.5, longitude = 127.0)
+        composeRule.runOnIdle {
+            state().mapState.spot shouldBe expected
+            state().mapState.coordinate shouldBe expected
+        }
+    }
+
+    @Test
+    fun `TC-QR-DETAIL-FEATURE-030 저장된 위치 QR로 시작하면 반영을 기다린 뒤 지점과 지도가 그 좌표로 옮겨진다`() {
+        composeRule.mainClock.autoAdvance = false
+        var state: QrContentFormState? = null
+        composeRule.setContent {
+            val contentState = rememberQrContentFormState(initialValue = "geo:37.5665,126.978", defaultProvider = MapProvider.NAVER)
+            state = contentState
+            ReflectQrCoordinateEffect(state = contentState)
+            WriteQrFieldsEffect(state = contentState)
+        }
+
+        composeRule.mainClock.advanceTimeBy(REFLECT_DELAY_MILLIS * 2)
+
+        val expected = DiaryMapCoordinate(latitude = 37.5665, longitude = 126.978)
+        composeRule.runOnIdle {
+            checkNotNull(state).format shouldBe QrFormat.LOCATION
+            checkNotNull(state).mapState.spot shouldBe expected
+            checkNotNull(state).mapState.coordinate shouldBe expected
         }
     }
 
@@ -224,6 +271,12 @@ class QrAddLocationTest {
     }
 
     private fun setLocationState(defaultProvider: MapProvider = MapProvider.NAVER): () -> QrContentFormState {
+        val state = setContentState(defaultProvider = defaultProvider)
+        composeRule.write { state().selectFormat(QrFormat.LOCATION) }
+        return state
+    }
+
+    private fun setContentState(defaultProvider: MapProvider = MapProvider.NAVER): () -> QrContentFormState {
         var state: QrContentFormState? = null
         composeRule.setContent {
             val contentState = rememberQrContentFormState(defaultProvider = defaultProvider)
@@ -231,7 +284,6 @@ class QrAddLocationTest {
             ReflectQrCoordinateEffect(state = contentState)
             WriteQrFieldsEffect(state = contentState)
         }
-        composeRule.write { checkNotNull(state).selectFormat(QrFormat.LOCATION) }
         return { checkNotNull(state) }
     }
 

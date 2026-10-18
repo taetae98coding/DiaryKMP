@@ -13,6 +13,8 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
+import androidx.compose.ui.test.isPopup
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
@@ -40,8 +42,12 @@ import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.github.taetae98coding.diary.core.testing.memo.calendarMemo
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarTimetableNavKey
+import io.github.taetae98coding.diary.feature.calendar.ui.home.mapState
 import io.github.taetae98coding.diary.feature.calendar.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.kotest.matchers.collections.shouldBeStrictlyIncreasing
+import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -56,6 +62,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.math.abs
 import kotlin.uuid.Uuid
 
 private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
@@ -87,7 +94,8 @@ class CalendarTimetableScreenTest {
         setTimetableScreen(type = CalendarTimetableNavKey.Type.WEEK, date = september(day = 20))
 
         for (day in 20..26) composeRule.onNodeWithText(day.toString()).assertIsDisplayed()
-        listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat").forEach { title -> composeRule.onNodeWithText(title).assertIsDisplayed() }
+        WEEKDAY_TITLE_LIST.forEach { title -> composeRule.onNodeWithText(title).assertIsDisplayed() }
+        assertWeekColumnOrder(dayList = (20..26).toList())
         composeRule.onNodeWithText("19").assertDoesNotExist()
         composeRule.onNodeWithText("27").assertDoesNotExist()
     }
@@ -98,6 +106,7 @@ class CalendarTimetableScreenTest {
 
         composeRule.onNodeWithText(SEPTEMBER_2026_TITLE).assertIsDisplayed()
         listOf(27, 28, 29, 30, 1, 2, 3).forEach { day -> composeRule.onNodeWithText(day.toString()).assertIsDisplayed() }
+        assertWeekColumnOrder(dayList = listOf(27, 28, 29, 30, 1, 2, 3))
     }
 
     @Test
@@ -361,11 +370,11 @@ class CalendarTimetableScreenTest {
             date = september(day = 23),
             viewModel = viewModel,
         )
-        verify(exactly = 1) { viewModel.fetch(dateRange = september(day = 22)..september(day = 24)) }
+        verify(exactly = 1) { viewModel.select(dateRange = september(day = 22)..september(day = 24)) }
 
         swipePageLeft()
 
-        verify(exactly = 1) { viewModel.fetch(dateRange = september(day = 23)..september(day = 25)) }
+        verify(exactly = 1) { viewModel.select(dateRange = september(day = 23)..september(day = 25)) }
     }
 
     @Test
@@ -416,8 +425,9 @@ class CalendarTimetableScreenTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TIMETABLE-FEATURE-027 브라우저를 열지 못해도 시간표를 그대로 유지한다`() {
-        val uriHandler = mockk<UriHandler>().also { every { it.openUri(any()) } throws IllegalStateException(fixtureMonkey.giveMeOne<String>()) }
+    fun `TC-CALENDAR-TIMETABLE-FEATURE-031 브라우저를 열지 못하면 시간표를 유지하고 검색 결과를 열지 못했다고 알린다`() {
+        val errorMessage = fixtureMonkey.nonBlankString()
+        val uriHandler = mockk<UriHandler>().also { every { it.openUri(any()) } throws IllegalStateException(errorMessage) }
         setTimetableScreen(
             type = CalendarTimetableNavKey.Type.DAY,
             date = september(day = 25),
@@ -430,6 +440,10 @@ class CalendarTimetableScreenTest {
 
         composeRule.onNodeWithText("25").assertIsDisplayed()
         composeRule.onNodeWithText(CHUSEOK).assertIsDisplayed()
+        composeRule.onAllNodes(isDialog()).assertCountEquals(0)
+        composeRule.onAllNodes(isPopup()).assertCountEquals(0)
+        composeRule.onNodeWithText(errorMessage, substring = true).assertDoesNotExist()
+        composeRule.onNodeWithText("Couldn't open the search results.").assertIsDisplayed()
     }
 
     @Test
@@ -535,15 +549,37 @@ class CalendarTimetableScreenTest {
 
     private fun timetableViewModel(memoListFlow: MutableStateFlow<List<CalendarMemo>>): CalendarTimetableViewModel =
         mockk<CalendarTimetableViewModel>().also { viewModel ->
-            every { viewModel.fetch(any()) } returns Unit
-            every { viewModel.memoList } returns memoListFlow
+            every { viewModel.select(any()) } returns Unit
+            every { viewModel.uiState } returns memoListFlow.mapState { memoList -> CalendarTimetableMemoUiState(memoList = memoList) }
         }
 
     private fun holidayViewModel(holidayListFlow: MutableStateFlow<List<Holiday>>): CalendarTimetableHolidayViewModel =
         mockk<CalendarTimetableHolidayViewModel>().also { viewModel ->
             every { viewModel.fetch(any()) } returns Unit
-            every { viewModel.holidayList } returns holidayListFlow
+            every { viewModel.uiState } returns holidayListFlow.mapState { holidayList -> CalendarTimetableHolidayUiState(holidayList = holidayList) }
         }
+
+    private fun assertWeekColumnOrder(dayList: List<Int>) {
+        val weekdayCenterList =
+            WEEKDAY_TITLE_LIST.map { title ->
+                composeRule
+                    .onNodeWithText(title)
+                    .fetchSemanticsNode()
+                    .boundsInRoot.center
+            }
+        val dayCenterList =
+            dayList.map { day ->
+                composeRule
+                    .onNodeWithText(day.toString())
+                    .fetchSemanticsNode()
+                    .boundsInRoot.center
+            }
+
+        weekdayCenterList.map { center -> center.x }.shouldBeStrictlyIncreasing()
+        weekdayCenterList.zip(dayCenterList).forEach { (weekdayCenter, dayCenter) ->
+            abs(weekdayCenter.x - dayCenter.x) shouldBeLessThan COLUMN_ALIGNMENT_TOLERANCE_PX
+        }
+    }
 
     private fun swipePageLeft() {
         composeRule.onRoot().performTouchInput { swipeLeft() }
@@ -570,10 +606,13 @@ private const val TRIP_TITLE = "Trip"
 private const val NIGHT_TITLE = "Night"
 private const val FILTER_CONTENT_DESCRIPTION = "Filter"
 private const val CHUSEOK = "추석"
-private const val ANNIVERSARY = "Anniversary"
+private const val ANNIVERSARY = "기념일"
 private const val LONG_PRESS_MARGIN_MILLIS = 100L
 
 private fun september(day: Int): LocalDate = LocalDate(year = 2026, month = 9, day = day)
+
+private val WEEKDAY_TITLE_LIST = listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
+private const val COLUMN_ALIGNMENT_TOLERANCE_PX = 1F
 
 private fun timed(
     day: Int,

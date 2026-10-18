@@ -311,7 +311,7 @@ class AccountTagLinkLocalDataSourceImplTest :
             tagTransaction.updateDeleted(accountId = accountId, tagId = toTag.id, isDeleted = true, updatedAt = deletedAt)
             linkedTagList(accountId = accountId, fromTagId = fromTag.id).shouldBeEmpty()
 
-            AccountTagSyncTransactionImpl(database = database).save(
+            AccountTagSyncTransactionImpl(database = database).upsert(
                 accountId = accountId,
                 tagList = listOf(toTag.copy(isDeleted = false, updatedAt = deletedAt)),
                 cursor = fixtureMonkey.giveMeOne<Long>(),

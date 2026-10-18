@@ -5,3 +5,5 @@ import kotlin.uuid.Uuid
 public data class PlaceAddedResult(
     val id: Uuid,
 )
+
+public fun placeAddedResultKey(requestKey: Uuid): String = "${PlaceAddedResult::class}:$requestKey"

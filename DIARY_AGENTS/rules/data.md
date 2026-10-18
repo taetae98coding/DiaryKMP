@@ -3,6 +3,7 @@
 ## core와 data, work의 책임 경계
 
 - `core:*`는 저장소·네트워크·플랫폼 기능을 호출할 수 있는 상태로 만들어 주기까지만 한다. DAO, HttpClient, 위치 제공자, FCM 토큰 제공자가 여기 속한다.
+  - 예외로, 플랫폼이 메시징 서비스로 전달한 원격 알림을 표시하는 일은 `core:fcm:impl`이 함께 소유한다. 메시지를 받는 서비스(`FcmMessagingService`), 알림 채널(`DailyMemoNotificationChannel`), 표시(`RemoteNotificationPresenter`)가 여기 있다. 서비스가 플랫폼에서 메시지를 받는 즉시 알림을 그려야 하고 domain 계약이나 저장소를 거치지 않기 때문이다. 앱이 작업 진행을 알리는 알림처럼 기기에서 만드는 알림은 그 작업을 소유한 `work:*`에 둔다.
 - `data:*`는 그 DataSource들을 조합해 domain이 선언한 Repository·Manager 계약을 구현한다. 어떤 종류를 어떤 순서로 주고받는지, 몇 개씩 나눠 보내는지, 커서를 언제 전진시키는지는 data가 소유한다.
 - `work:*`는 백그라운드 작업 하나를 기능 단위로 소유한다. domain 계약 구현, 작업 내용, 그 작업을 플랫폼이 깨우는 수단을 한 모듈에 둔다.
 
@@ -34,16 +35,18 @@
 
 | 변환 | 소유 모듈 | 예 |
 | --- | --- | --- |
-| 로컬 엔티티 ↔ 모델 | 그 Repository를 구현하는 `data:*` | `data:tag`의 `TagLocalEntity.toDomain()` |
+| 로컬 엔티티 ↔ 모델 | 그 Repository를 구현하는 `data:*` | `data:memo`의 `MemoExistenceFilterLocalEntity.toDomain()` |
 | 로컬 엔티티 ↔ 원격 엔티티 | 그 교환을 수행하는 `work:sync` | `work:sync`의 `TagLocalEntity.toRemote()` |
 | 외부 API 응답 → 모델 | 그 API를 호출하는 `data:*` | `data:place`의 `NaverPlaceRemoteEntity.toDomain()` |
-| 여러 `data:*`가 함께 쓰는 변환 | `data:core` | `ListSort.toLocal()` |
+| 여러 `data:*`가 함께 쓰는 변환 | `data:core` | `ListSort.toLocal()`, `TagLocalEntity.toDomain()` |
 
 다른 `data:*`가 쓰는 매퍼만 `public`으로 두고, 그 모듈 안에서만 쓰는 매퍼는 `internal`로 둔다.
 
 ### DataSource 연산 이름
 
-`core:*`의 DataSource·Transaction은 저장소나 원격에 쓰는 연산을 `upsert`로 부른다. 행 하나를 넣거나 갱신하는 연산과 집합 전체를 교체하는 연산이 모두 여기 속한다.
+`core:*`의 DataSource·Transaction은 읽는 연산을 [domain.md](domain.md)의 `UseCase·Repository 네이밍`과 같은 기준으로 부른다. 관찰하면 `get`·`find`(`Flow`), 페이징이면 `page`, 한 번 읽고 끝나면 `read`(`suspend`)다. `find`를 `suspend`로 선언하지 않는다.
+
+저장소나 원격에 쓰는 연산은 `upsert`로 부른다. 행 하나를 넣거나 갱신하는 연산과 집합 전체를 교체하는 연산이 모두 여기 속한다.
 
 Repository가 집합 전체 교체를 `submitXxx`([domain.md](domain.md)의 `UseCase·Repository 네이밍`)로 선언하면, 구현하는 `data:*`는 DataSource의 `upsertXxx`로 옮긴다. DataSource나 Transaction에 `submit`을 쓰지 않는다.
 

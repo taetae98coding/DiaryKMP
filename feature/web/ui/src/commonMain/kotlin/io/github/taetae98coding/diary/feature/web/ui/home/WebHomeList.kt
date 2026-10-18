@@ -11,6 +11,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -25,17 +26,16 @@ import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
-import io.github.taetae98coding.diary.compose.web.SwipeToDeleteWebCard
+import io.github.taetae98coding.diary.compose.web.SwipeWebCard
+import io.github.taetae98coding.diary.compose.web.WebListEvent
+import io.github.taetae98coding.diary.compose.web.previewWeb
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.feature.web.ui.Res
-import io.github.taetae98coding.diary.feature.web.ui.previewWeb
 import io.github.taetae98coding.diary.feature.web.ui.web_home_empty_description
 import io.github.taetae98coding.diary.feature.web.ui.web_home_empty_title
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.stringResource
-
-internal const val WEB_HOME_LIST_TEST_TAG: String = "WebHomeList"
 
 @Composable
 internal fun WebHomeList(
@@ -44,12 +44,14 @@ internal fun WebHomeList(
     gridState: LazyGridState = rememberLazyGridState(),
     webPagingItems: LazyPagingItems<Web> = remember { flowOf(PagingData.empty<Web>()) }.collectAsLazyPagingItems(),
     isRefreshingProvider: () -> Boolean = { false },
+    isAddButtonVisibleProvider: () -> Boolean = { false },
     sortProvider: () -> ListSort = { ListSort.TITLE },
 ) {
     ListQueryScrollEffect(
         gridState = gridState,
         sortProvider = sortProvider,
         itemListProvider = { webPagingItems.itemSnapshotList.items },
+        isRefreshingProvider = { webPagingItems.loadState.refresh is LoadState.Loading },
     )
 
     DiaryCrossfade(
@@ -79,7 +81,7 @@ internal fun WebHomeList(
                 modifier = Modifier.fillMaxSize(),
                 state = gridState,
                 isRefreshingProvider = isRefreshingProvider,
-                listTestTag = WEB_HOME_LIST_TEST_TAG,
+                bottomPadding = if (isAddButtonVisibleProvider()) DiaryTheme.dimens.floatingActionButtonClearance else DiaryTheme.dimens.screenVerticalPadding,
             ) {
                 items(
                     count = webPagingItems.itemCount,
@@ -87,9 +89,13 @@ internal fun WebHomeList(
                 ) { index ->
                     val web = webPagingItems[index]
 
-                    SwipeToDeleteWebCard(
-                        onClick = { web?.let { value -> onEvent(WebHomeScaffoldEvent.ClickWeb(id = value.id)) } },
-                        onDelete = { web?.let { value -> onEvent(WebHomeScaffoldEvent.DeleteWeb(id = value.id)) } },
+                    SwipeWebCard(
+                        onEvent = { event ->
+                            when (event) {
+                                is WebListEvent.ClickWeb -> onEvent(WebHomeScaffoldEvent.ClickWeb(id = event.id))
+                                is WebListEvent.SwipeDelete -> onEvent(WebHomeScaffoldEvent.DeleteWeb(id = event.id))
+                            }
+                        },
                         modifier =
                             Modifier
                                 .animateItem()

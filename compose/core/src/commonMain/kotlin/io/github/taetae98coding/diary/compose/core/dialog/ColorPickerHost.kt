@@ -7,7 +7,7 @@ import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 
 @Composable
-public fun ColorPickerHost(
+internal fun ColorPickerHost(
     initialColorProvider: () -> Color,
     onConfirm: (Color) -> Unit,
     modifier: Modifier = Modifier,

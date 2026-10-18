@@ -23,7 +23,7 @@ import androidx.navigation3.scene.SceneStrategyScope
 // Navigation 3 official Bottom Sheet recipe:
 // https://developer.android.com/guide/navigation/navigation-3/recipes/bottomsheet
 internal data class BottomSheetScene<T : Any>(
-    override val key: T,
+    override val key: Any,
     override val previousEntries: List<NavEntry<T>>,
     override val overlaidEntries: List<NavEntry<T>>,
     private val entry: NavEntry<T>,
@@ -54,9 +54,8 @@ public class BottomSheetSceneStrategy<T : Any> : SceneStrategy<T> {
         val bottomSheetProperties = lastEntry.metadata[BottomSheetKey] ?: return null
 
         return bottomSheetProperties.let { properties ->
-            @Suppress("UNCHECKED_CAST")
             BottomSheetScene(
-                key = lastEntry.contentKey as T,
+                key = lastEntry.contentKey,
                 previousEntries = entries.dropLast(1),
                 overlaidEntries = entries.dropLast(1),
                 entry = lastEntry,

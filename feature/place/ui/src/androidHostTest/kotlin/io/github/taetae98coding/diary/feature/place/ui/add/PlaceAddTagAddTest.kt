@@ -84,6 +84,21 @@ class PlaceAddTagAddTest {
     }
 
     @Test
+    fun `TC-ENTITY-TAG-INPUT-FEATURE-034 목록의 대상을 처음 불러오지 못하면 태그 추가 항목이 목록을 연다`() {
+        var tagAddCount = 0
+        setPlaceAddScreen(
+            tagPagingData = MutableStateFlow(refreshFailedTagPagingData()),
+            navigateToTagAdd = { tagAddCount += 1 },
+        )
+
+        composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).performClick()
+        composeRule.waitForIdle()
+
+        tagAddCount shouldBe 0
+        composeRule.onNodeWithText(DEFAULT_PICKER_TITLE).assertExists()
+    }
+
+    @Test
     fun `TC-ENTITY-TAG-INPUT-FEATURE-027 목록의 태그 추가 항목을 누르면 목록이 닫히고 TagAdd 이동을 요청한다`() {
         var tagAddCount = 0
         setPlaceAddScreen(tagList = listOf(placeTestTag(title = WORK_TAG_TITLE)), navigateToTagAdd = { tagAddCount += 1 })
@@ -231,6 +246,7 @@ class PlaceAddTagAddTest {
         composeRule.setContent {
             PlaceAddScreenTestTheme(resultEventBus = resultEventBus) {
                 PlaceAddScreen(
+                    addedResultRequestKey = null,
                     navigateUp = {},
                     navigateToTagAdd = navigateToTagAdd,
                     navigateToTagDetail = {},
@@ -275,6 +291,17 @@ class PlaceAddTagAddTest {
                     ),
             )
 
+        fun refreshFailedTagPagingData(): PagingData<Tag> =
+            PagingData.from(
+                data = emptyList(),
+                sourceLoadStates =
+                    LoadStates(
+                        refresh = LoadState.Error(IllegalStateException("refresh failed")),
+                        prepend = LoadState.NotLoading(endOfPaginationReached = false),
+                        append = LoadState.NotLoading(endOfPaginationReached = false),
+                    ),
+            )
+
         /**
          * 고른 태그를 보관하고 표시하는 동작만 남긴 태그 ViewModel을 만든다.
          */
@@ -282,24 +309,24 @@ class PlaceAddTagAddTest {
             tagList: List<Tag>,
             tagPagingData: MutableStateFlow<PagingData<Tag>>,
         ): PlaceAddTagViewModel {
-            val tagIdSet = MutableStateFlow(emptySet<Uuid>())
+            val tagIdSet = MutableStateFlow(PlaceAddTagSelectionUiState())
             val uiState = MutableStateFlow(EntityTagInputUiState())
 
             fun reflect() {
-                uiState.value = EntityTagInputUiState(tagList = tagList.filter { tag -> tag.id in tagIdSet.value })
+                uiState.value = EntityTagInputUiState(tagList = tagList.filter { tag -> tag.id in tagIdSet.value.tagIdSet })
             }
 
             return mockk<PlaceAddTagViewModel>(relaxed = true).apply {
                 every { this@apply.uiState } returns uiState
                 every { this@apply.tagPagingData } returns tagPagingData
                 every { this@apply.selectableTagPagingData } returns tagPagingData
-                every { this@apply.tagIdSet } returns tagIdSet
+                every { this@apply.selectionUiState } returns tagIdSet
                 every { add(id = any()) } answers {
-                    tagIdSet.value += firstArg<Uuid>()
+                    tagIdSet.value = tagIdSet.value.copy(tagIdSet = tagIdSet.value.tagIdSet + firstArg<Uuid>())
                     reflect()
                 }
                 every { remove(id = any()) } answers {
-                    tagIdSet.value -= firstArg<Uuid>()
+                    tagIdSet.value = tagIdSet.value.copy(tagIdSet = tagIdSet.value.tagIdSet - firstArg<Uuid>())
                     reflect()
                 }
             }

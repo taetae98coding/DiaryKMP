@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.data.holiday.repository
 
 import io.github.taetae98coding.diary.core.datastore.api.setting.datasource.HolidaySettingLocalDataSource
+import io.github.taetae98coding.diary.core.model.holiday.HolidayCountryOption
 import io.github.taetae98coding.diary.data.holiday.mapper.toDomain
 import io.github.taetae98coding.diary.data.holiday.mapper.toLocal
-import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountryOption
 import io.github.taetae98coding.diary.domain.holiday.repository.HolidaySettingRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

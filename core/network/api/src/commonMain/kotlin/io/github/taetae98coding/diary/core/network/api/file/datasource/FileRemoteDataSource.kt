@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.core.network.api.file.entity.FileCursorRem
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileRemoteEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.io.RawSource
+import kotlin.uuid.Uuid
 
 public interface FileRemoteDataSource {
     public suspend fun upload(
@@ -14,11 +15,12 @@ public interface FileRemoteDataSource {
         description: String,
         mimeType: String,
         contentLength: Long,
+        accountId: Uuid,
         openContent: suspend () -> RawSource,
         onSent: (sentBytes: Long) -> Unit,
     ): FileRemoteEntity
 
-    public suspend fun fetch(
+    public suspend fun readList(
         cursor: FileCursorRemoteEntity?,
         size: Int,
     ): List<FileRemoteEntity>
@@ -27,5 +29,5 @@ public interface FileRemoteDataSource {
 
     public fun getContinuedUploadResult(): Flow<ContinuedFileUploadResultRemoteEntity>
 
-    public suspend fun cancelContinuedUpload()
+    public suspend fun cancelContinuedUpload(exceptAccountId: Uuid?)
 }

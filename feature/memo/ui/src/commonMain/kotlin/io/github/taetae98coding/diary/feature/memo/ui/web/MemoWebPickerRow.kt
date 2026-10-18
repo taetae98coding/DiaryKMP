@@ -7,8 +7,8 @@ import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerRow
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.web.previewWeb
 import io.github.taetae98coding.diary.core.model.web.Web
-import io.github.taetae98coding.diary.feature.memo.ui.previewWeb
 
 @Composable
 internal fun MemoWebPickerRow(

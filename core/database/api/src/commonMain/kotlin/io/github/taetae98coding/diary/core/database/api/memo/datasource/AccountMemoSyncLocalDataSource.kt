@@ -4,5 +4,5 @@ import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEnt
 import kotlin.uuid.Uuid
 
 public interface AccountMemoSyncLocalDataSource {
-    public suspend fun findPending(accountId: Uuid): List<MemoLocalEntity>
+    public suspend fun readPendingList(accountId: Uuid): List<MemoLocalEntity>
 }

@@ -19,15 +19,15 @@ internal class MemoExistenceFilterRepositoryImpl(
             .find()
             .map { entity -> entity?.toDomain() ?: MemoExistenceFilter() }
 
-    override suspend fun updateDate(existence: MemoFilterExistence) {
+    override suspend fun upsertDate(existence: MemoFilterExistence) {
         memoExistenceFilterLocalDataSource.upsertHasDate(hasDate = existence.toLocal())
     }
 
-    override suspend fun updateTag(existence: MemoFilterExistence) {
+    override suspend fun upsertTag(existence: MemoFilterExistence) {
         memoExistenceFilterLocalDataSource.upsertHasTag(hasTag = existence.toLocal())
     }
 
-    override suspend fun updatePlace(existence: MemoFilterExistence) {
+    override suspend fun upsertPlace(existence: MemoFilterExistence) {
         memoExistenceFilterLocalDataSource.upsertHasPlace(hasPlace = existence.toLocal())
     }
 }

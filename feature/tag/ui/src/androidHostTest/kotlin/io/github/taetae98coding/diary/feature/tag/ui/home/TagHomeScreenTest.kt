@@ -17,6 +17,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
+import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
 import io.github.taetae98coding.diary.feature.tag.ui.list.tagPagingDataOf
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
@@ -99,7 +100,7 @@ class TagHomeScreenTest {
     }
 
     @Test
-    fun `Cmd A 단축키를 입력하면 태그 추가 화면 전환 행동을 한 번 전달한다`() {
+    fun `TC-TAG-HOME-FEATURE-054 Cmd A 단축키를 입력하면 태그 추가 화면 전환 행동을 한 번 전달한다`() {
         var navigateToAddCount = 0
         setTagHomeScreen(
             viewModel = screenTestViewModel(),
@@ -117,7 +118,7 @@ class TagHomeScreenTest {
     }
 
     @Test
-    fun `상세 영역에 태그 추가 화면이 표시되어 추가 버튼을 숨기면 Cmd A 단축키로도 태그 추가 화면을 다시 열지 않는다`() {
+    fun `TC-TAG-LIST-DETAIL-FEATURE-022 상세 영역에 태그 추가 화면이 표시되어 추가 버튼을 숨기면 Cmd A 단축키로도 태그 추가 화면을 다시 열지 않는다`() {
         var navigateToAddCount = 0
         setTagHomeScreen(
             viewModel = screenTestViewModel(),
@@ -179,12 +180,12 @@ class TagHomeScreenTest {
                     .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
                     .sample()
             val viewModel = mockk<TagHomeViewModel>()
-            every { viewModel.sort } returns MutableStateFlow(ListSort.TITLE)
+            every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
 
             every { viewModel.tagPagingData } returns MutableStateFlow(tagPagingDataOf(listOf(tag)))
 
             every { viewModel.effect } returns emptyFlow()
-            every { viewModel.filterUiState } returns MutableStateFlow(TagHomeScaffoldFilterUiState())
+            every { viewModel.filterUiState } returns MutableStateFlow(TagHomeScaffoldFilterUiState(isLoaded = true))
 
             return viewModel
         }

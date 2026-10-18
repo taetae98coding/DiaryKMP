@@ -20,21 +20,25 @@ import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.pulltorefresh.DiaryPullToRefreshBox
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.ListQueryScrollEffect
-import io.github.taetae98coding.diary.compose.place.SwipeToDeletePlaceCard
+import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.map.rememberDiaryMapState
+import io.github.taetae98coding.diary.compose.place.PlaceListEvent
+import io.github.taetae98coding.diary.compose.place.SwipePlaceCard
+import io.github.taetae98coding.diary.compose.place.moveToOrSelect
+import io.github.taetae98coding.diary.compose.place.previewPlace
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.TagScope
 import io.github.taetae98coding.diary.feature.tag.ui.Res
-import io.github.taetae98coding.diary.feature.tag.ui.previewPlace
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_place_map_empty_description
 import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_place_map_empty_title
+import io.github.taetae98coding.diary.feature.tag.ui.tag_detail_place_show_on_map_action
 import org.jetbrains.compose.resources.stringResource
-
-internal const val TAG_DETAIL_PLACE_BOUNDS_LIST_TEST_TAG: String = "TagDetailPlaceBoundsList"
 
 @Composable
 internal fun TagDetailPlaceBoundsList(
     onEvent: (TagDetailPlaceContentEvent) -> Unit,
     modifier: Modifier = Modifier,
+    mapState: DiaryMapState = rememberDiaryMapState(),
     gridState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     placeListUiStateProvider: () -> TagDetailPlaceListUiState = { TagDetailPlaceListUiState() },
     isRefreshingProvider: () -> Boolean = { false },
@@ -47,6 +51,8 @@ internal fun TagDetailPlaceBoundsList(
         filterProvider = scopeProvider,
         itemListProvider = { placeListUiStateProvider().placeList },
     )
+
+    val showOnMapActionLabel = stringResource(Res.string.tag_detail_place_show_on_map_action)
 
     DiaryCrossfade(
         targetState = placeListUiStateProvider(),
@@ -76,16 +82,24 @@ internal fun TagDetailPlaceBoundsList(
                 modifier = Modifier.fillMaxSize(),
                 state = gridState,
                 isRefreshingProvider = isRefreshingProvider,
-                listTestTag = TAG_DETAIL_PLACE_BOUNDS_LIST_TEST_TAG,
             ) {
                 items(
                     items = state.placeList,
                     key = { place -> place.id },
                 ) { place ->
-                    SwipeToDeletePlaceCard(
-                        onClick = { onEvent(TagDetailPlaceContentEvent.ClickPlace(id = place.id)) },
-                        onDelete = { onEvent(TagDetailPlaceContentEvent.DeletePlace(id = place.id)) },
+                    SwipePlaceCard(
+                        onEvent = { event ->
+                            when (event) {
+                                is PlaceListEvent.ClickPlace ->
+                                    mapState.moveToOrSelect(coordinate = place.detail.coordinate) {
+                                        onEvent(TagDetailPlaceContentEvent.ClickPlace(id = event.id))
+                                    }
+
+                                is PlaceListEvent.SwipeDelete -> onEvent(TagDetailPlaceContentEvent.DeletePlace(id = event.id))
+                            }
+                        },
                         place = place,
+                        onClickLabel = showOnMapActionLabel,
                     )
                 }
             }

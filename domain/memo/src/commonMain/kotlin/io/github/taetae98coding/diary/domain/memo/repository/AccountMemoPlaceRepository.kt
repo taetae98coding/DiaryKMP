@@ -12,7 +12,7 @@ public interface AccountMemoPlaceRepository {
         memoId: Uuid,
     ): Flow<List<Place>>
 
-    public suspend fun findPlaceIdSet(
+    public suspend fun readPlaceIdSet(
         account: Account,
         memoId: Uuid,
     ): Set<Uuid>

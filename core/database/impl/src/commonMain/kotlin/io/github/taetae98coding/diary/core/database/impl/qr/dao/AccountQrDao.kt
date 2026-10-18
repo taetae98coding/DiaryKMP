@@ -8,6 +8,7 @@ import androidx.room3.paging.PagingSourceDaoReturnTypeConverter
 import io.github.taetae98coding.diary.core.database.api.qr.entity.QrLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.qr.entity.AccountQrLocalEntity
 import io.github.taetae98coding.diary.library.room3.dao.RoomDao
+import kotlinx.coroutines.flow.Flow
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -25,6 +26,41 @@ internal interface AccountQrDao : RoomDao<AccountQrLocalEntity> {
         """,
     )
     fun page(accountId: Uuid): PagingSource<Int, QrLocalEntity>
+
+    @Query(
+        """
+        SELECT qr.*
+        FROM qr
+        INNER JOIN account_qr
+            ON account_qr.qr_id = qr.id AND account_qr.account_id = :accountId
+        WHERE qr.id = :qrId
+        """,
+    )
+    fun find(
+        accountId: Uuid,
+        qrId: Uuid,
+    ): Flow<QrLocalEntity?>
+
+    @Query(
+        """
+        UPDATE qr
+        SET title = :title, description = :description, value = :value, updated_at = :updatedAt
+        WHERE id = :qrId
+            AND EXISTS(
+                SELECT 1
+                FROM account_qr
+                WHERE account_qr.qr_id = qr.id AND account_qr.account_id = :accountId
+            )
+        """,
+    )
+    suspend fun updateDetail(
+        accountId: Uuid,
+        qrId: Uuid,
+        title: String,
+        description: String,
+        value: String,
+        updatedAt: Instant,
+    ): Int
 
     @Query(
         """

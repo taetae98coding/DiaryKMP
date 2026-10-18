@@ -32,4 +32,15 @@ class ApplicationSupportDirectoryTest :
             applicationSupportDirectory(directoryName = "$directoryName-dev", userHome = userHome) shouldNotBe
                 applicationSupportDirectory(directoryName = directoryName, userHome = userHome)
         }
+
+        test("사용자 홈은 실행 중인 사용자의 홈 디렉터리를 가리킨다") {
+            userHomeDirectory() shouldBe Paths.get(System.getProperty("user.home"))
+        }
+
+        test("영역 이름만 넘기면 실행 중인 사용자 홈 아래 영역을 가리킨다") {
+            val directoryName = pathSegment(prefix = "Diary-")
+
+            applicationSupportDirectory(directoryName = directoryName) shouldBe
+                applicationSupportDirectory(directoryName = directoryName, userHome = userHomeDirectory())
+        }
     })

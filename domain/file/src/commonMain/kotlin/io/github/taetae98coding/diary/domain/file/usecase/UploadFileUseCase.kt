@@ -32,7 +32,7 @@ public class UploadFileUseCase internal constructor(
                     throw FileUploadAccountChangedException(message = "Account changed while uploading. accountId=${parameter.accountId}")
                 }
 
-            val source = fileRepository.findSource(uri = parameter.content.uri)
+            val source = fileRepository.readSource(uri = parameter.content.uri)
 
             if (source.size > MAX_FILE_SIZE_BYTES) {
                 throw FileTooLargeException(message = "File is too large. size=${source.size}, maxSize=$MAX_FILE_SIZE_BYTES")
@@ -46,6 +46,7 @@ public class UploadFileUseCase internal constructor(
                     source = source,
                     title = parameter.content.title,
                     description = parameter.content.description,
+                    accountId = parameter.accountId,
                 ) { sentBytes ->
                     trySend(Result.success(FileUploadStep.Sent(source = source, sentBytes = sentBytes)))
                 }

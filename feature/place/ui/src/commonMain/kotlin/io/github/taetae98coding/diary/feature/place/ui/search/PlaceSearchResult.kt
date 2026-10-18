@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.provider.DiaryMapProvider
+import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import io.github.taetae98coding.diary.core.model.place.SearchedPlace
 import io.github.taetae98coding.diary.feature.place.ui.Res
 import io.github.taetae98coding.diary.feature.place.ui.place_search_empty_message
@@ -41,7 +42,7 @@ internal fun PlaceSearchResult(
                 modifier = modifier,
             )
 
-        is PlaceSearchUiState.Loaded ->
+        is PlaceSearchUiState.Content ->
             if (uiState.placeList.isEmpty()) {
                 PlaceSearchMessage(
                     message = stringResource(Res.string.place_search_empty_message),
@@ -49,8 +50,8 @@ internal fun PlaceSearchResult(
                 )
             } else {
                 PlaceSearchList(
+                    onPlaceClick = { place -> state.showOnMapOrSelect(coordinate = place.coordinate.toDiaryMapCoordinate()) { onSelect(place) } },
                     placeList = uiState.placeList,
-                    onSelect = onSelect,
                     modifier = modifier,
                 )
             }
@@ -83,7 +84,7 @@ private fun PlaceSearchResultPreview() {
             PlaceSearchResult(
                 state = rememberPlaceSearchDialogState(initialProvider = DiaryMapProvider.NAVER),
                 onSelect = {},
-                uiStateProvider = { PlaceSearchUiState.Loaded(placeList = placeList) },
+                uiStateProvider = { PlaceSearchUiState.Content(placeList = placeList) },
             )
         }
     }

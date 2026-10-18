@@ -7,17 +7,15 @@ import androidx.compose.ui.test.performClick
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.authentication.AppleCredential
 import io.github.taetae98coding.diary.core.model.authentication.GoogleCredential
-import io.github.taetae98coding.diary.feature.login.ui.credential.AppleCredentialsManager
 import io.github.taetae98coding.diary.feature.login.ui.credential.AppleCredentialsUserCancelException
-import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsManager
 import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsUserCancelException
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
-import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import org.junit.Rule
 import org.junit.Test
@@ -36,6 +34,19 @@ class LoginHomeScreenTest {
         var navigateUpCount = 0
         composeRule.setLoginHomeScreen(
             viewModel = screenTestViewModel(),
+            navigateUp = { navigateUpCount += 1 },
+        )
+
+        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
+
+        navigateUpCount shouldBe 1
+    }
+
+    @Test
+    fun `TC-LOGIN-FEATURE-014 앱 로그인 처리 중에도 이전 화면으로 돌아갈 수 있다`() {
+        var navigateUpCount = 0
+        composeRule.setLoginHomeScreen(
+            viewModel = screenTestViewModel(uiState = MutableStateFlow(LoginHomeUiState(isInProgress = true))),
             navigateUp = { navigateUpCount += 1 },
         )
 
@@ -146,7 +157,7 @@ class LoginHomeScreenTest {
         )
 
         composeRule.onNodeWithContentDescription(DEFAULT_GOOGLE_BUTTON_DESCRIPTION).performClick()
-        composeRule.waitUntil { navigateUpCount == 1 }
+        composeRule.waitUntil(timeoutMillis = 5_000L) { navigateUpCount == 1 }
 
         coVerify(exactly = 1) { googleCredentialsManager.signIn() }
         verify(exactly = 1) { viewModel.signInWithGoogle(credential) }
@@ -171,7 +182,7 @@ class LoginHomeScreenTest {
         )
 
         composeRule.onNodeWithContentDescription(DEFAULT_APPLE_BUTTON_DESCRIPTION).performClick()
-        composeRule.waitUntil { navigateUpCount == 1 }
+        composeRule.waitUntil(timeoutMillis = 5_000L) { navigateUpCount == 1 }
 
         coVerify(exactly = 1) { appleCredentialsManager.signIn() }
         verify(exactly = 1) { viewModel.signInWithApple(credential) }

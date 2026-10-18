@@ -18,20 +18,20 @@ import kotlin.uuid.Uuid
 class ContactEntryTest :
     FunSpec({
         test("TC-CONTACT-LIST-DETAIL-DOMAIN-002 연락처 목록에서 이어 진입한 연락처 추가는 목록·상세 배치의 상세 pane이다") {
-            val backStack = listOf(OtherNavKey, ContactHomeNavKey, ContactAddNavKey)
+            val backStack = listOf(OtherNavKey, ContactHomeNavKey, ContactAddNavKey())
 
-            metadataOf(backStack = backStack, key = ContactAddNavKey).keys shouldBe detailPaneMetadataKeys
+            metadataOf(backStack = backStack, key = ContactAddNavKey()).keys shouldBe detailPaneMetadataKeys
         }
 
         test("TC-CONTACT-LIST-DETAIL-DOMAIN-001 연락처 목록에서 진입하지 않은 연락처 추가는 목록·상세 배치에 참여하지 않는다") {
             val backStackCases =
                 listOf(
-                    listOf(OtherNavKey, ContactAddNavKey),
-                    listOf(ContactHomeNavKey, OtherNavKey, ContactAddNavKey),
+                    listOf(OtherNavKey, ContactAddNavKey()),
+                    listOf(ContactHomeNavKey, OtherNavKey, ContactAddNavKey()),
                 )
 
             backStackCases.forEach { backStack ->
-                metadataOf(backStack = backStack, key = ContactAddNavKey).shouldBeEmpty()
+                metadataOf(backStack = backStack, key = ContactAddNavKey()).shouldBeEmpty()
             }
         }
 
@@ -57,7 +57,7 @@ class ContactEntryTest :
 
         test("연락처 추가 위에 놓인 연락처 상세도 목록·상세 배치의 상세 pane이다") {
             val detailKey = ContactDetailNavKey(id = Uuid.random())
-            val backStack = listOf(ContactHomeNavKey, ContactAddNavKey, detailKey)
+            val backStack = listOf(ContactHomeNavKey, ContactAddNavKey(), detailKey)
 
             metadataOf(backStack = backStack, key = detailKey).keys shouldBe detailPaneMetadataKeys
         }

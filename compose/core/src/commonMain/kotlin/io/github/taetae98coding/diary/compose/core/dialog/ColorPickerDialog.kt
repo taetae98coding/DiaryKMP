@@ -24,7 +24,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-public fun ColorPickerDialog(
+internal fun ColorPickerDialog(
     state: ColorPickerState,
     onDismissRequest: () -> Unit,
     onConfirm: (Color) -> Unit,

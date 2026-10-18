@@ -1,17 +1,12 @@
 plugins {
-    alias(libs.plugins.primitive.kmp)
-    alias(libs.plugins.primitive.koin)
-    alias(libs.plugins.primitive.kotest)
+    alias(libs.plugins.convention.core.impl)
 }
 
 kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(projects.core.webNetwork.api)
                 implementation(projects.library.ktor)
-
-                implementation(ktorLibs.client.core)
             }
         }
 

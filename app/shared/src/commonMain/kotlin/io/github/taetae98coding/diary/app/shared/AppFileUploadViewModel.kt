@@ -6,11 +6,11 @@ import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.ReconcileFileUploadUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 
@@ -19,23 +19,31 @@ internal class AppFileUploadViewModel(
     getAccountUseCase: GetAccountUseCase,
     private val reconcileFileUploadUseCase: ReconcileFileUploadUseCase,
 ) : ViewModel() {
-    val account: Flow<Account> =
+    val uiState: StateFlow<AppFileUploadUiState> =
         getAccountUseCase(parameter = Unit)
             .mapNotNull { result -> result.getOrNull() }
-            .distinctUntilChanged()
-            .shareIn(
+            .map { account -> AppFileUploadUiState.Confirmed(account = account) }
+            .stateIn(
                 scope = viewModelScope,
                 started =
                     SharingStarted.WhileSubscribed(
                         stopTimeoutMillis = UI_STOP_TIMEOUT_MILLIS,
                         replayExpirationMillis = 0,
                     ),
-                replay = 1,
+                initialValue = AppFileUploadUiState.Loading,
             )
 
+    private val reconcilingAccountSet = mutableSetOf<Account>()
+
     fun reconcile(account: Account) {
+        if (!reconcilingAccountSet.add(account)) return
+
         viewModelScope.launch {
-            reconcileFileUploadUseCase(parameter = account)
+            try {
+                reconcileFileUploadUseCase(parameter = account)
+            } finally {
+                reconcilingAccountSet.remove(account)
+            }
         }
     }
 }

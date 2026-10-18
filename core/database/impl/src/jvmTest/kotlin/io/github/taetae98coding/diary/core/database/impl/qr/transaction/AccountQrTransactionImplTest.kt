@@ -136,6 +136,52 @@ class AccountQrTransactionImplTest :
             database.findAccountQrList() shouldBe listOf(AccountQrLocalEntity(accountId = accountId, qrId = qr.id, isDirty = false))
         }
 
+        test("TC-QR-DETAIL-DOMAIN-003 TC-QR-DETAIL-DATA-003 TC-DATA-SYNC-DOMAIN-001 수정은 그 QR의 제목, 설명, QR 값과 수정 시각만 바꾸고 업로드 대기로 기록한다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val qr = fixtureMonkey.localQr(isDeleted = false)
+            val otherQr = fixtureMonkey.localQr(isDeleted = false)
+            transaction.upsert(accountId = accountId, qrList = listOf(qr, otherQr))
+            database.markQrUploaded(accountId = accountId, qrId = qr.id)
+            database.markQrUploaded(accountId = accountId, qrId = otherQr.id)
+            val detail = fixtureMonkey.giveMeOne<QrDetailLocalEntity>()
+            val updatedAt = instant()
+
+            transaction.updateDetail(accountId = accountId, qrId = qr.id, detail = detail, updatedAt = updatedAt) shouldBe 1
+
+            database.findQrList() shouldBe listOf(qr.copy(detail = detail, updatedAt = updatedAt), otherQr).sortedBy { qr -> qr.id.toString() }
+            database.findAccountQrList() shouldBe
+                listOf(
+                    AccountQrLocalEntity(accountId = accountId, qrId = qr.id, isDirty = true),
+                    AccountQrLocalEntity(accountId = accountId, qrId = otherQr.id, isDirty = false),
+                ).sortedBy { accountQr -> accountQr.qrId.toString() }
+        }
+
+        test("TC-QR-DETAIL-DOMAIN-004 삭제 상태인 QR을 수정해도 삭제 상태로 남는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val qr = fixtureMonkey.localQr(isDeleted = true)
+            transaction.upsert(accountId = accountId, qrList = listOf(qr))
+            val detail = fixtureMonkey.giveMeOne<QrDetailLocalEntity>()
+            val updatedAt = instant()
+
+            transaction.updateDetail(accountId = accountId, qrId = qr.id, detail = detail, updatedAt = updatedAt) shouldBe 1
+
+            database.findQrList() shouldBe listOf(qr.copy(detail = detail, isDeleted = true, updatedAt = updatedAt))
+        }
+
+        test("TC-QR-DETAIL-DATA-001 현재 계정과 연결된 QR이 아니면 수정과 삭제가 아무것도 바꾸지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
+            val qr = fixtureMonkey.localQr(isDeleted = false)
+            transaction.upsert(accountId = accountId, qrList = listOf(qr))
+            database.markQrUploaded(accountId = accountId, qrId = qr.id)
+
+            transaction.updateDetail(accountId = otherAccountId, qrId = qr.id, detail = fixtureMonkey.giveMeOne<QrDetailLocalEntity>(), updatedAt = instant()) shouldBe 0
+            transaction.updateDeleted(accountId = otherAccountId, qrId = qr.id, isDeleted = true, updatedAt = instant()) shouldBe 0
+
+            database.findQrList() shouldBe listOf(qr)
+            database.findAccountQrList() shouldBe listOf(AccountQrLocalEntity(accountId = accountId, qrId = qr.id, isDirty = false))
+        }
+
         test("TC-QR-ADD-DATA-002 저장에 실패하면 QR과 계정 연결 중 어느 것도 남지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())

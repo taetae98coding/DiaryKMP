@@ -55,6 +55,22 @@ class UseCaseTest :
             }
         }
 
+        Given("콘솔 기록 수단이 등록되어 있고 한 번 실행하는 작업이 다른 작업의 실패를 이어받아 실패하도록 준비되어 있다") {
+            val recording = recordingDelegate()
+            DiaryLogger.add(delegate = recording.delegate)
+
+            When("바깥 작업을 실행한다") {
+                Then("TC-USECASE-FAILURE-LOGGING-DOMAIN-015 안쪽 작업과 바깥 작업의 이름으로 실패 로그가 하나씩 남는다") {
+                    val failure = IllegalStateException("failure-" + fixtureMonkey.giveMeOne<String>())
+                    val useCase = RethrowingUseCase(inner = FailingUseCase(throwable = failure))
+
+                    useCase(parameter = fixtureMonkey.giveMeOne<String>())
+
+                    recording.logList.map { log -> log.shouldBeInstanceOf<ConsoleLog>().tag } shouldBe listOf("FailingUseCase", "RethrowingUseCase")
+                }
+            }
+        }
+
         Given("콘솔 기록 수단이 등록되어 있고 같은 작업이 실패를 반복하도록 준비되어 있다") {
             val recording = recordingDelegate()
             DiaryLogger.add(delegate = recording.delegate)
@@ -236,6 +252,12 @@ private class FailingUseCase(
     private val throwable: Throwable,
 ) : UseCase<String, String>() {
     override suspend fun execute(parameter: String): String = throw throwable
+}
+
+private class RethrowingUseCase(
+    private val inner: UseCase<String, String>,
+) : UseCase<String, String>() {
+    override suspend fun execute(parameter: String): String = inner(parameter = parameter).getOrThrow()
 }
 
 private class SuccessUseCase : UseCase<String, String>() {

@@ -13,7 +13,6 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -21,9 +20,7 @@ import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
-import androidx.navigation3.runtime.result.ResultEventBus
 import androidx.paging.PagingData
-import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.core.model.tag.TagDetail
 import io.github.taetae98coding.diary.domain.tag.usecase.AddTagUseCase
@@ -133,7 +130,7 @@ class TagAddScreenTest {
         val linkViewModel =
             screenTestLinkViewModel(
                 uiState = MutableStateFlow(TagLinkInputUiState(linkedTagList = listOf(linkedTag))),
-                linkedTagIdSet = MutableStateFlow(setOf(linkedTag.id)),
+                selectionUiState = MutableStateFlow(TagAddLinkSelectionUiState(linkedTagIdSet = setOf(linkedTag.id))),
             )
         restorationTester.setContent {
             TagAddScreenTestTheme {
@@ -215,7 +212,10 @@ class TagAddScreenTest {
         composeRule.descriptionInput().assert(hasText(typedDescription))
         composeRule.onNodeWithText(BLUE_HEX, substring = true).assertExists()
         composeRule.onNodeWithText(linkedTag.detail.title).assertDoesNotExist()
-        composeRule.runOnIdle { linkViewModel.linkedTagIdSet.value.shouldBeEmpty() }
+        composeRule.runOnIdle {
+            linkViewModel.selectionUiState.value.linkedTagIdSet
+                .shouldBeEmpty()
+        }
     }
 
     @Test
@@ -235,7 +235,7 @@ class TagAddScreenTest {
                     linkViewModel =
                         screenTestLinkViewModel(
                             uiState = MutableStateFlow(TagLinkInputUiState(linkedTagList = listOf(linkedTag))),
-                            linkedTagIdSet = MutableStateFlow(setOf(linkedTag.id)),
+                            selectionUiState = MutableStateFlow(TagAddLinkSelectionUiState(linkedTagIdSet = setOf(linkedTag.id))),
                         ),
                     componentVisibleProvider = { TagAddScaffoldComponentVisible() },
                 )

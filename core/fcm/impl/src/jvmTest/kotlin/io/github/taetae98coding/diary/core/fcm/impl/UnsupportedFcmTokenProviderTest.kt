@@ -6,6 +6,6 @@ import io.kotest.matchers.nulls.shouldBeNull
 class UnsupportedFcmTokenProviderTest :
     FunSpec({
         test("TC-FCM-TOKEN-DOMAIN-001 FCM을 지원하지 않는 환경은 토큰이 없다") {
-            UnsupportedFcmTokenProvider().getToken().shouldBeNull()
+            UnsupportedFcmTokenProvider().getInstallationId().shouldBeNull()
         }
     })

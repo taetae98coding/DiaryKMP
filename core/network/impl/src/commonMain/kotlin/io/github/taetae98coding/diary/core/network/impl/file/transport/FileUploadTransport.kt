@@ -5,6 +5,7 @@ import io.github.taetae98coding.diary.core.network.api.file.entity.ContinuedFile
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileRemoteEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.io.RawSource
+import kotlin.uuid.Uuid
 
 internal const val UPLOAD_FILE_FUNCTION: String = "v1-file-upload"
 
@@ -16,6 +17,7 @@ internal interface FileUploadTransport {
         description: String,
         mimeType: String,
         contentLength: Long,
+        accountId: Uuid,
         openContent: suspend () -> RawSource,
         onSent: (sentBytes: Long) -> Unit,
     ): FileRemoteEntity
@@ -24,5 +26,5 @@ internal interface FileUploadTransport {
 
     fun getContinuedUploadResult(): Flow<ContinuedFileUploadResultRemoteEntity>
 
-    suspend fun cancelContinuedUpload()
+    suspend fun cancelContinuedUpload(exceptAccountId: Uuid?)
 }

@@ -1,7 +1,7 @@
 package io.github.taetae98coding.diary.data.holiday.mapper
 
 import io.github.taetae98coding.diary.core.datastore.api.setting.entity.HolidayCountryOptionLocalEntity
-import io.github.taetae98coding.diary.domain.holiday.model.HolidayCountryOption
+import io.github.taetae98coding.diary.core.model.holiday.HolidayCountryOption
 
 internal fun HolidayCountryOption.toLocal(): HolidayCountryOptionLocalEntity =
     when (this) {

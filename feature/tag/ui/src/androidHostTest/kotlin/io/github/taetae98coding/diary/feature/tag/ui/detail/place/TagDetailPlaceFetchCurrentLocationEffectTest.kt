@@ -56,7 +56,7 @@ class TagDetailPlaceFetchCurrentLocationEffectTest {
     ) {
         composeRule.setContent {
             TagDetailPlaceFetchCurrentLocationEffect(
-                mapViewModel = mapViewModel,
+                placeMapViewModel = mapViewModel,
                 state = state,
             )
         }

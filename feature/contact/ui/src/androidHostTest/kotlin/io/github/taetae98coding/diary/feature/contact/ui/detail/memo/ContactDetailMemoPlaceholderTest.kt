@@ -20,7 +20,11 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.MEMO_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
+import io.github.taetae98coding.diary.feature.contact.ui.Res
+import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_memo_empty_description
+import io.github.taetae98coding.diary.feature.contact.ui.contact_detail_memo_empty_title
 import io.github.taetae98coding.diary.feature.contact.ui.detail.contactMemo
+import io.github.taetae98coding.diary.feature.core.memo.EntityDetailMemoTab
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.mockk.coEvery
@@ -32,6 +36,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import org.jetbrains.compose.resources.stringResource
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
@@ -60,7 +65,9 @@ class ContactDetailMemoPlaceholderTest {
 
         composeRule.setContent {
             DiaryTheme {
-                ContactDetailMemoTab(
+                EntityDetailMemoTab(
+                    emptyTitle = stringResource(Res.string.contact_detail_memo_empty_title),
+                    emptyDescription = stringResource(Res.string.contact_detail_memo_empty_description),
                     onEvent = {},
                     onMemoListEvent = eventList::add,
                     modifier = Modifier.fillMaxSize(),

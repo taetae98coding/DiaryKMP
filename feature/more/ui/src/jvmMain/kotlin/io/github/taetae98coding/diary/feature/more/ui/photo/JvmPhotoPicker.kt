@@ -30,19 +30,18 @@ internal class JvmPhotoPicker(
             val dialog =
                 FileDialog(null as Frame?, "", FileDialog.LOAD)
                     .apply {
-                        filenameFilter = imageFilenameFilter()
+                        filenameFilter = imageFilenameFilter(suffixList = imageSuffixList())
                         isVisible = true
                     }
 
             dialog.files.firstOrNull()?.let { file -> FileUri(file.toURI().toString()) }
         }
 
-    private fun imageFilenameFilter(): FilenameFilter =
-        FilenameFilter { _, name ->
-            IMAGE_SUFFIX_LIST.any { suffix -> name.endsWith(suffix, ignoreCase = true) }
-        }
+    // ImageIO는 처음 쓸 때 등록된 이미지 형식을 찾아 불러오므로, 선택기를 만드는 화면 스레드가 아니라 열 때 dispatcher에서 묻는다.
+    private fun imageSuffixList(): List<String> = ImageIO.getReaderFileSuffixes().map { suffix -> ".$suffix" }
 
-    companion object {
-        private val IMAGE_SUFFIX_LIST = ImageIO.getReaderFileSuffixes().map { suffix -> ".$suffix" }
-    }
+    private fun imageFilenameFilter(suffixList: List<String>): FilenameFilter =
+        FilenameFilter { _, name ->
+            suffixList.any { suffix -> name.endsWith(suffix, ignoreCase = true) }
+        }
 }

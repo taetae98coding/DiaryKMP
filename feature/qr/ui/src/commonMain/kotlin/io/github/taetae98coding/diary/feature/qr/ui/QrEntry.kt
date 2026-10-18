@@ -3,21 +3,23 @@ package io.github.taetae98coding.diary.feature.qr.ui
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.result.LocalResultEventBus
-import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrAddNavKey
+import io.github.taetae98coding.diary.feature.qr.api.QrDetailNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrHomeNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrScanNavKey
 import io.github.taetae98coding.diary.feature.qr.ui.add.QrAddScreen
+import io.github.taetae98coding.diary.feature.qr.ui.detail.QrDetailScreen
 import io.github.taetae98coding.diary.feature.qr.ui.home.QrHomeScreen
 import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScanScreen
-import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScannedResult
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 public fun EntryProviderScope<ScreenNavKey>.qrEntry(backStack: NavBackStack<ScreenNavKey>) {
     qrHomeEntry(backStack = backStack)
     qrAddEntry(backStack = backStack)
+    qrDetailEntry(backStack = backStack)
     qrScanEntry(backStack = backStack)
 }
 
@@ -26,6 +28,7 @@ private fun EntryProviderScope<ScreenNavKey>.qrHomeEntry(backStack: NavBackStack
         QrHomeScreen(
             navigateUp = backStack::removeLastOrNull,
             navigateToAdd = { backStack.add(QrAddNavKey) },
+            navigateToDetail = { id -> backStack.add(QrDetailNavKey(id = id)) },
             qrViewModel = koinViewModel(),
             syncViewModel = koinViewModel(),
         )
@@ -44,6 +47,18 @@ private fun EntryProviderScope<ScreenNavKey>.qrAddEntry(backStack: NavBackStack<
     }
 }
 
+private fun EntryProviderScope<ScreenNavKey>.qrDetailEntry(backStack: NavBackStack<ScreenNavKey>) {
+    entry<QrDetailNavKey> { key ->
+        QrDetailScreen(
+            navigateUp = backStack::removeLastOrNull,
+            navigateToScan = { backStack.add(QrScanNavKey) },
+            permissionManager = rememberPermissionManager(),
+            resultEventBus = LocalResultEventBus.current,
+            viewModel = koinViewModel { parametersOf(key.id) },
+        )
+    }
+}
+
 private fun EntryProviderScope<ScreenNavKey>.qrScanEntry(backStack: NavBackStack<ScreenNavKey>) {
     entry<QrScanNavKey> {
         val resultEventBus = LocalResultEventBus.current
@@ -58,12 +73,4 @@ private fun EntryProviderScope<ScreenNavKey>.qrScanEntry(backStack: NavBackStack
             },
         )
     }
-}
-
-internal fun NavBackStack<ScreenNavKey>.navigateUpWithQrScannedValue(
-    resultEventBus: ResultEventBus,
-    value: String,
-) {
-    resultEventBus.sendResult(result = QrScannedResult(value = value))
-    removeLastOrNull()
 }

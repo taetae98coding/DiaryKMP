@@ -1,31 +1,20 @@
 package io.github.taetae98coding.diary.feature.tag.ui.link
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
-import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerAddButton
-import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerDialog
-import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerEmptyBox
-import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerSearchField
+import io.github.taetae98coding.diary.compose.core.dialog.DiaryPagingPickerDialog
+import io.github.taetae98coding.diary.compose.core.dialog.DiaryPagingPickerText
 import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerSearchFieldState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDiaryPickerSearchFieldState
-import io.github.taetae98coding.diary.compose.core.paging.isLoadedEmpty
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.tag.previewTag
 import io.github.taetae98coding.diary.core.model.tag.Tag
 import io.github.taetae98coding.diary.feature.tag.ui.Res
-import io.github.taetae98coding.diary.feature.tag.ui.previewTag
 import io.github.taetae98coding.diary.feature.tag.ui.tag_link_picker_add_action
 import io.github.taetae98coding.diary.feature.tag.ui.tag_link_picker_add_label
 import io.github.taetae98coding.diary.feature.tag.ui.tag_link_picker_search_empty_description
@@ -44,51 +33,29 @@ internal fun TagLinkPickerDialog(
     tagPagingItems: LazyPagingItems<Tag> = remember { flowOf(PagingData.empty<Tag>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> TagLinkInputUiState = { TagLinkInputUiState() },
 ) {
-    DiaryPickerDialog(
-        title = stringResource(Res.string.tag_link_picker_title),
+    DiaryPagingPickerDialog(
+        text =
+            DiaryPagingPickerText(
+                title = stringResource(Res.string.tag_link_picker_title),
+                searchPlaceholder = stringResource(Res.string.tag_link_picker_search_placeholder),
+                searchEmptyTitle = stringResource(Res.string.tag_link_picker_search_empty_title),
+                searchEmptyDescription = stringResource(Res.string.tag_link_picker_search_empty_description),
+                addLabel = stringResource(Res.string.tag_link_picker_add_label),
+                addActionLabel = stringResource(Res.string.tag_link_picker_add_action),
+            ),
+        onAddClick = { onEvent(TagLinkPickerEvent.ClickAdd) },
         onDismissRequest = onDismissRequest,
+        itemKey = { tag -> tag.id },
         modifier = modifier,
-    ) {
-        val isSearchEmpty by remember(searchFieldState, tagPagingItems) {
-            derivedStateOf { searchFieldState.textFieldState.text.isNotBlank() && tagPagingItems.isLoadedEmpty() }
-        }
-
-        Column(modifier = Modifier.fillMaxWidth()) {
-            DiaryPickerSearchField(
-                placeholder = stringResource(Res.string.tag_link_picker_search_placeholder),
-                modifier = Modifier.fillMaxWidth(),
-                state = searchFieldState,
-            )
-            Spacer(modifier = Modifier.height(DiaryTheme.dimens.componentSpacing))
-            DiaryCrossfade(
-                targetState = isSearchEmpty,
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .weight(weight = 1F, fill = false)
-                        .height(DiaryTheme.dimens.pickerListHeight),
-            ) { isEmpty ->
-                if (isEmpty) {
-                    DiaryPickerEmptyBox(
-                        title = stringResource(Res.string.tag_link_picker_search_empty_title),
-                        description = stringResource(Res.string.tag_link_picker_search_empty_description),
-                    )
-                } else {
-                    TagLinkPickerList(
-                        onEvent = onEvent,
-                        tagPagingItems = tagPagingItems,
-                        uiStateProvider = uiStateProvider,
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
-            }
-            DiaryPickerAddButton(
-                onClick = { onEvent(TagLinkPickerEvent.ClickAdd) },
-                label = stringResource(Res.string.tag_link_picker_add_label),
-                actionLabel = stringResource(Res.string.tag_link_picker_add_action),
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
+        searchFieldState = searchFieldState,
+        pagingItems = tagPagingItems,
+    ) { tag, itemModifier ->
+        TagLinkPickerRow(
+            onEvent = onEvent,
+            tag = tag,
+            isLinked = tag != null && uiStateProvider().linkedTagList.any { linkedTag -> linkedTag.id == tag.id },
+            modifier = itemModifier,
+        )
     }
 }
 

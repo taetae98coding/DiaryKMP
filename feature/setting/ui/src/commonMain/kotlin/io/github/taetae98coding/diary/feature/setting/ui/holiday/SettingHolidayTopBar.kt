@@ -1,17 +1,17 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package io.github.taetae98coding.diary.feature.setting.ui.holiday
 
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.TopAppBar
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import io.github.taetae98coding.diary.compose.core.button.NavigateUpButton
+import androidx.compose.ui.focus.FocusRequester
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarNavigateUp
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarTitle
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.setting.ui.Res
-import io.github.taetae98coding.diary.feature.setting.ui.holiday.search.SettingHolidaySearchInputField
+import io.github.taetae98coding.diary.feature.setting.ui.setting_holiday_search_placeholder
 import io.github.taetae98coding.diary.feature.setting.ui.setting_navigate_up_button_content_description
 import org.jetbrains.compose.resources.stringResource
 
@@ -22,17 +22,27 @@ internal fun SettingHolidayTopBar(
     state: SettingHolidayScaffoldState = rememberSettingHolidayScaffoldState(),
     componentVisibleProvider: () -> SettingHolidayScaffoldComponentVisible = { SettingHolidayScaffoldComponentVisible() },
 ) {
-    TopAppBar(
-        title = { SettingHolidaySearchInputField(modifier = Modifier.fillMaxWidth(), state = state) },
+    val placeholder = stringResource(Res.string.setting_holiday_search_placeholder)
+    val navigateUpContentDescription = stringResource(Res.string.setting_navigate_up_button_content_description)
+    val focusRequester = remember { FocusRequester() }
+
+    DiaryTopBar(
         modifier = modifier,
-        navigationIcon = {
+        title =
+            DiaryTopBarTitle.Search(
+                state = state.queryState,
+                placeholder = placeholder,
+                focusRequester = focusRequester,
+            ),
+        navigateUp =
             if (componentVisibleProvider().isNavigateUpButtonVisible) {
-                NavigateUpButton(
+                DiaryTopBarNavigateUp(
+                    contentDescription = navigateUpContentDescription,
                     onClick = { onEvent(SettingHolidayScaffoldEvent.ClickNavigateUp) },
-                    contentDescription = stringResource(Res.string.setting_navigate_up_button_content_description),
                 )
-            }
-        },
+            } else {
+                null
+            },
     )
 }
 
@@ -40,6 +50,9 @@ internal fun SettingHolidayTopBar(
 @Composable
 private fun SettingHolidayTopBarPreview() {
     DiaryTheme {
-        SettingHolidayTopBar(onEvent = {})
+        SettingHolidayTopBar(
+            onEvent = {},
+            state = rememberSettingHolidayScaffoldState(queryState = rememberTextFieldState(initialText = "신정")),
+        )
     }
 }

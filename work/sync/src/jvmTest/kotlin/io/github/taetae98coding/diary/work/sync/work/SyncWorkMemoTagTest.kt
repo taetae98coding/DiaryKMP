@@ -1,7 +1,7 @@
 package io.github.taetae98coding.diary.work.sync.work
 
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.core.database.api.sync.SyncKind
+import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
 import io.github.taetae98coding.diary.core.network.api.memotag.entity.MemoTagRemoteEntity
 import io.github.taetae98coding.diary.work.sync.mapper.toLocal
 import io.github.taetae98coding.diary.work.sync.mapper.toRemote
@@ -107,7 +107,7 @@ class SyncWorkMemoTagTest :
             val context = context()
             val firstPullList = memoTagPulls(usnList = listOf(4L, 6L))
             val secondPullList = memoTagPulls(usnList = listOf(9L))
-            coEvery { context.syncCursorLocalDataSource.find(accountId = context.accountId, kind = SyncKind.MEMO_TAG) } returns 2L
+            coEvery { context.syncCursorLocalDataSource.read(accountId = context.accountId, kind = SyncKindLocalEntity.MEMO_TAG) } returns 2L
             coEvery { context.memoTagRemoteDataSource.pull(usn = 2L) } returns firstPullList
             coEvery { context.memoTagRemoteDataSource.pull(usn = 6L) } returns secondPullList
             coEvery { context.memoTagRemoteDataSource.pull(usn = 9L) } returns emptyList()
@@ -115,14 +115,14 @@ class SyncWorkMemoTagTest :
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.accountMemoTagSyncTransaction.save(
+                context.accountMemoTagSyncTransaction.upsert(
                     accountId = context.accountId,
                     memoTagList = firstPullList.map { pull -> pull.memoTag.toLocal() },
                     cursor = 6L,
                 )
             }
             coVerify(exactly = 1) {
-                context.accountMemoTagSyncTransaction.save(
+                context.accountMemoTagSyncTransaction.upsert(
                     accountId = context.accountId,
                     memoTagList = secondPullList.map { pull -> pull.memoTag.toLocal() },
                     cursor = 9L,
@@ -173,20 +173,20 @@ class SyncWorkMemoTagTest :
 
             actual.message shouldBe failure.message
             coVerify(exactly = 1) {
-                context.accountTagSyncTransaction.save(
+                context.accountTagSyncTransaction.upsert(
                     accountId = context.accountId,
                     tagList = tagPullList.map { pull -> pull.tag.toLocal() },
                     cursor = 3L,
                 )
             }
             coVerify(exactly = 1) {
-                context.accountMemoSyncTransaction.save(
+                context.accountMemoSyncTransaction.upsert(
                     accountId = context.accountId,
                     memoList = memoPullList.map { pull -> pull.memo.toLocal() },
                     cursor = 4L,
                 )
             }
-            coVerify(exactly = 0) { context.accountMemoTagSyncTransaction.save(any(), any(), any()) }
+            coVerify(exactly = 0) { context.accountMemoTagSyncTransaction.upsert(any(), any(), any()) }
         }
 
         test("실행 시점에 확인된 계정의 메모 태그만 조회한다") {
@@ -194,16 +194,16 @@ class SyncWorkMemoTagTest :
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val context = context(accountId = accountId)
             coEvery {
-                context.memoTagSyncLocalDataSource.findPending(accountId = otherAccountId)
+                context.memoTagSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             } returns memoTags(size = 1)
 
             context.subject.doWork()
 
             coVerify(exactly = 1) {
-                context.memoTagSyncLocalDataSource.findPending(accountId = accountId)
+                context.memoTagSyncLocalDataSource.readPendingList(accountId = accountId)
             }
             coVerify(exactly = 0) {
-                context.memoTagSyncLocalDataSource.findPending(accountId = otherAccountId)
+                context.memoTagSyncLocalDataSource.readPendingList(accountId = otherAccountId)
             }
             coVerify(exactly = 0) { context.memoTagRemoteDataSource.push(any()) }
         }

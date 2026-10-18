@@ -20,7 +20,7 @@ internal class SettingGeminiFormState(
     val apiKeyState: TextFieldState,
     val systemPromptState: TextFieldState,
     val systemPromptFocusRequester: FocusRequester,
-    val hostState: SnackbarHostState,
+    val snackbarHostState: SnackbarHostState,
     val modelDialogState: DialogState,
     initialModel: String,
 ) {
@@ -44,7 +44,7 @@ internal class SettingGeminiFormState(
             apiKeyState: TextFieldState,
             systemPromptState: TextFieldState,
             systemPromptFocusRequester: FocusRequester,
-            hostState: SnackbarHostState,
+            snackbarHostState: SnackbarHostState,
             modelDialogState: DialogState,
         ): Saver<SettingGeminiFormState, String> =
             Saver(
@@ -54,7 +54,7 @@ internal class SettingGeminiFormState(
                         apiKeyState = apiKeyState,
                         systemPromptState = systemPromptState,
                         systemPromptFocusRequester = systemPromptFocusRequester,
-                        hostState = hostState,
+                        snackbarHostState = snackbarHostState,
                         modelDialogState = modelDialogState,
                         initialModel = model,
                     )
@@ -68,21 +68,21 @@ internal fun rememberSettingGeminiFormState(initialSetting: GeminiSetting = Gemi
     val apiKeyState = rememberTextFieldState(initialText = initialSetting.apiKey)
     val systemPromptState = rememberTextFieldState(initialText = initialSetting.systemPrompt)
     val systemPromptFocusRequester = remember { FocusRequester() }
-    val hostState = remember { SnackbarHostState() }
+    val snackbarHostState = remember { SnackbarHostState() }
     val modelDialogState = remember { DialogState() }
 
     return rememberSaveable(
         apiKeyState,
         systemPromptState,
         systemPromptFocusRequester,
-        hostState,
+        snackbarHostState,
         modelDialogState,
         saver =
             SettingGeminiFormState.saver(
                 apiKeyState = apiKeyState,
                 systemPromptState = systemPromptState,
                 systemPromptFocusRequester = systemPromptFocusRequester,
-                hostState = hostState,
+                snackbarHostState = snackbarHostState,
                 modelDialogState = modelDialogState,
             ),
     ) {
@@ -90,7 +90,7 @@ internal fun rememberSettingGeminiFormState(initialSetting: GeminiSetting = Gemi
             apiKeyState = apiKeyState,
             systemPromptState = systemPromptState,
             systemPromptFocusRequester = systemPromptFocusRequester,
-            hostState = hostState,
+            snackbarHostState = snackbarHostState,
             modelDialogState = modelDialogState,
             initialModel = initialSetting.model,
         )

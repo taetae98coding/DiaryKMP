@@ -94,7 +94,7 @@ class AccountMemoTransactionImplTest :
             memoId: Uuid,
         ) {
             syncDataSource
-                .findPending(accountId = accountId)
+                .readPendingList(accountId = accountId)
                 .any { memo -> memo.id == memoId } shouldBe true
         }
 
@@ -174,7 +174,7 @@ class AccountMemoTransactionImplTest :
             transaction.upsert(accountId = accountId, memoList = listOf(memo), memoTagList = emptyList())
             transaction.upsert(accountId = accountId, memoList = listOf(changedMemo), memoTagList = emptyList())
 
-            syncDataSource.findPending(accountId = accountId) shouldBe listOf(changedMemo)
+            syncDataSource.readPendingList(accountId = accountId) shouldBe listOf(changedMemo)
         }
 
         listOf(
@@ -398,27 +398,34 @@ class AccountMemoTransactionImplTest :
             findMemoTagIdList(memoId = memo.id) shouldBe listOf(tag.id)
         }
 
-        test("TC-MEMO-TAG-DOMAIN-007 TC-TAG-DETAIL-MEMO-DATA-004 TC-MEMO-FINISHED-LIST-DOMAIN-006 TC-TAG-MEMO-FINISHED-LIST-DATA-004 메모 상태를 변경해도 태그와의 연결이 유지된다") {
+        test("TC-MEMO-TAG-DOMAIN-007 TC-TAG-DETAIL-MEMO-DATA-004 TC-MEMO-FINISHED-LIST-DOMAIN-006 TC-TAG-MEMO-FINISHED-LIST-DATA-004 메모 상태를 변경해도 내용과 태그 연결, 대표 태그가 유지된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tagId = fixtureMonkey.giveMeOne<Uuid>()
-            val memo = memo()
+            val memo = memo().copy(primaryTagId = tagId, isFinished = true, isDeleted = false)
             transaction.upsert(
                 accountId = accountId,
                 memoList = listOf(memo),
                 memoTagList = listOf(memoTag(memoId = memo.id, tagId = tagId, memo = memo)),
             )
 
-            transaction.updateFinished(accountId = accountId, memoId = memo.id, isFinished = true, updatedAt = instant())
-            findMemoTagIdList(memoId = memo.id) shouldBe listOf(tagId)
+            suspend fun assertContentKept() {
+                val stored = findMemo(accountId = accountId, memoId = memo.id).shouldNotBeNull()
+                stored.detail shouldBe memo.detail
+                stored.primaryTagId shouldBe tagId
+                findMemoTagIdList(memoId = memo.id) shouldBe listOf(tagId)
+            }
 
             transaction.updateFinished(accountId = accountId, memoId = memo.id, isFinished = false, updatedAt = instant())
-            findMemoTagIdList(memoId = memo.id) shouldBe listOf(tagId)
+            assertContentKept()
+
+            transaction.updateFinished(accountId = accountId, memoId = memo.id, isFinished = true, updatedAt = instant())
+            assertContentKept()
 
             transaction.updateDeleted(accountId = accountId, memoId = memo.id, isDeleted = true, updatedAt = instant())
-            findMemoTagIdList(memoId = memo.id) shouldBe listOf(tagId)
+            assertContentKept()
 
             transaction.updateDeleted(accountId = accountId, memoId = memo.id, isDeleted = false, updatedAt = instant())
-            findMemoTagIdList(memoId = memo.id) shouldBe listOf(tagId)
+            assertContentKept()
         }
 
         test("TC-MEMO-TAG-DOMAIN-008 제목·설명·컬러·기간을 수정해도 태그 연결이 바뀌지 않는다") {
@@ -532,7 +539,7 @@ class AccountMemoTransactionImplTest :
 
             findMemo(accountId = accountId, memoId = memo.id).shouldBeNull()
             database.memoTagDao().findByMemoIdList(listOf(memo.id)).shouldBeEmpty()
-            syncDataSource.findPending(accountId = accountId).shouldBeEmpty()
+            syncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
 
         test("TC-MEMO-TAG-DATA-004 저장된 연결은 업로드 대기 상태가 된다") {
@@ -548,7 +555,7 @@ class AccountMemoTransactionImplTest :
             )
 
             memoTagSyncDataSource
-                .findPending(accountId = accountId)
+                .readPendingList(accountId = accountId)
                 .map { memoTag -> memoTag.tagId } shouldBe listOf(tagId)
         }
 
@@ -584,7 +591,7 @@ class AccountMemoTransactionImplTest :
             memoTagTransaction.upsert(accountId = accountId, memoId = memo.id, tagId = tagId, isDeleted = false, updatedAt = instant())
 
             memoTagSyncDataSource
-                .findPending(accountId = accountId)
+                .readPendingList(accountId = accountId)
                 .map { memoTag -> memoTag.tagId } shouldBe listOf(tagId)
         }
 

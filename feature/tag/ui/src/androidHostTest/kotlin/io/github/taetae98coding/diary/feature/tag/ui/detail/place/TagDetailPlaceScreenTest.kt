@@ -29,11 +29,14 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetail
 import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureId
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
+import io.github.taetae98coding.diary.feature.tag.ui.refreshableList
+import io.github.taetae98coding.diary.feature.tag.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.tag.ui.tagEntityPagingData
 import io.github.taetae98coding.diary.feature.tag.ui.tagPlace
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldNotBeSameInstanceAs
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,6 +49,11 @@ import kotlin.uuid.Uuid
 class TagDetailPlaceScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        resetAndroidUiDispatcher()
+    }
 
     @Test
     fun `TC-TAG-DETAIL-PLACE-FEATURE-006 대상 태그의 상태와 무관하게 장소 추가를 시작할 수 있다`() {
@@ -184,7 +192,7 @@ class TagDetailPlaceScreenTest {
             composeRule.selectTagDetailTab(tabDescription)
 
             composeRule.onNodeWithContentDescription(DEFAULT_SHOW_LIST_DESCRIPTION).assertDoesNotExist()
-            composeRule.onNodeWithTag(TAG_DETAIL_PLACE_BOUNDS_LIST_TEST_TAG).assertDoesNotExist()
+            composeRule.refreshableList().assertDoesNotExist()
         }
 
         composeRule.selectTagDetailTab(DEFAULT_PLACE_TAB_DESCRIPTION)

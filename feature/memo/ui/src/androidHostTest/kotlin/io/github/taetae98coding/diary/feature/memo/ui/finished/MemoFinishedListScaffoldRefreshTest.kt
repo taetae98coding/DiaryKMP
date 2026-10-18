@@ -6,22 +6,21 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
-import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.memo.list.MemoListEvent
 import io.github.taetae98coding.diary.compose.memo.list.MemoListItem
-import io.github.taetae98coding.diary.compose.memo.list.MemoListUiState
 import io.github.taetae98coding.diary.compose.memo.list.rememberMemoListState
 import io.github.taetae98coding.diary.core.model.memo.Memo
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.memo.ui.home.memoPagingDataOf
+import io.github.taetae98coding.diary.feature.memo.ui.refreshableList
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,7 +45,7 @@ class MemoFinishedListScaffoldRefreshTest {
             onMemoListEvent = { event -> eventList += event },
         )
 
-        composeRule.onNodeWithTag(MEMO_FINISHED_LIST_TEST_TAG).performTouchInput { swipeDown() }
+        composeRule.refreshableList().performTouchInput { swipeDown() }
         composeRule.waitForIdle()
 
         eventList shouldBe listOf(MemoListEvent.Refresh)
@@ -54,21 +53,21 @@ class MemoFinishedListScaffoldRefreshTest {
 
     @Test
     fun `TC-SYNC-REFRESH-FEATURE-002 진행 표시 상태이면 진행 표시가 나타난다`() {
-        setMemoFinishedListScaffold(memoListUiStateProvider = { MemoListUiState(isRefreshing = true) })
+        setMemoFinishedListScaffold(syncUiStateProvider = { SyncRefreshUiState(isRefreshing = true) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
     }
 
     @Test
     fun `TC-SYNC-REFRESH-FEATURE-004 진행 표시 상태가 아니면 진행 표시가 나타나지 않는다`() {
-        setMemoFinishedListScaffold(memoListUiStateProvider = { MemoListUiState(isRefreshing = false) })
+        setMemoFinishedListScaffold(syncUiStateProvider = { SyncRefreshUiState(isRefreshing = false) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertDoesNotExist()
     }
 
     private fun setMemoFinishedListScaffold(
         itemList: List<MemoListItem> = emptyList(),
-        memoListUiStateProvider: () -> MemoListUiState = { MemoListUiState() },
+        syncUiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
         onMemoListEvent: (MemoListEvent) -> Unit = {},
     ) {
         val memoPagingData = MutableStateFlow(memoPagingDataOf(itemList))
@@ -81,7 +80,7 @@ class MemoFinishedListScaffoldRefreshTest {
                     memoPagingItems = memoPagingData.collectAsLazyPagingItems(),
                     onEvent = {},
                     onMemoListEvent = onMemoListEvent,
-                    memoListUiStateProvider = memoListUiStateProvider,
+                    syncUiStateProvider = syncUiStateProvider,
                 )
             }
         }

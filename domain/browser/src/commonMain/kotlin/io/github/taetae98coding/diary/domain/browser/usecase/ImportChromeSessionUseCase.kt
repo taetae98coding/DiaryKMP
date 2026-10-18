@@ -19,7 +19,7 @@ public class ImportChromeSessionUseCase internal constructor(
         val now = clock.now()
         val cookieList =
             chromeCookieRepository
-                .findAll(profileDirectory = parameter.directory)
+                .readCookieList(profileDirectory = parameter.directory)
                 .filter { cookie -> !cookie.isExpired(now = now) }
 
         if (cookieList.isNotEmpty()) {

@@ -7,12 +7,14 @@ import io.github.taetae98coding.diary.core.naver.network.api.datasource.NaverPla
 import io.github.taetae98coding.diary.core.naver.network.api.entity.NaverPlaceRemoteEntity
 import io.github.taetae98coding.diary.core.naver.network.impl.NaverNetworkTestKoinApplication
 import io.github.taetae98coding.diary.core.naver.network.impl.NaverNetworkTestKoinModule
-import io.github.taetae98coding.diary.core.naver.network.impl.di.NaverHttpClientEngine
+import io.github.taetae98coding.diary.core.naver.network.impl.createNaverHttpClient
+import io.github.taetae98coding.diary.core.naver.network.impl.di.NaverHttpClient
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldStartWith
+import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -162,7 +164,7 @@ class NaverPlaceRemoteDataSourceImplTest :
             koinApplication<NaverNetworkTestKoinApplication> {
                 modules(
                     module {
-                        single<HttpClientEngine>(qualifier = named<NaverHttpClientEngine>()) { engine }
+                        single<HttpClient>(qualifier = named<NaverHttpClient>()) { createNaverHttpClient(config = get(), engine = engine) }
                     },
                 )
             }.koin.get()

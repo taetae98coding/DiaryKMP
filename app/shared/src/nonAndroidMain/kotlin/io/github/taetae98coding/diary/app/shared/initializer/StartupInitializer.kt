@@ -8,5 +8,6 @@ public object StartupInitializer {
         KoinInitializer.initialize()
         initializeSyncWork()
         initializeFileUpload()
+        initializeMapHttpServer()
     }
 }

@@ -22,7 +22,7 @@ class SetMemoDateExistenceFilterUseCaseTest :
     BehaviorSpec({
         Given("유무 필터 저장소가 준비되어 있다") {
             val memoExistenceFilterRepository = mockk<MemoExistenceFilterRepository>()
-            coEvery { memoExistenceFilterRepository.updateDate(existence = any()) } just Runs
+            coEvery { memoExistenceFilterRepository.upsertDate(existence = any()) } just Runs
             val useCase = SetMemoDateExistenceFilterUseCase(memoExistenceFilterRepository = memoExistenceFilterRepository)
 
             When("TC-MEMO-HOME-DATA-010 날짜 축을 바꾼다") {
@@ -31,7 +31,7 @@ class SetMemoDateExistenceFilterUseCaseTest :
                         useCase(parameter = existence).shouldBeSuccess()
 
                         coVerify(exactly = 1) {
-                            memoExistenceFilterRepository.updateDate(existence = existence)
+                            memoExistenceFilterRepository.upsertDate(existence = existence)
                         }
                     }
                 }
@@ -41,7 +41,7 @@ class SetMemoDateExistenceFilterUseCaseTest :
         Given("유무 필터 저장이 실패하도록 준비되어 있다") {
             val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val memoExistenceFilterRepository = mockk<MemoExistenceFilterRepository>()
-            coEvery { memoExistenceFilterRepository.updateDate(existence = any()) } throws failure
+            coEvery { memoExistenceFilterRepository.upsertDate(existence = any()) } throws failure
             val useCase = SetMemoDateExistenceFilterUseCase(memoExistenceFilterRepository = memoExistenceFilterRepository)
 
             When("날짜 축을 바꾼다") {

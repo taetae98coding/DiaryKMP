@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.convention.compose)
-    alias(libs.plugins.primitive.image.vector)
 }
 
 kotlin {

@@ -129,7 +129,7 @@ class HolidayHomeGoldenHolidayOptionTest {
 
     private fun setGoldenHoliday(optionList: List<GoldenHoliday> = listOf(forwardOption(), backwardOption())) {
         val uiState =
-            HolidayHomeYearUiState.Loaded(
+            HolidayHomeYearUiState.Content(
                 goldenHolidayGroupList = listOf(goldenHolidayGroup(optionList = optionList)),
             )
         val state = HolidayHomeScaffoldState(initialYear = YEAR, initialAnnualLeaveCount = 0)
@@ -143,7 +143,7 @@ class HolidayHomeGoldenHolidayOptionTest {
                     state = state,
                     yearContent = { year, _ ->
                         GoldenHolidayYear(
-                            uiStateProvider = { if (year == YEAR) uiState else HolidayHomeYearUiState.Loaded() },
+                            uiStateProvider = { if (year == YEAR) uiState else HolidayHomeYearUiState.Content() },
                             onEvent = {},
                             modifier = Modifier.fillMaxSize(),
                         )

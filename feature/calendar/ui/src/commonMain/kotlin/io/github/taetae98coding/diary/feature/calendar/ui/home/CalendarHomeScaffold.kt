@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.calendar.ui.home
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -16,10 +17,10 @@ import io.github.taetae98coding.diary.compose.core.dialog.DiaryDatePickerDialogH
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.shortcut.keyShortcut
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.core.model.contact.CalendarContactBirthday
-import io.github.taetae98coding.diary.core.model.holiday.Holiday
-import io.github.taetae98coding.diary.core.model.memo.CalendarMemo
-import io.github.taetae98coding.diary.core.model.weather.CalendarWeatherReport
+import io.github.taetae98coding.diary.feature.calendar.ui.home.birthday.CalendarHomeBirthdayUiState
+import io.github.taetae98coding.diary.feature.calendar.ui.home.holiday.CalendarHomeHolidayUiState
+import io.github.taetae98coding.diary.feature.calendar.ui.home.memo.CalendarHomeMemoUiState
+import io.github.taetae98coding.diary.feature.calendar.ui.home.weather.CalendarHomeWeatherUiState
 import kotlinx.coroutines.launch
 import kotlinx.datetime.yearMonth
 
@@ -29,10 +30,10 @@ internal fun CalendarHomeScaffold(
     onCalendarEvent: (CalendarEvent) -> Unit,
     modifier: Modifier = Modifier,
     state: CalendarHomeScaffoldState = rememberCalendarHomeScaffoldState(),
-    weatherProvider: () -> CalendarWeatherReport = { CalendarWeatherReport() },
-    holidayProvider: () -> List<Holiday> = { emptyList() },
-    memoProvider: () -> List<CalendarMemo> = { emptyList() },
-    birthdayProvider: () -> List<CalendarContactBirthday> = { emptyList() },
+    weatherUiStateProvider: () -> CalendarHomeWeatherUiState = { CalendarHomeWeatherUiState() },
+    holidayUiStateProvider: () -> CalendarHomeHolidayUiState = { CalendarHomeHolidayUiState() },
+    memoUiStateProvider: () -> CalendarHomeMemoUiState = { CalendarHomeMemoUiState() },
+    birthdayUiStateProvider: () -> CalendarHomeBirthdayUiState = { CalendarHomeBirthdayUiState() },
     filterUiStateProvider: () -> CalendarHomeScaffoldFilterUiState = { CalendarHomeScaffoldFilterUiState() },
     uiStateProvider: () -> CalendarHomeScaffoldUiState = { CalendarHomeScaffoldUiState() },
 ) {
@@ -62,13 +63,14 @@ internal fun CalendarHomeScaffold(
                 onEvent = onEvent,
             )
         },
+        snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },
     ) { paddingValues ->
         CalendarHomeContent(
             state = state,
-            weatherProvider = weatherProvider,
-            holidayProvider = holidayProvider,
-            memoProvider = memoProvider,
-            birthdayProvider = birthdayProvider,
+            weatherUiStateProvider = weatherUiStateProvider,
+            holidayUiStateProvider = holidayUiStateProvider,
+            memoUiStateProvider = memoUiStateProvider,
+            birthdayUiStateProvider = birthdayUiStateProvider,
             uiStateProvider = uiStateProvider,
             onEvent = onEvent,
             onCalendarEvent = onCalendarEvent,

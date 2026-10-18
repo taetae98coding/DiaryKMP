@@ -89,6 +89,7 @@
 | PlaylistHome 화면 | [client](./client/playlist-home.md) | — | — | [PlaylistHome 디자인](../design/playlist-home.md) |
 | ProfileImageEdit 화면 | [client](./client/profile-image-edit.md) | — | — | [ProfileImageEdit 디자인](../design/profile-image-edit.md) |
 | QrAdd 화면 | [client](./client/qr-add.md) | — | — | [QrAdd 디자인](../design/qr-add.md) |
+| QrDetail 화면 | [client](./client/qr-detail.md) | — | — | [QrDetail 디자인](../design/qr-detail.md) |
 | QrHome 화면 | [client](./client/qr-home.md) | — | — | [QrHome 디자인](../design/qr-home.md) |
 | QrScan 화면 | [client](./client/qr-scan.md) | — | — | [QrScan 디자인](../design/qr-scan.md) |
 | Routine 목록·상세 배치 | [client](./client/routine-list-detail.md) | — | — | [Routine 목록·상세 배치 디자인](../design/routine-list-detail.md) |
@@ -123,7 +124,7 @@
 | 검색어 일치 판정 | [client](./client/search-match.md) | — | — | — |
 | 계정 조회 | [client](./client/account.md) | — | — | — |
 | 곡 다운로드 | [client](./client/music-download.md) | — | — | [PlaylistHome 디자인](../design/playlist-home.md) |
-| 곡 다운로드 프록시 | [client](./client/music-download-proxy.md) | — | — | — |
+| 곡 다운로드 프록시 | [client](./client/music-download-proxy.md) | — | — | [SettingDownload 디자인](../design/setting-download.md) |
 | 공휴일 국가 설정 | [client](./client/holiday-country.md) | — | — | — |
 | 공휴일 노출 설정 | [client](./client/holiday-visibility.md) | — | — | — |
 | 공휴일 동기화 | [client](./client/holiday-fetch.md) | — | — | — |
@@ -147,6 +148,7 @@
 | 메모 태그 | [client](./client/memo-tag.md) | [common](./common/memo-tag.md) | — | — |
 | 메모 태그 입력 컴포넌트 | [client](./client/memo-tag-input.md) | — | — | [메모 태그 입력 디자인](../design/memo-tag-input.md) |
 | 목록 빈 상태 | [client](./client/list-empty-state.md) | — | — | [목록 빈 상태 디자인](../design/list-empty-state.md) |
+| 목록 추가 단축키 | [client](./client/list-add-shortcut.md) | — | — | [목록 추가 단축키 디자인](../design/list-add-shortcut.md) |
 | 목록 정렬 | [client](./client/list-sort.md) | — | — | [목록 정렬 디자인](../design/list-sort.md) |
 | 목록 필터 반영 | [client](./client/list-filter.md) | — | — | [필터 Bottom Sheet 디자인](../design/filter-bottom-sheet.md) |
 | 목록·상세 배치 공통 | [client](./client/list-detail-pane.md) | — | — | [목록·상세 배치 공통 디자인](../design/list-detail-pane.md) |

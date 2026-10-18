@@ -49,6 +49,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.io.IOException
+import kotlin.uuid.Uuid
 
 private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
@@ -284,43 +285,68 @@ class CoroutineFileUploadWorkSchedulerTest :
             }
         }
 
-        Given("파일을 올리는 중이다") {
-            When("로그아웃해 올리기를 취소한다") {
-                Then("TC-FILE-STORAGE-DOMAIN-014 올리기를 멈추고 결과를 알리지 않으며 붙들고 있던 파일을 돌려준다") {
+        Given("계정 A가 시작한 파일을 올리는 중이다") {
+            listOf<Pair<String, Uuid?>>(
+                "게스트" to null,
+                "계정 B의 사용자" to fixtureMonkey.giveMeOne<Uuid>(),
+            ).forEach { (accountState, exceptAccountId) ->
+                When("${accountState}가 확인되어 다른 계정의 올리기를 취소한다") {
+                    Then("TC-FILE-STORAGE-DOMAIN-017 올리기를 멈추고 결과를 알리지 않으며 붙들고 있던 파일을 돌려준다") {
+                        runTest {
+                            val fixture = SchedulerFixture(scope = backgroundScope)
+                            val request = fixture.request()
+                            val isCancelled = CompletableDeferred<Unit>()
+                            coEvery { fixture.work.doWork(request = request, onStep = any()) } coAnswers {
+                                try {
+                                    awaitCancellation()
+                                } finally {
+                                    isCancelled.complete(Unit)
+                                }
+                            }
+                            val scheduler = fixture.scheduler()
+                            scheduler.upload(request = request)
+                            runCurrent()
+
+                            val cancelledUriList = scheduler.cancel(exceptAccountId = exceptAccountId)
+                            runCurrent()
+
+                            cancelledUriList shouldBe listOf(request.content.uri)
+                            isCancelled.isCompleted shouldBe true
+                            scheduler.state.first() shouldBe FileUploadState.Idle
+                            verify(exactly = 0) { fixture.reporter.report(result = any()) }
+                        }
+                    }
+                }
+            }
+
+            When("계정 A가 확인되어 다른 계정의 올리기를 취소한다") {
+                Then("TC-FILE-STORAGE-DOMAIN-017 올리기가 계속되고 돌려줄 파일이 없다") {
                     runTest {
                         val fixture = SchedulerFixture(scope = backgroundScope)
                         val request = fixture.request()
-                        val isCancelled = CompletableDeferred<Unit>()
-                        coEvery { fixture.work.doWork(request = request, onStep = any()) } coAnswers {
-                            try {
-                                awaitCancellation()
-                            } finally {
-                                isCancelled.complete(Unit)
-                            }
-                        }
+                        coEvery { fixture.work.doWork(request = request, onStep = any()) } coAnswers { awaitCancellation() }
                         val scheduler = fixture.scheduler()
                         scheduler.upload(request = request)
                         runCurrent()
 
-                        val cancelledUriList = scheduler.cancel()
+                        val cancelledUriList = scheduler.cancel(exceptAccountId = fixture.account.id)
                         runCurrent()
 
-                        cancelledUriList shouldBe listOf(request.content.uri)
-                        isCancelled.isCompleted shouldBe true
-                        scheduler.state.first() shouldBe FileUploadState.Idle
-                        verify(exactly = 0) { fixture.reporter.report(result = any()) }
+                        cancelledUriList shouldBe emptyList()
+                        scheduler.isUploading() shouldBe true
+                        scheduler.state.first() shouldBe FileUploadState.Uploading(percent = null)
                     }
                 }
             }
         }
 
         Given("올리는 파일이 없다") {
-            When("로그아웃해 올리기를 취소한다") {
+            When("게스트가 확인되어 올리기를 취소한다") {
                 Then("돌려줄 파일이 없다") {
                     runTest {
                         val fixture = SchedulerFixture(scope = backgroundScope)
 
-                        fixture.scheduler().cancel() shouldBe emptyList()
+                        fixture.scheduler().cancel(exceptAccountId = null) shouldBe emptyList()
                     }
                 }
             }
@@ -338,7 +364,7 @@ private class SchedulerFixture(
         mockk<FileRepository> {
             every { getContinuedUpload() } returns continuedUpload
             every { getContinuedUploadResult() } returns continuedUploadResult
-            coEvery { deleteContinuedUpload() } returns Unit
+            coEvery { deleteContinuedUpload(exceptAccountId = any()) } returns Unit
             coEvery { deleteLeftoverUploadSources() } returns Unit
         }
     val reporter =

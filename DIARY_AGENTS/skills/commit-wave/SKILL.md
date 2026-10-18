@@ -27,12 +27,12 @@ staged, unstaged, untracked 파일을 모두 확인해 현재 변경된 내용�
 
 한 줄로 쓰고, 저장소 `cliff.toml`이 지원하는 Conventional Commit 타입을 쓴다.
 
-구현 세부사항만 적지 않고 이 커밋이 어떤 작업인지 요약한다.
+구현 세부사항만 적지 않고 이 커밋이 어떤 작업인지 요약한다. title은 `~한다` 문장형으로 끝낸다.
 
 ```text
-feat: JVM Compose 진입점 추가
-refactor: JVM 앱을 KMP 소스셋 구조에 맞게 정리
-docs: Gradle 버전 카탈로그 규칙 추가
+feat: JVM Compose 진입점을 추가한다
+refactor: JVM 앱을 KMP 소스셋 구조에 맞게 정리한다
+docs: Gradle 버전 카탈로그 규칙을 추가한다
 ```
 
 ### description

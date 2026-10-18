@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.domain.web.usecase
 
 import io.github.taetae98coding.diary.core.model.web.WebDetail
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.account.usecase.requireAccount
 import io.github.taetae98coding.diary.domain.core.UseCase
 import io.github.taetae98coding.diary.domain.sync.SyncTrigger
 import io.github.taetae98coding.diary.domain.sync.usecase.RequestSyncUseCase
@@ -23,7 +24,7 @@ public class UpdateWebUseCase internal constructor(
     override suspend fun execute(parameter: Parameter): Int {
         if (parameter.detail.headerList.any { header -> header.name.isBlank() }) throw WebHeaderNameBlankException()
 
-        val account = getAccountUseCase(parameter = Unit).first().getOrThrow()
+        val account = getAccountUseCase.requireAccount()
         val detail = parameter.detail.withStoredValueForBlank(id = parameter.id)
 
         val updatedCount =

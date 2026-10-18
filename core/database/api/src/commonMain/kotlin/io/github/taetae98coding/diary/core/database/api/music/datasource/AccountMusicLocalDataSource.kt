@@ -12,7 +12,7 @@ public interface AccountMusicLocalDataSource {
         sort: ListSortLocalEntity,
     ): PagingSource<Int, MusicLocalEntity>
 
-    public suspend fun findList(
+    public suspend fun readList(
         accountId: Uuid,
         sort: ListSortLocalEntity,
     ): List<MusicLocalEntity>

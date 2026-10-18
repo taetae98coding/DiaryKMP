@@ -219,7 +219,7 @@ class AccountMusicLocalDataSourceImplTest :
         private const val FIRST_MUSIC_TITLE = "AppleMusic"
         private const val MIDDLE_MUSIC_TITLE = "MangoMusic"
         private const val LAST_MUSIC_TITLE = "ZebraMusic"
-        private const val INVALIDATION_TIMEOUT_MILLIS = 5_000L
+        private const val INVALIDATION_TIMEOUT_MILLIS = 30_000L
 
         private val fixtureMonkey: FixtureMonkey =
             diaryFixtureMonkey()

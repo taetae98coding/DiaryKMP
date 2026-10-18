@@ -1,17 +1,13 @@
 package io.github.taetae98coding.diary.core.google.network.impl
 
 import io.github.taetae98coding.diary.core.google.network.impl.di.GoogleHttpClient
-import io.github.taetae98coding.diary.core.google.network.impl.di.GoogleHttpClientEngine
+import io.github.taetae98coding.diary.library.ktor.createJsonHttpClient
 import io.github.taetae98coding.diary.library.ktor.createPlatformHttpClientEngine
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
-import io.ktor.client.plugins.DefaultRequest
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.header
-import io.ktor.client.request.url
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Configuration
@@ -23,37 +19,26 @@ import org.koin.core.annotation.Single
 @Configuration
 public class GoogleNetworkModule {
     @Single
-    @GoogleHttpClientEngine
-    internal fun providesGoogleHttpClientEngine(): HttpClientEngine = createPlatformHttpClientEngine()
-
-    @Single
     @GoogleHttpClient
-    internal fun providesGoogleHttpClient(
-        @GoogleHttpClientEngine
-        engine: HttpClientEngine,
-        config: GooglePlacesConfig,
-    ): HttpClient =
-        HttpClient(engine) {
-            expectSuccess = true
-
-            install(ContentNegotiation) {
-                json(
-                    Json {
-                        ignoreUnknownKeys = true
-                        explicitNulls = false
-                    },
-                )
-            }
-
-            install(DefaultRequest) {
-                url(BASE_URL)
-                contentType(ContentType.Application.Json)
-                header(API_KEY_HEADER, config.apiKey)
-            }
-        }
-
-    public companion object {
-        private const val BASE_URL = "https://places.googleapis.com/"
-        private const val API_KEY_HEADER = "X-Goog-Api-Key"
-    }
+    internal fun providesGoogleHttpClient(config: GooglePlacesConfig): HttpClient = createGoogleHttpClient(config = config)
 }
+
+internal fun createGoogleHttpClient(
+    config: GooglePlacesConfig,
+    engine: HttpClientEngine = createPlatformHttpClientEngine(),
+): HttpClient =
+    createJsonHttpClient(
+        baseUrl = GOOGLE_PLACES_BASE_URL,
+        engine = engine,
+        json =
+            Json {
+                ignoreUnknownKeys = true
+                explicitNulls = false
+            },
+    ) {
+        contentType(ContentType.Application.Json)
+        header(API_KEY_HEADER, config.apiKey)
+    }
+
+private const val GOOGLE_PLACES_BASE_URL = "https://places.googleapis.com/"
+private const val API_KEY_HEADER = "X-Goog-Api-Key"
