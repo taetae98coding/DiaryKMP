@@ -4,6 +4,8 @@
 
 태그 필터 케이스의 `근거`가 가리키는 MemoHome 목록 스펙의 태그 필터 관련 절은 공통 규칙을 [태그 필터 스펙](../spec/client/tag-filter.md)에, 필터를 바꾼 뒤 목록을 어디서부터 보는지는 [목록 필터 반영 스펙](../spec/client/list-filter.md)에 위임한다. 자리 표시 케이스의 `근거`가 가리키는 절도 같은 방식으로 [페이지 조회 목록의 자리 표시 스펙](../spec/client/paged-list-placeholder.md)에, 빈 상태 케이스의 `근거`가 가리키는 절은 [목록 빈 상태 스펙](../spec/client/list-empty-state.md)에 위임한다.
 
+추가 단축키 케이스의 `근거`가 가리키는 절은 공통 규칙을 [목록 추가 단축키 스펙](../spec/client/list-add-shortcut.md)에 위임한다.
+
 ## feature
 
 ### TC-MEMO-HOME-FEATURE-001: 목록에 메모 제목이 표시된다
@@ -409,6 +411,13 @@ flowchart TD
 - Given: MemoHome 목록에 빈 상태 안내가 표시되어 있다.
 - When: 사용자가 화면에서 실행할 수 있는 동작을 확인한다.
 - Then: 메모 추가 동작, 필터 열기 동작, 완료된 메모 확인 동작이 모두 제공된다.
+
+### TC-MEMO-HOME-FEATURE-084: 추가 단축키를 누르면 MemoAdd로 이동한다
+
+- 근거: `feature > 메모 추가로 이동`
+- Given: 물리 키보드를 사용할 수 있고 MemoHome 목록만 표시되어 있다.
+- When: 사용자가 추가 단축키를 누른다.
+- Then: MemoAdd 화면으로 한 번 이동한다.
 
 ### TC-MEMO-HOME-FEATURE-061: 목록 위에 현재 정렬을 표시한다
 
