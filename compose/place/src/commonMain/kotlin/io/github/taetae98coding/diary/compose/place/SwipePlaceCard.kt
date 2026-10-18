@@ -14,6 +14,7 @@ public fun SwipePlaceCard(
     onEvent: (PlaceListEvent) -> Unit,
     modifier: Modifier = Modifier,
     place: Place? = null,
+    onClickLabel: String? = null,
 ) {
     SwipeToDeleteBox(
         deleteContentDescription = stringResource(Res.string.place_list_delete_content_description),
@@ -26,6 +27,7 @@ public fun SwipePlaceCard(
             onClick = { place?.let { value -> onEvent(PlaceListEvent.ClickPlace(id = value.id)) } },
             modifier = Modifier.fillMaxWidth(),
             place = place,
+            onClickLabel = onClickLabel,
         )
     }
 }

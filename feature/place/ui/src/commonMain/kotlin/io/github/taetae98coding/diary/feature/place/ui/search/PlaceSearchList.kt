@@ -15,7 +15,7 @@ import io.github.taetae98coding.diary.feature.place.ui.previewSearchedPlace
 
 @Composable
 internal fun PlaceSearchList(
-    onSelect: (SearchedPlace) -> Unit,
+    onPlaceClick: (SearchedPlace) -> Unit,
     modifier: Modifier = Modifier,
     placeList: List<SearchedPlace> = emptyList(),
 ) {
@@ -30,7 +30,7 @@ internal fun PlaceSearchList(
         ) { place ->
             PlaceSearchRow(
                 place = place,
-                onClick = { onSelect(place) },
+                onClick = { onPlaceClick(place) },
                 modifier = Modifier.fillMaxWidth(),
             )
         }
@@ -51,7 +51,7 @@ private fun PlaceSearchListPreview() {
     DiaryTheme {
         Surface {
             PlaceSearchList(
-                onSelect = {},
+                onPlaceClick = {},
                 placeList = placeList,
             )
         }

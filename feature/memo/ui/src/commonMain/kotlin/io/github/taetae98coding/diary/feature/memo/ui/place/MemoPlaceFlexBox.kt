@@ -12,25 +12,29 @@ import io.github.taetae98coding.diary.compose.core.layout.DiaryChipFlexBox
 import io.github.taetae98coding.diary.compose.core.layout.DiaryScrollableChipFlexBox
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.place.moveToOrSelect
 import io.github.taetae98coding.diary.compose.place.previewPlace
-import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.feature.memo.ui.Res
 import io.github.taetae98coding.diary.feature.memo.ui.memo_place_select_action
 import io.github.taetae98coding.diary.feature.memo.ui.memo_place_select_label
 import org.jetbrains.compose.resources.stringResource
+import kotlin.uuid.Uuid
 
 @Composable
 internal fun MemoPlaceFlexBox(
-    onShowOnMap: (Coordinate) -> Unit,
+    onPlaceClick: (Uuid) -> Unit,
     onAddClick: () -> Unit,
     modifier: Modifier = Modifier,
+    mapState: DiaryMapState? = null,
     placeListProvider: () -> List<Place> = { emptyList() },
 ) {
     DiaryChipFlexBox(modifier = modifier) {
         PlaceChips(
-            onShowOnMap = onShowOnMap,
+            onPlaceClick = onPlaceClick,
             onAddClick = onAddClick,
+            mapState = mapState,
             placeListProvider = placeListProvider,
         )
     }
@@ -38,15 +42,17 @@ internal fun MemoPlaceFlexBox(
 
 @Composable
 internal fun MemoPlaceScrollableFlexBox(
-    onShowOnMap: (Coordinate) -> Unit,
+    onPlaceClick: (Uuid) -> Unit,
     onAddClick: () -> Unit,
     modifier: Modifier = Modifier,
+    mapState: DiaryMapState? = null,
     placeListProvider: () -> List<Place> = { emptyList() },
 ) {
     DiaryScrollableChipFlexBox(modifier = modifier) {
         PlaceChips(
-            onShowOnMap = onShowOnMap,
+            onPlaceClick = onPlaceClick,
             onAddClick = onAddClick,
+            mapState = mapState,
             placeListProvider = placeListProvider,
         )
     }
@@ -54,15 +60,16 @@ internal fun MemoPlaceScrollableFlexBox(
 
 @Composable
 private fun LookaheadScope.PlaceChips(
-    onShowOnMap: (Coordinate) -> Unit,
+    onPlaceClick: (Uuid) -> Unit,
     onAddClick: () -> Unit,
+    mapState: DiaryMapState?,
     placeListProvider: () -> List<Place>,
 ) {
     placeListProvider().forEach { place ->
         key(place.id) {
             MemoPlaceChip(
                 place = place,
-                onClick = { onShowOnMap(place.detail.coordinate) },
+                onClick = { mapState?.moveToOrSelect(coordinate = place.detail.coordinate) { onPlaceClick(place.id) } },
                 modifier = Modifier.animateBounds(lookaheadScope = this@PlaceChips),
             )
         }
@@ -83,7 +90,7 @@ private fun MemoPlaceFlexBoxPreview() {
     DiaryTheme {
         Surface {
             MemoPlaceFlexBox(
-                onShowOnMap = {},
+                onPlaceClick = {},
                 onAddClick = {},
                 placeListProvider = { placeList },
             )
@@ -99,7 +106,7 @@ private fun MemoPlaceScrollableFlexBoxPreview() {
     DiaryTheme {
         Surface {
             MemoPlaceScrollableFlexBox(
-                onShowOnMap = {},
+                onPlaceClick = {},
                 onAddClick = {},
                 placeListProvider = { placeList },
             )

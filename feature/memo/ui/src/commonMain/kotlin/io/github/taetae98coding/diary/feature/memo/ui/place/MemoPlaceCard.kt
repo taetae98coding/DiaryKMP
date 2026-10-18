@@ -13,7 +13,6 @@ import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.place.previewPlace
-import io.github.taetae98coding.diary.compose.place.toDiaryMapCoordinate
 import kotlin.uuid.Uuid
 
 @Composable
@@ -32,8 +31,9 @@ internal fun MemoPlaceCard(
             placeListProvider = { uiStateProvider().placeUiState.selectedPlaceList },
         )
         MemoPlaceFlexBox(
-            onShowOnMap = { coordinate -> mapState?.moveTo(coordinate.toDiaryMapCoordinate()) },
+            onPlaceClick = onPlaceClick,
             onAddClick = onAddClick,
+            mapState = mapState,
             placeListProvider = { uiStateProvider().placeUiState.selectedPlaceList },
         )
     }
@@ -55,8 +55,9 @@ internal fun MemoPlaceFillHeightCard(
             placeListProvider = { uiStateProvider().placeUiState.selectedPlaceList },
         )
         MemoPlaceScrollableFlexBox(
-            onShowOnMap = { coordinate -> mapState?.moveTo(coordinate.toDiaryMapCoordinate()) },
+            onPlaceClick = onPlaceClick,
             onAddClick = onAddClick,
+            mapState = mapState,
             placeListProvider = { uiStateProvider().placeUiState.selectedPlaceList },
         )
     }

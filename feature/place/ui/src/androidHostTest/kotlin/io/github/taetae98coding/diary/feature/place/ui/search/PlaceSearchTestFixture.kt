@@ -31,13 +31,14 @@ internal fun randomText(prefix: String): String = "$prefix-${fixtureMonkey.giveM
 internal fun searchedPlace(
     name: String,
     address: String,
+    coordinate: Coordinate = Coordinate(latitude = 37.5665, longitude = 126.9780),
 ): SearchedPlace =
     fixtureMonkey
         .giveMeKotlinBuilder<SearchedPlace>()
         .setExp(SearchedPlace::id, Uuid.random())
         .setExp(SearchedPlace::name, name)
         .setExp(SearchedPlace::address, address)
-        .setExp(SearchedPlace::coordinate, Coordinate(latitude = 37.5665, longitude = 126.9780))
+        .setExp(SearchedPlace::coordinate, coordinate)
         .sample()
 
 /**
@@ -48,16 +49,18 @@ internal fun ComposeContentTestRule.setPlaceSearchContent(
     uiStateProvider: () -> PlaceSearchUiState = { PlaceSearchUiState.Idle },
     initialProvider: DiaryMapProvider = DiaryMapProvider.NAVER,
     onSelect: (SearchedPlace) -> Unit = {},
-) {
+): () -> PlaceSearchDialogState {
+    lateinit var state: PlaceSearchDialogState
+
     setContent {
         DiaryTheme {
-            val state = rememberPlaceSearchDialogState(initialProvider = initialProvider)
+            state = rememberPlaceSearchDialogState(initialProvider = initialProvider)
 
             Column {
                 PlaceSearchResult(
                     state = state,
-                    uiStateProvider = uiStateProvider,
                     onSelect = onSelect,
+                    uiStateProvider = uiStateProvider,
                     modifier = Modifier.fillMaxWidth(),
                 )
                 PlaceSearchQueryInput(
@@ -67,6 +70,8 @@ internal fun ComposeContentTestRule.setPlaceSearchContent(
             }
         }
     }
+
+    return { state }
 }
 
 internal fun ComposeContentTestRule.setPlaceSearchEffect(

@@ -66,8 +66,8 @@ internal fun PlaceSearchDialog(
                 }
                 PlaceSearchResult(
                     state = state,
-                    uiStateProvider = uiStateProvider,
                     onSelect = onSelect,
+                    uiStateProvider = uiStateProvider,
                     modifier =
                         Modifier
                             .fillMaxWidth()

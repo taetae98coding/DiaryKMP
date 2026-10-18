@@ -125,6 +125,16 @@ class PlaceAddSearchApplyTest {
         composeRule.runOnIdle { state.searchDialogState.isVisible shouldBe false }
     }
 
+    @Test
+    fun `TC-PLACE-SEARCH-DIALOG-DOMAIN-028 고른 장소의 결과 컬러는 배치한 화면의 컬러를 바꾸지 않는다`() {
+        val state = composeRule.setPlaceAddScaffoldState()
+        val colorBefore = composeRule.runOnIdle { state.detail.color }
+
+        composeRule.runOnIdle { state.applySearchedPlace(searchedPlace()) }
+
+        composeRule.runOnIdle { state.detail.color shouldBe colorBefore }
+    }
+
     private companion object {
         private const val BLANK_TITLE = "   "
         private const val SEARCHED_ADDRESS = "Searched Address"
