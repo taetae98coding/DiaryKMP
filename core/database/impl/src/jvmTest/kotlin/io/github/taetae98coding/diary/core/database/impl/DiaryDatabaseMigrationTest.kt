@@ -87,6 +87,32 @@ class DiaryDatabaseMigrationTest :
             }
         }
 
+        test("TC-CONTACT-ADD-DATA-016 앱을 업데이트하면 연락처만 처음부터 다시 내려받는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            // 지워진 위치는 기본값 0으로 읽히므로, 지워지지 않았을 때 구분되도록 0보다 큰 값을 둔다.
+            val contactUsn = fixtureMonkey.giveMeOne<Long>().coerceAtLeast(1L)
+            val memoUsn = fixtureMonkey.giveMeOne<Long>()
+
+            helper.createDatabase(version = 2).use { connection ->
+                connection.execSQL("INSERT INTO sync_cursor (account_id, kind, usn) VALUES ('$accountId', 'contact', $contactUsn)")
+                connection.insertMemoCursor(accountId = accountId, usn = memoUsn)
+            }
+            helper.runMigrationsAndValidate(version = 3).close()
+
+            val database =
+                Room
+                    .databaseBuilder<DiaryDatabase>(name = databasePath.toString())
+                    .setDriver(BundledSQLiteDriver())
+                    .build()
+            try {
+                val cursorDataSource = SyncCursorLocalDataSourceImpl(database = database)
+                cursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.CONTACT) shouldBe 0L
+                cursorDataSource.read(accountId = accountId, kind = SyncKindLocalEntity.MEMO) shouldBe memoUsn
+            } finally {
+                database.close()
+            }
+        }
+
         test("TC-CONTACT-ADD-DATA-015 앱을 업데이트하면 기존 연락처의 태어난 연도를 생일의 연도로 채운다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val birthdayContactId = fixtureMonkey.giveMeOne<Uuid>()

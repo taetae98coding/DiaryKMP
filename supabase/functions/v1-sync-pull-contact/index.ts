@@ -5,12 +5,12 @@ import { pullRequestSchema } from "../_shared/sync.ts";
 
 servePost(pullRequestSchema, async ({ usn }, request) => {
   const client = createUserClient(request);
-  const { data, error } = await client.rpc("pull_contacts", {
+  const { data, error } = await client.rpc("pull_contacts_v1", {
     usn_cursor: usn,
   });
 
   if (error) {
-    console.error("pull_contacts failed", error);
+    console.error("pull_contacts_v1 failed", error);
     throw new HttpError(500, "sync_pull_failed");
   }
 

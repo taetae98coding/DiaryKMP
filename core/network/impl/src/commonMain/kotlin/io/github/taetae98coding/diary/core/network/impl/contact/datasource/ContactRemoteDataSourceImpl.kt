@@ -29,7 +29,7 @@ internal class ContactRemoteDataSourceImpl(
         ).body<ContactPullResponseRemoteEntity>().contactList
 
     private companion object {
-        const val PUSH_CONTACT_FUNCTION: String = "v1-sync-push-contact"
-        const val PULL_CONTACT_FUNCTION: String = "v1-sync-pull-contact"
+        const val PUSH_CONTACT_FUNCTION: String = "v2-sync-push-contact"
+        const val PULL_CONTACT_FUNCTION: String = "v2-sync-pull-contact"
     }
 }
