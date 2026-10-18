@@ -18,7 +18,7 @@ on:
         type: boolean
         default: true
       bump:
-        description: 버전을 올려 커밋·태그한다. 끄면 main의 현재 버전을 그대로 다시 빌드한다(실패한 플랫폼 재배포용)
+        description: 버전을 올려 커밋·태그하고 GitHub Release를 만든다. 끄면 main의 현재 버전을 그대로 다시 빌드한다(실패한 플랫폼 재배포용)
         required: false
         type: boolean
         default: true
@@ -129,6 +129,37 @@ jobs:
           git push origin HEAD:main
           git push origin "$VERSION"
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  release:
+    name: 📝 GitHub Release
+    needs: version
+    # bump=false면 새 태그가 없으므로 만들 Release도 없다.
+    if: inputs.bump
+    runs-on: self-hosted
+    permissions:
+      contents: write
+    steps:
+      # 직전 태그와의 차이로 노트를 만들므로 태그까지 모두 가져온다.
+      - name: 📥 소스 가져오기
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.version.outputs.sha }}
+          fetch-depth: 0
+          clean: true
+
+      - name: 🚀 Release 생성
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.version.outputs.version }}
+          BUILD: ${{ needs.version.outputs.build }}
+        run: |
+          set -euo pipefail
+          # 러너에 git-cliff가 없어 npm 배포본을 버전을 고정해 실행한다. HEAD가 이번 태그이므로 --current가 직전 태그부터의 커밋을 고른다.
+          npx --yes git-cliff@2.14.2 --current --output "$RUNNER_TEMP/release-notes.md"
+          gh release create "$VERSION" \
+            --verify-tag \
+            --title "$VERSION ($BUILD)" \
+            --notes-file "$RUNNER_TEMP/release-notes.md"
 
   android:
     name: 🤖 Android → Play 내부 테스트
