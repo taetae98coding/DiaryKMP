@@ -12,6 +12,7 @@ struct DiaryApp: App {
     init() {
         FirebaseApp.configure()
         DiaryStartupInitializer.shared.start()
+        DiaryTopBar.shared.register(renderer: DiaryTopBarRendererImpl())
 
         if let googleMapApiKey = Bundle.main.object(forInfoDictionaryKey: "GMSApiKey") as? String {
             GMSServices.provideAPIKey(googleMapApiKey)

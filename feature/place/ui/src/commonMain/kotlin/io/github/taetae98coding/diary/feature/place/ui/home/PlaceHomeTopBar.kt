@@ -1,19 +1,15 @@
 package io.github.taetae98coding.diary.feature.place.ui.home
 
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
-import io.github.taetae98coding.diary.compose.core.button.NavigateUpButton
-import io.github.taetae98coding.diary.compose.core.button.SearchButton
-import io.github.taetae98coding.diary.compose.core.icon.ListIcon
-import io.github.taetae98coding.diary.compose.core.icon.MapIcon
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarAction
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarNavigateUp
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarTitle
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
-import io.github.taetae98coding.diary.compose.core.tooltip.DiaryTooltipBox
 import io.github.taetae98coding.diary.feature.place.ui.Res
 import io.github.taetae98coding.diary.feature.place.ui.home.viewmode.PlaceHomeViewMode
 import io.github.taetae98coding.diary.feature.place.ui.home.viewmode.PlaceHomeViewModePreviewParameter
@@ -30,51 +26,46 @@ internal fun PlaceHomeTopBar(
     modifier: Modifier = Modifier,
     state: PlaceHomeScaffoldState = rememberPlaceHomeScaffoldState(),
 ) {
-    TopAppBar(
-        title = { Text(text = stringResource(Res.string.place_home_title)) },
+    val title = stringResource(Res.string.place_home_title)
+    val navigateUpContentDescription = stringResource(Res.string.place_navigate_up_button_content_description)
+    val searchContentDescription = stringResource(Res.string.place_home_search_action_content_description)
+    val listViewModeContentDescription = stringResource(Res.string.place_home_list_view_mode_button_content_description)
+    val mapViewModeContentDescription = stringResource(Res.string.place_home_map_view_mode_button_content_description)
+    val viewModeAction =
+        when (state.viewMode) {
+            PlaceHomeViewMode.MAP ->
+                DiaryTopBarAction.Icon(
+                    icon = DiaryTopBarIcon.LIST,
+                    contentDescription = listViewModeContentDescription,
+                    onClick = state::toggleViewMode,
+                )
+
+            PlaceHomeViewMode.LIST ->
+                DiaryTopBarAction.Icon(
+                    icon = DiaryTopBarIcon.MAP,
+                    contentDescription = mapViewModeContentDescription,
+                    onClick = state::toggleViewMode,
+                )
+        }
+
+    DiaryTopBar(
         modifier = modifier,
-        navigationIcon = {
-            NavigateUpButton(
+        title = DiaryTopBarTitle.Text(text = title),
+        navigateUp =
+            DiaryTopBarNavigateUp(
+                contentDescription = navigateUpContentDescription,
                 onClick = { onEvent(PlaceHomeScaffoldEvent.ClickNavigateUp) },
-                contentDescription = stringResource(Res.string.place_navigate_up_button_content_description),
-            )
-        },
-        actions = {
-            SearchButton(
-                onClick = { onEvent(PlaceHomeScaffoldEvent.ClickSearch) },
-                contentDescription = stringResource(Res.string.place_home_search_action_content_description),
-            )
-            ViewModeButton(state = state)
-        },
+            ),
+        actions =
+            listOf(
+                DiaryTopBarAction.Icon(
+                    icon = DiaryTopBarIcon.SEARCH,
+                    contentDescription = searchContentDescription,
+                    onClick = { onEvent(PlaceHomeScaffoldEvent.ClickSearch) },
+                ),
+                viewModeAction,
+            ),
     )
-}
-
-@Composable
-private fun ViewModeButton(state: PlaceHomeScaffoldState) {
-    val viewMode = state.viewMode
-    val contentDescription =
-        when (viewMode) {
-            PlaceHomeViewMode.MAP -> stringResource(Res.string.place_home_list_view_mode_button_content_description)
-            PlaceHomeViewMode.LIST -> stringResource(Res.string.place_home_map_view_mode_button_content_description)
-        }
-
-    DiaryTooltipBox(text = contentDescription) {
-        IconButton(onClick = state::toggleViewMode) {
-            DiaryCrossfade(targetState = viewMode) { targetViewMode ->
-                when (targetViewMode) {
-                    PlaceHomeViewMode.MAP ->
-                        ListIcon(
-                            contentDescription = stringResource(Res.string.place_home_list_view_mode_button_content_description),
-                        )
-
-                    PlaceHomeViewMode.LIST ->
-                        MapIcon(
-                            contentDescription = stringResource(Res.string.place_home_map_view_mode_button_content_description),
-                        )
-                }
-            }
-        }
-    }
 }
 
 @ComponentPreview

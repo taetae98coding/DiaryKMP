@@ -3,8 +3,8 @@ package io.github.taetae98coding.diary.feature.search.ui.home
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -34,7 +34,7 @@ class SearchHomeQueryReportTest {
         val queryList = mutableListOf<QueryReport>()
         setSearchHomeQueryReport(queryList = queryList)
 
-        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).performTextInput(QUERY)
+        composeRule.onNode(hasSetTextAction()).performTextInput(QUERY)
         composeRule.waitForIdle()
 
         queryList shouldBe listOf(QueryReport.Show(""), QueryReport.Change(QUERY))
@@ -45,10 +45,10 @@ class SearchHomeQueryReportTest {
         val queryList = mutableListOf<QueryReport>()
         setSearchHomeQueryReport(queryList = queryList)
 
-        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).performTextInput(QUERY)
+        composeRule.onNode(hasSetTextAction()).performTextInput(QUERY)
         composeRule.waitForIdle()
-        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).performTextClearance()
-        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).performTextInput(OTHER_QUERY)
+        composeRule.onNode(hasSetTextAction()).performTextClearance()
+        composeRule.onNode(hasSetTextAction()).performTextInput(OTHER_QUERY)
         composeRule.waitForIdle()
 
         queryList.last() shouldBe QueryReport.Change(OTHER_QUERY)
@@ -59,9 +59,9 @@ class SearchHomeQueryReportTest {
         val queryList = mutableListOf<QueryReport>()
         setSearchHomeQueryReport(queryList = queryList)
 
-        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).performTextInput(QUERY)
+        composeRule.onNode(hasSetTextAction()).performTextInput(QUERY)
         composeRule.waitForIdle()
-        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).performTextClearance()
+        composeRule.onNode(hasSetTextAction()).performTextClearance()
         composeRule.waitForIdle()
 
         queryList.last() shouldBe QueryReport.Change("")
@@ -72,10 +72,10 @@ class SearchHomeQueryReportTest {
         val queryList = mutableListOf<QueryReport>()
         setSearchHomeQueryReport(queryList = queryList)
 
-        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).performTextInput(QUERY)
+        composeRule.onNode(hasSetTextAction()).performTextInput(QUERY)
         composeRule.waitForIdle()
-        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).performTextClearance()
-        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).performTextInput(QUERY)
+        composeRule.onNode(hasSetTextAction()).performTextClearance()
+        composeRule.onNode(hasSetTextAction()).performTextInput(QUERY)
         composeRule.waitForIdle()
 
         queryList shouldBe listOf(QueryReport.Show(""), QueryReport.Change(QUERY), QueryReport.Change(""), QueryReport.Change(QUERY))
@@ -87,7 +87,7 @@ class SearchHomeQueryReportTest {
         var isResultShown by mutableStateOf(true)
         setSearchHomeQueryReport(queryList = queryList, isResultShownProvider = { isResultShown })
         composeRule.runOnIdle { isResultShown = false }
-        composeRule.onNodeWithTag(SEARCH_HOME_QUERY_INPUT_TEST_TAG).performTextInput(OTHER_QUERY)
+        composeRule.onNode(hasSetTextAction()).performTextInput(OTHER_QUERY)
         composeRule.waitForIdle()
 
         composeRule.runOnIdle { isResultShown = true }

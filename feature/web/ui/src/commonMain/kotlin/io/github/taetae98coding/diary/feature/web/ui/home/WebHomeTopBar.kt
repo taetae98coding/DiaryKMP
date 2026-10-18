@@ -1,11 +1,12 @@
 package io.github.taetae98coding.diary.feature.web.ui.home
 
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import io.github.taetae98coding.diary.compose.core.button.NavigateUpButton
-import io.github.taetae98coding.diary.compose.core.button.SearchButton
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarAction
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarNavigateUp
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarTitle
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.feature.web.ui.Res
@@ -19,21 +20,26 @@ internal fun WebHomeTopBar(
     onEvent: (WebHomeScaffoldEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    TopAppBar(
-        title = { Text(text = stringResource(Res.string.web_home_title)) },
+    val title = stringResource(Res.string.web_home_title)
+    val navigateUpContentDescription = stringResource(Res.string.web_navigate_up_button_content_description)
+    val searchContentDescription = stringResource(Res.string.web_home_search_action_content_description)
+
+    DiaryTopBar(
         modifier = modifier,
-        navigationIcon = {
-            NavigateUpButton(
+        title = DiaryTopBarTitle.Text(text = title),
+        navigateUp =
+            DiaryTopBarNavigateUp(
+                contentDescription = navigateUpContentDescription,
                 onClick = { onEvent(WebHomeScaffoldEvent.ClickNavigateUp) },
-                contentDescription = stringResource(Res.string.web_navigate_up_button_content_description),
-            )
-        },
-        actions = {
-            SearchButton(
-                onClick = { onEvent(WebHomeScaffoldEvent.ClickSearch) },
-                contentDescription = stringResource(Res.string.web_home_search_action_content_description),
-            )
-        },
+            ),
+        actions =
+            listOf(
+                DiaryTopBarAction.Icon(
+                    icon = DiaryTopBarIcon.SEARCH,
+                    contentDescription = searchContentDescription,
+                    onClick = { onEvent(WebHomeScaffoldEvent.ClickSearch) },
+                ),
+            ),
     )
 }
 

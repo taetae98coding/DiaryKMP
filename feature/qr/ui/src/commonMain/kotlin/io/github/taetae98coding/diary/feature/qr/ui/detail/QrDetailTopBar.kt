@@ -1,25 +1,28 @@
 package io.github.taetae98coding.diary.feature.qr.ui.detail
 
-import androidx.compose.foundation.basicMarquee
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import io.github.taetae98coding.diary.compose.core.button.DeleteButton
-import io.github.taetae98coding.diary.compose.core.button.NavigateUpButton
-import io.github.taetae98coding.diary.compose.core.button.QrScanButton
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarAction
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarNavigateUp
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarTitle
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.domain.qr.content.QrAction
 import io.github.taetae98coding.diary.feature.qr.ui.Res
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrAddFormState
-import io.github.taetae98coding.diary.feature.qr.ui.add.form.QrUndoButton
 import io.github.taetae98coding.diary.feature.qr.ui.add.form.rememberQrAddFormState
-import io.github.taetae98coding.diary.feature.qr.ui.detail.action.QrActionButton
+import io.github.taetae98coding.diary.feature.qr.ui.detail.action.contentDescription
+import io.github.taetae98coding.diary.feature.qr.ui.detail.action.topBarIcon
 import io.github.taetae98coding.diary.feature.qr.ui.previewQr
+import io.github.taetae98coding.diary.feature.qr.ui.previewQrActionList
 import io.github.taetae98coding.diary.feature.qr.ui.qr_detail_delete_button_content_description
 import io.github.taetae98coding.diary.feature.qr.ui.qr_navigate_up_button_content_description
 import io.github.taetae98coding.diary.feature.qr.ui.qr_scan_button_content_description
+import io.github.taetae98coding.diary.feature.qr.ui.qr_undo_button_content_description
 import org.jetbrains.compose.resources.stringResource
 import kotlin.uuid.Uuid
 
@@ -31,61 +34,76 @@ internal fun QrDetailTopBar(
     uiStateProvider: () -> QrDetailUiState = { QrDetailUiState.Loading },
     actionProvider: () -> QrAction? = { null },
 ) {
-    TopAppBar(
-        // 제목과 액션은 서로 다른 자리이므로 각 슬롯에서 상태를 읽어, 한쪽이 바뀔 때 다른 쪽까지 다시 그리지 않는다.
-        title = {
-            val uiState = uiStateProvider()
+    val uiState = uiStateProvider()
+    val navigateUpContentDescription = stringResource(Res.string.qr_navigate_up_button_content_description)
+    val undoContentDescription = stringResource(Res.string.qr_undo_button_content_description)
+    val scanContentDescription = stringResource(Res.string.qr_scan_button_content_description)
+    val deleteContentDescription = stringResource(Res.string.qr_detail_delete_button_content_description)
+    val action = actionProvider()
+    val actionContentDescription = action?.let { stringResource(it.contentDescription) }
 
-            if (uiState is QrDetailUiState.Content) {
-                Text(
-                    text = uiState.detail.title,
-                    modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
-                    maxLines = 1,
-                )
-            }
-        },
+    DiaryTopBar(
         modifier = modifier,
-        navigationIcon = {
-            NavigateUpButton(
+        title = (uiState as? QrDetailUiState.Content)?.let { DiaryTopBarTitle.Text(text = it.detail.title, isMarquee = true) },
+        navigateUp =
+            DiaryTopBarNavigateUp(
+                contentDescription = navigateUpContentDescription,
                 onClick = { onEvent(QrDetailScaffoldEvent.ClickNavigateUp) },
-                contentDescription = stringResource(Res.string.qr_navigate_up_button_content_description),
-            )
-        },
-        actions = {
-            val uiState = uiStateProvider()
-
-            if (uiState is QrDetailUiState.Content) {
-                actionProvider()?.let { action ->
-                    QrActionButton(
-                        action = action,
-                        onClick = { onEvent(QrDetailScaffoldEvent.ClickAction(action = action)) },
+            ),
+        actions =
+            buildList {
+                if (uiState is QrDetailUiState.Content) {
+                    if (action != null && actionContentDescription != null) {
+                        add(
+                            DiaryTopBarAction.Icon(
+                                icon = action.topBarIcon,
+                                contentDescription = actionContentDescription,
+                                onClick = { onEvent(QrDetailScaffoldEvent.ClickAction(action = action)) },
+                            ),
+                        )
+                    }
+                    add(
+                        DiaryTopBarAction.Icon(
+                            icon = DiaryTopBarIcon.UNDO,
+                            contentDescription = undoContentDescription,
+                            onClick = { onEvent(QrDetailScaffoldEvent.ClickUndo) },
+                            isEnabled = state.contentState.canUndo,
+                        ),
+                    )
+                    add(
+                        DiaryTopBarAction.Icon(
+                            icon = DiaryTopBarIcon.QR_SCAN,
+                            contentDescription = scanContentDescription,
+                            onClick = { onEvent(QrDetailScaffoldEvent.ClickScan) },
+                        ),
+                    )
+                    add(
+                        DiaryTopBarAction.Icon(
+                            icon = DiaryTopBarIcon.DELETE,
+                            contentDescription = deleteContentDescription,
+                            onClick = { onEvent(QrDetailScaffoldEvent.ClickDelete) },
+                            isInProgress = uiState.isDeleteInProgress,
+                        ),
                     )
                 }
-                QrUndoButton(
-                    onClick = { onEvent(QrDetailScaffoldEvent.ClickUndo) },
-                    isEnabledProvider = { state.contentState.canUndo },
-                )
-                QrScanButton(
-                    onClick = { onEvent(QrDetailScaffoldEvent.ClickScan) },
-                    contentDescription = stringResource(Res.string.qr_scan_button_content_description),
-                )
-                DeleteButton(
-                    onClick = { onEvent(QrDetailScaffoldEvent.ClickDelete) },
-                    contentDescription = stringResource(Res.string.qr_detail_delete_button_content_description),
-                    isInProgressProvider = { uiState.isDeleteInProgress },
-                )
-            }
-        },
+            },
     )
+}
+
+private class QrActionPreviewParameter : PreviewParameterProvider<QrAction> {
+    override val values: Sequence<QrAction> = previewQrActionList().asSequence()
 }
 
 @ComponentPreview
 @Composable
-private fun QrDetailTopBarPreview() {
+private fun QrDetailTopBarPreview(
+    @PreviewParameter(QrActionPreviewParameter::class) action: QrAction,
+) {
     DiaryTheme {
         QrDetailTopBar(
             onEvent = {},
             uiStateProvider = { QrDetailUiState.Content(id = Uuid.NIL, detail = previewQr(title = "회사 출입").detail) },
+            actionProvider = { action },
         )
     }
 }

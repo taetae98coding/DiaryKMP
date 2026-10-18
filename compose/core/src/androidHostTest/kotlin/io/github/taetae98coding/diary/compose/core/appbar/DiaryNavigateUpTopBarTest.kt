@@ -1,9 +1,9 @@
 package io.github.taetae98coding.diary.compose.core.appbar
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -65,20 +65,20 @@ class DiaryNavigateUpTopBarTest {
     }
 
     @Test
-    fun `동작 슬롯에 넘긴 내용을 끝 쪽에 표시한다`() {
+    fun `넘긴 동작을 끝 쪽 버튼으로 표시한다`() {
         composeRule.setContent {
             DiaryTheme {
                 DiaryNavigateUpTopBar(
                     title = TITLE,
                     onNavigateUp = {},
                     navigateUpContentDescription = NAVIGATE_UP,
-                    actions = { Text(text = ACTION) },
+                    actions = listOf(DiaryTopBarAction.Icon(icon = DiaryTopBarIcon.SEARCH, contentDescription = ACTION, onClick = {})),
                 )
             }
         }
 
-        composeRule.onNodeWithText(ACTION).assertExists()
-        composeRule.onAllNodes(hasClickAction()).fetchSemanticsNodes().size shouldBe 1
+        composeRule.onNodeWithContentDescription(ACTION).assertHasClickAction()
+        composeRule.onAllNodes(hasClickAction()).fetchSemanticsNodes().size shouldBe 2
     }
 
     private companion object {

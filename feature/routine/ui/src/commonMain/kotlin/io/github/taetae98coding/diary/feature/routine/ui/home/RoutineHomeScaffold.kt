@@ -7,10 +7,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBar
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarTitle
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
 import io.github.taetae98coding.diary.compose.core.empty.DiaryEmptyBox
 import io.github.taetae98coding.diary.compose.core.icon.RoutineIcon
@@ -70,9 +70,11 @@ internal fun RoutineHomeScaffold(
 
 @Composable
 private fun TopBar(modifier: Modifier = Modifier) {
-    TopAppBar(
-        title = { Text(text = stringResource(Res.string.routine_home_title)) },
+    val title = stringResource(Res.string.routine_home_title)
+
+    DiaryTopBar(
         modifier = modifier,
+        title = DiaryTopBarTitle.Text(text = title),
     )
 }
 

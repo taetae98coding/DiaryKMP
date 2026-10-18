@@ -14,7 +14,8 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
-import io.github.taetae98coding.diary.compose.core.button.DownloadButton
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarAction
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
 import io.github.taetae98coding.diary.compose.core.dialog.DialogState
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
@@ -49,17 +50,22 @@ internal fun PlaylistHomeScaffold(
         modifier = modifier.addShortcut(isEnabledProvider = { componentVisibleProvider().isAddButtonVisible }) { onEvent(PlaylistHomeScaffoldEvent.ClickAdd) },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
+            val downloadContentDescription = stringResource(Res.string.playlist_home_download_button_content_description)
+
             DiaryNavigateUpTopBar(
                 title = stringResource(Res.string.playlist_home_title),
                 onNavigateUp = { onEvent(PlaylistHomeScaffoldEvent.ClickNavigateUp) },
                 navigateUpContentDescription = stringResource(Res.string.playlist_navigate_up_button_content_description),
-            ) {
-                DownloadButton(
-                    onClick = { onEvent(PlaylistHomeScaffoldEvent.ClickDownload) },
-                    contentDescription = stringResource(Res.string.playlist_home_download_button_content_description),
-                    isInProgressProvider = { downloadUiStateProvider().isDownloading },
-                )
-            }
+                actions =
+                    listOf(
+                        DiaryTopBarAction.Icon(
+                            icon = DiaryTopBarIcon.DOWNLOAD,
+                            contentDescription = downloadContentDescription,
+                            onClick = { onEvent(PlaylistHomeScaffoldEvent.ClickDownload) },
+                            isInProgress = downloadUiStateProvider().isDownloading,
+                        ),
+                    ),
+            )
         },
         floatingActionButton = {
             if (componentVisibleProvider().isAddButtonVisible) {

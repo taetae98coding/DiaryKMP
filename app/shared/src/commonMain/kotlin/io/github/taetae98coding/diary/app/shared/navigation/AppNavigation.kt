@@ -25,6 +25,7 @@ import androidx.navigation3.ui.NavDisplay
 import io.github.taetae98coding.diary.app.shared.AppState
 import io.github.taetae98coding.diary.app.shared.rememberAppState
 import io.github.taetae98coding.diary.compose.core.animation.DiaryFadeContentTransform
+import io.github.taetae98coding.diary.compose.core.appbar.rememberDiaryTopBarAlphaNavEntryDecorator
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateHolder
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
@@ -131,6 +132,7 @@ private fun rememberAppNavEntryDecorators(
         rememberRetainedValuesStoreNavEntryDecorator(),
         rememberResultEventBusNavEntryDecorator(resultEventBus),
         rememberListDetailPlaceholderNavEntryDecorator(placeholderStateHolder),
+        rememberDiaryTopBarAlphaNavEntryDecorator(),
     )
 
 @Composable

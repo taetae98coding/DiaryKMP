@@ -1,7 +1,11 @@
 package io.github.taetae98coding.diary.feature.contact.ui.detail
 
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -111,7 +115,11 @@ class ContactDetailFavoriteTest {
         composeRule.onNode(hasText(CONTACT_NAME) and hasSetTextAction()).performTextInput(NAME_SUFFIX)
         composeRule.waitForIdle()
 
-        composeRule.onNodeWithContentDescription(DEFAULT_FAVORITE_BUTTON_DESCRIPTION).assertDoesNotExist()
+        composeRule
+            .onNode(
+                hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate).and(hasAnyAncestor(hasContentDescription(DEFAULT_FAVORITE_BUTTON_DESCRIPTION))),
+                useUnmergedTree = true,
+            ).assertExists()
         composeRule.onNodeWithContentDescription(DEFAULT_UNFAVORITE_BUTTON_DESCRIPTION).assertDoesNotExist()
         composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assert(hasClickAction())
         composeRule.onNodeWithContentDescription(DEFAULT_DELETE_BUTTON_DESCRIPTION).assert(hasClickAction())

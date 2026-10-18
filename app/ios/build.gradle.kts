@@ -17,6 +17,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.app.shared)
+                implementation(projects.compose.core)
                 implementation(libs.jetbrains.compose.ui)
             }
         }

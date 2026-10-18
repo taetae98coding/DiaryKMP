@@ -12,8 +12,9 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarAction
+import io.github.taetae98coding.diary.compose.core.appbar.DiaryTopBarIcon
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
-import io.github.taetae98coding.diary.compose.core.button.SearchButton
 import io.github.taetae98coding.diary.compose.core.preview.BooleanPreviewParameter
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
@@ -64,18 +65,24 @@ internal fun PlaceAddScaffold(
     Scaffold(
         modifier = modifier.submitShortcut { onEvent(PlaceAddScaffoldEvent.ClickAdd) },
         topBar = {
+            val searchContentDescription = stringResource(Res.string.place_search_button_content_description)
+
             DiaryNavigateUpTopBar(
                 title = stringResource(Res.string.place_add_title),
                 onNavigateUp = { onEvent(PlaceAddScaffoldEvent.ClickNavigateUp) },
                 navigateUpContentDescription = stringResource(Res.string.place_navigate_up_button_content_description),
-                actions = {
-                    if (uiStateProvider().defaultProvider != null) {
-                        SearchButton(
-                            onClick = { onEvent(PlaceAddScaffoldEvent.ClickSearch) },
-                            contentDescription = stringResource(Res.string.place_search_button_content_description),
-                        )
-                    }
-                },
+                actions =
+                    buildList {
+                        if (uiStateProvider().defaultProvider != null) {
+                            add(
+                                DiaryTopBarAction.Icon(
+                                    icon = DiaryTopBarIcon.SEARCH,
+                                    contentDescription = searchContentDescription,
+                                    onClick = { onEvent(PlaceAddScaffoldEvent.ClickSearch) },
+                                ),
+                            )
+                        }
+                    },
             )
         },
         snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },
