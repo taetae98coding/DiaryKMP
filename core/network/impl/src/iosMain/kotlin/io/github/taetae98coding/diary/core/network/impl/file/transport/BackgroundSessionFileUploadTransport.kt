@@ -48,6 +48,7 @@ import platform.posix.memcpy
 import kotlin.coroutines.resume
 import kotlin.uuid.Uuid
 
+// iosApp의 FileUploadBackgroundEvents.swift가 이 식별자로 SwiftUI 백그라운드 작업을 받으므로 바꾸면 함께 바꾼다.
 private const val FILE_UPLOAD_SESSION_IDENTIFIER: String = "io.github.taetae98coding.diary.fileUpload"
 private const val UPLOAD_DIRECTORY_NAME: String = "file-upload"
 
