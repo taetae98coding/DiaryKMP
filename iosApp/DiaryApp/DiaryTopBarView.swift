@@ -58,6 +58,9 @@ private nonisolated enum DiaryTopBarMetrics {
     static let horizontalPadding: CGFloat = 16
     static let buttonSize: CGFloat = 44
     static let spacing: CGFloat = 8
+    static let textButtonOutlineSize: CGFloat = 32
+    static let textButtonOutlineCornerRadius: CGFloat = 12
+    static let textButtonOutlineWidth: CGFloat = 1
 }
 
 private struct DiaryTopBarContent: View {
@@ -166,6 +169,11 @@ private struct DiaryTopBarButtonView: View {
                     Text(text)
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(Color.primary)
+                        .frame(width: DiaryTopBarMetrics.textButtonOutlineSize, height: DiaryTopBarMetrics.textButtonOutlineSize)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: DiaryTopBarMetrics.textButtonOutlineCornerRadius)
+                                .strokeBorder(Color.primary, lineWidth: DiaryTopBarMetrics.textButtonOutlineWidth)
+                        }
                 }
             }
             .frame(width: DiaryTopBarMetrics.buttonSize, height: DiaryTopBarMetrics.buttonSize)
