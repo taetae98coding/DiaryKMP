@@ -1,5 +1,5 @@
 name: 🧰 빌드 환경 준비
-description: JDK 21을 설치하고 CI 전용 캐시 위치를 잡은 뒤 local.properties를 복원한다
+description: JDK 21과 Gradle·Kotlin/Native 캐시를 준비하고 local.properties를 복원한다
 
 inputs:
   local-properties:
@@ -19,20 +19,20 @@ runs:
         distribution: temurin
         java-version: 21
 
-    - name: 🗂️ CI 전용 캐시 위치 설정
-      shell: bash
-      run: |
-        set -euo pipefail
-        # self-hosted 러너는 실행 사이에 홈 디렉터리를 공유하므로, 캐시는 유지하되 개발자의 ~/.gradle, ~/.konan과 섞지 않는다.
-        ci="$HOME/.diary-ci"
-        mkdir -p "$ci/gradle" "$ci/DerivedData"
-        {
-          echo "GRADLE_USER_HOME=$ci/gradle"
-          echo "KONAN_DATA_DIR=$ci/konan"
-          echo "CI_DERIVED_DATA=$ci/DerivedData"
-        } >> "$GITHUB_ENV"
-        # 빌드가 끝난 뒤 Gradle 데몬이 개발 머신의 메모리를 붙잡지 않게 한다. Kotlin 데몬은 유휴 상태가 되면 스스로 종료한다.
-        printf '%s\n' 'org.gradle.daemon=false' > "$ci/gradle/gradle.properties"
+    # GitHub 호스팅 러너는 잡마다 새 VM이라 의존성·wrapper를 매번 내려받지 않도록 Gradle User Home을 캐시한다.
+    - name: 🐘 Gradle 캐시 준비
+      uses: gradle/actions/setup-gradle@v6
+      with:
+        # 기본값은 기본 브랜치(develop)에서만 캐시를 쓰지만 CI는 main 대상 PR과 main 배포에서만 돌므로, PR을 뺀 실행이 캐시를 갱신한다.
+        cache-read-only: ${{ github.event_name == 'pull_request' }}
+
+    # Kotlin/Native 툴체인과 의존성(~/.konan)은 Gradle User Home 밖에 있어 따로 캐시한다.
+    - name: 🗂️ Kotlin/Native 캐시 복원
+      uses: actions/cache@v6
+      with:
+        path: ~/.konan
+        key: konan-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('gradle/libs.versions.toml') }}
+        restore-keys: konan-${{ runner.os }}-${{ runner.arch }}-
 
     - name: 🔐 local.properties 복원
       shell: bash
