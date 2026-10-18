@@ -15,8 +15,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.layout.isCompactWidth
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
-import io.github.taetae98coding.diary.compose.core.shortcut.isAddShortcut
-import io.github.taetae98coding.diary.compose.core.shortcut.keyShortcut
+import io.github.taetae98coding.diary.compose.core.shortcut.addShortcut
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.tag.entity.EntityTagInputUiState
@@ -66,14 +65,7 @@ internal fun WebDetailScaffold(
         modifier =
             modifier
                 .submitShortcut(isEnabledProvider = { isChanged && state.isFormVisible(isCompactWidth) }) { onEvent(WebDetailScaffoldEvent.ClickUpdate) }
-                .keyShortcut(isEnableProvider = { state.tab == WebDetailTab.MEMO }) { keyEvent ->
-                    if (keyEvent.isAddShortcut()) {
-                        onEvent(WebDetailScaffoldEvent.ClickMemoAdd)
-                        true
-                    } else {
-                        false
-                    }
-                },
+                .addShortcut(isEnabledProvider = { state.tab == WebDetailTab.MEMO }) { onEvent(WebDetailScaffoldEvent.ClickMemoAdd) },
         topBar = {
             WebDetailTopBar(
                 onEvent = onEvent,

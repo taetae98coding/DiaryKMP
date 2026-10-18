@@ -5,8 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.taetae98coding.diary.compose.core.shortcut.isAddShortcut
-import io.github.taetae98coding.diary.compose.core.shortcut.keyShortcut
+import io.github.taetae98coding.diary.compose.core.shortcut.addShortcut
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import kotlinx.coroutines.flow.Flow
 
@@ -35,14 +34,7 @@ internal fun RoutineHomeScreen(
             }
         },
         modifier =
-            modifier.keyShortcut(isEnableProvider = { componentVisibleProvider().isAddButtonVisible }) { keyEvent ->
-                if (keyEvent.isAddShortcut()) {
-                    navigateToAdd()
-                    true
-                } else {
-                    false
-                }
-            },
+            modifier.addShortcut(isEnabledProvider = { componentVisibleProvider().isAddButtonVisible }, onAdd = navigateToAdd),
         uiStateProvider = { uiState },
         componentVisibleProvider = componentVisibleProvider,
     )

@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.feature.qr.ui.home
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
@@ -13,7 +14,9 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
@@ -254,6 +257,26 @@ class QrHomeScaffoldTest {
         composeRule.waitForIdle()
 
         eventList shouldBe listOf(QrHomeScaffoldEvent.Refresh)
+    }
+
+    @Test
+    fun `TC-QR-HOME-FEATURE-036 Cmd A 단축키를 입력하면 QR 추가 이벤트를 한 번 내보낸다`() {
+        val eventList = mutableListOf<QrHomeScaffoldEvent>()
+        setQrHomeScaffold(onEvent = eventList::add)
+
+        performAddShortcut()
+
+        eventList shouldBe listOf(QrHomeScaffoldEvent.ClickAdd)
+    }
+
+    private fun performAddShortcut() {
+        composeRule.onRoot().performKeyInput {
+            keyDown(Key.MetaLeft)
+            keyDown(Key.A)
+            keyUp(Key.A)
+            keyUp(Key.MetaLeft)
+        }
+        composeRule.waitForIdle()
     }
 
     private fun setQrHomeScaffold(

@@ -14,6 +14,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.appbar.DiaryNavigateUpTopBar
 import io.github.taetae98coding.diary.compose.core.button.FloatingAddButton
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
+import io.github.taetae98coding.diary.compose.core.shortcut.addShortcut
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.qr.Qr
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
@@ -33,7 +34,7 @@ internal fun QrHomeScaffold(
     uiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
 ) {
     Scaffold(
-        modifier = modifier,
+        modifier = modifier.addShortcut { onEvent(QrHomeScaffoldEvent.ClickAdd) },
         topBar = {
             DiaryNavigateUpTopBar(
                 title = stringResource(Res.string.qr_home_title),

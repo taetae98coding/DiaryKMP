@@ -54,3 +54,17 @@ public fun Modifier.submitShortcut(
             false
         }
     }
+
+@Composable
+public fun Modifier.addShortcut(
+    isEnabledProvider: () -> Boolean = { true },
+    onAdd: () -> Unit,
+): Modifier =
+    keyShortcut(isEnableProvider = isEnabledProvider) { keyEvent ->
+        if (keyEvent.isAddShortcut()) {
+            onAdd()
+            true
+        } else {
+            false
+        }
+    }

@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.file.ui.home
 
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
@@ -10,7 +11,9 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
@@ -253,6 +256,60 @@ class FileHomeScaffoldTest {
 
         composeRule.onNodeWithContentDescription(KOREAN_NAVIGATE_UP_DESCRIPTION).assertExists()
         composeRule.onNodeWithContentDescription(KOREAN_ADD_BUTTON_DESCRIPTION).assertExists()
+    }
+
+    @Test
+    fun `TC-FILE-HOME-FEATURE-052 사용자이고 올리는 중인 파일이 없으면 Cmd A 단축키로 파일 추가 이벤트를 한 번 내보낸다`() {
+        val eventList = mutableListOf<FileHomeScaffoldEvent>()
+        setFileHomeScaffold(onEvent = eventList::add, uiState = FileHomeUiState.User(accountId = fixtureMonkey.giveMeOne<Uuid>()))
+
+        performAddShortcut()
+
+        eventList shouldBe listOf(FileHomeScaffoldEvent.ClickAdd)
+    }
+
+    @Test
+    fun `TC-FILE-HOME-FEATURE-053 계정 상태를 아직 확정하지 않았으면 Cmd A 단축키로 파일 추가 이벤트를 내보내지 않는다`() {
+        val eventList = mutableListOf<FileHomeScaffoldEvent>()
+        setFileHomeScaffold(onEvent = eventList::add, uiState = FileHomeUiState.Loading)
+
+        performAddShortcut()
+
+        eventList shouldBe emptyList()
+    }
+
+    @Test
+    fun `TC-FILE-HOME-FEATURE-053 게스트이면 Cmd A 단축키로 파일 추가 이벤트를 내보내지 않는다`() {
+        val eventList = mutableListOf<FileHomeScaffoldEvent>()
+        setFileHomeScaffold(onEvent = eventList::add, uiState = FileHomeUiState.Guest)
+
+        performAddShortcut()
+
+        eventList shouldBe emptyList()
+    }
+
+    @Test
+    fun `TC-FILE-HOME-FEATURE-053 올리는 중인 파일이 있으면 Cmd A 단축키로 파일 추가 이벤트를 내보내지 않는다`() {
+        val eventList = mutableListOf<FileHomeScaffoldEvent>()
+        setFileHomeScaffold(
+            onEvent = eventList::add,
+            uiState = FileHomeUiState.User(accountId = fixtureMonkey.giveMeOne<Uuid>()),
+            uploadUiState = FileHomeUploadUiState(isUploading = true),
+        )
+
+        performAddShortcut()
+
+        eventList shouldBe emptyList()
+    }
+
+    private fun performAddShortcut() {
+        composeRule.onRoot().performKeyInput {
+            keyDown(Key.MetaLeft)
+            keyDown(Key.A)
+            keyUp(Key.A)
+            keyUp(Key.MetaLeft)
+        }
+        composeRule.waitForIdle()
     }
 
     private fun setFileHomeScaffold(

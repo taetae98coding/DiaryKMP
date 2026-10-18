@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.feature.web.ui.home
 
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasClickAction
@@ -9,7 +10,9 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -225,6 +228,53 @@ class WebHomeScaffoldTest {
                 .boundsInRoot
                 .top
         (lastCardBottom <= addButtonTop) shouldBe true
+    }
+
+    @Test
+    fun `TC-WEB-HOME-FEATURE-033 Cmd A 단축키를 입력하면 웹 추가 이벤트를 한 번 내보낸다`() {
+        val eventList = mutableListOf<WebHomeScaffoldEvent>()
+        setWebHomeScaffold(onEvent = eventList::add)
+
+        performAddShortcut()
+
+        eventList shouldBe listOf(WebHomeScaffoldEvent.ClickAdd)
+    }
+
+    @Test
+    fun `TC-WEB-LIST-DETAIL-FEATURE-003 상세 영역에 웹 추가가 놓이면 Cmd A 단축키로도 웹 추가 이벤트를 내보내지 않는다`() {
+        val eventList = mutableListOf<WebHomeScaffoldEvent>()
+        setWebHomeScaffold(
+            onEvent = eventList::add,
+            componentVisible = WebHomeScaffoldComponentVisible(isAddButtonVisible = false),
+        )
+
+        performAddShortcut()
+
+        eventList shouldBe emptyList()
+    }
+
+    @Test
+    fun `A 키만 누르면 웹 추가 이벤트를 내보내지 않는다`() {
+        val eventList = mutableListOf<WebHomeScaffoldEvent>()
+        setWebHomeScaffold(onEvent = eventList::add)
+
+        composeRule.onRoot().performKeyInput {
+            keyDown(Key.A)
+            keyUp(Key.A)
+        }
+        composeRule.waitForIdle()
+
+        eventList shouldBe emptyList()
+    }
+
+    private fun performAddShortcut() {
+        composeRule.onRoot().performKeyInput {
+            keyDown(Key.MetaLeft)
+            keyDown(Key.A)
+            keyUp(Key.A)
+            keyUp(Key.MetaLeft)
+        }
+        composeRule.waitForIdle()
     }
 
     private fun setWebHomeScaffold(
