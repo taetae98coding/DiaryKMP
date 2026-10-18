@@ -3,12 +3,14 @@ package io.github.taetae98coding.diary.compose.map
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextMeasurer
 import io.github.taetae98coding.diary.compose.map.di.MapDispatcher
+import io.github.taetae98coding.diary.compose.map.provider.label
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import org.koin.compose.koinInject
 import org.koin.core.qualifier.named
-import platform.UIKit.UIImage
 
 @Composable
 internal fun rememberPinMarkerImageFactory(): PinMarkerImageFactory {
@@ -17,17 +19,30 @@ internal fun rememberPinMarkerImageFactory(): PinMarkerImageFactory {
     return remember(dispatcher) { PinMarkerImageFactory(dispatcher = dispatcher) }
 }
 
-// 핀 그림은 비트맵에 그려 PNG로 바꾸므로, 화면을 그리는 메인 스레드 밖에서 색마다 한 번만 만든다.
+internal data class PinMarkerImageKey(
+    val color: Color,
+    val label: String,
+)
+
+internal val DiaryMapPin.pinMarkerImageKey: PinMarkerImageKey
+    get() = PinMarkerImageKey(color = color, label = label)
+
+// 핀 그림은 비트맵에 그려 PNG로 바꾸므로, 화면을 그리는 메인 스레드 밖에서 색과 라벨마다 한 번만 만든다.
 internal class PinMarkerImageFactory(
     private val dispatcher: CoroutineDispatcher,
 ) {
     suspend fun create(
-        colorList: List<Color>,
+        pinList: List<DiaryMapPin>,
         density: Float,
-    ): Map<Color, UIImage?> =
+        textMeasurer: TextMeasurer,
+    ): Map<PinMarkerImageKey, PinMarkerImage?> =
         withContext(dispatcher) {
-            colorList
+            pinList
+                .map { pin -> pin.pinMarkerImageKey }
                 .distinct()
-                .associateWith { color -> createPinMarkerImage(color = color, density = density) }
+                .associateWith { key ->
+                    ensureActive()
+                    createPinMarkerImage(color = key.color, label = key.label, density = density, textMeasurer = textMeasurer)
+                }
         }
 }

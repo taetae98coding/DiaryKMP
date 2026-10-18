@@ -1,9 +1,9 @@
-package io.github.taetae98coding.diary.compose.map
+package io.github.taetae98coding.diary.compose.core.graphics
 
 import androidx.compose.ui.graphics.Color
 import platform.UIKit.UIColor
 
-internal fun Color.toUIColor(): UIColor =
+public fun Color.toUIColor(): UIColor =
     UIColor(
         red = red.toDouble(),
         green = green.toDouble(),

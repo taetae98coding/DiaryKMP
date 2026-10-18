@@ -7,25 +7,19 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.text.rememberTextMeasurer
 import io.github.taetae98coding.diary.compose.map.DiaryMapPin
-import io.github.taetae98coding.diary.compose.map.DiaryMapPinMarkerDefaults
 import io.github.taetae98coding.diary.compose.map.DiaryMapState
+import io.github.taetae98coding.diary.compose.map.PinMarkerImage
 import io.github.taetae98coding.diary.compose.map.isFinite
+import io.github.taetae98coding.diary.compose.map.pinMarkerImageKey
 import io.github.taetae98coding.diary.compose.map.provider.label
 import io.github.taetae98coding.diary.compose.map.rememberDiaryMapState
 import io.github.taetae98coding.diary.compose.map.rememberPinMarkerImageFactory
 import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.useContents
 import platform.CoreGraphics.CGPointMake
-import platform.CoreGraphics.CGRectMake
 import platform.CoreLocation.CLLocationCoordinate2DMake
-import platform.UIKit.NSTextAlignmentCenter
-import platform.UIKit.UIColor
-import platform.UIKit.UIFont
-import platform.UIKit.UIImage
-import platform.UIKit.UIImageView
-import platform.UIKit.UILabel
-import platform.UIKit.UIView
+import platform.UIKit.accessibilityLabel
 import swiftPMImport.DiaryKmp.compose.compose.map.GMSMapView
 import swiftPMImport.DiaryKmp.compose.compose.map.GMSMarker
 
@@ -40,6 +34,7 @@ internal fun GoogleMapPinMarkersEffect(
 ) {
     val pinMarkerImageFactory = rememberPinMarkerImageFactory()
     val markers = remember { mutableListOf<GMSMarker>() }
+    val textMeasurer = rememberTextMeasurer()
 
     DisposableEffect(markers) {
         onDispose {
@@ -47,15 +42,15 @@ internal fun GoogleMapPinMarkersEffect(
         }
     }
 
-    LaunchedEffect(mapView, markers, state, isPinSelectable, density, pinMarkerImageFactory) {
+    LaunchedEffect(mapView, markers, state, isPinSelectable, density, pinMarkerImageFactory, textMeasurer) {
         snapshotFlow { state.pins }
             .collect { pins ->
                 val finitePins = pins.filter { pin -> pin.isFinite }
-                val imageByColor =
+                val imageByKey =
                     if (mapView == null) {
                         emptyMap()
                     } else {
-                        pinMarkerImageFactory.create(colorList = finitePins.map { pin -> pin.color }, density = density)
+                        pinMarkerImageFactory.create(pinList = finitePins, density = density, textMeasurer = textMeasurer)
                     }
 
                 markers.forEach { marker -> marker.map = null }
@@ -75,7 +70,7 @@ internal fun GoogleMapPinMarkersEffect(
                                 )
                                 tappable = isPinSelectable
                                 userData = pin.id.toString()
-                                applyPinAppearance(pin = pin, image = imageByColor[pin.color])
+                                applyPinAppearance(pin = pin, markerImage = imageByKey[pin.pinMarkerImageKey])
                                 map = mapView
                             }
                     }
@@ -85,40 +80,12 @@ internal fun GoogleMapPinMarkersEffect(
 
 private fun GMSMarker.applyPinAppearance(
     pin: DiaryMapPin,
-    image: UIImage?,
+    markerImage: PinMarkerImage?,
 ) {
-    if (image == null) return
+    if (markerImage == null) return
 
-    val (imageWidth, imageHeight) = image.size.useContents { width to height }
-    val imageView = UIImageView(image = image)
-
-    if (pin.label.isEmpty()) {
-        iconView = imageView
-        return
-    }
-
-    val label =
-        UILabel().apply {
-            text = pin.label
-            font = UIFont.systemFontOfSize(DiaryMapPinMarkerDefaults.LabelFontSize.value.toDouble())
-            textColor = UIColor.blackColor
-            backgroundColor = UIColor.whiteColor.colorWithAlphaComponent(DiaryMapPinMarkerDefaults.LABEL_BACKGROUND_ALPHA.toDouble())
-            textAlignment = NSTextAlignmentCenter
-            layer.cornerRadius = DiaryMapPinMarkerDefaults.LabelCornerRadius.value.toDouble()
-            clipsToBounds = true
-            sizeToFit()
-        }
-    val labelWidth = label.frame.useContents { size.width } + DiaryMapPinMarkerDefaults.LabelHorizontalPadding.value * 2
-    val labelHeight = DiaryMapPinMarkerDefaults.LabelHeight.value.toDouble()
-    val width = maxOf(imageWidth, labelWidth)
-    val height = imageHeight + labelHeight
-    val container = UIView(frame = CGRectMake(0.0, 0.0, width, height))
-
-    imageView.setFrame(CGRectMake((width - imageWidth) / 2, 0.0, imageWidth, imageHeight))
-    label.setFrame(CGRectMake((width - labelWidth) / 2, imageHeight, labelWidth, labelHeight))
-    container.addSubview(imageView)
-    container.addSubview(label)
-
-    iconView = container
-    groundAnchor = CGPointMake(PIN_ANCHOR_X, imageHeight / height)
+    icon = markerImage.image
+    groundAnchor = CGPointMake(PIN_ANCHOR_X, markerImage.anchorY)
+    // 라벨을 이미지에 그려 넣었으므로 화면 읽기 프로그램에는 라벨 문구를 따로 알려 준다.
+    accessibilityLabel = pin.label
 }
