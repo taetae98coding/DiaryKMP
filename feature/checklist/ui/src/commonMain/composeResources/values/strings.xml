@@ -1,4 +1,30 @@
 <resources>
+    <string name="checklist_add_button_content_description">Add checklist</string>
+    <string name="checklist_add_item_remove_button_content_description">Remove item %1$s</string>
+    <string name="checklist_add_items_label">Items</string>
+    <string name="checklist_add_succeeded_message">Checklist added.</string>
+    <string name="checklist_add_title">Add checklist</string>
+    <string name="checklist_add_title_blank_message">Please enter a title.</string>
+    <string name="checklist_detail_delete_button_content_description">Delete checklist</string>
+    <string name="checklist_detail_empty_description">Use the field below to add an item.</string>
+    <string name="checklist_detail_empty_title">No items yet</string>
+    <string name="checklist_detail_item_remove_button_content_description">Remove item, %1$s</string>
+    <string name="checklist_detail_loading_content_description">Loading checklist</string>
+    <string name="checklist_detail_reset_button_content_description">Uncheck all</string>
+    <string name="checklist_detail_reset_dialog_cancel">Cancel</string>
+    <string name="checklist_detail_reset_dialog_confirm">Reset</string>
+    <string name="checklist_detail_reset_dialog_text">All items stay in the checklist. Only their checks are cleared.</string>
+    <string name="checklist_detail_reset_dialog_title">Uncheck all items?</string>
+    <string name="checklist_detail_update_button_content_description">Update checklist</string>
+    <string name="checklist_detail_update_succeeded_message">Checklist updated.</string>
+    <string name="checklist_home_delete_content_description">Delete checklist</string>
+    <string name="checklist_home_deleted_message">Checklist deleted.</string>
+    <string name="checklist_home_empty_description">Use the add button to create a checklist.</string>
+    <string name="checklist_home_empty_title">No checklists yet</string>
+    <string name="checklist_home_progress_content_description">%2$s of %1$s checked</string>
     <string name="checklist_home_title">Checklist</string>
+    <string name="checklist_home_undo_action">Undo</string>
+    <string name="checklist_item_add_button_content_description">Add item</string>
+    <string name="checklist_item_input_label">New item</string>
     <string name="checklist_navigate_up_button_content_description">Navigate up</string>
 </resources>

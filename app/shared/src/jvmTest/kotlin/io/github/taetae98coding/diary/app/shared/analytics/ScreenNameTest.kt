@@ -9,6 +9,8 @@ import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarTimetableNavKey
+import io.github.taetae98coding.diary.feature.checklist.api.ChecklistAddNavKey
+import io.github.taetae98coding.diary.feature.checklist.api.ChecklistDetailNavKey
 import io.github.taetae98coding.diary.feature.checklist.api.ChecklistHomeNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
@@ -103,6 +105,7 @@ class ScreenNameTest :
             val valuedNavKeyList =
                 listOf(
                     CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.WEEK, date = date),
+                    ChecklistDetailNavKey(id = id),
                     ContactDetailNavKey(id = id),
                     ContactMemoFinishedListNavKey(contactId = id),
                     MemoDetailNavKey(id = id),
@@ -146,6 +149,8 @@ class ScreenNameTest :
                 CalendarHomeNavKey to "CalendarHome",
                 CalendarHomeFilterNavKey to "CalendarHomeFilter",
                 CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.DAY, date = fixtureMonkey.giveMeOne<LocalDate>()) to "CalendarTimetable",
+                ChecklistAddNavKey to "ChecklistAdd",
+                ChecklistDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "ChecklistDetail",
                 ChecklistHomeNavKey to "ChecklistHome",
                 ContactAddNavKey() to "ContactAdd",
                 ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "ContactDetail",
@@ -199,6 +204,7 @@ class ScreenNameTest :
             listOf(
                 CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.DAY, date = fixtureMonkey.giveMeOne<LocalDate>()) to
                     CalendarTimetableNavKey(type = CalendarTimetableNavKey.Type.WEEK, date = fixtureMonkey.giveMeOne<LocalDate>()),
+                ChecklistDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to ChecklistDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
                 ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
                 ContactMemoFinishedListNavKey(contactId = fixtureMonkey.giveMeOne<Uuid>()) to
                     ContactMemoFinishedListNavKey(contactId = fixtureMonkey.giveMeOne<Uuid>()),

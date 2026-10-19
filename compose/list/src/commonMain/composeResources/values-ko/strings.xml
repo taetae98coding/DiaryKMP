@@ -1,4 +1,6 @@
 <resources>
+    <string name="checklist_item_sort_added_label">추가순</string>
+    <string name="checklist_item_sort_unchecked_first_label">체크 안 된 항목 우선</string>
     <string name="list_sort_bottom_sheet_title">정렬</string>
     <string name="list_sort_content_description">목록 정렬</string>
     <string name="list_sort_default_label">기본순</string>
