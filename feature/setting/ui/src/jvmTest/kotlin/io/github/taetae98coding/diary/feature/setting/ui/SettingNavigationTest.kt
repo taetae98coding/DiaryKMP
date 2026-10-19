@@ -4,11 +4,12 @@ import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.more.api.MoreHomeNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingBrowserNavKey
-import io.github.taetae98coding.diary.feature.setting.api.SettingDownloadNavKey
+import io.github.taetae98coding.diary.feature.setting.api.SettingFileNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHolidayNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingMapNavKey
+import io.github.taetae98coding.diary.feature.setting.api.SettingPlaylistNavKey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 
@@ -32,10 +33,12 @@ class SettingNavigationTest :
                     SettingHolidayNavKey to SettingGeminiNavKey,
                     SettingGeminiNavKey to SettingMapNavKey,
                     SettingGeminiNavKey to SettingBrowserNavKey,
-                    SettingGeminiNavKey to SettingDownloadNavKey,
+                    SettingGeminiNavKey to SettingPlaylistNavKey,
                     SettingBrowserNavKey to SettingHolidayNavKey,
-                    SettingBrowserNavKey to SettingDownloadNavKey,
-                    SettingDownloadNavKey to SettingMapNavKey,
+                    SettingBrowserNavKey to SettingPlaylistNavKey,
+                    SettingPlaylistNavKey to SettingMapNavKey,
+                    SettingPlaylistNavKey to SettingFileNavKey,
+                    SettingFileNavKey to SettingHolidayNavKey,
                 )
 
             detailCases.forEach { (currentDetail, destination) ->
@@ -65,7 +68,8 @@ class SettingNavigationTest :
                     SettingMapNavKey,
                     SettingGeminiNavKey,
                     SettingBrowserNavKey,
-                    SettingDownloadNavKey,
+                    SettingPlaylistNavKey,
+                    SettingFileNavKey,
                 )
 
             detailCases.forEach { detail ->
@@ -92,7 +96,8 @@ private val settingDetailList: List<ScreenNavKey> =
         SettingMapNavKey,
         SettingGeminiNavKey,
         SettingBrowserNavKey,
-        SettingDownloadNavKey,
+        SettingPlaylistNavKey,
+        SettingFileNavKey,
     )
 
 private fun settingBackStack(vararg detail: ScreenNavKey): NavBackStack<ScreenNavKey> =

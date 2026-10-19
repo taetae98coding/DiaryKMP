@@ -53,8 +53,13 @@ class SettingHomeScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-HOME-FEATURE-013 다운로드 항목을 선택하면 SettingDownload 화면으로 이동한다`() {
-        assertNavigatesOnlyTo(itemLabel = DEFAULT_DOWNLOAD_ITEM_LABEL, expected = SettingHomeItem.DOWNLOAD)
+    fun `TC-SETTING-HOME-FEATURE-013 플레이리스트 항목을 선택하면 SettingPlaylist 화면으로 이동한다`() {
+        assertNavigatesOnlyTo(itemLabel = DEFAULT_PLAYLIST_ITEM_LABEL, expected = SettingHomeItem.PLAYLIST)
+    }
+
+    @Test
+    fun `TC-SETTING-HOME-FEATURE-023 파일 항목을 선택하면 SettingFile 화면으로 이동한다`() {
+        assertNavigatesOnlyTo(itemLabel = DEFAULT_FILE_ITEM_LABEL, expected = SettingHomeItem.FILE)
     }
 
     private fun assertNavigatesOnlyTo(
@@ -67,7 +72,8 @@ class SettingHomeScreenTest {
             navigateToMap = { navigatedItemList += SettingHomeItem.MAP },
             navigateToGemini = { navigatedItemList += SettingHomeItem.GEMINI },
             navigateToBrowser = { navigatedItemList += SettingHomeItem.BROWSER },
-            navigateToDownload = { navigatedItemList += SettingHomeItem.DOWNLOAD },
+            navigateToPlaylist = { navigatedItemList += SettingHomeItem.PLAYLIST },
+            navigateToFile = { navigatedItemList += SettingHomeItem.FILE },
         )
 
         composeRule.onNodeWithText(itemLabel).performClick()
@@ -82,7 +88,8 @@ class SettingHomeScreenTest {
         navigateToMap: () -> Unit = {},
         navigateToGemini: () -> Unit = {},
         navigateToBrowser: () -> Unit = {},
-        navigateToDownload: () -> Unit = {},
+        navigateToPlaylist: () -> Unit = {},
+        navigateToFile: () -> Unit = {},
         viewModel: SettingHomeViewModel = screenTestViewModel(SettingHomeUiState.Content(itemList = settingHomeItemList)),
     ) {
         composeRule.setContent {
@@ -93,7 +100,8 @@ class SettingHomeScreenTest {
                     navigateToMap = navigateToMap,
                     navigateToGemini = navigateToGemini,
                     navigateToBrowser = navigateToBrowser,
-                    navigateToDownload = navigateToDownload,
+                    navigateToPlaylist = navigateToPlaylist,
+                    navigateToFile = navigateToFile,
                     viewModel = viewModel,
                 )
             }
@@ -106,7 +114,8 @@ class SettingHomeScreenTest {
         private const val DEFAULT_MAP_ITEM_LABEL = "Map"
         private const val DEFAULT_GEMINI_ITEM_LABEL = "Gemini"
         private const val DEFAULT_BROWSER_ITEM_LABEL = "Browser"
-        private const val DEFAULT_DOWNLOAD_ITEM_LABEL = "Download"
+        private const val DEFAULT_PLAYLIST_ITEM_LABEL = "Playlist"
+        private const val DEFAULT_FILE_ITEM_LABEL = "Files"
 
         private fun screenTestViewModel(uiState: SettingHomeUiState): SettingHomeViewModel {
             val viewModel = mockk<SettingHomeViewModel>()

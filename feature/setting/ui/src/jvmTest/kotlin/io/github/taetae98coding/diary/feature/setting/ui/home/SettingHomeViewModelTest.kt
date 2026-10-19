@@ -4,6 +4,7 @@ package io.github.taetae98coding.diary.feature.setting.ui.home
 
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.domain.browser.usecase.ReadChromeSessionImportSupportUseCase
+import io.github.taetae98coding.diary.domain.file.usecase.ReadFileDownloadDirectorySupportUseCase
 import io.github.taetae98coding.diary.domain.playlist.usecase.ReadMusicDownloadSupportUseCase
 import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
 import io.kotest.core.spec.style.FunSpec
@@ -28,7 +29,8 @@ private val fullItemList =
         SettingHomeItem.MAP,
         SettingHomeItem.GEMINI,
         SettingHomeItem.BROWSER,
-        SettingHomeItem.DOWNLOAD,
+        SettingHomeItem.PLAYLIST,
+        SettingHomeItem.FILE,
     )
 
 class SettingHomeViewModelTest : FunSpec() {
@@ -44,7 +46,7 @@ class SettingHomeViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-SETTING-HOME-FEATURE-005 TC-SETTING-HOME-DOMAIN-001 브라우저와 다운로드 항목을 제공하는 환경에서는 다섯 항목을 선언된 순서로 제공한다") {
+        test("TC-SETTING-HOME-FEATURE-005 TC-SETTING-HOME-DOMAIN-001 브라우저, 플레이리스트와 파일 항목을 제공하는 환경에서는 여섯 항목을 선언된 순서로 제공한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(chromeResult = Result.success(true), downloadResult = Result.success(true))
 
@@ -58,7 +60,8 @@ class SettingHomeViewModelTest : FunSpec() {
                                     SettingHomeItem.MAP,
                                     SettingHomeItem.GEMINI,
                                     SettingHomeItem.BROWSER,
-                                    SettingHomeItem.DOWNLOAD,
+                                    SettingHomeItem.PLAYLIST,
+                                    SettingHomeItem.FILE,
                                 ),
                         )
                 }
@@ -73,15 +76,15 @@ class SettingHomeViewModelTest : FunSpec() {
                     awaitItem() shouldBe SettingHomeUiState.Loading
                     awaitItem() shouldBe
                         SettingHomeUiState.Content(
-                            itemList = listOf(SettingHomeItem.HOLIDAY, SettingHomeItem.MAP, SettingHomeItem.GEMINI, SettingHomeItem.DOWNLOAD),
+                            itemList = listOf(SettingHomeItem.HOLIDAY, SettingHomeItem.MAP, SettingHomeItem.GEMINI, SettingHomeItem.PLAYLIST, SettingHomeItem.FILE),
                         )
                 }
             }
         }
 
-        test("TC-SETTING-HOME-FEATURE-014 다운로드 항목을 제공하지 않는 환경에서는 그 항목을 빼고 같은 순서로 제공한다") {
+        test("TC-SETTING-HOME-FEATURE-014 브라우저, 플레이리스트와 파일 항목을 제공하지 않는 환경에서는 그 항목을 빼고 같은 순서로 제공한다") {
             runTest(mainDispatcher) {
-                val viewModel = viewModel(chromeResult = Result.success(false), downloadResult = Result.success(false))
+                val viewModel = viewModel(chromeResult = Result.success(false), downloadResult = Result.success(false), fileResult = Result.success(false))
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Loading
@@ -89,6 +92,17 @@ class SettingHomeViewModelTest : FunSpec() {
                         SettingHomeUiState.Content(
                             itemList = listOf(SettingHomeItem.HOLIDAY, SettingHomeItem.MAP, SettingHomeItem.GEMINI),
                         )
+                }
+            }
+        }
+
+        test("TC-SETTING-HOME-FEATURE-024 파일 항목을 제공하지 않는 환경에서는 그 항목을 빼고 같은 순서로 제공한다") {
+            runTest(mainDispatcher) {
+                val viewModel = viewModel(chromeResult = Result.success(true), downloadResult = Result.success(true), fileResult = Result.success(false))
+
+                viewModel.uiState.test {
+                    awaitItem() shouldBe SettingHomeUiState.Loading
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList - SettingHomeItem.FILE)
                 }
             }
         }
@@ -104,6 +118,7 @@ class SettingHomeViewModelTest : FunSpec() {
                     SettingHomeViewModel(
                         readChromeSessionImportSupportUseCase = chromeUseCase,
                         readMusicDownloadSupportUseCase = downloadUseCase,
+                        readFileDownloadDirectorySupportUseCase = fileUseCase(Result.success(true)),
                     )
 
                 viewModel.uiState.test {
@@ -115,15 +130,17 @@ class SettingHomeViewModelTest : FunSpec() {
         }
 
         test("TC-SETTING-HOME-FEATURE-015 제공 여부를 읽지 못하면 확인 중 상태를 유지한다") {
+            val failure = Result.failure<Boolean>(IllegalStateException("read error"))
             val caseList =
                 listOf(
-                    Result.failure<Boolean>(IllegalStateException("read error")) to Result.success(true),
-                    Result.success(true) to Result.failure(IllegalStateException("read error")),
+                    Triple(failure, Result.success(true), Result.success(true)),
+                    Triple(Result.success(true), failure, Result.success(true)),
+                    Triple(Result.success(true), Result.success(true), failure),
                 )
 
-            caseList.forEach { (chromeResult, downloadResult) ->
+            caseList.forEach { (chromeResult, downloadResult, fileResult) ->
                 runTest(mainDispatcher) {
-                    val viewModel = viewModel(chromeResult = chromeResult, downloadResult = downloadResult)
+                    val viewModel = viewModel(chromeResult = chromeResult, downloadResult = downloadResult, fileResult = fileResult)
 
                     viewModel.uiState.test {
                         awaitItem() shouldBe SettingHomeUiState.Loading
@@ -160,7 +177,7 @@ class SettingHomeViewModelTest : FunSpec() {
 
                 viewModel(downloadUseCase = downloadUseCase).uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Loading
-                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList - SettingHomeItem.DOWNLOAD)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList - SettingHomeItem.PLAYLIST)
                 }
                 coVerify(exactly = 2) { downloadUseCase(Unit) }
             }
@@ -179,7 +196,7 @@ class SettingHomeViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList)
-                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList - SettingHomeItem.DOWNLOAD)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList - SettingHomeItem.PLAYLIST)
                 }
             }
         }
@@ -236,7 +253,7 @@ class SettingHomeViewModelTest : FunSpec() {
 
                 viewModel.uiState.test {
                     awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList)
-                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList - SettingHomeItem.DOWNLOAD)
+                    awaitItem() shouldBe SettingHomeUiState.Content(itemList = fullItemList - SettingHomeItem.PLAYLIST)
                 }
             }
         }
@@ -274,12 +291,20 @@ class SettingHomeViewModelTest : FunSpec() {
         return SettingHomeViewModel(
             readChromeSessionImportSupportUseCase = chromeUseCase,
             readMusicDownloadSupportUseCase = downloadUseCase,
+            readFileDownloadDirectorySupportUseCase = fileUseCase(Result.success(true)),
         )
+    }
+
+    private fun fileUseCase(result: Result<Boolean>): ReadFileDownloadDirectorySupportUseCase {
+        val fileUseCase = mockk<ReadFileDownloadDirectorySupportUseCase>()
+        coEvery { fileUseCase(Unit) } returns result
+        return fileUseCase
     }
 
     private fun viewModel(
         chromeResult: Result<Boolean>,
         downloadResult: Result<Boolean>,
+        fileResult: Result<Boolean> = Result.success(true),
     ): SettingHomeViewModel {
         val chromeUseCase = mockk<ReadChromeSessionImportSupportUseCase>()
         coEvery { chromeUseCase(Unit) } returns chromeResult
@@ -289,6 +314,7 @@ class SettingHomeViewModelTest : FunSpec() {
         return SettingHomeViewModel(
             readChromeSessionImportSupportUseCase = chromeUseCase,
             readMusicDownloadSupportUseCase = downloadUseCase,
+            readFileDownloadDirectorySupportUseCase = fileUseCase(fileResult),
         )
     }
 }

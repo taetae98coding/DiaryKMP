@@ -5,10 +5,8 @@ import io.github.taetae98coding.diary.core.calendar.database.impl.di.CalendarDat
 import io.github.taetae98coding.diary.core.database.impl.di.DiaryDatabaseDirectory
 import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDirectory
 import io.github.taetae98coding.diary.core.file.impl.di.AppFileDirectoryName
-import io.github.taetae98coding.diary.feature.file.ui.picker.FilePickerDispatcher
 import io.github.taetae98coding.diary.feature.login.ui.credential.CredentialsDispatcher
 import io.github.taetae98coding.diary.feature.login.ui.credential.GoogleCredentialsClientId
-import io.github.taetae98coding.diary.feature.more.ui.photo.PhotoPickerDispatcher
 import io.github.taetae98coding.diary.feature.qr.ui.detail.action.QrActionDispatcher
 import io.github.taetae98coding.diary.feature.qr.ui.scan.QrScanCameraDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
@@ -44,14 +42,6 @@ internal class JvmAppModule {
     @Factory
     @CredentialsDispatcher
     fun providesCredentialsDispatcher(): CoroutineDispatcher = Dispatchers.IO
-
-    @Factory
-    @FilePickerDispatcher
-    fun providesFilePickerDispatcher(): CoroutineDispatcher = Dispatchers.IO
-
-    @Factory
-    @PhotoPickerDispatcher
-    fun providesPhotoPickerDispatcher(): CoroutineDispatcher = Dispatchers.IO
 
     @Single
     fun providesMapHttpServer(): MapHttpServer = MapHttpServer()

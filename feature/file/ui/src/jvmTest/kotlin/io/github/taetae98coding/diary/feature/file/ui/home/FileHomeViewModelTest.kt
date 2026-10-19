@@ -10,6 +10,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.model.account.Account
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
+import io.github.taetae98coding.diary.domain.file.usecase.GetUpdatedFileUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.PageFileUseCase
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
@@ -28,6 +29,7 @@ import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlin.uuid.Uuid
 
 private val fixtureMonkey: FixtureMonkey =
     diaryFixtureMonkey()
@@ -132,6 +134,31 @@ class FileHomeViewModelTest : FunSpec() {
             }
         }
 
+        test("TC-FILE-HOME-FEATURE-055 고친 파일은 같은 자리에서 고친 값으로 전달하고 다른 파일은 그대로 둔다") {
+            runTest(mainDispatcher) {
+                val fileList = List(3) { fixtureMonkey.giveMeOne<DiaryFile>() }
+                val updatedFile = fileList[1].copy(title = fixtureMonkey.giveMeOne<String>(), name = fixtureMonkey.giveMeOne<String>())
+                val pageFileUseCase = mockk<PageFileUseCase>()
+                every { pageFileUseCase(parameter = Unit) } returns flowOf(Result.success(PagingData.from(fileList)))
+                val viewModel = viewModel(pageFileUseCase = pageFileUseCase, updatedFileMap = mapOf(updatedFile.id to updatedFile))
+
+                flowOf(viewModel.filePagingData.first()).asSnapshot() shouldBe listOf(fileList[0], updatedFile, fileList[2])
+            }
+        }
+
+        test("고친 파일 목록을 확인하지 못하면 불러온 파일을 그대로 전달한다") {
+            runTest(mainDispatcher) {
+                val fileList = List(2) { fixtureMonkey.giveMeOne<DiaryFile>() }
+                val pageFileUseCase = mockk<PageFileUseCase>()
+                every { pageFileUseCase(parameter = Unit) } returns flowOf(Result.success(PagingData.from(fileList)))
+                val getUpdatedFileUseCase = mockk<GetUpdatedFileUseCase>()
+                every { getUpdatedFileUseCase(parameter = Unit) } returns flowOf(Result.failure(IllegalStateException()))
+                val viewModel = viewModel(pageFileUseCase = pageFileUseCase, getUpdatedFileUseCase = getUpdatedFileUseCase)
+
+                flowOf(viewModel.filePagingData.first()).asSnapshot() shouldBe fileList
+            }
+        }
+
         test("파일 조회가 실패하면 빈 목록을 전달한다") {
             runTest(mainDispatcher) {
                 val pageFileUseCase = mockk<PageFileUseCase>()
@@ -146,6 +173,9 @@ class FileHomeViewModelTest : FunSpec() {
     private fun viewModel(
         accountFlow: MutableStateFlow<Result<Account>> = MutableStateFlow(Result.success(Account.Guest)),
         pageFileUseCase: PageFileUseCase = mockk<PageFileUseCase>().also { useCase -> every { useCase(parameter = Unit) } returns emptyFlow() },
+        updatedFileMap: Map<Uuid, DiaryFile> = emptyMap(),
+        getUpdatedFileUseCase: GetUpdatedFileUseCase =
+            mockk<GetUpdatedFileUseCase>().also { useCase -> every { useCase(parameter = Unit) } returns flowOf(Result.success(updatedFileMap)) },
     ): FileHomeViewModel {
         val getAccountUseCase = mockk<GetAccountUseCase>()
         every { getAccountUseCase(parameter = Unit) } returns accountFlow
@@ -153,6 +183,7 @@ class FileHomeViewModelTest : FunSpec() {
         return FileHomeViewModel(
             getAccountUseCase = getAccountUseCase,
             pageFileUseCase = pageFileUseCase,
+            getUpdatedFileUseCase = getUpdatedFileUseCase,
         )
     }
 }

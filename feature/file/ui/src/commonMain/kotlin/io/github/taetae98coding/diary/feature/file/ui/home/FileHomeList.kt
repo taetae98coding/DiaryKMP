@@ -2,7 +2,6 @@ package io.github.taetae98coding.diary.feature.file.ui.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,7 +14,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularWavyProgressIndicator
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -24,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.paging.LoadState
@@ -43,6 +40,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
 import io.github.taetae98coding.diary.feature.file.ui.Res
 import io.github.taetae98coding.diary.feature.file.ui.file.FileListItem
+import io.github.taetae98coding.diary.feature.file.ui.file.FileLoadFailed
 import io.github.taetae98coding.diary.feature.file.ui.file_home_empty_description
 import io.github.taetae98coding.diary.feature.file.ui.file_home_empty_title
 import io.github.taetae98coding.diary.feature.file.ui.file_home_load_failed_message
@@ -85,7 +83,8 @@ internal fun FileHomeList(
 
             // 당겨서 새로고침은 스크롤 가능한 자식의 중첩 스크롤로만 감지하므로 실패와 빈 상태에도 스크롤을 둔다.
             FileHomeListContent.FAILED -> {
-                FileHomeLoadFailed(
+                FileLoadFailed(
+                    message = stringResource(Res.string.file_home_load_failed_message),
                     onRetry = { onEvent(FileHomeScaffoldEvent.ClickRetry) },
                     modifier =
                         Modifier
@@ -137,6 +136,7 @@ private fun FileHomeLazyColumn(
             filePagingItems[index]?.let { file ->
                 FileListItem(
                     file = file,
+                    onClick = { onEvent(FileHomeScaffoldEvent.ClickFile(id = file.id)) },
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
@@ -159,28 +159,6 @@ private fun FileHomeLazyColumn(
             }
 
             is LoadState.NotLoading -> Unit
-        }
-    }
-}
-
-@Composable
-private fun FileHomeLoadFailed(
-    onRetry: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier.padding(DiaryTheme.dimens.screenPaddingValues),
-        verticalArrangement = Arrangement.spacedBy(DiaryTheme.dimens.itemSpacing, Alignment.CenterVertically),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(
-            text = stringResource(Res.string.file_home_load_failed_message),
-            color = DiaryTheme.colorScheme.onSurfaceVariant,
-            style = DiaryTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center,
-        )
-        OutlinedButton(onClick = onRetry) {
-            Text(text = stringResource(Res.string.file_home_retry))
         }
     }
 }

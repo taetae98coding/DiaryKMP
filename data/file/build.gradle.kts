@@ -6,6 +6,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(projects.core.datastore.api)
                 implementation(projects.core.file.api)
                 implementation(projects.core.network.api)
                 implementation(projects.data.core)

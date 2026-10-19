@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.feature.setting.ui
 
 import io.github.taetae98coding.diary.core.model.browser.ChromeProfile
+import io.github.taetae98coding.diary.core.model.file.FileDownloadDirectory
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountry
 import io.github.taetae98coding.diary.core.model.holiday.HolidayCountryOption
@@ -40,3 +41,5 @@ internal fun previewMusicDownloadProxyAddressList(): List<String> =
     )
 
 internal fun previewMusicDownloadProxySetting(): MusicDownloadProxySetting = MusicDownloadProxySetting(address = "http://192.168.0.10:27180")
+
+internal fun previewFileDownloadDirectory(): FileDownloadDirectory = FileDownloadDirectory(uri = "/Users/diary/Documents", name = "Documents")

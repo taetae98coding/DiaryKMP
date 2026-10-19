@@ -18,6 +18,7 @@ import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.dday.api.DDayHomeNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileAddNavKey
+import io.github.taetae98coding.diary.feature.file.api.FileDetailNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileHomeNavKey
 import io.github.taetae98coding.diary.feature.holiday.api.HolidayHomeNavKey
 import io.github.taetae98coding.diary.feature.login.api.LoginHomeNavKey
@@ -43,11 +44,12 @@ import io.github.taetae98coding.diary.feature.routine.api.RoutineAddNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineHomeNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingBrowserNavKey
-import io.github.taetae98coding.diary.feature.setting.api.SettingDownloadNavKey
+import io.github.taetae98coding.diary.feature.setting.api.SettingFileNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHolidayNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingMapNavKey
+import io.github.taetae98coding.diary.feature.setting.api.SettingPlaylistNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
@@ -108,6 +110,7 @@ class ScreenNameTest :
                     ChecklistDetailNavKey(id = id),
                     ContactDetailNavKey(id = id),
                     ContactMemoFinishedListNavKey(contactId = id),
+                    FileDetailNavKey(id = id),
                     MemoDetailNavKey(id = id),
                     MemoAddNavKey(primaryTagId = id),
                     PlaceDetailNavKey(id = id),
@@ -158,6 +161,7 @@ class ScreenNameTest :
                 ContactMemoFinishedListNavKey(contactId = fixtureMonkey.giveMeOne<Uuid>()) to "ContactMemoFinishedList",
                 DDayHomeNavKey to "DDayHome",
                 FileAddNavKey to "FileAdd",
+                FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "FileDetail",
                 FileHomeNavKey to "FileHome",
                 HolidayHomeNavKey to "HolidayHome",
                 LoginHomeNavKey to "LoginHome",
@@ -183,11 +187,12 @@ class ScreenNameTest :
                 RoutineHomeNavKey to "RoutineHome",
                 SearchHomeNavKey() to "SearchHome",
                 SettingBrowserNavKey to "SettingBrowser",
-                SettingDownloadNavKey to "SettingDownload",
+                SettingFileNavKey to "SettingFile",
                 SettingGeminiNavKey to "SettingGemini",
                 SettingHolidayNavKey to "SettingHoliday",
                 SettingHomeNavKey to "SettingHome",
                 SettingMapNavKey to "SettingMap",
+                SettingPlaylistNavKey to "SettingPlaylist",
                 TagAddNavKey() to "TagAdd",
                 TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to "TagDetail",
                 TagFinishedListNavKey to "TagFinishedList",
@@ -208,6 +213,7 @@ class ScreenNameTest :
                 ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
                 ContactMemoFinishedListNavKey(contactId = fixtureMonkey.giveMeOne<Uuid>()) to
                     ContactMemoFinishedListNavKey(contactId = fixtureMonkey.giveMeOne<Uuid>()),
+                FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
                 MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
                 MemoAddNavKey(primaryTagId = fixtureMonkey.giveMeOne<Uuid>()) to MemoAddNavKey(),
                 MusicDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()) to MusicDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),

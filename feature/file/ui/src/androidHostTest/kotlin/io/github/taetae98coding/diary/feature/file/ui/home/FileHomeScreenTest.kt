@@ -49,10 +49,12 @@ import io.github.taetae98coding.diary.core.testing.file.diaryFile
 import io.github.taetae98coding.diary.domain.account.usecase.GetAccountUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadEventUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.GetFileUploadStateUseCase
+import io.github.taetae98coding.diary.domain.file.usecase.GetUpdatedFileUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.PageFileUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.RefreshFileUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.StartViewingFileScreenUseCase
 import io.github.taetae98coding.diary.domain.file.usecase.StopViewingFileScreenUseCase
+import io.github.taetae98coding.diary.feature.file.ui.detail.FileDetailTestScreen
 import io.github.taetae98coding.diary.feature.file.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.booleans.shouldBeFalse
@@ -305,6 +307,51 @@ class FileHomeScreenTest {
         coVerify(exactly = 1) { server(0) }
         composeRule.onNodeWithText(fileList[PAGE_SIZE - 1].name).assertIsDisplayed()
         composeRule.onNodeWithText(fileList.first().name).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-FILE-HOME-FEATURE-057 FileDetail에서 돌아오면 목록을 다시 불러오지 않고 보던 자리를 유지한다`() {
+        val fileList = fileList(count = 30)
+        val server = server(pageList = fileList.chunked(PAGE_SIZE))
+        var isFileHomeVisible by mutableStateOf(true)
+        val screen = fileHomeScreen(server = server)
+
+        setBehindFileAddContent(screen = screen, isFileHomeVisibleProvider = { isFileHomeVisible })
+        scrollListTo(index = PAGE_SIZE - 1)
+        composeRule.onNodeWithText(fileList[PAGE_SIZE - 1].name).performClick()
+        composeRule.runOnIdle { isFileHomeVisible = false }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { isFileHomeVisible = true }
+        composeRule.waitForIdle()
+
+        screen.navigateToDetailIdList shouldBe listOf(fileList[PAGE_SIZE - 1].id)
+        coVerify(exactly = 1) { server(0) }
+        composeRule.onNodeWithText(fileList[PAGE_SIZE - 1].name).assertIsDisplayed()
+        composeRule.onNodeWithText(fileList.first().name).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-FILE-HOME-FEATURE-058 FileDetail을 보는 동안 올리기에 성공해도 목록을 다시 불러오지 않는다`() {
+        val fileList = fileList(count = 30)
+        val server = server(pageList = fileList.chunked(PAGE_SIZE))
+        val upload = FileUploadMocks()
+        var isFileHomeVisible by mutableStateOf(true)
+        val screen = fileHomeScreen(server = server, upload = upload)
+
+        setBehindFileAddContent(screen = screen, isFileHomeVisibleProvider = { isFileHomeVisible })
+        startUpload()
+        scrollListTo(index = PAGE_SIZE - 1)
+        composeRule.runOnIdle { isFileHomeVisible = false }
+        composeRule.waitForIdle()
+        // FileDetail은 파일 화면이 아니므로 결과는 이 화면에 전달되지 않고 알림으로 간다.
+        composeRule.runOnIdle { upload.finishWithoutEvent() }
+        composeRule.runOnIdle { isFileHomeVisible = true }
+        composeRule.waitForIdle()
+
+        coVerify(exactly = 1) { server(0) }
+        composeRule.onNodeWithText(fileList[PAGE_SIZE - 1].name).assertIsDisplayed()
+        composeRule.onNodeWithText(UPLOAD_FAILED_MESSAGE).assertDoesNotExist()
+        composeRule.onNodeWithText(UPLOAD_TOO_LARGE_MESSAGE).assertDoesNotExist()
     }
 
     @Test
@@ -601,17 +648,75 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-FILE-HOME-FEATURE-035 목록의 파일을 선택해도 아무 일도 일어나지 않는다`() {
+    fun `TC-FILE-HOME-FEATURE-054 목록의 파일을 선택하면 그 파일의 FileDetail 화면으로 이동한다`() {
         val file = fixtureMonkey.diaryFile()
-        var navigateUpCount = 0
 
-        val screen = setFileHomeScreen(server = server(pageList = listOf(listOf(file))), navigateUp = { navigateUpCount += 1 })
+        val screen = setFileHomeScreen(server = server(pageList = listOf(listOf(file, fixtureMonkey.diaryFile()))))
         composeRule.onNodeWithText(file.name).performClick()
         composeRule.waitForIdle()
 
-        navigateUpCount shouldBe 0
+        screen.navigateToDetailIdList shouldBe listOf(file.id)
         screen.navigateToAddCount shouldBe 0
-        composeRule.onNodeWithText(file.name).assertExists()
+    }
+
+    @Test
+    fun `TC-FILE-HOME-FEATURE-054 올리는 중에도 목록의 파일을 선택하면 FileDetail 화면으로 이동한다`() {
+        val file = fixtureMonkey.diaryFile()
+
+        val screen = setFileHomeScreen(server = server(pageList = listOf(listOf(file))))
+        startUpload()
+        composeRule.onNodeWithText(file.name).performClick()
+        composeRule.waitForIdle()
+
+        screen.navigateToDetailIdList shouldBe listOf(file.id)
+    }
+
+    @Test
+    fun `TC-FILE-HOME-FEATURE-055 FileDetail에서 고친 제목과 파일 이름이 목록에 다시 불러오지 않고 보인다`() {
+        val fileList = fileList(count = 3)
+        val target = fileList[1].copy(title = OLD_TITLE, name = OLD_NAME)
+        val shownList = listOf(fileList[0], target, fileList[2])
+        val server = server(pageList = listOf(shownList))
+        val updated = MutableStateFlow<Map<Uuid, DiaryFile>>(emptyMap())
+
+        setFileHomeScreen(server = server, updated = updated)
+        composeRule.onNodeWithText(OLD_TITLE).assertExists()
+        composeRule.runOnIdle { updated.value = mapOf(target.id to target.copy(title = NEW_TITLE, name = NEW_NAME)) }
+        composeRule.waitForIdle()
+
+        coVerify(exactly = 1) { server(0) }
+        composeRule.onNodeWithText(NEW_TITLE).assertExists()
+        composeRule.onNodeWithText(NEW_NAME).assertExists()
+        composeRule.onNodeWithText(OLD_TITLE).assertDoesNotExist()
+        assertAbove(upper = fileList[0], lower = fileList[2])
+        val newTop = composeRule.onNodeWithText(NEW_NAME).getUnclippedBoundsInRoot().top
+        (composeRule.onNodeWithText(fileList[0].name).getUnclippedBoundsInRoot().top < newTop) shouldBe true
+        (newTop < composeRule.onNodeWithText(fileList[2].name).getUnclippedBoundsInRoot().top) shouldBe true
+    }
+
+    @Test
+    fun `TC-FILE-HOME-FEATURE-056 고친 뒤 목록을 처음부터 다시 불러오면 서버가 돌려준 값으로 보인다`() {
+        val target = fixtureMonkey.diaryFile()
+        val updated = MutableStateFlow(mapOf(target.id to target.copy(title = NEW_TITLE)))
+        val server = server()
+        var requestCount = 0
+        // 고친 뒤 시작한 불러오기가 그 파일을 받아 오면 저장소가 덧씌운 값을 걷는다.
+        coEvery { server(0) } coAnswers {
+            requestCount += 1
+            if (requestCount == 1) {
+                listOf(target)
+            } else {
+                updated.value = emptyMap()
+                listOf(target.copy(title = OTHER_DEVICE_TITLE))
+            }
+        }
+
+        setFileHomeScreen(server = server, updated = updated)
+        composeRule.onNodeWithText(NEW_TITLE).assertExists()
+        pull()
+
+        composeRule.onNodeWithText(OTHER_DEVICE_TITLE).assertExists()
+        composeRule.onNodeWithText(NEW_TITLE).assertDoesNotExist()
     }
 
     @Test
@@ -943,6 +1048,32 @@ class FileHomeScreenTest {
         composeRule.runOnIdle { isShown = false }
         composeRule.waitForIdle()
         coVerify(exactly = 2) { upload.stopViewingFileScreenUseCase(parameter = FileScreen.HOME) }
+    }
+
+    @Test
+    fun `TC-FILE-UPLOAD-NOTIFICATION-DOMAIN-001 앱이 화면 앞에 있어도 FileHome에서 연 FileDetail을 보는 동안은 보고 있지 않다고 알린다`() {
+        val upload = FileUploadMocks()
+        val screen = fileHomeScreen(server = server(pageList = listOf(listOf(fixtureMonkey.diaryFile()))), upload = upload)
+        val detailScreen = FileDetailTestScreen()
+        var isDetailShown by mutableStateOf(false)
+
+        composeRule.setContent {
+            val holder = rememberSaveableStateHolder()
+
+            if (isDetailShown) {
+                detailScreen.Content()
+            } else {
+                holder.SaveableStateProvider(key = FILE_HOME_KEY) { screen.Content() }
+            }
+        }
+        composeRule.waitForIdle()
+        coVerify(exactly = 1) { upload.startViewingFileScreenUseCase(parameter = FileScreen.HOME) }
+
+        composeRule.runOnIdle { isDetailShown = true }
+        composeRule.waitForIdle()
+
+        coVerify(exactly = 1) { upload.stopViewingFileScreenUseCase(parameter = FileScreen.HOME) }
+        coVerify(exactly = 1) { upload.startViewingFileScreenUseCase(parameter = any()) }
     }
 
     private fun assertUploadSucceededReturnsToTop(
@@ -1525,6 +1656,7 @@ class FileHomeScreenTest {
         accountFlow: MutableStateFlow<Result<Account>> = MutableStateFlow(Result.success(fixtureMonkey.giveMeOne<Account.User>())),
         navigateUp: () -> Unit = {},
         upload: FileUploadMocks = FileUploadMocks(),
+        updated: MutableStateFlow<Map<Uuid, DiaryFile>> = MutableStateFlow(emptyMap()),
     ): FileHomeTestScreen {
         val screen =
             fileHomeScreen(
@@ -1533,6 +1665,7 @@ class FileHomeScreenTest {
                 accountFlow = accountFlow,
                 navigateUp = navigateUp,
                 upload = upload,
+                updated = updated,
             )
 
         composeRule.setContent { screen.Content() }
@@ -1547,7 +1680,10 @@ class FileHomeScreenTest {
         accountFlow: MutableStateFlow<Result<Account>> = MutableStateFlow(Result.success(fixtureMonkey.giveMeOne<Account.User>())),
         navigateUp: () -> Unit = {},
         upload: FileUploadMocks = FileUploadMocks(),
+        updated: MutableStateFlow<Map<Uuid, DiaryFile>> = MutableStateFlow(emptyMap()),
     ): FileHomeTestScreen {
+        val getUpdatedFileUseCase = mockk<GetUpdatedFileUseCase>()
+        every { getUpdatedFileUseCase(parameter = Unit) } returns updated.map { fileMap -> Result.success(fileMap) }
         val getAccountUseCase = mockk<GetAccountUseCase>()
         every { getAccountUseCase(parameter = Unit) } returns accountFlow
         val uploadViewModel = upload.viewModel()
@@ -1560,6 +1696,7 @@ class FileHomeScreenTest {
                 FileHomeViewModel(
                     getAccountUseCase = getAccountUseCase,
                     pageFileUseCase = pageFileUseCase(paging = paging),
+                    getUpdatedFileUseCase = getUpdatedFileUseCase,
                 ),
             uploadViewModel = uploadViewModel,
             refreshViewModel = FileHomeRefreshViewModel(refreshFileUseCase = refreshFileUseCase(server = server, paging = paging)),
@@ -1637,6 +1774,11 @@ class FileHomeScreenTest {
         private const val RETRY = "다시 시도"
         private const val UPLOAD_TOO_LARGE_MESSAGE = "50MB 이하 파일만 올릴 수 있습니다."
         private const val UPLOAD_FAILED_MESSAGE = "파일을 올리지 못했습니다."
+        private const val OLD_TITLE = "옛 제목"
+        private const val NEW_TITLE = "새 제목"
+        private const val OLD_NAME = "old.txt"
+        private const val NEW_NAME = "new.txt"
+        private const val OTHER_DEVICE_TITLE = "다른 기기 제목"
     }
 }
 
@@ -1649,12 +1791,15 @@ private class FileHomeTestScreen(
     var navigateToAddCount: Int = 0
         private set
 
+    val navigateToDetailIdList: MutableList<Uuid> = mutableListOf()
+
     @Composable
     fun Content() {
         DiaryTheme {
             FileHomeScreen(
                 navigateUp = navigateUp,
                 navigateToAdd = { navigateToAddCount += 1 },
+                navigateToDetail = { id -> navigateToDetailIdList += id },
                 fileViewModel = fileViewModel,
                 uploadViewModel = uploadViewModel,
                 refreshViewModel = refreshViewModel,

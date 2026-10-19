@@ -5,6 +5,7 @@ package io.github.taetae98coding.diary.compose.core.listitem
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,11 +13,14 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -30,6 +34,7 @@ public fun DiarySegmentedListItem(
     modifier: Modifier = Modifier,
     index: Int = 0,
     count: Int = 1,
+    leadingContent: @Composable (() -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
     SegmentedListItem(
@@ -37,6 +42,7 @@ public fun DiarySegmentedListItem(
         shapes = DiarySegmentedListItemDefaults.shapes(index = index, count = count),
         modifier = modifier.fillMaxWidth(),
         colors = DiarySegmentedListItemDefaults.colors(),
+        leadingContent = leadingContent,
         content = content,
     )
 }
@@ -47,6 +53,8 @@ public fun DiaryStaticSegmentedListItem(
     modifier: Modifier = Modifier,
     index: Int = 0,
     count: Int = 1,
+    leadingContent: @Composable (() -> Unit)? = null,
+    supportingContent: @Composable (() -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
     val colors = DiarySegmentedListItemDefaults.colors()
@@ -64,7 +72,22 @@ public fun DiaryStaticSegmentedListItem(
                     .padding(ListItemDefaults.ContentPadding),
             contentAlignment = Alignment.CenterStart,
         ) {
-            content()
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(DiarySegmentedListItemDefaults.LeadingContentSpacing),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                leadingContent?.invoke()
+                Column {
+                    content()
+                    if (supportingContent != null) {
+                        ProvideTextStyle(value = DiaryTheme.typography.bodyMedium) {
+                            CompositionLocalProvider(LocalContentColor provides colors.supportingContentColor) {
+                                supportingContent()
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

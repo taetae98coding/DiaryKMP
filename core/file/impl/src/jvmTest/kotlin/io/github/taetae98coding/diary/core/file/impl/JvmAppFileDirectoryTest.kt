@@ -18,4 +18,8 @@ class JvmAppFileDirectoryTest :
                 resolveAppFileDirectory(userHome = userHome, directoryName = directoryName) shouldBe expectedPath
             }
         }
+
+        test("TC-FILE-DOWNLOAD-FEATURE-001 데스크톱 앱의 기본 다운로드 위치는 사용자 홈의 Downloads 폴더다") {
+            resolveFileDownloadDefaultDirectory(userHome = Paths.get("/Users/user")) shouldBe Paths.get("/Users/user/Downloads")
+        }
     })

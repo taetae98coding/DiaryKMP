@@ -1,8 +1,10 @@
 package io.github.taetae98coding.diary.data.file.mapper
 
+import io.github.taetae98coding.diary.core.datastore.api.setting.entity.FileDownloadDirectoryLocalEntity
 import io.github.taetae98coding.diary.core.model.file.ContinuedFileUpload
 import io.github.taetae98coding.diary.core.model.file.ContinuedFileUploadResult
 import io.github.taetae98coding.diary.core.model.file.DiaryFile
+import io.github.taetae98coding.diary.core.model.file.FileDownloadDirectory
 import io.github.taetae98coding.diary.core.network.api.file.entity.ContinuedFileUploadRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.entity.ContinuedFileUploadResultRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileCursorRemoteEntity
@@ -38,3 +40,15 @@ internal fun ContinuedFileUploadResultRemoteEntity.toDomain(): ContinuedFileUplo
         is ContinuedFileUploadResultRemoteEntity.TooLarge -> ContinuedFileUploadResult.TooLarge(name = name)
         is ContinuedFileUploadResultRemoteEntity.Failed -> ContinuedFileUploadResult.Failed(name = name)
     }
+
+internal fun FileDownloadDirectoryLocalEntity.toDomain(): FileDownloadDirectory =
+    FileDownloadDirectory(
+        uri = uri,
+        name = name,
+    )
+
+internal fun FileDownloadDirectory.toLocal(): FileDownloadDirectoryLocalEntity =
+    FileDownloadDirectoryLocalEntity(
+        uri = uri,
+        name = name,
+    )
