@@ -5,6 +5,8 @@ import androidx.room3.ColumnTypeConverters
 import androidx.room3.ConstructedBy
 import androidx.room3.Database
 import androidx.room3.RoomDatabase
+import io.github.taetae98coding.diary.core.database.api.checklist.entity.ChecklistLocalEntity
+import io.github.taetae98coding.diary.core.database.api.checklistitem.entity.ChecklistItemLocalEntity
 import io.github.taetae98coding.diary.core.database.api.contact.entity.ContactLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memocontact.entity.MemoContactLocalEntity
@@ -23,6 +25,14 @@ import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntit
 import io.github.taetae98coding.diary.core.database.api.webtag.entity.WebTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.calendarfilter.dao.CalendarFilterTagDao
 import io.github.taetae98coding.diary.core.database.impl.calendarfilter.entity.CalendarFilterTagLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.checklist.dao.AccountChecklistDao
+import io.github.taetae98coding.diary.core.database.impl.checklist.dao.AccountChecklistSyncDao
+import io.github.taetae98coding.diary.core.database.impl.checklist.dao.ChecklistDao
+import io.github.taetae98coding.diary.core.database.impl.checklist.entity.AccountChecklistLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.checklistitem.dao.AccountChecklistItemDao
+import io.github.taetae98coding.diary.core.database.impl.checklistitem.dao.AccountChecklistItemSyncDao
+import io.github.taetae98coding.diary.core.database.impl.checklistitem.dao.ChecklistItemDao
+import io.github.taetae98coding.diary.core.database.impl.checklistitem.entity.AccountChecklistItemLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.contact.dao.AccountCalendarContactBirthdayDao
 import io.github.taetae98coding.diary.core.database.impl.contact.dao.AccountContactDao
 import io.github.taetae98coding.diary.core.database.impl.contact.dao.AccountContactSyncDao
@@ -142,12 +152,17 @@ import io.github.taetae98coding.diary.library.room3.converter.UuidColumnTypeConv
         AccountMusicLocalEntity::class,
         QrLocalEntity::class,
         AccountQrLocalEntity::class,
+        ChecklistLocalEntity::class,
+        AccountChecklistLocalEntity::class,
+        ChecklistItemLocalEntity::class,
+        AccountChecklistItemLocalEntity::class,
         SyncCursorLocalEntity::class,
     ],
-    version = 3,
+    version = 4,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3, spec = ContactBirthYearAutoMigrationSpec::class),
+        AutoMigration(from = 3, to = 4),
     ],
 )
 @ConstructedBy(DiaryDatabaseConstructor::class)
@@ -277,6 +292,18 @@ internal abstract class DiaryDatabase : RoomDatabase() {
     abstract fun accountQrDao(): AccountQrDao
 
     abstract fun accountQrSyncDao(): AccountQrSyncDao
+
+    abstract fun checklistDao(): ChecklistDao
+
+    abstract fun accountChecklistDao(): AccountChecklistDao
+
+    abstract fun accountChecklistSyncDao(): AccountChecklistSyncDao
+
+    abstract fun checklistItemDao(): ChecklistItemDao
+
+    abstract fun accountChecklistItemDao(): AccountChecklistItemDao
+
+    abstract fun accountChecklistItemSyncDao(): AccountChecklistItemSyncDao
 
     abstract fun syncCursorDao(): SyncCursorDao
 

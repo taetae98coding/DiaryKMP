@@ -56,6 +56,12 @@ internal class AccountDataTransactionImpl(
             dao.deleteQr(accountId = accountId)
             dao.deleteAccountQr(accountId = accountId)
 
+            dao.deleteChecklistItem(accountId = accountId)
+            dao.deleteAccountChecklistItem(accountId = accountId)
+
+            dao.deleteChecklist(accountId = accountId)
+            dao.deleteAccountChecklist(accountId = accountId)
+
             dao.deleteTagFilter(accountId = accountId)
             dao.deleteMemoFilterTag(accountId = accountId)
             dao.deleteCalendarFilterTag(accountId = accountId)
