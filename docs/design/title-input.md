@@ -10,6 +10,7 @@
 - [ChecklistAdd 화면 디자인](./checklist-add.md)
 - [ChecklistDetail 화면 디자인](./checklist-detail.md)
 - [FileAdd 화면 디자인](./file-add.md)
+- [FileDetail 화면 디자인](./file-detail.md)
 - [MusicAdd 화면 디자인](./music-add.md)
 - [MusicDetail 화면 디자인](./music-detail.md)
 - [PlaceAdd 화면 디자인](./place-add.md)

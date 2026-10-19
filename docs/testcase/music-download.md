@@ -2,7 +2,7 @@
 
 기준 스펙: [곡 다운로드 스펙](../spec/client/music-download.md)
 
-다운로드 대상이 되는 곡의 노출 기준은 [PlaylistHome 화면 스펙](../spec/client/playlist-home.md)의 `목록에 노출하는 곡`에, 링크에서 영상 ID를 얻는 판정은 [MusicAdd 화면 스펙](../spec/client/music-add.md)의 `썸네일의 판정`에 위임되어 있으며, 이 문서의 케이스는 다운로드에서 관찰하는 결과를 기준으로 한다. 상단 바에 다운로드를 실행하는 수단이 놓이는지는 [PlaylistHome 테스트 케이스](./playlist-home.md)에서, 프록시가 요청을 받아 처리하는 계약은 [곡 다운로드 프록시 테스트 케이스](./music-download-proxy.md)에서, 프록시 주소를 저장하는 화면은 [SettingDownload 테스트 케이스](./setting-download.md)에서, 실패를 로그로 남기는 케이스는 [기능 실패 로깅 테스트 케이스](./usecase-failure-logging.md)에서 다룬다.
+다운로드 대상이 되는 곡의 노출 기준은 [PlaylistHome 화면 스펙](../spec/client/playlist-home.md)의 `목록에 노출하는 곡`에, 링크에서 영상 ID를 얻는 판정은 [MusicAdd 화면 스펙](../spec/client/music-add.md)의 `썸네일의 판정`에 위임되어 있으며, 이 문서의 케이스는 다운로드에서 관찰하는 결과를 기준으로 한다. 상단 바에 다운로드를 실행하는 수단이 놓이는지는 [PlaylistHome 테스트 케이스](./playlist-home.md)에서, 프록시가 요청을 받아 처리하는 계약은 [곡 다운로드 프록시 테스트 케이스](./music-download-proxy.md)에서, 프록시 주소를 저장하는 화면은 [SettingPlaylist 테스트 케이스](./setting-playlist.md)에서, 실패를 로그로 남기는 케이스는 [기능 실패 로깅 테스트 케이스](./usecase-failure-logging.md)에서 다룬다.
 
 ## feature
 

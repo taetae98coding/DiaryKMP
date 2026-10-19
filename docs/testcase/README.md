@@ -67,6 +67,8 @@ TC-<SPEC>-<AREA>-<NNN>
 | [DiaryMap](./diary-map.md) | [DiaryMap 컴포넌트](../spec/client/diary-map.md) |
 | [푸시 알림 수신 등록](./fcm-token.md) | [푸시 알림 수신 등록(client)](../spec/client/fcm-token.md), [푸시 알림 수신 등록(common)](../spec/common/fcm-token.md), [푸시 알림 수신 등록(server)](../spec/server/fcm-token.md) |
 | [FileAdd](./file-add.md) | [FileAdd 화면](../spec/client/file-add.md) |
+| [FileDetail](./file-detail.md) | [FileDetail 화면](../spec/client/file-detail.md) |
+| [파일 내려받기](./file-download.md) | [파일 내려받기](../spec/client/file-download.md) |
 | [FileHome](./file-home.md) | [FileHome 화면](../spec/client/file-home.md) |
 | [파일 보관](./file-storage.md) | [파일 보관(client)](../spec/client/file-storage.md), [파일 보관(common)](../spec/common/file-storage.md), [파일 보관(server)](../spec/server/file-storage.md) |
 | [파일 올리기 알림](./file-upload-notification.md) | [파일 올리기 알림](../spec/client/file-upload-notification.md) |
@@ -127,12 +129,13 @@ TC-<SPEC>-<AREA>-<NNN>
 | [SearchHome](./search-home.md) | [SearchHome 화면](../spec/client/search-home.md) |
 | [화면 조회 로깅](./screen-view-logging.md) | [화면 조회 로깅](../spec/client/screen-view-logging.md) |
 | [SettingBrowser](./setting-browser.md) | [SettingBrowser 화면](../spec/client/setting-browser.md) |
-| [SettingDownload](./setting-download.md) | [SettingDownload 화면](../spec/client/setting-download.md) |
+| [SettingFile](./setting-file.md) | [SettingFile 화면](../spec/client/setting-file.md) |
 | [SettingGemini](./setting-gemini.md) | [SettingGemini 화면](../spec/client/setting-gemini.md) |
 | [SettingHoliday](./setting-holiday.md) | [SettingHoliday 화면](../spec/client/setting-holiday.md) |
 | [SettingHome](./setting-home.md) | [SettingHome 화면](../spec/client/setting-home.md) |
 | [Setting 목록·상세 배치](./setting-list-detail.md) | [Setting 목록·상세 배치](../spec/client/setting-list-detail.md) |
 | [SettingMap](./setting-map.md) | [SettingMap 화면](../spec/client/setting-map.md) |
+| [SettingPlaylist](./setting-playlist.md) | [SettingPlaylist 화면](../spec/client/setting-playlist.md) |
 | [SwipeToFinishAndDelete 컴포넌트](./swipe-to-finish-and-delete.md) | [SwipeToFinishAndDelete 컴포넌트](../spec/client/swipe-to-finish-and-delete.md) |
 | [새로고침](./sync-refresh.md) | [새로고침](../spec/client/sync-refresh.md) |
 | [TagAdd](./tag-add.md) | [TagAdd 화면](../spec/client/tag-add.md) |

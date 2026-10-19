@@ -2,7 +2,7 @@
 
 기준 스펙: [곡 다운로드 프록시 스펙](../spec/client/music-download-proxy.md)
 
-프록시를 사용하는 기기에서 관찰하는 곡별 상태와 안내는 [곡 다운로드 테스트 케이스](./music-download.md)에서, 프록시 주소를 화면에서 확인하고 저장하는 케이스는 [SettingDownload 테스트 케이스](./setting-download.md)에서 다룬다. 이 문서의 케이스는 프록시가 받는 요청과 돌려주는 응답, 프록시 기기에 남는 파일을 기준으로 한다.
+프록시를 사용하는 기기에서 관찰하는 곡별 상태와 안내는 [곡 다운로드 테스트 케이스](./music-download.md)에서, 프록시 주소를 화면에서 확인하고 저장하는 케이스는 [SettingPlaylist 테스트 케이스](./setting-playlist.md)에서 다룬다. 이 문서의 케이스는 프록시가 받는 요청과 돌려주는 응답, 프록시 기기에 남는 파일을 기준으로 한다.
 
 ## feature
 

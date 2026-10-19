@@ -206,6 +206,13 @@
 | 사용자가 FileAdd 화면을 보고 있다 |
 | 앱이 화면 뒤에 있고 마지막으로 보던 화면이 FileAdd다 |
 
+### TC-FILE-UPLOAD-NOTIFICATION-FEATURE-021: FileDetail을 보고 있으면 알림을 선택했을 때 FileDetail을 닫고 FileHome을 연다
+
+- 근거: `feature > 알림에서 앱 열기`
+- Given: `더보기` 위에 FileHome을, 그 위에 FileDetail을 열어 둔 상태다.
+- When: 사용자가 파일 올리기 알림을 선택한다.
+- Then: FileDetail이 닫히고 `더보기` 위에 FileHome이 열리며, 뒤로가면 `더보기`로 돌아간다.
+
 ## domain
 
 ### TC-FILE-UPLOAD-NOTIFICATION-DOMAIN-001: 앱이 화면 앞에 있고 FileHome을 표시할 때만 FileHome을 보고 있는 것으로 본다
@@ -220,6 +227,7 @@
 | --- | --- | --- |
 | 예 | FileHome | 보고 있음 |
 | 예 | `더보기` | 보고 있지 않음 |
+| 예 | FileHome에서 연 FileDetail | 보고 있지 않음 |
 | 아니오 | FileHome | 보고 있지 않음 |
 
 ### TC-FILE-UPLOAD-NOTIFICATION-DOMAIN-002: 올리기를 시작할 때가 아니라 끝나는 순간 파일 화면을 보고 있는지로 판정한다

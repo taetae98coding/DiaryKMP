@@ -7,6 +7,7 @@
 - [ChecklistAdd 화면 스펙](./checklist-add.md)
 - [ChecklistDetail 화면 스펙](./checklist-detail.md)
 - [FileAdd 화면 스펙](./file-add.md)
+- [FileDetail 화면 스펙](./file-detail.md)
 - [MemoAdd 화면 스펙](./memo-add.md)
 - [MemoDetail 화면 스펙](./memo-detail.md)
 - [MusicAdd 화면 스펙](./music-add.md)
