@@ -22,9 +22,9 @@ WebHome, SearchHome, TagDetail 웹 탭, 메모의 웹 입력 어느 경로로 �
 
 ### 단독 표시와 돌아오기
 
-메모 탭에서 이동한 MemoAdd 화면과 MemoDetail 화면은 창 너비와 관계없이 단독으로 표시한다.
+메모 탭에서 이동한 MemoAdd 화면과 MemoDetail 화면은 창 너비와 관계없이 단독으로 표시한다. WebMemoFinishedList 화면은 [Web 목록·상세 배치 스펙](./web-list-detail.md)의 배치에 참여하지 않으며, 그 화면의 배치는 [항목 완료 메모 목록·상세 배치 스펙](./entity-memo-finished-list-detail.md)을 따른다.
 
-두 화면에서 뒤로가면 메모 탭이 선택된 같은 웹 항목의 WebDetail 화면으로 돌아간다. 그 WebDetail 화면에서 다시 뒤로가면 [WebDetail 화면 스펙](./web-detail.md)의 `뒤로가기`에 따라 WebDetail에 진입하기 전 화면으로 돌아간다.
+세 화면에서 뒤로가면 메모 탭이 선택된 같은 웹 항목의 WebDetail 화면으로 돌아간다. 그 WebDetail 화면에서 다시 뒤로가면 [WebDetail 화면 스펙](./web-detail.md)의 `뒤로가기`에 따라 WebDetail에 진입하기 전 화면으로 돌아간다.
 
 ## domain
 

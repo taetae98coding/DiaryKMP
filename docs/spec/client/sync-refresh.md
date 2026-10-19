@@ -21,6 +21,7 @@
 - TagDetail 웹 탭
 - TagDetail 장소 탭
 - TagMemoFinishedList
+- ContactMemoFinishedList, PlaceMemoFinishedList, WebMemoFinishedList
 - ContactDetail 메모 탭
 - PlaceDetail 메모 탭
 - WebDetail 메모 탭
@@ -68,7 +69,7 @@ CalendarHome에서는 공휴일과 날씨가 사용자 계정과 무관하므로
 | 화면 | 새로고침 대상 |
 | --- | --- |
 | CalendarHome | 계정 데이터의 서버 동기화, 표시 중인 달의 공휴일 동기화, 현재 위치의 날씨 동기화 |
-| MemoHome, MemoFinishedList, TagHome, TagFinishedList, TagDetail 메모·웹·장소 탭, TagMemoFinishedList, ContactDetail 메모 탭, PlaceDetail 메모 탭, WebDetail 메모 탭, RoutineHome, PlaceHome, WebHome, ContactHome, PlaylistHome, QrHome | 계정 데이터의 서버 동기화 |
+| MemoHome, MemoFinishedList, TagHome, TagFinishedList, TagDetail 메모·웹·장소 탭, TagMemoFinishedList, ContactDetail 메모 탭, PlaceDetail 메모 탭, WebDetail 메모 탭, ContactMemoFinishedList, PlaceMemoFinishedList, WebMemoFinishedList, RoutineHome, PlaceHome, WebHome, ContactHome, PlaylistHome, QrHome | 계정 데이터의 서버 동기화 |
 
 계정 데이터의 서버 동기화는 열네 종류를 한 번에 처리하므로, 화면이 보여 주는 종류만 골라 동기화하지 않는다. PlaceHome에서 당겨도 메모와 태그가 함께 동기화되고, MemoHome에서 당겨도 장소와 웹 항목과 연락처와 곡과 QR이 함께 동기화된다. TagDetail의 어느 탭에서 당겨도 같은 한 번의 동기화가 실행되므로 탭마다 동기화 대상이 다르지 않다.
 

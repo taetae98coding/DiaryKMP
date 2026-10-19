@@ -123,6 +123,7 @@ iOS 상단 바의 버튼은 iOS 시스템 버튼으로 그려 길게 눌러 보�
 - [더보기 준비 중 화면 공통](./more-menu-placeholder.md)
 - [QrHome 화면](./qr-home.md)
 - [TagMemoFinishedList 화면](./tag-memo-finished-list.md)
+- [항목 완료 메모 목록 화면](./entity-memo-finished-list.md)
 - [WebDetail 화면](./web-detail.md)
 - [ContactDetail 화면](./contact-detail.md)
 - [MemoDetail 화면](./memo-detail.md)

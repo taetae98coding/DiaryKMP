@@ -22,9 +22,9 @@
 
 ### 단독 표시와 돌아오기
 
-메모 탭에서 이동한 MemoAdd 화면과 MemoDetail 화면은 [Contact 목록·상세 배치 스펙](./contact-list-detail.md)의 배치에 참여하지 않고 창 너비와 관계없이 단독으로 표시한다.
+메모 탭에서 이동한 MemoAdd 화면, MemoDetail 화면과 ContactMemoFinishedList 화면은 [Contact 목록·상세 배치 스펙](./contact-list-detail.md)의 배치에 참여하지 않는다. MemoAdd 화면과 MemoDetail 화면은 창 너비와 관계없이 단독으로 표시하고, ContactMemoFinishedList 화면의 배치는 [항목 완료 메모 목록·상세 배치 스펙](./entity-memo-finished-list-detail.md)을 따른다.
 
-두 화면에서 뒤로가면 메모 탭이 선택된 같은 연락처의 ContactDetail 화면으로 돌아간다. 연락처 목록과 함께 표시하던 배치에서 이동했으면 그 배치로 돌아가고, 상세 영역에는 메모 탭이 선택된 같은 연락처의 상세가 남아 있다.
+세 화면에서 뒤로가면 메모 탭이 선택된 같은 연락처의 ContactDetail 화면으로 돌아간다. 연락처 목록과 함께 표시하던 배치에서 이동했으면 그 배치로 돌아가고, 상세 영역에는 메모 탭이 선택된 같은 연락처의 상세가 남아 있다.
 
 ## domain
 

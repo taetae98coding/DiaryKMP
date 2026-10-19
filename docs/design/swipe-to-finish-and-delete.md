@@ -35,7 +35,7 @@
 | 사용 화면 | 시작 방향 접근성 이름 | 끝 방향 접근성 이름 |
 | --- | --- | --- |
 | MemoHome, TagDetail 메모 탭, ContactDetail·PlaceDetail·WebDetail 메모 탭 | `메모 완료` | `메모 삭제` |
-| MemoFinishedList, TagMemoFinishedList | `메모 다시 시작` | `메모 삭제` |
+| MemoFinishedList, TagMemoFinishedList, ContactMemoFinishedList·PlaceMemoFinishedList·WebMemoFinishedList | `메모 다시 시작` | `메모 삭제` |
 | SearchHome 메모 결과 | 미완료 메모는 `메모 완료`, 완료된 메모는 `메모 다시 시작` | `메모 삭제` |
 | TagHome | `태그 완료` | `태그 삭제` |
 | TagFinishedList | `태그 다시 시작` | `태그 삭제` |

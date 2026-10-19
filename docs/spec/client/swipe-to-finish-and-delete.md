@@ -19,6 +19,7 @@
 | [WebDetail 메모 탭](./web-detail-memo.md) | 웹 항목별 메모 목록 | 완료 |
 | [MemoFinishedList 화면](./memo-finished-list.md) | 완료된 메모 목록 | 다시 시작 |
 | [TagMemoFinishedList 화면](./tag-memo-finished-list.md) | 태그별 완료된 메모 목록 | 다시 시작 |
+| [항목 완료 메모 목록 화면](./entity-memo-finished-list.md) | 연락처별·장소별·웹 항목별 완료된 메모 목록 | 다시 시작 |
 | [TagHome 목록](./tag-home.md) | 태그 목록 | 완료 |
 | [TagFinishedList 화면](./tag-finished-list.md) | 완료된 태그 목록 | 다시 시작 |
 | [WebHome 화면](./web-home.md) | 웹 목록 | 없음 |

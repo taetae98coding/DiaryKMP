@@ -14,6 +14,7 @@
 | [TagDetail 웹 탭](./tag-detail-web.md) | 웹 카드 |
 | [TagMemoFinishedList 화면](./tag-memo-finished-list.md) | 메모 카드 |
 | [항목 상세 메모 탭 공통](./entity-detail-memo.md) | 메모 카드 |
+| [항목 완료 메모 목록 화면](./entity-memo-finished-list.md) | 메모 카드 |
 | [MemoHome 목록](./memo-home.md) | 메모 카드 |
 | [MemoFinishedList 화면](./memo-finished-list.md) | 메모 카드 |
 | [장소 보기 모드](./place-view-mode.md) | 장소 카드 |

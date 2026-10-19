@@ -78,6 +78,8 @@ WebAdd, WebDetail, PlaceAdd, PlaceDetail 화면 문서는 태그 입력을 폼�
 - [일일 메모 알림](./daily-memo-notification.md)
 - [항목 추가 화면 공통](./entity-add.md)
 - [항목 상세 메모 탭 공통](./entity-detail-memo.md)
+- [항목 완료 메모 목록 화면](./entity-memo-finished-list.md)
+- [항목 완료 메모 목록·상세 배치](./entity-memo-finished-list-detail.md)
 - [Contact 목록·상세 배치](./contact-list-detail.md)
 - [DDayHome 화면](./dday-home.md)
 - [설명 입력 컴포넌트](./description-input.md)

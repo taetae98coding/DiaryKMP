@@ -14,6 +14,7 @@
 | [TagDetail 웹 탭](./tag-detail-web.md) | 태그별 웹 목록 | 제목순, 최근 수정순 |
 | [TagDetail 장소 탭](./tag-detail-place.md) | 지도 모드의 태그별 장소 목록, 목록 모드의 태그별 장소 목록 | 제목순, 최근 수정순 |
 | [TagMemoFinishedList 화면](./tag-memo-finished-list.md) | 태그별 완료된 메모 목록 | 기본순, 제목순, 최근 수정순 |
+| [항목 완료 메모 목록 화면](./entity-memo-finished-list.md) | 연락처별·장소별·웹 항목별 완료된 메모 목록 | 기본순, 제목순, 최근 수정순 |
 | [ContactDetail 메모 탭](./contact-detail-memo.md) | 연락처별 메모 목록 | 기본순, 제목순, 최근 수정순 |
 | [PlaceDetail 메모 탭](./place-detail-memo.md) | 장소별 메모 목록 | 기본순, 제목순, 최근 수정순 |
 | [WebDetail 메모 탭](./web-detail-memo.md) | 웹 항목별 메모 목록 | 기본순, 제목순, 최근 수정순 |
@@ -104,6 +105,7 @@
 | MemoFinishedList 완료된 메모 목록 | 기본순 |
 | TagDetail 메모 탭의 태그별 메모 목록 | 기본순 |
 | TagMemoFinishedList 태그별 완료된 메모 목록 | 기본순 |
+| ContactMemoFinishedList·PlaceMemoFinishedList·WebMemoFinishedList 항목별 완료된 메모 목록 | 기본순 |
 | ContactDetail 메모 탭의 연락처별 메모 목록 | 기본순 |
 | PlaceDetail 메모 탭의 장소별 메모 목록 | 기본순 |
 | WebDetail 메모 탭의 웹 항목별 메모 목록 | 기본순 |
