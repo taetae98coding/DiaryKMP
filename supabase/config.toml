@@ -155,6 +155,15 @@ verify_jwt = true
 [functions.v1-file-list]
 verify_jwt = true
 
+[functions.v1-file-get]
+verify_jwt = true
+
+[functions.v1-file-update]
+verify_jwt = true
+
+[functions.v1-file-download]
+verify_jwt = true
+
 [functions.v1-fcm-token-submit]
 verify_jwt = false
 
