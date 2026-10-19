@@ -7,6 +7,8 @@
 이 문서를 따르는 디자인 문서는 다음과 같다.
 
 - [메모 본문 배치 디자인](./memo-form.md)
+- [ChecklistAdd 화면 디자인](./checklist-add.md)
+- [ChecklistDetail 화면 디자인](./checklist-detail.md)
 - [FileAdd 화면 디자인](./file-add.md)
 - [MusicAdd 화면 디자인](./music-add.md)
 - [MusicDetail 화면 디자인](./music-detail.md)

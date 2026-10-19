@@ -4,6 +4,7 @@
 
 이 문서를 따르는 화면 스펙은 다음과 같다.
 
+- [ChecklistDetail 화면 스펙](./checklist-detail.md)
 - [ContactDetail 화면 스펙](./contact-detail.md)
 - [MemoDetail 화면 스펙](./memo-detail.md)
 - [MusicDetail 화면 스펙](./music-detail.md)

@@ -9,6 +9,7 @@
 - [MemoHome 목록 디자인](./memo-home.md)
 - [TagHome 목록 디자인](./tag-home.md)
 - [RoutineHome 화면 디자인](./routine-home.md)
+- [ChecklistHome 화면 디자인](./checklist-home.md)
 - [ContactHome 화면 디자인](./contact-home.md)
 - [FileHome 화면 디자인](./file-home.md)
 - [PlaceHome 화면 디자인](./place-home.md)

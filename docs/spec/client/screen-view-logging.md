@@ -62,6 +62,8 @@ stateDiagram-v2
 | `CalendarHome` | [CalendarHome](./calendar-home.md) |
 | `CalendarHomeFilter` | [CalendarHome](./calendar-home.md) |
 | `CalendarTimetable` | [CalendarTimetable 화면](./calendar-timetable.md) |
+| `ChecklistAdd` | [ChecklistAdd 화면](./checklist-add.md) |
+| `ChecklistDetail` | [ChecklistDetail 화면](./checklist-detail.md) |
 | `ChecklistHome` | [ChecklistHome 화면](./checklist-home.md) |
 | `ContactAdd` | [ContactAdd 화면](./contact-add.md) |
 | `ContactDetail` | [ContactDetail 화면](./contact-detail.md) |
