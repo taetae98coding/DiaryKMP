@@ -12,8 +12,11 @@ import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_
 import io.github.taetae98coding.diary.compose.core.scene.ListDetailPlaceholderStateProvider
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListDetailPlaceholder
+import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListScreen
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
+import io.github.taetae98coding.diary.feature.memo.api.navigateToMemoDetail
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
@@ -21,12 +24,16 @@ import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebHomeNavKey
+import io.github.taetae98coding.diary.feature.web.api.WebMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.web.api.isWebListDetailPane
 import io.github.taetae98coding.diary.feature.web.ui.add.WebAddScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.web.ui.add.WebAddScreen
 import io.github.taetae98coding.diary.feature.web.ui.detail.WebDetailScreen
 import io.github.taetae98coding.diary.feature.web.ui.home.WebHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.web.ui.home.WebHomeScreen
+import io.github.taetae98coding.diary.feature.web.ui.memo.finished.WebMemoFinishedListViewModel
+import io.github.taetae98coding.diary.feature.web.ui.web_memo_finished_list_empty_title
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -34,6 +41,7 @@ public fun EntryProviderScope<ScreenNavKey>.webEntry(backStack: NavBackStack<Scr
     webHomeEntry(backStack = backStack)
     webAddEntry(backStack = backStack)
     webDetailEntry(backStack = backStack)
+    webMemoFinishedListEntry(backStack = backStack)
 }
 
 private fun EntryProviderScope<ScreenNavKey>.webHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
@@ -108,6 +116,7 @@ private fun EntryProviderScope<ScreenNavKey>.webDetailEntry(backStack: NavBackSt
             navigateToTagDetail = { id -> backStack.add(TagDetailNavKey(id = id)) },
             navigateToMemoAdd = { backStack.add(MemoAddNavKey(initialWebId = key.id)) },
             navigateToMemoDetail = { id -> backStack.add(MemoDetailNavKey(id = id)) },
+            navigateToMemoFinishedList = { backStack.add(WebMemoFinishedListNavKey(webId = key.id)) },
             id = key.id,
             tagAddRequestKey = tagAddRequestKey,
             webViewModel = koinViewModel { parametersOf(key.id) },
@@ -123,3 +132,32 @@ private fun NavBackStack<ScreenNavKey>.webListDetailPaneMetadata(key: ScreenNavK
     } else {
         emptyMap()
     }
+
+private fun EntryProviderScope<ScreenNavKey>.webMemoFinishedListEntry(backStack: NavBackStack<ScreenNavKey>) {
+    entry<WebMemoFinishedListNavKey>(
+        metadata = ::webMemoFinishedListPaneMetadata,
+    ) { key ->
+        EntityMemoFinishedListScreen(
+            navigateUp = backStack::navigateUpFromWebMemoFinishedList,
+            navigateToMemoDetail = backStack::navigateToMemoDetail,
+            emptyTitle = stringResource(Res.string.web_memo_finished_list_empty_title),
+            memoViewModel = koinViewModel<WebMemoFinishedListViewModel> { parametersOf(key.webId) },
+            syncViewModel = koinViewModel(),
+        )
+    }
+}
+
+internal fun webMemoFinishedListPaneMetadata(key: WebMemoFinishedListNavKey): Map<String, Any> =
+    ListDetailSceneStrategy.listPane(
+        sceneKey = key,
+        detailPlaceholder = { EntityMemoFinishedListDetailPlaceholder() },
+    ) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION)
+
+internal fun NavBackStack<ScreenNavKey>.navigateUpFromWebMemoFinishedList() {
+    val index = indexOfLast { key -> key is WebMemoFinishedListNavKey }
+    if (index < 0) return
+
+    while (size > index) {
+        removeLastOrNull()
+    }
+}

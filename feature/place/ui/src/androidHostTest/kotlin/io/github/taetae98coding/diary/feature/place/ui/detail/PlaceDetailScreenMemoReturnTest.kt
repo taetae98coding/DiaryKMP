@@ -111,6 +111,7 @@ class PlaceDetailScreenMemoReturnTest {
                         navigateToTagAdd = {},
                         navigateToMemoAdd = {},
                         navigateToMemoDetail = {},
+                        navigateToMemoFinishedList = {},
                         id = FIRST_PLACE_ID,
                         tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                         detailViewModel = screenTestViewModel(MutableStateFlow(content(id = FIRST_PLACE_ID))),

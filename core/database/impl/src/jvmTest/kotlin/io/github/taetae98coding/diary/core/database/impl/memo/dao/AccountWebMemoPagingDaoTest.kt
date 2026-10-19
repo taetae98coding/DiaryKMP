@@ -166,7 +166,7 @@ class AccountWebMemoPagingDaoTest :
             pagedIds(accountId = accountId, webId = webId) shouldBe expectedIds
         }
 
-        test("TC-WEB-DETAIL-MEMO-DATA-001 현재 계정의 대상 웹 항목와 활성 연결을 가진 미완료·미삭제 메모만 조회한다") {
+        test("TC-WEB-DETAIL-MEMO-FEATURE-028 TC-WEB-DETAIL-MEMO-DATA-001 현재 계정의 대상 웹 항목와 활성 연결을 가진 미완료·미삭제 메모만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val target = web()

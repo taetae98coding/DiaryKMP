@@ -54,4 +54,5 @@
     <string name="contact_home_deleted_message">연락처가 삭제되었습니다.</string>
     <string name="contact_home_undo_action">실행 취소</string>
     <string name="contact_home_delete_content_description">연락처 삭제</string>
+    <string name="contact_memo_finished_list_empty_title">이 연락처에서 완료한 메모가 없습니다</string>
 </resources>

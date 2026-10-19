@@ -245,6 +245,7 @@ class WebDetailTabTest {
                         navigateToTagDetail = {},
                         navigateToMemoAdd = {},
                         navigateToMemoDetail = {},
+                        navigateToMemoFinishedList = {},
                         id = FIRST_WEB_ID,
                         tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                         webViewModel = memoScreenWebViewModel(uiState = MutableStateFlow(testContentUiState(detail = testWebDetail(title = WEB_TITLE)))),

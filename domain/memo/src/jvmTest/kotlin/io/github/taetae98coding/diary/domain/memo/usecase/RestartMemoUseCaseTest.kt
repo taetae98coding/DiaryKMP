@@ -46,7 +46,7 @@ class RestartMemoUseCaseTest :
                 )
 
             When("완료를 실행 취소한다") {
-                Then("TC-MEMO-HOME-DOMAIN-003 TC-MEMO-HOME-DOMAIN-005 TC-MEMO-FINISHED-LIST-DOMAIN-001 TC-MEMO-FINISHED-LIST-DOMAIN-005 TC-TAG-MEMO-FINISHED-LIST-DOMAIN-002 현재 계정의 메모를 미완료 상태와 동작 시점 수정 시각으로 되돌린다") {
+                Then("TC-MEMO-HOME-DOMAIN-003 TC-MEMO-HOME-DOMAIN-005 TC-MEMO-FINISHED-LIST-DOMAIN-001 TC-MEMO-FINISHED-LIST-DOMAIN-005 TC-TAG-MEMO-FINISHED-LIST-DOMAIN-002 TC-ENTITY-MEMO-FINISHED-LIST-DOMAIN-002 현재 계정의 메모를 미완료 상태와 동작 시점 수정 시각으로 되돌린다") {
                     val memoId = fixtureMonkey.giveMeOne<Uuid>()
 
                     val result = useCase(parameter = memoId)

@@ -10,13 +10,21 @@ import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
+import io.github.taetae98coding.diary.feature.contact.api.ContactMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
+import io.github.taetae98coding.diary.feature.more.api.MoreHomeNavKey
+import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
+import io.github.taetae98coding.diary.feature.place.api.PlaceHomeNavKey
+import io.github.taetae98coding.diary.feature.place.api.PlaceMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
+import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
+import io.github.taetae98coding.diary.feature.web.api.WebHomeNavKey
+import io.github.taetae98coding.diary.feature.web.api.WebMemoFinishedListNavKey
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldContainExactly
@@ -302,6 +310,83 @@ class RememberAppStateTest {
             appState.backStack.removeLast()
             appState.backStack.last() shouldBe pathKeyList[1]
         }
+    }
+
+    @Test
+    @Config(qualifiers = "w1000dp-h800dp")
+    fun `TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-DOMAIN-002 화면이 재생성되거나 시스템이 앱을 정리했다가 다시 만들어도 ContactMemoFinishedList와 함께 놓인 메모 상세 선택과 뒤로가기 기록을 유지한다`() {
+        val pathKeyList = entityMemoFinishedListPathKeyListCases()[0]
+        val appState = restoredAppState(topLevelNavigation = TopLevelNavigation.More, pathKeyList = pathKeyList)
+
+        assertEntityMemoFinishedListDetailKept(appState = appState, pathKeyList = pathKeyList)
+    }
+
+    @Test
+    @Config(qualifiers = "w1000dp-h800dp")
+    fun `TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-DOMAIN-002 앱이 백그라운드에 다녀와도 ContactMemoFinishedList와 함께 놓인 메모 상세 선택을 유지한다`() {
+        val pathKeyList = entityMemoFinishedListPathKeyListCases()[0]
+        val appState = backgroundReturnedAppState(topLevelNavigation = TopLevelNavigation.More, pathKeyList = pathKeyList)
+
+        assertEntityMemoFinishedListDetailKept(appState = appState, pathKeyList = pathKeyList)
+    }
+
+    @Test
+    @Config(qualifiers = "w1000dp-h800dp")
+    fun `TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-DOMAIN-002 화면이 재생성되거나 시스템이 앱을 정리했다가 다시 만들어도 PlaceMemoFinishedList와 함께 놓인 메모 상세 선택과 뒤로가기 기록을 유지한다`() {
+        val pathKeyList = entityMemoFinishedListPathKeyListCases()[1]
+        val appState = restoredAppState(topLevelNavigation = TopLevelNavigation.More, pathKeyList = pathKeyList)
+
+        assertEntityMemoFinishedListDetailKept(appState = appState, pathKeyList = pathKeyList)
+    }
+
+    @Test
+    @Config(qualifiers = "w1000dp-h800dp")
+    fun `TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-DOMAIN-002 앱이 백그라운드에 다녀와도 PlaceMemoFinishedList와 함께 놓인 메모 상세 선택을 유지한다`() {
+        val pathKeyList = entityMemoFinishedListPathKeyListCases()[1]
+        val appState = backgroundReturnedAppState(topLevelNavigation = TopLevelNavigation.More, pathKeyList = pathKeyList)
+
+        assertEntityMemoFinishedListDetailKept(appState = appState, pathKeyList = pathKeyList)
+    }
+
+    @Test
+    @Config(qualifiers = "w1000dp-h800dp")
+    fun `TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-DOMAIN-002 화면이 재생성되거나 시스템이 앱을 정리했다가 다시 만들어도 WebMemoFinishedList와 함께 놓인 메모 상세 선택과 뒤로가기 기록을 유지한다`() {
+        val pathKeyList = entityMemoFinishedListPathKeyListCases()[2]
+        val appState = restoredAppState(topLevelNavigation = TopLevelNavigation.More, pathKeyList = pathKeyList)
+
+        assertEntityMemoFinishedListDetailKept(appState = appState, pathKeyList = pathKeyList)
+    }
+
+    @Test
+    @Config(qualifiers = "w1000dp-h800dp")
+    fun `TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-DOMAIN-002 앱이 백그라운드에 다녀와도 WebMemoFinishedList와 함께 놓인 메모 상세 선택을 유지한다`() {
+        val pathKeyList = entityMemoFinishedListPathKeyListCases()[2]
+        val appState = backgroundReturnedAppState(topLevelNavigation = TopLevelNavigation.More, pathKeyList = pathKeyList)
+
+        assertEntityMemoFinishedListDetailKept(appState = appState, pathKeyList = pathKeyList)
+    }
+
+    private fun assertEntityMemoFinishedListDetailKept(
+        appState: AppState,
+        pathKeyList: List<ScreenNavKey>,
+    ) {
+        composeRule.runOnIdle {
+            appState.backStack shouldContainExactly listOf(TopLevelNavigation.DEFAULT.key, MoreHomeNavKey) + pathKeyList
+            appState.backStack.removeLast()
+            appState.backStack.last() shouldBe pathKeyList[2]
+        }
+    }
+
+    private fun entityMemoFinishedListPathKeyListCases(): List<List<ScreenNavKey>> {
+        val contactId = Uuid.random()
+        val placeId = Uuid.random()
+        val webId = Uuid.random()
+
+        return listOf(
+            listOf(ContactHomeNavKey, ContactDetailNavKey(id = contactId), ContactMemoFinishedListNavKey(contactId = contactId), MemoDetailNavKey(id = Uuid.random())),
+            listOf(PlaceHomeNavKey, PlaceDetailNavKey(id = placeId), PlaceMemoFinishedListNavKey(placeId = placeId), MemoDetailNavKey(id = Uuid.random())),
+            listOf(WebHomeNavKey, WebDetailNavKey(id = webId), WebMemoFinishedListNavKey(webId = webId), MemoDetailNavKey(id = Uuid.random())),
+        )
     }
 
     private fun tagMemoFinishedListPathKeyList(): List<ScreenNavKey> {

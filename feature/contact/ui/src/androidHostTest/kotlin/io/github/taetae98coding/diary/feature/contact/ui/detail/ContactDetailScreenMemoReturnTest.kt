@@ -121,6 +121,7 @@ class ContactDetailScreenMemoReturnTest {
                         navigateUp = {},
                         navigateToMemoAdd = {},
                         navigateToMemoDetail = {},
+                        navigateToMemoFinishedList = {},
                         id = FIRST_CONTACT_ID,
                         componentVisibleProvider = { ContactDetailScaffoldComponentVisible() },
                         viewModel = screenTestViewModel(MutableStateFlow(content())),

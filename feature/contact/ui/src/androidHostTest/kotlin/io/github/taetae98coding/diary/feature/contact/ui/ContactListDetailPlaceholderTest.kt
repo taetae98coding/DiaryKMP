@@ -59,6 +59,7 @@ import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
+import io.github.taetae98coding.diary.feature.contact.api.ContactMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.contact.ui.add.ContactAddEffect
 import io.github.taetae98coding.diary.feature.contact.ui.add.ContactAddViewModel
 import io.github.taetae98coding.diary.feature.contact.ui.add.DEFAULT_BIRTHDAY_NOT_SET
@@ -179,6 +180,20 @@ class ContactListDetailPlaceholderTest {
         val contactId = fixtureMonkey.giveMeOne<Uuid>()
 
         assertPlaceholderRetained(routeList = listOf(ContactDetailNavKey(id = contactId), MemoAddNavKey(initialContactId = contactId)))
+    }
+
+    @Test
+    fun `TC-CONTACT-LIST-DETAIL-DOMAIN-006 배치를 떠나기 전에는 연락처 상세의 메모 탭에서 연 메모 상세에 다녀와도 연락처 추가의 입력이 남는다`() {
+        val contactId = fixtureMonkey.giveMeOne<Uuid>()
+
+        assertPlaceholderRetained(routeList = listOf(ContactDetailNavKey(id = contactId), MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())))
+    }
+
+    @Test
+    fun `TC-CONTACT-LIST-DETAIL-DOMAIN-006 배치를 떠나기 전에는 연락처 상세의 메모 탭에서 연 완료된 메모 목록에 다녀와도 연락처 추가의 입력이 남는다`() {
+        val contactId = fixtureMonkey.giveMeOne<Uuid>()
+
+        assertPlaceholderRetained(routeList = listOf(ContactDetailNavKey(id = contactId), ContactMemoFinishedListNavKey(contactId = contactId)))
     }
 
     @Test
@@ -584,6 +599,24 @@ class ContactListDetailPlaceholderTest {
     }
 
     @Test
+    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-021 메모 탭에서 연 완료된 메모 목록에서 뒤로가면 메모 탭이 선택된 같은 연락처의 상세로 돌아온다`() {
+        val contact = listedContact()
+        setContactNavDisplay(contactList = listOf(contact), isProductDetail = true)
+        composeRule.onNode(contactCard(contact)).performClick()
+        composeRule.waitForIdle()
+        composeRule.selectContactDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+
+        composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).performClick()
+        composeRule.waitForIdle()
+        backStack.last() shouldBe ContactMemoFinishedListNavKey(contactId = contact.id)
+        composeRule.onNodeWithText(ROUTE_CONTENT).assertIsDisplayed()
+        pressBack()
+
+        backStack.toList() shouldBe listOf(MoreNavKey, ContactHomeNavKey, ContactDetailNavKey(id = contact.id))
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
+    }
+
+    @Test
     fun `TC-CONTACT-DETAIL-MEMO-FEATURE-021 메모 탭에서 연 메모 추가에서 뒤로가면 메모 탭이 선택된 같은 연락처의 상세로 돌아온다`() {
         val contact = listedContact()
         setContactNavDisplay(contactList = listOf(contact), isProductDetail = true)
@@ -755,6 +788,7 @@ class ContactListDetailPlaceholderTest {
                                 }
                                 entry<MemoAddNavKey> { Text(text = ROUTE_CONTENT) }
                                 entry<MemoDetailNavKey> { Text(text = ROUTE_CONTENT) }
+                                entry<ContactMemoFinishedListNavKey> { Text(text = ROUTE_CONTENT) }
                             },
                     )
                 }
@@ -852,6 +886,7 @@ class ContactListDetailPlaceholderTest {
     )
 
     private companion object {
+        const val DEFAULT_FINISHED_LIST_LABEL = "Finished memos"
         const val MORE_CONTENT = "MoreContent"
         const val CONTACT_HOME_CONTENT = "ContactHomeContent"
         const val ROUTE_CONTENT = "RouteContent"

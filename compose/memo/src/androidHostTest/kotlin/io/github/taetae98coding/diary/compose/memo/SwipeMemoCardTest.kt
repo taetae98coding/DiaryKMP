@@ -40,7 +40,7 @@ class SwipeMemoCardTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-002 TC-TAG-DETAIL-MEMO-FEATURE-004 TC-MEMO-FINISHED-LIST-FEATURE-005 TC-TAG-MEMO-FINISHED-LIST-FEATURE-008 자리 표시 카드는 선택하거나 스와이프할 수 없다`() {
+    fun `TC-MEMO-HOME-FEATURE-002 TC-TAG-DETAIL-MEMO-FEATURE-004 TC-MEMO-FINISHED-LIST-FEATURE-005 TC-TAG-MEMO-FINISHED-LIST-FEATURE-008 TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-008 자리 표시 카드는 선택하거나 스와이프할 수 없다`() {
         var clickCount = 0
         var finishCount = 0
         var deleteCount = 0

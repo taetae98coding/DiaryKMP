@@ -5,11 +5,14 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
+import io.github.taetae98coding.diary.feature.contact.api.ContactMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.api.navigateToMemoDetail
+import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
+import io.github.taetae98coding.diary.feature.place.api.PlaceMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
@@ -17,6 +20,8 @@ import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.api.navigateToTagAddFromFilter
 import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
+import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
+import io.github.taetae98coding.diary.feature.web.api.WebMemoFinishedListNavKey
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
@@ -98,6 +103,31 @@ class MemoNavigationTest :
             backStack shouldContainExactly listOf(TagDetailNavKey(id = tagId), listKey)
         }
 
+        test("TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-FEATURE-019 항목 완료 메모 목록의 상세 영역에서 복사하면 원본 상세의 기록 없이 복사한 메모 상세를 상세 영역에 놓는다") {
+            entityFinishedListBackStackCases().forEach { (entityDetailKey, listKey) ->
+                val copiedId = fixtureMonkey.giveMeOne<Uuid>()
+                val backStack =
+                    NavBackStack<ScreenNavKey>(entityDetailKey, listKey, MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()))
+
+                backStack.navigateToCopiedMemo(copiedId)
+
+                backStack shouldContainExactly listOf(entityDetailKey, listKey, MemoDetailNavKey(id = copiedId))
+                backStack.memoDetailPaneSceneKey(backStack.last()) shouldBe listKey
+            }
+        }
+
+        test("TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-FEATURE-009 복사한 메모 상세에서 뒤로가면 목록을 유지하고 선택 전 상태가 된다") {
+            entityFinishedListBackStackCases().forEach { (entityDetailKey, listKey) ->
+                val backStack =
+                    NavBackStack<ScreenNavKey>(entityDetailKey, listKey, MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()))
+
+                backStack.navigateToCopiedMemo(fixtureMonkey.giveMeOne<Uuid>())
+                backStack.removeLastOrNull()
+
+                backStack shouldContainExactly listOf(entityDetailKey, listKey)
+            }
+        }
+
         test("TC-MEMO-DETAIL-FEATURE-076 복사한 뒤 뒤로가면 원본 상세가 아니라 진입 화면으로 돌아간다") {
             val entryKeyList =
                 listOf(
@@ -158,4 +188,16 @@ class MemoNavigationTest :
     companion object {
         private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
     }
+}
+
+private fun entityFinishedListBackStackCases(): List<Pair<ScreenNavKey, ScreenNavKey>> {
+    val contactId = Uuid.random()
+    val placeId = Uuid.random()
+    val webId = Uuid.random()
+
+    return listOf(
+        ContactDetailNavKey(id = contactId) to ContactMemoFinishedListNavKey(contactId = contactId),
+        PlaceDetailNavKey(id = placeId) to PlaceMemoFinishedListNavKey(placeId = placeId),
+        WebDetailNavKey(id = webId) to WebMemoFinishedListNavKey(webId = webId),
+    )
 }

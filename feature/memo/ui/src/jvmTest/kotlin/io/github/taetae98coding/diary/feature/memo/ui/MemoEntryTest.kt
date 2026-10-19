@@ -11,15 +11,21 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
+import io.github.taetae98coding.diary.feature.contact.api.ContactMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.api.navigateToMemoDetail
+import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
+import io.github.taetae98coding.diary.feature.place.api.PlaceMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
+import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
+import io.github.taetae98coding.diary.feature.web.api.WebMemoFinishedListNavKey
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldBeEmpty
@@ -181,6 +187,42 @@ class MemoEntryTest :
             }
         }
 
+        test("TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-FEATURE-010 항목 완료 메모 목록에서 이어 진입한 상세 화면은 목록·상세 배치의 상세 pane이다") {
+            val detailKey = MemoDetailNavKey(id = Uuid.random())
+
+            entityFinishedListCases().forEach { (entityDetailKey, finishedListKey) ->
+                val backStackCases =
+                    listOf(
+                        listOf(OtherTopLevelNavKey, finishedListKey, detailKey),
+                        listOf(OtherTopLevelNavKey, entityDetailKey, finishedListKey, detailKey),
+                    )
+
+                backStackCases.forEach { backStack ->
+                    metadataOf(backStack = backStack, key = detailKey).keys shouldBe detailPaneMetadataKeys
+                }
+            }
+        }
+
+        test("TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-FEATURE-011 항목 완료 메모 목록에서 진입하지 않은 상세 화면은 이 배치에 참여하지 않는다") {
+            val detailKey = MemoDetailNavKey(id = Uuid.random())
+            val addKey = MemoAddNavKey()
+            val tagMemoFinishedListKey = TagMemoFinishedListNavKey(tagId = Uuid.random())
+
+            entityFinishedListCases().forEach { (entityDetailKey, finishedListKey) ->
+                val detailFromMemoTab = listOf(OtherTopLevelNavKey, entityDetailKey, detailKey)
+                val addFromMemoTab = listOf(OtherTopLevelNavKey, entityDetailKey, addKey)
+                val detailFromTagMemoFinishedList = listOf(OtherTopLevelNavKey, entityDetailKey, finishedListKey, tagMemoFinishedListKey, detailKey)
+
+                detailFromMemoTab.memoDetailPaneSceneKey(key = detailKey).shouldBeNull()
+                addFromMemoTab.memoDetailPaneSceneKey(key = addKey).shouldBeNull()
+                detailFromTagMemoFinishedList.memoDetailPaneSceneKey(key = detailKey) shouldBe tagMemoFinishedListKey
+                listOf(OtherTopLevelNavKey, entityDetailKey, finishedListKey, detailKey).memoDetailPaneSceneKey(key = detailKey) shouldBe
+                    finishedListKey
+            }
+            listOf(OtherTopLevelNavKey, detailKey).memoDetailPaneSceneKey(key = detailKey).shouldBeNull()
+            listOf(OtherTopLevelNavKey, MemoHomeNavKey, MemoFinishedListNavKey, detailKey).memoDetailPaneSceneKey(key = detailKey).shouldBeNull()
+        }
+
         test("목록·상세 배치에 참여하지 않는 상세 화면에는 scene 키가 없다") {
             val detailKey = MemoDetailNavKey(id = Uuid.random())
             val backStack = listOf(OtherTopLevelNavKey, detailKey)
@@ -218,4 +260,16 @@ private data object OtherTopLevelNavKey : ScreenNavKey {
 private data object CalendarTimetableStandInNavKey : ScreenNavKey {
     override val screenName: String
         get() = "CalendarTimetableStandIn"
+}
+
+private fun entityFinishedListCases(): List<Pair<ScreenNavKey, ScreenNavKey>> {
+    val contactId = Uuid.random()
+    val placeId = Uuid.random()
+    val webId = Uuid.random()
+
+    return listOf(
+        ContactDetailNavKey(id = contactId) to ContactMemoFinishedListNavKey(contactId = contactId),
+        PlaceDetailNavKey(id = placeId) to PlaceMemoFinishedListNavKey(placeId = placeId),
+        WebDetailNavKey(id = webId) to WebMemoFinishedListNavKey(webId = webId),
+    )
 }

@@ -322,6 +322,7 @@ class WebDetailScreenTest {
                 WebDetailScreen(
                     navigateToMemoAdd = {},
                     navigateToMemoDetail = {},
+                    navigateToMemoFinishedList = {},
                     id = FIRST_WEB_ID,
                     navigateToTagAdd = {},
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
@@ -363,6 +364,7 @@ class WebDetailScreenTest {
                 WebDetailScreen(
                     navigateToMemoAdd = {},
                     navigateToMemoDetail = {},
+                    navigateToMemoFinishedList = {},
                     id = FIRST_WEB_ID,
                     navigateToTagAdd = {},
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
@@ -416,6 +418,7 @@ class WebDetailScreenTest {
                     WebDetailScreen(
                         navigateToMemoAdd = {},
                         navigateToMemoDetail = {},
+                        navigateToMemoFinishedList = {},
                         id = FIRST_WEB_ID,
                         navigateToTagAdd = {},
                         tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,

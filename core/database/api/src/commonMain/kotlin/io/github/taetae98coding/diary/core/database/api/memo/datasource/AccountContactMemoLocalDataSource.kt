@@ -11,4 +11,10 @@ public interface AccountContactMemoLocalDataSource {
         contactId: Uuid,
         sort: ListSortLocalEntity,
     ): PagingSource<Int, MemoLocalEntity>
+
+    public fun pageFinished(
+        accountId: Uuid,
+        contactId: Uuid,
+        sort: ListSortLocalEntity,
+    ): PagingSource<Int, MemoLocalEntity>
 }
