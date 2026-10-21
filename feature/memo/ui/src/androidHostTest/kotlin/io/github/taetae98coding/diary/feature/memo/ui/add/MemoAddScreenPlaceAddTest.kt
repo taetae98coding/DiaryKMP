@@ -19,6 +19,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.HOME_PLACE_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.place.OFFICE_PLACE_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.place.placeDialogNodeWithText
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.memo.ui.sendPlaceAddedResult
@@ -218,6 +219,7 @@ class MemoAddScreenPlaceAddTest {
                     contactViewModel = viewModels.contactViewModel,
                     placeViewModel = viewModels.placeViewModel,
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                     geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = {},
                     navigateToTagAdd = {},

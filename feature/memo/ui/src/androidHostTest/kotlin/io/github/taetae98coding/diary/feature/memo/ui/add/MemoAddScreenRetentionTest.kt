@@ -28,6 +28,7 @@ import io.github.taetae98coding.diary.domain.memo.usecase.AddMemoUseCase
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
@@ -142,6 +143,7 @@ private fun TestMemoAddScreen(viewModels: MemoAddScreenViewModels) {
         contactViewModel = viewModels.contactViewModel,
         placeViewModel = viewModels.placeViewModel,
         placeMapViewModel = screenTestPlaceMapViewModel(),
+        placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
         geminiViewModel = screenTestGeminiViewModel(),
         navigateUp = {},
         navigateToTagAdd = {},

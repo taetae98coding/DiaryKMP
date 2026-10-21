@@ -69,6 +69,11 @@
     <string name="memo_place_picker_search_placeholder">장소 검색</string>
     <string name="memo_place_picker_search_empty_title">검색 결과가 없습니다</string>
     <string name="memo_place_picker_search_empty_description">다른 검색어로 찾아보세요</string>
+    <string name="memo_place_picker_show_map_action">지도로 보기</string>
+    <string name="memo_place_picker_show_list_action">목록으로 보기</string>
+    <string name="memo_place_picker_map_content_description">장소 선택 지도</string>
+    <string name="memo_place_picker_map_empty_title">이 지역에 장소가 없습니다</string>
+    <string name="memo_place_picker_map_empty_description">지도를 옮겨 다른 곳을 찾아보세요</string>
     <string name="memo_place_add_action">장소 추가</string>
     <string name="memo_detail_navigate_up_button_content_description">뒤로가기</string>
     <string name="memo_detail_update_button_content_description">메모 수정</string>

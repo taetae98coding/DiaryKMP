@@ -34,6 +34,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.contact.screenTestContactV
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.web.screenTestWebViewModel
 import io.kotest.matchers.shouldBe
@@ -132,6 +133,7 @@ class MemoDetailScreenTest {
                     contactViewModel = screenTestContactViewModel(),
                     placeViewModel = screenTestPlaceViewModel(),
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                     geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = {},
                     navigateToCopiedMemo = {},
@@ -178,6 +180,7 @@ class MemoDetailScreenTest {
                     contactViewModel = screenTestContactViewModel(),
                     placeViewModel = screenTestPlaceViewModel(),
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                     geminiViewModel = geminiViewModel,
                     navigateUp = {},
                     navigateToCopiedMemo = {},
@@ -303,6 +306,7 @@ class MemoDetailScreenTest {
                     contactViewModel = screenTestContactViewModel(),
                     placeViewModel = screenTestPlaceViewModel(),
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                     geminiViewModel = geminiViewModel,
                     navigateUp = navigateUp,
                     navigateToCopiedMemo = {},
@@ -437,6 +441,7 @@ class MemoDetailScreenDateTimeTest {
                     contactViewModel = screenTestContactViewModel(),
                     placeViewModel = screenTestPlaceViewModel(),
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                     geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = {},
                     navigateToCopiedMemo = {},
@@ -620,6 +625,7 @@ class MemoDetailScreenActionTest {
                     contactViewModel = screenTestContactViewModel(),
                     placeViewModel = screenTestPlaceViewModel(),
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                     geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = {},
                     navigateToCopiedMemo = {},
@@ -702,6 +708,7 @@ class MemoDetailScreenActionTest {
                     contactViewModel = screenTestContactViewModel(),
                     placeViewModel = screenTestPlaceViewModel(),
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                     geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = navigateUp,
                     navigateToCopiedMemo = navigateToCopiedMemo,
@@ -784,6 +791,7 @@ class MemoDetailScreenCopiedResultTest {
                     contactViewModel = screenTestContactViewModel(),
                     placeViewModel = screenTestPlaceViewModel(),
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                     geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = {},
                     navigateToCopiedMemo = {},
@@ -875,6 +883,7 @@ class MemoDetailScreenMessageTest {
                     contactViewModel = screenTestContactViewModel(),
                     placeViewModel = screenTestPlaceViewModel(),
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                     geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = {},
                     navigateToCopiedMemo = {},
@@ -914,6 +923,7 @@ class MemoDetailScreenMessageTest {
                     contactViewModel = screenTestContactViewModel(),
                     placeViewModel = screenTestPlaceViewModel(),
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                     geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = {},
                     navigateToCopiedMemo = {},

@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.compose.core.dialog.DiaryPickerDialogHost
 import io.github.taetae98coding.diary.compose.core.dialog.rememberDialogState
 import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.place.previewPlace
 import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.place.Place
@@ -19,8 +20,10 @@ import kotlinx.coroutines.flow.flowOf
 internal fun MemoPlacePickerDialogHost(
     dialogState: DialogState,
     onEvent: (MemoPlacePickerEvent) -> Unit,
+    cardMapState: DiaryMapState? = null,
     placePagingItems: LazyPagingItems<Place> = remember { flowOf(PagingData.empty<Place>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> MemoPlaceInputUiState = { MemoPlaceInputUiState() },
+    mapUiStateProvider: () -> MemoPlacePickerMapUiState = { MemoPlacePickerMapUiState() },
     coordinateProvider: () -> Coordinate? = { null },
 ) {
     DiaryPickerDialogHost(
@@ -33,9 +36,12 @@ internal fun MemoPlacePickerDialogHost(
                 if (event is MemoPlacePickerEvent.ClickAdd) hide()
                 onEvent(event)
             },
+            state = rememberMemoPlacePickerState(),
             searchFieldState = searchFieldState,
+            mapState = cardMapState?.let { mapState -> rememberMemoPlacePickerMapState(cardMapState = mapState) },
             placePagingItems = placePagingItems,
             uiStateProvider = uiStateProvider,
+            mapUiStateProvider = mapUiStateProvider,
             coordinateProvider = coordinateProvider,
         )
     }

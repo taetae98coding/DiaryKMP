@@ -63,6 +63,8 @@ import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiUiState
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceMapUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceMapViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlacePickerMapUiState
+import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
 import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.github.taetae98coding.diary.feature.memo.ui.web.testWeb
@@ -319,6 +321,7 @@ class MemoListDetailPlaceholderTest {
             factory { realViewModels().contactViewModel.also { contactViewModelList += it } }
             factory { realViewModels().placeViewModel.also { placeViewModelList += it } }
             factory { relaxedPlaceMapViewModel() }
+            factory { relaxedPlacePickerMapViewModel() }
             factory { relaxedGeminiViewModel() }
         }
 
@@ -367,6 +370,8 @@ class MemoListDetailPlaceholderTest {
 
         // 배치를 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 mock을 쓴다.
         fun relaxedPlaceMapViewModel(): MemoPlaceMapViewModel = mockk<MemoPlaceMapViewModel>(relaxed = true) { every { uiState } returns MutableStateFlow(MemoPlaceMapUiState.Loading) }
+
+        fun relaxedPlacePickerMapViewModel(): MemoPlacePickerMapViewModel = mockk<MemoPlacePickerMapViewModel>(relaxed = true) { every { uiState } returns MutableStateFlow(MemoPlacePickerMapUiState()) }
 
         fun relaxedGeminiViewModel(): MemoGeminiViewModel =
             mockk<MemoGeminiViewModel>(relaxed = true) {

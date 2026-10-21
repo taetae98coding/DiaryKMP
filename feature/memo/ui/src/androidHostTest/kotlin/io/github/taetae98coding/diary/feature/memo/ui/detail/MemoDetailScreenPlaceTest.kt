@@ -21,6 +21,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.OFFICE_PLACE_TITLE
 import io.github.taetae98coding.diary.feature.memo.ui.place.placeDialogNodeWithText
 import io.github.taetae98coding.diary.feature.memo.ui.place.placePagingData
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
 import io.github.taetae98coding.diary.feature.memo.ui.web.screenTestWebViewModel
@@ -156,6 +157,7 @@ class MemoDetailScreenPlaceTest {
                 contactViewModel = screenTestContactViewModel(),
                 placeViewModel = placeViewModel,
                 placeMapViewModel = screenTestPlaceMapViewModel(),
+                placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                 geminiViewModel = screenTestGeminiViewModel(),
                 navigateUp = {},
                 navigateToCopiedMemo = {},

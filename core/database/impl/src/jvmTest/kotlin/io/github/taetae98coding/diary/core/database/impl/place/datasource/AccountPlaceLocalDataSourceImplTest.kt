@@ -75,7 +75,7 @@ class AccountPlaceLocalDataSourceImplTest :
             pagedPlaces(accountId) shouldBe listOf(firstPlace, lastPlace)
         }
 
-        test("TC-PLACE-HOME-DOMAIN-010 노출 기준을 만족하는 장소만 보이는 영역 기준으로 조회된다") {
+        test("TC-PLACE-HOME-DOMAIN-010 TC-MEMO-PLACE-CARD-DOMAIN-035 노출 기준을 만족하는 장소만 보이는 영역 기준으로 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val insidePlace = place(latitude = 37.5, longitude = 127.0)
@@ -93,7 +93,7 @@ class AccountPlaceLocalDataSourceImplTest :
             result shouldBe listOf(insidePlace)
         }
 
-        test("TC-PLACE-HOME-DOMAIN-011 영역 경계 위의 좌표도 영역 안으로 조회된다") {
+        test("TC-PLACE-HOME-DOMAIN-011 TC-MEMO-PLACE-CARD-DOMAIN-035 영역 경계 위의 좌표도 영역 안으로 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val boundaryPlaceList =
                 listOf(
@@ -112,7 +112,7 @@ class AccountPlaceLocalDataSourceImplTest :
             result shouldBe boundaryPlaceList
         }
 
-        test("TC-PLACE-HOME-DOMAIN-012 날짜변경선을 걸친 영역은 양쪽 범위의 장소를 모두 조회한다") {
+        test("TC-PLACE-HOME-DOMAIN-012 TC-MEMO-PLACE-CARD-DOMAIN-036 날짜변경선을 걸친 영역은 양쪽 범위의 장소를 모두 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val westSidePlace = place(title = "A-west-side", latitude = 37.5, longitude = 179.0)
             val eastSidePlace = place(title = "B-east-side", latitude = 37.5, longitude = -179.0)
@@ -127,7 +127,7 @@ class AccountPlaceLocalDataSourceImplTest :
             result shouldBe listOf(westSidePlace, eastSidePlace)
         }
 
-        test("TC-PLACE-HOME-DOMAIN-013 보이는 영역 기준 조회는 제목 오름차순으로 정렬된다") {
+        test("TC-PLACE-HOME-DOMAIN-013 TC-MEMO-PLACE-CARD-DOMAIN-035 보이는 영역 기준 조회는 제목 오름차순으로 정렬된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstPlace = place(title = FIRST_PLACE_TITLE, latitude = 37.5, longitude = 127.0)
             val lastPlace = place(title = LAST_PLACE_TITLE, latitude = 37.5, longitude = 127.0)
