@@ -1,21 +1,12 @@
 package io.github.taetae98coding.diary.compose.map.naver
 
 import io.github.taetae98coding.diary.compose.map.DiaryMapCamera
-import io.github.taetae98coding.diary.compose.map.web.MapHttpServer
-import io.github.taetae98coding.diary.compose.map.web.use
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
-import io.ktor.http.Url
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
-import java.net.HttpURLConnection
 import java.net.URI
-import java.net.URLEncoder
 
 class NaverMapHtmlTest :
     FunSpec({
@@ -28,7 +19,21 @@ class NaverMapHtmlTest :
             html shouldContain "height: 100%"
             html shouldContain "ncpKeyId=$ncpKeyId"
             html shouldContain "new naver.maps.Map"
-            html shouldContain """src="/naver-maps.js""""
+            html shouldContain """src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=$ncpKeyId""""
+        }
+
+        test("네이버 지도 문서는 SDK가 https로 요청하도록 localhost의 https 출처로 연다") {
+            val uri = URI(NAVER_MAP_BASE_URL)
+
+            uri.scheme shouldBe "https"
+            uri.host shouldBe "localhost"
+        }
+
+        test("네이버 지도 문서는 문서 출처의 자원을 불러오지 않는다") {
+            val html = requireNotNull(createNaverMapHtml(ncpKeyId = "test-key_123", camera = null))
+
+            html shouldNotContain """src="/"""
+            html shouldNotContain """href="/"""
         }
 
         test("TC-DIARY-MAP-DOMAIN-011: 네이버 지도가 제공하는 지도 컨트롤과 조작을 모두 켠 지도를 만든다") {
@@ -146,121 +151,6 @@ class NaverMapHtmlTest :
                     System.clearProperty(propertyName)
                 } else {
                     System.setProperty(propertyName, originalValue)
-                }
-            }
-        }
-
-        test("TC-DIARY-MAP-DOMAIN-007: 지도 문서를 localhost에서 제공한다") {
-            val html = "<html><body>Naver Map</body></html>"
-            val sdk = "Naver Maps SDK"
-            val proxyUrl = "http://nrbe.pstatic.net/styles/basic.json?callback=test"
-            val proxiedResource = "Naver Maps resource"
-            val resourceLoader = mockk<NaverMapResourceLoader>()
-            every { resourceLoader.loadSdk() } returns sdk
-            every { resourceLoader.loadProxy(proxyUrl) } returns proxiedResource
-
-            MapHttpServer(naverMapResourceLoader = resourceLoader).use { server ->
-                val uri = URI(server.register(html = html).url)
-                val servedHtml =
-                    uri
-                        .toURL()
-                        .openStream()
-                        .bufferedReader()
-                        .use { it.readText() }
-                val servedSdk =
-                    uri.resolve("/naver-maps.js").toURL().openStream().bufferedReader().use {
-                        it.readText()
-                    }
-                val servedProxy =
-                    uri
-                        .resolve("/naver-proxy?url=${URLEncoder.encode(proxyUrl, Charsets.UTF_8)}")
-                        .toURL()
-                        .openStream()
-                        .bufferedReader()
-                        .use { it.readText() }
-
-                uri.scheme shouldBe "http"
-                uri.host shouldBe "localhost"
-                servedHtml shouldBe html
-                servedSdk shouldBe sdk
-                servedProxy shouldBe proxiedResource
-                verify(exactly = 1) { resourceLoader.loadProxy(proxyUrl) }
-            }
-        }
-
-        test("정의되지 않거나 허용되지 않은 HTTP 요청을 거절한다") {
-            MapHttpServer(naverMapResourceLoader = mockk()).use { server ->
-                val pageUri = URI(server.register(html = "").url)
-                val requests =
-                    listOf(
-                        Triple(pageUri.resolve("/unknown"), "GET", HttpURLConnection.HTTP_NOT_FOUND),
-                        Triple(pageUri, "POST", HttpURLConnection.HTTP_BAD_METHOD),
-                    )
-
-                requests.forEach { (uri, method, expectedStatus) ->
-                    val connection = uri.toURL().openConnection() as HttpURLConnection
-                    connection.requestMethod = method
-
-                    connection.responseCode shouldBe expectedStatus
-                    connection.disconnect()
-                }
-            }
-        }
-
-        test("지도 리소스를 불러오지 못하면 잘못된 게이트웨이로 응답한다") {
-            val resourceLoader = mockk<NaverMapResourceLoader>()
-            every { resourceLoader.loadSdk() } throws IllegalStateException("SDK unavailable")
-
-            MapHttpServer(naverMapResourceLoader = resourceLoader).use { server ->
-                val connection =
-                    URI(server.register(html = "").url)
-                        .resolve("/naver-maps.js")
-                        .toURL()
-                        .openConnection() as HttpURLConnection
-
-                connection.responseCode shouldBe HttpURLConnection.HTTP_BAD_GATEWAY
-                connection.getHeaderField("Cache-Control") shouldBe "no-store"
-                connection.disconnect()
-            }
-        }
-
-        test("SDK의 JSONP 요청을 localhost 프록시로 변경하고 HTTPS 리소스를 사용한다") {
-            val source =
-                "before;o.src=e;middle;" +
-                    """et=tt||0===t.location.protocol.indexOf("https");after"""
-
-            val transformed = transformNaverMapsSdk(source)
-
-            transformed shouldContain """fetch("/naver-proxy?url="+encodeURIComponent(e))"""
-            transformed shouldContain "et=true"
-            transformed shouldNotContain "o.src=e"
-        }
-
-        test("지원하지 않는 SDK 형식은 사용하지 않는다") {
-            shouldThrow<IllegalArgumentException> {
-                transformNaverMapsSdk("unsupported")
-            }
-        }
-
-        test("허용된 네이버 지도 리소스만 HTTPS로 중계한다") {
-            val remoteUrl = "http://nrbe.pstatic.net/styles/basic.json?callback=test"
-
-            createNaverMapProxyUrl(remoteUrl) shouldBe
-                Url("https://nrbe.pstatic.net/styles/basic.json?callback=test")
-        }
-
-        test("허용되지 않은 네이버 지도 리소스는 중계하지 않는다") {
-            val urls =
-                listOf(
-                    "https://example.com/script.js",
-                    "https://user@nrbe.pstatic.net/script.js",
-                    "https://nrbe.pstatic.net:8080/script.js",
-                    "https://nrbe.pstatic.net/script.js#fragment",
-                )
-
-            urls.forEach { url ->
-                shouldThrow<IllegalArgumentException> {
-                    createNaverMapProxyUrl(url)
                 }
             }
         }

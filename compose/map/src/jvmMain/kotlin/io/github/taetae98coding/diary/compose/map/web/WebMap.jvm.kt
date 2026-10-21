@@ -19,6 +19,7 @@ internal fun WebMap(
         isPinSelectable: Boolean,
     ) -> String?,
     modifier: Modifier = Modifier,
+    baseUrl: String? = null,
     state: DiaryMapState = rememberDiaryMapState(),
     onSpotClick: ((DiaryMapCoordinate) -> Unit)? = null,
     onPinClick: ((Uuid) -> Unit)? = null,
@@ -34,6 +35,7 @@ internal fun WebMap(
             )
         },
         modifier = modifier,
+        baseUrl = baseUrl,
         state = state,
         onSpotClick = onSpotClick,
         onPinClick = onPinClick,
