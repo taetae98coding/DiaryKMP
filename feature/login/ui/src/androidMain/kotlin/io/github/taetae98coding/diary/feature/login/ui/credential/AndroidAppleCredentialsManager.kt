@@ -52,7 +52,7 @@ internal class AndroidAppleCredentialsManager(
 
         return try {
             launchBrowser(request.authorizationUrl)
-            request.toCredential(response = awaitRedirect(redirect).toResponse())
+            request.toCredential(response = AppleWebSignInResponse.fromParameters(awaitRedirect(redirect)::getQueryParameter))
         } catch (throwable: Throwable) {
             throw throwable.toAppleCredentialsFailure()
         } finally {
@@ -82,13 +82,6 @@ internal class AndroidAppleCredentialsManager(
         currentStateFlow.first { state -> !state.isAtLeast(Lifecycle.State.RESUMED) }
         currentStateFlow.first { state -> state.isAtLeast(Lifecycle.State.RESUMED) }
     }
-
-    private fun Uri.toResponse(): AppleWebSignInResponse =
-        AppleWebSignInResponse(
-            idToken = getQueryParameter(AppleWebSignInResponse.ID_TOKEN_PARAMETER),
-            state = getQueryParameter(AppleWebSignInResponse.STATE_PARAMETER),
-            error = getQueryParameter(AppleWebSignInResponse.ERROR_PARAMETER),
-        )
 
     companion object {
         // 앱 링크 Activity가 결과를 넘긴 직후 앱이 앞으로 돌아오므로, 그 순서가 뒤바뀌어도 결과를 놓치지 않을 만큼만 기다린다.

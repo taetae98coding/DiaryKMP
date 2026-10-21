@@ -3,19 +3,19 @@ package io.github.taetae98coding.diary.feature.login.ui.credential
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpServer
 import java.net.InetSocketAddress
-import java.net.URLDecoder
 import java.util.Locale
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.BlockingQueue
 
-// Apple은 https 복귀 주소만 받으므로 서버 콜백이 로컬 주소로 다시 보내 주고, 그 한 번의 응답을 여기서 받는다.
-internal class AppleSignInLoopbackReceiver(
+// RFC 8252 7.3: 데스크톱 로그인은 루프백 IP의 빈 포트에서 인가 응답을 한 번 받는다.
+// Google은 이 주소로 바로 돌아오고, Apple은 https 복귀 주소만 받으므로 서버 콜백이 이 주소로 다시 보내 준다.
+internal class LoopbackRedirectReceiver(
     private val locale: Locale = Locale.getDefault(),
 ) : AutoCloseable {
     private val server: HttpServer = HttpServer.create(InetSocketAddress(LOOPBACK_HOST, EPHEMERAL_PORT), 0)
-    private val responses: BlockingQueue<AppleWebSignInResponse> = ArrayBlockingQueue(1)
+    private val parametersQueue: BlockingQueue<Map<String, String>> = ArrayBlockingQueue(1)
 
-    val returnUri: String
+    val redirectUri: String
         get() = "http://$LOOPBACK_HOST:${server.address.port}$CALLBACK_PATH"
 
     init {
@@ -23,7 +23,7 @@ internal class AppleSignInLoopbackReceiver(
         server.start()
     }
 
-    fun waitForResponse(): AppleWebSignInResponse = responses.take()
+    fun waitForParameters(): Map<String, String> = parametersQueue.take()
 
     override fun close() {
         server.stop(0)
@@ -33,7 +33,7 @@ internal class AppleSignInLoopbackReceiver(
         val parameters =
             exchange.requestURI.rawQuery
                 .orEmpty()
-                .toQueryParameters()
+                .decodeUrlQuery()
         val body = landingPage().encodeToByteArray()
 
         exchange.responseHeaders.add("Content-Type", "text/html; charset=utf-8")
@@ -41,24 +41,8 @@ internal class AppleSignInLoopbackReceiver(
         exchange.responseBody.use { stream -> stream.write(body) }
         exchange.close()
 
-        responses.offer(
-            AppleWebSignInResponse(
-                idToken = parameters[AppleWebSignInResponse.ID_TOKEN_PARAMETER],
-                state = parameters[AppleWebSignInResponse.STATE_PARAMETER],
-                error = parameters[AppleWebSignInResponse.ERROR_PARAMETER],
-            ),
-        )
+        parametersQueue.offer(parameters)
     }
-
-    private fun String.toQueryParameters(): Map<String, String> =
-        split('&')
-            .filter { it.isNotEmpty() }
-            .associate { parameter ->
-                val name = parameter.substringBefore('=')
-                val value = parameter.substringAfter('=', missingDelimiterValue = "")
-
-                URLDecoder.decode(name, Charsets.UTF_8) to URLDecoder.decode(value, Charsets.UTF_8)
-            }
 
     private fun landingPage(): String {
         val message =
@@ -71,9 +55,9 @@ internal class AppleSignInLoopbackReceiver(
         return """<!doctype html><html lang="${locale.language}"><head><meta charset="utf-8"><title>Diary</title></head><body><p>$message</p></body></html>"""
     }
 
-    companion object {
-        const val LOOPBACK_HOST: String = "127.0.0.1"
-        const val CALLBACK_PATH: String = "/callback"
+    private companion object {
+        private const val LOOPBACK_HOST = "127.0.0.1"
+        private const val CALLBACK_PATH = "/callback"
         private const val EPHEMERAL_PORT = 0
         private const val HTTP_OK = 200
     }

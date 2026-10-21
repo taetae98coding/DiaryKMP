@@ -8,19 +8,21 @@ internal class AppleWebSignInRequestFactory(
     fun create(returnUri: String): AppleWebSignInRequest {
         val nonce = Uuid.random().toString()
         val state = AppleWebSignInState.encode(token = Uuid.random().toString(), returnUri = returnUri)
-        val query =
-            listOf(
-                "client_id" to config.clientId,
-                "redirect_uri" to config.callbackUrl,
-                "response_type" to RESPONSE_TYPE,
-                "response_mode" to RESPONSE_MODE,
-                "scope" to SCOPE,
-                "state" to state,
-                "nonce" to CredentialsNonce.hash(nonce),
-            ).joinToString(separator = "&") { (name, value) -> "$name=${value.encodeUrlQueryComponent()}" }
+        val authorizationUrl =
+            APPLE_AUTHORIZATION_ENDPOINT.withUrlQuery(
+                listOf(
+                    "client_id" to config.clientId,
+                    "redirect_uri" to config.callbackUrl,
+                    "response_type" to RESPONSE_TYPE,
+                    "response_mode" to RESPONSE_MODE,
+                    "scope" to SCOPE,
+                    "state" to state,
+                    "nonce" to CredentialsNonce.hash(nonce),
+                ),
+            )
 
         return AppleWebSignInRequest(
-            authorizationUrl = "$APPLE_AUTHORIZATION_ENDPOINT?$query",
+            authorizationUrl = authorizationUrl,
             state = state,
             nonce = nonce,
         )

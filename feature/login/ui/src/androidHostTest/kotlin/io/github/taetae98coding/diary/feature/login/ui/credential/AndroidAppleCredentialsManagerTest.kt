@@ -89,7 +89,7 @@ class AndroidAppleCredentialsManagerTest {
             val manager = manager(lifecycleOwner.lifecycle, launchedUrlList::add)
 
             val signIn = async(start = CoroutineStart.UNDISPATCHED) { runCatching { manager.signIn() } }
-            val state = launchedUrlList.single().toUri().getQueryParameter(AppleWebSignInResponse.STATE_PARAMETER)
+            val state = launchedUrlList.single().toUri().getQueryParameter(AuthorizationResponseParameter.STATE)
             AppleSignInRedirectRelay.deliver("$returnUri?error=user_cancelled_authorize&state=$state".toUri())
             runCurrent()
 
@@ -119,8 +119,8 @@ class AndroidAppleCredentialsManagerTest {
     ) = returnUri
         .toUri()
         .buildUpon()
-        .appendQueryParameter(AppleWebSignInResponse.ID_TOKEN_PARAMETER, idToken)
-        .appendQueryParameter(AppleWebSignInResponse.STATE_PARAMETER, authorizationUrl.toUri().getQueryParameter(AppleWebSignInResponse.STATE_PARAMETER))
+        .appendQueryParameter(AuthorizationResponseParameter.ID_TOKEN, idToken)
+        .appendQueryParameter(AuthorizationResponseParameter.STATE, authorizationUrl.toUri().getQueryParameter(AuthorizationResponseParameter.STATE))
         .build()
 
     private fun TestScope.leaveAndReturn(lifecycleOwner: TestLifecycleOwner) {
