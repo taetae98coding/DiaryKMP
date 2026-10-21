@@ -237,6 +237,7 @@ class ChecklistHomeDeleteTest {
                         navigateUp = onNavigate,
                         navigateToAdd = onNavigate,
                         navigateToDetail = { onNavigate() },
+                        componentVisibleProvider = { ChecklistHomeScaffoldComponentVisible() },
                         checklistViewModel = viewModel,
                         syncViewModel = syncViewModel,
                     )

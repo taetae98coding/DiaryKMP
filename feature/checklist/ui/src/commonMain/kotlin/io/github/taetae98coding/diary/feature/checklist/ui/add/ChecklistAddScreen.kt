@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun ChecklistAddScreen(
     navigateUp: () -> Unit,
+    componentVisibleProvider: () -> ChecklistAddScaffoldComponentVisible,
     viewModel: ChecklistAddViewModel,
     modifier: Modifier = Modifier,
 ) {
@@ -54,5 +55,6 @@ internal fun ChecklistAddScreen(
         modifier = modifier,
         state = state,
         uiStateProvider = { uiState },
+        componentVisibleProvider = componentVisibleProvider,
     )
 }
