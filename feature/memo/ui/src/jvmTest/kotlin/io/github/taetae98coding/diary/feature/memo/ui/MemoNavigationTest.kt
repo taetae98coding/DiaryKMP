@@ -8,6 +8,7 @@ import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
+import io.github.taetae98coding.diary.feature.memo.api.MemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.api.navigateToMemoDetail
@@ -101,6 +102,102 @@ class MemoNavigationTest :
             backStack.removeLastOrNull()
 
             backStack shouldContainExactly listOf(TagDetailNavKey(id = tagId), listKey)
+        }
+
+        test("TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-005 완료된 메모 목록의 상세 영역에서 복사하면 원본 상세의 기록 없이 복사한 메모 상세를 상세 영역에 놓는다") {
+            val copiedId = fixtureMonkey.giveMeOne<Uuid>()
+            val backStack =
+                NavBackStack<ScreenNavKey>(
+                    MemoHomeNavKey,
+                    MemoFinishedListNavKey,
+                    MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                )
+
+            backStack.navigateToCopiedMemo(copiedId)
+
+            backStack shouldContainExactly listOf(MemoHomeNavKey, MemoFinishedListNavKey, MemoDetailNavKey(id = copiedId))
+            backStack.memoDetailPaneSceneKey(backStack.last()) shouldBe MemoFinishedListNavKey
+        }
+
+        test("TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-008 복사한 메모 상세에서 뒤로가면 목록을 유지하고 선택 전 상태가 된다") {
+            val backStack =
+                NavBackStack<ScreenNavKey>(
+                    MemoHomeNavKey,
+                    MemoFinishedListNavKey,
+                    MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                )
+
+            backStack.navigateToCopiedMemo(fixtureMonkey.giveMeOne<Uuid>())
+            backStack.removeLastOrNull()
+
+            backStack shouldContainExactly listOf(MemoHomeNavKey, MemoFinishedListNavKey)
+        }
+
+        test("TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-012 완료된 메모 목록의 뒤로가기 동작은 상세 표시 여부와 관계없이 MemoHome 목록으로 돌아간다") {
+            val homeDetailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val homeBackStackCases: List<List<ScreenNavKey>> = listOf(listOf(MemoHomeNavKey), listOf(MemoHomeNavKey, homeDetailKey))
+            val finishedListDetailCases: List<List<ScreenNavKey>> = listOf(emptyList(), listOf(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())))
+
+            homeBackStackCases.forEach { homeBackStack ->
+                finishedListDetailCases.forEach { detailKeyList ->
+                    val backStack = NavBackStack<ScreenNavKey>(*homeBackStack.toTypedArray(), MemoFinishedListNavKey, *detailKeyList.toTypedArray())
+
+                    backStack.navigateUpFromMemoFinishedList()
+
+                    backStack shouldContainExactly homeBackStack
+                }
+            }
+        }
+
+        test("TC-MEMO-FINISHED-LIST-DETAIL-DOMAIN-001 목록 화면을 떠났다가 다시 진입하면 상세가 선택 전 상태로 돌아간다") {
+            val detailCases =
+                listOf(
+                    listOf(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
+                    listOf(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()), MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),
+                )
+
+            detailCases.forEach { detailKeyList ->
+                val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, MemoFinishedListNavKey, *detailKeyList.toTypedArray())
+
+                backStack.navigateUpFromMemoFinishedList()
+                backStack.add(MemoFinishedListNavKey)
+
+                backStack shouldContainExactly listOf(MemoHomeNavKey, MemoFinishedListNavKey)
+            }
+        }
+
+        test("TC-MEMO-LIST-DETAIL-DOMAIN-005 완료된 메모 목록에 다녀와도 상세 영역과 뒤로가기 기록이 그대로다") {
+            val homeDetailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val addKey = MemoAddNavKey()
+            val cases: List<Pair<List<ScreenNavKey>, List<ScreenNavKey>>> =
+                listOf(
+                    listOf(homeDetailKey) to emptyList(),
+                    listOf(homeDetailKey, addKey) to listOf(homeDetailKey),
+                )
+
+            cases.forEach { (homeDetailList, expectedAfterBack) ->
+                val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, *homeDetailList.toTypedArray())
+
+                backStack.add(MemoFinishedListNavKey)
+                backStack.navigateToMemoDetail(fixtureMonkey.giveMeOne<Uuid>())
+                backStack.navigateUpFromMemoFinishedList()
+
+                backStack shouldContainExactly listOf(MemoHomeNavKey) + homeDetailList
+                backStack.memoDetailPaneSceneKey(backStack.last()) shouldBe MemoHomeNavKey
+
+                backStack.removeLastOrNull()
+
+                backStack shouldContainExactly listOf(MemoHomeNavKey) + expectedAfterBack
+            }
+        }
+
+        test("완료된 메모 목록이 없는 전환 이력에서는 완료된 메모 목록 뒤로가기 동작이 전환 이력을 바꾸지 않는다") {
+            val detailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, detailKey)
+
+            backStack.navigateUpFromMemoFinishedList()
+
+            backStack shouldContainExactly listOf(MemoHomeNavKey, detailKey)
         }
 
         test("TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-FEATURE-019 항목 완료 메모 목록의 상세 영역에서 복사하면 원본 상세의 기록 없이 복사한 메모 상세를 상세 영역에 놓는다") {

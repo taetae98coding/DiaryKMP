@@ -46,6 +46,7 @@ import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.ui.add.TagAddLinkViewModel
 import io.github.taetae98coding.diary.feature.tag.ui.add.TagAddViewModel
@@ -206,6 +207,11 @@ class TagListDetailPlaceholderTest {
     }
 
     @Test
+    fun `TC-TAG-LIST-DETAIL-DOMAIN-006 완료된 태그 목록에 다녀와도 선택 전 태그 추가의 입력과 연결이 남는다`() {
+        assertPlaceholderRetained(route = TagFinishedListNavKey)
+    }
+
+    @Test
     fun `TC-TAG-LIST-DETAIL-FEATURE-017 목록에서 고른 태그의 상세에서 시스템 뒤로가기를 사용하면 태그 상세를 고르기 전 상태로 돌아간다`() {
         val pathCases =
             listOf(
@@ -334,6 +340,7 @@ class TagListDetailPlaceholderTest {
                                 entry<TagAddNavKey>(
                                     metadata = ListDetailSceneStrategy.detailPane(sceneKey = TagHomeNavKey),
                                 ) { Text(text = ROUTE_CONTENT) }
+                                entry<TagFinishedListNavKey>(metadata = tagFinishedListPaneMetadata()) { Text(text = ROUTE_CONTENT) }
                                 entry<OtherTopLevelNavKey> { Text(text = OTHER_TOP_LEVEL_CONTENT) }
                             },
                     )

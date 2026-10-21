@@ -111,10 +111,12 @@ private fun EntryProviderScope<ScreenNavKey>.memoHomeFilterEntry(backStack: NavB
 }
 
 private fun EntryProviderScope<ScreenNavKey>.memoFinishedListEntry(backStack: NavBackStack<ScreenNavKey>) {
-    entry<MemoFinishedListNavKey> {
+    entry<MemoFinishedListNavKey>(
+        metadata = memoFinishedListPaneMetadata(),
+    ) {
         MemoFinishedListScreen(
-            navigateUp = { backStack.removeLastOrNull() },
-            navigateToDetail = { id -> backStack.add(MemoDetailNavKey(id)) },
+            navigateUp = backStack::navigateUpFromMemoFinishedList,
+            navigateToDetail = backStack::navigateToMemoDetail,
             memoViewModel = koinViewModel(),
             syncViewModel = koinViewModel(),
         )
@@ -224,6 +226,7 @@ internal fun List<ScreenNavKey>.isMemoDetailOnDetailPane(): Boolean = lastOrNull
 internal fun List<ScreenNavKey>.memoDetailPaneSceneKey(key: ScreenNavKey): ScreenNavKey? =
     findMemoDetailPaneListKey(key) { belowKey ->
         belowKey == MemoHomeNavKey ||
+            belowKey == MemoFinishedListNavKey ||
             belowKey is TagMemoFinishedListNavKey ||
             belowKey is ContactMemoFinishedListNavKey ||
             belowKey is PlaceMemoFinishedListNavKey ||

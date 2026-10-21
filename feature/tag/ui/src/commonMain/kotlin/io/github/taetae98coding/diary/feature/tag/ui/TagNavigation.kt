@@ -6,6 +6,7 @@ import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.ui.detail.TagDetailScaffoldComponentVisible
@@ -30,16 +31,28 @@ internal fun NavBackStack<ScreenNavKey>.navigateToTagAdd() {
 internal fun List<ScreenNavKey>.tagDetailContentKey(key: TagDetailNavKey): Any {
     val index = entryIndexOf(key)
 
-    return if (index > 0 && this[index - 1] == TagHomeNavKey) {
-        LIST_SELECTED_TAG_DETAIL_CONTENT_KEY
-    } else {
-        "$key@$index"
+    // 태그 목록과 완료된 태그 목록의 배치가 전환 이력에 함께 놓일 수 있으므로, 목록마다 다른 내용 키를 둔다.
+    return when (getOrNull(index - 1)) {
+        TagHomeNavKey -> LIST_SELECTED_TAG_DETAIL_CONTENT_KEY
+        TagFinishedListNavKey -> FINISHED_LIST_SELECTED_TAG_DETAIL_CONTENT_KEY
+        else -> "$key@$index"
     }
+}
+
+internal fun List<ScreenNavKey>.tagDetailPaneSceneKey(key: ScreenNavKey): ScreenNavKey? {
+    val index = entryIndexOf(key)
+    if (index < 0 || !key.isTagDetailPaneKey()) return null
+
+    return subList(0, index)
+        .lastOrNull { belowKey -> !belowKey.isTagDetailPaneKey() }
+        ?.takeIf { listKey -> listKey == TagHomeNavKey || listKey == TagFinishedListNavKey }
 }
 
 private fun ScreenNavKey?.isTagDetailPaneKey(): Boolean = this is TagDetailNavKey || this is TagAddNavKey
 
 private const val LIST_SELECTED_TAG_DETAIL_CONTENT_KEY: String = "TagDetailNavKey(listSelected)"
+
+private const val FINISHED_LIST_SELECTED_TAG_DETAIL_CONTENT_KEY: String = "TagDetailNavKey(finishedListSelected)"
 
 internal fun List<ScreenNavKey>.isNavigatedFromTagDetail(key: ScreenNavKey): Boolean {
     val index = entryIndexOf(key)
