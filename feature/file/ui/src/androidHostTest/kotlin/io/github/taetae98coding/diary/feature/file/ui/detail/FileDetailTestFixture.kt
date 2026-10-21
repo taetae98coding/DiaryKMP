@@ -135,6 +135,7 @@ internal class FileDetailTestScreen(
         DiaryTheme {
             FileDetailScreen(
                 navigateUp = { navigateUpCount += 1 },
+                componentVisibleProvider = { FileDetailScaffoldComponentVisible() },
                 detailViewModel = viewModel,
                 accountViewModel = accountViewModel,
             )

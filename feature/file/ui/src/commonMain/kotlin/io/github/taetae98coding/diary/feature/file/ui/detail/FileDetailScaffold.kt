@@ -35,6 +35,7 @@ internal fun FileDetailScaffold(
     modifier: Modifier = Modifier,
     state: FileDetailFormState = rememberFileDetailFormState(),
     uiStateProvider: () -> FileDetailUiState = { FileDetailUiState.Loading },
+    componentVisibleProvider: () -> FileDetailScaffoldComponentVisible = { FileDetailScaffoldComponentVisible() },
 ) {
     val isChanged by remember(state) {
         derivedStateOf {
@@ -49,6 +50,7 @@ internal fun FileDetailScaffold(
             FileDetailTopBar(
                 onEvent = onEvent,
                 uiStateProvider = uiStateProvider,
+                componentVisibleProvider = componentVisibleProvider,
             )
         },
         snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },

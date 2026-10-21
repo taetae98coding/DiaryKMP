@@ -17,6 +17,7 @@ internal fun FileDetailTopBar(
     onEvent: (FileDetailScaffoldEvent) -> Unit,
     modifier: Modifier = Modifier,
     uiStateProvider: () -> FileDetailUiState = { FileDetailUiState.Loading },
+    componentVisibleProvider: () -> FileDetailScaffoldComponentVisible = { FileDetailScaffoldComponentVisible() },
 ) {
     val uiState = uiStateProvider()
     val navigateUpContentDescription = stringResource(Res.string.file_navigate_up_button_content_description)
@@ -30,10 +31,12 @@ internal fun FileDetailTopBar(
         },
         modifier = modifier,
         navigationIcon = {
-            NavigateUp(
-                onClick = { onEvent(FileDetailScaffoldEvent.ClickNavigateUp) },
-                contentDescription = navigateUpContentDescription,
-            )
+            if (componentVisibleProvider().isNavigateUpButtonVisible) {
+                NavigateUp(
+                    onClick = { onEvent(FileDetailScaffoldEvent.ClickNavigateUp) },
+                    contentDescription = navigateUpContentDescription,
+                )
+            }
         },
         actions = {
             if (uiState is FileDetailUiState.Content) {

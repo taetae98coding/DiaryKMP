@@ -26,6 +26,7 @@ internal fun FileAddScaffold(
     modifier: Modifier = Modifier,
     state: FileAddFormState = rememberFileAddFormState(),
     uiStateProvider: () -> FileAddUiState = { FileAddUiState() },
+    componentVisibleProvider: () -> FileAddScaffoldComponentVisible = { FileAddScaffoldComponentVisible() },
 ) {
     Scaffold(
         modifier = modifier.submitShortcut { onEvent(FileAddScaffoldEvent.ClickUpload) },
@@ -34,6 +35,7 @@ internal fun FileAddScaffold(
                 title = stringResource(Res.string.file_add_title),
                 onNavigateUp = { onEvent(FileAddScaffoldEvent.ClickNavigateUp) },
                 navigateUpContentDescription = stringResource(Res.string.file_navigate_up_button_content_description),
+                isNavigateUpVisibleProvider = { componentVisibleProvider().isNavigateUpButtonVisible },
             )
         },
         snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },
