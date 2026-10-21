@@ -34,7 +34,7 @@ MemoHome 목록은 `메모` 주요 목적지의 첫 화면이므로 앱의 공�
 
 버튼의 라벨에는 `문구와 접근성`의 완료된 메모 진입 라벨을 쓴다.
 
-버튼을 누르면 MemoFinishedList 화면을 창 너비와 관계없이 단독으로 표시한다. 화면의 구조와 문구는 [MemoFinishedList 화면 디자인](./memo-finished-list.md)을 따른다.
+버튼을 누르면 MemoFinishedList 화면을 MemoHome 목록과 함께 표시하지 않고 그 자리에 표시한다. 화면의 구조와 문구는 [MemoFinishedList 화면 디자인](./memo-finished-list.md)을, 넓은 창에서 메모 상세와 함께 쓰는 배치는 [MemoFinishedList 목록·상세 배치 디자인](./memo-finished-list-detail.md)을 따른다.
 
 ## 메모 추가 버튼
 

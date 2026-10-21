@@ -42,7 +42,7 @@
 
 ### 배치에 참여하는 화면
 
-이 배치에는 완료 메모 목록 화면과 그 화면에서 진입한 메모 상세만 참여한다. ContactDetail·PlaceDetail·WebDetail 메모 탭, 캘린더 홈, MemoFinishedList, TagMemoFinishedList처럼 다른 곳에서 진입한 메모 상세와 메모 추가는 이 배치에 참여하지 않고, 메모 탭에서 진입한 경우의 기준은 [항목 상세 메모 탭 공통 스펙](./entity-detail-memo.md)의 `메모 상세 확인`과 `메모 추가`를 따른다.
+이 배치에는 완료 메모 목록 화면과 그 화면에서 진입한 메모 상세만 참여한다. ContactDetail·PlaceDetail·WebDetail 메모 탭, 캘린더 홈, MemoFinishedList, TagMemoFinishedList처럼 다른 곳에서 진입한 메모 상세와 메모 추가는 이 배치에 참여하지 않는다. 메모 탭에서 진입한 경우의 기준은 [항목 상세 메모 탭 공통 스펙](./entity-detail-memo.md)의 `메모 상세 확인`과 `메모 추가`를, MemoFinishedList와 TagMemoFinishedList에서 진입한 경우의 기준은 [MemoFinishedList 목록·상세 배치 스펙](./memo-finished-list-detail.md)과 [TagMemoFinishedList 목록·상세 배치 스펙](./tag-memo-finished-list-detail.md)을 따른다.
 
 ### 상세 선택
 

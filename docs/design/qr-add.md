@@ -1,12 +1,14 @@
 # QrAdd 화면 디자인
 
-기준 스펙: [QrAdd 화면 스펙](../spec/client/qr-add.md)
+기준 스펙: [QrAdd 화면 스펙](../spec/client/qr-add.md), [QR 목록·상세 배치 스펙](../spec/client/qr-list-detail.md)
 
 화면 구조, 표시 영역과 소프트 키보드, 초점과 단축키, 진행과 피드백은 [항목 추가 화면 공통 디자인](./entity-add.md)을 따른다.
 
 ## 화면 구조
 
-QrAdd 화면은 [QrHome 화면](./qr-home.md)에서 이어지는 세부 화면으로 창 너비와 관계없이 단독 표시하고, 공통 내비게이션 영역은 [TopLevelNavigation 디자인](./top-level-navigation.md)의 `세부 화면에서의 노출`에 따라 숨긴다.
+QrAdd 화면은 [QrHome 화면](./qr-home.md)에서 이어지는 세부 화면으로, 창 너비에 따라 단독으로 표시하거나 [QR 목록·상세 배치 디자인](./qr-list-detail.md)에 따라 QR 목록과 함께 상세 영역에 표시한다. 공통 내비게이션 영역은 [TopLevelNavigation 디자인](./top-level-navigation.md)의 `세부 화면에서의 노출`에 따라 숨긴다.
+
+뒤로가기 버튼의 노출 조건은 [목록·상세 배치 공통 디자인](./list-detail-pane.md)의 `버튼 노출`을 따르므로, 단독으로 표시할 때만 뒤로가기 버튼을 둔다.
 
 화면 상단에는 상단 바를 두고, 시작 쪽에 뒤로가기 동작을, 그 바로 뒤에 제목을 시작 쪽에 맞춰 표시한다. iOS에서는 [상단 바](./top-bar.md)의 iOS 표현대로 제목을 가운데에 둔다. 상단 바 끝 쪽에는 되돌리기 버튼과 QR 스캔 버튼을 이 순서로 둔다. QR 추가는 상단 바에 두지 않고 [항목 추가 화면 공통 디자인](./entity-add.md)의 `화면 구조`에 따라 오른쪽 아래의 떠 있는 추가 버튼으로 표시한다. 세 버튼은 선택한 탭과 관계없이 같은 자리에 둔다.
 

@@ -32,7 +32,7 @@
 
 버튼의 라벨에는 `문구와 접근성`의 완료된 태그 진입 라벨을 쓴다.
 
-버튼을 누르면 TagFinishedList 화면을 창 너비와 관계없이 단독으로 표시한다. 화면의 구조와 문구는 [TagFinishedList 화면 디자인](./tag-finished-list.md)을 따른다.
+버튼을 누르면 TagFinishedList 화면을 TagHome 목록과 함께 표시하지 않고 그 자리에 표시한다. 화면의 구조와 문구는 [TagFinishedList 화면 디자인](./tag-finished-list.md)을, 넓은 창에서 태그 상세와 함께 쓰는 배치는 [TagFinishedList 목록·상세 배치 디자인](./tag-finished-list-detail.md)을 따른다.
 
 ## 태그 추가 진입
 

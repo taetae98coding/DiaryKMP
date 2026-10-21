@@ -61,6 +61,7 @@
 | ChecklistAdd 화면 | [client](./client/checklist-add.md) | — | — | [ChecklistAdd 디자인](../design/checklist-add.md) |
 | ChecklistDetail 화면 | [client](./client/checklist-detail.md) | — | — | [ChecklistDetail 디자인](../design/checklist-detail.md) |
 | ChecklistHome 화면 | [client](./client/checklist-home.md) | — | — | [ChecklistHome 디자인](../design/checklist-home.md) |
+| Checklist 목록·상세 배치 | [client](./client/checklist-list-detail.md) | — | — | [Checklist 목록·상세 배치 디자인](../design/checklist-list-detail.md) |
 | Chrome 로그인 이어받기 | [client](./client/chrome-session-import.md) | — | — | — |
 | Contact 목록·상세 배치 | [client](./client/contact-list-detail.md) | — | — | [Contact 목록·상세 배치 디자인](../design/contact-list-detail.md) |
 | ContactAdd 화면 | [client](./client/contact-add.md) | — | — | [ContactAdd 디자인](../design/contact-add.md) |
@@ -72,6 +73,7 @@
 | FileAdd 화면 | [client](./client/file-add.md) | — | — | [FileAdd 디자인](../design/file-add.md) |
 | FileDetail 화면 | [client](./client/file-detail.md) | — | — | [FileDetail 디자인](../design/file-detail.md) |
 | FileHome 화면 | [client](./client/file-home.md) | — | — | [FileHome 디자인](../design/file-home.md) |
+| File 목록·상세 배치 | [client](./client/file-list-detail.md) | — | — | [File 목록·상세 배치 디자인](../design/file-list-detail.md) |
 | Gemini 모델 목록 조회 | [client](./client/gemini-model-list.md) | — | — | — |
 | Google 장소 검색 | [client](./client/google-place-search.md) | — | — | — |
 | HolidayHome 화면 | [client](./client/holiday-home.md) | — | — | [HolidayHome 디자인](../design/holiday-home.md) |
@@ -79,6 +81,7 @@
 | MemoAdd 화면 | [client](./client/memo-add.md) | — | — | [MemoAdd 디자인](../design/memo-add.md) |
 | MemoDetail 화면 | [client](./client/memo-detail.md) | — | — | [MemoDetail 디자인](../design/memo-detail.md) |
 | MemoFinishedList 화면 | [client](./client/memo-finished-list.md) | — | — | [MemoFinishedList 디자인](../design/memo-finished-list.md) |
+| MemoFinishedList 목록·상세 배치 | [client](./client/memo-finished-list-detail.md) | — | — | [MemoFinishedList 목록·상세 배치 디자인](../design/memo-finished-list-detail.md) |
 | MemoHome 목록 | [client](./client/memo-home.md) | — | — | [MemoHome 디자인](../design/memo-home.md) |
 | MoreHome 화면 | [client](./client/more-home.md) | — | — | [MoreHome 디자인](../design/more-home.md) |
 | MusicAdd 화면 | [client](./client/music-add.md) | — | — | [MusicAdd 디자인](../design/music-add.md) |
@@ -95,6 +98,7 @@
 | QrDetail 화면 | [client](./client/qr-detail.md) | — | — | [QrDetail 디자인](../design/qr-detail.md) |
 | QrHome 화면 | [client](./client/qr-home.md) | — | — | [QrHome 디자인](../design/qr-home.md) |
 | QrScan 화면 | [client](./client/qr-scan.md) | — | — | [QrScan 디자인](../design/qr-scan.md) |
+| QR 목록·상세 배치 | [client](./client/qr-list-detail.md) | — | — | [QR 목록·상세 배치 디자인](../design/qr-list-detail.md) |
 | Routine 목록·상세 배치 | [client](./client/routine-list-detail.md) | — | — | [Routine 목록·상세 배치 디자인](../design/routine-list-detail.md) |
 | RoutineAdd 화면 | [client](./client/routine-add.md) | — | — | [RoutineAdd 디자인](../design/routine-add.md) |
 | RoutineHome 화면 | [client](./client/routine-home.md) | — | — | [RoutineHome 디자인](../design/routine-home.md) |
@@ -115,6 +119,7 @@
 | TagDetail 장소 탭 | [client](./client/tag-detail-place.md) | — | — | [TagDetail 장소 탭 디자인](../design/tag-detail-place.md) |
 | TagDetail 화면 | [client](./client/tag-detail.md) | — | — | [TagDetail 디자인](../design/tag-detail.md), [태그 이모지 입력 디자인](../design/tag-emoji-input.md) |
 | TagFinishedList 화면 | [client](./client/tag-finished-list.md) | — | — | [TagFinishedList 디자인](../design/tag-finished-list.md) |
+| TagFinishedList 목록·상세 배치 | [client](./client/tag-finished-list-detail.md) | — | — | [TagFinishedList 목록·상세 배치 디자인](../design/tag-finished-list-detail.md) |
 | TagHome 목록 | [client](./client/tag-home.md) | — | — | [TagHome 디자인](../design/tag-home.md), [필터 Bottom Sheet 디자인](../design/filter-bottom-sheet.md) |
 | TagMemoFinishedList 목록·상세 배치 | [client](./client/tag-memo-finished-list-detail.md) | — | — | [TagMemoFinishedList 목록·상세 배치 디자인](../design/tag-memo-finished-list-detail.md) |
 | TagMemoFinishedList 화면 | [client](./client/tag-memo-finished-list.md) | — | — | [TagMemoFinishedList 디자인](../design/tag-memo-finished-list.md) |

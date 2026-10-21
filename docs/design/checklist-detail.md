@@ -1,12 +1,14 @@
 # ChecklistDetail 화면 디자인
 
-기준 스펙: [ChecklistDetail 화면 스펙](../spec/client/checklist-detail.md)
+기준 스펙: [ChecklistDetail 화면 스펙](../spec/client/checklist-detail.md), [Checklist 목록·상세 배치 스펙](../spec/client/checklist-list-detail.md)
 
 ChecklistDetail은 [ChecklistAdd 화면 디자인](./checklist-add.md)과 같은 자리에 제목과 설명 입력, 항목 입력 행을 두어 사용자가 체크리스트를 만들 때와 관리할 때 같은 방식으로 조작한다. 저장된 체크 항목을 체크하는 목록, 정렬 줄, 상단 바 액션과 떠 있는 수정 버튼, 상태 전환과 피드백이 다르다.
 
 ## 화면 구조
 
-ChecklistDetail 화면은 [ChecklistHome 화면](./checklist-home.md)에서 이어지는 세부 화면으로 창 너비와 관계없이 단독 표시하고, 공통 내비게이션 영역은 [TopLevelNavigation 디자인](./top-level-navigation.md)의 `세부 화면에서의 노출`에 따라 숨긴다.
+ChecklistDetail 화면은 [ChecklistHome 화면](./checklist-home.md)에서 이어지는 세부 화면으로, 창 너비에 따라 단독으로 표시하거나 [Checklist 목록·상세 배치 디자인](./checklist-list-detail.md)에 따라 체크리스트 목록과 함께 상세 영역에 표시한다. 공통 내비게이션 영역은 [TopLevelNavigation 디자인](./top-level-navigation.md)의 `세부 화면에서의 노출`에 따라 숨긴다.
+
+뒤로가기 버튼의 노출 조건은 [목록·상세 배치 공통 디자인](./list-detail-pane.md)의 `버튼 노출`을 따르므로, 단독으로 표시할 때만 뒤로가기 버튼을 둔다.
 
 화면 상단에는 상단 바를 두고, 시작 쪽에 뒤로가기 동작을, 그 바로 뒤에 저장된 체크리스트 제목을 시작 쪽에 맞춰 표시한다. 제목의 한 줄 유지, 가로 이동과 iOS 표현은 [QrDetail 화면 디자인](./qr-detail.md)의 `화면 구조`가 정한 상단 바 제목과 같다. 조회가 완료되면 상단 바 끝 쪽에 리셋 버튼과 삭제 버튼을 이 순서로 둔다. 되돌릴 수 없는 삭제를 모서리에 고정해 두는 것은 [PlaceDetail 화면 디자인](./place-detail.md)의 상단 바 액션 배치와 같은 기준이다.
 
@@ -113,9 +115,9 @@ stateDiagram-v2
 
 수정, 리셋, 삭제와 항목 넣기의 진행 표시는 각자의 버튼에만 두며 서로를 비활성으로 만들지 않는다.
 
-조회 중에는 본문 가운데에 로딩 진행 표시만 두고 입력, 정렬 줄, 체크 항목 영역과 수정 버튼을 표시하지 않는다. 상단 바에는 뒤로가기만 두고 제목과 리셋·삭제 버튼을 표시하지 않는다. 조회 중 상태와 내용 표시 상태는 서로 겹쳐 바뀌는 교차 전환을 사용한다. 진입할 때는 입력 초점을 두지 않으므로 소프트 키보드도 열지 않는다.
+조회 중에는 본문 가운데에 로딩 진행 표시만 두고 입력, 정렬 줄, 체크 항목 영역과 수정 버튼을 표시하지 않는다. 상단 바에는 단독으로 표시할 때의 뒤로가기만 두고 제목과 리셋·삭제 버튼을 표시하지 않는다. 조회 중 상태와 내용 표시 상태는 서로 겹쳐 바뀌는 교차 전환을 사용한다. 진입할 때는 입력 초점을 두지 않으므로 소프트 키보드도 열지 않는다.
 
-삭제에 성공하면 ChecklistHome 화면으로 돌아간다. ChecklistHome에는 삭제 안내 스낵바를 표시하지 않는다.
+삭제에 성공하면 단독으로 표시하고 있었으면 ChecklistHome 화면으로 돌아가고, 목록과 함께 표시하고 있었으면 상세 영역이 [Checklist 목록·상세 배치 디자인](./checklist-list-detail.md)의 선택 전 표시로 되돌아간다. ChecklistHome에는 삭제 안내 스낵바를 표시하지 않는다.
 
 ## 진행과 피드백
 
