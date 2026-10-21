@@ -233,6 +233,7 @@ class QrHomeDeleteTest {
                         navigateUp = onNavigate,
                         navigateToAdd = onNavigate,
                         navigateToDetail = { onNavigate() },
+                        componentVisibleProvider = { QrHomeScaffoldComponentVisible() },
                         qrViewModel = viewModel,
                         syncViewModel = syncViewModel,
                     )

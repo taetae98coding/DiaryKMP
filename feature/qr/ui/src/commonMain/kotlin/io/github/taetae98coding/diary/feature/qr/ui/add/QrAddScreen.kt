@@ -22,6 +22,7 @@ internal fun QrAddScreen(
     navigateToScan: () -> Unit,
     permissionManager: PermissionManager,
     resultEventBus: ResultEventBus,
+    componentVisibleProvider: () -> QrAddScaffoldComponentVisible,
     viewModel: QrAddViewModel,
     modifier: Modifier = Modifier,
 ) {
@@ -68,5 +69,6 @@ internal fun QrAddScreen(
         modifier = modifier,
         state = state,
         uiStateProvider = { uiState },
+        componentVisibleProvider = componentVisibleProvider,
     )
 }

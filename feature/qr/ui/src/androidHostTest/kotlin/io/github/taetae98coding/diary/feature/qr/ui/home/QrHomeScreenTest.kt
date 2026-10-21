@@ -147,6 +147,7 @@ class QrHomeScreenTest {
                     navigateUp = navigateUp,
                     navigateToAdd = navigateToAdd,
                     navigateToDetail = {},
+                    componentVisibleProvider = { QrHomeScaffoldComponentVisible() },
                     qrViewModel = qrViewModel,
                     syncViewModel = syncViewModel,
                 )

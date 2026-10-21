@@ -291,6 +291,7 @@ class QrDetailActionTest {
                 navigateToScan = {},
                 permissionManager = rememberPermissionManager(),
                 resultEventBus = remember { ResultEventBus() },
+                componentVisibleProvider = { QrDetailScaffoldComponentVisible() },
                 viewModel = viewModel,
             )
         }

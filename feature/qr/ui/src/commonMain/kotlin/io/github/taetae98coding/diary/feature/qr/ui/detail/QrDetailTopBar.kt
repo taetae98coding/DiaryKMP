@@ -30,6 +30,7 @@ internal fun QrDetailTopBar(
     state: QrAddFormState = rememberQrAddFormState(),
     uiStateProvider: () -> QrDetailUiState = { QrDetailUiState.Loading },
     actionProvider: () -> QrAction? = { null },
+    componentVisibleProvider: () -> QrDetailScaffoldComponentVisible = { QrDetailScaffoldComponentVisible() },
 ) {
     val uiState = uiStateProvider()
     val navigateUpContentDescription = stringResource(Res.string.qr_navigate_up_button_content_description)
@@ -47,10 +48,12 @@ internal fun QrDetailTopBar(
         },
         modifier = modifier,
         navigationIcon = {
-            NavigateUp(
-                onClick = { onEvent(QrDetailScaffoldEvent.ClickNavigateUp) },
-                contentDescription = navigateUpContentDescription,
-            )
+            if (componentVisibleProvider().isNavigateUpButtonVisible) {
+                NavigateUp(
+                    onClick = { onEvent(QrDetailScaffoldEvent.ClickNavigateUp) },
+                    contentDescription = navigateUpContentDescription,
+                )
+            }
         },
         actions = {
             if (uiState is QrDetailUiState.Content) {

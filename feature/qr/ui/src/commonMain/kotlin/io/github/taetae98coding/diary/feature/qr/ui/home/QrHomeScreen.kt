@@ -15,6 +15,7 @@ internal fun QrHomeScreen(
     navigateUp: () -> Unit,
     navigateToAdd: () -> Unit,
     navigateToDetail: (Uuid) -> Unit,
+    componentVisibleProvider: () -> QrHomeScaffoldComponentVisible,
     qrViewModel: QrHomeViewModel,
     syncViewModel: SyncRefreshViewModel,
     modifier: Modifier = Modifier,
@@ -43,5 +44,6 @@ internal fun QrHomeScreen(
         snackbarHostState = snackbarHostState,
         qrPagingItems = qrPagingItems,
         uiStateProvider = { uiState },
+        componentVisibleProvider = componentVisibleProvider,
     )
 }

@@ -269,6 +269,41 @@ class QrHomeScaffoldTest {
         eventList shouldBe listOf(QrHomeScaffoldEvent.ClickAdd)
     }
 
+    @Test
+    fun `TC-QR-LIST-DETAIL-FEATURE-003 상세 영역에 QR 추가가 놓이면 추가 버튼을 표시하지 않고 Cmd A 단축키로도 추가하지 않는다`() {
+        val eventList = mutableListOf<QrHomeScaffoldEvent>()
+        setQrHomeScaffold(
+            onEvent = eventList::add,
+            componentVisible = QrHomeScaffoldComponentVisible(isAddButtonVisible = false),
+        )
+
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).assertDoesNotExist()
+        performAddShortcut()
+
+        eventList shouldBe emptyList()
+    }
+
+    @Test
+    fun `TC-QR-LIST-DETAIL-FEATURE-004 상세 영역에 QR 추가가 놓여 있지 않으면 추가 버튼을 표시한다`() {
+        setQrHomeScaffold(componentVisible = QrHomeScaffoldComponentVisible(isAddButtonVisible = true))
+
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).assertExists()
+    }
+
+    @Test
+    fun `TC-QR-HOME-FEATURE-037 상세 영역에 QR 추가가 놓여도 뒤로가기 버튼은 표시된다`() {
+        val eventList = mutableListOf<QrHomeScaffoldEvent>()
+        setQrHomeScaffold(
+            onEvent = eventList::add,
+            componentVisible = QrHomeScaffoldComponentVisible(isAddButtonVisible = false),
+        )
+
+        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        eventList shouldBe listOf(QrHomeScaffoldEvent.ClickNavigateUp)
+    }
+
     private fun performAddShortcut() {
         composeRule.onRoot().performKeyInput {
             keyDown(Key.MetaLeft)
@@ -284,6 +319,7 @@ class QrHomeScaffoldTest {
         onEvent: (QrHomeScaffoldEvent) -> Unit = {},
         snackbarHostState: SnackbarHostState = SnackbarHostState(),
         uiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
+        componentVisible: QrHomeScaffoldComponentVisible = QrHomeScaffoldComponentVisible(),
     ) {
         val qrPagingDataFlow = MutableStateFlow(pagingData)
 
@@ -294,6 +330,7 @@ class QrHomeScaffoldTest {
                     snackbarHostState = snackbarHostState,
                     qrPagingItems = qrPagingDataFlow.collectAsLazyPagingItems(),
                     uiStateProvider = uiStateProvider,
+                    componentVisibleProvider = { componentVisible },
                 )
             }
         }
