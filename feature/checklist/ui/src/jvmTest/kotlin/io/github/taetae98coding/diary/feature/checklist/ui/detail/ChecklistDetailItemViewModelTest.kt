@@ -51,7 +51,7 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-007 체크 항목을 불러오는 동안에는 빈 상태로 보지 않는다") {
+        test("TC-271b9278-c2bc-42c9-a49c-f801d7fb1abb 체크 항목을 불러오는 동안에는 빈 상태로 보지 않는다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(itemListBySort = mapOf(ChecklistItemSort.ADDED to emptyFlow()))
 
@@ -66,7 +66,7 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-006 노출할 체크 항목이 없으면 불러오기가 끝난 빈 상태다") {
+        test("TC-f31a7738-9ef8-413d-821c-34b150e0955e 노출할 체크 항목이 없으면 불러오기가 끝난 빈 상태다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(itemListBySort = mapOf(ChecklistItemSort.ADDED to flowOf(Result.success(emptyList()))))
 
@@ -77,7 +77,7 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-DATA-008 체크 항목을 조회하지 못하면 항목이 없는 빈 상태로 본다") {
+        test("TC-b006bc65-8aca-4f2d-8318-5642d536c61f 체크 항목을 조회하지 못하면 항목이 없는 빈 상태로 본다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(itemListBySort = mapOf(ChecklistItemSort.ADDED to flowOf(Result.failure(IllegalStateException()))))
 
@@ -88,7 +88,7 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-022 처음 정렬은 추가순이고 체크 안 된 항목 우선으로 바꾸면 그 정렬로 조회한 목록을 노출한다") {
+        test("TC-931c50e0-f873-486a-96a9-7ba8a3d655cd 처음 정렬은 추가순이고 체크 안 된 항목 우선으로 바꾸면 그 정렬로 조회한 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val checklistId = fixtureMonkey.giveMeOne<Uuid>()
                 val addedList = itemList(checklistId = checklistId)
@@ -115,7 +115,7 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-DOMAIN-015 TC-CHECKLIST-DETAIL-FEATURE-038 정렬을 바꾼 뒤 새로 만든 화면 상태는 추가순으로 시작한다") {
+        test("TC-a4312274-e3e0-4f1a-86d0-c510baefba8c TC-546a404f-b57e-4a88-9208-f2208d629640 정렬을 바꾼 뒤 새로 만든 화면 상태는 추가순으로 시작한다") {
             runTest(mainDispatcher) {
                 val checklistId = fixtureMonkey.giveMeOne<Uuid>()
                 val addedList = itemList(checklistId = checklistId)
@@ -141,7 +141,7 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-035 다른 경로에서 바뀐 체크 항목을 조작 없이 노출한다") {
+        test("TC-b1fba11a-2793-40a4-b7df-24d0e36b311f 다른 경로에서 바뀐 체크 항목을 조작 없이 노출한다") {
             runTest(mainDispatcher) {
                 val checklistId = fixtureMonkey.giveMeOne<Uuid>()
                 val before = itemList(checklistId = checklistId)
@@ -164,7 +164,7 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-016 체크된 항목이 하나라도 있을 때만 리셋을 실행할 수 있다") {
+        test("TC-5ab08f6f-bc21-44ac-b28b-5f555cc7b256 체크된 항목이 하나라도 있을 때만 리셋을 실행할 수 있다") {
             val checklistId = fixtureMonkey.giveMeOne<Uuid>()
             val expectedByItemList =
                 listOf(
@@ -181,7 +181,7 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-008 체크 안 된 항목을 선택하면 체크를, 체크된 항목을 선택하면 체크 해제를 한 번 요청한다") {
+        test("TC-91c04294-1047-4551-ac4e-49792a4ffa10 체크 안 된 항목을 선택하면 체크를, 체크된 항목을 선택하면 체크 해제를 한 번 요청한다") {
             runTest(mainDispatcher) {
                 val unchecked = fixtureMonkey.checklistItem(isChecked = false, isDeleted = false)
                 val checked = fixtureMonkey.checklistItem(isChecked = true, isDeleted = false)
@@ -204,7 +204,7 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-010 체크 변경을 저장하지 못하면 안내 없이 다시 선택할 수 있다") {
+        test("TC-1338f2e3-c194-4674-94c8-1080d348f33e 체크 변경을 저장하지 못하면 안내 없이 다시 선택할 수 있다") {
             runTest(mainDispatcher) {
                 val item = fixtureMonkey.checklistItem(isChecked = false, isDeleted = false)
                 val checkChecklistItemUseCase = mockk<CheckChecklistItemUseCase>()
@@ -223,7 +223,7 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-011 항목 넣기에 성공하면 대상 체크리스트에 그 내용으로 넣기를 한 번 요청하고 성공을 한 번 알린다") {
+        test("TC-24f673e1-181e-4255-830d-ed71b458017d 항목 넣기에 성공하면 대상 체크리스트에 그 내용으로 넣기를 한 번 요청하고 성공을 한 번 알린다") {
             runTest(mainDispatcher) {
                 val checklistId = fixtureMonkey.giveMeOne<Uuid>()
                 val content = fixtureMonkey.nonBlankString()
@@ -242,7 +242,7 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-013 항목 넣기를 저장하지 못하면 성공을 알리지 않는다") {
+        test("TC-3909f080-7f22-4bc3-b8b2-ac3c67c7cd3f 항목 넣기를 저장하지 못하면 성공을 알리지 않는다") {
             runTest(mainDispatcher) {
                 val addChecklistItemUseCase = mockk<AddChecklistItemUseCase>()
                 coEvery { addChecklistItemUseCase(parameter = any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))
@@ -258,7 +258,7 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-014 항목을 빼면 그 항목의 빼기를 한 번 요청한다") {
+        test("TC-1ffe5e8c-f3fa-47c8-99fe-09c4183e2269 항목을 빼면 그 항목의 빼기를 한 번 요청한다") {
             runTest(mainDispatcher) {
                 val item = fixtureMonkey.checklistItem(isChecked = false, isDeleted = false)
                 val deleteChecklistItemUseCase = mockk<DeleteChecklistItemUseCase>()
@@ -272,7 +272,7 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-015 항목 빼기를 저장하지 못하면 안내 없이 다시 뺄 수 있다") {
+        test("TC-e2a22549-de97-4584-b123-e360ac322a56 항목 빼기를 저장하지 못하면 안내 없이 다시 뺄 수 있다") {
             runTest(mainDispatcher) {
                 val item = fixtureMonkey.checklistItem(isChecked = false, isDeleted = false)
                 val deleteChecklistItemUseCase = mockk<DeleteChecklistItemUseCase>()
@@ -291,7 +291,7 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-017 리셋을 확정하면 대상 체크리스트의 리셋을 한 번 요청한다") {
+        test("TC-75ac5b8f-d6cb-4afe-bf51-4f5add29b549 리셋을 확정하면 대상 체크리스트의 리셋을 한 번 요청한다") {
             runTest(mainDispatcher) {
                 val checklistId = fixtureMonkey.giveMeOne<Uuid>()
                 val resetChecklistUseCase = mockk<ResetChecklistUseCase>()
@@ -305,7 +305,7 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-019 리셋을 처리하는 동안 진행 상태를 노출하고 끝나면 해제한다") {
+        test("TC-13c34f1c-d8a2-4156-b876-acf69b25f0be 리셋을 처리하는 동안 진행 상태를 노출하고 끝나면 해제한다") {
             runTest(mainDispatcher) {
                 val gate = CompletableDeferred<Unit>()
                 val resetChecklistUseCase = mockk<ResetChecklistUseCase>()
@@ -332,7 +332,7 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-044 항목 넣기를 처리하는 동안 진행 상태를 노출하고 끝나면 해제한다") {
+        test("TC-9fadccf2-e1cf-4678-bd7d-c79144f2b643 항목 넣기를 처리하는 동안 진행 상태를 노출하고 끝나면 해제한다") {
             runTest(mainDispatcher) {
                 val gate = CompletableDeferred<Unit>()
                 val addChecklistItemUseCase = mockk<AddChecklistItemUseCase>()
@@ -359,7 +359,7 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-046 정렬을 고른 뒤 항목이 모두 없어졌다가 다시 생겨도 고른 정렬로 조회한다") {
+        test("TC-7884b5f4-c64b-4bb7-8b16-00b41bcbfcdc 정렬을 고른 뒤 항목이 모두 없어졌다가 다시 생겨도 고른 정렬로 조회한다") {
             runTest(mainDispatcher) {
                 val checklistId = fixtureMonkey.giveMeOne<Uuid>()
                 val restored = itemList(checklistId = checklistId).sortedBy(ChecklistItem::isChecked)
@@ -391,7 +391,7 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-FEATURE-021 리셋을 저장하지 못하면 안내 없이 진행 상태만 해제하고 다시 리셋할 수 있다") {
+        test("TC-0a0cf3fa-afb8-48dd-9d97-5cca495ff251 리셋을 저장하지 못하면 안내 없이 진행 상태만 해제하고 다시 리셋할 수 있다") {
             runTest(mainDispatcher) {
                 val checklistId = fixtureMonkey.giveMeOne<Uuid>()
                 val resetChecklistUseCase = mockk<ResetChecklistUseCase>()
@@ -411,7 +411,7 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-DOMAIN-013 리셋이나 항목 넣기를 처리하는 동안 같은 종류는 다시 요청하지 않고 다른 종류는 요청한다") {
+        test("TC-dbb55974-a5c4-4272-b99b-52ecb3c30bf0 리셋이나 항목 넣기를 처리하는 동안 같은 종류는 다시 요청하지 않고 다른 종류는 요청한다") {
             runTest(mainDispatcher) {
                 val gate = CompletableDeferred<Unit>()
                 val resetChecklistUseCase = mockk<ResetChecklistUseCase>()
@@ -440,7 +440,7 @@ class ChecklistDetailItemViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-DOMAIN-013 한 항목의 체크 변경과 빼기는 그 항목에만 제한하고 다른 항목은 요청한다") {
+        test("TC-dbb55974-a5c4-4272-b99b-52ecb3c30bf0 한 항목의 체크 변경과 빼기는 그 항목에만 제한하고 다른 항목은 요청한다") {
             runTest(mainDispatcher) {
                 val first = fixtureMonkey.checklistItem(isChecked = false, isDeleted = false)
                 val second = fixtureMonkey.checklistItem(isChecked = false, isDeleted = false)

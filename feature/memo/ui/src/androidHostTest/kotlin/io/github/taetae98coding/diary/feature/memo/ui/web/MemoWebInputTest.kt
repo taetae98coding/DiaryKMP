@@ -21,7 +21,7 @@ class MemoWebInputTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-011 선택한 웹 항목을 제목 칩으로 표시한다`() {
+    fun `TC-182019d3-4d24-47a9-bf9e-5c9eacb453aa 선택한 웹 항목을 제목 칩으로 표시한다`() {
         val wikiWeb = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
         val docsWeb = testWeb(title = DOCS_WEB_TITLE, url = DOCS_WEB_URL)
 
@@ -42,7 +42,7 @@ class MemoWebInputTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-015 선택한 웹 항목의 제목이 바뀌면 웹 칩에 반영된다`() {
+    fun `TC-607d6e71-a9e3-444b-8c0c-412b75730296 선택한 웹 항목의 제목이 바뀌면 웹 칩에 반영된다`() {
         val web = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
         val renamedWeb = web.copy(detail = web.detail.copy(title = RENAMED_WEB_TITLE))
         val selectWebList = composeRule.setMemoWebInputWithSelection()
@@ -57,7 +57,7 @@ class MemoWebInputTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-012 선택을 해제한 웹 항목은 칩 영역에서 사라진다`() {
+    fun `TC-e6e37bb6-3f75-4339-bd54-49d403f22e5c 선택을 해제한 웹 항목은 칩 영역에서 사라진다`() {
         val wikiWeb = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
         val docsWeb = testWeb(title = DOCS_WEB_TITLE, url = DOCS_WEB_URL)
         val selectWebList = composeRule.setMemoWebInputWithSelection()
@@ -105,7 +105,7 @@ class MemoWebInputTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-017 웹 칩을 눌러도 추가 항목의 동작이 실행되지 않는다`() {
+    fun `TC-3bbc00d3-1f10-4c09-9562-b978fd32b61b 웹 칩을 눌러도 추가 항목의 동작이 실행되지 않는다`() {
         val web = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
         var addClickCount = 0
         composeRule.setMemoWebInput(
@@ -158,7 +158,7 @@ class MemoWebInputAddChipTest {
     }
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-002 선택한 웹 항목이 없거나 여러 개여도 웹 추가 항목이 표시된다`() {
+    fun `TC-eecef363-624e-475c-8e0b-7d02e5d3c91d 선택한 웹 항목이 없거나 여러 개여도 웹 추가 항목이 표시된다`() {
         val webList = listOf(testWeb(title = WIKI_WEB_TITLE), testWeb(title = DOCS_WEB_TITLE))
         val selectWebList = composeRule.setMemoWebInputWithSelection()
 
@@ -180,7 +180,7 @@ class MemoWebInputNavigationTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-FEATURE-016 웹 칩을 누르면 그 웹 항목을 대상으로 상세 이동을 요청한다`() {
+    fun `TC-93954c1c-00de-4de6-8a0c-d51dd840051c 웹 칩을 누르면 그 웹 항목을 대상으로 상세 이동을 요청한다`() {
         val wikiWeb = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
         val docsWeb = testWeb(title = DOCS_WEB_TITLE, url = DOCS_WEB_URL)
         val clickedWebIdList = mutableListOf<Uuid>()
@@ -199,7 +199,7 @@ class MemoWebInputNavigationTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MEMO-WEB-INPUT-FEATURE-016 한국어 환경에서 웹 칩에 상세 이동 동작 이름을 제공한다`() {
+    fun `TC-93954c1c-00de-4de6-8a0c-d51dd840051c 한국어 환경에서 웹 칩에 상세 이동 동작 이름을 제공한다`() {
         val web = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
 
         composeRule.setMemoWebInput(uiState = MemoWebInputUiState(selectedWebList = listOf(web)))

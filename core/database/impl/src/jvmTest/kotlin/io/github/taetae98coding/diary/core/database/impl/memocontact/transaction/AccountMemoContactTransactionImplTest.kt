@@ -126,7 +126,7 @@ class AccountMemoContactTransactionImplTest :
             )
         }
 
-        test("TC-MEMO-CONTACT-DOMAIN-001 하나의 메모에 여러 연락처를 연결해 저장한다") {
+        test("TC-37db8070-a1ca-4765-96b7-03a55f0ad16b 하나의 메모에 여러 연락처를 연결해 저장한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val contactList = List(2) { contact() }
@@ -136,7 +136,7 @@ class AccountMemoContactTransactionImplTest :
             getContactList(accountId = accountId, memoId = memo.id) shouldContainExactlyInAnyOrder contactList
         }
 
-        test("TC-MEMO-CONTACT-DOMAIN-002 같은 연락처를 여러 메모에 연결해도 서로 대체되지 않는다") {
+        test("TC-d7e9e604-26e9-429d-8eba-659b3beca7a5 같은 연락처를 여러 메모에 연결해도 서로 대체되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val contact = contact()
             val firstMemo = memo()
@@ -150,7 +150,7 @@ class AccountMemoContactTransactionImplTest :
             getContactList(accountId = accountId, memoId = secondMemo.id) shouldBe listOf(contact)
         }
 
-        test("TC-MEMO-CONTACT-DOMAIN-003 같은 메모와 연락처의 연결을 다시 저장해도 한 건으로 유지된다") {
+        test("TC-ec242b68-06fe-4e4b-946e-0fc7f4be9f82 같은 메모와 연락처의 연결을 다시 저장해도 한 건으로 유지된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val contact = contact()
@@ -162,7 +162,7 @@ class AccountMemoContactTransactionImplTest :
             findMemoContactList(memoId = memo.id) shouldHaveSize 1
         }
 
-        test("TC-MEMO-CONTACT-DOMAIN-004 연결할 연락처가 없으면 연락처 연결 없이 메모만 저장된다") {
+        test("TC-cf601cc6-4da5-422b-ae76-117a4bc62cec 연결할 연락처가 없으면 연락처 연결 없이 메모만 저장된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
 
@@ -173,7 +173,7 @@ class AccountMemoContactTransactionImplTest :
             getContactList(accountId = accountId, memoId = memo.id).shouldBeEmpty()
         }
 
-        test("TC-MEMO-CONTACT-DOMAIN-005 연락처를 삭제해도 메모와의 연결이 유지된다") {
+        test("TC-f890ef0c-f034-4766-b6f2-c8678bc4a8ca 연락처를 삭제해도 메모와의 연결이 유지된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val contact = contact()
@@ -185,7 +185,7 @@ class AccountMemoContactTransactionImplTest :
                 listOf(memoContact(memoId = memo.id, contactId = contact.id, memo = memo))
         }
 
-        test("TC-MEMO-CONTACT-DOMAIN-006 메모를 완료하거나 삭제해도 연락처와의 연결이 유지된다") {
+        test("TC-7e2e8268-c290-4906-b1ea-75891dc00e96 메모를 완료하거나 삭제해도 연락처와의 연결이 유지된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo().copy(isFinished = false, isDeleted = false)
             val contact = contact()
@@ -199,7 +199,7 @@ class AccountMemoContactTransactionImplTest :
             findMemoContactList(memoId = memo.id) shouldBe listOf(memoContact)
         }
 
-        test("TC-MEMO-CONTACT-DOMAIN-007 메모의 제목·설명·컬러·기간 수정은 연락처 연결을 바꾸지 않는다") {
+        test("TC-57642c31-aa6d-4d62-bf63-5e533b44b4f0 메모의 제목·설명·컬러·기간 수정은 연락처 연결을 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val contact = contact()
@@ -215,7 +215,7 @@ class AccountMemoContactTransactionImplTest :
             getContactList(accountId = accountId, memoId = memo.id) shouldBe listOf(contact)
         }
 
-        test("TC-MEMO-CONTACT-DOMAIN-007 연락처의 이름·설명·키·신발 사이즈·생일·고향·전화번호 수정은 연락처 연결을 바꾸지 않는다") {
+        test("TC-57642c31-aa6d-4d62-bf63-5e533b44b4f0 연락처의 이름·설명·키·신발 사이즈·생일·고향·전화번호 수정은 연락처 연결을 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val contact = contact()
@@ -229,7 +229,7 @@ class AccountMemoContactTransactionImplTest :
             getContactList(accountId = accountId, memoId = memo.id) shouldBe listOf(changedContact)
         }
 
-        test("TC-MEMO-CONTACT-DOMAIN-007 연락처의 즐겨찾기 여부 수정은 연락처 연결을 바꾸지 않는다") {
+        test("TC-57642c31-aa6d-4d62-bf63-5e533b44b4f0 연락처의 즐겨찾기 여부 수정은 연락처 연결을 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val contact = contact()
@@ -243,7 +243,7 @@ class AccountMemoContactTransactionImplTest :
             getContactList(accountId = accountId, memoId = memo.id) shouldBe listOf(changedContact)
         }
 
-        test("TC-MEMO-CONTACT-DOMAIN-008 TC-MEMO-DETAIL-DATA-033 연결을 해제하면 조회에서 제외되고 해제 상태로 남는다") {
+        test("TC-09dc56c5-d1f0-4daf-b396-c3ddbbffea36 TC-893893ed-6d9b-4b51-941b-c20d2f7b83bf 연결을 해제하면 조회에서 제외되고 해제 상태로 남는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val contact = contact()
@@ -265,7 +265,7 @@ class AccountMemoContactTransactionImplTest :
                 )
         }
 
-        test("TC-MEMO-CONTACT-DOMAIN-009 해제된 연결을 다시 만들면 생성 시각을 유지한 채 되살아난다") {
+        test("TC-6f00d1e3-dc0c-4b20-b600-394e0c758ba7 해제된 연결을 다시 만들면 생성 시각을 유지한 채 되살아난다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val contact = contact()
@@ -298,7 +298,7 @@ class AccountMemoContactTransactionImplTest :
                 )
         }
 
-        test("TC-MEMO-CONTACT-DOMAIN-010 삭제된 연락처는 메모의 연결된 연락처 조회에서 빠진다") {
+        test("TC-0c98b026-a3c0-4b94-b094-66144f671e4b 삭제된 연락처는 메모의 연결된 연락처 조회에서 빠진다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val keptContact = contact()
@@ -310,7 +310,7 @@ class AccountMemoContactTransactionImplTest :
             getContactList(accountId = accountId, memoId = memo.id) shouldBe listOf(keptContact)
         }
 
-        test("TC-MEMO-CONTACT-DOMAIN-011 연결된 연락처는 이름 오름차순으로 조회된다") {
+        test("TC-b0ea5543-aaa8-4293-a591-3872f9ad852e 연결된 연락처는 이름 오름차순으로 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val firstContact = contact().withName(name = "AAA")
@@ -321,7 +321,7 @@ class AccountMemoContactTransactionImplTest :
             getContactList(accountId = accountId, memoId = memo.id) shouldBe listOf(firstContact, secondContact, thirdContact)
         }
 
-        test("TC-MEMO-CONTACT-DOMAIN-013 연락처 연결은 메모 목록의 노출과 순서를 바꾸지 않는다") {
+        test("TC-0f056446-d1fc-45fa-8c31-ff622486ce99 연락처 연결은 메모 목록의 노출과 순서를 바꾸지 않는다") {
             listOf("AAA" to "BBB", "BBB" to "AAA").forEach { (linkedTitle, unlinkedTitle) ->
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
                 val linkedMemo = memo().visible().withTitle(title = linkedTitle)
@@ -340,7 +340,7 @@ class AccountMemoContactTransactionImplTest :
             }
         }
 
-        test("TC-MEMO-CONTACT-DOMAIN-014 메모 연결은 연락처 목록의 노출과 순서를 바꾸지 않는다") {
+        test("TC-5000e502-08b0-4d89-92b2-8f4f2acedf14 메모 연결은 연락처 목록의 노출과 순서를 바꾸지 않는다") {
             listOf("AAA" to "BBB", "BBB" to "AAA").forEach { (linkedTitle, unlinkedTitle) ->
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
                 val memo = memo()
@@ -359,7 +359,7 @@ class AccountMemoContactTransactionImplTest :
             }
         }
 
-        test("TC-MEMO-CONTACT-DOMAIN-015 메모 연결은 캘린더 생일 노출을 바꾸지 않는다") {
+        test("TC-938596ab-ccf3-4124-ae96-fa6c5f7e7832 메모 연결은 캘린더 생일 노출을 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val linkedContact = contact().withName(name = "AAA").withBirthday(date = BIRTHDAY_DATE)
@@ -375,7 +375,7 @@ class AccountMemoContactTransactionImplTest :
             birthdayList.map { birthday -> birthday.contactId } shouldContainExactlyInAnyOrder listOf(linkedContact.id, unlinkedContact.id)
         }
 
-        test("TC-MEMO-CONTACT-DOMAIN-020 연결된 메모와 연락처는 서로의 날짜에 나타나지 않는다") {
+        test("TC-e514bdbe-6620-4b9e-9d90-99a0ba647bca 연결된 메모와 연락처는 서로의 날짜에 나타나지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo().visible().withAllDayPeriod(start = MEMO_PERIOD_START, endInclusive = MEMO_PERIOD_END_INCLUSIVE)
             val contact = contact().withBirthday(date = BIRTHDAY_DATE)
@@ -406,7 +406,7 @@ class AccountMemoContactTransactionImplTest :
                 .map { birthday -> birthday.contactId } shouldBe listOf(contact.id)
         }
 
-        test("TC-MEMO-CONTACT-DOMAIN-016 연락처 연결은 태그로 메모를 조회한 결과를 바꾸지 않는다") {
+        test("TC-599fa886-8754-499e-92f7-64bcd95ef255 연락처 연결은 태그로 메모를 조회한 결과를 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo().visible().copy(primaryTagId = null)
             val contact = contact()
@@ -423,7 +423,7 @@ class AccountMemoContactTransactionImplTest :
             memoList.shouldBeEmpty()
         }
 
-        test("TC-MEMO-CONTACT-DOMAIN-017 연결된 연락처의 이름은 메모 검색에 쓰이지 않는다") {
+        test("TC-9f81d250-1601-4769-8fa8-b8dde0a57866 연결된 연락처의 이름은 메모 검색에 쓰이지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val query = "query-${fixtureMonkey.giveMeOne<Uuid>()}"
             val memo = memo().visible().let { value -> value.copy(detail = value.detail.copy(title = "memo-title", description = "memo-description")) }
@@ -439,7 +439,7 @@ class AccountMemoContactTransactionImplTest :
             memoList.shouldBeEmpty()
         }
 
-        test("TC-MEMO-CONTACT-DATA-010 TC-DATA-SYNC-DOMAIN-001 연결을 하나 해제하면 그 연결만 업로드 대기가 된다") {
+        test("TC-7c532f2d-1040-4b33-ac18-034b55c8026f TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 연결을 하나 해제하면 그 연결만 업로드 대기가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val removedContact = contact()
@@ -458,7 +458,7 @@ class AccountMemoContactTransactionImplTest :
             findPendingContactIdList(accountId = accountId) shouldBe listOf(removedContact.id)
         }
 
-        test("TC-MEMO-CONTACT-DATA-010 TC-DATA-SYNC-DOMAIN-001 연결을 하나 만들면 그 연결만 업로드 대기가 된다") {
+        test("TC-7c532f2d-1040-4b33-ac18-034b55c8026f TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 연결을 하나 만들면 그 연결만 업로드 대기가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val keptContact = contact()
@@ -478,7 +478,7 @@ class AccountMemoContactTransactionImplTest :
             findPendingContactIdList(accountId = accountId) shouldBe listOf(addedContact.id)
         }
 
-        test("TC-MEMO-CONTACT-DATA-001 저장된 연결의 생성 시각과 수정 시각은 저장 시점으로 서로 같고 해제되지 않은 상태다") {
+        test("TC-29c9ab13-eb7d-431b-b9f8-27c1c50327b5 저장된 연결의 생성 시각과 수정 시각은 저장 시점으로 서로 같고 해제되지 않은 상태다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val now = instant()
             val memo = memo().copy(updatedAt = now, createdAt = now)
@@ -498,7 +498,7 @@ class AccountMemoContactTransactionImplTest :
                 )
         }
 
-        test("TC-MEMO-CONTACT-DATA-002 저장이 실패하면 메모와 계정 연결, 태그·웹·연락처·장소 연결이 모두 남지 않는다") {
+        test("TC-132b0505-c3d9-4a93-9ddd-194e03f1f221 저장이 실패하면 메모와 계정 연결, 태그·웹·연락처·장소 연결이 모두 남지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tagId = fixtureMonkey.giveMeOne<Uuid>()
             val placeId = fixtureMonkey.giveMeOne<Uuid>()
@@ -529,7 +529,7 @@ class AccountMemoContactTransactionImplTest :
             memoSyncDataSource.readPendingList(accountId = accountId).shouldBeEmpty()
         }
 
-        test("TC-MEMO-CONTACT-DATA-003 같은 연결을 다른 수정 시각으로 저장하면 마지막 내용으로 덮어쓴다") {
+        test("TC-4fe1ba2a-62c2-48a5-a152-42c8f19b9f66 같은 연결을 다른 수정 시각으로 저장하면 마지막 내용으로 덮어쓴다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val changedMemo = memo.copy(updatedAt = instant())
@@ -550,7 +550,7 @@ class AccountMemoContactTransactionImplTest :
                 )
         }
 
-        test("TC-MEMO-CONTACT-DATA-004 해제되지 않은 연결의 연락처만 메모의 연락처로 조회된다") {
+        test("TC-2f3e3155-d166-49fa-81fd-259335e9ad4e 해제되지 않은 연결의 연락처만 메모의 연락처로 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val keptContact = contact()
@@ -562,7 +562,7 @@ class AccountMemoContactTransactionImplTest :
             getContactList(accountId = accountId, memoId = memo.id) shouldBe listOf(keptContact)
         }
 
-        test("TC-MEMO-DETAIL-DATA-032 연락처를 선택하면 연결이 선택 시점으로 저장되고 메모의 다른 값은 바뀌지 않는다") {
+        test("TC-fb979993-e8ea-4976-8b6e-cabbd34737fa 연락처를 선택하면 연결이 선택 시점으로 저장되고 메모의 다른 값은 바뀌지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val contact = contact()
@@ -586,7 +586,7 @@ class AccountMemoContactTransactionImplTest :
             getContactList(accountId = accountId, memoId = memo.id) shouldBe listOf(contact)
         }
 
-        test("TC-MEMO-DETAIL-DATA-037 복사본에 원본의 해제되지 않은 연락처 연결만 복사 시점으로 저장된다") {
+        test("TC-0568e479-b1ff-4b27-8d4f-fea43f465175 복사본에 원본의 해제되지 않은 연락처 연결만 복사 시점으로 저장된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val source = memo()
             val keptContact = contact()
@@ -630,7 +630,7 @@ class AccountMemoContactTransactionImplTest :
             getContactList(accountId = accountId, memoId = source.id) shouldBe listOf(keptContact)
         }
 
-        test("TC-MEMO-DETAIL-DATA-034 연락처 연결 변경은 연락처의 내용과 수정 시각을 바꾸지 않는다") {
+        test("TC-84a3394b-fc38-44b5-b970-21d3216b5d90 연락처 연결 변경은 연락처의 내용과 수정 시각을 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo()
             val contact = contact().copy(isFavorite = true)
@@ -643,7 +643,7 @@ class AccountMemoContactTransactionImplTest :
             database.accountContactDao().find(accountId = accountId, contactId = contact.id).first() shouldBe contact
         }
 
-        test("TC-MEMO-DETAIL-DATA-038 삭제된 연락처를 가리키는 원본 연결도 복사본에 만들어진다") {
+        test("TC-11307c40-07b9-48d7-9526-d6b73aead823 삭제된 연락처를 가리키는 원본 연결도 복사본에 만들어진다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val source = memo()
             val deletedContact = contact()
@@ -676,7 +676,7 @@ class AccountMemoContactTransactionImplTest :
             findMemoContactList(memoId = copy.id).map { memoContact -> memoContact.contactId } shouldBe listOf(deletedContact.id)
         }
 
-        test("TC-MEMO-DETAIL-DATA-046 복사는 원본의 연락처 연결을 바꾸지 않는다") {
+        test("TC-8af5efe9-f512-4c2c-979e-05c70b63a606 복사는 원본의 연락처 연결을 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val source = memo()
             val contact = contact()
@@ -711,7 +711,7 @@ class AccountMemoContactTransactionImplTest :
             "완료된" to { memo: MemoLocalEntity -> memo.copy(isFinished = true, isDeleted = false) },
             "삭제된" to { memo: MemoLocalEntity -> memo.copy(isFinished = false, isDeleted = true) },
         ).forEach { (label, change) ->
-            test("TC-MEMO-DETAIL-DOMAIN-012 $label 메모도 연락처 연결을 만들 수 있다") {
+            test("TC-a3fbdce9-d651-45ad-a5c6-5ab1c63ff22e $label 메모도 연락처 연결을 만들 수 있다") {
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
                 val memo = change(memo())
                 val contact = contact()

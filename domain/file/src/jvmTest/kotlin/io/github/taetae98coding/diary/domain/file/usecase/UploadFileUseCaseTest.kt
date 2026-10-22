@@ -56,7 +56,7 @@ class UploadFileUseCaseTest :
             When("그 파일을 올린다") {
                 val resultList = useCase(parameter = UploadFileRequest(content = content(uri = source.uri), accountId = account.id)).toList()
 
-                Then("TC-FILE-STORAGE-DOMAIN-011 시작, 보낸 양, 보관한 파일을 차례로 알린다") {
+                Then("TC-6dbf702d-7086-4551-a6e0-e8e92d936f8b 시작, 보낸 양, 보관한 파일을 차례로 알린다") {
                     resultList.map { result -> result.getOrThrow() } shouldBe
                         listOf(
                             FileUploadStep.Started(source = source),
@@ -70,7 +70,7 @@ class UploadFileUseCaseTest :
 
         Given("고른 파일의 크기가 테스트 데이터와 같다") {
             When("그 파일을 올린다") {
-                Then("TC-FILE-STORAGE-DOMAIN-001 50MB 이하는 서버에 올리고 넘으면 서버에 요청하지 않고 크기 초과로 실패한다") {
+                Then("TC-a9d4d2f4-55e1-468b-bb08-9967c864e7a4 50MB 이하는 서버에 올리고 넘으면 서버에 요청하지 않고 크기 초과로 실패한다") {
                     mapOf(
                         0L to true,
                         MAX_SIZE to true,
@@ -109,7 +109,7 @@ class UploadFileUseCaseTest :
             When("그 파일을 올린다") {
                 val resultList = useCase(parameter = UploadFileRequest(content = content(uri = uri), accountId = account.id)).toList()
 
-                Then("TC-FILE-STORAGE-DOMAIN-003 서버에 요청하지 않고 크기 초과가 아닌 실패로 끝난다") {
+                Then("TC-aab59fbf-b414-4195-aed3-3fecd5be4f91 서버에 요청하지 않고 크기 초과가 아닌 실패로 끝난다") {
                     // 채널 흐름을 건너며 코루틴이 예외를 복제할 수 있으므로 같은 종류와 내용인지로 확인한다.
                     val failure = resultList.last().shouldBeFailure()
                     failure.shouldNotBeInstanceOf<FileTooLargeException>()
@@ -131,7 +131,7 @@ class UploadFileUseCaseTest :
             When("그 파일을 올린다") {
                 val resultList = useCase(parameter = UploadFileRequest(content = content(uri = source.uri), accountId = account.id)).toList()
 
-                Then("TC-FILE-STORAGE-DOMAIN-008 크기 초과가 아닌 실패로 끝난다") {
+                Then("TC-24dc37eb-887e-4982-bbe8-d5e86d4a989c 크기 초과가 아닌 실패로 끝난다") {
                     // 채널 흐름을 건너며 코루틴이 예외를 복제할 수 있으므로 같은 종류와 내용인지로 확인한다.
                     val failure = resultList.last().shouldBeFailure()
                     failure.shouldNotBeInstanceOf<FileTooLargeException>()
@@ -142,7 +142,7 @@ class UploadFileUseCaseTest :
 
         Given("계정 A로 파일을 올리는 중이다") {
             When("계정이 게스트나 다른 계정으로 바뀐다") {
-                Then("TC-FILE-STORAGE-DOMAIN-010 올리기를 중단하고 계정이 바뀌었다는 실패로 끝난다") {
+                Then("TC-ed5b1282-068d-4dd7-8b12-ac33f18fe8aa 올리기를 중단하고 계정이 바뀌었다는 실패로 끝난다") {
                     listOf<Account>(Account.Guest, fixtureMonkey.giveMeOne<Account.User>()).forEach { changedAccount ->
                         runTest {
                             val account = fixtureMonkey.giveMeOne<Account.User>()
@@ -174,7 +174,7 @@ class UploadFileUseCaseTest :
             }
 
             When("같은 계정의 세션 갱신 여부만 바뀌거나 계정을 잠시 확인하지 못한다") {
-                Then("TC-FILE-STORAGE-DOMAIN-010 TC-FILE-HOME-DOMAIN-009 올리기가 이어지고 서버가 응답하면 그 결과가 나온다") {
+                Then("TC-ed5b1282-068d-4dd7-8b12-ac33f18fe8aa TC-cfdfb082-926f-421d-82cb-0dc590b0b2bd 올리기가 이어지고 서버가 응답하면 그 결과가 나온다") {
                     listOf<(Account.User) -> Result<Account>>(
                         { account -> Result.success(account.copy(isSessionValid = !account.isSessionValid)) },
                         { Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>())) },
@@ -212,7 +212,7 @@ class UploadFileUseCaseTest :
             When("그 계정으로 올리기를 시작한다") {
                 val resultList = useCase(parameter = UploadFileRequest(content = content(uri = source.uri), accountId = fixtureMonkey.giveMeOne<Uuid>())).toList()
 
-                Then("TC-FILE-STORAGE-DOMAIN-010 서버에 보내지 않고 곧바로 중단한다") {
+                Then("TC-ed5b1282-068d-4dd7-8b12-ac33f18fe8aa 서버에 보내지 않고 곧바로 중단한다") {
                     resultList.last().shouldBeFailure().shouldBeInstanceOf<FileUploadAccountChangedException>()
                     coVerify(exactly = 0) { fileRepository.create(source = any(), title = any(), description = any(), accountId = any(), onSent = any()) }
                 }
@@ -232,7 +232,7 @@ class UploadFileUseCaseTest :
             When("그 파일을 올린다") {
                 val last = useCase(parameter = UploadFileRequest(content = content, accountId = account.id)).toList().last()
 
-                Then("TC-FILE-STORAGE-DOMAIN-016 적은 제목과 설명을 그대로 함께 올린다") {
+                Then("TC-7b857317-8b88-407f-b455-1e794c6f039b 적은 제목과 설명을 그대로 함께 올린다") {
                     last.getOrThrow() shouldBe FileUploadStep.Completed(source = source, file = file)
                     coVerify(exactly = 1) { fileRepository.create(source = source, title = content.title, description = content.description, accountId = account.id, onSent = any()) }
                 }
@@ -249,7 +249,7 @@ class UploadFileUseCaseTest :
             When("그 파일을 올린다") {
                 val last = useCase(parameter = UploadFileRequest(content = content(uri = source.uri), accountId = account.id)).toList().last()
 
-                Then("TC-FILE-ADD-DOMAIN-001 다시 확인해 서버에 요청하지 않고 크기 초과로 실패한다") {
+                Then("TC-4b227fbf-f5f5-43c2-af1d-77a8fedfda78 다시 확인해 서버에 요청하지 않고 크기 초과로 실패한다") {
                     last.shouldBeFailure().shouldBeInstanceOf<FileTooLargeException>()
                     coVerify(exactly = 0) { fileRepository.create(source = any(), title = any(), description = any(), accountId = any(), onSent = any()) }
                 }

@@ -47,7 +47,7 @@ class MemoGeminiScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-GEMINI-DOMAIN-004 반영은 태그, 대표 태그, 웹, 장소, 연락처 선택을 바꾸지 않는다`() {
+    fun `TC-26885e8c-431a-4b1a-a6b5-1dd7f4dbd92e 반영은 태그, 대표 태그, 웹, 장소, 연락처 선택을 바꾸지 않는다`() {
         val tag = testTag(title = "태그 ${fixtureMonkey.giveMeOne<String>()}")
         val web = testWeb(title = "웹 ${fixtureMonkey.giveMeOne<String>()}")
         val contact = testContact(name = "연락처 ${fixtureMonkey.giveMeOne<String>()}")
@@ -87,7 +87,7 @@ class MemoGeminiScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-029 도우미가 열려 있는 동안 뒤로가기를 하면 화면을 떠나지 않고 도우미만 닫힌다`() {
+    fun `TC-9894e927-3088-46f9-a93c-a08442275b4e 도우미가 열려 있는 동안 뒤로가기를 하면 화면을 떠나지 않고 도우미만 닫힌다`() {
         var navigateUpCount = 0
         val geminiUiState = MutableStateFlow(MemoGeminiUiState())
         val geminiViewModel = screenTestGeminiViewModel(uiState = geminiUiState)
@@ -109,7 +109,7 @@ class MemoGeminiScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-008 취소하면 적었던 프롬프트가 남고 결과와 메모 입력은 바뀌지 않는다`() {
+    fun `TC-9bd9cf15-aeb8-4f21-ad73-2e0b0bd4614c 취소하면 적었던 프롬프트가 남고 결과와 메모 입력은 바뀌지 않는다`() {
         val memoText = memoText()
         val prompt = promptText()
         val geminiUiState = MutableStateFlow(MemoGeminiUiState())
@@ -127,7 +127,7 @@ class MemoGeminiScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-010 생성에 실패하면 원인을 알리고 적었던 프롬프트와 메모 입력을 유지한다`() {
+    fun `TC-2f915f3b-3615-4ff6-9aee-cb3a0c99a508 생성에 실패하면 원인을 알리고 적었던 프롬프트와 메모 입력을 유지한다`() {
         val memoText = memoText()
         val prompt = promptText()
         val geminiUiState = MutableStateFlow(MemoGeminiUiState())
@@ -150,7 +150,7 @@ class MemoGeminiScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-019 닫았다가 다시 열면 프롬프트가 비어 있고 결과가 표시되지 않는다`() {
+    fun `TC-0725149c-6215-42e7-b736-99bcc3c1b1fb 닫았다가 다시 열면 프롬프트가 비어 있고 결과가 표시되지 않는다`() {
         val prompt = promptText()
         val geminiUiState = MutableStateFlow(MemoGeminiUiState())
         setMemoAddScreen(viewModels = screenTestViewModel(), geminiViewModel = screenTestGeminiViewModel(uiState = geminiUiState))
@@ -169,7 +169,7 @@ class MemoGeminiScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-020 생성 중에 닫으면 도우미가 닫히고 메모 입력은 바뀌지 않는다`() {
+    fun `TC-90e1c2d1-7fc4-43a0-b09c-2623bb1975a6 생성 중에 닫으면 도우미가 닫히고 메모 입력은 바뀌지 않는다`() {
         val memoText = memoText()
         val geminiUiState = MutableStateFlow(MemoGeminiUiState())
         val geminiViewModel = screenTestGeminiViewModel(uiState = geminiUiState)

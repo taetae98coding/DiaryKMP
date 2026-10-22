@@ -113,22 +113,22 @@ class WebNavDisplayTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-DOMAIN-008 웹 추가로 이동한 뒤 뒤로가도 보던 목록 위치를 유지한다`() {
+    fun `TC-b04cba88-7973-42e2-87c7-f46ff6166ae8 웹 추가로 이동한 뒤 뒤로가도 보던 목록 위치를 유지한다`() {
         assertPositionRetained { composeRule.onNodeWithContentDescription(DEFAULT_ADD_WEB_DESCRIPTION).performClick() }
     }
 
     @Test
-    fun `TC-WEB-HOME-DOMAIN-008 웹 상세로 이동한 뒤 뒤로가도 보던 목록 위치를 유지한다`() {
+    fun `TC-b04cba88-7973-42e2-87c7-f46ff6166ae8 웹 상세로 이동한 뒤 뒤로가도 보던 목록 위치를 유지한다`() {
         assertPositionRetained { webList -> composeRule.onNode(webCard(webList[POSITION_SCROLL_INDEX])).performClick() }
     }
 
     @Test
-    fun `TC-WEB-HOME-DOMAIN-008 검색으로 이동한 뒤 뒤로가도 보던 목록 위치를 유지한다`() {
+    fun `TC-b04cba88-7973-42e2-87c7-f46ff6166ae8 검색으로 이동한 뒤 뒤로가도 보던 목록 위치를 유지한다`() {
         assertPositionRetained { composeRule.onNodeWithContentDescription(DEFAULT_SEARCH_DESCRIPTION).performClick() }
     }
 
     @Test
-    fun `TC-WEB-HOME-DOMAIN-009 더보기로 나갔다 다시 진입하면 목록의 맨 위부터 보여 준다`() {
+    fun `TC-acd256e8-179e-468c-8575-e46609d638f6 더보기로 나갔다 다시 진입하면 목록의 맨 위부터 보여 준다`() {
         val webList = positionWebList()
         setWebNavDisplay(webList = webList)
         scrollToPositionWeb(webList)
@@ -145,7 +145,7 @@ class WebNavDisplayTest {
 
     // 목록 위치는 기기에 남기지 않으므로, 앱을 다시 실행한 화면은 저장된 상태 없이 새로 그린 화면과 같다.
     @Test
-    fun `TC-WEB-HOME-DOMAIN-009 앱을 다시 실행해 진입하면 목록의 맨 위부터 보여 준다`() {
+    fun `TC-acd256e8-179e-468c-8575-e46609d638f6 앱을 다시 실행해 진입하면 목록의 맨 위부터 보여 준다`() {
         val webList = positionWebList()
 
         setWebNavDisplay(webList = webList)
@@ -155,7 +155,7 @@ class WebNavDisplayTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-019 WebHome의 웹 목록에서 고른 웹 항목의 상세에서 메모 탭을 제공한다`() {
+    fun `TC-5283efb5-0ff0-4ba9-a0b1-c1b06aaaabb8 WebHome의 웹 목록에서 고른 웹 항목의 상세에서 메모 탭을 제공한다`() {
         val web = listedWeb()
         setWebNavDisplay(webList = listOf(web))
 
@@ -168,7 +168,7 @@ class WebNavDisplayTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-021 메모 탭에서 연 완료된 메모 목록에서 뒤로가면 메모 탭이 선택된 같은 웹 항목의 상세로 돌아온다`() {
+    fun `TC-aa1f5c69-c5c9-40e2-a99e-5bc2c4a7a720 메모 탭에서 연 완료된 메모 목록에서 뒤로가면 메모 탭이 선택된 같은 웹 항목의 상세로 돌아온다`() {
         val web = openMemoTabOfListedWeb()
 
         composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).performClick()
@@ -182,7 +182,7 @@ class WebNavDisplayTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-021 메모 탭에서 연 메모 추가에서 뒤로가면 메모 탭이 선택된 같은 웹 항목의 상세로 돌아온다`() {
+    fun `TC-aa1f5c69-c5c9-40e2-a99e-5bc2c4a7a720 메모 탭에서 연 메모 추가에서 뒤로가면 메모 탭이 선택된 같은 웹 항목의 상세로 돌아온다`() {
         val web = openMemoTabOfListedWeb()
 
         composeRule.onNodeWithContentDescription(DEFAULT_MEMO_ADD_DESCRIPTION).performClick()
@@ -195,7 +195,7 @@ class WebNavDisplayTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-MEMO-FEATURE-021 메모 탭에서 연 메모 상세에서 뒤로가면 메모 탭이 선택된 같은 웹 항목의 상세로 돌아온다`() {
+    fun `TC-aa1f5c69-c5c9-40e2-a99e-5bc2c4a7a720 메모 탭에서 연 메모 상세에서 뒤로가면 메모 탭이 선택된 같은 웹 항목의 상세로 돌아온다`() {
         val web = openMemoTabOfListedWeb()
 
         composeRule.runOnIdle { backStack.add(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())) }

@@ -35,7 +35,7 @@ class SettingFileScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-FILE-FEATURE-002 저장된 설정을 확인하기 전이거나 읽지 못하면 위치와 동작을 표시하지 않는다`() {
+    fun `TC-283ec755-2b37-46d3-b133-b22eb704af9a 저장된 설정을 확인하기 전이거나 읽지 못하면 위치와 동작을 표시하지 않는다`() {
         setSettingFileScaffold(uiState = SettingFileUiState.Loading)
 
         composeRule.onNodeWithText(DOWNLOAD_LOCATION_LABEL).assertDoesNotExist()
@@ -45,7 +45,7 @@ class SettingFileScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-FILE-FEATURE-003 고른 폴더가 없으면 기본 위치를 쓴다고 표시하고 되돌리기를 제공하지 않는다`() {
+    fun `TC-2e3176b1-a1f4-4217-9cb9-e7141780387f 고른 폴더가 없으면 기본 위치를 쓴다고 표시하고 되돌리기를 제공하지 않는다`() {
         setSettingFileScaffold(uiState = SettingFileUiState.Content(directory = null))
 
         composeRule.onNodeWithText(DEFAULT_LOCATION_LABEL).assertExists()
@@ -55,7 +55,7 @@ class SettingFileScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-FILE-FEATURE-004 고른 폴더가 있으면 그 폴더와 되돌리기를 표시한다`() {
+    fun `TC-0d5074c9-38b9-433a-aa49-7b74fe270e88 고른 폴더가 있으면 그 폴더와 되돌리기를 표시한다`() {
         val directory = fixtureMonkey.giveMeOne<FileDownloadDirectory>().copy(name = "Documents")
         setSettingFileScaffold(uiState = SettingFileUiState.Content(directory = directory))
 
@@ -67,7 +67,7 @@ class SettingFileScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-FILE-FEATURE-011 이름이 빈 폴더를 골라 두면 위치 자리에 고른 폴더를 표시한다`() {
+    fun `TC-b06cf4e1-aa8a-40f1-b29b-bd81ba582ae5 이름이 빈 폴더를 골라 두면 위치 자리에 고른 폴더를 표시한다`() {
         val directory = fixtureMonkey.giveMeOne<FileDownloadDirectory>().copy(uri = fixtureMonkey.nonBlankString(), name = "")
         setSettingFileScaffold(uiState = SettingFileUiState.Content(directory = directory))
 

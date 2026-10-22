@@ -16,7 +16,7 @@ private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class ChecklistNavigationTest :
     FunSpec({
-        test("TC-CHECKLIST-HOME-FEATURE-027 체크리스트 목록의 뒤로가기 동작은 상세 영역의 화면과 관계없이 더보기로 돌아간다") {
+        test("TC-f68665b5-f231-47dc-bf9d-9b13e5ededfc 체크리스트 목록의 뒤로가기 동작은 상세 영역의 화면과 관계없이 더보기로 돌아간다") {
             val detailCases =
                 listOf(
                     emptyList(),
@@ -34,7 +34,7 @@ class ChecklistNavigationTest :
             }
         }
 
-        test("TC-CHECKLIST-LIST-DETAIL-FEATURE-013 체크리스트 상세가 놓여 있으면 새 체크리스트의 상세로 교체한다") {
+        test("TC-014ccf10-5678-4853-8d88-56bb988f6334 체크리스트 상세가 놓여 있으면 새 체크리스트의 상세로 교체한다") {
             val first = ChecklistDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
             val second = ChecklistDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
             val backStack = checklistBackStack(detailKeyList = listOf(first))
@@ -44,7 +44,7 @@ class ChecklistNavigationTest :
             backStack shouldContainExactly listOf(MoreHomeStubNavKey, ChecklistHomeNavKey, second)
         }
 
-        test("TC-CHECKLIST-LIST-DETAIL-FEATURE-014 목록에서 체크리스트를 선택하면 목록 위에 쌓인 상세와 체크리스트 추가를 모두 걷어내고 그 상세로 바꾼다") {
+        test("TC-e8f2bdec-251b-44ec-88fd-d14a59ff7dba 목록에서 체크리스트를 선택하면 목록 위에 쌓인 상세와 체크리스트 추가를 모두 걷어내고 그 상세로 바꾼다") {
             val detailCases =
                 listOf(
                     listOf(ChecklistAddNavKey),

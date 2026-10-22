@@ -36,7 +36,7 @@ class DiaryMapCardLayoutTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-DIARY-MAP-FEATURE-019 전환 컨트롤과 지도가 겹치지 않는다`() {
+    fun `TC-546b0498-aba4-4749-959f-7257ef478581 전환 컨트롤과 지도가 겹치지 않는다`() {
         setDiaryMapCardLayout()
 
         val layoutBounds = composeRule.onNodeWithTag(LAYOUT_TEST_TAG).getUnclippedBoundsInRoot()
@@ -49,7 +49,7 @@ class DiaryMapCardLayoutTest {
     }
 
     @Test
-    fun `TC-DIARY-MAP-FEATURE-019 지도가 전환 컨트롤을 뺀 나머지 영역을 채운다`() {
+    fun `TC-546b0498-aba4-4749-959f-7257ef478581 지도가 전환 컨트롤을 뺀 나머지 영역을 채운다`() {
         setDiaryMapCardLayout()
 
         val layoutBounds = composeRule.onNodeWithTag(LAYOUT_TEST_TAG).getUnclippedBoundsInRoot()
@@ -62,7 +62,7 @@ class DiaryMapCardLayoutTest {
     }
 
     @Test
-    fun `TC-DIARY-MAP-FEATURE-018 겹치지 않는 배치에서 전환 컨트롤로 제공자를 선택한다`() {
+    fun `TC-fe283bf5-5baf-4313-83d8-bd22352e4ab4 겹치지 않는 배치에서 전환 컨트롤로 제공자를 선택한다`() {
         setDiaryMapCardLayout()
 
         composeRule.onNodeWithText(DEFAULT_GOOGLE_LABEL).performClick()

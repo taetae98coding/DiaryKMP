@@ -18,13 +18,13 @@ private const val PROFILE_B = "Profile 1"
 
 class ChromeSessionImportSettingRepositoryImplTest :
     FunSpec({
-        test("TC-SETTING-BROWSER-DATA-001 저장된 값이 없으면 고른 프로필이 없음을 제공한다") {
+        test("TC-ff647b05-ab2d-4a7c-b4e2-1b777b23ff20 저장된 값이 없으면 고른 프로필이 없음을 제공한다") {
             val repository = repository(directoryFlow = MutableStateFlow(""))
 
             repository.getProfileDirectory().first() shouldBe ""
         }
 
-        test("TC-SETTING-BROWSER-DATA-002 저장한 선택을 이후 조회에서 제공한다") {
+        test("TC-c247585a-0e54-480f-8d45-ae55450a14da 저장한 선택을 이후 조회에서 제공한다") {
             val repository = repository(directoryFlow = MutableStateFlow(""))
 
             repository.setProfileDirectory(directory = PROFILE_A)
@@ -34,7 +34,7 @@ class ChromeSessionImportSettingRepositoryImplTest :
             repository.getProfileDirectory().first() shouldBe ""
         }
 
-        test("TC-SETTING-BROWSER-DATA-003 다시 저장하면 마지막에 저장한 선택을 제공한다") {
+        test("TC-7c799f5a-7b25-4da6-b06d-fcd421e16a9a 다시 저장하면 마지막에 저장한 선택을 제공한다") {
             val repository = repository(directoryFlow = MutableStateFlow(PROFILE_A))
 
             repository.unsetProfileDirectory()
@@ -43,7 +43,7 @@ class ChromeSessionImportSettingRepositoryImplTest :
             repository.getProfileDirectory().first() shouldBe PROFILE_B
         }
 
-        test("TC-SETTING-BROWSER-DATA-004 조회 중에 선택이 바뀌면 이어서 새 값을 제공한다") {
+        test("TC-d5152151-dea2-4201-a096-de0744c604b6 조회 중에 선택이 바뀌면 이어서 새 값을 제공한다") {
             val repository = repository(directoryFlow = MutableStateFlow(""))
 
             repository.getProfileDirectory().test {
@@ -55,7 +55,7 @@ class ChromeSessionImportSettingRepositoryImplTest :
             }
         }
 
-        test("TC-SETTING-BROWSER-DATA-005 저장된 값을 읽을 수 없으면 없음을 제공하지 않고 실패를 그대로 알린다") {
+        test("TC-05358690-676f-4acf-a76f-a2b14334d85a 저장된 값을 읽을 수 없으면 없음을 제공하지 않고 실패를 그대로 알린다") {
             val failure = IllegalStateException("browser setting read failed")
             val repository =
                 ChromeSessionImportSettingRepositoryImpl(

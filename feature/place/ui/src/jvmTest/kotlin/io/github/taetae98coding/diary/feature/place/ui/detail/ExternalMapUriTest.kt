@@ -18,7 +18,7 @@ private const val APP_NAME = "io.github.taetae98coding.diary"
 
 class ExternalMapUriTest :
     FunSpec({
-        test("TC-PLACE-DETAIL-DOMAIN-022 네이버 지도는 좌표에 제목을 붙인 네이버 웹 지도 주소를 만든다") {
+        test("TC-5e0d79ea-e823-4400-a46d-14ec4835b96b 네이버 지도는 좌표에 제목을 붙인 네이버 웹 지도 주소를 만든다") {
             externalMapWebUri(
                 provider = DiaryMapProvider.NAVER,
                 coordinate = SEOUL_CITY_HALL,
@@ -27,7 +27,7 @@ class ExternalMapUriTest :
             ) shouldBe "https://map.naver.com/?lng=126.978000&lat=37.566500&title=$ENCODED_TITLE"
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-022 Google 지도는 좌표를 중심으로 제목과 주소를 검색하는 Google 웹 지도 주소를 만든다") {
+        test("TC-5e0d79ea-e823-4400-a46d-14ec4835b96b Google 지도는 좌표를 중심으로 제목과 주소를 검색하는 Google 웹 지도 주소를 만든다") {
             externalMapWebUri(
                 provider = DiaryMapProvider.GOOGLE,
                 coordinate = SEOUL_CITY_HALL,
@@ -36,7 +36,7 @@ class ExternalMapUriTest :
             ) shouldBe "https://www.google.com/maps/search/$ENCODED_TITLE_WITH_ADDRESS/@37.566500,126.978000,15z"
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-024 제목과 주소가 없으면 네이버 웹 지도 주소에 좌표만 담는다") {
+        test("TC-9451483a-f08a-4f24-adca-2fbf454a5438 제목과 주소가 없으면 네이버 웹 지도 주소에 좌표만 담는다") {
             externalMapWebUri(
                 provider = DiaryMapProvider.NAVER,
                 coordinate = SEOUL_CITY_HALL,
@@ -45,7 +45,7 @@ class ExternalMapUriTest :
             ) shouldBe "https://map.naver.com/?lng=126.978000&lat=37.566500"
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-024 제목과 주소가 없으면 Google 웹 지도 주소에 좌표만 담는다") {
+        test("TC-9451483a-f08a-4f24-adca-2fbf454a5438 제목과 주소가 없으면 Google 웹 지도 주소에 좌표만 담는다") {
             externalMapWebUri(
                 provider = DiaryMapProvider.GOOGLE,
                 coordinate = SEOUL_CITY_HALL,
@@ -54,7 +54,7 @@ class ExternalMapUriTest :
             ) shouldBe "https://www.google.com/maps/search/?api=1&query=37.566500%2C126.978000"
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-026 제목만 있으면 Google 지도의 검색어는 제목이다") {
+        test("TC-bdd5a1e5-4c10-4c94-819f-6dce257ee5bf 제목만 있으면 Google 지도의 검색어는 제목이다") {
             externalMapWebUri(
                 provider = DiaryMapProvider.GOOGLE,
                 coordinate = SEOUL_CITY_HALL,
@@ -63,7 +63,7 @@ class ExternalMapUriTest :
             ) shouldBe "https://www.google.com/maps/search/$ENCODED_TITLE/@37.566500,126.978000,15z"
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-026 주소만 있으면 Google 지도의 검색어는 주소다") {
+        test("TC-bdd5a1e5-4c10-4c94-819f-6dce257ee5bf 주소만 있으면 Google 지도의 검색어는 주소다") {
             externalMapWebUri(
                 provider = DiaryMapProvider.GOOGLE,
                 coordinate = SEOUL_CITY_HALL,
@@ -72,7 +72,7 @@ class ExternalMapUriTest :
             ) shouldBe "https://www.google.com/maps/search/$ENCODED_ADDRESS/@37.566500,126.978000,15z"
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-032 네이버 지도 앱 주소는 좌표와 제목과 호출 앱 식별 값을 담는다") {
+        test("TC-b1c9a87d-05bd-4157-a30f-ce359b05ccb1 네이버 지도 앱 주소는 좌표와 제목과 호출 앱 식별 값을 담는다") {
             naverMapAppUri(
                 coordinate = SEOUL_CITY_HALL,
                 title = TITLE,
@@ -80,7 +80,7 @@ class ExternalMapUriTest :
             ) shouldBe "nmap://place?lat=37.566500&lng=126.978000&name=$ENCODED_TITLE&appname=$APP_NAME"
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-033 제목이 없으면 네이버 지도 앱 주소는 좌표와 호출 앱 식별 값만 담는다") {
+        test("TC-32950e01-245c-443e-89d9-bac07ec2b7b1 제목이 없으면 네이버 지도 앱 주소는 좌표와 호출 앱 식별 값만 담는다") {
             listOf("", "   ").forEach { title ->
                 naverMapAppUri(
                     coordinate = SEOUL_CITY_HALL,
@@ -90,7 +90,7 @@ class ExternalMapUriTest :
             }
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-034 Google 지도 앱 주소는 검색어와 좌표 중심을 담는다") {
+        test("TC-3ba8fb7c-7be2-48b0-98b4-169d2276f7f6 Google 지도 앱 주소는 검색어와 좌표 중심을 담는다") {
             googleMapAppUri(
                 coordinate = SEOUL_CITY_HALL,
                 title = TITLE,
@@ -98,7 +98,7 @@ class ExternalMapUriTest :
             ) shouldBe "comgooglemaps://?q=$ENCODED_TITLE_WITH_ADDRESS&center=37.566500,126.978000"
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-034 제목과 주소가 없으면 Google 지도 앱 주소는 좌표를 검색어로 담는다") {
+        test("TC-3ba8fb7c-7be2-48b0-98b4-169d2276f7f6 제목과 주소가 없으면 Google 지도 앱 주소는 좌표를 검색어로 담는다") {
             googleMapAppUri(
                 coordinate = SEOUL_CITY_HALL,
                 title = "",
@@ -106,7 +106,7 @@ class ExternalMapUriTest :
             ) shouldBe "comgooglemaps://?q=37.566500,126.978000"
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-024 TC-PLACE-DETAIL-DOMAIN-033 TC-PLACE-DETAIL-DOMAIN-034 0에 가까운 좌표도 지수 표기 없이 주소에 담는다") {
+        test("TC-9451483a-f08a-4f24-adca-2fbf454a5438 TC-32950e01-245c-443e-89d9-bac07ec2b7b1 TC-3ba8fb7c-7be2-48b0-98b4-169d2276f7f6 0에 가까운 좌표도 지수 표기 없이 주소에 담는다") {
             listOf(
                 externalMapWebUri(provider = DiaryMapProvider.NAVER, coordinate = SMALL_COORDINATE, title = "", address = "") to
                     "https://map.naver.com/?lng=-0.000500&lat=0.000500",
@@ -121,17 +121,17 @@ class ExternalMapUriTest :
             }
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-025 입력한 제목이 있으면 입력한 제목을 전달한다") {
+        test("TC-bf3a7593-b144-4b84-8542-610da007f1ef 입력한 제목이 있으면 입력한 제목을 전달한다") {
             externalMapTitle(inputTitle = TITLE, savedTitle = SAVED_TITLE) shouldBe TITLE
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-025 입력한 제목이 비어 있거나 공백만 있으면 저장된 제목을 전달한다") {
+        test("TC-bf3a7593-b144-4b84-8542-610da007f1ef 입력한 제목이 비어 있거나 공백만 있으면 저장된 제목을 전달한다") {
             listOf("", "   ").forEach { inputTitle ->
                 externalMapTitle(inputTitle = inputTitle, savedTitle = SAVED_TITLE) shouldBe SAVED_TITLE
             }
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-025 입력한 제목과 저장된 제목이 모두 비어 있으면 제목을 전달하지 않는다") {
+        test("TC-bf3a7593-b144-4b84-8542-610da007f1ef 입력한 제목과 저장된 제목이 모두 비어 있으면 제목을 전달하지 않는다") {
             externalMapTitle(inputTitle = "", savedTitle = "") shouldBe ""
         }
     })

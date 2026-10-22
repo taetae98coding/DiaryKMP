@@ -33,7 +33,7 @@ class PlaceHomePlaceListTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-027 지도 모드의 목록에서 지도 가운데에 있지 않은 장소를 누르면 그 장소의 좌표로 지도를 옮기고 상세 이동은 요청하지 않는다`() {
+    fun `TC-588ffabf-ec6f-4f9b-9ef9-8cf4bcf16a43 지도 모드의 목록에서 지도 가운데에 있지 않은 장소를 누르면 그 장소의 좌표로 지도를 옮기고 상세 이동은 요청하지 않는다`() {
         val selectedPlace = viewModeTestPlace()
         val otherPlace = viewModeTestPlace()
         val eventList = mutableListOf<PlaceHomeScaffoldEvent>()
@@ -51,7 +51,7 @@ class PlaceHomePlaceListTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-069 지도 모드에서 지도 가운데에 있는 장소를 목록에서 누르면 그 장소의 상세 이동을 한 번 요청한다`() {
+    fun `TC-15a78d5c-a0f7-4fa7-950d-25b3b2b43a55 지도 모드에서 지도 가운데에 있는 장소를 목록에서 누르면 그 장소의 상세 이동을 한 번 요청한다`() {
         val selectedPlace = viewModeTestPlace()
         val otherPlace = viewModeTestPlace()
         val eventList = mutableListOf<PlaceHomeScaffoldEvent>()
@@ -66,7 +66,7 @@ class PlaceHomePlaceListTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-070 지도 모드의 목록에서 같은 장소를 두 번 누르면 처음에는 지도를 옮기고 다음에는 상세 이동을 요청한다`() {
+    fun `TC-3ed7810b-552b-4868-b739-31dbf8784142 지도 모드의 목록에서 같은 장소를 두 번 누르면 처음에는 지도를 옮기고 다음에는 상세 이동을 요청한다`() {
         val selectedPlace = viewModeTestPlace()
         val otherPlace = viewModeTestPlace()
         val eventList = mutableListOf<PlaceHomeScaffoldEvent>()
@@ -103,7 +103,7 @@ class PlaceHomePlaceListTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-055 지도 모드의 장소 목록에서 카드를 삭제 방향으로 밀면 그 장소의 삭제만 요청한다`() {
+    fun `TC-5ac56bc9-b05f-4dff-950c-d9b6eacba51d 지도 모드의 장소 목록에서 카드를 삭제 방향으로 밀면 그 장소의 삭제만 요청한다`() {
         val deletedPlace = viewModeTestPlace()
         val otherPlace = viewModeTestPlace()
         val eventList = mutableListOf<PlaceHomeScaffoldEvent>()

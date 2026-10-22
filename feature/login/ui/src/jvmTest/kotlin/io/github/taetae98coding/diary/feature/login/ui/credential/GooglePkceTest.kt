@@ -15,7 +15,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class GooglePkceTest :
     FunSpec({
-        test("TC-LOGIN-DATA-008 같은 로그인 시도의 S256 challenge와 verifier를 사용한다") {
+        test("TC-4fe3aba3-1c08-4273-b7a3-3275cf4c0212 같은 로그인 시도의 S256 challenge와 verifier를 사용한다") {
             val randomBytes = randomBytes()
             val clientId = googleClientId()
             val redirectUri = loopbackRedirectUri()
@@ -37,7 +37,7 @@ class GooglePkceTest :
             credential.redirectUri shouldBe redirectUri
         }
 
-        test("TC-LOGIN-DATA-009 새 로그인 시도는 새로운 PKCE 값을 사용한다") {
+        test("TC-43b5296f-b1dd-4296-b038-a4a0f0bb9b36 새 로그인 시도는 새로운 PKCE 값을 사용한다") {
             val firstRandomBytes = randomBytes()
             val secondRandomBytes = firstRandomBytes.map { byte -> byte.toInt().inv().toByte() }.toByteArray()
             var attemptCount = 0

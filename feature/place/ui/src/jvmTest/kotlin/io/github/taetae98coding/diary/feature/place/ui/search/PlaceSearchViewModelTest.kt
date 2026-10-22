@@ -106,7 +106,7 @@ class PlaceSearchViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-SEARCH-DIALOG-FEATURE-009 다시 검색하는 동안 직전 결과를 그대로 둔다") {
+        test("TC-46f3162f-a7ec-4469-a5c9-78956fdf7338 다시 검색하는 동안 직전 결과를 그대로 둔다") {
             runTest(mainDispatcher) {
                 val firstList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
                 val secondList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
@@ -138,7 +138,7 @@ class PlaceSearchViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-SEARCH-DIALOG-DOMAIN-008 앞선 검색의 늦은 결과는 쓰지 않는다") {
+        test("TC-da70eee7-60c1-4580-b906-70cc963b5d03 앞선 검색의 늦은 결과는 쓰지 않는다") {
             runTest(mainDispatcher) {
                 val lateList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
                 val latestList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
@@ -168,7 +168,7 @@ class PlaceSearchViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-SEARCH-DIALOG-DOMAIN-017 제공자를 바꾸면 직전 결과를 곧바로 비운다") {
+        test("TC-f0af275c-669c-4614-89d4-fb32041377b3 제공자를 바꾸면 직전 결과를 곧바로 비운다") {
             runTest(mainDispatcher) {
                 val naverList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
                 val googleList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
@@ -200,7 +200,7 @@ class PlaceSearchViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-SEARCH-DIALOG-DOMAIN-018 한 제공자의 검색 실패는 다른 제공자로 바꾼 검색에 영향을 주지 않는다") {
+        test("TC-0d43d4c4-6eba-4c62-b4a6-17146c51d853 한 제공자의 검색 실패는 다른 제공자로 바꾼 검색에 영향을 주지 않는다") {
             runTest(mainDispatcher) {
                 val googleList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
                 val naverRequest = searchRequest(provider = MapProvider.NAVER)
@@ -254,7 +254,7 @@ class PlaceSearchViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-SEARCH-DIALOG-DOMAIN-020 검색 중에 검색어를 비우면 늦게 도착한 결과를 쓰지 않는다") {
+        test("TC-3b1b05f4-85d3-44aa-a895-8e5562962d29 검색 중에 검색어를 비우면 늦게 도착한 결과를 쓰지 않는다") {
             runTest(mainDispatcher) {
                 val lateList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
                 val lateCompletion = CompletableDeferred<Result<List<SearchedPlace>>>()
@@ -279,7 +279,7 @@ class PlaceSearchViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-SEARCH-DIALOG-FEATURE-020 앱이 백그라운드에 갔다가 돌아와도 결과를 유지하고 다시 검색하지 않는다") {
+        test("TC-1050b9ca-7a54-4dc6-8282-b0083ca2d111 앱이 백그라운드에 갔다가 돌아와도 결과를 유지하고 다시 검색하지 않는다") {
             runTest(mainDispatcher) {
                 val placeList = List(SEARCHED_PLACE_COUNT) { fixtureMonkey.giveMeOne<SearchedPlace>() }
                 val request = searchRequest()

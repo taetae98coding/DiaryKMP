@@ -36,7 +36,7 @@ class MemoFinishedListUndoLeaveTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-034 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
+    fun `TC-69285530-f8ea-4d42-b147-d816f70e9ab2 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
         val baseMemo = fixtureMonkey.memo(isFinished = true, isDeleted = false, primaryTagId = null)
         val memo = baseMemo.copy(detail = baseMemo.detail.copy(title = MEMO_TITLE, dateTime = null))
         val effectChannel = Channel<MemoFinishedListEffect>(capacity = Channel.BUFFERED)

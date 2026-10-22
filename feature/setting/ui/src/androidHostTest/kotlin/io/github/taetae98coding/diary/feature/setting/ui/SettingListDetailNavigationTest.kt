@@ -94,7 +94,7 @@ class SettingListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-SETTING-LIST-DETAIL-FEATURE-010 상세를 선택한 뒤 시스템 뒤로가기를 사용하면 선택 전 상태로 돌아간다`() {
+    fun `TC-7991766b-0000-4738-aa2d-27ff26d36bd5 상세를 선택한 뒤 시스템 뒤로가기를 사용하면 선택 전 상태로 돌아간다`() {
         setSettingNavDisplay()
         composeRule.onNodeWithTag(SETTING_DETAIL_PLACEHOLDER_ICON_TEST_TAG).assertExists()
         composeRule.onNodeWithText(DEFAULT_MAP_ITEM_LABEL).performClick()
@@ -110,7 +110,7 @@ class SettingListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-SETTING-LIST-DETAIL-FEATURE-010 다른 상세로 바꾼 뒤 시스템 뒤로가기를 사용하면 이전 상세가 아닌 선택 전 상태로 돌아간다`() {
+    fun `TC-7991766b-0000-4738-aa2d-27ff26d36bd5 다른 상세로 바꾼 뒤 시스템 뒤로가기를 사용하면 이전 상세가 아닌 선택 전 상태로 돌아간다`() {
         setSettingNavDisplay()
         composeRule.onNodeWithText(DEFAULT_HOLIDAY_ITEM_LABEL).performClick()
         composeRule.waitForIdle()
@@ -127,7 +127,7 @@ class SettingListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-SETTING-LIST-DETAIL-FEATURE-012 선택 전 상태에서 시스템 뒤로가기를 사용하면 설정 화면 전체를 떠난다`() {
+    fun `TC-3a4ccfbf-2c11-4219-9cb6-66157dd4164a 선택 전 상태에서 시스템 뒤로가기를 사용하면 설정 화면 전체를 떠난다`() {
         setSettingNavDisplay()
 
         pressBack()
@@ -137,7 +137,7 @@ class SettingListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-SETTING-LIST-DETAIL-FEATURE-009 더보기로 돌아갔다가 다시 진입하면 상세 선택을 초기화한다`() {
+    fun `TC-8bf5ef36-7ebb-40fc-8f89-e6d04aecc8c1 더보기로 돌아갔다가 다시 진입하면 상세 선택을 초기화한다`() {
         setSettingNavDisplay()
         composeRule.onNodeWithTag(SETTING_DETAIL_PLACEHOLDER_ICON_TEST_TAG).assertExists()
         composeRule.onNodeWithText(DEFAULT_MAP_ITEM_LABEL).performClick()
@@ -156,7 +156,7 @@ class SettingListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-SETTING-LIST-DETAIL-FEATURE-011 현재 상세인 설정 항목을 다시 선택해도 입력 중이던 내용이 남는다`() {
+    fun `TC-d460b908-7f6d-45ff-87be-813e714c539b 현재 상세인 설정 항목을 다시 선택해도 입력 중이던 내용이 남는다`() {
         setSettingNavDisplay()
         composeRule.onNodeWithText(DEFAULT_PLAYLIST_ITEM_LABEL).performClick()
         composeRule.waitForIdle()
@@ -172,7 +172,7 @@ class SettingListDetailNavigationTest {
 
     @Test
     @Config(qualifiers = "w400dp-h800dp")
-    fun `TC-SETTING-LIST-DETAIL-FEATURE-013 세부 설정이 단독으로 표시될 때 뒤로가면 설정 목록으로 돌아간다`() {
+    fun `TC-8cbf380d-d0b9-456a-a873-f94e35d5deea 세부 설정이 단독으로 표시될 때 뒤로가면 설정 목록으로 돌아간다`() {
         setSettingNavDisplay()
         composeRule.onNodeWithTag(SETTING_DETAIL_PLACEHOLDER_ICON_TEST_TAG).assertDoesNotExist()
 
@@ -199,7 +199,7 @@ class SettingListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-SETTING-LIST-DETAIL-FEATURE-014 화면이 재생성되어도 상세 선택을 유지한다`() {
+    fun `TC-7d9c2fbb-2838-4431-903e-e94079265930 화면이 재생성되어도 상세 선택을 유지한다`() {
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var restorableBackStack: NavBackStack<ScreenNavKey>
         restorationTester.setContent {
@@ -237,7 +237,7 @@ class SettingListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-SETTING-LIST-DETAIL-FEATURE-015 앱이 백그라운드에서 돌아와도 상세 선택을 유지한다`() {
+    fun `TC-152b5755-8409-43bd-95bf-0db8426a0a60 앱이 백그라운드에서 돌아와도 상세 선택을 유지한다`() {
         setSettingNavDisplay()
         composeRule.onNodeWithText(DEFAULT_MAP_ITEM_LABEL).performClick()
         composeRule.waitForIdle()

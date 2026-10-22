@@ -18,7 +18,7 @@ class CalendarSelectTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-SELECT-FEATURE-001 날짜 칸을 길게 누르면 그 날짜 하루가 선택된다`() {
+    fun `TC-9e297c26-1471-4332-b891-9b3be5eed241 날짜 칸을 길게 누르면 그 날짜 하루가 선택된다`() {
         val calendarState = CalendarState(initialYearMonth = JULY_2026)
         composeRule.setCalendar(calendarState = calendarState)
 
@@ -28,7 +28,7 @@ class CalendarSelectTest {
     }
 
     @Test
-    fun `TC-CALENDAR-SELECT-FEATURE-002 길게 누른 채 뒤 날짜로 드래그하면 처음 날짜부터 가리키는 날짜까지 선택된다`() {
+    fun `TC-2dd56b55-3a39-45a7-aec5-f95408e7296f 길게 누른 채 뒤 날짜로 드래그하면 처음 날짜부터 가리키는 날짜까지 선택된다`() {
         val calendarState = CalendarState(initialYearMonth = JULY_2026)
         composeRule.setCalendar(calendarState = calendarState)
 
@@ -40,7 +40,7 @@ class CalendarSelectTest {
     }
 
     @Test
-    fun `TC-CALENDAR-SELECT-FEATURE-003 처음 날짜보다 이전 날짜로 드래그하면 가리키는 날짜부터 처음 날짜까지 선택된다`() {
+    fun `TC-0976ae9e-c657-45b9-85a9-e2a54afed952 처음 날짜보다 이전 날짜로 드래그하면 가리키는 날짜부터 처음 날짜까지 선택된다`() {
         val calendarState = CalendarState(initialYearMonth = JULY_2026)
         composeRule.setCalendar(calendarState = calendarState)
 
@@ -52,7 +52,7 @@ class CalendarSelectTest {
     }
 
     @Test
-    fun `TC-CALENDAR-SELECT-FEATURE-004 주 경계를 넘어 드래그하면 여러 주에 걸친 기간이 선택된다`() {
+    fun `TC-7c789777-af45-4322-b068-dd8b13e55c4d 주 경계를 넘어 드래그하면 여러 주에 걸친 기간이 선택된다`() {
         val calendarState = CalendarState(initialYearMonth = JULY_2026)
         composeRule.setCalendar(calendarState = calendarState)
 
@@ -64,7 +64,7 @@ class CalendarSelectTest {
     }
 
     @Test
-    fun `TC-CALENDAR-SELECT-FEATURE-005 드래그하는 동안 가리키는 날짜가 바뀌면 선택이 즉시 갱신된다`() {
+    fun `TC-c801d36e-d8bf-4cdd-8d9c-cdb570598dbf 드래그하는 동안 가리키는 날짜가 바뀌면 선택이 즉시 갱신된다`() {
         val calendarState = CalendarState(initialYearMonth = JULY_2026)
         composeRule.setCalendar(calendarState = calendarState)
 
@@ -78,7 +78,7 @@ class CalendarSelectTest {
     }
 
     @Test
-    fun `TC-CALENDAR-SELECT-FEATURE-006 손을 떼면 그 시점의 기간으로 선택이 완료된다`() {
+    fun `TC-c8e10eae-3b31-45a7-b247-36485e3d8bcf 손을 떼면 그 시점의 기간으로 선택이 완료된다`() {
         val selectedList = mutableListOf<LocalDateRange>()
         composeRule.setCalendar(onSelect = { selectedList += it })
 
@@ -90,7 +90,7 @@ class CalendarSelectTest {
     }
 
     @Test
-    fun `TC-CALENDAR-SELECT-FEATURE-007 드래그 없이 길게 누르기만 하고 손을 떼면 하루짜리 기간으로 완료된다`() {
+    fun `TC-b8ea7034-211f-4ac9-b42d-34358eee945e 드래그 없이 길게 누르기만 하고 손을 떼면 하루짜리 기간으로 완료된다`() {
         val selectedList = mutableListOf<LocalDateRange>()
         composeRule.setCalendar(onSelect = { selectedList += it })
 
@@ -101,7 +101,7 @@ class CalendarSelectTest {
     }
 
     @Test
-    fun `TC-CALENDAR-SELECT-FEATURE-014 시스템이 선택 제스처를 중단하면 그 시점의 기간으로 선택이 완료된다`() {
+    fun `TC-61d44098-7302-4863-aea4-13b09caea4c9 시스템이 선택 제스처를 중단하면 그 시점의 기간으로 선택이 완료된다`() {
         val selectedList = mutableListOf<LocalDateRange>()
         composeRule.setCalendar(onSelect = { selectedList += it })
 
@@ -113,7 +113,7 @@ class CalendarSelectTest {
     }
 
     @Test
-    fun `TC-CALENDAR-SELECT-FEATURE-009 선택 중 오른쪽 가장자리 영역에 머무르면 다음 달로 이동하고 선택이 유지된다`() {
+    fun `TC-e904b0c6-aa0d-4540-a3eb-e4518bd16c7b 선택 중 오른쪽 가장자리 영역에 머무르면 다음 달로 이동하고 선택이 유지된다`() {
         val calendarState = CalendarState(initialYearMonth = JULY_2026)
         composeRule.setCalendar(calendarState = calendarState)
 
@@ -132,7 +132,7 @@ class CalendarSelectTest {
     }
 
     @Test
-    fun `TC-CALENDAR-SELECT-FEATURE-010 가장자리 영역에 머무는 동안 달 이동이 반복된다`() {
+    fun `TC-73ca5180-50a2-44a2-83ca-e5937342ed6c 가장자리 영역에 머무는 동안 달 이동이 반복된다`() {
         val calendarState = CalendarState(initialYearMonth = JULY_2026)
         composeRule.setCalendar(calendarState = calendarState)
 

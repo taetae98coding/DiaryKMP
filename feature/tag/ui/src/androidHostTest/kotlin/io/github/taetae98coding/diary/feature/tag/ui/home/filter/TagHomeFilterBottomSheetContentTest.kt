@@ -22,7 +22,7 @@ class TagHomeFilterBottomSheetContentTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-027 필터를 열면 꺼진 최상위 태그만 보기를 표시한다`() {
+    fun `TC-ddf3850b-a348-43e0-8574-d522000b9e7f 필터를 열면 꺼진 최상위 태그만 보기를 표시한다`() {
         setContent(isTopLevelOnly = false)
 
         composeRule.onNodeWithText(DEFAULT_TITLE).assertExists()
@@ -30,7 +30,7 @@ class TagHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-030 필터를 열면 켜 둔 최상위 태그만 보기를 표시한다`() {
+    fun `TC-ca4e614b-4a87-4964-a002-4b57f24ecf8f 필터를 열면 켜 둔 최상위 태그만 보기를 표시한다`() {
         setContent(isTopLevelOnly = true)
 
         composeRule.onNodeWithText(DEFAULT_TOP_LEVEL_ONLY_LABEL).assertIsOn()
@@ -46,7 +46,7 @@ class TagHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-028 최상위 태그만 보기를 켜면 켜짐 행동을 한 번 전달한다`() {
+    fun `TC-7bcf8584-ace4-4e5a-b5fe-6aaf5fc8bb0a 최상위 태그만 보기를 켜면 켜짐 행동을 한 번 전달한다`() {
         val eventList = mutableListOf<TagHomeFilterBottomSheetEvent>()
         setContent(isTopLevelOnly = false, onEvent = eventList::add)
 
@@ -56,7 +56,7 @@ class TagHomeFilterBottomSheetContentTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-029 최상위 태그만 보기를 끄면 꺼짐 행동을 한 번 전달한다`() {
+    fun `TC-a9dac55d-0689-4876-b138-7041b9950710 최상위 태그만 보기를 끄면 꺼짐 행동을 한 번 전달한다`() {
         val eventList = mutableListOf<TagHomeFilterBottomSheetEvent>()
         setContent(isTopLevelOnly = true, onEvent = eventList::add)
 

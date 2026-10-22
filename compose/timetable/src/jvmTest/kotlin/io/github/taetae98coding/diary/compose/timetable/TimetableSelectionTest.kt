@@ -8,7 +8,7 @@ import kotlinx.datetime.LocalTime
 
 class TimetableSelectionTest :
     FunSpec({
-        test("TC-TIMETABLE-DOMAIN-015 시간대 선택의 칸은 30분 단위이고 하루의 마지막 칸은 23시 59분에 끝난다") {
+        test("TC-b28f0d71-8e29-45d2-9c41-ed13b78e17e8 시간대 선택의 칸은 30분 단위이고 하루의 마지막 칸은 23시 59분에 끝난다") {
             val caseList =
                 listOf(
                     (0 to 0) to ((0 to 0) to (0 to 30)),
@@ -28,7 +28,7 @@ class TimetableSelectionTest :
             }
         }
 
-        test("TC-TIMETABLE-DOMAIN-016 여러 날에 걸친 시간대 선택은 이른 칸의 시작부터 늦은 칸의 끝까지다") {
+        test("TC-67772425-d884-4116-be76-4d1482b18313 여러 날에 걸친 시간대 선택은 이른 칸의 시작부터 늦은 칸의 끝까지다") {
             val monday = LocalDate(year = 2026, month = 9, day = 21)
             val tuesday = LocalDate(year = 2026, month = 9, day = 22)
             val mondayTen = timetableTimeSlotAt(date = monday, minuteOfDay = 22 * 60)

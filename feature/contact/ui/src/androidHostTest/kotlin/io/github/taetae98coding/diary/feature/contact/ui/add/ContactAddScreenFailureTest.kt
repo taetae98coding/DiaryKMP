@@ -23,7 +23,7 @@ class ContactAddScreenFailureTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-030 저장에 실패하면 안내 없이 작성 내용을 유지하고 같은 내용으로 다시 추가할 수 있다`() {
+    fun `TC-9780b7bf-e071-48e1-869d-2c1eaf10ab59 저장에 실패하면 안내 없이 작성 내용을 유지하고 같은 내용으로 다시 추가할 수 있다`() {
         val useCase = mockk<AddContactUseCase>()
         val parameterList = mutableListOf<AddContactUseCase.Parameter>()
         coEvery { useCase(capture(parameterList)) } returns Result.failure(IllegalStateException("저장 실패"))

@@ -25,7 +25,7 @@ class SettingGeminiModelDialogTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-008 받아 온 모델을 모두 고를 수 있다`() {
+    fun `TC-03a2c699-e091-4756-80e2-d0dcde9f0b3b 받아 온 모델을 모두 고를 수 있다`() {
         setDialog(uiState = SettingGeminiModelUiState(isLoaded = true, modelList = MODEL_LIST))
 
         MODEL_LIST.forEach { model ->
@@ -35,7 +35,7 @@ class SettingGeminiModelDialogTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-008 모델을 고르면 선택한 모델을 알린다`() {
+    fun `TC-03a2c699-e091-4756-80e2-d0dcde9f0b3b 모델을 고르면 선택한 모델을 알린다`() {
         val selectedList = mutableListOf<String>()
         setDialog(
             uiState = SettingGeminiModelUiState(isLoaded = true, modelList = MODEL_LIST),
@@ -59,7 +59,7 @@ class SettingGeminiModelDialogTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-009 고를 수 있는 모델이 없으면 안내를 표시한다`() {
+    fun `TC-94a954b5-65a0-4eb1-ab10-090f97cc5707 고를 수 있는 모델이 없으면 안내를 표시한다`() {
         setDialog(uiState = SettingGeminiModelUiState(isLoaded = true, modelList = emptyList()))
 
         composeRule.onNodeWithText(DEFAULT_EMPTY_MESSAGE).assertExists()
@@ -67,7 +67,7 @@ class SettingGeminiModelDialogTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-010 인증 정보가 유효하지 않으면 인증 정보 확인을 안내한다`() {
+    fun `TC-0f0c8862-4112-4544-8f20-216852b8a0ba 인증 정보가 유효하지 않으면 인증 정보 확인을 안내한다`() {
         setDialog(uiState = SettingGeminiModelUiState(failure = SettingGeminiModelFailure.INVALID_API_KEY))
 
         composeRule.onNodeWithText(DEFAULT_INVALID_API_KEY_MESSAGE).assertExists()
@@ -76,7 +76,7 @@ class SettingGeminiModelDialogTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-010 그 밖의 실패는 조회 실패를 안내한다`() {
+    fun `TC-0f0c8862-4112-4544-8f20-216852b8a0ba 그 밖의 실패는 조회 실패를 안내한다`() {
         setDialog(uiState = SettingGeminiModelUiState(failure = SettingGeminiModelFailure.UNKNOWN))
 
         composeRule.onNodeWithText(DEFAULT_FETCH_FAILED_MESSAGE).assertExists()
@@ -85,14 +85,14 @@ class SettingGeminiModelDialogTest {
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-006 목록이 없는 동안 조회하면 진행 표시를 보여 준다`() {
+    fun `TC-5414e004-7086-416f-82d2-9554e9842fa6 목록이 없는 동안 조회하면 진행 표시를 보여 준다`() {
         setDialog(uiState = SettingGeminiModelUiState(isInProgress = true))
 
         composeRule.onAllNodesWithContentDescription(DEFAULT_LOADING_DESCRIPTION).fetchSemanticsNodes().size shouldBe 1
     }
 
     @Test
-    fun `TC-SETTING-GEMINI-FEATURE-011 조회에 실패해도 받아 둔 목록을 계속 고를 수 있다`() {
+    fun `TC-ef45d0e5-8837-402d-a394-2c7b9e9592f9 조회에 실패해도 받아 둔 목록을 계속 고를 수 있다`() {
         setDialog(
             uiState =
                 SettingGeminiModelUiState(

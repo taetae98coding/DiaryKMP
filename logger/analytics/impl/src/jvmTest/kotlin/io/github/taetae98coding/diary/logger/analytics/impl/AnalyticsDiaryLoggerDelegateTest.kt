@@ -24,7 +24,7 @@ class AnalyticsDiaryLoggerDelegateTest :
             DiaryLogger.add(delegate = AnalyticsDiaryLoggerDelegate())
 
             When("화면 이름을 담은 원격 분석 로그를 공통 창구에 전달한다") {
-                Then("TC-APP-LOGGING-DOMAIN-014 어디에도 원격 분석이 남지 않고 전달은 오류 없이 완료된다") {
+                Then("TC-754975c5-f888-4204-aacf-764754c83a6a 어디에도 원격 분석이 남지 않고 전달은 오류 없이 완료된다") {
                     // 빈 문자열이 생성되면 검증이 무의미해지므로 접두사로 비어 있지 않음을 보장한다.
                     val screenName = "screen${fixtureMonkey.giveMeOne<Int>()}"
 
@@ -46,7 +46,7 @@ class AnalyticsDiaryLoggerDelegateTest :
             DiaryLogger.add(delegate = AnalyticsDiaryLoggerDelegate(recordScreenView = recordScreenView, recordEvent = recordEvent))
 
             When("화면 조회 로그와 원격 분석 로그를 공통 창구에 전달한다") {
-                Then("TC-APP-LOGGING-DOMAIN-001 원격 분석 기록 수단이 두 로그를 남긴다") {
+                Then("TC-4af2c30c-15df-4a23-89ee-2a9d85aa44c7 원격 분석 기록 수단이 두 로그를 남긴다") {
                     clearMocks(recordScreenView, recordEvent)
                     val screenViewLog = ScreenViewLog(screenName = fixtureMonkey.giveMeOne<String>())
                     val eventLog = AnalyticsEventLog(name = fixtureMonkey.giveMeOne<String>(), parameters = JsonObject(emptyMap()))
@@ -61,7 +61,7 @@ class AnalyticsDiaryLoggerDelegateTest :
             }
 
             When("원격 분석 로그가 아닌 종류의 로그를 공통 창구에 전달한다") {
-                Then("TC-APP-LOGGING-DOMAIN-001 TC-APP-LOGGING-DOMAIN-003 원격 분석 기록 수단은 그 로그를 남기지 않고 전달은 오류 없이 완료된다") {
+                Then("TC-4af2c30c-15df-4a23-89ee-2a9d85aa44c7 TC-b318e051-d005-425c-b1ef-c4f61d5a9f95 원격 분석 기록 수단은 그 로그를 남기지 않고 전달은 오류 없이 완료된다") {
                     clearMocks(recordScreenView, recordEvent)
 
                     shouldNotThrowAny {

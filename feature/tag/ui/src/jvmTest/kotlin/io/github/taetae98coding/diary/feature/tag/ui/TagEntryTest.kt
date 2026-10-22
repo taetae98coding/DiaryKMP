@@ -35,7 +35,7 @@ private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class TagEntryTest :
     FunSpec({
-        test("TC-TAG-LIST-DETAIL-FEATURE-021 필터를 열어도 목록의 태그 추가 제공 여부는 상세 영역에 놓인 화면을 따른다") {
+        test("TC-02124320-69e7-4652-b17b-d983759dcb80 필터를 열어도 목록의 태그 추가 제공 여부는 상세 영역에 놓인 화면을 따른다") {
             val detailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
             val backStackCases =
                 listOf(
@@ -53,7 +53,7 @@ class TagEntryTest :
             }
         }
 
-        test("TC-TAG-LIST-DETAIL-FEATURE-016 태그 목록에서 이어 진입한 상세 화면은 목록·상세 배치의 상세 pane이다") {
+        test("TC-afcd267d-f71b-459e-8228-5aa322d3c037 태그 목록에서 이어 진입한 상세 화면은 목록·상세 배치의 상세 pane이다") {
             val detailKey = TagDetailNavKey(id = Uuid.random())
             val backStackCases =
                 listOf(
@@ -71,7 +71,7 @@ class TagEntryTest :
             }
         }
 
-        test("TC-TAG-LIST-DETAIL-FEATURE-003 목록에서 태그를 선택하면 그 태그의 상세가 목록과 함께 상세 영역에 놓인다") {
+        test("TC-d9b226dc-43d3-4a5d-af8d-967ce5c4c827 목록에서 태그를 선택하면 그 태그의 상세가 목록과 함께 상세 영역에 놓인다") {
             val detailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
             val backStack = NavBackStack<ScreenNavKey>(OtherTopLevelNavKey, TagHomeNavKey)
 
@@ -81,7 +81,7 @@ class TagEntryTest :
             metadataOf(backStack = backStack.toList(), key = detailKey).keys shouldBe detailPaneMetadataKeys
         }
 
-        test("TC-TAG-LIST-DETAIL-FEATURE-014 태그 상세가 놓인 동안 새 태그 추가를 선택하면 목록을 유지한 채 상세 영역이 태그 추가로 바뀐다") {
+        test("TC-eeac07d4-4c42-4999-8d89-da62fbf017b2 태그 상세가 놓인 동안 새 태그 추가를 선택하면 목록을 유지한 채 상세 영역이 태그 추가로 바뀐다") {
             val detailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
             val backStack = NavBackStack<ScreenNavKey>(OtherTopLevelNavKey, TagHomeNavKey, detailKey)
 
@@ -91,7 +91,7 @@ class TagEntryTest :
             metadataOf(backStack = backStack.toList(), key = TagAddNavKey()).keys shouldBe detailPaneMetadataKeys
         }
 
-        test("TC-TAG-LIST-DETAIL-FEATURE-015 태그 목록에서 진입하지 않은 상세 화면은 목록·상세 배치에 참여하지 않는다") {
+        test("TC-77bfba92-3da7-404e-96bd-a6f1d88d9bb5 태그 목록에서 진입하지 않은 상세 화면은 목록·상세 배치에 참여하지 않는다") {
             val memoDetailKey = MemoDetailNavKey(id = Uuid.random())
             val tagDetailKey = TagDetailNavKey(id = Uuid.random())
             val backStackCases =
@@ -113,13 +113,13 @@ class TagEntryTest :
             }
         }
 
-        test("TC-TAG-HOME-FEATURE-027 태그 필터는 목록 위에 겹치는 Bottom Sheet로 표시한다") {
+        test("TC-ddf3850b-a348-43e0-8574-d522000b9e7f 태그 필터는 목록 위에 겹치는 Bottom Sheet로 표시한다") {
             val backStack = listOf(OtherTopLevelNavKey, TagHomeNavKey, TagHomeFilterNavKey)
 
             metadataOf(backStack = backStack, key = TagHomeFilterNavKey).keys shouldBe bottomSheetMetadataKeys
         }
 
-        test("TC-TAG-MEMO-FINISHED-LIST-DETAIL-FEATURE-001 TagMemoFinishedList 화면은 목록·상세 배치의 목록 pane이다") {
+        test("TC-1d96471b-ff5a-4901-8354-c098e2456c1e TagMemoFinishedList 화면은 목록·상세 배치의 목록 pane이다") {
             val tagId = Uuid.random()
             val tagMemoFinishedListKey = TagMemoFinishedListNavKey(tagId = tagId)
             val backStack =
@@ -133,13 +133,13 @@ class TagEntryTest :
             metadataOf(backStack = backStack, key = tagMemoFinishedListKey).keys shouldBe listPaneMetadataKeys
         }
 
-        test("TC-TAG-FINISHED-LIST-DETAIL-FEATURE-001 TagFinishedList 화면은 목록·상세 배치의 목록 pane이다") {
+        test("TC-3dfe87fa-52c8-441e-939d-4fccba789c09 TagFinishedList 화면은 목록·상세 배치의 목록 pane이다") {
             val backStack = listOf(OtherTopLevelNavKey, TagHomeNavKey, TagFinishedListNavKey)
 
             metadataOf(backStack = backStack, key = TagFinishedListNavKey).keys shouldBe listPaneMetadataKeys
         }
 
-        test("TC-TAG-FINISHED-LIST-DETAIL-FEATURE-003 완료된 태그 목록에서 태그를 선택하면 그 태그의 상세가 그 목록의 상세 영역에 놓인다") {
+        test("TC-d40a0f5e-925a-48c7-8997-4adfd0fc9b84 완료된 태그 목록에서 태그를 선택하면 그 태그의 상세가 그 목록의 상세 영역에 놓인다") {
             val homeDetailCases: List<List<ScreenNavKey>> = listOf(emptyList(), listOf(TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())))
 
             homeDetailCases.forEach { homeDetailList ->
@@ -154,7 +154,7 @@ class TagEntryTest :
             }
         }
 
-        test("TC-TAG-FINISHED-LIST-DETAIL-FEATURE-005 상세 영역의 태그 상세에서 연결 입력으로 연 화면도 그 목록의 상세 영역에 놓인다") {
+        test("TC-8175338b-308e-40e9-8d8f-c50793db9466 상세 영역의 태그 상세에서 연결 입력으로 연 화면도 그 목록의 상세 영역에 놓인다") {
             val listSelectedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
             val openedKeyList: List<ScreenNavKey> =
                 listOf(
@@ -170,7 +170,7 @@ class TagEntryTest :
             }
         }
 
-        test("TC-TAG-FINISHED-LIST-DETAIL-FEATURE-009 상세 영역의 태그 상세에서 연 완료된 메모 목록은 이 배치에 참여하지 않는다") {
+        test("TC-846bf001-f201-4e72-820e-f2fa3c3bbac8 상세 영역의 태그 상세에서 연 완료된 메모 목록은 이 배치에 참여하지 않는다") {
             val listSelectedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
             val tagMemoFinishedListKey = TagMemoFinishedListNavKey(tagId = listSelectedKey.id)
             val backStack = listOf(OtherTopLevelNavKey, TagHomeNavKey, TagFinishedListNavKey, listSelectedKey, tagMemoFinishedListKey)
@@ -180,7 +180,7 @@ class TagEntryTest :
         }
 
         test(
-            "TC-TAG-FINISHED-LIST-DETAIL-FEATURE-010 TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-010 " +
+            "TC-3716eb49-6ffb-4b3b-8c62-482b4e7b72c4 TC-95e17dbf-5c89-4501-aaee-fd14f21e11ef " +
                 "완료된 태그 목록에서 진입하지 않은 태그 화면은 이 배치에 참여하지 않고, 완료된 메모 목록의 상세에서 연 태그 상세도 단독으로 표시한다",
         ) {
             val detailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())

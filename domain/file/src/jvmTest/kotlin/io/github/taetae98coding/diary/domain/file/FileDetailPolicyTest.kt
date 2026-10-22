@@ -5,7 +5,7 @@ import io.kotest.matchers.shouldBe
 
 class FileDetailPolicyTest :
     FunSpec({
-        test("TC-FILE-DETAIL-DOMAIN-003 파일 이름의 길이는 유니코드 문자 단위로 센다") {
+        test("TC-b4b5c536-1561-4a32-a836-c3a4358e907b 파일 이름의 길이는 유니코드 문자 단위로 센다") {
             listOf(
                 "a".repeat(255) to 255,
                 "😀".repeat(255) to 255,

@@ -50,7 +50,7 @@ class FileHomeUploadViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-FILE-HOME-FEATURE-032 화면에 들어오기 전에 시작한 올리기가 끝나지 않았으면 진행 중 상태다") {
+        test("TC-36571a73-b36c-45e1-bde6-3929ed3f2b6e 화면에 들어오기 전에 시작한 올리기가 끝나지 않았으면 진행 중 상태다") {
             runTest(mainDispatcher) {
                 val stateFlow = MutableStateFlow<Result<FileUploadState>>(Result.success(FileUploadState.Uploading(percent = fixtureMonkey.giveMeOne<Int>())))
                 val viewModel = viewModel(stateFlow = stateFlow)
@@ -66,7 +66,7 @@ class FileHomeUploadViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-HOME-FEATURE-018 올리기에 성공하면 올린 파일과 함께 성공을 알린다") {
+        test("TC-ccb81390-a936-4a22-8ce9-4fe3de62a730 올리기에 성공하면 올린 파일과 함께 성공을 알린다") {
             runTest(mainDispatcher) {
                 val fileId = fixtureMonkey.giveMeOne<Uuid>()
                 val eventChannel = Channel<Result<FileUploadEvent>>(Channel.UNLIMITED)
@@ -80,7 +80,7 @@ class FileHomeUploadViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-HOME-FEATURE-049 FileAdd를 보는 동안 올리기에 성공하면 FileAdd에서 성공한 것으로 알린다") {
+        test("TC-7ef172cd-3ed6-454e-8f51-2c50f9ee0589 FileAdd를 보는 동안 올리기에 성공하면 FileAdd에서 성공한 것으로 알린다") {
             runTest(mainDispatcher) {
                 val fileId = fixtureMonkey.giveMeOne<Uuid>()
                 val eventChannel = Channel<Result<FileUploadEvent>>(Channel.UNLIMITED)
@@ -94,7 +94,7 @@ class FileHomeUploadViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-HOME-FEATURE-019 올리기에 실패하면 실패 이유를 구분해 알린다") {
+        test("TC-f0d423c5-b463-4cef-9f6c-b17e5e1946d9 올리기에 실패하면 실패 이유를 구분해 알린다") {
             runTest(mainDispatcher) {
                 val eventChannel = Channel<Result<FileUploadEvent>>(Channel.UNLIMITED)
                 val viewModel = viewModel(eventChannel = eventChannel)
@@ -141,7 +141,7 @@ class FileHomeUploadViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FILE-HOME-FEATURE-048 올리는 중에는 파일 추가를 요청해도 FileAdd로 이동하지 않는다") {
+        test("TC-9707e7f6-f68f-4a28-8701-f2759b92ad40 올리는 중에는 파일 추가를 요청해도 FileAdd로 이동하지 않는다") {
             runTest(mainDispatcher) {
                 val stateFlow = MutableStateFlow<Result<FileUploadState>>(Result.success(FileUploadState.Uploading(percent = fixtureMonkey.giveMeOne<Int>())))
                 val viewModel = viewModel(stateFlow = stateFlow)

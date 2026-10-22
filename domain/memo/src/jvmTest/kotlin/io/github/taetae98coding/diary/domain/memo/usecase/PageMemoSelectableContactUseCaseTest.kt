@@ -40,7 +40,7 @@ class PageMemoSelectableContactUseCaseTest :
                     accountMemoContactRepository = accountMemoContactRepository,
                 )
 
-            When("TC-MEMO-CONTACT-INPUT-DATA-003 검색어로 선택 목록을 조회한다") {
+            When("TC-b6b7f72d-e74e-4337-98b9-a23e0921f9fb 검색어로 선택 목록을 조회한다") {
                 Then("앞뒤 공백을 뺀 검색어로 조회하고 그 결과를 페이지로 전달한다") {
                     val pagingData =
                         useCase(parameter = "  Wiki  ")
@@ -54,7 +54,7 @@ class PageMemoSelectableContactUseCaseTest :
                 }
             }
 
-            When("TC-MEMO-CONTACT-INPUT-DOMAIN-010 공백만 있는 검색어로 선택 목록을 조회한다") {
+            When("TC-5c6f6eca-3871-4a9b-9c6a-5ef289053cc4 공백만 있는 검색어로 선택 목록을 조회한다") {
                 Then("검색어가 없는 것과 같게 조회한다") {
                     useCase(parameter = "   ")
                         .first()

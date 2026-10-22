@@ -14,7 +14,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class WeatherReportCacheTest :
     FunSpec({
-        test("TC-WEATHER-FETCH-DATA-012 앱 프로세스를 새로 시작하면 빈 날씨에서 시작한다") {
+        test("TC-e37ef2aa-ce7f-4715-aa1a-781696d60dd7 앱 프로세스를 새로 시작하면 빈 날씨에서 시작한다") {
             val previousCache = WeatherReportCache()
             previousCache.update(
                 weatherList = listOf(fixtureMonkey.giveMeOne<Weather>()),
@@ -28,7 +28,7 @@ class WeatherReportCacheTest :
             }
         }
 
-        test("TC-WEATHER-FETCH-DATA-018 앱 프로세스를 새로 시작하면 마지막 동기화 시각이 비워진다") {
+        test("TC-864efbba-00be-438d-a80e-c35b4896e572 앱 프로세스를 새로 시작하면 마지막 동기화 시각이 비워진다") {
             val previousCache = WeatherReportCache()
             previousCache.update(
                 weatherList = listOf(fixtureMonkey.giveMeOne<Weather>()),
@@ -39,7 +39,7 @@ class WeatherReportCacheTest :
             WeatherReportCache().getFetchedAt() shouldBe null
         }
 
-        test("TC-WEATHER-FETCH-DATA-027 앱 프로세스를 새로 시작하면 지역명 없음에서 시작한다") {
+        test("TC-1ce154ba-a748-47f1-a95b-d7ac555563aa 앱 프로세스를 새로 시작하면 지역명 없음에서 시작한다") {
             val previousCache = WeatherReportCache()
             previousCache.update(
                 weatherList = listOf(fixtureMonkey.giveMeOne<Weather>()),

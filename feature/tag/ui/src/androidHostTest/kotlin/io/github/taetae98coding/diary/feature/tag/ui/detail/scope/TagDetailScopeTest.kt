@@ -53,7 +53,7 @@ class TagDetailScopeTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-048 처음 진입하면 표시 범위가 이 태그만으로 표시된다`() {
+    fun `TC-1110555d-8e6c-4822-b18a-29ed6e4bd4bd 처음 진입하면 표시 범위가 이 태그만으로 표시된다`() {
         composeRule.setTagDetailScaffoldWithScope()
 
         composeRule.onNodeWithContentDescription(DEFAULT_SCOPE_BUTTON_DESCRIPTION).performClick()
@@ -65,7 +65,7 @@ class TagDetailScopeTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-049 범위를 고르면 즉시 반영되고 선택이 닫힌다`() {
+    fun `TC-8d95a383-bdbc-441b-9966-8a94d0a4620c 범위를 고르면 즉시 반영되고 선택이 닫힌다`() {
         lateinit var scopeState: TagDetailScopeState
         composeRule.setTagDetailScaffoldWithScope { state -> scopeState = state }
 
@@ -89,7 +89,7 @@ class TagDetailScopeTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-049 지금 범위와 같은 이 태그만을 골라도 선택이 닫히고 범위는 그대로다`() {
+    fun `TC-8d95a383-bdbc-441b-9966-8a94d0a4620c 지금 범위와 같은 이 태그만을 골라도 선택이 닫히고 범위는 그대로다`() {
         lateinit var scopeState: TagDetailScopeState
         composeRule.setTagDetailScaffoldWithScope { state -> scopeState = state }
         composeRule.onNodeWithContentDescription(DEFAULT_SCOPE_BUTTON_DESCRIPTION).performClick()
@@ -103,7 +103,7 @@ class TagDetailScopeTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-050 선택한 탭과 관계없이 표시 범위를 열 수 있다`() {
+    fun `TC-6cfa9b59-3a7e-4b7f-a7fd-4c645e3e0979 선택한 탭과 관계없이 표시 범위를 열 수 있다`() {
         composeRule.setTagDetailScaffoldWithScope()
 
         listOf(
@@ -127,7 +127,7 @@ class TagDetailScopeTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-051 조회 중에도 표시 범위를 확인하고 바꿀 수 있다`() {
+    fun `TC-e757dd29-c1f4-4ffe-960e-cd9c0a68354c 조회 중에도 표시 범위를 확인하고 바꿀 수 있다`() {
         lateinit var scopeState: TagDetailScopeState
         composeRule.setTagDetailScaffoldWithScope(
             uiStateProvider = { TagDetailUiState.Loading },
@@ -143,7 +143,7 @@ class TagDetailScopeTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-052 표시 범위를 바꿔도 태그 디테일 탭의 표시는 바뀌지 않는다`() {
+    fun `TC-8815deac-e38a-4281-bf0c-5a7e09d982c3 표시 범위를 바꿔도 태그 디테일 탭의 표시는 바뀌지 않는다`() {
         composeRule.setTagDetailScaffoldWithScope(uiStateProvider = { tagDetailUiState(detail = tagDetail(TAG_TITLE)) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_SCOPE_BUTTON_DESCRIPTION).performClick()
@@ -165,7 +165,7 @@ class TagDetailScopeTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-DOMAIN-017 화면을 떠났다 다시 들어오면 표시 범위가 초기화된다`() {
+    fun `TC-34dcc543-8a22-4ce7-906a-2cdae59d0e40 화면을 떠났다 다시 들어오면 표시 범위가 초기화된다`() {
         val isEntered = mutableStateOf(true)
         lateinit var scopeState: TagDetailScopeState
 
@@ -211,12 +211,12 @@ class TagDetailScopeRestorationTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-053 화면 재생성 후에도 고른 직속 하위까지 범위가 유지된다`() {
+    fun `TC-ba6be41a-6837-4298-99ea-5e536ac3bb16 화면 재생성 후에도 고른 직속 하위까지 범위가 유지된다`() {
         assertScopeRestored(scope = TagScope.CHILD, label = DEFAULT_CHILD_LABEL)
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-053 화면 재생성 후에도 고른 모든 하위까지 범위가 유지된다`() {
+    fun `TC-ba6be41a-6837-4298-99ea-5e536ac3bb16 화면 재생성 후에도 고른 모든 하위까지 범위가 유지된다`() {
         assertScopeRestored(scope = TagScope.DESCENDANT, label = DEFAULT_DESCENDANT_LABEL)
     }
 
@@ -244,7 +244,7 @@ class TagDetailScopeRestorationTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-064 표시 범위 선택을 연 채 화면이 재생성되면 선택이 열린 상태로 돌아온다`() {
+    fun `TC-9c7ffc60-4033-405a-84b8-01883c673e7b 표시 범위 선택을 연 채 화면이 재생성되면 선택이 열린 상태로 돌아온다`() {
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var scopeState: TagDetailScopeState
 

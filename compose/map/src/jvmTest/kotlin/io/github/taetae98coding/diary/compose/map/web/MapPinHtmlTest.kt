@@ -16,7 +16,7 @@ import kotlin.uuid.Uuid
 
 class MapPinHtmlTest :
     FunSpec({
-        test("TC-DIARY-MAP-DOMAIN-036: 전달된 핀을 지도 요청 내용에 담는다") {
+        test("TC-6e8b6c17-1baf-40aa-8823-fcd1402ad379: 전달된 핀을 지도 요청 내용에 담는다") {
             val pins =
                 listOf(
                     DiaryMapPin(
@@ -59,7 +59,7 @@ class MapPinHtmlTest :
             }
         }
 
-        test("TC-DIARY-MAP-DOMAIN-036: 핀이 없으면 지도 요청 내용에 핀 표시를 담지 않는다") {
+        test("TC-6e8b6c17-1baf-40aa-8823-fcd1402ad379: 핀이 없으면 지도 요청 내용에 핀 표시를 담지 않는다") {
             val naverHtml = requireNotNull(createNaverMapHtml(ncpKeyId = TEST_KEY, camera = null))
             val googleHtml = requireNotNull(createGoogleMapHtml(apiKey = TEST_KEY, camera = null))
 
@@ -67,7 +67,7 @@ class MapPinHtmlTest :
             googleHtml shouldContain "var diaryMapPins = [];"
         }
 
-        test("TC-DIARY-MAP-DOMAIN-037: 핀 라벨에 화면 구성을 훼손할 수 있는 문자가 있어도 요청 내용이 훼손되지 않는다") {
+        test("TC-625a1011-23f0-49e0-bd23-0e8facd25f7e: 핀 라벨에 화면 구성을 훼손할 수 있는 문자가 있어도 요청 내용이 훼손되지 않는다") {
             val backslash = '\\'
             val labelList =
                 listOf(
@@ -97,7 +97,7 @@ class MapPinHtmlTest :
             }
         }
 
-        test("TC-DIARY-MAP-DOMAIN-038: 핀 선택 사용 여부와 핀의 식별 값을 지도 요청 내용에 담는다") {
+        test("TC-d520bf66-4dd2-4a7c-afd9-af775d7404b2: 핀 선택 사용 여부와 핀의 식별 값을 지도 요청 내용에 담는다") {
             val pins =
                 listOf(
                     DiaryMapPin(

@@ -29,7 +29,7 @@ class SettingHolidayItemRowTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-006 항목은 체크박스 역할과 선택 상태를 제공한다`() {
+    fun `TC-aad46f37-24f2-4c33-9979-0d8849541987 항목은 체크박스 역할과 선택 상태를 제공한다`() {
         val selectedHoliday = holidaySetting(isHoliday = true, isVisible = true)
         val deselectedHoliday = holidaySetting(isHoliday = false, isVisible = false)
         setHolidayItemRows(selectedHoliday, deselectedHoliday)
@@ -45,13 +45,13 @@ class SettingHolidayItemRowTest {
     }
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-007 기본 환경에서 쉬는 날인 항목만 문구와 접근성 정보를 제공한다`() {
+    fun `TC-0545abd9-c2b3-4c00-9359-446d13c3a92a 기본 환경에서 쉬는 날인 항목만 문구와 접근성 정보를 제공한다`() {
         assertDayOffLabel(DEFAULT_DAY_OFF_LABEL)
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-SETTING-HOLIDAY-FEATURE-007 한국어 환경에서 쉬는 날인 항목만 문구와 접근성 정보를 제공한다`() {
+    fun `TC-0545abd9-c2b3-4c00-9359-446d13c3a92a 한국어 환경에서 쉬는 날인 항목만 문구와 접근성 정보를 제공한다`() {
         assertDayOffLabel(KOREAN_DAY_OFF_LABEL)
     }
 

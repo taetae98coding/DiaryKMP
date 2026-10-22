@@ -52,7 +52,7 @@ class TimetableTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-001 하루 형식은 지정한 날짜 하나를 요일과 일로 표시한다`() {
+    fun `TC-e08e0804-45e1-4f11-b1cf-6d2977588800 하루 형식은 지정한 날짜 하나를 요일과 일로 표시한다`() {
         setTimetable(type = TimetableType.DAY, date = september(day = 23))
 
         composeRule.onNodeWithText("Wed").assertIsDisplayed()
@@ -62,7 +62,7 @@ class TimetableTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-002 주간 형식은 지정한 날짜가 속한 주의 일요일부터 토요일까지 표시한다`() {
+    fun `TC-43786974-590d-4977-811f-b0342b352001 주간 형식은 지정한 날짜가 속한 주의 일요일부터 토요일까지 표시한다`() {
         setTimetable(type = TimetableType.WEEK, date = LocalDate(year = 2026, month = 10, day = 1))
 
         listOf(27, 28, 29, 30, 1, 2, 3).forEach { day -> composeRule.onNodeWithText(day.toString()).assertIsDisplayed() }
@@ -72,7 +72,7 @@ class TimetableTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-003 넘긴 방향에 따라 하루나 한 주씩 이동한다 - 하루 다음`() {
+    fun `TC-b1fca7ba-7181-49e7-9a9f-1c6e02139298 넘긴 방향에 따라 하루나 한 주씩 이동한다 - 하루 다음`() {
         setTimetable(type = TimetableType.DAY, date = september(day = 30))
 
         swipePageLeft()
@@ -82,7 +82,7 @@ class TimetableTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-003 넘긴 방향에 따라 하루나 한 주씩 이동한다 - 하루 이전`() {
+    fun `TC-b1fca7ba-7181-49e7-9a9f-1c6e02139298 넘긴 방향에 따라 하루나 한 주씩 이동한다 - 하루 이전`() {
         setTimetable(type = TimetableType.DAY, date = september(day = 23))
 
         swipePageRight()
@@ -93,7 +93,7 @@ class TimetableTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-003 넘긴 방향에 따라 하루나 한 주씩 이동한다 - 주간 다음`() {
+    fun `TC-b1fca7ba-7181-49e7-9a9f-1c6e02139298 넘긴 방향에 따라 하루나 한 주씩 이동한다 - 주간 다음`() {
         setTimetable(type = TimetableType.WEEK, date = september(day = 20))
 
         swipePageLeft()
@@ -103,7 +103,7 @@ class TimetableTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-003 넘긴 방향에 따라 하루나 한 주씩 이동한다 - 주간 이전`() {
+    fun `TC-b1fca7ba-7181-49e7-9a9f-1c6e02139298 넘긴 방향에 따라 하루나 한 주씩 이동한다 - 주간 이전`() {
         setTimetable(type = TimetableType.WEEK, date = september(day = 20))
 
         swipePageRight()
@@ -113,7 +113,7 @@ class TimetableTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-004 이동 범위의 처음에서 이전으로 넘어가지 않는다 - 하루`() {
+    fun `TC-f2db1905-c0d5-4f73-a2c1-fcb5d8645d0d 이동 범위의 처음에서 이전으로 넘어가지 않는다 - 하루`() {
         setTimetable(type = TimetableType.DAY, date = LocalDate(year = 0, month = 12, day = 31))
 
         swipePageRight()
@@ -124,7 +124,7 @@ class TimetableTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-004 이동 범위의 처음에서 이전으로 넘어가지 않는다 - 주간`() {
+    fun `TC-f2db1905-c0d5-4f73-a2c1-fcb5d8645d0d 이동 범위의 처음에서 이전으로 넘어가지 않는다 - 주간`() {
         setTimetable(type = TimetableType.WEEK, date = LocalDate(year = 1, month = 1, day = 1))
 
         swipePageRight()
@@ -135,7 +135,7 @@ class TimetableTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-005 배치하는 화면이 이동을 요청하면 이동한 날짜가 표시된다`() {
+    fun `TC-73e30ad8-77ec-417b-8178-61cd160d9dc1 배치하는 화면이 이동을 요청하면 이동한 날짜가 표시된다`() {
         val state = TimetableState(type = TimetableType.DAY, initialDate = september(day = 23))
         lateinit var scope: CoroutineScope
         setTimetable(state = state, onScope = { scope = it })
@@ -155,7 +155,7 @@ class TimetableTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-006 이동 범위의 처음에서 이전 이동을 요청하면 표시 날짜가 유지된다`() {
+    fun `TC-05c37ae9-dae8-42aa-b8d7-5ebf5782be25 이동 범위의 처음에서 이전 이동을 요청하면 표시 날짜가 유지된다`() {
         val firstDate = LocalDate(year = 0, month = 12, day = 31)
         val state = TimetableState(type = TimetableType.DAY, initialDate = firstDate)
         lateinit var scope: CoroutineScope
@@ -169,28 +169,28 @@ class TimetableTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-007 현재 시각의 날짜가 표시되면 현재 시각 위치를 표시한다`() {
+    fun `TC-3615b3eb-deb8-477c-9994-a9cd2509e779 현재 시각의 날짜가 표시되면 현재 시각 위치를 표시한다`() {
         setTimetable(type = TimetableType.DAY, date = september(day = 23), now = TEN_O_CLOCK_ON_23)
 
         composeRule.onNodeWithTag(TIMETABLE_NOW_INDICATOR_TEST_TAG, useUnmergedTree = true).assertExists()
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-008 현재 시각의 날짜가 표시되지 않으면 현재 시각 위치를 표시하지 않는다`() {
+    fun `TC-1d4ea0a9-c1af-432a-98ad-fe8cc4bc6624 현재 시각의 날짜가 표시되지 않으면 현재 시각 위치를 표시하지 않는다`() {
         setTimetable(type = TimetableType.DAY, date = september(day = 24), now = TEN_O_CLOCK_ON_23)
 
         composeRule.onNodeWithTag(TIMETABLE_NOW_INDICATOR_TEST_TAG, useUnmergedTree = true).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-008 현재 시각을 지정하지 않으면 현재 시각 위치를 표시하지 않는다`() {
+    fun `TC-1d4ea0a9-c1af-432a-98ad-fe8cc4bc6624 현재 시각을 지정하지 않으면 현재 시각 위치를 표시하지 않는다`() {
         setTimetable(type = TimetableType.DAY, date = september(day = 24), now = null)
 
         composeRule.onNodeWithTag(TIMETABLE_NOW_INDICATOR_TEST_TAG, useUnmergedTree = true).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-009 시각 아이템은 시간대 영역에, 종일 아이템은 종일 영역에 표시된다`() {
+    fun `TC-225e47cd-831f-4aed-b084-d9cccb15feb8 시각 아이템은 시간대 영역에, 종일 아이템은 종일 영역에 표시된다`() {
         setTimetable(type = TimetableType.DAY, date = september(day = 23)) {
             meetingItem()
             allDayItem(dateRange = september(day = 22)..september(day = 24), key = VACATION) { Text(text = VACATION) }
@@ -205,7 +205,7 @@ class TimetableTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-010 표시 날짜와 겹치는 종일 아이템이 없으면 종일 영역을 두지 않는다`() {
+    fun `TC-2167dec8-4497-4bb1-805e-991813f66ea7 표시 날짜와 겹치는 종일 아이템이 없으면 종일 영역을 두지 않는다`() {
         setTimetable(type = TimetableType.DAY, date = september(day = 23)) {
             meetingItem()
             allDayItem(dateRange = september(day = 1)..september(day = 1), key = PAST) { Text(text = PAST) }
@@ -217,7 +217,7 @@ class TimetableTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-011 아이템 지정이 바뀌면 별도 조작 없이 표시가 갱신된다`() {
+    fun `TC-b17c6c70-edc9-499a-911f-78edebac4c84 아이템 지정이 바뀌면 별도 조작 없이 표시가 갱신된다`() {
         var hasMeeting by mutableStateOf(false)
         setTimetable(type = TimetableType.DAY, date = september(day = 23)) {
             if (hasMeeting) meetingItem()
@@ -230,7 +230,7 @@ class TimetableTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-012 아이템이 없으면 빈 상태 안내 없이 시간대 안내만 보여 준다`() {
+    fun `TC-6c394a1f-d977-4e52-acdb-acdc324d99ac 아이템이 없으면 빈 상태 안내 없이 시간대 안내만 보여 준다`() {
         setTimetable(type = TimetableType.DAY, date = september(day = 23))
 
         val hourLabelList = (1..11).map { hour -> "$hour AM" } + "12 PM" + (1..11).map { hour -> "$hour PM" }
@@ -249,7 +249,7 @@ class TimetableTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-029 여러 날에 걸친 시각 아이템은 날짜마다 시간대 영역에 표시되고 어느 날짜 부분을 눌러도 같은 아이템이 선택된다`() {
+    fun `TC-0d163ec3-bdce-4005-9445-63a33373b8c8 여러 날에 걸친 시각 아이템은 날짜마다 시간대 영역에 표시되고 어느 날짜 부분을 눌러도 같은 아이템이 선택된다`() {
         var clickCount = 0
         setTimetable(type = TimetableType.WEEK, date = september(day = 20)) {
             timeItem(
@@ -287,7 +287,7 @@ class TimetableTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-013 여러 날에 걸친 종일 아이템은 어느 날짜 부분을 눌러도 같은 아이템이 선택된다`() {
+    fun `TC-28bab72e-9732-4b10-9962-e6dd28ef5ac2 여러 날에 걸친 종일 아이템은 어느 날짜 부분을 눌러도 같은 아이템이 선택된다`() {
         var clickCount = 0
         setTimetable(type = TimetableType.WEEK, date = september(day = 20)) {
             allDayItem(dateRange = september(day = 21)..september(day = 24), key = VACATION) {
@@ -314,7 +314,7 @@ class TimetableTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-014 화면이 재생성되어도 보던 형식과 날짜를 유지한다`() {
+    fun `TC-ba8c8c7d-4066-4c8e-ae0c-f4fe2065c346 화면이 재생성되어도 보던 형식과 날짜를 유지한다`() {
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
             DiaryTheme {
@@ -332,7 +332,7 @@ class TimetableTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-015 화면이 재생성되어도 보던 시간대를 유지한다`() {
+    fun `TC-ffd99729-644c-4a05-9ce7-d328c2aa52a3 화면이 재생성되어도 보던 시간대를 유지한다`() {
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
             DiaryTheme {

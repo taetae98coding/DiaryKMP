@@ -162,7 +162,7 @@ class AccountTagMemoPagingDaoTest :
             tagPagedIds(accountId = accountId, tagId = tagId) shouldBe expectedIds
         }
 
-        test("TC-TAG-DETAIL-MEMO-DATA-001 현재 계정의 대상 태그와 활성 연결을 가진 미완료·미삭제 메모만 조회한다") {
+        test("TC-bd3e718f-ecd8-4215-87ce-41cc846f6eec 현재 계정의 대상 태그와 활성 연결을 가진 미완료·미삭제 메모만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val targetTag = tag()
@@ -240,7 +240,7 @@ class AccountTagMemoPagingDaoTest :
             }
         }
 
-        test("TC-MEMO-TAG-DATA-008 가리키는 메모나 태그가 기기에 없는 연결은 태그별 메모 조회에 나타나지 않는다") {
+        test("TC-00f996ed-35b0-4273-9f53-c50069a76bbf 가리키는 메모나 태그가 기기에 없는 연결은 태그별 메모 조회에 나타나지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val existingTag = tag()
             val missingMemoId = fixtureMonkey.giveMeOne<Uuid>()
@@ -260,7 +260,7 @@ class AccountTagMemoPagingDaoTest :
             tagPagedIds(accountId = accountId, tagId = missingTagId).shouldBeEmpty()
         }
 
-        test("TC-TAG-DETAIL-MEMO-DOMAIN-001 태그가 완료되거나 삭제되어도 연결된 메모는 계속 조회된다") {
+        test("TC-409bc9b2-72cc-4cad-944d-c56055d103f1 태그가 완료되거나 삭제되어도 연결된 메모는 계속 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val targetList =
                 listOf(
@@ -276,7 +276,7 @@ class AccountTagMemoPagingDaoTest :
             }
         }
 
-        test("TC-TAG-DETAIL-MEMO-DATA-002 태그별 메모는 기간 없음, 시작 날짜, 종일 여부, 시작 시각, 종료 시점, 제목 순으로 조회한다") {
+        test("TC-b836c29e-fd66-4c7f-9c50-2917c3cb292a 태그별 메모는 기간 없음, 시작 날짜, 종일 여부, 시작 시각, 종료 시점, 제목 순으로 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val targetTag = tag()
             val noDateTimeBravoMemo =
@@ -397,7 +397,7 @@ class AccountTagMemoPagingDaoTest :
                 )
         }
 
-        test("TC-TAG-DETAIL-MEMO-DATA-003 연결 해제는 페이지를 무효화하고 메모를 목록에서 제외한다") {
+        test("TC-7972e5be-3e38-494a-a4ad-3ef585ae9b6e 연결 해제는 페이지를 무효화하고 메모를 목록에서 제외한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val targetTag = tag()
             val targetMemo = memo()
@@ -429,7 +429,7 @@ class AccountTagMemoPagingDaoTest :
             }
         }
 
-        test("TC-TAG-DETAIL-MEMO-DATA-003 연결 복구는 페이지를 무효화하고 메모를 목록에 다시 포함한다") {
+        test("TC-7972e5be-3e38-494a-a4ad-3ef585ae9b6e 연결 복구는 페이지를 무효화하고 메모를 목록에 다시 포함한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val targetTag = tag()
             val targetMemo = memo()
@@ -465,7 +465,7 @@ class AccountTagMemoPagingDaoTest :
             "완료" to true,
             "삭제" to false,
         ).forEach { (label, isFinishChange) ->
-            test("TC-TAG-DETAIL-MEMO-DATA-003 메모 $label 은 페이지를 무효화하고 메모를 목록에서 제외한다") {
+            test("TC-7972e5be-3e38-494a-a4ad-3ef585ae9b6e 메모 $label 은 페이지를 무효화하고 메모를 목록에서 제외한다") {
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
                 val targetTag = tag()
                 val targetMemo = memo()
@@ -504,7 +504,7 @@ class AccountTagMemoPagingDaoTest :
             }
         }
 
-        test("TC-TAG-DETAIL-MEMO-DATA-003 기간 변경은 페이지를 무효화하고 메모를 변경된 정렬 위치로 옮긴다") {
+        test("TC-7972e5be-3e38-494a-a4ad-3ef585ae9b6e 기간 변경은 페이지를 무효화하고 메모를 변경된 정렬 위치로 옮긴다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val targetTag = tag()
             val movingMemo =

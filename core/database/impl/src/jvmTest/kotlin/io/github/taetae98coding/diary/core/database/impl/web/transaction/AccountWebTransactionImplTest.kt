@@ -59,7 +59,7 @@ class AccountWebTransactionImplTest :
                 ) { statement -> statement.readAll { it.toAccountWeb() } }
             }
 
-        test("TC-WEB-ADD-DATA-001 웹 항목과 현재 계정의 연결을 함께 저장한다") {
+        test("TC-fde9eef4-29df-45a0-a37c-b394f94df62f 웹 항목과 현재 계정의 연결을 함께 저장한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val web = web()
 
@@ -76,7 +76,7 @@ class AccountWebTransactionImplTest :
                 )
         }
 
-        test("TC-DATA-SYNC-DOMAIN-001 웹 항목 추가·수정·삭제·실행 취소는 업로드 대기 상태가 된다") {
+        test("TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 웹 항목 추가·수정·삭제·실행 취소는 업로드 대기 상태가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val web = web().copy(isDeleted = false)
             val pending = listOf(AccountWebLocalEntity(accountId = accountId, webId = web.id, isDirty = true))
@@ -97,7 +97,7 @@ class AccountWebTransactionImplTest :
             findAccountWebList() shouldBe pending
         }
 
-        test("TC-WEB-ADD-DOMAIN-009 TC-WEB-ADD-DOMAIN-010 제목, 설명, URL과 미삭제 상태, 추가 시각을 그대로 저장한다") {
+        test("TC-a5fc06fe-a481-403c-9f17-056a028e49b9 TC-4923195f-f274-4a60-aa56-53f9bef6cde9 제목, 설명, URL과 미삭제 상태, 추가 시각을 그대로 저장한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val now = instant()
             val web =
@@ -119,7 +119,7 @@ class AccountWebTransactionImplTest :
             findWebList() shouldBe listOf(web)
         }
 
-        test("TC-WEB-ADD-DATA-003 요청 헤더는 저장한 순서 그대로 함께 조회된다") {
+        test("TC-93bd05a6-5f77-4f2b-bd7e-05177feb4ea1 요청 헤더는 저장한 순서 그대로 함께 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val headerList =
                 listOf(
@@ -134,7 +134,7 @@ class AccountWebTransactionImplTest :
             findWebList().single().detail.headerList shouldBe headerList
         }
 
-        test("TC-WEB-ADD-DOMAIN-003 헤더가 없는 웹 항목은 빈 헤더 목록으로 저장된다") {
+        test("TC-8a31aa2e-8927-4d2d-87ee-584f01b3d108 헤더가 없는 웹 항목은 빈 헤더 목록으로 저장된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val web = web().let { web -> web.copy(detail = web.detail.copy(description = "", headerList = emptyList())) }
 
@@ -143,7 +143,7 @@ class AccountWebTransactionImplTest :
             findWebList().single().detail.headerList shouldBe emptyList()
         }
 
-        test("TC-WEB-ADD-DATA-002 웹 항목을 추가해도 이미 저장된 웹 항목은 덮어쓰이지 않는다") {
+        test("TC-3e5ef5ac-bc8f-4d12-814b-004499edb02d 웹 항목을 추가해도 이미 저장된 웹 항목은 덮어쓰이지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val savedWeb = web()
             val addedWeb =
@@ -163,7 +163,7 @@ class AccountWebTransactionImplTest :
             findWebList() shouldBe listOf(savedWeb, addedWeb).sortedBy { web -> web.id.toString() }
         }
 
-        test("TC-WEB-DETAIL-DATA-014 수정은 제목, 설명, URL, 요청 헤더와 수정 시각을 덮어쓴다") {
+        test("TC-7063aa40-a5ab-4f7c-9553-6f438d3affa6 수정은 제목, 설명, URL, 요청 헤더와 수정 시각을 덮어쓴다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val web = web().copy(isDeleted = false)
             val changedDetail =
@@ -196,7 +196,7 @@ class AccountWebTransactionImplTest :
                 )
         }
 
-        test("TC-WEB-DETAIL-DOMAIN-027 삭제 상태인 웹 항목을 수정해도 삭제 상태로 남는다") {
+        test("TC-f0fac02c-d9e0-4cb2-a37b-cf58f6f62d04 삭제 상태인 웹 항목을 수정해도 삭제 상태로 남는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val web = web().copy(isDeleted = true)
             transaction.upsert(accountId = accountId, webList = listOf(web), webTagList = emptyList())
@@ -213,7 +213,7 @@ class AccountWebTransactionImplTest :
             findWebList().single().isDeleted shouldBe true
         }
 
-        test("TC-WEB-DETAIL-DATA-015 헤더를 모두 지운 수정을 반영하면 요청 헤더가 남지 않는다") {
+        test("TC-fdef8ee2-2dde-49fe-941d-2b563150ec2a 헤더를 모두 지운 수정을 반영하면 요청 헤더가 남지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val headerList =
                 listOf(
@@ -233,7 +233,7 @@ class AccountWebTransactionImplTest :
             findWebList().single().detail.headerList shouldBe emptyList()
         }
 
-        test("TC-WEB-DETAIL-DATA-016 계정과 식별자를 함께 만족하는 웹 항목에만 수정을 반영한다") {
+        test("TC-e21780df-f80d-4cd1-9d5a-b621417cb573 계정과 식별자를 함께 만족하는 웹 항목에만 수정을 반영한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val web = web()
@@ -270,7 +270,7 @@ class AccountWebTransactionImplTest :
             findWebList().single { stored -> stored.id == otherAccountWeb.id }.detail shouldBe otherAccountWeb.detail
         }
 
-        test("TC-WEB-DETAIL-DATA-008 삭제는 삭제 여부와 수정 시각만 바꾸고 웹 항목과 계정 연결을 남긴다") {
+        test("TC-f29541ce-4f3d-4158-b103-8cb2996963e1 삭제는 삭제 여부와 수정 시각만 바꾸고 웹 항목과 계정 연결을 남긴다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val web = web().copy(isDeleted = false)
             val deletedAt = instant()
@@ -296,7 +296,7 @@ class AccountWebTransactionImplTest :
                 )
         }
 
-        test("TC-WEB-DETAIL-DATA-009 계정과 식별자를 함께 만족하는 웹 항목에만 삭제를 반영한다") {
+        test("TC-09965a51-889a-4d99-a260-a4349abc1a4c 계정과 식별자를 함께 만족하는 웹 항목에만 삭제를 반영한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val web = web().copy(isDeleted = false)
@@ -329,7 +329,7 @@ class AccountWebTransactionImplTest :
             findWebList().filter { stored -> stored.isDeleted }.map { stored -> stored.id } shouldBe listOf(web.id)
         }
 
-        test("TC-WEB-ADD-DOMAIN-008 서로 다른 식별자의 웹 항목은 각각 저장한다") {
+        test("TC-74d4a2ac-0065-4a70-ad58-dbc468f985c2 서로 다른 식별자의 웹 항목은 각각 저장한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val webList = List(3) { web() }.sortedBy { web -> web.id.toString() }
 

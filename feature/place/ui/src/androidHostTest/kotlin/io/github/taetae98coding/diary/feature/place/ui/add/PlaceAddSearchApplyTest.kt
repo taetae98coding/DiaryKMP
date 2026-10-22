@@ -19,7 +19,7 @@ class PlaceAddSearchApplyTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-026 검색에서 고른 장소의 좌표가 위도와 경도에 채워진다`() {
+    fun `TC-bb58367c-7232-4e5e-b197-9a2727b22ecc 검색에서 고른 장소의 좌표가 위도와 경도에 채워진다`() {
         val state = composeRule.setPlaceAddScaffoldState()
         val place = searchedPlace()
 
@@ -31,7 +31,7 @@ class PlaceAddSearchApplyTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-027 제목이 비어 있으면 고른 장소의 이름이 제목에 채워진다`() {
+    fun `TC-60ea0e5c-d807-4724-bc82-a6b7a6d32f3e 제목이 비어 있으면 고른 장소의 이름이 제목에 채워진다`() {
         val state = composeRule.setPlaceAddScaffoldState()
         val place = searchedPlace()
 
@@ -41,7 +41,7 @@ class PlaceAddSearchApplyTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-027 제목이 공백뿐이면 고른 장소의 이름이 제목에 채워진다`() {
+    fun `TC-60ea0e5c-d807-4724-bc82-a6b7a6d32f3e 제목이 공백뿐이면 고른 장소의 이름이 제목에 채워진다`() {
         val state = composeRule.setPlaceAddScaffoldState()
         val place = searchedPlace()
 
@@ -52,7 +52,7 @@ class PlaceAddSearchApplyTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-027 제목이 입력되어 있으면 고른 장소의 이름이 제목을 덮어쓰지 않는다`() {
+    fun `TC-60ea0e5c-d807-4724-bc82-a6b7a6d32f3e 제목이 입력되어 있으면 고른 장소의 이름이 제목을 덮어쓰지 않는다`() {
         val state = composeRule.setPlaceAddScaffoldState()
         val place = searchedPlace()
 
@@ -63,7 +63,7 @@ class PlaceAddSearchApplyTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-028 검색에서 고른 장소로 추가할 내용이 만들어진다`() {
+    fun `TC-2a719891-3e86-46ad-892d-ae1c4cca2bde 검색에서 고른 장소로 추가할 내용이 만들어진다`() {
         val state = composeRule.setPlaceAddScaffoldState()
         val place = searchedPlace()
 
@@ -77,7 +77,7 @@ class PlaceAddSearchApplyTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-030 검색에서 고른 장소의 주소가 주소 입력에 채워진다`() {
+    fun `TC-1e573634-2fd5-41ee-b803-120f283b58f8 검색에서 고른 장소의 주소가 주소 입력에 채워진다`() {
         val state = composeRule.setPlaceAddScaffoldState()
 
         listOf(
@@ -95,7 +95,7 @@ class PlaceAddSearchApplyTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-029 장소를 고르지 않고 검색을 닫으면 입력 내용이 그대로 남는다`() {
+    fun `TC-a1247e71-b57d-46fc-a6f7-9dedc700a2bb 장소를 고르지 않고 검색을 닫으면 입력 내용이 그대로 남는다`() {
         val state = composeRule.setPlaceAddScaffoldState()
 
         composeRule.runOnIdle {
@@ -116,7 +116,7 @@ class PlaceAddSearchApplyTest {
     }
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-FEATURE-010 장소를 고르면 검색이 닫힌다`() {
+    fun `TC-00c1b997-cc39-4d11-a73e-0df3eb30380a 장소를 고르면 검색이 닫힌다`() {
         val state = composeRule.setPlaceAddScaffoldState()
 
         composeRule.runOnIdle { state.searchDialogState.show() }
@@ -126,7 +126,7 @@ class PlaceAddSearchApplyTest {
     }
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-DOMAIN-028 고른 장소의 결과 컬러는 배치한 화면의 컬러를 바꾸지 않는다`() {
+    fun `TC-e51984f1-1b19-491d-98f5-84fb5a33be20 고른 장소의 결과 컬러는 배치한 화면의 컬러를 바꾸지 않는다`() {
         val state = composeRule.setPlaceAddScaffoldState()
         val colorBefore = composeRule.runOnIdle { state.detail.color }
 

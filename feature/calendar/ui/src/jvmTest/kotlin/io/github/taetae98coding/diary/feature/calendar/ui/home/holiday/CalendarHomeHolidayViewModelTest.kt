@@ -58,7 +58,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-CALENDAR-HOME-DATA-001 일반 월은 표시 중인 달의 연도 공휴일을 동기화한다") {
+        test("TC-5e2b8be4-a6f5-4410-9fce-9e9579dfadbb 일반 월은 표시 중인 달의 연도 공휴일을 동기화한다") {
             runTest(mainDispatcher) {
                 val year = fixtureMonkey.giveMeOne<Int>().toPositiveYear()
                 val useCase = successfulFetchHolidayUseCase()
@@ -71,7 +71,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-003 1월과 2월은 이전 연도 공휴일도 동기화한다") {
+        test("TC-bd1f3cd4-0498-4302-9290-9de92bbe5a72 1월과 2월은 이전 연도 공휴일도 동기화한다") {
             runTest(mainDispatcher) {
                 val year = fixtureMonkey.giveMeOne<Int>().toPositiveYear()
 
@@ -88,7 +88,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-004 11월과 12월은 다음 연도 공휴일도 동기화한다") {
+        test("TC-3adf21ca-7752-4eba-b34c-3f60f0a5e089 11월과 12월은 다음 연도 공휴일도 동기화한다") {
             runTest(mainDispatcher) {
                 val year = fixtureMonkey.giveMeOne<Int>().toPositiveYear()
 
@@ -105,7 +105,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-005 한 연도의 동기화가 실패해도 다른 대상 연도의 동기화를 계속한다") {
+        test("TC-8832b9bb-1596-4391-a4de-f8bfe3352be0 한 연도의 동기화가 실패해도 다른 대상 연도의 동기화를 계속한다") {
             runTest(mainDispatcher) {
                 val year = fixtureMonkey.giveMeOne<Int>().toPositiveYear()
                 val useCase = mockk<FetchHolidayUseCase>()
@@ -124,7 +124,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-006 TC-SYNC-REFRESH-DOMAIN-008 동기화 진행 중 발생한 새 동기화 조건은 무시한다") {
+        test("TC-2b5c10af-8e06-4e19-87cf-58d56f796d77 TC-6c9103e0-62b8-4abe-98bb-dbd98e9a377c 동기화 진행 중 발생한 새 동기화 조건은 무시한다") {
             runTest(mainDispatcher) {
                 val year = fixtureMonkey.giveMeOne<Int>().toPositiveYear()
                 val completion = CompletableDeferred<Result<List<Holiday>>>()
@@ -142,7 +142,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SYNC-REFRESH-DOMAIN-007 공휴일 동기화가 실행되는 동안 진행 중임을 알린다") {
+        test("TC-abc6c1bf-02b6-40b3-b770-ca06815767aa 공휴일 동기화가 실행되는 동안 진행 중임을 알린다") {
             runTest(mainDispatcher) {
                 val year = fixtureMonkey.giveMeOne<Int>().toPositiveYear()
                 val completion = CompletableDeferred<Result<List<Holiday>>>()
@@ -164,7 +164,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-007 실패로 동기화가 끝난 뒤 발생한 새 동기화 조건은 처리한다") {
+        test("TC-56fae516-4049-42e5-a937-495421bacfca 실패로 동기화가 끝난 뒤 발생한 새 동기화 조건은 처리한다") {
             runTest(mainDispatcher) {
                 val year = fixtureMonkey.giveMeOne<Int>().toPositiveYear()
                 val useCase = mockk<FetchHolidayUseCase>()
@@ -205,7 +205,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-008 화면이 표시되면 표시 대상 연도에 저장된 공휴일을 캘린더에 표시한다") {
+        test("TC-1fd90379-a9f3-4a4c-91fe-1e57c3453038 화면이 표시되면 표시 대상 연도에 저장된 공휴일을 캘린더에 표시한다") {
             runTest(mainDispatcher) {
                 val year = fixtureMonkey.giveMeOne<Int>().toPositiveYear()
                 val oneDayHoliday = holiday(year = year)
@@ -227,7 +227,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-009 표시 대상 연도의 공휴일만 캘린더에 표시한다") {
+        test("TC-8d3a16d1-7008-4b8e-9cee-9c4d0e57f48b 표시 대상 연도의 공휴일만 캘린더에 표시한다") {
             runTest(mainDispatcher) {
                 val year = fixtureMonkey.giveMeOne<Int>().toPositiveYear()
                 val previousYearHoliday = holiday(year = year - 1)
@@ -263,7 +263,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-010 공휴일 여부가 거짓인 날도 표시 대상에 포함한다") {
+        test("TC-0cface70-b868-435b-ba7e-3ce428809bb8 공휴일 여부가 거짓인 날도 표시 대상에 포함한다") {
             runTest(mainDispatcher) {
                 val year = fixtureMonkey.giveMeOne<Int>().toPositiveYear()
                 val holiday = holiday(year = year)
@@ -283,7 +283,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-011 표시 중인 달이 다른 연도로 바뀌면 이동한 달의 공휴일을 표시한다") {
+        test("TC-dd0eef3f-711f-4ed2-872f-ec67ee6837a5 표시 중인 달이 다른 연도로 바뀌면 이동한 달의 공휴일을 표시한다") {
             runTest(mainDispatcher) {
                 val year = fixtureMonkey.giveMeOne<Int>().toPositiveYear()
                 val otherYear = year + 2
@@ -311,7 +311,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-012 동기화가 진행 중이어도 이동한 달의 공휴일을 표시한다") {
+        test("TC-8fb515ef-8e56-4e31-b83b-0e3426460f38 동기화가 진행 중이어도 이동한 달의 공휴일을 표시한다") {
             runTest(mainDispatcher) {
                 val year = fixtureMonkey.giveMeOne<Int>().toPositiveYear()
                 val otherYear = year + 2
@@ -348,7 +348,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-013 같은 연도 안에서 달을 이동하면 표시하던 공휴일을 유지한다") {
+        test("TC-00b1b701-50ad-4015-bdcb-124290a1fd65 같은 연도 안에서 달을 이동하면 표시하던 공휴일을 유지한다") {
             runTest(mainDispatcher) {
                 val year = fixtureMonkey.giveMeOne<Int>().toPositiveYear()
                 val holiday = holiday(year = year)
@@ -375,7 +375,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-014 대상 연도의 공휴일이 바뀌면 바뀐 공휴일을 표시한다") {
+        test("TC-e22f6b47-5795-4efe-853e-2608f64e318e 대상 연도의 공휴일이 바뀌면 바뀐 공휴일을 표시한다") {
             runTest(mainDispatcher) {
                 val year = fixtureMonkey.giveMeOne<Int>().toPositiveYear()
                 val holiday = holiday(year = year)
@@ -399,7 +399,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-015 대상 연도에 공휴일이 없거나 조회에 실패하면 공휴일 없이 표시한다") {
+        test("TC-99c8e6e8-3a75-4b7b-94f3-00979c037cab 대상 연도에 공휴일이 없거나 조회에 실패하면 공휴일 없이 표시한다") {
             runTest(mainDispatcher) {
                 val year = fixtureMonkey.giveMeOne<Int>().toPositiveYear()
                 val results =
@@ -422,7 +422,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-054 기기 지역이 바뀐 뒤 캘린더가 보이지 않은 시간에 따라 공휴일을 다시 표시한다") {
+        test("TC-8cbc8664-568f-41cf-b728-4fdcf8d58248 기기 지역이 바뀐 뒤 캘린더가 보이지 않은 시간에 따라 공휴일을 다시 표시한다") {
             val caseMap =
                 mapOf(
                     UI_STOP_TIMEOUT_MILLIS - 1 to false,
@@ -456,7 +456,7 @@ class CalendarHomeHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-016 한 연도의 조회 실패는 다른 대상 연도의 공휴일 표시를 막지 않는다") {
+        test("TC-56135149-9643-4480-b2d1-b4d2fdcb25a1 한 연도의 조회 실패는 다른 대상 연도의 공휴일 표시를 막지 않는다") {
             runTest(mainDispatcher) {
                 val year = fixtureMonkey.giveMeOne<Int>().toPositiveYear()
                 val holiday = holiday(year = year)

@@ -92,7 +92,7 @@ class AccountTagFinishedDaoTest :
             finishedTagIdList(accountId) shouldBe expectedIdList
         }
 
-        test("TC-TAG-FINISHED-LIST-FEATURE-001 TC-TAG-FINISHED-LIST-DATA-001 현재 계정의 완료·미삭제 태그만 조회한다") {
+        test("TC-8c9e509f-a9fe-41e3-9cc6-5a5693f5da8a TC-2c7531a3-edbb-4ea1-af0a-15594d814256 현재 계정의 완료·미삭제 태그만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val finishedTag = tag(isFinished = true, isDeleted = false)
@@ -106,7 +106,7 @@ class AccountTagFinishedDaoTest :
             finishedTagIdList(accountId) shouldBe listOf(finishedTag.id)
         }
 
-        test("TC-TAG-FINISHED-LIST-DATA-002 TC-TAG-FINISHED-LIST-DOMAIN-008 수정 시각과 생성 시각에 관계없이 제목 오름차순으로 조회한다") {
+        test("TC-a30580e5-fe5a-441c-bd47-97149619d04a TC-d75b69f9-eb3d-4c77-b5d3-c11499311db5 수정 시각과 생성 시각에 관계없이 제목 오름차순으로 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val bravoTag =
                 tag(
@@ -139,7 +139,7 @@ class AccountTagFinishedDaoTest :
                 )
         }
 
-        test("TC-TAG-FINISHED-LIST-DATA-006 완료 목록 페이지 조회는 요청한 크기만큼만 가져오고 다음 페이지를 이어서 가져온다") {
+        test("TC-49ceaa29-82eb-404e-9ff6-a898a83cbe8b 완료 목록 페이지 조회는 요청한 크기만큼만 가져오고 다음 페이지를 이어서 가져온다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val expectedTagList =
                 List(TAG_COUNT) { index ->
@@ -165,7 +165,7 @@ class AccountTagFinishedDaoTest :
             secondPage.data shouldBe expectedTagList.drop(PAGE_SIZE).take(PAGE_SIZE)
         }
 
-        test("TC-TAG-FINISHED-LIST-DATA-004 완료는 페이지를 무효화하고 태그를 완료 목록의 정렬 위치에 넣는다") {
+        test("TC-6d32e3cf-48ab-4fdf-86ce-a9052a4adc5b 완료는 페이지를 무효화하고 태그를 완료 목록의 정렬 위치에 넣는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val finishedTag = tag(title = "Bravo", isFinished = true)
             val activeTag = tag(title = "Alpha", isFinished = false)
@@ -182,7 +182,7 @@ class AccountTagFinishedDaoTest :
             }
         }
 
-        test("TC-TAG-FINISHED-LIST-DATA-004 제목 변경은 페이지를 무효화하고 태그를 변경된 정렬 위치로 옮긴다") {
+        test("TC-6d32e3cf-48ab-4fdf-86ce-a9052a4adc5b 제목 변경은 페이지를 무효화하고 태그를 변경된 정렬 위치로 옮긴다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val anchorTag = tag(title = "Bravo", isFinished = true)
             val movingTag = tag(title = "Alpha", isFinished = true)
@@ -199,7 +199,7 @@ class AccountTagFinishedDaoTest :
             }
         }
 
-        test("TC-TAG-FINISHED-LIST-DATA-004 완료되고 삭제된 태그의 삭제를 되돌리면 페이지를 무효화하고 태그를 완료 목록의 정렬 위치에 넣는다") {
+        test("TC-6d32e3cf-48ab-4fdf-86ce-a9052a4adc5b 완료되고 삭제된 태그의 삭제를 되돌리면 페이지를 무효화하고 태그를 완료 목록의 정렬 위치에 넣는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val finishedTag = tag(title = "Bravo", isFinished = true)
             val deletedTag = tag(title = "Alpha", isFinished = true, isDeleted = true)
@@ -225,7 +225,7 @@ class AccountTagFinishedDaoTest :
             "다시 시작" to true,
             "삭제" to false,
         ).forEach { (label, isRestart) ->
-            test("TC-TAG-FINISHED-LIST-DATA-004 $label 은 페이지를 무효화하고 태그를 완료 목록에서 제외한다") {
+            test("TC-6d32e3cf-48ab-4fdf-86ce-a9052a4adc5b $label 은 페이지를 무효화하고 태그를 완료 목록에서 제외한다") {
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
                 val remainingTag = tag(title = "Alpha", isFinished = true)
                 val changingTag = tag(title = "Bravo", isFinished = true)
@@ -257,7 +257,7 @@ class AccountTagFinishedDaoTest :
             }
         }
 
-        test("TC-TAG-DETAIL-DATA-003 상태 변경은 현재 계정과 연결된 태그에만 적용된다") {
+        test("TC-3bebf798-226c-4c03-9173-186ca26dc50c 상태 변경은 현재 계정과 연결된 태그에만 적용된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag(isFinished = true)
@@ -273,7 +273,7 @@ class AccountTagFinishedDaoTest :
             finishedTagIdList(accountId) shouldBe listOf(tag.id)
         }
 
-        test("TC-TAG-DETAIL-DATA-002 상태 변경은 태그의 이모지, 제목, 설명, 컬러를 바꾸지 않는다") {
+        test("TC-7717af7d-dd73-46e1-8f7c-7df2291b54d5 상태 변경은 태그의 이모지, 제목, 설명, 컬러를 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag(isFinished = true)
             insert(accountId, tag)
@@ -301,7 +301,7 @@ class AccountTagFinishedDaoTest :
             updated.createdAt shouldBe tag.createdAt
         }
 
-        test("TC-TAG-DETAIL-DOMAIN-005 다시 시작한 태그는 완료 목록에서 사라지고 태그 필터 선택 대상으로 나타난다") {
+        test("TC-e4c546a3-8757-4f7f-8fdb-33d8897e29dc 다시 시작한 태그는 완료 목록에서 사라지고 태그 필터 선택 대상으로 나타난다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag(isFinished = true)
             insert(accountId, tag)

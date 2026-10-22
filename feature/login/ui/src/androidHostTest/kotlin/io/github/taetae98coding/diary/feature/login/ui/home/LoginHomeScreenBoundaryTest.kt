@@ -43,27 +43,27 @@ class LoginHomeScreenBoundaryTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-LOGIN-FEATURE-028 Google 흐름 진행 중 Google을 다시 선택해도 새 흐름을 시작하지 않는다`() {
+    fun `TC-84d2c033-2bdf-4bca-a0ea-f172644c5e7e Google 흐름 진행 중 Google을 다시 선택해도 새 흐름을 시작하지 않는다`() {
         assertSecondSelectionIgnored(secondButtonDescription = DEFAULT_GOOGLE_BUTTON_DESCRIPTION)
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-028 Google 흐름 진행 중 Apple을 선택해도 새 흐름을 시작하지 않는다`() {
+    fun `TC-84d2c033-2bdf-4bca-a0ea-f172644c5e7e Google 흐름 진행 중 Apple을 선택해도 새 흐름을 시작하지 않는다`() {
         assertSecondSelectionIgnored(secondButtonDescription = DEFAULT_APPLE_BUTTON_DESCRIPTION)
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-029 끝을 알 수 있는 흐름 중 화면이 재생성되면 흐름을 중단하고 안내 없이 다시 선택할 수 있다`() {
+    fun `TC-bc91f0c6-4bba-4e54-b547-f3db93b94fbf 끝을 알 수 있는 흐름 중 화면이 재생성되면 흐름을 중단하고 안내 없이 다시 선택할 수 있다`() {
         assertPlatformSignInInterruptedByRecreation(isSignInEndDetectable = true)
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-029 끝을 알 수 없는 흐름 중 화면이 재생성되면 흐름을 중단하고 안내 없이 다시 선택할 수 있다`() {
+    fun `TC-bc91f0c6-4bba-4e54-b547-f3db93b94fbf 끝을 알 수 없는 흐름 중 화면이 재생성되면 흐름을 중단하고 안내 없이 다시 선택할 수 있다`() {
         assertPlatformSignInInterruptedByRecreation(isSignInEndDetectable = false)
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-025 앱 로그인 처리 중 화면이 재생성되어도 진행 표시가 이어진다`() {
+    fun `TC-d67168e5-76ef-4d03-bf1e-5dfa0686cf02 앱 로그인 처리 중 화면이 재생성되어도 진행 표시가 이어진다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val viewModel = mockk<LoginHomeViewModel>()
         every { viewModel.uiState } returns MutableStateFlow(LoginHomeUiState(isInProgress = true))
@@ -87,7 +87,7 @@ class LoginHomeScreenBoundaryTest {
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-021 앱 로그인 전에 끝난 취소와 인증 결과 획득 실패는 오류 보고를 남기지 않는다`() {
+    fun `TC-0599fd8a-8e41-4262-869a-ae93c4a8b472 앱 로그인 전에 끝난 취소와 인증 결과 획득 실패는 오류 보고를 남기지 않는다`() {
         val logList = recordLog()
         val viewModel = screenTestViewModel()
         val googleCredentialsManager = mockGoogleCredentialsManager()

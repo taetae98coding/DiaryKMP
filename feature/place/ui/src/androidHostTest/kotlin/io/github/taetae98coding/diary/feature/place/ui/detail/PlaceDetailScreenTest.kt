@@ -29,7 +29,7 @@ class PlaceDetailScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-001 조회 중에는 상세 내용과 동작을 제공하지 않는다`() {
+    fun `TC-28791156-a7c6-4569-84f7-2a75e081ac10 조회 중에는 상세 내용과 동작을 제공하지 않는다`() {
         composeRule.setPlaceDetailScreen(
             viewModel = screenTestViewModel(uiState = MutableStateFlow(PlaceDetailUiState.Loading)),
         )
@@ -55,7 +55,7 @@ class PlaceDetailScreenTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-002 조회에 성공하면 저장된 제목, 설명, 주소, 좌표를 표시한다`() {
+    fun `TC-d076578f-3ad6-4942-939b-c41bf6593430 조회에 성공하면 저장된 제목, 설명, 주소, 좌표를 표시한다`() {
         val detail = placeDetail()
 
         composeRule.setPlaceDetailScreen(viewModel = screenTestViewModel(uiState = MutableStateFlow(content(detail = detail))))
@@ -76,7 +76,7 @@ class PlaceDetailScreenTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-004 입력이 저장된 내용과 같으면 수정 동작을 제공하지 않는다`() {
+    fun `TC-4da4393b-32bc-41dd-942e-58853fbba246 입력이 저장된 내용과 같으면 수정 동작을 제공하지 않는다`() {
         composeRule.setPlaceDetailScreen(viewModel = screenTestViewModel())
 
         composeRule.waitForIdle()
@@ -88,7 +88,7 @@ class PlaceDetailScreenTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-059 여섯째 자리보다 긴 자리수로 저장된 좌표도 바꾸지 않으면 수정 동작을 제공하지 않는다`() {
+    fun `TC-30f62914-c8e4-4966-8af2-2d9c1dacd00c 여섯째 자리보다 긴 자리수로 저장된 좌표도 바꾸지 않으면 수정 동작을 제공하지 않는다`() {
         val detail = placeDetail(coordinate = Coordinate(latitude = 37.1234567, longitude = 127.1234564))
 
         composeRule.setPlaceDetailScreen(viewModel = screenTestViewModel(uiState = MutableStateFlow(content(detail = detail))))
@@ -103,7 +103,7 @@ class PlaceDetailScreenTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-005 입력이 저장된 내용과 다르면 수정 동작을 제공한다`() {
+    fun `TC-c41354b3-d63b-4b24-972b-3f479606cb18 입력이 저장된 내용과 다르면 수정 동작을 제공한다`() {
         val detail = placeDetail()
 
         composeRule.setPlaceDetailScreen(viewModel = screenTestViewModel(uiState = MutableStateFlow(content(detail = detail))))
@@ -132,7 +132,7 @@ class PlaceDetailScreenTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-011 좌표가 성립하지 않아도 수정 중인 내용을 유지한다`() {
+    fun `TC-1600261e-c788-40a7-8949-b2a37e24b656 좌표가 성립하지 않아도 수정 중인 내용을 유지한다`() {
         val detail = placeDetail()
 
         composeRule.setPlaceDetailScreen(viewModel = screenTestViewModel(uiState = MutableStateFlow(content(detail = detail))))
@@ -151,7 +151,7 @@ class PlaceDetailScreenTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-017 바꾼 내용을 반영하지 않고 뒤로가면 수정을 요청하지 않고 뒤로가기를 한 번 실행한다`() {
+    fun `TC-0af30320-f7e6-457c-b513-85162dad0ea2 바꾼 내용을 반영하지 않고 뒤로가면 수정을 요청하지 않고 뒤로가기를 한 번 실행한다`() {
         var navigateUpCount = 0
         val viewModel = screenTestViewModel()
 
@@ -171,7 +171,7 @@ class PlaceDetailScreenTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-019 대상 장소를 조회하기 전에는 지도를 표시하지 않는다`() {
+    fun `TC-a05a8fe5-3766-4f1e-a57d-af266209faff 대상 장소를 조회하기 전에는 지도를 표시하지 않는다`() {
         composeRule.setPlaceDetailScreen(
             viewModel = screenTestViewModel(uiState = MutableStateFlow(PlaceDetailUiState.Loading)),
         )
@@ -185,7 +185,7 @@ class PlaceDetailScreenTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-020 기본 지도를 확인하지 못하면 지도 영역과 로딩 안내 없이 입력 영역만 표시하고 동작은 사용할 수 있다`() {
+    fun `TC-596c6648-c8da-4234-bc45-ba68f29b788c 기본 지도를 확인하지 못하면 지도 영역과 로딩 안내 없이 입력 영역만 표시하고 동작은 사용할 수 있다`() {
         composeRule.setPlaceDetailScreen(viewModel = screenTestViewModel())
 
         composeRule.waitForIdle()
@@ -207,7 +207,7 @@ class PlaceDetailScreenTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-DOMAIN-003 저장된 내용이 바뀌어도 입력 내용을 다시 채우지 않는다`() {
+    fun `TC-a6ea8663-1754-431b-91e9-316e4c0f1551 저장된 내용이 바뀌어도 입력 내용을 다시 채우지 않는다`() {
         val detail = placeDetail()
         val id = Uuid.random()
         val uiState = MutableStateFlow(content(id = id, detail = detail))

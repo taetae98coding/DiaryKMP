@@ -64,7 +64,7 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
     }
 
     private fun placeTests() {
-        test("TC-PLACE-DETAIL-MEMO-FEATURE-010 대상 장소를 장소 카드에 선택하고 시작하며 저장 전까지 해제하거나 더 선택할 수 있다") {
+        test("TC-6f59b96e-2d9e-4fa9-bd81-5feb25bd6bf1 대상 장소를 장소 카드에 선택하고 시작하며 저장 전까지 해제하거나 더 선택할 수 있다") {
             runTest(mainDispatcher) {
                 val target = fixtureMonkey.place(isDeleted = false)
                 val other = fixtureMonkey.place(isDeleted = false)
@@ -90,7 +90,7 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-MEMO-FEATURE-011 삭제된 대상 장소는 장소 카드에 선택된 것으로 표시하지 않는다") {
+        test("TC-606725ba-03de-4e63-9ef2-d6c0299ecc9d 삭제된 대상 장소는 장소 카드에 선택된 것으로 표시하지 않는다") {
             runTest(mainDispatcher) {
                 val deletedTarget = fixtureMonkey.place(isDeleted = false)
                 // 삭제된 장소는 선택한 장소로 조회되지 않는다.
@@ -103,7 +103,7 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-MEMO-DOMAIN-002 대상 장소 하나만 선택하고 태그·웹·연락처·기간과 대표 태그는 없이 시작한다") {
+        test("TC-ba1aa217-e2f4-482d-9cba-f4e9d21e82ac 대상 장소 하나만 선택하고 태그·웹·연락처·기간과 대표 태그는 없이 시작한다") {
             runTest(mainDispatcher) {
                 val target = fixtureMonkey.place(isDeleted = false)
                 val key = MemoAddNavKey(initialPlaceId = target.id)
@@ -116,7 +116,7 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-MEMO-DATA-005 저장 시점의 장소 선택을 그대로 저장 요청에 담는다") {
+        test("TC-4b6e31e6-fadd-47fe-984d-407ffbf38b3b 저장 시점의 장소 선택을 그대로 저장 요청에 담는다") {
             runTest(mainDispatcher) {
                 val placeA = fixtureMonkey.place(isDeleted = false)
                 val placeB = fixtureMonkey.place(isDeleted = false)
@@ -137,7 +137,7 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
     }
 
     private fun webTests() {
-        test("TC-WEB-DETAIL-MEMO-FEATURE-010 대상 웹 항목을 웹 입력에 선택하고 시작하며 저장 전까지 해제하거나 더 선택할 수 있다") {
+        test("TC-fd8a0c6a-7734-4dd3-9442-17b0ae73d9cd 대상 웹 항목을 웹 입력에 선택하고 시작하며 저장 전까지 해제하거나 더 선택할 수 있다") {
             runTest(mainDispatcher) {
                 val target = fixtureMonkey.web(isDeleted = false)
                 val other = fixtureMonkey.web(isDeleted = false)
@@ -163,7 +163,7 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-MEMO-FEATURE-011 삭제된 대상 웹 항목은 웹 입력에 선택된 것으로 표시하지 않는다") {
+        test("TC-e7c246db-17a7-421a-804a-493958da34b5 삭제된 대상 웹 항목은 웹 입력에 선택된 것으로 표시하지 않는다") {
             runTest(mainDispatcher) {
                 val deletedTarget = fixtureMonkey.web(isDeleted = false)
                 val memoAdd = MemoAddSelection(key = MemoAddNavKey(initialWebId = deletedTarget.id), webList = listOf(fixtureMonkey.web(isDeleted = false)))
@@ -175,7 +175,7 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-MEMO-DOMAIN-002 대상 웹 항목 하나만 선택하고 태그·연락처·장소·기간과 대표 태그는 없이 시작한다") {
+        test("TC-c39950e3-402c-4129-83de-ca5badd8848a 대상 웹 항목 하나만 선택하고 태그·연락처·장소·기간과 대표 태그는 없이 시작한다") {
             runTest(mainDispatcher) {
                 val target = fixtureMonkey.web(isDeleted = false)
                 val key = MemoAddNavKey(initialWebId = target.id)
@@ -188,7 +188,7 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-MEMO-DATA-005 저장 시점의 웹 항목 선택을 그대로 저장 요청에 담는다") {
+        test("TC-cea9cb67-7465-4846-bcac-12652d0c07d0 저장 시점의 웹 항목 선택을 그대로 저장 요청에 담는다") {
             runTest(mainDispatcher) {
                 val webA = fixtureMonkey.web(isDeleted = false)
                 val webB = fixtureMonkey.web(isDeleted = false)
@@ -209,7 +209,7 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
     }
 
     private fun contactTests() {
-        test("TC-CONTACT-DETAIL-MEMO-FEATURE-010 대상 연락처를 연락처 입력에 선택하고 시작하며 저장 전까지 해제하거나 더 선택할 수 있다") {
+        test("TC-384dc31a-dc4d-43b0-b285-5ec7354181d1 대상 연락처를 연락처 입력에 선택하고 시작하며 저장 전까지 해제하거나 더 선택할 수 있다") {
             runTest(mainDispatcher) {
                 val target = fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false)
                 val other = fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false)
@@ -235,7 +235,7 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-MEMO-FEATURE-011 삭제된 대상 연락처는 연락처 입력에 선택된 것으로 표시하지 않는다") {
+        test("TC-79af9cba-6ea5-46f8-881d-cdae99eb6031 삭제된 대상 연락처는 연락처 입력에 선택된 것으로 표시하지 않는다") {
             runTest(mainDispatcher) {
                 val deletedTarget = fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false)
                 val memoAdd = MemoAddSelection(key = MemoAddNavKey(initialContactId = deletedTarget.id), contactList = listOf(fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false)))
@@ -247,7 +247,7 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-MEMO-DOMAIN-002 대상 연락처 하나만 선택하고 태그·웹·장소·기간과 대표 태그는 없이 시작한다") {
+        test("TC-605f9748-549b-4105-9b20-584023ccf772 대상 연락처 하나만 선택하고 태그·웹·장소·기간과 대표 태그는 없이 시작한다") {
             runTest(mainDispatcher) {
                 val target = fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false)
                 val key = MemoAddNavKey(initialContactId = target.id)
@@ -260,7 +260,7 @@ class MemoAddFromEntityDetailMemoTabTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-MEMO-DATA-005 저장 시점의 연락처 선택을 그대로 저장 요청에 담는다") {
+        test("TC-f4e12382-db96-4fe5-9c0d-a27cc28cc8f6 저장 시점의 연락처 선택을 그대로 저장 요청에 담는다") {
             runTest(mainDispatcher) {
                 val contactA = fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false)
                 val contactB = fixtureMonkey.giveMeOne<Contact>().copy(isDeleted = false)

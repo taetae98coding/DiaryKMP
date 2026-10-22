@@ -51,7 +51,7 @@ class WebDetailScaffoldStateTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-061 화면이 재생성되어도 메모 탭 선택을 유지한다`() {
+    fun `TC-085329c9-037d-4431-b214-e9125214b0be 화면이 재생성되어도 메모 탭 선택을 유지한다`() {
         val restorationTester = StateRestorationTester(composeRule)
         var state by mutableStateOf<WebDetailScaffoldState?>(null)
 
@@ -67,7 +67,7 @@ class WebDetailScaffoldStateTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-037 URL 방식으로 시작하고 선택할 때마다 그 방식으로 바뀐다`() {
+    fun `TC-e50787f9-3ba7-4055-8cf3-22f651033cf0 URL 방식으로 시작하고 선택할 때마다 그 방식으로 바뀐다`() {
         val state = WebDetailScaffoldState(initialTab = WebDetailTab.PAGE, initialViewMode = WebDetailViewMode.URL)
 
         state.viewMode shouldBe WebDetailViewMode.URL
@@ -80,7 +80,7 @@ class WebDetailScaffoldStateTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-045 화면이 재생성되어도 고른 표시 방식을 유지한다`() {
+    fun `TC-84068b88-2c4c-4d6e-a518-8a3eea166d84 화면이 재생성되어도 고른 표시 방식을 유지한다`() {
         val restorationTester = StateRestorationTester(composeRule)
         var state by mutableStateOf<WebDetailScaffoldState?>(null)
 
@@ -100,7 +100,7 @@ class WebDetailScaffoldStateTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-DOMAIN-051 백그라운드에 다녀와도 선택한 탭과 고른 표시 방식을 유지한다`() {
+    fun `TC-8b030e9d-b400-494a-b80d-348edf2757f5 백그라운드에 다녀와도 선택한 탭과 고른 표시 방식을 유지한다`() {
         val lifecycleOwner = TestLifecycleOwner(initialState = Lifecycle.State.RESUMED)
         var state by mutableStateOf<WebDetailScaffoldState?>(null)
 
@@ -124,7 +124,7 @@ class WebDetailScaffoldStateTest {
     }
 
     @Test
-    fun `TC-WEB-DETAIL-FEATURE-068 화면이 재생성되어도 선택한 웹 정보 수정 탭이나 웹 페이지 탭을 유지한다`() {
+    fun `TC-2bc00063-fcbf-43d3-be96-93238eb448b8 화면이 재생성되어도 선택한 웹 정보 수정 탭이나 웹 페이지 탭을 유지한다`() {
         val restorationTester = StateRestorationTester(composeRule)
         var state by mutableStateOf<WebDetailScaffoldState?>(null)
 

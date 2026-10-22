@@ -26,7 +26,7 @@ class PlaceDetailTagInputTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-037 조회 중에는 태그 입력을 표시하지 않는다`() {
+    fun `TC-7a4dc5e4-4acc-407c-9ca1-d01879fe7018 조회 중에는 태그 입력을 표시하지 않는다`() {
         composeRule.setPlaceDetailScreen(
             viewModel = screenTestViewModel(uiState = MutableStateFlow(PlaceDetailUiState.Loading)),
         )
@@ -36,14 +36,14 @@ class PlaceDetailTagInputTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-037 조회가 끝나면 태그 입력을 표시한다`() {
+    fun `TC-7a4dc5e4-4acc-407c-9ca1-d01879fe7018 조회가 끝나면 태그 입력을 표시한다`() {
         setPlaceDetailScreen()
 
         composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).assertExists()
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-039 태그를 연결해도 수정 동작의 제공 여부는 바뀌지 않는다`() {
+    fun `TC-6e1e8318-ce9f-4318-898d-09657d185da4 태그를 연결해도 수정 동작의 제공 여부는 바뀌지 않는다`() {
         setPlaceDetailScreen(selectableTagList = listOf(placeTestTag(title = SELECTABLE_TAG_TITLE)))
         composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assertDoesNotExist()
 
@@ -53,7 +53,7 @@ class PlaceDetailTagInputTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-041 연결한 태그를 누르면 그 태그의 상세 이동을 한 번 요청한다`() {
+    fun `TC-fe56377e-77fa-47cc-a518-f65eef34dcb1 연결한 태그를 누르면 그 태그의 상세 이동을 한 번 요청한다`() {
         val linkedTag = placeTestTag(title = LINKED_TAG_TITLE)
         val navigatedIdList = mutableListOf<Uuid>()
         setPlaceDetailScreen(
@@ -68,7 +68,7 @@ class PlaceDetailTagInputTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-DOMAIN-029 태그를 연결해도 입력 중인 내용은 바뀌지 않는다`() {
+    fun `TC-80e48e65-0601-4073-9161-87db979bc146 태그를 연결해도 입력 중인 내용은 바뀌지 않는다`() {
         setPlaceDetailScreen(selectableTagList = listOf(placeTestTag(title = SELECTABLE_TAG_TITLE)))
         composeRule.input(TITLE_INDEX).performTextReplacement(CHANGED_TITLE)
         composeRule.input(DESCRIPTION_INDEX).performTextReplacement(CHANGED_DESCRIPTION)

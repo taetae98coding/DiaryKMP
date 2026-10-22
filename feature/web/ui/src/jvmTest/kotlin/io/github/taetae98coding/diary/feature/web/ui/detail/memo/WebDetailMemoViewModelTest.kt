@@ -61,7 +61,7 @@ class WebDetailMemoViewModelTest : FunSpec() {
         }
 
         listOf(ListSort.TITLE, ListSort.RECENTLY_UPDATED).forEach { sort ->
-            test("TC-WEB-DETAIL-MEMO-FEATURE-025 $sort 정렬을 고르면 그 정렬로 목록을 다시 조회한다") {
+            test("TC-e9d9a58a-5bd9-42d3-a9ae-8397ff5e1219 $sort 정렬을 고르면 그 정렬로 목록을 다시 조회한다") {
                 runTest(mainDispatcher) {
                     val webId = fixtureMonkey.giveMeOne<Uuid>()
                     val memo = memo()
@@ -84,7 +84,7 @@ class WebDetailMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-MEMO-DATA-001 웹 항목별 메모 paging에 주입된 웹 항목 ID를 전달한다") {
+        test("TC-81d6f3e8-9ba5-485c-afa7-1dcda825d27c 웹 항목별 메모 paging에 주입된 웹 항목 ID를 전달한다") {
             runTest(mainDispatcher) {
                 val webId = fixtureMonkey.giveMeOne<Uuid>()
                 val memo = memo()
@@ -102,7 +102,7 @@ class WebDetailMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-MEMO-FEATURE-003 웹 항목별 메모 최초 조회가 실패하면 조회가 끝난 빈 목록을 노출한다") {
+        test("TC-dd13dea1-359d-4ab0-b6cb-fd7ad30f7a4d 웹 항목별 메모 최초 조회가 실패하면 조회가 끝난 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val webId = fixtureMonkey.giveMeOne<Uuid>()
                 val pageWebMemoUseCase = mockk<PageWebMemoUseCase>()
@@ -122,7 +122,7 @@ class WebDetailMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-MEMO-FEATURE-003 웹 항목별 메모 조회가 성공한 뒤 다시 조회가 실패하면 이전 목록을 남기지 않고 빈 목록을 노출한다") {
+        test("TC-dd13dea1-359d-4ab0-b6cb-fd7ad30f7a4d 웹 항목별 메모 조회가 성공한 뒤 다시 조회가 실패하면 이전 목록을 남기지 않고 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val webId = fixtureMonkey.giveMeOne<Uuid>()
                 val memo = memo()

@@ -60,7 +60,7 @@ class DiaryTitleInputStateFactoryTest {
     }
 
     @Test
-    fun `TC-TITLE-INPUT-DOMAIN-003 화면 재생성 후에도 입력한 텍스트를 복원한다`() {
+    fun `TC-22de3370-9d10-4feb-88db-0f677df4afbd 화면 재생성 후에도 입력한 텍스트를 복원한다`() {
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var state: DiaryTitleInputState
         restorationTester.setContent {
@@ -76,14 +76,14 @@ class DiaryTitleInputStateFactoryTest {
     }
 
     @Test
-    fun `TC-TITLE-INPUT-DOMAIN-001 진입할 때 초점을 두도록 정한 화면이 보이면 제목 입력에 초점이 놓인다`() {
+    fun `TC-ad3aeb0c-4197-4f62-af49-a813f32dba0f 진입할 때 초점을 두도록 정한 화면이 보이면 제목 입력에 초점이 놓인다`() {
         setFocusEffectContent(store = ManagedRetainedValuesStore(), isShown = { true })
 
         composeRule.onNode(hasSetTextAction() and hasText(TITLE_LABEL)).assertIsFocused()
     }
 
     @Test
-    fun `TC-TITLE-INPUT-DOMAIN-002 화면이 회전해도 제목 입력으로 초점을 다시 옮기지 않는다`() {
+    fun `TC-5e874719-7686-4891-b321-a035de15bc6e 화면이 회전해도 제목 입력으로 초점을 다시 옮기지 않는다`() {
         val store = ManagedRetainedValuesStore()
         var isShown by mutableStateOf(true)
         setFocusEffectContent(store = store, isShown = { isShown })

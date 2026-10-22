@@ -36,7 +36,7 @@ class CalendarHomeScreenRefreshTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-SYNC-REFRESH-FEATURE-001 캘린더를 당기면 메모·태그와 공휴일, 날씨를 함께 새로고침한다`() {
+    fun `TC-221754fa-d814-4c80-9c41-c0bdce86574f 캘린더를 당기면 메모·태그와 공휴일, 날씨를 함께 새로고침한다`() {
         val holidayViewModel = holidayViewModel()
         val weatherViewModel = weatherViewModel()
         val syncViewModel = syncViewModel()
@@ -58,7 +58,7 @@ class CalendarHomeScreenRefreshTest {
     }
 
     @Test
-    fun `TC-SYNC-REFRESH-FEATURE-009 로그인하지 않은 상태에서 당기면 공휴일과 날씨를 다시 가져오고 그동안 진행을 표시한다`() {
+    fun `TC-bb20e57d-c0ad-4a88-badf-17cbf2be955a 로그인하지 않은 상태에서 당기면 공휴일과 날씨를 다시 가져오고 그동안 진행을 표시한다`() {
         val isHolidayFetching = MutableStateFlow(false)
         val isWeatherLoading = MutableStateFlow(false)
         val holidayViewModel = holidayViewModel(isFetchingFlow = isHolidayFetching)
@@ -89,7 +89,7 @@ class CalendarHomeScreenRefreshTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DATA-047 당겨서 새로고침해도 음력 자료를 다시 동기화하지 않는다`() {
+    fun `TC-e5e7458b-dbd5-4a84-8876-074102bbabad 당겨서 새로고침해도 음력 자료를 다시 동기화하지 않는다`() {
         val fetchLunarUseCase = fetchLunarUseCase()
         setCalendarHomeScreen(birthdayViewModel = lunarObservingBirthdayViewModel(fetchLunarUseCase = fetchLunarUseCase))
         composeRule.waitForIdle()
@@ -103,7 +103,7 @@ class CalendarHomeScreenRefreshTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-DATA-050 화면에 들어오는 것만으로는 서버에서 연락처를 다시 가져오지 않는다`() {
+    fun `TC-4c018a1c-1c74-47a7-b7c7-4908842445a3 화면에 들어오는 것만으로는 서버에서 연락처를 다시 가져오지 않는다`() {
         val syncViewModel = syncViewModel()
         setCalendarHomeScreen(syncViewModel = syncViewModel)
         composeRule.waitForIdle()
@@ -112,7 +112,7 @@ class CalendarHomeScreenRefreshTest {
     }
 
     @Test
-    fun `TC-SYNC-REFRESH-DOMAIN-003 새로고침 대상 중 하나라도 실행 중이면 진행 표시가 나타난다`() {
+    fun `TC-b49ac4b2-bcea-4aa5-b9bb-007c2a609f91 새로고침 대상 중 하나라도 실행 중이면 진행 표시가 나타난다`() {
         val isSyncRefreshing = MutableStateFlow(false)
         val isHolidayFetching = MutableStateFlow(false)
         val isWeatherLoading = MutableStateFlow(false)
@@ -140,7 +140,7 @@ class CalendarHomeScreenRefreshTest {
     }
 
     @Test
-    fun `TC-SYNC-REFRESH-DOMAIN-007 날씨 동기화가 진행 중이면 진행 표시가 나타난다`() {
+    fun `TC-abc6c1bf-02b6-40b3-b770-ca06815767aa 날씨 동기화가 진행 중이면 진행 표시가 나타난다`() {
         setCalendarHomeScreen(
             weatherViewModel = weatherViewModel(isLoadingFlow = MutableStateFlow(true)),
         )
@@ -149,7 +149,7 @@ class CalendarHomeScreenRefreshTest {
     }
 
     @Test
-    fun `TC-SYNC-REFRESH-FEATURE-002 메모·태그 동기화가 진행 중이면 진행 표시가 나타난다`() {
+    fun `TC-fb7d9b53-80c5-425b-b1c3-06f21ac30643 메모·태그 동기화가 진행 중이면 진행 표시가 나타난다`() {
         setCalendarHomeScreen(
             syncViewModel = syncViewModel(isRefreshingFlow = MutableStateFlow(true)),
         )
@@ -158,7 +158,7 @@ class CalendarHomeScreenRefreshTest {
     }
 
     @Test
-    fun `TC-SYNC-REFRESH-DOMAIN-004 새로고침 대상이 모두 끝나면 진행 표시가 사라진다`() {
+    fun `TC-464641b7-7373-4159-8a08-79d5d092aab3 새로고침 대상이 모두 끝나면 진행 표시가 사라진다`() {
         val isSyncRefreshing = MutableStateFlow(true)
         val isHolidayFetching = MutableStateFlow(true)
         val isWeatherLoading = MutableStateFlow(true)
@@ -184,7 +184,7 @@ class CalendarHomeScreenRefreshTest {
     }
 
     @Test
-    fun `TC-SYNC-REFRESH-FEATURE-004 새로고침 대상이 모두 진행 중이 아니면 진행 표시가 나타나지 않는다`() {
+    fun `TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c 새로고침 대상이 모두 진행 중이 아니면 진행 표시가 나타나지 않는다`() {
         setCalendarHomeScreen()
 
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertDoesNotExist()

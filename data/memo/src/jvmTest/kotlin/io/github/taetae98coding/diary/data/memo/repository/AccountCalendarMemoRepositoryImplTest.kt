@@ -21,7 +21,7 @@ import kotlinx.datetime.LocalDateTime
 
 class AccountCalendarMemoRepositoryImplTest :
     FunSpec({
-        test("TC-CALENDAR-MEMO-DOMAIN-007 메모에 기록된 기간 형태를 그대로 유지한다") {
+        test("TC-a989343d-428a-4940-a47a-948f1e83a032 메모에 기록된 기간 형태를 그대로 유지한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val dateRange = LocalDateRange(LocalDate(2026, 7, 5), LocalDate(2026, 7, 11))
             val allDayMemo =

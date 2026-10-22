@@ -23,7 +23,7 @@ class MusicDetailScreenFocusTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-011 링크 형식이 성립하지 않으면 입력을 유지한 채 링크 입력으로 초점을 옮긴다`() {
+    fun `TC-bd285bf7-0a43-4f87-a5e4-6dbf44b712ae 링크 형식이 성립하지 않으면 입력을 유지한 채 링크 입력으로 초점을 옮긴다`() {
         val effect = MutableStateFlow<MusicDetailEffect?>(null)
         val uiState = MutableStateFlow<MusicDetailUiState>(MusicDetailUiState.Content(id = Uuid.random(), detail = testMusicDetail()))
 

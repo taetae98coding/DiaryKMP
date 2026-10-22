@@ -36,7 +36,7 @@ class MemoTagUseCaseTest :
             every { clock.now() } returns now
 
             When("태그를 추가한다") {
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-MEMO-DETAIL-DATA-004 TC-MEMO-DETAIL-DATA-011 현재 계정의 메모에 그 태그의 연결을 만들고 동기화를 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-130270d5-4801-4215-b84d-029a6f8d8b96 TC-a9fec6a3-a343-43eb-963b-88e4ce102053 현재 계정의 메모에 그 태그의 연결을 만들고 동기화를 요청한다") {
                     val memoId = fixtureMonkey.giveMeOne<Uuid>()
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =
@@ -58,7 +58,7 @@ class MemoTagUseCaseTest :
             }
 
             When("태그를 제거한다") {
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-MEMO-DETAIL-DATA-005 TC-MEMO-DETAIL-DATA-011 현재 계정의 메모에서 그 태그의 연결을 해제하고 동기화를 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-278d2a9d-3386-4cee-a542-56f2577f0050 TC-a9fec6a3-a343-43eb-963b-88e4ce102053 현재 계정의 메모에서 그 태그의 연결을 해제하고 동기화를 요청한다") {
                     val memoId = fixtureMonkey.giveMeOne<Uuid>()
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =
@@ -80,7 +80,7 @@ class MemoTagUseCaseTest :
             }
 
             When("대표 태그를 지정한다") {
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-MEMO-DETAIL-DATA-008 TC-MEMO-DETAIL-DATA-011 현재 계정의 메모에 그 태그를 대표 태그로 지정하고 동기화를 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-121409a2-4451-472a-bd3b-c6986bf6ff27 TC-a9fec6a3-a343-43eb-963b-88e4ce102053 현재 계정의 메모에 그 태그를 대표 태그로 지정하고 동기화를 요청한다") {
                     val memoId = fixtureMonkey.giveMeOne<Uuid>()
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =
@@ -102,7 +102,7 @@ class MemoTagUseCaseTest :
             }
 
             When("대표 태그 지정을 해제한다") {
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-MEMO-DETAIL-DATA-009 TC-MEMO-DETAIL-DATA-011 현재 계정의 메모에서 대표 태그를 비우고 동기화를 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-8f163fe3-4081-49db-adc8-22e85df13732 TC-a9fec6a3-a343-43eb-963b-88e4ce102053 현재 계정의 메모에서 대표 태그를 비우고 동기화를 요청한다") {
                     val memoId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =
                         UnsetMemoPrimaryTagUseCase(
@@ -136,7 +136,7 @@ class MemoTagUseCaseTest :
             every { clock.now() } returns now
 
             When("태그를 추가한다") {
-                Then("TC-MEMO-DETAIL-DATA-012 저장한 태그 연결을 되돌리지 않는다") {
+                Then("TC-c58fdcb2-a6d5-46d8-9220-098ac3b575f1 저장한 태그 연결을 되돌리지 않는다") {
                     val memoId = fixtureMonkey.giveMeOne<Uuid>()
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =
@@ -160,7 +160,7 @@ class MemoTagUseCaseTest :
             }
 
             When("대표 태그를 지정한다") {
-                Then("TC-MEMO-DETAIL-DATA-012 저장한 대표 태그를 되돌리지 않는다") {
+                Then("TC-c58fdcb2-a6d5-46d8-9220-098ac3b575f1 저장한 대표 태그를 되돌리지 않는다") {
                     val memoId = fixtureMonkey.giveMeOne<Uuid>()
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =
@@ -210,7 +210,7 @@ class MemoTagUseCaseTest :
                 )
 
             When("태그를 추가한다") {
-                Then("TC-MEMO-DETAIL-FEATURE-037 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
+                Then("TC-56f753c7-fccd-447c-a3bf-3a875a383274 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
                     val result =
                         useCase(
                             parameter =
@@ -242,7 +242,7 @@ class MemoTagUseCaseTest :
                 )
 
             When("대표 태그 지정을 해제한다") {
-                Then("TC-MEMO-DETAIL-FEATURE-037 계정 조회 실패를 그대로 전달하고 저장과 동기화를 시도하지 않는다") {
+                Then("TC-56f753c7-fccd-447c-a3bf-3a875a383274 계정 조회 실패를 그대로 전달하고 저장과 동기화를 시도하지 않는다") {
                     val result = useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
 
                     result.shouldBeFailure().shouldBeSameInstanceAs(throwable)

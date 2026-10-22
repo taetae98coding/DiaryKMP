@@ -49,7 +49,7 @@ class TagHomeScaffoldFilterTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-027 필터 버튼을 누르면 필터 열기 행동을 한 번 전달한다`() {
+    fun `TC-ddf3850b-a348-43e0-8574-d522000b9e7f 필터 버튼을 누르면 필터 열기 행동을 한 번 전달한다`() {
         val eventList = mutableListOf<TagHomeScaffoldEvent>()
         setTagHomeScaffold(onEvent = eventList::add)
 
@@ -60,14 +60,14 @@ class TagHomeScaffoldFilterTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-HOME-FEATURE-027 한국어 환경에서 필터 버튼 이름은 필터이다`() {
+    fun `TC-ddf3850b-a348-43e0-8574-d522000b9e7f 한국어 환경에서 필터 버튼 이름은 필터이다`() {
         setTagHomeScaffold()
 
         composeRule.onNodeWithContentDescription(KOREAN_FILTER_BUTTON_DESCRIPTION).assert(hasClickAction())
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-037 최상위 태그만 보기를 끄면 필터 버튼에 적용 상태를 알리지 않는다`() {
+    fun `TC-c225bd89-fb41-49c4-921d-e7cb880ae95f 최상위 태그만 보기를 끄면 필터 버튼에 적용 상태를 알리지 않는다`() {
         setTagHomeScaffold(isFilterApplied = false)
 
         composeRule
@@ -76,7 +76,7 @@ class TagHomeScaffoldFilterTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-037 최상위 태그만 보기를 켜면 필터 버튼이 적용 상태를 알린다`() {
+    fun `TC-c225bd89-fb41-49c4-921d-e7cb880ae95f 최상위 태그만 보기를 켜면 필터 버튼이 적용 상태를 알린다`() {
         setTagHomeScaffold(isFilterApplied = true)
 
         composeRule
@@ -95,7 +95,7 @@ class TagHomeScaffoldFilterTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-031 필터를 켠 채로 표시할 태그가 없으면 최상위 태그가 없음을 알린다`() {
+    fun `TC-26a1c1b4-65df-47ed-bfa2-a18dd1b99008 필터를 켠 채로 표시할 태그가 없으면 최상위 태그가 없음을 알린다`() {
         setTagHomeScaffold(pagingData = tagPagingDataOf(emptyList()), isFilterApplied = true)
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -106,7 +106,7 @@ class TagHomeScaffoldFilterTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-HOME-FEATURE-031 한국어 환경에서 좁힌 빈 상태 안내는 최상위 태그가 없습니다이다`() {
+    fun `TC-26a1c1b4-65df-47ed-bfa2-a18dd1b99008 한국어 환경에서 좁힌 빈 상태 안내는 최상위 태그가 없습니다이다`() {
         setTagHomeScaffold(pagingData = tagPagingDataOf(emptyList()), isFilterApplied = true)
 
         composeRule.onNodeWithText(KOREAN_FILTERED_EMPTY_TITLE).assertExists()
@@ -114,7 +114,7 @@ class TagHomeScaffoldFilterTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-032 필터를 끈 채로 표시할 태그가 없으면 아직 태그가 없음을 알린다`() {
+    fun `TC-e5f14b6c-1099-4a3b-be6f-9aaa728872ba 필터를 끈 채로 표시할 태그가 없으면 아직 태그가 없음을 알린다`() {
         setTagHomeScaffold(pagingData = tagPagingDataOf(emptyList()), isFilterApplied = false)
 
         composeRule.onNodeWithText(DEFAULT_EMPTY_TITLE).assertExists()
@@ -122,7 +122,7 @@ class TagHomeScaffoldFilterTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-033 필터를 켜 두어도 태그 추가와 완료된 태그 확인, 검색, 태그 선택, 완료와 삭제를 실행할 수 있다`() {
+    fun `TC-db7b2067-fd97-4096-b3b5-753785583929 필터를 켜 두어도 태그 추가와 완료된 태그 확인, 검색, 태그 선택, 완료와 삭제를 실행할 수 있다`() {
         val finishingTag = tag(title = TAG_TITLE)
         val deletingTag = tag(title = OTHER_TAG_TITLE)
         val tagListEventList = mutableListOf<TagListEvent>()

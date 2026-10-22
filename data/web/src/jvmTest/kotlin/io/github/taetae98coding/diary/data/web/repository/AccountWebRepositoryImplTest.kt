@@ -41,7 +41,7 @@ import kotlin.uuid.Uuid
 
 class AccountWebRepositoryImplTest :
     FunSpec({
-        test("TC-WEB-ADD-DATA-001 웹 항목을 현재 계정 식별자와 로컬 모델로 변환해 로컬 저장소에 저장한다") {
+        test("TC-fde9eef4-29df-45a0-a37c-b394f94df62f 웹 항목을 현재 계정 식별자와 로컬 모델로 변환해 로컬 저장소에 저장한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val web = web()
             val localDataSource = mockk<AccountWebLocalDataSource>()
@@ -56,7 +56,7 @@ class AccountWebRepositoryImplTest :
             }
         }
 
-        test("TC-WEB-ADD-DATA-003 요청 헤더는 배치한 순서 그대로 로컬 모델로 변환된다") {
+        test("TC-93bd05a6-5f77-4f2b-bd7e-05177feb4ea1 요청 헤더는 배치한 순서 그대로 로컬 모델로 변환된다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val headerList =
                 listOf(
@@ -81,7 +81,7 @@ class AccountWebRepositoryImplTest :
             }
         }
 
-        test("TC-WEB-ADD-DATA-004 기기 저장이 실패하면 추가를 성공으로 다루지 않고 실패를 전달한다") {
+        test("TC-5920ffe6-d055-49a0-9b3a-83743cf16050 기기 저장이 실패하면 추가를 성공으로 다루지 않고 실패를 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val web = web()
             val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
@@ -95,7 +95,7 @@ class AccountWebRepositoryImplTest :
             } shouldBeSameInstanceAs throwable
         }
 
-        test("TC-WEB-HOME-DATA-001 웹 목록 페이지 조회는 현재 계정의 로컬 웹 항목을 도메인 모델로 변환해 전달한다") {
+        test("TC-15ca546d-a9aa-4c94-b533-83e2ed65763b 웹 목록 페이지 조회는 현재 계정의 로컬 웹 항목을 도메인 모델로 변환해 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val localWebList = List(2) { localWeb() }
             val localDataSource = mockk<AccountWebLocalDataSource>()
@@ -106,7 +106,7 @@ class AccountWebRepositoryImplTest :
             repository.page(account = account, sort = ListSort.TITLE).first().items() shouldBe localWebList.map { local -> local.toDomain() }
         }
 
-        test("TC-WEB-DETAIL-DATA-001 상세 대상 조회는 현재 계정의 로컬 웹 항목을 도메인 모델로 변환해 전달한다") {
+        test("TC-ea191f75-92fb-4e2f-a799-4fab5e3e3d38 상세 대상 조회는 현재 계정의 로컬 웹 항목을 도메인 모델로 변환해 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val localWeb = localWeb()
             val localDataSource = mockk<AccountWebLocalDataSource>()
@@ -117,7 +117,7 @@ class AccountWebRepositoryImplTest :
             repository.find(account = account, webId = localWeb.id).first() shouldBe localWeb.toDomain()
         }
 
-        test("TC-WEB-DETAIL-DOMAIN-001 상세 대상이 조회되지 않으면 없음을 그대로 전달한다") {
+        test("TC-33c93631-0b2b-48e2-91b7-f693c8043345 상세 대상이 조회되지 않으면 없음을 그대로 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val webId = fixtureMonkey.giveMeOne<Uuid>()
             val localDataSource = mockk<AccountWebLocalDataSource>()
@@ -128,7 +128,7 @@ class AccountWebRepositoryImplTest :
             repository.find(account = account, webId = webId).first().shouldBeNull()
         }
 
-        test("TC-WEB-DETAIL-DATA-008 삭제는 현재 계정 식별자와 함께 로컬 저장소에 반영한다") {
+        test("TC-f29541ce-4f3d-4158-b103-8cb2996963e1 삭제는 현재 계정 식별자와 함께 로컬 저장소에 반영한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val webId = fixtureMonkey.giveMeOne<Uuid>()
             val updatedAt = instant()
@@ -146,7 +146,7 @@ class AccountWebRepositoryImplTest :
             }
         }
 
-        test("TC-WEB-DETAIL-DATA-014 수정은 현재 계정 식별자와 로컬 모델로 변환해 로컬 저장소에 반영한다") {
+        test("TC-7063aa40-a5ab-4f7c-9553-6f438d3affa6 수정은 현재 계정 식별자와 로컬 모델로 변환해 로컬 저장소에 반영한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val webId = fixtureMonkey.giveMeOne<Uuid>()
             val detail = web().detail
@@ -165,7 +165,7 @@ class AccountWebRepositoryImplTest :
             }
         }
 
-        test("TC-WEB-DETAIL-DATA-010 수정 저장이 실패하면 실패를 그대로 전파한다") {
+        test("TC-be1a3fd8-4d68-4566-af4d-b8c476e628f2 수정 저장이 실패하면 실패를 그대로 전파한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val localDataSource = mockk<AccountWebLocalDataSource>()
@@ -185,7 +185,7 @@ class AccountWebRepositoryImplTest :
             } shouldBeSameInstanceAs throwable
         }
 
-        test("TC-WEB-DETAIL-DATA-010 삭제 저장이 실패하면 실패를 그대로 전파한다") {
+        test("TC-be1a3fd8-4d68-4566-af4d-b8c476e628f2 삭제 저장이 실패하면 실패를 그대로 전파한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val localDataSource = mockk<AccountWebLocalDataSource>()

@@ -64,7 +64,7 @@ class TagHomeListDetailSwipeTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-048 목록·상세 배치에서 상세에 열린 태그를 목록에서 완료해도 상세 영역의 화면이 그대로 남는다`() {
+    fun `TC-26182ab3-4996-4c00-bc9e-69a6867f1cc5 목록·상세 배치에서 상세에 열린 태그를 목록에서 완료해도 상세 영역의 화면이 그대로 남는다`() {
         val environment = setListDetail()
 
         composeRule.onNode(hasTestTag(TAG_CARD_TEST_TAG) and hasText(OPENED_TITLE)).performTouchInput { swipeRight() }
@@ -75,7 +75,7 @@ class TagHomeListDetailSwipeTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-048 목록·상세 배치에서 상세에 열린 태그를 목록에서 삭제해도 상세 영역의 화면이 그대로 남는다`() {
+    fun `TC-26182ab3-4996-4c00-bc9e-69a6867f1cc5 목록·상세 배치에서 상세에 열린 태그를 목록에서 삭제해도 상세 영역의 화면이 그대로 남는다`() {
         val environment = setListDetail()
 
         composeRule.onNode(hasTestTag(TAG_CARD_TEST_TAG) and hasText(OPENED_TITLE)).performTouchInput { swipeLeft() }

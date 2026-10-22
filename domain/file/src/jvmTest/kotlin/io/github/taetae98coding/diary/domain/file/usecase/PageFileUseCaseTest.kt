@@ -54,7 +54,7 @@ class PageFileUseCaseTest :
             val useCase = PageFileUseCase(getAccountUseCase = getAccountUseCase, fileRepository = fileRepository)
 
             When("파일 목록을 페이지로 조회한다") {
-                Then("TC-FILE-HOME-FEATURE-005 서버에 요청하지 않고 빈 목록을 전달한다") {
+                Then("TC-2e7619f5-e91c-4918-b683-b02dd5e0f339 서버에 요청하지 않고 빈 목록을 전달한다") {
                     val pagingData = useCase(parameter = Unit).first().shouldBeSuccess()
 
                     flowOf(pagingData).asSnapshot().shouldBeEmpty()
@@ -76,7 +76,7 @@ class PageFileUseCaseTest :
             val useCase = PageFileUseCase(getAccountUseCase = getAccountUseCase, fileRepository = fileRepository)
 
             When("계정이 계정 B로 바뀐다") {
-                Then("TC-FILE-HOME-DOMAIN-001 계정 A의 파일 대신 불러오는 중인 빈 목록을 보낸 뒤 계정 B의 파일을 처음부터 다시 불러온다") {
+                Then("TC-093a77f7-1e9e-4ea6-9d9d-f418f6fee728 계정 A의 파일 대신 불러오는 중인 빈 목록을 보낸 뒤 계정 B의 파일을 처음부터 다시 불러온다") {
                     useCase(parameter = Unit).test {
                         awaitItem()
                         flowOf(awaitItem().shouldBeSuccess()).asSnapshot() shouldBe fileListA
@@ -94,7 +94,7 @@ class PageFileUseCaseTest :
 
         Given("세션 갱신 여부가 서로 다른 사용자 상태다") {
             When("파일 목록을 페이지로 조회한다") {
-                Then("TC-FILE-HOME-DOMAIN-003 세션 갱신 여부와 관계없이 서버에 목록을 요청한다") {
+                Then("TC-cf2b2226-bafc-43ec-8eb6-04678edc40f3 세션 갱신 여부와 관계없이 서버에 목록을 요청한다") {
                     listOf(true to false, false to true, false to false).forEach { (isSessionValid, isSessionPending) ->
                         val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = isSessionValid, isSessionPending = isSessionPending)
                         val getAccountUseCase = mockk<GetAccountUseCase>()
@@ -121,7 +121,7 @@ class PageFileUseCaseTest :
             val useCase = PageFileUseCase(getAccountUseCase = getAccountUseCase, fileRepository = fileRepository)
 
             When("같은 계정의 세션 갱신 여부만 바뀐다") {
-                Then("TC-FILE-HOME-DOMAIN-007 목록을 다시 불러오지 않는다") {
+                Then("TC-36b33f55-05ef-4d86-bcb7-21d7f00ee51a 목록을 다시 불러오지 않는다") {
                     useCase(parameter = Unit).test {
                         awaitItem()
                         awaitItem()
@@ -146,7 +146,7 @@ class PageFileUseCaseTest :
             val useCase = PageFileUseCase(getAccountUseCase = getAccountUseCase, fileRepository = fileRepository)
 
             When("계정 상태를 확인하지 못했다가 다시 계정 A의 사용자로 확인된다") {
-                Then("TC-FILE-HOME-DOMAIN-010 목록을 다시 요청하지 않고 이전에 불러온 목록을 그대로 둔다") {
+                Then("TC-ebdf6ffc-9d03-4d2f-8ca0-0bd02cf8e9b6 목록을 다시 요청하지 않고 이전에 불러온 목록을 그대로 둔다") {
                     useCase(parameter = Unit).test {
                         awaitItem()
                         flowOf(awaitItem().shouldBeSuccess()).asSnapshot() shouldBe fileList
@@ -174,7 +174,7 @@ class PageFileUseCaseTest :
             val useCase = PageFileUseCase(getAccountUseCase = getAccountUseCase, fileRepository = fileRepository)
 
             When("계정 상태가 사용자로 바뀐다") {
-                Then("TC-FILE-HOME-DOMAIN-011 불러오는 중인 빈 목록 다음에 그 계정의 파일을 처음부터 불러온다") {
+                Then("TC-cce0fe3f-3e69-41d7-906b-c03ce2110e67 불러오는 중인 빈 목록 다음에 그 계정의 파일을 처음부터 불러온다") {
                     useCase(parameter = Unit).test {
                         flowOf(awaitItem().shouldBeSuccess()).asSnapshot().shouldBeEmpty()
                         verify(exactly = 0) { fileRepository.page() }
@@ -201,7 +201,7 @@ class PageFileUseCaseTest :
             val useCase = PageFileUseCase(getAccountUseCase = getAccountUseCase, fileRepository = fileRepository)
 
             When("다시 계정 A의 사용자가 된다") {
-                Then("TC-FILE-HOME-DOMAIN-015 목록을 처음부터 다시 불러온다") {
+                Then("TC-8179e973-096f-4660-8c93-3c27ca946b5d 목록을 처음부터 다시 불러온다") {
                     useCase(parameter = Unit).test {
                         awaitItem()
                         flowOf(awaitItem().shouldBeSuccess()).asSnapshot() shouldBe fileList

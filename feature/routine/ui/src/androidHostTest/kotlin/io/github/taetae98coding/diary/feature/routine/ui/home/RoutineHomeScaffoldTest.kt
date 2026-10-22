@@ -27,7 +27,7 @@ class RoutineHomeScaffoldTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-ROUTINE-HOME-FEATURE-001 표시할 루틴이 없으면 빈 상태 안내를 표시한다`() {
+    fun `TC-ee387456-97a9-4cd6-a8fb-987ae93517aa 표시할 루틴이 없으면 빈 상태 안내를 표시한다`() {
         setRoutineHomeScaffold()
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -37,7 +37,7 @@ class RoutineHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-ROUTINE-HOME-FEATURE-001 한국어 환경에서 빈 상태 안내는 아직 루틴이 없습니다이다`() {
+    fun `TC-ee387456-97a9-4cd6-a8fb-987ae93517aa 한국어 환경에서 빈 상태 안내는 아직 루틴이 없습니다이다`() {
         setRoutineHomeScaffold()
 
         composeRule.onNodeWithText(KOREAN_EMPTY_TITLE).assertExists()
@@ -45,7 +45,7 @@ class RoutineHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-ROUTINE-HOME-FEATURE-004 빈 상태에서도 루틴 추가를 실행할 수 있다`() {
+    fun `TC-ae2fda6d-823e-44ac-85a9-5cfb4bf175f5 빈 상태에서도 루틴 추가를 실행할 수 있다`() {
         val eventList = mutableListOf<RoutineHomeScaffoldEvent>()
         setRoutineHomeScaffold(onEvent = eventList::add)
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -56,7 +56,7 @@ class RoutineHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-ROUTINE-HOME-FEATURE-004 빈 상태에서도 목록을 당겨 새로고침할 수 있다`() {
+    fun `TC-ae2fda6d-823e-44ac-85a9-5cfb4bf175f5 빈 상태에서도 목록을 당겨 새로고침할 수 있다`() {
         val eventList = mutableListOf<RoutineHomeScaffoldEvent>()
         setRoutineHomeScaffold(onEvent = eventList::add)
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -68,7 +68,7 @@ class RoutineHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-ROUTINE-HOME-FEATURE-005 새로고침이 진행되는 동안에도 빈 상태 안내를 유지한다`() {
+    fun `TC-292acd00-bf41-4124-b178-a1860e3bb171 새로고침이 진행되는 동안에도 빈 상태 안내를 유지한다`() {
         setRoutineHomeScaffold(uiStateProvider = { SyncRefreshUiState(isRefreshing = true) })
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -76,14 +76,14 @@ class RoutineHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-ROUTINE-LIST-DETAIL-FEATURE-003 상세 영역에 루틴 추가가 놓이면 루틴 추가 버튼이 표시되지 않는다`() {
+    fun `TC-1c7abf77-eef1-4700-9622-4b0330cc60ba 상세 영역에 루틴 추가가 놓이면 루틴 추가 버튼이 표시되지 않는다`() {
         setRoutineHomeScaffold(componentVisibleProvider = { RoutineHomeScaffoldComponentVisible(isAddButtonVisible = false) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-ROUTINE-LIST-DETAIL-FEATURE-004 추가 버튼 표시 상태이면 루틴 추가 버튼이 표시된다`() {
+    fun `TC-5d9a4a09-8e34-45f2-aa70-3465ee2e6786 추가 버튼 표시 상태이면 루틴 추가 버튼이 표시된다`() {
         setRoutineHomeScaffold(componentVisibleProvider = { RoutineHomeScaffoldComponentVisible(isAddButtonVisible = true) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).assert(hasClickAction())

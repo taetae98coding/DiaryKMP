@@ -5,7 +5,7 @@ import io.kotest.matchers.shouldBe
 
 class LanguageTagRegionTest :
     FunSpec({
-        test("TC-HOLIDAY-COUNTRY-DOMAIN-007 웹 앱에서는 브라우저 언어 설정에 적힌 지역을 기기 지역으로 쓴다") {
+        test("TC-624458a6-d7b3-4d9e-9b51-ffbc2d1b8e14 웹 앱에서는 브라우저 언어 설정에 적힌 지역을 기기 지역으로 쓴다") {
             listOf(
                 "ko-KR" to "KR",
                 "en-US" to "US",

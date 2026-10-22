@@ -14,13 +14,13 @@ import io.kotest.matchers.shouldBe
 
 class ChecklistMapperTest :
     FunSpec({
-        test("TC-CHECKLIST-ADD-DATA-003 체크리스트의 제목과 설명은 로컬 모델을 거쳐도 바뀌지 않는다") {
+        test("TC-6d542fda-df4b-434e-ad28-34ec2cb908db 체크리스트의 제목과 설명은 로컬 모델을 거쳐도 바뀌지 않는다") {
             val checklist = fixtureMonkey.checklist(isDeleted = fixtureMonkey.giveMeOne<Boolean>())
 
             checklist.toLocal().toDomain() shouldBe checklist
         }
 
-        test("TC-CHECKLIST-ADD-DATA-003 체크 항목의 내용과 체크 여부는 로컬 모델을 거쳐도 바뀌지 않는다") {
+        test("TC-6d542fda-df4b-434e-ad28-34ec2cb908db 체크 항목의 내용과 체크 여부는 로컬 모델을 거쳐도 바뀌지 않는다") {
             val item = fixtureMonkey.checklistItem(isChecked = fixtureMonkey.giveMeOne<Boolean>(), isDeleted = fixtureMonkey.giveMeOne<Boolean>())
 
             item.toLocal().toDomain() shouldBe item

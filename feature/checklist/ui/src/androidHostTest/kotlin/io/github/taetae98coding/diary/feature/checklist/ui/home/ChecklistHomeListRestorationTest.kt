@@ -37,7 +37,7 @@ class ChecklistHomeListRestorationTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-DOMAIN-009 화면이 재생성되어도 보던 목록 위치를 유지한다`() {
+    fun `TC-864af22b-49c5-40cb-ac0a-2663914b7a28 화면이 재생성되어도 보던 목록 위치를 유지한다`() {
         val summaryList = restorationChecklistList()
         val pagingDataFlow = MutableStateFlow(checklistPagingDataOf(summaryList))
         val restorationTester = StateRestorationTester(composeRule)
@@ -71,7 +71,7 @@ class ChecklistHomeListRestorationTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-DOMAIN-010 앱이 백그라운드에 갔다가 돌아와도 보던 목록 위치를 유지한다`() {
+    fun `TC-f6ee4744-8294-41a3-ac82-cb213db4441e 앱이 백그라운드에 갔다가 돌아와도 보던 목록 위치를 유지한다`() {
         val summaryList = restorationChecklistList()
         val pagingDataFlow = MutableStateFlow(checklistPagingDataOf(summaryList))
         val lifecycleOwner = TestLifecycleOwner(initialState = Lifecycle.State.RESUMED)

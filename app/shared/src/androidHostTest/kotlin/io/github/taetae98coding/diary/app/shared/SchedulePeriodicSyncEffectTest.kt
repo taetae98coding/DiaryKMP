@@ -25,7 +25,7 @@ class SchedulePeriodicSyncEffectTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-DATA-SYNC-DOMAIN-056 앱이 인증된 사용자 계정을 확인하면 주기 동기화를 예약한다`() {
+    fun `TC-d271b7b4-fb16-488a-a26d-a93e0462cc67 앱이 인증된 사용자 계정을 확인하면 주기 동기화를 예약한다`() {
         val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
         val uiStateFlow = MutableStateFlow<AppPeriodicSyncUiState>(AppPeriodicSyncUiState.Confirmed(account = account))
         val schedulePeriodicSync = mockk<() -> Unit>(relaxed = true)
@@ -37,7 +37,7 @@ class SchedulePeriodicSyncEffectTest {
     }
 
     @Test
-    fun `TC-DATA-SYNC-DOMAIN-059 로그아웃되어 계정이 바뀌면 주기 동기화 예약을 다시 정한다`() {
+    fun `TC-cc07f234-2c6a-4021-a650-4a0161718819 로그아웃되어 계정이 바뀌면 주기 동기화 예약을 다시 정한다`() {
         val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
         val uiStateFlow = MutableStateFlow<AppPeriodicSyncUiState>(AppPeriodicSyncUiState.Confirmed(account = account))
         val schedulePeriodicSync = mockk<() -> Unit>(relaxed = true)
@@ -51,7 +51,7 @@ class SchedulePeriodicSyncEffectTest {
     }
 
     @Test
-    fun `TC-DATA-SYNC-DOMAIN-083 로그인 세션이 인증되지 않은 것으로 확인되면 주기 동기화 예약을 다시 정한다`() {
+    fun `TC-b7fbbed2-9c57-498e-91dd-d578a86ea847 로그인 세션이 인증되지 않은 것으로 확인되면 주기 동기화 예약을 다시 정한다`() {
         val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true, isSessionPending = false)
         val uiStateFlow = MutableStateFlow<AppPeriodicSyncUiState>(AppPeriodicSyncUiState.Confirmed(account = account))
         val schedulePeriodicSync = mockk<() -> Unit>(relaxed = true)

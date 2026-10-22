@@ -34,7 +34,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class AccountContactMemoRepositoryImplTest :
     FunSpec({
-        test("TC-CONTACT-DETAIL-MEMO-DATA-001 연락처별 메모 페이지는 현재 계정과 연락처의 로컬 페이지를 도메인 모델로 변환한다") {
+        test("TC-32411d04-27aa-4911-bd6d-5339b9846d2f 연락처별 메모 페이지는 현재 계정과 연락처의 로컬 페이지를 도메인 모델로 변환한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val contactId = fixtureMonkey.giveMeOne<Uuid>()
             val localMemoList = listOf(memo(), memo())
@@ -49,7 +49,7 @@ class AccountContactMemoRepositoryImplTest :
             verify(exactly = 1) { localDataSource.page(accountId = account.id, contactId = contactId, sort = ListSortLocalEntity.RECENTLY_UPDATED) }
         }
 
-        test("TC-ENTITY-MEMO-FINISHED-LIST-DATA-001 연락처별 완료 메모 페이지는 현재 계정과 연락처의 로컬 완료 페이지를 도메인 모델로 변환한다") {
+        test("TC-e446b0d4-096a-4328-a3fa-1e26b34bd16f 연락처별 완료 메모 페이지는 현재 계정과 연락처의 로컬 완료 페이지를 도메인 모델로 변환한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val contactId = fixtureMonkey.giveMeOne<Uuid>()
             val localMemoList = listOf(memo(), memo())

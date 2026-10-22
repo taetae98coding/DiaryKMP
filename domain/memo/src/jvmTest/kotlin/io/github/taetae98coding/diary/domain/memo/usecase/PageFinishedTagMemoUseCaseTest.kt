@@ -45,7 +45,7 @@ class PageFinishedTagMemoUseCaseTest :
                 )
 
             When("대상 태그의 완료된 메모 페이지를 조회한다") {
-                Then("TC-TAG-MEMO-FINISHED-LIST-DATA-001 현재 계정과 대상 태그의 완료된 메모 페이지를 반환한다") {
+                Then("TC-13388ef2-d0eb-4e06-b53c-4c0c12428706 현재 계정과 대상 태그의 완료된 메모 페이지를 반환한다") {
                     useCase(parameter = PageFinishedTagMemoUseCase.Parameter(tagId = tagId, sort = ListSort.DEFAULT)).test {
                         awaitItem().getOrThrow() shouldBeSameInstanceAs pagingData
                         awaitComplete()
@@ -60,7 +60,7 @@ class PageFinishedTagMemoUseCaseTest :
                     }
                 }
 
-                Then("TC-TAG-MEMO-FINISHED-LIST-DATA-001 미완료 메모 목록 조회를 요청하지 않는다") {
+                Then("TC-13388ef2-d0eb-4e06-b53c-4c0c12428706 미완료 메모 목록 조회를 요청하지 않는다") {
                     useCase(parameter = PageFinishedTagMemoUseCase.Parameter(tagId = tagId, sort = ListSort.DEFAULT)).test {
                         awaitItem()
                         awaitComplete()

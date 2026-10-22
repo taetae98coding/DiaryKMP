@@ -44,7 +44,7 @@ class QrAddLocationTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-QR-ADD-FEATURE-038 위치 포맷에서 지도로 위치를 고르면 위도와 경도가 채워지고 그 위치의 QR을 그린다`() {
+    fun `TC-e7733d1d-d345-4d59-affc-2a1013cbdf74 위치 포맷에서 지도로 위치를 고르면 위도와 경도가 채워지고 그 위치의 QR을 그린다`() {
         val state = setLocationState()
         val selected = DiaryMapCoordinate(latitude = 37.5665, longitude = 126.978)
 
@@ -59,7 +59,7 @@ class QrAddLocationTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-039 위치 포맷에서 지도로 다른 위치를 고르면 좌표가 새 위치로 바뀐다`() {
+    fun `TC-9891ae45-03b2-4aeb-b502-b2a3bd52e120 위치 포맷에서 지도로 다른 위치를 고르면 좌표가 새 위치로 바뀐다`() {
         val state = setLocationState()
         val first = DiaryMapCoordinate(latitude = 37.5, longitude = 127.0)
         val second = DiaryMapCoordinate(latitude = -33.868820, longitude = 151.209296)
@@ -75,7 +75,7 @@ class QrAddLocationTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-040 위치 포맷에서 좌표를 직접 입력하면 입력이 멈춘 뒤 지점과 지도가 그 좌표로 옮겨진다`() {
+    fun `TC-60939b2f-24ea-41e8-9173-145147d4c34b 위치 포맷에서 좌표를 직접 입력하면 입력이 멈춘 뒤 지점과 지도가 그 좌표로 옮겨진다`() {
         composeRule.mainClock.autoAdvance = false
         val state = setLocationState()
 
@@ -95,7 +95,7 @@ class QrAddLocationTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-041 위치 포맷에서 성립하지 않는 좌표를 입력하면 지점 표시가 사라진다`() {
+    fun `TC-2cf512f0-4751-479a-a9c8-d85e7f388184 위치 포맷에서 성립하지 않는 좌표를 입력하면 지점 표시가 사라진다`() {
         composeRule.mainClock.autoAdvance = false
         val state = setLocationState()
         val selected = DiaryMapCoordinate(latitude = 37.5, longitude = 127.0)
@@ -118,7 +118,7 @@ class QrAddLocationTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-062 위치 좌표를 담은 QR 값에서 위치 포맷을 고르면 반영을 기다린 뒤 지점과 지도가 그 좌표로 옮겨진다`() {
+    fun `TC-f2226d41-de1d-4cac-8232-e837ac0f0569 위치 좌표를 담은 QR 값에서 위치 포맷을 고르면 반영을 기다린 뒤 지점과 지도가 그 좌표로 옮겨진다`() {
         composeRule.mainClock.autoAdvance = false
         val state = setContentState()
         composeRule.write { state().fieldState(QrTextField.TEXT).setText("geo:37.5,127") }
@@ -137,7 +137,7 @@ class QrAddLocationTest {
     }
 
     @Test
-    fun `TC-QR-DETAIL-FEATURE-030 저장된 위치 QR로 시작하면 반영을 기다린 뒤 지점과 지도가 그 좌표로 옮겨진다`() {
+    fun `TC-bb6fb994-2c45-4036-8b09-adbcccb134ef 저장된 위치 QR로 시작하면 반영을 기다린 뒤 지점과 지도가 그 좌표로 옮겨진다`() {
         composeRule.mainClock.autoAdvance = false
         var state: QrContentFormState? = null
         composeRule.setContent {
@@ -158,7 +158,7 @@ class QrAddLocationTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-042 기본 지도를 확인하지 못하면 지도 없이 좌표를 입력해 위치 QR을 추가한다`() {
+    fun `TC-7148148e-ecdc-40ac-a941-7b1607d78fbe 기본 지도를 확인하지 못하면 지도 없이 좌표를 입력해 위치 QR을 추가한다`() {
         val eventList = mutableListOf<QrAddScaffoldEvent>()
         var state: QrAddFormState? = null
         composeRule.setContent {
@@ -187,7 +187,7 @@ class QrAddLocationTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-043 위치 포맷의 지도는 저장된 기본 지도로 시작하고 초기 위치를 지정하지 않는다`() {
+    fun `TC-edafbb3b-c8fe-4b77-bf3e-5f61dfd84093 위치 포맷의 지도는 저장된 기본 지도로 시작하고 초기 위치를 지정하지 않는다`() {
         val providerMap = mapOf(MapProvider.NAVER to DiaryMapProvider.NAVER, MapProvider.GOOGLE to DiaryMapProvider.GOOGLE)
         val stateMap = mutableMapOf<MapProvider, QrContentFormState>()
         composeRule.setContent {
@@ -212,7 +212,7 @@ class QrAddLocationTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-046 위치 포맷으로 추가에 성공하면 지점 표시만 사라지고 지도 위치는 유지된다`() {
+    fun `TC-ccf17257-644f-4305-9dfc-2be6c8486bba 위치 포맷으로 추가에 성공하면 지점 표시만 사라지고 지도 위치는 유지된다`() {
         val effectChannel = Channel<QrAddEffect>(capacity = Channel.BUFFERED)
         var state: QrAddFormState? = null
         val selected = DiaryMapCoordinate(latitude = 37.5, longitude = 127.0)
@@ -243,7 +243,7 @@ class QrAddLocationTest {
     }
 
     @Test
-    fun `TC-QR-ADD-DOMAIN-025 화면이 재생성되어도 위치 포맷의 고른 지점과 보고 있던 지도를 유지한다`() {
+    fun `TC-c589288a-16af-4298-ae83-65347f7eddd8 화면이 재생성되어도 위치 포맷의 고른 지점과 보고 있던 지도를 유지한다`() {
         var state: QrContentFormState? = null
         val selected = DiaryMapCoordinate(latitude = 37.5, longitude = 127.0)
         val restorationTester = StateRestorationTester(composeRule)

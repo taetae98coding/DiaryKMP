@@ -45,7 +45,7 @@ class WebAddViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-WEB-ADD-DOMAIN-013 추가 처리 중 전달된 추가 요청은 처리하지 않는다") {
+        test("TC-c7d0433a-577b-430f-88ec-bbdd373c7629 추가 처리 중 전달된 추가 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val firstDetail = fixtureMonkey.giveMeOne<WebDetail>()
                 val secondDetail = fixtureMonkey.giveMeOne<WebDetail>()
@@ -71,7 +71,7 @@ class WebAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-ADD-FEATURE-006 추가에 성공하면 성공 Effect를 한 번 보내고 진행 상태를 해제한다") {
+        test("TC-4ac55fda-94a5-47c5-95f9-02b1174ebe39 추가에 성공하면 성공 Effect를 한 번 보내고 진행 상태를 해제한다") {
             runTest(mainDispatcher) {
                 val detail = fixtureMonkey.giveMeOne<WebDetail>()
                 val id = fixtureMonkey.giveMeOne<Uuid>()
@@ -92,7 +92,7 @@ class WebAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-ADD-FEATURE-008 제목이 공백이면 제목 미입력 Effect를 보내고 진행 상태를 해제한다") {
+        test("TC-d52a44ef-3403-440f-89a4-14d551346c81 제목이 공백이면 제목 미입력 Effect를 보내고 진행 상태를 해제한다") {
             runTest(mainDispatcher) {
                 val detail = fixtureMonkey.giveMeOne<WebDetail>().copy(title = "  ")
                 val useCase = mockk<AddWebUseCase>()
@@ -112,7 +112,7 @@ class WebAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-ADD-FEATURE-008 URL이 공백이면 URL 미입력 Effect를 보내고 진행 상태를 해제한다") {
+        test("TC-d52a44ef-3403-440f-89a4-14d551346c81 URL이 공백이면 URL 미입력 Effect를 보내고 진행 상태를 해제한다") {
             runTest(mainDispatcher) {
                 val detail = fixtureMonkey.giveMeOne<WebDetail>().copy(url = "  ")
                 val useCase = mockk<AddWebUseCase>()
@@ -132,7 +132,7 @@ class WebAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-ADD-FEATURE-008 헤더 이름이 공백이면 헤더 이름 미입력 Effect를 보내고 진행 상태를 해제한다") {
+        test("TC-d52a44ef-3403-440f-89a4-14d551346c81 헤더 이름이 공백이면 헤더 이름 미입력 Effect를 보내고 진행 상태를 해제한다") {
             runTest(mainDispatcher) {
                 val detail = fixtureMonkey.giveMeOne<WebDetail>().copy(headerList = listOf(WebHeader(name = "  ", value = "value")))
                 val useCase = mockk<AddWebUseCase>()
@@ -152,7 +152,7 @@ class WebAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-ADD-FEATURE-021 기기 저장에 실패하면 Effect 없이 진행 상태만 해제하고 같은 내용으로 다시 추가할 수 있다") {
+        test("TC-6c11aac7-aa84-47c4-a3a3-2711644f7393 기기 저장에 실패하면 Effect 없이 진행 상태만 해제하고 같은 내용으로 다시 추가할 수 있다") {
             runTest(mainDispatcher) {
                 val detail = fixtureMonkey.giveMeOne<WebDetail>()
                 val tagIdSet = setOf(fixtureMonkey.giveMeOne<Uuid>())
@@ -178,7 +178,7 @@ class WebAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-ADD-FEATURE-007 추가를 처리하는 동안 진행 상태를 유지하고 완료 후 해제한다") {
+        test("TC-a5e1c4c0-a4f4-4048-8794-9e3f3f378018 추가를 처리하는 동안 진행 상태를 유지하고 완료 후 해제한다") {
             runTest(mainDispatcher) {
                 val detail = fixtureMonkey.giveMeOne<WebDetail>()
                 val completion = CompletableDeferred<Result<Uuid>>()

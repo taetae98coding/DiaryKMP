@@ -44,7 +44,7 @@ class UpdateQrUseCaseTest :
                 )
 
             When("테스트 데이터의 입력으로 수정한다") {
-                Then("TC-QR-DETAIL-DOMAIN-003 입력한 내용으로 수정하고 수정 시각을 기록한다") {
+                Then("TC-92975a11-7beb-4f64-bd53-24a2718ccf23 입력한 내용으로 수정하고 수정 시각을 기록한다") {
                     val description = fixtureMonkey.giveMeOne<String>()
                     val value = fixtureMonkey.nonBlankString()
                     val title = " " + fixtureMonkey.nonBlankString() + " "
@@ -75,7 +75,7 @@ class UpdateQrUseCaseTest :
             val useCase = useCase(account = account, accountQrRepository = accountQrRepository(account = account, stored = stored), requestSyncUseCase = requestSyncUseCase)
 
             When("QR을 수정한다") {
-                Then("TC-QR-DETAIL-DATA-003 기기에 저장한 뒤 동기화를 한 번 요청한다") {
+                Then("TC-9f38037d-9012-41e2-a0d8-2e520c4c214c 기기에 저장한 뒤 동기화를 한 번 요청한다") {
                     useCase(parameter = UpdateQrUseCase.Parameter(id = stored.id, detail = fixtureMonkey.qrDetail())).shouldBeSuccess(1)
 
                     coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
@@ -91,7 +91,7 @@ class UpdateQrUseCaseTest :
             val useCase = useCase(account = account, accountQrRepository = accountQrRepository, requestSyncUseCase = requestSyncUseCase)
 
             When("빈 QR 값으로 수정한다") {
-                Then("TC-QR-DETAIL-DOMAIN-002 QR 내용 미입력으로 판정하고 어떤 내용도 수정하지 않는다") {
+                Then("TC-0b9278c4-ade3-487e-8eff-073b74d09ad8 QR 내용 미입력으로 판정하고 어떤 내용도 수정하지 않는다") {
                     listOf(fixtureMonkey.qrDetail(value = ""), fixtureMonkey.qrDetail(title = "", value = "")).forEach { detail ->
                         useCase(parameter = UpdateQrUseCase.Parameter(id = stored.id, detail = detail))
                             .shouldBeFailure()
@@ -111,7 +111,7 @@ class UpdateQrUseCaseTest :
             val useCase = useCase(account = account, accountQrRepository = accountQrRepository)
 
             When("QR을 수정한다") {
-                Then("TC-QR-DETAIL-DATA-004 게스트 계정 기준으로 기기에 반영한다") {
+                Then("TC-448de895-ec55-4a6f-8a8a-e4ca87b5d5f0 게스트 계정 기준으로 기기에 반영한다") {
                     val detail = fixtureMonkey.qrDetail()
 
                     useCase(parameter = UpdateQrUseCase.Parameter(id = stored.id, detail = detail)).shouldBeSuccess(1)
@@ -130,7 +130,7 @@ class UpdateQrUseCaseTest :
             val useCase = useCase(account = account, accountQrRepository = accountQrRepository, requestSyncUseCase = requestSyncUseCase)
 
             When("QR을 수정한다") {
-                Then("TC-QR-DETAIL-DATA-002 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
+                Then("TC-62a4c7b9-793e-4460-bcaf-c67f820f1b5f 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
                     useCase(parameter = UpdateQrUseCase.Parameter(id = fixtureMonkey.qr(isDeleted = false).id, detail = fixtureMonkey.qrDetail()))
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
@@ -147,7 +147,7 @@ class UpdateQrUseCaseTest :
             val useCase = useCase(account = account, accountQrRepository = accountQrRepository)
 
             When("QR을 수정한다") {
-                Then("TC-QR-DETAIL-DATA-001 바뀐 QR이 없음을 전달한다") {
+                Then("TC-bf951041-bfba-43bc-8ba4-54622a935849 바뀐 QR이 없음을 전달한다") {
                     useCase(parameter = UpdateQrUseCase.Parameter(id = fixtureMonkey.qr(isDeleted = false).id, detail = fixtureMonkey.qrDetail())).shouldBeSuccess(0)
                 }
             }

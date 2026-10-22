@@ -23,7 +23,7 @@ class ContactAddScaffoldTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-ADD-FEATURE-008 추가 처리 중 추가 버튼이 이름을 유지한 채 진행 표시로 바뀐다`() {
+    fun `TC-16f38604-d356-4b8e-9862-8e0a8771253c 추가 처리 중 추가 버튼이 이름을 유지한 채 진행 표시로 바뀐다`() {
         setContactAddScaffold(uiState = ContactAddUiState(isInProgress = true))
 
         composeRule

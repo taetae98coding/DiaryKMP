@@ -57,7 +57,7 @@ class ChecklistHomeDeleteTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-CHECKLIST-HOME-FEATURE-019 체크리스트 카드를 삭제 방향으로 밀면 삭제되고 안내와 실행 취소가 표시된다`() {
+    fun `TC-c7d4827a-f896-4048-b403-21e2cf5f12c9 체크리스트 카드를 삭제 방향으로 밀면 삭제되고 안내와 실행 취소가 표시된다`() {
         val environment = setChecklistHomeScreen()
 
         swipeCardLeft(summary = environment.first)
@@ -69,7 +69,7 @@ class ChecklistHomeDeleteTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-019 기본 환경에서 삭제 안내와 실행 취소를 표시한다`() {
+    fun `TC-c7d4827a-f896-4048-b403-21e2cf5f12c9 기본 환경에서 삭제 안내와 실행 취소를 표시한다`() {
         val environment = setChecklistHomeScreen()
 
         swipeCardLeft(summary = environment.first)
@@ -79,7 +79,7 @@ class ChecklistHomeDeleteTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-020 삭제를 실행 취소하면 그 체크리스트의 삭제가 되돌려진다`() {
+    fun `TC-c68a8936-d158-4027-8c75-49723b99d0e1 삭제를 실행 취소하면 그 체크리스트의 삭제가 되돌려진다`() {
         val environment = setChecklistHomeScreen()
 
         swipeCardLeft(summary = environment.first)
@@ -90,7 +90,7 @@ class ChecklistHomeDeleteTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-021 체크리스트 카드를 반대 방향으로 밀면 아무 동작도 실행하지 않는다`() {
+    fun `TC-c9b6b398-b2e1-4f21-ba60-9eaa2d97ad70 체크리스트 카드를 반대 방향으로 밀면 아무 동작도 실행하지 않는다`() {
         val environment = setChecklistHomeScreen()
 
         composeRule.onNode(hasTestTag(CHECKLIST_CARD_TEST_TAG) and hasText(environment.first.checklist.detail.title)).performTouchInput { swipeRight() }
@@ -103,7 +103,7 @@ class ChecklistHomeDeleteTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-023 안내가 보이는 동안 다른 체크리스트를 삭제하면 마지막 삭제의 안내만 남는다`() {
+    fun `TC-015bb87d-e4d2-4523-987f-399397f16142 안내가 보이는 동안 다른 체크리스트를 삭제하면 마지막 삭제의 안내만 남는다`() {
         val environment = setChecklistHomeScreen()
 
         swipeCardLeft(summary = environment.first)
@@ -121,7 +121,7 @@ class ChecklistHomeDeleteTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-024 삭제가 저장되지 못하면 안내를 표시하지 않는다`() {
+    fun `TC-388cee7d-d25c-4b17-bba6-85048cb39130 삭제가 저장되지 못하면 안내를 표시하지 않는다`() {
         val first = testChecklistSummary()
         val pageChecklistUseCase = mockk<PageChecklistUseCase>()
         every { pageChecklistUseCase(parameter = Unit) } returns flowOf(Result.success(checklistPagingDataOf(listOf(first))))
@@ -143,7 +143,7 @@ class ChecklistHomeDeleteTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-025 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
+    fun `TC-ca11ae61-5a07-42c8-a816-055f973ef3b5 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
         val environment = setChecklistHomeScreen()
 
         swipeCardLeft(summary = environment.first)
@@ -158,7 +158,7 @@ class ChecklistHomeDeleteTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-026 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
+    fun `TC-b93721ad-a016-4df2-8b47-977f17b7eeb1 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
         var isShown by mutableStateOf(true)
         val environment = setChecklistHomeScreen(isShownProvider = { isShown })
 

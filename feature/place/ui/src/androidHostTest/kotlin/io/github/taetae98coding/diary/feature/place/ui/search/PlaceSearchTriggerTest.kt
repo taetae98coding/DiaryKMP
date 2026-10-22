@@ -21,7 +21,7 @@ class PlaceSearchTriggerTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-DOMAIN-001 검색어를 입력하지 않으면 검색하지 않는다`() {
+    fun `TC-2a4b5f0a-6f18-4f71-8a49-3874203acca9 검색어를 입력하지 않으면 검색하지 않는다`() {
         val requestList = mutableListOf<PlaceSearchRequest>()
 
         composeRule.mainClock.autoAdvance = false
@@ -33,7 +33,7 @@ class PlaceSearchTriggerTest {
     }
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-DOMAIN-001 검색어가 공백뿐이면 검색하지 않는다`() {
+    fun `TC-2a4b5f0a-6f18-4f71-8a49-3874203acca9 검색어가 공백뿐이면 검색하지 않는다`() {
         val requestList = mutableListOf<PlaceSearchRequest>()
 
         composeRule.mainClock.autoAdvance = false
@@ -46,7 +46,7 @@ class PlaceSearchTriggerTest {
     }
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-DOMAIN-002 입력을 멈추고 0_2초가 지나면 한 번 검색한다`() {
+    fun `TC-e54f08ff-fd57-4216-b806-fe8aa0fa3f9f 입력을 멈추고 0_2초가 지나면 한 번 검색한다`() {
         val query = randomText(prefix = QUERY_PREFIX)
         val requestList = mutableListOf<PlaceSearchRequest>()
 
@@ -65,7 +65,7 @@ class PlaceSearchTriggerTest {
     }
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-DOMAIN-003 기다리는 동안 다시 입력하면 마지막 검색어로만 검색한다`() {
+    fun `TC-01b6b7b0-6457-4fe5-a164-a6cd8d1267b0 기다리는 동안 다시 입력하면 마지막 검색어로만 검색한다`() {
         val changedQuery = randomText(prefix = CHANGED_QUERY_PREFIX)
         val query = randomText(prefix = QUERY_PREFIX)
         val requestList = mutableListOf<PlaceSearchRequest>()
@@ -83,7 +83,7 @@ class PlaceSearchTriggerTest {
     }
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-DOMAIN-004 제공자를 바꾸면 곧바로 다시 검색한다`() {
+    fun `TC-4cc32c1d-0dba-430a-a32d-f7c02a65d8a7 제공자를 바꾸면 곧바로 다시 검색한다`() {
         val query = randomText(prefix = QUERY_PREFIX)
         val requestList = mutableListOf<PlaceSearchRequest>()
 
@@ -104,7 +104,7 @@ class PlaceSearchTriggerTest {
     }
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-DOMAIN-007 검색어가 비어 있으면 제공자를 바꿔도 검색하지 않는다`() {
+    fun `TC-ff385436-b2ef-4ecf-8980-04e5e30cb736 검색어가 비어 있으면 제공자를 바꿔도 검색하지 않는다`() {
         val requestList = mutableListOf<PlaceSearchRequest>()
 
         composeRule.mainClock.autoAdvance = false
@@ -129,7 +129,7 @@ class PlaceSearchTriggerTest {
     }
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-FEATURE-008 검색어를 지우면 기다림 없이 결과를 비운다`() {
+    fun `TC-514c3942-86ec-40d4-a90a-696a6bb33b8b 검색어를 지우면 기다림 없이 결과를 비운다`() {
         val query = randomText(prefix = QUERY_PREFIX)
         var clearCount = 0
         val requestList = mutableListOf<PlaceSearchRequest>()
@@ -154,7 +154,7 @@ class PlaceSearchTriggerTest {
     }
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-DOMAIN-009 네이버 검색에는 기준 위치를 넘기지 않는다`() {
+    fun `TC-5c1e6b45-1497-4f93-8892-b4d226032ee7 네이버 검색에는 기준 위치를 넘기지 않는다`() {
         val query = randomText(prefix = QUERY_PREFIX)
         val requestList = mutableListOf<PlaceSearchRequest>()
 

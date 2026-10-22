@@ -39,7 +39,7 @@ class SettingFileScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-FILE-FEATURE-005 폴더 고르기를 실행하면 폴더 선택 도구를 연다`() {
+    fun `TC-792f8c12-646b-4778-b076-60d8c401f617 폴더 고르기를 실행하면 폴더 선택 도구를 연다`() {
         val directoryPicker = mockk<DirectoryPicker>(relaxed = true)
         setSettingFileScreen(viewModel = viewModel(directory = null), directoryPicker = directoryPicker)
 
@@ -50,7 +50,7 @@ class SettingFileScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-FILE-FEATURE-009 기본 위치로 되돌리기를 실행하면 되돌리기를 요청한다`() {
+    fun `TC-cef9e1ad-cca8-4668-b96c-e2124fbc09d7 기본 위치로 되돌리기를 실행하면 되돌리기를 요청한다`() {
         val viewModel = viewModel(directory = fixtureMonkey.giveMeOne<FileDownloadDirectory>())
         setSettingFileScreen(viewModel = viewModel)
 
@@ -61,7 +61,7 @@ class SettingFileScreenTest {
     }
 
     @Test
-    fun `TC-SETTING-FILE-FEATURE-008 TC-SETTING-FILE-FEATURE-010 위치를 바꾸지 못하면 실패를 알린다`() {
+    fun `TC-41fd402c-68d3-4b41-9366-c2f9bb19d9ca TC-3a05cdca-74ef-4bb0-8d41-247f33ec83d2 위치를 바꾸지 못하면 실패를 알린다`() {
         setSettingFileScreen(viewModel = viewModel(directory = null, effect = flowOf(SettingFileEffect.ChangeFailed)))
 
         composeRule.onNodeWithText("다운로드 위치를 바꾸지 못했습니다.").assertExists()

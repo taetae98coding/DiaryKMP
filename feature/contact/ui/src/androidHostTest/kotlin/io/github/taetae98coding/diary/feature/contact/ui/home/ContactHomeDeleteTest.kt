@@ -48,7 +48,7 @@ class ContactHomeDeleteTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-026 연락처 카드를 삭제 방향으로 밀면 삭제를 요청하고 기본 안내와 실행 취소를 표시한다`() {
+    fun `TC-5d4e393d-6131-429f-b5e2-cfd4cbe29838 연락처 카드를 삭제 방향으로 밀면 삭제를 요청하고 기본 안내와 실행 취소를 표시한다`() {
         val environment = setContactHomeScreen()
 
         swipeFirstCardLeft()
@@ -60,7 +60,7 @@ class ContactHomeDeleteTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-CONTACT-HOME-FEATURE-026 한국어 환경에서 삭제 안내와 실행 취소를 표시한다`() {
+    fun `TC-5d4e393d-6131-429f-b5e2-cfd4cbe29838 한국어 환경에서 삭제 안내와 실행 취소를 표시한다`() {
         setContactHomeScreen()
 
         swipeFirstCardLeft()
@@ -70,7 +70,7 @@ class ContactHomeDeleteTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-028 연락처 카드를 반대 방향으로 밀면 삭제를 요청하지 않고 안내도 표시하지 않는다`() {
+    fun `TC-4babd23d-31a5-4ec2-af3c-5dd9c9fa0b3a 연락처 카드를 반대 방향으로 밀면 삭제를 요청하지 않고 안내도 표시하지 않는다`() {
         val environment = setContactHomeScreen()
 
         composeRule.onNode(hasTestTag(CONTACT_CARD_TEST_TAG) and hasText(FIRST_NAME)).performTouchInput { swipeRight() }
@@ -83,7 +83,7 @@ class ContactHomeDeleteTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-027 삭제를 실행 취소하면 그 연락처의 삭제 되돌리기를 요청한다`() {
+    fun `TC-0fbd9855-5efc-4878-8311-9912d98cced0 삭제를 실행 취소하면 그 연락처의 삭제 되돌리기를 요청한다`() {
         val environment = setContactHomeScreen()
 
         swipeFirstCardLeft()
@@ -94,7 +94,7 @@ class ContactHomeDeleteTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-030 안내가 보이는 동안 다른 연락처를 삭제하면 마지막 삭제에만 실행 취소가 적용된다`() {
+    fun `TC-29c717eb-b751-4828-a092-0cb07dc35dfd 안내가 보이는 동안 다른 연락처를 삭제하면 마지막 삭제에만 실행 취소가 적용된다`() {
         val environment = setContactHomeScreen()
 
         swipeFirstCardLeft()
@@ -112,7 +112,7 @@ class ContactHomeDeleteTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-031 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
+    fun `TC-6bf3b99a-f53c-4843-b2e1-4c64050b7b81 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
         val environment = setContactHomeScreen()
 
         swipeFirstCardLeft()
@@ -127,7 +127,7 @@ class ContactHomeDeleteTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-033 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
+    fun `TC-4a9d3528-b34c-475e-ab82-627e1a2564ce 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
         var isShown by mutableStateOf(true)
         val environment = setContactHomeScreen(isShownProvider = { isShown })
 
@@ -145,7 +145,7 @@ class ContactHomeDeleteTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-036 목록에서 삭제하기 전에 확인을 되묻지 않고 곧바로 삭제를 요청한다`() {
+    fun `TC-df54a93c-26ba-41fe-9f4d-3c682ef75b80 목록에서 삭제하기 전에 확인을 되묻지 않고 곧바로 삭제를 요청한다`() {
         val environment = setContactHomeScreen()
 
         swipeFirstCardLeft()
@@ -155,7 +155,7 @@ class ContactHomeDeleteTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-034 목록에서 연락처를 삭제해도 화면을 이동하지 않는다`() {
+    fun `TC-a0f305b3-b5bb-4ed8-b5b4-e58e64c9f056 목록에서 연락처를 삭제해도 화면을 이동하지 않는다`() {
         var navigateCount = 0
         setContactHomeScreen(onNavigate = { navigateCount += 1 })
 

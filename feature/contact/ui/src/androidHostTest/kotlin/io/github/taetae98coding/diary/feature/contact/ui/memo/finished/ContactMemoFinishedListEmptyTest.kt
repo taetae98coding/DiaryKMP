@@ -28,7 +28,7 @@ class ContactMemoFinishedListEmptyTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-013 ContactMemoFinishedList의 빈 상태 안내를 기본 환경 문구로 표시한다`() {
+    fun `TC-9f3e57db-9d45-4aa0-af87-c433fffac21f ContactMemoFinishedList의 빈 상태 안내를 기본 환경 문구로 표시한다`() {
         setEmptyScaffold()
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -37,7 +37,7 @@ class ContactMemoFinishedListEmptyTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-013 ContactMemoFinishedList의 빈 상태 안내를 한국어 문구로 표시한다`() {
+    fun `TC-9f3e57db-9d45-4aa0-af87-c433fffac21f ContactMemoFinishedList의 빈 상태 안내를 한국어 문구로 표시한다`() {
         setEmptyScaffold()
 
         composeRule.onNodeWithText(KOREAN_EMPTY_TITLE).assertExists()

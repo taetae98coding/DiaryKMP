@@ -76,7 +76,7 @@ class MemoFilterTagDaoTest :
                 .first()
                 .map { tag -> tag.id }
 
-        test("TC-MEMO-HOME-DATA-006 필터 선택을 현재 사용자 계정에 즉시 저장한다") {
+        test("TC-0b288050-da8b-4e1c-b73f-8b37578436f8 필터 선택을 현재 사용자 계정에 즉시 저장한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag()
             database.insertTag(accountId, tag)
@@ -86,7 +86,7 @@ class MemoFilterTagDaoTest :
             database.selectedTagIdList(accountId = accountId) shouldBe listOf(tag.id)
         }
 
-        test("TC-MEMO-HOME-DATA-007 계정마다 서로 다른 필터 선택을 유지한다") {
+        test("TC-a7056404-3bb0-4ba9-9c7c-98ea65f70089 계정마다 서로 다른 필터 선택을 유지한다") {
             val firstAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val secondAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstTag = tag()
@@ -101,7 +101,7 @@ class MemoFilterTagDaoTest :
             database.selectedTagIdList(accountId = secondAccountId) shouldBe listOf(secondTag.id)
         }
 
-        test("TC-MEMO-HOME-FEATURE-024 저장된 필터 선택은 새로 조회를 시작해도 유지된다") {
+        test("TC-365b6703-bcae-4f92-8f99-2aa7cba44ec6 저장된 필터 선택은 새로 조회를 시작해도 유지된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstTag = tag(title = "Alpha")
             val secondTag = tag(title = "Bravo")
@@ -113,7 +113,7 @@ class MemoFilterTagDaoTest :
             database.selectedTagIdList(accountId = accountId) shouldBe listOf(firstTag.id, secondTag.id)
         }
 
-        test("TC-MEMO-HOME-DATA-008 데이터베이스를 닫고 다시 열어도 필터 선택을 유지한다") {
+        test("TC-1bc331a6-2db6-46f3-a08f-2688a64ecf56 데이터베이스를 닫고 다시 열어도 필터 선택을 유지한다") {
             val file = File.createTempFile("memo-filter-tag", ".db")
 
             try {
@@ -144,7 +144,7 @@ class MemoFilterTagDaoTest :
             }
         }
 
-        test("TC-MEMO-HOME-DOMAIN-009 선택할 수 없게 된 태그는 선택 목록 조회에서 제외된다") {
+        test("TC-ddaaea83-0197-4225-860a-fa8b98d553fc 선택할 수 없게 된 태그는 선택 목록 조회에서 제외된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val selectableTag = tag()
             val finishedTag = tag(isFinished = true)
@@ -159,7 +159,7 @@ class MemoFilterTagDaoTest :
             database.selectedTagIdList(accountId = accountId) shouldBe listOf(selectableTag.id)
         }
 
-        test("TC-MEMO-HOME-DOMAIN-010 태그가 다시 선택할 수 있게 되면 이전 선택이 다시 조회된다") {
+        test("TC-e94e51a2-8cb8-4330-9992-b776f345c73e 태그가 다시 선택할 수 있게 되면 이전 선택이 다시 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag()
             database.insertTag(accountId, tag)
@@ -220,7 +220,7 @@ class MemoFilterTagDaoTest :
             database.memoFilterTagDao().getTagIdList(accountId = accountId).first() shouldBe listOf(tag.id)
         }
 
-        test("TC-MEMO-HOME-DATA-009 필터 선택과 해제는 동기화 업로드 대기 목록에 나타나지 않는다") {
+        test("TC-20d8a16c-4b36-4fbe-9b46-be1607c6e8df 필터 선택과 해제는 동기화 업로드 대기 목록에 나타나지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag()
             database.insertTag(accountId, tag, isDirty = false)
@@ -251,7 +251,7 @@ class MemoFilterTagDaoTest :
             database.selectedTagIdList(accountId = otherAccountId) shouldBe listOf(firstTag.id)
         }
 
-        test("TC-MEMO-HOME-DATA-015 선택 전체 해제는 무시되고 있던 선택까지 지운다") {
+        test("TC-59bbbf62-7f8b-4264-9332-defbe6058460 선택 전체 해제는 무시되고 있던 선택까지 지운다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstTag = tag()
             val secondTag = tag(isDeleted = true)
@@ -271,7 +271,7 @@ class MemoFilterTagDaoTest :
             database.selectedTagIdList(accountId = accountId).shouldBeEmpty()
         }
 
-        test("TC-MEMO-HOME-DOMAIN-024 무시되고 있는 선택만 남으면 보이는 선택이 없고 태그가 다시 선택할 수 있게 되면 그 선택이 다시 적용된다") {
+        test("TC-e43bc741-adf7-4b08-872b-6b0772f14c31 무시되고 있는 선택만 남으면 보이는 선택이 없고 태그가 다시 선택할 수 있게 되면 그 선택이 다시 적용된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag(isDeleted = true)
             database.insertTag(accountId, tag)
@@ -288,7 +288,7 @@ class MemoFilterTagDaoTest :
             database.selectedTagIdList(accountId = accountId) shouldBe listOf(tag.id)
         }
 
-        test("TC-MEMO-HOME-DATA-019 선택 전체 해제는 다른 화면의 태그 필터 선택을 지우지 않는다") {
+        test("TC-a8b325c3-06d9-400b-97f1-05ae819f3b01 선택 전체 해제는 다른 화면의 태그 필터 선택을 지우지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag()
             database.insertTag(accountId, tag)
@@ -311,7 +311,7 @@ class MemoFilterTagDaoTest :
                 .map { selectedTag -> selectedTag.id } shouldBe listOf(tag.id)
         }
 
-        test("TC-MEMO-HOME-DATA-016 선택 전체 해제는 다른 계정의 선택을 지우지 않는다") {
+        test("TC-4164bd5d-fabe-4614-96f2-8478c18022fb 선택 전체 해제는 다른 계정의 선택을 지우지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag()

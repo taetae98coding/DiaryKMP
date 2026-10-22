@@ -21,7 +21,7 @@ class MemoTagPickerDialogRestorationTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-DOMAIN-019 화면이 회전해도 열려 있는 목록의 검색어와 좁힌 결과가 유지된다`() {
+    fun `TC-0ff9c64e-d600-40d8-a0e0-e8bcb3aa60b9 화면이 회전해도 열려 있는 목록의 검색어와 좁힌 결과가 유지된다`() {
         val workTag = testTag(title = WORK_TAG_TITLE)
         val exerciseTag = testTag(title = EXERCISE_TAG_TITLE)
         val tagPagingDataFlow = MutableStateFlow(tagPagingDataOf(listOf(workTag, exerciseTag)))

@@ -85,7 +85,7 @@ class AccountTagDaoTest :
             tagIdList(accountId) shouldBe expectedIdList
         }
 
-        test("TC-MEMO-ADD-DOMAIN-016 선택한 태그 조회는 완료되거나 삭제된 대상 태그를 선택한 것으로 돌려주지 않는다") {
+        test("TC-16a8b240-b3d1-44f2-b4e0-e5f66cc537f4 선택한 태그 조회는 완료되거나 삭제된 대상 태그를 선택한 것으로 돌려주지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val selectableTag = tag(isFinished = false, isDeleted = false)
             val finishedTag = tag(isFinished = true, isDeleted = false)
@@ -106,7 +106,7 @@ class AccountTagDaoTest :
                 .map { tag -> tag.id } shouldBe listOf(selectableTag.id)
         }
 
-        test("TC-TAG-HOME-DATA-001 TC-MEMO-HOME-DOMAIN-007 현재 계정과 연결된 미완료·미삭제 태그만 목록에서 조회한다") {
+        test("TC-daa97b1f-1a15-472a-8952-366f3475156d TC-6dee2cd4-bf0c-4819-81fe-98a80a9fc8c1 현재 계정과 연결된 미완료·미삭제 태그만 목록에서 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val activeTag = tag(isFinished = false, isDeleted = false)
@@ -119,7 +119,7 @@ class AccountTagDaoTest :
             tagIdList(accountId) shouldBe listOf(activeTag.id)
         }
 
-        test("TC-TAG-HOME-DATA-002 TC-MEMO-HOME-DOMAIN-007 수정 시각과 생성 시각에 관계없이 제목 오름차순으로 조회한다") {
+        test("TC-16258722-4d03-4f43-9111-209e8391f2fc TC-6dee2cd4-bf0c-4819-81fe-98a80a9fc8c1 수정 시각과 생성 시각에 관계없이 제목 오름차순으로 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val bravoTag =
                 tag(
@@ -149,7 +149,7 @@ class AccountTagDaoTest :
                 )
         }
 
-        test("TC-TAG-HOME-DOMAIN-006 이모지는 목록 정렬에 영향을 주지 않는다") {
+        test("TC-3a0822a3-3298-4643-ac93-19c1a0c7268e 이모지는 목록 정렬에 영향을 주지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val alphaTag = tag(title = "Alpha", emoji = "\uD83E\uDD8A")
             val bravoTag = tag(title = "Bravo", emoji = "\uD83C\uDF4E")
@@ -164,7 +164,7 @@ class AccountTagDaoTest :
                 )
         }
 
-        test("TC-TAG-HOME-DATA-003 태그 추가는 페이지를 무효화하고 목록에 새 정렬로 반영된다") {
+        test("TC-bc6bf70c-78c3-40b2-b5a8-119e6a2e0cf7 태그 추가는 페이지를 무효화하고 목록에 새 정렬로 반영된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val initialTag = tag(title = "Bravo")
             val addedTag = tag(title = "Alpha")
@@ -181,7 +181,7 @@ class AccountTagDaoTest :
             }
         }
 
-        test("TC-TAG-HOME-DATA-003 제목 변경은 페이지를 무효화하고 태그를 변경된 정렬 위치로 옮긴다") {
+        test("TC-bc6bf70c-78c3-40b2-b5a8-119e6a2e0cf7 제목 변경은 페이지를 무효화하고 태그를 변경된 정렬 위치로 옮긴다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val anchorTag = tag(title = "Bravo")
             val movingTag = tag(title = "Alpha")
@@ -198,7 +198,7 @@ class AccountTagDaoTest :
             }
         }
 
-        test("TC-TAG-HOME-DATA-003 완료는 페이지를 무효화하고 태그를 목록에서 제외한다") {
+        test("TC-bc6bf70c-78c3-40b2-b5a8-119e6a2e0cf7 완료는 페이지를 무효화하고 태그를 목록에서 제외한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val remainingTag = tag(title = "Alpha")
             val finishingTag = tag(title = "Bravo")
@@ -220,7 +220,7 @@ class AccountTagDaoTest :
             }
         }
 
-        test("TC-TAG-HOME-DATA-005 목록 페이지 조회는 요청한 크기만큼만 가져오고 다음 페이지를 이어서 가져온다") {
+        test("TC-2494c80a-80ea-42d8-91d6-e2efd58aced2 목록 페이지 조회는 요청한 크기만큼만 가져오고 다음 페이지를 이어서 가져온다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val expectedTagList =
                 List(TAG_COUNT) { index ->
@@ -347,7 +347,7 @@ class AccountTagDaoTest :
             tagIdList(accountId) shouldBe listOf(secondTag.id, firstTag.id)
         }
 
-        test("TC-TAG-DETAIL-DATA-001 상세 갱신은 해당 계정의 태그 이모지, 제목, 설명, 컬러, 수정 시각만 바꾸고 완료·삭제 여부, 생성 시각과 계정 연결은 유지한다") {
+        test("TC-04559128-3d87-4938-b162-ac671aa75a3e 상세 갱신은 해당 계정의 태그 이모지, 제목, 설명, 컬러, 수정 시각만 바꾸고 완료·삭제 여부, 생성 시각과 계정 연결은 유지한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag(updatedAt = Instant.fromEpochMilliseconds(1_000))

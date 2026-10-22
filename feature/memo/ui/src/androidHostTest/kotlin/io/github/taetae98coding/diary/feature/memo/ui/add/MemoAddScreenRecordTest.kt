@@ -54,7 +54,7 @@ class MemoAddScreenRecordTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-069 작성 도우미로 반영한 내용으로 메모 추가를 실행한다`() {
+    fun `TC-af7316e3-b944-464f-af94-d5c98fb562ff 작성 도우미로 반영한 내용으로 메모 추가를 실행한다`() {
         val start = LocalDate.fromEpochDays(fixtureMonkey.giveMeOne<Int>() and DAY_RANGE_MASK)
         val draft =
             MemoDraft(
@@ -86,7 +86,7 @@ class MemoAddScreenRecordTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-070 작성 도우미의 결과는 반영하기 전에는 메모 추가 성립 조건에 쓰이지 않는다`() {
+    fun `TC-d614b356-bd6e-4ffb-bd37-4f58bdbb79e7 작성 도우미의 결과는 반영하기 전에는 메모 추가 성립 조건에 쓰이지 않는다`() {
         val draft =
             MemoDraft(
                 title = randomText(prefix = TITLE_PREFIX),
@@ -118,7 +118,7 @@ class MemoAddScreenRecordTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-DATA-026 태그를 선택하는 것만으로는 저장된 메모가 바뀌지 않는다`() {
+    fun `TC-39612edc-1b21-4f1a-a60d-9b5e2a1175a2 태그를 선택하는 것만으로는 저장된 메모가 바뀌지 않는다`() {
         val tag = testTag(title = randomText(prefix = TAG_PREFIX))
         val addMemoUseCase = mockk<AddMemoUseCase>()
         setMemoAddScreen(viewModels = screenTestRealViewModel(tagList = listOf(tag), addMemoUseCase = addMemoUseCase))
@@ -134,7 +134,7 @@ class MemoAddScreenRecordTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-DATA-027 설명을 입력하지 않고 컬러를 바꾸지 않으면 빈 설명과 처음 제시한 컬러가 기록된다`() {
+    fun `TC-2c240f07-ef38-499d-a3c2-7b00b84c1277 설명을 입력하지 않고 컬러를 바꾸지 않으면 빈 설명과 처음 제시한 컬러가 기록된다`() {
         val title = randomText(prefix = TITLE_PREFIX)
         val detailSlot = slot<MemoDetail>()
         val viewModels = screenTestViewModel()

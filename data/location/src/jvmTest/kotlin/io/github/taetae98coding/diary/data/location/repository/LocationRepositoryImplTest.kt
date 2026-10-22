@@ -21,7 +21,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class LocationRepositoryImplTest :
     FunSpec({
-        test("TC-CURRENT-LOCATION-DOMAIN-001 디바이스 위치를 우선 사용한다") {
+        test("TC-2c496166-aa66-4845-806c-f298bfa324bf 디바이스 위치를 우선 사용한다") {
             val deviceLocation = fixtureMonkey.giveMeOne<Location>()
             val ipRemoteDataSource = ipRemoteDataSource(entity = fixtureMonkey.giveMeOne())
             val repository =
@@ -35,7 +35,7 @@ class LocationRepositoryImplTest :
             coVerify(exactly = 0) { ipRemoteDataSource.get() }
         }
 
-        test("TC-CURRENT-LOCATION-DOMAIN-002 디바이스 위치를 확인하지 못한 모든 조건에서 공인 IP 기준 위치를 사용한다") {
+        test("TC-ce268a63-5478-4c1c-9f6e-0e0ae222c07f 디바이스 위치를 확인하지 못한 모든 조건에서 공인 IP 기준 위치를 사용한다") {
             val ipEntity = fixtureMonkey.giveMeOne<IpRemoteEntity>()
             val repository =
                 repository(
@@ -47,7 +47,7 @@ class LocationRepositoryImplTest :
                 Coordinate(latitude = ipEntity.latitude, longitude = ipEntity.longitude)
         }
 
-        test("TC-CURRENT-LOCATION-DOMAIN-003 공인 IP 기준 위치 조회에 실패하면 현재 위치를 확인하지 못한다") {
+        test("TC-9fcbe51f-442e-4407-a375-fa4ff12e4175 공인 IP 기준 위치 조회에 실패하면 현재 위치를 확인하지 못한다") {
             val failure = LocationRepositoryTestException(fixtureMonkey.giveMeOne())
             val ipRemoteDataSource = mockk<IpRemoteDataSource>()
             coEvery { ipRemoteDataSource.get() } throws failure

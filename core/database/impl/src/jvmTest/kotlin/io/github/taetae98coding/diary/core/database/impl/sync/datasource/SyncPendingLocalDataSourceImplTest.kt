@@ -126,7 +126,7 @@ class SyncPendingLocalDataSourceImplTest :
             database.close()
         }
 
-        test("TC-MORE-HOME-DOMAIN-007 동기화 대상 열여섯 종류 중 어느 한 종류만 업로드 대기여도 대기 항목이 있다고 알린다") {
+        test("TC-c5cbef72-54f8-4e27-addd-90d64fcaa210 동기화 대상 열여섯 종류 중 어느 한 종류만 업로드 대기여도 대기 항목이 있다고 알린다") {
             pendingWriterMap.forEach { (kind, write) ->
                 val accountId = uuid()
 

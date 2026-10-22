@@ -40,7 +40,7 @@ class DiaryDescriptionInputPreviewPageTest {
     private lateinit var scope: CoroutineScope
 
     @Test
-    fun `TC-DESCRIPTION-INPUT-FEATURE-002 입력 페이지에서 왼쪽으로 스와이프하면 미리보기 페이지가 표시된다`() {
+    fun `TC-79548a66-ffd2-4b51-a052-cec18c7a7a8a 입력 페이지에서 왼쪽으로 스와이프하면 미리보기 페이지가 표시된다`() {
         val state = setDiaryDescriptionInput()
         composeRule.onNode(hasSetTextAction()).performTextInput(MARKDOWN_SOURCE)
         awaitPreviewText(MARKDOWN_HEADING_TEXT)
@@ -52,7 +52,7 @@ class DiaryDescriptionInputPreviewPageTest {
     }
 
     @Test
-    fun `TC-DESCRIPTION-INPUT-FEATURE-003 미리보기 페이지에서 오른쪽으로 스와이프하면 입력 페이지가 표시된다`() {
+    fun `TC-d01856b1-5116-4367-b192-3023644dfd94 미리보기 페이지에서 오른쪽으로 스와이프하면 입력 페이지가 표시된다`() {
         val state = setDiaryDescriptionInput()
         composeRule.onNode(hasSetTextAction()).performTextInput(MARKDOWN_SOURCE)
         awaitPreviewText(MARKDOWN_HEADING_TEXT)
@@ -65,7 +65,7 @@ class DiaryDescriptionInputPreviewPageTest {
     }
 
     @Test
-    fun `TC-DESCRIPTION-INPUT-FEATURE-009 미리보기 페이지에 강조 문법이 굵은 내용으로 표시되고 문법 기호는 표시되지 않는다`() {
+    fun `TC-e07c3c57-d0cb-4fef-a33d-4cfbe4001f28 미리보기 페이지에 강조 문법이 굵은 내용으로 표시되고 문법 기호는 표시되지 않는다`() {
         val state = setDiaryDescriptionInput()
         composeRule.onNode(hasSetTextAction()).performTextInput(BOLD_SOURCE)
 
@@ -87,7 +87,7 @@ class DiaryDescriptionInputPreviewPageTest {
     }
 
     @Test
-    fun `TC-DESCRIPTION-INPUT-FEATURE-010 수정한 내용이 미리보기에 반영된다`() {
+    fun `TC-27aa95cc-8aee-4368-a485-6d5b8c90dc53 수정한 내용이 미리보기에 반영된다`() {
         val state = setDiaryDescriptionInput()
         composeRule.onNode(hasSetTextAction()).performTextInput(MARKDOWN_SOURCE)
         awaitPreviewText(MARKDOWN_HEADING_TEXT)
@@ -103,7 +103,7 @@ class DiaryDescriptionInputPreviewPageTest {
     }
 
     @Test
-    fun `TC-DESCRIPTION-INPUT-FEATURE-011 입력한 내용이 없으면 미리보기 페이지는 빈 상태다`() {
+    fun `TC-c5b555dc-60a3-4226-88f0-ce870232f40e 입력한 내용이 없으면 미리보기 페이지는 빈 상태다`() {
         val state = setDiaryDescriptionInput()
 
         snapToPage(state = state, page = DiaryDescriptionInputPage.Preview)
@@ -120,7 +120,7 @@ class DiaryDescriptionInputPreviewPageTest {
     }
 
     @Test
-    fun `TC-DESCRIPTION-INPUT-FEATURE-012 화면 재생성 후에도 입력 내용과 보고 있던 페이지가 유지된다`() {
+    fun `TC-6126233b-8634-42a4-858c-59d03d4b6ecc 화면 재생성 후에도 입력 내용과 보고 있던 페이지가 유지된다`() {
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var state: DiaryDescriptionInputState
         restorationTester.setContent {
@@ -151,7 +151,7 @@ class DiaryDescriptionInputPreviewPageTest {
     }
 
     @Test
-    fun `TC-DESCRIPTION-INPUT-FEATURE-024 화면이 재생성되어도 시작 상태를 다시 정하지 않는다`() {
+    fun `TC-9f83dfd7-5776-4fa5-9944-0abd428429dc 화면이 재생성되어도 시작 상태를 다시 정하지 않는다`() {
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var state: DiaryDescriptionInputState
         restorationTester.setContent {
@@ -177,7 +177,7 @@ class DiaryDescriptionInputPreviewPageTest {
     }
 
     @Test
-    fun `TC-DESCRIPTION-INPUT-FEATURE-017 엔터로 나눈 줄이 미리보기에서도 나뉘어 표시된다`() {
+    fun `TC-67a8c2b6-ccf4-46c7-bb6c-02cb40ba4611 엔터로 나눈 줄이 미리보기에서도 나뉘어 표시된다`() {
         val state = setDiaryDescriptionInput()
         composeRule.onNode(hasSetTextAction()).performTextInput(LINE_BREAK_SOURCE)
 
@@ -189,7 +189,7 @@ class DiaryDescriptionInputPreviewPageTest {
     }
 
     @Test
-    fun `TC-DESCRIPTION-INPUT-FEATURE-018 빈 줄로 나눈 내용은 문단으로 구분되어 표시된다`() {
+    fun `TC-d0c60251-b3ba-41b6-9a95-337b18d80b7e 빈 줄로 나눈 내용은 문단으로 구분되어 표시된다`() {
         val state = setDiaryDescriptionInput()
         composeRule.onNode(hasSetTextAction()).performTextInput(PARAGRAPH_SOURCE)
 
@@ -201,7 +201,7 @@ class DiaryDescriptionInputPreviewPageTest {
     }
 
     @Test
-    fun `TC-DESCRIPTION-INPUT-FEATURE-019 코드 블록 내부의 줄바꿈은 입력한 그대로 표시된다`() {
+    fun `TC-c01706c9-41f5-42fa-b1ff-387e809916b7 코드 블록 내부의 줄바꿈은 입력한 그대로 표시된다`() {
         val state = setDiaryDescriptionInput()
         composeRule.onNode(hasSetTextAction()).performTextInput(CODE_BLOCK_SOURCE)
 

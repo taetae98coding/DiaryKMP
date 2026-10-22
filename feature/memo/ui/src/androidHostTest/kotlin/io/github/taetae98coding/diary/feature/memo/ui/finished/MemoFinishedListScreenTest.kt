@@ -49,7 +49,7 @@ class MemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-007 완료된 메모가 하나도 없어도 화면을 사용할 수 있다`() {
+    fun `TC-47a0cd29-dae1-4307-8467-89f43a81ae1d 완료된 메모가 하나도 없어도 화면을 사용할 수 있다`() {
         val viewModel = mockk<MemoFinishedListViewModel>()
         every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
         every { viewModel.memoPagingData } returns MutableStateFlow(memoPagingDataOf(emptyList()))
@@ -71,7 +71,7 @@ class MemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-015 좌에서 우로 스와이프하면 메모를 다시 시작하고 안내와 실행 취소를 표시한다`() {
+    fun `TC-1ef63eda-de50-40a0-a6a6-11efc71536e3 좌에서 우로 스와이프하면 메모를 다시 시작하고 안내와 실행 취소를 표시한다`() {
         val environment = screenTestEnvironment()
         setMemoFinishedListScreen(environment.viewModel)
 
@@ -86,7 +86,7 @@ class MemoFinishedListScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-015 한국어 환경에서 다시 시작 안내와 실행 취소를 표시한다`() {
+    fun `TC-1ef63eda-de50-40a0-a6a6-11efc71536e3 한국어 환경에서 다시 시작 안내와 실행 취소를 표시한다`() {
         val environment = screenTestEnvironment()
         setMemoFinishedListScreen(environment.viewModel)
 
@@ -98,7 +98,7 @@ class MemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-016 다시 시작을 실행 취소하면 메모를 다시 완료해 목록에 다시 나타난다`() {
+    fun `TC-f8006e64-5c55-4081-b0bb-e2d694e00988 다시 시작을 실행 취소하면 메모를 다시 완료해 목록에 다시 나타난다`() {
         val environment = screenTestEnvironment()
         setMemoFinishedListScreen(environment.viewModel)
 
@@ -112,7 +112,7 @@ class MemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-017 우에서 좌로 스와이프하면 메모를 삭제하고 안내와 실행 취소를 표시한다`() {
+    fun `TC-72adc9f7-a269-41ef-a86c-ba35e313d143 우에서 좌로 스와이프하면 메모를 삭제하고 안내와 실행 취소를 표시한다`() {
         val environment = screenTestEnvironment()
         setMemoFinishedListScreen(environment.viewModel)
 
@@ -127,7 +127,7 @@ class MemoFinishedListScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-017 한국어 환경에서 삭제 안내와 실행 취소를 표시한다`() {
+    fun `TC-72adc9f7-a269-41ef-a86c-ba35e313d143 한국어 환경에서 삭제 안내와 실행 취소를 표시한다`() {
         val environment = screenTestEnvironment()
         setMemoFinishedListScreen(environment.viewModel)
 
@@ -139,7 +139,7 @@ class MemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-018 삭제를 실행 취소하면 메모를 복구해 목록에 다시 나타난다`() {
+    fun `TC-bd7a3c2d-71e3-477c-91c1-30055be2259b 삭제를 실행 취소하면 메모를 복구해 목록에 다시 나타난다`() {
         val environment = screenTestEnvironment()
         setMemoFinishedListScreen(environment.viewModel)
 
@@ -153,7 +153,7 @@ class MemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-025 안내가 보이는 동안 다른 메모를 삭제하면 삭제 안내만 남고 실행 취소는 삭제에만 적용된다`() {
+    fun `TC-4ba90c11-1024-43f2-b455-da3ec1822758 안내가 보이는 동안 다른 메모를 삭제하면 삭제 안내만 남고 실행 취소는 삭제에만 적용된다`() {
         val environment = screenTestEnvironment()
         val otherMemoId = fixtureMonkey.giveMeOne<Uuid>()
         justRun { environment.viewModel.restore(id = otherMemoId) }
@@ -177,7 +177,7 @@ class MemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-027 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
+    fun `TC-1aa4d9e6-daed-4f3d-a16d-43b38ee59fc1 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
         val environment = screenTestEnvironment()
         setMemoFinishedListScreen(environment.viewModel)
 
@@ -194,7 +194,7 @@ class MemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-019 메모를 선택하면 그 메모의 상세로 이동한다`() {
+    fun `TC-698aba55-0311-40af-ba80-ac00ecfeb0ce 메모를 선택하면 그 메모의 상세로 이동한다`() {
         val environment = screenTestEnvironment()
         val navigatedIdList = mutableListOf<Uuid>()
         setMemoFinishedListScreen(
@@ -209,7 +209,7 @@ class MemoFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-020 뒤로가기 버튼을 선택하면 이전 화면으로 돌아간다`() {
+    fun `TC-d65fbf7b-d699-42bf-8449-22d55dd61b1f 뒤로가기 버튼을 선택하면 이전 화면으로 돌아간다`() {
         val environment = screenTestEnvironment()
         var navigateUpCount = 0
         setMemoFinishedListScreen(

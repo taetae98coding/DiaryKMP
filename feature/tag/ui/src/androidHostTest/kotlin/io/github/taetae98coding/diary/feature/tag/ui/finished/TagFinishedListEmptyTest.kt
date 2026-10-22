@@ -36,7 +36,7 @@ class TagFinishedListEmptyTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-016 완료된 태그가 없으면 빈 상태 안내를 표시한다`() {
+    fun `TC-5400e718-8607-4c53-ae69-4cd66f99253d 완료된 태그가 없으면 빈 상태 안내를 표시한다`() {
         setTagFinishedListScaffold(MutableStateFlow(tagPagingDataOf(emptyList())))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -45,28 +45,28 @@ class TagFinishedListEmptyTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-FINISHED-LIST-FEATURE-016 한국어 환경에서 빈 상태 안내는 완료한 태그가 없습니다이다`() {
+    fun `TC-5400e718-8607-4c53-ae69-4cd66f99253d 한국어 환경에서 빈 상태 안내는 완료한 태그가 없습니다이다`() {
         setTagFinishedListScaffold(MutableStateFlow(tagPagingDataOf(emptyList())))
 
         composeRule.onNodeWithText(KOREAN_EMPTY_TITLE).assertExists()
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-016 빈 상태에 태그 추가를 권하는 안내를 두지 않는다`() {
+    fun `TC-5400e718-8607-4c53-ae69-4cd66f99253d 빈 상태에 태그 추가를 권하는 안내를 두지 않는다`() {
         setTagFinishedListScaffold(MutableStateFlow(tagPagingDataOf(emptyList())))
 
         composeRule.onNodeWithText(TAG_HOME_EMPTY_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-017 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
+    fun `TC-c01e5b9c-389a-41be-9234-325012238e65 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
         setTagFinishedListScaffold(MutableStateFlow(loadingTagPagingData()))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-020 처음 불러오기에 실패하면 오류 안내 없이 빈 상태 안내를 표시한다`() {
+    fun `TC-0bdc9ded-08cc-46df-8994-e81d0b57812f 처음 불러오기에 실패하면 오류 안내 없이 빈 상태 안내를 표시한다`() {
         setTagFinishedListScaffold(
             MutableStateFlow(tagEntityPagingData(itemList = emptyList<Tag>(), refresh = LoadState.Error(IllegalStateException("Refresh failed")))),
         )
@@ -76,7 +76,7 @@ class TagFinishedListEmptyTest {
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-020 이어서 불러오기에 실패해도 앞서 불러온 태그를 그대로 표시한다`() {
+    fun `TC-0bdc9ded-08cc-46df-8994-e81d0b57812f 이어서 불러오기에 실패해도 앞서 불러온 태그를 그대로 표시한다`() {
         setTagFinishedListScaffold(
             MutableStateFlow(tagEntityPagingData(itemList = listOf(tag(title = TAG_TITLE)), append = LoadState.Error(IllegalStateException("Append failed")))),
         )

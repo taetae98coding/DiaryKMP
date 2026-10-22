@@ -16,7 +16,7 @@ private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class QrListDetailPaneTest :
     FunSpec({
-        test("TC-QR-LIST-DETAIL-FEATURE-003 선택한 QR이 없거나 QR 추가로 이동했으면 상세 영역에 QR 추가가 놓인다") {
+        test("TC-9605be3c-0841-42d9-abbd-9f694c10d02a 선택한 QR이 없거나 QR 추가로 이동했으면 상세 영역에 QR 추가가 놓인다") {
             val backStackCases =
                 listOf(
                     listOf(QrHomeNavKey),
@@ -29,7 +29,7 @@ class QrListDetailPaneTest :
             }
         }
 
-        test("TC-QR-LIST-DETAIL-FEATURE-004 QR 상세로 이동했으면 상세 영역에 QR 추가가 놓이지 않는다") {
+        test("TC-7af608de-8aa2-4b0e-815c-d734a5d9ff3c QR 상세로 이동했으면 상세 영역에 QR 추가가 놓이지 않는다") {
             val backStackCases =
                 listOf(
                     listOf(OtherScreenNavKey, QrHomeNavKey, QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),

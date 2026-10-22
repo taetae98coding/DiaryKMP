@@ -30,7 +30,7 @@ class DiaryTitleInputTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TITLE-INPUT-FEATURE-002 기본 환경에서 제목 입력 라벨은 Title이다`() {
+    fun `TC-2b021010-a337-4c45-9992-0d5829d9011a 기본 환경에서 제목 입력 라벨은 Title이다`() {
         setDiaryTitleInput()
 
         composeRule.onNodeWithText(DEFAULT_LABEL).assertExists()
@@ -38,14 +38,14 @@ class DiaryTitleInputTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TITLE-INPUT-FEATURE-002 한국어 환경에서 제목 입력 라벨은 제목이다`() {
+    fun `TC-2b021010-a337-4c45-9992-0d5829d9011a 한국어 환경에서 제목 입력 라벨은 제목이다`() {
         setDiaryTitleInput()
 
         composeRule.onNodeWithText(KOREAN_LABEL).assertExists()
     }
 
     @Test
-    fun `TC-TITLE-INPUT-FEATURE-001 엔터를 눌러도 줄이 나뉘지 않는다`() {
+    fun `TC-2db1e950-9dda-4d43-9a57-320e104fa91d 엔터를 눌러도 줄이 나뉘지 않는다`() {
         lateinit var state: DiaryTitleInputState
         setDiaryTitleInput(initialText = INITIAL_TEXT, onState = { state = it })
         composeRule.onNode(hasSetTextAction()).performClick()
@@ -56,7 +56,7 @@ class DiaryTitleInputTest {
     }
 
     @Test
-    fun `TC-TITLE-INPUT-FEATURE-003 지우기 버튼을 선택하면 텍스트가 비워지고 초점이 제목 입력에 남는다`() {
+    fun `TC-0669514d-68cd-47d0-840c-c01e3ac05c18 지우기 버튼을 선택하면 텍스트가 비워지고 초점이 제목 입력에 남는다`() {
         lateinit var state: DiaryTitleInputState
         setDiaryTitleInput(initialText = INITIAL_TEXT, onState = { state = it })
 
@@ -68,14 +68,14 @@ class DiaryTitleInputTest {
     }
 
     @Test
-    fun `TC-TITLE-INPUT-FEATURE-004 제목이 비어 있으면 지우기 버튼이 표시되지 않는다`() {
+    fun `TC-48afecbd-f64f-495f-87a8-885a6bbd09fc 제목이 비어 있으면 지우기 버튼이 표시되지 않는다`() {
         setDiaryTitleInput()
 
         composeRule.onNodeWithContentDescription(DEFAULT_CLEAR_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-TITLE-INPUT-FEATURE-005 기본 환경에서 제목이 채워져 있어도 Title 라벨이 보이고 필수 표시는 없다`() {
+    fun `TC-eade93ed-5de8-4a91-8b56-229784e11052 기본 환경에서 제목이 채워져 있어도 Title 라벨이 보이고 필수 표시는 없다`() {
         setDiaryTitleInput(initialText = INITIAL_TEXT)
 
         composeRule.onNode(hasSetTextAction()).assert(hasText(INITIAL_TEXT))
@@ -85,7 +85,7 @@ class DiaryTitleInputTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TITLE-INPUT-FEATURE-005 한국어 환경에서 제목이 채워져 있어도 제목 라벨이 보이고 필수 표시는 없다`() {
+    fun `TC-eade93ed-5de8-4a91-8b56-229784e11052 한국어 환경에서 제목이 채워져 있어도 제목 라벨이 보이고 필수 표시는 없다`() {
         setDiaryTitleInput(initialText = INITIAL_TEXT)
 
         composeRule.onNode(hasSetTextAction()).assert(hasText(INITIAL_TEXT))

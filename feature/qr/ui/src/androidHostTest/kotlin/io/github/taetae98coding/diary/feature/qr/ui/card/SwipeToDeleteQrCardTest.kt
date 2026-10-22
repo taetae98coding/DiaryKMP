@@ -32,7 +32,7 @@ class SwipeToDeleteQrCardTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-QR-HOME-FEATURE-025 QR 카드를 우에서 좌로 밀면 삭제를 한 번 전달한다`() {
+    fun `TC-98ca827f-e67d-4286-8dc7-e65c9b344bf1 QR 카드를 우에서 좌로 밀면 삭제를 한 번 전달한다`() {
         var deleteCount = 0
         setCard(qr = testQr(), onDelete = { deleteCount += 1 })
 
@@ -43,7 +43,7 @@ class SwipeToDeleteQrCardTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-027 QR 카드를 좌에서 우로 밀면 아무것도 전달하지 않는다`() {
+    fun `TC-b6303833-e69c-4de2-aa26-e36356aa1b2b QR 카드를 좌에서 우로 밀면 아무것도 전달하지 않는다`() {
         var deleteCount = 0
         val qr = testQr()
         setCard(qr = qr, onDelete = { deleteCount += 1 })
@@ -56,7 +56,7 @@ class SwipeToDeleteQrCardTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-028 아직 준비되지 않은 자리는 밀어도 삭제되지 않는다`() {
+    fun `TC-64041cc4-3b13-48b0-ba0b-fa8cf7ef5d2e 아직 준비되지 않은 자리는 밀어도 삭제되지 않는다`() {
         var deleteCount = 0
         setCard(qr = null, onDelete = { deleteCount += 1 })
 
@@ -92,7 +92,7 @@ class SwipeToDeleteQrCardTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-035 아직 준비되지 않은 자리는 선택해도 이동하지 않는다`() {
+    fun `TC-e34e8c41-b3b5-4349-95d8-74f85f96f5fd 아직 준비되지 않은 자리는 선택해도 이동하지 않는다`() {
         var clickCount = 0
         setCard(qr = null, onClick = { clickCount += 1 })
 

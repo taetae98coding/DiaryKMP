@@ -61,7 +61,7 @@ class MemoDetailScreenFormTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-007 화면이 재생성되어도 수정 중이던 컬러와 기간이 유지된다`() {
+    fun `TC-f7faecde-6643-4b40-8258-4f2c0113fec4 화면이 재생성되어도 수정 중이던 컬러와 기간이 유지된다`() {
         val title = randomText(prefix = TITLE_PREFIX)
         val viewModel = screenTestViewModel(uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(title))))
         val restorationTester = StateRestorationTester(composeRule)
@@ -87,7 +87,7 @@ class MemoDetailScreenFormTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-087 작성 도우미로 반영한 내용이 저장된 내용과 다르면 수정 동작이 나타난다`() {
+    fun `TC-1e5a3aaf-f8e1-48e4-8aeb-e2fe5192a387 작성 도우미로 반영한 내용이 저장된 내용과 다르면 수정 동작이 나타난다`() {
         val savedTitle = randomText(prefix = SAVED_PREFIX)
         val draftTitle = randomText(prefix = DRAFT_PREFIX)
         val viewModel = screenTestViewModel(uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(savedTitle))))
@@ -108,7 +108,7 @@ class MemoDetailScreenFormTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-089 수정에 성공해 입력이 저장된 내용과 같아지면 수정 동작이 사라진다`() {
+    fun `TC-8d7f2535-0f51-4b84-b69d-c1b22a66ba90 수정에 성공해 입력이 저장된 내용과 같아지면 수정 동작이 사라진다`() {
         val savedTitle = randomText(prefix = SAVED_PREFIX)
         val suffix = EDITED_PREFIX + fixtureMonkey.giveMeOne<Int>()
         val uiState = MutableStateFlow<MemoDetailUiState>(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(savedTitle)))
@@ -133,7 +133,7 @@ class MemoDetailScreenFormTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-DATA-013 입력을 수정한 채 복사해도 수정 중이던 내용을 복사 요청에 싣지 않는다`() {
+    fun `TC-bd60cef5-db8c-45ef-832d-69584bb995b4 입력을 수정한 채 복사해도 수정 중이던 내용을 복사 요청에 싣지 않는다`() {
         val savedTitle = randomText(prefix = SAVED_PREFIX)
         val suffix = EDITED_PREFIX + fixtureMonkey.giveMeOne<Int>()
         val viewModel = screenTestViewModel(uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(savedTitle))))
@@ -152,7 +152,7 @@ class MemoDetailScreenFormTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-090 내용을 표시한 뒤 조회가 잠시 끊겨도 수정 중이던 내용을 유지한다`() {
+    fun `TC-5b89e4fa-431c-432a-be24-1dad799bb8dc 내용을 표시한 뒤 조회가 잠시 끊겨도 수정 중이던 내용을 유지한다`() {
         val savedTitle = randomText(prefix = SAVED_PREFIX)
         val description = randomText(prefix = DESCRIPTION_PREFIX)
         val suffix = EDITED_PREFIX + fixtureMonkey.giveMeOne<Int>()

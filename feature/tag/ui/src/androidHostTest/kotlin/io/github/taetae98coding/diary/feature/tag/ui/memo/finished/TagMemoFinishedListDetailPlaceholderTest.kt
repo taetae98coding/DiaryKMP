@@ -20,14 +20,14 @@ class TagMemoFinishedListDetailPlaceholderTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-MEMO-FINISHED-LIST-DETAIL-FEATURE-002 한국어 선택 전 안내를 표시한다`() {
+    fun `TC-3ed26e7e-3ce6-48a3-8039-e7ef1437841b 한국어 선택 전 안내를 표시한다`() {
         setTagMemoFinishedListDetailPlaceholder()
 
         assertPlaceholder(message = "메모를 선택하세요")
     }
 
     @Test
-    fun `TC-TAG-MEMO-FINISHED-LIST-DETAIL-FEATURE-002 기본 환경의 선택 전 안내를 표시한다`() {
+    fun `TC-3ed26e7e-3ce6-48a3-8039-e7ef1437841b 기본 환경의 선택 전 안내를 표시한다`() {
         setTagMemoFinishedListDetailPlaceholder()
 
         assertPlaceholder(message = "Choose a memo")

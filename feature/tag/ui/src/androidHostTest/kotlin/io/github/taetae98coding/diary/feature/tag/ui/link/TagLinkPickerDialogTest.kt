@@ -46,7 +46,7 @@ class TagLinkPickerDialogTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-005 목록에 나타나는 태그와 연결 여부를 표시한다`() {
+    fun `TC-c54026fa-ab99-4bc9-8b09-0a079b74af3d 목록에 나타나는 태그와 연결 여부를 표시한다`() {
         val linkedTag = testTag(title = WORK_TAG_TITLE)
         val unlinkedTag = testTag(title = EXERCISE_TAG_TITLE)
 
@@ -63,7 +63,7 @@ class TagLinkPickerDialogTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-006 확인 중에 연 목록이 대상 없음으로 확정되면 목록 영역이 비어 있는 채로 유지된다`() {
+    fun `TC-3a45b457-cc1f-45f5-947a-16eab80a20dd 확인 중에 연 목록이 대상 없음으로 확정되면 목록 영역이 비어 있는 채로 유지된다`() {
         val tagPagingDataFlow = MutableStateFlow(refreshingTagPagingData())
         var tagPagingItems: LazyPagingItems<Tag>? = null
         composeRule.setTagLinkPickerDialog(
@@ -85,7 +85,7 @@ class TagLinkPickerDialogTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-026 나타낼 태그가 있으면 목록과 함께 태그 추가 항목이 표시된다`() {
+    fun `TC-e870d064-1342-4dbd-a71b-d36ac8922836 나타낼 태그가 있으면 목록과 함께 태그 추가 항목이 표시된다`() {
         composeRule.setTagLinkPickerDialog(tagList = listOf(testTag(title = WORK_TAG_TITLE)))
         composeRule.awaitTagLinkPickerRows()
 
@@ -93,7 +93,7 @@ class TagLinkPickerDialogTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-026 나타낼 태그가 없어도 태그 추가 항목이 표시된다`() {
+    fun `TC-e870d064-1342-4dbd-a71b-d36ac8922836 나타낼 태그가 없어도 태그 추가 항목이 표시된다`() {
         composeRule.setTagLinkPickerDialog(tagList = emptyList())
         composeRule.waitForIdle()
 
@@ -101,7 +101,7 @@ class TagLinkPickerDialogTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-027 목록의 태그 추가 항목을 누르면 태그 추가를 요청한다`() {
+    fun `TC-d7346bdd-fd91-440c-99d0-0ffa429db209 목록의 태그 추가 항목을 누르면 태그 추가를 요청한다`() {
         val workTag = testTag(title = WORK_TAG_TITLE)
         val linkedIdList = mutableListOf<Uuid>()
         val unlinkedIdList = mutableListOf<Uuid>()
@@ -123,7 +123,7 @@ class TagLinkPickerDialogTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-008 목록에서 태그를 누르면 연결을 요청한다`() {
+    fun `TC-04ae832a-16cf-443d-95d6-5f9542e39b50 목록에서 태그를 누르면 연결을 요청한다`() {
         val workTag = testTag(title = WORK_TAG_TITLE)
         val exerciseTag = testTag(title = EXERCISE_TAG_TITLE)
         val linkedIdList = mutableListOf<Uuid>()
@@ -141,7 +141,7 @@ class TagLinkPickerDialogTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-009 목록에서 연결된 태그를 누르면 해제를 요청한다`() {
+    fun `TC-4f965bdf-1318-4c82-a739-56230839477e 목록에서 연결된 태그를 누르면 해제를 요청한다`() {
         val workTag = testTag(title = WORK_TAG_TITLE)
         val exerciseTag = testTag(title = EXERCISE_TAG_TITLE)
         val unlinkedIdList = mutableListOf<Uuid>()
@@ -162,7 +162,7 @@ class TagLinkPickerDialogTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-014 다음 태그를 불러오는 동안에도 이미 나타난 태그를 조작할 수 있다`() {
+    fun `TC-d9d7293b-76f0-4ee4-b7b0-4134b4778021 다음 태그를 불러오는 동안에도 이미 나타난 태그를 조작할 수 있다`() {
         val tag = testTag(title = WORK_TAG_TITLE)
         val linkedIdList = mutableListOf<Uuid>()
         composeRule.setTagLinkPickerDialog(
@@ -178,7 +178,7 @@ class TagLinkPickerDialogTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-015 다음 태그를 불러오지 못해도 이미 나타난 태그를 유지한다`() {
+    fun `TC-aad93075-a6a0-4edf-822e-6b6278247c52 다음 태그를 불러오지 못해도 이미 나타난 태그를 유지한다`() {
         val workTag = testTag(title = WORK_TAG_TITLE)
         val exerciseTag = testTag(title = EXERCISE_TAG_TITLE)
         composeRule.setTagLinkPickerDialog(tagPagingData = appendFailedTagPagingDataOf(listOf(workTag, exerciseTag)))
@@ -191,7 +191,7 @@ class TagLinkPickerDialogTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-015 첫 조회에 실패하면 목록 영역이 비어 있고 오류 안내가 표시되지 않는다`() {
+    fun `TC-aad93075-a6a0-4edf-822e-6b6278247c52 첫 조회에 실패하면 목록 영역이 비어 있고 오류 안내가 표시되지 않는다`() {
         var tagPagingItems: LazyPagingItems<Tag>? = null
         composeRule.setTagLinkPickerDialog(
             tagPagingData = refreshFailedTagPagingData(),

@@ -21,7 +21,7 @@ class MemoContactInputTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-011 선택한 연락처를 제목 칩으로 표시한다`() {
+    fun `TC-d8a15eeb-4fbb-4b78-b513-cce7e71db76b 선택한 연락처를 제목 칩으로 표시한다`() {
         val wikiContact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val docsContact = testContact(name = SECOND_CONTACT_NAME, phoneNumber = SECOND_CONTACT_PHONE_NUMBER)
 
@@ -42,7 +42,7 @@ class MemoContactInputTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-015 선택한 연락처의 이름이 바뀌면 연락처 칩에 반영된다`() {
+    fun `TC-459572fb-8453-45c6-b229-f667e13a93ce 선택한 연락처의 이름이 바뀌면 연락처 칩에 반영된다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val renamedContact = contact.copy(detail = contact.detail.copy(name = RENAMED_CONTACT_TITLE))
         val selectContactList = composeRule.setMemoContactInputWithSelection()
@@ -57,7 +57,7 @@ class MemoContactInputTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-012 선택을 해제한 연락처는 칩 영역에서 사라진다`() {
+    fun `TC-58e3a6fc-fec5-48dd-ae63-a332532ae678 선택을 해제한 연락처는 칩 영역에서 사라진다`() {
         val wikiContact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val docsContact = testContact(name = SECOND_CONTACT_NAME, phoneNumber = SECOND_CONTACT_PHONE_NUMBER)
         val selectContactList = composeRule.setMemoContactInputWithSelection()
@@ -105,7 +105,7 @@ class MemoContactInputTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-017 연락처 칩을 눌러도 추가 항목의 동작이 실행되지 않는다`() {
+    fun `TC-d15275bf-3e72-482e-8d29-43d012ee087f 연락처 칩을 눌러도 추가 항목의 동작이 실행되지 않는다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         var addClickCount = 0
         composeRule.setMemoContactInput(
@@ -158,7 +158,7 @@ class MemoContactInputAddChipTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-002 선택한 연락처가 없거나 하나거나 여러 개여도 연락처 추가 항목이 표시된다`() {
+    fun `TC-33bcda1c-d314-48c5-8e71-0d82fef3bb51 선택한 연락처가 없거나 하나거나 여러 개여도 연락처 추가 항목이 표시된다`() {
         val contactList = listOf(testContact(name = FIRST_CONTACT_NAME), testContact(name = SECOND_CONTACT_NAME))
         val selectContactList = composeRule.setMemoContactInputWithSelection()
 
@@ -181,7 +181,7 @@ class MemoContactInputNavigationTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-016 연락처 칩을 누르면 그 연락처를 대상으로 상세 이동을 요청한다`() {
+    fun `TC-0a6954ce-f95b-4641-b63d-097225cc9cd3 연락처 칩을 누르면 그 연락처를 대상으로 상세 이동을 요청한다`() {
         val wikiContact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val docsContact = testContact(name = SECOND_CONTACT_NAME, phoneNumber = SECOND_CONTACT_PHONE_NUMBER)
         val clickedContactIdList = mutableListOf<Uuid>()
@@ -200,7 +200,7 @@ class MemoContactInputNavigationTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-016 한국어 환경에서 연락처 칩에 상세 이동 동작 이름을 제공한다`() {
+    fun `TC-0a6954ce-f95b-4641-b63d-097225cc9cd3 한국어 환경에서 연락처 칩에 상세 이동 동작 이름을 제공한다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
 
         composeRule.setMemoContactInput(uiState = MemoContactInputUiState(selectedContactList = listOf(contact)))

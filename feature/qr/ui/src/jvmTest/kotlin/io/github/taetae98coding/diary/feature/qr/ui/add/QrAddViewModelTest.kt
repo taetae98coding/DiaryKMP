@@ -52,7 +52,7 @@ class QrAddViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-QR-ADD-DOMAIN-015 추가 처리 중 전달된 추가 요청은 처리하지 않고 처리가 끝난 뒤의 요청은 다시 처리한다") {
+        test("TC-f8cb4a3f-8b52-40bb-b8cc-3a7badbc7706 추가 처리 중 전달된 추가 요청은 처리하지 않고 처리가 끝난 뒤의 요청은 다시 처리한다") {
             runTest(mainDispatcher) {
                 val firstDetail = fixtureMonkey.giveMeOne<QrDetail>()
                 val secondDetail = fixtureMonkey.giveMeOne<QrDetail>()
@@ -79,7 +79,7 @@ class QrAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-QR-ADD-FEATURE-022 추가에 성공하면 성공 Effect를 한 번 보내고 진행 상태를 해제한다") {
+        test("TC-9da64d2c-eed0-4581-a0f8-fe353d09136e 추가에 성공하면 성공 Effect를 한 번 보내고 진행 상태를 해제한다") {
             runTest(mainDispatcher) {
                 val detail = fixtureMonkey.giveMeOne<QrDetail>()
                 val useCase = mockk<AddQrUseCase>()
@@ -99,7 +99,7 @@ class QrAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-QR-ADD-FEATURE-047 제목 조건이 성립하지 않으면 제목 Effect를 보내고 진행 상태를 해제한다") {
+        test("TC-1a5e7fb5-df16-4fd9-8bef-df01b624f7e9 제목 조건이 성립하지 않으면 제목 Effect를 보내고 진행 상태를 해제한다") {
             runTest(mainDispatcher) {
                 val detail = fixtureMonkey.giveMeOne<QrDetail>()
                 val useCase = mockk<AddQrUseCase>()
@@ -119,7 +119,7 @@ class QrAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-QR-ADD-FEATURE-059 QR 값 조건이 성립하지 않으면 QR 값 Effect를 보내고 진행 상태를 해제한다") {
+        test("TC-b707d875-5ed9-49ab-ad91-bd0647f2bba5 QR 값 조건이 성립하지 않으면 QR 값 Effect를 보내고 진행 상태를 해제한다") {
             runTest(mainDispatcher) {
                 val detail = fixtureMonkey.giveMeOne<QrDetail>()
                 val useCase = mockk<AddQrUseCase>()
@@ -139,7 +139,7 @@ class QrAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-QR-ADD-FEATURE-024 기기 저장에 실패하면 Effect 없이 진행 상태만 해제하고 같은 내용으로 다시 추가할 수 있다") {
+        test("TC-018763b3-6a0e-4132-b201-64d8ed5b8b6d 기기 저장에 실패하면 Effect 없이 진행 상태만 해제하고 같은 내용으로 다시 추가할 수 있다") {
             runTest(mainDispatcher) {
                 val detail = fixtureMonkey.giveMeOne<QrDetail>()
                 val useCase = mockk<AddQrUseCase>()
@@ -164,7 +164,7 @@ class QrAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-QR-ADD-FEATURE-023 추가를 처리하는 동안 진행 상태를 유지하고 완료 후 해제한다") {
+        test("TC-1e6c2fde-1356-4fe2-a374-f4ba7f54761a 추가를 처리하는 동안 진행 상태를 유지하고 완료 후 해제한다") {
             runTest(mainDispatcher) {
                 val detail = fixtureMonkey.giveMeOne<QrDetail>()
                 val completion = CompletableDeferred<Result<Uuid>>()
@@ -186,7 +186,7 @@ class QrAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-QR-ADD-FEATURE-043 저장된 기본 지도를 위치 포맷의 지도 제공자로 알린다") {
+        test("TC-edafbb3b-c8fe-4b77-bf3e-5f61dfd84093 저장된 기본 지도를 위치 포맷의 지도 제공자로 알린다") {
             runTest(mainDispatcher) {
                 listOf(MapProvider.NAVER, MapProvider.GOOGLE).forEach { provider ->
                     val viewModel = viewModel(addQrUseCase = mockk(), defaultMapProviderUseCase = defaultMapProviderUseCase(Result.success(provider)))
@@ -199,7 +199,7 @@ class QrAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-QR-ADD-FEATURE-042 기본 지도를 읽지 못하면 지도를 표시하지 않는다") {
+        test("TC-7148148e-ecdc-40ac-a941-7b1607d78fbe 기본 지도를 읽지 못하면 지도를 표시하지 않는다") {
             runTest(mainDispatcher) {
                 val viewModel =
                     viewModel(

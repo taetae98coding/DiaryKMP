@@ -35,7 +35,7 @@ class PlaceHomeEmptyTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-046 목록 모드에 노출할 장소가 없으면 아직 장소가 없음을 알린다`() {
+    fun `TC-e936a0fa-e617-4fd0-a609-e05db7c5df4e 목록 모드에 노출할 장소가 없으면 아직 장소가 없음을 알린다`() {
         setListViewModeScaffold(placePagingDataFlowOf(emptyList()))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -45,7 +45,7 @@ class PlaceHomeEmptyTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-PLACE-HOME-FEATURE-046 한국어 환경에서 목록 모드 빈 상태 안내는 아직 장소가 없습니다이다`() {
+    fun `TC-e936a0fa-e617-4fd0-a609-e05db7c5df4e 한국어 환경에서 목록 모드 빈 상태 안내는 아직 장소가 없습니다이다`() {
         setListViewModeScaffold(placePagingDataFlowOf(emptyList()))
 
         composeRule.onNodeWithText(KOREAN_LIST_EMPTY_TITLE).assertExists()
@@ -53,7 +53,7 @@ class PlaceHomeEmptyTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-047 지도 모드에서 보이는 영역 안에 장소가 없으면 이 지역에 장소가 없음을 알린다`() {
+    fun `TC-6dc03a08-8190-479c-97c3-7ac93a94589e 지도 모드에서 보이는 영역 안에 장소가 없으면 이 지역에 장소가 없음을 알린다`() {
         setPlaceList(PlaceHomePlaceListUiState(isLoaded = true, placeList = emptyList()))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -63,7 +63,7 @@ class PlaceHomeEmptyTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-PLACE-HOME-FEATURE-047 한국어 환경에서 지도 모드 빈 상태 안내는 이 지역에 장소가 없습니다이다`() {
+    fun `TC-6dc03a08-8190-479c-97c3-7ac93a94589e 한국어 환경에서 지도 모드 빈 상태 안내는 이 지역에 장소가 없습니다이다`() {
         setPlaceList(PlaceHomePlaceListUiState(isLoaded = true, placeList = emptyList()))
 
         composeRule.onNodeWithText(KOREAN_MAP_EMPTY_TITLE).assertExists()
@@ -71,14 +71,14 @@ class PlaceHomeEmptyTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-048 목록 모드에서 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
+    fun `TC-22ecea50-b2f0-4798-afa3-91bfdbbaf4ca 목록 모드에서 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
         setListViewModeScaffold(loadingPlacePagingDataFlow())
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-049 보이는 영역 안에 장소가 들어오면 빈 상태 안내가 사라진다`() {
+    fun `TC-121d4721-5514-4756-9f86-7629e56388bf 보이는 영역 안에 장소가 들어오면 빈 상태 안내가 사라진다`() {
         val place = viewModeTestPlace()
         val uiStateHolder = MutableStateFlow(PlaceHomePlaceListUiState(isLoaded = true, placeList = emptyList()))
         setPlaceListFlow(uiStateFlow = uiStateHolder)
@@ -93,7 +93,7 @@ class PlaceHomeEmptyTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-050 빈 상태에서도 장소 추가와 보기 모드 전환을 실행할 수 있다`() {
+    fun `TC-c855d27e-5cbe-4ba9-8b87-9aef2f19c6ee 빈 상태에서도 장소 추가와 보기 모드 전환을 실행할 수 있다`() {
         val eventList = mutableListOf<PlaceHomeScaffoldEvent>()
         setListViewModeScaffold(placePagingDataFlowOf(emptyList()), onEvent = eventList::add)
 
@@ -105,14 +105,14 @@ class PlaceHomeEmptyTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-051 지도 모드에서 보이는 영역을 확인하기 전에는 빈 상태 안내를 표시하지 않는다`() {
+    fun `TC-17d2ab26-197f-4195-8da8-9eb4613c6182 지도 모드에서 보이는 영역을 확인하기 전에는 빈 상태 안내를 표시하지 않는다`() {
         setPlaceList(PlaceHomePlaceListUiState())
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-031 목록이 비어 있어도 당김으로 새로고침할 수 있다`() {
+    fun `TC-4b9a0b27-6db2-49ed-b5de-81b896b66c0e 목록이 비어 있어도 당김으로 새로고침할 수 있다`() {
         val eventList = mutableListOf<PlaceHomeScaffoldEvent>()
         setPlaceList(
             uiState = PlaceHomePlaceListUiState(isLoaded = true, placeList = emptyList()),

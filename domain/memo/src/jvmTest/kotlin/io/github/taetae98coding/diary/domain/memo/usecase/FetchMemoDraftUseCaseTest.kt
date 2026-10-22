@@ -32,7 +32,7 @@ class FetchMemoDraftUseCaseTest :
     BehaviorSpec({
         Given("Gemini 설정이 저장되어 있다") {
             When("메모 초안을 조회하면") {
-                Then("TC-MEMO-GEMINI-DATA-001: 저장된 설정과 입력 중인 내용을 함께 전달한다") {
+                Then("TC-9b073a1f-64e9-4bb1-be62-c93c520d2f8b: 저장된 설정과 입력 중인 내용을 함께 전달한다") {
                     val setting = fixtureMonkey.giveMeOne<GeminiSetting>()
                     val settingSlot = slot<GeminiSetting>()
                     val requestSlot = slot<MemoDraftRequest>()
@@ -86,7 +86,7 @@ class FetchMemoDraftUseCaseTest :
 
         Given("생성 결과의 제목과 설명이 공백뿐이다") {
             When("메모 초안을 조회하면") {
-                Then("TC-MEMO-GEMINI-DOMAIN-002: 제목과 설명을 없는 결과로 전달한다") {
+                Then("TC-0e4ad239-dd9e-40bb-a0a1-e1dfc8211061: 제목과 설명을 없는 결과로 전달한다") {
                     listOf("", "   ", "\n\t").forEach { blank ->
                         val useCase =
                             createUseCase(
@@ -104,7 +104,7 @@ class FetchMemoDraftUseCaseTest :
 
         Given("생성 결과의 제목에 줄바꿈이 있다") {
             When("메모 초안을 조회하면") {
-                Then("TC-MEMO-GEMINI-DOMAIN-005: 줄바꿈을 공백으로 바꾼 한 줄 제목을 전달한다") {
+                Then("TC-3ef3be8e-3c9a-47b3-852a-652479ec6181: 줄바꿈을 공백으로 바꾼 한 줄 제목을 전달한다") {
                     listOf(
                         "주간\n회고" to "주간 회고",
                         "주간\r\n회고" to "주간 회고",
@@ -131,7 +131,7 @@ class FetchMemoDraftUseCaseTest :
 
         Given("생성 결과의 기간 시작이 종료보다 늦다") {
             When("메모 초안을 조회하면") {
-                Then("TC-MEMO-GEMINI-DOMAIN-003: 기간이 없는 결과로 전달한다") {
+                Then("TC-e56e96e4-61d9-42ad-81e5-d0a2e5b5a3c4: 기간이 없는 결과로 전달한다") {
                     listOf(
                         MemoDateTime.AllDay(dateRange = LocalDate(2026, 9, 22)..LocalDate(2026, 9, 21)),
                         MemoDateTime.DateTime(
@@ -168,7 +168,7 @@ class FetchMemoDraftUseCaseTest :
 
         Given("원격 생성이 실패한다") {
             When("메모 초안을 조회하면") {
-                Then("TC-MEMO-GEMINI-DATA-006: 실패를 그대로 전달한다") {
+                Then("TC-7f71e24a-8875-4480-a89e-23d86fa1c81e: 실패를 그대로 전달한다") {
                     val cause = IllegalStateException("generate failed")
                     val memoDraftRepository =
                         mockk<MemoDraftRepository> {

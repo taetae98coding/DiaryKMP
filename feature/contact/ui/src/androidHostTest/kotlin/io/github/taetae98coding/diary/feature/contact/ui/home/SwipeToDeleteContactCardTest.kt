@@ -30,7 +30,7 @@ class SwipeToDeleteContactCardTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-026 연락처 카드를 우에서 좌로 밀면 삭제를 한 번 전달한다`() {
+    fun `TC-5d4e393d-6131-429f-b5e2-cfd4cbe29838 연락처 카드를 우에서 좌로 밀면 삭제를 한 번 전달한다`() {
         var deleteCount = 0
         var clickCount = 0
         setCard(contact = contact(), onClick = { clickCount += 1 }, onDelete = { deleteCount += 1 })
@@ -43,7 +43,7 @@ class SwipeToDeleteContactCardTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-028 연락처 카드를 좌에서 우로 밀면 아무것도 전달하지 않는다`() {
+    fun `TC-4babd23d-31a5-4ec2-af3c-5dd9c9fa0b3a 연락처 카드를 좌에서 우로 밀면 아무것도 전달하지 않는다`() {
         var deleteCount = 0
         var clickCount = 0
         val contact = contact()
@@ -58,7 +58,7 @@ class SwipeToDeleteContactCardTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-029 자리 표시 카드는 밀어도 삭제를 전달하지 않는다`() {
+    fun `TC-b14f5beb-3e6f-4d86-8125-5bfe4ea770bb 자리 표시 카드는 밀어도 삭제를 전달하지 않는다`() {
         var deleteCount = 0
         setCard(contact = null, onDelete = { deleteCount += 1 })
 

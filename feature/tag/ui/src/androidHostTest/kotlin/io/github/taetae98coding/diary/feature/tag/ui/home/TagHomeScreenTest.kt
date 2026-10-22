@@ -39,7 +39,7 @@ class TagHomeScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-013 완료된 태그 버튼을 선택하면 완료된 태그 목록으로 이동한다`() {
+    fun `TC-f9ef0bbd-cc67-4cdf-a22f-58c75c647f0c 완료된 태그 버튼을 선택하면 완료된 태그 목록으로 이동한다`() {
         var navigateToFinishedListCount = 0
         setTagHomeScreen(
             viewModel = screenTestViewModel(),
@@ -52,7 +52,7 @@ class TagHomeScreenTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-027 필터 버튼을 선택하면 필터를 연다`() {
+    fun `TC-ddf3850b-a348-43e0-8574-d522000b9e7f 필터 버튼을 선택하면 필터를 연다`() {
         var navigateToFilterCount = 0
         setTagHomeScreen(
             viewModel = screenTestViewModel(),
@@ -65,7 +65,7 @@ class TagHomeScreenTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-024 검색 버튼을 선택하면 검색 화면으로 이동한다`() {
+    fun `TC-edb55175-8060-4867-941f-1a98ed0e30d9 검색 버튼을 선택하면 검색 화면으로 이동한다`() {
         var navigateToSearchCount = 0
         setTagHomeScreen(
             viewModel = screenTestViewModel(),
@@ -87,7 +87,7 @@ class TagHomeScreenTest {
     }
 
     @Test
-    fun `TC-TAG-ADD-FEATURE-001 태그 추가 버튼을 누르면 태그 추가 화면 전환 행동을 한 번 전달한다`() {
+    fun `TC-f0a17125-7f45-48b0-9f81-8caaff3acba2 태그 추가 버튼을 누르면 태그 추가 화면 전환 행동을 한 번 전달한다`() {
         var navigateToAddCount = 0
         setTagHomeScreen(
             viewModel = screenTestViewModel(),
@@ -100,7 +100,7 @@ class TagHomeScreenTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-054 Cmd A 단축키를 입력하면 태그 추가 화면 전환 행동을 한 번 전달한다`() {
+    fun `TC-88bd4111-8fe0-40b1-80ea-06d66a74490f Cmd A 단축키를 입력하면 태그 추가 화면 전환 행동을 한 번 전달한다`() {
         var navigateToAddCount = 0
         setTagHomeScreen(
             viewModel = screenTestViewModel(),
@@ -118,7 +118,7 @@ class TagHomeScreenTest {
     }
 
     @Test
-    fun `TC-TAG-LIST-DETAIL-FEATURE-022 상세 영역에 태그 추가 화면이 표시되어 추가 버튼을 숨기면 Cmd A 단축키로도 태그 추가 화면을 다시 열지 않는다`() {
+    fun `TC-750dee5b-b148-4ca1-89ab-0846a22ac5da 상세 영역에 태그 추가 화면이 표시되어 추가 버튼을 숨기면 Cmd A 단축키로도 태그 추가 화면을 다시 열지 않는다`() {
         var navigateToAddCount = 0
         setTagHomeScreen(
             viewModel = screenTestViewModel(),

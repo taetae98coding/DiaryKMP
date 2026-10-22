@@ -33,7 +33,7 @@ class CalendarTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-FEATURE-001 시작 달로 지정한 달의 캘린더를 여섯 주로 표시한다`() {
+    fun `TC-e41da8ba-c7b2-48b4-a1c2-4645f1ff34ae 시작 달로 지정한 달의 캘린더를 여섯 주로 표시한다`() {
         setCalendar(initialYearMonth = YearMonth(year = 2026, month = Month.JULY))
 
         dayTexts() shouldBe
@@ -84,7 +84,7 @@ class CalendarTest {
     }
 
     @Test
-    fun `TC-CALENDAR-FEATURE-002 시작 달을 지정하지 않으면 오늘이 속한 달을 표시한다`() {
+    fun `TC-e11ab367-e078-45c8-aab9-3bd429ca2980 시작 달을 지정하지 않으면 오늘이 속한 달을 표시한다`() {
         composeRule.setContent {
             DiaryTheme {
                 Calendar {}
@@ -95,7 +95,7 @@ class CalendarTest {
     }
 
     @Test
-    fun `TC-CALENDAR-FEATURE-003 스와이프로 다음 달로 이동한다`() {
+    fun `TC-b41c60cf-c5e3-4cdc-938f-ae8251c3a9a4 스와이프로 다음 달로 이동한다`() {
         setCalendar(initialYearMonth = YearMonth(year = 2026, month = Month.JULY))
 
         composeRule.onRoot().performTouchInput { swipeLeft() }
@@ -105,7 +105,7 @@ class CalendarTest {
     }
 
     @Test
-    fun `TC-CALENDAR-FEATURE-004 스와이프로 이전 달로 이동한다`() {
+    fun `TC-af08ec81-5aa2-4cb2-a866-a134fafbf016 스와이프로 이전 달로 이동한다`() {
         setCalendar(initialYearMonth = YearMonth(year = 2026, month = Month.JULY))
 
         composeRule.onRoot().performTouchInput { swipeRight() }
@@ -115,7 +115,7 @@ class CalendarTest {
     }
 
     @Test
-    fun `TC-CALENDAR-FEATURE-005 1년 1월에서 이전 달로 이동할 수 없다`() {
+    fun `TC-4e665a31-7c41-4c90-88c9-a634f520c2de 1년 1월에서 이전 달로 이동할 수 없다`() {
         setCalendar(initialYearMonth = YearMonth(year = 1, month = Month.JANUARY))
 
         composeRule.onRoot().performTouchInput { swipeRight() }
@@ -125,7 +125,7 @@ class CalendarTest {
     }
 
     @Test
-    fun `TC-CALENDAR-FEATURE-006 화면이 재생성되어도 보던 달이 유지된다`() {
+    fun `TC-ad070fed-8717-422e-9ddd-6dca826f1649 화면이 재생성되어도 보던 달이 유지된다`() {
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
             DiaryTheme {
@@ -141,7 +141,7 @@ class CalendarTest {
     }
 
     @Test
-    fun `TC-CALENDAR-FEATURE-013 지정한 다른 해의 달로 이동을 요청하면 그 달의 캘린더가 표시된다`() {
+    fun `TC-f032e33b-8a2a-4c58-a9e4-ec4e177a41af 지정한 다른 해의 달로 이동을 요청하면 그 달의 캘린더가 표시된다`() {
         val state = CalendarState(initialYearMonth = YearMonth(year = 2026, month = Month.JULY))
 
         composeRule.setContent {
@@ -157,7 +157,7 @@ class CalendarTest {
     }
 
     @Test
-    fun `TC-CALENDAR-FEATURE-013 이동 범위의 첫 달로 이동을 요청하면 그 달의 캘린더가 표시된다`() {
+    fun `TC-f032e33b-8a2a-4c58-a9e4-ec4e177a41af 이동 범위의 첫 달로 이동을 요청하면 그 달의 캘린더가 표시된다`() {
         val state = CalendarState(initialYearMonth = YearMonth(year = 2026, month = Month.JULY))
 
         composeRule.setContent {

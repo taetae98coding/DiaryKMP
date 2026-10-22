@@ -20,7 +20,7 @@ class CalendarSelectHapticTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-SELECT-FEATURE-011 날짜 선택을 시작하면 촉각 피드백을 받는다`() {
+    fun `TC-cd832836-0235-4443-9a5b-c5290f9b5372 날짜 선택을 시작하면 촉각 피드백을 받는다`() {
         val hapticFeedback = mockk<HapticFeedback>(relaxed = true)
         composeRule.setCalendar(hapticFeedback = hapticFeedback)
 
@@ -35,7 +35,7 @@ class CalendarSelectHapticTest {
     }
 
     @Test
-    fun `TC-CALENDAR-SELECT-FEATURE-012 드래그로 선택 기간이 달라지면 추가 촉각 피드백을 받는다`() {
+    fun `TC-4506cdc3-b2ec-4487-ae81-6087efa5ad21 드래그로 선택 기간이 달라지면 추가 촉각 피드백을 받는다`() {
         val hapticFeedback = mockk<HapticFeedback>(relaxed = true)
         composeRule.setCalendar(hapticFeedback = hapticFeedback)
         composeRule.performLongPress(composeRule.dayCenter(day = 14))
@@ -49,7 +49,7 @@ class CalendarSelectHapticTest {
     }
 
     @Test
-    fun `TC-CALENDAR-SELECT-FEATURE-013 드래그해도 선택 기간이 그대로이면 추가 촉각 피드백을 받지 않는다`() {
+    fun `TC-67044a6f-131d-498e-bc78-715522a207b2 드래그해도 선택 기간이 그대로이면 추가 촉각 피드백을 받지 않는다`() {
         val hapticFeedback = mockk<HapticFeedback>(relaxed = true)
         composeRule.setCalendar(hapticFeedback = hapticFeedback)
         composeRule.performLongPress(composeRule.dayCenter(day = 14))

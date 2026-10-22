@@ -18,7 +18,7 @@ class SyncWorkMemoPrimaryTagTest :
             "대표 태그가 없는" to null,
             "대표 태그가 있는" to fixtureMonkey.giveMeOne<Uuid>(),
         ).forEach { (label, primaryTagId) ->
-            test("TC-MEMO-PRIMARY-TAG-DATA-003 $label 메모를 업로드하면 그 대표 태그가 요청에 담긴다") {
+            test("TC-c5626833-a022-4c4c-8eec-cee8f1eeba89 $label 메모를 업로드하면 그 대표 태그가 요청에 담긴다") {
                 val memoList = listOf(memo().copy(primaryTagId = primaryTagId))
                 val context = context(memoList = memoList)
                 val requests = mutableListOf<List<MemoRemoteEntity>>()
@@ -32,7 +32,7 @@ class SyncWorkMemoPrimaryTagTest :
             }
         }
 
-        test("TC-MEMO-PRIMARY-TAG-DATA-005 대표 태그는 메모 종류의 요청과 내려받기 위치로만 오간다") {
+        test("TC-46154ead-6e6e-4374-82d6-e9947ebefaae 대표 태그는 메모 종류의 요청과 내려받기 위치로만 오간다") {
             val pendingMemo = memo().copy(primaryTagId = fixtureMonkey.giveMeOne<Uuid>())
             val pulledMemo = memo().copy(primaryTagId = fixtureMonkey.giveMeOne<Uuid>())
             val context = context(memoList = listOf(pendingMemo))

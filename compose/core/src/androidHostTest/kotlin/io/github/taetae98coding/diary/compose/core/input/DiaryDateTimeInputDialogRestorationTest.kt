@@ -48,7 +48,7 @@ class DiaryDateTimeInputDialogRestorationTest {
     }
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-022 시작 날짜를 고르는 중에 재생성되어도 시작 날짜 고르기가 유지된다`() {
+    fun `TC-b0fe5c66-a2bd-4b1c-85c3-60540f48e54d 시작 날짜를 고르는 중에 재생성되어도 시작 날짜 고르기가 유지된다`() {
         val restorationTester = setDiaryDateTimeInput(initialValue = allDayValue())
 
         composeRule.onNodeWithText(START_DATE_TEXT).performClick()
@@ -61,7 +61,7 @@ class DiaryDateTimeInputDialogRestorationTest {
     }
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-022 종료 날짜를 고르는 중에 재생성되어도 종료 날짜 고르기가 유지된다`() {
+    fun `TC-b0fe5c66-a2bd-4b1c-85c3-60540f48e54d 종료 날짜를 고르는 중에 재생성되어도 종료 날짜 고르기가 유지된다`() {
         val restorationTester = setDiaryDateTimeInput(initialValue = allDayValue())
 
         composeRule.onNodeWithText(ALL_DAY_END_DATE_TEXT).performClick()
@@ -74,7 +74,7 @@ class DiaryDateTimeInputDialogRestorationTest {
     }
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-022 시작 시간을 고르는 중에 재생성되어도 시작 시간 고르기가 유지된다`() {
+    fun `TC-b0fe5c66-a2bd-4b1c-85c3-60540f48e54d 시작 시간을 고르는 중에 재생성되어도 시작 시간 고르기가 유지된다`() {
         val restorationTester = setDiaryDateTimeInput(initialValue = dateTimeValue())
 
         composeRule.onNodeWithText(START_TIME_TEXT).performClick()
@@ -87,7 +87,7 @@ class DiaryDateTimeInputDialogRestorationTest {
     }
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-022 종료 시간을 고르는 중에 재생성되어도 종료 시간 고르기가 유지된다`() {
+    fun `TC-b0fe5c66-a2bd-4b1c-85c3-60540f48e54d 종료 시간을 고르는 중에 재생성되어도 종료 시간 고르기가 유지된다`() {
         val restorationTester = setDiaryDateTimeInput(initialValue = dateTimeValue())
 
         composeRule.onNodeWithText(END_TIME_TEXT).performClick()

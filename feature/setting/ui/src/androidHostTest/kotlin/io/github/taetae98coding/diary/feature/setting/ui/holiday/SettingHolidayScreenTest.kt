@@ -21,7 +21,7 @@ class SettingHolidayScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-003 뒤로가기 동작을 선택하면 이전 화면으로 돌아간다`() {
+    fun `TC-1e6ede6f-955a-4221-8303-bc31c70655b2 뒤로가기 동작을 선택하면 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         val viewModel =
             screenTestViewModel(

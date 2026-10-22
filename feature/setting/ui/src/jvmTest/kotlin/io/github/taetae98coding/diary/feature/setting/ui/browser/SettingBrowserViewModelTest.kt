@@ -49,7 +49,7 @@ class SettingBrowserViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-SETTING-BROWSER-FEATURE-007 저장된 선택을 확인하기 전에는 확인 중 상태를 유지한다") {
+        test("TC-860439ee-3291-4fc1-a90a-643410f83eb2 저장된 선택을 확인하기 전에는 확인 중 상태를 유지한다") {
             val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
             val profileList = listOf(profileA, profileB)
             runTest(mainDispatcher) {
@@ -63,7 +63,7 @@ class SettingBrowserViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-BROWSER-FEATURE-007 선택을 읽지 못하면 확인 중 상태를 유지한다") {
+        test("TC-860439ee-3291-4fc1-a90a-643410f83eb2 선택을 읽지 못하면 확인 중 상태를 유지한다") {
             val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
             val profileList = listOf(profileA, profileB)
             runTest(mainDispatcher) {
@@ -77,7 +77,7 @@ class SettingBrowserViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-BROWSER-FEATURE-002 TC-SETTING-BROWSER-FEATURE-003 프로필 목록과 저장된 선택을 제공한다") {
+        test("TC-8cdc4635-8aeb-4850-92b0-2cd25261574d TC-b5e6028c-3c59-4b4c-9241-37eef4af381b 프로필 목록과 저장된 선택을 제공한다") {
             val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
             val profileList = listOf(profileA, profileB)
             listOf("", profileA.directory, profileB.directory).forEach { directory ->
@@ -92,7 +92,7 @@ class SettingBrowserViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-BROWSER-FEATURE-008 Chrome 프로필이 없으면 빈 목록과 선택 안 함을 제공한다") {
+        test("TC-9f140b04-1651-4b16-ad33-6b610ec8145e Chrome 프로필이 없으면 빈 목록과 선택 안 함을 제공한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(directoryFlow = flowOf(Result.success("")), profileList = emptyList())
 
@@ -103,7 +103,7 @@ class SettingBrowserViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-BROWSER-FEATURE-009 프로필 목록을 읽지 못하면 조회 실패와 선택 안 함을 제공한다") {
+        test("TC-18b66e7e-ec7e-4da4-b380-31f9b4c9bb60 프로필 목록을 읽지 못하면 조회 실패와 선택 안 함을 제공한다") {
             val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
             val profileList = listOf(profileA, profileB)
             listOf("", profileA.directory).forEach { directory ->
@@ -129,7 +129,7 @@ class SettingBrowserViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-BROWSER-DOMAIN-001 목록에 없는 프로필이 저장되어 있으면 선택 안 함으로 제공한다") {
+        test("TC-95d7f314-f066-4d1e-91e9-57ad37ec4a5f 목록에 없는 프로필이 저장되어 있으면 선택 안 함으로 제공한다") {
             val profileA = fixtureMonkey.chromeProfileList(size = 1).single()
             runTest(mainDispatcher) {
                 val viewModel = viewModel(directoryFlow = flowOf(Result.success("unlisted-${fixtureMonkey.giveMeOne<String>()}")), profileList = listOf(profileA))
@@ -142,7 +142,7 @@ class SettingBrowserViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-BROWSER-FEATURE-010 저장된 프로필이 있는데 선택 안 함으로 표시될 때 선택 안 함을 고르면 저장값을 지운다") {
+        test("TC-5d0bcb07-2d63-4a09-b4a4-dc74147478d0 저장된 프로필이 있는데 선택 안 함으로 표시될 때 선택 안 함을 고르면 저장값을 지운다") {
             val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
             val profileList = listOf(profileA, profileB)
             val caseList =
@@ -178,7 +178,7 @@ class SettingBrowserViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-BROWSER-FEATURE-005 저장된 프로필이 없고 선택 안 함이 선택되어 있으면 선택 안 함을 다시 골라도 저장을 요청하지 않는다") {
+        test("TC-a51906dc-7d78-497e-8c46-1fc27c846040 저장된 프로필이 없고 선택 안 함이 선택되어 있으면 선택 안 함을 다시 골라도 저장을 요청하지 않는다") {
             val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
             val profileList = listOf(profileA, profileB)
             runTest(mainDispatcher) {
@@ -199,7 +199,7 @@ class SettingBrowserViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-BROWSER-DOMAIN-002 목록에 없던 프로필이 다시 나타나면 이전 선택을 제공한다") {
+        test("TC-e4e311b2-8208-4e78-b931-51ce7d3fec26 목록에 없던 프로필이 다시 나타나면 이전 선택을 제공한다") {
             val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
             val profileList = listOf(profileA, profileB)
             runTest(mainDispatcher) {
@@ -230,7 +230,7 @@ class SettingBrowserViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-BROWSER-FEATURE-004 선택하지 않은 프로필을 고르면 저장되고 선택 상태가 옮겨진다") {
+        test("TC-a79cbfd7-bc77-4bdf-83ab-cff15848077a 선택하지 않은 프로필을 고르면 저장되고 선택 상태가 옮겨진다") {
             val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
             val profileList = listOf(profileA, profileB)
             runTest(mainDispatcher) {
@@ -256,7 +256,7 @@ class SettingBrowserViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-BROWSER-FEATURE-004 다른 프로필이 선택되어 있을 때 선택하지 않은 프로필을 고르면 저장되고 선택 상태가 옮겨진다") {
+        test("TC-a79cbfd7-bc77-4bdf-83ab-cff15848077a 다른 프로필이 선택되어 있을 때 선택하지 않은 프로필을 고르면 저장되고 선택 상태가 옮겨진다") {
             val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
             val profileList = listOf(profileA, profileB)
             runTest(mainDispatcher) {
@@ -283,7 +283,7 @@ class SettingBrowserViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-BROWSER-FEATURE-004 선택 안 함을 고르면 없음이 저장되고 선택 상태가 옮겨진다") {
+        test("TC-a79cbfd7-bc77-4bdf-83ab-cff15848077a 선택 안 함을 고르면 없음이 저장되고 선택 상태가 옮겨진다") {
             val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
             val profileList = listOf(profileA, profileB)
             runTest(mainDispatcher) {
@@ -309,7 +309,7 @@ class SettingBrowserViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-BROWSER-FEATURE-005 이미 선택된 항목을 다시 고르면 저장을 요청하지 않는다") {
+        test("TC-a51906dc-7d78-497e-8c46-1fc27c846040 이미 선택된 항목을 다시 고르면 저장을 요청하지 않는다") {
             val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
             val profileList = listOf(profileA, profileB)
             runTest(mainDispatcher) {
@@ -338,7 +338,7 @@ class SettingBrowserViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-BROWSER-FEATURE-006 저장되지 않으면 선택 상태가 옮겨지지 않는다") {
+        test("TC-ddce5e6d-e969-4152-807a-0f24f18c9dec 저장되지 않으면 선택 상태가 옮겨지지 않는다") {
             val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
             val profileList = listOf(profileA, profileB)
             runTest(mainDispatcher) {
@@ -358,7 +358,7 @@ class SettingBrowserViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-BROWSER-FEATURE-011 화면을 보는 동안에는 프로필 목록이 바뀌지 않는다") {
+        test("TC-51a164ea-b9a3-4400-94fd-832351838d3e 화면을 보는 동안에는 프로필 목록이 바뀌지 않는다") {
             val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
             val profileList = listOf(profileA, profileB)
             runTest(mainDispatcher) {
@@ -375,7 +375,7 @@ class SettingBrowserViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-BROWSER-FEATURE-012 화면을 떠났다가 다시 들어오면 프로필 목록을 다시 읽는다") {
+        test("TC-b6816f2a-6bf6-4cb8-9e97-96744fff6b6f 화면을 떠났다가 다시 들어오면 프로필 목록을 다시 읽는다") {
             val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
             val profileList = listOf(profileA, profileB)
             runTest(mainDispatcher) {
@@ -393,7 +393,7 @@ class SettingBrowserViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-BROWSER-FEATURE-013 다른 앱에 다녀온 지 5초가 지나 돌아오면 프로필 목록을 다시 읽는다") {
+        test("TC-6c265216-4128-4284-80ab-c0f6b8c67feb 다른 앱에 다녀온 지 5초가 지나 돌아오면 프로필 목록을 다시 읽는다") {
             val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
             val profileList = listOf(profileA, profileB)
             runTest(mainDispatcher) {
@@ -413,7 +413,7 @@ class SettingBrowserViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-BROWSER-FEATURE-014 다른 앱에 다녀온 지 5초 안에 돌아오면 읽어 둔 프로필 목록을 그대로 둔다") {
+        test("TC-3d3ee40e-bf3d-4c03-b305-4a5e19100276 다른 앱에 다녀온 지 5초 안에 돌아오면 읽어 둔 프로필 목록을 그대로 둔다") {
             val (profileA, profileB) = fixtureMonkey.chromeProfileList(size = 2)
             val profileList = listOf(profileA, profileB)
             runTest(mainDispatcher) {

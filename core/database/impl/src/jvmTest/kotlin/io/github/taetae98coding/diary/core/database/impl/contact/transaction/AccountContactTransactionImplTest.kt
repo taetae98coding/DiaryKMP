@@ -67,7 +67,7 @@ class AccountContactTransactionImplTest :
                 ) { statement -> statement.readAll { it.toAccountContact() } }
             }
 
-        test("TC-CONTACT-ADD-DATA-001 연락처와 현재 계정의 연결을 함께 저장한다") {
+        test("TC-7e927777-fb91-4305-91d6-2edf09cea62d 연락처와 현재 계정의 연결을 함께 저장한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val contact = contact()
 
@@ -84,7 +84,7 @@ class AccountContactTransactionImplTest :
                 )
         }
 
-        test("TC-CONTACT-ADD-DOMAIN-009 이름, 설명과 미삭제 상태, 추가 시각을 그대로 저장한다") {
+        test("TC-94d69dd9-1da3-4891-bfdc-ec5a148ab86b 이름, 설명과 미삭제 상태, 추가 시각을 그대로 저장한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val now = instant()
             val contact =
@@ -100,7 +100,7 @@ class AccountContactTransactionImplTest :
             findContactList() shouldBe listOf(contact)
         }
 
-        test("TC-CONTACT-ADD-DATA-002 전화번호는 저장한 순서 그대로 함께 조회된다") {
+        test("TC-2395f8c2-2d07-437e-883f-9baa369e0049 전화번호는 저장한 순서 그대로 함께 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val phoneNumberList =
                 listOf(
@@ -115,7 +115,7 @@ class AccountContactTransactionImplTest :
             findContactList().single().detail.phoneNumberList shouldBe phoneNumberList
         }
 
-        test("TC-CONTACT-ADD-DOMAIN-004 전화번호가 없는 연락처는 빈 전화번호 목록으로 저장된다") {
+        test("TC-54d47d79-d19d-4b62-9477-2f87590574a5 전화번호가 없는 연락처는 빈 전화번호 목록으로 저장된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val contact = contact().let { contact -> contact.copy(detail = contact.detail.copy(phoneNumberList = emptyList())) }
 
@@ -124,7 +124,7 @@ class AccountContactTransactionImplTest :
             findContactList().single().detail.phoneNumberList shouldBe emptyList()
         }
 
-        test("TC-CONTACT-ADD-DATA-013 생일 없이 저장한 태어난 연도를 그대로 함께 조회한다") {
+        test("TC-d5481b57-845d-420d-900e-ec7f8527757b 생일 없이 저장한 태어난 연도를 그대로 함께 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val contact =
                 contact().let { contact ->
@@ -136,7 +136,7 @@ class AccountContactTransactionImplTest :
             findContactList().single().detail shouldBe contact.detail
         }
 
-        test("TC-CONTACT-ADD-DATA-004 키, 신발 사이즈, 생일을 저장한 값 그대로 함께 조회한다") {
+        test("TC-d455eef9-c217-4560-8686-15c4fff6eeaf 키, 신발 사이즈, 생일을 저장한 값 그대로 함께 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val contact =
                 contact().let { contact ->
@@ -155,7 +155,7 @@ class AccountContactTransactionImplTest :
             findContactList().single().detail shouldBe contact.detail
         }
 
-        test("TC-CONTACT-ADD-DATA-005 생일의 날짜와 달력 구분을 함께 저장한다") {
+        test("TC-60665eac-ca6d-4c82-b7a9-2e98d0d3d154 생일의 날짜와 달력 구분을 함께 저장한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val birthday = LocalDate(year = 1998, month = 5, day = 12)
             val contact =
@@ -176,7 +176,7 @@ class AccountContactTransactionImplTest :
             stored.birthdayCalendar shouldBe ContactBirthdayCalendarLocalEntity.LUNAR
         }
 
-        test("TC-CONTACT-ADD-DATA-006 생일이 없으면 날짜와 달력 구분을 모두 없는 상태로 저장한다") {
+        test("TC-e25bcfee-46d1-4d01-a055-c534dfff8889 생일이 없으면 날짜와 달력 구분을 모두 없는 상태로 저장한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val contact =
                 contact().let { contact ->
@@ -190,7 +190,7 @@ class AccountContactTransactionImplTest :
             stored.birthdayCalendar.shouldBeNull()
         }
 
-        test("TC-CONTACT-ADD-DOMAIN-012 키, 신발 사이즈, 생일이 없으면 없는 값으로 저장한다") {
+        test("TC-8df70bbc-e460-4a06-916f-a72e1bfd665d 키, 신발 사이즈, 생일이 없으면 없는 값으로 저장한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val contact =
                 contact().let { contact ->
@@ -233,7 +233,7 @@ class AccountContactTransactionImplTest :
                 )
         }
 
-        test("TC-CONTACT-ADD-DOMAIN-009 서로 다른 식별자의 연락처는 각각 저장한다") {
+        test("TC-94d69dd9-1da3-4891-bfdc-ec5a148ab86b 서로 다른 식별자의 연락처는 각각 저장한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val contactList = List(3) { contact() }.sortedBy { contact -> contact.id.toString() }
 
@@ -244,7 +244,7 @@ class AccountContactTransactionImplTest :
             findContactList() shouldBe contactList
         }
 
-        test("TC-DATA-SYNC-DOMAIN-001 TC-CONTACT-ADD-DATA-009 연락처 추가·수정·삭제·실행 취소·즐겨찾기 변경은 업로드 대기 상태가 된다") {
+        test("TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 TC-6dd12398-c5b0-4e7d-b36c-c8a61031b697 연락처 추가·수정·삭제·실행 취소·즐겨찾기 변경은 업로드 대기 상태가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val contact = contact().copy(isDeleted = false)
             val pending = listOf(AccountContactLocalEntity(accountId = accountId, contactId = contact.id, isDirty = true))
@@ -277,7 +277,7 @@ class AccountContactTransactionImplTest :
             }
         }
 
-        test("TC-CONTACT-DETAIL-DATA-015 수정한 태어난 연도를 기기에 저장한다") {
+        test("TC-8549cc6d-5e8c-452f-948a-11916bc70255 수정한 태어난 연도를 기기에 저장한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val birthYear = fixtureMonkey.giveMeOne<LocalDate>().year
             val contact =
@@ -293,7 +293,7 @@ class AccountContactTransactionImplTest :
             findContactList().single().detail.birthYear shouldBe birthYear + 1
         }
 
-        test("TC-CONTACT-DETAIL-DOMAIN-018 삭제 상태인 연락처도 즐겨찾기를 바꿀 수 있고 삭제 여부는 그대로 남는다") {
+        test("TC-f0aabb78-2348-41f2-8203-5ea73829103c 삭제 상태인 연락처도 즐겨찾기를 바꿀 수 있고 삭제 여부는 그대로 남는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val contact = contact().copy(isFavorite = false, isDeleted = true)
             val updatedAt = instant()
@@ -304,7 +304,7 @@ class AccountContactTransactionImplTest :
             findContactList() shouldBe listOf(contact.copy(isFavorite = true, updatedAt = updatedAt))
         }
 
-        test("TC-CONTACT-ADD-DATA-003 저장에 실패하면 연락처와 계정 연결 중 어느 것도 남지 않는다") {
+        test("TC-05a1f42a-bfb1-4a3d-b30b-7594415bdedf 저장에 실패하면 연락처와 계정 연결 중 어느 것도 남지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val contact = contact()
             val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())

@@ -30,7 +30,7 @@ class DiaryMapProviderTabRowTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-DIARY-MAP-FEATURE-001 초기 제공자를 지정하지 않으면 네이버 지도가 선택된 상태로 표시된다`() {
+    fun `TC-5892fbc1-c2c5-4cd6-8c6a-5b7dcf7f6dea 초기 제공자를 지정하지 않으면 네이버 지도가 선택된 상태로 표시된다`() {
         setDiaryMapProviderTabRow()
 
         composeRule.onNodeWithText(DEFAULT_NAVER_LABEL).assertIsSelected()
@@ -38,7 +38,7 @@ class DiaryMapProviderTabRowTest {
     }
 
     @Test
-    fun `TC-DIARY-MAP-FEATURE-002 초기 제공자로 네이버 지도를 지정하면 네이버 지도가 선택된 상태로 표시된다`() {
+    fun `TC-a740c1d4-9f5b-4622-b763-66eb2d3ac904 초기 제공자로 네이버 지도를 지정하면 네이버 지도가 선택된 상태로 표시된다`() {
         setDiaryMapProviderTabRow(initialProvider = DiaryMapProvider.NAVER)
 
         composeRule.onNodeWithText(DEFAULT_NAVER_LABEL).assertIsSelected()
@@ -46,7 +46,7 @@ class DiaryMapProviderTabRowTest {
     }
 
     @Test
-    fun `TC-DIARY-MAP-FEATURE-002 초기 제공자로 Google 지도를 지정하면 Google 지도가 선택된 상태로 표시된다`() {
+    fun `TC-a740c1d4-9f5b-4622-b763-66eb2d3ac904 초기 제공자로 Google 지도를 지정하면 Google 지도가 선택된 상태로 표시된다`() {
         setDiaryMapProviderTabRow(initialProvider = DiaryMapProvider.GOOGLE)
 
         composeRule.onNodeWithText(DEFAULT_GOOGLE_LABEL).assertIsSelected()
@@ -54,7 +54,7 @@ class DiaryMapProviderTabRowTest {
     }
 
     @Test
-    fun `TC-DIARY-MAP-FEATURE-018 겹치지 않는 배치에서 네이버 지도가 선택된 상태에서 Google 지도를 선택하면 선택 상태가 옮겨진다`() {
+    fun `TC-fe283bf5-5baf-4313-83d8-bd22352e4ab4 겹치지 않는 배치에서 네이버 지도가 선택된 상태에서 Google 지도를 선택하면 선택 상태가 옮겨진다`() {
         setDiaryMapProviderTabRow(initialProvider = DiaryMapProvider.NAVER)
 
         composeRule.onNodeWithText(DEFAULT_GOOGLE_LABEL).performClick()
@@ -64,7 +64,7 @@ class DiaryMapProviderTabRowTest {
     }
 
     @Test
-    fun `TC-DIARY-MAP-FEATURE-018 겹치지 않는 배치에서 Google 지도가 선택된 상태에서 네이버 지도를 선택하면 선택 상태가 옮겨진다`() {
+    fun `TC-fe283bf5-5baf-4313-83d8-bd22352e4ab4 겹치지 않는 배치에서 Google 지도가 선택된 상태에서 네이버 지도를 선택하면 선택 상태가 옮겨진다`() {
         setDiaryMapProviderTabRow(initialProvider = DiaryMapProvider.GOOGLE)
 
         composeRule.onNodeWithText(DEFAULT_NAVER_LABEL).performClick()
@@ -74,7 +74,7 @@ class DiaryMapProviderTabRowTest {
     }
 
     @Test
-    fun `TC-DIARY-MAP-FEATURE-004 이미 선택된 네이버 지도를 다시 선택하면 선택 상태가 유지된다`() {
+    fun `TC-96703ba6-edd3-4bb0-98c1-3cf05a08b898 이미 선택된 네이버 지도를 다시 선택하면 선택 상태가 유지된다`() {
         setDiaryMapProviderTabRow(initialProvider = DiaryMapProvider.NAVER)
 
         composeRule.onNodeWithText(DEFAULT_NAVER_LABEL).performClick()
@@ -84,7 +84,7 @@ class DiaryMapProviderTabRowTest {
     }
 
     @Test
-    fun `TC-DIARY-MAP-FEATURE-004 이미 선택된 Google 지도를 다시 선택하면 선택 상태가 유지된다`() {
+    fun `TC-96703ba6-edd3-4bb0-98c1-3cf05a08b898 이미 선택된 Google 지도를 다시 선택하면 선택 상태가 유지된다`() {
         setDiaryMapProviderTabRow(initialProvider = DiaryMapProvider.GOOGLE)
 
         composeRule.onNodeWithText(DEFAULT_GOOGLE_LABEL).performClick()
@@ -94,7 +94,7 @@ class DiaryMapProviderTabRowTest {
     }
 
     @Test
-    fun `TC-DIARY-MAP-DOMAIN-001 화면이 재생성되어도 선택한 제공자가 유지된다`() {
+    fun `TC-2249f8d9-8f6f-4992-8a25-fc080b0c5a7b 화면이 재생성되어도 선택한 제공자가 유지된다`() {
         val restorationTester = StateRestorationTester(composeRule)
         setDiaryMapProviderTabRow(
             restorationTester = restorationTester,
@@ -112,7 +112,7 @@ class DiaryMapProviderTabRowTest {
     }
 
     @Test
-    fun `TC-DIARY-MAP-DOMAIN-002 표시를 새로 시작하면 초기 제공자로 되돌아간다`() {
+    fun `TC-94322337-bfdc-46ef-8d40-d911116f0dfa 표시를 새로 시작하면 초기 제공자로 되돌아간다`() {
         var isVisible by mutableStateOf(true)
 
         composeRule.setContent {

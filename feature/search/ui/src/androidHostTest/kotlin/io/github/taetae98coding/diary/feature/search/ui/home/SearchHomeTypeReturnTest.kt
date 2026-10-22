@@ -68,7 +68,7 @@ class SearchHomeTypeReturnTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-048 다른 질의의 결과를 보여 준 뒤 떠났던 유형은 그 결과를 거치지 않고 현재 질의를 반영한다`() {
+    fun `TC-afe426fa-47e5-4373-b5cb-09b9d00b3271 다른 질의의 결과를 보여 준 뒤 떠났던 유형은 그 결과를 거치지 않고 현재 질의를 반영한다`() {
         val memo = resultMemo()
         val otherMemo = resultMemo()
         setSearchHomeScreen(queryMemo = memo)

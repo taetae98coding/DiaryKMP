@@ -44,7 +44,7 @@ class PageFinishedPlaceMemoUseCaseTest :
                 )
 
             When("대상 장소의 완료된 메모 페이지를 조회한다") {
-                Then("TC-ENTITY-MEMO-FINISHED-LIST-DATA-001 현재 계정과 대상 장소의 완료된 메모 페이지를 반환한다") {
+                Then("TC-e446b0d4-096a-4328-a3fa-1e26b34bd16f 현재 계정과 대상 장소의 완료된 메모 페이지를 반환한다") {
                     useCase(parameter = PageFinishedPlaceMemoUseCase.Parameter(placeId = placeId, sort = ListSort.DEFAULT)).test {
                         awaitItem().getOrThrow() shouldBeSameInstanceAs pagingData
                         awaitComplete()
@@ -59,7 +59,7 @@ class PageFinishedPlaceMemoUseCaseTest :
                     }
                 }
 
-                Then("TC-ENTITY-MEMO-FINISHED-LIST-DATA-001 미완료 메모 목록 조회를 요청하지 않는다") {
+                Then("TC-e446b0d4-096a-4328-a3fa-1e26b34bd16f 미완료 메모 목록 조회를 요청하지 않는다") {
                     useCase(parameter = PageFinishedPlaceMemoUseCase.Parameter(placeId = placeId, sort = ListSort.DEFAULT)).test {
                         awaitItem()
                         awaitComplete()

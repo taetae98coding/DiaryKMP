@@ -20,14 +20,14 @@ class TagFinishedListDetailPlaceholderTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-TAG-FINISHED-LIST-DETAIL-FEATURE-002 한국어 선택 전 안내를 표시한다`() {
+    fun `TC-ff66a8e8-1259-41b9-b6ce-fd33e373358e 한국어 선택 전 안내를 표시한다`() {
         setTagFinishedListDetailPlaceholder()
 
         assertPlaceholder(message = "태그를 선택하세요")
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-DETAIL-FEATURE-002 기본 환경의 선택 전 안내를 표시한다`() {
+    fun `TC-ff66a8e8-1259-41b9-b6ce-fd33e373358e 기본 환경의 선택 전 안내를 표시한다`() {
         setTagFinishedListDetailPlaceholder()
 
         assertPlaceholder(message = "Choose a tag")

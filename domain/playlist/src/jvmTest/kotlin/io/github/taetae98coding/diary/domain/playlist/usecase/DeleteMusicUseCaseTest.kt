@@ -50,7 +50,7 @@ class DeleteMusicUseCaseTest :
                 )
 
             When("곡을 삭제한다") {
-                Then("TC-MUSIC-DETAIL-DOMAIN-007 TC-PLAYLIST-HOME-DOMAIN-005 삭제 여부와 삭제 시점만 반영한다") {
+                Then("TC-7e5891e2-ca05-4152-8ec5-3bf1da163337 TC-079068f0-1753-4e36-bf89-3578add66562 삭제 여부와 삭제 시점만 반영한다") {
                     useCase(parameter = musicId).shouldBeSuccess(1)
 
                     isDeletedSlot.captured shouldBe true
@@ -60,7 +60,7 @@ class DeleteMusicUseCaseTest :
                     }
                 }
 
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-MUSIC-DETAIL-DATA-007 TC-PLAYLIST-HOME-DATA-004 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-5244b211-1fe9-414b-a74c-5e5544ce300d TC-7307cbf3-ef78-41be-8151-6553701363ac 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
                     useCase(parameter = musicId).shouldBeSuccess(1)
 
                     coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
@@ -82,7 +82,7 @@ class DeleteMusicUseCaseTest :
                 )
 
             When("곡을 삭제한다") {
-                Then("TC-MUSIC-DETAIL-DATA-004 아무것도 바꾸지 않는다") {
+                Then("TC-a5f0997c-cc0b-4266-a1ed-79d955a12c09 아무것도 바꾸지 않는다") {
                     useCase(parameter = Uuid.random()).shouldBeSuccess(0)
                 }
             }
@@ -129,7 +129,7 @@ class DeleteMusicUseCaseTest :
                 )
 
             When("곡을 삭제한다") {
-                Then("TC-MUSIC-DETAIL-DATA-006 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
+                Then("TC-f54d0402-0b9e-4aa6-973f-29ef980b4e07 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
                     useCase(parameter = Uuid.random())
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)

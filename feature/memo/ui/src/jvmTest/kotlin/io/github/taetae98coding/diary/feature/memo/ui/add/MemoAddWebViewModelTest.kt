@@ -52,7 +52,7 @@ class MemoAddWebViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-MEMO-WEB-INPUT-FEATURE-031 선택 목록을 열지 않아도 선택할 수 있는 웹 항목 전체를 빈 검색어로 조회한다") {
+        test("TC-0629cb7e-5a9f-43e8-a1a3-bdabfe84dafa 선택 목록을 열지 않아도 선택할 수 있는 웹 항목 전체를 빈 검색어로 조회한다") {
             runTest(mainDispatcher) {
                 val item = web()
                 val pageMemoSelectableWebUseCase = mockk<PageMemoSelectableWebUseCase>()
@@ -68,7 +68,7 @@ class MemoAddWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-WEB-INPUT-DOMAIN-017 메모리 정리 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
+        test("TC-69d47200-fb39-4656-84a7-e67cf2ea7816 메모리 정리 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
             runTest(mainDispatcher) {
                 val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"
                 val allList = List(2) { web() }
@@ -138,7 +138,7 @@ class MemoAddWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-FEATURE-063 WebDetail 메모 탭에서 진입하면 그 웹 항목만 선택된 상태로 시작한다") {
+        test("TC-8bc7e7d0-9705-4bf2-ad5b-c7233fa2d634 WebDetail 메모 탭에서 진입하면 그 웹 항목만 선택된 상태로 시작한다") {
             runTest(mainDispatcher) {
                 val target = web()
                 val other = web()
@@ -158,7 +158,7 @@ class MemoAddWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-FEATURE-064 WebDetail 메모 탭에서 진입해도 초기 선택을 해제하거나 더 선택할 수 있다") {
+        test("TC-8a446cb3-f4b7-4dde-aed0-222187c3edba WebDetail 메모 탭에서 진입해도 초기 선택을 해제하거나 더 선택할 수 있다") {
             runTest(mainDispatcher) {
                 val target = web()
                 val other = web()
@@ -182,7 +182,7 @@ class MemoAddWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-DOMAIN-015 삭제된 대상 웹 항목는 WebDetail 메모 탭에서 진입해도 선택되지 않은 상태로 시작한다") {
+        test("TC-05cb9f46-4a6a-4410-85cd-379e6994e718 삭제된 대상 웹 항목는 WebDetail 메모 탭에서 진입해도 선택되지 않은 상태로 시작한다") {
             runTest(mainDispatcher) {
                 val deletedTarget = web()
                 val viewModel =
@@ -200,7 +200,7 @@ class MemoAddWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-FEATURE-055 진입하면 선택한 웹 항목이 없는 상태로 시작한다") {
+        test("TC-5355dda3-0c71-4395-ad7c-6091ab036911 진입하면 선택한 웹 항목이 없는 상태로 시작한다") {
             runTest(mainDispatcher) {
                 val webList = listOf(web(), web())
                 val viewModel =
@@ -218,7 +218,7 @@ class MemoAddWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-WEB-INPUT-FEATURE-011 TC-MEMO-WEB-INPUT-FEATURE-012 선택한 웹 항목을 즉시 노출하고 해제하면 즉시 제외한다") {
+        test("TC-182019d3-4d24-47a9-bf9e-5c9eacb453aa TC-e6e37bb6-3f75-4339-bd54-49d403f22e5c 선택한 웹 항목을 즉시 노출하고 해제하면 즉시 제외한다") {
             runTest(mainDispatcher) {
                 val web = web()
                 val viewModel = viewModel(savedWebListFlow = flowOf(Result.success(listOf(web))))
@@ -242,7 +242,7 @@ class MemoAddWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-WEB-INPUT-FEATURE-013 한 번에 여러 웹 항목을 선택할 수 있다") {
+        test("TC-8048ff1f-2f8e-4896-a3a8-0884453d5379 한 번에 여러 웹 항목을 선택할 수 있다") {
             runTest(mainDispatcher) {
                 val firstWeb = web()
                 val secondWeb = web()
@@ -260,7 +260,7 @@ class MemoAddWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-FEATURE-057 화면 구성이 변경되어도 선택한 웹 항목을 유지한다") {
+        test("TC-1cbf3da8-4f9c-439c-8f7d-2b2e21881d1d 화면 구성이 변경되어도 선택한 웹 항목을 유지한다") {
             runTest(mainDispatcher) {
                 val web = web()
                 val viewModel = viewModel(savedWebListFlow = flowOf(Result.success(listOf(web))))
@@ -284,7 +284,7 @@ class MemoAddWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-DOMAIN-011 선택한 웹 항목이 삭제되면 선택에서 제외된 것으로 표시된다") {
+        test("TC-945664c8-eb43-42a1-bbdc-d9f3290167d2 선택한 웹 항목이 삭제되면 선택에서 제외된 것으로 표시된다") {
             runTest(mainDispatcher) {
                 val remainingWeb = web()
                 val removedWeb = web()
@@ -307,7 +307,7 @@ class MemoAddWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-ADD-DATA-018 선택한 뒤 삭제된 웹 항목도 선택으로 남는다") {
+        test("TC-091ffad3-5a38-48c2-aba5-3d815113610a 선택한 뒤 삭제된 웹 항목도 선택으로 남는다") {
             runTest(mainDispatcher) {
                 val remainingWeb = web()
                 val deletedWeb = web()
@@ -329,7 +329,7 @@ class MemoAddWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-WEB-INPUT-DOMAIN-013 자동 선택된 웹 항목의 선택을 해제하면 다시 선택되지 않는다") {
+        test("TC-4b7d7cd6-f4b7-4aef-8016-35bc0427b3a0 자동 선택된 웹 항목의 선택을 해제하면 다시 선택되지 않는다") {
             runTest(mainDispatcher) {
                 val addedWeb = web()
                 val viewModel = viewModel(savedWebListFlow = flowOf(Result.success(listOf(addedWeb))))
@@ -350,7 +350,7 @@ class MemoAddWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-WEB-INPUT-DATA-004 검색어가 바뀌면 새 검색어 기준으로 선택 목록을 다시 조회한다") {
+        test("TC-027e9d6f-0e02-4be7-9ec2-cf03b407ddc0 검색어가 바뀌면 새 검색어 기준으로 선택 목록을 다시 조회한다") {
             runTest(mainDispatcher) {
                 val allWebList = List(2) { web() }
                 val matchedWebList = listOf(allWebList.first())
@@ -371,7 +371,7 @@ class MemoAddWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-WEB-INPUT-DOMAIN-011 검색어를 바꿔도 웹 입력에 표시하는 웹 항목은 그대로다") {
+        test("TC-ab0d8929-597d-4f30-a90d-5cf979c10608 검색어를 바꿔도 웹 입력에 표시하는 웹 항목은 그대로다") {
             runTest(mainDispatcher) {
                 val web = web()
                 val viewModel = viewModel(savedWebListFlow = flowOf(Result.success(listOf(web))))

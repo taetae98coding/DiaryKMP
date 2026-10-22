@@ -23,7 +23,7 @@ class CalendarSelectDomainTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-SELECT-DOMAIN-001 이웃 달에 속한 날짜 칸도 실제 날짜 그대로 선택된다`() {
+    fun `TC-0ec99bf3-7d3e-4ba5-a2be-0a76c1c1eacf 이웃 달에 속한 날짜 칸도 실제 날짜 그대로 선택된다`() {
         val selectedList = mutableListOf<LocalDateRange>()
         composeRule.setCalendar(onSelect = { selectedList += it })
         composeRule.onAllNodesWithText("29").assertCountEquals(2)
@@ -35,7 +35,7 @@ class CalendarSelectDomainTest {
     }
 
     @Test
-    fun `TC-CALENDAR-SELECT-DOMAIN-012 캘린더 밖의 위치는 가장 가까운 날짜 칸을 가리킨다`() {
+    fun `TC-c9090bc4-b6a9-42c7-a4c2-9e15a23a3276 캘린더 밖의 위치는 가장 가까운 날짜 칸을 가리킨다`() {
         val selectedList = mutableListOf<LocalDateRange>()
         composeRule.setCalendar(onSelect = { selectedList += it })
         val start = composeRule.dayCenter(day = 15)
@@ -48,7 +48,7 @@ class CalendarSelectDomainTest {
     }
 
     @Test
-    fun `TC-CALENDAR-SELECT-DOMAIN-003 날짜 선택을 사용하지 않는 화면에서는 선택된 기간이 생기지 않는다`() {
+    fun `TC-6868d290-ca5e-4585-893b-4eb008ce0824 날짜 선택을 사용하지 않는 화면에서는 선택된 기간이 생기지 않는다`() {
         val calendarState = CalendarState(initialYearMonth = JULY_2026)
         composeRule.setCalendar(calendarState = calendarState, onSelect = null)
 
@@ -60,7 +60,7 @@ class CalendarSelectDomainTest {
     }
 
     @Test
-    fun `TC-CALENDAR-SELECT-DOMAIN-003 이벤트를 받는 화면도 날짜 선택을 사용하지 않으면 선택된 기간이 생기지 않는다`() {
+    fun `TC-6868d290-ca5e-4585-893b-4eb008ce0824 이벤트를 받는 화면도 날짜 선택을 사용하지 않으면 선택된 기간이 생기지 않는다`() {
         val calendarState = CalendarState(initialYearMonth = JULY_2026)
         val selectedList = mutableListOf<LocalDateRange>()
         composeRule.setCalendar(calendarState = calendarState, onSelect = { selectedList += it }, isSelectEnabled = false)
@@ -74,7 +74,7 @@ class CalendarSelectDomainTest {
     }
 
     @Test
-    fun `TC-CALENDAR-SELECT-DOMAIN-004 가장자리 영역 밖에서는 선택 드래그로 달이 이동하지 않는다`() {
+    fun `TC-56679b53-ab95-472d-aaa0-cdf9dbd8e36f 가장자리 영역 밖에서는 선택 드래그로 달이 이동하지 않는다`() {
         val calendarState = CalendarState(initialYearMonth = JULY_2026)
         composeRule.setCalendar(calendarState = calendarState)
 
@@ -87,7 +87,7 @@ class CalendarSelectDomainTest {
     }
 
     @Test
-    fun `TC-CALENDAR-SELECT-DOMAIN-013 가장자리 영역 안에서 선택을 시작하면 곧바로 달 이동이 시작된다`() {
+    fun `TC-1acebf7e-5c5a-48e1-b4c5-ae0881721f89 가장자리 영역 안에서 선택을 시작하면 곧바로 달 이동이 시작된다`() {
         val calendarState = CalendarState(initialYearMonth = JULY_2026)
         composeRule.setCalendar(calendarState = calendarState)
         val start = Offset(x = composeRule.rootWidth() - 1F, y = composeRule.dayCenter(day = 18).y)
@@ -109,7 +109,7 @@ class CalendarSelectDomainTest {
     }
 
     @Test
-    fun `TC-CALENDAR-SELECT-DOMAIN-005 왼쪽 가장자리 영역에 머무르면 이전 달로 이동한다`() {
+    fun `TC-1ffc992e-95a7-439a-808c-f4dedadf3371 왼쪽 가장자리 영역에 머무르면 이전 달로 이동한다`() {
         val calendarState = CalendarState(initialYearMonth = JULY_2026)
         composeRule.setCalendar(calendarState = calendarState)
 
@@ -128,7 +128,7 @@ class CalendarSelectDomainTest {
     }
 
     @Test
-    fun `TC-CALENDAR-SELECT-DOMAIN-006 이동 범위를 벗어나는 방향으로는 이동하지 않고 선택이 유지된다`() {
+    fun `TC-62ca4824-095d-4b0a-8393-2575af1a2a53 이동 범위를 벗어나는 방향으로는 이동하지 않고 선택이 유지된다`() {
         val calendarState = CalendarState(initialYearMonth = FIRST_YEAR_MONTH)
         composeRule.setCalendar(calendarState = calendarState)
 

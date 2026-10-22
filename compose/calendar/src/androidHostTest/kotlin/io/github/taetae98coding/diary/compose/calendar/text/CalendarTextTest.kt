@@ -25,7 +25,7 @@ class CalendarTextTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-TEXT-FEATURE-001 지정한 글이 표시된다`() {
+    fun `TC-57f3c28c-32b4-46c0-a809-3ec05a8ee224 지정한 글이 표시된다`() {
         composeRule.setContent {
             DiaryTheme {
                 CalendarText(text = SHORT_TEXT)
@@ -36,7 +36,7 @@ class CalendarTextTest {
     }
 
     @Test
-    fun `TC-CALENDAR-TEXT-DOMAIN-001 글이 한 번에 다 들어가지 않아도 줄을 바꾸거나 생략하지 않는다`() {
+    fun `TC-1b7aa080-34ea-4ca9-adb2-fe9abdd0e32f 글이 한 번에 다 들어가지 않아도 줄을 바꾸거나 생략하지 않는다`() {
         composeRule.setContent {
             DiaryTheme {
                 CalendarText(

@@ -11,7 +11,7 @@ import kotlinx.coroutines.test.runTest
 
 class SyncWorkSyncTimeTest :
     FunSpec({
-        test("TC-DATA-SYNC-DOMAIN-078 업로드와 내려받기가 모두 끝나면 마지막 동기화 시각을 갱신한다") {
+        test("TC-25b81ed8-2398-4288-a009-6f60ee3043ea 업로드와 내려받기가 모두 끝나면 마지막 동기화 시각을 갱신한다") {
             runTest {
                 val context = context()
 
@@ -23,7 +23,7 @@ class SyncWorkSyncTimeTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-078 업로드가 실패하면 마지막 동기화 시각을 갱신하지 않는다") {
+        test("TC-25b81ed8-2398-4288-a009-6f60ee3043ea 업로드가 실패하면 마지막 동기화 시각을 갱신하지 않는다") {
             runTest {
                 val context = context()
                 coEvery { context.tagSyncLocalDataSource.readPendingList(accountId = context.accountId) } throws TestException("push")
@@ -36,7 +36,7 @@ class SyncWorkSyncTimeTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-078 내려받기가 실패하면 마지막 동기화 시각을 갱신하지 않는다") {
+        test("TC-25b81ed8-2398-4288-a009-6f60ee3043ea 내려받기가 실패하면 마지막 동기화 시각을 갱신하지 않는다") {
             runTest {
                 val context = context()
                 coEvery {
@@ -51,7 +51,7 @@ class SyncWorkSyncTimeTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-075 실행될 때마다 업로드를 시작하기 전에 그 계정의 강제 전체 재동기화를 판단한다") {
+        test("TC-92698c87-3464-4a45-8515-6407d982db80 실행될 때마다 업로드를 시작하기 전에 그 계정의 강제 전체 재동기화를 판단한다") {
             runTest {
                 val context = context()
 
@@ -66,7 +66,7 @@ class SyncWorkSyncTimeTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-074 강제 전체 재동기화를 판단한 뒤 같은 계정으로 동기화를 이어 간다") {
+        test("TC-85852b22-2d8d-4095-b9b9-be69e1f5b736 강제 전체 재동기화를 판단한 뒤 같은 계정으로 동기화를 이어 간다") {
             runTest {
                 val context = context()
 

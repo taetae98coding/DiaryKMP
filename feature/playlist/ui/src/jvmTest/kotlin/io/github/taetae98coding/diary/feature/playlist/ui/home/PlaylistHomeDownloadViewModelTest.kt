@@ -46,7 +46,7 @@ class PlaylistHomeDownloadViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-PLAYLIST-HOME-FEATURE-019 다운로드를 선택하면 지금 정렬로 내려받기를 요청한다") {
+        test("TC-4128e4dc-6dbe-4604-9e60-f88b29b1c998 다운로드를 선택하면 지금 정렬로 내려받기를 요청한다") {
             runTest(mainDispatcher) {
                 val requestMusicDownloadUseCase = mockk<RequestMusicDownloadUseCase>()
                 coEvery { requestMusicDownloadUseCase(parameter = any()) } returns Result.success(Unit)
@@ -78,7 +78,7 @@ class PlaylistHomeDownloadViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-DOWNLOAD-FEATURE-008 다운로드를 실행하지 않으면 어떤 곡에도 상태가 없다") {
+        test("TC-6dcfeff1-fa77-4c24-b7b3-711247d3fb7f 다운로드를 실행하지 않으면 어떤 곡에도 상태가 없다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel()
 
@@ -91,7 +91,7 @@ class PlaylistHomeDownloadViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-DOWNLOAD-FEATURE-013 Homebrew가 없으면 직접 설치할 것을 알린다") {
+        test("TC-19b5cf96-076b-4cff-a43a-639e4f77fc13 Homebrew가 없으면 직접 설치할 것을 알린다") {
             runTest(mainDispatcher) {
                 val viewModel =
                     viewModel(
@@ -106,7 +106,7 @@ class PlaylistHomeDownloadViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-DOWNLOAD-FEATURE-014 도구를 설치하지 못하면 준비 실패를 알린다") {
+        test("TC-cf6e0f6d-6083-4da0-9415-b30221861ad2 도구를 설치하지 못하면 준비 실패를 알린다") {
             runTest(mainDispatcher) {
                 val viewModel =
                     viewModel(
@@ -121,7 +121,7 @@ class PlaylistHomeDownloadViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-DOWNLOAD-FEATURE-015 프록시 주소가 없으면 설정에서 입력할 것을 알린다") {
+        test("TC-345754f4-8765-4308-bcf4-73a49557bef4 프록시 주소가 없으면 설정에서 입력할 것을 알린다") {
             runTest(mainDispatcher) {
                 val viewModel =
                     viewModel(
@@ -136,7 +136,7 @@ class PlaylistHomeDownloadViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-DOWNLOAD-FEATURE-016 프록시에 연결할 수 없으면 연결할 수 없음을 알린다") {
+        test("TC-727e36b5-7c5e-481d-a7cc-e52f4e426c55 프록시에 연결할 수 없으면 연결할 수 없음을 알린다") {
             runTest(mainDispatcher) {
                 val viewModel =
                     viewModel(
@@ -151,7 +151,7 @@ class PlaylistHomeDownloadViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-DOWNLOAD-FEATURE-011 알릴 것이 없으면 안내를 내보내지 않는다") {
+        test("TC-94f51396-8b75-4981-91bb-74c8964bc026 알릴 것이 없으면 안내를 내보내지 않는다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel()
 
@@ -175,7 +175,7 @@ class PlaylistHomeDownloadViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-DOWNLOAD-FEATURE-020 화면에 들어와 상태와 안내를 관찰만 하면 내려받기를 요청하지 않는다") {
+        test("TC-4f6c8f9d-b37e-48ec-9b02-a4faed1c5fac 화면에 들어와 상태와 안내를 관찰만 하면 내려받기를 요청하지 않는다") {
             runTest(mainDispatcher) {
                 val requestMusicDownloadUseCase = mockk<RequestMusicDownloadUseCase>()
                 val viewModel = viewModel(requestMusicDownloadUseCase = requestMusicDownloadUseCase)
@@ -196,7 +196,7 @@ class PlaylistHomeDownloadViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-DOWNLOAD-DATA-002 목록을 표시하는 것만으로는 재생 정보를 조회하지 않는다") {
+        test("TC-903ccbd3-9689-4703-a9ce-48804222cc16 목록을 표시하는 것만으로는 재생 정보를 조회하지 않는다") {
             runTest(mainDispatcher) {
                 val requestMusicDownloadUseCase = mockk<RequestMusicDownloadUseCase>()
                 val viewModel = viewModel(requestMusicDownloadUseCase = requestMusicDownloadUseCase)
@@ -212,7 +212,7 @@ class PlaylistHomeDownloadViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLAYLIST-HOME-FEATURE-020 화면을 떠났다 돌아와도 진행 중인 상태를 그대로 본다") {
+        test("TC-bcfbbe85-8a44-4f2b-b17d-115b4e420267 화면을 떠났다 돌아와도 진행 중인 상태를 그대로 본다") {
             runTest(mainDispatcher) {
                 val id = MusicDownloadTarget(id = Uuid.random(), videoId = VIDEO_ID)
                 val stateMapFlow = MutableStateFlow(Result.success(mapOf(id to MusicDownloadState.Running(progress = 0.62F))))

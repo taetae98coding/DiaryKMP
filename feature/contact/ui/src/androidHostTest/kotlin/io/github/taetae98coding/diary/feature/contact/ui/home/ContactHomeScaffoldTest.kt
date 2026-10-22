@@ -33,7 +33,7 @@ class ContactHomeScaffoldTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-006 표시할 연락처가 없으면 빈 상태 안내를 표시한다`() {
+    fun `TC-39ef9475-1880-4b62-821d-0d1a032bd93a 표시할 연락처가 없으면 빈 상태 안내를 표시한다`() {
         setContactHomeScaffold()
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -43,7 +43,7 @@ class ContactHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-CONTACT-HOME-FEATURE-006 한국어 환경에서 빈 상태 안내는 아직 연락처가 없습니다이다`() {
+    fun `TC-39ef9475-1880-4b62-821d-0d1a032bd93a 한국어 환경에서 빈 상태 안내는 아직 연락처가 없습니다이다`() {
         setContactHomeScaffold()
 
         composeRule.onNodeWithText(KOREAN_EMPTY_TITLE).assertExists()
@@ -51,7 +51,7 @@ class ContactHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-009 목록이 비어 있어도 연락처 추가를 선택할 수 있다`() {
+    fun `TC-3473625a-040f-4672-9180-69705b7c05ca 목록이 비어 있어도 연락처 추가를 선택할 수 있다`() {
         val eventList = mutableListOf<ContactHomeScaffoldEvent>()
         setContactHomeScaffold(onEvent = eventList::add)
 
@@ -61,7 +61,7 @@ class ContactHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-014 뒤로가기를 선택하면 돌아가기 행동을 한 번 전달한다`() {
+    fun `TC-3c7dd4ea-e23f-4f08-abb3-ce38a1b4b2b4 뒤로가기를 선택하면 돌아가기 행동을 한 번 전달한다`() {
         val eventList = mutableListOf<ContactHomeScaffoldEvent>()
         setContactHomeScaffold(onEvent = eventList::add)
 
@@ -71,21 +71,21 @@ class ContactHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-CONTACT-LIST-DETAIL-FEATURE-003 상세 영역에 연락처 추가가 놓이면 연락처 추가 버튼이 표시되지 않는다`() {
+    fun `TC-603058fa-cf2e-414c-bac9-ad734a1d8dc3 상세 영역에 연락처 추가가 놓이면 연락처 추가 버튼이 표시되지 않는다`() {
         setContactHomeScaffold(componentVisible = ContactHomeScaffoldComponentVisible(isAddButtonVisible = false))
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-CONTACT-LIST-DETAIL-FEATURE-004 추가 버튼 표시 상태이면 연락처 추가 버튼이 표시된다`() {
+    fun `TC-ab7166d7-90ca-4f2a-9f12-7f000a7e83ff 추가 버튼 표시 상태이면 연락처 추가 버튼이 표시된다`() {
         setContactHomeScaffold(componentVisible = ContactHomeScaffoldComponentVisible(isAddButtonVisible = true))
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).assert(hasClickAction())
     }
 
     @Test
-    fun `TC-CONTACT-LIST-DETAIL-FEATURE-007 상세 영역에 연락처 추가가 놓여도 정렬 컨트롤은 표시된다`() {
+    fun `TC-7fd6a0e3-371d-495e-bb2c-6d4eba41efed 상세 영역에 연락처 추가가 놓여도 정렬 컨트롤은 표시된다`() {
         setContactHomeScaffold(
             contactList = listOf(testContact(name = CONTACT_NAME)),
             componentVisible = ContactHomeScaffoldComponentVisible(isAddButtonVisible = false),
@@ -148,7 +148,7 @@ class ContactHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-039 Cmd A 단축키를 입력하면 연락처 추가 이벤트를 한 번 내보낸다`() {
+    fun `TC-7c0e9822-eced-4d79-a2a5-0cbfa09858e5 Cmd A 단축키를 입력하면 연락처 추가 이벤트를 한 번 내보낸다`() {
         val eventList = mutableListOf<ContactHomeScaffoldEvent>()
         setContactHomeScaffold(onEvent = eventList::add)
 
@@ -158,7 +158,7 @@ class ContactHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-CONTACT-LIST-DETAIL-FEATURE-003 상세 영역에 연락처 추가가 놓이면 Cmd A 단축키로도 연락처 추가 이벤트를 내보내지 않는다`() {
+    fun `TC-603058fa-cf2e-414c-bac9-ad734a1d8dc3 상세 영역에 연락처 추가가 놓이면 Cmd A 단축키로도 연락처 추가 이벤트를 내보내지 않는다`() {
         val eventList = mutableListOf<ContactHomeScaffoldEvent>()
         setContactHomeScaffold(
             onEvent = eventList::add,

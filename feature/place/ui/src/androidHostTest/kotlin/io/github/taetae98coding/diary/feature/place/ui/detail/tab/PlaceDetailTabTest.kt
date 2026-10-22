@@ -77,7 +77,7 @@ class PlaceDetailTabTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-043 화면에 처음 진입하면 장소 디테일 탭이 선택된다`() {
+    fun `TC-44efe64b-c472-4553-b5b5-771b8d7df754 화면에 처음 진입하면 장소 디테일 탭이 선택된다`() {
         val placeTitle = newPlaceTitle()
         val memoTitle = newMemoTitle()
         setScreen(placeTitle = placeTitle, memoTitle = memoTitle)
@@ -89,7 +89,7 @@ class PlaceDetailTabTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-PLACE-DETAIL-FEATURE-043 한국어 환경 탭 접근성 이름을 표시한다`() {
+    fun `TC-44efe64b-c472-4553-b5b5-771b8d7df754 한국어 환경 탭 접근성 이름을 표시한다`() {
         setScreen()
 
         composeRule.onNodeWithContentDescription(KOREAN_DETAIL_TAB_DESCRIPTION).assert(hasClickAction())
@@ -97,7 +97,7 @@ class PlaceDetailTabTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-044 메모 탭을 선택하면 메모 목록을 표시하고 다시 디테일 탭으로 돌아온다`() {
+    fun `TC-f649c555-200d-46df-930e-c19ddc90cb89 메모 탭을 선택하면 메모 목록을 표시하고 다시 디테일 탭으로 돌아온다`() {
         val placeTitle = newPlaceTitle()
         val memoTitle = newMemoTitle()
         setScreen(placeTitle = placeTitle, memoTitle = memoTitle)
@@ -115,7 +115,7 @@ class PlaceDetailTabTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-045 본문을 좌우로 밀어도 탭이 전환되지 않는다`() {
+    fun `TC-808d5610-93a9-4efb-904b-dc52e8275b6b 본문을 좌우로 밀어도 탭이 전환되지 않는다`() {
         val memoTitle = newMemoTitle()
         setScreen(memoTitle = memoTitle)
 
@@ -131,7 +131,7 @@ class PlaceDetailTabTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-046 TC-PLACE-DETAIL-FEATURE-053 조회 중에도 탭 행이 표시되고 메모 탭으로 전환할 수 있다`() {
+    fun `TC-52912109-c8a3-4fa3-a2d9-e25e2f47ca7d TC-32e31664-1c8e-4b86-898c-78adfc38f36e 조회 중에도 탭 행이 표시되고 메모 탭으로 전환할 수 있다`() {
         val placeTitle = newPlaceTitle()
         val memoTitle = newMemoTitle()
         setScreen(placeTitle = placeTitle, memoTitle = memoTitle, uiState = PlaceDetailUiState.Loading)
@@ -145,7 +145,7 @@ class PlaceDetailTabTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-047 탭을 전환해도 수정 중이던 내용이 유지된다`() {
+    fun `TC-c7538896-a90d-4dfb-bec9-8790deac4b9b 탭을 전환해도 수정 중이던 내용이 유지된다`() {
         val placeTitle = newPlaceTitle()
         setScreen(placeTitle = placeTitle)
         composeRule.onNode(hasText(placeTitle) and hasSetTextAction()).performTextInput(EDIT_SUFFIX)
@@ -157,7 +157,7 @@ class PlaceDetailTabTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-055 탭을 전환해도 메모 탭에서 보던 목록 위치가 유지된다`() {
+    fun `TC-88ec84d2-54d0-4125-8238-4583d0e72923 탭을 전환해도 메모 탭에서 보던 목록 위치가 유지된다`() {
         val memoTitleList = List(MEMO_COUNT) { index -> "PlaceMemo$index${newMemoTitle()}" }
         composeRule.setPlaceDetailScreen(
             viewModel = screenTestViewModel(uiState = MutableStateFlow(placeContent())),
@@ -181,7 +181,7 @@ class PlaceDetailTabTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-048 수정 반영 동작은 장소 디테일 탭에서만 제공된다`() {
+    fun `TC-2eabe597-e4d8-4133-9266-f67331faa148 수정 반영 동작은 장소 디테일 탭에서만 제공된다`() {
         val placeTitle = newPlaceTitle()
         setScreen(placeTitle = placeTitle)
         composeRule.onNode(hasText(placeTitle) and hasSetTextAction()).performTextInput(EDIT_SUFFIX)
@@ -195,7 +195,7 @@ class PlaceDetailTabTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-049 외부 지도로 열기와 삭제는 선택한 탭과 관계없이 제공된다`() {
+    fun `TC-20cd9320-9756-4480-8f8d-2cbe24bfaf4e 외부 지도로 열기와 삭제는 선택한 탭과 관계없이 제공된다`() {
         setScreen()
 
         listOf(DEFAULT_DETAIL_TAB_DESCRIPTION, DEFAULT_MEMO_TAB_DESCRIPTION).forEach { tabDescription ->
@@ -207,7 +207,7 @@ class PlaceDetailTabTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-049 기본 지도를 확인했으면 선택한 탭과 관계없이 장소 검색을 제공한다`() {
+    fun `TC-20cd9320-9756-4480-8f8d-2cbe24bfaf4e 기본 지도를 확인했으면 선택한 탭과 관계없이 장소 검색을 제공한다`() {
         val detail = placeDetail(title = newPlaceTitle())
         preparePlaceDetailTabViewModels()
         composeRule.setContent {
@@ -235,7 +235,7 @@ class PlaceDetailTabTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-051 화면 재생성 후에도 선택한 탭이 유지된다`() {
+    fun `TC-79ef9f5c-f96d-47a0-a4c6-7cac13226eaa 화면 재생성 후에도 선택한 탭이 유지된다`() {
         val restorationTester = StateRestorationTester(composeRule)
         preparePlaceDetailTabViewModels()
 
@@ -265,7 +265,7 @@ class PlaceDetailTabTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-052 메모 탭에서 뒤로가도 진입하기 전 화면으로 돌아간다`() {
+    fun `TC-d2d65900-e80b-4009-a4f0-088929c78f82 메모 탭에서 뒤로가도 진입하기 전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         composeRule.setPlaceDetailScreen(
             viewModel = screenTestViewModel(uiState = MutableStateFlow(placeContent())),
@@ -279,7 +279,7 @@ class PlaceDetailTabTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-DOMAIN-036 삭제 상태인 장소에서도 두 탭을 모두 사용할 수 있다`() {
+    fun `TC-c9ec02fd-d4c9-4765-954a-9a576250eb26 삭제 상태인 장소에서도 두 탭을 모두 사용할 수 있다`() {
         // 삭제 상태인 장소도 조회 결과로 표시되므로 내용 표시 상태로 관찰된다.
         val placeTitle = newPlaceTitle()
         val memoTitle = newMemoTitle()
@@ -293,7 +293,7 @@ class PlaceDetailTabTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-050 메모 탭에서 검색 결과를 고르면 주소와 좌표만 반영되고 탭은 바뀌지 않는다`() {
+    fun `TC-b66e7701-1544-467e-87ac-5fe6e65ecd83 메모 탭에서 검색 결과를 고르면 주소와 좌표만 반영되고 탭은 바뀌지 않는다`() {
         // 검색 다이얼로그는 지도를 포함해 호스트 테스트 환경에서 띄울 수 없으므로, 검색 결과를 고른 것과 같은 반영을 화면 상태에 직접 적용한다.
         val placeTitle = newPlaceTitle()
         val detail = placeDetail(title = placeTitle)
@@ -330,7 +330,7 @@ class PlaceDetailTabTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-DOMAIN-035 화면을 떠났다 다시 들어오면 장소 디테일 탭으로 시작한다`() {
+    fun `TC-78b60d4e-07fc-4bf9-8ef9-be7bfd62ae64 화면을 떠났다 다시 들어오면 장소 디테일 탭으로 시작한다`() {
         var isShown by mutableStateOf(true)
         preparePlaceDetailTabViewModels()
         composeRule.setContent {

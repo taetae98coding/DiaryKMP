@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.flowOf
 
 class AccountSyncPendingRepositoryImplTest :
     FunSpec({
-        test("TC-MORE-HOME-DATA-003 계정 식별자로 기기 저장소의 업로드 대기 여부를 조회한다") {
+        test("TC-4ee2634b-a9fe-41a7-8f9c-5db073eae4fe 계정 식별자로 기기 저장소의 업로드 대기 여부를 조회한다") {
             listOf(true, false).forEach { hasPending ->
                 val account = fixtureMonkey.giveMeOne<Account.User>()
                 val localDataSource = mockk<SyncPendingLocalDataSource>()

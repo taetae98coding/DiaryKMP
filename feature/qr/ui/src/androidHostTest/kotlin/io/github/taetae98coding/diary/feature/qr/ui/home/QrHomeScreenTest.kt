@@ -44,7 +44,7 @@ class QrHomeScreenTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-003 뒤로가기를 선택하면 이전 화면으로 돌아간다`() {
+    fun `TC-350a8617-5653-43cd-a044-0f0bab8d3b41 뒤로가기를 선택하면 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         setQrHomeScreen(navigateUp = { navigateUpCount += 1 })
 
@@ -55,7 +55,7 @@ class QrHomeScreenTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-013 QR이 표시되어 있을 때 QR 추가를 선택하면 QrAdd 화면으로 이동한다`() {
+    fun `TC-80636fd6-3377-48c4-b1bd-8ed99076f85b QR이 표시되어 있을 때 QR 추가를 선택하면 QrAdd 화면으로 이동한다`() {
         var navigateToAddCount = 0
         val qr = testQr()
         setQrHomeScreen(
@@ -71,7 +71,7 @@ class QrHomeScreenTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-013 빈 상태 안내가 표시되어 있을 때 QR 추가를 선택하면 QrAdd 화면으로 이동한다`() {
+    fun `TC-80636fd6-3377-48c4-b1bd-8ed99076f85b 빈 상태 안내가 표시되어 있을 때 QR 추가를 선택하면 QrAdd 화면으로 이동한다`() {
         var navigateToAddCount = 0
         setQrHomeScreen(navigateToAdd = { navigateToAddCount += 1 })
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -83,7 +83,7 @@ class QrHomeScreenTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-023 QR이 표시된 목록을 당기면 계정 데이터의 서버 동기화를 한 번 요청한다`() {
+    fun `TC-baec8bc1-1a9a-49bf-b47d-e1f4212413f4 QR이 표시된 목록을 당기면 계정 데이터의 서버 동기화를 한 번 요청한다`() {
         val environment = setQrHomeScreen(pagingDataFlow = MutableStateFlow(qrPagingDataOf(listOf(testQr()))))
 
         composeRule.onNodeWithTag(PULL_TO_REFRESH_TEST_TAG).performTouchInput { swipeDown() }
@@ -93,7 +93,7 @@ class QrHomeScreenTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-023 빈 상태 안내가 표시된 목록을 당기면 계정 데이터의 서버 동기화를 한 번 요청한다`() {
+    fun `TC-baec8bc1-1a9a-49bf-b47d-e1f4212413f4 빈 상태 안내가 표시된 목록을 당기면 계정 데이터의 서버 동기화를 한 번 요청한다`() {
         val environment = setQrHomeScreen()
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
 
@@ -104,7 +104,7 @@ class QrHomeScreenTest {
     }
 
     @Test
-    fun `TC-QR-HOME-DATA-003 QrHome 진입만으로는 서버 동기화를 요청하지 않는다`() {
+    fun `TC-359a26bf-d8af-4399-b6b1-c6599f507146 QrHome 진입만으로는 서버 동기화를 요청하지 않는다`() {
         val environment = setQrHomeScreen(pagingDataFlow = MutableStateFlow(qrPagingDataOf(listOf(testQr()))))
 
         composeRule.waitForIdle()
@@ -113,7 +113,7 @@ class QrHomeScreenTest {
     }
 
     @Test
-    fun `TC-QR-HOME-FEATURE-017 QR이 새로 저장되면 별도 조작 없이 목록에 나타난다`() {
+    fun `TC-842f8033-f6f5-4e25-8796-037bc9d42038 QR이 새로 저장되면 별도 조작 없이 목록에 나타난다`() {
         val existing = testQr()
         val added = testQr()
         val pagingDataFlow = MutableStateFlow(qrPagingDataOf(listOf(existing)))

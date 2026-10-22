@@ -63,7 +63,7 @@ class HolidayHomeGoldenHolidayOptionTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-022 다음 대안으로 넘기면 카드 내용이 그 대안으로 바뀐다`() {
+    fun `TC-dcc0ac0a-7159-4981-ae06-fdc7cc03289f 다음 대안으로 넘기면 카드 내용이 그 대안으로 바뀐다`() {
         setGoldenHoliday()
 
         composeRule.onNodeWithText(FORWARD_PERIOD).assertExists()
@@ -77,7 +77,7 @@ class HolidayHomeGoldenHolidayOptionTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-023 이전 대안으로 넘기면 앞 대안으로 되돌아간다`() {
+    fun `TC-ed299178-9387-4a08-bf3f-8b6472a23a26 이전 대안으로 넘기면 앞 대안으로 되돌아간다`() {
         setGoldenHoliday()
 
         composeRule.onNodeWithContentDescription(DEFAULT_NEXT_OPTION_DESCRIPTION).performClick()
@@ -88,7 +88,7 @@ class HolidayHomeGoldenHolidayOptionTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-024 양 끝 대안에서는 그 방향의 넘기기 동작을 선택할 수 없다`() {
+    fun `TC-e1eacd94-86a2-4946-a94b-c66dbce12f10 양 끝 대안에서는 그 방향의 넘기기 동작을 선택할 수 없다`() {
         setGoldenHoliday()
 
         composeRule.onNodeWithContentDescription(DEFAULT_PREVIOUS_OPTION_DESCRIPTION).assertIsNotEnabled()
@@ -101,7 +101,7 @@ class HolidayHomeGoldenHolidayOptionTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-025 대안이 하나뿐이면 두 넘기기 동작 모두 선택할 수 없다`() {
+    fun `TC-2f87288b-f9bc-40b4-a779-d80a84f22626 대안이 하나뿐이면 두 넘기기 동작 모두 선택할 수 없다`() {
         setGoldenHoliday(optionList = listOf(forwardOption()))
 
         composeRule.onNodeWithText("1 / 1").assertExists()
@@ -110,7 +110,7 @@ class HolidayHomeGoldenHolidayOptionTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-032 다른 년도로 이동했다가 돌아와도 고른 대안은 유지된다`() {
+    fun `TC-8c7b83f2-0a88-4201-9c9f-e26a3d9874e7 다른 년도로 이동했다가 돌아와도 고른 대안은 유지된다`() {
         setGoldenHoliday()
 
         composeRule.onNodeWithContentDescription(DEFAULT_NEXT_OPTION_DESCRIPTION).performClick()

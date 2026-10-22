@@ -47,7 +47,7 @@ class MemoHomeFilterScrollTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-059 유무 필터 축을 바꾸면 목록을 처음부터 다시 본다`() {
+    fun `TC-14cc3f19-018f-49c5-b780-bb86f408324a 유무 필터 축을 바꾸면 목록을 처음부터 다시 본다`() {
         val environment = setScrolledMemoHome()
 
         changeQuery(environment = environment, filterUiState = MemoHomeScaffoldFilterUiState(existence = MemoExistenceFilter(place = MemoFilterExistence.EXIST)))
@@ -56,7 +56,7 @@ class MemoHomeFilterScrollTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-059 좁힌 결과가 바꾸기 전과 같아도 그 결과가 놓이면 처음부터 다시 보고 그 뒤 갱신에서는 자리를 유지한다`() {
+    fun `TC-14cc3f19-018f-49c5-b780-bb86f408324a 좁힌 결과가 바꾸기 전과 같아도 그 결과가 놓이면 처음부터 다시 보고 그 뒤 갱신에서는 자리를 유지한다`() {
         val environment = setScrolledMemoHome()
         val itemList = environment.memoList.map { memo -> MemoListItem.Content(memo = memo) }
 
@@ -87,7 +87,7 @@ class MemoHomeFilterScrollTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-060 선택되어 있지 않은 태그를 선택하면 목록을 처음부터 다시 본다`() {
+    fun `TC-626ba465-0c7a-40a6-b100-16059b7bd907 선택되어 있지 않은 태그를 선택하면 목록을 처음부터 다시 본다`() {
         val tagId = fixtureMonkey.giveMeOne<Uuid>()
         val environment = setScrolledMemoHome()
 
@@ -97,7 +97,7 @@ class MemoHomeFilterScrollTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-060 선택되어 있는 태그의 선택을 해제하면 목록을 처음부터 다시 본다`() {
+    fun `TC-626ba465-0c7a-40a6-b100-16059b7bd907 선택되어 있는 태그의 선택을 해제하면 목록을 처음부터 다시 본다`() {
         val firstTagId = fixtureMonkey.giveMeOne<Uuid>()
         val secondTagId = fixtureMonkey.giveMeOne<Uuid>()
         val environment =
@@ -111,7 +111,7 @@ class MemoHomeFilterScrollTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-060 선택을 전체 해제하면 목록을 처음부터 다시 본다`() {
+    fun `TC-626ba465-0c7a-40a6-b100-16059b7bd907 선택을 전체 해제하면 목록을 처음부터 다시 본다`() {
         val tagId = fixtureMonkey.giveMeOne<Uuid>()
         val environment = setScrolledMemoHome(filterUiState = MemoHomeScaffoldFilterUiState(selectedTagIdSet = setOf(tagId), storedTagIdSet = setOf(tagId)))
 
@@ -121,7 +121,7 @@ class MemoHomeFilterScrollTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-DOMAIN-017 이미 고른 값을 다시 고르면 목록 위치를 유지한다`() {
+    fun `TC-6aebf515-bdff-4737-b9ec-a10ce6fb53a6 이미 고른 값을 다시 고르면 목록 위치를 유지한다`() {
         val filterUiState = MemoHomeScaffoldFilterUiState(existence = MemoExistenceFilter(place = MemoFilterExistence.EXIST))
         val environment = setScrolledMemoHome(filterUiState = filterUiState)
 
@@ -142,7 +142,7 @@ class MemoHomeFilterScrollTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-081 좁힌 결과가 놓이기 전에는 목록 위치를 유지한다`() {
+    fun `TC-217929f7-e4cd-4baf-a36d-0a7d794ec354 좁힌 결과가 놓이기 전에는 목록 위치를 유지한다`() {
         val environment = setScrolledMemoHome()
 
         composeRule.runOnIdle {
@@ -154,7 +154,7 @@ class MemoHomeFilterScrollTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-082 필터를 바꾸지 않은 목록 갱신에서는 목록 위치를 유지한다`() {
+    fun `TC-d92cdc8c-7c18-442b-913c-6c192f13900d 필터를 바꾸지 않은 목록 갱신에서는 목록 위치를 유지한다`() {
         val environment = setScrolledMemoHome()
         val addedMemo = addedMemo()
 
@@ -167,7 +167,7 @@ class MemoHomeFilterScrollTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-083 저장된 필터를 불러오기 전에 이동한 목록 위치는 필터를 불러온 뒤 목록이 갱신되어도 유지한다`() {
+    fun `TC-1215c82b-8984-4b31-88a3-ea059aeaf2a3 저장된 필터를 불러오기 전에 이동한 목록 위치는 필터를 불러온 뒤 목록이 갱신되어도 유지한다`() {
         val environment = setScrolledMemoHome(filterUiState = MemoHomeScaffoldFilterUiState(isLoaded = false))
         val addedMemo = addedMemo()
 

@@ -29,13 +29,13 @@ class MemoGeminiSettingRequiredTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-002 기본 환경에서 설정이 갖춰지지 않으면 열지 않고 설정 필요를 알린다`() {
+    fun `TC-8367fbb2-b2e0-4ab9-9443-bd9c1476b591 기본 환경에서 설정이 갖춰지지 않으면 열지 않고 설정 필요를 알린다`() {
         assertSettingRequired(buttonDescription = DEFAULT_BUTTON_DESCRIPTION, expectedMessage = DEFAULT_SETTING_REQUIRED_MESSAGE, dialogTitle = DEFAULT_DIALOG_TITLE)
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MEMO-GEMINI-FEATURE-002 한국어 환경에서 설정이 갖춰지지 않으면 열지 않고 설정 필요를 알린다`() {
+    fun `TC-8367fbb2-b2e0-4ab9-9443-bd9c1476b591 한국어 환경에서 설정이 갖춰지지 않으면 열지 않고 설정 필요를 알린다`() {
         assertSettingRequired(buttonDescription = KOREAN_BUTTON_DESCRIPTION, expectedMessage = KOREAN_SETTING_REQUIRED_MESSAGE, dialogTitle = KOREAN_DIALOG_TITLE)
     }
 

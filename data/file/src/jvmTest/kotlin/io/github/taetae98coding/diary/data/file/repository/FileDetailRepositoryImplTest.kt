@@ -34,7 +34,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class FileDetailRepositoryImplTest :
     FunSpec({
-        test("TC-FILE-STORAGE-DATA-030 파일 정보를 식별자로 한 번 요청하고 받은 정보를 쓰며, 실패하면 다시 요청하지 않는다") {
+        test("TC-2209b4c9-9d1b-41ca-a863-6c755564b60c 파일 정보를 식별자로 한 번 요청하고 받은 정보를 쓰며, 실패하면 다시 요청하지 않는다") {
             val id = fixtureMonkey.giveMeOne<Uuid>()
             val remoteFile = fixtureMonkey.giveMeOne<FileRemoteEntity>()
             val fileRemoteDataSource = mockk<FileRemoteDataSource>()
@@ -60,7 +60,7 @@ class FileDetailRepositoryImplTest :
             }
         }
 
-        test("TC-FILE-STORAGE-DATA-031 정보 고치기는 식별자와 세 값을 함께 보내고, 실패해도 다시 요청하지 않는다") {
+        test("TC-cd6be59f-06d7-4587-ab0a-6668ae6dd1f4 정보 고치기는 식별자와 세 값을 함께 보내고, 실패해도 다시 요청하지 않는다") {
             val id = fixtureMonkey.giveMeOne<Uuid>()
             val detail = fixtureMonkey.giveMeOne<DiaryFileDetail>()
             val remoteFile = fixtureMonkey.giveMeOne<FileRemoteEntity>()
@@ -75,7 +75,7 @@ class FileDetailRepositoryImplTest :
             coVerify(exactly = 1) { failingDataSource.update(id = any(), name = any(), title = any(), description = any()) }
         }
 
-        test("TC-FILE-STORAGE-DATA-032 TC-FILE-HOME-FEATURE-055 고친 정보는 목록을 다시 요청하지 않고 같은 파일에만 덧씌워진다") {
+        test("TC-a0caa690-b9a5-4d42-b816-abe69de1e0a4 TC-7062b208-3784-4e82-b622-75fc8ac830db 고친 정보는 목록을 다시 요청하지 않고 같은 파일에만 덧씌워진다") {
             runTest {
                 val fileA = fixtureMonkey.giveMeOne<FileRemoteEntity>()
                 val fileB = fixtureMonkey.giveMeOne<FileRemoteEntity>()
@@ -103,7 +103,7 @@ class FileDetailRepositoryImplTest :
             }
         }
 
-        test("TC-FILE-HOME-FEATURE-056 고친 뒤 목록을 처음부터 다시 불러오면 서버가 돌려준 값을 쓴다") {
+        test("TC-44fcf1ca-d962-4253-9a4a-e633d0d1588c 고친 뒤 목록을 처음부터 다시 불러오면 서버가 돌려준 값을 쓴다") {
             runTest {
                 val file = fixtureMonkey.giveMeOne<FileRemoteEntity>()
                 val editedTitle = fixtureMonkey.nonBlankString()
@@ -137,7 +137,7 @@ class FileDetailRepositoryImplTest :
             holder.updated.test { awaitItem().keys shouldBe setOf(file.id) }
         }
 
-        test("TC-FILE-DOWNLOAD-DATA-003 내려받기는 고른 위치와 이름 후보를 저장 위치에 넘기고, 받는 내용은 그 파일의 식별자로 요청해 쓴다") {
+        test("TC-c8dace87-717c-4c9c-a6af-7c9edef184b1 내려받기는 고른 위치와 이름 후보를 저장 위치에 넘기고, 받는 내용은 그 파일의 식별자로 요청해 쓴다") {
             val id = fixtureMonkey.giveMeOne<Uuid>()
             val directory = fixtureMonkey.giveMeOne<FileDownloadDirectory>()
             val result = FileDownloadResult.Saved(name = fixtureMonkey.giveMeOne<String>())
@@ -156,7 +156,7 @@ class FileDetailRepositoryImplTest :
             coVerify(exactly = 1) { fileRemoteDataSource.download(id = id, sink = sink) }
         }
 
-        test("TC-FILE-DOWNLOAD-FEATURE-002 저장 위치에 쓸 수 없으면 저장 위치 실패로 바꿔 알린다") {
+        test("TC-fc37bb69-7a4c-4aac-821c-bfd475e902b5 저장 위치에 쓸 수 없으면 저장 위치 실패로 바꿔 알린다") {
             val fileDownloadLocalDataSource = mockk<FileDownloadLocalDataSource>()
             coEvery { fileDownloadLocalDataSource.save(directory = any(), nameCandidate = any(), write = any()) } throws FileDownloadDirectoryUnavailableException()
             val fileRemoteDataSource = mockk<FileRemoteDataSource>()
@@ -168,7 +168,7 @@ class FileDetailRepositoryImplTest :
             coVerify(exactly = 0) { fileRemoteDataSource.download(id = any(), sink = any()) }
         }
 
-        test("TC-FILE-DOWNLOAD-FEATURE-003 TC-FILE-DOWNLOAD-DOMAIN-003 서버에서 받지 못하면 그 실패를 그대로 알리고 다시 요청하지 않는다") {
+        test("TC-eff813ca-20ff-4336-a492-fa49b3a3374e TC-bd547743-fcaa-4315-bc47-4e245b504ba3 서버에서 받지 못하면 그 실패를 그대로 알리고 다시 요청하지 않는다") {
             listOf(FileNotFoundRemoteException(), IllegalStateException("connection")).forEach { exception ->
                 val fileRemoteDataSource = mockk<FileRemoteDataSource>()
                 coEvery { fileRemoteDataSource.download(id = any(), sink = any()) } throws exception

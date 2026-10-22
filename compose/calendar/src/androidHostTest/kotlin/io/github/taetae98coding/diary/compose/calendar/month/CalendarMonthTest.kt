@@ -20,7 +20,7 @@ class CalendarMonthTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-MONTH-FEATURE-001 지정한 달의 여섯 주를 표시한다`() {
+    fun `TC-47c077f2-f7ea-448f-bdcb-5c4150c86cb2 지정한 달의 여섯 주를 표시한다`() {
         setCalendarMonth(yearMonth = YearMonth(year = 2026, month = Month.JULY))
 
         dayTexts() shouldBe
@@ -71,7 +71,7 @@ class CalendarMonthTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MONTH-DOMAIN-001 주 수가 여섯보다 적은 달은 남는 주가 다음 달 날짜로만 표시된다`() {
+    fun `TC-111f0198-3f2d-44eb-b535-b580c03ad77d 주 수가 여섯보다 적은 달은 남는 주가 다음 달 날짜로만 표시된다`() {
         setCalendarMonth(yearMonth = YearMonth(year = 2026, month = Month.FEBRUARY))
 
         dayTexts() shouldBe (1..LAST_DAY_OF_FEBRUARY_2026).map(Int::toString) + (1..LAST_DAY_OF_REMAINING_WEEKS_IN_MARCH).map(Int::toString)

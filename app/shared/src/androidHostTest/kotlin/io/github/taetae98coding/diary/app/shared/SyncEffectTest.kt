@@ -40,7 +40,7 @@ class SyncEffectTest {
     }
 
     @Test
-    fun `TC-DATA-SYNC-DOMAIN-032 TC-SYNC-REFRESH-FEATURE-003 Android와 iOS에서 앱이 다시 화면에 보이게 되면 진행을 표시할 동기화를 다시 요청한다`() {
+    fun `TC-c066000b-3dfc-4f5b-a451-7aea39e33f11 TC-f7816008-73c9-4079-a740-e4e695b0de94 Android와 iOS에서 앱이 다시 화면에 보이게 되면 진행을 표시할 동기화를 다시 요청한다`() {
         val uiStateFlow = MutableStateFlow<AppSyncUiState>(AppSyncUiState.Authenticated(accountId = fixtureMonkey.giveMeOne<Uuid>()))
         val requestSync = mockk<() -> Unit>(relaxed = true)
         val lifecycleOwner = setSyncEffect(uiStateFlow, requestSync)
@@ -58,7 +58,7 @@ class SyncEffectTest {
     }
 
     @Test
-    fun `TC-DATA-SYNC-DOMAIN-035 Android와 iOS에서 앱이 화면에서 보이지 않는 동안에는 동기화를 요청하지 않는다`() {
+    fun `TC-f4431c7e-f157-4e58-9bbe-fb9178eb43ca Android와 iOS에서 앱이 화면에서 보이지 않는 동안에는 동기화를 요청하지 않는다`() {
         val uiStateFlow = MutableStateFlow<AppSyncUiState>(AppSyncUiState.Loading)
         val requestSync = mockk<() -> Unit>(relaxed = true)
         setSyncEffect(uiStateFlow, requestSync, initialState = Lifecycle.State.CREATED)
@@ -72,7 +72,7 @@ class SyncEffectTest {
     }
 
     @Test
-    fun `TC-DATA-SYNC-DOMAIN-086 Android와 iOS에서 보이지 않는 동안 바뀐 계정은 다시 보이게 될 때 동기화를 한 번 요청한다`() {
+    fun `TC-04e09e9f-06f8-4d7b-9cee-6b231c51ce59 Android와 iOS에서 보이지 않는 동안 바뀐 계정은 다시 보이게 될 때 동기화를 한 번 요청한다`() {
         val uiStateFlow = MutableStateFlow<AppSyncUiState>(AppSyncUiState.Loading)
         val requestSync = mockk<() -> Unit>(relaxed = true)
         val lifecycleOwner = setSyncEffect(uiStateFlow, requestSync, initialState = Lifecycle.State.CREATED)
@@ -90,7 +90,7 @@ class SyncEffectTest {
     }
 
     @Test
-    fun `TC-DATA-SYNC-DOMAIN-085 TC-SYNC-REFRESH-FEATURE-003 앱 화면이 다시 만들어지면 같은 계정이어도 진행을 표시할 동기화를 한 번 다시 요청한다`() {
+    fun `TC-c016ece6-0cdf-4afc-a776-f3fe741d3821 TC-f7816008-73c9-4079-a740-e4e695b0de94 앱 화면이 다시 만들어지면 같은 계정이어도 진행을 표시할 동기화를 한 번 다시 요청한다`() {
         val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
         val getAccountUseCase = mockk<GetAccountUseCase>()
         every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
@@ -138,7 +138,7 @@ class SyncEffectTest {
     }
 
     @Test
-    fun `TC-DATA-SYNC-DOMAIN-011 TC-DATA-SYNC-DOMAIN-092 인증이 풀렸다가 같은 계정으로 다시 인증되면 동기화를 다시 요청한다`() {
+    fun `TC-5ecc40ab-3bb8-4d03-9955-3574130ebb8c TC-bce9da35-2f00-4bb6-9621-28916b11bd49 인증이 풀렸다가 같은 계정으로 다시 인증되면 동기화를 다시 요청한다`() {
         val accountId = fixtureMonkey.giveMeOne<Uuid>()
         val uiStateFlow = MutableStateFlow<AppSyncUiState>(AppSyncUiState.Authenticated(accountId = accountId))
         val requestSync = mockk<() -> Unit>(relaxed = true)

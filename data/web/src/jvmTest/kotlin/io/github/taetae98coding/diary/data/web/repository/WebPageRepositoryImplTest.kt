@@ -18,7 +18,7 @@ import io.mockk.mockk
 
 class WebPageRepositoryImplTest :
     FunSpec({
-        test("TC-WEB-DETAIL-DOMAIN-008 TC-WEB-DETAIL-DATA-004 저장된 URL과 요청 헤더를 순서 그대로 원격에 전달한다") {
+        test("TC-c0f80397-8368-4688-8bda-5f9884bf9f96 TC-178ebe51-6c6f-4137-8b09-b4009f5bd484 저장된 URL과 요청 헤더를 순서 그대로 원격에 전달한다") {
             val url = "https://developer.android.com/${fixtureMonkey.giveMeOne<Int>()}"
             val headerList =
                 listOf(
@@ -45,7 +45,7 @@ class WebPageRepositoryImplTest :
             }
         }
 
-        test("TC-WEB-DETAIL-DOMAIN-009 받은 응답의 주소를 기준 주소로, 본문을 그대로 전달한다") {
+        test("TC-069417bf-bcdf-4e50-9f52-6337d1805387 받은 응답의 주소를 기준 주소로, 본문을 그대로 전달한다") {
             val remotePage = remotePage()
             val remoteDataSource = mockk<WebPageRemoteDataSource>()
             coEvery { remoteDataSource.get(url = any(), headerList = any()) } returns remotePage
@@ -55,7 +55,7 @@ class WebPageRepositoryImplTest :
                 WebPage(baseUrl = remotePage.url, body = remotePage.body)
         }
 
-        test("TC-WEB-DETAIL-DATA-007 원격 요청이 실패하면 실패를 그대로 전파한다") {
+        test("TC-db6726ec-6a9a-440c-bef1-a36f4c3196ca 원격 요청이 실패하면 실패를 그대로 전파한다") {
             val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val remoteDataSource = mockk<WebPageRemoteDataSource>()
             coEvery { remoteDataSource.get(url = any(), headerList = any()) } throws throwable

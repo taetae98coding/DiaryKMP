@@ -17,7 +17,7 @@ import kotlin.uuid.Uuid
 
 class SyncWorkChecklistTest :
     FunSpec({
-        test("TC-DATA-SYNC-DOMAIN-020 체크리스트만 대기하면 체크리스트 요청만 발생한다") {
+        test("TC-28a7ff40-be46-4362-a4de-ddf85ceba185 체크리스트만 대기하면 체크리스트 요청만 발생한다") {
             val context = context(checklistList = checklists(size = 1))
 
             context.subject.doWork()
@@ -28,7 +28,7 @@ class SyncWorkChecklistTest :
             coVerify(exactly = 0) { context.qrRemoteDataSource.push(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-020 체크 항목만 대기하면 체크 항목 요청만 발생한다") {
+        test("TC-28a7ff40-be46-4362-a4de-ddf85ceba185 체크 항목만 대기하면 체크 항목 요청만 발생한다") {
             val context = context(checklistItemList = checklistItems(size = 1))
 
             context.subject.doWork()
@@ -44,7 +44,7 @@ class SyncWorkChecklistTest :
             100 to listOf(100),
             201 to listOf(100, 100, 1),
         ).forEach { (itemCount, expectedRequestSizes) ->
-            test("TC-DATA-SYNC-DATA-005 체크리스트 $itemCount 개를 최대 100개 단위로 중복과 누락 없이 요청한다") {
+            test("TC-400fe05d-3f17-47cf-b0bb-ca12fe6625c0 체크리스트 $itemCount 개를 최대 100개 단위로 중복과 누락 없이 요청한다") {
                 val checklistList = checklists(size = itemCount)
                 val context = context(checklistList = checklistList)
                 val requests = mutableListOf<List<ChecklistRemoteEntity>>()
@@ -58,7 +58,7 @@ class SyncWorkChecklistTest :
                 requests.flatten() shouldContainExactly checklistList.map { checklist -> checklist.toRemote() }
             }
 
-            test("TC-DATA-SYNC-DATA-005 체크 항목 $itemCount 개를 최대 100개 단위로 중복과 누락 없이 요청한다") {
+            test("TC-400fe05d-3f17-47cf-b0bb-ca12fe6625c0 체크 항목 $itemCount 개를 최대 100개 단위로 중복과 누락 없이 요청한다") {
                 val itemList = checklistItems(size = itemCount)
                 val context = context(checklistItemList = itemList)
                 val requests = mutableListOf<List<ChecklistItemRemoteEntity>>()
@@ -73,7 +73,7 @@ class SyncWorkChecklistTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-007 삭제된 체크리스트와 뺀 체크 항목도 삭제 상태로 업로드된다") {
+        test("TC-429c3283-a871-461c-99ea-9f5f4fbce798 삭제된 체크리스트와 뺀 체크 항목도 삭제 상태로 업로드된다") {
             val checklistList = listOf(fixtureMonkey.localChecklist(isDeleted = true), fixtureMonkey.localChecklist(isDeleted = false))
             val itemList =
                 listOf(
@@ -96,7 +96,7 @@ class SyncWorkChecklistTest :
             itemRequests.flatten().map { request -> request.isDeleted } shouldContainExactly listOf(true, false)
         }
 
-        test("TC-DATA-SYNC-DOMAIN-096 같은 체크리스트의 서로 다른 체크 항목은 체크리스트 없이 각자의 전체 상태로 업로드된다") {
+        test("TC-860568ea-3f66-4d2d-833d-4eeeed777358 같은 체크리스트의 서로 다른 체크 항목은 체크리스트 없이 각자의 전체 상태로 업로드된다") {
             val checklistId = fixtureMonkey.giveMeOne<Uuid>()
             val itemList =
                 listOf(
@@ -115,7 +115,7 @@ class SyncWorkChecklistTest :
             requests.flatten() shouldContainExactly itemList.map { item -> item.toRemote() }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-026 업로드 묶음이 성공하면 보낸 체크리스트와 체크 항목의 대기 해제를 요청한다") {
+        test("TC-f5c45486-bd23-45b1-bd7f-493816468e58 업로드 묶음이 성공하면 보낸 체크리스트와 체크 항목의 대기 해제를 요청한다") {
             val checklistList = checklists(size = 101)
             val itemList = checklistItems(size = 3)
             val context = context(checklistList = checklistList, checklistItemList = itemList)
@@ -133,7 +133,7 @@ class SyncWorkChecklistTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-029 TC-CHECKLIST-ADD-DATA-005 체크 항목 업로드가 실패하면 대기를 해제하지 않고 내려받기를 진행하지 않는다") {
+        test("TC-929d599a-bd66-4c34-8b8f-fd0df8e6aeee TC-90561386-15a3-4139-9983-cb88f3fe4a47 체크 항목 업로드가 실패하면 대기를 해제하지 않고 내려받기를 진행하지 않는다") {
             val context = context(checklistItemList = checklistItems(size = 1))
             val failure = TestException(fixtureMonkey.giveMeOne())
             coEvery { context.checklistItemRemoteDataSource.push(any()) } throws failure
@@ -145,7 +145,7 @@ class SyncWorkChecklistTest :
             coVerify(exactly = 0) { context.checklistRemoteDataSource.pull(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-029 TC-CHECKLIST-ADD-DATA-005 체크리스트 업로드가 실패하면 대기를 해제하지 않고 내려받기를 진행하지 않는다") {
+        test("TC-929d599a-bd66-4c34-8b8f-fd0df8e6aeee TC-90561386-15a3-4139-9983-cb88f3fe4a47 체크리스트 업로드가 실패하면 대기를 해제하지 않고 내려받기를 진행하지 않는다") {
             val context = context(checklistList = checklists(size = 1))
             val failure = TestException(fixtureMonkey.giveMeOne())
             coEvery { context.checklistRemoteDataSource.push(any()) } throws failure
@@ -157,7 +157,7 @@ class SyncWorkChecklistTest :
             coVerify(exactly = 0) { context.tagRemoteDataSource.pull(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-097 체크리스트 업로드가 성공하고 체크 항목 업로드가 실패하면 체크리스트의 대기 해제만 유지된다") {
+        test("TC-c320d931-4f62-4f3c-a2e8-ebae4742a3c3 체크리스트 업로드가 성공하고 체크 항목 업로드가 실패하면 체크리스트의 대기 해제만 유지된다") {
             val checklist = fixtureMonkey.localChecklist(isDeleted = false)
             val item = fixtureMonkey.localChecklistItem(isChecked = false, isDeleted = false, checklistId = checklist.id)
             val context = context(checklistList = listOf(checklist), checklistItemList = listOf(item))
@@ -173,7 +173,7 @@ class SyncWorkChecklistTest :
             coVerify(exactly = 0) { context.tagRemoteDataSource.pull(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-054 태그 업로드가 실패해도 체크리스트와 체크 항목은 끝까지 업로드한다") {
+        test("TC-38d5d054-84c2-42b1-a9bf-75572a81a394 태그 업로드가 실패해도 체크리스트와 체크 항목은 끝까지 업로드한다") {
             val context =
                 context(
                     tagList = tags(size = 1),
@@ -193,7 +193,7 @@ class SyncWorkChecklistTest :
             "체크리스트" to true,
             "체크 항목" to false,
         ).forEach { (failingLabel, isChecklistFailing) ->
-            test("TC-DATA-SYNC-DOMAIN-054 $failingLabel 이 실패해도 태그와 장소와 웹 항목과 연락처와 곡과 QR은 끝까지 업로드한다") {
+            test("TC-38d5d054-84c2-42b1-a9bf-75572a81a394 $failingLabel 이 실패해도 태그와 장소와 웹 항목과 연락처와 곡과 QR은 끝까지 업로드한다") {
                 val context =
                     context(
                         tagList = tags(size = 201),
@@ -227,7 +227,7 @@ class SyncWorkChecklistTest :
             }
         }
 
-        test("TC-DATA-SYNC-DATA-017 TC-DATA-SYNC-DATA-020 체크리스트와 체크 항목 내려받기는 각자 기록된 순번부터 빈 응답까지 반복한다") {
+        test("TC-cce8783a-21bb-4316-bdb7-74d4d2fe8853 TC-21ff0303-9f3c-4cb3-9f35-4251ec918ee8 체크리스트와 체크 항목 내려받기는 각자 기록된 순번부터 빈 응답까지 반복한다") {
             val context = context()
             val checklistPullList = checklistPulls(usnList = listOf(4L))
             val itemPullList = checklistItemPulls(usnList = listOf(7L, 8L))
@@ -258,7 +258,7 @@ class SyncWorkChecklistTest :
             coVerify(exactly = 2) { context.checklistItemRemoteDataSource.pull(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-024 실행 시점에 확인된 계정의 체크리스트와 체크 항목만 조회한다") {
+        test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 체크리스트와 체크 항목만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val context = context(accountId = accountId)

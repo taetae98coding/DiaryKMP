@@ -35,7 +35,7 @@ class GetAccountUseCaseTest :
                 val useCase = GetAccountUseCase(sessionRepository = sessionRepository, userDataRepository = userDataRepository)
 
                 When("현재 계정 상태를 확인한다") {
-                    Then("TC-ACCOUNT-DOMAIN-001 $session 계정이 게스트로 확정된다") {
+                    Then("TC-47890aca-a023-40f5-ac90-fde8f2871ea1 $session 계정이 게스트로 확정된다") {
                         useCase(Unit).test {
                             awaitItem().shouldBeSuccess() shouldBe Account.Guest
                             awaitComplete()
@@ -57,7 +57,7 @@ class GetAccountUseCaseTest :
                 val useCase = GetAccountUseCase(sessionRepository = sessionRepository, userDataRepository = userDataRepository)
 
                 When("현재 계정 상태를 확인한다") {
-                    Then("TC-ACCOUNT-DOMAIN-002 $profileImageCase 계정이 사용자로 확정되고 이메일과 프로필 이미지를 그대로 가진다") {
+                    Then("TC-98390335-9771-4d0f-b630-f34cdb12e60d $profileImageCase 계정이 사용자로 확정되고 이메일과 프로필 이미지를 그대로 가진다") {
                         useCase(Unit).test {
                             val user = awaitItem().shouldBeSuccess().shouldBeInstanceOf<Account.User>()
                             user.email shouldBe email
@@ -83,7 +83,7 @@ class GetAccountUseCaseTest :
                 val useCase = GetAccountUseCase(sessionRepository = sessionRepository, userDataRepository = userDataRepository)
 
                 When("현재 계정 상태를 확인한다") {
-                    Then("TC-ACCOUNT-DOMAIN-003 $session 세션 갱신 여부가 $isSessionValid 이다") {
+                    Then("TC-cef82430-f475-48cc-8367-b283ab4e5cae $session 세션 갱신 여부가 $isSessionValid 이다") {
                         useCase(Unit).test {
                             val user = awaitItem().shouldBeSuccess().shouldBeInstanceOf<Account.User>()
                             user.isSessionValid shouldBe isSessionValid
@@ -107,7 +107,7 @@ class GetAccountUseCaseTest :
                 val useCase = GetAccountUseCase(sessionRepository = sessionRepository, userDataRepository = userDataRepository)
 
                 When("현재 계정 상태를 확인한다") {
-                    Then("TC-ACCOUNT-DOMAIN-009 $session 세션이 갱신되지 않은 사용자의 세션 확인 중 여부가 $isSessionPending 이다") {
+                    Then("TC-a7916a56-0e0e-4fbf-862d-aa960fce0957 $session 세션이 갱신되지 않은 사용자의 세션 확인 중 여부가 $isSessionPending 이다") {
                         useCase(Unit).test {
                             val user = awaitItem().shouldBeSuccess().shouldBeInstanceOf<Account.User>()
                             user.isSessionValid shouldBe false
@@ -127,7 +127,7 @@ class GetAccountUseCaseTest :
             val useCase = GetAccountUseCase(sessionRepository = sessionRepository, userDataRepository = userDataRepository)
 
             When("현재 계정 상태를 확인한다") {
-                Then("TC-ACCOUNT-DOMAIN-004 세션만 확인되면 계정 상태를 확정하지 않는다") {
+                Then("TC-e654cf8f-76fd-40ee-a15d-b302c00c40bd 세션만 확인되면 계정 상태를 확정하지 않는다") {
                     useCase(Unit).test {
                         expectNoEvents()
                     }
@@ -144,7 +144,7 @@ class GetAccountUseCaseTest :
             val useCase = GetAccountUseCase(sessionRepository = sessionRepository, userDataRepository = userDataRepository)
 
             When("현재 계정 상태를 확인한다") {
-                Then("TC-ACCOUNT-DOMAIN-004 사용자 정보만 확인되면 계정 상태를 확정하지 않는다") {
+                Then("TC-e654cf8f-76fd-40ee-a15d-b302c00c40bd 사용자 정보만 확인되면 계정 상태를 확정하지 않는다") {
                     useCase(Unit).test {
                         expectNoEvents()
                     }
@@ -163,7 +163,7 @@ class GetAccountUseCaseTest :
             val useCase = GetAccountUseCase(sessionRepository = sessionRepository, userDataRepository = userDataRepository)
 
             When("사용자 정보가 새로 저장된다") {
-                Then("TC-ACCOUNT-DOMAIN-005 계정 상태가 사용자로 바뀐다") {
+                Then("TC-51b9d3aa-2192-4b41-b964-53f2702f8345 계정 상태가 사용자로 바뀐다") {
                     useCase(Unit).test {
                         awaitItem().shouldBeSuccess() shouldBe Account.Guest
                         userDataFlow.value = userData
@@ -184,7 +184,7 @@ class GetAccountUseCaseTest :
             val useCase = GetAccountUseCase(sessionRepository = sessionRepository, userDataRepository = userDataRepository)
 
             When("저장된 사용자 정보가 사라진다") {
-                Then("TC-ACCOUNT-DOMAIN-006 계정 상태가 게스트로 바뀐다") {
+                Then("TC-24c701bc-78e8-4770-860e-bbb38d80bd88 계정 상태가 게스트로 바뀐다") {
                     useCase(Unit).test {
                         awaitItem().shouldBeSuccess().shouldBeInstanceOf<Account.User>()
                         userDataFlow.value = null
@@ -205,7 +205,7 @@ class GetAccountUseCaseTest :
             val useCase = GetAccountUseCase(sessionRepository = sessionRepository, userDataRepository = userDataRepository)
 
             When("사용자 정보는 그대로인 채 로그인 세션이 인증된 상태로 바뀐다") {
-                Then("TC-ACCOUNT-DOMAIN-007 계정이 사용자로 유지되고 세션 갱신 여부만 갱신됨으로 바뀐다") {
+                Then("TC-b41b885c-da4d-40bb-ac5c-d4a8ac83383a 계정이 사용자로 유지되고 세션 갱신 여부만 갱신됨으로 바뀐다") {
                     useCase(Unit).test {
                         val before = awaitItem().shouldBeSuccess().shouldBeInstanceOf<Account.User>()
                         before.isSessionValid.shouldBeFalse()
@@ -228,7 +228,7 @@ class GetAccountUseCaseTest :
             val useCase = GetAccountUseCase(sessionRepository = sessionRepository, userDataRepository = userDataRepository)
 
             When("현재 계정 상태를 확인한다") {
-                Then("TC-ACCOUNT-DOMAIN-008 세션 오류가 조회 실패로 전달된다") {
+                Then("TC-3d4f88a7-bce4-49d2-9de4-2f00e4a4341c 세션 오류가 조회 실패로 전달된다") {
                     useCase(Unit).test {
                         awaitItem().shouldBeFailure()
                         awaitComplete()
@@ -245,7 +245,7 @@ class GetAccountUseCaseTest :
             val useCase = GetAccountUseCase(sessionRepository = sessionRepository, userDataRepository = userDataRepository)
 
             When("현재 계정 상태를 확인한다") {
-                Then("TC-ACCOUNT-DOMAIN-008 사용자 정보 오류가 조회 실패로 전달된다") {
+                Then("TC-3d4f88a7-bce4-49d2-9de4-2f00e4a4341c 사용자 정보 오류가 조회 실패로 전달된다") {
                     useCase(Unit).test {
                         awaitItem().shouldBeFailure()
                         awaitComplete()

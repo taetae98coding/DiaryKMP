@@ -24,7 +24,7 @@ class PlaceSearchFocusTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-FEATURE-018 다이얼로그를 열면 검색어 입력에 초점이 맞춰진다`() {
+    fun `TC-e3fe591a-d899-4799-91a5-3814129ba8af 다이얼로그를 열면 검색어 입력에 초점이 맞춰진다`() {
         setPlaceSearchFocusContent()
 
         composeRule.waitForIdle()
@@ -33,7 +33,7 @@ class PlaceSearchFocusTest {
     }
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-FEATURE-018 다이얼로그를 닫았다 다시 열어도 검색어 입력에 초점이 맞춰진다`() {
+    fun `TC-e3fe591a-d899-4799-91a5-3814129ba8af 다이얼로그를 닫았다 다시 열어도 검색어 입력에 초점이 맞춰진다`() {
         var isVisible by mutableStateOf(true)
         setPlaceSearchFocusContent(isVisibleProvider = { isVisible })
         composeRule.waitForIdle()

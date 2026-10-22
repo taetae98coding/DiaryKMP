@@ -26,7 +26,7 @@ class PlaceAddMapAreaTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-FEATURE-002 지도가 표시되지 않으면 검색을 제공하지 않는다`() {
+    fun `TC-d754884d-a7f4-414b-b145-940491fcdad9 지도가 표시되지 않으면 검색을 제공하지 않는다`() {
         composeRule.setPlaceAddScreen(viewModel = screenTestViewModel())
 
         composeRule.waitForIdle()
@@ -38,7 +38,7 @@ class PlaceAddMapAreaTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-024 기본 지도를 확인하지 못하면 지도 영역과 로딩 안내 없이 입력 영역만 표시한다`() {
+    fun `TC-324ffa89-7d94-4c54-b19a-93741f9ae256 기본 지도를 확인하지 못하면 지도 영역과 로딩 안내 없이 입력 영역만 표시한다`() {
         composeRule.setPlaceAddScreen(viewModel = screenTestViewModel())
 
         composeRule.waitForIdle()
@@ -59,7 +59,7 @@ class PlaceAddMapAreaTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-024 지도를 표시하지 않아도 좌표 입력과 추가를 사용할 수 있다`() {
+    fun `TC-324ffa89-7d94-4c54-b19a-93741f9ae256 지도를 표시하지 않아도 좌표 입력과 추가를 사용할 수 있다`() {
         composeRule.setPlaceAddScreen(viewModel = screenTestViewModel())
 
         composeRule.waitForIdle()
@@ -72,7 +72,7 @@ class PlaceAddMapAreaTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-023 지도가 표시되지 않아도 좌표를 직접 입력해 추가를 실행한다`() {
+    fun `TC-76878263-9dc3-41c5-a746-494460c5df31 지도가 표시되지 않아도 좌표를 직접 입력해 추가를 실행한다`() {
         val viewModel = screenTestViewModel()
         every { viewModel.add(any(), tagIdSet = any()) } returns Unit
 

@@ -8,7 +8,7 @@ import kotlinx.datetime.LocalDateTime
 
 class QrContentRawTest :
     FunSpec({
-        test("TC-QR-ADD-DOMAIN-026 QR 값의 시작으로 포맷을 알아본다") {
+        test("TC-6d4bc05d-a5a6-4f88-b565-67e28d2b3037 QR 값의 시작으로 포맷을 알아본다") {
             val caseList =
                 listOf(
                     crlf("begin:vcard", "FN:a", "END:VCARD") to QrFormat.CONTACT,
@@ -34,7 +34,7 @@ class QrContentRawTest :
             }
         }
 
-        test("TC-QR-ADD-DOMAIN-027 그 포맷의 값에서 포맷의 입력을 읽는다") {
+        test("TC-a6478873-6d47-4231-9390-dd8494de1d18 그 포맷의 값에서 포맷의 입력을 읽는다") {
             val caseList =
                 listOf(
                     Triple(
@@ -97,7 +97,7 @@ class QrContentRawTest :
             }
         }
 
-        test("TC-QR-ADD-DOMAIN-028 그 포맷의 값에서 입력을 고치면 그 입력에 해당하는 부분만 바꾼다") {
+        test("TC-2c00e7e0-3192-4dec-9045-e969bea5c5f5 그 포맷의 값에서 입력을 고치면 그 입력에 해당하는 부분만 바꾼다") {
             val contactPhone = crlf("BEGIN:VCARD", "FN:a", "N:a", "item1.TEL;TYPE=CELL:010", "NOTE:x", "END:VCARD")
             val contactNote = crlf("BEGIN:VCARD", "FN:a", "NOTE:x", "END:VCARD")
             val contactTel = crlf("BEGIN:VCARD", "FN:a", "TEL:010", "END:VCARD")
@@ -125,7 +125,7 @@ class QrContentRawTest :
             assertPatch(QrFormat.EVENT, eventPeriod, { content: QrContent.Event -> content.copy(period = null) }, crlf("BEGIN:VEVENT", "SUMMARY:a", "END:VEVENT"))
         }
 
-        test("TC-QR-ADD-DOMAIN-029 일정 기간을 고치면 종일 여부가 같을 때 시간대 표기를 그대로 둔다") {
+        test("TC-0ceb6056-2071-4632-8c39-17cb6cf8774c 일정 기간을 고치면 종일 여부가 같을 때 시간대 표기를 그대로 둔다") {
             val raw = crlf("BEGIN:VEVENT", "SUMMARY:a", "DTSTART;TZID=Asia/Seoul:20260927T140000", "DTEND:20260927T060000Z", "END:VEVENT")
             val timed =
                 QrEventPeriod.DateTime(
@@ -148,11 +148,11 @@ class QrContentRawTest :
             )
         }
 
-        test("TC-QR-ADD-DOMAIN-030 위치의 좌표가 성립하지 않으면 입력한 글자를 그대로 담는다") {
+        test("TC-950b5345-b2d1-48a6-9905-78383a1155f5 위치의 좌표가 성립하지 않으면 입력한 글자를 그대로 담는다") {
             assertPatch(QrFormat.LOCATION, "geo:37.5,127", { content: QrContent.Location -> content.copy(latitude = " abc ") }, "geo:abc,127")
         }
 
-        test("TC-QR-ADD-DOMAIN-031 새 줄을 넣을 때 QR 값에 쓰인 줄바꿈을 따른다") {
+        test("TC-7436474f-e260-4250-8b4b-768c2c148b36 새 줄을 넣을 때 QR 값에 쓰인 줄바꿈을 따른다") {
             assertPatch(
                 QrFormat.CONTACT,
                 lf("BEGIN:VCARD", "FN:a", "END:VCARD"),

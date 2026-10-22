@@ -27,7 +27,7 @@ class EntityMemoFinishedListEmptyTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-013 완료된 메모가 없으면 화면이 정한 빈 상태 안내를 표시한다`() {
+    fun `TC-9f3e57db-9d45-4aa0-af87-c433fffac21f 완료된 메모가 없으면 화면이 정한 빈 상태 안내를 표시한다`() {
         setEntityMemoFinishedListScaffold(pagingData = loadedEmptyPagingData())
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -35,21 +35,21 @@ class EntityMemoFinishedListEmptyTest {
     }
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-013 빈 상태에 메모 추가를 권하는 안내를 두지 않는다`() {
+    fun `TC-9f3e57db-9d45-4aa0-af87-c433fffac21f 빈 상태에 메모 추가를 권하는 안내를 두지 않는다`() {
         setEntityMemoFinishedListScaffold(pagingData = loadedEmptyPagingData())
 
         composeRule.onNodeWithText(DEFAULT_ADD_EMPTY_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-014 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
+    fun `TC-1a7a7c5e-afcc-4f09-a958-23702f5baf2c 목록을 준비하는 동안에는 빈 상태 안내를 표시하지 않는다`() {
         setEntityMemoFinishedListScaffold(pagingData = loadingPagingData())
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-015 대상 항목을 조회하지 못해도 빈 상태 안내를 표시한다`() {
+    fun `TC-d2a5e997-ebd0-4702-bbec-115476b6d17f 대상 항목을 조회하지 못해도 빈 상태 안내를 표시한다`() {
         setEntityMemoFinishedListScaffold(
             pagingData = loadedEmptyPagingData(),
             uiState = EntityMemoFinishedListUiState(),

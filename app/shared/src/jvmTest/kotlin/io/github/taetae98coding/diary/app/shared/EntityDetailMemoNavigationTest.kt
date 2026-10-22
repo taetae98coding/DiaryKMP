@@ -59,7 +59,7 @@ class EntityDetailMemoNavigationTest :
             }
         }
 
-        test("TC-CONTACT-DETAIL-MEMO-FEATURE-020 TC-PLACE-DETAIL-MEMO-FEATURE-020 TC-WEB-DETAIL-MEMO-FEATURE-020 넓은 화면에서도 상세 메모 탭에서 이어진 화면에서는 내비게이션을 숨긴다") {
+        test("TC-fd0c7f3a-df61-4e6a-925a-44d5e803d546 TC-b1ad2a25-587e-407b-8ec2-272511eb793f TC-9ccf649e-904e-4c51-90b7-e15c2a2456af 넓은 화면에서도 상세 메모 탭에서 이어진 화면에서는 내비게이션을 숨긴다") {
             val id = fixtureMonkey.giveMeOne<Uuid>()
             val moreBackStack = listOf(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.More.key)
             val detailBackStackList =
@@ -87,7 +87,7 @@ class EntityDetailMemoNavigationTest :
         }
 
         test(
-            "TC-TAG-DETAIL-MEMO-FEATURE-031 TC-TAG-DETAIL-WEB-FEATURE-019 TC-TAG-DETAIL-PLACE-FEATURE-035 " +
+            "TC-e9e30493-4fea-45ac-aa7b-13d43f9f057a TC-b24a6b4a-42c6-41a7-aeac-da02eb2c44e0 TC-0716933d-7223-4e1f-8374-751bae112bab " +
                 "넓은 화면에서도 TagDetail의 목록 탭에서 이어진 추가와 상세 화면에서는 내비게이션을 숨긴다",
         ) {
             val tagId = fixtureMonkey.giveMeOne<Uuid>()

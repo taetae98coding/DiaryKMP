@@ -26,7 +26,7 @@ class MemoContactPickerDialogPagingTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-019 다음 연락처를 불러오는 동안에도 이미 나타난 연락처를 조작할 수 있다`() {
+    fun `TC-efe418f3-e965-4a0c-ac33-03eacc2bafad 다음 연락처를 불러오는 동안에도 이미 나타난 연락처를 조작할 수 있다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val selectedIdList = mutableListOf<Uuid>()
         composeRule.setMemoContactPickerDialog(
@@ -41,7 +41,7 @@ class MemoContactPickerDialogPagingTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-020 다음 연락처를 불러오지 못해도 이미 나타난 연락처를 유지한다`() {
+    fun `TC-c13f3adb-1cbe-4dd2-a095-9ca7890096ed 다음 연락처를 불러오지 못해도 이미 나타난 연락처를 유지한다`() {
         val wikiContact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val docsContact = testContact(name = SECOND_CONTACT_NAME, phoneNumber = SECOND_CONTACT_PHONE_NUMBER)
         composeRule.setMemoContactPickerDialog(contactPagingData = appendFailedContactPagingDataOf(listOf(wikiContact, docsContact)))
@@ -52,7 +52,7 @@ class MemoContactPickerDialogPagingTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-005 목록을 처음 불러오는 중에는 목록 자리를 비워 둔다`() {
+    fun `TC-a68a0a0f-53e6-49d9-bf55-e0d70b4b88ce 목록을 처음 불러오는 중에는 목록 자리를 비워 둔다`() {
         composeRule.setMemoContactPickerDialog(contactPagingData = refreshingContactPagingData())
 
         composeRule.onNodeWithText(DEFAULT_CONTACT_PICKER_TITLE).assertExists()

@@ -33,7 +33,7 @@ class ContactDetailScaffoldTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-003 화면 제목에 저장된 연락처 이름을 표시한다`() {
+    fun `TC-9d72ac6d-8cf2-46f3-9495-f0a4f321ffa0 화면 제목에 저장된 연락처 이름을 표시한다`() {
         val detail = testContactDetail(name = CONTACT_NAME)
 
         setContactDetailScaffold(uiState = content(detail = detail))
@@ -43,7 +43,7 @@ class ContactDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-004 조회 중에는 입력과 수정 삭제 동작을 제공하지 않는다`() {
+    fun `TC-18548af4-447a-4739-808b-8c5bda1d2f6b 조회 중에는 입력과 수정 삭제 동작을 제공하지 않는다`() {
         setContactDetailScaffold(uiState = ContactDetailUiState.Loading)
 
         composeRule.onNodeWithContentDescription(DEFAULT_DELETE_BUTTON_DESCRIPTION).assertDoesNotExist()
@@ -60,14 +60,14 @@ class ContactDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-006 입력이 저장 내용과 같으면 수정 동작을 제공하지 않는다`() {
+    fun `TC-1cf00ee4-180f-418c-a666-63be8e5b38d6 입력이 저장 내용과 같으면 수정 동작을 제공하지 않는다`() {
         setContactDetailScaffold(uiState = content())
 
         composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-006 입력이 저장 내용과 다르면 수정 동작을 제공한다`() {
+    fun `TC-1cf00ee4-180f-418c-a666-63be8e5b38d6 입력이 저장 내용과 다르면 수정 동작을 제공한다`() {
         val detail = testContactDetail(name = CONTACT_NAME)
         lateinit var state: ContactFormState
 
@@ -90,7 +90,7 @@ class ContactDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-006 생일의 달력 구분만 바꿔도 수정 동작을 제공한다`() {
+    fun `TC-1cf00ee4-180f-418c-a666-63be8e5b38d6 생일의 달력 구분만 바꿔도 수정 동작을 제공한다`() {
         val detail =
             testContactDetail(
                 name = CONTACT_NAME,
@@ -117,7 +117,7 @@ class ContactDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-013 삭제를 선택하면 삭제 행동을 한 번 전달한다`() {
+    fun `TC-e62577b8-fca8-450e-914a-51e85aa357a5 삭제를 선택하면 삭제 행동을 한 번 전달한다`() {
         val eventList = mutableListOf<ContactDetailScaffoldEvent>()
 
         setContactDetailScaffold(uiState = content(), onEvent = eventList::add)
@@ -127,7 +127,7 @@ class ContactDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-016 삭제를 선택해도 확인 대화상자를 표시하지 않는다`() {
+    fun `TC-12500e2f-5240-466e-9de3-e5578d68f1cd 삭제를 선택해도 확인 대화상자를 표시하지 않는다`() {
         setContactDetailScaffold(uiState = content())
 
         composeRule.onNodeWithContentDescription(DEFAULT_DELETE_BUTTON_DESCRIPTION).performClick()
@@ -137,7 +137,7 @@ class ContactDetailScaffoldTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-021 뒤로가기를 선택하면 돌아가기 행동을 한 번 전달한다`() {
+    fun `TC-569aca85-a747-4a6e-8e65-79a07ae1b288 뒤로가기를 선택하면 돌아가기 행동을 한 번 전달한다`() {
         val eventList = mutableListOf<ContactDetailScaffoldEvent>()
 
         setContactDetailScaffold(uiState = content(), onEvent = eventList::add)

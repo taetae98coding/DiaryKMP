@@ -46,7 +46,7 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-CALENDAR-HOME-DATA-020 동기화를 시작하면 현재 위치의 날씨 동기화를 한 번 요청한다") {
+        test("TC-b42c8d89-6747-4104-a560-b1d2ea5f6a8f 동기화를 시작하면 현재 위치의 날씨 동기화를 한 번 요청한다") {
             runTest(mainDispatcher) {
                 val useCase = successfulFetchCurrentWeatherUseCase()
                 val viewModel = weatherViewModel(fetchCurrentWeatherUseCase = useCase)
@@ -58,7 +58,7 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-021 TC-SYNC-REFRESH-DOMAIN-008 날씨 동기화가 진행 중이면 새 동기화를 시작하지 않는다") {
+        test("TC-69660e5e-fee8-4287-935a-ba292b18c4f6 TC-6c9103e0-62b8-4abe-98bb-dbd98e9a377c 날씨 동기화가 진행 중이면 새 동기화를 시작하지 않는다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<Unit>>()
                 val useCase = mockk<FetchCurrentWeatherUseCase>()
@@ -74,7 +74,7 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-025 위치 권한 허용 계기는 간격과 무관한 동기화를 요청한다") {
+        test("TC-791d3475-68f2-4124-ba31-1ac6ff05de62 위치 권한 허용 계기는 간격과 무관한 동기화를 요청한다") {
             runTest(mainDispatcher) {
                 val fetchCurrentWeatherUseCase = successfulFetchCurrentWeatherUseCase()
                 val useCase = successfulRefreshCurrentWeatherUseCase()
@@ -92,7 +92,7 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-052 동기화가 진행 중에 위치 권한을 허용하면 끝난 뒤 위치 권한 허용 계기의 동기화를 요청한다") {
+        test("TC-5a2d8b68-b630-4611-a547-45ff9b401814 동기화가 진행 중에 위치 권한을 허용하면 끝난 뒤 위치 권한 허용 계기의 동기화를 요청한다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<Unit>>()
                 val fetchCurrentWeatherUseCase = mockk<FetchCurrentWeatherUseCase>()
@@ -121,7 +121,7 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-053 동기화가 진행 중에 위치 권한 허용이 여러 번 일어나도 끝난 뒤 한 번만 더 동기화한다") {
+        test("TC-0f4b9267-d3ac-4c1a-9fa9-3f0681761783 동기화가 진행 중에 위치 권한 허용이 여러 번 일어나도 끝난 뒤 한 번만 더 동기화한다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<Unit>>()
                 val fetchCurrentWeatherUseCase = mockk<FetchCurrentWeatherUseCase>()
@@ -166,7 +166,7 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SYNC-REFRESH-DOMAIN-015 진행 중인 날씨 동기화가 없을 때 위치 권한을 허용하면 그 동기화가 끝날 때까지 진행 중임을 알린다") {
+        test("TC-cfac82d4-8af3-4b80-ab6b-ca2c2b56fde5 진행 중인 날씨 동기화가 없을 때 위치 권한을 허용하면 그 동기화가 끝날 때까지 진행 중임을 알린다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<Unit>>()
                 val useCase = mockk<RefreshCurrentWeatherUseCase>()
@@ -186,7 +186,7 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SYNC-REFRESH-DOMAIN-015 날씨 동기화 중에 위치 권한을 허용하면 한 번 더 받는 동기화가 끝날 때까지 진행 중임을 알린다") {
+        test("TC-cfac82d4-8af3-4b80-ab6b-ca2c2b56fde5 날씨 동기화 중에 위치 권한을 허용하면 한 번 더 받는 동기화가 끝날 때까지 진행 중임을 알린다") {
             runTest(mainDispatcher) {
                 val fetchCompletion = CompletableDeferred<Result<Unit>>()
                 val fetchCurrentWeatherUseCase = mockk<FetchCurrentWeatherUseCase>()
@@ -284,7 +284,7 @@ class CalendarHomeWeatherViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-HOME-DATA-023 날짜별 날씨가 없거나 조회에 실패하면 날씨 없이 표시한다") {
+        test("TC-3b7754d1-86a7-48b8-837a-fef0f73c0d18 날짜별 날씨가 없거나 조회에 실패하면 날씨 없이 표시한다") {
             runTest(mainDispatcher) {
                 val results =
                     listOf(

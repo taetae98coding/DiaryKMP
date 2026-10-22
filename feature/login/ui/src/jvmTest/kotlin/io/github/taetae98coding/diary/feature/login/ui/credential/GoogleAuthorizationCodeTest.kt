@@ -15,19 +15,19 @@ private val fixtureMonkey: FixtureMonkey =
 
 class GoogleAuthorizationCodeTest :
     FunSpec({
-        test("TC-LOGIN-DOMAIN-007 인가 코드가 있으면 인증 결과의 인가 코드가 된다") {
+        test("TC-53bacbe8-7629-4e72-9f61-53a1e7468bdb 인가 코드가 있으면 인증 결과의 인가 코드가 된다") {
             val code = fixtureMonkey.nonBlankString()
 
             googleAuthorizationCodeOrThrow(code = code, error = "") shouldBe code
         }
 
-        test("TC-LOGIN-DOMAIN-007 사용자가 동의를 거부했다는 오류는 사용자 취소로 처리한다") {
+        test("TC-53bacbe8-7629-4e72-9f61-53a1e7468bdb 사용자가 동의를 거부했다는 오류는 사용자 취소로 처리한다") {
             shouldThrowExactly<GoogleCredentialsUserCancelException> {
                 googleAuthorizationCodeOrThrow(code = "", error = "access_denied")
             }
         }
 
-        test("TC-LOGIN-DOMAIN-007 그 밖의 오류와 빈 응답은 인증 결과를 받지 못한 실패로 처리한다") {
+        test("TC-53bacbe8-7629-4e72-9f61-53a1e7468bdb 그 밖의 오류와 빈 응답은 인증 결과를 받지 못한 실패로 처리한다") {
             val errorList = listOf("invalid_scope", "server_error", "")
 
             errorList.forEach { error ->

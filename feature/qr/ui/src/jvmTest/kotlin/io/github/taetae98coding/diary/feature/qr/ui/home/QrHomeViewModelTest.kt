@@ -49,7 +49,7 @@ class QrHomeViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-QR-HOME-FEATURE-015 조회한 QR 페이지를 그대로 노출한다") {
+        test("TC-a23d9fc3-5fbd-410d-bbb8-ca350cd6d564 조회한 QR 페이지를 그대로 노출한다") {
             runTest(mainDispatcher) {
                 val qrList = listOf(fixtureMonkey.qr(isDeleted = false), fixtureMonkey.qr(isDeleted = false))
                 val viewModel = viewModel(pageQrUseCase = pageQrUseCase(qrListFlow = flowOf(Result.success(qrList))))
@@ -58,7 +58,7 @@ class QrHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-QR-HOME-DATA-002 QR 페이지 조회에 실패하면 빈 페이지를 노출한다") {
+        test("TC-b5682b6b-e9c6-40ff-a76f-f5a27ceb86c5 QR 페이지 조회에 실패하면 빈 페이지를 노출한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(pageQrUseCase = pageQrUseCase(qrListFlow = flowOf(Result.failure(IllegalStateException()))))
 
@@ -66,7 +66,7 @@ class QrHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-QR-HOME-FEATURE-017 QR을 추가하면 별도 조작 없이 그 QR이 든 목록을 노출한다") {
+        test("TC-842f8033-f6f5-4e25-8796-037bc9d42038 QR을 추가하면 별도 조작 없이 그 QR이 든 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val existing = fixtureMonkey.qr(isDeleted = false)
                 val added = fixtureMonkey.qr(isDeleted = false)
@@ -84,7 +84,7 @@ class QrHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-QR-HOME-FEATURE-025 삭제에 성공하면 그 QR의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
+        test("TC-98ca827f-e67d-4286-8dc7-e65c9b344bf1 삭제에 성공하면 그 QR의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteQrUseCase = mockk<DeleteQrUseCase>()
@@ -101,7 +101,7 @@ class QrHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-QR-HOME-FEATURE-030 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
+        test("TC-ee3ae8bd-28fe-494d-b0fe-b6277052247c 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteQrUseCase = mockk<DeleteQrUseCase>()
@@ -157,7 +157,7 @@ class QrHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-QR-HOME-FEATURE-026 실행 취소하면 그 QR의 삭제를 되돌리는 요청을 한 번 보낸다") {
+        test("TC-2a786ab0-837b-4471-88ca-2d748702f590 실행 취소하면 그 QR의 삭제를 되돌리는 요청을 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val restoreQrUseCase = mockk<RestoreQrUseCase>()
@@ -171,7 +171,7 @@ class QrHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-QR-HOME-DOMAIN-011 실행 취소를 저장하지 못하면 별도 안내를 보내지 않는다") {
+        test("TC-bf0b6d18-be2d-4885-b6aa-c9710edb5286 실행 취소를 저장하지 못하면 별도 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val restoreQrUseCase = mockk<RestoreQrUseCase>()

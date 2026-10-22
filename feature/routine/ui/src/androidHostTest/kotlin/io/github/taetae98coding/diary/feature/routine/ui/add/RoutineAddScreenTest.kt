@@ -33,7 +33,7 @@ class RoutineAddScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-ROUTINE-ADD-FEATURE-001 화면에 처음 진입하면 제목과 설명이 비어 있다`() {
+    fun `TC-edbcdc9b-03b0-4a1e-99d2-edba55ad2074 화면에 처음 진입하면 제목과 설명이 비어 있다`() {
         setRoutineAddScreen()
 
         composeRule.titleInput().editableText() shouldBe ""
@@ -41,7 +41,7 @@ class RoutineAddScreenTest {
     }
 
     @Test
-    fun `TC-ROUTINE-ADD-FEATURE-002 화면에 처음 진입하면 제목 입력에 초점이 있다`() {
+    fun `TC-6a87a917-4e61-4b0e-a4a1-df18f580ae6c 화면에 처음 진입하면 제목 입력에 초점이 있다`() {
         setRoutineAddScreen()
 
         composeRule.waitForIdle()
@@ -50,7 +50,7 @@ class RoutineAddScreenTest {
     }
 
     @Test
-    fun `TC-ROUTINE-ADD-FEATURE-003 입력한 제목과 설명을 화면에 유지한다`() {
+    fun `TC-c184ab41-d30d-4136-8434-2a5d1b8fd176 입력한 제목과 설명을 화면에 유지한다`() {
         val title = fixtureMonkey.giveMeOne<String>()
         val description = fixtureMonkey.giveMeOne<String>()
         setRoutineAddScreen()
@@ -64,7 +64,7 @@ class RoutineAddScreenTest {
     }
 
     @Test
-    fun `TC-ROUTINE-ADD-FEATURE-004 추가를 실행해도 입력 내용과 화면 상태가 바뀌지 않는다`() {
+    fun `TC-8a81e75d-a18f-4b36-8f91-81c9c9ef26bc 추가를 실행해도 입력 내용과 화면 상태가 바뀌지 않는다`() {
         val title = fixtureMonkey.giveMeOne<String>()
         val description = fixtureMonkey.giveMeOne<String>()
         var navigateUpCount = 0
@@ -81,7 +81,7 @@ class RoutineAddScreenTest {
     }
 
     @Test
-    fun `TC-ROUTINE-ADD-FEATURE-007 뒤로가기를 선택하면 이전 화면으로 돌아간다`() {
+    fun `TC-f731c7b3-d20c-4718-ae02-b9287ed7d17a 뒤로가기를 선택하면 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         setRoutineAddScreen(navigateUp = { navigateUpCount += 1 })
 
@@ -91,14 +91,14 @@ class RoutineAddScreenTest {
     }
 
     @Test
-    fun `TC-ROUTINE-LIST-DETAIL-FEATURE-006 단독으로 표시되면 뒤로가기 버튼이 표시된다`() {
+    fun `TC-40815f60-f4ef-47e0-b6a5-8df2a5c18365 단독으로 표시되면 뒤로가기 버튼이 표시된다`() {
         setRoutineAddScreen(componentVisible = RoutineAddScaffoldComponentVisible(isNavigateUpButtonVisible = true))
 
         composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).assert(hasClickAction())
     }
 
     @Test
-    fun `TC-ROUTINE-LIST-DETAIL-FEATURE-005 목록과 함께 표시되면 뒤로가기 버튼이 표시되지 않는다`() {
+    fun `TC-b8284f0b-8b8d-418a-aab5-be224f5a025d 목록과 함께 표시되면 뒤로가기 버튼이 표시되지 않는다`() {
         setRoutineAddScreen(componentVisible = RoutineAddScaffoldComponentVisible(isNavigateUpButtonVisible = false))
 
         composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).assertDoesNotExist()

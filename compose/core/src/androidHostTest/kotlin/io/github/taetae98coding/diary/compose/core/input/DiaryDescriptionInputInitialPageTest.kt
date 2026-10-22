@@ -28,7 +28,7 @@ class DiaryDescriptionInputInitialPageTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-DESCRIPTION-INPUT-FEATURE-020 채워진 설명이 있으면 처음 표시될 때 미리보기 페이지가 보인다`() {
+    fun `TC-e87a4618-4222-4c57-a3b7-4273e4232927 채워진 설명이 있으면 처음 표시될 때 미리보기 페이지가 보인다`() {
         val state = setDiaryDescriptionInput(initialText = MARKDOWN_SOURCE)
 
         awaitSettled(state = state, page = DiaryDescriptionInputPage.Preview)
@@ -42,7 +42,7 @@ class DiaryDescriptionInputInitialPageTest {
     }
 
     @Test
-    fun `TC-DESCRIPTION-INPUT-FEATURE-021 채워진 설명이 공백뿐이면 처음 표시될 때 입력 페이지가 보인다`() {
+    fun `TC-b3563e5a-d59b-4186-bb03-3ed4f5cc1154 채워진 설명이 공백뿐이면 처음 표시될 때 입력 페이지가 보인다`() {
         setDiaryDescriptionInput(initialText = BLANK_SOURCE)
 
         composeRule.onNode(hasSetTextAction()).assertIsDisplayed()
@@ -51,7 +51,7 @@ class DiaryDescriptionInputInitialPageTest {
     }
 
     @Test
-    fun `TC-DESCRIPTION-INPUT-FEATURE-022 처음 표시된 뒤에 설명을 입력해도 입력 페이지가 유지된다`() {
+    fun `TC-2754c5c7-cd72-4fda-a279-14d35d4af6ed 처음 표시된 뒤에 설명을 입력해도 입력 페이지가 유지된다`() {
         val state = setDiaryDescriptionInput()
 
         composeRule.onNode(hasSetTextAction()).performTextInput(MARKDOWN_SOURCE)
@@ -63,7 +63,7 @@ class DiaryDescriptionInputInitialPageTest {
     }
 
     @Test
-    fun `TC-DESCRIPTION-INPUT-FEATURE-023 다른 설명으로 새로 채우면 미리보기 페이지가 보인다`() {
+    fun `TC-5da0a6da-1cce-4987-ab44-b091b72595ab 다른 설명으로 새로 채우면 미리보기 페이지가 보인다`() {
         val initialText = mutableStateOf("")
         composeRule.setContent {
             val text by initialText

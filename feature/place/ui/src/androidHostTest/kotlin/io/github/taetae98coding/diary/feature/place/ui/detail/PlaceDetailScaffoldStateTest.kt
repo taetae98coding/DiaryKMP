@@ -24,7 +24,7 @@ class PlaceDetailScaffoldStateTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-DETAIL-DOMAIN-013 대상 장소의 저장된 좌표를 초기 지도 위치와 지점으로 지정한다`() {
+    fun `TC-f7f14f60-64ce-486e-a0e0-85203318b1b5 대상 장소의 저장된 좌표를 초기 지도 위치와 지점으로 지정한다`() {
         val coordinateList =
             listOf(
                 Coordinate(latitude = 37.5665, longitude = 126.978),
@@ -60,7 +60,7 @@ class PlaceDetailScaffoldStateTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-DOMAIN-012 저장된 기본 지도를 초기 지도 제공자로 지정한다`() {
+    fun `TC-fad5adc8-0ccb-4647-9da9-52e583cf1efd 저장된 기본 지도를 초기 지도 제공자로 지정한다`() {
         val providerList =
             listOf(
                 MapProvider.NAVER to DiaryMapProvider.NAVER,

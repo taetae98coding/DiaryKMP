@@ -14,7 +14,7 @@ import kotlin.time.Instant
 
 class QrMapperTest :
     FunSpec({
-        test("TC-QR-ADD-DATA-005 QR 내용을 로컬 모델로 바꿀 때 제목, 설명과 QR 값을 그대로 옮긴다") {
+        test("TC-a1c010f9-3096-4d12-8614-480db602f88a QR 내용을 로컬 모델로 바꿀 때 제목, 설명과 QR 값을 그대로 옮긴다") {
             val domain = fixtureMonkey.giveMeOne<QrDetail>()
 
             domain.toLocal() shouldBe
@@ -25,7 +25,7 @@ class QrMapperTest :
                 )
         }
 
-        test("TC-QR-ADD-DATA-005 로컬 QR 내용을 도메인 모델로 바꿀 때 제목, 설명과 QR 값을 그대로 옮긴다") {
+        test("TC-a1c010f9-3096-4d12-8614-480db602f88a 로컬 QR 내용을 도메인 모델로 바꿀 때 제목, 설명과 QR 값을 그대로 옮긴다") {
             val local = fixtureMonkey.giveMeOne<QrDetailLocalEntity>()
 
             local.toDomain() shouldBe
@@ -36,7 +36,7 @@ class QrMapperTest :
                 )
         }
 
-        test("TC-QR-ADD-DOMAIN-010 줄바꿈과 앞뒤 공백이 있는 QR 값은 로컬 모델을 거쳐도 바뀌지 않는다") {
+        test("TC-aa007f02-aa4e-44be-92b8-1964418944c9 줄바꿈과 앞뒤 공백이 있는 QR 값은 로컬 모델을 거쳐도 바뀌지 않는다") {
             val value = "  ${fixtureMonkey.giveMeOne<String>()}\n${fixtureMonkey.giveMeOne<String>()}  "
             val domain = fixtureMonkey.giveMeOne<QrDetail>().copy(value = value)
 

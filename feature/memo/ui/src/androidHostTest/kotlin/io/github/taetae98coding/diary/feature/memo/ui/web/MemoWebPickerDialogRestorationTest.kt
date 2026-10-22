@@ -21,7 +21,7 @@ class MemoWebPickerDialogRestorationTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-WEB-INPUT-DOMAIN-012 화면이 회전해도 열려 있는 목록의 검색어와 좁힌 결과가 유지된다`() {
+    fun `TC-cb025772-1b2e-4d59-809d-68784b8cc970 화면이 회전해도 열려 있는 목록의 검색어와 좁힌 결과가 유지된다`() {
         val matchedWeb = testWeb(title = WIKI_WEB_TITLE, url = WIKI_WEB_URL)
         val otherWeb = testWeb(title = DOCS_WEB_TITLE, url = DOCS_WEB_URL)
         val webPagingDataFlow = MutableStateFlow(webPagingDataOf(listOf(matchedWeb, otherWeb)))

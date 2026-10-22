@@ -7,7 +7,7 @@ import java.nio.file.Paths
 
 class JvmDatabasePathTest :
     FunSpec({
-        test("TC-JVM-DATABASE-STORAGE-DATA-001 flavor에 맞는 데이터베이스 저장 경로 선택") {
+        test("TC-eeadacf6-ec33-4aa2-a248-0ba79aa60735 flavor에 맞는 데이터베이스 저장 경로 선택") {
             val userHome = Paths.get("/Users/user")
             val cases =
                 mapOf(
@@ -20,7 +20,7 @@ class JvmDatabasePathTest :
             }
         }
 
-        test("TC-JVM-DATABASE-STORAGE-DATA-002 개발과 운영 데이터베이스 저장 영역 분리") {
+        test("TC-f725c335-e15d-4411-aaae-72b543402133 개발과 운영 데이터베이스 저장 영역 분리") {
             val userHome = Paths.get("/Users/user")
             val devPath = resolveDatabasePath(userHome, "DiaryDev")
             val realPath = resolveDatabasePath(userHome, "Diary")

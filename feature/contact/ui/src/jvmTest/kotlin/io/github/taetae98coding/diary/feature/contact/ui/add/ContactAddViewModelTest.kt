@@ -44,7 +44,7 @@ class ContactAddViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-CONTACT-ADD-DOMAIN-008 추가 처리 중 전달된 추가 요청은 처리하지 않는다") {
+        test("TC-becc61c6-c351-4436-b37c-89398688eabc 추가 처리 중 전달된 추가 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val firstDetail = detail(name = "first-${fixtureMonkey.giveMeOne<String>()}")
                 val secondDetail = detail(name = "second-${fixtureMonkey.giveMeOne<String>()}")
@@ -70,7 +70,7 @@ class ContactAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-ADD-FEATURE-007 추가에 성공하면 성공 Effect를 한 번 보내고 진행 상태를 해제한다") {
+        test("TC-88536863-d156-4aa9-b193-9892b2f05bb0 추가에 성공하면 성공 Effect를 한 번 보내고 진행 상태를 해제한다") {
             runTest(mainDispatcher) {
                 val addedId = fixtureMonkey.giveMeOne<Uuid>()
                 val useCase = mockk<AddContactUseCase>()
@@ -90,7 +90,7 @@ class ContactAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-ADD-FEATURE-009 이름이 비어 있거나 공백이면 이름 미입력 Effect를 보내고 진행 상태를 해제한다") {
+        test("TC-70780959-f329-4665-b394-57daca3425ac 이름이 비어 있거나 공백이면 이름 미입력 Effect를 보내고 진행 상태를 해제한다") {
             BLANK_TEXT_LIST.forEach { blankName ->
                 runTest(mainDispatcher) {
                     val useCase = mockk<AddContactUseCase>()
@@ -111,7 +111,7 @@ class ContactAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-ADD-FEATURE-009 번호가 비어 있거나 공백인 전화번호 항목이 있으면 전화번호 미입력 Effect를 보내고 진행 상태를 해제한다") {
+        test("TC-70780959-f329-4665-b394-57daca3425ac 번호가 비어 있거나 공백인 전화번호 항목이 있으면 전화번호 미입력 Effect를 보내고 진행 상태를 해제한다") {
             BLANK_TEXT_LIST.forEach { blankNumber ->
                 runTest(mainDispatcher) {
                     val useCase = mockk<AddContactUseCase>()
@@ -132,7 +132,7 @@ class ContactAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-ADD-FEATURE-030 기기 저장에 실패하면 Effect 없이 진행 상태만 해제하고 같은 내용으로 다시 추가할 수 있다") {
+        test("TC-9780b7bf-e071-48e1-869d-2c1eaf10ab59 기기 저장에 실패하면 Effect 없이 진행 상태만 해제하고 같은 내용으로 다시 추가할 수 있다") {
             runTest(mainDispatcher) {
                 val detail = detail().copy(description = "description-${fixtureMonkey.giveMeOne<String>()}", phoneNumberList = listOf(ContactPhoneNumber(number = "phone-${fixtureMonkey.giveMeOne<String>()}")))
                 val useCase = mockk<AddContactUseCase>()
@@ -157,7 +157,7 @@ class ContactAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-ADD-FEATURE-008 추가를 처리하는 동안 진행 상태를 유지하고 완료 후 해제한다") {
+        test("TC-16f38604-d356-4b8e-9862-8e0a8771253c 추가를 처리하는 동안 진행 상태를 유지하고 완료 후 해제한다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<Uuid>>()
                 val useCase = mockk<AddContactUseCase>()

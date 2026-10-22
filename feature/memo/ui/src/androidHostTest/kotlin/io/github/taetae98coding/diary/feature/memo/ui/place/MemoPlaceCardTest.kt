@@ -52,7 +52,7 @@ class MemoPlaceCardTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-003 기본 지도를 확인하지 못하면 지도를 표시하지 않고 카드와 장소 목록은 유지한다`() {
+    fun `TC-a2329351-5d96-4a5d-b6c2-465d26366250 기본 지도를 확인하지 못하면 지도를 표시하지 않고 카드와 장소 목록은 유지한다`() {
         val place = testPlace(title = HOME_PLACE_TITLE)
 
         composeRule.setMemoPlaceCard(uiStateProvider = { placeCardUiState(selectedPlaceList = listOf(place)) })
@@ -66,7 +66,7 @@ class MemoPlaceCardTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-004 연결된 장소가 제목으로 모두 표시된다`() {
+    fun `TC-40088a6c-af25-478e-a361-f4d4f1091e59 연결된 장소가 제목으로 모두 표시된다`() {
         var uiState by mutableStateOf(MemoPlaceCardUiState())
         composeRule.setMemoPlaceCard(uiStateProvider = { uiState })
 
@@ -83,7 +83,7 @@ class MemoPlaceCardTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-006 지도가 표시되지 않는 동안 장소를 선택해도 지도 이동이 일어나지 않는다`() {
+    fun `TC-16def837-7242-4e9f-ac6e-b05b1748d3a7 지도가 표시되지 않는 동안 장소를 선택해도 지도 이동이 일어나지 않는다`() {
         val place = testPlace(title = HOME_PLACE_TITLE)
 
         composeRule.setMemoPlaceCard(uiStateProvider = { placeCardUiState(selectedPlaceList = listOf(place)) })
@@ -95,7 +95,7 @@ class MemoPlaceCardTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-037 목록의 장소를 눌러도 장소 상세로 이동하지 않고 선택이 바뀌지 않는다`() {
+    fun `TC-900c168f-4d21-46d2-bc65-fe3e44cd6992 목록의 장소를 눌러도 장소 상세로 이동하지 않고 선택이 바뀌지 않는다`() {
         val placeList = listOf(testPlace(title = HOME_PLACE_TITLE), testPlace(title = OFFICE_PLACE_TITLE))
         var placeClickCount = 0
         var addClickCount = 0
@@ -114,7 +114,7 @@ class MemoPlaceCardTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-009 노출하는 장소가 없거나 여러 개여도 장소 추가 항목이 표시된다`() {
+    fun `TC-56f0908d-0893-494f-acc6-f6309ffb8bb9 노출하는 장소가 없거나 여러 개여도 장소 추가 항목이 표시된다`() {
         var uiState by mutableStateOf(placeCardUiState())
         composeRule.setMemoPlaceCard(uiStateProvider = { uiState })
 
@@ -133,7 +133,7 @@ class MemoPlaceCardTest {
      * 호스트 테스트에서 자동화할 수 없다. (Robolectric에서 지도 SDK 뷰 생성 시 VerifyError)
      */
     @Test
-    fun `TC-MEMO-PLACE-CARD-DOMAIN-013 기본 지도가 확인되어도 노출하는 장소를 확인하기 전에는 지도를 표시하지 않는다`() {
+    fun `TC-a7e0269c-f3f0-49d9-b62d-af38505b8a0c 기본 지도가 확인되어도 노출하는 장소를 확인하기 전에는 지도를 표시하지 않는다`() {
         val uiState =
             MemoPlaceCardUiState(
                 mapUiState =

@@ -30,14 +30,14 @@ class SearchHomeScaffoldTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-001 진입하면 질의가 비어 있다`() {
+    fun `TC-79faf25e-ec2c-44fc-8ae9-ccd46eb0f997 진입하면 질의가 비어 있다`() {
         setSearchHomeScaffold()
 
         composeRule.onNodeWithText(DEFAULT_QUERY_PLACEHOLDER).assertExists()
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-005 메모 시작 유형이면 메모 유형이 선택된다`() {
+    fun `TC-a91b6b2d-d824-4dae-b830-f4b893849a0f 메모 시작 유형이면 메모 유형이 선택된다`() {
         setSearchHomeScaffold()
 
         composeRule.onNodeWithText(DEFAULT_MEMO_TAB_LABEL).assertIsSelected()
@@ -47,7 +47,7 @@ class SearchHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-005 태그 시작 유형이면 태그 유형이 선택된다`() {
+    fun `TC-a91b6b2d-d824-4dae-b830-f4b893849a0f 태그 시작 유형이면 태그 유형이 선택된다`() {
         setSearchHomeScaffold(initialType = SearchHomeType.TAG)
 
         composeRule.onNodeWithText(DEFAULT_TAG_TAB_LABEL).assertIsSelected()
@@ -57,7 +57,7 @@ class SearchHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-005 장소 시작 유형이면 장소 유형이 선택된다`() {
+    fun `TC-a91b6b2d-d824-4dae-b830-f4b893849a0f 장소 시작 유형이면 장소 유형이 선택된다`() {
         setSearchHomeScaffold(initialType = SearchHomeType.PLACE)
 
         composeRule.onNodeWithText(DEFAULT_PLACE_TAB_LABEL).assertIsSelected()
@@ -67,7 +67,7 @@ class SearchHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-005 웹 시작 유형이면 웹 유형이 선택된다`() {
+    fun `TC-a91b6b2d-d824-4dae-b830-f4b893849a0f 웹 시작 유형이면 웹 유형이 선택된다`() {
         setSearchHomeScaffold(initialType = SearchHomeType.WEB)
 
         composeRule.onNodeWithText(DEFAULT_WEB_TAB_LABEL).assertIsSelected()
@@ -77,7 +77,7 @@ class SearchHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-006 태그 유형으로 바꾸면 태그 유형을 본다`() {
+    fun `TC-2293da84-b04b-4a4e-8235-49d8370b94e2 태그 유형으로 바꾸면 태그 유형을 본다`() {
         setSearchHomeScaffold()
 
         composeRule.onNodeWithText(DEFAULT_TAG_TAB_LABEL).performClick()
@@ -88,7 +88,7 @@ class SearchHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-006 장소 유형으로 바꾸면 장소 유형을 본다`() {
+    fun `TC-2293da84-b04b-4a4e-8235-49d8370b94e2 장소 유형으로 바꾸면 장소 유형을 본다`() {
         setSearchHomeScaffold()
 
         composeRule.onNodeWithText(DEFAULT_PLACE_TAB_LABEL).performClick()
@@ -99,7 +99,7 @@ class SearchHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-006 웹 유형으로 바꾸면 웹 유형을 본다`() {
+    fun `TC-2293da84-b04b-4a4e-8235-49d8370b94e2 웹 유형으로 바꾸면 웹 유형을 본다`() {
         setSearchHomeScaffold()
 
         composeRule.onNodeWithText(DEFAULT_WEB_TAB_LABEL).performClick()
@@ -110,7 +110,7 @@ class SearchHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-007 유형을 바꿔도 질의가 유지된다`() {
+    fun `TC-10cbe4a5-b4e2-4025-aff1-050b0ed7dbcb 유형을 바꿔도 질의가 유지된다`() {
         setSearchHomeScaffold()
 
         composeRule.onNode(hasSetTextAction()).performTextInput(QUERY)
@@ -121,7 +121,7 @@ class SearchHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-SEARCH-HOME-FEATURE-014 뒤로가기 버튼을 선택하면 뒤로가기 행동을 한 번 전달한다`() {
+    fun `TC-2408d17d-c93d-4e9d-88e9-73c3e1fbcfa0 뒤로가기 버튼을 선택하면 뒤로가기 행동을 한 번 전달한다`() {
         val eventList = mutableListOf<SearchHomeScaffoldEvent>()
         setSearchHomeScaffold(onEvent = eventList::add)
 

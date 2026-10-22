@@ -34,7 +34,7 @@ class LunarTransactionImplTest :
             database.close()
         }
 
-        test("TC-LUNAR-FETCH-DATA-001 저장 시 해당 연도의 기존 목록 전체를 교체하고 다른 연도는 유지한다") {
+        test("TC-3e9afe01-23d6-4f46-8445-bf9a9a75408e 저장 시 해당 연도의 기존 목록 전체를 교체하고 다른 연도는 유지한다") {
             val previousList = lunarDateList(solarYear = 2026, start = LocalDate(2026, 1, 1), endInclusive = LocalDate(2026, 1, 3))
             val replacementList = lunarDateList(solarYear = 2026, start = LocalDate(2026, 1, 2), endInclusive = LocalDate(2026, 1, 2))
             val otherYearList = lunarDateList(solarYear = 2027, start = LocalDate(2027, 1, 1), endInclusive = LocalDate(2027, 1, 2))
@@ -46,7 +46,7 @@ class LunarTransactionImplTest :
             dataSource.get(dateRange = LocalDate(2026, 1, 1)..LocalDate(2027, 12, 31)).first() shouldBe replacementList + otherYearList
         }
 
-        test("TC-LUNAR-FETCH-DATA-015 교체하는 동안 일부만 바뀐 음력 자료가 보이지 않는다") {
+        test("TC-61b8aa37-c3e9-44ec-937a-02664d252225 교체하는 동안 일부만 바뀐 음력 자료가 보이지 않는다") {
             val dateRange = LocalDate(2026, 1, 1)..LocalDate(2026, 12, 31)
             val previousList = lunarDateList(solarYear = 2026, start = LocalDate(2026, 1, 1), endInclusive = LocalDate(2026, 1, 3))
             val replacementList = lunarDateList(solarYear = 2026, start = LocalDate(2026, 1, 2), endInclusive = LocalDate(2026, 1, 5))
@@ -62,7 +62,7 @@ class LunarTransactionImplTest :
             }
         }
 
-        test("TC-LUNAR-FETCH-DATA-002 빈 목록 저장 시 해당 연도의 기존 목록을 제거한다") {
+        test("TC-77a8f0ae-7aa7-4553-a40a-d70cca1e0f3d 빈 목록 저장 시 해당 연도의 기존 목록을 제거한다") {
             transaction.upsert(solarYear = 2026, lunarDateList = lunarDateList(solarYear = 2026, start = LocalDate(2026, 1, 1), endInclusive = LocalDate(2026, 1, 3)))
 
             transaction.upsert(solarYear = 2026, lunarDateList = emptyList())

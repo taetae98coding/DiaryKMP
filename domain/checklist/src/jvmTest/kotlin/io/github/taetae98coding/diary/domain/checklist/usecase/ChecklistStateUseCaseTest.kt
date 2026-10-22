@@ -34,7 +34,7 @@ class ChecklistStateUseCaseTest :
                         stateCase.verifySaved(context)
                     }
 
-                    Then(testName(tcIdList = listOf("TC-SYNC-REFRESH-FEATURE-004") + stateCase.syncTcIdList, description = "기기에 저장한 뒤 동기화를 한 번 요청한다")) {
+                    Then(testName(tcIdList = listOf("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c") + stateCase.syncTcIdList, description = "기기에 저장한 뒤 동기화를 한 번 요청한다")) {
                         coVerify(exactly = 1) { context.requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
                     }
                 }
@@ -92,7 +92,7 @@ class ChecklistStateUseCaseTest :
 
             stateCaseList.forEach { stateCase ->
                 When("${stateCase.label}을 실행한다") {
-                    Then("TC-CHECKLIST-DETAIL-DATA-001 바뀐 대상이 없음을 전달한다") {
+                    Then("TC-fd1241c1-0667-4741-a1de-10602a660b42 바뀐 대상이 없음을 전달한다") {
                         stateCase.invoke(context).shouldBeSuccess(0)
                     }
                 }
@@ -155,10 +155,10 @@ private val stateCaseList: List<StateCase> =
     listOf(
         StateCase(
             label = "체크리스트 삭제",
-            savedTcIdList = listOf("TC-CHECKLIST-HOME-DOMAIN-006", "TC-CHECKLIST-DETAIL-DOMAIN-012"),
-            syncTcIdList = listOf("TC-CHECKLIST-HOME-DATA-004", "TC-CHECKLIST-DETAIL-DATA-005"),
-            guestTcIdList = listOf("TC-CHECKLIST-HOME-DATA-005", "TC-CHECKLIST-DETAIL-DATA-006"),
-            failureTcIdList = listOf("TC-CHECKLIST-DETAIL-DATA-002"),
+            savedTcIdList = listOf("TC-d9950fa8-8de2-4ed5-9eb9-93883cd6e478", "TC-63ed56a5-0718-4c57-a018-36a1952fca0e"),
+            syncTcIdList = listOf("TC-bc9ac9d1-bc92-4acc-a8ef-eee1dbedb8cc", "TC-e066d56e-5d9e-4299-a49b-e4b1cfb94367"),
+            guestTcIdList = listOf("TC-5766f1b0-3084-42a3-a460-5a387498f7d8", "TC-20be2c49-4b48-41e2-861c-50dbec844576"),
+            failureTcIdList = listOf("TC-8e505659-9424-4d8b-abe1-6e8bc8d72794"),
             accountFailureTcIdList = emptyList(),
             invoke = { context ->
                 DeleteChecklistUseCase(context.getAccountUseCase, context.requestSyncUseCase, context.checklistRepository, context.clock)(
@@ -178,11 +178,11 @@ private val stateCaseList: List<StateCase> =
         ),
         StateCase(
             label = "체크리스트 삭제의 실행 취소",
-            savedTcIdList = listOf("TC-CHECKLIST-HOME-DOMAIN-007"),
-            syncTcIdList = listOf("TC-CHECKLIST-HOME-DATA-004"),
-            guestTcIdList = listOf("TC-CHECKLIST-HOME-DATA-005"),
+            savedTcIdList = listOf("TC-96e49a34-c00b-4352-ab42-a8ec06bffe03"),
+            syncTcIdList = listOf("TC-bc9ac9d1-bc92-4acc-a8ef-eee1dbedb8cc"),
+            guestTcIdList = listOf("TC-5766f1b0-3084-42a3-a460-5a387498f7d8"),
             failureTcIdList = emptyList(),
-            accountFailureTcIdList = listOf("TC-CHECKLIST-HOME-DOMAIN-008"),
+            accountFailureTcIdList = listOf("TC-17730eb2-1d22-4810-99d2-aca75dfe6c84"),
             invoke = { context ->
                 RestoreChecklistUseCase(context.getAccountUseCase, context.requestSyncUseCase, context.checklistRepository, context.clock)(
                     parameter = context.id,
@@ -201,10 +201,10 @@ private val stateCaseList: List<StateCase> =
         ),
         StateCase(
             label = "체크",
-            savedTcIdList = listOf("TC-CHECKLIST-DETAIL-DOMAIN-007"),
-            syncTcIdList = listOf("TC-CHECKLIST-DETAIL-DATA-005"),
-            guestTcIdList = listOf("TC-CHECKLIST-DETAIL-DATA-006"),
-            failureTcIdList = listOf("TC-CHECKLIST-DETAIL-DATA-002"),
+            savedTcIdList = listOf("TC-7becaae5-50d1-46ca-874a-97280e482e04"),
+            syncTcIdList = listOf("TC-e066d56e-5d9e-4299-a49b-e4b1cfb94367"),
+            guestTcIdList = listOf("TC-20be2c49-4b48-41e2-861c-50dbec844576"),
+            failureTcIdList = listOf("TC-8e505659-9424-4d8b-abe1-6e8bc8d72794"),
             accountFailureTcIdList = emptyList(),
             invoke = { context ->
                 CheckChecklistItemUseCase(context.getAccountUseCase, context.requestSyncUseCase, context.itemRepository, context.clock)(
@@ -224,10 +224,10 @@ private val stateCaseList: List<StateCase> =
         ),
         StateCase(
             label = "체크 해제",
-            savedTcIdList = listOf("TC-CHECKLIST-DETAIL-DOMAIN-007"),
-            syncTcIdList = listOf("TC-CHECKLIST-DETAIL-DATA-005"),
-            guestTcIdList = listOf("TC-CHECKLIST-DETAIL-DATA-006"),
-            failureTcIdList = listOf("TC-CHECKLIST-DETAIL-DATA-002"),
+            savedTcIdList = listOf("TC-7becaae5-50d1-46ca-874a-97280e482e04"),
+            syncTcIdList = listOf("TC-e066d56e-5d9e-4299-a49b-e4b1cfb94367"),
+            guestTcIdList = listOf("TC-20be2c49-4b48-41e2-861c-50dbec844576"),
+            failureTcIdList = listOf("TC-8e505659-9424-4d8b-abe1-6e8bc8d72794"),
             accountFailureTcIdList = emptyList(),
             invoke = { context ->
                 UncheckChecklistItemUseCase(context.getAccountUseCase, context.requestSyncUseCase, context.itemRepository, context.clock)(
@@ -247,10 +247,10 @@ private val stateCaseList: List<StateCase> =
         ),
         StateCase(
             label = "항목 빼기",
-            savedTcIdList = listOf("TC-CHECKLIST-DETAIL-DOMAIN-010"),
-            syncTcIdList = listOf("TC-CHECKLIST-DETAIL-DATA-005"),
-            guestTcIdList = listOf("TC-CHECKLIST-DETAIL-DATA-006"),
-            failureTcIdList = listOf("TC-CHECKLIST-DETAIL-DATA-002"),
+            savedTcIdList = listOf("TC-d7bffc1e-30a6-4f1a-8dae-588da8f7d911"),
+            syncTcIdList = listOf("TC-e066d56e-5d9e-4299-a49b-e4b1cfb94367"),
+            guestTcIdList = listOf("TC-20be2c49-4b48-41e2-861c-50dbec844576"),
+            failureTcIdList = listOf("TC-8e505659-9424-4d8b-abe1-6e8bc8d72794"),
             accountFailureTcIdList = emptyList(),
             invoke = { context ->
                 DeleteChecklistItemUseCase(context.getAccountUseCase, context.requestSyncUseCase, context.itemRepository, context.clock)(
@@ -270,10 +270,10 @@ private val stateCaseList: List<StateCase> =
         ),
         StateCase(
             label = "리셋",
-            savedTcIdList = listOf("TC-CHECKLIST-DETAIL-DOMAIN-011"),
-            syncTcIdList = listOf("TC-CHECKLIST-DETAIL-DATA-005"),
-            guestTcIdList = listOf("TC-CHECKLIST-DETAIL-DATA-006"),
-            failureTcIdList = listOf("TC-CHECKLIST-DETAIL-DATA-002"),
+            savedTcIdList = listOf("TC-c81f2cd3-659c-4d52-b6b4-571337e12f0b"),
+            syncTcIdList = listOf("TC-e066d56e-5d9e-4299-a49b-e4b1cfb94367"),
+            guestTcIdList = listOf("TC-20be2c49-4b48-41e2-861c-50dbec844576"),
+            failureTcIdList = listOf("TC-8e505659-9424-4d8b-abe1-6e8bc8d72794"),
             accountFailureTcIdList = emptyList(),
             invoke = { context ->
                 ResetChecklistUseCase(context.getAccountUseCase, context.requestSyncUseCase, context.itemRepository, context.clock)(

@@ -47,7 +47,7 @@ class TagFinishedListScaffoldTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-002 목록에 완료된 태그의 이모지와 제목을 카드로 표시한다`() {
+    fun `TC-1d18a0ba-0f83-4145-b6b9-008041417105 목록에 완료된 태그의 이모지와 제목을 카드로 표시한다`() {
         val tagList =
             listOf(
                 tag(title = FIRST_TITLE, emoji = EMOJI),
@@ -85,7 +85,7 @@ class TagFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-003 이모지가 비어 있으면 제목만 표시한다`() {
+    fun `TC-1d7a5d3a-87b2-4aaa-ac2b-9b9c91bbe61e 이모지가 비어 있으면 제목만 표시한다`() {
         setTagFinishedListScaffold(tagList = listOf(tag(title = FIRST_TITLE, emoji = "")))
 
         composeRule.onNodeWithText(FIRST_TITLE).assertExists()
@@ -114,14 +114,14 @@ class TagFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-013 이 화면에는 태그 추가 버튼을 표시하지 않는다`() {
+    fun `TC-539f9654-be7a-4534-80d0-759947350150 이 화면에는 태그 추가 버튼을 표시하지 않는다`() {
         setTagFinishedListScaffold(tagList = listOf(tag(title = FIRST_TITLE)))
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-011 태그 카드를 선택하면 해당 태그의 상세 화면 전환 행동을 한 번 전달한다`() {
+    fun `TC-fec2ef31-7a95-4eed-9548-357ed77d928c 태그 카드를 선택하면 해당 태그의 상세 화면 전환 행동을 한 번 전달한다`() {
         val tag = tag(title = FIRST_TITLE)
         val eventList = mutableListOf<TagFinishedListScaffoldEvent>()
         val tagListEventList = mutableListOf<TagListEvent>()
@@ -134,7 +134,7 @@ class TagFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-012 뒤로가기 버튼을 선택하면 뒤로가기 행동을 한 번 전달한다`() {
+    fun `TC-5cfacf65-0f6f-496b-a84b-0ac00d46a79d 뒤로가기 버튼을 선택하면 뒤로가기 행동을 한 번 전달한다`() {
         val eventList = mutableListOf<TagFinishedListScaffoldEvent>()
         setTagFinishedListScaffold(onEvent = eventList::add)
 
@@ -144,7 +144,7 @@ class TagFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-021 격자의 태그 카드를 좌에서 우로 밀면 그 태그의 다시 시작을 한 번 전달한다`() {
+    fun `TC-fe0bcdbb-5c59-4d18-8578-a78189114664 격자의 태그 카드를 좌에서 우로 밀면 그 태그의 다시 시작을 한 번 전달한다`() {
         val tag = tag(title = FIRST_TITLE)
         val tagListEventList = mutableListOf<TagListEvent>()
         setTagFinishedListScaffold(tagList = listOf(tag), onTagListEvent = tagListEventList::add)
@@ -156,7 +156,7 @@ class TagFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-022 격자의 태그 카드를 우에서 좌로 밀면 그 태그의 삭제를 한 번 전달한다`() {
+    fun `TC-4453af30-d54d-4541-af6e-e51ec0858893 격자의 태그 카드를 우에서 좌로 밀면 그 태그의 삭제를 한 번 전달한다`() {
         val tag = tag(title = FIRST_TITLE)
         val tagListEventList = mutableListOf<TagListEvent>()
         setTagFinishedListScaffold(tagList = listOf(tag), onTagListEvent = tagListEventList::add)

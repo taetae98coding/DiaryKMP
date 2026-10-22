@@ -60,7 +60,7 @@ class MemoFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-001 TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-011 넓은 창에서 완료된 메모 목록을 열면 MemoHome 목록 없이 선택 전 상세와 함께 표시한다`() {
+    fun `TC-d5d2c870-c1a8-4977-bd89-f6f37f88fd13 TC-ea6f386d-f6a3-4d7d-9d96-6ff5cb3b582e 넓은 창에서 완료된 메모 목록을 열면 MemoHome 목록 없이 선택 전 상세와 함께 표시한다`() {
         val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, MemoFinishedListNavKey)
         setAppNavDisplay(backStack = backStack)
 
@@ -72,7 +72,7 @@ class MemoFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-002 기본 환경의 선택 전 안내만 표시하고 실행할 동작을 두지 않는다`() {
+    fun `TC-37b0df93-d613-4ee7-bbaa-7179a3201cfc 기본 환경의 선택 전 안내만 표시하고 실행할 동작을 두지 않는다`() {
         setAppNavDisplay(backStack = NavBackStack(MemoHomeNavKey, MemoFinishedListNavKey))
 
         composeRule.onNodeWithText(DEFAULT_PLACEHOLDER_TEXT).assertIsDisplayed()
@@ -81,7 +81,7 @@ class MemoFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "ko-w1280dp-h1600dp")
-    fun `TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-002 한국어 선택 전 안내만 표시하고 실행할 동작을 두지 않는다`() {
+    fun `TC-37b0df93-d613-4ee7-bbaa-7179a3201cfc 한국어 선택 전 안내만 표시하고 실행할 동작을 두지 않는다`() {
         setAppNavDisplay(backStack = NavBackStack(MemoHomeNavKey, MemoFinishedListNavKey))
 
         composeRule.onNodeWithText(KOREAN_PLACEHOLDER_TEXT).assertIsDisplayed()
@@ -90,7 +90,7 @@ class MemoFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-003 넓은 창에서 메모를 선택하면 목록을 유지한 채 상세 영역에 그 메모의 상세가 놓인다`() {
+    fun `TC-dd8970a8-0084-4755-9ece-aade2474e3d2 넓은 창에서 메모를 선택하면 목록을 유지한 채 상세 영역에 그 메모의 상세가 놓인다`() {
         val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, MemoFinishedListNavKey)
         setAppNavDisplay(backStack = backStack)
 
@@ -105,7 +105,7 @@ class MemoFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w400dp-h800dp")
-    fun `TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-006 한 영역만 쓰는 창에서는 현재 화면만 단독으로 표시한다`() {
+    fun `TC-60b76d30-508b-4b3b-a5a7-b67e0dc2ef08 한 영역만 쓰는 창에서는 현재 화면만 단독으로 표시한다`() {
         val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, MemoFinishedListNavKey)
         setAppNavDisplay(backStack = backStack)
         composeRule.onNodeWithText(LIST_CONTENT).assertIsDisplayed()
@@ -120,7 +120,7 @@ class MemoFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-008 넓은 창에서 메모 상세를 연 뒤 뒤로가면 목록을 유지하고 선택 전 상태로 돌아간다`() {
+    fun `TC-446a7b3f-b8d8-47b7-8101-e05eb4a53f27 넓은 창에서 메모 상세를 연 뒤 뒤로가면 목록을 유지하고 선택 전 상태로 돌아간다`() {
         val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, MemoFinishedListNavKey)
         setAppNavDisplay(backStack = backStack)
         composeRule.runOnIdle { backStack.navigateToMemoDetail(fixtureMonkey.giveMeOne<Uuid>()) }
@@ -136,7 +136,7 @@ class MemoFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-008 넓은 창에서 다른 메모의 상세로 바꾼 뒤 뒤로가면 이전 메모가 아닌 선택 전 상태로 돌아간다`() {
+    fun `TC-446a7b3f-b8d8-47b7-8101-e05eb4a53f27 넓은 창에서 다른 메모의 상세로 바꾼 뒤 뒤로가면 이전 메모가 아닌 선택 전 상태로 돌아간다`() {
         val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, MemoFinishedListNavKey)
         setAppNavDisplay(backStack = backStack)
         composeRule.runOnIdle { backStack.navigateToMemoDetail(fixtureMonkey.giveMeOne<Uuid>()) }
@@ -153,7 +153,7 @@ class MemoFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-013 넓은 창에서 상세가 선택 전 상태일 때 뒤로가면 완료된 메모 목록 전체를 떠나 MemoHome 목록으로 돌아간다`() {
+    fun `TC-0523c77b-f821-4c55-b2d8-2603bccde3fb 넓은 창에서 상세가 선택 전 상태일 때 뒤로가면 완료된 메모 목록 전체를 떠나 MemoHome 목록으로 돌아간다`() {
         // MemoHome의 선택 전 상세는 실제 메모 추가 화면이라 이 대역 환경에서 띄울 수 없으므로, 돌아갈 MemoHome에 메모 상세를 열어 둔다.
         val homeDetailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
         val backStack = NavBackStack(MemoHomeNavKey, homeDetailKey, MemoFinishedListNavKey)
@@ -168,7 +168,7 @@ class MemoFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-014 넓은 창에서 상세 영역의 메모에서 연 연결 항목 화면은 단독으로 표시하고 돌아오면 떠나기 전의 메모가 놓인다`() {
+    fun `TC-17db916b-14c5-4630-b776-0acc114d266e 넓은 창에서 상세 영역의 메모에서 연 연결 항목 화면은 단독으로 표시하고 돌아오면 떠나기 전의 메모가 놓인다`() {
         val homeDetailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
         val backStack = NavBackStack(MemoHomeNavKey, homeDetailKey, MemoFinishedListNavKey)
         val openedKeyList: List<ScreenNavKey> =
@@ -205,7 +205,7 @@ class MemoFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-MEMO-LIST-DETAIL-DOMAIN-005 넓은 창에서 완료된 메모 목록에 다녀와도 메모 목록 배치의 상세가 그대로다`() {
+    fun `TC-4b6fb492-81b6-4c57-8992-1c7a884b53c6 넓은 창에서 완료된 메모 목록에 다녀와도 메모 목록 배치의 상세가 그대로다`() {
         val homeDetailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
         val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, homeDetailKey)
         setAppNavDisplay(backStack = backStack)

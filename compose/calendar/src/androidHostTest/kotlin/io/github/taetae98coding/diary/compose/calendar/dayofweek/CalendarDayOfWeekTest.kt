@@ -23,7 +23,7 @@ class CalendarDayOfWeekTest {
 
     @Test
     @Config(sdk = [36], qualifiers = "ko")
-    fun `TC-CALENDAR-FEATURE-007 여섯 주 위에 일곱 요일이 한국어 표기로 순서대로 표시된다`() {
+    fun `TC-05a8ff48-6922-48d8-9c2a-dcd92e0d9eeb 여섯 주 위에 일곱 요일이 한국어 표기로 순서대로 표시된다`() {
         composeRule.setContent {
             DiaryTheme {
                 Calendar {}
@@ -34,7 +34,7 @@ class CalendarDayOfWeekTest {
     }
 
     @Test
-    fun `TC-CALENDAR-FEATURE-007 여섯 주 위에 일곱 요일이 영어 표기로 순서대로 표시된다`() {
+    fun `TC-05a8ff48-6922-48d8-9c2a-dcd92e0d9eeb 여섯 주 위에 일곱 요일이 영어 표기로 순서대로 표시된다`() {
         composeRule.setContent {
             DiaryTheme {
                 Calendar {}
@@ -45,7 +45,7 @@ class CalendarDayOfWeekTest {
     }
 
     @Test
-    fun `TC-CALENDAR-FEATURE-008 달을 이동해도 요일 표시는 변하지 않는다`() {
+    fun `TC-b8723262-a500-4399-ad50-5ccc7cd4a75e 달을 이동해도 요일 표시는 변하지 않는다`() {
         composeRule.setContent {
             DiaryTheme {
                 Calendar {}

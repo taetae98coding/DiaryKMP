@@ -11,7 +11,7 @@ private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class DiaryMapCenterTest : FunSpec() {
     init {
-        test("TC-DIARY-MAP-DOMAIN-048 지도가 알려 온 위치와 보이는 영역으로 좌표가 가운데에 있는지 판정한다") {
+        test("TC-93d90d11-2f6b-47aa-8859-73ace2ab75a7 지도가 알려 온 위치와 보이는 영역으로 좌표가 가운데에 있는지 판정한다") {
             val center = randomCoordinate()
             val span = randomSpan()
             val bounds =
@@ -42,7 +42,7 @@ class DiaryMapCenterTest : FunSpec() {
             DiaryMapState(initialProvider = DiaryMapProvider.NAVER).isCentered(center) shouldBe false
         }
 
-        test("TC-DIARY-MAP-DOMAIN-049 지도를 옮기도록 지정하면 지도가 새 위치를 알려 오기 전에도 그 좌표가 가운데에 있다") {
+        test("TC-d2ae97cc-d8ad-43e6-a1f4-345e6700327b 지도를 옮기도록 지정하면 지도가 새 위치를 알려 오기 전에도 그 좌표가 가운데에 있다") {
             val reported = randomCoordinate()
             val target = randomCoordinate().copy(latitude = reported.latitude + OTHER_PLACE_OFFSET)
             val span = randomSpan()

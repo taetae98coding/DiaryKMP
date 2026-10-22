@@ -44,7 +44,7 @@ class FileDetailScreenRetentionTest {
     }
 
     @Test
-    fun `TC-FILE-DETAIL-DOMAIN-006 화면이 재생성되어도 파일 정보와 입력을 유지하고 다시 불러오지 않는다`() {
+    fun `TC-3c33f9db-bb3b-447e-8109-25ac4c34aad4 화면이 재생성되어도 파일 정보와 입력을 유지하고 다시 불러오지 않는다`() {
         val newTitle = prefixedValue(prefix = TITLE_PREFIX)
         val newDescription = prefixedValue(prefix = DESCRIPTION_PREFIX)
         val newName = prefixedValue(prefix = NAME_PREFIX)
@@ -66,7 +66,7 @@ class FileDetailScreenRetentionTest {
     }
 
     @Test
-    fun `TC-FILE-DETAIL-DOMAIN-006 앱이 백그라운드에 갔다가 돌아와도 파일 정보와 입력을 유지하고 다시 불러오지 않는다`() {
+    fun `TC-3c33f9db-bb3b-447e-8109-25ac4c34aad4 앱이 백그라운드에 갔다가 돌아와도 파일 정보와 입력을 유지하고 다시 불러오지 않는다`() {
         val newTitle = prefixedValue(prefix = TITLE_PREFIX)
         val newDescription = prefixedValue(prefix = DESCRIPTION_PREFIX)
         val newName = prefixedValue(prefix = NAME_PREFIX)
@@ -94,7 +94,7 @@ class FileDetailScreenRetentionTest {
     }
 
     @Test
-    fun `TC-FILE-DETAIL-DOMAIN-007 진행 중인 수정과 다운로드는 화면이 재생성되어도 이어지고 결과가 보인다`() {
+    fun `TC-1d35a91d-33e0-444d-a845-c66a87674bd6 진행 중인 수정과 다운로드는 화면이 재생성되어도 이어지고 결과가 보인다`() {
         val newTitle = prefixedValue(prefix = TITLE_PREFIX)
         val screen = FileDetailTestScreen()
         val updateResponse = CompletableDeferred<Unit>()
@@ -131,7 +131,7 @@ class FileDetailScreenRetentionTest {
     }
 
     @Test
-    fun `TC-FILE-DETAIL-DOMAIN-008 시스템이 앱을 정리한 뒤 복원하면 다시 불러오고 입력은 복원한다`() {
+    fun `TC-01b1ffb1-c07e-4123-a10e-208093cf0131 시스템이 앱을 정리한 뒤 복원하면 다시 불러오고 입력은 복원한다`() {
         val file = fileDetailFixtureMonkey.nonBlankDiaryFile().copy(title = DOCUMENTED_OLD_TITLE)
         // 시스템이 앱을 정리하면 ViewModel도 새로 만들어지므로, 복원하는 순간 새 화면 상태로 바꾼다.
         var screen by mutableStateOf(FileDetailTestScreen(mocks = FileDetailMocks(file = file)))
@@ -154,7 +154,7 @@ class FileDetailScreenRetentionTest {
     }
 
     @Test
-    fun `TC-FILE-DETAIL-DOMAIN-009 화면을 떠났다가 다시 들어오면 새로 불러온 저장된 값으로 시작한다`() {
+    fun `TC-0a93fd60-7169-4b9b-ac96-8476db338d29 화면을 떠났다가 다시 들어오면 새로 불러온 저장된 값으로 시작한다`() {
         val newTitle = prefixedValue(prefix = TITLE_PREFIX)
         val newDescription = prefixedValue(prefix = DESCRIPTION_PREFIX)
         val newName = prefixedValue(prefix = NAME_PREFIX)

@@ -63,7 +63,7 @@ class LogPlayIntegrityUseCaseTest :
             When("판정을 확인한다") {
                 val result = useCase(verdict = verdict)(parameter = Unit)
 
-                Then("TC-PLAY-INTEGRITY-LOGGING-DOMAIN-001 play_integrity 원격 분석 로그 하나에 모든 필드를 한 단계 목록으로 남긴다") {
+                Then("TC-142d9413-e8d5-4428-ad52-0cfdf72b80fc play_integrity 원격 분석 로그 하나에 모든 필드를 한 단계 목록으로 남긴다") {
                     result.shouldBeSuccess()
                     val analyticsLogList = logList.filterIsInstance<AnalyticsEventLog>()
                     analyticsLogList shouldHaveSize 1
@@ -111,7 +111,7 @@ class LogPlayIntegrityUseCaseTest :
             When("판정을 확인한다") {
                 useCase(verdict = verdict)(parameter = Unit)
 
-                Then("TC-PLAY-INTEGRITY-LOGGING-DOMAIN-002 겹치는 필드만 바로 위 필드 이름을 붙여 구분한다") {
+                Then("TC-c3ad60a7-c833-4b99-a0dd-c8f8be604bf9 겹치는 필드만 바로 위 필드 이름을 붙여 구분한다") {
                     logList.filterIsInstance<AnalyticsEventLog>().single().parameters shouldBe
                         JsonObject(
                             mapOf(
@@ -135,7 +135,7 @@ class LogPlayIntegrityUseCaseTest :
             When("판정을 확인한다") {
                 useCase(verdict = verdict)(parameter = Unit)
 
-                Then("TC-PLAY-INTEGRITY-LOGGING-DOMAIN-003 받은 순서대로 쉼표로 이은 문자열 하나로 남긴다") {
+                Then("TC-772fd425-f1a4-4fb1-8dde-c660ed352753 받은 순서대로 쉼표로 이은 문자열 하나로 남긴다") {
                     logList.filterIsInstance<AnalyticsEventLog>().single().parameters["device_recognition_verdict"] shouldBe
                         JsonPrimitive(valueList.joinToString(separator = ","))
                 }
@@ -157,7 +157,7 @@ class LogPlayIntegrityUseCaseTest :
             When("판정을 확인한다") {
                 useCase(verdict = verdict)(parameter = Unit)
 
-                Then("TC-PLAY-INTEGRITY-LOGGING-DOMAIN-004 숫자와 문자열은 종류를 지키고 참·거짓은 문자열로 남긴다") {
+                Then("TC-c656ccf9-2168-433e-a76d-679a9be989fd 숫자와 문자열은 종류를 지키고 참·거짓은 문자열로 남긴다") {
                     logList.filterIsInstance<AnalyticsEventLog>().single().parameters shouldBe
                         JsonObject(
                             mapOf(
@@ -182,7 +182,7 @@ class LogPlayIntegrityUseCaseTest :
                 )
 
             When("판정을 확인한다") {
-                Then("TC-PLAY-INTEGRITY-LOGGING-DOMAIN-005 빈 필드에서 나온 이름은 담지 않는다") {
+                Then("TC-c5632ab5-b9ef-470e-80b3-68cb37d79349 빈 필드에서 나온 이름은 담지 않는다") {
                     deviceIntegrityList.forEach { deviceIntegrity ->
                         val logList = recordLog()
                         val verdict =
@@ -208,7 +208,7 @@ class LogPlayIntegrityUseCaseTest :
             When("판정을 확인한다") {
                 useCase(verdict = verdict)(parameter = Unit)
 
-                Then("TC-PLAY-INTEGRITY-LOGGING-DOMAIN-006 새 필드도 그대로 남긴다") {
+                Then("TC-98a93ae9-5005-44bc-8854-9fa1303ea6de 새 필드도 그대로 남긴다") {
                     logList.filterIsInstance<AnalyticsEventLog>().single().parameters["new_verdict"] shouldBe JsonPrimitive(newValue)
                 }
             }
@@ -220,7 +220,7 @@ class LogPlayIntegrityUseCaseTest :
             When("판정을 확인한다") {
                 val result = useCase(verdict = null)(parameter = Unit)
 
-                Then("TC-PLAY-INTEGRITY-LOGGING-DOMAIN-007 원격 분석 로그를 남기지 않고 오류 없이 끝난다") {
+                Then("TC-0ad09bab-6b59-4f35-9e63-0478f4bc6a48 원격 분석 로그를 남기지 않고 오류 없이 끝난다") {
                     result.shouldBeSuccess()
                     logList.filterIsInstance<AnalyticsEventLog>().shouldBeEmpty()
                 }
@@ -235,7 +235,7 @@ class LogPlayIntegrityUseCaseTest :
             When("판정을 확인한다") {
                 val result = LogPlayIntegrityUseCase(playIntegrityRepository = repository)(parameter = Unit)
 
-                Then("TC-PLAY-INTEGRITY-LOGGING-DOMAIN-008 TC-PLAY-INTEGRITY-LOGGING-DOMAIN-009 원격 분석 로그와 오류 보고 없이 오류를 던지지 않고 끝난다") {
+                Then("TC-20072077-72da-437e-bd3a-7874cfc5c4d4 TC-38f0fd49-9bdf-435a-aef3-ca084756c93f 원격 분석 로그와 오류 보고 없이 오류를 던지지 않고 끝난다") {
                     result.shouldBeFailure()
                     logList.filterIsInstance<AnalyticsEventLog>().shouldBeEmpty()
                     logList.filterIsInstance<CrashlyticsLog>().shouldBeEmpty()

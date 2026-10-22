@@ -27,7 +27,7 @@ class SwipeToDeleteChecklistCardTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-019 체크리스트 카드를 우에서 좌로 밀면 삭제를 한 번 전달한다`() {
+    fun `TC-c7d4827a-f896-4048-b403-21e2cf5f12c9 체크리스트 카드를 우에서 좌로 밀면 삭제를 한 번 전달한다`() {
         var deleteCount = 0
         setCard(summary = testChecklistSummary(), onDelete = { deleteCount += 1 })
 
@@ -38,7 +38,7 @@ class SwipeToDeleteChecklistCardTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-021 체크리스트 카드를 좌에서 우로 밀면 아무것도 전달하지 않는다`() {
+    fun `TC-c9b6b398-b2e1-4f21-ba60-9eaa2d97ad70 체크리스트 카드를 좌에서 우로 밀면 아무것도 전달하지 않는다`() {
         var deleteCount = 0
         val summary = testChecklistSummary()
         setCard(summary = summary, onDelete = { deleteCount += 1 })
@@ -51,7 +51,7 @@ class SwipeToDeleteChecklistCardTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-022 아직 준비되지 않은 자리는 밀어도 삭제되지 않는다`() {
+    fun `TC-eb5fc8b1-67e0-48ea-8931-8734903b6b3f 아직 준비되지 않은 자리는 밀어도 삭제되지 않는다`() {
         var deleteCount = 0
         setCard(summary = null, onDelete = { deleteCount += 1 })
 
@@ -63,7 +63,7 @@ class SwipeToDeleteChecklistCardTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-010 아직 준비되지 않은 자리는 선택해도 이동하지 않는다`() {
+    fun `TC-09bb4ade-e45c-4478-8a7b-0a6f8eb3449f 아직 준비되지 않은 자리는 선택해도 이동하지 않는다`() {
         var clickCount = 0
         setCard(summary = null, onClick = { clickCount += 1 })
 

@@ -60,7 +60,7 @@ class CalendarHomeScaffoldDatePickerDialogTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-005 제목을 누르면 현재 표시 중인 달의 1일이 선택된 날짜 선택 다이얼로그가 표시된다`() {
+    fun `TC-e7221fb1-b6b3-4348-9004-cd34ae4b7355 제목을 누르면 현재 표시 중인 달의 1일이 선택된 날짜 선택 다이얼로그가 표시된다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
         setCalendarHomeScaffold()
@@ -110,7 +110,7 @@ class CalendarHomeScaffoldDatePickerDialogTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-007 날짜를 고르고 확인하면 캘린더가 고른 날짜가 속한 달로 이동한다`() {
+    fun `TC-5e82bddf-09cb-4977-94b0-7f21ad640a37 날짜를 고르고 확인하면 캘린더가 고른 날짜가 속한 달로 이동한다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
         val nextYearMonth =
             today.yearMonth.firstDay
@@ -130,7 +130,7 @@ class CalendarHomeScaffoldDatePickerDialogTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-008 다이얼로그를 취소하면 보던 달이 유지된다`() {
+    fun `TC-c3762a50-45ca-4af3-8b4b-e4f04150e66e 다이얼로그를 취소하면 보던 달이 유지된다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
         val nextYearMonth =
             today.yearMonth.firstDay
@@ -175,7 +175,7 @@ class CalendarHomeScaffoldDatePickerDialogTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-066 달 선택 중 화면이 재생성되어도 달 선택이 열린 채로 유지된다`() {
+    fun `TC-58464bd7-6b48-4856-b25a-c050e07efa66 달 선택 중 화면이 재생성되어도 달 선택이 열린 채로 유지된다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
         val restorationTester = StateRestorationTester(composeRule)
 
@@ -198,7 +198,7 @@ class CalendarHomeScaffoldDatePickerDialogTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-102 달 선택 중 시스템이 앱을 정리했다가 다시 만들어도 달 선택이 열린 채로 다시 보인다`() {
+    fun `TC-5f181449-1167-424e-a390-1fc092a5e5d3 달 선택 중 시스템이 앱을 정리했다가 다시 만들어도 달 선택이 열린 채로 다시 보인다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
         val restorationTester = StateRestorationTester(composeRule)
 
@@ -219,7 +219,7 @@ class CalendarHomeScaffoldDatePickerDialogTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-090 달 선택 중 다른 앱에 다녀와도 달 선택이 열린 채로 유지된다`() {
+    fun `TC-be80f3d9-527c-4d04-91f2-9ae2ad5add87 달 선택 중 다른 앱에 다녀와도 달 선택이 열린 채로 유지된다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
 
@@ -243,7 +243,7 @@ class CalendarHomeScaffoldDatePickerDialogTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-091 달 선택 중 앱을 다시 실행하면 달 선택이 닫힌 상태로 시작한다`() {
+    fun `TC-2893fb81-b1e4-461b-9b2a-6d25300bc5c3 달 선택 중 앱을 다시 실행하면 달 선택이 닫힌 상태로 시작한다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
         var launchCount by mutableIntStateOf(0)
 

@@ -52,7 +52,7 @@ class AddTagUseCaseTest :
                     )
 
                 When("태그를 추가한다") {
-                    Then("TC-TAG-ADD-DOMAIN-001 제목 공백 예외로 실패하고 태그를 저장하지 않는다") {
+                    Then("TC-e22777d8-af82-4f13-940c-e2d3c9f04fee 제목 공백 예외로 실패하고 태그를 저장하지 않는다") {
                         val detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = blankTitle)
 
                         val result = useCase(parameter = AddTagUseCase.Parameter(detail = detail))
@@ -87,7 +87,7 @@ class AddTagUseCaseTest :
                 )
 
             When("공백이 아닌 제목으로 태그를 추가한다") {
-                Then("TC-TAG-ADD-DATA-001 현재 계정과 연결된 고유한 태그로 저장한다") {
+                Then("TC-6b189131-ffb1-40b3-af1f-3a299eddae0e 현재 계정과 연결된 고유한 태그로 저장한다") {
                     val firstDetail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = nonBlankTitle())
                     val secondDetail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = nonBlankTitle())
 
@@ -100,7 +100,7 @@ class AddTagUseCaseTest :
                     coVerify(exactly = 2) { accountTagRepository.upsert(account = account, tag = any(), linkedTagIdSet = any()) }
                 }
 
-                Then("TC-TAG-ADD-DATA-002 입력한 이모지, 제목, 설명, 컬러를 그대로 저장한다") {
+                Then("TC-a16e1dca-972f-4c12-af5e-8a2539ac5d9e 입력한 이모지, 제목, 설명, 컬러를 그대로 저장한다") {
                     val detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = nonBlankTitle())
 
                     val result = useCase(parameter = AddTagUseCase.Parameter(detail = detail))
@@ -109,7 +109,7 @@ class AddTagUseCaseTest :
                     tagSlot.captured.detail shouldBe detail
                 }
 
-                Then("TC-TAG-ADD-DOMAIN-003 이모지를 입력하지 않아도 이모지가 빈 태그로 저장한다") {
+                Then("TC-54afbe51-7aa0-43a8-b26f-4655006c1a24 이모지를 입력하지 않아도 이모지가 빈 태그로 저장한다") {
                     val detail = fixtureMonkey.giveMeOne<TagDetail>().copy(emoji = "", title = nonBlankTitle())
 
                     val result = useCase(parameter = AddTagUseCase.Parameter(detail = detail))
@@ -119,7 +119,7 @@ class AddTagUseCaseTest :
                     tagSlot.captured.detail shouldBe detail
                 }
 
-                Then("TC-TAG-ADD-DOMAIN-009 설명을 입력하지 않아도 설명이 빈 태그로 저장한다") {
+                Then("TC-8218e34f-cf4d-4e9c-b8f4-e2ff033dd1bb 설명을 입력하지 않아도 설명이 빈 태그로 저장한다") {
                     val detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = nonBlankTitle(), description = "")
 
                     val result = useCase(parameter = AddTagUseCase.Parameter(detail = detail))
@@ -129,7 +129,7 @@ class AddTagUseCaseTest :
                     tagSlot.captured.detail shouldBe detail
                 }
 
-                Then("TC-TAG-ADD-DATA-003 미완료·미삭제 상태와 추가 시각을 저장한다") {
+                Then("TC-f9dcded9-62bf-4629-93c1-3ffffb06725e 미완료·미삭제 상태와 추가 시각을 저장한다") {
                     val detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = nonBlankTitle())
 
                     useCase(parameter = AddTagUseCase.Parameter(detail = detail)).shouldBeSuccess()
@@ -169,7 +169,7 @@ class AddTagUseCaseTest :
                 )
 
             When("고른 태그와 함께 태그를 추가한다") {
-                Then("TC-TAG-ADD-DATA-004 고른 태그를 도착 태그로 하는 연결을 새 태그와 함께 저장한다") {
+                Then("TC-1e53dccb-f364-43cc-9777-8428a3247b7c 고른 태그를 도착 태그로 하는 연결을 새 태그와 함께 저장한다") {
                     val detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = nonBlankTitle())
                     val linkedTagIdSet = List(2) { fixtureMonkey.giveMeOne<Uuid>() }.toSet()
 
@@ -184,7 +184,7 @@ class AddTagUseCaseTest :
             }
 
             When("태그를 하나도 고르지 않고 태그를 추가한다") {
-                Then("TC-TAG-ADD-DOMAIN-005 연결 없이 태그를 저장한다") {
+                Then("TC-371e7073-94f7-479b-b893-d95ed346f26d 연결 없이 태그를 저장한다") {
                     val detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = nonBlankTitle())
 
                     val result = useCase(parameter = AddTagUseCase.Parameter(detail = detail))
@@ -210,7 +210,7 @@ class AddTagUseCaseTest :
                 )
 
             When("공백이 아닌 제목으로 태그를 추가한다") {
-                Then("TC-TAG-ADD-DOMAIN-006 계정 조회 실패를 전달하고 태그를 저장하지 않는다") {
+                Then("TC-8b2ffaae-1e63-44a2-a189-983f26c2ea3b 계정 조회 실패를 전달하고 태그를 저장하지 않는다") {
                     val detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = nonBlankTitle())
 
                     val result = useCase(parameter = AddTagUseCase.Parameter(detail = detail))
@@ -241,7 +241,7 @@ class AddTagUseCaseTest :
                 )
 
             When("공백이 아닌 제목으로 태그를 추가한다") {
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-TAG-ADD-DATA-007 태그를 기기에 저장한 뒤 동기화를 한 번 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-fc0efa55-9c70-44bb-ae31-8eeaec53668f 태그를 기기에 저장한 뒤 동기화를 한 번 요청한다") {
                     val result = useCase(parameter = AddTagUseCase.Parameter(detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = nonBlankTitle())))
 
                     result.shouldBeSuccess()

@@ -25,7 +25,7 @@ class FetchFileUseCaseTest :
     BehaviorSpec({
         Given("로그인한 계정이다") {
             When("파일 정보를 불러온다") {
-                Then("TC-FILE-DETAIL-DATA-001 그 식별자로 서버에서 받은 정보를 돌려준다") {
+                Then("TC-a3f4dfdb-e1bd-45c2-9cfc-36710034083e 그 식별자로 서버에서 받은 정보를 돌려준다") {
                     val id = fixtureMonkey.giveMeOne<Uuid>()
                     val file = fixtureMonkey.giveMeOne<DiaryFile>()
                     val fileRepository = mockk<FileDetailRepository>()

@@ -101,7 +101,7 @@ class AccountChecklistLocalDataSourceImplTest :
             totalCount: Int = 0,
         ): ChecklistSummaryLocalEntity = ChecklistSummaryLocalEntity(checklist = checklist, checkedCount = checkedCount, totalCount = totalCount)
 
-        test("TC-CHECKLIST-HOME-DOMAIN-001 TC-CHECKLIST-HOME-DOMAIN-004 목록은 계정의 미삭제 체크리스트를 제목 오름차순으로 담는다") {
+        test("TC-5474c60f-6cdd-47da-9556-061c02a51d7a TC-b604e41d-9351-4e5c-a118-0dfd772241f1 목록은 계정의 미삭제 체크리스트를 제목 오름차순으로 담는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val b = checklist(title = "b")
             val a = checklist(title = "a")
@@ -115,7 +115,7 @@ class AccountChecklistLocalDataSourceImplTest :
             loaded(accountId) shouldBe listOf(summary(a), summary(b))
         }
 
-        test("TC-CHECKLIST-HOME-DOMAIN-001 다른 계정의 체크리스트만 저장되어 있으면 빈 목록으로 조회된다") {
+        test("TC-5474c60f-6cdd-47da-9556-061c02a51d7a 다른 계정의 체크리스트만 저장되어 있으면 빈 목록으로 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             checklistTransaction.upsert(accountId = fixtureMonkey.giveMeOne<Uuid>(), checklist = checklist(title = "title"), itemList = emptyList())
 
@@ -129,7 +129,7 @@ class AccountChecklistLocalDataSourceImplTest :
             listOf(1, 1, 1, 1) to (1 to 2),
             listOf(3, 0, 0, 0) to (3 to 3),
         ).forEach { (countList, expected) ->
-            test("TC-CHECKLIST-HOME-DOMAIN-003 체크 항목이 $countList 이면 진행 정도는 ${expected.first}/${expected.second} 다") {
+            test("TC-ab6c3860-96a1-4bb3-8243-2ab958930e75 체크 항목이 $countList 이면 진행 정도는 ${expected.first}/${expected.second} 다") {
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
                 val checklist = checklist(title = "title")
                 val itemList =
@@ -143,7 +143,7 @@ class AccountChecklistLocalDataSourceImplTest :
             }
         }
 
-        test("TC-CHECKLIST-HOME-DOMAIN-004 진행 정도는 목록 순서에 영향을 주지 않는다") {
+        test("TC-b604e41d-9351-4e5c-a118-0dfd772241f1 진행 정도는 목록 순서에 영향을 주지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val a = checklist(title = "a")
             val b = checklist(title = "b")
@@ -164,7 +164,7 @@ class AccountChecklistLocalDataSourceImplTest :
                 )
         }
 
-        test("TC-CHECKLIST-HOME-DATA-001 요청한 크기만큼 페이지로 나누어 진행 정도와 함께 이어서 조회된다") {
+        test("TC-ffcb4f61-636d-4088-9c8d-3f376f926bbf 요청한 크기만큼 페이지로 나누어 진행 정도와 함께 이어서 조회된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val checklistList = List(3) { index -> checklist(title = "$index-${fixtureMonkey.giveMeOne<String>()}") }
             checklistList.forEach { checklist ->
@@ -186,7 +186,7 @@ class AccountChecklistLocalDataSourceImplTest :
             nextPage.data shouldBe expected.drop(2)
         }
 
-        test("TC-CHECKLIST-HOME-DOMAIN-005 노출 기준을 만족하는 체크리스트를 추가하면 제목 순서에 맞는 자리에 나타난다") {
+        test("TC-ddca765c-69f3-4113-b1c5-31b12926b3a3 노출 기준을 만족하는 체크리스트를 추가하면 제목 순서에 맞는 자리에 나타난다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val a = checklist(title = "a")
             val b = checklist(title = "b")
@@ -199,7 +199,7 @@ class AccountChecklistLocalDataSourceImplTest :
             }
         }
 
-        test("TC-CHECKLIST-HOME-DOMAIN-005 목록에 있는 체크리스트가 삭제 상태로 바뀌면 목록에서 사라진다") {
+        test("TC-ddca765c-69f3-4113-b1c5-31b12926b3a3 목록에 있는 체크리스트가 삭제 상태로 바뀌면 목록에서 사라진다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val a = checklist(title = "a")
             val b = checklist(title = "b")
@@ -210,7 +210,7 @@ class AccountChecklistLocalDataSourceImplTest :
             }
         }
 
-        test("TC-CHECKLIST-HOME-DOMAIN-005 삭제 상태였던 체크리스트를 미삭제로 되돌리면 제목 순서에 맞는 자리에 다시 나타난다") {
+        test("TC-ddca765c-69f3-4113-b1c5-31b12926b3a3 삭제 상태였던 체크리스트를 미삭제로 되돌리면 제목 순서에 맞는 자리에 다시 나타난다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val a = checklist(title = "a")
             val b = checklist(title = "b")
@@ -224,7 +224,7 @@ class AccountChecklistLocalDataSourceImplTest :
             }
         }
 
-        test("TC-CHECKLIST-HOME-DOMAIN-005 목록에 있는 체크리스트의 제목이 수정되면 바뀐 제목 순서에 맞는 자리로 옮겨진다") {
+        test("TC-ddca765c-69f3-4113-b1c5-31b12926b3a3 목록에 있는 체크리스트의 제목이 수정되면 바뀐 제목 순서에 맞는 자리로 옮겨진다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val a = checklist(title = "a")
             val b = checklist(title = "b")
@@ -237,7 +237,7 @@ class AccountChecklistLocalDataSourceImplTest :
             }
         }
 
-        test("TC-CHECKLIST-HOME-DOMAIN-005 체크 항목이 추가되거나 체크되거나 삭제되면 진행 정도가 갱신된다") {
+        test("TC-ddca765c-69f3-4113-b1c5-31b12926b3a3 체크 항목이 추가되거나 체크되거나 삭제되면 진행 정도가 갱신된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val checklist = checklist(title = "title")
             val checkedItem = item(checklistId = checklist.id, isChecked = true)
@@ -255,7 +255,7 @@ class AccountChecklistLocalDataSourceImplTest :
             }
         }
 
-        test("TC-CHECKLIST-HOME-DOMAIN-005 서버에서 내려받은 체크리스트와 체크 항목은 노출, 정렬, 진행 정도 기준에 따라 목록에 반영된다") {
+        test("TC-ddca765c-69f3-4113-b1c5-31b12926b3a3 서버에서 내려받은 체크리스트와 체크 항목은 노출, 정렬, 진행 정도 기준에 따라 목록에 반영된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val a = checklist(title = "a")
             val c = checklist(title = "c")
@@ -275,7 +275,7 @@ class AccountChecklistLocalDataSourceImplTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-095 체크리스트보다 먼저 내려받은 체크 항목은 체크리스트가 반영되어야 그 체크리스트에 나타난다") {
+        test("TC-d6355518-e072-4377-94c1-d1b18f25a912 체크리스트보다 먼저 내려받은 체크 항목은 체크리스트가 반영되어야 그 체크리스트에 나타난다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val existing = checklist(title = "a")
             checklistTransaction.upsert(accountId = accountId, checklist = existing, itemList = emptyList())
@@ -297,7 +297,7 @@ class AccountChecklistLocalDataSourceImplTest :
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-DOMAIN-001 상세 조회는 삭제 상태인 체크리스트도 현재 계정 기준으로 찾는다") {
+        test("TC-3b75e95e-f535-4154-bfeb-5e95f65cdea4 상세 조회는 삭제 상태인 체크리스트도 현재 계정 기준으로 찾는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val deleted = fixtureMonkey.localChecklist(isDeleted = true)
             checklistTransaction.upsert(accountId = accountId, checklist = deleted, itemList = emptyList())
@@ -307,7 +307,7 @@ class AccountChecklistLocalDataSourceImplTest :
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-DOMAIN-017 현재 계정과 연결되지 않은 체크리스트는 찾지 못한다") {
+        test("TC-cd7f5929-faaf-4830-9230-c34621b1f7ab 현재 계정과 연결되지 않은 체크리스트는 찾지 못한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val other = fixtureMonkey.localChecklist(isDeleted = false)
             checklistTransaction.upsert(accountId = fixtureMonkey.giveMeOne<Uuid>(), checklist = other, itemList = emptyList())

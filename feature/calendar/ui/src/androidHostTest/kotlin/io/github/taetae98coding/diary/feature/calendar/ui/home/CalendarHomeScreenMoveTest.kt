@@ -85,7 +85,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-FEATURE-001 메모 제목을 길게 누르면 메모 이동이 시작되고 날짜 기간 선택은 시작되지 않는다`() {
+    fun `TC-1f1b2cd2-aed7-4fdd-bcbf-8b158982e3cb 메모 제목을 길게 누르면 메모 이동이 시작되고 날짜 기간 선택은 시작되지 않는다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         var capturedState: CalendarHomeScaffoldState? = null
         setCalendarHomeScreen(
@@ -105,7 +105,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-FEATURE-002 아이템이 없는 날짜 칸에서 길게 누르면 기존과 같이 날짜 기간 선택이 시작된다`() {
+    fun `TC-5fc067c9-d50f-40c0-9f27-bcb4895fbb0f 아이템이 없는 날짜 칸에서 길게 누르면 기존과 같이 날짜 기간 선택이 시작된다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         var capturedState: CalendarHomeScaffoldState? = null
         setCalendarHomeScreen(
@@ -125,7 +125,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-FEATURE-003 여러 주에 나뉜 조각 어느 것에서 시작해도 같은 메모의 이동이 시작된다`() {
+    fun `TC-9a27b012-7a38-4958-b1a1-f3ba32ce4611 여러 주에 나뉜 조각 어느 것에서 시작해도 같은 메모의 이동이 시작된다`() {
         val memo = memo(title = TRIP_TITLE, start = july(day = 15), endInclusive = july(day = 22))
         setCalendarHomeScreen(memoListFlow = MutableStateFlow(listOf(memo)))
         composeRule.onAllNodesWithText(TRIP_TITLE).assertCountEquals(2)
@@ -138,7 +138,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-FEATURE-004 드래그로 가리키는 날짜를 바꾸면 옮겨질 기간이 즉시 갱신된다`() {
+    fun `TC-a1f4d97b-5997-4dea-982a-e8083ce4689b 드래그로 가리키는 날짜를 바꾸면 옮겨질 기간이 즉시 갱신된다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         var capturedState: CalendarHomeScaffoldState? = null
         setCalendarHomeScreen(
@@ -158,7 +158,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-FEATURE-005 이동을 완료하면 날짜 차이만큼 옮겨진 기간이 반영된다`() {
+    fun `TC-b3114dcd-00d6-4204-ad3f-746a02407d8e 이동을 완료하면 날짜 차이만큼 옮겨진 기간이 반영된다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         val movedDateRange = july(day = 21)..july(day = 23)
         val storedMemoFlow = MutableStateFlow(Result.success(listOf(memo)))
@@ -206,7 +206,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-FEATURE-006 이동을 시작한 날짜와 같은 날짜에서 완료하면 메모가 바뀌지 않는다`() {
+    fun `TC-72b76d95-8983-4f64-95a2-6ca01d9dc6b5 이동을 시작한 날짜와 같은 날짜에서 완료하면 메모가 바뀌지 않는다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         setCalendarHomeScreen(memoListFlow = MutableStateFlow(listOf(memo)))
         val boundsBeforeMove = composeRule.onNodeWithText(MEETING_TITLE).fetchSemanticsNode().boundsInRoot
@@ -220,7 +220,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-FEATURE-011 손을 떼지 않고 이동이 끝나도 그 시점의 기간이 반영된다`() {
+    fun `TC-c7af792f-5fc5-48e8-954e-01ccd9f1f618 손을 떼지 않고 이동이 끝나도 그 시점의 기간이 반영된다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         var capturedState: CalendarHomeScaffoldState? = null
         setCalendarHomeScreen(
@@ -241,7 +241,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-FEATURE-011 이동 중 캘린더 상태가 새로 만들어져 이동이 끝나도 그 시점의 기간이 반영된다`() {
+    fun `TC-c7af792f-5fc5-48e8-954e-01ccd9f1f618 이동 중 캘린더 상태가 새로 만들어져 이동이 끝나도 그 시점의 기간이 반영된다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         var calendarStateGeneration by mutableStateOf(0)
         var capturedState: CalendarHomeScaffoldState? = null
@@ -264,7 +264,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-DOMAIN-008 화면이 재생성되면 이동 중 표시가 남지 않고 그 시점의 기간이 반영된다`() {
+    fun `TC-4d00ac00-6707-4bf3-830e-1a285d9f4e01 화면이 재생성되면 이동 중 표시가 남지 않고 그 시점의 기간이 반영된다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         val restorationTester = StateRestorationTester(composeRule)
         var capturedState: CalendarHomeScaffoldState? = null
@@ -288,7 +288,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-DOMAIN-009 앱이 백그라운드로 이동해도 이동 중 표시가 남지 않고 그 시점의 기간이 반영된다`() {
+    fun `TC-9cee0ad2-bc06-4ab7-b251-45577b45404d 앱이 백그라운드로 이동해도 이동 중 표시가 남지 않고 그 시점의 기간이 반영된다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         val registry = SaveableStateRegistry(restoredValues = null) { true }
         var capturedState: CalendarHomeScaffoldState? = null
@@ -312,7 +312,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-DOMAIN-014 화면을 벗어나면 이동 중 표시가 남지 않고 그 시점의 기간이 반영된다`() {
+    fun `TC-d46d5d52-57a0-44b6-9822-9c2cf7358486 화면을 벗어나면 이동 중 표시가 남지 않고 그 시점의 기간이 반영된다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         var isShown by mutableStateOf(true)
         setCalendarHomeScreen(
@@ -329,7 +329,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-FEATURE-015 이동 중 달 이동으로 옮겨질 기간이 달라지면 추가 촉각 피드백을 받는다`() {
+    fun `TC-0ea3f688-901f-4716-ace5-d65c30b61744 이동 중 달 이동으로 옮겨질 기간이 달라지면 추가 촉각 피드백을 받는다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         val hapticFeedback = mockk<HapticFeedback>(relaxed = true)
         var capturedState: CalendarHomeScaffoldState? = null
@@ -353,7 +353,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-FEATURE-007 메모 이동을 시작하면 촉각 피드백을 받는다`() {
+    fun `TC-ac40ed6d-753d-4f36-8523-7c488476d434 메모 이동을 시작하면 촉각 피드백을 받는다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         val hapticFeedback = mockk<HapticFeedback>(relaxed = true)
         setCalendarHomeScreen(
@@ -368,7 +368,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-FEATURE-008 드래그로 옮겨질 기간이 달라지면 추가 촉각 피드백을 받는다`() {
+    fun `TC-898b3418-48fb-48cd-b47e-88e8ad3aafa4 드래그로 옮겨질 기간이 달라지면 추가 촉각 피드백을 받는다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         val hapticFeedback = mockk<HapticFeedback>(relaxed = true)
         setCalendarHomeScreen(
@@ -386,7 +386,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-FEATURE-009 드래그해도 옮겨질 기간이 그대로이면 추가 촉각 피드백을 받지 않는다`() {
+    fun `TC-5721518a-4dbd-4434-9d70-b38fd92db1be 드래그해도 옮겨질 기간이 그대로이면 추가 촉각 피드백을 받지 않는다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         val hapticFeedback = mockk<HapticFeedback>(relaxed = true)
         setCalendarHomeScreen(
@@ -405,7 +405,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-FEATURE-010 이동 중 오른쪽 가장자리 영역에 머무르면 다음 달로 이동하고 메모 이동이 유지된다`() {
+    fun `TC-ca9b5b21-578a-4898-9271-adce542ac2e8 이동 중 오른쪽 가장자리 영역에 머무르면 다음 달로 이동하고 메모 이동이 유지된다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         var capturedState: CalendarHomeScaffoldState? = null
         setCalendarHomeScreen(
@@ -439,7 +439,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-FEATURE-016 이동 중 가장자리 영역에 머무는 동안 달 이동이 반복된다`() {
+    fun `TC-c545accb-63f2-4662-a6b1-714fcb2b5a0c 이동 중 가장자리 영역에 머무는 동안 달 이동이 반복된다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         var capturedState: CalendarHomeScaffoldState? = null
         setCalendarHomeScreen(
@@ -472,7 +472,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-DOMAIN-016 가장자리 영역 밖에서는 이동을 위한 드래그로 달이 이동하지 않는다`() {
+    fun `TC-b82d1ffa-84b8-40d4-a17e-001422f8ca19 가장자리 영역 밖에서는 이동을 위한 드래그로 달이 이동하지 않는다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         var capturedState: CalendarHomeScaffoldState? = null
         setCalendarHomeScreen(
@@ -494,7 +494,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-DOMAIN-017 이동 중 왼쪽 가장자리 영역에 머무르면 이전 달로 이동하고 메모 이동이 유지된다`() {
+    fun `TC-f708b40a-66eb-4c3a-a10d-02e536092758 이동 중 왼쪽 가장자리 영역에 머무르면 이전 달로 이동하고 메모 이동이 유지된다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         var capturedState: CalendarHomeScaffoldState? = null
         setCalendarHomeScreen(
@@ -526,7 +526,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-DOMAIN-003 드래그하는 동안 다른 경로로 기간이 바뀌어도 이동 시작 시점의 기간을 기준으로 완료를 전달한다`() {
+    fun `TC-484aef02-5606-47dc-a542-3c24a3b95f02 드래그하는 동안 다른 경로로 기간이 바뀌어도 이동 시작 시점의 기간을 기준으로 완료를 전달한다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         val memoListFlow = MutableStateFlow(listOf(memo))
         setCalendarHomeScreen(memoListFlow = memoListFlow)
@@ -543,7 +543,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-DOMAIN-006 이동 범위를 벗어나는 방향으로는 달이 이동하지 않고 메모 이동이 유지된다`() {
+    fun `TC-fea6de20-9f70-4ad9-baa0-412e6fc7e41f 이동 범위를 벗어나는 방향으로는 달이 이동하지 않고 메모 이동이 유지된다`() {
         val memo =
             memo(
                 title = MEETING_TITLE,
@@ -573,7 +573,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-DOMAIN-007 이웃 달에 속한 날짜 칸으로 완료하면 실제 날짜 그대로 반영된다`() {
+    fun `TC-d0132fd7-3f13-49ca-93bc-612aae47d2a6 이웃 달에 속한 날짜 칸으로 완료하면 실제 날짜 그대로 반영된다`() {
         val memo = memo(title = MEETING_TITLE, start = june(day = 23), endInclusive = june(day = 24))
         setCalendarHomeScreen(
             initialYearMonth = JUNE_2026,
@@ -589,7 +589,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-DOMAIN-015 캘린더 밖으로 드래그해 완료하면 가장 가까운 날짜 칸을 기준으로 반영된다`() {
+    fun `TC-559372ab-af93-4be5-9843-e3d8c81baba3 캘린더 밖으로 드래그해 완료하면 가장 가까운 날짜 칸을 기준으로 반영된다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         setCalendarHomeScreen(memoListFlow = MutableStateFlow(listOf(memo)))
         val start = memoPressPosition(title = MEETING_TITLE, day = 15)
@@ -602,7 +602,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-FEATURE-012 이동 중 다른 손가락으로 왼쪽으로 스와이프하면 다음 달로 이동하고 메모 이동이 유지된다`() {
+    fun `TC-576336d9-dffa-44e3-baea-39fbb5731d8b 이동 중 다른 손가락으로 왼쪽으로 스와이프하면 다음 달로 이동하고 메모 이동이 유지된다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         var capturedState: CalendarHomeScaffoldState? = null
         setCalendarHomeScreen(
@@ -631,7 +631,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-FEATURE-013 스와이프한 손가락을 떼도 메모 이동이 이어지고 메모를 누른 손가락을 떼면 반영된다`() {
+    fun `TC-b6890b14-a012-41d4-a29f-840dba2f2e0d 스와이프한 손가락을 떼도 메모 이동이 이어지고 메모를 누른 손가락을 떼면 반영된다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         var capturedState: CalendarHomeScaffoldState? = null
         setCalendarHomeScreen(
@@ -654,7 +654,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-DOMAIN-010 이동 중 다른 손가락으로 오른쪽으로 스와이프하면 이전 달로 이동한다`() {
+    fun `TC-159de65c-6255-4be1-9cb5-dca2982c36f1 이동 중 다른 손가락으로 오른쪽으로 스와이프하면 이전 달로 이동한다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         var capturedState: CalendarHomeScaffoldState? = null
         setCalendarHomeScreen(
@@ -678,7 +678,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-DOMAIN-011 한 번 누른 손가락의 스와이프로는 한 달만 이동한다`() {
+    fun `TC-06ba0904-ea09-4d4c-8977-42dd082f42e2 한 번 누른 손가락의 스와이프로는 한 달만 이동한다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         var capturedState: CalendarHomeScaffoldState? = null
         setCalendarHomeScreen(
@@ -703,7 +703,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-DOMAIN-012 이동 중 다른 손가락으로 세로로 움직여도 달이 이동하지 않는다`() {
+    fun `TC-b716d1c6-e282-4c25-a95e-6bc00b9e51cd 이동 중 다른 손가락으로 세로로 움직여도 달이 이동하지 않는다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         var capturedState: CalendarHomeScaffoldState? = null
         setCalendarHomeScreen(
@@ -727,7 +727,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-DOMAIN-013 날짜 기간 선택 중에는 다른 손가락의 스와이프로 달이 이동하지 않는다`() {
+    fun `TC-4bcd39c8-f726-463f-85ac-fd8e11343187 날짜 기간 선택 중에는 다른 손가락의 스와이프로 달이 이동하지 않는다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         var capturedState: CalendarHomeScaffoldState? = null
         setCalendarHomeScreen(
@@ -747,7 +747,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-DOMAIN-006 이동 범위를 벗어나는 방향으로 스와이프해도 달이 이동하지 않고 메모 이동이 유지된다`() {
+    fun `TC-fea6de20-9f70-4ad9-baa0-412e6fc7e41f 이동 범위를 벗어나는 방향으로 스와이프해도 달이 이동하지 않고 메모 이동이 유지된다`() {
         val memo =
             memo(
                 title = MEETING_TITLE,
@@ -805,7 +805,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-FEATURE-014 공휴일 이름 위에서 길게 누르면 날짜 기간 선택이 시작되고 검색 결과는 열리지 않는다`() {
+    fun `TC-f7258c37-0aa6-4e8a-93e5-57141acb0444 공휴일 이름 위에서 길게 누르면 날짜 기간 선택이 시작되고 검색 결과는 열리지 않는다`() {
         val uriHandler = mockk<UriHandler>(relaxed = true)
         val memoAddList = mutableListOf<LocalDateRange>()
         var capturedState: CalendarHomeScaffoldState? = null
@@ -832,7 +832,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-FEATURE-014 생일 위에서 길게 누르면 날짜 기간 선택이 시작되고 ContactDetail 화면으로 이동하지 않는다`() {
+    fun `TC-f7258c37-0aa6-4e8a-93e5-57141acb0444 생일 위에서 길게 누르면 날짜 기간 선택이 시작되고 ContactDetail 화면으로 이동하지 않는다`() {
         val contactDetailList = mutableListOf<Uuid>()
         val memoAddList = mutableListOf<LocalDateRange>()
         var capturedState: CalendarHomeScaffoldState? = null
@@ -860,7 +860,7 @@ class CalendarHomeScreenMoveTest {
 
     @Test
     @Config(sdk = [36], qualifiers = "w411dp-h891dp")
-    fun `TC-CALENDAR-MEMO-MOVE-FEATURE-014 날씨 위에서 길게 누르면 날짜 기간 선택이 시작되고 검색 결과는 열리지 않는다`() {
+    fun `TC-f7258c37-0aa6-4e8a-93e5-57141acb0444 날씨 위에서 길게 누르면 날짜 기간 선택이 시작되고 검색 결과는 열리지 않는다`() {
         val uriHandler = mockk<UriHandler>(relaxed = true)
         val memoAddList = mutableListOf<LocalDateRange>()
         var capturedState: CalendarHomeScaffoldState? = null
@@ -894,7 +894,7 @@ class CalendarHomeScreenMoveTest {
     }
 
     @Test
-    fun `TC-CALENDAR-MEMO-MOVE-DATA-002 저장에 실패하면 원래 기간으로 표시되고 오류 안내가 표시되지 않는다`() {
+    fun `TC-6e98ce37-5a22-4e13-8965-bda526b869a6 저장에 실패하면 원래 기간으로 표시되고 오류 안내가 표시되지 않는다`() {
         val memo = memo(title = MEETING_TITLE, start = july(day = 14), endInclusive = july(day = 16))
         val moveMemoUseCase = mockk<MoveMemoUseCase>()
         coEvery { moveMemoUseCase(parameter = any()) } returns Result.failure(IllegalStateException(fixtureMonkey.giveMeOne<String>()))

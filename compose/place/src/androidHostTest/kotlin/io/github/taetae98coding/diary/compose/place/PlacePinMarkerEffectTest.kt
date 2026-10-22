@@ -28,7 +28,7 @@ class PlacePinMarkerEffectTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-024 TC-TAG-DETAIL-PLACE-FEATURE-026 목록의 장소가 좌표와 컬러와 제목을 가진 핀으로 지정된다`() {
+    fun `TC-c4fdf19e-6b46-4b2f-9cb8-cb7a20e2e956 TC-18256c1a-157c-41e3-8fee-e9d9eed3dbfa 목록의 장소가 좌표와 컬러와 제목을 가진 핀으로 지정된다`() {
         val place = place()
         val mapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
         setEffect(mapState = mapState, placeListFlow = MutableStateFlow(listOf(place)))
@@ -42,7 +42,7 @@ class PlacePinMarkerEffectTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-025 TC-TAG-DETAIL-PLACE-FEATURE-025 목록이 갱신되면 핀도 같은 장소들로 함께 갱신된다`() {
+    fun `TC-e6f37e09-9cae-466d-83a6-e60a43d2a81a TC-bfb27e9f-3201-4ee7-861f-fd9c26ee3584 목록이 갱신되면 핀도 같은 장소들로 함께 갱신된다`() {
         val firstPlace = place()
         val secondPlace = place()
         val placeListFlow = MutableStateFlow(listOf(firstPlace))
@@ -57,7 +57,7 @@ class PlacePinMarkerEffectTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-FEATURE-026 목록이 비어 있으면 핀도 없다`() {
+    fun `TC-19028440-2ccf-442f-894d-5d3255537382 목록이 비어 있으면 핀도 없다`() {
         val placeListFlow = MutableStateFlow(listOf(place()))
         val mapState = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
         setEffect(mapState = mapState, placeListFlow = placeListFlow)

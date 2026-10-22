@@ -34,7 +34,7 @@ class ChecklistQueryUseCaseTest :
             When("체크리스트 목록을 조회한다") {
                 val pagingData = PageChecklistUseCase(getAccountUseCase(account), repository)(parameter = Unit).first().shouldBeSuccess()
 
-                Then("TC-CHECKLIST-HOME-DOMAIN-001 TC-CHECKLIST-HOME-DATA-001 현재 계정의 체크리스트를 진행 정도와 함께 페이지로 전달한다") {
+                Then("TC-5474c60f-6cdd-47da-9556-061c02a51d7a TC-ffcb4f61-636d-4088-9c8d-3f376f926bbf 현재 계정의 체크리스트를 진행 정도와 함께 페이지로 전달한다") {
                     flowOf(pagingData).asSnapshot() shouldBe summaryList
                     verify(exactly = 1) { repository.page(account = account) }
                 }
@@ -49,7 +49,7 @@ class ChecklistQueryUseCaseTest :
             When("체크리스트 목록을 조회한다") {
                 val result = PageChecklistUseCase(failingGetAccountUseCase(throwable), checklistRepository)(parameter = Unit).first()
 
-                Then("TC-CHECKLIST-HOME-DOMAIN-002 노출할 체크리스트를 전달하지 않고 계정 조회 실패를 그대로 전달한다") {
+                Then("TC-38cb2689-01a1-4743-a6a3-8ecc6efc2141 노출할 체크리스트를 전달하지 않고 계정 조회 실패를 그대로 전달한다") {
                     result.shouldBeFailure().shouldBeSameInstanceAs(throwable)
                     verify(exactly = 0) { checklistRepository.page(account = any()) }
                 }
@@ -58,7 +58,7 @@ class ChecklistQueryUseCaseTest :
             When("체크리스트 하나를 조회한다") {
                 val result = FindChecklistUseCase(failingGetAccountUseCase(throwable), checklistRepository)(parameter = fixtureMonkey.giveMeOne()).first()
 
-                Then("TC-CHECKLIST-DETAIL-DOMAIN-017 계정 조회 실패를 그대로 전달한다") {
+                Then("TC-cd7f5929-faaf-4830-9230-c34621b1f7ab 계정 조회 실패를 그대로 전달한다") {
                     result.shouldBeFailure().shouldBeSameInstanceAs(throwable)
                 }
             }
@@ -84,7 +84,7 @@ class ChecklistQueryUseCaseTest :
             When("그 체크리스트를 상세 대상으로 조회한다") {
                 val result = FindChecklistUseCase(getAccountUseCase(account), repository)(parameter = checklist.id).first()
 
-                Then("TC-CHECKLIST-DETAIL-DOMAIN-001 삭제 상태인 체크리스트를 그대로 전달한다") {
+                Then("TC-3b75e95e-f535-4154-bfeb-5e95f65cdea4 삭제 상태인 체크리스트를 그대로 전달한다") {
                     result.shouldBeSuccess(checklist)
                 }
             }
@@ -105,7 +105,7 @@ class ChecklistQueryUseCaseTest :
                             parameter = GetChecklistItemUseCase.Parameter(checklistId = checklistId, sort = sort),
                         ).first()
 
-                    Then("TC-CHECKLIST-DETAIL-DOMAIN-003 TC-CHECKLIST-DETAIL-DOMAIN-004 현재 계정 기준으로 고른 정렬의 체크 항목을 체크 여부와 관계없이 전달한다") {
+                    Then("TC-9596835f-24cf-4a58-86a3-0c84c04d05db TC-289d5d96-f27f-49bf-8b57-dbc8e44c77e6 현재 계정 기준으로 고른 정렬의 체크 항목을 체크 여부와 관계없이 전달한다") {
                         result.shouldBeSuccess(itemList)
                     }
                 }

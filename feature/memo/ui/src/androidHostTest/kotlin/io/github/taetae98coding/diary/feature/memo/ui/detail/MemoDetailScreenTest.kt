@@ -61,7 +61,7 @@ class MemoDetailScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-001 첫진입 시 조회한 제목이 상단 바와 입력 칸에 채워진다`() {
+    fun `TC-e56b13c0-7157-4641-b74c-7a4b0b62ab4a 첫진입 시 조회한 제목이 상단 바와 입력 칸에 채워진다`() {
         val uiState = MutableStateFlow<MemoDetailUiState>(MemoDetailUiState.Loading)
         setMemoDetailScreen(screenTestViewModel(uiState = uiState))
         composeRule.waitForIdle()
@@ -80,7 +80,7 @@ class MemoDetailScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-029 조회할 수 없으면 로딩 상태를 유지한다`() {
+    fun `TC-3a4b49d6-5255-4631-9372-37346ffe8352 조회할 수 없으면 로딩 상태를 유지한다`() {
         setMemoDetailScreen(screenTestViewModel())
 
         composeRule.waitForIdle()
@@ -95,7 +95,7 @@ class MemoDetailScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-005 TC-CONTACT-DETAIL-MEMO-FEATURE-021 TC-PLACE-DETAIL-MEMO-FEATURE-021 TC-WEB-DETAIL-MEMO-FEATURE-021 뒤로가기 버튼을 선택하면 이전 화면으로 돌아간다`() {
+    fun `TC-ac9ee7e5-8624-4ec6-a6ec-17dfb844fa00 TC-29f72dc2-15f1-426b-880c-9697c055beb8 TC-d58e8805-d2ad-42f2-a534-5ff654141413 TC-aa1f5c69-c5c9-40e2-a99e-5bc2c4a7a720 뒤로가기 버튼을 선택하면 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         setMemoDetailScreen(
             viewModel = screenTestViewModel(),
@@ -108,7 +108,7 @@ class MemoDetailScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-006 입력 칸을 수정해도 상단 바 제목은 유지된다`() {
+    fun `TC-7af7e2fb-35ce-47d2-8860-371948750be2 입력 칸을 수정해도 상단 바 제목은 유지된다`() {
         setMemoDetailScreen(titleLoadedViewModel())
         composeRule.waitForIdle()
 
@@ -120,7 +120,7 @@ class MemoDetailScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-007 화면 재생성 후에도 수정 중이던 내용이 유지된다`() {
+    fun `TC-f7faecde-6643-4b40-8258-4f2c0113fec4 화면 재생성 후에도 수정 중이던 내용이 유지된다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val viewModel = screenTestViewModel(uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE).copy(description = MEMO_DESCRIPTION))))
         restorationTester.setContent {
@@ -167,7 +167,7 @@ class MemoDetailScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-022 화면이 재생성되어도 MemoDetail이 도우미를 닫지 않는다`() {
+    fun `TC-60a1289f-81d1-4815-84b4-c4ba8fe94210 화면이 재생성되어도 MemoDetail이 도우미를 닫지 않는다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val geminiViewModel = screenTestGeminiViewModel()
         restorationTester.setContent {
@@ -205,7 +205,7 @@ class MemoDetailScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-GEMINI-FEATURE-023 MemoDetail의 상세 대상이 다른 메모로 바뀌면 도우미를 닫는다`() {
+    fun `TC-6024369b-cc7c-4dc1-ab96-e5b0e668b44d MemoDetail의 상세 대상이 다른 메모로 바뀌면 도우미를 닫는다`() {
         val uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE)))
         val geminiViewModel = screenTestGeminiViewModel()
         setMemoDetailScreen(screenTestViewModel(uiState), geminiViewModel = geminiViewModel)
@@ -218,7 +218,7 @@ class MemoDetailScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-009 다른 메모를 선택하면 새 메모 내용으로 바뀐다`() {
+    fun `TC-97a3ba2f-a0bb-4cd1-b726-2afceaa32c61 다른 메모를 선택하면 새 메모 내용으로 바뀐다`() {
         val uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE)))
         setMemoDetailScreen(screenTestViewModel(uiState))
         composeRule.waitForIdle()
@@ -236,7 +236,7 @@ class MemoDetailScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-010 같은 메모 제목 변경은 상단 바에 반영하고 입력값은 유지한다`() {
+    fun `TC-ba37ec25-5c28-4193-8450-da9e48d5f0b6 같은 메모 제목 변경은 상단 바에 반영하고 입력값은 유지한다`() {
         val uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE)))
         setMemoDetailScreen(screenTestViewModel(uiState))
         composeRule.waitForIdle()
@@ -250,7 +250,7 @@ class MemoDetailScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-011 수정을 실행해도 수정 중이던 내용이 유지된다`() {
+    fun `TC-cb32be83-d434-4505-97ef-6a6ce9be3fcc 수정을 실행해도 수정 중이던 내용이 유지된다`() {
         val viewModel = titleLoadedViewModel()
         every { viewModel.update(any()) } just Runs
         setMemoDetailScreen(viewModel)
@@ -266,7 +266,7 @@ class MemoDetailScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-018 수정 버튼은 입력이 저장 내용과 다를 때만 나타난다`() {
+    fun `TC-c6a8329d-ee71-43bb-a8a8-bd66a0fb4570 수정 버튼은 입력이 저장 내용과 다를 때만 나타난다`() {
         setMemoDetailScreen(titleLoadedViewModel())
         composeRule.waitForIdle()
 
@@ -279,7 +279,7 @@ class MemoDetailScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-013 수정을 처리하는 동안 수정 버튼에 진행 표시가 나타난다`() {
+    fun `TC-ed0c1365-3dd0-4f5f-94ab-4d0edab3c49d 수정을 처리하는 동안 수정 버튼에 진행 표시가 나타난다`() {
         val uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE), isInProgress = true))
         setMemoDetailScreen(screenTestViewModel(uiState))
         composeRule.waitForIdle()
@@ -353,7 +353,7 @@ class MemoDetailScreenDateTimeTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-019 종일 기간이 있으면 스위치가 켜진 상태로 종일 기간이 표시된다`() {
+    fun `TC-f1e505c3-90b1-441e-8c99-b953b1007be9 종일 기간이 있으면 스위치가 켜진 상태로 종일 기간이 표시된다`() {
         setMemoDetailScreen(loadedViewModel(dateTime = allDayDateTime()))
 
         composeRule.waitForIdle()
@@ -366,7 +366,7 @@ class MemoDetailScreenDateTimeTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-019 날짜·시간 기간이 있으면 스위치가 켜진 상태로 날짜와 시간이 표시된다`() {
+    fun `TC-f1e505c3-90b1-441e-8c99-b953b1007be9 날짜·시간 기간이 있으면 스위치가 켜진 상태로 날짜와 시간이 표시된다`() {
         setMemoDetailScreen(loadedViewModel(dateTime = dateTimeDateTime()))
 
         composeRule.waitForIdle()
@@ -380,7 +380,7 @@ class MemoDetailScreenDateTimeTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-019 기간이 없으면 스위치가 꺼진 상태로 표시된다`() {
+    fun `TC-f1e505c3-90b1-441e-8c99-b953b1007be9 기간이 없으면 스위치가 꺼진 상태로 표시된다`() {
         setMemoDetailScreen(loadedViewModel(dateTime = null))
 
         composeRule.waitForIdle()
@@ -392,7 +392,7 @@ class MemoDetailScreenDateTimeTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-020 스위치를 전환해 기간 유무를 바꾸면 수정 버튼이 나타난다`() {
+    fun `TC-cb72cc22-8b4b-48e7-8bc3-23f6e7ee98d5 스위치를 전환해 기간 유무를 바꾸면 수정 버튼이 나타난다`() {
         setMemoDetailScreen(loadedViewModel(dateTime = null))
         composeRule.waitForIdle()
         composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assertDoesNotExist()
@@ -404,7 +404,7 @@ class MemoDetailScreenDateTimeTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-020 종일 여부를 바꾸면 수정 버튼이 나타난다`() {
+    fun `TC-cb72cc22-8b4b-48e7-8bc3-23f6e7ee98d5 종일 여부를 바꾸면 수정 버튼이 나타난다`() {
         setMemoDetailScreen(loadedViewModel(dateTime = allDayDateTime()))
         composeRule.waitForIdle()
         composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assertDoesNotExist()
@@ -416,7 +416,7 @@ class MemoDetailScreenDateTimeTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-020 시작 날짜를 바꾸면 수정 버튼이 나타난다`() {
+    fun `TC-cb72cc22-8b4b-48e7-8bc3-23f6e7ee98d5 시작 날짜를 바꾸면 수정 버튼이 나타난다`() {
         setMemoDetailScreen(loadedViewModel(dateTime = allDayDateTime()))
         composeRule.waitForIdle()
         composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assertDoesNotExist()
@@ -505,7 +505,7 @@ class MemoDetailScreenActionTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-023 완료되지 않은 메모를 완료하면 안내 없이 완료 버튼이 다시 시작 동작으로 바뀐다`() {
+    fun `TC-a744c2e4-7a57-4731-a72a-2324790dc05a 완료되지 않은 메모를 완료하면 안내 없이 완료 버튼이 다시 시작 동작으로 바뀐다`() {
         val uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE), isFinished = false))
         val viewModel = screenTestViewModel(uiState)
         every { viewModel.finish() } answers { uiState.value = uiState.value.copy(isFinished = true) }
@@ -523,7 +523,7 @@ class MemoDetailScreenActionTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-024 완료된 메모를 다시 시작하면 안내 없이 완료 버튼이 완료 동작으로 바뀐다`() {
+    fun `TC-7f0d6a3f-2e9c-46d9-b929-156e141294b1 완료된 메모를 다시 시작하면 안내 없이 완료 버튼이 완료 동작으로 바뀐다`() {
         val uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE), isFinished = true))
         val viewModel = screenTestViewModel(uiState)
         every { viewModel.restart() } answers { uiState.value = uiState.value.copy(isFinished = false) }
@@ -541,7 +541,7 @@ class MemoDetailScreenActionTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-073 같은 메모가 다른 경로로 완료되거나 다시 시작되면 완료 동작이 저장된 완료 여부에 맞게 바뀐다`() {
+    fun `TC-30675f33-a6cc-42ba-9f01-d7979e88de6d 같은 메모가 다른 경로로 완료되거나 다시 시작되면 완료 동작이 저장된 완료 여부에 맞게 바뀐다`() {
         val uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE), isFinished = false))
         setMemoDetailScreen(screenTestViewModel(uiState))
         composeRule.waitForIdle()
@@ -562,7 +562,7 @@ class MemoDetailScreenActionTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-026 메모를 삭제하면 뒤로가기와 같은 동작으로 화면에서 빠져나간다`() {
+    fun `TC-231b6a8e-83cc-4cf4-8c2d-558f5715280a 메모를 삭제하면 뒤로가기와 같은 동작으로 화면에서 빠져나간다`() {
         var navigateUpCount = 0
         val effectChannel = Channel<MemoDetailEffect>(capacity = Channel.BUFFERED)
         val viewModel =
@@ -584,7 +584,7 @@ class MemoDetailScreenActionTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-044 메모를 복사하면 복사본 메모의 상세로 한 번만 전환을 요청한다`() {
+    fun `TC-3173bd65-b0f9-4f01-8a9e-df2b3bd4cf60 메모를 복사하면 복사본 메모의 상세로 한 번만 전환을 요청한다`() {
         val copiedIdList = mutableListOf<Uuid>()
         val effectChannel = Channel<MemoDetailEffect>(capacity = Channel.BUFFERED)
         val viewModel =
@@ -606,7 +606,7 @@ class MemoDetailScreenActionTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-045 메모를 복사하면 복사본 메모의 상세가 받을 수 있게 복사 성공을 전달한다`() {
+    fun `TC-d1e3ce05-dbb5-4ada-a09d-d916e692c50c 메모를 복사하면 복사본 메모의 상세가 받을 수 있게 복사 성공을 전달한다`() {
         val copiedResultList = mutableListOf<MemoDetailCopiedResult>()
         val effectChannel = Channel<MemoDetailEffect>(capacity = Channel.BUFFERED)
         val viewModel =
@@ -656,7 +656,7 @@ class MemoDetailScreenActionTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-046 복사에 실패하면 상세 전환을 요청하지 않고 복사 성공 안내도 표시하지 않는다`() {
+    fun `TC-b795c4a5-6336-4660-af19-1b869e952178 복사에 실패하면 상세 전환을 요청하지 않고 복사 성공 안내도 표시하지 않는다`() {
         var copiedCount = 0
         val viewModel =
             screenTestViewModel(
@@ -678,7 +678,7 @@ class MemoDetailScreenActionTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-028 복사를 처리하는 동안 복사 버튼이 이름을 유지한 채 진행 표시로 바뀐다`() {
+    fun `TC-4b34f908-5548-4b6d-a9db-d7369f056c99 복사를 처리하는 동안 복사 버튼이 이름을 유지한 채 진행 표시로 바뀐다`() {
         val uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE), isCopyInProgress = true))
         setMemoDetailScreen(screenTestViewModel(uiState))
 
@@ -743,13 +743,13 @@ class MemoDetailScreenCopiedResultTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-045 기본 환경 복사 성공 안내`() {
+    fun `TC-d1e3ce05-dbb5-4ada-a09d-d916e692c50c 기본 환경 복사 성공 안내`() {
         assertCopySucceededMessage(DEFAULT_COPY_SUCCEEDED_MESSAGE)
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MEMO-DETAIL-FEATURE-045 한국어 복사 성공 안내`() {
+    fun `TC-d1e3ce05-dbb5-4ada-a09d-d916e692c50c 한국어 복사 성공 안내`() {
         assertCopySucceededMessage(KOREAN_COPY_SUCCEEDED_MESSAGE)
     }
 
@@ -834,13 +834,13 @@ class MemoDetailScreenMessageTest {
     }
 
     @Test
-    fun `TC-MEMO-DETAIL-FEATURE-012 기본 환경 수정 성공 안내`() {
+    fun `TC-0fa910ea-724d-4f76-8249-2bde3c1d7a05 기본 환경 수정 성공 안내`() {
         assertMessage(effect = MemoDetailEffect.UpdateSucceeded, expectedMessage = DEFAULT_UPDATE_SUCCEEDED_MESSAGE)
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MEMO-DETAIL-FEATURE-012 한국어 수정 성공 안내`() {
+    fun `TC-0fa910ea-724d-4f76-8249-2bde3c1d7a05 한국어 수정 성공 안내`() {
         assertMessage(effect = MemoDetailEffect.UpdateSucceeded, expectedMessage = KOREAN_UPDATE_SUCCEEDED_MESSAGE)
     }
 

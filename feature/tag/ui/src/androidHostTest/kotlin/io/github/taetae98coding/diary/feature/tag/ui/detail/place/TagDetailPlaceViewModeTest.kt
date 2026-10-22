@@ -33,7 +33,7 @@ class TagDetailPlaceViewModeTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-020 장소 탭을 선택하면 목록 모드로 시작한다`() {
+    fun `TC-f2d66fa6-c99d-4cb9-af58-b63460e7bf88 장소 탭을 선택하면 목록 모드로 시작한다`() {
         val place = tagPlace(title = PLACE_TITLE)
         setPlaceTab(pagingData = tagEntityPagingData(itemList = listOf(place)))
 
@@ -64,7 +64,7 @@ class TagDetailPlaceViewModeTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-021 보기 모드를 바꾸면 목록 모드의 목록이 사라지고 전환 컨트롤이 목록으로 보기를 가리킨다`() {
+    fun `TC-8243e022-52a0-4d7c-b764-a3ee5f9c965e 보기 모드를 바꾸면 목록 모드의 목록이 사라지고 전환 컨트롤이 목록으로 보기를 가리킨다`() {
         val place = tagPlace(title = PLACE_TITLE)
         setPlaceTab(pagingData = tagEntityPagingData(itemList = listOf(place)))
 
@@ -76,7 +76,7 @@ class TagDetailPlaceViewModeTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-022 지도 모드에서 다시 전환하면 목록 모드의 목록이 나타난다`() {
+    fun `TC-f58c43db-7374-44b4-8cb8-4c166bbdfb50 지도 모드에서 다시 전환하면 목록 모드의 목록이 나타난다`() {
         val place = tagPlace(title = PLACE_TITLE)
         setPlaceTab(
             state = TagDetailPlaceState(initialViewMode = TagDetailPlaceViewMode.MAP),
@@ -92,7 +92,7 @@ class TagDetailPlaceViewModeTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-023 지도가 표시되지 않는 지도 모드에서 전환하면 목록 모드로 바뀌고 장소 전체가 목록에 표시된다`() {
+    fun `TC-45d30a3e-e98e-430d-b2d6-75f708697799 지도가 표시되지 않는 지도 모드에서 전환하면 목록 모드로 바뀌고 장소 전체가 목록에 표시된다`() {
         val place = tagPlace(title = PLACE_TITLE)
         setPlaceTab(
             state = TagDetailPlaceState(initialViewMode = TagDetailPlaceViewMode.MAP),
@@ -108,7 +108,7 @@ class TagDetailPlaceViewModeTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-023 지도가 표시되지 않는 목록 모드에서 전환하면 지도 모드로 바뀌고 지도와 장소 목록 영역이 모두 표시되지 않는다`() {
+    fun `TC-45d30a3e-e98e-430d-b2d6-75f708697799 지도가 표시되지 않는 목록 모드에서 전환하면 지도 모드로 바뀌고 지도와 장소 목록 영역이 모두 표시되지 않는다`() {
         val place = tagPlace(title = PLACE_TITLE)
         setPlaceTab(
             pagingData = tagEntityPagingData(itemList = listOf(place)),
@@ -127,7 +127,7 @@ class TagDetailPlaceViewModeTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-FEATURE-024 지도를 확인하기 전에는 지도 모드의 목록과 빈 상태를 표시하지 않는다`() {
+    fun `TC-c7314bd3-f4a3-42e1-a386-c51b0b0931d0 지도를 확인하기 전에는 지도 모드의 목록과 빈 상태를 표시하지 않는다`() {
         setPlaceTab(
             state = TagDetailPlaceState(initialViewMode = TagDetailPlaceViewMode.MAP),
             pagingData = tagEntityPagingData(itemList = listOf(tagPlace(title = PLACE_TITLE))),
@@ -139,7 +139,7 @@ class TagDetailPlaceViewModeTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-DOMAIN-006 화면이 회전하거나 창 크기가 바뀌어도 바꿔 둔 보기 모드를 유지한다`() {
+    fun `TC-7634fb75-4b16-43dd-8767-649d1f781552 화면이 회전하거나 창 크기가 바뀌어도 바꿔 둔 보기 모드를 유지한다`() {
         val place = tagPlace(title = PLACE_TITLE)
         val pagingDataFlow = MutableStateFlow(tagEntityPagingData(itemList = listOf(place)))
         val restorationTester = StateRestorationTester(composeRule)
@@ -172,7 +172,7 @@ class TagDetailPlaceViewModeTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-PLACE-DATA-009 보기 모드를 바꿔도 새로고침을 요청하지 않는다`() {
+    fun `TC-9a1d082d-f1a3-4fa8-b63e-0850b3bbed53 보기 모드를 바꿔도 새로고침을 요청하지 않는다`() {
         val eventList = mutableListOf<TagDetailPlaceContentEvent>()
         setPlaceTab(onEvent = eventList::add)
 

@@ -10,7 +10,7 @@ private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class QrScanReaderTest :
     FunSpec({
-        test("TC-QR-SCAN-FEATURE-007 QR을 읽으면 읽은 값을 한 번 넘긴다") {
+        test("TC-39760b0f-24f6-411f-b977-dcb1265c1a75 QR을 읽으면 읽은 값을 한 번 넘긴다") {
             val value = fixtureMonkey.qrDetail().value
             val readList = mutableListOf<String>()
             val reader = QrScanReader(onRead = { read -> readList += read })
@@ -20,7 +20,7 @@ class QrScanReaderTest :
             readList shouldBe listOf(value)
         }
 
-        test("TC-QR-SCAN-DOMAIN-002 담긴 값을 받을 수 없는 QR은 읽지 않은 것으로 보고 계속 스캔한다") {
+        test("TC-ce9533b5-34ee-4d55-a07b-b4a000b5b802 담긴 값을 받을 수 없는 QR은 읽지 않은 것으로 보고 계속 스캔한다") {
             listOf("", "1".repeat(MAX_NUMERIC_LENGTH + 1)).forEach { rejectedValue ->
                 val value = fixtureMonkey.qrDetail().value
                 val readList = mutableListOf<String>()
@@ -33,7 +33,7 @@ class QrScanReaderTest :
             }
         }
 
-        test("TC-QR-SCAN-DOMAIN-003 QR을 하나 읽으면 그 뒤에 읽은 QR은 쓰지 않는다") {
+        test("TC-f682409d-7b77-4d7c-8df5-8fa2756ee460 QR을 하나 읽으면 그 뒤에 읽은 QR은 쓰지 않는다") {
             val firstValue = fixtureMonkey.qrDetail().value
             val secondValue = fixtureMonkey.qrDetail().value
             val readList = mutableListOf<String>()

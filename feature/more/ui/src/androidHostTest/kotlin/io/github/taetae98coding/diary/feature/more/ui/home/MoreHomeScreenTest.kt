@@ -42,7 +42,7 @@ class MoreHomeScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MORE-HOME-FEATURE-006 로그인 동작을 선택하면 Login 화면으로 이동한다`() {
+    fun `TC-19dab250-c98e-4ba5-b4ba-5138126aae9a 로그인 동작을 선택하면 Login 화면으로 이동한다`() {
         var navigateToLoginCount = 0
         val viewModel = screenTestViewModel(MoreHomeAccountUiState.Guest)
         setMoreHomeScreen(
@@ -58,7 +58,7 @@ class MoreHomeScreenTest {
 
     @Test
     @Config(qualifiers = MENU_VISIBLE_QUALIFIERS)
-    fun `TC-MORE-HOME-FEATURE-010 장소 항목을 선택하면 PlaceHome 화면으로 이동한다`() {
+    fun `TC-b2089644-c4cf-452b-afbb-f8a6e36de043 장소 항목을 선택하면 PlaceHome 화면으로 이동한다`() {
         var navigateToPlaceCount = 0
         val viewModel = screenTestViewModel(MoreHomeAccountUiState.Guest)
         setMoreHomeScreen(
@@ -74,7 +74,7 @@ class MoreHomeScreenTest {
 
     @Test
     @Config(qualifiers = MENU_VISIBLE_QUALIFIERS)
-    fun `TC-MORE-HOME-FEATURE-014 황금연휴 항목을 선택하면 HolidayHome 화면으로 이동한다`() {
+    fun `TC-43996372-d38d-4772-8895-d564b57d0244 황금연휴 항목을 선택하면 HolidayHome 화면으로 이동한다`() {
         var navigateToHolidayCount = 0
         val viewModel = screenTestViewModel(MoreHomeAccountUiState.Guest)
         setMoreHomeScreen(
@@ -90,7 +90,7 @@ class MoreHomeScreenTest {
 
     @Test
     @Config(qualifiers = MENU_VISIBLE_QUALIFIERS)
-    fun `TC-MORE-HOME-FEATURE-015 검색 항목을 선택하면 SearchHome 화면으로 이동한다`() {
+    fun `TC-c68b912c-314c-4439-9b6e-1f510c2fcaa1 검색 항목을 선택하면 SearchHome 화면으로 이동한다`() {
         var navigateToSearchCount = 0
         val viewModel = screenTestViewModel(MoreHomeAccountUiState.Guest)
         setMoreHomeScreen(
@@ -106,7 +106,7 @@ class MoreHomeScreenTest {
 
     @Test
     @Config(qualifiers = MENU_VISIBLE_QUALIFIERS)
-    fun `TC-MORE-HOME-FEATURE-016 웹 항목을 선택하면 WebHome 화면으로 이동한다`() {
+    fun `TC-21046bb1-28b2-4737-b90b-0c807505add7 웹 항목을 선택하면 WebHome 화면으로 이동한다`() {
         var navigateToWebCount = 0
         val viewModel = screenTestViewModel(MoreHomeAccountUiState.Guest)
         setMoreHomeScreen(
@@ -122,7 +122,7 @@ class MoreHomeScreenTest {
 
     @Test
     @Config(qualifiers = MENU_VISIBLE_QUALIFIERS)
-    fun `TC-MORE-HOME-FEATURE-019 연락처 항목을 선택하면 ContactHome 화면으로 이동한다`() {
+    fun `TC-9403f473-b08e-4b1b-9041-610089d1e8a2 연락처 항목을 선택하면 ContactHome 화면으로 이동한다`() {
         var navigateToContactCount = 0
         val viewModel = screenTestViewModel(MoreHomeAccountUiState.Guest)
         setMoreHomeScreen(
@@ -137,7 +137,7 @@ class MoreHomeScreenTest {
     }
 
     @Test
-    fun `TC-MORE-HOME-FEATURE-013 설정 동작을 선택하면 SettingHome 화면으로 이동한다`() {
+    fun `TC-3eca13af-9a8e-459f-8689-a1b067c17f4b 설정 동작을 선택하면 SettingHome 화면으로 이동한다`() {
         var navigateToSettingCount = 0
         val viewModel = screenTestViewModel(MoreHomeAccountUiState.Guest)
         setMoreHomeScreen(
@@ -152,7 +152,7 @@ class MoreHomeScreenTest {
     }
 
     @Test
-    fun `TC-MORE-HOME-FEATURE-007 업로드 대기 항목이 없으면 확인 다이얼로그 없이 로그아웃한다`() {
+    fun `TC-28c9f8de-19c1-41d7-ad20-9f061b5f6e83 업로드 대기 항목이 없으면 확인 다이얼로그 없이 로그아웃한다`() {
         val signOutViewModel = screenTestSignOutViewModel()
         setMoreHomeScreen(
             viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)),
@@ -167,7 +167,7 @@ class MoreHomeScreenTest {
     }
 
     @Test
-    fun `TC-MORE-HOME-FEATURE-026 업로드 대기 항목이 있으면 확인 다이얼로그를 표시한다`() {
+    fun `TC-3d7dc771-5c19-4013-ba60-b2a1f705a149 업로드 대기 항목이 있으면 확인 다이얼로그를 표시한다`() {
         setMoreHomeScreen(
             viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)),
             signOutViewModel = screenTestSignOutViewModel(MoreHomeSignOutUiState(isConfirmVisible = true)),
@@ -179,7 +179,7 @@ class MoreHomeScreenTest {
     }
 
     @Test
-    fun `TC-MORE-HOME-FEATURE-027 확인 다이얼로그에서 로그아웃을 고르면 로그아웃을 요청한다`() {
+    fun `TC-6a0c54d2-cdc9-4df9-ac7a-3dc236c0e4f6 확인 다이얼로그에서 로그아웃을 고르면 로그아웃을 요청한다`() {
         val signOutViewModel = screenTestSignOutViewModel(MoreHomeSignOutUiState(isConfirmVisible = true))
         setMoreHomeScreen(
             viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)),
@@ -194,7 +194,7 @@ class MoreHomeScreenTest {
     }
 
     @Test
-    fun `TC-MORE-HOME-FEATURE-028 확인 다이얼로그에서 취소를 고르면 로그아웃을 요청하지 않는다`() {
+    fun `TC-c4f73ebf-449e-43f0-a3f9-1d87743a56cd 확인 다이얼로그에서 취소를 고르면 로그아웃을 요청하지 않는다`() {
         val signOutViewModel = screenTestSignOutViewModel(MoreHomeSignOutUiState(isConfirmVisible = true))
         setMoreHomeScreen(
             viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)),
@@ -209,7 +209,7 @@ class MoreHomeScreenTest {
     }
 
     @Test
-    fun `TC-MORE-HOME-FEATURE-030 사용자 상태에서 프로필을 선택하면 ProfileImageEdit 화면으로 이동한다`() {
+    fun `TC-791312fa-b99b-4f25-9888-e188f27dd356 사용자 상태에서 프로필을 선택하면 ProfileImageEdit 화면으로 이동한다`() {
         var navigateCount = 0
         setMoreHomeScreen(
             viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)),
@@ -223,7 +223,7 @@ class MoreHomeScreenTest {
     }
 
     @Test
-    fun `TC-MORE-HOME-FEATURE-032 사용자 상태에서 화면이 표시되면 사용자 정보를 다시 확인한다`() {
+    fun `TC-30e7cfcf-7076-4ad9-b152-4c228f4d17d8 사용자 상태에서 화면이 표시되면 사용자 정보를 다시 확인한다`() {
         val refreshViewModel = screenTestRefreshViewModel()
         setMoreHomeScreen(
             viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)),
@@ -238,7 +238,7 @@ class MoreHomeScreenTest {
     }
 
     @Test
-    fun `TC-MORE-HOME-FEATURE-033 화면이 다시 표시될 때마다 사용자 정보를 다시 확인한다`() {
+    fun `TC-5ce779c1-3217-4697-ae8b-04ba136bc0c1 화면이 다시 표시될 때마다 사용자 정보를 다시 확인한다`() {
         val refreshViewModel = screenTestRefreshViewModel()
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         setMoreHomeScreen(
@@ -257,7 +257,7 @@ class MoreHomeScreenTest {
     }
 
     @Test
-    fun `TC-MORE-HOME-DOMAIN-011 확인 중과 게스트 상태에서는 프로필을 선택해도 ProfileImageEdit 화면으로 이동하지 않는다`() {
+    fun `TC-6c3b0b45-4d87-4fb8-bfa8-d5e5a1998f2c 확인 중과 게스트 상태에서는 프로필을 선택해도 ProfileImageEdit 화면으로 이동하지 않는다`() {
         var navigateCount = 0
         val accountUiState = MutableStateFlow<MoreHomeAccountUiState>(MoreHomeAccountUiState.Loading)
         val viewModel = mockk<MoreHomeAccountViewModel>()
@@ -279,7 +279,7 @@ class MoreHomeScreenTest {
 
     @Test
     @Config(qualifiers = MENU_VISIBLE_QUALIFIERS)
-    fun `TC-MORE-HOME-FEATURE-021 QR 항목을 선택하면 QrHome 화면으로 이동한다`() {
+    fun `TC-a5f11598-c062-4428-a293-25cd9e109a91 QR 항목을 선택하면 QrHome 화면으로 이동한다`() {
         var navigateToQrCount = 0
         val viewModel = screenTestViewModel(MoreHomeAccountUiState.Guest)
         setMoreHomeScreen(
@@ -295,7 +295,7 @@ class MoreHomeScreenTest {
 
     @Test
     @Config(qualifiers = MENU_VISIBLE_QUALIFIERS)
-    fun `TC-MORE-HOME-FEATURE-022 디데이 항목을 선택하면 DDayHome 화면으로 이동한다`() {
+    fun `TC-b22a3a21-8ba9-4ec0-8040-2760cd6e17ee 디데이 항목을 선택하면 DDayHome 화면으로 이동한다`() {
         var navigateToDDayCount = 0
         val viewModel = screenTestViewModel(MoreHomeAccountUiState.Guest)
         setMoreHomeScreen(
@@ -311,7 +311,7 @@ class MoreHomeScreenTest {
 
     @Test
     @Config(qualifiers = MENU_VISIBLE_QUALIFIERS)
-    fun `TC-MORE-HOME-FEATURE-023 체크리스트 항목을 선택하면 ChecklistHome 화면으로 이동한다`() {
+    fun `TC-4bde00de-b4d7-49c0-ab5a-3c360b68643e 체크리스트 항목을 선택하면 ChecklistHome 화면으로 이동한다`() {
         var navigateToChecklistCount = 0
         val viewModel = screenTestViewModel(MoreHomeAccountUiState.Guest)
         setMoreHomeScreen(
@@ -327,7 +327,7 @@ class MoreHomeScreenTest {
 
     @Test
     @Config(qualifiers = MENU_VISIBLE_QUALIFIERS)
-    fun `TC-MORE-HOME-FEATURE-024 파일 항목을 선택하면 FileHome 화면으로 이동한다`() {
+    fun `TC-dc80c1d6-20f4-49b2-b528-d32181c85a92 파일 항목을 선택하면 FileHome 화면으로 이동한다`() {
         var navigateToFileCount = 0
         val viewModel = screenTestViewModel(MoreHomeAccountUiState.Guest)
         setMoreHomeScreen(
@@ -343,7 +343,7 @@ class MoreHomeScreenTest {
 
     @Test
     @Config(qualifiers = MENU_VISIBLE_QUALIFIERS)
-    fun `TC-MORE-HOME-FEATURE-025 플레이리스트 항목을 선택하면 PlaylistHome 화면으로 이동한다`() {
+    fun `TC-47758ecb-47c6-4600-aee1-eb3732be71e1 플레이리스트 항목을 선택하면 PlaylistHome 화면으로 이동한다`() {
         var navigateToPlaylistCount = 0
         val viewModel = screenTestViewModel(MoreHomeAccountUiState.Guest)
         setMoreHomeScreen(
@@ -358,7 +358,7 @@ class MoreHomeScreenTest {
     }
 
     @Test
-    fun `TC-MORE-HOME-DOMAIN-016 화면 구성이 바뀌어 다시 그려져도 다이얼로그가 열린 상태를 유지한다`() {
+    fun `TC-9e64434e-9a12-4514-a7a5-343ac5b60f14 화면 구성이 바뀌어 다시 그려져도 다이얼로그가 열린 상태를 유지한다`() {
         val syncPendingFlow = MutableStateFlow(Result.success(true))
         val findSyncPendingUseCase = mockk<FindSyncPendingUseCase>()
         every { findSyncPendingUseCase(Unit) } returns syncPendingFlow

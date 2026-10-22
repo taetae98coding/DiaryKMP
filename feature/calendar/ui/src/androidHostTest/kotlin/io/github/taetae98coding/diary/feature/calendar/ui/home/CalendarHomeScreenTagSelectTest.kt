@@ -73,7 +73,7 @@ class CalendarHomeScreenTagSelectTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-081 태그를 선택해도 생일 표시는 달라지지 않는다`() {
+    fun `TC-ec41e0a7-7f65-4fda-8de6-c73a9fe2104a 태그를 선택해도 생일 표시는 달라지지 않는다`() {
         setCalendarHomeScreenWithFilter(
             birthdayList =
                 listOf(
@@ -88,7 +88,7 @@ class CalendarHomeScreenTagSelectTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-109 태그를 선택해도 공휴일 이름과 날씨 표시는 달라지지 않는다`() {
+    fun `TC-0bde518f-de9f-40ba-8db8-d553dc79ad2c 태그를 선택해도 공휴일 이름과 날씨 표시는 달라지지 않는다`() {
         setCalendarHomeScreenWithFilter(
             holidayList = listOf(Holiday(name = HOLIDAY_NAME, isHoliday = true, dateRange = july(day = 17)..july(day = 17))),
             weatherReport =

@@ -42,7 +42,7 @@ class TagAddViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-TAG-ADD-DOMAIN-002 추가 처리 중 전달된 추가 요청은 처리하지 않는다") {
+        test("TC-37208ce8-2af8-4e72-8aca-92066b31a989 추가 처리 중 전달된 추가 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val firstDetail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = nonBlankTitle())
                 val secondDetail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = nonBlankTitle())
@@ -109,7 +109,7 @@ class TagAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-ADD-FEATURE-026 기기 저장에 실패하면 Effect 없이 진행 상태만 해제하고 같은 내용으로 다시 추가할 수 있다") {
+        test("TC-7ba61220-06e2-42de-8f81-2b9454545a6e 기기 저장에 실패하면 Effect 없이 진행 상태만 해제하고 같은 내용으로 다시 추가할 수 있다") {
             runTest(mainDispatcher) {
                 val detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = nonBlankTitle())
                 val linkedTagIdSet = setOf(fixtureMonkey.giveMeOne<Uuid>())
@@ -157,7 +157,7 @@ class TagAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-ADD-DATA-004 고른 태그를 연결 대상으로 함께 전달한다") {
+        test("TC-1e53dccb-f364-43cc-9777-8428a3247b7c 고른 태그를 연결 대상으로 함께 전달한다") {
             runTest(mainDispatcher) {
                 val detail = fixtureMonkey.giveMeOne<TagDetail>().copy(title = nonBlankTitle())
                 val linkedTagIdSet = List(2) { fixtureMonkey.giveMeOne<Uuid>() }.toSet()

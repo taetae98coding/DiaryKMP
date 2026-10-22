@@ -34,7 +34,7 @@ class SearchHomeWebActionViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-SEARCH-HOME-FEATURE-032 웹 항목을 삭제하면 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
+        test("TC-52108144-1cad-4c1b-85da-0bca00128799 웹 항목을 삭제하면 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = searchId()
                 val environment = Environment()
@@ -49,7 +49,7 @@ class SearchHomeWebActionViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SEARCH-HOME-FEATURE-036 웹 항목 삭제가 저장되지 못하면 안내를 보내지 않는다") {
+        test("TC-22b6f8ce-53f1-4b4f-844b-1a462721e10c 웹 항목 삭제가 저장되지 못하면 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = searchId()
                 val environment = Environment(result = Result.failure(IllegalStateException()))
@@ -63,7 +63,7 @@ class SearchHomeWebActionViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SEARCH-HOME-FEATURE-033 웹 항목 삭제를 실행 취소하면 복구를 요청하고 새 안내는 보내지 않는다") {
+        test("TC-27470dd3-8e88-4047-bf84-f787c9bfd442 웹 항목 삭제를 실행 취소하면 복구를 요청하고 새 안내는 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = searchId()
                 val environment = Environment()

@@ -38,7 +38,7 @@ class FetchSearchedPlaceUseCaseTest :
             coEvery { naverPlaceSearchRepository.fetch(query = query) } returns placeList
 
             When("보고 있는 영역과 함께 검색한다") {
-                Then("TC-PLACE-SEARCH-DIALOG-DOMAIN-009 기준 위치 없이 검색어만으로 조회하고 받은 목록을 전달한다") {
+                Then("TC-5c1e6b45-1497-4f93-8892-b4d226032ee7 기준 위치 없이 검색어만으로 조회하고 받은 목록을 전달한다") {
                     useCase(
                         parameter =
                             FetchSearchedPlaceUseCase.Parameter(
@@ -79,7 +79,7 @@ class FetchSearchedPlaceUseCaseTest :
                         east = 127.4,
                     )
 
-                Then("TC-PLACE-SEARCH-DIALOG-DOMAIN-014 영역의 가운데를 중심으로 남북 절반을 반경으로 삼는다") {
+                Then("TC-40baea03-3d0d-497a-ace5-a6bd7336f9a5 영역의 가운데를 중심으로 남북 절반을 반경으로 삼는다") {
                     useCase(parameter = googleParameter(query = query, bounds = bounds)).shouldBeSuccess() shouldBe placeList
 
                     val bias = biasList.last().shouldNotBeNull()
@@ -98,7 +98,7 @@ class FetchSearchedPlaceUseCaseTest :
                         east = 127.1,
                     )
 
-                Then("TC-PLACE-SEARCH-DIALOG-DOMAIN-014 영역의 가운데를 중심으로 동서 절반을 반경으로 삼는다") {
+                Then("TC-40baea03-3d0d-497a-ace5-a6bd7336f9a5 영역의 가운데를 중심으로 동서 절반을 반경으로 삼는다") {
                     useCase(parameter = googleParameter(query = query, bounds = bounds)).shouldBeSuccess() shouldBe placeList
 
                     val bias = biasList.last().shouldNotBeNull()
@@ -117,7 +117,7 @@ class FetchSearchedPlaceUseCaseTest :
                         east = -179.95,
                     )
 
-                Then("TC-PLACE-SEARCH-DIALOG-DOMAIN-014 날짜변경선 위의 가운데를 중심으로 동서 절반을 반경으로 삼는다") {
+                Then("TC-40baea03-3d0d-497a-ace5-a6bd7336f9a5 날짜변경선 위의 가운데를 중심으로 동서 절반을 반경으로 삼는다") {
                     useCase(parameter = googleParameter(query = query, bounds = bounds)).shouldBeSuccess() shouldBe placeList
 
                     val bias = biasList.last().shouldNotBeNull()
@@ -128,7 +128,7 @@ class FetchSearchedPlaceUseCaseTest :
             }
 
             When("보고 있는 영역을 확인할 수 없는 상태로 검색한다") {
-                Then("TC-PLACE-SEARCH-DIALOG-DOMAIN-016 기준 위치 없이 검색한다") {
+                Then("TC-8c343c3a-48c5-44c3-9402-9d08acd9fc62 기준 위치 없이 검색한다") {
                     useCase(parameter = googleParameter(query = query, bounds = null)).shouldBeSuccess() shouldBe placeList
 
                     biasList.last().shouldBeNull()
@@ -144,7 +144,7 @@ class FetchSearchedPlaceUseCaseTest :
                         east = 127.0,
                     )
 
-                Then("TC-PLACE-SEARCH-DIALOG-DOMAIN-016 크기가 없는 영역이면 기준 위치 없이 검색한다") {
+                Then("TC-8c343c3a-48c5-44c3-9402-9d08acd9fc62 크기가 없는 영역이면 기준 위치 없이 검색한다") {
                     useCase(parameter = googleParameter(query = query, bounds = bounds)).shouldBeSuccess() shouldBe placeList
 
                     biasList.last().shouldBeNull()
@@ -160,7 +160,7 @@ class FetchSearchedPlaceUseCaseTest :
                         east = 130.0,
                     )
 
-                Then("TC-PLACE-SEARCH-DIALOG-DOMAIN-019 영역의 가운데를 중심으로 반경을 줄이지 않은 가장 큰 원을 기준 위치로 삼는다") {
+                Then("TC-9576cac2-7ce5-4862-9c4f-586dedd298d9 영역의 가운데를 중심으로 반경을 줄이지 않은 가장 큰 원을 기준 위치로 삼는다") {
                     useCase(parameter = googleParameter(query = query, bounds = bounds)).shouldBeSuccess() shouldBe placeList
 
                     val bias = biasList.last().shouldNotBeNull()
@@ -185,7 +185,7 @@ class FetchSearchedPlaceUseCaseTest :
             coEvery { googlePlaceSearchRepository.fetch(query = any(), bias = any()) } returns placeList
 
             When("네이버로 검색한다") {
-                Then("TC-NAVER-PLACE-SEARCH-DOMAIN-002 앞뒤 공백을 뺀 검색어로 조회한다") {
+                Then("TC-ebd828b4-8f10-4df8-8258-902fc725785e 앞뒤 공백을 뺀 검색어로 조회한다") {
                     useCase(
                         parameter =
                             FetchSearchedPlaceUseCase.Parameter(
@@ -199,7 +199,7 @@ class FetchSearchedPlaceUseCaseTest :
             }
 
             When("Google로 검색한다") {
-                Then("TC-GOOGLE-PLACE-SEARCH-DOMAIN-006 앞뒤 공백을 뺀 검색어로 조회한다") {
+                Then("TC-80db5cb1-f893-4273-bcbf-426fc627448c 앞뒤 공백을 뺀 검색어로 조회한다") {
                     useCase(
                         parameter =
                             FetchSearchedPlaceUseCase.Parameter(
@@ -223,7 +223,7 @@ class FetchSearchedPlaceUseCaseTest :
                 )
 
             When("네이버로 검색한다") {
-                Then("TC-NAVER-PLACE-SEARCH-DOMAIN-003 요청하지 않고 빈 목록을 돌려준다") {
+                Then("TC-1d4e29c9-bb70-4713-9678-8f120b9e4732 요청하지 않고 빈 목록을 돌려준다") {
                     BLANK_QUERY_LIST.forEach { query ->
                         useCase(
                             parameter = FetchSearchedPlaceUseCase.Parameter(query = query, provider = MapProvider.NAVER),
@@ -235,7 +235,7 @@ class FetchSearchedPlaceUseCaseTest :
             }
 
             When("Google로 검색한다") {
-                Then("TC-GOOGLE-PLACE-SEARCH-DOMAIN-009 요청하지 않고 빈 목록을 돌려준다") {
+                Then("TC-7c8b83f9-ad5e-4811-a9b3-885cfb8dcc27 요청하지 않고 빈 목록을 돌려준다") {
                     BLANK_QUERY_LIST.forEach { query ->
                         useCase(
                             parameter = FetchSearchedPlaceUseCase.Parameter(query = query, provider = MapProvider.GOOGLE),
@@ -268,7 +268,7 @@ class FetchSearchedPlaceUseCaseTest :
             coEvery { googlePlaceSearchRepository.fetch(query = query, bias = any()) } returns mixedList
 
             When("네이버로 검색한다") {
-                Then("TC-NAVER-PLACE-SEARCH-DATA-006 좌표를 확인할 수 있는 장소만 받은 순서대로 전달한다") {
+                Then("TC-2eff41ae-28e1-4305-a906-620d864e6476 좌표를 확인할 수 있는 장소만 받은 순서대로 전달한다") {
                     useCase(
                         parameter = FetchSearchedPlaceUseCase.Parameter(query = query, provider = MapProvider.NAVER),
                     ).shouldBeSuccess() shouldBe listOf(first, second)
@@ -276,7 +276,7 @@ class FetchSearchedPlaceUseCaseTest :
             }
 
             When("Google로 검색한다") {
-                Then("TC-GOOGLE-PLACE-SEARCH-DATA-007 좌표를 확인할 수 있는 장소만 받은 순서대로 전달한다") {
+                Then("TC-22cce4a8-f806-49e1-85d3-07225309b5bc 좌표를 확인할 수 있는 장소만 받은 순서대로 전달한다") {
                     useCase(parameter = googleParameter(query = query, bounds = null)).shouldBeSuccess() shouldBe listOf(first, second)
                 }
             }

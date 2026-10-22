@@ -34,7 +34,7 @@ class FileUploadManagerImplTest :
     BehaviorSpec({
         Given("올리는 중인 파일이 없다") {
             When("파일 올리기를 요청한다") {
-                Then("TC-FILE-STORAGE-DOMAIN-016 고른 파일을 읽을 권한을 붙든 뒤 제목과 설명을 담아 올리기를 맡긴다") {
+                Then("TC-7b857317-8b88-407f-b455-1e794c6f039b 고른 파일을 읽을 권한을 붙든 뒤 제목과 설명을 담아 올리기를 맡긴다") {
                     runTest {
                         val fixture = ManagerFixture(isUploading = false)
                         val content = fixtureMonkey.fileUploadContent()
@@ -53,7 +53,7 @@ class FileUploadManagerImplTest :
 
         Given("Android에서 고른 파일을 제공하는 앱이 그 파일을 붙들어 두는 것을 허용하지 않는다") {
             When("그 파일로 올리기를 요청한다") {
-                Then("TC-FILE-STORAGE-DATA-022 올리기를 맡기지 않고 실패를 전달한다") {
+                Then("TC-5069ce91-e029-4818-9c79-b22c81a188bb 올리기를 맡기지 않고 실패를 전달한다") {
                     runTest {
                         val fixture = ManagerFixture(isUploading = false)
                         val content = fixtureMonkey.fileUploadContent()
@@ -69,7 +69,7 @@ class FileUploadManagerImplTest :
 
         Given("올리는 중인 파일이 있다") {
             When("파일 올리기를 요청한다") {
-                Then("TC-FILE-STORAGE-DOMAIN-009 권한을 붙들지 않고 올리기도 맡기지 않는다") {
+                Then("TC-80d42ac1-f55b-4e98-99f3-4f7f49e4b1b7 권한을 붙들지 않고 올리기도 맡기지 않는다") {
                     runTest {
                         val fixture = ManagerFixture(isUploading = true)
 
@@ -102,7 +102,7 @@ class FileUploadManagerImplTest :
 
         Given("올리는 중이거나 다시 올릴 예정인 파일이 있다") {
             When("확인된 계정이 아닌 다른 계정의 올리기를 취소한다") {
-                Then("TC-FILE-STORAGE-DOMAIN-017 취소한 올리기가 붙들고 있던 파일을 놓고 시스템이 이어 올리던 다른 계정의 올리기도 취소한다") {
+                Then("TC-042ef401-f527-4521-ae60-76c65320e5ef 취소한 올리기가 붙들고 있던 파일을 놓고 시스템이 이어 올리던 다른 계정의 올리기도 취소한다") {
                     runTest {
                         val fixture = ManagerFixture(isUploading = true)
                         val uri = fixtureMonkey.fileUri()

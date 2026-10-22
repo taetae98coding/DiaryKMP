@@ -32,7 +32,7 @@ class SyncCursorLocalDataSourceImplTest :
         }
 
         SyncKindLocalEntity.entries.forEach { kind ->
-            test("TC-DATA-SYNC-DATA-017 ${kind.name}의 기록된 순번이 없으면 가장 작은 내려받기 위치를 돌려준다") {
+            test("TC-cce8783a-21bb-4316-bdb7-74d4d2fe8853 ${kind.name}의 기록된 순번이 없으면 가장 작은 내려받기 위치를 돌려준다") {
                 val accountId = fixtureMonkey.giveMeOne<Uuid>()
 
                 dataSource.read(accountId = accountId, kind = kind) shouldBe SyncCursorLocalDataSource.DEFAULT_USN

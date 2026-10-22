@@ -23,7 +23,7 @@ import org.koin.plugin.module.dsl.koinApplication
 
 class IpRemoteDataSourceImplTest :
     FunSpec({
-        test("TC-CURRENT-LOCATION-DATA-002 ip-api 응답 JSON의 위경도를 그대로 제공한다") {
+        test("TC-96d559a1-b705-4e8b-8cf1-a225f4f44f18 ip-api 응답 JSON의 위경도를 그대로 제공한다") {
             val engine = createMockEngine()
             val dataSource = createDataSource(engine)
 
@@ -36,7 +36,7 @@ class IpRemoteDataSourceImplTest :
                 )
         }
 
-        test("TC-CURRENT-LOCATION-DATA-001 공인 IP 기준 위치를 외부 서비스에 한 번 조회한다") {
+        test("TC-15beb4b5-7b62-43ce-9235-f7f033f9bec7 공인 IP 기준 위치를 외부 서비스에 한 번 조회한다") {
             val engine = createMockEngine()
             val dataSource = createDataSource(engine)
 

@@ -37,7 +37,7 @@ class SettingMapViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-SETTING-MAP-FEATURE-011 저장된 기본 지도를 확인하기 전에는 확인 중 상태를 유지한다") {
+        test("TC-b3d3d71c-dc8b-4df2-a279-68e891d1d5ac 저장된 기본 지도를 확인하기 전에는 확인 중 상태를 유지한다") {
             runTest(mainDispatcher) {
                 val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
                 every { getDefaultMapProviderUseCase(Unit) } returns emptyFlow()
@@ -55,7 +55,7 @@ class SettingMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-MAP-FEATURE-006 저장된 기본 지도를 선택 상태로 제공한다") {
+        test("TC-9d9c7d1e-01fb-45cb-b486-4280e3c9d708 저장된 기본 지도를 선택 상태로 제공한다") {
             MapProvider.entries.forEach { provider ->
                 runTest(mainDispatcher) {
                     val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
@@ -74,7 +74,7 @@ class SettingMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-MAP-FEATURE-008 선택되어 있지 않은 지도를 선택하면 저장되고 선택 상태가 옮겨진다") {
+        test("TC-5675f575-9e4c-44ce-9b35-6a1ff32ac7aa 선택되어 있지 않은 지도를 선택하면 저장되고 선택 상태가 옮겨진다") {
             runTest(mainDispatcher) {
                 val storedProvider = MutableStateFlow(Result.success(MapProvider.NAVER))
                 val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
@@ -104,7 +104,7 @@ class SettingMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-MAP-FEATURE-009 이미 선택된 지도를 다시 선택하면 아무것도 바뀌지 않는다") {
+        test("TC-b4ecf394-17c5-4b09-a718-a8d8ede7b3c3 이미 선택된 지도를 다시 선택하면 아무것도 바뀌지 않는다") {
             runTest(mainDispatcher) {
                 val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
                 every { getDefaultMapProviderUseCase(Unit) } returns MutableStateFlow(Result.success(MapProvider.NAVER))
@@ -129,7 +129,7 @@ class SettingMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-MAP-FEATURE-010 저장되지 않으면 선택 상태가 옮겨지지 않는다") {
+        test("TC-4f24cd13-6ed2-423e-a95a-3a83c293b027 저장되지 않으면 선택 상태가 옮겨지지 않는다") {
             runTest(mainDispatcher) {
                 val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
                 every { getDefaultMapProviderUseCase(Unit) } returns MutableStateFlow(Result.success(MapProvider.NAVER))
@@ -153,7 +153,7 @@ class SettingMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-MAP-FEATURE-011 기본 지도를 읽지 못하면 확인 중 상태를 유지한다") {
+        test("TC-b3d3d71c-dc8b-4df2-a279-68e891d1d5ac 기본 지도를 읽지 못하면 확인 중 상태를 유지한다") {
             runTest(mainDispatcher) {
                 val getDefaultMapProviderUseCase = mockk<GetDefaultMapProviderUseCase>()
                 every { getDefaultMapProviderUseCase(Unit) } returns flowOf(Result.failure(IllegalStateException("read error")))

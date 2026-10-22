@@ -55,7 +55,7 @@ class ContactHomeViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-CONTACT-HOME-FEATURE-001 조회한 연락처 페이지를 그대로 노출한다") {
+        test("TC-ae158c85-2169-44b2-8ac6-954c26974660 조회한 연락처 페이지를 그대로 노출한다") {
             runTest(mainDispatcher) {
                 val contactList = listOf(contact(), contact())
                 val viewModel = viewModel(pageContactUseCase = pageContactUseCase(contactListFlow = flowOf(Result.success(contactList))))
@@ -64,7 +64,7 @@ class ContactHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-HOME-DATA-003 연락처 페이지 조회에 실패하면 빈 페이지를 노출한다") {
+        test("TC-9c2309f9-b843-4de1-adb0-fa01300765e7 연락처 페이지 조회에 실패하면 빈 페이지를 노출한다") {
             runTest(mainDispatcher) {
                 val viewModel =
                     viewModel(
@@ -75,7 +75,7 @@ class ContactHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-HOME-DOMAIN-006 저장된 연락처가 바뀌면 바뀐 페이지를 노출한다") {
+        test("TC-132ea7e0-fc17-4feb-a89a-444bce49f3a5 저장된 연락처가 바뀌면 바뀐 페이지를 노출한다") {
             runTest(mainDispatcher) {
                 val beforeContactList = listOf(contact())
                 val afterContactList = listOf(contact(), contact())
@@ -93,7 +93,7 @@ class ContactHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-HOME-FEATURE-005 연락처가 새로 저장되면 별도 조작 없이 목록에 나타난다") {
+        test("TC-f35bfa00-566f-40a9-9aa6-3723af9465b6 연락처가 새로 저장되면 별도 조작 없이 목록에 나타난다") {
             runTest(mainDispatcher) {
                 val shownContactList = listOf(contact())
                 val addedContact = contact()
@@ -119,7 +119,7 @@ class ContactHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-HOME-DATA-005 정렬을 바꾸면 그 정렬로 목록을 다시 조회한다") {
+        test("TC-2b544859-ade8-4e3d-9fa1-8e260fc0a5b2 정렬을 바꾸면 그 정렬로 목록을 다시 조회한다") {
             runTest(mainDispatcher) {
                 val nameContactList = listOf(contact(), contact())
                 val recentlyUpdatedContactList = listOf(contact(), contact())
@@ -141,7 +141,7 @@ class ContactHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-HOME-FEATURE-040 처음에는 두 축이 모두 전체이고 거르지 않는 조건으로 조회한다") {
+        test("TC-da6da799-9cd6-4577-a51a-2231c6c1a828 처음에는 두 축이 모두 전체이고 거르지 않는 조건으로 조회한다") {
             runTest(mainDispatcher) {
                 val contactList = listOf(contact(), contact())
                 val viewModel = viewModel(pageContactUseCase = pageContactUseCase(contactListFlow = flowOf(Result.success(contactList))))
@@ -152,7 +152,7 @@ class ContactHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-HOME-DATA-011 유무 필터를 바꾸면 바뀐 기준으로 목록을 다시 조회한다") {
+        test("TC-b1b5fded-b545-4d4c-ad99-259ee2f08e9e 유무 필터를 바꾸면 바뀐 기준으로 목록을 다시 조회한다") {
             runTest(mainDispatcher) {
                 val allContactList = listOf(contact(), contact())
                 val birthdayContactList = listOf(contact())
@@ -211,7 +211,7 @@ class ContactHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-HOME-DOMAIN-020 현재 사용자 계정이 바뀌어 목록이 다시 조회되어도 유무 필터 선택을 유지한다") {
+        test("TC-852f29ae-df6e-48e7-9930-771159a3ee43 현재 사용자 계정이 바뀌어 목록이 다시 조회되어도 유무 필터 선택을 유지한다") {
             runTest(mainDispatcher) {
                 val filter = ContactFilter(birthday = ContactFilterExistence.EXIST)
                 val beforeAccountContactList = listOf(contact())
@@ -236,7 +236,7 @@ class ContactHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-HOME-FEATURE-044 축 중 하나라도 전체가 아니면 필터가 적용된 상태다") {
+        test("TC-3ad9d1cc-6efd-461c-b44e-d53ffc2d4c9b 축 중 하나라도 전체가 아니면 필터가 적용된 상태다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(pageContactUseCase = pageContactUseCase(contactListFlow = flowOf(Result.success(emptyList()))))
 
@@ -256,7 +256,7 @@ class ContactHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-HOME-FEATURE-026 삭제에 성공하면 그 연락처의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
+        test("TC-5d4e393d-6131-429f-b5e2-cfd4cbe29838 삭제에 성공하면 그 연락처의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteContactUseCase = mockk<DeleteContactUseCase>()
@@ -277,7 +277,7 @@ class ContactHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-HOME-FEATURE-032 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
+        test("TC-7e085cf9-e371-4800-85f8-51a792c67ec1 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteContactUseCase = mockk<DeleteContactUseCase>()
@@ -297,7 +297,7 @@ class ContactHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-HOME-DOMAIN-015 실행 취소를 저장하지 못하면 별도 안내를 보내지 않는다") {
+        test("TC-ce0d1dc4-4bbc-4542-ade4-18e84ed6f8ea 실행 취소를 저장하지 못하면 별도 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val restoreContactUseCase = mockk<RestoreContactUseCase>()
@@ -318,7 +318,7 @@ class ContactHomeViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-HOME-FEATURE-027 실행 취소하면 그 연락처의 삭제를 되돌리는 요청을 한 번 보낸다") {
+        test("TC-0fbd9855-5efc-4878-8311-9912d98cced0 실행 취소하면 그 연락처의 삭제를 되돌리는 요청을 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val restoreContactUseCase = mockk<RestoreContactUseCase>()
@@ -335,7 +335,7 @@ class ContactHomeViewModelTest : FunSpec() {
                 coVerify(exactly = 1) { restoreContactUseCase(parameter = id) }
             }
         }
-        test("TC-CONTACT-HOME-FEATURE-026 같은 연락처의 삭제나 실행 취소가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
+        test("TC-5d4e393d-6131-429f-b5e2-cfd4cbe29838 같은 연락처의 삭제나 실행 취소가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteContactUseCase = mockk<DeleteContactUseCase>()

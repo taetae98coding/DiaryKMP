@@ -48,7 +48,7 @@ class MemoPlacePickerDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-DATA-002 목록 조회에 실패해도 이미 표시된 장소를 유지한다`() {
+    fun `TC-7ea23b38-1f53-4d62-b069-920cc4e89671 목록 조회에 실패해도 이미 표시된 장소를 유지한다`() {
         val homePlace = testPlace(title = HOME_PLACE_TITLE)
         composeRule.setMemoPlacePickerDialog(
             placePagingData = MutableStateFlow(appendFailedPlacePagingDataOf(listOf(homePlace))),
@@ -58,7 +58,7 @@ class MemoPlacePickerDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-039 다음 장소를 불러오는 동안에도 이미 나타난 장소를 조작할 수 있다`() {
+    fun `TC-aa2b94bf-0fe7-4158-801a-4043c0591b77 다음 장소를 불러오는 동안에도 이미 나타난 장소를 조작할 수 있다`() {
         val homePlace = testPlace(title = HOME_PLACE_TITLE)
         val selectedIdList = mutableListOf<Uuid>()
         composeRule.setMemoPlacePickerDialog(
@@ -73,14 +73,14 @@ class MemoPlacePickerDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-024 나타낼 장소가 없어도 장소 추가 항목을 표시한다`() {
+    fun `TC-e63b6309-8e74-4b3f-8366-5d98c40e494c 나타낼 장소가 없어도 장소 추가 항목을 표시한다`() {
         composeRule.setMemoPlacePickerDialog(placeList = emptyList())
 
         composeRule.placeDialogNodeWithText(DEFAULT_PLACE_PICKER_PLACE_ADD).assertExists()
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-024 나타낼 장소가 여러 개여도 장소 추가 항목을 표시한다`() {
+    fun `TC-e63b6309-8e74-4b3f-8366-5d98c40e494c 나타낼 장소가 여러 개여도 장소 추가 항목을 표시한다`() {
         val placeList = listOf(testPlace(title = HOME_PLACE_TITLE), testPlace(title = OFFICE_PLACE_TITLE))
         composeRule.setMemoPlacePickerDialog(placeList = placeList)
 
@@ -88,7 +88,7 @@ class MemoPlacePickerDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-025 장소 추가 항목을 누르면 장소 추가 행동만 전달한다`() {
+    fun `TC-16a56440-8c52-46b8-9ccd-b494b5122495 장소 추가 항목을 누르면 장소 추가 행동만 전달한다`() {
         val placeList = listOf(testPlace(title = HOME_PLACE_TITLE), testPlace(title = OFFICE_PLACE_TITLE))
         var placeAddCount = 0
         val selectedIdList = mutableListOf<Uuid>()

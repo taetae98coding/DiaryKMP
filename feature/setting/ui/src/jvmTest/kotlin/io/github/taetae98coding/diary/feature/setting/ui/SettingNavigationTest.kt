@@ -15,7 +15,7 @@ import io.kotest.matchers.collections.shouldContainExactly
 
 class SettingNavigationTest :
     FunSpec({
-        test("TC-SETTING-LIST-DETAIL-FEATURE-002 설정 상세로 이동하면 설정 목록 다음에 상세를 추가한다") {
+        test("TC-42a673d0-57d5-4855-9dba-7089e7ace5bb 설정 상세로 이동하면 설정 목록 다음에 상세를 추가한다") {
             settingDetailList.forEach { destination ->
                 val backStack = settingBackStack()
 
@@ -25,7 +25,7 @@ class SettingNavigationTest :
             }
         }
 
-        test("TC-SETTING-LIST-DETAIL-FEATURE-003 다른 설정 상세로 이동하면 현재 상세를 교체한다") {
+        test("TC-c4c64de5-7a3c-4597-a53c-16431aa58cd0 다른 설정 상세로 이동하면 현재 상세를 교체한다") {
             val detailCases =
                 listOf(
                     SettingHolidayNavKey to SettingMapNavKey,
@@ -50,7 +50,7 @@ class SettingNavigationTest :
             }
         }
 
-        test("TC-SETTING-LIST-DETAIL-FEATURE-011 현재 설정 상세를 다시 선택하면 전환 이력을 유지한다") {
+        test("TC-d460b908-7f6d-45ff-87be-813e714c539b 현재 설정 상세를 다시 선택하면 전환 이력을 유지한다") {
             settingDetailList.forEach { detail ->
                 val backStack = settingBackStack(detail)
 
@@ -60,7 +60,7 @@ class SettingNavigationTest :
             }
         }
 
-        test("TC-SETTING-HOME-FEATURE-003 뒤로가기 동작을 선택하면 상세 표시 여부와 관계없이 더보기로 돌아간다") {
+        test("TC-8b0d1845-ca88-4e89-a5f8-90c94870e004 뒤로가기 동작을 선택하면 상세 표시 여부와 관계없이 더보기로 돌아간다") {
             val detailCases =
                 listOf<ScreenNavKey?>(
                     null,

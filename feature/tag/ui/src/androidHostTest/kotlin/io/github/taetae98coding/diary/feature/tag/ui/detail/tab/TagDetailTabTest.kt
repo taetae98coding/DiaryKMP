@@ -75,7 +75,7 @@ class TagDetailTabTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-037 화면에 처음 진입하면 태그 디테일 탭이 선택된다`() {
+    fun `TC-29341416-bb37-4ba2-a21a-5a267cdedb15 화면에 처음 진입하면 태그 디테일 탭이 선택된다`() {
         setTagDetailScaffold()
 
         composeRule.onNodeWithContentDescription(DEFAULT_DETAIL_TAB_DESCRIPTION).assertIsSelected()
@@ -95,7 +95,7 @@ class TagDetailTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-038 메모 탭을 선택하면 메모 목록을 표시한다`() {
+    fun `TC-665ec35d-62dd-455d-8674-030a0be70191 메모 탭을 선택하면 메모 목록을 표시한다`() {
         setTagDetailScaffold()
 
         selectTab(DEFAULT_MEMO_TAB_DESCRIPTION)
@@ -107,7 +107,7 @@ class TagDetailTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-038 웹 탭을 선택하면 웹 목록을 표시한다`() {
+    fun `TC-665ec35d-62dd-455d-8674-030a0be70191 웹 탭을 선택하면 웹 목록을 표시한다`() {
         setTagDetailScaffold()
 
         selectTab(DEFAULT_WEB_TAB_DESCRIPTION)
@@ -118,7 +118,7 @@ class TagDetailTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-038 장소 탭을 선택하면 장소 목록을 표시한다`() {
+    fun `TC-665ec35d-62dd-455d-8674-030a0be70191 장소 탭을 선택하면 장소 목록을 표시한다`() {
         setTagDetailScaffold()
 
         selectTab(DEFAULT_PLACE_TAB_DESCRIPTION)
@@ -129,7 +129,7 @@ class TagDetailTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-038 메모 탭에서 장소 탭으로 전환하면 장소 목록을 표시한다`() {
+    fun `TC-665ec35d-62dd-455d-8674-030a0be70191 메모 탭에서 장소 탭으로 전환하면 장소 목록을 표시한다`() {
         setTagDetailScaffold()
         selectTab(DEFAULT_MEMO_TAB_DESCRIPTION)
 
@@ -141,7 +141,7 @@ class TagDetailTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-038 태그 디테일 탭을 다시 선택하면 태그 입력을 표시한다`() {
+    fun `TC-665ec35d-62dd-455d-8674-030a0be70191 태그 디테일 탭을 다시 선택하면 태그 입력을 표시한다`() {
         setTagDetailScaffold()
         selectTab(DEFAULT_MEMO_TAB_DESCRIPTION)
 
@@ -153,7 +153,7 @@ class TagDetailTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-038 장소 탭에서 태그 디테일 탭으로 전환하면 태그 입력을 표시한다`() {
+    fun `TC-665ec35d-62dd-455d-8674-030a0be70191 장소 탭에서 태그 디테일 탭으로 전환하면 태그 입력을 표시한다`() {
         setTagDetailScaffold()
         selectTab(DEFAULT_PLACE_TAB_DESCRIPTION)
 
@@ -165,7 +165,7 @@ class TagDetailTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-039 본문을 왼쪽으로 밀면 다음 탭으로 한 칸씩 전환된다`() {
+    fun `TC-cdd19aa0-7518-4f99-a7aa-c7566fcbbcd1 본문을 왼쪽으로 밀면 다음 탭으로 한 칸씩 전환된다`() {
         setTagDetailScaffold()
 
         swipePager { swipeLeft() }
@@ -179,7 +179,7 @@ class TagDetailTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-039 본문을 오른쪽으로 밀면 이전 탭으로 한 칸씩 전환된다`() {
+    fun `TC-cdd19aa0-7518-4f99-a7aa-c7566fcbbcd1 본문을 오른쪽으로 밀면 이전 탭으로 한 칸씩 전환된다`() {
         setTagDetailScaffold()
         selectTab(DEFAULT_PLACE_TAB_DESCRIPTION)
 
@@ -194,7 +194,7 @@ class TagDetailTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-040 조회 중에도 탭을 전환할 수 있다`() {
+    fun `TC-dba0d062-0cb1-44a6-a598-3a0a3960d510 조회 중에도 탭을 전환할 수 있다`() {
         setTagDetailScaffold(uiStateProvider = { TagDetailUiState.Loading })
 
         selectTab(DEFAULT_MEMO_TAB_DESCRIPTION)
@@ -204,7 +204,7 @@ class TagDetailTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-047 조회 중에도 웹 탭을 전환할 수 있다`() {
+    fun `TC-fc703af2-be5d-4d72-b6e0-6075a5fc5baa 조회 중에도 웹 탭을 전환할 수 있다`() {
         setTagDetailScaffold(uiStateProvider = { TagDetailUiState.Loading })
 
         selectTab(DEFAULT_WEB_TAB_DESCRIPTION)
@@ -214,7 +214,7 @@ class TagDetailTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-047 조회 중에도 장소 탭을 전환할 수 있다`() {
+    fun `TC-fc703af2-be5d-4d72-b6e0-6075a5fc5baa 조회 중에도 장소 탭을 전환할 수 있다`() {
         setTagDetailScaffold(uiStateProvider = { TagDetailUiState.Loading })
 
         selectTab(DEFAULT_PLACE_TAB_DESCRIPTION)
@@ -224,7 +224,7 @@ class TagDetailTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-041 탭을 전환해도 수정 중이던 내용이 유지된다`() {
+    fun `TC-fa505082-18a6-4588-ad57-e2f8909d83cd 탭을 전환해도 수정 중이던 내용이 유지된다`() {
         val storedDetail =
             tagDetail(
                 title = TAG_TITLE,
@@ -254,7 +254,7 @@ class TagDetailTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-043 완료와 삭제는 선택한 탭과 관계없이 제공된다`() {
+    fun `TC-7dfb1b8d-90d2-4d82-bbdd-172597009e41 완료와 삭제는 선택한 탭과 관계없이 제공된다`() {
         setTagDetailScaffold(uiStateProvider = { tagDetailUiState(detail = tagDetail(TAG_TITLE)) })
 
         listOf(
@@ -271,7 +271,7 @@ class TagDetailTabTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-060 완료된 태그의 TagDetail 화면에서도 네 탭을 모두 사용할 수 있다`() {
+    fun `TC-da819417-0703-492e-aa50-7454b09eb9b2 완료된 태그의 TagDetail 화면에서도 네 탭을 모두 사용할 수 있다`() {
         setTagDetailScaffold(uiStateProvider = { tagDetailUiState(detail = tagDetail(TAG_TITLE), isFinished = true) })
 
         listOf(
@@ -346,7 +346,7 @@ class TagDetailTabScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-042 수정 반영 동작은 메모 탭에서 제공되지 않는다`() {
+    fun `TC-fb0d8369-55b2-4620-b240-286aa1e43a61 수정 반영 동작은 메모 탭에서 제공되지 않는다`() {
         setTagDetailScreen()
         composeRule.titleInput().performTextInput(EDIT_SUFFIX)
         composeRule.onNodeWithContentDescription(DEFAULT_UPDATE_BUTTON_DESCRIPTION).assertExists()
@@ -358,7 +358,7 @@ class TagDetailTabScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-042 수정 반영 동작은 웹 탭과 장소 탭에서 제공되지 않는다`() {
+    fun `TC-fb0d8369-55b2-4620-b240-286aa1e43a61 수정 반영 동작은 웹 탭과 장소 탭에서 제공되지 않는다`() {
         setTagDetailScreen()
         composeRule.titleInput().performTextInput(EDIT_SUFFIX)
 
@@ -378,7 +378,7 @@ class TagDetailTabScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-042 태그 디테일 탭으로 돌아오면 수정 반영 동작이 다시 제공된다`() {
+    fun `TC-fb0d8369-55b2-4620-b240-286aa1e43a61 태그 디테일 탭으로 돌아오면 수정 반영 동작이 다시 제공된다`() {
         setTagDetailScreen()
         composeRule.titleInput().performTextInput(EDIT_SUFFIX)
         composeRule.selectTagDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
@@ -390,32 +390,32 @@ class TagDetailTabScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-044 화면 재생성 후에도 선택한 메모 탭이 유지된다`() {
+    fun `TC-fbc6b273-08a4-4944-add7-c7a82406cc94 화면 재생성 후에도 선택한 메모 탭이 유지된다`() {
         assertSelectedTabIsRestored(tabDescription = DEFAULT_MEMO_TAB_DESCRIPTION)
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-044 화면 재생성 후에도 선택한 웹 탭이 유지된다`() {
+    fun `TC-fbc6b273-08a4-4944-add7-c7a82406cc94 화면 재생성 후에도 선택한 웹 탭이 유지된다`() {
         assertSelectedTabIsRestored(tabDescription = DEFAULT_WEB_TAB_DESCRIPTION)
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-044 화면 재생성 후에도 선택한 장소 탭이 유지된다`() {
+    fun `TC-fbc6b273-08a4-4944-add7-c7a82406cc94 화면 재생성 후에도 선택한 장소 탭이 유지된다`() {
         assertSelectedTabIsRestored(tabDescription = DEFAULT_PLACE_TAB_DESCRIPTION)
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-046 메모 탭에서 뒤로가도 진입하기 전 화면으로 돌아간다`() {
+    fun `TC-da841ed7-d262-4adf-a81f-cd5a6515c0c2 메모 탭에서 뒤로가도 진입하기 전 화면으로 돌아간다`() {
         assertNavigateUpKeepsTab(tabDescription = DEFAULT_MEMO_TAB_DESCRIPTION)
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-046 웹 탭에서 뒤로가도 진입하기 전 화면으로 돌아간다`() {
+    fun `TC-da841ed7-d262-4adf-a81f-cd5a6515c0c2 웹 탭에서 뒤로가도 진입하기 전 화면으로 돌아간다`() {
         assertNavigateUpKeepsTab(tabDescription = DEFAULT_WEB_TAB_DESCRIPTION)
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-046 장소 탭에서 뒤로가도 진입하기 전 화면으로 돌아간다`() {
+    fun `TC-da841ed7-d262-4adf-a81f-cd5a6515c0c2 장소 탭에서 뒤로가도 진입하기 전 화면으로 돌아간다`() {
         assertNavigateUpKeepsTab(tabDescription = DEFAULT_PLACE_TAB_DESCRIPTION)
     }
 
@@ -454,7 +454,7 @@ class TagDetailTabScreenTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-057 목록에서 다른 태그를 선택하면 태그 디테일 탭에서 다시 시작한다`() {
+    fun `TC-3fbca82a-bb4b-442d-8e64-0ffb1e645f25 목록에서 다른 태그를 선택하면 태그 디테일 탭에서 다시 시작한다`() {
         val detailIdState = mutableStateOf(FIRST_TAG_ID)
         composeRule.setTagDetailScreen(
             viewModel = screenTestViewModel(MutableStateFlow(tagDetailUiState(detail = tagDetail(TAG_TITLE)))),

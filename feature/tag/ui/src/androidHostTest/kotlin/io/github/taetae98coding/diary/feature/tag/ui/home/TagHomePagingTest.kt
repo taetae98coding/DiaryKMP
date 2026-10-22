@@ -41,7 +41,7 @@ class TagHomePagingTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-017 목록을 내려 보면 아직 준비되지 않은 구간의 태그가 이어서 나타난다`() {
+    fun `TC-baa3e174-a5b5-4d79-aa60-10b70e45c98d 목록을 내려 보면 아직 준비되지 않은 구간의 태그가 이어서 나타난다`() {
         val tagList = sortedByTitleTagList()
         composeRule.setContent {
             val tagPagingItems =

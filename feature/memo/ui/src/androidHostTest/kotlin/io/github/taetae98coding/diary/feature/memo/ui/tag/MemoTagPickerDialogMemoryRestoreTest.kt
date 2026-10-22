@@ -41,7 +41,7 @@ class MemoTagPickerDialogMemoryRestoreTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-DOMAIN-022 메모리 정리 뒤 복원하면 목록과 검색어가 다시 나타나고 기다리지 않고 그 검색어로 좁힌 목록을 보여 준다`() {
+    fun `TC-774a56d6-fec9-4aa6-97bb-1a0825284ea3 메모리 정리 뒤 복원하면 목록과 검색어가 다시 나타나고 기다리지 않고 그 검색어로 좁힌 목록을 보여 준다`() {
         val workTag = testTag(title = WORK_TAG_TITLE)
         val exerciseTag = testTag(title = EXERCISE_TAG_TITLE)
         val tagList = listOf(workTag, exerciseTag)

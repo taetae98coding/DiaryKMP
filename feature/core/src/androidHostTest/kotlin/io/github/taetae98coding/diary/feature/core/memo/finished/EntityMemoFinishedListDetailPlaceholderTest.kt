@@ -20,14 +20,14 @@ class EntityMemoFinishedListDetailPlaceholderTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-FEATURE-002 한국어 선택 전 안내를 표시한다`() {
+    fun `TC-c5b859af-ea42-484b-8d3c-146cb3854cbf 한국어 선택 전 안내를 표시한다`() {
         setEntityMemoFinishedListDetailPlaceholder()
 
         assertPlaceholder(message = "메모를 선택하세요")
     }
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-FEATURE-002 기본 환경의 선택 전 안내를 표시한다`() {
+    fun `TC-c5b859af-ea42-484b-8d3c-146cb3854cbf 기본 환경의 선택 전 안내를 표시한다`() {
         setEntityMemoFinishedListDetailPlaceholder()
 
         assertPlaceholder(message = "Choose a memo")

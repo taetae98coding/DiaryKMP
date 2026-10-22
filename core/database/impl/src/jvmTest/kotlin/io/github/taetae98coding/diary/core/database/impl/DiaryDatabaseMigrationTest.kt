@@ -61,7 +61,7 @@ class DiaryDatabaseMigrationTest :
             directory.deleteRecursively()
         }
 
-        test("TC-DATA-SYNC-DATA-053 앱을 업데이트해도 기기에 저장된 데이터와 동기화 상태가 남는다") {
+        test("TC-20a28b81-a5c0-457d-821b-b734aa885427 앱을 업데이트해도 기기에 저장된 데이터와 동기화 상태가 남는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo =
                 fixtureMonkey.localMemo(isFinished = false, isDeleted = false, primaryTagId = null).let { memo ->
@@ -102,7 +102,7 @@ class DiaryDatabaseMigrationTest :
             }
         }
 
-        test("TC-CONTACT-ADD-DATA-016 앱을 업데이트하면 연락처만 처음부터 다시 내려받는다") {
+        test("TC-0b67c147-01b1-4f5f-8b63-d27db810cc3f 앱을 업데이트하면 연락처만 처음부터 다시 내려받는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             // 지워진 위치는 기본값 0으로 읽히므로, 지워지지 않았을 때 구분되도록 0보다 큰 값을 둔다.
             val contactUsn = fixtureMonkey.giveMeOne<Long>().coerceAtLeast(1L)
@@ -128,7 +128,7 @@ class DiaryDatabaseMigrationTest :
             }
         }
 
-        test("TC-CONTACT-ADD-DATA-015 앱을 업데이트하면 기존 연락처의 태어난 연도를 생일의 연도로 채운다") {
+        test("TC-635c851c-6f40-43f2-be72-fbb7849562c1 앱을 업데이트하면 기존 연락처의 태어난 연도를 생일의 연도로 채운다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val birthdayContactId = fixtureMonkey.giveMeOne<Uuid>()
             val noBirthdayContactId = fixtureMonkey.giveMeOne<Uuid>()

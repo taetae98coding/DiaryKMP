@@ -45,7 +45,7 @@ class ContactDetailFormTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-001 저장된 이름과 설명, 키, 신발 사이즈, 생일, 고향을 입력에 채운다`() {
+    fun `TC-fa515331-9493-41a3-9cae-8687bb10ae74 저장된 이름과 설명, 키, 신발 사이즈, 생일, 고향을 입력에 채운다`() {
         val detail =
             testContactDetail(
                 name = CONTACT_NAME,
@@ -67,7 +67,7 @@ class ContactDetailFormTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-050 저장된 생일이 있으면 생일의 연도를 바꿀 수 없게 채운다`() {
+    fun `TC-f4e2d8b7-ff47-40d9-9617-76a5e66f037d 저장된 생일이 있으면 생일의 연도를 바꿀 수 없게 채운다`() {
         setContactDetailScaffold(detail = birthdayDetail(calendar = ContactBirthdayCalendar.SOLAR))
 
         composeRule.birthYearInput().assert(hasText("1994"))
@@ -75,7 +75,7 @@ class ContactDetailFormTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-050 생일 없이 저장된 태어난 연도는 바꿀 수 있게 채운다`() {
+    fun `TC-f4e2d8b7-ff47-40d9-9617-76a5e66f037d 생일 없이 저장된 태어난 연도는 바꿀 수 있게 채운다`() {
         setContactDetailScaffold(detail = testContactDetail(name = CONTACT_NAME, birthYear = 1990))
 
         composeRule.birthYearInput().assert(hasText("1990"))
@@ -83,7 +83,7 @@ class ContactDetailFormTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-050 생일과 태어난 연도가 없으면 태어난 연도를 바꿀 수 있게 비워 둔다`() {
+    fun `TC-f4e2d8b7-ff47-40d9-9617-76a5e66f037d 생일과 태어난 연도가 없으면 태어난 연도를 바꿀 수 있게 비워 둔다`() {
         setContactDetailScaffold(detail = testContactDetail(name = CONTACT_NAME))
 
         composeRule.birthYearInput().assert(hasText(""))
@@ -91,7 +91,7 @@ class ContactDetailFormTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-052 저장된 생일을 지우면 태어난 연도도 지워지고 입력할 수 있다`() {
+    fun `TC-9bebb442-1322-4ef8-952f-ae795d257857 저장된 생일을 지우면 태어난 연도도 지워지고 입력할 수 있다`() {
         setContactDetailScaffold(detail = birthdayDetail(calendar = ContactBirthdayCalendar.SOLAR))
 
         composeRule.onNodeWithContentDescription(BIRTHDAY_CLEAR_DESCRIPTION).performClick()
@@ -102,14 +102,14 @@ class ContactDetailFormTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-049 소수점 아래가 0인 저장된 키는 정수로 표시한다`() {
+    fun `TC-2ce102ba-505f-41e9-831c-a890bde4f08b 소수점 아래가 0인 저장된 키는 정수로 표시한다`() {
         setContactDetailScaffold(detail = testContactDetail(name = CONTACT_NAME, height = 175.0.centimeter))
 
         composeRule.heightInput().assert(hasText("175"))
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-049 소수점 아래가 있는 저장된 키는 소수점 아래 한 자리까지 표시한다`() {
+    fun `TC-2ce102ba-505f-41e9-831c-a890bde4f08b 소수점 아래가 있는 저장된 키는 소수점 아래 한 자리까지 표시한다`() {
         setContactDetailScaffold(detail = testContactDetail(name = CONTACT_NAME, height = 175.5.centimeter))
 
         composeRule.heightInput().assert(hasText("175.5"))
@@ -126,7 +126,7 @@ class ContactDetailFormTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-024 채워진 고향을 다른 값으로 바꿀 수 있다`() {
+    fun `TC-40c3de92-563a-42e5-8163-762eb6064646 채워진 고향을 다른 값으로 바꿀 수 있다`() {
         val detail = testContactDetail(name = CONTACT_NAME, hometown = CONTACT_HOMETOWN)
 
         setContactDetailScaffold(detail = detail)
@@ -138,7 +138,7 @@ class ContactDetailFormTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-024 고향이 없던 연락처에도 고향을 입력할 수 있다`() {
+    fun `TC-40c3de92-563a-42e5-8163-762eb6064646 고향이 없던 연락처에도 고향을 입력할 수 있다`() {
         val detail = testContactDetail(name = CONTACT_NAME, hometown = "")
 
         setContactDetailScaffold(detail = detail)
@@ -149,7 +149,7 @@ class ContactDetailFormTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-023 저장된 양력 구분을 골라진 상태로 채운다`() {
+    fun `TC-5c68a7c9-415a-4db6-a150-80fd7d7656cb 저장된 양력 구분을 골라진 상태로 채운다`() {
         setContactDetailScaffold(detail = birthdayDetail(calendar = ContactBirthdayCalendar.SOLAR))
 
         composeRule.onNodeWithText(BIRTHDAY_CALENDAR_SOLAR).assertIsSelected()
@@ -157,7 +157,7 @@ class ContactDetailFormTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-023 저장된 음력 구분을 골라진 상태로 채운다`() {
+    fun `TC-5c68a7c9-415a-4db6-a150-80fd7d7656cb 저장된 음력 구분을 골라진 상태로 채운다`() {
         setContactDetailScaffold(detail = birthdayDetail(calendar = ContactBirthdayCalendar.LUNAR))
 
         composeRule.onNodeWithText(BIRTHDAY_CALENDAR_LUNAR).assertIsSelected()
@@ -175,14 +175,14 @@ class ContactDetailFormTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-002 저장된 생일이 없으면 달력 구분을 고르는 수단을 제공하지 않는다`() {
+    fun `TC-a0abfce7-53b6-4147-80cd-abb7db9817bc 저장된 생일이 없으면 달력 구분을 고르는 수단을 제공하지 않는다`() {
         setContactDetailScaffold(detail = testContactDetail(name = CONTACT_NAME))
 
         composeRule.onNodeWithContentDescription(BIRTHDAY_CALENDAR_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-011 저장된 전화번호를 저장된 순서대로 채운다`() {
+    fun `TC-26b544ba-3732-4f73-aeaa-2d26666a76ae 저장된 전화번호를 저장된 순서대로 채운다`() {
         val detail = testContactDetail(name = CONTACT_NAME, phoneNumberList = listOf(FIRST_PHONE_NUMBER, SECOND_PHONE_NUMBER))
 
         setContactDetailScaffold(detail = detail)
@@ -194,7 +194,7 @@ class ContactDetailFormTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-DOMAIN-003 같은 번호가 여러 개여도 각각의 전화번호 항목으로 채운다`() {
+    fun `TC-b421cb23-cb2f-4170-9edf-c483eafca13e 같은 번호가 여러 개여도 각각의 전화번호 항목으로 채운다`() {
         val detail =
             testContactDetail(
                 name = CONTACT_NAME,
@@ -223,7 +223,7 @@ class ContactDetailFormTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-002 값이 없는 정보는 비어 있는 상태로 채운다`() {
+    fun `TC-a0abfce7-53b6-4147-80cd-abb7db9817bc 값이 없는 정보는 비어 있는 상태로 채운다`() {
         val detail = testContactDetail(name = CONTACT_NAME, description = "", hometown = "")
 
         setContactDetailScaffold(detail = detail)
@@ -234,14 +234,14 @@ class ContactDetailFormTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-022 진입할 때 어느 입력에도 초점을 두지 않는다`() {
+    fun `TC-eafd0e2a-13a8-4a95-8aab-b571ed661a6c 진입할 때 어느 입력에도 초점을 두지 않는다`() {
         setContactDetailScaffold(detail = testContactDetail(name = CONTACT_NAME))
 
         composeRule.onNode(hasText(CONTACT_NAME) and hasSetTextAction()).assertIsNotFocused()
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-010 이름을 비워도 저장된 이름은 화면 제목에 남는다`() {
+    fun `TC-2f5e9a91-c345-4b33-be1c-9209710b562b 이름을 비워도 저장된 이름은 화면 제목에 남는다`() {
         val detail = testContactDetail(name = CONTACT_NAME)
 
         setContactDetailScaffold(detail = detail)
@@ -254,7 +254,7 @@ class ContactDetailFormTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-DOMAIN-009 전화번호의 순서를 바꾸면 수정 동작을 제공한다`() {
+    fun `TC-124101d7-d5d4-4b1e-ab74-74cbdca328ce 전화번호의 순서를 바꾸면 수정 동작을 제공한다`() {
         val detail = testContactDetail(name = CONTACT_NAME, phoneNumberList = listOf(FIRST_PHONE_NUMBER, SECOND_PHONE_NUMBER))
         lateinit var state: ContactFormState
 

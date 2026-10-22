@@ -50,7 +50,7 @@ class CalendarHomeScreenWeatherSearchTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-067 날씨를 누르면 지역명과 함께 검색한 결과가 브라우저에서 열린다`() {
+    fun `TC-b0dc5fdd-f6d1-40c8-8bdd-43b94f4f319c 날씨를 누르면 지역명과 함께 검색한 결과가 브라우저에서 열린다`() {
         val uriHandler = mockk<UriHandler>(relaxed = true)
 
         setCalendarHomeScreen(
@@ -67,7 +67,7 @@ class CalendarHomeScreenWeatherSearchTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-068 지역명이 없으면 날씨만으로 검색한 결과가 열린다`() {
+    fun `TC-2e7d2bb2-bdfb-40d3-8497-7f4bcdf7085f 지역명이 없으면 날씨만으로 검색한 결과가 열린다`() {
         val uriHandler = mockk<UriHandler>(relaxed = true)
 
         setCalendarHomeScreen(
@@ -84,7 +84,7 @@ class CalendarHomeScreenWeatherSearchTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-069 어느 날짜의 날씨를 눌러도 같은 검색 결과가 열린다`() {
+    fun `TC-775723ba-bd00-4306-9444-2441e0d528c0 어느 날짜의 날씨를 눌러도 같은 검색 결과가 열린다`() {
         val uriHandler = mockk<UriHandler>(relaxed = true)
 
         setCalendarHomeScreen(
@@ -102,7 +102,7 @@ class CalendarHomeScreenWeatherSearchTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-070 날씨를 눌러도 보던 달과 날씨 표시가 유지된다`() {
+    fun `TC-11978320-3a53-4891-9f65-9a485247026a 날씨를 눌러도 보던 달과 날씨 표시가 유지된다`() {
         setCalendarHomeScreen(
             weatherList = listOf(todayWeather()),
             locationName = SEONGNAM,
@@ -116,7 +116,7 @@ class CalendarHomeScreenWeatherSearchTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-111 날씨 선택에서 브라우저를 열지 못하면 화면이 유지되고 검색 결과를 열지 못했다고 알린다`() {
+    fun `TC-a7c8c0d1-6f4b-405a-865d-c274d9eac0b1 날씨 선택에서 브라우저를 열지 못하면 화면이 유지되고 검색 결과를 열지 못했다고 알린다`() {
         val uriHandler =
             mockk<UriHandler> {
                 every { openUri(any()) } throws IllegalStateException(fixtureMonkey.giveMeOne<String>())
@@ -138,7 +138,7 @@ class CalendarHomeScreenWeatherSearchTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-072 지역명이 준비되면 조작 없이 그 지역명으로 검색한다`() {
+    fun `TC-941301b7-4498-4bcc-b5c9-ae785e3910da 지역명이 준비되면 조작 없이 그 지역명으로 검색한다`() {
         val uriHandler = mockk<UriHandler>(relaxed = true)
         val weatherReportFlow = MutableStateFlow(CalendarWeatherReport(weatherList = listOf(todayWeather())))
 

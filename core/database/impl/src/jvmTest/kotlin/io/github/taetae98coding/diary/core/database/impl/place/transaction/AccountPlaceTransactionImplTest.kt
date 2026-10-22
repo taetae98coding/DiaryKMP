@@ -61,7 +61,7 @@ class AccountPlaceTransactionImplTest :
                 ) { statement -> statement.readAll { it.toAccountPlace() } }
             }
 
-        test("TC-PLACE-ADD-DATA-001 장소와 현재 계정의 연결을 함께 저장한다") {
+        test("TC-71726817-3873-40c5-8081-8856b2290f1c 장소와 현재 계정의 연결을 함께 저장한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place()
 
@@ -78,7 +78,7 @@ class AccountPlaceTransactionImplTest :
                 )
         }
 
-        test("TC-DATA-SYNC-DOMAIN-001 장소 추가·수정·삭제·실행 취소는 업로드 대기 상태가 된다") {
+        test("TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 장소 추가·수정·삭제·실행 취소는 업로드 대기 상태가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place().copy(isDeleted = false)
             val pending = listOf(AccountPlaceLocalEntity(accountId = accountId, placeId = place.id, isDirty = true))
@@ -99,7 +99,7 @@ class AccountPlaceTransactionImplTest :
             findAccountPlaceList() shouldBe pending
         }
 
-        test("TC-PLACE-ADD-DATA-002 TC-PLACE-ADD-DATA-003 제목, 설명, 컬러, 좌표와 미삭제 상태, 추가 시각을 그대로 저장한다") {
+        test("TC-064634f6-5b7f-472c-86b4-753a09051180 TC-5a548f34-e80b-480e-a5d6-4d14e63aea09 제목, 설명, 컬러, 좌표와 미삭제 상태, 추가 시각을 그대로 저장한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val now = instant()
             val place =
@@ -153,7 +153,7 @@ class AccountPlaceTransactionImplTest :
             findPlaceList() shouldBe placeList
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-004 수정은 제목, 설명, 컬러, 좌표와 수정 시각만 바꾼다") {
+        test("TC-cef7c2d0-5c96-4770-98e7-0b394dce8b7c 수정은 제목, 설명, 컬러, 좌표와 수정 시각만 바꾼다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place().copy(isDeleted = false)
             val newDetail = placeDetail()
@@ -186,7 +186,7 @@ class AccountPlaceTransactionImplTest :
                 )
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-017 삭제 상태가 된 장소를 수정해도 삭제 상태로 남는다") {
+        test("TC-dbdf8a25-1a6d-46a1-82d9-12a47a841bb1 삭제 상태가 된 장소를 수정해도 삭제 상태로 남는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place().copy(isDeleted = true)
             val newDetail = placeDetail()
@@ -212,7 +212,7 @@ class AccountPlaceTransactionImplTest :
                 )
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-010 삭제는 삭제 여부와 수정 시각만 바꾼다") {
+        test("TC-76611214-e640-4cba-a148-fcff540c273f 삭제는 삭제 여부와 수정 시각만 바꾼다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place().copy(isDeleted = false)
             val updatedAt = instant()
@@ -236,7 +236,7 @@ class AccountPlaceTransactionImplTest :
                 )
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-019 삭제는 저장된 주소를 바꾸지 않는다") {
+        test("TC-31a0031d-a93b-4967-83b6-3c4c11abcdad 삭제는 저장된 주소를 바꾸지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val address = "address-${fixtureMonkey.giveMeOne<String>()}"
             val place = place().copy(isDeleted = false)
@@ -253,7 +253,7 @@ class AccountPlaceTransactionImplTest :
             findPlaceList().single().detail.address shouldBe address
         }
 
-        test("TC-PLACE-DETAIL-DATA-004 삭제해도 장소와 계정 연결을 저장소에서 제거하지 않는다") {
+        test("TC-454e7312-d0dd-4603-a7b6-00a92504c393 삭제해도 장소와 계정 연결을 저장소에서 제거하지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val place = place().copy(isDeleted = false)
             transaction.upsert(accountId = accountId, placeList = listOf(place), placeTagList = emptyList())
@@ -327,7 +327,7 @@ class AccountPlaceTransactionImplTest :
             findPlaceList() shouldBe listOf(place)
         }
 
-        test("TC-PLACE-DETAIL-DATA-005 수정이나 삭제의 저장에 실패하면 장소의 내용과 계정 연결이 그대로 남는다") {
+        test("TC-6d7ec354-4dd3-4336-9f46-42ddff1469ee 수정이나 삭제의 저장에 실패하면 장소의 내용과 계정 연결이 그대로 남는다") {
             val actionList: List<suspend (AccountPlaceTransactionImpl, Uuid, Uuid) -> Unit> =
                 listOf(
                     { failingTransaction, accountId, placeId ->

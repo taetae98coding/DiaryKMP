@@ -55,7 +55,7 @@ class MemoWebViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-MEMO-WEB-INPUT-FEATURE-031 선택 목록을 열지 않아도 선택할 수 있는 웹 항목 전체를 빈 검색어로 조회한다") {
+        test("TC-0629cb7e-5a9f-43e8-a1a3-bdabfe84dafa 선택 목록을 열지 않아도 선택할 수 있는 웹 항목 전체를 빈 검색어로 조회한다") {
             runTest(mainDispatcher) {
                 val item = web()
                 val pageMemoSelectableWebUseCase = mockk<PageMemoSelectableWebUseCase>()
@@ -71,7 +71,7 @@ class MemoWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-059 웹 입력에 저장된 웹 연결이 표시된다") {
+        test("TC-c3bef457-737a-433c-9dff-e2186c03a571 웹 입력에 저장된 웹 연결이 표시된다") {
             runTest(mainDispatcher) {
                 val connectedWeb = web()
                 val otherWeb = web()
@@ -91,7 +91,7 @@ class MemoWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-060 다른 경로로 저장된 웹 연결이 바뀌면 웹 입력에 반영된다") {
+        test("TC-2ed31841-dc81-4f33-b0cd-3bdc908a4975 다른 경로로 저장된 웹 연결이 바뀌면 웹 입력에 반영된다") {
             runTest(mainDispatcher) {
                 val web = web()
                 val memoWebFlow = MutableStateFlow(Result.success(emptyList<Web>()))
@@ -117,7 +117,7 @@ class MemoWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-061 웹 연결 변경에 실패하면 별도 안내 없이 저장된 연결을 그대로 표시한다") {
+        test("TC-b01039de-b722-49e9-affa-b62d3d9909c3 웹 연결 변경에 실패하면 별도 안내 없이 저장된 연결을 그대로 표시한다") {
             runTest(mainDispatcher) {
                 val connectedWeb = web()
                 val otherWeb = web()
@@ -151,7 +151,7 @@ class MemoWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-WEB-INPUT-DOMAIN-005 삭제된 웹 항목은 선택한 것으로 표시하지 않는다") {
+        test("TC-d7da1549-f6ff-4e53-a965-3b4d261080a5 삭제된 웹 항목은 선택한 것으로 표시하지 않는다") {
             runTest(mainDispatcher) {
                 val deletedWeb = web()
                 val memoWebFlow = MutableStateFlow(Result.success(listOf(deletedWeb)))
@@ -172,7 +172,7 @@ class MemoWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-WEB-INPUT-DOMAIN-006 웹 항목이 복구되면 유지되어 있던 선택이 다시 나타난다") {
+        test("TC-6172d90d-d0ed-43fc-8da6-bfc539ad4de3 웹 항목이 복구되면 유지되어 있던 선택이 다시 나타난다") {
             runTest(mainDispatcher) {
                 val web = web()
                 val memoWebFlow = MutableStateFlow(Result.success(emptyList<Web>()))
@@ -192,7 +192,7 @@ class MemoWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-WEB-INPUT-DATA-002 TC-MEMO-WEB-INPUT-DOMAIN-007 선택 목록이 준비되지 않아도 선택한 웹 항목을 표시한다") {
+        test("TC-cbea8474-b9be-474e-8d89-f156d3a97890 TC-407982ab-e76f-45cd-9335-68d64ee24d34 선택 목록이 준비되지 않아도 선택한 웹 항목을 표시한다") {
             runTest(mainDispatcher) {
                 val connectedWeb = web()
                 val viewModel =
@@ -258,7 +258,7 @@ class MemoWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-WEB-INPUT-FEATURE-011 웹 항목을 선택하면 그 메모와 웹 항목의 연결 추가를 요청한다") {
+        test("TC-182019d3-4d24-47a9-bf9e-5c9eacb453aa 웹 항목을 선택하면 그 메모와 웹 항목의 연결 추가를 요청한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val webId = fixtureMonkey.giveMeOne<Uuid>()
@@ -272,7 +272,7 @@ class MemoWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-WEB-INPUT-FEATURE-012 웹 선택을 해제하면 그 메모와 웹 항목의 연결 제거를 요청한다") {
+        test("TC-e6e37bb6-3f75-4339-bd54-49d403f22e5c 웹 선택을 해제하면 그 메모와 웹 항목의 연결 제거를 요청한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val webId = fixtureMonkey.giveMeOne<Uuid>()
@@ -286,7 +286,7 @@ class MemoWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-DOMAIN-011 앞선 웹 연결 변경이 처리 중이어도 뒤이은 웹 연결 변경을 처리한다") {
+        test("TC-f8a97bb6-579b-4af3-ade8-a8165bf343e5 앞선 웹 연결 변경이 처리 중이어도 뒤이은 웹 연결 변경을 처리한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val firstWebId = fixtureMonkey.giveMeOne<Uuid>()
@@ -308,7 +308,7 @@ class MemoWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-WEB-INPUT-DATA-004 검색어가 바뀌면 새 검색어 기준으로 선택 목록을 다시 조회한다") {
+        test("TC-027e9d6f-0e02-4be7-9ec2-cf03b407ddc0 검색어가 바뀌면 새 검색어 기준으로 선택 목록을 다시 조회한다") {
             runTest(mainDispatcher) {
                 val allWebList = List(2) { web() }
                 val matchedWebList = listOf(allWebList.first())
@@ -329,7 +329,7 @@ class MemoWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-WEB-INPUT-FEATURE-033 검색어를 바꿔 다시 조회하다 실패하면 이전 웹 항목을 남기지 않고 빈 목록을 노출한다") {
+        test("TC-831b5827-f3a4-4326-9764-64f273bb4565 검색어를 바꿔 다시 조회하다 실패하면 이전 웹 항목을 남기지 않고 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val webList = List(2) { web() }
                 val pageMemoSelectableWebUseCase = mockk<PageMemoSelectableWebUseCase>()
@@ -349,7 +349,7 @@ class MemoWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-WEB-INPUT-DOMAIN-011 검색어를 바꿔도 웹 입력에 표시하는 웹 항목은 그대로다") {
+        test("TC-ab0d8929-597d-4f30-a90d-5cf979c10608 검색어를 바꿔도 웹 입력에 표시하는 웹 항목은 그대로다") {
             runTest(mainDispatcher) {
                 val connectedWebList = List(2) { web() }
                 val viewModel = viewModel(memoWebFlow = flowOf(Result.success(connectedWebList)))

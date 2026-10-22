@@ -29,7 +29,7 @@ class CalendarSelectBoundaryTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-SELECT-DOMAIN-007 선택 중 화면이 재생성되면 선택이 유지되지 않는다`() {
+    fun `TC-63911cd6-5624-412a-8931-0c9804085967 선택 중 화면이 재생성되면 선택이 유지되지 않는다`() {
         val restorationTester = StateRestorationTester(composeRule)
         lateinit var calendarState: CalendarState
         restorationTester.setContent {
@@ -49,7 +49,7 @@ class CalendarSelectBoundaryTest {
     }
 
     @Test
-    fun `TC-CALENDAR-SELECT-DOMAIN-009 선택 중 화면이 재생성되면 선택이 취소되고 선택 완료가 전달되지 않는다`() {
+    fun `TC-ca43cced-d586-48aa-98b6-f009ef7349b8 선택 중 화면이 재생성되면 선택이 취소되고 선택 완료가 전달되지 않는다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val selectedList = mutableListOf<LocalDateRange>()
         restorationTester.setContent {
@@ -72,7 +72,7 @@ class CalendarSelectBoundaryTest {
     }
 
     @Test
-    fun `TC-CALENDAR-SELECT-DOMAIN-010 선택 중 앱이 백그라운드로 이동하면 그 시점의 기간으로 선택이 완료된다`() {
+    fun `TC-0727b0ed-8675-4e28-a53b-255dad7d9c88 선택 중 앱이 백그라운드로 이동하면 그 시점의 기간으로 선택이 완료된다`() {
         val registry = SaveableStateRegistry(restoredValues = null) { true }
         val selectedList = mutableListOf<LocalDateRange>()
         composeRule.setContent {
@@ -96,7 +96,7 @@ class CalendarSelectBoundaryTest {
     }
 
     @Test
-    fun `TC-CALENDAR-SELECT-DOMAIN-011 선택 중 화면을 벗어나면 그 시점의 기간으로 선택이 완료된다`() {
+    fun `TC-66addbf7-6c50-4dc4-a900-ee53b437d6a1 선택 중 화면을 벗어나면 그 시점의 기간으로 선택이 완료된다`() {
         var isShown by mutableStateOf(true)
         val selectedList = mutableListOf<LocalDateRange>()
         composeRule.setContent {

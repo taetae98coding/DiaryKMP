@@ -53,7 +53,7 @@ class AddQrUseCaseTest :
                     )
 
                 When("QR을 추가한다") {
-                    Then("TC-QR-ADD-DOMAIN-007 제목 공백 예외로 실패하고 QR을 저장하지 않으며 동기화를 요청하지 않는다") {
+                    Then("TC-3bd6325d-e9af-43e5-b3dc-0e91934ec97a 제목 공백 예외로 실패하고 QR을 저장하지 않으며 동기화를 요청하지 않는다") {
                         val result = useCase(parameter = fixtureMonkey.qrDetail(title = blankTitle))
 
                         result.shouldBeFailure().shouldBeInstanceOf<QrTitleBlankException>()
@@ -62,7 +62,7 @@ class AddQrUseCaseTest :
                         coVerify(exactly = 0) { requestSyncUseCase(parameter = any()) }
                     }
 
-                    Then("TC-QR-ADD-DOMAIN-008 QR 값도 비어 있으면 제목 공백 예외 하나만 알린다") {
+                    Then("TC-2f9bf2e1-a7aa-458e-9a84-9ca5b54e0c89 QR 값도 비어 있으면 제목 공백 예외 하나만 알린다") {
                         val result = useCase(parameter = fixtureMonkey.qrDetail(title = blankTitle, value = ""))
 
                         result.shouldBeFailure().shouldBeInstanceOf<QrTitleBlankException>()
@@ -85,7 +85,7 @@ class AddQrUseCaseTest :
                 )
 
             When("QR을 추가한다") {
-                Then("TC-QR-ADD-DOMAIN-007 QR 값 미입력 예외로 실패하고 QR을 저장하지 않으며 동기화를 요청하지 않는다") {
+                Then("TC-3bd6325d-e9af-43e5-b3dc-0e91934ec97a QR 값 미입력 예외로 실패하고 QR을 저장하지 않으며 동기화를 요청하지 않는다") {
                     val result = useCase(parameter = fixtureMonkey.qrDetail(value = ""))
 
                     result.shouldBeFailure().shouldBeInstanceOf<QrValueEmptyException>()
@@ -116,7 +116,7 @@ class AddQrUseCaseTest :
                 )
 
             When("제목과 QR 값이 있는 QR을 추가한다") {
-                Then("TC-QR-ADD-DOMAIN-013 현재 계정과 연결된 고유한 QR로 저장하고 그 식별자를 돌려준다") {
+                Then("TC-8d332fbb-e0c2-4644-8429-a80af4f29ad3 현재 계정과 연결된 고유한 QR로 저장하고 그 식별자를 돌려준다") {
                     val firstId = useCase(parameter = fixtureMonkey.qrDetail()).shouldBeSuccess()
                     qrSlot.captured.id shouldBe firstId
                     val secondId = useCase(parameter = fixtureMonkey.qrDetail()).shouldBeSuccess()
@@ -126,7 +126,7 @@ class AddQrUseCaseTest :
                     coVerify(exactly = 2) { accountQrRepository.upsert(account = account, qr = any()) }
                 }
 
-                Then("TC-QR-ADD-DOMAIN-011 제목, 설명과 QR 값이 같아도 서로 다른 QR로 저장한다") {
+                Then("TC-97edb54a-66df-4d0f-bbb2-e21dd04b8532 제목, 설명과 QR 값이 같아도 서로 다른 QR로 저장한다") {
                     val sameDetail = fixtureMonkey.qrDetail()
 
                     val firstId = useCase(parameter = sameDetail).shouldBeSuccess()
@@ -135,7 +135,7 @@ class AddQrUseCaseTest :
                     firstId shouldNotBe secondId
                 }
 
-                Then("TC-QR-ADD-DOMAIN-010 입력한 제목, 설명과 QR 값을 앞뒤 공백과 줄바꿈까지 그대로 저장한다") {
+                Then("TC-aa007f02-aa4e-44be-92b8-1964418944c9 입력한 제목, 설명과 QR 값을 앞뒤 공백과 줄바꿈까지 그대로 저장한다") {
                     val expected =
                         fixtureMonkey.qrDetail(
                             title = "  title-${fixtureMonkey.giveMeOne<String>()}  ",
@@ -152,14 +152,14 @@ class AddQrUseCaseTest :
                     fixtureMonkey.qrDetail(description = "") to "빈 설명",
                     fixtureMonkey.qrDetail(value = " ") to "공백 한 칸뿐인 QR 값",
                 ).forEach { (expected, label) ->
-                    Then("TC-QR-ADD-DOMAIN-009 ${label}이어도 QR을 저장하고 입력한 설명과 QR 값을 그대로 기록한다") {
+                    Then("TC-0d1466ab-6e5b-4972-b234-bf25bb3416cb ${label}이어도 QR을 저장하고 입력한 설명과 QR 값을 그대로 기록한다") {
                         useCase(parameter = expected).shouldBeSuccess()
 
                         qrSlot.captured.detail shouldBe expected
                     }
                 }
 
-                Then("TC-QR-ADD-DOMAIN-012 미삭제 상태와 추가 시각을 저장한다") {
+                Then("TC-e84a4d1c-7428-4be5-9f6c-794e3791ac01 미삭제 상태와 추가 시각을 저장한다") {
                     useCase(parameter = fixtureMonkey.qrDetail()).shouldBeSuccess()
 
                     qrSlot.captured.isDeleted shouldBe false
@@ -185,7 +185,7 @@ class AddQrUseCaseTest :
                 )
 
             When("QR 추가에 성공한다") {
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-QR-ADD-DATA-003 기기에 저장한 뒤 서버와 맞추기 위한 동기화를 한 번 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-34019de4-2dbc-40fd-9c1b-c494f2543998 기기에 저장한 뒤 서버와 맞추기 위한 동기화를 한 번 요청한다") {
                     useCase(parameter = fixtureMonkey.qrDetail()).shouldBeSuccess()
 
                     coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
@@ -212,7 +212,7 @@ class AddQrUseCaseTest :
                 )
 
             When("QR을 추가한다") {
-                Then("TC-QR-ADD-DATA-004 추가는 성공으로 전달되고 저장한 QR을 되돌리지 않는다") {
+                Then("TC-73f30279-c2bc-4cc8-afd7-41dad8268fc5 추가는 성공으로 전달되고 저장한 QR을 되돌리지 않는다") {
                     useCase(parameter = fixtureMonkey.qrDetail()).shouldBeSuccess()
 
                     coVerify(exactly = 1) { accountQrRepository.upsert(account = account, qr = any()) }
@@ -234,7 +234,7 @@ class AddQrUseCaseTest :
                 )
 
             When("QR을 추가한다") {
-                Then("TC-QR-ADD-DATA-006 게스트 계정으로 기기에 저장한다") {
+                Then("TC-fbf49960-d768-4bea-bc33-740469a525b7 게스트 계정으로 기기에 저장한다") {
                     useCase(parameter = fixtureMonkey.qrDetail()).shouldBeSuccess()
 
                     coVerify(exactly = 1) { accountQrRepository.upsert(account = Account.Guest, qr = any()) }
@@ -256,7 +256,7 @@ class AddQrUseCaseTest :
                 )
 
             When("QR을 추가한다") {
-                Then("TC-QR-ADD-DOMAIN-014 계정 조회 실패를 전달하고 QR을 저장하지 않는다") {
+                Then("TC-3110bab5-2816-4a92-a13c-994a14487d4b 계정 조회 실패를 전달하고 QR을 저장하지 않는다") {
                     useCase(parameter = fixtureMonkey.qrDetail()).shouldBeFailure() shouldBeSameInstanceAs throwable
 
                     coVerify(exactly = 0) { accountQrRepository.upsert(account = any(), qr = any()) }
@@ -281,7 +281,7 @@ class AddQrUseCaseTest :
                 )
 
             When("QR을 추가한다") {
-                Then("TC-QR-ADD-DATA-002 추가를 성공으로 다루지 않고 저장 실패를 전달하며 동기화를 요청하지 않는다") {
+                Then("TC-7b950adf-1ab9-4742-9b91-33003d0955b6 추가를 성공으로 다루지 않고 저장 실패를 전달하며 동기화를 요청하지 않는다") {
                     useCase(parameter = fixtureMonkey.qrDetail()).shouldBeFailure() shouldBeSameInstanceAs throwable
 
                     coVerify(exactly = 0) { requestSyncUseCase(parameter = any()) }

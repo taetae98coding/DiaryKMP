@@ -47,7 +47,7 @@ class PlaceDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-MEMO-FEATURE-009 메모 추가 버튼을 선택하면 MemoAdd 이동을 요청한다`() {
+    fun `TC-9c4e3e97-dbed-40a1-b115-e9c2a93eaee9 메모 추가 버튼을 선택하면 MemoAdd 이동을 요청한다`() {
         var navigateToMemoAddCount = 0
         setScreenOnMemoTab(navigateToMemoAdd = { navigateToMemoAddCount += 1 })
 
@@ -58,7 +58,7 @@ class PlaceDetailScreenMemoTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-PLACE-DETAIL-MEMO-FEATURE-009 한국어 환경 메모 추가 버튼 이름을 표시한다`() {
+    fun `TC-9c4e3e97-dbed-40a1-b115-e9c2a93eaee9 한국어 환경 메모 추가 버튼 이름을 표시한다`() {
         setScreenOnMemoTab(memoTabDescription = KOREAN_MEMO_TAB_DESCRIPTION)
 
         composeRule.onNodeWithContentDescription(KOREAN_MEMO_ADD_DESCRIPTION).assertExists()
@@ -75,7 +75,7 @@ class PlaceDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-MEMO-FEATURE-016 장소 디테일 탭에서는 메모 추가를 제공하지 않고 메모 탭으로 전환하면 제공한다`() {
+    fun `TC-5979955e-09f9-418a-9cd6-ac8b3e6f8642 장소 디테일 탭에서는 메모 추가를 제공하지 않고 메모 탭으로 전환하면 제공한다`() {
         var navigateToMemoAddCount = 0
         setScreen(navigateToMemoAdd = { navigateToMemoAddCount += 1 })
 
@@ -90,7 +90,7 @@ class PlaceDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-MEMO-FEATURE-008 대상 장소의 상태와 무관하게 메모 추가를 시작할 수 있다`() {
+    fun `TC-43d5d827-3ac0-404d-a3a4-1a949d944be5 대상 장소의 상태와 무관하게 메모 추가를 시작할 수 있다`() {
         // 계정과 연결되지 않은 장소는 조회되지 않으므로 화면에서는 조회 전과 같은 상태로 관찰되고, 삭제된 장소는 내용 표시 상태로 관찰된다.
         val uiStateList = listOf(screenContent(), PlaceDetailUiState.Loading)
         val uiStateFlow = MutableStateFlow<PlaceDetailUiState>(uiStateList.first())
@@ -112,7 +112,7 @@ class PlaceDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-MEMO-FEATURE-004 메모를 선택하면 그 메모의 상세로 이동한다`() {
+    fun `TC-1ab2f516-fdad-404d-b693-d930b83cda6c 메모를 선택하면 그 메모의 상세로 이동한다`() {
         val memo = placeMemo(title = SCREEN_MEMO_TITLE)
         val navigatedIdList = mutableListOf<Uuid>()
         setScreenOnMemoTab(
@@ -127,7 +127,7 @@ class PlaceDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-MEMO-FEATURE-005 완료하면 카드가 사라지고 안내와 실행 취소를 표시한다`() {
+    fun `TC-b60e32de-d8c0-4500-96c5-7f52159bf9cd 완료하면 카드가 사라지고 안내와 실행 취소를 표시한다`() {
         val memo = swipeMemo()
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeRight() }
@@ -143,7 +143,7 @@ class PlaceDetailScreenMemoTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-PLACE-DETAIL-MEMO-FEATURE-005 삭제하면 카드가 사라지고 한국어 안내와 실행 취소를 표시한다`() {
+    fun `TC-b60e32de-d8c0-4500-96c5-7f52159bf9cd 삭제하면 카드가 사라지고 한국어 안내와 실행 취소를 표시한다`() {
         val memo = swipeMemo(memoTabDescription = KOREAN_MEMO_TAB_DESCRIPTION)
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
@@ -157,7 +157,7 @@ class PlaceDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-MEMO-FEATURE-006 완료 실행 취소는 메모 다시 시작을 요청한다`() {
+    fun `TC-c127d4e6-297b-47d5-8e54-9a71668fcfa4 완료 실행 취소는 메모 다시 시작을 요청한다`() {
         val memo = swipeMemo()
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeRight() }
@@ -170,7 +170,7 @@ class PlaceDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-MEMO-FEATURE-006 삭제 실행 취소는 메모 복구를 요청한다`() {
+    fun `TC-c127d4e6-297b-47d5-8e54-9a71668fcfa4 삭제 실행 취소는 메모 복구를 요청한다`() {
         val memo = swipeMemo()
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
@@ -183,7 +183,7 @@ class PlaceDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-MEMO-FEATURE-022 안내가 보이는 동안 다른 탭으로 바꾸면 안내가 닫히고 되돌릴 수 없다`() {
+    fun `TC-138bd3cc-619f-42f0-b062-2c20e2b45e8e 안내가 보이는 동안 다른 탭으로 바꾸면 안내가 닫히고 되돌릴 수 없다`() {
         val memo = swipeMemo()
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
@@ -201,7 +201,7 @@ class PlaceDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-SYNC-REFRESH-FEATURE-001 메모 탭에서 목록을 당기면 새로고침을 요청한다`() {
+    fun `TC-221754fa-d814-4c80-9c41-c0bdce86574f 메모 탭에서 목록을 당기면 새로고침을 요청한다`() {
         setScreenOnMemoTab(memoPagingData = placeMemoPagingData(itemList = listOf(MemoListItem.Content(memo = placeMemo(title = SCREEN_MEMO_TITLE)))))
         waitUntilMemoIsDisplayed(title = SCREEN_MEMO_TITLE)
 
@@ -212,7 +212,7 @@ class PlaceDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-MEMO-DATA-006 TC-PLACE-DETAIL-MEMO-FEATURE-017 대상 장소를 조회하지 못해도 메모 목록은 노출 기준대로 표시된다`() {
+    fun `TC-1ff3138b-7ba6-45dc-9946-869bfa8b6693 TC-9e0db922-8bd7-4583-91ff-dcc9b3629fb8 대상 장소를 조회하지 못해도 메모 목록은 노출 기준대로 표시된다`() {
         composeRule.setPlaceDetailScreen(
             viewModel = screenTestViewModel(MutableStateFlow(PlaceDetailUiState.Loading)),
             memoPagingData = placeMemoPagingData(itemList = listOf(MemoListItem.Content(memo = placeMemo(title = INDEPENDENT_MEMO_TITLE)))),
@@ -225,7 +225,7 @@ class PlaceDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-DOMAIN-037 수정이나 삭제를 처리하는 중에도 메모 완료와 실행 취소를 요청한다`() {
+    fun `TC-9a941ff5-bdb8-458b-b2ff-16963d2a435d 수정이나 삭제를 처리하는 중에도 메모 완료와 실행 취소를 요청한다`() {
         val memo = inProgressSwipeMemo()
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeRight() }
@@ -239,7 +239,7 @@ class PlaceDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-DOMAIN-037 수정이나 삭제를 처리하는 중에도 메모 삭제와 실행 취소를 요청한다`() {
+    fun `TC-9a941ff5-bdb8-458b-b2ff-16963d2a435d 수정이나 삭제를 처리하는 중에도 메모 삭제와 실행 취소를 요청한다`() {
         val memo = inProgressSwipeMemo()
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }

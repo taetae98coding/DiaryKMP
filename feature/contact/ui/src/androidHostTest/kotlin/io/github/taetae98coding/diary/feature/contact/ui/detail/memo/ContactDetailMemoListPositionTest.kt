@@ -50,7 +50,7 @@ class ContactDetailMemoListPositionTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-DOMAIN-006 앱이 백그라운드에 다녀와도 메모 탭에서 보던 목록 위치가 유지된다`() {
+    fun `TC-e489a98f-dfcb-42c1-b593-cb81972c8ff0 앱이 백그라운드에 다녀와도 메모 탭에서 보던 목록 위치가 유지된다`() {
         val titleList = positionMemoTitleList()
         val pagingDataFlow = pagingDataFlowOf(titleList)
         composeRule.setContent { MemoTab(pagingDataFlow = pagingDataFlow) }
@@ -65,7 +65,7 @@ class ContactDetailMemoListPositionTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-DOMAIN-007 시스템이 앱을 정리했다가 되살려도 메모 탭에서 보던 목록 위치를 복원한다`() {
+    fun `TC-8581c1aa-ef08-42f6-b394-51fcc8f73ab2 시스템이 앱을 정리했다가 되살려도 메모 탭에서 보던 목록 위치를 복원한다`() {
         val titleList = positionMemoTitleList()
         val pagingDataFlow = pagingDataFlowOf(titleList)
         val restorationTester = StateRestorationTester(composeRule)
@@ -81,7 +81,7 @@ class ContactDetailMemoListPositionTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-DOMAIN-005 상세 화면을 떠난 뒤 다시 들어오면 메모 탭 목록을 맨 위부터 보여 준다`() {
+    fun `TC-1e48bac7-41ed-4382-8039-94767ce28981 상세 화면을 떠난 뒤 다시 들어오면 메모 탭 목록을 맨 위부터 보여 준다`() {
         val titleList = positionMemoTitleList()
         val pagingDataFlow = pagingDataFlowOf(titleList)
         var isDetailDisplayed by mutableStateOf(true)

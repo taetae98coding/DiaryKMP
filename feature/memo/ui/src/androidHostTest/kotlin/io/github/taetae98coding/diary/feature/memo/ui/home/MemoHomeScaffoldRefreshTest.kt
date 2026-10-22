@@ -43,7 +43,7 @@ class MemoHomeScaffoldRefreshTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-SYNC-REFRESH-FEATURE-001 목록을 당기면 새로고침을 요청한다`() {
+    fun `TC-221754fa-d814-4c80-9c41-c0bdce86574f 목록을 당기면 새로고침을 요청한다`() {
         val eventList = mutableListOf<MemoListEvent>()
         setMemoHomeScaffold(
             itemList = listOf(MemoListItem.Content(memo = memo(title = FIRST_TITLE))),
@@ -57,7 +57,7 @@ class MemoHomeScaffoldRefreshTest {
     }
 
     @Test
-    fun `TC-SYNC-REFRESH-FEATURE-002 진행 표시 상태이면 진행 표시가 나타난다`() {
+    fun `TC-fb7d9b53-80c5-425b-b1c3-06f21ac30643 진행 표시 상태이면 진행 표시가 나타난다`() {
         setMemoHomeScaffold(syncUiStateProvider = { SyncRefreshUiState(isRefreshing = true) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
@@ -65,21 +65,21 @@ class MemoHomeScaffoldRefreshTest {
 
     @Test
     @Config(qualifiers = "ko-rKR-w411dp-h891dp")
-    fun `TC-SYNC-REFRESH-FEATURE-002 한국어 환경에서 진행 표시에 새로고침 중 이름을 제공한다`() {
+    fun `TC-fb7d9b53-80c5-425b-b1c3-06f21ac30643 한국어 환경에서 진행 표시에 새로고침 중 이름을 제공한다`() {
         setMemoHomeScaffold(syncUiStateProvider = { SyncRefreshUiState(isRefreshing = true) })
 
         composeRule.onNodeWithContentDescription(KOREAN_REFRESHING_DESCRIPTION).assertExists()
     }
 
     @Test
-    fun `TC-SYNC-REFRESH-FEATURE-004 진행 표시 상태가 아니면 진행 표시가 나타나지 않는다`() {
+    fun `TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c 진행 표시 상태가 아니면 진행 표시가 나타나지 않는다`() {
         setMemoHomeScaffold(syncUiStateProvider = { SyncRefreshUiState(isRefreshing = false) })
 
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-SYNC-REFRESH-FEATURE-006 당겨서 요청한 동기화가 실패해도 목록은 유지되고 실패 안내가 표시되지 않는다`() {
+    fun `TC-e9f6ebbc-5d37-4aae-9ef6-1fbca0c10f61 당겨서 요청한 동기화가 실패해도 목록은 유지되고 실패 안내가 표시되지 않는다`() {
         val isRefreshing = mutableStateOf(true)
         val snackbarHostState = SnackbarHostState()
         setMemoHomeScaffold(
@@ -89,7 +89,7 @@ class MemoHomeScaffoldRefreshTest {
         )
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
 
-        // 실패한 동기화도 실행이 끝나면 진행 표시 대상에서 해제된다(TC-SYNC-REFRESH-FEATURE-005). 화면은 그 해제만 받는다.
+        // 실패한 동기화도 실행이 끝나면 진행 표시 대상에서 해제된다(TC-19d9feda-6635-4b91-a41f-448cb4703f92). 화면은 그 해제만 받는다.
         composeRule.runOnIdle { isRefreshing.value = false }
         composeRule.waitForIdle()
 
@@ -99,7 +99,7 @@ class MemoHomeScaffoldRefreshTest {
     }
 
     @Test
-    fun `TC-SYNC-REFRESH-FEATURE-007 진행 표시 중에도 메모를 선택할 수 있다`() {
+    fun `TC-8c184c8d-dd26-473f-ba33-90e609dae6cf 진행 표시 중에도 메모를 선택할 수 있다`() {
         val eventList = mutableListOf<MemoListEvent>()
         val memo = memo(title = FIRST_TITLE)
         setMemoHomeScaffold(
@@ -115,7 +115,7 @@ class MemoHomeScaffoldRefreshTest {
     }
 
     @Test
-    fun `TC-SYNC-REFRESH-FEATURE-007 진행 표시 중에도 메모를 완료하거나 삭제할 수 있다`() {
+    fun `TC-8c184c8d-dd26-473f-ba33-90e609dae6cf 진행 표시 중에도 메모를 완료하거나 삭제할 수 있다`() {
         val eventList = mutableListOf<MemoListEvent>()
         val finishMemo = memo(title = FIRST_TITLE)
         val deleteMemo = memo(title = SECOND_TITLE)

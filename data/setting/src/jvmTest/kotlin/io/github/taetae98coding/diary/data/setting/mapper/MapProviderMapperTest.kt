@@ -31,7 +31,7 @@ class MapProviderMapperTest :
             }
         }
 
-        test("TC-SETTING-MAP-DATA-002 domain to local to domain") {
+        test("TC-bb3be6e1-6363-492f-a22d-45753285bb2b domain to local to domain") {
             MapProvider.entries.forEach { domain ->
                 domain.toLocal().toDomain() shouldBe domain
             }

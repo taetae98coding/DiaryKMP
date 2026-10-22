@@ -46,7 +46,7 @@ class DiaryDateTimeInputTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-001 초기 기간이 없으면 스위치가 꺼진 상태로 표시되고 기간 선택 영역이 표시되지 않는다`() {
+    fun `TC-71aaf089-15de-4a86-8f56-9058ce377622 초기 기간이 없으면 스위치가 꺼진 상태로 표시되고 기간 선택 영역이 표시되지 않는다`() {
         setDiaryDateTimeInput()
 
         composeRule.onNode(hasRole(Role.Switch)).assertIsOff()
@@ -56,7 +56,7 @@ class DiaryDateTimeInputTest {
     }
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-002 초기 종일 기간이 제공되면 스위치가 켜진 상태로 날짜가 표시된다`() {
+    fun `TC-dccba5c1-5f71-45ca-833b-fbb0e2d86776 초기 종일 기간이 제공되면 스위치가 켜진 상태로 날짜가 표시된다`() {
         setDiaryDateTimeInput(initialValue = allDayValue())
 
         composeRule.onNode(hasRole(Role.Switch)).assertIsOn()
@@ -65,7 +65,7 @@ class DiaryDateTimeInputTest {
     }
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-002 초기 종일 아님 기간이 제공되면 스위치가 켜진 상태로 날짜와 시간이 표시된다`() {
+    fun `TC-dccba5c1-5f71-45ca-833b-fbb0e2d86776 초기 종일 아님 기간이 제공되면 스위치가 켜진 상태로 날짜와 시간이 표시된다`() {
         setDiaryDateTimeInput(initialValue = dateTimeValue())
 
         composeRule.onNode(hasRole(Role.Switch)).assertIsOn()
@@ -76,7 +76,7 @@ class DiaryDateTimeInputTest {
     }
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-003 스위치를 처음 켜면 오늘부터 오늘까지의 종일 기간이 표시된다`() {
+    fun `TC-a8791638-b439-4ea8-8887-7aad08c2bab3 스위치를 처음 켜면 오늘부터 오늘까지의 종일 기간이 표시된다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault()).toDefaultDisplayText()
 
         setDiaryDateTimeInput()
@@ -110,7 +110,7 @@ class DiaryDateTimeInputTest {
     }
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-004 스위치를 껐다가 다시 켜면 직전 선택값이 복원된다`() {
+    fun `TC-428a5c03-b957-4800-83b0-45ae6a350921 스위치를 껐다가 다시 켜면 직전 선택값이 복원된다`() {
         setDiaryDateTimeInput(initialValue = dateTimeValue())
 
         composeRule.onNode(hasRole(Role.Switch)).performClick()
@@ -128,7 +128,7 @@ class DiaryDateTimeInputTest {
     }
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-035 초기 기간이 바뀌면 바뀐 초기 기간으로 처음부터 시작한다`() {
+    fun `TC-33f3d596-d43b-475e-a403-200c653a7dad 초기 기간이 바뀌면 바뀐 초기 기간으로 처음부터 시작한다`() {
         var initialValue: DiaryDateTimeInputValue by mutableStateOf(dateTimeValue())
         composeRule.setContent {
             DiaryTheme {
@@ -149,7 +149,7 @@ class DiaryDateTimeInputTest {
     }
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-031 종일을 해제하면 두 날짜가 유지되고 시각이 모두 기본 시각으로 표시된다`() {
+    fun `TC-b57a1ee7-d3ab-45c3-813c-62353a1a461b 종일을 해제하면 두 날짜가 유지되고 시각이 모두 기본 시각으로 표시된다`() {
         val defaultTimeText = defaultTimeText()
 
         setDiaryDateTimeInput(initialValue = allDayValue())
@@ -162,7 +162,7 @@ class DiaryDateTimeInputTest {
     }
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-006 종일을 선택하면 시작과 종료에 날짜만 표시된다`() {
+    fun `TC-0b587609-cc55-4329-af87-6a3e7106d8f4 종일을 선택하면 시작과 종료에 날짜만 표시된다`() {
         setDiaryDateTimeInput(initialValue = dateTimeValue())
 
         composeRule.onNode(hasRole(Role.Checkbox)).performClick()
@@ -188,7 +188,7 @@ class DiaryDateTimeInputTest {
     }
 
     @Test
-    fun `TC-DIARY-DATE-TIME-INPUT-FEATURE-018 화면이 재생성되어도 선택 상태가 유지된다`() {
+    fun `TC-f6e7b2eb-e40b-41cf-bfa3-c9cc99d6aeec 화면이 재생성되어도 선택 상태가 유지된다`() {
         val defaultTimeText = defaultTimeText()
         val restorationTester = StateRestorationTester(composeRule)
 

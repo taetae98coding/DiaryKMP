@@ -33,7 +33,7 @@ class MemoPlaceCardColorTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-004 연결된 장소가 저장된 컬러와 제목으로 구분되어 표시된다`() {
+    fun `TC-40088a6c-af25-478e-a361-f4d4f1091e59 연결된 장소가 저장된 컬러와 제목으로 구분되어 표시된다`() {
         val placeList =
             listOf(
                 testPlace(title = HOME_PLACE_TITLE).withColor(opaqueColor()),
@@ -45,7 +45,7 @@ class MemoPlaceCardColorTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-041 선택한 장소의 제목이 바뀌면 카드의 장소 목록에 반영된다`() {
+    fun `TC-c7757569-a5c6-4c3b-9870-3c3fbdafec46 선택한 장소의 제목이 바뀌면 카드의 장소 목록에 반영된다`() {
         val place = testPlace(title = HOME_PLACE_TITLE).withColor(opaqueColor())
         var uiState by mutableStateOf(placeCardUiState(selectedPlaceList = listOf(place)))
         composeRule.setMemoPlaceCard(uiStateProvider = { uiState })
@@ -59,7 +59,7 @@ class MemoPlaceCardColorTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-041 선택한 장소의 컬러가 바뀌면 카드의 장소 목록에 반영된다`() {
+    fun `TC-c7757569-a5c6-4c3b-9870-3c3fbdafec46 선택한 장소의 컬러가 바뀌면 카드의 장소 목록에 반영된다`() {
         val place = testPlace(title = HOME_PLACE_TITLE).withColor(opaqueColor())
         var uiState by mutableStateOf(placeCardUiState(selectedPlaceList = listOf(place)))
         composeRule.setMemoPlaceCard(uiStateProvider = { uiState })

@@ -16,7 +16,7 @@ private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class QrNavigationTest :
     FunSpec({
-        test("TC-QR-HOME-FEATURE-037 QR 목록의 뒤로가기 동작은 상세 영역의 화면과 관계없이 더보기로 돌아간다") {
+        test("TC-75ce6921-30f2-4bf4-8343-b6e86cb0a42a QR 목록의 뒤로가기 동작은 상세 영역의 화면과 관계없이 더보기로 돌아간다") {
             val detailCases =
                 listOf(
                     emptyList(),
@@ -34,7 +34,7 @@ class QrNavigationTest :
             }
         }
 
-        test("TC-QR-LIST-DETAIL-FEATURE-013 QR 상세가 놓여 있으면 새 QR의 상세로 교체한다") {
+        test("TC-f9e861c8-4958-4974-8fe7-3e57a52a5998 QR 상세가 놓여 있으면 새 QR의 상세로 교체한다") {
             val first = QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
             val second = QrDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
             val backStack = qrBackStack(detailKeyList = listOf(first))
@@ -44,7 +44,7 @@ class QrNavigationTest :
             backStack shouldContainExactly listOf(MoreHomeStubNavKey, QrHomeNavKey, second)
         }
 
-        test("TC-QR-LIST-DETAIL-FEATURE-014 목록에서 QR을 선택하면 목록 위에 쌓인 상세와 QR 추가를 모두 걷어내고 그 상세로 바꾼다") {
+        test("TC-76f07609-186c-4cf3-b52b-7fa4181c4896 목록에서 QR을 선택하면 목록 위에 쌓인 상세와 QR 추가를 모두 걷어내고 그 상세로 바꾼다") {
             val detailCases =
                 listOf(
                     listOf(QrAddNavKey),

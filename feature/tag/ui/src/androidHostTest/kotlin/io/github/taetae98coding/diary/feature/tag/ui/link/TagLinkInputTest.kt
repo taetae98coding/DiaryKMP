@@ -27,7 +27,7 @@ class TagLinkInputTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-001 연결한 태그를 이모지와 제목으로 표시한다`() {
+    fun `TC-1e143771-155c-4678-9d7e-5fc04dcd3463 연결한 태그를 이모지와 제목으로 표시한다`() {
         val emojiTag = testTag(title = WORK_TAG_TITLE, emoji = EMOJI)
         val noEmojiTag = testTag(title = EXERCISE_TAG_TITLE)
 
@@ -38,7 +38,7 @@ class TagLinkInputTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-002 연결한 태그의 이모지나 제목이 바뀌면 칩에 반영된다`() {
+    fun `TC-1024ec42-adaf-4d95-8b0e-f69b874b0cb4 연결한 태그의 이모지나 제목이 바뀌면 칩에 반영된다`() {
         val tag = testTag(title = WORK_TAG_TITLE)
         val linkTagList = composeRule.setTagLinkInputWithLink()
         linkTagList(listOf(tag))
@@ -71,14 +71,14 @@ class TagLinkInputTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-003 연결한 태그가 없어도 태그 연결 칩을 표시한다`() {
+    fun `TC-e473a1d9-994f-423b-a775-da9d6d541f0b 연결한 태그가 없어도 태그 연결 칩을 표시한다`() {
         composeRule.setTagLinkInput()
 
         composeRule.onNodeWithText(DEFAULT_TAG_LINK_LABEL).assertExists()
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-003 연결한 태그가 여러 개여도 태그 연결 칩을 표시한다`() {
+    fun `TC-e473a1d9-994f-423b-a775-da9d6d541f0b 연결한 태그가 여러 개여도 태그 연결 칩을 표시한다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
 
         composeRule.setTagLinkInput(uiState = TagLinkInputUiState(linkedTagList = tagList))
@@ -89,7 +89,7 @@ class TagLinkInputTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-011 태그 칩을 누르면 그 태그의 상세 이동을 요청한다`() {
+    fun `TC-495d3d3e-6c64-4c35-b241-a5580fa83fd6 태그 칩을 누르면 그 태그의 상세 이동을 요청한다`() {
         val tag = testTag(title = WORK_TAG_TITLE)
         val clickedIdList = mutableListOf<Uuid>()
         composeRule.setTagLinkInput(
@@ -103,7 +103,7 @@ class TagLinkInputTest {
     }
 
     @Test
-    fun `TC-TAG-LINK-INPUT-FEATURE-012 태그 칩을 눌러도 태그 연결 칩의 동작이 실행되지 않는다`() {
+    fun `TC-6e7ecffb-f8e3-42bd-be84-90cc4b4ed552 태그 칩을 눌러도 태그 연결 칩의 동작이 실행되지 않는다`() {
         val tag = testTag(title = WORK_TAG_TITLE)
         var linkClickCount = 0
         composeRule.setTagLinkInput(

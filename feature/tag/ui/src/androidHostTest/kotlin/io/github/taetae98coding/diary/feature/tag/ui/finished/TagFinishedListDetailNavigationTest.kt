@@ -100,7 +100,7 @@ class TagFinishedListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-DETAIL-FEATURE-015 목록에서 고른 태그 상세에서 삭제하면 선택 전 상태로 돌아간다`() {
+    fun `TC-07e3d6d4-b18c-427a-8af8-3b78499f499b 목록에서 고른 태그 상세에서 삭제하면 선택 전 상태로 돌아간다`() {
         val tagList = tagList()
         setTagNavDisplay(tagList = tagList)
         selectTag(tagList[0])
@@ -113,7 +113,7 @@ class TagFinishedListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-DETAIL-FEATURE-015 목록에서 다른 태그를 고른 뒤 삭제하면 선택 전 상태로 돌아간다`() {
+    fun `TC-07e3d6d4-b18c-427a-8af8-3b78499f499b 목록에서 다른 태그를 고른 뒤 삭제하면 선택 전 상태로 돌아간다`() {
         val tagList = tagList()
         setTagNavDisplay(tagList = tagList)
         selectTag(tagList[0])
@@ -126,7 +126,7 @@ class TagFinishedListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-DETAIL-FEATURE-015 연결한 태그의 상세에서 삭제하면 목록에서 고른 태그 상세로 돌아간다`() {
+    fun `TC-07e3d6d4-b18c-427a-8af8-3b78499f499b 연결한 태그의 상세에서 삭제하면 목록에서 고른 태그 상세로 돌아간다`() {
         val tagList = tagList()
         val linkedId = fixtureMonkey.giveMeOne<Uuid>()
         setTagNavDisplay(tagList = tagList)
@@ -143,7 +143,7 @@ class TagFinishedListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-DETAIL-FEATURE-017 상세 영역에서 태그를 다시 시작하면 목록에서 사라지고 상세는 그대로 남는다`() {
+    fun `TC-4f96edc1-e28d-4306-89aa-ea1aa3e27ce9 상세 영역에서 태그를 다시 시작하면 목록에서 사라지고 상세는 그대로 남는다`() {
         val tagList = tagList()
         setTagNavDisplay(tagList = tagList)
         selectTag(tagList[0])

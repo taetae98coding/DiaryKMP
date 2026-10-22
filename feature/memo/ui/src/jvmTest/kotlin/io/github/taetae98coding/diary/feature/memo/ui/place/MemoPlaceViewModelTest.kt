@@ -54,7 +54,7 @@ class MemoPlaceViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-MEMO-PLACE-CARD-FEATURE-042 선택 목록을 열지 않아도 선택할 수 있는 장소 전체를 빈 검색어로 조회한다") {
+        test("TC-41b7a438-c9ca-4fa5-9c6f-dfddd2dca958 선택 목록을 열지 않아도 선택할 수 있는 장소 전체를 빈 검색어로 조회한다") {
             runTest(mainDispatcher) {
                 val item = place()
                 val pagePlaceUseCase = mockk<PagePlaceUseCase>()
@@ -133,7 +133,7 @@ class MemoPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-PLACE-CARD-DOMAIN-015 장소 목록이 준비되지 않아도 선택한 장소를 표시한다") {
+        test("TC-acdcbc3e-70a1-42cd-aef5-4605de7db1ad 장소 목록이 준비되지 않아도 선택한 장소를 표시한다") {
             runTest(mainDispatcher) {
                 val connectedPlace = place()
                 val viewModel =
@@ -152,7 +152,7 @@ class MemoPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-055 장소 카드에 저장된 장소 연결이 표시된다") {
+        test("TC-8b243328-139d-410d-82b7-315fea5621a5 장소 카드에 저장된 장소 연결이 표시된다") {
             runTest(mainDispatcher) {
                 val connectedPlace = place()
                 val otherPlace = place()
@@ -172,7 +172,7 @@ class MemoPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-056 다른 경로로 저장된 장소 연결이 바뀌면 장소 카드에 반영된다") {
+        test("TC-f71b8c94-f25e-4f04-b3a1-a837863a6ab0 다른 경로로 저장된 장소 연결이 바뀌면 장소 카드에 반영된다") {
             runTest(mainDispatcher) {
                 val place = place()
                 val memoPlaceFlow = MutableStateFlow(Result.success(emptyList<Place>()))
@@ -197,7 +197,7 @@ class MemoPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-FEATURE-057 장소 연결 변경에 실패하면 별도 안내 없이 저장된 연결을 그대로 표시한다") {
+        test("TC-eb05fee1-a6e0-493b-8b69-4d6cbd442908 장소 연결 변경에 실패하면 별도 안내 없이 저장된 연결을 그대로 표시한다") {
             runTest(mainDispatcher) {
                 val connectedPlace = place()
                 val otherPlace = place()
@@ -231,7 +231,7 @@ class MemoPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-PLACE-CARD-DOMAIN-011 삭제된 장소는 선택한 것으로 표시하지 않는다") {
+        test("TC-7cf65b5b-70b2-4298-ac53-3303c960aff2 삭제된 장소는 선택한 것으로 표시하지 않는다") {
             runTest(mainDispatcher) {
                 val remainingPlace = place()
                 val deletedPlace = place()
@@ -285,7 +285,7 @@ class MemoPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-DOMAIN-008 앞선 장소 연결 변경이 처리 중이어도 뒤이은 장소 연결 변경을 처리한다") {
+        test("TC-272f0653-ae21-41ac-be9b-05b19642e54c 앞선 장소 연결 변경이 처리 중이어도 뒤이은 장소 연결 변경을 처리한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val firstPlaceId = fixtureMonkey.giveMeOne<Uuid>()
@@ -311,7 +311,7 @@ class MemoPlaceViewModelTest : FunSpec() {
     }
 
     private fun searchTests() {
-        test("TC-MEMO-PLACE-CARD-DATA-004 검색어가 바뀌면 새 검색어 기준으로 선택 목록을 다시 조회한다") {
+        test("TC-56d7583e-169a-4162-b65f-8c12d501a15a 검색어가 바뀌면 새 검색어 기준으로 선택 목록을 다시 조회한다") {
             runTest(mainDispatcher) {
                 val allPlaceList = List(2) { place() }
                 val matchedPlaceList = listOf(allPlaceList.first())
@@ -332,7 +332,7 @@ class MemoPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-PLACE-CARD-DATA-006 검색어를 바꿔 다시 조회하다 실패하면 이전 장소을 남기지 않고 빈 목록을 노출한다") {
+        test("TC-ebc3f1bd-8bba-4455-b56e-d64037f9c07a 검색어를 바꿔 다시 조회하다 실패하면 이전 장소을 남기지 않고 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val placeList = List(2) { place() }
                 val pagePlaceUseCase = mockk<PagePlaceUseCase>()
@@ -354,7 +354,7 @@ class MemoPlaceViewModelTest : FunSpec() {
     }
 
     private fun searchStateTests() {
-        test("TC-MEMO-PLACE-CARD-DOMAIN-022 검색어를 바꿔도 카드에 노출하는 장소는 그대로다") {
+        test("TC-3ddcd5d5-32ec-4787-b118-31b9b2901311 검색어를 바꿔도 카드에 노출하는 장소는 그대로다") {
             runTest(mainDispatcher) {
                 val connectedPlaceList = List(2) { place() }
                 val viewModel = viewModel(memoPlaceFlow = flowOf(Result.success(connectedPlaceList)))
@@ -374,7 +374,7 @@ class MemoPlaceViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-DETAIL-DOMAIN-015 같은 Place 선택이나 선택 해제가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
+        test("TC-5833576a-1a50-410a-a08c-16171ab49d4c 같은 Place 선택이나 선택 해제가 진행 중일 때 다시 요청하면 한 번만 실행한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val placeId = fixtureMonkey.giveMeOne<Uuid>()

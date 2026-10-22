@@ -27,7 +27,7 @@ class WebHomeListUpdateTest {
     }
 
     @Test
-    fun `TC-WEB-HOME-FEATURE-004 웹 항목이 새로 저장되면 별도 조작 없이 목록에 나타난다`() {
+    fun `TC-a28ec890-b9f6-4b81-a106-885d70b4f5a3 웹 항목이 새로 저장되면 별도 조작 없이 목록에 나타난다`() {
         val first = testWeb(title = FIRST_TITLE)
         val second = testWeb(title = SECOND_TITLE)
         val pagingDataFlow = MutableStateFlow(webPagingDataOf(listOf(first)))

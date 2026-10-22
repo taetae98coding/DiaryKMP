@@ -8,7 +8,7 @@ import io.kotest.matchers.string.shouldContain
 
 class MapSpotHtmlTest :
     FunSpec({
-        test("TC-DIARY-MAP-DOMAIN-027: 지점 선택 사용 여부를 지도 요청 내용에 담는다") {
+        test("TC-470524e0-8261-4050-b34f-ef7730739fc0: 지점 선택 사용 여부를 지도 요청 내용에 담는다") {
             listOf(true, false).forEach { isSpotSelectable ->
                 val naverHtml =
                     requireNotNull(
@@ -32,7 +32,7 @@ class MapSpotHtmlTest :
             }
         }
 
-        test("TC-DIARY-MAP-DOMAIN-028: 고른 지점을 지도 요청 내용에 담는다") {
+        test("TC-1373e3ec-24cc-4e38-acf1-1ef72e8bc33d: 고른 지점을 지도 요청 내용에 담는다") {
             val naverSpot = DiaryMapCoordinate(latitude = 37.5665, longitude = 126.978)
             val naverHtml =
                 requireNotNull(
@@ -60,7 +60,7 @@ class MapSpotHtmlTest :
             googleHtml shouldContain """var diaryMapSpot = { "latitude": -33.4489, "longitude": -70.6693 };"""
         }
 
-        test("TC-DIARY-MAP-DOMAIN-028: 고른 지점이 없으면 지도 요청 내용에 지점 표시를 담지 않는다") {
+        test("TC-1373e3ec-24cc-4e38-acf1-1ef72e8bc33d: 고른 지점이 없으면 지도 요청 내용에 지점 표시를 담지 않는다") {
             val naverHtml = requireNotNull(createNaverMapHtml(ncpKeyId = TEST_KEY, camera = null, spot = null))
             val googleHtml = requireNotNull(createGoogleMapHtml(apiKey = TEST_KEY, camera = null, spot = null))
 

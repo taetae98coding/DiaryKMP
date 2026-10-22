@@ -66,7 +66,7 @@ class HolidayHomeScreenBoundaryTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-045 연차 개수를 바꾸면 각 항목은 첫 번째 대안으로 돌아간다`() {
+    fun `TC-32437aff-ed30-4cf0-8031-2929ddeb7672 연차 개수를 바꾸면 각 항목은 첫 번째 대안으로 돌아간다`() {
         val getGoldenHolidayUseCase = mockk<GetGoldenHolidayUseCase>()
         every { getGoldenHolidayUseCase(parameter = any()) } answers {
             val parameter = firstArg<GetGoldenHolidayUseCase.Parameter>()
@@ -91,7 +91,7 @@ class HolidayHomeScreenBoundaryTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-046 저장된 공휴일이 바뀌어 항목 내용이 달라지면 그 항목은 첫 번째 대안으로 돌아간다`() {
+    fun `TC-56b58908-9ebe-4040-a49f-076e989e4ecd 저장된 공휴일이 바뀌어 항목 내용이 달라지면 그 항목은 첫 번째 대안으로 돌아간다`() {
         val groupListFlow = MutableSharedFlow<Result<List<GoldenHolidayGroup>>>(replay = 1)
         groupListFlow.tryEmit(Result.success(listOf(twoOptionGroup(year = YEAR, firstStartDay = 7))))
         composeRule.setHolidayHomeScreen(
@@ -110,7 +110,7 @@ class HolidayHomeScreenBoundaryTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-047 다시 받아온 결과로 항목 내용이 그대로이면 고른 대안이 유지된다`() {
+    fun `TC-3a55e5b1-41d2-4ba7-ac54-a140db66585b 다시 받아온 결과로 항목 내용이 그대로이면 고른 대안이 유지된다`() {
         val groupListFlow = MutableSharedFlow<Result<List<GoldenHolidayGroup>>>(replay = 1)
         groupListFlow.tryEmit(Result.success(listOf(twoOptionGroup(year = YEAR, firstStartDay = 7))))
         composeRule.setHolidayHomeScreen(
@@ -129,7 +129,7 @@ class HolidayHomeScreenBoundaryTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-049 오류 안내가 표시된 년도는 다른 화면이나 다른 앱에서 돌아오면 다시 동기화한다`() {
+    fun `TC-6f945b38-d9ac-4590-ab5a-d2c93fb216c2 오류 안내가 표시된 년도는 다른 화면이나 다른 앱에서 돌아오면 다시 동기화한다`() {
         val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
         coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(providedHolidayList())
         coEvery { fetchHolidayUseCase(parameter = YEAR - 1) } returnsMany
@@ -142,7 +142,7 @@ class HolidayHomeScreenBoundaryTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-049 제공 없음 안내가 표시된 년도는 다른 화면이나 다른 앱에서 돌아오면 다시 동기화한다`() {
+    fun `TC-6f945b38-d9ac-4590-ab5a-d2c93fb216c2 제공 없음 안내가 표시된 년도는 다른 화면이나 다른 앱에서 돌아오면 다시 동기화한다`() {
         val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
         coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(providedHolidayList())
         coEvery { fetchHolidayUseCase(parameter = YEAR) } returnsMany
@@ -155,7 +155,7 @@ class HolidayHomeScreenBoundaryTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-050 화면이 재생성되어도 보던 년도와 연차 개수가 유지된다`() {
+    fun `TC-314e0c34-9acf-4396-8760-df3c07f4a57b 화면이 재생성되어도 보던 년도와 연차 개수가 유지된다`() {
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
             val state = rememberHolidayHomeScaffoldState(initialYear = YEAR)
@@ -192,7 +192,7 @@ class HolidayHomeScreenBoundaryTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-051 화면이 재생성되어도 고른 대안이 유지된다`() {
+    fun `TC-17883a3a-32fd-407b-b8e3-cc84e84f0060 화면이 재생성되어도 고른 대안이 유지된다`() {
         val uiState = HolidayHomeYearUiState.Content(goldenHolidayGroupList = listOf(twoOptionGroup(year = YEAR, firstStartDay = 7)))
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
@@ -214,7 +214,7 @@ class HolidayHomeScreenBoundaryTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-052 다른 앱에 다녀와도 보던 년도와 연차 개수와 고른 대안이 유지된다`() {
+    fun `TC-c251bade-9ef8-4f31-a758-88dcbca51458 다른 앱에 다녀와도 보던 년도와 연차 개수와 고른 대안이 유지된다`() {
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         val getGoldenHolidayUseCase = mockk<GetGoldenHolidayUseCase>()
         every { getGoldenHolidayUseCase(parameter = any()) } answers {
@@ -242,7 +242,7 @@ class HolidayHomeScreenBoundaryTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-DATA-014 년도가 드러난 채 다른 화면이나 다른 앱에서 돌아오면 동기화를 다시 요청한다`() {
+    fun `TC-2c8ba94e-f84b-429c-b2b6-4e1ac3cc721b 년도가 드러난 채 다른 화면이나 다른 앱에서 돌아오면 동기화를 다시 요청한다`() {
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         val fetchHolidayUseCase = successfulFetchHolidayUseCase()
         composeRule.setHolidayHomeScreen(

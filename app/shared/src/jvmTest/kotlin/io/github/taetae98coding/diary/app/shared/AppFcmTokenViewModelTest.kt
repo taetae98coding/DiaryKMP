@@ -49,7 +49,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-FCM-TOKEN-DOMAIN-005 인증된 계정이 확인되면 제출 계기가 한 번 발생한다") {
+        test("TC-df26f005-cca3-43b9-9b5a-ce35848bf660 인증된 계정이 확인되면 제출 계기가 한 번 발생한다") {
             runTest(mainDispatcher) {
                 val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
                 val viewModel = viewModel(accountFlow = flowOf(Result.success(account)))
@@ -61,7 +61,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FCM-TOKEN-DOMAIN-005 로그인이 완료되어 인증된 계정으로 바뀌면 제출 계기가 발생한다") {
+        test("TC-df26f005-cca3-43b9-9b5a-ce35848bf660 로그인이 완료되어 인증된 계정으로 바뀌면 제출 계기가 발생한다") {
             runTest(mainDispatcher) {
                 val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
                 val accountFlow = MutableStateFlow<Account>(Account.Guest)
@@ -76,7 +76,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FCM-TOKEN-DOMAIN-020 로그아웃되어 게스트로 바뀌면 앞선 제출을 기다리지 않고 제출 계기가 한 번 발생한다") {
+        test("TC-68ae3e2d-db68-4521-841f-5fa83acf7e6b 로그아웃되어 게스트로 바뀌면 앞선 제출을 기다리지 않고 제출 계기가 한 번 발생한다") {
             runTest(mainDispatcher) {
                 val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
                 val accountFlow = MutableStateFlow<Account>(account)
@@ -100,7 +100,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FCM-TOKEN-DOMAIN-003 같은 계정의 세션이 인증된 상태로 바뀌면 제출 계기가 발생한다") {
+        test("TC-fe8a1e97-131a-454b-84fe-3ab5598f19f5 같은 계정의 세션이 인증된 상태로 바뀌면 제출 계기가 발생한다") {
             runTest(mainDispatcher) {
                 val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = false)
                 val validAccount = account.copy(isSessionValid = true)
@@ -116,7 +116,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
             }
         }
 
-        context("TC-FCM-TOKEN-DOMAIN-026 같은 계정의 계정 정보가 바뀌면 제출 계기가 발생한다") {
+        context("TC-4d699fe4-d119-4653-b256-1b898c3a889b 같은 계정의 계정 정보가 바뀌면 제출 계기가 발생한다") {
             listOf<Pair<String, (Account.User) -> Account.User>>(
                 "이메일" to { account -> account.copy(email = account.email + "-changed") },
                 "프로필 이미지" to { account -> account.copy(profileImage = account.profileImage + "-changed") },
@@ -139,7 +139,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FCM-TOKEN-DOMAIN-027 화면이 재생성되어 다시 관측하면 같은 계정이어도 제출 계기가 한 번 다시 발생한다") {
+        test("TC-6fee7d8e-8951-49e5-a985-2864217598f2 화면이 재생성되어 다시 관측하면 같은 계정이어도 제출 계기가 한 번 다시 발생한다") {
             runTest(mainDispatcher) {
                 val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
                 val accountFlow = MutableStateFlow<Account>(account)
@@ -158,7 +158,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FCM-TOKEN-DOMAIN-005 확인된 계정이 다른 계정으로 바뀌면 제출 계기가 발생한다") {
+        test("TC-df26f005-cca3-43b9-9b5a-ce35848bf660 확인된 계정이 다른 계정으로 바뀌면 제출 계기가 발생한다") {
             runTest(mainDispatcher) {
                 val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
                 val otherAccount = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
@@ -174,7 +174,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FCM-TOKEN-DOMAIN-025 같은 계정이 같은 정보로 다시 확인되기만 하면 제출 계기가 발생하지 않는다") {
+        test("TC-a1ebfeb6-711c-4050-a781-92f8e6a83cee 같은 계정이 같은 정보로 다시 확인되기만 하면 제출 계기가 발생하지 않는다") {
             runTest(mainDispatcher) {
                 val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
                 // 같은 값을 다시 보내지 않는 상태 흐름으로는 "다시 확인됨"을 만들 수 없으므로 같은 값을 그대로 다시 보내는 흐름을 쓴다.
@@ -189,7 +189,7 @@ class AppFcmTokenViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-FCM-TOKEN-DOMAIN-008 기기의 시간대나 언어가 바뀌는 것만으로는 제출 계기가 발생하지 않는다") {
+        test("TC-a76579fa-2a6a-4896-8ac6-7245ed05afa4 기기의 시간대나 언어가 바뀌는 것만으로는 제출 계기가 발생하지 않는다") {
             val originalTimeZone = TimeZone.getDefault()
             val originalLocale = Locale.getDefault()
 

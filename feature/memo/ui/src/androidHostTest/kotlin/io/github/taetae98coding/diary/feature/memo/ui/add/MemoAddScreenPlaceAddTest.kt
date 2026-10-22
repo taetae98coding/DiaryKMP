@@ -44,7 +44,7 @@ class MemoAddScreenPlaceAddTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-025 목록의 장소 추가 항목을 누르면 목록이 닫히고 PlaceAdd 이동을 요청한다`() {
+    fun `TC-16a56440-8c52-46b8-9ccd-b494b5122495 목록의 장소 추가 항목을 누르면 목록이 닫히고 PlaceAdd 이동을 요청한다`() {
         val placeList = listOf(testPlace(title = HOME_PLACE_TITLE), testPlace(title = OFFICE_PLACE_TITLE))
         var placeAddCount = 0
         setMemoAddScreen(
@@ -62,7 +62,7 @@ class MemoAddScreenPlaceAddTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-026 PlaceAdd 화면에서 추가한 장소 하나가 돌아왔을 때 선택된다`() {
+    fun `TC-ae4dfccd-1c16-4896-829d-d4003b9ea4ce PlaceAdd 화면에서 추가한 장소 하나가 돌아왔을 때 선택된다`() {
         val selectedPlace = testPlace(title = HOME_PLACE_TITLE)
         val addedPlace = testPlace(title = OFFICE_PLACE_TITLE)
         val resultEventBus = ResultEventBus()
@@ -80,7 +80,7 @@ class MemoAddScreenPlaceAddTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-DOMAIN-034 이 카드에서 이동하지 않은 PlaceAdd 화면의 장소는 자동 선택되지 않는다`() {
+    fun `TC-9f584522-c3b1-4804-9016-9aea8273c2e6 이 카드에서 이동하지 않은 PlaceAdd 화면의 장소는 자동 선택되지 않는다`() {
         val addedPlace = testPlace(title = OFFICE_PLACE_TITLE)
         val resultEventBus = ResultEventBus()
         setMemoAddScreen(
@@ -95,7 +95,7 @@ class MemoAddScreenPlaceAddTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-026 PlaceAdd 화면에서 추가한 장소 여러 개가 돌아왔을 때 모두 선택된다`() {
+    fun `TC-ae4dfccd-1c16-4896-829d-d4003b9ea4ce PlaceAdd 화면에서 추가한 장소 여러 개가 돌아왔을 때 모두 선택된다`() {
         val firstAddedPlace = testPlace(title = FIRST_ADDED_PLACE_TITLE)
         val secondAddedPlace = testPlace(title = SECOND_ADDED_PLACE_TITLE)
         val resultEventBus = ResultEventBus()
@@ -113,7 +113,7 @@ class MemoAddScreenPlaceAddTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-027 장소를 하나도 추가하지 않고 돌아오면 선택이 그대로 유지된다`() {
+    fun `TC-b9375659-81fa-4f2d-8c4d-f89f05ecf182 장소를 하나도 추가하지 않고 돌아오면 선택이 그대로 유지된다`() {
         val placeList = listOf(testPlace(title = HOME_PLACE_TITLE), testPlace(title = OFFICE_PLACE_TITLE))
         var placeAddCount = 0
         setMemoAddScreen(
@@ -132,7 +132,7 @@ class MemoAddScreenPlaceAddTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-028 PlaceAdd 화면에서 돌아와도 장소 선택 목록이 저절로 열리지 않는다`() {
+    fun `TC-0afc7d5d-f965-4243-98b8-808d0f87978a PlaceAdd 화면에서 돌아와도 장소 선택 목록이 저절로 열리지 않는다`() {
         val addedPlace = testPlace(title = OFFICE_PLACE_TITLE)
         val resultEventBus = ResultEventBus()
         setMemoAddScreen(
@@ -151,7 +151,7 @@ class MemoAddScreenPlaceAddTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-DOMAIN-019 자동 선택된 장소의 선택을 해제하면 다시 선택되지 않는다`() {
+    fun `TC-b96302bd-9737-4519-9c8e-e7720e259f9b 자동 선택된 장소의 선택을 해제하면 다시 선택되지 않는다`() {
         val addedPlace = testPlace(title = OFFICE_PLACE_TITLE)
         val resultEventBus = ResultEventBus()
         setMemoAddScreen(
@@ -169,7 +169,7 @@ class MemoAddScreenPlaceAddTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-DOMAIN-025 지도가 표시되지 않으면 지도 위치를 넘기지 않는다`() {
+    fun `TC-5600d7ed-8e54-4451-afb4-9ffc53f3a739 지도가 표시되지 않으면 지도 위치를 넘기지 않는다`() {
         var placeAddCount = 0
         var passedCoordinate: Coordinate? = null
         setMemoAddScreen(

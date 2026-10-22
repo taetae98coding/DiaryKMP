@@ -54,7 +54,7 @@ class MemoHomeScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-003 좌에서 우로 스와이프하면 메모가 완료되어 목록에서 사라진다`() {
+    fun `TC-50d2060f-f159-49ef-a460-717567bd0fd0 좌에서 우로 스와이프하면 메모가 완료되어 목록에서 사라진다`() {
         val environment = screenTestEnvironment()
         setMemoHomeScreen(environment.viewModel)
 
@@ -69,7 +69,7 @@ class MemoHomeScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MEMO-HOME-FEATURE-003 한국어 환경에서 완료 안내와 실행 취소를 표시한다`() {
+    fun `TC-50d2060f-f159-49ef-a460-717567bd0fd0 한국어 환경에서 완료 안내와 실행 취소를 표시한다`() {
         val environment = screenTestEnvironment()
         setMemoHomeScreen(environment.viewModel)
 
@@ -81,7 +81,7 @@ class MemoHomeScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-004 완료를 실행 취소하면 메모가 목록에 다시 나타난다`() {
+    fun `TC-1f9f3bcd-f2ed-4c51-a638-f358dd44ec69 완료를 실행 취소하면 메모가 목록에 다시 나타난다`() {
         val environment = screenTestEnvironment()
         setMemoHomeScreen(environment.viewModel)
 
@@ -95,7 +95,7 @@ class MemoHomeScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-005 우에서 좌로 스와이프하면 메모가 삭제되어 목록에서 사라진다`() {
+    fun `TC-c9dc47e0-f19e-4628-b40e-412f97480041 우에서 좌로 스와이프하면 메모가 삭제되어 목록에서 사라진다`() {
         val environment = screenTestEnvironment()
         setMemoHomeScreen(environment.viewModel)
 
@@ -110,7 +110,7 @@ class MemoHomeScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-MEMO-HOME-FEATURE-005 한국어 환경에서 삭제 안내와 실행 취소를 표시한다`() {
+    fun `TC-c9dc47e0-f19e-4628-b40e-412f97480041 한국어 환경에서 삭제 안내와 실행 취소를 표시한다`() {
         val environment = screenTestEnvironment()
         setMemoHomeScreen(environment.viewModel)
 
@@ -122,7 +122,7 @@ class MemoHomeScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-006 삭제를 실행 취소하면 메모가 목록에 다시 나타난다`() {
+    fun `TC-80c138ef-4fbf-48e4-bbdf-df1d41a6972f 삭제를 실행 취소하면 메모가 목록에 다시 나타난다`() {
         val environment = screenTestEnvironment()
         setMemoHomeScreen(environment.viewModel)
 
@@ -136,7 +136,7 @@ class MemoHomeScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-067 안내가 보이는 동안 다른 메모를 삭제하면 삭제 안내만 남고 실행 취소는 삭제에만 적용된다`() {
+    fun `TC-2959c5fb-d7b8-4442-b7e5-d7404a93a7ed 안내가 보이는 동안 다른 메모를 삭제하면 삭제 안내만 남고 실행 취소는 삭제에만 적용된다`() {
         val environment = screenTestEnvironment()
         val otherMemoId = fixtureMonkey.giveMeOne<Uuid>()
         justRun { environment.viewModel.restore(id = otherMemoId) }
@@ -160,7 +160,7 @@ class MemoHomeScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-069 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
+    fun `TC-1362d0b8-4304-4341-8ea2-65d19e8a5801 실행 취소를 선택하지 않으면 안내가 잠시 뒤 사라지고 되돌릴 수 없다`() {
         val environment = screenTestEnvironment()
         setMemoHomeScreen(environment.viewModel)
 
@@ -191,7 +191,7 @@ class MemoHomeScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-029 완료된 메모 버튼을 선택하면 완료된 메모 목록으로 이동한다`() {
+    fun `TC-e41844e5-ce96-4a72-9124-e7d980251114 완료된 메모 버튼을 선택하면 완료된 메모 목록으로 이동한다`() {
         val environment = screenTestEnvironment()
         var navigateToFinishedListCount = 0
         setMemoHomeScreen(
@@ -205,7 +205,7 @@ class MemoHomeScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-077 메모를 선택하면 그 메모의 상세 화면으로 한 번 이동한다`() {
+    fun `TC-050c7921-3424-47a5-9347-20239511fcda 메모를 선택하면 그 메모의 상세 화면으로 한 번 이동한다`() {
         val environment = screenTestEnvironment()
         val detailIdList = mutableListOf<Uuid>()
         setMemoHomeScreen(
@@ -220,7 +220,7 @@ class MemoHomeScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-047 검색 버튼을 선택하면 검색 화면으로 이동한다`() {
+    fun `TC-6908a8ee-8227-4f1a-b1a1-5ae9c63848f7 검색 버튼을 선택하면 검색 화면으로 이동한다`() {
         val environment = screenTestEnvironment()
         var navigateToSearchCount = 0
         setMemoHomeScreen(
@@ -244,7 +244,7 @@ class MemoHomeScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-084 Cmd A 단축키를 입력하면 메모 추가 화면으로 한 번 이동한다`() {
+    fun `TC-ec542ffc-9d75-4e4b-bbb8-a925b2c73439 Cmd A 단축키를 입력하면 메모 추가 화면으로 한 번 이동한다`() {
         val environment = screenTestEnvironment()
         var navigateToAddCount = 0
         setMemoHomeScreen(
@@ -258,7 +258,7 @@ class MemoHomeScreenTest {
     }
 
     @Test
-    fun `TC-MEMO-LIST-DETAIL-FEATURE-013 상세 영역에 메모 추가 화면이 표시되면 Cmd A 단축키로도 메모 추가 화면을 다시 열지 않는다`() {
+    fun `TC-4869b408-ac42-46b2-ac55-a5e124ae3bcf 상세 영역에 메모 추가 화면이 표시되면 Cmd A 단축키로도 메모 추가 화면을 다시 열지 않는다`() {
         val environment = screenTestEnvironment()
         var navigateToAddCount = 0
         setMemoHomeScreen(

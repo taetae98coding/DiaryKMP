@@ -33,7 +33,7 @@ class TopLevelTagFilterUseCaseTest :
                         accountTagFilterRepository = accountTagFilterRepository,
                     )
 
-                Then("TC-TAG-HOME-FEATURE-027 켜진 상태를 전달한다") {
+                Then("TC-ddf3850b-a348-43e0-8574-d522000b9e7f 켜진 상태를 전달한다") {
                     useCase(parameter = Unit).first().shouldBeSuccess() shouldBe true
                 }
             }
@@ -47,7 +47,7 @@ class TopLevelTagFilterUseCaseTest :
                         accountTagFilterRepository = accountTagFilterRepository,
                     )
 
-                Then("TC-TAG-HOME-DATA-009 꺼진 상태를 전달한다") {
+                Then("TC-c3277845-4c50-4e2e-ac84-24ad2a01a4fa 꺼진 상태를 전달한다") {
                     useCase(parameter = Unit).first().shouldBeSuccess() shouldBe false
                 }
             }
@@ -60,7 +60,7 @@ class TopLevelTagFilterUseCaseTest :
                         accountTagFilterRepository = accountTagFilterRepository,
                     )
 
-                Then("TC-TAG-HOME-FEATURE-028 현재 계정의 필터 선택을 켜진 상태로 저장한다") {
+                Then("TC-7bcf8584-ace4-4e5a-b5fe-6aaf5fc8bb0a 현재 계정의 필터 선택을 켜진 상태로 저장한다") {
                     useCase(parameter = Unit).shouldBeSuccess()
 
                     coVerify(exactly = 1) { accountTagFilterRepository.upsert(account = account, isTopLevelOnly = true) }
@@ -75,7 +75,7 @@ class TopLevelTagFilterUseCaseTest :
                         accountTagFilterRepository = accountTagFilterRepository,
                     )
 
-                Then("TC-TAG-HOME-FEATURE-029 현재 계정의 필터 선택을 꺼진 상태로 저장한다") {
+                Then("TC-a9dac55d-0689-4876-b138-7041b9950710 현재 계정의 필터 선택을 꺼진 상태로 저장한다") {
                     useCase(parameter = Unit).shouldBeSuccess()
 
                     coVerify(exactly = 1) { accountTagFilterRepository.upsert(account = account, isTopLevelOnly = false) }

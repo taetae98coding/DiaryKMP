@@ -47,7 +47,7 @@ class MemoHomeUndoBoundaryTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-075 안내가 보이는 동안 화면이 재생성되면 안내가 닫히고 되돌릴 수 없다`() {
+    fun `TC-3d292bef-5de8-4ab7-b0e5-9ed63652fd5e 안내가 보이는 동안 화면이 재생성되면 안내가 닫히고 되돌릴 수 없다`() {
         val memo = fixtureMonkey.memo(title = MEMO_TITLE)
         val viewModel = viewModel(memo = memo)
         val restorationTester = StateRestorationTester(composeRule)
@@ -63,7 +63,7 @@ class MemoHomeUndoBoundaryTest {
     }
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-076 안내가 보이는 동안 앱이 백그라운드에 다녀와도 안내가 남고 실행 취소할 수 있다`() {
+    fun `TC-43c0f892-e929-4317-9cc9-ce4674b164e6 안내가 보이는 동안 앱이 백그라운드에 다녀와도 안내가 남고 실행 취소할 수 있다`() {
         val memo = fixtureMonkey.memo(title = MEMO_TITLE)
         val viewModel = viewModel(memo = memo)
         composeRule.setContent { Home(viewModel = viewModel) }

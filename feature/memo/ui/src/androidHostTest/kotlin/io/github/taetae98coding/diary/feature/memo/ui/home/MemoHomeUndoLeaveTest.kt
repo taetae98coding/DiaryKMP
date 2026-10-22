@@ -41,7 +41,7 @@ class MemoHomeUndoLeaveTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-HOME-FEATURE-074 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
+    fun `TC-58a0ebf9-3440-4ae6-9761-6371aa063fac 안내가 보이는 동안 화면을 떠나면 안내가 닫히고 되돌릴 수 없다`() {
         val memo =
             fixtureMonkey
                 .giveMeKotlinBuilder<Memo>()

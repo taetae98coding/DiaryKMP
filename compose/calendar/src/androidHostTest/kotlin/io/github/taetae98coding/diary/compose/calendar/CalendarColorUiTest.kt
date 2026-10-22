@@ -90,7 +90,7 @@ class CalendarColorUiTest {
     }
 
     @Test
-    fun `TC-CALENDAR-FEATURE-019 지정한 공휴일 기간에 드는 날짜가 공휴일로 구분된다`() {
+    fun `TC-127691d8-916c-480a-97ae-193b65d2386f 지정한 공휴일 기간에 드는 날짜가 공휴일로 구분된다`() {
         val colors = fixtureMonkey.giveMeCalendarColor()
         val defaultContentColor = fixtureMonkey.giveMeColor()
         composeRule.setContent {
@@ -123,7 +123,7 @@ class CalendarColorUiTest {
     }
 
     @Test
-    fun `TC-CALENDAR-DOMAIN-004 공휴일 지정이 바뀌면 공휴일 구분이 갱신된다`() {
+    fun `TC-97967e1e-731a-4003-afeb-ead39d925689 공휴일 지정이 바뀌면 공휴일 구분이 갱신된다`() {
         val colors = fixtureMonkey.giveMeCalendarColor()
         val defaultContentColor = fixtureMonkey.giveMeColor()
         val holiday = LocalDate(year = 2026, month = Month.JULY, day = 13)
@@ -154,7 +154,7 @@ class CalendarColorUiTest {
     }
 
     @Test
-    fun `TC-CALENDAR-WEEK-OF-MONTH-DOMAIN-009 주요 날짜가 아닌 날짜는 공휴일 일요일 토요일 그 밖의 날짜 순으로 구분된다`() {
+    fun `TC-33bc555c-c996-4239-9a12-61f9f70c0dc2 주요 날짜가 아닌 날짜는 공휴일 일요일 토요일 그 밖의 날짜 순으로 구분된다`() {
         val colors = fixtureMonkey.giveMeCalendarColor()
         val defaultContentColor = fixtureMonkey.giveMeColor()
         val wednesdayHoliday = LocalDate(year = 2026, month = Month.JULY, day = 8)
@@ -185,7 +185,7 @@ class CalendarColorUiTest {
     }
 
     @Test
-    fun `TC-CALENDAR-WEEK-OF-MONTH-FEATURE-015 지정한 달에 속하지 않는 날짜는 요일 구분을 유지한 채 지정한 달의 날짜와 구분된다`() {
+    fun `TC-6ad83b88-14e7-4672-bbd5-51c37ad477c4 지정한 달에 속하지 않는 날짜는 요일 구분을 유지한 채 지정한 달의 날짜와 구분된다`() {
         val colors = fixtureMonkey.giveMeCalendarColor()
         val defaultContentColor = fixtureMonkey.giveMeColor()
         composeRule.setContent {

@@ -46,7 +46,7 @@ class PlaceAddCoordinateParseTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-009 읽을 수 없는 자리는 숫자가 아닌 값으로 채워 UseCase 검증에 넘긴다`() {
+    fun `TC-839f33f5-6c41-4342-8bbb-203f3dd09e38 읽을 수 없는 자리는 숫자가 아닌 값으로 채워 UseCase 검증에 넘긴다`() {
         val detailSlot = setPlaceAddScreenCapturingDetail()
 
         val caseList =
@@ -82,7 +82,7 @@ class PlaceAddCoordinateParseTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-009 범위를 벗어난 값은 성립하지 않는 좌표로 넘긴다`() {
+    fun `TC-839f33f5-6c41-4342-8bbb-203f3dd09e38 범위를 벗어난 값은 성립하지 않는 좌표로 넘긴다`() {
         val detailSlot = setPlaceAddScreenCapturingDetail()
 
         val caseList =
@@ -105,7 +105,7 @@ class PlaceAddCoordinateParseTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-042 소수 여섯째 자리보다 길게 입력한 좌표는 반올림한 값으로 추가를 요청한다`() {
+    fun `TC-7657e804-d80b-4bbb-bf3b-04c32b200a60 소수 여섯째 자리보다 길게 입력한 좌표는 반올림한 값으로 추가를 요청한다`() {
         val detailSlot = setPlaceAddScreenCapturingDetail()
 
         enterCoordinate(latitude = "37.1234567", longitude = "127.1234564")
@@ -114,7 +114,7 @@ class PlaceAddCoordinateParseTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-043 부호가 붙거나 앞뒤에 공백이 있는 십진수 좌표는 그 값으로 추가를 요청한다`() {
+    fun `TC-fae517d8-d0af-41aa-8e86-03ad5624c146 부호가 붙거나 앞뒤에 공백이 있는 십진수 좌표는 그 값으로 추가를 요청한다`() {
         val detailSlot = setPlaceAddScreenCapturingDetail()
 
         enterCoordinate(latitude = "+37.5", longitude = " -127 ")

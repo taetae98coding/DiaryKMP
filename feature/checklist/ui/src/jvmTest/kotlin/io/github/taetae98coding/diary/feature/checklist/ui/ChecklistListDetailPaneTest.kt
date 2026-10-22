@@ -16,7 +16,7 @@ private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class ChecklistListDetailPaneTest :
     FunSpec({
-        test("TC-CHECKLIST-LIST-DETAIL-FEATURE-003 선택한 체크리스트가 없거나 체크리스트 추가로 이동했으면 상세 영역에 체크리스트 추가가 놓인다") {
+        test("TC-a158b1ef-7cea-44cb-a193-a2775085f6be 선택한 체크리스트가 없거나 체크리스트 추가로 이동했으면 상세 영역에 체크리스트 추가가 놓인다") {
             val backStackCases =
                 listOf(
                     listOf(ChecklistHomeNavKey),
@@ -29,7 +29,7 @@ class ChecklistListDetailPaneTest :
             }
         }
 
-        test("TC-CHECKLIST-LIST-DETAIL-FEATURE-004 체크리스트 상세로 이동했으면 상세 영역에 체크리스트 추가가 놓이지 않는다") {
+        test("TC-1acd4129-8246-4cf5-bdd5-08ee0b9e92f7 체크리스트 상세로 이동했으면 상세 영역에 체크리스트 추가가 놓이지 않는다") {
             val backStackCases =
                 listOf(
                     listOf(OtherScreenNavKey, ChecklistHomeNavKey, ChecklistDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())),

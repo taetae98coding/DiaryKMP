@@ -42,7 +42,7 @@ class SettingHolidayScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-006 저장된 공휴일과 각 선택 상태를 표시한다`() {
+    fun `TC-aad46f37-24f2-4c33-9979-0d8849541987 저장된 공휴일과 각 선택 상태를 표시한다`() {
         val selectedHolidayList =
             listOf(
                 holidaySetting(isHoliday = true, isVisible = true),
@@ -69,7 +69,7 @@ class SettingHolidayScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-020 목록을 스크롤해도 일괄 선택 동작을 사용할 수 있다`() {
+    fun `TC-d1ab6b42-1324-4b26-8285-cb000962faef 목록을 스크롤해도 일괄 선택 동작을 사용할 수 있다`() {
         val holidaySettingList =
             List(SCROLLABLE_HOLIDAY_COUNT) { holidaySetting(isHoliday = true, isVisible = true) }
         val eventList = mutableListOf<SettingHolidayScaffoldEvent>()

@@ -53,18 +53,18 @@ class TopLevelReselectOpenedScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TOP-LEVEL-NAVIGATION-FEATURE-012 메모 화면을 덮는 세부 화면을 닫고 목록의 보던 자리를 유지한다`() {
+    fun `TC-da0880d8-c8a2-464e-9647-2892a77fcc97 메모 화면을 덮는 세부 화면을 닫고 목록의 보던 자리를 유지한다`() {
         assertReselectKeepsListPosition(openedScreen = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()))
     }
 
     @Test
-    fun `TC-TOP-LEVEL-NAVIGATION-FEATURE-012 메모 화면 위에 겹쳐 표시하는 화면을 닫고 목록의 보던 자리를 유지한다`() {
+    fun `TC-da0880d8-c8a2-464e-9647-2892a77fcc97 메모 화면 위에 겹쳐 표시하는 화면을 닫고 목록의 보던 자리를 유지한다`() {
         assertReselectKeepsListPosition(openedScreen = MemoHomeFilterNavKey)
     }
 
     @Test
     @Config(qualifiers = "w1280dp-h800dp")
-    fun `TC-TOP-LEVEL-NAVIGATION-FEATURE-012 목록과 함께 표시하도록 연 메모 상세를 닫고 목록의 보던 자리를 유지한다`() {
+    fun `TC-da0880d8-c8a2-464e-9647-2892a77fcc97 목록과 함께 표시하도록 연 메모 상세를 닫고 목록의 보던 자리를 유지한다`() {
         assertReselectKeepsListPosition(
             openedScreen = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
             isListDetail = true,

@@ -23,7 +23,7 @@ import org.koin.plugin.module.dsl.koinApplication
 
 class LunarRemoteDataSourceImplTest :
     FunSpec({
-        test("TC-LUNAR-FETCH-DATA-010 원격 응답을 양력 날짜별 음력 날짜로 읽는다") {
+        test("TC-b3604246-d530-4d6d-964e-c35faa78f705 원격 응답을 양력 날짜별 음력 날짜로 읽는다") {
             val dataSource = createDataSource(createMockEngine())
 
             val actual = dataSource.get(year = 2026)
@@ -47,7 +47,7 @@ class LunarRemoteDataSourceImplTest :
                 )
         }
 
-        test("TC-LUNAR-FETCH-DOMAIN-003 TC-LUNAR-FETCH-DATA-002 해당 연도 자료가 없으면 빈 음력 날짜 목록을 제공한다") {
+        test("TC-16f767f7-bf9a-4111-ba16-fb3e808cd5b5 TC-77a8f0ae-7aa7-4553-a40a-d70cca1e0f3d 해당 연도 자료가 없으면 빈 음력 날짜 목록을 제공한다") {
             val engine =
                 MockEngine {
                     respond(
@@ -59,7 +59,7 @@ class LunarRemoteDataSourceImplTest :
             createDataSource(engine).get(year = 1997) shouldBe emptyList()
         }
 
-        test("TC-LUNAR-FETCH-DATA-009 요청한 연도의 한국 음력 자료를 원격에 요청한다") {
+        test("TC-b8dba1db-ba91-4747-a0b3-17f5010f836f 요청한 연도의 한국 음력 자료를 원격에 요청한다") {
             val caseMap =
                 mapOf(
                     2026 to "https://taetae98coding.github.io/CalendarApi/lunar/kr/2026.json",

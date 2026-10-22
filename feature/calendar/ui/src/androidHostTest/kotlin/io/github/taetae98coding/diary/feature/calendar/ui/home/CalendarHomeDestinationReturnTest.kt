@@ -46,7 +46,7 @@ class CalendarHomeDestinationReturnTest {
     private val backStack = NavBackStack<ScreenNavKey>(CalendarHomeNavKey)
 
     @Test
-    fun `TC-TOP-LEVEL-NAVIGATION-DOMAIN-016 캘린더는 다른 목적지에 다녀와도 보던 달을 그대로 보여 준다`() {
+    fun `TC-b23a0c9e-032a-490d-bff4-62450b401680 캘린더는 다른 목적지에 다녀와도 보던 달을 그대로 보여 준다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
         val nextYearMonth =
             today.yearMonth.firstDay

@@ -54,14 +54,14 @@ class DeleteQrUseCaseTest :
                 )
 
             When("QR을 삭제한다") {
-                Then("TC-QR-HOME-DOMAIN-009 TC-QR-DETAIL-DOMAIN-005 삭제 여부를 삭제로 바꾸고 수정 시각을 갱신한다") {
+                Then("TC-81e69471-1461-4beb-8334-f63d899b6f58 TC-51f451e0-921b-4bad-8a03-e479fd6fa2c9 삭제 여부를 삭제로 바꾸고 수정 시각을 갱신한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     isDeletedSlot.captured shouldBe true
                     updatedAtSlot.captured shouldBe now
                 }
 
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-QR-HOME-DATA-004 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-9f59d662-8251-4eb6-85e1-8fd2875148cf 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
@@ -88,7 +88,7 @@ class DeleteQrUseCaseTest :
                 )
 
             When("QR을 삭제한다") {
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-QR-HOME-DATA-004 TC-QR-DETAIL-DATA-003 기기에 저장한 뒤 서버와 맞추기 위한 동기화를 한 번 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-9f59d662-8251-4eb6-85e1-8fd2875148cf TC-9f38037d-9012-41e2-a0d8-2e520c4c214c 기기에 저장한 뒤 서버와 맞추기 위한 동기화를 한 번 요청한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
@@ -137,7 +137,7 @@ class DeleteQrUseCaseTest :
                 )
 
             When("QR을 삭제한다") {
-                Then("TC-QR-HOME-DATA-005 TC-QR-DETAIL-DATA-004 게스트 계정 기준으로 기기에 반영한다") {
+                Then("TC-94764581-fbce-4dbc-9cc0-a28ccf406f27 TC-448de895-ec55-4a6f-8a8a-e4ca87b5d5f0 게스트 계정 기준으로 기기에 반영한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     coVerify(exactly = 1) {
@@ -192,7 +192,7 @@ class DeleteQrUseCaseTest :
                 )
 
             When("QR을 삭제한다") {
-                Then("TC-QR-DETAIL-DATA-002 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
+                Then("TC-62a4c7b9-793e-4460-bcaf-c67f820f1b5f 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
                     useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)

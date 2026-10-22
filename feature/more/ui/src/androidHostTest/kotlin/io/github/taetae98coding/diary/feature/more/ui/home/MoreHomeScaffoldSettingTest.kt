@@ -35,7 +35,7 @@ class MoreHomeScaffoldSettingTest {
     }
 
     @Test
-    fun `TC-MORE-HOME-FEATURE-012 계정 상태와 관계없이 설정 동작을 표시한다`() {
+    fun `TC-8fd78bf8-7da1-4765-bf0c-0beba64f8318 계정 상태와 관계없이 설정 동작을 표시한다`() {
         val accountUiState = mutableStateOf<MoreHomeAccountUiState>(MoreHomeAccountUiState.Loading)
         setMoreHomeScaffold(accountUiStateProvider = { accountUiState.value })
 

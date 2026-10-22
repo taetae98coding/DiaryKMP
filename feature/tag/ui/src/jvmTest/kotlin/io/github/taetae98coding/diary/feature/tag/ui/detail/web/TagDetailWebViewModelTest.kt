@@ -57,7 +57,7 @@ class TagDetailWebViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-TAG-DETAIL-WEB-DATA-001 상세 대상 태그로 조회한 목록을 그대로 전달한다") {
+        test("TC-dcd46928-6c6c-4815-98ce-dac1679940f3 상세 대상 태그로 조회한 목록을 그대로 전달한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val itemList = List(2) { item() }
@@ -74,7 +74,7 @@ class TagDetailWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-WEB-DOMAIN-002 상세 대상 태그로만 조회한다") {
+        test("TC-8b82947c-df43-4860-ab2f-b50719cf60c5 상세 대상 태그로만 조회한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val otherTagId = fixtureMonkey.giveMeOne<Uuid>()
@@ -92,7 +92,7 @@ class TagDetailWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-DATA-005 표시 범위를 넓혔다 되돌리면 웹 목록을 각 범위 기준으로 다시 조회한다") {
+        test("TC-6e914ebb-0357-4604-87f2-6dc4438a9e03 표시 범위를 넓혔다 되돌리면 웹 목록을 각 범위 기준으로 다시 조회한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val selfWebList = List(2) { item() }
@@ -116,7 +116,7 @@ class TagDetailWebViewModelTest : FunSpec() {
                 }
             }
         }
-        test("TC-TAG-DETAIL-WEB-FEATURE-004 최초 조회가 실패하면 조회가 끝난 빈 목록을 노출한다") {
+        test("TC-ed485231-32e5-48e0-a0ea-0c07b145e373 최초 조회가 실패하면 조회가 끝난 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
@@ -136,7 +136,7 @@ class TagDetailWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-WEB-FEATURE-004 이어서 불러오기에 실패해도 이미 불러온 웹 항목을 그대로 노출한다") {
+        test("TC-ed485231-32e5-48e0-a0ea-0c07b145e373 이어서 불러오기에 실패해도 이미 불러온 웹 항목을 그대로 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val webList = List(2) { item() }
@@ -154,7 +154,7 @@ class TagDetailWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-WEB-FEATURE-004 조회가 성공한 뒤 다시 조회하다 실패하면 이전 웹 항목을 남기지 않고 빈 목록을 노출한다") {
+        test("TC-ed485231-32e5-48e0-a0ea-0c07b145e373 조회가 성공한 뒤 다시 조회하다 실패하면 이전 웹 항목을 남기지 않고 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val webList = List(2) { item() }
@@ -218,7 +218,7 @@ class TagDetailWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-WEB-FEATURE-021 삭제하면 태그 연결 해제가 아니라 그 웹 항목의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
+        test("TC-365c5415-2b42-4722-83fe-adb910874e83 삭제하면 태그 연결 해제가 아니라 그 웹 항목의 삭제를 요청하고 삭제 안내를 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val webId = fixtureMonkey.giveMeOne<Uuid>()
@@ -242,7 +242,7 @@ class TagDetailWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-WEB-FEATURE-025 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
+        test("TC-26f699dc-5b5e-4a6a-8b55-1d1506dd95c0 삭제가 저장되지 못하면 삭제 안내를 보내지 않는다") {
             runTest(mainDispatcher) {
                 val webId = fixtureMonkey.giveMeOne<Uuid>()
                 val deleteWebUseCase = mockk<DeleteWebUseCase>()
@@ -264,7 +264,7 @@ class TagDetailWebViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-WEB-FEATURE-022 실행 취소하면 그 웹 항목의 삭제를 되돌리는 요청을 한 번 보낸다") {
+        test("TC-194bbfc5-3cfb-45f1-86b2-35f848bdd00f 실행 취소하면 그 웹 항목의 삭제를 되돌리는 요청을 한 번 보낸다") {
             runTest(mainDispatcher) {
                 val webId = fixtureMonkey.giveMeOne<Uuid>()
                 val restoreWebUseCase = mockk<RestoreWebUseCase>()

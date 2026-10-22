@@ -67,7 +67,7 @@ class UpdateMemoUseCaseTest :
                     )
 
                 When("설명, 컬러, 기간만 바꿔 수정한다") {
-                    Then("TC-MEMO-DETAIL-DOMAIN-001 기존 제목을 유지하고 설명, 컬러, 기간은 수정한 내용으로 저장한다") {
+                    Then("TC-0e2363e3-7060-411c-bf08-8b868bdffec3 기존 제목을 유지하고 설명, 컬러, 기간은 수정한 내용으로 저장한다") {
                         val detail = fixtureMonkey.giveMeOne<MemoDetail>().copy(title = blankTitle)
 
                         val result = useCase(parameter = UpdateMemoUseCase.Parameter(id = memoId, detail = detail))
@@ -114,7 +114,7 @@ class UpdateMemoUseCaseTest :
                 )
 
             When("공백이 아닌 제목으로 메모를 수정한다") {
-                Then("TC-MEMO-DETAIL-DATA-001 제목, 설명, 컬러와 저장 시각으로 현재 계정의 메모를 갱신한다") {
+                Then("TC-c72ce1a3-4efa-4763-a33d-3e0802a2afd4 제목, 설명, 컬러와 저장 시각으로 현재 계정의 메모를 갱신한다") {
                     val detail = fixtureMonkey.giveMeOne<MemoDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}")
 
                     val result = useCase(parameter = UpdateMemoUseCase.Parameter(id = memoId, detail = detail))
@@ -127,7 +127,7 @@ class UpdateMemoUseCaseTest :
                     updatedAtSlot.captured shouldBe now
                 }
 
-                Then("TC-MEMO-DETAIL-DATA-002 수정한 기간이 저장에 반영된다") {
+                Then("TC-5492d840-0f80-427f-a299-510d1bfea856 수정한 기간이 저장에 반영된다") {
                     listOf(
                         fixtureMonkey.giveMeOne<MemoDateTime.AllDay>(),
                         fixtureMonkey.giveMeOne<MemoDateTime.DateTime>(),
@@ -208,7 +208,7 @@ class UpdateMemoUseCaseTest :
                 )
 
             When("공백이 아닌 제목으로 메모를 수정한다") {
-                Then("TC-SYNC-REFRESH-FEATURE-004 메모 갱신 후 동기화를 한 번 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c 메모 갱신 후 동기화를 한 번 요청한다") {
                     val detail = fixtureMonkey.giveMeOne<MemoDetail>().copy(title = "title-${fixtureMonkey.giveMeOne<String>()}")
 
                     val result = useCase(parameter = UpdateMemoUseCase.Parameter(id = memoId, detail = detail))

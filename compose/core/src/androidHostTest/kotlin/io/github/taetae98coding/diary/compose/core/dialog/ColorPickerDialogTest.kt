@@ -29,7 +29,7 @@ class ColorPickerDialogTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-DIARY-COLOR-INPUT-FEATURE-004 슬라이더를 움직이면 미리보기 컬러와 Hex 입력 칸이 함께 갱신된다`() {
+    fun `TC-0649b2e2-c62b-40c2-b02d-0cd8e84d9e2f 슬라이더를 움직이면 미리보기 컬러와 Hex 입력 칸이 함께 갱신된다`() {
         val state = setColorPickerDialog(initialColor = Color.Black)
 
         composeRule
@@ -42,7 +42,7 @@ class ColorPickerDialogTest {
     }
 
     @Test
-    fun `TC-DIARY-COLOR-INPUT-FEATURE-008 무작위 컬러 버튼을 누르면 편집 컬러가 무작위 컬러로 갱신된다`() {
+    fun `TC-9b101c98-5fd7-41c4-a92b-3efc4def6ac0 무작위 컬러 버튼을 누르면 편집 컬러가 무작위 컬러로 갱신된다`() {
         setColorPickerDialog(initialColor = Color.Black)
 
         composeRule.onNodeWithContentDescription(DEFAULT_RANDOM_DESCRIPTION).performClick()
@@ -66,7 +66,7 @@ class ColorPickerDialogTest {
     }
 
     @Test
-    fun `TC-DIARY-COLOR-INPUT-DOMAIN-001 유효한 Hex 입력만 편집 컬러에 반영한다`() {
+    fun `TC-55fc5ea7-b73d-477f-973f-a07b22b75764 유효한 Hex 입력만 편집 컬러에 반영한다`() {
         setColorPickerDialog(initialColor = BASE_COLOR)
 
         listOf(

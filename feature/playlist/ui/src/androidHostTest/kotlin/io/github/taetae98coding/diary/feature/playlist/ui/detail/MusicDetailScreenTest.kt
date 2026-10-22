@@ -45,7 +45,7 @@ class MusicDetailScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-001 조회에 성공하면 저장된 내용을 채운다`() {
+    fun `TC-7bed6726-c5fb-4bbb-a9cd-d3fbb9b763d4 조회에 성공하면 저장된 내용을 채운다`() {
         setMusicDetailScreen(uiState = contentUiState())
 
         composeRule.titleInput().assert(hasText(STORED_TITLE))
@@ -57,7 +57,7 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-002 조회가 끝나기 전에는 조회 중 상태를 유지한다`() {
+    fun `TC-418fdb5f-3a74-468a-a30a-7110fb585c24 조회가 끝나기 전에는 조회 중 상태를 유지한다`() {
         setMusicDetailScreen(uiState = MutableStateFlow(MusicDetailUiState.Loading))
 
         composeRule.onAllNodes(hasSetTextAction()).fetchSemanticsNodes().size shouldBe 0
@@ -67,7 +67,7 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-004 화면에 처음 진입하면 어느 입력에도 초점이 없다`() {
+    fun `TC-9db55803-5dc0-41bb-a928-7db9c2550243 화면에 처음 진입하면 어느 입력에도 초점이 없다`() {
         setMusicDetailScreen(uiState = contentUiState())
 
         composeRule.titleInput().assertIsNotFocused()
@@ -76,14 +76,14 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-006 저장된 내용과 같으면 수정 동작을 제공하지 않는다`() {
+    fun `TC-e87e45b5-3283-4a07-be65-5181370ada06 저장된 내용과 같으면 수정 동작을 제공하지 않는다`() {
         setMusicDetailScreen(uiState = contentUiState())
 
         composeRule.nodeCount(DEFAULT_UPDATE_BUTTON_DESCRIPTION) shouldBe 0
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-005 TC-MUSIC-DETAIL-FEATURE-006 입력을 바꾸면 그 값이 표시되고 수정 동작을 제공한다`() {
+    fun `TC-96f55c24-2ceb-4f1a-b665-c2917e7180aa TC-e87e45b5-3283-4a07-be65-5181370ada06 입력을 바꾸면 그 값이 표시되고 수정 동작을 제공한다`() {
         val viewModel = setMusicDetailScreen(uiState = contentUiState())
 
         composeRule.titleInput().performTextReplacement(EDITING_TITLE)
@@ -102,7 +102,7 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-006 링크를 비워도 수정 동작을 제공한다`() {
+    fun `TC-e87e45b5-3283-4a07-be65-5181370ada06 링크를 비워도 수정 동작을 제공한다`() {
         setMusicDetailScreen(uiState = contentUiState())
 
         composeRule.linkInput().performTextReplacement("")
@@ -112,7 +112,7 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-006 가수를 바꾸면 수정 동작을 제공한다`() {
+    fun `TC-e87e45b5-3283-4a07-be65-5181370ada06 가수를 바꾸면 수정 동작을 제공한다`() {
         setMusicDetailScreen(uiState = contentUiState())
 
         composeRule.artistInput().performTextReplacement(EDITING_ARTIST)
@@ -122,7 +122,7 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-006 링크를 바꾸면 수정 동작을 제공한다`() {
+    fun `TC-e87e45b5-3283-4a07-be65-5181370ada06 링크를 바꾸면 수정 동작을 제공한다`() {
         setMusicDetailScreen(uiState = contentUiState())
 
         composeRule.linkInput().performTextReplacement(CHANGED_LINK)
@@ -132,7 +132,7 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-006 저장된 링크 앞뒤에 공백만 붙여도 수정 동작을 제공한다`() {
+    fun `TC-e87e45b5-3283-4a07-be65-5181370ada06 저장된 링크 앞뒤에 공백만 붙여도 수정 동작을 제공한다`() {
         setMusicDetailScreen(uiState = contentUiState())
 
         composeRule.linkInput().performTextReplacement(" $STORED_LINK ")
@@ -142,7 +142,7 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-006 제목을 비워도 수정 동작을 제공한다`() {
+    fun `TC-e87e45b5-3283-4a07-be65-5181370ada06 제목을 비워도 수정 동작을 제공한다`() {
         setMusicDetailScreen(uiState = contentUiState())
 
         composeRule.titleInput().performTextReplacement("")
@@ -152,7 +152,7 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-006 가수를 비워도 수정 동작을 제공한다`() {
+    fun `TC-e87e45b5-3283-4a07-be65-5181370ada06 가수를 비워도 수정 동작을 제공한다`() {
         setMusicDetailScreen(uiState = contentUiState())
 
         composeRule.artistInput().performTextReplacement("")
@@ -162,7 +162,7 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-012 다시 불러오기에 성공하면 제목과 가수를 덮어쓰고 링크와 썸네일은 그대로 둔다`() {
+    fun `TC-0048b9b6-69e2-47f9-8551-c7ad8a5c3e4f 다시 불러오기에 성공하면 제목과 가수를 덮어쓰고 링크와 썸네일은 그대로 둔다`() {
         val effect = MutableStateFlow<MusicDetailEffect?>(null)
         val viewModel = setMusicDetailScreen(uiState = contentUiState(), effect = effect.filterNotNull())
 
@@ -187,7 +187,7 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-033 다시 불러오는 동안 링크를 다른 영상으로 바꾸면 도착한 결과를 채우지 않는다`() {
+    fun `TC-35fea53e-49a6-47cc-94eb-3ebdf5fc59ed 다시 불러오는 동안 링크를 다른 영상으로 바꾸면 도착한 결과를 채우지 않는다`() {
         val effect = MutableStateFlow<MusicDetailEffect?>(null)
         setMusicDetailScreen(uiState = contentUiState(), effect = effect.filterNotNull())
 
@@ -207,7 +207,7 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-033 다시 불러오는 동안 링크를 바꿨다가 되돌리면 도착한 결과를 채운다`() {
+    fun `TC-35fea53e-49a6-47cc-94eb-3ebdf5fc59ed 다시 불러오는 동안 링크를 바꿨다가 되돌리면 도착한 결과를 채운다`() {
         val effect = MutableStateFlow<MusicDetailEffect?>(null)
         setMusicDetailScreen(uiState = contentUiState(), effect = effect.filterNotNull())
 
@@ -225,28 +225,28 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-028 저장된 영상 링크의 썸네일 미리보기를 표시한다`() {
+    fun `TC-b9be762c-8a86-467c-9062-b057bc73c1d4 저장된 영상 링크의 썸네일 미리보기를 표시한다`() {
         setMusicDetailScreen(uiState = contentUiState())
 
         composeRule.nodeCount(DEFAULT_THUMBNAIL_PREVIEW_DESCRIPTION) shouldBe 1
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-028 저장된 링크가 비어 있으면 미리보기를 표시하지 않는다`() {
+    fun `TC-b9be762c-8a86-467c-9062-b057bc73c1d4 저장된 링크가 비어 있으면 미리보기를 표시하지 않는다`() {
         setMusicDetailScreen(uiState = contentUiState(detail = testMusicDetail(link = "")))
 
         composeRule.nodeCount(DEFAULT_THUMBNAIL_PREVIEW_DESCRIPTION) shouldBe 0
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-028 저장된 링크가 영상을 가리키지 않으면 미리보기를 표시하지 않는다`() {
+    fun `TC-b9be762c-8a86-467c-9062-b057bc73c1d4 저장된 링크가 영상을 가리키지 않으면 미리보기를 표시하지 않는다`() {
         setMusicDetailScreen(uiState = contentUiState(detail = testMusicDetail(link = YOUTUBE_CHANNEL_LINK)))
 
         composeRule.nodeCount(DEFAULT_THUMBNAIL_PREVIEW_DESCRIPTION) shouldBe 0
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-029 링크를 지우면 수정을 반영하지 않아도 미리보기가 사라진다`() {
+    fun `TC-cf7c16f3-c1a3-4854-adf4-f6f159edccce 링크를 지우면 수정을 반영하지 않아도 미리보기가 사라진다`() {
         val viewModel = setMusicDetailScreen(uiState = contentUiState())
 
         composeRule.linkInput().performTextReplacement("")
@@ -257,7 +257,7 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-029 링크가 비어 있던 곡에 영상 링크를 입력하면 미리보기가 나타난다`() {
+    fun `TC-cf7c16f3-c1a3-4854-adf4-f6f159edccce 링크가 비어 있던 곡에 영상 링크를 입력하면 미리보기가 나타난다`() {
         setMusicDetailScreen(uiState = contentUiState(detail = testMusicDetail(link = "")))
 
         composeRule.linkInput().performTextReplacement(CHANGED_LINK)
@@ -267,14 +267,14 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-015 썸네일만 바꾸거나 지우는 조작을 두지 않는다`() {
+    fun `TC-30f4786d-2613-49b9-bddc-feaed84c3891 썸네일만 바꾸거나 지우는 조작을 두지 않는다`() {
         setMusicDetailScreen(uiState = contentUiState())
 
         composeRule.onNodeWithContentDescription(DEFAULT_THUMBNAIL_PREVIEW_DESCRIPTION).assertHasNoClickAction()
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-016 TC-MUSIC-DETAIL-DOMAIN-009 외부로 열기는 저장된 링크를 연다`() {
+    fun `TC-8b685fc9-8590-4eef-9aea-3a4a99bae7d8 TC-e6891209-618c-45fe-b2f1-c30b5e83ee94 외부로 열기는 저장된 링크를 연다`() {
         val uriHandler = mockk<UriHandler>(relaxed = true)
         setMusicDetailScreen(uiState = contentUiState(), uriHandler = uriHandler)
         composeRule.linkInput().performTextReplacement(CHANGED_LINK)
@@ -288,7 +288,7 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-017 외부로 열어도 입력 중이던 내용을 유지한다`() {
+    fun `TC-83e89b56-1fa9-41aa-82e3-67156043187b 외부로 열어도 입력 중이던 내용을 유지한다`() {
         val uriHandler = mockk<UriHandler>(relaxed = true)
         setMusicDetailScreen(uiState = contentUiState(), uriHandler = uriHandler)
         composeRule.titleInput().performTextReplacement(EDITING_TITLE)
@@ -301,7 +301,7 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-034 앱 밖에서 열지 못하면 화면을 유지하고 링크를 열지 못했다고 알린다`() {
+    fun `TC-bab1ec5b-8853-435d-bda1-5f02f6adafdf 앱 밖에서 열지 못하면 화면을 유지하고 링크를 열지 못했다고 알린다`() {
         var navigateUpCount = 0
         val uriHandler =
             mockk<UriHandler> {
@@ -322,14 +322,14 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-018 저장된 링크가 비어 있으면 외부로 열기를 제공하지 않는다`() {
+    fun `TC-357cb158-ffce-4531-8b75-1b02484fb538 저장된 링크가 비어 있으면 외부로 열기를 제공하지 않는다`() {
         setMusicDetailScreen(uiState = contentUiState(detail = testMusicDetail(link = "")))
 
         composeRule.nodeCount(DEFAULT_OPEN_IN_NEW_DESCRIPTION) shouldBe 0
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-019 삭제를 선택하면 되묻지 않고 삭제를 요청한다`() {
+    fun `TC-0dacd42f-2ac3-48ee-ab55-6affc71255e5 삭제를 선택하면 되묻지 않고 삭제를 요청한다`() {
         val viewModel = setMusicDetailScreen(uiState = contentUiState())
 
         composeRule.onNodeWithContentDescription(DEFAULT_DELETE_BUTTON_DESCRIPTION).performClick()
@@ -340,7 +340,7 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-021 삭제에 성공하면 화면을 떠난다`() {
+    fun `TC-ca8e572f-1080-4a8e-91c0-e4ac4de48a43 삭제에 성공하면 화면을 떠난다`() {
         val effect = MutableStateFlow<MusicDetailEffect?>(null)
         var navigateUpCount = 0
 
@@ -356,7 +356,7 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-027 입력을 바꾼 채 뒤로가면 돌아가기 행동을 한 번 전달하고 수정하지 않는다`() {
+    fun `TC-89f6613c-c279-49ee-8650-6cfd279aa80c 입력을 바꾼 채 뒤로가면 돌아가기 행동을 한 번 전달하고 수정하지 않는다`() {
         var navigateUpCount = 0
 
         val viewModel = setMusicDetailScreen(uiState = contentUiState(), navigateUp = { navigateUpCount += 1 })
@@ -373,7 +373,7 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-023 저장된 제목이 바뀌면 화면 제목만 갱신하고 입력은 덮어쓰지 않는다`() {
+    fun `TC-1b34c164-6cc9-496d-b3ec-6c173ac0afd6 저장된 제목이 바뀌면 화면 제목만 갱신하고 입력은 덮어쓰지 않는다`() {
         val id = Uuid.random()
         val uiState = contentUiState(id = id)
 
@@ -393,7 +393,7 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-025 화면이 재생성되어도 입력 중이던 내용을 유지한다`() {
+    fun `TC-547d9f26-187d-467b-bc56-c6cc808ff1f4 화면이 재생성되어도 입력 중이던 내용을 유지한다`() {
         val restorationTester = StateRestorationTester(composeRule)
         val uiState = contentUiState()
         val viewModel = detailViewModel(uiState = uiState)
@@ -423,7 +423,7 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-026 수정하지 않고 떠났다가 같은 곡에 다시 진입하면 저장된 내용으로 시작한다`() {
+    fun `TC-38ef1c8b-7e7f-4b93-91c9-da835e8e2daa 수정하지 않고 떠났다가 같은 곡에 다시 진입하면 저장된 내용으로 시작한다`() {
         val viewModel = detailViewModel(uiState = contentUiState())
         var isVisible by mutableStateOf(true)
 
@@ -456,22 +456,22 @@ class MusicDetailScreenTest {
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-031 링크가 비어 있으면 다시 불러오기 뒤 링크 입력을 알리고 초점을 옮긴다`() {
+    fun `TC-d7bfce7e-9215-4a4b-b359-bc67b377b3ce 링크가 비어 있으면 다시 불러오기 뒤 링크 입력을 알리고 초점을 옮긴다`() {
         assertFetchLinkInvalid(link = "", effect = MusicDetailEffect.LinkBlank, message = DEFAULT_LINK_BLANK_MESSAGE)
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-031 링크가 공백뿐이면 다시 불러오기 뒤 링크 입력을 알리고 초점을 옮긴다`() {
+    fun `TC-d7bfce7e-9215-4a4b-b359-bc67b377b3ce 링크가 공백뿐이면 다시 불러오기 뒤 링크 입력을 알리고 초점을 옮긴다`() {
         assertFetchLinkInvalid(link = "   ", effect = MusicDetailEffect.LinkBlank, message = DEFAULT_LINK_BLANK_MESSAGE)
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-031 링크가 YouTube 주소가 아니면 다시 불러오기 뒤 YouTube 영상 링크를 알리고 초점을 옮긴다`() {
+    fun `TC-d7bfce7e-9215-4a4b-b359-bc67b377b3ce 링크가 YouTube 주소가 아니면 다시 불러오기 뒤 YouTube 영상 링크를 알리고 초점을 옮긴다`() {
         assertFetchLinkInvalid(link = NOT_YOUTUBE_LINK, effect = MusicDetailEffect.LinkNotYoutube, message = DEFAULT_LINK_NOT_YOUTUBE_MESSAGE)
     }
 
     @Test
-    fun `TC-MUSIC-DETAIL-FEATURE-032 영상 정보를 가져오지 못하면 실패를 알리고 입력과 초점을 유지한다`() {
+    fun `TC-1975ff66-3587-47d3-b1e7-57d24a284022 영상 정보를 가져오지 못하면 실패를 알리고 입력과 초점을 유지한다`() {
         val effect = MutableStateFlow<MusicDetailEffect?>(null)
         val viewModel = setMusicDetailScreen(uiState = contentUiState(), effect = effect.filterNotNull())
         composeRule.titleInput().performTextReplacement(EDITING_TITLE)

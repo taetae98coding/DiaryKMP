@@ -32,18 +32,18 @@ class QrAddFormatTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-ADD-FEATURE-031 한국어 환경에서 포맷 선택은 아홉 개 포맷을 정해진 순서로 보여 준다`() {
+    fun `TC-19bf361b-3cf7-4979-a5f0-265feb5872ce 한국어 환경에서 포맷 선택은 아홉 개 포맷을 정해진 순서로 보여 준다`() {
         assertFormatMenu(formatLabel = KOREAN_FORMAT_LABEL, currentFormatName = "텍스트", expected = KOREAN_FORMAT_NAME_LIST)
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-031 기본 환경에서 포맷 선택은 아홉 개 포맷을 정해진 순서로 보여 준다`() {
+    fun `TC-19bf361b-3cf7-4979-a5f0-265feb5872ce 기본 환경에서 포맷 선택은 아홉 개 포맷을 정해진 순서로 보여 준다`() {
         assertFormatMenu(formatLabel = DEFAULT_FORMAT_LABEL, currentFormatName = "Text", expected = DEFAULT_FORMAT_NAME_LIST)
     }
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-ADD-FEATURE-032 포맷마다 정해진 입력을 보여 준다`() {
+    fun `TC-df2137d7-e23d-4409-a271-9cfb8021f722 포맷마다 정해진 입력을 보여 준다`() {
         val state = setQrAddScaffold()
         composeRule.selectTab(QR_TAB_INDEX)
         val expectedMap =
@@ -79,7 +79,7 @@ class QrAddFormatTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-033 탭을 오가도 두 탭의 입력과 QR 그림이 그대로 남는다`() {
+    fun `TC-3dba14b5-3efb-4128-a092-09a4f0ed3f6d 탭을 오가도 두 탭의 입력과 QR 그림이 그대로 남는다`() {
         val detail = qrTestFixtureMonkey.qrDetail()
         val url = "https://${qrTestFixtureMonkey.qrDetail().value.filter(Char::isLetterOrDigit)}a.com"
         val state = setQrAddScaffold()
@@ -107,7 +107,7 @@ class QrAddFormatTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-ADD-FEATURE-036 보안 방식이 없음이면 비밀번호 입력을 숨기고 되돌리면 입력했던 비밀번호가 다시 보인다`() {
+    fun `TC-1b084d72-8fba-41ad-8020-818f541eb634 보안 방식이 없음이면 비밀번호 입력을 숨기고 되돌리면 입력했던 비밀번호가 다시 보인다`() {
         val state = setQrAddScaffold()
         composeRule.selectTab(QR_TAB_INDEX)
         composeRule.write { state().contentState.selectFormat(QrFormat.WIFI) }
@@ -128,7 +128,7 @@ class QrAddFormatTest {
     }
 
     @Test
-    fun `TC-QR-ADD-FEATURE-037 포맷 입력이 QR 하나에 담을 수 없게 되면 반영하지 않는다`() {
+    fun `TC-d8e3b52b-3573-44cc-be4c-72ed139edd49 포맷 입력이 QR 하나에 담을 수 없게 되면 반영하지 않는다`() {
         val longestUrl = "a".repeat(MAX_BYTE_LENGTH)
         val state = setQrAddScaffold()
         composeRule.selectTab(QR_TAB_INDEX)

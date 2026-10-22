@@ -82,7 +82,7 @@ class TagDetailMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-DATA-005 표시 범위를 넓혔다 되돌리면 메모 목록을 각 범위 기준으로 다시 조회한다") {
+        test("TC-6e914ebb-0357-4604-87f2-6dc4438a9e03 표시 범위를 넓혔다 되돌리면 메모 목록을 각 범위 기준으로 다시 조회한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val selfMemoList = List(2) { memo() }
@@ -108,7 +108,7 @@ class TagDetailMemoViewModelTest : FunSpec() {
                 advanceUntilIdle()
             }
         }
-        test("TC-TAG-DETAIL-DATA-004 표시 범위를 바꿔도 저장소에 기록하지 않는다") {
+        test("TC-8cb16d42-a8ad-499e-a09e-aa5ec9b5f62e 표시 범위를 바꿔도 저장소에 기록하지 않는다") {
             runTest(mainDispatcher) {
                 val finishMemoUseCase = mockk<FinishMemoUseCase>()
                 val restartMemoUseCase = mockk<RestartMemoUseCase>()
@@ -143,7 +143,7 @@ class TagDetailMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-MEMO-FEATURE-006 태그별 메모 최초 조회가 실패하면 조회가 끝난 빈 목록을 노출한다") {
+        test("TC-3c0b71f2-1005-42f5-a7fd-f909eb3bf37c 태그별 메모 최초 조회가 실패하면 조회가 끝난 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val pageTagMemoUseCase = mockk<PageTagMemoUseCase>()
@@ -163,7 +163,7 @@ class TagDetailMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-MEMO-FEATURE-006 태그별 메모 조회가 이어서 불러오기에 실패해도 이미 불러온 목록을 그대로 노출한다") {
+        test("TC-3c0b71f2-1005-42f5-a7fd-f909eb3bf37c 태그별 메모 조회가 이어서 불러오기에 실패해도 이미 불러온 목록을 그대로 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val memo = memo()
@@ -181,7 +181,7 @@ class TagDetailMemoViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-TAG-DETAIL-MEMO-FEATURE-006 태그별 메모 조회가 다시 조회하다 실패하면 이전 목록을 남기지 않고 빈 목록을 노출한다") {
+        test("TC-3c0b71f2-1005-42f5-a7fd-f909eb3bf37c 태그별 메모 조회가 다시 조회하다 실패하면 이전 목록을 남기지 않고 빈 목록을 노출한다") {
             runTest(mainDispatcher) {
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
                 val memo = memo()

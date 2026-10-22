@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.flow
 
 class MapSettingRepositoryImplTest :
     FunSpec({
-        test("TC-SETTING-MAP-DATA-001 저장된 기본 지도가 없으면 네이버 지도를 제공한다") {
+        test("TC-4d7decea-a9b5-4cbd-a8c4-ccb9be6bd7be 저장된 기본 지도가 없으면 네이버 지도를 제공한다") {
             val repository =
                 MapSettingRepositoryImpl(
                     mapSettingLocalDataSource =
@@ -31,7 +31,7 @@ class MapSettingRepositoryImplTest :
             repository.getDefaultProvider().first() shouldBe MapProvider.NAVER
         }
 
-        test("TC-SETTING-MAP-DATA-002 저장한 기본 지도를 이후 조회에서 제공한다") {
+        test("TC-bb3be6e1-6363-492f-a22d-45753285bb2b 저장한 기본 지도를 이후 조회에서 제공한다") {
             MapProvider.entries.forEach { provider ->
                 val repository =
                     MapSettingRepositoryImpl(
@@ -47,7 +47,7 @@ class MapSettingRepositoryImplTest :
             }
         }
 
-        test("TC-SETTING-MAP-DATA-003 다시 저장하면 마지막에 저장한 기본 지도를 제공한다") {
+        test("TC-be1dbf50-6080-4fbf-9f2b-d4f35c74da29 다시 저장하면 마지막에 저장한 기본 지도를 제공한다") {
             val repository =
                 MapSettingRepositoryImpl(
                     mapSettingLocalDataSource =
@@ -62,7 +62,7 @@ class MapSettingRepositoryImplTest :
             repository.getDefaultProvider().first() shouldBe MapProvider.NAVER
         }
 
-        test("TC-SETTING-MAP-DATA-004 조회 중에 기본 지도가 바뀌면 이어서 새 값을 제공한다") {
+        test("TC-8794bd07-1a60-414a-929d-cced1aebaf95 조회 중에 기본 지도가 바뀌면 이어서 새 값을 제공한다") {
             val repository =
                 MapSettingRepositoryImpl(
                     mapSettingLocalDataSource =
@@ -80,7 +80,7 @@ class MapSettingRepositoryImplTest :
             }
         }
 
-        test("TC-SETTING-MAP-DATA-007 저장된 값을 읽을 수 없으면 네이버 지도를 제공하지 않고 실패를 그대로 알린다") {
+        test("TC-b0a47e3c-9d5e-4c8d-a763-b21d3f41bfd3 저장된 값을 읽을 수 없으면 네이버 지도를 제공하지 않고 실패를 그대로 알린다") {
             val failure = IllegalStateException("map setting read failed")
             val repository =
                 MapSettingRepositoryImpl(
@@ -98,7 +98,7 @@ class MapSettingRepositoryImplTest :
             thrown shouldBe failure
         }
 
-        test("TC-SETTING-MAP-DATA-011 저장된 값이 알 수 없는 지도이면 네이버 지도를 제공한다") {
+        test("TC-fd3e26b1-4b1f-48f2-9418-145b3eaf0e85 저장된 값이 알 수 없는 지도이면 네이버 지도를 제공한다") {
             val unknownValue = "unknown-map-${fixtureMonkey.giveMeOne<Int>()}"
             val repository =
                 MapSettingRepositoryImpl(

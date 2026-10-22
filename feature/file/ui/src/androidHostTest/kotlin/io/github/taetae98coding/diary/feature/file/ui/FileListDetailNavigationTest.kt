@@ -148,7 +148,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-FEATURE-001 목록과 상세를 함께 쓰는 환경에서는 파일 목록과 FileAdd를 함께 표시한다`() {
+    fun `TC-7689a1a6-3e58-4736-b647-7db6963633b2 목록과 상세를 함께 쓰는 환경에서는 파일 목록과 FileAdd를 함께 표시한다`() {
         val file = testFile()
 
         setFileNavDisplay(fileList = listOf(file))
@@ -159,7 +159,7 @@ class FileListDetailNavigationTest {
 
     @Test
     @Config(qualifiers = "ko-w411dp-h891dp")
-    fun `TC-FILE-LIST-DETAIL-FEATURE-002 한 화면만 제공하는 환경에서는 현재 화면만 단독으로 표시한다`() {
+    fun `TC-7a418dcf-96fc-4eb2-851d-494e31e91387 한 화면만 제공하는 환경에서는 현재 화면만 단독으로 표시한다`() {
         val file = testFile()
         setFileNavDisplay(fileList = listOf(file))
 
@@ -174,7 +174,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-FEATURE-003 상세 영역에 FileAdd가 놓이면 목록에서 파일 추가 버튼을 제공하지 않는다`() {
+    fun `TC-7e1e3678-bffe-4341-9b07-82c444317948 상세 영역에 FileAdd가 놓이면 목록에서 파일 추가 버튼을 제공하지 않는다`() {
         val file = testFile()
         setFileNavDisplay(fileList = listOf(file))
 
@@ -186,7 +186,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-FEATURE-004 상세 영역에 FileDetail이 놓이면 목록에서 파일 추가 버튼을 제공한다`() {
+    fun `TC-e8b1d116-f857-4329-acb8-5fd73bad2f05 상세 영역에 FileDetail이 놓이면 목록에서 파일 추가 버튼을 제공한다`() {
         val file = testFile()
         setFileNavDisplay(fileList = listOf(file))
 
@@ -196,7 +196,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-FEATURE-005 목록과 함께 표시되면 상세 영역의 FileAdd와 FileDetail에서 뒤로가기 버튼을 제공하지 않는다`() {
+    fun `TC-68250e6a-ee8d-434b-8f3e-c3e66a787f4b 목록과 함께 표시되면 상세 영역의 FileAdd와 FileDetail에서 뒤로가기 버튼을 제공하지 않는다`() {
         val file = testFile()
         setFileNavDisplay(fileList = listOf(file))
 
@@ -209,7 +209,7 @@ class FileListDetailNavigationTest {
 
     @Test
     @Config(qualifiers = "ko-w411dp-h891dp")
-    fun `TC-FILE-LIST-DETAIL-FEATURE-006 단독으로 표시되면 FileAdd와 FileDetail에서 뒤로가기 버튼을 제공한다`() {
+    fun `TC-b3a7960f-8eef-4979-814a-c3d29c8ee0e4 단독으로 표시되면 FileAdd와 FileDetail에서 뒤로가기 버튼을 제공한다`() {
         val file = testFile()
         setFileNavDisplay(fileList = listOf(file))
 
@@ -227,7 +227,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-FEATURE-007 목록에서 파일을 선택하면 목록을 유지한 채 상세 영역이 그 파일의 FileDetail로 바뀐다`() {
+    fun `TC-e3e8c3de-6912-43b5-a584-e0623ecdc26a 목록에서 파일을 선택하면 목록을 유지한 채 상세 영역이 그 파일의 FileDetail로 바뀐다`() {
         val file = testFile()
         setFileNavDisplay(fileList = listOf(file))
 
@@ -240,7 +240,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-FEATURE-008 상세 영역에서 뒤로가면 FileAdd로 되돌아간다`() {
+    fun `TC-e810d0ab-2004-4514-8d74-590ba541f912 상세 영역에서 뒤로가면 FileAdd로 되돌아간다`() {
         val file = testFile()
         setFileNavDisplay(fileList = listOf(file))
         openDetail(file = file)
@@ -254,7 +254,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-FEATURE-009 FileDetail이 놓인 동안 파일 추가를 실행하면 상세 영역이 FileAdd로 바뀐다`() {
+    fun `TC-c93a7a45-a0f0-4805-84e0-8fe72a3c63c1 FileDetail이 놓인 동안 파일 추가를 실행하면 상세 영역이 FileAdd로 바뀐다`() {
         val file = testFile()
         setFileNavDisplay(fileList = listOf(file))
 
@@ -267,7 +267,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-FEATURE-010 FileDetail 위에서 연 FileAdd에서 뒤로가면 이전 FileDetail로 돌아간다`() {
+    fun `TC-91d24273-310d-44e6-bfc0-9f03c8df9c23 FileDetail 위에서 연 FileAdd에서 뒤로가면 이전 FileDetail로 돌아간다`() {
         val file = testFile()
         setFileNavDisplay(fileList = listOf(file))
         openAddOnDetail(file = file)
@@ -279,7 +279,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-FEATURE-011 FileDetail 위에서 연 FileAdd는 빈 입력과 고른 파일 없음으로 시작한다`() {
+    fun `TC-872d944e-87d5-468c-a55c-4d855f6e4d4b FileDetail 위에서 연 FileAdd는 빈 입력과 고른 파일 없음으로 시작한다`() {
         val file = testFile()
         val source = fixtureMonkey.fileUploadSource()
         setFileNavDisplay(fileList = listOf(file))
@@ -297,7 +297,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-FEATURE-019 선택 전 FileAdd에서 올리기를 시작해도 상세 영역은 FileAdd로 남는다`() {
+    fun `TC-2fd4f0fe-865d-4c52-95e8-e8054c97dc8d 선택 전 FileAdd에서 올리기를 시작해도 상세 영역은 FileAdd로 남는다`() {
         val file = testFile()
         val source = fixtureMonkey.fileUploadSource()
         setFileNavDisplay(fileList = listOf(file))
@@ -316,7 +316,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-FEATURE-020 선택 전 FileAdd에서 올린 파일은 성공하면 같은 화면의 목록에 나타난다`() {
+    fun `TC-9c8360d6-d01d-4e46-92e8-97ae6585cfea 선택 전 FileAdd에서 올린 파일은 성공하면 같은 화면의 목록에 나타난다`() {
         val file = testFile()
         val uploaded = testFile()
         refreshedFileList = listOf(uploaded, file)
@@ -338,7 +338,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-FEATURE-021 올리는 중에도 목록에서 파일을 선택해 상세 영역에 FileDetail을 연다`() {
+    fun `TC-57f0766c-de93-4842-95fb-78154c61fa71 올리는 중에도 목록에서 파일을 선택해 상세 영역에 FileDetail을 연다`() {
         val file = testFile()
         setFileNavDisplay(fileList = listOf(file))
         composeRule.runOnIdle { addMocks.state.value = FileUploadState.Uploading(percent = null) }
@@ -351,7 +351,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-FEATURE-022 목록에서 연 FileAdd를 뒤로가기로 닫아도 선택 전 FileAdd의 작성 내용이 남는다`() {
+    fun `TC-28f6f7bf-80cc-467a-8f3a-b5a40ddda245 목록에서 연 FileAdd를 뒤로가기로 닫아도 선택 전 FileAdd의 작성 내용이 남는다`() {
         val file = testFile()
         val input = fillPlaceholderWithFile(fileList = listOf(file))
         openAddOnDetail(file = file)
@@ -364,7 +364,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-FEATURE-022 목록에서 연 FileAdd를 다른 파일을 골라 걷어내도 선택 전 FileAdd의 작성 내용이 남는다`() {
+    fun `TC-28f6f7bf-80cc-467a-8f3a-b5a40ddda245 목록에서 연 FileAdd를 다른 파일을 골라 걷어내도 선택 전 FileAdd의 작성 내용이 남는다`() {
         val first = testFile()
         val second = testFile()
         val input = fillPlaceholderWithFile(fileList = listOf(first, second))
@@ -377,7 +377,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-FEATURE-012 FileDetail이 놓인 동안 다른 파일을 고르면 교체하고 뒤로가면 FileAdd로 돌아간다`() {
+    fun `TC-3138af23-fb7b-408c-8a86-92eead539d42 FileDetail이 놓인 동안 다른 파일을 고르면 교체하고 뒤로가면 FileAdd로 돌아간다`() {
         val first = testFile()
         val second = testFile()
         setFileNavDisplay(fileList = listOf(first, second))
@@ -395,7 +395,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-FEATURE-013 FileDetail 위에서 연 FileAdd가 놓인 동안 다른 파일을 고르면 FileAdd를 걷어내고 그 FileDetail로 바꾼다`() {
+    fun `TC-d314030a-4b36-4de7-b07b-eb59d6d8cd8b FileDetail 위에서 연 FileAdd가 놓인 동안 다른 파일을 고르면 FileAdd를 걷어내고 그 FileDetail로 바꾼다`() {
         val first = testFile()
         val second = testFile()
         val title = typedTitle()
@@ -417,7 +417,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-FEATURE-014 파일을 고르지 않은 상태에서 뒤로가면 더보기로 돌아간다`() {
+    fun `TC-1e76486e-2f0c-4a6a-bbce-5f40539596f1 파일을 고르지 않은 상태에서 뒤로가면 더보기로 돌아간다`() {
         val file = testFile()
         setFileNavDisplay(fileList = listOf(file))
 
@@ -430,7 +430,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-FEATURE-016 상세 영역에 FileDetail이 놓인 동안 끝난 올리기의 실패는 목록에서 알린다`() {
+    fun `TC-0af65ecc-01ad-4693-83bb-945d52fa4fb7 상세 영역에 FileDetail이 놓인 동안 끝난 올리기의 실패는 목록에서 알린다`() {
         val file = testFile()
         setFileNavDisplay(fileList = listOf(file))
         openDetail(file = file)
@@ -443,7 +443,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-FEATURE-017 상세 영역의 FileDetail이 계정 변경으로 닫히면 FileAdd로 되돌아간다`() {
+    fun `TC-1bd00936-52b0-4d58-b4d4-f84c9fe30902 상세 영역의 FileDetail이 계정 변경으로 닫히면 FileAdd로 되돌아간다`() {
         val file = testFile()
         setFileNavDisplay(fileList = listOf(file))
         openDetail(file = file)
@@ -458,7 +458,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-DOMAIN-003 더보기로 돌아갔다가 다시 진입하면 상세 선택이 초기화된다`() {
+    fun `TC-efa25862-1b55-4fd6-ad3f-ab31b4149ca3 더보기로 돌아갔다가 다시 진입하면 상세 선택이 초기화된다`() {
         val file = testFile()
         setFileNavDisplay(fileList = listOf(file))
         openDetail(file = file)
@@ -474,7 +474,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-DOMAIN-004 더보기로 돌아갔다가 다시 진입하면 상세 영역의 FileAdd는 빈 상태로 시작한다`() {
+    fun `TC-dbd90688-c4d1-468e-a939-728e3263703b 더보기로 돌아갔다가 다시 진입하면 상세 영역의 FileAdd는 빈 상태로 시작한다`() {
         val source = fixtureMonkey.fileUploadSource()
         setFileNavDisplay(fileList = listOf(testFile()))
         fillPlaceholder(title = typedTitle(), description = typedDescription())
@@ -493,7 +493,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-DOMAIN-005 배치를 떠나기 전에는 상세 영역에서 FileDetail을 보고 돌아와도 FileAdd의 작성 내용이 남는다`() {
+    fun `TC-49230831-151f-434d-b14a-22fef676ed93 배치를 떠나기 전에는 상세 영역에서 FileDetail을 보고 돌아와도 FileAdd의 작성 내용이 남는다`() {
         val file = testFile()
         val title = typedTitle()
         val description = typedDescription()
@@ -513,7 +513,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-DOMAIN-006 게스트가 되면 선택한 파일이 없을 때의 상세 영역을 비우고 작성 내용을 남기지 않는다`() {
+    fun `TC-86d19c58-91c6-426c-bc18-470661404a39 게스트가 되면 선택한 파일이 없을 때의 상세 영역을 비우고 작성 내용을 남기지 않는다`() {
         val source = fixtureMonkey.fileUploadSource()
         setFileNavDisplay(fileList = listOf(testFile()))
         fillPlaceholder(title = typedTitle(), description = typedDescription())
@@ -534,7 +534,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-DOMAIN-007 계정 상태를 확정하지 않은 동안에는 상세 영역의 FileAdd와 작성 내용을 그대로 둔다`() {
+    fun `TC-dde99079-94ce-4220-93cd-88b9078538ac 계정 상태를 확정하지 않은 동안에는 상세 영역의 FileAdd와 작성 내용을 그대로 둔다`() {
         val title = typedTitle()
         setFileNavDisplay(fileList = listOf(testFile()))
         fillPlaceholder(title = title, description = typedDescription())
@@ -547,14 +547,14 @@ class FileListDetailNavigationTest {
 
     @Test
     @Config(qualifiers = "ko-w411dp-h891dp")
-    fun `TC-FILE-LIST-DETAIL-FEATURE-004 상세 영역을 함께 표시하지 않으면 목록에서 파일 추가 버튼을 제공한다`() {
+    fun `TC-e8b1d116-f857-4329-acb8-5fd73bad2f05 상세 영역을 함께 표시하지 않으면 목록에서 파일 추가 버튼을 제공한다`() {
         setFileNavDisplay(fileList = listOf(testFile()))
 
         composeRule.onNodeWithContentDescription(ADD_DESCRIPTION).assertExists()
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-FEATURE-013 좁은 창에서 연 FileAdd가 창이 넓어져 상세 영역에 놓인 동안 다른 파일을 고르면 FileAdd를 걷어내고 그 FileDetail로 바꾼다`() {
+    fun `TC-d314030a-4b36-4de7-b07b-eb59d6d8cd8b 좁은 창에서 연 FileAdd가 창이 넓어져 상세 영역에 놓인 동안 다른 파일을 고르면 FileAdd를 걷어내고 그 FileDetail로 바꾼다`() {
         val file = testFile()
         val title = typedTitle()
         directiveOverride = singlePaneDirective()
@@ -580,7 +580,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-FEATURE-014 게스트 상태라 상세 영역이 비어 있을 때 뒤로가면 더보기로 돌아간다`() {
+    fun `TC-1e76486e-2f0c-4a6a-bbce-5f40539596f1 게스트 상태라 상세 영역이 비어 있을 때 뒤로가면 더보기로 돌아간다`() {
         setFileNavDisplay(fileList = listOf(testFile()))
         changeAccount(account = Account.Guest, homeState = FileHomeUiState.Guest)
         composeRule.onNodeWithContentDescription(UPLOAD_DESCRIPTION).assertDoesNotExist()
@@ -592,7 +592,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-FEATURE-017 FileDetail 위에서 연 FileAdd가 놓인 동안 게스트가 되면 FileAdd와 FileDetail이 모두 닫히고 상세 영역이 빈다`() {
+    fun `TC-1bd00936-52b0-4d58-b4d4-f84c9fe30902 FileDetail 위에서 연 FileAdd가 놓인 동안 게스트가 되면 FileAdd와 FileDetail이 모두 닫히고 상세 영역이 빈다`() {
         val file = testFile()
         setFileNavDisplay(fileList = listOf(file))
         openAddOnDetail(file = file)
@@ -606,7 +606,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-FEATURE-018 FileDetail 위에서 연 FileAdd가 놓인 동안 다른 사용자로 바뀌면 FileAdd는 남고 뒤로가면 FileDetail이 닫힌다`() {
+    fun `TC-c5b955f9-725d-406e-8813-5798ce866445 FileDetail 위에서 연 FileAdd가 놓인 동안 다른 사용자로 바뀌면 FileAdd는 남고 뒤로가면 FileDetail이 닫힌다`() {
         val file = testFile()
         val title = typedTitle()
         setFileNavDisplay(fileList = listOf(file))
@@ -628,7 +628,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-DOMAIN-001 파일 목록에서 진입하지 않은 FileAdd와 FileDetail은 단독으로 표시한다`() {
+    fun `TC-93ef7888-533c-419e-ab80-d0ca6304a6f8 파일 목록에서 진입하지 않은 FileAdd와 FileDetail은 단독으로 표시한다`() {
         val file = testFile()
         val caseList =
             listOf(
@@ -656,7 +656,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-DOMAIN-002 파일 목록에서 이어 진입한 FileAdd와 FileDetail은 목록과 함께 표시한다`() {
+    fun `TC-675a9714-031d-420a-8df3-639645c0a8c6 파일 목록에서 이어 진입한 FileAdd와 FileDetail은 목록과 함께 표시한다`() {
         val file = testFile()
         setFileNavDisplay(fileList = listOf(file))
 
@@ -673,7 +673,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-LIST-DETAIL-DOMAIN-011 상세 영역의 화면이 바뀌어도 목록은 보던 자리를 유지하고 다시 불러오지 않는다`() {
+    fun `TC-f460776c-ceec-4447-8e4b-c1260ee8047a 상세 영역의 화면이 바뀌어도 목록은 보던 자리를 유지하고 다시 불러오지 않는다`() {
         val fileList = List(30) { testFile() }
         setFileNavDisplay(fileList = fileList)
         composeRule.onNodeWithTag(FILE_HOME_LIST_TEST_TAG).performScrollToIndex(25)
@@ -690,7 +690,7 @@ class FileListDetailNavigationTest {
     }
 
     @Test
-    fun `TC-FILE-UPLOAD-NOTIFICATION-DOMAIN-001 목록과 함께 상세 영역에 FileDetail을 두면 FileHome을 계속 보고 있다고 알린다`() {
+    fun `TC-ab621b74-2356-4469-b0e5-d54403ff5e52 목록과 함께 상세 영역에 FileDetail을 두면 FileHome을 계속 보고 있다고 알린다`() {
         val file = testFile()
         setFileNavDisplay(fileList = listOf(file))
         coVerify(exactly = 1) { startViewingFileScreenUseCase(parameter = FileScreen.HOME) }

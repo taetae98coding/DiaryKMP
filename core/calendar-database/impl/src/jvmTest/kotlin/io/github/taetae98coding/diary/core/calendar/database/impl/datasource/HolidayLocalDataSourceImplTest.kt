@@ -41,11 +41,11 @@ class HolidayLocalDataSourceImplTest :
             database.close()
         }
 
-        test("TC-HOLIDAY-DATABASE-DATA-001 저장된 공휴일이 없으면 빈 목록을 반환한다") {
+        test("TC-cca140e3-2554-4925-b0a5-ae6b47259dd2 저장된 공휴일이 없으면 빈 목록을 반환한다") {
             dataSource.get(countrySet = setOf(KOREA), year = YEAR).first().shouldBeEmpty()
         }
 
-        test("TC-HOLIDAY-DATABASE-DATA-002 요청한 연도의 공휴일만 반환한다") {
+        test("TC-fd3d01ee-414c-460d-ab81-ab78930cdd03 요청한 연도의 공휴일만 반환한다") {
             val holiday = holiday()
             val otherHoliday = holiday(year = OTHER_YEAR)
             transaction.upsert(country = KOREA, year = YEAR, holidayList = listOf(holiday))
@@ -54,7 +54,7 @@ class HolidayLocalDataSourceImplTest :
             dataSource.get(countrySet = setOf(KOREA), year = YEAR).first() shouldBe listOf(holiday)
         }
 
-        test("TC-HOLIDAY-DATABASE-DATA-003 조회 중인 연도의 캐시가 변경되면 새 목록을 제공한다") {
+        test("TC-bd7df080-ec07-4b40-b929-2eaf93fec5ed 조회 중인 연도의 캐시가 변경되면 새 목록을 제공한다") {
             val holiday = holiday()
 
             dataSource.get(countrySet = setOf(KOREA), year = YEAR).test {
@@ -67,7 +67,7 @@ class HolidayLocalDataSourceImplTest :
             }
         }
 
-        test("TC-HOLIDAY-DATABASE-DATA-004 공휴일 목록을 정해진 순서로 반환한다") {
+        test("TC-7d9b6721-2047-4645-b230-b72f399debd9 공휴일 목록을 정해진 순서로 반환한다") {
             val laterStart = holiday(name = "다", start = LocalDate(2026, 2, 1), endInclusive = LocalDate(2026, 2, 1))
             val laterEnd = holiday(name = "라", start = LocalDate(2026, 1, 1), endInclusive = LocalDate(2026, 1, 2))
             val laterName = holiday(name = "나", start = LocalDate(2026, 1, 1), endInclusive = LocalDate(2026, 1, 1))
@@ -81,7 +81,7 @@ class HolidayLocalDataSourceImplTest :
             dataSource.get(countrySet = setOf(KOREA), year = YEAR).first() shouldBe listOf(first, laterName, laterEnd, laterStart)
         }
 
-        test("TC-HOLIDAY-DATABASE-DATA-008 전체 조회는 모든 연도의 공휴일을 반환한다") {
+        test("TC-870ca53b-62e4-495d-bec6-8d5008735fb3 전체 조회는 모든 연도의 공휴일을 반환한다") {
             val holiday = holiday(name = "가")
             val otherHoliday = holiday(year = OTHER_YEAR, name = "나")
             transaction.upsert(country = KOREA, year = YEAR, holidayList = listOf(holiday))
@@ -90,11 +90,11 @@ class HolidayLocalDataSourceImplTest :
             dataSource.get(countrySet = setOf(KOREA)).first() shouldBe listOf(holiday, otherHoliday)
         }
 
-        test("TC-HOLIDAY-DATABASE-DATA-009 전체 조회에서 저장된 공휴일이 없으면 빈 목록을 반환한다") {
+        test("TC-526a683e-19ed-4db6-ad5d-893271094562 전체 조회에서 저장된 공휴일이 없으면 빈 목록을 반환한다") {
             dataSource.get(countrySet = setOf(KOREA)).first().shouldBeEmpty()
         }
 
-        test("TC-HOLIDAY-DATABASE-DATA-010 어느 연도의 캐시든 바뀌면 전체 조회 결과를 갱신한다") {
+        test("TC-e77daefd-b7ea-45b4-9c89-3c85a0e7176c 어느 연도의 캐시든 바뀌면 전체 조회 결과를 갱신한다") {
             val holiday = holiday(name = "가")
             val otherHoliday = holiday(year = OTHER_YEAR, name = "나")
             val replacementHoliday = holiday(name = "가")
@@ -116,7 +116,7 @@ class HolidayLocalDataSourceImplTest :
             }
         }
 
-        test("TC-HOLIDAY-DATABASE-DATA-012 전체 조회는 이름 오름차순으로 공휴일을 반환한다") {
+        test("TC-4aa76f93-d08b-48d6-a0ce-e8b0531d4274 전체 조회는 이름 오름차순으로 공휴일을 반환한다") {
             val firstByName =
                 holiday(
                     year = OTHER_YEAR,
@@ -152,7 +152,7 @@ class HolidayLocalDataSourceImplTest :
             dataSource.get(countrySet = setOf(KOREA)).first() shouldBe listOf(firstByName, secondByName, thirdByName, lastByName)
         }
 
-        test("TC-HOLIDAY-DATABASE-DATA-013 연도별 조회는 요청한 국가 집합의 공휴일만 합쳐 반환한다") {
+        test("TC-4621ff7f-f3e8-44b1-b841-74eb44f49042 연도별 조회는 요청한 국가 집합의 공휴일만 합쳐 반환한다") {
             val korea = holiday(country = KOREA, name = "가")
             val unitedStates = holiday(country = UNITED_STATES, name = "나")
             transaction.upsert(country = KOREA, year = YEAR, holidayList = listOf(korea))
@@ -171,7 +171,7 @@ class HolidayLocalDataSourceImplTest :
             }
         }
 
-        test("TC-HOLIDAY-DATABASE-DATA-014 전체 조회는 요청한 국가 집합의 공휴일만 반환한다") {
+        test("TC-f401a19a-85fb-4b4e-91ec-de62857f516b 전체 조회는 요청한 국가 집합의 공휴일만 반환한다") {
             val korea = holiday(country = KOREA, name = "가")
             val otherYearKorea = holiday(country = KOREA, year = OTHER_YEAR, name = "나")
             val unitedStates = holiday(country = UNITED_STATES, name = "다")
@@ -182,7 +182,7 @@ class HolidayLocalDataSourceImplTest :
             dataSource.get(countrySet = setOf(KOREA)).first() shouldBe listOf(korea, otherYearKorea)
         }
 
-        test("TC-HOLIDAY-DATABASE-DATA-016 시작일·종료일·이름이 같으면 국가 순으로 반환한다") {
+        test("TC-6f84d6b0-2bcf-4b9a-b5be-cebe4455f2a4 시작일·종료일·이름이 같으면 국가 순으로 반환한다") {
             val name: String = fixtureMonkey.giveMeOne()
             val korea = holiday(country = KOREA, name = name)
             val unitedStates = holiday(country = UNITED_STATES, name = name)
@@ -192,7 +192,7 @@ class HolidayLocalDataSourceImplTest :
             dataSource.get(countrySet = setOf(KOREA, UNITED_STATES), year = YEAR).first() shouldBe listOf(korea, unitedStates)
         }
 
-        test("TC-HOLIDAY-DATABASE-DATA-017 전체 조회에서 이름이 같으면 한국, 미국 순으로 반환한다") {
+        test("TC-d24196af-c7b4-4a13-bbbf-7961f5363942 전체 조회에서 이름이 같으면 한국, 미국 순으로 반환한다") {
             val name: String = fixtureMonkey.giveMeOne()
             val unitedStates = holiday(country = UNITED_STATES, year = YEAR, name = name, start = LocalDate(2026, 1, 1))
             val korea = holiday(country = KOREA, year = OTHER_YEAR, name = name, start = LocalDate(2027, 12, 31))
@@ -202,7 +202,7 @@ class HolidayLocalDataSourceImplTest :
             dataSource.get(countrySet = setOf(KOREA, UNITED_STATES)).first() shouldBe listOf(korea, unitedStates)
         }
 
-        test("TC-HOLIDAY-DATABASE-DATA-018 전체 조회에서 국가 집합이 비어 있으면 빈 목록을 반환한다") {
+        test("TC-42e340c1-3321-4c78-9da3-40780c8d04ee 전체 조회에서 국가 집합이 비어 있으면 빈 목록을 반환한다") {
             transaction.upsert(country = KOREA, year = YEAR, holidayList = listOf(holiday()))
 
             dataSource.get(countrySet = emptySet()).first().shouldBeEmpty()

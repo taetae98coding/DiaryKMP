@@ -37,12 +37,12 @@ class AddChecklistUseCaseTest :
             When("체크리스트 추가를 요청한다") {
                 val id = context.useCase(parameter = AddChecklistUseCase.Parameter(detail = detail, itemContentList = contentList)).shouldBeSuccess()
 
-                Then("TC-CHECKLIST-ADD-DOMAIN-007 TC-CHECKLIST-ADD-DOMAIN-010 제목과 설명을 입력한 그대로, 미삭제 상태와 같은 생성·수정 시각으로 기록한다") {
+                Then("TC-e391624f-ed92-4843-b2d5-08238c87bcc6 TC-a9a5504d-447d-4be9-abd7-0ae41f4afc9c 제목과 설명을 입력한 그대로, 미삭제 상태와 같은 생성·수정 시각으로 기록한다") {
                     context.savedChecklistList.single() shouldBe
                         Checklist(id = id, detail = detail, isDeleted = false, updatedAt = context.now, createdAt = context.now)
                 }
 
-                Then("TC-CHECKLIST-ADD-DOMAIN-008 넣어 둔 항목을 새 체크리스트에 속한 체크되지 않고 삭제되지 않은 새 항목으로 만든다") {
+                Then("TC-7c1a1405-1e7f-461c-a8af-bcfcef38d908 넣어 둔 항목을 새 체크리스트에 속한 체크되지 않고 삭제되지 않은 새 항목으로 만든다") {
                     val itemList = context.savedItemListList.single()
                     itemList.map { item -> item.content } shouldBe contentList
                     itemList.forEach { item ->
@@ -53,17 +53,17 @@ class AddChecklistUseCaseTest :
                     itemList.map { item -> item.id }.toSet().size shouldBe contentList.size
                 }
 
-                Then("TC-CHECKLIST-ADD-DOMAIN-011 넣어 둔 순서대로 생성 시각이 늦어지고 수정 시각은 생성 시각과 같다") {
+                Then("TC-f48529a1-3a4b-459b-978e-79ed218d0b58 넣어 둔 순서대로 생성 시각이 늦어지고 수정 시각은 생성 시각과 같다") {
                     val itemList = context.savedItemListList.single()
                     itemList.map { item -> item.createdAt } shouldBe contentList.indices.map { index -> context.now + index.milliseconds }
                     itemList.forEach { item -> item.updatedAt shouldBe item.createdAt }
                 }
 
-                Then("TC-CHECKLIST-ADD-DOMAIN-012 체크리스트와 체크 항목을 현재 계정으로 함께 저장한다") {
+                Then("TC-0edd72f1-8960-4878-8a28-1bf9a28203a7 체크리스트와 체크 항목을 현재 계정으로 함께 저장한다") {
                     coVerify(exactly = 1) { context.repository.upsert(account = checkNotNull(context.account), checklist = any(), itemList = any()) }
                 }
 
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-CHECKLIST-ADD-DATA-004 TC-CHECKLIST-ADD-DATA-005 기기에 저장한 결과로 성공을 판단하고 동기화를 한 번 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-6bea336d-5773-4cdf-aae2-688bf1afbeaa TC-90561386-15a3-4139-9983-cb88f3fe4a47 기기에 저장한 결과로 성공을 판단하고 동기화를 한 번 요청한다") {
                     coVerify(exactly = 1) { context.requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
                 }
             }
@@ -85,7 +85,7 @@ class AddChecklistUseCaseTest :
                             parameter = AddChecklistUseCase.Parameter(detail = fixtureMonkey.checklistDetail(), itemContentList = listOf(content, leftover)),
                         ).shouldBeSuccess()
 
-                    Then("TC-CHECKLIST-ADD-DOMAIN-009 비어 있지 않은 항목 입력만 맨 끝 항목으로 만든다") {
+                    Then("TC-af4f0edf-56d3-484e-afce-4391876a924a 비어 있지 않은 항목 입력만 맨 끝 항목으로 만든다") {
                         context.savedItemListList.single().map { item -> item.content } shouldBe expected
                         context.savedItemListList.single().map { item -> item.createdAt } shouldBe
                             expected.indices.map { index -> context.now + index.milliseconds }
@@ -104,7 +104,7 @@ class AddChecklistUseCaseTest :
                         parameter = AddChecklistUseCase.Parameter(detail = detail, itemContentList = emptyList()),
                     ).shouldBeSuccess()
 
-                Then("TC-CHECKLIST-ADD-DOMAIN-005 빈 설명의 체크리스트를 체크 항목 없이 저장한다") {
+                Then("TC-66d21b3c-6066-4406-9181-68d4c5371b29 빈 설명의 체크리스트를 체크 항목 없이 저장한다") {
                     context.savedChecklistList.single().detail shouldBe detail
                     context.savedItemListList.single().shouldBeEmpty()
                 }
@@ -119,7 +119,7 @@ class AddChecklistUseCaseTest :
             When("같은 내용으로 체크리스트 추가를 요청한다") {
                 val secondId = context.useCase(parameter = parameter).shouldBeSuccess()
 
-                Then("TC-CHECKLIST-ADD-DOMAIN-006 다른 식별 정보를 가진 새 체크리스트와 새 체크 항목으로 저장한다") {
+                Then("TC-ccf640da-12b2-4629-8626-6c4303e76604 다른 식별 정보를 가진 새 체크리스트와 새 체크 항목으로 저장한다") {
                     secondId shouldNotBe firstId
                     context.savedItemListList[1].map { item -> item.id } shouldNotContainAnyOf context.savedItemListList[0].map { item -> item.id }
                     context.savedItemListList[1].map { item -> item.checklistId }.toSet() shouldBe setOf(secondId)
@@ -137,7 +137,7 @@ class AddChecklistUseCaseTest :
                             parameter = AddChecklistUseCase.Parameter(detail = fixtureMonkey.checklistDetail(title = title), itemContentList = listOf(itemContent())),
                         )
 
-                    Then("TC-CHECKLIST-ADD-DOMAIN-004 체크리스트와 체크 항목을 저장하지 않고 제목 미입력으로 거절한다") {
+                    Then("TC-ec02fa4b-0f43-41f7-8e54-1433d90878f8 체크리스트와 체크 항목을 저장하지 않고 제목 미입력으로 거절한다") {
                         result.shouldBeFailure().shouldBeInstanceOf<ChecklistTitleBlankException>()
                         context.verifyNothingSaved()
                         coVerify(exactly = 0) { context.requestSyncUseCase(parameter = any()) }
@@ -153,7 +153,7 @@ class AddChecklistUseCaseTest :
             When("체크리스트 추가를 요청한다") {
                 val result = context.useCase(parameter = AddChecklistUseCase.Parameter(detail = fixtureMonkey.checklistDetail(), itemContentList = listOf(itemContent())))
 
-                Then("TC-CHECKLIST-ADD-DOMAIN-013 체크리스트와 체크 항목을 저장하지 않고 실패를 전달한다") {
+                Then("TC-e0ae504c-75f5-4e3d-9ea9-e3d8afdf1e73 체크리스트와 체크 항목을 저장하지 않고 실패를 전달한다") {
                     result.shouldBeFailure().shouldBeSameInstanceAs(throwable)
                     context.verifyNothingSaved()
                 }
@@ -166,7 +166,7 @@ class AddChecklistUseCaseTest :
             When("체크리스트 추가를 요청한다") {
                 context.useCase(parameter = AddChecklistUseCase.Parameter(detail = fixtureMonkey.checklistDetail(), itemContentList = listOf(itemContent()))).shouldBeSuccess()
 
-                Then("TC-CHECKLIST-ADD-DATA-006 게스트 계정 기준으로 기기에 저장한다") {
+                Then("TC-3f8e323a-1b3f-4bc5-85a9-d54b08e6179a 게스트 계정 기준으로 기기에 저장한다") {
                     coVerify(exactly = 1) { context.repository.upsert(account = checkNotNull(context.account), checklist = any(), itemList = any()) }
                 }
             }
@@ -180,7 +180,7 @@ class AddChecklistUseCaseTest :
             When("체크리스트 추가를 요청한다") {
                 val result = context.useCase(parameter = AddChecklistUseCase.Parameter(detail = fixtureMonkey.checklistDetail(), itemContentList = listOf(itemContent())))
 
-                Then("TC-CHECKLIST-ADD-DATA-002 추가를 성공으로 다루지 않고 동기화를 요청하지 않는다") {
+                Then("TC-22a04f2e-eeb4-482f-b03a-23437e354955 추가를 성공으로 다루지 않고 동기화를 요청하지 않는다") {
                     result.shouldBeFailure().shouldBeSameInstanceAs(throwable)
                     coVerify(exactly = 0) { context.requestSyncUseCase(parameter = any()) }
                 }

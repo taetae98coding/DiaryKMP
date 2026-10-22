@@ -21,7 +21,7 @@ class FindSyncPendingUseCaseTest :
     BehaviorSpec({
         Given("사용자 계정에 업로드 대기 항목이 있다") {
             When("로그인 세션의 갱신 여부가 서로 다르다") {
-                Then("TC-MORE-HOME-DOMAIN-006 세션 갱신 여부와 관계없이 대기 항목이 있다고 알린다") {
+                Then("TC-98ca3ad9-b74a-421b-9a90-d740744b02fb 세션 갱신 여부와 관계없이 대기 항목이 있다고 알린다") {
                     listOf(true, false).forEach { isSessionValid ->
                         val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = isSessionValid)
                         val getAccountUseCase = mockk<GetAccountUseCase>()
@@ -43,7 +43,7 @@ class FindSyncPendingUseCaseTest :
             }
 
             When("업로드 대기 여부를 조회한다") {
-                Then("TC-MORE-HOME-DATA-003 확인된 계정으로 기기 저장소를 한 번 조회한다") {
+                Then("TC-4ee2634b-a9fe-41a7-8f9c-5db073eae4fe 확인된 계정으로 기기 저장소를 한 번 조회한다") {
                     val account = fixtureMonkey.giveMeOne<Account.User>()
                     val getAccountUseCase = mockk<GetAccountUseCase>()
                     every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))

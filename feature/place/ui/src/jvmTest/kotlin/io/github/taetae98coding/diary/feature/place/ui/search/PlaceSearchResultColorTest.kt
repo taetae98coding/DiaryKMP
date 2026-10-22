@@ -13,7 +13,7 @@ private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class PlaceSearchResultColorTest : FunSpec() {
     init {
-        test("TC-PLACE-SEARCH-DIALOG-DOMAIN-024 이름과 좌표가 같은 장소는 다시 받아도 같은 결과 컬러를 갖는다") {
+        test("TC-f419b964-23f9-4a19-a0f7-a8103f2a58c2 이름과 좌표가 같은 장소는 다시 받아도 같은 결과 컬러를 갖는다") {
             val place = fixtureMonkey.giveMeOne<SearchedPlace>()
             val researched = place.copy(id = Uuid.random(), address = place.address + ADDRESS_SUFFIX)
 
@@ -21,7 +21,7 @@ class PlaceSearchResultColorTest : FunSpec() {
             place.resultColor.alpha shouldBe 1F
         }
 
-        test("TC-PLACE-SEARCH-DIALOG-DOMAIN-025 이름이나 좌표가 다른 장소는 각자의 이름과 좌표로 결과 컬러를 정한다") {
+        test("TC-eeb4d847-d46e-40be-886b-7fdadca58ded 이름이나 좌표가 다른 장소는 각자의 이름과 좌표로 결과 컬러를 정한다") {
             val place = fixtureMonkey.giveMeOne<SearchedPlace>().copy(coordinate = validCoordinate())
             val variantList =
                 listOf(

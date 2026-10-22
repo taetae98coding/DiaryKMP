@@ -51,7 +51,7 @@ class EntityMemoFinishedListScaffoldTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-003 상단 바에 대상 항목의 이름과 완료된 메모 목록 표시를 함께 제공한다`() {
+    fun `TC-0fe6f585-5b4f-4239-b7fe-1107d3fc26ef 상단 바에 대상 항목의 이름과 완료된 메모 목록 표시를 함께 제공한다`() {
         setEntityMemoFinishedListScaffold(uiState = EntityMemoFinishedListUiState(title = ENTITY_NAME))
 
         composeRule.onNodeWithText(ENTITY_NAME).assertIsDisplayed()
@@ -60,7 +60,7 @@ class EntityMemoFinishedListScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-003 한국어 환경에서 완료된 메모 목록 표시는 완료된 메모다`() {
+    fun `TC-0fe6f585-5b4f-4239-b7fe-1107d3fc26ef 한국어 환경에서 완료된 메모 목록 표시는 완료된 메모다`() {
         setEntityMemoFinishedListScaffold(uiState = EntityMemoFinishedListUiState(title = ENTITY_NAME))
 
         composeRule.onNodeWithText(ENTITY_NAME).assertIsDisplayed()
@@ -68,7 +68,7 @@ class EntityMemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-004 항목 이름이 비어 있어도 완료된 메모 목록 표시와 뒤로가기는 유지한다`() {
+    fun `TC-3a803196-7a36-45a1-a26a-a896965402f3 항목 이름이 비어 있어도 완료된 메모 목록 표시와 뒤로가기는 유지한다`() {
         setEntityMemoFinishedListScaffold()
 
         composeRule.onNodeWithText(ENTITY_NAME).assertDoesNotExist()
@@ -78,7 +78,7 @@ class EntityMemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-005 항목 이름이 바뀌면 바뀐 이름을 사용한다`() {
+    fun `TC-7cb4d67b-a6e8-474a-a12c-457476e3212b 항목 이름이 바뀌면 바뀐 이름을 사용한다`() {
         val title = mutableStateOf(OTHER_ENTITY_NAME)
         setEntityMemoFinishedListScaffold(uiStateProvider = { EntityMemoFinishedListUiState(title = title.value) })
 
@@ -100,7 +100,7 @@ class EntityMemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-012 TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-FEATURE-016 이 화면에는 메모 추가 버튼을 표시하지 않는다`() {
+    fun `TC-1b064e48-363f-48a1-b87e-628749605c2e TC-81d2c48e-04c1-484d-b56d-44faad51a460 이 화면에는 메모 추가 버튼을 표시하지 않는다`() {
         setEntityMemoFinishedListScaffold()
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).assertDoesNotExist()
@@ -114,7 +114,7 @@ class EntityMemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-002 TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-006 메모 카드의 제목 컬러 기간과 날짜 헤더를 표시한다`() {
+    fun `TC-e338764a-df6b-4894-97ca-e8ab6a1baeaa TC-c247eb4b-2ac6-4da0-9439-0b7e57b8354e 메모 카드의 제목 컬러 기간과 날짜 헤더를 표시한다`() {
         val date = LocalDate(year = 2026, month = 7, day = 19)
         val noDateMemo = entityMemo(title = NO_DATE_TITLE)
         val allDayMemo = entityMemo(title = ALL_DAY_TITLE, dateTime = MemoDateTime.AllDay(dateRange = date..date))
@@ -173,7 +173,7 @@ class EntityMemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-007 시작 날짜가 오늘인 메모의 날짜 그룹은 오늘임을 알린다`() {
+    fun `TC-e975d9f9-548c-412f-95a9-3c161fc048ee 시작 날짜가 오늘인 메모의 날짜 그룹은 오늘임을 알린다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
         val memo = entityMemo(title = TODAY_MEMO_TITLE, dateTime = MemoDateTime.AllDay(dateRange = today..today))
         setEntityMemoFinishedListScaffold(
@@ -193,7 +193,7 @@ class EntityMemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-009 최초 조회 실패는 메모 없이 오류와 재시도를 표시하지 않는다`() {
+    fun `TC-a0008899-ace5-47f4-9c4c-279a5e617f7c 최초 조회 실패는 메모 없이 오류와 재시도를 표시하지 않는다`() {
         val error = LoadState.Error(IllegalStateException("Refresh failed"))
         setEntityMemoFinishedListScaffold(
             pagingData = entityMemoPagingData(itemList = emptyList(), refresh = error),
@@ -206,7 +206,7 @@ class EntityMemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-009 추가 조회 실패는 표시된 메모를 유지하고 오류와 재시도를 표시하지 않는다`() {
+    fun `TC-a0008899-ace5-47f4-9c4c-279a5e617f7c 추가 조회 실패는 표시된 메모를 유지하고 오류와 재시도를 표시하지 않는다`() {
         val memo = entityMemo(title = APPEND_ERROR_MEMO_TITLE)
         val error = LoadState.Error(IllegalStateException("Append failed"))
         setEntityMemoFinishedListScaffold(
@@ -223,7 +223,7 @@ class EntityMemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-019 메모 카드를 선택하면 상세 이동을 요청한다`() {
+    fun `TC-6176bb69-c13d-4d94-8d82-ec488cf53c3c 메모 카드를 선택하면 상세 이동을 요청한다`() {
         val memo = entityMemo(title = CLICK_MEMO_TITLE)
         val eventList = mutableListOf<MemoListEvent>()
         setEntityMemoFinishedListScaffold(
@@ -238,7 +238,7 @@ class EntityMemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-016 왼쪽에서 오른쪽 스와이프는 다시 시작을 요청한다`() {
+    fun `TC-3162b5e5-0c0b-4397-80b5-34b37ec951d6 왼쪽에서 오른쪽 스와이프는 다시 시작을 요청한다`() {
         val memo = entityMemo(title = RESTART_MEMO_TITLE)
         val eventList = mutableListOf<MemoListEvent>()
         setEntityMemoFinishedListScaffold(
@@ -254,7 +254,7 @@ class EntityMemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-017 오른쪽에서 왼쪽 스와이프는 삭제를 요청한다`() {
+    fun `TC-de3ead05-f69f-4c5e-9001-934c11e284b1 오른쪽에서 왼쪽 스와이프는 삭제를 요청한다`() {
         val memo = entityMemo(title = DELETE_MEMO_TITLE)
         val eventList = mutableListOf<MemoListEvent>()
         setEntityMemoFinishedListScaffold(
@@ -270,7 +270,7 @@ class EntityMemoFinishedListScaffoldTest {
     }
 
     @Test
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-FEATURE-011 상단 바 뒤로가기는 화면 닫기를 요청한다`() {
+    fun `TC-bd6997b9-d2e8-4e97-acbb-84fa17a7d124 상단 바 뒤로가기는 화면 닫기를 요청한다`() {
         val eventList = mutableListOf<EntityMemoFinishedListScaffoldEvent>()
         setEntityMemoFinishedListScaffold(onEvent = eventList::add)
 

@@ -37,7 +37,7 @@ class AndroidFilePickerTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-FILE-ADD-DOMAIN-005 선택 도구가 열린 동안 화면이 재생성되어도 고른 파일이 다시 만들어진 화면에 전달된다`() {
+    fun `TC-297131e8-7445-4e19-a12c-12f900568c0d 선택 도구가 열린 동안 화면이 재생성되어도 고른 파일이 다시 만들어진 화면에 전달된다`() {
         val uri = Uri.parse("content://documents/${fixtureMonkey.giveMeOne<Int>()}")
         val harness = ActivityResultRegistryHarness()
         val pickedList = mutableListOf<FileUri>()
@@ -57,7 +57,7 @@ class AndroidFilePickerTest {
     }
 
     @Test
-    fun `TC-FILE-ADD-DOMAIN-005 선택 도구가 열린 동안 시스템이 앱을 정리했다가 다시 만들어도 고른 파일이 다시 만들어진 화면에 전달된다`() {
+    fun `TC-297131e8-7445-4e19-a12c-12f900568c0d 선택 도구가 열린 동안 시스템이 앱을 정리했다가 다시 만들어도 고른 파일이 다시 만들어진 화면에 전달된다`() {
         val uri = Uri.parse("content://documents/${fixtureMonkey.giveMeOne<Int>()}")
         var harness = ActivityResultRegistryHarness()
         val pickedList = mutableListOf<FileUri>()

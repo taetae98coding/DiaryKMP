@@ -40,7 +40,7 @@ class FileAddAccountViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-FILE-ADD-FEATURE-015 게스트가 되면 게스트 상태가 되고 다른 사용자나 확정하지 않은 상태는 게스트가 아니다") {
+        test("TC-ce898c39-e03d-472d-9099-57ac371ab343 게스트가 되면 게스트 상태가 되고 다른 사용자나 확정하지 않은 상태는 게스트가 아니다") {
             runTest(mainDispatcher) {
                 val accountFlow = MutableStateFlow<Result<Account>>(Result.success(fixtureMonkey.giveMeOne<Account.User>()))
                 val viewModel = viewModel(accountFlow = accountFlow)

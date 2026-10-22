@@ -38,7 +38,7 @@ class PageQrUseCaseTest :
                 )
 
             When("QR 목록을 페이지로 조회한다") {
-                Then("TC-QR-HOME-DOMAIN-005 TC-QR-HOME-DATA-001 현재 계정의 QR을 페이지로 전달한다") {
+                Then("TC-58922c74-a4b9-435e-8f72-35840001e716 TC-7dd1be57-2cd6-4d1b-9763-d9f703a9023f 현재 계정의 QR을 페이지로 전달한다") {
                     val pagingData = useCase(parameter = Unit).first().shouldBeSuccess()
 
                     flowOf(pagingData).asSnapshot() shouldBe qrList
@@ -88,7 +88,7 @@ class PageQrUseCaseTest :
                 )
 
             When("QR 목록을 페이지로 조회한다") {
-                Then("TC-QR-HOME-DOMAIN-006 노출할 QR을 전달하지 않고 계정 조회 실패를 그대로 전달한다") {
+                Then("TC-62bac0d9-980d-4a47-ba97-1997254869a2 노출할 QR을 전달하지 않고 계정 조회 실패를 그대로 전달한다") {
                     useCase(parameter = Unit)
                         .first()
                         .shouldBeFailure()

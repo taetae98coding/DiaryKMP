@@ -35,7 +35,7 @@ class MemoPlaceUseCaseTest :
             every { clock.now() } returns now
 
             When("장소를 추가한다") {
-                Then("TC-MEMO-DETAIL-DATA-020 메모와 그 장소의 연결을 해제되지 않은 상태와 선택 시점으로 저장한다") {
+                Then("TC-bdec85c6-709a-4216-8247-2ea676daa250 메모와 그 장소의 연결을 해제되지 않은 상태와 선택 시점으로 저장한다") {
                     val memoId = fixtureMonkey.giveMeOne<Uuid>()
                     val placeId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =
@@ -60,7 +60,7 @@ class MemoPlaceUseCaseTest :
                     }
                 }
 
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-MEMO-DETAIL-DATA-042 TC-MEMO-PLACE-DATA-005 장소 선택은 연결 변경을 서버와 맞추기 위한 동기화를 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-5288bb2c-d145-44b9-b8a3-9c4bc0a0854c TC-c12bf850-fe4e-4750-94ff-ceb9f75066b4 장소 선택은 연결 변경을 서버와 맞추기 위한 동기화를 요청한다") {
                     val requestSyncUseCase = mockk<RequestSyncUseCase>(relaxed = true)
                     val useCase =
                         AddMemoPlaceUseCase(
@@ -85,7 +85,7 @@ class MemoPlaceUseCaseTest :
             }
 
             When("장소를 해제한다") {
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-MEMO-DETAIL-DATA-042 장소 선택 해제는 연결 변경을 서버와 맞추기 위한 동기화를 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-5288bb2c-d145-44b9-b8a3-9c4bc0a0854c 장소 선택 해제는 연결 변경을 서버와 맞추기 위한 동기화를 요청한다") {
                     val requestSyncUseCase = mockk<RequestSyncUseCase>(relaxed = true)
                     val useCase =
                         RemoveMemoPlaceUseCase(
@@ -108,7 +108,7 @@ class MemoPlaceUseCaseTest :
                     coVerify(exactly = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
                 }
 
-                Then("TC-MEMO-DETAIL-DATA-021 메모와 그 장소의 연결을 해제 상태와 해제 시점으로 저장한다") {
+                Then("TC-6932da48-91cb-4798-9859-bf2028ca81b6 메모와 그 장소의 연결을 해제 상태와 해제 시점으로 저장한다") {
                     val memoId = fixtureMonkey.giveMeOne<Uuid>()
                     val placeId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =
@@ -147,7 +147,7 @@ class MemoPlaceUseCaseTest :
             every { clock.now() } returns now
 
             When("장소를 추가한다") {
-                Then("TC-MEMO-DETAIL-DATA-043 저장한 장소 연결을 되돌리지 않는다") {
+                Then("TC-5e0d2ef1-acca-4006-b31b-88f0cf1b0304 저장한 장소 연결을 되돌리지 않는다") {
                     val memoId = fixtureMonkey.giveMeOne<Uuid>()
                     val placeId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =
@@ -171,7 +171,7 @@ class MemoPlaceUseCaseTest :
             }
 
             When("장소를 해제한다") {
-                Then("TC-MEMO-DETAIL-DATA-043 저장한 장소 연결 해제를 되돌리지 않는다") {
+                Then("TC-5e0d2ef1-acca-4006-b31b-88f0cf1b0304 저장한 장소 연결 해제를 되돌리지 않는다") {
                     val memoId = fixtureMonkey.giveMeOne<Uuid>()
                     val placeId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =

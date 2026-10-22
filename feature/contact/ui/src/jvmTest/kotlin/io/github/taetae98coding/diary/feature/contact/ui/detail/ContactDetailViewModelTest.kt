@@ -50,7 +50,7 @@ class ContactDetailViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-CONTACT-DETAIL-FEATURE-001 조회에 성공하면 저장된 내용을 내용 표시 상태로 노출한다") {
+        test("TC-fa515331-9493-41a3-9cae-8687bb10ae74 조회에 성공하면 저장된 내용을 내용 표시 상태로 노출한다") {
             runTest(mainDispatcher) {
                 val contact = contact()
                 val viewModel = viewModel(id = contact.id, contactFlow = flowOf(Result.success(contact)))
@@ -63,7 +63,7 @@ class ContactDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-FEATURE-005 연락처를 조회할 수 없으면 조회 중 상태를 유지한다") {
+        test("TC-49a7b54d-3d36-40fd-914e-064a21ce1ee4 연락처를 조회할 수 없으면 조회 중 상태를 유지한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
 
@@ -82,7 +82,7 @@ class ContactDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-FEATURE-007 수정에 성공하면 성공 결과를 알린다") {
+        test("TC-ab35576b-3c0b-4ab9-a771-6723ee34a565 수정에 성공하면 성공 결과를 알린다") {
             runTest(mainDispatcher) {
                 val contact = contact()
                 val updateContactUseCase = mockk<UpdateContactUseCase>()
@@ -108,7 +108,7 @@ class ContactDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-FEATURE-012 번호가 비어 있으면 전화번호 입력이 필요함을 알린다") {
+        test("TC-05f2c60c-85f8-49b0-bd88-edb5f89dc2b5 번호가 비어 있으면 전화번호 입력이 필요함을 알린다") {
             runTest(mainDispatcher) {
                 val contact = contact()
                 val updateContactUseCase = mockk<UpdateContactUseCase>()
@@ -130,7 +130,7 @@ class ContactDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-FEATURE-009 수정에 실패하면 성공을 알리지 않는다") {
+        test("TC-26e85c64-7227-4259-9ae3-5de6f31e6c54 수정에 실패하면 성공을 알리지 않는다") {
             runTest(mainDispatcher) {
                 val contact = contact()
                 val updateContactUseCase = mockk<UpdateContactUseCase>()
@@ -162,7 +162,7 @@ class ContactDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-FEATURE-008 수정을 처리하는 동안 진행 상태를 노출한다") {
+        test("TC-add5cb27-84df-43ae-83a1-1845b19b5718 수정을 처리하는 동안 진행 상태를 노출한다") {
             runTest(mainDispatcher) {
                 val contact = contact()
                 val deferred = CompletableDeferred<Result<Int>>()
@@ -194,7 +194,7 @@ class ContactDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-DOMAIN-011 수정을 처리하는 동안 같은 수정 요청은 처리하지 않는다") {
+        test("TC-5fdc3edb-cf98-436d-a420-53fed0e7432d 수정을 처리하는 동안 같은 수정 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val contact = contact()
                 val deferred = CompletableDeferred<Result<Int>>()
@@ -217,7 +217,7 @@ class ContactDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-DOMAIN-011 수정을 처리하는 동안에도 삭제는 처리한다") {
+        test("TC-5fdc3edb-cf98-436d-a420-53fed0e7432d 수정을 처리하는 동안에도 삭제는 처리한다") {
             runTest(mainDispatcher) {
                 val contact = contact()
                 val updateDeferred = CompletableDeferred<Result<Int>>()
@@ -243,7 +243,7 @@ class ContactDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-FEATURE-013 삭제에 성공하면 성공 결과를 알린다") {
+        test("TC-e62577b8-fca8-450e-914a-51e85aa357a5 삭제에 성공하면 성공 결과를 알린다") {
             runTest(mainDispatcher) {
                 val contact = contact()
                 val deleteContactUseCase = mockk<DeleteContactUseCase>()
@@ -265,7 +265,7 @@ class ContactDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-FEATURE-015 삭제에 실패하면 성공을 알리지 않는다") {
+        test("TC-9b240a10-03ba-47cb-91ac-683812ff70d8 삭제에 실패하면 성공을 알리지 않는다") {
             runTest(mainDispatcher) {
                 val contact = contact()
                 val deleteContactUseCase = mockk<DeleteContactUseCase>()
@@ -297,7 +297,7 @@ class ContactDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-DOMAIN-011 삭제를 처리하는 동안 같은 삭제 요청은 처리하지 않는다") {
+        test("TC-5fdc3edb-cf98-436d-a420-53fed0e7432d 삭제를 처리하는 동안 같은 삭제 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val contact = contact()
                 val deferred = CompletableDeferred<Result<Int>>()
@@ -320,7 +320,7 @@ class ContactDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-FEATURE-014 삭제를 처리하는 동안 진행 상태를 노출한다") {
+        test("TC-56e1e1a0-f562-40de-89fd-6a9d40a15168 삭제를 처리하는 동안 진행 상태를 노출한다") {
             runTest(mainDispatcher) {
                 val contact = contact()
                 val deferred = CompletableDeferred<Result<Int>>()
@@ -352,7 +352,7 @@ class ContactDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-FEATURE-025 저장된 즐겨찾기 여부를 그대로 노출한다") {
+        test("TC-cee773f5-9237-4cd5-9c50-f60146701ef7 저장된 즐겨찾기 여부를 그대로 노출한다") {
             runTest(mainDispatcher) {
                 listOf(true, false).forEach { isFavorite ->
                     val contact = contact().copy(isFavorite = isFavorite)
@@ -367,7 +367,7 @@ class ContactDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-FEATURE-026 즐겨찾기가 아닌 연락처의 즐겨찾기를 바꾸면 즐겨찾기로 저장되고 즐겨찾기 상태가 된다") {
+        test("TC-57132162-2a6e-4602-8225-a8524d4b1272 즐겨찾기가 아닌 연락처의 즐겨찾기를 바꾸면 즐겨찾기로 저장되고 즐겨찾기 상태가 된다") {
             runTest(mainDispatcher) {
                 val contact = contact().copy(isFavorite = false)
                 val contactFlow = MutableStateFlow<Result<Contact?>>(Result.success(contact))
@@ -393,7 +393,7 @@ class ContactDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-FEATURE-026 즐겨찾기인 연락처의 즐겨찾기를 바꾸면 즐겨찾기가 해제된다") {
+        test("TC-57132162-2a6e-4602-8225-a8524d4b1272 즐겨찾기인 연락처의 즐겨찾기를 바꾸면 즐겨찾기가 해제된다") {
             runTest(mainDispatcher) {
                 val contact = contact().copy(isFavorite = true)
                 val contactFlow = MutableStateFlow<Result<Contact?>>(Result.success(contact))
@@ -419,7 +419,7 @@ class ContactDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-FEATURE-028 즐겨찾기 변경을 처리하는 동안 진행 상태를 노출한다") {
+        test("TC-4ad526ff-2bf4-4d12-892d-39c28e1861e4 즐겨찾기 변경을 처리하는 동안 진행 상태를 노출한다") {
             runTest(mainDispatcher) {
                 val contact = contact().copy(isFavorite = false)
                 val deferred = CompletableDeferred<Result<Int>>()
@@ -446,7 +446,7 @@ class ContactDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-FEATURE-029 즐겨찾기 변경에 성공해도 알리는 결과를 내보내지 않는다") {
+        test("TC-271a7c74-58a2-40fb-8bec-aa7492b3efd2 즐겨찾기 변경에 성공해도 알리는 결과를 내보내지 않는다") {
             runTest(mainDispatcher) {
                 val contact = contact().copy(isFavorite = false)
                 val favoriteContactUseCase = mockk<FavoriteContactUseCase>()
@@ -465,7 +465,7 @@ class ContactDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-FEATURE-030 즐겨찾기 변경에 실패하면 진행 상태만 해제하고 저장된 값을 유지한다") {
+        test("TC-d5e4cbf9-eaec-4df6-9581-0c546fdc06f1 즐겨찾기 변경에 실패하면 진행 상태만 해제하고 저장된 값을 유지한다") {
             runTest(mainDispatcher) {
                 val contact = contact().copy(isFavorite = false)
                 val favoriteContactUseCase = mockk<FavoriteContactUseCase>()
@@ -489,7 +489,7 @@ class ContactDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-FEATURE-031 저장된 즐겨찾기가 다른 경로로 바뀌면 상태도 갱신된다") {
+        test("TC-10e09312-9488-4a6e-aa75-2e3fdef64843 저장된 즐겨찾기가 다른 경로로 바뀌면 상태도 갱신된다") {
             runTest(mainDispatcher) {
                 val contact = contact().copy(isFavorite = false)
                 val contactFlow = MutableStateFlow<Result<Contact?>>(Result.success(contact))
@@ -508,7 +508,7 @@ class ContactDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-DOMAIN-011 즐겨찾기 변경을 처리하는 동안 같은 즐겨찾기 변경 요청은 처리하지 않는다") {
+        test("TC-5fdc3edb-cf98-436d-a420-53fed0e7432d 즐겨찾기 변경을 처리하는 동안 같은 즐겨찾기 변경 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val contact = contact().copy(isFavorite = false)
                 val deferred = CompletableDeferred<Result<Int>>()
@@ -529,7 +529,7 @@ class ContactDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-DOMAIN-011 즐겨찾기 변경을 처리하는 동안에도 수정과 삭제는 처리한다") {
+        test("TC-5fdc3edb-cf98-436d-a420-53fed0e7432d 즐겨찾기 변경을 처리하는 동안에도 수정과 삭제는 처리한다") {
             runTest(mainDispatcher) {
                 val contact = contact().copy(isFavorite = false)
                 val favoriteDeferred = CompletableDeferred<Result<Int>>()
@@ -564,7 +564,7 @@ class ContactDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-DOMAIN-011 수정을 처리하는 동안에도 즐겨찾기 변경은 처리한다") {
+        test("TC-5fdc3edb-cf98-436d-a420-53fed0e7432d 수정을 처리하는 동안에도 즐겨찾기 변경은 처리한다") {
             runTest(mainDispatcher) {
                 val contact = contact().copy(isFavorite = false)
                 val updateDeferred = CompletableDeferred<Result<Int>>()
@@ -593,7 +593,7 @@ class ContactDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-DOMAIN-011 삭제를 처리하는 동안에도 수정과 즐겨찾기 변경은 처리한다") {
+        test("TC-5fdc3edb-cf98-436d-a420-53fed0e7432d 삭제를 처리하는 동안에도 수정과 즐겨찾기 변경은 처리한다") {
             runTest(mainDispatcher) {
                 val contact = contact().copy(isFavorite = false)
                 val deleteDeferred = CompletableDeferred<Result<Int>>()
@@ -628,7 +628,7 @@ class ContactDetailViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CONTACT-DETAIL-FEATURE-018 대상 연락처가 삭제 상태로 바뀌어도 내용 표시 상태를 유지하고 수정과 삭제를 처리한다") {
+        test("TC-b7e14b09-d12c-4454-addb-34dc24a60be2 대상 연락처가 삭제 상태로 바뀌어도 내용 표시 상태를 유지하고 수정과 삭제를 처리한다") {
             runTest(mainDispatcher) {
                 val contact = contact()
                 val contactFlow = MutableStateFlow(Result.success<Contact?>(contact))

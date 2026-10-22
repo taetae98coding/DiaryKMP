@@ -40,7 +40,7 @@ import kotlin.uuid.Uuid
 
 class AccountMusicRepositoryImplTest :
     FunSpec({
-        test("TC-MUSIC-ADD-DATA-001 곡을 현재 계정 식별자와 로컬 모델로 변환해 로컬 저장소에 저장한다") {
+        test("TC-ac78be66-5451-4c54-931a-4eea0f82ea47 곡을 현재 계정 식별자와 로컬 모델로 변환해 로컬 저장소에 저장한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val music = music()
             val localDataSource = mockk<AccountMusicLocalDataSource>()
@@ -55,7 +55,7 @@ class AccountMusicRepositoryImplTest :
             }
         }
 
-        test("TC-MUSIC-ADD-DATA-004 기기 저장이 실패하면 추가를 성공으로 다루지 않고 실패를 전달한다") {
+        test("TC-9ff7cfb6-4805-4bd7-b69a-f1f1539d8486 기기 저장이 실패하면 추가를 성공으로 다루지 않고 실패를 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val music = music()
             val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
@@ -69,7 +69,7 @@ class AccountMusicRepositoryImplTest :
             } shouldBeSameInstanceAs throwable
         }
 
-        test("TC-PLAYLIST-HOME-DATA-001 곡 목록 페이지 조회는 현재 계정의 로컬 곡을 도메인 모델로 변환해 전달한다") {
+        test("TC-1a847dc7-92fd-483a-a6bc-eeba8625c49c 곡 목록 페이지 조회는 현재 계정의 로컬 곡을 도메인 모델로 변환해 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val localMusicList = List(2) { localMusic() }
             val localDataSource = mockk<AccountMusicLocalDataSource>()
@@ -80,7 +80,7 @@ class AccountMusicRepositoryImplTest :
             repository.page(account = account, sort = ListSort.TITLE).first().items() shouldBe localMusicList.map { local -> local.toDomain() }
         }
 
-        test("TC-MUSIC-DETAIL-DATA-001 TC-MUSIC-DETAIL-DATA-002 대상 곡 조회는 현재 계정 기준으로 로컬 저장소만 사용한다") {
+        test("TC-66ff67f8-7cbd-44e2-a629-4e277f6c8ff1 TC-4fe4f273-cd64-44e6-abba-86f8a48527c6 대상 곡 조회는 현재 계정 기준으로 로컬 저장소만 사용한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val localMusic = localMusic()
             val localDataSource = mockk<AccountMusicLocalDataSource>()
@@ -91,7 +91,7 @@ class AccountMusicRepositoryImplTest :
             repository.find(account = account, musicId = localMusic.id).first() shouldBe localMusic.toDomain()
         }
 
-        test("TC-MUSIC-DETAIL-DATA-001 조회되는 로컬 곡이 없으면 없음을 전달한다") {
+        test("TC-66ff67f8-7cbd-44e2-a629-4e277f6c8ff1 조회되는 로컬 곡이 없으면 없음을 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val musicId = Uuid.random()
             val localDataSource = mockk<AccountMusicLocalDataSource>()
@@ -102,7 +102,7 @@ class AccountMusicRepositoryImplTest :
             repository.find(account = account, musicId = musicId).first() shouldBe null
         }
 
-        test("TC-MUSIC-DETAIL-DATA-003 수정은 현재 계정 식별자와 로컬 모델로 변환해 반영한다") {
+        test("TC-393c5421-cb22-450f-b102-c98a17e85378 수정은 현재 계정 식별자와 로컬 모델로 변환해 반영한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val musicId = Uuid.random()
             val detail = fixtureMonkey.giveMeOne<MusicDetail>()
@@ -117,7 +117,7 @@ class AccountMusicRepositoryImplTest :
             repository.updateDetail(account = account, musicId = musicId, detail = detail, updatedAt = updatedAt) shouldBe 1
         }
 
-        test("TC-MUSIC-DETAIL-DATA-005 삭제는 삭제 여부와 수정 시각만 반영한다") {
+        test("TC-ada1aa84-9a6e-4ccb-b510-03a7a59bdf13 삭제는 삭제 여부와 수정 시각만 반영한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val musicId = Uuid.random()
             val updatedAt = instant()
@@ -133,7 +133,7 @@ class AccountMusicRepositoryImplTest :
             coVerify(exactly = 0) { transaction.upsert(accountId = any(), musicList = any()) }
         }
 
-        test("TC-MUSIC-DETAIL-DATA-006 로컬 수정이 실패하면 실패를 그대로 전파한다") {
+        test("TC-f54d0402-0b9e-4aa6-973f-29ef980b4e07 로컬 수정이 실패하면 실패를 그대로 전파한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val localDataSource = mockk<AccountMusicLocalDataSource>()

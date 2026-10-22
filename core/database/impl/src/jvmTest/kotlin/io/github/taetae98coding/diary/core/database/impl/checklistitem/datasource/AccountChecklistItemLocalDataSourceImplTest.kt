@@ -50,7 +50,7 @@ class AccountChecklistItemLocalDataSourceImplTest :
                 .localChecklistItem(isChecked = isChecked, isDeleted = isDeleted, checklistId = checklistId)
                 .copy(createdAt = Instant.fromEpochSeconds(createdAtSeconds))
 
-        test("TC-CHECKLIST-DETAIL-DOMAIN-003 TC-CHECKLIST-DETAIL-DOMAIN-004 추가순은 그 체크리스트의 미삭제 항목을 체크 여부와 관계없이 생성 시각 오름차순으로 담는다") {
+        test("TC-9596835f-24cf-4a58-86a3-0c84c04d05db TC-289d5d96-f27f-49bf-8b57-dbc8e44c77e6 추가순은 그 체크리스트의 미삭제 항목을 체크 여부와 관계없이 생성 시각 오름차순으로 담는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val checklist = fixtureMonkey.localChecklist(isDeleted = false)
             val first = item(checklistId = checklist.id, isChecked = true, createdAtSeconds = 1)
@@ -70,7 +70,7 @@ class AccountChecklistItemLocalDataSourceImplTest :
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-DOMAIN-004 체크 안 된 항목 우선은 체크되지 않은 항목을 앞에 두고 각 묶음 안은 추가순이다") {
+        test("TC-289d5d96-f27f-49bf-8b57-dbc8e44c77e6 체크 안 된 항목 우선은 체크되지 않은 항목을 앞에 두고 각 묶음 안은 추가순이다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val checklist = fixtureMonkey.localChecklist(isDeleted = false)
             val first = item(checklistId = checklist.id, isChecked = true, createdAtSeconds = 1)
@@ -101,7 +101,7 @@ class AccountChecklistItemLocalDataSourceImplTest :
             }
         }
 
-        test("TC-CHECKLIST-DETAIL-DOMAIN-003 다른 계정과만 연결된 체크 항목은 담지 않는다") {
+        test("TC-9596835f-24cf-4a58-86a3-0c84c04d05db 다른 계정과만 연결된 체크 항목은 담지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val checklist = fixtureMonkey.localChecklist(isDeleted = false)
             checklistTransaction.upsert(

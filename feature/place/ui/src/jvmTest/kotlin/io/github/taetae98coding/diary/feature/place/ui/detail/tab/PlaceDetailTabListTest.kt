@@ -6,7 +6,7 @@ import io.kotest.matchers.shouldBe
 
 class PlaceDetailTabListTest :
     FunSpec({
-        test("TC-PLACE-DETAIL-FEATURE-043 탭은 장소 디테일, 메모 순서다") {
+        test("TC-44efe64b-c472-4553-b5b5-771b8d7df754 탭은 장소 디테일, 메모 순서다") {
             placeDetailTabList shouldContainExactly listOf(PlaceDetailTab.DETAIL, PlaceDetailTab.MEMO)
         }
 

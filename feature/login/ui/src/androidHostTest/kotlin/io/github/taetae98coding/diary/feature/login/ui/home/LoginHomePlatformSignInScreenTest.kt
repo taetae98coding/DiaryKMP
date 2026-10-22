@@ -41,7 +41,7 @@ class LoginHomePlatformSignInScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-LOGIN-FEATURE-030 Google 흐름이 진행되는 동안 진행 표시를 보이고 취소되면 버튼을 다시 보인다`() {
+    fun `TC-786d7f2a-ae85-4403-b473-23cf0d90648c Google 흐름이 진행되는 동안 진행 표시를 보이고 취소되면 버튼을 다시 보인다`() {
         val platformResult = CompletableDeferred<GoogleCredential>()
         val googleCredentialsManager = mockGoogleCredentialsManager()
         coEvery { googleCredentialsManager.signIn() } coAnswers { platformResult.await() }
@@ -54,7 +54,7 @@ class LoginHomePlatformSignInScreenTest {
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-030 Apple 흐름이 진행되는 동안 진행 표시를 보이고 취소되면 버튼을 다시 보인다`() {
+    fun `TC-786d7f2a-ae85-4403-b473-23cf0d90648c Apple 흐름이 진행되는 동안 진행 표시를 보이고 취소되면 버튼을 다시 보인다`() {
         val platformResult = CompletableDeferred<AppleCredential>()
         val appleCredentialsManager = mockAppleCredentialsManager()
         coEvery { appleCredentialsManager.signIn() } coAnswers { platformResult.await() }
@@ -67,7 +67,7 @@ class LoginHomePlatformSignInScreenTest {
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-031 인증 결과를 받으면 버튼을 다시 보이지 않고 진행 표시가 앱 로그인 처리로 이어진다`() {
+    fun `TC-1bee417a-0be2-4aab-8c92-0ca2dca49254 인증 결과를 받으면 버튼을 다시 보이지 않고 진행 표시가 앱 로그인 처리로 이어진다`() {
         val credential = screenTestFixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
         val uiState = MutableStateFlow(LoginHomeUiState())
         val viewModel = screenTestViewModel(uiState = uiState)
@@ -92,7 +92,7 @@ class LoginHomePlatformSignInScreenTest {
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-032 끝을 알 수 없는 흐름 중 같은 수단을 다시 선택하면 새 흐름을 연다`() {
+    fun `TC-f0710c82-73ec-469f-b025-d677731d900a 끝을 알 수 없는 흐름 중 같은 수단을 다시 선택하면 새 흐름을 연다`() {
         val googleCredentialsManager = mockGoogleCredentialsManager(isSignInEndDetectable = false)
         coEvery { googleCredentialsManager.signIn() } coAnswers { CompletableDeferred<GoogleCredential>().await() }
         composeRule.setLoginHomeScreen(viewModel = screenTestViewModel(), googleCredentialsManager = googleCredentialsManager)
@@ -108,7 +108,7 @@ class LoginHomePlatformSignInScreenTest {
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-032 끝을 알 수 없는 흐름 중 다른 수단을 선택하면 새 흐름을 연다`() {
+    fun `TC-f0710c82-73ec-469f-b025-d677731d900a 끝을 알 수 없는 흐름 중 다른 수단을 선택하면 새 흐름을 연다`() {
         val googleCredentialsManager = mockGoogleCredentialsManager(isSignInEndDetectable = false)
         val appleCredentialsManager = mockAppleCredentialsManager(isSignInEndDetectable = false)
         coEvery { googleCredentialsManager.signIn() } coAnswers { CompletableDeferred<GoogleCredential>().await() }
@@ -131,23 +131,23 @@ class LoginHomePlatformSignInScreenTest {
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-033 먼저 받은 인증 결과 뒤에 온 인증 결과는 무시한다`() {
+    fun `TC-de48fa12-1dcd-4f53-91f7-d501009ab169 먼저 받은 인증 결과 뒤에 온 인증 결과는 무시한다`() {
         val lateCredential = screenTestFixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
         assertLateResultIgnored { late -> late.complete(lateCredential) }
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-033 먼저 받은 인증 결과 뒤에 온 사용자 취소는 무시한다`() {
+    fun `TC-de48fa12-1dcd-4f53-91f7-d501009ab169 먼저 받은 인증 결과 뒤에 온 사용자 취소는 무시한다`() {
         assertLateResultIgnored { late -> late.completeExceptionally(GoogleCredentialsUserCancelException()) }
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-033 먼저 받은 인증 결과 뒤에 온 인증 결과 획득 실패는 무시한다`() {
+    fun `TC-de48fa12-1dcd-4f53-91f7-d501009ab169 먼저 받은 인증 결과 뒤에 온 인증 결과 획득 실패는 무시한다`() {
         assertLateResultIgnored { late -> late.completeExceptionally(GoogleCredentialsException()) }
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-034 앱 로그인 처리 실패 뒤 이전 흐름의 결과는 무시하고 새 흐름의 결과는 받는다`() {
+    fun `TC-defc1c2d-8ec9-444f-9806-8a8016c32d2c 앱 로그인 처리 실패 뒤 이전 흐름의 결과는 무시하고 새 흐름의 결과는 받는다`() {
         val firstCredential = screenTestFixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
         val staleCredential = screenTestFixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
         val newCredential = screenTestFixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
@@ -176,7 +176,7 @@ class LoginHomePlatformSignInScreenTest {
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-035 앱 로그인 처리 전 한 흐름이 실패해도 나머지 흐름의 인증 결과로 로그인한다`() {
+    fun `TC-cef4818e-52ef-4185-b4df-632cf9974b27 앱 로그인 처리 전 한 흐름이 실패해도 나머지 흐름의 인증 결과로 로그인한다`() {
         val credential = screenTestFixtureMonkey.giveMeOne<GoogleCredential.IdToken>()
         val viewModel = screenTestViewModel()
         val googleCredentialsManager = mockGoogleCredentialsManager(isSignInEndDetectable = false)
@@ -197,17 +197,17 @@ class LoginHomePlatformSignInScreenTest {
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-036 끝을 알 수 있는 흐름 중 뒤로가기를 실행하면 흐름의 결과를 받지 않는다`() {
+    fun `TC-1950bb16-007e-49e7-8799-945c0c0f8f8a 끝을 알 수 있는 흐름 중 뒤로가기를 실행하면 흐름의 결과를 받지 않는다`() {
         assertNavigateUpStopsPlatformSignIn(isSignInEndDetectable = true)
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-036 끝을 알 수 없는 흐름 중 뒤로가기를 실행하면 흐름의 결과를 받지 않는다`() {
+    fun `TC-1950bb16-007e-49e7-8799-945c0c0f8f8a 끝을 알 수 없는 흐름 중 뒤로가기를 실행하면 흐름의 결과를 받지 않는다`() {
         assertNavigateUpStopsPlatformSignIn(isSignInEndDetectable = false)
     }
 
     @Test
-    fun `TC-LOGIN-FEATURE-010 앱 로그인 처리가 시작된 뒤 전달된 로그인 수단 선택은 새 흐름을 열지 않는다`() {
+    fun `TC-bf35c0ee-ee31-4ebd-8b72-937d90ccccda 앱 로그인 처리가 시작된 뒤 전달된 로그인 수단 선택은 새 흐름을 열지 않는다`() {
         val uiState = MutableStateFlow(LoginHomeUiState())
         val googleCredentialsManager = mockGoogleCredentialsManager(isSignInEndDetectable = false)
         val appleCredentialsManager = mockAppleCredentialsManager(isSignInEndDetectable = false)

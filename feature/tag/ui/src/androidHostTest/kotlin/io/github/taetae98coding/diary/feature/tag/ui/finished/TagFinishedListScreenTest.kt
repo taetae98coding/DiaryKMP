@@ -34,7 +34,7 @@ class TagFinishedListScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-006 완료된 태그가 하나도 없어도 화면을 사용할 수 있다`() {
+    fun `TC-5d4b7229-e18a-49aa-9a25-758c8303a550 완료된 태그가 하나도 없어도 화면을 사용할 수 있다`() {
         val viewModel = mockk<TagFinishedListViewModel>()
         every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
         every { viewModel.tagPagingData } returns MutableStateFlow(tagPagingDataOf(emptyList()))
@@ -47,7 +47,7 @@ class TagFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-011 태그를 선택하면 그 태그의 상세로 이동한다`() {
+    fun `TC-fec2ef31-7a95-4eed-9548-357ed77d928c 태그를 선택하면 그 태그의 상세로 이동한다`() {
         val environment = screenTestEnvironment()
         val navigatedIdList = mutableListOf<Uuid>()
         setTagFinishedListScreen(
@@ -62,7 +62,7 @@ class TagFinishedListScreenTest {
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-012 뒤로가기 버튼을 선택하면 이전 화면으로 돌아간다`() {
+    fun `TC-5cfacf65-0f6f-496b-a84b-0ac00d46a79d 뒤로가기 버튼을 선택하면 이전 화면으로 돌아간다`() {
         val environment = screenTestEnvironment()
         var navigateUpCount = 0
         setTagFinishedListScreen(

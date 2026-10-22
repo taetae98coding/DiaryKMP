@@ -35,7 +35,7 @@ class TagDetailTargetChangeTest {
     private val detailIdState = mutableStateOf(FIRST_TAG_ID)
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-063 대상이 바뀌면 메모 탭의 정렬 선택과 목록 위치가 처음 상태로 돌아간다`() {
+    fun `TC-5f47e3f1-cfba-4195-9bb5-e1a03deab615 대상이 바뀌면 메모 탭의 정렬 선택과 목록 위치가 처음 상태로 돌아간다`() {
         val titleList = titleList(prefix = "TargetMemo")
         setScreen()
         memoPagingDataFlow.value = tagMemoPagingData(itemList = titleList.map { title -> MemoListItem.Content(memo = tagMemo(title = title)) })
@@ -55,7 +55,7 @@ class TagDetailTargetChangeTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-063 대상이 바뀌면 웹 탭의 정렬 선택과 목록 위치가 처음 상태로 돌아간다`() {
+    fun `TC-5f47e3f1-cfba-4195-9bb5-e1a03deab615 대상이 바뀌면 웹 탭의 정렬 선택과 목록 위치가 처음 상태로 돌아간다`() {
         val titleList = titleList(prefix = "TargetWeb")
         setScreen()
         webPagingDataFlow.value = tagEntityPagingData(itemList = titleList.map { title -> tagWeb(title = title) })
@@ -75,7 +75,7 @@ class TagDetailTargetChangeTest {
     }
 
     @Test
-    fun `TC-TAG-DETAIL-FEATURE-063 대상이 바뀌면 장소 탭의 정렬 선택과 목록 위치가 처음 상태로 돌아간다`() {
+    fun `TC-5f47e3f1-cfba-4195-9bb5-e1a03deab615 대상이 바뀌면 장소 탭의 정렬 선택과 목록 위치가 처음 상태로 돌아간다`() {
         val titleList = titleList(prefix = "TargetPlace")
         setScreen()
         placePagingDataFlow.value = tagEntityPagingData(itemList = titleList.map { title -> tagPlace(title = title) })

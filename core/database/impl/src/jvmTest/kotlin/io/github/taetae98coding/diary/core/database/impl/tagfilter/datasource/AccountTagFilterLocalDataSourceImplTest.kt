@@ -34,13 +34,13 @@ class AccountTagFilterLocalDataSourceImplTest :
             database.close()
         }
 
-        test("TC-TAG-HOME-DATA-009 저장된 필터 선택이 없으면 조회 결과가 없다") {
+        test("TC-c3277845-4c50-4e2e-ac84-24ad2a01a4fa 저장된 필터 선택이 없으면 조회 결과가 없다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
 
             dataSource.find(accountId = accountId).first().shouldBeNull()
         }
 
-        test("TC-TAG-HOME-DATA-008 저장한 필터 선택을 다시 조회한다") {
+        test("TC-07ef4c1b-2b17-4fa8-a31b-5271c930eca6 저장한 필터 선택을 다시 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
 
             dataSource.upsert(accountId = accountId, isTopLevelOnly = true)
@@ -52,7 +52,7 @@ class AccountTagFilterLocalDataSourceImplTest :
                 )
         }
 
-        test("TC-TAG-HOME-DATA-008 필터 선택을 다시 바꾸면 마지막 선택만 남는다") {
+        test("TC-07ef4c1b-2b17-4fa8-a31b-5271c930eca6 필터 선택을 다시 바꾸면 마지막 선택만 남는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
 
             dataSource.upsert(accountId = accountId, isTopLevelOnly = true)
@@ -65,7 +65,7 @@ class AccountTagFilterLocalDataSourceImplTest :
                 )
         }
 
-        test("TC-TAG-HOME-DATA-010 한 계정의 필터 선택은 다른 계정에 적용되지 않는다") {
+        test("TC-c470f606-63db-4b25-93a9-1706d28e3945 한 계정의 필터 선택은 다른 계정에 적용되지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
 
@@ -75,7 +75,7 @@ class AccountTagFilterLocalDataSourceImplTest :
             dataSource.find(accountId = otherAccountId).first().shouldBeNull()
         }
 
-        test("TC-TAG-HOME-DATA-013 강제 전체 재동기화로 계정 데이터를 지우면 그 계정의 필터 선택은 꺼진 상태로 돌아간다") {
+        test("TC-bbf536b5-7c52-4b50-88e8-c5c428f8506c 강제 전체 재동기화로 계정 데이터를 지우면 그 계정의 필터 선택은 꺼진 상태로 돌아간다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             dataSource.upsert(accountId = accountId, isTopLevelOnly = true)
@@ -87,7 +87,7 @@ class AccountTagFilterLocalDataSourceImplTest :
             dataSource.find(accountId = otherAccountId).first()?.isTopLevelOnly shouldBe true
         }
 
-        test("TC-TAG-HOME-DATA-008 데이터베이스를 닫고 다시 열어도 필터 선택을 유지한다") {
+        test("TC-07ef4c1b-2b17-4fa8-a31b-5271c930eca6 데이터베이스를 닫고 다시 열어도 필터 선택을 유지한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val file = File.createTempFile("tag-filter", ".db")
 
@@ -119,7 +119,7 @@ class AccountTagFilterLocalDataSourceImplTest :
             }
         }
 
-        test("TC-TAG-HOME-DATA-011 필터 선택은 동기화 업로드 대기 목록에 나타나지 않는다") {
+        test("TC-0735acf8-97de-43a5-b146-d9a3134454a8 필터 선택은 동기화 업로드 대기 목록에 나타나지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
 
             dataSource.upsert(accountId = accountId, isTopLevelOnly = true)

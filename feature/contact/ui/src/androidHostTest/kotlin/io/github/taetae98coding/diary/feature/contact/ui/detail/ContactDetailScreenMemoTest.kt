@@ -49,7 +49,7 @@ class ContactDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-009 메모 추가 버튼을 선택하면 MemoAdd 이동을 요청한다`() {
+    fun `TC-285105d8-4ecc-4398-a7b6-797b8b202328 메모 추가 버튼을 선택하면 MemoAdd 이동을 요청한다`() {
         var navigateToMemoAddCount = 0
         setScreenOnMemoTab(navigateToMemoAdd = { navigateToMemoAddCount += 1 })
 
@@ -60,7 +60,7 @@ class ContactDetailScreenMemoTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-009 한국어 환경 메모 추가 버튼 이름을 표시한다`() {
+    fun `TC-285105d8-4ecc-4398-a7b6-797b8b202328 한국어 환경 메모 추가 버튼 이름을 표시한다`() {
         setScreenOnMemoTab(memoTabDescription = KOREAN_MEMO_TAB_DESCRIPTION)
 
         composeRule.onNodeWithContentDescription(KOREAN_MEMO_ADD_DESCRIPTION).assertExists()
@@ -77,7 +77,7 @@ class ContactDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-016 연락처 디테일 탭에서는 메모 추가를 제공하지 않고 메모 탭으로 전환하면 제공한다`() {
+    fun `TC-eba72a4e-e5fc-4af4-b816-4dd23af5884b 연락처 디테일 탭에서는 메모 추가를 제공하지 않고 메모 탭으로 전환하면 제공한다`() {
         var navigateToMemoAddCount = 0
         setScreen(navigateToMemoAdd = { navigateToMemoAddCount += 1 })
 
@@ -92,7 +92,7 @@ class ContactDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-008 대상 연락처의 상태와 무관하게 메모 추가를 시작할 수 있다`() {
+    fun `TC-63c66622-0227-437a-b1a9-2596cf91ff65 대상 연락처의 상태와 무관하게 메모 추가를 시작할 수 있다`() {
         // 계정과 연결되지 않은 연락처는 조회되지 않으므로 화면에서는 조회 전과 같은 상태로 관찰되고, 삭제된 연락처는 내용 표시 상태로 관찰된다.
         val uiStateList = listOf(content(), ContactDetailUiState.Loading)
         val uiStateFlow = MutableStateFlow<ContactDetailUiState>(uiStateList.first())
@@ -114,7 +114,7 @@ class ContactDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-004 메모를 선택하면 그 메모의 상세로 이동한다`() {
+    fun `TC-5ed98ee3-7529-4c34-816e-563bee749255 메모를 선택하면 그 메모의 상세로 이동한다`() {
         val memo = contactMemo(title = SCREEN_MEMO_TITLE)
         val navigatedIdList = mutableListOf<Uuid>()
         setScreenOnMemoTab(
@@ -129,7 +129,7 @@ class ContactDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-005 완료하면 카드가 사라지고 안내와 실행 취소를 표시한다`() {
+    fun `TC-a0aced72-b2fa-4865-816b-20875d1c2e50 완료하면 카드가 사라지고 안내와 실행 취소를 표시한다`() {
         val memo = swipeMemo()
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeRight() }
@@ -145,7 +145,7 @@ class ContactDetailScreenMemoTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-005 삭제하면 카드가 사라지고 한국어 안내와 실행 취소를 표시한다`() {
+    fun `TC-a0aced72-b2fa-4865-816b-20875d1c2e50 삭제하면 카드가 사라지고 한국어 안내와 실행 취소를 표시한다`() {
         val memo = swipeMemo(memoTabDescription = KOREAN_MEMO_TAB_DESCRIPTION)
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
@@ -159,7 +159,7 @@ class ContactDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-006 완료 실행 취소는 메모 다시 시작을 요청한다`() {
+    fun `TC-4aae8784-9e67-4637-94cc-9a929945b38e 완료 실행 취소는 메모 다시 시작을 요청한다`() {
         val memo = swipeMemo()
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeRight() }
@@ -172,7 +172,7 @@ class ContactDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-006 삭제 실행 취소는 메모 복구를 요청한다`() {
+    fun `TC-4aae8784-9e67-4637-94cc-9a929945b38e 삭제 실행 취소는 메모 복구를 요청한다`() {
         val memo = swipeMemo()
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
@@ -185,7 +185,7 @@ class ContactDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-SYNC-REFRESH-FEATURE-001 메모 탭에서 목록을 당기면 새로고침을 요청한다`() {
+    fun `TC-221754fa-d814-4c80-9c41-c0bdce86574f 메모 탭에서 목록을 당기면 새로고침을 요청한다`() {
         setScreenOnMemoTab(memoPagingData = contactMemoPagingData(itemList = listOf(MemoListItem.Content(memo = contactMemo(title = SCREEN_MEMO_TITLE)))))
         waitUntilMemoIsDisplayed(title = SCREEN_MEMO_TITLE)
 
@@ -196,7 +196,7 @@ class ContactDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-DATA-006 TC-CONTACT-DETAIL-MEMO-FEATURE-017 대상 연락처를 조회하지 못해도 메모 목록은 노출 기준대로 표시된다`() {
+    fun `TC-e0a1b2a4-042d-4256-a06b-1f36eca9a273 TC-33b99449-929a-478b-9f08-2c87ffa92a0a 대상 연락처를 조회하지 못해도 메모 목록은 노출 기준대로 표시된다`() {
         composeRule.setContactDetailScreen(
             viewModel = screenTestViewModel(MutableStateFlow(ContactDetailUiState.Loading)),
             memoPagingData = contactMemoPagingData(itemList = listOf(MemoListItem.Content(memo = contactMemo(title = INDEPENDENT_MEMO_TITLE)))),
@@ -209,7 +209,7 @@ class ContactDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-DOMAIN-016 수정이나 삭제를 처리하는 중에도 메모 완료와 실행 취소를 요청한다`() {
+    fun `TC-29770871-fd33-49e4-bc9d-3327412bd216 수정이나 삭제를 처리하는 중에도 메모 완료와 실행 취소를 요청한다`() {
         val memo = inProgressSwipeMemo()
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeRight() }
@@ -223,7 +223,7 @@ class ContactDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-DOMAIN-016 수정이나 삭제를 처리하는 중에도 메모 삭제와 실행 취소를 요청한다`() {
+    fun `TC-29770871-fd33-49e4-bc9d-3327412bd216 수정이나 삭제를 처리하는 중에도 메모 삭제와 실행 취소를 요청한다`() {
         val memo = inProgressSwipeMemo()
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
@@ -237,7 +237,7 @@ class ContactDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-022 안내가 보이는 동안 다른 탭으로 바꾸면 안내가 닫히고 되돌릴 수 없다`() {
+    fun `TC-a94c17d1-9fc1-4486-911f-cb66457dda05 안내가 보이는 동안 다른 탭으로 바꾸면 안내가 닫히고 되돌릴 수 없다`() {
         val memo = swipeMemo()
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeLeft() }
@@ -255,7 +255,7 @@ class ContactDetailScreenMemoTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-044 메모 카드 위에서 밀면 탭은 바뀌지 않고 그 메모의 카드 동작이 실행된다`() {
+    fun `TC-bd456258-1f5b-4ef4-8eac-9c987c676f57 메모 카드 위에서 밀면 탭은 바뀌지 않고 그 메모의 카드 동작이 실행된다`() {
         val memo = swipeMemo()
 
         composeRule.onNodeWithText(memo.detail.title).performTouchInput { swipeRight() }

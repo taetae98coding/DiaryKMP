@@ -52,7 +52,7 @@ class MemoAddScreenRetentionTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-066 화면이 다시 만들어져 복원되어도 입력한 제목, 설명, 컬러, 기간을 유지한다`() {
+    fun `TC-57275378-6577-4ed4-8418-78a8eb3f56b0 화면이 다시 만들어져 복원되어도 입력한 제목, 설명, 컬러, 기간을 유지한다`() {
         val title = "title-${fixtureMonkey.giveMeOne<String>()}"
         val description = "description-${fixtureMonkey.giveMeOne<String>()}"
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault()).toDefaultDisplayText()
@@ -83,7 +83,7 @@ class MemoAddScreenRetentionTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-067 저장에 실패하면 안내 없이 작성 내용을 유지하고 진행 상태만 해제한다`() {
+    fun `TC-91c79196-39ac-4ba8-964f-0e6c4f20ba85 저장에 실패하면 안내 없이 작성 내용을 유지하고 진행 상태만 해제한다`() {
         val title = "title-${fixtureMonkey.giveMeOne<String>()}"
         val description = "description-${fixtureMonkey.giveMeOne<String>()}"
         val addMemoUseCase = mockk<AddMemoUseCase>()

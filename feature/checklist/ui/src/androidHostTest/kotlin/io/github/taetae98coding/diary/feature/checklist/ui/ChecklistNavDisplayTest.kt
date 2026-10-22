@@ -97,7 +97,7 @@ class ChecklistNavDisplayTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-009 목록의 체크리스트를 선택하면 그 체크리스트의 ChecklistDetail 화면으로 이동한다`() {
+    fun `TC-d3047469-1345-4506-aa74-4099ec6046b5 목록의 체크리스트를 선택하면 그 체크리스트의 ChecklistDetail 화면으로 이동한다`() {
         val summaryList = listOf(testChecklistSummary(), testChecklistSummary())
         setNavDisplay(summaryList = summaryList)
         waitUntilDisplayed(summaryList.last())
@@ -113,7 +113,7 @@ class ChecklistNavDisplayTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-011 체크리스트 추가를 선택하면 ChecklistAdd 화면으로 이동한다`() {
+    fun `TC-afb6e890-81f2-4e2e-a4b7-a23693cc162c 체크리스트 추가를 선택하면 ChecklistAdd 화면으로 이동한다`() {
         setNavDisplay()
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).performClick()
@@ -123,7 +123,7 @@ class ChecklistNavDisplayTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-FEATURE-003 뒤로가기를 선택하면 이전 화면으로 돌아간다`() {
+    fun `TC-a9197365-1fbf-436d-8b29-cb1fcb7cbb85 뒤로가기를 선택하면 이전 화면으로 돌아간다`() {
         setNavDisplay()
 
         composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
@@ -134,7 +134,7 @@ class ChecklistNavDisplayTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-ADD-FEATURE-014 뒤로가기를 선택하면 ChecklistHome 화면으로 돌아가고 아무것도 저장하지 않는다`() {
+    fun `TC-57fc55f4-3e82-46af-bead-00bce95daf4d 뒤로가기를 선택하면 ChecklistHome 화면으로 돌아가고 아무것도 저장하지 않는다`() {
         setNavDisplay()
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).performClick()
         composeRule.waitForIdle()
@@ -151,7 +151,7 @@ class ChecklistNavDisplayTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-DOMAIN-010 체크리스트 추가로 이동한 뒤 뒤로가도 보던 목록 위치를 유지한다`() {
+    fun `TC-f6ee4744-8294-41a3-ac82-cb213db4441e 체크리스트 추가로 이동한 뒤 뒤로가도 보던 목록 위치를 유지한다`() {
         val summaryList = positionSummaryList()
         setNavDisplay(summaryList = summaryList)
         scrollToPosition(summaryList)
@@ -165,7 +165,7 @@ class ChecklistNavDisplayTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-DOMAIN-010 체크리스트 상세로 이동한 뒤 뒤로가도 보던 목록 위치를 유지한다`() {
+    fun `TC-f6ee4744-8294-41a3-ac82-cb213db4441e 체크리스트 상세로 이동한 뒤 뒤로가도 보던 목록 위치를 유지한다`() {
         val summaryList = positionSummaryList()
         setNavDisplay(summaryList = summaryList)
         scrollToPosition(summaryList)
@@ -179,7 +179,7 @@ class ChecklistNavDisplayTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-DOMAIN-011 더보기로 나갔다 체크리스트 바로가기로 다시 진입하면 목록의 맨 위부터 보여 준다`() {
+    fun `TC-e05a7711-09b3-40ad-81bd-4427f97302db 더보기로 나갔다 체크리스트 바로가기로 다시 진입하면 목록의 맨 위부터 보여 준다`() {
         val summaryList = positionSummaryList()
         setNavDisplay(summaryList = summaryList)
         scrollToPosition(summaryList)
@@ -195,7 +195,7 @@ class ChecklistNavDisplayTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-DOMAIN-011 앱을 다시 실행해 진입하면 목록의 맨 위부터 보여 준다`() {
+    fun `TC-e05a7711-09b3-40ad-81bd-4427f97302db 앱을 다시 실행해 진입하면 목록의 맨 위부터 보여 준다`() {
         val summaryList = positionSummaryList()
 
         setNavDisplay(summaryList = summaryList)
@@ -206,7 +206,7 @@ class ChecklistNavDisplayTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-030 TC-CHECKLIST-DETAIL-FEATURE-033 상세에서 삭제하면 ChecklistHome으로 돌아가고 삭제 안내와 실행 취소를 표시하지 않는다`() {
+    fun `TC-95a0e2bf-e1e2-4e69-b3d1-77f9eaa4ee7d TC-57ac8395-6eb7-4e2d-836d-f1de6a7e4b3e 상세에서 삭제하면 ChecklistHome으로 돌아가고 삭제 안내와 실행 취소를 표시하지 않는다`() {
         val summary = testChecklistSummary()
         detailEffect = ChecklistDetailEffect.DeleteSucceeded
         setNavDisplay(summaryList = listOf(summary))
@@ -223,7 +223,7 @@ class ChecklistNavDisplayTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-037 상세에서 뒤로가면 반영하지 않은 내용을 저장하지 않고 ChecklistHome 화면으로 돌아간다`() {
+    fun `TC-fbda84ec-5ff3-4745-a058-3891d59f1884 상세에서 뒤로가면 반영하지 않은 내용을 저장하지 않고 ChecklistHome 화면으로 돌아간다`() {
         val summary = testChecklistSummary()
         setNavDisplay(summaryList = listOf(summary))
         waitUntilDisplayed(summary)
@@ -242,7 +242,7 @@ class ChecklistNavDisplayTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-FEATURE-038 화면을 떠났다가 다시 들어오면 저장된 내용과 처음 정렬로 다시 시작한다`() {
+    fun `TC-546a404f-b57e-4a88-9208-f2208d629640 화면을 떠났다가 다시 들어오면 저장된 내용과 처음 정렬로 다시 시작한다`() {
         val summary = testChecklistSummary()
         setNavDisplay(summaryList = listOf(summary))
         waitUntilDisplayed(summary)
@@ -268,7 +268,7 @@ class ChecklistNavDisplayTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-DETAIL-DOMAIN-016 앱을 다시 실행해 진입하면 저장된 내용과 처음 정렬로 시작한다`() {
+    fun `TC-2ec43fc0-bb37-4d14-b8aa-993e3e6c24b3 앱을 다시 실행해 진입하면 저장된 내용과 처음 정렬로 시작한다`() {
         val summary = testChecklistSummary()
         backStack.add(ChecklistDetailNavKey(id = summary.checklist.id))
 
@@ -281,7 +281,7 @@ class ChecklistNavDisplayTest {
     }
 
     @Test
-    fun `TC-CHECKLIST-HOME-DATA-003 TC-CHECKLIST-DETAIL-DATA-007 ChecklistHome과 ChecklistDetail 진입만으로는 서버와 맞추지 않는다`() {
+    fun `TC-5b496990-a97c-4c7b-9525-8335ca0ae0c5 TC-9651b990-c556-4289-9daa-2391ba3ae2c2 ChecklistHome과 ChecklistDetail 진입만으로는 서버와 맞추지 않는다`() {
         val summary = testChecklistSummary()
         setNavDisplay(summaryList = listOf(summary))
         waitUntilDisplayed(summary)

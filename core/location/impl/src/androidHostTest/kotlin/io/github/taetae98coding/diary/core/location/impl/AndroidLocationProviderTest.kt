@@ -46,7 +46,7 @@ class AndroidLocationProviderTest {
     }
 
     @Test
-    fun `TC-CURRENT-LOCATION-DOMAIN-002 위치 권한이 허용되어 있지 않으면 디바이스 위치를 확인하지 못한 것으로 다룬다`() {
+    fun `TC-ce268a63-5478-4c1c-9f6e-0e0ae222c07f 위치 권한이 허용되어 있지 않으면 디바이스 위치를 확인하지 못한 것으로 다룬다`() {
         every { client.lastLocation } throws SecurityException()
         val locationProvider = AndroidLocationProvider(context = RuntimeEnvironment.getApplication())
 
@@ -56,7 +56,7 @@ class AndroidLocationProviderTest {
     }
 
     @Test
-    fun `TC-CURRENT-LOCATION-DOMAIN-002 위치 권한이 허용되어 있어도 기기가 위치 서비스를 제공하지 못하면 디바이스 위치를 확인하지 못한 것으로 다룬다`() {
+    fun `TC-ce268a63-5478-4c1c-9f6e-0e0ae222c07f 위치 권한이 허용되어 있어도 기기가 위치 서비스를 제공하지 못하면 디바이스 위치를 확인하지 못한 것으로 다룬다`() {
         every { client.lastLocation } returns Tasks.forException(ApiException(Status(CommonStatusCodes.API_NOT_CONNECTED)))
         val locationProvider = AndroidLocationProvider(context = RuntimeEnvironment.getApplication())
 
@@ -66,7 +66,7 @@ class AndroidLocationProviderTest {
     }
 
     @Test
-    fun `TC-CURRENT-LOCATION-DOMAIN-002 확인하는 도중 위치 권한이 회수되면 디바이스 위치를 확인하지 못한 것으로 다룬다`() {
+    fun `TC-ce268a63-5478-4c1c-9f6e-0e0ae222c07f 확인하는 도중 위치 권한이 회수되면 디바이스 위치를 확인하지 못한 것으로 다룬다`() {
         every { client.lastLocation } returns Tasks.forResult<android.location.Location>(null)
         every { client.getCurrentLocation(any<Int>(), any<CancellationToken>()) } returns Tasks.forException(SecurityException())
         val locationProvider = AndroidLocationProvider(context = RuntimeEnvironment.getApplication())
@@ -77,7 +77,7 @@ class AndroidLocationProviderTest {
     }
 
     @Test
-    fun `TC-CURRENT-LOCATION-DOMAIN-006 디바이스가 최근에 확인해 둔 위치가 있으면 새로 확인하지 않는다`() {
+    fun `TC-f308155a-8d66-4bfb-8e80-ed4a9b992600 디바이스가 최근에 확인해 둔 위치가 있으면 새로 확인하지 않는다`() {
         val recentLocation = androidLocation(latitude = fixtureMonkey.latitude(), longitude = fixtureMonkey.longitude())
         val freshLocation = androidLocation(latitude = fixtureMonkey.latitude(), longitude = fixtureMonkey.longitude())
         every { client.lastLocation } returns Tasks.forResult(recentLocation)

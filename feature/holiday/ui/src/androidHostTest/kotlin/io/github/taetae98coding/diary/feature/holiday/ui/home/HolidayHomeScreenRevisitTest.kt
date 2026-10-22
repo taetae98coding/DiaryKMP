@@ -45,7 +45,7 @@ class HolidayHomeScreenRevisitTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-030 한 년도의 오류는 다른 년도의 표시에 영향을 주지 않는다`() {
+    fun `TC-f5b7fb7e-77ea-4bc6-a668-0b85da0aff13 한 년도의 오류는 다른 년도의 표시에 영향을 주지 않는다`() {
         val getGoldenHolidayUseCase = mockk<GetGoldenHolidayUseCase>()
         every { getGoldenHolidayUseCase(parameter = any()) } answers {
             val parameter = firstArg<GetGoldenHolidayUseCase.Parameter>()
@@ -73,7 +73,7 @@ class HolidayHomeScreenRevisitTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-058 한 년도의 제공 없음은 다른 년도의 표시에 영향을 주지 않는다`() {
+    fun `TC-6fe6542a-15d2-4176-9055-6f0631339e71 한 년도의 제공 없음은 다른 년도의 표시에 영향을 주지 않는다`() {
         val getGoldenHolidayUseCase = mockk<GetGoldenHolidayUseCase>()
         every { getGoldenHolidayUseCase(parameter = any()) } answers {
             val parameter = firstArg<GetGoldenHolidayUseCase.Parameter>()
@@ -101,7 +101,7 @@ class HolidayHomeScreenRevisitTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-031 완료된 년도로 다시 이동하면 로딩 없이 곧바로 목록이 표시된다`() {
+    fun `TC-cd2c4922-549d-4837-a7a3-549d4d06f4e6 완료된 년도로 다시 이동하면 로딩 없이 곧바로 목록이 표시된다`() {
         composeRule.setHolidayHomeScreen(
             targetYear = targetYear,
             getGoldenHolidayUseCase = thisYearGetGoldenHolidayUseCase(),
@@ -117,7 +117,7 @@ class HolidayHomeScreenRevisitTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-033 다시 동기화하는 동안에도 이미 표시된 목록은 유지된다`() {
+    fun `TC-192913dd-4309-47ea-831a-b04c38e3a841 다시 동기화하는 동안에도 이미 표시된 목록은 유지된다`() {
         val completion = CompletableDeferred<Result<List<Holiday>>>()
         val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
         coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(providedHolidayList())
@@ -142,7 +142,7 @@ class HolidayHomeScreenRevisitTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-034 오류 년도로 다시 이동하면 다시 동기화한다`() {
+    fun `TC-dbab9acb-841b-4eb0-8854-3b700a170151 오류 년도로 다시 이동하면 다시 동기화한다`() {
         val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
         coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(providedHolidayList())
         coEvery { fetchHolidayUseCase(parameter = YEAR - 1) } returnsMany
@@ -166,7 +166,7 @@ class HolidayHomeScreenRevisitTest {
     }
 
     @Test
-    fun `TC-HOLIDAY-HOME-FEATURE-044 제공 없음 년도로 다시 이동하면 다시 동기화한다`() {
+    fun `TC-2ff32f9a-d40c-4fcb-b0b8-0382bb8984cd 제공 없음 년도로 다시 이동하면 다시 동기화한다`() {
         val fetchHolidayUseCase = mockk<FetchHolidayUseCase>()
         coEvery { fetchHolidayUseCase(parameter = any()) } returns Result.success(providedHolidayList())
         coEvery { fetchHolidayUseCase(parameter = YEAR) } returnsMany

@@ -45,7 +45,7 @@ class AndroidPeriodicSyncWorkSchedulerTest {
     }
 
     @Test
-    fun `TC-DATA-SYNC-DOMAIN-056 인증된 사용자 계정이 확인되면 주어진 주기의 동기화를 예약한다`() {
+    fun `TC-d271b7b4-fb16-488a-a26d-a93e0462cc67 인증된 사용자 계정이 확인되면 주어진 주기의 동기화를 예약한다`() {
         AndroidPeriodicSyncWorkScheduler(context = context).schedule(period = PERIOD)
 
         val workInfo = periodicWorkInfo()
@@ -56,7 +56,7 @@ class AndroidPeriodicSyncWorkSchedulerTest {
     }
 
     @Test
-    fun `TC-DATA-SYNC-DOMAIN-060 주기가 지나면 동기화가 실행된다`() {
+    fun `TC-16de5077-3cce-4a3f-a51d-55d6f357de46 주기가 지나면 동기화가 실행된다`() {
         AndroidPeriodicSyncWorkScheduler(context = context).schedule(period = PERIOD)
 
         connectPeriodicNetwork()
@@ -66,7 +66,7 @@ class AndroidPeriodicSyncWorkSchedulerTest {
     }
 
     @Test
-    fun `TC-DATA-SYNC-DOMAIN-062 주기 동기화는 네트워크에 연결되어 있지 않으면 실행하지 않는다`() {
+    fun `TC-faebf4ed-5403-4887-b085-0298eead60f0 주기 동기화는 네트워크에 연결되어 있지 않으면 실행하지 않는다`() {
         AndroidPeriodicSyncWorkScheduler(context = context).schedule(period = PERIOD)
 
         periodicWorkInfo().constraints.requiredNetworkType shouldBe NetworkType.CONNECTED
@@ -79,7 +79,7 @@ class AndroidPeriodicSyncWorkSchedulerTest {
     }
 
     @Test
-    fun `TC-DATA-SYNC-DOMAIN-057 TC-DATA-SYNC-DOMAIN-058 계정이 다시 확인되어도 다음 주기까지 남은 시간이 유지된다`() {
+    fun `TC-6469282a-59e0-4ac6-8976-a566838d6669 TC-c52f665c-e8d8-45a8-a3aa-28ed08b2e5cf 계정이 다시 확인되어도 다음 주기까지 남은 시간이 유지된다`() {
         val scheduler = AndroidPeriodicSyncWorkScheduler(context = context)
         scheduler.schedule(period = PERIOD)
         val scheduled = periodicWorkInfo()
@@ -97,7 +97,7 @@ class AndroidPeriodicSyncWorkSchedulerTest {
     }
 
     @Test
-    fun `TC-DATA-SYNC-DOMAIN-059 인증된 계정이 없어지면 주기 동기화 예약을 해제한다`() {
+    fun `TC-cc07f234-2c6a-4021-a650-4a0161718819 인증된 계정이 없어지면 주기 동기화 예약을 해제한다`() {
         val scheduler = AndroidPeriodicSyncWorkScheduler(context = context)
         scheduler.schedule(period = PERIOD)
 
@@ -108,7 +108,7 @@ class AndroidPeriodicSyncWorkSchedulerTest {
     }
 
     @Test
-    fun `TC-DATA-SYNC-DOMAIN-061 주기 동기화가 실패해도 예약이 유지되어 다음 주기에 다시 시도한다`() {
+    fun `TC-d44c3656-3097-4c89-a4a3-9afb6c702f18 주기 동기화가 실패해도 예약이 유지되어 다음 주기에 다시 시도한다`() {
         coEvery { syncWork.doWork() } coAnswers {
             executeCount++
             throw IllegalStateException("sync failure")
@@ -127,7 +127,7 @@ class AndroidPeriodicSyncWorkSchedulerTest {
     }
 
     @Test
-    fun `TC-DATA-SYNC-DOMAIN-063 TC-DATA-SYNC-DOMAIN-064 주기 동기화와 다른 계기의 동기화는 서로를 취소하지 않는다`() {
+    fun `TC-82abafa0-6d03-47ef-8573-9b4654fd045f TC-b31869f4-8236-4dd1-8b15-f1f4c1971dec 주기 동기화와 다른 계기의 동기화는 서로를 취소하지 않는다`() {
         AndroidPeriodicSyncWorkScheduler(context = context).schedule(period = PERIOD)
         AndroidSyncWorkScheduler(context = context).sync()
 

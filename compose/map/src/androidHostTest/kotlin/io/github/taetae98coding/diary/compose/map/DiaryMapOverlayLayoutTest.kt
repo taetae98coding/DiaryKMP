@@ -36,7 +36,7 @@ class DiaryMapOverlayLayoutTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-DIARY-MAP-FEATURE-018 겹쳐 표시하는 배치에서 전환 컨트롤로 제공자를 선택한다`() {
+    fun `TC-fe283bf5-5baf-4313-83d8-bd22352e4ab4 겹쳐 표시하는 배치에서 전환 컨트롤로 제공자를 선택한다`() {
         setDiaryMapOverlayLayout()
 
         composeRule.onNodeWithText(DEFAULT_GOOGLE_LABEL).performClick()

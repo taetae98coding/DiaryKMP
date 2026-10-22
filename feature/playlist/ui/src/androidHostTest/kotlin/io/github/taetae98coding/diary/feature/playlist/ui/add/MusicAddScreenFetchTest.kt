@@ -27,7 +27,7 @@ class MusicAddScreenFetchTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-016 불러오기에 성공하면 제목과 가수를 채우고 링크와 썸네일은 그대로 둔다`() {
+    fun `TC-7bbcd9c5-c43a-4135-ba5c-8caea2c6171d 불러오기에 성공하면 제목과 가수를 채우고 링크와 썸네일은 그대로 둔다`() {
         setMusicAddScreen(viewModel = fetchEffectViewModel(fetchedEffect()))
         composeRule.linkInput().performTextInput(TYPED_LINK)
         composeRule.waitForIdle()
@@ -43,7 +43,7 @@ class MusicAddScreenFetchTest {
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-024 불러오기에 성공하면 이미 채워진 제목도 덮어쓴다`() {
+    fun `TC-5fbb9304-2bfd-4802-886c-94d9edbc25ba 불러오기에 성공하면 이미 채워진 제목도 덮어쓴다`() {
         setMusicAddScreen(viewModel = fetchEffectViewModel(fetchedEffect()))
         composeRule.linkInput().performTextInput(TYPED_LINK)
         composeRule.titleInput().performTextInput(TYPED_TITLE)
@@ -56,7 +56,7 @@ class MusicAddScreenFetchTest {
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-024 불러오기에 성공하면 이미 채워진 가수도 덮어쓴다`() {
+    fun `TC-5fbb9304-2bfd-4802-886c-94d9edbc25ba 불러오기에 성공하면 이미 채워진 가수도 덮어쓴다`() {
         setMusicAddScreen(viewModel = fetchEffectViewModel(fetchedEffect()))
         composeRule.linkInput().performTextInput(TYPED_LINK)
         composeRule.artistInput().performTextInput(TYPED_ARTIST)
@@ -69,7 +69,7 @@ class MusicAddScreenFetchTest {
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-024 제목과 가수가 모두 채워져 있어도 불러온 값으로 바꾼다`() {
+    fun `TC-5fbb9304-2bfd-4802-886c-94d9edbc25ba 제목과 가수가 모두 채워져 있어도 불러온 값으로 바꾼다`() {
         setMusicAddScreen(viewModel = fetchEffectViewModel(fetchedEffect()))
         composeRule.fillAllInput()
 
@@ -80,7 +80,7 @@ class MusicAddScreenFetchTest {
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-024 공백 문자뿐인 제목과 가수는 불러온 값으로 채운다`() {
+    fun `TC-5fbb9304-2bfd-4802-886c-94d9edbc25ba 공백 문자뿐인 제목과 가수는 불러온 값으로 채운다`() {
         setMusicAddScreen(viewModel = fetchEffectViewModel(fetchedEffect()))
         composeRule.linkInput().performTextInput(TYPED_LINK)
         composeRule.titleInput().performTextInput("   ")
@@ -94,7 +94,7 @@ class MusicAddScreenFetchTest {
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-034 불러온 영상 제목과 채널 이름을 앞뒤 공백까지 그대로 채운다`() {
+    fun `TC-a88ca5a8-d64a-4012-b9d2-9c7620e1ae1c 불러온 영상 제목과 채널 이름을 앞뒤 공백까지 그대로 채운다`() {
         val title = "  $FETCHED_TITLE  "
         val artist = "  $FETCHED_ARTIST  "
         setMusicAddScreen(viewModel = fetchEffectViewModel(fetchedEffect(title = title, artist = artist)))
@@ -108,17 +108,17 @@ class MusicAddScreenFetchTest {
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-035 불러오는 동안 링크를 다른 영상으로 바꾸면 도착한 결과를 채우지 않는다`() {
+    fun `TC-2f3d4436-86e6-49ae-9eeb-497d06a6f11d 불러오는 동안 링크를 다른 영상으로 바꾸면 도착한 결과를 채우지 않는다`() {
         assertLinkChangedDuringFetch(changedLink = OTHER_TYPED_LINK)
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-035 불러오는 동안 링크를 지우면 도착한 결과를 채우지 않는다`() {
+    fun `TC-2f3d4436-86e6-49ae-9eeb-497d06a6f11d 불러오는 동안 링크를 지우면 도착한 결과를 채우지 않는다`() {
         assertLinkChangedDuringFetch(changedLink = "")
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-035 불러오는 동안 링크를 바꿨다가 되돌리면 도착한 결과를 채운다`() {
+    fun `TC-2f3d4436-86e6-49ae-9eeb-497d06a6f11d 불러오는 동안 링크를 바꿨다가 되돌리면 도착한 결과를 채운다`() {
         val effect = MutableStateFlow<MusicAddEffect?>(null)
         setMusicAddScreen(viewModel = screenTestViewModel(effect = effect.filterNotNull()))
         composeRule.fillAllInput()
@@ -160,7 +160,7 @@ class MusicAddScreenFetchTest {
             .map { text -> text.text }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-023 썸네일만 바꾸거나 지우는 조작을 두지 않는다`() {
+    fun `TC-a22cb114-c6d7-4a9f-80fa-07313a15522a 썸네일만 바꾸거나 지우는 조작을 두지 않는다`() {
         setMusicAddScreen(viewModel = screenTestViewModel())
         composeRule.linkInput().performTextInput(TYPED_LINK)
         composeRule.waitForIdle()
@@ -169,7 +169,7 @@ class MusicAddScreenFetchTest {
     }
 
     @Test
-    fun `TC-MUSIC-ADD-FEATURE-020 영상 정보를 가져오지 못해도 작성 내용은 유지된다`() {
+    fun `TC-16709a4a-2bf6-4296-83c6-d143b4b60fa7 영상 정보를 가져오지 못해도 작성 내용은 유지된다`() {
         setMusicAddScreen(viewModel = fetchEffectViewModel(MusicAddEffect.LinkFetchFailed))
         composeRule.fillAllInput()
 
@@ -183,7 +183,7 @@ class MusicAddScreenFetchTest {
     }
 
     @Test
-    fun `TC-MUSIC-ADD-DATA-010 화면에 진입하거나 링크를 입력하는 것만으로는 조회하지 않는다`() {
+    fun `TC-15ef6bb6-c4f7-415e-a768-eed98175cf5b 화면에 진입하거나 링크를 입력하는 것만으로는 조회하지 않는다`() {
         val viewModel = screenTestViewModel()
         setMusicAddScreen(viewModel = viewModel)
 
@@ -194,7 +194,7 @@ class MusicAddScreenFetchTest {
     }
 
     @Test
-    fun `TC-MUSIC-ADD-DATA-008 불러오기를 선택하면 입력한 링크로 조회를 요청한다`() {
+    fun `TC-a4483895-1bff-43b1-98af-3787cc0ca408 불러오기를 선택하면 입력한 링크로 조회를 요청한다`() {
         val viewModel = screenTestViewModel()
         setMusicAddScreen(viewModel = viewModel)
         composeRule.linkInput().performTextInput(TYPED_LINK)

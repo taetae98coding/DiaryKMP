@@ -51,7 +51,7 @@ class ContactHomeSortRestorationTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-DOMAIN-016 시스템이 앱을 정리했다가 다시 만들면 정렬은 이름순으로 돌아가고 보던 목록 위치는 복원한다`() {
+    fun `TC-9467ac6f-bb4c-454c-ad8e-4fc10c76d361 시스템이 앱을 정리했다가 다시 만들면 정렬은 이름순으로 돌아가고 보던 목록 위치는 복원한다`() {
         val nameOrderList =
             List(RESTORATION_CONTACT_COUNT) { index ->
                 testContact(name = "연락처-${index.toString().padStart(length = 2, padChar = '0')}-${fixtureMonkey.giveMeOne<String>()}")

@@ -245,7 +245,7 @@ private fun TestContext.verifyNoPull() {
 class SyncWorkKindTest :
     FunSpec({
         kindCaseList.forEach { kindCase ->
-            test("TC-DATA-SYNC-DOMAIN-020 ${kindCase.label}만 대기하면 ${kindCase.label}만 요청하고 나머지 열다섯 종류는 요청하지 않는다") {
+            test("TC-28a7ff40-be46-4362-a4de-ddf85ceba185 ${kindCase.label}만 대기하면 ${kindCase.label}만 요청하고 나머지 열다섯 종류는 요청하지 않는다") {
                 val context = kindContext(pendingCountMap = mapOf(kindCase.label to 1))
 
                 context.subject.doWork()
@@ -256,7 +256,7 @@ class SyncWorkKindTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-020 대기 항목이 없으면 열여섯 종류 모두 요청하지 않는다") {
+        test("TC-28a7ff40-be46-4362-a4de-ddf85ceba185 대기 항목이 없으면 열여섯 종류 모두 요청하지 않는다") {
             val context = kindContext(pendingCountMap = emptyMap())
 
             context.subject.doWork()
@@ -264,7 +264,7 @@ class SyncWorkKindTest :
             kindCaseList.forEach { kindCase -> context.verifyPushCount(label = kindCase.label, exactly = 0) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-020 열여섯 종류 모두 대기하면 열여섯 종류 모두 요청한다") {
+        test("TC-28a7ff40-be46-4362-a4de-ddf85ceba185 열여섯 종류 모두 대기하면 열여섯 종류 모두 요청한다") {
             val context = kindContext(pendingCountMap = kindCaseList.associate { kindCase -> kindCase.label to 1 })
 
             context.subject.doWork()
@@ -274,7 +274,7 @@ class SyncWorkKindTest :
 
         val independentLabelList = listOf(TAG, PLACE, WEB, CONTACT, MUSIC, QR, CHECKLIST)
         independentLabelList.forEach { delayedLabel ->
-            test("TC-DATA-SYNC-DOMAIN-055 $delayedLabel 업로드가 지연되어도 나머지 여섯 종류의 첫 요청이 먼저 시작된다") {
+            test("TC-d02e1fe4-3710-497f-b721-5bd09e834ad1 $delayedLabel 업로드가 지연되어도 나머지 여섯 종류의 첫 요청이 먼저 시작된다") {
                 runTest {
                     val context = kindContext(pendingCountMap = independentLabelList.associateWith { 1 })
                     val eventList = mutableListOf<String>()
@@ -296,7 +296,7 @@ class SyncWorkKindTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-021 태그 묶음이 실패하면 이후 태그와 메모, 일곱 종류의 연결을 모두 시도하지 않는다") {
+        test("TC-bb1f2746-1f2d-465a-8da5-35cff756be8c 태그 묶음이 실패하면 이후 태그와 메모, 일곱 종류의 연결을 모두 시도하지 않는다") {
             val linkLabelList = listOf(MEMO_TAG, MEMO_PLACE, MEMO_WEB, MEMO_CONTACT, TAG_LINK, WEB_TAG, PLACE_TAG)
             val context =
                 kindContext(
@@ -313,7 +313,7 @@ class SyncWorkKindTest :
             linkLabelList.forEach { label -> context.verifyPushCount(label = label, exactly = 0) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-022 메모 묶음이 실패하면 이후 메모와 메모를 기다리는 네 종류의 연결을 시도하지 않는다") {
+        test("TC-de4069c2-e7bb-4e76-b57a-4a67d557b007 메모 묶음이 실패하면 이후 메모와 메모를 기다리는 네 종류의 연결을 시도하지 않는다") {
             val memoLinkLabelList = listOf(MEMO_TAG, MEMO_PLACE, MEMO_WEB, MEMO_CONTACT)
             val context =
                 kindContext(
@@ -329,7 +329,7 @@ class SyncWorkKindTest :
             memoLinkLabelList.forEach { label -> context.verifyPushCount(label = label, exactly = 0) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-053 장소 묶음이 실패하면 장소를 기다리는 연결만 시도하지 않고 나머지는 업로드한다") {
+        test("TC-8d545576-a91d-40e3-9faa-e18821fa4c27 장소 묶음이 실패하면 장소를 기다리는 연결만 시도하지 않고 나머지는 업로드한다") {
             val context =
                 kindContext(
                     pendingCountMap =
@@ -351,7 +351,7 @@ class SyncWorkKindTest :
             WEB to listOf(MEMO_WEB, WEB_TAG),
             CONTACT to listOf(MEMO_CONTACT),
         ).forEach { (failingLabel, waitingLabelList) ->
-            test("TC-DATA-SYNC-DOMAIN-079 $failingLabel 묶음이 실패하면 $failingLabel 을 기다리는 연결을 시도하지 않는다") {
+            test("TC-98a227dd-770f-4c9a-9c31-1602b3c77614 $failingLabel 묶음이 실패하면 $failingLabel 을 기다리는 연결을 시도하지 않는다") {
                 val context =
                     kindContext(
                         pendingCountMap = mapOf(TAG to 1, MEMO to 1, failingLabel to 201) + waitingLabelList.associateWith { 1 },
@@ -370,7 +370,7 @@ class SyncWorkKindTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-094 TC-DATA-SYNC-DOMAIN-054 체크리스트 묶음이 실패하면 체크 항목만 시도하지 않고 태그와 QR은 업로드한다") {
+        test("TC-0d0bc23f-d741-436a-8829-dc233ee1b43a TC-38d5d054-84c2-42b1-a9bf-75572a81a394 체크리스트 묶음이 실패하면 체크 항목만 시도하지 않고 태그와 QR은 업로드한다") {
             val context = kindContext(pendingCountMap = mapOf(CHECKLIST to 201, CHECKLIST_ITEM to 1, QR to 1, TAG to 1))
             val failure = TestException(fixtureMonkey.giveMeOne())
             val requestSizeList =
@@ -386,7 +386,7 @@ class SyncWorkKindTest :
             context.verifyNoPull()
         }
 
-        test("TC-DATA-SYNC-DOMAIN-019 체크 항목은 체크리스트 업로드가 모두 끝난 뒤에 업로드를 시작한다") {
+        test("TC-674eebce-610c-4b46-8dce-79aef5252327 체크 항목은 체크리스트 업로드가 모두 끝난 뒤에 업로드를 시작한다") {
             runTest {
                 val context = kindContext(pendingCountMap = mapOf(CHECKLIST to 1, CHECKLIST_ITEM to 1))
                 val eventList = mutableListOf<String>()
@@ -404,7 +404,7 @@ class SyncWorkKindTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-080 한 묶음이 실패해도 앞서 성공한 묶음의 대기 해제만 남고 되돌리지 않는다") {
+        test("TC-3902db0b-13a5-4b5c-9d0d-2953c81702eb 한 묶음이 실패해도 앞서 성공한 묶음의 대기 해제만 남고 되돌리지 않는다") {
             val tagList = tags(size = 201)
             val context = context(tagList = tagList)
             val failure = TestException(fixtureMonkey.giveMeOne())
@@ -418,7 +418,7 @@ class SyncWorkKindTest :
             confirmVerified(context.accountTagSyncTransaction)
         }
 
-        test("TC-DATA-SYNC-DOMAIN-084 메모 업로드가 성공하고 메모와 태그의 연결 업로드가 실패하면 메모의 대기 해제만 유지된다") {
+        test("TC-64fcf9ff-6061-4b06-b6df-c6c61179ac5d 메모 업로드가 성공하고 메모와 태그의 연결 업로드가 실패하면 메모의 대기 해제만 유지된다") {
             val tagId = fixtureMonkey.giveMeOne<Uuid>()
             val primaryTagMemo = memo().copy(primaryTagId = tagId)
             val memoTag = memoTag().copy(memoId = primaryTagMemo.id, tagId = tagId)
@@ -436,7 +436,7 @@ class SyncWorkKindTest :
             context.verifyNoPull()
         }
 
-        test("TC-DATA-SYNC-DOMAIN-082 계정 상태를 확인하지 못해 끝난 동기화도 원인을 담은 오류 보고가 한 번 남는다") {
+        test("TC-d997a10e-93f1-469d-ab8f-e1005e382f7f 계정 상태를 확인하지 못해 끝난 동기화도 원인을 담은 오류 보고가 한 번 남는다") {
             val failure = TestException(fixtureMonkey.giveMeOne())
             val context =
                 kindContext(pendingCountMap = mapOf(TAG to 1, MEMO to 1))
@@ -454,7 +454,7 @@ class SyncWorkKindTest :
         }
 
         kindCaseList.forEach { kindCase ->
-            test("TC-DATA-SYNC-DATA-002 ${kindCase.label} 업로드가 실패하면 대기 해제와 내려받기 없이 동기화가 실패한다") {
+            test("TC-93f39ef0-82c2-433f-9711-df1f20a51b65 ${kindCase.label} 업로드가 실패하면 대기 해제와 내려받기 없이 동기화가 실패한다") {
                 val context = kindContext(pendingCountMap = mapOf(kindCase.label to 1))
                 val failure = TestException(fixtureMonkey.giveMeOne())
                 coEvery { kindCase.push(this, context) } throws failure
@@ -467,7 +467,7 @@ class SyncWorkKindTest :
                 context.verifyNoPull()
             }
 
-            test("TC-DATA-SYNC-DATA-017 ${kindCase.label}의 기록된 순번이 없으면 가장 작은 내려받기 위치로 첫 묶음을 요청한다") {
+            test("TC-cce8783a-21bb-4316-bdb7-74d4d2fe8853 ${kindCase.label}의 기록된 순번이 없으면 가장 작은 내려받기 위치로 첫 묶음을 요청한다") {
                 val context = kindContext(pendingCountMap = emptyMap())
 
                 context.subject.doWork()
@@ -475,7 +475,7 @@ class SyncWorkKindTest :
                 coVerify(exactly = 1) { kindCase.pull(this, context, 0L) }
             }
 
-            test("TC-DATA-SYNC-DATA-019 내려받은 ${kindCase.label}의 전체 상태와 서버 변경 순번을 기기 저장에 담는다") {
+            test("TC-c368908b-b191-4ceb-9b5d-e82025cf6da8 내려받은 ${kindCase.label}의 전체 상태와 서버 변경 순번을 기기 저장에 담는다") {
                 val context = kindContext(pendingCountMap = emptyMap())
                 val (pullList, localList) = kindCase.pulls(listOf(4L, 9L))
                 val savedList = mutableListOf<Pair<List<Any>, Long>>()
@@ -490,7 +490,7 @@ class SyncWorkKindTest :
                 savedList shouldContainExactly listOf(localList to 9L)
             }
 
-            test("TC-DATA-SYNC-DOMAIN-038 ${kindCase.label} 내려받기가 지연되어도 업로드가 끝난 뒤 나머지 열다섯 종류의 첫 내려받기를 먼저 시작한다") {
+            test("TC-d6ad6c31-e1e9-435a-ab90-64a6c654d457 ${kindCase.label} 내려받기가 지연되어도 업로드가 끝난 뒤 나머지 열다섯 종류의 첫 내려받기를 먼저 시작한다") {
                 runTest {
                     val context = kindContext(pendingCountMap = kindCaseList.associate { other -> other.label to 1 })
                     val eventList = mutableListOf<String>()
@@ -516,7 +516,7 @@ class SyncWorkKindTest :
                 }
             }
 
-            test("TC-DATA-SYNC-DOMAIN-039 ${kindCase.label} 내려받기가 실패해도 나머지 열다섯 종류는 빈 응답까지 내려받아 반영하고 위치가 전진한다") {
+            test("TC-319f896c-9872-4455-b4d1-a91dc09e1e9b ${kindCase.label} 내려받기가 실패해도 나머지 열다섯 종류는 빈 응답까지 내려받아 반영하고 위치가 전진한다") {
                 val context = kindContext(pendingCountMap = emptyMap())
                 val failure = TestException(fixtureMonkey.giveMeOne())
                 val otherKindCaseList = kindCaseList.filterNot { other -> other.label == kindCase.label }
@@ -543,7 +543,7 @@ class SyncWorkKindTest :
                 coVerify(exactly = 0) { kindCase.upsert(this, context) }
             }
 
-            test("TC-DATA-SYNC-DOMAIN-040 ${kindCase.label} 내려받기가 실패하면 나머지 종류의 내려받기가 끝난 뒤 동기화가 실패한다") {
+            test("TC-51b016e3-825d-4ef5-9968-ecbf31b4c8a4 ${kindCase.label} 내려받기가 실패하면 나머지 종류의 내려받기가 끝난 뒤 동기화가 실패한다") {
                 val context = kindContext(pendingCountMap = emptyMap())
                 val failure = TestException(fixtureMonkey.giveMeOne())
                 coEvery { kindCase.pull(this, context, any()) } throws failure

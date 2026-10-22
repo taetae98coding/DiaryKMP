@@ -45,7 +45,7 @@ class SearchHomeSortTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-SEARCH-HOME-FEATURE-024 한 유형에서 고른 정렬은 다른 유형의 결과 순서를 바꾸지 않는다") {
+        test("TC-325ef5d6-2f21-4e58-a256-bd4934f74028 한 유형에서 고른 정렬은 다른 유형의 결과 순서를 바꾸지 않는다") {
             runTest(mainDispatcher) {
                 val searchMemoUseCase = searchMemoUseCase(successPagingDataFlowOf(emptyList<Memo>()))
                 val searchTagUseCase = searchTagUseCase(successPagingDataFlowOf(emptyList<Tag>()))
@@ -82,7 +82,7 @@ class SearchHomeSortTest : FunSpec() {
             }
         }
 
-        test("TC-SEARCH-HOME-FEATURE-025 질의를 바꿔도 그 유형에서 고른 정렬이 유지된다") {
+        test("TC-00c63399-518d-4371-92df-785cfb4c8183 질의를 바꿔도 그 유형에서 고른 정렬이 유지된다") {
             runTest(mainDispatcher) {
                 val searchMemoUseCase = searchMemoUseCase(successPagingDataFlowOf(emptyList<Memo>()))
                 val viewModel =
@@ -113,7 +113,7 @@ class SearchHomeSortTest : FunSpec() {
             }
         }
 
-        test("TC-SEARCH-HOME-DOMAIN-020 메모리 정리 뒤 새로 만든 유형 결과는 고른 정렬 대신 제목순으로 복원한 질의를 조회한다") {
+        test("TC-21971de1-16bd-49cc-aec1-7b35f40b8bb7 메모리 정리 뒤 새로 만든 유형 결과는 고른 정렬 대신 제목순으로 복원한 질의를 조회한다") {
             runTest(mainDispatcher) {
                 val searchMemoUseCase = searchMemoUseCase(successPagingDataFlowOf(emptyList<Memo>()))
                 val searchTagUseCase = searchTagUseCase(successPagingDataFlowOf(emptyList<Tag>()))

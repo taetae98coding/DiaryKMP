@@ -46,7 +46,7 @@ private val request =
 
 class MemoDraftRepositoryImplTest :
     FunSpec({
-        test("TC-MEMO-GEMINI-DATA-001: 전달받은 설정의 인증 정보와 모델, 시스템 프롬프트로 생성을 요청한다") {
+        test("TC-9b073a1f-64e9-4bb1-be62-c93c520d2f8b: 전달받은 설정의 인증 정보와 모델, 시스템 프롬프트로 생성을 요청한다") {
             val apiKeySlot = slot<String>()
             val modelSlot = slot<String>()
             val systemInstructionSlot = slot<String>()
@@ -70,7 +70,7 @@ class MemoDraftRepositoryImplTest :
             systemInstructionSlot.captured shouldBe setting.systemPrompt
         }
 
-        test("TC-MEMO-GEMINI-DATA-002: 프롬프트와 입력 중인 내용, 지금 시각과 시간대를 함께 보낸다") {
+        test("TC-5491e9af-67be-4bf7-bc56-76eb638b6889: 프롬프트와 입력 중인 내용, 지금 시각과 시간대를 함께 보낸다") {
             val prompt = fetchPrompt(request = request)
 
             prompt["prompt"]!!.jsonPrimitive.content shouldBe request.prompt
@@ -104,7 +104,7 @@ class MemoDraftRepositoryImplTest :
             period["end"]!!.jsonPrimitive.content shouldBe "2026-09-21T10:30"
         }
 
-        test("TC-MEMO-GEMINI-DATA-003: 비어 있는 프롬프트는 보내지 않는다") {
+        test("TC-0ea03cb6-5be1-4857-915b-b2aaf75e2102: 비어 있는 프롬프트는 보내지 않는다") {
             listOf("", "   ").forEach { blank ->
                 val prompt = fetchPrompt(request = request.copy(prompt = blank))
 
@@ -112,7 +112,7 @@ class MemoDraftRepositoryImplTest :
             }
         }
 
-        test("TC-MEMO-GEMINI-DATA-004: 지금 시각과 시간대, 프롬프트와 입력 중인 내용 말고는 보내지 않는다") {
+        test("TC-3a215098-861f-40ad-bfe8-477228e2ac6e: 지금 시각과 시간대, 프롬프트와 입력 중인 내용 말고는 보내지 않는다") {
             fetchPrompt(request = request).keys shouldContainExactlyInAnyOrder
                 setOf("prompt", "currentTitle", "currentDescription", "currentPeriod", "now", "timeZone")
 
@@ -120,7 +120,7 @@ class MemoDraftRepositoryImplTest :
                 setOf("now", "timeZone")
         }
 
-        test("TC-MEMO-GEMINI-DATA-008: 공백뿐인 제목과 설명, 사용하지 않는 기간은 보내지 않는다") {
+        test("TC-43233fcb-7378-457d-af25-6c044c85e6e4: 공백뿐인 제목과 설명, 사용하지 않는 기간은 보내지 않는다") {
             listOf("", "   ", "\n\t").forEach { blank ->
                 val prompt = fetchPrompt(request = request.copy(title = blank, description = blank, dateTime = null))
 
@@ -168,7 +168,7 @@ class MemoDraftRepositoryImplTest :
                 )
         }
 
-        test("TC-MEMO-GEMINI-DATA-009: 기간을 알아볼 수 없으면 기간 없는 초안으로 전달한다") {
+        test("TC-77bce896-4eb1-4bd8-851f-9ef400d157e6: 기간을 알아볼 수 없으면 기간 없는 초안으로 전달한다") {
             listOf(
                 buildJsonObject { put("title", "제목") },
                 buildJsonObject {
@@ -195,7 +195,7 @@ class MemoDraftRepositoryImplTest :
             }
         }
 
-        test("TC-MEMO-GEMINI-DATA-009: 제목과 설명을 알아볼 수 없으면 빈 값으로 전달한다") {
+        test("TC-77bce896-4eb1-4bd8-851f-9ef400d157e6: 제목과 설명을 알아볼 수 없으면 빈 값으로 전달한다") {
             listOf(
                 JsonObject(emptyMap()),
                 buildJsonObject {
@@ -227,7 +227,7 @@ class MemoDraftRepositoryImplTest :
             shouldThrow<GeminiApiKeyInvalidException> { repository.fetch(setting = setting, request = request) }.cause shouldBe cause
         }
 
-        test("TC-MEMO-GEMINI-DATA-005: 구조화된 형태가 아닌 응답의 실패는 인증 실패로 바꾸지 않는다") {
+        test("TC-659c06e0-8cc6-4e57-8cbc-be3ed3159758: 구조화된 형태가 아닌 응답의 실패는 인증 실패로 바꾸지 않는다") {
             val cause = GeminiException.InvalidContent(cause = IllegalStateException("not json"))
             val repository =
                 MemoDraftRepositoryImpl(

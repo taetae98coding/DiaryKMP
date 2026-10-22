@@ -45,7 +45,7 @@ class PlaceAddTagAddTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-004 나타낼 태그가 있으면 태그 추가 항목이 태그 선택 목록을 연다`() {
+    fun `TC-c6e8c411-91bc-4b0b-b38e-dbd5ac99fcb7 나타낼 태그가 있으면 태그 추가 항목이 태그 선택 목록을 연다`() {
         var tagAddCount = 0
         setPlaceAddScreen(tagList = listOf(placeTestTag(title = WORK_TAG_TITLE)), navigateToTagAdd = { tagAddCount += 1 })
 
@@ -57,7 +57,7 @@ class PlaceAddTagAddTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-024 나타낼 태그가 없으면 태그 추가 항목이 TagAdd 이동을 요청한다`() {
+    fun `TC-6c2518cc-0002-4ec6-bbd2-c42b55754d35 나타낼 태그가 없으면 태그 추가 항목이 TagAdd 이동을 요청한다`() {
         var tagAddCount = 0
         setPlaceAddScreen(tagList = emptyList(), navigateToTagAdd = { tagAddCount += 1 })
 
@@ -69,7 +69,7 @@ class PlaceAddTagAddTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-025 목록의 대상을 확인하는 중에는 태그 추가 항목이 목록을 연다`() {
+    fun `TC-96219ea8-242e-4062-a664-95fd6391a863 목록의 대상을 확인하는 중에는 태그 추가 항목이 목록을 연다`() {
         var tagAddCount = 0
         setPlaceAddScreen(
             tagPagingData = MutableStateFlow(refreshingTagPagingData()),
@@ -84,7 +84,7 @@ class PlaceAddTagAddTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-034 목록의 대상을 처음 불러오지 못하면 태그 추가 항목이 목록을 연다`() {
+    fun `TC-e24a5301-61a9-42f4-98d0-5d503eb9cc4a 목록의 대상을 처음 불러오지 못하면 태그 추가 항목이 목록을 연다`() {
         var tagAddCount = 0
         setPlaceAddScreen(
             tagPagingData = MutableStateFlow(refreshFailedTagPagingData()),
@@ -99,7 +99,7 @@ class PlaceAddTagAddTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-027 목록의 태그 추가 항목을 누르면 목록이 닫히고 TagAdd 이동을 요청한다`() {
+    fun `TC-6397d89f-db81-4ca1-bbe0-13d8857d9eed 목록의 태그 추가 항목을 누르면 목록이 닫히고 TagAdd 이동을 요청한다`() {
         var tagAddCount = 0
         setPlaceAddScreen(tagList = listOf(placeTestTag(title = WORK_TAG_TITLE)), navigateToTagAdd = { tagAddCount += 1 })
         composeRule.onNodeWithText(DEFAULT_ENTITY_TAG_LABEL).performClick()
@@ -113,7 +113,7 @@ class PlaceAddTagAddTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-028 TagAdd 화면에서 추가한 태그 하나가 돌아왔을 때 이전 연결과 함께 연결 대상이 된다`() {
+    fun `TC-4efa8874-4b68-4a4f-a21d-6799efec18a2 TagAdd 화면에서 추가한 태그 하나가 돌아왔을 때 이전 연결과 함께 연결 대상이 된다`() {
         val linkedTag = placeTestTag(title = EXERCISE_TAG_TITLE)
         val addedTag = placeTestTag(title = WORK_TAG_TITLE)
         val resultEventBus = ResultEventBus()
@@ -132,7 +132,7 @@ class PlaceAddTagAddTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-028 TagAdd 화면에서 추가한 태그 여러 개가 돌아왔을 때 모두 연결 대상이 된다`() {
+    fun `TC-4efa8874-4b68-4a4f-a21d-6799efec18a2 TagAdd 화면에서 추가한 태그 여러 개가 돌아왔을 때 모두 연결 대상이 된다`() {
         val firstAddedTag = placeTestTag(title = WORK_TAG_TITLE)
         val secondAddedTag = placeTestTag(title = EXERCISE_TAG_TITLE)
         val resultEventBus = ResultEventBus()
@@ -147,7 +147,7 @@ class PlaceAddTagAddTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-029 태그를 추가하지 않고 돌아오면 연결이 그대로 유지된다`() {
+    fun `TC-e0845b94-fdc3-47b2-a91e-e9da40b9785c 태그를 추가하지 않고 돌아오면 연결이 그대로 유지된다`() {
         val linkedTag = placeTestTag(title = WORK_TAG_TITLE)
         val otherTag = placeTestTag(title = EXERCISE_TAG_TITLE)
         setPlaceAddScreen(tagList = listOf(linkedTag, otherTag))
@@ -164,7 +164,7 @@ class PlaceAddTagAddTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-030 TagAdd 화면에서 돌아와도 태그 선택 목록이 저절로 열리지 않는다`() {
+    fun `TC-97f9154e-3aa5-4898-817e-522f1298f870 TagAdd 화면에서 돌아와도 태그 선택 목록이 저절로 열리지 않는다`() {
         val addedTag = placeTestTag(title = WORK_TAG_TITLE)
         val resultEventBus = ResultEventBus()
         setPlaceAddScreen(tagList = listOf(addedTag), resultEventBus = resultEventBus)
@@ -181,7 +181,7 @@ class PlaceAddTagAddTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-DOMAIN-014 자동 선택된 태그의 연결을 해제하면 다시 선택되지 않는다`() {
+    fun `TC-d4b6ec10-1460-4ebc-b556-2948ae5eb265 자동 선택된 태그의 연결을 해제하면 다시 선택되지 않는다`() {
         val addedTag = placeTestTag(title = WORK_TAG_TITLE)
         val resultEventBus = ResultEventBus()
         setPlaceAddScreen(tagList = listOf(addedTag), resultEventBus = resultEventBus)
@@ -199,7 +199,7 @@ class PlaceAddTagAddTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-DOMAIN-015 이 입력에서 이동하지 않은 TagAdd 화면의 태그는 자동 선택되지 않는다`() {
+    fun `TC-37b90455-d40a-4673-9405-c67eaebde0ee 이 입력에서 이동하지 않은 TagAdd 화면의 태그는 자동 선택되지 않는다`() {
         val addedTag = placeTestTag(title = WORK_TAG_TITLE)
         val resultEventBus = ResultEventBus()
         setPlaceAddScreen(tagList = listOf(addedTag), resultEventBus = resultEventBus)
@@ -213,7 +213,7 @@ class PlaceAddTagAddTest {
     private fun dialogNodeWithText(text: String): SemanticsNodeInteraction = composeRule.onNode(hasText(text) and hasAnyAncestor(isDialog()))
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-024 TC-ENTITY-TAG-INPUT-FEATURE-033 저장된 태그가 없으면 목록을 연 적이 없어도 첫 누름에 태그 추가 항목이 TagAdd 이동을 요청한다`() {
+    fun `TC-6c2518cc-0002-4ec6-bbd2-c42b55754d35 TC-275e3447-faf3-4877-861a-c88b99f5dc75 저장된 태그가 없으면 목록을 연 적이 없어도 첫 누름에 태그 추가 항목이 TagAdd 이동을 요청한다`() {
         val pageTagUseCase = mockk<PageTagUseCase>()
         every { pageTagUseCase(parameter = any()) } returns flowOf(Result.success(loadedTagPagingDataOf(emptyList())))
         val getSelectedTagUseCase = mockk<GetSelectedTagUseCase>()

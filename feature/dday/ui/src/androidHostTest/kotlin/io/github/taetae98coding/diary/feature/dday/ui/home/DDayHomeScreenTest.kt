@@ -18,7 +18,7 @@ class DDayHomeScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-DDAY-HOME-FEATURE-003 뒤로가기를 선택하면 이전 화면으로 돌아간다`() {
+    fun `TC-9441c865-0db9-40eb-901f-445b04bcad44 뒤로가기를 선택하면 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         composeRule.setContent {
             DiaryTheme {

@@ -32,7 +32,7 @@ class SettingHolidayScaffoldCountryTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-034 국가 선택지를 정해진 순서로 선택 상태와 함께 공휴일보다 먼저 표시한다`() {
+    fun `TC-7ce7c4bc-9632-4185-aa1b-2a47b7a42519 국가 선택지를 정해진 순서로 선택 상태와 함께 공휴일보다 먼저 표시한다`() {
         val holidaySetting = holidaySetting(isHoliday = true, isVisible = true)
         composeRule.setSettingHolidayScaffold(
             uiState =
@@ -56,7 +56,7 @@ class SettingHolidayScaffoldCountryTest {
     }
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-035 국가 선택지를 누르면 그 선택지의 변경을 요청한다`() {
+    fun `TC-cb51594b-3830-46fc-8328-73a3f2384489 국가 선택지를 누르면 그 선택지의 변경을 요청한다`() {
         val labelToOption =
             listOf(
                 DEFAULT_COUNTRY_DEVICE to HolidayCountryOption.DEVICE,
@@ -75,17 +75,17 @@ class SettingHolidayScaffoldCountryTest {
     }
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-036 기기 지역이 한국이면 기기값 선택지에 한국을 보여 준다`() {
+    fun `TC-b08553a3-9e32-40c7-b592-99061f442250 기기 지역이 한국이면 기기값 선택지에 한국을 보여 준다`() {
         assertDeviceSupportingText(deviceCountry = HolidayCountry.KOREA, expected = DEFAULT_COUNTRY_KOREA)
     }
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-036 기기 지역이 미국이면 기기값 선택지에 미국을 보여 준다`() {
+    fun `TC-b08553a3-9e32-40c7-b592-99061f442250 기기 지역이 미국이면 기기값 선택지에 미국을 보여 준다`() {
         assertDeviceSupportingText(deviceCountry = HolidayCountry.UNITED_STATES, expected = DEFAULT_COUNTRY_UNITED_STATES)
     }
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-036 기기 지역이 지원하지 않는 지역이면 기기값 선택지에 알린다`() {
+    fun `TC-b08553a3-9e32-40c7-b592-99061f442250 기기 지역이 지원하지 않는 지역이면 기기값 선택지에 알린다`() {
         assertDeviceSupportingText(deviceCountry = null, expected = DEFAULT_COUNTRY_UNSUPPORTED_REGION)
     }
 
@@ -109,7 +109,7 @@ class SettingHolidayScaffoldCountryTest {
     }
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-037 검색어가 있는 동안에는 국가 선택지를 제공하지 않는다`() {
+    fun `TC-eb32a508-8456-40a1-bc05-5a92d3c496fb 검색어가 있는 동안에는 국가 선택지를 제공하지 않는다`() {
         val holidaySetting = holidaySetting(isHoliday = true, isVisible = true, name = "설날")
         composeRule.setSettingHolidayScaffold(uiState = loadedUiState(holidaySettingList = listOf(holidaySetting)))
 
@@ -146,7 +146,7 @@ class SettingHolidayScaffoldCountryTest {
     }
 
     @Test
-    fun `TC-SETTING-HOLIDAY-FEATURE-040 검색어가 비어 있고 공휴일 항목이 없으면 빈 상태 없이 국가 선택지만 제공한다`() {
+    fun `TC-851f32bd-a715-4990-a280-7849e70d8c90 검색어가 비어 있고 공휴일 항목이 없으면 빈 상태 없이 국가 선택지만 제공한다`() {
         composeRule.setSettingHolidayScaffold(uiState = loadedUiState(holidaySettingList = emptyList()))
 
         composeRule.countryNode(DEFAULT_COUNTRY_DEVICE).assertExists()

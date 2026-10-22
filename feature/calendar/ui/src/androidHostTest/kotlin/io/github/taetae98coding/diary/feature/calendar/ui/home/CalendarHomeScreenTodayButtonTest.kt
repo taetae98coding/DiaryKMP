@@ -56,7 +56,7 @@ class CalendarHomeScreenTodayButtonTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-015 다른 달을 보는 중에 오늘 버튼을 누르면 오늘이 속한 달로 이동한다`() {
+    fun `TC-e6999319-0732-440d-9024-0fa76b885e28 다른 달을 보는 중에 오늘 버튼을 누르면 오늘이 속한 달로 이동한다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
         val nextYearMonth =
             today.yearMonth.firstDay
@@ -76,7 +76,7 @@ class CalendarHomeScreenTodayButtonTest {
     }
 
     @Test
-    fun `TC-CALENDAR-HOME-FEATURE-016 오늘이 속한 달을 보는 중에 오늘 버튼을 누르면 보던 달이 유지된다`() {
+    fun `TC-d3904f9a-7dd7-4060-8ff8-cdae86ac9133 오늘이 속한 달을 보는 중에 오늘 버튼을 누르면 보던 달이 유지된다`() {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
         setCalendarHomeScreen()

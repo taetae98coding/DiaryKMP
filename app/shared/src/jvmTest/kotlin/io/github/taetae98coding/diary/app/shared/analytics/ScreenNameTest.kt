@@ -76,7 +76,7 @@ import kotlin.uuid.Uuid
 
 class ScreenNameTest :
     FunSpec({
-        test("TC-SCREEN-VIEW-LOGGING-DOMAIN-011 각 화면은 목록에 정의된 이름으로 남는다") {
+        test("TC-32e6ad32-004b-47c6-a25a-144794ac03aa 각 화면은 목록에 정의된 이름으로 남는다") {
             screenNameByNavKey().forEach { (navKey, screenName) ->
                 withClue(navKey) { navKey.screenName shouldBe screenName }
             }
@@ -95,13 +95,13 @@ class ScreenNameTest :
             screenNameByNavKey.values.toSet().size shouldBe screenNameByNavKey.size
         }
 
-        test("TC-SCREEN-VIEW-LOGGING-DOMAIN-009 항목이 달라도 같은 종류의 화면은 같은 이름으로 남는다") {
+        test("TC-04f91a23-c86c-4dfe-a44e-118fbefa14f4 항목이 달라도 같은 종류의 화면은 같은 이름으로 남는다") {
             valuedNavKeyPairList().forEach { (first, second) ->
                 withClue(first) { first.screenName shouldBe second.screenName }
             }
         }
 
-        test("TC-SCREEN-VIEW-LOGGING-DOMAIN-010 화면 이름에 그 화면에 전달된 값이 담기지 않는다") {
+        test("TC-16c187ba-3651-4483-b320-64e260bc6fbe 화면 이름에 그 화면에 전달된 값이 담기지 않는다") {
             val id = fixtureMonkey.giveMeOne<Uuid>()
             val date = fixtureMonkey.giveMeOne<LocalDate>()
             val valuedNavKeyList =

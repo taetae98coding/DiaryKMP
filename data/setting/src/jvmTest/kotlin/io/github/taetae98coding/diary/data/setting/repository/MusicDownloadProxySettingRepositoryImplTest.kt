@@ -23,13 +23,13 @@ private const val OTHER_ADDRESS = "http://10.0.0.5:27180"
 
 class MusicDownloadProxySettingRepositoryImplTest :
     FunSpec({
-        test("TC-SETTING-PLAYLIST-DATA-002 저장된 주소가 없으면 비어 있는 설정을 제공한다") {
+        test("TC-3240f1fa-ebae-425e-ab22-f2bd8abe2b2d 저장된 주소가 없으면 비어 있는 설정을 제공한다") {
             val repository = createRepository(MutableStateFlow(""))
 
             repository.get().first() shouldBe MusicDownloadProxySetting.EMPTY
         }
 
-        test("TC-SETTING-PLAYLIST-DATA-001 저장한 주소를 이후 조회에서 그대로 제공한다") {
+        test("TC-fdbd7278-c317-46c7-bb21-0eadd9d526b2 저장한 주소를 이후 조회에서 그대로 제공한다") {
             listOf(ADDRESS, "").forEach { address ->
                 val repository = createRepository(MutableStateFlow(OTHER_ADDRESS))
 
@@ -51,7 +51,7 @@ class MusicDownloadProxySettingRepositoryImplTest :
             }
         }
 
-        test("TC-SETTING-PLAYLIST-DATA-003 저장된 값을 읽을 수 없으면 비어 있는 설정으로 바꾸지 않고 실패를 그대로 알린다") {
+        test("TC-df3a4122-2749-49e4-bf84-97cca234d193 저장된 값을 읽을 수 없으면 비어 있는 설정으로 바꾸지 않고 실패를 그대로 알린다") {
             val failure = IllegalStateException(fixtureMonkey.giveMeOne<String>())
             val repository =
                 MusicDownloadProxySettingRepositoryImpl(

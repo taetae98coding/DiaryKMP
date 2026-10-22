@@ -120,7 +120,7 @@ class MemoAddScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-001 추가 항목을 누르면 선택할 수 있는 연락처 목록이 열린다`() {
+    fun `TC-ba378d6e-8302-4639-a7a3-d23d69d91861 추가 항목을 누르면 선택할 수 있는 연락처 목록이 열린다`() {
         val contactList = listOf(testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER), testContact(name = SECOND_CONTACT_NAME, phoneNumber = SECOND_CONTACT_PHONE_NUMBER))
         var contactAddCount = 0
         composeRule.setMemoAddScreenForContact(
@@ -137,7 +137,7 @@ class MemoAddScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-003 TC-MEMO-CONTACT-INPUT-FEATURE-031 선택할 수 있는 연락처가 없으면 목록을 연 적이 없어도 첫 누름에 추가 항목이 ContactAdd 이동을 요청한다`() {
+    fun `TC-48dc2878-e69b-4edb-a10a-c730782d7a26 TC-9133bfce-fb60-48f3-b50e-19c52879b177 선택할 수 있는 연락처가 없으면 목록을 연 적이 없어도 첫 누름에 추가 항목이 ContactAdd 이동을 요청한다`() {
         var contactAddCount = 0
         composeRule.setMemoAddScreenForContact(
             viewModels = screenTestRealViewModel(contactList = emptyList()),
@@ -151,7 +151,7 @@ class MemoAddScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-004 목록의 대상을 확인하는 중에는 추가 항목이 목록을 연다`() {
+    fun `TC-4bc850f0-04e1-490d-bca1-e5299d7a1d34 목록의 대상을 확인하는 중에는 추가 항목이 목록을 연다`() {
         var contactAddCount = 0
         composeRule.setMemoAddScreenForContact(
             viewModels = screenTestViewModel(contactPagingData = MutableStateFlow(refreshingContactPagingData())),
@@ -165,7 +165,7 @@ class MemoAddScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-032 목록의 대상을 처음 불러오지 못하면 추가 항목이 목록을 연다`() {
+    fun `TC-7468b5e8-aafb-4cdf-b63f-cbd10c563375 목록의 대상을 처음 불러오지 못하면 추가 항목이 목록을 연다`() {
         var contactAddCount = 0
         composeRule.setMemoAddScreenForContact(
             viewModels = screenTestViewModel(contactPagingData = MutableStateFlow(refreshFailedContactPagingData())),
@@ -179,7 +179,7 @@ class MemoAddScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-005 확인 중에 연 목록이 대상 없음으로 확정되면 목록 영역이 비어 있는 채로 유지된다`() {
+    fun `TC-a68a0a0f-53e6-49d9-bf55-e0d70b4b88ce 확인 중에 연 목록이 대상 없음으로 확정되면 목록 영역이 비어 있는 채로 유지된다`() {
         val contactPagingData = MutableStateFlow(refreshingContactPagingData())
         composeRule.setMemoAddScreenForContact(viewModels = screenTestViewModel(contactPagingData = contactPagingData))
         composeRule.openContactPicker()
@@ -193,7 +193,7 @@ class MemoAddScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-011 목록에서 고른 연락처가 연락처 입력의 칩으로 나타난다`() {
+    fun `TC-d8a15eeb-4fbb-4b78-b513-cce7e71db76b 목록에서 고른 연락처가 연락처 입력의 칩으로 나타난다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         composeRule.setMemoAddScreenForContact(viewModels = screenTestRealViewModel(contactList = listOf(contact)))
 
@@ -203,7 +203,7 @@ class MemoAddScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-063 ContactDetail 메모 탭에서 진입하면 대상 연락처가 연락처 입력에 선택되어 있다`() {
+    fun `TC-8bc7e7d0-9705-4bf2-ad5b-c7233fa2d634 ContactDetail 메모 탭에서 진입하면 대상 연락처가 연락처 입력에 선택되어 있다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         composeRule.setMemoAddScreenForContact(
             viewModels = screenTestRealViewModel(initialContactId = contact.id, contactList = listOf(contact)),
@@ -213,7 +213,7 @@ class MemoAddScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-014 목록을 닫아도 반영한 선택이 유지된다`() {
+    fun `TC-56b19a4e-785f-4f8f-973f-f0f08e51b03d 목록을 닫아도 반영한 선택이 유지된다`() {
         val contactList = listOf(testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER), testContact(name = SECOND_CONTACT_NAME, phoneNumber = SECOND_CONTACT_PHONE_NUMBER))
         composeRule.setMemoAddScreenForContact(viewModels = screenTestRealViewModel(contactList = contactList))
 
@@ -225,7 +225,7 @@ class MemoAddScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-007 목록의 연락처 추가 항목을 누르면 목록이 닫히고 ContactAdd 이동을 요청한다`() {
+    fun `TC-7dfed0a2-9d1d-45e6-a8d4-0229360d0c18 목록의 연락처 추가 항목을 누르면 목록이 닫히고 ContactAdd 이동을 요청한다`() {
         val contactList = listOf(testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER))
         var contactAddCount = 0
         composeRule.setMemoAddScreenForContact(
@@ -243,7 +243,7 @@ class MemoAddScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-016 연락처 칩을 누르면 ContactDetail 이동을 요청한다`() {
+    fun `TC-0a6954ce-f95b-4641-b63d-097225cc9cd3 연락처 칩을 누르면 ContactDetail 이동을 요청한다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val clickedIdList = mutableListOf<Uuid>()
         composeRule.setMemoAddScreenForContact(
@@ -259,7 +259,7 @@ class MemoAddScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-DATA-021 연락처를 선택하는 것만으로는 저장된 메모가 바뀌지 않는다`() {
+    fun `TC-cfd14961-61f9-4a24-9f2e-ed1def813931 연락처를 선택하는 것만으로는 저장된 메모가 바뀌지 않는다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val addMemoUseCase = mockk<AddMemoUseCase>()
         composeRule.setMemoAddScreenForContact(viewModels = screenTestRealViewModel(contactList = listOf(contact), addMemoUseCase = addMemoUseCase))
@@ -270,7 +270,7 @@ class MemoAddScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-060 추가에 성공해도 선택한 연락처가 유지된다`() {
+    fun `TC-20ea4669-e372-4285-ae2e-083db592c8ab 추가에 성공해도 선택한 연락처가 유지된다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val addMemoUseCase = mockk<AddMemoUseCase>()
         coEvery { addMemoUseCase(any<AddMemoUseCase.Parameter>()) } returns Result.success(Uuid.random())
@@ -286,7 +286,7 @@ class MemoAddScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-021 목록을 닫았다가 다시 열면 앞부분부터 나타난다`() {
+    fun `TC-3d0d07dc-b073-40e0-9818-8b803d3c95b5 목록을 닫았다가 다시 열면 앞부분부터 나타난다`() {
         val contactList =
             List(CONTACT_TEST_PICKER_COUNT) { index ->
                 testContact(name = "$CONTACT_TEST_PICKER_NAME_PREFIX${index.toString().padStart(length = 3, padChar = '0')}")
@@ -307,7 +307,7 @@ class MemoAddScreenContactTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-006 목록을 끝까지 확인해도 연락처 추가 항목을 표시한다`() {
+    fun `TC-8c717f34-2c22-46fc-86f8-a7da737cf4a2 목록을 끝까지 확인해도 연락처 추가 항목을 표시한다`() {
         val contactList =
             List(CONTACT_TEST_PICKER_COUNT) { index ->
                 testContact(name = "$CONTACT_TEST_PICKER_NAME_PREFIX${index.toString().padStart(length = 3, padChar = '0')}")
@@ -343,7 +343,7 @@ class MemoAddScreenContactAddedResultTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-008 ContactAdd 화면에서 추가한 연락처 하나가 돌아왔을 때 선택된다`() {
+    fun `TC-18cfb8be-c945-4946-93b3-abaea3ebbfba ContactAdd 화면에서 추가한 연락처 하나가 돌아왔을 때 선택된다`() {
         val selectedContact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val addedContact = testContact(name = SECOND_CONTACT_NAME, phoneNumber = SECOND_CONTACT_PHONE_NUMBER)
         val resultEventBus = ResultEventBus()
@@ -361,7 +361,7 @@ class MemoAddScreenContactAddedResultTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-008 ContactAdd 화면에서 추가한 연락처 여러 개가 돌아왔을 때 모두 선택된다`() {
+    fun `TC-18cfb8be-c945-4946-93b3-abaea3ebbfba ContactAdd 화면에서 추가한 연락처 여러 개가 돌아왔을 때 모두 선택된다`() {
         val selectedContact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val firstAddedContact = testContact(name = FIRST_ADDED_CONTACT_NAME)
         val secondAddedContact = testContact(name = SECOND_ADDED_CONTACT_NAME)
@@ -382,7 +382,7 @@ class MemoAddScreenContactAddedResultTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-009 연락처를 하나도 추가하지 않고 돌아오면 선택이 그대로 유지된다`() {
+    fun `TC-94531513-55c5-4792-82ca-4b8e28c5e371 연락처를 하나도 추가하지 않고 돌아오면 선택이 그대로 유지된다`() {
         val contactList = listOf(testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER), testContact(name = SECOND_CONTACT_NAME, phoneNumber = SECOND_CONTACT_PHONE_NUMBER))
         var contactAddCount = 0
         composeRule.setMemoAddScreenForContact(
@@ -402,7 +402,7 @@ class MemoAddScreenContactAddedResultTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-010 ContactAdd 화면에서 돌아와도 연락처 선택 목록이 저절로 열리지 않는다`() {
+    fun `TC-975e98de-a265-4085-9cdd-78577a96790a ContactAdd 화면에서 돌아와도 연락처 선택 목록이 저절로 열리지 않는다`() {
         val addedContact = testContact(name = SECOND_CONTACT_NAME, phoneNumber = SECOND_CONTACT_PHONE_NUMBER)
         val resultEventBus = ResultEventBus()
         composeRule.setMemoAddScreenForContact(
@@ -422,7 +422,7 @@ class MemoAddScreenContactAddedResultTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-DOMAIN-020 이 입력에서 이동하지 않은 ContactAdd 화면의 연락처는 자동 선택되지 않는다`() {
+    fun `TC-5abc5aa2-d43c-42d2-b0eb-d8f89cd03a13 이 입력에서 이동하지 않은 ContactAdd 화면의 연락처는 자동 선택되지 않는다`() {
         val addedContact = testContact(name = SECOND_CONTACT_NAME, phoneNumber = SECOND_CONTACT_PHONE_NUMBER)
         val resultEventBus = ResultEventBus()
         composeRule.setMemoAddScreenForContact(

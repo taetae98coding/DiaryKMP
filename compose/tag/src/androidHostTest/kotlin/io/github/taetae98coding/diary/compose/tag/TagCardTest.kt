@@ -65,7 +65,7 @@ class TagCardTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-015 TC-TAG-FINISHED-LIST-FEATURE-014 자리 표시 카드는 이모지, 제목과 컬러를 비워 표시한다`() {
+    fun `TC-8df6f641-a6db-4d82-ba6e-289153d32335 TC-10a84e58-1e05-42de-8968-2648dc04ffe3 자리 표시 카드는 이모지, 제목과 컬러를 비워 표시한다`() {
         val tag = tag(colorArgb = fixtureMonkey.giveMeOne<Int>() or 0xFF000000.toInt())
 
         setTagCard(tag = null)
@@ -96,7 +96,7 @@ class TagCardTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-016 TC-TAG-FINISHED-LIST-FEATURE-015 TC-SEARCH-HOME-FEATURE-013 자리 표시 카드는 선택할 수 없다`() {
+    fun `TC-f7afc78a-1b0f-48f3-b488-22d190b0130e TC-b0231338-6fe8-4df1-9392-fce90f7711f6 TC-f37b3a3e-09fd-4ad0-bd7f-db2f0cb9e101 자리 표시 카드는 선택할 수 없다`() {
         var clickCount = 0
 
         setTagCard(tag = null, onClick = { clickCount += 1 })

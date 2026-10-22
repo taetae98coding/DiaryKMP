@@ -14,7 +14,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class HolidaySettingListTest :
     BehaviorSpec({
-        Given("TC-SETTING-HOLIDAY-DOMAIN-014 같은 이름의 공휴일이 서로 다른 연도에 저장되어 있다") {
+        Given("TC-fea4091d-4353-4c60-a5ce-be7911ebd568 같은 이름의 공휴일이 서로 다른 연도에 저장되어 있다") {
             val name = "대체공휴일(어린이날)"
             val holidayList =
                 listOf(
@@ -32,7 +32,7 @@ class HolidaySettingListTest :
             }
         }
 
-        Given("TC-SETTING-HOLIDAY-DOMAIN-005 같은 key에 쉬는 날과 쉬는 날이 아닌 공휴일이 함께 저장되어 있다") {
+        Given("TC-e76f5047-73ee-48b9-a8cb-259bd6a962cd 같은 key에 쉬는 날과 쉬는 날이 아닌 공휴일이 함께 저장되어 있다") {
             val name = "대체공휴일"
             val holidayList =
                 listOf(
@@ -49,7 +49,7 @@ class HolidaySettingListTest :
             }
         }
 
-        Given("TC-SETTING-HOLIDAY-DOMAIN-006 표시 이름이 서로 다른 공휴일들이 순서 없이 저장되어 있다") {
+        Given("TC-a0daa7eb-ce79-4d29-9d65-9d4006f8bd62 표시 이름이 서로 다른 공휴일들이 순서 없이 저장되어 있다") {
             val holidayList =
                 listOf(
                     holiday(name = "한글날"),
@@ -68,7 +68,7 @@ class HolidaySettingListTest :
             }
         }
 
-        Given("TC-SETTING-HOLIDAY-DOMAIN-007 서로 다른 key 중 일부만 숨김으로 저장되어 있다") {
+        Given("TC-34a93096-255d-4576-abf9-984c3157edda 서로 다른 key 중 일부만 숨김으로 저장되어 있다") {
             val visibleNameList = listOf("개천절", "한글날")
             val hiddenKey = "광복절"
             val holidayList =

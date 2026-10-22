@@ -32,7 +32,7 @@ class DownloadFileUseCaseTest :
     BehaviorSpec({
         Given("로그인한 계정이고 다운로드 위치 설정이 있다") {
             When("파일을 내려받는다") {
-                Then("TC-FILE-DOWNLOAD-FEATURE-001 고른 폴더가 있으면 그 폴더에, 없으면 기본 위치에 저장하도록 맡기고 저장한 이름을 돌려준다") {
+                Then("TC-fa368167-d81a-4307-a63d-7e49c56ec884 고른 폴더가 있으면 그 폴더에, 없으면 기본 위치에 저장하도록 맡기고 저장한 이름을 돌려준다") {
                     listOf(null, fixtureMonkey.giveMeOne<FileDownloadDirectory>()).forEach { directory ->
                         val file = fixtureMonkey.giveMeOne<DiaryFile>().copy(name = "report.pdf")
                         val savedName = FileDownloadResult.Saved(name = fixtureMonkey.giveMeOne<String>())
@@ -49,7 +49,7 @@ class DownloadFileUseCaseTest :
                     }
                 }
 
-                Then("TC-FILE-DOWNLOAD-DATA-001 내려받을 때마다 그 시점의 설정을 읽는다") {
+                Then("TC-5591938c-4f65-42ea-b01d-98177ca0c509 내려받을 때마다 그 시점의 설정을 읽는다") {
                     val first = fixtureMonkey.giveMeOne<FileDownloadDirectory>()
                     val second = fixtureMonkey.giveMeOne<FileDownloadDirectory>()
                     val settingList = ArrayDeque(listOf(first, second))
@@ -67,7 +67,7 @@ class DownloadFileUseCaseTest :
                     coVerify(exactly = 1) { fileRepository.download(id = file.id, directory = second, nameCandidate = any()) }
                 }
 
-                Then("TC-FILE-DOWNLOAD-FEATURE-002 저장 위치에 저장하지 못하면 그 실패를 그대로 알린다") {
+                Then("TC-fc37bb69-7a4c-4aac-821c-bfd475e902b5 저장 위치에 저장하지 못하면 그 실패를 그대로 알린다") {
                     val fileRepository = mockk<FileDetailRepository>()
                     coEvery { fileRepository.download(id = any(), directory = any(), nameCandidate = any()) } throws FileDownloadDirectoryUnavailableException()
                     val useCase = useCase(fileDetailRepository = fileRepository, setting = FileDownloadSetting(directory = fixtureMonkey.giveMeOne<FileDownloadDirectory>()))
@@ -80,7 +80,7 @@ class DownloadFileUseCaseTest :
 
         Given("다운로드 위치 설정을 읽지 못한다") {
             When("파일을 내려받는다") {
-                Then("TC-FILE-DOWNLOAD-DATA-002 어느 위치에도 저장하지 않고 실패로 끝난다") {
+                Then("TC-eecbd8ea-88d6-4533-b956-21bffb9ce0d2 어느 위치에도 저장하지 않고 실패로 끝난다") {
                     val fileRepository = mockk<FileDetailRepository>()
                     val settingRepository = mockk<FileDownloadSettingRepository>()
                     every { settingRepository.get() } returns flow { throw IllegalStateException("setting") }
@@ -94,7 +94,7 @@ class DownloadFileUseCaseTest :
 
         Given("로그인한 계정을 확인하지 못했거나 게스트다") {
             When("파일을 내려받는다") {
-                Then("TC-FILE-DOWNLOAD-DOMAIN-001 서버에 요청하지 않고 실패로 끝난다") {
+                Then("TC-aebde2d9-41f7-47c1-bbb4-170835d3492c 서버에 요청하지 않고 실패로 끝난다") {
                     listOf(
                         Result.success(Account.Guest),
                         Result.failure(IllegalStateException("account")),

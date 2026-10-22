@@ -40,7 +40,7 @@ class PageTagUseCaseTest :
                 )
 
             When("검색어로 태그 목록을 페이지로 조회한다") {
-                Then("TC-TAG-HOME-DATA-001 현재 계정의 태그를 페이지로 전달한다") {
+                Then("TC-daa97b1f-1a15-472a-8952-366f3475156d 현재 계정의 태그를 페이지로 전달한다") {
                     val pagingData = useCase(parameter = query).first().shouldBeSuccess()
 
                     flowOf(pagingData).asSnapshot() shouldBe tagList
@@ -52,7 +52,7 @@ class PageTagUseCaseTest :
                     verify(exactly = 0) { accountTagRepository.pageFinished(account = any(), sort = any()) }
                 }
 
-                Then("TC-TAG-HOME-DATA-012 최상위 태그로 좁힌 목록을 요청하지 않는다") {
+                Then("TC-bc6352ed-7bcb-4f79-bab0-4f2a496268f3 최상위 태그로 좁힌 목록을 요청하지 않는다") {
                     useCase(parameter = query).first()
 
                     verify(exactly = 0) { accountTagRepository.pageTopLevel(account = any(), sort = any()) }

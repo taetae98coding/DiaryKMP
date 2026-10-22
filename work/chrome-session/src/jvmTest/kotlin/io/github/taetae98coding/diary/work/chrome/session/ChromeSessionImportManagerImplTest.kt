@@ -30,7 +30,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class ChromeSessionImportManagerImplTest :
     FunSpec({
-        test("TC-CHROME-SESSION-IMPORT-DOMAIN-001 TC-CHROME-SESSION-IMPORT-DOMAIN-011 가져올 프로필이 없으면 상태를 바꾸지 않고 아무것도 넘기거나 지우지 않는다") {
+        test("TC-28a823a4-ff9e-4e9d-8cc3-ae5a24beec28 TC-274d9001-9be0-48aa-9f61-60919aed0e4d 가져올 프로필이 없으면 상태를 바꾸지 않고 아무것도 넘기거나 지우지 않는다") {
             runTest {
                 val importUseCase = importUseCase()
                 val repository = repository()
@@ -50,7 +50,7 @@ class ChromeSessionImportManagerImplTest :
             }
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DOMAIN-014 프로필 목록을 읽지 못하면 가져오지 않고 실패가 된다") {
+        test("TC-21c5be38-ff6a-40ca-a5d7-6be6c79b105f 프로필 목록을 읽지 못하면 가져오지 않고 실패가 된다") {
             runTest {
                 val readUseCase = mockk<ReadChromeSessionImportProfileUseCase>()
                 coEvery { readUseCase(Unit) } returns Result.failure(IllegalStateException("local state unreadable"))
@@ -69,7 +69,7 @@ class ChromeSessionImportManagerImplTest :
             }
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DOMAIN-018 앱이 보이게 되면 지우지 않고 가져오며 가져오는 중을 거쳐 성공이 된다") {
+        test("TC-4fc567a4-7f80-4f00-b206-87105a1264a2 앱이 보이게 되면 지우지 않고 가져오며 가져오는 중을 거쳐 성공이 된다") {
             runTest {
                 val profileA = fixtureMonkey.giveMeOne<ChromeProfile>()
                 val importUseCase = importUseCase()
@@ -92,7 +92,7 @@ class ChromeSessionImportManagerImplTest :
             }
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DOMAIN-018 실패 뒤에 앱이 보이게 되면 다시 가져온다") {
+        test("TC-4fc567a4-7f80-4f00-b206-87105a1264a2 실패 뒤에 앱이 보이게 되면 다시 가져온다") {
             runTest {
                 val profileA = fixtureMonkey.giveMeOne<ChromeProfile>()
                 val importUseCase = mockk<ImportChromeSessionUseCase>()
@@ -113,7 +113,7 @@ class ChromeSessionImportManagerImplTest :
             }
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DOMAIN-016 다른 프로필을 고르면 지운 뒤 새 프로필을 가져온다") {
+        test("TC-21645a3a-a521-498c-9c20-24c9c28805ee 다른 프로필을 고르면 지운 뒤 새 프로필을 가져온다") {
             runTest {
                 val profileA = fixtureMonkey.giveMeOne<ChromeProfile>()
                 val profileB = fixtureMonkey.giveMeOne<ChromeProfile>().copy(directory = "other-" + profileA.directory)
@@ -145,7 +145,7 @@ class ChromeSessionImportManagerImplTest :
             }
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DOMAIN-017 선택 안 함으로 되돌리면 지우기만 하고 가져온 적 없음이 된다") {
+        test("TC-e795621f-4e91-46cc-9a25-b7b4d5346d37 선택 안 함으로 되돌리면 지우기만 하고 가져온 적 없음이 된다") {
             runTest {
                 val profileA = fixtureMonkey.giveMeOne<ChromeProfile>()
                 listOf(Result.success(Unit), Result.failure(IllegalStateException("import failed"))).forEach { firstResult ->
@@ -175,7 +175,7 @@ class ChromeSessionImportManagerImplTest :
             }
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DOMAIN-019 가져오는 중에 새 계기가 오면 취소하고 새로 시작하며 취소된 결과는 반영하지 않는다") {
+        test("TC-b8b1d791-7534-4ee3-800b-e2499bc34ced 가져오는 중에 새 계기가 오면 취소하고 새로 시작하며 취소된 결과는 반영하지 않는다") {
             runTest {
                 val profileA = fixtureMonkey.giveMeOne<ChromeProfile>()
                 val pending = CompletableDeferred<Result<Unit>>()
@@ -201,7 +201,7 @@ class ChromeSessionImportManagerImplTest :
             }
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DOMAIN-023 가져오는 중에 선택 안 함으로 되돌리면 진행 중인 가져오기를 취소하고 지운 뒤 가져온 적 없음이 된다") {
+        test("TC-52ab400b-97df-45d3-bfc0-879c9160957a 가져오는 중에 선택 안 함으로 되돌리면 진행 중인 가져오기를 취소하고 지운 뒤 가져온 적 없음이 된다") {
             runTest {
                 val profileA = fixtureMonkey.giveMeOne<ChromeProfile>()
                 val pending = CompletableDeferred<Result<Unit>>()
@@ -257,7 +257,7 @@ class ChromeSessionImportManagerImplTest :
             }
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DOMAIN-020 지우기에 실패하면 가져오지 않고 실패가 된다") {
+        test("TC-2ab24a4c-de7e-4978-91a3-47ccf6f0dca7 지우기에 실패하면 가져오지 않고 실패가 된다") {
             runTest {
                 val profileA = fixtureMonkey.giveMeOne<ChromeProfile>()
                 val profileB = fixtureMonkey.giveMeOne<ChromeProfile>().copy(directory = "other-" + profileA.directory)
@@ -281,7 +281,7 @@ class ChromeSessionImportManagerImplTest :
             }
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DOMAIN-022 선택 안 함으로 되돌릴 때 지우기에 실패하면 실패가 된다") {
+        test("TC-8eeb139c-216f-4a2d-8051-d3c4344e4e6d 선택 안 함으로 되돌릴 때 지우기에 실패하면 실패가 된다") {
             runTest {
                 val readUseCase = mockk<ReadChromeSessionImportProfileUseCase>()
                 coEvery { readUseCase(Unit) } returns Result.success(null)
@@ -304,7 +304,7 @@ class ChromeSessionImportManagerImplTest :
             }
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DOMAIN-021 가져오기에 실패해도 남아 있던 로그인 정보를 지우지 않는다") {
+        test("TC-b9baf870-1da4-46c0-af11-eef43cb648b8 가져오기에 실패해도 남아 있던 로그인 정보를 지우지 않는다") {
             runTest {
                 val profileA = fixtureMonkey.giveMeOne<ChromeProfile>()
                 val importUseCase = mockk<ImportChromeSessionUseCase>()

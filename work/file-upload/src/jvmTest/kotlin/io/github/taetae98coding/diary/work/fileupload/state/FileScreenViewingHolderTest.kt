@@ -28,7 +28,7 @@ class FileScreenViewingHolderTest :
             }
         }
 
-        Given("TC-FILE-UPLOAD-NOTIFICATION-DOMAIN-006 FileHome과 FileAdd를 함께 표시한다") {
+        Given("TC-21415d63-709f-4d61-9ead-743e437adff3 FileHome과 FileAdd를 함께 표시한다") {
             listOf(
                 listOf(FileScreen.ADD, FileScreen.HOME),
                 listOf(FileScreen.HOME, FileScreen.ADD),
@@ -57,7 +57,7 @@ class FileScreenViewingHolderTest :
             }
         }
 
-        Given("TC-FILE-UPLOAD-NOTIFICATION-DOMAIN-006 FileAdd가 보이는 동안 다른 FileAdd가 보이기 시작했다") {
+        Given("TC-21415d63-709f-4d61-9ead-743e437adff3 FileAdd가 보이는 동안 다른 FileAdd가 보이기 시작했다") {
             val holder = FileScreenViewingHolder()
 
             holder.start(screen = FileScreen.ADD)

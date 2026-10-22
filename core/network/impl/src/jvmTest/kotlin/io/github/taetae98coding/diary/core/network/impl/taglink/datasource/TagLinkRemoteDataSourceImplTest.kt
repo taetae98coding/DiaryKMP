@@ -42,7 +42,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class TagLinkRemoteDataSourceImplTest :
     FunSpec({
-        test("TC-TAG-LINK-DATA-004 TC-TAG-LINK-DATA-005 태그 연결의 전체 상태를 Supabase 태그 연결 push 함수에 전달한다") {
+        test("TC-18dd6df9-d911-4ca8-b778-d94c1429ab8c TC-55fff8f9-a4b8-4317-b304-34d00687a865 태그 연결의 전체 상태를 Supabase 태그 연결 push 함수에 전달한다") {
             val tagLinkList = listOf(tagLink(), tagLink(isDeleted = true))
             val response = mockk<HttpResponse>()
             every { response.status } returns HttpStatusCode.OK
@@ -71,7 +71,7 @@ class TagLinkRemoteDataSourceImplTest :
             }
         }
 
-        test("TC-TAG-LINK-DATA-006 태그 연결의 최신 전체 상태와 서버 변경 순번을 응답한다") {
+        test("TC-4b6965f3-bda3-4b32-9b08-009f2a266eea 태그 연결의 최신 전체 상태와 서버 변경 순번을 응답한다") {
             val usn = fixtureMonkey.giveMeOne<Long>()
             val tagLinkPullList =
                 listOf(

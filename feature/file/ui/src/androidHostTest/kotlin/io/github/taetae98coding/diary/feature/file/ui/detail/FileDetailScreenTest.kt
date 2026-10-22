@@ -63,7 +63,7 @@ class FileDetailScreenTest {
     }
 
     @Test
-    fun `TC-FILE-DETAIL-FEATURE-001 불러오는 동안 불러오는 중임을 표시하고 수정과 다운로드를 제공하지 않는다`() {
+    fun `TC-311eb985-5d6a-4316-84a7-42877c30c595 불러오는 동안 불러오는 중임을 표시하고 수정과 다운로드를 제공하지 않는다`() {
         val screen = FileDetailTestScreen()
         screen.mocks.fetchAnswer = { awaitCancellation() }
 
@@ -77,7 +77,7 @@ class FileDetailScreenTest {
     }
 
     @Test
-    fun `TC-FILE-DETAIL-FEATURE-002 불러오기에 실패하면 실패 안내와 다시 시도를 표시한다`() {
+    fun `TC-e4524154-e04b-42b6-9605-e64a8873f7a5 불러오기에 실패하면 실패 안내와 다시 시도를 표시한다`() {
         listOf<Throwable>(NoSuchElementException("not found"), IllegalStateException("connection")).forEach { throwable ->
             val screen = FileDetailTestScreen()
             screen.mocks.fetchAnswer = { Result.failure(throwable) }
@@ -93,7 +93,7 @@ class FileDetailScreenTest {
     }
 
     @Test
-    fun `TC-FILE-DETAIL-FEATURE-003 다시 시도하면 다시 불러오고 그동안 불러오는 중임을 표시한다`() {
+    fun `TC-fe3f9a4f-fa53-4bb3-9856-89b2ee6d2f1c 다시 시도하면 다시 불러오고 그동안 불러오는 중임을 표시한다`() {
         val screen = FileDetailTestScreen()
         val response = CompletableDeferred<Result<DiaryFile>>()
         var count = 0
@@ -111,7 +111,7 @@ class FileDetailScreenTest {
     }
 
     @Test
-    fun `TC-FILE-DETAIL-FEATURE-004 불러오기에 성공하면 파일 정보를 표시한다`() {
+    fun `TC-9f38cac4-1cbb-49b5-851f-b225f44255eb 불러오기에 성공하면 파일 정보를 표시한다`() {
         val defaultTimeZone = TimeZone.getDefault()
         TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul"))
         try {
@@ -136,7 +136,7 @@ class FileDetailScreenTest {
     }
 
     @Test
-    fun `TC-FILE-DETAIL-FEATURE-005 진입할 때 어느 입력에도 초점을 두지 않는다`() {
+    fun `TC-e0bb4e54-3f19-4891-82d2-2ed5c4eaddc5 진입할 때 어느 입력에도 초점을 두지 않는다`() {
         setScreen()
 
         composeRule.titleInput().assertIsNotFocused()
@@ -145,7 +145,7 @@ class FileDetailScreenTest {
     }
 
     @Test
-    fun `TC-FILE-DETAIL-FEATURE-006 입력이 저장된 값과 다를 때만 수정 동작을 제공한다`() {
+    fun `TC-a5102b2f-a852-4415-8fc0-bbc716924795 입력이 저장된 값과 다를 때만 수정 동작을 제공한다`() {
         val file = fileDetailFixtureMonkey.nonBlankDiaryFile()
         val otherTitle = fileDetailFixtureMonkey.nonBlankString()
         val otherDescription = fileDetailFixtureMonkey.nonBlankString()
@@ -177,7 +177,7 @@ class FileDetailScreenTest {
     }
 
     @Test
-    fun `TC-FILE-DETAIL-FEATURE-007 수정 성립 조건을 어기면 안내하고 초점을 옮기며 입력을 지우지 않는다`() {
+    fun `TC-f4446f67-dd3d-4b7f-a77f-d426fff2763d 수정 성립 조건을 어기면 안내하고 초점을 옮기며 입력을 지우지 않는다`() {
         assertInvalid(change = { composeRule.titleInput().performTextClearance() }, message = TITLE_BLANK, focused = { composeRule.titleInput() })
         assertInvalid(change = { composeRule.nameInput().performTextClearance() }, message = NAME_BLANK, focused = { composeRule.nameInput() })
         assertInvalid(
@@ -189,7 +189,7 @@ class FileDetailScreenTest {
     }
 
     @Test
-    fun `TC-FILE-DETAIL-DOMAIN-001 제목과 파일 이름을 모두 비우면 제목 안내를 먼저 한다`() {
+    fun `TC-fc9976b9-ffb7-40c5-b037-cbf6a3b979f4 제목과 파일 이름을 모두 비우면 제목 안내를 먼저 한다`() {
         assertInvalid(
             change = {
                 composeRule.titleInput().performTextClearance()
@@ -201,13 +201,13 @@ class FileDetailScreenTest {
     }
 
     @Test
-    fun `TC-FILE-DETAIL-DOMAIN-002 공백만 있는 제목과 파일 이름은 없는 것으로 보고 안내한다`() {
+    fun `TC-049583bf-ac42-46b6-b79f-1c00b4f53ba3 공백만 있는 제목과 파일 이름은 없는 것으로 보고 안내한다`() {
         assertInvalid(change = { composeRule.titleInput().performTextReplacement("   ") }, message = TITLE_BLANK, focused = { composeRule.titleInput() })
         assertInvalid(change = { composeRule.nameInput().performTextReplacement("   ") }, message = NAME_BLANK, focused = { composeRule.nameInput() })
     }
 
     @Test
-    fun `TC-FILE-DETAIL-DOMAIN-004 입력한 값을 앞뒤 공백을 포함해 그대로 보내고 설명은 비워 둘 수 있다`() {
+    fun `TC-db88b169-9b4f-4e35-9d98-dd51a1069d81 입력한 값을 앞뒤 공백을 포함해 그대로 보내고 설명은 비워 둘 수 있다`() {
         val screen = FileDetailTestScreen()
 
         setScreen(screen = screen)
@@ -223,7 +223,7 @@ class FileDetailScreenTest {
     }
 
     @Test
-    fun `TC-FILE-DETAIL-FEATURE-008 수정에 성공하면 성공을 알리고 화면 제목을 바꾼다`() {
+    fun `TC-d7989670-bd8b-4ee2-b182-7ccea3e78db5 수정에 성공하면 성공을 알리고 화면 제목을 바꾼다`() {
         val newTitle = fileDetailFixtureMonkey.nonBlankString()
         val screen = FileDetailTestScreen()
 
@@ -238,7 +238,7 @@ class FileDetailScreenTest {
     }
 
     @Test
-    fun `TC-FILE-DETAIL-FEATURE-009 수정하는 동안 진행 중임을 표시하고 다시 실행해도 한 번만 보낸다`() {
+    fun `TC-e003678c-6093-4a0b-a547-529034563a5b 수정하는 동안 진행 중임을 표시하고 다시 실행해도 한 번만 보낸다`() {
         val newTitle = fileDetailFixtureMonkey.nonBlankString()
         val screen = FileDetailTestScreen()
         screen.mocks.updateAnswer = { awaitCancellation() }
@@ -253,7 +253,7 @@ class FileDetailScreenTest {
     }
 
     @Test
-    fun `TC-FILE-DETAIL-FEATURE-010 수정하는 동안 더 고친 입력은 성공 뒤에도 남아 수정 동작이 다시 보인다`() {
+    fun `TC-7e965793-33a2-44cb-93f8-9f7c2e6fda5b 수정하는 동안 더 고친 입력은 성공 뒤에도 남아 수정 동작이 다시 보인다`() {
         val newTitle = fileDetailFixtureMonkey.nonBlankString()
         val moreDescription = fileDetailFixtureMonkey.nonBlankString()
         val screen = FileDetailTestScreen()
@@ -276,7 +276,7 @@ class FileDetailScreenTest {
     }
 
     @Test
-    fun `TC-FILE-DETAIL-FEATURE-011 수정에 실패하면 실패를 알리고 입력을 그대로 둔다`() {
+    fun `TC-960b0057-5c59-4e39-a64b-9505dce274f6 수정에 실패하면 실패를 알리고 입력을 그대로 둔다`() {
         val newTitle = fileDetailFixtureMonkey.nonBlankString()
         val screen = FileDetailTestScreen()
         screen.mocks.updateAnswer = { Result.failure(IllegalStateException(FAILURE_MESSAGE)) }
@@ -292,7 +292,7 @@ class FileDetailScreenTest {
     }
 
     @Test
-    fun `TC-FILE-DETAIL-FEATURE-012 다운로드는 입력 중인 이름이 아니라 저장된 파일 이름으로 내려받는다`() {
+    fun `TC-8a9c6995-d9cd-4082-ba1f-e2019e03b8fe 다운로드는 입력 중인 이름이 아니라 저장된 파일 이름으로 내려받는다`() {
         val file = fileDetailFixtureMonkey.nonBlankDiaryFile().copy(name = "report.pdf")
         val screen = FileDetailTestScreen(mocks = FileDetailMocks(file = file))
 
@@ -304,7 +304,7 @@ class FileDetailScreenTest {
     }
 
     @Test
-    fun `TC-FILE-DETAIL-FEATURE-013 내려받는 동안 진행 중임을 표시하고 다시 실행해도 한 번만 내려받는다`() {
+    fun `TC-3db2ad43-e11a-4aeb-ba5d-8782fc472d69 내려받는 동안 진행 중임을 표시하고 다시 실행해도 한 번만 내려받는다`() {
         val screen = FileDetailTestScreen()
         screen.mocks.downloadAnswer = { awaitCancellation() }
 
@@ -317,7 +317,7 @@ class FileDetailScreenTest {
     }
 
     @Test
-    fun `TC-FILE-DETAIL-FEATURE-014 다운로드 결과를 알린다`() {
+    fun `TC-b7301a82-d6ad-41f0-b36b-51306b263a7f 다운로드 결과를 알린다`() {
         listOf<Pair<Result<FileDownloadResult>, String>>(
             Result.success<FileDownloadResult>(FileDownloadResult.Saved(name = "report (1).pdf")) to "파일을 내려받았습니다: report (1).pdf",
             Result.failure<FileDownloadResult>(FileDownloadDirectoryUnavailableException()) to DOWNLOAD_DIRECTORY_UNAVAILABLE,
@@ -338,7 +338,7 @@ class FileDetailScreenTest {
     }
 
     @Test
-    fun `TC-FILE-DETAIL-FEATURE-015 브라우저에 파일을 넘겨 내려받기에 성공하면 진행 중 표시만 사라지고 안내는 없다`() {
+    fun `TC-21540fda-5da1-47f7-bd56-38d1e054ba04 브라우저에 파일을 넘겨 내려받기에 성공하면 진행 중 표시만 사라지고 안내는 없다`() {
         val screen = FileDetailTestScreen()
         val response = CompletableDeferred<Unit>()
         screen.mocks.downloadAnswer = {
@@ -358,7 +358,7 @@ class FileDetailScreenTest {
     }
 
     @Test
-    fun `TC-FILE-DETAIL-FEATURE-016 수정과 다운로드는 서로 막지 않는다`() {
+    fun `TC-24a020d7-5144-4e80-b8ec-4bdee3b8f315 수정과 다운로드는 서로 막지 않는다`() {
         val newTitle = fileDetailFixtureMonkey.nonBlankString()
         val screen = FileDetailTestScreen()
         screen.mocks.updateAnswer = { awaitCancellation() }
@@ -376,7 +376,7 @@ class FileDetailScreenTest {
     }
 
     @Test
-    fun `TC-FILE-DETAIL-FEATURE-017 계정이 게스트나 다른 사용자로 바뀌면 화면을 닫는다`() {
+    fun `TC-97c06e67-2ee1-4376-8ad9-61e5b2b76adc 계정이 게스트나 다른 사용자로 바뀌면 화면을 닫는다`() {
         listOf<Account>(Account.Guest, fileDetailFixtureMonkey.giveMeOne<Account.User>()).forEach { changed ->
             val screen = FileDetailTestScreen()
 
@@ -389,7 +389,7 @@ class FileDetailScreenTest {
     }
 
     @Test
-    fun `TC-FILE-DETAIL-FEATURE-018 계정을 확정하지 않은 동안에는 화면을 그대로 두고 수정과 다운로드를 실패로 알린다`() {
+    fun `TC-dd6a353f-2bc5-4709-a362-218ee5cdfd32 계정을 확정하지 않은 동안에는 화면을 그대로 두고 수정과 다운로드를 실패로 알린다`() {
         val newTitle = fileDetailFixtureMonkey.nonBlankString()
         val screen = FileDetailTestScreen()
 
@@ -409,7 +409,7 @@ class FileDetailScreenTest {
     }
 
     @Test
-    fun `TC-FILE-DETAIL-FEATURE-019 뒤로가면 FileHome으로 돌아간다`() {
+    fun `TC-5db21cb6-38ef-4b0d-8165-9ac171b23038 뒤로가면 FileHome으로 돌아간다`() {
         val newTitle = fileDetailFixtureMonkey.nonBlankString()
         val moreDescription = fileDetailFixtureMonkey.nonBlankString()
         val screen = FileDetailTestScreen()

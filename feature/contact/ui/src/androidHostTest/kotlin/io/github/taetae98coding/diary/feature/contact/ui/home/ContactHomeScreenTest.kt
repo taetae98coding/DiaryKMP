@@ -38,7 +38,7 @@ class ContactHomeScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-001 조회한 연락처를 목록에 표시한다`() {
+    fun `TC-ae158c85-2169-44b2-8ac6-954c26974660 조회한 연락처를 목록에 표시한다`() {
         val contact = testContact(name = CONTACT_NAME, phoneNumberList = listOf(CONTACT_PHONE_NUMBER))
 
         setContactHomeScreen(contactList = listOf(contact))
@@ -48,7 +48,7 @@ class ContactHomeScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-014 뒤로가기를 선택하면 이전 화면으로 돌아간다`() {
+    fun `TC-3c7dd4ea-e23f-4f08-abb3-ce38a1b4b2b4 뒤로가기를 선택하면 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
 
         setContactHomeScreen(navigateUp = { navigateUpCount++ })
@@ -59,7 +59,7 @@ class ContactHomeScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-009 연락처 추가를 선택하면 연락처 추가 화면으로 이동한다`() {
+    fun `TC-3473625a-040f-4672-9180-69705b7c05ca 연락처 추가를 선택하면 연락처 추가 화면으로 이동한다`() {
         var navigateToAddCount = 0
 
         setContactHomeScreen(navigateToAdd = { navigateToAddCount++ })
@@ -70,7 +70,7 @@ class ContactHomeScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-015 연락처를 선택하면 그 연락처의 상세 화면으로 이동한다`() {
+    fun `TC-1703c8ae-d3c7-4acc-8d12-3bfc6838c2e1 연락처를 선택하면 그 연락처의 상세 화면으로 이동한다`() {
         val contact = testContact(name = CONTACT_NAME, phoneNumberList = listOf(CONTACT_PHONE_NUMBER))
         val navigatedIdList = mutableListOf<Uuid>()
 
@@ -81,7 +81,7 @@ class ContactHomeScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-012 고른 정렬을 정렬 컨트롤에 반영한다`() {
+    fun `TC-d4225566-5f5c-4f63-8728-b550d4025e4c 고른 정렬을 정렬 컨트롤에 반영한다`() {
         setContactHomeScreen(contactList = listOf(testContact(name = CONTACT_NAME)))
         composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
             composeRule.onAllNodesWithText(CONTACT_NAME).fetchSemanticsNodes().isNotEmpty()
@@ -96,7 +96,7 @@ class ContactHomeScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-017 목록을 당기면 새로고침을 한 번 실행한다`() {
+    fun `TC-a082975e-5b82-4140-bf35-04ac6a7511db 목록을 당기면 새로고침을 한 번 실행한다`() {
         val syncViewModel = syncViewModel()
 
         setContactHomeScreen(
@@ -110,7 +110,7 @@ class ContactHomeScreenTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-019 동기화가 진행 중이면 진행 표시가 나타난다`() {
+    fun `TC-f1366e80-eba2-4bb8-8715-9b2f3bf56840 동기화가 진행 중이면 진행 표시가 나타난다`() {
         setContactHomeScreen(syncViewModel = syncViewModel(uiState = SyncRefreshUiState(isRefreshing = true)))
 
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()

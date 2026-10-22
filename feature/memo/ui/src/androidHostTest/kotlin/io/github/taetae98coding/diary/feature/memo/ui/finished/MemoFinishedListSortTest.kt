@@ -50,7 +50,7 @@ class MemoFinishedListSortTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-028 목록 위에 현재 정렬을 표시한다`() {
+    fun `TC-b9322a47-1482-415f-b1e8-907b1fef9457 목록 위에 현재 정렬을 표시한다`() {
         setMemoFinishedListScaffold()
 
         composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).assert(hasClickAction())
@@ -58,7 +58,7 @@ class MemoFinishedListSortTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-028 정렬 컨트롤을 누르면 정렬 선택을 연다`() {
+    fun `TC-b9322a47-1482-415f-b1e8-907b1fef9457 정렬 컨트롤을 누르면 정렬 선택을 연다`() {
         val eventList = mutableListOf<MemoFinishedListScaffoldEvent>()
         setMemoFinishedListScaffold(onEvent = eventList::add)
 
@@ -68,7 +68,7 @@ class MemoFinishedListSortTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-029 정렬 컨트롤을 누르면 세 정렬을 고를 수 있다`() {
+    fun `TC-bda4daa2-04b7-42a4-afb5-701f40a37620 정렬 컨트롤을 누르면 세 정렬을 고를 수 있다`() {
         setMemoFinishedListScaffold(sortSheetState = DialogState(isVisible = true))
 
         composeRule.onNodeWithText(DEFAULT_SORT_SHEET_TITLE).assertExists()
@@ -83,17 +83,17 @@ class MemoFinishedListSortTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-030 제목순을 고르면 그 정렬을 전달하고 선택 목록이 닫힌다`() {
+    fun `TC-86ea0420-41ef-40a8-8f34-71347b0bdb40 제목순을 고르면 그 정렬을 전달하고 선택 목록이 닫힌다`() {
         assertSelectSort(label = DEFAULT_TITLE_SORT, sort = ListSort.TITLE)
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-030 최근 수정순을 고르면 그 정렬을 전달하고 선택 목록이 닫힌다`() {
+    fun `TC-86ea0420-41ef-40a8-8f34-71347b0bdb40 최근 수정순을 고르면 그 정렬을 전달하고 선택 목록이 닫힌다`() {
         assertSelectSort(label = DEFAULT_RECENTLY_UPDATED_SORT, sort = ListSort.RECENTLY_UPDATED)
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-030 고른 정렬의 이름을 정렬 컨트롤에 표시한다`() {
+    fun `TC-86ea0420-41ef-40a8-8f34-71347b0bdb40 고른 정렬의 이름을 정렬 컨트롤에 표시한다`() {
         setMemoFinishedListScaffold(sort = ListSort.RECENTLY_UPDATED)
 
         composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).assertExists()
@@ -101,7 +101,7 @@ class MemoFinishedListSortTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-FEATURE-032 목록이 비어 있으면 정렬 컨트롤을 표시하지 않는다`() {
+    fun `TC-9a2e2320-5ae5-447d-80cc-2f424f9d8b80 목록이 비어 있으면 정렬 컨트롤을 표시하지 않는다`() {
         setMemoFinishedListScaffold(memoPagingData = memoPagingDataOf(emptyList()))
 
         composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
@@ -109,7 +109,7 @@ class MemoFinishedListSortTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-DOMAIN-008 화면이 재생성되어도 정렬 선택과 보던 자리가 그대로다`() {
+    fun `TC-b0d14da6-1613-4b3a-a875-1347c13e37be 화면이 재생성되어도 정렬 선택과 보던 자리가 그대로다`() {
         val memoList =
             List(RESTORATION_MEMO_COUNT) { index ->
                 memo(title = "완료 메모-${index.toString().padStart(length = 2, padChar = '0')}")
@@ -154,7 +154,7 @@ class MemoFinishedListSortTest {
     }
 
     @Test
-    fun `TC-MEMO-FINISHED-LIST-DOMAIN-011 시스템이 앱을 정리한 뒤 다시 만들면 정렬은 처음으로 돌아가고 보던 위치는 다시 보인다`() {
+    fun `TC-ad567b23-ebe6-4675-9a4c-5424968f5cf8 시스템이 앱을 정리한 뒤 다시 만들면 정렬은 처음으로 돌아가고 보던 위치는 다시 보인다`() {
         val memoList =
             List(RESTORATION_MEMO_COUNT) { index ->
                 memo(title = "완료 메모-${index.toString().padStart(length = 2, padChar = '0')}")

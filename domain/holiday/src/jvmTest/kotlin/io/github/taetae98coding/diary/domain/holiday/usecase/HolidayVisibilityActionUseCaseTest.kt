@@ -40,7 +40,7 @@ class HolidayVisibilityActionUseCaseTest :
                 )
 
             When("공휴일 선택 상태를 바꾼다") {
-                Then("TC-SETTING-HOLIDAY-FEATURE-008 해당 key를 숨김 설정에 추가한다") {
+                Then("TC-88dbfde2-a401-490e-a14a-53b22d3d74e3 해당 key를 숨김 설정에 추가한다") {
                     useCase(parameter = target.name).shouldBeSuccess()
 
                     verify(exactly = 1) { getSettingHolidayUseCase(parameter = Unit) }
@@ -65,7 +65,7 @@ class HolidayVisibilityActionUseCaseTest :
                 )
 
             When("공휴일 선택 상태를 바꾼다") {
-                Then("TC-SETTING-HOLIDAY-FEATURE-008 해당 key를 숨김 설정에서 제거한다") {
+                Then("TC-88dbfde2-a401-490e-a14a-53b22d3d74e3 해당 key를 숨김 설정에서 제거한다") {
                     useCase(parameter = target.name).shouldBeSuccess()
 
                     verify(exactly = 1) { getSettingHolidayUseCase(parameter = Unit) }
@@ -147,7 +147,7 @@ class HolidayVisibilityActionUseCaseTest :
                 )
 
             When("전체 선택한다") {
-                Then("TC-SETTING-HOLIDAY-FEATURE-009 빈 숨김 key 집합을 제출한다") {
+                Then("TC-e13f36f5-758e-483b-86a5-ab234a2c2a53 빈 숨김 key 집합을 제출한다") {
                     useCase(parameter = Unit).shouldBeSuccess()
 
                     verify(exactly = 0) { repository.getHiddenKeySet() }
@@ -177,7 +177,7 @@ class HolidayVisibilityActionUseCaseTest :
                 )
 
             When("전체 선택 해제한다") {
-                Then("TC-SETTING-HOLIDAY-FEATURE-010 중복을 제거한 모든 key를 제출한다") {
+                Then("TC-c1bd92b8-0b4d-4d34-ac8f-6df87c943300 중복을 제거한 모든 key를 제출한다") {
                     useCase(parameter = Unit).shouldBeSuccess()
 
                     verify(exactly = 1) { holidayRepository.get(countrySet = KOREA_COUNTRY_SET) }
@@ -219,7 +219,7 @@ class HolidayVisibilityActionUseCaseTest :
                 )
 
             When("쉬는 날만 선택한다") {
-                Then("TC-SETTING-HOLIDAY-FEATURE-011 하나라도 쉬는 날인 key는 숨기지 않고 나머지 key만 제출한다") {
+                Then("TC-c0011ed6-170c-41a4-a9b9-e9332ebce715 하나라도 쉬는 날인 key는 숨기지 않고 나머지 key만 제출한다") {
                     useCase(parameter = Unit).shouldBeSuccess()
 
                     verify(exactly = 1) { holidayRepository.get(countrySet = KOREA_COUNTRY_SET) }
@@ -231,7 +231,7 @@ class HolidayVisibilityActionUseCaseTest :
             }
         }
 
-        Given("TC-SETTING-HOLIDAY-FEATURE-012 저장된 숨긴 공휴일 이름 목록이 일괄 선택 결과와 이미 같다") {
+        Given("TC-888c0674-4f32-4c31-bb59-4c5e3ee1ca56 저장된 숨긴 공휴일 이름 목록이 일괄 선택 결과와 이미 같다") {
             val dayOff = holiday(name = uniqueName(label = "day-off"), isHoliday = true)
             val workingDay = holiday(name = uniqueName(label = "working-day"), isHoliday = false)
             val holidayRepository = holidayRepository(holidayList = listOf(dayOff, workingDay))

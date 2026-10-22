@@ -21,7 +21,7 @@ class PlaceDetailTopBarTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-DETAIL-FEATURE-049 지도가 표시되면 상단 바에서 장소 검색을 제공한다`() {
+    fun `TC-20cd9320-9756-4480-8f8d-2cbe24bfaf4e 지도가 표시되면 상단 바에서 장소 검색을 제공한다`() {
         composeRule.setContent {
             DiaryTheme {
                 PlaceDetailTopBar(
@@ -35,7 +35,7 @@ class PlaceDetailTopBarTest {
     }
 
     @Test
-    fun `TC-PLACE-SEARCH-DIALOG-FEATURE-002 지도가 표시되지 않으면 검색을 제공하지 않는다`() {
+    fun `TC-d754884d-a7f4-414b-b145-940491fcdad9 지도가 표시되지 않으면 검색을 제공하지 않는다`() {
         composeRule.setPlaceDetailScreen(viewModel = screenTestViewModel())
 
         composeRule.waitForIdle()

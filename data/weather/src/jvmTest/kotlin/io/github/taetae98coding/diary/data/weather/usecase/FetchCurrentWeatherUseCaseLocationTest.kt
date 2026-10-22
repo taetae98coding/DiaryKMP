@@ -41,7 +41,7 @@ class FetchCurrentWeatherUseCaseLocationTest :
             When("현재 날씨 동기화를 요청한다") {
                 val result = useCase(parameter = Unit)
 
-                Then("TC-WEATHER-FETCH-DOMAIN-008 디바이스 위치로 조회하고 공인 IP 기준 위치는 사용하지 않는다") {
+                Then("TC-3253502b-5d0a-45c2-af8c-f7c7806ee83e 디바이스 위치로 조회하고 공인 IP 기준 위치는 사용하지 않는다") {
                     result.isSuccess shouldBe true
                     coVerify(exactly = 1) {
                         weatherRemoteDataSource.getCurrentWeather(latitude = deviceLocation.latitude, longitude = deviceLocation.longitude)
@@ -67,7 +67,7 @@ class FetchCurrentWeatherUseCaseLocationTest :
             When("현재 날씨 동기화를 요청한다") {
                 val result = useCase(parameter = Unit)
 
-                Then("TC-WEATHER-FETCH-DOMAIN-009 동기화가 성공하고 공인 IP 기준 위치로 조회한다") {
+                Then("TC-65566469-303b-41e1-b25d-323c6b8b8eb3 동기화가 성공하고 공인 IP 기준 위치로 조회한다") {
                     result.isSuccess shouldBe true
                     coVerify(exactly = 1) {
                         weatherRemoteDataSource.getCurrentWeather(latitude = ipLocation.latitude, longitude = ipLocation.longitude)

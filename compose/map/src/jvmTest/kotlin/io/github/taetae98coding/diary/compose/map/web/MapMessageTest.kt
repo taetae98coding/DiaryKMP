@@ -20,7 +20,7 @@ import kotlin.uuid.Uuid
 
 class MapMessageTest :
     FunSpec({
-        test("TC-DIARY-MAP-DOMAIN-025: 지도가 알려온 마지막 위치를 전환한 지도 요청 내용에 담는다") {
+        test("TC-76652377-2dc2-4034-b63c-bda183fe113a: 지도가 알려온 마지막 위치를 전환한 지도 요청 내용에 담는다") {
             val toGoogleMessage = """{"type": "camera", "latitude": 37.5665, "longitude": 126.978, "zoom": 11.0}"""
             val toGoogleCamera = requireNotNull(toGoogleMessage.toMapMessageOrNull() as? MapMessage.Camera).camera
             val googleHtml = requireNotNull(createGoogleMapHtml(apiKey = "test-key_123", camera = toGoogleCamera))
@@ -38,7 +38,7 @@ class MapMessageTest :
             naverHtml shouldContain """"zoom": 9.0"""
         }
 
-        test("TC-DIARY-MAP-DOMAIN-026: 확인할 수 없는 위치 소식은 무시되어 전환한 지도 요청 내용이 초기 지도 위치 정책을 따른다") {
+        test("TC-376675d4-83a0-4732-bfca-1f91cbab1909: 확인할 수 없는 위치 소식은 무시되어 전환한 지도 요청 내용이 초기 지도 위치 정책을 따른다") {
             val messages =
                 listOf(
                     "지도 위치 형식이 아닌 내용",
@@ -59,7 +59,7 @@ class MapMessageTest :
             }
         }
 
-        test("TC-DIARY-MAP-DOMAIN-029: 지도가 알려온 누르기 소식의 좌표를 지점으로 전달한다") {
+        test("TC-786f7abc-da8b-4885-a835-e34c5016dfa1: 지도가 알려온 누르기 소식의 좌표를 지점으로 전달한다") {
             val coordinateList =
                 listOf(
                     DiaryMapCoordinate(latitude = 37.5665, longitude = 126.978),
@@ -85,7 +85,7 @@ class MapMessageTest :
             }
         }
 
-        test("TC-DIARY-MAP-DOMAIN-030: 확인할 수 없는 누르기 소식은 지점으로 다루지 않는다") {
+        test("TC-fc982f28-9853-4d55-9dde-cfac2e698033: 확인할 수 없는 누르기 소식은 지점으로 다루지 않는다") {
             val messages =
                 listOf(
                     "지도 누르기 형식이 아닌 내용",
@@ -110,7 +110,7 @@ class MapMessageTest :
             }
         }
 
-        test("TC-DIARY-MAP-DOMAIN-039: 지도가 알려온 핀 누르기 소식의 식별 값을 전달한다") {
+        test("TC-d114915a-d390-4f69-a9b2-ef4db18910bb: 지도가 알려온 핀 누르기 소식의 식별 값을 전달한다") {
             val idList = List(2) { Uuid.random() }
             val deliveredList = mutableListOf<Uuid>()
             val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
@@ -128,7 +128,7 @@ class MapMessageTest :
             deliveredList shouldBe idList
         }
 
-        test("TC-DIARY-MAP-DOMAIN-039: 확인할 수 없거나 표시된 핀에 없는 핀 누르기 소식은 전달하지 않는다") {
+        test("TC-d114915a-d390-4f69-a9b2-ef4db18910bb: 확인할 수 없거나 표시된 핀에 없는 핀 누르기 소식은 전달하지 않는다") {
             val messages =
                 listOf(
                     """{"type": "pinClick"}""",
@@ -166,7 +166,7 @@ class MapMessageTest :
             pinClickMessage.toMapMessageOrNull() shouldBe MapMessage.PinClick(id = pinId)
         }
 
-        test("TC-DIARY-MAP-DOMAIN-031: 누르기 소식과 위치 소식을 서로 구분한다") {
+        test("TC-a5b322a1-9410-46cc-9c91-51a66b9e41ae: 누르기 소식과 위치 소식을 서로 구분한다") {
             val camera = DiaryMapCamera(latitude = 37.5665, longitude = 126.978, zoom = 11.0)
             val coordinate = DiaryMapCoordinate(latitude = -33.4489, longitude = -70.6693)
             val cameraMessage =
@@ -178,7 +178,7 @@ class MapMessageTest :
             clickMessage.toMapMessageOrNull() shouldBe MapMessage.Click(coordinate = coordinate)
         }
 
-        test("TC-DIARY-MAP-DOMAIN-034: 지도가 알려온 위치 소식의 보이는 영역을 확인한다") {
+        test("TC-3f774f94-c465-4866-ba04-c7e5304e4cac: 지도가 알려온 위치 소식의 보이는 영역을 확인한다") {
             val boundsList =
                 listOf(
                     DiaryMapBounds(south = 37.4, north = 37.7, west = 126.8, east = 127.2),
@@ -198,7 +198,7 @@ class MapMessageTest :
             }
         }
 
-        test("TC-DIARY-MAP-DOMAIN-035: 보이는 영역을 확인할 수 없는 위치 소식은 영역이 없는 것으로 다룬다") {
+        test("TC-5cd1c7e9-0a1e-4eb4-a461-faea1bbf63d2: 보이는 영역을 확인할 수 없는 위치 소식은 영역이 없는 것으로 다룬다") {
             val boundsValues =
                 listOf(
                     """"south": 37.4, "north": 37.7, "west": 126.8""",

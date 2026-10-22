@@ -38,7 +38,7 @@ class TimetableSelectTest {
     private val eventList = mutableListOf<TimetableEvent>()
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-016 시간대 영역을 길게 누르고 떼면 그 자리의 30분 칸 기간이 전달된다`() {
+    fun `TC-f37277dc-4612-468a-b15c-05e43cdfafad 시간대 영역을 길게 누르고 떼면 그 자리의 30분 칸 기간이 전달된다`() {
         setTimetable()
 
         performLongPress(timePosition(hour = 10, minute = 10))
@@ -48,7 +48,7 @@ class TimetableSelectTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-017 시간대 영역에서 드래그하면 처음 칸과 지금 칸을 포함하는 기간이 전달된다`() {
+    fun `TC-57db82aa-c934-49b1-b13d-3fbcfcda65e4 시간대 영역에서 드래그하면 처음 칸과 지금 칸을 포함하는 기간이 전달된다`() {
         val caseList =
             listOf(
                 11 to selectTime(start = september(day = 23, hour = 10), endInclusive = september(day = 23, hour = 11, minute = 30)),
@@ -67,7 +67,7 @@ class TimetableSelectTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-018 주간 형식에서 여러 날에 걸쳐 드래그하면 여러 날의 시각 기간이 전달된다`() {
+    fun `TC-ed972a5f-10b1-429e-88d9-aa19e0d9c5a0 주간 형식에서 여러 날에 걸쳐 드래그하면 여러 날의 시각 기간이 전달된다`() {
         setTimetable(type = TimetableType.WEEK, date = september(day = 20))
 
         performLongPress(timePosition(hour = 10, minute = 10, day = 21))
@@ -78,7 +78,7 @@ class TimetableSelectTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-019 날짜 머리줄에서 드래그하면 날짜 기간이 전달된다`() {
+    fun `TC-0ef6e614-dfe2-4b64-b274-a07e5d22d6ff 날짜 머리줄에서 드래그하면 날짜 기간이 전달된다`() {
         val caseList =
             listOf(
                 (22 to 24) to september(day = 22)..september(day = 24),
@@ -98,7 +98,7 @@ class TimetableSelectTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-020 종일 영역의 아이템 위를 길게 누르면 그 자리의 날짜에서 선택이 시작된다`() {
+    fun `TC-d423318f-51a8-4ab4-8ffa-0f5bcd1b68e7 종일 영역의 아이템 위를 길게 누르면 그 자리의 날짜에서 선택이 시작된다`() {
         var clickCount = 0
         setTimetable(type = TimetableType.WEEK, date = september(day = 20)) {
             allDayItem(dateRange = september(day = 22)..september(day = 22), key = VACATION) {
@@ -119,7 +119,7 @@ class TimetableSelectTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-021 시각 아이템 위를 길게 누르면 그 자리의 칸에서 선택이 시작된다`() {
+    fun `TC-695b8b32-ecb4-459d-973a-1dbefc0fbecd 시각 아이템 위를 길게 누르면 그 자리의 칸에서 선택이 시작된다`() {
         var clickCount = 0
         setTimetable { meetingItem(onClick = { clickCount += 1 }) }
 
@@ -131,7 +131,7 @@ class TimetableSelectTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-022 아이템을 짧게 누르면 기간이 전달되지 않는다`() {
+    fun `TC-bfae5b1e-308c-44a4-801f-48cbaf95ea61 아이템을 짧게 누르면 기간이 전달되지 않는다`() {
         var clickCount = 0
         setTimetable { meetingItem(onClick = { clickCount += 1 }) }
 
@@ -143,7 +143,7 @@ class TimetableSelectTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-023 기간 선택을 사용하지 않으면 길게 눌러도 기간이 전달되지 않는다`() {
+    fun `TC-6403f47e-bb86-498f-9240-7685f73b182d 기간 선택을 사용하지 않으면 길게 눌러도 기간이 전달되지 않는다`() {
         setTimetable(isSelectEnabled = false)
 
         performLongPress(timePosition(hour = 10, minute = 10))
@@ -155,7 +155,7 @@ class TimetableSelectTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-024 선택하는 동안 좌우로 끌어도 날짜가 이동하지 않는다`() {
+    fun `TC-235b6098-0209-48f9-9782-c4ff764294b6 선택하는 동안 좌우로 끌어도 날짜가 이동하지 않는다`() {
         val state = TimetableState(type = TimetableType.DAY, initialDate = september(day = 23))
         setTimetable(state = state)
         val start = timePosition(hour = 10, minute = 10)
@@ -170,7 +170,7 @@ class TimetableSelectTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-025 시간대 선택을 날짜 머리줄로 끌어도 시간대 선택으로 유지된다`() {
+    fun `TC-3b456f60-32db-4bd5-96db-951abbd52451 시간대 선택을 날짜 머리줄로 끌어도 시간대 선택으로 유지된다`() {
         setTimetable()
 
         performLongPress(timePosition(hour = 10, minute = 10))
@@ -181,7 +181,7 @@ class TimetableSelectTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-030 날짜 선택을 시간대 영역으로 끌어도 날짜 선택으로 유지된다`() {
+    fun `TC-80c8b320-ef53-4d15-b64d-378c2cfe8107 날짜 선택을 시간대 영역으로 끌어도 날짜 선택으로 유지된다`() {
         setTimetable(type = TimetableType.WEEK, date = september(day = 20))
 
         performLongPress(dayCenter(day = 22))
@@ -192,7 +192,7 @@ class TimetableSelectTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-031 주간 형식에서 선택 기간은 표시 중인 주를 넘지 않는다`() {
+    fun `TC-298704cd-7a4e-402f-821d-9a8879b7722c 주간 형식에서 선택 기간은 표시 중인 주를 넘지 않는다`() {
         val state = TimetableState(type = TimetableType.WEEK, initialDate = september(day = 20))
         setTimetable(state = state)
         val start = dayCenter(day = 24)
@@ -211,7 +211,7 @@ class TimetableSelectTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-026 선택하는 동안 시스템이 조작을 중단하면 그 시점의 기간이 전달된다`() {
+    fun `TC-a7bd5222-d39e-4034-8d15-3b144448e615 선택하는 동안 시스템이 조작을 중단하면 그 시점의 기간이 전달된다`() {
         setTimetable()
 
         performLongPress(timePosition(hour = 10, minute = 10))
@@ -223,7 +223,7 @@ class TimetableSelectTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-027 기간 선택을 시작하면 촉각 피드백을 받는다`() {
+    fun `TC-987fb756-658c-4f39-bbf8-0b2d53919e96 기간 선택을 시작하면 촉각 피드백을 받는다`() {
         val hapticFeedback = mockk<HapticFeedback>(relaxed = true)
         setTimetable(hapticFeedback = hapticFeedback)
 
@@ -234,7 +234,7 @@ class TimetableSelectTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-FEATURE-028 드래그로 선택 기간이 다른 칸으로 바뀔 때만 추가 촉각 피드백을 받는다`() {
+    fun `TC-a1ed1ba5-950b-472a-a677-42a80056d8df 드래그로 선택 기간이 다른 칸으로 바뀔 때만 추가 촉각 피드백을 받는다`() {
         val caseList = listOf(Pair(11, 10) to 1, Pair(10, 20) to 0)
         val hapticFeedback = mockk<HapticFeedback>(relaxed = true)
         setTimetable(hapticFeedback = hapticFeedback)
@@ -251,7 +251,7 @@ class TimetableSelectTest {
     }
 
     @Test
-    fun `TC-TIMETABLE-DOMAIN-017 선택 중 화면이 재생성되면 선택이 취소되고 기간이 전달되지 않는다`() {
+    fun `TC-9c94f435-750e-40dd-b910-62e293bbce7d 선택 중 화면이 재생성되면 선택이 취소되고 기간이 전달되지 않는다`() {
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent {
             DiaryTheme {

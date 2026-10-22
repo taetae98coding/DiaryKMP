@@ -56,7 +56,7 @@ class SettingPlaylistScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-PLAYLIST-FEATURE-001 프록시가 제공 중이면 주소 후보를 모두 표시하고 입력은 두지 않는다`() {
+    fun `TC-a025dfac-509e-46c4-9dff-cdbfbcf8f10a 프록시가 제공 중이면 주소 후보를 모두 표시하고 입력은 두지 않는다`() {
         setScaffold(uiState = SettingPlaylistUiState.Serving(addressList = listOf(ADDRESS, OTHER_ADDRESS)))
 
         composeRule.onNodeWithText(ADDRESS).assertExists()
@@ -69,14 +69,14 @@ class SettingPlaylistScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-SETTING-PLAYLIST-FEATURE-002 한국어 환경에서 닿을 주소가 없으면 그 사실을 알린다`() {
+    fun `TC-fd314021-f83b-40a0-bc92-a9ecb2624307 한국어 환경에서 닿을 주소가 없으면 그 사실을 알린다`() {
         setScaffold(uiState = SettingPlaylistUiState.Serving(addressList = emptyList()))
 
         composeRule.onNodeWithText("같은 네트워크의 다른 기기가 닿을 주소가 없습니다").assertExists()
     }
 
     @Test
-    fun `TC-SETTING-PLAYLIST-FEATURE-002 닿을 주소가 없으면 그 사실을 알리고 어떤 주소도 표시하지 않는다`() {
+    fun `TC-fd314021-f83b-40a0-bc92-a9ecb2624307 닿을 주소가 없으면 그 사실을 알리고 어떤 주소도 표시하지 않는다`() {
         setScaffold(uiState = SettingPlaylistUiState.Serving(addressList = emptyList()))
 
         composeRule.onNodeWithText(DEFAULT_NO_ADDRESS_MESSAGE).assertExists()
@@ -84,7 +84,7 @@ class SettingPlaylistScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-PLAYLIST-FEATURE-003 프록시를 제공하지 못하면 시작하지 못했음을 알리고 다시 시도 수단을 두지 않는다`() {
+    fun `TC-76eecc48-b73e-477c-a51a-f11b29636ad1 프록시를 제공하지 못하면 시작하지 못했음을 알리고 다시 시도 수단을 두지 않는다`() {
         setScaffold(uiState = SettingPlaylistUiState.Unavailable)
 
         composeRule.onNodeWithText(DEFAULT_UNAVAILABLE_MESSAGE).assertExists()
@@ -93,14 +93,14 @@ class SettingPlaylistScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-SETTING-PLAYLIST-FEATURE-003 한국어 환경에서 시작하지 못했음을 알린다`() {
+    fun `TC-76eecc48-b73e-477c-a51a-f11b29636ad1 한국어 환경에서 시작하지 못했음을 알린다`() {
         setScaffold(uiState = SettingPlaylistUiState.Unavailable)
 
         composeRule.onNodeWithText("프록시를 시작하지 못했습니다. 앱을 다시 실행해 주세요").assertExists()
     }
 
     @Test
-    fun `TC-SETTING-PLAYLIST-FEATURE-004 상태를 확인하기 전에는 본문을 제공하지 않는다`() {
+    fun `TC-961290bb-1f2f-46e5-a6c6-85b97fb23f7a 상태를 확인하기 전에는 본문을 제공하지 않는다`() {
         setScaffold(uiState = SettingPlaylistUiState.Loading)
 
         composeRule.onNodeWithText(DEFAULT_THIS_DEVICE_LABEL).assertDoesNotExist()
@@ -111,7 +111,7 @@ class SettingPlaylistScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-PLAYLIST-FEATURE-005 저장된 주소가 입력된 상태로 표시하고 저장 동작은 두지 않는다`() {
+    fun `TC-e1a76015-6bf0-4a0b-ab8a-fdb645335c90 저장된 주소가 입력된 상태로 표시하고 저장 동작은 두지 않는다`() {
         val setting = MusicDownloadProxySetting(address = ADDRESS)
         setScaffold(uiState = SettingPlaylistUiState.Consumer(setting = setting), initialSetting = setting)
 
@@ -121,7 +121,7 @@ class SettingPlaylistScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-PLAYLIST-FEATURE-006 저장된 주소가 없으면 비어 있는 입력으로 표시하고 저장 동작은 두지 않는다`() {
+    fun `TC-42fdff61-1a02-4b02-9e0f-62a2cba2e174 저장된 주소가 없으면 비어 있는 입력으로 표시하고 저장 동작은 두지 않는다`() {
         setScaffold(uiState = SettingPlaylistUiState.Consumer(setting = MusicDownloadProxySetting.EMPTY))
 
         editableTexts() shouldBe listOf("")
@@ -129,7 +129,7 @@ class SettingPlaylistScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-PLAYLIST-FEATURE-007 TC-SETTING-PLAYLIST-DOMAIN-001 입력을 저장된 주소와 다르게 바꾸면 저장 동작을 제공한다`() {
+    fun `TC-d855b923-b90d-4c72-9146-f16d70d6a04b TC-422bbe60-d358-4c0b-8310-772fa9ebaabf 입력을 저장된 주소와 다르게 바꾸면 저장 동작을 제공한다`() {
         val setting = MusicDownloadProxySetting(address = ADDRESS)
         lateinit var state: SettingPlaylistFormState
         setScaffold(uiState = SettingPlaylistUiState.Consumer(setting = setting), initialSetting = setting, onState = { state = it })
@@ -146,7 +146,7 @@ class SettingPlaylistScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-PLAYLIST-FEATURE-008 바꾼 값을 저장된 주소로 되돌리면 저장 동작을 다시 제공하지 않는다`() {
+    fun `TC-244f48e8-bcf0-4cf2-ae0e-051c1ed94325 바꾼 값을 저장된 주소로 되돌리면 저장 동작을 다시 제공하지 않는다`() {
         val setting = MusicDownloadProxySetting(address = ADDRESS)
         lateinit var state: SettingPlaylistFormState
         setScaffold(uiState = SettingPlaylistUiState.Consumer(setting = setting), initialSetting = setting, onState = { state = it })
@@ -160,7 +160,7 @@ class SettingPlaylistScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-PLAYLIST-FEATURE-009 저장 동작을 실행하면 저장 이벤트를 전달한다`() {
+    fun `TC-add84e31-1f7d-4282-8e59-4f2c9483eb3c 저장 동작을 실행하면 저장 이벤트를 전달한다`() {
         val eventList = mutableListOf<SettingPlaylistScaffoldEvent>()
         setScaffold(
             uiState = SettingPlaylistUiState.Consumer(setting = MusicDownloadProxySetting.EMPTY),
@@ -175,7 +175,7 @@ class SettingPlaylistScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-PLAYLIST-FEATURE-010 저장하는 동안 진행 상태를 표시한다`() {
+    fun `TC-e44d6284-841a-4d2e-89b5-a4329b0df2ee 저장하는 동안 진행 상태를 표시한다`() {
         setScaffold(
             uiState = SettingPlaylistUiState.Consumer(setting = MusicDownloadProxySetting.EMPTY, isInProgress = true),
             initialSetting = MusicDownloadProxySetting(address = ADDRESS),
@@ -185,7 +185,7 @@ class SettingPlaylistScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-PLAYLIST-DOMAIN-004 저장하는 동안에도 저장된 주소와 같아지면 저장 동작이 사라진다`() {
+    fun `TC-3c55fb99-6872-4b29-a980-a3aa8dc5994b 저장하는 동안에도 저장된 주소와 같아지면 저장 동작이 사라진다`() {
         val uiState = mutableStateOf<SettingPlaylistUiState>(SettingPlaylistUiState.Consumer(setting = MusicDownloadProxySetting.EMPTY, isInProgress = true))
         composeRule.setContent {
             DiaryTheme {
@@ -207,7 +207,7 @@ class SettingPlaylistScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-PLAYLIST-DOMAIN-005 저장하는 동안 입력을 저장된 주소로 되돌리면 저장 동작과 진행 상태가 사라진다`() {
+    fun `TC-4cef38c1-8d42-4067-82bf-ad0c77bee508 저장하는 동안 입력을 저장된 주소로 되돌리면 저장 동작과 진행 상태가 사라진다`() {
         val setting = MusicDownloadProxySetting(address = ADDRESS)
         lateinit var state: SettingPlaylistFormState
         setScaffold(
@@ -225,7 +225,7 @@ class SettingPlaylistScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-PLAYLIST-FEATURE-019 화면을 떠났다가 다시 들어오면 저장된 주소로 시작한다`() {
+    fun `TC-1d08c8b8-53a8-4728-8cb3-71aa9982105b 화면을 떠났다가 다시 들어오면 저장된 주소로 시작한다`() {
         val setting = MusicDownloadProxySetting(address = ADDRESS)
         val isShown = mutableStateOf(true)
         lateinit var state: SettingPlaylistFormState
@@ -256,7 +256,7 @@ class SettingPlaylistScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-PLAYLIST-FEATURE-014 뒤로가기 동작을 선택하면 뒤로가기 이벤트를 전달한다`() {
+    fun `TC-74dc722a-89cb-4ad7-ad07-c14e9514261e 뒤로가기 동작을 선택하면 뒤로가기 이벤트를 전달한다`() {
         val eventList = mutableListOf<SettingPlaylistScaffoldEvent>()
         setScaffold(onEvent = eventList::add)
 

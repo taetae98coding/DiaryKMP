@@ -53,7 +53,7 @@ class EntityMemoFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-FEATURE-003 넓은 창에서 메모를 선택하면 목록을 유지한 채 상세 영역에 그 메모의 상세가 놓인다`() {
+    fun `TC-a1f401a9-7510-4695-9b53-528000c3ef8f 넓은 창에서 메모를 선택하면 목록을 유지한 채 상세 영역에 그 메모의 상세가 놓인다`() {
         val contactId = fixtureMonkey.giveMeOne<Uuid>()
         val backStack = finishedListBackStack(contactId = contactId)
         setAppNavDisplay(backStack = backStack)
@@ -70,7 +70,7 @@ class EntityMemoFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w400dp-h800dp")
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-FEATURE-005 한 영역만 쓰는 창에서는 현재 화면만 단독으로 표시한다`() {
+    fun `TC-680cb3a0-7cc4-4442-86a2-2a973905728d 한 영역만 쓰는 창에서는 현재 화면만 단독으로 표시한다`() {
         val contactId = fixtureMonkey.giveMeOne<Uuid>()
         val backStack = finishedListBackStack(contactId = contactId)
         setAppNavDisplay(backStack = backStack)
@@ -86,7 +86,7 @@ class EntityMemoFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-FEATURE-009 넓은 창에서 메모 상세를 연 뒤 뒤로가면 목록을 유지하고 선택 전 상태로 돌아간다`() {
+    fun `TC-4be4919a-3bf7-40a7-966e-bb19deac0d00 넓은 창에서 메모 상세를 연 뒤 뒤로가면 목록을 유지하고 선택 전 상태로 돌아간다`() {
         val contactId = fixtureMonkey.giveMeOne<Uuid>()
         val backStack = finishedListBackStack(contactId = contactId)
         setAppNavDisplay(backStack = backStack)
@@ -105,7 +105,7 @@ class EntityMemoFinishedListLayoutTest {
     // 다른 메모를 고르면 앞 상세를 쌓지 않고 바꾸는 것은 각 항목 기능 모듈의 전환 테스트가 다루므로, 여기서는 바뀐 뒤의 전환 이력에서 뒤로가기 결과만 본다.
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-FEATURE-009 넓은 창에서 다른 메모의 상세로 바꾼 뒤 뒤로가면 이전 메모가 아닌 선택 전 상태로 돌아간다`() {
+    fun `TC-4be4919a-3bf7-40a7-966e-bb19deac0d00 넓은 창에서 다른 메모의 상세로 바꾼 뒤 뒤로가면 이전 메모가 아닌 선택 전 상태로 돌아간다`() {
         val contactId = fixtureMonkey.giveMeOne<Uuid>()
         val backStack = finishedListBackStack(contactId = contactId)
         setAppNavDisplay(backStack = backStack)
@@ -127,7 +127,7 @@ class EntityMemoFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-FEATURE-018 넓은 창에서 상세가 선택 전 상태일 때 뒤로가면 완료된 메모 목록 전체를 떠나 ContactDetail로 돌아간다`() {
+    fun `TC-e26ded17-7725-49f3-9a27-08e5ba713edb 넓은 창에서 상세가 선택 전 상태일 때 뒤로가면 완료된 메모 목록 전체를 떠나 ContactDetail로 돌아간다`() {
         val contactId = fixtureMonkey.giveMeOne<Uuid>()
         val backStack = finishedListBackStack(contactId = contactId)
         setAppNavDisplay(backStack = backStack)
@@ -140,7 +140,7 @@ class EntityMemoFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-FEATURE-003 넓은 창에서 PlaceMemoFinishedList의 메모를 선택하면 목록을 유지한 채 상세 영역에 그 메모의 상세가 놓인다`() {
+    fun `TC-a1f401a9-7510-4695-9b53-528000c3ef8f 넓은 창에서 PlaceMemoFinishedList의 메모를 선택하면 목록을 유지한 채 상세 영역에 그 메모의 상세가 놓인다`() {
         val placeId = fixtureMonkey.giveMeOne<Uuid>()
         val backStack = NavBackStack<ScreenNavKey>(PlaceDetailNavKey(id = placeId), PlaceMemoFinishedListNavKey(placeId = placeId))
         setAppNavDisplay(backStack = backStack)
@@ -155,7 +155,7 @@ class EntityMemoFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-FEATURE-003 넓은 창에서 WebMemoFinishedList의 메모를 선택하면 목록을 유지한 채 상세 영역에 그 메모의 상세가 놓인다`() {
+    fun `TC-a1f401a9-7510-4695-9b53-528000c3ef8f 넓은 창에서 WebMemoFinishedList의 메모를 선택하면 목록을 유지한 채 상세 영역에 그 메모의 상세가 놓인다`() {
         val webId = fixtureMonkey.giveMeOne<Uuid>()
         val backStack = NavBackStack<ScreenNavKey>(WebDetailNavKey(id = webId), WebMemoFinishedListNavKey(webId = webId))
         setAppNavDisplay(backStack = backStack)

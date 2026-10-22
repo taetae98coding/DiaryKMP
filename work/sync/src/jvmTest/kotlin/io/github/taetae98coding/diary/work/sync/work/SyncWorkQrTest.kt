@@ -15,7 +15,7 @@ import kotlin.uuid.Uuid
 
 class SyncWorkQrTest :
     FunSpec({
-        test("TC-DATA-SYNC-DOMAIN-020 QR만 대기하면 QR 요청만 발생한다") {
+        test("TC-28a7ff40-be46-4362-a4de-ddf85ceba185 QR만 대기하면 QR 요청만 발생한다") {
             val context = context(qrList = qrs(size = 1))
 
             context.subject.doWork()
@@ -31,7 +31,7 @@ class SyncWorkQrTest :
             100 to listOf(100),
             201 to listOf(100, 100, 1),
         ).forEach { (itemCount, expectedRequestSizes) ->
-            test("TC-DATA-SYNC-DATA-005 QR $itemCount 개를 최대 100개 단위로 중복과 누락 없이 요청한다") {
+            test("TC-400fe05d-3f17-47cf-b0bb-ca12fe6625c0 QR $itemCount 개를 최대 100개 단위로 중복과 누락 없이 요청한다") {
                 val qrList = qrs(size = itemCount)
                 val context = context(qrList = qrList)
                 val requests = mutableListOf<List<QrRemoteEntity>>()
@@ -46,7 +46,7 @@ class SyncWorkQrTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-007 삭제된 QR도 삭제 상태로 업로드된다") {
+        test("TC-429c3283-a871-461c-99ea-9f5f4fbce798 삭제된 QR도 삭제 상태로 업로드된다") {
             val qrList = listOf(fixtureMonkey.localQr(isDeleted = true), fixtureMonkey.localQr(isDeleted = false))
             val context = context(qrList = qrList)
             val requests = mutableListOf<List<QrRemoteEntity>>()
@@ -60,7 +60,7 @@ class SyncWorkQrTest :
             requests.flatten().map { request -> request.isDeleted } shouldContainExactly listOf(true, false)
         }
 
-        test("TC-DATA-SYNC-DOMAIN-026 QR 업로드 묶음이 성공하면 보낸 항목의 대기 해제를 요청한다") {
+        test("TC-f5c45486-bd23-45b1-bd7f-493816468e58 QR 업로드 묶음이 성공하면 보낸 항목의 대기 해제를 요청한다") {
             val qrList = qrs(size = 101)
             val context = context(qrList = qrList)
 
@@ -80,7 +80,7 @@ class SyncWorkQrTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-029 TC-QR-ADD-DATA-004 QR 업로드가 실패하면 업로드 대기를 해제하지 않고 내려받기를 진행하지 않는다") {
+        test("TC-929d599a-bd66-4c34-8b8f-fd0df8e6aeee TC-73f30279-c2bc-4cc8-afd7-41dad8268fc5 QR 업로드가 실패하면 업로드 대기를 해제하지 않고 내려받기를 진행하지 않는다") {
             val context = context(qrList = qrs(size = 1))
             val failure = TestException(fixtureMonkey.giveMeOne())
             coEvery { context.qrRemoteDataSource.push(any()) } throws failure
@@ -94,7 +94,7 @@ class SyncWorkQrTest :
             coVerify(exactly = 0) { context.tagRemoteDataSource.pull(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-054 태그 업로드가 실패해도 QR은 끝까지 업로드한다") {
+        test("TC-38d5d054-84c2-42b1-a9bf-75572a81a394 태그 업로드가 실패해도 QR은 끝까지 업로드한다") {
             val context =
                 context(
                     tagList = tags(size = 1),
@@ -110,7 +110,7 @@ class SyncWorkQrTest :
             coVerify(exactly = 3) { context.qrRemoteDataSource.push(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-054 QR이 실패해도 태그와 장소와 웹 항목과 연락처와 곡은 끝까지 업로드한다") {
+        test("TC-38d5d054-84c2-42b1-a9bf-75572a81a394 QR이 실패해도 태그와 장소와 웹 항목과 연락처와 곡은 끝까지 업로드한다") {
             val context =
                 context(
                     tagList = tags(size = 201),
@@ -142,7 +142,7 @@ class SyncWorkQrTest :
             musicRequests shouldContainExactly listOf(100, 100, 1)
         }
 
-        test("TC-DATA-SYNC-DATA-017 TC-DATA-SYNC-DATA-020 QR 내려받기는 기록된 순번부터 빈 응답까지 반복한다") {
+        test("TC-cce8783a-21bb-4316-bdb7-74d4d2fe8853 TC-21ff0303-9f3c-4cb3-9f35-4251ec918ee8 QR 내려받기는 기록된 순번부터 빈 응답까지 반복한다") {
             val context = context()
             val firstPullList = qrPulls(usnList = listOf(4L, 6L))
             val secondPullList = qrPulls(usnList = listOf(9L))
@@ -170,7 +170,7 @@ class SyncWorkQrTest :
             coVerify(exactly = 3) { context.qrRemoteDataSource.pull(any()) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-024 실행 시점에 확인된 계정의 QR만 조회한다") {
+        test("TC-28dda1bd-78ef-4aef-943d-5bf25ae21551 실행 시점에 확인된 계정의 QR만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val context = context(accountId = accountId)

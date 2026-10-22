@@ -20,7 +20,7 @@ class ContactCardBirthdayTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-020 양력 생일은 날짜 앞에 문구 없이 표시한다`() {
+    fun `TC-d185509a-be79-4804-a19c-2560c3cfb79b 양력 생일은 날짜 앞에 문구 없이 표시한다`() {
         setContactCard(contact = birthdayContact(calendar = ContactBirthdayCalendar.SOLAR))
 
         composeRule.onNodeWithText(BIRTHDAY_TEXT).assertExists()
@@ -28,7 +28,7 @@ class ContactCardBirthdayTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-020 음력 생일은 날짜 앞에 음력임을 알리는 문구를 함께 표시한다`() {
+    fun `TC-d185509a-be79-4804-a19c-2560c3cfb79b 음력 생일은 날짜 앞에 음력임을 알리는 문구를 함께 표시한다`() {
         setContactCard(contact = birthdayContact(calendar = ContactBirthdayCalendar.LUNAR))
 
         composeRule.onNodeWithText(LUNAR_BIRTHDAY_TEXT).assertExists()
@@ -36,14 +36,14 @@ class ContactCardBirthdayTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-CONTACT-HOME-FEATURE-020 한국어 환경에서도 달력 구분에 따라 생일 문구가 갈린다`() {
+    fun `TC-d185509a-be79-4804-a19c-2560c3cfb79b 한국어 환경에서도 달력 구분에 따라 생일 문구가 갈린다`() {
         setContactCard(contact = birthdayContact(calendar = ContactBirthdayCalendar.LUNAR))
 
         composeRule.onNodeWithText(KOREAN_LUNAR_BIRTHDAY_TEXT).assertExists()
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-021 생일과 태어난 연도가 없는 연락처는 생일을 표시하지 않는다`() {
+    fun `TC-12e1066d-836f-4b79-8f14-1e1b9c2ec168 생일과 태어난 연도가 없는 연락처는 생일을 표시하지 않는다`() {
         setContactCard(contact = testContact(name = CONTACT_NAME, phoneNumberList = listOf(CONTACT_PHONE_NUMBER)))
 
         composeRule.onNodeWithText(BIRTHDAY_TEXT).assertDoesNotExist()
@@ -52,7 +52,7 @@ class ContactCardBirthdayTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-037 생일 없이 태어난 연도만 있으면 그 해에 태어났다는 문구를 표시한다`() {
+    fun `TC-c888c53f-1db4-4f64-94f1-22d4a68f6c97 생일 없이 태어난 연도만 있으면 그 해에 태어났다는 문구를 표시한다`() {
         setContactCard(contact = birthYearContact())
 
         composeRule.onNodeWithText(BIRTH_YEAR_TEXT).assertExists()
@@ -61,21 +61,21 @@ class ContactCardBirthdayTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-CONTACT-HOME-FEATURE-037 한국어 환경에서 태어난 연도를 한국어 문구로 표시한다`() {
+    fun `TC-c888c53f-1db4-4f64-94f1-22d4a68f6c97 한국어 환경에서 태어난 연도를 한국어 문구로 표시한다`() {
         setContactCard(contact = birthYearContact())
 
         composeRule.onNodeWithText(KOREAN_BIRTH_YEAR_TEXT).assertExists()
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-038 생일이 있는 연락처는 태어난 연도를 따로 표시하지 않는다`() {
+    fun `TC-853fb0bd-2bd6-403c-b490-8a46ae0e5132 생일이 있는 연락처는 태어난 연도를 따로 표시하지 않는다`() {
         setContactCard(contact = birthdayContact(calendar = ContactBirthdayCalendar.SOLAR))
 
         composeRule.onNodeWithText(BIRTH_YEAR_TEXT).assertDoesNotExist()
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-022 음력 생일도 저장된 연·월·일을 그대로 표시한다`() {
+    fun `TC-b96f7ba1-06b8-4ef3-a828-865692c52610 음력 생일도 저장된 연·월·일을 그대로 표시한다`() {
         setContactCard(contact = birthdayContact(calendar = ContactBirthdayCalendar.LUNAR))
 
         composeRule.onNodeWithText(LUNAR_BIRTHDAY_TEXT).assertExists()

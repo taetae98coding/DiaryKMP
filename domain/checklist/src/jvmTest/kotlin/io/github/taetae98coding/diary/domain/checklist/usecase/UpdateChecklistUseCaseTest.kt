@@ -38,7 +38,7 @@ class UpdateChecklistUseCaseTest :
                         .useCase(parameter = UpdateChecklistUseCase.Parameter(id = context.checklist.id, detail = ChecklistDetail(title, description)))
                         .shouldBeSuccess(1)
 
-                    Then("TC-CHECKLIST-DETAIL-DOMAIN-006 제목과 설명을 기대한 값으로 수정 시각과 함께 저장한다") {
+                    Then("TC-409178d7-4cde-4230-a644-9c60981ea503 제목과 설명을 기대한 값으로 수정 시각과 함께 저장한다") {
                         val expectedTitle = if (isStoredTitleUsed) context.checklist.detail.title else title
                         coVerify(exactly = 1) {
                             context.repository.updateDetail(
@@ -50,7 +50,7 @@ class UpdateChecklistUseCaseTest :
                         }
                     }
 
-                    Then("TC-SYNC-REFRESH-FEATURE-004 TC-CHECKLIST-DETAIL-DATA-005 기기에 저장한 뒤 동기화를 한 번 요청한다") {
+                    Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-e066d56e-5d9e-4299-a49b-e4b1cfb94367 기기에 저장한 뒤 동기화를 한 번 요청한다") {
                         coVerify(exactly = 1) { context.requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
                     }
                 }
@@ -65,7 +65,7 @@ class UpdateChecklistUseCaseTest :
             When("수정을 반영한다") {
                 context.useCase(parameter = UpdateChecklistUseCase.Parameter(id = context.checklist.id, detail = detail)).shouldBeSuccess(1)
 
-                Then("TC-CHECKLIST-DETAIL-DATA-006 게스트 계정 기준으로 기기에 저장한다") {
+                Then("TC-20be2c49-4b48-41e2-861c-50dbec844576 게스트 계정 기준으로 기기에 저장한다") {
                     coVerify(exactly = 1) {
                         context.repository.updateDetail(
                             account = checkNotNull(context.account),
@@ -85,7 +85,7 @@ class UpdateChecklistUseCaseTest :
             When("수정을 반영한다") {
                 val result = context.useCase(parameter = UpdateChecklistUseCase.Parameter(id = context.checklist.id, detail = fixtureMonkey.checklistDetail()))
 
-                Then("TC-CHECKLIST-DETAIL-DATA-001 바뀐 체크리스트가 없음을 전달한다") {
+                Then("TC-fd1241c1-0667-4741-a1de-10602a660b42 바뀐 체크리스트가 없음을 전달한다") {
                     result.shouldBeSuccess(0)
                 }
             }
@@ -99,7 +99,7 @@ class UpdateChecklistUseCaseTest :
             When("수정을 반영한다") {
                 val result = context.useCase(parameter = UpdateChecklistUseCase.Parameter(id = context.checklist.id, detail = fixtureMonkey.checklistDetail()))
 
-                Then("TC-CHECKLIST-DETAIL-DATA-002 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
+                Then("TC-8e505659-9424-4d8b-abe1-6e8bc8d72794 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
                     result.shouldBeFailure().shouldBeSameInstanceAs(throwable)
                     coVerify(exactly = 0) { context.requestSyncUseCase(parameter = any()) }
                 }

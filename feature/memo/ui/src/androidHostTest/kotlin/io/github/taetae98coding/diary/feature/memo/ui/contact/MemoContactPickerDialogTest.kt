@@ -30,7 +30,7 @@ class MemoContactPickerDialogTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-001 목록에 연락처의 이름과 전화번호, 선택 여부를 함께 표시한다`() {
+    fun `TC-ba378d6e-8302-4639-a7a3-d23d69d91861 목록에 연락처의 이름과 전화번호, 선택 여부를 함께 표시한다`() {
         val selectedContact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val unselectedContact = testContact(name = SECOND_CONTACT_NAME, phoneNumber = SECOND_CONTACT_PHONE_NUMBER)
         composeRule.setMemoContactPickerDialog(
@@ -48,7 +48,7 @@ class MemoContactPickerDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-011 목록에서 연락처를 선택하면 선택 행동을 즉시 전달한다`() {
+    fun `TC-d8a15eeb-4fbb-4b78-b513-cce7e71db76b 목록에서 연락처를 선택하면 선택 행동을 즉시 전달한다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val selectedIdList = mutableListOf<Uuid>()
         val unselectedIdList = mutableListOf<Uuid>()
@@ -66,7 +66,7 @@ class MemoContactPickerDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-012 목록에서 선택을 해제하면 해제 행동을 즉시 전달한다`() {
+    fun `TC-58e3a6fc-fec5-48dd-ae63-a332532ae678 목록에서 선택을 해제하면 해제 행동을 즉시 전달한다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val selectedIdList = mutableListOf<Uuid>()
         val unselectedIdList = mutableListOf<Uuid>()
@@ -85,7 +85,7 @@ class MemoContactPickerDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-DOMAIN-002 목록의 연락처는 전달된 이름 오름차순으로 표시된다`() {
+    fun `TC-769ad661-33e0-4e96-933f-49a4fd7f3651 목록의 연락처는 전달된 이름 오름차순으로 표시된다`() {
         val firstContact = testContact(name = APPLE_CONTACT_TITLE, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val lastContact = testContact(name = ZEBRA_CONTACT_TITLE, phoneNumber = SECOND_CONTACT_PHONE_NUMBER)
         composeRule.setMemoContactPickerDialog(contactList = listOf(firstContact, lastContact))
@@ -98,7 +98,7 @@ class MemoContactPickerDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-022 목록의 연락처를 눌러도 상세 이동을 요청하지 않는다`() {
+    fun `TC-3b34c6ab-ed8f-412e-a588-f39f240fd4dd 목록의 연락처를 눌러도 상세 이동을 요청하지 않는다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME, phoneNumber = FIRST_CONTACT_PHONE_NUMBER)
         val selectedIdList = mutableListOf<Uuid>()
         composeRule.setMemoContactPickerDialog(contactList = listOf(contact), onContactSelect = selectedIdList::add)
@@ -164,14 +164,14 @@ class MemoContactPickerDialogAddTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-006 나타낼 연락처가 없어도 연락처 추가 항목을 표시한다`() {
+    fun `TC-8c717f34-2c22-46fc-86f8-a7da737cf4a2 나타낼 연락처가 없어도 연락처 추가 항목을 표시한다`() {
         composeRule.setMemoContactPickerDialog(contactList = emptyList())
 
         composeRule.contactDialogNodeWithText(DEFAULT_CONTACT_PICKER_ADD_LABEL).assertExists()
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-006 나타낼 연락처가 여러 개여도 연락처 추가 항목을 표시한다`() {
+    fun `TC-8c717f34-2c22-46fc-86f8-a7da737cf4a2 나타낼 연락처가 여러 개여도 연락처 추가 항목을 표시한다`() {
         composeRule.setMemoContactPickerDialog(contactList = listOf(testContact(name = FIRST_CONTACT_NAME), testContact(name = SECOND_CONTACT_NAME)))
         composeRule.awaitContactPickerRows()
 
@@ -179,7 +179,7 @@ class MemoContactPickerDialogAddTest {
     }
 
     @Test
-    fun `TC-MEMO-CONTACT-INPUT-FEATURE-007 연락처 추가 항목을 누르면 연락처 추가 행동만 전달한다`() {
+    fun `TC-7dfed0a2-9d1d-45e6-a8d4-0229360d0c18 연락처 추가 항목을 누르면 연락처 추가 행동만 전달한다`() {
         val contact = testContact(name = FIRST_CONTACT_NAME)
         var contactAddCount = 0
         val selectedIdList = mutableListOf<Uuid>()

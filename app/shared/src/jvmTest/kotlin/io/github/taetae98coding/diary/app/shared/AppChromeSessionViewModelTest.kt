@@ -39,7 +39,7 @@ class AppChromeSessionViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-CHROME-SESSION-IMPORT-DOMAIN-018 앱이 보이게 되면 로그인 정보 가져오기를 한 번 요청한다") {
+        test("TC-4fc567a4-7f80-4f00-b206-87105a1264a2 앱이 보이게 되면 로그인 정보 가져오기를 한 번 요청한다") {
             runTest(mainDispatcher) {
                 val useCase = mockk<RequestChromeSessionImportUseCase>()
                 coEvery { useCase(Unit) } returns Result.success(Unit)
@@ -52,7 +52,7 @@ class AppChromeSessionViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-FEATURE-047 TC-WEB-DETAIL-FEATURE-052 가져오는 중에는 준비 중이고 끝나면 가져온 횟수가 하나 늘어난다") {
+        test("TC-f117a124-06f3-42eb-af49-da9a1bad9df5 TC-3a2b7c2b-d44c-4454-a6b0-42b409f82495 가져오는 중에는 준비 중이고 끝나면 가져온 횟수가 하나 늘어난다") {
             runTest(mainDispatcher) {
                 val importState = MutableStateFlow(ChromeSessionImportState.IMPORTING)
                 val viewModel = viewModel(importState = importState)
@@ -68,7 +68,7 @@ class AppChromeSessionViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-FEATURE-050 가져오는 중이 아니면 준비 중이 아니고 실패 번호가 없다") {
+        test("TC-fcdc5498-e502-467d-a4af-67e4bd7bc361 가져오는 중이 아니면 준비 중이 아니고 실패 번호가 없다") {
             listOf(ChromeSessionImportState.IDLE, ChromeSessionImportState.IMPORTED).forEach { state ->
                 runTest(mainDispatcher) {
                     val viewModel = viewModel(importState = MutableStateFlow(state))
@@ -82,7 +82,7 @@ class AppChromeSessionViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-FEATURE-049 TC-WEB-DETAIL-FEATURE-054 실패마다 새 실패 번호를 제공하고 성공하면 실패 번호를 지운다") {
+        test("TC-26869b48-2548-44ea-9c03-6ce75c277fc3 TC-72308d3d-3936-49f3-80b1-651b641342f4 실패마다 새 실패 번호를 제공하고 성공하면 실패 번호를 지운다") {
             runTest(mainDispatcher) {
                 val importState = MutableStateFlow(ChromeSessionImportState.FAILED)
                 val viewModel = viewModel(importState = importState)
@@ -106,7 +106,7 @@ class AppChromeSessionViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-WEB-DETAIL-FEATURE-071 마지막 결과가 이미 실패일 때 다시 실패해도 새 실패 번호를 제공하지 않는다") {
+        test("TC-56e3fbae-9057-4078-9803-d0e47e69c0ac 마지막 결과가 이미 실패일 때 다시 실패해도 새 실패 번호를 제공하지 않는다") {
             runTest(mainDispatcher) {
                 val importState = MutableSharedFlow<ChromeSessionImportState>(replay = 1)
                 val viewModel = viewModel(importState = importState)

@@ -40,7 +40,7 @@ class ProfileImageEditViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-PROFILE-IMAGE-EDIT-FEATURE-005 반영을 처리하는 동안 진행 상태가 되고 끝나면 돌아온다") {
+        test("TC-bb861a92-b891-466e-ab45-0cd2e1c7599d 반영을 처리하는 동안 진행 상태가 되고 끝나면 돌아온다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Unit>()
                 val useCase = mockk<ChangeProfileImageUseCase>()
@@ -61,7 +61,7 @@ class ProfileImageEditViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PROFILE-IMAGE-EDIT-DOMAIN-005 반영 처리 중에 전달된 반영 요청은 처리하지 않는다") {
+        test("TC-0faf9d86-eafc-47d9-a7de-b50b53b9973e 반영 처리 중에 전달된 반영 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Unit>()
                 val useCase = mockk<ChangeProfileImageUseCase>()
@@ -79,7 +79,7 @@ class ProfileImageEditViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PROFILE-IMAGE-EDIT-FEATURE-006 반영에 성공하면 성공을 알린다") {
+        test("TC-27e9cf0d-bf8c-4d0e-bc17-b25b153978a6 반영에 성공하면 성공을 알린다") {
             runTest(mainDispatcher) {
                 val useCase = mockk<ChangeProfileImageUseCase>()
                 coEvery { useCase(any()) } returns Result.success(Unit)
@@ -95,7 +95,7 @@ class ProfileImageEditViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PROFILE-IMAGE-EDIT-FEATURE-007 반영에 실패하면 실패를 알리고 다시 반영할 수 있다") {
+        test("TC-119e2591-2076-492c-9401-9b535f74df81 반영에 실패하면 실패를 알리고 다시 반영할 수 있다") {
             runTest(mainDispatcher) {
                 val useCase = mockk<ChangeProfileImageUseCase>()
                 coEvery { useCase(any()) } returns Result.failure(IllegalStateException("profile image error"))
@@ -118,7 +118,7 @@ class ProfileImageEditViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PROFILE-IMAGE-EDIT-DATA-001 사진의 위치와 남길 영역을 그대로 담아 반영을 요청한다") {
+        test("TC-43d7c75f-d9f1-4c4a-93c8-8c391112198e 사진의 위치와 남길 영역을 그대로 담아 반영을 요청한다") {
             runTest(mainDispatcher) {
                 val uri = fileUri()
                 val cropRegion = cropRegion()

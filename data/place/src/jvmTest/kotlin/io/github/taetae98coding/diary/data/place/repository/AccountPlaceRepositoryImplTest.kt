@@ -40,7 +40,7 @@ import kotlin.uuid.Uuid
 
 class AccountPlaceRepositoryImplTest :
     FunSpec({
-        test("TC-PLACE-ADD-DATA-001 장소를 현재 계정 식별자와 로컬 모델로 변환해 로컬 저장소에 저장한다") {
+        test("TC-71726817-3873-40c5-8081-8856b2290f1c 장소를 현재 계정 식별자와 로컬 모델로 변환해 로컬 저장소에 저장한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val place = place()
             val localDataSource = mockk<AccountPlaceLocalDataSource>()
@@ -55,7 +55,7 @@ class AccountPlaceRepositoryImplTest :
             }
         }
 
-        test("TC-PLACE-ADD-DATA-004 기기 저장이 실패하면 추가를 성공으로 다루지 않고 실패를 전달한다") {
+        test("TC-1c64c262-6223-452d-b72b-6ff5c108b7a5 기기 저장이 실패하면 추가를 성공으로 다루지 않고 실패를 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val place = place()
             val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
@@ -93,7 +93,7 @@ class AccountPlaceRepositoryImplTest :
             repository.get(account = account, placeIdSet = placeIdSet).first() shouldBe localPlaceList.map { local -> local.toDomain() }
         }
 
-        test("TC-PLACE-HOME-DATA-001 계정과 보이는 영역을 기준으로 로컬 저장소에서 장소를 조회한다") {
+        test("TC-fca8ba60-d018-4c66-8347-83a664ce5fd9 계정과 보이는 영역을 기준으로 로컬 저장소에서 장소를 조회한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val bounds = fixtureMonkey.giveMeOne<CoordinateBounds>()
             val localPlaceList = List(2) { localPlace() }
@@ -114,7 +114,7 @@ class AccountPlaceRepositoryImplTest :
             repository.get(account = account, bounds = bounds, sort = ListSort.TITLE).first() shouldBe localPlaceList.map { local -> local.toDomain() }
         }
 
-        test("TC-PLACE-DETAIL-DATA-001 계정과 대상 식별자를 기준으로 로컬 저장소에서 장소를 조회한다") {
+        test("TC-0fad4667-a470-48d7-b8b0-d67cafc909ae 계정과 대상 식별자를 기준으로 로컬 저장소에서 장소를 조회한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val localPlace = localPlace()
             val localDataSource = mockk<AccountPlaceLocalDataSource>()
@@ -125,7 +125,7 @@ class AccountPlaceRepositoryImplTest :
             repository.find(account = account, placeId = localPlace.id).first() shouldBe localPlace.toDomain()
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-001 조회되지 않는 대상 장소는 없는 것으로 전달한다") {
+        test("TC-8df9d1f4-ce1e-47e2-9929-ea6b531d30ab 조회되지 않는 대상 장소는 없는 것으로 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val placeId = fixtureMonkey.giveMeOne<Uuid>()
             val localDataSource = mockk<AccountPlaceLocalDataSource>()
@@ -136,7 +136,7 @@ class AccountPlaceRepositoryImplTest :
             repository.find(account = account, placeId = placeId).first() shouldBe null
         }
 
-        test("TC-PLACE-DETAIL-DATA-003 수정 내용을 로컬 모델로 변환해 저장하고 반영 건수를 전달한다") {
+        test("TC-a51d0a4a-f218-4b3d-99ce-f8da1f06eec6 수정 내용을 로컬 모델로 변환해 저장하고 반영 건수를 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val place = place()
             val updatedAt = instant()
@@ -171,7 +171,7 @@ class AccountPlaceRepositoryImplTest :
             }
         }
 
-        test("TC-PLACE-DETAIL-DATA-004 삭제 상태를 저장하고 반영 건수를 전달한다") {
+        test("TC-454e7312-d0dd-4603-a7b6-00a92504c393 삭제 상태를 저장하고 반영 건수를 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val placeId = fixtureMonkey.giveMeOne<Uuid>()
             val updatedAt = instant()
@@ -206,7 +206,7 @@ class AccountPlaceRepositoryImplTest :
             }
         }
 
-        test("TC-PLACE-DETAIL-DATA-005 수정과 삭제의 기기 저장이 실패하면 성공으로 다루지 않고 실패를 전달한다") {
+        test("TC-6d7ec354-4dd3-4336-9f46-42ddff1469ee 수정과 삭제의 기기 저장이 실패하면 성공으로 다루지 않고 실패를 전달한다") {
             val account = fixtureMonkey.giveMeOne<Account.User>()
             val place = place()
             val updatedAt = instant()

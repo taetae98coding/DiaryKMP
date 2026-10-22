@@ -51,7 +51,7 @@ class DeleteContactUseCaseTest :
                 )
 
             When("연락처를 삭제한다") {
-                Then("TC-CONTACT-DETAIL-DOMAIN-010 TC-CONTACT-HOME-DOMAIN-013 삭제 여부와 삭제 시점을 반영하고 즐겨찾기 여부는 바꾸지 않는다") {
+                Then("TC-dbfd266a-6ba8-4701-92ac-d6c7b57da787 TC-af7cf02e-580e-4c87-9057-ea42f22b662d 삭제 여부와 삭제 시점을 반영하고 즐겨찾기 여부는 바꾸지 않는다") {
                     useCase(parameter = contactId).shouldBeSuccess(1)
 
                     isDeletedSlot.captured shouldBe true
@@ -61,7 +61,7 @@ class DeleteContactUseCaseTest :
                     }
                 }
 
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-CONTACT-DETAIL-DATA-010 TC-CONTACT-HOME-DATA-008 로컬 저장 결과로 성공을 판단하고 동기화를 한 번 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-46698d03-f59c-4489-9bd6-b8911ff63fa5 TC-1e7fe660-ca51-46e0-a12b-e2e2c5f54bfb 로컬 저장 결과로 성공을 판단하고 동기화를 한 번 요청한다") {
                     clearMocks(requestSyncUseCase, answers = false)
 
                     useCase(parameter = contactId).shouldBeSuccess(1)
@@ -82,7 +82,7 @@ class DeleteContactUseCaseTest :
                 )
 
             When("연락처를 삭제한다") {
-                Then("TC-CONTACT-DETAIL-DATA-011 게스트 계정 기준으로 기기에만 삭제를 반영한다") {
+                Then("TC-54110044-b9ea-4ff2-b2c1-29777056471f 게스트 계정 기준으로 기기에만 삭제를 반영한다") {
                     useCase(parameter = contactId).shouldBeSuccess()
 
                     coVerify(exactly = 1) {
@@ -143,7 +143,7 @@ class DeleteContactUseCaseTest :
                 )
 
             When("연락처를 삭제한다") {
-                Then("TC-CONTACT-DETAIL-DATA-009 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
+                Then("TC-1baea3d4-f655-46b8-8d62-64d922ba1d95 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
                     useCase(parameter = Uuid.random())
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)

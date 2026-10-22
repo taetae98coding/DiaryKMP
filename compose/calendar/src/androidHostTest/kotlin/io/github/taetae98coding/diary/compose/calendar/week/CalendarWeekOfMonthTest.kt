@@ -20,35 +20,35 @@ class CalendarWeekOfMonthTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-WEEK-OF-MONTH-FEATURE-001 전월 날짜가 포함된 첫 주를 일요일부터 순서대로 표시한다`() {
+    fun `TC-bbd8992e-fa2c-41d6-a02d-7a6812b6232c 전월 날짜가 포함된 첫 주를 일요일부터 순서대로 표시한다`() {
         setCalendarWeekOfMonth(yearMonth = YearMonth(year = 2026, month = Month.JULY), weekOfMonth = 0)
 
         dayTexts() shouldBe listOf("28", "29", "30", "1", "2", "3", "4")
     }
 
     @Test
-    fun `TC-CALENDAR-WEEK-OF-MONTH-FEATURE-001 지정한 달 날짜로만 구성된 주를 일요일부터 순서대로 표시한다`() {
+    fun `TC-bbd8992e-fa2c-41d6-a02d-7a6812b6232c 지정한 달 날짜로만 구성된 주를 일요일부터 순서대로 표시한다`() {
         setCalendarWeekOfMonth(yearMonth = YearMonth(year = 2026, month = Month.JULY), weekOfMonth = 1)
 
         dayTexts() shouldBe listOf("5", "6", "7", "8", "9", "10", "11")
     }
 
     @Test
-    fun `TC-CALENDAR-WEEK-OF-MONTH-FEATURE-001 1일이 일요일인 달의 첫 주를 1일부터 순서대로 표시한다`() {
+    fun `TC-bbd8992e-fa2c-41d6-a02d-7a6812b6232c 1일이 일요일인 달의 첫 주를 1일부터 순서대로 표시한다`() {
         setCalendarWeekOfMonth(yearMonth = YearMonth(year = 2026, month = Month.FEBRUARY), weekOfMonth = 0)
 
         dayTexts() shouldBe listOf("1", "2", "3", "4", "5", "6", "7")
     }
 
     @Test
-    fun `TC-CALENDAR-WEEK-OF-MONTH-FEATURE-001 다음 달 날짜가 포함된 마지막 주를 일요일부터 순서대로 표시한다`() {
+    fun `TC-bbd8992e-fa2c-41d6-a02d-7a6812b6232c 다음 달 날짜가 포함된 마지막 주를 일요일부터 순서대로 표시한다`() {
         setCalendarWeekOfMonth(yearMonth = YearMonth(year = 2026, month = Month.AUGUST), weekOfMonth = 5)
 
         dayTexts() shouldBe listOf("30", "31", "1", "2", "3", "4", "5")
     }
 
     @Test
-    fun `TC-CALENDAR-WEEK-OF-MONTH-FEATURE-002 범위를 벗어난 주 순서도 같은 기준으로 계산해 표시한다`() {
+    fun `TC-30f67ba4-c946-4754-83ca-99cd8bb0be34 범위를 벗어난 주 순서도 같은 기준으로 계산해 표시한다`() {
         setCalendarWeekOfMonth(yearMonth = YearMonth(year = 2026, month = Month.FEBRUARY), weekOfMonth = 4)
 
         dayTexts() shouldBe listOf("1", "2", "3", "4", "5", "6", "7")

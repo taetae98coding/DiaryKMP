@@ -31,7 +31,7 @@ class MemoAddScreenMemoryRestoreTest {
     private lateinit var restorationTesterHolder: StateRestorationTester
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-046 시스템이 앱을 정리한 뒤 화면을 복원하면 선택한 태그가 진입 경로의 초기 선택으로 돌아간다`() {
+    fun `TC-a97443d4-bf42-4ed0-8f26-c6ae3eda0d8c 시스템이 앱을 정리한 뒤 화면을 복원하면 선택한 태그가 진입 경로의 초기 선택으로 돌아간다`() {
         val targetTag = testTag(title = TARGET_TAG_TITLE)
         val otherTag = testTag(title = OTHER_TAG_TITLE)
         val viewModelsList =
@@ -53,7 +53,7 @@ class MemoAddScreenMemoryRestoreTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-051 시스템이 앱을 정리한 뒤 화면을 복원하면 선택한 장소가 유지되지 않는다`() {
+    fun `TC-a4cdefb7-ef84-44c5-bab8-f8828ce45883 시스템이 앱을 정리한 뒤 화면을 복원하면 선택한 장소가 유지되지 않는다`() {
         val place = testPlace(title = PLACE_TITLE)
         val viewModelsList = setRestorableMemoAddScreen { screenTestRealViewModel(placeList = listOf(place)) }
         composeRule.runOnIdle { viewModelsList.last().placeViewModel.selectPlace(id = place.id) }
@@ -66,7 +66,7 @@ class MemoAddScreenMemoryRestoreTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-058 시스템이 앱을 정리한 뒤 화면을 복원하면 선택한 웹 항목이 유지되지 않는다`() {
+    fun `TC-81245be2-b619-4a1a-840a-f1be2758cbf3 시스템이 앱을 정리한 뒤 화면을 복원하면 선택한 웹 항목이 유지되지 않는다`() {
         val web = testWeb(title = WEB_TITLE)
         val viewModelsList = setRestorableMemoAddScreen { screenTestRealViewModel(webList = listOf(web)) }
         composeRule.runOnIdle { viewModelsList.last().webViewModel.selectWeb(id = web.id) }
@@ -79,7 +79,7 @@ class MemoAddScreenMemoryRestoreTest {
     }
 
     @Test
-    fun `TC-MEMO-ADD-FEATURE-062 시스템이 앱을 정리한 뒤 화면을 복원하면 선택한 연락처가 유지되지 않는다`() {
+    fun `TC-2903649b-8a21-4f71-b1f3-5667f5786470 시스템이 앱을 정리한 뒤 화면을 복원하면 선택한 연락처가 유지되지 않는다`() {
         val contact = testContact(name = CONTACT_NAME)
         val viewModelsList = setRestorableMemoAddScreen { screenTestRealViewModel(contactList = listOf(contact)) }
         composeRule.runOnIdle { viewModelsList.last().contactViewModel.selectContact(id = contact.id) }

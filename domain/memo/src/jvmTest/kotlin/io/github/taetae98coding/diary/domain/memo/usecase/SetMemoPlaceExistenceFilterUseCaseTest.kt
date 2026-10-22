@@ -25,7 +25,7 @@ class SetMemoPlaceExistenceFilterUseCaseTest :
             coEvery { memoExistenceFilterRepository.upsertPlace(existence = any()) } just Runs
             val useCase = SetMemoPlaceExistenceFilterUseCase(memoExistenceFilterRepository = memoExistenceFilterRepository)
 
-            When("TC-MEMO-HOME-DATA-010 장소 축을 바꾼다") {
+            When("TC-76fa8f4d-5f72-4699-8501-75a9d2891d5d 장소 축을 바꾼다") {
                 Then("장소 축만 기기에 저장한다") {
                     MemoFilterExistence.entries.forEach { existence ->
                         useCase(parameter = existence).shouldBeSuccess()

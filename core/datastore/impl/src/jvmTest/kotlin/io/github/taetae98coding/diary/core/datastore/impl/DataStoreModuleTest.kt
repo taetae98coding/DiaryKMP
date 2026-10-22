@@ -64,7 +64,7 @@ class DataStoreModuleTest :
             directory.listDirectoryEntries().map { path -> path.name } shouldBe listOf(DataStoreModule.MAP_SETTING_NAME)
         }
 
-        test("TC-SETTING-BROWSER-DATA-001 저장한 적 없는 역할은 비어 있는 설정을 제공한다") {
+        test("TC-ff647b05-ab2d-4a7c-b4e2-1b777b23ff20 저장한 적 없는 역할은 비어 있는 설정을 제공한다") {
             val directory = createTempDirectory("diary-setting")
             val koin = createKoin(directory)
 

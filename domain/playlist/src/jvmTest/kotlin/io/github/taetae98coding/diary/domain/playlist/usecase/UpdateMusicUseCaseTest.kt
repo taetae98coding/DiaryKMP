@@ -56,7 +56,7 @@ class UpdateMusicUseCaseTest :
                 )
 
             When("공백이 아닌 제목과 가수와 링크로 수정한다") {
-                Then("TC-MUSIC-DETAIL-DATA-003 입력한 내용과 수정 시점을 반영한다") {
+                Then("TC-393c5421-cb22-450f-b102-c98a17e85378 입력한 내용과 수정 시점을 반영한다") {
                     val detail = detail(title = "new-title", artist = "new-artist")
 
                     useCase(parameter = UpdateMusicUseCase.Parameter(id = stored.id, detail = detail)).shouldBeSuccess(1)
@@ -65,7 +65,7 @@ class UpdateMusicUseCaseTest :
                     updatedAtSlot.captured shouldBe now
                 }
 
-                Then("TC-MUSIC-DETAIL-DOMAIN-005 링크의 앞뒤 공백만 없애고 제목과 가수는 그대로 기록한다") {
+                Then("TC-b1250f18-12cc-4a94-b63d-12afff91b74d 링크의 앞뒤 공백만 없애고 제목과 가수는 그대로 기록한다") {
                     val detail = detail(link = "  $YOUTUBE_LINK  ", title = "  곡 제목  ", artist = "  가수  ")
 
                     useCase(parameter = UpdateMusicUseCase.Parameter(id = stored.id, detail = detail)).shouldBeSuccess(1)
@@ -75,7 +75,7 @@ class UpdateMusicUseCaseTest :
                     detailSlot.captured.artist shouldBe "  가수  "
                 }
 
-                Then("TC-MUSIC-DETAIL-DOMAIN-006 삭제 여부와 생성 시각과 계정 연결을 바꾸는 저장을 하지 않는다") {
+                Then("TC-19e85b92-92f8-4b8a-ad9f-d66c178d9dc6 삭제 여부와 생성 시각과 계정 연결을 바꾸는 저장을 하지 않는다") {
                     useCase(parameter = UpdateMusicUseCase.Parameter(id = stored.id, detail = detail())).shouldBeSuccess(1)
 
                     coVerify(exactly = 0) {
@@ -84,7 +84,7 @@ class UpdateMusicUseCaseTest :
                     coVerify(exactly = 0) { accountMusicRepository.upsert(account = any(), music = any()) }
                 }
 
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-MUSIC-DETAIL-DATA-007 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-5244b211-1fe9-414b-a74c-5e5544ce300d 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
                     useCase(parameter = UpdateMusicUseCase.Parameter(id = stored.id, detail = detail())).shouldBeSuccess(1)
 
                     coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
@@ -96,7 +96,7 @@ class UpdateMusicUseCaseTest :
                     "" to "빈 제목",
                     "   " to "공백 문자로만 이루어진 제목",
                 ).forEach { (title, label) ->
-                    Then("TC-MUSIC-DETAIL-DOMAIN-012 제목은 저장된 값으로 유지하고 가수와 링크는 입력한 대로 반영한다: $label") {
+                    Then("TC-0b98de0e-8b57-416e-81ea-7425db5f5826 제목은 저장된 값으로 유지하고 가수와 링크는 입력한 대로 반영한다: $label") {
                         val detail = detail(title = title, artist = "new-artist", link = OTHER_YOUTUBE_LINK)
 
                         useCase(parameter = UpdateMusicUseCase.Parameter(id = stored.id, detail = detail)).shouldBeSuccess(1)
@@ -118,7 +118,7 @@ class UpdateMusicUseCaseTest :
                     val (artist, link, label) = input
                     val (expectedArtist, expectedLink) = expected
 
-                    Then("TC-MUSIC-DETAIL-DOMAIN-013 비운 값은 비워진 채로 반영한다: $label") {
+                    Then("TC-10c42a3a-e7b0-492c-bfb5-11512974f92e 비운 값은 비워진 채로 반영한다: $label") {
                         val detail = detail(title = "new-title", artist = artist, link = link)
 
                         useCase(parameter = UpdateMusicUseCase.Parameter(id = stored.id, detail = detail)).shouldBeSuccess(1)
@@ -148,7 +148,7 @@ class UpdateMusicUseCaseTest :
                 )
 
             When("링크를 비운 채 새 제목과 가수로 수정한다") {
-                Then("TC-MUSIC-DETAIL-DOMAIN-004 제목과 가수만 반영하고 링크는 비어 있는 채로 둔다") {
+                Then("TC-ac78d8fe-e81c-46c4-831c-647502a5e206 제목과 가수만 반영하고 링크는 비어 있는 채로 둔다") {
                     val detail = detail(link = "", title = "new-title", artist = "new-artist")
 
                     useCase(parameter = UpdateMusicUseCase.Parameter(id = stored.id, detail = detail)).shouldBeSuccess(1)
@@ -180,7 +180,7 @@ class UpdateMusicUseCaseTest :
                     "ftp://www.youtube.com/watch?v=dQw4w9WgXcQ",
                     "곡 링크",
                 ).forEach { link ->
-                    Then("TC-MUSIC-DETAIL-DOMAIN-003 링크 형식 예외로 실패하고 아무 내용도 수정하지 않는다: $link") {
+                    Then("TC-0c9b7c94-9d8b-4524-86cd-b91d7fc9fb5e 링크 형식 예외로 실패하고 아무 내용도 수정하지 않는다: $link") {
                         val result =
                             useCase(
                                 parameter =
@@ -216,7 +216,7 @@ class UpdateMusicUseCaseTest :
                 )
 
             When("수정을 실행한다") {
-                Then("TC-MUSIC-DETAIL-DATA-004 아무것도 바꾸지 않는다") {
+                Then("TC-a5f0997c-cc0b-4266-a1ed-79d955a12c09 아무것도 바꾸지 않는다") {
                     useCase(parameter = UpdateMusicUseCase.Parameter(id = musicId, detail = detail())).shouldBeSuccess(0)
                 }
             }
@@ -240,7 +240,7 @@ class UpdateMusicUseCaseTest :
                 )
 
             When("수정을 실행한다") {
-                Then("TC-MUSIC-DETAIL-DATA-006 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
+                Then("TC-f54d0402-0b9e-4aa6-973f-29ef980b4e07 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
                     useCase(parameter = UpdateMusicUseCase.Parameter(id = stored.id, detail = detail()))
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)

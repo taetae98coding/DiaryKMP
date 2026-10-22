@@ -33,7 +33,7 @@ class TagDetailWebListPositionTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-DETAIL-WEB-FEATURE-018 다른 탭에 다녀와도 웹 목록에서 보던 위치를 유지한다`() {
+    fun `TC-cfc50029-f40c-43ef-8279-ec308c4b6805 다른 탭에 다녀와도 웹 목록에서 보던 위치를 유지한다`() {
         val webList = webList()
         composeRule.setTagDetailScreen(
             viewModel = screenTestViewModel(MutableStateFlow(tagDetailUiState(detail = tagDetail(TAG_TITLE)))),

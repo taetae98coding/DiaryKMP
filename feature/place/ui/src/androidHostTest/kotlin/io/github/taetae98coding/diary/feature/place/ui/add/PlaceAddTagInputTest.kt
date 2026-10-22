@@ -29,7 +29,7 @@ class PlaceAddTagInputTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-037 추가에 성공해도 고른 태그는 유지한다`() {
+    fun `TC-765b3b1f-fee6-43e1-8c72-e4e2192e8269 추가에 성공해도 고른 태그는 유지한다`() {
         val tag = placeTestTag(title = SELECTED_TAG_TITLE)
         val effect = Channel<PlaceAddEffect>(capacity = Channel.BUFFERED)
         val viewModel = screenTestViewModel(effect = effect.receiveAsFlow())
@@ -52,7 +52,7 @@ class PlaceAddTagInputTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-038 화면이 회전하거나 창 크기가 바뀌어도 입력 내용과 고른 태그가 유지된다`() {
+    fun `TC-897feadc-1679-4334-9656-4df71904932c 화면이 회전하거나 창 크기가 바뀌어도 입력 내용과 고른 태그가 유지된다`() {
         val tag = placeTestTag(title = SELECTED_TAG_TITLE)
         val tagViewModel = addTagScreenTestViewModel(tagList = listOf(tag))
         val restorationTester = StateRestorationTester(composeRule)
@@ -86,7 +86,7 @@ class PlaceAddTagInputTest {
     }
 
     @Test
-    fun `TC-ENTITY-TAG-INPUT-FEATURE-011 고른 태그를 누르면 그 태그의 상세 이동을 한 번 요청한다`() {
+    fun `TC-a6d82ee9-0beb-451b-b836-c853eae32048 고른 태그를 누르면 그 태그의 상세 이동을 한 번 요청한다`() {
         val tag = placeTestTag(title = SELECTED_TAG_TITLE)
         val navigatedIdList = mutableListOf<Uuid>()
         composeRule.setPlaceAddScreen(

@@ -35,7 +35,7 @@ class SwipeTagCardTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-039 미완료 태그 목록의 태그 카드를 좌에서 우로 밀면 그 태그의 완료를 한 번 전달한다`() {
+    fun `TC-02c58564-cd30-479e-9e3e-950f995c6271 미완료 태그 목록의 태그 카드를 좌에서 우로 밀면 그 태그의 완료를 한 번 전달한다`() {
         val tag = fixtureMonkey.tag(title = TAG_TITLE)
         val eventList = mutableListOf<TagListEvent>()
         setSwipeTagCard(tag = tag, onEvent = eventList::add)
@@ -47,7 +47,7 @@ class SwipeTagCardTest {
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-021 완료된 태그 목록의 태그 카드를 좌에서 우로 밀면 그 태그의 다시 시작을 한 번 전달한다`() {
+    fun `TC-fe0bcdbb-5c59-4d18-8578-a78189114664 완료된 태그 목록의 태그 카드를 좌에서 우로 밀면 그 태그의 다시 시작을 한 번 전달한다`() {
         val tag = fixtureMonkey.tag(title = TAG_TITLE)
         val eventList = mutableListOf<TagListEvent>()
         setSwipeTagCard(tag = tag, onEvent = eventList::add, finishAction = SwipeFinishAction.RESTART)
@@ -59,27 +59,27 @@ class SwipeTagCardTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-040 미완료 태그 목록의 태그 카드를 우에서 좌로 밀면 그 태그의 삭제를 한 번 전달한다`() {
+    fun `TC-f04ed4ba-9160-49b3-9119-2b067c786ac8 미완료 태그 목록의 태그 카드를 우에서 좌로 밀면 그 태그의 삭제를 한 번 전달한다`() {
         assertDeleteSent(finishAction = SwipeFinishAction.FINISH)
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-022 완료된 태그 목록의 태그 카드를 우에서 좌로 밀면 그 태그의 삭제를 한 번 전달한다`() {
+    fun `TC-4453af30-d54d-4541-af6e-e51ec0858893 완료된 태그 목록의 태그 카드를 우에서 좌로 밀면 그 태그의 삭제를 한 번 전달한다`() {
         assertDeleteSent(finishAction = SwipeFinishAction.RESTART)
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-043 미완료 태그 목록의 자리 표시 카드는 밀어도 완료와 삭제를 전달하지 않는다`() {
+    fun `TC-f1e90411-b71d-48aa-87b0-738f26e40af6 미완료 태그 목록의 자리 표시 카드는 밀어도 완료와 삭제를 전달하지 않는다`() {
         assertPlaceholderSendsNothing(finishAction = SwipeFinishAction.FINISH)
     }
 
     @Test
-    fun `TC-TAG-FINISHED-LIST-FEATURE-025 완료된 태그 목록의 자리 표시 카드는 밀어도 다시 시작과 삭제를 전달하지 않는다`() {
+    fun `TC-3528cf64-c3b2-4c25-9fcc-fb52131d8eb9 완료된 태그 목록의 자리 표시 카드는 밀어도 다시 시작과 삭제를 전달하지 않는다`() {
         assertPlaceholderSendsNothing(finishAction = SwipeFinishAction.RESTART)
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-036 TC-TAG-FINISHED-LIST-FEATURE-011 태그 카드를 누르면 그 태그의 선택을 한 번 전달한다`() {
+    fun `TC-958b9fa4-e244-4be6-86d5-865a55ca9637 TC-fec2ef31-7a95-4eed-9548-357ed77d928c 태그 카드를 누르면 그 태그의 선택을 한 번 전달한다`() {
         val tag = fixtureMonkey.tag(title = TAG_TITLE)
         val eventList = mutableListOf<TagListEvent>()
         setSwipeTagCard(tag = tag, onEvent = eventList::add)

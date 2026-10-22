@@ -43,7 +43,7 @@ class CalendarTimetableHolidayViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-CALENDAR-TIMETABLE-DOMAIN-013 한 연도의 공휴일 조회가 실패해도 다른 연도의 공휴일은 표시한다") {
+        test("TC-85a952a5-7412-4357-a4dc-ad3dda529cab 한 연도의 공휴일 조회가 실패해도 다른 연도의 공휴일은 표시한다") {
             runTest(mainDispatcher) {
                 val newYear = fixtureMonkey.giveMeOne<Holiday>()
                 val getUseCase = mockk<GetCalendarHolidayUseCase>()
@@ -61,7 +61,7 @@ class CalendarTimetableHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-TIMETABLE-DATA-004 시간표에 들어오거나 날짜가 바뀌면 대상 연도의 공휴일을 동기화한다") {
+        test("TC-c5438468-3891-4dd4-a2dc-87452c98527b 시간표에 들어오거나 날짜가 바뀌면 대상 연도의 공휴일을 동기화한다") {
             runTest(mainDispatcher) {
                 val fetchUseCase = successfulFetchHolidayUseCase()
                 val viewModel = CalendarTimetableHolidayViewModel(fetchHolidayUseCase = fetchUseCase, getCalendarHolidayUseCase = emptyGetCalendarHolidayUseCase())
@@ -78,7 +78,7 @@ class CalendarTimetableHolidayViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-CALENDAR-TIMETABLE-DATA-005 동기화가 진행 중이면 새 동기화를 시작하지 않지만 표시 대상은 바뀐다") {
+        test("TC-7054c9f4-f38c-4556-a173-1716920f6bb8 동기화가 진행 중이면 새 동기화를 시작하지 않지만 표시 대상은 바뀐다") {
             runTest(mainDispatcher) {
                 val holiday2027 = fixtureMonkey.giveMeOne<Holiday>()
                 val pending = CompletableDeferred<Result<List<Holiday>>>()

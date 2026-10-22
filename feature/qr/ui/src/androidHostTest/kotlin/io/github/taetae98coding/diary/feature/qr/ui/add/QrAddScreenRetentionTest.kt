@@ -22,14 +22,14 @@ class QrAddScreenRetentionTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-QR-ADD-DOMAIN-003 화면이 재생성되어도 입력한 내용을 유지한다`() {
+    fun `TC-020b000b-bc89-4362-8e8e-b9a27c65ebdb 화면이 재생성되어도 입력한 내용을 유지한다`() {
         val viewModel = screenTestViewModel()
 
         assertInputRetained { viewModel }
     }
 
     @Test
-    fun `TC-QR-ADD-DOMAIN-003 시스템이 앱을 되살리며 화면을 다시 보여 줘도 입력한 내용을 모두 복원한다`() {
+    fun `TC-020b000b-bc89-4362-8e8e-b9a27c65ebdb 시스템이 앱을 되살리며 화면을 다시 보여 줘도 입력한 내용을 모두 복원한다`() {
         // 메모리 정리 뒤에는 화면 상태를 들고 있던 객체도 새로 만들어지므로 복원할 때마다 새 인스턴스를 쓴다.
         assertInputRetained { screenTestViewModel() }
     }

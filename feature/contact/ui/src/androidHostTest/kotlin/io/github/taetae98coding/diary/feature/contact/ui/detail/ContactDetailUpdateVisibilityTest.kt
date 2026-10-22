@@ -36,47 +36,47 @@ class ContactDetailUpdateVisibilityTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-006 설명을 바꾸면 수정 동작을 제공한다`() {
+    fun `TC-1cf00ee4-180f-418c-a666-63be8e5b38d6 설명을 바꾸면 수정 동작을 제공한다`() {
         assertUpdateVisible { detail -> descriptionState.setText("${detail.description}-${fixtureMonkey.giveMeOne<String>()}") }
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-006 키를 바꾸면 수정 동작을 제공한다`() {
+    fun `TC-1cf00ee4-180f-418c-a666-63be8e5b38d6 키를 바꾸면 수정 동작을 제공한다`() {
         assertUpdateVisible { heightState.setTextAndPlaceCursorAtEnd(OTHER_HEIGHT_TEXT) }
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-006 신발 사이즈를 바꾸면 수정 동작을 제공한다`() {
+    fun `TC-1cf00ee4-180f-418c-a666-63be8e5b38d6 신발 사이즈를 바꾸면 수정 동작을 제공한다`() {
         assertUpdateVisible { footSizeState.setTextAndPlaceCursorAtEnd(OTHER_FOOT_SIZE_TEXT) }
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-006 생일을 다른 날짜로 바꾸면 수정 동작을 제공한다`() {
+    fun `TC-1cf00ee4-180f-418c-a666-63be8e5b38d6 생일을 다른 날짜로 바꾸면 수정 동작을 제공한다`() {
         assertUpdateVisible { detail -> birthdayState.selectDate(checkNotNull(detail.birthday).date.plus(1, DateTimeUnit.DAY)) }
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-051 태어난 연도만 바꿔도 수정 동작을 제공한다`() {
+    fun `TC-3e3f1f6b-6a0e-40df-b0dc-5dec53dfef7b 태어난 연도만 바꿔도 수정 동작을 제공한다`() {
         assertUpdateVisible(detail = testContactDetail(birthYear = 1990)) { birthdayState.birthYearState.setTextAndPlaceCursorAtEnd("1991") }
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-006 고향을 바꾸면 수정 동작을 제공한다`() {
+    fun `TC-1cf00ee4-180f-418c-a666-63be8e5b38d6 고향을 바꾸면 수정 동작을 제공한다`() {
         assertUpdateVisible { detail -> hometownState.setTextAndPlaceCursorAtEnd("${detail.hometown}-${fixtureMonkey.giveMeOne<String>()}") }
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-006 전화번호 항목을 추가하면 수정 동작을 제공한다`() {
+    fun `TC-1cf00ee4-180f-418c-a666-63be8e5b38d6 전화번호 항목을 추가하면 수정 동작을 제공한다`() {
         assertUpdateVisible { phoneNumberState.add() }
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-006 전화번호 항목을 삭제하면 수정 동작을 제공한다`() {
+    fun `TC-1cf00ee4-180f-418c-a666-63be8e5b38d6 전화번호 항목을 삭제하면 수정 동작을 제공한다`() {
         assertUpdateVisible { phoneNumberState.remove(phoneNumberState.rowList.first()) }
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-006 바꾼 값을 저장된 값으로 되돌리면 수정 동작을 제공하지 않는다`() {
+    fun `TC-1cf00ee4-180f-418c-a666-63be8e5b38d6 바꾼 값을 저장된 값으로 되돌리면 수정 동작을 제공하지 않는다`() {
         val detail = storedDetail()
         lateinit var state: ContactFormState
         setScaffold(detail = detail) { value -> state = value }
@@ -91,7 +91,7 @@ class ContactDetailUpdateVisibilityTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-006 즐겨찾기만 바꾸면 수정 동작을 제공하지 않는다`() {
+    fun `TC-1cf00ee4-180f-418c-a666-63be8e5b38d6 즐겨찾기만 바꾸면 수정 동작을 제공하지 않는다`() {
         val detail = storedDetail()
         var uiState by mutableStateOf(ContactDetailUiState.Content(id = fixtureMonkey.giveMeOne<Uuid>(), detail = detail, isFavorite = false))
         composeRule.setContent {

@@ -55,7 +55,7 @@ class SettingHomeScaffoldTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-SETTING-HOME-FEATURE-005 한국어 환경에서 설정 항목 이름을 표시한다`() {
+    fun `TC-26463de7-89f3-4930-ba91-c3c650a71ea0 한국어 환경에서 설정 항목 이름을 표시한다`() {
         setSettingHomeScaffold()
 
         composeRule.onNodeWithText("공휴일").assertExists()
@@ -67,7 +67,7 @@ class SettingHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-HOME-FEATURE-005 기본 환경에서 설정 항목 이름을 표시한다`() {
+    fun `TC-26463de7-89f3-4930-ba91-c3c650a71ea0 기본 환경에서 설정 항목 이름을 표시한다`() {
         setSettingHomeScaffold()
 
         composeRule.onNodeWithText(DEFAULT_HOLIDAY_ITEM_LABEL).assertExists()
@@ -79,7 +79,7 @@ class SettingHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-HOME-FEATURE-006 각 설정 항목을 선택할 수 있다`() {
+    fun `TC-1fe41076-3740-428d-b240-224b26682451 각 설정 항목을 선택할 수 있다`() {
         setSettingHomeScaffold()
 
         composeRule.onNodeWithText(DEFAULT_HOLIDAY_ITEM_LABEL).assert(hasClickAction())
@@ -92,7 +92,7 @@ class SettingHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-HOME-DOMAIN-001 설정 항목을 선언된 순서대로 배치한다`() {
+    fun `TC-5a53040e-4d56-49b3-93be-c2a4a640f7d7 설정 항목을 선언된 순서대로 배치한다`() {
         setSettingHomeScaffold()
 
         displayedItemLabels() shouldBe
@@ -100,7 +100,7 @@ class SettingHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-HOME-FEATURE-011 브라우저 항목을 제공하지 않는 환경에서는 그 항목을 표시하지 않는다`() {
+    fun `TC-2f983b47-41cf-4382-8b81-09b996c3ab20 브라우저 항목을 제공하지 않는 환경에서는 그 항목을 표시하지 않는다`() {
         setSettingHomeScaffold(
             uiState =
                 SettingHomeUiState.Content(
@@ -113,7 +113,7 @@ class SettingHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-HOME-FEATURE-014 브라우저, 플레이리스트와 파일 항목을 제공하지 않는 환경에서는 그 항목을 표시하지 않는다`() {
+    fun `TC-cfe6e208-1394-4aac-aa77-3ea5630d41c1 브라우저, 플레이리스트와 파일 항목을 제공하지 않는 환경에서는 그 항목을 표시하지 않는다`() {
         setSettingHomeScaffold(
             uiState = SettingHomeUiState.Content(itemList = listOf(SettingHomeItem.HOLIDAY, SettingHomeItem.MAP, SettingHomeItem.GEMINI)),
         )
@@ -125,7 +125,7 @@ class SettingHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-HOME-FEATURE-024 파일 항목을 제공하지 않는 환경에서는 그 항목을 표시하지 않는다`() {
+    fun `TC-b229f1d1-84b1-4b8c-9994-3e063807175a 파일 항목을 제공하지 않는 환경에서는 그 항목을 표시하지 않는다`() {
         setSettingHomeScaffold(
             uiState = SettingHomeUiState.Content(itemList = settingHomeItemList - SettingHomeItem.FILE),
         )
@@ -136,7 +136,7 @@ class SettingHomeScaffoldTest {
     }
 
     @Test
-    fun `TC-SETTING-HOME-FEATURE-012 제공하는 항목을 확인하기 전에는 항목과 진행 표시를 두지 않는다`() {
+    fun `TC-1d05e6d2-8452-43cb-b3a4-2eb757fbb510 제공하는 항목을 확인하기 전에는 항목과 진행 표시를 두지 않는다`() {
         setSettingHomeScaffold(uiState = SettingHomeUiState.Loading)
 
         displayedItemLabels() shouldBe emptyList()

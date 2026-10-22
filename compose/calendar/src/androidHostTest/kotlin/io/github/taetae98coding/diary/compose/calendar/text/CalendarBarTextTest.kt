@@ -28,7 +28,7 @@ class CalendarBarTextTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CALENDAR-BAR-TEXT-FEATURE-001 지정한 글이 표시된다`() {
+    fun `TC-2b338e05-8b5f-4313-bb3a-5ced086b7e33 지정한 글이 표시된다`() {
         composeRule.setContent {
             DiaryTheme {
                 CalendarBarText(text = SHORT_TEXT)
@@ -39,7 +39,7 @@ class CalendarBarTextTest {
     }
 
     @Test
-    fun `TC-CALENDAR-BAR-TEXT-FEATURE-002 글이 한 번에 다 보이지 않아도 뒷부분을 생략하지 않는다`() {
+    fun `TC-1ce78552-31a6-4816-a2bd-74bd5c2b27fc 글이 한 번에 다 보이지 않아도 뒷부분을 생략하지 않는다`() {
         composeRule.setContent {
             DiaryTheme {
                 CalendarBarText(

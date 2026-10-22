@@ -53,7 +53,7 @@ class PlaceDetailTagViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-ENTITY-TAG-INPUT-FEATURE-033 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
+        test("TC-275e3447-faf3-4877-861a-c88b99f5dc75 선택 목록을 열지 않아도 목록에 나타낼 태그 전체를 빈 검색어로 조회한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val item = tag()
@@ -91,7 +91,7 @@ class PlaceDetailTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-FEATURE-056 저장된 연결이 바뀌면 연결 대상 표시도 바뀐다") {
+        test("TC-c0ce734b-ac58-4833-a662-65c2da3fde2f 저장된 연결이 바뀌면 연결 대상 표시도 바뀐다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val tag = tag()
@@ -112,7 +112,7 @@ class PlaceDetailTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-FEATURE-038 태그를 연결하면 상세 대상 장소와 그 태그의 연결을 만든다") {
+        test("TC-84cbd1bf-3491-4078-8473-46014b26bdb8 태그를 연결하면 상세 대상 장소와 그 태그의 연결을 만든다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
@@ -129,7 +129,7 @@ class PlaceDetailTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-FEATURE-038 연결을 해제하면 상세 대상 장소와 그 태그의 연결을 해제한다") {
+        test("TC-84cbd1bf-3491-4078-8473-46014b26bdb8 연결을 해제하면 상세 대상 장소와 그 태그의 연결을 해제한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val tagId = fixtureMonkey.giveMeOne<Uuid>()
@@ -146,7 +146,7 @@ class PlaceDetailTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-PLACE-DETAIL-DOMAIN-031 연결과 해제는 이어서 실행해도 모두 반영된다") {
+        test("TC-fd3cf2dd-efa7-4184-9b1c-c3f5c8a47a99 연결과 해제는 이어서 실행해도 모두 반영된다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val firstTagId = fixtureMonkey.giveMeOne<Uuid>()
@@ -185,7 +185,7 @@ class PlaceDetailTagViewModelTest : FunSpec() {
     }
 
     private fun searchTests() {
-        test("TC-ENTITY-TAG-INPUT-DATA-005 검색어가 바뀌면 새 검색어 기준으로 선택 목록을 다시 조회한다") {
+        test("TC-bb7ebc0b-c1f0-4e8f-89da-93c26ac97993 검색어가 바뀌면 새 검색어 기준으로 선택 목록을 다시 조회한다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val allTagList = List(2) { tag() }
@@ -213,7 +213,7 @@ class PlaceDetailTagViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-ENTITY-TAG-INPUT-DOMAIN-009 검색어를 바꿔도 연결 대상으로 표시하는 태그는 그대로다") {
+        test("TC-5d358731-189d-4dc8-a021-587dc2651495 검색어를 바꿔도 연결 대상으로 표시하는 태그는 그대로다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val tagList = List(2) { tag() }
@@ -234,7 +234,7 @@ class PlaceDetailTagViewModelTest : FunSpec() {
     }
 
     private fun restorationTests() {
-        test("TC-ENTITY-TAG-INPUT-DOMAIN-017 복원 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
+        test("TC-ab820c4b-068f-4fbd-bd6f-eb7357bbfb20 복원 뒤 새로 만든 화면은 되살린 검색어로 좁힌 목록을 기다리지 않고 바로 보여 주고 대상 전체를 거치지 않는다") {
             runTest(mainDispatcher) {
                 val id = fixtureMonkey.giveMeOne<Uuid>()
                 val query = "Query${fixtureMonkey.giveMeOne<String>().filter(Char::isLetterOrDigit)}"

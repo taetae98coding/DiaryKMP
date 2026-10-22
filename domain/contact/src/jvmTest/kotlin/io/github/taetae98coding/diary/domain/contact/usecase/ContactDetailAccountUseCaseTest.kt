@@ -32,7 +32,7 @@ class ContactDetailAccountUseCaseTest :
                 )
 
             When("그 연락처를 상세 대상으로 조회한다") {
-                Then("TC-CONTACT-DETAIL-DOMAIN-001 삭제 상태인 연락처도 그대로 조회된다") {
+                Then("TC-0a2ee967-4aef-47e4-b293-63ea9d0c8c95 삭제 상태인 연락처도 그대로 조회된다") {
                     useCase(parameter = deleted.id).first().shouldBeSuccess(deleted)
                 }
             }

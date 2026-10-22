@@ -26,7 +26,7 @@ class ContactHomeScaffoldRefreshTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-017 목록을 당기면 새로고침을 요청한다`() {
+    fun `TC-a082975e-5b82-4140-bf35-04ac6a7511db 목록을 당기면 새로고침을 요청한다`() {
         val eventList = mutableListOf<ContactHomeScaffoldEvent>()
         setContactHomeScaffold(
             contactList = listOf(testContact(name = CONTACT_NAME, phoneNumberList = listOf(CONTACT_PHONE_NUMBER))),
@@ -40,7 +40,7 @@ class ContactHomeScaffoldRefreshTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-018 빈 상태에서도 당겨서 새로고침을 요청한다`() {
+    fun `TC-feb4d498-1610-4a5a-80f0-588d81287adc 빈 상태에서도 당겨서 새로고침을 요청한다`() {
         val eventList = mutableListOf<ContactHomeScaffoldEvent>()
         setContactHomeScaffold(onEvent = eventList::add)
 
@@ -51,14 +51,14 @@ class ContactHomeScaffoldRefreshTest {
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-019 진행 표시 상태이면 진행 표시가 나타난다`() {
+    fun `TC-f1366e80-eba2-4bb8-8715-9b2f3bf56840 진행 표시 상태이면 진행 표시가 나타난다`() {
         setContactHomeScaffold(isRefreshingProvider = { true })
 
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()
     }
 
     @Test
-    fun `TC-CONTACT-HOME-FEATURE-019 동기화가 끝나면 진행 표시가 사라진다`() {
+    fun `TC-f1366e80-eba2-4bb8-8715-9b2f3bf56840 동기화가 끝나면 진행 표시가 사라진다`() {
         val isRefreshing = mutableStateOf(true)
         setContactHomeScaffold(isRefreshingProvider = { isRefreshing.value })
         composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertExists()

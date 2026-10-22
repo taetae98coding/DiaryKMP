@@ -29,7 +29,7 @@ class PlaceAddTagMemoryRestoreTest {
     private lateinit var restorationTesterHolder: StateRestorationTester
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-040 TagDetail 장소 탭에서 진입했으면 메모리 정리 뒤 복원할 때 대상 태그만 선택된다`() {
+    fun `TC-baeab7b1-e21d-42dd-b491-17b9fc0d4559 TagDetail 장소 탭에서 진입했으면 메모리 정리 뒤 복원할 때 대상 태그만 선택된다`() {
         val targetTag = placeTestTag(title = TARGET_TAG_TITLE)
         val otherTag = placeTestTag(title = OTHER_TAG_TITLE)
         val viewModelList = setRestorablePlaceAddScreen(initialTagId = targetTag.id, tagList = listOf(targetTag, otherTag))
@@ -47,7 +47,7 @@ class PlaceAddTagMemoryRestoreTest {
     }
 
     @Test
-    fun `TC-PLACE-ADD-FEATURE-040 그 밖의 경로로 진입했으면 메모리 정리 뒤 복원할 때 선택된 태그가 없다`() {
+    fun `TC-baeab7b1-e21d-42dd-b491-17b9fc0d4559 그 밖의 경로로 진입했으면 메모리 정리 뒤 복원할 때 선택된 태그가 없다`() {
         val tag = placeTestTag(title = OTHER_TAG_TITLE)
         val viewModelList = setRestorablePlaceAddScreen(initialTagId = null, tagList = listOf(tag))
         composeRule.runOnIdle { viewModelList.last().add(id = tag.id) }

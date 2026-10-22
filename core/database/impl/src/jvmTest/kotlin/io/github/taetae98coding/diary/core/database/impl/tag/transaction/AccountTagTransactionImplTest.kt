@@ -67,7 +67,7 @@ class AccountTagTransactionImplTest :
                 .any { tag -> tag.id == tagId } shouldBe true
         }
 
-        test("TC-DATA-SYNC-DOMAIN-001 태그 생성·수정·완료·다시 시작·삭제·실행 취소는 업로드 대기 상태가 된다") {
+        test("TC-11e51a31-7a79-4ddc-8eac-ef6b45a9caa5 태그 생성·수정·완료·다시 시작·삭제·실행 취소는 업로드 대기 상태가 된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag()
             val updatedAt = instant()
@@ -101,7 +101,7 @@ class AccountTagTransactionImplTest :
             assertPending(accountId = accountId, tagId = tag.id)
         }
 
-        test("TC-TAG-ADD-DATA-007 새 태그를 기기에 저장하면 태그와 함께 만든 연결도 업로드 대기로 기록된다") {
+        test("TC-fc0efa55-9c70-44bb-ae31-8eeaec53668f 새 태그를 기기에 저장하면 태그와 함께 만든 연결도 업로드 대기로 기록된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val toTag = tag()
             val newTag = tag()
@@ -116,7 +116,7 @@ class AccountTagTransactionImplTest :
                 .map { pending -> pending.fromTagId to pending.toTagId } shouldBe listOf(newTag.id to toTag.id)
         }
 
-        test("TC-DATA-SYNC-DOMAIN-003 같은 태그를 반복 변경해도 업로드 대상은 한 건이다") {
+        test("TC-8da41335-53f4-4825-a1cd-5fcda367cda2 같은 태그를 반복 변경해도 업로드 대상은 한 건이다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag()
             val changedTag = tag.copy(detail = fixtureMonkey.giveMeOne())

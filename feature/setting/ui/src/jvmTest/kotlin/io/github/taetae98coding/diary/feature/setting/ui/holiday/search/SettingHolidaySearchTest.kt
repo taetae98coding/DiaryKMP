@@ -11,7 +11,7 @@ private val fixtureMonkey: FixtureMonkey =
 
 class SettingHolidaySearchTest : FunSpec() {
     init {
-        test("TC-SETTING-HOLIDAY-DOMAIN-008 공백을 무시한 부분 일치로 검색을 판정한다") {
+        test("TC-c574e695-00e3-4e22-8a6d-281e7c0815af 공백을 무시한 부분 일치로 검색을 판정한다") {
             val displayName = "대체 공휴일(설날)"
             val expectedByQuery =
                 mapOf(
@@ -26,7 +26,7 @@ class SettingHolidaySearchTest : FunSpec() {
             }
         }
 
-        test("TC-SETTING-HOLIDAY-DOMAIN-009 영문 검색어는 대소문자를 구분하지 않는다") {
+        test("TC-bca8db75-f179-485c-9630-9f5a8fc9e475 영문 검색어는 대소문자를 구분하지 않는다") {
             val displayName = "Christmas Day"
 
             matchesSettingHolidaySearch(query = "christmas", displayName = displayName) shouldBe true

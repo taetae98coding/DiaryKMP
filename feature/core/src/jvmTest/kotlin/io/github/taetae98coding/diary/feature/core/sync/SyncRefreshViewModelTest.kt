@@ -40,12 +40,12 @@ class SyncRefreshViewModelTest : FunSpec() {
 
         // 화면마다 같은 동작을 문서화한 케이스를 이 ViewModel 하나가 함께 만족한다.
         listOf(
-            "TC-SYNC-REFRESH-FEATURE-001",
-            "TC-CONTACT-HOME-FEATURE-017",
-            "TC-PLACE-HOME-FEATURE-029",
-            "TC-PLAYLIST-HOME-FEATURE-008",
-            "TC-QR-HOME-FEATURE-023",
-            "TC-WEB-HOME-FEATURE-013",
+            "TC-221754fa-d814-4c80-9c41-c0bdce86574f",
+            "TC-a082975e-5b82-4140-bf35-04ac6a7511db",
+            "TC-25de4f78-b943-4194-baee-929590a27bba",
+            "TC-b33a6b98-eb07-418b-9686-9ae2b3850279",
+            "TC-baec8bc1-1a9a-49bf-b47d-e1f4212413f4",
+            "TC-a0d2d609-161f-429e-9ca9-5316a5689869",
         ).forEach { id ->
             test("$id 새로고침하면 진행을 표시할 동기화를 한 번 요청한다") {
                 runTest(mainDispatcher) {
@@ -62,12 +62,12 @@ class SyncRefreshViewModelTest : FunSpec() {
         }
 
         listOf(
-            "TC-SYNC-REFRESH-FEATURE-002",
-            "TC-CONTACT-HOME-FEATURE-019",
-            "TC-PLACE-HOME-FEATURE-030",
-            "TC-PLAYLIST-HOME-FEATURE-009",
-            "TC-QR-HOME-FEATURE-024",
-            "TC-WEB-HOME-FEATURE-015",
+            "TC-fb7d9b53-80c5-425b-b1c3-06f21ac30643",
+            "TC-f1366e80-eba2-4bb8-8715-9b2f3bf56840",
+            "TC-193cad63-e621-481e-92df-28cc9a0fc36e",
+            "TC-93a2c915-4de7-40d6-878c-1b42d43310dd",
+            "TC-83b267ce-2bdf-4f78-a9dd-787149b0a5da",
+            "TC-e27e3473-1d9f-486a-9951-efd7b309ae1f",
         ).forEach { id ->
             test("$id 동기화가 실행되는 동안 진행을 노출하고 끝나면 해제한다") {
                 runTest(mainDispatcher) {
@@ -89,11 +89,11 @@ class SyncRefreshViewModelTest : FunSpec() {
         }
 
         listOf(
-            "TC-CONTACT-HOME-DATA-004",
-            "TC-PLAYLIST-HOME-DATA-003",
-            "TC-QR-HOME-DATA-003",
-            "TC-WEB-DETAIL-DATA-003",
-            "TC-WEB-HOME-DATA-004",
+            "TC-5cbaec82-618e-408a-91e1-5500867cf2cb",
+            "TC-d55111f9-8681-476a-bb13-a7a14edecf64",
+            "TC-359a26bf-d8af-4399-b6b1-c6599f507146",
+            "TC-86aee159-98da-4d7e-aadf-8af9d91eedf2",
+            "TC-d30d9cb8-0de3-4de2-9b32-2cffce6c4ab1",
         ).forEach { id ->
             test("$id 화면 상태만 관찰하면 서버 동기화를 요청하지 않는다") {
                 runTest(mainDispatcher) {

@@ -20,14 +20,14 @@ class SettingDetailPlaceholderTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-SETTING-LIST-DETAIL-FEATURE-005 한국어 선택 전 안내를 표시한다`() {
+    fun `TC-e907391d-f450-460c-a2d4-b45576a40fe9 한국어 선택 전 안내를 표시한다`() {
         setSettingDetailPlaceholder()
 
         assertPlaceholder(message = "설정 항목을 선택하세요")
     }
 
     @Test
-    fun `TC-SETTING-LIST-DETAIL-FEATURE-005 기본 환경의 선택 전 안내를 표시한다`() {
+    fun `TC-e907391d-f450-460c-a2d4-b45576a40fe9 기본 환경의 선택 전 안내를 표시한다`() {
         setSettingDetailPlaceholder()
 
         assertPlaceholder(message = "Choose a setting")

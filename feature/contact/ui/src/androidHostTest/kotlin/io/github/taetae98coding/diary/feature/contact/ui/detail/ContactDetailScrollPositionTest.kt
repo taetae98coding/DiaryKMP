@@ -31,7 +31,7 @@ class ContactDetailScrollPositionTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CONTACT-DETAIL-FEATURE-043 처리 중 상태가 되거나 저장 내용이 갱신되어도 보던 화면 위치를 유지한다`() {
+    fun `TC-f04f8a20-41ad-4db3-9ffe-98d4b0898c5e 처리 중 상태가 되거나 저장 내용이 갱신되어도 보던 화면 위치를 유지한다`() {
         val name = "name-${fixtureMonkey.giveMeOne<String>()}"
         val updatedName = "updated-name-${fixtureMonkey.giveMeOne<String>()}"
         val phoneNumberMiddle = fixtureMonkey.giveMeOne<Int>().mod(PHONE_NUMBER_PART_BOUND).toPhoneNumberPart()

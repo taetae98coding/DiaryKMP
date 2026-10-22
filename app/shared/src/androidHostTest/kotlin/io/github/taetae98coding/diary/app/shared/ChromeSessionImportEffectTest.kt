@@ -20,7 +20,7 @@ class ChromeSessionImportEffectTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-CHROME-SESSION-IMPORT-DOMAIN-018 앱이 보이게 될 때마다 가져오기를 요청한다`() {
+    fun `TC-4fc567a4-7f80-4f00-b206-87105a1264a2 앱이 보이게 될 때마다 가져오기를 요청한다`() {
         val requestImport = mockk<() -> Unit>(relaxed = true)
         val lifecycleOwner = setEffect(requestImport = requestImport)
 

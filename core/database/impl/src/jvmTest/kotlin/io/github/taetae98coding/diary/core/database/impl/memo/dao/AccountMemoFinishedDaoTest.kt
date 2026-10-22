@@ -142,7 +142,7 @@ class AccountMemoFinishedDaoTest :
             }
         }
 
-        test("TC-MEMO-FINISHED-LIST-FEATURE-001 TC-MEMO-FINISHED-LIST-DATA-001 현재 계정의 완료·미삭제 메모만 조회한다") {
+        test("TC-7f556861-2470-49ec-bae0-d41c58079f0f TC-a0437ed6-af73-40b1-9476-537e4aae6df0 현재 계정의 완료·미삭제 메모만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val finishedMemo = memo(isFinished = true, isDeleted = false)
@@ -156,7 +156,7 @@ class AccountMemoFinishedDaoTest :
             finishedIds(accountId) shouldBe listOf(finishedMemo.id)
         }
 
-        test("TC-MEMO-FINISHED-LIST-FEATURE-008 TC-MEMO-FINISHED-LIST-DATA-002 태그 필터 선택을 조회 조건에 넣지 않는다") {
+        test("TC-7d7b6970-a186-4ddb-93ed-44bc4f9cc789 TC-0a5654f9-bf77-4a13-a609-e635dc4e57c6 태그 필터 선택을 조회 조건에 넣지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val tag = tag()
             val taggedMemo = memo(isFinished = true)
@@ -176,7 +176,7 @@ class AccountMemoFinishedDaoTest :
             finishedIds(accountId) shouldContainExactlyInAnyOrder listOf(taggedMemo.id, noTagMemo.id)
         }
 
-        test("TC-MEMO-FINISHED-LIST-DATA-003 목록은 기간, 종일 여부, 시작 시점, 종료 시점, 제목 순으로 정렬해 조회한다") {
+        test("TC-a634b384-f9f7-450f-8492-d1ceeda37c61 목록은 기간, 종일 여부, 시작 시점, 종료 시점, 제목 순으로 정렬해 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val noDateTimeBravoMemo = memo(isFinished = true, detail = detail(title = "Bravo", isAllDay = null, start = null, endInclusive = null))
             val noDateTimeAlphaMemo = memo(isFinished = true, detail = detail(title = "Alpha", isAllDay = null, start = null, endInclusive = null))
@@ -284,7 +284,7 @@ class AccountMemoFinishedDaoTest :
                 )
         }
 
-        test("TC-MEMO-FINISHED-LIST-DATA-007 제목순은 제목 오름차순으로 조회한다") {
+        test("TC-3f0bc0d0-f056-46ee-bf0b-beabce241cfa 제목순은 제목 오름차순으로 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstTitleMemo = sortMemo(title = "Alpha", updatedAt = 1_000, startDay = 21)
             val lastTitleMemo = sortMemo(title = "Bravo", updatedAt = 3_000, startDay = 19)
@@ -296,7 +296,7 @@ class AccountMemoFinishedDaoTest :
                 .pagedIds() shouldBe listOf(firstTitleMemo.id, lastTitleMemo.id)
         }
 
-        test("TC-MEMO-FINISHED-LIST-DATA-007 최근 수정순은 수정 시각 내림차순으로 조회하고 같으면 제목 오름차순으로 조회한다") {
+        test("TC-3f0bc0d0-f056-46ee-bf0b-beabce241cfa 최근 수정순은 수정 시각 내림차순으로 조회하고 같으면 제목 오름차순으로 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val latestMemo = sortMemo(title = "Zebra", updatedAt = 3_000, startDay = 19)
             val sameUpdatedFirstMemo = sortMemo(title = "Alpha", updatedAt = 1_000, startDay = 21)
@@ -309,7 +309,7 @@ class AccountMemoFinishedDaoTest :
                 .pagedIds() shouldBe listOf(latestMemo.id, sameUpdatedFirstMemo.id, sameUpdatedLastMemo.id)
         }
 
-        test("TC-MEMO-FINISHED-LIST-DOMAIN-007 완료 시점은 목록 순서에 영향을 주지 않는다") {
+        test("TC-84fb2122-71fc-494b-83cb-49680a8cea0f 완료 시점은 목록 순서에 영향을 주지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val earlyStartMemo =
                 memo(
@@ -338,7 +338,7 @@ class AccountMemoFinishedDaoTest :
             finishedIds(accountId) shouldBe listOf(earlyStartMemo.id, lateStartMemo.id)
         }
 
-        test("TC-MEMO-FINISHED-LIST-DATA-004 상태와 기간 변경이 열어 둔 완료된 메모 목록에 반영된다") {
+        test("TC-a8e70d33-4184-47b5-9599-2667d5f536c2 상태와 기간 변경이 열어 둔 완료된 메모 목록에 반영된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val firstMemo = sortMemo(title = "Alpha", updatedAt = 1_000, startDay = 19)
             val secondMemo = sortMemo(title = "Bravo", updatedAt = 1_000, startDay = 21)
@@ -392,7 +392,7 @@ class AccountMemoFinishedDaoTest :
             finishedIds(accountId) shouldBe listOf(secondMemo.id)
         }
 
-        test("TC-MEMO-FINISHED-LIST-DATA-006 상태 변경은 현재 계정과 연결된 메모에만 적용된다") {
+        test("TC-c69dd675-54c0-4925-babc-5824a84279dc 상태 변경은 현재 계정과 연결된 메모에만 적용된다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val memo = memo(isFinished = true)

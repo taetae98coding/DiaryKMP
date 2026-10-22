@@ -54,14 +54,14 @@ class RestoreWebUseCaseTest :
                 )
 
             When("웹 항목의 삭제를 실행 취소한다") {
-                Then("TC-WEB-HOME-DOMAIN-011 삭제 여부를 미삭제로 되돌리고 수정 시각을 갱신한다") {
+                Then("TC-d31ffab0-d28c-4d0a-9259-39111d569928 삭제 여부를 미삭제로 되돌리고 수정 시각을 갱신한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     isDeletedSlot.captured shouldBe false
                     updatedAtSlot.captured shouldBe now
                 }
 
-                Then("TC-WEB-HOME-DATA-007 TC-SYNC-REFRESH-FEATURE-004 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
+                Then("TC-aa0e220a-eb33-46de-bde8-0921df1278c6 TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c 로컬 저장 결과로 성공을 판단하고 동기화를 요청한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     coVerify(atLeast = 1) { requestSyncUseCase(parameter = SyncTrigger.DATA_CHANGED) }
@@ -87,7 +87,7 @@ class RestoreWebUseCaseTest :
                 )
 
             When("웹 항목의 삭제를 실행 취소한다") {
-                Then("TC-WEB-HOME-DATA-008 게스트 계정 기준으로 기기에만 실행 취소를 반영한다") {
+                Then("TC-ca23453a-d461-4d5e-a800-98d0920e3fc3 게스트 계정 기준으로 기기에만 실행 취소를 반영한다") {
                     useCase(parameter = id).shouldBeSuccess(1)
 
                     coVerify(exactly = 1) {
@@ -111,7 +111,7 @@ class RestoreWebUseCaseTest :
                 )
 
             When("웹 항목의 삭제를 실행 취소한다") {
-                Then("TC-WEB-HOME-DOMAIN-012 실행 취소가 성공으로 다뤄지지 않고 웹 항목의 삭제 여부를 바꾸지 않는다") {
+                Then("TC-b47c5332-9960-40e2-b9fc-41d687d583a7 실행 취소가 성공으로 다뤄지지 않고 웹 항목의 삭제 여부를 바꾸지 않는다") {
                     useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)
@@ -142,7 +142,7 @@ class RestoreWebUseCaseTest :
                 )
 
             When("웹 항목의 삭제를 실행 취소한다") {
-                Then("TC-WEB-HOME-DATA-009 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
+                Then("TC-8dfae963-9c07-400e-95e1-38a5424425fc 실패를 그대로 전달하고 동기화를 요청하지 않는다") {
                     useCase(parameter = fixtureMonkey.giveMeOne<Uuid>())
                         .shouldBeFailure()
                         .shouldBeSameInstanceAs(throwable)

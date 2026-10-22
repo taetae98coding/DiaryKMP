@@ -55,7 +55,7 @@ class TagFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-TAG-FINISHED-LIST-DETAIL-FEATURE-001 TC-TAG-FINISHED-LIST-DETAIL-FEATURE-011 넓은 창에서 완료된 태그 목록을 열면 TagHome 목록과 태그 추가 없이 선택 전 상세와 함께 표시한다`() {
+    fun `TC-3dfe87fa-52c8-441e-939d-4fccba789c09 TC-3b4e1e05-b0bb-48f5-a781-63426a76ac3b 넓은 창에서 완료된 태그 목록을 열면 TagHome 목록과 태그 추가 없이 선택 전 상세와 함께 표시한다`() {
         setAppNavDisplay(backStack = NavBackStack(TagHomeNavKey, TagFinishedListNavKey))
 
         composeRule.onNodeWithText(LIST_CONTENT).assertIsDisplayed()
@@ -66,7 +66,7 @@ class TagFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-TAG-FINISHED-LIST-DETAIL-FEATURE-003 넓은 창에서 태그를 선택하면 목록을 유지한 채 상세 영역에 그 태그의 상세가 놓인다`() {
+    fun `TC-d40a0f5e-925a-48c7-8997-4adfd0fc9b84 넓은 창에서 태그를 선택하면 목록을 유지한 채 상세 영역에 그 태그의 상세가 놓인다`() {
         val detailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
         val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagFinishedListNavKey)
         setAppNavDisplay(backStack = backStack)
@@ -81,7 +81,7 @@ class TagFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-TAG-FINISHED-LIST-DETAIL-FEATURE-005 넓은 창에서 상세 영역의 태그 상세에서 연결 입력으로 연 화면도 목록과 함께 상세 영역에 놓인다`() {
+    fun `TC-8175338b-308e-40e9-8d8f-c50793db9466 넓은 창에서 상세 영역의 태그 상세에서 연결 입력으로 연 화면도 목록과 함께 상세 영역에 놓인다`() {
         val listSelectedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
         val linkedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
         val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagFinishedListNavKey, listSelectedKey)
@@ -100,7 +100,7 @@ class TagFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w400dp-h800dp")
-    fun `TC-TAG-FINISHED-LIST-DETAIL-FEATURE-006 한 영역만 쓰는 창에서는 현재 화면만 단독으로 표시한다`() {
+    fun `TC-f2c0b78a-b7c0-4294-b799-ab758a5ac0ce 한 영역만 쓰는 창에서는 현재 화면만 단독으로 표시한다`() {
         val detailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
         val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagFinishedListNavKey)
         setAppNavDisplay(backStack = backStack)
@@ -116,7 +116,7 @@ class TagFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-TAG-FINISHED-LIST-DETAIL-FEATURE-008 넓은 창에서 목록에서 고른 태그 상세에서 뒤로가면 목록을 유지하고 선택 전 상태로 돌아간다`() {
+    fun `TC-d5e3c2e4-5f87-4e71-813b-d01eb612c6d3 넓은 창에서 목록에서 고른 태그 상세에서 뒤로가면 목록을 유지하고 선택 전 상태로 돌아간다`() {
         val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagFinishedListNavKey, TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()))
         setAppNavDisplay(backStack = backStack)
 
@@ -129,7 +129,7 @@ class TagFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-TAG-FINISHED-LIST-DETAIL-FEATURE-008 넓은 창에서 연결한 태그의 상세에서 뒤로가면 목록을 유지하고 목록에서 고른 태그 상세로 돌아간다`() {
+    fun `TC-d5e3c2e4-5f87-4e71-813b-d01eb612c6d3 넓은 창에서 연결한 태그의 상세에서 뒤로가면 목록을 유지하고 목록에서 고른 태그 상세로 돌아간다`() {
         val listSelectedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
         val linkedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
         val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagFinishedListNavKey, listSelectedKey, linkedKey)
@@ -145,7 +145,7 @@ class TagFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-TAG-FINISHED-LIST-DETAIL-FEATURE-009 TC-TAG-FINISHED-LIST-DETAIL-FEATURE-014 넓은 창에서 상세 영역의 태그 상세에서 탭으로 연 화면은 완료된 태그 목록과 함께 표시하지 않는다`() {
+    fun `TC-846bf001-f201-4e72-820e-f2fa3c3bbac8 TC-dd898457-7fbf-406f-96eb-0c8b52a870dc 넓은 창에서 상세 영역의 태그 상세에서 탭으로 연 화면은 완료된 태그 목록과 함께 표시하지 않는다`() {
         val listSelectedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
         val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagFinishedListNavKey, listSelectedKey)
         val openedKeyList: List<ScreenNavKey> =
@@ -175,7 +175,7 @@ class TagFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-TAG-FINISHED-LIST-DETAIL-FEATURE-013 넓은 창에서 상세가 선택 전 상태일 때 뒤로가면 완료된 태그 목록 전체를 떠나 TagHome 목록으로 돌아간다`() {
+    fun `TC-6887f2d0-17fd-4046-99ad-aaac6d1ba535 넓은 창에서 상세가 선택 전 상태일 때 뒤로가면 완료된 태그 목록 전체를 떠나 TagHome 목록으로 돌아간다`() {
         val homeDetailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
         val backStack = NavBackStack(TagHomeNavKey, homeDetailKey, TagFinishedListNavKey)
         setAppNavDisplay(backStack = backStack)
@@ -189,7 +189,7 @@ class TagFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-TAG-LIST-DETAIL-DOMAIN-006 넓은 창에서 완료된 태그 목록에 다녀와도 태그 목록 배치의 상세가 그대로다`() {
+    fun `TC-62fc4ea3-f7fa-45c9-9f11-d138d4563e88 넓은 창에서 완료된 태그 목록에 다녀와도 태그 목록 배치의 상세가 그대로다`() {
         val homeDetailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
         val linkedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
         val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, homeDetailKey, linkedKey)

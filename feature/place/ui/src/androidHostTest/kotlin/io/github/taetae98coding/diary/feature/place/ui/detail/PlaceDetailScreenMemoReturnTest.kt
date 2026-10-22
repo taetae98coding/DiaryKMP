@@ -44,7 +44,7 @@ class PlaceDetailScreenMemoReturnTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-PLACE-DETAIL-MEMO-FEATURE-007 화면에 돌아오면 바뀐 날짜 기준으로 오늘 날짜 그룹을 다시 표시한다`() {
+    fun `TC-bdd3cdfc-7e7e-4fc2-b5b2-89b13306ca1e 화면에 돌아오면 바뀐 날짜 기준으로 오늘 날짜 그룹을 다시 표시한다`() {
         val originalTimeZone = JavaTimeZone.getDefault()
         val previousToday = Clock.System.todayIn(TimeZone.of(PREVIOUS_TIME_ZONE))
         val newToday = Clock.System.todayIn(TimeZone.of(NEW_TIME_ZONE))
@@ -86,7 +86,7 @@ class PlaceDetailScreenMemoReturnTest {
     }
 
     @Test
-    fun `TC-PLACE-DETAIL-MEMO-FEATURE-019 PlaceDetail 화면에서 메모 탭을 선택하면 연결된 메모 목록을 표시한다`() {
+    fun `TC-e02b15eb-9f53-4588-861d-7a0dc47acb85 PlaceDetail 화면에서 메모 탭을 선택하면 연결된 메모 목록을 표시한다`() {
         val entryMemoTitle = memoTitle(prefix = "Entry")
 
         setScreenOnMemoTab(memoPagingData = placeMemoPagingData(itemList = listOf(MemoListItem.Content(memo = placeMemo(title = entryMemoTitle)))))

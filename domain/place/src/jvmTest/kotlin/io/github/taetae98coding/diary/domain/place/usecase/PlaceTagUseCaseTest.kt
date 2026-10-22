@@ -40,7 +40,7 @@ class PlaceTagUseCaseTest :
             every { clock.now() } returns now
 
             When("장소에 태그를 연결한다") {
-                Then("TC-PLACE-TAG-DOMAIN-001 현재 계정의 연결로 저장한다") {
+                Then("TC-36040314-b2fa-4cd6-9b33-b1d5710bd002 현재 계정의 연결로 저장한다") {
                     val placeId = fixtureMonkey.giveMeOne<Uuid>()
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =
@@ -65,7 +65,7 @@ class PlaceTagUseCaseTest :
                     }
                 }
 
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-PLACE-TAG-DATA-008 TC-PLACE-DETAIL-DATA-012 저장한 뒤 동기화를 한 번 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-b20c9c1d-25d9-4cb4-b8fb-82207b8e9772 TC-ac9a2e63-4625-45e5-ac14-107889410d99 저장한 뒤 동기화를 한 번 요청한다") {
                     val placeId = fixtureMonkey.giveMeOne<Uuid>()
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
                     val syncRepository = mockk<AccountPlaceTagRepository>(relaxed = true)
@@ -94,7 +94,7 @@ class PlaceTagUseCaseTest :
             }
 
             When("연결을 해제한다") {
-                Then("TC-PLACE-TAG-DOMAIN-007 현재 계정의 연결을 해제 상태로 저장한다") {
+                Then("TC-f380865f-40ed-4b8f-adea-05aafc8149b9 현재 계정의 연결을 해제 상태로 저장한다") {
                     val placeId = fixtureMonkey.giveMeOne<Uuid>()
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
                     val useCase =
@@ -119,7 +119,7 @@ class PlaceTagUseCaseTest :
                     }
                 }
 
-                Then("TC-SYNC-REFRESH-FEATURE-004 TC-PLACE-TAG-DATA-008 TC-PLACE-DETAIL-DATA-012 해제를 저장한 뒤 동기화를 한 번 요청한다") {
+                Then("TC-541e8b7e-a72b-4768-ae1e-8a46e49afb9c TC-b20c9c1d-25d9-4cb4-b8fb-82207b8e9772 TC-ac9a2e63-4625-45e5-ac14-107889410d99 해제를 저장한 뒤 동기화를 한 번 요청한다") {
                     val placeId = fixtureMonkey.giveMeOne<Uuid>()
                     val tagId = fixtureMonkey.giveMeOne<Uuid>()
                     val syncRepository = mockk<AccountPlaceTagRepository>(relaxed = true)
@@ -148,7 +148,7 @@ class PlaceTagUseCaseTest :
             }
 
             When("연결된 태그를 조회한다") {
-                Then("TC-PLACE-TAG-DOMAIN-009 현재 계정의 연결된 태그를 그대로 전달한다") {
+                Then("TC-ed9a3af3-c21a-417a-bb26-63211e4875c2 현재 계정의 연결된 태그를 그대로 전달한다") {
                     val placeId = fixtureMonkey.giveMeOne<Uuid>()
                     val tagList = List(2) { tag() }
                     every {

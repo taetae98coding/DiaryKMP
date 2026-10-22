@@ -89,7 +89,7 @@ class MemoHomeDestinationReturnTest {
     }
 
     @Test
-    fun `TC-TOP-LEVEL-NAVIGATION-DOMAIN-015 메모 목적지에 다녀오면 첫 항목과 처음 정렬로 시작하고 필터는 이어진다`() {
+    fun `TC-875e0a2f-30d2-40fc-9359-65925970d3f9 메모 목적지에 다녀오면 첫 항목과 처음 정렬로 시작하고 필터는 이어진다`() {
         val itemList = memoItemList()
         setMemoNavDisplay(itemList = itemList)
         composeRule.runOnIdle { memoViewModelList.last().select(sort = ListSort.TITLE) }

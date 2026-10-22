@@ -57,7 +57,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-PLACE-CARD-FEATURE-003 기본 지도를 읽지 못하면 지도 로딩 상태를 유지한다") {
+        test("TC-a2329351-5d96-4a5d-b6c2-465d26366250 기본 지도를 읽지 못하면 지도 로딩 상태를 유지한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(defaultMapProvider = flowOf(Result.failure(IllegalStateException("read error"))))
 
@@ -70,7 +70,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-PLACE-CARD-DOMAIN-013 현재 위치를 확인하기 전에는 지도 로딩 상태를 유지하고 확인이 끝나면 지도를 제공한다") {
+        test("TC-a7e0269c-f3f0-49d9-b62d-af38505b8a0c 현재 위치를 확인하기 전에는 지도 로딩 상태를 유지하고 확인이 끝나면 지도를 제공한다") {
             runTest(mainDispatcher) {
                 val viewModel = viewModel(defaultMapProvider = flowOf(Result.success(MapProvider.NAVER)))
 
@@ -85,7 +85,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-PLACE-CARD-DOMAIN-006 저장된 기본 지도를 초기 제공자로 제공한다") {
+        test("TC-3f0bd41c-022f-4747-8db8-80ef4f29acf8 저장된 기본 지도를 초기 제공자로 제공한다") {
             MapProvider.entries.forEach { provider ->
                 runTest(mainDispatcher) {
                     val viewModel = viewModel(defaultMapProvider = flowOf(Result.success(provider)))
@@ -99,7 +99,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-PLACE-CARD-DOMAIN-002 확인한 현재 위치를 제공한다") {
+        test("TC-fa77ea4b-85b7-4eb9-b471-5ff34a1b9c94 확인한 현재 위치를 제공한다") {
             listOf(
                 Coordinate(latitude = 37.5666102, longitude = 126.9783881),
                 Coordinate(latitude = -33.8688, longitude = -70.6693),
@@ -120,7 +120,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-PLACE-CARD-DOMAIN-003 현재 위치를 확인하지 못하면 좌표 없이 제공한다") {
+        test("TC-f9b48925-b080-439c-8d41-881da67b84af 현재 위치를 확인하지 못하면 좌표 없이 제공한다") {
             runTest(mainDispatcher) {
                 val viewModel =
                     viewModel(
@@ -136,7 +136,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-PLACE-CARD-DOMAIN-004 현재 위치 확인을 다시 요청해도 한 번만 확인한다") {
+        test("TC-718d19df-b17b-4756-b3ce-2e652ef8ffb3 현재 위치 확인을 다시 요청해도 한 번만 확인한다") {
             runTest(mainDispatcher) {
                 val coordinate = fixtureMonkey.giveMeOne<Coordinate>()
                 val fetchCurrentLocationUseCase = fetchCurrentLocationUseCase(Result.success(coordinate))
@@ -160,7 +160,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-PLACE-CARD-DOMAIN-005 새 화면에서는 현재 위치를 새로 확인한다") {
+        test("TC-d69e72f7-f42b-4b45-ba68-b5c7956e161a 새 화면에서는 현재 위치를 새로 확인한다") {
             runTest(mainDispatcher) {
                 val beforeCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
                 val afterCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
@@ -192,7 +192,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-PLACE-CARD-DOMAIN-032 메모리 정리 뒤 복원한 화면은 현재 위치를 다시 확인하고 확인이 끝날 때까지 지도 로딩 상태를 유지한다") {
+        test("TC-ccada8e8-fc89-41f3-afbe-6446af288e35 메모리 정리 뒤 복원한 화면은 현재 위치를 다시 확인하고 확인이 끝날 때까지 지도 로딩 상태를 유지한다") {
             runTest(mainDispatcher) {
                 val restoredCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
                 val restoredLocation = CompletableDeferred<Result<Coordinate>>()
@@ -231,7 +231,7 @@ class MemoPlaceMapViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MEMO-PLACE-CARD-DOMAIN-007 기본 지도가 바뀌면 새 초기 제공자를 제공한다") {
+        test("TC-5a66c202-a4b1-456e-ab60-ad42422f0d35 기본 지도가 바뀌면 새 초기 제공자를 제공한다") {
             runTest(mainDispatcher) {
                 val storedProvider = MutableStateFlow(Result.success(MapProvider.NAVER))
                 val viewModel = viewModel(defaultMapProvider = storedProvider)

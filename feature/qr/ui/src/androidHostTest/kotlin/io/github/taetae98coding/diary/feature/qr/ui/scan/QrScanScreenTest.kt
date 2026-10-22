@@ -36,14 +36,14 @@ class QrScanScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-SCAN-FEATURE-001 한국어 환경에서 상단 바에 제목을 표시한다`() {
+    fun `TC-54221e2e-5131-46fa-a6c9-c19f89f30399 한국어 환경에서 상단 바에 제목을 표시한다`() {
         setQrScanScreen()
 
         composeRule.onNodeWithText(KOREAN_TITLE).assertExists()
     }
 
     @Test
-    fun `TC-QR-SCAN-FEATURE-001 기본 환경에서 상단 바에 제목을 표시한다`() {
+    fun `TC-54221e2e-5131-46fa-a6c9-c19f89f30399 기본 환경에서 상단 바에 제목을 표시한다`() {
         setQrScanScreen()
 
         composeRule.onNodeWithText(DEFAULT_TITLE).assertExists()
@@ -51,7 +51,7 @@ class QrScanScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-SCAN-FEATURE-002 제목 외의 정보와 뒤로가기 외의 동작을 두지 않는다`() {
+    fun `TC-f755b080-8888-49ef-a8cb-56ac64438dda 제목 외의 정보와 뒤로가기 외의 동작을 두지 않는다`() {
         setQrScanScreen()
         composeRule.waitForIdle()
 
@@ -61,7 +61,7 @@ class QrScanScreenTest {
     }
 
     @Test
-    fun `TC-QR-SCAN-FEATURE-006 뒤로가기를 선택하면 값을 넘기지 않고 이전 화면으로 돌아간다`() {
+    fun `TC-f868d081-61f3-4ee0-b902-551b84aaea24 뒤로가기를 선택하면 값을 넘기지 않고 이전 화면으로 돌아간다`() {
         var navigateUpCount = 0
         val valueList = mutableListOf<String>()
         setQrScanScreen(
@@ -77,7 +77,7 @@ class QrScanScreenTest {
     }
 
     @Test
-    fun `TC-QR-SCAN-FEATURE-008 QR을 읽기 전에는 화면에 머무른다`() {
+    fun `TC-2a394c2d-fe2c-4497-a268-ad7dcf159e14 QR을 읽기 전에는 화면에 머무른다`() {
         var navigateUpCount = 0
         val valueList = mutableListOf<String>()
         setQrScanScreen(
@@ -94,7 +94,7 @@ class QrScanScreenTest {
 
     @Test
     @Config(qualifiers = "ko")
-    fun `TC-QR-SCAN-FEATURE-005 카메라를 시작할 수 없어도 안내 없이 뒤로가기로 돌아갈 수 있다`() {
+    fun `TC-e58e6c08-4531-40fb-b4da-c59e4c7cea91 카메라를 시작할 수 없어도 안내 없이 뒤로가기로 돌아갈 수 있다`() {
         val cameraManager = RuntimeEnvironment.getApplication().getSystemService(CameraManager::class.java)
         cameraManager.cameraIdList.shouldBeEmpty()
         var navigateUpCount = 0
@@ -110,7 +110,7 @@ class QrScanScreenTest {
     }
 
     @Test
-    fun `TC-CAMERA-PERMISSION-DOMAIN-002 QrScan 화면이 표시되는 것만으로는 요청하지 않는다`() {
+    fun `TC-e6b4c026-fd1b-415d-845c-31ce485cd49c QrScan 화면이 표시되는 것만으로는 요청하지 않는다`() {
         val registry = spyk<ActivityResultRegistry>()
         every { registry.onLaunch(any(), any<ActivityResultContract<Any?, Any?>>(), any(), any()) } just runs
         val registryOwner =

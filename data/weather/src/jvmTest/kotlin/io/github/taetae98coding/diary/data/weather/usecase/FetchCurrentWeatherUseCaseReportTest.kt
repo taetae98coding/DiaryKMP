@@ -45,7 +45,7 @@ class FetchCurrentWeatherUseCaseReportTest :
             When("현재 날씨 동기화를 요청한다") {
                 val result = useCase(parameter = Unit)
 
-                Then("TC-WEATHER-FETCH-DOMAIN-023 동기화가 성공으로 끝나고 오류 보고가 남지 않는다") {
+                Then("TC-8d1e107d-3c63-4f1f-ba86-a639075ca3a3 동기화가 성공으로 끝나고 오류 보고가 남지 않는다") {
                     result.isSuccess shouldBe true
                     reportList.shouldBeEmpty()
                 }
@@ -67,7 +67,7 @@ class FetchCurrentWeatherUseCaseReportTest :
             When("위치 권한 허용이 아닌 계기로 현재 날씨 동기화를 다시 요청한다") {
                 val result = useCase(parameter = Unit)
 
-                Then("TC-WEATHER-FETCH-DOMAIN-024 동기화가 성공으로 끝나고 조회 없이 오류 보고가 남지 않는다") {
+                Then("TC-5b34763d-ca69-47c2-afc1-21efed0134e8 동기화가 성공으로 끝나고 조회 없이 오류 보고가 남지 않는다") {
                     result.isSuccess shouldBe true
                     coVerify(exactly = 1) { weatherRemoteDataSource.getCurrentWeather(any(), any()) }
                     coVerify(exactly = 1) { weatherRemoteDataSource.getForecast(any(), any()) }

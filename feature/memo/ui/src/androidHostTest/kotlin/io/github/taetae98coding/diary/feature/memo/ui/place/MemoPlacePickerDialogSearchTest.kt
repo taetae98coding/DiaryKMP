@@ -31,7 +31,7 @@ class MemoPlacePickerDialogSearchTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-029 목록을 열면 검색어가 비어 있고 대상 장소가 모두 나타난다`() {
+    fun `TC-bda2c233-4321-4a7a-9c76-67d1bbf8570d 목록을 열면 검색어가 비어 있고 대상 장소가 모두 나타난다`() {
         val placeList = listOf(testPlace(title = HOME_PLACE_TITLE), testPlace(title = OFFICE_PLACE_TITLE))
         val queryList = mutableListOf<String>()
         composeRule.setMemoPlacePickerDialogHost(placeList = placeList, onQueryChange = queryList::add)
@@ -44,7 +44,7 @@ class MemoPlacePickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-036 목록을 열면 검색어 입력에 초점이 놓인다`() {
+    fun `TC-39b4f022-341c-459d-829d-b516b46611af 목록을 열면 검색어 입력에 초점이 놓인다`() {
         // 터치 모드가 아니면 대화상자가 첫 입력에 스스로 초점을 주므로, 휴대폰과 같은 터치 모드에서 확인한다.
         InstrumentationRegistry.getInstrumentation().setInTouchMode(true)
         composeRule.setMemoPlacePickerDialogHost(placeList = listOf(testPlace(title = HOME_PLACE_TITLE), testPlace(title = OFFICE_PLACE_TITLE)))
@@ -54,7 +54,7 @@ class MemoPlacePickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-030 검색어를 입력하면 확정 동작 없이 그 검색어가 즉시 반영된다`() {
+    fun `TC-57e8c50e-d99a-4372-ad46-54f2c218e967 검색어를 입력하면 확정 동작 없이 그 검색어가 즉시 반영된다`() {
         val placeList = listOf(testPlace(title = HOME_PLACE_TITLE), testPlace(title = OFFICE_PLACE_TITLE))
         val queryList = mutableListOf<String>()
         composeRule.setMemoPlacePickerDialogHost(placeList = placeList, onQueryChange = queryList::add)
@@ -67,7 +67,7 @@ class MemoPlacePickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-031 검색어를 지우면 검색어가 없는 상태가 즉시 반영된다`() {
+    fun `TC-b826a68e-6f4e-43f0-964d-5e51a2aad49b 검색어를 지우면 검색어가 없는 상태가 즉시 반영된다`() {
         val placeList = listOf(testPlace(title = HOME_PLACE_TITLE), testPlace(title = OFFICE_PLACE_TITLE))
         val queryList = mutableListOf<String>()
         composeRule.setMemoPlacePickerDialogHost(placeList = placeList, onQueryChange = queryList::add)
@@ -82,7 +82,7 @@ class MemoPlacePickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-030 검색어가 있으면 그 검색어로 좁힌 조회 결과만 목록에 나타난다`() {
+    fun `TC-57e8c50e-d99a-4372-ad46-54f2c218e967 검색어가 있으면 그 검색어로 좁힌 조회 결과만 목록에 나타난다`() {
         composeRule.setMemoPlacePickerDialog(
             placeList = listOf(testPlace(title = HOME_PLACE_TITLE)),
             query = HOME_PLACE_QUERY,
@@ -93,7 +93,7 @@ class MemoPlacePickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-031 검색어가 없으면 대상 전체의 조회 결과가 목록에 나타난다`() {
+    fun `TC-b826a68e-6f4e-43f0-964d-5e51a2aad49b 검색어가 없으면 대상 전체의 조회 결과가 목록에 나타난다`() {
         composeRule.setMemoPlacePickerDialog(
             placeList = listOf(testPlace(title = HOME_PLACE_TITLE), testPlace(title = OFFICE_PLACE_TITLE)),
             query = "",
@@ -104,7 +104,7 @@ class MemoPlacePickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-032 검색어로 좁힌 목록에서도 선택과 해제를 전달한다`() {
+    fun `TC-5f0f2e4a-1a21-4049-845b-b55b08bff1f8 검색어로 좁힌 목록에서도 선택과 해제를 전달한다`() {
         val homePlace = testPlace(title = HOME_PLACE_TITLE)
         val selectedIdList = mutableListOf<Uuid>()
         val unselectedIdList = mutableListOf<Uuid>()
@@ -124,7 +124,7 @@ class MemoPlacePickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-033 검색어에 맞는 장소가 없으면 결과 없음을 알린다`() {
+    fun `TC-278082cd-6e66-4e67-9020-42c9082f7b54 검색어에 맞는 장소가 없으면 결과 없음을 알린다`() {
         composeRule.setMemoPlacePickerDialog(
             placeList = emptyList(),
             query = HOME_PLACE_QUERY,
@@ -164,7 +164,7 @@ class MemoPlacePickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-034 검색 결과가 없어도 장소 추가 항목으로 이동을 전달한다`() {
+    fun `TC-30e5c450-494e-4218-8623-88cf06005284 검색 결과가 없어도 장소 추가 항목으로 이동을 전달한다`() {
         var placeAddCount = 0
         composeRule.setMemoPlacePickerDialog(
             placeList = emptyList(),
@@ -180,7 +180,7 @@ class MemoPlacePickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-FEATURE-035 목록을 닫았다가 다시 열면 검색어가 비어 있다`() {
+    fun `TC-14612e04-cc72-4b85-944c-1ebc41236e8f 목록을 닫았다가 다시 열면 검색어가 비어 있다`() {
         val placeList = listOf(testPlace(title = HOME_PLACE_TITLE), testPlace(title = OFFICE_PLACE_TITLE))
         val dialogState = DialogState(isVisible = true)
         val queryList = mutableListOf<String>()
@@ -200,7 +200,7 @@ class MemoPlacePickerDialogSearchTest {
     }
 
     @Test
-    fun `TC-MEMO-PLACE-CARD-DOMAIN-023 화면이 재생성되어도 열려 있는 목록의 검색어가 유지된다`() {
+    fun `TC-60f4826e-f305-4ef9-ad34-268289108059 화면이 재생성되어도 열려 있는 목록의 검색어가 유지된다`() {
         val homePlace = testPlace(title = HOME_PLACE_TITLE)
         val placePagingDataFlow = MutableStateFlow(placePagingDataOf(listOf(homePlace)))
         val queryList = mutableListOf<String>()

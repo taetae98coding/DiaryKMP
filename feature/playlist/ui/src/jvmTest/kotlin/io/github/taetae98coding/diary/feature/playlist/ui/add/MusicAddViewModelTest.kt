@@ -48,7 +48,7 @@ class MusicAddViewModelTest : FunSpec() {
             Dispatchers.resetMain()
         }
 
-        test("TC-MUSIC-ADD-DOMAIN-009 추가 처리 중 전달된 추가 요청은 처리하지 않는다") {
+        test("TC-ec339b8e-d5e1-41a0-9f64-bb21cdb4675a 추가 처리 중 전달된 추가 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val firstDetail = fixtureMonkey.giveMeOne<MusicDetail>()
                 val secondDetail = fixtureMonkey.giveMeOne<MusicDetail>()
@@ -79,7 +79,7 @@ class MusicAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-ADD-FEATURE-005 추가에 성공하면 성공 Effect를 한 번 보내고 진행 상태를 해제한다") {
+        test("TC-4e3078a1-33db-496b-acbe-4605d36cde4f 추가에 성공하면 성공 Effect를 한 번 보내고 진행 상태를 해제한다") {
             runTest(mainDispatcher) {
                 val detail = fixtureMonkey.giveMeOne<MusicDetail>()
                 val useCase = mockk<AddMusicUseCase>()
@@ -103,7 +103,7 @@ class MusicAddViewModelTest : FunSpec() {
             MusicTitleBlankException() to MusicAddEffect.TitleBlank,
             MusicLinkNotYoutubeException() to MusicAddEffect.LinkNotYoutube,
         ).forEach { (throwable, expected) ->
-            test("TC-MUSIC-ADD-FEATURE-008 성립하지 않는 입력으로 추가하면 ${expected::class.simpleName} Effect를 보내고 진행 상태를 해제한다") {
+            test("TC-054310e3-a1cf-42f4-8119-3c37ef3f751e 성립하지 않는 입력으로 추가하면 ${expected::class.simpleName} Effect를 보내고 진행 상태를 해제한다") {
                 runTest(mainDispatcher) {
                     val detail = fixtureMonkey.giveMeOne<MusicDetail>()
                     val useCase = mockk<AddMusicUseCase>()
@@ -124,7 +124,7 @@ class MusicAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-ADD-FEATURE-031 기기 저장에 실패하면 Effect 없이 진행 상태만 해제하고 같은 내용으로 다시 추가할 수 있다") {
+        test("TC-5b5aa3a7-7e8a-4654-b8cd-51779e37bbc2 기기 저장에 실패하면 Effect 없이 진행 상태만 해제하고 같은 내용으로 다시 추가할 수 있다") {
             runTest(mainDispatcher) {
                 val detail = MusicDetail(title = "title-${fixtureMonkey.giveMeOne<String>()}", artist = "artist-${fixtureMonkey.giveMeOne<String>()}", link = YOUTUBE_LINK)
                 val useCase = mockk<AddMusicUseCase>()
@@ -149,7 +149,7 @@ class MusicAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-ADD-FEATURE-007 추가를 처리하는 동안 진행 상태를 유지하고 완료 후 해제한다") {
+        test("TC-d238d5f0-3c05-415c-9fe4-b902861ca981 추가를 처리하는 동안 진행 상태를 유지하고 완료 후 해제한다") {
             runTest(mainDispatcher) {
                 val detail = fixtureMonkey.giveMeOne<MusicDetail>()
                 val completion = CompletableDeferred<Result<Uuid>>()
@@ -195,7 +195,7 @@ class MusicAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-ADD-DATA-008 불러오기에 성공하면 영상 제목과 채널 이름을 담은 Effect를 보낸다") {
+        test("TC-a4483895-1bff-43b1-98af-3787cc0ca408 불러오기에 성공하면 영상 제목과 채널 이름을 담은 Effect를 보낸다") {
             runTest(mainDispatcher) {
                 val video = fixtureMonkey.giveMeOne<YoutubeVideo>()
                 val useCase = mockk<FetchYoutubeVideoUseCase>()
@@ -224,7 +224,7 @@ class MusicAddViewModelTest : FunSpec() {
             MusicLinkBlankException() to MusicAddEffect.LinkBlank,
             MusicLinkNotYoutubeException() to MusicAddEffect.LinkNotYoutube,
         ).forEach { (throwable, expected) ->
-            test("TC-MUSIC-ADD-FEATURE-019 링크가 성립하지 않으면 ${expected::class.simpleName} Effect를 보낸다") {
+            test("TC-0b094f6b-7d0a-4647-93bb-40303a7f2b1f 링크가 성립하지 않으면 ${expected::class.simpleName} Effect를 보낸다") {
                 runTest(mainDispatcher) {
                     val useCase = mockk<FetchYoutubeVideoUseCase>()
                     coEvery { useCase(any()) } returns Result.failure(throwable)
@@ -241,7 +241,7 @@ class MusicAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-ADD-FEATURE-020 TC-MUSIC-ADD-DATA-009 영상 정보를 가져오지 못하면 불러오기 실패 Effect를 보낸다") {
+        test("TC-16709a4a-2bf6-4296-83c6-d143b4b60fa7 TC-c5c2a1a7-9368-4c94-90a5-8f64decd79c8 영상 정보를 가져오지 못하면 불러오기 실패 Effect를 보낸다") {
             runTest(mainDispatcher) {
                 val useCase = mockk<FetchYoutubeVideoUseCase>()
                 coEvery { useCase(any()) } returns Result.failure(IllegalStateException("fetch failed"))
@@ -260,7 +260,7 @@ class MusicAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-ADD-FEATURE-018 불러오기를 처리하는 동안 진행 상태를 유지하고 완료 후 해제한다") {
+        test("TC-56ed0cae-fbed-437c-9328-febed1ba5ddb 불러오기를 처리하는 동안 진행 상태를 유지하고 완료 후 해제한다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<YoutubeVideo>>()
                 val useCase = mockk<FetchYoutubeVideoUseCase>()
@@ -281,7 +281,7 @@ class MusicAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-ADD-DOMAIN-012 불러오기 처리 중 전달된 불러오기 요청은 처리하지 않는다") {
+        test("TC-7e835b40-a616-4b2e-a3f5-744bba933477 불러오기 처리 중 전달된 불러오기 요청은 처리하지 않는다") {
             runTest(mainDispatcher) {
                 val completion = CompletableDeferred<Result<YoutubeVideo>>()
                 val useCase = mockk<FetchYoutubeVideoUseCase>()
@@ -306,7 +306,7 @@ class MusicAddViewModelTest : FunSpec() {
             }
         }
 
-        test("TC-MUSIC-ADD-FEATURE-021 곡 추가에 성공하면 앞선 불러오기의 결과를 전달하지 않는다") {
+        test("TC-4cc4744d-8904-458b-a533-3105fe3c1743 곡 추가에 성공하면 앞선 불러오기의 결과를 전달하지 않는다") {
             runTest(mainDispatcher) {
                 val fetchCompletion = CompletableDeferred<Result<YoutubeVideo>>()
                 val fetchUseCase = mockk<FetchYoutubeVideoUseCase>()

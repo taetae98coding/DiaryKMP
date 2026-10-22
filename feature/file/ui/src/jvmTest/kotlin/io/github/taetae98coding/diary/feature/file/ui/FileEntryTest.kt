@@ -22,7 +22,7 @@ private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class FileEntryTest :
     FunSpec({
-        test("TC-FILE-LIST-DETAIL-DOMAIN-002 파일 목록에서 이어 진입한 FileAdd와 FileDetail은 목록·상세 배치의 상세 pane이다") {
+        test("TC-675a9714-031d-420a-8df3-639645c0a8c6 파일 목록에서 이어 진입한 FileAdd와 FileDetail은 목록·상세 배치의 상세 pane이다") {
             val detail = FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
             val caseList =
                 listOf(
@@ -36,7 +36,7 @@ class FileEntryTest :
             }
         }
 
-        test("TC-FILE-LIST-DETAIL-DOMAIN-001 파일 목록에서 진입하지 않은 FileAdd와 FileDetail은 목록·상세 배치에 참여하지 않는다") {
+        test("TC-93ef7888-533c-419e-ab80-d0ca6304a6f8 파일 목록에서 진입하지 않은 FileAdd와 FileDetail은 목록·상세 배치에 참여하지 않는다") {
             val detail = FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
             val caseList =
                 listOf(

@@ -26,7 +26,7 @@ class MemoTagPickerDialogTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-008 목록에서 태그를 선택하면 선택 행동을 즉시 전달한다`() {
+    fun `TC-c1df03b8-28d1-4fc8-830a-de144502b77e 목록에서 태그를 선택하면 선택 행동을 즉시 전달한다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
         val selectedIdList = mutableListOf<Uuid>()
         composeRule.setMemoTagPickerDialog(tagList = tagList, onTagSelect = selectedIdList::add)
@@ -40,7 +40,7 @@ class MemoTagPickerDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-009 목록에서 선택을 해제하면 해제 행동을 즉시 전달한다`() {
+    fun `TC-21f8c835-da42-4244-ae10-fbf6f5e61986 목록에서 선택을 해제하면 해제 행동을 즉시 전달한다`() {
         val tag = testTag(title = WORK_TAG_TITLE)
         val unselectedIdList = mutableListOf<Uuid>()
         composeRule.setMemoTagPickerDialog(
@@ -56,7 +56,7 @@ class MemoTagPickerDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-015 대표 태그 지정 버튼을 누르면 대표 지정 행동을 즉시 전달한다`() {
+    fun `TC-309d3012-79cc-4fab-a565-217ce5974f69 대표 태그 지정 버튼을 누르면 대표 지정 행동을 즉시 전달한다`() {
         val tag = testTag(title = WORK_TAG_TITLE)
         val primarySelectedIdList = mutableListOf<Uuid>()
         composeRule.setMemoTagPickerDialog(tagList = listOf(tag), onPrimaryTagSelect = primarySelectedIdList::add)
@@ -68,7 +68,7 @@ class MemoTagPickerDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-016 대표 태그 지정 버튼을 다시 누르면 대표 지정 해제 행동을 전달한다`() {
+    fun `TC-82a02e1f-1f62-400f-afdd-6ace6348b225 대표 태그 지정 버튼을 다시 누르면 대표 지정 해제 행동을 전달한다`() {
         val tag = testTag(title = WORK_TAG_TITLE)
         var primaryUnselectCount = 0
         composeRule.setMemoTagPickerDialog(
@@ -96,7 +96,7 @@ class MemoTagPickerDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-DOMAIN-002 목록의 태그는 전달된 제목 오름차순으로 표시된다`() {
+    fun `TC-be0e29f8-7742-4e50-8d0e-a4de57cd8c6d 목록의 태그는 전달된 제목 오름차순으로 표시된다`() {
         val tagList =
             listOf(
                 testTag(title = EXERCISE_TAG_TITLE),
@@ -115,7 +115,7 @@ class MemoTagPickerDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-DOMAIN-010 목록의 태그를 완료 여부로 구분하지 않고 주어진 순서대로 표시한다`() {
+    fun `TC-b0aa3cdf-77a4-449a-bb0e-38fcff2ecbdf 목록의 태그를 완료 여부로 구분하지 않고 주어진 순서대로 표시한다`() {
         val workTag = testTag(title = WORK_TAG_TITLE)
         val finishedTag = testTag(title = EXERCISE_TAG_TITLE).copy(isFinished = true)
         composeRule.setMemoTagPickerDialog(
@@ -129,7 +129,7 @@ class MemoTagPickerDialogTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-DOMAIN-011 목록의 완료된 태그도 해제와 대표 태그 지정 행동을 전달한다`() {
+    fun `TC-e17542ec-564c-4a33-b52d-4d4c33c95060 목록의 완료된 태그도 해제와 대표 태그 지정 행동을 전달한다`() {
         val finishedTag = testTag(title = EXERCISE_TAG_TITLE).copy(isFinished = true)
         val unselectedIdList = mutableListOf<Uuid>()
         val primarySelectedIdList = mutableListOf<Uuid>()
@@ -224,14 +224,14 @@ class MemoTagPickerDialogAddTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-032 나타낼 태그가 없어도 태그 추가 항목을 표시한다`() {
+    fun `TC-17609dda-ba53-4908-9aac-b1d21be5873d 나타낼 태그가 없어도 태그 추가 항목을 표시한다`() {
         composeRule.setMemoTagPickerDialog(tagList = emptyList())
 
         composeRule.dialogNodeWithText(DEFAULT_PICKER_TAG_ADD).assertExists()
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-032 나타낼 태그가 여러 개여도 태그 추가 항목을 표시한다`() {
+    fun `TC-17609dda-ba53-4908-9aac-b1d21be5873d 나타낼 태그가 여러 개여도 태그 추가 항목을 표시한다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
         composeRule.setMemoTagPickerDialog(tagList = tagList)
 
@@ -239,7 +239,7 @@ class MemoTagPickerDialogAddTest {
     }
 
     @Test
-    fun `TC-MEMO-TAG-INPUT-FEATURE-033 태그 추가 항목을 누르면 태그 추가 행동만 전달한다`() {
+    fun `TC-b0fb7327-b66b-40b9-b9c4-faa017b04f26 태그 추가 항목을 누르면 태그 추가 행동만 전달한다`() {
         val tagList = listOf(testTag(title = WORK_TAG_TITLE), testTag(title = EXERCISE_TAG_TITLE))
         var tagAddCount = 0
         var selectionChangeCount = 0

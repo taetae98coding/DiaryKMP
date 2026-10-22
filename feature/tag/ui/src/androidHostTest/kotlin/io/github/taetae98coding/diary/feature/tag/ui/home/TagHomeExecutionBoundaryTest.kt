@@ -60,7 +60,7 @@ class TagHomeExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-036 태그를 선택하면 그 태그의 TagDetail 화면으로 이동한다`() {
+    fun `TC-958b9fa4-e244-4be6-86d5-865a55ca9637 태그를 선택하면 그 태그의 TagDetail 화면으로 이동한다`() {
         val tagList = tagList()
         val navigatedIdList = mutableListOf<Uuid>()
         val viewModel = screenTestViewModel(tagList = tagList)
@@ -73,7 +73,7 @@ class TagHomeExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-DOMAIN-013 화면이 회전하거나 재생성되어도 필터 선택, 정렬 선택과 보던 자리가 그대로다`() {
+    fun `TC-b7ed17a2-e9cb-4646-b39d-886539897d9d 화면이 회전하거나 재생성되어도 필터 선택, 정렬 선택과 보던 자리가 그대로다`() {
         val tagList = tagList()
         val viewModel =
             screenTestViewModel(
@@ -96,7 +96,7 @@ class TagHomeExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-DOMAIN-020 시스템이 앱을 정리한 뒤 다시 만들면 필터 선택은 이어지고 정렬은 처음으로 돌아가며 보던 위치는 다시 보인다`() {
+    fun `TC-9d94d7d7-d5df-495f-b1e7-ace60f802db1 시스템이 앱을 정리한 뒤 다시 만들면 필터 선택은 이어지고 정렬은 처음으로 돌아가며 보던 위치는 다시 보인다`() {
         val tagList = tagList()
         val filterUiState = TagHomeScaffoldFilterUiState(isLoaded = true, isApplied = true)
         var nextViewModel = screenTestViewModel(tagList = tagList, sort = ListSort.RECENTLY_UPDATED, filterUiState = filterUiState)
@@ -123,7 +123,7 @@ class TagHomeExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-DOMAIN-014 앱이 백그라운드에 다녀와도 보던 자리가 그대로다`() {
+    fun `TC-16593ef2-28c2-4a39-aad2-b5d4b44f99e5 앱이 백그라운드에 다녀와도 보던 자리가 그대로다`() {
         val tagList = tagList()
         val viewModel = screenTestViewModel(tagList = tagList)
         composeRule.setContent { Home(viewModel = viewModel) }
@@ -138,7 +138,7 @@ class TagHomeExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-DOMAIN-015 태그 상세, 검색이나 완료된 태그 확인에 다녀와도 보던 자리가 그대로다`() {
+    fun `TC-298d209f-8f5c-4c93-b7e9-e052715b4efa 태그 상세, 검색이나 완료된 태그 확인에 다녀와도 보던 자리가 그대로다`() {
         val tagList = tagList()
         val viewModel = screenTestViewModel(tagList = tagList)
         var isTagHomeOnTop by mutableStateOf(true)
@@ -162,7 +162,7 @@ class TagHomeExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-TAG-HOME-FEATURE-049 화면에 들어오거나 다른 화면에서 돌아오는 것만으로는 새로고침하지 않는다`() {
+    fun `TC-8539bb12-6399-48db-b8a6-8c1c82893c30 화면에 들어오거나 다른 화면에서 돌아오는 것만으로는 새로고침하지 않는다`() {
         val viewModel = screenTestViewModel(tagList = tagList())
         val syncViewModel = screenTestSyncViewModel()
         var isTagHomeOnTop by mutableStateOf(true)

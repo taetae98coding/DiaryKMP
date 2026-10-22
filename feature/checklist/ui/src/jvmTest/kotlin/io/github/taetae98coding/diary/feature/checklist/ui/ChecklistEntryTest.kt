@@ -22,13 +22,13 @@ private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 class ChecklistEntryTest :
     FunSpec({
-        test("TC-CHECKLIST-LIST-DETAIL-DOMAIN-002 체크리스트 목록에서 이어 진입한 체크리스트 추가는 목록·상세 배치의 상세 pane이다") {
+        test("TC-320d4e24-62cc-4e2a-bc7c-8479b43a8971 체크리스트 목록에서 이어 진입한 체크리스트 추가는 목록·상세 배치의 상세 pane이다") {
             val backStack = listOf(OtherNavKey, ChecklistHomeNavKey, ChecklistAddNavKey)
 
             metadataOf(backStack = backStack, key = ChecklistAddNavKey).keys shouldBe detailPaneMetadataKeys
         }
 
-        test("TC-CHECKLIST-LIST-DETAIL-DOMAIN-001 체크리스트 목록에서 진입하지 않은 체크리스트 추가는 목록·상세 배치에 참여하지 않는다") {
+        test("TC-2825146d-f2d4-4196-bdb0-b59a14efb2d9 체크리스트 목록에서 진입하지 않은 체크리스트 추가는 목록·상세 배치에 참여하지 않는다") {
             val backStackCases =
                 listOf(
                     listOf(OtherNavKey, ChecklistAddNavKey),
@@ -40,7 +40,7 @@ class ChecklistEntryTest :
             }
         }
 
-        test("TC-CHECKLIST-LIST-DETAIL-DOMAIN-003 체크리스트 목록에서 이어 진입한 체크리스트 상세는 목록·상세 배치의 상세 pane이다") {
+        test("TC-3943e3e4-b520-4a11-ad55-8b92ef622f9a 체크리스트 목록에서 이어 진입한 체크리스트 상세는 목록·상세 배치의 상세 pane이다") {
             val key = ChecklistDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
             val backStack = listOf(OtherNavKey, ChecklistHomeNavKey, ChecklistAddNavKey, key)
 

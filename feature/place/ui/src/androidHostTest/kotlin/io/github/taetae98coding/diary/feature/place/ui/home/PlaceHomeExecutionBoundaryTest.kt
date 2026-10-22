@@ -55,7 +55,7 @@ class PlaceHomeExecutionBoundaryTest {
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
-    fun `TC-PLACE-HOME-DOMAIN-003 화면이 회전하거나 창 크기가 바뀌어도 현재 위치를 다시 확인하지 않는다`() {
+    fun `TC-a09ee357-336c-4a05-80e8-69a21423fe5b 화면이 회전하거나 창 크기가 바뀌어도 현재 위치를 다시 확인하지 않는다`() {
         val fetch = fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>())
         val mapViewModel = mapViewModel(fetch)
         val restorationTester = StateRestorationTester(composeRule)
@@ -69,7 +69,7 @@ class PlaceHomeExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-DOMAIN-003 앱이 종료되지 않은 채 백그라운드에 갔다가 복귀해도 현재 위치를 다시 확인하지 않는다`() {
+    fun `TC-a09ee357-336c-4a05-80e8-69a21423fe5b 앱이 종료되지 않은 채 백그라운드에 갔다가 복귀해도 현재 위치를 다시 확인하지 않는다`() {
         val fetch = fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>())
         val mapViewModel = mapViewModel(fetch)
         composeRule.setContent { PlaceHomeTestScreen(mapViewModel = mapViewModel) }
@@ -81,7 +81,7 @@ class PlaceHomeExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-DOMAIN-022 화면이 회전하거나 창 크기가 바뀌어도 바꿔 둔 보기 모드를 유지한다`() {
+    fun `TC-65378f37-f7f6-4bba-a121-f6b2289f8fc9 화면이 회전하거나 창 크기가 바뀌어도 바꿔 둔 보기 모드를 유지한다`() {
         val mapViewModel = mapViewModel(fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>()))
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent { PlaceHomeTestScreen(mapViewModel = mapViewModel) }
@@ -94,7 +94,7 @@ class PlaceHomeExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-DOMAIN-022 시스템이 앱을 종료했다가 같은 화면으로 되살려도 바꿔 둔 보기 모드를 유지한다`() {
+    fun `TC-65378f37-f7f6-4bba-a121-f6b2289f8fc9 시스템이 앱을 종료했다가 같은 화면으로 되살려도 바꿔 둔 보기 모드를 유지한다`() {
         var mapViewModel = mapViewModel(fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>()))
         val restorationTester = StateRestorationTester(composeRule)
         restorationTester.setContent { PlaceHomeTestScreen(mapViewModel = mapViewModel) }
@@ -108,7 +108,7 @@ class PlaceHomeExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-DOMAIN-022 앱의 백그라운드 진입 후 복귀해도 바꿔 둔 보기 모드를 유지한다`() {
+    fun `TC-65378f37-f7f6-4bba-a121-f6b2289f8fc9 앱의 백그라운드 진입 후 복귀해도 바꿔 둔 보기 모드를 유지한다`() {
         val mapViewModel = mapViewModel(fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>()))
         composeRule.setContent { PlaceHomeTestScreen(mapViewModel = mapViewModel) }
         selectListMode()
@@ -119,7 +119,7 @@ class PlaceHomeExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-DOMAIN-022 장소 추가, 장소 상세나 검색으로 이동한 뒤 뒤로 돌아와도 바꿔 둔 보기 모드를 유지한다`() {
+    fun `TC-65378f37-f7f6-4bba-a121-f6b2289f8fc9 장소 추가, 장소 상세나 검색으로 이동한 뒤 뒤로 돌아와도 바꿔 둔 보기 모드를 유지한다`() {
         val mapViewModel = mapViewModel(fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>()))
         var isPlaceHomeOnTop by mutableStateOf(true)
         composeRule.setContent {
@@ -146,7 +146,7 @@ class PlaceHomeExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-DOMAIN-025 지도 모드로 되살아나면 즉시 현재 위치를 다시 확인한다`() {
+    fun `TC-e6ecc884-49c7-45e0-822a-56eadc557dc1 지도 모드로 되살아나면 즉시 현재 위치를 다시 확인한다`() {
         val beforeFetch = fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>())
         val afterFetch = fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>())
         val restorationTester = StateRestorationTester(composeRule)
@@ -163,7 +163,7 @@ class PlaceHomeExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-DOMAIN-025 목록 모드로 되살아나도 즉시 현재 위치를 다시 확인하고 지도 모드로 바꿀 때는 다시 확인하지 않는다`() {
+    fun `TC-e6ecc884-49c7-45e0-822a-56eadc557dc1 목록 모드로 되살아나도 즉시 현재 위치를 다시 확인하고 지도 모드로 바꿀 때는 다시 확인하지 않는다`() {
         val beforeFetch = fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>())
         val afterFetch = fetchCurrentLocationUseCase(fixtureMonkey.giveMeOne<Coordinate>())
         val restorationTester = StateRestorationTester(composeRule)
@@ -186,7 +186,7 @@ class PlaceHomeExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-DOMAIN-025 되살아난 뒤 새로 확인한 위치에서 지도를 시작하고 옮겨 두었던 위치는 이어지지 않는다`() {
+    fun `TC-e6ecc884-49c7-45e0-822a-56eadc557dc1 되살아난 뒤 새로 확인한 위치에서 지도를 시작하고 옮겨 두었던 위치는 이어지지 않는다`() {
         val beforeCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
         val movedCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
         val afterCoordinate = fixtureMonkey.giveMeOne<Coordinate>()
@@ -205,12 +205,12 @@ class PlaceHomeExecutionBoundaryTest {
     }
 
     @Test
-    fun `TC-PLACE-HOME-DOMAIN-031 되살아난 뒤 이전과 같은 위치를 확인해도 옮겨 두었던 위치는 이어지지 않는다`() {
+    fun `TC-a4ffcc7f-3860-48e3-b91b-a2a6aa7775bb 되살아난 뒤 이전과 같은 위치를 확인해도 옮겨 두었던 위치는 이어지지 않는다`() {
         assertMovedCameraIsNotRestored(coordinate = fixtureMonkey.giveMeOne<Coordinate>())
     }
 
     @Test
-    fun `TC-PLACE-HOME-DOMAIN-031 되살아나기 전과 뒤 모두 위치를 확인하지 못해도 옮겨 두었던 위치는 이어지지 않는다`() {
+    fun `TC-a4ffcc7f-3860-48e3-b91b-a2a6aa7775bb 되살아나기 전과 뒤 모두 위치를 확인하지 못해도 옮겨 두었던 위치는 이어지지 않는다`() {
         assertMovedCameraIsNotRestored(coordinate = null)
     }
 
