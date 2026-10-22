@@ -1,7 +1,10 @@
 package io.github.taetae98coding.diary.feature.qr.ui.add
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
@@ -37,6 +40,10 @@ import org.robolectric.annotation.Config
 /**
  * 지도 제공자의 실제 표시 요소는 만들 수 없으므로, 화면이 지도 기능에 지정하는 지점과 지도 위치로 반영 결과를 확인한다.
  */
+private const val LATITUDE_TEXT = "37.5"
+private const val LONGITUDE_TEXT = "127"
+private const val LOCATION_QR_VALUE = "geo:$LATITUDE_TEXT,$LONGITUDE_TEXT"
+
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w480dp-h1200dp")
 class QrAddLocationTest {
@@ -80,8 +87,8 @@ class QrAddLocationTest {
         val state = setLocationState()
 
         composeRule.write {
-            state().fieldState(QrTextField.LATITUDE).setText("37.5")
-            state().fieldState(QrTextField.LONGITUDE).setText("127")
+            state().fieldState(QrTextField.LATITUDE).setText(LATITUDE_TEXT)
+            state().fieldState(QrTextField.LONGITUDE).setText(LONGITUDE_TEXT)
         }
         composeRule.mainClock.advanceTimeBy(REFLECT_DELAY_MILLIS / 2)
         composeRule.runOnIdle { state().mapState.spot.shouldBeNull() }
@@ -118,10 +125,30 @@ class QrAddLocationTest {
     }
 
     @Test
+    fun `TC-3e4f65ab-633f-42cc-8136-3b666e5cfbf4 지도가 다른 위치를 보게 되어도 고른 좌표는 바뀌지 않는다`() {
+        val state = setLocationState()
+        val selected = DiaryMapCoordinate(latitude = 37.5665, longitude = 126.978)
+        val viewed = DiaryMapCoordinate(latitude = -33.868820, longitude = 151.209296)
+        composeRule.write { state().selectSpotOnMap(selected) }
+        val qrValueBefore = composeRule.runOnIdle { state().qrValue }
+
+        // 기능 화면은 지도가 알려오는 위치 변화를 만들 수 없으므로, 지도가 보는 위치가 바뀐 상태를 이동 지정으로 만든다.
+        composeRule.write { state().mapState.moveTo(viewed) }
+        composeRule.mainClock.advanceTimeBy(REFLECT_DELAY_MILLIS * 2)
+
+        composeRule.runOnIdle {
+            state().fieldState(QrTextField.LATITUDE).text shouldBe selected.latitude.toPlaceCoordinateText()
+            state().fieldState(QrTextField.LONGITUDE).text shouldBe selected.longitude.toPlaceCoordinateText()
+            state().mapState.spot shouldBe selected
+            state().qrValue shouldBe qrValueBefore
+        }
+    }
+
+    @Test
     fun `TC-f2226d41-de1d-4cac-8232-e837ac0f0569 위치 좌표를 담은 QR 값에서 위치 포맷을 고르면 반영을 기다린 뒤 지점과 지도가 그 좌표로 옮겨진다`() {
         composeRule.mainClock.autoAdvance = false
         val state = setContentState()
-        composeRule.write { state().fieldState(QrTextField.TEXT).setText("geo:37.5,127") }
+        composeRule.write { state().fieldState(QrTextField.TEXT).setText(LOCATION_QR_VALUE) }
         composeRule.mainClock.advanceTimeBy(REFLECT_DELAY_MILLIS * 2)
 
         composeRule.write { state().selectFormat(QrFormat.LOCATION) }
@@ -177,13 +204,13 @@ class QrAddLocationTest {
         composeRule.onNodeWithContentDescription(MAP_CONTENT_DESCRIPTION).assertDoesNotExist()
         composeRule.onNodeWithText(LOADING_TEXT).assertDoesNotExist()
 
-        composeRule.onNode(hasSetTextAction() and hasText("Latitude")).performTextInput("37.5")
-        composeRule.onNode(hasSetTextAction() and hasText("Longitude")).performTextInput("127")
+        composeRule.onNode(hasSetTextAction() and hasText("Latitude")).performTextInput(LATITUDE_TEXT)
+        composeRule.onNode(hasSetTextAction() and hasText("Longitude")).performTextInput(LONGITUDE_TEXT)
         composeRule.onNodeWithContentDescription(ADD_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
         eventList shouldBe listOf(QrAddScaffoldEvent.ClickAdd)
-        composeRule.runOnIdle { checkNotNull(state).detail.value shouldBe "geo:37.5,127" }
+        composeRule.runOnIdle { checkNotNull(state).detail.value shouldBe LOCATION_QR_VALUE }
     }
 
     @Test
@@ -208,6 +235,56 @@ class QrAddLocationTest {
                         .shouldBeNull()
                 }
             }
+        }
+    }
+
+    @Test
+    fun `TC-35105c5b-bd39-4bf3-a8ec-364973e7e4d9 표시 중에 기본 지도가 바뀌면 바뀐 지도로 새로 시작하고 입력을 유지한다`() {
+        composeRule.mainClock.autoAdvance = false
+        var defaultProvider by mutableStateOf(MapProvider.NAVER)
+        var state: QrAddFormState? = null
+        composeRule.setContent {
+            val formState = rememberQrAddFormState(defaultProvider = defaultProvider)
+            state = formState
+            ReflectQrCoordinateEffect(state = formState.contentState)
+            WriteQrFieldsEffect(state = formState.contentState)
+        }
+        composeRule.write {
+            checkNotNull(state).titleState.setText(TYPED_TITLE)
+            checkNotNull(state).descriptionState.setText(TYPED_DESCRIPTION)
+            checkNotNull(state).contentState.selectFormat(QrFormat.LOCATION)
+        }
+        composeRule.write {
+            checkNotNull(state).contentState.fieldState(QrTextField.LATITUDE).setText(LATITUDE_TEXT)
+            checkNotNull(state).contentState.fieldState(QrTextField.LONGITUDE).setText(LONGITUDE_TEXT)
+        }
+        composeRule.mainClock.advanceTimeBy(REFLECT_DELAY_MILLIS * 2)
+        val typed = DiaryMapCoordinate(latitude = 37.5, longitude = 127.0)
+        composeRule.runOnIdle { checkNotNull(state).contentState.mapState.spot shouldBe typed }
+
+        composeRule.write { defaultProvider = MapProvider.GOOGLE }
+        composeRule.mainClock.advanceTimeBy(REFLECT_DELAY_MILLIS / 2)
+
+        composeRule.runOnIdle {
+            val current = checkNotNull(state)
+            current.contentState.mapState.provider shouldBe DiaryMapProvider.GOOGLE
+            current.contentState.mapState.coordinate
+                .shouldBeNull()
+            current.contentState.mapState.spot
+                .shouldBeNull()
+            current.titleState.text.toString() shouldBe TYPED_TITLE
+            current.descriptionState.text.toString() shouldBe TYPED_DESCRIPTION
+            current.contentState.format shouldBe QrFormat.LOCATION
+            current.contentState.fieldState(QrTextField.LATITUDE).text shouldBe LATITUDE_TEXT
+            current.contentState.fieldState(QrTextField.LONGITUDE).text shouldBe LONGITUDE_TEXT
+            current.contentState.qrValue shouldBe LOCATION_QR_VALUE
+        }
+
+        composeRule.mainClock.advanceTimeBy(REFLECT_DELAY_MILLIS)
+
+        composeRule.runOnIdle {
+            checkNotNull(state).contentState.mapState.spot shouldBe typed
+            checkNotNull(state).contentState.mapState.coordinate shouldBe typed
         }
     }
 
@@ -292,5 +369,7 @@ class QrAddLocationTest {
         const val MAP_CONTENT_DESCRIPTION = "QR location map"
         const val ADD_DESCRIPTION = "Add QR code"
         const val LOADING_TEXT = "Loading"
+        const val TYPED_TITLE = "회사"
+        const val TYPED_DESCRIPTION = "본사 위치"
     }
 }

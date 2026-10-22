@@ -1,5 +1,13 @@
 package io.github.taetae98coding.diary.feature.setting.ui.gemini
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
@@ -16,6 +24,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.testing.TestLifecycleOwner
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -554,6 +565,174 @@ class SettingGeminiScreenTest {
 
         composeRule.onNodeWithText(DEFAULT_MODEL_PICKER_TITLE).assertDoesNotExist()
         verify(exactly = fetchCount) { modelViewModel.fetch(any()) }
+    }
+
+    @Test
+    fun `TC-58c04b0a-95d1-4a2e-b41d-5c9e01888f93 다른 앱에 다녀와도 입력 중이던 값과 저장 동작을 유지한다`() {
+        val editingSuffix = editingSuffix()
+        val setting = geminiSetting()
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        val settingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = setting))
+        val modelViewModel = modelViewModel(SettingGeminiModelUiState())
+        composeRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                DiaryTheme {
+                    SettingGeminiScreen(
+                        navigateUp = {},
+                        componentVisibleProvider = { SettingGeminiScaffoldComponentVisible() },
+                        settingViewModel = settingViewModel,
+                        modelViewModel = modelViewModel,
+                    )
+                }
+            }
+        }
+        composeRule.onAllNodes(hasSetTextAction())[SYSTEM_PROMPT_INDEX].performTextInput(editingSuffix)
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(setting.systemPrompt + editingSuffix).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertExists()
+        verify(exactly = 0) { settingViewModel.save(any()) }
+    }
+
+    @Test
+    fun `TC-97e34f57-c3bf-4127-bb3d-f7d93e7b80a4 저장하지 않고 화면을 떠났다가 다시 들어오면 저장된 설정으로 시작하고 모델 목록을 새로 조회한다`() {
+        var isShown by mutableStateOf(true)
+
+        // 전환 이력에서 빠진 화면은 저장 상태와 화면 상태를 들고 있던 객체가 함께 사라지므로, 다시 들어온 화면은 저장 상태 없이 새 인스턴스로 구성된다.
+        assertFreshScreenStartsFromStoredSetting(
+            setContent = { content -> composeRule.setContent { if (isShown) content() } },
+            passBoundary = {
+                composeRule.runOnIdle { isShown = false }
+                composeRule.waitForIdle()
+                composeRule.runOnIdle { isShown = true }
+            },
+        )
+    }
+
+    @Test
+    fun `TC-97e34f57-c3bf-4127-bb3d-f7d93e7b80a4 앱을 다시 실행하면 저장된 설정으로 시작하고 모델 목록을 새로 조회한다`() {
+        var launchCount by mutableIntStateOf(0)
+
+        // 앱을 다시 실행하면 저장해 둔 화면 상태도, 화면 상태를 들고 있던 객체도 없으므로 새 키와 새 인스턴스로 같은 화면을 다시 구성한다.
+        assertFreshScreenStartsFromStoredSetting(
+            setContent = { content -> composeRule.setContent { key(launchCount) { content() } } },
+            passBoundary = { composeRule.runOnIdle { launchCount += 1 } },
+        )
+    }
+
+    private fun assertFreshScreenStartsFromStoredSetting(
+        setContent: (content: @Composable () -> Unit) -> Unit,
+        passBoundary: () -> Unit,
+    ) {
+        val setting = geminiSetting()
+        val editingSuffix = editingSuffix()
+        val firstSettingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = setting))
+        val firstModelViewModel = modelViewModel(SettingGeminiModelUiState(isLoaded = true, modelList = modelList()))
+        val freshSettingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = setting))
+        val freshModelViewModel = modelViewModel(SettingGeminiModelUiState())
+        var compositionCount = 0
+        setContent {
+            val isFirst = remember { compositionCount++ == 0 }
+
+            DiaryTheme {
+                SettingGeminiScreen(
+                    navigateUp = {},
+                    componentVisibleProvider = { SettingGeminiScaffoldComponentVisible() },
+                    settingViewModel = if (isFirst) firstSettingViewModel else freshSettingViewModel,
+                    modelViewModel = if (isFirst) firstModelViewModel else freshModelViewModel,
+                )
+            }
+        }
+        composeRule.onAllNodes(hasSetTextAction())[SYSTEM_PROMPT_INDEX].performTextInput(editingSuffix)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertExists()
+
+        passBoundary()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(setting.systemPrompt).assertExists()
+        composeRule.onNodeWithText(setting.systemPrompt + editingSuffix).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertDoesNotExist()
+        verify(exactly = 0) { firstSettingViewModel.save(any()) }
+        verify(exactly = 0) { freshSettingViewModel.save(any()) }
+
+        composeRule.onNode(hasContentDescription(DEFAULT_MODEL_LABEL, substring = true)).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { freshModelViewModel.fetch(apiKey = setting.apiKey) }
+    }
+
+    @Test
+    fun `TC-d6faa5a0-f406-49e0-8734-9ae8568b5254 시스템이 앱을 종료했다가 되살리면 입력은 유지되고 받아 둔 모델 목록과 열린 모델 선택은 이어지지 않는다`() {
+        val setting = geminiSetting()
+        val editingSuffix = editingSuffix()
+        val restorationTester = StateRestorationTester(composeRule)
+        val firstSettingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = setting))
+        val firstModelViewModel = modelViewModel(SettingGeminiModelUiState(isLoaded = true, modelList = modelList()))
+        val revivedSettingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = setting))
+        val revivedModelViewModel = modelViewModel(SettingGeminiModelUiState())
+        var isRevived = false
+        // 시스템이 앱을 종료했다가 되살리면 저장해 둔 화면 상태는 복원되지만 화면 상태를 들고 있던 객체는 새로 만들어진다.
+        restorationTester.setContent {
+            DiaryTheme {
+                SettingGeminiScreen(
+                    navigateUp = {},
+                    componentVisibleProvider = { SettingGeminiScaffoldComponentVisible() },
+                    settingViewModel = if (isRevived) revivedSettingViewModel else firstSettingViewModel,
+                    modelViewModel = if (isRevived) revivedModelViewModel else firstModelViewModel,
+                )
+            }
+        }
+        composeRule.onAllNodes(hasSetTextAction())[SYSTEM_PROMPT_INDEX].performTextInput(editingSuffix)
+        composeRule.waitForIdle()
+        composeRule.onNode(hasContentDescription(DEFAULT_MODEL_LABEL, substring = true)).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_MODEL_PICKER_TITLE).assertExists()
+
+        isRevived = true
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(setting.systemPrompt + editingSuffix).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertExists()
+        composeRule.onNodeWithText(DEFAULT_MODEL_PICKER_TITLE).assertDoesNotExist()
+        verify(exactly = 0) { revivedModelViewModel.fetch(any()) }
+
+        composeRule.onNode(hasContentDescription(DEFAULT_MODEL_LABEL, substring = true)).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { revivedModelViewModel.fetch(apiKey = setting.apiKey) }
+    }
+
+    @Test
+    fun `TC-b0b1f82f-1c75-443b-af5a-50102b153152 화면이 회전해도 받아 둔 모델 목록에서 다시 조회 없이 고를 수 있다`() {
+        val modelList = modelList()
+        val restorationTester = StateRestorationTester(composeRule)
+        val settingViewModel = settingViewModel(SettingGeminiUiState.Content(setting = geminiSetting()))
+        val modelViewModel = modelViewModel(SettingGeminiModelUiState(isLoaded = true, modelList = modelList))
+        restorationTester.setContent {
+            DiaryTheme {
+                SettingGeminiScreen(
+                    navigateUp = {},
+                    componentVisibleProvider = { SettingGeminiScaffoldComponentVisible() },
+                    settingViewModel = settingViewModel,
+                    modelViewModel = modelViewModel,
+                )
+            }
+        }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+        composeRule.onNode(hasContentDescription(DEFAULT_MODEL_LABEL, substring = true)).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_MODEL_PICKER_TITLE).assertExists()
+        composeRule.onNodeWithText(modelList[1].id).assertExists()
+        verify(exactly = 0) { modelViewModel.fetch(any()) }
     }
 
     private fun setScreen(

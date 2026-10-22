@@ -2,7 +2,10 @@ package io.github.taetae98coding.diary.feature.playlist.ui.detail
 
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
@@ -20,9 +23,17 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.testing.TestLifecycleOwner
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.playlist.MusicDetail
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.matchers.floats.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -37,6 +48,8 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
+
+private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36], qualifiers = "w411dp-h891dp")
@@ -322,6 +335,28 @@ class MusicDetailScreenTest {
     }
 
     @Test
+    fun `TC-2a6ac1ab-ec1e-4738-96e5-212aa8a06d82 열지 못한 것을 실행 환경이 알려 주지 않으면 안내하지 않는다`() {
+        var navigateUpCount = 0
+        // 열지 못한 것을 알려 주지 않는 실행 환경에서는 여는 요청이 오류 없이 끝나므로, 정상 반환하는 처리기로 그 환경을 흉내 낸다.
+        val uriHandler =
+            mockk<UriHandler> {
+                every { openUri(any()) } returns Unit
+            }
+        setMusicDetailScreen(uiState = contentUiState(), navigateUp = { navigateUpCount += 1 }, uriHandler = uriHandler)
+        composeRule.titleInput().performTextReplacement(EDITING_TITLE)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_OPEN_IN_NEW_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        verify(exactly = 1) { uriHandler.openUri(STORED_LINK) }
+        navigateUpCount shouldBe 0
+        composeRule.onNodeWithText("Couldn't open the link.").assertDoesNotExist()
+        composeRule.titleInput().assert(hasText(EDITING_TITLE))
+        composeRule.onNodeWithContentDescription(DEFAULT_OPEN_IN_NEW_DESCRIPTION).assertExists()
+    }
+
+    @Test
     fun `TC-357cb158-ffce-4531-8b75-1b02484fb538 저장된 링크가 비어 있으면 외부로 열기를 제공하지 않는다`() {
         setMusicDetailScreen(uiState = contentUiState(detail = testMusicDetail(link = "")))
 
@@ -456,6 +491,110 @@ class MusicDetailScreenTest {
     }
 
     @Test
+    fun `TC-244d0959-ce7b-4bfa-8bf6-20a2154fe841 앱이 백그라운드에 다녀와도 입력 중이던 내용을 유지한다`() {
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        val viewModel = detailViewModel(uiState = contentUiState())
+
+        composeRule.setContent {
+            DiaryTheme {
+                CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                    MusicDetailScreen(
+                        navigateUp = {},
+                        componentVisibleProvider = { MusicDetailScaffoldComponentVisible() },
+                        viewModel = viewModel,
+                    )
+                }
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.titleInput().performTextReplacement(EDITING_TITLE)
+        composeRule.artistInput().performTextReplacement(EDITING_ARTIST)
+        composeRule.linkInput().performTextReplacement(CHANGED_LINK)
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP) }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START) }
+        composeRule.runOnIdle { lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_RESUME) }
+        composeRule.waitForIdle()
+
+        composeRule.titleInput().assert(hasText(EDITING_TITLE))
+        composeRule.artistInput().assert(hasText(EDITING_ARTIST))
+        composeRule.linkInput().assert(hasText(CHANGED_LINK))
+        composeRule.nodeCount(DEFAULT_THUMBNAIL_PREVIEW_DESCRIPTION) shouldBe 1
+        verify(exactly = 0) { viewModel.fetchLink(link = any()) }
+    }
+
+    @Test
+    @Config(qualifiers = SCROLLABLE_QUALIFIERS)
+    fun `TC-1013f30a-aa1c-4e49-a93f-25b5751e06a8 수정을 처리하는 동안과 끝난 뒤 보고 있던 화면 위치를 유지한다`() {
+        assertScrollPositionRetainedWhileInProgress { content, isInProgress -> content.copy(isUpdateInProgress = isInProgress) }
+    }
+
+    @Test
+    @Config(qualifiers = SCROLLABLE_QUALIFIERS)
+    fun `TC-1013f30a-aa1c-4e49-a93f-25b5751e06a8 다시 불러오기를 처리하는 동안과 끝난 뒤 보고 있던 화면 위치를 유지한다`() {
+        assertScrollPositionRetainedWhileInProgress { content, isInProgress -> content.copy(isLinkFetchInProgress = isInProgress) }
+    }
+
+    @Test
+    @Config(qualifiers = SCROLLABLE_QUALIFIERS)
+    fun `TC-1013f30a-aa1c-4e49-a93f-25b5751e06a8 삭제를 처리하는 동안과 삭제가 실패해 화면에 머무를 때 보고 있던 화면 위치를 유지한다`() {
+        assertScrollPositionRetainedWhileInProgress { content, isInProgress -> content.copy(isDeleteInProgress = isInProgress) }
+    }
+
+    @Test
+    @Config(qualifiers = SCROLLABLE_QUALIFIERS)
+    fun `TC-0b427986-aa2e-42e6-93c8-2989064f91af 저장된 내용이 갱신되어도 보고 있던 화면 위치를 유지한다`() {
+        val uiState = contentUiState()
+        setMusicDetailScreen(uiState = uiState)
+        val scrolledTop = scrollToThumbnail()
+
+        composeRule.runOnIdle { uiState.value = uiState.content().copy(detail = testMusicDetail(title = CHANGED_TITLE)) }
+        composeRule.waitForIdle()
+
+        composeRule
+            .onNode(hasText(CHANGED_TITLE) and SemanticsMatcher.keyNotDefined(SemanticsProperties.EditableText))
+            .assertExists()
+        titleInputTop() shouldBe scrolledTop
+    }
+
+    @Test
+    fun `TC-eb3351ca-807f-4da5-aada-0a8f97dd4842 앱을 종료한 뒤 새로 진입하면 수정 중이던 내용을 복원하지 않는다`() {
+        val musicId = fixtureMonkey.giveMeOne<Uuid>()
+        val firstLaunchViewModel = detailViewModel(uiState = contentUiState(id = musicId))
+        var launchCount by mutableIntStateOf(0)
+
+        composeRule.setContent {
+            DiaryTheme {
+                // 앱을 다시 실행하면 저장 상태 없이 같은 곡의 화면을 새 ViewModel로 다시 구성한다.
+                key(launchCount) {
+                    val viewModel = remember { if (launchCount == 0) firstLaunchViewModel else detailViewModel(uiState = contentUiState(id = musicId)) }
+
+                    MusicDetailScreen(
+                        navigateUp = {},
+                        componentVisibleProvider = { MusicDetailScaffoldComponentVisible() },
+                        viewModel = viewModel,
+                    )
+                }
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.titleInput().performTextReplacement(EDITING_TITLE)
+        composeRule.artistInput().performTextReplacement(EDITING_ARTIST)
+        composeRule.linkInput().performTextReplacement(CHANGED_LINK)
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { launchCount += 1 }
+        composeRule.waitForIdle()
+
+        composeRule.titleInput().assert(hasText(STORED_TITLE))
+        composeRule.artistInput().assert(hasText(STORED_ARTIST))
+        composeRule.linkInput().assert(hasText(STORED_LINK))
+        verify(exactly = 0) { firstLaunchViewModel.update(detail = any()) }
+    }
+
+    @Test
     fun `TC-d7bfce7e-9215-4a4b-b359-bc67b377b3ce 링크가 비어 있으면 다시 불러오기 뒤 링크 입력을 알리고 초점을 옮긴다`() {
         assertFetchLinkInvalid(link = "", effect = MusicDetailEffect.LinkBlank, message = DEFAULT_LINK_BLANK_MESSAGE)
     }
@@ -511,6 +650,37 @@ class MusicDetailScreenTest {
         composeRule.artistInput().assert(hasText(STORED_ARTIST))
     }
 
+    private fun assertScrollPositionRetainedWhileInProgress(withInProgress: (MusicDetailUiState.Content, Boolean) -> MusicDetailUiState.Content) {
+        val uiState = contentUiState()
+        setMusicDetailScreen(uiState = uiState)
+        val scrolledTop = scrollToThumbnail()
+
+        composeRule.runOnIdle { uiState.value = withInProgress(uiState.content(), true) }
+        composeRule.waitForIdle()
+        titleInputTop() shouldBe scrolledTop
+
+        composeRule.runOnIdle { uiState.value = withInProgress(uiState.content(), false) }
+        composeRule.waitForIdle()
+        titleInputTop() shouldBe scrolledTop
+    }
+
+    private fun titleInputTop(): Float =
+        composeRule
+            .titleInput()
+            .fetchSemanticsNode()
+            .positionInRoot.y
+
+    // 본문을 썸네일까지 스크롤하고 실제로 화면 위치가 옮겨졌는지 확인한 뒤 옮겨진 위치를 돌려준다.
+    private fun scrollToThumbnail(): Float {
+        val top = titleInputTop()
+        composeRule.onNodeWithContentDescription(DEFAULT_THUMBNAIL_PREVIEW_DESCRIPTION).performScrollTo()
+        composeRule.waitForIdle()
+
+        return titleInputTop().also { scrolledTop -> scrolledTop shouldBeLessThan top }
+    }
+
+    private fun MutableStateFlow<MusicDetailUiState>.content(): MusicDetailUiState.Content = value as MusicDetailUiState.Content
+
     private fun ComposeContentTestRule.visibleTextList(): List<String> =
         onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text), useUnmergedTree = true)
             .fetchSemanticsNodes()
@@ -542,6 +712,8 @@ class MusicDetailScreenTest {
     }
 
     private companion object {
+        // 본문이 한 화면에 다 들어가지 않아 스크롤해야 하는 높이.
+        private const val SCROLLABLE_QUALIFIERS = "w411dp-h360dp"
         private const val CHANGED_LINK = "https://www.youtube.com/watch?v=ArmDp-zijuc"
         private const val NOT_YOUTUBE_LINK = "https://vimeo.com/76979871"
         private const val EDITING_ARTIST = "MusicDetailEditingArtist"

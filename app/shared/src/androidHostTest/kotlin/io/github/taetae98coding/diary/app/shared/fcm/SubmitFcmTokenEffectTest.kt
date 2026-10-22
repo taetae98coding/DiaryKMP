@@ -1,5 +1,6 @@
 package io.github.taetae98coding.diary.app.shared.fcm
 
+import android.Manifest
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -25,6 +26,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
@@ -120,6 +123,35 @@ class SubmitFcmTokenEffectTest {
 
         composeRule.runOnIdle {
             coVerify(exactly = 2) { submitFcmTokenUseCase(parameter = Unit) }
+        }
+    }
+
+    @Test
+    fun `TC-744ada98-8541-475e-971e-b637dc67d656 알림 권한이 거부되어 있어도 앱이 시작되어 계정이 확인되면 등록을 요청한다`() {
+        shadowOf(RuntimeEnvironment.getApplication()).denyPermissions(Manifest.permission.POST_NOTIFICATIONS)
+        val account = fixtureMonkey.giveMeOne<Account.User>().copy(isSessionValid = true)
+        val getAccountUseCase = mockk<GetAccountUseCase>()
+        every { getAccountUseCase(parameter = Unit) } returns flowOf(Result.success(account))
+        val submitFcmTokenUseCase = mockk<SubmitFcmTokenUseCase>()
+        coEvery { submitFcmTokenUseCase(parameter = Unit) } returns Result.success(Unit)
+        val viewModel =
+            AppFcmTokenViewModel(
+                getAccountUseCase = getAccountUseCase,
+                submitFcmTokenUseCase = submitFcmTokenUseCase,
+            )
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.STARTED)
+
+        composeRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                SubmitFcmTokenEffect(
+                    submit = viewModel::submit,
+                    uiState = viewModel.uiState,
+                )
+            }
+        }
+
+        composeRule.runOnIdle {
+            coVerify(exactly = 1) { submitFcmTokenUseCase(parameter = Unit) }
         }
     }
 

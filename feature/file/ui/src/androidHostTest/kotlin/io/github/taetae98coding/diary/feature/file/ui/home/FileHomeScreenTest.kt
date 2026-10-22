@@ -6,7 +6,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
@@ -824,6 +826,31 @@ class FileHomeScreenTest {
     @Test
     fun `TC-2ccaa189-1939-4b2f-8e70-7e1723e3e24c 떠나기 전에 시작한 올리기가 끝나지 않았으면 다시 들어와도 진행 중 표시를 보인다`() {
         assertReentryReloadsFromTop(isUploading = true)
+    }
+
+    @Test
+    fun `TC-02575c48-f965-4cac-bb7b-8ead46ecc395 앱을 다시 실행하면 목록을 처음부터 다시 불러와 처음부터 보여 준다`() {
+        val fileList = fileList(count = 30)
+        val relaunchedServer = server(pageList = fileList.chunked(PAGE_SIZE))
+        var launchCount by mutableIntStateOf(0)
+        var nextScreen = fileHomeScreen(server = server(pageList = fileList.chunked(PAGE_SIZE)))
+        // 앱을 다시 실행하면 저장된 화면 상태와 화면 상태 홀더가 모두 사라지므로, 새 화면으로 저장 상태 없이 다시 구성한다.
+        composeRule.setContent {
+            key(launchCount) {
+                val screen = remember { nextScreen }
+                screen.Content()
+            }
+        }
+        composeRule.waitForIdle()
+        scrollListTo(index = PAGE_SIZE - 1)
+        composeRule.onNodeWithText(fileList.first().name).assertDoesNotExist()
+        nextScreen = fileHomeScreen(server = relaunchedServer)
+
+        composeRule.runOnIdle { launchCount += 1 }
+        composeRule.waitForIdle()
+
+        coVerify(exactly = 1) { relaunchedServer(0) }
+        composeRule.onNodeWithText(fileList.first().name).assertIsDisplayed()
     }
 
     @Test

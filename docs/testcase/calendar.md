@@ -2,6 +2,8 @@
 
 기준 스펙: [Calendar 컴포넌트 스펙](../spec/client/calendar.md)
 
+아이템이 각 주의 어느 날짜 칸에 어떤 크기로 놓이는지는 [CalendarWeekOfMonth 테스트 케이스](calendar-week-of-month.md)를, 아이템 영역의 스크롤을 맨 위로 되돌리는 요청이 각 주에 전달되는 것은 [CalendarMonth 테스트 케이스](calendar-month.md)의 TC-ffae68f7-f960-491b-a8d1-fd884b2ab2b0과 [CalendarWeekOfMonth 테스트 케이스](calendar-week-of-month.md)의 TC-984c3a12-435a-4fe9-ab50-37c9ffe2c095를, 날짜 선택은 [Calendar 날짜 선택 테스트 케이스](calendar-select.md)를 따른다.
+
 ## feature
 
 ### TC-e41da8ba-c7b2-48b4-a1c2-4645f1ff34ae: 시작 달로 지정한 달의 캘린더를 여섯 주로 표시한다
@@ -220,9 +222,3 @@
 - Given: 2026년 7월이 시작 달로 지정되고 공휴일이 없는 캘린더가 표시되어 있다.
 - When: 배치하는 화면이 월요일 7월 13일을 공휴일로 지정한 뒤, 다시 공휴일을 비운다.
 - Then: 사용자가 별도 조작을 하지 않아도 지정한 동안에는 7월 13일이 공휴일로 구분되고, 비운 뒤에는 평일로 표시된다.
-
-## 작성하지 않는 이유
-
-아이템이 각 주의 어느 날짜 칸에 어떤 크기로 놓이는지는 [CalendarWeekOfMonth 테스트 케이스](calendar-week-of-month.md)의 작성하지 않는 이유를 따른다. Calendar 수준에서는 지정한 아이템이 표시되는지만 TC-e6c9f7ec-89fc-4828-b95e-803df8b82aa5, TC-7141c112-246a-4b3e-882b-dbbd07a70441, TC-0efa4db3-121a-40be-90fd-d152b74f5ef9, TC-f232b5e2-2094-4185-ad23-d28cb8635ac7로 확인한다.
-
-아이템 영역의 스크롤을 맨 위로 되돌리는 요청이 각 주에 전달되는 것은 [CalendarMonth 테스트 케이스](calendar-month.md)의 TC-ffae68f7-f960-491b-a8d1-fd884b2ab2b0과 [CalendarWeekOfMonth 테스트 케이스](calendar-week-of-month.md)의 TC-984c3a12-435a-4fe9-ab50-37c9ffe2c095로 확인하므로, Calendar 수준에서 같은 결과를 다시 검증하는 케이스는 두지 않는다.

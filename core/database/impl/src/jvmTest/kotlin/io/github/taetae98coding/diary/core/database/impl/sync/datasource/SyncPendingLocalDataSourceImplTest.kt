@@ -26,6 +26,7 @@ import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.first
+import java.io.File
 import kotlin.uuid.Uuid
 
 private typealias PendingWriter = suspend (DiaryDatabase, Uuid, Boolean) -> Unit
@@ -156,4 +157,35 @@ class SyncPendingLocalDataSourceImplTest :
         test("아무 항목도 없으면 대기 항목이 없다고 알린다") {
             dataSource.hasPending(accountId = uuid()).first() shouldBe false
         }
+
+        test("TC-d6a9c2f7-0d4b-4475-ac62-dce3d62f6f20 데이터베이스를 닫고 다시 열어도 업로드 대기 상태가 그대로 조회된다") {
+            val file = File.createTempFile("sync-pending", ".db")
+
+            try {
+                pendingWriterMap.forEach { (kind, write) ->
+                    val accountId = uuid()
+                    val firstDatabase = fileDatabase(file)
+                    write(firstDatabase, accountId, true)
+                    firstDatabase.close()
+
+                    val secondDatabase = fileDatabase(file)
+
+                    try {
+                        withClue(kind) {
+                            SyncPendingLocalDataSourceImpl(database = secondDatabase).hasPending(accountId = accountId).first() shouldBe true
+                        }
+                    } finally {
+                        secondDatabase.close()
+                    }
+                }
+            } finally {
+                file.delete()
+            }
+        }
     })
+
+private fun fileDatabase(file: File): DiaryDatabase =
+    Room
+        .databaseBuilder<DiaryDatabase>(name = file.absolutePath)
+        .setDriver(BundledSQLiteDriver())
+        .build()

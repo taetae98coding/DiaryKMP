@@ -82,7 +82,7 @@ class ScreenNameTest :
             }
         }
 
-        test("화면 이름 목록은 등록된 모든 화면 키를 한 번씩만 담는다") {
+        test("TC-2267537e-3af3-492a-a7bf-7ed245bceeb4 화면 이름 목록은 등록된 모든 화면 키를 한 번씩만 담는다") {
             val screenNameByNavKey = screenNameByNavKey()
 
             screenNameByNavKey.keys.map { navKey -> navKey::class }.toSet() shouldBe registeredScreenNavKeyClassSet()

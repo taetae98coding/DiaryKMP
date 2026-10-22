@@ -1,10 +1,18 @@
 package io.github.taetae98coding.diary.feature.memo.ui.gemini
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
+import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -122,7 +130,7 @@ class MemoGeminiScreenTest {
         composeRule.waitForIdle()
 
         composeRule.onNode(promptInput).assert(hasText(prompt))
-        composeRule.onNodeWithContentDescription("Apply $TITLE_LABEL").assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(APPLY_TITLE_DESCRIPTION).assertDoesNotExist()
         composeRule.onAllNodes(memoInput)[0].assert(hasText(memoText))
     }
 
@@ -165,7 +173,7 @@ class MemoGeminiScreenTest {
 
         composeRule.onNode(promptInput).assert(hasText(prompt).not())
         composeRule.onNodeWithText(prompt).assertDoesNotExist()
-        composeRule.onNodeWithContentDescription("Apply $TITLE_LABEL").assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(APPLY_TITLE_DESCRIPTION).assertDoesNotExist()
     }
 
     @Test
@@ -187,6 +195,143 @@ class MemoGeminiScreenTest {
         composeRule.onAllNodes(memoInput)[0].assert(hasText(memoText))
     }
 
+    @Test
+    fun `TC-b53d62a3-aa38-411e-b659-6ca9c4b0f3e6 화면을 떠났다가 다시 들어오면 도우미가 닫힌 상태로 시작하고 다시 열면 프롬프트가 비어 있다`() {
+        var isShown by mutableStateOf(true)
+
+        // 전환 이력에서 빠진 화면은 저장 상태와 화면 상태를 들고 있던 객체가 함께 사라지므로, 다시 들어온 화면은 저장 상태 없이 새 인스턴스로 구성된다.
+        assertAssistantClosedOnFreshScreen(
+            setContent = { content -> composeRule.setContent { if (isShown) content() } },
+            passBoundary = {
+                composeRule.runOnIdle { isShown = false }
+                composeRule.waitForIdle()
+                composeRule.runOnIdle { isShown = true }
+            },
+        )
+    }
+
+    @Test
+    fun `TC-b53d62a3-aa38-411e-b659-6ca9c4b0f3e6 앱을 다시 실행하면 도우미가 닫힌 상태로 시작하고 다시 열면 프롬프트가 비어 있다`() {
+        var launchCount by mutableIntStateOf(0)
+
+        // 앱을 다시 실행하면 저장해 둔 화면 상태도, 화면 상태를 들고 있던 객체도 없으므로 새 키와 새 인스턴스로 같은 화면을 다시 구성한다.
+        assertAssistantClosedOnFreshScreen(
+            setContent = { content -> composeRule.setContent { key(launchCount) { content() } } },
+            passBoundary = { composeRule.runOnIdle { launchCount += 1 } },
+        )
+    }
+
+    @Test
+    fun `TC-0b62aa7d-920b-40dd-8b68-0ef195cb7e6e 시스템이 앱을 종료했다가 되살리면 도우미가 닫힌 상태로 돌아오고 다시 열면 프롬프트가 비어 있다`() {
+        val restorationTester = StateRestorationTester(composeRule)
+
+        // 되살린 앱은 저장 상태로 화면을 다시 만들지만, 도우미 상태를 들고 있던 객체는 새 인스턴스로 만들어진다.
+        assertAssistantClosedOnFreshScreen(
+            setContent = { content -> restorationTester.setContent { content() } },
+            passBoundary = { restorationTester.emulateSavedInstanceStateRestore() },
+        )
+    }
+
+    @Test
+    fun `TC-183e93b6-9153-48ad-b109-91ac15144cef 생성 중에 화면을 떠났다가 다시 들어오면 도우미가 닫혀 있고 늦게 온 결과가 나타나지 않는다`() {
+        var isShown by mutableStateOf(true)
+
+        assertGenerationStoppedOnFreshScreen(
+            setContent = { content -> composeRule.setContent { if (isShown) content() } },
+            passBoundary = {
+                composeRule.runOnIdle { isShown = false }
+                composeRule.waitForIdle()
+                composeRule.runOnIdle { isShown = true }
+            },
+        )
+    }
+
+    @Test
+    fun `TC-183e93b6-9153-48ad-b109-91ac15144cef 생성 중에 앱을 다시 실행하면 도우미가 닫혀 있고 늦게 온 결과가 나타나지 않는다`() {
+        var launchCount by mutableIntStateOf(0)
+
+        assertGenerationStoppedOnFreshScreen(
+            setContent = { content -> composeRule.setContent { key(launchCount) { content() } } },
+            passBoundary = { composeRule.runOnIdle { launchCount += 1 } },
+        )
+    }
+
+    @Test
+    fun `TC-183e93b6-9153-48ad-b109-91ac15144cef 생성 중에 시스템이 앱을 종료했다가 되살리면 도우미가 닫혀 있고 늦게 온 결과가 나타나지 않는다`() {
+        val restorationTester = StateRestorationTester(composeRule)
+
+        assertGenerationStoppedOnFreshScreen(
+            setContent = { content -> restorationTester.setContent { content() } },
+            passBoundary = { restorationTester.emulateSavedInstanceStateRestore() },
+        )
+    }
+
+    // 경계를 지나기 전의 도우미 상태 객체에 응답이 늦게 도착해도, 다시 보인 화면은 새 인스턴스의 상태만 보여야 한다.
+    private fun assertGenerationStoppedOnFreshScreen(
+        setContent: (content: @Composable () -> Unit) -> Unit,
+        passBoundary: () -> Unit,
+    ) {
+        val firstUiState = MutableStateFlow(MemoGeminiUiState())
+        val freshUiState = MutableStateFlow(MemoGeminiUiState())
+        var compositionCount = 0
+        setContent {
+            val geminiUiState = remember { if (compositionCount++ == 0) firstUiState else freshUiState }
+            val viewModels = remember { screenTestViewModel() }
+            val geminiViewModel = remember { screenTestGeminiViewModel(uiState = geminiUiState) }
+
+            TestMemoAddScreen(viewModels = viewModels, geminiViewModel = geminiViewModel)
+        }
+        writePrompt(geminiUiState = firstUiState, memoText = memoText(), prompt = promptText())
+        firstUiState.value = MemoGeminiUiState(step = MemoGeminiStep.GENERATING)
+        composeRule.waitForIdle()
+        composeRule.onNode(isDialog()).assertExists()
+
+        passBoundary()
+        composeRule.waitForIdle()
+
+        composeRule.onNode(isDialog()).assertDoesNotExist()
+
+        firstUiState.value = MemoGeminiUiState(step = MemoGeminiStep.RESULT, draft = createDraft())
+        composeRule.waitForIdle()
+
+        composeRule.onNode(isDialog()).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(APPLY_TITLE_DESCRIPTION).assertDoesNotExist()
+    }
+
+    private fun assertAssistantClosedOnFreshScreen(
+        setContent: (content: @Composable () -> Unit) -> Unit,
+        passBoundary: () -> Unit,
+    ) {
+        val prompt = promptText()
+        val firstUiState = MutableStateFlow(MemoGeminiUiState())
+        val freshUiState = MutableStateFlow(MemoGeminiUiState())
+        var compositionCount = 0
+        setContent {
+            val geminiUiState = remember { if (compositionCount++ == 0) firstUiState else freshUiState }
+            val viewModels = remember { screenTestViewModel() }
+            val geminiViewModel = remember { screenTestGeminiViewModel(uiState = geminiUiState) }
+
+            TestMemoAddScreen(viewModels = viewModels, geminiViewModel = geminiViewModel)
+        }
+        writePrompt(geminiUiState = firstUiState, memoText = memoText(), prompt = prompt)
+        firstUiState.value = MemoGeminiUiState(step = MemoGeminiStep.RESULT, draft = createDraft())
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(APPLY_TITLE_DESCRIPTION).assertExists()
+
+        passBoundary()
+        composeRule.waitForIdle()
+
+        composeRule.onNode(isDialog()).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(APPLY_TITLE_DESCRIPTION).assertDoesNotExist()
+
+        freshUiState.value = MemoGeminiUiState(step = MemoGeminiStep.PROMPT)
+        composeRule.waitForIdle()
+
+        composeRule.onNode(promptInput).assert(hasText(""))
+        composeRule.onNodeWithText(prompt).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(APPLY_TITLE_DESCRIPTION).assertDoesNotExist()
+    }
+
     private fun writePrompt(
         geminiUiState: MutableStateFlow<MemoGeminiUiState>,
         memoText: String,
@@ -206,31 +351,40 @@ class MemoGeminiScreenTest {
         navigateUp: () -> Unit = {},
     ) {
         composeRule.setContent {
-            MemoAddScreenTestTheme {
-                MemoAddScreen(
-                    addRequestKey = TEST_ADD_REQUEST_KEY,
-                    addViewModel = viewModels.viewModel,
-                    tagViewModel = viewModels.tagViewModel,
-                    webViewModel = viewModels.webViewModel,
-                    contactViewModel = viewModels.contactViewModel,
-                    placeViewModel = viewModels.placeViewModel,
-                    placeMapViewModel = screenTestPlaceMapViewModel(),
-                    placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
-                    geminiViewModel = geminiViewModel,
-                    navigateUp = navigateUp,
-                    navigateToTagAdd = {},
-                    navigateToTagDetail = {},
-                    navigateToWebAdd = {},
-                    navigateToWebDetail = {},
-                    navigateToContactAdd = {},
-                    navigateToContactDetail = {},
-                    navigateToPlaceAdd = {},
-                    navigateToPlaceDetail = {},
-                    initialDateTime = null,
-                    componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
-                    isStandalone = true,
-                )
-            }
+            TestMemoAddScreen(viewModels = viewModels, geminiViewModel = geminiViewModel, navigateUp = navigateUp)
+        }
+    }
+
+    @Composable
+    private fun TestMemoAddScreen(
+        viewModels: MemoAddScreenViewModels,
+        geminiViewModel: MemoGeminiViewModel,
+        navigateUp: () -> Unit = {},
+    ) {
+        MemoAddScreenTestTheme {
+            MemoAddScreen(
+                addRequestKey = TEST_ADD_REQUEST_KEY,
+                addViewModel = viewModels.viewModel,
+                tagViewModel = viewModels.tagViewModel,
+                webViewModel = viewModels.webViewModel,
+                contactViewModel = viewModels.contactViewModel,
+                placeViewModel = viewModels.placeViewModel,
+                placeMapViewModel = screenTestPlaceMapViewModel(),
+                placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
+                geminiViewModel = geminiViewModel,
+                navigateUp = navigateUp,
+                navigateToTagAdd = {},
+                navigateToTagDetail = {},
+                navigateToWebAdd = {},
+                navigateToWebDetail = {},
+                navigateToContactAdd = {},
+                navigateToContactDetail = {},
+                navigateToPlaceAdd = {},
+                navigateToPlaceDetail = {},
+                initialDateTime = null,
+                componentVisibleProvider = { MemoAddScaffoldComponentVisible() },
+                isStandalone = true,
+            )
         }
     }
 
@@ -246,6 +400,7 @@ class MemoGeminiScreenTest {
 
         private const val PROMPT_LABEL = "Prompt"
         private const val TITLE_LABEL = "Title"
+        private const val APPLY_TITLE_DESCRIPTION = "Apply $TITLE_LABEL"
         private const val DESCRIPTION_LABEL = "Description"
         private const val DATE_TIME_LABEL = "Date & time"
         private const val INVALID_API_KEY_MESSAGE = "Check your API key"

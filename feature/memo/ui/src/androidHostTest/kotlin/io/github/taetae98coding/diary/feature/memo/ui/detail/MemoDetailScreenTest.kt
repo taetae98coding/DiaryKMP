@@ -1,5 +1,10 @@
 package io.github.taetae98coding.diary.feature.memo.ui.detail
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
@@ -164,6 +169,67 @@ class MemoDetailScreenTest {
         composeRule.onAllNodes(hasSetTextAction()).onFirst().assert(hasText(MEMO_TITLE + EDIT_SUFFIX))
         composeRule.onAllNodesWithText(MEMO_TITLE).assertCountEquals(1)
         composeRule.onAllNodes(hasSetTextAction())[1].assert(hasText(MEMO_DESCRIPTION + EDIT_SUFFIX))
+    }
+
+    @Test
+    fun `TC-86d12fb8-92b9-410a-a22f-fa92596d965f 앱을 종료한 뒤 새로 진입하면 저장된 내용으로 다시 채운다`() {
+        var launchCount by mutableIntStateOf(0)
+        val viewModelList = mutableListOf<MemoDetailViewModel>()
+        val savedDetail = memoDetail(MEMO_TITLE).copy(description = MEMO_DESCRIPTION, color = MEMO_COLOR, dateTime = allDayDateTime())
+        // 앱을 다시 실행하면 저장해 둔 화면 상태가 없고 메모를 다시 조회하는 새 인스턴스가 만들어지므로, 새 키로 저장 상태 없이 화면을 다시 구성한다.
+        composeRule.setContent {
+            key(launchCount) {
+                val viewModel = remember { screenTestViewModel(uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = savedDetail))).also(viewModelList::add) }
+
+                MemoDetailScreenTestTheme {
+                    MemoDetailScreen(
+                        addRequestKey = TEST_ADD_REQUEST_KEY,
+                        detailViewModel = viewModel,
+                        tagViewModel = screenTestTagViewModel(),
+                        webViewModel = screenTestWebViewModel(),
+                        contactViewModel = screenTestContactViewModel(),
+                        placeViewModel = screenTestPlaceViewModel(),
+                        placeMapViewModel = screenTestPlaceMapViewModel(),
+                        placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
+                        geminiViewModel = screenTestGeminiViewModel(),
+                        navigateUp = {},
+                        navigateToCopiedMemo = {},
+                        navigateToTagAdd = {},
+                        navigateToTagDetail = {},
+                        navigateToWebAdd = {},
+                        navigateToWebDetail = {},
+                        navigateToContactAdd = {},
+                        navigateToContactDetail = {},
+                        navigateToPlaceAdd = {},
+                        navigateToPlaceDetail = {},
+                        componentVisibleProvider = { MemoDetailScaffoldComponentVisible() },
+                        isStandalone = true,
+                    )
+                }
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().performTextInput(EDIT_SUFFIX)
+        composeRule.onNodeWithContentDescription(DEFAULT_INPUT_TAB_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        composeRule.onAllNodes(hasSetTextAction())[1].performTextInput(EDIT_SUFFIX)
+        composeRule.waitForIdle()
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().assert(hasText(MEMO_TITLE + EDIT_SUFFIX))
+        composeRule.onAllNodes(hasSetTextAction())[1].assert(hasText(MEMO_DESCRIPTION + EDIT_SUFFIX))
+
+        composeRule.runOnIdle { launchCount += 1 }
+        composeRule.waitForIdle()
+
+        viewModelList.size shouldBe 2
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().assert(hasText(MEMO_TITLE))
+        composeRule.onAllNodesWithText(MEMO_TITLE).assertCountEquals(2)
+        composeRule.onNodeWithContentDescription(DEFAULT_INPUT_TAB_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        composeRule.onAllNodes(hasSetTextAction())[1].assert(hasText(MEMO_DESCRIPTION))
+        composeRule.colorHexText() shouldBe MEMO_COLOR_HEX
+        composeRule.onNode(hasRole(Role.Switch)).assertIsOn()
+        composeRule.onNodeWithText(ALL_DAY_START_DATE_TEXT).assertExists()
+        composeRule.onNodeWithText(ALL_DAY_END_DATE_TEXT).assertExists()
     }
 
     @Test

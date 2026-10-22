@@ -4,6 +4,8 @@ import androidx.activity.ComponentActivity
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
@@ -120,6 +122,36 @@ class TagHomeExecutionBoundaryTest {
         composeRule.onNodeWithText(DEFAULT_TITLE_SORT).assertExists()
         composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).assertDoesNotExist()
         assertScrolledPosition(tagList)
+    }
+
+    @Test
+    fun `TC-987559f4-437f-45bc-b7cb-cb03fb99eed7 앱을 다시 실행하면 필터 선택은 이어지고 정렬은 처음으로 돌아가며 목록은 맨 위부터 보인다`() {
+        val tagList = tagList()
+        val filterUiState = TagHomeScaffoldFilterUiState(isLoaded = true, isApplied = true)
+        var nextViewModel = screenTestViewModel(tagList = tagList, sort = ListSort.RECENTLY_UPDATED, filterUiState = filterUiState)
+        var launchCount by mutableIntStateOf(0)
+        // 앱을 다시 실행하면 저장된 화면 상태와 ViewModel이 모두 사라지므로, 새 ViewModel로 저장 상태 없이 화면을 다시 구성한다.
+        composeRule.setContent {
+            key(launchCount) {
+                val viewModel = remember { nextViewModel }
+                Home(viewModel = viewModel)
+            }
+        }
+        composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).assertExists()
+        scrollList()
+        // 필터 선택은 기기에 저장된 값으로 다시 조회되므로 새 ViewModel도 켜진 선택을 받는다.
+        nextViewModel = screenTestViewModel(tagList = tagList, filterUiState = filterUiState)
+
+        composeRule.runOnIdle { launchCount += 1 }
+        composeRule.waitForIdle()
+
+        composeRule
+            .onNodeWithContentDescription(DEFAULT_FILTER_BUTTON_DESCRIPTION)
+            .assert(hasStateDescription(DEFAULT_FILTER_APPLIED_STATE_DESCRIPTION))
+        composeRule.onNodeWithText(DEFAULT_TITLE_SORT).assertExists()
+        composeRule.onNodeWithText(DEFAULT_RECENTLY_UPDATED_SORT).assertDoesNotExist()
+        composeRule.onNodeWithText(tagList.first().detail.title).assertIsDisplayed()
+        composeRule.onNodeWithText(tagList[SCROLLED_INDEX].detail.title).assertDoesNotExist()
     }
 
     @Test

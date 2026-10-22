@@ -90,6 +90,22 @@ class GeminiModelRemoteDataSourceImplTest :
             parameters.names() shouldBe setOf("pageSize")
         }
 
+        test("TC-211ae1fb-8290-4e06-a1ca-5b8f35ee50f1: 다음 결과가 남아 있다고 알려 와도 이어서 받지 않는다") {
+            val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
+            val name = modelName()
+            val content =
+                buildJsonObject {
+                    putJsonArray("models") { add(model(name = name)) }
+                    put("nextPageToken", "nextPageToken${fixtureMonkey.giveMeOne<Uuid>()}")
+                }.toString()
+            val engine = createEngine(content = content)
+            val dataSource = createDataSource(engine)
+
+            dataSource.getAvailableModel(apiKey = apiKey).map { model -> model.id } shouldContainExactly listOf(name)
+
+            engine.requestHistory.size shouldBe 1
+        }
+
         test("TC-aa003166-63bd-4035-a7ad-ebd30f51f83a: 인증 정보를 담아 조회한다") {
             val apiKey = "apiKey${fixtureMonkey.giveMeOne<Uuid>()}"
             val engine = createEngine()

@@ -4,11 +4,13 @@ package io.github.taetae98coding.diary.feature.web.ui
 
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -40,6 +42,7 @@ import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
+import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebHomeNavKey
 import io.github.taetae98coding.diary.feature.web.ui.add.INPUT_COUNT_WITHOUT_HEADER
@@ -131,6 +134,31 @@ class WebListDetailPlaceholderTest {
         assertPlaceholderRetained(route = TagDetailNavKey(id = Uuid.random()))
     }
 
+    @Test
+    fun `TC-95056249-4b0a-4482-b23f-1d2c025f4702 목록과 상세를 함께 쓰는 환경에서는 웹 목록과 상세 영역의 웹 추가를 함께 표시한다`() {
+        setWebNavDisplay(input = placeholderInput())
+
+        backStack.toList() shouldBe listOf(MoreNavKey, WebHomeNavKey)
+        composeRule.onNodeWithText(WEB_HOME_CONTENT).assertIsDisplayed()
+        composeRule.titleInput().assertIsDisplayed()
+        composeRule.urlInput().assertIsDisplayed()
+    }
+
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `TC-d821e061-1d4a-4935-bd52-065c171ab4d4 한 화면만 제공하는 환경에서는 웹 목록과 웹 추가를 각각 단독으로 표시한다`() {
+        setWebNavDisplay(input = placeholderInput())
+
+        composeRule.onNodeWithText(WEB_HOME_CONTENT).assertIsDisplayed()
+        composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(0)
+
+        composeRule.runOnIdle { backStack.navigateToWebAddFromHome() }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(WEB_ADD_CONTENT).assertIsDisplayed()
+        composeRule.onNodeWithText(WEB_HOME_CONTENT).assertDoesNotExist()
+    }
+
     private fun assertPlaceholderRetained(route: ScreenNavKey) {
         val input = placeholderInput()
         setWebNavDisplay(input = input)
@@ -175,6 +203,9 @@ class WebListDetailPlaceholderTest {
                                     clazzContentKey = { WEB_HOME_CONTENT_KEY },
                                     metadata = webHomeListPaneMetadata(backStack = backStack),
                                 ) { Text(text = WEB_HOME_CONTENT) }
+                                entry<WebAddNavKey>(
+                                    metadata = ListDetailSceneStrategy.detailPane(sceneKey = WebHomeNavKey),
+                                ) { Text(text = WEB_ADD_CONTENT) }
                                 entry<WebDetailNavKey> { Text(text = ROUTE_CONTENT) }
                                 entry<TagAddNavKey> { Text(text = ROUTE_CONTENT) }
                                 entry<TagDetailNavKey> { Text(text = ROUTE_CONTENT) }
@@ -253,6 +284,7 @@ class WebListDetailPlaceholderTest {
         const val MORE_CONTENT = "MoreContent"
         const val WEB_HOME_CONTENT = "WebHomeContent"
         const val ROUTE_CONTENT = "RouteContent"
+        const val WEB_ADD_CONTENT = "WebAddContent"
         val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
         // 배치를 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 relaxed mock을 쓴다.

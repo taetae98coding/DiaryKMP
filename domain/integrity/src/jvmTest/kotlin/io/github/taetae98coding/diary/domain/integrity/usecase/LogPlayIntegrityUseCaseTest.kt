@@ -235,7 +235,7 @@ class LogPlayIntegrityUseCaseTest :
             When("판정을 확인한다") {
                 val result = LogPlayIntegrityUseCase(playIntegrityRepository = repository)(parameter = Unit)
 
-                Then("TC-20072077-72da-437e-bd3a-7874cfc5c4d4 TC-38f0fd49-9bdf-435a-aef3-ca084756c93f 원격 분석 로그와 오류 보고 없이 오류를 던지지 않고 끝난다") {
+                Then("TC-20072077-72da-437e-bd3a-7874cfc5c4d4 TC-38f0fd49-9bdf-435a-aef3-ca084756c93f TC-3e0082f8-6e96-4f1f-ae14-648babc4b671 원격 분석 로그와 오류 보고 없이 오류를 던지지 않고 끝난다") {
                     result.shouldBeFailure()
                     logList.filterIsInstance<AnalyticsEventLog>().shouldBeEmpty()
                     logList.filterIsInstance<CrashlyticsLog>().shouldBeEmpty()

@@ -3,6 +3,8 @@ package io.github.taetae98coding.diary.feature.tag.ui.detail.place
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
@@ -142,6 +144,24 @@ class TagDetailPlaceListPositionTest {
         composeRule.runOnIdle { isTagDetailVisible = false }
         composeRule.waitForIdle()
         composeRule.runOnIdle { isTagDetailVisible = true }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(placeList.first().detail.title).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-af0e8779-540e-4ce5-94db-01c53de0a11a 앱을 종료하고 다시 실행하면 목록 모드의 목록을 맨 위부터 보여 준다`() {
+        val placeList = placeList()
+        val placePagingDataFlow = MutableStateFlow(tagEntityPagingData(itemList = placeList))
+        var launchCount by mutableIntStateOf(0)
+        composeRule.setContent {
+            // 앱을 다시 실행하면 저장해 둔 화면 상태가 없으므로, 새 키로 저장 상태 없이 화면을 다시 구성한다.
+            key(launchCount) { PlaceTab(placePagingDataFlow = placePagingDataFlow) }
+        }
+        scrollList()
+        isDisplayed(placeList.first().detail.title).shouldBeFalse()
+
+        composeRule.runOnIdle { launchCount += 1 }
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(placeList.first().detail.title).assertIsDisplayed()

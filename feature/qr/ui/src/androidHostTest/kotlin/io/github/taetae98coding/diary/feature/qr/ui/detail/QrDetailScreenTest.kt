@@ -7,7 +7,11 @@ import androidx.activity.result.ActivityResultRegistryOwner
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
@@ -34,6 +38,9 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation3.runtime.result.ResultEventBus
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.permission.rememberPermissionManager
@@ -488,6 +495,67 @@ class QrDetailScreenTest {
     @Test
     fun `TC-12659fd6-1dcd-439c-8ace-8975bbabbff9 시스템이 앱을 되살리며 화면을 다시 보여 줘도 입력, 포맷, 탭과 되돌리기 기록을 복원한다`() {
         assertInputRetained()
+    }
+
+    @Test
+    fun `TC-3d388656-9d46-429c-9229-d050d997a570 앱이 백그라운드에 다녀와도 입력, 포맷, 탭과 되돌리기 기록을 유지한다`() {
+        val editedTitle = editedText()
+        val fake = FakeViewModel(detail = QrDetail(title = qrTestFixtureMonkey.nonBlankString(), description = "", value = HELLO))
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        composeRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                ScreenContent(viewModel = fake.viewModel)
+            }
+        }
+        composeRule.onTitleInput().performTextReplacement(editedTitle)
+        composeRule.selectFormat(formatLabel = FORMAT_LABEL, formatName = WIFI_FORMAT)
+        composeRule.onQrFieldInput(NETWORK_NAME_LABEL).performTextInput("home")
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
+        composeRule.waitForIdle()
+
+        composeRule.isTabSelected(QR_TAB_INDEX) shouldBe true
+        composeRule.selectedFormat() shouldBe WIFI_FORMAT
+        composeRule.onQrFieldInput(NETWORK_NAME_LABEL).editableText() shouldBe "home"
+        composeRule.onNode(updateButton()).assertExists()
+        composeRule.titleInputText() shouldBe editedTitle
+        composeRule.onNodeWithContentDescription(UNDO).performClick()
+        composeRule.waitForIdle()
+        composeRule.selectedFormat() shouldBe TEXT_FORMAT
+        composeRule.qrTextInputText() shouldBe HELLO
+    }
+
+    // 앱을 다시 실행하면 저장해 둔 화면 상태도, 화면 상태를 들고 있던 객체도 없으므로 새 키와 새 인스턴스로 같은 QR의 화면을 다시 구성한다.
+    @Test
+    fun `TC-c4da1b3a-7069-4be3-a2e4-8f62fa9ae5ea 앱을 다시 실행해 진입하면 수정 중이던 내용을 복원하지 않는다`() {
+        val stored = QrDetail(title = qrTestFixtureMonkey.nonBlankString(), description = "", value = HELLO)
+        val firstLaunch = FakeViewModel(detail = stored)
+        var launchCount by mutableIntStateOf(0)
+        composeRule.setContent {
+            key(launchCount) {
+                val fake = remember { if (launchCount == 0) firstLaunch else FakeViewModel(detail = stored).apply { uiState.value = firstLaunch.content() } }
+
+                ScreenContent(viewModel = fake.viewModel)
+            }
+        }
+        composeRule.onTitleInput().performTextReplacement(editedText())
+        // 포맷을 바꾸면 QR 값이 통째로 바뀌어 되돌리기 기록이 남는다.
+        composeRule.selectFormat(formatLabel = FORMAT_LABEL, formatName = URL_LABEL)
+        composeRule.onQrFieldInput(URL_LABEL).performTextInput(EXAMPLE_URL)
+        composeRule.waitForIdle()
+        composeRule.isTabSelected(QR_TAB_INDEX) shouldBe true
+        composeRule.qrCodeValue() shouldBe EXAMPLE_URL
+        composeRule.onNodeWithContentDescription(UNDO).assertIsEnabled()
+
+        composeRule.runOnIdle { launchCount += 1 }
+        composeRule.waitForIdle()
+
+        composeRule.isTabSelected(INFO_TAB_INDEX) shouldBe true
+        composeRule.onNodeWithContentDescription(UNDO).assertIsNotEnabled()
+        composeRule.qrCodeValue() shouldBe HELLO
+        composeRule.titleInputText() shouldBe stored.title
     }
 
     @Test

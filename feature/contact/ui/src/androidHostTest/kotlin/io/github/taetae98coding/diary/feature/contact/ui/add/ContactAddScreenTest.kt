@@ -1,6 +1,10 @@
 package io.github.taetae98coding.diary.feature.contact.ui.add
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotSelected
@@ -321,6 +325,45 @@ class ContactAddScreenTest {
         composeRule.phoneNumberRowCount() shouldBe 2
         composeRule.phoneNumberInput().assert(hasText(TYPED_FIRST_PHONE_NUMBER))
         composeRule.phoneNumberInput(row = 1).assert(hasText(TYPED_SECOND_PHONE_NUMBER))
+    }
+
+    @Test
+    fun `TC-e89627bd-e14b-4470-95e7-6af53a937345 앱을 다시 실행해 진입하면 새 입력 상태로 시작한다`() {
+        var launchCount by mutableIntStateOf(0)
+        val viewModelList = mutableListOf<ContactAddViewModel>()
+        // 앱을 다시 실행하면 저장해 둔 화면 상태가 없고 화면 상태를 들고 있던 객체도 새로 만들어지므로, 새 키로 저장 상태 없이 새 인스턴스와 함께 화면을 다시 구성한다.
+        composeRule.setContent {
+            key(launchCount) {
+                val viewModel = remember { screenTestViewModel().also(viewModelList::add) }
+
+                ContactAddScreenTestTheme {
+                    ContactAddScreen(
+                        addedResultRequestKey = null,
+                        navigateUp = {},
+                        componentVisibleProvider = { ContactAddScaffoldComponentVisible() },
+                        viewModel = viewModel,
+                    )
+                }
+            }
+        }
+        composeRule.fillAllInput()
+        composeRule.birthYearInput().assert(hasText(today().year.toString()))
+        composeRule.phoneNumberRowCount() shouldBe 1
+
+        composeRule.runOnIdle { launchCount += 1 }
+        composeRule.waitForIdle()
+
+        viewModelList.size shouldBe 2
+        composeRule.inputCount() shouldBe INPUT_COUNT_WITHOUT_PHONE_NUMBER
+        composeRule.nameInput().assert(hasText(""))
+        composeRule.descriptionInput().assert(hasText(""))
+        composeRule.heightInput().assert(hasText(""))
+        composeRule.footSizeInput().assert(hasText(""))
+        composeRule.birthYearInput().assert(hasText(""))
+        composeRule.hometownInput().assert(hasText(""))
+        composeRule.onNodeWithText(DEFAULT_BIRTHDAY_NOT_SET).assertExists()
+        composeRule.onNodeWithText(todayDisplayText()).assertDoesNotExist()
+        composeRule.phoneNumberRowCount() shouldBe 0
     }
 
     @Test

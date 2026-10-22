@@ -1,6 +1,12 @@
 package io.github.taetae98coding.diary.feature.more.ui.home
 
+import androidx.activity.ComponentDialog
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -34,6 +40,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowDialog
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -206,6 +213,36 @@ class MoreHomeScreenTest {
 
         verify(exactly = 1) { signOutViewModel.cancelSignOut() }
         verify(exactly = 0) { signOutViewModel.confirmSignOut() }
+    }
+
+    @Test
+    fun `TC-6d26e203-5964-4df1-a6c8-ce45d6667e28 확인 다이얼로그를 뒤로가기로 닫으면 로그아웃하지 않는다`() {
+        val findSyncPendingUseCase = mockk<FindSyncPendingUseCase>()
+        every { findSyncPendingUseCase(Unit) } returns MutableStateFlow(Result.success(true))
+        val signOutUseCase = mockk<SignOutUseCase>()
+        coEvery { signOutUseCase(Unit) } returns Result.success(Unit)
+        setMoreHomeScreen(
+            viewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL)),
+            signOutViewModel =
+                MoreHomeSignOutViewModel(
+                    savedStateHandle = SavedStateHandle(),
+                    findSyncPendingUseCase = findSyncPendingUseCase,
+                    signOutUseCase = signOutUseCase,
+                ),
+        )
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_LABEL).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_TITLE).assertIsDisplayed()
+
+        // 뒤로가기는 화면이 아니라 다이얼로그 창이 받으므로 그 창의 뒤로가기 처리기에 전달한다.
+        val dialog = ShadowDialog.getLatestDialog() as ComponentDialog
+        composeRule.runOnUiThread { dialog.onBackPressedDispatcher.onBackPressed() }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_TITLE).assertDoesNotExist()
+        coVerify(exactly = 0) { signOutUseCase(Unit) }
+        composeRule.onNodeWithText(USER_EMAIL).assertIsDisplayed()
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_LABEL).assertIsDisplayed()
     }
 
     @Test
@@ -405,6 +442,61 @@ class MoreHomeScreenTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_TITLE).assertIsDisplayed()
+        coVerify(exactly = 0) { signOutUseCase(Unit) }
+    }
+
+    @Test
+    fun `TC-350d604e-6bc5-4a40-a514-62e7d2bd3cda TC-083bc7b6-d2da-4342-9c9e-a06768f27edc 화면을 떠났다 들어오거나 앱을 새로 시작하면 다이얼로그가 닫힌 상태로 시작한다`() {
+        val findSyncPendingUseCase = mockk<FindSyncPendingUseCase>()
+        every { findSyncPendingUseCase(Unit) } returns MutableStateFlow(Result.success(true))
+        val signOutUseCase = mockk<SignOutUseCase>()
+        coEvery { signOutUseCase(Unit) } returns Result.success(Unit)
+        val accountViewModel = screenTestViewModel(MoreHomeAccountUiState.User(profileImage = null, email = USER_EMAIL))
+        val refreshViewModel = screenTestRefreshViewModel()
+        var entryCount by mutableIntStateOf(0)
+        composeRule.setContent {
+            DiaryTheme {
+                // 화면을 떠났다 들어오거나 앱을 새로 시작하면 저장 상태 없이 화면과 상태 보관 객체를 새로 만든다.
+                key(entryCount) {
+                    val signOutViewModel =
+                        remember {
+                            MoreHomeSignOutViewModel(
+                                savedStateHandle = SavedStateHandle(),
+                                findSyncPendingUseCase = findSyncPendingUseCase,
+                                signOutUseCase = signOutUseCase,
+                            )
+                        }
+
+                    MoreHomeScreen(
+                        navigateToChecklist = {},
+                        navigateToContact = {},
+                        navigateToDDay = {},
+                        navigateToFile = {},
+                        navigateToHoliday = {},
+                        navigateToLogin = {},
+                        navigateToPlace = {},
+                        navigateToPlaylist = {},
+                        navigateToProfileImageEdit = {},
+                        navigateToQr = {},
+                        navigateToSearch = {},
+                        navigateToSetting = {},
+                        navigateToWeb = {},
+                        accountViewModel = accountViewModel,
+                        signOutViewModel = signOutViewModel,
+                        refreshViewModel = refreshViewModel,
+                    )
+                }
+            }
+        }
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_LABEL).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_TITLE).assertIsDisplayed()
+
+        composeRule.runOnIdle { entryCount += 1 }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_CONFIRM_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(DEFAULT_SIGN_OUT_LABEL).assertIsDisplayed()
         coVerify(exactly = 0) { signOutUseCase(Unit) }
     }
 

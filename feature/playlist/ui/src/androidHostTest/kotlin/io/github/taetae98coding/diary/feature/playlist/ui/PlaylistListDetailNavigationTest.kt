@@ -8,19 +8,23 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
@@ -30,7 +34,9 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.result.LocalResultEventBus
 import androidx.navigation3.runtime.result.ResultEventBus
+import androidx.navigation3.runtime.serialization.NavBackStackSerializer
 import androidx.navigation3.ui.NavDisplay
+import androidx.savedstate.serialization.SavedStateConfiguration
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.LocalListDetailPlaceholderStateHolder
@@ -45,6 +51,7 @@ import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.playlist.api.MusicAddNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.MusicDetailNavKey
 import io.github.taetae98coding.diary.feature.playlist.api.PlaylistHomeNavKey
+import io.github.taetae98coding.diary.feature.playlist.api.playlistNavKeys
 import io.github.taetae98coding.diary.feature.playlist.ui.add.MusicAddViewModel
 import io.github.taetae98coding.diary.feature.playlist.ui.add.TYPED_LINK
 import io.github.taetae98coding.diary.feature.playlist.ui.add.artistInput
@@ -71,6 +78,9 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.serialization.PolymorphicSerializer
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -313,6 +323,85 @@ class PlaylistListDetailNavigationTest {
         composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(3)
     }
 
+    @Test
+    fun `TC-a28906cd-ce6e-45dc-af96-372616a4c5de 화면이 재생성되어도 상세 선택을 유지한다`() {
+        val music = testMusic(title = listedMusicTitle())
+        val restorationTester = StateRestorationTester(composeRule)
+        lateinit var restoredBackStack: NavBackStack<ScreenNavKey>
+        setRestorablePlaylistNavDisplay(musicList = listOf(music), restorationTester = restorationTester) { stack -> restoredBackStack = stack }
+        composeRule.onNodeWithText(music.detail.title).performClick()
+        composeRule.waitForIdle()
+        assertDetailOnDetailPane()
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        restoredBackStack.toList() shouldBe listOf(PlaylistHomeNavKey, MusicDetailNavKey(id = music.id))
+        waitUntilDisplayed(music)
+        assertDetailOnDetailPane()
+        pressBack()
+        restoredBackStack.toList() shouldBe listOf(PlaylistHomeNavKey)
+        assertAddOnDetailPane()
+    }
+
+    @Test
+    fun `TC-5f690a2a-54b9-4d68-b98a-4db0c11ff17c 시스템이 앱을 정리했다가 다시 만들어도 상세 선택과 뒤로가기 기록을 유지한다`() {
+        val music = testMusic(title = listedMusicTitle())
+        val restorationTester = StateRestorationTester(composeRule)
+        lateinit var restoredBackStack: NavBackStack<ScreenNavKey>
+        setRestorablePlaylistNavDisplay(musicList = listOf(music), restorationTester = restorationTester) { stack -> restoredBackStack = stack }
+        openAddOnDetail(music = music)
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        restoredBackStack.toList() shouldBe listOf(PlaylistHomeNavKey, MusicDetailNavKey(id = music.id), MusicAddNavKey)
+        waitUntilDisplayed(music)
+        assertAddOnDetailPane()
+        pressBack()
+        restoredBackStack.toList() shouldBe listOf(PlaylistHomeNavKey, MusicDetailNavKey(id = music.id))
+        assertDetailOnDetailPane()
+        pressBack()
+        restoredBackStack.toList() shouldBe listOf(PlaylistHomeNavKey)
+        assertAddOnDetailPane()
+    }
+
+    @Test
+    fun `TC-6d84aaed-9550-46d8-873e-87b1fe455235 앱이 백그라운드에 다녀와도 상세 선택을 유지한다`() {
+        val music = testMusic(title = listedMusicTitle())
+        setPlaylistNavDisplay(music = music)
+        composeRule.onNodeWithText(music.detail.title).performClick()
+        composeRule.waitForIdle()
+        assertDetailOnDetailPane()
+
+        composeRule.activityRule.scenario.moveToState(Lifecycle.State.CREATED)
+        composeRule.waitForIdle()
+        composeRule.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
+        composeRule.waitForIdle()
+
+        backStack.toList() shouldBe listOf(NavigationTestMoreNavKey, PlaylistHomeNavKey, MusicDetailNavKey(id = music.id))
+        composeRule.onNodeWithText(music.detail.title).assertExists()
+        assertDetailOnDetailPane()
+        pressBack()
+        backStack.toList() shouldBe listOf(NavigationTestMoreNavKey, PlaylistHomeNavKey)
+        assertAddOnDetailPane()
+    }
+
+    private fun assertDetailOnDetailPane() {
+        composeRule.onNodeWithContentDescription(DEFAULT_DELETE_MUSIC_DESCRIPTION).assertExists()
+    }
+
+    private fun assertAddOnDetailPane() {
+        composeRule.onNodeWithContentDescription(DEFAULT_DELETE_MUSIC_DESCRIPTION).assertDoesNotExist()
+        composeRule.onAllNodes(hasSetTextAction()).assertCountEquals(3)
+    }
+
+    private fun waitUntilDisplayed(music: Music) {
+        composeRule.waitUntil(timeoutMillis = PAGING_ITEMS_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(music.detail.title).fetchSemanticsNodes().isNotEmpty()
+        }
+    }
+
     private fun ComposeContentTestRule.fillPlaceholder() {
         titleInput().performTextInput("placeholder-title-${fixtureMonkey.giveMeOne<Int>()}")
         artistInput().performTextInput("placeholder-artist-${fixtureMonkey.giveMeOne<Int>()}")
@@ -366,6 +455,42 @@ class PlaylistListDetailNavigationTest {
             }
         }
         composeRule.waitForIdle()
+    }
+
+    // 시스템이 되살릴 때 전환 이력이 저장된 상태에서 다시 만들어지도록 제품 내비게이션 키 직렬화 구성으로 전환 이력을 기억한다.
+    private fun setRestorablePlaylistNavDisplay(
+        musicList: List<Music>,
+        restorationTester: StateRestorationTester,
+        onBackStack: (NavBackStack<ScreenNavKey>) -> Unit,
+    ) {
+        val module = viewModelModule(musicList = musicList, detailTitle = "detail-${fixtureMonkey.giveMeOne<Int>()}")
+        restorationTester.setContent {
+            PlaylistNavigationTestHost(module = module) {
+                val restorableBackStack =
+                    rememberSerializable(
+                        configuration = playlistSavedStateConfiguration,
+                        serializer = NavBackStackSerializer(PolymorphicSerializer(ScreenNavKey::class)),
+                    ) { NavBackStack<ScreenNavKey>(PlaylistHomeNavKey) }
+                val holder = rememberListDetailPlaceholderStateHolder()
+                onBackStack(restorableBackStack)
+
+                CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
+                    NavDisplay(
+                        backStack = restorableBackStack,
+                        sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
+                        entryDecorators =
+                            listOf(
+                                rememberSaveableStateHolderNavEntryDecorator(),
+                                rememberViewModelStoreNavEntryDecorator(),
+                                rememberListDetailPlaceholderNavEntryDecorator(holder),
+                            ),
+                        entryProvider = entryProvider { playlistEntry(backStack = restorableBackStack) },
+                    )
+                }
+            }
+        }
+        composeRule.waitForIdle()
+        musicList.firstOrNull()?.let(::waitUntilDisplayed)
     }
 
     @Composable
@@ -433,7 +558,15 @@ class PlaylistListDetailNavigationTest {
         const val DEFAULT_ADD_MUSIC_DESCRIPTION = "Add music"
         const val DEFAULT_DELETE_MUSIC_DESCRIPTION = "Delete music"
         const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
+        const val PAGING_ITEMS_TIMEOUT_MILLIS = 5_000L
         val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
+        val playlistSavedStateConfiguration: SavedStateConfiguration =
+            SavedStateConfiguration {
+                serializersModule =
+                    SerializersModule {
+                        polymorphic(ScreenNavKey::class) { playlistNavKeys() }
+                    }
+            }
     }
 }
 

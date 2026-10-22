@@ -1,6 +1,10 @@
 package io.github.taetae98coding.diary.feature.setting.ui.playlist
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -136,6 +140,36 @@ class SettingPlaylistScreenTest {
         composeRule.onNodeWithText(OTHER_ADDRESS).assertExists()
         composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertExists()
         verify(exactly = 0) { viewModel.save(setting = any()) }
+    }
+
+    // 앱을 다시 실행하면 저장해 둔 화면 상태도, 화면 상태를 들고 있던 객체도 없으므로 새 키와 새 인스턴스로 같은 화면을 다시 구성한다.
+    @Test
+    fun `TC-f49b0a4c-709a-4496-a0b7-cf8cf3613a76 앱을 종료한 뒤 새로 시작하면 저장된 주소로 시작한다`() {
+        val firstViewModel = viewModel(SettingPlaylistUiState.Consumer(setting = MusicDownloadProxySetting(address = ADDRESS)))
+        val relaunchedViewModel = viewModel(SettingPlaylistUiState.Consumer(setting = MusicDownloadProxySetting(address = ADDRESS)))
+        var launchCount by mutableIntStateOf(0)
+        composeRule.setContent {
+            key(launchCount) {
+                DiaryTheme {
+                    SettingPlaylistScreen(
+                        navigateUp = {},
+                        componentVisibleProvider = { SettingPlaylistScaffoldComponentVisible() },
+                        viewModel = if (launchCount == 0) firstViewModel else relaunchedViewModel,
+                    )
+                }
+            }
+        }
+        composeRule.onNodeWithText(ADDRESS).performTextReplacement(OTHER_ADDRESS)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertExists()
+
+        composeRule.runOnIdle { launchCount += 1 }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(ADDRESS).assertExists()
+        composeRule.onNodeWithText(OTHER_ADDRESS).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertDoesNotExist()
+        verify(exactly = 0) { firstViewModel.save(setting = any()) }
     }
 
     private fun setScreen(

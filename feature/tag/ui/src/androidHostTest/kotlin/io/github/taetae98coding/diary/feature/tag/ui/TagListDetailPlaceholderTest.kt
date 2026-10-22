@@ -10,9 +10,17 @@ import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -22,7 +30,9 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
@@ -63,6 +73,8 @@ import io.github.taetae98coding.diary.feature.tag.ui.detail.tagDetailUiState
 import io.github.taetae98coding.diary.feature.tag.ui.link.testTag
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -93,7 +105,10 @@ class TagListDetailPlaceholderTest {
 
     private var currentInput: PlaceholderInput? = null
     private val linkViewModelList = mutableListOf<TagAddLinkViewModel>()
-    private val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey)
+    private var backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey)
+
+    // 값이 바뀌면 저장 상태 없이 배치를 새로 구성해 앱을 다시 실행한 것과 같게 만든다.
+    private var launchCount by mutableIntStateOf(0)
     private val addTagUseCase = mockk<AddTagUseCase>()
     private val resultEventBus = spyk(ResultEventBus())
 
@@ -196,6 +211,33 @@ class TagListDetailPlaceholderTest {
         linkViewModelList shouldHaveSize 2
     }
 
+    // 앱을 다시 실행하면 저장해 둔 화면 상태와 뒤로가기 기록 없이 처음 목적지부터 다시 시작하므로, 새 기록과 새 키로 배치를 다시 구성한다.
+    @Test
+    fun `TC-d29f392c-d55a-4806-8755-45be76306215 앱을 종료하고 다시 실행하면 상세 영역이 선택 전 상태로 돌아간다`() {
+        val detailKey = TagDetailNavKey(id = fixtureId())
+        setTagNavDisplay(input = placeholderInput())
+        composeRule.runOnIdle { backStack.navigateToTagDetail(detailKey.id) }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(detailContent(id = detailKey.id)).assertExists()
+
+        composeRule.runOnIdle {
+            backStack = NavBackStack<ScreenNavKey>(OtherTopLevelNavKey)
+            launchCount += 1
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(OTHER_TOP_LEVEL_CONTENT).assertExists()
+        composeRule.runOnIdle {
+            backStack.clear()
+            backStack.add(TagHomeNavKey)
+        }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(TAG_HOME_CONTENT).assertExists()
+        composeRule.onNodeWithText(DEFAULT_TAG_ADD_TITLE).assertExists()
+        composeRule.onNodeWithText(detailContent(id = detailKey.id)).assertDoesNotExist()
+        backStack.toList() shouldContainExactly listOf(TagHomeNavKey)
+    }
+
     @Test
     fun `TC-98758bf8-de13-45c5-839b-312f29457d71 배치를 떠나기 전에는 상세 영역에서 태그 상세를 보고 돌아와도 태그 추가의 입력과 연결이 남는다`() {
         assertPlaceholderRetained(route = TagDetailNavKey(id = fixtureId()))
@@ -209,6 +251,42 @@ class TagListDetailPlaceholderTest {
     @Test
     fun `TC-62fc4ea3-f7fa-45c9-9f11-d138d4563e88 완료된 태그 목록에 다녀와도 선택 전 태그 추가의 입력과 연결이 남는다`() {
         assertPlaceholderRetained(route = TagFinishedListNavKey)
+    }
+
+    @Test
+    fun `TC-5257b2ad-402c-45d7-9638-8bbbef077a8e 다른 주요 목적지에 다녀오면 상세 영역의 태그 추가에 새 무작위 컬러가 제시된다`() {
+        setTagNavDisplay(input = placeholderInput())
+        changeColor(hex = BLUE_HEX)
+        currentColorHex() shouldBe BLUE_HEX
+
+        composeRule.runOnIdle {
+            backStack.clear()
+            backStack.add(OtherTopLevelNavKey)
+        }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle {
+            backStack.clear()
+            backStack.add(TagHomeNavKey)
+        }
+        composeRule.waitForIdle()
+
+        // 새 무작위 컬러가 고른 컬러와 우연히 같을 확률은 약 1,600만 분의 1이라 새 컬러 제시를 값의 변화로 판정한다.
+        currentColorHex() shouldNotBe BLUE_HEX
+    }
+
+    @Test
+    fun `TC-07227459-8909-4395-9db7-693bbf378a3a 배치를 떠나기 전에는 상세 영역에서 태그 상세를 보고 돌아와도 태그 추가의 컬러가 남는다`() {
+        assertPlaceholderColorRetained(route = TagDetailNavKey(id = fixtureId()))
+    }
+
+    @Test
+    fun `TC-07227459-8909-4395-9db7-693bbf378a3a 배치를 떠나기 전에는 연결 입력으로 연 태그 추가에 다녀와도 태그 추가의 컬러가 남는다`() {
+        assertPlaceholderColorRetained(route = TagAddNavKey(requestKey = fixtureId()))
+    }
+
+    @Test
+    fun `TC-07227459-8909-4395-9db7-693bbf378a3a 배치를 떠나기 전에는 완료된 태그 목록에 다녀와도 태그 추가의 컬러가 남는다`() {
+        assertPlaceholderColorRetained(route = TagFinishedListNavKey)
     }
 
     @Test
@@ -300,6 +378,37 @@ class TagListDetailPlaceholderTest {
         linkViewModelList shouldHaveSize 1
     }
 
+    private fun assertPlaceholderColorRetained(route: ScreenNavKey) {
+        setTagNavDisplay(input = placeholderInput())
+        changeColor(hex = BLUE_HEX)
+        currentColorHex() shouldBe BLUE_HEX
+
+        composeRule.runOnIdle { backStack.add(route) }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(ROUTE_CONTENT).assertExists()
+        composeRule.onAllNodes(hasHexText() and hasClickAction()).assertCountEquals(0)
+        composeRule.runOnIdle { backStack.removeLastOrNull() }
+        composeRule.waitForIdle()
+
+        currentColorHex() shouldBe BLUE_HEX
+    }
+
+    private fun changeColor(hex: String) {
+        val currentHex = currentColorHex()
+        composeRule.onNodeWithText(currentHex, substring = true).performScrollTo().performClick()
+        composeRule.onNode(hasSetTextAction() and hasText(currentHex)).performTextReplacement(hex)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_CONFIRM).performClick()
+        composeRule.waitForIdle()
+    }
+
+    private fun currentColorHex(): String =
+        composeRule
+            .onNode(hasHexText() and hasClickAction())
+            .fetchSemanticsNode()
+            .config[SemanticsProperties.Text]
+            .firstNotNullOf { text -> hexRegex.find(text.text)?.value }
+
     private fun setTagNavDisplay(
         input: PlaceholderInput,
         isTagDetailScreen: Boolean = false,
@@ -308,46 +417,53 @@ class TagListDetailPlaceholderTest {
         prepareTagDetailTabViewModels()
         composeRule.setContent {
             TagPlaceholderTestHost {
-                val holder = rememberListDetailPlaceholderStateHolder()
-
-                CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
-                    NavDisplay(
-                        backStack = backStack,
-                        sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
-                        entryDecorators =
-                            listOf(
-                                rememberSaveableStateHolderNavEntryDecorator(),
-                                rememberListDetailPlaceholderNavEntryDecorator(holder),
-                            ),
-                        entryProvider =
-                            entryProvider {
-                                entry<TagHomeNavKey>(
-                                    clazzContentKey = { TAG_HOME_CONTENT_KEY },
-                                    metadata = tagHomeListPaneMetadata(backStack = backStack),
-                                ) { Text(text = TAG_HOME_CONTENT) }
-                                entry<TagDetailNavKey>(
-                                    metadata = ListDetailSceneStrategy.detailPane(sceneKey = TagHomeNavKey),
-                                ) { key ->
-                                    if (isTagDetailScreen) {
-                                        RealTagDetailScreen(key = key)
-                                    } else {
-                                        Column {
-                                            Text(text = ROUTE_CONTENT)
-                                            Text(text = detailContent(id = key.id))
-                                        }
-                                    }
-                                }
-                                entry<TagAddNavKey>(
-                                    metadata = ListDetailSceneStrategy.detailPane(sceneKey = TagHomeNavKey),
-                                ) { Text(text = ROUTE_CONTENT) }
-                                entry<TagFinishedListNavKey>(metadata = tagFinishedListPaneMetadata()) { Text(text = ROUTE_CONTENT) }
-                                entry<OtherTopLevelNavKey> { Text(text = OTHER_TOP_LEVEL_CONTENT) }
-                            },
-                    )
+                key(launchCount) {
+                    TagNavDisplay(isTagDetailScreen = isTagDetailScreen)
                 }
             }
         }
         composeRule.waitForIdle()
+    }
+
+    @Composable
+    private fun TagNavDisplay(isTagDetailScreen: Boolean) {
+        val holder = rememberListDetailPlaceholderStateHolder()
+
+        CompositionLocalProvider(LocalListDetailPlaceholderStateHolder provides holder) {
+            NavDisplay(
+                backStack = backStack,
+                sceneStrategies = listOf(rememberDiaryListDetailSceneStrategy()),
+                entryDecorators =
+                    listOf(
+                        rememberSaveableStateHolderNavEntryDecorator(),
+                        rememberListDetailPlaceholderNavEntryDecorator(holder),
+                    ),
+                entryProvider =
+                    entryProvider {
+                        entry<TagHomeNavKey>(
+                            clazzContentKey = { TAG_HOME_CONTENT_KEY },
+                            metadata = tagHomeListPaneMetadata(backStack = backStack),
+                        ) { Text(text = TAG_HOME_CONTENT) }
+                        entry<TagDetailNavKey>(
+                            metadata = ListDetailSceneStrategy.detailPane(sceneKey = TagHomeNavKey),
+                        ) { key ->
+                            if (isTagDetailScreen) {
+                                RealTagDetailScreen(key = key)
+                            } else {
+                                Column {
+                                    Text(text = ROUTE_CONTENT)
+                                    Text(text = detailContent(id = key.id))
+                                }
+                            }
+                        }
+                        entry<TagAddNavKey>(
+                            metadata = ListDetailSceneStrategy.detailPane(sceneKey = TagHomeNavKey),
+                        ) { Text(text = ROUTE_CONTENT) }
+                        entry<TagFinishedListNavKey>(metadata = tagFinishedListPaneMetadata()) { Text(text = ROUTE_CONTENT) }
+                        entry<OtherTopLevelNavKey> { Text(text = OTHER_TOP_LEVEL_CONTENT) }
+                    },
+            )
+        }
     }
 
     // 제품의 TagDetail 화면과 그 화면이 쓰는 뒤로가기 표시 판정을 그대로 두어 상단 바에 보이는 결과를 확인한다.
@@ -439,6 +555,17 @@ class TagListDetailPlaceholderTest {
         const val DEFAULT_TAG_ADD_TITLE = "Add Tag"
         const val DEFAULT_ADD_BUTTON_DESCRIPTION = "Add tag"
         const val EMOJI = "🏃"
+        const val DEFAULT_CONFIRM = "Confirm"
+        const val BLUE_HEX = "#0000FF"
+
+        val hexRegex = Regex(pattern = "#[0-9A-F]{6}")
+
+        fun hasHexText(): SemanticsMatcher =
+            SemanticsMatcher(description = "Hex color text") { node ->
+                node.config
+                    .getOrNull(SemanticsProperties.Text)
+                    ?.any { text -> hexRegex.containsMatchIn(text.text) } == true
+            }
 
         fun detailContent(id: Uuid): String = "TagDetail-$id"
 

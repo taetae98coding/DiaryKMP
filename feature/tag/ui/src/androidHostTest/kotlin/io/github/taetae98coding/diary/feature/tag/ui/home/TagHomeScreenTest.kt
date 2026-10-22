@@ -5,6 +5,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
@@ -13,6 +14,7 @@ import androidx.compose.ui.test.performTouchInput
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
+import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.core.model.tag.Tag
@@ -100,6 +102,34 @@ class TagHomeScreenTest {
     }
 
     @Test
+    fun `TC-d1e8e702-e519-4f85-8ee6-793eeb618a10 빈 상태에서 태그 추가 버튼을 누르면 태그 추가 화면 전환 행동을 한 번 전달한다`() {
+        var navigateToAddCount = 0
+        setTagHomeScreen(
+            viewModel = screenTestViewModel(tagList = emptyList()),
+            navigateToAdd = { navigateToAddCount += 1 },
+        )
+
+        composeRule.onNodeWithTag(DIARY_EMPTY_BOX_TEST_TAG).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
+
+        navigateToAddCount shouldBe 1
+    }
+
+    @Test
+    fun `TC-d1e8e702-e519-4f85-8ee6-793eeb618a10 필터를 켜 둔 목록에서 태그 추가 버튼을 누르면 태그 추가 화면 전환 행동을 한 번 전달한다`() {
+        var navigateToAddCount = 0
+        setTagHomeScreen(
+            viewModel = screenTestViewModel(isFilterApplied = true),
+            navigateToAdd = { navigateToAddCount += 1 },
+        )
+
+        composeRule.onNodeWithText(TAG_TITLE).assertExists()
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
+
+        navigateToAddCount shouldBe 1
+    }
+
+    @Test
     fun `TC-88bd4111-8fe0-40b1-80ea-06d66a74490f Cmd A 단축키를 입력하면 태그 추가 화면 전환 행동을 한 번 전달한다`() {
         var navigateToAddCount = 0
         setTagHomeScreen(
@@ -171,23 +201,27 @@ class TagHomeScreenTest {
             diaryFixtureMonkey()
         private const val TAG_TITLE = "TagHomeScreenTitle"
 
-        private fun screenTestViewModel(): TagHomeViewModel {
-            val tag =
-                fixtureMonkey
-                    .giveMeKotlinBuilder<Tag>()
-                    .setExp(Tag::detail, fixtureMonkey.giveMeOne<TagDetail>().copy(emoji = "", title = TAG_TITLE))
-                    .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
-                    .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
-                    .sample()
+        private fun screenTestViewModel(
+            tagList: List<Tag> = listOf(screenTestTag()),
+            isFilterApplied: Boolean = false,
+        ): TagHomeViewModel {
             val viewModel = mockk<TagHomeViewModel>()
             every { viewModel.sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.TITLE))
 
-            every { viewModel.tagPagingData } returns MutableStateFlow(tagPagingDataOf(listOf(tag)))
+            every { viewModel.tagPagingData } returns MutableStateFlow(tagPagingDataOf(tagList))
 
             every { viewModel.effect } returns emptyFlow()
-            every { viewModel.filterUiState } returns MutableStateFlow(TagHomeScaffoldFilterUiState(isLoaded = true))
+            every { viewModel.filterUiState } returns MutableStateFlow(TagHomeScaffoldFilterUiState(isLoaded = true, isApplied = isFilterApplied))
 
             return viewModel
         }
+
+        private fun screenTestTag(): Tag =
+            fixtureMonkey
+                .giveMeKotlinBuilder<Tag>()
+                .setExp(Tag::detail, fixtureMonkey.giveMeOne<TagDetail>().copy(emoji = "", title = TAG_TITLE))
+                .setExp(Tag::updatedAt, fixtureMonkey.giveMeOne<Instant>())
+                .setExp(Tag::createdAt, fixtureMonkey.giveMeOne<Instant>())
+                .sample()
     }
 }

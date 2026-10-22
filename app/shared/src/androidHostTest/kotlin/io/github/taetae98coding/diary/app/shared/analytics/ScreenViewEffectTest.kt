@@ -6,6 +6,8 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -191,6 +193,45 @@ class ScreenViewEffectTest {
 
         composeRule.runOnIdle {
             verify(exactly = 2) { log(ScreenViewLog(screenName = MEMO_DETAIL)) }
+        }
+    }
+
+    @Test
+    fun `TC-fd5e53b3-3cc2-450e-b18b-89d98275929e 앱을 다시 실행하면 처음 보이는 화면의 화면 조회가 남는다`() {
+        val log = mockk<(ScreenViewLog) -> Unit>(relaxed = true)
+        var launchCount by mutableIntStateOf(0)
+        lateinit var appState: AppState
+
+        // 앱을 다시 실행하면 저장해 둔 화면 상태가 없으므로, 새 키로 저장 상태 없이 앱 상태와 기록을 다시 구성한다.
+        composeRule.setContent {
+            key(launchCount) {
+                appState = rememberAppState()
+                ScreenViewEffect(log = log, appState = appState)
+            }
+        }
+        composeRule.runOnIdle { appState.navigateTo(TopLevelNavigation.Memo) }
+        composeRule.runOnIdle {
+            verify(exactly = 1) { log(ScreenViewLog(screenName = CALENDAR_HOME)) }
+            verify(exactly = 1) { log(ScreenViewLog(screenName = MEMO_HOME)) }
+        }
+
+        composeRule.runOnIdle { launchCount += 1 }
+
+        composeRule.runOnIdle {
+            verify(exactly = 2) { log(ScreenViewLog(screenName = CALENDAR_HOME)) }
+            verify(exactly = 1) { log(ScreenViewLog(screenName = MEMO_HOME)) }
+        }
+    }
+
+    @Test
+    fun `TC-d741d32e-60b9-4492-903c-9c04ef19a18a 화면을 떠난 사건은 따로 남기지 않는다`() {
+        val logList = mutableListOf<ScreenViewLog>()
+        val appState = setScreenViewEffect(log = { screenViewLog -> logList += screenViewLog })
+
+        composeRule.runOnIdle { appState.navigateTo(TopLevelNavigation.Memo) }
+
+        composeRule.runOnIdle {
+            logList shouldContainExactly listOf(ScreenViewLog(screenName = CALENDAR_HOME), ScreenViewLog(screenName = MEMO_HOME))
         }
     }
 

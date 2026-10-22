@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.place.ui.add
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
@@ -155,6 +156,49 @@ class PlaceAddMapReflectTest {
             state().longitudeState.text.toString() shouldBe ""
             state().mapState.spot.shouldBeNull()
             state().mapState.coordinate shouldBe initialCoordinate
+        }
+    }
+
+    @Test
+    fun `TC-ae101b65-cb8a-4dd8-983f-c7b5340bd993 앱을 다시 실행한 뒤 새로 진입하면 지점 표시 없이 이동해 온 화면의 지도 위치에서 시작한다`() {
+        val previousOriginCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
+        val nextOriginCoordinate = generateSequence { fixtureMonkey.mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != previousOriginCoordinate }
+        val selectedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
+        val viewedCoordinate = generateSequence { fixtureMonkey.mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != nextOriginCoordinate }
+        var launchCount by mutableIntStateOf(0)
+        var originCoordinate by mutableStateOf(previousOriginCoordinate)
+        lateinit var state: PlaceFormState
+        // 앱을 다시 실행하면 저장해 둔 화면 상태가 없으므로, 새 키로 저장 상태 없이 입력 상태를 다시 구성한다.
+        composeRule.setContent {
+            key(launchCount) {
+                DiaryTheme {
+                    state =
+                        rememberPlaceAddFormState(
+                            defaultProvider = MapProvider.NAVER,
+                            initialCoordinate = originCoordinate,
+                        )
+                    ReflectCoordinateEffect(state = state)
+                }
+            }
+        }
+        composeRule.write {
+            state.selectSpotOnMap(selectedCoordinate)
+            // 기능 화면은 사용자의 지도 조작을 만들 수 없으므로, 지도가 고른 지점과 다른 곳을 보는 상태를 이동 지정으로 만든다.
+            state.mapState.moveTo(viewedCoordinate)
+        }
+        composeRule.runOnIdle { state.mapState.spot shouldBe selectedCoordinate }
+
+        composeRule.runOnIdle {
+            originCoordinate = nextOriginCoordinate
+            launchCount += 1
+        }
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle {
+            state.mapState.spot.shouldBeNull()
+            state.latitudeState.text.toString() shouldBe ""
+            state.longitudeState.text.toString() shouldBe ""
+            state.mapState.coordinate shouldBe nextOriginCoordinate
         }
     }
 

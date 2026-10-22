@@ -33,6 +33,10 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.todayIn
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
@@ -42,6 +46,7 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.time.Clock
 
 private val fixtureMonkey: FixtureMonkey =
     diaryFixtureMonkey()
@@ -72,6 +77,26 @@ class HolidayHomeScreenTest {
         composeRule.waitForIdle()
 
         navigateUpCount shouldBe 1
+    }
+
+    @Test
+    fun `TC-47c2f345-8b49-40df-ba0c-4cdda8cbce62 화면을 처음 열면 오늘이 속한 년도가 표시된다`() {
+        // 표시된 년도가 실제 올해가 아니라 주입한 시계의 올해를 따르는지 가르도록, 실제 올해와 다른 년도로 시계를 고정한다.
+        val actualYear = Clock.System.todayIn(TimeZone.currentSystemDefault()).year
+        val clockYear = actualYear + CLOCK_YEAR_OFFSET
+        val clock = mockk<Clock>()
+        every { clock.now() } returns LocalDateTime(year = clockYear, month = 6, day = 15, hour = 12, minute = 0).toInstant(TimeZone.currentSystemDefault())
+
+        composeRule.setHolidayHomeScreen(
+            targetYear = targetYear,
+            getGoldenHolidayUseCase = thisYearGetGoldenHolidayUseCase(year = clockYear),
+            clock = clock,
+        )
+
+        composeRule.onNodeWithText(clockYear.toString()).assertExists()
+        composeRule.onNodeWithText(actualYear.toString()).assertDoesNotExist()
+        composeRule.onNodeWithText((clockYear - 1).toString()).assertDoesNotExist()
+        composeRule.onNodeWithText(THIS_YEAR_PERIOD).assertExists()
     }
 
     @Test
@@ -197,6 +222,7 @@ class HolidayHomeScreenTest {
     private companion object {
         private const val HOLIDAY_NAME = "공휴일"
         private const val PERIOD_SEPARATOR = " ~ "
+        private const val CLOCK_YEAR_OFFSET = 5
 
         private fun suspendedFetchHolidayUseCase(completion: CompletableDeferred<Result<List<Holiday>>>): FetchHolidayUseCase =
             mockk<FetchHolidayUseCase>().also { useCase ->

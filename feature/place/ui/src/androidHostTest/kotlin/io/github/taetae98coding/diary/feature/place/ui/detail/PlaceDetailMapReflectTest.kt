@@ -21,6 +21,7 @@ import io.github.taetae98coding.diary.feature.place.ui.toCoordinateText
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeSameInstanceAs
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -83,6 +84,33 @@ class PlaceDetailMapReflectTest {
         composeRule.runOnIdle {
             state.mapState.spot shouldBe typedCoordinate
             state.mapState.coordinate shouldBe typedCoordinate
+        }
+    }
+
+    @Test
+    fun `TC-45f8be21-1996-4488-a977-965aae3321dc 지도가 시작된 뒤 저장된 좌표가 바뀌어도 지도를 옮기지 않는다`() {
+        composeRule.mainClock.autoAdvance = false
+        val firstSavedCoordinate = fixtureMonkey.mapCoordinateInFormPrecision()
+        val latestSavedCoordinate = generateSequence { fixtureMonkey.mapCoordinateInFormPrecision() }.first { coordinate -> coordinate != firstSavedCoordinate }
+        var savedDetail by mutableStateOf(placeDetail(coordinate = firstSavedCoordinate.toCoordinate()))
+        lateinit var state: PlaceFormState
+
+        composeRule.setContent {
+            DiaryTheme {
+                state = rememberPlaceDetailFormState(initialDetail = savedDetail, defaultProvider = MapProvider.NAVER)
+                ReflectCoordinateEffect(state = state)
+            }
+        }
+        composeRule.mainClock.advanceTimeBy(REFLECT_DELAY_MILLIS * 2)
+        val mapStateBefore = composeRule.runOnIdle { state.mapState }
+
+        composeRule.write { savedDetail = savedDetail.copy(coordinate = latestSavedCoordinate.toCoordinate()) }
+        composeRule.mainClock.advanceTimeBy(REFLECT_DELAY_MILLIS * 2)
+
+        composeRule.runOnIdle {
+            state.mapState shouldBeSameInstanceAs mapStateBefore
+            state.mapState.coordinate shouldBe firstSavedCoordinate
+            state.mapState.spot shouldBe firstSavedCoordinate
         }
     }
 

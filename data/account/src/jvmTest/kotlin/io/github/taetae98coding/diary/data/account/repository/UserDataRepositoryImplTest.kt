@@ -181,7 +181,7 @@ class UserDataRepositoryImplTest :
             }
         }
 
-        test("TC-5d6f9bc4-5f6d-47ed-8b09-7157d56ada2a 고른 사진의 위치와 남길 영역을 그대로 이미지 변환에 전달한다") {
+        test("고른 사진의 위치와 남길 영역을 그대로 이미지 변환에 전달한다") {
             val uri = fileUri()
             val cropRegion = cropRegion()
             val converted = fileUri()

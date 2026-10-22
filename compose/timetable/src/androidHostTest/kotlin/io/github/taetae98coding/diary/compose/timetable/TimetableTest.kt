@@ -16,6 +16,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.click
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -33,6 +34,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.kotest.matchers.collections.shouldBeStrictlyIncreasing
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
@@ -187,6 +189,39 @@ class TimetableTest {
         setTimetable(type = TimetableType.DAY, date = september(day = 24), now = null)
 
         composeRule.onNodeWithTag(TIMETABLE_NOW_INDICATOR_TEST_TAG, useUnmergedTree = true).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-ac825704-89df-4c43-ae12-5338c92b37a9 시간대 안내, 시각 아이템과 현재 시각 표시가 같은 높이의 시간대에 놓인다`() {
+        setTimetable(type = TimetableType.DAY, date = september(day = 23), now = TEN_O_CLOCK_ON_23) { meetingItem() }
+        val initialTenHourY = hourLineY(label = TEN_AM_LABEL)
+        assertMeetingAndNowPlacedOnTenHour()
+
+        composeRule.onRoot().performTouchInput { swipeUp() }
+        composeRule.waitForIdle()
+
+        hourLineY(label = TEN_AM_LABEL) shouldNotBe initialTenHourY
+        assertMeetingAndNowPlacedOnTenHour()
+    }
+
+    @Test
+    fun `TC-06d8f06c-9ccd-4403-9dfd-8e6c6e35bc2f 지정한 현재 시각이 바뀌면 현재 시각 위치가 따라 움직인다`() {
+        var now by mutableStateOf(TEN_O_CLOCK_ON_23)
+        composeRule.setContent {
+            DiaryTheme {
+                Timetable(
+                    state = TimetableState(type = TimetableType.DAY, initialDate = september(day = 23)),
+                    nowProvider = { now },
+                ) {}
+            }
+        }
+        composeRule.waitForIdle()
+        abs(minuteFrom(hourLabel = TEN_AM_LABEL, y = nowIndicatorCenterY())) shouldBeLessThan PLACEMENT_TOLERANCE_MINUTES
+
+        composeRule.runOnIdle { now = TWO_O_CLOCK_PM_ON_23 }
+        composeRule.waitForIdle()
+
+        abs(minuteFrom(hourLabel = TWO_PM_LABEL, y = nowIndicatorCenterY())) shouldBeLessThan PLACEMENT_TOLERANCE_MINUTES
     }
 
     @Test
@@ -350,6 +385,52 @@ class TimetableTest {
         composeRule.onNodeWithText(LAST_HOUR_LABEL).assertIsDisplayed()
     }
 
+    @Test
+    fun `TC-aa805b54-9195-4caf-9c67-e00bb487c927 처음 표시되면 오전 8시부터 보인다`() {
+        setTimetable(type = TimetableType.DAY, date = september(day = 23))
+
+        composeRule.onNodeWithText(INITIAL_HOUR_LABEL).assertIsDisplayed()
+        composeRule.onNodeWithText(BEFORE_INITIAL_HOUR_LABEL).assertIsNotDisplayed()
+    }
+
+    @Test
+    fun `TC-7782d5cb-4f87-4c66-93e4-a213c9abd888 다른 날짜로 넘겨도 보던 시간대를 이어서 본다`() {
+        setTimetable(type = TimetableType.DAY, date = september(day = 23))
+        composeRule.onNodeWithText(LAST_HOUR_LABEL).assertIsNotDisplayed()
+        repeat(SCROLL_SWIPE_COUNT) { composeRule.onRoot().performTouchInput { swipeUp() } }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(LAST_HOUR_LABEL).assertIsDisplayed()
+
+        swipePageLeft()
+
+        composeRule.onNodeWithText("24").assertIsDisplayed()
+        composeRule.onNodeWithText("23").assertDoesNotExist()
+        composeRule.onNodeWithText(LAST_HOUR_LABEL).assertIsDisplayed()
+    }
+
+    // Timetable은 보던 형식과 날짜, 시간대를 저장 상태로만 들고 있으므로, 시스템이 앱을 정리했다가 다시 만드는 경우도 저장 상태의 복원으로 재현한다.
+    @Test
+    fun `TC-f1524a94-cf84-4890-9ba1-7fb99c0ec513 시스템이 앱을 정리했다가 다시 만들어도 보던 형식과 날짜, 시간대를 유지한다`() {
+        val restorationTester = StateRestorationTester(composeRule)
+        restorationTester.setContent {
+            DiaryTheme {
+                Timetable(state = rememberTimetableState(type = TimetableType.DAY, initialDate = september(day = 23))) {}
+            }
+        }
+        swipePageLeft()
+        repeat(SCROLL_SWIPE_COUNT) { composeRule.onRoot().performTouchInput { swipeUp() } }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(LAST_HOUR_LABEL).assertIsDisplayed()
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("Thu").assertIsDisplayed()
+        composeRule.onNodeWithText("24").assertIsDisplayed()
+        composeRule.onNodeWithText("23").assertDoesNotExist()
+        composeRule.onNodeWithText(LAST_HOUR_LABEL).assertIsDisplayed()
+    }
+
     private fun setTimetable(
         type: TimetableType = TimetableType.DAY,
         date: LocalDate = september(day = 23),
@@ -385,6 +466,38 @@ class TimetableTest {
         weekdayCenterList.zip(dayCenterList).forEach { (weekdayCenter, dayCenter) ->
             abs(weekdayCenter.x - dayCenter.x) shouldBeLessThan COLUMN_ALIGNMENT_TOLERANCE_PX
         }
+    }
+
+    // 시간대 안내는 가리키는 시각의 선 위에 가운데를 맞춰 놓이므로, 안내의 가운데 높이를 그 시각의 높이로 삼는다.
+    private fun hourLineY(label: String): Float {
+        val bounds = composeRule.onNodeWithText(label).getUnclippedBoundsInRoot()
+
+        return (bounds.top.value + bounds.bottom.value) / 2
+    }
+
+    private fun nowIndicatorCenterY(): Float {
+        val bounds = composeRule.onNodeWithTag(TIMETABLE_NOW_INDICATOR_TEST_TAG, useUnmergedTree = true).getUnclippedBoundsInRoot()
+
+        return (bounds.top.value + bounds.bottom.value) / 2
+    }
+
+    // 화면의 높이를 이웃한 두 시간대 안내 사이의 간격으로 나누어, 기준 시각에서 몇 분 떨어진 시각인지로 환산한다.
+    private fun minuteFrom(
+        hourLabel: String,
+        y: Float,
+    ): Float {
+        val hourY = hourLineY(label = hourLabel)
+        val hourHeight = hourLineY(label = ELEVEN_AM_LABEL) - hourLineY(label = TEN_AM_LABEL)
+
+        return (y - hourY) / hourHeight * MINUTES_PER_HOUR
+    }
+
+    private fun assertMeetingAndNowPlacedOnTenHour() {
+        val meetingBounds = composeRule.onNodeWithText(MEETING).getUnclippedBoundsInRoot()
+
+        abs(minuteFrom(hourLabel = TEN_AM_LABEL, y = meetingBounds.top.value)) shouldBeLessThan PLACEMENT_TOLERANCE_MINUTES
+        abs(minuteFrom(hourLabel = ELEVEN_AM_LABEL, y = meetingBounds.bottom.value)) shouldBeLessThan PLACEMENT_TOLERANCE_MINUTES
+        abs(minuteFrom(hourLabel = TEN_AM_LABEL, y = nowIndicatorCenterY())) shouldBeLessThan PLACEMENT_TOLERANCE_MINUTES
     }
 
     private fun swipePageLeft() {
@@ -433,5 +546,14 @@ private const val NIGHT = "Night"
 private const val VACATION = "Vacation"
 private const val PAST = "Past"
 private const val LAST_HOUR_LABEL = "11 PM"
+private const val INITIAL_HOUR_LABEL = "8 AM"
+private const val BEFORE_INITIAL_HOUR_LABEL = "7 AM"
 private const val SCROLL_SWIPE_COUNT = 5
 private val TEN_O_CLOCK_ON_23 = LocalDateTime(year = 2026, month = 9, day = 23, hour = 10, minute = 0)
+private val TWO_O_CLOCK_PM_ON_23 = LocalDateTime(year = 2026, month = 9, day = 23, hour = 14, minute = 0)
+private const val TEN_AM_LABEL = "10 AM"
+private const val ELEVEN_AM_LABEL = "11 AM"
+private const val TWO_PM_LABEL = "2 PM"
+
+// 아이템은 시간대 선에서 조금 떨어져 놓이고 좌표는 화소 단위로 반올림되므로, 그만큼을 분으로 환산한 오차를 허용한다.
+private const val PLACEMENT_TOLERANCE_MINUTES = 3F

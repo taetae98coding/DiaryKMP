@@ -1,6 +1,8 @@
 package io.github.taetae98coding.diary.feature.web.ui.detail.tab
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assert
@@ -268,6 +270,48 @@ class WebDetailTabTest {
         composeRule.onNodeWithContentDescription(DEFAULT_PAGE_TAB_DESCRIPTION).assertIsSelected()
     }
 
+    @Test
+    fun `TC-7ba97226-b02d-4073-85b8-d98485f048b3 앱을 다시 실행해 진입하면 메모 탭이 선택되지 않은 상태로 시작한다`() {
+        // 앱을 다시 실행하면 화면의 ViewModel도 새로 만들어지므로 실행마다 새 ViewModel을 넘긴다.
+        val launchedWebViewModelList =
+            List(LAUNCH_COUNT) { memoScreenWebViewModel(uiState = MutableStateFlow(testContentUiState(detail = testWebDetail(title = WEB_TITLE)))) }
+        val launchedPageViewModelList = List(LAUNCH_COUNT) { memoScreenPageViewModel() }
+        val launchedTagViewModelList = List(LAUNCH_COUNT) { detailTagScreenTestViewModel() }
+        var launchCount by mutableIntStateOf(0)
+        prepareWebDetailTabViewModels()
+
+        // 앱을 다시 실행하면 저장해 둔 화면 상태가 없으므로, 새 키로 저장 상태 없이 화면을 다시 구성한다.
+        composeRule.setContent {
+            key(launchCount) {
+                WebDetailScreenTestTheme {
+                    WebDetailScreen(
+                        navigateUp = {},
+                        navigateToTagAdd = {},
+                        navigateToTagDetail = {},
+                        navigateToMemoAdd = {},
+                        navigateToMemoDetail = {},
+                        navigateToMemoFinishedList = {},
+                        id = FIRST_WEB_ID,
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        webViewModel = launchedWebViewModelList[launchCount],
+                        pageViewModel = launchedPageViewModelList[launchCount],
+                        tagViewModel = launchedTagViewModelList[launchCount],
+                    )
+                }
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.selectWebDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
+
+        composeRule.runOnIdle { launchCount += 1 }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsNotSelected()
+        composeRule.onNodeWithContentDescription(DEFAULT_FORM_TAB_DESCRIPTION).assertIsNotSelected()
+        composeRule.onNodeWithContentDescription(DEFAULT_PAGE_TAB_DESCRIPTION).assertIsSelected()
+    }
+
     private fun waitUntilMemoListExists() {
         composeRule.waitUntil(timeoutMillis = PAGE_TIMEOUT_MILLIS) {
             composeRule.onAllNodesWithText(MEMO_TITLE).fetchSemanticsNodes().isNotEmpty()
@@ -294,5 +338,6 @@ class WebDetailTabTest {
         const val TYPED_HEADER_VALUE = "WebDetailTabHeaderValue"
         const val MEMO_TITLE = "WebDetailTabMemo"
         const val PAGE_TIMEOUT_MILLIS = 5_000L
+        const val LAUNCH_COUNT = 2
     }
 }

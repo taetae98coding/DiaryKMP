@@ -3,16 +3,25 @@ package io.github.taetae98coding.diary.core.calendar.database.impl.transaction
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import app.cash.turbine.test
+import com.navercorp.fixturemonkey.FixtureMonkey
 import io.github.taetae98coding.diary.core.calendar.database.api.datasource.LunarLocalDataSource
 import io.github.taetae98coding.diary.core.calendar.database.api.transaction.LunarTransaction
 import io.github.taetae98coding.diary.core.calendar.database.impl.CalendarDatabase
 import io.github.taetae98coding.diary.core.calendar.database.impl.datasource.LunarLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.calendar.database.impl.datasource.lunarDateList
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.github.taetae98coding.diary.library.fixturemonkey.nonBlankString
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.spyk
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.LocalDate
+
+private val fixtureMonkey: FixtureMonkey =
+    diaryFixtureMonkey()
 
 class LunarTransactionImplTest :
     FunSpec({
@@ -68,5 +77,23 @@ class LunarTransactionImplTest :
             transaction.upsert(solarYear = 2026, lunarDateList = emptyList())
 
             dataSource.get(dateRange = LocalDate(2026, 1, 1)..LocalDate(2026, 12, 31)).first().shouldBeEmpty()
+        }
+
+        test("TC-d42d9dd5-3937-4d4e-b617-04c56aa5c6e2 교체가 끝까지 완료되지 못하면 그 연도의 기존 음력 자료를 유지한다") {
+            val dateRange = LocalDate(2026, 1, 1)..LocalDate(2026, 12, 31)
+            val previousList = lunarDateList(solarYear = 2026, start = LocalDate(2026, 1, 1), endInclusive = LocalDate(2026, 1, 3))
+            val replacementList = lunarDateList(solarYear = 2026, start = LocalDate(2026, 1, 2), endInclusive = LocalDate(2026, 1, 5))
+            transaction.upsert(solarYear = 2026, lunarDateList = previousList)
+            val throwable = IllegalStateException(fixtureMonkey.nonBlankString())
+            val failingDatabase = spyk(database)
+            // 기존 자료를 지운 뒤 새 자료를 저장하려는 순간 쓰기가 실패하도록 한다.
+            every { failingDatabase.lunarDateDao() } returns database.lunarDateDao() andThenThrows throwable
+            val failingTransaction = LunarTransactionImpl(database = failingDatabase)
+
+            shouldThrow<IllegalStateException> {
+                failingTransaction.upsert(solarYear = 2026, lunarDateList = replacementList)
+            }.message shouldBe throwable.message
+
+            dataSource.get(dateRange = dateRange).first() shouldBe previousList
         }
     })

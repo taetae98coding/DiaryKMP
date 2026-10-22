@@ -289,6 +289,26 @@ class TimetableSelectTest {
             )
     }
 
+    @Test
+    fun `TC-dbe54acb-fdb4-4d80-b9fe-df49ebb0325e 선택하는 동안 위아래로 끌어도 시간대가 스크롤되지 않는다`() {
+        setTimetable()
+        val start = timePosition(hour = 10, minute = 10)
+        val tenY = hourLabelCenterY(label = TEN_AM_LABEL)
+        val hourHeight = hourLabelCenterY(label = ELEVEN_AM_LABEL) - tenY
+
+        val labelList = listOf(NINE_AM_LABEL, TEN_AM_LABEL, ELEVEN_AM_LABEL, NOON_LABEL)
+        val initialLabelYList = labelList.map { label -> hourLabelCenterY(label = label) }
+
+        performLongPress(start)
+        performMoveTo(start.copy(y = start.y + hourHeight * 2))
+
+        labelList.map { label -> hourLabelCenterY(label = label) } shouldBe initialLabelYList
+
+        performUp()
+
+        labelList.map { label -> hourLabelCenterY(label = label) } shouldBe initialLabelYList
+    }
+
     private fun setTimetable(
         type: TimetableType = TimetableType.DAY,
         date: LocalDate = september(day = 23),
@@ -325,8 +345,8 @@ class TimetableSelectTest {
         minute: Int,
         day: Int? = null,
     ): Offset {
-        val tenY = hourLabelCenterY(label = "10 AM")
-        val hourHeight = hourLabelCenterY(label = "11 AM") - tenY
+        val tenY = hourLabelCenterY(label = TEN_AM_LABEL)
+        val hourHeight = hourLabelCenterY(label = ELEVEN_AM_LABEL) - tenY
         val x =
             day?.let { dayCenter(day = it).x }
                 ?: composeRule
@@ -387,6 +407,10 @@ private fun september(
 ): LocalDateTime = LocalDateTime(date = september(day = day), time = LocalTime(hour = hour, minute = minute))
 
 private const val MEETING = "Meeting"
+private const val NINE_AM_LABEL = "9 AM"
+private const val TEN_AM_LABEL = "10 AM"
+private const val ELEVEN_AM_LABEL = "11 AM"
+private const val NOON_LABEL = "12 PM"
 private const val VACATION = "Vacation"
 private const val LONG_PRESS_MARGIN_MILLIS = 100L
 private const val OUTSIDE_DRAG_DISTANCE_PX = 200F

@@ -13,6 +13,7 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.LocalDate
+import java.io.File
 
 class LunarLocalDataSourceImplTest :
     FunSpec({
@@ -65,6 +66,28 @@ class LunarLocalDataSourceImplTest :
 
                 awaitItem() shouldBe lunarDateList
                 cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+        test("TC-773ac8b1-05c8-4bce-8240-bf68add5e489 데스크톱 앱에서 저장소를 닫고 다시 열어도 저장한 음력 자료가 남는다") {
+            val file = File.createTempFile("lunar", ".db")
+
+            try {
+                val dateRange = LocalDate(2026, 8, 17)..LocalDate(2026, 8, 23)
+                val lunarDateList = lunarDateList(solarYear = 2026, start = LocalDate(2026, 8, 17), endInclusive = LocalDate(2026, 8, 23))
+                val firstDatabase = calendarFileDatabase(file)
+                LunarTransactionImpl(database = firstDatabase).upsert(solarYear = 2026, lunarDateList = lunarDateList)
+                firstDatabase.close()
+
+                val secondDatabase = calendarFileDatabase(file)
+
+                try {
+                    LunarLocalDataSourceImpl(database = secondDatabase).get(dateRange = dateRange).first() shouldBe lunarDateList
+                } finally {
+                    secondDatabase.close()
+                }
+            } finally {
+                file.delete()
             }
         }
     })

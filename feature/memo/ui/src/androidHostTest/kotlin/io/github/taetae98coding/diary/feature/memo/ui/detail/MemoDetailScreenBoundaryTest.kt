@@ -27,6 +27,8 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeDown
 import androidx.lifecycle.Lifecycle
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
@@ -220,6 +222,26 @@ class MemoDetailScreenBoundaryTest {
         assertNoFeedbackShown()
     }
 
+    @Test
+    fun `TC-8ab93b1c-4cf2-47a9-aba7-6d5982d2c4cf 당기거나 화면에 들어오거나 앱으로 돌아와도 새로고침하지 않는다`() {
+        val viewModel = screenTestViewModel(uiState = MutableStateFlow(memoDetailUiState(id = FIRST_MEMO_ID, detail = memoDetail(MEMO_TITLE))))
+        composeRule.setContent { Detail(viewModel = viewModel) }
+        composeRule.waitForIdle()
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().assert(hasText(MEMO_TITLE))
+        composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertDoesNotExist()
+
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().performTouchInput { swipeDown() }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertDoesNotExist()
+
+        composeRule.activityRule.scenario.moveToState(Lifecycle.State.CREATED)
+        composeRule.waitForIdle()
+        composeRule.activityRule.scenario.moveToState(Lifecycle.State.RESUMED)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(DEFAULT_REFRESHING_DESCRIPTION).assertDoesNotExist()
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().assert(hasText(MEMO_TITLE))
+    }
+
     // 스낵바는 닫기 동작을 제공하므로, 닫기 동작을 가진 노드와 알려진 안내 문구가 없으면 안내가 표시되지 않은 것이다.
     private fun assertNoFeedbackShown() {
         composeRule.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.Dismiss)).assertCountEquals(0)
@@ -291,6 +313,7 @@ class MemoDetailScreenBoundaryTest {
         private const val BLANK_TITLE = "   "
         private const val DEFAULT_UPDATE_SUCCEEDED_MESSAGE = "Memo updated."
         private const val DEFAULT_CONFIRM = "Confirm"
+        private const val DEFAULT_REFRESHING_DESCRIPTION = "Refreshing"
         private val FEEDBACK_MESSAGE_LIST: List<String> =
             listOf(DEFAULT_UPDATE_SUCCEEDED_MESSAGE, DEFAULT_COPY_SUCCEEDED_MESSAGE, "Memo finished.", "Memo restarted.", "Memo deleted.", "Undo")
         private const val COLOR_RGB_MASK = 0xFFFFFF

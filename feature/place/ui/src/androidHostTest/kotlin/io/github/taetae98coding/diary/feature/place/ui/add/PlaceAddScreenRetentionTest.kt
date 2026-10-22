@@ -1,5 +1,10 @@
 package io.github.taetae98coding.diary.feature.place.ui.add
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.hasSetTextAction
@@ -12,6 +17,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import io.github.taetae98coding.diary.feature.place.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.verify
 import kotlinx.coroutines.channels.Channel
@@ -84,6 +90,46 @@ class PlaceAddScreenRetentionTest {
         composeRule.onAllNodes(hasSetTextAction())[LATITUDE_INDEX].assert(hasText(TYPED_LATITUDE))
         composeRule.onAllNodes(hasSetTextAction())[LONGITUDE_INDEX].assert(hasText(TYPED_LONGITUDE))
         composeRule.onNodeWithText(initialColorHex, substring = true).assertExists()
+    }
+
+    @Test
+    fun `TC-9773c87d-3481-47b3-9d21-dff2c7d54484 앱을 다시 실행한 뒤 새로 진입하면 이전 제목 설명 좌표 없이 새 컬러로 시작한다`() {
+        var launchCount by mutableIntStateOf(0)
+        // 앱을 다시 실행하면 저장해 둔 화면 상태와 ViewModel이 없으므로, 새 키로 저장 상태 없이 화면과 ViewModel을 다시 구성한다.
+        composeRule.setContent {
+            key(launchCount) {
+                PlaceAddScreenTestTheme {
+                    PlaceAddScreen(
+                        addedResultRequestKey = null,
+                        navigateToTagAdd = {},
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        navigateUp = {},
+                        initialCoordinate = null,
+                        addViewModel = remember { screenTestViewModel() },
+                        searchViewModel = remember { searchScreenTestViewModel() },
+                        navigateToTagDetail = {},
+                        tagViewModel = remember { addTagScreenTestViewModel() },
+                    )
+                }
+            }
+        }
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().performTextInput(TYPED_TITLE)
+        composeRule.onAllNodes(hasSetTextAction())[DESCRIPTION_INDEX].performTextInput(TYPED_DESCRIPTION)
+        composeRule.onAllNodes(hasSetTextAction())[LATITUDE_INDEX].performTextInput(TYPED_LATITUDE)
+        composeRule.onAllNodes(hasSetTextAction())[LONGITUDE_INDEX].performTextInput(TYPED_LONGITUDE)
+        composeRule.onNodeWithText(TYPED_TITLE).assertExists()
+        val previousColorHex = composeRule.currentColorHex()
+
+        composeRule.runOnIdle { launchCount += 1 }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(TYPED_TITLE).assertDoesNotExist()
+        composeRule.onAllNodes(hasSetTextAction()).onFirst().assert(hasText(""))
+        composeRule.onAllNodes(hasSetTextAction())[DESCRIPTION_INDEX].assert(hasText(""))
+        composeRule.onAllNodes(hasSetTextAction())[LATITUDE_INDEX].assert(hasText(""))
+        composeRule.onAllNodes(hasSetTextAction())[LONGITUDE_INDEX].assert(hasText(""))
+        // 컬러는 화면을 새로 만들 때마다 무작위로 정해지므로, 이전과 다르면 새로 제시된 것이다.
+        composeRule.currentColorHex() shouldNotBe previousColorHex
     }
 
     private fun assertTitleBlankRetainsInput(initialTitle: String) {
