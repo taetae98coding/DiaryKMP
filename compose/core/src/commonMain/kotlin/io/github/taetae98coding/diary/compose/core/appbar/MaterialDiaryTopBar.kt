@@ -31,6 +31,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.github.taetae98coding.diary.compose.core.animation.DiaryCrossfade
@@ -66,11 +67,18 @@ internal fun MaterialDiaryTopBar(
 
 private val materialTitleScope = DiaryTopBarTitleScope { title -> MaterialTopBarTitle(title = title) }
 
-private val materialSubtitleScope =
+internal val materialNonSearchTitleScope =
+    DiaryTopBarTitleScope { title ->
+        if (title !is DiaryTopBarTitle.Search) {
+            MaterialTopBarTitle(title = title)
+        }
+    }
+
+internal val materialSubtitleScope =
     DiaryTopBarTitleScope { title ->
         val subtitle = (title as? DiaryTopBarTitle.Text)?.subtitle
         if (subtitle != null) {
-            Text(text = subtitle, maxLines = DiaryTopBarDefaults.TITLE_MAX_LINES)
+            Text(text = subtitle, overflow = TextOverflow.Ellipsis, maxLines = DiaryTopBarDefaults.TITLE_MAX_LINES)
         }
     }
 
@@ -92,7 +100,11 @@ private fun MaterialTopBarTitle(title: DiaryTopBarTitle) {
                     maxLines = DiaryTopBarDefaults.TITLE_MAX_LINES,
                 )
             } else {
-                Text(text = title.text)
+                Text(
+                    text = title.text,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = DiaryTopBarDefaults.TITLE_MAX_LINES,
+                )
             }
 
         is DiaryTopBarTitle.Button -> MaterialTopBarTitleButton(title = title)
@@ -120,7 +132,12 @@ private fun MaterialTopBarTitleButton(title: DiaryTopBarTitle.Button) {
                 ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(text = title.text)
+        Text(
+            text = title.text,
+            modifier = Modifier.weight(weight = 1F, fill = false),
+            overflow = TextOverflow.Ellipsis,
+            maxLines = DiaryTopBarDefaults.TITLE_MAX_LINES,
+        )
         DiaryCrossfade(targetState = title.isExpanded) { isExpanded ->
             if (isExpanded) {
                 DropUpIcon(contentDescription = title.collapseContentDescription)

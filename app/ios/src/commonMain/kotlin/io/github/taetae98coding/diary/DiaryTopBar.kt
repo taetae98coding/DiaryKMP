@@ -5,7 +5,6 @@ import io.github.taetae98coding.diary.compose.core.appbar.UiKitTopBarRenderer
 import io.github.taetae98coding.diary.compose.core.appbar.UiKitTopBarRendererRegistry
 import io.github.taetae98coding.diary.compose.core.appbar.UiKitTopBarSearch
 import io.github.taetae98coding.diary.compose.core.appbar.UiKitTopBarState
-import io.github.taetae98coding.diary.compose.core.appbar.UiKitTopBarTitleButton
 import platform.UIKit.UIColor
 import platform.UIKit.UIImage
 import platform.UIKit.UIViewController
@@ -41,9 +40,6 @@ public data object DiaryTopBar {
 public class DiaryTopBarState internal constructor(
     private val state: UiKitTopBarState,
 ) {
-    public val title: String get() = state.title
-    public val subtitle: String? get() = state.subtitle
-    public val titleButton: DiaryTopBarTitleButton? get() = state.titleButton?.let(::DiaryTopBarTitleButton)
     public val search: DiaryTopBarSearch? get() = state.search?.let(::DiaryTopBarSearch)
     public val navigateUp: DiaryTopBarButton? get() = state.navigateUp?.let(::DiaryTopBarButton)
     public val actions: List<DiaryTopBarButton> get() = state.actions.map(::DiaryTopBarButton)
@@ -63,17 +59,6 @@ public class DiaryTopBarButton internal constructor(
     public val isHighlighted: Boolean get() = button.isHighlighted
     public val isToggle: Boolean get() = button.isToggle
     public val isVisible: Boolean get() = button.isVisible
-
-    public fun click() {
-        button.click()
-    }
-}
-
-public class DiaryTopBarTitleButton internal constructor(
-    private val button: UiKitTopBarTitleButton,
-) {
-    public val image: UIImage? get() = button.image
-    public val hintDescription: String get() = button.hintDescription
 
     public fun click() {
         button.click()
