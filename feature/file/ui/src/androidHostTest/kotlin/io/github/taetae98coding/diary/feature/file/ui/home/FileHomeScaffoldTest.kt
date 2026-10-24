@@ -302,6 +302,22 @@ class FileHomeScaffoldTest {
         eventList shouldBe emptyList()
     }
 
+    @Test
+    @Config(qualifiers = "ko")
+    fun `TC-FILE-LIST-DETAIL-FEATURE-003 상세 영역에 FileAdd가 놓이면 파일 추가 버튼을 두지 않고 Cmd A 단축키로도 파일 추가 이벤트를 내보내지 않는다`() {
+        val eventList = mutableListOf<FileHomeScaffoldEvent>()
+        setFileHomeScaffold(
+            onEvent = eventList::add,
+            uiState = FileHomeUiState.User(accountId = fixtureMonkey.giveMeOne<Uuid>()),
+            componentVisible = FileHomeScaffoldComponentVisible(isAddButtonVisible = false),
+        )
+
+        performAddShortcut()
+
+        composeRule.onNodeWithContentDescription(KOREAN_ADD_BUTTON_DESCRIPTION).assertDoesNotExist()
+        eventList shouldBe emptyList()
+    }
+
     private fun performAddShortcut() {
         composeRule.onRoot().performKeyInput {
             keyDown(Key.MetaLeft)
@@ -318,6 +334,7 @@ class FileHomeScaffoldTest {
         uploadUiState: FileHomeUploadUiState = FileHomeUploadUiState(),
         pagingData: PagingData<DiaryFile> = PagingData.empty(),
         isRefreshing: Boolean = false,
+        componentVisible: FileHomeScaffoldComponentVisible = FileHomeScaffoldComponentVisible(),
     ) {
         composeRule.setContent {
             DiaryTheme {
@@ -327,6 +344,7 @@ class FileHomeScaffoldTest {
                     uiStateProvider = { uiState },
                     uploadUiStateProvider = { uploadUiState },
                     isRefreshingProvider = { isRefreshing },
+                    componentVisibleProvider = { componentVisible },
                 )
             }
         }

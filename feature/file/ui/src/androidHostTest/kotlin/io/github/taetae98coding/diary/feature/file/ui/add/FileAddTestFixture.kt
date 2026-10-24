@@ -148,6 +148,7 @@ internal class FileAddTestScreen(
         DiaryTheme {
             FileAddScreen(
                 navigateUp = { navigateUpCount += 1 },
+                componentVisibleProvider = { FileAddScaffoldComponentVisible() },
                 filePicker = picker,
                 uploadViewModel = viewModel,
                 accountViewModel = accountViewModel,

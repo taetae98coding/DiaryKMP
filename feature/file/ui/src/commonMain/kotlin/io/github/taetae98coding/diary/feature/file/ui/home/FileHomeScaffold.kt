@@ -50,11 +50,14 @@ internal fun FileHomeScaffold(
     uploadUiStateProvider: () -> FileHomeUploadUiState = { FileHomeUploadUiState() },
     isRefreshingProvider: () -> Boolean = { false },
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    componentVisibleProvider: () -> FileHomeScaffoldComponentVisible = { FileHomeScaffoldComponentVisible() },
 ) {
     Scaffold(
         modifier =
             modifier.addShortcut(
-                isEnabledProvider = { uiStateProvider() is FileHomeUiState.User && !uploadUiStateProvider().isUploading },
+                isEnabledProvider = {
+                    uiStateProvider() is FileHomeUiState.User && componentVisibleProvider().isAddButtonVisible && !uploadUiStateProvider().isUploading
+                },
             ) { onEvent(FileHomeScaffoldEvent.ClickAdd) },
         topBar = {
             DiaryNavigateUpTopBar(
@@ -66,7 +69,7 @@ internal fun FileHomeScaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         contentWindowInsets = DiaryScaffoldDefaults.contentWindowInsets,
         floatingActionButton = {
-            if (uiStateProvider() is FileHomeUiState.User) {
+            if (uiStateProvider() is FileHomeUiState.User && componentVisibleProvider().isAddButtonVisible) {
                 FloatingAddButton(
                     onClick = { onEvent(FileHomeScaffoldEvent.ClickAdd) },
                     contentDescription = stringResource(Res.string.file_home_add_button_content_description),

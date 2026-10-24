@@ -82,6 +82,38 @@ class AppStateDeepLinkTest :
             appState.backStack.last() shouldBe TopLevelNavigation.More.key
         }
 
+        test("TC-FILE-UPLOAD-NOTIFICATION-FEATURE-022 목록과 함께 표시한 FileDetail 위에서 연 FileAdd를 보고 있으면 알림을 선택해도 배치를 유지한다") {
+            val detail = FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val initialBackStack = listOf(TopLevelNavigation.Calendar.key, TopLevelNavigation.More.key, FileHomeNavKey, detail, FileAddNavKey)
+            val appState = createAppState(*initialBackStack.toTypedArray())
+
+            appState.openDeepLink(deepLink = ScreenDeepLink.FILE_HOME)
+
+            appState.backStack.toList() shouldBe initialBackStack
+        }
+
+        test("TC-FILE-UPLOAD-NOTIFICATION-FEATURE-023 목록과 함께 선택 전 FileAdd가 놓여 있으면 알림을 선택해도 배치를 유지하고 뒤로가면 더보기로 돌아간다") {
+            val initialBackStack = listOf(TopLevelNavigation.Calendar.key, TopLevelNavigation.More.key, FileHomeNavKey)
+            val appState = createAppState(*initialBackStack.toTypedArray(), directive = TWO_PANE_DIRECTIVE)
+
+            appState.openDeepLink(deepLink = ScreenDeepLink.FILE_HOME)
+
+            appState.backStack.toList() shouldBe initialBackStack
+            appState.backStack.removeLastOrNull()
+            appState.backStack.last() shouldBe TopLevelNavigation.More.key
+        }
+
+        test("TC-FILE-UPLOAD-NOTIFICATION-FEATURE-024 목록과 함께 상세 영역에 FileDetail이 놓여 있으면 알림을 선택했을 때 FileDetail을 닫고 선택 전 상태로 FileHome을 연다") {
+            val detail = FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val appState = createAppState(TopLevelNavigation.Calendar.key, TopLevelNavigation.More.key, FileHomeNavKey, detail, directive = TWO_PANE_DIRECTIVE)
+
+            appState.openDeepLink(deepLink = ScreenDeepLink.FILE_HOME)
+
+            appState.backStack.toList() shouldBe listOf(TopLevelNavigation.Calendar.key, TopLevelNavigation.More.key, FileHomeNavKey)
+            appState.backStack.removeLastOrNull()
+            appState.backStack.last() shouldBe TopLevelNavigation.More.key
+        }
+
         test("알 수 없는 주소는 보던 화면을 그대로 둔다") {
             val initialBackStack = listOf(TopLevelNavigation.Calendar.key, TopLevelNavigation.Memo.key)
             val appState = createAppState(*initialBackStack.toTypedArray())
@@ -92,12 +124,17 @@ class AppStateDeepLinkTest :
         }
     }) {
     private companion object {
-        private fun createAppState(vararg keys: ScreenNavKey): AppState =
+        private val TWO_PANE_DIRECTIVE: PaneScaffoldDirective = PaneScaffoldDirective.Default.copy(maxHorizontalPartitions = 2)
+
+        private fun createAppState(
+            vararg keys: ScreenNavKey,
+            directive: PaneScaffoldDirective = PaneScaffoldDirective.Default,
+        ): AppState =
             AppState(
                 backStack = NavBackStack(*keys),
                 scaffoldState = mockk<NavigationSuiteScaffoldState>(relaxed = true),
                 reselectEvent = TopLevelReselectEvent(),
-                paneScaffoldDirectiveProvider = { PaneScaffoldDirective.Default },
+                paneScaffoldDirectiveProvider = { directive },
             )
     }
 }

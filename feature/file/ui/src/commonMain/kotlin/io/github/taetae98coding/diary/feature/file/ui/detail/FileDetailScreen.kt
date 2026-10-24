@@ -12,6 +12,7 @@ import io.github.taetae98coding.diary.core.model.file.DiaryFileDetail
 @Composable
 internal fun FileDetailScreen(
     navigateUp: () -> Unit,
+    componentVisibleProvider: () -> FileDetailScaffoldComponentVisible,
     detailViewModel: FileDetailViewModel,
     accountViewModel: FileDetailAccountViewModel,
     modifier: Modifier = Modifier,
@@ -46,6 +47,7 @@ internal fun FileDetailScreen(
             modifier = modifier,
             state = state,
             uiStateProvider = { uiState },
+            componentVisibleProvider = componentVisibleProvider,
         )
     }
 }

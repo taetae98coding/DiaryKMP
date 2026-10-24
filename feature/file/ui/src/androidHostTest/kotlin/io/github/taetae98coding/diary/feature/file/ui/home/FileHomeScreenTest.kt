@@ -1800,6 +1800,7 @@ private class FileHomeTestScreen(
                 navigateUp = navigateUp,
                 navigateToAdd = { navigateToAddCount += 1 },
                 navigateToDetail = { id -> navigateToDetailIdList += id },
+                componentVisibleProvider = { FileHomeScaffoldComponentVisible() },
                 fileViewModel = fileViewModel,
                 uploadViewModel = uploadViewModel,
                 refreshViewModel = refreshViewModel,

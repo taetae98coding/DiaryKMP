@@ -6,11 +6,15 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
+import com.navercorp.fixturemonkey.FixtureMonkey
+import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.app.shared.navigation.TopLevelNavigation
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactMemoFinishedListNavKey
+import io.github.taetae98coding.diary.feature.file.api.FileDetailNavKey
+import io.github.taetae98coding.diary.feature.file.api.FileHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.more.api.MoreHomeNavKey
@@ -25,6 +29,7 @@ import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebHomeNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebMemoFinishedListNavKey
+import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldContainExactly
@@ -35,6 +40,8 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.uuid.Uuid
+
+private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [36])
@@ -235,6 +242,56 @@ class RememberAppStateTest {
             appState.backStack shouldContainExactly listOf(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.More.key, ContactHomeNavKey, detailNavKey)
             appState.backStack.removeLast()
             appState.backStack.last() shouldBe ContactHomeNavKey
+        }
+    }
+
+    @Test
+    @Config(qualifiers = "w1000dp-h800dp")
+    fun `TC-FILE-LIST-DETAIL-DOMAIN-008 화면 재생성 후 파일 목록과 함께 놓인 상세 선택을 유지한다`() {
+        val detailNavKey = FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+        val restorationTester = StateRestorationTester(composeRule)
+        lateinit var appState: AppState
+        restorationTester.setContent {
+            appState = rememberAppState()
+        }
+        composeRule.runOnIdle {
+            appState.navigateTo(TopLevelNavigation.More)
+            appState.backStack.add(FileHomeNavKey)
+            appState.backStack.add(detailNavKey)
+        }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        composeRule.runOnIdle {
+            appState.backStack shouldContainExactly listOf(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.More.key, FileHomeNavKey, detailNavKey)
+            appState.backStack.removeLast()
+            appState.backStack.last() shouldBe FileHomeNavKey
+        }
+    }
+
+    @Test
+    @Config(qualifiers = "w1000dp-h800dp")
+    fun `TC-FILE-LIST-DETAIL-DOMAIN-009 시스템이 앱을 정리했다가 다시 만들어도 파일 목록과 함께 놓인 상세 선택과 뒤로가기 기록을 유지한다`() {
+        val detailNavKey = FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+        val appState = restoredAppState(topLevelNavigation = TopLevelNavigation.More, pathKeyList = listOf(FileHomeNavKey, detailNavKey))
+
+        composeRule.runOnIdle {
+            appState.backStack shouldContainExactly listOf(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.More.key, FileHomeNavKey, detailNavKey)
+            appState.backStack.removeLast()
+            appState.backStack.last() shouldBe FileHomeNavKey
+        }
+    }
+
+    @Test
+    @Config(qualifiers = "w1000dp-h800dp")
+    fun `TC-FILE-LIST-DETAIL-DOMAIN-010 앱이 백그라운드에 다녀와도 파일 목록과 함께 놓인 상세 선택을 유지한다`() {
+        val detailNavKey = FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+        val appState = backgroundReturnedAppState(topLevelNavigation = TopLevelNavigation.More, pathKeyList = listOf(FileHomeNavKey, detailNavKey))
+
+        composeRule.runOnIdle {
+            appState.backStack shouldContainExactly listOf(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.More.key, FileHomeNavKey, detailNavKey)
+            appState.backStack.removeLast()
+            appState.backStack.last() shouldBe FileHomeNavKey
         }
     }
 

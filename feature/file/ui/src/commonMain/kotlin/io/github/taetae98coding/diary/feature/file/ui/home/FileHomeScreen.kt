@@ -16,6 +16,7 @@ internal fun FileHomeScreen(
     navigateUp: () -> Unit,
     navigateToAdd: () -> Unit,
     navigateToDetail: (Uuid) -> Unit,
+    componentVisibleProvider: () -> FileHomeScaffoldComponentVisible,
     fileViewModel: FileHomeViewModel,
     uploadViewModel: FileHomeUploadViewModel,
     refreshViewModel: FileHomeRefreshViewModel,
@@ -66,5 +67,6 @@ internal fun FileHomeScreen(
         uploadUiStateProvider = { uploadUiState },
         isRefreshingProvider = { refreshUiState.isRefreshing },
         snackbarHostState = snackbarHostState,
+        componentVisibleProvider = componentVisibleProvider,
     )
 }
