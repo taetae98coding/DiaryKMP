@@ -32,6 +32,7 @@ internal fun QrAddScaffold(
     modifier: Modifier = Modifier,
     state: QrAddFormState = rememberQrAddFormState(),
     uiStateProvider: () -> QrAddUiState = { QrAddUiState() },
+    componentVisibleProvider: () -> QrAddScaffoldComponentVisible = { QrAddScaffoldComponentVisible() },
 ) {
     Scaffold(
         modifier = modifier.submitShortcut { onEvent(QrAddScaffoldEvent.ClickAdd) },
@@ -43,6 +44,7 @@ internal fun QrAddScaffold(
                 title = stringResource(Res.string.qr_add_title),
                 onNavigateUp = { onEvent(QrAddScaffoldEvent.ClickNavigateUp) },
                 navigateUpContentDescription = stringResource(Res.string.qr_navigate_up_button_content_description),
+                isNavigateUpVisibleProvider = { componentVisibleProvider().isNavigateUpButtonVisible },
                 actions = {
                     IconAction(
                         icon = DiaryTopBarIcon.UNDO,

@@ -46,6 +46,7 @@ class QrAddScreenRetentionTest {
                     navigateToScan = {},
                     permissionManager = rememberPermissionManager(),
                     resultEventBus = remember { ResultEventBus() },
+                    componentVisibleProvider = { QrAddScaffoldComponentVisible() },
                     viewModel = viewModel,
                 )
             }

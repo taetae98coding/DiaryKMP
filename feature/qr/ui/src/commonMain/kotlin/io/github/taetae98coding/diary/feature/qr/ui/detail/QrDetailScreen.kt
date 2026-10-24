@@ -28,6 +28,7 @@ internal fun QrDetailScreen(
     navigateToScan: () -> Unit,
     permissionManager: PermissionManager,
     resultEventBus: ResultEventBus,
+    componentVisibleProvider: () -> QrDetailScaffoldComponentVisible,
     viewModel: QrDetailViewModel,
     modifier: Modifier = Modifier,
 ) {
@@ -95,6 +96,7 @@ internal fun QrDetailScreen(
             state = state,
             uiStateProvider = { uiState },
             actionProvider = { action },
+            componentVisibleProvider = componentVisibleProvider,
         )
     }
 }

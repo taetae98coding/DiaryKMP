@@ -744,6 +744,7 @@ class QrDetailScreenTest {
                     navigateToScan = navigateToScan,
                     permissionManager = rememberPermissionManager(),
                     resultEventBus = resultEventBus,
+                    componentVisibleProvider = { QrDetailScaffoldComponentVisible() },
                     viewModel = viewModel,
                 )
             }

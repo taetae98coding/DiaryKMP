@@ -84,6 +84,7 @@ class QrAddScreenFormatTest {
                     navigateToScan = {},
                     permissionManager = rememberPermissionManager(),
                     resultEventBus = remember { resultEventBus },
+                    componentVisibleProvider = { QrAddScaffoldComponentVisible() },
                     viewModel = viewModel,
                 )
             }

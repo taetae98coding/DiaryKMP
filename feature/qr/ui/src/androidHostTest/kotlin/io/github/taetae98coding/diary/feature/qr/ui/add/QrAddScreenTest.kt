@@ -351,6 +351,7 @@ class QrAddScreenTest {
                     navigateToScan = navigateToScan,
                     permissionManager = rememberPermissionManager(),
                     resultEventBus = resultEventBus,
+                    componentVisibleProvider = { QrAddScaffoldComponentVisible() },
                     viewModel = viewModel,
                 )
             }
