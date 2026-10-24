@@ -9,6 +9,7 @@
 - [MemoFinishedList 화면 디자인](./memo-finished-list.md)
 - [TagFinishedList 화면 디자인](./tag-finished-list.md)
 - [TagMemoFinishedList 화면 디자인](./tag-memo-finished-list.md)
+- [항목 완료 메모 목록 화면 디자인](./entity-memo-finished-list.md)
 
 ## 화면 구조와 이동
 

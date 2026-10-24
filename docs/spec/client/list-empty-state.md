@@ -17,6 +17,7 @@
 | [ContactDetail 메모 탭](./contact-detail-memo.md) | 연락처별 메모 목록 |
 | [PlaceDetail 메모 탭](./place-detail-memo.md) | 장소별 메모 목록 |
 | [WebDetail 메모 탭](./web-detail-memo.md) | 웹 항목별 메모 목록 |
+| [항목 완료 메모 목록 화면](./entity-memo-finished-list.md) | 연락처별·장소별·웹 항목별 완료된 메모 목록 |
 | [MemoHome 목록](./memo-home.md) | 메모 목록 |
 | [MemoFinishedList 화면](./memo-finished-list.md) | 완료된 메모 목록 |
 | [RoutineHome 화면](./routine-home.md) | 루틴 목록 |
@@ -134,6 +135,9 @@ flowchart TD
 | ContactDetail 메모 탭의 연락처별 메모 목록 | 이 연락처에 연결된 메모가 아직 없으며 새로 추가할 수 있다 |
 | PlaceDetail 메모 탭의 장소별 메모 목록 | 이 장소에 연결된 메모가 아직 없으며 새로 추가할 수 있다 |
 | WebDetail 메모 탭의 웹 항목별 메모 목록 | 이 웹 항목에 연결된 메모가 아직 없으며 새로 추가할 수 있다 |
+| ContactMemoFinishedList 연락처별 완료된 메모 목록 | 이 연락처에서 완료한 메모가 아직 없다 |
+| PlaceMemoFinishedList 장소별 완료된 메모 목록 | 이 장소에서 완료한 메모가 아직 없다 |
+| WebMemoFinishedList 웹 항목별 완료된 메모 목록 | 이 웹 항목에서 완료한 메모가 아직 없다 |
 | MemoHome 메모 목록, 좁히지 않은 상태 | 아직 메모가 없으며 새로 추가할 수 있다 |
 | MemoHome 메모 목록, 좁힌 상태 | 고른 조건에 맞는 메모가 없으며 필터를 바꾸면 다른 메모를 볼 수 있다 |
 | MemoFinishedList 완료된 메모 목록 | 완료한 메모가 아직 없다 |
@@ -150,7 +154,7 @@ flowchart TD
 | SearchHome 장소 검색 결과 목록 | 질의에 맞는 장소가 없으며 다른 질의로 다시 찾을 수 있다 |
 | SearchHome 웹 검색 결과 목록 | 질의에 맞는 웹 항목이 없으며 다른 질의로 다시 찾을 수 있다 |
 
-빈 상태 안내는 사용자가 지금 할 수 있는 일을 벗어난 내용을 담지 않는다. 예를 들어 TagFinishedList, MemoFinishedList와 TagMemoFinishedList는 그 화면에서 항목을 새로 만들 수 없으므로 추가를 권하지 않는다. SearchHome에서는 항목을 새로 만들 수 없으므로 추가를 권하지 않고 질의를 고치는 것만 권한다.
+빈 상태 안내는 사용자가 지금 할 수 있는 일을 벗어난 내용을 담지 않는다. 예를 들어 TagFinishedList, MemoFinishedList, TagMemoFinishedList와 세 항목 완료 메모 목록은 그 화면에서 항목을 새로 만들 수 없으므로 추가를 권하지 않는다. SearchHome에서는 항목을 새로 만들 수 없으므로 추가를 권하지 않고 질의를 고치는 것만 권한다.
 
 ### 실행 경계
 

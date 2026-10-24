@@ -162,13 +162,6 @@
 - When: 사용자가 ContactDetail 화면에서 메모 탭을 연다.
 - Then: 연결된 메모가 목록에 표시되고 메모 추가를 실행할 수 있다.
 
-### TC-CONTACT-DETAIL-MEMO-FEATURE-018: 메모 탭은 완료된 메모를 표시하지 않고 완료된 메모 목록 진입을 두지 않는다
-
-- 근거: `feature > 완료된 메모`, `domain > 메모 노출과 정렬`
-- Given: 상세 대상 연락처에 미완료 메모와 완료된 메모가 함께 연결되어 있다.
-- When: 사용자가 ContactDetail 화면의 메모 탭을 확인한다.
-- Then: 완료된 메모는 목록에 표시되지 않고, 완료된 메모 목록으로 이동하는 동작도 제공되지 않는다.
-
 ### TC-CONTACT-DETAIL-MEMO-FEATURE-019: 어느 경로로 진입한 ContactDetail 화면에서도 메모 탭을 제공한다
 
 - 근거: `feature > 진입`
@@ -210,6 +203,7 @@
 | --- |
 | MemoAdd |
 | MemoDetail |
+| ContactMemoFinishedList |
 
 ### TC-CONTACT-DETAIL-MEMO-FEATURE-022: 안내가 보이는 동안 다른 탭으로 바꾸면 안내가 닫히고 되돌릴 수 없다
 
@@ -251,6 +245,54 @@
 - Given: 대상 연락처와 연결된 미완료·미삭제 메모가 하나도 없고 목록의 준비가 끝났다.
 - When: 메모 탭이 표시된다.
 - Then: 빈 상태 안내가 표시되고 정렬 컨트롤은 표시되지 않는다.
+
+### TC-CONTACT-DETAIL-MEMO-FEATURE-027: 메모 탭 목록은 완료된 메모를 표시하지 않는다
+
+- 근거: `feature > 완료된 메모 확인`, `domain > 메모 노출과 정렬`
+- Given: 상세 대상 연락처에 미완료 메모와 완료된 메모가 함께 연결되어 있다.
+- When: 사용자가 ContactDetail 화면의 메모 탭을 확인한다.
+- Then: 미완료 메모만 목록에 표시되고 완료된 메모는 표시되지 않는다.
+
+### TC-CONTACT-DETAIL-MEMO-FEATURE-028: 완료된 메모 확인을 선택하면 같은 연락처의 완료된 메모 목록으로 이동한다
+
+- 근거: `feature > 완료된 메모 확인`
+- Given: 상세 대상 연락처의 ContactDetail 화면 메모 탭이 표시되어 있다.
+- When: 사용자가 완료된 메모 확인을 선택한다.
+- Then: 같은 연락처의 ContactMemoFinishedList 화면으로 이동한다.
+
+### TC-CONTACT-DETAIL-MEMO-FEATURE-029: 목록과 대상 연락처의 상태와 무관하게 완료된 메모 확인을 실행할 수 있다
+
+- 근거: `feature > 완료된 메모 확인`, `feature > 빈 상태`
+- Given: ContactDetail 화면의 메모 탭이 테스트 데이터의 상태다.
+- When: 사용자가 완료된 메모 확인을 선택한다.
+- Then: 같은 연락처의 ContactMemoFinishedList 화면으로 이동한다.
+- 테스트 데이터:
+
+| 화면 상태 |
+| --- |
+| 연결된 메모가 표시되어 있음 |
+| 빈 상태 안내가 표시되어 있음 |
+| 대상 연락처를 조회하지 못해 화면 제목이 없음 |
+| 대상 연락처가 삭제되어 있음 |
+
+### TC-CONTACT-DETAIL-MEMO-FEATURE-030: 완료된 메모 확인은 메모 탭에서만 제공된다
+
+- 근거: `feature > 완료된 메모 확인`
+- Given: 연락처가 조회된 ContactDetail 화면에서 테스트 데이터의 탭이 선택되어 있다.
+- When: 사용자가 화면에서 실행할 수 있는 동작을 확인한다.
+- Then: 완료된 메모 확인을 실행할 수 없고, 메모 탭으로 전환하면 완료된 메모 확인을 실행할 수 있다.
+- 테스트 데이터:
+
+| 선택한 탭 |
+| --- |
+| 연락처 디테일 탭 |
+
+### TC-CONTACT-DETAIL-MEMO-FEATURE-031: 메모 탭에서 연 완료된 메모 목록은 연락처 목록·상세 배치에 참여하지 않는다
+
+- 근거: `feature > 단독 표시와 돌아오기`, [항목 상세 메모 탭 공통 스펙](../spec/client/entity-detail-memo.md)의 `완료된 메모 확인`
+- Given: 연락처 목록과 상세를 함께 표시하는 배치에서 ContactDetail 화면의 메모 탭이 상세 영역에 표시되어 있다.
+- When: 사용자가 완료된 메모 확인을 선택한다.
+- Then: ContactMemoFinishedList 화면이 연락처 목록이나 ContactDetail 화면과 함께 배치되지 않고, 자기 목록·상세 배치의 목록으로 표시된다.
 
 ## domain
 

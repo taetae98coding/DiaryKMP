@@ -7,6 +7,7 @@
 - [MemoFinishedList 화면 스펙](./memo-finished-list.md)
 - [TagFinishedList 화면 스펙](./tag-finished-list.md)
 - [TagMemoFinishedList 화면 스펙](./tag-memo-finished-list.md)
+- [항목 완료 메모 목록 화면 스펙](./entity-memo-finished-list.md)
 
 이 문서에서 `짝이 되는 목록`은 같은 대상을 완료되지 않은 상태로 보여 주는 목록을 가리키고, `대상 항목`은 그 목록이 모으는 메모 또는 태그 하나를 가리킨다.
 

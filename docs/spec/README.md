@@ -184,6 +184,8 @@
 | 프로필 이미지 변경 | [client](./client/profile-image.md) | [common](./common/profile-image.md) | [server](./server/profile-image.md) | — |
 | 항목 상세 메모 탭 공통 | [client](./client/entity-detail-memo.md) | — | — | [항목 상세 메모 탭 공통 디자인](../design/entity-detail-memo.md) |
 | 항목 상세 화면 공통 | [client](./client/entity-detail.md) | — | — | — |
+| 항목 완료 메모 목록 화면 | [client](./client/entity-memo-finished-list.md) | — | — | [항목 완료 메모 목록 화면 디자인](../design/entity-memo-finished-list.md) |
+| 항목 완료 메모 목록·상세 배치 | [client](./client/entity-memo-finished-list-detail.md) | — | — | [항목 완료 메모 목록·상세 배치 디자인](../design/entity-memo-finished-list-detail.md) |
 | 항목 연결 공통 | [client](./client/entity-link.md) | [common](./common/entity-link.md) | — | — |
 | 항목 추가 화면 공통 | [client](./client/entity-add.md) | — | — | [항목 추가 화면 공통 디자인](../design/entity-add.md) |
 | 항목 태그 연결 공통 | [client](./client/entity-tag.md) | [common](./common/entity-tag.md) | — | — |

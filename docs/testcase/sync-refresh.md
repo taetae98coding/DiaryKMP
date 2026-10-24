@@ -28,6 +28,9 @@ TagDetail 웹·장소 탭, PlaceHome, WebHome, ContactHome, PlaylistHome, QrHome
 | ContactDetail 메모 탭 | 계정 데이터 서버 동기화 |
 | PlaceDetail 메모 탭 | 계정 데이터 서버 동기화 |
 | WebDetail 메모 탭 | 계정 데이터 서버 동기화 |
+| ContactMemoFinishedList | 계정 데이터 서버 동기화 |
+| PlaceMemoFinishedList | 계정 데이터 서버 동기화 |
+| WebMemoFinishedList | 계정 데이터 서버 동기화 |
 | RoutineHome | 계정 데이터 서버 동기화 |
 
 ### TC-SYNC-REFRESH-FEATURE-002: 당겨서 요청한 동기화가 실행되는 동안 진행이 표시된다

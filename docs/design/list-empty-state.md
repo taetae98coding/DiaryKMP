@@ -25,7 +25,7 @@
 
 배경 도형은 아이콘만 놓였을 때보다 빈 자리가 비어 있음을 알아보기 쉽게 하려고 두며, 목록에 따라 색이나 모양을 달리하지 않는다.
 
-같은 배경 도형과 아이콘 크기는 목록·상세 배치의 선택 전 상세도 그대로 쓴다. 그 자리의 아이콘과 문구는 [Setting 목록·상세 배치 디자인](./setting-list-detail.md)과 [TagMemoFinishedList 목록·상세 배치 디자인](./tag-memo-finished-list-detail.md)이 소유한다.
+같은 배경 도형과 아이콘 크기는 목록·상세 배치의 선택 전 상세도 그대로 쓴다. 그 자리의 아이콘과 문구는 [Setting 목록·상세 배치 디자인](./setting-list-detail.md), [TagMemoFinishedList 목록·상세 배치 디자인](./tag-memo-finished-list-detail.md)과 [항목 완료 메모 목록·상세 배치 디자인](./entity-memo-finished-list-detail.md)이 소유한다.
 
 빈 상태에는 버튼이나 링크를 두지 않는다. 항목을 추가하는 조작은 각 화면이 이미 제공하는 추가 버튼이 담당한다.
 
@@ -80,6 +80,7 @@
 | ContactDetail 메모 탭의 연락처별 메모 목록 | 메모 아이콘 |
 | PlaceDetail 메모 탭의 장소별 메모 목록 | 메모 아이콘 |
 | WebDetail 메모 탭의 웹 항목별 메모 목록 | 메모 아이콘 |
+| ContactMemoFinishedList·PlaceMemoFinishedList·WebMemoFinishedList 항목별 완료된 메모 목록 | 완료 아이콘 |
 | MemoHome 메모 목록, 좁히지 않은 상태 | 메모 아이콘 |
 | MemoHome 메모 목록, 좁힌 상태 | 필터 아이콘 |
 | MemoFinishedList 완료된 메모 목록 | 완료 아이콘 |
@@ -130,6 +131,9 @@ MemoHome 목록, TagHome 목록과 ContactHome 연락처 목록에서 좁힌 상
 | PlaceDetail 메모 탭의 장소별 메모 목록 | 보조 | `추가 버튼으로 새 메모를 만들 수 있습니다` | `Use the add button to create a memo.` |
 | WebDetail 메모 탭의 웹 항목별 메모 목록 | 제목 | `이 웹에 연결된 메모가 없습니다` | `No memos linked to this web` |
 | WebDetail 메모 탭의 웹 항목별 메모 목록 | 보조 | `추가 버튼으로 새 메모를 만들 수 있습니다` | `Use the add button to create a memo.` |
+| ContactMemoFinishedList 연락처별 완료된 메모 목록 | 제목 | `이 연락처에서 완료한 메모가 없습니다` | `No finished memos for this contact` |
+| PlaceMemoFinishedList 장소별 완료된 메모 목록 | 제목 | `이 장소에서 완료한 메모가 없습니다` | `No finished memos for this place` |
+| WebMemoFinishedList 웹 항목별 완료된 메모 목록 | 제목 | `이 웹에서 완료한 메모가 없습니다` | `No finished memos for this web` |
 | MemoHome 메모 목록, 좁히지 않은 상태 | 제목 | `아직 메모가 없습니다` | `No memos yet` |
 | MemoHome 메모 목록, 좁히지 않은 상태 | 보조 | `추가 버튼으로 새 메모를 만들 수 있습니다` | `Use the add button to create a memo.` |
 | MemoHome 메모 목록, 좁힌 상태 | 제목 | `조건에 맞는 메모가 없습니다` | `No memos match the filter` |
@@ -154,7 +158,7 @@ MemoHome 목록, TagHome 목록과 ContactHome 연락처 목록에서 좁힌 상
 | SearchHome 네 유형의 검색 결과 목록 | 제목 | `검색 결과가 없습니다` | `No search results` |
 | SearchHome 네 유형의 검색 결과 목록 | 보조 | `다른 검색어로 찾아보세요` | `Try a different search query.` |
 
-TagFinishedList, MemoFinishedList와 TagMemoFinishedList는 그 화면에서 항목을 새로 만들 수 없으므로 보조 문구를 두지 않는다.
+TagFinishedList, MemoFinishedList, TagMemoFinishedList와 ContactMemoFinishedList·PlaceMemoFinishedList·WebMemoFinishedList는 그 화면에서 항목을 새로 만들 수 없으므로 보조 문구를 두지 않는다.
 
 SearchHome의 네 목록은 같은 문구를 쓴다. 유형 이름을 문구에 넣지 않는 것은 사용자가 이미 유형 탭에서 어느 유형을 보고 있는지 알고 있고, 탭을 옮길 때마다 문구가 바뀌면 결과 영역이 유형마다 다른 화면처럼 보이기 때문이다. 이 화면에서는 항목을 새로 만들 수 없으므로 보조 문구는 추가가 아니라 질의를 고치는 것을 권한다.
 

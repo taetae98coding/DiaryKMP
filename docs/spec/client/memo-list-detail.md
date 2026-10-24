@@ -1,6 +1,6 @@
 # Memo 목록·상세 배치 스펙
 
-이 문서는 메모 주요 목적지에서 목록과 상세가 함께 표시될 때 이 배치에만 해당하는 상세 영역 구성, 뒤로가기와 초기화 경계를 다룬다. 함께 사용과 단독 사용, 추가 진입 수단, 표시 비율 조절, 배치에 참여하는 화면과 유지·초기화의 공통 기준은 [목록·상세 배치 공통 스펙](./list-detail-pane.md)을 따른다. 목록 화면과 상세 영역 각 화면의 내용과 행동은 해당 화면 스펙([MemoAdd 화면 스펙](./memo-add.md) 등)에서 다룬다. TagMemoFinishedList에서 사용하는 목록·상세 배치는 [TagMemoFinishedList 목록·상세 배치 스펙](./tag-memo-finished-list-detail.md)에서 다룬다.
+이 문서는 메모 주요 목적지에서 목록과 상세가 함께 표시될 때 이 배치에만 해당하는 상세 영역 구성, 뒤로가기와 초기화 경계를 다룬다. 함께 사용과 단독 사용, 추가 진입 수단, 표시 비율 조절, 배치에 참여하는 화면과 유지·초기화의 공통 기준은 [목록·상세 배치 공통 스펙](./list-detail-pane.md)을 따른다. 목록 화면과 상세 영역 각 화면의 내용과 행동은 해당 화면 스펙([MemoAdd 화면 스펙](./memo-add.md) 등)에서 다룬다. TagMemoFinishedList에서 사용하는 목록·상세 배치는 [TagMemoFinishedList 목록·상세 배치 스펙](./tag-memo-finished-list-detail.md)에서, ContactMemoFinishedList·PlaceMemoFinishedList·WebMemoFinishedList에서 사용하는 목록·상세 배치는 [항목 완료 메모 목록·상세 배치 스펙](./entity-memo-finished-list-detail.md)에서 다룬다.
 
 디자인: [Memo 목록·상세 배치 디자인](../../design/memo-list-detail.md)
 

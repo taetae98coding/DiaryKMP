@@ -22,9 +22,9 @@ PlaceHome, 메모의 장소 카드, TagDetail 장소 탭, SearchHome의 장소 �
 
 ### 단독 표시와 돌아오기
 
-메모 탭에서 이동한 MemoAdd 화면과 MemoDetail 화면은 창 너비와 관계없이 단독으로 표시한다.
+메모 탭에서 이동한 MemoAdd 화면과 MemoDetail 화면은 창 너비와 관계없이 단독으로 표시한다. PlaceMemoFinishedList 화면의 배치는 [항목 완료 메모 목록·상세 배치 스펙](./entity-memo-finished-list-detail.md)을 따른다.
 
-두 화면에서 뒤로가면 메모 탭이 선택된 같은 장소의 PlaceDetail 화면으로 돌아간다. 그 PlaceDetail 화면에서 다시 뒤로가면 [PlaceDetail 화면 스펙](./place-detail.md)의 `뒤로가기`에 따라 PlaceDetail에 진입하기 전 화면으로 돌아간다.
+세 화면에서 뒤로가면 메모 탭이 선택된 같은 장소의 PlaceDetail 화면으로 돌아간다. 그 PlaceDetail 화면에서 다시 뒤로가면 [PlaceDetail 화면 스펙](./place-detail.md)의 `뒤로가기`에 따라 PlaceDetail에 진입하기 전 화면으로 돌아간다.
 
 ## domain
 
