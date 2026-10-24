@@ -1,10 +1,10 @@
 # QrScan 화면 디자인
 
-기준 스펙: [QrScan 화면 스펙](../spec/client/qr-scan.md)
+기준 스펙: [QrScan 화면 스펙](../spec/client/qr-scan.md), [QR 목록·상세 배치 스펙](../spec/client/qr-list-detail.md)
 
 ## 화면 구조
 
-QrScan 화면은 [QrAdd 화면](./qr-add.md)이나 [QrDetail 화면](./qr-detail.md)에서 이어지는 세부 화면으로 단독 표시하고, 공통 내비게이션 영역은 [TopLevelNavigation 디자인](./top-level-navigation.md)의 `세부 화면에서의 노출`에 따라 숨긴다.
+QrScan 화면은 [QrAdd 화면](./qr-add.md)이나 [QrDetail 화면](./qr-detail.md)에서 이어지는 세부 화면으로, 진입한 화면이 [QR 목록·상세 배치 디자인](./qr-list-detail.md)의 상세 영역에 놓여 있었어도 창 너비와 관계없이 단독 표시하고, 공통 내비게이션 영역은 [TopLevelNavigation 디자인](./top-level-navigation.md)의 `세부 화면에서의 노출`에 따라 숨긴다.
 
 화면 상단에는 [QrHome 화면 디자인](./qr-home.md)과 같은 상단 바를 두고, 시작 쪽에 뒤로가기 동작을, 그 바로 뒤에 제목을 표시한다. 상단 바 끝 쪽에는 동작을 두지 않는다.
 

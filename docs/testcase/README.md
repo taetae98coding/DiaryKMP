@@ -52,6 +52,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [ChecklistAdd](./checklist-add.md) | [ChecklistAdd 화면](../spec/client/checklist-add.md) |
 | [ChecklistDetail](./checklist-detail.md) | [ChecklistDetail 화면](../spec/client/checklist-detail.md) |
 | [ChecklistHome](./checklist-home.md) | [ChecklistHome 화면](../spec/client/checklist-home.md) |
+| [Checklist 목록·상세 배치](./checklist-list-detail.md) | [Checklist 목록·상세 배치](../spec/client/checklist-list-detail.md) |
 | [ContactAdd](./contact-add.md) | [ContactAdd 화면](../spec/client/contact-add.md) |
 | [ContactDetail](./contact-detail.md) | [ContactDetail 화면](../spec/client/contact-detail.md) |
 | [ContactDetail 메모 탭](./contact-detail-memo.md) | [ContactDetail 메모 탭](../spec/client/contact-detail-memo.md) |
@@ -70,6 +71,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [FileDetail](./file-detail.md) | [FileDetail 화면](../spec/client/file-detail.md) |
 | [파일 내려받기](./file-download.md) | [파일 내려받기](../spec/client/file-download.md) |
 | [FileHome](./file-home.md) | [FileHome 화면](../spec/client/file-home.md) |
+| [File 목록·상세 배치](./file-list-detail.md) | [File 목록·상세 배치](../spec/client/file-list-detail.md) |
 | [파일 보관](./file-storage.md) | [파일 보관(client)](../spec/client/file-storage.md), [파일 보관(common)](../spec/common/file-storage.md), [파일 보관(server)](../spec/server/file-storage.md) |
 | [파일 올리기 알림](./file-upload-notification.md) | [파일 올리기 알림](../spec/client/file-upload-notification.md) |
 | [Gemini 모델 목록 조회](./gemini-model-list.md) | [Gemini 모델 목록 조회](../spec/client/gemini-model-list.md) |
@@ -86,6 +88,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [MemoAdd](./memo-add.md) | [MemoAdd 화면](../spec/client/memo-add.md) |
 | [MemoDetail](./memo-detail.md) | [MemoDetail 화면](../spec/client/memo-detail.md) |
 | [MemoFinishedList](./memo-finished-list.md) | [MemoFinishedList 화면](../spec/client/memo-finished-list.md) |
+| [MemoFinishedList 목록·상세 배치](./memo-finished-list-detail.md) | [MemoFinishedList 목록·상세 배치](../spec/client/memo-finished-list-detail.md) |
 | [메모 Gemini 작성 도우미](./memo-gemini.md) | [메모 Gemini 작성 도우미](../spec/client/memo-gemini.md) |
 | [MemoHome 목록](./memo-home.md) | [MemoHome 목록](../spec/client/memo-home.md) |
 | [Memo 목록·상세 배치](./memo-list-detail.md) | [Memo 목록·상세 배치](../spec/client/memo-list-detail.md) |
@@ -123,6 +126,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [QrDetail](./qr-detail.md) | [QrDetail 화면](../spec/client/qr-detail.md) |
 | [QrHome](./qr-home.md) | [QrHome 화면](../spec/client/qr-home.md) |
 | [QrScan](./qr-scan.md) | [QrScan 화면](../spec/client/qr-scan.md) |
+| [QR 목록·상세 배치](./qr-list-detail.md) | [QR 목록·상세 배치](../spec/client/qr-list-detail.md) |
 | [RoutineAdd](./routine-add.md) | [RoutineAdd 화면](../spec/client/routine-add.md) |
 | [RoutineHome](./routine-home.md) | [RoutineHome 화면](../spec/client/routine-home.md) |
 | [Routine 목록·상세 배치](./routine-list-detail.md) | [Routine 목록·상세 배치](../spec/client/routine-list-detail.md) |
@@ -144,6 +148,7 @@ TC-<SPEC>-<AREA>-<NNN>
 | [TagDetail 웹 탭](./tag-detail-web.md) | [TagDetail 웹 탭](../spec/client/tag-detail-web.md) |
 | [TagDetail 장소 탭](./tag-detail-place.md) | [TagDetail 장소 탭](../spec/client/tag-detail-place.md) |
 | [TagFinishedList](./tag-finished-list.md) | [TagFinishedList 화면](../spec/client/tag-finished-list.md) |
+| [TagFinishedList 목록·상세 배치](./tag-finished-list-detail.md) | [TagFinishedList 목록·상세 배치](../spec/client/tag-finished-list-detail.md) |
 | [TagHome 목록](./tag-home.md) | [TagHome 목록](../spec/client/tag-home.md) |
 | [태그 연결](./tag-link.md) | [태그 연결](../spec/client/tag-link.md), [태그 연결](../spec/common/tag-link.md) |
 | [태그 연결 입력 컴포넌트](./tag-link-input.md) | [태그 연결 입력 컴포넌트](../spec/client/tag-link-input.md) |
@@ -199,5 +204,5 @@ TC-<SPEC>-<AREA>-<NNN>
   - 각 상세 화면 문서가 공통 스펙의 절을 자기 화면의 입력과 동작에 맞춰 각각 갖는다.
 - [항목 상세 메모 탭 공통 스펙](../spec/client/entity-detail-memo.md) → [ContactDetail 메모 탭](./contact-detail-memo.md), [PlaceDetail 메모 탭](./place-detail-memo.md), [WebDetail 메모 탭](./web-detail-memo.md)
   - 세 메모 탭 문서가 공통 스펙의 같은 절을 각자의 상세 대상 항목과 입력에 맞춰 각각 갖는다.
-- [목록·상세 배치 공통 스펙](../spec/client/list-detail-pane.md) → [Contact](./contact-list-detail.md), [Memo](./memo-list-detail.md), [Playlist](./playlist-list-detail.md), [Routine](./routine-list-detail.md), [Setting](./setting-list-detail.md), [Tag](./tag-list-detail.md), [TagMemoFinishedList](./tag-memo-finished-list-detail.md), [항목 완료 메모 목록](./entity-memo-finished-list-detail.md), [Web](./web-list-detail.md) 목록·상세 배치
-  - `유지와 초기화 기준`에서 시스템이 앱을 정리했다가 다시 만든 뒤 상세 선택과 뒤로가기 기록을 복원하는 케이스는 [Memo 목록·상세 배치](./memo-list-detail.md)의 `TC-MEMO-LIST-DETAIL-DOMAIN-004`가 대표로 갖는다. 이 경계의 케이스를 이미 가진 [Tag](./tag-list-detail.md), [TagMemoFinishedList](./tag-memo-finished-list-detail.md), [항목 완료 메모 목록](./entity-memo-finished-list-detail.md), [Contact](./contact-list-detail.md), [Web](./web-list-detail.md) 목록·상세 배치는 그 케이스를 그대로 두고, 나머지 배치는 이 경계의 케이스를 따로 두지 않는다.
+- [목록·상세 배치 공통 스펙](../spec/client/list-detail-pane.md) → [Checklist](./checklist-list-detail.md), [Contact](./contact-list-detail.md), [File](./file-list-detail.md), [Memo](./memo-list-detail.md), [MemoFinishedList](./memo-finished-list-detail.md), [Playlist](./playlist-list-detail.md), [QR](./qr-list-detail.md), [Routine](./routine-list-detail.md), [Setting](./setting-list-detail.md), [Tag](./tag-list-detail.md), [TagFinishedList](./tag-finished-list-detail.md), [TagMemoFinishedList](./tag-memo-finished-list-detail.md), [항목 완료 메모 목록](./entity-memo-finished-list-detail.md), [Web](./web-list-detail.md) 목록·상세 배치
+  - `유지와 초기화 기준`에서 시스템이 앱을 정리했다가 다시 만든 뒤 상세 선택과 뒤로가기 기록을 복원하는 케이스는 [Memo 목록·상세 배치](./memo-list-detail.md)의 `TC-MEMO-LIST-DETAIL-DOMAIN-004`가 대표로 갖는다. 이 경계의 케이스를 이미 가진 [Checklist](./checklist-list-detail.md), [Contact](./contact-list-detail.md), [File](./file-list-detail.md), [QR](./qr-list-detail.md), [Tag](./tag-list-detail.md), [TagMemoFinishedList](./tag-memo-finished-list-detail.md), [항목 완료 메모 목록](./entity-memo-finished-list-detail.md), [Web](./web-list-detail.md) 목록·상세 배치는 그 케이스를 그대로 두고, 나머지 배치는 이 경계의 케이스를 따로 두지 않는다.

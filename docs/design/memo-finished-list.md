@@ -8,7 +8,7 @@
 
 상단 바에는 `완료된 메모` 제목을 표시한다.
 
-메모를 선택하면 MemoDetail 화면을 창 너비와 관계없이 단독으로 표시한다.
+메모를 선택하면 MemoDetail 화면을 표시한다. 창 너비가 compact보다 넓으면 [MemoFinishedList 목록·상세 배치 디자인](./memo-finished-list-detail.md)에 따라 목록과 함께 상세 영역에 표시하고, compact이면 단독으로 표시한다.
 
 ## 목록
 

@@ -1,6 +1,6 @@
 # Memo 목록·상세 배치 스펙
 
-이 문서는 메모 주요 목적지에서 목록과 상세가 함께 표시될 때 이 배치에만 해당하는 상세 영역 구성, 뒤로가기와 초기화 경계를 다룬다. 함께 사용과 단독 사용, 추가 진입 수단, 표시 비율 조절, 배치에 참여하는 화면과 유지·초기화의 공통 기준은 [목록·상세 배치 공통 스펙](./list-detail-pane.md)을 따른다. 목록 화면과 상세 영역 각 화면의 내용과 행동은 해당 화면 스펙([MemoAdd 화면 스펙](./memo-add.md) 등)에서 다룬다. TagMemoFinishedList에서 사용하는 목록·상세 배치는 [TagMemoFinishedList 목록·상세 배치 스펙](./tag-memo-finished-list-detail.md)에서, ContactMemoFinishedList·PlaceMemoFinishedList·WebMemoFinishedList에서 사용하는 목록·상세 배치는 [항목 완료 메모 목록·상세 배치 스펙](./entity-memo-finished-list-detail.md)에서 다룬다.
+이 문서는 메모 주요 목적지에서 목록과 상세가 함께 표시될 때 이 배치에만 해당하는 상세 영역 구성, 뒤로가기와 초기화 경계를 다룬다. 함께 사용과 단독 사용, 추가 진입 수단, 표시 비율 조절, 배치에 참여하는 화면과 유지·초기화의 공통 기준은 [목록·상세 배치 공통 스펙](./list-detail-pane.md)을 따른다. 목록 화면과 상세 영역 각 화면의 내용과 행동은 해당 화면 스펙([MemoAdd 화면 스펙](./memo-add.md) 등)에서 다룬다. TagMemoFinishedList에서 사용하는 목록·상세 배치는 [TagMemoFinishedList 목록·상세 배치 스펙](./tag-memo-finished-list-detail.md)에서, ContactMemoFinishedList·PlaceMemoFinishedList·WebMemoFinishedList에서 사용하는 목록·상세 배치는 [항목 완료 메모 목록·상세 배치 스펙](./entity-memo-finished-list-detail.md)에서, MemoFinishedList에서 사용하는 목록·상세 배치는 [MemoFinishedList 목록·상세 배치 스펙](./memo-finished-list-detail.md)에서 다룬다.
 
 디자인: [Memo 목록·상세 배치 디자인](../../design/memo-list-detail.md)
 
@@ -24,7 +24,9 @@
 
 상세 영역의 메모에서 태그, 웹 항목, 연락처, 장소의 상세나 추가로 이동한 화면은 이 배치에 참여하지 않고 단독으로 표시한다. 그 화면에서 뒤로가면 이 배치로 돌아오며, 상세 영역에는 떠나기 전의 메모가 그대로 놓여 있다.
 
-메모 목록이 아닌 곳에서 진입한 MemoAdd 화면과 MemoDetail 화면은 이 배치에 참여하지 않고 단독으로 표시한다. 캘린더 홈과 캘린더 시간표 화면, 황금연휴 화면, TagDetail 메모 탭, ContactDetail·PlaceDetail·WebDetail 메모 탭, MemoFinishedList 화면, SearchHome 화면에서 진입한 경우가 여기에 해당한다.
+메모 목록이 아닌 곳에서 진입한 MemoAdd 화면과 MemoDetail 화면은 이 배치에 참여하지 않고 단독으로 표시한다. 캘린더 홈과 캘린더 시간표 화면, 황금연휴 화면, TagDetail 메모 탭, ContactDetail·PlaceDetail·WebDetail 메모 탭, SearchHome 화면에서 진입한 경우가 여기에 해당한다.
+
+MemoFinishedList 화면에서 진입한 MemoDetail 화면은 이 배치 대신 [MemoFinishedList 목록·상세 배치 스펙](./memo-finished-list-detail.md)을 따른다.
 
 한 영역만 표시되는 상태에서는 해당 화면 스펙의 행동을 그대로 제공한다.
 
@@ -44,8 +46,10 @@
 
 메모는 주요 목적지이므로 공통 내비게이션에서 다른 주요 목적지로 이동하는 것을 이 배치를 떠난 것으로 본다. 다른 주요 목적지에 다녀와 메모로 돌아오거나 앱을 종료하고 다시 실행하면 [목록·상세 배치 공통 스펙](./list-detail-pane.md)의 `유지와 초기화 기준`에 따라 상세 선택을 선택 전 상태로, 표시 비율을 기본 비율로 초기화한다. 상세 선택이 초기화되면 상세 영역은 메모 추가로 돌아가고, 떠나기 전에 보던 메모 상세로 돌아가는 뒤로가기 기록도 남지 않는다.
 
-선택한 메모가 없을 때 상세 영역에 놓이는 메모 추가의 작성 내용도 이 배치의 기준을 따른다. 이 배치를 떠나기 전까지는 상세 영역에서 메모 상세를 보고 돌아오거나 메모 추가에서 연 연결 항목 화면에 다녀와도, 입력하던 제목, 설명, 컬러, 기간과 고른 태그와 대표 태그 지정, 웹 항목, 연락처, 장소가 그대로 남는다. 다른 주요 목적지에 다녀와 메모로 돌아오면 상세 영역의 메모 추가는 제목과 설명이 비어 있고 기간과 태그, 대표 태그 지정, 웹 항목, 연락처, 장소 선택이 하나도 없는 상태로 시작하며, 컬러에는 새 무작위 값이 제시된다. 화면 재생성과 시스템이 앱을 메모리에서 정리한 뒤의 복원에서 무엇이 남는지는 [MemoAdd 화면 스펙](./memo-add.md)의 `진행 상태 유지`를 따른다.
+선택한 메모가 없을 때 상세 영역에 놓이는 메모 추가의 작성 내용도 이 배치의 기준을 따른다. 이 배치를 떠나기 전까지는 상세 영역에서 메모 상세를 보고 돌아오거나 메모 추가에서 연 연결 항목 화면에 다녀오거나 MemoFinishedList 화면에 다녀와도, 입력하던 제목, 설명, 컬러, 기간과 고른 태그와 대표 태그 지정, 웹 항목, 연락처, 장소가 그대로 남는다. 다른 주요 목적지에 다녀와 메모로 돌아오면 상세 영역의 메모 추가는 제목과 설명이 비어 있고 기간과 태그, 대표 태그 지정, 웹 항목, 연락처, 장소 선택이 하나도 없는 상태로 시작하며, 컬러에는 새 무작위 값이 제시된다. 화면 재생성과 시스템이 앱을 메모리에서 정리한 뒤의 복원에서 무엇이 남는지는 [MemoAdd 화면 스펙](./memo-add.md)의 `진행 상태 유지`를 따른다.
 
 앱이 백그라운드에 있는 동안 시스템이 앱을 정리했다가 다시 만드는 것도 이 배치를 떠난 것으로 보지 않는다. 상세 선택과 표시 비율은 [목록·상세 배치 공통 스펙](./list-detail-pane.md)의 `유지와 초기화 기준`에 따라 떠나기 전 그대로 다시 보인다.
 
 상세 영역의 메모에서 이어 연 화면에 다녀오는 것은 이 배치를 떠난 것으로 보지 않으며, 그 결과는 `feature > 상세 영역의 구성`을 따른다.
+
+메모 목록에서 완료된 메모 확인을 선택해 MemoFinishedList 화면에 다녀오는 것도 이 배치를 떠난 것으로 보지 않는다. MemoFinishedList 화면에서 메모 목록으로 돌아오면 이 배치의 상세 선택과 표시 비율, 상세 영역에서 그 전에 놓였던 화면으로 돌아가는 뒤로가기 기록은 MemoFinishedList로 떠나기 전 그대로다. MemoFinishedList 화면 자체의 배치는 [MemoFinishedList 목록·상세 배치 스펙](./memo-finished-list-detail.md)을 따른다.

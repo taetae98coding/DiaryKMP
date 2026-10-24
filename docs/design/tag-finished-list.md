@@ -8,7 +8,7 @@
 
 상단 바에는 `완료된 태그` 제목을 표시한다.
 
-태그를 선택하면 TagDetail 화면을 창 너비와 관계없이 단독으로 표시한다.
+태그를 선택하면 TagDetail 화면을 표시한다. 창 너비가 compact보다 넓으면 [TagFinishedList 목록·상세 배치 디자인](./tag-finished-list-detail.md)에 따라 목록과 함께 상세 영역에 표시하고, compact이면 단독으로 표시한다.
 
 ## 목록
 

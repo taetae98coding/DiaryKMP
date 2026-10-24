@@ -2,13 +2,13 @@
 
 기준 스펙: [FileHome 화면 스펙](../spec/client/file-home.md), [파일 보관 스펙](../spec/client/file-storage.md)
 
-파일 추가 버튼으로 여는 화면은 [FileAdd 화면 디자인](./file-add.md)이, 목록 줄을 눌러 여는 화면은 [FileDetail 화면 디자인](./file-detail.md)이 소유한다.
+파일 추가 버튼으로 여는 화면은 [FileAdd 화면 디자인](./file-add.md)이, 목록 줄을 눌러 여는 화면은 [FileDetail 화면 디자인](./file-detail.md)이, 두 화면을 목록과 함께 표시하는 배치는 [File 목록·상세 배치 디자인](./file-list-detail.md)이 소유한다.
 
 올리기 알림의 문구와 표현은 [파일 올리기 알림 디자인](./file-upload-notification.md)이 소유한다.
 
 ## 화면 구조
 
-FileHome 화면은 `더보기`에서 이어지는 세부 화면으로 단독 표시하고, 공통 내비게이션 영역은 [TopLevelNavigation 디자인](./top-level-navigation.md)의 `세부 화면에서의 노출`에 따라 숨긴다.
+FileHome 화면은 `더보기`에서 이어지는 세부 화면으로, 한 영역만 표시할 때는 단독으로, 목록과 상세를 함께 표시할 때는 목록 영역에 표시한다. 공통 내비게이션 영역은 [TopLevelNavigation 디자인](./top-level-navigation.md)의 `세부 화면에서의 노출`에 따라 숨긴다.
 
 화면 상단에는 상단 바를 두고, 시작 쪽에 뒤로가기 동작을, 그 바로 뒤에 `파일` 제목을 시작 쪽에 맞춰 표시한다. iOS에서는 [상단 바](./top-bar.md)의 iOS 표현대로 제목을 가운데에 둔다. 상단 바 끝 쪽에는 동작을 두지 않는다.
 
@@ -130,7 +130,7 @@ FileHome을 보고 있지 않을 때 끝난 올리기의 결과는 이 화면에
 
 ## 적응형 배치
 
-창 너비와 자세에 따라 구성을 바꾸지 않는다. 어느 창 크기에서도 한 열 목록과 오른쪽 아래 추가 버튼을 유지한다.
+창 너비와 자세에 따라 화면 안의 구성을 바꾸지 않는다. 어느 창 크기에서도 한 열 목록과 오른쪽 아래 추가 버튼을 유지한다. compact보다 넓은 창에서 목록 영역에 놓일 때의 배치와 추가 버튼 노출은 [File 목록·상세 배치 디자인](./file-list-detail.md)을 따른다.
 
 ## 키보드 단축키
 

@@ -213,6 +213,27 @@
 - When: 사용자가 파일 올리기 알림을 선택한다.
 - Then: FileDetail이 닫히고 `더보기` 위에 FileHome이 열리며, 뒤로가면 `더보기`로 돌아간다.
 
+### TC-FILE-UPLOAD-NOTIFICATION-FEATURE-022: 목록과 함께 표시한 FileDetail 위에서 연 FileAdd를 보고 있으면 알림을 선택해도 배치와 적어 둔 내용을 유지한다
+
+- 근거: `feature > 알림에서 앱 열기`
+- Given: 앱이 실행 중이고, 목록과 상세 영역을 함께 표시하는 동안 상세 영역의 FileDetail을 본 뒤 목록에서 연 FileAdd가 상세 영역에 놓여 있다.
+- When: 사용자가 파일 올리기 알림을 선택한다.
+- Then: FileHome, 그 아래의 FileDetail과 상세 영역의 FileAdd가 그대로 유지된다.
+
+### TC-FILE-UPLOAD-NOTIFICATION-FEATURE-023: 목록과 함께 선택 전 FileAdd가 놓여 있으면 알림을 선택해도 배치와 적어 둔 내용을 유지한다
+
+- 근거: `feature > 알림에서 앱 열기`
+- Given: 앱이 실행 중이고, 목록과 상세 영역을 함께 표시하는 동안 선택한 파일이 없어 상세 영역에 FileAdd가 놓여 있다.
+- When: 사용자가 파일 올리기 알림을 선택한다.
+- Then: FileHome과 상세 영역의 FileAdd가 그대로 유지되고, 뒤로가면 `더보기`로 돌아간다.
+
+### TC-FILE-UPLOAD-NOTIFICATION-FEATURE-024: 목록과 함께 상세 영역에 FileDetail이 놓여 있으면 알림을 선택했을 때 FileDetail을 닫는다
+
+- 근거: `feature > 알림에서 앱 열기`
+- Given: 앱이 실행 중이고, 목록과 상세 영역을 함께 표시하는 동안 상세 영역에 목록에서 고른 파일의 FileDetail이 놓여 있다.
+- When: 사용자가 파일 올리기 알림을 선택한다.
+- Then: FileDetail이 닫히고 `더보기` 위에 FileHome이 열려 상세 영역이 선택한 파일이 없을 때의 FileAdd가 되며, 뒤로가면 `더보기`로 돌아간다.
+
 ## domain
 
 ### TC-FILE-UPLOAD-NOTIFICATION-DOMAIN-001: 앱이 화면 앞에 있고 FileHome을 표시할 때만 FileHome을 보고 있는 것으로 본다
@@ -228,7 +249,23 @@
 | 예 | FileHome | 보고 있음 |
 | 예 | `더보기` | 보고 있지 않음 |
 | 예 | FileHome에서 연 FileDetail | 보고 있지 않음 |
+| 예 | 목록과 함께 상세 영역에 FileDetail을 둔 FileHome | 보고 있음 |
 | 아니오 | FileHome | 보고 있지 않음 |
+
+### TC-FILE-UPLOAD-NOTIFICATION-DOMAIN-006: 두 파일 화면을 함께 표시하면 FileAdd를 보고 있는 것으로 보고, 하나가 멈춰도 남은 화면을 계속 보고 있는 것으로 본다
+
+- 근거: `domain > 파일 화면을 보고 있는 상태`
+- Given: 앱이 화면 앞에 있고, 파일 화면이 테스트 데이터의 순서로 표시되기 시작하고 멈췄다.
+- When: 올리기가 끝나 어느 파일 화면을 보고 있는지 판정한다.
+- Then: 테스트 데이터의 판정 결과가 된다.
+- 테스트 데이터:
+
+| 표시 순서 | 판정 |
+| --- | --- |
+| FileAdd 표시 → FileHome 표시 | FileAdd를 보고 있음 |
+| FileHome 표시 → FileAdd 표시 | FileAdd를 보고 있음 |
+| FileHome 표시 → FileAdd 표시 → FileAdd 멈춤 | FileHome을 보고 있음 |
+| FileAdd 표시 → 다른 FileAdd 표시 → 앞의 FileAdd 멈춤 | FileAdd를 보고 있음 |
 
 ### TC-FILE-UPLOAD-NOTIFICATION-DOMAIN-002: 올리기를 시작할 때가 아니라 끝나는 순간 파일 화면을 보고 있는지로 판정한다
 
