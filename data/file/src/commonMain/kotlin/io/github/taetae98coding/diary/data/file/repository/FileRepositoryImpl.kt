@@ -14,6 +14,7 @@ import io.github.taetae98coding.diary.core.network.api.file.exception.FileTooLar
 import io.github.taetae98coding.diary.data.core.paging.PAGE_SIZE
 import io.github.taetae98coding.diary.data.file.mapper.toDomain
 import io.github.taetae98coding.diary.data.file.paging.FilePagingSourceHolder
+import io.github.taetae98coding.diary.data.file.update.FileUpdateHolder
 import io.github.taetae98coding.diary.domain.file.exception.FileTooLargeException
 import io.github.taetae98coding.diary.domain.file.exception.FileUnreadableException
 import io.github.taetae98coding.diary.domain.file.repository.FileRepository
@@ -30,6 +31,7 @@ internal class FileRepositoryImpl(
     private val fileLocalDataSource: FileLocalDataSource,
     private val fileRemoteDataSource: FileRemoteDataSource,
     private val filePagingSourceHolder: FilePagingSourceHolder,
+    private val fileUpdateHolder: FileUpdateHolder,
 ) : FileRepository {
     override fun page(): Flow<PagingData<DiaryFile>> =
         Pager(
@@ -45,9 +47,10 @@ internal class FileRepositoryImpl(
     // 받는 동안 다른 계정의 목록으로 바뀌었으면, 받은 첫 페이지는 지금 목록의 것이 아니므로 버린다.
     override suspend fun refresh() {
         val list = filePagingSourceHolder.latestList() ?: return
+        val loadStartVersion = fileUpdateHolder.currentVersion()
         val firstPage = fileRemoteDataSource.readList(cursor = null, size = PAGE_SIZE)
 
-        if (filePagingSourceHolder.isLatest(list = list)) list.invalidate(firstPage = firstPage)
+        if (filePagingSourceHolder.isLatest(list = list)) list.invalidate(firstPage = firstPage, loadStartVersion = loadStartVersion)
     }
 
     // 이름을 읽은 뒤 나머지 정보를 읽지 못해도 실패에 이름을 실어, 호출자가 어느 파일이 실패했는지 알 수 있게 한다.

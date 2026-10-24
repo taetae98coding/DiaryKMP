@@ -66,3 +66,9 @@ internal val MusicDownloadProxySettingSerializer: SettingSerializer<MusicDownloa
         serializer = MusicDownloadProxySettingData.serializer(),
         defaultValue = MusicDownloadProxySettingData(),
     )
+
+internal val FileDownloadSettingSerializer: SettingSerializer<FileDownloadSettingData> =
+    SettingSerializer(
+        serializer = FileDownloadSettingData.serializer(),
+        defaultValue = FileDownloadSettingData(),
+    )

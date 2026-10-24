@@ -7,6 +7,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.domain.browser)
+                implementation(projects.domain.file)
                 implementation(projects.domain.holiday)
                 implementation(projects.domain.playlist)
                 implementation(projects.domain.setting)
@@ -18,6 +19,12 @@ kotlin {
             dependencies {
                 implementation(projects.core.testing)
                 implementation(projects.feature.more.api)
+            }
+        }
+
+        androidMain {
+            dependencies {
+                implementation(libs.androidx.activity.compose)
             }
         }
 

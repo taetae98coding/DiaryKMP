@@ -7,5 +7,6 @@ internal sealed interface FileFirstPage {
 
     data class Fetched(
         val fileList: List<FileRemoteEntity>,
+        val loadStartVersion: Long,
     ) : FileFirstPage
 }

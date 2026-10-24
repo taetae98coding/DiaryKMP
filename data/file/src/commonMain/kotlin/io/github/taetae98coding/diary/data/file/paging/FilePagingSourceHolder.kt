@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.data.file.paging
 
 import io.github.taetae98coding.diary.core.network.api.file.datasource.FileRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileRemoteEntity
+import io.github.taetae98coding.diary.data.file.update.FileUpdateHolder
 import org.koin.core.annotation.Single
 
 // Paging은 새 세대의 첫 불러오기가 실패해도 이전 세대를 버리므로, 다시 불러올 첫 페이지를 먼저 받아 둔 뒤에만 세대를 바꾼다.
@@ -10,10 +11,11 @@ import org.koin.core.annotation.Single
 @Single
 internal class FilePagingSourceHolder(
     private val fileRemoteDataSource: FileRemoteDataSource,
+    private val fileUpdateHolder: FileUpdateHolder,
 ) {
     private var latestList: FilePagingList? = null
 
-    fun createList(): FilePagingList = FilePagingList(fileRemoteDataSource = fileRemoteDataSource).also { list -> latestList = list }
+    fun createList(): FilePagingList = FilePagingList(fileRemoteDataSource = fileRemoteDataSource, fileUpdateHolder = fileUpdateHolder).also { list -> latestList = list }
 
     fun latestList(): FilePagingList? = latestList
 
@@ -22,19 +24,23 @@ internal class FilePagingSourceHolder(
 
 internal class FilePagingList(
     private val fileRemoteDataSource: FileRemoteDataSource,
+    private val fileUpdateHolder: FileUpdateHolder,
 ) {
     private var latestSource: FilePagingSource? = null
     private var firstPage: FileFirstPage = FileFirstPage.NotFetched
 
     fun createSource(): FilePagingSource =
-        FilePagingSource(fileRemoteDataSource = fileRemoteDataSource, firstPage = firstPage)
+        FilePagingSource(fileRemoteDataSource = fileRemoteDataSource, fileUpdateHolder = fileUpdateHolder, firstPage = firstPage)
             .also { source ->
                 firstPage = FileFirstPage.NotFetched
                 latestSource = source
             }
 
-    fun invalidate(firstPage: List<FileRemoteEntity>) {
-        this.firstPage = FileFirstPage.Fetched(fileList = firstPage)
+    fun invalidate(
+        firstPage: List<FileRemoteEntity>,
+        loadStartVersion: Long,
+    ) {
+        this.firstPage = FileFirstPage.Fetched(fileList = firstPage, loadStartVersion = loadStartVersion)
         latestSource?.invalidate()
     }
 }

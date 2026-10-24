@@ -8,6 +8,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.network.api.file.datasource.FileRemoteDataSource
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileCursorRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.file.entity.FileRemoteEntity
+import io.github.taetae98coding.diary.data.file.update.FileUpdateHolder
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
@@ -33,7 +34,7 @@ class FilePagingSourceTest :
             val fileRemoteDataSource = mockk<FileRemoteDataSource>()
             coEvery { fileRemoteDataSource.readList(cursor = null, size = PAGE_SIZE) } returns firstPage
             coEvery { fileRemoteDataSource.readList(cursor = firstPage.last().cursor(), size = PAGE_SIZE) } returns secondPage
-            val pager = TestPager(config = pagingConfig, pagingSource = FilePagingSource(fileRemoteDataSource = fileRemoteDataSource))
+            val pager = TestPager(config = pagingConfig, pagingSource = FilePagingSource(fileRemoteDataSource = fileRemoteDataSource, fileUpdateHolder = FileUpdateHolder()))
 
             pager.refresh()
             val append = pager.append().shouldBeInstanceOf<PagingSource.LoadResult.Page<FileCursorRemoteEntity, *>>()
@@ -52,7 +53,7 @@ class FilePagingSourceTest :
                 val fileRemoteDataSource = mockk<FileRemoteDataSource>()
                 coEvery { fileRemoteDataSource.readList(cursor = null, size = PAGE_SIZE) } returns firstPage
                 coEvery { fileRemoteDataSource.readList(cursor = match { cursor -> cursor != null }, size = PAGE_SIZE) } returns emptyList()
-                val pager = TestPager(config = pagingConfig, pagingSource = FilePagingSource(fileRemoteDataSource = fileRemoteDataSource))
+                val pager = TestPager(config = pagingConfig, pagingSource = FilePagingSource(fileRemoteDataSource = fileRemoteDataSource, fileUpdateHolder = FileUpdateHolder()))
 
                 val refresh = pager.refresh().shouldBeInstanceOf<PagingSource.LoadResult.Page<FileCursorRemoteEntity, *>>()
                 pager.append()
@@ -72,7 +73,7 @@ class FilePagingSourceTest :
             val fileRemoteDataSource = mockk<FileRemoteDataSource>()
             coEvery { fileRemoteDataSource.readList(cursor = null, size = PAGE_SIZE) } returns firstPage
             coEvery { fileRemoteDataSource.readList(cursor = firstPage.last().cursor(), size = PAGE_SIZE) } throws IllegalStateException("fetch")
-            val pager = TestPager(config = pagingConfig, pagingSource = FilePagingSource(fileRemoteDataSource = fileRemoteDataSource))
+            val pager = TestPager(config = pagingConfig, pagingSource = FilePagingSource(fileRemoteDataSource = fileRemoteDataSource, fileUpdateHolder = FileUpdateHolder()))
 
             pager.refresh()
             pager.append().shouldBeInstanceOf<PagingSource.LoadResult.Error<FileCursorRemoteEntity, *>>()
@@ -84,12 +85,12 @@ class FilePagingSourceTest :
         test("다시 불러오면 보던 자리와 관계없이 처음부터 불러온다") {
             val fileRemoteDataSource = mockk<FileRemoteDataSource>()
             coEvery { fileRemoteDataSource.readList(cursor = null, size = PAGE_SIZE) } returns List(PAGE_SIZE) { remoteFile() }
-            val pager = TestPager(config = pagingConfig, pagingSource = FilePagingSource(fileRemoteDataSource = fileRemoteDataSource))
+            val pager = TestPager(config = pagingConfig, pagingSource = FilePagingSource(fileRemoteDataSource = fileRemoteDataSource, fileUpdateHolder = FileUpdateHolder()))
 
             pager.refresh()
 
             pager.getLastLoadedPage().shouldBeInstanceOf<PagingSource.LoadResult.Page<*, *>>()
-            FilePagingSource(fileRemoteDataSource = fileRemoteDataSource).getRefreshKey(state = pager.getPagingState(anchorPosition = PAGE_SIZE - 1)).shouldBeNull()
+            FilePagingSource(fileRemoteDataSource = fileRemoteDataSource, fileUpdateHolder = FileUpdateHolder()).getRefreshKey(state = pager.getPagingState(anchorPosition = PAGE_SIZE - 1)).shouldBeNull()
         }
     }) {
     public companion object {

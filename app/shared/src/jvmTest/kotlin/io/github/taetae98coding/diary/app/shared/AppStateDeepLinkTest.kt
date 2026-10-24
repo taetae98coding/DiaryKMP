@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.app.shared.navigation.TopLevelReselectEven
 import io.github.taetae98coding.diary.core.navigation.ScreenDeepLink
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileAddNavKey
+import io.github.taetae98coding.diary.feature.file.api.FileDetailNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.qr.api.QrHomeNavKey
@@ -69,6 +70,16 @@ class AppStateDeepLinkTest :
             appState.openDeepLink(deepLink = ScreenDeepLink.FILE_HOME)
 
             appState.backStack.toList() shouldBe listOf(TopLevelNavigation.Calendar.key, TopLevelNavigation.More.key, FileHomeNavKey)
+        }
+
+        test("TC-FILE-UPLOAD-NOTIFICATION-FEATURE-021 FileHome에서 연 FileDetail을 보고 있으면 알림을 선택했을 때 FileDetail을 닫고 FileHome을 연다") {
+            val appState = createAppState(TopLevelNavigation.Calendar.key, TopLevelNavigation.More.key, FileHomeNavKey, FileDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()))
+
+            appState.openDeepLink(deepLink = ScreenDeepLink.FILE_HOME)
+
+            appState.backStack.toList() shouldBe listOf(TopLevelNavigation.Calendar.key, TopLevelNavigation.More.key, FileHomeNavKey)
+            appState.backStack.removeLastOrNull()
+            appState.backStack.last() shouldBe TopLevelNavigation.More.key
         }
 
         test("알 수 없는 주소는 보던 화면을 그대로 둔다") {

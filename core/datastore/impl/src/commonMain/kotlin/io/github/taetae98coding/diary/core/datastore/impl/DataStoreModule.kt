@@ -6,6 +6,8 @@ import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import io.github.taetae98coding.diary.core.datastore.impl.di.BrowserSettingDataStore
 import io.github.taetae98coding.diary.core.datastore.impl.di.BrowserSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.DiarySettingDispatcher
+import io.github.taetae98coding.diary.core.datastore.impl.di.FileDownloadSettingDataStore
+import io.github.taetae98coding.diary.core.datastore.impl.di.FileDownloadSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.GeminiSettingDataStore
 import io.github.taetae98coding.diary.core.datastore.impl.di.GeminiSettingStorage
 import io.github.taetae98coding.diary.core.datastore.impl.di.HolidaySettingDataStore
@@ -73,6 +75,15 @@ public class DataStoreModule {
     ): DataStore<MusicDownloadProxySettingData> = createSettingDataStore(storage = storage, dispatcher = dispatcher, serializer = MusicDownloadProxySettingSerializer)
 
     @Single
+    @FileDownloadSettingDataStore
+    internal fun providesFileDownloadSettingDataStore(
+        @FileDownloadSettingStorage
+        storage: Storage<FileDownloadSettingData>,
+        @DiarySettingDispatcher
+        dispatcher: CoroutineDispatcher,
+    ): DataStore<FileDownloadSettingData> = createSettingDataStore(storage = storage, dispatcher = dispatcher, serializer = FileDownloadSettingSerializer)
+
+    @Single
     @SyncTimeDataStore
     internal fun providesSyncTimeDataStore(
         @SyncTimeStorage
@@ -88,6 +99,7 @@ public class DataStoreModule {
         const val SYNC_TIME_NAME: String = "sync-time.json"
         const val BROWSER_SETTING_NAME: String = "browser-setting.json"
         const val MUSIC_DOWNLOAD_PROXY_SETTING_NAME: String = "music-download-proxy-setting.json"
+        const val FILE_DOWNLOAD_SETTING_NAME: String = "file-download-setting.json"
     }
 }
 

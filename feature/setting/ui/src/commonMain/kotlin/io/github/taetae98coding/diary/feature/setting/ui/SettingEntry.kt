@@ -11,15 +11,18 @@ import io.github.taetae98coding.diary.compose.core.scene.LIST_DETAIL_PANE_WIDTH_
 import io.github.taetae98coding.diary.compose.core.scene.isPaneVisible
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingBrowserNavKey
-import io.github.taetae98coding.diary.feature.setting.api.SettingDownloadNavKey
+import io.github.taetae98coding.diary.feature.setting.api.SettingFileNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingGeminiNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHolidayNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingMapNavKey
+import io.github.taetae98coding.diary.feature.setting.api.SettingPlaylistNavKey
 import io.github.taetae98coding.diary.feature.setting.ui.browser.SettingBrowserScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.setting.ui.browser.SettingBrowserScreen
-import io.github.taetae98coding.diary.feature.setting.ui.download.SettingDownloadScaffoldComponentVisible
-import io.github.taetae98coding.diary.feature.setting.ui.download.SettingDownloadScreen
+import io.github.taetae98coding.diary.feature.setting.ui.file.SettingFileScaffoldComponentVisible
+import io.github.taetae98coding.diary.feature.setting.ui.file.SettingFileScreen
+import io.github.taetae98coding.diary.feature.setting.ui.file.SettingFileViewModel
+import io.github.taetae98coding.diary.feature.setting.ui.file.picker.rememberDirectoryPicker
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.SettingGeminiScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.setting.ui.gemini.SettingGeminiScreen
 import io.github.taetae98coding.diary.feature.setting.ui.holiday.SettingHolidayScaffoldComponentVisible
@@ -27,6 +30,8 @@ import io.github.taetae98coding.diary.feature.setting.ui.holiday.SettingHolidayS
 import io.github.taetae98coding.diary.feature.setting.ui.home.SettingHomeScreen
 import io.github.taetae98coding.diary.feature.setting.ui.map.SettingMapScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.setting.ui.map.SettingMapScreen
+import io.github.taetae98coding.diary.feature.setting.ui.playlist.SettingPlaylistScaffoldComponentVisible
+import io.github.taetae98coding.diary.feature.setting.ui.playlist.SettingPlaylistScreen
 import org.koin.compose.viewmodel.koinViewModel
 
 public fun EntryProviderScope<ScreenNavKey>.settingEntry(backStack: NavBackStack<ScreenNavKey>) {
@@ -35,7 +40,8 @@ public fun EntryProviderScope<ScreenNavKey>.settingEntry(backStack: NavBackStack
     settingMapEntry(backStack = backStack)
     settingGeminiEntry(backStack = backStack)
     settingBrowserEntry(backStack = backStack)
-    settingDownloadEntry(backStack = backStack)
+    settingPlaylistEntry(backStack = backStack)
+    settingFileEntry(backStack = backStack)
 }
 
 private fun EntryProviderScope<ScreenNavKey>.settingHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
@@ -52,7 +58,8 @@ private fun EntryProviderScope<ScreenNavKey>.settingHomeEntry(backStack: NavBack
             navigateToMap = { backStack.navigateToSettingDetail(SettingMapNavKey) },
             navigateToGemini = { backStack.navigateToSettingDetail(SettingGeminiNavKey) },
             navigateToBrowser = { backStack.navigateToSettingDetail(SettingBrowserNavKey) },
-            navigateToDownload = { backStack.navigateToSettingDetail(SettingDownloadNavKey) },
+            navigateToPlaylist = { backStack.navigateToSettingDetail(SettingPlaylistNavKey) },
+            navigateToFile = { backStack.navigateToSettingDetail(SettingFileNavKey) },
             viewModel = koinViewModel(),
         )
     }
@@ -123,18 +130,36 @@ private fun EntryProviderScope<ScreenNavKey>.settingBrowserEntry(backStack: NavB
     }
 }
 
-private fun EntryProviderScope<ScreenNavKey>.settingDownloadEntry(backStack: NavBackStack<ScreenNavKey>) {
-    entry<SettingDownloadNavKey>(
+private fun EntryProviderScope<ScreenNavKey>.settingPlaylistEntry(backStack: NavBackStack<ScreenNavKey>) {
+    entry<SettingPlaylistNavKey>(
         metadata = ListDetailSceneStrategy.detailPane(sceneKey = SettingHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION),
     ) {
         val isListPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.List)
 
-        SettingDownloadScreen(
+        SettingPlaylistScreen(
             navigateUp = backStack::removeLastOrNull,
             componentVisibleProvider = {
-                SettingDownloadScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible)
+                SettingPlaylistScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible)
             },
             viewModel = koinViewModel(),
+        )
+    }
+}
+
+private fun EntryProviderScope<ScreenNavKey>.settingFileEntry(backStack: NavBackStack<ScreenNavKey>) {
+    entry<SettingFileNavKey>(
+        metadata = ListDetailSceneStrategy.detailPane(sceneKey = SettingHomeNavKey) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION),
+    ) {
+        val isListPaneVisible = isPaneVisible(role = ListDetailPaneScaffoldRole.List)
+        val viewModel = koinViewModel<SettingFileViewModel>()
+
+        SettingFileScreen(
+            navigateUp = backStack::removeLastOrNull,
+            componentVisibleProvider = {
+                SettingFileScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible)
+            },
+            directoryPicker = rememberDirectoryPicker(onPick = viewModel::setDirectory),
+            viewModel = viewModel,
         )
     }
 }
