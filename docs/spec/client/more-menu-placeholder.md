@@ -33,9 +33,6 @@
 | 기능 바로가기 항목 | 화면 | 화면 스펙 |
 | --- | --- | --- |
 | `디데이` | DDayHome | [DDayHome 화면 스펙](./dday-home.md) |
-| `체크리스트` | ChecklistHome | [ChecklistHome 화면 스펙](./checklist-home.md) |
-
-각 화면은 서로 독립된 화면이며, 한 화면에서 다른 화면으로 이동하지 않는다.
 
 기능이 채워진 화면은 이 문서의 적용 대상에서 빠지고 그 화면 스펙이 내용과 행동을 직접 소유한다.
 
@@ -50,4 +47,3 @@
 ## 이 문서를 참조하는 문서
 
 - [DDayHome 화면 스펙](./dday-home.md)
-- [ChecklistHome 화면 스펙](./checklist-home.md)

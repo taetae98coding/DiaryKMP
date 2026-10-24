@@ -4,6 +4,8 @@
 
 제목 입력을 쓰는 화면 스펙은 다음과 같다.
 
+- [ChecklistAdd 화면 스펙](./checklist-add.md)
+- [ChecklistDetail 화면 스펙](./checklist-detail.md)
 - [FileAdd 화면 스펙](./file-add.md)
 - [MemoAdd 화면 스펙](./memo-add.md)
 - [MemoDetail 화면 스펙](./memo-detail.md)

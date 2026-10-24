@@ -29,4 +29,3 @@
 ## 이 문서를 참조하는 문서
 
 - [DDayHome 화면 디자인](./dday-home.md)
-- [ChecklistHome 화면 디자인](./checklist-home.md)

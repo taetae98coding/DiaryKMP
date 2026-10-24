@@ -58,6 +58,8 @@
 | CalendarText 컴포넌트 | [client](./client/calendar-text.md) | — | — | [CalendarText 디자인](../design/calendar-text.md) |
 | CalendarTimetable 화면 | [client](./client/calendar-timetable.md) | — | — | [CalendarTimetable 디자인](../design/calendar-timetable.md) |
 | CalendarWeekOfMonth 컴포넌트 | [client](./client/calendar-week-of-month.md) | — | — | [CalendarWeekOfMonth 디자인](../design/calendar-week-of-month.md) |
+| ChecklistAdd 화면 | [client](./client/checklist-add.md) | — | — | [ChecklistAdd 디자인](../design/checklist-add.md) |
+| ChecklistDetail 화면 | [client](./client/checklist-detail.md) | — | — | [ChecklistDetail 디자인](../design/checklist-detail.md) |
 | ChecklistHome 화면 | [client](./client/checklist-home.md) | — | — | [ChecklistHome 디자인](../design/checklist-home.md) |
 | Chrome 로그인 이어받기 | [client](./client/chrome-session-import.md) | — | — | — |
 | Contact 목록·상세 배치 | [client](./client/contact-list-detail.md) | — | — | [Contact 목록·상세 배치 디자인](../design/contact-list-detail.md) |

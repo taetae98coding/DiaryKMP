@@ -25,6 +25,7 @@
 | [ContactHome 화면](./contact-home.md) | 연락처 목록 |
 | [PlaylistHome 화면](./playlist-home.md) | 곡 목록 |
 | [QrHome 화면](./qr-home.md) | QR 목록 |
+| [ChecklistHome 화면](./checklist-home.md) | 체크리스트 목록 |
 | [SearchHome 화면](./search-home.md) | 메모·태그·장소·웹 검색 결과 목록 |
 | [메모 장소 카드 컴포넌트](./memo-place-card.md) | 장소 선택 목록 |
 | [메모 웹 입력 컴포넌트](./memo-web-input.md) | 웹 선택 목록 |

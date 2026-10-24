@@ -92,6 +92,7 @@
 | ContactHome 연락처 목록, 좁힌 상태 | 필터 아이콘 |
 | PlaylistHome 곡 목록 | 플레이리스트 아이콘 |
 | QrHome QR 목록 | QR 아이콘 |
+| ChecklistHome 체크리스트 목록 | 체크리스트 아이콘 |
 | SearchHome 메모 검색 결과 목록 | 메모 아이콘 |
 | SearchHome 태그 검색 결과 목록 | 태그 아이콘 |
 | SearchHome 장소 검색 결과 목록 | 장소 아이콘 |
@@ -101,7 +102,7 @@ SearchHome의 네 목록은 문구가 같으므로 아이콘이 지금 어느 �
 
 루틴 아이콘은 [TopLevelNavigation 디자인](./top-level-navigation.md)의 `루틴` 목적지 아이콘과 같다.
 
-완료 아이콘은 [TagHome 목록 디자인](./tag-home.md)과 [MemoHome 목록 디자인](./memo-home.md)의 완료 스와이프가 쓰는 완료 아이콘과 같고, 필터 아이콘은 [필터 Bottom Sheet 디자인](./filter-bottom-sheet.md)의 필터 버튼과 같은 아이콘이다. 지도 아이콘은 [장소 보기 모드 디자인](./place-view-mode.md)의 목록 모드 전환 컨트롤과 `더보기`의 장소 메뉴에서 쓰는 아이콘과 같고, 장소 아이콘은 위치 표시 핀 모양 아이콘이다. 웹 아이콘은 [WebHome 화면 디자인](./web-home.md)이 웹을 가리킬 때 쓰는 아이콘과 같고, 연락처 아이콘은 [ContactHome 화면 디자인](./contact-home.md)이 연락처를 가리킬 때 쓰는 아이콘과 같다. 플레이리스트 아이콘은 [MoreHome 화면 디자인](./more-home.md)의 `플레이리스트` 바로가기 항목이 쓰는 아이콘과 같다.
+완료 아이콘은 [TagHome 목록 디자인](./tag-home.md)과 [MemoHome 목록 디자인](./memo-home.md)의 완료 스와이프가 쓰는 완료 아이콘과 같고, 필터 아이콘은 [필터 Bottom Sheet 디자인](./filter-bottom-sheet.md)의 필터 버튼과 같은 아이콘이다. 지도 아이콘은 [장소 보기 모드 디자인](./place-view-mode.md)의 목록 모드 전환 컨트롤과 `더보기`의 장소 메뉴에서 쓰는 아이콘과 같고, 장소 아이콘은 위치 표시 핀 모양 아이콘이다. 웹 아이콘은 [WebHome 화면 디자인](./web-home.md)이 웹을 가리킬 때 쓰는 아이콘과 같고, 연락처 아이콘은 [ContactHome 화면 디자인](./contact-home.md)이 연락처를 가리킬 때 쓰는 아이콘과 같다. 플레이리스트 아이콘은 [MoreHome 화면 디자인](./more-home.md)의 `플레이리스트` 바로가기 항목이 쓰는 아이콘과 같고, 체크리스트 아이콘은 같은 화면의 `체크리스트` 바로가기 항목이 쓰는 Material Symbols `checklist` 아이콘과 같다. [ChecklistDetail 화면 디자인](./checklist-detail.md)의 체크 항목 빈 상태도 같은 아이콘을 쓰며, 그 화면이 이 문서의 `빈 상태 구성`만 빌려 쓰는 기준은 그 화면 문서가 소유한다.
 
 MemoHome 목록, TagHome 목록과 ContactHome 연락처 목록에서 좁힌 상태와 좁히지 않은 상태 사이의 전환도 `전환`의 교차 페이드를 따른다.
 
@@ -155,6 +156,8 @@ MemoHome 목록, TagHome 목록과 ContactHome 연락처 목록에서 좁힌 상
 | PlaylistHome 곡 목록 | 보조 | `추가 버튼으로 새 곡을 담을 수 있습니다` | `Use the add button to add music.` |
 | QrHome QR 목록 | 제목 | `아직 QR이 없습니다` | `No QR codes yet` |
 | QrHome QR 목록 | 보조 | `추가 버튼으로 새 QR을 만들 수 있습니다` | `Use the add button to create a QR code.` |
+| ChecklistHome 체크리스트 목록 | 제목 | `아직 체크리스트가 없습니다` | `No checklists yet` |
+| ChecklistHome 체크리스트 목록 | 보조 | `추가 버튼으로 새 체크리스트를 만들 수 있습니다` | `Use the add button to create a checklist.` |
 | SearchHome 네 유형의 검색 결과 목록 | 제목 | `검색 결과가 없습니다` | `No search results` |
 | SearchHome 네 유형의 검색 결과 목록 | 보조 | `다른 검색어로 찾아보세요` | `Try a different search query.` |
 
