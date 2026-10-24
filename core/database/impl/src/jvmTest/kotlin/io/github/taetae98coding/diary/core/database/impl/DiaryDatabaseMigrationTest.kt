@@ -11,10 +11,15 @@ import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
 import io.github.taetae98coding.diary.core.database.api.sync.SyncKindLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.checklist.transaction.AccountChecklistTransactionImpl
+import io.github.taetae98coding.diary.core.database.impl.checklist.transaction.findChecklistItemList
+import io.github.taetae98coding.diary.core.database.impl.checklist.transaction.findChecklistList
 import io.github.taetae98coding.diary.core.database.impl.memo.datasource.AccountMemoSyncLocalDataSourceImpl
 import io.github.taetae98coding.diary.core.database.impl.qr.transaction.AccountQrTransactionImpl
 import io.github.taetae98coding.diary.core.database.impl.qr.transaction.findQrList
 import io.github.taetae98coding.diary.core.database.impl.sync.datasource.SyncCursorLocalDataSourceImpl
+import io.github.taetae98coding.diary.core.testing.checklist.localChecklist
+import io.github.taetae98coding.diary.core.testing.checklist.localChecklistItem
 import io.github.taetae98coding.diary.core.testing.memo.localMemo
 import io.github.taetae98coding.diary.core.testing.qr.localQr
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -64,12 +69,14 @@ class DiaryDatabaseMigrationTest :
                 }
             val usn = fixtureMonkey.giveMeOne<Long>()
             val qr = fixtureMonkey.localQr(isDeleted = false)
+            val checklist = fixtureMonkey.localChecklist(isDeleted = false)
+            val checklistItem = fixtureMonkey.localChecklistItem(isChecked = true, isDeleted = false, checklistId = checklist.id)
 
             helper.createDatabase(version = 1).use { connection ->
                 connection.insertPendingMemo(accountId = accountId, memo = memo)
                 connection.insertMemoCursor(accountId = accountId, usn = usn)
             }
-            helper.runMigrationsAndValidate(version = 3).close()
+            helper.runMigrationsAndValidate(version = 4).close()
 
             val database =
                 Room
@@ -82,6 +89,14 @@ class DiaryDatabaseMigrationTest :
 
                 AccountQrTransactionImpl(database = database).upsert(accountId = accountId, qrList = listOf(qr))
                 database.findQrList() shouldBe listOf(qr)
+
+                AccountChecklistTransactionImpl(database = database).upsert(
+                    accountId = accountId,
+                    checklist = checklist,
+                    itemList = listOf(checklistItem),
+                )
+                database.findChecklistList() shouldBe listOf(checklist)
+                database.findChecklistItemList() shouldBe listOf(checklistItem)
             } finally {
                 database.close()
             }

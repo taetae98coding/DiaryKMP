@@ -134,6 +134,18 @@ verify_jwt = true
 [functions.v1-sync-pull-qr]
 verify_jwt = true
 
+[functions.v1-sync-push-checklist]
+verify_jwt = true
+
+[functions.v1-sync-pull-checklist]
+verify_jwt = true
+
+[functions.v1-sync-push-checklist-item]
+verify_jwt = true
+
+[functions.v1-sync-pull-checklist-item]
+verify_jwt = true
+
 [functions.v1-profile-upload]
 verify_jwt = true
 

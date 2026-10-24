@@ -5,6 +5,8 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
+import io.github.taetae98coding.diary.core.database.impl.checklist.entity.AccountChecklistLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.checklistitem.entity.AccountChecklistItemLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.contact.entity.AccountContactLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memocontact.entity.AccountMemoContactLocalEntity
@@ -52,6 +54,16 @@ private val pendingWriterMap: Map<String, PendingWriter> =
         "QR" to { database, accountId, isDirty ->
             database.accountQrSyncDao().upsert(AccountQrLocalEntity(accountId = accountId, qrId = uuid(), isDirty = isDirty))
         },
+        "체크리스트" to { database, accountId, isDirty ->
+            database.accountChecklistSyncDao().upsert(
+                AccountChecklistLocalEntity(accountId = accountId, checklistId = uuid(), isDirty = isDirty),
+            )
+        },
+        "체크 항목" to { database, accountId, isDirty ->
+            database.accountChecklistItemSyncDao().upsert(
+                AccountChecklistItemLocalEntity(accountId = accountId, checklistItemId = uuid(), isDirty = isDirty),
+            )
+        },
         "메모" to { database, accountId, isDirty ->
             database.accountMemoSyncDao().upsert(AccountMemoLocalEntity(accountId = accountId, memoId = uuid(), isDirty = isDirty))
         },
@@ -94,8 +106,8 @@ private val pendingWriterMap: Map<String, PendingWriter> =
 
 class SyncPendingLocalDataSourceImplTest :
     FunSpec({
-        test("업로드 대기 확인이 동기화 대상 열네 종류를 모두 다룬다") {
-            pendingWriterMap.size shouldBe 14
+        test("업로드 대기 확인이 동기화 대상 열여섯 종류를 모두 다룬다") {
+            pendingWriterMap.size shouldBe 16
         }
 
         lateinit var database: DiaryDatabase
@@ -114,7 +126,7 @@ class SyncPendingLocalDataSourceImplTest :
             database.close()
         }
 
-        test("TC-MORE-HOME-DOMAIN-007 동기화 대상 열네 종류 중 어느 한 종류만 업로드 대기여도 대기 항목이 있다고 알린다") {
+        test("TC-MORE-HOME-DOMAIN-007 동기화 대상 열여섯 종류 중 어느 한 종류만 업로드 대기여도 대기 항목이 있다고 알린다") {
             pendingWriterMap.forEach { (kind, write) ->
                 val accountId = uuid()
 

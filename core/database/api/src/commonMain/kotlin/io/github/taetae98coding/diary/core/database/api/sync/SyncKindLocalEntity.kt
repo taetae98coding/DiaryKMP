@@ -10,6 +10,8 @@ public enum class SyncKindLocalEntity(
     CONTACT("contact"),
     MUSIC("music"),
     QR("qr"),
+    CHECKLIST("checklist"),
+    CHECKLIST_ITEM("checklist_item"),
     MEMO_TAG("memo_tag"),
     MEMO_PLACE("memo_place"),
     MEMO_WEB("memo_web"),

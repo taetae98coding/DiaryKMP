@@ -17,6 +17,8 @@ class SyncKindLocalEntityTest :
                     SyncKindLocalEntity.CONTACT to "contact",
                     SyncKindLocalEntity.MUSIC to "music",
                     SyncKindLocalEntity.QR to "qr",
+                    SyncKindLocalEntity.CHECKLIST to "checklist",
+                    SyncKindLocalEntity.CHECKLIST_ITEM to "checklist_item",
                     SyncKindLocalEntity.MEMO_TAG to "memo_tag",
                     SyncKindLocalEntity.MEMO_PLACE to "memo_place",
                     SyncKindLocalEntity.MEMO_WEB to "memo_web",

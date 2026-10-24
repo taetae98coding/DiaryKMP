@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlin.uuid.Uuid
 
-// 열네 종류를 같은 방식으로 다루도록 종류마다 대기 항목, 서버 요청, 기기 저장을 묶는다.
+// 열여섯 종류를 같은 방식으로 다루도록 종류마다 대기 항목, 서버 요청, 기기 저장을 묶는다.
 private class SyncKindCase(
     val label: String,
     val push: suspend MockKMatcherScope.(TestContext) -> Unit,
@@ -35,6 +35,8 @@ private const val WEB = "웹 항목"
 private const val CONTACT = "연락처"
 private const val MUSIC = "곡"
 private const val QR = "QR"
+private const val CHECKLIST = "체크리스트"
+private const val CHECKLIST_ITEM = "체크 항목"
 private const val MEMO = "메모"
 private const val MEMO_TAG = "메모와 태그의 연결"
 private const val MEMO_PLACE = "메모와 장소의 연결"
@@ -96,6 +98,26 @@ private val kindCaseList: List<SyncKindCase> =
             clearPending = { context -> context.accountQrSyncTransaction.clearPending(any(), any()) },
             upsert = { context -> context.accountQrSyncTransaction.upsert(any(), any(), any()) },
             pulls = { usnList -> qrPulls(usnList = usnList).let { pullList -> pullList to pullList.map { pull -> pull.qr.toLocal() } } },
+        ),
+        SyncKindCase(
+            label = CHECKLIST,
+            push = { context -> context.checklistRemoteDataSource.push(any()) },
+            pull = { context, usn -> context.checklistRemoteDataSource.pull(usn = usn) },
+            clearPending = { context -> context.accountChecklistSyncTransaction.clearPending(any(), any()) },
+            upsert = { context -> context.accountChecklistSyncTransaction.upsert(any(), any(), any()) },
+            pulls = { usnList ->
+                checklistPulls(usnList = usnList).let { pullList -> pullList to pullList.map { pull -> pull.checklist.toLocal() } }
+            },
+        ),
+        SyncKindCase(
+            label = CHECKLIST_ITEM,
+            push = { context -> context.checklistItemRemoteDataSource.push(any()) },
+            pull = { context, usn -> context.checklistItemRemoteDataSource.pull(usn = usn) },
+            clearPending = { context -> context.accountChecklistItemSyncTransaction.clearPending(any(), any()) },
+            upsert = { context -> context.accountChecklistItemSyncTransaction.upsert(any(), any(), any()) },
+            pulls = { usnList ->
+                checklistItemPulls(usnList = usnList).let { pullList -> pullList to pullList.map { pull -> pull.checklistItem.toLocal() } }
+            },
         ),
         SyncKindCase(
             label = MEMO,
@@ -179,6 +201,8 @@ private fun kindContext(pendingCountMap: Map<String, Int>): TestContext {
         contactList = contacts(size = count(CONTACT)),
         musicList = musics(size = count(MUSIC)),
         qrList = qrs(size = count(QR)),
+        checklistList = checklists(size = count(CHECKLIST)),
+        checklistItemList = checklistItems(size = count(CHECKLIST_ITEM)),
         memoList = memos(size = count(MEMO)),
         memoTagList = memoTags(size = count(MEMO_TAG)),
         memoPlaceList = memoPlaces(size = count(MEMO_PLACE)),
@@ -221,7 +245,7 @@ private fun TestContext.verifyNoPull() {
 class SyncWorkKindTest :
     FunSpec({
         kindCaseList.forEach { kindCase ->
-            test("TC-DATA-SYNC-DOMAIN-020 ${kindCase.label}만 대기하면 ${kindCase.label}만 요청하고 나머지 열세 종류는 요청하지 않는다") {
+            test("TC-DATA-SYNC-DOMAIN-020 ${kindCase.label}만 대기하면 ${kindCase.label}만 요청하고 나머지 열다섯 종류는 요청하지 않는다") {
                 val context = kindContext(pendingCountMap = mapOf(kindCase.label to 1))
 
                 context.subject.doWork()
@@ -232,7 +256,7 @@ class SyncWorkKindTest :
             }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-020 대기 항목이 없으면 열네 종류 모두 요청하지 않는다") {
+        test("TC-DATA-SYNC-DOMAIN-020 대기 항목이 없으면 열여섯 종류 모두 요청하지 않는다") {
             val context = kindContext(pendingCountMap = emptyMap())
 
             context.subject.doWork()
@@ -240,7 +264,7 @@ class SyncWorkKindTest :
             kindCaseList.forEach { kindCase -> context.verifyPushCount(label = kindCase.label, exactly = 0) }
         }
 
-        test("TC-DATA-SYNC-DOMAIN-020 열네 종류 모두 대기하면 열네 종류 모두 요청한다") {
+        test("TC-DATA-SYNC-DOMAIN-020 열여섯 종류 모두 대기하면 열여섯 종류 모두 요청한다") {
             val context = kindContext(pendingCountMap = kindCaseList.associate { kindCase -> kindCase.label to 1 })
 
             context.subject.doWork()
@@ -248,9 +272,9 @@ class SyncWorkKindTest :
             kindCaseList.forEach { kindCase -> context.verifyPushCount(label = kindCase.label, exactly = 1) }
         }
 
-        val independentLabelList = listOf(TAG, PLACE, WEB, CONTACT, MUSIC, QR)
+        val independentLabelList = listOf(TAG, PLACE, WEB, CONTACT, MUSIC, QR, CHECKLIST)
         independentLabelList.forEach { delayedLabel ->
-            test("TC-DATA-SYNC-DOMAIN-055 $delayedLabel 업로드가 지연되어도 나머지 다섯 종류의 첫 요청이 먼저 시작된다") {
+            test("TC-DATA-SYNC-DOMAIN-055 $delayedLabel 업로드가 지연되어도 나머지 여섯 종류의 첫 요청이 먼저 시작된다") {
                 runTest {
                     val context = kindContext(pendingCountMap = independentLabelList.associateWith { 1 })
                     val eventList = mutableListOf<String>()
@@ -346,6 +370,40 @@ class SyncWorkKindTest :
             }
         }
 
+        test("TC-DATA-SYNC-DOMAIN-094 TC-DATA-SYNC-DOMAIN-054 체크리스트 묶음이 실패하면 체크 항목만 시도하지 않고 태그와 QR은 업로드한다") {
+            val context = kindContext(pendingCountMap = mapOf(CHECKLIST to 201, CHECKLIST_ITEM to 1, QR to 1, TAG to 1))
+            val failure = TestException(fixtureMonkey.giveMeOne())
+            val requestSizeList =
+                context.recordPush(kindCase = kindCase(label = CHECKLIST), failingRequestNumber = 2, failure = failure)
+
+            val actual = shouldThrowExactly<TestException> { context.subject.doWork() }
+
+            actual.message shouldBe failure.message
+            requestSizeList shouldContainExactly listOf(100, 100)
+            context.verifyPushCount(label = CHECKLIST_ITEM, exactly = 0)
+            context.verifyPushCount(label = QR, exactly = 1)
+            context.verifyPushCount(label = TAG, exactly = 1)
+            context.verifyNoPull()
+        }
+
+        test("TC-DATA-SYNC-DOMAIN-019 체크 항목은 체크리스트 업로드가 모두 끝난 뒤에 업로드를 시작한다") {
+            runTest {
+                val context = kindContext(pendingCountMap = mapOf(CHECKLIST to 1, CHECKLIST_ITEM to 1))
+                val eventList = mutableListOf<String>()
+                coEvery { kindCase(label = CHECKLIST).push(this, context) } coAnswers {
+                    delay(PUSH_DELAY)
+                    eventList += "end:$CHECKLIST"
+                }
+                coEvery { kindCase(label = CHECKLIST_ITEM).push(this, context) } coAnswers {
+                    eventList += "start:$CHECKLIST_ITEM"
+                }
+
+                context.subject.doWork()
+
+                eventList shouldContainExactly listOf("end:$CHECKLIST", "start:$CHECKLIST_ITEM")
+            }
+        }
+
         test("TC-DATA-SYNC-DOMAIN-080 한 묶음이 실패해도 앞서 성공한 묶음의 대기 해제만 남고 되돌리지 않는다") {
             val tagList = tags(size = 201)
             val context = context(tagList = tagList)
@@ -432,7 +490,7 @@ class SyncWorkKindTest :
                 savedList shouldContainExactly listOf(localList to 9L)
             }
 
-            test("TC-DATA-SYNC-DOMAIN-038 ${kindCase.label} 내려받기가 지연되어도 업로드가 끝난 뒤 나머지 열세 종류의 첫 내려받기를 먼저 시작한다") {
+            test("TC-DATA-SYNC-DOMAIN-038 ${kindCase.label} 내려받기가 지연되어도 업로드가 끝난 뒤 나머지 열다섯 종류의 첫 내려받기를 먼저 시작한다") {
                 runTest {
                     val context = kindContext(pendingCountMap = kindCaseList.associate { other -> other.label to 1 })
                     val eventList = mutableListOf<String>()
@@ -458,7 +516,7 @@ class SyncWorkKindTest :
                 }
             }
 
-            test("TC-DATA-SYNC-DOMAIN-039 ${kindCase.label} 내려받기가 실패해도 나머지 열세 종류는 빈 응답까지 내려받아 반영하고 위치가 전진한다") {
+            test("TC-DATA-SYNC-DOMAIN-039 ${kindCase.label} 내려받기가 실패해도 나머지 열다섯 종류는 빈 응답까지 내려받아 반영하고 위치가 전진한다") {
                 val context = kindContext(pendingCountMap = emptyMap())
                 val failure = TestException(fixtureMonkey.giveMeOne())
                 val otherKindCaseList = kindCaseList.filterNot { other -> other.label == kindCase.label }
