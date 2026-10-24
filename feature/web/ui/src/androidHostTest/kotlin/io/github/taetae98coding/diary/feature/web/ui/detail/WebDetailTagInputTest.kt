@@ -209,6 +209,7 @@ class WebDetailTagInputTest {
                 WebDetailScreen(
                     navigateToMemoAdd = {},
                     navigateToMemoDetail = {},
+                    navigateToMemoFinishedList = {},
                     id = FIRST_WEB_ID,
                     navigateToTagAdd = navigateToTagAdd,
                     tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,

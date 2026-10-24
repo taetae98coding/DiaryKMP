@@ -7,4 +7,5 @@ public fun PolymorphicModuleBuilder<ScreenNavKey>.webNavKeys() {
     subclass(WebHomeNavKey::class, WebHomeNavKey.serializer())
     subclass(WebAddNavKey::class, WebAddNavKey.serializer())
     subclass(WebDetailNavKey::class, WebDetailNavKey.serializer())
+    subclass(WebMemoFinishedListNavKey::class, WebMemoFinishedListNavKey.serializer())
 }

@@ -11,10 +11,16 @@ import io.github.taetae98coding.diary.app.shared.navigation.TopLevelReselectEven
 import io.github.taetae98coding.diary.app.shared.navigation.topLevelNavigationList
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.calendar.api.CalendarHomeFilterNavKey
+import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
+import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
+import io.github.taetae98coding.diary.feature.contact.api.ContactMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.login.api.LoginHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
+import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
+import io.github.taetae98coding.diary.feature.place.api.PlaceHomeNavKey
+import io.github.taetae98coding.diary.feature.place.api.PlaceMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.routine.api.RoutineAddNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingBrowserNavKey
 import io.github.taetae98coding.diary.feature.setting.api.SettingHomeNavKey
@@ -23,6 +29,9 @@ import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
+import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
+import io.github.taetae98coding.diary.feature.web.api.WebHomeNavKey
+import io.github.taetae98coding.diary.feature.web.api.WebMemoFinishedListNavKey
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
@@ -298,6 +307,17 @@ class AppStateTest :
             }
         }
 
+        test("TC-ENTITY-MEMO-FINISHED-LIST-DETAIL-FEATURE-008 넓은 화면에서 항목 완료 메모 목록과 상세를 함께 표시해도 내비게이션 숨김") {
+            entityMemoFinishedListDetailCases().forEach { case ->
+                listOf(false, true).forEach { isListDetailTwoPane ->
+                    val appState = createAppState(*case.backStack.toTypedArray(), isListDetailTwoPane = isListDetailTwoPane)
+
+                    appState.isNavigationVisible.shouldBeFalse()
+                    appState.currentTopLevelNavigation shouldBe case.topLevelNavigation
+                }
+            }
+        }
+
         test("TC-TOP-LEVEL-NAVIGATION-DOMAIN-014 다른 주요 목적지에 다녀오면 떠난 목적지 위에 열어 둔 화면이 닫힌다") {
             leftDestinationCases().forEach { case ->
                 TopLevelNavigation.entries
@@ -481,6 +501,28 @@ class AppStateTest :
                     )
                 }
             }
+
+        private fun entityMemoFinishedListDetailCases(): List<DetailDestinationCase> {
+            val contactId = fixtureMonkey.giveMeOne<Uuid>()
+            val placeId = fixtureMonkey.giveMeOne<Uuid>()
+            val webId = fixtureMonkey.giveMeOne<Uuid>()
+            val entityBackStackList =
+                listOf(
+                    listOf(ContactHomeNavKey, ContactDetailNavKey(contactId), ContactMemoFinishedListNavKey(contactId = contactId)),
+                    listOf(PlaceHomeNavKey, PlaceDetailNavKey(placeId), PlaceMemoFinishedListNavKey(placeId = placeId)),
+                    listOf(WebHomeNavKey, WebDetailNavKey(webId), WebMemoFinishedListNavKey(webId = webId)),
+                )
+
+            return entityBackStackList.flatMap { entityBackStack ->
+                listOf(null, MemoDetailNavKey(fixtureMonkey.giveMeOne<Uuid>())).map { detailKey ->
+                    DetailDestinationCase(
+                        topLevelNavigation = TopLevelNavigation.More,
+                        backStack =
+                            listOf(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.More.key) + entityBackStack + listOfNotNull(detailKey),
+                    )
+                }
+            }
+        }
 
         private fun listDetailTwoPaneCases(): List<DetailDestinationCase> =
             listOf(

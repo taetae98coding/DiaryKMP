@@ -211,6 +211,7 @@ internal fun ComposeContentTestRule.setWebDetailMemoScreen(
     navigateUp: () -> Unit = {},
     navigateToMemoAdd: () -> Unit = {},
     navigateToMemoDetail: (Uuid) -> Unit = {},
+    navigateToMemoFinishedList: () -> Unit = {},
     pageViewModel: WebDetailPageViewModel = memoScreenPageViewModel(),
 ) {
     prepareWebDetailTabViewModels(memoPagingData = memoPagingData, memoListUiState = memoListUiState)
@@ -223,6 +224,7 @@ internal fun ComposeContentTestRule.setWebDetailMemoScreen(
                 navigateToTagDetail = {},
                 navigateToMemoAdd = navigateToMemoAdd,
                 navigateToMemoDetail = navigateToMemoDetail,
+                navigateToMemoFinishedList = navigateToMemoFinishedList,
                 id = id,
                 tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
                 webViewModel = viewModel,

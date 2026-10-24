@@ -48,6 +48,21 @@ class AccountContactMemoRepositoryImplTest :
 
             verify(exactly = 1) { localDataSource.page(accountId = account.id, contactId = contactId, sort = ListSortLocalEntity.RECENTLY_UPDATED) }
         }
+
+        test("TC-ENTITY-MEMO-FINISHED-LIST-DATA-001 연락처별 완료 메모 페이지는 현재 계정과 연락처의 로컬 완료 페이지를 도메인 모델로 변환한다") {
+            val account = fixtureMonkey.giveMeOne<Account.User>()
+            val contactId = fixtureMonkey.giveMeOne<Uuid>()
+            val localMemoList = listOf(memo(), memo())
+            val localDataSource = mockk<AccountContactMemoLocalDataSource>()
+            every { localDataSource.pageFinished(accountId = account.id, contactId = contactId, sort = ListSortLocalEntity.DEFAULT) } returns
+                mockMemoPagingSource(localMemoList)
+            val repository = AccountContactMemoRepositoryImpl(accountContactMemoLocalDataSource = localDataSource)
+
+            repository.pageFinished(account = account, contactId = contactId, sort = ListSort.DEFAULT).first().items() shouldBe
+                localMemoList.map { memo -> memo.toDomain() }
+
+            verify(exactly = 1) { localDataSource.pageFinished(accountId = account.id, contactId = contactId, sort = ListSortLocalEntity.DEFAULT) }
+        }
     })
 
 private fun memo(): MemoLocalEntity =

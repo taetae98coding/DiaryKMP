@@ -54,4 +54,5 @@
     <string name="contact_home_deleted_message">Contact deleted.</string>
     <string name="contact_home_undo_action">Undo</string>
     <string name="contact_home_delete_content_description">Delete contact</string>
+    <string name="contact_memo_finished_list_empty_title">No finished memos for this contact</string>
 </resources>

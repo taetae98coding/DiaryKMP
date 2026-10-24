@@ -13,4 +13,10 @@ public interface AccountPlaceMemoRepository {
         placeId: Uuid,
         sort: ListSort,
     ): Flow<PagingData<Memo>>
+
+    public fun pageFinished(
+        account: Account,
+        placeId: Uuid,
+        sort: ListSort,
+    ): Flow<PagingData<Memo>>
 }

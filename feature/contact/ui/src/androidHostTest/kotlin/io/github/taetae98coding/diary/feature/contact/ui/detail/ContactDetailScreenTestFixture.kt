@@ -151,6 +151,7 @@ internal fun ComposeContentTestRule.setContactDetailScreen(
     navigateUp: () -> Unit = {},
     navigateToMemoAdd: () -> Unit = {},
     navigateToMemoDetail: (Uuid) -> Unit = {},
+    navigateToMemoFinishedList: () -> Unit = {},
 ) {
     prepareContactDetailTabViewModels(memoPagingData = memoPagingData, memoListUiState = memoListUiState)
 
@@ -160,6 +161,7 @@ internal fun ComposeContentTestRule.setContactDetailScreen(
                 navigateUp = navigateUp,
                 navigateToMemoAdd = navigateToMemoAdd,
                 navigateToMemoDetail = navigateToMemoDetail,
+                navigateToMemoFinishedList = navigateToMemoFinishedList,
                 id = id,
                 componentVisibleProvider = { componentVisible },
                 viewModel = viewModel,

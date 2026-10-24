@@ -44,6 +44,7 @@ import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshUiState
 import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
@@ -53,6 +54,7 @@ import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebHomeNavKey
+import io.github.taetae98coding.diary.feature.web.api.WebMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.web.ui.add.WebAddTagViewModel
 import io.github.taetae98coding.diary.feature.web.ui.add.WebAddUiState
 import io.github.taetae98coding.diary.feature.web.ui.add.WebAddViewModel
@@ -67,6 +69,7 @@ import io.github.taetae98coding.diary.feature.web.ui.detail.testContentUiState
 import io.github.taetae98coding.diary.feature.web.ui.home.WebHomeViewModel
 import io.github.taetae98coding.diary.feature.web.ui.home.testWeb
 import io.github.taetae98coding.diary.feature.web.ui.home.webPagingDataOf
+import io.github.taetae98coding.diary.feature.web.ui.memo.finished.WebMemoFinishedListViewModel
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -159,6 +162,20 @@ class WebNavDisplayTest {
         composeRule.onNode(webCard(web)).performClick()
         composeRule.waitForIdle()
         composeRule.selectWebDetailTab(DEFAULT_MEMO_TAB_DESCRIPTION)
+
+        backStack.toList() shouldBe listOf(WebNavDisplayMoreNavKey, WebHomeNavKey, WebDetailNavKey(id = web.id))
+        composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
+    }
+
+    @Test
+    fun `TC-WEB-DETAIL-MEMO-FEATURE-021 메모 탭에서 연 완료된 메모 목록에서 뒤로가면 메모 탭이 선택된 같은 웹 항목의 상세로 돌아온다`() {
+        val web = openMemoTabOfListedWeb()
+
+        composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).performClick()
+        composeRule.waitForIdle()
+        backStack.last() shouldBe WebMemoFinishedListNavKey(webId = web.id)
+        composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_SUBTITLE).assertIsDisplayed()
+        pressBack()
 
         backStack.toList() shouldBe listOf(WebNavDisplayMoreNavKey, WebHomeNavKey, WebDetailNavKey(id = web.id))
         composeRule.onNodeWithContentDescription(DEFAULT_MEMO_TAB_DESCRIPTION).assertIsSelected()
@@ -315,6 +332,14 @@ class WebNavDisplayTest {
                 memoScreenWebViewModel(uiState = MutableStateFlow(testContentUiState(detail = homeWebList.first { web -> web.id == id }.detail)))
             }
             factory { memoScreenPageViewModel() }
+            factory {
+                mockk<WebMemoFinishedListViewModel>(relaxed = true).apply {
+                    every { uiState } returns MutableStateFlow(EntityMemoFinishedListUiState())
+                    every { memoPagingData } returns flowOf(PagingData.empty())
+                    every { sortUiState } returns MutableStateFlow(ListSortUiState(sort = ListSort.DEFAULT))
+                    every { effect } returns emptyFlow()
+                }
+            }
             factory { detailTagScreenTestViewModel() }
             factory {
                 mockk<WebDetailMemoViewModel>(relaxed = true).apply {
@@ -344,6 +369,8 @@ class WebNavDisplayTest {
     }
 
     private companion object {
+        const val DEFAULT_FINISHED_LIST_LABEL = "Finished memos"
+        const val DEFAULT_FINISHED_LIST_SUBTITLE = "Finished Memos"
         const val MORE_CONTENT = "MoreContent"
         const val ROUTE_CONTENT = "RouteContent"
         const val DEFAULT_ADD_WEB_DESCRIPTION = "Add web"

@@ -12,6 +12,7 @@ import io.github.taetae98coding.diary.core.model.web.WebHeader
 import io.github.taetae98coding.diary.core.network.api.web.entity.WebDetailRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.web.entity.WebHeaderRemoteEntity
 import io.github.taetae98coding.diary.core.network.api.web.entity.WebRemoteEntity
+import kotlin.uuid.Uuid
 
 // 헤더 목록은 비어 있을 수 있고 이름이 같은 항목도 합치지 않으므로 순서와 중복을 함께 확인한다.
 public val webHeaderNameCaseList: List<List<String>> =
@@ -27,6 +28,18 @@ public fun FixtureMonkey.web(isDeleted: Boolean): Web =
     giveMeKotlinBuilder<Web>()
         .setExp(Web::isDeleted, isDeleted)
         .sample()
+
+public fun FixtureMonkey.web(
+    title: String,
+    isDeleted: Boolean,
+): Web =
+    Web(
+        id = giveMeOne<Uuid>(),
+        detail = giveMeKotlinBuilder<WebDetail>().sample().copy(title = title),
+        isDeleted = isDeleted,
+        updatedAt = giveMeOne(),
+        createdAt = giveMeOne(),
+    )
 
 public fun FixtureMonkey.localWeb(isDeleted: Boolean): WebLocalEntity =
     giveMeKotlinBuilder<WebLocalEntity>()

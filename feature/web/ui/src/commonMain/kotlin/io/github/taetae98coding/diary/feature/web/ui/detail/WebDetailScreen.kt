@@ -34,6 +34,7 @@ internal fun WebDetailScreen(
     navigateToTagDetail: (Uuid) -> Unit,
     navigateToMemoAdd: () -> Unit,
     navigateToMemoDetail: (Uuid) -> Unit,
+    navigateToMemoFinishedList: () -> Unit,
     id: Uuid,
     tagAddRequestKey: Uuid,
     webViewModel: WebDetailViewModel,
@@ -108,6 +109,7 @@ internal fun WebDetailScreen(
                 id = id,
                 viewModelStoreProvider = viewModelStoreProvider,
                 navigateToMemoDetail = navigateToMemoDetail,
+                navigateToMemoFinishedList = navigateToMemoFinishedList,
                 modifier = Modifier.fillMaxSize(),
                 snackbarHostState = formState.snackbarHostState,
             )

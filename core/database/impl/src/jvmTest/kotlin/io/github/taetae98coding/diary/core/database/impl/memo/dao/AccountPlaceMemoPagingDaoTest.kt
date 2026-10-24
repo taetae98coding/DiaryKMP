@@ -186,7 +186,7 @@ class AccountPlaceMemoPagingDaoTest :
             pagedIds(accountId = accountId, placeId = target.id) shouldBe listOf(activeMemo.id)
         }
 
-        test("TC-PLACE-DETAIL-MEMO-FEATURE-018 대상 장소에 연결된 완료된 메모는 메모 탭 목록에 포함하지 않는다") {
+        test("TC-PLACE-DETAIL-MEMO-FEATURE-027 대상 장소에 연결된 완료된 메모는 메모 탭 목록에 포함하지 않는다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val target = place()
             val activeMemo = memo(isFinished = false)

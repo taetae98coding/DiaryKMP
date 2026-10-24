@@ -164,7 +164,7 @@ class AccountContactMemoPagingDaoTest :
             pagedIds(accountId = accountId, contactId = contactId) shouldBe expectedIds
         }
 
-        test("TC-CONTACT-DETAIL-MEMO-DATA-001 현재 계정의 대상 연락처와 활성 연결을 가진 미완료·미삭제 메모만 조회한다") {
+        test("TC-CONTACT-DETAIL-MEMO-FEATURE-027 TC-CONTACT-DETAIL-MEMO-DATA-001 현재 계정의 대상 연락처와 활성 연결을 가진 미완료·미삭제 메모만 조회한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val otherAccountId = fixtureMonkey.giveMeOne<Uuid>()
             val target = contact()

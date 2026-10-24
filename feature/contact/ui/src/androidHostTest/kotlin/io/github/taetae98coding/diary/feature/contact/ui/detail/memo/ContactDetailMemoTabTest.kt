@@ -69,14 +69,6 @@ class ContactDetailMemoTabTest {
     }
 
     @Test
-    fun `TC-CONTACT-DETAIL-MEMO-FEATURE-018 메모 탭에는 완료된 메모 목록 진입 버튼을 두지 않는다`() {
-        setMemoTab()
-
-        composeRule.onNodeWithText(DEFAULT_FINISHED_LIST_LABEL).assertDoesNotExist()
-        composeRule.onAllNodes(hasClickAction()).fetchSemanticsNodes().none { node -> node.config.toString().contains(DEFAULT_FINISHED_LIST_LABEL) } shouldBe true
-    }
-
-    @Test
     fun `TC-CONTACT-DETAIL-MEMO-FEATURE-024 정렬 컨트롤을 누르면 정렬 선택 요청을 전달한다`() {
         val eventList = mutableListOf<EntityDetailMemoTabEvent>()
         setMemoTab(pagingData = contactMemoPagingData(itemList = listOf(MemoListItem.Content(memo = contactMemo(title = SORT_MEMO_TITLE)))), onEvent = eventList::add)
@@ -358,7 +350,6 @@ class ContactDetailMemoTabTest {
         const val DEFAULT_EMPTY_TITLE = "No memos linked to this contact"
         const val DEFAULT_EMPTY_DESCRIPTION = "Use the add button to create a memo."
         const val DEFAULT_RETRY_TEXT = "Retry"
-        const val DEFAULT_FINISHED_LIST_LABEL = "Finished memos"
         const val DEFAULT_SORT_LABEL = "Default"
         const val POSITION_MEMO_COUNT = 30
         const val POSITION_MEMO_TITLE_PREFIX = "ContactMemoPosition"

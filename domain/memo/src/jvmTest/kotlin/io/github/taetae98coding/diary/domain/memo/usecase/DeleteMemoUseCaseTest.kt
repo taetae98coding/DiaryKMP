@@ -46,7 +46,7 @@ class DeleteMemoUseCaseTest :
                 )
 
             When("메모를 삭제한다") {
-                Then("TC-MEMO-HOME-DOMAIN-002 TC-MEMO-HOME-DOMAIN-005 TC-MEMO-FINISHED-LIST-DOMAIN-002 TC-MEMO-FINISHED-LIST-DOMAIN-005 TC-TAG-MEMO-FINISHED-LIST-DOMAIN-002 현재 계정의 메모를 삭제 상태와 동작 시점 수정 시각으로 갱신한다") {
+                Then("TC-MEMO-HOME-DOMAIN-002 TC-MEMO-HOME-DOMAIN-005 TC-MEMO-FINISHED-LIST-DOMAIN-002 TC-MEMO-FINISHED-LIST-DOMAIN-005 TC-TAG-MEMO-FINISHED-LIST-DOMAIN-002 TC-ENTITY-MEMO-FINISHED-LIST-DOMAIN-002 현재 계정의 메모를 삭제 상태와 동작 시점 수정 시각으로 갱신한다") {
                     val memoId = fixtureMonkey.giveMeOne<Uuid>()
 
                     val result = useCase(parameter = memoId)

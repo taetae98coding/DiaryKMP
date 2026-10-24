@@ -7,4 +7,5 @@ public fun PolymorphicModuleBuilder<ScreenNavKey>.placeNavKeys() {
     subclass(PlaceHomeNavKey::class, PlaceHomeNavKey.serializer())
     subclass(PlaceAddNavKey::class, PlaceAddNavKey.serializer())
     subclass(PlaceDetailNavKey::class, PlaceDetailNavKey.serializer())
+    subclass(PlaceMemoFinishedListNavKey::class, PlaceMemoFinishedListNavKey.serializer())
 }

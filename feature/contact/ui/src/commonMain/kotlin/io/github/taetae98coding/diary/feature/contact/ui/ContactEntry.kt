@@ -14,16 +14,23 @@ import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
+import io.github.taetae98coding.diary.feature.contact.api.ContactMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.contact.api.isContactAddOnDetailPane
 import io.github.taetae98coding.diary.feature.contact.api.isContactListDetailPane
 import io.github.taetae98coding.diary.feature.contact.ui.add.ContactAddScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.contact.ui.add.ContactAddScreen
+import io.github.taetae98coding.diary.feature.contact.ui.contact_memo_finished_list_empty_title
 import io.github.taetae98coding.diary.feature.contact.ui.detail.ContactDetailScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.contact.ui.detail.ContactDetailScreen
 import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeScaffoldComponentVisible
 import io.github.taetae98coding.diary.feature.contact.ui.home.ContactHomeScreen
+import io.github.taetae98coding.diary.feature.contact.ui.memo.finished.ContactMemoFinishedListViewModel
+import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListDetailPlaceholder
+import io.github.taetae98coding.diary.feature.core.memo.finished.EntityMemoFinishedListScreen
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
+import io.github.taetae98coding.diary.feature.memo.api.navigateToMemoDetail
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -31,6 +38,7 @@ public fun EntryProviderScope<ScreenNavKey>.contactEntry(backStack: NavBackStack
     contactHomeEntry(backStack = backStack)
     contactAddEntry(backStack = backStack)
     contactDetailEntry(backStack = backStack)
+    contactMemoFinishedListEntry(backStack = backStack)
 }
 
 internal fun EntryProviderScope<ScreenNavKey>.contactHomeEntry(backStack: NavBackStack<ScreenNavKey>) {
@@ -93,6 +101,7 @@ internal fun EntryProviderScope<ScreenNavKey>.contactDetailEntry(backStack: NavB
             navigateUp = backStack::removeLastOrNull,
             navigateToMemoAdd = { backStack.add(MemoAddNavKey(initialContactId = key.id)) },
             navigateToMemoDetail = { id -> backStack.add(MemoDetailNavKey(id = id)) },
+            navigateToMemoFinishedList = { backStack.add(ContactMemoFinishedListNavKey(contactId = key.id)) },
             id = key.id,
             componentVisibleProvider = { ContactDetailScaffoldComponentVisible(isNavigateUpButtonVisible = !isListPaneVisible) },
             viewModel = koinViewModel { parametersOf(key.id) },
@@ -106,3 +115,32 @@ private fun NavBackStack<ScreenNavKey>.contactListDetailPaneMetadata(key: Screen
     } else {
         emptyMap()
     }
+
+private fun EntryProviderScope<ScreenNavKey>.contactMemoFinishedListEntry(backStack: NavBackStack<ScreenNavKey>) {
+    entry<ContactMemoFinishedListNavKey>(
+        metadata = ::contactMemoFinishedListPaneMetadata,
+    ) { key ->
+        EntityMemoFinishedListScreen(
+            navigateUp = backStack::navigateUpFromContactMemoFinishedList,
+            navigateToMemoDetail = backStack::navigateToMemoDetail,
+            emptyTitle = stringResource(Res.string.contact_memo_finished_list_empty_title),
+            memoViewModel = koinViewModel<ContactMemoFinishedListViewModel> { parametersOf(key.contactId) },
+            syncViewModel = koinViewModel(),
+        )
+    }
+}
+
+internal fun contactMemoFinishedListPaneMetadata(key: ContactMemoFinishedListNavKey): Map<String, Any> =
+    ListDetailSceneStrategy.listPane(
+        sceneKey = key,
+        detailPlaceholder = { EntityMemoFinishedListDetailPlaceholder() },
+    ) + ListDetailSceneStrategy.preferredPaneSize(width = LIST_DETAIL_PANE_WIDTH_FRACTION)
+
+internal fun NavBackStack<ScreenNavKey>.navigateUpFromContactMemoFinishedList() {
+    val index = indexOfLast { key -> key is ContactMemoFinishedListNavKey }
+    if (index < 0) return
+
+    while (size > index) {
+        removeLastOrNull()
+    }
+}
