@@ -15,6 +15,7 @@ import io.github.taetae98coding.diary.compose.core.icon.Map
 import io.github.taetae98coding.diary.compose.core.icon.OpenInNew
 import io.github.taetae98coding.diary.compose.core.icon.PersonAdd
 import io.github.taetae98coding.diary.compose.core.icon.QrCodeScanner
+import io.github.taetae98coding.diary.compose.core.icon.RestartAlt
 import io.github.taetae98coding.diary.compose.core.icon.Search
 import io.github.taetae98coding.diary.compose.core.icon.Settings
 import io.github.taetae98coding.diary.compose.core.icon.Sms
@@ -39,6 +40,7 @@ public enum class DiaryTopBarIcon {
     OPEN_IN_NEW,
     PERSON_ADD,
     QR_SCAN,
+    RESET,
     SEARCH,
     SETTING,
     SMS,
@@ -65,6 +67,7 @@ internal val DiaryTopBarIcon.imageVector: ImageVector
             DiaryTopBarIcon.OPEN_IN_NEW -> DiaryIcons.OpenInNew
             DiaryTopBarIcon.PERSON_ADD -> DiaryIcons.PersonAdd
             DiaryTopBarIcon.QR_SCAN -> DiaryIcons.QrCodeScanner
+            DiaryTopBarIcon.RESET -> DiaryIcons.RestartAlt
             DiaryTopBarIcon.SEARCH -> DiaryIcons.Search
             DiaryTopBarIcon.SETTING -> DiaryIcons.Settings
             DiaryTopBarIcon.SMS -> DiaryIcons.Sms

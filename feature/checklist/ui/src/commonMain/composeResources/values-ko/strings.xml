@@ -1,4 +1,30 @@
 <resources>
+    <string name="checklist_add_button_content_description">체크리스트 추가</string>
+    <string name="checklist_add_item_remove_button_content_description">항목 빼기 %1$s</string>
+    <string name="checklist_add_items_label">체크 항목</string>
+    <string name="checklist_add_succeeded_message">체크리스트가 추가되었습니다.</string>
+    <string name="checklist_add_title">체크리스트 추가</string>
+    <string name="checklist_add_title_blank_message">제목을 입력해 주세요.</string>
+    <string name="checklist_detail_delete_button_content_description">체크리스트 삭제</string>
+    <string name="checklist_detail_empty_description">아래 입력으로 새 항목을 넣을 수 있습니다</string>
+    <string name="checklist_detail_empty_title">아직 체크 항목이 없습니다</string>
+    <string name="checklist_detail_item_remove_button_content_description">항목 빼기, %1$s</string>
+    <string name="checklist_detail_loading_content_description">체크리스트 불러오는 중</string>
+    <string name="checklist_detail_reset_button_content_description">체크 모두 해제</string>
+    <string name="checklist_detail_reset_dialog_cancel">취소</string>
+    <string name="checklist_detail_reset_dialog_confirm">리셋</string>
+    <string name="checklist_detail_reset_dialog_text">체크 항목은 그대로 남고 체크만 모두 해제됩니다.</string>
+    <string name="checklist_detail_reset_dialog_title">모든 체크를 해제할까요?</string>
+    <string name="checklist_detail_update_button_content_description">체크리스트 수정</string>
+    <string name="checklist_detail_update_succeeded_message">체크리스트가 수정되었습니다.</string>
+    <string name="checklist_home_delete_content_description">체크리스트 삭제</string>
+    <string name="checklist_home_deleted_message">체크리스트가 삭제되었습니다.</string>
+    <string name="checklist_home_empty_description">추가 버튼으로 새 체크리스트를 만들 수 있습니다</string>
+    <string name="checklist_home_empty_title">아직 체크리스트가 없습니다</string>
+    <string name="checklist_home_progress_content_description">전체 %1$s개 중 %2$s개 체크</string>
     <string name="checklist_home_title">체크리스트</string>
+    <string name="checklist_home_undo_action">실행 취소</string>
+    <string name="checklist_item_add_button_content_description">항목 넣기</string>
+    <string name="checklist_item_input_label">새 항목</string>
     <string name="checklist_navigate_up_button_content_description">뒤로가기</string>
 </resources>

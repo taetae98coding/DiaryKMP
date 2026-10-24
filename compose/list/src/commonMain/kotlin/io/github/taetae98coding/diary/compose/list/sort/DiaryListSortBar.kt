@@ -24,6 +24,7 @@ import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.compose.list.Res
 import io.github.taetae98coding.diary.compose.list.list_sort_content_description
 import io.github.taetae98coding.diary.core.model.list.ListSort
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -31,6 +32,25 @@ internal fun DiaryListSortBar(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     sortProvider: () -> ListSort = { ListSort.DEFAULT },
+    trailing: @Composable (() -> Unit)? = null,
+) {
+    DiaryListSortBar(
+        onClick = onClick,
+        sortProvider = sortProvider,
+        icon = { sort, iconModifier -> ListSortIcon(sort = sort, modifier = iconModifier) },
+        label = ::listSortLabel,
+        modifier = modifier,
+        trailing = trailing,
+    )
+}
+
+@Composable
+internal fun <T> DiaryListSortBar(
+    onClick: () -> Unit,
+    sortProvider: () -> T,
+    icon: @Composable (sort: T, modifier: Modifier) -> Unit,
+    label: (T) -> StringResource,
+    modifier: Modifier = Modifier,
     trailing: @Composable (() -> Unit)? = null,
 ) {
     val contentDescription = stringResource(Res.string.list_sort_content_description)
@@ -50,13 +70,10 @@ internal fun DiaryListSortBar(
         ) {
             val sort = sortProvider()
 
-            ListSortIcon(
-                sort = sort,
-                modifier = Modifier.size(ButtonDefaults.IconSize),
-            )
+            icon(sort, Modifier.size(ButtonDefaults.IconSize))
             Spacer(modifier = Modifier.width(DiaryListSortBarDefaults.ContentSpacing))
             Text(
-                text = stringResource(listSortLabel(sort = sort)),
+                text = stringResource(label(sort)),
                 modifier = Modifier.weight(weight = 1F, fill = false),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
