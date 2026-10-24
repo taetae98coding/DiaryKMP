@@ -70,6 +70,7 @@
 | DDayHome 화면 | [client](./client/dday-home.md) | — | — | [DDayHome 디자인](../design/dday-home.md) |
 | DiaryMap 컴포넌트 | [client](./client/diary-map.md) | — | — | [DiaryMap 디자인](../design/diary-map.md) |
 | FileAdd 화면 | [client](./client/file-add.md) | — | — | [FileAdd 디자인](../design/file-add.md) |
+| FileDetail 화면 | [client](./client/file-detail.md) | — | — | [FileDetail 디자인](../design/file-detail.md) |
 | FileHome 화면 | [client](./client/file-home.md) | — | — | [FileHome 디자인](../design/file-home.md) |
 | Gemini 모델 목록 조회 | [client](./client/gemini-model-list.md) | — | — | — |
 | Google 장소 검색 | [client](./client/google-place-search.md) | — | — | — |
@@ -100,11 +101,12 @@
 | SearchHome 화면 | [client](./client/search-home.md) | — | — | [SearchHome 디자인](../design/search-home.md) |
 | Setting 목록·상세 배치 | [client](./client/setting-list-detail.md) | — | — | [Setting 목록·상세 배치 디자인](../design/setting-list-detail.md) |
 | SettingBrowser 화면 | [client](./client/setting-browser.md) | — | — | [SettingBrowser 디자인](../design/setting-browser.md) |
-| SettingDownload 화면 | [client](./client/setting-download.md) | — | — | [SettingDownload 디자인](../design/setting-download.md) |
+| SettingFile 화면 | [client](./client/setting-file.md) | — | — | [SettingFile 디자인](../design/setting-file.md) |
 | SettingGemini 화면 | [client](./client/setting-gemini.md) | — | — | [SettingGemini 디자인](../design/setting-gemini.md) |
 | SettingHoliday 화면 | [client](./client/setting-holiday.md) | — | — | [SettingHoliday 디자인](../design/setting-holiday.md) |
 | SettingHome 화면 | [client](./client/setting-home.md) | — | — | [SettingHome 디자인](../design/setting-home.md) |
 | SettingMap 화면 | [client](./client/setting-map.md) | — | — | [SettingMap 디자인](../design/setting-map.md) |
+| SettingPlaylist 화면 | [client](./client/setting-playlist.md) | — | — | [SettingPlaylist 디자인](../design/setting-playlist.md) |
 | SwipeToFinishAndDelete 컴포넌트 | [client](./client/swipe-to-finish-and-delete.md) | — | — | [SwipeToFinishAndDelete 디자인](../design/swipe-to-finish-and-delete.md) |
 | Tag 목록·상세 배치 | [client](./client/tag-list-detail.md) | — | — | [Tag 목록·상세 배치 디자인](../design/tag-list-detail.md) |
 | TagAdd 화면 | [client](./client/tag-add.md) | — | — | [TagAdd 디자인](../design/tag-add.md), [태그 이모지 입력 디자인](../design/tag-emoji-input.md) |
@@ -126,7 +128,7 @@
 | 검색어 일치 판정 | [client](./client/search-match.md) | — | — | — |
 | 계정 조회 | [client](./client/account.md) | — | — | — |
 | 곡 다운로드 | [client](./client/music-download.md) | — | — | [PlaylistHome 디자인](../design/playlist-home.md) |
-| 곡 다운로드 프록시 | [client](./client/music-download-proxy.md) | — | — | [SettingDownload 디자인](../design/setting-download.md) |
+| 곡 다운로드 프록시 | [client](./client/music-download-proxy.md) | — | — | [SettingPlaylist 디자인](../design/setting-playlist.md) |
 | 공휴일 국가 설정 | [client](./client/holiday-country.md) | — | — | — |
 | 공휴일 노출 설정 | [client](./client/holiday-visibility.md) | — | — | — |
 | 공휴일 동기화 | [client](./client/holiday-fetch.md) | — | — | — |
@@ -179,6 +181,7 @@
 | 태그 연결 | [client](./client/tag-link.md) | [common](./common/tag-link.md) | — | — |
 | 태그 연결 입력 컴포넌트 | [client](./client/tag-link-input.md) | — | — | [태그 연결 입력 디자인](../design/tag-link-input.md) |
 | 태그 필터 | [client](./client/tag-filter.md) | — | — | [태그 필터 디자인](../design/tag-filter.md), [필터 Bottom Sheet 디자인](../design/filter-bottom-sheet.md) |
+| 파일 내려받기 | [client](./client/file-download.md) | — | — | [FileDetail 디자인](../design/file-detail.md) |
 | 파일 보관 | [client](./client/file-storage.md) | [common](./common/file-storage.md) | [server](./server/file-storage.md) | — |
 | 파일 올리기 알림 | [client](./client/file-upload-notification.md) | — | — | [파일 올리기 알림 디자인](../design/file-upload-notification.md) |
 | 페이지 조회 목록의 자리 표시 | [client](./client/paged-list-placeholder.md) | — | — | [페이지 조회 목록의 자리 표시 디자인](../design/paged-list-placeholder.md) |

@@ -1,10 +1,10 @@
-# SettingDownload 화면 디자인
+# SettingPlaylist 화면 디자인
 
-기준 스펙: [SettingDownload 화면 스펙](../spec/client/setting-download.md), [곡 다운로드 프록시 스펙](../spec/client/music-download-proxy.md)
+기준 스펙: [SettingPlaylist 화면 스펙](../spec/client/setting-playlist.md), [곡 다운로드 프록시 스펙](../spec/client/music-download-proxy.md)
 
 ## 화면 구조
 
-SettingDownload의 단독·목록/상세 배치와 표시 상태에 따른 뒤로가기 동작 노출은 [Setting 목록·상세 배치 디자인](./setting-list-detail.md)을 따른다.
+SettingPlaylist의 단독·목록/상세 배치와 표시 상태에 따른 뒤로가기 동작 노출은 [Setting 목록·상세 배치 디자인](./setting-list-detail.md)을 따른다.
 
 화면 상단에는 제목이 있는 상단 바를 두고, 뒤로가기 동작을 제공하는 상태에서는 상단 바에 함께 배치한다. 상단 바 제목은 플랫폼과 관계없이 같다.
 
@@ -66,7 +66,7 @@ SettingDownload의 단독·목록/상세 배치와 표시 상태에 따른 뒤�
 
 | 문구 | 한국어 | 그 외 기본 |
 | --- | --- | --- |
-| 상단 바 제목 | `다운로드 설정` | `Download Settings` |
+| 상단 바 제목 | `플레이리스트 설정` | `Playlist Settings` |
 | 뒤로가기 접근성 이름 | `뒤로가기` | `Navigate up` |
 | 이 기기의 프록시 주소 설정 이름 | `이 기기의 프록시 주소` | `This device's proxy address` |
 | 이 기기의 프록시 주소 보조 문구 | `같은 네트워크의 Android나 iOS 앱에서 이 주소를 입력하면 이 기기가 대신 영상을 받아 전달합니다` | `Enter this address in the Android or iOS app on the same network to have this device download videos for it` |
@@ -74,7 +74,7 @@ SettingDownload의 단독·목록/상세 배치와 표시 상태에 따른 뒤�
 | 프록시 시작 실패 안내 | `프록시를 시작하지 못했습니다. 앱을 다시 실행해 주세요` | `Couldn't start the proxy. Restart the app.` |
 | 프록시 주소 입력 라벨 | `프록시 주소` | `Proxy address` |
 | 프록시 주소 자리 표시 문구 | `http://192.168.0.10:54321` | `http://192.168.0.10:54321` |
-| 프록시 주소 보조 문구 | `같은 네트워크에서 실행 중인 데스크톱 앱의 설정 > 다운로드에서 확인한 주소를 입력합니다` | `Enter the address shown in Settings > Download of the desktop app running on the same network` |
+| 프록시 주소 보조 문구 | `같은 네트워크에서 실행 중인 데스크톱 앱의 설정 > 플레이리스트에서 확인한 주소를 입력합니다` | `Enter the address shown in Settings > Playlist of the desktop app running on the same network` |
 | 저장 버튼 접근성 이름 | `저장` | `Save` |
 | 저장 성공 안내 | `저장되었습니다.` | `Saved.` |
 | 저장 실패 안내 | `저장하지 못했습니다.` | `Couldn't save.` |

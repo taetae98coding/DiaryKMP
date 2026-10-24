@@ -18,7 +18,8 @@
 | `지도` | SettingMap 화면 |
 | `Gemini` | SettingGemini 화면 |
 | `브라우저` | SettingBrowser 화면 |
-| `다운로드` | SettingDownload 화면 |
+| `플레이리스트` | SettingPlaylist 화면 |
+| `파일` | SettingFile 화면 |
 
 ### TC-SETTING-LIST-DETAIL-FEATURE-003: 다른 설정 항목을 선택하면 현재 상세 화면을 교체한다
 
@@ -35,10 +36,12 @@
 | SettingHoliday 화면 | `Gemini` | SettingGemini 화면 |
 | SettingGemini 화면 | `지도` | SettingMap 화면 |
 | SettingGemini 화면 | `브라우저` | SettingBrowser 화면 |
-| SettingGemini 화면 | `다운로드` | SettingDownload 화면 |
+| SettingGemini 화면 | `플레이리스트` | SettingPlaylist 화면 |
 | SettingBrowser 화면 | `공휴일` | SettingHoliday 화면 |
-| SettingBrowser 화면 | `다운로드` | SettingDownload 화면 |
-| SettingDownload 화면 | `지도` | SettingMap 화면 |
+| SettingBrowser 화면 | `플레이리스트` | SettingPlaylist 화면 |
+| SettingPlaylist 화면 | `지도` | SettingMap 화면 |
+| SettingPlaylist 화면 | `파일` | SettingFile 화면 |
+| SettingFile 화면 | `공휴일` | SettingHoliday 화면 |
 
 ### TC-SETTING-LIST-DETAIL-FEATURE-011: 현재 상세인 설정 항목을 다시 선택하면 아무것도 바뀌지 않는다
 
@@ -54,7 +57,8 @@
 | SettingMap 화면 | `지도` |
 | SettingGemini 화면 | `Gemini` |
 | SettingBrowser 화면 | `브라우저` |
-| SettingDownload 화면 | `다운로드` |
+| SettingPlaylist 화면 | `플레이리스트` |
+| SettingFile 화면 | `파일` |
 
 ### TC-SETTING-LIST-DETAIL-FEATURE-005: 선택 전 상태에는 조작 가능한 동작이 없다
 
@@ -98,7 +102,8 @@
 | `지도` | SettingMap 화면 |
 | `Gemini` | SettingGemini 화면 |
 | `브라우저` | SettingBrowser 화면 |
-| `다운로드` | SettingDownload 화면 |
+| `플레이리스트` | SettingPlaylist 화면 |
+| `파일` | SettingFile 화면 |
 
 공통 내비게이션을 계속 제공하지 않는 결과는 [TopLevelNavigation 테스트 케이스](./top-level-navigation.md)의 TC-TOP-LEVEL-NAVIGATION-FEATURE-004가 다룬다.
 

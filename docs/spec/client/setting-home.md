@@ -1,6 +1,6 @@
 # SettingHome 화면 스펙
 
-이 문서는 사용자가 `더보기`의 설정 동작에서 진입하는 SettingHome 화면의 내용과 행동을 다룬다. `더보기`의 설정 동작 표시와 선택은 [MoreHome 화면 스펙](./more-home.md)에서, 세부 화면에서의 공통 내비게이션 노출 규칙은 [TopLevelNavigation 스펙](./top-level-navigation.md)에서 다룬다. 설정 목록과 세부 설정을 함께 사용할 때의 선택·뒤로가기 정책은 [Setting 목록·상세 배치 스펙](./setting-list-detail.md)을 따르고, 각 설정 항목에서 이어지는 화면은 [SettingHoliday 화면 스펙](./setting-holiday.md), [SettingMap 화면 스펙](./setting-map.md), [SettingGemini 화면 스펙](./setting-gemini.md), [SettingBrowser 화면 스펙](./setting-browser.md), [SettingDownload 화면 스펙](./setting-download.md)에서 다룬다.
+이 문서는 사용자가 `더보기`의 설정 동작에서 진입하는 SettingHome 화면의 내용과 행동을 다룬다. `더보기`의 설정 동작 표시와 선택은 [MoreHome 화면 스펙](./more-home.md)에서, 세부 화면에서의 공통 내비게이션 노출 규칙은 [TopLevelNavigation 스펙](./top-level-navigation.md)에서 다룬다. 설정 목록과 세부 설정을 함께 사용할 때의 선택·뒤로가기 정책은 [Setting 목록·상세 배치 스펙](./setting-list-detail.md)을 따르고, 각 설정 항목에서 이어지는 화면은 [SettingHoliday 화면 스펙](./setting-holiday.md), [SettingMap 화면 스펙](./setting-map.md), [SettingGemini 화면 스펙](./setting-gemini.md), [SettingBrowser 화면 스펙](./setting-browser.md), [SettingPlaylist 화면 스펙](./setting-playlist.md), [SettingFile 화면 스펙](./setting-file.md)에서 다룬다.
 
 디자인: [SettingHome 화면 디자인](../../design/setting-home.md)
 
@@ -24,7 +24,8 @@ SettingHome 화면이 단독으로 표시되거나 상세 설정과 함께 표�
 2. `지도`
 3. `Gemini`
 4. `브라우저`
-5. `다운로드`
+5. `플레이리스트`
+6. `파일`
 
 `공휴일`을 선택하면 [SettingHoliday 화면](./setting-holiday.md)으로 이동한다.
 
@@ -34,9 +35,11 @@ SettingHome 화면이 단독으로 표시되거나 상세 설정과 함께 표�
 
 `브라우저`를 선택하면 [SettingBrowser 화면](./setting-browser.md)으로 이동한다.
 
-`다운로드`를 선택하면 [SettingDownload 화면](./setting-download.md)으로 이동한다.
+`플레이리스트`를 선택하면 [SettingPlaylist 화면](./setting-playlist.md)으로 이동한다.
 
-`브라우저`는 [Chrome 로그인 이어받기 스펙](./chrome-session-import.md)의 `제공 환경`에서만 제공한다. `다운로드`는 [곡 다운로드 스펙](./music-download.md)이 다운로드를 제공하는 플랫폼에서만 제공한다. 제공하지 않는 환경에서는 그 항목을 목록에 두지 않고, 나머지 항목은 같은 순서로 제공한다.
+`파일`을 선택하면 [SettingFile 화면](./setting-file.md)으로 이동한다.
+
+`브라우저`는 [Chrome 로그인 이어받기 스펙](./chrome-session-import.md)의 `제공 환경`에서만 제공한다. `플레이리스트`는 [곡 다운로드 스펙](./music-download.md)이 다운로드를 제공하는 플랫폼에서만 제공한다. `파일`은 다운로드 위치를 고를 수 있는 Android, iOS와 데스크톱 앱에서만 제공하며, 그 기준은 [파일 내려받기 스펙](./file-download.md)의 `feature > 제공 범위`를 따른다. 제공하지 않는 환경에서는 그 항목을 목록에 두지 않고, 나머지 항목은 같은 순서로 제공한다.
 
 현재 환경에서 제공하는 항목을 확인하기 전이거나 확인하지 못했으면 설정 항목을 하나도 제공하지 않으며 별도 로딩 또는 오류 상태로 전환하지 않는다. 확인하지 못한 경우 사용자는 화면을 떠났다가 다시 들어와 다시 확인한다.
 
@@ -60,4 +63,4 @@ SettingHome 화면이 단독으로 표시되거나 상세 설정과 함께 표�
 
 이동 대상 화면이 없는 항목과 현재 환경에서 제공하지 않는 항목은 SettingHome에 제공하지 않는다.
 
-설정 항목은 `공휴일`, `지도`, `Gemini`, `브라우저`, `다운로드` 순서로 제공한다.
+설정 항목은 `공휴일`, `지도`, `Gemini`, `브라우저`, `플레이리스트`, `파일` 순서로 제공한다.

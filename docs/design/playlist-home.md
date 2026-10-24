@@ -201,7 +201,7 @@ Homebrew가 없을 때의 문구에는 사용자가 무엇을 해야 하는지�
 | 실패 상태 이름 | `다운로드 실패` | `Download failed` |
 | Homebrew 없음 안내 | `yt-dlp와 ffmpeg이 필요합니다. 직접 설치한 뒤 다시 시도해 주세요` | `yt-dlp and ffmpeg are required. Install them and try again.` |
 | 도구 준비 실패 안내 | `다운로드 도구를 준비하지 못했습니다` | `Could not prepare the download tools.` |
-| 프록시 주소 없음 안내 | `설정의 다운로드에서 프록시 주소를 입력해 주세요` | `Enter the proxy address in Settings > Download.` |
+| 프록시 주소 없음 안내 | `설정의 플레이리스트에서 프록시 주소를 입력해 주세요` | `Enter the proxy address in Settings > Playlist.` |
 | 프록시 연결 실패 안내 | `다운로드 프록시에 연결할 수 없습니다` | `Could not connect to the download proxy.` |
 | 빈 상태 제목 문구 | `아직 곡이 없습니다` | `No music yet` |
 | 빈 상태 보조 문구 | `추가 버튼으로 새 곡을 담을 수 있습니다` | `Use the add button to add music.` |

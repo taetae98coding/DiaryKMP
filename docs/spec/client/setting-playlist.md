@@ -1,8 +1,8 @@
-# SettingDownload 화면 스펙
+# SettingPlaylist 화면 스펙
 
-이 문서는 사용자가 설정 화면의 `다운로드` 항목에서 진입하는 SettingDownload 화면의 내용과 행동을 다룬다. 설정 항목의 표시와 선택은 [SettingHome 화면 스펙](./setting-home.md)에서, 설정 목록과 함께 사용할 때의 선택·뒤로가기 정책은 [Setting 목록·상세 배치 스펙](./setting-list-detail.md)에서, 세부 화면에서의 공통 내비게이션 노출 규칙은 [TopLevelNavigation 스펙](./top-level-navigation.md)에서 다룬다. 프록시가 제공되는 환경, 주소의 형태와 포트, 프록시의 상태는 [곡 다운로드 프록시 스펙](./music-download-proxy.md)에서, 저장한 주소로 곡을 내려받는 흐름은 [곡 다운로드 스펙](./music-download.md)에서 다룬다.
+이 문서는 사용자가 설정 화면의 `플레이리스트` 항목에서 진입하는 SettingPlaylist 화면의 내용과 행동을 다룬다. 설정 항목의 표시와 선택은 [SettingHome 화면 스펙](./setting-home.md)에서, 설정 목록과 함께 사용할 때의 선택·뒤로가기 정책은 [Setting 목록·상세 배치 스펙](./setting-list-detail.md)에서, 세부 화면에서의 공통 내비게이션 노출 규칙은 [TopLevelNavigation 스펙](./top-level-navigation.md)에서 다룬다. 프록시가 제공되는 환경, 주소의 형태와 포트, 프록시의 상태는 [곡 다운로드 프록시 스펙](./music-download-proxy.md)에서, 저장한 주소로 곡을 내려받는 흐름은 [곡 다운로드 스펙](./music-download.md)에서 다룬다.
 
-디자인: [SettingDownload 화면 디자인](../../design/setting-download.md)
+디자인: [SettingPlaylist 화면 디자인](../../design/setting-playlist.md)
 
 이 화면은 플랫폼에 따라 하는 일이 다르다. 데스크톱 앱에서는 이 기기가 제공하는 프록시 주소를 확인하는 화면이고, Android와 iOS에서는 내려받기에 쓸 프록시 주소를 입력해 기기에 저장하는 화면이다. 저장한 주소로 실제로 곡을 내려받는 것은 [곡 다운로드 스펙](./music-download.md)에서 다룬다.
 
@@ -10,11 +10,11 @@
 
 ### 진입과 이동
 
-사용자는 설정 화면의 `다운로드` 항목을 선택해 SettingDownload 화면으로 이동한다.
+사용자는 설정 화면의 `플레이리스트` 항목을 선택해 SettingPlaylist 화면으로 이동한다.
 
-SettingDownload 화면은 설정 목록과 함께 표시되거나 단독으로 표시될 수 있다. 두 상태 모두 공통 내비게이션을 제공하지 않으며, 표시 관계는 [Setting 목록·상세 배치 스펙](./setting-list-detail.md)을 따른다.
+SettingPlaylist 화면은 설정 목록과 함께 표시되거나 단독으로 표시될 수 있다. 두 상태 모두 공통 내비게이션을 제공하지 않으며, 표시 관계는 [Setting 목록·상세 배치 스펙](./setting-list-detail.md)을 따른다.
 
-이 화면은 [곡 다운로드 스펙](./music-download.md)이 다운로드를 제공하는 플랫폼에서만 진입할 수 있다. 웹에서는 SettingHome이 `다운로드` 항목을 제공하지 않으므로 이 화면으로 이동하는 경로가 없다.
+이 화면은 [곡 다운로드 스펙](./music-download.md)이 다운로드를 제공하는 플랫폼에서만 진입할 수 있다. 웹에서는 SettingHome이 `플레이리스트` 항목을 제공하지 않으므로 이 화면으로 이동하는 경로가 없다.
 
 ### 프록시 주소 확인 (데스크톱 앱)
 
@@ -68,7 +68,7 @@ Android와 iOS에서 저장하지 않고 화면을 떠나면 입력 중이던 �
 
 ### 다운로드 프록시 설정
 
-다운로드 프록시 설정은 Android와 iOS에서 곡을 내려받을 때 영상을 요청할 프록시의 주소다. 값은 사용자가 데스크톱 앱의 SettingDownload 화면에서 확인해 옮겨 적은 주소 한 줄이다.
+다운로드 프록시 설정은 Android와 iOS에서 곡을 내려받을 때 영상을 요청할 프록시의 주소다. 값은 사용자가 데스크톱 앱의 SettingPlaylist 화면에서 확인해 옮겨 적은 주소 한 줄이다.
 
 사용자가 한 번도 저장하지 않았으면 비어 있다. 앱은 기본값을 제시하지 않으며, 같은 네트워크의 프록시를 스스로 찾지 않는다.
 

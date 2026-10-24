@@ -71,6 +71,7 @@ stateDiagram-v2
 | `ContactMemoFinishedList` | [항목 완료 메모 목록 화면](./entity-memo-finished-list.md) |
 | `DDayHome` | [DDayHome 화면](./dday-home.md) |
 | `FileAdd` | [FileAdd 화면](./file-add.md) |
+| `FileDetail` | [FileDetail 화면](./file-detail.md) |
 | `FileHome` | [FileHome 화면](./file-home.md) |
 | `HolidayHome` | [HolidayHome 화면](./holiday-home.md) |
 | `LoginHome` | [Login 화면](./login.md) |
@@ -96,11 +97,12 @@ stateDiagram-v2
 | `RoutineHome` | [RoutineHome 화면](./routine-home.md) |
 | `SearchHome` | [SearchHome 화면](./search-home.md) |
 | `SettingBrowser` | [SettingBrowser 화면](./setting-browser.md) |
-| `SettingDownload` | [SettingDownload 화면](./setting-download.md) |
+| `SettingFile` | [SettingFile 화면](./setting-file.md) |
 | `SettingGemini` | [SettingGemini 화면](./setting-gemini.md) |
 | `SettingHoliday` | [SettingHoliday 화면](./setting-holiday.md) |
 | `SettingHome` | [SettingHome 화면](./setting-home.md) |
 | `SettingMap` | [SettingMap 화면](./setting-map.md) |
+| `SettingPlaylist` | [SettingPlaylist 화면](./setting-playlist.md) |
 | `TagAdd` | [TagAdd 화면](./tag-add.md) |
 | `TagDetail` | [TagDetail 화면](./tag-detail.md) |
 | `TagFinishedList` | [TagFinishedList 화면](./tag-finished-list.md) |

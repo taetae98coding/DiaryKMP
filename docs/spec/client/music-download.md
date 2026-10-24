@@ -1,6 +1,6 @@
 # 곡 다운로드 스펙
 
-이 문서는 사용자가 저장해 둔 곡을 기기에 파일로 내려받아 두는 규칙을 다룬다. 다운로드를 실행하는 자리와 진행을 보여 주는 자리는 [PlaylistHome 화면 스펙](./playlist-home.md)에서, 곡이 갖는 링크와 그 링크에서 영상을 얻는 판정은 [MusicAdd 화면 스펙](./music-add.md)에서, 목록에 노출하는 곡의 기준은 [PlaylistHome 화면 스펙](./playlist-home.md)의 `목록에 노출하는 곡`에서, Android와 iOS를 대신해 영상을 받아 전달하는 프록시의 규칙은 [곡 다운로드 프록시 스펙](./music-download-proxy.md)에서, 프록시 주소를 확인하고 입력하는 화면은 [SettingDownload 화면 스펙](./setting-download.md)에서, 실패를 로그로 남기는 정책은 [기능 실패 로깅 스펙](./usecase-failure-logging.md)에서 다룬다.
+이 문서는 사용자가 저장해 둔 곡을 기기에 파일로 내려받아 두는 규칙을 다룬다. 다운로드를 실행하는 자리와 진행을 보여 주는 자리는 [PlaylistHome 화면 스펙](./playlist-home.md)에서, 곡이 갖는 링크와 그 링크에서 영상을 얻는 판정은 [MusicAdd 화면 스펙](./music-add.md)에서, 목록에 노출하는 곡의 기준은 [PlaylistHome 화면 스펙](./playlist-home.md)의 `목록에 노출하는 곡`에서, Android와 iOS를 대신해 영상을 받아 전달하는 프록시의 규칙은 [곡 다운로드 프록시 스펙](./music-download-proxy.md)에서, 프록시 주소를 확인하고 입력하는 화면은 [SettingPlaylist 화면 스펙](./setting-playlist.md)에서, 실패를 로그로 남기는 정책은 [기능 실패 로깅 스펙](./usecase-failure-logging.md)에서 다룬다.
 
 이번 범위는 사용자가 다운로드를 실행해 목록의 곡을 영상과 소리가 함께 들어 있는 파일로 기기에 내려받고, 곡마다 진행 상태를 확인하고, 실패한 곡을 다시 시도하는 것까지다. 내려받은 파일을 앱 안에서 재생하는 것, 곡별로 따로 내려받는 것, 내려받은 파일을 앱 안에서 지우는 것은 이번 범위에서 다루지 않는다.
 
@@ -39,7 +39,7 @@ Homebrew가 없으면 앱은 Homebrew를 설치하지 않는다. 대신 무엇�
 
 #### Android와 iOS의 프록시 준비
 
-Android와 iOS는 [SettingDownload 화면](./setting-download.md)에 저장해 둔 프록시 주소로 영상을 받는다.
+Android와 iOS는 [SettingPlaylist 화면](./setting-playlist.md)에 저장해 둔 프록시 주소로 영상을 받는다.
 
 프록시 주소가 저장되어 있지 않으면 설정에서 프록시 주소를 입력해야 함을 알리고 어떤 곡도 받지 않는다. 저장된 주소의 프록시에 연결할 수 없으면 프록시에 연결할 수 없음을 알리고 어떤 곡도 받지 않는다. 사용자는 주소를 고치거나 데스크톱 앱을 실행한 뒤 다운로드를 다시 실행할 수 있다.
 
