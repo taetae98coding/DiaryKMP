@@ -12,11 +12,13 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.BottomSheetSceneStrategy
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
+import io.github.taetae98coding.diary.feature.memo.api.MemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
@@ -129,6 +131,99 @@ class TagEntryTest :
                 )
 
             metadataOf(backStack = backStack, key = tagMemoFinishedListKey).keys shouldBe listPaneMetadataKeys
+        }
+
+        test("TC-TAG-FINISHED-LIST-DETAIL-FEATURE-001 TagFinishedList 화면은 목록·상세 배치의 목록 pane이다") {
+            val backStack = listOf(OtherTopLevelNavKey, TagHomeNavKey, TagFinishedListNavKey)
+
+            metadataOf(backStack = backStack, key = TagFinishedListNavKey).keys shouldBe listPaneMetadataKeys
+        }
+
+        test("TC-TAG-FINISHED-LIST-DETAIL-FEATURE-003 완료된 태그 목록에서 태그를 선택하면 그 태그의 상세가 그 목록의 상세 영역에 놓인다") {
+            val homeDetailCases: List<List<ScreenNavKey>> = listOf(emptyList(), listOf(TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())))
+
+            homeDetailCases.forEach { homeDetailList ->
+                val detailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+                val backStack = NavBackStack<ScreenNavKey>(OtherTopLevelNavKey, TagHomeNavKey, *homeDetailList.toTypedArray(), TagFinishedListNavKey)
+
+                backStack.navigateToTagDetail(detailKey.id)
+
+                backStack.last() shouldBe detailKey
+                backStack.tagDetailPaneSceneKey(backStack.last()) shouldBe TagFinishedListNavKey
+                metadataOf(backStack = backStack.toList(), key = backStack.last()).keys shouldBe detailPaneMetadataKeys
+            }
+        }
+
+        test("TC-TAG-FINISHED-LIST-DETAIL-FEATURE-005 상세 영역의 태그 상세에서 연결 입력으로 연 화면도 그 목록의 상세 영역에 놓인다") {
+            val listSelectedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val openedKeyList: List<ScreenNavKey> =
+                listOf(
+                    TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                    TagAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()),
+                )
+
+            openedKeyList.forEach { openedKey ->
+                val backStack = listOf(OtherTopLevelNavKey, TagHomeNavKey, TagFinishedListNavKey, listSelectedKey, openedKey)
+
+                backStack.tagDetailPaneSceneKey(openedKey) shouldBe TagFinishedListNavKey
+                metadataOf(backStack = backStack, key = openedKey).keys shouldBe detailPaneMetadataKeys
+            }
+        }
+
+        test("TC-TAG-FINISHED-LIST-DETAIL-FEATURE-009 상세 영역의 태그 상세에서 연 완료된 메모 목록은 이 배치에 참여하지 않는다") {
+            val listSelectedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val tagMemoFinishedListKey = TagMemoFinishedListNavKey(tagId = listSelectedKey.id)
+            val backStack = listOf(OtherTopLevelNavKey, TagHomeNavKey, TagFinishedListNavKey, listSelectedKey, tagMemoFinishedListKey)
+
+            backStack.tagDetailPaneSceneKey(tagMemoFinishedListKey) shouldBe null
+            metadataOf(backStack = backStack, key = tagMemoFinishedListKey).keys shouldBe listPaneMetadataKeys
+        }
+
+        test(
+            "TC-TAG-FINISHED-LIST-DETAIL-FEATURE-010 TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-010 " +
+                "완료된 태그 목록에서 진입하지 않은 태그 화면은 이 배치에 참여하지 않고, 완료된 메모 목록의 상세에서 연 태그 상세도 단독으로 표시한다",
+        ) {
+            val detailKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val addKey = TagAddNavKey()
+            val sceneKeyCases: List<Triple<List<ScreenNavKey>, ScreenNavKey, ScreenNavKey?>> =
+                listOf(
+                    Triple(listOf(OtherTopLevelNavKey, TagHomeNavKey, detailKey), detailKey, TagHomeNavKey),
+                    Triple(listOf(OtherTopLevelNavKey, TagHomeNavKey, addKey), addKey, TagHomeNavKey),
+                    // 완료된 태그 목록을 연 채 태그 목록의 상세가 아래에 남아 있어도, 그 상세는 태그 목록의 배치에 속한다.
+                    Triple(listOf(OtherTopLevelNavKey, TagHomeNavKey, detailKey, TagFinishedListNavKey), detailKey, TagHomeNavKey),
+                    Triple(
+                        listOf(OtherTopLevelNavKey, MemoHomeNavKey, MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()), detailKey),
+                        detailKey,
+                        null,
+                    ),
+                    Triple(
+                        listOf(
+                            OtherTopLevelNavKey,
+                            TagHomeNavKey,
+                            TagFinishedListNavKey,
+                            TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                            MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                            detailKey,
+                        ),
+                        detailKey,
+                        null,
+                    ),
+                    Triple(
+                        listOf(
+                            OtherTopLevelNavKey,
+                            MemoHomeNavKey,
+                            MemoFinishedListNavKey,
+                            MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                            detailKey,
+                        ),
+                        detailKey,
+                        null,
+                    ),
+                )
+
+            sceneKeyCases.forEach { (backStack, key, expectedSceneKey) ->
+                backStack.tagDetailPaneSceneKey(key) shouldBe expectedSceneKey
+            }
         }
     }) {
     companion object {

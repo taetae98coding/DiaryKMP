@@ -4,6 +4,7 @@ import androidx.navigation3.runtime.NavBackStack
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
+import io.github.taetae98coding.diary.feature.memo.api.MemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeNavKey
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
@@ -15,6 +16,15 @@ internal fun NavBackStack<ScreenNavKey>.navigateToMemoAddFromHome() {
 
 internal fun NavBackStack<ScreenNavKey>.navigateToSearchFromMemoHome() {
     add(SearchHomeNavKey(initialType = SearchHomeType.MEMO))
+}
+
+internal fun NavBackStack<ScreenNavKey>.navigateUpFromMemoFinishedList() {
+    val index = indexOfLast { key -> key == MemoFinishedListNavKey }
+    if (index < 0) return
+
+    while (size > index) {
+        removeLastOrNull()
+    }
 }
 
 internal fun NavBackStack<ScreenNavKey>.navigateToCopiedMemo(id: Uuid) {

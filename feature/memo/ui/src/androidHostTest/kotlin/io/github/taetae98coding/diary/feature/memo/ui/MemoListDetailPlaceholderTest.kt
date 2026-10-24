@@ -50,6 +50,7 @@ import io.github.taetae98coding.diary.core.model.web.Web
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
+import io.github.taetae98coding.diary.feature.memo.api.MemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddContactViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddPlaceViewModel
@@ -145,6 +146,11 @@ class MemoListDetailPlaceholderTest {
     @Test
     fun `TC-MEMO-LIST-DETAIL-DOMAIN-003 배치를 떠나기 전에는 메모 추가에서 연 연결 항목 화면에 다녀와도 메모 추가의 입력과 선택이 남는다`() {
         assertPlaceholderRetained(route = TagAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()))
+    }
+
+    @Test
+    fun `TC-MEMO-LIST-DETAIL-DOMAIN-005 완료된 메모 목록에 다녀와도 선택 전 메모 추가의 입력과 선택이 남는다`() {
+        assertPlaceholderRetained(route = MemoFinishedListNavKey)
     }
 
     @Test
@@ -274,6 +280,7 @@ class MemoListDetailPlaceholderTest {
                                     metadata = ListDetailSceneStrategy.detailPane(sceneKey = MemoHomeNavKey),
                                 ) { Text(text = MEMO_ADD_CONTENT) }
                                 entry<TagAddNavKey> { Text(text = ROUTE_CONTENT) }
+                                entry<MemoFinishedListNavKey>(metadata = memoFinishedListPaneMetadata()) { Text(text = ROUTE_CONTENT) }
                                 entry<OtherTopLevelNavKey> { Text(text = OTHER_TOP_LEVEL_CONTENT) }
                             },
                     )

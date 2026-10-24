@@ -133,7 +133,6 @@ class MemoEntryTest :
                     listOf(OtherTopLevelNavKey, detailKey) to detailKey,
                     listOf(OtherTopLevelNavKey, calendarAddKey) to calendarAddKey,
                     listOf(OtherTopLevelNavKey, CalendarTimetableStandInNavKey, detailKey) to detailKey,
-                    listOf(OtherTopLevelNavKey, MemoHomeNavKey, MemoFinishedListNavKey, detailKey) to detailKey,
                     listOf(OtherTopLevelNavKey, TagHomeNavKey, tagDetailKey, detailKey) to detailKey,
                     listOf(OtherTopLevelNavKey, TagHomeNavKey, tagDetailKey, tagDetailAddKey) to tagDetailAddKey,
                 )
@@ -220,7 +219,67 @@ class MemoEntryTest :
                     finishedListKey
             }
             listOf(OtherTopLevelNavKey, detailKey).memoDetailPaneSceneKey(key = detailKey).shouldBeNull()
-            listOf(OtherTopLevelNavKey, MemoHomeNavKey, MemoFinishedListNavKey, detailKey).memoDetailPaneSceneKey(key = detailKey).shouldBeNull()
+            listOf(OtherTopLevelNavKey, MemoHomeNavKey, MemoFinishedListNavKey, detailKey).memoDetailPaneSceneKey(key = detailKey) shouldBe
+                MemoFinishedListNavKey
+        }
+
+        test("TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-001 MemoFinishedList 화면은 목록·상세 배치의 목록 pane이다") {
+            val backStack = listOf(OtherTopLevelNavKey, MemoHomeNavKey, MemoFinishedListNavKey)
+
+            metadataOf(backStack = backStack, key = MemoFinishedListNavKey).keys shouldBe listPaneMetadataKeys
+        }
+
+        test("TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-003 TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-009 완료된 메모 목록에서 고른 메모의 상세는 그 목록의 상세 pane에 놓인다") {
+            val previousDetailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val homeDetailCases: List<List<ScreenNavKey>> = listOf(emptyList(), listOf(previousDetailKey))
+
+            homeDetailCases.forEach { homeDetailList ->
+                val selectedId = fixtureMonkey.giveMeOne<Uuid>()
+                val backStack = NavBackStack<ScreenNavKey>(OtherTopLevelNavKey, MemoHomeNavKey, *homeDetailList.toTypedArray(), MemoFinishedListNavKey)
+
+                backStack.navigateToMemoDetail(selectedId)
+
+                backStack.toList() shouldBe listOf(OtherTopLevelNavKey, MemoHomeNavKey) + homeDetailList + MemoFinishedListNavKey + MemoDetailNavKey(id = selectedId)
+                backStack.memoDetailPaneSceneKey(key = backStack.last()) shouldBe MemoFinishedListNavKey
+                metadataOf(backStack = backStack.toList(), key = backStack.last()).keys shouldBe detailPaneMetadataKeys
+            }
+        }
+
+        test("TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-004 다른 메모를 고르면 앞 메모 상세를 쌓지 않고 교체한다") {
+            val selectedId = fixtureMonkey.giveMeOne<Uuid>()
+            val backStack =
+                NavBackStack<ScreenNavKey>(
+                    OtherTopLevelNavKey,
+                    MemoHomeNavKey,
+                    MemoFinishedListNavKey,
+                    MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                )
+
+            backStack.navigateToMemoDetail(selectedId)
+
+            backStack.toList() shouldBe listOf(OtherTopLevelNavKey, MemoHomeNavKey, MemoFinishedListNavKey, MemoDetailNavKey(id = selectedId))
+            backStack.memoDetailPaneSceneKey(key = backStack.last()) shouldBe MemoFinishedListNavKey
+        }
+
+        test("TC-MEMO-FINISHED-LIST-DETAIL-FEATURE-010 MemoFinishedList에서 진입하지 않은 상세 화면은 이 배치에 참여하지 않는다") {
+            val detailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+            val tagMemoFinishedListKey = TagMemoFinishedListNavKey(tagId = fixtureMonkey.giveMeOne<Uuid>())
+            val sceneKeyCases =
+                buildList {
+                    add(listOf(OtherTopLevelNavKey, MemoHomeNavKey, detailKey) to MemoHomeNavKey)
+                    // 완료된 메모 목록을 연 채 메모 홈 상세가 아래에 남아 있어도, 그 상세는 메모 홈의 배치에 속한다.
+                    add(listOf(OtherTopLevelNavKey, MemoHomeNavKey, detailKey, MemoFinishedListNavKey) to MemoHomeNavKey)
+                    add(listOf(OtherTopLevelNavKey, detailKey) to null)
+                    add(listOf(OtherTopLevelNavKey, CalendarTimetableStandInNavKey, detailKey) to null)
+                    add(listOf(OtherTopLevelNavKey, tagMemoFinishedListKey, detailKey) to tagMemoFinishedListKey)
+                    entityFinishedListCases().forEach { (entityDetailKey, finishedListKey) ->
+                        add(listOf(OtherTopLevelNavKey, entityDetailKey, finishedListKey, detailKey) to finishedListKey)
+                    }
+                }
+
+            sceneKeyCases.forEach { (backStack, expectedSceneKey) ->
+                backStack.memoDetailPaneSceneKey(key = detailKey) shouldBe expectedSceneKey
+            }
         }
 
         test("목록·상세 배치에 참여하지 않는 상세 화면에는 scene 키가 없다") {
@@ -233,6 +292,9 @@ class MemoEntryTest :
     companion object {
         private val detailPaneMetadataKeys: Set<String> =
             (ListDetailSceneStrategy.detailPane() + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f)).keys
+
+        private val listPaneMetadataKeys: Set<String> =
+            (ListDetailSceneStrategy.listPane(detailPlaceholder = {}) + ListDetailSceneStrategy.preferredPaneSize(width = 0.5f)).keys
 
         private fun metadataOf(
             backStack: List<ScreenNavKey>,
