@@ -182,6 +182,47 @@ class ChecklistHomeScaffoldTest {
     }
 
     @Test
+    fun `TC-CHECKLIST-LIST-DETAIL-FEATURE-003 상세 영역에 체크리스트 추가가 놓이면 추가 버튼을 표시하지 않고 Cmd A 단축키로도 추가하지 않는다`() {
+        val eventList = mutableListOf<ChecklistHomeScaffoldEvent>()
+        setChecklistHomeScaffold(
+            onEvent = eventList::add,
+            componentVisible = ChecklistHomeScaffoldComponentVisible(isAddButtonVisible = false),
+        )
+
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).assertDoesNotExist()
+        composeRule.onRoot().performKeyInput {
+            keyDown(Key.MetaLeft)
+            keyDown(Key.A)
+            keyUp(Key.A)
+            keyUp(Key.MetaLeft)
+        }
+        composeRule.waitForIdle()
+
+        eventList shouldBe emptyList()
+    }
+
+    @Test
+    fun `TC-CHECKLIST-LIST-DETAIL-FEATURE-004 상세 영역에 체크리스트 추가가 놓여 있지 않으면 추가 버튼을 표시한다`() {
+        setChecklistHomeScaffold(componentVisible = ChecklistHomeScaffoldComponentVisible(isAddButtonVisible = true))
+
+        composeRule.onNodeWithContentDescription(DEFAULT_ADD_DESCRIPTION).assertExists()
+    }
+
+    @Test
+    fun `TC-CHECKLIST-HOME-FEATURE-027 상세 영역에 체크리스트 추가가 놓여도 뒤로가기 버튼은 표시된다`() {
+        val eventList = mutableListOf<ChecklistHomeScaffoldEvent>()
+        setChecklistHomeScaffold(
+            onEvent = eventList::add,
+            componentVisible = ChecklistHomeScaffoldComponentVisible(isAddButtonVisible = false),
+        )
+
+        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+
+        eventList shouldBe listOf(ChecklistHomeScaffoldEvent.ClickNavigateUp)
+    }
+
+    @Test
     fun `TC-CHECKLIST-HOME-FEATURE-003 뒤로가기를 누르면 뒤로가기 이벤트를 한 번 내보낸다`() {
         val eventList = mutableListOf<ChecklistHomeScaffoldEvent>()
         setChecklistHomeScaffold(onEvent = eventList::add)
@@ -310,6 +351,7 @@ class ChecklistHomeScaffoldTest {
         onEvent: (ChecklistHomeScaffoldEvent) -> Unit = {},
         snackbarHostState: SnackbarHostState = SnackbarHostState(),
         uiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
+        componentVisible: ChecklistHomeScaffoldComponentVisible = ChecklistHomeScaffoldComponentVisible(),
     ) {
         val pagingDataFlow = MutableStateFlow(pagingData)
 
@@ -320,6 +362,7 @@ class ChecklistHomeScaffoldTest {
                     snackbarHostState = snackbarHostState,
                     checklistPagingItems = pagingDataFlow.collectAsLazyPagingItems(),
                     uiStateProvider = uiStateProvider,
+                    componentVisibleProvider = { componentVisible },
                 )
             }
         }

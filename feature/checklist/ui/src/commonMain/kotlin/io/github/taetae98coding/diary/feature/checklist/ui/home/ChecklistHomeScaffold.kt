@@ -32,9 +32,10 @@ internal fun ChecklistHomeScaffold(
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     checklistPagingItems: LazyPagingItems<ChecklistSummary> = remember { flowOf(PagingData.empty<ChecklistSummary>()) }.collectAsLazyPagingItems(),
     uiStateProvider: () -> SyncRefreshUiState = { SyncRefreshUiState() },
+    componentVisibleProvider: () -> ChecklistHomeScaffoldComponentVisible = { ChecklistHomeScaffoldComponentVisible() },
 ) {
     Scaffold(
-        modifier = modifier.addShortcut { onEvent(ChecklistHomeScaffoldEvent.ClickAdd) },
+        modifier = modifier.addShortcut(isEnabledProvider = { componentVisibleProvider().isAddButtonVisible }) { onEvent(ChecklistHomeScaffoldEvent.ClickAdd) },
         topBar = {
             DiaryNavigateUpTopBar(
                 title = stringResource(Res.string.checklist_home_title),
@@ -44,10 +45,12 @@ internal fun ChecklistHomeScaffold(
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         floatingActionButton = {
-            FloatingAddButton(
-                onClick = { onEvent(ChecklistHomeScaffoldEvent.ClickAdd) },
-                contentDescription = stringResource(Res.string.checklist_add_button_content_description),
-            )
+            if (componentVisibleProvider().isAddButtonVisible) {
+                FloatingAddButton(
+                    onClick = { onEvent(ChecklistHomeScaffoldEvent.ClickAdd) },
+                    contentDescription = stringResource(Res.string.checklist_add_button_content_description),
+                )
+            }
         },
     ) { paddingValues ->
         ChecklistHomeList(
@@ -58,7 +61,7 @@ internal fun ChecklistHomeScaffold(
                     .padding(paddingValues),
             checklistPagingItems = checklistPagingItems,
             isRefreshingProvider = { uiStateProvider().isRefreshing },
-            bottomPadding = DiaryTheme.dimens.floatingActionButtonClearance,
+            bottomPadding = if (componentVisibleProvider().isAddButtonVisible) DiaryTheme.dimens.floatingActionButtonClearance else DiaryTheme.dimens.screenVerticalPadding,
         )
     }
 }

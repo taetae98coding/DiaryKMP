@@ -35,6 +35,7 @@ internal fun ChecklistDetailScaffold(
     state: ChecklistDetailFormState = rememberChecklistDetailFormState(),
     uiStateProvider: () -> ChecklistDetailUiState = { ChecklistDetailUiState.Loading },
     itemUiStateProvider: () -> ChecklistDetailItemUiState = { ChecklistDetailItemUiState() },
+    componentVisibleProvider: () -> ChecklistDetailScaffoldComponentVisible = { ChecklistDetailScaffoldComponentVisible() },
 ) {
     val isChanged by remember(state) {
         derivedStateOf {
@@ -50,6 +51,7 @@ internal fun ChecklistDetailScaffold(
                 onEvent = onEvent,
                 uiStateProvider = uiStateProvider,
                 itemUiStateProvider = itemUiStateProvider,
+                componentVisibleProvider = componentVisibleProvider,
             )
         },
         snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },
@@ -64,27 +66,16 @@ internal fun ChecklistDetailScaffold(
         },
         contentWindowInsets = DiaryScaffoldDefaults.contentWindowInsets,
     ) { paddingValues ->
-        DiaryCrossfade(
-            targetState = uiStateProvider() is ChecklistDetailUiState.Content,
+        ChecklistDetailScaffoldContent(
+            onEvent = onEvent,
             modifier =
                 Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
-        ) { isContent ->
-            if (isContent) {
-                ChecklistDetailContent(
-                    onEvent = onEvent,
-                    modifier = Modifier.fillMaxSize(),
-                    state = state,
-                    itemUiStateProvider = itemUiStateProvider,
-                )
-            } else {
-                DiaryLoadingBox(
-                    modifier = Modifier.fillMaxSize(),
-                    contentDescription = stringResource(Res.string.checklist_detail_loading_content_description),
-                )
-            }
-        }
+            state = state,
+            uiStateProvider = uiStateProvider,
+            itemUiStateProvider = itemUiStateProvider,
+        )
     }
 
     DiaryChecklistItemSortBottomSheetHost(
@@ -96,6 +87,34 @@ internal fun ChecklistDetailScaffold(
         onEvent = onEvent,
         state = state.resetDialogState,
     )
+}
+
+@Composable
+private fun ChecklistDetailScaffoldContent(
+    onEvent: (ChecklistDetailScaffoldEvent) -> Unit,
+    modifier: Modifier = Modifier,
+    state: ChecklistDetailFormState = rememberChecklistDetailFormState(),
+    uiStateProvider: () -> ChecklistDetailUiState = { ChecklistDetailUiState.Loading },
+    itemUiStateProvider: () -> ChecklistDetailItemUiState = { ChecklistDetailItemUiState() },
+) {
+    DiaryCrossfade(
+        targetState = uiStateProvider() is ChecklistDetailUiState.Content,
+        modifier = modifier,
+    ) { isContent ->
+        if (isContent) {
+            ChecklistDetailContent(
+                onEvent = onEvent,
+                modifier = Modifier.fillMaxSize(),
+                state = state,
+                itemUiStateProvider = itemUiStateProvider,
+            )
+        } else {
+            DiaryLoadingBox(
+                modifier = Modifier.fillMaxSize(),
+                contentDescription = stringResource(Res.string.checklist_detail_loading_content_description),
+            )
+        }
+    }
 }
 
 private class ChecklistDetailUiStatePreviewParameter : PreviewParameterProvider<ChecklistDetailUiState> {

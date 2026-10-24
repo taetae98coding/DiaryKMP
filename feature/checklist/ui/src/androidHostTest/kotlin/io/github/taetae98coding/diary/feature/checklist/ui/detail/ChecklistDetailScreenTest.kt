@@ -1056,6 +1056,7 @@ class ChecklistDetailScreenTest {
         DiaryTheme {
             ChecklistDetailScreen(
                 navigateUp = navigateUp,
+                componentVisibleProvider = { ChecklistDetailScaffoldComponentVisible() },
                 checklistViewModel = environment.checklistViewModel,
                 itemViewModel = environment.itemViewModel,
             )

@@ -324,7 +324,7 @@ class ChecklistAddScreenTest {
     fun `TC-CHECKLIST-ADD-DOMAIN-001 화면이 재생성되거나 시스템이 되살려도 입력과 넣어 둔 항목을 유지한다`() {
         val stateRestorationTester = StateRestorationTester(composeRule)
         val viewModel = relaxedViewModel()
-        stateRestorationTester.setContent { DiaryTheme { ChecklistAddScreen(navigateUp = {}, viewModel = viewModel) } }
+        stateRestorationTester.setContent { DiaryTheme { ChecklistAddScreen(navigateUp = {}, componentVisibleProvider = { ChecklistAddScaffoldComponentVisible() }, viewModel = viewModel) } }
         composeRule.waitForIdle()
         titleInput().performTextInput(TRIP)
         descriptionInput().performTextInput(WEEKEND)
@@ -357,7 +357,7 @@ class ChecklistAddScreenTest {
     ) {
         val stateRestorationTester = StateRestorationTester(composeRule)
         val viewModel = effectViewModel(effect = effect)
-        stateRestorationTester.setContent { DiaryTheme { ChecklistAddScreen(navigateUp = {}, viewModel = viewModel) } }
+        stateRestorationTester.setContent { DiaryTheme { ChecklistAddScreen(navigateUp = {}, componentVisibleProvider = { ChecklistAddScaffoldComponentVisible() }, viewModel = viewModel) } }
         composeRule.waitForIdle()
         clickAdd()
         composeRule.onNodeWithText(message).assertExists()
@@ -422,6 +422,7 @@ class ChecklistAddScreenTest {
             DiaryTheme {
                 ChecklistAddScreen(
                     navigateUp = navigateUp,
+                    componentVisibleProvider = { ChecklistAddScaffoldComponentVisible() },
                     viewModel = viewModel,
                 )
             }

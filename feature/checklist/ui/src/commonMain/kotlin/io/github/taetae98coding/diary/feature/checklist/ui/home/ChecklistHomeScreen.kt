@@ -15,6 +15,7 @@ internal fun ChecklistHomeScreen(
     navigateUp: () -> Unit,
     navigateToAdd: () -> Unit,
     navigateToDetail: (Uuid) -> Unit,
+    componentVisibleProvider: () -> ChecklistHomeScaffoldComponentVisible,
     checklistViewModel: ChecklistHomeViewModel,
     syncViewModel: SyncRefreshViewModel,
     modifier: Modifier = Modifier,
@@ -43,5 +44,6 @@ internal fun ChecklistHomeScreen(
         snackbarHostState = snackbarHostState,
         checklistPagingItems = checklistPagingItems,
         uiStateProvider = { uiState },
+        componentVisibleProvider = componentVisibleProvider,
     )
 }

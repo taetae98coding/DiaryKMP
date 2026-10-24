@@ -26,6 +26,7 @@ internal fun ChecklistAddScaffold(
     modifier: Modifier = Modifier,
     state: ChecklistAddFormState = rememberChecklistAddFormState(),
     uiStateProvider: () -> ChecklistAddUiState = { ChecklistAddUiState() },
+    componentVisibleProvider: () -> ChecklistAddScaffoldComponentVisible = { ChecklistAddScaffoldComponentVisible() },
 ) {
     Scaffold(
         modifier = modifier.submitShortcut { onEvent(ChecklistAddScaffoldEvent.ClickAdd) },
@@ -34,6 +35,7 @@ internal fun ChecklistAddScaffold(
                 title = stringResource(Res.string.checklist_add_title),
                 onNavigateUp = { onEvent(ChecklistAddScaffoldEvent.ClickNavigateUp) },
                 navigateUpContentDescription = stringResource(Res.string.checklist_navigate_up_button_content_description),
+                isNavigateUpVisibleProvider = { componentVisibleProvider().isNavigateUpButtonVisible },
             )
         },
         snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },

@@ -20,6 +20,7 @@ internal fun ChecklistDetailTopBar(
     modifier: Modifier = Modifier,
     uiStateProvider: () -> ChecklistDetailUiState = { ChecklistDetailUiState.Loading },
     itemUiStateProvider: () -> ChecklistDetailItemUiState = { ChecklistDetailItemUiState() },
+    componentVisibleProvider: () -> ChecklistDetailScaffoldComponentVisible = { ChecklistDetailScaffoldComponentVisible() },
 ) {
     val uiState = uiStateProvider()
     val navigateUpContentDescription = stringResource(Res.string.checklist_navigate_up_button_content_description)
@@ -34,10 +35,12 @@ internal fun ChecklistDetailTopBar(
         },
         modifier = modifier,
         navigationIcon = {
-            NavigateUp(
-                onClick = { onEvent(ChecklistDetailScaffoldEvent.ClickNavigateUp) },
-                contentDescription = navigateUpContentDescription,
-            )
+            if (componentVisibleProvider().isNavigateUpButtonVisible) {
+                NavigateUp(
+                    onClick = { onEvent(ChecklistDetailScaffoldEvent.ClickNavigateUp) },
+                    contentDescription = navigateUpContentDescription,
+                )
+            }
         },
         actions = {
             if (uiState is ChecklistDetailUiState.Content) {
