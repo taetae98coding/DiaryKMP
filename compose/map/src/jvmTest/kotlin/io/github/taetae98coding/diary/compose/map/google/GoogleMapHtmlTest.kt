@@ -8,7 +8,6 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
-import io.mockk.mockk
 import java.net.HttpURLConnection
 import java.net.URI
 
@@ -17,7 +16,7 @@ class GoogleMapHtmlTest :
         test("TC-DIARY-MAP-DOMAIN-007: 유효한 인증 정보로 지도 영역 전체를 사용하는 지도를 기기 안에서만 제공한다") {
             val apiKey = "test-key_123"
 
-            MapHttpServer(naverMapResourceLoader = mockk()).use { server ->
+            MapHttpServer().use { server ->
                 val page = server.register(html = requireNotNull(createGoogleMapHtml(apiKey = apiKey, camera = null)))
                 val uri = URI(page.url)
                 val html =
@@ -153,7 +152,7 @@ class GoogleMapHtmlTest :
         }
 
         test("정의되지 않거나 허용되지 않은 HTTP 요청을 거절한다") {
-            MapHttpServer(naverMapResourceLoader = mockk()).use { server ->
+            MapHttpServer().use { server ->
                 val page = server.register(html = requireNotNull(createGoogleMapHtml(apiKey = "test-key_123", camera = null)))
                 val pageUri = URI(page.url)
                 val requests =
