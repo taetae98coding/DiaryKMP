@@ -17,3 +17,5 @@ internal fun String.encodeUrlQueryComponent(): String =
             }
         }
     }
+
+internal fun String.withUrlQuery(parameters: List<Pair<String, String>>): String = parameters.joinToString(separator = "&", prefix = "$this?") { (name, value) -> "$name=${value.encodeUrlQueryComponent()}" }

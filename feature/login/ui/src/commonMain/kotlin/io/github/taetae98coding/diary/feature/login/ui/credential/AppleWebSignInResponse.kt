@@ -6,8 +6,11 @@ internal data class AppleWebSignInResponse(
     val error: String?,
 ) {
     companion object {
-        const val ID_TOKEN_PARAMETER = "id_token"
-        const val STATE_PARAMETER = "state"
-        const val ERROR_PARAMETER = "error"
+        fun fromParameters(getParameter: (String) -> String?): AppleWebSignInResponse =
+            AppleWebSignInResponse(
+                idToken = getParameter(AuthorizationResponseParameter.ID_TOKEN),
+                state = getParameter(AuthorizationResponseParameter.STATE),
+                error = getParameter(AuthorizationResponseParameter.ERROR),
+            )
     }
 }

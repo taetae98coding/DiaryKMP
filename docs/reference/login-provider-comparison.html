@@ -224,11 +224,11 @@
           <tr>
             <td><code>jvmMain</code></td>
             <td><code>JvmGoogleCredentialsManager</code>, <code>GoogleAuthorizationCodeAttemptFactory</code>, <code>GoogleAuthorizationCodeAttempt</code>, <code>GooglePkceFactory</code>, <code>GooglePkce</code>, <code>GoogleCredentialsClientId</code>(qualifier)</td>
-            <td><code>JvmAppleCredentialsManager</code>, <code>AppleSignInLoopbackReceiver</code></td>
+            <td><code>JvmAppleCredentialsManager</code></td>
           </tr>
           <tr>
             <td><code>jvmMain</code> 공유</td>
-            <td colspan="2"><span class="tag common">공통</span> <code>CredentialsDispatcher</code>(qualifier) — 블로킹 대기를 옮길 dispatcher를 두 수단이 함께 주입받는다. Apple 추가 전 이름은 <code>GoogleCredentialsDispatcher</code>였다.</td>
+            <td colspan="2"><span class="tag common">공통</span> <code>CredentialsDispatcher</code>(qualifier) — 블로킹 대기를 옮길 dispatcher를 두 수단이 함께 주입받는다. Apple 추가 전 이름은 <code>GoogleCredentialsDispatcher</code>였다. <code>LoopbackRedirectReceiver</code>, <code>openInSystemBrowser</code>, <code>decodeUrlQuery</code>도 두 수단이 함께 쓴다.</td>
           </tr>
           <tr>
             <td><code>wasmJsMain</code></td>
@@ -287,8 +287,7 @@
           </tr>
           <tr>
             <td>JVM</td>
-            <td><code>com.google.oauth-client:google-oauth-client-jetty</code> — <code>LocalServerReceiver</code>(Jetty 루프백 서버), <code>AuthorizationCodeRequestUrl</code>, <code>AuthorizationCodeInstalledApp.browse</code></td>
-            <td>JDK 내장 <code>com.sun.net.httpserver.HttpServer</code>로 루프백 서버를 직접 두고, 브라우저 열기만 같은 artifact의 <code>AuthorizationCodeInstalledApp.browse</code>를 재사용</td>
+            <td colspan="2"><span class="tag common">공통</span> 외부 라이브러리 없음. 두 수단이 JDK 내장 <code>com.sun.net.httpserver.HttpServer</code>로 만든 <code>LoopbackRedirectReceiver</code>와 <code>java.awt.Desktop.browse</code>를 함께 쓴다(RFC 8252 루프백 리디렉션)</td>
           </tr>
           <tr>
             <td>wasmJs</td>
@@ -297,7 +296,7 @@
           </tr>
           <tr>
             <td>공통</td>
-            <td colspan="2"><span class="tag common">공통</span> <code>org.kotlincrypto.hash:sha2</code>(nonce 해시), Koin(<code>koinInject</code>), Compose(<code>remember</code>)</td>
+            <td colspan="2"><span class="tag common">공통</span> <code>org.kotlincrypto.hash:sha2</code>(nonce 해시, JVM PKCE challenge), Koin(<code>koinInject</code>), Compose(<code>remember</code>)</td>
           </tr>
           <tr>
             <td>서버</td>
@@ -366,16 +365,16 @@
     <div class="platform">JVM 데스크톱</div>
     <h4><span class="tag google">Google</span> 시스템 브라우저 + 루프백 → authorization code(PKCE)</h4>
     <div class="flow">
-      <div class="step app"><b>앱</b><code>LocalServerReceiver</code>(Jetty)로 <code>http://127.0.0.1:포트/Callback</code> 열기, PKCE verifier·S256 challenge 생성</div><div class="arrow">→</div>
-      <div class="step os"><b>시스템 브라우저</b><code>AuthorizationCodeInstalledApp.browse</code></div><div class="arrow">→</div>
-      <div class="step idp"><b>Google</b>루프백 주소로 <code>code</code> 리디렉션(Google은 localhost 허용)</div><div class="arrow">→</div>
-      <div class="step app"><b>앱</b><code>receiver.waitForCode()</code> → <code>GoogleCredential.AuthorizationCode(code, clientId, redirectUri, codeVerifier)</code></div><div class="arrow">→</div>
+      <div class="step app"><b>앱</b><code>LoopbackRedirectReceiver</code>(JDK HttpServer)로 <code>http://127.0.0.1:포트/callback</code> 열기, PKCE verifier·S256 challenge 생성</div><div class="arrow">→</div>
+      <div class="step os"><b>시스템 브라우저</b><code>Desktop.browse</code></div><div class="arrow">→</div>
+      <div class="step idp"><b>Google</b>루프백 주소로 <code>code</code> 또는 <code>error</code> 리디렉션</div><div class="arrow">→</div>
+      <div class="step app"><b>앱</b><code>receiver.waitForParameters()</code> → <code>GoogleCredential.AuthorizationCode(code, clientId, redirectUri, codeVerifier)</code>, <code>access_denied</code>는 사용자 취소</div><div class="arrow">→</div>
       <div class="step server"><b>v1-session-google-authorization-code</b><code>GOOGLE_CLIENT_SECRETS</code>로 code → <code>id_token</code> 교환 후 세션 발급</div>
     </div>
     <h4><span class="tag apple">Apple</span> 시스템 브라우저 + 서버 콜백 + 루프백 → <code>idToken</code></h4>
     <div class="flow">
-      <div class="step app"><b>앱</b><code>AppleSignInLoopbackReceiver</code>(JDK HttpServer)로 <code>http://127.0.0.1:포트/callback</code> 열고 그 주소를 state에 담아 인가 URL 조립</div><div class="arrow">→</div>
-      <div class="step os"><b>시스템 브라우저</b><code>AuthorizationCodeInstalledApp.browse</code></div><div class="arrow">→</div>
+      <div class="step app"><b>앱</b><code>LoopbackRedirectReceiver</code>(JDK HttpServer)로 <code>http://127.0.0.1:포트/callback</code> 열고 그 주소를 state에 담아 인가 URL 조립</div><div class="arrow">→</div>
+      <div class="step os"><b>시스템 브라우저</b><code>Desktop.browse</code></div><div class="arrow">→</div>
       <div class="step idp apple"><b>Apple</b><code>form_post</code>로 <code>id_token</code>+<code>state</code>(https 콜백만 허용)</div><div class="arrow">→</div>
       <div class="step server"><b>v1-session-apple-callback</b><code>303</code> → 루프백 주소</div><div class="arrow">→</div>
       <div class="step app"><b>앱</b>결과 페이지 응답 후 state 검증 → <code>AppleCredential</code></div><div class="arrow">→</div>
@@ -459,8 +458,8 @@
         <thead><tr><th>대상</th><th><span class="tag google">Google</span></th><th><span class="tag apple">Apple</span></th></tr></thead>
         <tbody>
           <tr><td>요청 조립</td><td><code>GooglePkceTest</code>(TC-LOGIN-DATA-008·009, RFC 7636 벡터)</td><td><code>AppleWebSignInRequestFactoryTest</code>(TC-LOGIN-DATA-010·011)</td></tr>
-          <tr><td>응답 판정</td><td>플랫폼 SDK 콜백에 위임 — 별도 유닛 테스트 없음</td><td><code>AppleWebSignInRequestTest</code>(TC-LOGIN-DOMAIN-005·006)</td></tr>
-          <tr><td>수신기</td><td>Jetty <code>LocalServerReceiver</code>는 라이브러리 — 테스트 없음</td><td><code>AppleSignInLoopbackReceiverTest</code>(TC-LOGIN-DATA-013, 실제 HTTP 요청)</td></tr>
+          <tr><td>응답 판정</td><td><code>GoogleAuthorizationCodeTest</code>(TC-LOGIN-DOMAIN-007, JVM·wasm 인가 코드 응답)</td><td><code>AppleWebSignInRequestTest</code>(TC-LOGIN-DOMAIN-005·006)</td></tr>
+          <tr><td>수신기</td><td colspan="2"><span class="tag common">공통</span> <code>LoopbackRedirectReceiverTest</code>(TC-LOGIN-DATA-013·016·017·018, 실제 HTTP 요청)</td></tr>
           <tr><td>취소 감지</td><td>SDK 예외 매핑 — <code>LoginHomeScreenTest</code>가 화면 수준에서 검증</td><td><code>AndroidAppleCredentialsManagerTest</code>(TC-LOGIN-FEATURE-022·023, <code>TestLifecycleOwner</code>)</td></tr>
           <tr><td>화면·ViewModel·Repository</td><td colspan="2"><span class="tag common">공통</span> <code>LoginHomeScreenTest</code>, <code>LoginHomeViewModelTest</code>, <code>SessionRepositoryImplTest</code>, <code>SignInWith…UseCaseTest</code>가 두 수단을 테스트 데이터로 함께 순회한다.</td></tr>
           <tr><td>진행 중 막기·먼저 받은 결과</td><td colspan="2"><span class="tag common">공통</span> <code>LoginHomePlatformSignInScreenTest</code>(TC-LOGIN-FEATURE-010·030~036)가 두 <code>isSignInEndDetectable</code> 값으로 화면 수준을, <code>LoginPlatformSignInStateTest</code>(구현 계약, TC ID 없음)가 상태 객체를 검증한다.</td></tr>

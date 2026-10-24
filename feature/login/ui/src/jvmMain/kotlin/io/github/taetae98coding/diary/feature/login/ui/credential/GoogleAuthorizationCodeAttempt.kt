@@ -8,9 +8,13 @@ internal class GoogleAuthorizationCodeAttempt(
     private val redirectUri: String,
     private val codeVerifier: String,
 ) {
-    fun credential(code: String): GoogleCredential.AuthorizationCode =
+    fun toCredential(parameters: Map<String, String>): GoogleCredential.AuthorizationCode =
         GoogleCredential.AuthorizationCode(
-            code = code,
+            code =
+                googleAuthorizationCodeOrThrow(
+                    code = parameters[AuthorizationResponseParameter.CODE].orEmpty(),
+                    error = parameters[AuthorizationResponseParameter.ERROR].orEmpty(),
+                ),
             clientId = clientId,
             redirectUri = redirectUri,
             codeVerifier = codeVerifier,

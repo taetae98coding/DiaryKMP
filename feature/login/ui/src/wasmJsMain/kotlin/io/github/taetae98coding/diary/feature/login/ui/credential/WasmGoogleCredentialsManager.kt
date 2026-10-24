@@ -28,20 +28,16 @@ private class WasmGoogleCredentialsManager(
             val client =
                 GoogleAuthorizationCodeClient(
                     clientId = clientId,
-                    scope = "openid profile email",
+                    scope = GOOGLE_AUTHORIZATION_SCOPE,
                     callback = { response ->
-                        val code = response.code
-                        if (code == null) {
-                            continuation.resumeWithException(GoogleCredentialsException(message = response.error))
-                        } else {
-                            continuation.resume(
-                                GoogleCredential.AuthorizationCode(
-                                    code = code,
-                                    clientId = clientId,
-                                    redirectUri = POST_MESSAGE_REDIRECT_URI,
-                                ),
+                        runCatching {
+                            GoogleCredential.AuthorizationCode(
+                                code = googleAuthorizationCodeOrThrow(code = response.code.orEmpty(), error = response.error.orEmpty()),
+                                clientId = clientId,
+                                redirectUri = POST_MESSAGE_REDIRECT_URI,
                             )
-                        }
+                        }.onSuccess(continuation::resume)
+                            .onFailure(continuation::resumeWithException)
                     },
                     errorCallback = { error ->
                         when (val type = error.type) {
