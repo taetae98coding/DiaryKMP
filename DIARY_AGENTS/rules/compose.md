@@ -49,11 +49,7 @@ internal fun MemoHomeScaffold(
 
 ## state 읽기 지연
 
-**상위 컴포저블 본문에서 state를 읽어 값으로 내려보내지 않고, 읽지 않은 채로 넘겨 그 값을 실제로 쓰는 컴포저블에서 읽는다.** 상위에서 읽으면 무관한 형제까지 recomposition된다.
-
-- 판단 기준: https://developer.android.com/develop/ui/compose/performance/bestpractices#defer-reads
-
-대상은 `mutableStateOf` 프로퍼티, `collectAsStateWithLifecycle`로 얻은 값, state 홀더의 프로퍼티처럼 읽으면 구독이 생기는 값 전부다. 상수와 이미 읽은 값을 가공한 결과는 대상이 아니다.
+**상위 컴포저블 본문에서 state를 읽어 값으로 내려보내지 않고, 읽지 않은 채로 넘겨 그 값을 실제로 쓰는 컴포저블에서 읽는다.** ([defer reads](https://developer.android.com/develop/ui/compose/performance/bestpractices#defer-reads))
 
 **미루는 방법은 state 홀더를 넘기는 것과 `xxxProvider`를 넘기는 것 둘이고, 홀더를 넘길 수 있으면 홀더를 넘긴다.** 쓰는 값이 하나여도 그렇게 한다.
 
@@ -124,18 +120,7 @@ private fun WideContent(
 
 ### 그리기·배치 단계로 미루기
 
-**값을 그리기나 배치에만 쓰면 composition에서 읽지 않고 Modifier가 제공하는 람다 안에서 읽는다.** 뒤 단계의 람다 안에서 읽은 state는 그 단계만 다시 실행시킨다.
-
-- 판단 기준: https://developer.android.com/develop/ui/compose/phases#state-reads
-
-같은 일을 값 오버로드와 람다 오버로드로 함께 제공하는 API는 람다 쪽을 쓴다.
-
-| 쓸 API | 대신하는 것 | 읽는 단계 |
-| --- | --- | --- |
-| `Modifier.offset { }` | `Modifier.offset(x, y)` | 배치 |
-| `Modifier.layout { }` | 크기·위치를 값으로 받는 Modifier | 배치 |
-| `Modifier.graphicsLayer { }` | `Modifier.graphicsLayer(alpha = ...)` | 그리기 |
-| `Modifier.drawBehind { }`, `Modifier.drawWithContent { }` | 배경·전경을 값으로 받는 Modifier | 그리기 |
+**값을 그리기나 배치에만 쓰면 composition에서 읽지 않고 `offset { }`, `graphicsLayer { }`, `drawBehind { }` 같은 람다 Modifier 안에서 읽는다.** ([state reads](https://developer.android.com/develop/ui/compose/phases#state-reads))
 
 **Modifier 확장 함수를 만들 때는 읽은 값이 아니라 state 홀더를 파라미터로 받는다.** 색이나 크기처럼 state가 아닌 값은 그대로 값으로 받는다.
 
@@ -178,18 +163,11 @@ internal fun Modifier.calendarSelectBackground(
     }
 ```
 
-다음은 composition에서 읽는다.
-
-- 값이 자식의 내용이나 구조를 바꾸는 경우. 표시할 항목을 고르거나 분기를 가르는 값이 그렇다.
-- 값으로 다른 컴포저블을 호출하거나 문자열 리소스를 고르는 경우.
-
 레이아웃 결과를 state에 기록해 다른 컴포저블의 크기나 배치를 정하는 경우는 `Recomposition Loop (Cyclic Phase Dependency) 금지`를 따른다.
 
 ### 부수 효과는 코루틴에서 읽기
 
-**state 변화를 계기로 부수 효과를 실행할 때는 그 값을 composition에서 읽어 `LaunchedEffect`의 key로 넘기지 않고, `snapshotFlow`로 코루틴 안에서 읽는다.** key로 넘기면 값이 바뀔 때마다 Effect가 다시 구성되고 코루틴이 다시 뜬다.
-
-`LaunchedEffect`의 key에는 그 Effect 자체가 다시 시작되어야 할 때만 바뀌는 것을 둔다. state 홀더와 ViewModel이 그렇다. `snapshotFlow`에 `distinctUntilChanged`를 덧붙이지 않는다.
+**state 변화를 계기로 부수 효과를 실행할 때는 그 값을 composition에서 읽어 `LaunchedEffect`의 key로 넘기지 않고, `snapshotFlow`로 코루틴 안에서 읽는다.** key에는 state 홀더와 ViewModel처럼 Effect 자체가 다시 시작되어야 할 때만 바뀌는 것을 둔다.
 
 ⚠️ 비권장 예시:
 
@@ -542,48 +520,10 @@ internal fun PlaceSearchDialog(
 
 ## Recomposition Loop (Cyclic Phase Dependency) 금지
 
-레이아웃 결과(측정 크기, 위치)를 composition 단계에서 읽는 state에 기록해 다른 컴포저블의 크기나 배치를 결정하는 순환 단계 의존을 만들지 않는다(`onSizeChanged`로 기록한 높이를 형제의 `Modifier.height`에 쓰는 것).
+`onSizeChanged`로 기록한 크기를 형제의 크기나 배치에 쓰지 않고 custom `Layout`으로 한 measure pass 안에서 해결한다. ([recomposition loop](https://developer.android.com/develop/ui/compose/phases#recomp-loop))
 
-- 판단 기준: https://developer.android.com/develop/ui/compose/phases#recomp-loop
-
-컴포저블 간 크기나 위치가 서로 의존하면 custom `Layout`으로 한 번의 measure pass 안에서 해결한다. 형제의 측정 크기가 필요하면 부모 `Layout`에서 한 자식을 먼저 측정하고, 그 결과로 다른 자식의 constraints를 만든다. `IntrinsicSize`도 사용할 수 있으나 실측과 다를 수 있으므로(예: Material3 `TextField`의 intrinsic 높이) 크기 일치를 검증하는 테스트를 함께 둔다.
-
-lazy 컨테이너처럼 custom `Layout`으로 표현할 수 없는 제약에서 부득이하게 state로 레이아웃 값을 전달할 때는, composition에서 읽지 않고 `Modifier.layout`이나 `Modifier.offset { }`처럼 layout 단계에서만 읽는다. 이는 완화책이며 기본 해법이 아니다.
-
-⚠️ 비권장 예시:
-
-```kotlin
-@Composable
-fun Example() {
-    var height by remember { mutableIntStateOf(0) }
-
-    Text(
-        text = "Hello",
-        modifier = Modifier.onSizeChanged { height = it.height },
-    )
-    Preview(
-        modifier = Modifier.height(with(LocalDensity.current) { height.toDp() }),
-    )
-}
-```
-
-✅ 권장 예시:
-
-```kotlin
-Layout(
-    content = {
-        Text(text = "Hello")
-        Preview()
-    },
-) { measurables, constraints ->
-    val text = measurables[0].measure(constraints)
-    val preview = measurables[1].measure(
-        constraints.copy(minHeight = text.height, maxHeight = text.height),
-    )
-
-    layout(constraints.maxWidth, text.height) { ... }
-}
-```
+- `IntrinsicSize`는 실측과 다를 수 있으므로(예: Material3 `TextField`의 intrinsic 높이) 쓰면 크기 일치를 검증하는 테스트를 함께 둔다.
+- lazy 컨테이너처럼 custom `Layout`으로 표현할 수 없을 때만 state로 넘기고, `Modifier.layout`이나 `Modifier.offset { }`처럼 배치 단계에서만 읽는다.
 
 ## 시스템 영역 회피는 Scaffold inset이 맡는다
 
@@ -628,36 +568,10 @@ Scaffold(
 
 ## 자주 바뀌는 state의 파생 값
 
-**자주 바뀌는 state를 읽어 드물게 바뀌는 값으로 줄인 결과를 composition에서 읽으면 `derivedStateOf`로 감싼다.** `자주 바뀌는 state`는 사용자의 한 동작 동안 여러 번 바뀌는 값이다(`TextFieldState.text`, 스크롤·드래그 오프셋, 애니메이션 진행값).
+**자주 바뀌는 state(`TextFieldState.text`, 스크롤·드래그 오프셋, 애니메이션 진행값)를 드물게 바뀌는 값으로 줄여 composition에서 읽으면 `derivedStateOf`로 감싼다.**
 
 - **상태 홀더가 그 값을 소유하면 홀더 안에서 `by derivedStateOf`로 선언한다.** 따로 `remember`로 감싸지 않는다.
 - **홀더 밖에서 만드는 지역 파생 값은 `remember(...) { derivedStateOf { ... } }`로 감싼다.**
-
-다음에는 쓰지 않는다.
-
-- 결과가 원본만큼 자주 바뀐다. 입력한 글자를 그대로 그리거나, 질의를 그대로 넘겨 다시 조회하는 경우가 그렇다.
-- composition이 아니라 콜백, `LaunchedEffect`, `snapshotFlow` 안에서 읽는다.
-- 원본이 이미 드물게 바뀐다. `PagerState.currentPage`, 다이얼로그 표시 여부, 선택한 항목이 그렇다.
-
-⚠️ 비권장 예시:
-
-```kotlin
-@Stable
-internal class SearchHomeScaffoldState(
-    val queryState: TextFieldState,
-) {
-    // 글자마다 바뀌는 값을 그대로 노출한다.
-    val query: String
-        get() = queryState.text.toString()
-}
-
-// 지우기 버튼은 있음과 없음만 오가는데, 글자를 칠 때마다 다시 그려진다.
-trailingIcon = {
-    if (state.queryState.text.isNotEmpty()) {
-        ClearButton(onClick = state.queryState::clearText)
-    }
-}
-```
 
 ✅ 권장 예시:
 

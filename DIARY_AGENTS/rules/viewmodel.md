@@ -72,7 +72,7 @@ internal fun MemoHomeScreen(syncViewModel: MemoHomeSyncViewModel) {
 
 **ViewModel 안에서는** UseCase 결과와 `combine` 결과를 cold Flow, `SharedFlow`, `StateFlow` 어느 것으로든 다룬다.
 
-**ViewModel 밖(컴포저블)으로 노출하는 값은 읽기 전용 `StateFlow`다.** 구독하는 즉시 현재 값을 받고, 같은 값을 다시 보내지 않으며, 구독할 때마다 원천을 다시 수집하지 않는다. 화면이 그리는 상태뿐 아니라 값이 바뀔 때 작업을 실행하는 트리거도 같다. 값의 타입은 `UiState 소유` 절대로 `XxxUiState`이고, 변경 가능한 타입(`MutableStateFlow`, `MutableSharedFlow`, `Channel`)은 노출하지 않는다.
+**ViewModel 밖(컴포저블)으로 노출하는 값은 읽기 전용 `StateFlow<XxxUiState>`다.** 화면이 그리는 상태뿐 아니라 값이 바뀔 때 작업을 실행하는 트리거도 같다.
 
 **`stateIn`의 초기값은 스펙상 안전한 기본값으로 둔다.** 확인 전의 계정을 게스트가 아닌 것으로 보는 `FileAddAccountUiState(isGuest = false)`처럼, 그 값으로 화면을 그리거나 작업을 실행해도 스펙과 어긋나지 않아야 한다. 안전한 기본값이 없으면 `T?`의 `null`로 대신하지 않고 sealed UiState의 `Loading`으로 드러낸다. `null`은 "아직 확인하지 못함"과 "확인했지만 없음"을 구분하지 못하고, 받는 쪽마다 그 의미를 다시 해석하게 만든다.
 

@@ -15,7 +15,7 @@
 | 즉시 실행 코루틴 예약기 | 상태를 `NONE`으로 정리하고, 예외는 전용 스코프의 `CoroutineExceptionHandler`가 받는다 |
 | 주기 코루틴 예약기 | 한 주기의 실패를 삼키고 다음 주기를 기다린다 |
 
-`CancellationException`은 어디서든 다시 던진다. 삼키면 취소 후 재시작이 이전 작업을 끝내지 못한다.
+`CancellationException`은 어디서든 다시 던진다.
 
 `Result.retry()`와 `BackoffPolicy`는 쓰지 않는다. 스펙([데이터 동기화](../../docs/spec/client/data-sync.md)의 `동기화 계기`)은 같은 계기 안에서 다시 시도하지 않고 다음 계기에 맡긴다.
 
