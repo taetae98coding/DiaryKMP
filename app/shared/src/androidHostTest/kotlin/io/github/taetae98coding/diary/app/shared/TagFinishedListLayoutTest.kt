@@ -145,7 +145,7 @@ class TagFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-846bf001-f201-4e72-820e-f2fa3c3bbac8 TC-dd898457-7fbf-406f-96eb-0c8b52a870dc 넓은 창에서 상세 영역의 태그 상세에서 탭으로 연 화면은 완료된 태그 목록과 함께 표시하지 않는다`() {
+    fun `TC-846bf001-f201-4e72-820e-f2fa3c3bbac8 TC-dd898457-7fbf-406f-96eb-0c8b52a870dc 넓은 창 태그 상세가 탭으로 연 화면은 목록 없이 놓이고 돌아오면 그 상세가 놓인다`() {
         val listSelectedKey = TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
         val backStack = NavBackStack<ScreenNavKey>(TagHomeNavKey, TagFinishedListNavKey, listSelectedKey)
         val openedKeyList: List<ScreenNavKey> =

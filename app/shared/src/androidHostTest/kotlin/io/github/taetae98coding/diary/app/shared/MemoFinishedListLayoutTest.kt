@@ -229,7 +229,7 @@ class MemoFinishedListLayoutTest {
 
     @Test
     @Config(qualifiers = "w1280dp-h1600dp")
-    fun `TC-6d809b7b-b833-45ea-b2fb-3f573e852a2e 넓은 창에서 메모 목록 배치의 상세 영역 메모에서 연 연결 항목 화면은 단독으로 표시하고 돌아오면 떠나기 전의 메모가 놓인다`() {
+    fun `TC-6d809b7b-b833-45ea-b2fb-3f573e852a2e 넓은 창의 메모 목록 배치에서 상세 메모가 연 연결 항목은 단독으로 표시하고 돌아오면 떠나기 전 메모가 놓인다`() {
         val homeDetailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
         val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, homeDetailKey)
         val openedKeyList: List<ScreenNavKey> =

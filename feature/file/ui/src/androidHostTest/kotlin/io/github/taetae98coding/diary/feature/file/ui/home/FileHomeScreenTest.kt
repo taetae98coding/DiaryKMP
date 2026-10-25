@@ -409,7 +409,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-9007579a-ba3d-434f-9607-ddf9271fe3c8 목록이 보이는 상태에서 올리기 성공 뒤 다시 불러오기에 실패하면 보던 자리의 이전 목록을 두고 다시 시도와 함께 알린다`() {
+    fun `TC-9007579a-ba3d-434f-9607-ddf9271fe3c8 목록이 보일 때 올리기 뒤 다시 불러오기에 실패하면 보던 자리의 이전 목록을 두고 다시 시도와 함께 알린다`() {
         val fileList = fileList(count = 30)
         val server = server()
         coEvery { server(0) } returns fileList.take(PAGE_SIZE) andThenThrows failure()
@@ -1582,7 +1582,7 @@ class FileHomeScreenTest {
     }
 
     @Test
-    fun `TC-a942b087-a4cd-4b43-bf84-db74cb01678e 계정 상태를 확정하지 않은 동안 빈 상태에서 올리기 뒤 다시 불러오기에 실패하면 계정이 확인된 뒤 본문에 실패 안내를 보여 준다`() {
+    fun `TC-a942b087-a4cd-4b43-bf84-db74cb01678e 빈 목록에서 계정 확정 전 올리기 성공 뒤 다시 불러오기에 실패하면 계정 확인 뒤 본문에 실패 안내를 보여 준다`() {
         val account = fixtureMonkey.giveMeOne<Account.User>()
         val uploaded = fixtureMonkey.diaryFile(name = UPLOADED_FILE_NAME)
         val server = server()
