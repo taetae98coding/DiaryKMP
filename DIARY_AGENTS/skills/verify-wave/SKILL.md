@@ -1,6 +1,6 @@
 ---
 name: verify-wave
-description: Diary KMP 프로젝트에서 저장소 전체를 검증할 때 사용한다. 이번 작업에서 수정한 코드가 규칙 문서를 어겼는지, 그리고 스펙·테스트 케이스·테스트 코드·구현이 서로 빈틈과 충돌 없이 이어지는지를 별도 세션의 sonnet 모델로 검토하도록 먼저 위임하고, 보고를 기다리는 동안 spotlessApply로 포맷을 적용한 뒤 detekt, dependencyGuard, jvmTest·testAndroidHostTest를 한 번의 명령으로 실행하되, 각 태스크는 변경 파일이 실행 조건에 해당할 때만 실행한다. Supabase 마이그레이션이 바뀌었으면 plpgsql 검사도 실행한다. 검토가 찾은 위반과 누락을 고치고, 검토와 수정은 최대 3회만 반복한다. 실행 대상인 태스크가 모두 성공해야 통과한 것으로 본다.
+description: Diary KMP 프로젝트에서 저장소 전체를 검증할 때 사용한다. 이번 작업에서 수정한 코드가 규칙 문서를 어겼는지, 그리고 스펙·테스트 케이스·테스트 코드·구현이 서로 빈틈과 충돌 없이 이어지는지를 별도 세션의 sonnet 모델로 검토하도록 먼저 위임하고, 보고를 기다리는 동안 spotlessApply로 포맷을 적용한 뒤 detekt, dependencyGuard, jvmTest·testAndroidHostTest를 한 번의 명령으로 실행하되, 각 태스크는 변경 파일이 실행 조건에 해당할 때만 실행하고 detekt는 바뀐 모듈만 실행한다. Supabase 마이그레이션이 바뀌었으면 plpgsql 검사도 실행한다. 검토가 찾은 위반과 누락을 고치고, 검토와 수정은 최대 3회만 반복한다. 실행 대상인 태스크가 모두 성공해야 통과한 것으로 본다.
 ---
 
 # Verify Wave
@@ -14,7 +14,7 @@ description: Diary KMP 프로젝트에서 저장소 전체를 검증할 때 사�
 1. `검토`의 `대상 선정`과 `검토 위임`까지 수행하고, 보고를 기다리지 않고 다음으로 넘어간다.
 2. `Gradle 태스크 선정`으로 실행 대상을 정하고 순서대로 실행한다.
    1. `./gradlew spotlessApply` (실행 대상일 때)
-   2. `./gradlew <detekt, dependencyGuard, jvmTest testAndroidHostTest 중 실행 대상> --continue`
+   2. `./gradlew <detekt 태스크, dependencyGuard, jvmTest testAndroidHostTest 중 실행 대상> --continue`
 3. `Supabase 검사`의 실행 조건에 해당하면 검사를 실행한다.
 4. 검토 보고가 오면 `결과 반영`을 수행한다.
 5. 결과 반영으로 코드를 고쳤으면 Gradle 검증과 Supabase 검사 중 고친 파일이 실행 조건에 해당하는 것을 다시 실행한다.
@@ -34,13 +34,21 @@ Gradle 명령끼리는 병렬로 실행하지 않는다. 같은 저장소에서 
 | 태스크 | 실행하는 경우 |
 | --- | --- |
 | `spotlessApply` | `.kt`, `.kts` 파일이 바뀌었다 |
-| `detekt` | `.kt` 파일, `config/detekt/**`, `build-logic/**`이 바뀌었다 |
+| `detekt` | `.kt` 파일, `config/detekt/**`, `build-logic/**`이 바뀌었다. 범위는 아래 `detekt 범위`를 따른다 |
 | `dependencyGuard` | `gradle/libs.versions.toml`, `settings.gradle.kts`, `**/build.gradle.kts`, `build-logic/**`이 바뀌었다 |
 | `jvmTest`, `testAndroidHostTest` | 아래 제외 경로가 아닌 파일이 하나라도 바뀌었다 |
 
 테스트 제외 경로는 `docs/**`, `DIARY_AGENTS/**`, `DIARY_AGENTS.md`, `site/**`, `supabase/**`, `iosApp/**`, `config/detekt/**`, `app/*/dependencies/**`, `*.md`다. 이 목록에 없는 경로는 테스트 입력으로 본다.
 
-실행하는 태스크는 저장소 전체를 대상으로 하고 일부 모듈로 좁히지 않는다. 실행 대상이 하나도 없으면 Gradle 검증을 건너뛰고, 건너뛴 태스크를 결과에 남긴다. 결과 반영으로 파일을 고친 뒤에는 고친 파일까지 포함해 다시 선정한다.
+detekt를 뺀 태스크는 저장소 전체를 대상으로 하고 일부 모듈로 좁히지 않는다. 한 모듈의 변경이 그 모듈을 쓰는 다른 모듈의 컴파일과 테스트를 깨뜨릴 수 있고, 바뀌지 않은 모듈은 빌드 캐시가 다시 실행하지 않기 때문이다. 실행 대상이 하나도 없으면 Gradle 검증을 건너뛰고, 건너뛴 태스크를 결과에 남긴다. 결과 반영으로 파일을 고친 뒤에는 고친 파일까지 포함해 다시 선정한다.
+
+#### detekt 범위
+
+detekt는 모듈마다 자기 소스만 검사해 다른 모듈의 결과에 영향을 주지 않으므로 바뀐 모듈만 실행한다. `DIARY_AGENTS/scripts/changed-module-tasks.sh`가 출력한 `:<모듈>:detekt` 태스크를 쓰고, `rebase-wave`의 검증으로 실행된 경우에는 둘째 인자로 대상 브랜치를 넘긴다(`changed-module-tasks.sh detekt <대상 브랜치>`).
+
+스크립트는 삭제된 파일과 모듈 밖의 `.kt`(루트 직속, `build-logic/**`, `iosApp/**` 등)를 뺀다. 지운 파일은 남은 소스에 위반을 만들지 않기 때문이다. 출력이 비면 detekt를 건너뛰고 결과에 남긴다.
+
+`config/detekt/**`나 `build-logic/**`이 바뀌었으면 스크립트 출력과 무관하게, 모든 모듈의 결과가 달라질 수 있으므로 모듈을 붙이지 않은 `detekt`로 저장소 전체를 실행한다.
 
 ### Supabase 검사
 
