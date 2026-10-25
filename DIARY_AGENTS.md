@@ -34,7 +34,7 @@
 - 작업 iterator가 끝나도 자동으로 시작하지 않는다.
 - 요청 범위 밖의 단계는 수행하지 않는다. 커밋만 요청받으면 커밋만 한다.
 - `rebase-wave`가 컨플릭 없이 끝나면 확인 없이 이어서 수행하고, 컨플릭을 해결했으면 결과를 보고해 승인을 받은 뒤 넘어간다.
-- 코드가 바뀐 뒤 `verify-wave`를 통과하지 않았으면 작업 iterator로 돌아가 검증부터 마친다.
+- 코드가 바뀐 뒤 `verify-wave`를 통과하지 않았으면 작업 iterator로 돌아가 검증부터 마친다. Claude Code와 Codex의 PreToolUse hook이 통과 기록과 다른 작업 트리의 `git commit`을 막는다.
 
 ## 코드 규칙
 

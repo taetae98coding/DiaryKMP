@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$(git rev-parse --show-toplevel)\"/DIARY_AGENTS/scripts/copy-local-files.sh",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$(git rev-parse --show-toplevel)\"/DIARY_AGENTS/scripts/pre-tool-guard.py",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

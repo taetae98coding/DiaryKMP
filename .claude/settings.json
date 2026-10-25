@@ -9,6 +9,17 @@
           }
         ]
       }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/DIARY_AGENTS/scripts/pre-tool-guard.py"
+          }
+        ]
+      }
     ]
   }
 }

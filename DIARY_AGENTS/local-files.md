@@ -22,8 +22,8 @@ Git ignored이면서 없으면 빌드, 검증 또는 앱 실행이 성립하지 
 | `iosApp/Firebase/dev/GoogleService-Info.plist` | dev flavor Firebase iOS 설정 |
 | `iosApp/Firebase/real/GoogleService-Info.plist` | real flavor Firebase iOS 설정 |
 
-파일 내용과 인증 값은 어떤 경우에도 출력하지 않는다.
+파일 내용과 인증 값은 어떤 경우에도 출력하지 않는다. Claude Code(`.claude/settings.json`)와 Codex(`.codex/hooks.json`)의 PreToolUse hook([pre-tool-guard.py](scripts/pre-tool-guard.py))이 이 표의 파일을 Read하거나 출력 명령에 넘기는 것을 막는다.
 
 ## 자동 복사
 
-Claude Code 세션이 시작되면 `.claude/settings.json`의 SessionStart hook이 [copy-local-files.sh](scripts/copy-local-files.sh)를 실행해, 현재 worktree에 없는 목록의 파일을 기본 worktree(`git worktree list --porcelain`의 첫 항목)에서 복사한다. 이미 있는 파일은 덮어쓰지 않는다. 표의 모든 파일이 대상이다. 스크립트는 위 표의 첫 열을 읽으므로 목록은 이 표에서만 관리한다. 다른 에이전트나 직접 만든 worktree에서는 같은 스크립트를 한 번 실행한다.
+Claude Code와 Codex 세션이 시작되면 `.claude/settings.json`·`.codex/hooks.json`의 SessionStart hook이 [copy-local-files.sh](scripts/copy-local-files.sh)를 실행해, 현재 worktree에 없는 목록의 파일을 기본 worktree(`git worktree list --porcelain`의 첫 항목)에서 복사한다. 이미 있는 파일은 덮어쓰지 않는다. 표의 모든 파일이 대상이다. 스크립트는 위 표의 첫 열을 읽으므로 목록은 이 표에서만 관리한다. 다른 에이전트나 직접 만든 worktree에서는 같은 스크립트를 한 번 실행한다.
