@@ -20,9 +20,9 @@ import io.github.taetae98coding.diary.compose.core.preview.ScreenPreview
 import io.github.taetae98coding.diary.compose.core.scaffold.DiaryScaffoldDefaults
 import io.github.taetae98coding.diary.compose.core.shortcut.submitShortcut
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
+import io.github.taetae98coding.diary.compose.map.DiaryMapState
 import io.github.taetae98coding.diary.compose.place.toCoordinate
 import io.github.taetae98coding.diary.core.model.contact.Contact
-import io.github.taetae98coding.diary.core.model.location.Coordinate
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
 import io.github.taetae98coding.diary.core.model.place.Place
 import io.github.taetae98coding.diary.core.model.tag.Tag
@@ -131,7 +131,7 @@ internal fun MemoDetailScaffold(
         contactUiStateProvider = contactUiStateProvider,
         placePagingItems = placePagingItems,
         placeCardUiStateProvider = placeCardUiStateProvider,
-        placeCoordinateProvider = { placeMapState?.coordinate?.toCoordinate() },
+        placeMapState = placeMapState,
         geminiUiStateProvider = geminiUiStateProvider,
     )
 }
@@ -165,7 +165,7 @@ private fun MemoDetailDialogHost(
     contactUiStateProvider: () -> MemoContactInputUiState,
     placePagingItems: LazyPagingItems<Place>,
     placeCardUiStateProvider: () -> MemoPlaceCardUiState,
-    placeCoordinateProvider: () -> Coordinate?,
+    placeMapState: DiaryMapState?,
     geminiUiStateProvider: () -> MemoGeminiUiState,
 ) {
     MemoTagPickerDialogHost(
@@ -184,9 +184,11 @@ private fun MemoDetailDialogHost(
     MemoPlacePickerDialogHost(
         dialogState = state.placePickerDialogState,
         onEvent = onPlacePickerEvent,
+        cardMapState = placeMapState,
         uiStateProvider = { placeCardUiStateProvider().placeUiState },
+        mapUiStateProvider = { placeCardUiStateProvider().pickerMapUiState },
         placePagingItems = placePagingItems,
-        coordinateProvider = placeCoordinateProvider,
+        coordinateProvider = { placeMapState?.coordinate?.toCoordinate() },
     )
     MemoGeminiDialogHost(
         onEvent = onGeminiEvent,

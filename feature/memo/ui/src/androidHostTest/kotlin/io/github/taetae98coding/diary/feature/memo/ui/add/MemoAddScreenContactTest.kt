@@ -38,6 +38,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.contact.refreshingContactP
 import io.github.taetae98coding.diary.feature.memo.ui.contact.testContact
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.feature.memo.ui.sendContactAddedResult
 import io.kotest.matchers.shouldBe
@@ -88,6 +89,7 @@ private fun ComposeContentTestRule.setMemoAddScreenForContact(
                 contactViewModel = viewModels.contactViewModel,
                 placeViewModel = viewModels.placeViewModel,
                 placeMapViewModel = screenTestPlaceMapViewModel(),
+                placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                 geminiViewModel = screenTestGeminiViewModel(),
                 navigateUp = {},
                 navigateToTagAdd = {},

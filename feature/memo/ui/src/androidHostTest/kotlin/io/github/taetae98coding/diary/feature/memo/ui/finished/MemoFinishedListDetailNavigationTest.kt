@@ -58,6 +58,8 @@ import io.github.taetae98coding.diary.feature.memo.ui.home.memoPagingDataOf
 import io.github.taetae98coding.diary.feature.memo.ui.memoEntry
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceMapUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceMapViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlacePickerMapUiState
+import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
@@ -251,6 +253,9 @@ class MemoFinishedListDetailNavigationTest {
             // 배치를 떠나면 ViewModel이 정리되므로 정리 호출에 답하는 mock을 쓴다.
             factory<MemoPlaceMapViewModel> {
                 mockk<MemoPlaceMapViewModel>(relaxed = true) { every { uiState } returns MutableStateFlow(MemoPlaceMapUiState.Loading) }
+            }
+            factory<MemoPlacePickerMapViewModel> {
+                mockk<MemoPlacePickerMapViewModel>(relaxed = true) { every { uiState } returns MutableStateFlow(MemoPlacePickerMapUiState()) }
             }
             factory<MemoGeminiViewModel> {
                 mockk<MemoGeminiViewModel>(relaxed = true) {

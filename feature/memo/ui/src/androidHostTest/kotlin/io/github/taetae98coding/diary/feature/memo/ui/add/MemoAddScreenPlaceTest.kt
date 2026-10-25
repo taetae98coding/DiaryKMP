@@ -36,6 +36,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.place.placePagingDataOf
 import io.github.taetae98coding.diary.feature.memo.ui.place.refreshFailedPlacePagingData
 import io.github.taetae98coding.diary.feature.memo.ui.place.refreshingPlacePagingData
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.kotest.matchers.shouldBe
@@ -305,6 +306,7 @@ class MemoAddScreenPlaceTest {
                     contactViewModel = viewModels.contactViewModel,
                     placeViewModel = viewModels.placeViewModel,
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                     geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = {},
                     navigateToTagAdd = {},

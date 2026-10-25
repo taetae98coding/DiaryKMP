@@ -30,6 +30,7 @@ import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -270,6 +271,7 @@ class MemoAddScreenTest {
                     contactViewModel = viewModels.contactViewModel,
                     placeViewModel = viewModels.placeViewModel,
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                     geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = navigateUp,
                     navigateToTagAdd = {},
@@ -367,6 +369,7 @@ class MemoAddScreenInitialDateTimeTest {
                     contactViewModel = viewModels.contactViewModel,
                     placeViewModel = viewModels.placeViewModel,
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                     geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = {},
                     navigateToTagAdd = {},
@@ -436,6 +439,7 @@ class MemoAddScreenMessageTest {
                     contactViewModel = viewModels.contactViewModel,
                     placeViewModel = viewModels.placeViewModel,
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                     geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = {},
                     navigateToTagAdd = {},

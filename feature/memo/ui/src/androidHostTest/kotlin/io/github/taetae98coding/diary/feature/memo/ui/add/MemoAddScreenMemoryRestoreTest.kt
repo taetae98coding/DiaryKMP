@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.TEST_ADD_REQUEST_KEY
 import io.github.taetae98coding.diary.feature.memo.ui.contact.testContact
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
 import io.github.taetae98coding.diary.feature.memo.ui.tag.hasPrimaryTagState
 import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
@@ -132,6 +133,7 @@ private fun MemoryRestoreTestMemoAddScreen(viewModels: MemoAddScreenViewModels) 
         contactViewModel = viewModels.contactViewModel,
         placeViewModel = viewModels.placeViewModel,
         placeMapViewModel = remember { screenTestPlaceMapViewModel() },
+        placePickerMapViewModel = remember { screenTestPlacePickerMapViewModel() },
         geminiViewModel = remember { screenTestGeminiViewModel() },
         navigateUp = {},
         navigateToTagAdd = {},

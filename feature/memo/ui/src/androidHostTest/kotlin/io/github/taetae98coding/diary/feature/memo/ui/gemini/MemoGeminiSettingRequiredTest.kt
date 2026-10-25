@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddScreen
 import io.github.taetae98coding.diary.feature.memo.ui.add.MemoAddScreenTestTheme
 import io.github.taetae98coding.diary.feature.memo.ui.add.screenTestViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.mockk.every
 import io.mockk.verify
 import kotlinx.coroutines.channels.Channel
@@ -70,6 +71,7 @@ class MemoGeminiSettingRequiredTest {
                     contactViewModel = viewModels.contactViewModel,
                     placeViewModel = viewModels.placeViewModel,
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                     geminiViewModel = geminiViewModel,
                 )
             }

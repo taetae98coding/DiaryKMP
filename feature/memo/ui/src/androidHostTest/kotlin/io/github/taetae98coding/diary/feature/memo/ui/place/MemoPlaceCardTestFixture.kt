@@ -103,6 +103,14 @@ internal fun screenTestPlaceMapViewModel(uiState: StateFlow<MemoPlaceMapUiState>
     return viewModel
 }
 
+internal fun screenTestPlacePickerMapViewModel(uiState: StateFlow<MemoPlacePickerMapUiState> = MutableStateFlow(MemoPlacePickerMapUiState())): MemoPlacePickerMapViewModel {
+    val viewModel = mockk<MemoPlacePickerMapViewModel>()
+    every { viewModel.uiState } returns uiState
+    every { viewModel.updateVisibleBounds(any()) } returns Unit
+
+    return viewModel
+}
+
 internal fun ComposeContentTestRule.setMemoPlaceCard(
     uiStateProvider: () -> MemoPlaceCardUiState,
     onPlaceClick: (Uuid) -> Unit = {},
@@ -169,6 +177,7 @@ internal fun ComposeContentTestRule.setMemoPlacePickerDialog(
                         is MemoPlacePickerEvent.Unselect -> onPlaceUnselect(event.id)
                         is MemoPlacePickerEvent.ClickAdd -> onPlaceAdd()
                         is MemoPlacePickerEvent.ChangeQuery -> Unit
+                        is MemoPlacePickerEvent.MoveMap -> Unit
                     }
                 },
             )
@@ -194,6 +203,7 @@ internal fun ComposeContentTestRule.setMemoPlacePickerDialogHost(
                         is MemoPlacePickerEvent.Select -> onPlaceSelect(event.id)
                         is MemoPlacePickerEvent.ClickAdd -> onPlaceAdd()
                         is MemoPlacePickerEvent.ChangeQuery -> onQueryChange(event.query)
+                        is MemoPlacePickerEvent.MoveMap -> Unit
                         is MemoPlacePickerEvent.Unselect -> Unit
                     }
                 },

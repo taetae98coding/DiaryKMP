@@ -16,6 +16,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.contact.screenTestContactV
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.web.DEFAULT_WEB_PICKER_ADD_LABEL
 import io.github.taetae98coding.diary.feature.memo.ui.web.DEFAULT_WEB_PICKER_TITLE
@@ -257,6 +258,7 @@ class MemoDetailScreenWebTest {
                     contactViewModel = screenTestContactViewModel(),
                     placeViewModel = screenTestPlaceViewModel(uiState = MutableStateFlow(MemoPlaceInputUiState(isSelectedPlaceLoaded = true))),
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                     geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = {},
                     navigateToCopiedMemo = {},
@@ -298,6 +300,7 @@ class MemoDetailScreenWebTest {
                     contactViewModel = screenTestContactViewModel(),
                     placeViewModel = screenTestPlaceViewModel(uiState = MutableStateFlow(MemoPlaceInputUiState(isSelectedPlaceLoaded = true))),
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                     geminiViewModel = screenTestGeminiViewModel(),
                     navigateUp = {},
                     navigateToCopiedMemo = {},

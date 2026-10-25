@@ -24,6 +24,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.add.screenTestViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.closeDialogByBack
 import io.github.taetae98coding.diary.feature.memo.ui.contact.testContact
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.testPlace
 import io.github.taetae98coding.diary.feature.memo.ui.tag.testTag
 import io.github.taetae98coding.diary.feature.memo.ui.web.testWeb
@@ -214,6 +215,7 @@ class MemoGeminiScreenTest {
                     contactViewModel = viewModels.contactViewModel,
                     placeViewModel = viewModels.placeViewModel,
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                     geminiViewModel = geminiViewModel,
                     navigateUp = navigateUp,
                     navigateToTagAdd = {},

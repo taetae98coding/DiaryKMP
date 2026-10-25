@@ -36,6 +36,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiUiState
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.web.screenTestWebViewModel
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
@@ -200,6 +201,7 @@ class MemoDetailScreenFormTest {
                 contactViewModel = screenTestContactViewModel(),
                 placeViewModel = screenTestPlaceViewModel(),
                 placeMapViewModel = screenTestPlaceMapViewModel(),
+                placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                 geminiViewModel = geminiViewModel,
                 navigateUp = {},
                 navigateToCopiedMemo = {},

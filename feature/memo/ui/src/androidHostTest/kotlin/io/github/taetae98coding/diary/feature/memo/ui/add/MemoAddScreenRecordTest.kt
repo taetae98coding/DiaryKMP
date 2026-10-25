@@ -21,6 +21,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiUiState
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_TAG_SELECT_LABEL
 import io.github.taetae98coding.diary.feature.memo.ui.tag.awaitTagPickerRows
 import io.github.taetae98coding.diary.feature.memo.ui.tag.dialogNodeWithText
@@ -167,6 +168,7 @@ class MemoAddScreenRecordTest {
                     contactViewModel = viewModels.contactViewModel,
                     placeViewModel = viewModels.placeViewModel,
                     placeMapViewModel = screenTestPlaceMapViewModel(),
+                    placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                     geminiViewModel = geminiViewModel,
                     navigateUp = {},
                     navigateToTagAdd = {},

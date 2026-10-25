@@ -14,6 +14,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.gemini.screenTestGeminiVie
 import io.github.taetae98coding.diary.feature.memo.ui.place.MemoPlaceInputUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.placePagingData
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceMapViewModel
+import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlacePickerMapViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.place.screenTestPlaceViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.tag.DEFAULT_TAG_SELECT_LABEL
 import io.github.taetae98coding.diary.feature.memo.ui.tag.MemoTagInputUiState
@@ -52,6 +53,7 @@ internal fun ComposeContentTestRule.setMemoDetailScreenWithTag(
                 contactViewModel = screenTestContactViewModel(),
                 placeViewModel = screenTestPlaceViewModel(uiState = placeUiState, placePagingData = placePagingData),
                 placeMapViewModel = screenTestPlaceMapViewModel(),
+                placePickerMapViewModel = screenTestPlacePickerMapViewModel(),
                 geminiViewModel = screenTestGeminiViewModel(),
                 navigateUp = {},
                 navigateToCopiedMemo = {},
