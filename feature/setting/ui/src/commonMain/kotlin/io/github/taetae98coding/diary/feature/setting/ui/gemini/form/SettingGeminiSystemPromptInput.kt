@@ -1,8 +1,7 @@
 package io.github.taetae98coding.diary.feature.setting.ui.gemini.form
 
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.material3.Card
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -29,11 +28,10 @@ internal fun SettingGeminiSystemPromptInput(
             state = state.systemPromptState,
             modifier =
                 Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
                     .focusRequester(state.systemPromptFocusRequester),
             label = { Text(text = stringResource(Res.string.setting_gemini_system_prompt_label)) },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.None),
-            lineLimits = TextFieldLineLimits.MultiLine(minHeightInLines = SettingGeminiSystemPromptInputDefaults.MIN_HEIGHT_IN_LINES),
             colors = TextFieldDefaults.colors().transparentIndicator(),
         )
     }

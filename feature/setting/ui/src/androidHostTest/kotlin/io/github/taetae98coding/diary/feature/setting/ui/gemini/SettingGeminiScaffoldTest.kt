@@ -7,16 +7,20 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertContentDescriptionContains
 import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
+import androidx.compose.ui.unit.dp
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.gemini.GeminiModel
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
@@ -29,6 +33,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.math.absoluteValue
 
 private const val STORED_API_KEY = "storedApiKey"
 private const val MODEL_ID = "models/gemini-flash"
@@ -197,6 +202,31 @@ class SettingGeminiScaffoldTest {
         composeRule.onNodeWithContentDescription(DEFAULT_SAVE_DESCRIPTION).assertDoesNotExist()
     }
 
+    @Test
+    @Config(qualifiers = "w360dp-h800dp")
+    fun `시스템 프롬프트 입력은 본문의 남은 높이를 채운다`() {
+        setScaffold()
+
+        val rootBottom = composeRule.onRoot().getBoundsInRoot().bottom
+        val inputBottom = composeRule.onNode(hasSetTextAction() and hasText(DEFAULT_SYSTEM_PROMPT_LABEL)).getBoundsInRoot().bottom
+
+        ((rootBottom - inputBottom).value.absoluteValue < FILL_TOLERANCE.value) shouldBe true
+    }
+
+    @Test
+    @Config(qualifiers = "w360dp-h800dp")
+    fun `시스템 프롬프트가 길어도 입력은 본문 아래로 늘어나지 않는다`() {
+        val longPrompt = List(size = LONG_PROMPT_LINE_COUNT) { index -> "줄 $index" }.joinToString(separator = "\n")
+        val setting = GeminiSetting.EMPTY.copy(systemPrompt = longPrompt)
+        setScaffold(uiState = SettingGeminiUiState.Content(setting = setting), initialSetting = setting)
+
+        val rootBottom = composeRule.onRoot().getBoundsInRoot().bottom
+        val inputBottom = composeRule.onNode(hasSetTextAction() and hasText(DEFAULT_SYSTEM_PROMPT_LABEL)).getBoundsInRoot().bottom
+
+        (inputBottom <= rootBottom) shouldBe true
+        (rootBottom - inputBottom < FILL_TOLERANCE) shouldBe true
+    }
+
     private fun ComposeContentTestRule.modelRow(): SemanticsNodeInteraction = onNode(hasContentDescription(DEFAULT_MODEL_LABEL, substring = true))
 
     private fun ComposeContentTestRule.modelRowDescription(): String =
@@ -233,5 +263,7 @@ class SettingGeminiScaffoldTest {
         private const val DEFAULT_MODEL_MISSING_MESSAGE = "This model isn't in the loaded list"
         private const val DEFAULT_SYSTEM_PROMPT_LABEL = "System prompt"
         private const val DEFAULT_SAVE_DESCRIPTION = "Save"
+        private val FILL_TOLERANCE = 48.dp
+        private const val LONG_PROMPT_LINE_COUNT = 100
     }
 }

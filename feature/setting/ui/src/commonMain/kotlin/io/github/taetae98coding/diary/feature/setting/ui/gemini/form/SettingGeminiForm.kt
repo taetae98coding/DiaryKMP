@@ -29,7 +29,10 @@ internal fun SettingGeminiForm(
             isMissingFromLoadedListProvider = { modelUiStateProvider().isModelMissing(model = state.model) },
         )
         SettingGeminiSystemPromptInput(
-            modifier = Modifier.fillMaxWidth(),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1F),
             state = state,
         )
     }
