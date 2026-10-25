@@ -10,6 +10,7 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.core.database.api.list.entity.ListSortLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memo.entity.MemoLocalEntity
+import io.github.taetae98coding.diary.core.database.api.memofilter.entity.MemoExistenceFilterLocalEntity
 import io.github.taetae98coding.diary.core.database.api.memotag.entity.MemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceDetailLocalEntity
 import io.github.taetae98coding.diary.core.database.api.place.entity.PlaceLocalEntity
@@ -20,6 +21,7 @@ import io.github.taetae98coding.diary.core.database.api.web.entity.WebHeaderLoca
 import io.github.taetae98coding.diary.core.database.api.web.entity.WebLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.DiaryDatabase
 import io.github.taetae98coding.diary.core.database.impl.memo.entity.AccountMemoLocalEntity
+import io.github.taetae98coding.diary.core.database.impl.memofilter.entity.MemoFilterTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.memotag.entity.AccountMemoTagLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.place.entity.AccountPlaceLocalEntity
 import io.github.taetae98coding.diary.core.database.impl.tag.entity.AccountTagLocalEntity
@@ -414,6 +416,32 @@ class SearchPagingDaoTest :
             webIdList(accountId).shouldBeEmpty()
         }
 
+        test("TC-1d910620-bfc0-4ea1-871c-f17561570aaf MemoHome에 걸어 둔 필터는 메모 결과를 좁히지 않는다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val filterTag = tag()
+            val filterTagMemo = memo(title = "$QUERY 태그 있음")
+            val untaggedMemo = memo(title = "$QUERY 태그 없음")
+            insertTag(accountId, filterTag)
+            insertMemo(accountId, filterTagMemo, untaggedMemo)
+            insertMemoTag(accountId, memoTag(memoId = filterTagMemo.id, tagId = filterTag.id))
+            database.memoFilterTagDao().upsert(entity = MemoFilterTagLocalEntity(accountId = accountId, tagId = filterTag.id))
+            // 장소가 있는 메모만 남기는 유무 필터라 MemoHome 목록에는 두 메모 모두 보이지 않는다.
+            database.memoExistenceFilterDao().upsert(
+                entity = MemoExistenceFilterLocalEntity(hasDate = null, hasTag = true, hasPlace = true),
+            )
+
+            memoIdList(accountId) shouldContainExactlyInAnyOrder listOf(filterTagMemo.id, untaggedMemo.id)
+        }
+
+        test("TC-3675cf4a-13d8-4607-b7db-80f39b09fafb 서로 멀리 떨어진 장소도 위치와 관계없이 모두 결과가 된다") {
+            val accountId = fixtureMonkey.giveMeOne<Uuid>()
+            val seoulPlace = place(title = "$QUERY 서울").located(latitude = SEOUL_LATITUDE, longitude = SEOUL_LONGITUDE)
+            val parisPlace = place(title = "$QUERY 파리").located(latitude = PARIS_LATITUDE, longitude = PARIS_LONGITUDE)
+            insertPlace(accountId, seoulPlace, parisPlace)
+
+            placeIdList(accountId) shouldContainExactlyInAnyOrder listOf(seoulPlace.id, parisPlace.id)
+        }
+
         test("질의의 SQL 와일드카드 문자는 패턴이 아니라 문자 그대로 판정한다") {
             val accountId = fixtureMonkey.giveMeOne<Uuid>()
             val literalMemo = memo(title = "10% 할인")
@@ -428,6 +456,10 @@ class SearchPagingDaoTest :
         private const val ITEM_COUNT: Int = 25
         private const val PAGE_SIZE: Int = 10
         private const val INVALIDATION_TIMEOUT_MILLIS: Long = 30_000
+        private const val SEOUL_LATITUDE: Double = 37.5665
+        private const val SEOUL_LONGITUDE: Double = 126.978
+        private const val PARIS_LATITUDE: Double = 48.8566
+        private const val PARIS_LONGITUDE: Double = 2.3522
 
         private fun Int.pad(): String = toString().padStart(length = 3, padChar = '0')
 
@@ -545,6 +577,11 @@ class SearchPagingDaoTest :
                 .setExp(WebLocalEntity::updatedAt, instant())
                 .setExp(WebLocalEntity::createdAt, instant())
                 .sample()
+
+        private fun PlaceLocalEntity.located(
+            latitude: Double,
+            longitude: Double,
+        ): PlaceLocalEntity = copy(detail = detail.copy(latitude = latitude, longitude = longitude))
 
         private fun memoTag(
             memoId: Uuid,

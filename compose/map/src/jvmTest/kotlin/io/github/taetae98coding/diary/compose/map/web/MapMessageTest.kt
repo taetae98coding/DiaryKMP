@@ -38,6 +38,21 @@ class MapMessageTest :
             naverHtml shouldContain """"zoom": 9.0"""
         }
 
+        test("TC-d0cbb65c-ae0c-4c7f-a456-f0f42abdd02f: 이전 제공자로 되돌아가면 다른 제공자에서 마지막으로 본 위치를 지도 요청 내용에 담는다") {
+            val state = DiaryMapState(initialProvider = DiaryMapProvider.NAVER)
+
+            state.moveCamera(requireNotNull("""{"type": "camera", "latitude": 37.5665, "longitude": 126.978, "zoom": 11.0}""".toMapMessageOrNull() as? MapMessage.Camera).camera)
+            state.select(DiaryMapProvider.GOOGLE)
+            state.moveCamera(requireNotNull("""{"type": "camera", "latitude": -33.4489, "longitude": -70.6693, "zoom": 9.0}""".toMapMessageOrNull() as? MapMessage.Camera).camera)
+            state.select(DiaryMapProvider.NAVER)
+            val naverHtml = requireNotNull(createNaverMapHtml(ncpKeyId = "test-key_123", camera = state.camera))
+
+            state.provider shouldBe DiaryMapProvider.NAVER
+            naverHtml shouldContain """"latitude": -33.4489"""
+            naverHtml shouldContain """"longitude": -70.6693"""
+            naverHtml shouldContain """"zoom": 9.0"""
+        }
+
         test("TC-376675d4-83a0-4732-bfca-1f91cbab1909: 확인할 수 없는 위치 소식은 무시되어 전환한 지도 요청 내용이 초기 지도 위치 정책을 따른다") {
             val messages =
                 listOf(

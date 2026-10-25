@@ -2,12 +2,15 @@ package io.github.taetae98coding.diary.compose.tag
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.text.TextLayoutResult
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeKotlinBuilder
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
@@ -107,6 +110,31 @@ class TagCardTest {
         clickCount shouldBe 0
     }
 
+    @Test
+    fun `TC-5c13d3ed-4d6b-43c3-b434-2ffa97b75334 TC-aa7644ae-95fc-4af9-8aa5-14a62c2f7417 카드 폭보다 긴 제목의 태그는 이모지와 제목이 여러 줄로 나뉘지 않고 한 줄에 생략 없이 담긴다`() {
+        val baseTag = tag(colorArgb = fixtureMonkey.giveMeOne<Int>() or 0xFF000000.toInt())
+        val tag = baseTag.copy(detail = baseTag.detail.copy(emoji = EMOJI, title = LONG_TITLE))
+        val emojiWithTitle = tag.detail.emojiWithTitle
+
+        setTagCard(tag)
+
+        val cardWidth =
+            composeRule
+                .onNodeWithTag(TAG_CARD_TEST_TAG)
+                .fetchSemanticsNode()
+                .size.width
+        val textLayoutResults = mutableListOf<TextLayoutResult>()
+        composeRule
+            .onNodeWithText(text = emojiWithTitle, useUnmergedTree = true)
+            .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { action -> action(textLayoutResults) }
+        val textLayoutResult = textLayoutResults.single()
+
+        (textLayoutResult.size.width > cardWidth) shouldBe true
+        textLayoutResult.lineCount shouldBe 1
+        textLayoutResult.isLineEllipsized(lineIndex = 0) shouldBe false
+        textLayoutResult.getLineEnd(lineIndex = 0, visibleEnd = false) shouldBe emojiWithTitle.length
+    }
+
     private fun tag(colorArgb: Int): Tag =
         fixtureMonkey
             .giveMeKotlinBuilder<Tag>()
@@ -137,5 +165,7 @@ class TagCardTest {
 
     private companion object {
         private const val BESIDE_INDICATOR_OFFSET = 4f
+        private const val EMOJI = "🏃"
+        private val LONG_TITLE = "LongTagCardTitle".repeat(20)
     }
 }

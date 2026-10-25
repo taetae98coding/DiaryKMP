@@ -1,6 +1,7 @@
 package io.github.taetae98coding.diary.feature.checklist.ui.detail
 
 import androidx.activity.ComponentDialog
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.retain.LocalRetainedValuesStoreProvider
@@ -36,6 +37,9 @@ import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.testing.TestLifecycleOwner
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.checklist.ChecklistDetail
@@ -847,6 +851,28 @@ class ChecklistDetailScreenTest {
         fillAndOpenReset()
 
         restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        composeRule.titleInput().editableText() shouldBe JEJU
+        composeRule.descriptionInput().editableText() shouldBe SUMMER
+        composeRule.itemInput().editableText() shouldBe UMBRELLA
+        composeRule.onNodeWithText(DEFAULT_UNCHECKED_FIRST, useUnmergedTree = true).assertExists()
+        composeRule.onNodeWithText(DEFAULT_RESET_TITLE).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-fe48d4e7-76a4-42ae-8042-8a18d1d2f487 백그라운드에 다녀와도 입력, 정렬과 리셋 확인을 유지한다`() {
+        val environment = ChecklistDetailTestEnvironment(itemList = listOf(item(PASSPORT, isChecked = true)))
+        environment.itemUiState.value = environment.itemUiState.value.copy(sort = ChecklistItemSort.UNCHECKED_FIRST)
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        composeRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) { ScreenContent(environment = environment) }
+        }
+        composeRule.waitForIdle()
+        fillAndOpenReset()
+
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
         composeRule.waitForIdle()
 
         composeRule.titleInput().editableText() shouldBe JEJU

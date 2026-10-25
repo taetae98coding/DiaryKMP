@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.feature.routine.ui.add
 
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsFocused
@@ -71,12 +72,16 @@ class RoutineAddScreenTest {
         setRoutineAddScreen(navigateUp = { navigateUpCount += 1 })
         composeRule.titleInput().performTextInput(title)
         composeRule.descriptionInput().performTextInput(description)
+        composeRule.waitForIdle()
+        val initialTextList = composeRule.displayedTextList()
 
         composeRule.onNodeWithContentDescription(DEFAULT_ADD_BUTTON_DESCRIPTION).performClick()
         composeRule.waitForIdle()
 
         composeRule.titleInput().editableText() shouldBe title
         composeRule.descriptionInput().editableText() shouldBe description
+        // 성공·실패 안내는 새 글로 나타나므로, 추가 전후로 화면의 글이 같으면 안내가 표시되지 않은 것이다.
+        composeRule.displayedTextList() shouldBe initialTextList
         navigateUpCount shouldBe 0
     }
 
@@ -124,6 +129,11 @@ class RoutineAddScreenTest {
             .getOrNull(SemanticsProperties.EditableText)
             ?.text
             .orEmpty()
+
+    private fun ComposeContentTestRule.displayedTextList(): List<String> =
+        onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text), useUnmergedTree = true)
+            .fetchSemanticsNodes()
+            .flatMap { node -> node.config[SemanticsProperties.Text].map { text -> text.text } }
 
     private fun ComposeContentTestRule.titleInput(): SemanticsNodeInteraction = onAllNodes(hasSetTextAction())[TITLE_INPUT_INDEX]
 

@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsOff
@@ -14,6 +15,8 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.paging.compose.collectAsLazyPagingItems
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.memo.MemoDetail
@@ -21,6 +24,7 @@ import io.github.taetae98coding.diary.feature.memo.ui.form.rememberMemoDetailFor
 import io.github.taetae98coding.diary.feature.memo.ui.gemini.MemoGeminiUiState
 import io.github.taetae98coding.diary.feature.memo.ui.place.DEFAULT_MAP_DESCRIPTION
 import io.github.taetae98coding.diary.feature.memo.ui.tag.tagPagingDataOf
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
@@ -80,6 +84,21 @@ class MemoDetailScaffoldTest {
         composeRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertDoesNotExist()
         composeRule.onNodeWithText(MEMO_TITLE).assertExists()
         composeRule.onNodeWithText(REMOVED_DEFAULT_TITLE).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-90dde206-ef20-4230-b636-ebd7aa0e0a71 화면 상단의 제목은 폭을 넘어도 한 줄에 생략 없이 담긴다`() {
+        setMemoDetailScaffold(uiStateProvider = { memoDetailUiState(detail = memoDetail(LONG_MEMO_TITLE)) })
+
+        val textLayoutResults = mutableListOf<TextLayoutResult>()
+        composeRule
+            .onNodeWithText(text = LONG_MEMO_TITLE, useUnmergedTree = true)
+            .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { action -> action(textLayoutResults) }
+        val textLayoutResult = textLayoutResults.single()
+
+        textLayoutResult.lineCount shouldBe 1
+        textLayoutResult.isLineEllipsized(lineIndex = 0) shouldBe false
+        textLayoutResult.getLineEnd(lineIndex = 0, visibleEnd = false) shouldBe LONG_MEMO_TITLE.length
     }
 
     @Test
@@ -150,6 +169,7 @@ class MemoDetailScaffoldTest {
         private const val KOREAN_NAVIGATE_UP_DESCRIPTION = "뒤로가기"
         private const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
         private const val MEMO_TITLE = "MemoDetailTitle"
+        private val LONG_MEMO_TITLE = "LongMemoDetailTitle".repeat(20)
         private const val DEFAULT_GEMINI_BUTTON_DESCRIPTION = "Writing assistant"
     }
 }

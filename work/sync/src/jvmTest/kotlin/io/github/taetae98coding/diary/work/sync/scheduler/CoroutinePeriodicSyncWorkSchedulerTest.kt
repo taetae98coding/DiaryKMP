@@ -9,8 +9,11 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceTimeBy
@@ -143,6 +146,33 @@ class CoroutinePeriodicSyncWorkSchedulerTest :
                         advanceTimeBy(PERIOD)
                         runCurrent()
                         executeCount shouldBe 2
+                    }
+                }
+            }
+        }
+
+        Given("데스크톱 앱이나 웹에서 주기 동기화가 예약된 뒤 앱이 종료되었다") {
+            When("앱을 다시 실행해 같은 계정으로 주기 동기화가 예약된다") {
+                Then("TC-cb7a4801-1243-480e-b2c0-e7a19cfd6024 종료 전에 흐른 시간과 무관하게 다시 예약한 시점으로부터 한 주기 뒤에 처음 실행된다") {
+                    runTest {
+                        var executeCount = 0
+                        val syncWork = mockk<SyncWork>()
+                        coEvery { syncWork.doWork() } coAnswers { executeCount++ }
+                        // 앱 실행 하나를 scope 하나로 보고, 종료는 그 scope를 취소하는 것으로 나타낸다.
+                        val firstRun = CoroutineScope(backgroundScope.coroutineContext + Job(backgroundScope.coroutineContext[Job]))
+                        CoroutinePeriodicSyncWorkScheduler(syncWork = syncWork, scope = firstRun).schedule(period = PERIOD)
+                        advanceTimeBy(3.hours)
+                        firstRun.cancel()
+
+                        CoroutinePeriodicSyncWorkScheduler(syncWork = syncWork, scope = backgroundScope).schedule(period = PERIOD)
+
+                        advanceTimeBy(1.hours)
+                        runCurrent()
+                        executeCount shouldBe 0
+
+                        advanceTimeBy(3.hours)
+                        runCurrent()
+                        executeCount shouldBe 1
                     }
                 }
             }

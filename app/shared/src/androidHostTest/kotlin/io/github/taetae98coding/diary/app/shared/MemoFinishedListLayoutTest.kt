@@ -227,6 +227,42 @@ class MemoFinishedListLayoutTest {
         composeRule.onNodeWithText(LIST_CONTENT).assertDoesNotExist()
     }
 
+    @Test
+    @Config(qualifiers = "w1280dp-h1600dp")
+    fun `TC-6d809b7b-b833-45ea-b2fb-3f573e852a2e 넓은 창에서 메모 목록 배치의 상세 영역 메모에서 연 연결 항목 화면은 단독으로 표시하고 돌아오면 떠나기 전의 메모가 놓인다`() {
+        val homeDetailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+        val backStack = NavBackStack<ScreenNavKey>(MemoHomeNavKey, homeDetailKey)
+        val openedKeyList: List<ScreenNavKey> =
+            listOf(
+                TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                TagAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()),
+                WebDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                WebAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()),
+                ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                ContactAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()),
+                PlaceDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                PlaceAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()),
+            )
+        setAppNavDisplay(backStack = backStack)
+        composeRule.onNodeWithText(HOME_CONTENT).assertIsDisplayed()
+        composeRule.onNodeWithText(DETAIL_CONTENT).assertIsDisplayed()
+
+        openedKeyList.forEach { openedKey ->
+            composeRule.runOnIdle { backStack.add(openedKey) }
+            composeRule.waitForIdle()
+
+            composeRule.onNodeWithText(contentOf(openedKey)).assertIsDisplayed()
+            composeRule.onNodeWithText(HOME_CONTENT).assertDoesNotExist()
+            composeRule.onNodeWithText(DETAIL_CONTENT).assertDoesNotExist()
+
+            pressBack()
+
+            backStack.toList() shouldBe listOf(MemoHomeNavKey, homeDetailKey)
+            composeRule.onNodeWithText(HOME_CONTENT).assertIsDisplayed()
+            composeRule.onNodeWithText(DETAIL_CONTENT).assertIsDisplayed()
+        }
+    }
+
     private fun pressBack() {
         composeRule.runOnIdle { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
         composeRule.waitForIdle()

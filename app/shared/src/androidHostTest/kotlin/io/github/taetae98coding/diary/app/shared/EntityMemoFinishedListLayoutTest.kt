@@ -19,15 +19,21 @@ import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.scene.rememberDiaryListDetailSceneStrategy
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.navigation.ScreenNavKey
+import io.github.taetae98coding.diary.feature.contact.api.ContactAddNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactDetailNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactHomeNavKey
 import io.github.taetae98coding.diary.feature.contact.api.ContactMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.contact.ui.contactEntry
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
 import io.github.taetae98coding.diary.feature.memo.ui.memoEntry
+import io.github.taetae98coding.diary.feature.place.api.PlaceAddNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.place.ui.placeEntry
+import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
+import io.github.taetae98coding.diary.feature.tag.ui.tagEntry
+import io.github.taetae98coding.diary.feature.web.api.WebAddNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebDetailNavKey
 import io.github.taetae98coding.diary.feature.web.api.WebMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.web.ui.webEntry
@@ -168,6 +174,43 @@ class EntityMemoFinishedListLayoutTest {
         composeRule.onNodeWithText(DETAIL_CONTENT).assertIsDisplayed()
     }
 
+    @Test
+    @Config(qualifiers = "w1280dp-h1600dp")
+    fun `TC-886d118a-6402-4f42-a0c9-9b7607b469da 넓은 창에서 상세 영역의 메모에서 연 연결 항목 화면은 단독으로 표시하고 돌아오면 떠나기 전의 메모가 놓인다`() {
+        val contactId = fixtureMonkey.giveMeOne<Uuid>()
+        val backStack = finishedListBackStack(contactId = contactId)
+        val openedKeyList: List<ScreenNavKey> =
+            listOf(
+                TagDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                TagAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()),
+                WebDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                WebAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()),
+                ContactDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                ContactAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()),
+                PlaceDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()),
+                PlaceAddNavKey(requestKey = fixtureMonkey.giveMeOne<Uuid>()),
+            )
+        setAppNavDisplay(backStack = backStack)
+        val selectedDetailKey = MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>())
+        composeRule.runOnIdle { backStack.add(selectedDetailKey) }
+        composeRule.waitForIdle()
+
+        openedKeyList.forEach { openedKey ->
+            composeRule.runOnIdle { backStack.add(openedKey) }
+            composeRule.waitForIdle()
+
+            composeRule.onNodeWithText(contentOf(openedKey)).assertIsDisplayed()
+            composeRule.onNodeWithText(LIST_CONTENT).assertDoesNotExist()
+            composeRule.onNodeWithText(DETAIL_CONTENT).assertDoesNotExist()
+
+            pressBack()
+
+            backStack.last() shouldBe selectedDetailKey
+            composeRule.onNodeWithText(LIST_CONTENT).assertIsDisplayed()
+            composeRule.onNodeWithText(DETAIL_CONTENT).assertIsDisplayed()
+        }
+    }
+
     private fun pressBack() {
         composeRule.runOnIdle { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
         composeRule.waitForIdle()
@@ -181,6 +224,7 @@ class EntityMemoFinishedListLayoutTest {
                 remember {
                     entryProvider<ScreenNavKey> {
                         memoEntry(backStack = backStack, homeReselectEvent = emptyFlow())
+                        tagEntry(backStack = backStack, homeReselectEvent = emptyFlow())
                         contactEntry(backStack = backStack)
                         placeEntry(backStack = backStack)
                         webEntry(backStack = backStack)
@@ -205,13 +249,12 @@ class EntityMemoFinishedListLayoutTest {
         when (key) {
             is ContactMemoFinishedListNavKey, is PlaceMemoFinishedListNavKey, is WebMemoFinishedListNavKey -> LIST_CONTENT
             is MemoDetailNavKey -> DETAIL_CONTENT
-            else -> OTHER_CONTENT
+            else -> key.screenName
         }
 
     private companion object {
         const val LIST_CONTENT = "EntityMemoFinishedListContent"
         const val DETAIL_CONTENT = "MemoDetailContent"
-        const val OTHER_CONTENT = "OtherContent"
         const val DEFAULT_PLACEHOLDER_TEXT = "Choose a memo"
     }
 }

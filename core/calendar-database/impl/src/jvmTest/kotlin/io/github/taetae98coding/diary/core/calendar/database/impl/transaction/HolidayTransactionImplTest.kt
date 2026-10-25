@@ -11,9 +11,12 @@ import io.github.taetae98coding.diary.core.calendar.database.api.transaction.Hol
 import io.github.taetae98coding.diary.core.calendar.database.impl.CalendarDatabase
 import io.github.taetae98coding.diary.core.calendar.database.impl.datasource.HolidayLocalDataSourceImpl
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.spyk
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.LocalDate
 
@@ -87,6 +90,22 @@ class HolidayTransactionImplTest :
             transaction.upsert(country = KOREA, year = YEAR, holidayList = emptyList())
 
             dataSource.get(countrySet = setOf(KOREA, UNITED_STATES), year = YEAR).first() shouldBe unitedStatesHolidayList
+        }
+
+        test("TC-f147850b-dc4c-401a-af7d-0f49f0062be8 교체가 끝까지 완료되지 못하면 그 국가·연도의 기존 공휴일을 유지한다") {
+            val previousHolidayList = listOf(holiday(start = LocalDate(2026, 1, 1)), holiday(start = LocalDate(2026, 1, 2)))
+            transaction.upsert(country = KOREA, year = YEAR, holidayList = previousHolidayList)
+            val throwable = IllegalStateException(fixtureMonkey.giveMeOne<String>())
+            val failingDatabase = spyk(database)
+            // 기존 목록을 지운 뒤 새 목록을 저장하려는 순간 쓰기가 실패하도록 한다.
+            every { failingDatabase.holidayDao() } returns database.holidayDao() andThenThrows throwable
+            val failingTransaction = HolidayTransactionImpl(database = failingDatabase)
+
+            shouldThrow<IllegalStateException> {
+                failingTransaction.upsert(country = KOREA, year = YEAR, holidayList = listOf(holiday()))
+            }.message shouldBe throwable.message
+
+            dataSource.get(countrySet = setOf(KOREA), year = YEAR).first() shouldBe previousHolidayList
         }
     }) {
     public companion object {

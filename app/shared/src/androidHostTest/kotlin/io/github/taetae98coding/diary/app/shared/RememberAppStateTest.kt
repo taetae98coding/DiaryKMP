@@ -1,6 +1,10 @@
 package io.github.taetae98coding.diary.app.shared
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.lifecycle.Lifecycle
@@ -17,12 +21,14 @@ import io.github.taetae98coding.diary.feature.file.api.FileDetailNavKey
 import io.github.taetae98coding.diary.feature.file.api.FileHomeNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoAddNavKey
 import io.github.taetae98coding.diary.feature.memo.api.MemoDetailNavKey
+import io.github.taetae98coding.diary.feature.memo.api.MemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.more.api.MoreHomeNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceDetailNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceHomeNavKey
 import io.github.taetae98coding.diary.feature.place.api.PlaceMemoFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagAddNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagDetailNavKey
+import io.github.taetae98coding.diary.feature.tag.api.TagFinishedListNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeFilterNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagHomeNavKey
 import io.github.taetae98coding.diary.feature.tag.api.TagMemoFinishedListNavKey
@@ -48,6 +54,8 @@ private val fixtureMonkey: FixtureMonkey = diaryFixtureMonkey()
 class RememberAppStateTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    private var launchCount by mutableIntStateOf(0)
 
     @Test
     fun `TC-a1456939-ef2d-44a8-b187-db9eccce49e9 앱을 캘린더 목적지에서 시작한다`() {
@@ -371,6 +379,54 @@ class RememberAppStateTest {
 
     @Test
     @Config(qualifiers = "w1000dp-h800dp")
+    fun `TC-dc4a0691-9da3-49df-915a-2602cf3eb4e4 화면이 재생성되거나 시스템이 앱을 정리했다가 다시 만들어도 완료된 메모 목록과 함께 놓인 메모 상세 선택과 뒤로가기 기록을 유지한다`() {
+        val pathKeyList = listOf(MemoFinishedListNavKey, MemoDetailNavKey(id = Uuid.random()))
+        val appState = restoredAppState(topLevelNavigation = TopLevelNavigation.Memo, pathKeyList = pathKeyList)
+
+        assertFinishedListDetailKept(appState = appState, topLevelNavigation = TopLevelNavigation.Memo, pathKeyList = pathKeyList)
+    }
+
+    @Test
+    @Config(qualifiers = "w1000dp-h800dp")
+    fun `TC-dc4a0691-9da3-49df-915a-2602cf3eb4e4 앱이 백그라운드에 다녀와도 완료된 메모 목록과 함께 놓인 메모 상세 선택을 유지한다`() {
+        val pathKeyList = listOf(MemoFinishedListNavKey, MemoDetailNavKey(id = Uuid.random()))
+        val appState = backgroundReturnedAppState(topLevelNavigation = TopLevelNavigation.Memo, pathKeyList = pathKeyList)
+
+        assertFinishedListDetailKept(appState = appState, topLevelNavigation = TopLevelNavigation.Memo, pathKeyList = pathKeyList)
+    }
+
+    @Test
+    @Config(qualifiers = "w1000dp-h800dp")
+    fun `TC-dc8a359a-9028-41d2-8813-a6314372eae2 화면이 재생성되거나 시스템이 앱을 정리했다가 다시 만들어도 완료된 태그 목록과 함께 놓인 태그 상세 선택과 뒤로가기 기록을 유지한다`() {
+        val pathKeyList = listOf(TagFinishedListNavKey, TagDetailNavKey(id = Uuid.random()))
+        val appState = restoredAppState(topLevelNavigation = TopLevelNavigation.Tag, pathKeyList = pathKeyList)
+
+        assertFinishedListDetailKept(appState = appState, topLevelNavigation = TopLevelNavigation.Tag, pathKeyList = pathKeyList)
+    }
+
+    @Test
+    @Config(qualifiers = "w1000dp-h800dp")
+    fun `TC-dc8a359a-9028-41d2-8813-a6314372eae2 앱이 백그라운드에 다녀와도 완료된 태그 목록과 함께 놓인 태그 상세 선택을 유지한다`() {
+        val pathKeyList = listOf(TagFinishedListNavKey, TagDetailNavKey(id = Uuid.random()))
+        val appState = backgroundReturnedAppState(topLevelNavigation = TopLevelNavigation.Tag, pathKeyList = pathKeyList)
+
+        assertFinishedListDetailKept(appState = appState, topLevelNavigation = TopLevelNavigation.Tag, pathKeyList = pathKeyList)
+    }
+
+    private fun assertFinishedListDetailKept(
+        appState: AppState,
+        topLevelNavigation: TopLevelNavigation,
+        pathKeyList: List<ScreenNavKey>,
+    ) {
+        composeRule.runOnIdle {
+            appState.backStack shouldContainExactly listOf(TopLevelNavigation.DEFAULT.key, topLevelNavigation.key) + pathKeyList
+            appState.backStack.removeLast()
+            appState.backStack shouldContainExactly listOf(TopLevelNavigation.DEFAULT.key, topLevelNavigation.key) + pathKeyList.dropLast(1)
+        }
+    }
+
+    @Test
+    @Config(qualifiers = "w1000dp-h800dp")
     fun `TC-6c520cf1-1bdc-4ac8-8cb7-67e732496b14 화면이 재생성되거나 시스템이 앱을 정리했다가 다시 만들어도 ContactMemoFinishedList와 함께 놓인 메모 상세 선택과 뒤로가기 기록을 유지한다`() {
         val pathKeyList = entityMemoFinishedListPathKeyListCases()[0]
         val appState = restoredAppState(topLevelNavigation = TopLevelNavigation.More, pathKeyList = pathKeyList)
@@ -519,5 +575,68 @@ class RememberAppStateTest {
             appState.backStack.removeLast()
             appState.backStack.last() shouldBe TopLevelNavigation.Memo.key
         }
+    }
+
+    @Test
+    @Config(qualifiers = "w1000dp-h800dp")
+    fun `TC-14c02ff8-deff-4a5c-80cf-d39b8bacf642 앱을 종료하고 다시 실행한 뒤 메모로 가면 상세 영역이 선택 전 상태로 돌아간다`() {
+        val appState = relaunchableAppState()
+        composeRule.runOnIdle {
+            appState().navigateTo(TopLevelNavigation.Memo)
+            appState().backStack.add(MemoDetailNavKey(id = fixtureMonkey.giveMeOne<Uuid>()))
+        }
+
+        relaunch()
+
+        composeRule.runOnIdle {
+            appState().backStack shouldContainExactly listOf(TopLevelNavigation.DEFAULT.key)
+            appState().navigateTo(TopLevelNavigation.Memo)
+        }
+        composeRule.runOnIdle {
+            appState().backStack shouldContainExactly listOf(TopLevelNavigation.DEFAULT.key, TopLevelNavigation.Memo.key)
+        }
+    }
+
+    @Test
+    @Config(qualifiers = "w1000dp-h800dp")
+    fun `TC-d7992a4c-6aa1-40e0-8f4f-6bbee4216df3 앱을 종료하고 다시 실행한 뒤 완료된 메모 목록에 다시 진입하면 상세가 선택 전 상태다`() {
+        val appState = relaunchableAppState()
+
+        entityMemoFinishedListPathKeyListCases().forEach { pathKeyList ->
+            val listPathKeyList = pathKeyList.dropLast(1)
+            composeRule.runOnIdle {
+                appState().navigateTo(TopLevelNavigation.More)
+                appState().backStack.addAll(pathKeyList)
+            }
+
+            relaunch()
+
+            composeRule.runOnIdle {
+                appState().backStack shouldContainExactly listOf(TopLevelNavigation.DEFAULT.key)
+                appState().navigateTo(TopLevelNavigation.More)
+                appState().backStack.addAll(listPathKeyList)
+            }
+            composeRule.runOnIdle {
+                appState().backStack shouldContainExactly listOf(TopLevelNavigation.DEFAULT.key, MoreHomeNavKey) + listPathKeyList
+            }
+        }
+    }
+
+    // 앱을 다시 실행하면 저장해 둔 화면 상태가 없으므로, 새 키로 저장 상태 없이 앱 상태를 다시 구성한다.
+    private fun relaunchableAppState(): () -> AppState {
+        lateinit var appState: AppState
+        composeRule.setContent {
+            key(launchCount) {
+                appState = rememberAppState()
+            }
+        }
+        composeRule.waitForIdle()
+
+        return { appState }
+    }
+
+    private fun relaunch() {
+        composeRule.runOnIdle { launchCount += 1 }
+        composeRule.waitForIdle()
     }
 }

@@ -2,6 +2,7 @@
 
 package io.github.taetae98coding.diary.feature.memo.ui.gemini
 
+import androidx.lifecycle.ViewModelStore
 import app.cash.turbine.test
 import io.github.taetae98coding.diary.core.model.gemini.GeminiSetting
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
@@ -10,14 +11,17 @@ import io.github.taetae98coding.diary.domain.memo.usecase.FetchMemoDraftUseCase
 import io.github.taetae98coding.diary.domain.setting.exception.GeminiApiKeyInvalidException
 import io.github.taetae98coding.diary.library.coroutines.flow.UI_STOP_TIMEOUT_MILLIS
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
@@ -467,6 +471,38 @@ class MemoGeminiViewModelTest : FunSpec() {
                 uiState.draft shouldBe MemoDraft.EMPTY
             }
         }
+
+        // 화면을 떠나 전환 이력에서 사라지거나, 앱을 종료하거나, 시스템이 앱을 종료하면 도우미 상태를 들고 있던 객체가 모두 사라진다.
+        test("TC-183e93b6-9153-48ad-b109-91ac15144cef 생성 중에 화면을 떠나거나 앱이 종료되면 진행 중이던 생성이 멈춘다") {
+            runTest(mainDispatcher) {
+                var isCancelled = false
+                val viewModel =
+                    createViewModel(
+                        fetchMemoDraftUseCase =
+                            mockk {
+                                coEvery { this@mockk(any()) } coAnswers {
+                                    try {
+                                        awaitCancellation()
+                                    } catch (exception: CancellationException) {
+                                        isCancelled = true
+                                        throw exception
+                                    }
+                                }
+                            },
+                    )
+                val store = ViewModelStore().apply { put(key = "MemoGemini", viewModel = viewModel) }
+                advanceUntilIdle()
+                viewModel.open()
+                viewModel.generate(parameter = PARAMETER)
+                advanceUntilIdle()
+
+                store.clear()
+                advanceUntilIdle()
+
+                isCancelled.shouldBeTrue()
+            }
+        }
+
         test("TC-678af699-2eff-4bfc-b1d3-8bf813eee5c5 다른 앱에 다녀와도 받아 둔 결과가 유지된다") {
             runTest(mainDispatcher) {
                 val viewModel = createUnsubscribedViewModel(fetchMemoDraftUseCase = createFetchUseCase())

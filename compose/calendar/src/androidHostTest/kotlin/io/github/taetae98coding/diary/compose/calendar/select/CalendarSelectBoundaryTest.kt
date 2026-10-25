@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.compose.calendar.select
 
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.saveable.SaveableStateRegistry
@@ -117,5 +118,28 @@ class CalendarSelectBoundaryTest {
         composeRule.waitForIdle()
 
         selectedList shouldBe listOf(july(day = 14)..july(day = 17))
+    }
+
+    @Test
+    fun `TC-ed57fae2-fea8-41fb-833c-abc2129679c6 앱을 다시 실행하면 이전 선택을 복원하지 않는다`() {
+        var launchCount by mutableStateOf(0)
+        lateinit var calendarState: CalendarState
+        composeRule.setContent {
+            // 앱 재실행은 저장된 상태 없이 같은 캘린더를 새로 구성하는 것으로 재현한다.
+            key(launchCount) {
+                DiaryTheme {
+                    calendarState = rememberCalendarState(initialYearMonth = JULY_2026)
+                    Calendar(state = calendarState, onEvent = {}, isSelectEnabled = true) {}
+                }
+            }
+        }
+
+        composeRule.performLongPress(composeRule.dayCenter(day = 14))
+        composeRule.performMoveTo(composeRule.dayCenter(day = 17))
+        composeRule.runOnIdle { calendarState.selectState.dateRange shouldBe july(day = 14)..july(day = 17) }
+
+        composeRule.runOnIdle { launchCount += 1 }
+
+        composeRule.runOnIdle { calendarState.selectState.dateRange.shouldBeNull() }
     }
 }

@@ -2,6 +2,7 @@ package io.github.taetae98coding.diary.feature.search.ui.home
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.retain.retainRetainedValuesStoreRegistry
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
@@ -51,6 +52,15 @@ private val memoPagingDataFlow = MutableStateFlow(pagingDataOf<Memo>(emptyList()
 private val tagPagingDataFlow = MutableStateFlow(pagingDataOf<Tag>(emptyList()))
 private val placePagingDataFlow = MutableStateFlow(pagingDataOf<Place>(emptyList()))
 private val webPagingDataFlow = MutableStateFlow(pagingDataOf<Web>(emptyList()))
+
+/** 유형별 결과 조회를 구독하는 수를 돌려준다. 구독이 없으면 그 유형의 결과 준비가 시작되지 않은 것이다. */
+internal fun searchResultSubscriptionCount(): Map<String, Int> =
+    mapOf(
+        "memo" to memoPagingDataFlow.subscriptionCount.value,
+        "tag" to tagPagingDataFlow.subscriptionCount.value,
+        "place" to placePagingDataFlow.subscriptionCount.value,
+        "web" to webPagingDataFlow.subscriptionCount.value,
+    )
 
 // 검색어 반영 시점은 ViewModel 테스트가 검증하므로, 화면 테스트에서는 입력한 질의가 곧바로 반영된 것으로 다룬다.
 // 반영을 기다리는 상태를 확인하는 테스트만 반영을 멈춘다.
@@ -146,6 +156,8 @@ internal fun ComposeContentTestRule.setSearchHomeScreen(
     placeList: List<Place> = emptyList(),
     webList: List<Web> = emptyList(),
     initialType: SearchHomeType = SearchHomeType.MEMO,
+    initialTypeProvider: () -> SearchHomeType = { initialType },
+    entryKeyProvider: () -> Int = { 0 },
     navigateUp: () -> Unit = {},
     navigateToMemoDetail: (Uuid) -> Unit = {},
     navigateToTagDetail: (Uuid) -> Unit = {},
@@ -178,36 +190,39 @@ internal fun ComposeContentTestRule.setSearchHomeScreen(
             { content -> setContent(content) }
         }
     setScreenContent {
-        // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로,
-        // 테스트마다 새 소유자를 제공해 이전 테스트의 유형별 ViewModel이 재사용되지 않게 한다.
-        val viewModelStoreOwner =
-            remember {
-                object : ViewModelStoreOwner {
-                    override val viewModelStore: ViewModelStore = ViewModelStore()
+        // 진입 키가 바뀌면 저장 상태와 ViewModel을 남기지 않고 화면을 새로 구성해, 화면을 떠났다가 다시 들어오거나 앱을 다시 실행한 것을 흉내 낸다.
+        key(entryKeyProvider()) {
+            // 테스트 호스트 Activity의 ViewModelStore는 테스트 사이에 유지되므로,
+            // 테스트마다 새 소유자를 제공해 이전 테스트의 유형별 ViewModel이 재사용되지 않게 한다.
+            val viewModelStoreOwner =
+                remember {
+                    object : ViewModelStoreOwner {
+                        override val viewModelStore: ViewModelStore = ViewModelStore()
+                    }
                 }
-            }
 
-        CompositionLocalProvider(
-            LocalViewModelStoreOwner provides viewModelStoreOwner,
-            LocalLifecycleOwner provides (lifecycleOwner ?: LocalLifecycleOwner.current),
-        ) {
-            KoinApplication(configuration = koinConfiguration { modules(searchHomeViewModelModule) }) {
-                DiaryTheme {
-                    // 내비게이션이 뒤에 쌓인 화면을 컴포지션에서 내리고 저장 상태와 유지 값만 보관하는 것을 그대로 따른다.
-                    val saveableStateHolder = rememberSaveableStateHolder()
-                    val retainedValuesStoreRegistry = retainRetainedValuesStoreRegistry()
+            CompositionLocalProvider(
+                LocalViewModelStoreOwner provides viewModelStoreOwner,
+                LocalLifecycleOwner provides (lifecycleOwner ?: LocalLifecycleOwner.current),
+            ) {
+                KoinApplication(configuration = koinConfiguration { modules(searchHomeViewModelModule) }) {
+                    DiaryTheme {
+                        // 내비게이션이 뒤에 쌓인 화면을 컴포지션에서 내리고 저장 상태와 유지 값만 보관하는 것을 그대로 따른다.
+                        val saveableStateHolder = rememberSaveableStateHolder()
+                        val retainedValuesStoreRegistry = retainRetainedValuesStoreRegistry()
 
-                    if (isShownProvider()) {
-                        retainedValuesStoreRegistry.LocalRetainedValuesStoreProvider(SEARCH_HOME_ENTRY_KEY) {
-                            saveableStateHolder.SaveableStateProvider(key = SEARCH_HOME_ENTRY_KEY) {
-                                SearchHomeScreen(
-                                    navigateUp = navigateUp,
-                                    navigateToMemoDetail = navigateToMemoDetail,
-                                    navigateToTagDetail = navigateToTagDetail,
-                                    navigateToPlaceDetail = navigateToPlaceDetail,
-                                    navigateToWebDetail = navigateToWebDetail,
-                                    initialType = initialType,
-                                )
+                        if (isShownProvider()) {
+                            retainedValuesStoreRegistry.LocalRetainedValuesStoreProvider(SEARCH_HOME_ENTRY_KEY) {
+                                saveableStateHolder.SaveableStateProvider(key = SEARCH_HOME_ENTRY_KEY) {
+                                    SearchHomeScreen(
+                                        navigateUp = navigateUp,
+                                        navigateToMemoDetail = navigateToMemoDetail,
+                                        navigateToTagDetail = navigateToTagDetail,
+                                        navigateToPlaceDetail = navigateToPlaceDetail,
+                                        navigateToWebDetail = navigateToWebDetail,
+                                        initialType = initialTypeProvider(),
+                                    )
+                                }
                             }
                         }
                     }

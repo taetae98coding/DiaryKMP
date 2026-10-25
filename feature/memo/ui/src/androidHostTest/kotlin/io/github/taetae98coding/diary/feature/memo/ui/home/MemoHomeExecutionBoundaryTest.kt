@@ -4,6 +4,8 @@ import androidx.activity.ComponentActivity
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
@@ -35,12 +37,14 @@ import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterTagIdUseC
 import io.github.taetae98coding.diary.domain.memo.usecase.GetMemoFilterUseCase
 import io.github.taetae98coding.diary.domain.memo.usecase.PageMemoHomeUseCase
 import io.github.taetae98coding.diary.feature.core.list.ListSortUiState
+import io.github.taetae98coding.diary.feature.core.sync.SyncRefreshViewModel
 import io.github.taetae98coding.diary.feature.memo.ui.refreshableList
 import io.github.taetae98coding.diary.feature.memo.ui.resetAndroidUiDispatcher
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
@@ -122,6 +126,36 @@ class MemoHomeExecutionBoundaryTest {
     }
 
     @Test
+    fun `TC-31c1ef95-d61d-4712-b335-3c9f9d0f84de 앱을 다시 실행하면 정렬은 처음으로 돌아가고 목록은 맨 위부터 보인다`() {
+        val memoList = memoList()
+        var nextViewModel = realViewModel(memoList = memoList, existence = MemoExistenceFilter())
+        var launchCount by mutableIntStateOf(0)
+        // 앱을 다시 실행하면 저장된 화면 상태와 ViewModel이 모두 사라지므로, 새 ViewModel로 저장 상태 없이 화면을 다시 구성한다.
+        composeRule.setContent {
+            key(launchCount) {
+                val viewModel = remember { nextViewModel }
+                Home(viewModel = viewModel)
+            }
+        }
+        waitUntilMemoIsDisplayed(memoList)
+        composeRule.onNodeWithContentDescription(DEFAULT_SORT_DESCRIPTION).performClick()
+        composeRule.onNodeWithText(DEFAULT_TITLE_SORT).performClick()
+        composeRule.waitUntil(timeoutMillis = LIST_ITEM_TIMEOUT_MILLIS) {
+            composeRule.onAllNodesWithText(DEFAULT_SORT_SHEET_TITLE).fetchSemanticsNodes().isEmpty()
+        }
+        scrollList(memoList)
+        nextViewModel = realViewModel(memoList = memoList, existence = MemoExistenceFilter())
+
+        composeRule.runOnIdle { launchCount += 1 }
+        waitUntilMemoIsDisplayed(memoList)
+
+        composeRule.onNodeWithText(DEFAULT_DEFAULT_SORT).assertExists()
+        composeRule.onNodeWithText(DEFAULT_TITLE_SORT).assertDoesNotExist()
+        composeRule.onNodeWithText(memoList.first().detail.title).assertIsDisplayed()
+        composeRule.onNodeWithText(memoList[SCROLLED_INDEX].detail.title).assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-9f331a6f-c568-46df-8597-b9e4e0a48201 앱이 백그라운드에 다녀와도 보던 자리가 그대로다`() {
         val memoList = memoList()
         val viewModel = screenTestViewModel(memoList = memoList)
@@ -160,8 +194,35 @@ class MemoHomeExecutionBoundaryTest {
         assertScrolledPosition(memoList)
     }
 
+    @Test
+    fun `TC-108fd7db-dfc8-4566-a5bc-6dbad9f7c5f5 화면에 들어오거나 다른 화면에서 돌아오는 것만으로는 새로고침하지 않는다`() {
+        val viewModel = screenTestViewModel(memoList = memoList())
+        val syncViewModel = screenTestSyncViewModel()
+        var isMemoHomeOnTop by mutableStateOf(true)
+        composeRule.setContent {
+            // 내비게이션이 뒤에 쌓인 화면을 컴포지션에서 내리고 저장 상태만 보관하는 것을 그대로 따른다.
+            val saveableStateHolder = rememberSaveableStateHolder()
+            if (isMemoHomeOnTop) {
+                saveableStateHolder.SaveableStateProvider(key = MEMO_HOME_ENTRY_KEY) {
+                    Home(viewModel = viewModel, syncViewModel = syncViewModel)
+                }
+            }
+        }
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { isMemoHomeOnTop = false }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { isMemoHomeOnTop = true }
+        composeRule.waitForIdle()
+
+        verify(exactly = 0) { syncViewModel.refresh() }
+    }
+
     @Composable
-    private fun Home(viewModel: MemoHomeViewModel) {
+    private fun Home(
+        viewModel: MemoHomeViewModel,
+        syncViewModel: SyncRefreshViewModel = screenTestSyncViewModel(),
+    ) {
         DiaryTheme {
             MemoHomeScreen(
                 navigateToAdd = {},
@@ -172,7 +233,7 @@ class MemoHomeExecutionBoundaryTest {
                 componentVisibleProvider = { MemoHomeScaffoldComponentVisible() },
                 listState = rememberLazyListState(),
                 memoViewModel = viewModel,
-                syncViewModel = screenTestSyncViewModel(),
+                syncViewModel = syncViewModel,
             )
         }
     }

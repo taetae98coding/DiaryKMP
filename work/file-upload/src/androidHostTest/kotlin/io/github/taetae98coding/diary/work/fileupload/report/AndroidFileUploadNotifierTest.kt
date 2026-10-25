@@ -102,6 +102,18 @@ class AndroidFileUploadNotifierTest {
     }
 
     @Test
+    fun `TC-ef546084-faf4-4bdf-924c-900d25b0e4ef 결과 알림은 선택하면 사라지고 FileHome을 연다`() {
+        notifier.notifyResult(result = FileUploadResult.Failed(name = fileName()))
+
+        val posted = shadowOf(notificationManager()).getNotification(FILE_UPLOAD_RESULT_NOTIFICATION_ID).shouldNotBeNull()
+        (posted.flags and Notification.FLAG_AUTO_CANCEL != 0) shouldBe true
+        (posted.flags and Notification.FLAG_ONGOING_EVENT != 0) shouldBe false
+        val intent = shadowOf(posted.contentIntent).savedIntent
+        intent.dataString shouldBe FILE_HOME_DEEP_LINK
+        intent.component?.className shouldBe LAUNCHER_ACTIVITY_CLASS_NAME
+    }
+
+    @Test
     fun `TC-bfea47eb-3fc8-41c4-a084-48f66648f672 진행 알림은 선택해도 사라지지 않고 FileHome을 연다`() {
         val notification = notifier.createForegroundInfo(name = fileName(), percent = null).notification
 

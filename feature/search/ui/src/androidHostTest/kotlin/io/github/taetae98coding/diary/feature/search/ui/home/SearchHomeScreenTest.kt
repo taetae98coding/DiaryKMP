@@ -1,8 +1,12 @@
 package io.github.taetae98coding.diary.feature.search.ui.home
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
@@ -18,11 +22,14 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeDown
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.testing.TestLifecycleOwner
 import com.navercorp.fixturemonkey.FixtureMonkey
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
+import io.github.taetae98coding.diary.compose.core.pulltorefresh.PULL_TO_REFRESH_TEST_TAG
 import io.github.taetae98coding.diary.compose.memo.MEMO_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.place.PLACE_CARD_TEST_TAG
 import io.github.taetae98coding.diary.compose.tag.TAG_CARD_TEST_TAG
@@ -30,6 +37,9 @@ import io.github.taetae98coding.diary.compose.web.WEB_CARD_TEST_TAG
 import io.github.taetae98coding.diary.core.model.list.ListSort
 import io.github.taetae98coding.diary.feature.search.api.SearchHomeType
 import io.github.taetae98coding.diary.feature.search.ui.home.memo.SEARCH_HOME_MEMO_LIST_TEST_TAG
+import io.github.taetae98coding.diary.feature.search.ui.home.place.SEARCH_HOME_PLACE_LIST_TEST_TAG
+import io.github.taetae98coding.diary.feature.search.ui.home.tag.SEARCH_HOME_TAG_LIST_TEST_TAG
+import io.github.taetae98coding.diary.feature.search.ui.home.web.SEARCH_HOME_WEB_LIST_TEST_TAG
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -130,6 +140,27 @@ class SearchHomeScreenTest {
         composeRule.selectSearchHomeTab(MEMO_TAB_LABEL)
 
         composeRule.onNodeWithText(memo.detail.title).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-ac000104-817c-41bb-a7b8-d10d0eccf796 보고 있지 않은 유형의 결과를 미리 준비하지 않는다`() {
+        val memo = resultMemo()
+
+        composeRule.setSearchHomeScreen(memoList = listOf(memo))
+        inputQuery()
+
+        // 유형별 결과는 그 유형의 ViewModel이 만들어져 조회를 구독해야 찾기 시작하므로, ViewModel이 없으면 준비도 시작되지 않은 것이다.
+        val memoViewModel = searchMemoViewModelRef.shouldNotBeNull()
+        verify { memoViewModel.updateQuery(QUERY) }
+        composeRule.onNodeWithText(memo.detail.title).assertIsDisplayed()
+        searchTagViewModelRef shouldBe null
+        searchPlaceViewModelRef shouldBe null
+        searchWebViewModelRef shouldBe null
+        composeRule.runOnIdle {
+            val subscriptionCount = searchResultSubscriptionCount()
+            (checkNotNull(subscriptionCount["memo"]) > 0) shouldBe true
+            subscriptionCount.filterKeys { type -> type != "memo" }.values.toSet() shouldBe setOf(0)
+        }
     }
 
     @Test
@@ -479,12 +510,94 @@ class SearchHomeScreenTest {
         composeRule.onNodeWithText(RECENTLY_UPDATED_SORT_LABEL).assertDoesNotExist()
     }
 
+    @Test
+    fun `TC-6df52e63-e8a7-4818-bc66-f337fc2536c7 화면을 떠난 뒤 다시 들어오면 빈 질의와 그때 들어온 경로의 시작 유형으로 시작한다`() {
+        var entryCount by mutableIntStateOf(0)
+        var initialType by mutableStateOf(SearchHomeType.MEMO)
+        composeRule.setSearchHomeScreen(
+            initialTypeProvider = { initialType },
+            entryKeyProvider = { entryCount },
+        )
+        inputQuery()
+        composeRule.selectSearchHomeTab(TAG_TAB_LABEL)
+        composeRule.onNodeWithText(TAG_TAB_LABEL).assertIsSelected()
+        val placeViewModelBeforeLeave = searchPlaceViewModelRef
+
+        composeRule.runOnIdle {
+            initialType = SearchHomeType.PLACE
+            entryCount += 1
+        }
+        composeRule.waitForIdle()
+
+        queryInputText() shouldBe ""
+        composeRule.onNodeWithText(PLACE_TAB_LABEL).assertIsSelected()
+        val placeViewModel = searchPlaceViewModelRef.shouldNotBeNull()
+        (placeViewModel === placeViewModelBeforeLeave) shouldBe false
+        placeViewModel.uiState.value.appliedQuery shouldBe ""
+        assertResultCardCount(testTag = PLACE_CARD_TEST_TAG, count = 0)
+    }
+
+    @Test
+    fun `TC-da083658-e562-439a-846a-d1cbaa345eba 앱을 다시 실행하면 마지막에 검색한 질의가 남지 않는다`() {
+        var launchCount by mutableIntStateOf(0)
+        composeRule.setSearchHomeScreen(entryKeyProvider = { launchCount })
+        inputQuery()
+        composeRule.selectSearchHomeTab(WEB_TAB_LABEL)
+        composeRule.onNodeWithText(WEB_TAB_LABEL).assertIsSelected()
+        val memoViewModelBeforeRelaunch = searchMemoViewModelRef
+
+        composeRule.runOnIdle { launchCount += 1 }
+        composeRule.waitForIdle()
+
+        queryInputText() shouldBe ""
+        composeRule.onNodeWithText(MEMO_TAB_LABEL).assertIsSelected()
+        val memoViewModel = searchMemoViewModelRef.shouldNotBeNull()
+        (memoViewModel === memoViewModelBeforeRelaunch) shouldBe false
+        memoViewModel.uiState.value.appliedQuery shouldBe ""
+        assertResultCardCount(testTag = MEMO_CARD_TEST_TAG, count = 0)
+    }
+
+    @Test
+    fun `TC-3fa4c153-d620-4f53-aeea-3ccbfd75dbe5 결과 목록을 아래로 당겨도 새로고침이 시작되지 않는다`() {
+        composeRule.setSearchHomeScreen(
+            memoList = List(RESULT_COUNT) { resultMemo() },
+            tagList = List(RESULT_COUNT) { resultTag() },
+            placeList = List(RESULT_COUNT) { resultPlace() },
+            webList = List(RESULT_COUNT) { resultWeb() },
+        )
+        inputQuery()
+
+        listOf(
+            MEMO_TAB_LABEL to SEARCH_HOME_MEMO_LIST_TEST_TAG,
+            TAG_TAB_LABEL to SEARCH_HOME_TAG_LIST_TEST_TAG,
+            PLACE_TAB_LABEL to SEARCH_HOME_PLACE_LIST_TEST_TAG,
+            WEB_TAB_LABEL to SEARCH_HOME_WEB_LIST_TEST_TAG,
+        ).forEach { (label, listTestTag) ->
+            composeRule.selectSearchHomeTab(label)
+
+            composeRule.onNodeWithTag(listTestTag).performTouchInput { swipeDown() }
+            composeRule.waitForIdle()
+
+            composeRule.onNodeWithTag(PULL_TO_REFRESH_TEST_TAG).assertDoesNotExist()
+            composeRule
+                .onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo), useUnmergedTree = true)
+                .assertCountEquals(0)
+        }
+    }
+
     private fun assertResultCardCount(
         testTag: String,
         count: Int,
     ) {
         composeRule.onAllNodesWithTag(testTag).fetchSemanticsNodes().size shouldBe count
     }
+
+    private fun queryInputText(): String =
+        composeRule
+            .onNode(hasSetTextAction())
+            .fetchSemanticsNode()
+            .config[SemanticsProperties.EditableText]
+            .text
 
     private fun inputQuery() {
         composeRule.onNode(hasSetTextAction()).performTextInput(QUERY)

@@ -33,7 +33,7 @@ class ChromeSessionImportEffectTest {
     }
 
     @Test
-    fun `보이는 채로 포커스만 오가는 것은 계기가 아니다`() {
+    fun `TC-b5840076-5170-47b1-a767-c370134d8c11 창이 보이는 채로 포커스만 바뀌면 가져오지 않는다`() {
         val requestImport = mockk<() -> Unit>(relaxed = true)
         val lifecycleOwner = setEffect(requestImport = requestImport, initialState = Lifecycle.State.RESUMED)
 

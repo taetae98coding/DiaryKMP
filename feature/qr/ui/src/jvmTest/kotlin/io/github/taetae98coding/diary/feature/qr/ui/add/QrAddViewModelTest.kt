@@ -25,6 +25,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
@@ -196,6 +197,24 @@ class QrAddViewModelTest : FunSpec() {
                     viewModel.uiState.value.isMapDisplayed
                         .shouldBeTrue()
                 }
+            }
+        }
+
+        test("TC-35105c5b-bd39-4bf3-a8ec-364973e7e4d9 표시 중에 기본 지도가 바뀌면 바뀐 기본 지도를 알린다") {
+            runTest(mainDispatcher) {
+                val providerFlow = MutableStateFlow(Result.success(MapProvider.NAVER))
+                val useCase = mockk<GetDefaultMapProviderUseCase>()
+                every { useCase(Unit) } returns providerFlow
+                val viewModel = viewModel(addQrUseCase = mockk(), defaultMapProviderUseCase = useCase)
+                advanceUntilIdle()
+                viewModel.uiState.value.defaultProvider shouldBe MapProvider.NAVER
+
+                providerFlow.value = Result.success(MapProvider.GOOGLE)
+                advanceUntilIdle()
+
+                viewModel.uiState.value.defaultProvider shouldBe MapProvider.GOOGLE
+                viewModel.uiState.value.isMapDisplayed
+                    .shouldBeTrue()
             }
         }
 

@@ -10,6 +10,7 @@ import io.github.taetae98coding.diary.core.calendar.database.api.entity.HolidayC
 import io.github.taetae98coding.diary.core.calendar.database.api.entity.HolidayLocalEntity
 import io.github.taetae98coding.diary.core.calendar.database.api.transaction.HolidayTransaction
 import io.github.taetae98coding.diary.core.calendar.database.impl.CalendarDatabase
+import io.github.taetae98coding.diary.core.calendar.database.impl.CalendarDatabaseModule
 import io.github.taetae98coding.diary.core.calendar.database.impl.transaction.HolidayTransactionImpl
 import io.github.taetae98coding.diary.library.fixturemonkey.diaryFixtureMonkey
 import io.kotest.core.spec.style.FunSpec
@@ -17,6 +18,7 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.LocalDate
+import java.io.File
 
 private val fixtureMonkey: FixtureMonkey =
     diaryFixtureMonkey()
@@ -207,6 +209,27 @@ class HolidayLocalDataSourceImplTest :
 
             dataSource.get(countrySet = emptySet()).first().shouldBeEmpty()
         }
+
+        test("TC-30ed4026-2978-4ea4-8d75-daaa51678d3e 데스크톱 앱에서 저장소를 닫고 다시 열어도 저장한 공휴일이 남는다") {
+            val file = File.createTempFile("holiday", ".db")
+
+            try {
+                val holidayList = listOf(holiday())
+                val firstDatabase = calendarFileDatabase(file)
+                HolidayTransactionImpl(database = firstDatabase).upsert(country = KOREA, year = YEAR, holidayList = holidayList)
+                firstDatabase.close()
+
+                val secondDatabase = calendarFileDatabase(file)
+
+                try {
+                    HolidayLocalDataSourceImpl(database = secondDatabase).get(countrySet = setOf(KOREA), year = YEAR).first() shouldBe holidayList
+                } finally {
+                    secondDatabase.close()
+                }
+            } finally {
+                file.delete()
+            }
+        }
     }) {
     public companion object {
         private const val YEAR = 2026
@@ -233,3 +256,9 @@ class HolidayLocalDataSourceImplTest :
             )
     }
 }
+
+internal fun calendarFileDatabase(file: File): CalendarDatabase =
+    CalendarDatabaseModule().providesCalendarDatabase(
+        builder = Room.databaseBuilder<CalendarDatabase>(name = file.absolutePath),
+        driver = BundledSQLiteDriver(),
+    )

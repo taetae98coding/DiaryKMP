@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.core.memo.finished
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
@@ -15,9 +16,11 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -32,6 +35,7 @@ import io.github.taetae98coding.diary.compose.memo.list.MemoListState
 import io.github.taetae98coding.diary.core.model.memo.MemoDateTime
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.ints.shouldBeLessThan
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -89,6 +93,21 @@ class EntityMemoFinishedListScaffoldTest {
 
         composeRule.onNodeWithText(OTHER_ENTITY_NAME).assertDoesNotExist()
         composeRule.onNodeWithText(UPDATED_ENTITY_NAME).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-1d593189-0522-450d-80d4-b96db237e33b 상단 바의 항목 이름은 폭을 넘어도 한 줄에 생략 없이 담긴다`() {
+        setEntityMemoFinishedListScaffold(uiState = EntityMemoFinishedListUiState(title = LONG_ENTITY_NAME))
+
+        val textLayoutResults = mutableListOf<TextLayoutResult>()
+        composeRule
+            .onNodeWithText(text = LONG_ENTITY_NAME, useUnmergedTree = true)
+            .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { action -> action(textLayoutResults) }
+        val textLayoutResult = textLayoutResults.single()
+
+        textLayoutResult.lineCount shouldBe 1
+        textLayoutResult.isLineEllipsized(lineIndex = 0) shouldBe false
+        textLayoutResult.getLineEnd(lineIndex = 0, visibleEnd = false) shouldBe LONG_ENTITY_NAME.length
     }
 
     @Test
@@ -317,6 +336,7 @@ class EntityMemoFinishedListScaffoldTest {
         const val PAGING_ITEMS_TIMEOUT_MILLIS = 5_000L
         const val OTHER_ENTITY_NAME = "OtherEntityName"
         const val ENTITY_NAME = "EntityName"
+        val LONG_ENTITY_NAME = "LongEntityName".repeat(20)
         const val UPDATED_ENTITY_NAME = "UpdatedEntityName"
         const val DEFAULT_SUBTITLE = "Finished Memos"
         const val KOREAN_SUBTITLE = "완료된 메모"

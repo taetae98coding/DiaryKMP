@@ -9,15 +9,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSerializable
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTextInput
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelStore
@@ -137,6 +145,40 @@ class SettingListDetailNavigationTest {
     }
 
     @Test
+    fun `TC-70fdb7cb-f9cb-4fb6-b787-e33c9e87c1fc 선택 전 상태의 설정 목록에는 설정 항목과 뒤로가기만 있고 Cmd A 단축키로 새 화면이 열리지 않는다`() {
+        setSettingNavDisplay()
+        composeRule.onNodeWithTag(SETTING_DETAIL_PLACEHOLDER_ICON_TEST_TAG).assertExists()
+
+        composeRule.onAllNodes(hasClickAction()).assertCountEquals(settingItemLabelList.size + 1)
+        settingItemLabelList.forEach { label -> composeRule.onNodeWithText(label).assert(hasClickAction()) }
+        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).assert(hasClickAction())
+        composeRule.onAllNodes(hasContentDescription(ADD_DESCRIPTION_WORD, substring = true)).assertCountEquals(0)
+        composeRule.onAllNodesWithText(ADD_DESCRIPTION_WORD, substring = true).assertCountEquals(0)
+
+        pressAddShortcut()
+
+        backStack.toList() shouldBe listOf(NavigationTestMoreNavKey, SettingHomeNavKey)
+        composeRule.onNodeWithTag(SETTING_DETAIL_PLACEHOLDER_ICON_TEST_TAG).assertExists()
+    }
+
+    @Test
+    fun `TC-70fdb7cb-f9cb-4fb6-b787-e33c9e87c1fc 지도 설정이 현재 상세일 때 설정 목록에 추가 동작이 없고 Cmd A 단축키로 새 화면이 열리지 않는다`() {
+        setSettingNavDisplay()
+        composeRule.onNodeWithText(DEFAULT_MAP_ITEM_LABEL).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_GOOGLE_LABEL).assertExists()
+
+        composeRule.onAllNodes(hasContentDescription(ADD_DESCRIPTION_WORD, substring = true)).assertCountEquals(0)
+        composeRule.onAllNodesWithText(ADD_DESCRIPTION_WORD, substring = true).assertCountEquals(0)
+
+        pressAddShortcut()
+
+        backStack.toList() shouldBe listOf(NavigationTestMoreNavKey, SettingHomeNavKey, SettingMapNavKey)
+        composeRule.onNodeWithText(DEFAULT_GOOGLE_LABEL).assertExists()
+        settingItemLabelList.forEach { label -> composeRule.onNodeWithText(label).assertExists() }
+    }
+
+    @Test
     fun `TC-8bf5ef36-7ebb-40fc-8f89-e6d04aecc8c1 더보기로 돌아갔다가 다시 진입하면 상세 선택을 초기화한다`() {
         setSettingNavDisplay()
         composeRule.onNodeWithTag(SETTING_DETAIL_PLACEHOLDER_ICON_TEST_TAG).assertExists()
@@ -237,6 +279,47 @@ class SettingListDetailNavigationTest {
     }
 
     @Test
+    fun `TC-ad29bf0e-2beb-4725-952f-9b6b54ca1352 시스템이 앱을 정리했다가 다시 만들어도 상세 선택과 뒤로가기 기록을 유지한다`() {
+        val restorationTester = StateRestorationTester(composeRule)
+        lateinit var restorableBackStack: NavBackStack<ScreenNavKey>
+        restorationTester.setContent {
+            val currentBackStack =
+                rememberSerializable(
+                    configuration = RestorationTestSavedStateConfiguration,
+                    serializer = NavBackStackSerializer(PolymorphicSerializer(ScreenNavKey::class)),
+                ) {
+                    NavBackStack<ScreenNavKey>(SettingHomeNavKey)
+                }
+            restorableBackStack = currentBackStack
+
+            SettingNavigationTestHost {
+                SettingNavDisplay(backStack = currentBackStack)
+            }
+        }
+        composeRule.waitForIdle()
+        // 앞서 고른 상세가 교체되어 뒤로가기 기록에 남지 않은 채로 되살아나는지 보려고 다른 항목을 먼저 고른다.
+        composeRule.onNodeWithText(DEFAULT_HOLIDAY_ITEM_LABEL).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_MAP_ITEM_LABEL).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(DEFAULT_GOOGLE_LABEL).assertExists()
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { restorableBackStack.toList() shouldBe listOf(SettingHomeNavKey, SettingMapNavKey) }
+        composeRule.onNodeWithText(DEFAULT_GOOGLE_LABEL).assertExists()
+        composeRule.onNodeWithText(DEFAULT_HOLIDAY_ITEM_LABEL).assertExists()
+        composeRule.onNodeWithTag(SETTING_DETAIL_PLACEHOLDER_ICON_TEST_TAG).assertDoesNotExist()
+
+        pressBack()
+
+        composeRule.runOnIdle { restorableBackStack.toList() shouldBe listOf(SettingHomeNavKey) }
+        composeRule.onNodeWithTag(SETTING_DETAIL_PLACEHOLDER_ICON_TEST_TAG).assertExists()
+        composeRule.onNodeWithText(DEFAULT_GOOGLE_LABEL).assertDoesNotExist()
+    }
+
+    @Test
     fun `TC-152b5755-8409-43bd-95bf-0db8426a0a60 앱이 백그라운드에서 돌아와도 상세 선택을 유지한다`() {
         setSettingNavDisplay()
         composeRule.onNodeWithText(DEFAULT_MAP_ITEM_LABEL).performClick()
@@ -257,6 +340,17 @@ class SettingListDetailNavigationTest {
         backStack.toList() shouldBe listOf(NavigationTestMoreNavKey, SettingHomeNavKey)
         composeRule.onNodeWithTag(SETTING_DETAIL_PLACEHOLDER_ICON_TEST_TAG).assertExists()
         composeRule.onNodeWithText(DEFAULT_GOOGLE_LABEL).assertDoesNotExist()
+    }
+
+    private fun pressAddShortcut() {
+        // 화면 위에 작은 팝업 창이 함께 떠 있을 수 있어, 앱 창의 루트로 단축키를 보낸다.
+        composeRule.onAllNodes(isRoot()).onFirst().performKeyInput {
+            keyDown(Key.MetaLeft)
+            keyDown(Key.A)
+            keyUp(Key.A)
+            keyUp(Key.MetaLeft)
+        }
+        composeRule.waitForIdle()
     }
 
     private fun pressBack() {
@@ -369,6 +463,7 @@ class SettingListDetailNavigationTest {
         const val DEFAULT_NAVIGATE_UP_DESCRIPTION = "Navigate up"
         const val EDITING_PROXY_ADDRESS = "http://192.168.0.10:54321"
         const val DEFAULT_HOLIDAY_LOADING_DESCRIPTION = "Loading holidays"
+        const val ADD_DESCRIPTION_WORD = "Add"
     }
 }
 

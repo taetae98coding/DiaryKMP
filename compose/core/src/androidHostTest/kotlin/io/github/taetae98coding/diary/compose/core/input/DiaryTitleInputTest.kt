@@ -2,7 +2,9 @@
 
 package io.github.taetae98coding.diary.compose.core.input
 
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
@@ -15,6 +17,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.text.TextLayoutResult
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
@@ -53,6 +56,38 @@ class DiaryTitleInputTest {
         composeRule.onNode(hasSetTextAction()).performKeyInput { pressKey(Key.Enter) }
 
         composeRule.runOnIdle { state.text.toString() shouldBe INITIAL_TEXT }
+    }
+
+    @Test
+    fun `TC-6ebff0ef-7ef6-484f-9320-797193da9091 입력 칸의 폭보다 긴 제목을 입력해도 입력 칸이 여러 줄로 늘어나지 않는다`() {
+        lateinit var state: DiaryTitleInputState
+        setDiaryTitleInput(initialText = INITIAL_TEXT, onState = { state = it })
+        val shortTitleHeight = titleInputHeight()
+
+        composeRule.runOnIdle { state.textFieldState.setTextAndPlaceCursorAtEnd(LONG_TITLE) }
+        composeRule.waitForIdle()
+
+        composeRule.onNode(hasSetTextAction()).assert(hasText(LONG_TITLE))
+        titleInputLineCount() shouldBe 1
+        titleInputHeight() shouldBe shortTitleHeight
+    }
+
+    private fun titleInputHeight(): Int =
+        composeRule
+            .onNode(hasSetTextAction())
+            .fetchSemanticsNode()
+            .size.height
+
+    private fun titleInputLineCount(): Int {
+        val layoutResultList = mutableListOf<TextLayoutResult>()
+        composeRule
+            .onNode(hasSetTextAction())
+            .fetchSemanticsNode()
+            .config[SemanticsActions.GetTextLayoutResult]
+            .action
+            ?.invoke(layoutResultList)
+
+        return layoutResultList.single().lineCount
     }
 
     @Test
@@ -110,6 +145,7 @@ class DiaryTitleInputTest {
         private const val DEFAULT_LABEL = "Title"
         private const val KOREAN_LABEL = "제목"
         private const val INITIAL_TEXT = "DiaryTitleInputValue"
+        private val LONG_TITLE = List(40) { index -> "긴제목$index" }.joinToString(separator = " ")
         private const val DEFAULT_CLEAR_DESCRIPTION = "Clear text"
         private const val REQUIRED_MARK = "*"
     }

@@ -9,14 +9,18 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.mockk
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import java.net.InetAddress
+import java.net.SocketException
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val START_TIMEOUT_MILLIS = 30_000L
+private val RETRY_OBSERVATION_DURATION = 1.hours
 private val SERVING_ADDRESS_REGEX = Regex("""http://192\.168\.0\.10:(\d+)""")
 
 class MusicDownloadProxyServerTest :
@@ -75,6 +79,31 @@ class MusicDownloadProxyServerTest :
                         first.shouldBeInstanceOf<MusicDownloadProxyStatus.Serving>()
                         second.shouldBeInstanceOf<MusicDownloadProxyStatus.Serving>()
                         (first == second) shouldBe false
+                    }
+                }
+            }
+        }
+        Given("이 기기의 네트워크 주소를 확인할 수 없어 프록시를 시작할 수 없다") {
+            When("프록시를 시작하면") {
+                Then("TC-83048de1-9142-4e82-92ab-1f6f8ae9346b 제공하지 못함이 되고 스스로 다시 시도하지 않는다") {
+                    runTest(timeout = START_TIMEOUT_MILLIS.milliseconds) {
+                        var addressLookupCount = 0
+                        val server =
+                            server(
+                                scope = backgroundScope,
+                                dispatcher = StandardTestDispatcher(testScheduler),
+                                networkAddressSource = {
+                                    addressLookupCount += 1
+                                    throw SocketException()
+                                },
+                            )
+
+                        val status = server.status.filterNotNull().first()
+                        delay(duration = RETRY_OBSERVATION_DURATION)
+
+                        status shouldBe MusicDownloadProxyStatus.Unavailable
+                        server.status.value shouldBe MusicDownloadProxyStatus.Unavailable
+                        addressLookupCount shouldBe 1
                     }
                 }
             }

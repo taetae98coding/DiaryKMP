@@ -16,6 +16,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.net.URI
+import javax.imageio.IIOImage
 import javax.imageio.ImageIO
 
 class JvmImageConverterTest :
@@ -87,12 +88,19 @@ class JvmImageConverterTest :
                 val region = ImageCropRegion(left = 0.25F, top = 0F, right = 0.75F, bottom = 1F)
 
                 val decoded =
-                    converter.convert(source = imageFileUri(bytes = opaqueJpeg(width = 8, height = 4)), format = ImageFormat.JPEG, cropRegion = region, maxSideLength = MAX_SIDE_LENGTH, quality = QUALITY).useBytes { bytes ->
-                        readJpeg(bytes = bytes)
-                    }
+                    converter
+                        .convert(source = imageFileUri(bytes = centerStripeJpeg(width = 48, height = 24)), format = ImageFormat.JPEG, cropRegion = region, maxSideLength = MAX_SIDE_LENGTH, quality = QUALITY)
+                        .useBytes { bytes -> readJpeg(bytes = bytes) }
 
-                decoded.width shouldBe 4
-                decoded.height shouldBe 4
+                decoded.width shouldBe 24
+                decoded.height shouldBe 24
+                // 영역을 왼쪽이나 오른쪽으로 잘못 남기면 두 지점 중 하나가 가장자리의 빨간색이 된다.
+                listOf(6, 18).forEach { x ->
+                    val color = Color(decoded.getRGB(x, decoded.height / 2))
+
+                    (color.blue > COLOR_THRESHOLD) shouldBe true
+                    (color.red < COLOR_THRESHOLD) shouldBe true
+                }
             }
         }
 
@@ -139,11 +147,27 @@ class JvmImageConverterTest :
                 decoded.height shouldBe 4
             }
         }
+
+        test("TC-f6322d14-3f05-40c5-b567-126f0c96ec39 여러 장면이 이어지는 사진은 첫 장면만 남긴다") {
+            runTest {
+                val converter = JvmImageConverter(dispatcher = StandardTestDispatcher(testScheduler))
+
+                val decoded =
+                    converter.convert(source = imageFileUri(bytes = animatedGif(Color.RED, Color.BLUE)), format = ImageFormat.JPEG, cropRegion = ImageCropRegion.FULL, maxSideLength = MAX_SIDE_LENGTH, quality = QUALITY).useBytes { bytes ->
+                        readJpeg(bytes = bytes)
+                    }
+                val center = Color(decoded.getRGB(decoded.width / 2, decoded.height / 2))
+
+                (center.red > COLOR_THRESHOLD) shouldBe true
+                (center.blue < COLOR_THRESHOLD) shouldBe true
+            }
+        }
     }) {
     public companion object {
         private const val IMAGE_SIZE = 4
         private const val MAX_SIDE_LENGTH = 1024
         private const val QUALITY = 90
+        private const val COLOR_THRESHOLD = 128
         private val JPEG_SOI_MARKER = byteArrayOf(0xFF.toByte(), 0xD8.toByte())
 
         private fun FileUri.toFile(): File = File(URI(value))
@@ -189,10 +213,49 @@ class JvmImageConverterTest :
             return image.encode(format = "png")
         }
 
+        private fun animatedGif(vararg frameColors: Color): ByteArray =
+            ByteArrayOutputStream().use { stream ->
+                val writer = ImageIO.getImageWritersByFormatName("gif").next()
+
+                ImageIO.createImageOutputStream(stream).use { output ->
+                    writer.output = output
+                    writer.prepareWriteSequence(null)
+                    frameColors.forEach { color ->
+                        val frame = BufferedImage(IMAGE_SIZE, IMAGE_SIZE, BufferedImage.TYPE_INT_RGB)
+                        frame.createGraphics().apply {
+                            this.color = color
+                            fillRect(0, 0, IMAGE_SIZE, IMAGE_SIZE)
+                            dispose()
+                        }
+                        writer.writeToSequence(IIOImage(frame, null, null), null)
+                    }
+                    writer.endWriteSequence()
+                }
+                writer.dispose()
+                stream.toByteArray()
+            }
+
         private fun opaqueJpeg(
             width: Int = IMAGE_SIZE,
             height: Int = IMAGE_SIZE,
         ): ByteArray = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB).encode(format = "jpg")
+
+        private fun centerStripeJpeg(
+            width: Int,
+            height: Int,
+        ): ByteArray {
+            val image = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
+
+            image.createGraphics().apply {
+                color = Color.RED
+                fillRect(0, 0, width, height)
+                color = Color.BLUE
+                fillRect(width / 4, 0, width / 2, height)
+                dispose()
+            }
+
+            return image.encode(format = "jpg")
+        }
 
         // ImageIO는 EXIF를 쓰지 못해, 방향 태그만 담은 APP1 조각을 SOI 뒤에 직접 끼워 넣는다.
         private fun jpegWithExifOrientation(

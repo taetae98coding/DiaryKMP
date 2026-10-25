@@ -3,6 +3,7 @@ package io.github.taetae98coding.diary.feature.tag.ui.memo.finished
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
@@ -14,10 +15,13 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -35,6 +39,7 @@ import io.github.taetae98coding.diary.feature.tag.ui.tagMemo
 import io.github.taetae98coding.diary.feature.tag.ui.tagMemoPagingData
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.ints.shouldBeLessThan
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -59,6 +64,27 @@ class TagMemoFinishedListScaffoldTest {
 
         composeRule.onNodeWithText(EMOJI_WITH_TAG_TITLE).assertIsDisplayed()
         composeRule.onNodeWithText(DEFAULT_SUBTITLE).assertIsDisplayed()
+    }
+
+    @Test
+    fun `TC-a357ef7d-9be7-48f9-8e3a-d90ef2203262 상단 바 폭보다 긴 태그 이모지와 제목은 여러 줄로 나뉘지 않고 한 줄에 생략 없이 담긴다`() {
+        setTagMemoFinishedListScaffold(uiState = TagMemoFinishedListUiState(title = LONG_EMOJI_WITH_TAG_TITLE))
+
+        val rootWidth =
+            composeRule
+                .onRoot()
+                .fetchSemanticsNode()
+                .size.width
+        val textLayoutResults = mutableListOf<TextLayoutResult>()
+        composeRule
+            .onNodeWithText(text = LONG_EMOJI_WITH_TAG_TITLE, useUnmergedTree = true)
+            .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { action -> action(textLayoutResults) }
+        val textLayoutResult = textLayoutResults.single()
+
+        (textLayoutResult.size.width > rootWidth) shouldBe true
+        textLayoutResult.lineCount shouldBe 1
+        textLayoutResult.isLineEllipsized(lineIndex = 0) shouldBe false
+        textLayoutResult.getLineEnd(lineIndex = 0, visibleEnd = false) shouldBe LONG_EMOJI_WITH_TAG_TITLE.length
     }
 
     @Test
@@ -326,6 +352,7 @@ class TagMemoFinishedListScaffoldTest {
         const val PAGING_ITEMS_TIMEOUT_MILLIS = 5_000L
         const val TAG_TITLE = "TagTitle"
         const val EMOJI_WITH_TAG_TITLE = "📌 TagTitle"
+        val LONG_EMOJI_WITH_TAG_TITLE = "📌 " + "LongTagTitle".repeat(60)
         const val EMOJI_WITH_UPDATED_TAG_TITLE = "📎 UpdatedTagTitle"
         const val DEFAULT_SUBTITLE = "Finished Memos"
         const val KOREAN_SUBTITLE = "완료된 메모"

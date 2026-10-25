@@ -130,6 +130,7 @@ class AccountCalendarContactBirthdayLocalDataSourceImplTest :
                     1990 to LocalDate(1990, 7, 8),
                     1991 to LocalDate(1991, 7, 8),
                     2026 to LocalDate(2026, 7, 8),
+                    2999 to LocalDate(2999, 7, 8),
                 )
 
             expectedDateByYear.forEach { (year, expectedDate) ->

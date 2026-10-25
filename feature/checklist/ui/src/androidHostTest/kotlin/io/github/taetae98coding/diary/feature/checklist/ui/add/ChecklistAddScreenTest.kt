@@ -1,5 +1,11 @@
 package io.github.taetae98coding.diary.feature.checklist.ui.add
 
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -20,6 +26,9 @@ import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.testing.TestLifecycleOwner
 import com.navercorp.fixturemonkey.kotlin.giveMeOne
 import io.github.taetae98coding.diary.compose.core.empty.DIARY_EMPTY_BOX_TEST_TAG
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
@@ -342,6 +351,33 @@ class ChecklistAddScreenTest {
     }
 
     @Test
+    fun `TC-aac255c8-8d37-46bf-9738-993f0b4e7ef3 백그라운드에 다녀와도 입력과 넣어 둔 항목을 유지한다`() {
+        val viewModel = relaxedViewModel()
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        composeRule.setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                DiaryTheme { ChecklistAddScreen(navigateUp = {}, componentVisibleProvider = { ChecklistAddScaffoldComponentVisible() }, viewModel = viewModel) }
+            }
+        }
+        composeRule.waitForIdle()
+        titleInput().performTextInput(TRIP)
+        descriptionInput().performTextInput(WEEKEND)
+        addItem(PASSPORT)
+        addItem(CHARGER)
+        itemInput().performTextInput(UMBRELLA)
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.CREATED }
+        composeRule.runOnIdle { lifecycleOwner.currentState = Lifecycle.State.RESUMED }
+        composeRule.waitForIdle()
+
+        titleInput().editableText() shouldBe TRIP
+        descriptionInput().editableText() shouldBe WEEKEND
+        itemTextList() shouldBe listOf(PASSPORT, CHARGER)
+        itemInput().editableText() shouldBe UMBRELLA
+    }
+
+    @Test
     fun `TC-bb7d5c7f-82c8-4068-90fd-4dd8b9f0a3d7 화면이 재생성되면 표시 중이던 제목 미입력 피드백을 다시 표시하지 않는다`() {
         assertFeedbackNotRestored(effect = ChecklistAddEffect.TitleBlank, message = DEFAULT_TITLE_BLANK)
     }
@@ -365,6 +401,41 @@ class ChecklistAddScreenTest {
         stateRestorationTester.emulateSavedInstanceStateRestore()
 
         composeRule.onNodeWithText(message).assertDoesNotExist()
+    }
+
+    @Test
+    fun `TC-6d8620ad-d03a-4d36-bcd4-bf86965af849 앱을 다시 실행해 진입하면 새 입력 상태로 시작한다`() {
+        var launchCount by mutableIntStateOf(0)
+        val viewModelList = mutableListOf<ChecklistAddViewModel>()
+        // 앱을 다시 실행하면 저장해 둔 화면 상태가 없고 화면 상태를 들고 있던 객체도 새로 만들어지므로, 새 키로 저장 상태 없이 새 인스턴스와 함께 화면을 다시 구성한다.
+        composeRule.setContent {
+            key(launchCount) {
+                val viewModel =
+                    remember {
+                        (if (launchCount == 0) effectViewModel(effect = ChecklistAddEffect.AddSucceeded) else relaxedViewModel()).also(viewModelList::add)
+                    }
+
+                DiaryTheme { ChecklistAddScreen(navigateUp = {}, componentVisibleProvider = { ChecklistAddScaffoldComponentVisible() }, viewModel = viewModel) }
+            }
+        }
+        composeRule.waitForIdle()
+        // 추가에 성공하면 입력을 비우므로, 피드백을 띄운 뒤에 다시 입력해 피드백과 입력이 함께 남은 상태를 만든다.
+        titleInput().performTextInput(TRIP)
+        clickAdd()
+        fillInput()
+        composeRule.onNodeWithText(DEFAULT_ADD_SUCCEEDED).assertExists()
+        itemTextList() shouldBe listOf(PASSPORT)
+
+        composeRule.runOnIdle { launchCount += 1 }
+        composeRule.waitForIdle()
+
+        viewModelList.size shouldBe 2
+        titleInput().editableText() shouldBe ""
+        descriptionInput().editableText() shouldBe ""
+        itemInput().editableText() shouldBe ""
+        composeRule.onNode(removeButtonMatcher()).assertDoesNotExist()
+        itemTextList() shouldBe emptyList()
+        composeRule.onNodeWithText(DEFAULT_ADD_SUCCEEDED).assertDoesNotExist()
     }
 
     @Test

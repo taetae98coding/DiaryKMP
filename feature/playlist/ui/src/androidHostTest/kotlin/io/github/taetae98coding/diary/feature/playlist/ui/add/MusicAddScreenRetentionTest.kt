@@ -1,6 +1,10 @@
 package io.github.taetae98coding.diary.feature.playlist.ui.add
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
@@ -68,5 +72,37 @@ class MusicAddScreenRetentionTest {
         composeRule.artistInput().assert(hasText(TYPED_ARTIST))
         composeRule.linkInput().assert(hasText(TYPED_LINK))
         composeRule.thumbnailPreviewCount() shouldBe 1
+    }
+
+    @Test
+    fun `TC-09f2f4b8-425d-447d-8551-809b35bb8ad5 앱을 다시 실행해 진입하면 새 입력 상태로 시작한다`() {
+        var launchCount by mutableIntStateOf(0)
+        val viewModelList = mutableListOf<MusicAddViewModel>()
+        // 앱을 다시 실행하면 저장해 둔 화면 상태가 없고 화면 상태를 들고 있던 객체도 새로 만들어지므로, 새 키로 저장 상태 없이 새 인스턴스와 함께 화면을 다시 구성한다.
+        composeRule.setContent {
+            key(launchCount) {
+                val viewModel = remember { screenTestViewModel().also(viewModelList::add) }
+
+                DiaryTheme {
+                    MusicAddScreen(
+                        navigateUp = {},
+                        componentVisibleProvider = { MusicAddScaffoldComponentVisible() },
+                        viewModel = viewModel,
+                    )
+                }
+            }
+        }
+        composeRule.fillAllInput()
+        composeRule.titleInput().assert(hasText(TYPED_TITLE))
+
+        composeRule.runOnIdle { launchCount += 1 }
+        composeRule.waitForIdle()
+
+        viewModelList.size shouldBe 2
+        composeRule.titleInput().assert(hasText(""))
+        composeRule.artistInput().assert(hasText(""))
+        composeRule.linkInput().assert(hasText(""))
+        composeRule.inputCount() shouldBe INPUT_COUNT
+        composeRule.thumbnailPreviewCount() shouldBe 0
     }
 }

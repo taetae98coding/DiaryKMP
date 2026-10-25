@@ -1,6 +1,10 @@
 package io.github.taetae98coding.diary.feature.tag.ui.add
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
@@ -27,6 +31,7 @@ import io.github.taetae98coding.diary.domain.tag.usecase.AddTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.GetSelectedTagUseCase
 import io.github.taetae98coding.diary.domain.tag.usecase.PageTagUseCase
 import io.github.taetae98coding.diary.feature.tag.ui.TEST_TAG_ADD_REQUEST_KEY
+import io.github.taetae98coding.diary.feature.tag.ui.fixtureId
 import io.github.taetae98coding.diary.feature.tag.ui.fixtureText
 import io.github.taetae98coding.diary.feature.tag.ui.link.TagLinkInputUiState
 import io.github.taetae98coding.diary.feature.tag.ui.link.WORK_TAG_TITLE
@@ -290,6 +295,96 @@ class TagAddScreenTest {
         detailSlot.captured.description shouldBe ""
     }
 
+    // 앱을 다시 실행하면 저장해 둔 화면 상태도, 화면 상태를 들고 있던 객체도 없으므로 새 키와 새 인스턴스로 화면을 다시 구성한다.
+    @Test
+    fun `TC-7ba682b6-cecf-49fb-9305-f7eb447753cf 앱을 다시 실행한 뒤 새로 진입하면 새로운 입력 상태로 시작한다`() {
+        var launchCount by mutableIntStateOf(0)
+        composeRule.setContent {
+            key(launchCount) {
+                TagAddScreenTestTheme {
+                    TagAddScreen(
+                        navigateToTagAdd = {},
+                        addedResultRequestKey = null,
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        navigateUp = {},
+                        navigateToDetail = {},
+                        addViewModel = remember { screenTestViewModel() },
+                        linkViewModel = remember { screenTestLinkViewModel() },
+                        componentVisibleProvider = { TagAddScaffoldComponentVisible() },
+                    )
+                }
+            }
+        }
+        changeColor(hex = BLUE_HEX)
+        composeRule.titleInput().performTextInput(TYPED_TITLE)
+        composeRule.descriptionInput().performTextInput(TYPED_DESCRIPTION)
+        composeRule.waitForIdle()
+        currentColorHex() shouldBe BLUE_HEX
+
+        composeRule.runOnIdle { launchCount += 1 }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(TYPED_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(TYPED_DESCRIPTION).assertDoesNotExist()
+        composeRule.titleInput().assert(hasText(""))
+        composeRule.descriptionInput().assert(hasText(""))
+        // 새 무작위 컬러가 고른 컬러와 우연히 같을 확률은 약 1,600만 분의 1이라 새 컬러 제시를 값의 변화로 판정한다.
+        currentColorHex() shouldNotBe BLUE_HEX
+    }
+
+    // 화면을 떠나면 저장해 둔 화면 상태도, 화면 상태를 들고 있던 객체도 사라지므로 다시 진입한 화면은 새 키와 새 인스턴스로 구성한다.
+    @Test
+    fun `TC-a54f9661-82c2-4fe5-a8b0-b48a904eac4c 추가를 실행하지 않고 화면을 떠나면 입력한 내용은 저장되지 않고 사라진다`() {
+        val linkedTag = testTag(title = WORK_TAG_TITLE)
+        val addTagUseCase = mockk<AddTagUseCase>()
+        coEvery { addTagUseCase(any()) } returns Result.success(fixtureId())
+        val enteredAddViewModelList = List(ENTRY_COUNT) { TagAddViewModel(addTagUseCase = addTagUseCase) }
+        val enteredLinkViewModelList = List(ENTRY_COUNT) { realLinkViewModel(tagList = listOf(linkedTag)) }
+        var entryCount by mutableIntStateOf(0)
+        var navigateUpCount = 0
+        composeRule.setContent {
+            key(entryCount) {
+                TagAddScreenTestTheme {
+                    TagAddScreen(
+                        navigateToTagAdd = {},
+                        addedResultRequestKey = null,
+                        tagAddRequestKey = TEST_TAG_ADD_REQUEST_KEY,
+                        navigateUp = { navigateUpCount += 1 },
+                        navigateToDetail = {},
+                        addViewModel = enteredAddViewModelList[entryCount],
+                        linkViewModel = enteredLinkViewModelList[entryCount],
+                        componentVisibleProvider = { TagAddScaffoldComponentVisible() },
+                    )
+                }
+            }
+        }
+        composeRule.runOnIdle { enteredLinkViewModelList[0].link(id = linkedTag.id) }
+        composeRule.inputEmoji(emoji = TYPED_EMOJI)
+        composeRule.titleInput().performTextInput(TYPED_TITLE)
+        composeRule.descriptionInput().performTextInput(TYPED_DESCRIPTION)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(WORK_TAG_TITLE).assertExists()
+        coVerify(exactly = 0) { addTagUseCase(any()) }
+
+        composeRule.onNodeWithContentDescription(DEFAULT_NAVIGATE_UP_DESCRIPTION).performClick()
+        composeRule.waitForIdle()
+        navigateUpCount shouldBe 1
+        composeRule.runOnIdle { entryCount += 1 }
+        composeRule.waitForIdle()
+
+        coVerify(exactly = 0) { addTagUseCase(any()) }
+        composeRule.emojiInput().assert(hasText(DEFAULT_EMOJI_LABEL))
+        composeRule.titleInput().assert(hasText(""))
+        composeRule.descriptionInput().assert(hasText(""))
+        composeRule.onNodeWithText(TYPED_TITLE).assertDoesNotExist()
+        composeRule.onNodeWithText(WORK_TAG_TITLE).assertDoesNotExist()
+        composeRule.runOnIdle {
+            enteredLinkViewModelList[1]
+                .selectionUiState.value.linkedTagIdSet
+                .shouldBeEmpty()
+        }
+    }
+
     private fun assertFocusMovesToTitle(effect: TagAddEffect) {
         val effectChannel = Channel<TagAddEffect>(capacity = Channel.BUFFERED)
         val viewModel = screenTestViewModel(effect = effectChannel.receiveAsFlow())
@@ -416,6 +511,7 @@ class TagAddScreenTest {
         private const val DEFAULT_ADD_SUCCEEDED_MESSAGE = "Tag added."
         private const val DEFAULT_TITLE_BLANK_MESSAGE = "Please enter a title."
         private const val RGB_MASK = 0xFFFFFF
+        private const val ENTRY_COUNT = 2
 
         private val hexRegex = Regex(pattern = "#[0-9A-F]{6}")
 
