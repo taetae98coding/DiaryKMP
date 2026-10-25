@@ -39,11 +39,11 @@ class SettingFileScreenTest {
     }
 
     @Test
-    fun `TC-792f8c12-646b-4778-b076-60d8c401f617 폴더 고르기를 실행하면 폴더 선택 도구를 연다`() {
+    fun `TC-792f8c12-646b-4778-b076-60d8c401f617 현재 위치를 선택하면 폴더 선택 도구를 연다`() {
         val directoryPicker = mockk<DirectoryPicker>(relaxed = true)
         setSettingFileScreen(viewModel = viewModel(directory = null), directoryPicker = directoryPicker)
 
-        composeRule.onNodeWithText("폴더 고르기").performClick()
+        composeRule.onNodeWithText("기본 위치").performClick()
         composeRule.waitForIdle()
 
         verify(exactly = 1) { directoryPicker.open() }

@@ -6,15 +6,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.github.taetae98coding.diary.compose.core.icon.FolderIcon
-import io.github.taetae98coding.diary.compose.core.icon.FolderOpenIcon
 import io.github.taetae98coding.diary.compose.core.icon.UndoIcon
 import io.github.taetae98coding.diary.compose.core.listitem.DiarySegmentedListItem
 import io.github.taetae98coding.diary.compose.core.listitem.DiarySegmentedListItemDefaults
-import io.github.taetae98coding.diary.compose.core.listitem.DiaryStaticSegmentedListItem
 import io.github.taetae98coding.diary.compose.core.preview.ComponentPreview
 import io.github.taetae98coding.diary.compose.core.theme.DiaryTheme
 import io.github.taetae98coding.diary.core.model.file.FileDownloadDirectory
@@ -56,24 +55,17 @@ internal fun SettingFileDownloadLocationSection(
             modifier = Modifier.animateContentSize(),
             verticalArrangement = Arrangement.spacedBy(DiarySegmentedListItemDefaults.Gap),
         ) {
-            val count = if (directory == null) 2 else 3
+            val count = if (directory == null) 1 else 2
 
             SettingFileCurrentLocationItem(
+                onClick = onChooseClick,
                 directory = directory,
                 count = count,
             )
-            DiarySegmentedListItem(
-                onClick = onChooseClick,
-                index = 1,
-                count = count,
-                leadingContent = { FolderOpenIcon() },
-            ) {
-                Text(text = stringResource(Res.string.setting_file_choose_directory))
-            }
             if (directory != null) {
                 DiarySegmentedListItem(
                     onClick = onResetClick,
-                    index = 2,
+                    index = 1,
                     count = count,
                     leadingContent = { UndoIcon() },
                 ) {
@@ -86,12 +78,22 @@ internal fun SettingFileDownloadLocationSection(
 
 @Composable
 private fun SettingFileCurrentLocationItem(
+    onClick: () -> Unit,
     directory: FileDownloadDirectory?,
     count: Int,
     modifier: Modifier = Modifier,
 ) {
-    DiaryStaticSegmentedListItem(
-        modifier = modifier.semantics(mergeDescendants = true) {},
+    val chooseLabel = stringResource(Res.string.setting_file_choose_directory)
+
+    DiarySegmentedListItem(
+        onClick = onClick,
+        modifier =
+            modifier.semantics {
+                onClick(label = chooseLabel) {
+                    onClick()
+                    true
+                }
+            },
         index = 0,
         count = count,
         leadingContent = { FolderIcon() },

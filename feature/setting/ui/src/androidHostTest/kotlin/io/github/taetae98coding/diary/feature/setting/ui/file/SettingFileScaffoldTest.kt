@@ -1,5 +1,8 @@
 package io.github.taetae98coding.diary.feature.setting.ui.file
 
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -40,7 +43,6 @@ class SettingFileScaffoldTest {
 
         composeRule.onNodeWithText(DOWNLOAD_LOCATION_LABEL).assertDoesNotExist()
         composeRule.onNodeWithText(DEFAULT_LOCATION_LABEL).assertDoesNotExist()
-        composeRule.onNodeWithText(CHOOSE_LABEL).assertDoesNotExist()
         composeRule.onNodeWithText(RESET_LABEL).assertDoesNotExist()
     }
 
@@ -48,9 +50,8 @@ class SettingFileScaffoldTest {
     fun `TC-2e3176b1-a1f4-4217-9cb9-e7141780387f 고른 폴더가 없으면 기본 위치를 쓴다고 표시하고 되돌리기를 제공하지 않는다`() {
         setSettingFileScaffold(uiState = SettingFileUiState.Content(directory = null))
 
-        composeRule.onNodeWithText(DEFAULT_LOCATION_LABEL).assertExists()
+        composeRule.onNodeWithText(DEFAULT_LOCATION_LABEL).assert(hasClickLabel(CHOOSE_LABEL))
         composeRule.onNodeWithText("기기의 Download 폴더").assertExists()
-        composeRule.onNodeWithText(CHOOSE_LABEL).assert(hasClickAction())
         composeRule.onNodeWithText(RESET_LABEL).assertDoesNotExist()
     }
 
@@ -59,10 +60,9 @@ class SettingFileScaffoldTest {
         val directory = fixtureMonkey.giveMeOne<FileDownloadDirectory>().copy(name = "Documents")
         setSettingFileScaffold(uiState = SettingFileUiState.Content(directory = directory))
 
-        composeRule.onNodeWithText("Documents").assertExists()
+        composeRule.onNodeWithText("Documents").assert(hasClickLabel(CHOOSE_LABEL))
         composeRule.onNodeWithText(CHOSEN_DIRECTORY_LABEL).assertExists()
         composeRule.onNodeWithText(DEFAULT_LOCATION_LABEL, useUnmergedTree = true).assertDoesNotExist()
-        composeRule.onNodeWithText(CHOOSE_LABEL).assert(hasClickAction())
         composeRule.onNodeWithText(RESET_LABEL).assert(hasClickAction())
     }
 
@@ -76,6 +76,13 @@ class SettingFileScaffoldTest {
         composeRule.onNodeWithText(directory.uri, useUnmergedTree = true).assertDoesNotExist()
     }
 
+    @Test
+    fun `현재 위치와 따로 폴더 고르기 항목을 두지 않는다`() {
+        setSettingFileScaffold(uiState = SettingFileUiState.Content(directory = null))
+
+        composeRule.onNodeWithText(CHOOSE_LABEL, useUnmergedTree = true).assertDoesNotExist()
+    }
+
     private fun setSettingFileScaffold(uiState: SettingFileUiState) {
         composeRule.setContent {
             DiaryTheme {
@@ -87,6 +94,11 @@ class SettingFileScaffoldTest {
         }
     }
 }
+
+private fun hasClickLabel(label: String): SemanticsMatcher =
+    SemanticsMatcher("click label is $label") { node ->
+        node.config.getOrNull(SemanticsActions.OnClick)?.label == label
+    }
 
 private const val DOWNLOAD_LOCATION_LABEL = "다운로드 위치"
 private const val RESET_LABEL = "기본 위치로 되돌리기"

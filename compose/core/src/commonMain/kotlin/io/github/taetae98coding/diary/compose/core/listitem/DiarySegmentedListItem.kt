@@ -35,6 +35,7 @@ public fun DiarySegmentedListItem(
     index: Int = 0,
     count: Int = 1,
     leadingContent: @Composable (() -> Unit)? = null,
+    supportingContent: @Composable (() -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
     SegmentedListItem(
@@ -43,6 +44,7 @@ public fun DiarySegmentedListItem(
         modifier = modifier.fillMaxWidth(),
         colors = DiarySegmentedListItemDefaults.colors(),
         leadingContent = leadingContent,
+        supportingContent = supportingContent,
         content = content,
     )
 }
