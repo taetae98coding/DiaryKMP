@@ -30,8 +30,13 @@ internal class ComposePrimitivePlugin : Plugin<Project> {
 
     private fun Project.configureComposeCompiler() {
         extensions.configure<ComposeCompilerGradlePluginExtension> {
-            metricsDestination.set(layout.buildDirectory.dir("compose/metrics"))
-            reportsDestination.set(layout.buildDirectory.dir("compose/reports"))
+            // 리포트는 컴파일마다 파일을 써서 빌드를 느리게 하므로 -PenableComposeCompilerMetrics=true, -PenableComposeCompilerReports=true로 요청할 때만 만든다.
+            if (providers.gradleProperty(COMPOSE_COMPILER_METRICS_PROPERTY).orNull.toBoolean()) {
+                metricsDestination.set(layout.buildDirectory.dir("compose/metrics"))
+            }
+            if (providers.gradleProperty(COMPOSE_COMPILER_REPORTS_PROPERTY).orNull.toBoolean()) {
+                reportsDestination.set(layout.buildDirectory.dir("compose/reports"))
+            }
             stabilityConfigurationFiles.add(layout.settingsDirectory.file("config/compose/stability.conf"))
         }
     }
@@ -74,3 +79,6 @@ internal class ComposePrimitivePlugin : Plugin<Project> {
         }
     }
 }
+
+private const val COMPOSE_COMPILER_METRICS_PROPERTY = "enableComposeCompilerMetrics"
+private const val COMPOSE_COMPILER_REPORTS_PROPERTY = "enableComposeCompilerReports"
