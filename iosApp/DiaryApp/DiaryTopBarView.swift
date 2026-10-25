@@ -7,17 +7,14 @@ import UIKit
 nonisolated final class DiaryTopBarRendererImpl: DiaryTopBarRendererBase, DiaryTopBarRenderer {
     func createViewController() -> UIViewController {
         MainActor.assumeIsolated {
-            DiaryTopBarHostingController()
+            DiaryTopBarViewController()
         }
     }
 
     func update(viewController: UIViewController, state: DiaryTopBarState) {
         MainActor.assumeIsolated {
-            guard let hostingController = viewController as? DiaryTopBarHostingController else { return }
-            hostingController.model.state = state
-            // SwiftUI는 상태 변화를 다음 화면 갱신 때 반영하므로, Compose가 그린 같은 프레임에 상단 바도 맞도록 바로 다시 배치한다.
-            hostingController.view.setNeedsLayout()
-            hostingController.view.layoutIfNeeded()
+            guard let topBarViewController = viewController as? DiaryTopBarViewController else { return }
+            topBarViewController.update(state: state)
         }
     }
 }
@@ -25,22 +22,64 @@ nonisolated final class DiaryTopBarRendererImpl: DiaryTopBarRendererBase, DiaryT
 @Observable
 final class DiaryTopBarModel {
     var state: DiaryTopBarState?
+
+    // 누름을 받을지 판단할 때만 읽으므로 바뀌어도 상단 바를 다시 그리지 않는다.
+    @ObservationIgnored var glassFrames: [DiaryTopBarGlass: CGRect] = [:]
 }
 
-final class DiaryTopBarHostingController: UIHostingController<DiaryTopBarView> {
-    let model: DiaryTopBarModel
+enum DiaryTopBarGlass {
+    case navigateUp
+    case actions
+    case search
+}
 
-    init() {
-        let model = DiaryTopBarModel()
-        self.model = model
-        super.init(rootView: DiaryTopBarView(model: model))
-        // 상단 바 자리는 Compose가 시스템 영역 아래로 잡아 주므로 SwiftUI가 시스템 영역만큼 다시 비우지 않게 한다.
-        safeAreaRegions = []
-        view.backgroundColor = .clear
+final class DiaryTopBarViewController: UIViewController {
+    private let model = DiaryTopBarModel()
+    private lazy var hostingController = UIHostingController(rootView: DiaryTopBarView(model: model))
+
+    override func loadView() {
+        view = DiaryTopBarPassthroughView(model: model)
     }
 
-    @MainActor @preconcurrency required dynamic init?(coder: NSCoder) {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .clear
+        // 상단 바 자리는 Compose가 시스템 영역 아래로 잡아 주므로 SwiftUI가 시스템 영역만큼 다시 비우지 않게 한다.
+        hostingController.safeAreaRegions = []
+        hostingController.view.backgroundColor = .clear
+        addChild(hostingController)
+        hostingController.view.frame = view.bounds
+        hostingController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        view.addSubview(hostingController.view)
+        hostingController.didMove(toParent: self)
+    }
+
+    func update(state: DiaryTopBarState) {
+        model.state = state
+        // SwiftUI는 상태 변화를 다음 화면 갱신 때 반영하므로, Compose가 그린 같은 프레임에 상단 바도 맞도록 바로 다시 배치한다.
+        hostingController.view.setNeedsLayout()
+        hostingController.view.layoutIfNeeded()
+    }
+}
+
+// 제목은 이 뷰 아래의 Compose가 그린다. SwiftUI 호스팅 뷰는 아무것도 없는 자리의 누름도 가져가므로,
+// 유리 면 자리의 누름만 받고 나머지는 아래 Compose로 넘긴다.
+private final class DiaryTopBarPassthroughView: UIView {
+    private let model: DiaryTopBarModel
+
+    init(model: DiaryTopBarModel) {
+        self.model = model
+        super.init(frame: .zero)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
         fatalError("init(coder:) is not supported")
+    }
+
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        guard model.glassFrames.values.contains(where: { frame in frame.contains(point) }) else { return nil }
+        return super.hitTest(point, with: event)
     }
 }
 
@@ -49,7 +88,7 @@ struct DiaryTopBarView: View {
 
     var body: some View {
         if let state = model.state {
-            DiaryTopBarContent(state: state)
+            DiaryTopBarContent(state: state, model: model)
         }
     }
 }
@@ -58,24 +97,24 @@ private nonisolated enum DiaryTopBarMetrics {
     static let horizontalPadding: CGFloat = 16
     static let buttonSize: CGFloat = 44
     static let spacing: CGFloat = 8
-    static let textButtonOutlineSize: CGFloat = 32
-    static let textButtonOutlineCornerRadius: CGFloat = 12
-    static let textButtonOutlineWidth: CGFloat = 1
+    static let coordinateSpace = "DiaryTopBar"
 }
 
 private struct DiaryTopBarContent: View {
     let state: DiaryTopBarState
+    let model: DiaryTopBarModel
 
     var body: some View {
         let highlightColor = Color(uiColor: state.highlightColor)
 
-        DiaryTopBarLayout(fillsTitleWidth: state.search != nil) {
+        DiaryTopBarLayout {
             leading(highlightColor: highlightColor)
-            title
+            search
             trailing(highlightColor: highlightColor)
         }
         .padding(.horizontal, DiaryTopBarMetrics.horizontalPadding)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .coordinateSpace(.named(DiaryTopBarMetrics.coordinateSpace))
     }
 
     @ViewBuilder
@@ -83,47 +122,19 @@ private struct DiaryTopBarContent: View {
         if let navigateUp = state.navigateUp {
             DiaryTopBarButtonView(button: navigateUp, highlightColor: highlightColor)
                 .glassEffect(.regular.interactive(), in: .circle)
+                .diaryTopBarGlassFrame(.navigateUp, model: model)
         } else {
             Color.clear.frame(width: 0, height: 0)
         }
     }
 
     @ViewBuilder
-    private var title: some View {
+    private var search: some View {
         if let search = state.search {
             DiaryTopBarSearchField(search: search)
-        } else if let titleButton = state.titleButton {
-            Button {
-                titleButton.click()
-            } label: {
-                HStack(spacing: 2) {
-                    Text(state.title)
-                        .font(.headline)
-                        .lineLimit(1)
-                    if let image = titleButton.image {
-                        Image(uiImage: image)
-                            .renderingMode(.template)
-                    }
-                }
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(.primary)
-            .accessibilityLabel(state.title)
-            .accessibilityHint(titleButton.hintDescription)
+                .diaryTopBarGlassFrame(.search, model: model)
         } else {
-            VStack(spacing: 0) {
-                Text(state.title)
-                    .font(.headline)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-                if let subtitle = state.subtitle {
-                    Text(subtitle)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-            }
-            .accessibilityElement(children: .combine)
+            Color.clear.frame(width: 0, height: 0)
         }
     }
 
@@ -141,6 +152,7 @@ private struct DiaryTopBarContent: View {
                 }
             }
             .glassEffect(.regular.interactive(), in: .capsule)
+            .diaryTopBarGlassFrame(.actions, model: model)
             // 목록에 넣고 빼는 버튼은 곧바로 나타나고 사라지고, 숨김 여부를 가진 버튼만 바뀔 때 전환을 거친다.
             .animation(.default, value: state.actions.filter { !$0.isVisible }.map(\.id))
         }
@@ -169,11 +181,6 @@ private struct DiaryTopBarButtonView: View {
                     Text(text)
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(Color.primary)
-                        .frame(width: DiaryTopBarMetrics.textButtonOutlineSize, height: DiaryTopBarMetrics.textButtonOutlineSize)
-                        .overlay {
-                            RoundedRectangle(cornerRadius: DiaryTopBarMetrics.textButtonOutlineCornerRadius)
-                                .strokeBorder(Color.primary, lineWidth: DiaryTopBarMetrics.textButtonOutlineWidth)
-                        }
                 }
             }
             .frame(width: DiaryTopBarMetrics.buttonSize, height: DiaryTopBarMetrics.buttonSize)
@@ -255,10 +262,21 @@ private struct DiaryTopBarSearchField: View {
     }
 }
 
-// iOS 상단 바처럼 제목을 화면 가운데에 두되, 양쪽 버튼과 겹치면 버튼 사이 남은 자리를 쓴다.
-private struct DiaryTopBarLayout: Layout {
-    let fillsTitleWidth: Bool
+private extension View {
+    func diaryTopBarGlassFrame(_ glass: DiaryTopBarGlass, model: DiaryTopBarModel) -> some View {
+        onGeometryChange(for: CGRect.self) { proxy in
+            proxy.frame(in: .named(DiaryTopBarMetrics.coordinateSpace))
+        } action: { frame in
+            model.glassFrames[glass] = frame
+        }
+        .onDisappear {
+            model.glassFrames[glass] = nil
+        }
+    }
+}
 
+// 양쪽 버튼을 끝에 두고, 검색 입력은 두 버튼 사이에 남은 자리를 모두 쓴다.
+private struct DiaryTopBarLayout: Layout {
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
         proposal.replacingUnspecifiedDimensions()
     }
@@ -275,21 +293,11 @@ private struct DiaryTopBarLayout: Layout {
         let leadingInset = leadingSize.width > 0 ? leadingSize.width + DiaryTopBarMetrics.spacing : 0
         let trailingInset = trailingSize.width > 0 ? trailingSize.width + DiaryTopBarMetrics.spacing : 0
         let betweenWidth = max(bounds.width - leadingInset - trailingInset, 0)
-        let centeredWidth = max(bounds.width - max(leadingInset, trailingInset) * 2, 0)
-        let titleWidth = subviews[1].sizeThatFits(ProposedViewSize(width: betweenWidth, height: bounds.height)).width
 
-        if !fillsTitleWidth && titleWidth <= centeredWidth {
-            subviews[1].place(
-                at: CGPoint(x: bounds.midX, y: bounds.midY),
-                anchor: .center,
-                proposal: ProposedViewSize(width: centeredWidth, height: bounds.height)
-            )
-        } else {
-            subviews[1].place(
-                at: CGPoint(x: bounds.minX + leadingInset + betweenWidth / 2, y: bounds.midY),
-                anchor: .center,
-                proposal: ProposedViewSize(width: betweenWidth, height: bounds.height)
-            )
-        }
+        subviews[1].place(
+            at: CGPoint(x: bounds.minX + leadingInset + betweenWidth / 2, y: bounds.midY),
+            anchor: .center,
+            proposal: ProposedViewSize(width: betweenWidth, height: bounds.height)
+        )
     }
 }

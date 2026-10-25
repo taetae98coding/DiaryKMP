@@ -9,5 +9,8 @@ internal object DiaryTopBarDefaults {
     val TitleButtonVerticalPadding: Dp = 4.dp
     val IosBarHeight: Dp = 52.dp
     val IosIconSize: Dp = 24.dp
+    val IosHorizontalPadding: Dp = 16.dp
+    val IosButtonSize: Dp = 44.dp
+    val IosTitleSpacing: Dp = 8.dp
     const val TITLE_MAX_LINES: Int = 1
 }

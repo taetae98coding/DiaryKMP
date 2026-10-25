@@ -4,27 +4,35 @@ package io.github.taetae98coding.diary.compose.core.appbar
 
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ParentDataModifierNode
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.viewinterop.UIKitInteropInteractionMode
@@ -35,8 +43,6 @@ import io.github.taetae98coding.diary.compose.core.clear_text_field_button_conte
 import io.github.taetae98coding.diary.compose.core.graphics.rememberTemplateUIImage
 import io.github.taetae98coding.diary.compose.core.graphics.toUIColor
 import io.github.taetae98coding.diary.compose.core.icon.ArrowBack
-import io.github.taetae98coding.diary.compose.core.icon.ArrowDropDown
-import io.github.taetae98coding.diary.compose.core.icon.ArrowDropUp
 import io.github.taetae98coding.diary.compose.core.icon.Close
 import io.github.taetae98coding.diary.compose.core.icon.DiaryIcons
 import io.github.taetae98coding.diary.compose.core.icon.Search
@@ -76,11 +82,6 @@ public actual fun DiaryTopBar(
                 .windowInsetsPadding(TopAppBarDefaults.windowInsets)
                 .height(DiaryTopBarDefaults.IosBarHeight),
     ) {
-        UiKitTopBarItemCollector(items = items) {
-            uiKitNavigationIconScope.navigationIcon()
-            uiKitTitleScope.title()
-            uiKitActionScope.actions()
-        }
         UIKitViewController(
             factory = renderer::createViewController,
             modifier = Modifier.fillMaxSize(),
@@ -100,7 +101,55 @@ public actual fun DiaryTopBar(
                     placedAsOverlay = true,
                 ),
         )
+        // 네이티브 뷰는 화면에 그려지는 순서와 상관없이 Compose 위에 놓이지만, Compose 안에서 누름을 받는 순서는 나중에 둔 요소가 먼저다.
+        // 제목을 네이티브 뷰보다 뒤에 두어야 유리 면 밖을 누를 때 네이티브 뷰 자리가 아니라 제목이 누름을 받는다.
+        UiKitTopBarTitleLayout(
+            items = items,
+            modifier = Modifier.fillMaxSize(),
+            isTitleCentered = isTitleCentered,
+        ) {
+            uiKitNavigationIconScope.navigationIcon()
+            uiKitTitleScope.title()
+            uiKitActionScope.actions()
+            UiKitTopBarComposeTitle(
+                title = title,
+                modifier = Modifier.layoutId(TITLE_LAYOUT_ID),
+                isTitleCentered = isTitleCentered,
+            )
+        }
     }
+}
+
+@Composable
+private fun UiKitTopBarComposeTitle(
+    title: @Composable DiaryTopBarTitleScope.() -> Unit,
+    modifier: Modifier = Modifier,
+    isTitleCentered: Boolean = false,
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = if (isTitleCentered) Alignment.CenterHorizontally else Alignment.Start,
+    ) {
+        ProvideContentColorTextStyle(contentColor = DiaryTheme.colorScheme.onSurface, textStyle = DiaryTheme.typography.titleLarge) {
+            materialNonSearchTitleScope.title()
+        }
+        ProvideContentColorTextStyle(contentColor = DiaryTheme.colorScheme.onSurfaceVariant, textStyle = DiaryTheme.typography.labelMedium) {
+            materialSubtitleScope.title()
+        }
+    }
+}
+
+@Composable
+private fun ProvideContentColorTextStyle(
+    contentColor: Color,
+    textStyle: TextStyle,
+    content: @Composable () -> Unit,
+) {
+    CompositionLocalProvider(
+        LocalContentColor provides contentColor,
+        LocalTextStyle provides LocalTextStyle.current.merge(textStyle),
+        content = content,
+    )
 }
 
 private class UiKitTopBarItems {
@@ -108,16 +157,6 @@ private class UiKitTopBarItems {
 }
 
 private sealed interface UiKitTopBarItem {
-    class Title(
-        val text: String,
-        val subtitle: String?,
-    ) : UiKitTopBarItem
-
-    class TitleButton(
-        val text: String,
-        val button: UiKitTopBarTitleButton,
-    ) : UiKitTopBarItem
-
     class Search(
         val search: UiKitTopBarSearch,
     ) : UiKitTopBarItem
@@ -131,36 +170,67 @@ private sealed interface UiKitTopBarItem {
     ) : UiKitTopBarItem
 }
 
-private fun List<UiKitTopBarItem>.toUiKitTopBarState(highlightColor: UIColor): UiKitTopBarState {
-    val title = filterIsInstance<UiKitTopBarItem.Title>().firstOrNull()
-    val titleButton = filterIsInstance<UiKitTopBarItem.TitleButton>().firstOrNull()
-
-    return UiKitTopBarState(
-        title = title?.text ?: titleButton?.text.orEmpty(),
-        subtitle = title?.subtitle,
-        titleButton = titleButton?.button,
+private fun List<UiKitTopBarItem>.toUiKitTopBarState(highlightColor: UIColor): UiKitTopBarState =
+    UiKitTopBarState(
         search = filterIsInstance<UiKitTopBarItem.Search>().firstOrNull()?.search,
         navigateUp = filterIsInstance<UiKitTopBarItem.NavigateUp>().firstOrNull()?.button,
         actions = filterIsInstance<UiKitTopBarItem.Action>().map { action -> action.button },
         highlightColor = highlightColor,
     )
-}
 
 // 슬롯에 무엇을 두었는지는 composition을 거쳐야 알 수 있다. 스코프가 부른 요소마다 크기 없는 노드를 하나씩 두고
 // 그 parentData에 항목을 담으면, 측정할 때 받는 노드 순서가 슬롯에서 부른 순서와 같다.
-// 모은 항목은 composition이 아니라 UIKitViewController의 update 블록에서만 읽으므로 측정과 composition이 서로를 다시 부르지 않는다.
+// 모은 항목은 composition이 아니라 이 측정과 UIKitViewController의 update 블록에서만 읽으므로 측정과 composition이 서로를 다시 부르지 않는다.
+// 제목이 피할 유리 면의 폭도 모은 항목으로 정해지므로 같은 측정에서 제목 자리를 정한다.
 @Composable
-private fun UiKitTopBarItemCollector(
+private fun UiKitTopBarTitleLayout(
     items: UiKitTopBarItems,
+    modifier: Modifier = Modifier,
+    isTitleCentered: Boolean = false,
     content: @Composable () -> Unit,
 ) {
-    Layout(content = content) { measurables, _ ->
-        val placeables = measurables.map { measurable -> measurable.measure(Constraints.fixed(width = 0, height = 0)) }
-        items.value = measurables.mapNotNull { measurable -> measurable.parentData as? UiKitTopBarItem }
+    Layout(content = content, modifier = modifier) { measurables, constraints ->
+        val itemMeasurables = measurables.filter { measurable -> measurable.parentData is UiKitTopBarItem }
+        val itemPlaceables = itemMeasurables.map { measurable -> measurable.measure(Constraints.fixed(width = 0, height = 0)) }
+        val collectedItems = itemMeasurables.map { measurable -> measurable.parentData as UiKitTopBarItem }
+        items.value = collectedItems
 
-        layout(width = 0, height = 0) {
-            placeables.forEach { placeable -> placeable.place(x = 0, y = 0) }
+        val width = constraints.maxWidth
+        val height = constraints.maxHeight
+        val leadingInset = uiKitTopBarInset(buttonCount = collectedItems.count { item -> item is UiKitTopBarItem.NavigateUp })
+        val trailingInset =
+            uiKitTopBarInset(
+                buttonCount = collectedItems.count { item -> item is UiKitTopBarItem.Action && item.button.isVisible },
+            )
+        val betweenWidth = (width - leadingInset - trailingInset).coerceAtLeast(0)
+        val centeredWidth = (width - maxOf(leadingInset, trailingInset) * 2).coerceAtLeast(0)
+        val titlePlaceable =
+            measurables
+                .firstOrNull { measurable -> measurable.layoutId == TITLE_LAYOUT_ID }
+                ?.measure(Constraints(maxWidth = betweenWidth, maxHeight = height))
+
+        layout(width = width, height = height) {
+            itemPlaceables.forEach { placeable -> placeable.place(x = 0, y = 0) }
+            if (titlePlaceable != null) {
+                val x =
+                    when {
+                        !isTitleCentered -> leadingInset
+                        titlePlaceable.width <= centeredWidth -> (width - titlePlaceable.width) / 2
+                        else -> leadingInset + (betweenWidth - titlePlaceable.width) / 2
+                    }
+                titlePlaceable.placeRelative(x = x, y = (height - titlePlaceable.height) / 2)
+            }
         }
+    }
+}
+
+private fun Density.uiKitTopBarInset(buttonCount: Int): Int {
+    val horizontalPadding = DiaryTopBarDefaults.IosHorizontalPadding.roundToPx()
+
+    return if (buttonCount > 0) {
+        horizontalPadding + (DiaryTopBarDefaults.IosButtonSize * buttonCount + DiaryTopBarDefaults.IosTitleSpacing).roundToPx()
+    } else {
+        horizontalPadding
     }
 }
 
@@ -196,7 +266,12 @@ private class UiKitTopBarItemModifierNode(
     override fun Density.modifyParentData(parentData: Any?): Any = item
 }
 
-private val uiKitTitleScope = DiaryTopBarTitleScope { title -> UiKitTopBarTitleItem(title = title) }
+private val uiKitTitleScope =
+    DiaryTopBarTitleScope { title ->
+        if (title is DiaryTopBarTitle.Search) {
+            UiKitTopBarSearchItem(title = title)
+        }
+    }
 
 private val uiKitNavigationIconScope =
     DiaryTopBarNavigationIconScope { navigateUp ->
@@ -207,20 +282,6 @@ private val uiKitActionScope =
     DiaryTopBarActionScope { action ->
         UiKitTopBarItemNode(item = UiKitTopBarItem.Action(button = rememberUiKitTopBarButton(action = action)))
     }
-
-@Composable
-private fun UiKitTopBarTitleItem(title: DiaryTopBarTitle) {
-    when (title) {
-        is DiaryTopBarTitle.Text -> UiKitTopBarItemNode(item = UiKitTopBarItem.Title(text = title.text, subtitle = title.subtitle))
-
-        is DiaryTopBarTitle.Button ->
-            UiKitTopBarItemNode(
-                item = UiKitTopBarItem.TitleButton(text = title.text, button = rememberUiKitTopBarTitleButton(title = title)),
-            )
-
-        is DiaryTopBarTitle.Search -> UiKitTopBarSearchItem(title = title)
-    }
-}
 
 private class SearchFocusRequestCount {
     var value by mutableIntStateOf(0)
@@ -328,18 +389,6 @@ private fun rememberUiKitTopBarButton(action: DiaryTopBarAction): UiKitTopBarBut
     }
 
 @Composable
-private fun rememberUiKitTopBarTitleButton(title: DiaryTopBarTitle.Button): UiKitTopBarTitleButton {
-    val expandImage = rememberTemplateUIImage(imageVector = DiaryIcons.ArrowDropDown, size = DiaryTopBarDefaults.IosIconSize)
-    val collapseImage = rememberTemplateUIImage(imageVector = DiaryIcons.ArrowDropUp, size = DiaryTopBarDefaults.IosIconSize)
-
-    return UiKitTopBarTitleButton(
-        image = if (title.isExpanded) collapseImage else expandImage,
-        hintDescription = if (title.isExpanded) title.collapseContentDescription else title.expandContentDescription,
-        onClick = title.onClick,
-    )
-}
-
-@Composable
 private fun rememberUiKitTopBarSearch(
     title: DiaryTopBarTitle.Search,
     focusRequestCount: SearchFocusRequestCount,
@@ -359,3 +408,4 @@ private fun rememberUiKitTopBarSearch(
     )
 
 private const val TEXT_BUTTON_ID = "text"
+private const val TITLE_LAYOUT_ID = "title"
