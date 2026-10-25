@@ -56,7 +56,8 @@ internal class HolidayHomeScaffoldState(
 
 @Composable
 internal fun rememberHolidayHomeScaffoldState(
-    initialYear: Int = Clock.System.todayIn(TimeZone.currentSystemDefault()).year,
+    clock: Clock = Clock.System,
+    initialYear: Int = clock.todayIn(TimeZone.currentSystemDefault()).year,
     initialAnnualLeaveCount: Int = MIN_ANNUAL_LEAVE_COUNT,
 ): HolidayHomeScaffoldState =
     rememberSaveable(saver = HolidayHomeScaffoldState.Saver) {

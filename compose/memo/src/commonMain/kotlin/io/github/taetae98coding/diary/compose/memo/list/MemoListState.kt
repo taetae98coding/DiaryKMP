@@ -14,12 +14,13 @@ import kotlin.time.Clock
 @Stable
 public class MemoListState(
     initialToday: LocalDate? = null,
+    private val clock: Clock = Clock.System,
 ) {
     public var today: LocalDate? by mutableStateOf(initialToday)
         private set
 
     public fun updateToday() {
-        today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+        today = clock.todayIn(TimeZone.currentSystemDefault())
     }
 }
 
