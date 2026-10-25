@@ -6,10 +6,6 @@ on:
   pull_request:
     branches:
       - main
-  workflow_call:
-    secrets:
-      LOCAL_PROPERTIES:
-        required: true
 
 permissions:
   contents: read
